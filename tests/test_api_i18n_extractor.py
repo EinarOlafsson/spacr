@@ -793,7 +793,21 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # +11/-0 for formerly docless layer methods whose required parameters are
     # now described. The other 78 documented layer symbols gain structured
     # parameter blocks without changing this symbol count.
-    expected = 8748
+    # +82/-0, the accumulated public surface of the modules added since that
+    # sweep. Nothing was retired. By owner: 21 spacr.accelerator (the hardware
+    # resolver module, its Accelerator class and the capability predicates the
+    # README's hardware table is built from), 12 spacr.plaque (well detection,
+    # Well, PlaqueScale and the millimetre scale helpers), 10
+    # qt.widgets.fractal_travel (DepthPhase, RegionTour and the two pure
+    # helpers lifted out of the canvas), 9 qt.widgets.model_zoo_picker, 5
+    # qt.settings_pack, 5 across the screens that gained install_folds plus
+    # map_barcodes.build_registered_screen, 3 qt.app fold/tile helpers, 3
+    # qt.module_hints, 3 regression.DiagnosticsOpener, 2 each for
+    # spacr.model_zoo, spacr.submodules and console_panel's warning channel,
+    # and one each for qt.theme.menu_bar_background,
+    # fold_strip.FoldButton.set_verdict, the two new fractal modules and
+    # run_journal.delete_runs.
+    expected = 8830
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -808,7 +822,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8861
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8943
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
@@ -839,12 +853,16 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     assert not any(key.startswith("spacr._v1_v2_bridge") for key in docs)
     assert "spacr.qt.run_without_setup" not in docs
 
-    # The audited pre-filter inventory is now 8,968. Popup state and the eleven
-    # formerly docless layer methods enter both inventories. The same 16 canonical
-    # documents enter both inventories while six inherited aliases retire;
-    # 101 configured-ignore keys plus the six explicit exposure exceptions
-    # above remain absent.
-    assert 8_968 - len(docs) == 107
+    # The audited pre-filter inventory is now 9,123, and 180 of those entries
+    # are filtered out rather than the previous 107. The 82 admitted symbols
+    # named above enter both inventories and so do not move this difference.
+    # What moved it is the generated-resource bucket, 85 keys to 158: the
+    # localized runtime catalogs in ``spacr.qt.i18n_catalogs`` are generated,
+    # ignored by AutoAPI, and gained per-language entries as the catalogs grew.
+    # The other four buckets are unchanged -- 16 from the ignored Qt tutorial,
+    # one Qt launcher module, four compatibility bridge entries, and the
+    # CLI-only ``qt.run_without_setup`` function -- so 16 + 158 + 1 + 4 + 1.
+    assert 9_123 - len(docs) == 180
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

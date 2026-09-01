@@ -152,9 +152,9 @@
     {
       "table": "setting_tooltips",
       "key": "control_wells",
-      "source_sha256": "04f850464d06fc9082946d253fbbe5aebb36edc8d426adaf0e9e1e3046f8fb98",
-      "source": "Wells whose parasites carry no pre-permeabilisation stain, providing the empirical negative distribution used to set the threshold. Specify a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key. These staining-control wells are excluded from efficiency calculations because they are not experimental conditions. None uses the automatic per-field method. Screen regression uses this key for a separate purpose, where it must be a list matching filter_value. Default None. Regression initializes it from filter_value plus any declared control blocks; the shipped filter_value produces ['c1', 'c2', 'c3'].",
-      "translation": "寄生虫未携带预通透染色的孔，用于提供设置阈值所需的经验阴性分布。可指定列（'c12'）、行（'r1'）、孔（'r1_c12'）或完整的微孔板键。这些染色对照孔不是实验条件，因此不参与效率计算。None 使用自动的逐视野方法。筛选回归会将此键用于另一个目的，此时它必须是与 filter_value 匹配的列表。默认值为 None。回归会根据 filter_value 以及任何已声明的对照区组初始化此值；随附的 filter_value 会生成 ['c1', 'c2', 'c3']。"
+      "source_sha256": "380c2189435411b0a8b17720e81b26923b9f9e18bca40f81b8f5eb6f87e2e7bb",
+      "source": "These wells set the empirical negative distribution for the pre-permeabilisation stain and are excluded from efficiency calculations. Set a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key whose parasites received no stain; None uses the automatic per-field method. Screen Regression reuses this key for a list matching filter_value and initializes it from filter_value plus declared control blocks (the shipped default is ['c1', 'c2', 'c3']). Default None.",
+      "translation": "这些孔用于设定预通透染色的经验阴性分布，并且不参与效率计算。可指定寄生虫未接受染色的列（'c12'）、行（'r1'）、孔（'r1_c12'）或完整的微孔板键；None 使用自动的逐视野方法。筛选回归会将此键复用为与 filter_value 匹配的列表，并根据 filter_value 以及已声明的对照区组进行初始化（随附的默认值为 ['c1', 'c2', 'c3']）。默认值为 None。"
     },
     {
       "table": "setting_tooltips",

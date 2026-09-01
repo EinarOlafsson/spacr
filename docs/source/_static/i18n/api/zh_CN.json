@@ -71,6 +71,290 @@
         "c7624d80aa121ab929effeabb4426fadcdf4a1faeb66bd14b3ccc96e0fcb86d2"
       ]
     },
+    "spacr.accelerator": {
+      "source_blocks_sha256": [
+        "6a0727eb0e4a2017b52999065e6cee0c605bfbd7c02c49476897f6f4b870eef5",
+        "15dff90b56995b17fd1aa75bb409e01dab59b0979aef01687f92913453f098d8",
+        "99d4ce17199d371ee68c074f60b5d0a194a2875300fd5f7dcfb5f0a7f1adb3f7",
+        "8c64ff1aa50e85739b9ad280a75fc946984083709f4b392ec67ca309be3286ae",
+        "a14f18227402c2e74284729c483c05e77f5552f51e7c39d7f0097f0c826b5e09",
+        "d161ca04622e0fbb0d23c6b2c8d46d2fe64b8789e13c387322cb248c5433f821",
+        "cf41dfcad12f1c86581be6c1d2ecf4e3c6478c22e0adf6a7ca3928d1a5f52b62",
+        "453415f95bbd7ad1c741908f0e25af536265bae230853c21c9df6a207029d875",
+        "f2e09a5ff091661fadd97ef88d0132d9fbc70cdad21d55074f32402627e82547",
+        "ebee4687683583794e8c9e973edca24371996c35c536bc84d5913aa223bce733"
+      ],
+      "source_sha256": "61f96686df792b263d539bce0b6b6c7edd1f2ec26c4da53c0521cd1edf552449",
+      "text": "一个答案是“这应该发生什么,它被称为什么”。\n\n指示 319. spaCR 增加了 NVIDIA,所以大约四十五个呼叫网站问 ``torch.cuda.is_available()``,其中大多数意味着“有 GPU?”。 这些是不同问题在每个机器上不是 NVIDIA,并混合它们是什么使一个完美好的卡阅读为 \"no GPU\":\n\n* ROCm 答案 ``torch.cuda.is_available()`` **True** 想要 ``device=\"cuda\"``. 然后打印的代码 \"CUDA\" 是指不存在的供应商; 打印 \"no NVIDIA GPU\" 的代码是否认一个是。\n* Apple's Metal answers it **False** and wants ``device=\"mps\"``. This is the case the instruction under-describes: MPS is filed there under \"Apple Silicon\", but MPS is *Metal*, not an Apple-Silicon feature. On the Intel iMac this was written on it drives an AMD Radeon Pro 5300 -- measured 16x on conv2d inference and 2.7x on a training step against the same machine's CPU. ROCm has no macOS build at all, so Metal is the ONLY route to an AMD card on a Mac.\n\n因此,这个模块分别回答两个问题,而一个比两个更重要的第三个: *该设备无法做什么?*在MPS上重新指定一个发动机是不够的,因为三件事失败而不是衰退,每件事都被测量而不是假设:\n\n* ``float64`` 向上升 ``TypeError`` - 不是一个缓慢的路径,一个艰难的停车场. 想要双重准确的任何东西都必须留在 CPU 上。\n* ``autocast(device_type=\"mps\")`` 升 ``RuntimeError``. 混合精度必须分开,而不仅仅是重新标记。\n* 有些运营商只是缺席(``aten::linalg_qr.out``在他们中间)。 ``PYTORCH_ENABLE_MPS_FALLBACK=1``将从事故中变成一个安静的 CPU 转换,所以这个模块在选择 MPS 时设置它。\n\n发现和使用是报告的分离,指示是正确的坚持它. 一个设置筛选宣布一个加速器 spaCR 将永远不会发送比一个说什么更糟,因为用户然后责怪他们的硬件为 CPU 速度. 神经发动机是整个原因,区别在这里存在: 苹果神经引擎, Intel AI Boost 和 Qualcomm Hexagon 都是真实的硅,没有移动的 torch 设备,所以它们被命名为 FOUND 和从未选择。\n\n一个半安装的ROCm,一个破碎的驱动程序,一个 torch 没有一个背景它广告 - 所有解决到 CPU 一个笔记。",
+      "translation_source_blocks_sha256": [
+        "6a0727eb0e4a2017b52999065e6cee0c605bfbd7c02c49476897f6f4b870eef5",
+        "15dff90b56995b17fd1aa75bb409e01dab59b0979aef01687f92913453f098d8",
+        "99d4ce17199d371ee68c074f60b5d0a194a2875300fd5f7dcfb5f0a7f1adb3f7",
+        "8c64ff1aa50e85739b9ad280a75fc946984083709f4b392ec67ca309be3286ae",
+        "a14f18227402c2e74284729c483c05e77f5552f51e7c39d7f0097f0c826b5e09",
+        "d161ca04622e0fbb0d23c6b2c8d46d2fe64b8789e13c387322cb248c5433f821",
+        "cf41dfcad12f1c86581be6c1d2ecf4e3c6478c22e0adf6a7ca3928d1a5f52b62",
+        "453415f95bbd7ad1c741908f0e25af536265bae230853c21c9df6a207029d875",
+        "f2e09a5ff091661fadd97ef88d0132d9fbc70cdad21d55074f32402627e82547",
+        "ebee4687683583794e8c9e973edca24371996c35c536bc84d5913aa223bce733"
+      ]
+    },
+    "spacr.accelerator.Accelerator": {
+      "source_blocks_sha256": [
+        "4341189fdc373cb717f0c45a5ebadeb1dbab7d707e79224c067d9a4e9e2c3775",
+        "032f14a0ef36aa093eba3ed56926180bd3f204a61e41f0d1700c654012a0b271",
+        "f427eb694f9c750f736b945e6d37e0210f843c9898ac992baad883d730edf6d9",
+        "fad4ec73de4cc2bd3fc370c09e5c715851b51bc9a90fd5a4cd43f71c038042e2",
+        "bf08ecc5b0e47142a6751870646db29e7279df57a64df24e53b815f024ab5725",
+        "16b10a5f716e3dc5775c54550b941ff1ec21d6b028157374ba387f7b00e2d64b",
+        "70be5e7d6d7325a7b164b6b6ad65094099854507c61dc921e87148a56c9ae96d",
+        "e1795cecdd2fb464ec0ddc68d73203dd157c660acc994b245b9e0a9a048beb7f",
+        "037e68bd2b501058b6e0df88d3158920f2676ebffc502000914727ee4a6fe302",
+        "1c1152a4d0f4b2ab229be147c05415c5c55c17b98fdfe363177106de5e3ca444",
+        "8c3f8b52c28abc29634a890c2081561d4626aea70d9a82e9ec53aaeb86701b03"
+      ],
+      "source_sha256": "40029cfd16268cde677cb4dfc32135ad117e94a80a09fcd88a44ad623a12a103",
+      "text": "什么 spaCR 会计算,以及它可以说什么。\n\n:param kind: 其中一个是 :data:`KINDS`. ``rocm`` 与 ``cuda`` 特别不同,尽管两者都发送到 ``device=\"cuda\"``,因为用户唯一能采取行动的是真正的供应商。\n:param device: 字符串到手``torch.device``。\n:param label: 用户面向文本为设置幻灯片和医生。\n:param detected: 硬件是存在的。\n:param usable: spaCR 实际上将发送到它. 除 ``detected`` 否则,永远不会真实; 没有 torch 设备的加速器的虚假。\n:param note: 为什么不使用,当它不存在时。\n:param float64: 该设备接受了双重准确性。\n:param autocast: ``torch.autocast`` 接受此设备类型。\n:param fallback: 失踪的运营商静静地运行在 CPU 而不是扔,因为这个模块设置了后端的落后旗。\n:param bfloat16: the device accepts ``torch.bfloat16``. PROBED rather than assumed from the backend name, because it is the one capability that moves with the torch version: Metal gained it after 2.2, and 2.2.2 is the last x86-64 macOS wheel, so the same backend answers differently on an Intel Mac and an Apple Silicon one. Cellpose's cpsam loads its weights in bfloat16 by default, so a wrong answer here is a TypeError at model construction.",
+      "translation_source_blocks_sha256": [
+        "4341189fdc373cb717f0c45a5ebadeb1dbab7d707e79224c067d9a4e9e2c3775",
+        "032f14a0ef36aa093eba3ed56926180bd3f204a61e41f0d1700c654012a0b271",
+        "f427eb694f9c750f736b945e6d37e0210f843c9898ac992baad883d730edf6d9",
+        "0dbca15bb985fb40e3794d1917474cb7552a1399c015461742fdee73d0db0f36",
+        "bf08ecc5b0e47142a6751870646db29e7279df57a64df24e53b815f024ab5725",
+        "16b10a5f716e3dc5775c54550b941ff1ec21d6b028157374ba387f7b00e2d64b",
+        "70be5e7d6d7325a7b164b6b6ad65094099854507c61dc921e87148a56c9ae96d",
+        "e1795cecdd2fb464ec0ddc68d73203dd157c660acc994b245b9e0a9a048beb7f",
+        "037e68bd2b501058b6e0df88d3158920f2676ebffc502000914727ee4a6fe302",
+        "6d4f4326eb8c8e1ad96359aed736cc83e0219554bfd498013b7cb6256fdda598",
+        "8c3f8b52c28abc29634a890c2081561d4626aea70d9a82e9ec53aaeb86701b03"
+      ]
+    },
+    "spacr.accelerator.Accelerator.is_cuda": {
+      "source_blocks_sha256": [
+        "4cc1e361a59dd5b8b677d9b1f2c0d3e2ecaf410621f4f8234d9976ff7d0a3f5a",
+        "19b1041774af16e43efeceb67ba4c69173e9bc8ad96c57769761e34833816668"
+      ],
+      "source_sha256": "75a2cb10792ad3fa36faff9aa79649277f29ba5384c43e0a4af1f0752b051778",
+      "text": "这是真的 NVIDIA CUDA。\n\n比 :attr:`is_gpu` 更微妙,故意是这样:任何阅读 ``nvidia-smi``,一个 CUDA 版本或 NVIDIA 特定的内存界面都想要这个,并且在 ROCm 上会错误。",
+      "translation_source_blocks_sha256": [
+        "4cc1e361a59dd5b8b677d9b1f2c0d3e2ecaf410621f4f8234d9976ff7d0a3f5a",
+        "19b1041774af16e43efeceb67ba4c69173e9bc8ad96c57769761e34833816668"
+      ]
+    },
+    "spacr.accelerator.Accelerator.is_gpu": {
+      "source_blocks_sha256": [
+        "ad2a0db989f68883110633f2987354e746226875fe34ada912e3aa43df8aad8f",
+        "60ec10a2f1b0fdb06af28e99ca79a706f5e11909dd1f82b2674ba386906b5f79"
+      ],
+      "source_sha256": "8df64a6f814be9f6c87fe66f0d61f21fc839e7b9d4830a868eb337420fc8cc37",
+      "text": "Is there a usable non-CPU device.\n\n最常被问及当他们写了 ``torch.cuda.is_available()`` 时,会出现当前的呼叫。",
+      "translation_source_blocks_sha256": [
+        "ad2a0db989f68883110633f2987354e746226875fe34ada912e3aa43df8aad8f",
+        "60ec10a2f1b0fdb06af28e99ca79a706f5e11909dd1f82b2674ba386906b5f79"
+      ]
+    },
+    "spacr.accelerator.Accelerator.torch_device": {
+      "source_blocks_sha256": [
+        "cb6d8ac22b8e400273dd2974272c1df7665544eba4cfad6245e5ab0d1afe5dd6"
+      ],
+      "source_sha256": "ccbd0918a3838f05bdbf83e756f06f7499ee7a418857648c39093eaa0be697cb",
+      "text": "``torch.device`` 为 :attr:`device` 或 CPU 如果 torch 完全缺席。",
+      "translation_source_blocks_sha256": [
+        "cb6d8ac22b8e400273dd2974272c1df7665544eba4cfad6245e5ab0d1afe5dd6"
+      ]
+    },
+    "spacr.accelerator.autocast_device_type": {
+      "source_blocks_sha256": [
+        "995d81791d5ffb824bff678e0866866e73124b8c50f856aa17b9cd6206a92f00",
+        "471cb7d35648f2113d56e0d3d032c3e3e8e938e62c2d2c2d3911d3eff8080b5e"
+      ],
+      "source_sha256": "3f7c2806ee2eea2cdb86788bfca0e862a8100fd0034cfff4c8ddbec10e1fe86f",
+      "text": "字符串为 ``torch.autocast(device_type=...)`` 或 None。\n\nNone 意思是“不要在这里使用混合精度”,这与“在 CPU 上使用它”的不同答案,必须保持可区分。",
+      "translation_source_blocks_sha256": [
+        "995d81791d5ffb824bff678e0866866e73124b8c50f856aa17b9cd6206a92f00",
+        "471cb7d35648f2113d56e0d3d032c3e3e8e938e62c2d2c2d3911d3eff8080b5e"
+      ]
+    },
+    "spacr.accelerator.capabilities": {
+      "source_blocks_sha256": [
+        "bb17469948889fd716609bc9354f42ff9208fe80f8df24f63820cdc5013e721f",
+        "a7f7a6a6bb252b0fe58d0189634b4a19c8f0f605674e595b09ed55f034f37b6c",
+        "ceebdaf460cfe33da36b24422bc85c6b023f4c7baf1f5005b99569f54d3abccb"
+      ],
+      "source_sha256": "3431462a61d298e6530beeeb4f8020d2456373dffe5089f6ddf1522904543174",
+      "text": "``(task, accelerated, detail)``为这个机器实际上可以做什么。\n\nWHAT THE SETUP SCREEN IS FOR. \"Compatible GPU\" on its own answers a question nobody asked: users want to know whether THE SLOW STEP will be slow. So this reports per task, and it reports the truth per backend rather than one verdict for all of them -- on Metal the segmentation and the machine-learning classification model are accelerated while the cuML reductions are not, and a single green tick would be a lie about the second.\n\n由加速值多少命令: CPU 上的分区为 1 张 256x256 张图像,在机器上写的图像为 444 秒,在 Radeon 上的图像则为 3.2 秒。",
+      "translation_source_blocks_sha256": [
+        "bb17469948889fd716609bc9354f42ff9208fe80f8df24f63820cdc5013e721f",
+        "46f9f29437d8821e086ce0ca7348ca97062f038b37854a25070619cbf0c48629",
+        "ceebdaf460cfe33da36b24422bc85c6b023f4c7baf1f5005b99569f54d3abccb"
+      ]
+    },
+    "spacr.accelerator.cellpose_gpu": {
+      "source_blocks_sha256": [
+        "0b62e0e446eafbccf41cbe6c9cc22e8d176323cb92ba1159b2c966a0a8ed2a9e",
+        "680ac631422960a10b7ec9926dfe92422e6cd9d1994ac8c57570c21123c35bf4"
+      ],
+      "source_sha256": "c46df9d94f4eac4458246f4ae659eead3d7208e04e4d767bd5a97761efd71a6c",
+      "text": "如何通过 cellpose 作为 ``gpu=``。\n\nCellpose does its own device resolution and already knows about MPS -- ``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it cannot do is guess, so it must be TOLD there is a GPU. Passing ``torch.cuda.is_available()`` here is what pinned every Mac to the CPU: cellpose branches on this flag before it looks at ``device`` at all.",
+      "translation_source_blocks_sha256": [
+        "0b62e0e446eafbccf41cbe6c9cc22e8d176323cb92ba1159b2c966a0a8ed2a9e",
+        "680ac631422960a10b7ec9926dfe92422e6cd9d1994ac8c57570c21123c35bf4"
+      ]
+    },
+    "spacr.accelerator.cellpose_kwargs": {
+      "source_blocks_sha256": [
+        "e56dc47dab72c547814747d0536afad7208612fcaf0e560166feba83607cbfc1",
+        "22cce6a0256a4486d5aedf633158b0d7ed49d09dd4719779936ed384862f9669",
+        "b4def188b67888a1c8888cd7b22f157c1092cdb746660f4987497047327752cc",
+        "a774f565e91f075b1a3583fee07834268085a5981a0beae077675f8fe2a4abf5",
+        "4a511fda210971a1653f51074ea2d28995aadbfefdcc584d8202972ed0680c7e",
+        "4c3579b4fb865a18864e51f71a775a321c707ec77978c6241d35dde7e63f6246"
+      ],
+      "source_sha256": "be36b28490263dafa1d73f9cae0eed747160d2c560e41269b1044cce14cb8c8c",
+      "text": "所有 ``CellposeModel`` 都需要在此机器的 GPU 上登陆。\n\n必须承认的三个论点,这就是为什么它们在六个电话网站上显示而不是一起制作:\n\n* ``gpu`` -- cellpose 分支在此前它看为 ``device``,所以没有旗帜的设备仍然采取 CPU 路径。\n* ``device`` - 从一个解决,所以 cellpose 和 spaCR 不能不同意相同的机器。\n* ``use_bfloat16`` -- cpsam 按默认负载其重量在 bfloat16 和 Metal 在 torch 2.2 没有 bftoat16,所以默认是 ``TypeError: BFloat16 is not supported on MPS`` 在建设中。\n\n通过 ``device=None`` 的呼叫者 - 让 cellpose 解决它 - 应该从这里取出 ``gpu`` 和 ``use_bfloat16`` 并下载 ``device``。",
+      "translation_source_blocks_sha256": [
+        "e56dc47dab72c547814747d0536afad7208612fcaf0e560166feba83607cbfc1",
+        "22cce6a0256a4486d5aedf633158b0d7ed49d09dd4719779936ed384862f9669",
+        "b4def188b67888a1c8888cd7b22f157c1092cdb746660f4987497047327752cc",
+        "a774f565e91f075b1a3583fee07834268085a5981a0beae077675f8fe2a4abf5",
+        "4a511fda210971a1653f51074ea2d28995aadbfefdcc584d8202972ed0680c7e",
+        "4c3579b4fb865a18864e51f71a775a321c707ec77978c6241d35dde7e63f6246"
+      ]
+    },
+    "spacr.accelerator.describe": {
+      "source_blocks_sha256": [
+        "50187888980228409563692b60f9bab41464d6b8a0e9276b163e14057a8689db"
+      ],
+      "source_sha256": "50187888980228409563692b60f9bab41464d6b8a0e9276b163e14057a8689db",
+      "text": "一个日志或控制台的行:什么被发现,是否运行。",
+      "translation_source_blocks_sha256": [
+        "50187888980228409563692b60f9bab41464d6b8a0e9276b163e14057a8689db"
+      ]
+    },
+    "spacr.accelerator.device_string": {
+      "source_blocks_sha256": [
+        "5b0d1ebea88cb88252f1dd4048f4ffdfb073bc0868c3c000b9e89c651cd56a48"
+      ],
+      "source_sha256": "5b0d1ebea88cb88252f1dd4048f4ffdfb073bc0868c3c000b9e89c651cd56a48",
+      "text": "解决的装置作为一条线,例如 ``\"cuda:0\"``, ``\"mps\"``。",
+      "translation_source_blocks_sha256": [
+        "5b0d1ebea88cb88252f1dd4048f4ffdfb073bc0868c3c000b9e89c651cd56a48"
+      ]
+    },
+    "spacr.accelerator.empty_cache": {
+      "source_blocks_sha256": [
+        "2e214e3e0b1555b714c84b246ac05923a68f3e12987aa77754377881478d98e5",
+        "6a760af003e1f8e495805ec1ac45e9cd012f9e1fbc7ae0c32ddfb16c2196b05c"
+      ],
+      "source_sha256": "39b9c29b3095048ed01a18697cf4d7fdeaf49840fecf9dce6ad8723a734dd396",
+      "text": "手把司机拿回来,无论这个背端什么都隐藏,永远不会扔掉。\n\n:param torch_module: ask about THIS torch instead of the cached answer for the machine. :mod:`spacr.qt.resource_cleanup` holds its own handle -- it deliberately does not import torch just to free memory -- and a cached global would send the call to the wrong backend when that handle is a stand-in.",
+      "translation_source_blocks_sha256": [
+        "e9765619d64d6b5ce02a76cdcaae3dc8fa81566daab530392259db755a341e5a",
+        "6a760af003e1f8e495805ec1ac45e9cd012f9e1fbc7ae0c32ddfb16c2196b05c"
+      ]
+    },
+    "spacr.accelerator.inspect_torch": {
+      "source_blocks_sha256": [
+        "6317ab68f7a35c5378a64f15fc48a732fc26144c27f80a19b521e123ac0db953",
+        "9d1bdde5e14f6f9df4624af51775d04ee57d910b3dfad0b055c25cd294dc846d"
+      ],
+      "source_sha256": "89905add35f6e46b7884000568e55fb3e362aef092cf770201cdf4e02de7ebd9",
+      "text": "反对 SPECIFIC torch 模块,无需触摸缓存。\n\nFor callers that already hold a torch handle and must be answered about that one -- :func:`spacr.doctor.check_gpu` is the case: it imports torch through its own indirection so the diagnosis can be exercised against a stand-in, and a cached answer about the real machine would defeat that entirely. Same probes and same order as :func:`resolve`, so the two cannot drift.",
+      "translation_source_blocks_sha256": [
+        "6317ab68f7a35c5378a64f15fc48a732fc26144c27f80a19b521e123ac0db953",
+        "9d1bdde5e14f6f9df4624af51775d04ee57d910b3dfad0b055c25cd294dc846d"
+      ]
+    },
+    "spacr.accelerator.is_cuda": {
+      "source_blocks_sha256": [
+        "9afb729c3b683cc6f20a8353d791d4d808ab0051af642ce9b1e5eb2d8e2ca656",
+        "464f092322d2b8bd7ce6e316ef111143293e2959f6a0d8ff5aefda5c6d0d4909"
+      ],
+      "source_sha256": "fcf1d0bbb604ffda019d26ca0b23adf7c296932c46e35a3d60b628545a75e2a7",
+      "text": "解决的加速器是真正的 NVIDIA CUDA。\n\n对于合法需要 CUDA 具体 - 记忆查询, ``nvidia-smi`` 建议, CUDA 版本报告。",
+      "translation_source_blocks_sha256": [
+        "9afb729c3b683cc6f20a8353d791d4d808ab0051af642ce9b1e5eb2d8e2ca656",
+        "464f092322d2b8bd7ce6e316ef111143293e2959f6a0d8ff5aefda5c6d0d4909"
+      ]
+    },
+    "spacr.accelerator.is_gpu": {
+      "source_blocks_sha256": [
+        "3c560283890f10dc867d39b641440531d81a1b4b5a162ebe69848f432b7c601e",
+        "ed21ba5b37e2c3eb68dc2ed548ee1a7375f9fdf9cce5d4cecabf44844404b59a"
+      ],
+      "source_sha256": "c7c2492a485dea49cd29c0d86b946a285fbef19208390b3924ea9a8ba04cb3f6",
+      "text": "是否有任何供应商可用的加速器?\n\n一个通话网站在写 ``torch.cuda.is_available()`` 时意味着什么,以便决定是否使用 GPU。",
+      "translation_source_blocks_sha256": [
+        "3c560283890f10dc867d39b641440531d81a1b4b5a162ebe69848f432b7c601e",
+        "ed21ba5b37e2c3eb68dc2ed548ee1a7375f9fdf9cce5d4cecabf44844404b59a"
+      ]
+    },
+    "spacr.accelerator.neural_engines": {
+      "source_blocks_sha256": [
+        "cefa51270f5cbff34a6f4adf304a12e51303c9018d80e6a6eea64b4926c4c61e",
+        "793621758e6340a4a792461f46091f26e0f14a998f684b74fd5b13fd2baf9cca"
+      ],
+      "source_sha256": "6a01b8415d8d44b160edbfa32eed027bc63b461887502bd57a79fc956c8c21d9",
+      "text": "注入现有硅,并且 spaCR 将不使用。\n\n因此,设置幻灯片可以说“发现,不使用”,而不是让用户想知道为什么他们的神经引擎是偶然的。 没有任何一个可携带的 torch 设备 - ANE 仅通过 CoreML 可访问,英特尔的 AI Boost 只有通过 OpenVINO - 所以称之为计算机设备将是一个承诺,没有任何东西可以保持。",
+      "translation_source_blocks_sha256": [
+        "cefa51270f5cbff34a6f4adf304a12e51303c9018d80e6a6eea64b4926c4c61e",
+        "793621758e6340a4a792461f46091f26e0f14a998f684b74fd5b13fd2baf9cca"
+      ]
+    },
+    "spacr.accelerator.resolve": {
+      "source_blocks_sha256": [
+        "71f3c04fb83fe480fde852a007279d76c29c6b225715508e51739b2e546c0eb9",
+        "73c9663388611bd7865e72d97897e77ead3ee64a753bf0183dc2ecf909ac6693"
+      ],
+      "source_sha256": "ed55e31201a7ca0914eadebdc6fdf3d0275cc79bffe63e699ed55d55920d7c6f",
+      "text": "加速器 spaCR 将使用. 隐藏; 永远不会扔。\n\n:param refresh: 再试一次,而不是从缓存中回复,对于测试,这些测试是假的。",
+      "translation_source_blocks_sha256": [
+        "7b80b1b4c4573c0dcf36f1d87278de86fc9cea75f55cb5ee6fbd93f46c1e3ac1",
+        "73c9663388611bd7865e72d97897e77ead3ee64a753bf0183dc2ecf909ac6693"
+      ]
+    },
+    "spacr.accelerator.supports_autocast": {
+      "source_blocks_sha256": [
+        "dcce0709e9d25f9ee120b6ffaaba0b63ff7118a4791ec66e9a76ea94be8d9083"
+      ],
+      "source_sha256": "dcce0709e9d25f9ee120b6ffaaba0b63ff7118a4791ec66e9a76ea94be8d9083",
+      "text": "是否 ``torch.autocast`` 接受此类设备。",
+      "translation_source_blocks_sha256": [
+        "dcce0709e9d25f9ee120b6ffaaba0b63ff7118a4791ec66e9a76ea94be8d9083"
+      ]
+    },
+    "spacr.accelerator.supports_bfloat16": {
+      "source_blocks_sha256": [
+        "5bad95acc7fc913082a3cfab99013e734294a26663851731479016d0cf6b2934"
+      ],
+      "source_sha256": "5bad95acc7fc913082a3cfab99013e734294a26663851731479016d0cf6b2934",
+      "text": "是否可以将 ``torch.bfloat16`` 压缩机放在设备上。",
+      "translation_source_blocks_sha256": [
+        "5bad95acc7fc913082a3cfab99013e734294a26663851731479016d0cf6b2934"
+      ]
+    },
+    "spacr.accelerator.supports_float64": {
+      "source_blocks_sha256": [
+        "6ca134b14596b6530f247dd6be7c2b001e0a42d111eec4ca3d362fc524d2e3f6"
+      ],
+      "source_sha256": "6ca134b14596b6530f247dd6be7c2b001e0a42d111eec4ca3d362fc524d2e3f6",
+      "text": "是否可以将双准确性发送到设备上。",
+      "translation_source_blocks_sha256": [
+        "6ca134b14596b6530f247dd6be7c2b001e0a42d111eec4ca3d362fc524d2e3f6"
+      ]
+    },
+    "spacr.accelerator.torch_device": {
+      "source_blocks_sha256": [
+        "7aa10622c8586fbe6e244c521f09abc84f60063a47bed43ba90b8702aa7cc157",
+        "064e19296edc2fd16fa26f9a4da33b8fde33b851a7ce4a8fb9092a0bda8eefb9"
+      ],
+      "source_sha256": "5081bfcb3af6754254ed5933d972cda0d5b78d2a115cfad6c7304e163138f135",
+      "text": "``torch.device`` 为解决的加速器。\n\n直接替换为 ``torch.device(\"cuda:0\" if torch.cuda.is_available() else \"cpu\")``。",
+      "translation_source_blocks_sha256": [
+        "7aa10622c8586fbe6e244c521f09abc84f60063a47bed43ba90b8702aa7cc157",
+        "064e19296edc2fd16fa26f9a4da33b8fde33b851a7ce4a8fb9092a0bda8eefb9"
+      ]
+    },
     "spacr.active_learning": {
       "source_blocks_sha256": [
         "ad02092d00cb13b31d72e0020474b106724600648bac8c4865aa1896d88387a5",
@@ -10990,7 +11274,7 @@
         "30f5db716c5321c029205fb20bed20737f71fc336215465f4e111b963299b6bb",
         "f5a3891f2aca490d5c737940a5d0be4914b86e2b967ef0741fc3822c9b9e4f05",
         "e0ca4472b134720edba0ce728751d3c31211058eaa5b861a55f422428fdfcaae",
-        "cdbcac4248f5452793cc57ecc68155ff793302a9751a4b190cd6c9b2bf3c8f35",
+        "a822162a2c83f27981d0ccb9521e605b59c46fe7716f1361e9884ed2cca267d5",
         "76da8fd26dd640f20604df3f309b11d6cfad804e3285f6a242b06658edc90d4a",
         "f156737bd7777fb3403d9b269ec7bf3af4482e5f2d473182308eb40a771266da",
         "4a26450667f19313c64cd55bfab6fe92569d4de4128fb847e4f1af26483b1f65",
@@ -11002,8 +11286,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "df0cbfc8461e60b6d422e6a304b7cc5c2df95262a05d3556c59f572dd13e7818"
       ],
-      "source_sha256": "3996af7f9926e613d27f7d3b85a473676bddd463636afd205e3b40d45e68d57e",
-      "text": "显微镜图像文件夹转换为每个图像数据通道 Cellpose 掩码,可用于 :func:`spacr.measure.measure_crop`。\n\n给定包含多图像数据通道图像的源文件夹 ``src``，该工作流会：(1) 可选地合并嵌套文件夹中的输入；(2) 将文件重命名为下游使用的 Yokogawa 布局；(3) 逐图像数据通道预处理数组；(4) 通过 Cellpose（SAM 变体）为细胞 / 细胞核 / 病原体 / 细胞器图像数据通道生成掩模；(5) 可选地依据细胞核和病原体叠加结果校正细胞掩模；以及 (6) 写出叠加图，并在输出旁保存 ``gen_mask_settings.csv``。\n\n:param settings: 设置关键值地图; 通过 :func:`spacr.settings.set_default_settings_preprocess_generate_masks` 可通化. 必须包含 ``src`` 和至少其中一个 ``cell_channel``, ``nucleus_channel``、 ``pathogen_channel`` 或 ``organelle_channel``. 结构数据输入函数阅读:\n\n    - ``src``(str 或 str 的列表) — 图像文件夹(s) 处理。\n    - ``metadata_type`` — ``'cellvoyager'`` 或 ``'auto'`` (使用 ``custom_regex`` 当设置时)。\n    - ``cell_channel`` / ``nucleus_channel`` / ``pathogen_channel`` /``organelle_channel`` — 0 基于频道的指数; ``None`` 航线。\n    - ``cell_diameter`` / ``nucleus_diameter`` / ``pathogen_diameter`` — Cellpose 对象直径在像素。\n    - ``pathogen_model`` - 删除. 病原体与其他任何物体一样被 cpsam 分区; pre-SAM toxo 检查点已消失。\n    - ``consolidate`` - 将粘贴图像复制到 ``src/consolidated`` 之前处理。\n    - ``preprocess`` / ``masks`` - 将工作流的两半分。\n    - ``adjust_cells`` - 和解细胞掩膜对核 + 病原体。\n    - ``timelapse`` — 允许 trackpy 连接; 力量 ``randomize=False``。\n    - ``dry_run`` - 只验证:检查输入文件夹,打印预标报告和计划和返回,没有写任何东西或加载模型。\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` 在正常的行程中,有写掩膜,上层, ``measurements.db`` 计算和设置 CSVs 到分子中 ``src``什么时候 ``dry_run`` 已设置,而不是返回问题列表 :func:`spacr.validate.run_preflight`.\n:raises ValueError: 如果 ``src`` 缺席或错误类型,或者没有分区频道被定义。\n\n示例：\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\n此外,请参见: :func:`spacr.io.preprocess_img_data` — 仅为预处理的一半。 :func:`spacr.measure.measure_crop` — 下流功能提取。",
+      "source_sha256": "106e3b3159d69d117144e8c1a332713778fa3a75ed041bf5f3802330dd3944db",
+      "text": "Turn a folder of raw microscopy images into per-image data channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.\n\nGiven a source folder ``src`` of multi-image data channel images, this workflow (1) optionally consolidates inputs from nested folders, (2) renames files to the Yokogawa layout used downstream, (3) preprocesses per-image data channel arrays, (4) generates masks for cell / nucleus / pathogen / organelle image data channels via Cellpose (SAM variant), (5) optionally reconciles the cell mask against nuclei + pathogen overlays, and (6) writes overlay plots and a ``gen_mask_settings.csv`` next to the outputs.\n\n:param settings: 设置关键值地图; 通过 :func:`spacr.settings.set_default_settings_preprocess_generate_masks` 可通化. 必须包含 ``src`` 和至少其中一个 ``cell_channel``, ``nucleus_channel``、 ``pathogen_channel`` 或 ``organelle_channel``. 结构数据输入函数阅读:\n\n    - ``src``(str 或 str 列表) — 图像文件夹(s)处理。\n    - ``metadata_type`` — ``'cellvoyager'`` 或 ``'auto'`` (在设置时使用 ``custom_regex``)。\n    - ``cell_channel`` / ``nucleus_channel`` /``pathogen_channel``/ ``organelle_channel`` — 基于 0 的频道指数; ``None`` 滑板。\n    - ``cell_diameter`` / ``nucleus_diameter``/ ``pathogen_diameter`` — Cellpose 对象直径在像素中。\n    - ``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment pathogens with, instead of stock ``cpsam``. The pre-SAM ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to ``cpsam``; a PATH to a fine-tune is honoured, and a path that is not there stops the run rather than silently using stock weights.\n    - ``consolidate`` - 在处理之前将粘贴图像复制到 ``src/consolidated``。\n    - ``preprocess`` / ``masks`` - 将工作流的两半分。\n    - ``adjust_cells`` - 和解细胞掩膜对核 + 病原体。\n    - ``timelapse`` — 允许 trackpy 连接; 力量 ``randomize=False``。\n    - ``dry_run`` - 只验证:检查输入文件夹,打印预标报告和计划和返回,没有写任何东西或加载模型。\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` on a normal run, having written masks, overlays, ``measurements.db`` counts and settings CSVs into subfolders of ``src``. When ``dry_run`` is set, returns instead the list of problems from :func:`spacr.validate.run_preflight`.\n:raises ValueError: 如果 ``src`` 缺席或错误的类型,或者没有分区频道被定义。\n\n例子:\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\n此外,请参见: :func:`spacr.io.preprocess_img_data` — 仅预处理的一半. :func:`spacr.measure.measure_crop` — 下流功能提取。",
       "translation_source_blocks_sha256": [
         "366be24510440a273cbaba7959fe628cb0f26e8c20215e13824a60d0ef5f95e0",
         "5afca811e741b3d6db1bbf2850514b3ac5b11f100ceed1f08a8e759717d5dc42",
@@ -11012,7 +11296,7 @@
         "30f5db716c5321c029205fb20bed20737f71fc336215465f4e111b963299b6bb",
         "f5a3891f2aca490d5c737940a5d0be4914b86e2b967ef0741fc3822c9b9e4f05",
         "e0ca4472b134720edba0ce728751d3c31211058eaa5b861a55f422428fdfcaae",
-        "cdbcac4248f5452793cc57ecc68155ff793302a9751a4b190cd6c9b2bf3c8f35",
+        "a822162a2c83f27981d0ccb9521e605b59c46fe7716f1361e9884ed2cca267d5",
         "76da8fd26dd640f20604df3f309b11d6cfad804e3285f6a242b06658edc90d4a",
         "2084c6cc53377ead874cde4aced38e5f71c9a114dfe900d97f5115dcd6ae753c",
         "4a26450667f19313c64cd55bfab6fe92569d4de4128fb847e4f1af26483b1f65",
@@ -36932,8 +37216,8 @@
         "d029f87e3d80f8fd9b1be67c7426b4cc1ff47b4a9d0a8461c826a59d8c5eb6cd",
         "c685efdcd6fe024ea405d69f6df68566cb667ce83b3158ea7ac1164abf9ab10c"
       ],
-      "source_sha256": "12fce4f1aff95c588516f17b61e2bc0e19f8c8a79bfeebbdfc48af0f695c2ee1",
-      "text": "浏览、验证、捕捉和比较 spaCR 分区和分类模型。\n\n为什么这种存在\n---------------\nspaCR 可以运行 Cellpose 模型, Cellpose 模型的任何人在去年精心编写的团队上,从处理会议上进行 3 个文件夹的机械学习分类模型检查点,或从 Hugging Face 下载的检查点。 今天,唯一的方法是找出哪个在机器上存在的是``find / -name '*.pth'``,唯一的方法是知道其中一个是如何训练的,是记住,唯一的方式是知道磁盘上的副本是否是作者发布的文件是希望。\n\n这个模块回答了这三个问题,没有别的:\n\n* **什么是这里** — :func:`discover_local` 通行文件夹并返回被列为 Cellpose 或机械学习分类模型的检查点,从 spaCR 已经写的设置中可恢复的任何来源;\n* **是正确的** - :func:`sha256_file` / :func:`verify` / :func:`fetch`,它原子下载,检查到达的东西,拒绝安装错误;\n* **它在我的数据上做什么** — :func:`benchmark`,谁是 :mod:`spacr.model_compare`'s \"three fields\" 哈里斯指的是一个模型而不是两个模型。\n\n这里没有进口 torch 或 cellpose 在模块进口时间. 浏览动物园,阅读起源,检查一个文件,并使桌子所有工作在一个机器上,没有安装; 只有 :func:`benchmark` (通过 :func:`spacr.model_compare.segment_with_cellpose`)需要它们,只有当它被召唤时。 ``tests/test_model_zoo.py`` 声称是这样。\n\n四件事使它更可靠,而不是简单方便\n------------------------------------------------------------------------\n**每个下载都被检查,并且在使用前进行验证.** 由下载连接或交换到相同URL的另一个控制点,仍在加载。 它不会扔掉; 它静静地产生了不同的掩膜,它所使用的跑步看起来就像没有跑步的。 因此, :func:`fetch` 将到达的标签与发布的目录标签进行比较:错误会删除文件并将 :class:`ChecksumMismatch` 扔掉 - 输入从未注册。 实际计算的哈希存储在返回输入上,因此 \"verified\" 意味着 \"these bytes\",而不是 \"this filename\".\n\n    没有发布的标签的目录输入不能完全验证,并且默认拒绝(``require_checksum=True``)而不是安静地被视为善良的召唤者,故意接受不可验证的源通道 ``require_checksum=False``• 输入所产生的输入 ``verified=False`` 他这样说在 :func:`format_zoo`.\n\n**每次下载都是原子,并且永远不会过写。** 将流量转换为临时文件 *在目的地目录* (因此,最终的 ``os.replace`` 是一个相同的文件系统名称,这是原子) 并且名称只有在检查通行后才会发生。\n\n    目的地是版本的,而不是过写(:func:`versioned_path`: ``foo.CP_model``, ``foo_v2.CP_model``, ... ) 两个模型具有相同的字符号是正常的事情;失去第一到第二是不可能的。\n\n**Provenance 被录制,并且 \"unknown\" 被写在完整的** 一个 Cellpose 模型在 60x confluent HeLa 是不可交换的一个训练在 20x sparse fibroblasts,并且没有数量的基准分数使它如此. 一个模型被训练是唯一最有用的东西,动物园可以显示,所以 :class:`ModelEntry` 携带 :attr:`~ModelEntry.trained_on` 和 :attr:`~ModelEntry.trained_by`,从设置中恢复的 spaCR 已经写在其模型旁边(``<file>_settings.csv`` 为 Cellpose 型号, ``<dst>/settings.csv`` 为机器学习分类模型 - 阅读通过 :func:`spacr.train_compare.load_run`,谁已经知道在哪里看)。\n\n    在无法恢复的情况下,字段会读到 ``'unknown'``,从来没有``''``. 出发表中的白细胞会读为 \"no constraints\";这就是它所意味着的相反。\n\n**比分仅可在一个字段集内进行比较.**在您的三个字段中,一个模型的分数对其在别人的分数说什么都没有什么,而分类两者在一起的表则会从两个不相关的数字中创建一个排名。 因此,每个 :class:`BenchmarkResult` 记录一个 :func:`fieldset_id` - 实际的像素的标记,而不是文件夹名称 - 和 :func:`rank` **升高** :class:`IncomparableBenchmarks` 当从多个字段组中传输结果时。 :func:`rank_groups` 和:func:`format_benchmarks` 是支持的替代品:它们按字段设置组组,分类在每个组中,并标记组。\n\n第五个,更小的一个:一个模型文件,缺失,空白,或者没有 torch 检查点在任何情况下都失败 :func:`inspect_checkpoint` 有一个消息命名文件,在任何事情试图加载它之前。 ``KeyError`` 在一个国家字典输入名称从深处 torch 没有用户选择的名称。\n\n什么可以和不能说的基准\n-------------------------------------\n这里没有根本的真相。 :func:`benchmark` 运行一个模型在 N 显微镜的视野,并报告出现在什么:对象计算,时间表和 :mod:`spacr.seg_qc` 判决每显微观视野(混合? 破碎了? 空了吗? 全部在边境。 这是一个*质量控制*分数,而不是一个准确性 - 它可以告诉你一个模型崩溃在你的数据,它不能告诉你哪两个可靠的分区是正确的。 因此,:data:`RANK_KEYS`提供了两个结构化数据名称,``'qc'``和``'seconds'``,并且没有结构化的数据名单会被称为准确性。 要比较两种模型,使用:func:`compare_entries`,这两种手都与:func:`spacr.model_compare.compare_models`相匹配,即A/B的特征是明确的,任何一方都不是真理。\n\nCellpose 4 接受和忽略 ``model_type``, ``diam_mean``, ``nchan``, ``channels`` 和 ``rescale``; 只有``diameter``在``eval``仍然改变掩膜。 :class:`BenchmarkResult` 携带已解决的 ``honoured`` 和 ``ignored`` 参数的关键值地图直接从 :class:`spacr.model_compare.ModelConfig` 以便一个参考标志不能沉默地成为设置的比较标志。\n\n例子::\n\n    from spacr import model_zoo as zoo\n\n    entries = zoo.catalogue() + zoo.discover_local('/data/screen1')\n    print(zoo.format_zoo(entries))\n\n    entry = zoo.resolve('toxo_plaque_cyto_e25000_X1120_Y1120.CP_model', entries)\n    result = zoo.benchmark(entry, source='/data/screen1/plate1/1', n_fields=3)\n    print(zoo.format_benchmarks([result]))\n\n此外,请参见: :mod:`spacr.model_compare` - 使用 A/B 这个模块为分区和两型比较重新使用。 :mod:`spacr.train_compare` - 运行探测和设置恢复,重复使用大批为机器学习分类模型的动物园的一半。 :func:`spacr.utils.download_models` - 由 :func:`download_bundled_models` 包装的包装 Hugging Face 型号包的遗产大批拖动。",
+      "source_sha256": "83cb76b62543507805c052895fd3461e9bad7836f187b85ce99b1f8b5b5a4af0",
+      "text": "浏览、验证、捕捉和比较 spaCR 分区和分类模型。\n\n为什么这种存在\n---------------\nspaCR 可以运行 Cellpose 模型, Cellpose 模型的任何人在去年精心编写的团队上,从处理会议上进行 3 个文件夹的机械学习分类模型检查点,或从 Hugging Face 下载的检查点。 今天,唯一的方法是找出哪个在机器上存在的是``find / -name '*.pth'``,唯一的方法是知道其中一个是如何训练的,是记住,唯一的方式是知道磁盘上的副本是否是作者发布的文件是希望。\n\n这个模块回答了这三个问题,没有别的:\n\n* **什么是这里** — :func:`discover_local` 通行文件夹并返回被列为 Cellpose 或机械学习分类模型的检查点,从 spaCR 已经写的设置中可恢复的任何来源;\n* **是正确的比特** — :func:`sha256_file` / :func:`verify`/ :func:`fetch`,它原子下载,检查到达的东西,并拒绝安装错误;\n* **what does it do on my data** — :func:`benchmark`, which is :mod:`spacr.model_compare`'s \"three fields\" harness pointed at one model instead of two.\n\nNothing here imports torch or cellpose at module import time. Browsing the zoo, reading provenance, checksumming a file and rendering the table all work on a machine with neither installed; only :func:`benchmark` (through :func:`spacr.model_compare.segment_with_cellpose`) needs them, and only when it is called. ``tests/test_model_zoo.py`` asserts that.\n\n四件事使它可靠而不是简单的方便\n------------------------------------------------------------------------\n**每个下载都被检查,并且在使用前进行验证.** 由下载连接或交换到相同URL的另一个控制点,仍在加载。 它不会扔掉; 它静静地产生了不同的掩膜,它所使用的跑步看起来就像没有跑步的。 因此, :func:`fetch` 将到达的标签与发布的目录标签进行比较:错误会删除文件并将 :class:`ChecksumMismatch` 扔掉 - 输入从未注册。 实际计算的哈希存储在返回输入上,因此 \"verified\" 意味着 \"these bytes\",而不是 \"this filename\".\n\n    A catalogue entry with no published hash cannot be verified at all, and that is refused by default (``require_checksum=True``) rather than quietly treated as fine. Callers that knowingly accept an unverifiable source pass ``require_checksum=False``; the resulting entry carries ``verified=False`` and says so in :func:`format_zoo`.\n\n**每个下载都是原始的,并且永远不会过写。**在目的地目录*中将流量转换为临时文件*(因此最终的``os.replace``是相同的文件系统改名,即原始)并且改名只发生在检查交付后。 因此,中断或取消的下载不会留下任何看起来像一个模型 - 失败模式,其中一半的检查点坐在真实的文件名,负载和分区,不可能发生。\n\n    目的地是版本的,而不是过写(:func:`versioned_path`: ``foo.CP_model``, ``foo_v2.CP_model``, ... ) 两个模型具有相同的字符号是正常的事情;失去第一到第二是不可能的。\n\n**Provenance 被录制,并且 \"unknown\" 被写在完整的** 一个 Cellpose 模型在 60x confluent HeLa 是不可交换的一个训练在 20x sparse fibroblasts,并且没有数量的基准分数使它如此. 一个模型被训练是唯一最有用的东西,动物园可以显示,所以 :class:`ModelEntry` 携带 :attr:`~ModelEntry.trained_on` 和 :attr:`~ModelEntry.trained_by`,从设置中恢复的 spaCR 已经写在其模型旁边(``<file>_settings.csv`` 为 Cellpose 型号, ``<dst>/settings.csv`` 为机器学习分类模型 - 阅读通过 :func:`spacr.train_compare.load_run`,谁已经知道在哪里看)。\n\n    在无法恢复的情况下,字段会读到 ``'unknown'``,从来没有``''``. 出发表中的白细胞会读为 \"no constraints\";这就是它所意味着的相反。\n\n**比分仅可在一个字段集内进行比较.**在您的三个字段中,一个模型的分数对其在别人的分数说什么都没有什么,而分类两者在一起的表则会从两个不相关的数字中创建一个排名。 因此,每个 :class:`BenchmarkResult` 记录一个 :func:`fieldset_id` - 实际的像素的标记,而不是文件夹名称 - 和 :func:`rank` **升高** :class:`IncomparableBenchmarks` 当从多个字段组中传输结果时。 :func:`rank_groups` 和:func:`format_benchmarks` 是支持的替代品:它们按字段设置组组,分类在每个组中,并标记组。\n\n第五个,更小的一个:一个模型文件,缺失,空白,或者没有 torch 检查点在任何情况下都失败 :func:`inspect_checkpoint` 有一个消息命名文件,在任何事情试图加载它之前。 ``KeyError`` 在一个国家字典输入名称从深处 torch 没有用户选择的名称。\n\n基准可以和不能说什么\n-------------------------------------\n这里没有根本的真相。 :func:`benchmark` 运行一个模型在 N 显微镜的视野,并报告出现在什么:对象计算,时间表和 :mod:`spacr.seg_qc` 判决每显微观视野(混合? 破碎了? 空了吗? 全部在边境。 这是一个*质量控制*分数,而不是一个准确性 - 它可以告诉你一个模型崩溃在你的数据,它不能告诉你哪两个可靠的分区是正确的。 因此,:data:`RANK_KEYS`提供了两个结构化数据名称,``'qc'``和``'seconds'``,并且没有结构化的数据名单会被称为准确性。 要比较两种模型,使用:func:`compare_entries`,这两种手都与:func:`spacr.model_compare.compare_models`相匹配,即A/B的特征是明确的,任何一方都不是真理。\n\nCellpose 4 接受和忽略 ``model_type``, ``diam_mean``, ``nchan``, ``channels`` 和 ``rescale``; 只有``diameter``在``eval``仍然改变掩膜。 :class:`BenchmarkResult` 携带已解决的 ``honoured`` 和 ``ignored`` 参数的关键值地图直接从 :class:`spacr.model_compare.ModelConfig` 以便一个参考标志不能沉默地成为设置的比较标志。\n\n例子::\n\n    from spacr import model_zoo as zoo\n\n    entries = zoo.catalogue() + zoo.discover_local('/data/screen1')\n    print(zoo.format_zoo(entries))\n\n    entry = zoo.resolve('cpsam_plaque_r3', entries)\n    result = zoo.benchmark(entry, source='/data/screen1/plate1/1', n_fields=3)\n    print(zoo.format_benchmarks([result]))\n\n此外,请参见: :mod:`spacr.model_compare` - 使用 A/B 这个模块为分区和两型比较重新使用。 :mod:`spacr.train_compare` - 运行探测和设置恢复,重复使用大批为机器学习分类模型的动物园的一半。 :func:`spacr.utils.download_models` - 由 :func:`download_bundled_models` 包装的包装 Hugging Face 型号包的遗产大批拖动。",
       "translation_source_blocks_sha256": [
         "7521f6b4838ebc00325856192fd2a2073ec4930d387bf77cfae17ee761fd0d05",
         "54e879ed145cf24c46dbbbf872468596ed095a82b4d505a81b2b47a8ae80ba9d",
@@ -37515,18 +37799,24 @@
     },
     "spacr.model_zoo.hf_uri": {
       "source_blocks_sha256": [
-        "2a59bfa69fa642c3cf0afba55f735fd55913706e824d0274275063dba1b83b62",
-        "199b43f564eef876743eb13a85abefe5f4f6b9c84273460d44b51b8c4a952faa",
+        "201488179802ee453add75adc8b9f1a10678316cf946fc844a6a52511cd0fbc7",
+        "d707caa1dac688dde8e806747e241637ccdd3cbbd57480c1952b777b246af9f9",
         "20c27e4986b0163bb9405576424c980b7ff9164d01402172450b16225932e050",
-        "57ceea20f60ce244abe7730d9d8906caafbef9d3271ba672017554729638723a"
+        "d14ac783f6bc714d1cc867f2c2399d16028138334efcdbf740b3f2b95957fcc1",
+        "57ceea20f60ce244abe7730d9d8906caafbef9d3271ba672017554729638723a",
+        "d9eb0f6be7a4024dd34a4d25805e22bd611dd18c2d0d6cfecd18f35369eff75b",
+        "73c4925336ee0b32be6c64819776011bcde47b1ffa5a6c9da48087e2f62e2411"
       ],
-      "source_sha256": "52e49fc3d9083b421994f816fe942b788daba6307c9895b45e03ffc39170fde8",
-      "text": "在 Hugging Face **dataset** repo 中下载文件的 URL。\n\n:param repo_id: Hugging Face 数据集存储器识别器。\n:param filename: 存储器相关的文件名称下载。\n\n正是建立 URL :func:`spacr.utils.download_models` 和 :func:`spacr.qt.hf_download._download_one` ,保持在一个地方,所以动物园不能从下载器 spaCR 已经船只。",
+      "source_sha256": "460292250dd48e5cd3cf5dfa2ae8915f72762c154db7bd2a15acf955f8eaed91",
+      "text": "在 Hugging Face repo 中下载文件的 URL。\n\n:param repo_id: Hugging Face 存储器识别器。\n:param filename: 存储器相关的文件名称下载。\n:param repo_type: ``\"dataset\"``(默认情况,以及 spaCR 首先发送的内容)或 ``\"model\"``。\n\n正确的URL :func:`spacr.utils.download_models` 和 :func:`spacr.qt.hf_download._download_one` 构建,保留在一个地方,所以动物园不能从下载器 spaCR 已经船只。\n\n两个 REPO KINDS 有不同的URL,这不是化妆品:一个数据集档案生活在 ``/datasets/<repo>/resolve/...`` 和一个模型档案在 ``/<repo>/resolve/...``. 寻求一个在另一个 URL 返回一个 404 页面,而一个下载器不检查内容类型写到 HTML 到目的地,并留下一个 \"checkpoint\" 失败充电的 torch 错误命名不 URL 或 repo。\n\n``dataset`` remains the default because :data:`HF_MODELS_REPO` is a DATASET repo -- ``einarolafsson/models`` -- and every entry written before this parameter existed assumes it. New model repos pass ``\"model\"``.",
       "translation_source_blocks_sha256": [
-        "2a59bfa69fa642c3cf0afba55f735fd55913706e824d0274275063dba1b83b62",
-        "199b43f564eef876743eb13a85abefe5f4f6b9c84273460d44b51b8c4a952faa",
+        "201488179802ee453add75adc8b9f1a10678316cf946fc844a6a52511cd0fbc7",
+        "d707caa1dac688dde8e806747e241637ccdd3cbbd57480c1952b777b246af9f9",
         "20c27e4986b0163bb9405576424c980b7ff9164d01402172450b16225932e050",
-        "57ceea20f60ce244abe7730d9d8906caafbef9d3271ba672017554729638723a"
+        "d14ac783f6bc714d1cc867f2c2399d16028138334efcdbf740b3f2b95957fcc1",
+        "57ceea20f60ce244abe7730d9d8906caafbef9d3271ba672017554729638723a",
+        "d9eb0f6be7a4024dd34a4d25805e22bd611dd18c2d0d6cfecd18f35369eff75b",
+        "73c4925336ee0b32be6c64819776011bcde47b1ffa5a6c9da48087e2f62e2411"
       ]
     },
     "spacr.model_zoo.inspect_checkpoint": {
@@ -37627,6 +37917,40 @@
         "a7ae2d75ccde23c9c18ae4ceb90a60da9c34933812e38ba759646e4f2dc9b57b"
       ]
     },
+    "spacr.model_zoo.publish_model": {
+      "source_blocks_sha256": [
+        "f706fa49fea9876a84946de1a132e4ed895dcbb3edd063f1f51c6ec0641deb67",
+        "580e5bc97aecf5da1659e5b7a770b6fa8cceaf9e658ec5d1b5d9f34753ec1477",
+        "35fdcf7bf4b6cd8a028800b680472dcfffef86ac4c1e0c95f922d1191c314e8f",
+        "ee2f07255bebdb809a7e6655c2afc13695559bead8a5bf2eacf464f74a455bf7",
+        "46f56fc545a25965f04a6eeffffd8fc81b613160495cefc27faa4c12e2b15fe1",
+        "f217d93d7cc15dfe02c0bae94e0fd1fc19b3ba445aa9c888c77612ae66cb1ff4",
+        "d5bfcf60574a3ee8ddd64e18641f545faf91be10adf29aece4b145447e417069",
+        "48909f1d1f80db6d572e41536c7f06ac38e92dd5a1229f30c479edbdc01f7e3e",
+        "e7cc1af6de91affc4a608628fa50a5d53b3b34c0371554702c2a478bf9a2f4b4",
+        "9f14437941218d4a48704c42c918fe84d0c3f5c37aa8f86e43fa20bcf83fa116",
+        "df5968b7a99568cb7c3d12daffee697e525d979773318842b9f92994eb8652d2",
+        "c6d0f7375e75539f20c06819d9dce8cecffa7a84759cb42960480e7276eb9d83",
+        "4d54092612677cb82923a5210c71666dd66fa845885c73428c1ab75497cee9c2"
+      ],
+      "source_sha256": "0d3f5dde0dceb2eb7533f51a5f304d7523a4030ffe07edf01dbd5595c8af739d",
+      "text": "将模型上传到 Hugging Face 并返回其目录顺序。\n\n:param local_path: 检查点上传。\n:param repo_id: ``<user>/<repo>`` - 您的 OWN 帐户。\n:param key: 简称 spaCR 将提供下面的模型。\n:param kind: one of :data:`KINDS`.\n:param trained_on: 说得对:这是另一个实验室必须决定是否适用于它们的唯一事情。\n:param trained_by: 谁训练了它,以及大约什么时候。\n:param private: 隐私模型不能被其他 spaCR 用户抓住,因此默认情况下关闭。\n:param notes: 值得在模型旁边携带的卡车。\n:returns: 目录顺序,与 sha256 填写。\n:raises ImportError: 如果 ``huggingface_hub`` 未安装。\n\n检查是由此计算的,从实际上上传的文件,这就是为什么它作为一个功能而不是作为一个 README 的指示存在。 :func:`fetch` 拒绝一个输入它不能验证,所以手写的序列没有哈希产生一个模型,没有阻止检查 - 这是一个现有包装输入所做的事情,而不是一个先例的洞。\n\n出版商不会自行分发模型:将返回序列添加到共享目录(:data:`REMOTE_CATALOGUE_URI`)中,每个 spaCR 用户都会在 :data:`CATALOGUE_CACHE_SECONDS` 中看到它。",
+      "translation_source_blocks_sha256": [
+        "f706fa49fea9876a84946de1a132e4ed895dcbb3edd063f1f51c6ec0641deb67",
+        "580e5bc97aecf5da1659e5b7a770b6fa8cceaf9e658ec5d1b5d9f34753ec1477",
+        "35fdcf7bf4b6cd8a028800b680472dcfffef86ac4c1e0c95f922d1191c314e8f",
+        "ee2f07255bebdb809a7e6655c2afc13695559bead8a5bf2eacf464f74a455bf7",
+        "46f56fc545a25965f04a6eeffffd8fc81b613160495cefc27faa4c12e2b15fe1",
+        "f217d93d7cc15dfe02c0bae94e0fd1fc19b3ba445aa9c888c77612ae66cb1ff4",
+        "d5bfcf60574a3ee8ddd64e18641f545faf91be10adf29aece4b145447e417069",
+        "48909f1d1f80db6d572e41536c7f06ac38e92dd5a1229f30c479edbdc01f7e3e",
+        "e7cc1af6de91affc4a608628fa50a5d53b3b34c0371554702c2a478bf9a2f4b4",
+        "9f14437941218d4a48704c42c918fe84d0c3f5c37aa8f86e43fa20bcf83fa116",
+        "df5968b7a99568cb7c3d12daffee697e525d979773318842b9f92994eb8652d2",
+        "c6d0f7375e75539f20c06819d9dce8cecffa7a84759cb42960480e7276eb9d83",
+        "4d54092612677cb82923a5210c71666dd66fa845885c73428c1ab75497cee9c2"
+      ]
+    },
     "spacr.model_zoo.rank": {
       "source_blocks_sha256": [
         "733801703a6c71ba83a9a2d82a0275ef091d6a6b02e67f46b845c6425c7b0da8",
@@ -37703,6 +38027,28 @@
         "47aa33447ea3e919ca309b3b7754b24e56133f6aa1c74092124def699364465c",
         "c271247f3d3914971b1f19f8e6592bd16836eeb6b8dd29eb8730fd0437b03658",
         "8b0e30d283779d0f9eeb703058c97de2d26ac5d2404a1fdc1065c069a141edb3"
+      ]
+    },
+    "spacr.model_zoo.shared_catalogue": {
+      "source_blocks_sha256": [
+        "a11c0b6d86e8b0c5269f6a306a3f9c3ab702e89474d0bbb241974aa999b921b4",
+        "94c20c1ef9bdcc66534132fe105cbb1f55a266532f2d46ca26bd474cb0280b12",
+        "5d8a8ef77689c45f2d05b60e9e0753f98317f2c7a6464ac7712e7a527dbb43f3",
+        "31d4679f77140e9c23069411514fcf89691da67b480a52034393ff66f94622f1",
+        "e6dc6abbd0dbe2ffb30424931c3d215861c95ca990f8ee96964081fb6f21267f",
+        "60ed1b2259fd67117ec0a7a9d9aa0a948e574bacfdfc991acf217b4532d3382c",
+        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a"
+      ],
+      "source_sha256": "e509ddcbd927f27362584d7b1c6cff42e402960106e8096171763ec4e5d80b98",
+      "text": "社区目录,从 :data:`REMOTE_CATALOGUE_URI` 获取。\n\n:param uri: 超越目录位置。\n:param timeout: 等待几秒钟的请求。\n:param force: 忽略缓存和重新捕捉。\n:returns: 输入,或 ``()`` 如果目录无法阅读。\n\nNEVER RAISES, and that is deliberate. This executes when a user opens a module that offers a model list, and the list is useful without it: the bundled entries and any local models are still there. A laptop on a train, a lab behind a proxy and a Hugging Face outage all produce the same thing -- a shorter list and a log line -- rather than a module that will not open.\n\nWOULD 保持沉默和有害的失败是一个腐败或敌对的目录,所以不分裂的输入被单独放下,没有 ``sha256`` 的输入仍然不能由 :func:`fetch` 安装,没有明确的过渡。",
+      "translation_source_blocks_sha256": [
+        "a11c0b6d86e8b0c5269f6a306a3f9c3ab702e89474d0bbb241974aa999b921b4",
+        "94c20c1ef9bdcc66534132fe105cbb1f55a266532f2d46ca26bd474cb0280b12",
+        "5d8a8ef77689c45f2d05b60e9e0753f98317f2c7a6464ac7712e7a527dbb43f3",
+        "31d4679f77140e9c23069411514fcf89691da67b480a52034393ff66f94622f1",
+        "e6dc6abbd0dbe2ffb30424931c3d215861c95ca990f8ee96964081fb6f21267f",
+        "21486dc5563909ca31365b2e048042fe0cc2f0c4b7e4ca74b25a0a5cd841a0dd",
+        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a"
       ]
     },
     "spacr.model_zoo.verify": {
@@ -43241,6 +43587,198 @@
         "dd7d1b1613a93bd23e78a85452a417e474d5121d86ed962eec1d7bd8922ac30b",
         "410135220cc1a377dbcc20add63516d7210af83b244e08a2d2a03697197622cb",
         "e1e8de21694973f15d2f0c287a54f3febd75773ce12f4e0c44f9877527262e4a"
+      ]
+    },
+    "spacr.plaque": {
+      "source_blocks_sha256": [
+        "4d3bf9235924af4da2143761c5a27cd7e46ff33414c79a69e4908a4570afdda4",
+        "942c0931338f2a2190b3f656d99bdb477f44bbc2e42f7773f0ac7dbf978d1fad",
+        "c11841650656574225811d61e62095472888bebbbe66e518157d5ca017a2b045",
+        "6ec8281e68b70e3f6b484efa2d347143d33fc7506ebe2b503791f8ae98d596aa",
+        "4c24aeeb63934d7675e061dcec78e6a5b56d4cbcebc022381c1416d792b5ad3a",
+        "2d73e5b66b7c0cd573014408c710b19313b7808a31efbcaa34a60e5bb467cbc1",
+        "f3ab981b531d98588a7976848b5319b009f31d786115394dff2d300008082592"
+      ],
+      "source_sha256": "363a766b9cf0030415769afdb429eb9771d795efdbc625ce9760f26f3b2fba6f",
+      "text": "微板样本位置检测和物理尺寸为板的测量。\n\n平板分析是从两个形式的图像中计算出来的,它们需要不同的处理:\n\n* **每张图像** - 分区它并计算,这是:func:`spacr.submodules.analyze_plaques`一直做的事情;\n* **一张图像中的北微板样本位置** - 整个实验室微板,或一条条线. 直接计算每个板块在每个孔中的一个数字和损失,每一个都来自,这就是整个实验。\n\n该模块为第二个案例提供前半:找到微板样本位置,然后分别分配给分区。\n\n为什么微板样本位置是测量的,不只是破碎的. 像素中的*区域*板是显微镜的属性,而不是生物学的。 相同的图像在两个扩展给了两个区域,而一个研究占据它们是比较光学的位置. 微板模型位置,相比之下,是已知的物理尺寸的制造物体 - 一个6位置实验室显微板的样本姿势是34.8毫米的任何图像它。\n\n这就是为什么 :func:`detect_wells` 返回一个直径而不是仅仅是一个盒子,而为何 :func:`scale_from_well` 是分析实际上消耗的零件。",
+      "translation_source_blocks_sha256": [
+        "38045b69c8dae724b3f99728fb296f9499c305059eb5fca3b09115d68bdb2e96",
+        "942c0931338f2a2190b3f656d99bdb477f44bbc2e42f7773f0ac7dbf978d1fad",
+        "f31779c30dbe80e686ded071c1d452bcc9444e91207b376e53ab58450925a82a",
+        "7ef4c8754ba7c577b14736ff3cf122c092aa3b0723a2a01ddfc4ddcbae5418c0",
+        "8ac97ae90907feced7241a95a76cd2543a0bc29592fb403ee1284380cb14ff1b",
+        "ed5273b4e6901475f8995348042420796f174db20114eeb5a04c9a10c6eca32c",
+        "f3ab981b531d98588a7976848b5319b009f31d786115394dff2d300008082592"
+      ]
+    },
+    "spacr.plaque.PlaqueScale": {
+      "source_blocks_sha256": [
+        "fd34679e6581f9e83ea804ad4a278fb7be7af2b1da56d1e1490ff68390e26e26",
+        "0178c9739574a7db3cff4f05e3443b1c20121dec067e53ff29007f27479ffd9c",
+        "bd7133cbb6c558082d3eedaad7799ea40938260244eb698695c7678c32c1e813",
+        "34b919142f878f2f0bb7fdb6ea641fad72714d63c32ffcbb2ff59ab902c8c4ba",
+        "2d8615811ffd50a9ad7f018b7d4a5d0ef49d8f296b4d23a3dab7efeb81623c21"
+      ],
+      "source_sha256": "e0f5c5562990ef35b09e82eb5293d06b255f7ba03cd6e64ae8062da9562d9684",
+      "text": "Pixels-to-millimetres for one microplate sample position, and what it was derived from.\n\n:param px_per_mm: 每毫米的像素。\n:param well_diameter_px: 测量的直径是从中产生的尺寸。\n:param well_diameter_mm: 与物理直径相比。\n:param source: 如何确定 ``well_diameter_mm`` - 表格格式名称,或 ``\"explicit\"``。",
+      "translation_source_blocks_sha256": [
+        "0dd79879357713ad2815a567b4fb3eba7f3c9f16bd765beac1888ad7af330b34",
+        "0178c9739574a7db3cff4f05e3443b1c20121dec067e53ff29007f27479ffd9c",
+        "bd7133cbb6c558082d3eedaad7799ea40938260244eb698695c7678c32c1e813",
+        "34b919142f878f2f0bb7fdb6ea641fad72714d63c32ffcbb2ff59ab902c8c4ba",
+        "2d8615811ffd50a9ad7f018b7d4a5d0ef49d8f296b4d23a3dab7efeb81623c21"
+      ]
+    },
+    "spacr.plaque.PlaqueScale.area_mm2": {
+      "source_blocks_sha256": [
+        "4bad4abe369edadacd3960a2a5b853254b08f0b023d3a3d012b0aab478077309",
+        "fbba576e3c57087032a496669b1c74e301e4e3c3e10805ca24699c2a938ebc26",
+        "7b04ea9eb1fdf8df3cef8f074790c5b4ce2b317b3365b05ffa8325aeb09de39e"
+      ],
+      "source_sha256": "6aea07076422c831508ed3450aa90e69c2b936072ab7bbcb5803ac01f21b54c6",
+      "text": "将像素区域转换为 mm^2。\n\n:param area_px: 一个字段在像素中。\n:returns: 相同的区域在平方毫米。",
+      "translation_source_blocks_sha256": [
+        "4bad4abe369edadacd3960a2a5b853254b08f0b023d3a3d012b0aab478077309",
+        "fbba576e3c57087032a496669b1c74e301e4e3c3e10805ca24699c2a938ebc26",
+        "7b04ea9eb1fdf8df3cef8f074790c5b4ce2b317b3365b05ffa8325aeb09de39e"
+      ]
+    },
+    "spacr.plaque.Well": {
+      "source_blocks_sha256": [
+        "a85a2ec1296a2c62344893f6ba9de322c0ed67af072a97693bb7900c7fa72680",
+        "11b5dd26582ae540c1d4f02593dd6e6072e666a90b5bdb7b2e0b3c1fa87f44a9",
+        "0bc495683cda93d55f5a6db6ce664bd93d3d8099733bbb6e58398acaa7d95aa0",
+        "2c570f38ad6a69b4ce98a8749730a892cc870870011afdae20af22db467f46fa",
+        "eaba50e515f50ef499e221d7160ccd4d96c19ca21ecad831337bd9e3761033ea",
+        "086bf9a56fac8478c13f773ca6bfc8daee28c1a39929ea2fbd348c43b0b808a6"
+      ],
+      "source_sha256": "3feac3fafe8ba9997dd22a31358863ce45949f521f7f0cf4b0bd2e8ec8c6e546",
+      "text": "一个被发现得好。\n\n:param x0: 左边在像素中。\n:param y0: 在Pixels中顶端。\n:param x1: 右边在像素中。\n:param y1: 底层在像素中。\n:param confidence: 这个盒子的探测器的分数。",
+      "translation_source_blocks_sha256": [
+        "a85a2ec1296a2c62344893f6ba9de322c0ed67af072a97693bb7900c7fa72680",
+        "11b5dd26582ae540c1d4f02593dd6e6072e666a90b5bdb7b2e0b3c1fa87f44a9",
+        "0bc495683cda93d55f5a6db6ce664bd93d3d8099733bbb6e58398acaa7d95aa0",
+        "2c570f38ad6a69b4ce98a8749730a892cc870870011afdae20af22db467f46fa",
+        "eaba50e515f50ef499e221d7160ccd4d96c19ca21ecad831337bd9e3761033ea",
+        "086bf9a56fac8478c13f773ca6bfc8daee28c1a39929ea2fbd348c43b0b808a6"
+      ]
+    },
+    "spacr.plaque.Well.as_dict": {
+      "source_blocks_sha256": [
+        "3eb7a60faf03e2c4e95023403d909404d49cac60a8a72deab4dac288a651c62b"
+      ],
+      "source_sha256": "3eb7a60faf03e2c4e95023403d909404d49cac60a8a72deab4dac288a651c62b",
+      "text": "盒子加上其衍生测量,为结果表。",
+      "translation_source_blocks_sha256": [
+        "3eb7a60faf03e2c4e95023403d909404d49cac60a8a72deab4dac288a651c62b"
+      ]
+    },
+    "spacr.plaque.Well.axis_ratio": {
+      "source_blocks_sha256": [
+        "7a8ee795fd989ce039884eb0dcf175f69c180d28a78c78677923a7dc1837e555",
+        "42445b7fe70f69b99d0239a74270f4b2a03cb7bf66df6ff12f3d6992298fe8a3"
+      ],
+      "source_sha256": "100d39b77b35d5674d4a3b19ae3aa913a0d0dedea3e191c29dd077bcde862f5d",
+      "text": "较短的盒子侧更长,因此 1.0 是平方。\n\n一个微板样本位置是圆形的;一个盒子比它高得多意味着检测器粘在图像边缘,或者合并了两个微板模板位置,或者发现了一些不是微板示板位置。 任何一个做 :attr:`diameter_px` 错误,并且因为这个直径扫描每个区域在微板显示板的位置,一个错误一个比一个失踪一个更糟糕。",
+      "translation_source_blocks_sha256": [
+        "7a8ee795fd989ce039884eb0dcf175f69c180d28a78c78677923a7dc1837e555",
+        "b1d40da134138af2b9bc111c7b6617b9c721182bdd609ba50239b8ec17b5058b"
+      ]
+    },
+    "spacr.plaque.Well.diameter_px": {
+      "source_blocks_sha256": [
+        "dc2705df1c319ce03c92ccaa1e9f1e7236536429cf2feddcd8a7affe2088d35d",
+        "f13f0dd38a721eab0b83d6b9e65996baf3109b08d1d00b6096ec57de11c2603c"
+      ],
+      "source_sha256": "69e906d54fb5613caa9115025969327fbfd5706cf9df755f473cc55ad4f05805",
+      "text": "微板样本位置的直径在像素,作为盒子侧的中间。\n\n一个微板样本位置是圆的,所以一个正确的盒子是平方的,两侧都同意。MEAN而不是单独的两侧是使一个轻微放松的盒子的下降轻而易见的,而不是通过一个方式 - 和分歧本身是报告的:attr:`axis_ratio`,因此一个不平方的盒是可见的而不是沉默地平均到一个可靠的数字。",
+      "translation_source_blocks_sha256": [
+        "507172e6094d32b8e8447f5694da6ed4ed99aaaf9c4b460c5bd5cbe40009a3c9",
+        "1d27ff3e083cb838d011f37d3529830c34f68c5858f0b26981721b8d62d52f6f"
+      ]
+    },
+    "spacr.plaque.Well.height": {
+      "source_blocks_sha256": [
+        "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865"
+      ],
+      "source_sha256": "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865",
+      "text": "盒子高度在像素中。",
+      "translation_source_blocks_sha256": [
+        "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865"
+      ]
+    },
+    "spacr.plaque.Well.width": {
+      "source_blocks_sha256": [
+        "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8"
+      ],
+      "source_sha256": "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8",
+      "text": "盒子宽度在像素中。",
+      "translation_source_blocks_sha256": [
+        "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8"
+      ]
+    },
+    "spacr.plaque.crop_well": {
+      "source_blocks_sha256": [
+        "4472f722d2e08a47c03718b9f819aad15769c1535f8b1a1df9b753c0c29d6d23",
+        "1c09a685342bd83b0edb0ebdfa33b2a62c0606df4dec82b95b27617a97431db5",
+        "220007a0db5f514e872429f1aa58a1fc0929a8fe36658932ecc291a0849fdc2e",
+        "4d05689341415edc1b2927c064ba5b63378837b771309f938460f59d32a4bb9d",
+        "6d283f22812d405bfce22ac18da0fd6f0a27dbe5b1fbde9843dc6fa62334e4ee"
+      ],
+      "source_sha256": "0cecf02b0dd4afd16055aeef8a9796e2b470f39220f9fa7a50a767be4719d4c2",
+      "text": "图像在一个微板样本位置内。\n\n:param image: 完整的田野。\n:param well: 盒子要切断。\n:param pad: 额外的像素围绕盒子,粘贴到图像。\n:returns: 该地区的视图形式副本。",
+      "translation_source_blocks_sha256": [
+        "f62d450018cc41332f5b0bba8a8a494d2666ba14dbf7eee58a055a5d97478448",
+        "1c09a685342bd83b0edb0ebdfa33b2a62c0606df4dec82b95b27617a97431db5",
+        "220007a0db5f514e872429f1aa58a1fc0929a8fe36658932ecc291a0849fdc2e",
+        "4d05689341415edc1b2927c064ba5b63378837b771309f938460f59d32a4bb9d",
+        "6d283f22812d405bfce22ac18da0fd6f0a27dbe5b1fbde9843dc6fa62334e4ee"
+      ]
+    },
+    "spacr.plaque.detect_wells": {
+      "source_blocks_sha256": [
+        "1d2caa3a3ed2d99abf429a3f7c3ec025bc96e4be94a9831054e622cecc0b5e21",
+        "2cf5a0200673a30b1cc0dd0c639807ab50c5f8a8968028a28683d69b354fc71e",
+        "f7728c2d90e11f4d4f2a1338b89aa37de0115d19a708cfa860b93129c4421e89",
+        "28b69f036ab7003d87b6bba6cc06b88fdbbcf04e21a86502449687ed6e55c7ba",
+        "357c1725ae5f701f6ee029d91100d55b02c267fb1dc3c98c4135e2657d29ac97",
+        "23c7eb2d92cf705b09cf22010137254189fb077ca93cd35be6b979db161b28d7",
+        "60ae7d1a22b6e5e791057cc573cd2b739d6f91b95a0d979e2334d9bbe3864674",
+        "a9f74f118cf5018becf0af2400f4d8242f87788fc112b408ccc13fc8845d476d"
+      ],
+      "source_sha256": "b2d5d59baf95b872d44bcfd4916b31ba6d615f5e69e90f7f31f47d9570fb7aee",
+      "text": "在一个图像中找到微板样本位置。\n\n:param image: 作为一个序列,检测器可以阅读。\n:param weights: 走到YOLO检查点。\n:param confidence: 点击下载下载此处。\n:param imgsz: 640是发送探测器训练的尺寸。\n:param min_axis_ratio: 请参见 :attr:`Well.axis_ratio` - 一个非四角形的盒子使直径,因此在微板样本位置的每个区域都是错误的。\n:returns: 微板样本位置,顺序向上向下,然后向左向右,这是阅读顺序,因此顺序一个实验室微板地图写在。\n:raises ImportError: 如果 ``ultralytics`` 未安装。",
+      "translation_source_blocks_sha256": [
+        "c689f923a025fd958fc10b0f0bcd8686e9b138b27abc7d461e9dd06ab7a57902",
+        "2cf5a0200673a30b1cc0dd0c639807ab50c5f8a8968028a28683d69b354fc71e",
+        "f7728c2d90e11f4d4f2a1338b89aa37de0115d19a708cfa860b93129c4421e89",
+        "28b69f036ab7003d87b6bba6cc06b88fdbbcf04e21a86502449687ed6e55c7ba",
+        "357c1725ae5f701f6ee029d91100d55b02c267fb1dc3c98c4135e2657d29ac97",
+        "899ec21188376b75bb7a822a290d5279bd31c3370ced9ca44012c82631f4c67d",
+        "b6d56bbc2a7605b8d42e084b7f7a4f5dcd55178437c32fda6ecf0f7e4f18af86",
+        "a9f74f118cf5018becf0af2400f4d8242f87788fc112b408ccc13fc8845d476d"
+      ]
+    },
+    "spacr.plaque.scale_from_well": {
+      "source_blocks_sha256": [
+        "a878daaa278cc7531ce48b1e6e7b86b1dc6f7d6c6e8fcfce02d5f420db388991",
+        "9911096259f98d4ebc85d9981d672b240ed3841c9c7a40e46108e53a31822241",
+        "2718ef72048df6a447dc8b671f89acbad86876488cdd85f75bc536598e4e366d",
+        "b356fdf0a0c779489f22ef4620430af61438221b20b6212abbbf3fc6cda1a212",
+        "a86ee3443409aaa41b3c9663d5dd026c6375a1868d46dfa0e93c88ab6a475071",
+        "09737856649a3bccf522d6b1d6c73cdaddba824a7e4035d4cbd1f0b6b9560fcc",
+        "fdcddab3f7b6d974d15d4e152375b6782662f202108aacb531717e8659142ac3"
+      ],
+      "source_sha256": "911b79d76180023104a5771c25a6731295b7ee733ad886a1452ae29bde831f9d",
+      "text": "每毫米的像素从一个被发现的位置,或 ``None``。\n\n:param well: 被检测得很好测量。\n:param plate_format: 关键为 :data:`WELL_DIAMETERS_MM`。\n:param well_diameter_mm: 物理直径,超越``plate_format``。\n:returns: 尺寸,或 ``None`` 当没有论点说明微板样本位置在物理上是多大。\n:raises KeyError: 如果 ``plate_format`` 不是已知格式。\n\nRETURNS ``None`` RATHER THAN ASSUMING. Without a physical diameter there is no scale, and inventing one -- a default plate format, say -- would convert every area into confident millimetres that are wrong by whatever the real plate was. The caller keeps pixels and says so.",
+      "translation_source_blocks_sha256": [
+        "a878daaa278cc7531ce48b1e6e7b86b1dc6f7d6c6e8fcfce02d5f420db388991",
+        "9911096259f98d4ebc85d9981d672b240ed3841c9c7a40e46108e53a31822241",
+        "2718ef72048df6a447dc8b671f89acbad86876488cdd85f75bc536598e4e366d",
+        "b356fdf0a0c779489f22ef4620430af61438221b20b6212abbbf3fc6cda1a212",
+        "8f7651ae9371c6b3abff53961e9021d104b38961f92798e52fe1010592c06de4",
+        "09737856649a3bccf522d6b1d6c73cdaddba824a7e4035d4cbd1f0b6b9560fcc",
+        "fdcddab3f7b6d974d15d4e152375b6782662f202108aacb531717e8659142ac3"
       ]
     },
     "spacr.plate_measurements": {
@@ -50526,13 +51064,17 @@
     "spacr.qt.app.app_is_visible": {
       "source_blocks_sha256": [
         "7ab2e09dbf84e069029f814bf7f4e3fd80cad5f6b4264b96a824d761a6f77081",
-        "c9b304a50854c83e82771e566756b5e5f414e8f80728261700d8d325c49b0f28"
+        "c9b304a50854c83e82771e566756b5e5f414e8f80728261700d8d325c49b0f28",
+        "8fc954aa7de3eec50b6e3a471439a0ce35053cb3af29fb4d6313f61c25ae1f81",
+        "c0e7c7e21c85e75f244efbed376fbe21324a4b55a442f8369a4f99c66147d110"
       ],
-      "source_sha256": "23488ee5be2d7a54d77a2dd8634051f56ccd4f4a807e0263163e949c3ab21669",
-      "text": "是否 ``key`` 在模块导航中显示。\n\n偏好是轻松进口的,所以这个记录仍然安全的包装和无图形界面呼叫者. 如果偏好不能阅读,保持历史的所有模块可见的行为。",
+      "source_sha256": "6f5b5b61ebee7b92a466d95545114550d58fe04af2e94cb2edd185dbb20790d3",
+      "text": "是否应该在模块导航中显示 ``key``。\n\n优先事项是轻松进口的,所以该注册表仍然安全的包装和无图形界面呼叫者. 如果优先的事项无法阅读,保留历史的所有模块可见的行为。\n\nNOT A TILE CHECK. This answers \"is the user allowed to reach this module\", which is the maturity preference and nothing else. A folded module is still reachable -- from its host's button, from Help, and from the command palette -- so it is still VISIBLE; it just has no tile. Use :func:`tiled_apps` for the tile question.\n\n这个函数简短地回答了两者,命令板是它所抓住的:过滤 :data:`TILELESS_APPS` 在这里拿出9个模块从Ctrl+K,所以文件夹移除一扇门而不是移动一个。",
       "translation_source_blocks_sha256": [
         "7ab2e09dbf84e069029f814bf7f4e3fd80cad5f6b4264b96a824d761a6f77081",
-        "c9b304a50854c83e82771e566756b5e5f414e8f80728261700d8d325c49b0f28"
+        "c9b304a50854c83e82771e566756b5e5f414e8f80728261700d8d325c49b0f28",
+        "8fc954aa7de3eec50b6e3a471439a0ce35053cb3af29fb4d6313f61c25ae1f81",
+        "c0e7c7e21c85e75f244efbed376fbe21324a4b55a442f8369a4f99c66147d110"
       ]
     },
     "spacr.qt.app.app_stage": {
@@ -50559,6 +51101,22 @@
         "26a6a0a7d2c1c9ee3f7030bd638c58bf5390374f8d763beb60d3777f8e47b626",
         "3e2d83bb6bd966c6d5488d87556d333501de180ef715471261921395ffee9a8e",
         "ca8a2369688b114ae74b0d2389110d160fe08458f1df6f58f5ce0c6521ccc8f3"
+      ]
+    },
+    "spacr.qt.app.folded_children": {
+      "source_blocks_sha256": [
+        "a5ee1eccadf938cf4617f59f0eee48df8d2612afbc8c958f17d3e35a9a7b88e0",
+        "cdc6651cfe23d83bbc56e020bb8a44765ec7d0403398d29383edf86b4567f89c",
+        "fa79b30a9da610f41adf631c2cb10dbc226a36b61f61b433f5cc6bfd2cd2e808",
+        "7ca534244cbbb0fb770b690bf9b27e0f271a612b78d6f0e66b6d552b06972116"
+      ],
+      "source_sha256": "27c3758399bbd997ce1ab46b3dccc8a0c9526f18f78c60ab4fc076600f65c44c",
+      "text": "``host key -> the module keys folded onto its masthead``.\n\n一张地图,从主人自己读到,所以大道、菜单栏和字符串不能不同意属于什么。 每个主人宣布自己的 `FOLDED_APPS`; 这个混乱是真理,这只是收集它们。\n\n请求于 2026-09-01 : 按钮和 spaCR 菜单应该显示粘贴结构, “添加一个级别到每个按钮代表一个层次从新的主要模块下方”。\n\n永远不会扔掉:一个无法进口的主机没有任何贡献,因为导航援助不一定能够阻止窗口建造。",
+      "translation_source_blocks_sha256": [
+        "a5ee1eccadf938cf4617f59f0eee48df8d2612afbc8c958f17d3e35a9a7b88e0",
+        "cdc6651cfe23d83bbc56e020bb8a44765ec7d0403398d29383edf86b4567f89c",
+        "fa79b30a9da610f41adf631c2cb10dbc226a36b61f61b433f5cc6bfd2cd2e808",
+        "1554769cf9b51fc098ffc6592dc681268892974c2c5cdd28abc0a17f24a28992"
       ]
     },
     "spacr.qt.app.home_bands": {
@@ -50741,12 +51299,44 @@
     },
     "spacr.qt.app.section_members": {
       "source_blocks_sha256": [
-        "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426"
+        "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
+        "9d5d2aaea39fac25999bcc850b3c2f999cb009d50fa18e5d1b22639fdcbf86d7",
+        "99761f9f1dc0fc63ff45dc583f97058276b00ec569a92d72d1388b589dc4d53a"
       ],
-      "source_sha256": "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
-      "text": "``APPS`` 序列在注册表顺序中显示类别的选项卡。",
+      "source_sha256": "357c82920205bd6ca003ec9b4be48ff7d5ff1287da8f8c7357a94d8d457f68ed",
+      "text": "``APPS`` 序列在注册表顺序中显示一个类别的选项卡。\n\nTILELESS APPS ARE NOT MEMBERS. This is what the tab DRAWS and what its label COUNTS, so a module with no tile must be out of both -- otherwise the label reads \"Results & QC (7)\" over three tiles, which is a count of something the user cannot see.\n\nAn explicit ``apps`` list is filtered too. A caller passing its own rows is asking \"which of these belong to this section\", and a tileless one does not belong to any tab whichever list it arrives in.",
       "translation_source_blocks_sha256": [
-        "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426"
+        "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
+        "9d5d2aaea39fac25999bcc850b3c2f999cb009d50fa18e5d1b22639fdcbf86d7",
+        "99761f9f1dc0fc63ff45dc583f97058276b00ec569a92d72d1388b589dc4d53a"
+      ]
+    },
+    "spacr.qt.app.tile_sort_key": {
+      "source_blocks_sha256": [
+        "6ab7a372b5316f62b107189443768b02ee3c5abc4bc818afa1b192211b9f4929",
+        "fae5777e5581d241ea3f4bd49ecee8d15eb5fc6ff291822bb8736085cb535eb7",
+        "3b5521e5414e558d76d346a2635258243bec16892342b4795010244cb49bd430"
+      ],
+      "source_sha256": "3db7ad675463135c57b7b51fd553b1dcbe3be22e8f49505967b7bc560f997146",
+      "text": "排序键为 ``row`` ,在那里 :data:`SECTION_TILE_ORDER` 表示。\n\n:param row: 一个 ``APPS`` 序列。\n:returns: ``(section index, position in that section)``. 每个列表后不列表的关键类型,以 Python 的稳定类型为原因,在列表中保持登记顺序。",
+      "translation_source_blocks_sha256": [
+        "6ab7a372b5316f62b107189443768b02ee3c5abc4bc818afa1b192211b9f4929",
+        "fae5777e5581d241ea3f4bd49ecee8d15eb5fc6ff291822bb8736085cb535eb7",
+        "3b5521e5414e558d76d346a2635258243bec16892342b4795010244cb49bd430"
+      ]
+    },
+    "spacr.qt.app.tiled_apps": {
+      "source_blocks_sha256": [
+        "0de3276422ae3898b1b48b0fdac8dc399457b5bf72b54219ad7028d4b4d0f470",
+        "bf6bb627ba20566a0c317f879cdc5d720fe41787e9c1a53aa2d60b0c4c8d46ac",
+        "9ee4a0bb76ae9ea2b3d57da7d5644871fb76544bd6a1a423d1054f44766cd64d"
+      ],
+      "source_sha256": "64990697010505290ee3ef07acf3ad1d2b73f554e0b7a0d78930e6143deab60e",
+      "text": "``APPS`` 行,在注册表顺序中获得 TILE。\n\n``APPS``是存在的;这就是家庭DRAWS. 两个停止是相同的事情,当模块开始插入主机 - 一个插入的模块保持其注册表序列(它仍然有一个筛选,一个图标,一个部分和一个结构化数据名称来导航到)并只失去它的字符串,因为它现在从一个按钮在其主机或从帮助菜单。\n\n任何人问“用户在主页上看到什么”,“这个带有多少条板”,或者“这个条板的标签适合”想要这一点。任何人说“可以导航到这个密钥”,“做这个应用程序有艺术作品”,或“做每个应用程序有一个筛选”想要 ``APPS`` - 一个粘贴的模块仍然必须对所有三个答案是的。",
+      "translation_source_blocks_sha256": [
+        "0de3276422ae3898b1b48b0fdac8dc399457b5bf72b54219ad7028d4b4d0f470",
+        "e421beb17e2b208f2d3b1e0b048ea247ef436eddaf5e32aff6095549ed9bcf61",
+        "9ee4a0bb76ae9ea2b3d57da7d5644871fb76544bd6a1a423d1054f44766cd64d"
       ]
     },
     "spacr.qt.app.unregister_app": {
@@ -58587,6 +59177,50 @@
         "94b38cad0a1f8f3418e6ed7c1e2b802cc8ea21fb654589b1be71d31b8694a417",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
         "c2c56bc0485c82cb023de769149b159eaa161c58bc04a350a97b23a5b05685a1"
+      ]
+    },
+    "spacr.qt.module_hints": {
+      "source_blocks_sha256": [
+        "d8f6e3e0b5355ec9031d55a72dd4a733a400ed3bc412eaefe798f7be205b7e3f",
+        "a463479b0fc8dcf01d78cd0c4daec2985d0c48c83ca1ff12bef2f24a9478bc8f",
+        "ea746518bb511cb0a199918eb5fd78df8ec07ed2ec5e85abd216004ba84e5ab2",
+        "9c825b5d71ea0ecd9f73aeb6740230a59f9b35a52305fdb00d53e5a3bfc25bc6",
+        "3c898e5af9ca348cf9fcb99f4c306b8cd7efb19c77b4d04d1c4ebcb06edb0230"
+      ],
+      "source_sha256": "741a88a2e3df1152f1f9b3484fe2f0eb0e050b03f095610b973423124be45bd1",
+      "text": "模块描述走到窗口底部,而不是网络上。\n\n请求于 2026-09-01: “模块的工具提示只能显示在应用程序视图的底部”。\n\n家已经这样工作了,原因写在``AppTile``:这些混乱运行到几百个字符,这很好在一个固定线上,眼睛可以跳动和错误在一个盒子拖在顶部的网络你正在阅读选择之间。\n\nThe hook is ``QEvent.ToolTip`` rather than hover. It fires exactly when Qt has decided to show a tooltip -- after the same delay, at the same moment -- so the description appears when the user expects it, and returning ``True`` from the filter is what stops the popup being drawn. Reimplementing the timing on ``HoverEnter`` would be a second, slightly different delay for the same gesture.\n\n可用的名称和描述是无触摸的:它们是单独设置在这些 widgets 和是筛选读者阅读的东西,所以移动可见的文本不需要辅助文本。",
+      "translation_source_blocks_sha256": [
+        "d8f6e3e0b5355ec9031d55a72dd4a733a400ed3bc412eaefe798f7be205b7e3f",
+        "2252010c1768dc4f060dc2fd609316a2da3cce763b9e66f5271508b4468b8227",
+        "ea746518bb511cb0a199918eb5fd78df8ec07ed2ec5e85abd216004ba84e5ab2",
+        "9c825b5d71ea0ecd9f73aeb6740230a59f9b35a52305fdb00d53e5a3bfc25bc6",
+        "3c898e5af9ca348cf9fcb99f4c306b8cd7efb19c77b4d04d1c4ebcb06edb0230"
+      ]
+    },
+    "spacr.qt.module_hints.install_module_hints": {
+      "source_blocks_sha256": [
+        "ee83f4926dd95e4ec9618fe40a394064c5a5ac943d6392b91c3fcc4bbb48e859",
+        "605a69897d886c8b1c4bcb6bca01f6828f33b5aeeb8eaf2c965266f8ba964090",
+        "fe88ff4f9714e4c7379af5d1796af632e7cabc3ccd07b8dc71846b64a25772ee"
+      ],
+      "source_sha256": "36f68efa46a9ffcb71e07b51f866927485983dcf8407693e65676ea7ac118fb1",
+      "text": "将模块描述发送到 ``window`` 的状态栏。\n\n安装在应用程序而不是每一个按钮上:粘贴条构建其按钮轻松,每个主机面板,并安装每个 widget 的过滤器会错过每一个在这个跑步后完成。\n\n:returns: 过滤器,所以呼叫器可以删除它; ``None`` 如果没有应用程序安装它。",
+      "translation_source_blocks_sha256": [
+        "ee83f4926dd95e4ec9618fe40a394064c5a5ac943d6392b91c3fcc4bbb48e859",
+        "605a69897d886c8b1c4bcb6bca01f6828f33b5aeeb8eaf2c965266f8ba964090",
+        "fe88ff4f9714e4c7379af5d1796af632e7cabc3ccd07b8dc71846b64a25772ee"
+      ]
+    },
+    "spacr.qt.module_hints.module_hint_text": {
+      "source_blocks_sha256": [
+        "9fdd57aa2915f1e1cb0e328482838953dac127fcb6c0796a21676bf3d0cdb6e0",
+        "45beb280c858bf92b35ba189a97e1306986b75da6b0c020564b9916d053dc44f"
+      ],
+      "source_sha256": "f45a839213e871ed90848c477a64b26483f8ba2aea6d49d452f1cb7bff999925",
+      "text": "一个模块 widget 的行有助于,或 ``\"\"``。\n\n名称和概述是从属性而不是从工具提示中阅读的,所以文本是加拿大英语的来源,语言转换器将其翻译,而不是翻译。",
+      "translation_source_blocks_sha256": [
+        "9fdd57aa2915f1e1cb0e328482838953dac127fcb6c0796a21676bf3d0cdb6e0",
+        "45beb280c858bf92b35ba189a97e1306986b75da6b0c020564b9916d053dc44f"
       ]
     },
     "spacr.qt.multi_format": {
@@ -66991,6 +67625,18 @@
         "1a918c4a97e9f06e7251938e8b6ffcfd1de4ce30579fc903c3aba5607afb2d56"
       ]
     },
+    "spacr.qt.screens.db_browser.install_folds": {
+      "source_blocks_sha256": [
+        "9373aaa67d4cb47235c9dc47218d7a82b5b6fc32bb51f8f5592e88d5e1a7d6f9",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
+      ],
+      "source_sha256": "fa3c58a28e4b5b84002322e6d99cc7cad9888a07f069d9e13d57356fc4555875",
+      "text": "将 db_browser 的字符串放在 ``screen`` 的面板上。\n\n通过一个通过每个主机服务的架子 - 见 :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`。",
+      "translation_source_blocks_sha256": [
+        "9373aaa67d4cb47235c9dc47218d7a82b5b6fc32bb51f8f5592e88d5e1a7d6f9",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
+      ]
+    },
     "spacr.qt.screens.db_browser.quote_ident": {
       "source_blocks_sha256": [
         "4ae9a7dd68895566c7c158bf97eca9adc6223daa4be1a8d7a8fed6fa152cbd66",
@@ -68001,6 +68647,16 @@
         "574c656f4ea7b6f28e8099c75701bb3f7d0b103572c62c2ba29049e11f397ef9"
       ]
     },
+    "spacr.qt.screens.foreign.install_folds": {
+      "source_blocks_sha256": [
+        "4946a59d9523c5690d0482a592f0693eabe502e6ddb7896353c03384725c8bd9"
+      ],
+      "source_sha256": "4946a59d9523c5690d0482a592f0693eabe502e6ddb7896353c03384725c8bd9",
+      "text": "将 Import 的字符串放在 ``screen`` 的面板上。",
+      "translation_source_blocks_sha256": [
+        "4946a59d9523c5690d0482a592f0693eabe502e6ddb7896353c03384725c8bd9"
+      ]
+    },
     "spacr.qt.screens.gate_editor": {
       "source_blocks_sha256": [
         "5802a5d8275282f0f72141bf1462df06a34d7b4f8269613b8f1ea2f34a83df9d",
@@ -68431,6 +69087,18 @@
       "text": "字符 ``frame``. 一个叫一个主机需要。",
       "translation_source_blocks_sha256": [
         "8e345d75be70016dbf6b25b01179d0b48d8d1c5f1ec872e105c84aff12fa503c"
+      ]
+    },
+    "spacr.qt.screens.graph_builder.install_folds": {
+      "source_blocks_sha256": [
+        "b380eb9877cf0d4f70fb3cceadfea84b4badbeffab43408f1e894552b0e6f0c3",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
+      ],
+      "source_sha256": "58cb8e09fdf787b9df7a617b99bf69cdb01f5929f4df5ed05956d4da4fec6851",
+      "text": "将 graph_builder 的字符串放在 ``screen`` 的面板上。\n\n通过一个通过每个主机服务的架子 - 见 :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`。",
+      "translation_source_blocks_sha256": [
+        "b380eb9877cf0d4f70fb3cceadfea84b4badbeffab43408f1e894552b0e6f0c3",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
       ]
     },
     "spacr.qt.screens.graph_builder.make_graph_builder_screen": {
@@ -70383,6 +71051,28 @@
       "text": "显示包装模块;如果它已经上。",
       "translation_source_blocks_sha256": [
         "f6f10207dca43ac2404b337be8523dcf815eb6dcf8fdc941967585685e4cbd05"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.build_registered_screen": {
+      "source_blocks_sha256": [
+        "f098d0837ae39116bee483c10326ff146e707ca95455570e2774dcc038a6f77c",
+        "0f70848f7ef21f5dc3f108e5d89f1b481b313c7bef6ed5d6914d8a02ffbab3b2",
+        "e2693ed89228b02e20fe367123fbddc5a9b45a1b6629683a60ec43a7929da0de",
+        "a0c45a1424dea18b4ae55ab475aaf665be1849161a729181c54cfeff52ded824",
+        "ead69f296095fc7f56aedc29ee07abce5fd95b098c8ec93cdf2bf57f54c37085",
+        "fc5d8741925314ec351f6997c871873647b6c079eab1e0cfa7a03c2911fae138",
+        "7208722366104a9670be1e6bfce4039b7d24f62f253bc1e0792885cf86697804"
+      ],
+      "source_sha256": "9838634199216863bd21b4fb26cd2d2dfb1b3b2d347cd6f66601f8118765d737",
+      "text": "应用程序视图 NAVIGATION 设置为 ``key``,以便打开一个折叠按钮。\n\n仍然保持登记顺序的包装模块是通过两种方式 - 按钮在他们的主机的面板和命令板 - 两者必须在相同的应用程序视图上着陆。 请求窗口来构建它是什么保证: `_build_screen` 是唯一知道哪个结构化数据名称有一个专门的应用程式视图类,它们是目录驱动的 `AppScreen`s,并且来自一个插件。\n\n替代方案是一个表在这里地图十个结构化数据名称到十个类,这是相同的知识写下第二次,免费从第一个流动。\n\n回到 :func:`build_settings_screen` 时,没有窗口可以询问 - 无图形界面和单元测试路径,在那里设置应用程序视图是目录驱动的模块会产生什么。\n\n:param key: 填写模块的登记密钥。\n:param host_window: 主要的窗口,当有一个。\n:returns: 筛选上。",
+      "translation_source_blocks_sha256": [
+        "58a168c9879adfebe119158ec4422dc4b343443496a8ea0804948217e9d32e3f",
+        "9a5f0aa74dd1d7a29d9442e58c6c6b75cf9b5d388a3696f03ceb49d87a9a6a1b",
+        "d9e1c2d637876794424e98c8aed9cb79b09df8172a64239eadc648bf2fe8a07d",
+        "77686ffabc8db40b1c6b1831c0e81b1e2702693c9a9b1a145b9a44b0f7f8b199",
+        "ead69f296095fc7f56aedc29ee07abce5fd95b098c8ec93cdf2bf57f54c37085",
+        "fc5d8741925314ec351f6997c871873647b6c079eab1e0cfa7a03c2911fae138",
+        "7208722366104a9670be1e6bfce4039b7d24f62f253bc1e0792885cf86697804"
       ]
     },
     "spacr.qt.screens.map_barcodes.build_settings_screen": {
@@ -73635,6 +74325,18 @@
         "240f42163b995c0b8169d241ce7112551c221eb22b382d71235646d73c37aeb5"
       ]
     },
+    "spacr.qt.screens.qc_dashboard.install_folds": {
+      "source_blocks_sha256": [
+        "ecadd6bfabbd0fcabf76ae423a0cedcc71ad3d872a248ea38d7c10987a4a55be",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
+      ],
+      "source_sha256": "275082acf7c4d42b82ea4102bdcf6505be749df2ed48e8ca64f0289a0298744a",
+      "text": "将 qc_dashboard 的字符串放在 ``screen`` 的面板上。\n\n通过一个通过每个主机服务的架子 - 见 :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`。",
+      "translation_source_blocks_sha256": [
+        "ecadd6bfabbd0fcabf76ae423a0cedcc71ad3d872a248ea38d7c10987a4a55be",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
+      ]
+    },
     "spacr.qt.screens.qc_dashboard.make_qc_dashboard_screen": {
       "source_blocks_sha256": [
         "fd34cb3cc6b0658a82e6c29ceac433dd0011bc97df79e18fb1f05e6e57a793cd"
@@ -73725,6 +74427,46 @@
         "77c1f0d1217f28cda2b7cf51ea66b3c50767825b4603e9dc1da9f787a9a407c8",
         "6e06b20762fd6fceeb3202be5c3d34d976b31a2f23bba79db4fb903be552c30a",
         "f35bfe6fde4e28adc159bfc44a08303affceb45c64269aae844a3bc90f985ef1"
+      ]
+    },
+    "spacr.qt.screens.regression.DiagnosticsOpener": {
+      "source_blocks_sha256": [
+        "0f4f7779ca5851d23ec8b6f7c4271ecf698ba7506858cc98927e4cb33566c402",
+        "b9b835c8f5605fe8dd3c6e335aec1e7817d62d4a6f7d6f9b8efe1c0e07f4483d",
+        "6ab3ae927aee13014a565f1b486c38517f493ed3f8a81a12776cbf4d6cb50e75",
+        "7f0324b69872a608df4dc85b49c57d9d2d3c91b163c1c5244463d488669237bd"
+      ],
+      "source_sha256": "4ddc199e82c3cbdbf53c87ba5446144c3a0b75b33d42d2a8d334c8cbd6145d38",
+      "text": "诊断按钮:显示最后一行写的面板。\n\n没有模块. `spacr.ml` 将这些面板写入处理会议的结果文件夹中,当它完成时 - 见 `_write_regression_diagnostics` - 因此这里没有什么可计算的,也没有什么可设置的。\n\n一个没有发生的处理会议,或者一个没有废物的背景,没有文件夹或部分一个,这样说比一个似乎没有做任何事情的按钮更有用。\n\n:param screen: 在主机筛选上,按钮坐着。",
+      "translation_source_blocks_sha256": [
+        "0f4f7779ca5851d23ec8b6f7c4271ecf698ba7506858cc98927e4cb33566c402",
+        "5cf659f7e635f6b032cd383da9c62e677b66a4f282bdf0b27de707d52f35e0e4",
+        "37c6b1d118653d44c6fe8b2fbc6f819b8ffb3e3db900f9e749e5835eb9a98006",
+        "7f0324b69872a608df4dc85b49c57d9d2d3c91b163c1c5244463d488669237bd"
+      ]
+    },
+    "spacr.qt.screens.regression.DiagnosticsOpener.open": {
+      "source_blocks_sha256": [
+        "cdf2f4b10f57b894ec968ef54af7f11c986e0403b9d976917d4b97b2efeeb751"
+      ],
+      "source_sha256": "cdf2f4b10f57b894ec968ef54af7f11c986e0403b9d976917d4b97b2efeeb751",
+      "text": "打开文件夹,或者说为什么没有什么可打开的。",
+      "translation_source_blocks_sha256": [
+        "cdf2f4b10f57b894ec968ef54af7f11c986e0403b9d976917d4b97b2efeeb751"
+      ]
+    },
+    "spacr.qt.screens.regression.DiagnosticsOpener.verdict": {
+      "source_blocks_sha256": [
+        "b399ec2f073258d2848401d84a148df082fbb02754f3424c034fdfa30b3bfed1",
+        "479189aad9a855b2228a8d39f83f0c3cb674ac9f85a0f6c0bdb0084530ca8125",
+        "c11963af4f1b2786bb036766bb466e7fc461fa4e6bef4dd937ec95519aab2a9b"
+      ],
+      "source_sha256": "9795c92d2e4e6677035d29863bc487189b56f9000770b2c3b9fbc212c3349785",
+      "text": "``(level, detail)``为标签,从磁盘上的东西。\n\nITEM 3 OF INSTRUCTION 322: the button is badged with the worst of score_design / score_residuals / score_inference. That worst is already computed and written -- ``diagnostic_summary.csv`` carries a ``suite``/``verdict_level`` row -- so this is a READ, and it has to stay one. Recomputing it here would let the button and the panels disagree about the same run.\n\n``(\"\", \"\")``当没有什么可读的,这不像一个通道:一个没有发生的跑步没有判决,一个绿点会声称它做了,而且是好的。",
+      "translation_source_blocks_sha256": [
+        "b399ec2f073258d2848401d84a148df082fbb02754f3424c034fdfa30b3bfed1",
+        "479189aad9a855b2228a8d39f83f0c3cb674ac9f85a0f6c0bdb0084530ca8125",
+        "c11963af4f1b2786bb036766bb466e7fc461fa4e6bef4dd937ec95519aab2a9b"
       ]
     },
     "spacr.qt.screens.regression.HitsOpener": {
@@ -76227,6 +76969,84 @@
         "dc6fc5386326a63279fa8841a88645bad031ad40676e6a724a072b395b8657a9"
       ]
     },
+    "spacr.qt.settings_pack": {
+      "source_blocks_sha256": [
+        "ab9973c1f5d237646efd7244d89bd84bb17d9cfb266b0b513a4b828bf5dc3410",
+        "fe787e883fd6004a869cea468ea5b90385ba95cbf1d0fbd889efbf9d04cd1a85",
+        "42a8687921e49dd97ce0735a4a8d376e487e15a4a79e0117a7793e508750fd59",
+        "bf44b8e66d9733e8a8be7a93421195f314bc5d494400064d7d2d9d09a0444bc0",
+        "a73d62408fca8dda2153beec9c8d5175d180412a2274e75d2dc0fefc91b99a3f",
+        "f734c2a7ec91ead8f396cbac515094d1755c9c7fcf5e7e50703a1335c08c6d95",
+        "480adc7294996cc433b76d3164ed4f3df8b4ab47073362a2124379790ec4c38d",
+        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4"
+      ],
+      "source_sha256": "2015c5dd08df7607cae3df4445e278a9d0387d30fab13dd48cb6df6abd2e475c",
+      "text": "阅读下载的设置包到设置这个 spaCR 可以执行。\n\nThe demo dataset on HuggingFace ships ``<app>_settings.csv`` files beside the images. They were written by an older spaCR, so some of what they name no longer exists -- structured-data names renamed, structured-data names removed with the feature they configured, structured-data names that were never settings at all.\n\nMERGING THEM BLIND IS THE BUG THIS MODULE EXISTS TO FIX. The previous loader read every row of the CSV straight over the defaults, so a structured-data name the current build has never heard of arrived in the settings key-value mapping and travelled into the workflow, where it was either ignored silently or produced an error naming a setting the user did not type and cannot find in the form. Either way the user is told nothing at the point where it could be explained.\n\n因此,这个移民而不是合并,并且报告而不是猜测:\n\n* 一个应用程序仍在应用的密钥;\n* 已改名的密钥在其新名称下应用并计算;\n* 一个不再存在的关键在任何地方都被抛弃并命名。\n\n“下载了34个设置,改名2个,下载3个这个版本不再有”是一个用户可以采取行动的句子。",
+      "translation_source_blocks_sha256": [
+        "f26d4231e3cb3be29f573b79b1d90cf4b2c0b7a247dcb8391795e8999986c249",
+        "c3d3fb2ce9f32a764a44d1c5ed3faaaf916d6a61080caccd07121a9dff419400",
+        "baeee889933029a540e5a5f8fa202738899ffdab8297638446b913da4dbcc139",
+        "bf44b8e66d9733e8a8be7a93421195f314bc5d494400064d7d2d9d09a0444bc0",
+        "a73d62408fca8dda2153beec9c8d5175d180412a2274e75d2dc0fefc91b99a3f",
+        "f734c2a7ec91ead8f396cbac515094d1755c9c7fcf5e7e50703a1335c08c6d95",
+        "480adc7294996cc433b76d3164ed4f3df8b4ab47073362a2124379790ec4c38d",
+        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4"
+      ]
+    },
+    "spacr.qt.settings_pack.PackReport": {
+      "source_blocks_sha256": [
+        "2ec5737fdfc68d1680655ab42835f234b17706c38ba5341940a57a75e6cd1d06"
+      ],
+      "source_sha256": "2ec5737fdfc68d1680655ab42835f234b17706c38ba5341940a57a75e6cd1d06",
+      "text": "什么变成一个设置包,在一个用户的意义上可以说。",
+      "translation_source_blocks_sha256": [
+        "2ec5737fdfc68d1680655ab42835f234b17706c38ba5341940a57a75e6cd1d06"
+      ]
+    },
+    "spacr.qt.settings_pack.PackReport.summary": {
+      "source_blocks_sha256": [
+        "9cba45799f39f9d2e5ef3c73bb70090e3d15a4589510203179187d143fdf8811",
+        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26"
+      ],
+      "source_sha256": "53f0e42cee9c3c2023642448e1b684f6bd87db9c9392f7901904a62852d2d050",
+      "text": "一个状态栏的句子,命名失去的东西。\n\n命名掉落的钥匙,而不是计算它们: \"dropped 3\" 告诉一个用户失去了一些东西,而不告诉他们什么,这是最糟糕的两者。",
+      "translation_source_blocks_sha256": [
+        "9cba45799f39f9d2e5ef3c73bb70090e3d15a4589510203179187d143fdf8811",
+        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26"
+      ]
+    },
+    "spacr.qt.settings_pack.read_pack": {
+      "source_blocks_sha256": [
+        "587cd9c3ea6cb8e61ba8e65fb38f233dcd534e4daf0f2b6ba0cbf5bb43fdc81d",
+        "52d5b7ff39f7c44b3891061e97068a5b8d2d79f42309ff79a8dc852d5c55bb9b"
+      ],
+      "source_sha256": "76bfbc734c5081a7eda6a33e5304fe3716e47445195356521e63a9f8aa62b316",
+      "text": "``({key: value}, malformed row count)`` 从 ``<app>_settings.csv``。\n\n丢失的文件不是一个错误:一个包合法地为某些应用程序而不是其他应用程序进行设置,呼叫者获得一个空白的关键值地图。",
+      "translation_source_blocks_sha256": [
+        "587cd9c3ea6cb8e61ba8e65fb38f233dcd534e4daf0f2b6ba0cbf5bb43fdc81d",
+        "db4b929678523be1ada9f07fa8cfa9dd8bbfe2239e8e740d6d24e3050f1c0f7d"
+      ]
+    },
+    "spacr.qt.settings_pack.settings_from_pack": {
+      "source_blocks_sha256": [
+        "2a272bbfaaf0e535a241fabdf42ab804ba4f82b052564436a2fba1506f313c88",
+        "bc3d5fb1693b85f6cc3ccebc4e5b3592040859495b9240cb7b26e4a2a8e087ab",
+        "acecd40df1a939228136f4e47fa92596c35ce933f8a028a6b987db7545763b74",
+        "76a8264140685dc8c4fb5b7c3358127d4dc4f7c82496d898dec4e682e93d67e1",
+        "4c0ee1255781361aee5d87dc9cfa78f930e1d65bda3ec7705c197364417d4e9d",
+        "f00d1a8561e06489a382981cf0e91b57e7f487ea2606bcf73fb53bff7cfa569e"
+      ],
+      "source_sha256": "c7fa01f2b216bd266e7645010767fc751c65753950d4281781001abe02eaadb6",
+      "text": "应用程序的默认,包在它们上迁移。\n\n:param app_key: 包装的模块是为的。\n:param pack_dir: 文件夹持有 ``<app_key>_settings.csv``。\n:param src: 数据集文件夹;超越任何 ``src`` 包名称,因为一个包写在别人的机器上命名一个不存在的路径。\n:param defaults: 应用程序的故障;在被忽略时从注册表中解决。\n:returns: 应用的设定,以及该包的变化。",
+      "translation_source_blocks_sha256": [
+        "2a272bbfaaf0e535a241fabdf42ab804ba4f82b052564436a2fba1506f313c88",
+        "bc3d5fb1693b85f6cc3ccebc4e5b3592040859495b9240cb7b26e4a2a8e087ab",
+        "acecd40df1a939228136f4e47fa92596c35ce933f8a028a6b987db7545763b74",
+        "76a8264140685dc8c4fb5b7c3358127d4dc4f7c82496d898dec4e682e93d67e1",
+        "4c0ee1255781361aee5d87dc9cfa78f930e1d65bda3ec7705c197364417d4e9d",
+        "f00d1a8561e06489a382981cf0e91b57e7f487ea2606bcf73fb53bff7cfa569e"
+      ]
+    },
     "spacr.qt.settings_search": {
       "source_blocks_sha256": [
         "c75fdd23d525b9704a0cd36681dcaa474e3c97d012d481059f69e8a47879539a",
@@ -78261,6 +79081,22 @@
       "translation_source_blocks_sha256": [
         "3d5e146a3ca58a147bd3b5838f709de2c565e66e099ea9ef935b8c33545defc7",
         "a29aab1b03a55cff3014e2f32b0d57035da94c276d1c95f8d97efd3a72d11ac7"
+      ]
+    },
+    "spacr.qt.theme.menu_bar_background": {
+      "source_blocks_sha256": [
+        "0ef1e0b248738e104fab71325864b8918e97796c5d30139cc3fb07109de10a78",
+        "e5342e28fd1bef3b3a2ff8d80faa2d7a4c02a43894374ca19ce5165b5376a8a4",
+        "4123bbe9bc92ef59539e0d6696ce6633daa1a1f64a1ff72e69c231bf2e6b1bd9",
+        "5c0d3263237d2549a7d002576bb3ef65abaf54ecb29ac03c82d974e503337c89"
+      ],
+      "source_sha256": "e5ab259b5f80f09ce6f7e666a5168492a84f2f569af0ab68039fa18b91fd8dda",
+      "text": "QSS 颜色 菜单栏和它的角色染色 两种颜色。\n\n字符串是由生成的风格表格制成的,窗口染色是由其自己的风格板制成的 ``spacr.qt.app``;必须匹配的两个硬编码的颜色,其中一个将变成。\n\n:param theme: 主题名称:当被忽视时,活动主题。\n:returns: QSS 色彩线。",
+      "translation_source_blocks_sha256": [
+        "0ef1e0b248738e104fab71325864b8918e97796c5d30139cc3fb07109de10a78",
+        "e5342e28fd1bef3b3a2ff8d80faa2d7a4c02a43894374ca19ce5165b5376a8a4",
+        "4123bbe9bc92ef59539e0d6696ce6633daa1a1f64a1ff72e69c231bf2e6b1bd9",
+        "5c0d3263237d2549a7d002576bb3ef65abaf54ecb29ac03c82d974e503337c89"
       ]
     },
     "spacr.qt.theme.page_colour": {
@@ -84629,6 +85465,20 @@
         "3f27d1d453ed77ab19d0955fdba6b658af3d003676cb750fe3d4481af1976217"
       ]
     },
+    "spacr.qt.widgets.console_panel.ConsolePanel.append_warning": {
+      "source_blocks_sha256": [
+        "43671ecf50dfdd68d9a39e4936764f7b18dae5352758c14ba3752f7407e2dd1b",
+        "6efa78e8c8e6549929382ab90dd2186fb4117ecd3a7079da4b12d4eaabdda543",
+        "f699cc1988ba0b9c6ad5094ebf723213a74cc7c69244f94c534260b68ef90cb8"
+      ],
+      "source_sha256": "5b61531411fe7eaf96fedc897f05a19bdc5c60f25a3b72c5967576f0aeec7f97",
+      "text": "将警告文本添加到主题的框中,在输出旗帜下。\n\nDELIBERATELY NOT ITS OWN BANNER, and the reason is a coordination one rather than a design one: a \"spaCR warning\" heading would need a new row in ``spacr.qt.i18n._ROWS`` with nine translations, which moves the COMPACT caption ratchet another session owns. Amber under the existing translated \"spaCR output\" heading already satisfies what instruction 320 asks for -- warnings out of the ERROR pane, errors still in it -- without reaching into that machinery. A dedicated banner is the nicer end state and is recorded in 320 as the follow-up.\n\n:param text: 格式化记录;空线被忽略。",
+      "translation_source_blocks_sha256": [
+        "43671ecf50dfdd68d9a39e4936764f7b18dae5352758c14ba3752f7407e2dd1b",
+        "6efa78e8c8e6549929382ab90dd2186fb4117ecd3a7079da4b12d4eaabdda543",
+        "f699cc1988ba0b9c6ad5094ebf723213a74cc7c69244f94c534260b68ef90cb8"
+      ]
+    },
     "spacr.qt.widgets.console_panel.ConsolePanel.apply_zoom": {
       "source_blocks_sha256": [
         "809eac73c97a658c420331267ae9d478ed8cf5186cdf79f4d0d1667982e73620"
@@ -84959,6 +85809,18 @@
       "text": "用户输入对应用程序视图主题的颜色现在。",
       "translation_source_blocks_sha256": [
         "e850f56a25db7bd5372bb94000727b9cd84bb3f5dfc4d7af0989fd909387f854"
+      ]
+    },
+    "spacr.qt.widgets.console_panel.color_warning": {
+      "source_blocks_sha256": [
+        "991fe8e233f0f2a7874c5c71976941ea4fe79081509b792319685f5ba3502a0e",
+        "4c41f83e11a551581814d3bf0704722946c9d394f93a14caf458d9f4cda5ff67"
+      ],
+      "source_sha256": "5fda83a953445a6056e1535e7b981d5d3d66e79a0bd0d484493c22e2e79c0d54",
+      "text": "此时此刻对应用程序视图主题的警告颜色。\n\n不同于 :func:`color_error` 的目的 -- 见 :meth:`ConsolePanel.append_warning`. 每个主题都已经定义了 ``warning`` 角色;这里没有什么需要发明。",
+      "translation_source_blocks_sha256": [
+        "c0c8ca619d34938c170a68d26d594ef3eddf6833ac1e00a3000b4e3e91d63fa8",
+        "4c41f83e11a551581814d3bf0704722946c9d394f93a14caf458d9f4cda5ff67"
       ]
     },
     "spacr.qt.widgets.console_panel.get_split_state": {
@@ -90372,19 +91234,19 @@
         "4a7618289eb2b2115930041f8195b8b298d67b1e7d0e7552d0e90e3b23f6dc6e",
         "51b795024d73c44a107b628775b0119b4e6394902f1503cb563078cb468627e7",
         "514dd2531b57a99fb060d614648ab537d72562c86b63dcbbb8ca8af435b45b7f",
-        "daf330e74aaf8e574d68ac110a7c240dde42c5d39b9015acc2859cb40a919c99",
+        "e0549d09928c50d38cbfa012e6c7f76d81479c664e29d8358b14f159802d8d37",
         "4b5c4c8132e0bc132147e7bfa1e66e66ee9f57aa476ee77f3d902cec47d693ab",
         "02e65cdb2acee1355970f59fe7858a30a3ab48f666fe278f1b3815e39a6eb899"
       ],
-      "source_sha256": "acb0f5bc4ea460c4333333a6f13bcbe94a862b3c59ce38d455a49547c8c155b6",
-      "text": "在应用程序中,有关键值地图功能:查看测量,而不会离开 spaCR。\n\n一个完成的行写成数百个列,每个对象的名称如 ``cell_channel_1_percentile_75``. :mod:`spacr.feature_dict` 他们已经知道这些意味着什么一段时间,但只是作为一个 *出口*你可以写一个标记下载文件描述一个数据库,这是整个界面,所以当一个用户实际上需要答案 - 阅读一个结果表,观看一个回归率,转动一个 UMAP 轴 - 他们必须离开应用程序。\n\n这个模块是缺失的一半:\n\n:class:`FeatureDictionaryPanel` 可搜索的面板. 按列名,按字符串,或按 *想法* (\"intensity\", \"texture\", \"shape\", \"distance\", \"how big\", \"blurry\"根据对象类型和概念进行过滤,并阅读定义、单位、对象的属性存在于哪个,它适用于哪个频道,以及哪个模块计算它。\n\n:class:`FeatureDictionaryDialog` / :func:`open_feature_dictionary` 同一面板与非模块窗口,可选地直接向一个列打开。\n\n:func:`register`将面板放入应用程序登记簿(探索部分)和其QSS主题,通过 ``register_app`` / ``register_widget_qss`` 标签 - 该模块拥有自己的注册表,并且不会编辑 ``app.py`` 或 ``theme.py``。\n\n:func:`install_window_hooks`到达我从哪里到达我的两条路线:一个**帮助▸功能关键值地图......**行动,和一个**“这是什么?”**项目在应用程序中的任何结果表的背景菜单。\n\n背景菜单路径故意是一个应用级事件过滤器,而不是每个表应用视图的编辑。 有11个桌面应用程序视图,其中没有一个声称今天的背景菜单,所以过滤器到达所有 - 包括那些建造的轻松,很长一段时间后,这个尾巴运行 - 到达任何添加的桌子后免费。 它站在任何主张自己的背景菜单(``CustomContextMenu`` / ``ActionsContextMenu``)的 widget 旁边,所以通过一个后静静地采取了这一点的偏见。",
+      "source_sha256": "942df7b3a5bd67f0f687614647ab8720d91c5f29ffab47038bca9157b7483f12",
+      "text": "在应用程序中,有关键值地图功能:查看测量,而不会离开 spaCR。\n\nA finished run writes hundreds of columns per object with names like ``cell_channel_1_percentile_75``. :mod:`spacr.feature_dict` has known what those mean for a while, but only as an *export*: you could write a markdown file describing a database, and that was the whole interface. So the moment a user actually needs the answer — reading a results table, staring at a regression coefficient, hovering a UMAP axis — they have to leave the app.\n\n这个模块是缺失的一半:\n\n:class:`FeatureDictionaryPanel` the searchable panel. Search by column name, by substring, or by *idea* (\"intensity\", \"texture\", \"shape\", \"distance\", \"how big\", \"blurry\"), filter by object type and concept, and read the definition, the unit, which objects the feature exists for, which channel it applies to and which module computes it.\n\n:class:`FeatureDictionaryDialog` / :func:`open_feature_dictionary` 与非模块式窗口相同的面板,可选向一个列直接打开。\n\n:func:`register` 将面板放入应用程序登记簿(工具部分)和其 QSS 主题,通过 ``register_app`` / ``register_widget_qss`` 标签 - 该模块拥有自己的登记,并且不会编辑 ``app.py`` 或 ``theme.py``。\n\n:func:`install_window_hooks`到达我从哪里到达我的两条路线:一个**帮助▸功能关键值地图......**行动,和一个**“这是什么?”**项目在应用程序中的任何结果表的背景菜单。\n\n背景菜单路径故意是一个应用级事件过滤器,而不是每个表应用视图的编辑。 有11个桌面应用程序视图,其中没有一个声称今天的背景菜单,所以过滤器到达所有 - 包括那些建造的轻松,很长一段时间后,这个尾巴运行 - 到达任何添加的桌子后免费。 它站在任何主张自己的背景菜单(``CustomContextMenu`` / ``ActionsContextMenu``)的 widget 旁边,所以通过一个后静静地采取了这一点的偏见。",
       "translation_source_blocks_sha256": [
         "797e5dfa2a5326cf6f136409f3f2402090092f164f71a993690654de307c955b",
         "a7a1b991e6e7c07d0dc9c9b75004c48307b549fb721d57ee27b5a89b9ea1bfde",
         "4a7618289eb2b2115930041f8195b8b298d67b1e7d0e7552d0e90e3b23f6dc6e",
         "51b795024d73c44a107b628775b0119b4e6394902f1503cb563078cb468627e7",
         "514dd2531b57a99fb060d614648ab537d72562c86b63dcbbb8ca8af435b45b7f",
-        "daf330e74aaf8e574d68ac110a7c240dde42c5d39b9015acc2859cb40a919c99",
+        "e0549d09928c50d38cbfa012e6c7f76d81479c664e29d8358b14f159802d8d37",
         "9faece4c5c9bd1a551260adbb2afa2d3793e42385dea242a44dc48ba45bb1f5e",
         "eebd9dcf69e1465b1539e896beb12631adf50787955d8389cb0ca1be3ebfcbbf"
       ]
@@ -92829,6 +93691,24 @@
         "7d5468e72b90f9e20d01224a1f9e8d0f945f1f441f006fcee1b4b99a7dc1c854"
       ]
     },
+    "spacr.qt.widgets.fold_strip.FoldButton.set_verdict": {
+      "source_blocks_sha256": [
+        "1ad0e93d1fbd8028236e36e6a64b89416a664c62092f3f13134356ffc37a71d3",
+        "3ef646b4c335f48f41d50726610b4ea7159f59cdf9c1614ec44ed32d8b747b66",
+        "e641356b2aac9678dd4ab143e1655819bf6fd48fe38fdf7ff5807dd499911895",
+        "64da6288febc7f6b4edde5a1c8bf17dbcfc4486a61b4611ec1952994ed039379",
+        "216a1eedb7795fc6e1492b19fc9da5492c42cadc7dc1188ada5a0e018d9ef1ca"
+      ],
+      "source_sha256": "52dea2bcadb94908be8570e73aaa9ab9a8a219b4e43a1f4274778c205413d5fa",
+      "text": "把这个按钮带到一个跑步的最糟糕的判决。\n\nA DOT, NOT A COLOURED BUTTON. The button's own colour already means maturity -- alpha, beta, stable -- and a second meaning on the same surface makes both unreadable. The dot is drawn over the corner instead, and the detail goes in the tooltip where the reason can be a sentence.\n\n``\"\"`` 清理它,这是一个没有诊断的跑步,但必须显示:没有点而不是绿色,因为 \"not measured\" 和 \"measured and fine\" 是不同的答案。\n\n:param level: ``\"pass\"``, ``\"check\"``, ``\"fail\"`` or ``\"\"``.\n:param detail: 判决背后的判决,为工具提示。",
+      "translation_source_blocks_sha256": [
+        "1ad0e93d1fbd8028236e36e6a64b89416a664c62092f3f13134356ffc37a71d3",
+        "3ef646b4c335f48f41d50726610b4ea7159f59cdf9c1614ec44ed32d8b747b66",
+        "e641356b2aac9678dd4ab143e1655819bf6fd48fe38fdf7ff5807dd499911895",
+        "64da6288febc7f6b4edde5a1c8bf17dbcfc4486a61b4611ec1952994ed039379",
+        "216a1eedb7795fc6e1492b19fc9da5492c42cadc7dc1188ada5a0e018d9ef1ca"
+      ]
+    },
     "spacr.qt.widgets.fold_strip.FoldStrip": {
       "source_blocks_sha256": [
         "6a50ddd84c7227d3d3f3501ef193ff8b80cb1850011cf55fad4e8f554b71b784",
@@ -94045,6 +94925,34 @@
         "ff643c54cbe41ea26487aaf81e56ad47f9729e5187ddb62ec7ecae496a3ac4bb"
       ]
     },
+    "spacr.qt.widgets.fractal_orbit_gpu": {
+      "source_blocks_sha256": [
+        "a0321f31ace6aea55af1384f4fc91bd5b8c2f62ac5ce6e122729ef0d34321be4",
+        "02727a705ada0afaa8e8d6127e2eb0ea3296787532c5365a0835e91f751608a7",
+        "75a813886aa962a7bef10ddfe069c0c5eac21f94ea3eb4702a33cf6c5288ca10",
+        "1d805b1d806a17696a442c411d625ed84fa27de93fe61a7abb5c87ce3af2561a"
+      ],
+      "source_sha256": "75402e36c4c4c08c60a34ea86e34a51ca0919eddabd04ffb9e24d01553e2753f",
+      "text": "轨道在 GPU:第五个空间输出模式。\n\nInstruction 327 (5). The CPU orbit fold in :mod:`spacr.qt.widgets.fractal_travel` is the one renderer the maintainer singled out as right -- \"the orbit fold cpu effect is like a magnigying glass, which looks cool\" -- and it is the one the pointer complaint excluded. This is that same map, on the GPU.\n\n为什么这是一个第二个入口率从一个背后转换. CPU 路径喷射四个样本,接近四个框架,平均为四个不同的动画时间; GPU 通过可以给予四种样本在一个瞬间内. 他们不是相同的图像,所以提供他们作为一个选项与隐藏的背景会意味著相同的情况描绘两件事。 \"Orbit fold\" 被采取,所以这是“轨道(sharp)” - 描述什么实际上不同而不是版本数字。\n\n地图是转换的,没有重新发明:相同的字段,相同逆转恒定,相似的三个轨道漏洞,相一样的板块. 一个测试表明恒定符合字符的 CPU 函数字符,因为两个分开驱动器是两个具有一个名字的模型。",
+      "translation_source_blocks_sha256": [
+        "a0321f31ace6aea55af1384f4fc91bd5b8c2f62ac5ce6e122729ef0d34321be4",
+        "02727a705ada0afaa8e8d6127e2eb0ea3296787532c5365a0835e91f751608a7",
+        "75a813886aa962a7bef10ddfe069c0c5eac21f94ea3eb4702a33cf6c5288ca10",
+        "1d805b1d806a17696a442c411d625ed84fa27de93fe61a7abb5c87ce3af2561a"
+      ]
+    },
+    "spacr.qt.widgets.fractal_regions": {
+      "source_blocks_sha256": [
+        "5c7ea33918a061ca5b59290044449b18476bbc3f3980f30dfaa5261385d79554",
+        "9406df6d4a7f1efc4ca01799df8708ad0f4231a355e5dec55372e0d3f6bb8eb3"
+      ],
+      "source_sha256": "4a4e33a8aff4067e7aa71979040b7563dea514c77e39e294cf17e9545dd03ead",
+      "text": "Mandelbrot 协调背景相机巡回演出。\n\n由工具/find_mandelbrot_regions.py - 不要手动编辑. 指示 327 (3). 每个输入是保持四十年间高脱离时间的点,所以摄像头在到达时仍然有一些东西要显示。",
+      "translation_source_blocks_sha256": [
+        "5c7ea33918a061ca5b59290044449b18476bbc3f3980f30dfaa5261385d79554",
+        "9406df6d4a7f1efc4ca01799df8708ad0f4231a355e5dec55372e0d3f6bb8eb3"
+      ]
+    },
     "spacr.qt.widgets.fractal_space": {
       "source_blocks_sha256": [
         "e158c620939913328c1bf469d951093c551573f47225d188dffc0265013a0dd9",
@@ -94169,6 +95077,34 @@
         "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482"
       ]
     },
+    "spacr.qt.widgets.fractal_travel.DepthPhase": {
+      "source_blocks_sha256": [
+        "0acbfed2a8de82c703a66dbe9cad070699326eb869948566ed24423190fb13da",
+        "ffd62a341272ed7efb021704d33c66a8d7ed2cce4547b650d8170164882ce13b",
+        "7a22e7f431fac3f9bb6a3177159c2806f7b4ccd2c5b9b3ea90923208ec578967",
+        "4fe7f8d19404ba55b80e83a85e56759432a0a5d7f15a2d09212e7e07ec5a4d9e"
+      ],
+      "source_sha256": "5ebf34207069f04e242befd7ecf99e4545f93418bfde208ebebc7a515817052f",
+      "text": "摄像机在轨道上有多远,因为这个数字只会增加。\n\n速度必须改变速度,而不是位置. 深度通常是 ``t * speed``,所以加速速度的旋转在同一瞬间加速深度:测量在t=60s,速度1 ->2移动了相机5.0单位,这是3600个框架的普通旅行到达一个。\n\n相反,整合 - ``phase += dt * speed`` - 使速度的变化是连续的建造. 相机正是它在哪里; 只有它放弃问题的速度。\n\n作为一个小对象,而不是两个在 widget 上浮动,因为 invariant 值得命名: `value` 永远不会下降。",
+      "translation_source_blocks_sha256": [
+        "0acbfed2a8de82c703a66dbe9cad070699326eb869948566ed24423190fb13da",
+        "ffd62a341272ed7efb021704d33c66a8d7ed2cce4547b650d8170164882ce13b",
+        "7a22e7f431fac3f9bb6a3177159c2806f7b4ccd2c5b9b3ea90923208ec578967",
+        "4fe7f8d19404ba55b80e83a85e56759432a0a5d7f15a2d09212e7e07ec5a4d9e"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.DepthPhase.advance": {
+      "source_blocks_sha256": [
+        "e703c51e741e9518b85fb0aafc6af7faa11fb0be224bca46114f04aa8ffa276f",
+        "58f0ebcf71fdc5f6a5fb4d33e66a35ab75bde8270e9894053e4c485caa61b85c"
+      ],
+      "source_sha256": "93ea642573b377444074f7d7e66c55a68f5f5256f33202588ee884f7d6fa0101",
+      "text": "将步骤移动到壁时钟 ``t`` 在 ``speed`` 中,然后返回。\n\n一个回归的 t - 一个重新启动,一个时钟重新设置 - 重定向,而不是重新定向:阶段是旅行的距离,而旅行不会失败。",
+      "translation_source_blocks_sha256": [
+        "e703c51e741e9518b85fb0aafc6af7faa11fb0be224bca46114f04aa8ffa276f",
+        "58f0ebcf71fdc5f6a5fb4d33e66a35ab75bde8270e9894053e4c485caa61b85c"
+      ]
+    },
     "spacr.qt.widgets.fractal_travel.GpuBackendError": {
       "source_blocks_sha256": [
         "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f"
@@ -94231,6 +95167,80 @@
         "ca87e6a1fbe1d8ee1d9544bd4ea40061624a8fd3ed9138be3b9486252a160c03",
         "293c637a120bfa3f6605830769a5cfa902d7979703e1be2bf151b55067d3d5dc",
         "f2134d86823814189842ac04a661c8ca0136e8350c4ce5aa4da185c368262b4a"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour": {
+      "source_blocks_sha256": [
+        "94f9190e866263ed0bfb9a54b3775e6c8a495591aa671c49d55d37ddc65e5a41",
+        "b57036d63c78f88a0f0b4fcabd64c537d5fee67473dd5d37a7019ef198903de3",
+        "2362a3fbf5a085b910612d028cfede9cc76d45daabca7117ffafdb446e411755",
+        "5e129f240c5025e38151cba7656c4ea1b966b42410b2857c96f5653175b3ae6b",
+        "f4f904ea80c3aa1ca525423e8368996c79c974c727f333175ba83c626710d46f",
+        "4799fe04a4e8ff65c9aed6133c0328eadd3ef1e9de1089b7783e39d9b70956d3",
+        "7a0af2fbd14c3c46c394ec8f113d6afb23cae6caf0b8803b0c3b57379e3f2ed1"
+      ],
+      "source_sha256": "27127790bc767be47367670c7c9d2e5511d9c965f5391956910bef024adba137",
+      "text": "相机在值得一看的坐标之间浮动。\n\n指示327(3):“在图像上说20个区域,相机将自动顺利向前浮动。\n\nSMOOTHLY IS THE WHOLE REQUIREMENT, so the interpolation is a smoothstep rather than a straight line: it leaves one region and arrives at the next with zero velocity, which is what stops the arrival reading as a stop. A linear blend is continuous in position and not in velocity, and the eye sees the corner.\n\nDRIFT IS OFF THE MOMENT THE USER TAKES THE CAMERA. Dragging is a statement about where they want to be, and a tour that resumes over it is the application arguing. :meth:`take_over` stops it for good; :meth:`restart` is what Ctrl+R calls.\n\n:param regions: ``(name, x, y, half_width, score)`` 行,通常是 :data:`spacr.qt.widgets.fractal_regions.REGIONS`。\n:param dwell: 在离开之前,在某个地区度过了几秒钟。\n:param travel: 花了几秒钟在两个区域之间移动。",
+      "translation_source_blocks_sha256": [
+        "94f9190e866263ed0bfb9a54b3775e6c8a495591aa671c49d55d37ddc65e5a41",
+        "b57036d63c78f88a0f0b4fcabd64c537d5fee67473dd5d37a7019ef198903de3",
+        "2362a3fbf5a085b910612d028cfede9cc76d45daabca7117ffafdb446e411755",
+        "5e129f240c5025e38151cba7656c4ea1b966b42410b2857c96f5653175b3ae6b",
+        "f4f904ea80c3aa1ca525423e8368996c79c974c727f333175ba83c626710d46f",
+        "4799fe04a4e8ff65c9aed6133c0328eadd3ef1e9de1089b7783e39d9b70956d3",
+        "7a0af2fbd14c3c46c394ec8f113d6afb23cae6caf0b8803b0c3b57379e3f2ed1"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.active": {
+      "source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ],
+      "source_sha256": "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343",
+      "text": "不管巡回演出是否正在进行中。",
+      "translation_source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.period": {
+      "source_blocks_sha256": [
+        "1c77ab6d69f786a0e6f079204d0eda1e0c0baade2fa3c528b24d2531cc2f18f1"
+      ],
+      "source_sha256": "1c77ab6d69f786a0e6f079204d0eda1e0c0baade2fa3c528b24d2531cc2f18f1",
+      "text": "每个地区的整个循环一秒钟。",
+      "translation_source_blocks_sha256": [
+        "1c77ab6d69f786a0e6f079204d0eda1e0c0baade2fa3c528b24d2531cc2f18f1"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.restart": {
+      "source_blocks_sha256": [
+        "aa74ca0efe4b72b91a03e0fff13b521c0bdcbdc273cfacb33112d6415d65480d"
+      ],
+      "source_sha256": "aa74ca0efe4b72b91a03e0fff13b521c0bdcbdc273cfacb33112d6415d65480d",
+      "text": "Ctrl+R:将相机转向旋转。",
+      "translation_source_blocks_sha256": [
+        "aa74ca0efe4b72b91a03e0fff13b521c0bdcbdc273cfacb33112d6415d65480d"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.take_over": {
+      "source_blocks_sha256": [
+        "8ebd0c85118a24161eb8822611c2b81c52aeb0f314c9f25172b6a4857599204d"
+      ],
+      "source_sha256": "8ebd0c85118a24161eb8822611c2b81c52aeb0f314c9f25172b6a4857599204d",
+      "text": "用户移动了相机,巡回演出没有争论。",
+      "translation_source_blocks_sha256": [
+        "8ebd0c85118a24161eb8822611c2b81c52aeb0f314c9f25172b6a4857599204d"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.target_at": {
+      "source_blocks_sha256": [
+        "f99425d4c60b727e1df40721087166767dde33cbdb874e4bace67a4ae637353e",
+        "7998864774cae35e3880025d01aadf0b3352b8e983b1b295f149a4f9c0747130"
+      ],
+      "source_sha256": "62d802f7f78a23c7931e447d3dc111e60be5c481b3dd894ea0c4e2b520da2926",
+      "text": "摄像头应该在 ``seconds`` 上标记。\n\n``None``当巡回演出不顺序时,通话者可以离开相机正确的位置,而不是发送一个必须忽略的坐标。",
+      "translation_source_blocks_sha256": [
+        "f99425d4c60b727e1df40721087166767dde33cbdb874e4bace67a4ae637353e",
+        "7998864774cae35e3880025d01aadf0b3352b8e983b1b295f149a4f9c0747130"
       ]
     },
     "spacr.qt.widgets.fractal_travel.RuntimeControls": {
@@ -94317,6 +95327,16 @@
         "618de892f89c90010fa7ec0ba5f9501fab2bfea333271e8e8a830f06919ae2f2"
       ]
     },
+    "spacr.qt.widgets.fractal_travel.default_region_tour": {
+      "source_blocks_sha256": [
+        "efb645af30d978b781f9999e73d7651b26c23478ffc862c0512e44086b9df51e"
+      ],
+      "source_sha256": "efb645af30d978b781f9999e73d7651b26c23478ffc862c0512e44086b9df51e",
+      "text": "超越承诺地区的巡回演出,或者没有它们的空白。",
+      "translation_source_blocks_sha256": [
+        "efb645af30d978b781f9999e73d7651b26c23478ffc862c0512e44086b9df51e"
+      ]
+    },
     "spacr.qt.widgets.fractal_travel.gpu_is_available": {
       "source_blocks_sha256": [
         "d8ac9aaeacdc8f5bbd43db9b687885aadbe7e0bb5266bce71d50d8190d05e228",
@@ -94353,18 +95373,20 @@
         "ec8c94075ffbc62cdd7dce8bef1f166870c69f016af3a2168c699b6f64efd61c",
         "7be9c9bdb03fa48be8a14829136c386b958445fe3cb1de80006bcbca6b377abf",
         "ce8ae6bf385e6f4494ddc12e5241ed1527a76a0ce2ded12c475d68e4ad63186f",
-        "df7cbfe9339972a835a788915719e6d4b954201b525a480610848f3bced5189b",
-        "89eb3ae37b59b093ec666751cfc8757381631b173db863df7b4ad86df15ef3fe"
+        "83056b62d3911d0abbb834c08d1015d90ca5ec61cd8374f964a06ad21e891e92",
+        "46f767a6f2678cca2a811de5545287180196dd10db9a93c80a80a77c9be5c187",
+        "879cb818af87c9a8ee13f9ec07208ce6ea5222f7e3ea971f9cdbf69e4b4fdd1a"
       ],
-      "source_sha256": "cfd200f21085b660bde040a05009082747b6284539260565b3cb46d32884196e",
-      "text": "实际上可以在这里绘制的模型。\n\n:param pattern: 用户要求的。\n:param backend: 解决的后端,或 ``\"auto\"``。\n:returns: ``pattern``,或落后,当它不能拖动时。\n\n是 GPU-ONLY. 需要一个参考轨道的纹理和一个在其周围进行摄动的着色器； ,还是不存在的。 ,没有可用 GL 上下文的机器会得到轨道折叠 — — 它有一个 CPU 渲染器,并且是三个中最便宜的 — — 而不是什么都不绘制的背景。\n\n沉默,故意:背景是装饰,一个对话解释一个机器不能运行四个装饰的价值低于中断成本。",
+      "source_sha256": "3025f9ae25049c48ac75ee9d56bf6e27a0c4a71ebe00fb67dc3895d6d6f259a1",
+      "text": "实际上可以在这里绘制的模型。\n\n:param pattern: 用户所要求的。\n:param backend: 解决的后端,或 ``\"auto\"``。\n:returns: ``pattern``,或落后,当它不能拖动时。\n\nTWO PATTERNS ARE GPU-ONLY. Mandelbrot needs a texture of the reference orbit and a shader to perturb around it, and `orbit_gpu` is a fragment shader with no numba twin -- the CPU orbit fold is a DIFFERENT picture, four samples across four frames rather than four of one instant, which is why the two are separate entries at all.\n\n因此,没有可用的GL背景的机器可以获得轨道字符串 - 它有一个 CPU 传输器,并且是最便宜的 - 而不是一个不吸引任何东西的背景。\n\n沉默,故意:背景是装饰,一个对话解释一个机器不能运行五个装饰的价值低于中断成本。",
       "translation_source_blocks_sha256": [
         "13f8d2949745b02e28c04bff38399779d0bed2a0592fec12769de9c0e200ea54",
         "ec8c94075ffbc62cdd7dce8bef1f166870c69f016af3a2168c699b6f64efd61c",
         "7be9c9bdb03fa48be8a14829136c386b958445fe3cb1de80006bcbca6b377abf",
         "ce8ae6bf385e6f4494ddc12e5241ed1527a76a0ce2ded12c475d68e4ad63186f",
-        "df7cbfe9339972a835a788915719e6d4b954201b525a480610848f3bced5189b",
-        "89eb3ae37b59b093ec666751cfc8757381631b173db863df7b4ad86df15ef3fe"
+        "83056b62d3911d0abbb834c08d1015d90ca5ec61cd8374f964a06ad21e891e92",
+        "46f767a6f2678cca2a811de5545287180196dd10db9a93c80a80a77c9be5c187",
+        "879cb818af87c9a8ee13f9ec07208ce6ea5222f7e3ea971f9cdbf69e4b4fdd1a"
       ]
     },
     "spacr.qt.widgets.fractal_travel.platform_can_do_opengl": {
@@ -94437,12 +95459,30 @@
     },
     "spacr.qt.widgets.fractal_travel.state_at_seconds": {
       "source_blocks_sha256": [
-        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218",
+        "6ecfef74f33fc4a1a461301d83724cbd06381f528eb94bc318809a3de212cb01"
       ],
-      "source_sha256": "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218",
-      "text": "相机在 ``t``. 清洁,所以测试可以说它移动。",
+      "source_sha256": "c7e993c4aa84f71054193db06529572aa1a410a24a7e89cefc2c5eabed35f4fc",
+      "text": "相机在 ``t``. 清洁,所以测试可以说它移动。\n\n:param depth_phase: 当它被提供时,相机沿著路线的位置是什么,而``speed``不再是什么 - 这是阻止一个旋转传送它。 ``None`` 重复了旧的``t * speed``,对于没有步骤的呼叫者。",
       "translation_source_blocks_sha256": [
-        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218",
+        "6ecfef74f33fc4a1a461301d83724cbd06381f528eb94bc318809a3de212cb01"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.target_render_size": {
+      "source_blocks_sha256": [
+        "1f108251feb3af26cb97e55e6b8343483f5827b3369cc98b33a2d4d39b1ab2b0",
+        "2886a01261b5a90a4450ea775f27467944aa30d831f00902634e6de234875c38",
+        "b69f2af53315d084d8d3b292a6b8c986284986c2d1d0db4b11a36c4e989f0b21",
+        "423636c0a461924836f2cf2c0c6417a606e1fadf9de6001e2c382bd99393c84b"
+      ],
+      "source_sha256": "cb0c01a3a861743b503b471ac476b65ae970e5242e8dc32a8844e33509a1c826",
+      "text": "对于这个尺寸的 widget 需要多少像素。\n\n指示327问哪个4名候选人在背面是顺利的,并说回答数字之前写一个修正 - 这是不可能的,而算法只有在一个需要一个GL背景的类别内存在一个模糊的方法。\n\n规则本身是不可改变的:阴影 ``render_scale`` 方形的 widget 的自己的物理像素,从来没有超过 widget 和从来不低于 180,000,保持视角比例和一个平等的宽度和高度。\n\n:returns: ``(width, height)`` 在物理像素中。",
+      "translation_source_blocks_sha256": [
+        "1f108251feb3af26cb97e55e6b8343483f5827b3369cc98b33a2d4d39b1ab2b0",
+        "2886a01261b5a90a4450ea775f27467944aa30d831f00902634e6de234875c38",
+        "b69f2af53315d084d8d3b292a6b8c986284986c2d1d0db4b11a36c4e989f0b21",
+        "423636c0a461924836f2cf2c0c6417a606e1fadf9de6001e2c382bd99393c84b"
       ]
     },
     "spacr.qt.widgets.gate_canvas": {
@@ -101314,6 +102354,116 @@
       "translation_source_blocks_sha256": [
         "195fe159b86715f4300ad73c7d255e2fe6d71da753ea5262567ab498c2dd9810",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker": {
+      "source_blocks_sha256": [
+        "8c984e0e5ee1ae6840a431247c6eb9b706531286d165ed5886d5ec4736b6c566",
+        "11a1fe90e044ae03ac4d6942ae4534e5d4318fe2cd2c6da325dca6cc2be84539",
+        "3b62748b2fde38f7cbca21b21b8f57ac548c36cd63ac93b3019a806950e0f6df",
+        "c77e10260a852b65e6e384d252a7b856872e80e0e40ec6c6eff66e6d7d1a39b4"
+      ],
+      "source_sha256": "1f9551a5524e82117f70f90fea60a41637b657dbcd185f0f421579f27d924c46",
+      "text": "浏览模型动物园,下载模型,然后返回它的路径。\n\n模型设置需要一个文件系统的路径,这是准确和无助的:用户必须知道一个模型存在,找到它生活在哪里,并在发生任何事情之前正确输入它。 这个对话是另一种方式 - 模型的列表 spaCR 知道,每一个已经训练了什么,是否已经在这个机器上,以及一个按钮下载一个,并返回它的路径到打开它的字段。\n\nWHY THE DOWNLOAD LOCATION IS A CONTROL RATHER THAN A CONSTANT. Checkpoints are large -- the Toxoplasma models are 1.2 GB each -- and on a shared workstation or a laptop with a small root volume the default is often the wrong disk. A lab that keeps models on a NAS wants them there once, not once per user. So the folder is on application view, remembered between openings, and shown before anything is fetched rather than discovered afterwards in a full-disk error.\n\n没有什么是下载,没有注意到. 打开对话列表; 下载发生在按钮上. 这很重要,因为列表本身是有用的 - 看到一个模型存在和它被训练的往往是整个问题 - 因为一个对话,开始一个转换在开放,一个用户学习不打开。",
+      "translation_source_blocks_sha256": [
+        "8c984e0e5ee1ae6840a431247c6eb9b706531286d165ed5886d5ec4736b6c566",
+        "11a1fe90e044ae03ac4d6942ae4534e5d4318fe2cd2c6da325dca6cc2be84539",
+        "faec6272674124a03e116cc414d89e9a676e699fcc878b8c82d95faaef0be9d5",
+        "c77e10260a852b65e6e384d252a7b856872e80e0e40ec6c6eff66e6d7d1a39b4"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker": {
+      "source_blocks_sha256": [
+        "a919f1a3585bff2727ae85ab838168fc0efa10b7a2a702ec57eec78027f01434",
+        "066e460f8c0934afbc233b8256616c413d4fe31500b0394db7dca606ac620742",
+        "fc90d642ec5e7ec6e043d48b3aaa9e5fe74821d4e905a4471717ba56caed49a0"
+      ],
+      "source_sha256": "9bc9330cc5bab388fad244c5945241e834a4eda84a89c43bae07476632deda11",
+      "text": "选择动物园的模型;返回一个当地的路径。\n\n:param kinds: 限制列表到这些 :data:`spacr.model_zoo.KINDS`. 一个病原体模型字段想要 ``(\"cellpose\",)`` - 提供一个检测器会提供一些不能加载的东西。\n:param parent: 这是开启这一点的Widget。",
+      "translation_source_blocks_sha256": [
+        "a919f1a3585bff2727ae85ab838168fc0efa10b7a2a702ec57eec78027f01434",
+        "066e460f8c0934afbc233b8256616c413d4fe31500b0394db7dca606ac620742",
+        "fc90d642ec5e7ec6e043d48b3aaa9e5fe74821d4e905a4471717ba56caed49a0"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.chosen_path": {
+      "source_blocks_sha256": [
+        "2ef6e7d490027f39c2acb10a912fe0f31a0142cfd268a517d8b6e67646c43e0f"
+      ],
+      "source_sha256": "2ef6e7d490027f39c2acb10a912fe0f31a0142cfd268a517d8b6e67646c43e0f",
+      "text": "用户接受的路径,或者如果取消,则 ``None``。",
+      "translation_source_blocks_sha256": [
+        "2ef6e7d490027f39c2acb10a912fe0f31a0142cfd268a517d8b6e67646c43e0f"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.closeEvent": {
+      "source_blocks_sha256": [
+        "d075fc8edb4910bb763a8b2ff56dd871ac015a046c0cdaf7d46b6deadce3307d"
+      ],
+      "source_sha256": "d075fc8edb4910bb763a8b2ff56dd871ac015a046c0cdaf7d46b6deadce3307d",
+      "text": "在对话结束之前加入下载。",
+      "translation_source_blocks_sha256": [
+        "d075fc8edb4910bb763a8b2ff56dd871ac015a046c0cdaf7d46b6deadce3307d"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.refresh": {
+      "source_blocks_sha256": [
+        "336fedec8ccde4eb4581bd9132e28dd9fee8b28e453e60ca97f3cc5bf46d9a5e"
+      ],
+      "source_sha256": "336fedec8ccde4eb4581bd9132e28dd9fee8b28e453e60ca97f3cc5bf46d9a5e",
+      "text": "重新加载目录,并重新编写桌面。",
+      "translation_source_blocks_sha256": [
+        "336fedec8ccde4eb4581bd9132e28dd9fee8b28e453e60ca97f3cc5bf46d9a5e"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.reject": {
+      "source_blocks_sha256": [
+        "cc20b3e036da8a735256d14512fe0a6e54acd289acc01293932c5abbb7a937d9"
+      ],
+      "source_sha256": "cc20b3e036da8a735256d14512fe0a6e54acd289acc01293932c5abbb7a937d9",
+      "text": "取消关闭对话;它不应该留下线条。",
+      "translation_source_blocks_sha256": [
+        "cc20b3e036da8a735256d14512fe0a6e54acd289acc01293932c5abbb7a937d9"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.selected_entry": {
+      "source_blocks_sha256": [
+        "8c4a9309fe8fbbdc716830d7ab8747c88536fd955d48f40888086c334ec8eada"
+      ],
+      "source_sha256": "8c4a9309fe8fbbdc716830d7ab8747c88536fd955d48f40888086c334ec8eada",
+      "text": "标记列表中的目录输入,或 ``None``。",
+      "translation_source_blocks_sha256": [
+        "8c4a9309fe8fbbdc716830d7ab8747c88536fd955d48f40888086c334ec8eada"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.choose_model": {
+      "source_blocks_sha256": [
+        "9e575e4f2cdd92bc1aa257f0f7e9e52854c825b83c883b08db60ca3018f91866",
+        "cce640e839953f779b30159faa6b9db72f6f8c171047e4b7f8cba9171380eedf",
+        "1ab46d1267bc0bf37fe8cd9c91d349e4135b106c648a314cf5db196b9d36dece",
+        "d0fad6b91759412b57adee181106326c85614fc1c0b27dd44a402077a8e9b93d",
+        "0ff5ddb1c91fe7d6fcbbb2eb4994f54c428acbf8f69483e7861372b76965c2ff"
+      ],
+      "source_sha256": "8c1b45ab0a50f6cf04856fa6b299983b7f11fe1ad7dd24225dca2ce6edfb1baa",
+      "text": "打开点击器并返回所选择的路径,或 ``None``。\n\n单电话表格为设置顺序的跟踪按钮::\n\n    path = choose_model(self, kinds=(\"cellpose\",))\n    if path:\n        field.setText(path)\n\n:param parent: Widget 打开对话。\n:param kinds: 仅限于这些模型。\n:returns: 当地档案系统路径,或 ``None`` 取消时。",
+      "translation_source_blocks_sha256": [
+        "9e575e4f2cdd92bc1aa257f0f7e9e52854c825b83c883b08db60ca3018f91866",
+        "cce640e839953f779b30159faa6b9db72f6f8c171047e4b7f8cba9171380eedf",
+        "1ab46d1267bc0bf37fe8cd9c91d349e4135b106c648a314cf5db196b9d36dece",
+        "d0fad6b91759412b57adee181106326c85614fc1c0b27dd44a402077a8e9b93d",
+        "0ff5ddb1c91fe7d6fcbbb2eb4994f54c428acbf8f69483e7861372b76965c2ff"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.remembered_model_dir": {
+      "source_blocks_sha256": [
+        "f694e83d44aa0b638e17453270a2807a0d0d2a3375405c22ac80d81074fa678e",
+        "f4233925200d9ec23cf19f5bdabdafb57b5f2186fa9680995648b92bff6bd2dc"
+      ],
+      "source_sha256": "c4d8357a5ccd6528027c5f6f397ccace6844de4fbb935407a20744f6b1ceab15",
+      "text": "用户最后下载的文件夹或默认文件夹。\n\n通过 QSettings 阅读,而不是在对话中保持它:下一个模型通常在同一个位置与最后一个相同,这在每个会议上都是真实的,而不仅仅是在其中一个。",
+      "translation_source_blocks_sha256": [
+        "f694e83d44aa0b638e17453270a2807a0d0d2a3375405c22ac80d81074fa678e",
+        "f4233925200d9ec23cf19f5bdabdafb57b5f2186fa9680995648b92bff6bd2dc"
       ]
     },
     "spacr.qt.widgets.motility_preview": {
@@ -112338,21 +113488,23 @@
         "89b1adf928de86480b19df43a602595dcc44a719f1e769aa859816064d161c51",
         "4fc5aab8007bba828fecfd8661b155c1b4089b2f52e975f9d75f80d1b3eb3b20",
         "557fcf82a4e7dcc194d289e4456082b476683b77e6a25f81d1f83674edcfbdd0",
-        "0bb3487afbf03f2f7aa76eedcafaef9e76d5f9e15f4bdf13c1fe6fd9cbac4964",
+        "9409654345f8c0033d2614279ef6690cee61f1834ee4bb1bcfd7d13599274801",
         "b7f6aa983771c05c73f6685f30172a5075c0b30e512314f08890a23844a1b76d",
         "ffe0cdd7fb8976c6f4f34e4e0c506e53dcdf2c48090ac3228feb613fd9d1a39f",
+        "305b1e14b85d6403393507600f990a59230c78234efb5ca22a4a4b7b768a7d71",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
-      "source_sha256": "50c06eafcf0e43ba7619d63113a1b6c198b19d9d8ebc2a462f191dc71e8d6bb8",
-      "text": "将筛选的p值分布的形状分类。\n\n一项扫描实验,其中大多数基因不做任何事情应该给出平等的p值在``[0, 1]``与第一点(真正的打击)。其他两种形式是诊断一个破碎的匹配,这是这个面板存在的原因:\n\n* 接近 1**的** 点,意味着测试是保守的 - 通常是吸收信号的变量组件,或复制行注入n;\n* 一个 **U 形状**(两端都丰富)意味着零是错误的 - 通常不模型板结构,它推了一半的基因一向另一向。\n\n:param p_values: 可取消 P 值;未完成的输入被删除。\n:param n_bins: 基因分辨率:默认20(宽度0.05双)。\n:returns: 关键值地图与 ``verdict`` (一)一 ``'uniform-with-spike'``, ``'uniform'``, ``'excess-large'``, ``'u-shaped'``, ``'anti-uniform'``, ``'too-few'``), ``message``, ``counts``, ``expected``, ``first_bin_ratio``, ``last_bin_ratio`` 和 ``frac_below_0.05``.\n\n示例：\n    >>> import numpy as np\n    >>> rng = np.random.default_rng(1)\n    >>> diagnose_p_value_histogram(rng.uniform(size=2000))['verdict']\n    'uniform'\n    >>> spiky = np.concatenate([rng.uniform(0.9, 1.0, 800),\n    ...                         rng.uniform(size=200)])\n    >>> diagnose_p_value_histogram(spiky)['verdict']\n    'excess-large'",
+      "source_sha256": "e73eadfe81a07d104bbdf702bb106ce1fcfb90263873145f6988c9bc0157df71",
+      "text": "分类筛选的p值分布的形状。\n\n一项扫描实验,其中大多数基因不做任何事情应该给出平等的p值在``[0, 1]``与第一点(真正的打击)。其他两种形式是诊断一个破碎的匹配,这是这个面板存在的原因:\n\n* 接近1**的** 曲线意味着测试是保守的 - 通常是吸收信号的变量组成部分,或复制行注入n;\n* 一个 **U 形状**(两端都是丰富的)意味着零是错误的 - 通常是模型不模型的板结构,它推了一半的基因,另一半的。\n\n:param p_values: 可输入 p 值; 未完成输入被删除; 剩余的每个值必须在关闭间隔 ``[0, 1]``。\n:param n_bins: Histogram 分辨率. 默认 20 (宽度 0.05 双)。\n:returns: 关键值地图与 ``verdict`` (一)一 ``'uniform-with-spike'``, ``'uniform'``, ``'excess-large'``, ``'u-shaped'``, ``'anti-uniform'``, ``'too-few'``), ``message``, ``counts``, ``expected``, ``first_bin_ratio``, ``last_bin_ratio`` 和 ``frac_below_0.05``.\n:raises ValueError: 如果最终值位于 ``[0, 1]`` 之外。\n\n例子:\n    >>> import numpy as np\n    >>> rng = np.random.default_rng(1)\n    >>> diagnose_p_value_histogram(rng.uniform(size=2000))['verdict']\n    'uniform'\n    >>> spiky = np.concatenate([rng.uniform(0.9, 1.0, 800),\n    ...                         rng.uniform(size=200)])\n    >>> diagnose_p_value_histogram(spiky)['verdict']\n    'excess-large'",
       "translation_source_blocks_sha256": [
         "746f12abd53269ba1a5ccc16e0eef6bfc975270442d9764d866973bf33a5bb23",
         "001fbd3532e5eb0aca60ee00036ac90d6530e35470cc4423c2c3c4fd6bd59105",
         "4fc5aab8007bba828fecfd8661b155c1b4089b2f52e975f9d75f80d1b3eb3b20",
         "557fcf82a4e7dcc194d289e4456082b476683b77e6a25f81d1f83674edcfbdd0",
-        "0bb3487afbf03f2f7aa76eedcafaef9e76d5f9e15f4bdf13c1fe6fd9cbac4964",
+        "9409654345f8c0033d2614279ef6690cee61f1834ee4bb1bcfd7d13599274801",
         "b7f6aa983771c05c73f6685f30172a5075c0b30e512314f08890a23844a1b76d",
         "fff05aaca5eff931bebc7210546b44114513f895bcc2374f9a01216ee220e2cc",
+        "305b1e14b85d6403393507600f990a59230c78234efb5ca22a4a4b7b768a7d71",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ]
     },
@@ -116340,6 +117492,32 @@
         "971e5b66f5f59bd3ad3121746d7158387a56e59ba9584afe2803f664b9b7f67f",
         "02a5ad49f53f1f3fd1289dabb424ddc55ae04d1ce98c1988dead8e0c1ca6bb0b",
         "7b57383d71e8db9d4fec2d153a11d643b2bd9b13b701bc76a8b1052ef655fbe8"
+      ]
+    },
+    "spacr.run_journal.delete_runs": {
+      "source_blocks_sha256": [
+        "ab14ade1a330b5102e8fe02cb7c4937f50ecc675ef793b446d1b3c5daabd5081",
+        "94e051ab9eab8b3fdb584502bfeb60c571ce19bf1d2a131a3aea7988c138cbff",
+        "43840ea675d347a875070a58bcff2b9f096d33d840b2add67a8ad7d65181a54b",
+        "322c8423613c7d46db468ee16f4df93449188f6b5198468b36bf8ca8bbebe8f0",
+        "a715192853b7ee09f29c1a0db0d91e2db3ed8b74a90ac29fed35bfa2e01b58ce",
+        "5498d700fd623a37baf8d812716d8622e4ef848711c2dadef7a56bf5ffa0a1bb",
+        "21f8373d644eacc3b7085be558556232f0a6355c15fbfdd0611953ca0d65aed1",
+        "c960a06beb656f320d1ea3115156db90d5c9319c4757da1cb3d06d1ce3fa5155",
+        "5b3816eb8c524f2f4d590c6029b8aeb43b9b02313b87bb3a80782599430d138d"
+      ],
+      "source_sha256": "bc1bdf3655f643385c18dca11cca6129b3cfc295b99f742c13a03e6c44a82416",
+      "text": "删除记录的处理会议文件夹. 返回 ``(deleted, refused)``。\n\nTHIS REMOVES FILES, so every guard below is load-bearing rather than defensive habit:\n\n* 一条路径仅被删除,一旦解决,它是严格的 INSIDE :func:`runs_root`. 记录的 ``dir`` 从磁盘上的显明读取,而显明是一个文件一个用户可以编辑; ``../../..``在一个不应该达到任何东西。\n* ``runs_root()`` ITSELF 被拒绝. \"Delete everything\" 是孩子们的旋转,从来没有从根中移除,所以计算一个空选择的呼叫者无法携带日志。\n* 处理会被拒绝:删除文件夹的处理会仍然写到页面它失败在其下一个写作与一个错误,称什么都没有。\n* 一个不是目录的路径被拒绝,而不是无链接。\n\n删除五十个跑步,在那里一个人活着应该删除四十九个,并说哪一个它保持 - 一个例外在那个时候已经删除了一个未知的号码,并告诉召唤者什么。\n\n:param directories: 处理会议文件夹路径,如在记录的 ``\"dir\"``。\n:returns: 多少人被删除,每拒绝的消息。",
+      "translation_source_blocks_sha256": [
+        "521dd33e7c6a4bf72ec3f13e2c5758b47d29fa6380db9de66bb0e02b5494467f",
+        "94e051ab9eab8b3fdb584502bfeb60c571ce19bf1d2a131a3aea7988c138cbff",
+        "43840ea675d347a875070a58bcff2b9f096d33d840b2add67a8ad7d65181a54b",
+        "322c8423613c7d46db468ee16f4df93449188f6b5198468b36bf8ca8bbebe8f0",
+        "0f3c6a4d8686b54e202156c46839d645a108c84083276b35afd6d785d2190be3",
+        "5498d700fd623a37baf8d812716d8622e4ef848711c2dadef7a56bf5ffa0a1bb",
+        "21f8373d644eacc3b7085be558556232f0a6355c15fbfdd0611953ca0d65aed1",
+        "b7c16a56bc116d91bc8bcad52a78e0a0dab0596f7945e0230fb76ec6ec604cdc",
+        "5b3816eb8c524f2f4d590c6029b8aeb43b9b02313b87bb3a80782599430d138d"
       ]
     },
     "spacr.run_journal.diff_runs": {
@@ -124516,6 +125694,16 @@
         "1efc0162bea34ce465b0a03e909411af8442250148d4edba2642fbb176f6da87"
       ]
     },
+    "spacr.submodules.ModelZooMissing": {
+      "source_blocks_sha256": [
+        "b1c6be5088055afb5160ee2bd7c1302806f6e739b54ed8b93b7cf4d2293cbb25"
+      ],
+      "source_sha256": "b1c6be5088055afb5160ee2bd7c1302806f6e739b54ed8b93b7cf4d2293cbb25",
+      "text": "一个被称为模型不是应该在哪里。",
+      "translation_source_blocks_sha256": [
+        "b1c6be5088055afb5160ee2bd7c1302806f6e739b54ed8b93b7cf4d2293cbb25"
+      ]
+    },
     "spacr.submodules.analyze_class_proportion": {
       "source_blocks_sha256": [
         "86afde6b6c618b1b640436134da848bb66ea09da2c2c588d808d304e1d934a01",
@@ -124904,6 +126092,24 @@
         "7a5ebb92209d4795d928a5e0a10595133aae046df88cc8ca92fcea05b20e2bef",
         "23a839d42bf00ad080692a8296bf2c91ba38365f8180f78d2d011ec2b9e784be",
         "98af194ee73bf5e4fa252936e134ddd9da525c2cc0024887b3ffae77059b366b"
+      ]
+    },
+    "spacr.submodules.split_wells": {
+      "source_blocks_sha256": [
+        "1d0e5827df4fa2258a57dace96a24626944c647a51eaafaf4016ef98fef87d17",
+        "23fe5dc7a07e6e2191befab0210373406951f4fb582c62587d5641428a8a5854",
+        "686174645ed7fbf932881c734d4794e704d5c2c2669954f7fc7093052c97efb6",
+        "4d9c67e04440f7f255ef30f58e5626e7bcf02cd8c8cbd0f727a619660f261251",
+        "f8cf5ffad8d154596062d06e0de8638931d2ea45d147f8d515a665dba88da570"
+      ],
+      "source_sha256": "06c42017109b7337ffdc0b99f0444c5973bc9dcef375ed40c8b7d7b67829a575",
+      "text": "在 ``src`` 下的每个多好图像切成一个图像。\n\n它在每个图像上运行 YOLO 探测器,将一个提取的图像区域写入 ``<src>/wells``,并记录每个提取图像区的盒子,以便 :func:`_plaque_scale_for` 可以将其直径转换为一个尺寸。\n\n:param settings: 字符串设置 关键值地图. 阅读 ``src``, ``well_detector_model``、 ``well_confidence`` 和 ``well_pad``; 写 ``_well_geometry``。\n:returns: 文件夹保留所提取的图像区域,或 ``src`` 不变,当检测关闭或找不到任何东西时。\n\nWHY THIS IS A SEPARATE PASS rather than a branch inside the segmenter: the two shapes of input differ in what a RESULT ROW MEANS. One microscope field of view per image gives one row per image; a laboratory microplate gives one row per microplate sample position, and the microplate sample position has to be named or the conditions are pooled into a single meaningless count. Splitting first makes every downstream row a microplate sample position, whichever shape arrived.",
+      "translation_source_blocks_sha256": [
+        "1d0e5827df4fa2258a57dace96a24626944c647a51eaafaf4016ef98fef87d17",
+        "84c5f31167ba71011836ac20fb9271c6d47c8f74235a475b86afd9609701e515",
+        "e6ffec94654263dbe4fff12a560b568ec23f413a3dd99af98f381634a7029e28",
+        "8c5a3135776b936b6337a06fb49d54abaddbd40e698cc97bf4723a83d0b680f2",
+        "5e5021e35ffe875ffe53b076acb65013f22866e3268245861d44959bce818339"
       ]
     },
     "spacr.submodules.test_cellpose_model": {
