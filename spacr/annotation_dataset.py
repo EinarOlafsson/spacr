@@ -34,6 +34,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 import pandas as pd
 
 from .database_concurrency import connect as connect_database
+from .tabular import read_database
 
 LOG = logging.getLogger("spacr.annotation_dataset")
 
@@ -399,12 +400,17 @@ def read_objects_from_database(db_path: str, object_type: str
     """
     if not os.path.isfile(str(db_path)):
         return None
-    connection = connect_database(str(db_path), readonly=True)
     try:
-        names = {r[0] for r in connection.execute(
-            "select name from sqlite_master where type='table'")}
-        if object_type not in names:
+        frame, = read_database(
+            db_path,
+            object_type,
+            canonicalise=False,
+            report=None,
+            migrate=False,
+            read_only=True,
+        )
+    except ValueError as error:
+        if str(error).startswith("Table not found in database:"):
             return None
-        return pd.read_sql_query(f'select * from "{object_type}"', connection)
-    finally:
-        connection.close()
+        raise
+    return frame
