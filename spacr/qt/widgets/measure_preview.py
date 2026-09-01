@@ -65,6 +65,51 @@ _OBJECTS = tuple(ALL_ROLES)
 _SUPPORTED = (".npy",)
 
 
+def resolve_merged_source(path, rng=None):
+    """A concrete merged ``.npy`` from whatever the user gave us.
+
+    THREE THINGS ARE A VALID ANSWER TO "where are the crops", and only one of
+    them used to be accepted:
+
+    * a merged ``.npy`` -- what the Choose dialog offered, and nothing else;
+    * a RUN FOLDER, which is what `src` holds. A Measure run is pointed at the
+      plate directory and finds `merged/` itself, so the preview asking for a
+      file meant hunting through a folder for one of fifty-two arrays whose
+      names carry a well and a field and nothing about which is interesting;
+    * a `merged/` folder directly.
+
+    A field is picked at RANDOM rather than taking the first. Sorted first is
+    always the same well and the same field, so a preview that always opens on
+    `E01` field 1 tells the user about one corner of one condition -- and if
+    that field happens to be clean, a crop size that cuts cells in half
+    everywhere else looks fine.
+
+    No Qt and no widgets: this runs on the worker with the load it feeds.
+
+    :param path: a file, a run folder, or a merged folder.
+    :param rng: something with ``choice``; defaults to :mod:`random`.
+    :returns: a :class:`Path` to one array, or ``None``.
+    """
+    import random as _random
+
+    if not path:
+        return None
+    candidate = Path(str(path).strip())
+    if candidate.is_file():
+        return candidate
+    if not candidate.is_dir():
+        return None
+    # `merged/` first: a run folder holds `merged/` beside `measurements/` and
+    # `qc/`, and an array loose in the run folder is not the one meant.
+    for folder in (candidate / "merged", candidate):
+        if not folder.is_dir():
+            continue
+        arrays = sorted(folder.glob("*.npy"))
+        if arrays:
+            return (rng or _random).choice(arrays)
+    return None
+
+
 def load_merged_array(path: str, enumerate_sets: bool = True
                       ) -> Dict[str, Any]:
     """Read one merged ``(H, W, C)`` array. No Qt, so it runs on a worker.
@@ -83,6 +128,16 @@ def load_merged_array(path: str, enumerate_sets: bool = True
     """
     out: Dict[str, Any] = {"path": path, "data": None, "directory": None,
                            "sets": None, "channels": None, "error": ""}
+    # A FOLDER IS RESOLVED HERE, on the worker, because the walk is a disk
+    # scan and this function exists to keep those off the GUI thread.
+    resolved = resolve_merged_source(path)
+    if resolved is None:
+        out["error"] = (f"No merged .npy found at {path}"
+                        if Path(str(path)).is_dir()
+                        else f"Not a file or folder: {path}")
+        return out
+    path = str(resolved)
+    out["path"] = path
     if enumerate_sets:
         try:
             sets, channels = enumerate_image_sets(Path(path).parent, _SUPPORTED)
@@ -339,6 +394,9 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     def __init__(self, parent=None, *, threaded: bool = True):
         super().__init__(parent)
         self._data: Optional[np.ndarray] = None
+        #: The `src` already auto-loaded from, so a settings change
+        #: that does not move `src` cannot re-randomise the field.
+        self._auto_loaded_src: str = ""
         self._data_path: Optional[str] = None
         self._crops: List[Dict[str, Any]] = []
         self._selected: set[int] = set()
@@ -471,9 +529,19 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._max_crops = self._spin(1, 1000, 60, parent=self)
         self._group_cells = Toggle(parent=self)
         self._group_cells.setChecked(True)
-        self._propagate_btn = Toggle("Propagate settings", self)
+        # A BUTTON, NOT A SLIDER. The Mask live settings dialog puts
+        # "Propagate settings" in its button box as a checkable ToggleButton;
+        # this one used a Toggle, which is the sliding switch used for
+        # ordinary boolean SETTINGS. Two different controls for the same
+        # action in two dialogs that sit side by side, and the slider reads as
+        # a setting of the crop preview rather than as something that reaches
+        # out of it.
+        self._propagate_btn = QPushButton("Propagate settings", self)
+        self._propagate_btn.setObjectName("ToggleButton")
+        self._propagate_btn.setCheckable(True)
         self._propagate_btn.setToolTip(
-            "Copy changes from this dialog into the main Measure settings."
+            "When on, changes made here are copied into the main Measure "
+            "settings."
         )
 
         # Compatibility names used by integrations and older tests.
@@ -533,10 +601,23 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         populate_channel_combo(self._channel_box, 0)
         self._pick_btn = FlatButton("Choose merged array…", self)
         self._pick_btn.clicked.connect(self._pick_file)
+        # A PLACE TO PASTE. The file dialog cannot select a folder, and a run
+        # folder is what the user has in hand -- it is what `src` holds and
+        # what a Measure run is pointed at. Typing or pasting one here loads a
+        # field from its `merged/` without hunting through fifty-two arrays
+        # for one whose name says nothing about which is interesting.
+        self._paste_box = QLineEdit(self)
+        self._paste_box.setPlaceholderText("…or paste a path")
+        self._paste_box.setToolTip(
+            "Paste a merged .npy, a merged folder, or a run folder (the one "
+            "you would put in src). Press Enter to load a field from it.")
+        self._paste_box.setClearButtonEnabled(True)
+        self._paste_box.returnPressed.connect(self._load_the_pasted_path)
         pick_row.addWidget(self._path_label, 1)
         pick_row.addWidget(self._max_sets_box)
         pick_row.addWidget(self._fov_box)
         pick_row.addWidget(self._channel_box)
+        pick_row.addWidget(self._paste_box, 1)
         pick_row.addWidget(self._pick_btn)
         root.addLayout(pick_row)
 
@@ -655,6 +736,26 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     def _clear_crop_settings_dialog(self, *_args) -> None:
         self._crop_settings_dialog = None
 
+    def set_organelle_count(self, count) -> None:
+        """How many organelle slots the crop settings should offer.
+
+        The same rule Mask and the Mask live preview follow: the run declares
+        `number_of_organelles`, and every panel shows that many. Without it the
+        crop settings offered a fixed four -- so a one-organelle run had three
+        mask-slice and three minimum-area fields for objects it does not have,
+        and each of them propagates into the settings the run reads.
+        """
+        try:
+            wanted = max(0, int(count))
+        except (TypeError, ValueError):
+            return
+        if wanted == getattr(self, "_organelle_count", None):
+            return
+        self._organelle_count = wanted
+        dialog = getattr(self, "_crop_settings_dialog", None)
+        if dialog is not None:
+            dialog.refresh_organelle_slots()
+
     def _refresh_control_gates(self, *_args) -> None:
         self._lo_pct.setEnabled(self._normalise.isChecked())
         self._hi_pct.setEnabled(self._normalise.isChecked())
@@ -719,6 +820,41 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             self, "Choose a merged .npy array", "", "NumPy arrays (*.npy)")
         if path:
             self.load_array_async(path)
+
+    def _load_the_pasted_path(self) -> None:
+        """Load whatever was typed or pasted beside the Choose button.
+
+        A file, a `merged/` folder or a run folder all work --
+        :func:`resolve_merged_source` decides which, on the worker.
+        """
+        text = self._paste_box.text().strip()
+        if text:
+            self.load_array_async(text)
+
+    def _auto_load_from_src(self, src: str) -> bool:
+        """Show a field from ``src`` without being asked.
+
+        WHY AUTOMATICALLY. The preview exists to answer "will this crop size
+        cut the cell in half" before a run, and it answered nothing until the
+        user had found and chosen one of fifty-two arrays by hand. `src` is
+        already the folder the run will read, and it is typed in anyway.
+
+        ONLY WHEN NOTHING IS LOADED, and only once per `src`. Re-loading on
+        every settings change would throw away an array the user picked
+        deliberately -- and would re-randomise the field under them each time
+        they touched an unrelated setting.
+
+        :returns: whether a load was started.
+        """
+        text = str(src or "").strip()
+        if not text or text == getattr(self, "_auto_loaded_src", ""):
+            return False
+        if getattr(self, "_data", None) is not None:
+            # Something is already on screen; do not take it away.
+            self._auto_loaded_src = text
+            return False
+        self._auto_loaded_src = text
+        return self.load_array_async(text)
 
     @property
     def _loads_in_flight(self) -> List[int]:
@@ -997,6 +1133,18 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         # file seeds the panel with the colours that file will produce.
         if "png_channel_mapping" in settings or "png_dims" in settings:
             self._png_dims.set_value(_resolve_png_mapping(settings))
+
+        # LAST, and after the settings above have landed: the crops are cut
+        # with these values, so loading first would show the panel's defaults
+        # and then re-cut. `src` is the folder the run will read, so the
+        # preview can answer for it without being asked.
+        # HOW MANY ORGANELLE SLOTS, the same rule Mask and the Mask live
+        # preview follow: the run declares it, every panel shows that many.
+        if settings.get("number_of_organelles") is not None:
+            self.set_organelle_count(settings["number_of_organelles"])
+
+        if settings.get("src"):
+            self._auto_load_from_src(settings["src"])
 
     def set_propagate_callback(self, callback) -> None:
         self._propagate_cb = callback
@@ -1277,6 +1425,30 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 class CropSettingsDialog(QDialog):
     """Tabbed live settings dialog for :class:`MeasurePreviewPanel`."""
 
+    def refresh_organelle_slots(self) -> None:
+        """Show one organelle slot per slot the run declares.
+
+        The rows are HIDDEN, not removed: the widgets keep their values, so
+        lowering the count and raising it again finds the old answers still
+        there -- the same promise `spacr.settings._set_organelle_defaults`
+        makes for the settings themselves.
+
+        An unset count shows every slot, which is what this dialog did before
+        the count reached it: better to offer a field too many than to hide
+        one a run is using.
+        """
+        from ...organelle_types import organelle_number
+
+        count = getattr(self._panel, "_organelle_count", None)
+        for role, form, widget in getattr(self, "_organelle_rows", ()):
+            try:
+                wanted = count is None or organelle_number(role) <= count
+                position = form.getWidgetPosition(widget)[0]
+                if position >= 0:
+                    form.setRowVisible(position, bool(wanted))
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not gate the %s rows", role, exc_info=True)
+
     def __init__(self, panel: MeasurePreviewPanel):
         super().__init__(panel)
         self._panel = panel
@@ -1293,10 +1465,16 @@ class CropSettingsDialog(QDialog):
         form.addRow("Experiment", panel._experiment)
         form.addRow("Measured channels", panel._measurement_channels)
         form.addRow("Preview object", panel._object_box)
+        #: Rows belonging to an organelle slot, so the declared count can
+        #: hide the ones a run does not have. Recorded as they are added:
+        #: hiding a row needs the FORM as well as the widget.
+        self._organelle_rows: List[tuple] = []
         for name, widget in panel._mask_dims.items():
             label = (organelle_label(name) if name in ORGANELLE_ROLES
                      else name.capitalize())
             form.addRow(f"{label} mask slice", widget)
+            if name in ORGANELLE_ROLES:
+                self._organelle_rows.append((name, form, widget))
         form.addRow("Measure cytoplasm", panel._cytoplasm)
         form.addRow("Plot run diagnostics", panel._plot)
         form.addRow("Test mode", panel._test_mode)
@@ -1340,6 +1518,8 @@ class CropSettingsDialog(QDialog):
             "Merge edge-pathogen cells", panel._merge_edge_pathogen_cells)
         for name, widget in panel._min_sizes.items():
             filter_form.addRow(f"{name.capitalize()} minimum area", widget)
+            if name in ORGANELLE_ROLES:
+                self._organelle_rows.append((name, filter_form, widget))
         tabs.addTab(filters, "Filter settings")
 
         preview = QWidget()
@@ -1348,6 +1528,8 @@ class CropSettingsDialog(QDialog):
         preview_form.addRow("Maximum preview crops", panel._max_crops)
         preview_form.addRow("Group cell phenotypes", panel._group_cells)
         tabs.addTab(preview, "Preview")
+
+        self.refresh_organelle_slots()
 
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
         run = QPushButton("Refresh crops")
