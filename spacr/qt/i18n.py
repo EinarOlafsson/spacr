@@ -1958,20 +1958,28 @@ _ROWS: Dict[str, tuple[str, ...]] = {
 
     # ---- What the machine can run, on the first slide ----------------
     # REPLACED, NOT ADDED, so the row count this catalog is ratcheted on
-    # does not move. The sentence said "need an NVIDIA GPU", which stopped
-    # being true when spaCR learned to dispatch to ROCm, Apple Metal and
-    # Intel XPU -- and it was wrong in the worst direction, telling people
-    # with a perfectly good AMD card that they had no GPU. Instruction 319.
-    "Segmentation and object classification are much faster on a GPU. spaCR uses NVIDIA, AMD, Apple and Intel GPUs. Everything else runs without one.": _row(
-        "Segmentering och objektklassificering går mycket snabbare på en GPU. spaCR använder GPU:er från NVIDIA, AMD, Apple och Intel. Allt annat fungerar utan en.",
-        "Segmentierung und Objektklassifizierung sind auf einer GPU deutlich schneller. spaCR nutzt GPUs von NVIDIA, AMD, Apple und Intel. Alles andere läuft auch ohne.",
-        "La segmentación y la clasificación de objetos son mucho más rápidas en una GPU. spaCR usa GPU de NVIDIA, AMD, Apple e Intel. Todo lo demás funciona sin ella.",
-        "分割和对象分类在 GPU 上快得多。spaCR 支持 NVIDIA、AMD、Apple 和 Intel 的 GPU。其余功能没有它也能运行。",
-        "A segmentação e a classificação de objetos são muito mais rápidas numa GPU. O spaCR usa GPUs da NVIDIA, AMD, Apple e Intel. Todo o resto funciona sem ela.",
-        "सेगमेंटेशन और ऑब्जेक्ट वर्गीकरण GPU पर बहुत तेज़ होते हैं। spaCR, NVIDIA, AMD, Apple और Intel के GPU का उपयोग करता है। बाकी सब उसके बिना भी चलता है।",
-        "분할과 객체 분류는 GPU에서 훨씬 빠릅니다. spaCR는 NVIDIA, AMD, Apple, Intel GPU를 사용합니다. 나머지는 없어도 실행됩니다.",
-        "Hlutun og flokkun hluta eru mun hraðari á skjákorti. spaCR notar skjákort frá NVIDIA, AMD, Apple og Intel. Allt annað keyrir án þess.",
-        "La segmentation et la classification d’objets sont bien plus rapides sur un GPU. spaCR utilise les GPU NVIDIA, AMD, Apple et Intel. Tout le reste fonctionne sans."),
+    # does not move. Replaced twice now, both times because the sentence
+    # had stopped being true.
+    #
+    # It first said "need an NVIDIA GPU", which stopped being true when
+    # spaCR learned to dispatch to ROCm, Apple Metal and Intel XPU -- and
+    # it was wrong in the worst direction, telling people with a perfectly
+    # good AMD card that they had no GPU. Instruction 319.
+    #
+    # It then named segmentation and classification as THE two steps that
+    # want a card, which the slide now answers far better with a per-task
+    # table. The prose above the table says what the table cannot: which
+    # vendors work, and how much the acceleration is actually worth.
+    "spaCR tasks are GPU accelerated and are compatible with NVIDIA, AMD, Apple, and Intel GPUs. GPU acceleration is orders of magnitude faster than CPU for matrix multiplication tasks.": _row(
+        "spaCR-uppgifter är GPU-accelererade och fungerar med GPU:er från NVIDIA, AMD, Apple och Intel. GPU-acceleration är flera storleksordningar snabbare än CPU för matrismultiplikation.",
+        "spaCR-Aufgaben sind GPU-beschleunigt und mit GPUs von NVIDIA, AMD, Apple und Intel kompatibel. GPU-Beschleunigung ist bei Matrixmultiplikationen um Größenordnungen schneller als die CPU.",
+        "Las tareas de spaCR están aceleradas por GPU y son compatibles con GPU de NVIDIA, AMD, Apple e Intel. La aceleración por GPU es órdenes de magnitud más rápida que la CPU en la multiplicación de matrices.",
+        "spaCR 的任务经过 GPU 加速，兼容 NVIDIA、AMD、Apple 和 Intel 的 GPU。在矩阵乘法任务上，GPU 加速比 CPU 快几个数量级。",
+        "As tarefas do spaCR são aceleradas por GPU e são compatíveis com GPUs da NVIDIA, AMD, Apple e Intel. A aceleração por GPU é ordens de grandeza mais rápida do que a CPU na multiplicação de matrizes.",
+        "spaCR के कार्य GPU-त्वरित हैं और NVIDIA, AMD, Apple तथा Intel के GPU के साथ संगत हैं। मैट्रिक्स गुणन कार्यों में GPU त्वरण CPU की तुलना में कई गुना तेज़ होता है।",
+        "spaCR 작업은 GPU 가속을 사용하며 NVIDIA, AMD, Apple, Intel GPU와 호환됩니다. 행렬 곱셈 작업에서 GPU 가속은 CPU보다 몇 자릿수 더 빠릅니다.",
+        "Verk í spaCR eru hraðað með skjákorti og virka með skjákortum frá NVIDIA, AMD, Apple og Intel. Skjákortshröðun er margfalt hraðari en örgjörvi við fylkjamargföldun.",
+        "Les tâches de spaCR sont accélérées par GPU et compatibles avec les GPU NVIDIA, AMD, Apple et Intel. L’accélération GPU est plusieurs ordres de grandeur plus rapide que le CPU pour la multiplication matricielle."),
     "The card is there but torch cannot use it. Run spacr-doctor to find out which part of CUDA is missing.": _row(
         "Kortet finns men torch kan inte använda det. Kör spacr-doctor för att ta reda på vilken del av CUDA som saknas.",
         "Die Karte ist vorhanden, aber torch kann sie nicht nutzen. Führen Sie spacr-doctor aus, um herauszufinden, welcher Teil von CUDA fehlt.",
