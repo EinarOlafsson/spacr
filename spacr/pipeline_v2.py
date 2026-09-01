@@ -733,22 +733,22 @@ def stream_masks_from_stack(
         except Exception:
             pass
 
-    # Update the channel-order sidecar
-    if stacks:
-        sidecar = stacks[0].path.parent / "channel_order.json"
-        try:
-            meta = json.loads(sidecar.read_text())
-            meta["mask_channels"] = [mask_channel_name]
-            sidecar.write_text(json.dumps(meta, indent=2))
-        except Exception as exc:
-            # The masks are written either way, so this does not fail the
-            # stage — but channel_order.json is what every later reader uses
-            # to know which plane is a mask, and a sidecar that silently did
-            # not get the entry makes the stack self-describing and wrong.
-            LOG.warning("channel_order.json at %s was not updated with "
-                        "mask_channels=%r (%s); readers of this stack will "
-                        "not know which plane holds the mask.",
-                        sidecar, mask_channel_name, exc)
+    # The empty case returned before Cellpose was loaded, so stacks[0] is
+    # available here without a second, unreachable emptiness check.
+    sidecar = stacks[0].path.parent / "channel_order.json"
+    try:
+        meta = json.loads(sidecar.read_text())
+        meta["mask_channels"] = [mask_channel_name]
+        sidecar.write_text(json.dumps(meta, indent=2))
+    except Exception as exc:
+        # The masks are written either way, so this does not fail the
+        # stage — but channel_order.json is what every later reader uses
+        # to know which plane is a mask, and a sidecar that silently did
+        # not get the entry makes the stack self-describing and wrong.
+        LOG.warning("channel_order.json at %s was not updated with "
+                    "mask_channels=%r (%s); readers of this stack will "
+                    "not know which plane holds the mask.",
+                    sidecar, mask_channel_name, exc)
 
     return stacks
 

@@ -295,7 +295,7 @@ class TestCollectingAManifestsWarnings:
 
         if isinstance(values, (list, tuple)):
             warnings_list.extend(str(v) for v in values if v)
-        elif values:
+        else:
             warnings_list.append(str(values))
 
         assert warnings_list == ["the plate was re-run"], (
@@ -303,8 +303,10 @@ class TestCollectingAManifestsWarnings:
 
         from spacr import run_journal as J
 
-        source = inspect.getsource(J)
-        assert "elif values:" in source
+        source = inspect.getsource(J.search_runs)
+        assert "elif values:" not in source
+        assert "values = manifest.get(key) or []" in source
+        assert "else:" in source
         assert "warnings_list.append(str(values))" in source
 
     def test_an_absent_key_adds_nothing(self):
@@ -313,7 +315,7 @@ class TestCollectingAManifestsWarnings:
 
         if isinstance(values, (list, tuple)):
             warnings_list.extend(str(v) for v in values if v)
-        elif values:
+        else:
             warnings_list.append(str(values))
 
         assert warnings_list == []

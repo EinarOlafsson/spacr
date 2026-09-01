@@ -5578,8 +5578,9 @@ for _role in ORGANELLE_SLOT_ROLES[1:]:
         if key.startswith('organelle_'))
     for _suffix in ('channel', 'mask_dim', 'chann_dim'):
         _key = f'{_role}_{_suffix}'
-        if _key in expected_types and _key not in categories['General']:
-            categories['General'].append(_key)
+        # Every generated slot key is declared and the base General list owns
+        # none of them; the settings contract tests pin both premises.
+        categories['General'].append(_key)
 _regrouped_categories = _regroup_advanced(categories)
 categories.clear()
 categories.update(_regrouped_categories)

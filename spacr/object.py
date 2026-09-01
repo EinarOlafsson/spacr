@@ -749,8 +749,11 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             _raw = int(_raw)
         except (TypeError, ValueError):
             continue
-        if _raw in _dense:
-            settings[f'cellpose_{_role}_channel'] = _dense[_raw]
+        # ``dense_mask_channel_positions`` walks this same role key before
+        # returning, with the same ``int`` coercion.  A numeric raw channel is
+        # therefore necessarily present; indexing directly keeps any future
+        # drift loud instead of silently leaving the alias unset.
+        settings[f'cellpose_{_role}_channel'] = _dense[_raw]
 
     channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
     channels = cellpose_channels.get(object_type, [])
@@ -1182,8 +1185,9 @@ def generate_cellpose_masks(src, settings, object_type):
             _raw = int(_raw)
         except (TypeError, ValueError):
             continue
-        if _raw in _dense:
-            settings[f'cellpose_{_role}_channel'] = _dense[_raw]
+        # The map was built from this same numeric role channel immediately
+        # above, so absence is impossible unless the two contracts drift.
+        settings[f'cellpose_{_role}_channel'] = _dense[_raw]
 
     # _get_cellpose_channels takes the settings dict and returns
     # (channels_to_extract, cellpose_channels). It used to be called here with
