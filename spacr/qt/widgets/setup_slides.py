@@ -223,9 +223,38 @@ GPU_NOTE_BAND = 0.78
 #: dispatches to CUDA, ROCm, Apple Metal (which drives Apple Silicon AND
 #: AMD cards in Intel Macs) and Intel XPU. See instruction 319.
 GPU_REQUIREMENT = (
-    "Segmentation and object classification are much faster on a GPU. "
-    "spaCR uses NVIDIA, AMD, Apple and Intel GPUs. "
-    "Everything else runs without one.")
+    "spaCR tasks are GPU accelerated and are compatible with NVIDIA, AMD, "
+    "Apple, and Intel GPUs. GPU acceleration is orders of magnitude faster "
+    "than CPU for matrix multiplication tasks.")
+
+#: The backend that drives each accelerator, for the "GPU: <name>: <lib>"
+#: line. The LIBRARY, not the vendor -- a user reading "Metal" beside an
+#: AMD card learns the thing that explains why ROCm is irrelevant on their
+#: machine, which is exactly what instruction 319's own backend table got
+#: wrong.
+GPU_LIBRARIES = {
+    "cuda": "CUDA",
+    "rocm": "ROCm",
+    "mps": "Metal",
+    "xpu": "XPU",
+    "directml": "DirectML",
+}
+
+#: The table's rows: ``(library, capability prefix, task)``.
+#:
+#: The middle column is GPU or CPU per row and is DERIVED -- matched
+#: against the start of what `accelerator.capabilities()` returns, so a
+#: detail sentence can be reworded without silently emptying a row.
+#:
+#: "Live backdrop" is what the renderer is called in `capabilities()` and
+#: in the code; the request said "Lave", which is that word typed in a
+#: hurry rather than a different thing.
+GPU_TABLE_ROWS = (
+    ("Cellpose", "Segmentation", "Segmentation"),
+    ("Torch models", "Model inference", "Classification"),
+    ("Live backdrop", "Live backdrop", "Visualization"),
+    ("UMAP / t-SNE / cluster", "UMAP", "Machine learning"),
+)
 
 #: The colours the verdict is drawn in.
 GPU_YES_INK = "#3FB950"
@@ -259,6 +288,23 @@ GREETING_FADE_MS = 420
 def greeting_for(code: str) -> str:
     """"Hello" in ``code``, falling back to English."""
     return GREETINGS.get(str(code or ""), GREETINGS["en"])
+
+
+def _gpu_library() -> str:
+    """The backend driving this machine's accelerator, or "".
+
+    CUDA, ROCm, Metal, XPU, DirectML -- the library, not the vendor. A
+    user reading "Metal" beside an AMD card learns the thing that
+    explains why ROCm is irrelevant on their machine, which is precisely
+    what instruction 319's own backend table got wrong.
+    """
+    try:
+        from ...accelerator import resolve
+
+        return GPU_LIBRARIES.get(resolve().kind, "")
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not name the accelerator library", exc_info=True)
+        return ""
 
 
 def graphics_card() -> Tuple[bool, str]:
@@ -1813,9 +1859,15 @@ class SetupSlides(QDialog):
         usable, name = graphics_card()
         hint = ""
         if name:
-            verdict = _say("Compatible GPU") if usable else _say(
-                "No compatible GPU")
-            line = f"{verdict} — {name}"
+            # "GPU: <card>: <library>", with only the CARD coloured.
+            # Asked for on 2026-08-31. The eye should land on the thing
+            # that varies between machines; the word "GPU" and the
+            # library name are the same on every machine with that card,
+            # so colouring them too would just be more red or more green.
+            library = _gpu_library()
+            tail = f": {library}" if library else ""
+            line = (f'{_say("GPU")}: <span style="color:{{ink}};">{name}</span>'
+                    f'{tail}')
             if not usable:
                 # NAMED THE CARD, SO SAY WHAT TO DO ABOUT IT. Finding an
                 # NVIDIA card that torch cannot reach is a CUDA problem,
@@ -1824,28 +1876,52 @@ class SetupSlides(QDialog):
                 hint = _say(GPU_DOCTOR_HINT)
         else:
             usable = False
-            line = _say("No compatible GPU — none detected")
+            line = (f'{_say("GPU")}: '
+                    f'<span style="color:{{ink}};">'
+                    f'{_say("none detected")}</span>')
         ink = GPU_YES_INK if usable else GPU_NO_INK
         html = [f'<div>{_say(GPU_REQUIREMENT)}</div>',
-                f'<div style="color:{ink}; font-weight:600;">{line}</div>']
+                f'<div style="font-weight:600;">{line.format(ink=ink)}</div>']
         if hint:
             html.append(f'<div>{hint}</div>')
         html.extend(self._what_this_machine_can_do())
         self._gpu_note.setText("".join(html))
 
     @staticmethod
+    def _cellpose_label() -> str:
+        """"Cellpose 4", with the 4 taken from the installed package.
+
+        A hardcoded major version is a claim the next Cellpose falsifies,
+        and this label sits on the first screen a new user sees.
+        """
+        try:
+            import cellpose
+
+            version = str(getattr(cellpose, "version", None)
+                          or getattr(cellpose, "__version__", ""))
+            major = version.split(".")[0]
+            return f"Cellpose {major}" if major.isdigit() else "Cellpose"
+        except Exception:                                    # noqa: BLE001
+            return "Cellpose"
+
+    @staticmethod
     def _what_this_machine_can_do() -> list:
-        """Per-task lines, because one verdict cannot be honest here.
+        """The capability TABLE: library, GPU-or-CPU, task.
 
-        A single green tick would claim the cuML reductions are
-        accelerated on a Mac, and they are not -- RAPIDS is built for CUDA
-        only. Naming an accelerator spaCR will not dispatch to for a given
-        task is exactly the failure instruction 319 warns about: the user
-        blames their hardware for a speed the software chose.
+        A table rather than four sentences, asked for on 2026-08-31. The
+        content was already per-task -- one verdict cannot be honest
+        here, because on Metal the segmentation and the classifier are
+        accelerated while the cuML reductions are not -- but four
+        sentences in a column read as four separate remarks rather than
+        one answer with an axis.
 
-        Failures here are swallowed. This is decoration on a setup slide,
-        and a machine with a strange accelerator must still reach the
-        button at the bottom of it.
+        The middle column is DERIVED from `accelerator.capabilities()`,
+        the same function `spacr-doctor` and the README table render, so
+        the three surfaces cannot disagree about the same machine.
+
+        Failures are swallowed. This is decoration on a setup slide, and
+        a machine with a strange accelerator must still reach the button
+        at the bottom of it.
         """
         try:
             from ...accelerator import capabilities, neural_engines
@@ -1854,13 +1930,40 @@ class SetupSlides(QDialog):
             return []
         rows = []
         try:
-            for task, accelerated, detail in capabilities():
+            answers = {task: (ok, detail)
+                       for task, ok, detail in capabilities()}
+
+            def _answer(prefix):
+                for task, (ok, detail) in answers.items():
+                    if task.startswith(prefix):
+                        return ok, detail
+                return None, ""
+
+            cells = []
+            for library, prefix, task in GPU_TABLE_ROWS:
+                accelerated, _detail = _answer(prefix)
+                if accelerated is None:
+                    # A capability row was renamed. Drop the table row
+                    # rather than draw an empty cell: a blank middle
+                    # column reads as "spaCR does not know", which is a
+                    # worse thing to say than nothing.
+                    LOG.debug("no capability row starts with %r", prefix)
+                    continue
+                if library.startswith("Cellpose"):
+                    library = SetupSlides._cellpose_label()
                 ink = GPU_YES_INK if accelerated else GPU_NO_INK
-                mark = "✓" if accelerated else "•"
+                where = _say("GPU") if accelerated else _say("CPU")
+                cells.append(
+                    f'<tr>'
+                    f'<td style="padding-right:14px;">{_say(library)}</td>'
+                    f'<td style="padding-right:14px; color:{ink}; '
+                    f'font-weight:600;">{where}</td>'
+                    f'<td style="opacity:0.85;">{_say(task)}</td>'
+                    f'</tr>')
+            if cells:
                 rows.append(
-                    f'<div style="color:{ink};">{mark} {_say(task)} '
-                    f'<span style="opacity:0.75;">— {_say(detail)}</span>'
-                    f'</div>')
+                    '<table style="margin-top:6px; border-collapse:collapse;">'
+                    + "".join(cells) + '</table>')
             for engine in neural_engines():
                 # FOUND AND NOT USED, said in as many words. There is no
                 # portable torch device for a neural engine, so silence

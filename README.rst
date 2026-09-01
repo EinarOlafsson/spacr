@@ -118,19 +118,6 @@ What each configuration accelerates
 
 🟢 supported (stable)   🟣 implemented (beta)   🔴 not supported
 
-Every cell is generated from ``spacr.accelerator.capabilities()``
-with that backend's probe faked, so this table, the first setup
-screen and ``spacr-doctor`` cannot disagree.
-
-**No GPU is supported, not broken.** Every task runs on a CPU and
-every result is identical; only the wall clock changes. On the
-machine these were measured on, one 256x256 Cellpose image took
-444.5 s on the CPU and 3.2 s on its Radeon.
-
-*Beta* means implemented and dispatched to, but exercised on one
-machine or none. CUDA is the only configuration with years behind
-it.
-
 .. spacr-hardware-end
 
 
@@ -365,6 +352,34 @@ Optional integrations are installed separately, for example
 <docs/source/installer_guide.rst>`_ for the complete extras and Python-version
 compatibility table.
 
+Install from source
+~~~~~~~~~~~~~~~~~~~
+
+Clone the repository and install it in editable mode, so your working copy
+*is* the installed package and edits take effect without reinstalling::
+
+    git clone https://github.com/EinarOlafsson/spacr.git
+    cd spacr
+    conda create -n spacr python=3.12 -y
+    conda activate spacr
+    pip install -e .
+    spacr
+
+The default branch is ``nightly``. For a specific release::
+
+    git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
+
+To pull later changes, from inside the clone::
+
+    git pull
+    pip install -e .
+
+The second line is only needed when dependencies or entry points changed;
+Python code is picked up without it. If a command still runs old code after
+pulling, ``spacr-doctor`` reports which ``spacr`` is actually on your path,
+which is the usual cause.
+
+
 Command-line entry points
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -406,17 +421,6 @@ The primary workflow comprises six modules:
 The same project can also design plates, estimate power, correct batch effects,
 inspect segmentation quality, explore linked plots and crops, export AnnData,
 resume interrupted work and record the settings behind each result.
-
-Modules available from host screens
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Twenty modules are integrated into related host screens rather than displayed
-as separate Home tiles. Each opens from its host screen's masthead and uses the
-active project. Mask, Measure, Annotate, Classify, Map Barcodes, Regression,
-Image UMAP and Make Masks provide these integrated modules. Their help and API
-documentation remain available, and modules with pipeline entry points can
-still run headlessly. The `feature guide <docs/source/features.rst>`_ lists
-each integrated module and its host.
 
 Make Masks
 ~~~~~~~~~~
@@ -541,34 +545,6 @@ It also identifies processor-architecture emulation, such as an x86_64 Python
 build on Apple Silicon, and the BLAS implementation used by NumPy. Either can
 substantially affect performance.
 
-Install from source
--------------------
-
-Clone the repository and install it in editable mode, so your working copy
-*is* the installed package and edits take effect without reinstalling::
-
-    git clone https://github.com/EinarOlafsson/spacr.git
-    cd spacr
-    conda create -n spacr python=3.12 -y
-    conda activate spacr
-    pip install -e .
-    spacr
-
-The default branch is ``nightly``. For a specific release::
-
-    git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
-
-To pull later changes, from inside the clone::
-
-    git pull
-    pip install -e .
-
-The second line is only needed when dependencies or entry points changed;
-Python code is picked up without it. If a command still runs old code after
-pulling, ``spacr-doctor`` reports which ``spacr`` is actually on your path,
-which is the usual cause.
-
-
 Command-line reference
 ----------------------
 
@@ -581,7 +557,6 @@ Launching the application
 .. code-block:: bash
 
    spacr              # the desktop application
-   spaceout           # the same application, different dressing
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
 
@@ -677,13 +652,8 @@ performance problems.
 Licensing
 ~~~~~~~~~
 
-spaCR is open source under the `BSD 3-Clause License
-<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, the same licence
-as CellProfiler, napari and Cellpose. Use it for any purpose, including
-commercially. Releases from 1.5.0.0 through 1.5.0.4 carried the PolyForm
-Noncommercial License 1.0.0 and versions through 1.4.9.9 carried the MIT
-License; those releases remain available under the licence that accompanied
-them.
+spaCR is released under the `BSD 3-Clause License
+<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
 
 If spaCR contributed to published work, a citation is appreciated and is not
 a condition of the licence — see `Citing spaCR`_ below.
