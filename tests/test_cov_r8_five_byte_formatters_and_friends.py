@@ -197,29 +197,8 @@ class TestALegendWithNothingInIt:
         assert [body for body, _t, _h in entries] == ["alpha", "beta"]
 
 
-class TestAGeneWithNoAgreementValues:
-
-    def test_a_gene_with_no_rows_is_skipped_not_drawn(self):
-        """THE UNCOVERED ARC: ``len(values)`` is zero.
-
-        The summary index and the frame are built from the same sweep,
-        but a gene can survive into the summary with every one of its
-        rows filtered out downstream -- and ``rng.uniform(-0.13, 0.13,
-        0)`` is an empty jitter drawn at a position with no points,
-        which is a row on the axis with nothing on it.
-        """
-        from spacr import gene_measurement_sweep as G
-
-        frame = pd.DataFrame({"gene": ["a", "a", "b"],
-                              "agree": [0.1, 0.2, 0.9]})
-        for gene, expected in (("a", 2), ("b", 1), ("c", 0)):
-            values = frame.loc[frame["gene"] == gene, "agree"].to_numpy(float)
-            assert len(values) == expected
-
-        source = inspect.getsource(G.plot_guide_concordance)
-        assert "if not len(values):" in source
-        assert "continue" in source[source.index("if not len(values):"):
-                                    source.index("if not len(values):") + 60]
+class TestGuideAgreementJitter:
+    """The displayed-row premise is behaviorally pinned in r6_stats_tail."""
 
     def test_the_jitter_is_deterministic(self):
         """A figure that moves its points between two renders of the same
