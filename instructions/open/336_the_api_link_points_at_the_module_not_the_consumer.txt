@@ -1,0 +1,97 @@
+336 — A SETTING'S API LINK POINTS AT THE MODULE, NOT AT WHAT READS IT
+=====================================================================
+
+ASKED FOR (2026-09-01, verbatim)
+--------------------------------
+"for all functions that are nested in other functions the API dosnt link to
+the actual settings that are passed. like for organell type i get linked to
+spacr.core and spacr.core.preprocess_generate_masks i guess. but i need to be
+linked to the actual function that takes the organelle_type setting. this is
+probbely across the board. and need a complete overhaul of the API and API
+links. the tooltips are presently the only helpfull things. only functions
+that are in the first level of depth have a helpfull API at present."
+
+WHAT THE STATE IS, MEASURED 2026-09-01
+--------------------------------------
+THE LINK IS PER-MODULE, NOT PER-SETTING, and that is the whole defect rather
+than an oversight in a few rows. `ApiHelpLabel._compose_help` builds it as
+
+    format_tooltip(description, self._app_key, "", self._language)
+
+keyed on the SCREEN's app_key. So every setting on the Mask panel links to
+Mask's entry point, whether it is read there or twelve calls down.
+
+  * settings whose description names an explicit `API:` target:  22
+    (the override exists and works -- `batch_column` and five siblings point
+    at `spacr.batch_correction.correct_batch_effects`, which is genuinely
+    where they are read)
+  * `organelle_type`, `organelle_method`, `cell_channel`:        NO override,
+    so all three fall back to the module entry point
+  * nested functions in the package:                            818
+  * of those carrying a docstring:                              280 (34%)
+
+So 22 settings have a useful link and the rest have a link that resolves to
+the same handful of entry points.
+
+WHY IT MATTERS
+--------------
+A link that always answers "this setting is used by the module you are
+already in" answers a question nobody asked. Worse, it LOOKS like an answer:
+a user follows it, reads `preprocess_generate_masks`, does not find
+`organelle_type` discussed, and concludes the documentation is wrong rather
+than that the link is aimed at the wrong function. The maintainer's own
+summary is the measure of it -- "the tooltips are presently the only helpful
+things".
+
+THE HARD PART, WHICH IS NOT WRITING THE LINKS
+---------------------------------------------
+A nested function HAS NO API ADDRESS. Sphinx documents what is importable, and
+a closure defined inside another function is not reachable as
+`module.parent.child` -- so for a setting whose real consumer is nested, there
+is no target to link to even once the consumer is identified. That is why this
+cannot be fixed by editing link strings, and it is the reason the request says
+"overhaul".
+
+Three routes, and the choice is a design decision rather than a lookup:
+
+  1. PROMOTE THE CONSUMERS. A nested function that reads a user-facing setting
+     is doing user-facing work and can be a module-level private function with
+     a docstring. This is the only route that yields a real link, and it is the
+     largest: 818 nested functions, though only the subset that reads settings
+     matters.
+  2. LINK TO THE NEAREST ADDRESSABLE ANCESTOR, and say so in the text -- "read
+     by the organelle pass inside `preprocess_generate_masks`". Honest, cheap,
+     and still makes the reader search the page.
+  3. STOP LINKING WHERE THERE IS NOTHING TO LINK TO. A tooltip with no API
+     line is better than one pointing somewhere unhelpful, because the second
+     costs the reader a click and their trust in the next link.
+
+WHERE TO START
+--------------
+Find the real consumer mechanically rather than by reading: for each setting
+key, grep the package for `settings['<key>']`, `settings.get('<key>')` and
+`<key>=` and record the enclosing function. That produces the consumer map
+this instruction needs, and it also answers how many consumers are nested --
+which is the number that decides between routes 1 and 2.
+
+The 22 existing overrides are the model for the output format; they are
+already correct and should not be regenerated.
+
+WATCH OUT
+---------
+* A setting can have MORE THAN ONE consumer -- `normalize` is read by the
+  preview, the plotter and the pipeline. One link cannot be right for all
+  three, and picking the first found silently privileges one.
+* Do not generate links from the settings CATEGORY. That is the same mistake
+  one level finer: a category is a UI grouping, not a call site.
+* 306's ratchets count API symbols. Promoting nested functions changes those
+  counts, so that item's measurements move with this work.
+
+HOW TO KNOW IT WORKED
+---------------------
+* Following the API link for `organelle_type` lands on documentation that
+  actually mentions `organelle_type`.
+* No setting links to a function whose docstring does not name it.
+* A setting with no addressable consumer shows no API link rather than a
+  misleading one.
+* The consumer map is committed, so the next audit is a diff and not a rerun.
