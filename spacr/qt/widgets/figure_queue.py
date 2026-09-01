@@ -1055,9 +1055,51 @@ class FigureQueue(QWidget):
             item.setIcon(self._thumb_icon(pixmap))
         self._list.addItem(item)
 
-        self._list.setCurrentRow(idx)   # jump to the newest
-        self.show_index(idx)
+        # FOLLOW THE TAIL, BUT ONLY WHILE THE USER IS AT IT.
+        #
+        # This used to jump to the newest figure unconditionally, so a user
+        # reading figure 3 of a Cellpose run -- which produces figures
+        # steadily, for minutes -- was thrown off it every few seconds and
+        # could not read any of them. It is also most of the queue's cost
+        # while a run streams: every arrival tore down the live canvas and
+        # built another, whether or not anyone was looking at the result.
+        #
+        # "At the tail" means the view is on what WAS the newest figure, which
+        # is where it sits when nobody has navigated. The moment the user
+        # clicks a tile, the view stops following and new figures arrive
+        # quietly in the list -- which is where they can then click them.
+        if self._following_the_tail(idx):
+            self._list.setCurrentRow(idx)
+            self.show_index(idx)
+        else:
+            self._note_unseen_figure()
         return idx
+
+    def _following_the_tail(self, new_index: int) -> bool:
+        """Whether the view should move to the figure that just arrived.
+
+        True when the view is on what was the newest figure before this one,
+        and for the very first figure of all -- an empty gallery has nothing
+        to be thrown off.
+        """
+        if new_index <= 0:
+            return True
+        current = getattr(self, "_current", None)
+        if current is None:
+            return True
+        return int(current) == new_index - 1
+
+    def _note_unseen_figure(self) -> None:
+        """Make it visible that figures are still arriving.
+
+        Without this the only sign of a new figure is a list that grows below
+        the fold, so a user who has navigated away could reasonably conclude
+        the run had stopped producing them.
+        """
+        try:
+            self._refresh_nav()
+        except Exception:                                    # noqa: BLE001
+            pass
 
     def _refresh_live_figure(self, idx: int, prerendered_png: str) -> None:
         """Replace one live figure's raster while preserving its gallery slot.
@@ -1592,6 +1634,19 @@ class FigureQueue(QWidget):
             # detail rather than bigger pixels.
             self._canvas_layout.addWidget(toolbar)
             self._canvas_layout.addWidget(canvas, 1)
+            # WHEEL ZOOM, because the raster view has it and this one did not.
+            #
+            # The two views are meant to be interchangeable -- the user is not
+            # told which one they are looking at, and should not have to care.
+            # But `_ZoomView` zooms on a plain wheel turn while a matplotlib
+            # canvas ignores the wheel entirely and offers zoom only through
+            # the toolbar's magnifier. So whether scrolling zoomed depended on
+            # whether the figure was still live, which is invisible: a recent
+            # Cellpose figure is live and refused to zoom, and the same figure
+            # zoomed fine an hour later once it had spilled to a raster.
+            # Reported as "i cant zoom into the figures generated from
+            # cellpose".
+            canvas.mpl_connect("scroll_event", self._on_canvas_scroll)
             self._canvas = canvas
             self._canvas_toolbar = toolbar
             self._stack.setCurrentIndex(1)
@@ -1613,6 +1668,41 @@ class FigureQueue(QWidget):
         self._live_canvas_enabled = bool(enabled)
         if not enabled:
             self._show_raster()
+
+    #: Wheel zoom step. Matches `_ZoomView`, so the two views feel the same.
+    CANVAS_ZOOM_STEP = 1.2
+
+    def _on_canvas_scroll(self, event) -> None:
+        """Zoom the live canvas about the pointer.
+
+        Zooming ABOUT THE POINTER rather than the axes centre is what makes a
+        montage usable: the panel being examined stays under the cursor
+        instead of sliding away as the view narrows.
+
+        Silent when the pointer is outside the axes -- the margins of a figure
+        have no data coordinates to zoom about, and a wheel turn there should
+        do nothing rather than jump the view.
+        """
+        axes = getattr(event, "inaxes", None)
+        if axes is None:
+            return
+        x, y = getattr(event, "xdata", None), getattr(event, "ydata", None)
+        if x is None or y is None:
+            return
+        step = self.CANVAS_ZOOM_STEP
+        # 'up' is towards the screen, which everywhere else in this
+        # application means closer -- so it narrows the limits.
+        factor = (1.0 / step) if getattr(event, "button", "") == "up" else step
+        left, right = axes.get_xlim()
+        bottom, top = axes.get_ylim()
+        # Anchored on the pointer: each edge keeps its DISTANCE RATIO to the
+        # cursor, so the data under it does not move. Written to survive
+        # inverted axes, which every `imshow` panel has.
+        axes.set_xlim(x - (x - left) * factor, x + (right - x) * factor)
+        axes.set_ylim(y - (y - bottom) * factor, y + (top - y) * factor)
+        canvas = getattr(self, "_canvas", None)
+        if canvas is not None:
+            canvas.draw_idle()
 
     def _teardown_canvas(self) -> None:
         """Drop the current canvas. A Figure may only live on one canvas.
