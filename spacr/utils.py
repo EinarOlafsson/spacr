@@ -2691,7 +2691,8 @@ def _release_imported_rows_for_field(db_path, table, frame, timelapse=False):
     if not os.path.isfile(db_path):
         return 0
     delay = 0.2
-    for attempt in range(1, DB_WRITE_ATTEMPTS + 1):
+    attempt = 1
+    while True:
         try:
             return _release_imported_rows_once(db_path, table, frame, timelapse)
         except sqlite3.OperationalError as e:
@@ -2701,6 +2702,7 @@ def _release_imported_rows_for_field(db_path, table, frame, timelapse=False):
                   f"(attempt {attempt}/{DB_WRITE_ATTEMPTS}): {e}; retrying")
             time.sleep(delay)
             delay *= 2
+            attempt += 1
 
 
 def _release_imported_rows_once(db_path, table, frame, timelapse=False):
@@ -2879,24 +2881,23 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
         for i, col in enumerate(column_list):
             cols.insert(i, cols.pop(cols.index(col)))
         merged_df = merged_df[cols]  # rearrange the columns
-        if len(merged_df) > 0:
-            if table_type in schema.CANONICAL_OBJECT_TABLES:
-                merged_df = schema.validate_object_table_frame(
-                    merged_df,
-                    table_type,
-                    timelapse=timelapse,
-                )
-            db_path = f'{source_folder}/measurements/measurements.db'
-            _assert_measurement_units_compatible(db_path, table_type, stamp)
-            if table_type in schema.CANONICAL_OBJECT_TABLES:
-                # F34. A foreign import copies its rows into the canonical
-                # table when the destination is empty; appending beside them
-                # makes every downstream count the sum of two populations. The
-                # copy for this field is handed back first, or nothing is
-                # written -- both before the insert, never after.
-                _release_imported_rows_for_field(
-                    db_path, table_type, merged_df, timelapse=timelapse)
-            _append_to_measurements_db(db_path, table_type, merged_df)
+        if table_type in schema.CANONICAL_OBJECT_TABLES:
+            merged_df = schema.validate_object_table_frame(
+                merged_df,
+                table_type,
+                timelapse=timelapse,
+            )
+        db_path = f'{source_folder}/measurements/measurements.db'
+        _assert_measurement_units_compatible(db_path, table_type, stamp)
+        if table_type in schema.CANONICAL_OBJECT_TABLES:
+            # F34. A foreign import copies its rows into the canonical
+            # table when the destination is empty; appending beside them
+            # makes every downstream count the sum of two populations. The
+            # copy for this field is handed back first, or nothing is
+            # written -- both before the insert, never after.
+            _release_imported_rows_for_field(
+                db_path, table_type, merged_df, timelapse=timelapse)
+        _append_to_measurements_db(db_path, table_type, merged_df)
 
 
 #: How many times a locked measurements.db write is retried before it fails.
@@ -3118,7 +3119,8 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
     :raises sqlite3.OperationalError: when every attempt fails and ``required``.
     """
     delay = 0.2
-    for attempt in range(1, DB_WRITE_ATTEMPTS + 1):
+    attempt = 1
+    while True:
         conn = None
         try:
             from .database_concurrency import connect
@@ -3146,6 +3148,7 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
                   f"(attempt {attempt}/{DB_WRITE_ATTEMPTS}): {e}; retrying")
             time.sleep(delay)
             delay *= 2
+            attempt += 1
         finally:
             if conn is not None:
                 conn.close()
@@ -5159,13 +5162,8 @@ def suggest_training_changes(
             "Track per-class metrics/confusion matrices to verify rare classes.",
         ])
 
-    # De-duplicate while preserving order
-    seen = set()
-    dedup = []
-    for s in out["suggestions"]:
-        if s not in seen:
-            dedup.append(s); seen.add(s)
-    out["suggestions"] = dedup
+    # De-duplicate while preserving order. ``dict`` preserves insertion order.
+    out["suggestions"] = list(dict.fromkeys(out["suggestions"]))
 
     return out
 
@@ -6674,12 +6672,11 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
 
     for filename in all_filenames:
         match = regular_expression.match(filename)
-        if match:
-            plate = match.group('plateID') if 'plateID' in match.groupdict() else os.path.basename(src)
-            well = match.group('wellID')
-            field = match.group('fieldID')
-            set_identifier = (plate, well, field)
-            images_by_set[set_identifier].append(filename)
+        plate = match.group('plateID') if 'plateID' in match.groupdict() else os.path.basename(src)
+        well = match.group('wellID')
+        field = match.group('fieldID')
+        set_identifier = (plate, well, field)
+        images_by_set[set_identifier].append(filename)
     
     # Prepare for random selection
     set_identifiers = list(images_by_set.keys())
@@ -9517,8 +9514,7 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
                 if overlap_percentage > overlap_threshold:
                     first_label = overlapping_cell_labels[0]
                     for other_label in overlapping_cell_labels[1:]:
-                        if other_label != first_label:
-                            cell_mask[cell_mask == other_label] = first_label
+                        cell_mask[cell_mask == other_label] = first_label
 
     # Merge cells based on nucleus overlap
     for nucleus_id in range(1, num_nuclei + 1):
@@ -9536,8 +9532,7 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
             if all(overlap_percentage > overlap_threshold for overlap_percentage in overlap_percentages):
                 first_label = overlapping_cell_labels[0]
                 for other_label in overlapping_cell_labels[1:]:
-                    if other_label != first_label:
-                        cell_mask[cell_mask == other_label] = first_label
+                    cell_mask[cell_mask == other_label] = first_label
 
     # Check for cells without nuclei and merge based on shared perimeter
     labeled_cells = label(cell_mask)  # Re-label after merging based on overlap

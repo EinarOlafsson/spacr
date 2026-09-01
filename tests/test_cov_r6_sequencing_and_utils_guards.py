@@ -229,7 +229,7 @@ def test_the_threshold_sweep_always_has_a_folder_to_write_into(tmp_path,
 
 def test_a_database_that_stays_locked_leaves_the_retry_by_raising(tmp_path,
                                                                   monkeypatch):
-    """Why neither ``for attempt in range(...)`` loop can run off its end.
+    """Neither retry can run off its end or silently report success.
 
     Both retries answer every attempt: a success returns, a non-lock error
     returns or re-raises, and the LAST attempt re-raises (or, for a table
@@ -271,8 +271,15 @@ def test_a_database_that_stays_locked_leaves_the_retry_by_raising(tmp_path,
         str(db_path), "png_list", frame, required=False) is None
     assert len(tries) == U.DB_WRITE_ATTEMPTS
 
+    import inspect
+    for function in (U._release_imported_rows_for_field,
+                     U._append_to_measurements_db):
+        source = inspect.getsource(function)
+        assert "while True:" in source
+        assert "for attempt in range(" not in source
 
-def test_a_merge_that_reaches_the_write_always_has_rows():
+
+def test_a_merge_that_reaches_the_write_always_has_rows(monkeypatch):
     """Why ``if len(merged_df) > 0`` before the write cannot be false.
 
     ``_merge_and_save_to_database`` returns at its own line 2828 when the
@@ -296,6 +303,25 @@ def test_a_merge_that_reaches_the_write_always_has_rows():
                                           "mean": [5.0]}),
                      on="object_label", how="outer", validate="one_to_one")
     assert len(outer) == len(morph) > 0
+
+    written = []
+    monkeypatch.setattr(U, "_check_integrity", lambda frame: frame)
+    monkeypatch.setattr(U.schema, "validate_object_table_frame",
+                        lambda frame, *_args, **_kwargs: frame)
+    monkeypatch.setattr(U, "_assert_measurement_units_compatible",
+                        lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(U, "_release_imported_rows_for_field",
+                        lambda *_args, **_kwargs: 0)
+    monkeypatch.setattr(U, "_append_to_measurements_db",
+                        lambda _path, _table, frame: written.append(frame.copy()))
+    U._merge_and_save_to_database(
+        morph, pd.DataFrame({"object_label": [1], "mean": [5.0]}),
+        "cell", "/unused", "plate1_A1_1", "exp")
+    assert len(written) == 1 and len(written[0]) == len(morph)
+
+    import inspect
+    assert "if len(merged_df) > 0:" not in inspect.getsource(
+        U._merge_and_save_to_database)
 
 
 def test_no_two_training_suggestions_are_the_same_sentence(tmp_path):
@@ -327,6 +353,11 @@ def test_no_two_training_suggestions_are_the_same_sentence(tmp_path):
         "two rules produced the same sentence, so the de-duplicator can drop "
         "one and the guard is no longer dead")
 
+    import inspect
+    source = inspect.getsource(U.suggest_training_changes)
+    assert "dict.fromkeys" in source
+    assert "if s not in seen:" not in source
+
 
 def test_only_filenames_the_regex_matched_are_grouped(tmp_path):
     """Why ``if match:`` in ``_run_test_mode`` cannot be false.
@@ -353,6 +384,11 @@ def test_only_filenames_the_regex_matched_are_grouped(tmp_path):
 
     copied = sorted(os.listdir(src / "test"))
     assert copied == kept, "only the matched names were grouped and copied"
+
+    import inspect
+    source = inspect.getsource(U._run_test_mode)
+    assert "if regular_expression.match(filename)" in source
+    assert "if match:" not in source
 
 
 def test_a_cluster_plot_always_has_a_legend_to_restyle():
@@ -420,3 +456,7 @@ def test_the_labels_a_cell_merge_walks_are_always_distinct():
     # The walk really ran: the two cells the parasite spans came back as one.
     assert len(np.unique(labelled)) - 1 == 2
     assert len(np.unique(merged)) - 1 == 1
+
+    import inspect
+    source = inspect.getsource(U._merge_cells_based_on_parasite_overlap)
+    assert "if other_label != first_label:" not in source
