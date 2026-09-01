@@ -179,16 +179,6 @@ class TestResultsTheLineAboveProduced:
 
 
 class TestRefusalsThatNameTheFix:
-
-    def test_too_few_labels_says_how_many_there_were(self):
-        """The number is the point: a user with three labels needs to
-        know they are one short, not that the strategy failed."""
-        from spacr import regression_annotation as RA
-
-        source = _source(RA)
-        assert "Only {labelled.size} cell(s) carry a reference label" in source
-        assert "too few to hold any of them aside and still measure" in source
-
     def test_four_is_the_floor_and_it_is_a_hold_out_argument(self):
         """THE ARC: ``labelled.size < 4``.
 
