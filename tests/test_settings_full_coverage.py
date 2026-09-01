@@ -1241,6 +1241,44 @@ def test_no_panel_factory_ships_a_key_that_has_no_declared_type():
         f"non-empty error list refuses to start the run: {undeclared}")
 
 
+def test_plaque_defaults_match_the_types_the_worker_accepts():
+    """The detector switch and optional physical ruler keep their unions."""
+    defaults = S.get_analyze_plaque_settings({})
+    contract = {
+        "plaque_model": str,
+        "well_detection": (str, bool),
+        "well_confidence": float,
+        "well_pad": int,
+        "plate_format": (str, type(None)),
+        "well_diameter_mm": (float, int, type(None)),
+    }
+
+    for key, allowed in contract.items():
+        assert S.expected_types[key] == allowed
+        assert isinstance(defaults[key], allowed), (
+            f"{key} defaults to {defaults[key]!r}, outside {allowed}")
+
+    assert isinstance("toxoplasma_well_detector_v1", contract["well_detection"])
+    assert isinstance(True, contract["well_detection"])
+    assert isinstance("6-well", contract["plate_format"])
+    assert isinstance(34.8, contract["well_diameter_mm"])
+
+
+@pytest.mark.parametrize("raw,want", [
+    ("False", False),
+    ("True", True),
+    ("toxoplasma_well_detector_v1", "toxoplasma_well_detector_v1"),
+    ("/models/wells.pt", "/models/wells.pt"),
+])
+def test_well_detection_keeps_switches_and_model_names_distinct(raw, want):
+    settings, errors = S.check_settings(
+        _vd(well_detection=raw), S.expected_types)
+
+    assert errors == []
+    assert settings["well_detection"] == want
+    assert isinstance(settings["well_detection"], type(want))
+
+
 @pytest.mark.parametrize("fn_name", [
     "set_default_generate_barecode_mapping",
     "set_generate_training_dataset_defaults",
@@ -1254,6 +1292,7 @@ def test_no_panel_factory_ships_a_key_that_has_no_declared_type():
     "get_measure_crop_settings",
     "deep_spacr_defaults",
     "set_default_analyze_screen",
+    "get_analyze_plaque_settings",
 ])
 def test_a_module_can_be_started_with_its_own_untouched_defaults(fn_name):
     """The panel round trip, end to end, for one module.

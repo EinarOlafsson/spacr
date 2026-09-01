@@ -87,11 +87,17 @@ def _called_frame():
     })
 
 
-def test_a_coefficient_with_no_name_is_not_labelled_nan(ax):
+def test_a_coefficient_with_no_name_is_not_labelled_nan(ax, monkeypatch):
     """Half the rows of a real coefficient table carry no gene, and a
     volcano that labels them 'nan' puts the same meaningless word on its
     strongest points."""
-    panel = panels.volcano(ax, _called_frame(), effect_threshold=None,
+    frame = _called_frame()
+    # Pandas 3 can preserve the float NaN in a nominally string-like Series.
+    # Force that cross-version shape even when this test runs on pandas 2.
+    monkeypatch.setattr(
+        panels, "label_series", lambda _frame: _frame["gene"].astype(object))
+
+    panel = panels.volcano(ax, frame, effect_threshold=None,
                            label_top=5)
 
     assert panel.drawn is True

@@ -3012,6 +3012,16 @@ expected_types = {
     "experiment": str,
     "channels": list,
     "magnification": int,
+    # Plaque analysis can optionally split a plate image into wells and use
+    # their physical diameter as a ruler. These six keys are all exposed by
+    # get_analyze_plaque_settings, so each needs the same declared contract
+    # the worker consumes rather than being dropped by check_settings.
+    "plaque_model": str,
+    "well_detection": (str, bool),
+    "well_confidence": float,
+    "well_pad": int,
+    "plate_format": (str, type(None)),
+    "well_diameter_mm": (float, int, type(None)),
     "nucleus_channel": (int, type(None)),
     "nucleus_background": int,
     "nucleus_Signal_to_noise": float,
@@ -6360,6 +6370,17 @@ def check_settings(vars_dict, expected_types, q=None):
                     settings[key] = str(value)
                 else:
                     settings[key] = None
+
+            elif expected_type == (str, bool):
+                # A detector switch may be off/on OR name a model/path.
+                # bool("False") is True and str(False) is "False", so the
+                # generic tuple coercer cannot preserve this union.
+                if value is None or isinstance(value, bool):
+                    settings[key] = value
+                elif str(value).strip().lower() in ("true", "false"):
+                    settings[key] = str(value).strip().lower() == "true"
+                else:
+                    settings[key] = str(value)
             
             elif expected_type == dict:
                 try:

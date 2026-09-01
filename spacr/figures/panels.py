@@ -327,8 +327,11 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
         for index in order[: label_top * 3]:
             if not called[index] or len(placed) >= label_top:
                 continue
-            name = names.iloc[index]
-            if not name or name.lower() == "nan":
+            # Pandas 2 turns a missing label into the string ``"nan"`` here,
+            # while pandas 3 can preserve the float NaN. Normalise before any
+            # string operation so the same coefficient table draws on both.
+            name = str(names.iloc[index]).strip()
+            if not name or name.casefold() in {"nan", "none", "<na>", "nat"}:
                 continue
             if any(abs(x[index] - px) < 0.42 and abs(y[index] - py) < 0.9
                    for px, py in placed):
