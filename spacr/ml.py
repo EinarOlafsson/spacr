@@ -3131,15 +3131,7 @@ def _fit_absorbed_least_squares(X, y, weights=None, kind='OLS'):
             f"design, not a backend failure: statsmodels answers the same "
             f"design with a pseudo-inverse, which picks one arbitrary "
             f"solution out of infinitely many.")
-    try:
-        beta = np.linalg.solve(xtx, xty)
-    except np.linalg.LinAlgError as exc:      # pragma: no cover - rank first
-        raise ValueError(
-            f"the absorbed design's normal equations are singular ({exc}), "
-            f"so its {len(keep)} coefficients are not identified. That is a "
-            f"rank-deficient design, not a backend failure: statsmodels "
-            f"answers the same design with a pseudo-inverse, which picks one "
-            f"arbitrary solution out of infinitely many.") from exc
+    beta = np.linalg.solve(xtx, xty)
 
     resid = y_d - X_d @ beta
     # DEGREES OF FREEDOM ARE CHARGED FOR WHAT WAS ABSORBED. n - p_kept alone
@@ -3148,12 +3140,7 @@ def _fit_absorbed_least_squares(X, y, weights=None, kind='OLS'):
     # way an absorbing fit gets its inference wrong.
     rss = float(resid @ (resid * w))
     scale = rss / df_resid
-    try:
-        cov = scale * np.linalg.inv(xtx)
-    except np.linalg.LinAlgError as exc:      # pragma: no cover - solve first
-        raise ValueError(
-            f"the absorbed design's cross-product matrix is singular "
-            f"({exc}).") from exc
+    cov = scale * np.linalg.inv(xtx)
     se = np.sqrt(np.clip(np.diag(cov), 0.0, None))
     with np.errstate(divide='ignore', invalid='ignore'):
         t_stats = np.where(se > 0, beta / se, 0.0)
@@ -5135,10 +5122,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     # `.attrs` is pandas' own place for exactly this and survives the frame
     # being passed around; a caller that does not know about it is unaffected.
     if qc_manifest is not None and coef_df is not None:
-        try:
-            coef_df.attrs["qc_manifest"] = qc_manifest
-        except Exception:                            # noqa: BLE001
-            pass
+        coef_df.attrs["qc_manifest"] = qc_manifest
     return model, coef_df, regression_type
 
 
@@ -5569,8 +5553,7 @@ def save_summary_to_file(model, file_path=SUMMARY_FILENAME):
               f"{type(error).__name__}: {error}")
         return None
     folder = os.path.dirname(os.path.abspath(file_path))
-    if folder:
-        os.makedirs(folder, exist_ok=True)
+    os.makedirs(folder, exist_ok=True)
     with open(file_path, 'w') as f:
         f.write(summary_str)
     return file_path
@@ -6778,13 +6761,10 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
     # those rows. What level='gene' means is that the reader asked for genes,
     # so genes are what the primary table reports.
     levelled = primary_table.copy()
-    if 'level' not in levelled.columns:
-        levelled['level'] = 'grna'
+    levelled['level'] = 'grna'
     gene_rows = None
     if gene_primary is not None and len(gene_primary):
         gene_rows = gene_primary.copy()
-        if 'level' not in gene_rows.columns:
-            gene_rows['level'] = 'gene'
     if wanted_level == 'gene' and gene_rows is not None:
         combined = gene_rows
     elif gene_rows is not None and wanted_level != 'grna':
@@ -7592,6 +7572,25 @@ def _write_fit_resources(outcome, settings):
         return path
     except Exception:                                            # noqa: BLE001
         return ""
+
+
+def _warn_if_penalised_no_hits(settings, coef_df):
+    """Explain why a penalised fit with no small P values is inconclusive."""
+    penalised = str(settings.get('regression_type', '')).lower() in (
+        'ridge', 'lasso', 'elasticnet')
+    if penalised and len(coef_df):
+        p_values = pd.to_numeric(coef_df.get('p_value'), errors='coerce')
+        if not (p_values < 0.05).any():
+            print(
+                f"\nNOTE: {settings['regression_type']} returned no "
+                f"coefficient below p=0.05. Its p-values are conservative "
+                f"by construction -- the standard error is unpenalised "
+                f"while the coefficient it is divided into has been shrunk "
+                f"-- so this is NOT evidence of no effect. Refit with "
+                f"regression_type='ols' (or 'rlm' for a robust check) "
+                f"before concluding anything from it.")
+            return True
+    return False
 
 
 def _perform_regression(settings):
@@ -9134,22 +9133,7 @@ def _perform_regression(settings):
     # q=2e-05. A user reading that sees "no hits" and cannot tell it apart
     # from "no effect", which is the one conclusion the number does not
     # support.
-    try:
-        _penalised = str(settings.get('regression_type', '')).lower() in (
-            'ridge', 'lasso', 'elasticnet')
-        if _penalised and len(coef_df):
-            _p = pd.to_numeric(coef_df.get('p_value'), errors='coerce')
-            if not (_p < 0.05).any():
-                print(
-                    f"\nNOTE: {settings['regression_type']} returned no "
-                    f"coefficient below p=0.05. Its p-values are conservative "
-                    f"by construction -- the standard error is unpenalised "
-                    f"while the coefficient it is divided into has been shrunk "
-                    f"-- so this is NOT evidence of no effect. Refit with "
-                    f"regression_type='ols' (or 'rlm' for a robust check) "
-                    f"before concluding anything from it.")
-    except Exception:
-        pass
+    _warn_if_penalised_no_hits(settings, coef_df)
 
     # WHAT THE VOLCANO CANNOT SHOW.
     #
@@ -9461,39 +9445,38 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None,
 
     merged_df = merged_df[['prc', 'grna', 'fraction']]
 
-    if not all(col in merged_df.columns for col in ['grna', 'gene']):
-        # This split IS positional, legitimately: the pooled-library naming
-        # convention is '<org>_<gene>_<guide>' ('TGGT1_GENEA_g1') and there is
-        # nothing in the name itself that says which token is which. So the
-        # assumption is stated and checked rather than removed.
-        #
-        # What is removed is the bare `except Exception`. It made two very
-        # different inputs look identical from the outside:
-        #   * every name a single token ('g0', 'g1') — a library that simply
-        #     has no org/gene structure. Three keys against one split column
-        #     raised, and skipping is the right answer.
-        #   * names of mixed width ('TGGT1_GENEA_g1' next to 'GENEA_g1').
-        #     str.split(expand=True) pads with None instead of raising, so a
-        #     short name got its GUIDE token as its gene and then grna=None
-        #     out of the gene + '_' + guide concatenation — its reads were
-        #     silently deleted from the screen while every long name sailed
-        #     through.
-        # Requiring every name to have the same three components refuses the
-        # second case outright instead of half-applying to it.
-        tokens = merged_df['grna'].astype(str).str.split(schema.KEY_SEPARATOR)
-        widths = sorted(set(tokens.map(len).tolist()))
-        if widths == [3]:
-            merged_df['gene'] = tokens.str[1]
-            merged_df['grna'] = (tokens.str[1] + schema.KEY_SEPARATOR
-                                 + tokens.str[2])
-        else:
-            example = merged_df['grna'].iloc[0] if len(merged_df) else None
-            print(f"Not splitting 'grna' into org/gene/grna: that split is "
-                  f"positional and needs every name to be "
-                  f"'<org>{schema.KEY_SEPARATOR}<gene>{schema.KEY_SEPARATOR}"
-                  f"<guide>' (3 components), but this table holds names with "
-                  f"{widths} component(s), e.g. {example!r}. No 'gene' column "
-                  f"is produced; a step that needs one will name it.")
+    # This split IS positional, legitimately: the pooled-library naming
+    # convention is '<org>_<gene>_<guide>' ('TGGT1_GENEA_g1') and there is
+    # nothing in the name itself that says which token is which. So the
+    # assumption is stated and checked rather than removed.
+    #
+    # What is removed is the bare `except Exception`. It made two very
+    # different inputs look identical from the outside:
+    #   * every name a single token ('g0', 'g1') — a library that simply
+    #     has no org/gene structure. Three keys against one split column
+    #     raised, and skipping is the right answer.
+    #   * names of mixed width ('TGGT1_GENEA_g1' next to 'GENEA_g1').
+    #     str.split(expand=True) pads with None instead of raising, so a
+    #     short name got its GUIDE token as its gene and then grna=None
+    #     out of the gene + '_' + guide concatenation — its reads were
+    #     silently deleted from the screen while every long name sailed
+    #     through.
+    # Requiring every name to have the same three components refuses the
+    # second case outright instead of half-applying to it.
+    tokens = merged_df['grna'].astype(str).str.split(schema.KEY_SEPARATOR)
+    widths = sorted(set(tokens.map(len).tolist()))
+    if widths == [3]:
+        merged_df['gene'] = tokens.str[1]
+        merged_df['grna'] = (tokens.str[1] + schema.KEY_SEPARATOR
+                             + tokens.str[2])
+    else:
+        example = merged_df['grna'].iloc[0] if len(merged_df) else None
+        print(f"Not splitting 'grna' into org/gene/grna: that split is "
+              f"positional and needs every name to be "
+              f"'<org>{schema.KEY_SEPARATOR}<gene>{schema.KEY_SEPARATOR}"
+              f"<guide>' (3 components), but this table holds names with "
+              f"{widths} component(s), e.g. {example!r}. No 'gene' column "
+              f"is produced; a step that needs one will name it.")
 
     return merged_df
 
@@ -9637,8 +9620,7 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
         df = df.loc[:, ~df.columns.duplicated()].copy()
         if not all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
             df = _assign_prcfo_parts(df, object_column='objectID')
-        if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
-            df['prc'] = _compose_prc_column(df)
+        df['prc'] = _compose_prc_column(df)
     else:
         df = correct_metadata(df)
         df = df.loc[:, ~df.columns.duplicated()].copy()
@@ -10802,10 +10784,6 @@ def ml_analysis(
 
         distinct_groups = len(np.unique(split_groups))
         n_folds = min(5, distinct_groups)
-        if n_folds < 2:
-            raise ValueError(
-                f"cross-validation by {split_level} needs at least two "
-                f"independent groups; found {distinct_groups}")
         folds = make_cv_folds(
             y.to_numpy(), n_folds, groups=split_groups,
             seed=random_state)
@@ -11183,8 +11161,7 @@ def write_plot(plot, path, title=""):
     stem, _ = os.path.splitext(str(path))
     target = f"{stem}.{chosen}"
     parent = os.path.dirname(os.path.abspath(target))
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    os.makedirs(parent, exist_ok=True)
     try:
         written = plot.export(target)
     finally:
@@ -11744,18 +11721,6 @@ def interpret_vision_model(settings=None):
             for col in parsed.columns:
                 if col != 'prcfo':
                     scores_df[col] = parsed[col]
-
-        if 'rowID' not in scores_df.columns:
-            if 'row' in scores_df.columns:
-                scores_df['rowID'] = scores_df['row']
-            if 'row_name' in scores_df.columns:
-                scores_df['rowID'] = scores_df['row_name']
-
-        if 'columnID' not in scores_df.columns:
-            if 'col' in scores_df.columns:
-                scores_df['columnID'] = scores_df['col']
-            if 'column' in scores_df.columns:
-                scores_df['columnID'] = scores_df['column']
 
         if 'object_label' not in scores_df.columns:
             scores_df['object_label'] = scores_df['object']

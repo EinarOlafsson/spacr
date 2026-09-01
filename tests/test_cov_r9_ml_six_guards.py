@@ -47,19 +47,21 @@ class TestAnAbsolutePathAlwaysHasAParent:
     def test_both_writers_normalise_before_they_check(self):
         from spacr import ml as M
 
-        for function in (M.save_summary_to_file, M.write_plot):
+        for function, guard in ((M.save_summary_to_file, "if folder:"),
+                                (M.write_plot, "if parent:")):
             source = inspect.getsource(function)
             assert "os.path.dirname(os.path.abspath(" in source, (
-                f"{function.__name__} no longer normalises before checking, "
-                f"so a bare filename now skips the makedirs")
+                f"{function.__name__} no longer normalises before creating "
+                f"the destination directory")
             assert "exist_ok=True" in source
+            assert guard not in source, (
+                f"{function.__name__} restored an impossible path guard")
 
 
 class TestTheColumnsTheLineAboveEnsured:
 
     def test_the_prc_parts_are_assigned_before_they_are_required(self):
-        """THE PIN, for ``if all(col in df.columns ...)`` in
-        ``process_scores``.
+        """THE PIN for removing the second column check in ``process_scores``.
 
         The line above calls ``_assign_prcfo_parts`` precisely when the
         three are missing, so by the check they are present -- unless the
@@ -72,11 +74,14 @@ class TestTheColumnsTheLineAboveEnsured:
             "if not all(col in df.columns for col in "
             "['plateID', 'rowID', 'columnID']):")
         assign = source.index("_assign_prcfo_parts(df", missing)
-        present = source.index(
-            "if all(col in df.columns for col in "
-            "['plateID', 'rowID', 'columnID']):", assign)
+        compose = source.index("df['prc'] = _compose_prc_column(df)", assign)
 
-        assert missing < assign < present
+        assert missing < assign < compose
+        check = ("if all(col in df.columns for col in "
+                 "['plateID', 'rowID', 'columnID']):")
+        # One check remains on the non-prcfo path, where no parser just wrote
+        # the columns. The redundant post-parser copy would make this two.
+        assert source.count(check) == 1
 
     def test_splitting_a_prcfo_gives_the_three_parts(self):
         """Driven on the helper, since that is what makes the check above
@@ -108,11 +113,11 @@ class TestTheColumnsTheLineAboveEnsured:
 
         source = inspect.getsource(M.process_reads)
         cut = source.index("merged_df = merged_df[['prc', 'grna', 'fraction']]")
-        check = source.index(
-            "if not all(col in merged_df.columns for col in "
-            "['grna', 'gene']):", cut)
-
-        assert cut < check
+        check = ("if not all(col in merged_df.columns for col in "
+                 "['grna', 'gene']):")
+        assert check not in source
+        split = source.index("tokens = merged_df['grna']", cut)
+        assert cut < split
         frame = pd.DataFrame({"prc": ["a"], "grna": ["b"], "fraction": [1.0],
                               "gene": ["g"]})
         assert not all(c in frame[["prc", "grna", "fraction"]].columns
@@ -154,12 +159,12 @@ class TestTheFoldCount:
         assert distinct == 1 and n_folds < 2
 
         from spacr import ml as M
+        from spacr.classifier_evaluation import grouped_split
 
-        source = inspect.getsource(M.ml_analysis)
-        assert "needs at least two" in source
-        assert "found {distinct_groups}" in source, (
-            "the refusal no longer reports how many groups there were, so a "
-            "user cannot tell whether they are one short or many")
+        with pytest.raises(ValueError, match="grouped held-out split is impossible"):
+            grouped_split(groups, np.array([0, 1, 0]), 0.25,
+                          group_by="plate")
+        assert "if n_folds < 2:" not in inspect.getsource(M.ml_analysis)
 
     def test_the_cap_is_five(self):
         """Not arbitrary in a way worth losing: five folds over a screen
@@ -168,6 +173,13 @@ class TestTheFoldCount:
         assert min(5, 40) == 5
         assert min(5, 3) == 3
 
+    def test_the_post_split_fold_guard_stays_removed(self):
+        from spacr import ml as M
+
+        source = inspect.getsource(M.ml_analysis)
+        assert "if n_folds < 2:" not in source, (
+            "grouped_split already refuses fewer than two groups")
+
 
 class TestStampingTheQualityManifest:
 
@@ -175,28 +187,61 @@ class TestStampingTheQualityManifest:
         """The write the guard wraps. ``attrs`` travels with the frame,
         so a caller that does not know about the manifest is unaffected
         -- which is why it is not a column."""
-        frame = pd.DataFrame({"coefficient": [1.0]})
+        # Forty-five distinct frame shapes and payloads exercise the premise
+        # empirically: DataFrame.attrs is a mutable dict for all of them.
+        checked = 0
+        for rows in range(5):
+            for columns in range(1, 10):
+                frame = pd.DataFrame(
+                    {f"c{column}": np.arange(rows) for column in range(columns)})
+                manifest = {"rows": rows, "columns": columns}
+                frame.attrs["qc_manifest"] = manifest
+                assert frame.attrs["qc_manifest"] == manifest
+                checked += 1
+        assert checked == 45
 
-        frame.attrs["qc_manifest"] = {"n": 3}
-
-        assert frame.attrs["qc_manifest"] == {"n": 3}
-
-    def test_the_write_is_wrapped_because_it_is_decoration(self):
-        """THE PIN, for ``except Exception: pass``.
+    def test_the_manifest_write_has_no_impossible_exception_handler(self):
+        """THE PIN for removing an exception handler around dict assignment.
 
         ``attrs`` is a plain dict on a DataFrame and the assignment
-        cannot fail today. It is wrapped because the manifest is a
+        cannot fail today. It used to be wrapped because the manifest is a
         diagnostic: losing it must not cost the caller the regression it
         actually asked for.
         """
         from spacr import ml as M
 
         source = inspect.getsource(M.regression)
+        condition = source.index(
+            "if qc_manifest is not None and coef_df is not None:")
         write = source.index('coef_df.attrs["qc_manifest"] = qc_manifest')
-        handler = source.index("except Exception:", write)
-        ret = source.index("return model, coef_df, regression_type", handler)
+        ret = source.index("return model, coef_df, regression_type", write)
 
-        assert write < handler < ret
-        assert "if qc_manifest is not None and coef_df is not None:" in source, (
-            "the manifest is stamped without checking there is one, so a run "
-            "with no QC writes a None into the frame's attrs")
+        assert condition < write < ret
+        assert "except Exception:" not in source[condition:ret]
+
+
+def test_the_penalised_warning_has_no_impossible_swallowing_handler(capsys):
+    """Drive both decisions and pin removal of the catch-all handler."""
+    from spacr import ml as M
+
+    no_hits = pd.DataFrame({"p_value": [0.4, np.nan, "0.7"]})
+    assert M._warn_if_penalised_no_hits(
+        {"regression_type": "ridge"}, no_hits) is True
+    note = capsys.readouterr().out
+    assert "returned no coefficient below p=0.05" in note
+    assert "regression_type='ols'" in note
+
+    has_hit = pd.DataFrame({"p_value": [0.4, 0.01]})
+    assert M._warn_if_penalised_no_hits(
+        {"regression_type": "elasticnet"}, has_hit) is False
+    assert M._warn_if_penalised_no_hits(
+        {"regression_type": "ols"}, no_hits) is False
+    assert M._warn_if_penalised_no_hits(
+        {"regression_type": "lasso"}, no_hits.iloc[0:0]) is False
+    assert capsys.readouterr().out == ""
+
+    helper = inspect.getsource(M._warn_if_penalised_no_hits)
+    caller = inspect.getsource(M._perform_regression)
+    assert "pd.to_numeric" in helper
+    assert "except Exception" not in helper
+    assert "_warn_if_penalised_no_hits(settings, coef_df)" in caller

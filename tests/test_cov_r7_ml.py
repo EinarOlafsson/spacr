@@ -125,6 +125,11 @@ def test_the_covariance_inverse_cannot_fail_where_the_solve_succeeded():
     assert np.allclose(inverse @ rhs, beta)
     assert np.allclose(full_rank @ inverse, np.eye(2))
 
+    import inspect
+    source = inspect.getsource(ml._fit_absorbed_least_squares)
+    assert "except np.linalg.LinAlgError" not in source, (
+        "a handler for a matrix already refused by the rank check returned")
+
 
 # ---------------------------------------------------------------------------
 # the QC verdict, out of a real run
