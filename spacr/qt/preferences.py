@@ -2344,7 +2344,7 @@ LAPTOP_MODE_LABELS = {
 #:
 #: The published defaults use ``auto`` so one set of numbers selects the GPU
 #: when vispy is importable and the CPU otherwise.
-FRACTAL_PATTERNS = ("orbit", "cascade", "space", "mandelbrot")
+from .fractal_defaults import PATTERNS as FRACTAL_PATTERNS  # noqa: E402
 FRACTAL_BACKENDS = ("auto", "gpu", "cpu")
 #: The quality levels, least demanding first.
 #:
