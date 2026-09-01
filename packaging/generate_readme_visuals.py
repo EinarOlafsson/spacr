@@ -77,6 +77,14 @@ README_LOGO_MARK = 340
 #: Corner radius of the logo's panel, in proportion with BUTTON_RADIUS on
 #: a canvas this much larger than a button.
 README_LOGO_RADIUS = 56
+
+#: The API documentation's logo: a SQUARE, because Sphinx themes put it in
+#: a sidebar slot sized for one, and dark teal rather than the workflow
+#: tile's near-black so it reads as a mark rather than a hole in the page.
+DOCS_LOGO_SIZE = 512
+DOCS_LOGO_RADIUS = 96
+DOCS_LOGO_MARK = 340
+DOCS_LOGO_TEAL = (16, 52, 58, 255)  # #10343A
 # Percentage widths keep the linked images responsive on both GitHub and the
 # Sphinx API. The rows leave a little rounding headroom so the browser never
 # moves the last tile onto a new line.
@@ -311,6 +319,33 @@ def render_readme_logo() -> Image.Image:
     canvas.alpha_composite(
         logo,
         ((canvas.width - logo.width) // 2, (canvas.height - logo.height) // 2),
+    )
+    return canvas
+
+
+def render_docs_logo() -> Image.Image:
+    """The white mark on a dark teal rounded square, for the API docs.
+
+    Same problem as the README logo and the same reason it cannot be
+    solved with a theme swap: the mark is pure white, Sphinx serves one
+    ``html_logo`` for both colour schemes, and against the light theme's
+    white sidebar a white logo is a blank space.
+
+    Square rather than the README's wide canvas because a Sphinx sidebar
+    gives the logo a square slot, and teal rather than the workflow
+    tile's near-black so it reads as a mark on a light page rather than a
+    hole punched in it.
+    """
+    canvas = Image.new("RGBA", (DOCS_LOGO_SIZE, DOCS_LOGO_SIZE), (0, 0, 0, 0))
+    ImageDraw.Draw(canvas).rounded_rectangle(
+        (0, 0, DOCS_LOGO_SIZE - 1, DOCS_LOGO_SIZE - 1),
+        radius=DOCS_LOGO_RADIUS, fill=DOCS_LOGO_TEAL,
+    )
+    logo = _fit(Image.open(ICON_DIR / "logo_spacr.png"), DOCS_LOGO_MARK)
+    canvas.alpha_composite(
+        logo,
+        ((DOCS_LOGO_SIZE - logo.width) // 2,
+         (DOCS_LOGO_SIZE - logo.height) // 2),
     )
     return canvas
 
@@ -1024,6 +1059,13 @@ def main() -> int:
         print(target.relative_to(ROOT))
     target = ICON_DIR / "logo_spacr_readme.png"
     render_readme_logo().save(target, "PNG", optimize=True)
+    # The API docs' own logo, written straight into _static so Sphinx
+    # picks it up without a copy step that could put the bare white mark
+    # back.
+    docs_logo = (ROOT / "docs" / "source" / "_static"
+                 / "logo_spacr_docs.png")
+    docs_logo.parent.mkdir(parents=True, exist_ok=True)
+    render_docs_logo().save(docs_logo, "PNG", optimize=True)
     print(target.relative_to(ROOT))
     WORKFLOW_DIR.mkdir(parents=True, exist_ok=True)
     DOC_WORKFLOW_DIR.mkdir(parents=True, exist_ok=True)

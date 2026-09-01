@@ -1,7 +1,7 @@
 Welcome to spaCR
 ================
 
-.. image:: _static/logo_spacr.png
+.. image:: _static/logo_spacr_docs.png
    :align: center
    :alt: spaCR Logo
    :width: 200px

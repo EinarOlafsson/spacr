@@ -67,7 +67,7 @@ html_theme_options = {
 
 templates_path   = ['_templates']
 html_static_path = ['_static']
-html_logo        = '_static/logo_spacr.png'
+html_logo        = '_static/logo_spacr_docs.png'
 html_css_files   = ['custom.css']
 EOF
 
@@ -76,7 +76,7 @@ cat > docs/source/index.rst << EOF
 Welcome to SpaCr
 ================
 
-.. image:: _static/logo_spacr.png
+.. image:: _static/logo_spacr_docs.png
    :align: center
    :alt: SpaCr Logo
 
