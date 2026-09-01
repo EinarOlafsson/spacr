@@ -228,10 +228,18 @@ def test_the_stored_defaults_are_the_command_lines(sandbox):
     from spacr.qt.preferences import get_fractal_settings
 
     values = get_fractal_settings()
-    assert values["speed"] == 4.0
-    assert values["dream"] == 1.5
-    assert values["scale"] == 1.0
-    assert values["backend"] == "auto"
+    # CHANGED 2026-09-01 at the maintainer's request: orbit fold,
+    # supersampling 2, backend auto, scale 0.5, speed 1. Asserted against
+    # the constants rather than repeating the literals, so the two cannot
+    # drift; the literals themselves are pinned in
+    # tests/qt/test_the_backdrop_opens_on_the_asked_for_defaults.py.
+    from spacr.qt import fractal_defaults as F
+
+    assert values["speed"] == F.DEFAULT_SPEED == 1.0
+    assert values["dream"] == F.DEFAULT_DREAM == 1.5
+    assert values["scale"] == F.DEFAULT_SCALE == 0.5
+    assert values["backend"] == F.DEFAULT_BACKEND == "auto"
+    assert values["pattern"] == F.DEFAULT_PATTERN == "orbit"
 
 
 def test_every_setting_round_trips(sandbox):
