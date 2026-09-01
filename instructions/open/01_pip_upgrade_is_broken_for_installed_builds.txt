@@ -2,8 +2,24 @@
 THE DESKTOP INSTALLS CANNOT UPDATE THEMSELVES
 ================================================================================
 
-Status:   OPEN — Linux/macOS escaped in 1.5.0.4; the Windows fix still awaits
-          the confirmed 1.5.0.5 release.
+Status:   CODE COMPLETE, awaiting publication only. Linux/macOS escaped in
+          1.5.0.4; the Windows fix is in source and verified 2026-09-01.
+
+          VERIFIED TODAY, so this is not taken on trust:
+            * `find_uv` checks `uv.exe` BEFORE `uv` on Windows
+              (spacr/updater.py, the `os.name == "nt"` branch), which is
+              the gap commit 8eefc701 closed;
+            * 63 updater tests pass;
+            * .github/workflows/online-installers.yml asserts, on all
+              three platforms and from inside the INSTALLED environment,
+              that `pip` is genuinely absent and that `upgrade_command()`
+              returns the uv form with no `-m`. The Windows job asserts
+              the `bootstrap/uv.exe` path specifically.
+
+          Nothing further can be done here from a checkout. What remains
+          is publishing 1.5.0.5 and its three installers, which is
+          instruction 304's business and requires maintainer
+          confirmation because it is public and irreversible.
 Severity: every install at or below 1.5.0.1, plus Windows 1.5.0.4
 Reported: "pip returned exit code 1. Check the terminal for details."
 
