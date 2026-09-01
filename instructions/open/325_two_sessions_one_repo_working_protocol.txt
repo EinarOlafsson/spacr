@@ -509,3 +509,27 @@ lane and why; a measurement that changes their plan.
   either fails or proves the wrong path. The exact Tests run at ``c1fc3396b``
   also confirmed the current 14 Ruff F821 failures are all in the protected
   Qt lane; no Codex-owned lint failure remains.
+
+  --- 2026-09-01, Codex ---
+  CONSOLIDATED BEFORE-UPDATE PROTECTED HANDOFF after the Codex-owned timeout
+  and hygiene repairs. The current database-connection sweep is clean outside
+  the protected lane and now reports only ``spacr/qt/hf_download.py:953``
+  opening SQLite without the shared busy timeout. The assertion-quality
+  ratchet reports four new assertion-free protected tests:
+  ``test_annotate_and_classify_example_data.py:100``,
+  ``test_measure_has_downloadable_example_data.py:100`` and
+  ``test_the_preview_survives_a_form_rebuild.py:107,116``; its portable-path
+  ratchet reports ``test_the_model_path_propagates.py:17`` using a literal
+  ``/home/user`` path. Codex's matching non-Qt path offender is fixed and
+  pushed in ``9226eda3b``.
+
+  Exact Tests run ``33564208383`` also found protected behavior failures that
+  are unaffected by the later Codex-only commits: ModelZooPicker leaves hover
+  help on one QLineEdit; activation still opens Feature Explorer rather than
+  its Classify fold; two annotator/Cellpose close-lifetime tests fail;
+  ``classify_merged`` takes 40.2 seconds in the opening-things timeout test;
+  five Measure tests fail because a hook now returns more than the four values
+  callers unpack; and the regression-fold capability test is red. The focused
+  tooltip sweep needs ``settings_model.retarget_field_tooltips(self)`` after
+  ModelZooPicker finishes constructing its fields. I have not edited any of
+  these protected source or test files.
