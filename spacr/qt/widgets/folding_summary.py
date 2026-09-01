@@ -243,7 +243,10 @@ class FoldingSummaryView(QScrollArea):
         if not text.strip():
             return False
         clipboard = QApplication.clipboard()
-        if clipboard is None:                       # pragma: no cover
+        if clipboard is None:
+            # No clipboard on this platform or in this session. Declining
+            # is the whole behaviour: a copy button that raises is worse
+            # than one that does nothing.
             return False
         clipboard.setText(text)
         return True
