@@ -1,0 +1,95 @@
+328 — A SOURCE INSTALL SHOULD NOT COST A GIGABYTE
+==================================================
+
+ASKED FOR (2026-08-31)
+----------------------
+"the repository is quite large (around 1 GB) which people dont need to
+download... in the README there should be an install from source that
+dosnt include the bulky parts... another install from source with just
+the files needed to install spaCR locally."
+
+MEASURED, because the guess in the request is worth correcting
+---------------------------------------------------------------
+The bulk is NOT tutorial videos. Measured 2026-08-31:
+
+    working tree (tracked)        424 MB
+      translated API JSON         109 MB   docs/source/_static/i18n/api/
+      spacr/resources              92 MB
+      everything else             223 MB
+
+    .git                          5.5 GB
+
+THE HISTORY IS THE PROBLEM, not the checkout. A full clone transfers
+every version of every one of those files ever committed -- the API
+translation payloads alone are nine JSON files of 10-15 MB each, and they
+are REGENERATED, so each regeneration is another copy in history. The
+working tree a user actually needs is a fraction of what a clone costs.
+
+The largest single tracked files, for reference:
+
+    25.3 MB  spacr/resources/models/toxo_plaque_cyto_...CP_model
+    17.7 MB  spacr/resources/icons/loading_spinner_1.gif
+    15.2 MB  docs/source/_static/i18n/api/hi.json
+    11.1 MB  each, ko / fr / de / es / pt ...
+
+WHAT TO ADD, and it is three lines, not a new packaging system
+---------------------------------------------------------------
+Git already does this. The README's "Install from source" section gets a
+second form beside the existing one:
+
+    git clone --depth 1 --filter=blob:none \
+        https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
+
+  * ``--depth 1`` takes one commit instead of the whole history.
+  * ``--filter=blob:none`` fetches file contents lazily -- the checkout
+    still has everything it needs, and blobs arrive only if something
+    asks for them.
+
+MEASURE WHAT IT SAVES AND PUT THE NUMBER IN THE README. A reader
+choosing between two commands wants to know what the second costs them,
+and "smaller" is not a reason. Clone both ways into a temporary
+directory, time them, and report the transfer size -- do not estimate it
+from the figures above, because packing changes them.
+
+SAY WHAT THE SHALLOW CLONE CANNOT DO. This is the part a bare command
+leaves out and a user discovers later:
+
+  * no history, so no ``git log``, no ``git blame``, no bisect;
+  * ``git pull`` works but stays shallow;
+  * to convert it later: ``git fetch --unshallow``.
+
+A contributor wants the full clone. A user who wants to run spaCR from
+source does not, and the README should say which is which rather than
+offering two commands and no way to choose.
+
+DO NOT SPARSE-CHECKOUT THE PACKAGE. It is tempting to exclude
+``docs/`` and the translated API payloads with ``--sparse``, and it is a
+trap: ``spacr/resources`` is 92 MB and is NOT optional -- it holds the
+icons, fonts, backgrounds and the bundled Cellpose model that a running
+spaCR loads. An install missing them fails at first launch rather than at
+install time, which is the worst place for it to fail. If a sparse form
+is offered at all, it must be tested by LAUNCHING the result, not by
+watching pip succeed.
+
+WORTH DOING SEPARATELY, and bigger than this item
+--------------------------------------------------
+A 5.5 GB history for a 424 MB tree means large files are being rewritten
+repeatedly. The API translation payloads are generated and committed;
+every regeneration writes 109 MB of new blobs. That is a packaging
+decision worth its own instruction -- build them at docs time, or keep
+them out of the repository -- and it would shrink the full clone for
+everyone rather than offering a way around it. Not in scope here; file it
+if the shallow clone turns out not to be enough.
+
+DONE MEANS
+----------
+* A second clone form in the README's "Install from source", beside the
+  existing one, with the measured saving stated.
+* The limitations named, in one sentence each.
+* Which form to pick, said plainly -- contributor versus user.
+* The nine translated READMEs carry it. They are generated, so this is a
+  regeneration; any new prose goes into instruction 316's pending list
+  rather than being machine-drafted.
+* The lightweight clone is TESTED by installing from it and launching
+  spaCR, not by checking that pip exited zero.
