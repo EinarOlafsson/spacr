@@ -1459,12 +1459,19 @@ def _well_labels(index, metadata, n):
     """
     if metadata is not None:
         if schema.PRC_KEY in metadata.columns:
-            return metadata[schema.PRC_KEY].astype(str).to_numpy()
+            return np.asarray([str(value)
+                               for value in metadata[schema.PRC_KEY]])
         parts = [c for c in schema.WELL_KEY_COLUMNS if c in metadata.columns]
         if len(parts) == len(schema.WELL_KEY_COLUMNS):
-            joined = metadata[list(parts)].astype(str).agg(
-                schema.KEY_SEPARATOR.join, axis=1)
-            return joined.to_numpy()
+            # Pandas 3's extension dtypes can retain numeric scalars through
+            # ``astype(str)``; joining the rows then raises because ``join``
+            # receives floats.  Convert each scalar at the Python boundary so
+            # mixed numeric/string plate metadata always yields text labels.
+            values = metadata[list(parts)].to_numpy(dtype=object)
+            return np.asarray([
+                schema.KEY_SEPARATOR.join(str(value) for value in row)
+                for row in values
+            ])
     if index is not None and len(index) == n:
         return np.asarray([str(v) for v in index])
     return np.asarray([str(i) for i in range(n)])
