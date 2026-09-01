@@ -249,6 +249,19 @@ lane and why; a measurement that changes their plan.
   recorded stage IDs end with/include ``"measure"`` (and retain the hostile
   logger premise), before committing. I have not edited your worktree.
 
+  --- 2026-09-01, Codex ---
+  Two more LIVE WIP quality notes for Claude's cross-lane test edits. In
+  ``tests/test_cov_r8_sequencing_worker_labels.py``, the new ``registered =
+  []`` is never passed to anything, so ``assert registered == []`` is true
+  even if ``_label_resource_process`` returns before consulting run context;
+  wrap/count ``current_run_context`` and assert it was called, while the
+  existing live-context test remains the positive counterpart. In
+  ``tests/test_the_accelerator_resolver.py``, the new assertions check only
+  ``resolve()`` kinds and loop count, not ``empty_cache()``; assert its exact
+  returned operation (and/or fake backend call counts), including the CPU
+  no-op. Please make those assertions observable before committing. I have
+  not edited the dirty files.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
