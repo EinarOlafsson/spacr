@@ -361,3 +361,56 @@ WHAT IS STILL NEEDED, and it can only come from the machine that saw it:
   4. Whether Preferences was slow ONLY the first time. It builds in
      0.42 s cold and 0.07 s warm here; "slow every time" and "slow once"
      are different faults.
+
+--------------------------------------------------------------------------------
+2026-09-01 — MEASURED ON A CLEAN TREE. THE CONFOUND IS RULED OUT AND THE
+CAUSE IS NAMED.
+--------------------------------------------------------------------------------
+
+STEP 1, THE TREE, IS CLEAR. `pip -e` now resolves to
+/mnt/firecuda2/Claude/repo/spacr, which is at origin/nightly with a clean
+status, and the codex tree that was part-stale and part-unsaved reports 0
+modified files at a real commit. The mixture this instruction suspected no
+longer exists, so what follows describes the code.
+
+STEP 2, THE MEASUREMENT. tools/spacr_startup_benchmark.py, one cold run,
+offscreen, nothing else on the machine:
+
+    start -> usable Home      3.00 s   budget  5.00   OK
+    click -> regression       6.49 s   budget 10.00   OK
+    click -> mask             3.66 s   budget 10.00   OK
+    click -> classify_merged  3.16 s   budget 10.00   OK
+
+EVERY MODULE IS INSIDE ITS BUDGET. Not one of the 46 measured intervals
+misses. The 44 violations the run reports are ALL event-loop stalls, and
+that is the finding:
+
+    module            worst single stall   total build
+    regression              6,132 ms          6.49 s
+    mask                    3,448 ms          3.66 s
+    classify_merged         2,881 ms          3.16 s
+    umap                    2,367 ms          2.51 s
+    measure                 2,124 ms          2.29 s
+    Preferences             1,371 ms          1.39 s
+
+    14 of 46 exceed the 500 ms ceiling.
+
+WHAT THIS MEANS, and why the existing ratchet did not catch it. Regression
+spends 6,132 of its 6,491 ms -- 94% -- in ONE uninterrupted block of the
+GUI thread. The window cannot repaint, cannot show a cursor change and
+cannot accept a click for that whole time. That is what the maintainer
+met: it is not a wedge, because it does finish, but it is
+indistinguishable from one while it lasts, and on a slower machine the
+same block is proportionally longer.
+
+Preferences is the same shape at 1,371 ms, which is exactly the second
+half of the report -- "triggering the preferences took a verry long time".
+
+SO THE INSTRUCTION'S OWN FRAMING WAS RIGHT: "a hang is not a slow budget
+miss". The budget ratchet measures how long an operation TAKES and passes
+everything; the thing that hurts is how long the GUI thread is held
+WITHOUT YIELDING, and 284's table could never have shown it.
+
+WHAT IS LEFT: the fix. The screen build has to yield -- either in chunks
+the event loop can interleave, or off the GUI thread entirely. The
+measurement above is the before; the same command is the after.
