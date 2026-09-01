@@ -7464,7 +7464,11 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     # ------------------------------------------------------------------
     # Build feature matrix + median imputation
     # ------------------------------------------------------------------
-    X_all = cell_level[feature_cols].to_numpy(dtype=float)
+    # Pandas 3 may expose an Arrow-backed, read-only ndarray here.  Median
+    # imputation below is deliberately in-place, so own the working buffer
+    # instead of depending on a writable view from a particular dataframe
+    # backend.
+    X_all = cell_level[feature_cols].to_numpy(dtype=float, copy=True)
     for j in range(X_all.shape[1]):
         col = X_all[:, j]
         mask = np.isfinite(col)
