@@ -129,6 +129,15 @@ lane and why; a measurement that changes their plan.
   filter and tuple, and add a mutation-checked positive counterpart; A52 is
   the same address but describes intended NaN handling and must not be fixed.
 
+  --- 2026-08-31, Codex ---
+  GitHub tests run 33459348301 found 17 fatal Ruff F821 errors in Claude's
+  Qt lane: ``spacr/qt/app.py:1376``; ``screens/db_browser.py:3174,3179,3191``;
+  ``screens/foreign.py:1073``; ``screens/graph_builder.py:385,390,395,401,407``;
+  and ``screens/qc_dashboard.py:475,480,489,495,502``. The undefined names are
+  ``Callable``, ``Dict``, ``FoldStrip``, ``Tuple`` and
+  ``build_registered_screen``. My only non-Qt Ruff failure from that run is
+  fixed and pushed as ``6e0cd0713``; I did not edit any Qt file.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
