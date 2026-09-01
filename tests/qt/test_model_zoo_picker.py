@@ -271,3 +271,50 @@ def test_accepting_the_risk_passes_require_checksum_false(picker, tmp_path,
     except Exception:
         pass                      # the fake worker has no signals to connect
     assert seen.get("unverified") is True
+
+
+def test_the_stock_model_is_offered_and_needs_no_download(picker):
+    """cpsam_v2 puts the plain string "cpsam" in the field.
+
+    Asked for 2026-09-01, for every object model name. The picker is where a
+    user goes to CHANGE a model, and "put it back to the standard one" is the
+    commonest thing they want -- without this row the only way back is to
+    remember the spelling and type it.
+
+    It is not a file, and is deliberately not checked as one: Cellpose
+    resolves "cpsam" by name, and `_resolve_cellpose_pretrained` passes a
+    stock name through untouched. Requiring a file would grey out the one row
+    that never needs downloading.
+    """
+    stock = [e for e in picker._entries
+             if getattr(e, "source", "") == "stock"]
+    assert stock, "the stock model is not offered"
+    entry = stock[0]
+
+    assert entry.key == "cpsam_v2"
+    assert picker._local_path(entry) == "cpsam", (
+        "choosing it must yield the plain string, not a path")
+
+
+def test_the_stock_model_is_usable_immediately(picker):
+    """No download step: it must be selectable the moment the dialog opens."""
+    row = next(i for i, e in enumerate(picker._entries)
+               if getattr(e, "source", "") == "stock")
+    picker.table.selectRow(row)
+
+    assert picker.use_button.isEnabled(), "the stock row is not selectable"
+    picker._accept_selected()
+    assert picker.chosen_path() == "cpsam"
+
+
+def test_the_stock_row_survives_an_unreachable_catalogue(picker, monkeypatch):
+    """A network failure must not remove the one model that is always there."""
+    from spacr import model_zoo
+
+    def boom(**kwargs):
+        raise RuntimeError("no network")
+
+    monkeypatch.setattr(model_zoo, "catalogue", boom)
+    picker.refresh()
+
+    assert any(getattr(e, "source", "") == "stock" for e in picker._entries)

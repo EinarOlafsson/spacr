@@ -1270,7 +1270,11 @@ def shared_catalogue(uri: Optional[str] = None, *,
 
     target = uri or REMOTE_CATALOGUE_URI
     now = time.time()
-    if (not force and _SHARED_CATALOGUE_CACHE["entries"]
+    # THE STAMP, NOT THE CONTENTS, decides freshness. Keying on `entries`
+    # meant an empty answer -- which is what an unreachable or unpublished
+    # catalogue gives -- was never cached, so the failure was retried by every
+    # caller forever.
+    if (not force and float(_SHARED_CATALOGUE_CACHE["fetched_at"]) > 0
             and now - float(_SHARED_CATALOGUE_CACHE["fetched_at"])
             < CATALOGUE_CACHE_SECONDS):
         return tuple(_SHARED_CATALOGUE_CACHE["entries"])
@@ -1281,8 +1285,22 @@ def shared_catalogue(uri: Optional[str] = None, *,
         with urllib.request.urlopen(target, timeout=timeout) as response:
             payload = json.loads(response.read().decode("utf-8"))
     except Exception as exc:                                # noqa: BLE001
-        LOG.info("shared model catalogue unavailable (%s): %s",
-                 type(exc).__name__, exc)
+        # STAMP THE FAILURE, or the cache never suppresses anything. The
+        # freshness check below reads `entries`, which stays empty when the
+        # fetch fails -- so every caller re-fetched, and with the catalogue
+        # not yet published that is one 404 per settings panel built. It was
+        # reported as four identical lines in thirty seconds.
+        #
+        # DEBUG after the first, too. An unpublished or unreachable catalogue
+        # is the expected state for anyone who has not contributed a model,
+        # and telling them about it repeatedly at INFO makes spaCR look broken
+        # for a feature they are not using.
+        _SHARED_CATALOGUE_CACHE["fetched_at"] = now
+        first = not _SHARED_CATALOGUE_CACHE.get("warned")
+        _SHARED_CATALOGUE_CACHE["warned"] = True
+        (LOG.info if first else LOG.debug)(
+            "shared model catalogue unavailable (%s): %s",
+            type(exc).__name__, exc)
         return tuple(_SHARED_CATALOGUE_CACHE["entries"])
 
     records = payload.get("models") if isinstance(payload, Mapping) else payload

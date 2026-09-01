@@ -1389,6 +1389,21 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self)
         self._path_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
+        # Explicit rather than load-bearing: QLabel already defaults to a
+        # minimum width of 0, and a mutation confirmed removing this changes
+        # nothing. It stays as a statement that the label is MEANT to be
+        # squeezable, because the thing that actually keeps the row intact is
+        # the eliding below -- without which the label's sizeHint is the FULL
+        # path, routinely longer than the panel is wide, and the MIP toggle,
+        # both spin boxes and the Choose button are pushed past the right
+        # edge. On screen that reads as the top-left field overlapping the
+        # path, which is how it was reported.
+        self._path_label.setMinimumWidth(0)
+        #: The path in full. The label shows an elided version sized to
+        #: whatever width it actually gets, so the text can never be the thing
+        #: that decides the layout; this is what the tooltip and any reader
+        #: needs.
+        self._path_full = ""
         # Same widget as the AI and Live switches, so the row of toggles
         # reads as one row. Disabled until a folder is found to hold stacks:
         # an enabled control that cannot do anything is worse than an absent
@@ -1722,12 +1737,44 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._masks = {}
         self._raw_masks = {}
         self._flows = {}
-        self._path_label.setText(str(path))
+        self._path_full = str(path)
+        self._show_elided_path()
         self._refresh_source_selectors()
         note = self.sample_note()
         self._status.setText(f"Loaded {arr.shape} {arr.dtype}"
                              + (f" — {note}" if note else ""))
         self._refresh_canvases()
+
+    def _show_elided_path(self) -> None:
+        """Draw the loaded path elided to the width the label actually has.
+
+        ELIDED IN THE MIDDLE, not at the end: the two ends of an image path
+        are the parts that identify it -- the plate folder and the file name --
+        and a tail-elided path is a column of identical prefixes.
+
+        The full path stays in the tooltip, so nothing is lost, and it is set
+        here rather than at load time so the two can never disagree.
+        """
+        from PySide6.QtCore import Qt as _Qt
+        from PySide6.QtGui import QFontMetrics
+
+        full = getattr(self, "_path_full", "") or ""
+        if not full:
+            return
+        self._path_label.setToolTip(full)
+        width = max(self._path_label.width(), 80)
+        metrics = QFontMetrics(self._path_label.font())
+        self._path_label.setText(
+            metrics.elidedText(full, _Qt.ElideMiddle, width))
+
+    def resizeEvent(self, event):                            # noqa: N802
+        """Re-elide the path when the panel changes width."""
+        super().resizeEvent(event)
+        try:
+            self._show_elided_path()
+        except Exception:                                    # noqa: BLE001
+            # Cosmetic: a failure here must never stop the panel resizing.
+            pass
 
     # -- FOV / channel selectors ------------------------------------------
 
