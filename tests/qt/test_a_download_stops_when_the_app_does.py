@@ -27,7 +27,8 @@ def _source() -> str:
 
 
 def test_the_download_is_interruptible():
-    """A loop that checks its flag, not one call that cannot be stopped.
+    """A stream that checks its flag between chunks, not one call that cannot
+    be stopped.
 
     Checked as a CALL rather than as the word: the comment above the loop
     explains why snapshot_download is not used, and a naive text search reads
@@ -37,7 +38,7 @@ def test_the_download_is_interruptible():
     import inspect
     import textwrap
 
-    source = inspect.getsource(hf._AnnotateExampleWorker.run)
+    source = inspect.getsource(hf._TarExampleWorker.run)
     tree = ast.parse(textwrap.dedent(source))
     called = {
         node.func.id if isinstance(node.func, ast.Name) else node.func.attr
@@ -45,16 +46,17 @@ def test_the_download_is_interruptible():
         and isinstance(node.func, (ast.Name, ast.Attribute))
     }
     assert "snapshot_download" not in called
-    assert "hf_hub_download" in called
+    assert "iter_content" in called
     assert "if self._cancel:" in source
 
 
-def test_it_checks_between_every_file():
-    """Once at the end is what snapshot_download effectively did."""
+def test_it_checks_between_every_chunk():
+    """Once at the end is what snapshot_download effectively did. A megabyte
+    is the granularity now, not 280 of them."""
     import inspect
 
-    source = inspect.getsource(hf._AnnotateExampleWorker.run)
-    body = source[source.index("for done, name in enumerate(names):"):]
+    source = inspect.getsource(hf._TarExampleWorker.run)
+    body = source[source.index("for chunk in response.iter_content"):]
     assert "if self._cancel:" in body
 
 
@@ -76,11 +78,11 @@ def test_the_shutdown_wait_is_bounded():
     assert "_t.wait(5000)" in _source()
 
 
-def test_an_already_downloaded_file_is_not_fetched_again():
-    """An interrupted run leaves most of the set on disk; re-fetching 280 MB
-    to arrive at the same bytes is the wrong trade."""
+def test_a_cancelled_download_leaves_no_partial_archive():
+    """A .part left behind would be picked up as a finished archive by a
+    later run and unpacked short."""
     import inspect
 
-    source = inspect.getsource(hf._AnnotateExampleWorker.run)
-    assert "if target.is_file():" in source
-    assert "continue" in source
+    source = inspect.getsource(hf._TarExampleWorker.run)
+    body = source[source.index("if self._cancel:"):]
+    assert "part.unlink" in body

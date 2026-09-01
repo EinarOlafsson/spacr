@@ -1213,12 +1213,22 @@ class TestLoadingTheExampleImages:
         self._point_at(screen, monkeypatch, tmp_path)
         screen._example_images_button = None
         called = []
+        # The screen now asks for the TAR worker rather than taking the
+        # shared default, so the real function is reached with a
+        # `worker_factory` keyword. Accepting it here rather than swallowing
+        # every keyword: the request for the tar is the point of the call,
+        # and a stub that ignored it could not notice the screen dropping it.
         monkeypatch.setattr(
             hf_download, "download_toxo_mito_demo",
-            lambda screen_, destination, done: called.append(destination))
+            lambda screen_, destination, done, worker_factory=None:
+                called.append((destination, worker_factory)))
 
         assert screen.load_the_example_images() == {}
-        assert called == [str(tmp_path)]
+        assert len(called) == 1
+        destination, worker = called[0]
+        assert destination == str(tmp_path)
+        assert worker is hf_download._MaskTarWorker, (
+            "the mask demo must ask for the archive, not fetch 212 files")
 
     def test_a_screen_with_no_src_control_still_reports_the_folder(
             self, screen, tmp_path):

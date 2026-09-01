@@ -3909,7 +3909,18 @@ class AppScreen(QWidget):
                 result.dataset_path, result.settings_path))
 
         if ask is None:
-            from ..hf_download import download_toxo_mito_demo as ask
+            from ..hf_download import _MaskTarWorker, download_toxo_mito_demo
+
+            # THE TAR, asked for here rather than made the shared default.
+            # `download_toxo_mito_demo` is driven by tests that patch the
+            # per-file worker's own helpers to prove the offline failure path
+            # stays on the GUI thread; changing what they get sent them to the
+            # network for real and aborted the process. A shared entry point's
+            # default is part of its contract with everything already calling
+            # it, so the new behaviour is requested rather than imposed.
+            def ask(parent, dest, on_done):
+                download_toxo_mito_demo(parent, dest, on_done,
+                                        worker_factory=_MaskTarWorker)
         ask(self, str(destination), done)
         return placed
 
