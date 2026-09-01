@@ -288,3 +288,81 @@ def test_the_chosen_archives_are_what_is_fetched(qapp, tmp_path):
 
     assert asked["archives"] == [a.archive for a in wanted]
     assert asked["repo"] == SCREEN_REPO
+
+
+# ---------------------------------------------------------------------------
+# A piece that is not published cannot be ticked
+# ---------------------------------------------------------------------------
+#
+# The manifest names eight pieces. A publish that has not finished, or one that
+# failed, would otherwise be ticked, start, and fail after the user had
+# committed to an eight-gigabyte download.
+
+
+def _picker_with(qapp, tmp_path, published, kind=None):
+    from spacr.qt.widgets import screen_data_picker as module
+
+    original = module.__dict__.get("published_archives")
+    made = None
+    import spacr.screen_data as screen_data
+    saved = screen_data.published_archives
+    screen_data.published_archives = lambda *a, **k: published
+    try:
+        made = module.ScreenDataPicker(folder=tmp_path, kind=kind)
+        return made
+    finally:
+        screen_data.published_archives = saved
+
+
+def test_an_unpublished_piece_is_disabled(qapp, tmp_path):
+    from PySide6.QtCore import Qt
+
+    made = _picker_with(qapp, tmp_path, {"plate1-measurements.tar"})
+    try:
+        by_name = {made._list.item(i).data(Qt.UserRole).archive:
+                   made._list.item(i) for i in range(made._list.count())}
+        assert by_name["plate1-measurements.tar"].flags() & Qt.ItemIsEnabled
+        assert not (by_name["plate1-data.tar"].flags() & Qt.ItemIsEnabled)
+    finally:
+        made.close()
+        made.deleteLater()
+        qapp.processEvents()
+
+
+def test_an_unpublished_piece_says_so(qapp, tmp_path):
+    made = _picker_with(qapp, tmp_path, {"plate1-measurements.tar"})
+    try:
+        texts = [made._list.item(i).text() for i in range(made._list.count())]
+        assert any("not published yet" in t for t in texts)
+    finally:
+        made.close()
+        made.deleteLater()
+        qapp.processEvents()
+
+
+def test_an_unpublished_piece_is_never_chosen(qapp, tmp_path):
+    """What cannot be fetched must not be promised."""
+    made = _picker_with(qapp, tmp_path, {"plate1-measurements.tar"})
+    try:
+        made._tick_kind("crops")
+        assert made.chosen() == []
+    finally:
+        made.close()
+        made.deleteLater()
+        qapp.processEvents()
+
+
+def test_a_lookup_that_failed_leaves_every_row_offered(qapp, tmp_path):
+    """None means "could not tell" -- offline, or the hub did not answer --
+    and is deliberately not the same as "nothing is published". Treating it as
+    an absence would grey out every row and explain nothing."""
+    from PySide6.QtCore import Qt
+
+    made = _picker_with(qapp, tmp_path, None)
+    try:
+        assert all(made._list.item(i).flags() & Qt.ItemIsEnabled
+                   for i in range(made._list.count()))
+    finally:
+        made.close()
+        made.deleteLater()
+        qapp.processEvents()
