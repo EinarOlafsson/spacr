@@ -174,7 +174,7 @@ def test_the_public_builder_gets_the_same_answer(tmp_path):
             f"/crops/cell_{int(row['parent_label'])}.png")
 
 
-def test_the_fallback_builder_gates_on_the_membership_flag(tmp_path):
+def test_the_fallback_builder_gates_on_the_membership_flag(monkeypatch):
     """The route taken when relationships cannot be built.
 
     That frame is one row per (field, object_label) with `in_<table>` flags
@@ -182,19 +182,42 @@ def test_the_fallback_builder_gates_on_the_membership_flag(tmp_path):
     row that is not of the cropped type must keep no path, because matching
     on the label alone is the whole defect.
     """
-    import pandas as pd
-
     from spacr import filters as module
 
-    frame = pd.DataFrame({
+    identities = {
+        "cell": pd.DataFrame({
+            "plateID": ["p1", "p1"], "rowID": ["r1", "r1"],
+            "columnID": ["c1", "c1"], "fieldID": ["f1", "f1"],
+            "object_label": [1, 3],
+        }),
+        "nucleus": pd.DataFrame({
+            "plateID": ["p1"], "rowID": ["r1"], "columnID": ["c1"],
+            "fieldID": ["f1"], "object_label": [2],
+        }),
+    }
+    paths = pd.DataFrame({
         "plateID": ["p1"] * 3, "rowID": ["r1"] * 3, "columnID": ["c1"] * 3,
         "fieldID": ["f1"] * 3, "object_label": [1, 2, 3],
-        "in_cell": [1, 0, 1], "in_nucleus": [0, 1, 0],
         "png_path": ["/crops/cell_1.png", "/crops/cell_2.png",
                      "/crops/cell_3.png"],
     })
-    flag = f"{module.PRESENT_PREFIX}cell"
-    frame.loc[frame[flag] != 1, "png_path"] = None
 
-    assert frame["png_path"].tolist() == [
-        "/crops/cell_1.png", None, "/crops/cell_3.png"]
+    def _no_relationships(_path):
+        raise OSError("read-only database")
+
+    monkeypatch.setattr(module, "build_filters_from_relationships",
+                        _no_relationships)
+    monkeypatch.setattr(module, "object_tables",
+                        lambda _path: ["cell", "nucleus"])
+    monkeypatch.setattr(module, "read_identity",
+                        lambda _path, table: identities[table].copy())
+    monkeypatch.setattr(module, "_png_paths", lambda _path: paths.copy())
+    monkeypatch.setattr(module, "png_crop_type", lambda _path: "cell")
+
+    frame = module.build_filters_frame("unused").set_index("object_label")
+
+    assert frame.loc[1, "png_path"] == "/crops/cell_1.png"
+    assert frame.loc[2, "in_cell"] == 0
+    assert frame.loc[2, "in_nucleus"] == 1
+    assert frame.loc[2, "png_path"] is None
+    assert frame.loc[3, "png_path"] == "/crops/cell_3.png"
