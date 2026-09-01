@@ -139,6 +139,40 @@ def test_two_plates_that_already_agree_are_told_apart_from_one_plate(
     assert not (absent < 0.05).any()
 
 
+def test_two_shifted_plates_report_a_nonzero_batch_correction(
+        tmp_path, capsys):
+    """Two different batch centroids take the ordinary successful path."""
+    scores = tmp_path / "scores"
+    counts = tmp_path / "counts"
+    scores.mkdir()
+    counts.mkdir()
+    score_1, _total_1 = _agreeing_plate(scores / "plate1.csv", "plate1")
+    score_2, _total_2 = _agreeing_plate(scores / "plate2.csv", "plate2")
+    for path, shift in ((score_1, -0.125), (score_2, 0.125)):
+        frame = pd.read_csv(path)
+        frame["pred"] = frame["pred"] + shift
+        frame.to_csv(path, index=False)
+
+    count_1 = write_counts(counts / "plate1.csv", plate="plate1", seed=1)
+    count_2 = write_counts(counts / "plate2.csv", plate="plate2", seed=2)
+    meta = write_metadata(tmp_path / "TGME49_Summary.csv")
+    settings = parametric_settings(
+        {"root": tmp_path, "score": score_1, "count": count_1, "meta": meta},
+        batch_correction="center",
+        batch_column="plateID",
+    )
+    settings["score_data"] = [score_1, score_2]
+    settings["count_data"] = [count_1, count_2]
+
+    output = ml.perform_regression(settings)
+
+    printed = capsys.readouterr().out
+    assert "across 2 batch(es)" in printed
+    assert "pred moved by 0.125 on average" in printed
+    assert "It changed nothing" not in printed
+    assert len(output["results"]) > 0
+
+
 # ---------------------------------------------------------------------------
 # generate_ml_scores: an explicit basis with nothing to train on
 # ---------------------------------------------------------------------------
