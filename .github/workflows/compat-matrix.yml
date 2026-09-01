@@ -451,8 +451,9 @@ jobs:
   # -------------------------------------------------------------------------
   # 3. The advertised fractal extra constructs the shipped default renderer.
   #
-  # VisPy is core because DEFAULT_PATTERN is Mandelbrot, but the historical
-  # `fractal` extra remains a supported spelling.  Installing it is not proof
+  # VisPy is core because the default Orbit renderer uses its GPU canvas, but
+  # the historical `fractal` extra remains a supported spelling. Installing
+  # it is not proof
   # that its dynamically loaded Qt/OpenGL backend can start, so this cell uses
   # Mesa under Xvfb and constructs the real widget rather than importing a
   # module or mocking the backend.
@@ -529,7 +530,7 @@ jobs:
               create_fractal_widget,
           )
 
-          assert DEFAULT_PATTERN == "mandelbrot"
+          assert DEFAULT_PATTERN == "orbit"
           app = QApplication.instance() or QApplication([])
           widget = create_fractal_widget(Settings())
           try:
