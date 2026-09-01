@@ -858,6 +858,75 @@ _APP_TYPE_OVERRIDES: Dict[str, Dict[str, Any]] = {
 }
 
 
+def coerce_expected_types(settings: Dict[str, Any],
+                          app: str = "") -> Dict[str, Any]:
+    """Return ``settings`` with text-written numbers as their declared type.
+
+    A settings CSV round-trip makes every value a string, and so does a number
+    typed into a GUI field. ``expected_types`` is the contract those values are
+    meant to satisfy, so converting them to it is restoring what the settings
+    already claim to be -- not reinterpreting them.
+
+    Doing it HERE, once, at the boundary, rather than at each point of use, is
+    what stops the next consumer from being the one that crashes: mask
+    generation died inside Cellpose on ``diameter > 0`` with
+    ``cell_diameter='60.0'``, and the same file had already been reported,
+    three times, as an error the user was told to fix by hand -- for a value
+    that was perfectly well-formed.
+
+    CONSERVATIVE BY CONSTRUCTION. Only ``bool``, ``int`` and ``float`` are
+    converted, only from a string, only when the conversion is exact, and
+    never when ``str`` is itself an accepted type for the key. Anything that
+    does not convert cleanly is left exactly as it was, for
+    :func:`validate_settings` to report.
+
+    :param settings: the settings mapping.
+    :param app: the pipeline, for the same per-app type overrides
+        :func:`_check_types` honours.
+    :returns: a new dict; the input is not modified.
+    """
+    from .settings import expected_types
+
+    per_app = _APP_TYPE_OVERRIDES.get(app, {})
+    out = dict(settings)
+    for key, value in settings.items():
+        if not isinstance(value, str) or key not in expected_types:
+            continue
+        text = value.strip()
+        if not text:
+            continue
+        expected = per_app.get(
+            key, _EXPECTED_TYPE_OVERRIDES.get(key, expected_types[key]))
+        types = expected if isinstance(expected, tuple) else (expected,)
+        if str in types:
+            # The key legitimately holds text -- a path, a regex, a model
+            # name. "30" is a name here, not a number.
+            continue
+        # BOOL BEFORE INT, because bool is a subclass of int: checking int
+        # first would turn "True" into an error and, worse, "1" into 1 for a
+        # key that wanted True.
+        if bool in types:
+            lowered = text.lower()
+            if lowered in ("true", "yes", "1"):
+                out[key] = True
+            elif lowered in ("false", "no", "0"):
+                out[key] = False
+            continue
+        try:
+            number = float(text)
+        except ValueError:
+            continue
+        if int in types and float not in types:
+            # EXACT ONLY. '60.0' is 60; '60.5' is not an int, and silently
+            # truncating it would change the run without saying so -- so it
+            # is left for the validator to report.
+            if number.is_integer():
+                out[key] = int(number)
+        elif float in types:
+            out[key] = number
+    return out
+
+
 def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
     """Values match ``spacr.settings.expected_types``.
 

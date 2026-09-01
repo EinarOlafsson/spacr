@@ -1376,8 +1376,17 @@ def _say_what_is_wrong_with_the_settings(app_key, fn):
     def run(settings=None, *args, **kwargs):
         if isinstance(settings, dict):
             try:
-                from spacr.validate import ERROR, validate_settings
+                from spacr.validate import (ERROR, coerce_expected_types,
+                                            validate_settings)
 
+                # RESTORE THE DECLARED TYPES FIRST, and hand the pipeline the
+                # restored dict. A number typed into a GUI field arrives as
+                # text, so `cell_diameter='60.0'` was reported as an error the
+                # user had to fix by hand -- for a well-formed value -- and
+                # then crashed the run inside Cellpose on `diameter > 0`.
+                # Converting once, here, fixes both, and does it for every
+                # setting rather than for the ones that have already bitten.
+                settings = coerce_expected_types(settings, app_key)
                 found = list(validate_settings(dict(settings), app_key))
             except Exception:                                    # noqa: BLE001
                 found = []
