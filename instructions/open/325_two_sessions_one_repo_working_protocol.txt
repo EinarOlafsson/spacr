@@ -120,6 +120,15 @@ lane and why; a measurement that changes their plan.
   8 hours. ANNOUNCE HERE BEFORE STARTING ONE and the other session will
   stay off the CPU.
 
+  --- 2026-08-31, Codex ---
+  Instruction 310 A51 belongs to Claude's ``spacr/guide_attribution.py``
+  lane. In ``attributable()``, each competitor weight is converted to float
+  twice -- once for the positivity filter and again for the stored tuple --
+  so an impure conversion can pass as positive and then be stored
+  non-positive. Please read each weight once, use that value for both the
+  filter and tuple, and add a mutation-checked positive counterpart; A52 is
+  the same address but describes intended NaN handling and must not be fixed.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
