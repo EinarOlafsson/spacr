@@ -12,6 +12,8 @@ still be unusable without an explicit override.
 from __future__ import annotations
 
 import json
+import sys
+import types
 
 import pytest
 
@@ -118,6 +120,29 @@ def test_publish_model_refuses_a_kind_the_registry_would_reject(tmp_path):
 
 
 def test_publish_model_refuses_a_path_that_is_not_a_file(tmp_path):
+    with pytest.raises(mz.ModelZooError, match="is not a file"):
+        mz.publish_model(tmp_path / "absent", "someone/repo", key="k")
+
+
+def test_publish_model_names_its_optional_client_when_missing(monkeypatch,
+                                                               tmp_path):
+    """Publishing without the Hub client says how to enable the operation."""
+    monkeypatch.setitem(sys.modules, "huggingface_hub", None)
+
+    with pytest.raises(
+            ImportError, match="pip install huggingface_hub") as caught:
+        mz.publish_model(tmp_path / "model.pt", "someone/repo", key="k")
+
+    assert isinstance(caught.value.__cause__, ImportError)
+
+
+def test_publish_model_with_a_client_reaches_input_validation(monkeypatch,
+                                                               tmp_path):
+    """The positive import path proceeds past dependency discovery."""
+    fake = types.ModuleType("huggingface_hub")
+    fake.HfApi = object
+    monkeypatch.setitem(sys.modules, "huggingface_hub", fake)
+
     with pytest.raises(mz.ModelZooError, match="is not a file"):
         mz.publish_model(tmp_path / "absent", "someone/repo", key="k")
 

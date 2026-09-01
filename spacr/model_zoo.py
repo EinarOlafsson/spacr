@@ -1331,7 +1331,7 @@ def publish_model(local_path: Any, repo_id: str, *,
     """
     try:
         from huggingface_hub import HfApi
-    except ImportError as exc:                              # pragma: no cover
+    except ImportError as exc:
         raise ImportError(
             "Publishing a model needs the 'huggingface_hub' package:\n"
             "  pip install huggingface_hub\n"
