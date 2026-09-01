@@ -46,11 +46,15 @@ def _build(model_name="cpsam"):
     preview_cellpose_model(model_name)
 
 
-def test_a_cuda_check_that_raises_means_cpu(fake_cellpose, monkeypatch):
+def test_a_cuda_check_that_raises_still_lands_on_the_cpu(fake_cellpose,
+                                                          monkeypatch):
     """A driver mismatch makes ``torch.cuda.is_available()`` itself raise.
 
-    The preview must fall back to the CPU rather than let the exception out of
-    a constructor called from the GUI thread.
+    NOTE WHAT THIS DOES AND DOES NOT PROVE. It is `resolve()` that
+    absorbs the raising torch, not the preview's own guard -- deleting
+    the preview's try/except leaves this test passing. It is kept for the
+    end-to-end behaviour, and the preview's guard is driven separately
+    below so that neither one can rot behind the other.
     """
     import torch
 
@@ -64,12 +68,53 @@ def test_a_cuda_check_that_raises_means_cpu(fake_cellpose, monkeypatch):
     assert fake_cellpose.calls[-1]["gpu"] is False
 
 
-def test_a_working_torch_is_believed(fake_cellpose, monkeypatch):
-    """The fallback is a fallback: a torch that answers is not second-guessed."""
-    import torch
+def test_the_preview_survives_an_accelerator_that_raises(fake_cellpose,
+                                                         monkeypatch):
+    """THE PREVIEW'S OWN GUARD, driven where the test above could not.
 
-    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    ``preview_cellpose_model`` is called from a constructor on the GUI
+    thread while a panel repaints. An exception out of it is a traceback
+    into a paint, so a broken accelerator has to mean the CPU. This makes
+    `cellpose_kwargs` itself fail, which is the only thing that reaches
+    the guard -- `resolve()` handles a bad torch on its own.
+    """
+    import spacr.accelerator as accelerator
+
+    def _explode():
+        raise RuntimeError("the accelerator module is having a bad day")
+
+    monkeypatch.setattr(accelerator, "cellpose_kwargs", _explode)
+
+    _build()
+
+    assert fake_cellpose.calls[-1]["gpu"] is False
+
+
+def test_a_working_accelerator_is_believed(fake_cellpose, monkeypatch):
+    """The fallback is a fallback: an accelerator that answers is used."""
+    import spacr.accelerator as accelerator
+
+    monkeypatch.setattr(accelerator, "cellpose_kwargs",
+                        lambda: {"gpu": True, "device": None})
 
     _build()
 
     assert fake_cellpose.calls[-1]["gpu"] is True
+
+
+def test_an_explicit_caller_still_overrides_the_machine(fake_cellpose,
+                                                        monkeypatch):
+    """``gpu=`` is documented as winning, so pin it.
+
+    Without this, the two tests above would both pass against a version
+    that ignored the parameter entirely.
+    """
+    import spacr.accelerator as accelerator
+    from spacr.qt.widgets.preview_contract import preview_cellpose_model
+
+    monkeypatch.setattr(accelerator, "cellpose_kwargs",
+                        lambda: {"gpu": True, "device": None})
+
+    preview_cellpose_model("cpsam", gpu=False)
+
+    assert fake_cellpose.calls[-1]["gpu"] is False
