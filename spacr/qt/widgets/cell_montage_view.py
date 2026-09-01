@@ -2721,7 +2721,10 @@ class CellMontageView(QWidget):
                 "the picker chose, and nothing is picked yet.")
             return None
         self._ensure_graph_tab()
-        if self._graph_panel is None:                    # pragma: no cover
+        if self._graph_panel is None:
+            # The tab could not be built, so there is nothing to switch
+            # to. Returning None is the behaviour; the alternative is an
+            # AttributeError out of a button press.
             return None
         index = self._tabs.indexOf(self._graph_panel)
         if index >= 0:

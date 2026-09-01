@@ -168,12 +168,18 @@ def force_quit_now(exit_code: int = 1) -> None:
     for handler in list(logging.getLogger().handlers):
         try:
             handler.flush()
-        except Exception:  # pragma: no cover - a broken sink must not block
+        except Exception:
+            # A BROKEN SINK MUST NOT BLOCK. This runs when a graceful
+            # stop has already failed, so a handler that will not flush
+            # cannot be what stops the process leaving -- a force quit
+            # that hangs is the original complaint, twice.
             pass
     for stream in (sys.stdout, sys.stderr):
         try:
             stream.flush()
-        except Exception:  # pragma: no cover
+        except Exception:
+            # Same contract for stdout and stderr: a terminal that has
+            # gone takes its flush with it.
             pass
     os._exit(exit_code)
 
