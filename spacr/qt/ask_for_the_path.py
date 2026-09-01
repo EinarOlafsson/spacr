@@ -103,7 +103,9 @@ def ask_for_a_folder(
                       f"this run stops here rather than waiting for an "
                       f"answer that cannot come.")
 
-    if chooser is None:                                  # pragma: no cover
+    # THE PRODUCTION PATH. `chooser` is injected by tests and by
+    # nothing else, so this is what the application always takes.
+    if chooser is None:
         from PySide6.QtWidgets import QFileDialog
 
         def chooser(title, start=""):
@@ -229,7 +231,9 @@ def ask_for_a_database_column(
                       f"this run stops here rather than waiting for an "
                       f"answer that cannot come.")
 
-    if chooser is None:                                  # pragma: no cover
+    # THE PRODUCTION PATH. `chooser` is injected by tests and by
+    # nothing else, so this is what the application always takes.
+    if chooser is None:
         from PySide6.QtWidgets import QFileDialog
 
         def chooser(title, start=""):
@@ -237,7 +241,7 @@ def ask_for_a_database_column(
                 parent, title, start, "Databases (*.db *.sqlite);;All (*)")
             return path
 
-    if pick is None:                                     # pragma: no cover
+    if pick is None:
         from PySide6.QtWidgets import QInputDialog
 
         def pick(title, prompt, options):
