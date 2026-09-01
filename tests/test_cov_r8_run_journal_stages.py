@@ -315,7 +315,9 @@ def test_a_logger_that_cannot_log_does_not_break_the_recorder(run,
     # provenance must not take a run down. A recorder left in a broken
     # state would pass "did not raise" and fail the next stage instead.
     run._record_stage("measure")
-    assert run is not None
+    assert [stage.get("id") for stage in run.stages] == [
+        "segment", "measure",
+    ], "the recorder did not accept the stage after its logger failed"
 
 
 def test_a_module_outside_the_tallied_three_counts_only_as_a_run(

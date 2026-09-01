@@ -38,6 +38,7 @@ class _Backends:
 class _MPS:
     def __init__(self, available, built):
         self._available, self._built = available, built
+        self.empty_cache_calls = 0
 
     def is_available(self):
         return self._available
@@ -45,10 +46,14 @@ class _MPS:
     def is_built(self):
         return self._built
 
+    def empty_cache(self):
+        self.empty_cache_calls += 1
+
 
 class _Cuda:
     def __init__(self, available, name="GPU"):
         self._available, self._name = available, name
+        self.empty_cache_calls = 0
 
     def is_available(self):
         return self._available
@@ -57,7 +62,7 @@ class _Cuda:
         return self._name
 
     def empty_cache(self):
-        pass
+        self.empty_cache_calls += 1
 
 
 class _Version:
@@ -73,6 +78,7 @@ class _Torch:
         self.cuda = _Cuda(cuda, cuda_name)
         self.version = _Version(cuda_version, hip)
         self.backends = _Backends(mps, mps_built)
+        self.mps = self.backends.mps
         if xpu is not None:
             self.xpu = xpu
 
@@ -314,22 +320,25 @@ def test_autocast_device_type_is_none_where_autocast_raises(
 
 def test_empty_cache_is_safe_on_every_backend(monkeypatch):
     """Called from resource cleanup, which must not be able to raise."""
-    checked = []
-    for kwargs in (dict(cuda=True, cuda_version="12.1"),
-                   dict(cuda=False, mps=True, mps_built=True),
-                   dict(cuda=False)):
+    cases = (
+        (dict(cuda=True, cuda_version="12.1"),
+         "cuda", "torch.cuda.empty_cache()"),
+        (dict(cuda=False, mps=True, mps_built=True),
+         "mps", "torch.mps.empty_cache()"),
+        (dict(cuda=False), "cpu", ""),
+    )
+    for kwargs, expected_kind, expected_call in cases:
         monkeypatch.setattr(acc, "_CACHED", None, raising=False)
-        _install(monkeypatch, _Torch(**kwargs))
+        torch = _Torch(**kwargs)
+        _install(monkeypatch, torch)
         resolved = acc.resolve(refresh=True)
 
-        acc.empty_cache()                  # must not raise
+        made = acc.empty_cache()           # must not raise
 
-        # ASSERTED per backend. A loop whose body silently did nothing
-        # would pass on "no exception" alone, and this is called from
-        # resource cleanup where a wrong backend is exactly the risk.
-        assert resolved.kind in ("cuda", "mps", "cpu"), resolved.kind
-        checked.append(resolved.kind)
-    assert len(checked) == 3, f'only {len(checked)} backends were exercised'
+        assert resolved.kind == expected_kind
+        assert made == expected_call
+        assert torch.cuda.empty_cache_calls == (expected_kind == "cuda")
+        assert torch.mps.empty_cache_calls == (expected_kind == "mps")
 
 
 
