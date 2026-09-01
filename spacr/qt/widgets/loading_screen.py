@@ -57,7 +57,11 @@ def _role(name: str, fallback: str) -> str:
         from ..theme import palette_for
         value = palette_for().get(name)
         return str(value) if value else fallback
-    except Exception:          # pragma: no cover - the splash must not fail
+    except Exception:
+        # THE SPLASH MUST NOT FAIL. It is the first thing painted,
+        # sometimes before the theme has resolved and always before
+        # anything else could report a problem, so a palette lookup that
+        # raised would replace it with a traceback.
         return fallback
 
 

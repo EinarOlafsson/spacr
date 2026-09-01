@@ -576,7 +576,11 @@ class PivotPanel(QWidget):
             self.table.set_result(None)
             self.notice.setText(str(exc))
             return None
-        except Exception as exc:  # pragma: no cover - defensive
+        except Exception as exc:
+            # ANYTHING THAT IS NOT A PivotError. That one is the expected
+            # refusal and carries its own explanation; this is a fault
+            # inside the pivot, and the "could not build that table"
+            # wrapper is what tells the two apart on screen.
             LOG.info("the pivot failed", exc_info=True)
             self._result = None
             self.table.set_result(None)
