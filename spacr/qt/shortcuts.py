@@ -803,8 +803,12 @@ QLabel#ShortcutOverlayHint {{
 """
 
 
-try:  # pragma: no cover - present in every real launch
+# AT IMPORT TIME, so the failure is not a missing background --
+# it is the module not importing, which takes down whatever
+# imports it. Driven in
+# tests/qt/test_a_theme_that_refuses_does_not_stop_an_import.py.
+try:
     from .theme import register_widget_qss as _register_widget_qss
     _register_widget_qss(OVERLAY_NAME, _overlay_qss, replace=True)
-except Exception:  # pragma: no cover
+except Exception:
     LOG.debug("could not register the shortcut-overlay QSS", exc_info=True)
