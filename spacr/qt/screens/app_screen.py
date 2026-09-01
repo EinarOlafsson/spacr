@@ -6466,11 +6466,22 @@ class AppScreen(QWidget):
         from ..ai.issue_report import build_report, submit_report
         from ..preferences import get_share_diagnostic_logs
 
+        # SPACR AI'S OWN ANALYSIS RIDES ALONG when the AI is switched on and
+        # has already answered THIS error -- which, in the flow that files
+        # these reports, it usually has, because the console offers to explain
+        # a crash the moment it happens. Empty when the AI is off, when it has
+        # not answered, or when its last answer was about something else; see
+        # `ConsolePanel.ai_explanation_of`.
+        try:
+            ai_analysis = self._console.ai_explanation_of(self._last_error_text)
+        except Exception:                                    # noqa: BLE001
+            ai_analysis = ""
         report = build_report(
             self._last_error_text,
             active_app=self.app_key,
             settings=settings_snapshot,
             include_log_tail=get_share_diagnostic_logs(),
+            ai_response=ai_analysis,
         )
         preview = IssuePreviewDialog(report, self)
         if preview.exec() != QDialog.Accepted:

@@ -955,6 +955,11 @@ class ConsolePanel(QWidget):
         #: identical one is not drawn again. See begin_topic.
         self._current_topic_label: Optional[str] = None
         self._working_dots: Optional[_WorkingDots] = None
+        #: The traceback the AI is currently explaining, and its answer once
+        #: the stream finishes. Read by the bug reporter -- see
+        #: :meth:`ai_explanation_of`.
+        self._ai_error_traceback: str = ""
+        self._ai_error_explanation: str = ""
         self._ai_messages: List[Dict] = []
         self._ai_buf: List[str] = []
         self._ai_thread: Optional[QThread] = None
@@ -1816,6 +1821,11 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
                 "\n\n<spacr_console_context>\n" + context
                 + "\n</spacr_console_context>")
         self._ai_messages.append({"role": "user", "content": prompt})
+        # A QUESTION OF THE USER'S OWN ENDS THE ERROR PAIRING. Whatever comes
+        # back next answers this, not the crash -- and attaching it to a bug
+        # report as an analysis of the crash would put a confident, unrelated
+        # explanation in front of a maintainer.
+        self._ai_error_traceback = ""
         # User message — green "spaCR user" text.
         self._append_user(text + f"\n\n[{status}]")
         # AI reply — a "spaCR AI" banner tinted in the provider colour, with a
@@ -2047,6 +2057,13 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             self._ai_messages.append(
                 {"role": "assistant", "content": final_text}
             )
+            # Kept for the bug report. Only a reply to an error the console
+            # itself raised counts: `_ai_error_traceback` is set by
+            # `open_error_flow` and cleared by any ordinary question, so an
+            # answer about something else cannot be filed as an analysis of
+            # the crash.
+            if getattr(self, "_ai_error_traceback", ""):
+                self._ai_error_explanation = final_text or ""
             if not self._ai_buf:
                 self.append_notice(
                     "(empty response — try again or switch provider)\n"
@@ -2065,6 +2082,27 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
     # ------------------------------------------------------------------
     # Public: Explain-error entry point (called from AppScreen)
     # ------------------------------------------------------------------
+    def ai_explanation_of(self, traceback_text: str) -> str:
+        """spaCR AI's answer about ``traceback_text``, or ``""``.
+
+        Used by the bug reporter: when the AI is switched on it has usually
+        already diagnosed the crash by the time the user files, and that
+        analysis is the most useful thing in the report -- it is what the
+        maintainer would otherwise spend the first hour reproducing.
+
+        Empty unless there IS an answer AND it is an answer to THIS error.
+        The console holds one conversation across a whole session, so without
+        the second condition a report about one crash would carry an
+        explanation of an earlier one, stated with equal confidence.
+        """
+        mine = getattr(self, "_ai_error_traceback", "") or ""
+        answer = getattr(self, "_ai_error_explanation", "") or ""
+        if not mine or not answer:
+            return ""
+        # Compared on the traceback's own text rather than on identity: the
+        # reporter is handed the text again by the screen, not the object.
+        return answer if mine.strip() == (traceback_text or "").strip() else ""
+
     def open_error_flow(self, traceback_text: str, active_app: str = "",
                         show_raw: bool = True) -> None:
         """Send a traceback to the AI explainer and stream the reply inline.
@@ -2084,6 +2122,13 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         prompt = wrap_error_for_prompt(
             traceback_text, active_app or self._active_app_label
         )
+        # REMEMBER WHAT THIS TURN IS ABOUT, so the answer can be attached to
+        # the bug report for this error and no other. A console can hold
+        # several explanations across a session; pairing the reply with the
+        # traceback that prompted it is what stops an issue about one crash
+        # carrying an analysis of a different one.
+        self._ai_error_traceback = traceback_text
+        self._ai_error_explanation = ""
         # The AI always receives the full error; the console only echoes the
         # raw traceback when show_raw is True.
         self._ai_messages.append({"role": "user", "content": prompt})

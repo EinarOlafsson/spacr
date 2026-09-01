@@ -1396,9 +1396,15 @@ class TestErrorRouting:
         from PySide6.QtWidgets import QDialog
         from spacr.qt.ai.issue_preview import IssuePreviewDialog
 
-        def _build(tb, active_app="", settings=None, include_log_tail=True):
+        def _build(tb, active_app="", settings=None, include_log_tail=True,
+                   ai_response=""):
+            # `ai_response` IS NAMED rather than swept into **kwargs: a stub
+            # that accepts anything cannot notice the screen dropping an
+            # argument, and this stub stands in for the one function that
+            # decides what a public bug report contains.
             seen.update(tb=tb, app=active_app, settings=settings,
-                        include_log_tail=include_log_tail)
+                        include_log_tail=include_log_tail,
+                        ai_response=ai_response)
             return {"title": "t", "body": "b", "fingerprint": "f"}
 
         monkeypatch.setattr("spacr.qt.ai.issue_report.build_report", _build)
