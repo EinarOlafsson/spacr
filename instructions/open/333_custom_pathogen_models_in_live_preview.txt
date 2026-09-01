@@ -1,0 +1,58 @@
+333 — CUSTOM PATHOGEN MODELS MUST BE AVAILABLE IN LIVE PREVIEW
+===============================================================
+
+ASKED FOR (2026-09-01)
+----------------------
+"custom pathogen models should be available in live preview via the same
+model zoo mechanism"
+
+WHAT THE STATE IS
+-----------------
+The model zoo now backs the settings rows: `spacr/qt/widgets/model_zoo_picker.py`
+lists what spaCR knows about, downloads a checkpoint with a verified checksum,
+and writes its path into the field
+(`AppScreen._with_a_model_zoo_button`, `_MODEL_ZOO_KEYS`). `toxoplasma_pv_v1`
+is published and registered.
+
+LIVE PREVIEW DOES NOT USE ANY OF IT. `spacr/qt/widgets/preview_contract.py`
+builds its Cellpose model through `_resolve_cellpose_pretrained(str(model_name))`
+from whatever the preview was handed, so a user who has selected a zoo model
+for the RUN gets stock cpsam in the PREVIEW -- and the preview is the thing
+they are looking at while deciding whether the settings are right.
+
+That is the worst shape for this defect: the preview does not fail, it
+silently previews a different model than the run will use. A user tunes
+diameter and thresholds against cpsam's masks and then runs with the
+fine-tune, or the reverse.
+
+WHAT TO DO
+----------
+1. Have the preview read the SAME setting the run reads. For pathogens that is
+   `pathogen_model` (honoured end-to-end -- object.py:769-771 into
+   `_resolve_cellpose_pretrained`, reached from core.py:432 on the default Mask
+   path), falling back to `pathogen_model_name`.
+2. Offer the zoo button on the preview's own model control, if it has one, via
+   `choose_model(parent, kinds=("cellpose",))`. `kinds` is a rule rather than a
+   parameter: the zoo also carries the YOLO well detector, and CellposeModel
+   cannot load it.
+3. A model that has not been downloaded yet must not stall the preview. Preview
+   with what is available and SAY which model produced the picture -- a preview
+   whose provenance is unstated is the defect above wearing a different hat.
+
+WATCH OUT
+---------
+* 310 entry 39: the Mask panel renders NO pathogen model row today. Both
+  `pathogen_model` and `pathogen_model_name` are offered by the settings and
+  categorised under "Pathogen", and the panel builds a widget for neither,
+  because that section is conditional on the run having a pathogen. Until that
+  row exists there is nothing on screen for the preview to agree WITH, so 39
+  is a prerequisite rather than a related item.
+* Downloading 1.2 GB from a preview refresh would be an unpleasant surprise.
+  Fetch on explicit request only, as the picker does.
+
+HOW TO KNOW IT WORKED
+---------------------
+* Selecting a zoo model changes the preview, not only the run.
+* The preview names the model it used, visibly.
+* A model not yet on disk previews with a stated fallback rather than hanging
+  or silently substituting.

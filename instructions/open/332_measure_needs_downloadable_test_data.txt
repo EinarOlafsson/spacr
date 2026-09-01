@@ -1,0 +1,48 @@
+332 — MEASURE NEEDS DOWNLOADABLE TEST DATA, LIKE MASK HAS
+==========================================================
+
+ASKED FOR (2026-09-01)
+----------------------
+"the measure modual should also have test data that is dowloadable from
+hugginface."
+
+WHAT THE STATE IS
+-----------------
+Mask Generation has example data: it downloads a plate to
+`~/.cache/spacr/example_images/plate1` and fills `src` with it, which is how
+a new user gets from an empty screen to a running module without owning a
+microscope. Measure has no equivalent, so the first thing it asks for is a
+folder the user cannot produce until they have already run Mask.
+
+That ordering is the problem rather than the missing files. Measure consumes
+what Mask produces -- images plus masks -- so "try Measure" today means "run
+Mask first, successfully, on your own data". A user evaluating spaCR gives up
+before reaching the module that produces the numbers.
+
+WHAT TO DO
+----------
+1. Publish a Measure example set: a small plate WITH ITS MASKS, so Measure can
+   run standalone. That is the difference from Mask's set and the only reason
+   this is not a one-line copy -- masks are what Measure needs and what Mask's
+   example does not ship.
+2. Reuse the download path that already exists. `spacr/qt/hf_download.py`
+   fetches Mask's example; the same mechanism, the same cache folder
+   convention, the same "already downloaded" check.
+3. The button belongs where Mask's is, on the Measure screen, saying what it
+   will fetch and how large it is BEFORE fetching.
+
+WATCH OUT
+---------
+* The example must produce a measurements.db that the DOWNSTREAM modules can
+  open -- Classify, Regression and the Plate Viewer all read it. An example
+  set that only satisfies Measure moves the wall one module along.
+* Size it for a laptop on hotel wifi. Mask's plate is the precedent.
+* `hf_download.py` is 317's file; check who holds it before editing.
+
+HOW TO KNOW IT WORKED
+---------------------
+* Measure runs to completion on a clean machine with no other module run
+  first, and writes a measurements.db.
+* That database opens in the Plate Viewer and in Regression.
+* The download is declined gracefully: no example data must never mean no
+  module.
