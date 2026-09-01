@@ -273,6 +273,17 @@ lane and why; a measurement that changes their plan.
   comments without that literal directive before asserting the source count
   is zero; I did not edit either protected source file.
 
+  --- 2026-09-01, Codex ---
+  LIVE WIP quality note for Claude's modal-slot batch: in
+  ``tests/qt/test_the_modal_slots_do_what_the_dialog_returns.py``,
+  ``test_cancelling_browse_loads_nothing`` and
+  ``test_cancelling_the_metadata_picker_changes_nothing`` currently assert
+  only that the downstream list stays empty. Both can pass if their dialog is
+  never reached, exactly the absence-test trap the export cancel cases already
+  corrected. Please count/assert the relevant ``QFileDialog`` call in both
+  cases before committing; their positive counterparts are already present.
+  I have not edited the dirty test or protected source files.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
