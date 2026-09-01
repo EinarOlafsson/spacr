@@ -33,7 +33,17 @@ HIGH_LABEL = "high %"
 #: PERCENTILES ARE NOT ALWAYS WHOLE. spaCR's own normalisation walks 98,
 #: 99, 99.9, 99.99 and 99.999, so a control that rounded to integers could
 #: not express the top half of that ladder at all.
-DECIMALS = 3
+#:
+#: SIX, NOT THREE, and matching :data:`spacr.qt.screens.make_masks.
+#: PERCENTILE_DECIMALS` rather than being a second opinion about the same
+#: quantity. Three stops at 99.999, and the reason the ladder does not stop
+#: there is arithmetic: on a 2048x2048 field 99.999 still keeps forty pixels,
+#: and it is the last four or five -- a cosmic ray, a saturated bead, one hot
+#: sensor pixel -- that pin the display range and make every real object look
+#: black. 99.9999 clips those four. A control that cannot express the step
+#: that fixes the image is a control that cannot fix the image, which is what
+#: was reported.
+DECIMALS = 6
 
 
 def _tidy(number: float):
