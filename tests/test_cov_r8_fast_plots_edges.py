@@ -1,7 +1,11 @@
-"""Seven decisions in fast_plots that the module's callers never make.
+"""Six decisions in fast_plots that the module's callers never make.
 
-Five are driven directly, because each helper is small enough to hand the
-awkward input to. Two are pinned to the call site that keeps them shut.
+Four are driven directly, because each helper is small enough to hand the
+awkward input to. Two are pinned to the call site that keeps them shut. The
+former empty-histogram pin now has its own premise suite in
+``tests/qt/test_a_violin_profile_always_has_a_populated_bin.py``; keeping a
+second pin here would make the test demand the unreachable guard that suite
+proved safe to remove.
 """
 from __future__ import annotations
 
@@ -44,33 +48,6 @@ class TestTheViolinOutline:
         assert F._violin_profile(np.array([np.nan, np.nan]), 0.4) \
             == (None, None)
         assert F._violin_profile(np.array([0.0, np.inf]), 0.4) == (None, None)
-
-    def test_an_empty_histogram_cannot_reach_the_division(self):
-        """THE PIN, for ``peak <= 0``.
-
-        Every count zero divides by zero on the next line, which makes
-        the whole outline NaN and draws a violin with no visible edge --
-        so the guard is right. It cannot fire: the histogram's range is
-        ``(min(v), max(v))``, so every value falls inside it and the
-        tallest bin holds at least one. A NaN would empty it, and a NaN
-        makes ``min`` non-finite, which the guard two lines above has
-        already returned for.
-        """
-        values = np.array([0.0, 10.0, np.nan, np.nan, np.nan, np.nan])
-        low, high = float(np.nanmin(values)), float(np.nanmax(values))
-        assert np.isfinite(low) and np.isfinite(high) and high > low
-
-        counts, _edges = np.histogram(
-            values[np.isnan(values)], bins=6, range=(low, high))
-        assert float(counts.max()) == 0.0, (
-            "the fixture no longer produces an empty histogram")
-
-        source = inspect.getsource(F._violin_profile)
-        assert "if peak <= 0:" in source
-        assert "counts.astype(float) / peak" in source, (
-            "the density no longer divides by the peak, so an empty "
-            "histogram no longer needs the guard")
-
 
 # ---------------------------------------------------------------------------
 # FastPlot._rows_of -- a scatter whose per-point data is already integer
