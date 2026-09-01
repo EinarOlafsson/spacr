@@ -23,6 +23,7 @@ users learn not to open.
 from __future__ import annotations
 
 import os
+from types import SimpleNamespace
 from typing import List, Optional
 
 from PySide6.QtCore import QObject, Qt, QThread, Signal
@@ -225,18 +226,42 @@ class ModelZooPicker(QDialog):
 
     # -- data ------------------------------------------------------------
 
+    #: The stock Cellpose model, offered as a zoo row.
+    #:
+    #: It is not a download and has no checkpoint: choosing it writes the
+    #: literal string "cpsam" into the field, which is what Cellpose 4 loads
+    #: by default and what `_resolve_cellpose_pretrained` passes through
+    #: untouched. Offered here because the picker is where a user goes to
+    #: CHANGE a model, and "put it back to the standard one" is the commonest
+    #: thing they want -- without this row the only way back is to remember
+    #: the spelling and type it.
+    STOCK_MODEL = SimpleNamespace(
+        key="cpsam_v2",
+        name="cpsam",
+        kind="cellpose",
+        path="cpsam",
+        sha256="stock",
+        uri="",
+        source="stock",
+        trained_on=("Cellpose 4's own general model. No download: choosing "
+                    "this writes 'cpsam' into the field."),
+        trained_by="Cellpose",
+        notes=(),
+    )
+
     def refresh(self) -> None:
         """Reload the catalogue and redraw the table."""
         from ... import model_zoo
 
         try:
-            entries = list(model_zoo.catalogue(remote=True))
+            entries = [self.STOCK_MODEL]
+            entries += list(model_zoo.catalogue(remote=True))
         except Exception as exc:                            # noqa: BLE001
             # A zoo that cannot be listed must not be a dialog that cannot be
             # opened: the user may already have the model and only need to
-            # find it on disk.
+            # find it on disk -- and the stock row always works.
             self.status.setText(f"Could not read the model list: {exc}")
-            entries = []
+            entries = [self.STOCK_MODEL]
         if self._kinds:
             entries = [e for e in entries if e.kind in self._kinds]
         self._entries = entries
@@ -261,6 +286,16 @@ class ModelZooPicker(QDialog):
         self._selection_changed()
 
     def _local_path(self, entry) -> Optional[str]:
+        """Where this entry already is, or the name Cellpose resolves itself."""
+        if getattr(entry, "source", "") == "stock":
+            # NOT A FILE, and deliberately not checked as one. Cellpose
+            # resolves "cpsam" by name; `_resolve_cellpose_pretrained` returns
+            # a stock name unchanged. Requiring a file here would grey out the
+            # one row that never needs downloading.
+            return str(entry.path)
+        return self._local_path_on_disk(entry)
+
+    def _local_path_on_disk(self, entry) -> Optional[str]:
         """Where this entry already is on disk, if it is.
 
         Checks the entry's own recorded path first -- a locally discovered
