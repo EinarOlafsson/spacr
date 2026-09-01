@@ -442,24 +442,23 @@ def process_chunk(chunk_data):
                     r2_qual += '!' * (expected_end - len(r2_qual))
 
                 consensus_seq = create_consensus(r1_seq, r1_qual, r2_seq, r2_qual)
-                if len(consensus_seq) >= expected_end:
-                    match = re.match(regex, consensus_seq)
-                    if match:
-                        consensus_sequences.append(consensus_seq)
-                        
-                        #print(f"r1_seq: {r1_seq}")
-                        #print(f"r2_seq: {r2_seq}")
-                        #print(f"consensus_sequences: {consensus_sequences}")
-                        
-                        column_sequence = match.group(column_group)
-                        grna_sequence = match.group('grna')
-                        row_sequence = match.group(row_group)
-                        columns.append(column_sequence)
-                        grnas.append(grna_sequence)
-                        rows.append(row_sequence)
-                        
-                        #print(f"row bc: {row_sequence} col bc: {column_sequence} grna bc: {grna_sequence}")
-                        #print(f"row bc: {rows} col bc: {columns} grna bc: {grnas}")
+                match = re.match(regex, consensus_seq)
+                if match:
+                    consensus_sequences.append(consensus_seq)
+
+                    #print(f"r1_seq: {r1_seq}")
+                    #print(f"r2_seq: {r2_seq}")
+                    #print(f"consensus_sequences: {consensus_sequences}")
+
+                    column_sequence = match.group(column_group)
+                    grna_sequence = match.group('grna')
+                    row_sequence = match.group(row_group)
+                    columns.append(column_sequence)
+                    grnas.append(grna_sequence)
+                    rows.append(row_sequence)
+
+                    #print(f"row bc: {row_sequence} col bc: {column_sequence} grna bc: {grna_sequence}")
+                    #print(f"row bc: {rows} col bc: {columns} grna bc: {grnas}")
 
         if len(consensus_sequences) == 0:
             print(f"WARNING: No sequences matched {regex} in chunk")
@@ -467,11 +466,10 @@ def process_chunk(chunk_data):
             print(f"Is {consensus_seq} compatible with {regex} ?")
             
             if consensus_seq:
-                if len(consensus_seq) >= expected_end:
-                    consensus_seq_rc = reverse_complement(consensus_seq)
-                    match = re.match(regex, consensus_seq_rc)
-                    if match:
-                        print(f"Reverse complement of last sequence in chunk matched {regex}")
+                consensus_seq_rc = reverse_complement(consensus_seq)
+                match = re.match(regex, consensus_seq_rc)
+                if match:
+                    print(f"Reverse complement of last sequence in chunk matched {regex}")
 
         return consensus_sequences, columns, grnas, rows
     
@@ -527,16 +525,15 @@ def process_chunk(chunk_data):
                 consensus_seq = r1_seq
 
                 # Check if the consensus sequence matches the regex
-                if len(consensus_seq) >= expected_end:
-                    match = re.match(regex, consensus_seq)
-                    if match:
-                        consensus_sequences.append(consensus_seq)
-                        column_sequence = match.group(column_group)
-                        grna_sequence = match.group('grna')
-                        row_sequence = match.group(row_group)
-                        columns.append(column_sequence)
-                        grnas.append(grna_sequence)
-                        rows.append(row_sequence)
+                match = re.match(regex, consensus_seq)
+                if match:
+                    consensus_sequences.append(consensus_seq)
+                    column_sequence = match.group(column_group)
+                    grna_sequence = match.group('grna')
+                    row_sequence = match.group(row_group)
+                    columns.append(column_sequence)
+                    grnas.append(grna_sequence)
+                    rows.append(row_sequence)
 
         if len(consensus_sequences) == 0:
             print(f"WARNING: No sequences matched {regex} in chunk")
@@ -586,12 +583,9 @@ def process_chunk(chunk_data):
     
     if fill_na:
         df2 = df.copy()
-        if 'columnID' in df2.columns:
-            df2['columnID'] = df2['columnID'].fillna(df2['column_sequence'])
-        if 'rowID' in df2.columns:
-            df2['rowID'] = df2['rowID'].fillna(df2['row_sequence'])
-        if 'grna_name' in df2.columns:
-            df2['grna_name'] = df2['grna_name'].fillna(df2['grna_sequence'])
+        df2['columnID'] = df2['columnID'].fillna(df2['column_sequence'])
+        df2['rowID'] = df2['rowID'].fillna(df2['row_sequence'])
+        df2['grna_name'] = df2['grna_name'].fillna(df2['grna_sequence'])
         
         unique_combinations = df2.groupby(['rowID', 'columnID', 'grna_name']).size().reset_index(name='count')
     else:
@@ -1091,13 +1085,13 @@ def generate_barecode_mapping(settings=None):
                             R1=samples_dict[key]['R1']
                             R2=samples_dict[key]['R2']
 
-                        elif settings['mode'] == 'single':
+                        else:
                             function = single_read_chunked_processing
 
                             if settings['single_direction'] == 'R1':
                                 R1=samples_dict[key]['R1']
                                 R2=None
-                            elif settings['single_direction'] == 'R2':
+                            else:
                                 R1=samples_dict[key]['R2']
                                 R2=None
 
@@ -1327,17 +1321,16 @@ def graph_sequencing_stats(settings):
         plt.xlim(0,0.1)
         plt.ylim(0,20)
 
-        if dst is not None:
-            fig_path = os.path.join(dst, 'results')
-            os.makedirs(fig_path, exist_ok=True)
-            fig_file_path = os.path.join(fig_path, 'fraction_threshold.pdf')
-            # 108 point 6. `format='pdf', dpi=600` was a preference written
-            # into a call site: a user who chose PNG at 300 got neither.
-            from .plot import save_figure
+        fig_path = os.path.join(dst, 'results')
+        os.makedirs(fig_path, exist_ok=True)
+        fig_file_path = os.path.join(fig_path, 'fraction_threshold.pdf')
+        # 108 point 6. `format='pdf', dpi=600` was a preference written
+        # into a call site: a user who chose PNG at 300 got neither.
+        from .plot import save_figure
 
-            fig_file_path = save_figure(fig, fig_file_path,
-                                        bbox_inches='tight')
-            print(f"Saved {fig_file_path}")
+        fig_file_path = save_figure(fig, fig_file_path,
+                                    bbox_inches='tight')
+        print(f"Saved {fig_file_path}")
         plt.show()
 
         return closest_threshold['fraction_threshold']

@@ -111,8 +111,8 @@ class TestAReadThatCameUpShort:
                 ([_fastq(_read())], [], _REGEX, _TARGET, -8, _WINDOW,
                  c, g, r, False))
 
-    def test_every_length_test_below_the_padding_is_already_satisfied(self):
-        """THE PIN, for three arcs at once.
+    def test_redundant_length_tests_stay_removed_below_the_padding(self):
+        """THE PIN for removing three impossible false exits.
 
         Both paths pad the extracted window up to ``expected_end`` with
         N before building the consensus, so every ``len(...) >=
@@ -120,10 +120,9 @@ class TestAReadThatCameUpShort:
         single-end one, the paired one, and the reverse-complement
         hint's.
 
-        The tests are still right to keep -- the padding is what makes
-        them true, and a window built without it would slice a short
-        barcode that then fails to map, which reads as "this guide was
-        not in the library" rather than "this read was too short".
+        Keeping another conditional below that guarantee only adds an
+        unreachable branch.  Pin both halves of the simplification: the
+        padding remains, and the redundant checks do not come back.
 
         Pinned on the padding, and the arithmetic run: padding a string
         of any length up to a target gives exactly the target.
@@ -133,9 +132,11 @@ class TestAReadThatCameUpShort:
         source = inspect.getsource(SEQ.process_chunk)
         for name in ("r1_seq", "r2_seq"):
             assert f"if len({name}) < expected_end:" in source, (
-                f"{name} is no longer padded, so the length tests below it "
-                f"can now be false")
+                f"{name} is no longer padded, so a removed length guard "
+                f"could become necessary")
             assert f"{name} += 'N' * (expected_end - len({name}))" in source
+        assert "if len(consensus_seq) >= expected_end:" not in source, (
+            "a redundant consensus-length guard was reintroduced")
 
         for length in (0, 1, 29, 61, 62, 200):
             window = 62
@@ -181,39 +182,22 @@ class TestFillingUnmappedBarcodesWithTheirSequence:
         assert len(df) == 1
         assert pd.isna(df.iloc[0]["columnID"])
 
-    def test_each_fill_is_guarded_on_its_own_column(self):
-        """THE PIN: three ``in df2.columns`` tests that cannot be false.
+    def test_the_three_fill_columns_are_constructed_not_conditionally_found(self):
+        """THE PIN for removing three impossible membership guards.
 
-        The three fills are separately guarded rather than done in one
-        pass, because the regex decides which barcode columns exist: a
-        run configured with a two-group regex has no ``grna_name``
-        column at all, and ``fillna`` on a column that is not there is a
-        KeyError raised in the middle of a chunk loop over millions of
-        reads.
-
-        Today they cannot be false: the regex validation above refuses a
-        pattern without a grna group and without a row and a column
-        group, so all three columns always exist by the time the fills
-        run. Run as the operation itself over a frame missing each
-        column in turn, so the guard's shape and its consequence are
-        both checked.
+        ``df2`` copies a frame constructed from a literal that always names
+        all three columns.  The regex controls their values, not whether the
+        columns exist, so conditional membership checks obscure that schema
+        invariant and add three unreachable exits.
         """
         import inspect
 
         source = inspect.getsource(SEQ.process_chunk)
         for column in ("columnID", "rowID", "grna_name"):
-            assert f"if '{column}' in df2.columns:" in source, (
-                f"the {column} fill is no longer guarded on its own column")
-
-        frame = pd.DataFrame({"column_sequence": [_COL],
-                              "row_sequence": [_ROW],
-                              "grna_sequence": [_GRNA]})
-        for column, source_column in (("columnID", "column_sequence"),
-                                      ("rowID", "row_sequence"),
-                                      ("grna_name", "grna_sequence")):
-            assert column not in frame.columns
-            with pytest.raises(KeyError):
-                frame[column].fillna(frame[source_column])
+            assert f"'{column}':" in source, (
+                f"the constructed frame no longer guarantees {column}")
+            assert f"if '{column}' in df2.columns:" not in source, (
+                f"the impossible {column} membership guard was reintroduced")
 
 
 # ---------------------------------------------------------------------------
@@ -272,26 +256,26 @@ class TestWhereTheThresholdFigureGoes:
 
         assert threshold is None or isinstance(threshold, float)
 
-    def test_the_destination_guard_cannot_fire(self):
-        """THE PIN: ``dst is None``.
+    def test_the_impossible_destination_guard_stays_removed(self):
+        """THE PIN for removing the ``dst is None`` exit.
 
         The only caller builds ``dst`` from
         ``os.path.dirname(settings['count_data'][0])``, which is a real
         directory for any file that was read -- so the None arm of the
         nested plotter is unreachable through it.
 
-        Keeping it is right, because the plotter carries ``dst=None`` in
-        its own signature and ``os.path.join(None, 'results')`` is a
-        TypeError. The pin is on the derivation, which is what would have
-        to change for the arm to become live.
+        The nested helper's signature is an implementation detail: its only
+        call receives ``os.path.dirname(...)``, which is always a string.
+        Saving can therefore be unconditional.
         """
         import inspect
 
         source = inspect.getsource(SEQ.graph_sequencing_stats)
-        assert "if dst is not None:" in source
+        assert "if dst is not None:" not in source, (
+            "the impossible destination guard was reintroduced")
         write = source.index("os.makedirs(fig_path, exist_ok=True)")
-        guard = source.index("if dst is not None:")
-        assert guard < write, "the destination is used before it is checked"
+        save = source.index("save_figure(fig, fig_file_path")
+        assert write < save
         assert "dst = os.path.dirname(settings['count_data'][0])" in source, (
             "the destination is no longer derived from the count file, so "
-            "the None arm of the plotter may now be reachable")
+            "an unconditional save may no longer be valid")
