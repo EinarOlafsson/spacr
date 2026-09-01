@@ -812,11 +812,14 @@ def scores(project, tables):
 
     Inference is pinned to the CPU with a single BLAS thread. The golden
     scores are meant to be the *probe's* arithmetic and nothing else, and
-    ``apply_model`` picks its device from ``torch.cuda.is_available()``, so
-    without the pin the same assertion would be checking CUDA's summation
-    on a workstation and the CPU's on CI - which differ by more than
-    :data:`SCORE_TOLERANCE`'s margin (4.1e-6 vs 1.6e-7 measured). Pinning
-    also makes "no GPU required" true rather than merely usually true.
+    ``apply_model`` picks its device through the process-wide accelerator
+    resolver.  Patching ``torch.cuda.is_available`` here is too late once
+    that deliberately cached resolver has answered, so pin the production
+    ``pick_device`` seam itself.  Without the pin the same assertion would
+    be checking CUDA's summation on a workstation and the CPU's on CI -
+    which differ by more than :data:`SCORE_TOLERANCE`'s margin (4.1e-6 vs
+    1.6e-7 measured). Pinning also makes "no GPU required" true rather than
+    merely usually true.
     """
     import torch
 
@@ -827,7 +830,10 @@ def scores(project, tables):
                       for path in tables["png_list"]["png_path"]})
     threads = torch.get_num_threads()
     with pytest.MonkeyPatch.context() as patch:
-        patch.setattr(torch.cuda, "is_available", lambda: False)
+        patch.setattr(
+            "spacr.deep_spacr.pick_device",
+            lambda **_kwargs: (torch.device("cpu"), ""),
+        )
         torch.set_num_threads(1)
         try:
             frames = [apply_model(src=folder, model_path=model_path,
