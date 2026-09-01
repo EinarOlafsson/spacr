@@ -1018,8 +1018,6 @@ _TYPE_OVERRIDES: Dict[str, Tuple[type, ...]] = {
     "src": (str, list),
     "normalize": (bool, list),
     "save": (bool, list),
-    # A path, not a switch -- see the note in spacr.validate.
-    "custom_model": (str, bool, type(None)),
 }
 
 # Per-module narrowings, for keys whose name two pipelines share. Mirrors
@@ -1173,6 +1171,13 @@ def coerce_value(key: str, text: str, current: Any,
             return float(stripped)
         except ValueError:
             pass
+
+    if (key == "custom_model"
+            and lowered in (_TRUE_WORDS | _FALSE_WORDS)):
+        raise SettingsError(
+            "--set custom_model is a checkpoint path, not a boolean switch; "
+            "use custom_model=none for the stock Cellpose model."
+        )
 
     if allow(str):
         return text
