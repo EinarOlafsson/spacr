@@ -624,7 +624,14 @@ def test_registering_the_screen_reaches_every_reader_of_the_registry(
 
     row = next(r for r in app_mod.APPS if r[0] == screen.APP_KEY)
     assert row[1] == screen.APP_NAME
-    assert row[3] == app_mod.SECTION_EXPLORE
+    # DATA, not EXPLORE. Home was restructured into Core/Data/Tools/
+    # Assays, and Tabulate is one of the modules folded onto the Database
+    # Browser masthead -- so it registers in the section its host lives
+    # in. SECTION_EXPLORE survives as a legacy alias that
+    # test_registration_seams asserts is NOT in SECTIONS; asserting
+    # against it here pinned a section the screen no longer appears in.
+    assert row[3] == app_mod.SECTION_DATA
+    assert app_mod.SECTION_DATA in app_mod.SECTION_ORDER
     from spacr.qt.app_catalog import LazyScreenFactory
 
     assert isinstance(

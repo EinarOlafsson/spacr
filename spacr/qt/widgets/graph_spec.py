@@ -667,7 +667,13 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
             col_levels = col_levels[:-1]
         elif len(row_levels) > 1:
             row_levels = row_levels[:-1]
-        else:  # pragma: no cover - unreachable while max_panels >= 1
+        else:
+            # NEITHER AXIS CAN LOSE ANOTHER LEVEL. At one row and one
+            # column the product is 1, so the loop is only still running
+            # if the ceiling is below 1 -- which no caller in spaCR
+            # passes, but `max_panels` is a documented keyword and the
+            # cost of being wrong here is not a wrong picture, it is an
+            # infinite loop and a frozen window with nothing in the log.
             break
         notices.append(f"grid capped at {max_panels} panels")
 
