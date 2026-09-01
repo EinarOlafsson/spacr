@@ -82,11 +82,14 @@ def screen(qtbot, project):
 
 def test_the_screen_registers_itself_through_the_seam():
     """No row in ``app.py``; the import is what puts it in the registry."""
-    from spacr.qt.app import APPS, SECTION_EXPLORE, registered_factory
+    from spacr.qt.app import APPS, SECTION_DATA, registered_factory
 
     row = next((r for r in APPS if r[0] == screen_module.APP_KEY), None)
     assert row is not None, "importing the module did not register the app"
-    assert row[3] == SECTION_EXPLORE
+    # Sections were restructured into Core/Data/Tools/Assays on
+    # 2026-08-31; the old names survive only as legacy aliases that
+    # test_registration_seams asserts are NOT in SECTIONS.
+    assert row[3] == SECTION_DATA
     assert registered_factory(screen_module.APP_KEY) is (
         screen_module.make_pipeline_graph_screen)
     assert screen_module.register() is False, "register() is not idempotent"

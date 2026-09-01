@@ -387,7 +387,10 @@ def test_registering_the_screen_reaches_every_reader_of_the_registry(
     # next experiment will use, the same job the Power screen beside it does
     # for n. Explore is for a question asked of a finished table; a dilution
     # series is the most planned experiment there is.
-    assert row[3] == app_mod.SECTION_DESIGN
+    # Sections were restructured into Core/Data/Tools/Assays on
+    # 2026-08-31; the old names survive only as legacy aliases that
+    # test_registration_seams asserts are NOT in SECTIONS.
+    assert row[3] == app_mod.SECTION_DATA
     from spacr.qt.app_catalog import LazyScreenFactory
 
     # Through the accessor, not the raw table: this screen's row is

@@ -789,9 +789,15 @@ def test_registering_the_screen_reaches_every_reader_of_the_registry(
     row = next((r for r in app_mod.APPS if r[0] == screen_mod.APP_KEY), None)
     assert row is not None
     assert row[1] == screen_mod.APP_NAME
-    assert row[3] == app_mod.SECTION_EXPLORE
-    assert app_mod.SECTION_EXPLORE in app_mod.SECTIONS
-    assert row in app_mod.section_members(app_mod.SECTION_EXPLORE)
+    # TOOLS, not EXPLORE. Home was restructured into Core/Data/Tools/
+    # Assays on 2026-08-31 and Graph Builder moved with it.
+    # SECTION_EXPLORE survives only as a legacy alias that
+    # test_registration_seams asserts is NOT in SECTIONS -- so the second
+    # line here was asserting the opposite of what that one does.
+    assert row[3] == app_mod.SECTION_TOOLS
+    assert app_mod.SECTION_TOOLS in app_mod.SECTIONS
+    assert app_mod.SECTION_TOOLS in app_mod.SECTION_ORDER
+    assert row in app_mod.section_members(app_mod.SECTION_TOOLS)
     assert app_mod.registered_factory(screen_mod.APP_KEY) is not None
     assert app_mod.app_stage(screen_mod.APP_KEY) == app_mod.STAGE_ALPHA
     # Registering twice must not raise — the module may be imported twice.

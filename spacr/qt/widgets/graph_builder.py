@@ -176,7 +176,11 @@ def _orientation(vertical: bool) -> dict:
     parts = matplotlib.__version__.split(".")
     try:
         modern = (int(parts[0]), int(parts[1])) >= (3, 10)
-    except (IndexError, ValueError):  # pragma: no cover - odd version string
+    except (IndexError, ValueError):
+        # AN UNPARSEABLE VERSION MEANS MODERN. Guessing old on a new
+        # matplotlib brings back the per-panel, per-render warning this
+        # function exists to silence; guessing modern on an old one is a
+        # TypeError the caller sees immediately. Fail toward the loud one.
         modern = True
     if modern:
         return {"orientation": "vertical" if vertical else "horizontal"}

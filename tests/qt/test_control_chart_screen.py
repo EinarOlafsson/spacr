@@ -452,7 +452,10 @@ def test_registering_the_screen_reaches_every_reader_of_the_registry(
     row = next(r for r in app_mod.APPS if r[0] == APP_KEY)
     assert row[0] == "control_chart"
     assert row[1] == screen_module.APP_NAME
-    assert row[3] == app_mod.SECTION_RESULTS
+    # Sections were restructured into Core/Data/Tools/Assays on
+    # 2026-08-31; the old names survive only as legacy aliases that
+    # test_registration_seams asserts are NOT in SECTIONS.
+    assert row[3] == app_mod.SECTION_DATA
     from spacr.qt.app_catalog import LazyScreenFactory
 
     # Through the accessor, not the raw table: this screen's row is

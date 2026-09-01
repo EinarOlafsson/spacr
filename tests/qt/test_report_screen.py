@@ -533,8 +533,11 @@ def test_report_registration_is_complete_if_it_is_registered():
     # SECTION_RESULTS: it packages up results. #16i briefly filed it
     # under an "Alpha modules" section instead; #16j made alpha a stage
     # rather than a place, so both axes are asserted separately.
-    from spacr.qt.app import SECTION_RESULTS, app_stage
-    assert section == SECTION_RESULTS, (
+    from spacr.qt.app import SECTION_DATA, app_stage
+    # Sections were restructured into Core/Data/Tools/Assays on
+    # 2026-08-31; the old names survive only as legacy aliases that
+    # test_registration_seams asserts are NOT in SECTIONS.
+    assert section == SECTION_DATA, (
         f"report filed under {section!r}; it packages up results")
     assert app_stage(key) == "alpha"
 

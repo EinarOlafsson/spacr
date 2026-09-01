@@ -180,7 +180,10 @@ class _ClauseRow(QFrame):
         head.addWidget(drop)
         self._outer.addLayout(head)
 
-    def clause(self):  # pragma: no cover - overridden
+    def clause(self):
+        # THE CONTRACT EVERY ROW IS HELD TO. A subclass that forgets it
+        # fails loudly here rather than filtering on nothing, which reads
+        # as a filter that silently matches everything.
         raise NotImplementedError
 
 

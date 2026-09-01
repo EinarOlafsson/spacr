@@ -848,7 +848,13 @@ def regressable_columns(frame) -> Tuple[str, ...]:
         try:
             if int(column.nunique(dropna=True)) < 2:
                 continue
-        except TypeError:                              # pragma: no cover - odd
+        except TypeError:
+            # A dtype that CLAIMS to be numeric while its values will not
+            # compare. No built-in one does -- complex, Int64, bool,
+            # sparse, float16 and timedelta were all checked -- but this
+            # scans whatever DataFrame the project produced, and a
+            # third-party ExtensionArray cannot be ruled out. One such
+            # column must not stop the scan finding the others.
             continue
         out.append(text)
     return tuple(out)

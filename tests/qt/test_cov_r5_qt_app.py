@@ -115,8 +115,13 @@ def probe_app():
         state["built"].append(screen)
         return screen
 
+    # A SECTION THAT STILL EXISTS. register_app now refuses a section
+    # that is not in SECTION_ORDER, and the 2026-08-31 restructure left
+    # Core/Data/Tools/Assays -- so registering the probe under the legacy
+    # "Explore" alias raised in the FIXTURE, which surfaced as seven
+    # errors rather than seven failures.
     app_mod.register_app(PROBE, "Probe", "a screen this file owns",
-                         app_mod.SECTION_EXPLORE, factory=factory)
+                         app_mod.SECTION_TOOLS, factory=factory)
     return state
 
 
