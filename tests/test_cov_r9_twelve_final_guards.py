@@ -12,7 +12,6 @@ import pathlib
 
 import numpy as np
 import pandas as pd
-import pytest
 
 
 def _source(module):
@@ -21,65 +20,33 @@ def _source(module):
 
 class TestTheOptionalEmbedders:
 
-    def test_the_umap_refusal_names_the_package_to_install(self):
-        """THE PIN, for ``umap is None`` -- and MEASURED, which changed
-        what this says.
-
-        It was written on the record that umap-learn is deliberately
-        absent from this environment because it pulls numba. That is no
-        longer true: umap 0.5.12 and numba 0.67 are installed against
-        numpy 2.5.2, so the guard cannot fire here either and this is a
-        pin rather than the path a user meets.
-
-        What is still worth holding is the refusal naming the package to
-        install, since that IS what a checkout without it meets.
-        """
-        from spacr import timelapse as T
-
-        # Both names are LOCALS inside the analysis function, bound by a
-        # guarded import, so the premise is asked of the environment
-        # rather than of the module.
-        try:
-            import umap                                   # noqa: F401
-            installed = True
-        except Exception:                                 # noqa: BLE001
-            installed = False
-
-        assert installed, (
-            "umap-learn has gone from this environment, so the refusal is "
-            "now the path every analysis takes and wants a driven test")
-        assert "umap-learn is not installed." in _source(T)
-        assert "umap = None" in _source(T), (
-            "the guarded import is gone, so a missing umap-learn now stops "
-            "the module loading rather than one analysis")
-
-    def test_the_tsne_guard_is_the_opposite_case(self):
-        """THE PIN, for ``TSNE is None``.
-
-        sklearn IS a hard dependency, so this one cannot fire -- the two
-        guards look identical and are not, and saying so is the point.
-        """
-        from spacr import timelapse as T
-
-        from sklearn.manifold import TSNE                 # noqa: F401
-
-        assert TSNE is not None, (
-            "sklearn.manifold.TSNE is missing, which would make it an "
-            "optional dependency rather than a required one")
-        assert "sklearn.manifold.TSNE is not available." in _source(T)
-
-    def test_both_refuse_before_doing_any_work(self):
+    def test_umap_availability_is_decided_at_dispatch(self):
+        """A failed optional import falls through to PCA before the helper."""
         from spacr import timelapse as T
 
         source = _source(T)
-        for marker, message in (
-                ("def _search_umap(", "umap-learn is not installed."),
-                ("def _search_tsne(", "sklearn.manifold.TSNE is not")):
-            start = source.index(marker)
-            body = source[start:start + 400]
-            assert message in body
-            assert body.index(message) < body.index("random_state"), (
-                f"{marker} does work before checking its dependency")
+        assert "umap = None" in source
+        assert 'embed_method == "umap" and umap is not None' in source
+        assert "umap-learn is not installed." not in source
+
+    def test_tsne_availability_is_decided_at_dispatch(self):
+        """The t-SNE helper has the same single availability boundary."""
+        from spacr import timelapse as T
+
+        source = _source(T)
+        assert "TSNE = None" in source
+        assert 'embed_method == "tsne" and TSNE is not None' in source
+        assert "sklearn.manifold.TSNE is not available." not in source
+
+    def test_unavailable_requested_embedders_share_the_pca_fallback(self):
+        from spacr import timelapse as T
+
+        source = _source(T)
+        assert 'if embed_method in {"umap", "tsne"}:' in source
+        assert '"not available; falling back to PCA."' in source
+        for marker in ("def _search_umap(", "def _search_tsne("):
+            body = source[source.index(marker):]
+            assert " is None:" not in body[:500]
 
 
 class TestTheMosaicRoot:
@@ -309,31 +276,30 @@ class TestThePositionalEffectPanel:
 class TestTheSequencingMode:
 
     def test_the_two_modes_pick_different_processors(self):
-        """THE ARC: ``mode == 'single'``.
+        """The admitted non-paired mode takes the single-read processor.
 
-        Paired and single-end runs use different chunk processors, and
-        the direction setting only means something for the single one.
+        The surrounding sample gate admits only paired or single, so the
+        second dispatch arm is an exhaustive ``else`` rather than a branch.
         """
         from spacr import sequencing as S
 
         source = _source(S)
         assert "function = paired_read_chunked_processing" in source
         assert "function = single_read_chunked_processing" in source
-        assert "elif settings['mode'] == 'single':" in source
+        assert "elif settings['mode'] == 'single':" not in source
         assert "if settings['single_direction'] == 'R1':" in source
 
-    def test_the_threshold_figure_is_saved_only_when_asked(self):
-        """THE ARC: ``dst is not None``.
+    def test_the_threshold_figure_always_has_a_destination(self):
+        """The closure's sole caller derives and passes a destination.
 
-        The figure is shown either way; a destination is what turns it
-        into a file, and ``os.path.join(None, ...)`` is a TypeError at
-        the end of a scan that had finished.
+        ``os.path.dirname`` returns a string even for a bare filename, so the
+        old optional-destination guard could not be false through this API.
         """
         from spacr import sequencing as S
 
         source = _source(S)
-        assert "if dst is not None:" in source
+        assert "if dst is not None:" not in source
+        assert "dst = os.path.dirname(settings['count_data'][0])" in source
+        assert "log_y=settings.get('log_y', False), dst=dst)" in source
         assert "'fraction_threshold.pdf'" in source
-
-        with pytest.raises(TypeError):
-            os.path.join(None, "results")
+        assert os.path.dirname("counts.csv") == ""
