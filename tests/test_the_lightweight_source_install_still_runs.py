@@ -74,15 +74,63 @@ def test_every_exclusion_still_names_something_that_exists(line):
         f"exclusion {line!r} names a path that no longer exists"
 
 
-def test_the_script_reads_the_same_list_these_tests_do():
-    """The script and the test must not drift.
+def _embedded_lines():
+    """The exclusion list baked into the script, as git would read it."""
+    body = SCRIPT.read_text()
+    start = body.index("cat <<'SPACR_EXCLUDES'\n") + len("cat <<'SPACR_EXCLUDES'\n")
+    end = body.index("SPACR_EXCLUDES\n", start)
+    return [ln for ln in body[start:end].splitlines() if ln.strip()]
 
-    If the script ever grew its own copy of the exclusions, this file
-    would go on passing while the real install did something else.
+
+def test_the_embedded_list_matches_the_file_exactly():
+    """The script carries its OWN copy, so the copy must not drift.
+
+    It carries one because the first version fetched the list over the
+    network as a second request, and that broke the moment somebody used
+    it: the script was curl'd from `nightly`, defaulted its branch to
+    `main`, asked `main` for a file that exists only on `nightly`, and
+    died on a bare `curl: (56) 404` under `set -e`.
+
+    Embedding removes the failure mode and introduces this one instead --
+    a copy that can fall behind the file. This is the test that stops it.
     """
+    assert _embedded_lines() == _sparse_lines(), (
+        "packaging/source_install_excludes.txt and the copy embedded in "
+        "install_from_source.sh have diverged; update the script's "
+        "heredoc to match the file")
+
+
+def test_the_script_needs_no_second_network_request():
+    """THE REGRESSION. No curl of the exclusion list, at all.
+
+    Not "curl with a better URL" -- none. A standalone installer that
+    depends on a second fetch has a second thing that can 404, and the
+    branch it would ask is exactly the thing it cannot know.
+    """
+    # CODE lines only. The comments explain the bug and naturally name
+    # curl; matching the bare word would fail on its own explanation.
+    code = "\n".join(line for line in SCRIPT.read_text().splitlines()
+                     if not line.lstrip().startswith("#"))
+    assert "curl" not in code, (
+        "the script fetches its exclusion list over the network again")
+    assert "raw.githubusercontent.com" not in code, (
+        "the script hardcodes a raw URL; it cannot know which branch it "
+        "was downloaded from, which is what broke the first version")
+
+
+def test_the_script_prefers_the_file_when_run_from_a_checkout():
+    """So editing the list is not silently ignored inside the repo."""
     body = SCRIPT.read_text()
     assert "source_install_excludes.txt" in body
     assert "sparse-checkout" in body
+
+
+def test_a_branch_that_does_not_exist_is_named_not_just_failed():
+    """A bare git error does not tell the user what to type instead."""
+    body = SCRIPT.read_text()
+    assert "could not fetch branch" in body
+    assert "ls-remote" in body, (
+        "the error should list the branches that DO exist")
 
 
 def test_the_script_asks_for_both_a_shallow_and_a_filtered_fetch():

@@ -378,18 +378,19 @@ which is the usual cause.
 Install from source, without the whole repository
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A plain clone writes about 427 MB and fetches the full history. Most of that
-is built documentation, tests, archived figures and Cellpose checkpoints that
-spaCR downloads on demand anyway. To fetch only what runs — a 76 MB tree with
-52 MB of git objects — use::
+A plain clone writes about 427 MB and fetches the full history — over 1.3 GB
+on disk. Most of it is built documentation, tests, archived figures and
+Cellpose checkpoints spaCR downloads on demand anyway. To fetch only what
+runs, a 76 MB tree with 52 MB of git objects::
 
-    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/main/packaging/install_from_source.sh -o install_spacr.sh
-    sh install_spacr.sh
+    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
+    sh install_spacr.sh --branch nightly
 
-It is a normal checkout: ``git pull`` and editing work as usual. Options:
-``--dir``, ``--branch``, ``--with-tests``, ``--no-install``, and
-``--with-translations`` for the full translation catalogs — without them the
-interface still translates, from a smaller built-in catalog.
+It installs ``main`` by default, so fetch the script from the branch you mean
+to install. The result is a normal checkout: ``git pull`` and editing work as
+usual. Other options: ``--dir``, ``--with-tests``, ``--no-install``, and
+``--with-translations`` — without those the interface still translates, from a
+smaller built-in catalog.
 
 ``packaging/source_install_excludes.txt`` lists every skipped path and why.
 
@@ -485,11 +486,10 @@ Language & translation
 
 The interface supports ten languages across navigation and Preferences. AI and
 LIVE controls, module descriptions and reviewed contextual help are also
-translated. Change the
-language under **spaCR → Preferences → Language** without restarting. Logs,
-paths, database values and measurements are never translated; scientific
-output remains canonical English. See the `contextual-help policy
-<docs/source/localization.rst#contextual-help>`_.
+translated. Change the language under **spaCR → Preferences → Language**
+without restarting. Logs, paths, database values and measurements are never
+translated; scientific output remains canonical English. See the
+`contextual-help policy <docs/source/localization.rst#contextual-help>`_.
 
 Animated setting guidance
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -536,9 +536,9 @@ Generate a hardware report and attach it to a performance-related issue::
 
     python tools/spacr_hardware_report.py
 
-The command prints a report and saves a copy under ``~/.spacr/reports``; the
-last line identifies the saved path. ``--quick`` omits the longer benchmarks,
-and ``--out PATH`` selects another output location.
+It saves a report under ``~/.spacr/reports`` and prints the path last.
+``--quick`` skips the longer benchmarks; ``--out PATH`` chooses where to
+write.
 
 It never opens a project or reads project data. It times imports, numeric
 libraries, window construction and animation, and identifies two things that
