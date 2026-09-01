@@ -944,14 +944,6 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
         # ------------------------------------------------------ the frames
 
         def _target_size(self) -> tuple[int, int]:
-            logical_width = max(320, self.width())
-            logical_height = max(180, self.height())
-            device_scale = max(1.0, float(self.devicePixelRatioF()))
-            physical_width = max(320, round(logical_width * device_scale))
-            physical_height = max(180, round(logical_height * device_scale))
-            aspect = physical_width / physical_height
-            requested = base_pixels * self._adaptive_scale ** 2
-
             # RENDER SCALE, which was a setting nobody read. It is the
             # fraction of the window's own pixels to shade, so 1.0 is native
             # and anything less trades sharpness for speed -- the direct
@@ -960,27 +952,12 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
                 render_scale = float(_render_scale())
             except Exception:                                # noqa: BLE001
                 render_scale = 1.0
-            native = float(physical_width) * float(physical_height)
-            if render_scale > 0.0:
-                requested = native * render_scale * render_scale
-
-            # THE CEILING IS THE SCREEN, not a number chosen for one
-            # pattern. It used to stop at 1,250,000 pixels whatever the
-            # settings said, so past a certain point raising the scale did
-            # nothing at all and there was no way to tell -- which is the
-            # same complaint as the capped fields, one layer down.
-            #
-            # Shading more pixels than the display has is still waste, so
-            # that is where it stops; `scale` above 1 is what asks for the
-            # full native resolution rather than a fraction of it.
-            requested = max(180_000.0, min(native, requested))
-            width = int(round(math.sqrt(requested * aspect)))
-            height = int(round(width / aspect))
-            width = min(physical_width, max(320, width))
-            height = min(physical_height, max(180, height))
-            width -= width % 2
-            height -= height % 2
-            return max(320, width), max(180, height)
+            # THE ARITHMETIC LIVES IN `target_render_size`, so instruction
+            # 327's "measure before you change anything" can be done
+            # without a GL context.
+            return target_render_size(
+                self.width(), self.height(), self.devicePixelRatioF(),
+                render_scale, base_pixels, self._adaptive_scale)
 
         @Slot()
         def _request_frame(self) -> None:
@@ -1268,6 +1245,66 @@ class CameraState:
     stretch_x: float
     stretch_y: float
     palette_phase: float
+
+
+def target_render_size(logical_width: int, logical_height: int,
+                       device_scale: float, render_scale: float,
+                       base_pixels: float = 0.0,
+                       adaptive_scale: float = 1.0) -> tuple:
+    """How many pixels to shade for a widget of this size.
+
+    LIFTED OUT OF THE CANVAS so it can be measured. Instruction 327 asks
+    which of four candidates makes fullscreen choppy while the backdrop
+    is smooth, and says to answer with numbers before writing a fix --
+    which is not possible while the arithmetic only exists inside a
+    nested method on a class that needs a GL context.
+
+    The rule itself is unchanged: shade ``render_scale`` squared of the
+    widget's own physical pixels, never more than the widget has and
+    never fewer than 180,000, keeping the aspect ratio and an even
+    width and height.
+
+    :returns: ``(width, height)`` in physical pixels.
+    """
+    logical_width = max(320, int(logical_width))
+    logical_height = max(180, int(logical_height))
+    device_scale = max(1.0, float(device_scale))
+    physical_width = max(320, round(logical_width * device_scale))
+    physical_height = max(180, round(logical_height * device_scale))
+    aspect = physical_width / physical_height
+
+    adaptive_scale = max(0.0, float(adaptive_scale))
+    requested = float(base_pixels) * adaptive_scale ** 2
+    native = float(physical_width) * float(physical_height)
+    if render_scale > 0.0:
+        # MULTIPLIED IN, NOT REPLACED. This branch used to overwrite
+        # `requested`, which threw the adaptive scale away -- and since
+        # `render_scale` defaults above zero, that was every launch.
+        #
+        # `_adapt_resolution` measures the render time, compares it with
+        # the frame budget and computes a new scale between 0.58 and 1.35.
+        # All of that ran, and none of it reached the renderer. Measured:
+        # sweeping the adaptive scale across its whole range left the
+        # shaded size at 1280x720 every time.
+        #
+        # That is the answer to instruction 327 (1). Fullscreen shades
+        # 5.12x a panel's pixels at 2560x1440 and 11.53x at 4K -- the cost
+        # IS the area -- but the machinery meant to compensate was
+        # disconnected, so the frame rate fell instead of the resolution.
+        #
+        # The user's own `scale` still means what it says: 0.5 is half
+        # native when frames are comfortable. The adaptive term only ever
+        # takes it further down, or back up toward it.
+        requested = native * render_scale * render_scale * adaptive_scale ** 2
+
+    requested = max(180_000.0, min(native, requested))
+    width = int(round(math.sqrt(requested * aspect)))
+    height = int(round(width / aspect))
+    width = min(physical_width, max(320, width))
+    height = min(physical_height, max(180, height))
+    width -= width % 2
+    height -= height % 2
+    return max(320, width), max(180, height)
 
 
 class DepthPhase:
