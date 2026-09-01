@@ -1,0 +1,120 @@
+326 — THE ORGANELLE COUNT MUST BE ARBITRARY
+============================================
+
+ASKED FOR (2026-08-31)
+----------------------
+"organelle is arbitrary -- implement a prefix scheme that survives being
+embedded in an underscore-delimited key without colliding with object
+labels... this is no small task so be careful AND DONT BREAK ANYTHING."
+
+Taking the last clause as the governing constraint. Everything below is
+shaped by it.
+
+WHY THERE IS A LIMIT AT ALL
+---------------------------
+Twenty-six is the ALPHABET running out, not a design decision.
+
+A slot's role name IS the prefix of every settings key and every object
+key it owns. Slot 1 is ``organelle``; slots 2 upward take a letter,
+``organelleb`` through ``organellez``. `spacr/organelle_types.py:449`
+sets ``MAX_ORGANELLES = 26`` for that reason and says so.
+
+Letters, because `spacr/schema.py:284-289` REFUSES a role that contains a
+digit or a separator, and refuses it at IMPORT:
+
+  * a digit is ambiguous against the object LABEL, which is appended with
+    no separator -- ``cell1`` + 7 cannot be told from ``cell`` + 17;
+  * an underscore is ``KEY_SEPARATOR``, so it would split the surrounding
+    ``prcfo`` key.
+
+That check is not an obstacle to route around. It is the reason no
+identity in the database is ambiguous today, and any scheme proposed here
+must keep it true.
+
+WHAT A KEY LOOKS LIKE
+---------------------
+``prcfo`` is plate_row_column_field_object, separator-joined, and the
+object component is ``<role><label>`` with NO separator between them.
+`schema.py` composes and parses these (`compose_prcfo`, `parse_prcfo`),
+and it already has an escaping vocabulary: ``_ESCAPES`` maps
+``KEY_SEPARATOR`` to ``%5F``, which is what
+`io.migrate_unescaped_plate_names` uses to rescue plates whose names
+contain an underscore.
+
+THREE CANDIDATE SCHEMES, AND WHAT EACH COSTS
+--------------------------------------------
+Do not pick one from this list without measuring. They are here so the
+tradeoffs are not rediscovered.
+
+1. LETTER PAIRS -- ``organelleaa`` after ``organellez``.
+   Cheapest: still letters, so the digit-free rule holds untouched, and
+   `parse_prcfo` needs no change at all. Ugly at scale and the ordering
+   is not obvious to a reader (is ``organelleaa`` slot 27 or slot 1?).
+   Bounded at 702 without a third letter.
+
+2. ESCAPED SEPARATOR -- ``organelle%5F27``.
+   Reuses the vocabulary that already exists and that the plate migration
+   already proved. But it puts DIGITS in a role, which the import-time
+   check forbids -- so the check has to learn that a digit after an
+   escaped separator is a slot number and not a label. That is a change
+   to the rule that currently makes every identity unambiguous, and it is
+   the one to be most careful about.
+
+3. LENGTH-PREFIXED -- ``organelle2z``, ``organelle11ab``.
+   Unambiguous by construction and unbounded, at the cost of being
+   unreadable and of a parse that no existing code does.
+
+THE HARD PART IS NOT THE SCHEME
+-------------------------------
+It is that keys are already WRITTEN DOWN, in three places that outlive
+any release:
+
+  * measurement databases -- every object row carries a ``prcfo``;
+  * settings files -- every organelle slot's keys are prefixed by its
+    role, and users have files from older versions;
+  * run journals -- ``~/.spacr/runs`` records the settings a run used.
+
+So the scheme must be BACKWARD-COMPATIBLE IN BOTH DIRECTIONS: today's
+keys must still parse, and a database written today must still be
+readable after the change. `io.migrate_unescaped_plate_names` is the
+precedent for how a key migration is done here, including the property
+that made it safe -- it is idempotent because it tests the COMPONENT
+COUNT rather than comparing before and after, so running it twice cannot
+double-escape.
+
+DONE MEANS, and this list is the "do not break anything"
+--------------------------------------------------------
+* MAX_ORGANELLES is gone, or raised to a number nobody will meet.
+* Every existing key parses unchanged. Assert this with real keys taken
+  from a measurements.db, not with synthesised ones.
+* A round-trip property test: for every slot number from 1 to at least
+  1000, compose a prcfo and parse it back, and require the object role
+  and label to come back exactly. Include labels that begin with a digit,
+  roles at the old boundary (26, 27), and a plate name containing an
+  underscore -- the three cases that break naive schemes.
+* The digit-free/separator-free invariant still holds, or if it is
+  deliberately relaxed, `schema.py:284-289` says what replaced it and
+  why, and a test drives the ambiguity it used to prevent and shows the
+  new scheme resolves it.
+* An old settings file still means what it meant. `organelle_count`
+  already infers the count from the slots a file holds rather than
+  reading a stored number -- keep that.
+* A measurement database written before the change opens, and one written
+  after opens in a build from before it, or the version gate says
+  plainly which it is.
+* The GUI's slot control offers the new range and the settings form does
+  not slow down at large counts. Twenty-six rows is a form; a thousand is
+  a performance question.
+
+DO IT IN THIS ORDER
+-------------------
+1. Write the round-trip property test FIRST, against the CURRENT scheme,
+   and watch it pass. It is the safety net, and a net written after the
+   change tests the change rather than the invariant.
+2. Then the scheme, then the migration, then the GUI.
+3. Do not touch the database format and the key grammar in one commit.
+
+WATCH
+-----
+`spacr/schema.py` is shared and central. Announce in instruction 325 §5
+before editing it, and do not hold it for long.
