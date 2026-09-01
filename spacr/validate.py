@@ -1426,10 +1426,11 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
         #   original warning was really about.
         if settings.get("pathogen_channel") is not None:
             model = settings.get("pathogen_model")
-            # IMPORTED FROM THE RESOLVER, not spelled again here. The two
-            # must agree on what the stock model is called, and a second
-            # copy of the string is the one that goes stale.
-            from .utils import CPSAM_MODEL
+            # Read the dependency-light fallback used to build the settings
+            # menu. Importing the runtime resolver here would pull in
+            # torch/cv2 during a dry run, before any model is meant to load.
+            from .settings import CELLPOSE_MODEL_CHOICES
+            stock_model = CELLPOSE_MODEL_CHOICES[0]
 
             if isinstance(model, str) and model.strip():
                 model = model.strip()
@@ -1442,15 +1443,15 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                         f"is not there.",
                         "Point it at an existing .pth/.pt file, or drop the "
                         "setting to segment pathogens with stock cpsam."))
-                elif not looks_like_a_path and model != CPSAM_MODEL:
+                elif not looks_like_a_path and model != stock_model:
                     problems.append(Problem(
                         WARNING, "pathogen_model",
                         f"pathogen_model={model!r} is not a checkpoint on "
                         f"disk, so Cellpose 4 will load stock "
-                        f"{CPSAM_MODEL!r} instead. The pre-SAM "
+                        f"{stock_model!r} instead. The pre-SAM "
                         f"toxo_pv_lumen / toxo_cyto checkpoints are gone.",
                         "Give the path to a fine-tuned checkpoint, or set "
-                        f"{CPSAM_MODEL!r} to be explicit."))
+                        f"{stock_model!r} to be explicit."))
 
     if app == "measure":
         # measure_crop returns early on both of these.
