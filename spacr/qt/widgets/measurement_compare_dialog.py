@@ -554,8 +554,21 @@ class MeasurementComparePanel(QWidget):
                 return {"error": str(exc)}
 
         started = self._jobs.submit(work, self._finish_join)
-        if not started:                      # pragma: no cover - JobRunner
-            self._joining = False            # always returns True today
+        if not started:
+            # PUT BOTH BACK. `_joining` and the Cancel label were set
+            # BEFORE the submit, because the submit is the part that takes
+            # minutes. Left set after a refusal the panel is stuck: the
+            # button offers to cancel a job that is not running, and
+            # `_joining` makes every later press return early.
+            #
+            # This used to be marked `no cover - JobRunner always returns
+            # True today`, and that reason was wrong. `JobRunner.submit`
+            # returns False whenever it is UNTHREADED and the work or the
+            # completion callback raises. Only this panel's runner, built
+            # threaded, cannot reach it -- so the guard covers a real
+            # contract and is driven in
+            # tests/qt/test_a_refused_join_puts_the_button_back.py.
+            self._joining = False
             self._reset_the_join_button()
         return ""
 
