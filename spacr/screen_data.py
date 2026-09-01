@@ -86,13 +86,13 @@ class ScreenAsset:
 #: download.
 SCREEN_ASSETS: Tuple[ScreenAsset, ...] = (
     ScreenAsset("plate1-measurements.tar", 1, "measurements",
-                590745600, "measurements/measurements.db"),
+                555673600, "measurements/measurements.db"),
     ScreenAsset("plate2-measurements.tar", 2, "measurements",
-                565401600, "measurements/measurements.db"),
+                530165760, "measurements/measurements.db"),
     ScreenAsset("plate3-measurements.tar", 3, "measurements",
-                548567040, "measurements/measurements.db"),
+                513576960, "measurements/measurements.db"),
     ScreenAsset("plate4-measurements.tar", 4, "measurements",
-                486932480, "measurements/measurements.db"),
+                455454720, "measurements/measurements.db"),
     ScreenAsset("plate1-data.tar", 1, "crops", 8874557440, "data"),
     ScreenAsset("plate2-data.tar", 2, "crops", 8403578880, "data"),
     ScreenAsset("plate3-data.tar", 3, "crops", 8040058880, "data"),
