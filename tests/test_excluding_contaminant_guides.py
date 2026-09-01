@@ -112,6 +112,80 @@ class TestSeveralGuidesOrGenes:
         assert len(resolve_exclusions(["TGGT1_220950"], guides)) == 3
 
 
+class TestRegressionExcludesBeforeReadFractions:
+    """The regression path must use the same first-step exclusion contract."""
+
+    @staticmethod
+    def _counts():
+        return pd.DataFrame({
+            "plateID": ["p1"] * 3,
+            "rowID": ["r1"] * 3,
+            "columnID": ["c1"] * 3,
+            "grna": ["TGGT1_220950_1", "TGGT1_233460_4",
+                     "TGGT1_500000_1"],
+            "gene": ["TGGT1_220950", "TGGT1_233460", "TGGT1_500000"],
+            "count": [50, 30, 20],
+        })
+
+    def test_tggt1_220950_1_leaves_before_the_denominator(self):
+        """30/100 becomes 30/(30+20), rather than staying at 0.30."""
+        from spacr.ml import process_reads
+
+        record = {}
+        result = process_reads(
+            self._counts(), fraction_threshold=None, plate=None,
+            exclude_grnas=["TGGT1_220950_1"], record=record)
+
+        fractions = result.set_index("grna")["fraction"].to_dict()
+        assert "220950_1" not in fractions
+        assert fractions["233460_4"] == pytest.approx(0.6)
+        assert fractions["500000_1"] == pytest.approx(0.4)
+        assert sum(fractions.values()) == pytest.approx(1.0)
+        assert record == {
+            "exclude_grnas": 1,
+            "exclude_grnas_of": 3,
+            "exclude_grnas_guides": ["TGGT1_220950_1"],
+            "exclude_grnas_unmatched": [],
+        }
+
+    @pytest.mark.parametrize("typed", ["TGGT1_220950", "220950"])
+    def test_a_gene_name_removes_all_of_its_guides(self, typed):
+        from spacr.ml import process_reads
+
+        counts = pd.DataFrame({
+            "plateID": ["p1"] * 3,
+            "rowID": ["r1"] * 3,
+            "columnID": ["c1"] * 3,
+            "grna": ["TGGT1_220950_1", "TGGT1_220950_2",
+                     "TGGT1_233460_4"],
+            "gene": ["TGGT1_220950", "TGGT1_220950", "TGGT1_233460"],
+            "count": [25, 25, 50],
+        })
+        record = {}
+
+        result = process_reads(
+            counts, fraction_threshold=None, plate=None,
+            exclude_grnas=[typed], record=record)
+
+        assert result[["grna", "fraction"]].to_dict("records") == [
+            {"grna": "233460_4", "fraction": 1.0}]
+        assert record["exclude_grnas"] == 2
+        assert record["exclude_grnas_guides"] == [
+            "TGGT1_220950_1", "TGGT1_220950_2"]
+
+    def test_unmatched_entries_are_persisted_alongside_matches(self):
+        from spacr.ml import process_reads
+
+        record = {}
+        process_reads(
+            self._counts(), fraction_threshold=None, plate=None,
+            exclude_grnas=["TGGT1_220950_1", "TGGT1_NOT_HERE"],
+            record=record)
+
+        assert record["exclude_grnas"] == 1
+        assert record["exclude_grnas_unmatched"] == ["TGGT1_NOT_HERE"]
+
+
 class TestAMisspelledExclusionIsLoud:
     """A misspelled exclusion excludes nothing and looks like it worked,
     which is how a known contaminant survives the filter meant to remove
