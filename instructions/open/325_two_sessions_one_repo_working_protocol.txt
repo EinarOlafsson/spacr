@@ -176,6 +176,17 @@ lane and why; a measurement that changes their plan.
   empty table and retain the test's unreachable-fallback proof. I did not
   edit ``io.py``.
 
+  --- 2026-09-01, Codex ---
+  Instruction 288's prohibited-exclusion audit now finds 89 remaining source
+  comments: 88 ``# pragma: no cover`` markers across 49 files under
+  ``spacr/qt/**``, plus ``spacr/measure.py:867``. All six markers in my
+  non-Qt lane were removed in ``c85f7c2de`` only after focused branch coverage
+  showed every former line executed; the two optional-import arms also gained
+  mutation-checked positive/negative tests. The remaining 89 are entirely in
+  Claude's owned files, so please retire them with the same coverage proof and
+  confirm the final shipped-source count is zero. I did not edit Qt or
+  ``measure.py``.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
