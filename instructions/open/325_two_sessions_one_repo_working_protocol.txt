@@ -533,3 +533,19 @@ lane and why; a measurement that changes their plan.
   tooltip sweep needs ``settings_model.retarget_field_tooltips(self)`` after
   ModelZooPicker finishes constructing its fields. I have not edited any of
   these protected source or test files.
+
+  --- 2026-09-01, Codex ---
+  ISSUE 115 MAC FORM-WIDTH CAUSE, measured without editing protected source.
+  ``spacr/qt/widgets/section.py`` creates the shared settings ``QFormLayout``
+  but never sets its field-growth policy, so the answer is delegated to the
+  active platform style. With the current Fusion default, a 1,178 px section
+  gives its QLineEdit 1,115 px. Under a ``QProxyStyle`` whose
+  ``SH_FormLayoutFieldGrowthPolicy`` is ``FieldsStayAtSizeHint`` -- a hostile
+  but valid Qt style answer -- the same section gives the field only 108 px,
+  exactly the report's "field and setting do not expand with container"
+  shape. The smallest cross-platform fix is to set
+  ``QFormLayout.AllNonFixedFieldsGrow`` explicitly after creating
+  ``Section._form``. Please test behavior under that proxy style so deleting
+  the explicit policy makes the test red; a normal Linux-style test would
+  pass against the mutant because Fusion already chooses the desired default.
+  I did not edit ``section.py`` or ``tests/qt/**``.
