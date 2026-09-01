@@ -94,7 +94,10 @@ def test_the_count_line_is_inside_the_dialog_during_a_download(dialog,
     ui.on_progress("plate1_A01_T0001F001L01A01Z01C01.tif", 3, 6)
     qtbot.wait(10)
     label = dlg.spacr_caption
-    assert "(3/6 files)" in label.text()
+    # The caption reads "50%  (3/6)  <name>" now: the percentage leads,
+    # because the name is the part that can be long and a window too narrow
+    # for all of it must still show the number.
+    assert "(3/6)" in label.text()
     needed = label.heightForWidth(label.width())
     assert label.height() >= needed, (
         f"the caption needs {needed} px of height and the label has "
@@ -123,4 +126,4 @@ def test_the_caption_still_fits_after_the_longest_filename(dialog, qtbot):
         qtbot.wait(10)
         assert label.height() >= label.heightForWidth(label.width()), (
             f"the caption for {name!r} is cut off vertically")
-        assert f"({done}/6 files)" in label.text()
+        assert f"({done}/6)" in label.text()

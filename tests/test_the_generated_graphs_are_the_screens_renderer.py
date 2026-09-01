@@ -439,12 +439,12 @@ def test_the_whole_qc_suite_is_rendered_saved_and_announced(tmp_path,
 
     assert manifest["renderer"] == "pyqtgraph"
     assert manifest["renderer_fallbacks"] == [], manifest["renderer_fallbacks"]
-    assert manifest["renderer_counts"] == {"pyqtgraph": 20}, \
+    assert manifest["renderer_counts"] == {"pyqtgraph": 21}, \
         manifest["renderer_counts"]
 
     on_disk = sorted(name for name in os.listdir(manifest["directory"])
                      if os.path.splitext(name)[1].lower() in (".png", ".pdf"))
-    assert len(on_disk) == 20, on_disk
+    assert len(on_disk) == 21, on_disk
     assert len(announced) == len(on_disk), (len(announced), on_disk)
     for name in on_disk:
         assert name.endswith("." + preference), name

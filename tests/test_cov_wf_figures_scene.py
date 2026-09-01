@@ -237,6 +237,22 @@ def test_what_cannot_be_placed_in_data_coordinates_is_left_off(plot, look):
     assert report.missing == []
 
 
+def test_an_offset_annotation_is_anchored_and_keeps_its_label(plot, look):
+    """Volcano labels use point offsets as well as a data-coordinate anchor."""
+    figure, axes = plt.subplots()
+    axes.scatter([0.2], [0.8])
+    axes.annotate("EAF1 g2", (0.2, 0.8), xytext=(5, -12),
+                  textcoords="offset points")
+    report = SceneReport()
+
+    _translate_axes(plot, axes, look, report)
+
+    assert report.complete, report.reason()
+    labels = [item.textItem.toPlainText() for item in plot.items
+              if type(item).__name__ == "TextItem"]
+    assert "EAF1 g2" in labels
+
+
 def test_a_formula_nested_deeper_than_the_loop_is_still_stripped():
     """Six passes of brace-stripping, then a final sweep, and the label comes out
     as the reader's characters either way. A label that keeps a brace is

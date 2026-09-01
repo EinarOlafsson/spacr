@@ -3713,6 +3713,60 @@ class AppScreen(QWidget):
         # and adding both would put it in two layouts.
         section.add_prose(row, at_top=True)
 
+    #: Settings files an example dataset may ship, per module, best first.
+    #:
+    #: SEVERAL NAMES PER MODULE because the published sets were written by
+    #: different runs at different times: a mask run saves
+    #: `gen_mask_settings.csv`, the older pack shipped `gen_masks_settings.csv`,
+    #: and the measure settings have been called both `measure_crop_settings`
+    #: and `crop_measure_settings`. Trying each in turn is what makes an older
+    #: archive still fill the form in, rather than silently filling in nothing.
+    _EXAMPLE_SETTINGS_FILES = {
+        "mask": ("gen_mask_settings.csv", "gen_masks_settings.csv"),
+        "measure": ("measure_crop_settings.csv", "crop_measure_settings.csv"),
+        "classify": ("classify_settings.csv",),
+        "regression": ("regression_settings.csv",),
+        "umap": ("umap_settings.csv",),
+    }
+
+    def apply_settings_that_came_with(self, folder) -> int:
+        """Load the settings a downloaded example shipped, for THIS module.
+
+        The point of shipping settings beside data: a user who has to work out
+        which column holds the labels, what the mask dimensions are and which
+        channels were measured has done most of the work the example was meant
+        to save. With them applied, Run is the next action.
+
+        Through the same two calls "Import settings…" makes, so a shipped file
+        lands exactly as the user's own would -- a second reader would drift
+        from it, and then an example would configure the panel differently
+        from an import of the very same file.
+
+        :param folder: the unpacked dataset folder.
+        :returns: how many settings were applied; 0 when no file was found.
+        """
+        from pathlib import Path
+
+        folder = Path(folder)
+        for name in self._EXAMPLE_SETTINGS_FILES.get(self.app_key, ()):
+            path = folder / "settings" / name
+            if not path.is_file():
+                continue
+            try:
+                loaded = self._load_settings_csv(str(path))
+                applied = self.apply_settings_dict(loaded)
+            except Exception as exc:                         # noqa: BLE001
+                LOG.debug("could not apply %s", path, exc_info=True)
+                self._console.append_notice(
+                    "[example] {name} could not be applied: {detail}\n",
+                    name=name, detail=exc)
+                return 0
+            self._console.append_notice(
+                "[example] {count} settings loaded from {name}\n",
+                count=applied, name=name)
+            return applied
+        return 0
+
     def screen_data_destination(self):
         """The shared example plate folder the screen pieces unpack into."""
         from ..hf_download import example_plate_folder
@@ -3756,6 +3810,7 @@ class AppScreen(QWidget):
                 return
             self._console.append_stdout(
                 tr("Screen data ready: {path}", path=str(destination)) + "\n")
+            self.apply_settings_that_came_with(destination)
             placed["src"] = str(destination)
 
         download = ask
@@ -3864,6 +3919,8 @@ class AppScreen(QWidget):
             control.setText(source)
         self._console.append_stdout(
             tr("Source directory (src): {path}", path=source) + "\n")
+        # AND THE SETTINGS THAT CAME WITH IT, so Run is the next action.
+        self.apply_settings_that_came_with(destination)
         return {"src": source}
 
     def _install_annotate_example_button(self, section) -> None:
@@ -3939,33 +3996,17 @@ class AppScreen(QWidget):
         from pathlib import Path
 
         destination = Path(destination)
-        name = ("classify_settings.csv" if self.app_key == "classify"
-                else "annotate_settings.csv")
-        path = destination / "settings" / name
-        if not path.is_file():
+        # Through the shared applier, so every module's example fills its own
+        # form the same way and there is one place that knows which file each
+        # module ships.
+        applied = self.apply_settings_that_came_with(destination)
+        if not applied:
             self._console.append_notice(
                 "[example] no settings file for {app} in the example data\n",
                 app=self.app_key)
-            return {}
-        try:
-            # THE SAME TWO CALLS "Import settings…" MAKES. A second reader
-            # would drift from it, and the whole value of shipping settings
-            # with the data is that they land exactly as a user's own file
-            # would.
-            loaded = self._load_settings_csv(str(path))
-            applied = self.apply_settings_dict(loaded)
-        except Exception as exc:                             # noqa: BLE001
-            LOG.debug("could not apply the example settings", exc_info=True)
-            self._console.append_notice(
-                "[example] the settings could not be applied: {detail}\n",
-                detail=exc)
-            return {}
-        self._console.append_notice(
-            "[example] {count} settings loaded from the example data\n",
-            count=applied)
         self._console.append_stdout(
             tr("Example data ready: {path}", path=str(destination)) + "\n")
-        return dict(loaded) or {"src": str(destination)}
+        return {"src": str(destination)}
 
     def example_images_destination(self):
         """The shared example plate folder. See `hf_download.example_plate_folder`."""
@@ -4051,6 +4092,10 @@ class AppScreen(QWidget):
                     path=str(settings),
                 ) + "\n"
             )
+        # NAMING THE FILE WAS NEVER ENOUGH. It said where compatible settings
+        # were and left the user to import them, which is the work the example
+        # exists to save -- so they are applied.
+        self.apply_settings_that_came_with(images)
         return {"src": str(images),
                 "settings": str(settings) if settings else ""}
 

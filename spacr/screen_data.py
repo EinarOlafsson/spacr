@@ -28,6 +28,7 @@ __all__ = [
     "ScreenAsset",
     "SCREEN_ASSETS",
     "assets_for",
+    "published_archives",
     "human_size",
     "total_size",
 ]
@@ -109,6 +110,36 @@ def assets_for(kind: Optional[str] = None,
     return [a for a in SCREEN_ASSETS
             if (kind is None or a.kind == kind)
             and (plate is None or a.plate == plate)]
+
+
+def published_archives(repo: str = SCREEN_REPO, *, timeout: float = 8.0):
+    """The archive names actually present in ``repo``, or ``None``.
+
+    ``None`` means "could not tell" -- offline, or the hub did not answer --
+    and is DELIBERATELY different from an empty set. A caller that treated a
+    failed lookup as "nothing is published" would grey out every row and leave
+    the user with a picker that offers nothing and explains nothing.
+
+    :param timeout: give up rather than hold a dialog open on a slow network.
+    """
+    try:
+        from huggingface_hub import HfApi
+
+        names = HfApi().list_repo_files(repo, repo_type="dataset",
+                                        timeout=timeout)
+    except TypeError:
+        # Older huggingface_hub has no timeout on this call.
+        try:
+            from huggingface_hub import HfApi
+
+            names = HfApi().list_repo_files(repo, repo_type="dataset")
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not list %s", repo, exc_info=True)
+            return None
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not list %s", repo, exc_info=True)
+        return None
+    return {name for name in names if name.endswith(".tar")}
 
 
 def total_size(assets) -> int:

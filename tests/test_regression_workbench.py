@@ -652,6 +652,7 @@ def test_diagnostic_suite_writes_what_its_inputs_allow(tmp_path):
         tmp_path, fractions=frame, block=block, p_values=p, adjusted=adjusted,
         formats=("png",))
     assert not [k for k in written if k.endswith("_error")]
+    assert "design_identifiability_png" in written
     assert "design_diagnostics_png" in written
     assert "inference_diagnostics_png" in written
     assert os.path.exists(written["diagnostic_summary"])

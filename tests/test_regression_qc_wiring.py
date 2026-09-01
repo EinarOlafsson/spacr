@@ -109,6 +109,7 @@ def test_an_ordinary_regression_run_writes_the_qc_panels_to_disk(tmp_path):
 
     # The combined page and the grep-able text report.
     assert "regression_qc_report.pdf" in written
+    assert "ols_assumption_diagnostics.pdf" in written
     assert "regression_qc_report.txt" in written
 
 

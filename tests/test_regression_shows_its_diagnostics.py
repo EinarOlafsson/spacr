@@ -93,6 +93,37 @@ def test_a_constant_row_sum_is_rank_deficient_however_many_wells():
     assert rd.design_report(normalised)["identifiable"] is False
 
 
+def test_block_dummies_are_aligned_and_included_in_the_reported_rank():
+    """Parameters, rank and condition must describe the same matrix."""
+    wells = [f"w{i}" for i in range(8)]
+    fractions = pd.DataFrame({
+        "g1": [0, 1, 0, 1, 0, 1, 0, 1],
+        "g2": [0, 0, 1, 1, 0, 0, 1, 1],
+    }, index=wells, dtype=float)
+    block = pd.Series(
+        {**{f"w{i}": "plate1" for i in range(4)},
+         **{f"w{i}": "plate2" for i in range(4, 8)}}
+    ).sample(frac=1.0, random_state=3)
+
+    report = rd.design_report(fractions, block=block)
+
+    assert report["block_terms"] == 1
+    assert report["parameters"] == 4  # intercept + plate + two guides
+    assert report["design_rank"] == 4
+    assert report["residual_degrees_of_freedom"] == 4
+    assert report["identifiable"] is True
+    assert np.isfinite(report["condition_number"])
+
+
+def test_an_indexed_block_cannot_silently_label_the_wrong_wells():
+    fractions = pd.DataFrame({"g1": [0.0, 1.0, 0.0]},
+                             index=["w1", "w2", "w3"])
+    wrong = pd.Series(["p1", "p1", "p2"],
+                      index=["w1", "w2", "some_other_well"])
+    with pytest.raises(ValueError, match="block labels are missing"):
+        rd.design_report(fractions, block=wrong)
+
+
 def test_the_design_report_needs_no_fit_at_all():
     """Which is why it is unconditional in ml.perform_regression.
 
@@ -161,6 +192,38 @@ def test_a_blank_results_folder_skips_regression_diagnostics():
     from spacr.ml import _write_regression_diagnostics
 
     assert _write_regression_diagnostics(None, pd.DataFrame(), {}, {}) == {}
+
+
+def test_long_regression_rows_are_pivoted_to_independent_wells(monkeypatch,
+                                                               tmp_path):
+    from spacr.ml import _write_regression_diagnostics
+
+    long = pd.DataFrame({
+        "prc": ["w2", "w1", "w1", "w3", "w2"],
+        "grna": ["g2", "g1", "g2", "g1", "g1"],
+        "fraction": [0.4, 0.7, 0.3, 1.0, 0.6],
+        "plateID": ["p2", "p1", "p1", "p2", "p2"],
+    })
+    captured = {}
+
+    def record(_destination, **kwargs):
+        captured.update(kwargs)
+        return {}
+
+    monkeypatch.setattr(rd, "write_diagnostic_suite", record)
+    _write_regression_diagnostics(
+        str(tmp_path), long, {},
+        {"regression_type": "ols", "guide_permutation_block": "plateID"},
+    )
+
+    wide = captured["fractions"]
+    assert list(wide.index) == ["w1", "w2", "w3"]
+    assert list(wide.columns) == ["g1", "g2"]
+    assert wide.loc["w1"].to_dict() == {"g1": 0.7, "g2": 0.3}
+    assert wide.loc["w2"].to_dict() == {"g1": 0.6, "g2": 0.4}
+    assert wide.loc["w3"].to_dict() == {"g1": 1.0, "g2": 0.0}
+    assert captured["block"].to_dict() == {
+        "w1": "p1", "w2": "p2", "w3": "p2"}
 
 
 def test_empty_fits_still_write_the_design_and_residual_reason(

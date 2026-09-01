@@ -695,10 +695,32 @@ def _in_data_coordinates(text, axes) -> Optional[Tuple[float, float]]:
 
     x, y = (float(value) for value in text.get_position())
     try:
-        if text.get_transform() is axes.transData:
+        transform = text.get_transform()
+        if transform is axes.transData:
             return x, y
     except Exception:                                          # noqa: BLE001
         return x, y
+    # USE THE ARTIST'S ACTUAL TRANSFORM when it has one.  This is required for
+    # ``Annotation(textcoords='offset points')``: its position is the offset
+    # (for example ``(-5, 8)``), while the transform also carries the data
+    # anchor.  Treating those two numbers as axes fractions silently puts the
+    # guide label off-canvas.  Matplotlib resolves an Annotation's offset
+    # transform on draw, so give an otherwise-undrawn figure that one chance.
+    try:
+        if (type(text).__name__ == "Annotation"
+                and type(transform).__name__ == "IdentityTransform"):
+            axes.figure.canvas.draw()
+            transform = text.get_transform()
+        display = transform.transform((x, y))
+        converted = axes.transData.inverted().transform(display)
+        if np.all(np.isfinite(converted)):
+            return float(converted[0]), float(converted[1])
+    except Exception:                                          # noqa: BLE001
+        pass
+
+    # Last-resort compatibility for the small adapters used by rectangle
+    # translation: ``_FractionPoint`` deliberately has no transform and its
+    # position is defined in axes fractions.
     (left, right), (bottom, top) = axes.get_xlim(), axes.get_ylim()
     if axes.get_xscale() == "log":
         left, right = math.log10(max(left, 1e-300)), math.log10(max(right, 1e-300))
@@ -1130,7 +1152,7 @@ def _translate_axes(plot, axes, look, report: SceneReport) -> None:
     from matplotlib.legend import Legend
     from matplotlib.lines import Line2D
     from matplotlib.patches import Rectangle
-    from matplotlib.text import Text
+    from matplotlib.text import Annotation, Text
 
     fill_between_collection = getattr(
         mpl_collections, "FillBetweenPolyCollection", None)
@@ -1149,8 +1171,16 @@ def _translate_axes(plot, axes, look, report: SceneReport) -> None:
         if isinstance(artist, Line2D):
             report.items += _add_line(plot, artist, axes, look)
         elif isinstance(artist, Text):
-            if getattr(artist, "arrow_patch", None) is not None:
-                report.notes.append("an annotation's arrow was not carried")
+            # Annotation positions can live in an OFFSET coordinate system:
+            # guide volcano labels use ``textcoords='offset points'``.  A
+            # plain TextItem has no anchor point plus offset transform, and
+            # treating (-5, 8) as axes fractions puts the label off-canvas
+            # while still claiming a complete translation.  Decline the
+            # scene so write_figure retains the exact matplotlib page.
+            if (isinstance(artist, Annotation)
+                    and getattr(artist, "arrow_patch", None) is not None):
+                report.missing.append("Annotation arrow")
+                continue
             report.items += _add_text(plot, artist, axes, look, report)
         elif isinstance(artist, Rectangle):
             rectangles.append(artist)

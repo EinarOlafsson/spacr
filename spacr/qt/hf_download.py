@@ -25,7 +25,9 @@ from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
 from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal, Slot
-from PySide6.QtWidgets import QLabel, QProgressDialog
+from PySide6.QtWidgets import (QDialog, QHBoxLayout, QLabel,
+                               QProgressBar, QProgressDialog,
+                               QPushButton, QVBoxLayout, QWidget)
 
 LOG = logging.getLogger("spacr.qt.hf_download")
 
@@ -325,6 +327,116 @@ def _download_one(repo_id: str, file_name: str, dest_dir: Path) -> Path:
 # GUI-thread receiver
 # ---------------------------------------------------------------------------
 
+class _DownloadDialog(QDialog):
+    """The download window: bar on top, status centred, Cancel beside it.
+
+    A QProgressDialog was used here and its layout is not arrangeable: it puts
+    the label ABOVE the bar and sizes the window from whatever caption it was
+    constructed with. That caption is "Preparing…" and the window then spends
+    the download showing "Downloading <filename> (3/6 files)" and a
+    percentage -- so the text was clipped at the window edge, twice reported
+    as "the % text is cut off". Widening it for the longest expected caption
+    helped and did not fix it, because the longest caption is a FILE NAME and
+    there is no longest file name.
+
+    So the text WRAPS and is centred in the window, with the bar above it and
+    Cancel to its right:
+
+        [============ blue bar ============]
+        [ spacer ][  centred status  ][Cancel]
+
+    The left spacer is the width of the button, which is what makes the label
+    centre on the WINDOW rather than on the space left over beside the button.
+
+    Presents the parts of QProgressDialog's API the download flow uses, so the
+    worker wiring did not have to change with it.
+    """
+
+    canceled = Signal()
+
+    def __init__(self, title: str, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle(title)
+        self.setModal(True)
+        self.setMinimumWidth(520)
+        outer = QVBoxLayout(self)
+
+        self._bar = QProgressBar(self)
+        self._bar.setRange(0, 1)
+        self._bar.setValue(0)
+        self._bar.setTextVisible(False)      # the caption below says it all
+        outer.addWidget(self._bar)
+
+        row = QHBoxLayout()
+        self._cancel = QPushButton("Cancel", self)
+        self._cancel.clicked.connect(self._on_cancel)
+
+        # The spacer matches the button, so the caption is centred on the
+        # window and not on the gap beside the button.
+        spacer = QWidget(self)
+        spacer.setFixedWidth(self._cancel.sizeHint().width())
+        row.addWidget(spacer)
+
+        self.spacr_caption = QLabel("Preparing…", self)
+        self.spacr_caption.setWordWrap(True)
+        self.spacr_caption.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        row.addWidget(self.spacr_caption, 1)
+
+        row.addWidget(self._cancel)
+        outer.addLayout(row)
+
+        self._auto_close = True
+        self._cancelled = False
+
+    # -- the QProgressDialog surface the download flow uses -----------------
+
+    def _on_cancel(self) -> None:
+        self._cancelled = True
+        self.canceled.emit()
+
+    def wasCanceled(self) -> bool:               # noqa: N802 (Qt naming)
+        return self._cancelled
+
+    def setLabelText(self, text: str) -> None:   # noqa: N802
+        self.spacr_caption.setText(str(text))
+
+    def setLabel(self, label) -> None:           # noqa: N802
+        """Accepted for compatibility; this dialog owns its own label.
+
+        Swapping the label out would drop the wrapping and the centring that
+        are the whole point of this class, so the text is taken and the
+        widget is not.
+        """
+        try:
+            self.spacr_caption.setText(label.text())
+        except Exception:                                    # noqa: BLE001
+            pass
+
+    def setMaximum(self, value: int) -> None:    # noqa: N802
+        self._bar.setMaximum(max(1, int(value)))
+
+    def setValue(self, value: int) -> None:      # noqa: N802
+        self._bar.setValue(int(value))
+        if self._auto_close and self._bar.maximum() and \
+                int(value) >= self._bar.maximum():
+            self.close()
+
+    def maximum(self) -> int:
+        return self._bar.maximum()
+
+    def setAutoClose(self, on: bool) -> None:    # noqa: N802
+        self._auto_close = bool(on)
+
+    def setAutoReset(self, on: bool) -> None:    # noqa: N802
+        """Accepted for compatibility. The bar is not reused after a run."""
+
+    def setMinimumDuration(self, ms: int) -> None:   # noqa: N802
+        """Accepted for compatibility. This dialog is shown when it is made."""
+
+    def reset(self) -> None:
+        self._bar.reset()
+
+
 class _HFDownloadUI(QObject):
     """Receives the worker's signals **on the GUI thread**.
 
@@ -356,9 +468,23 @@ class _HFDownloadUI(QObject):
 
     @Slot(str, int, int)
     def on_progress(self, name: str, done: int, total: int) -> None:
-        self._dlg.setMaximum(max(1, total))
+        """Say what is being fetched, how far along, and as what percentage.
+
+        The bar carries no text of its own -- this line is the only place a
+        percentage appears, which is why it has to be here rather than left to
+        `QProgressBar`'s own label. `name` is a file for the per-file workers
+        and an archive for the tar ones; `done`/`total` are files in the first
+        case and megabytes in the second, so the unit is not stated and the
+        percentage is what both have in common.
+        """
+        total = max(1, int(total))
+        done = max(0, min(int(done), total))
+        self._dlg.setMaximum(total)
         self._dlg.setValue(done)
-        self._dlg.setLabelText(f"Downloading {name}\n({done}/{total} files)")
+        percent = round(done * 100 / total)
+        # The name last: it is the part that can be long, so a window too
+        # narrow for all of it still shows the percentage.
+        self._dlg.setLabelText(f"{percent}%  ({done}/{total})  {name}")
 
     @Slot(str)
     def on_info(self, msg: str) -> None:
@@ -923,32 +1049,15 @@ def download_toxo_mito_demo(parent,
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)
 
-    dlg = QProgressDialog("Preparing…", "Cancel", 0, 1, parent)
-    dlg.setWindowTitle(title)
-    # SIZED FOR THE TEXT IT WILL SHOW, NOT THE TEXT IT STARTS WITH.
-    # A QProgressDialog takes its width from the label it is constructed
-    # with, and this one is constructed with "Preparing…" -- eleven
-    # characters -- then spends the whole download showing
-    # "Downloading <filename>\n(3/6 files)". Reported 2026-08-31: "the
-    # text number and % test is cut off".
-    #
-    # A plain QLabel does not wrap, so the filename was clipped at the
-    # dialog edge and the count line fell outside the dialog entirely.
-    # Both are fixed by the same two changes: a label that WRAPS, and a
-    # width chosen from the longest string this dialog actually shows
-    # rather than from its first one.
-    caption = QLabel("Preparing…", dlg)
-    caption.setWordWrap(True)
-    caption.setAlignment(Qt.AlignmentFlag.AlignLeft
-                         | Qt.AlignmentFlag.AlignVCenter)
-    dlg.setLabel(caption)
-    # KEPT ON THE DIALOG. PySide6's QProgressDialog exposes setLabel() but
-    # no label() getter, so the only way to reach this widget again -- to
-    # measure whether its text still fits -- is to hold on to it.
-    dlg.spacr_caption = caption
-    dlg.setMinimumWidth(
-        caption.fontMetrics().horizontalAdvance(_WIDEST_CAPTION)
-        + _CAPTION_MARGIN)
+    dlg = _DownloadDialog(title, parent)
+    # WIDE ENOUGH FOR WHAT IT WILL SAY, on top of the wrapping the dialog
+    # already does. Widening alone never fixed this -- the longest caption is
+    # a FILE NAME and there is no longest file name -- but a window sized from
+    # "Preparing…" starts absurdly narrow and jumps on the first update.
+    dlg.setMinimumWidth(max(
+        dlg.minimumWidth(),
+        dlg.spacr_caption.fontMetrics().horizontalAdvance(_WIDEST_CAPTION)
+        + _CAPTION_MARGIN))
     dlg.setMinimumDuration(0)
     dlg.setValue(0)
     # AutoClose True so hitting max value closes the dialog and returns
@@ -956,6 +1065,7 @@ def download_toxo_mito_demo(parent,
     # main thread and Qt shows the "Application not responding" prompt.
     dlg.setAutoClose(True)
     dlg.setAutoReset(True)
+    dlg.show()
 
     thread = QThread(parent)
     # WHICH worker, so a second dataset reuses this function's wiring rather
