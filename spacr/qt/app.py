@@ -1761,6 +1761,12 @@ class Sidebar(QWidget):
 
     from PySide6.QtCore import Signal
     nav_selected = Signal(str)
+    #: A folded module was chosen from an indented dock row. Separate from
+    #: `nav_selected` because a folded key does not name a screen: it has to
+    #: go through `open_module`, which resolves it to its host and switches
+    #: the fold on. Emitting it as ordinary navigation would build the orphan
+    #: page the fold exists to remove.
+    fold_child_selected = Signal(str)
 
     #: Width bounds in px at 100 % font scale. The column starts at
     #: ``WIDTH_MIN`` and widens — up to ``WIDTH_MAX`` — if the longest app
@@ -1819,6 +1825,16 @@ class Sidebar(QWidget):
         # open when their header is clicked.
         self._section_items: dict[str, list] = {}
         self._open_sections: set = {SECTION_CORE}
+        #: host key -> its indented child rows, and which hosts are expanded.
+        #: Separate from `_open_sections` because a child needs BOTH its
+        #: section open and its host expanded to be on screen.
+        self._fold_children: dict[str, list] = {}
+        self._open_hosts: set = set()
+
+        from .widgets.fold_strip import folded_modules
+
+        folded = folded_children()
+        catalogue = folded_modules()
 
         current_section = None
         for key, name, desc, section in APPS:
@@ -1842,7 +1858,33 @@ class Sidebar(QWidget):
                 btn.setIcon(icon)
                 btn.setIconSize(QSize(16, 16))
             btn.clicked.connect(lambda checked=False, k=key: self.nav_selected.emit(k))
+            btn.clicked.connect(lambda checked=False, k=key: self.expand_host(k))
             layout.addWidget(btn)
+
+            # THE SECOND LEVEL. Instruction 318 folded 33 modules onto 11
+            # mastheads and none of them appeared in the dock, so reaching
+            # Volcano Explorer meant knowing it lives on Regression. The rows
+            # are indented under their host and start COLLAPSED: 33 extra rows
+            # always on would make the dock taller than the screen, which is
+            # the same failure the sections were collapsed to fix.
+            kids = folded.get(key, ())
+            if kids:
+                btn.setProperty("hasFoldChildren", True)
+                for child in kids:
+                    entry = catalogue.get(child)
+                    child_name = entry[0] if entry else child
+                    child_desc = entry[1] if entry else ""
+                    sub = self._make_item(f"   {child_name}", str(child_desc), child)
+                    sub.setProperty("foldParent", key)
+                    sub.setProperty("isFoldChild", True)
+                    # `open_module` resolves a folded key to its host and turns
+                    # the fold on. Reused rather than reimplemented so the dock,
+                    # the menu and the fold strip cannot route differently.
+                    sub.clicked.connect(
+                        lambda checked=False, k=child: self.fold_child_selected.emit(k))
+                    self._section_items.setdefault(section, []).append(sub)
+                    self._fold_children.setdefault(key, []).append(sub)
+                    layout.addWidget(sub)
 
         layout.addStretch(1)
         self._apply_section_state()
@@ -1862,6 +1904,28 @@ class Sidebar(QWidget):
             watched.setProperty("hovered", kind == QEvent.Type.Enter)
             self._restyle(watched)
         return super().eventFilter(watched, event)
+
+    def expand_host(self, host_key: str) -> None:
+        """Reveal ``host_key``'s folded rows, and only that host's.
+
+        ONE HOST AT A TIME, which is what keeps the dock short: 33 children
+        always on screen would add a column taller than the display, the same
+        failure the collapsed sections were introduced to fix. Opening a host
+        is the act that reveals its children, so the disclosure needs no
+        control of its own -- the row you pressed is the row whose children
+        you wanted.
+
+        A key with no folded children collapses whatever was open, so
+        navigating to an ordinary module puts the dock back to one level.
+        """
+        key = str(host_key)
+        self._open_hosts = {key} if self._fold_children.get(key) else set()
+        self._apply_section_state()
+        self.refresh_visibility()
+
+    def host_is_expanded(self, host_key: str) -> bool:
+        """Whether ``host_key``'s folded rows are showing."""
+        return str(host_key) in self._open_hosts
 
     def section_is_open(self, section: str) -> bool:
         """Whether ``section``'s modules are showing."""
@@ -1883,7 +1947,11 @@ class Sidebar(QWidget):
         for section, buttons in self._section_items.items():
             wanted = self.section_is_open(section)
             for button in buttons:
-                button.setProperty("sectionClosed", not wanted)
+                closed = not wanted
+                if button.property("isFoldChild"):
+                    host = str(button.property("foldParent") or "")
+                    closed = closed or host not in self._open_hosts
+                button.setProperty("sectionClosed", closed)
         for section, header in self._section_headers.items():
             header.setProperty("open", self.section_is_open(section))
             self._restyle(header)
@@ -1912,6 +1980,11 @@ class Sidebar(QWidget):
             # A CLOSED SECTION HIDES ITS MODULES, and the maturity filter
             # still applies inside an open one -- the two are separate
             # reasons for a row not to be there.
+            if btn.property("isFoldChild"):
+                # A folded key has no APPS row, so `app_is_visible` cannot
+                # answer for it; its host's maturity already gated it.
+                btn.setVisible(not bool(btn.property("sectionClosed")))
+                continue
             visible = app_is_visible(key) and not bool(
                 btn.property("sectionClosed"))
             btn.setVisible(visible)
@@ -2134,6 +2207,10 @@ class MainWindow(QMainWindow):
         self._sidebar = Sidebar()
         self._sidebar.nav_selected.connect(self._on_nav_selected)
         self._sidebar.nav_selected.connect(self._on_drawer_navigated)
+        # A folded row goes through `open_module`, not `_on_nav_selected`:
+        # the key names a fold rather than a screen, and navigating to it
+        # directly would build an orphan page with no way back.
+        self._sidebar.fold_child_selected.connect(self.open_module)
 
         from .widgets.drawer import EdgeDrawer
         self._app_drawer = EdgeDrawer(self._stack, self._sidebar,
@@ -2777,6 +2854,12 @@ class MainWindow(QMainWindow):
         # dock already use, in the same order, so the three surfaces agree.
         self._app_actions: dict[str, QAction] = {}
         self._section_menus: dict[str, QMenu] = {}
+        # Read once for the whole bar rather than per section: both walk the
+        # host modules, and neither answer changes while the menu is built.
+        from .widgets.fold_strip import folded_modules
+
+        folded = folded_children()
+        catalogue = folded_modules()
         for section in SECTION_ORDER:
             members = [row for row in APPS if row[3] == section]
             if not members:
@@ -2795,7 +2878,41 @@ class MainWindow(QMainWindow):
                 act.setProperty("moduleSummarySource", desc)
                 act.triggered.connect(
                     lambda checked=False, k=key: self._on_nav_selected(k))
-                submenu.addAction(act)
+                kids = folded.get(key, ())
+                if not kids:
+                    submenu.addAction(act)
+                else:
+                    # THE SECOND LEVEL, asked for on 2026-09-01. Instruction
+                    # 318 folded 33 modules onto 11 mastheads and none of them
+                    # appeared here at all, so finding Volcano Explorer meant
+                    # knowing it lives on Regression. The host keeps its own
+                    # entry as the FIRST item rather than becoming a bare
+                    # container: opening the host is still what most of these
+                    # menu visits want.
+                    host_menu = QMenu(name, self)
+                    host_menu.setProperty("moduleAppKey", key)
+                    host_menu.setProperty("moduleNameSource", name)
+                    submenu.addMenu(host_menu)
+                    host_menu.addAction(act)
+                    host_menu.addSeparator()
+                    for child in kids:
+                        entry = catalogue.get(child)
+                        child_name = entry[0] if entry else child
+                        child_desc = entry[1] if entry else ""
+                        sub_act = QAction(str(child_name), self)
+                        if child_desc:
+                            sub_act.setStatusTip(str(child_desc))
+                        sub_act.setProperty("moduleAppKey", child)
+                        sub_act.setProperty("moduleNameSource", str(child_name))
+                        sub_act.setProperty("moduleSummarySource", str(child_desc))
+                        # `open_module` resolves the folded key to its host and
+                        # switches the fold on. Reused rather than
+                        # reimplemented: the routing rules live in one place
+                        # and the fold strip already presses this path.
+                        sub_act.triggered.connect(
+                            lambda checked=False, k=child: self.open_module(k))
+                        host_menu.addAction(sub_act)
+                        self._app_actions[child] = sub_act
                 self._app_actions[key] = act
         self._refresh_app_action_visibility()
 
