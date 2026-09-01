@@ -10,14 +10,11 @@ the invariant rather than waking a branch nobody has executed.
 
 What is pinned:
 
-* **sequencing** -- the three ``len(consensus_seq) >= expected_end`` tests
-  (both readers pad every window to exactly that length first); the three
-  ``if '<name>' in df2.columns`` tests in ``process_chunk`` (the frame is
-  built with those seven names four lines above); the ``elif mode ==
-  'single'`` in ``generate_barecode_mapping`` (the gate above it admits only
-  ``paired`` and ``single``); and ``if dst is not None`` in the threshold
-  sweep (its sole caller passes ``os.path.dirname(...)``, which is a string
-  even when it is empty).
+* **sequencing** -- the invariants that allowed nine redundant branches to
+  be deleted: readers pad every window to the requested length; the chunk
+  frame always contains all three name columns; the processing gate admits
+  only ``paired`` and ``single`` and single-read validation admits only R1
+  and R2; and the threshold sweep always receives a string destination.
 * **utils** -- the two ``DB_WRITE_ATTEMPTS`` retry loops (every path returns
   or raises, so neither loop ever runs off its end); ``if len(merged_df) >
   0`` (an empty morphology frame has already returned, and an outer merge
@@ -93,7 +90,7 @@ def _paired(tmp_path, payloads, fill_na=False):
 
 
 def test_every_window_is_padded_to_the_length_the_check_asks_for(tmp_path):
-    """Why ``len(consensus_seq) >= expected_end`` is never false.
+    """Why the removed ``len(consensus_seq)`` guards were redundant.
 
     Both readers cut a window of at most ``expected_end`` bases and then pad
     it with ``N`` (quality ``!``) up to exactly ``expected_end`` before the
@@ -120,10 +117,14 @@ def test_every_window_is_padded_to_the_length_the_check_asks_for(tmp_path):
     df, _counts, qc = _single(tmp_path, ["ACGT" * 4])
     assert df.empty and int(qc["total_reads"].iloc[0]) == 0
 
+    import inspect
+    source = inspect.getsource(SEQ.process_chunk)
+    assert "if len(consensus_seq) >= expected_end:" not in source
+
 
 def test_the_chunk_frame_always_carries_the_three_names_the_fill_reads(
         tmp_path):
-    """Why the three ``'<name>' in df2.columns`` tests cannot be false.
+    """Why the removed ``'<name>' in df2.columns`` guards were redundant.
 
     ``df2`` is a copy of the frame built four lines above out of a literal
     dict, so ``columnID``, ``rowID`` and ``grna_name`` are always there.
@@ -141,10 +142,16 @@ def test_the_chunk_frame_always_carries_the_three_names_the_fill_reads(
     assert any(name not in ("sg0",) for name in filled), (
         "the NaN names were not filled from the raw sequences")
 
+    import inspect
+    source = inspect.getsource(SEQ.process_chunk)
+    for column in ("columnID", "rowID", "grna_name"):
+        assert f"'{column}':" in source
+        assert f"if '{column}' in df2.columns:" not in source
+
 
 def test_only_a_paired_or_single_run_reaches_the_read_function(tmp_path,
                                                                monkeypatch):
-    """Why ``elif settings['mode'] == 'single'`` cannot be false.
+    """Why mode and single-direction dispatch can use final ``else`` arms.
 
     The sample is only processed at all when the gate above it holds, and
     that gate is ``mode == 'paired' and R1 and R2`` or ``mode == 'single'
@@ -171,10 +178,16 @@ def test_only_a_paired_or_single_run_reaches_the_read_function(tmp_path,
     # read function for, and they are different functions.
     assert SEQ.paired_read_chunked_processing is not SEQ.single_read_chunked_processing
 
+    import inspect
+    source = inspect.getsource(SEQ.generate_barecode_mapping)
+    assert "elif settings['mode'] == 'single':" not in source
+    assert "elif settings['single_direction'] == 'R2':" not in source
+    assert "settings[\"single_direction\"] not in {\"R1\", \"R2\"}" in source
+
 
 def test_the_threshold_sweep_always_has_a_folder_to_write_into(tmp_path,
                                                               monkeypatch):
-    """Why ``if dst is not None`` in the sweep cannot be false.
+    """Why the threshold sweep does not need a destination guard.
 
     ``graph_sequencing_stats`` -- the closure's only caller -- computes
     ``dst = os.path.dirname(settings['count_data'][0])``, and
@@ -203,6 +216,11 @@ def test_the_threshold_sweep_always_has_a_folder_to_write_into(tmp_path,
     assert 0.0 < float(threshold) <= 0.99
     assert (tmp_path / "results" / "fraction_threshold.pdf").is_file(), (
         "an empty dirname must still name a folder to write into")
+
+    import inspect
+    source = inspect.getsource(SEQ.graph_sequencing_stats)
+    assert "if dst is not None:" not in source
+    assert "dst = os.path.dirname(settings['count_data'][0])" in source
 
 
 # ---------------------------------------------------------------------------
