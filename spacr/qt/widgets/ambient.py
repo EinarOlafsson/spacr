@@ -181,6 +181,7 @@ from __future__ import annotations
 import logging
 import math
 import random
+import sys
 import threading
 import time
 from dataclasses import dataclass
@@ -5225,6 +5226,19 @@ def _the_heavy_import_lock_is_free() -> bool:
     still worth it because it keeps a retry timer from paying the
     bounded wait on every tick while a long import runs.
     """
+    # NOT IMPORTED MEANS NOT LOCKED, and asking is what used to cost.
+    #
+    # `from .fractal_travel import _heavy_import_lock` IMPORTS the module
+    # if nothing has yet, and that module pulls numba: measured at 0.44 s
+    # in a cold interpreter, spent on the GUI thread inside something
+    # documented as "the cheap half" of the pair.
+    #
+    # It is also unnecessary. The lock lives in that module, so nothing
+    # can be holding it while the module has never been imported -- the
+    # only code that takes it is code that had to import it first.
+    # Answering from sys.modules is exact here, not an approximation.
+    if "spacr.qt.widgets.fractal_travel" not in sys.modules:
+        return True
     try:
         from .fractal_travel import _heavy_import_lock
 
