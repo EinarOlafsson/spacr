@@ -3695,9 +3695,75 @@ class AppScreen(QWidget):
         layout.addStretch(1)
         button.clicked.connect(lambda: self.load_the_example_screen())
         self._example_data_button = button
+
+        # THE REAL SCREEN, in pieces. The counts and scores above are summary
+        # tables; the measurement and cell functions want a measurements.db,
+        # and those are 0.5 GB each with 8 GB of crops beside them. A picker
+        # rather than a button, so nothing is transferred that was not ticked.
+        measurements = QPushButton("Screen measurements…")
+        measurements.setToolTip(
+            "Choose which of the published screen's databases and crop "
+            "folders to download. Each is fetched on its own and unpacks into "
+            "the shared example plate folder; sizes are shown before you "
+            "commit to one.")
+        measurements.clicked.connect(lambda: self.load_the_screen_data())
+        self._screen_data_button = measurements
+        layout.addWidget(measurements)
         # The ROW goes in, not the button: the button is already inside it,
         # and adding both would put it in two layouts.
         section.add_prose(row, at_top=True)
+
+    def screen_data_destination(self):
+        """The shared example plate folder the screen pieces unpack into."""
+        from ..hf_download import example_plate_folder
+
+        return example_plate_folder()
+
+    def load_the_screen_data(self, *, ask=None, choose=None) -> dict:
+        """Ask which pieces of the screen to fetch, then fetch them.
+
+        :param choose: replaces the picker, for tests.
+        :param ask: replaces the downloader, for tests.
+        :returns: what was set on the panel, or an empty mapping.
+        """
+        from ...screen_data import SCREEN_REPO
+
+        destination = self.screen_data_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        picker = choose
+        if picker is None:
+            from ..widgets.screen_data_picker import choose_screen_data as picker
+        chosen = picker(self, destination) or []
+        if not chosen:
+            return {}
+
+        button = getattr(self, "_screen_data_button", None)
+        if button is not None:
+            button.setEnabled(False)
+            button.setText(tr("Fetching\u2026"))
+
+        placed: dict = {}
+
+        def _done(result, error):
+            if button is not None:
+                button.setEnabled(True)
+                button.setText(tr("Screen measurements\u2026"))
+            if result is None:
+                self._console.append_notice(
+                    "[screen] not downloaded: {detail}\n",
+                    detail=error or "cancelled")
+                return
+            self._console.append_stdout(
+                tr("Screen data ready: {path}", path=str(destination)) + "\n")
+            placed["src"] = str(destination)
+
+        download = ask
+        if download is None:
+            from ..hf_download import download_chosen_screen_data as download
+        download(self, destination, [a.archive for a in chosen],
+                 SCREEN_REPO, _done)
+        return placed
 
     def _install_example_images_button(self, section) -> None:
         """Add the example-image control that populates ``src``."""

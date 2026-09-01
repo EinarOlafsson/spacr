@@ -80,6 +80,7 @@ __all__ = [
     "residual_report",
     "collinear_guide_pairs",
     "variance_inflation_factors",
+    "plot_design_identifiability",
     "plot_design_diagnostics",
     "plot_residual_diagnostics",
     "plot_inference_diagnostics",
@@ -105,24 +106,51 @@ def design_report(fractions: pd.DataFrame, *, block: pd.Series | None = None,
     """
     matrix = np.asarray(fractions, dtype=float)
     n_wells, n_guides = matrix.shape
-    blocks = 0
+    block_matrix = np.empty((n_wells, 0), dtype=float)
+    block_levels = 0
     if block is not None:
-        blocks = max(int(pd.Series(block).nunique()) - 1, 0)
-    parameters = 1 + blocks + n_guides
+        labels = pd.Series(block).copy()
+        # A named Series normally arrives indexed by well.  Align it rather
+        # than trusting incidental row order; the fallback by position keeps
+        # the plain-array API working for callers without labels.
+        if isinstance(fractions, pd.DataFrame) and isinstance(block, pd.Series):
+            if labels.index.is_unique and fractions.index.isin(labels.index).all():
+                labels = labels.reindex(fractions.index)
+        if len(labels) != n_wells:
+            raise ValueError(
+                f"block has {len(labels)} rows for a {n_wells}-well design")
+        if labels.isna().any():
+            raise ValueError("block labels are missing for one or more wells")
+        block_levels = int(labels.nunique(dropna=False))
+        if block_levels > 1:
+            block_matrix = pd.get_dummies(
+                labels.astype(str), drop_first=True, dtype=float
+            ).to_numpy(dtype=float)
+    blocks = int(block_matrix.shape[1])
 
-    design = np.column_stack([np.ones((n_wells, 1)), matrix])
+    # Rank the matrix whose parameter count is reported.  Previously the
+    # report added block terms to ``parameters`` but omitted those columns
+    # from ``design``; every multi-plate run could therefore be declared
+    # non-identifiable even when the complete design was full rank.
+    design = np.column_stack([
+        np.ones((n_wells, 1)), block_matrix, matrix
+    ])
+    parameters = int(design.shape[1])
+
     rank = int(np.linalg.matrix_rank(design)) if n_wells and n_guides else 0
     residual_df = n_wells - rank
     with np.errstate(divide="ignore", invalid="ignore"):
         singular = np.linalg.svd(design, compute_uv=False) if design.size else np.array([0.0])
         positive = singular[singular > 0]
-        condition = float(positive[0] / positive[-1]) if positive.size else np.inf
+        condition = (float(positive[0] / positive[-1])
+                     if positive.size and rank == parameters else np.inf)
 
     support = (matrix > float(presence_threshold)).sum(axis=0)
     return {
         "wells": int(n_wells),
         "guides": int(n_guides),
         "block_terms": int(blocks),
+        "block_levels": int(block_levels),
         "parameters": int(parameters),
         "design_rank": rank,
         "residual_degrees_of_freedom": int(residual_df),

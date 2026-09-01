@@ -117,6 +117,7 @@ from .figures.style import (ROLES, TRANSPARENT, TYPE_SCALE, WEIGHTS, annotate,
                             theme_target)
 
 __all__ = [
+    "OLS_ASSUMPTION_PANELS",
     "PANEL_ORDER",
     "PanelUnavailable",
     "PanelVerdict",
@@ -770,7 +771,8 @@ def residual_normality(resid, *, min_n=NORMALITY_MIN_N):
     :param resid: residuals; non-finite entries are dropped first.
     :param min_n: fewest residuals the test will run on. Default
         :data:`NORMALITY_MIN_N`.
-    :returns: ``{'skew', 'excess_kurtosis', 'normality_p', 'test', 'n'}``.
+    :returns: ``{'skew', 'excess_kurtosis', 'normality_statistic',
+        'normality_p', 'test', 'n'}``.
         ``excess_kurtosis`` is Fisher's, so 0 is normal.
 
     ::
@@ -790,18 +792,22 @@ def residual_normality(resid, *, min_n=NORMALITY_MIN_N):
         # meaningless, and scipy returns them without complaint. Naming the
         # count is the only honest answer.
         return {"skew": float("nan"), "excess_kurtosis": float("nan"),
+                "normality_statistic": float("nan"),
                 "normality_p": float("nan"),
                 "test": f"only {n} finite residual(s); a shape needs at least 3",
                 "n": n}
     skew = float(sps.skew(values))
     kurt = float(sps.kurtosis(values))
     if n >= int(min_n):
-        _stat, pval = sps.normaltest(values)
+        statistic, pval = sps.normaltest(values)
         test = "D'Agostino K\u00b2"
     else:
+        statistic = float("nan")
         pval = float("nan")
         test = NORMALITY_TOO_FEW
-    return {"skew": skew, "excess_kurtosis": kurt, "normality_p": float(pval),
+    return {"skew": skew, "excess_kurtosis": kurt,
+            "normality_statistic": float(statistic),
+            "normality_p": float(pval),
             "test": test, "n": n}
 
 
@@ -1951,6 +1957,7 @@ def _panel_residual_distribution(ctx, ax):
         shape = residual_normality(resid)
         skew = shape["skew"]
         kurt = shape["excess_kurtosis"]
+        statistic = shape["normality_statistic"]
         pval = shape["normality_p"]
         test = shape["test"]
         ink = _house_axes(ax, "residual distribution", "residual", "density")
@@ -1959,11 +1966,14 @@ def _panel_residual_distribution(ctx, ax):
         # judge the number.
         annotate(ax, f"{_wells(resid.size)}\nskew = {skew:+.2f}\n"
                      f"excess kurtosis = {kurt:+.2f}\n"
-                     f"{test}: p = {pval:.3g}" if np.isfinite(pval) else
+                     f"{test} = {statistic:.3g}, p = {pval:.3g}"
+                     if np.isfinite(pval) else
                  f"{_wells(resid.size)}\nskew = {skew:+.2f}\n"
                  f"excess kurtosis = {kurt:+.2f}\n{test}",
                  x=0.98, ha="right", colour=ink)
-    return {"skew": skew, "excess_kurtosis": kurt, "normality_p": float(pval),
+    return {"skew": skew, "excess_kurtosis": kurt,
+            "normality_statistic": float(statistic),
+            "normality_p": float(pval),
             "normality_test": test,
             "n_bins": bins, "n_points": int(resid.size),
             "limitation": ctx.prediction_note}
@@ -2065,6 +2075,16 @@ def _panel_qq_residuals(ctx, ax):
     intercept = q1_s - slope * q1_t
     xs = np.array([quantiles[0], quantiles[-1]])
     corr = float(np.corrcoef(quantiles, sample)[0, 1])
+    # The numerical normality test belongs on the Q-Q panel as well as in the
+    # residual-distribution panel.  A Q-Q plot is otherwise an invitation to
+    # make an unrecorded visual judgement, and the manuscript diagnostic asks
+    # for the exact K-squared, skew and tail-weight values beside the points.
+    shape = residual_normality(ctx.resid)
+    skew = shape["skew"]
+    kurt = shape["excess_kurtosis"]
+    statistic = shape["normality_statistic"]
+    pval = shape["normality_p"]
+    test = shape["test"]
     with figure_style(_REPORT_TARGET):
         ax.scatter(quantiles, sample, s=16, color=ROLES["data"],
                    edgecolors="none")
@@ -2077,12 +2097,19 @@ def _panel_qq_residuals(ctx, ax):
         ink = _house_axes(ax, "normal q-q", "theoretical normal quantile",
                           "observed quantile")
         text_legend(ax, [("quartile reference", ROLES["reference"])])
+        normality = (f"{test} = {statistic:.3g}, p = {pval:.3g}"
+                     if np.isfinite(pval) else test)
         annotate(ax, f"{_wells(int(sample.size))}\n"
-                     f"line: slope {slope:.2f}, intercept {intercept:+.2f}\n"
+                     f"skew = {skew:+.2f}; excess kurtosis = {kurt:+.2f}\n"
+                     f"{normality}\n"
                      f"quantile correlation = {corr:.4f}",
                  x=0.98, y=0.02, ha="right", va="bottom", colour=ink)
     return {"slope": float(slope), "intercept": float(intercept),
-            "quantile_correlation": corr, "n_points": int(sample.size)}
+            "quantile_correlation": corr, "skew": skew,
+            "excess_kurtosis": kurt,
+            "normality_statistic": float(statistic),
+            "normality_p": float(pval), "normality_test": test,
+            "n_points": int(sample.size)}
 
 
 def _panel_observed_vs_predicted(ctx, ax):
@@ -3228,6 +3255,22 @@ _PANELS: Tuple[Tuple[str, str, str, Callable[[Any, Any], Dict[str, Any]]], ...] 
 #: Panel names in report order. Stable: these are file stems on disk.
 PANEL_ORDER: Tuple[str, ...] = tuple(name for name, _, _, _ in _PANELS)
 
+#: The publication-sized OLS diagnostic sheet.  These are the assumption,
+#: influence and screen-structure checks requested together most often; the
+#: full :data:`PANEL_ORDER` report is still written alongside it.  Keeping the
+#: selection here makes a manuscript panel a normal spaCR output rather than a
+#: one-off figure-building script.
+OLS_ASSUMPTION_PANELS: Tuple[str, ...] = (
+    "qq_residuals",
+    "residuals_vs_fitted",
+    "scale_location",
+    "cooks_distance",
+    "influence",
+    "plate_effects",
+    "row_effects",
+    "column_effects",
+)
+
 _PANEL_BY_NAME = {name: (title, group, fn) for name, title, group, fn in _PANELS}
 
 #: Report section headings, in order.
@@ -4209,6 +4252,7 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
             verdict=verdict))
 
     combined_path = None
+    assumptions_path = None
     if combined:
         combined_path, drew, why = _write_combined_page(
             ctx, results, out_dir, selected, fmt=fmt, renderer=renderer)
@@ -4216,9 +4260,26 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
         if renderer == "pyqtgraph" and drew != renderer and why:
             fell_back.append(("regression_qc_report", why))
 
+        # A compact, stable OLS-only sheet for a supplement.  The complete
+        # report above remains the audit trail; this second page contains just
+        # the eight assumption/influence/batch panels a reader needs together.
+        # It is emitted only when the caller requested the full set, so a
+        # deliberately narrow ``panels=[...]`` call still writes exactly what
+        # it asked for.
+        if (str(regression_type or "").strip().lower() == "ols"
+                and set(OLS_ASSUMPTION_PANELS).issubset(selected)):
+            assumptions_path, drew, why = _write_combined_page(
+                ctx, results, out_dir, OLS_ASSUMPTION_PANELS, fmt=fmt,
+                renderer=renderer, stem="ols_assumption_diagnostics",
+                title="OLS assumption, influence and batch diagnostics")
+            drawn_by[drew] = drawn_by.get(drew, 0) + 1
+            if renderer == "pyqtgraph" and drew != renderer and why:
+                fell_back.append(("ols_assumption_diagnostics", why))
+
     manifest = {
         "directory": out_dir,
         "combined": combined_path,
+        "assumptions": assumptions_path,
         "report": None,
         "panels": results,
         "written": [r.path for r in results if r.path],
@@ -4362,7 +4423,8 @@ def _write_qc_numbers(out_dir, manifest, results) -> Optional[str]:
 
 
 def _write_combined_page(ctx, results, out_dir, selected, fmt=None,
-                         renderer=None):
+                         renderer=None, *, stem="regression_qc_report",
+                         title=None):
     """Draw every panel again onto one page, skipped ones as grey tiles.
 
     Redrawing rather than re-parenting the individual axes is deliberate:
@@ -4400,14 +4462,14 @@ def _write_combined_page(ctx, results, out_dir, selected, fmt=None,
         axes[slot // n_cols][slot % n_cols].set_axis_off()
 
     drawn = sum(1 for r in results if r.status in ("written", "partial"))
+    heading = (title or "spaCR regression QC")
     fig.suptitle(
-        f"spaCR regression QC — {ctx.family}"
+        f"{heading} — {ctx.family}"
         + (f" / {ctx.link} link" if ctx.link else "")
         + f" — {ctx.n:,} wells, {ctx.p} predictors — "
           f"{drawn}/{len(results)} panels available",
         fontsize=13, y=0.995)
     fig.tight_layout(rect=(0, 0, 1, 0.985))
-    path = os.path.join(out_dir, "regression_qc_report" if not fmt
-                        else f"regression_qc_report.{fmt}")
+    path = os.path.join(out_dir, stem if not fmt else f"{stem}.{fmt}")
     return _save(fig, path, fmt=fmt, renderer=renderer,
-                 title="regression QC report")
+                 title=title or "regression QC report")
