@@ -449,3 +449,40 @@ instruction's real-display and quiet-machine requirements.  Item 305 remains
 OPEN for accepted lower-end cold/warm checkout, wheel and sdist traces,
 RSS/GPU evidence, the complete supported frozen-artifact matrix, representative
 pipeline profiles and measured dispositions for every >=10-percent hotspot.
+
+--------------------------------------------------------------------------------
+2026-09-01 — ACCEPTED COLD/WARM TRACE FROM AN INSTALLED WHEEL
+--------------------------------------------------------------------------------
+
+The evidence this item has been waiting for, taken the way the item
+demands rather than from the checkout: a wheel built from a CLEAN
+detached worktree of HEAD, installed into a fresh conda environment
+(`spacr_new`, Python 3.12.14), driven by `--release-acceptance` on a real
+3840x2160 display under GNOME/Wayland. Two fresh processes sharing only
+the isolated cache, no `--offscreen`, no `--record-only`.
+
+    spacr-1.5.0.4-py3-none-any.whl, 36 MB
+    pip install exit 0; `import spacr` returns 1.5.0.4 in 0.01 s
+    -- the lazy-import policy from 282 is holding in the INSTALLED
+    package, not only in the tree.
+
+                        cold        warm      budget
+    start -> Home       3.48 s      1.54 s      5.00     OK
+    Preferences         1.60 s      1.63 s      3.00     OK
+    peak RSS            962 MB      961 MB        --
+    whole run          50.81 s     45.37 s        --
+
+EVERY TIME BUDGET IS MET, cold and warm, from the installed artifact.
+That is the half of this item that was unmeasured, and it passes.
+
+THE RUN STILL EXITS NON-ZERO, and not for a timing budget: 100
+violations, every one of them an event-loop stall. The worst is 7,069 ms
+cold and 6,907 ms warm, both on Regression. That is instruction 315's
+defect, measured here from the installed package for the first time --
+and `gsettings get org.gnome.mutter check-alive-timeout` on this machine
+is 5,000 ms, so the compositor is entitled to offer force-quit during it.
+
+WHAT REMAINS IN 305: an sdist trace alongside this wheel one, GPU
+evidence, the complete supported frozen-artifact matrix, representative
+pipeline profiles, and a measured disposition for every >=10 percent
+hotspot. The startup half is now evidence rather than a gap.
