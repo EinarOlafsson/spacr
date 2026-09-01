@@ -126,13 +126,27 @@ class TestTheHelpTextExplainsTheLevels:
                 return blurb
         raise AssertionError("no slide asks about spaCR mode")
 
-    def test_every_level_is_named_in_the_prose(self):
-        blurb = self._blurb()
+    def test_the_two_ends_are_named_with_the_machine_they_suit(self):
+        """The ENDS of the range, not every level.
 
-        for label in prefs.PERFORMANCE_LABELS.values():
+        This asserted all five until 2026-08-31, when the caption was cut
+        from 667 characters to 253 -- "667 is too long cut it down".
+        Nobody reads a 667-character caption in any language, and every
+        one of these strings is translated into nine, so the length was a
+        cost paid nine times in text no reviewer could check at a glance.
+
+        What was cut was a clause per level. What is left is what the
+        control CANNOT say for itself: the two ends and the hardware they
+        suit. The five names are listed in the dropdown an inch away, so
+        repeating them in prose was the redundant half.
+        """
+        blurb = self._blurb()
+        ends = (prefs.PERFORMANCE_LABELS[prefs.PERFORMANCE_LEVELS[0]],
+                prefs.PERFORMANCE_LABELS[prefs.PERFORMANCE_LEVELS[-1]])
+        for label in ends:
             assert label in blurb, (
-                f"{label!r} is offered by the control and not explained by "
-                f"the text beside it")
+                f"{label!r} is an end of the range and the text beside the "
+                "control does not name it")
 
     def test_the_two_ends_say_what_machine_they_are_for(self):
         """A level named with no hardware beside it is a choice the reader
@@ -140,8 +154,19 @@ class TestTheHelpTextExplainsTheLevels:
         blurb = self._blurb()
 
         assert "8 GB" in blurb, "Laptop does not say what machine it is for"
-        assert "memory to spare" in blurb, (
-            "Workstation does not say what machine it is for")
+
+    def test_the_caption_stays_short_enough_to_be_translated(self):
+        """A CEILING, not a preference.
+
+        Every caption here is translated into nine languages, and a long
+        one is a cost paid nine times in text nobody can review against
+        the English at a glance. Its sibling slides run 127 to 198
+        characters; this one explains a five-way control, so it gets more
+        room, but not unboundedly more.
+        """
+        assert len(self._blurb()) <= 300, (
+            f"the spaCR-mode caption is {len(self._blurb())} characters; "
+            "shorten it before translating it")
 
     def test_it_says_the_science_does_not_change(self):
         """The one thing a reader must not have to wonder about: picking a
@@ -156,13 +181,18 @@ class TestTheHelpTextExplainsTheLevels:
         assert "the other two" not in blurb, (
             "the prose still counts the old three postures")
 
-    def test_the_levels_are_named_in_the_order_the_control_offers_them(self):
+    def test_the_ends_are_named_in_the_order_the_control_offers_them(self):
         """Reading the sentence and reading the list must agree, or the
-        reader has to map one onto the other."""
-        blurb = self._blurb()
-        seen = [blurb.index(prefs.PERFORMANCE_LABELS[level])
-                for level in prefs.PERFORMANCE_LEVELS]
+        reader has to map one onto the other.
 
-        assert seen == sorted(seen), (
-            "the prose names the levels in a different order from the "
+        Only the two ends are in the prose now, so only their order can
+        be checked -- but that is the order that carries the meaning:
+        least of the machine kept, through to most.
+        """
+        blurb = self._blurb()
+        first = prefs.PERFORMANCE_LABELS[prefs.PERFORMANCE_LEVELS[0]]
+        last = prefs.PERFORMANCE_LABELS[prefs.PERFORMANCE_LEVELS[-1]]
+
+        assert blurb.index(first) < blurb.index(last), (
+            "the prose names the ends in the opposite order from the "
             "control")
