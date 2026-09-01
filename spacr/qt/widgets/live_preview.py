@@ -175,6 +175,64 @@ RANDOM_OUTLINE_SEEDS: Dict[str, int] = {
 # ``(key_suffix, label, kind, spin_args)`` where the real setting key is
 # ``f"{compartment}_{key_suffix}"`` and kind is one of int/float/bool/method.
 # spin_args = (min, max, default) for int/float; ignored otherwise.
+#: The organelle's own segmentation settings, grouped the way the pipeline
+#: dispatches them.
+#:
+#: WHY THIS TABLE EXISTS. Every other compartment is segmented by Cellpose and
+#: needs the ten generic filters in :data:`COMPARTMENT_FIELDS`. An organelle is
+#: not: `spacr.object._segment_single_image` dispatches on
+#: ``organelle_morphology`` first and ``organelle_method`` second, and each
+#: morphology reads a different set of about half a dozen knobs. Fifty-odd
+#: settings existed for that and NONE of them were reachable from the live
+#: preview, which is what "there is no way to live preview the organelle
+#: settings except for the cellpose model" meant.
+#:
+#: Keyed by morphology, so only the knobs that morphology actually reads are
+#: shown. ``None`` holds the four that always apply. The groups mirror
+#: `spacr.object._extract_classical_settings` -- if they drift, the panel
+#: offers a setting the segmentation never reads.
+ORGANELLE_METHOD_FIELDS: Dict[Optional[str], tuple] = {
+    None: (
+        ("morphology", "Morphology", "morphology", None),
+        ("method", "Method", "method_choice", None),
+        ("min_size", "Min size (px²)", "int", (0, 100_000_000, 0)),
+        ("max_size", "Max size (px²)", "int", (0, 100_000_000, 0)),
+    ),
+    "spots": (
+        ("tophat_radius", "Top-hat radius", "int", (0, 1_000, 0)),
+        ("watershed_spots", "Watershed spots", "bool", None),
+        ("log_min_sigma", "LoG min sigma", "int", (0, 1_000, 1)),
+        ("log_max_sigma", "LoG max sigma", "int", (0, 1_000, 5)),
+        ("log_num_sigma", "LoG sigma steps", "int", (1, 100, 5)),
+        ("log_threshold", "LoG threshold", "float", (0.0, 1_000.0, 0.1)),
+        ("dog_sigma_low", "DoG sigma low", "float", (0.0, 1_000.0, 1.0)),
+        ("dog_sigma_high", "DoG sigma high", "float", (0.0, 1_000.0, 5.0)),
+    ),
+    "network": (
+        ("ridge_filter", "Ridge filter", "ridge", None),
+        ("network_threshold", "Network threshold", "network", None),
+        ("skeletonize", "Skeletonize", "bool", None),
+        ("hysteresis_low", "Hysteresis low", "float", (0.0, 1.0, 0.1)),
+        ("hysteresis_high", "Hysteresis high", "float", (0.0, 1.0, 0.3)),
+    ),
+    "irregular": (
+        ("adaptive_block_size", "Adaptive block size", "int", (1, 9_999, 51)),
+        ("adaptive_offset", "Adaptive offset", "int", (-1_000, 1_000, 0)),
+        ("morph_radius", "Morph radius", "int", (0, 1_000, 1)),
+        ("fill_holes", "Fill holes", "int", (0, 100_000_000, 0)),
+    ),
+    "ring": (
+        ("ring_sigma_inner", "Ring sigma inner", "float", (0.0, 1_000.0, 1.0)),
+        ("ring_sigma_outer", "Ring sigma outer", "float", (0.0, 1_000.0, 3.0)),
+        ("ring_min_prominence", "Ring min prominence",
+         "float", (0.0, 1_000.0, 0.0)),
+        ("ring_fill_method", "Ring fill", "ring_fill", None),
+    ),
+}
+
+#: The morphologies, in the order the settings panel offers them.
+ORGANELLE_MORPHOLOGIES = ("spots", "network", "irregular", "ring")
+
 COMPARTMENT_FIELDS = (
     ("min_area",                   "Min area (px²)",        "int",   (0, 100_000_000, 0)),
     ("max_area",                   "Max area (px²)",        "int",   (0, 100_000_000, 0)),
@@ -2595,6 +2653,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                    if comp == "organelle" else f"{comp}_channel")
             _seed(getattr(self, f"_{comp}_channel"), (key,), int)
 
+        # The organelle column, from the SELECTED slot's keys with the plain
+        # `organelle_` spelling as the fallback -- a settings file written
+        # before slots existed carries only the latter.
+        self._seed_organelle_column(settings)
+
         _seed(self._lo_pct, ("lower_percentile",), float)
         if settings.get("normalize") is not None:
             try:
@@ -2804,6 +2867,47 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "(int) Pixels below this intensity are set to 0 in the chosen "
             "object's channel when 'Remove background' is on. Everything "
             "above it is left where it is.")
+        # -- the organelle's own segmentation controls -------------------
+        #
+        # Built here with everything else, hidden, so their values survive an
+        # open/close of the dialog the same way the compartment widgets do.
+        def _organelle_widget(kind, spin_args):
+            if kind == "morphology":
+                widget = QComboBox(self)
+                set_translatable_items(widget, list(ORGANELLE_MORPHOLOGIES))
+            elif kind == "method_choice":
+                # Filled from LEGAL_METHODS whenever the morphology changes:
+                # a method the morphology cannot use is not a choice, and
+                # offering it produces a preview that raises.
+                widget = QComboBox(self)
+            elif kind == "ridge":
+                widget = QComboBox(self)
+                set_translatable_items(widget,
+                                       ["frangi", "sato", "meijering"])
+            elif kind == "network":
+                widget = QComboBox(self)
+                set_translatable_items(widget, ["otsu", "adaptive"])
+            elif kind == "ring_fill":
+                widget = QComboBox(self)
+                set_translatable_items(widget, ["flood", "convex"])
+            else:
+                return _spin(kind, spin_args)
+            widget.hide()
+            return widget
+
+        self._organelle_widgets: Dict[str, QWidget] = {}
+        for group in ORGANELLE_METHOD_FIELDS.values():
+            for suffix, _label, kind, spin_args in group:
+                self._organelle_widgets[suffix] = _organelle_widget(
+                    kind, spin_args)
+                key = f"organelle_{suffix}"
+                if key in _spacr_desc:
+                    self._organelle_widgets[suffix].setToolTip(
+                        str(_spacr_desc[key]))
+        self._organelle_widgets["morphology"].currentTextChanged.connect(
+            self._on_organelle_morphology_changed)
+        self._refresh_organelle_methods()
+
         # Cell-only extra.
         self._adjust_cells = _spin("bool", None)
         self._adjust_cells.setToolTip(
@@ -2878,6 +2982,131 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             out[f"{obj}_background"] = self._widget_value(
                 self._common_widgets["background"])
         out["adjust_cells"] = self._widget_value(self._adjust_cells)
+        # The organelle column, under the selected slot's prefix. Only when an
+        # organelle is what is being segmented -- otherwise a cell run would
+        # propagate a morphology and a method nothing in it reads.
+        if self._primary_object().startswith("organelle"):
+            out.update(self._organelle_settings())
+        return out
+
+    def _seed_organelle_column(self, settings: dict) -> None:
+        """Fill the organelle column from a module's settings.
+
+        Each widget independently: one unusable value must not cost the rest
+        of the column, which is the failure `apply_settings` was rewritten for
+        in the first place.
+        """
+        widgets = getattr(self, "_organelle_widgets", None)
+        if not widgets:
+            return
+        role = self._active_organelle_role
+        # The morphology first, because it decides which methods are legal --
+        # seeding the method against the previous morphology's list would
+        # drop it.
+        ordered = ["morphology"] + [k for k in widgets if k != "morphology"]
+        for suffix in ordered:
+            widget = widgets.get(suffix)
+            if widget is None:
+                continue
+            value = None
+            for key in (f"{role}_{suffix}", f"organelle_{suffix}"):
+                if settings.get(key) is not None:
+                    value = settings[key]
+                    break
+            if value is None:
+                continue
+            try:
+                if isinstance(widget, QComboBox):
+                    index = -1
+                    for position in range(widget.count()):
+                        written = (widget.itemData(position)
+                                   or widget.itemText(position))
+                        if str(written) == str(value):
+                            index = position
+                            break
+                    if index >= 0:
+                        widget.setCurrentIndex(index)
+                elif isinstance(widget, Toggle):
+                    widget.setChecked(bool(value))
+                else:
+                    widget.setValue(type(widget.value())(value))
+            except Exception:                                # noqa: BLE001
+                LOG.debug("apply_settings: %r is not usable for %s_%s",
+                          value, role, suffix, exc_info=True)
+            if suffix == "morphology":
+                self._refresh_organelle_methods()
+
+    def _organelle_morphology(self) -> str:
+        """The morphology selected in the organelle column."""
+        widget = getattr(self, "_organelle_widgets", {}).get("morphology")
+        value = _combo_value(widget) if widget is not None else ""
+        return value if value in ORGANELLE_MORPHOLOGIES else "spots"
+
+    def _refresh_organelle_methods(self) -> None:
+        """Offer only the methods this morphology can actually run.
+
+        `spacr.organelle_types.LEGAL_METHODS` is the pipeline's own table, and
+        `_segment_single_image` raises for a pairing outside it -- so a method
+        the morphology cannot use is not a choice, it is a preview that fails.
+        The current selection is kept when it survives the change.
+        """
+        from ...organelle_types import LEGAL_METHODS
+
+        widget = getattr(self, "_organelle_widgets", {}).get("method")
+        if widget is None:
+            return
+        legal = list(LEGAL_METHODS.get(self._organelle_morphology(), ()))
+        if not legal:
+            return
+        wanted = _combo_value(widget)
+        blocked = widget.blockSignals(True)
+        try:
+            set_translatable_items(
+                widget, legal,
+                language=getattr(self, "_i18n_language", None))
+            index = -1
+            for position in range(widget.count()):
+                written = (widget.itemData(position)
+                           or widget.itemText(position))
+                if written == wanted:
+                    index = position
+                    break
+            widget.setCurrentIndex(index if index >= 0 else 0)
+        finally:
+            widget.blockSignals(blocked)
+
+    def _on_organelle_morphology_changed(self, *_args) -> None:
+        """Re-offer the methods, and re-gate which knobs are shown."""
+        self._refresh_organelle_methods()
+        dialog = getattr(self, "_live_settings_dialog", None)
+        if dialog is not None:
+            try:
+                dialog.refresh_visibility()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not re-gate the organelle column",
+                          exc_info=True)
+
+    def _organelle_settings(self) -> dict:
+        """The organelle column's values, under the SELECTED slot's prefix.
+
+        Only the knobs the current morphology reads are written. Writing all
+        of them would put a ring's settings into a spots run -- harmless to
+        the segmentation, which ignores them, but they are then propagated
+        into the main panel and saved, where they read as deliberate.
+        """
+        widgets = getattr(self, "_organelle_widgets", None)
+        if not widgets:
+            return {}
+        role = self._active_organelle_role
+        groups = [ORGANELLE_METHOD_FIELDS[None],
+                  ORGANELLE_METHOD_FIELDS.get(
+                      self._organelle_morphology(), ())]
+        out: dict = {}
+        for group in groups:
+            for suffix, _label, _kind, _args in group:
+                widget = widgets.get(suffix)
+                if widget is not None:
+                    out[f"{role}_{suffix}"] = self._widget_value(widget)
         return out
 
     def _cycle_stops(self) -> List[Tuple[str, ...]]:
@@ -3587,6 +3816,9 @@ class LiveSettingsDialog(QDialog):
     def __init__(self, panel: "LivePreviewPanel"):
         super().__init__(panel)
         self._panel = panel
+        # So a morphology change can re-gate the rows: the widgets live on the
+        # panel, and it is this dialog that knows which rows they sit on.
+        panel._live_settings_dialog = self
         self.setWindowTitle(tr("Live settings"))
         outer = QVBoxLayout(self)
 
@@ -3654,6 +3886,24 @@ class LiveSettingsDialog(QDialog):
                 cform.addRow("Adjust cells", panel._adjust_cells)
             self._compartment_groupboxes[comp] = box
             panels_row.addWidget(box)
+
+        # THE ORGANELLE'S OWN COLUMN, one section wider than the rest.
+        #
+        # Every other compartment is a Cellpose object and the generic filters
+        # are all it has. An organelle is dispatched by morphology and method
+        # into a different routine with its own half-dozen knobs, and none of
+        # those were reachable here -- so the only organelle setting that
+        # could be previewed was the Cellpose model.
+        self._organelle_group = QGroupBox("Organelle segmentation")
+        organelle_form = QFormLayout(self._organelle_group)
+        self._organelle_rows: Dict[str, tuple] = {}
+        for morphology, group in ORGANELLE_METHOD_FIELDS.items():
+            for suffix, label, _kind, _args in group:
+                widget = panel._organelle_widgets[suffix]
+                widget.show()
+                organelle_form.addRow(label, widget)
+                self._organelle_rows[suffix] = (morphology, widget)
+        panels_row.addWidget(self._organelle_group)
 
         # Wrap the (wide) panel row in a horizontal scroll area so it fits on
         # screen no matter how many compartments are shown.
@@ -3819,6 +4069,22 @@ class LiveSettingsDialog(QDialog):
                 box.setTitle(f"{comp.capitalize()} (primary object)")
             elif is_secondary:
                 box.setTitle("Nucleus (secondary object)")
+
+        # -- the organelle column: only for an organelle, and within it only
+        #    the knobs the chosen morphology actually reads. Showing all
+        #    twenty-one at once is a wall nobody can tune. --
+        organelle_primary = primary.startswith("organelle")
+        self._organelle_group.setVisible(organelle_primary)
+        if organelle_primary:
+            self._organelle_group.setTitle(
+                f"{primary.capitalize()} segmentation")
+            morphology = p._organelle_morphology()
+            form = self._organelle_group.layout()
+            for suffix, (owner, widget) in self._organelle_rows.items():
+                wanted = owner is None or owner == morphology
+                position = form.getWidgetPosition(widget)[0]
+                if position >= 0:
+                    form.setRowVisible(position, wanted)
 
         # -- Normalisation is always available (independent of the Pre step
         #    and of the model, incl. cpsam). The percentile bounds only apply

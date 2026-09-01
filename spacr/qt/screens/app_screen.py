@@ -1010,6 +1010,10 @@ class _RowsBuiltWhenTheyAreAskedFor(list):
 EXAMPLE_DATA_SECTIONS = {
     "regression": "Input Tables",
     "mask": "Input & Metadata",
+    # Measure's example data is the MASK OUTPUT, not raw acquisition: the
+    # merged arrays with their label masks, so Measure can be run end to end
+    # without segmenting anything first.
+    "measure": "Input & Experiment",
 }
 
 
@@ -2633,6 +2637,8 @@ class AppScreen(QWidget):
         if depth == 0 and title == EXAMPLE_DATA_SECTIONS.get(self.app_key):
             if self.app_key == "regression":
                 self._install_example_data_button(section)
+            elif self.app_key == "measure":
+                self._install_measure_example_button(section)
             else:
                 self._install_example_images_button(section)
         # DEEPEST FIRST. Recorded after the children so the list a consumer
@@ -3668,6 +3674,87 @@ class AppScreen(QWidget):
         button.clicked.connect(lambda: self.load_the_example_images())
         self._example_images_button = button
         section.add_prose(button, at_top=True)
+
+    def _install_measure_example_button(self, section) -> None:
+        """Add the example-data control that populates Measure's ``src``."""
+        from PySide6.QtWidgets import QPushButton
+
+        button = QPushButton(tr("Load the example measure data\u2026"))
+        button.setToolTip(tr(
+            "Download about 370 MB of example data for Measure: sixteen "
+            "fields across four wells, already segmented, so Measure can be "
+            "run without generating masks first. Cached afterwards, so "
+            "pressing it again is instant."))
+        button.clicked.connect(lambda: self.load_the_measure_example())
+        self._measure_example_button = button
+        section.add_prose(button, at_top=True)
+
+    def measure_example_destination(self):
+        """Cache directory for Measure's downloaded example data."""
+        from pathlib import Path
+
+        return Path.home() / ".cache" / "spacr" / "example_measure"
+
+    def load_the_measure_example(self, *, ask=None) -> dict:
+        """Download Measure's example plate and point ``src`` at it.
+
+        :param ask: optional download function used in place of
+            :func:`spacr.qt.hf_download.download_measure_example`.
+        :returns: a mapping with the source directory, or empty when the
+            download failed or was cancelled.
+        """
+        destination = self.measure_example_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        # An arrived dataset is reused rather than re-fetched: 370 MB is a
+        # long wait for files already on disk. `merged` holding at least one
+        # array is the test, not the folder existing -- a cancelled download
+        # leaves the folder behind.
+        merged = destination / "merged"
+        if merged.is_dir() and any(merged.glob("*.npy")):
+            return self._put_the_measure_example_in_place(destination)
+
+        button = getattr(self, "_measure_example_button", None)
+        if button is not None:
+            button.setEnabled(False)
+            button.setText(tr("Fetching the example data\u2026"))
+
+        placed: dict = {}
+
+        def _done(result, error):
+            if button is not None:
+                button.setEnabled(True)
+                button.setText(tr("Load the example measure data\u2026"))
+            if result is None:
+                self._console.append_notice(
+                    "[example] the measure example data was not "
+                    "downloaded: {detail}\n", detail=error or "cancelled")
+                return
+            placed.update(self._put_the_measure_example_in_place(destination))
+
+        download = ask
+        if download is None:
+            from ..hf_download import download_measure_example as download
+        download(self, destination, _done)
+        return placed
+
+    def _put_the_measure_example_in_place(self, destination) -> dict:
+        """Point ``src`` at the downloaded example and say so."""
+        from pathlib import Path
+
+        source = str(Path(destination))
+        # Through the WIDGET, the same way the mask example does it: the
+        # settings model has no setter, and writing a value the widget does
+        # not show would leave the panel disagreeing with the run.
+        model = getattr(self, "_settings_model", None)
+        control = (model._widgets.get("src")
+                   if model is not None and hasattr(model, "_widgets")
+                   else None)
+        if control is not None and hasattr(control, "setText"):
+            control.setText(source)
+        self._console.append_stdout(
+            tr("Source directory (src): {path}", path=source) + "\n")
+        return {"src": source}
 
     def example_images_destination(self):
         """Return the cache directory used for downloaded example images."""
