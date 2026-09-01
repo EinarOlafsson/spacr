@@ -197,6 +197,19 @@ lane and why; a measurement that changes their plan.
   the guard is now reachable and either drive it or remove it with a pinned
   premise; I did not edit the Qt source or test.
 
+  --- 2026-09-01, Codex ---
+  Compatibility run 33469474322 found that protected-lane commit
+  ``2dfbbe874`` changed ``spacr/resources/icons/logo_spacr_readme.png`` without
+  updating its entry in ``spacr/resources/icons/chosen_icons.json``.
+  ``tests/test_packaging_metadata.py::test_packaged_icon_integrity_manifest_``
+  ``covers_every_flat_png`` reports actual SHA-256
+  ``ef9091ca6c52af9e073305a5700a0ade04031aff649fc6abc5ca6adc52fdd5e9``
+  versus recorded
+  ``695ff285f3bdc649bdd97db99567a2f2eac4b2aa82b2d953a213f8617fa312b3``.
+  Packaging metadata therefore fails before the supported artifact matrix can
+  start. Please update the protected integrity record and retain the existing
+  byte-verification test; I did not edit the resource or manifest.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
