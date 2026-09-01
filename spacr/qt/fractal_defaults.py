@@ -15,19 +15,26 @@ from typing import Final
 #: it without importing the widget, and therefore without numba.
 #: What spaceout draws unless the user says otherwise.
 #:
-#: Mandelbrot is the default only where a GPU can draw it. It is the one
-#: pattern with no CPU renderer, so `pattern_for_this_machine`
-#: falls back to the orbit fold, which has one and is the cheapest of the
-#: three that do.
-DEFAULT_PATTERN: str = "mandelbrot"
+#: THE ORBIT FOLD, asked for on 2026-09-01. It was the Mandelbrot, which
+#: is the one pattern with no CPU renderer -- so on every machine without
+#: a usable GPU the default was a pattern that could not be drawn, and
+#: `pattern_for_this_machine` quietly substituted this one anyway. Naming
+#: it here makes the default the same everywhere instead of depending on
+#: what the machine turned out to have.
+DEFAULT_PATTERN: str = "orbit"
 
 #: What to draw when the Mandelbrot cannot be.
 FALLBACK_PATTERN: str = "orbit"
 
 DEFAULT_BACKEND: Final[str] = "auto"
+#: Samples per pixel per side. Two, asked for on 2026-09-01.
+DEFAULT_SUPERSAMPLING: Final[int] = 2
 DEFAULT_QUALITY: Final[str] = "auto"
-DEFAULT_SCALE: Final[float] = 1.0
-DEFAULT_SPEED: Final[float] = 4.0
+#: Render scale, asked for on 2026-09-01. Half resolution: the backdrop is
+#: behind the interface and a full-resolution one buys sharpness nobody
+#: reads at the cost of frames everybody feels.
+DEFAULT_SCALE: Final[float] = 0.5
+DEFAULT_SPEED: Final[float] = 1.0
 DEFAULT_DREAM: Final[float] = 1.5
 DEFAULT_VARIABLE_SPEED: Final[bool] = False
 #: The pointer pulls the pattern toward it; a click shoves it away.
