@@ -160,7 +160,8 @@ def preprocess_generate_masks(settings):
         return run_preflight(settings, 'mask')
 
     #from .timelapse import _summarise_object_relationships
-    from .object import generate_organelle_masks_sam, generate_cellpose_masks_sam
+    from .object import (_eval_diameter, generate_organelle_masks_sam,
+                         generate_cellpose_masks_sam)
     from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa, convert_separate_files_to_yokogawa
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, reset_cellpose_model_reports
@@ -231,7 +232,11 @@ def preprocess_generate_masks(settings):
                 channel_names=channel_names,
                 model_name=settings.get('cell_model_name', 'cpsam'),
                 channels_for_cellpose=tuple(cellpose_channels),
-                diameter=settings.get('cell_diameter'),
+                # COERCED, like every other numeric on this call. A
+                # diameter typed into the GUI or read from a CSV is a
+                # string, and Cellpose compares it with `> 0`.
+                diameter=_eval_diameter(
+                    settings.get('cell_diameter'), 'cell'),
                 batch_fields=int(settings.get('batch_fields', 8)),
                 metadata_type=settings.get('metadata_type', 'auto'),
                 custom_regex=settings.get('custom_regex'),

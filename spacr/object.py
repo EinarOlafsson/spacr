@@ -35,6 +35,41 @@ from skimage.restoration import rolling_ball
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
 
+def _eval_diameter(raw, object_type=""):
+    """The diameter to hand Cellpose's ``eval``, or ``None`` for native scale.
+
+    Cellpose tests ``diameter > 0``, so a value that reaches it as a STRING
+    raises ``TypeError: '>' not supported between instances of 'str' and
+    'int'`` -- and it raises inside the segmentation call, after the run has
+    already spent minutes loading and normalising plates. Every route into
+    this setting that is not a Python literal produces a string: a number
+    typed into the GUI, and any settings CSV.
+
+    ``None`` is PRESERVED rather than replaced with a default. A blank
+    diameter means "let CPSAM work at native scale"; substituting the
+    magnification-derived default from `_get_object_settings` would rescale
+    every image by 30/diameter -- a different segmentation, silently, for
+    every run that left the field empty. That is why this coerces the user's
+    own value instead of reading `object_settings['diameter']`, which always
+    holds that default.
+
+    An unparseable value is reported and treated as blank, which is what
+    `_get_object_settings` has always done for this field.
+    """
+    if raw is None:
+        return None
+    if isinstance(raw, str):
+        raw = raw.strip()
+        if not raw:
+            return None
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        print(f"{object_type}_diameter must be a number, got {raw!r}; "
+              f"segmenting at native scale instead")
+        return None
+
+
 def _remove_objects_smaller_than(binary, min_size):
     """Remove components with area strictly below ``min_size``.
 
@@ -888,7 +923,9 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                     # <obj>_diameter (and anything spacr.diameter proposes) never
                     # reached Cellpose. The setting defaults to None, so None here
                     # still means "let CPSAM work at native scale".
-                    diameter=settings.get(f'{object_type}_diameter'),
+                    diameter=_eval_diameter(
+                        settings.get(f'{object_type}_diameter'),
+                        object_type),
                     flow_threshold=flow_threshold,
                     cellprob_threshold=cellprob_threshold,
                     resample=object_settings['resample']
@@ -906,7 +943,9 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                     channel_axis=-1,
                     min_size=object_settings['min_size'],
                     progress=True,
-                    diameter=settings.get(f'{object_type}_diameter'),
+                    diameter=_eval_diameter(
+                        settings.get(f'{object_type}_diameter'),
+                        object_type),
                     flow_threshold=flow_threshold,
                     cellprob_threshold=cellprob_threshold,
                     resample=object_settings['resample'],
