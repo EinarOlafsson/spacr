@@ -238,6 +238,20 @@ def test_a_batch_with_nothing_segmented_never_loads_the_native_tracker(
     assert len(drawn) == 1, "the empty batch is still drawn when asked"
 
 
+def test_an_empty_batch_skips_drawing_when_not_requested(
+        tmp_path, fake_btrack, drawn):
+    src = tmp_path / "stack"
+    masks = np.zeros((3, 16, 16), dtype=np.uint16)
+
+    out = _run(src, masks)
+
+    assert fake_btrack["trackers"] == []
+    assert np.asarray(out).shape == masks.shape
+    assert not np.asarray(out).any()
+    assert drawn == []
+    assert _tracks_csv(tmp_path).is_file()
+
+
 # ---------------------------------------------------------------------------
 # The tracked path
 # ---------------------------------------------------------------------------

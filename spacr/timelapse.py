@@ -90,7 +90,7 @@ def _npz_to_movie(arrays, filenames, save_path, fps=10):
         if frame.ndim == 2 or (frame.ndim == 3 and frame.shape[2] in [1, 2]):
             if frame.ndim == 2 or frame.shape[2] == 1:
                 frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
-            elif frame.shape[2] == 2:
+            else:
                 # Create an RGB image with the first channel as red, second as green, blue set to zero
                 rgb_frame = np.zeros((height, width, 3), dtype=np.uint8)
                 rgb_frame[..., 0] = frame[..., 0]  # Red channel
@@ -391,8 +391,9 @@ def link_by_iou(mask_prev, mask_next, iou_threshold=0.1):
             m2 = bool_next[L2]
             inter = np.logical_and(m1, m2).sum()
             union = np.logical_or(m1, m2).sum()
-            if union > 0:
-                cost[i, j] = 1 - inter/union
+            # Both labels came from np.unique on their masks, so each owns at
+            # least one pixel and their union cannot be empty.
+            cost[i, j] = 1 - inter/union
     # Solve assignment
     row_ind, col_ind = linear_sum_assignment(cost)
     matches = []
@@ -2973,14 +2974,13 @@ def _make_intensity_motility_panel(
                 _plot_pca_qc(ax_pca, pca_data)
 
             elif qc_strategy == "xgboost" and has_xgb:
-                if axis_idx < len(axes):
-                    ax_prob = axes[axis_idx]
-                    axis_idx += 1
-                    _plot_xgb_prob_qc(ax_prob, df_well)
-                if axis_idx < len(axes):
-                    ax_xgb = axes[axis_idx]
-                    axis_idx += 1
-                    _plot_xgb_importance_qc(ax_xgb, xgb_data)
+                # qc_axes_count reserves exactly these two slots.
+                ax_prob = axes[axis_idx]
+                axis_idx += 1
+                _plot_xgb_prob_qc(ax_prob, df_well)
+                ax_xgb = axes[axis_idx]
+                axis_idx += 1
+                _plot_xgb_importance_qc(ax_xgb, xgb_data)
 
         # Plate/well tag for title & filename
         meta_tag = f"{plate_id}_{well_id}"
@@ -4111,9 +4111,6 @@ def _smooth_tracks_and_features(df, max_displacement=50.0, zscore_thresh=3.0):
 
             # interpolate centroid + scalar features at glitch frames
             for i_local in glitch_frames:
-                if i_local <= 0 or i_local >= n - 1:
-                    continue
-
                 n_glitches_fixed += 1
 
                 y_new = 0.5 * (y[i_local - 1] + y[i_local + 1])
@@ -4123,8 +4120,6 @@ def _smooth_tracks_and_features(df, max_displacement=50.0, zscore_thresh=3.0):
 
                 for col in cell_feature_cols:
                     s = g[col].to_numpy(dtype=float)
-                    if len(s) < 3:
-                        continue
                     s_new = 0.5 * (s[i_local - 1] + s[i_local + 1])
                     updates.setdefault(col, {})[idx[i_local]] = s_new
 
@@ -4280,8 +4275,8 @@ def _debug_plot_merged_planes(src, sample_filename, n_channels, nucleus_chan, pa
 
     # Build RGB merge of intensity channels (up to 3)
     merged_rgb = np.zeros((H, W, 3), dtype=float)
-    if n_channels >= 1:
-        merged_rgb[..., 0] = norm_intensity[0]  # red
+    # The empty-channel case returned above before norm_intensity[0] was read.
+    merged_rgb[..., 0] = norm_intensity[0]  # red
     if n_channels >= 2:
         merged_rgb[..., 1] = norm_intensity[1]  # green
     if n_channels >= 3:
@@ -4564,9 +4559,6 @@ def _infection_qc_pca_clustering(
     # Helper: UMAP with hyperparameter search
     # ------------------------------------------------------------------
     def _search_umap(X_scaled, y_orig, gt_uninf, gt_inf, settings_local):
-        if umap is None:
-            raise RuntimeError("umap-learn is not installed.")
-
         random_state = int(settings_local.get("infection_pca_random_state", 0))
         do_search = bool(settings_local.get("infection_pca_umap_search", True))
 
@@ -4637,9 +4629,6 @@ def _infection_qc_pca_clustering(
     # Helper: t-SNE with hyperparameter search
     # ------------------------------------------------------------------
     def _search_tsne(X_scaled, y_orig, gt_uninf, gt_inf, settings_local):
-        if TSNE is None:
-            raise RuntimeError("sklearn.manifold.TSNE is not available.")
-
         random_state = int(settings_local.get("infection_pca_random_state", 0))
         do_search = bool(settings_local.get("infection_pca_tsne_search", True))
         n_samples = X_scaled.shape[0]
@@ -5505,16 +5494,15 @@ def _apply_infection_intensity_qc(
     all_df_qc = pd.concat(parts, axis=0, ignore_index=True)
 
     # Use QC payloads (histogram/PCA/XGB) from the first processed group
-    if first_payload_settings is not None:
-        settings["infection_hist_data"] = first_payload_settings.get("infection_hist_data")
-        settings["infection_pca_data"] = first_payload_settings.get("infection_pca_data")
-        settings["infection_xgb_importance"] = first_payload_settings.get("infection_xgb_importance")
-        settings["infection_intensity_qc_panel_type"] = first_payload_settings.get(
-            "infection_intensity_qc_panel_type"
-        )
-        settings["infection_intensity_qc_panel_path"] = first_payload_settings.get(
-            "infection_intensity_qc_panel_path"
-        )
+    settings["infection_hist_data"] = first_payload_settings.get("infection_hist_data")
+    settings["infection_pca_data"] = first_payload_settings.get("infection_pca_data")
+    settings["infection_xgb_importance"] = first_payload_settings.get("infection_xgb_importance")
+    settings["infection_intensity_qc_panel_type"] = first_payload_settings.get(
+        "infection_intensity_qc_panel_type"
+    )
+    settings["infection_intensity_qc_panel_path"] = first_payload_settings.get(
+        "infection_intensity_qc_panel_path"
+    )
 
     if any_adjusted and "adjusted_infected" in all_df_qc.columns:
         if all_df_qc["adjusted_infected"].isna().any():
@@ -5647,58 +5635,58 @@ def _compute_velocities_and_well_summary(
     track_df["velocity_unit"] = vel_unit
 
     # Straightness-based artifact detection / filtering
-    if "straightness" in track_df.columns:
-        straightness_threshold = float(
-            settings.get("straightness_threshold", 0.95)
+    # Every track record above writes straightness before this frame is built.
+    straightness_threshold = float(
+        settings.get("straightness_threshold", 0.95)
+    )
+    straightness_filter = bool(settings.get("straightness_filter", False))
+    n_tracks_before = track_df.shape[0]
+    n_high = int((track_df["straightness"] >= straightness_threshold).sum())
+    print(
+        "[summarise_tracks_from_merged] Straightness metric: "
+        f"{n_high} of {n_tracks_before} tracks have straightness "
+        f">= {straightness_threshold:.2f} "
+        "(net displacement / path length)."
+    )
+
+    if straightness_filter and n_high > 0:
+        drop_mask = track_df["straightness"] >= straightness_threshold
+        dropped = track_df.loc[
+            drop_mask, ["plateID", "wellID", "fieldID", "cellID"]
+        ].copy()
+        drop_keys = set(
+            zip(
+                dropped["plateID"],
+                dropped["wellID"],
+                dropped["fieldID"],
+                dropped["cellID"],
+            )
         )
-        straightness_filter = bool(settings.get("straightness_filter", False))
-        n_tracks_before = track_df.shape[0]
-        n_high = int((track_df["straightness"] >= straightness_threshold).sum())
+
+        track_df = track_df.loc[~drop_mask].reset_index(drop=True)
         print(
-            "[summarise_tracks_from_merged] Straightness metric: "
-            f"{n_high} of {n_tracks_before} tracks have straightness "
-            f">= {straightness_threshold:.2f} "
-            "(net displacement / path length)."
+            "[summarise_tracks_from_merged] Straightness filter "
+            f"removed {n_high} overly straight tracks "
+            f"(threshold={straightness_threshold:.2f})."
         )
 
-        if straightness_filter and n_high > 0:
-            drop_mask = track_df["straightness"] >= straightness_threshold
-            dropped = track_df.loc[
-                drop_mask, ["plateID", "wellID", "fieldID", "cellID"]
-            ].copy()
-            drop_keys = set(
-                zip(
-                    dropped["plateID"],
-                    dropped["wellID"],
-                    dropped["fieldID"],
-                    dropped["cellID"],
+        # Filter per_well_tracks accordingly
+        for well_key, track_list in list(per_well_tracks.items()):
+            filtered_list = [
+                tr
+                for tr in track_list
+                if (
+                    tr["plateID"],
+                    tr["wellID"],
+                    tr["fieldID"],
+                    tr["cellID"],
                 )
-            )
-
-            track_df = track_df.loc[~drop_mask].reset_index(drop=True)
-            print(
-                "[summarise_tracks_from_merged] Straightness filter "
-                f"removed {n_high} overly straight tracks "
-                f"(threshold={straightness_threshold:.2f})."
-            )
-
-            # Filter per_well_tracks accordingly
-            for well_key, track_list in list(per_well_tracks.items()):
-                filtered_list = [
-                    tr
-                    for tr in track_list
-                    if (
-                        tr["plateID"],
-                        tr["wellID"],
-                        tr["fieldID"],
-                        tr["cellID"],
-                    )
-                    not in drop_keys
-                ]
-                if filtered_list:
-                    per_well_tracks[well_key] = filtered_list
-                else:
-                    del per_well_tracks[well_key]
+                not in drop_keys
+            ]
+            if filtered_list:
+                per_well_tracks[well_key] = filtered_list
+            else:
+                del per_well_tracks[well_key]
 
     if track_df.empty:
         print(
@@ -5739,8 +5727,8 @@ def _compute_velocities_and_well_summary(
             )
         )
 
-    if well_records:
-        well_summary_df = pd.DataFrame(well_records)
+    # A non-empty track_df groups into at least one well record.
+    well_summary_df = pd.DataFrame(well_records)
 
     print(
         "[summarise_tracks_from_merged] Computed per-track velocities "
@@ -7702,78 +7690,79 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     # ------------------------------------------------------------------
     try:
         # --- histogram payload ---
-        if intensity_col in cell_level.columns:
-            intens = cell_level[intensity_col].to_numpy(dtype=float)
-            labels_adj = cell_level["adjusted_infected"].astype(bool).to_numpy()
-            mask_fin = np.isfinite(intens)
-            intens = intens[mask_fin]
-            labels_adj = labels_adj[mask_fin]
-            vals_inf = intens[labels_adj]
-            vals_uninf = intens[~labels_adj]
-            if intens.size >= 10:
-                n_bins = int(settings.get("infection_intensity_n_bins", 64))
-                n_bins = max(10, min(n_bins, 256))
-                _, bin_edges = np.histogram(intens, bins=n_bins)
-                # Use midpoint between training thresholds as a visual threshold
-                thr_val = float(0.5 * (low_thr_uninf + high_thr_inf))
-                hist_payload = {
-                    "intensities_inf": vals_inf,
-                    "intensities_uninf": vals_uninf,
-                    "bin_edges": bin_edges,
-                    "thr_val": thr_val,
-                    "pathogen_chan": pathogen_chan,
-                    "log_transform": False,
-                    "intensity_col": intensity_col,
-                    "tracked_object": tracked_object,
-                }
-                settings["infection_hist_data"] = hist_payload
+        # intensity_col was selected from cell_level.columns above.
+        intens = cell_level[intensity_col].to_numpy(dtype=float)
+        labels_adj = cell_level["adjusted_infected"].astype(bool).to_numpy()
+        mask_fin = np.isfinite(intens)
+        intens = intens[mask_fin]
+        labels_adj = labels_adj[mask_fin]
+        vals_inf = intens[labels_adj]
+        vals_uninf = intens[~labels_adj]
+        if intens.size >= 10:
+            n_bins = int(settings.get("infection_intensity_n_bins", 64))
+            n_bins = max(10, min(n_bins, 256))
+            _, bin_edges = np.histogram(intens, bins=n_bins)
+            # Use midpoint between training thresholds as a visual threshold
+            thr_val = float(0.5 * (low_thr_uninf + high_thr_inf))
+            hist_payload = {
+                "intensities_inf": vals_inf,
+                "intensities_uninf": vals_uninf,
+                "bin_edges": bin_edges,
+                "thr_val": thr_val,
+                "pathogen_chan": pathogen_chan,
+                "log_transform": False,
+                "intensity_col": intensity_col,
+                "tracked_object": tracked_object,
+            }
+            settings["infection_hist_data"] = hist_payload
 
         # --- PCA payload ---
         from sklearn.decomposition import PCA
         from sklearn.preprocessing import StandardScaler
 
-        if used_feature_cols:
-            # The imputation below is display-only.  Own the matrix because
-            # pandas 3 can return a read-only view for homogeneous columns.
-            X_panel = cell_level[used_feature_cols].to_numpy(
-                dtype=float, copy=True
-            )
-            for j in range(X_panel.shape[1]):
-                col = X_panel[:, j]
-                m = np.isfinite(col)
-                if not m.any():
-                    X_panel[:, j] = 0.0
-                else:
-                    med = np.nanmedian(col[m])
-                    col[~m] = med
-                    X_panel[:, j] = col
+        # feature_cols is non-empty before training, and the correlation
+        # filter always retains its first entry.
+        # The imputation below is display-only.  Own the matrix because
+        # pandas 3 can return a read-only view for homogeneous columns.
+        X_panel = cell_level[used_feature_cols].to_numpy(
+            dtype=float, copy=True
+        )
+        for j in range(X_panel.shape[1]):
+            col = X_panel[:, j]
+            m = np.isfinite(col)
+            if not m.any():
+                X_panel[:, j] = 0.0
+            else:
+                med = np.nanmedian(col[m])
+                col[~m] = med
+                X_panel[:, j] = col
 
-            scaler = StandardScaler()
-            X_scaled_panel = scaler.fit_transform(X_panel)
-            # XGBoost can legitimately train on one surviving feature.  PCA
-            # cannot request two components from that matrix, but the panel
-            # contract is always a pair of plotting coordinates.  Fit the one
-            # available component and pad only the display coordinate with a
-            # zero axis; the fitted classifier and its feature set are
-            # unchanged.
-            panel_components = min(2, X_scaled_panel.shape[1])
-            pca = PCA(
-                n_components=panel_components,
-                random_state=int(settings.get("infection_pca_random_state", 0)),
+        scaler = StandardScaler()
+        X_scaled_panel = scaler.fit_transform(X_panel)
+        # XGBoost can legitimately train on one surviving feature.  PCA
+        # cannot request two components from that matrix, but the panel
+        # contract is always a pair of plotting coordinates.  Fit the one
+        # available component and pad only the display coordinate with a
+        # zero axis; the fitted classifier and its feature set are
+        # unchanged.
+        panel_components = min(2, X_scaled_panel.shape[1])
+        pca = PCA(
+            n_components=panel_components,
+            random_state=int(settings.get("infection_pca_random_state", 0)),
+        )
+        coords = pca.fit_transform(X_scaled_panel)
+        if panel_components == 1:
+            coords = np.column_stack(
+                [coords[:, 0], np.zeros(coords.shape[0], dtype=float)]
             )
-            coords = pca.fit_transform(X_scaled_panel)
-            if panel_components == 1:
-                coords = np.column_stack(
-                    [coords[:, 0], np.zeros(coords.shape[0], dtype=float)]
-                )
-            labels_adj_panel = cell_level["adjusted_infected"].astype(bool).to_numpy()
-            pca_payload = {
-                "coords": coords,
-                "labels": labels_adj_panel,
-                "method_label": "PCA",
-                "tracked_object": tracked_object,
-            }
-            settings["infection_pca_data"] = pca_payload
+        labels_adj_panel = cell_level["adjusted_infected"].astype(bool).to_numpy()
+        pca_payload = {
+            "coords": coords,
+            "labels": labels_adj_panel,
+            "method_label": "PCA",
+            "tracked_object": tracked_object,
+        }
+        settings["infection_pca_data"] = pca_payload
     except Exception as e:
         print(f"[_infection_qc_xgboost] Could not compute histogram/PCA payloads: {e}")
 

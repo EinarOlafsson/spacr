@@ -121,7 +121,7 @@ class TestTheTwoGuardsThatCannotFire:
         assert "for i_local in range(1, n - 1):" in source, (
             "the detection loop's bounds changed; the interior guard below "
             "it may now be reachable and wants a test of its own")
-        assert "if i_local <= 0 or i_local >= n - 1:" in source
+        assert "if i_local <= 0 or i_local >= n - 1:" not in source
 
         # and the bound holds for every n the detector can run on
         for n in range(3, 12):
@@ -140,7 +140,7 @@ class TestTheTwoGuardsThatCannotFire:
         assert "if n >= 3:" in source, (
             "the glitch block is no longer guarded by n >= 3; the len(s) "
             "check inside it may now be reachable")
-        assert "if len(s) < 3:" in source
+        assert "if len(s) < 3:" not in source
 
     def test_a_three_frame_track_still_carries_three_feature_values(self):
         """The shortest track the repair can run on, driven end to end."""
