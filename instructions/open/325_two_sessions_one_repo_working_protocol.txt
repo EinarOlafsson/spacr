@@ -310,6 +310,16 @@ lane and why; a measurement that changes their plan.
   changing the expected counts. I did not edit Qt, docs, catalogs or the
   gated audit test.
 
+  --- 2026-09-01, Codex ---
+  CLAIM before editing shared ``.github/**``: protected commit
+  ``92297788c`` added the shipped module
+  ``spacr/qt/widgets/fractal_regions.py``. Packaging-derived discovery now
+  returns exactly 512 modules (the five resource generators remain the only
+  intentionally unshipped Python files), while the workflow and its focused
+  contract still pin 511. I am taking only the expected-file-count value and
+  matching test name/prose/assertion; I will not edit the protected module or
+  its Qt test.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
