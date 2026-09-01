@@ -466,3 +466,16 @@ widgets are made." There is no such mechanism on that path:
 and `_build_screen` then runs to completion without yielding. Anyone
 reading that comment while chasing this would rule out the build for a
 reason that is not true.
+  THE INSTRUMENTATION ITSELF. The production timing probe installs event
+  filters on the root and every control, so the tool measuring the stall
+  was a candidate for causing it. Re-run with SPACR_TIMING=1 -- the flag
+  that actually turns it on, not SPACR_BENCHMARK_JSON, which only names
+  an output file -- regression still opens in 0.78 s. No observer effect.
+
+THE ONE DIFFERENCE LEFT is the launch path itself. Every harness above
+builds a MainWindow directly; the benchmark runs `spacr.qt.run(
+["--no-setup"])`, which additionally does logging setup, the thread
+guard, laptop mode, plugin discovery and the screensaver install. One of
+those, or their interaction with a real button press, is where the 5.8 s
+lives. That is where the next attempt should start, and it should start
+by bisecting `run()` rather than by re-testing anything above.
