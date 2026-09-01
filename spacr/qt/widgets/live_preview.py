@@ -768,6 +768,48 @@ class _PreviewWorker(QThread):
             self.finished_masks.emit(None, str(e), self.token)
 
 
+def _classical_organelle_mask(image_2d: np.ndarray, role: str,
+                              settings: Dict[str, Any]) -> np.ndarray:
+    """Segment one organelle plane the way the RUN would.
+
+    ``organelle_method`` has eight values and only one of them is ``cellpose``.
+    The preview ran Cellpose unconditionally, so seven of the eight could not
+    be previewed at all -- which is most of the fifty-odd organelle settings
+    having no effect on anything the user could see. Reported as "there is no
+    way to live preview the organelle settings except for the cellpose model".
+
+    THE PIPELINE'S OWN FUNCTION IS CALLED, not a reimplementation of it.
+    `spacr.object._segment_single_image` is what a run dispatches each 2-D
+    image to, so a preview that disagrees with the run is a bug in one place
+    rather than a difference between two.
+
+    :param role: the organelle slot, e.g. ``organelleb``. Its keys are
+        remapped onto the plain ``organelle_`` prefix the pipeline function
+        reads, so slot 2 previews with slot 2's settings.
+    """
+    from ...object import _extract_classical_settings, _segment_single_image
+    from ...settings import _set_organelle_defaults
+
+    # Slot 2's keys are `organelleb_*`; the segmentation function reads
+    # `organelle_*`. Remapped rather than passed through, so every slot
+    # previews with its own values instead of slot 1's.
+    remapped = dict(settings)
+    if role != "organelle":
+        for key, value in settings.items():
+            if key.startswith(role + "_"):
+                remapped["organelle_" + key[len(role) + 1:]] = value
+    # Defaults for anything the panel was never given -- the classical
+    # routines index their settings directly, so a missing key is a KeyError
+    # in a worker thread rather than a preview that says what is wrong.
+    try:
+        _set_organelle_defaults(remapped)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not fill organelle defaults", exc_info=True)
+    classical = _extract_classical_settings(remapped)
+    mask = _segment_single_image(image_2d, classical)
+    return np.asarray(mask).astype(np.int32)
+
+
 def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     """Run one Cellpose pass per requested object type.
 
@@ -816,6 +858,18 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             # this one, and for the raw pane the panel shows beside the mask.
             image_2d = image_2d.copy()
             image_2d[image_2d < bg] = 0
+
+        # NOT EVERY OBJECT IS A CELLPOSE OBJECT. An organelle whose method
+        # is anything but 'cellpose' is segmented by the classical routines
+        # the run itself uses; only 'cellpose' reaches the model below.
+        method = str(req.preprocess_settings.get(
+            f"{obj}_method",
+            req.preprocess_settings.get("organelle_method", "cellpose"))
+            or "cellpose").strip().lower()
+        if obj.startswith("organelle") and method != "cellpose":
+            out[obj] = _classical_organelle_mask(
+                image_2d, obj, req.preprocess_settings)
+            continue
 
         result = model.eval(
             image_2d,
@@ -1540,7 +1594,31 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._set_table.verticalHeader().sectionClicked.connect(
             self._on_set_header_clicked)
 
+        # CYCLING THE VIEW BETWEEN THE OBJECTS BEING SEGMENTED. With
+        # "cell + nucleus" chosen the panel runs Cellpose on two channels, and
+        # the source view could only ever show one of them -- so half of what
+        # was being tuned was never on screen.
+        self._cycle_prev_btn = FlatButton("◀", self)
+        self._cycle_prev_btn.setToolTip(
+            "Show the previous object's channel. Cycles cell, nucleus, both.")
+        self._cycle_prev_btn.clicked.connect(lambda: self._cycle_view(-1))
+        self._cycle_next_btn = FlatButton("▶", self)
+        self._cycle_next_btn.setToolTip(
+            "Show the next object's channel. Cycles cell, nucleus, both.")
+        self._cycle_next_btn.clicked.connect(lambda: self._cycle_view(1))
+        self._cycle_label = QLabel("", self)
+        self._cycle_label.setProperty("i18nSkipText", True)
+        self._cycle_label.setToolTip(
+            "Which of the segmented objects the source view is showing.")
+        #: Roles composited into one view. Empty means the ordinary
+        #: single-channel view driven by the channel dropdown.
+        self._composite_roles: Tuple[str, ...] = ()
+        self._cycle_index = 0
+
         pick_row.addWidget(self._path_label, 1)
+        pick_row.addWidget(self._cycle_prev_btn)
+        pick_row.addWidget(self._cycle_label)
+        pick_row.addWidget(self._cycle_next_btn)
         # MIP sits with the set controls it applies to.
         pick_row.addWidget(self._mip_toggle)
         pick_row.addWidget(self._max_images_box)
@@ -2333,11 +2411,22 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     def _display_image(self) -> Optional[np.ndarray]:
         """The loaded image reduced to the selected display channel."""
+        composite = self._composite_view()
+        if composite is not None:
+            return self._apply_display_background(composite)
         return self._apply_display_background(
             channel_view(self._image, self.display_channel()))
 
     def _on_display_channel_changed(self, *_args) -> None:
-        """Re-render both canvases for the newly selected channel."""
+        """Re-render both canvases for the newly selected channel.
+
+        Choosing a channel by hand ends a composite view: the dropdown names
+        ONE plane, and leaving the composite up would show something the
+        control does not describe.
+        """
+        if self._composite_roles:
+            self._composite_roles = ()
+            self._refresh_cycle_controls()
         self._refresh_canvases()
 
     def set_propagate_callback(self, cb) -> None:
@@ -2695,6 +2784,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         # already stated in its spinner, so the view can simply follow it.
         self._object_box.currentIndexChanged.connect(
             self._on_primary_object_changed)
+        self._refresh_cycle_controls()
         for _channel_spinner in (self._cell_channel, self._nucleus_channel,
                                  self._pathogen_channel,
                                  self._organelle_channel):
@@ -2789,6 +2879,104 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 self._common_widgets["background"])
         out["adjust_cells"] = self._widget_value(self._adjust_cells)
         return out
+
+    def _cycle_stops(self) -> List[Tuple[str, ...]]:
+        """The views the arrows step through, in order.
+
+        One stop per object being segmented, then a final stop showing them
+        together. With a single object there is nothing to cycle and the
+        arrows are hidden rather than left to do nothing.
+        """
+        roles = self._selected_object_types()
+        if len(roles) < 2:
+            return []
+        return [(role,) for role in roles] + [tuple(roles)]
+
+    def _cycle_view(self, step: int) -> None:
+        """Move the source view one stop along, wrapping at both ends."""
+        stops = self._cycle_stops()
+        if not stops:
+            return
+        self._cycle_index = (self._cycle_index + int(step)) % len(stops)
+        self._apply_cycle_stop()
+
+    def _apply_cycle_stop(self) -> None:
+        """Show whatever the current stop names."""
+        stops = self._cycle_stops()
+        if not stops:
+            self._composite_roles = ()
+            self._refresh_cycle_controls()
+            return
+        self._cycle_index %= len(stops)
+        roles = stops[self._cycle_index]
+        if len(roles) == 1:
+            # A single object is the ORDINARY view, driven through the channel
+            # dropdown -- so it goes through the same path as every other
+            # channel change rather than becoming a second way to show one
+            # plane, which could then disagree with the first.
+            self._composite_roles = ()
+            self._select_display_channel(self._channel_for_object(roles[0]))
+        else:
+            self._composite_roles = tuple(roles)
+        self._refresh_cycle_controls()
+        self._refresh_canvases()
+
+    def _refresh_cycle_controls(self) -> None:
+        """Show the arrows only when there is more than one object, and say
+        which object is on screen."""
+        stops = self._cycle_stops()
+        shown = bool(stops)
+        for widget in (self._cycle_prev_btn, self._cycle_next_btn,
+                       self._cycle_label):
+            widget.setVisible(shown)
+        if not shown:
+            self._cycle_label.setText("")
+            return
+        roles = stops[self._cycle_index % len(stops)]
+        self._cycle_label.setText(
+            tr("both") if len(roles) > 1 else roles[0])
+
+    def _select_display_channel(self, channel: Optional[int]) -> None:
+        """Point the channel dropdown at ``channel`` if the image has it."""
+        if channel is None:
+            return
+        box = self._channel_box
+        target = f"Ch {channel}"
+        for index in range(box.count()):
+            written = box.itemData(index)
+            if not isinstance(written, str) or not written:
+                written = box.itemText(index)
+            if written == target and box.currentIndex() != index:
+                blocked = box.blockSignals(True)
+                try:
+                    box.setCurrentIndex(index)
+                finally:
+                    box.blockSignals(blocked)
+                return
+
+    def _composite_view(self) -> Optional[np.ndarray]:
+        """The current stop's objects in one image, or ``None``.
+
+        Stacked and handed to :func:`_to_uint8`, which stretches EACH plane on
+        its own percentiles and maps the first three onto R/G/B. Two objects
+        are ordered so the second lands in red and blue and the first in
+        green, which reproduces the outline colours the panel already uses --
+        green cells, magenta nuclei -- without a second colour table to keep
+        in step with :data:`OBJECT_COLORS`.
+        """
+        roles = self._composite_roles
+        if not roles or self._image is None:
+            return None
+        planes = []
+        for role in roles:
+            channel = self._channel_for_object(role)
+            planes.append(_select_channel(self._image,
+                                          0 if channel is None else channel))
+        if len(planes) == 1:
+            return planes[0]
+        if len(planes) == 2:
+            return np.stack([planes[1], planes[0], planes[1]], axis=-1)
+        return np.stack(planes[:3], axis=-1)
 
     def _channel_for_object(self, obj: str) -> Optional[int]:
         """The channel index an object is segmented from, or ``None``.
@@ -2925,7 +3113,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """Swap the slot's channel in, then move the view onto it. In that
         order: following first would follow the outgoing slot's channel."""
         self._swap_organelle_channel()
+        # The stops belong to the new selection, so an index into the old
+        # one means nothing -- start at the first object rather than
+        # wherever the previous cycle had got to.
+        self._cycle_index = 0
+        self._composite_roles = ()
         self._follow_object_channel()
+        self._refresh_cycle_controls()
 
     def _build_request(self) -> PreviewRequest:
         obj_types = self._selected_object_types()
