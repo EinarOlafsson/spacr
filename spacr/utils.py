@@ -5499,7 +5499,14 @@ def annotate_predictions(csv_loc):
         else:
             return ''
 
-    df['cond'] = df.apply(assign_condition, axis=1)
+    # Keep the semantic distinction between an explicitly empty condition
+    # (``""``) and an unknown one (``None``).  Pandas 3 can otherwise infer
+    # a nullable string column and normalise the latter to ``nan``.
+    df['cond'] = pd.Series(
+        (assign_condition(row) for _, row in df.iterrows()),
+        index=df.index,
+        dtype=object,
+    )
     return df
 
 def initiate_counter(counter_, lock_):
