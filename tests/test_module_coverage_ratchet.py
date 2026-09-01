@@ -156,12 +156,12 @@ def _run_cli(
     )
 
 
-def test_current_packaging_denominator_is_506_not_asset_generators():
-    """+1: ``spacr/qt/widgets/popup_state.py``.
+def test_current_packaging_denominator_is_510_not_asset_generators():
+    """The ratchet follows all 510 shipped modules, not asset generators.
 
-    Added for the menu and tooltip flicker -- the backdrop has to hold
-    still while a popup composites over the native GL surface, and the
-    question "is a popup on screen" needed one place to live.
+    Since the previous 506-module pin, the product added the public
+    accelerator resolver, plaque analysis, settings-pack support, and the
+    model-zoo picker.  All four are installed Python and belong in coverage.
     """
     shipped = set(ratchet.discover_shipped_python_files(ROOT))
     every_spacr_python = {
@@ -169,7 +169,7 @@ def test_current_packaging_denominator_is_506_not_asset_generators():
         for path in (ROOT / "spacr").rglob("*.py")
     }
 
-    assert len(shipped) == 506
+    assert len(shipped) == 510
     assert every_spacr_python - shipped == RESOURCE_GENERATORS
     assert not RESOURCE_GENERATORS & shipped
 
@@ -427,7 +427,7 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     )
     assert "coverage combine --keep" in combine_script
     assert "coverage json --pretty-print" in combine_script
-    assert "--expected-file-count 505" in combine_script
+    assert "--expected-file-count 510" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
     assert "coverage-combine" in jobs["release-gate"]["needs"]
