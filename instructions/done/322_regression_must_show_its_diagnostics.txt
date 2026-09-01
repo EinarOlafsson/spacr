@@ -111,11 +111,27 @@ The 824-guides-in-587-wells case is pinned and produces FAIL, with the verdict
 "the design cannot identify one coefficient per guide".
 tests/test_regression_shows_its_diagnostics.py, 7 tests asserting NUMBERS.
 
-STILL OPEN — ITEM 3, THE SCREEN BUTTON. A masthead button opening the
-diagnostics page, badged with the worst of score_design / score_residuals /
-score_inference. That is spacr/qt/screens/, which belongs to the concurrent
-session. The scores are already on disk in `diagnostic_summary.csv`, so it is a
-read rather than a computation.
+ITEM 3, THE SCREEN BUTTON — DONE 2026-09-01 (the Qt lane).
+
+`DiagnosticsOpener` sits on the Regression masthead through the fold strip and
+opens what the run wrote. `DiagnosticsOpener.verdict()` READS the suite's worst
+sheet out of `diagnostic_summary.csv` -- the `suite`/`verdict_level` row the
+writer above already computes -- and `FoldButton.set_verdict` draws it as a dot
+in the panel stamp's own ink.
+
+A DOT, NOT A COLOURED BUTTON. The button's colour already means maturity;
+a second meaning on the same surface makes both unreadable. The detail goes in
+the tooltip, where the reason can be a sentence.
+
+AND NO DOT IS NOT A PASS. A run that has not happened, a folder that is not
+there, and a summary that cannot be parsed all leave the button unbadged --
+"not measured" and "measured and fine" are different answers, and a green dot
+would collapse them. Pinned in
+tests/qt/test_the_diagnostics_button_wears_the_runs_verdict.py, 12 tests,
+including that the SUITE row is read rather than the first per-section row:
+a reader taking the first would report "pass" for a run whose design cannot be
+identified, which is the exact case this instruction says must not be averaged
+away.
 
 TWO THINGS FOUND WHILE DOING IT, both worth keeping:
 
