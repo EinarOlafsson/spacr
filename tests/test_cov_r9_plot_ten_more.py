@@ -104,7 +104,8 @@ class TestTheAxisLimits:
         """Why the check is ``is not None`` and not ``if x_lim``."""
         for limit in ((0, 0), (0.0, 0.0), []):
             assert (limit is not None) is True
-        assert bool(()) is False and () is not None
+        empty = ()
+        assert bool(empty) is False and empty is not None
 
     def test_defaults_are_resolved_before_unconditional_limit_application(self):
         source = inspect.getsource(P)
