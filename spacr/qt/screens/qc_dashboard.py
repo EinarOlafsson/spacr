@@ -472,11 +472,18 @@ FOLDED_APPS: Tuple[str, ...] = ('layer_viewer', 'control_chart',
 
 def _build_layer_viewer(host_window: Optional[QWidget] = None) -> QWidget:
     """Layer Viewer, as the window builds it."""
+    # IMPORTED HERE. This module used `build_registered_screen`
+    # without importing it, so every folded module it hosts raised
+    # NameError the moment its button was pressed.
+    from .map_barcodes import build_registered_screen
+
     return build_registered_screen("layer_viewer", host_window)
 
 
 def _build_control_chart(host_window: Optional[QWidget] = None) -> QWidget:
     """Control Chart, as the window builds it."""
+    from .map_barcodes import build_registered_screen
+
     return build_registered_screen("control_chart", host_window)
 
 
@@ -486,6 +493,8 @@ def _build_outliers(host_window: Optional[QWidget] = None) -> QWidget:
     A QC question -- "which wells or objects do not look like the
     others" -- so it belongs behind QC rather than beside it on Home.
     """
+    from .map_barcodes import build_registered_screen
+
     return build_registered_screen("outliers", host_window)
 
 
