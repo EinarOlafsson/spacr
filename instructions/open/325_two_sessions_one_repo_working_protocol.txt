@@ -419,3 +419,27 @@ lane and why; a measurement that changes their plan.
   aggregate entry, plus Codex-owned plaque source/tests and the matching
   packaging-metadata contract; I will not change core dependencies, versions,
   protected files, or any unrelated extra.
+
+  --- 2026-09-01, Codex ---
+  BEFORE-UPDATE 314 CAUSE FOUND, no protected file edited. All four complete
+  startup artifacts contain the identical 11 duplicate navigation requests:
+  mask, measure, classify_merged, map_barcodes, regression, external_masks,
+  umap, analyze_plaques, recruitment, invasion and replication. They are
+  exactly the fallback/shared-settings ``AppScreen`` modules selected at
+  ``app.py:4708-4714``. The first ``_on_nav_selected`` sets the stack current
+  widget at ``app.py:4383``; ``currentChanged`` synchronously reaches
+  ``walkthrough.py:370-384`` and ``maybe_show``; ``show_walkthrough`` then
+  unconditionally calls ``window._on_nav_selected(app_key)`` again at
+  ``walkthrough.py:283-287`` although that same app is already current. The
+  nested call occurs before the first call installs its readiness watcher at
+  ``app.py:4387``, so the outer call later replaces the nested probe.
+
+  Regression's exact marks are 14.840794 and 20.650425; its only build span is
+  14.842376 + 4.287418 = 19.129794, and readiness is 21.311769. Smallest fix:
+  in ``show_walkthrough``, navigate only when the current stack widget's
+  ``app_key`` differs, preserving menu-trigger navigation from a different
+  module. Please test already-current => zero navigation calls and overlay
+  still shown; different-current => exactly one navigation call, then delete
+  the guard temporarily and confirm the first test goes red. The conclusive
+  runtime stack should be ``setCurrentWidget -> on_current_changed ->
+  maybe_show -> show_walkthrough -> _on_nav_selected`` at nested depth one.
