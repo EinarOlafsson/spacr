@@ -117,10 +117,11 @@ def test_the_cellpose_row_takes_its_version_from_the_package(unprobed,
     and this label is on the first screen a new user sees."""
     label = slides.SetupSlides._cellpose_label()
     assert label.startswith("Cellpose")
-    try:
-        import cellpose
-    except Exception:                                        # noqa: BLE001
-        pytest.skip("cellpose is not installed")
+    # importorskip, NOT a bare except. A blanket handler here turns any
+    # failure into a skip -- including one caused by spaCR -- and the
+    # only environmental fact this test depends on is whether cellpose
+    # is installed.
+    cellpose = pytest.importorskip("cellpose")
     version = str(getattr(cellpose, "version", None)
                   or getattr(cellpose, "__version__", ""))
     assert version.split(".")[0] in label

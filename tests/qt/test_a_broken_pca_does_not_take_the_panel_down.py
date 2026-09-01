@@ -118,10 +118,25 @@ def test_a_label_survives_an_event_whose_type_cannot_be_read(qtbot):
     qtbot.addWidget(label)
 
     class _Hostile(QEvent):
+        def __init__(self, kind):
+            super().__init__(kind)
+            self.asked = 0
+
         def type(self):
+            self.asked += 1
             raise RuntimeError("Signal source has been deleted")
 
-    label.changeEvent(_Hostile(QEvent.StyleChange))   # must not raise
+    event = _Hostile(QEvent.StyleChange)
+    before = label.text()
+
+    label.changeEvent(event)                # must not raise
+
+    # ASSERTED, not merely survived. "It did not raise" passes just as
+    # well against a changeEvent that returns immediately and never looks
+    # at the event at all.
+    assert event.asked >= 1, "the event's type was never read"
+    assert label.text() == before, (
+        "an unreadable event restyled the label anyway")
 
 
 def test_a_readable_style_change_still_restyles(qtbot, monkeypatch):

@@ -166,4 +166,10 @@ class TestTheOutliersScreenGuards:
                                                                  screen):
         """The neighbour, whose pragma reads "set immediately before"."""
         screen._objects = None
+
         screen._fill_object_table(object())   # must not raise
+
+        # ASSERTED. Without this the test passes against a method that
+        # returns early in every case, including the one with objects.
+        assert screen._objects is None, (
+            "an object table was invented where there were no objects")

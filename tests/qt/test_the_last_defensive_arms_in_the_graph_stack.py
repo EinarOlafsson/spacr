@@ -135,10 +135,17 @@ def test_no_builtin_numeric_dtype_reaches_that_arm():
         "sparse": pd.Series(pd.arrays.SparseArray([1.0, 2.0])),
         "float16": pd.Series(np.array([1, 2], dtype="float16")),
     }
+    checked = 0
     for name, column in columns.items():
         if not pd.api.types.is_numeric_dtype(column):
             continue
-        column.nunique(dropna=True)         # must not raise
+        # ASSERTED, not merely survived: a loop whose body never runs
+        # passes just as well as one where nothing raises.
+        assert column.nunique(dropna=True) >= 1, name
+        checked += 1
+    assert checked >= 5, (
+        f"only {checked} of these dtypes counted as numeric; the premise "
+        f"is being checked against far fewer cases than it claims")
 
 
 def test_a_constant_column_is_skipped_for_a_different_reason():
