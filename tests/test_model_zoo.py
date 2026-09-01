@@ -609,14 +609,22 @@ def test_a_git_lfs_pointer_is_listed_but_flagged(tmp_path):
 # 7. catalogue and resolution
 # ---------------------------------------------------------------------------
 
-def test_the_bundled_catalogue_declares_its_provenance_and_its_missing_hash():
-    entry = zoo._entry_from_mapping(zoo.BUNDLED_REMOTE_MODELS[0])
-    assert entry.uri.startswith(
-        f"https://huggingface.co/datasets/{zoo.HF_MODELS_REPO}/resolve/main/")
-    assert entry.trained_on != zoo.UNKNOWN
-    assert entry.trained_by != zoo.UNKNOWN
-    assert entry.checksum_state == "none"
-    assert any("no published checksum" in n for n in entry.notes)
+def test_every_bundled_catalogue_entry_is_provenanced_and_verifiable():
+    """Bundled models may live in separate model repos, but none is anonymous."""
+    entries = [zoo._entry_from_mapping(item)
+               for item in zoo.BUNDLED_REMOTE_MODELS]
+
+    assert entries
+    for mapping, entry in zip(zoo.BUNDLED_REMOTE_MODELS, entries):
+        assert entry.uri.startswith(
+            f"https://huggingface.co/{mapping['repo_id']}/resolve/main/"
+        )
+        assert entry.name in entry.uri
+        assert entry.trained_on != zoo.UNKNOWN
+        assert entry.trained_by != zoo.UNKNOWN
+        assert entry.checksum_state == "published"
+        assert len(entry.sha256) == 64
+        assert not any("no published checksum" in note for note in entry.notes)
 
 
 def test_a_catalogue_file_is_read_and_its_hashes_are_what_make_it_useful(tmp_path):
