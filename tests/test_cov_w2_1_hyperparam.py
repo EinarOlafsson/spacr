@@ -497,6 +497,64 @@ def test_a_missing_optional_backend_names_the_package_to_install(
         hp.build_sklearn_model(model_type, {})
 
 
+@pytest.mark.parametrize(("model_type", "module_name", "class_name", "expected"), [
+    (
+        "lightgbm",
+        "lightgbm",
+        "LGBMClassifier",
+        {
+            "n_estimators": 17,
+            "learning_rate": 0.03,
+            "reg_alpha": 0.4,
+            "reg_lambda": 2.5,
+            "random_state": 9,
+            "n_jobs": 3,
+            "verbose": -1,
+        },
+    ),
+    (
+        "catboost",
+        "catboost",
+        "CatBoostClassifier",
+        {
+            "iterations": 17,
+            "learning_rate": 0.03,
+            "l2_leaf_reg": 2.5,
+            "random_state": 9,
+            "verbose": False,
+        },
+    ),
+])
+def test_installed_optional_backend_receives_the_search_parameters(
+        monkeypatch, model_type, module_name, class_name, expected):
+    """The success path constructs the same optional estimator the run fits."""
+    import sys
+    import types
+
+    class RecordingEstimator:
+        def __init__(self, **kwargs):
+            self.kwargs = kwargs
+
+    backend = types.ModuleType(module_name)
+    setattr(backend, class_name, RecordingEstimator)
+    monkeypatch.setitem(sys.modules, module_name, backend)
+
+    model = hp.build_sklearn_model(
+        model_type,
+        {
+            "n_estimators": 17,
+            "learning_rate": 0.03,
+            "reg_alpha": 0.4,
+            "reg_lambda": 2.5,
+        },
+        seed=9,
+        n_jobs=3,
+    )
+
+    assert isinstance(model, RecordingEstimator)
+    assert model.kwargs == expected
+
+
 # ---------------------------------------------------------------------------
 # The deep cross-validated fit function
 
