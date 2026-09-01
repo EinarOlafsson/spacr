@@ -243,6 +243,14 @@ class FoldButton(QPushButton):
         # The name leads the tooltip because the button has no label; the
         # description follows it as the sentence the tile carried.
         self.setToolTip(f"{name}\n{description}".strip())
+        # AND THE SAME PROPERTIES THE SIDEBAR CARRIES, so `module_hints`
+        # can divert this into the status bar instead of drawing it over
+        # the masthead. Canonical English sources, not the rendered
+        # tooltip, so a language switch retranslates rather than
+        # translating a translation.
+        self.setProperty("moduleNameSource", name)
+        self.setProperty("moduleSummarySource", description)
+        self.setProperty("moduleTooltipStyle", "fold")
         self.setAccessibleName(name)
 
     def set_stage(self, stage: str) -> None:

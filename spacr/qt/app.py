@@ -2049,6 +2049,19 @@ class MainWindow(QMainWindow):
         status.showMessage(tr("Ready"))
         self.setStatusBar(status)
 
+        # MODULE DESCRIPTIONS GO HERE, not into a popup over the grid.
+        # Asked for on 2026-09-01; Home already worked this way and the
+        # reason is on AppTile -- these blurbs run to several hundred
+        # characters, which is fine in a fixed line and wrong in a box
+        # covering what the user is reading to choose between.
+        try:
+            from .module_hints import install_module_hints
+
+            self._module_hints = install_module_hints(self)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("module hints unavailable", exc_info=True)
+            self._module_hints = None
+
         # The AI Console now lives inside each pipeline app's Console
         # panel (see spacr.qt.widgets.console_panel). No side-dock.
 
