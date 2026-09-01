@@ -6483,7 +6483,11 @@ class AppScreen(QWidget):
             include_log_tail=get_share_diagnostic_logs(),
             ai_response=ai_analysis,
         )
-        preview = IssuePreviewDialog(report, self)
+        # The console and the raw traceback go with it, so its Diagnose
+        # button can ask spaCR AI about this error and add the answer.
+        preview = IssuePreviewDialog(
+            report, self, console=self._console,
+            traceback_text=self._last_error_text)
         if preview.exec() != QDialog.Accepted:
             self._console.append_notice(
                 "[issue] cancelled — nothing was sent.\n")
