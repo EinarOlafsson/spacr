@@ -217,3 +217,33 @@ MISTAKES MADE AND CAUGHT, WORTH NOT REPEATING
 * A MANIFEST SYNC TOOL matched `str(bytes)` and so skipped literals written
   with underscore separators. It reported a size as updated while leaving it
   stale, which is exactly the failure the tool exists to prevent.
+
+--------------------------------------------------------------------------------
+A SIXTH MISTAKE, FOUND AFTER THE FACT (2026-09-01, late)
+--------------------------------------------------------------------------------
+
+THE FOUR SCREEN DATABASES WERE PUBLISHED WITH THE LAB'S NAS PATHS IN THEM.
+1,384,177 of them across the four plates -- `/nas_mnt/carruthers/Einar/...` --
+naming the maintainer's account and the NAS layout, on a public repo. It was
+also a functional break: a `png_path` under /nas_mnt resolves on no other
+machine, so the crops downloaded beside the database would not have been found.
+
+The example dataset had exactly this scrubbing applied. The screen did not.
+The two went through different code paths and nobody checked that they had
+been treated alike -- the omission was found only by QUERYING THE PUBLISHED
+COPIES rather than trusting that they matched, and only because the maintainer
+asked whether everything had been uploaded.
+
+Republished with every path relative to the plate folder, which is the
+contract `make_the_example_paths_absolute` restores on download. The script
+refuses to publish a plate that still holds an absolute path after the rewrite
+rather than trusting the update worked, and the fix was then verified by
+fetching a published archive back and querying it: 0 absolute paths, 50,009
+rows intact, and the downloader turning them into paths that open.
+
+THE LESSON IS NOT "REMEMBER TO SCRUB". It is that two artefacts of the same
+kind went out through two code paths, and only one of them carried the
+treatment they both needed. A single publisher that scrubs, verifies and
+uploads would have made the omission impossible; two scripts made it
+invisible. `tools/` has no such publisher yet, and should.
+
