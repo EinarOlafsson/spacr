@@ -1,0 +1,54 @@
+331 — WHAT MUST BE TRUE BEFORE THE VERSION UPDATE
+=================================================
+
+Status:    OPEN, filed 2026-09-01. A CHECKLIST, not new work: every item
+           already has its own instruction. This exists because the
+           maintainer asked for the list to be split into before and
+           after, and a split kept only in a chat log is a split nobody
+           can act on next week.
+
+BEFORE THE UPDATE
+-----------------
+
+  288  GREEN CI. The stated gate. Qt pragmas are 88 -> 33, the
+       assertion-free ratchet is green, and a crash that stopped seven
+       folded modules opening is fixed. NOT MET: tests/qt still dies
+       partway through a single process, so there is no clean full-suite
+       signal. See 288's own note for what was measured.
+
+  314  THE REGRESSION HANG. Diagnosed, not fixed. Seven causes measured
+       and rejected; it reproduces only through `spacr.qt.run()`. A hang
+       in a core module is the worst failure shape spaCR has, which is
+       why it is on this side of the line.
+
+  01   WINDOWS SELF-UPDATE. CODE COMPLETE and verified 2026-09-01.
+       Nothing further is reachable from a checkout.
+
+  05   VERSION BUMP AND ACTIONS. The release mechanism itself.
+  304  RELEASE 1.5.0.5 AND ZENODO. The update.
+       Both require maintainer confirmation: publishing is public and
+       irreversible.
+
+  316  TRANSLATIONS. 23 red tests in the gated language lane. Wrong UI
+       text ships to nine languages and is hard to walk back.
+
+AFTER THE UPDATE
+----------------
+
+  326 arbitrary organelle count      315 the force-quit dialog
+  330 nested dock and menu           306 API and tooltip currency
+  305 load time within resources     319 accelerator polish
+  58  contributor listing            253 the whole list again, then ship
+
+THE TENSION WORTH STATING
+-------------------------
+1.5.0.5 is itself the escape hatch for the Windows self-update trap in
+01: until it is published, a Windows user cannot take ANY later fix,
+including a fix for 314. So holding the release to finish 314 has a cost
+of its own, and it is not obviously smaller than the cost of shipping
+with 314 open.
+
+That is a maintainer's call and not an engineering one. What engineering
+can say is: 01 is ready either way, 314 is characterised well enough for
+someone to finish, and 288's gate is genuinely unmet rather than nearly
+met.
