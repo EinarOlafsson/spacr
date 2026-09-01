@@ -144,3 +144,88 @@ def test_a_model_exposing_nothing_yields_no_inputs_rather_than_raising():
         pass
 
     assert _diagnostic_inputs(RankOnly()) == (None, None, None)
+
+
+def test_malformed_model_arrays_yield_no_diagnostic_inputs():
+    """A backend's non-numeric diagnostics must not take down fitted results."""
+    from spacr.ml import _diagnostic_inputs
+
+    class MalformedModel:
+        fittedvalues = ["not-a-number"]
+        resid = [0.5]
+
+    assert _diagnostic_inputs(MalformedModel()) == (None, None, None)
+
+
+def test_a_blank_results_folder_skips_regression_diagnostics():
+    from spacr.ml import _write_regression_diagnostics
+
+    assert _write_regression_diagnostics(None, pd.DataFrame(), {}, {}) == {}
+
+
+def test_empty_fits_still_write_the_design_and_residual_reason(
+        tmp_path, monkeypatch):
+    from spacr.ml import _write_regression_diagnostics
+
+    (tmp_path / "diagnostics").mkdir()
+    monkeypatch.setattr(
+        rd,
+        "write_diagnostic_suite",
+        lambda destination, **_kwargs: {
+            "design": str(tmp_path / "design.json"),
+        },
+    )
+
+    written = _write_regression_diagnostics(
+        str(tmp_path),
+        pd.DataFrame({"g1": [0.2]}),
+        {},
+        {"regression_type": "rra"},
+    )
+
+    note = tmp_path / "diagnostics" / "residual_panels_not_available.txt"
+    assert written["design"].endswith("design.json")
+    assert written["residuals_unavailable"] == str(note)
+    assert "Robust Rank Aggregation" in note.read_text(encoding="utf-8")
+
+
+def test_a_diagnostic_writer_failure_is_reported_without_losing_results(
+        tmp_path, monkeypatch, capsys):
+    from spacr.ml import _write_regression_diagnostics
+
+    def fail(*_args, **_kwargs):
+        raise RuntimeError("panel failed")
+
+    monkeypatch.setattr(rd, "write_diagnostic_suite", fail)
+
+    assert _write_regression_diagnostics(
+        str(tmp_path), pd.DataFrame(), {}, {"regression_type": "ols"},
+    ) == {}
+    assert "Diagnostics could not be written: RuntimeError: panel failed" in (
+        capsys.readouterr().out
+    )
+
+
+def test_an_unwritable_residual_note_does_not_erase_other_diagnostics(
+        tmp_path, monkeypatch, capsys):
+    from spacr.ml import _write_regression_diagnostics
+
+    monkeypatch.setattr(
+        rd,
+        "write_diagnostic_suite",
+        lambda *_args, **_kwargs: {"design": "design.json"},
+    )
+
+    def refuse_note(*_args, **_kwargs):
+        raise OSError("read only")
+
+    monkeypatch.setattr("builtins.open", refuse_note)
+    written = _write_regression_diagnostics(
+        str(tmp_path),
+        pd.DataFrame({"g1": [0.2]}),
+        {"gene": (object(), pd.DataFrame(), "rra")},
+        {},
+    )
+
+    assert written == {"design": "design.json"}
+    assert "Residual diagnostics were not computed" in capsys.readouterr().out
