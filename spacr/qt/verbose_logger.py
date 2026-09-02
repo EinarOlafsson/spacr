@@ -335,7 +335,7 @@ class _NotAlreadyShownByTheRootSink(logging.Filter):
         [13:48:12] spacr.qt WARNING  Qt warning: ...     <- this forwarder
         13:48:12 [WARNING] spacr.qt: Qt warning: ...     <- QtLogHandler
 
-    which is exactly what instruction 320 reports from macOS. Neither copy is
+    which is exactly what was seen on macOS. Neither copy is
     the raw stderr print in ``_install_quiet_qt_logging``; both are formatted
     records, which is why looking at that print explained nothing.
 

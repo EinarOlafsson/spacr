@@ -548,8 +548,8 @@ class DiagnosticsOpener:
     def verdict(self) -> tuple:
         """``(level, detail)`` for the badge, from what is on disk.
 
-        ITEM 3 OF INSTRUCTION 322: the button is badged with the worst of
-        score_design / score_residuals / score_inference. That worst is
+        The button is badged with the worst of score_design /
+        score_residuals / score_inference. That worst is
         already computed and written -- ``diagnostic_summary.csv`` carries
         a ``suite``/``verdict_level`` row -- so this is a READ, and it has
         to stay one. Recomputing it here would let the button and the

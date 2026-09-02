@@ -1,6 +1,6 @@
 """Where each setting is actually READ. Generated -- do not edit.
 
-Written by ``tools/build_setting_consumer_map.py`` for instruction 336.
+Written by ``tools/build_setting_consumer_map.py``.
 The API link used to be built from the SCREEN's app_key, so every row
 on a panel pointed at that module's entry point whether the value was
 read there or twelve calls down. These targets come from an AST walk of

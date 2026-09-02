@@ -443,6 +443,9 @@ class MaskCuration:
     :param history: how many strokes :meth:`undo` can walk back. Bounded, so a
         long session cannot grow without limit; the *ledger* is unbounded and
         is what a reviewer reads.
+    :param log: the :class:`CurationLog` every edit is recorded in. Defaults
+        to a fresh one for this artifact; pass an existing log to record a
+        mask and its tracks into a single ledger.
 
     Strokes, not points. A drag is dozens of :meth:`paint` calls and one thing
     the user did, so :meth:`begin_stroke` / :meth:`end_stroke` group them and
@@ -728,6 +731,9 @@ class TrackCuration:
         i.e. ``frame``, ``track_id``, ``original_label`` and the centroid.
         Copied, so the caller's frame is never edited underneath them.
     :param artifact: the tracks CSV, for the ledger.
+    :param log: the :class:`CurationLog` every edit is recorded in. Defaults
+        to a fresh one for this artifact; pass the log a :class:`MaskCuration`
+        is using to keep both halves of one curation session on one record.
 
     Every operation leaves the table *consistent*, and consistency here has a
     definition worth stating because it is what the checks enforce:

@@ -85,6 +85,20 @@ class MultiprocessingFeeder:
     The source remains owned by the caller.  In particular, stopping the
     feeder never closes or drains it, so analysis workers may continue using
     the queue independently of the optional visualisation.
+
+    :param source: the queue events arrive on, typically a
+        ``multiprocessing.Queue`` shared with analysis workers. OWNED BY THE
+        CALLER -- see above; the feeder only reads from it.
+    :param collector: the in-process :class:`~spacr.flowview.collector.Collector`
+        the events are forwarded to.
+    :param poll_interval: seconds to wait between reads when the source is
+        empty. Trades display latency against idle CPU.
+    :param max_event_bytes: the largest event accepted from the source. A
+        cap rather than a guess: the source may be written to by another
+        process, so an oversized payload is a reason to reject the event
+        rather than to allocate for it.
+    :raises ValueError: when ``poll_interval`` or ``max_event_bytes`` is not
+        positive.
     """
 
     def __init__(

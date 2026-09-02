@@ -319,7 +319,7 @@ def build_report(
     :param ai_response: spaCR AI's analysis of this same error, when the AI
         is switched on and has already answered. Sanitised and length-capped
         like everything else here, and clearly marked as machine-generated:
-        it is a lead for the maintainer, not a finding.
+        it is a lead for whoever reads the report, not a finding.
     :returns: dict with keys ``title``, ``body`` and ``fingerprint``,
         ready to be
         URL-encoded onto ``issues/new``.
@@ -354,7 +354,7 @@ def build_report(
     # AFTER THE TRACEBACK, BEFORE THE ENVIRONMENT. When the AI is on it has
     # usually already diagnosed the crash by the time the user files, and that
     # analysis is the most useful thing in the report after the traceback
-    # itself -- it is what the maintainer would otherwise spend the first hour
+    # itself -- it is what a reader would otherwise spend the first hour
     # reproducing. It goes below the traceback because `issue_url` trims the
     # tail, and the traceback must survive that trim.
     #

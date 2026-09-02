@@ -1283,7 +1283,7 @@ def target_render_size(logical_width: int, logical_height: int,
                        adaptive_scale: float = 1.0) -> tuple:
     """How many pixels to shade for a widget of this size.
 
-    LIFTED OUT OF THE CANVAS so it can be measured. Instruction 327 asks
+    LIFTED OUT OF THE CANVAS so it can be measured. The backdrop asks
     which of four candidates makes fullscreen choppy while the backdrop
     is smooth, and says to answer with numbers before writing a fix --
     which is not possible while the arithmetic only exists inside a
@@ -1378,8 +1378,8 @@ class DepthPhase:
 class RegionTour:
     """Floats the camera between the coordinates worth looking at.
 
-    Instruction 327 (3): "have say 20 regions on the image that the
-    camera will automatically smoothely float towards".
+    Around twenty regions are chosen on the image and the camera floats
+    automatically towards them.
 
     SMOOTHLY IS THE WHOLE REQUIREMENT, so the interpolation is a
     smoothstep rather than a straight line: it leaves one region and
@@ -1503,9 +1503,8 @@ class _HeavyImportInProgress(RuntimeError):
     Deliberately NOT a :class:`GpuBackendError`, and deliberately not
     caught by the ``auto`` fallback: this machine's GPU is fine and the
     shaders would compile. Treating it as a GPU failure would answer a
-    two-second wait with the CPU renderer -- the one that ate twenty
-    cores in instruction 315 -- instead of the backdrop that was asked
-    for.
+    two-second wait with the CPU renderer -- the one that saturates twenty
+    cores -- instead of the backdrop that was asked for.
 
     The caller is expected to come back on a timer. It is decoration:
     arriving a fraction of a second late costs nothing, and blocking the

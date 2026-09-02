@@ -2310,9 +2310,9 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
 
            They were kept for a while beside the correct columns, behind
            ``corrected_manders``, so old plates kept agreeing with themselves.
-           That is the shape the maintainer asked to end: two definitions
-           shipping at once, under names that do not say which produced them,
-           with the WRONG one on by default. The setting is retired and the
+           That shape is the problem: two definitions shipping at once,
+           under names that do not say which produced them, with the WRONG
+           one on by default. The setting is retired and the
            three correct columns are now written unconditionally:
 
            * ``manders_m1`` -- the true M1: the fraction of channel 1's

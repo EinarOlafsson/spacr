@@ -1513,8 +1513,8 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         A WARNING IS NOT AN ERROR. This used to send everything at or above
         WARNING through :meth:`append_error`, which draws the red "spaCR
         ERROR" banner -- so a routine Qt warning ("libpyside: addMetaMethod
-        ...", instruction 320) was presented to the user as a failure, a dozen
-        times, on merely opening a module. The cost is not the wrong colour:
+        ...") was presented to the user as a failure, a dozen times, on
+        merely opening a module. The cost is not the wrong colour:
         it is that a pane which cries error over routine noise is a pane
         people stop reading, and the next line in it might be the one that
         matters.
@@ -1535,11 +1535,10 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         DELIBERATELY NOT ITS OWN BANNER, and the reason is a coordination one
         rather than a design one: a "spaCR warning" heading would need a new
         row in ``spacr.qt.i18n._ROWS`` with nine translations, which moves the
-        COMPACT caption ratchet another session owns. Amber under the existing
-        translated "spaCR output" heading already satisfies what instruction
-        320 asks for -- warnings out of the ERROR pane, errors still in it --
-        without reaching into that machinery. A dedicated banner is the nicer
-        end state and is recorded in 320 as the follow-up.
+        COMPACT caption ratchet. Amber under the existing translated "spaCR
+        output" heading already achieves the point -- warnings out of the
+        ERROR pane, errors still in it -- without reaching into that
+        machinery. A dedicated banner would be the nicer end state.
 
         :param text: the formatted record; empty strings are ignored.
         """
@@ -2087,8 +2086,9 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
 
         Used by the bug reporter: when the AI is switched on it has usually
         already diagnosed the crash by the time the user files, and that
-        analysis is the most useful thing in the report -- it is what the
-        maintainer would otherwise spend the first hour reproducing.
+        analysis is the most useful thing in the report -- it is what whoever
+        picks the report up would otherwise spend the first hour
+        reproducing.
 
         Empty unless there IS an answer AND it is an answer to THIS error.
         The console holds one conversation across a whole session, so without

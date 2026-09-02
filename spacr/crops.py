@@ -633,6 +633,14 @@ class MergedField:
     Only ``shape``, ``dtype``, ``ndim`` and ``__getitem__`` are ever used on the
     underlying array, so tests can substitute a recording proxy to assert on the
     access pattern.
+
+    :param path: the ``merged/<fov>.npy`` field on disk.
+    :param array: the opened array. Defaults to memory-mapping ``path``;
+        pass one to substitute a proxy or an already-open handle.
+    :param mask_dims: which channel of the field holds each object's mask,
+        as ``{object: plane index}``. Defaults to the layout recorded beside
+        the file, and to ``DEFAULT_MASK_DIMS`` when the file records none.
+    :raises CorruptMergedFile: when the array is not ``(H, W, C)``.
     """
 
     def __init__(self, path: str, array=None, mask_dims: Optional[Mapping[str, int]] = None):

@@ -1,10 +1,10 @@
 """Translated presentations of the End User Licence Agreement.
 
-WHY THIS IS NOT IN THE CAPTION CATALOGS, decided 2026-09-02: the agreement is
-7,621 characters. Nine locales of it would be roughly double the entire
-existing runtime catalog, and it would flow into every ratchet, count and
-coverage figure instructions 306 and 316 track -- so those numbers would stop
-describing the user interface and start being mostly licence text.
+WHY THIS IS NOT IN THE CAPTION CATALOGS: the agreement is 7,621 characters.
+Nine locales of it would be roughly double the entire existing runtime
+catalog, and it would flow into every ratchet, count and coverage figure the
+translation tooling tracks -- so those numbers would stop describing the user
+interface and start being mostly licence text.
 
 WHAT A FILE HERE IS, AND IS NOT. It is a CONVENIENCE PRESENTATION of the
 English agreement. Section 11.4 of the agreement says so in its own words: if
@@ -14,9 +14,10 @@ accepts -- `terms.record_agreement` stores `TERMS_VERSION`, which is the
 English document's version, whichever language was on screen.
 
 REVIEW STATUS IS PER LOCALE and is recorded in each file's `REVIEW` mapping,
-not asserted collectively. On 2026-09-02 the maintainer reviewed Icelandic,
-Swedish and German and did not claim the other six; instruction 357 guideline
-4 forbids recording a review for a locale the reviewer did not name.
+rather than asserted collectively. Icelandic, Swedish and German carry a
+human review; the other six are machine drafts and say so. A locale nobody
+read must never be recorded as reviewed -- that is the whole point of the
+mapping being per file.
 """
 from __future__ import annotations
 

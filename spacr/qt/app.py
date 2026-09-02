@@ -1504,9 +1504,8 @@ def folded_children() -> Dict[str, Tuple[str, ...]]:
     Each host declares its own `FOLDED_APPS`; that tuple is the truth
     and this only collects them.
 
-    Asked for on 2026-09-01: the dock and the spaCR menu should show the
-    nested structure, "adding a level to each where the butons are
-    represented one level down from the new main modules".
+    The dock and the spaCR menu both draw the nested structure from this,
+    showing a folded module one level below the host it belongs to.
 
     Never raises: a host whose module cannot be imported contributes
     nothing, because a navigation aid must not be able to stop the
@@ -3518,8 +3517,8 @@ class MainWindow(QMainWindow):
     def _run_e2e_chain(self, dataset_path, settings_path) -> None:
         """Open Mask Generation on the downloaded dataset, ready to run.
 
-        IT DOES NOT RUN ANYTHING. Asked for on 2026-08-31: "the user
-        should be able to hit import and then live preview or run".
+        IT DOES NOT RUN ANYTHING. The user imports, and then chooses live
+        preview or run themselves.
 
         This used to be a Mask -> Measure -> Annotate chain that started
         each pipeline itself, behind a Continue/Stop prompt per stage.

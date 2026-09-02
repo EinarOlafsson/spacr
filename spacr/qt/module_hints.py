@@ -1,7 +1,7 @@
 """Module descriptions go to the bottom of the window, not over the grid.
 
-Asked for on 2026-09-01: "the tooltips for modules should only be shown
-at the bottom of the screen".
+A module description is shown in the status line at the bottom of the
+window and nowhere else -- never as a popup over the grid.
 
 Home already worked this way and the reason is written on ``AppTile``:
 these blurbs run to several hundred characters, which is fine in a fixed
@@ -107,8 +107,8 @@ class _ModuleHints(QObject):
         an icon and nothing else. For the first, a description at the
         bottom of the window is extra detail about something already
         identified. For the second it is the ONLY way to learn what the
-        button is, and putting it in the far corner is why the maintainer
-        reported the Mask masthead button as having no tooltip at all.
+        button is, and putting it in the far corner is why the Mask masthead
+        button read as having no tooltip at all.
         """
         try:
             return bool(str(widget.text() or "").strip())
