@@ -263,8 +263,27 @@ def test_direct_insert_matches_pandas_scalar_and_null_encoding(tmp_path):
     assert direct_rows == reference_rows
 
 
+@pytest.mark.filterwarnings(
+    "ignore:The 'generic' unit for NumPy timedelta is deprecated:"
+    "DeprecationWarning")
 def test_direct_insert_matches_pandas_arrow_timedelta_encoding(tmp_path):
-    """Arrow durations retain pandas' nanosecond-normalisation rule."""
+    """Arrow durations retain pandas' nanosecond-normalisation rule.
+
+    THE FILTER IS FOR AN UPSTREAM DEPRECATION, NOT FOR A SPACR CHOICE, and
+    the evidence is in the traceback: the same warning is raised by the
+    `pd.Series([...], dtype='duration[us][pyarrow]')` two lines below, before
+    any spaCR code runs at all. `_insert_frame` already asks for an explicit
+    `dtype='timedelta64[ns]'`; pandas' own
+    `ArrowExtensionArray.to_numpy` builds its NA sentinel with a generic
+    timedelta unit on the way, and numpy 2.5 deprecates that.
+
+    `pytest.ini` turns warnings into errors, so this surfaced as a failure
+    with nothing wrong in it -- one of the 21 in instruction 346.
+
+    REMOVE THIS FILTER when pandas stops using a generic unit there; the test
+    will keep passing and the filter will simply do nothing, so the way to
+    notice is to try it rather than to wait for a signal.
+    """
     pytest.importorskip('pyarrow')
     path = _fresh_db(tmp_path)
     frame = pd.DataFrame({

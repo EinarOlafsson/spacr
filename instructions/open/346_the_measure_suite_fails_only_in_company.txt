@@ -196,3 +196,41 @@ FAKES AN IMPORT LEAVES TWO PIECES OF STATE BEHIND -- the import itself, which
 cached boolean in one case, a whole module object in the other. Anywhere
 spaCR caches an import or reloads a module, the test that does it owns
 putting both back.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE THIRD WAS NOT AN ORDER PROBLEM AT ALL. 21 IS NOW 3.
+--------------------------------------------------------------------------------
+
+`test_direct_insert_matches_pandas_arrow_timedelta_encoding` failed ALONE,
+which took it out of this item's own category and made it the cheapest of the
+four to settle.
+
+It is an UPSTREAM DEPRECATION surfacing as a failure because `pytest.ini`
+turns warnings into errors. numpy 2.5 deprecates the generic timedelta unit;
+pandas' `ArrowExtensionArray.to_numpy` builds its NA sentinel with one on the
+way. spaCR is not the cause and does not have a fix available: `_insert_frame`
+already asks for an explicit `dtype='timedelta64[ns]'`.
+
+THE EVIDENCE THAT IT IS UPSTREAM is in the traceback rather than in an
+argument: the same DeprecationWarning is raised by the test's own
+`pd.Series([...], dtype='duration[us][pyarrow]')`, before any spaCR code runs.
+
+A filter scoped to that one test, naming the cause and saying when to remove
+it. Not a code change, because there is no spaCR behaviour to correct.
+
+    113 files:  21 -> 16 (Zernike) -> 4 (module reload) -> 3, 3,111 passed
+
+THE LAST TWO ARE STILL ORDER-DEPENDENT and both pass alone:
+
+    test_measure_hooks.py::test_region_filter_is_applied_before_features_are_computed
+    test_measure_hooks.py::test_measure_crop_checks_the_start_method_before_it_starts_the_pool
+
+A THIRD poisoner, then, and these two were masked by the ten until the second
+was fixed. Bisect them the same way; the method is written out above and has
+now found two causes in about twenty minutes each.
+
+(The third failure, `test_cov_w2_3_measure_preview.py::test_a_crop_pass_that_
+raises_is_reported_as_a_crop_failure`, could not be judged: run alone it needs
+a display this session does not have, and it reported a Gdk assertion rather
+than a result. It needs a run under xvfb before anything is concluded about
+it.)
