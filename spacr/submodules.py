@@ -1,4 +1,67 @@
-"""Cellpose training and domain-specific analysis pipeline entry points."""
+"""Run plaque, recruitment, invasion, and replication assays.
+
+WHAT IT IS FOR
+==============
+Four spaCR tiles currently share this landing page, but they answer different
+biological questions.  :func:`analyze_plaques` segments plaque images and
+summarizes plaque number and area.  :func:`analyze_recruitment` measures a
+fluorescent marker around pathogens or vacuoles relative to host cytoplasm.
+:func:`analyze_invasion` uses differential pre/post-permeabilization staining
+to classify parasites as attached outside or invaded inside a host cell.
+:func:`analyze_replication` counts parasites within each parasitophorous
+vacuole and compares the resulting replication-state distributions.  Cellpose
+training, testing, and model-application utilities also live here, but they
+are not substitutes for those four assay entry points.
+
+WHAT IT NEEDS
+=============
+Plaque analysis accepts a folder of TIFF images, or existing masks beneath
+that folder, plus Cellpose settings and a bundled, catalogue, or local plaque
+model.  Recruitment starts from a spaCR ``measurements.db`` containing joined
+cell, nucleus, pathogen, and cytoplasm features; it needs a fluorescence
+channel, object filters, and plate metadata that assign cell type, pathogen,
+and treatment.  Invasion and Replication both need one row per segmented
+parasite in a measurement table and condition metadata.  Invasion additionally
+needs the outside- and total-stain channels and preferably known control wells;
+Replication needs a defensible ``vacuole_key`` or spatial-linking distance.
+The Cellpose utilities require paired images and masks for training/testing,
+or an image folder and model path for inference.
+
+WHAT IT PRODUCES
+================
+Plaque analysis writes ``<src>/masks/plaques_analysis.db`` with ``summary``,
+``stats``, and ``details`` tables.  Recruitment returns per-object and
+per-well DataFrames and writes their CSVs and plots.  Invasion returns
+per-parasite classifications, per-field thresholds and QC, per-well
+efficiencies, condition summaries and comparisons, controls, and figures;
+saved runs place those artifacts under ``results/analyze_invasion``.
+Replication returns per-vacuole counts, well and condition distributions,
+pairwise and omnibus statistics, figures, and the grouping method actually
+used, with saved output under ``results/analyze_replication``.  Model utilities
+produce trained weights, evaluation tables, masks, and object summaries as
+appropriate.
+
+WHAT TO DO NEXT
+===============
+For plaques, inspect the masks before interpreting counts or areas.  For
+Recruitment, verify the object filters, condition annotation, and per-well
+denominators before comparing treatments.  For Invasion, review field-level
+thresholds, control agreement, bimodality, and sensitivity flags before using
+the efficiency table.  For Replication, inspect the vacuole grouping and the
+reported non-power-of-two fraction before comparing doubling distributions.
+Follow the specific function links above until the four tiles receive separate
+API destinations.
+
+The analysis unit matters.  Invasion is inferred from *absence* of outside
+stain, so weak staining can only inflate the invaded fraction; thresholds are
+therefore recorded per field and statistics use wells rather than treating
+parasites from one well as independent replicates.  Replication groups by
+vacuole, not by host cell, because one cell can contain several vacuoles; 3,
+5, 6, and 7 parasites remain in an explicit non-power-of-two QC bucket instead
+of being rounded into a biologically expected class.  Plaque area is calibrated
+against the well scale when available, so comparisons should retain the
+acquisition metadata that defines that scale.
+"""
 
 import seaborn as sns
 import os, random, sqlite3, re, time, shutil, itertools, logging

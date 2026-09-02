@@ -58,7 +58,6 @@ BAR = 60
 #: rewritten. `spacr/measure.py` was this session's to fix and is no longer
 #: in this table.
 STILL_OWED = {
-    "spacr.submodules": 8,
 }
 
 
@@ -133,7 +132,14 @@ def test_a_module_that_climbed_past_the_bar_leaves_the_table(tiles):
 
 
 @pytest.mark.parametrize(
-    "module", ["spacr.core", "spacr.measure", "spacr.ml", "spacr.sequencing"]
+    "module",
+    [
+        "spacr.core",
+        "spacr.measure",
+        "spacr.ml",
+        "spacr.sequencing",
+        "spacr.submodules",
+    ],
 )
 def test_each_repaired_module_answers_the_four_questions(tiles, module):
     """Modules fixed against 366's own bar are asserted against it rather
