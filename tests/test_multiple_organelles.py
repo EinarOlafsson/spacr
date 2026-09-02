@@ -277,11 +277,51 @@ def test_secondary_organelle_crop_uses_its_object_label_in_png_list(tmp_path):
     assert value == "o7"
 
 
-def test_legacy_measure_settings_leave_secondary_slots_disabled():
-    from spacr.object_roles import ORGANELLE_ROLES
+def test_legacy_measure_settings_carry_no_slots_they_did_not_ask_for():
+    """A one-organelle run has ONE slot's keys. Changed 2026-09-02.
+
+    This asserted the opposite: that a legacy settings file carrying only
+    `organelle_mask_dim` came back with every secondary slot PRESENT and
+    disabled. That was deliberate -- the loop that did it said downstream
+    readers iterate a fixed four-role schema -- and the maintainer has
+    overruled it: "if the user chooses 2 organelles settings for 2 organells
+    if the user chooses 100 organelles settings for 100 organells"
+    (instruction 326).
+
+    THE FIXED FLOOR WAS ALSO WHAT MADE THE CEILING IMMOVABLE. Widening the
+    role vocabulary so a hundred slots could be keyed widened that loop with
+    it, and a five-organelle run came back carrying twenty-six. Removing the
+    floor is what unblocks the hundred.
+
+    The primary slot is still honoured exactly as the file wrote it.
+    """
     from spacr.settings import get_measure_crop_settings
 
     settings = get_measure_crop_settings({"organelle_mask_dim": 7})
+
     assert settings["organelle_mask_dim"] == 7
-    assert all(settings[f"{role}_mask_dim"] is None
-               for role in ORGANELLE_ROLES[1:])
+    secondary = [key for key in settings
+                 if key.endswith("_mask_dim")
+                 and key.startswith("organelle")
+                 and key != "organelle_mask_dim"]
+    assert not secondary, (
+        f"a one-organelle run carried slots it did not ask for: {secondary}")
+
+
+def test_the_slot_count_is_exactly_what_was_asked_for():
+    """The maintainer's own example, driven: two means two.
+
+    Asserted across the range rather than at one value, because the two
+    numbers that used to be wrong were at opposite ends -- a low count was
+    raised to the four-role floor and a high one was silently clamped to the
+    twenty-six-letter ceiling.
+    """
+    from spacr.settings import get_measure_crop_settings
+
+    for count in (1, 2, 3, 5, 26):
+        settings = get_measure_crop_settings(
+            {"src": "/tmp/s", "number_of_organelles": count})
+        slots = [key for key in settings if key.endswith("_mask_dim")
+                 and key.startswith("organelle")]
+        assert len(slots) == count, (
+            f"asked for {count} organelles and got {len(slots)} slots")

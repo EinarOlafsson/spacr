@@ -1358,15 +1358,28 @@ def get_measure_crop_settings(settings=None):
         settings.setdefault(f'{_role}_mask_dim', None)
         settings.setdefault(f'{_role}_min_size', 0)
         settings.setdefault(f'{_role}_type', DEFAULT_ORGANELLE_TYPE)
-    # The measurement schema currently has four concrete organelle object
-    # tables. Keep every inactive secondary table explicit and disabled even
-    # when ``number_of_organelles`` is zero or one. Downstream readers iterate
-    # that fixed schema, while the UI still uses ``number_of_organelles`` to
-    # decide which slots are visible; ``None`` here does not activate a slot.
-    from .schema import ORGANELLE_ROLES as _MEASURED_ORGANELLE_ROLES
-    for _role in _MEASURED_ORGANELLE_ROLES[1:]:
-        settings.setdefault(f'{_role}_mask_dim', None)
-        settings.setdefault(f'{_role}_min_size', 0)
+    # NO FIXED FLOOR OF FOUR. Removed 2026-09-02 on the maintainer's
+    # instruction: "if the user chooses 2 organelles settings for 2 organells
+    # if the user chooses 100 organelles settings for 100 organells"
+    # (instruction 326).
+    #
+    # This loop used to seed every role in `schema.ORGANELLE_ROLES` -- four of
+    # them -- with a disabled placeholder "even when number_of_organelles is
+    # zero or one", so that downstream readers could iterate a fixed schema.
+    # The cost was that a two-organelle run carried FOUR slots' keys, which is
+    # what the maintainer objected to, and it put those keys into every
+    # settings CSV, run journal and reproducibility hash.
+    #
+    # IT WAS ALSO THE THING THAT MADE RAISING THE CEILING IMPOSSIBLE. Widening
+    # the role vocabulary so a hundred slots could be KEYED widened this loop
+    # with it, so a five-organelle run came back carrying twenty-six. The
+    # attempt on 2026-09-02 was reverted for exactly that, and this is the
+    # coupling that caused it.
+    #
+    # The loop above already seeds `declared_organelle_roles(settings)`, which
+    # is the count the user asked for plus any slot the file already carries.
+    # A reader that needs to know which organelle tables a run has should ask
+    # that, not a constant.
         settings.setdefault(f'{_role}_type', DEFAULT_ORGANELLE_TYPE)
     settings.setdefault('cytoplasm_min_size',0)
     settings.setdefault('merge_edge_pathogen_cells', True)
