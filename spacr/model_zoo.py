@@ -135,10 +135,19 @@ import logging
 import os
 import re
 import time
-from dataclasses import dataclass, field as _dc_field, replace
+from dataclasses import dataclass, replace
+from dataclasses import field as _dc_field
 from pathlib import Path
 from typing import (
-    Any, Callable, Dict, Iterable, Iterator, List, Mapping, Optional, Sequence,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
     Tuple,
 )
 
@@ -1499,7 +1508,9 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
     if include_plugins:
         try:
             from .plugins import (
-                load_object, model_providers, record_diagnostic,
+                load_object,
+                model_providers,
+                record_diagnostic,
             )
             have = {(entry.key, entry.name) for entry in entries}
             for plugin_name, contribution in model_providers():
@@ -2111,6 +2122,14 @@ def benchmark(entry: ModelEntry, images: Optional[Sequence[Any]] = None,
     total_steps = 2
 
     def _tick(message: str, done: int) -> None:
+        """Report one benchmark milestone through the captured callback.
+
+        :param message: stage description for the progress display.
+        :param done: completed-step index from zero through two.
+        :returns: None. When a callback was supplied it receives the message,
+            completed index, and captured total of two; otherwise this is a
+            no-op.
+        """
         if progress is not None:
             progress(message, done, total_steps)
 
@@ -2412,7 +2431,7 @@ def format_benchmarks(results: Sequence[BenchmarkResult],
                 f"diameter {diameter if diameter is not None else 'native'}")
             if result.ignored:
                 lines.append(
-                    f"       set but ignored by Cellpose 4: "
+                    "       set but ignored by Cellpose 4: "
                     + ", ".join(f"{k}={v!r}" for k, v in result.ignored.items()))
             rows = [[str(fmt(r)) for _, fmt in _BENCH_COLUMNS]
                     for r in result.rows]
