@@ -1168,12 +1168,18 @@ class MontagePlan:
 def _well_labels(frame: pd.DataFrame, keys: Sequence[str]) -> pd.Series:
     columns = frame.loc[:, list(keys)]
     missing = columns.isna().any(axis=1)
-    text = columns.astype(str)
-    joined = (text.iloc[:, 0] if len(keys) == 1
-              else text.agg("_".join, axis=1))
-    result = joined.astype(object)
-    result.loc[missing] = None
-    return result
+    # pandas 3 preserves missing values while casting string-dtype columns to
+    # ``str``. Joining the whole frame can therefore hand ``"_".join`` a float
+    # NaN. Exclude incomplete identities before conversion: those rows are
+    # deliberately ``None`` and never have a join key.
+    labels = [
+        None if row_missing else "_".join(str(value) for value in row)
+        for row_missing, row in zip(
+            missing.to_numpy(),
+            columns.itertuples(index=False, name=None),
+        )
+    ]
+    return pd.Series(labels, index=frame.index, dtype=object)
 
 
 def _shared_well_key(objects: pd.DataFrame, wells: pd.DataFrame) -> List[str]:
