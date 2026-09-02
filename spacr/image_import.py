@@ -45,10 +45,12 @@ from typing import Dict, List, Optional, Sequence, Tuple
 __all__ = [
     "AXES",
     "MARKERS",
+    "ImportPlan",
     "InsideFile",
     "InferredLayout",
     "TokenSlot",
     "infer_layout",
+    "plan_import",
     "read_axes_inside",
     "tokenise",
 ]
@@ -380,3 +382,176 @@ def read_axes_inside(path) -> InsideFile:
         # the folder-level scan carries on and the caller can list what it
         # could not read.
         return InsideFile(pages=0)
+
+
+@dataclass
+class ImportPlan:
+    """What WOULD be imported, for a human to check before anything is written.
+
+    THE PLAN IS THE FEATURE. `metadata_type` is unusable today not because its
+    regular expressions are bad but because the user cannot see what they did
+    until masks come out wrong, so the whole point of this module is that the
+    proposal is visible and correctable BEFORE it is acted on. This mirrors
+    :mod:`spacr.foreign`, whose column mapping is the middle of its screen and
+    is editable in place -- the same split, applied to images.
+
+    Nothing here touches the destination. :meth:`problems` says what would
+    stop an import; :meth:`with_mapping` returns a NEW plan, resolved in
+    memory, so editing is instant and a rejected edit costs nothing.
+
+    :param layout: what the names gave.
+    :param inside: per relative path, what the file's own metadata gave.
+    :param mapping: user answers for axes inference could not name, as
+        ``{token position: {value: index}}`` -- e.g. ``{0: {"DAPI": 1,
+        "GFP": 2}}`` for a tree with dye folders.
+    """
+
+    layout: InferredLayout
+    inside: Dict[str, InsideFile] = field(default_factory=dict)
+    mapping: Dict[int, Dict[str, int]] = field(default_factory=dict)
+
+    @property
+    def root(self) -> Path:
+        return self.layout.root
+
+    @property
+    def files(self) -> Dict[str, Dict[str, object]]:
+        """Relative path -> every axis known, from all three sources.
+
+        Names first, then the file's own metadata, then the user's mapping --
+        in that order because each is more specific than the last, and the
+        user is the only one who can be right about the last of them.
+        """
+        merged: Dict[str, Dict[str, object]] = {}
+        for rel, found in self.layout.per_file.items():
+            entry = dict(found)
+            inside = self.inside.get(rel)
+            if inside is not None:
+                for axis, size in inside.sizes.items():
+                    # A COUNT, not a position: the file holds `size` planes of
+                    # this axis, which is a different fact from "this file is
+                    # plane 3" and must not be written as one.
+                    entry[f"{axis}_count"] = size
+            for position, answers in self.mapping.items():
+                value = self._token_at(rel, position)
+                if value is not None and value in answers:
+                    entry["channel"] = answers[value]
+            merged[rel] = entry
+        return merged
+
+    def _token_at(self, rel: str, position: int) -> Optional[str]:
+        toks = tokenise(str(Path(rel).with_suffix("")))
+        return toks[position][1] if position < len(toks) else None
+
+    @property
+    def unmapped(self) -> Dict[int, List[str]]:
+        """Axes still waiting on an answer, after the mapping is applied."""
+        return {position: values
+                for position, values in self.layout.unplaced.items()
+                if not set(values) <= set(self.mapping.get(position, {}))}
+
+    def problems(self) -> List[str]:
+        """Everything that would make this import wrong, in plain sentences.
+
+        REPORTED, NOT RAISED, and all of them at once. The first version of
+        the translation audit raised on its first finding and reported one
+        problem where there were three; a plan that stops at the first
+        complaint makes the user fix things one round-trip at a time.
+        """
+        issues = []
+        if not self.files:
+            issues.append("No images could be read from this folder.")
+        for position, values in self.unmapped.items():
+            issues.append(
+                f"Token {position} varies across the folder "
+                f"({', '.join(sorted(set(values))[:4])}) and nothing says "
+                f"what it means. Map it, or those images cannot be told apart.")
+        ambiguous = [rel for rel, i in self.inside.items() if i.is_ambiguous]
+        if ambiguous:
+            issues.append(
+                f"{len(ambiguous)} file(s) hold several pages that are not "
+                f"labelled Z, T or channel, e.g. {ambiguous[0]}. Say which "
+                f"they are, or each file is treated as a single plane.")
+        unreadable = [rel for rel, i in self.inside.items() if i.pages == 0]
+        if unreadable:
+            issues.append(
+                f"{len(unreadable)} file(s) could not be opened, e.g. "
+                f"{unreadable[0]}.")
+        if self.layout.skipped:
+            issues.append(
+                f"{len(self.layout.skipped)} file(s) are named unlike the "
+                f"rest and were not interpreted, e.g. {self.layout.skipped[0]}.")
+        return issues
+
+    def counts(self) -> Dict[str, int]:
+        """Distinct values per axis -- the numbers a user checks first.
+
+        A plate with the wrong number of wells or channels is visible here
+        and nowhere else until the run has finished.
+        """
+        out: Dict[str, int] = {}
+        for entry in self.files.values():
+            for axis, value in entry.items():
+                out.setdefault(axis, set()).add(value)  # type: ignore[arg-type]
+        return {axis: len(values) for axis, values in out.items()}  # type: ignore[arg-type]
+
+    def with_mapping(self, mapping: Dict[int, Dict[str, int]]) -> "ImportPlan":
+        """A new plan with ``mapping`` merged in. Nothing on disk is touched."""
+        merged = {position: dict(answers)
+                  for position, answers in self.mapping.items()}
+        for position, answers in mapping.items():
+            merged.setdefault(position, {}).update(answers)
+        return ImportPlan(layout=self.layout, inside=self.inside,
+                          mapping=merged)
+
+    def table(self, limit: int = 8) -> str:
+        """The proposal, as the table a user reads before pressing anything.
+
+        Example filenames BESIDE the fields they were parsed into, because a
+        wrong guess is only visible next to the name it came from -- reading
+        a column of numbers cannot tell you the field and the channel were
+        swapped.
+        """
+        entries = self.files
+        axes = [a for a in AXES if any(a in e for e in entries.values())]
+        extra = sorted({k for e in entries.values() for k in e
+                        if k.endswith("_count")})
+        header = ["file"] + axes + extra
+        widths = [max(len(h), 12) for h in header]
+        rows = []
+        for rel in sorted(entries)[:limit]:
+            entry = entries[rel]
+            cells = [rel] + [str(entry.get(a, "")) for a in axes + extra]
+            widths = [max(w, len(c)) for w, c in zip(widths, cells)]
+            rows.append(cells)
+        lines = ["  ".join(h.ljust(w) for h, w in zip(header, widths)),
+                 "  ".join("-" * w for w in widths)]
+        lines += ["  ".join(c.ljust(w) for c, w in zip(r, widths)) for r in rows]
+        if len(entries) > limit:
+            lines.append(f"... and {len(entries) - limit} more")
+        counts = self.counts()
+        lines.append("")
+        lines.append("  ".join(f"{a}={counts[a]}" for a in axes if a in counts))
+        for issue in self.problems():
+            lines.append(f"  ! {issue}")
+        return "\n".join(lines)
+
+
+def plan_import(root, *, sample: int = 400,
+                mapping: Optional[Dict[int, Dict[str, int]]] = None,
+                read_files: bool = True) -> ImportPlan:
+    """Propose an import of ``root``. Writes nothing.
+
+    :param root: the folder of images.
+    :param sample: how many files to inspect; see :func:`infer_layout`.
+    :param mapping: answers for axes the names cannot name.
+    :param read_files: also open each file for its axis metadata. On by
+        default because a channel that lives inside a file is invisible
+        without it; turn it off for a fast first look at a large archive.
+    """
+    layout = infer_layout(root, sample=sample)
+    inside: Dict[str, InsideFile] = {}
+    if read_files:
+        for rel in layout.per_file:
+            inside[rel] = read_axes_inside(Path(root) / rel)
+    return ImportPlan(layout=layout, inside=inside, mapping=dict(mapping or {}))

@@ -2,9 +2,9 @@
 THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
 ================================================================================
 
-Status:    CORPUS BUILT, GAP MEASURED, INFERENCE AND FILE-METADATA READING
-           WORK -- 9 of 10 layouts, against 2 of 10 for the fixed convention
-           list. The reviewable table, reading inside files, and
+Status:    CORPUS, INFERENCE, FILE METADATA AND THE REVIEWABLE PLAN ALL WORK
+           -- 10 of 10 layouts, against 2 of 10 for the fixed convention
+           list. Saving a plan and writing the project are not started. The reviewable table, reading inside files, and
            writing the project are not started. Filed as 360, renumbered to 363 the
            same day (see 362 for why).
 Requested: 2026-09-02, verbatim -- "spacr has an import data module, this
@@ -195,6 +195,7 @@ templates.
     fixed convention list          2 of 10 parse, 8 recover nothing
     inference from names           8 of 10
     plus reading inside the file   9 of 10
+    plus ONE user answer          10 of 10
 
   THE OTHER TWO ARE REFUSALS, NOT FAILURES, and this is the design working:
     * `flat_ome` -- the channel is a PAGE INSIDE THE FILE. No name can carry
@@ -243,10 +244,29 @@ templates.
   nothing weaker; `is_ome` / `is_imagej` are not sufficient either, since a
   file can carry either container and still not say what its pages mean.
 
-  STILL TO DO for this part: offer the user a mapping for an unplaced axis
-  (the `per_channel_folder` case, where DAPI/GFP folders are correctly
-  reported but nothing maps a dye to an index), the reviewable table, and
-  writing the project.
+  THE REVIEWABLE PLAN EXISTS -- `plan_import(root)` returns an `ImportPlan`,
+  and it is the piece this file called the single most important
+  requirement. It writes NOTHING; `problems()` states every fault at once in
+  plain sentences; `table()` prints example filenames BESIDE the fields they
+  were parsed into, because a wrong guess is only visible next to the name it
+  came from; and `with_mapping()` returns a NEW plan resolved in memory, so
+  correcting a guess is instant and free.
+
+  THE LAST LAYOUT CLOSES WITH ONE ANSWER. `per_channel_folder`'s dye folders
+  are reported as "Token 0 varies across the folder (DAPI, GFP) and nothing
+  says what it means", and `with_mapping({0: {"DAPI": 1, "GFP": 2}})`
+  resolves it. Ten of ten, with the one thing only a person can know supplied
+  by a person.
+
+  A DISTINCTION THE PLAN KEEPS AND THE FIRST MEASUREMENT OF IT DID NOT: a
+  COUNT is not a POSITION. `flat_ome` holds two channels IN EACH FILE, so
+  `c_count=2` on every row -- one distinct value, not two. Scoring that as
+  "one channel" is wrong, and writing it as `channel=2` would be worse: it
+  would claim each file is channel 2. The plan carries `<axis>_count`
+  separately for exactly this reason.
+
+  STILL TO DO for this part: saving and reloading a plan so the second import
+  of the week is one press, and writing the project.
 
 --------------------------------------------------------------------------------
 ALREADY FIXED WHILE WRITING THIS FILE
