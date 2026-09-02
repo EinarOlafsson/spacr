@@ -269,7 +269,7 @@ spaCR 模块
 .. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
    :width: 16.0%
    :alt: 打开 Mask API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
    :align: middle
 .. |Module_measure| image:: ../../../spacr/resources/icons/workflow/measure.png
    :width: 16.0%
@@ -339,7 +339,7 @@ spaCR 模块
 .. |Module_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
    :width: 16.0%
    :alt: 打开 Image UMAP API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap
    :align: middle
 .. |Module_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
    :width: 16.0%
@@ -354,22 +354,22 @@ spaCR 模块
 .. |Module_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
    :width: 16.0%
    :alt: 打开 Plaque Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques
    :align: middle
 .. |Module_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
    :width: 16.0%
    :alt: 打开 Recruitment API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment
    :align: middle
 .. |Module_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
    :width: 16.0%
    :alt: 打开 Invasion Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_invasion
    :align: middle
 .. |Module_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
    :width: 16.0%
    :alt: 打开 Replication Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_replication
    :align: middle
 
 .. spacr-workflow-end

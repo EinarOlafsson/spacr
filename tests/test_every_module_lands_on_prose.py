@@ -61,8 +61,17 @@ STILL_OWED = {
 }
 
 
-def _tiles():
-    """``{tile key: module}`` for every tile the README grid draws."""
+def _destinations():
+    """``{tile key: (module, anchor)}`` for every tile the README grid draws.
+
+    The anchor half is new with 366's fix for the six tiles that share three
+    module pages. A tile's URL is now allowed to carry a fragment naming the
+    entry point that answers for it -- ``spacr.submodules.analyze_invasion``
+    rather than the whole of ``spacr.submodules`` -- so the destination is
+    two values, and splitting on the fragment is not optional: without it
+    the module name comes back with the anchor glued to it and every module
+    in this file fails to import.
+    """
     sys.path.insert(0, str(ROOT / "packaging"))
     from generate_readme_visuals import _api_urls, _module_grid
 
@@ -76,9 +85,15 @@ def _tiles():
         url = urls.get(key, "")
         if not url or "/api/" not in url:
             continue
+        url, _, anchor = url.partition("#")
         path = url.split("/api/")[-1].replace("/index.html", "")
-        found[key] = path.replace("/", ".")
+        found[key] = (path.replace("/", "."), anchor)
     return found
+
+
+def _tiles():
+    """``{tile key: module}`` -- the page half of every tile's destination."""
+    return {key: module for key, (module, _a) in _destinations().items()}
 
 
 def _words(module: str) -> int:
@@ -154,25 +169,78 @@ def test_each_repaired_module_answers_the_four_questions(tiles, module):
         assert phrase in doc, f"{module}'s landing page never says {phrase}"
 
 
-def test_two_tiles_do_not_share_one_landing_page(tiles):
-    """Recorded as a KNOWN gap rather than asserted clean, because it is not
-    fixable from the docstring side.
+def test_two_tiles_do_not_land_in_the_same_place(tiles):
+    """No two tiles arrive at the same text.
 
-    Six tiles land on three shared pages: mask and umap both open
-    `spacr.core`, and the four toxoplasma assays all open
-    `spacr.submodules`. Clicking "Analyze Plaques" and clicking "Recruitment"
-    arrive at the same text, which cannot explain either -- so part 3 is not
-    finished by prose alone; those tiles need pages of their own.
+    THIS USED TO BE RECORDED AS A KNOWN GAP rather than asserted, because it
+    was not fixable from the docstring side: six tiles shared three module
+    pages -- `mask` and `umap` on `spacr.core`, and all four toxoplasma
+    assays on `spacr.submodules` -- so clicking "Analyze Plaques" and
+    clicking "Recruitment" arrived at one paragraph that could not explain
+    either.
+
+    It is fixed by where the tiles POINT, which is what 366 said it would
+    take. Each of those six entry points already carried between 238 and 684
+    words about that module specifically, so the tile now lands on that
+    function's own anchor instead of at the top of a page it shares. No
+    prose was written to close this, and none of the other session's files
+    were touched.
     """
     shared = {}
-    for key, module in tiles.items():
-        shared.setdefault(module, []).append(key)
-    doubled = {mod: sorted(keys) for mod, keys in shared.items()
+    for key, dest in _destinations().items():
+        shared.setdefault(dest, []).append(key)
+    doubled = {dest: sorted(keys) for dest, keys in shared.items()
                if len(keys) > 1}
-    assert doubled == {
-        "spacr.core": ["mask", "umap"],
-        "spacr.submodules": ["analyze_plaques", "invasion", "recruitment",
-                             "replication"],
-    }, (f"the tiles that share a landing page changed: {doubled}. Update this "
-        f"test and instruction 366 -- a new sharing is a new place where one "
-        f"page has to explain two modules.")
+    assert not doubled, (
+        f"these tiles land on identical text: {doubled}. One page cannot "
+        f"explain two modules -- give the tile an anchor to its own entry "
+        f"point in `_APP_API_ANCHOR`, or a page of its own."
+    )
+
+
+def test_a_tile_that_shares_a_page_carries_an_anchor(tiles):
+    """The mechanism, asserted separately from its effect.
+
+    A tile may share a MODULE page -- there is nothing wrong with that, and
+    `spacr.submodules` genuinely implements four assays. What it may not do
+    is share a page with nothing to distinguish where it lands. Checked
+    apart from the test above so that a regression says which of the two
+    things broke: the anchors disappearing and two entry points being merged
+    are different failures with the same symptom.
+    """
+    by_module = {}
+    for key, (module, anchor) in _destinations().items():
+        by_module.setdefault(module, []).append((key, anchor))
+    bare = {module: sorted(k for k, a in entries if not a)
+            for module, entries in by_module.items()
+            if len(entries) > 1 and any(not a for _k, a in entries)}
+    assert not bare, (
+        f"these tiles share a module page with no anchor to tell them "
+        f"apart: {bare}. Add one to `_APP_API_ANCHOR` in "
+        f"spacr/qt/screens/settings_model.py."
+    )
+
+
+def test_every_anchor_points_at_something_that_exists(tiles):
+    """A fragment that scrolls nowhere is worse than no fragment.
+
+    `_module_level_anchor` already refuses an anchor whose module disagrees
+    with `_APP_API_MODULE`, so a moved entry point degrades to the plain
+    page link rather than to a broken one. That guard is invisible from the
+    outside -- the URL just quietly loses its fragment -- so the symbol is
+    checked here as well, where a rename fails loudly and names itself.
+    """
+    missing = []
+    for key, (module, anchor) in sorted(_destinations().items()):
+        if not anchor:
+            continue
+        symbol = anchor.rsplit(".", 1)[-1]
+        try:
+            mod = importlib.import_module(module)
+        except Exception as exc:                             # noqa: BLE001
+            missing.append(f"{key} -> {module} will not import ({exc})")
+            continue
+        if not hasattr(mod, symbol):
+            missing.append(f"{key} -> {anchor} does not exist")
+    assert not missing, "\n  ".join(
+        ["these tile anchors name something that is not there:"] + missing)

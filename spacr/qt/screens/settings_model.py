@@ -4095,6 +4095,52 @@ def _mapped_api_target(key: str) -> tuple[str, str]:
     return (segment, f"{module}.{symbol}" if symbol else "")
 
 
+#: WHERE A TILE LANDS WHEN SIX TILES SHARE THREE PAGES.
+#:
+#: Instruction 366 part 3 measured the problem: `mask` and `umap` both open
+#: `spacr.core`, and all four toxoplasma assays -- Analyze Plaques,
+#: Recruitment, Invasion, Replication -- open `spacr.submodules`. A reader
+#: who clicked "Recruitment" BECAUSE THEY DID NOT KNOW WHAT IT DOES arrived
+#: at the same text as someone who clicked "Analyze Plaques", and one page
+#: cannot answer for both.
+#:
+#: It is fixed by where the tile POINTS rather than by new prose, because the
+#: prose already exists and is good: each of these six entry points carries
+#: between 238 and 684 words about that module specifically -- what the
+#: red/green invasion asymmetry means and which direction its error runs,
+#: why replication is a distribution and not a mean, which channel ratio
+#: recruitment computes. Autoapi gives every function an anchor, so the tile
+#: can land on the section that answers for it.
+#:
+#: ONLY THE MODULE-LEVEL LINK USES THIS -- the one behind the tile and the
+#: masthead, where `key` is empty and the question is "what is this module".
+#: A SETTING's help is unchanged: it still resolves through the generated
+#: consumer map to wherever that value is actually read, which is a
+#: different question and usually a different function.
+#:
+#: An entry whose anchor does not live in the module `_APP_API_MODULE` names
+#: for the same key is IGNORED rather than followed, so renaming an entry
+#: point degrades to today's plain module link instead of producing a
+#: fragment that scrolls nowhere.
+_APP_API_ANCHOR = {
+    "mask": "spacr.core.preprocess_generate_masks",
+    "umap": "spacr.core.generate_image_umap",
+    "analyze_plaques": "spacr.submodules.analyze_plaques",
+    "recruitment": "spacr.submodules.analyze_recruitment",
+    "invasion": "spacr.submodules.analyze_invasion",
+    "replication": "spacr.submodules.analyze_replication",
+}
+
+
+def _module_level_anchor(app_key: str, module: str) -> str:
+    """The anchor for a tile that shares its page, checked against `module`."""
+    anchor = _APP_API_ANCHOR.get(app_key, "")
+    if not anchor or not module:
+        return ""
+    expected = f"spacr.{module.replace('/', '.')}."
+    return anchor if anchor.startswith(expected) else ""
+
+
 def api_docs_url(
     app_key: str,
     key: str = "",
@@ -4131,6 +4177,10 @@ def api_docs_url(
         module, anchor = _mapped_api_target(key)
         if not module:
             module = _APP_API_MODULE.get(app_key)
+    if not key and not anchor:
+        # THE TILE'S OWN LINK. Six tiles share three module pages; this sends
+        # each to the entry point that answers for it. See `_APP_API_ANCHOR`.
+        anchor = _module_level_anchor(app_key, module or "")
     if module:
         url = f"{DOCS_API_BASE}/spacr/{module}/index.html"
         if anchor:

@@ -462,12 +462,24 @@ def _tiled_registry() -> list[tuple[str, str, str, str]]:
 
 
 def _api_urls() -> dict[str, str]:
-    """Return the home-screen API destinations used by the running app."""
-    from spacr.qt.screens.settings_model import _APP_API_MODULE
+    """Return the home-screen API destinations used by the running app.
 
-    base = "https://einarolafsson.github.io/spacr/api/spacr"
+    THROUGH `api_docs_url`, WHICH IS WHAT THE APP ITSELF CALLS, rather than
+    by rebuilding the URL from `_APP_API_MODULE` here. This function used to
+    format its own string, so the README and the running GUI agreed only for
+    as long as nobody added a case to the resolver -- and instruction 366
+    added one: the six tiles that share three module pages now carry an
+    anchor to the entry point that answers for them, which a second
+    formatter would silently drop and send four toxoplasma assays back to
+    the same paragraph.
+
+    `key` is left empty deliberately. That is the module-level question --
+    "what is this module" -- and it is the only one a tile asks.
+    """
+    from spacr.qt.screens.settings_model import api_docs_url
+
     return {
-        key: f"{base}/{_APP_API_MODULE[key].strip('/')}/index.html"
+        key: api_docs_url(key)
         for key, _label, _desc, _section in _registry()
     }
 
