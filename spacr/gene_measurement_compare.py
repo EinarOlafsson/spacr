@@ -416,7 +416,7 @@ def build(objects: pd.DataFrame, measurement: str, *,
         if wells is not None:
             wanted = {str(w) for w in wells}
             left_out = theirs - wanted
-            keep &= ~(annotated & ~where.astype(str).isin(wanted))
+            keep &= ~where.astype(str).isin(left_out)
             annotated = annotated & where.astype(str).isin(wanted)
             if left_out:
                 chosen_note = (
