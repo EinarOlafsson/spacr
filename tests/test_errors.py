@@ -952,6 +952,7 @@ def test_measure_crop_marks_measurements_db_partial_when_a_field_fails(tmp_path,
     settings.update({
         'src': str(merged), 'channels': [0, 1, 2, 3],
         'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,
+        'cell_min_size': 0, 'nucleus_min_size': 0, 'pathogen_min_size': 0,
         'png_dims': [0, 1, 2], 'png_size': [32, 32],
         'save_measurements': True, 'save_png': False, 'save_arrays': False,
         'plot': False, 'verbose': False, 'timelapse': False,
