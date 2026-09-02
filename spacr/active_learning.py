@@ -715,6 +715,11 @@ def predict_probabilities(model: Callable[[Any], Any], batches: Iterable[Any],
     outputs: List[np.ndarray] = []
 
     def _run() -> None:
+        """Score captured batches in order and append normalized matrices.
+
+        Loader tuples contribute their input element, and movable inputs are
+        transferred to the selected device before the model is called.
+        """
         for batch in batches:
             inputs = batch[0] if isinstance(batch, (tuple, list)) else batch
             if (torch is not None and device is not None
@@ -1680,6 +1685,7 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
     def _register(target: Dict[str, Tuple[str, Optional[int]]],
                   composed: List[str], label: str, object_type: Optional[str],
                   entry: Tuple[str, Optional[int]]) -> None:
+        """Register first-wins untyped and, when known, typed object keys."""
         # Both spellings, so a caller working from either side resolves. The
         # untyped one is first-wins on purpose: it is an under-specified
         # name, and it named one of these crops before the type existed.
