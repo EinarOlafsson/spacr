@@ -764,6 +764,7 @@ class HitList:
         needle = query.strip().casefold()
 
         def _ok(hit: Hit) -> bool:
+            """Return whether ``hit`` satisfies every supplied filter."""
             if max_q is not None and not _at_most(hit.q_value, max_q):
                 return False
             if max_p is not None and not _at_most(hit.p_value, max_p):
@@ -1256,12 +1257,14 @@ def _rank(hits: Sequence[Hit], ranking: str) -> List[Hit]:
     """
     if ranking == "selection-frequency":
         def key(hit: Hit):
+            """Rank finite selection and effect magnitude high, then gene."""
             selection = (hit.selection_frequency
                          if math.isfinite(hit.selection_frequency) else -1.0)
             magnitude = abs(hit.effect) if math.isfinite(hit.effect) else -1.0
             return (-selection, -magnitude, hit.gene)
     else:
         def key(hit: Hit):
+            """Rank finite q low, effect magnitude high, then gene."""
             q = hit.q_value if math.isfinite(hit.q_value) else float("inf")
             magnitude = abs(hit.effect) if math.isfinite(hit.effect) else -1.0
             return (q, -magnitude, hit.gene)
