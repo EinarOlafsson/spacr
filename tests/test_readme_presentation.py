@@ -144,14 +144,13 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
     ) == tuple(key for key, *_rest in tiled if key not in pipeline)
 
     for key, label, _description, _section in tiled:
-        if key in pipeline:
-            relative = f"spacr/resources/icons/workflow/{key}.png"
-            committed = Image.open(WORKFLOW_DIR / f"{key}.png").convert("RGBA")
-            rendered = generator.render_pipeline_tile(key, label).convert("RGBA")
-        else:
-            relative = f"spacr/resources/icons/workflow/apps/{key}.png"
-            committed = Image.open(APP_WORKFLOW_DIR / f"{key}.png").convert("RGBA")
-            rendered = generator.render_app_tile(key, label).convert("RGBA")
+        # ONE renderer for every tile since 2026-09-02. The two groups
+        # still live in different folders -- the pipeline artwork is used
+        # elsewhere too -- but nothing about the tiles differs.
+        folder = "workflow" if key in pipeline else "workflow/apps"
+        relative = f"spacr/resources/icons/{folder}/{key}.png"
+        committed = Image.open(ROOT / relative).convert("RGBA")
+        rendered = generator.render_module_tile(key, label).convert("RGBA")
         assert ImageChops.difference(committed, rendered).getbbox() is None
         assert relative in text
         assert urls[key] in text
@@ -187,12 +186,26 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
 
     assert "flow_chart_v3" not in text
     assert "The spaCR workflow" not in text
-    assert "Select a workflow module to open its API page" in text
+    assert "Select a tile to open that\nmodule's API page" in text
     assert "_generated/workflow_grid.rst" in _read(DOCS_INDEX)
     assert "../_generated/workflow_grid.rst" in _read(AUTOAPI_INDEX)
 
 
-def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
+def test_every_module_is_one_tile_of_one_size_in_one_grid():
+    """The README's module grid: identical tiles, six a row, no arrows.
+
+    Asked for on 2026-09-02: "make them all the same size and present them
+    on an evenly spaced grid with 6 modules per row", then "remove the
+    titles and arrows for the modules and the title should be spaCR
+    modules".
+
+    The three asks are one contract and this test states it as one. The
+    tiles could not be the same size while the pipeline strip carried
+    arrows -- the strip had to fit six buttons and five arrows in the
+    width the bands used for six buttons -- so "no arrows" is what makes
+    "same size" reachable, and "same size" is what makes an even grid
+    possible.
+    """
     from PIL import Image, ImageChops
 
     path = ROOT / "packaging" / "generate_readme_visuals.py"
@@ -202,122 +215,110 @@ def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
     spec.loader.exec_module(generator)
 
     text = _read(README)
-    for key, label in generator.MAIN_PIPELINE:
-        committed = Image.open(WORKFLOW_DIR / f"{key}.png").convert("RGBA")
-        rendered = generator.render_pipeline_tile(key, label).convert("RGBA")
-        assert ImageChops.difference(committed, rendered).getbbox() is None
-        assert committed.getpixel(
-            (committed.width // 2, 3)
-        ) == generator.WORKFLOW_RIM
-        assert f"workflow/{key}.png" in text
+    grid = generator._module_grid()
+
+    # THE PIPELINE FIRST, then Home's order. The arrows used to say the
+    # six were a sequence; the position now does.
+    assert [key for key, _label, _image in grid][:len(generator.MAIN_PIPELINE)] == [
+        key for key, _label in generator.MAIN_PIPELINE
+    ]
+    assert len({key for key, _l, _i in grid}) == len(grid), "a module tiled twice"
+
+    # ONE RENDERER, so identical size is not a thing two paths have to be
+    # kept in agreement about.
+    for key, label, image in grid:
+        committed = Image.open(ROOT / "spacr" / "resources" / "icons" / image)
+        committed = committed.convert("RGBA")
+        rendered = generator.render_module_tile(key, label).convert("RGBA")
+        assert ImageChops.difference(committed, rendered).getbbox() is None, (
+            f"{image} on disk is not what the generator draws")
+        assert committed.size == (generator.BUTTON_SIZE, generator.BUTTON_SIZE)
+        # Every tile occupies the same box in its canvas, so every tile
+        # draws at the same size and every row anchors to the same left
+        # edge whether it is full or short.
+        bounds = committed.getchannel("A").getbbox()
+        assert bounds is not None
+        pad = generator.TILE_PADDING
+        assert bounds[0] >= pad and bounds[1] >= pad
+        assert bounds[2] <= committed.width - pad
+        assert bounds[3] <= committed.height - pad
+        assert image in text
         assert generator._api_urls()[key] in text
 
-    arrow = Image.open(WORKFLOW_DIR / "arrow.png").convert("RGBA")
-    assert ImageChops.difference(
-        arrow, generator.render_pipeline_arrow().convert("RGBA")
-    ).getbbox() is None
-    assert arrow.getpixel(
-        (arrow.width // 2, arrow.height // 2)
-    ) == generator.WHITE
-    assert arrow.size == (
-        generator.ARROW_CANVAS_WIDTH,
-        generator.ARROW_CANVAS_HEIGHT,
-    )
-    assert arrow.getchannel("A").getbbox() is not None
     assert str(generator._tile_font(22).path).endswith("OpenSans-Regular.ttf")
-    for path in APP_WORKFLOW_DIR.glob("*.png"):
-        app = Image.open(path).convert("RGBA")
-        assert app.size == (512, 512)
-        bounds = app.getchannel("A").getbbox()
-        assert bounds is not None
-        key = path.stem
-        left = generator._app_column(key) * generator.APP_COLUMN_STEP
-        assert bounds[0] >= left
-        assert bounds[1] >= generator.APP_TILE_PADDING
-        assert bounds[2] <= left + generator.APP_TILE_SIZE
-        assert bounds[3] <= app.height - generator.APP_TILE_PADDING
 
-    workflow_row = next(
-        line for line in text.splitlines()
-        if line.startswith("|Workflow_mask|")
-    )
-    assert workflow_row.count("|Workflow_") == 11
-    assert workflow_row.count("|Workflow_arrow|") == 5
-    assert workflow_row.count(r"\ ") == 10
-    app_rows = [
-        line for line in text.splitlines() if line.startswith("|App_")
-    ]
-    assert app_rows
-    assert max(line.count("|App_") for line in app_rows) == generator.APP_COLUMNS
-    assert all(
-        line.count(r"\ ") == line.count("|App_") - 1
-        for line in app_rows
-    )
-    # Percent widths and zero-width RST separators keep the declared number
-    # of tiles on each row at every normal documentation viewport width. Five
-    # secondary canvases meet both core-row edges; the visible buttons remain
-    # smaller and have one constant gap. Partial rows start at the left edge.
-    top_width = (
-        6 * generator.PIPELINE_DISPLAY_PERCENT
-        + 5 * generator.ARROW_DISPLAY_PERCENT
-    )
-    app_width = generator.APP_COLUMNS * generator.APP_DISPLAY_PERCENT
-    assert top_width < 100
+    # The grid's own markup, without the prose around it. Several of the
+    # checks below have to be scoped to it: "**Tools**" is also ordinary
+    # prose further down ("Make Masks appears under **Tools**"), and a
+    # whole-file search would call that a heading.
+    block = text.partition(generator.WORKFLOW_BEGIN)[2]
+    block = block.partition(generator.WORKFLOW_END)[0]
+    assert block.strip(), "the workflow markers bracket nothing"
 
-    # THE BUTTONS MATCH, NOT THE ROWS. Asked for on 2026-08-31: "the
-    # dimensions of the core module buttons should be the same as the
-    # other module buttons".
-    #
-    # They could not be while both rows were sized to the same total
-    # width, because the two rows carry different things -- the core row
-    # is six buttons AND five arrows, an app row is six buttons -- so the
-    # arrows had to come out of the core buttons, leaving them narrower.
-    #
-    # A core tile fills its 512px canvas; an app tile is APP_TILE_SIZE
-    # inside one. The drawn width is the canvas percentage scaled by that
-    # ratio, and it is those two numbers that must agree.
-    core_button = generator.PIPELINE_DISPLAY_PERCENT
-    app_button = (generator.APP_DISPLAY_PERCENT
-                  * generator.APP_TILE_SIZE / generator.BUTTON_SIZE)
-    assert abs(core_button - app_button) <= 0.01, (
-        f"a core button draws at {core_button}% and an app button at "
-        f"{app_button:.3f}%; they are meant to be the same size")
+    # THE ARROWS ARE GONE, asset and markup both. An unreferenced PNG left
+    # in the resource tree is what a later change quietly starts using.
+    assert not (WORKFLOW_DIR / "arrow.png").exists()
+    assert not (ROOT / "docs" / "source" / "_static" / "workflow"
+                / "arrow.png").exists()
+    assert "arrow" not in block.lower()
+    assert not hasattr(generator, "render_pipeline_arrow")
 
-    # An app row consequently ends SHORT of the right margin, and that is
-    # the deliberate trade. Rows already anchor left -- three of the four
-    # bands are short anyway -- so the only thing lost is a full-width
-    # bottom row that never existed for most sections.
-    assert app_width < top_width, (
-        "the app row fills the same width as the core row again, which "
-        "means the buttons went back to being different sizes")
-    assert app_width < 100, "an app row that wraps its last tile"
+    # THE BAND TITLES ARE GONE. They restated Home's own grouping and went
+    # stale every time Home was restructured.
+    for gone in ("**Data**", "**Tools**", "**Assays**", "**More core tools**"):
+        assert gone not in block, f"{gone} is still a heading over the grid"
+    assert "spaCR modules\n-------------" in text
 
-    assert generator.APP_COLUMN_STEP == 0
-    offsets = {generator._app_column(key) * generator.APP_COLUMN_STEP
-               for items in generator._grouped_apps().values()
-               for key, *_rest in items}
-    assert offsets == {0}, (
-        f"tiles are drawn at differing offsets {sorted(offsets)}; the "
-        f"constant-offset layout is what keeps a module still when the row "
-        f"above it changes length")
+    rows = [line for line in text.splitlines()
+            if line.startswith("|Module_")]
+    assert rows, "the grid emitted no rows"
+    assert sum(line.count("|Module_") for line in rows) == len(grid)
+    # SIX PER ROW, and the last row is the only short one.
+    assert all(line.count("|Module_") == generator.GRID_COLUMNS
+               for line in rows[:-1])
+    assert 1 <= rows[-1].count("|Module_") <= generator.GRID_COLUMNS
+    # Zero-width separators: one fewer than the tiles they join, so the
+    # browser puts no whitespace between neighbours and the gutter is
+    # exactly the two canvas margins that meet.
+    assert all(line.count(r"\ ") == line.count("|Module_") - 1
+               for line in rows)
 
-    # The gap between neighbouring buttons is now made entirely by each
-    # tile's own padding, so it must still be a real gap.
-    visible_gap = generator.BUTTON_SIZE - generator.APP_TILE_SIZE
-    assert visible_gap == 2 * generator.APP_TILE_PADDING
+    # The row must not wrap. Six tiles at the declared width have to leave
+    # headroom, because a browser that rounds each percentage up must
+    # still not push the sixth onto a line of its own.
+    row_width = generator.GRID_COLUMNS * generator.TILE_DISPLAY_PERCENT
+    assert row_width < 100, "a full row wraps its last tile"
+
+    # The gutter is made entirely by each tile's own padding, so it has to
+    # be a real gap.
+    visible_gap = generator.BUTTON_SIZE - generator.TILE_SIZE
+    assert visible_gap == 2 * generator.TILE_PADDING
     assert visible_gap > 0
-    for items in generator._grouped_apps().values():
-        for start in range(0, len(items), generator.APP_COLUMNS):
-            assert generator._app_column(items[start][0]) == 0
-    assert (
-        generator.ARROW_CANVAS_WIDTH / generator.ARROW_CANVAS_HEIGHT
-        == generator.ARROW_DISPLAY_PERCENT
-        / generator.PIPELINE_DISPLAY_PERCENT
-    )
+
+    # No leftover artwork for a module that is no longer tiled, and none
+    # of the old two-sizes machinery still around to be picked back up.
+    tiled = {image for _key, _label, image in grid}
+    for stray in APP_WORKFLOW_DIR.glob("*.png"):
+        assert f"workflow/apps/{stray.name}" in tiled, (
+            f"{stray.name} is artwork nothing references")
+    for gone in ("render_pipeline_tile", "render_app_tile", "_app_column",
+                 "APP_COLUMNS", "APP_COLUMN_STEP", "APP_DISPLAY_PERCENT",
+                 "PIPELINE_DISPLAY_PERCENT", "ARROW_DISPLAY_PERCENT",
+                 "APP_TILE_SIZE", "APP_TILE_PADDING"):
+        assert not hasattr(generator, gone), (
+            f"{gone} survived the single-grid rewrite; two sizes can come "
+            f"back the moment there are two ways to ask for one")
 
 
-def test_workflow_asset_columns_do_not_depend_on_qt_import_order():
-    """Late screen registration cannot move committed README artwork."""
+def test_the_grid_order_does_not_depend_on_qt_import_order():
+    """Late screen registration cannot reorder the committed grid.
+
+    The grid used to be checked by asking each tile which COLUMN it was
+    drawn at, because the column decided where the button sat inside its
+    canvas. Every tile now draws at one offset, so the column is not a
+    property of the artwork any more -- the ORDER is the thing import
+    order could still disturb, and it is what is pinned here.
+    """
     script = r"""
 import importlib.util
 import json
@@ -331,15 +332,11 @@ spec = importlib.util.spec_from_file_location(
 )
 generator = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(generator)
-columns = {
-    key: generator._app_column(key)
-    for items in generator._grouped_apps().values()
-    for key, _label in items
-}
-print("SPACR_COLUMNS=" + json.dumps(columns, sort_keys=True))
+order = [key for key, _label, _image in generator._module_grid()]
+print("SPACR_COLUMNS=" + json.dumps(order))
 """
 
-    def columns(preimport: str) -> dict[str, int]:
+    def grid_order(preimport: str) -> "list[str]":
         env = dict(os.environ)
         env["SPACR_README_PREIMPORT"] = preimport
         result = subprocess.run(
@@ -356,8 +353,8 @@ print("SPACR_COLUMNS=" + json.dumps(columns, sort_keys=True))
         )
         return json.loads(line.partition("=")[2])
 
-    clean = columns("")
-    settings_first = columns("spacr.qt.screens.settings_model")
+    clean = grid_order("")
+    settings_first = grid_order("spacr.qt.screens.settings_model")
     assert clean == settings_first
 
 

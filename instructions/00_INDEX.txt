@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-326 done / 33 open (90%).
+326 done / 34 open (90%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -147,6 +147,9 @@ OPEN
 
   359  EVERY SETTINGS CONTAINER RESIZES, AND FIRST LAUNCH CHOOSES A MEASURED LAYOUT
        359_every_settings_container_resizes_and_first_launch_chooses_a_measured_layout.txt
+
+  359  THE README FRONT PAGE: ONE MODULE GRID, A MODEL ZOO, AND ONE DOWNLOAD COMMAND
+       359_the_readme_front_page_rework.txt
 
 --------------------------------------------------------------------------------
 DONE

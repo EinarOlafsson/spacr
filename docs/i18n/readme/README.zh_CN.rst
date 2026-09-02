@@ -102,7 +102,7 @@ spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐�
      - 🟢 CPU
      - 🟢 CPU
 
-支持(稳定) 实施(beta) 🔴 CPU 仅支持
+🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
 
 .. spacr-hardware-end
 
@@ -260,131 +260,121 @@ Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-
 
 同一项目还可以设计实验孔板、估算统计功效、校正批次效应、检查分割质量、浏览关联图表和图像裁剪、导出 AnnData、继续中断的工作，并记录生成各项结果时使用的设置。
 
-工作流程概览
---------------------
+spaCR 模块
+--------
 
 .. spacr-workflow-begin
 
-|Workflow_mask|\ |Workflow_arrow|\ |Workflow_measure|\ |Workflow_arrow|\ |Workflow_annotate|\ |Workflow_arrow|\ |Workflow_classify_merged|\ |Workflow_arrow|\ |Workflow_map_barcodes|\ |Workflow_arrow|\ |Workflow_regression|
+|Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
 
-.. |Workflow_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
-   :width: 14.5%
+|Module_foreign|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|\ |Module_qc_dashboard|
+
+|Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|\ |Module_analyze_plaques|
+
+|Module_recruitment|\ |Module_invasion|\ |Module_replication|
+
+.. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
+   :width: 16.0%
    :alt: 打开 Mask API
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
-.. |Workflow_measure| image:: ../../../spacr/resources/icons/workflow/measure.png
-   :width: 14.5%
+.. |Module_measure| image:: ../../../spacr/resources/icons/workflow/measure.png
+   :width: 16.0%
    :alt: 打开 Measure API
    :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
    :align: middle
-.. |Workflow_annotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
-   :width: 14.5%
+.. |Module_annotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
+   :width: 16.0%
    :alt: 打开 Annotate API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
    :align: middle
-.. |Workflow_classify_merged| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
-   :width: 14.5%
+.. |Module_classify_merged| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
+   :width: 16.0%
    :alt: 打开 Classify API
    :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
    :align: middle
-.. |Workflow_map_barcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
-   :width: 14.5%
+.. |Module_map_barcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
+   :width: 16.0%
    :alt: 打开 Map Barcodes API
    :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
    :align: middle
-.. |Workflow_regression| image:: ../../../spacr/resources/icons/workflow/regression.png
-   :width: 14.5%
+.. |Module_regression| image:: ../../../spacr/resources/icons/workflow/regression.png
+   :width: 16.0%
    :alt: 打开 Regression API
    :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
    :align: middle
-.. |Workflow_arrow| image:: ../../../spacr/resources/icons/workflow/arrow.png
-   :width: 2.5%
-   :align: middle
-
-**数据**
-
-|App_foreign|\ |App_run_compare|\ |App_experiment_design|\ |App_power|\ |App_dose_response|\ |App_qc_dashboard|
-
-**Tools**
-
-|App_make_masks|\ |App_align|\ |App_umap|\ |App_gate_editor|\ |App_graph_builder|
-
-**实验分析**
-
-|App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
-
-.. |App_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
-   :width: 15.466%
+.. |Module_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
+   :width: 16.0%
    :alt: 打开 Import API
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
    :align: middle
-.. |App_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
-   :width: 15.466%
+.. |Module_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
+   :width: 16.0%
    :alt: 打开 Run Compare API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
    :align: middle
-.. |App_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
-   :width: 15.466%
+.. |Module_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
+   :width: 16.0%
    :alt: 打开 Experiment Design API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
    :align: middle
-.. |App_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
-   :width: 15.466%
+.. |Module_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
+   :width: 16.0%
    :alt: 打开 Power / Design API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
    :align: middle
-.. |App_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
-   :width: 15.466%
+.. |Module_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
+   :width: 16.0%
    :alt: 打开 Dose–Response API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
    :align: middle
-.. |App_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
-   :width: 15.466%
+.. |Module_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
+   :width: 16.0%
    :alt: 打开 QC API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
-.. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 15.466%
+.. |Module_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
+   :width: 16.0%
    :alt: 打开 Make Masks API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
-.. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
-   :width: 15.466%
+.. |Module_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
+   :width: 16.0%
    :alt: 打开 Align & Stitch API
    :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
    :align: middle
-.. |App_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
-   :width: 15.466%
+.. |Module_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
+   :width: 16.0%
    :alt: 打开 Image UMAP API
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
-.. |App_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
-   :width: 15.466%
+.. |Module_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
+   :width: 16.0%
    :alt: 打开 Gate Editor API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
    :align: middle
-.. |App_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
-   :width: 15.466%
+.. |Module_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
+   :width: 16.0%
    :alt: 打开 Graph Builder API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
-.. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
-   :width: 15.466%
+.. |Module_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
+   :width: 16.0%
    :alt: 打开 Plaque Assay API
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
-.. |App_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
-   :width: 15.466%
+.. |Module_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
+   :width: 16.0%
    :alt: 打开 Recruitment API
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
-.. |App_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
-   :width: 15.466%
+.. |Module_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
+   :width: 16.0%
    :alt: 打开 Invasion Assay API
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
-.. |App_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
-   :width: 15.466%
+.. |Module_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
+   :width: 16.0%
    :alt: 打开 Replication Assay API
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
