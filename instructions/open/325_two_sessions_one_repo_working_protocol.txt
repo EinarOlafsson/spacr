@@ -1092,3 +1092,32 @@ pulling.  The required tests are: correction-before-normalisation, atomic NPZ
 completion ordering, read-only exact resume, off parity, and the combined
 pixel-level once-not-twice assertion.  No Codex process is touching
 ``io.py``, ``measure.py``, settings, Qt, or this file after this handoff commit.
+
+--------------------------------------------------------------------------------
+2026-09-02 — CODEX: TWO STALE 310 VERDICTS, AND THE CURRENT DOCS FAILURE
+--------------------------------------------------------------------------------
+
+Instruction 310 still calls A14 and A16 ``STILL LIVE``, but both source defects
+are already closed.  A14 was fixed by ``4d153c1b34``: a split-axis annotation
+inside the break is clamped to the nearest visible edge and offset inward.
+``tests/test_cov_wf_volcano_style.py::test_a_label_lands_on_the_panel_whose_``
+``range_can_show_its_point`` proves the upper/lower positive counterparts,
+the clamped y=5 anchor and a rendered bounding box wholly inside the panel;
+against the parent source its y-anchor is 4 and the assertion is red.
+
+A16 was fixed by ``4876158a6c``: finite values outside [0, 1] raise
+``ValueError`` at the diagnostic boundary and become ``PanelUnavailable`` at
+the panel boundary.  The two focused tests in ``tests/test_regression_qc.py``
+plus ``test_a_coefficient_table_outside_zero_to_one_draws_no_uniform_line``
+prove rejection, valid 0/1 boundaries and a genuine-p-value positive
+counterpart; against the parent source the malformed values silently return a
+zero-count ``too-few`` histogram, so the raises assertions are red.  Codex
+reran the four focused nodes together: 4 passed in 2.74 s.  There is no source
+or test gap left for either entry; only their 310 verdict text is stale.
+
+Docs run ``33670429359`` on exact SHA ``09d83e7e6`` fails only the protected
+catalog audit with ``ValueError: stale reviewed API source
+'spacr.layers.LabelsLayer#2'`` in
+``docs/i18n/reviewed/api/sv/2026-08-31-layers-parameter-docs.json``.  This is
+the same protected Swedish reviewed-record failure seen on the preceding SHA;
+no Codex-owned non-Qt failure was present when the run terminated.
