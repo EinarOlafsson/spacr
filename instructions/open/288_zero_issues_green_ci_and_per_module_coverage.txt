@@ -4,7 +4,9 @@ ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 100% PER-MODULE COVERAGE
 
 Status:    OPEN, filed 2026-08-27. RELEASE-BLOCKING.
 Owner:     the complete spaCR source tree, tests and GitHub workflows.
-Precedes:  253's version, main-branch and history publication actions.
+Precedes:  the version, main-branch and history publication actions.
+           (These were item 253's, deleted 2026-09-02 at the
+           maintainer's instruction.)
 Requested: 2026-08-28 — "get the library to 100% test coverage"
 
 --------------------------------------------------------------------------------
@@ -131,7 +133,7 @@ HOW TO KNOW IT WORKED
     unlisted module, proving the per-module guard is active;
   * the README badge resolves to the successful required workflow rather than
     a cancelled or non-required run;
-  * instruction 253 may proceed only after all of the above remain true on the
+  * publication may proceed only after all of the above remain true on the
     commit proposed for publication.
 
 THE FAILING-TEST COUNT, RESOLVED (2026-08-30)

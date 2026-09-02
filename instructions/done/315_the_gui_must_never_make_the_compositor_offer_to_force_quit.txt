@@ -1,6 +1,20 @@
 315 THE GUI MUST NEVER MAKE THE COMPOSITOR OFFER TO FORCE-QUIT
 ============================================================
 
+Status:    DONE 2026-09-02, ON THE MAINTAINER'S ACCEPTANCE.
+
+           Parts 3a, 3b and 3c were fixed and measured here, and 3d was
+           itemised into three named optimisations. What could never be
+           checked in this session is the symptom itself: "<app> is not
+           responding" is the COMPOSITOR's dialog, and no compositor exists
+           under QT_QPA_PLATFORM=offscreen, which is the only display this
+           session has. The same wall stopped 314 -- measured at 0% backdrop
+           CPU offscreen against 96.6% on a real display.
+
+           Einar closed it on 2026-09-02, having used the application on the
+           machine that produced the complaint. That is the evidence for the
+           part offscreen work cannot reach.
+
 Raised on 2026-08-30, in the user's words, across one evening:
 
   "it takes more than 60 sec to start the programe - this alone makes

@@ -2,9 +2,22 @@
 THE INSTALLED PACKAGE LOADS QUICKLY AND RUNS WITHIN MEASURED RESOURCE BUDGETS
 ================================================================================
 
-Status:    OPEN, filed 2026-08-28. RELEASE-BLOCKING.
+Status:    DONE 2026-09-02, ON THE MAINTAINER'S ACCEPTANCE.
+
+           WHAT THAT MEANS, recorded plainly so the record is not stronger
+           than the evidence: the measured half of this item is done --
+           startup from an installed wheel is accepted, and items 55, 262,
+           268, 282 and 284 measured and improved startup, module
+           construction, lazy imports and memory policy. What was NEVER
+           carried out here is the part that needs hardware this session
+           does not have: the sdist in a clean environment, the GPU path,
+           the machine matrix and the performance profiles.
+
+           Einar closed it on 2026-09-02 after using the built package. He
+           is the one who can run it on the machines that matter, so his
+           acceptance is the evidence for the remainder; nothing below was
+           re-measured to support this line.
 Owner:     packaging, startup, module loading, execution and resource cleanup.
-Precedes:  253's final sweep and every 1.5.0.5 publication action.
 Requested: 2026-08-28 — "make sure the pakeage loads and runs optimally"
 
 --------------------------------------------------------------------------------
