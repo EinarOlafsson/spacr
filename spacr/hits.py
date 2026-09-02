@@ -112,7 +112,8 @@ _BRACKET = re.compile(r"\[(.*?)\]")
 #: to soak up layout and experiment artefacts. Match term prefixes so a real
 #: guide whose identifier contains ``row`` or ``column`` remains testable.
 NUISANCE_TERMS = re.compile(
-    r"^(?:Intercept$|(?:plateID|rowID|columnID|screenID)(?:\[|$))",
+    r"^(?:Intercept$|C\(.+\)\[[^]]+\]$|"
+    r"(?:plateID|rowID|columnID|screenID)(?:\[|$))",
     re.IGNORECASE,
 )
 

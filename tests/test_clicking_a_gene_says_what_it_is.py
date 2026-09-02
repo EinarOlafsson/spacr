@@ -463,9 +463,13 @@ def test_tested_family_excludes_every_layout_term_but_not_guide_names():
 
     terms = [
         "plateID[T.plate2]", "rowID[T.r2]", "columnID[T.c3]",
-        "screenID[T.screen2]", "fraction:grna[g_row_column_1]",
+        "screenID[T.screen2]", "C(row_name)[T.B]",
+        "fraction:grna[g_row_column_1]",
+        "fraction:grna[C(row_name)_1]",
     ]
-    assert tested_family(terms).tolist() == [False, False, False, False, True]
+    assert tested_family(terms).tolist() == [
+        False, False, False, False, False, True, True,
+    ]
 
 
 def test_nothing_in_the_path_opens_a_socket(results, monkeypatch):
