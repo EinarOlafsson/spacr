@@ -2103,6 +2103,11 @@ def _non_numeric_feature_error(problems) -> 'ModelFeatureSchemaError':
     # established wording stable without flattening categorical or other
     # extension dtypes that carry materially different information.
     def diagnostic_dtype(dtype) -> str:
+        """Return stable user-facing text for a pandas feature dtype.
+
+        Pandas ``StringDtype`` is reported as the established ``object``
+        wording; other extension and NumPy dtypes retain their own names.
+        """
         return 'object' if isinstance(dtype, pd.StringDtype) else str(dtype)
 
     lines = [
@@ -2933,6 +2938,11 @@ def validate_object_table_frame(
                 f'row indexes: {examples}.')
 
     def _validate_positive_integer(column: str, *, nullable: bool = False):
+        """Require positive integral values in one canonical key column.
+
+        When ``nullable`` is true, nulls are ignored while every populated
+        value is still checked; failures name the table, column, and examples.
+        """
         values = out[column]
         check = values.dropna() if nullable else values
         if not nullable and values.isna().any():
