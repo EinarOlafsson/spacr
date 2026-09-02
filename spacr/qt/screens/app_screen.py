@@ -1023,6 +1023,10 @@ EXAMPLE_DATA_SECTIONS = {
     # labels it brings are configured but not where the path it sets is --
     # so the control that fills `src` was two sections away from `src`.
     "classify": "Plate Sources & Workflow",
+    # Map Barcodes reads FASTQ, and the example is the paper's own: NCBI
+    # BioProject PRJNA1261935, the four sequenced plates. Above `src`,
+    # in the section that names it.
+    "map_barcodes": "Sequencing Input",
 }
 
 
@@ -2650,6 +2654,8 @@ class AppScreen(QWidget):
                 self._install_measure_example_button(section)
             elif self.app_key == "classify":
                 self._install_annotate_example_button(section)
+            elif self.app_key == "map_barcodes":
+                self._install_sequencing_example_button(section)
             else:
                 self._install_example_images_button(section)
         # DEEPEST FIRST. Recorded after the children so the list a consumer
@@ -4061,6 +4067,56 @@ class AppScreen(QWidget):
         # AND THE SETTINGS THAT CAME WITH IT, so Run is the next action.
         self.apply_settings_that_came_with(destination)
         return {"src": source}
+
+    def _install_sequencing_example_button(self, section) -> None:
+        """Add Map Barcodes' control for the published reads."""
+        from PySide6.QtWidgets import QPushButton
+
+        button = QPushButton(tr("Load test data…"))
+        button.setToolTip(tr(
+            "Download raw reads from the published screen (NCBI BioProject "
+            "PRJNA1261935, four sequenced plates). You choose which runs and "
+            "how many reads from each — the full set is about 20 GB, while a "
+            "hundred thousand reads from each file is about 30 MB."))
+        button.clicked.connect(lambda: self.load_the_sequencing_example())
+        self._sequencing_example_button = button
+        section.add_prose(button, at_top=True)
+
+    def sequencing_example_destination(self):
+        """Where the FASTQ goes: a reads folder beside the other examples."""
+        from ..hf_download import example_plate_folder
+
+        return example_plate_folder().parent / "sequencing"
+
+    def load_the_sequencing_example(self, *, picker=None) -> dict:
+        """Fetch published reads and point ``src`` at the folder they land in.
+
+        :param picker: replaces the dialog, for tests.
+        :returns: ``{"src": folder}`` when something was downloaded, else {}.
+        """
+        destination = self.sequencing_example_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        if picker is None:
+            from ..widgets.sra_picker import SraPicker
+            picker = SraPicker(destination, self)
+        if hasattr(picker, "exec"):
+            picker.exec()
+        written = list(getattr(picker, "written", ()) or ())
+        if not written:
+            return {}
+
+        source = str(destination)
+        model = getattr(self, "_settings_model", None)
+        control = (model._widgets.get("src")
+                   if model is not None and hasattr(model, "_widgets")
+                   else None)
+        if control is not None and hasattr(control, "setText"):
+            control.setText(source)
+        self._console.append_stdout(
+            tr("{count} read files ready: {path}",
+               count=len(written), path=source) + "\n")
+        return {"src": source, "files": written}
 
     def _install_annotate_example_button(self, section) -> None:
         """Add the example-data control for the Annotate/Classify set."""
