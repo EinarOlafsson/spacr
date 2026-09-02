@@ -2372,6 +2372,65 @@ class AppScreen(QWidget):
                 keys.append(key)
         return tuple(dict.fromkeys(keys))
 
+    def _object_switches_on_this_form(self) -> tuple[str, ...]:
+        """The committed values that only decide which objects are SHOWN.
+
+        THE OTHER HALF OF :meth:`_form_shaping_keys`, and the distinction the
+        maintainer drew for instruction 356: "the presense of integers in
+        these settings [should] toggle visability of their corresponding
+        settings categories without reloading the entire module". A channel
+        number does not add or remove a single row -- the panel already built
+        a control for every object it can name -- so the rule that decides
+        which of them are on screen is the whole of the work.
+
+        `number_of_organelles` is deliberately NOT here. Its rows do not
+        exist until it is raised, so they have to be spawned, which is the
+        one case the same request accepts a rebuild for.
+        """
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", {}) or {}
+        keys = []
+        for key in self._form_shaping_keys():
+            if key in self.FORM_SHAPING_KEYS:
+                continue
+            if key in widgets:
+                keys.append(key)
+        return tuple(keys)
+
+    def _show_the_objects_the_run_has(self, *_args) -> None:
+        """Reveal or hide one object's settings, in place.
+
+        WHAT THIS REPLACED, measured on Mask before it existed: committing a
+        value into `nucleus_channel` called `rebuild_app_screen`, which took
+        455 ms and put a DIFFERENT SCREEN OBJECT in the window's stack -- to
+        change which rows are visible. Everything the user had not committed,
+        every scroll position and every expanded fold went with it, and it is
+        the same cost instruction 315 is trying to remove, being paid on a
+        keystroke.
+
+        `refresh_object_visibility` is what the rebuild was reaching for the
+        long way round. It decides EVERY gated row and hides the headings of
+        the slots the run lacks, so calling it is the whole of the change --
+        and it lays out any row that was left unbuilt while it was hidden
+        before it shows it.
+
+        The remembered shape is refreshed too, so a later `number_of_
+        organelles` change still compares like with like and rebuilds.
+        """
+        self._run_has_no_object_for = None
+        model = getattr(self, "_settings_model", None)
+        if model is None:
+            return
+        try:
+            model.refresh_object_visibility()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-decide which objects the run has",
+                      exc_info=True)
+        try:
+            self._form_shape_on_screen = self._form_shape()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not remember the form shape", exc_info=True)
+
     def _watch_the_settings_that_decide_the_form(self) -> None:
         """Rebuild the form when a value that shapes it is COMMITTED.
 
@@ -2390,14 +2449,21 @@ class AppScreen(QWidget):
         model = getattr(self, "_settings_model", None)
         if model is None:
             return
+        # TWO SLOTS, NOT ONE. A key that adds or removes ROWS needs the form
+        # built again; a key that only decides which of the rows already on
+        # the form are SHOWN does not, and connecting both to the rebuild is
+        # what made typing a channel number reload the module.
+        switches = set(self._object_switches_on_this_form())
         for key in self._form_shaping_keys():
             widget = getattr(model, "_widgets", {}).get(key)
             if widget is None:
                 continue
+            slot = (self._show_the_objects_the_run_has if key in switches
+                    else self._rebuild_the_form)
             done = getattr(widget, "editingFinished", None)
             if done is not None:
                 try:
-                    done.connect(self._rebuild_the_form)
+                    done.connect(slot)
                     continue
                 except Exception:                            # noqa: BLE001
                     pass
@@ -2406,7 +2472,7 @@ class AppScreen(QWidget):
                 if signal is None:
                     continue
                 try:
-                    signal.connect(self._rebuild_the_form)
+                    signal.connect(slot)
                     break
                 except Exception:                            # noqa: BLE001
                     continue

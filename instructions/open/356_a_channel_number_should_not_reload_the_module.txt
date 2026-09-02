@@ -94,3 +94,51 @@ HOW IT WILL BE CHECKED
 * A value typed into an unrelated field survives both.
 * The GUI-thread block for a channel keystroke is measured and reported here,
   against 315's 1,263 ms module build as the thing being avoided.
+
+--------------------------------------------------------------------------------
+2026-09-02: DONE FOR CASE 1, AND THE REBUILD IS KEPT FOR CASE 2 ON PURPOSE
+--------------------------------------------------------------------------------
+
+FOUND BY MEASURING, as this file asked. The reload is not a `rebuild()` call
+anyone would find by reading: `_watch_the_settings_that_decide_the_form`
+connects every form-shaping key's commit to `_rebuild_the_form`, which calls
+`window.rebuild_app_screen` -- and that builds a NEW SCREEN and puts it in
+the window's stack. Measured on Mask, committing a value into
+`nucleus_channel`:
+
+    before   1 rebuild, 455 ms, `_screens['mask']` is a different object
+    after    0 rebuilds,  18 ms, same object
+
+Not one row was added or removed by that rebuild. The panel already builds a
+control for every object it can name, so the whole 455 ms bought a change of
+VISIBILITY -- and took every uncommitted edit, scroll position and expanded
+fold with it, which is instruction 335's and 349's failure mode as well as
+315's cost.
+
+THE MACHINERY WAS ALREADY THERE, exactly as this file suspected.
+`SettingsWidgets.refresh_object_visibility` decides every gated row and calls
+`_hide_the_headings_of_slots_the_run_lacks`, which is the category toggle the
+request asks for. It was being reached the long way round, through a rebuild.
+The change is to route the two kinds of key to two different slots:
+
+    number_of_organelles  -> _rebuild_the_form            (rows must EXIST)
+    nucleus_channel etc.  -> _show_the_objects_the_run_has (rows must SHOW)
+
+CASE 2 IS NOT AN OVERSIGHT AND IS PINNED. Raising `number_of_organelles` from
+1 to 2 spawns 52 `organelleb_*` controls that were not on the form -- measured
+-- so there is nothing to reveal and the rebuild is what creates them. The
+request says so itself: "the settings themselves have to be spawned". A test
+asserts that rebuild still happens, because losing it would be a slot with no
+settings and nothing saying why.
+
+DOING CASE 2 WITHOUT A REBUILD is what is left of this instruction, and it is
+the "if this can be done smoothely" half rather than the requirement. It
+needs the panel to add rows to a built form -- the same spanning-composite
+problem 364's table mount ran into -- and 364's per-object table would remove
+the need entirely, since a new organelle there is a COLUMN and not 52 rows.
+Worth doing after that table is mounted rather than before.
+
+Also repaired here: `test_cov_r4_app_screen` asserted a failed download
+restores the caption "Load the example images", which the button has not said
+since the three example-data buttons became one "Load test data…". It was
+pinning a name that had moved rather than the behaviour it is about.
