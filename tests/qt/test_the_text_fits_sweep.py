@@ -129,12 +129,15 @@ def _offenders(screen):
 #: reaches zero has to be deleted. The alternative -- a permanently red sweep
 #: -- is how the four reds this session started with survived.
 #:
-#: BOTH ARE LAYOUT DECISIONS AND NEITHER IS A CAPTION. Measure's action row
+#: WHAT IS LEFT IS A LAYOUT DECISION AND NOT A CAPTION. Measure's action row
 #: is a QHBoxLayout whose buttons carry `policy=Minimum`; in English the row
 #: fits at 1200 px and in German it does not, so Qt compresses every button
 #: below its own hint -- "Ausführen" gets 60 px and wants 103. The row needs
-#: to wrap, scroll or elide rather than squeeze. Classify's subtitle is one
-#: unwrapped `ApiHelpLabel` that is 73 px too long for its line in German.
+#: to wrap, scroll or elide rather than squeeze.
+#:
+#: Classify's subtitle was the third entry and is gone: `ApiHelpLabel` elides
+#: now, so the sentence the masthead cuts short says so with an ellipsis and
+#: keeps the rest in the hover help the masthead always intended to hold it.
 #:
 #: THE THEME IS WHAT TIPS IT, which is worth knowing before anyone tries to
 #: reproduce this by hand: built without the application stylesheet the same
@@ -144,7 +147,6 @@ def _offenders(screen):
 KNOWN_OFFENDERS = {
     ("measure", "de"): 6,
     ("measure", "is"): 5,
-    ("classify_merged", "de"): 1,
 }
 
 
