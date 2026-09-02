@@ -1,0 +1,159 @@
+================================================================================
+ASK THE MAINTAINER IN VS CODE, THEN RECORD THE ANSWERS THAT UNBLOCK THE LIST
+================================================================================
+
+Status:    OPEN, filed 2026-09-02. This is the single intake item for every
+           current instruction that genuinely needs Einar's wording, evidence,
+           review or release decision.
+Requested: 2026-09-02 — "for 316 how do we do this, can we do it with vs code
+           questions? for any of the items that need my input generate vs code
+           questions for me to so we can close the items that way."
+           2026-09-02 — "add these questions to one item on the instructions
+           list, with guidelines for claude and ill have claude ask me them."
+Owner:     the Claude session that owns instructions and the Qt/i18n lane.
+
+WHY THIS EXISTS
+---------------
+
+Several open items say "ask the maintainer", but a note in a long instruction
+is not an answerable prompt. Claude must ask the questions below through the
+VS Code chat, record Einar's exact answers in the affected instruction, and
+then finish every newly unblocked part. Do not infer an answer from silence or
+from a related decision in another item.
+
+GUIDELINES FOR CLAUDE
+---------------------
+
+1. Ask short questions in VS Code. Put the recommended choice first, offer two
+   or three mutually exclusive choices where a choice is possible, and accept
+   a free-text replacement when wording or evidence is required.
+2. Questions may be grouped into one compact answer sheet, but keep the IDs
+   below verbatim so an answer such as ``316-A: A1`` is unambiguous.
+3. Before acting, append the exact answer, date, and what it authorises to the
+   affected instruction. An answer for one item never authorises the release,
+   a history rewrite, or a different wording decision.
+4. For translations, a click can approve English meaning and policy, but it
+   cannot make someone fluent in a language. Record the reviewer, the locale,
+   the exact source and target, and the review date. Never claim fluent/native
+   sign-off for a locale the reviewer did not say they can evaluate.
+5. Show the current candidate text when asking for a translation review. Ask a
+   fluent reviewer to approve or replace it; do not ask Einar to approve text
+   in a language he says he cannot read, and do not silently substitute a new
+   machine draft for the human pass required by instruction 316.
+6. After an answer unlocks code or catalog work, prove the named acceptance
+   test, commit only the owned files, pull with rebase, push immediately, and
+   write the commit and evidence into the affected instruction.
+7. Keep the explicit 1.5.0.5 hold. Do not ask 05/304's publication questions
+   until the pre-update gates are ready, and never treat another answer in this
+   file as release approval.
+
+QUESTIONS TO ASK NOW
+--------------------
+
+316-A — TECHNICAL ACRONYMS
+  Should ``CPU`` and ``GPU`` remain exactly ``CPU`` and ``GPU`` in every
+  locale as technical identifiers?
+
+    A1  Yes; add them to the deliberate-identity exemption. RECOMMENDED.
+    A2  No; each locale must supply a translated form.
+
+316-B — FIVE KNOWN SEMANTIC DEFECTS
+  Is the required English meaning exactly all of the following?
+
+    * the performance level ``1.5`` is the DEFAULT, not unknown;
+    * the Home grouping caption says ALL APPS, not all users;
+    * Spanish, Hindi and Simplified Chinese must all preserve the instruction
+      HOVER TO REVEAL rather than changing, dropping or leaving it in English.
+
+    B1  Yes; repair each target to those exact meanings. RECOMMENDED.
+    B2  No; Einar will provide replacement English intent before translation.
+
+316-C — WHAT REVIEW CLAIM IS TRUE
+  Which review statement can be recorded for Swedish, German, Spanish,
+  Simplified Chinese, Portuguese, Hindi, Korean, Icelandic and French?
+
+    C1  Einar will identify fluent reviewers; ask and record each locale's
+        review separately.
+    C2  Einar personally confirms that he can review all nine locales.
+    C3  Qualify the public claim as machine-drafted and technically reviewed,
+        and leave fluent review explicitly incomplete. RECOMMENDED unless
+        fluent reviewers are actually available.
+
+  C3 does not close 316's fluent-review criterion. It makes the public claim
+  honest and records exactly why that last criterion remains open.
+
+316-D — RENAMED TEST-DATA STRINGS
+  Approve these exact English source meanings for the locale review:
+  ``Load test data``, ``Load test data…`` and ``Fetching test data…``?
+
+    D1  Yes. RECOMMENDED.
+    D2  Revise the English wording first; Einar will supply the replacement.
+
+306-A — COMPACT STATUS TEXT
+  Approve ``none detected`` and ``detected, not used by spaCR`` as the exact
+  meanings to translate?
+
+    A1  Yes. RECOMMENDED.
+    A2  Revise the English wording first; Einar will supply the replacement.
+
+306-B — TWO LONG COMPACT CAPTIONS
+  Should the current Home grouping caption and performance/resource caption
+  be translated as written, or revised before nine reviews are paid for?
+
+    B1  Approve the current English wording for translation.
+    B2  Revise or shorten first; show Einar both current strings in VS Code and
+        ask for replacement wording. RECOMMENDED if either is still hard to
+        scan in the running UI.
+
+337-A — THE MISSING MEASURE DEFAULTS
+  Attach the exported Measure settings CSV, or give its exact local path, for
+  the values Einar wanted as defaults on 2026-09-01. The Mask half survives in
+  the published example dataset; the Measure half was never recorded and must
+  not be guessed.
+
+337-B — REGRESSION'S ``src`` LABEL
+  Regression uses ``src`` as a destination, not as an input path. Should that
+  screen keep the semantically precise label ``Output directory``, or must the
+  request that ``src`` always display as ``Path`` apply literally there too?
+
+    B1  Keep ``Output directory`` for Regression. RECOMMENDED.
+    B2  Display ``Path`` everywhere, including Regression.
+
+351-A — GITHUB ISSUE 115 EVIDENCE
+  Ask Einar/reporter for the exact SMB exception, operating system, SMB mount
+  path shape, and whether the share/database is read-only. For the appearance
+  half, ask for a screenshot plus window size and display scaling. If those
+  facts are unavailable, record that #115 is waiting on its reporter rather
+  than guessing between fixes that require opposite behaviour.
+
+QUESTIONS TO ASK ONLY WHEN THEIR GATE IS REACHED
+------------------------------------------------
+
+331-A — RELEASE WITH OR WITHOUT REMAINING 314/316 WORK
+  After the fresh 314 and 316 evidence lands, show it to Einar and ask whether
+  either remains mandatory before 1.5.0.5. Do not ask from the stale percentages
+  in 331 and do not infer the answer from the desire to update quickly.
+
+05/304-A — PUBLIC RELEASE
+  When and only when the pre-update gates are ready, ask for explicit approval
+  to publish 1.5.0.5 and confirmation that the Zenodo GitHub toggle for
+  ``EinarOlafsson/spacr`` is enabled. A yes to any translation, tooltip,
+  coverage or tutorial question is not this approval.
+
+58-A — GITHUB'S STALE CONTRIBUTOR CACHE
+  If the rewritten default branch and every live branch contain no Claude or
+  github-actions attribution but GitHub still renders them, show Einar the
+  fresh evidence and ask him to submit/authorise the GitHub Support cache
+  recomputation request. Record the affected page URLs and the date requested.
+
+HOW TO KNOW THIS ITEM WORKED
+----------------------------
+
+* Every question above has an exact dated answer, is explicitly deferred to
+  its named gate, or records the missing reporter/reviewer evidence.
+* Every answer is copied into the instruction it governs, with no scope added
+  by inference.
+* Newly unblocked code/catalog work passes its named tests and is committed and
+  pushed one item at a time.
+* No release is cut and no translation is called fluent-reviewed merely
+  because this intake item itself is complete.
