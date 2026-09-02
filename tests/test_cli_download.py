@@ -471,6 +471,58 @@ def test_a_downloaded_database_has_its_relative_paths_made_absolute(
     assert stored == str(folder / "data" / "A01" / "one.png")
 
 
+def test_a_generated_path_column_does_not_stop_a_later_rewrite(
+        tmp_path, monkeypatch):
+    """One SQLite refusal is skipped; later paths still commit and close."""
+    import sqlite3
+
+    from spacr import database_concurrency
+    from spacr.example_archives import make_the_example_paths_absolute
+
+    measurements = tmp_path / "measurements"
+    measurements.mkdir()
+    database = measurements / "measurements.db"
+    with sqlite3.connect(database) as setup:
+        setup.execute(
+            "create table paths (note text, generated_path text generated "
+            "always as ('data/generated.png') virtual, later_path text)")
+        setup.execute(
+            "insert into paths (note, later_path) values (?, ?)",
+            ("not a path", "measurements/later.png"))
+
+    real_connection = sqlite3.connect(database)
+
+    class IncludingGeneratedColumns:
+        committed = False
+        closed = False
+
+        def execute(self, statement, parameters=()):
+            if statement.startswith("PRAGMA table_info"):
+                statement = statement.replace(
+                    "PRAGMA table_info", "PRAGMA table_xinfo", 1)
+            return real_connection.execute(statement, parameters)
+
+        def commit(self):
+            real_connection.commit()
+            self.committed = True
+
+        def close(self):
+            real_connection.close()
+            self.closed = True
+
+    tracked = IncludingGeneratedColumns()
+    monkeypatch.setattr(
+        database_concurrency, "connect", lambda *_args, **_kwargs: tracked)
+
+    assert make_the_example_paths_absolute(tmp_path) == 1
+    assert tracked.committed is True
+    assert tracked.closed is True
+    with sqlite3.connect(database) as check:
+        later_path = check.execute(
+            "select later_path from paths").fetchone()[0]
+    assert later_path == str(tmp_path / "measurements/later.png")
+
+
 def test_the_measure_example_expands_its_compressed_arrays(dest, hub):
     """The .npz compression is a transport detail; Measure reads .npy."""
     import numpy as np
