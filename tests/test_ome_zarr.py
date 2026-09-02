@@ -1218,6 +1218,20 @@ def test_checkout_version_fills_absent_distribution_metadata(monkeypatch):
     assert ome_zarr._spacr_version() == "1.2.3-checkout"
 
 
+def test_a_missing_checkout_version_never_fails_a_write(monkeypatch):
+    """Both metadata sources may be incomplete in a damaged source tree."""
+    import sys
+    import types
+
+    installed = types.ModuleType("spacr.version")
+    installed.__version__ = "unknown"
+    broken_checkout = types.ModuleType("spacr._version")
+    monkeypatch.setitem(sys.modules, "spacr.version", installed)
+    monkeypatch.setitem(sys.modules, "spacr._version", broken_checkout)
+
+    assert ome_zarr._spacr_version() == "unknown"
+
+
 # ---------------------------------------------------------------------------
 # 9. The rest of the storage layer, one malformed fixture at a time
 # ---------------------------------------------------------------------------
