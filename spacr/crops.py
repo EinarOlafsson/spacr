@@ -3607,7 +3607,8 @@ def picture_source_label(value: str) -> str:
     return text or LOAD_IMAGES_LABEL
 
 
-def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
+def resolve_crop_source(
+        settings_or_src: Union[str, Sequence[str], Mapping[str, Any]],
                         *, object_type: Optional[str] = None,
                         prefer: Optional[str] = None,
                         ask: Optional[Any] = None) -> CropSource:
@@ -3630,8 +3631,8 @@ def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
     on-demand crops match the PNGs that run would have produced.
 
     :param settings_or_src: a settings dict (with ``src``, optionally
-        ``crop_source``) or a source path -- the experiment root or its
-        ``merged`` folder.
+        ``crop_source``), a source path, or a list/tuple whose first entry is
+        the source path -- the experiment root or its ``merged`` folder.
     :param object_type: default object type for the merged source.
     :param prefer: force ``'png'`` or ``'merged'``.
     :raises CropError: the requested source is not available.
@@ -3639,11 +3640,16 @@ def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
     if isinstance(settings_or_src, Mapping):
         settings = dict(settings_or_src)
         src = settings.get("src")
-        if isinstance(src, (list, tuple)):
-            src = src[0] if src else None
     else:
         settings = {}
         src = settings_or_src
+    # ``src`` is multi-source in several settings panels, and those callers
+    # also pass the stored value directly.  Normalise both the mapping form
+    # and that bare list/tuple form here; stringifying the latter creates a
+    # path containing Python's brackets or parentheses and can never find the
+    # experiment it names.
+    if isinstance(src, (list, tuple)):
+        src = src[0] if src else None
     if not src:
         raise CropError("no 'src' to resolve a crop source from")
 

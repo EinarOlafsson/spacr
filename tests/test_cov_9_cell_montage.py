@@ -10,7 +10,6 @@ bounding boxes and says so instead of quietly serving one.
 """
 from __future__ import annotations
 
-import os
 import sqlite3
 from types import SimpleNamespace
 
@@ -21,8 +20,8 @@ import pytest
 from spacr import cell_montage as cm
 from spacr.cell_montage import (
     CROP_SHAPES,
-    CropSourceChoice,
     EFFECTS_GRID_FILE,
+    CropSourceChoice,
     MontageError,
     RouteRequirements,
     effects_from_results,
@@ -782,8 +781,9 @@ def test_an_uncanonicalisable_object_table_is_still_loaded(screen, monkeypatch):
 # Choosing the crop source
 # ---------------------------------------------------------------------------
 
+@pytest.mark.parametrize("source_shape", ("mapping", "list", "tuple"))
 def test_a_merged_folder_given_as_a_list_still_finds_the_run_it_belongs_to(
-        tmp_path, monkeypatch):
+        tmp_path, monkeypatch, source_shape):
     """The channel question is answered from the run, not from the folder given.
 
     ``src`` arrives as a list as often as a string, and often points at
@@ -806,10 +806,24 @@ def test_a_merged_folder_given_as_a_list_still_finds_the_run_it_belongs_to(
 
     monkeypatch.setattr(crops_module, "crop_settings_from_db", _explode)
 
-    choice = resolve_montage_crop_source({"src": [str(root / "merged")]},
-                                         objects=pd.DataFrame(
-                                             {"object_label": [1]}))
+    merged = str(root / "merged")
+    source = {
+        "mapping": {"src": [merged]},
+        "list": [merged],
+        "tuple": (merged,),
+    }[source_shape]
+    choice = resolve_montage_crop_source(
+        source, objects=pd.DataFrame({"object_label": [1]}))
 
     assert choice.available
     assert any("no channel list" in note
                for note in choice.requirement_notes())
+
+
+@pytest.mark.parametrize("source", ([], ()))
+def test_an_empty_source_sequence_is_reported_as_unavailable(source):
+    """An empty multi-source value is absence, not a repr-shaped path."""
+    choice = resolve_montage_crop_source(source)
+
+    assert not choice.available
+    assert "no 'src'" in choice.reason
