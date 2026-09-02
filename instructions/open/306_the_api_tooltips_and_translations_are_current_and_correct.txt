@@ -1049,3 +1049,33 @@ TWO THINGS WORTH BUILDING, in this order:
      string is a format template -- from the ones needing a reviewer. Tonight
      nine catalogs were repaired without a translator because of exactly that
      distinction.
+
+CORRECTION, SAME DAY, TO THE NOTE DIRECTLY ABOVE.
+
+I wrote that `{location}: {path}` is "a FORMAT STRING with no prose in it at
+all" and "very likely mechanical". BOTH LOCALES AND I WERE WRONG -- checked
+before anyone acts on it:
+
+    de  '{location}: Pfad {path}'      es  '{location}: ruta {path}'
+    fr  '{location} : chemin {path}'   sv  '{location}: sökväg {path}'
+    ko  '{location}: 경로 {path}'       zh_CN '{location}：路径 {path}'
+
+Every locale adds a translated word for "path", and French also moves the
+space before the colon, which is correct French typography. This is real
+translation and needs a reviewer like any other.
+
+AND IT CASTS DOUBT ON THE ENUMERATION ITSELF, which is the more useful half of
+this correction. The live source `{location}: {path}` is still present at
+`qc_field_browser.py:798` and in every catalog, so it is not obvious it is
+stale at all -- my helper resolves the `ui` table as a membership set and may
+simply be looking at a different set from the one the audit builds. That is
+the second disagreement between my helper and the audit, after
+`control_wells`.
+
+SO: TREAT THE SEVENTEEN AS A LEAD, NOT AS A LIST. The only figures in this
+file worth planning against are the ones `audit_i18n_coverage.py` produced --
+4966/5091 per locale -- and whatever the audit itself reports when it is
+taught to list every record instead of raising on the first. That change is
+now the FIRST thing worth building here, not the second: without it, both a
+maintainer and an agent are reduced to guessing at the shape of the work, and
+this note is what guessing looks like.
