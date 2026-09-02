@@ -50,15 +50,22 @@ import json
 import os
 import tempfile
 from dataclasses import dataclass, field
-from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
-                    Tuple)
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 from . import artifacts as _artifacts
 from . import ports as _ports
-from .artifacts import (CAUSE_CYCLE, CAUSE_SETTINGS_CHANGED, CAUSE_UNKNOWN,
-                        CAUSE_UPSTREAM_MISSING, CAUSE_UPSTREAM_NEWER,
-                        CAUSE_UPSTREAM_STALE, CAUSE_UPSTREAM_SUPERSEDED,
-                        Artifact, Registry, Staleness)
+from .artifacts import (
+    CAUSE_CYCLE,
+    CAUSE_SETTINGS_CHANGED,
+    CAUSE_UNKNOWN,
+    CAUSE_UPSTREAM_MISSING,
+    CAUSE_UPSTREAM_NEWER,
+    CAUSE_UPSTREAM_STALE,
+    CAUSE_UPSTREAM_SUPERSEDED,
+    Artifact,
+    Registry,
+    Staleness,
+)
 from .ports import Port, Readiness, ResolvedPort
 from .validate import ALT_SRC_KEYS, APP_ALIASES
 
@@ -158,6 +165,13 @@ def same_path(left: Any, right: Any) -> bool:
     Classify screen was seeded with its own auto-chained value.
     """
     def flatten(value: Any) -> List[str]:
+        """Flatten one path-like value into normalised path strings.
+
+        :param value: scalar path, nested list or tuple, ``None``, or another
+            value whose stripped string representation names a path.
+        :returns: depth-first path strings with empty values omitted and each
+            retained value normalised with :func:`os.path.normpath`.
+        """
         if value is None:
             return []
         if isinstance(value, (list, tuple)):
@@ -809,7 +823,7 @@ def resolve_settings(module: str,
 
     # A pin with nothing to chain against is still held: the interface should
     # say the value is the user's, not that it came from a run.
-    for key, value in pinned_values.items():
+    for key in pinned_values:
         held.setdefault(key, HeldPin(setting=key, value=resolved[key]))
 
     return Resolution(module=spec.key, settings=resolved, filled=filled,
