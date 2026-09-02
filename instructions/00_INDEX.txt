@@ -121,6 +121,7 @@ OPEN
        349_load_test_data_leaves_the_literal_src_placeholder.txt
 
   350  A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
+       [~30% -- the reported Annotate case is fixed and the reusable check exists; the sweep is not run]
        350_no_text_is_cut_off_anywhere_in_the_package.txt
 
   351  FIX AND CLOSE EVERY GITHUB ISSUE
