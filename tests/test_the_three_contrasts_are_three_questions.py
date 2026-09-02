@@ -239,6 +239,18 @@ class TestTheWellsAreChosen:
             dict(zip(objects.index.astype(str), well_labels(objects))))
         assert "1_A_02" not in set(where)
 
+    def test_a_left_out_well_is_dropped_under_the_default_contrast(
+            self, objects, groups):
+        """Unannotated cells from an excluded well are excluded too."""
+        made = build(objects, "area", groups=groups, level="cell",
+                     wells=["1_A_01"])
+
+        where = made.frame["unit"].map(
+            dict(zip(objects.index.astype(str), well_labels(objects))))
+        assert "1_A_01" in set(where)
+        assert "1_A_02" not in set(where)
+        assert "1 annotated well(s) left out: 1_A_02" in made.note
+
     def test_leaving_a_well_out_is_said_out_loud(self, objects, groups):
         made = build(objects, "area", groups=groups, level="cell",
                      contrast="within_well", wells=["1_A_01"])
