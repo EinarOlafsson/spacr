@@ -566,3 +566,20 @@ tests.  ``spacr/spacrops.py`` measured 2099/2099 statements and 844/844
 branches, 100.00%, with zero missing lines and zero partial branches.  No
 production or test change was needed.  This closes the spacrops module's part
 of 288; it does not make a whole-repository coverage claim.
+
+--------------------------------------------------------------------------------
+2026-09-02 — DEEP_SPACR IS 100.00% ON CURRENT SOURCE
+--------------------------------------------------------------------------------
+
+A guarded run of the 45 direct non-Qt deep-spacr test files passed 1176 tests
+and exposed 12 GPU-host-only test-isolation failures: three test modules said
+they forced CPU by patching ``torch.cuda.is_available`` but did not clear the
+shared accelerator result already cached during collection.  Their autouse
+fixtures now pin both parts of that premise.  All 69 tests in the affected
+modules pass together on this CUDA-equipped host.
+
+The owning multiclass inference test was appended to the current-source
+coverage data after the fixture repair.  Final result for
+``spacr/deep_spacr.py``: 1831/1831 statements and 704/704 branches, 100.00%,
+with zero missing lines and zero partial branches.  This closes the deep_spacr
+module's part of 288; it does not make a whole-repository coverage claim.
