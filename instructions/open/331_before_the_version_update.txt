@@ -38,7 +38,7 @@ AFTER THE UPDATE
   326 arbitrary organelle count      315 the force-quit dialog
   330 nested dock and menu           306 API and tooltip currency
   305 load time within resources     319 accelerator polish
-  58  contributor listing            253 the whole list again, then ship
+  58  contributor listing
 
 THE TENSION WORTH STATING
 -------------------------
@@ -100,7 +100,7 @@ AFTER THE UPDATE, corrected
        326  arbitrary organelle count   315  the force-quit dialog
        306  API and tooltip currency    305  load time within resources
        327  backdrop camera             58   contributor listing
-       337  measure defaults            253  the whole list again, then ship
+       337  measure defaults
        345  three annotate tests        346  twenty-one measure tests
        347  the tooltip strip and the API dot
        348  the dock behaves like a dock

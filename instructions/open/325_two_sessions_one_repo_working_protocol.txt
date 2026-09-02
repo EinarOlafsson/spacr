@@ -745,7 +745,7 @@ SPLIT DOWN THE MIDDLE, by the lane each piece already names:
     310  defects. Every entry already names its own lane; work only your own,
          and write the verdict back into the entry so the count in the audit
          note means something.
-    253  the last item. Joint, and last.
+    (253 the last item -- deleted 2026-09-02 at the maintainer's instruction.)
     325  this file. Both.
 
 THREE THINGS I CHANGED TODAY THAT TOUCH YOUR PLANS:

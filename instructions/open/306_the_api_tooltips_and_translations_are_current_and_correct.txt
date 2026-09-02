@@ -6,7 +6,8 @@ Status:    OPEN, filed 2026-08-28. RELEASE-BLOCKING. The 2026-08-30 catalogs
            are at a source-current mechanical fixed point; the remaining
            semantic acceptance debt is recorded below.
 Owner:     public API prose, settings tooltips, documentation and i18n catalogs.
-Precedes:  253's final sweep and every 1.5.0.5 publication action.
+Precedes:  every 1.5.0.5 publication action. (It also preceded item 253,
+           deleted 2026-09-02 at the maintainer's instruction.)
 Requested: 2026-08-28 — "sweep the tool tips and API and make sure the API
            and tooltips are properly translated"
 
