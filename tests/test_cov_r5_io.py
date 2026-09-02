@@ -41,13 +41,12 @@ def _png(path, value=200, size=(8, 8)):
 # ---------------------------------------------------------------------------
 
 def test_a_read_direction_that_is_neither_r1_nor_r2_is_not_filed(tmp_path):
-    """Only R1/R2 are recognised; an R3 file is grouped under no direction.
+    """Only R1/R2 are recognised; an R3/index file creates no sample.
 
-    The sample dict feeds the read merger, which indexes ``['R1']`` and
-    ``['R2']``. Filing an index-read (or a mis-named third read) under its own
-    key would put a file the merger cannot use into a sample that looks
-    complete, so the sample must be created and left with only the reads that
-    exist.
+    The sample dict feeds the read merger. An empty entry used to survive until
+    that consumer indexed a missing mate, raising far away from the unreadable
+    filename. Invalid files now contribute nothing; valid files in the same
+    directory must still be grouped normally.
     """
     folder = tmp_path / "fastq"
     folder.mkdir()
@@ -57,12 +56,11 @@ def test_a_read_direction_that_is_neither_r1_nor_r2_is_not_filed(tmp_path):
 
     samples = IO.parse_gz_files(str(folder))
 
-    # s1 keeps both real reads and gains nothing from R3 ...
+    # The positive half matters: valid files are still grouped, while neither
+    # invalid-only sample nor the invalid third read appears in the result.
+    assert set(samples) == {"s1"}
     assert sorted(samples["s1"]) == ["R1", "R2"]
     assert os.path.basename(samples["s1"]["R1"]) == "s1_R1_001.fastq.gz"
-    # ... and a sample whose only file is an index read is still reported,
-    # empty, rather than silently vanishing.
-    assert samples["s2"] == {}
 
 
 # ---------------------------------------------------------------------------
