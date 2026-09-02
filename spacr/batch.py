@@ -77,6 +77,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
+from .cancellation import (
+    PipelineCancelled,
+    current_token,
+)
+from .cancellation import (
+    checkpoint as cancellation_checkpoint,
+)
 from .cli import (
     EXIT_OK,
     EXIT_USAGE,
@@ -88,11 +95,6 @@ from .cli import (
     resolve_module,
 )
 from .errors import DB_SUFFIXES, RUN_STATUS_SUFFIX, RunLedger, SpacrError, read_run_status
-from .cancellation import (
-    PipelineCancelled,
-    checkpoint as cancellation_checkpoint,
-    current_token,
-)
 from .validate import ERROR, WARNING, validate_settings
 
 __all__ = [
@@ -635,7 +637,9 @@ class Queue:
         try:
             version = int(version)
         except (TypeError, ValueError):
-            raise QueueError(f'"spacr_queue" must be a version number, got {version!r}.')
+            raise QueueError(
+                f'"spacr_queue" must be a version number, got {version!r}.'
+            ) from None
         if version > QUEUE_FORMAT:
             raise QueueError(
                 f'this queue file is format {version}, but this spaCR understands '
@@ -970,6 +974,14 @@ def _cycle_problems(queue: Queue) -> List[Problem]:
     state: Dict[str, int] = {}
 
     def walk(job_id: str, trail: List[str]) -> None:
+        """Depth-first search one captured dependency subgraph for cycles.
+
+        :param job_id: queue job whose known dependencies should be visited.
+        :param trail: active ancestor IDs used to reconstruct a back-edge cycle.
+        :returns: None. Captured state records active and completed jobs, and a
+            back edge appends one problem; missing dependency IDs are ignored
+            here because ordinary dependency validation reports those typos.
+        """
         if state.get(job_id) == 2:
             return
         if state.get(job_id) == 1:
