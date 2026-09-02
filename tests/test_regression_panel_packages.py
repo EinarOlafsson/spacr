@@ -1,4 +1,6 @@
-import runpy
+import importlib.util
+import json
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -27,6 +29,7 @@ from spacr.regression_panels import (  # noqa: E402
     PanelNarrative,
     PanelStyle,
     apply_primary_call,
+    build_manifest_packages,
     guide_control_threshold,
     shared_limits,
     write_panel_package,
@@ -171,9 +174,14 @@ def test_the_bundled_font_has_a_named_fallback(monkeypatch):
         return original_exists(path)
 
     monkeypatch.setattr(Path, "exists", without_open_sans)
-    namespace = runpy.run_path(panels.__file__)
+    module_name = "spacr._regression_panels_font_fallback"
+    specification = importlib.util.spec_from_file_location(module_name, panels.__file__)
+    assert specification is not None and specification.loader is not None
+    module = importlib.util.module_from_spec(specification)
+    monkeypatch.setitem(sys.modules, module_name, module)
+    specification.loader.exec_module(module)
 
-    assert namespace["OPEN_SANS_FAMILY"] == "Open Sans"
+    assert module.OPEN_SANS_FAMILY == "Open Sans"
 
 
 def test_pdf_link_validation_refuses_ambiguous_inputs(tmp_path):
@@ -322,7 +330,7 @@ def test_panel_package_has_exactly_the_four_contract_files(tmp_path):
     assert data["point_size"].eq(104).all()
     assert data["point_alpha"].eq(0.60).all()
     assert data["marker_edge_color"].eq("none").all()
-    assert data["line_color"].eq("#000000").all()
+    assert data["line_color"].eq(panels.INK_PRINT).all()
     assert data["line_width_points"].eq(0.50).all()
     stats = pd.read_csv(paths["stats"])
     values = dict(zip(stats["metric"], stats["value"]))
@@ -340,3 +348,217 @@ def test_panel_package_has_exactly_the_four_contract_files(tmp_path):
     assert "LOPIT/TAGM" in pdf_text
     assert "EAF1" in pdf_text
     assert "GRA14" in pdf_text
+
+
+def _manifest_frame(phenotype, level, control_effects):
+    if level == "grna":
+        names = ["000000_1", "000000_2", "225160_2", "239740_3"]
+        effects = [*control_effects, 0.90, 1.10]
+    else:
+        names = ["225160", "239740", "245530", "250000"]
+        effects = [0.25, 0.70, 0.95, 1.20]
+    return pd.DataFrame(
+        {
+            level: names,
+            "effect": effects,
+            "bh": [False, False, True, True],
+            "plot_y": [0.2, 0.5, 3.0, 4.0],
+            "lopit": [
+                "Non-targeting", "cytosol", "dense granules", "micronemes"
+            ],
+            "gene_label": [f"{phenotype}-{name}" for name in names],
+            "gene_url": [f"https://example.org/{phenotype}/{name}" for name in names],
+            "group": ["reference", "reference", "candidate", "candidate"],
+            "box_value": effects,
+        }
+    )
+
+
+def _publication_artifacts():
+    return {
+        "xgboost_grna": {
+            "phenotype": "xgboost", "level": "grna",
+            "data": _manifest_frame("xgboost", "grna", (0.10, 0.20)),
+        },
+        "xgboost_gene": {
+            "phenotype": "xgboost", "level": "gene",
+            "data": _manifest_frame("xgboost", "gene", (0.10, 0.20)),
+        },
+        "maxvit_grna": {
+            "phenotype": "maxvit", "level": "grna",
+            "data": _manifest_frame("maxvit", "grna", (0.30, 0.50)),
+        },
+        "maxvit_gene": {
+            "phenotype": "maxvit", "level": "gene",
+            "data": _manifest_frame("maxvit", "gene", (0.30, 0.50)),
+        },
+    }
+
+
+def _narrative(subject):
+    return {
+        "legend": f"Each mark is one {subject}.",
+        "purpose": f"Compare {subject} effects.",
+        "shows": f"The {subject} results and their uncertainty.",
+        "implications": f"Prioritize reproducible {subject} effects.",
+    }
+
+
+def _scatter(panel_id, source, phenotype, level, limit_group):
+    return {
+        "panel_id": panel_id,
+        "source": source,
+        "phenotype": phenotype,
+        "level": level,
+        "kind": "scatter",
+        "effect_column": "effect",
+        "bh_column": "bh",
+        "y_column": "plot_y",
+        "lopit_column": "lopit",
+        "gene_label_column": "gene_label",
+        "gene_url_column": "gene_url",
+        "x_label": "Effect",
+        "y_label": "-log10(q)",
+        "horizontal_threshold": 1.3,
+        "horizontal_threshold_label": "BH boundary",
+        "limit_group": limit_group,
+        "narrative": _narrative(level),
+    }
+
+
+def _publication_manifest():
+    return {
+        "figure_id": "Figure_7",
+        "columns": 2,
+        "panels": [
+            _scatter("Figure_7A", "xgboost_grna", "xgboost", "grna", "guides"),
+            _scatter("Figure_7B", "xgboost_gene", "xgboost", "gene", "genes"),
+            _scatter("Figure_7C", "maxvit_grna", "maxvit", "grna", "guides"),
+            {
+                "panel_id": "Figure_7D",
+                "source": "maxvit_gene",
+                "phenotype": "maxvit",
+                "level": "gene",
+                "kind": "box_jitter",
+                "effect_column": "effect",
+                "bh_column": "bh",
+                "category_column": "group",
+                "value_column": "box_value",
+                "category_order": ["reference", "candidate"],
+                "gene_label_column": "gene_label",
+                "gene_url_column": "gene_url",
+                "x_label": "Group",
+                "y_label": "Effect",
+                "narrative": _narrative("gene group"),
+            },
+        ],
+    }
+
+
+def _stats_values(path):
+    table = pd.read_csv(path)
+    return dict(zip(table["metric"], table["value"]))
+
+
+def test_manifest_builds_four_traceable_packages_and_one_vector_figure(tmp_path):
+    manifest_path = tmp_path / "panels.json"
+    manifest_path.write_text(json.dumps(_publication_manifest()), encoding="utf-8")
+    destination = tmp_path / "publication"
+
+    written = build_manifest_packages(
+        manifest_path,
+        _publication_artifacts(),
+        destination,
+        style=PanelStyle(png_dpi=100),
+    )
+
+    assert set(written["panels"]) == {
+        "Figure_7A", "Figure_7B", "Figure_7C", "Figure_7D"
+    }
+    for panel_id, paths in written["panels"].items():
+        folder = destination / panel_id
+        assert set(path.name for path in folder.iterdir()) == {
+            f"{panel_id}.pdf", f"{panel_id}.png",
+            f"{panel_id}_stats.csv", f"{panel_id}_data.csv",
+        }
+        assert set(paths) == {"pdf", "png", "stats", "data"}
+
+    xgb_guide = _stats_values(written["panels"]["Figure_7A"]["stats"])
+    xgb_gene = _stats_values(written["panels"]["Figure_7B"]["stats"])
+    maxvit_guide = _stats_values(written["panels"]["Figure_7C"]["stats"])
+    maxvit_gene = _stats_values(written["panels"]["Figure_7D"]["stats"])
+    plotted_thresholds = {}
+    for panel_id, paths in written["panels"].items():
+        values = pd.read_csv(paths["data"])["plot_effect_threshold"].unique()
+        assert len(values) == 1
+        plotted_thresholds[panel_id] = float(values[0])
+    assert plotted_thresholds["Figure_7A"] == plotted_thresholds["Figure_7B"]
+    assert plotted_thresholds["Figure_7C"] == plotted_thresholds["Figure_7D"]
+    assert float(xgb_guide["effect_threshold"]) == float(
+        xgb_gene["effect_threshold"]
+    )
+    assert float(maxvit_guide["effect_threshold"]) == float(
+        maxvit_gene["effect_threshold"]
+    )
+    assert not np.isclose(
+        float(xgb_guide["effect_threshold"]),
+        float(maxvit_guide["effect_threshold"]),
+    )
+    for key in ("x_min", "x_max", "y_min", "y_max"):
+        assert float(xgb_guide[key]) == float(maxvit_guide[key])
+
+    box_data = pd.read_csv(written["panels"]["Figure_7D"]["data"])
+    assert box_data["box_alpha"].eq(0.60).all()
+    assert box_data["point_alpha"].eq(0.60).all()
+    assert np.allclose(box_data["plot_x"], [-0.18, 0.18, 0.82, 1.18])
+    assert np.allclose(box_data["plot_y"], box_data["box_value"])
+
+    final_pdf = written["figure_pdf"]
+    assert final_pdf == destination / "Figure_7.pdf"
+    reader = PdfReader(final_pdf)
+    assert len(reader.pages) == 1
+    page = reader.pages[0]
+    xobjects = page.get("/Resources", {}).get("/XObject", {})
+    assert all(
+        item.get_object().get("/Subtype") != "/Image"
+        for item in xobjects.values()
+    )
+    assert len(page.get("/Annots", [])) == 16
+    page_midpoint = (
+        float(page.mediabox.width) / 2,
+        float(page.mediabox.height) / 2,
+    )
+    occupied_quadrants = set()
+    for annotation in page["/Annots"]:
+        rect = [float(value) for value in annotation.get_object()["/Rect"]]
+        assert rect[2] > rect[0] and rect[3] > rect[1]
+        occupied_quadrants.add(
+            (
+                (rect[0] + rect[2]) / 2 > page_midpoint[0],
+                (rect[1] + rect[3]) / 2 > page_midpoint[1],
+            )
+        )
+    assert occupied_quadrants == {
+        (False, False), (False, True), (True, False), (True, True)
+    }
+
+
+def test_manifest_validation_finishes_before_any_package_is_written(tmp_path):
+    manifest = _publication_manifest()
+    manifest["panels"][-1]["source"] = "missing_run_artifact"
+    destination = tmp_path / "must-not-exist"
+
+    with pytest.raises(ValueError, match="missing_run_artifact"):
+        build_manifest_packages(manifest, _publication_artifacts(), destination)
+
+    assert not destination.exists()
+
+
+def test_manifest_refuses_source_level_or_phenotype_guessing(tmp_path):
+    artifacts = _publication_artifacts()
+    artifacts["xgboost_gene"]["phenotype"] = "maxvit"
+
+    with pytest.raises(ValueError, match="declares phenotype"):
+        build_manifest_packages(
+            _publication_manifest(), artifacts, tmp_path / "not-written"
+        )
