@@ -44,15 +44,11 @@
 spaCR
 =====
 
-Languages: `English <README.rst>`_ · `Svenska <docs/i18n/readme/README.sv.rst>`_ ·
-`Deutsch <docs/i18n/readme/README.de.rst>`_ ·
-`Español <docs/i18n/readme/README.es.rst>`_ ·
-`简体中文 <docs/i18n/readme/README.zh_CN.rst>`_ ·
-`Português <docs/i18n/readme/README.pt.rst>`_ ·
-`हिन्दी <docs/i18n/readme/README.hi.rst>`_ ·
-`한국어 <docs/i18n/readme/README.ko.rst>`_ ·
-`Íslenska <docs/i18n/readme/README.is.rst>`_ ·
-`Français <docs/i18n/readme/README.fr.rst>`_
+.. spacr-language-picker-begin
+
+Languages: `🌐 English ▾ <docs/i18n/readme/README.md>`_
+
+.. spacr-language-picker-end
 
 **Spatial phenotype analysis of CRISPR screens.**
 
