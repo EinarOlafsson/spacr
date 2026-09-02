@@ -948,3 +948,49 @@ the reviewed layer, not the generated one, and 316 reserves them.
 CORRECTION TO THE 2026-08-31 NOTE ABOVE: it predicts the missing compact rows
 are 'Laptop' and 'Workstation'. They are not, and have not been for two days.
 The set is the six above.
+
+--------------------------------------------------------------------------------
+2026-09-02 — I STALED A REVIEWED BLOCK AND FIXED IT; THE NEXT ONE IS NOT MINE
+--------------------------------------------------------------------------------
+
+Recorded because it is a trap anyone editing a docstring can fall into, and
+because the docs job's error names only the FIRST stale record, so it reads
+like one problem when it is a queue.
+
+WHAT I DID. Instruction 342 added `plateID` to the formula in
+`spacr.ml.regression_levels`'s docstring -- correctly; the fixed-effects
+design really does include it now. That docstring block is one of the
+REVIEWED API translations, pinned by a sha256 of its source, so the change
+made nine reviewed catalogs stale at once and turned the docs job red with
+
+    ValueError: stale reviewed API source 'spacr.ml.regression_levels#2'
+
+A DOCSTRING EDIT IS A TRANSLATION EDIT here, and nothing in the editing
+experience says so. Worth knowing before touching any public docstring.
+
+WHY THE FIX WAS MECHANICAL AND NOT A TRANSLATION. The stale block is
+
+    ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``
+
+-- a Patsy formula, and `source` and `translation` were the SAME STRING in all
+nine locales, because a code literal reads identically in every language.
+Updating the formula and re-hashing is therefore not drafting prose, which is
+what 316 forbids. Checked before editing: every one of the nine records had
+source == translation.
+
+THE NEXT FAILURE IS PRE-EXISTING AND IS THIS ITEM'S OWN DEBT.
+With the API pass green, the audit reaches the runtime pass and stops at
+
+    stale reviewed runtime source setting_tooltips/control_wells
+    docs/i18n/reviewed/runtime/es/2026-08-26-final-runtime-gaps.json
+
+`control_wells`'s tooltip is real prose, so THAT one cannot be repaired the
+same way -- it needs a Spanish sentence, which is the maintainer's pass. The
+docs job was already red on it before tonight's commits (the 2026-09-01 22:31
+run failed too), so this is the 125-row debt recorded above arriving in CI
+rather than anything new.
+
+AND THE AUDIT REPORTS ONE AT A TIME. Fixing the first revealed the second;
+there may be more behind it. Whoever does the maintainer's pass should expect
+to iterate rather than to see the whole list at once, and it is worth teaching
+the audit to report every stale record in one run instead.
