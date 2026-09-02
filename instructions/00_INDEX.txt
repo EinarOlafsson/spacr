@@ -105,6 +105,7 @@ OPEN
        343_the_regression_module_writes_submission_panel_packages.txt
 
   345  THREE MORE ANNOTATE TESTS FAIL, AND ONE OF THEM ONLY IN COMPANY
+       [~35% -- the stale stub is fixed, 3 down to 2; the rest are order-dependent]
        345_three_more_annotate_tests_fail.txt
 
   346  TWENTY-ONE MEASURE TESTS FAIL ONLY IN COMPANY, AND HAVE FOR AT LEAST A DAY
