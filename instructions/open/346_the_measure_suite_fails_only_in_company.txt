@@ -1,0 +1,76 @@
+================================================================================
+TWENTY-ONE MEASURE TESTS FAIL ONLY IN COMPANY, AND HAVE FOR AT LEAST A DAY
+================================================================================
+
+Status:    not started, filed 2026-09-02.
+Requested: not requested -- found while verifying 337 against a HEAD baseline,
+           and filed rather than narrated.
+Owner:     unassigned. Mixed lane: the tests are `tests/`, the suspected
+           mechanism is shared process state.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Running 113 settings/measure/validate files together:
+
+    at HEAD (2026-09-02, 53a40ebce~)   24 failed, 3086 passed
+    after 337                          21 failed, 3091 passed
+
+The 21 are NOT caused by 337 -- the two runs' failure lists were compared
+directly (`comm`), and the set after is a strict subset of the set before.
+
+EVERY ONE OF THEM PASSES WHEN RUN ALONE. Spot-checked on
+`test_measure_hooks.py::test_region_filter_receives_labels_and_centroids`:
+1 passed in 5.13s on its own, failed in the group.
+
+The files involved:
+
+    test_measure_3d.py                  4
+    test_measure_hooks.py              10
+    test_measure_spawn.py               3
+    test_measure_intermittent.py        1
+    test_measure_join_contracts.py      1
+    test_measure_manager_guard.py       1
+    test_measure_optional_zernike.py    1
+
+--------------------------------------------------------------------------------
+WHY THIS MATTERS MORE THAN THE COUNT
+--------------------------------------------------------------------------------
+
+Instruction 288 is counting on the suite being green to mean something, and a
+failure that only appears in company is invisible to anyone running one file.
+It is also the second such family found in two days -- 345 records three
+annotate tests with the same shape -- so the shared mechanism is worth finding
+once rather than twice.
+
+TWO CANDIDATE MECHANISMS, and they need opposite fixes:
+
+  * SHARED PROCESS STATE. `spacr.measure` and `spacr.settings` both hold
+    module-level registries, and `register_defaults` refuses redefinition, so
+    an earlier import can decide what a later one sees. `spawn` and `3d` both
+    appear here, which fits.
+  * THE 288 WIDGET-TEARDOWN FAMILY. Less likely -- these are not Qt tests --
+    but 288 records that the same pairing can produce a plain FAILURE rather
+    than a crash, so it should be ruled out rather than assumed away.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Bisect the file list to the smallest pair that reproduces one failure.
+   `pytest <suspect> <victim>` is the whole experiment; do not start by
+   reading `measure.py`.
+2. Name the pair in this file whichever way it goes -- a negative result is
+   worth as much here, because the next person will otherwise start over.
+3. Only then decide whether the fix is an isolation fixture or a real defect
+   in module-level state. A test-only fix to something that is ALSO wrong in
+   the application is the failure mode instruction 288 warns about.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* The 113-file run is green, or its remaining failures are named and owned.
+* Each formerly order-dependent test passes both alone and in the group.
+* The mechanism is written down here, not just the fix.

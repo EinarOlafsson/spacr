@@ -1,0 +1,86 @@
+================================================================================
+CATEGORY HELP BELONGS ONLY IN THE STRIP, THE API LINK BECOMES A DOT, AND EVERY
+SETTING GETS A TOOLTIP
+================================================================================
+
+Status:    not started, filed 2026-09-02.
+Requested: 2026-09-02, verbatim -- "for settings level tooltips keep the popup
+           but for cotegory level dont show the popup and just show the bottom
+           of the screen text. and make sure all settings have tooltipps. seels
+           like the settings in regression have been mooved from popup to the
+           bottom of the scren. and all of them have a link that says
+           openspaCR API documentation, it should just say or instead of API
+           just show a teel dot for api and a purple square for annimation"
+Owner:     spacr/qt/screens/settings_model.py and the settings strip.
+
+--------------------------------------------------------------------------------
+FOUR THINGS
+--------------------------------------------------------------------------------
+
+1. TWO TOOLTIP SURFACES, ONE RULE EACH.
+
+   A SETTING keeps its hover popup. A CATEGORY does not: its help text goes
+   only to the strip at the bottom of the screen. Today both use the popup,
+   and a category popup covers the rows the user is trying to read.
+
+2. REGRESSION LOOKS LIKE IT ALREADY MOVED, AND THAT NEEDS CHECKING FIRST.
+   The report is that regression's SETTING tooltips have already become
+   bottom-of-screen text rather than popups. If that is real it is a
+   regression against rule 1 and it is the half to fix first -- the maintainer
+   likes the strip, but not INSTEAD of the setting popup.
+   Establish whether regression differs from the other screens before
+   changing anything: it may be one screen's layout, or it may be the shared
+   path and the other screens have simply not been looked at.
+
+3. THE LINK BECOMES TWO MARKS.
+   "Open spaCR API documentation" is repeated on every row that has one,
+   which is most of them, so the words carry no information and cost a line.
+   Replace with:
+
+       a TEAL DOT      -> the API documentation for that setting
+       a PURPLE SQUARE -> the setting's animation
+
+   Both must stay clickable targets, which is the constraint that killed the
+   previous attempt at this: see the note in 3d below.
+
+4. EVERY SETTING HAS A TOOLTIP. "make sure all settings have tooltipps" --
+   this is a coverage claim and needs a test, not a sweep. `spacr.settings`
+   already registers tooltips per module via `register_defaults`, and
+   `tooltips` is NOT complete on import (HANDOFF 3c): six pipelines register
+   their keys from their own module. Any audit that reads the dict cold will
+   report false gaps and, worse, a tool that then writes "no description" is
+   not missing a sentence, it is writing a WRONG one.
+
+--------------------------------------------------------------------------------
+WHAT IS ALREADY TRUE
+--------------------------------------------------------------------------------
+
+Instruction 336 (done) generated `spacr/qt/screens/setting_api_targets.py`, so
+every setting's API link now points at the function that READS it, and
+`exact=False` marks the ones whose only consumer is a closure. The dot should
+use the same map -- and a setting with no addressable consumer should show NO
+dot rather than a dot that goes nowhere.
+
+--------------------------------------------------------------------------------
+WATCH
+--------------------------------------------------------------------------------
+
+* A control that vanishes takes its value with it (INVARIANTS 6, "greyed, not
+  removed"). A dot that disappears when there is no target is fine; a dot that
+  disappears because the lookup failed is not, and the two look identical.
+* Two teal dots and two purple squares on one row would mean two sources of
+  the same link. One source, `SETTING_API_TARGETS`.
+* Colour alone is not a label. A teal dot and a purple square differ in SHAPE
+  as well as colour, which is what makes this legible in the colourblind mode
+  instruction 89 added -- keep both differences.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* Hovering a SETTING shows a popup; hovering a CATEGORY shows strip text and
+  no popup. Asserted by driving the hover, not by reading the layout code.
+* No row renders the words "Open spaCR API documentation".
+* Every setting a built-in module offers has a non-empty tooltip, measured
+  AFTER the modules that register them have been imported.
+* A setting whose API target is unknown shows no teal dot.
