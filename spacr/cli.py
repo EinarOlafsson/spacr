@@ -1326,6 +1326,14 @@ class _NoShow:
         self._original = plt.show
 
         def _close_instead(*args: Any, **kwargs: Any) -> None:
+            """Close the captured current figure instead of displaying it.
+
+            :param args: ignored positional arguments accepted for ``show``
+                signature compatibility.
+            :param kwargs: ignored keyword arguments accepted for compatibility.
+            :returns: None. Backend and close errors are deliberately swallowed
+                so optional visualization cleanup cannot fail a headless run.
+            """
             try:
                 plt.close(plt.gcf())
             except Exception:
