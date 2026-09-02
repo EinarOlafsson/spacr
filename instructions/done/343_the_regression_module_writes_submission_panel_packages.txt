@@ -2,10 +2,7 @@
 THE REGRESSION MODULE WRITES COMPLETE, TRACEABLE SUBMISSION PANEL PACKAGES
 ================================================================================
 
-Status:    75%, 2026-09-01. The publication renderer and its focused tests are
-           committed. It has no regression-module caller yet, so a user cannot
-           produce these packages from a run; the remaining integration is
-           deliberately still open.
+Status:    done, 2026-09-02.
 Requested: 2026-09-01 -- "make sure that the regression module in spacr
            produces all of these panels"; "all graphs should be accompanied
            by a stats csv and a data csv"; and "the threshold for effect size
@@ -69,29 +66,36 @@ style metadata and narrative text in the PDF. `pypdf` is a declared runtime
 dependency with supported-version constraints.
 
 --------------------------------------------------------------------------------
-WHAT IS LEFT
+COMPLETED 2026-09-02
 --------------------------------------------------------------------------------
 
-1. CALL THE RENDERER FROM THE REGRESSION RESULT/EXPORT WORKFLOW. A completed
-   OLS or Freedman-Lane run must be able to create the package without a user
-   writing Python around `write_panel_package`.
+Commit `24215a08f28cc4ebe217575bcd9ae70732283543` completed the package layer:
 
-2. DEFINE THE FIGURE/PANEL MANIFEST at that boundary: which result table makes
-   each proposed figure panel, the gRNA/gene level, XGBoost/MaxViT phenotype,
-   statistic and narrative. The names in the output must come from that
-   manifest, not be inferred from filenames after the run.
+* manifest loading, full preflight before any output, and exact run-artifact,
+  level and phenotype resolution;
+* one gRNA control threshold per phenotype, applied unchanged to gRNA and
+  gene panels, plus explicit shared-limit groups;
+* a deterministic box-and-jitter four-file writer whose boxes and points both
+  use 60% opacity;
+* a one-page vector PDF composer which places source PDF pages without PNG
+  rasterisation and transforms their URI link rectangles into final-page
+  coordinates.
 
-3. ADD THE BOX-AND-JITTER RENDERER with 60% box and point opacity where those
-   panels are requested. The current renderer is a square point plot only.
+`tests/test_regression_panel_packages.py` drives four manifest panels spanning
+gRNA/gene and XGBoost/MaxViT, checks exact package contents, shared thresholds
+and axes, deterministic jitter data, 60% alpha, vector content, transformed
+links and validation-before-write. Its post-rebase focused run passed 17
+tests, and every scientific/output contract added here was mutation-proved.
 
-4. ADD THE FINAL VECTOR-PDF COMPOSER. It must place the individual panel PDFs,
-   preserve vector content and links where the PDF format permits it, and
-   write the final figure without rasterising a PNG.
-
-5. DRIVE THE INTEGRATED PATH in a focused test with both gRNA and gene tables
-   and both XGBoost and MaxViT phenotypes. Assert the gene plot carries the
-   exact gRNA threshold, paired axes are byte-for-byte equal in the stats
-   CSVs, and every manifest panel produces exactly its four contract files.
+Commit `435badacacaf6d03436b348ab0eae26664912fde` completed the public workflow
+boundary. `perform_regression` now calls the manifest builder exactly once
+after either the OLS or Freedman-Lane result artifacts exist, attaches the
+returned paths as `publication_panels`, preserves the no-manifest return shape
+and sends explicit writer failures through the existing regression failure
+report. `regression_panel_manifest` is an optional typed programmatic setting;
+it is deliberately not a new Qt field. The broader focused integration run
+passed 41 tests and the decisive post-rebase run passed 6; call removal,
+pre-result timing and no-op removal were mutation-proved.
 
 --------------------------------------------------------------------------------
 HOW IT WILL BE CHECKED
