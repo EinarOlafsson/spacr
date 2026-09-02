@@ -12,8 +12,11 @@ default.
 """
 from __future__ import annotations
 
+import ast
 import gzip
 import io
+import inspect
+import textwrap
 import zlib
 
 import pytest
@@ -119,6 +122,22 @@ def test_the_limit_stops_the_download(tmp_path):
     assert len(lines) == 40, "four lines to a read, so ten reads is forty lines"
     assert lines[0] == "@read0"
     assert lines[-4] == "@read9"
+
+
+def test_the_download_loop_is_unconditional_and_break_terminated():
+    """Pin the language premise that makes a loop ``else`` unreachable.
+
+    ``fetch_reads`` must poll cancellation before every read, so its stream
+    loop is deliberately unconditional and can finish only through one of its
+    explicit ``break`` statements (EOF or the requested read limit).
+    """
+    tree = ast.parse(textwrap.dedent(inspect.getsource(fetch_reads)))
+    loops = [node for node in ast.walk(tree) if isinstance(node, ast.While)]
+
+    assert len(loops) == 1
+    loop = loops[0]
+    assert isinstance(loop.test, ast.Constant) and loop.test.value is True
+    assert sum(isinstance(node, ast.Break) for node in ast.walk(loop)) == 2
 
 
 def test_no_limit_fetches_the_whole_file(tmp_path):

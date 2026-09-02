@@ -203,8 +203,6 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
                     progress(written_lines // LINES_PER_READ, fetched)
                 if wanted_lines is not None and written_lines >= wanted_lines:
                     break
-            else:                                     # pragma: no cover
-                pass
             # The tail, only when the whole file was asked for -- a truncated
             # request must not end on half a record.
             if wanted_lines is None and pending:
