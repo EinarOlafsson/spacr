@@ -83,7 +83,7 @@ STAGE: Dict[str, str] = {
     "337": "~75% -- Manders, spatial defaults and both labels done; part 3 needs the maintainer's measure settings",
     "339": "0% -- illumination is called from measure and nowhere else",
     "341": "0% -- three tests confirmed still failing on 2026-09-01",
-    "349": "~90% -- mask and measure routes fixed; classify, annotate and map barcodes unchecked",
+    "349": "~95% -- mask, measure and annotate/classify fixed behind one rule; map barcodes unchecked",
     "350": "~30% -- the reported Annotate case is fixed and the reusable check exists; the sweep is not run",
     "353": "~60% -- the buttons are at the top; aligning them to their columns is not done",
     "348": "~35% -- Help is a dock heading and is last; the magnifier and the text move are open",

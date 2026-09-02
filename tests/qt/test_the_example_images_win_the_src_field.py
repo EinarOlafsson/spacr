@@ -44,9 +44,18 @@ class _Console:
 
 
 class _Screen:
-    """Just enough of AppScreen to run the method under test."""
+    """Just enough of AppScreen to run the method under test.
+
+    `keep_the_src_openable` is bound from the REAL class rather than stubbed:
+    it is the rule these tests are about, so a stand-in would test the
+    stand-in. Everything else here is scaffolding.
+    """
 
     app_key = "mask"
+
+    from spacr.qt.screens.app_screen import AppScreen as _Real
+    keep_the_src_openable = _Real.keep_the_src_openable
+    del _Real
 
     def __init__(self, shipped):
         from types import SimpleNamespace
@@ -151,3 +160,55 @@ def test_measure_refuses_a_shipped_src_that_is_not_a_directory(
 
     assert screen._field.text() == str(plate)
     assert result["src"] == str(plate)
+
+
+# ---------------------------------------------------------------------------
+# The ANNOTATE / CLASSIFY route, which had no guard at all
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def apply_example_settings():
+    from spacr.qt.screens.app_screen import AppScreen
+
+    return AppScreen._apply_the_example_settings
+
+
+class _AnnotateScreen(_Screen):
+    app_key = "annotate"
+
+    def apply_settings_that_came_with(self, folder):
+        self.applied_with = folder
+        self._field.setText(self._shipped)
+        return 1
+
+
+@pytest.mark.parametrize("shipped", ["<src>", "/nowhere/that/exists", ""])
+def test_annotate_refuses_a_shipped_src_that_is_not_a_directory(
+        apply_example_settings, tmp_path, shipped):
+    """This route wrote `src` nowhere and returned the destination anyway.
+
+    So the panel could show the publisher's path while the caller was told
+    the download folder -- two different answers to "where is src".
+    """
+    destination = tmp_path / "annotate_example"
+    destination.mkdir()
+    screen = _AnnotateScreen(shipped)
+
+    result = apply_example_settings(screen, destination)
+
+    assert screen._field.text() == str(destination)
+    assert result["src"] == str(destination)
+
+
+def test_annotate_keeps_a_shipped_path_that_exists(apply_example_settings,
+                                                   tmp_path):
+    """A usable shipped value is still honoured, and reported honestly."""
+    destination = tmp_path / "annotate_example"
+    inner = destination / "crops"
+    inner.mkdir(parents=True)
+    screen = _AnnotateScreen(str(inner))
+
+    result = apply_example_settings(screen, destination)
+
+    assert screen._field.text() == str(inner)
+    assert result["src"] == str(inner)
