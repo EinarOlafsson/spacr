@@ -413,18 +413,17 @@ dependencies = [
     'matplotlib>=3.8.3,<4.0',
     'matplotlib_venn>=1.1,<2.0',
     # THE SAME RULE AS THE ENTRY BELOW, applied to a module that was missing
-    # it. spacr/regression_panels.py:21 does `from PyPDF2 import PdfReader,
-    # PdfWriter` at module scope, unguarded, and PyPDF2 was declared nowhere
-    # -- so a clean install of the wheel raised ModuleNotFoundError on
-    # `import spacr.regression_panels`. Verified on 2026-09-01 against a fresh
-    # environment built from the 1.5.0.4 wheel: the import fails there and
-    # succeeds in the development tree only because something else had pulled
-    # PyPDF2 in.
+    # it. spacr.regression_panels imports PdfReader, PdfWriter and Link at
+    # module scope, so the PDF implementation is a direct dependency. The
+    # 6.16.1 floor is the first release containing the current resource-use
+    # fixes for hostile PDFs, including the XForm text-extraction bound; it
+    # supports every Python admitted by this package and ships a universal
+    # wheel. The discontinued PyPDF2 name is deliberately not accepted.
     #
     # It also took the test suite down whole rather than one file: a
     # module-scope import in tests/test_regression_panel_packages.py made this
     # a COLLECTION error, so `pytest tests/` exited 2 having run nothing.
-    'PyPDF2>=3.0,<4.0',
+    'pypdf>=6.16.1,<7.0',
     # DECLARED THOUGH MATPLOTLIB ALREADY PULLS IT. spacr/figure_style.py
     # imports it directly and UNGUARDED, so a resolver that ever stops
     # shipping it transitively turns a house-style figure into an
