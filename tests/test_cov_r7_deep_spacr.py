@@ -220,7 +220,7 @@ def test_the_scaler_falls_back_to_the_cuda_namespace_on_the_torch_floor(
             reached.append(enabled)
             self.enabled = enabled
 
-    monkeypatch.delattr(torch.amp, "GradScaler")
+    monkeypatch.delattr(torch.amp, "GradScaler", raising=False)
     monkeypatch.setattr(torch.cuda.amp, "GradScaler", LegacyScaler)
 
     legacy = deep_spacr._gradient_scaler(device, True)
