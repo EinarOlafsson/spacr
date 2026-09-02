@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-326 done / 30 open (91%).
+326 done / 31 open (91%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -138,6 +138,9 @@ OPEN
 
   357  ASK THE MAINTAINER IN VS CODE, THEN RECORD THE ANSWERS THAT UNBLOCK THE LIST
        357_ask_the_maintainer_in_vscode_and_record_the_answers.txt
+
+  358  REDO EVERY CORE-MODULE TUTORIAL WITH LIVE DATA AND THE FOLDED-IN ACTIONS
+       358_redo_every_core_module_tutorial_with_live_data.txt
 
 --------------------------------------------------------------------------------
 DONE
