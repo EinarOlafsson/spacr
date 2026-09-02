@@ -603,8 +603,6 @@ def condition_number(X):
     raw_sv = np.linalg.svd(Xm, compute_uv=False)
 
     def _ratio(sv):
-        if sv.size == 0:
-            return np.inf
         # LAPACK implementations do not all return an exact zero for the
         # same rank-deficient matrix. Use the numerical-rank threshold behind
         # ``numpy.linalg.matrix_rank`` so a duplicated predictor is singular
@@ -2786,8 +2784,7 @@ def _panel_p_value_histogram(ctx, ax):
         # bars, which on a transparent or dark ground is a comb of light.
         ax.bar(edges[:-1], counts, width=np.diff(edges), align="edge",
                color=ROLES["fill"], edgecolor="none")
-        if np.isfinite(diag["expected"]):
-            reference_line(ax, y=diag["expected"], label="uniform")
+        reference_line(ax, y=diag["expected"], label="uniform")
         ink = _house_axes(ax, "p-value distribution", "p-value",
                           "number of coefficients")
         annotate(ax, f"{_wells(diag['n'], 'coefficients')}\nsource: {source}",
@@ -3055,8 +3052,7 @@ def _positional_effect_panel(ctx, ax, column, label, mark_edges):
     if mark_edges and len(groups) >= 4:
         edge = np.concatenate([values[0], values[-1]])
         interior = np.concatenate(values[1:-1])
-        if edge.size and interior.size:
-            edge_delta = float(np.median(edge) - np.median(interior))
+        edge_delta = float(np.median(edge) - np.median(interior))
     edge_artefact = bool(np.isfinite(edge_delta)
                          and abs(edge_delta) > 0.5 * np.nanstd(ctx.resid))
 
@@ -3085,14 +3081,13 @@ def _positional_effect_panel(ctx, ax, column, label, mark_edges):
                 for artist in box[part][2 * index:2 * index + 2]:
                     artist.set(color=colour, lw=WEIGHTS["spine"])
         for i, v in enumerate(values):
-            if v.size:
-                jitter = (np.random.default_rng(i).uniform(-0.16, 0.16, v.size)
-                          if v.size > 1 else np.zeros(1))
-                # The skill's superplot exception: the small raw points are
-                # the only marks allowed alpha, so the summary reads on top.
-                ax.scatter(i + jitter, v, s=4.5, alpha=0.5, color=marks[i],
-                           edgecolors="none",
-                           zorder=4 if marks[i] != ROLES["data"] else 3)
+            jitter = (np.random.default_rng(i).uniform(-0.16, 0.16, v.size)
+                      if v.size > 1 else np.zeros(1))
+            # The skill's superplot exception: the small raw points are
+            # the only marks allowed alpha, so the summary reads on top.
+            ax.scatter(i + jitter, v, s=4.5, alpha=0.5, color=marks[i],
+                       edgecolors="none",
+                       zorder=4 if marks[i] != ROLES["data"] else 3)
         reference_line(ax, y=0.0)
 
         ax.set_xticks(np.arange(len(groups)))
