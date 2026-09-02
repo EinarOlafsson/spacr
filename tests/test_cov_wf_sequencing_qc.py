@@ -75,6 +75,36 @@ def _panels(counts, *, per_well, starved, positions, depth, unmapped):
 
 
 # ---------------------------------------------------------------------------
+# plot_barcode_qc, panel 2: physical plate order
+# ---------------------------------------------------------------------------
+
+def test_the_position_panel_sorts_numbered_labels_naturally():
+    """Column 10 follows column 2 rather than sorting between 1 and 2."""
+    counts = _counts(n_rows=1, n_cols=3)
+    positions = pd.DataFrame({
+        "axis": ["column", "column", "column"],
+        "label": ["c10", "c2", "c1"],
+        "ratio_to_plate": [1.0, 1.0, 1.0],
+        "flagged": [False, False, False],
+    })
+
+    fig = QC.plot_barcode_qc(
+        counts,
+        per_well=QC.reads_per_well(counts),
+        starved=QC.starved_wells(counts),
+        positions=positions,
+        depth=QC.library_depth(counts),
+        unmapped=None,
+    )
+    try:
+        assert [tick.get_text() for tick in fig.axes[1].get_xticklabels()] == [
+            "c1", "c2", "c10"
+        ]
+    finally:
+        plt.close(fig)
+
+
+# ---------------------------------------------------------------------------
 # collision_summary: reads at risk, when there are no reads to be at risk
 # ---------------------------------------------------------------------------
 
