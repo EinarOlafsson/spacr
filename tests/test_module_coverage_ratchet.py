@@ -156,8 +156,8 @@ def _run_cli(
     )
 
 
-def test_current_packaging_denominator_is_517_not_asset_generators():
-    """The ratchet follows all 517 shipped modules, not asset generators.
+def test_current_packaging_denominator_is_518_not_asset_generators():
+    """The ratchet follows all 518 shipped modules, not asset generators.
 
     Since the previous 506-module pin, the product added the public
     accelerator resolver, plaque analysis, settings-pack support, and the
@@ -165,7 +165,8 @@ def test_current_packaging_denominator_is_517_not_asset_generators():
     region catalog and GPU orbit renderer.  All seven are installed Python
     and belong in coverage. Annotation-dataset generation, GUI-thread GC
     policy, the example-screen data picker and its headless data manifest add
-    four more installed modules; all four must have coverage rows too.
+    four more installed modules. The generated setting-to-API target map adds
+    one more; all five must have coverage rows too.
     """
     shipped = set(ratchet.discover_shipped_python_files(ROOT))
     every_spacr_python = {
@@ -173,7 +174,7 @@ def test_current_packaging_denominator_is_517_not_asset_generators():
         for path in (ROOT / "spacr").rglob("*.py")
     }
 
-    assert len(shipped) == 517
+    assert len(shipped) == 518
     assert every_spacr_python - shipped == RESOURCE_GENERATORS
     assert not RESOURCE_GENERATORS & shipped
 
@@ -431,7 +432,7 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     )
     assert "coverage combine --keep" in combine_script
     assert "coverage json --pretty-print" in combine_script
-    assert "--expected-file-count 517" in combine_script
+    assert "--expected-file-count 518" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
     assert "coverage-combine" in jobs["release-gate"]["needs"]
