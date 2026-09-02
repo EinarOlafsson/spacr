@@ -1,0 +1,110 @@
+================================================================================
+THE REGRESSION MODULE WRITES COMPLETE, TRACEABLE SUBMISSION PANEL PACKAGES
+================================================================================
+
+Status:    75%, 2026-09-01. The publication renderer and its focused tests are
+           committed. It has no regression-module caller yet, so a user cannot
+           produce these packages from a run; the remaining integration is
+           deliberately still open.
+Requested: 2026-09-01 -- "make sure that the regression module in spacr
+           produces all of these panels"; "all graphs should be accompanied
+           by a stats csv and a data csv"; and "the threshold for effect size
+           should be based on the grnas but applied to the gene and the grna
+           plots."
+Owner:     spacr/regression_panels.py and the regression result/export path.
+
+--------------------------------------------------------------------------------
+WHAT THE PACKAGE MUST MEAN
+--------------------------------------------------------------------------------
+
+One requested manuscript panel is one named folder and four traceable files:
+
+    Figure_<N><PANEL>.pdf
+    Figure_<N><PANEL>.png
+    Figure_<N><PANEL>_stats.csv
+    Figure_<N><PANEL>_data.csv
+
+The data CSV is the point-level table actually drawn, not a second summary of
+it. The statistics CSV records the thresholds, call rule, counts and visual
+settings needed to audit the graph. The PNG is the plot by itself. The vector
+PDF carries the panel legend and separate statements of purpose, what the
+panel shows, and what the data imply. A final multi-panel figure must compose
+the PDF panels as vector pages; a PNG must never be substituted into it.
+
+THE CALL RULE HAS ONE SOURCE. The positive effect-size threshold is calculated
+from non-targeting gRNAs as their arithmetic mean plus three SAMPLE standard
+deviations. That gRNA-derived number is then applied unchanged to both gRNA-
+and gene-level plots. Significance and effect size remain separate conditions:
+the primary call passes BH and lies above the effect threshold.
+
+The paired XGBoost and MaxViT views use the same x and y limits. LOPIT/TAGM
+categories use one stable palette. Every point has a gene name and a link;
+points above both thresholds are labelled. Markers have fill only, no stroke,
+60% opacity and area 104 pt^2 (four times the original 26 pt^2). Open Sans is
+used throughout and every black axis/threshold line is 0.5 pt. Plot regions
+are square. Box-and-jitter panels use the same 60% opacity for the box and
+jitter points.
+
+--------------------------------------------------------------------------------
+WHAT EXISTS NOW
+--------------------------------------------------------------------------------
+
+`spacr/regression_panels.py` is committed and provides:
+
+* `guide_control_threshold`: non-targeting gRNA mean + 3 sample SD, including
+  the source count, mean, SD, multiplier and threshold for the audit table;
+* `apply_primary_call`: one BH-plus-effect rule which accepts the same guide-
+  derived threshold for guide and gene result tables;
+* `shared_limits`: one finite pair of axis limits for matched XGBoost and
+  MaxViT panels;
+* `write_panel_package`: exact PDF/PNG/stats CSV/data CSV output, Open Sans,
+  104 pt^2 fill-only points at 60% opacity, 0.5 pt black lines, stable LOPIT
+  colours, a visible legend, labels above both thresholds, and a PDF link on
+  every point;
+* explicit `PanelNarrative` fields for legend, purpose, shows and implications.
+
+`tests/test_regression_panel_packages.py` proves the four-file contract, the
+guide-derived threshold on a gene table, matched axes, linked/labeled points,
+style metadata and narrative text in the PDF. `pypdf` is a declared runtime
+dependency with supported-version constraints.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+1. CALL THE RENDERER FROM THE REGRESSION RESULT/EXPORT WORKFLOW. A completed
+   OLS or Freedman-Lane run must be able to create the package without a user
+   writing Python around `write_panel_package`.
+
+2. DEFINE THE FIGURE/PANEL MANIFEST at that boundary: which result table makes
+   each proposed figure panel, the gRNA/gene level, XGBoost/MaxViT phenotype,
+   statistic and narrative. The names in the output must come from that
+   manifest, not be inferred from filenames after the run.
+
+3. ADD THE BOX-AND-JITTER RENDERER with 60% box and point opacity where those
+   panels are requested. The current renderer is a square point plot only.
+
+4. ADD THE FINAL VECTOR-PDF COMPOSER. It must place the individual panel PDFs,
+   preserve vector content and links where the PDF format permits it, and
+   write the final figure without rasterising a PNG.
+
+5. DRIVE THE INTEGRATED PATH in a focused test with both gRNA and gene tables
+   and both XGBoost and MaxViT phenotypes. Assert the gene plot carries the
+   exact gRNA threshold, paired axes are byte-for-byte equal in the stats
+   CSVs, and every manifest panel produces exactly its four contract files.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* A regression export invoked through spaCR, not a direct helper call, writes
+  every manifest panel into its own correctly named folder.
+* Each folder contains exactly PDF, PNG, stats CSV and plotted-data CSV.
+* The gRNA and gene stats CSVs report the same gRNA-derived 3-SD threshold.
+* The XGBoost and MaxViT stats CSVs report identical x and y limits.
+* Every point has a gene label and link; every point passing both thresholds
+  is labelled; no marker has an edge stroke.
+* The final figure is assembled from panel PDFs and remains vector when its
+  page is inspected.
+* The focused regression layout and panel-package tests are green, followed
+  by the regression test subset under the repository memory guard.
