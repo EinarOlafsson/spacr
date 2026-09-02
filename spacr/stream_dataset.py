@@ -11,8 +11,7 @@ from __future__ import annotations
 import logging
 import os
 import re
-from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
-                    Tuple)
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -238,8 +237,8 @@ def selection_from_arrays(merged_folder: str, *, object_array: str = "cell",
             f"{folder} holds no .npy stack, so the object numbers cannot be "
             f"read and there is nothing to stream")
 
-    from .schema import COLUMN_KEY, FIELD_KEY, OBJECT_KEY, PLATE_KEY, ROW_KEY
     from .dependent_join import parts_from_path
+    from .schema import COLUMN_KEY, FIELD_KEY, OBJECT_KEY, PLATE_KEY, ROW_KEY
 
     rows: List[Dict[str, Any]] = []
     for name in files:
@@ -494,6 +493,13 @@ def stream(selection: pd.DataFrame, merged_folder: str, dst: str, *,
 
     if write is None:
         def write(path, array):
+            """Save one extracted crop using the default NumPy format.
+
+            :param path: proposed output path; its extension is replaced with
+                ``.npy``.
+            :param array: crop data to coerce to an array before saving.
+            :returns: None.
+            """
             np.save(os.path.splitext(path)[0] + ".npy", np.asarray(array))
 
     report: Dict[str, Any] = {"written": 0, "missing": 0, "fields": 0,
