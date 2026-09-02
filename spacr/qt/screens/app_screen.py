@@ -8258,17 +8258,31 @@ class AppScreen(QWidget):
         new table fills it again. Never raises -- a tab that cannot refresh
         must not take the run change down with it.
         """
+        # ONE TRY PER CALL, and that is the whole repair as much as the
+        # names are. These were one block: `montage.clear()` raised
+        # AttributeError, so `montage.refresh()` never ran either, and both
+        # halves of the Cells tab went stale on a single typo. Reported as
+        # issue 116 -- "show the cells still not able to pull images" after
+        # re-running regression -- with the AttributeError in the attached
+        # log, logged at DEBUG where nothing showed it to the user.
         montage = getattr(self, "_cell_montage", None)
         if montage is not None:
-            try:
-                montage.clear()
-                montage.refresh()
-            except Exception:                                    # noqa: BLE001
-                LOG.debug("could not refresh the cells tab", exc_info=True)
+            for step, call in (("empty", getattr(montage, "clear", None)),
+                               ("re-read", getattr(montage, "refresh", None))):
+                try:
+                    if call is not None:
+                        call()
+                except Exception:                                # noqa: BLE001
+                    LOG.debug("could not %s the cells tab", step,
+                              exc_info=True)
         scan = getattr(self, "_scan_panel", None)
         if scan is not None:
             try:
-                scan.refresh()
+                # `refresh_databases`, not `refresh`: this panel has no
+                # method by that name, so the Measurements tab never
+                # re-attached the databases when the run changed -- which is
+                # what the Cells tab then reads to find its images.
+                scan.refresh_databases()
             except Exception:                                    # noqa: BLE001
                 LOG.debug("could not refresh the measurements tab",
                           exc_info=True)
