@@ -2,8 +2,9 @@
 EVERY FUNCTION DOCUMENTED, AND A CLICKABLE TREE OF WHERE EACH SETTING IS USED
 ================================================================================
 
-Status:    MEASURED AND PLANNED 2026-09-02. Not started -- the maintainer
-           asked for the plan before the implementation.
+Status:    PHASE 1 AND 2 DONE 2026-09-02 -- `tools/settings_flow.py` emits
+           the flow data and prints a pruned tree per setting. The Sphinx
+           page (phase 3) and the docstrings (phase 4) are not started.
 Requested: 2026-09-02 -- "many functions and subfunctions lack docstrings ...
            all functions should have a docstring that explains their inputs
            and outputs, this goes for subfunctions as well ... when it comes
@@ -134,3 +135,59 @@ HOW IT WILL BE CHECKED
   resolving, so refactors cannot silently empty the trees.
 * Coverage ratchets for methods and nested functions, so the numbers above
   cannot go back up.
+
+
+--------------------------------------------------------------------------------
+PHASES 1 AND 2 ARE BUILT, 2026-09-02
+--------------------------------------------------------------------------------
+
+`tools/settings_flow.py`. Pure `ast`, imports no spaCR -- so a broken import
+cannot empty the trees, and building the docs needs no torch, no Qt and no
+GPU. A test asserts that.
+
+    settings read           1058
+    functions taking them    617
+    propagation edges        776   (524 resolved, 252 unresolved)
+
+THE DESIGN ASSUMPTION HELD. The package has ~156,000 call sites and a naive
+name match resolves 18%; the settings-carrying subgraph is 776 edges, two
+orders of magnitude smaller, and two thirds of it resolves. A test fails if
+that ratio collapses, because a tree that is mostly holes is not usable.
+
+`--key cell_channel` prints the worked example from this file:
+
+    cell_channel
+      spacr.core.preprocess_generate_masks_timelapse
+          spacr.core.preprocess_generate_masks  <-- reads it
+              spacr.io.preprocess_img_data
+                  spacr.io.concatenate_and_normalize
+                      spacr.io._normalize_img_batch  <-- reads it
+              spacr.object.generate_cellpose_masks_sam  <-- reads it
+              spacr.object.generate_organelle_masks_sam
+                  spacr.object._segment_cellpose_sam  <-- reads it
+              spacr.validate.run_preflight
+                  spacr.validate.describe_plan
+                      spacr.validate._describe_objects  <-- reads it
+
+  PRUNED TO BRANCHES THAT REACH A READER, which is what makes it a tree
+  rather than a call-graph dump. `generate_organelle_masks_sam` does not read
+  the setting and is still shown, because the function BELOW it does.
+
+  THE F-STRING EXPANSION IS WHAT MAKES IT WORK. `cell_channel` is never
+  written literally in most of its readers -- it is built as
+  `f'{object_type}_channel'` -- so a literal-only matcher reports it as read
+  by nothing. Expanding the five object roles turns most of the dynamic 5%
+  into concrete keys.
+
+  ONE EDGE PER (caller, callee). The raw edge list records call SITES, so a
+  function calling another three times produced the whole subtree three
+  times. Correct as a record and useless as a tree.
+
+  UNRESOLVED EDGES ARE KEPT AND MARKED, never dropped -- 252 of them. A tree
+  that silently omits what it could not follow looks complete, and the reader
+  has no way to tell which they are looking at.
+
+STILL TO DO: the Sphinx page per setting with every node a link (phase 3),
+and the docstrings (phase 4). The map those links resolve against was fixed
+earlier today -- 59 settings pointed at a function that reads no settings --
+so the ground is now sound.
