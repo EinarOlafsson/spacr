@@ -623,9 +623,11 @@ def test_a_broken_hook_fails_the_field_instead_of_measuring_it(tmp_path,
     mh.register_preprocessing_hook(broken, name="broken-gain")
     (result, tables) = _run(tmp_path)
 
-    index, _average, cells, _figs = result
+    index, _average, cells, _figs, error_text = result
     assert index == 0
     assert isinstance(cells, int) and cells == 0
+    assert "MeasurementHookError" in error_text
+    assert "flat-field model missing for plate1" in error_text
     assert tables == {}
 
     printed = capsys.readouterr()

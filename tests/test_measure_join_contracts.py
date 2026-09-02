@@ -286,7 +286,7 @@ def test_a_fanned_out_field_writes_no_table_at_all(tmp_path):
     src = _field_with_a_straddling_pathogen(tmp_path)
     settings = _crop_settings(src, merge_edge_pathogen_cells=False)
 
-    _index, _avg, cells, _figs = M._measure_crop_core(
+    _index, _avg, cells, _figs, _error = M._measure_crop_core(
         0, [], 'plate1_A01_f1.npy', settings)
 
     # 0 (a plain int) is the cross-process failure sentinel.
@@ -304,7 +304,7 @@ def test_the_same_field_measures_cleanly_once_the_masks_are_repaired(tmp_path):
     src = _field_with_a_straddling_pathogen(tmp_path)
     settings = _crop_settings(src, merge_edge_pathogen_cells=True)
 
-    _index, _avg, cells, _figs = M._measure_crop_core(
+    _index, _avg, cells, _figs, _error = M._measure_crop_core(
         0, [], 'plate1_A01_f1.npy', settings)
 
     assert not isinstance(cells, int), 'the field failed inside _measure_crop_core'
