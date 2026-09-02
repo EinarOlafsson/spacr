@@ -109,7 +109,7 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cell_Signal_to_noise",
+      "key": "cell_signal_to_noise",
       "source_sha256": "6c2533e8781fbf30aad96e48b98271856fb1a7aa0f30778e65a95d7df308f268",
       "source": "Multiplied by cell_background to define the minimum intensity for the normalisation ceiling. spaCR evaluates the 98th through 99.5th percentiles of the cell channel and uses the first value at or above that product as the upper anchor. Increase it to raise the ceiling and reduce normalised intensity; decrease it to increase the visibility of faint cells. Default 10.",
       "translation": "将其与 cell_background 相乘，以确定归一化上限所需的最小强度。spaCR 评估细胞通道的第 98 至 99.5 百分位数，并采用第一个达到或超过该乘积的值作为上锚点。增大此值会提高上限并降低归一化强度；减小此值会增强暗弱细胞的可见性。默认值为 10。"
@@ -242,7 +242,7 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "nucleus_Signal_to_noise",
+      "key": "nucleus_signal_to_noise",
       "source_sha256": "8d9c1902a53445766b57be8917c59cf5eed2a1151e6970c1162a9675f231ed7f",
       "source": "Multiplied by nucleus_background to define the intensity a bright pixel must reach before normalisation stops increasing the upper clip point. spaCR evaluates the 98th through 99.5th percentiles of the non-zero nucleus channel and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. A higher value raises the clip point, reduces contrast stretching and protects bright nuclei from saturation; a lower value increases contrast for dim nuclei but saturates bright nuclei sooner. Default 10.",
       "translation": "将其与 nucleus_background 相乘，以确定归一化停止提高上裁剪点之前，明亮像素必须达到的强度。spaCR 评估非零细胞核通道的第 98 至 99.5 百分位数，并采用第一个达到阈值的值；若均未达到，则使用第 99.5 百分位数。较大的值会提高裁剪点、减弱对比度拉伸并防止明亮细胞核饱和；较小的值会增强暗弱细胞核的对比度，但使明亮细胞核更早饱和。默认值为 10。"
@@ -263,7 +263,7 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "pathogen_Signal_to_noise",
+      "key": "pathogen_signal_to_noise",
       "source_sha256": "2a5e221d03bf215fd394749f084f8398e48198c7aa8af4ade86050bcd6cc1652",
       "source": "Expected foreground-to-background ratio of the pathogen channel. Multiplied by pathogen_background, it defines the minimum intensity for the normalisation ceiling. spaCR evaluates percentiles 98 through 99.5 and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. Increase it for a higher ceiling with less clipping; decrease it for greater contrast. Default 20.",
       "translation": "病原体通道的预期前景背景比。将其与 pathogen_background 相乘可定义归一化上限所需的最小强度。spaCR 评估第 98 至 99.5 百分位数，并采用第一个达到阈值的值；若均未达到，则使用第 99.5 百分位数。增大此值会提高上限并减少裁剪；减小此值会增强对比度。默认值为 20。"
