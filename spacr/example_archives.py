@@ -28,6 +28,7 @@ from __future__ import annotations
 import logging
 import os
 import socket
+import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
