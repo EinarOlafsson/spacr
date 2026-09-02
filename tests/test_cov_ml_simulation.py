@@ -164,6 +164,27 @@ def test_minimum_cell_simulation_min_cell_count_overrides_marker(tmp_path,
     assert marks == [15.0], marks
 
 
+def test_minimum_cell_simulation_returns_elbow_when_renderer_refuses(
+        tmp_path, monkeypatch):
+    """Numerical output does not disappear when no Qt renderer is usable."""
+    from spacr import ml as ml_module
+
+    csv = tmp_path / "scores.csv"
+    _write_scores(csv, [("A", 1), ("B", 2)], n_cells=30, seed=31)
+    settings = _settings(tmp_path, str(csv), tolerance=100)
+
+    monkeypatch.setattr(
+        ml_module, "_draw_the_cell_count_sweep",
+        lambda summary, mark, path: None,
+    )
+
+    out = ml_module.minimum_cell_simulation(
+        settings, num_repeats=3, increment=10)
+
+    assert int(out) == 2
+    assert not (tmp_path / "results" / "cell_min_threshold.pdf").exists()
+
+
 def test_minimum_cell_simulation_concatenates_multiple_score_files(tmp_path):
     """Every score_data file is read and tagged with its own plateID."""
     from spacr.ml import minimum_cell_simulation

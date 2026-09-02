@@ -1747,7 +1747,7 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     if fig_file_path:
         print(f"Saved {fig_file_path}")
 
-        return elbow_point['sample_size']
+    return elbow_point['sample_size']
 
 def _statsmodels_p_values(model, coefs):
     """Return per-coefficient p-values from a statsmodels-shaped results object.
