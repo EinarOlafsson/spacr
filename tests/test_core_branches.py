@@ -130,14 +130,17 @@ def test_v2_pipeline_dispatch(tmp_path, monkeypatch):
     import spacr._v1_v2_bridge as bridge
     calls = {}
     def _fake_run_v2(*a, **k):
-        calls["run"] = True
+        calls["run"] = k
         return {"stacks": []}
     monkeypatch.setattr(pv2, "run_v2", _fake_run_v2)
     monkeypatch.setattr(bridge, "report_disk_savings", lambda *a, **k: None)
     from spacr.core import preprocess_generate_masks
     src = tmp_path / "plate1"; src.mkdir()
-    preprocess_generate_masks(_base_settings(src, pipeline_style="v2"))
-    assert calls.get("run") is True
+    given = _base_settings(
+        src, pipeline_style="v2", illumination_correction=True,
+        illumination_qc=False)
+    preprocess_generate_masks(given)
+    assert calls["run"]["illumination_settings"] is given
 
 
 def test_metadata_auto_calls_converter(tmp_path, monkeypatch):

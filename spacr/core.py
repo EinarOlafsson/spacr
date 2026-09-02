@@ -247,6 +247,7 @@ def preprocess_generate_masks(settings):
                 resample=True,
                 postprocess_settings=settings,
                 object_type='cell',
+                illumination_settings=settings,
             )
             report_disk_savings(src, result['stacks'])
             _score_v2_masks(src, settings, object_type='cell')

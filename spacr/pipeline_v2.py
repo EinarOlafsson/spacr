@@ -513,6 +513,18 @@ def _as_hwc(arr: np.ndarray) -> np.ndarray:
     return squeezed
 
 
+def _cellpose_channel_indices(
+        channels_for_cellpose: Sequence[int], n_channels: int
+        ) -> Tuple[int, ...]:
+    """Resolve requested channels into persisted C-axis positions once."""
+    if n_channels <= 0:
+        raise ValueError("a V2 field has no persisted intensity channels")
+    indices = [
+        int(channel) % n_channels for channel in channels_for_cellpose
+    ]
+    return tuple(dict.fromkeys(indices)) or (0,)
+
+
 @timed
 def stream_masks_from_stack(
     stacks: List[StackFile],
@@ -529,6 +541,7 @@ def stream_masks_from_stack(
     resample: bool = True,
     postprocess_settings: Optional[Dict[str, Any]] = None,
     object_type: str = "cell",
+    illumination_session: Optional[Any] = None,
 ) -> List[StackFile]:
     """Batch the field stacks through Cellpose, then append the mask
     channel(s) to the SAME npy files.
@@ -551,6 +564,12 @@ def stream_masks_from_stack(
         whether that file and the scratch folder survive the run.
     :param npz_dir: where to write the (optional) intermediate NPZ
         files. Defaults to a scratch subfolder under the stack folder.
+    :param illumination_session: optional
+        :class:`spacr.illumination.SegmentationIlluminationSession`. Its
+        corrector sees private selected-channel copies immediately before
+        normalisation/Cellpose; persisted intensity planes and scratch NPZs
+        remain raw, and completion is recorded only after the combined stack
+        has been atomically replaced.
     :returns: the same list, with each :class:`StackFile.shape` /
         ``.channels`` updated to reflect the appended mask channel.
     """
@@ -610,13 +629,20 @@ def stream_masks_from_stack(
         # being faster, keeping the call boundary identical matters for exact
         # V1/V2 reproducibility on CPSAM.
         selected_images: List[np.ndarray] = []
-        for arr in loaded:
-            indices = [
-                int(channel) % arr.shape[-1]
-                for channel in channels_for_cellpose
-            ]
-            indices = list(dict.fromkeys(indices)) or [0]
-            selected_images.append(arr[..., indices])
+        for sf, arr in zip(batch, loaded):
+            indices = _cellpose_channel_indices(
+                channels_for_cellpose, arr.shape[-1])
+            selected = arr[..., list(indices)]
+            if illumination_session is not None:
+                from .measure_hooks import PreprocessingContext
+                context = PreprocessingContext(
+                    file_name=sf.path.name,
+                    channels=indices,
+                    settings=postprocess_settings or {},
+                )
+                selected = illumination_session.correct(
+                    sf.field_id, selected, context)
+            selected_images.append(selected)
 
         # V1 segments the percentile-normalised float batch under masks/*.npz,
         # not the raw uint16 planes later retained in merged/.  V2 deliberately
@@ -716,9 +742,12 @@ def stream_masks_from_stack(
             combined = np.concatenate(
                 [arr, mask[..., None]], axis=-1
             ).astype(np.uint16)
-            np.save(sf.path, combined)
+            from .io import _save_array_atomic
+            _save_array_atomic(str(sf.path), combined)
             sf.shape = combined.shape
             sf.channels = sf.channels + [mask_channel_name]
+            if illumination_session is not None:
+                illumination_session.mark_completed(sf.field_id)
 
         if not keep_npz:
             try:
@@ -750,6 +779,9 @@ def stream_masks_from_stack(
                     "not know which plane holds the mask.",
                     sidecar, mask_channel_name, exc)
 
+    if illumination_session is not None:
+        illumination_session.finish(sf.field_id for sf in stacks)
+
     return stacks
 
 
@@ -774,6 +806,7 @@ def run_v2(
     resample: bool = True,
     postprocess_settings: Optional[Dict[str, Any]] = None,
     object_type: str = "cell",
+    illumination_settings: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Run the entire v2 pipeline against ``src``. Convenience wrapper.
 
@@ -846,6 +879,11 @@ def run_v2(
         is passed to the mask post-processor. An unrecognised value does
         not raise — it adds a dead ``<value>_channel`` key and leaves every
         real role unset.
+    :param illumination_settings: full Mask settings mapping. When it enables
+        ``illumination_correction``, one model is prepared from the raw
+        persisted stacks after pass 1 and its session corrects only the
+        private Cellpose inputs in pass 2; omitted/off preserves the previous
+        byte-level output contract.
     :returns: dict with ``mapper`` (:class:`FilenameMapper`), ``stacks``
         (list of :class:`StackFile`), and ``dst`` (Path to ``merged/``).
     :raises ValueError: from :meth:`FilenameMapper.discover` when ``src``
@@ -858,6 +896,18 @@ def run_v2(
     stacks = stream_originals_to_stack(
         src, mapper, channels=channels, channel_names=channel_names,
     )
+    illumination_session = None
+    if (stacks and illumination_settings and
+            illumination_settings.get('illumination_correction', False)):
+        from .illumination import prepare_segmentation_illumination
+        persisted_positions = _cellpose_channel_indices(
+            channels_for_cellpose, len(stacks[0].channels))
+        illumination_session = prepare_segmentation_illumination(
+            illumination_settings,
+            src=stacks[0].path.parent,
+            channels=persisted_positions,
+            pipeline_style='v2',
+        )
     stream_masks_from_stack(
         stacks, model_name=model_name,
         channels_for_cellpose=channels_for_cellpose,
@@ -869,6 +919,7 @@ def run_v2(
         resample=resample,
         postprocess_settings=postprocess_settings,
         object_type=object_type,
+        illumination_session=illumination_session,
     )
     return {"mapper": mapper, "stacks": stacks,
             "dst": src / "merged"}
