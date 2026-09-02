@@ -8,7 +8,7 @@ candidate model family.
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional, Sequence
+from typing import Any, Dict, Sequence
 
 import numpy as np
 
@@ -64,9 +64,10 @@ def describe(values: Sequence[float]) -> Dict[str, Any]:
     except Exception:                                            # noqa: BLE001
         LOG.debug("could not measure the response's shape", exc_info=True)
     try:
-        from .ml import check_distribution
         import contextlib
         import io
+
+        from .ml import check_distribution
 
         # `check_distribution` PRINTS its reasoning, which is useful in a run
         # log and is noise when a plot asks it a question. Swallowed here
@@ -164,6 +165,13 @@ def caption(result: Dict[str, Any]) -> str:
     before, after = result["before"], result["after"]
 
     def one(part: Dict[str, Any]) -> str:
+        """Format one side of the captured before/after comparison.
+
+        :param part: distribution summary returned by :func:`describe`.
+        :returns: the display name alone when no family or finite statistics
+            are available; otherwise the name followed by finite normality
+            and skewness statistics.
+        """
         if not part["family"]:
             return part["name"]
         bits = [part["name"]]
