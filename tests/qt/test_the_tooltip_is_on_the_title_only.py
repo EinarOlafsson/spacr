@@ -147,11 +147,19 @@ class TestTheFieldStaysQuiet:
         assert titles, "the panel has titled settings"
 
         tip.hide()
+        before = screen._hint_strip.text()
         QApplication.sendEvent(titles[0], QEvent(QEvent.Enter))
         QApplication.processEvents()
-        shown = tip.isVisible()
+        # THE TITLE STILL FIRES -- into the bottom strip rather than into a
+        # popup. Changed on 2026-09-01: "i dont need the popup box if the
+        # tooltip is shown on the bottom of the window". The half this test
+        # guards is unchanged, that a titled setting responds at all; only
+        # the surface it responds on moved.
+        answered = screen._hint_strip.text() != before
+        popped = tip.isVisible()
         tip.hide()
-        assert shown
+        assert answered, "the title answered nowhere"
+        assert not popped, "the popup was shown as well as the strip"
 
 
 class TestAFieldWithNoTitleIsSilentRatherThanNoisy:
@@ -200,7 +208,14 @@ class TestTheJourneyFromTheTitleToTheBox:
         # during the events below and take away the popup this one just
         # opened, with the pointer wherever that test left it.
         tip.cancel_hide()
-        QApplication.sendEvent(titles[0], QEvent(QEvent.Enter))
+        # SHOWN DIRECTLY, not by hovering the title. Since 2026-09-01 a
+        # settings hover writes the bottom strip and shows no popup, so
+        # driving this through the screen would leave nothing on screen to
+        # make the journey. What this class is about is the popup's own
+        # hide-timer ordering once it IS up -- hide first and ask afterwards
+        # passes every geometry assertion while taking the box away mid-read
+        # -- and that logic is unchanged.
+        tip.show_for(titles[0], "<b>Setting</b><br>Its description.")
         QApplication.processEvents()
         return titles[0], tip
 

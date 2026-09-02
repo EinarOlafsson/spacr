@@ -216,7 +216,16 @@ def test_a_folded_setting_answers_into_the_host_hint_strip(host):
 
     expected = screen._settings_model.plain_tooltip_for("timelapse_objects")
     assert expected
-    assert screen._hint_strip.text() == expected
+    # The strip carries the description plus a clickable documentation link
+    # (2026-09-01: the popup was removed, so the link moved here), and trims
+    # the prose to the four lines it has. Compared on the OPENING WORDS rather
+    # than the whole string, which is what "answers into the host's strip"
+    # actually means -- an exact match would be asserting the trimming
+    # threshold, which is a layout detail.
+    shown = screen._hint_strip.text()
+    assert shown and shown != screen._default_hint()
+    assert expected.split()[0] in shown
+    assert "<a href=" in shown, "the documentation link is missing"
 
 
 # ---------------------------------------------------------------------------

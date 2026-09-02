@@ -175,7 +175,7 @@ def _clear_native_tooltip(qtbot) -> None:
                     timeout=2000)
 
 
-def test_hovering_a_real_setting_shows_exactly_one_tooltip(qtbot):
+def test_hovering_a_real_setting_shows_no_tooltip_box(qtbot):
     """The reported bug: the sticky popup, then Qt's own on top of it.
 
     ``AppScreen.eventFilter`` calls ``refresh_api_tooltips`` on every
@@ -197,15 +197,30 @@ def test_hovering_a_real_setting_shows_exactly_one_tooltip(qtbot):
     hovered, unclaimed = labels[0], labels[1]
     assert _visible_tooltip_windows() == [], "a tooltip was already on screen"
 
-    # The bug, reproduced. `refresh_api_tooltips` is exactly what
-    # `AppScreen.eventFilter` runs on Enter, and it is what plants the native
-    # tooltip; this label simply never gets the sticky popup on top of it.
+    # NON-VACUOUSNESS, and it has to be shown on a widget the screen does not
+    # track. It used to be shown on a second settings label, but those are
+    # exactly what the screen now suppresses, so that check would have proved
+    # the mechanism dead rather than the suppression working.
+    #
+    # `refresh_api_tooltips` is still what plants the text: the property has
+    # to survive, because the accessibility tree reads it.
     refresh_api_tooltips(unclaimed)
     assert unclaimed.toolTip(), "the screen stopped planting a native tooltip"
+
+    from PySide6.QtWidgets import QLabel
+    untracked = QLabel("not a setting")
+    qtbot.addWidget(untracked)
+    untracked.setToolTip("a native tooltip fires for ordinary widgets")
+    _request_tooltip(untracked)
+    assert QToolTip.text() == untracked.toolTip(), (
+        "native tooltips do not fire in this environment at all, so the "
+        "assertions below would pass against the very bug they exist to catch")
+    _clear_native_tooltip(qtbot)
+
+    # And the tracked label is suppressed, which is the change.
     _request_tooltip(unclaimed)
-    assert QToolTip.text() == unclaimed.toolTip(), (
-        "a native tooltip does not fire here at all, so the assertions below "
-        "would pass against the very bug they exist to catch")
+    assert QToolTip.text() == "", (
+        f"a native tooltip fired for a settings label: {QToolTip.text()[:60]!r}")
     # Qt 6.11 records the requested native tooltip in QToolTip.text() but no
     # longer exposes a top-level tooltip widget when its synthetic anchor is
     # hidden.  The public tooltip state above is the cross-version proof that
@@ -214,24 +229,30 @@ def test_hovering_a_real_setting_shows_exactly_one_tooltip(qtbot):
 
     _clear_native_tooltip(qtbot)
 
-    # The same label, hovered for real: the sticky popup and nothing else.
+    # The same label, hovered for real: NO box at all any more.
+    #
+    # Changed on 2026-09-01 -- "i dont need the popup box if the tooltip is
+    # shown on the bottom of the window". The answer to "how many tooltips"
+    # went from two, to one, to none: the help is in the bottom strip, and
+    # both the sticky popup and Qt's native tooltip are suppressed. The count
+    # is still the thing being asserted, which is why this test kept its name.
     QApplication.sendEvent(hovered, QEvent(QEvent.Type.Enter))
     QApplication.processEvents()
-    popup = HoverTooltip._INSTANCE
-    assert popup is not None and popup.isVisible(), "no tooltip at all"
     assert hovered.toolTip(), "the label lost the text screen readers use"
 
     _request_tooltip(hovered)
     assert QToolTip.text() == "", (
-        "a second, native tooltip appeared for the setting label: "
+        "a native tooltip appeared for the setting label: "
         f"{QToolTip.text()[:60]!r}")
-    assert _visible_tooltip_windows() == [popup], (
-        "more than one tooltip is on screen: "
+    assert _visible_tooltip_windows() == [], (
+        "a tooltip is on screen: "
         f"{[w.objectName() for w in _visible_tooltip_windows()]}")
 
-    popup._hide_timer.stop()
-    popup._anchor = None
-    popup.hide()
+    popup = HoverTooltip._INSTANCE
+    if popup is not None:
+        popup._hide_timer.stop()
+        popup._anchor = None
+        popup.hide()
 
 
 def test_the_anchor_keeps_its_tooltip_text_for_screen_readers(tooltip, qtbot):
