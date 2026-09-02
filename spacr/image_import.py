@@ -49,7 +49,10 @@ __all__ = [
     "InsideFile",
     "InferredLayout",
     "TokenSlot",
+    "apply_import",
+    "canonical_name",
     "infer_layout",
+    "load_plan",
     "plan_import",
     "read_axes_inside",
     "tokenise",
@@ -555,3 +558,175 @@ def plan_import(root, *, sample: int = 400,
         for rel in layout.per_file:
             inside[rel] = read_axes_inside(Path(root) / rel)
     return ImportPlan(layout=layout, inside=inside, mapping=dict(mapping or {}))
+
+
+#: What spaCR's own parser reads. ``spacr.utils._get_regex('cellvoyager')``
+#: is the vocabulary the core modules already speak, so an imported project
+#: is named in it and every downstream module works unchanged.
+CANONICAL = "{plate}_{well}_T{t:04d}F{field:03d}L01A01Z{z:02d}C{channel:02d}.tif"
+
+
+def canonical_name(entry: Dict[str, object], *, plate: str = "plate1") -> str:
+    """The spaCR filename for one resolved image.
+
+    Missing axes take 1 rather than 0: spaCR's convention is one-based, and a
+    plate whose only timepoint is ``T0000`` reads as a bug in the acquisition
+    rather than as an absence.
+    """
+    return CANONICAL.format(
+        plate=str(entry.get("plate", plate)),
+        well=str(entry.get("well", "A01")),
+        t=int(entry.get("t", 1) or 1),
+        field=int(entry.get("field", 1) or 1),
+        z=int(entry.get("z", 1) or 1),
+        channel=int(entry.get("channel", 1) or 1),
+    )
+
+
+def _plan_as_json(plan: "ImportPlan") -> dict:
+    return {
+        "version": 1,
+        "root": str(plan.root),
+        "mapping": {str(k): v for k, v in plan.mapping.items()},
+        "files": {rel: {k: v for k, v in entry.items()}
+                  for rel, entry in plan.files.items()},
+    }
+
+
+def load_plan(path) -> "ImportPlan":
+    """Reload a saved plan, so the second import of the week is one press.
+
+    A lab images the same way every week, and re-answering the same questions
+    every time is how a tool stops being used. Reloading also makes an import
+    SCRIPTABLE -- the saved file is the whole answer, so a cluster job needs
+    no GUI -- and testable, which is why this exists rather than a cache.
+
+    The plan is re-derived from the folder and the saved MAPPING rather than
+    trusting the saved per-file table: the folder may have gained images since,
+    and a stale table would silently import last week's files.
+    """
+    import json
+
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    mapping = {int(k): {vk: int(vv) for vk, vv in v.items()}
+               for k, v in data.get("mapping", {}).items()}
+    return plan_import(data["root"], mapping=mapping)
+
+
+@dataclass(frozen=True)
+class ImportResult:
+    """What :func:`apply_import` did.
+
+    :param destination: the plate folder written.
+    :param written: how many images the project now names.
+    :param linked: how many were symlinked rather than copied.
+    :param bytes_saved: source bytes not duplicated by linking.
+    :param skipped: source paths that were not written, with the reason.
+    """
+
+    destination: Path
+    written: int = 0
+    linked: int = 0
+    bytes_saved: int = 0
+    skipped: Dict[str, str] = field(default_factory=dict)
+
+
+def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
+                 plate: str = "plate1",
+                 tiles_as_fields: bool = False) -> ImportResult:
+    """Write the spaCR project ``plan`` describes.
+
+    LINKS BY DEFAULT, AND THAT IS THE POINT. ``consolidate`` -- the closest
+    thing spaCR had to this -- COPIES every image to rearrange its name, so a
+    300 GB plate costs 600 GB to import. Nothing about renaming requires
+    duplicating bytes. Where symlinks are unavailable the copy still happens,
+    and the result says which was used and what linking saved.
+
+    REFUSES ON A PLAN WITH PROBLEMS. An import is the irreversible half, and
+    every problem the plan states is a way for the result to be quietly wrong
+    -- an unnamed axis means images that cannot be told apart. Fix the plan or
+    answer its questions; do not write past it.
+
+    :param plan: a plan whose :meth:`ImportPlan.problems` is empty.
+    :param destination: the plate folder to create.
+    :param link: symlink rather than copy. Falls back to copying per file.
+    :param plate: the plate name to write into the filenames.
+    :param tiles_as_fields: give each tile its own field number.
+
+        SPACR'S FILENAME HAS NO TILE SLOT. The convention the core modules
+        read is plate/well/T/field/L/A/Z/channel, so a field split into four
+        tiles produces four images with one name and three of them would be
+        overwritten. The corpus found this: a tiled tree resolves `tile: 4`
+        perfectly and then cannot be written.
+
+        Off by default, because silently turning tiles into fields discards
+        the fact that they are ONE field -- anything that stitches them, or
+        measures per field, is then wrong in a way nothing announces. On, each
+        tile becomes its own field, every image survives, and the caller has
+        said that is what they want. Stitching is the other answer and is not
+        this function's job.
+    :raises ValueError: when the plan still has problems.
+    """
+    import os
+    import shutil
+
+    problems = plan.problems()
+    if problems:
+        raise ValueError(
+            "this plan is not ready to import:\n  " + "\n  ".join(problems))
+
+    destination = Path(destination)
+    destination.mkdir(parents=True, exist_ok=True)
+    result = ImportResult(destination=destination)
+    written = linked = saved = 0
+    skipped: Dict[str, str] = {}
+    used: Dict[str, str] = {}
+
+    # One field number per (field, tile) pair, assigned in a stable order so
+    # two runs of the same import produce the same names.
+    tile_fields: Dict[Tuple[object, object, object], int] = {}
+    if tiles_as_fields:
+        pairs = sorted({(e.get("well"), e.get("field"), e.get("tile"))
+                        for e in plan.files.values() if "tile" in e},
+                       key=lambda p: (str(p[0]), str(p[1]), str(p[2])))
+        by_well: Dict[object, int] = {}
+        for well, fld, tile in pairs:
+            by_well[well] = by_well.get(well, 0) + 1
+            tile_fields[(well, fld, tile)] = by_well[well]
+
+    for rel, entry in sorted(plan.files.items()):
+        source = (plan.root / rel).resolve()
+        if tiles_as_fields and "tile" in entry:
+            entry = dict(entry)
+            entry["field"] = tile_fields[
+                (entry.get("well"), entry.get("field"), entry.get("tile"))]
+        name = canonical_name(entry, plate=plate)
+        if name in used:
+            # TWO IMAGES WITH ONE CANONICAL NAME means an axis is missing:
+            # they differ in something the plan did not capture. Overwriting
+            # would lose one silently, which is the failure this module exists
+            # to prevent, so both are reported instead.
+            skipped[rel] = (f"would overwrite {name}, already written from "
+                            f"{used[name]}; an axis is missing")
+            continue
+        target = destination / name
+        try:
+            if link:
+                if target.exists() or target.is_symlink():
+                    target.unlink()
+                os.symlink(source, target)
+                linked += 1
+                saved += source.stat().st_size
+            else:
+                shutil.copy2(source, target)
+        except (OSError, NotImplementedError):
+            try:
+                shutil.copy2(source, target)
+            except OSError as exc:
+                skipped[rel] = f"could not write {name}: {exc}"
+                continue
+        used[name] = rel
+        written += 1
+
+    return ImportResult(destination=destination, written=written,
+                        linked=linked, bytes_saved=saved, skipped=skipped)
