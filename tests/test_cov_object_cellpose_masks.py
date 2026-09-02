@@ -58,7 +58,13 @@ def _close_figures():
 def force_cpu(monkeypatch):
     """Force the CPU path even on a CUDA box and record empty_cache() calls."""
     import torch
+    cpu = torch.device("cpu")
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    monkeypatch.setattr(O.accelerator, "torch_device", lambda: cpu)
+    monkeypatch.setattr(
+        O.accelerator, "cellpose_kwargs",
+        lambda: {"gpu": False, "device": cpu},
+    )
     calls = []
     monkeypatch.setattr(torch.cuda, "empty_cache", lambda: calls.append(1))
     return calls
@@ -1026,7 +1032,13 @@ def test_a_cuda_box_builds_a_gpu_model_on_device_zero(
     """Only the device selection is exercised — no kernel ever runs, because
     Cellpose is the fake."""
     import torch
+    cuda = torch.device("cuda:0")
     monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr(O.accelerator, "torch_device", lambda: cuda)
+    monkeypatch.setattr(
+        O.accelerator, "cellpose_kwargs",
+        lambda: {"gpu": True, "device": cuda},
+    )
 
     src = tmp_path / "stack"
     _write_npz(src, n=2)
@@ -1143,6 +1155,8 @@ def test_the_sam_generator_also_builds_a_gpu_model_on_a_cuda_box(
         tmp_path, fake_sam_model, monkeypatch, capsys):
     import torch
     monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr(
+        O.accelerator, "torch_device", lambda: torch.device("cuda:0"))
 
     src = tmp_path / "stack"
     _write_npz(src, n=2)
