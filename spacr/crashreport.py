@@ -447,6 +447,7 @@ def _doctor_sections(report: CrashReport, checkout: Optional[Path],
     held: Dict[str, Any] = {}
 
     def gather_text() -> str:
+        """Run Doctor, retain its rows and summary, and return formatted text."""
         from dataclasses import asdict
 
         from . import doctor
@@ -464,6 +465,7 @@ def _doctor_sections(report: CrashReport, checkout: Optional[Path],
         return doctor.format_report(results)
 
     def gather_json() -> str:
+        """Return retained Doctor rows as JSON, or raise if collection failed."""
         if "rows" not in held:
             raise RuntimeError(
                 "the doctor checks did not run; see the doctor.txt entry in "
@@ -478,6 +480,7 @@ def _run_log_section(report: CrashReport, run_id: str) -> None:
     """Add the per-run JSONL for ``run_id``, tail-capped and recorded."""
 
     def gather() -> Optional[str]:
+        """Return the capped run-log tail and record its path and size facts."""
         from .runctx import run_log_path
 
         path = Path(run_log_path(run_id))
@@ -501,6 +504,7 @@ def _run_summary_section(report: CrashReport, run_id: str) -> None:
     """
 
     def gather() -> Optional[str]:
+        """Return WARNING-and-higher run records as readable text, if any."""
         from .runctx import read_run_log
 
         records = read_run_log(run_id, level="WARNING")
@@ -526,6 +530,7 @@ def _settings_section(report: CrashReport, settings: Optional[Path],
     """
 
     def gather() -> Optional[str]:
+        """Return explicit or recorded settings as JSON, or ``None`` if absent."""
         if values is not None:
             return json.dumps(_jsonable(dict(values)), indent=2,
                               sort_keys=True) + "\n"
@@ -555,6 +560,7 @@ def _run_status_section(report: CrashReport, db: Optional[Path]) -> None:
     """
 
     def gather() -> Optional[str]:
+        """Return project run-status rows as JSON when a database provides them."""
         if db is None:
             return None
         path = Path(db)
@@ -574,6 +580,7 @@ def _main_log_section(report: CrashReport) -> None:
     """Add the tail of the rotating ``spacr.log``."""
 
     def gather() -> Optional[str]:
+        """Return the capped main-log tail and record its path and size facts."""
         from .logging_util import log_path
 
         path = Path(log_path())
@@ -674,6 +681,7 @@ def collect(run_id: Optional[str] = None, *,
     }, indent=2, sort_keys=True) + "\n")
 
     def environment() -> str:
+        """Return redacted environment JSON and record every redacted name."""
         # Inside the collector, not beside it. Everything in this function
         # that runs outside _collect is a way for the whole bundle to be lost,
         # and two of them were found here by the tests that say so.
