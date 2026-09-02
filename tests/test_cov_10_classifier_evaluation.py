@@ -111,6 +111,27 @@ def test_a_well_split_reads_the_index_when_prcfo_is_not_a_column():
     assert len(set(values)) == 1
 
 
+def test_a_malformed_object_key_names_its_row_and_value():
+    frame = pd.DataFrame({"prcfo": ["not-an-object"]})
+
+    with pytest.raises(ValueError, match=r"row 0.*not-an-object"):
+        split_group_values(group_by="well", frame=frame, table="cells")
+
+
+def test_a_cell_split_uses_paths_or_row_ids_when_object_keys_are_absent():
+    frame = pd.DataFrame({"value": [1.0, 2.0]})
+
+    level, families = split_group_values(
+        group_by="cell", frame=frame,
+        paths=["a_aug1.png", "b_rot90.png"])
+    fallback_level, row_ids = split_group_values(
+        group_by="cell", frame=frame)
+
+    assert level == fallback_level == "cell"
+    assert families.tolist() == ["a", "b"]
+    assert row_ids.tolist() == [0, 1]
+
+
 def test_a_frame_of_crop_paths_supplies_the_groups_when_metadata_is_absent():
     """A png table has no plate/row/column columns, but every path encodes
     the well. Using it is what keeps an image-only split grouped."""
@@ -230,6 +251,17 @@ def test_unhashable_files_are_a_named_warning_and_can_be_made_critical(
     assert strict.passed is False
 
 
+def test_unparseable_group_identities_are_a_lenient_warning():
+    report = audit_split_leakage(
+        ["train.png"], ["validation.png"],
+        group_by="well", require_identity=False)
+
+    assert report.passed
+    assert report.unverifiable_counts == {"well": 2}
+    assert any("do not encode the requested well identity" in warning
+               for warning in report.warnings)
+
+
 # ---------------------------------------------------------------------------
 # Cross-validation fold audits
 # ---------------------------------------------------------------------------
@@ -309,6 +341,20 @@ def test_files_that_cannot_be_hashed_are_counted_and_can_fail():
     with pytest.raises(LeakageError, match="unverifiable_content"):
         audit_cv_folds(paths, [([1], [0]), ([0], [1])], hash_content=True,
                        require_identity=True, raise_on_leakage=True)
+
+
+def test_readable_distinct_fold_files_hash_and_serialize_cleanly(tmp_path):
+    first = tmp_path / "first.png"
+    second = tmp_path / "second.png"
+    first.write_bytes(b"first crop")
+    second.write_bytes(b"second crop")
+
+    audit = audit_cv_folds(
+        [first, second], [([1], [0]), ([0], [1])],
+        group_by="cell", hash_content=True)
+
+    assert audit.hash_errors == []
+    assert audit.to_dict()["passed"] is True
 
 
 # ---------------------------------------------------------------------------
@@ -534,6 +580,13 @@ def test_any_other_file_in_a_bundle_points_at_its_folder(tmp_path):
     other = tmp_path / EVALUATION_FILES["summary"]
     other.write_text("{}", encoding="utf-8")
     assert find_evaluation_bundles(other) == [manifest]
+
+
+def test_a_missing_evaluation_source_names_the_path(tmp_path):
+    missing = tmp_path / "missing"
+
+    with pytest.raises(FileNotFoundError, match=str(missing)):
+        find_evaluation_bundles(missing)
 
 
 def test_a_folder_with_no_manifest_cannot_be_loaded(tmp_path):
