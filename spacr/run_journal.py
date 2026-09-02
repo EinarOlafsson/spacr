@@ -480,6 +480,11 @@ def _iter_files(path: Path, excluded_roots: Iterable[Path]) -> Iterator[Path]:
         resolved_excludes = tuple(excluded_roots)
 
     def excluded(candidate: Path) -> bool:
+        """Return whether ``candidate`` resolves to or below an excluded root.
+
+        A path that cannot be resolved is retained so one hostile entry does
+        not abort or silently empty the rest of the file walk.
+        """
         try:
             resolved = candidate.resolve(strict=False)
             return any(
@@ -1272,6 +1277,7 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     # Sort by parsed timestamp (with folder-mtime as tiebreaker for
     # any manifests missing / mangled start_utc).
     def _sort_key(e):
+        """Sort a recent-run entry by parsed start time, then folder mtime."""
         s = e.get("start_utc") or ""
         try:
             return (datetime.fromisoformat(s), e["dir"].stat().st_mtime)
@@ -1428,6 +1434,7 @@ def search_runs(
         records.append(record)
 
     def _history_sort_key(record: Dict[str, Any]) -> Tuple[datetime, float]:
+        """Return a UTC-aware start and resilient directory-mtime tiebreaker."""
         try:
             started = datetime.fromisoformat(record["start_utc"])
             if started.tzinfo is None:
