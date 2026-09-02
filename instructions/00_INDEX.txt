@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-326 done / 34 open (90%).
+326 done / 35 open (90%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -150,6 +150,9 @@ OPEN
 
   359  THE README FRONT PAGE: ONE MODULE GRID, A MODEL ZOO, AND ONE DOWNLOAD COMMAND
        359_the_readme_front_page_rework.txt
+
+  360  THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
+       360_the_import_module_must_accept_anything.txt
 
 --------------------------------------------------------------------------------
 DONE

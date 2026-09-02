@@ -34,6 +34,8 @@ FONT_DIR = ROOT / "spacr" / "resources" / "font" / "open_sans" / "static"
 DOC_WORKFLOW = ROOT / "docs" / "source" / "_generated" / "workflow_grid.rst"
 DOC_FOLDS = ROOT / "docs" / "source" / "_generated" / "folded_modules.rst"
 HARDWARE_TABLE = ROOT / "docs" / "source" / "_generated" / "hardware_table.rst"
+MODEL_ZOO_TABLE = (ROOT / "docs" / "source" / "_generated"
+                   / "model_zoo_table.rst")
 DOC_WORKFLOW_DIR = ROOT / "docs" / "source" / "_static" / "workflow"
 README_PATHS = (
     ROOT / "README.rst",
@@ -41,6 +43,8 @@ README_PATHS = (
 )
 WORKFLOW_BEGIN = ".. spacr-workflow-begin"
 WORKFLOW_END = ".. spacr-workflow-end"
+MODEL_ZOO_BEGIN = ".. spacr-model-zoo-begin"
+MODEL_ZOO_END = ".. spacr-model-zoo-end"
 HARDWARE_BEGIN = ".. spacr-hardware-begin"
 HARDWARE_END = ".. spacr-hardware-end"
 INSTALLER_BEGIN = ".. spacr-installer-links-begin"
@@ -653,6 +657,102 @@ def _hardware_table() -> str:
     return "\n".join(lines)
 
 
+def _model_zoo_rows() -> "list[tuple[str, str, str, str]]":
+    """The published models as ``(key, name, what it segments, limits)``.
+
+    READ FROM THE CATALOGUE, never restated. ``BUNDLED_REMOTE_MODELS`` in
+    ``spacr/model_zoo.py`` is the only list of what spaCR publishes, and a
+    second hand-written copy in the README is a copy that goes stale --
+    which is exactly the fault part 1 of instruction 359 spent a day
+    removing from the module grid.
+
+    Importing :mod:`spacr.model_zoo` here is cheap: it pulls no torch and
+    no Qt, and makes no network call.
+
+    THE GENERATED README MUST NOT DEPEND ON THE MACHINE THAT GENERATED IT,
+    which is why every source of entries beyond the shipped literal is
+    switched off. ``catalogue()`` will otherwise add the models bundled
+    into this checkout's ``resources/models``, any plugin-contributed
+    entries, and a whole JSON catalogue named by an environment variable
+    -- so a developer with a local model installed would silently commit
+    a README advertising a model nobody else can fetch.
+    """
+    import os
+
+    from spacr.model_zoo import CATALOGUE_ENV_VAR, catalogue
+
+    previous = os.environ.pop(CATALOGUE_ENV_VAR, None)
+    try:
+        entries = catalogue(remote=True, include_bundled=False,
+                            include_plugins=False, catalogue_path=None)
+    finally:
+        if previous is not None:
+            os.environ[CATALOGUE_ENV_VAR] = previous
+
+    rows = []
+    for entry in entries:
+        # BOTH notes, joined. The first is usually the headline number and
+        # the second is the honest limit ("accuracy falls sharply above IoU
+        # 0.8"). Printing only the first would make the table an
+        # advertisement, and a model table that prints only the good number
+        # is the claim instruction 316 exists to prevent.
+        limits = "; ".join(note.strip().rstrip(".")
+                           for note in entry.notes if note.strip())
+        # Capitalised for the table only. The catalogue's own prose is
+        # written to read after "trained on", so one entry starts
+        # "whole-plate and multi-well ..." -- correct in a sentence,
+        # wrong as a cell that stands alone under a heading.
+        trained_on = entry.trained_on.strip().rstrip(".")
+        trained_on = trained_on[:1].upper() + trained_on[1:]
+        rows.append((entry.key, entry.name, trained_on, limits))
+    return rows
+
+
+def _model_zoo_table() -> str:
+    """The README's model-zoo table, generated from the catalogue."""
+    rows = _model_zoo_rows()
+    if not rows:  # pragma: no cover - the catalogue is never empty
+        return ""
+    lines = [
+        ".. list-table::",
+        "   :header-rows: 1",
+        "   :widths: 26 30 44",
+        "",
+        "   * - Key",
+        "     - Trained on",
+        "     - Measured performance and limits",
+    ]
+    for key, name, trained_on, limits in rows:
+        lines.extend([
+            f"   * - ``{key}``",
+            f"       ({name})",
+            f"     - {trained_on}",
+            f"     - {limits}",
+        ])
+    return "\n".join(lines)
+
+
+def _write_the_model_zoo_table(path) -> bool:
+    """Replace the marked model-zoo block in ``path``.
+
+    Between markers for the same reason the hardware table is: a
+    regeneration has to be able to REPLACE what it wrote last time, and
+    locating that by content is how a generator ends up with two copies of
+    its own output in one file.
+    """
+    text = path.read_text(encoding="utf-8")
+    start = text.find(MODEL_ZOO_BEGIN)
+    end = text.find(MODEL_ZOO_END)
+    if start < 0 or end < 0:
+        return False
+    end += len(MODEL_ZOO_END)
+    block = f"{MODEL_ZOO_BEGIN}\n\n{_model_zoo_table()}\n\n{MODEL_ZOO_END}"
+    updated = text[:start] + block + text[end:]
+    if updated != text:
+        path.write_text(updated, encoding="utf-8")
+    return True
+
+
 def _write_the_hardware_table(path) -> bool:
     """Replace the marked block in ``path`` with the generated table.
 
@@ -1008,8 +1108,12 @@ def main() -> int:
     DOC_FOLDS.write_text(_documentation_folds(), encoding="utf-8")
     HARDWARE_TABLE.write_text(_hardware_table(), encoding="utf-8")
     print(HARDWARE_TABLE.relative_to(ROOT))
+    MODEL_ZOO_TABLE.write_text(_model_zoo_table() + "\n", encoding="utf-8")
+    print(MODEL_ZOO_TABLE.relative_to(ROOT))
     for readme_path in README_PATHS:
         if _write_the_hardware_table(readme_path):
+            print(readme_path.relative_to(ROOT))
+        if _write_the_model_zoo_table(readme_path):
             print(readme_path.relative_to(ROOT))
     print(DOC_FOLDS.relative_to(ROOT))
     print(DOC_WORKFLOW.relative_to(ROOT))

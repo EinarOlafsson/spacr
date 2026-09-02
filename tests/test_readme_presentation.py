@@ -51,10 +51,32 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
     assert "The primary workflow comprises six modules" in text
     assert "docs/source/features.rst" in text
     # Image substitutions carry accessibility text and targets but are not
-    # visible prose. Remove their directive blocks as well as the generated
-    # workflow before enforcing the README's editorial ceiling.
-    before_workflow, _, rest = text.partition(".. spacr-workflow-begin")
-    _, _, after_workflow = rest.partition(".. spacr-workflow-end")
+    # visible prose. Remove their directive blocks, and every GENERATED
+    # block, before enforcing the README's editorial ceiling.
+    #
+    # EVERY generated block, not just the workflow one. This ceiling
+    # polices editorial sprawl -- prose an author chose to write -- and a
+    # generated table's length is chosen by the data instead: the hardware
+    # table grows when a GPU backend is added and the model zoo table grows
+    # when a model is published. Counting them meant publishing a fourth
+    # model would fail an editorial test, and the only way to pass it would
+    # be to delete an explanation somewhere else in the file. That is the
+    # same conflict the code-block carve-out below already records, so it
+    # is resolved the same way: measure the thing the test was written to
+    # measure.
+    generated = (
+        (".. spacr-workflow-begin", ".. spacr-workflow-end"),
+        (".. spacr-hardware-begin", ".. spacr-hardware-end"),
+        (".. spacr-model-zoo-begin", ".. spacr-model-zoo-end"),
+    )
+    kept = text
+    for begin, end in generated:
+        head, marker, rest = kept.partition(begin)
+        assert marker, f"the README has lost its {begin} marker"
+        _, marker, tail = rest.partition(end)
+        assert marker, f"{begin} is not closed by {end}"
+        kept = head + tail
+    before_workflow, after_workflow = kept, ""
     visible_prose = re.sub(
         r"(?m)^\.\. \|[^|\n]+\| image::[^\n]*(?:\n   [^\n]*)*",
         "",
@@ -356,6 +378,62 @@ print("SPACR_COLUMNS=" + json.dumps(order))
     clean = grid_order("")
     settings_first = grid_order("spacr.qt.screens.settings_model")
     assert clean == settings_first
+
+
+def test_the_readme_lists_every_published_model_with_its_limits():
+    """The model zoo section is generated from the catalogue, not typed.
+
+    Asked for on 2026-09-02: "add the uploaded modules in the current model
+    zoo to readme in a model zoo section".
+
+    GENERATED, because a hand-written table is a second copy of the
+    catalogue and a second copy goes stale -- which is the fault the module
+    grid above spent a day having removed. Publishing a fourth model must
+    make this test fail until the generator is re-run.
+    """
+    import importlib.util
+
+    path = ROOT / "packaging" / "generate_readme_visuals.py"
+    spec = importlib.util.spec_from_file_location("spacr_readme_visuals", path)
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+
+    text = _read(README)
+    block = text.partition(generator.MODEL_ZOO_BEGIN)[2]
+    block = block.partition(generator.MODEL_ZOO_END)[0]
+    assert block.strip(), "the README has no model zoo block"
+    assert block.strip() == generator._model_zoo_table().strip(), (
+        "the README's model zoo table is not what the catalogue produces; "
+        "re-run packaging/generate_readme_visuals.py")
+
+    rows = generator._model_zoo_rows()
+    assert rows, "the catalogue published nothing"
+    for key, name, trained_on, limits in rows:
+        assert f"``{key}``" in block, f"{key} is published but not in the README"
+        assert name in block
+        # THE LIMITS TOO, not only the headline number. Every entry's notes
+        # carry the caveat that says what the model is not for -- "accuracy
+        # falls sharply above IoU 0.8", "locates WELLS, not plaques" -- and
+        # a table that prints only the good number is the sort of claim
+        # instruction 316 exists to prevent.
+        assert limits, f"{key} publishes no notes at all"
+        assert limits in block, f"{key}'s stated limits are missing"
+        assert trained_on in block, f"{key} does not say what it was trained on"
+
+    # The table must not depend on the machine that generated it: a
+    # developer with a local checkpoint installed, a plugin, or the
+    # catalogue environment variable set must all produce the same README.
+    import os
+
+    from spacr.model_zoo import CATALOGUE_ENV_VAR
+
+    os.environ[CATALOGUE_ENV_VAR] = "/nonexistent/catalogue.json"
+    try:
+        assert generator._model_zoo_rows() == rows, (
+            "the generated table changed with the environment; the README "
+            "would differ depending on who ran the generator")
+    finally:
+        os.environ.pop(CATALOGUE_ENV_VAR, None)
 
 
 def test_installer_guide_is_distinct_from_the_version_archive():

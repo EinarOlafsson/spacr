@@ -1,0 +1,148 @@
+================================================================================
+THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
+================================================================================
+
+Status:    not started, filed 2026-09-02.
+Requested: 2026-09-02, verbatim -- "spacr has an import data module, this
+           module should make it easy for users to import their images
+           irrespective of format or naming structure into spacr so that the
+           images can be re formated into a spacr project that can be read by
+           the core image modules. in mask there is a setting called
+           consolidate which kind of does this. Develope the data import
+           module so it is easy to import any number, of any formatted,
+           images, with any number of dimensions (channel, z plane, time,
+           tiles), with any folder or file metadata structure. this is a key
+           module because it will determine if people can use spacr or not so
+           this module needs to be extremely versatile and intuitive."
+Owner:     spacr/foreign.py, spacr/qt/screens/foreign.py, spacr/io.py,
+           spacr/convert.py.
+Priority:  HIGHEST OF THE OPEN ITEMS. Every other module is downstream of a
+           user getting their own images in. A tool that cannot read your data
+           has no features.
+
+--------------------------------------------------------------------------------
+WHAT EXISTS TODAY, AND WHY IT IS NOT ENOUGH
+--------------------------------------------------------------------------------
+
+There are THREE separate half-answers, none of which is the module the
+maintainer is describing, and the first job is to understand that they are
+three answers to one question.
+
+1. `metadata_type` in Mask. A CLOSED LIST of filename conventions:
+   'cellvoyager', 'cq1', 'custom' (hand-written regex), 'auto'. This is the
+   real import path today, and it is a Mask SETTING rather than a module. Its
+   own tooltip states the failure mode: "An incorrect convention can misassign
+   plate, well, field, or channel identifiers and place images in incorrect
+   channel folders." A user whose microscope is not Yokogawa or CQ1 is asked
+   to write a regular expression with named groups, having been given no way
+   to see whether it worked until masks come out wrong.
+
+2. `consolidate` in Mask. Recursively copies every image under `src` into one
+   `<src>/consolidated` folder, prefixing each filename with its subfolder
+   names so nothing collides, then repoints `src` there. This is the
+   maintainer's "kind of does this". It flattens a FOLDER structure but throws
+   the structure away rather than reading it -- the subfolder names become
+   part of a filename and are then parsed, if at all, by the same closed regex
+   list. It also copies, so disk use roughly doubles.
+
+3. `spacr/foreign.py` and the Import screen. Genuinely good, and about the
+   WRONG HALF of the problem: it is built for adopting somebody else's MASKS
+   and MEASUREMENT TABLES -- a reviewable column mapping, unit conversion
+   (their µm² against spaCR's px²), conflict detection against spaCR's own
+   feature names. Its docstring is explicit that the mapping table is the
+   middle of the screen because a human has to look at it. That review-first
+   design is exactly right and is the model for this work. What it does not
+   do is take a pile of raw images with an unknown naming scheme and produce a
+   spaCR project.
+
+So: the reviewable-import machinery exists but points at tables, and the
+image-import machinery is a closed list of regexes hidden in a Mask setting.
+
+--------------------------------------------------------------------------------
+WHAT "ANY" HAS TO MEAN
+--------------------------------------------------------------------------------
+
+The maintainer named four axes. Each is a separate failure today.
+
+  FORMAT. `.tif .tiff .png .jpg .jpeg .bmp .nd2 .czi .lif` are read somewhere
+  in `io.py`. OME-TIFF, and whether a multi-page TIFF is Z, T, C or tiles, is
+  the ambiguity that actually bites -- a page index means nothing on its own.
+
+  NUMBER. "any number" includes one field and includes a 400-plate archive.
+  These are not the same program: one wants a dialog, the other must not hold
+  a file list in memory or copy 8 TB to flatten a folder.
+
+  DIMENSIONS. channel, z, time, tile. Any subset, in any nesting, expressed
+  in EITHER the filename OR the folder path OR inside the file's own metadata,
+  and frequently split across all three (plate in the folder, well and field
+  in the name, channel in the TIFF tag).
+
+  METADATA STRUCTURE. This is the hard one and it is where the closed regex
+  list fails. The information is the same everywhere -- plate, well, field,
+  channel, z, t -- and only its ENCODING differs.
+
+--------------------------------------------------------------------------------
+THE SHAPE THE ANSWER SHOULD TAKE
+--------------------------------------------------------------------------------
+
+INFER, THEN SHOW, THEN LET THE USER CORRECT. Not "choose your convention from
+this list", and not "write a regex". The module should:
+
+  1. Walk a sample of the tree -- a sample, not all of it, so a 400-plate
+     archive is as fast to inspect as one plate.
+  2. Propose a parse: which path segments and which filename fragments carry
+     plate / well / field / channel / z / t, read from the varying parts. A
+     token that is constant across every file carries no information; a token
+     that varies with exactly 4 values across 4 folders is probably the plate.
+     This is inference from the data, not a lookup table, and it is what makes
+     an unknown microscope work on the first try.
+  3. SHOW THE PROPOSAL AS A TABLE the user can edit, the way the existing
+     Import screen shows its column mapping -- with real example filenames
+     beside the fields they were parsed into, so a wrong guess is visible
+     BEFORE anything is written. This is the single most important
+     requirement in this file. `metadata_type` is unusable today not because
+     its regexes are bad but because the user cannot see what they did.
+  4. Report what it could NOT place, by count and with examples. Silence about
+     unparsed files is how a plate imports with a third of its fields missing.
+  5. Write the project. Only after the user presses a separate button.
+
+REUSE `foreign.py`'s PLAN/APPLY SPLIT. `plan_import` scans and verifies and
+writes nothing; `Import` is a second press; edits re-run the checks in memory.
+That is the correct architecture and it already exists -- extend it to images
+rather than building a second one beside it.
+
+SAVE AND REUSE THE MAPPING. A lab images the same way every week. The plan
+must be savable and loadable, like the existing column mapping, so the second
+import is one press. This is also what makes it scriptable and testable.
+
+DO NOT COPY IF YOU CAN AVOID IT. `consolidate` doubles disk use to rearrange
+names. Prefer recording where each image IS over moving it; where a copy or
+conversion is genuinely needed, say how much space it will take before
+starting.
+
+--------------------------------------------------------------------------------
+WHAT SHOULD HAPPEN TO THE THREE HALF-ANSWERS
+--------------------------------------------------------------------------------
+
+Once this exists, `metadata_type` and `consolidate` are import concerns
+sitting in Mask's settings, and Mask should read a project that is already a
+project. Retiring them is the natural end of this work -- but NOT in the same
+change: they are the only working path today, and removing them before the
+replacement is proven strands every existing user and every settings file in
+the wild. Land the module, migrate, then retire, and record the retirement in
+`RETIRED_SETTINGS` the way `corrected_manders` was.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* A corpus of synthetic trees -- Yokogawa, CQ1, Opera/Harmony, ImageXpress,
+  a flat folder of OME-TIFFs, a per-well folder tree, a per-channel folder
+  tree, a multi-page TIFF that is Z and one that is T, one with tiles -- and
+  each imports to the correct plate/well/field/channel/z/t WITHOUT the user
+  naming a convention. Build the corpus first: it is the specification.
+* A tree deliberately mixed and partly unparseable imports what it can and
+  REPORTS the rest, with counts and example names.
+* Nothing is written before the user confirms the plan.
+* A saved plan reproduces an import exactly, from the CLI, with no GUI.
+* Inspecting a large archive is sub-linear in file count.
