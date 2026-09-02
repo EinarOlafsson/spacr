@@ -142,17 +142,17 @@ OPEN
   358  REDO EVERY CORE-MODULE TUTORIAL WITH LIVE DATA AND THE FOLDED-IN ACTIONS
        358_redo_every_core_module_tutorial_with_live_data.txt
 
-  358  THE README'S LANGUAGE PICKER: A DROPDOWN, AND WHY IT CANNOT STAY ON THE PAGE
-       358_the_readme_language_picker_should_be_a_dropdown.txt
-
   359  EVERY SETTINGS CONTAINER RESIZES, AND FIRST LAUNCH CHOOSES A MEASURED LAYOUT
        359_every_settings_container_resizes_and_first_launch_chooses_a_measured_layout.txt
 
-  359  THE README FRONT PAGE: ONE MODULE GRID, A MODEL ZOO, AND ONE DOWNLOAD COMMAND
-       359_the_readme_front_page_rework.txt
+  361  THE README'S LANGUAGE PICKER: A DROPDOWN, AND WHY IT CANNOT STAY ON THE PAGE
+       361_the_readme_language_picker_should_be_a_dropdown.txt
 
-  360  THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
-       360_the_import_module_must_accept_anything.txt
+  362  THE README FRONT PAGE: ONE MODULE GRID, A MODEL ZOO, AND ONE DOWNLOAD COMMAND
+       362_the_readme_front_page_rework.txt
+
+  363  THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
+       363_the_import_module_must_accept_anything.txt
 
 --------------------------------------------------------------------------------
 DONE
