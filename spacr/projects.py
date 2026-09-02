@@ -458,6 +458,14 @@ def discover(roots: Iterable[Any], *, depth: int = DEFAULT_DEPTH,
     seen: set = set()
 
     def _walk(path: str, level: int) -> None:
+        """Traverse one directory within the captured discovery limits.
+
+        :param path: directory to inspect for a project or descend through.
+        :param level: distance below the current caller-supplied root.
+        :returns: ``None``; discovered project paths are appended to ``found``
+            and resolved directories are recorded in ``seen``. Traversal stops
+            at a project, the depth or result limit, or an unreadable folder.
+        """
         if len(found) >= limit:
             return
         real = os.path.realpath(path)
