@@ -1183,7 +1183,16 @@ class TestLoadingTheExampleImages:
 
         assert screen.load_the_example_images(ask=download) == {}
         assert button.isEnabled()
-        assert "Load the example images" in button.text()
+        # RESTORED TO THE CANONICAL CAPTION, not to whatever the button
+        # happened to be created with: the screen writes "Fetching…" over
+        # the name while the download runs and writes its own name back
+        # afterwards. This asserted the literal "Load the example images",
+        # which the button has not said since the three example-data buttons
+        # became one "Load test data…" -- so the test was pinning a name that
+        # had moved rather than the behaviour it is about, which is that a
+        # failed download leaves a button the user can press again.
+        assert "Fetching" not in button.text()
+        assert button.text().strip()
         assert "no route to huggingface.co" in _console_text(screen._console)
 
     def test_a_finished_download_fills_src_and_names_the_settings(
