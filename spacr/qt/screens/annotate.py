@@ -2898,10 +2898,9 @@ class AnnotateScreen(QWidget):
 
         The LOCAL destination, whatever the shipped settings said. Applied
         after them rather than before, so a path recorded on the publisher's
-        machine cannot be the last write -- which is the defect reported on
-        2026-09-01, where the source came back as
-        ``/home/carruthers/datasets/plate1`` on a machine that had never heard
-        of that user.
+        machine cannot be the last write. Applied the other way round, the
+        source came back as ``/home/carruthers/datasets/plate1`` on a machine
+        that had never heard of that user.
         """
         from pathlib import Path
 
@@ -2955,8 +2954,8 @@ class AnnotateScreen(QWidget):
     def note_console_error(self) -> None:
         """Reveal "File as issue" because something went wrong.
 
-        Asked for on 2026-09-01: the button should turn up in this console when
-        there is an issue. It is hidden until then rather than always present,
+        The button appears in this console when there is an issue, and is
+        hidden until then rather than always present,
         because a permanently visible report button invites reports with no
         traceback attached, which are the ones nobody can act on.
 

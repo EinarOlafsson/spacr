@@ -1,10 +1,8 @@
 """The orbit fold on the GPU: the fifth spaceout pattern.
 
-Instruction 327 (5). The CPU orbit fold in
-:mod:`spacr.qt.widgets.fractal_travel` is the one renderer the maintainer
-singled out as right -- "the orbit fold cpu effect is like a magnigying
-glass, which looks cool" -- and it is the one the pointer complaint
-excluded. This is that same map, on the GPU.
+The CPU orbit fold in :mod:`spacr.qt.widgets.fractal_travel` is the
+renderer this one is modelled on: it reads like a magnifying glass moving
+over the set. This is that same map, on the GPU.
 
 WHY IT IS A SECOND ENTRY RATHER THAN A BACKEND SWITCH. The CPU path
 jitters four samples ACROSS four frames, which averages four different

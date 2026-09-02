@@ -235,8 +235,7 @@ GPU_REQUIREMENT = (
 #: The backend that drives each accelerator, for the "GPU: <name>: <lib>"
 #: line. The LIBRARY, not the vendor -- a user reading "Metal" beside an
 #: AMD card learns the thing that explains why ROCm is irrelevant on their
-#: machine, which is exactly what instruction 319's own backend table got
-#: wrong.
+#: machine. Naming the vendor instead is the mistake this avoids.
 GPU_LIBRARIES = {
     "cuda": "CUDA",
     "rocm": "ROCm",
@@ -300,8 +299,8 @@ def _gpu_library() -> str:
 
     CUDA, ROCm, Metal, XPU, DirectML -- the library, not the vendor. A
     user reading "Metal" beside an AMD card learns the thing that
-    explains why ROCm is irrelevant on their machine, which is precisely
-    what instruction 319's own backend table got wrong.
+    explains why ROCm is irrelevant on their machine. Naming the vendor
+    instead is the mistake this avoids.
     """
     try:
         from ...accelerator import resolve
@@ -1940,8 +1939,8 @@ class SetupSlides(QDialog):
     def _what_this_machine_can_do() -> list:
         """The capability TABLE: library, GPU-or-CPU, task.
 
-        A table rather than four sentences, asked for on 2026-08-31. The
-        content was already per-task -- one verdict cannot be honest
+        A table rather than four sentences. The content was already
+        per-task -- one verdict cannot be honest
         here, because on Metal the segmentation and the classifier are
         accelerated while the cuML reductions are not -- but four
         sentences in a column read as four separate remarks rather than

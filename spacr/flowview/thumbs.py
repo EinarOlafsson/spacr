@@ -139,7 +139,18 @@ def thumbnail_png(
 
 
 class ThumbnailCache:
-    """A configurable oldest-first disk cache of PNG thumbnails."""
+    """A configurable oldest-first disk cache of PNG thumbnails.
+
+    :param directory: where the thumbnails are written. Created if missing.
+    :param max_bytes: the cache's size budget. When writing would exceed it,
+        the oldest entries are evicted until it fits -- oldest-first rather
+        than least-recently-used, because a thumbnail is cheap to regenerate
+        and tracking access times costs a write on every read.
+    :param max_size: the longest edge, in pixels, of a generated thumbnail.
+        Capped at ``MAX_THUMBNAIL_AXIS``.
+    :raises ValueError: when ``max_bytes`` is not positive, or ``max_size`` is
+        outside 1..``MAX_THUMBNAIL_AXIS``.
+    """
 
     def __init__(
         self,

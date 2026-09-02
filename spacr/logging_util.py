@@ -162,6 +162,11 @@ class LevelSetFilter(logging.Filter):
     The set is mutable in place so a live handler can be re-gated from the
     Preferences dialog without being torn down and rebuilt, which would race
     against any thread logging at that moment.
+
+    :param levels: the ``logging`` level numbers to pass. Empty -- the
+        default -- passes NOTHING, which is deliberate: a filter that let
+        everything through until configured would leak records during the
+        window before Preferences applies its choice.
     """
 
     def __init__(self, levels: Iterable[int] = ()) -> None:

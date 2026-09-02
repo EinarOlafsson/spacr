@@ -15,35 +15,41 @@ Owner:     every module defining a class; docs/source/conf.py is already
            correct and needs no change.
 
 --------------------------------------------------------------------------------
-MEASURED, 2026-09-02
+MEASURED, 2026-09-02 -- AND THE FIRST MEASUREMENT WAS WRONG
 --------------------------------------------------------------------------------
 
-    classes                       1272
-      with a class docstring      1246   (97%)
-      with an __init__             554
-      __init__ documented           59   (10%)
+    classes with a parameterised __init__            530
+      every parameter documented somewhere           145   (27%)
+        ... of those, via the CLASS docstring only   101
+      __init__ carrying its own docstring             59
+      PARAMETERS UNDOCUMENTED                        385   (72%)
 
-That is the finding in one line: the class docstrings were done and the
-`__init__` docstrings were not. 495 constructors are undocumented, and a
-constructor's docstring is where its PARAMETERS are described -- so the
-project looks 97% documented while the thing a caller actually has to supply
-is documented 10% of the time.
+  THE FIRST COUNT SAID 495 OF 554 (10% documented) AND WAS WRONG. It asked
+  "does __init__ have a docstring", which is not the question. A class may
+  document its constructor's parameters on the CLASS docstring with `:param:`
+  fields, and `autoapi_python_class_content = 'both'` merges the two, so the
+  reader sees them either way. 101 classes do exactly that -- it is the house
+  pattern, `spacr.submodules.CellposeLazyDataset` is the worked example, and
+  counting them as undocumented would have sent this work to rewrite pages
+  that are already correct.
 
-  THE MAINTAINER'S FRAMING IS RIGHT BUT NARROWER THAN THE PROBLEM. Only 11
-  constructors take an argument named `settings` (8 of them undocumented):
+  The right question is whether EVERY PARAMETER IS NAMED in a `:param:` field
+  anywhere the API will show. Asked that way the answer is 385 classes, and
+  those are the ones to fix. Where the class docstring is the natural home,
+  put it there; do not move existing prose onto `__init__` for uniformity.
 
-      spacr/qt/screens/annotate.py       _SettingsDialog
-      spacr/qt/screens/annotate.py       _GenerateAnnotationDatabaseDialog
-      spacr/qt/screens/annotate.py       _AutoAnnotateDialog
-      spacr/qt/widgets/gate_editor.py    _ClusterSettingsDialog
-      spacr/qt/widgets/gate_settings.py  GateSettingsDialog
-      spacr/qt/widgets/measurement_compare_dialog.py  MeasurementComparePanel
-      spacr/qt/widgets/measurement_compare_dialog.py  MeasurementCompareDialog
-      spacr/submodules.py                CellposeLazyDataset
+  THE WORST, all public or near-public:
 
-  Fix those 8 first -- they are literally what was asked for -- but the real
-  scope is 495, because every one of them has parameters a reader currently
-  has to open the source to see.
+      16 of 16 params   _GlumResults                   spacr/ml.py
+      14 of 14          StitchedMultiAligner           spacr/spacrops.py
+      13 of 13          _AbsorbedLeastSquaresResults   spacr/ml.py
+       9 of  9          AmbientEngine                  spacr/qt/widgets/ambient.py
+       8 of  8          BenchmarkController            spacr/qt/startup_benchmark.py
+       7 of  7          _ResourceSampler               spacr/fit_resources.py
+       7 of  7          _ListEditor                    spacr/qt/screens/settings_model.py
+
+  Of the 11 constructors taking an argument literally named `settings`, 3
+  were already documented and the rest are listed below.
 
 --------------------------------------------------------------------------------
 THE GOOD NEWS: THE API MACHINERY ALREADY DOES THIS

@@ -129,8 +129,10 @@ class TestDataChooser(QDialog):
     def every_description(self) -> tuple:
         """Every string the pane can ever show, resting text included.
 
-        Public because it is what a clipping check wants to iterate, and
-        because the sweep in instruction 350 needs the same list.
+        Public because it is what a clipping check wants to iterate: any
+        sweep asking whether text fits its container needs exactly this
+        list, and building a second one risks measuring a different set
+        of strings than the pane can actually display.
         """
         return (self.RESTING_TEXT,) + tuple(
             description for _key, _label, description in self.ROUTES)

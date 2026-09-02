@@ -76,8 +76,8 @@ class _DownloadWorker(QObject):
     WHY A THREAD AT ALL. ``model_zoo.fetch`` streams a file that is 1.2 GB for
     the Toxoplasma models. Called from a button handler it blocks the event
     loop for minutes: the dialog stops repainting, the progress bar cannot
-    move, and the compositor offers to force-quit spaCR -- which is instruction
-    315's whole subject, arriving through a dialog rather than a screen build.
+    move, and the compositor offers to force-quit spaCR -- the same failure
+    a slow screen build causes, arriving through a dialog instead.
 
     The worker owns nothing Qt-visual. It emits numbers; the dialog draws.
     """

@@ -209,6 +209,12 @@ class Colormap:
         coerced to a string.
     :param colors: Ordered sequence of at least two colour specifications
         accepted by :func:`to_rgba`; the ramp interpolates them in order.
+    :param stops: where each colour sits, in 0..1. Defaults to spacing them
+        evenly. One stop per colour, ascending -- an out-of-order stop would
+        make the ramp non-monotonic and is refused rather than sorted, since
+        sorting would silently give a different ramp than the caller wrote.
+    :raises LayerError: with fewer than two colours, or when ``stops`` does
+        not match ``colors`` one for one.
     """
 
     __slots__ = ("name", "_colors", "_stops")
@@ -1233,6 +1239,10 @@ class CanvasLink:
     way a panel that is 10 px narrower shows 10 px less of the same view at the
     same magnification, which is what a grid of unequal cells should do.
 
+    :param canvases: the panels to start with, as ``{key: canvas}``. Added
+        one at a time through :meth:`add`, so each is adopted onto the shared
+        world window as it arrives rather than the first one winning.
+
     A panel can opt out with :meth:`unlock`, for the ordinary case of wanting
     to look closely at one of them without losing the others' place.
     """
@@ -1651,6 +1661,19 @@ class Layer:
 
     :param name: Non-blank layer identifier; names are uniquified when the
         layer enters a :class:`LayerStack`.
+    :param spacing: physical size of one pixel along each spatial axis.
+        Defaults to isotropic. It is what makes a measurement in microns mean
+        the same thing on two microscopes, so it must have exactly
+        :attr:`ndim` axes.
+    :param visible: whether the layer draws at all. Default ``True``.
+    :param opacity: 0.0 transparent to 1.0 opaque. Default ``1.0``.
+    :param blending: how the layer combines with what is under it, from
+        :class:`Blending`. Default translucent.
+    :param metadata: arbitrary values carried with the layer. Copied, so the
+        caller's mapping is not held; spaCR itself reads nothing from it.
+    :raises LayerError: when the name is blank, the opacity is not a finite
+        number, the blending is unknown, or ``spacing`` has the wrong number
+        of axes for this layer.
     """
 
     #: What kind of layer this is, for a view choosing an icon or an editor.
@@ -1871,6 +1894,11 @@ class Layer:
 
 class ImageLayer(Layer):
     """Intensity data — one channel or many, each with its own LUT.
+
+    :param name: layer name. Default ``"image"``.
+    :param channel_names: a label per channel, for a channel list or a
+        legend. Defaults to positional names -- and naming them is what lets
+        a reader tell which channel is the nucleus without counting.
 
     Channels are composited *additively within the layer*, which is what makes
     a two-channel field read as one picture: a green nucleus channel and a
@@ -2122,6 +2150,11 @@ class ImageLayer(Layer):
 class LabelsLayer(Layer):
     """An integer segmentation mask. 0 is background and draws as nothing.
 
+    :param name: layer name. Default ``"labels"``.
+    :param seed: seeds the label-to-colour mapping. The same seed gives the
+        same object the same colour across sessions and across figures, which
+        is what makes two screenshots of one field comparable.
+
     Colours come from :func:`label_color`, so an object keeps its colour
     between sessions and between this viewer and the live preview.
 
@@ -2353,6 +2386,16 @@ class LabelsLayer(Layer):
 
 class PointsLayer(Layer):
     """Points in the world — centroids, counted objects, clicked markers.
+
+    :param name: layer name. Default ``"points"``.
+    :param ndim: how many axes a point has. Used only when ``data`` is empty;
+        otherwise the data decides, so an explicit ``ndim`` cannot contradict
+        the points that were passed.
+    :param face_color: fill colour, as any :func:`to_rgba` specification.
+    :param border_color: outline colour.
+    :param border_width: outline width in world units. ``0`` draws no
+        outline, which is the default because an outline on a centroid marker
+        costs more than it says.
 
     Coordinates are stored in DATA units with the layer's own spacing, exactly
     like an image, so a points layer built from a centroid table in pixel
@@ -2716,6 +2759,14 @@ class Shape:
 class ShapesLayer(Layer):
     """Drawn regions of interest — the layer Measure will later read.
 
+    :param shapes: the :class:`Shape` objects to start with. Every one must
+        have the same number of axes -- a layer holding a 2-D and a 3-D shape
+        could not be rasterised into one mask.
+    :param name: layer name. Default ``"shapes"``.
+    :param ndim: axes per shape, used only when ``shapes`` is empty; the
+        shapes decide otherwise.
+    :raises LayerError: when the shapes disagree about how many axes they have.
+
     Shapes are geometry, not pixels: they are stored as vertices in data
     coordinates and rasterised on demand, so the same ROI can be turned into a
     mask for a full-resolution mask layer and for a downsampled preview and
@@ -2977,6 +3028,14 @@ Listener = Callable[[LayerEvent], None]
 
 class LayerStack:
     """An ordered list of layers sharing one world.
+
+    :param layers: the layers to start with, bottom first. Added through
+        :meth:`add`, so each is renamed to be unique and adopted as it
+        arrives.
+    :param units: the name of the world unit -- ``"um"``, ``"px"`` -- shown
+        on scale bars and axis labels. It LABELS the spacing rather than
+        converting it: it is what the numbers in :class:`Spacing` already
+        mean, so setting it does not rescale anything.
 
     ``stack[0]`` is the bottom and is drawn first. Everything a viewer does to
     the list — add, remove, reorder, rename, select — happens here and is

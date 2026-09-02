@@ -815,9 +815,8 @@ class _LateCaptionTranslator(QObject):
         vanish from it, so emitting one is a silent no-op, and
         `findChildren()` by type cannot see it. That is what produced
         "libpyside: addMetaMethod: ... No Wrapper found." once per screen
-        built -- see instruction 320 and Part 5 of
-        `tools/diagnose_pyside_slot_warning.py`, which reproduces it and
-        this fix in isolation.
+        built -- see Part 5 of `tools/diagnose_pyside_slot_warning.py`,
+        which reproduces it and this fix in isolation.
 
         THE KEEPING IS WHAT DOES THE DAMAGE, not the call: a bare wrapper
         that is dropped immediately is collected again before the real
@@ -3413,8 +3412,8 @@ class AppScreen(QWidget):
         as `organelleb_model_name`, `organellec_model_name` and so on
         (:data:`spacr.settings.DYNAMIC_ORGANELLE_SETTINGS`). A fixed tuple gave
         the button to organelle 1 and silently withheld it from every organelle
-        after it -- reported 2026-09-01 -- which is the shape of bug a list of
-        literal names always eventually has when the names are generated.
+        after it, which is the shape of bug a list of literal names always
+        eventually has when the names are generated.
         """
         name = str(key)
         if name in cls._MODEL_ZOO_KEYS:
@@ -3824,9 +3823,9 @@ class AppScreen(QWidget):
     def reanchor_example_paths(loaded, destination) -> dict:
         """Re-root every absolute path in ``loaded`` onto ``destination``.
 
-        A shipped example settings file records the paths of the machine that
-        GENERATED it. Reported 2026-09-01 from a home machine, which had never
-        heard of that user::
+        A shipped example settings file records the paths of the machine
+        that GENERATED it, which on any other machine names a user that does
+        not exist::
 
             gen_masks_settings.csv    src,/home/carruthers/datasets/plate1
             crop_measure_settings.csv src,/home/carruthers/datasets/plate1/merged
@@ -4118,9 +4117,8 @@ class AppScreen(QWidget):
         `reanchor_example_paths` re-homes what it can. What it cannot resolve
         it deliberately leaves alone -- a template token, or a path whose
         folder name matches nothing here -- and that value then reaches the
-        field verbatim. Reported 2026-09-02 as "loade test images dosnt loade
-        the right path into src in mask generation it loads <src>"
-        (instruction 349).
+        field verbatim -- which is how Mask Generation came to show the
+        literal token ``<src>`` after loading the example images.
 
         A MORE SPECIFIC SHIPPED VALUE IS KEPT. Measure's example points `src`
         at the plate's `merged/` subfolder, and
@@ -6257,15 +6255,15 @@ class AppScreen(QWidget):
         ``url`` adds the documentation link on its own line. Suppressing the
         popup would otherwise have taken the link with it -- the strip's own
         prompt promises "details AND a link to its documentation", and the
-        link only ever lived in the popup. It is the per-setting target from
-        instruction 336, so it points at the function that READS the setting
-        rather than at the module page.
+        link only ever lived in the popup. It is the per-setting target, so
+        it points at the function that READS the setting rather than at the
+        module page.
 
         The strip is a FIXED four lines so the panel below it does not move
         every time the pointer crosses a setting. A description longer than
         that used to be clipped mid-word by the layout, which reads as a
-        rendering fault rather than as "there is more". Asked for on
-        2026-09-01: "the text needs to always fit in the container".
+        rendering fault rather than as "there is more". Text always fits its
+        container.
 
         Measured against the font Qt is actually painting and the width the
         strip actually has, so it stays correct at any font scale rather than

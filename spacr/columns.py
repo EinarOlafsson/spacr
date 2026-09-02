@@ -45,6 +45,11 @@ class ColumnNotFound(KeyError):
     """A named column is absent, and the message says what is present.
 
     :param message: human-readable explanation returned for the exception.
+    :param name: the column that was asked for, kept so a caller can recover
+        it without parsing ``message``.
+    :param available: the columns the file does have, IN FILE ORDER. Not
+        sorted, because file order is what a user reading the header sees,
+        and sorting hides that related columns are grouped together.
 
     A KeyError subclass so existing `except KeyError` paths still catch it,
     and so `settings['x']` failures and this one read the same way to a

@@ -1,8 +1,7 @@
 """Choose which published sequencing runs to fetch, and how much of each.
 
-Asked for on 2026-09-01 for Map Barcodes: offer the paper's own reads, "and
-even better if the user could specify how many sequencing lines from each
-file".
+Map Barcodes offers the paper's own reads, and lets the user say how many
+sequencing lines to take from each file.
 
 THE LIMIT IS THE FEATURE, not a convenience. The four runs are 20.4 GB in
 full; a hundred thousand reads from each is about 30 MB, because ENA serves

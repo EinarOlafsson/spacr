@@ -30,6 +30,14 @@ class Collector:
     saturated queue drops its oldest event and records that the resulting
     display is sampled.  Renderers consume immutable graph snapshots rather
     than sharing the collector's dictionaries.
+
+    :param graph: the run graph to take ownership of. Its nodes and edges are
+        COPIED, so the caller's graph is never mutated underneath it.
+    :param max_queue_size: how many events may wait before the oldest is
+        dropped. It is a bound on memory, not on throughput: a producer never
+        blocks, so this is the number of events a slow renderer may fall
+        behind by before the display becomes sampled rather than complete.
+    :raises ValueError: when ``max_queue_size`` is not positive.
     """
 
     def __init__(self, graph: RunGraph, *, max_queue_size: int = 2_000) -> None:
