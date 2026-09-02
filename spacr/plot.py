@@ -4134,6 +4134,7 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
     # forms are tried too so the lookup survives a non-colliding merge, and the
     # pre-rename names stay accepted for older frames.
     def _resolve_well_column(frame, *bases):
+        """Return the first ``_x``, bare, or ``_y`` well-column spelling."""
         for base in bases:
             for candidate in (f'{base}_x', base, f'{base}_y'):
                 if candidate in frame.columns:
@@ -5243,6 +5244,7 @@ class spacrGraph:
             ax.figure.canvas.draw()
                     
         def _get_positions(self, ax):
+            """Return plotted group centers in left-to-right table order."""
             if self.graph_type in ['bar','jitter_bar']: 
                 x_positions = [np.mean(bar.get_paths()[0].vertices[:, 0]) for bar in ax.collections if hasattr(bar, 'get_paths')]
 
@@ -7193,6 +7195,7 @@ def volcano_plot(
 
     # -------------------- I/O helpers --------------------
     def _read_table_auto(path: str) -> pd.DataFrame:
+        """Read Excel or delimited text, sniffing comma versus tab as fallback."""
         lower = path.lower()
 
         # Excel
@@ -7225,12 +7228,14 @@ def volcano_plot(
 
     # -------------------- transform helpers --------------------
     def _as_numeric(s: pd.Series, colname: str) -> np.ndarray:
+        """Coerce a column to floats, refusing an entirely nonnumeric result."""
         arr = pd.to_numeric(s, errors="coerce").to_numpy(dtype=float)
         if np.all(np.isnan(arr)):
             raise ValueError(f"Column '{colname}' could not be converted to numeric.")
         return arr
 
     def _transform_x(x: np.ndarray, mode: str) -> np.ndarray:
+        """Apply the selected x transform, requiring positive log inputs."""
         mode = mode.lower()
         if mode == "none":
             return x
@@ -7248,6 +7253,7 @@ def volcano_plot(
         raise ValueError(f"Unknown x_transform: {mode}")
 
     def _transform_y(p: np.ndarray, mode: str) -> np.ndarray:
+        """Apply the selected y transform after clipping logarithm inputs."""
         mode = mode.lower()
         if mode == "none":
             return p
@@ -7264,6 +7270,7 @@ def volcano_plot(
         raise ValueError(f"Unknown y_transform: {mode}")
 
     def _threshold_x_in_plot_units(thresh: float) -> float:
+        """Convert a raw fold-change threshold to absolute plotted units."""
         t = float(thresh)
         if x_transform.lower() == "none":
             return abs(t)
@@ -7278,6 +7285,7 @@ def volcano_plot(
         return abs(np.log(t))
 
     def _threshold_y_in_plot_units(pthresh: float) -> float:
+        """Validate and transform a raw p-value threshold for the y axis."""
         pt = float(pthresh)
         if pt <= 0:
             raise ValueError("p_value_threshold must be > 0.")
