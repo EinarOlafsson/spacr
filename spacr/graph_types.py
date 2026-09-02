@@ -8,7 +8,7 @@ them.
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Dict, List, Tuple
 
 LOG = logging.getLogger("spacr.graph_types")
 
@@ -134,6 +134,14 @@ def shape_of(frame, x: str = "", y: str = "") -> str:
     import pandas as pd
 
     def kind(name: str) -> str:
+        """Classify one candidate axis against the captured data frame.
+
+        :param name: column name assigned to the axis, or an empty string for
+            an unassigned axis.
+        :returns: ``'absent'`` when the column is unavailable,
+            ``'continuous'`` for a numeric column, or ``'categorical'`` for
+            every other present column.
+        """
         if not name or frame is None or name not in getattr(
                 frame, "columns", ()):
             return "absent"
