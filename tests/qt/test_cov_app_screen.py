@@ -909,28 +909,39 @@ class TestHoverHints:
         qtbot.wait(1)
         assert (scr._btn_run.pos(), scr._btn_stop.pos()) == before
 
-    def test_enter_and_leave_drive_the_hint_strip_and_the_popup(self, qtbot):
-        from spacr.qt.widgets.hover_tooltip import HoverTooltip, split_api_link
+    def test_enter_and_leave_drive_the_hint_strip_alone(self, qtbot):
+        """THE POPUP NO LONGER FIRES when the strip took the hint.
+
+        Changed on 2026-09-01: "i dont need the popup box if the tooltip is
+        shown on the bottom of the window". Both surfaces carried the same
+        sentence, so the popup was a second copy over the form being read.
+
+        The documentation link moved onto the strip rather than being lost
+        with the popup -- the strip's own prompt promises one.
+        """
+        from spacr.qt.widgets.hover_tooltip import HoverTooltip
         scr = _make_screen(qtbot, "mask")
+        scr.resize(1200, 900)
+        scr.show()
+        qtbot.wait(1)
         label, hint = next(iter(scr._hint_map.items()))
-        html = scr._html_tip_map[label]
         tip = HoverTooltip.instance()
 
         assert scr._hint_strip.text() == scr._default_hint()
         scr.eventFilter(label, QEvent(QEvent.Enter))
-        assert scr._hint_strip.text() == hint
-        assert tip._anchor is label
-        # The popup renders the body's trailing documentation link as its own
-        # blue "API" word, so the prose it shows is that body without the
-        # anchor. The URL is not lost — it moves to the word.
-        body, url = split_api_link(html)
-        assert tip._label.text() == body
-        assert tip.api_url() == url
-        assert url.startswith("https://")
+
+        assert tip._anchor is not label, "the popup was shown as well"
+        shown = scr._hint_strip.text()
+        assert shown != scr._default_hint()
+        # The prose is there, trimmed to the strip's fixed height if need be,
+        # and the link is clickable rather than a bare URL in the prose.
+        opening = shown.split("<br>")[0].rstrip("…")[:30]
+        assert opening and opening.split()[0] in hint, (opening, hint[:80])
+        assert "<a href=" in shown
+        assert scr._hint_strip.openExternalLinks()
 
         scr.eventFilter(label, QEvent(QEvent.Leave))
         assert scr._hint_strip.text() == scr._default_hint()
-        assert tip._hide_timer.isActive()
         tip.cancel_hide()
 
     def test_enter_on_an_unregistered_widget_leaves_the_strip_alone(
@@ -973,8 +984,12 @@ class TestHoverHints:
         from spacr.qt.widgets.hover_tooltip import HoverTooltip
         scr = AppScreen("mask")          # deliberately NOT qtbot-owned
         label = next(iter(scr._hint_map))
-        scr.eventFilter(label, QEvent(QEvent.Enter))
         tip = HoverTooltip.instance()
+        # ANCHORED DIRECTLY. Hovering a setting no longer shows the popup --
+        # the hint goes to the bottom strip instead -- but this test is about
+        # the popup surviving its anchor being deleted, which is still worth
+        # holding. Driving it through the screen would test the routing.
+        tip.show_for(label, "<b>anything</b>")
         assert tip._anchor is label
         shiboken6.delete(scr)
         assert not shiboken6.isValid(label)

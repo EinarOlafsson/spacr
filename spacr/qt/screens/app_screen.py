@@ -373,6 +373,43 @@ class ModuleHeader(QWidget):
 # tooltip remains available beside the field.
 HINT_STRIP_LINES = 4
 
+
+def _fit_to_lines(text: str, label, lines: int) -> str:
+    """``text`` shortened until it wraps into at most ``lines`` of ``label``.
+
+    Qt elides a single line for you and does nothing for a wrapped one, so a
+    four-line strip silently clipped anything longer. This walks back to a word
+    boundary and ends with an ellipsis, so the cut reads as deliberate.
+
+    Falls back to the original text when the label has no usable width yet --
+    during construction it has none, and a guess there would trim against a
+    width that is about to change.
+    """
+    from PySide6.QtGui import QFontMetrics
+
+    text = " ".join(str(text).split())
+    width = max(0, label.width() - 8)
+    if width <= 0 or not text:
+        return text
+    metrics = QFontMetrics(label.font())
+
+    def wrapped_lines(candidate: str) -> int:
+        rect = metrics.boundingRect(
+            0, 0, width, 0, Qt.TextWordWrap, candidate)
+        return max(1, round(rect.height() / max(1, metrics.lineSpacing())))
+
+    if wrapped_lines(text) <= lines:
+        return text
+    words = text.split(" ")
+    low, high = 0, len(words)
+    while low < high:
+        middle = (low + high + 1) // 2
+        if wrapped_lines(" ".join(words[:middle]) + "…") <= lines:
+            low = middle
+        else:
+            high = middle - 1
+    return (" ".join(words[:low]) + "…") if low else text[:1] + "…"
+
 # The category strip sits above it and holds a shorter blurb, so three lines
 # is enough. Fixed, for the same reason: the runtime controls above must not
 # jump when the pointer crosses a category header.
@@ -4956,6 +4993,25 @@ class AppScreen(QWidget):
         # asking first is free and costs those 14,472 calls a single integer
         # comparison instead.
         event_type = event.type()
+        if event_type == QEvent.ToolTip:
+            # SWALLOW THE NATIVE ONE, before the fast path below sends it on.
+            # Removing the sticky popup would otherwise just hand the job to
+            # Qt's own tooltip, which appears a moment later over the same
+            # form -- the box the maintainer asked not to see. Returning True
+            # is what stops it being drawn.
+            #
+            # `toolTip()` is left SET on the widget: that property is what the
+            # accessibility tree reads, so suppressing the DRAWING costs no
+            # assistive text. The same trade `module_hints` makes for the
+            # sidebar, and the reason this is a suppression rather than a
+            # deletion.
+            #
+            # A ToolTip event arrives only after Qt's hover delay, so this
+            # costs the hot path nothing: the 14,472 assembly-time events
+            # counted below are polish and style changes, never this.
+            if hasattr(self, "_hint_strip") and (
+                    obj in self._hint_map or obj.property("settingKey")):
+                return True
         if event_type not in (QEvent.Enter, QEvent.Leave):
             return super().eventFilter(obj, event)
         from ..widgets.hover_tooltip import HoverTooltip
@@ -4981,13 +5037,30 @@ class AppScreen(QWidget):
             else:
                 hint = self._hint_map.get(obj)
                 html = self._html_tip_map.get(obj)
+            shown_at_the_bottom = False
             if hint and hasattr(self, "_hint_strip"):
-                self._hint_strip.setText(hint)
-            if html:
+                link = ""
+                if key:
+                    try:
+                        from .settings_model import api_docs_url
+                        link = api_docs_url(self.app_key, str(key))
+                    except Exception:                        # noqa: BLE001
+                        link = ""
+                self._write_hint(hint, link)
+                shown_at_the_bottom = True
+            # ONE PLACE, NOT TWO. Asked for on 2026-09-01: "i dont need the
+            # popup box if the tooltip is shown on the bottom of the window".
+            # The strip and the popup carried the same sentence, so the popup
+            # was a second copy drawn over the form the user was reading -- the
+            # same objection that moved the module blurbs to the bottom.
+            #
+            # The popup still appears where there is no strip to write to, so
+            # a screen without one does not silently lose its help.
+            if html and not shown_at_the_bottom:
                 HoverTooltip.instance().show_for(obj, html)
         else:
             if hasattr(self, "_hint_strip"):
-                self._hint_strip.setText(self._default_hint())
+                self._write_hint(self._default_hint())
             HoverTooltip.instance().start_hide()
         return super().eventFilter(obj, event)
 
@@ -6080,6 +6153,46 @@ class AppScreen(QWidget):
                 pass
 
         splitter.splitterMoved.connect(_save)
+
+    def _write_hint(self, text: str, url: str = "") -> None:
+        """Put ``text`` in the strip, trimmed to the lines the strip has.
+
+        ``url`` adds the documentation link on its own line. Suppressing the
+        popup would otherwise have taken the link with it -- the strip's own
+        prompt promises "details AND a link to its documentation", and the
+        link only ever lived in the popup. It is the per-setting target from
+        instruction 336, so it points at the function that READS the setting
+        rather than at the module page.
+
+        The strip is a FIXED four lines so the panel below it does not move
+        every time the pointer crosses a setting. A description longer than
+        that used to be clipped mid-word by the layout, which reads as a
+        rendering fault rather than as "there is more". Asked for on
+        2026-09-01: "the text needs to always fit in the container".
+
+        Measured against the font Qt is actually painting and the width the
+        strip actually has, so it stays correct at any font scale rather than
+        at the one this was written on.
+        """
+        strip = getattr(self, "_hint_strip", None)
+        if strip is None:
+            return
+        # The link costs a line, so the body is fitted into what is left.
+        lines = HINT_STRIP_LINES - (1 if url else 0)
+        fitted = _fit_to_lines(str(text), strip, max(1, lines))
+        if url:
+            from html import escape as _escape
+
+            from ..i18n import tr as _tr
+            strip.setText(
+                f"{_escape(fitted)}<br>"
+                f"<a href=\"{_escape(str(url), quote=True)}\">"
+                f"{_escape(_tr('Open spaCR API documentation'))}</a>")
+        else:
+            strip.setText(fitted)
+        # The untrimmed text stays reachable: the tooltip is what a reader who
+        # wants the rest, or a screen reader, asks for.
+        strip.setToolTip(str(text))
 
     def _sync_hint_strip_height(self) -> None:
         """Reserve four lines using the font Qt is actually painting."""
