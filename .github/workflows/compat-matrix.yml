@@ -418,11 +418,15 @@ jobs:
         # The dry-run above proves that the graph resolves without a compiler;
         # this step proves the resulting environment really imports.  It is a
         # fresh setup-python environment with no spaCR extras installed, on
-        # every interpreter claimed by Requires-Python.
+        # every interpreter claimed by Requires-Python.  Preserve the same
+        # binary policy during the real install so a newly published sdist
+        # cannot race its wheels and silently turn this into a source build.
         run: |
           python -m pip install --index-url https://download.pytorch.org/whl/cpu \
             "torch>=2.0,<3.0" "torchvision>=0.15,<1.0"
           python -m pip install \
+            --only-binary :all: \
+            --no-binary trackpy,matplotlib-venn,gputil \
             --extra-index-url https://download.pytorch.org/whl/cpu .
           python - <<'PY'
           import importlib.metadata as metadata
