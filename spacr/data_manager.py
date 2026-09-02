@@ -99,12 +99,17 @@ import os
 import shutil
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
-                    Tuple)
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 from . import ports
-from .artifacts import (Artifact, Registry, STATUS_COMPLETE, content_fingerprint,
-                        open_registry, registry_path)
+from .artifacts import (
+    STATUS_COMPLETE,
+    Artifact,
+    Registry,
+    content_fingerprint,
+    open_registry,
+    registry_path,
+)
 from .database_concurrency import connect, transaction
 from .version import get_version
 
@@ -324,12 +329,13 @@ def human_bytes(size: float) -> str:
         disk vendor, ``df`` and the user's storage quota all use.
     """
     value = float(size)
-    for unit in ("B", "kB", "MB", "GB", "TB", "PB"):
-        if abs(value) < 1000.0 or unit == "PB":
+    for unit in ("B", "kB", "MB", "GB", "TB"):
+        if abs(value) < 1000.0:
             if unit == "B":
                 return f"{int(value)} B"
             return f"{value:.1f} {unit}"
         value /= 1000.0
+    return f"{value:.1f} PB"
 
 
 def _absolute(path: Any) -> str:
