@@ -160,6 +160,7 @@ def best_threshold(scores: Sequence[float],
     if str(criterion) != "youden":
         raise ValueError(f"unknown criterion {criterion!r}")
     def value(point: Confusion) -> float:
+        """Return Youden's J, ranking a non-finite result last."""
         total = point.sensitivity + point.specificity - 1.0
         return total if np.isfinite(total) else -np.inf
     return max(points, key=value)
@@ -281,6 +282,11 @@ def deconvolve(scores: Sequence[float], *,
     cut = float((means[low] + means[high]) / 2.0)
     from math import erf, sqrt
     def above(mean, spread):
+        """Estimate the Gaussian probability above the fitted midpoint.
+
+        A zero-width component is treated as a definite side of the cut
+        rather than passed to a division by zero.
+        """
         if spread <= 0:
             return 1.0 if mean >= cut else 0.0
         return 0.5 * (1.0 - erf((cut - mean) / (spread * sqrt(2.0))))
