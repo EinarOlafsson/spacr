@@ -101,9 +101,9 @@ import math
 import os
 import re
 import sqlite3
-from dataclasses import dataclass, field as dc_field
-from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
-                    Tuple, Union)
+from dataclasses import dataclass
+from dataclasses import field as dc_field
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -1762,6 +1762,12 @@ def _count_components(n_tiles: int,
     parent = list(range(n_tiles))
 
     def find(a: int) -> int:
+        """Resolve and compress one tile's captured component parent.
+
+        :param a: tile index whose union-find representative is required.
+        :returns: root index after path-halving each traversed parent link in
+            the captured forest.
+        """
         while parent[a] != a:
             parent[a] = parent[parent[a]]
             a = parent[a]
