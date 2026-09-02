@@ -591,6 +591,13 @@ def fit_mixed_reml_torch(y, X, groups, vc=None, *, device: str = GPU_DEVICE,
         line_search_fn="strong_wolfe")
 
     def closure():
+        """Evaluate and differentiate the captured LBFGS objective.
+
+        :returns: differentiable profiled REML deviance at the current
+            captured log-theta. Existing optimizer gradients are cleared,
+            the deviance is backpropagated, and verbose mode reports its
+            numeric value with the exponentiated variance parameters.
+        """
         optimiser.zero_grad(set_to_none=True)
         deviance = _solve(log_theta)[0]
         deviance.backward()
