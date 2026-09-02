@@ -183,8 +183,8 @@ def pyqtgraph_ready() -> Tuple[bool, str]:
     # before this function is ever called.
     os.environ.setdefault("PYQTGRAPH_QT_LIB", "PySide6")
     try:
-        from PySide6.QtWidgets import QApplication
         import pyqtgraph  # noqa: F401
+        from PySide6.QtWidgets import QApplication
     except Exception as error:                                 # noqa: BLE001
         return False, f"pyqtgraph is unavailable here: {error}"
     try:
@@ -545,9 +545,9 @@ def _add_poly_collection(plot, artist, look) -> int:
     """Translate ``fill_between`` as a filled polygon."""
     import numpy as np
     import pyqtgraph as pg
+    from PySide6.QtCore import QPointF
     from PySide6.QtGui import QPolygonF
     from PySide6.QtWidgets import QGraphicsPolygonItem
-    from PySide6.QtCore import QPointF
 
     added = 0
     faces = artist.get_facecolor()
@@ -816,6 +816,14 @@ def _plain_text(raw) -> Tuple[str, bool]:
     body = re.sub(r"\\sqrt\s*\{([^{}]*)\}", "\u221a(\\1)", body)
 
     def _script(match, table):
+        """Translate an entire captured regex script run or none of it.
+
+        :param match: regex match whose first group is a super/subscript run.
+        :param table: Unicode translation mapping for that script position.
+        :returns: the fully translated run when every character is supported;
+            otherwise the original matched source unchanged, allowing the
+            caller's leftover-marker check to reject unsupported mathtext.
+        """
         run = match.group(1)
         converted = run.translate(table)
         # A run with one character outside the table is left ALONE and the
@@ -1556,8 +1564,7 @@ def _warn_about_data_colours(report: SceneReport) -> None:
     contrast floor, which is tuned to flag colours less legible than the
     house-style reference greys without warning on every figure.
     """
-    from ..figure_style import (illegible_colour_warning, illegible_colours,
-                                saved_figure_appearance)
+    from ..figure_style import illegible_colour_warning, illegible_colours, saved_figure_appearance
 
     look = saved_figure_appearance()
     if not look.flip or not report.data_colours:
