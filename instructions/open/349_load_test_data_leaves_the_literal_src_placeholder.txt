@@ -1,0 +1,57 @@
+================================================================================
+"LOAD TEST DATA" PUTS THE LITERAL <src> INTO MASK GENERATION'S PATH FIELD
+================================================================================
+
+Status:    not started, filed 2026-09-02. A LIVE DEFECT the maintainer hit.
+Requested: 2026-09-02, verbatim -- "loade test images dosnt loade the right
+           path into src in mask generation it loads <src>, probably because
+           the module restarts after loading"
+Owner:     spacr/qt -- the test-data chooser and the Mask screen's settings.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+After fetching the example images, Mask generation's path field contains the
+string `<src>` rather than the directory the download landed in. `<src>` is a
+PLACEHOLDER, not a path, so the run either fails or looks at a directory that
+does not exist.
+
+THE REPORTER'S HYPOTHESIS IS WORTH TAKING SERIOUSLY AND CHECKING FIRST:
+"probably because the module restarts after loading". If the screen is rebuilt
+after the download completes, the fetched value is written into the widget the
+download started from and then thrown away with it -- and the rebuilt screen
+draws the placeholder its defaults carry. That shape has bitten this
+repository before: instruction 335 was "live preview loses the image after a
+settings change", the same class of bug on a neighbouring surface.
+
+WHERE `<src>` COMES FROM. `settings_model` has a placeholder path --
+`{"src": "path to images"}` and a bare `{"src": "path"}` around lines 297-298.
+Establish which of those, or which catalog default, produces the literal
+angle-bracket form before changing anything; a `<src>` with brackets is a
+DIFFERENT string from either of those and may come from a settings template
+or an example CSV rather than from the model.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Reproduce with the real button, not by calling the handler. Instruction 52
+   closed on 97 passing tests and the controls were unreachable; a test that
+   calls the loader directly cannot see a screen rebuild.
+2. Find whether the screen is rebuilt after the fetch. If it is, the fix is to
+   write the path into the SETTINGS the rebuild reads from, not into the
+   widget.
+3. Check the sibling modules. The same chooser was added to Measure, Classify,
+   Annotate and Map Barcodes in the same week (see done/340), so if Mask is
+   broken the others are suspects, not bystanders.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* Pressing Load test data in Mask leaves an EXISTING directory in the path
+  field, asserted with `os.path.isdir`, not a non-empty string.
+* The value survives whatever rebuild follows the download, driven through the
+  real button.
+* The same assertion passes for every module that offers the chooser.
