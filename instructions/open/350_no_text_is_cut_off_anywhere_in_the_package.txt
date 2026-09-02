@@ -74,3 +74,45 @@ HOW IT WILL BE CHECKED
   strings, at the default font scale and at the largest one preferences
   offers, in English and in the longest-rendering locale.
 * Each fix names which of the four causes it was.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE ANNOTATE INSTANCE, DIAGNOSED. IT IS A HARD-CODED HEIGHT.
+--------------------------------------------------------------------------------
+
+`spacr/qt/widgets/test_data_chooser.py`. The dialog has a description pane
+under the route buttons that fills in as you hover, and it is built with
+
+    self._description.setMinimumHeight(110)
+
+with this comment above it:
+
+    # A FIXED HEIGHT, so the dialog does not resize under the pointer as
+    # the text changes length -- the buttons would move away from the
+    # cursor that is hovering them.
+
+THE INTENT IS RIGHT AND THE IMPLEMENTATION IS A GUESS. 110 is a number, not a
+measurement: it was presumably enough for the descriptions that existed when
+it was written. A longer route description -- or the same one at a larger font
+scale, or in German -- needs more, and the pane does not grow because growing
+is precisely what the comment set out to prevent.
+
+THE FIX THAT SATISFIES BOTH GOALS is to size the pane to the LONGEST text it
+can ever hold, rather than to a constant: walk `ROUTES`, take
+`QFontMetrics.boundingRect` of each description wrapped to the pane's width,
+and use the tallest. The dialog is then stable under the pointer AND cannot
+clip, and it stays correct when a route is added or a caption is translated,
+which a constant cannot.
+
+`RESTING_TEXT` must be in that measurement too -- it is what the pane shows
+before anything is hovered.
+
+THIS IS THE MEASUREMENT THE REST OF THE SWEEP WANTS. The same
+"boundingRect against the contents rect" comparison is what item 1 of WHAT TO
+DO asks for, so fixing this one correctly produces the tool for the others
+rather than just one fixed dialog.
+
+AND IT IS AN INSTANCE OF CAUSE 2 AND CAUSE 3 AT ONCE, from the four listed
+above: a fixed size that a longer string overflows, and a size that only holds
+at one font scale. Worth noting because it means the sweep cannot be a single
+pass at 1.0 in English -- the very first case found needs two of the four
+dimensions to reproduce reliably.
