@@ -200,7 +200,7 @@ else:
 
         #: How tall the inspector starts. 118 px was about four lines, so
         #: every stage worth inspecting needed scrolling before it could be
-        #: read. Asked for on 2026-09-01: start taller and be expandable.
+        #: read. Start taller while keeping the inspector expandable.
         INSPECTOR_MIN_HEIGHT = 240
 
         def __init__(
