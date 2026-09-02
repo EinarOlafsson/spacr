@@ -1,0 +1,111 @@
+================================================================================
+WHAT WAS DONE ON THE NIGHT OF 2026-09-02
+================================================================================
+
+Status:    done, 2026-09-02.
+Requested: 2026-09-01 evening -- "dont stop working untill tomorrow", with the
+           standing goal "finish all items on your instructions list, and the
+           additional tasks you have been given", and the constraint "be
+           verry carefull not to monitor all processes you spawn ram usage and
+           kill the process before ram usage gets to high".
+Owner:     the session that did it.
+
+This file exists for the same reason 340 does: most of a night's work arrived
+as small findings that would otherwise live only in commit messages.
+
+--------------------------------------------------------------------------------
+THE SHAPE OF IT
+--------------------------------------------------------------------------------
+
+Fifty-five commits. The ledger moved 318 done / 23 open to 325 done / 27 open
+-- eight items closed and twelve filed, which is a list that grew while
+shrinking, because most of what was found was new.
+
+EVERY TEST RUN WENT THROUGH `tools/run_memory_guarded.py` at a 100 GiB limit,
+below its 115 GiB default, as the maintainer asked. Peak system memory
+observed across the night was 17 GiB of 125. The guard never had to fire; the
+point is that it was there. Nothing crashed VS Code.
+
+--------------------------------------------------------------------------------
+CLOSED
+--------------------------------------------------------------------------------
+
+  319  NON-NVIDIA ACCELERATORS. Its own last section said the nine translated
+       READMEs still claimed CUDA-only; that had been fixed and never
+       recorded.
+  330  NESTED DOCK AND MENU. Filed "after the version update" and built weeks
+       ago in 940542f5b.
+  336  THE API LINK. Header said "not started"; the generated consumer map
+       was already wired into settings_model.
+  341  THREE ANNOTATE-ENGINE TESTS. All three stale. Two asserted against
+       `torch.cuda.is_available()`, which instruction 319 replaced with the
+       accelerator resolver -- so the patch reached nothing and the [True]
+       case had been passing by AGREEING WITH THE HARDWARE.
+  342  LONG/WIDE COUNT TABLES, and plate as a layout term.
+  344  THE AUDIT of the whole open list.
+  347  THE TWO HELP SURFACES. Only the teal dot and purple square needed
+       building; the other three parts were already true and are now pinned.
+  349  `<src>` IN THE PATH FIELD. Not a placeholder and not a restart: two
+       writers to one field in an unstated order.
+
+--------------------------------------------------------------------------------
+THE FOUR THINGS WORTH REMEMBERING
+--------------------------------------------------------------------------------
+
+1. FIVE OF TWENTY-THREE INSTRUCTION FILES WERE WRONG ABOUT THEMSELVES. The
+   repository has warned about this since August and the rate has not fallen.
+   `git log --grep="\\bNNN\\b"` per open number found four of the five in
+   minutes and is the highest-yield audit step there is.
+
+2. A TEST THAT FAKES AN IMPORT LEAVES TWO PIECES OF STATE. `monkeypatch`
+   restores the import. It does not restore a cached boolean filled while the
+   fake was installed, nor a module object deleted by a reload. Both poisoned
+   an entire process from one file. Instruction 346 took 21 failures to 3 on
+   that insight alone.
+
+3. MEASURE TWICE, DIFFERENTLY. Two confident findings were published and
+   retracted within the hour on instruction 350, both because a single
+   measurement looked plausible: a clipping sweep read widget widths before
+   the layout settled, and then compared a deliberately-eliding control's full
+   caption against its capped width. What caught both was a SECOND
+   measurement of a different shape disagreeing -- never a re-reading of the
+   code.
+
+4. A DOCSTRING EDIT IS A TRANSLATION EDIT. Adding `plateID` to one formula in
+   `ml.py` staled nine reviewed locale catalogs and turned the docs job red.
+   Nothing in the editing experience says so.
+
+--------------------------------------------------------------------------------
+WHAT IS WAITING ON THE MAINTAINER, AND IT IS SHORT
+--------------------------------------------------------------------------------
+
+  306  Three sentences. `setting_tooltips/control_wells` in Spanish, Chinese
+       and Korean -- and the live text is 97.9% identical to the reviewed
+       one, so it is an adjustment rather than a translation. That is the
+       whole of what stands between the docs job and a green runtime audit.
+  316  Nine hand-written `_ROWS` rows. `_row()` raises without exactly nine,
+       so there is no English-only row to add.
+  326  ONE DECISION: should a five-organelle run carry settings keys for the
+       other twenty-one? The reconciliation is written and reverted pending
+       the answer; both readings are argued in the file.
+  337  The measure settings that were on screen on 2026-09-01.
+  304  The Zenodo toggle, before any release is cut.
+  05   The 1.5.0.5 go-ahead.
+
+--------------------------------------------------------------------------------
+WHAT THE NEXT SESSION SHOULD PICK UP
+--------------------------------------------------------------------------------
+
+Cheapest first, and each has its next step written into its own file:
+
+  346  Two failures left, diagnosed to the line. `gc.get_referrers` on the
+       reloaded function names the holder; that is one probe.
+  345  Two order-dependent annotate tests. 346's bisect method, run over the
+       qt selection.
+  350  The sweep found no proven clipping in four screens and three locales.
+       Three false-positive classes are recorded; handle all three before
+       trusting any new number.
+  348  The dock magnifier and moving the row text to the strip. 315 records
+       the measured cost of doing this with a per-row event filter -- do not.
+  315  Three named optimisations, all needing a real display to re-measure.
+  305, 314, 327  All need a real display and a quiet machine.
