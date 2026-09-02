@@ -3340,6 +3340,10 @@ def search_features(query: str,
                 query_concepts.add(name)
 
     terms = _query_terms(text)
+    if text and not terms and exact_key is None and not query_concepts:
+        # A stopword-only query carries no searchable meaning. Letting the raw
+        # substring rules below see it makes ``of`` match ``centre_offset``.
+        return []
     hits: list[SearchHit] = []
     for doc in docs:
         if object_type and object_type not in doc.object_types:
@@ -3391,12 +3395,11 @@ def search_features(query: str,
         # "zzzzz-not-a-feature" scored every entry in the dictionary, because
         # `a` and `not` appear in all of them — a nonsense search came back
         # with 137 confident results.
-        if terms:
-            hay = _haystack(doc)
-            if all(term in hay for term in terms):
-                score += 2.0 * len(terms)
-                if not reasons:
-                    reasons.append("mentioned in the definition")
+        hay = _haystack(doc)
+        if all(term in hay for term in terms):
+            score += 2.0 * len(terms)
+            if not reasons:
+                reasons.append("mentioned in the definition")
         if score > 0:
             hits.append(SearchHit(doc, score, "; ".join(reasons)))
 
