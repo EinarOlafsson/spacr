@@ -1159,3 +1159,71 @@ named semantic defects and its nine-locale sign-off. This was a two-word
 adjustment to sentences a reviewer had already approved; 316 is about prose
 nobody has read. THESE THREE SHOULD STILL BE GLANCED AT in the next pass --
 they are marked reviewed and were last touched by an agent.
+
+--------------------------------------------------------------------------------
+2026-09-02: ONE REVIEWED MODULE SUMMARY IS STALE, AND IT IS NOT MINE TO RETIRE
+--------------------------------------------------------------------------------
+
+`tests/qt/test_module_tooltip_i18n.py::test_reviewed_summary_hashes_match_
+current_builtin_sources` is RED, and was red before this session touched
+anything -- verified against c309a1008 in a HEAD worktree. Exactly one key
+fails: `foreign`.
+
+WHAT HAPPENED. Import Project was renamed to Import on 2026-08-31 and its
+one-line summary was rewritten to cover the three ways into a project it now
+hosts:
+
+    reviewed against  "Import external images, masks and a measurement table
+                       into a spaCR project and map the source columns to
+                       spaCR fields"
+    the app now says  "Bring images, masks and measurement tables into a
+                       spaCR project -- converting microscope formats,
+                       mapping source columns, or adopting masks made
+                       elsewhere"
+
+The nine reviewed translations are faithful renderings of a sentence the
+application no longer contains. The machinery did the right thing with that:
+`module_summary` compares the stored hash against the live English, the
+comparison fails, and it falls through -- so nobody is being shown a wrong
+translation. A Swedish user sees the Import tile's sentence in ENGLISH.
+
+WHY IT IS STILL SITTING THERE. This file's own rule, written for the
+RectGate case above: a stale reviewed record "cannot be carried forward by
+refreshing its hash -- that would silently re-certify a translation nobody
+has read against the new text". The same applies here, and the remedy is the
+same pair -- retire the record and let the generated catalog translate the
+new text, or have a reader of each language translate it. Retiring nine
+people's review evidence is a decision about someone else's work, so it is
+recorded rather than taken, exactly as the RectGate record was.
+
+WHAT IS OWED, precisely, so whoever takes it does not have to re-derive it:
+
+  * `spacr/qt/i18n_module_summaries_{west,asia,other}.py` -- the `foreign`
+    row in all nine locales.
+  * `spacr/qt/i18n_module_summaries.py` -- `REVIEWED_SOURCE_HASHES['foreign']`,
+    and the `len(reviewed_keys) == 30` assertion in
+    `validate_module_summaries` if the row is retired rather than replaced.
+  * `spacr/qt/i18n_catalogs/<lang>.py` -- the generated `MODULE_SUMMARIES`
+    row and its source hash, which are stale in the same direction.
+  * The same test file's `assert len(reviewed_keys) == 30`, which is where
+    the count is stated.
+
+THE MODELS ARE ON THIS MACHINE, which was not obvious and is the reason the
+generated half is a re-run rather than a request:
+
+    /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/project/
+        translation_models/opus/{en-de,en-es,en-fr,en-hi,en-is,en-ko,
+                                 en-pt,en-sv,en-zh}      (51 GB)
+
+`python tools/build_i18n_catalogs.py --repair-invalid-only` is the house
+command; it re-translates missing, source-stale, exact-English and rejected
+rows and leaves valid cached ones alone. It will pick up the 125 catalog
+rows this file already owes at the same time.
+
+ONE ROW WAS ADDED TO THE DEBT TODAY, and it is named here so it is not a
+surprise: `import_images`, the new Import Images screen folded onto Import,
+has an English sentence and no translation in any locale. Measured through
+`tools/build_i18n_catalogs.canonical_sources()`: 65 module-summary rows
+before, 66 after. That is the whole increase -- the other folded modules
+already had their sentences, because `folded_modules` now reads a fold's
+registry row when its host keeps no record of its own.
