@@ -755,6 +755,11 @@ def _run_probe(
     reader_lock = threading.Lock()
 
     def writer_task(writer_id: int) -> None:
+        """Insert this writer's rows and signal when the last writer exits.
+
+        Worker failures are collected for the probe result, and the thread's
+        connection is closed whether setup, synchronization, or writing fails.
+        """
         connection = None
         try:
             connection = connect(db_path, timeout=0.05)
@@ -779,6 +784,11 @@ def _run_probe(
                     finished.set()
 
     def reader_task(reader_id: int) -> None:
+        """Poll during writes, then contribute this reader's query count.
+
+        A final query observes the completed database; failures are collected
+        and the thread-owned read-only connection is always closed.
+        """
         connection = None
         local_queries = 0
         try:
