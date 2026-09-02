@@ -32,6 +32,11 @@ from .run_journal import load_run_settings, open_run, runs_root
 
 
 def _print_manifest(run_dir: Path) -> None:
+    """Print the recorded run summary and optional model hashes.
+
+    :param run_dir: Run-journal directory containing ``manifest.json``.
+    :returns: ``None``; the formatted summary is written to standard output.
+    """
     m = json.loads((run_dir / "manifest.json").read_text())
     print(f"run:       {run_dir.name}")
     print(f"app:       {m.get('app_key')}")
@@ -50,6 +55,11 @@ def _print_manifest(run_dir: Path) -> None:
 
 
 def _print_settings(settings: dict) -> None:
+    """Print settings as deterministic, key-sorted rows.
+
+    :param settings: Setting names and values to display.
+    :returns: ``None``; the rows are written to standard output.
+    """
     print("settings:")
     for k, v in sorted(settings.items()):
         print(f"  {k:32s} = {v!r}")
