@@ -1534,6 +1534,23 @@ class _SettingsDialog(QDialog):
             self._queue_limit: "queue_limit",
         })
 
+        # POLISHED BY `spacr.qt.dialogs.make_the_window_resizable`, which
+        # does this for EVERY dialog now and not only for this one.
+        #
+        # The defect is worth keeping a note of here because this dialog is
+        # where it was measured: the detacher reads a dialog's floor on its
+        # Polish event, an event filter runs before the widget's own handler,
+        # and so the floor used to be measured before the stylesheet reached
+        # any of this dialog's 165 children. Sixteen of them change size
+        # across that boundary -- its eight QComboBoxes, 29 px in the default
+        # "Sans Serif 9" and 30 px in the stylesheet's "Open Sans".
+        #
+        #     floor read at Polish   480 x 1183   the size it re-opened at
+        #     floor once on screen   512 x 1191   the size it really needs
+        #
+        # Eight rows, eight pixels, and this dialog opened eight pixels short
+        # of its own content with a scroll bar already showing.
+
     def _picker_db_path(self) -> str:
         """Where the SQL picker looks — the src folder as it reads right now.
 
@@ -2938,6 +2955,32 @@ class AnnotateScreen(QWidget):
         is TRANSLATED at the moment of writing: the language pass ran when this
         screen was built and does not run again, so an English literal set by a
         handler would stay English for the session.
+
+        THE BUTTON IS THE TIMER'S CONTEXT, and that third argument is the
+        whole of a bug rather than tidiness. `QTimer.singleShot(msec,
+        functor)` belongs to nothing: it fires 1.2 seconds later whatever has
+        happened in the meantime, and the functor holds this screen, so the
+        deleted thing it reaches for is the C++ QPushButton:
+
+            RuntimeError: libshiboken: Internal C++ object
+            (PySide6.QtWidgets.QPushButton) already deleted.
+
+        A user who copies the console and leaves the screen inside 1.2
+        seconds gets that in the event loop. In the suite it was worse than
+        an error in the wrong place -- it was an error in the wrong TEST:
+        `test_annotate_console_can_be_copied_and_reported.py` presses this
+        button twice, its screens are torn down at the end of those tests,
+        and the two strays landed in whichever test happened to be spinning
+        an event loop 1.2 seconds later. Measured:
+        `test_annotate_console_can_be_copied_and_reported.py` plus
+        `test_annotate_keyboard.py` reported the error against
+        `test_auto_advance_skips_already_labelled_crops`, which touches
+        neither the console nor a button.
+
+        Passing the button as the context object makes Qt cancel the pending
+        call when the button is destroyed, which is the guarantee the
+        two-argument form does not give. Same pair before and after:
+        102 passed and 1 error, then 103 passed.
         """
         try:
             text = self._console.copy_all()
@@ -2945,10 +2988,10 @@ class AnnotateScreen(QWidget):
             self._console.append_notice(
                 "Could not copy the console: {detail}\n", detail=exc)
             return
-        self._btn_copy_console.setText(tr("Copied"))
-        QTimer.singleShot(
-            1200,
-            lambda: self._btn_copy_console.setText(tr("Copy console")))
+        button = self._btn_copy_console
+        button.setText(tr("Copied"))
+        QTimer.singleShot(1200, button,
+                          lambda: button.setText(tr("Copy console")))
         LOG.debug("copied %d console characters", len(text))
 
     def note_console_error(self) -> None:
