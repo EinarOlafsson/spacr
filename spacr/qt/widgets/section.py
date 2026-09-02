@@ -204,8 +204,28 @@ class Section(QFrame):
         label_row.setContentsMargins(0, 0, 0, 0)
         label_row.setSpacing(SPACING["xs"])
         label_row.addStretch(1)
-        label_row.addWidget(label if isinstance(label, QWidget)
-                            else QLabel(str(label), form_label))
+        if isinstance(label, QWidget):
+            label_row.addWidget(label)
+        else:
+            # AN ELIDING LABEL, NOT A BARE ONE, and the difference only shows
+            # in a translation. The label column is as wide as its widest
+            # label's hint, and every settings label in it elides -- so the
+            # column is capped, and a plain QLabel wider than the cap is cut
+            # off mid-glyph rather than shortened. Measured on Regression in
+            # German: "Herunterladen" wants 83 px, the column grants 58, and
+            # English "Download" needs 57 and fits exactly, which is why it
+            # was invisible until the sweep of instruction 350 ran in a
+            # second locale.
+            #
+            # `ElidingLabel.sizeHint` still asks for the FULL width, so where
+            # the column can afford it nothing is elided at all; the tooltip
+            # carries the whole word for when it cannot.
+            from .eliding import ElidingLabel
+
+            text = str(label)
+            prose = ElidingLabel(text, form_label)
+            prose.setToolTip(text)
+            label_row.addWidget(prose)
         if at_top:
             # `insertRow(0, ...)`, the same mechanism :meth:`add_prose`
             # uses. Asked for on 2026-09-02 for Regression's Input Tables:

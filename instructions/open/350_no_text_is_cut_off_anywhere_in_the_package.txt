@@ -334,3 +334,62 @@ clipping check is easy to write and hard to make true, and every number it
 produces should be doubted until a second, differently-shaped measurement
 agrees with it. The button-row width check is what caught the first; reading
 the widget's own class is what caught the second.
+
+--------------------------------------------------------------------------------
+2026-09-02: THE SWEEP RUNS, IN THREE LOCALES, AND FINDS THREE REAL THINGS
+--------------------------------------------------------------------------------
+
+`tests/qt/test_the_text_fits_sweep.py` -- eight screens x three locales, all
+twenty-five combinations judged by the rules this file records. English is the
+source, German makes the longest compounds in the set, and Icelandic is the
+maintainer's own, so a defect there is one he meets rather than one he is told
+about.
+
+A FOURTH FALSE-POSITIVE CLASS, found by running it: A CONTROL THAT HAS CHOSEN
+TO PAINT CLIPPED. `AiToggleLabel` deliberately draws the FULL text slightly
+cut off when its width cannot fit even an ellipsis, and says why in its own
+code -- "the full text drawn slightly clipped is strictly better: it still
+says which control this is". Reporting that is a finding against a decision.
+The rule is now: a widget that owns its own elision has already decided what
+to paint, so the sweep does not second-guess it.
+
+AND THE FIRST RUN FAILED ALL TWENTY-FIVE COMBINATIONS WITHOUT MEASURING
+ANYTHING -- `findChildren` takes a type and not a tuple in PySide6, and hands
+back a TypeError rather than an empty list. That is a third confident wrong
+headline on this item, caught before it was reported this time, and it is why
+the sweep now carries a test that a real clip still fails it.
+
+FIXED HERE: THE DOWNLOAD LABEL, and it is the shape this instruction predicts
+exactly. Measured on Regression:
+
+    en   "Download"        needs 57 px, the column grants 58   fits exactly
+    de   "Herunterladen"   needs 83 px, the column grants 58   CUT OFF
+
+Every settings label in that column elides, so the column is capped by their
+hints; a plain QLabel wider than the cap is cut mid-glyph. `add_prose_row`
+builds an `ElidingLabel` now, whose `sizeHint` still asks for the full width
+-- so where the column can afford it nothing is elided at all -- with the
+whole word as its tooltip for when it cannot.
+
+RECORDED AS A RATCHET, NOT FIXED, because both remaining findings are layout
+decisions rather than captions:
+
+    measure / de           6 captions cut off
+    measure / is           5
+    classify_merged / de   1
+
+  * Measure's action row is a QHBoxLayout of buttons with `policy=Minimum`.
+    In English the row fits at 1200 px; in German it does not, so Qt
+    compresses every button below its own hint -- "Ausführen" is given 60 px
+    and wants 103, "Einstellungen importieren…" 127 against 192. The row has
+    to WRAP, SCROLL or ELIDE; squeezing is the one option that loses text.
+    This is the same question as the flow layout the other session has been
+    working on, and is worth doing with it rather than beside it.
+  * Classify's subtitle is one unwrapped `ApiHelpLabel`, 73 px too long for
+    its line in German. Wrapping it is the obvious fix and it changes the
+    header's height, which is why it is measured rather than done in passing.
+
+THE THEME IS WHAT TIPS BOTH, and anyone reproducing this by hand needs to
+know: built WITHOUT the application stylesheet the same screen reports every
+button at exactly its hint and nothing is clipped at all. The sweep runs with
+`qt_theme_applied` because that is the font the user has.
