@@ -151,6 +151,16 @@ def _reorder(
             current_layer: int = layer,
             current_positions: Mapping[str, int] = old_positions,
         ) -> tuple[int, float, int, str]:
+            """Rank one node for the current median-sweep layer.
+
+            :param node_id: node to rank within the layer being reordered.
+            :param current_layer: loop layer captured when this key is built.
+            :param current_positions: that layer's pre-sort positions, captured
+                to preserve deterministic ordering for ties and isolated nodes.
+            :returns: connected nodes first by the median position of their
+                cross-layer neighbours, then prior position and identifier;
+                unconnected nodes follow in their prior deterministic order.
+            """
             adjacent = [
                 positions[other]
                 for other in neighbours.get(node_id, ())
