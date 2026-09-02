@@ -158,8 +158,7 @@ import zlib
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
-from typing import (Any, Callable, Dict, List, Mapping, Optional, Sequence,
-                    Tuple, Union)
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -1747,6 +1746,17 @@ def _compose(group_transforms: Sequence[Mapping[str, Any]],
     """
     def _pair(transforms: Sequence[Mapping[str, Any]]
               ) -> Tuple[List[float], List[float]]:
+        """Reduce one captured-dimension NGFF transform sequence.
+
+        :param transforms: identity, scale, and translation mappings; a falsey
+            sequence represents the identity transform.
+        :returns: mutable scale and translation lists of captured length
+            ``ndim``. Repeated scales multiply componentwise and repeated
+            translations add componentwise.
+        :raises OmeZarrError: when an entry is not a mapping, a scale or
+            translation has the wrong arity, or the transform type is not
+            supported; messages include the captured source location.
+        """
         scale = [1.0] * ndim
         translation = [0.0] * ndim
         for entry in transforms or ():
