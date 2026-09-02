@@ -354,6 +354,7 @@ def _cellpose_z_segment_fn(model, eval_kwargs, stitch_threshold):
     :returns: a callable matching the ``segment_fn`` contract.
     """
     def _segment(array, do_3D=False, anisotropy=None, z_axis=None, stitch=False):
+        """Return labels from a 3-D, plane-list, or single-plane Cellpose call."""
         kwargs = dict(eval_kwargs)
 
         if do_3D:
