@@ -1,5 +1,6 @@
 """FASTQ barcode decoding, consensus generation, and mapping pipeline."""
 
+import logging
 import os, gzip, re, time
 import pandas as pd
 from multiprocessing import Pool, cpu_count, Queue, Process
@@ -10,6 +11,9 @@ from . import schema
 # One run id on every log line and every artifact, one seed, and the
 # on_error policy at the per-sample boundary. See spacr.runctx.
 from .runctx import run_context
+
+#: Named for the module the log lines already say they come from.
+LOG = logging.getLogger(__name__)
 from .plot import plot_plates
 
 # THE HOUSE STYLE (136). `figures.style` imports matplotlib
@@ -1070,7 +1074,30 @@ def generate_barecode_mapping(settings=None):
             # outputs in it than it had samples.
             for attempt in run.policy.attempts_for(key, stage='sample'):
                 with attempt:
-                    if settings['mode'] == 'paired' and samples_dict[key]['R1'] and samples_dict[key]['R2'] or settings['mode'] == 'single' and samples_dict[key]['R1'] or settings['mode'] == 'single' and samples_dict[key]['R2']:            
+                    # `.get`, not `[...]`. A sample whose mate could not be
+                    # identified from its filename used to raise
+                    # `KeyError: 'R1'` from inside this condition, several
+                    # frames from the cause and naming neither the file nor
+                    # the problem. Reported 2026-09-01 after downloading the
+                    # project's own reads, which ENA names `<run>_1.fastq.gz`.
+                    reads = samples_dict[key]
+                    r1_path = reads.get('R1')
+                    r2_path = reads.get('R2')
+                    mode = settings['mode']
+                    if mode == 'paired':
+                        usable = bool(r1_path and r2_path)
+                    else:
+                        wanted = settings.get('single_direction', 'R1')
+                        usable = bool(reads.get(wanted) or r1_path or r2_path)
+                    if not usable:
+                        have = ', '.join(sorted(reads)) or 'nothing'
+                        LOG.warning(
+                            "%s: skipped -- %s mode needs %s but this sample "
+                            "has %s. Check the file names in src.",
+                            key, mode,
+                            'R1 and R2' if mode == 'paired' else wanted, have)
+                        continue
+                    if True:
                         key_mode = f"{key}_{settings['mode']}"
                         if settings['mode'] == 'single':
                             key_mode = f"{key_mode}_{settings['single_direction']}"
@@ -1084,18 +1111,18 @@ def generate_barecode_mapping(settings=None):
 
                         if settings['mode'] == 'paired':
                             function = paired_read_chunked_processing
-                            R1=samples_dict[key]['R1']
-                            R2=samples_dict[key]['R2']
+                            R1 = r1_path
+                            R2 = r2_path
 
                         else:
                             function = single_read_chunked_processing
 
                             if settings['single_direction'] == 'R1':
-                                R1=samples_dict[key]['R1']
-                                R2=None
+                                R1 = r1_path or r2_path
+                                R2 = None
                             else:
-                                R1=samples_dict[key]['R2']
-                                R2=None
+                                R1 = r2_path or r1_path
+                                R2 = None
 
                         function(r1_file=R1,
                                  r2_file=R2,

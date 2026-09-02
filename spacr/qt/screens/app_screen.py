@@ -2655,6 +2655,16 @@ class AppScreen(QWidget):
         # Regression fills paired tables; Mask Generation fills ``src`` with
         # a downloaded example image directory.
         if depth == 0 and title == EXAMPLE_DATA_SECTIONS.get(self.app_key):
+            # OPEN, because a control nobody can see is not a control. Every
+            # settings section starts collapsed, so the test-data button was
+            # inside a hidden SectionBody on every module that has one --
+            # reported on 2026-09-01 as "there is no Load test data in the
+            # classify module that i can see", and true of Mask and Measure
+            # too for anyone who did not already know where to look.
+            #
+            # Only THIS section, and only because it carries the one action a
+            # user with no data of their own has to take first.
+            section.set_expanded(True)
             if self.app_key == "regression":
                 self._install_example_data_button(section)
             elif self.app_key == "measure":
