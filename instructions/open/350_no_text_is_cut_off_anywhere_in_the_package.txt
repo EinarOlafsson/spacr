@@ -420,3 +420,34 @@ THE RATCHET DID ITS OWN JOB HERE, which is worth recording as evidence that
 this shape of test earns its keep: the fix made the sweep FAIL, because the
 combination was recorded as having one offender and now has none, and the
 test refuses to let a closed entry sit in the table pretending to be debt.
+
+--------------------------------------------------------------------------------
+MEASURE'S ACTION ROW: TRIED, REVERTED, AND WHAT IT ACTUALLY NEEDS
+--------------------------------------------------------------------------------
+
+`FlowLayout` looked like the answer and is not, quite. It exists for exactly
+this failure -- its own module docstring says "Qt's answer to a box it cannot
+satisfy is to let the children overlap" -- and swapping the action row's
+QHBoxLayout for it took one line.
+
+IT FAILED IMMEDIATELY, on `AttributeError: 'FlowLayout' object has no
+attribute 'addStretch'`, and the error is the useful part: THE ACTION ROW IS
+NOT A ROW OF BUTTONS. It is eight buttons, then a stretch, then the progress
+bar and six more widgets -- the preview, GPU, sweep, hyperparameter,
+interactive and AI switches. The stretch is load-bearing: it is what holds
+the switches against the right edge while the buttons stay left.
+
+So the fix is not a layout swap but a SPLIT: the buttons into their own
+wrapping container, and that container plus the stretch, the progress bar and
+the switches in the horizontal row they are in now. That is a structural
+change to the busiest screen in the application, in a file six test files
+reach into by attribute, and it is worth doing deliberately rather than in
+the same pass as the measurement.
+
+The revert is complete -- the sweep is green at its recorded counts -- and
+the two entries stay in `KNOWN_OFFENDERS` where they can be seen.
+
+  WHILE IT IS UNFIXED, the failure a user meets is: on Measure in German or
+  Icelandic, every caption in the action row loses its ending, including
+  "Run". Widening the window fixes it, which is why it has survived -- the
+  developers' windows are wide.
