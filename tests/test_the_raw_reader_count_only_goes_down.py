@@ -62,7 +62,12 @@ RAW_CALL = re.compile(r"pd\.read_csv\(|pd\.read_sql\w*\(|\.to_csv\(|\.to_sql\(")
 #: figure-bundle and streaming-dataset outputs now use the shared reader or
 #: writer. These are scientific tables with schema-bearing columns, so there
 #: is no reason for them to bypass canonicalisation.
-CEILING = 253
+#:
+#: 253 -> 252 on 2026-09-02: both schema-bearing regression panel package
+#: outputs now use the shared writer. Other additions made the intervening
+#: tree count 254, so converting the two raw writes lowers the measured
+#: ceiling by one relative to the prior committed ratchet.
+CEILING = 252
 
 #: Files allowed to hold raw calls without argument, and why.
 EXPECTED_HOMES = {
