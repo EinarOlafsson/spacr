@@ -1073,6 +1073,7 @@ class OrthoViews:
         centre.update({str(k): float(v) for k, v in dict(point or {}).items()})
 
         def _canvas(pair, shape):
+            """Return a shared-scale ``Canvas`` for ``pair`` and ``shape``."""
             origin = tuple(lows[a] + 0.5 * scale for a in pair)
             pinned = {a: v for a, v in centre.items() if a not in pair}
             return Canvas(origin=origin, step=(scale, scale), shape=shape,
