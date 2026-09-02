@@ -1,0 +1,277 @@
+"""Nested functions must say what they take and what they return.
+
+Instruction 368: "all functions should have a docstring that explains their
+inputs and outputs, this goes for subfunctions as well."
+
+NESTED FUNCTIONS ARE THE WORST-COVERED AND THE LEAST VISIBLE. Measured
+2026-09-02: module-level functions 92% documented, methods 67%, nested
+functions 32%. And AutoAPI does not emit them at all -- they are not module
+members -- so an undocumented closure is invisible twice: absent from the API
+and unexplained in the source.
+
+THIS IS A RATCHET, NOT A GATE. 436 of 643 were undocumented when it was
+written, and a test that demanded all of them would be red for weeks and
+would say nothing new on any run. It pins a per-module budget instead: a
+module may not gain undocumented nested functions, and every module that is
+improved tightens its own budget automatically.
+"""
+from __future__ import annotations
+
+import ast
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+PACKAGE = ROOT / "spacr"
+
+#: Modules whose nested functions are ALL documented. Nothing may fall out of
+#: this set: it is the part of the codebase where the instruction is met.
+#: Six of the 154 modules that have nested functions, measured 2026-09-02.
+#:
+#: Add a module here the moment its last nested function gets a docstring.
+FULLY_DOCUMENTED = frozenset({
+    "spacr/crops.py",
+    "spacr/group_lasso.py",
+    "spacr/logger.py",
+    "spacr/qt/widgets/measurement_compare_dialog.py",
+    "spacr/sim.py",
+    "spacr/toxo.py",
+})
+
+#: The largest number of UNDOCUMENTED nested functions each module may have.
+#: Generated from the code on 2026-09-02 -- 436 across 148 modules -- rather
+#: than written by hand, because a hand-written budget is wrong the moment it
+#: is typed. The first attempt at this file listed the two WORST modules as
+#: finished, having misread a table of undocumented counts as a table of
+#: documented ones; a generated table cannot make that mistake.
+#:
+#: A module missing from here must have none.
+BUDGET = {
+    "spacr/qt/widgets/figure_settings.py": 28,
+    "spacr/ml.py": 23,
+    "spacr/spacrops.py": 20,
+    "spacr/utils.py": 17,
+    "spacr/qt/widgets/fast_plots.py": 14,
+    "spacr/qt/preferences.py": 12,
+    "spacr/io.py": 10,
+    "spacr/qt/screens/app_screen.py": 10,
+    "spacr/timelapse.py": 9,
+    "spacr/crashreport.py": 8,
+    "spacr/parameter_sweep.py": 8,
+    "spacr/plot.py": 8,
+    "spacr/qt/tutorial/scripts.py": 8,
+    "spacr/qt/widgets/gate_editor.py": 8,
+    "spacr/settings.py": 8,
+    "spacr/qt/app.py": 6,
+    "spacr/qt/screens/distributed_jobs.py": 6,
+    "spacr/qt/screens/plate_view.py": 6,
+    "spacr/regression_summary.py": 6,
+    "spacr/qt/screens/model_zoo.py": 5,
+    "spacr/qt/theme.py": 5,
+    "spacr/qt/widgets/availability_panel.py": 5,
+    "spacr/qt/widgets/formula.py": 5,
+    "spacr/qt/widgets/gate_spec.py": 5,
+    "spacr/classifier_evaluation.py": 4,
+    "spacr/power_model.py": 4,
+    "spacr/qt/screens/annotate.py": 4,
+    "spacr/qt/screens/db_browser.py": 4,
+    "spacr/qt/thread_guard.py": 4,
+    "spacr/qt/widgets/fractal_travel.py": 4,
+    "spacr/attribution.py": 3,
+    "spacr/foreign.py": 3,
+    "spacr/measure.py": 3,
+    "spacr/qt/screens/align.py": 3,
+    "spacr/qt/screens/model_compare.py": 3,
+    "spacr/qt/screens/parameter_sweep.py": 3,
+    "spacr/qt/screens/settings_model.py": 3,
+    "spacr/qt/timing.py": 3,
+    "spacr/qt/widgets/live_preview.py": 3,
+    "spacr/qt/widgets/measurement_scan_panel.py": 3,
+    "spacr/run_journal.py": 3,
+    "spacr/submodules.py": 3,
+    "spacr/_v1_v2_bridge.py": 2,
+    "spacr/accelerator.py": 2,
+    "spacr/active_learning.py": 2,
+    "spacr/classifier_quality.py": 2,
+    "spacr/data_manager.py": 2,
+    "spacr/database_concurrency.py": 2,
+    "spacr/deep_spacr.py": 2,
+    "spacr/doctor.py": 2,
+    "spacr/logging_util.py": 2,
+    "spacr/predictions.py": 2,
+    "spacr/qt/bridge.py": 2,
+    "spacr/qt/prerun.py": 2,
+    "spacr/qt/resource_cleanup.py": 2,
+    "spacr/qt/screens/agreement.py": 2,
+    "spacr/qt/screens/classifier_evaluation.py": 2,
+    "spacr/qt/screens/convert.py": 2,
+    "spacr/qt/screens/foreign.py": 2,
+    "spacr/qt/screens/hyperparam.py": 2,
+    "spacr/qt/screens/power.py": 2,
+    "spacr/qt/screens/regression.py": 2,
+    "spacr/qt/screens/train_compare.py": 2,
+    "spacr/qt/startup_benchmark.py": 2,
+    "spacr/qt/widgets/dna_rain.py": 2,
+    "spacr/qt/widgets/figure_queue.py": 2,
+    "spacr/qt/widgets/graph_builder.py": 2,
+    "spacr/qt/widgets/provider_marks.py": 2,
+    "spacr/qt/widgets/setup_card.py": 2,
+    "spacr/resources/home/versions/_generators/render.py": 2,
+    "spacr/schema.py": 2,
+    "spacr/sequencing.py": 2,
+    "spacr/agreement.py": 1,
+    "spacr/align.py": 1,
+    "spacr/annotation_dataset.py": 1,
+    "spacr/batch.py": 1,
+    "spacr/chaining.py": 1,
+    "spacr/cli.py": 1,
+    "spacr/cli_download.py": 1,
+    "spacr/diameter.py": 1,
+    "spacr/figures/scene.py": 1,
+    "spacr/flowview/trace.py": 1,
+    "spacr/gene_facts.py": 1,
+    "spacr/graph_types.py": 1,
+    "spacr/hits.py": 1,
+    "spacr/hyperparam.py": 1,
+    "spacr/layers.py": 1,
+    "spacr/lineage.py": 1,
+    "spacr/metadata_resolution.py": 1,
+    "spacr/mixed_gpu.py": 1,
+    "spacr/model_compare.py": 1,
+    "spacr/model_zoo.py": 1,
+    "spacr/object.py": 1,
+    "spacr/ome_zarr.py": 1,
+    "spacr/projects.py": 1,
+    "spacr/qt/__init__.py": 1,
+    "spacr/qt/ask_for_the_path.py": 1,
+    "spacr/qt/crop_thumbs.py": 1,
+    "spacr/qt/dnd_handlers.py": 1,
+    "spacr/qt/hf_download.py": 1,
+    "spacr/qt/i18n.py": 1,
+    "spacr/qt/iconset.py": 1,
+    "spacr/qt/regex_detect.py": 1,
+    "spacr/qt/screens/batch.py": 1,
+    "spacr/qt/screens/control_chart.py": 1,
+    "spacr/qt/screens/data_manager.py": 1,
+    "spacr/qt/screens/queue.py": 1,
+    "spacr/qt/screens/report.py": 1,
+    "spacr/qt/screens/run_history.py": 1,
+    "spacr/qt/setup_screen.py": 1,
+    "spacr/qt/space.py": 1,
+    "spacr/qt/synthetic.py": 1,
+    "spacr/qt/verbose_logger.py": 1,
+    "spacr/qt/widget_cleanup.py": 1,
+    "spacr/qt/widgets/ambient.py": 1,
+    "spacr/qt/widgets/annotation_strategy_panel.py": 1,
+    "spacr/qt/widgets/control_chart.py": 1,
+    "spacr/qt/widgets/dose_response.py": 1,
+    "spacr/qt/widgets/feature_dictionary.py": 1,
+    "spacr/qt/widgets/figure_grid.py": 1,
+    "spacr/qt/widgets/foldable.py": 1,
+    "spacr/qt/widgets/folding_summary.py": 1,
+    "spacr/qt/widgets/fractal_mandelbrot.py": 1,
+    "spacr/qt/widgets/graph_spec.py": 1,
+    "spacr/qt/widgets/measure_preview.py": 1,
+    "spacr/qt/widgets/metadata_mapper.py": 1,
+    "spacr/qt/widgets/motility_preview.py": 1,
+    "spacr/qt/widgets/pca_view.py": 1,
+    "spacr/qt/widgets/regression_results.py": 1,
+    "spacr/qt/widgets/umap_figure_settings.py": 1,
+    "spacr/qt/widgets/umap_search_viewer.py": 1,
+    "spacr/qt/widgets/volcano_explorer.py": 1,
+    "spacr/regex_infer.py": 1,
+    "spacr/regression_backends.py": 1,
+    "spacr/regression_diagnostics.py": 1,
+    "spacr/regression_qc.py": 1,
+    "spacr/resources/home/versions/_generators/variants.py": 1,
+    "spacr/resources/icons/backup_icons/_generators/group_trellis_gate_feature_napari.py": 1,
+    "spacr/response_distribution.py": 1,
+    "spacr/seg_qc.py": 1,
+    "spacr/selection.py": 1,
+    "spacr/sequencing_qc.py": 1,
+    "spacr/setting_animations.py": 1,
+    "spacr/settings_advisor.py": 1,
+    "spacr/surrogate.py": 1,
+    "spacr/validate.py": 1,
+    "spacr/workspace.py": 1,
+    "spacr/zstack.py": 1,
+}
+
+
+def _undocumented_nested(path: Path) -> "list[str]":
+    """Nested functions in ``path`` with no docstring, by name."""
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except SyntaxError:                     # pragma: no cover - not our files
+        return []
+    parents = {}
+    for node in ast.walk(tree):
+        for child in ast.iter_child_nodes(node):
+            parents[child] = node
+    out = []
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        if not isinstance(parents.get(node),
+                          (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        if not ast.get_docstring(node):
+            out.append(f"{node.name} (line {node.lineno})")
+    return out
+
+
+def _modules():
+    for path in sorted(PACKAGE.rglob("*.py")):
+        if "i18n_catalogs" in str(path):
+            continue
+        yield path
+
+
+@pytest.mark.parametrize("relative", sorted(FULLY_DOCUMENTED))
+def test_a_finished_module_stays_finished(relative):
+    """These modules document every nested function. None may regress."""
+    missing = _undocumented_nested(ROOT / relative)
+    assert not missing, (
+        f"{relative} was fully documented and gained undocumented nested "
+        f"functions: {missing}")
+
+
+def test_no_module_exceeds_its_budget():
+    """The ratchet. A module may improve; it may not get worse.
+
+    Reported ALL AT ONCE rather than failing on the first module, because a
+    contributor fixing one and rediscovering the next on the following run is
+    how a ratchet becomes an annoyance instead of a guide.
+    """
+    over = []
+    for path in _modules():
+        relative = path.relative_to(ROOT).as_posix()
+        missing = _undocumented_nested(path)
+        allowed = 0 if relative in FULLY_DOCUMENTED else BUDGET.get(relative, 0)
+        if len(missing) > allowed:
+            over.append(f"{relative}: {len(missing)} undocumented nested "
+                        f"functions, budget {allowed} -- {missing[:3]}")
+    assert not over, "\n  ".join(["nested-function budgets exceeded:"] + over)
+
+
+def test_the_budget_names_no_module_that_has_improved_past_it():
+    """A budget that is looser than reality is not a ratchet.
+
+    If a module is fixed and its entry is left behind, the entry silently
+    permits the regression it was meant to prevent. Tightening is mechanical
+    and this says when it is owed.
+    """
+    slack = []
+    for relative, allowed in sorted(BUDGET.items()):
+        actual = len(_undocumented_nested(ROOT / relative))
+        if actual < allowed:
+            slack.append(f"{relative}: budget {allowed}, actually {actual} "
+                         f"-- tighten it to {actual}")
+    assert not slack, "\n  ".join(["budgets are looser than reality:"] + slack)
+
+
+def test_the_budget_names_only_real_modules():
+    """A stale entry for a deleted or renamed module protects nothing."""
+    for relative in sorted(set(BUDGET) | FULLY_DOCUMENTED):
+        assert (ROOT / relative).is_file(), f"{relative} no longer exists"
