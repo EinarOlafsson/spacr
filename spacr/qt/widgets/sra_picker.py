@@ -73,9 +73,18 @@ class _FetchWorker(QThread):
 class SraPicker(QDialog):
     """List the published runs, take a read limit, and fetch what is ticked."""
 
+    #: The width this dialog opens at.
+    #:
+    #: Left to Qt it took the width of its widest ROW -- the read-limit spin
+    #: box and its two labels -- and wrapped both the blurb and the run names
+    #: into a column narrower than either reads well in. A run accession and
+    #: its size on one line is what this list is for.
+    DIALOG_WIDTH = 520
+
     def __init__(self, destination, parent=None, *, files=None):
         super().__init__(parent)
         self.setWindowTitle(tr("Load test data"))
+        self.setMinimumWidth(self.DIALOG_WIDTH)
         self._destination = destination
         self._worker = None
         self.written: list[str] = []
@@ -137,6 +146,13 @@ class SraPicker(QDialog):
             self._load_the_listing()
         else:
             self._show(self._files)
+
+        # AS SMALL AS THE CONTENT NEEDS, once the list has been filled --
+        # after, because the runs are what decide how tall it wants to be.
+        # Asked for on 2026-09-02 about the sibling dialog and applied here
+        # for the same reason: a window that opens taller than its contents
+        # is a window the user has to fix before reading it.
+        self.adjustSize()
 
     # -- listing -------------------------------------------------------
     def _load_the_listing(self) -> None:

@@ -59,10 +59,33 @@ class TestDataChooser(QDialog):
     RESTING_TEXT = ("Hover a button to see what it downloads and what it "
                     "sets. Nothing is fetched until you press one.")
 
+    #: The width the dialog opens at, and the width the pane is measured at.
+    #:
+    #: A DIALOG THIS SIZE IS DECIDED BY ITS TEXT, and the text is two
+    #: paragraphs. Left to Qt the buttons set the width -- "Load" and
+    #: "Stream" are short, so the dialog came out 282 px wide and the
+    #: descriptions became a tall thin ribbon: 187 px of pane for 316
+    #: characters, in a window 509 px tall. At this width each route is a
+    #: few lines and the whole dialog is under half that.
+    #:
+    #: Reported on 2026-09-02: "the loade test data window in annotate
+    #: started out way to tall. make it be as small as possible while still
+    #: fitting the text".
+    DIALOG_WIDTH = 460
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle(tr("Load test data"))
         self.chosen = ""
+        # SET BEFORE THE PANE IS MEASURED, because the measurement asks how
+        # tall the longest description is AT A GIVEN WIDTH. Measuring at one
+        # width and displaying at another is what left the pane sized for a
+        # column it never had.
+        self.setMinimumWidth(self.DIALOG_WIDTH)
+        #: Whether a layout pass has given the pane a real width. Until one
+        #: has, the pane reports the 100 px every freshly constructed widget
+        #: reports, which is not a width it will ever be drawn at.
+        self._laid_out = False
 
         layout = QVBoxLayout(self)
 
@@ -109,6 +132,12 @@ class TestDataChooser(QDialog):
         closing.addWidget(close)
         layout.addLayout(closing)
 
+        # AS SMALL AS IT CAN BE WHILE FITTING THE TEXT. Without this the
+        # dialog opened at 509 px tall against a layout that wanted 271:
+        # nothing had asked it to be that size, and nothing had asked it not
+        # to be. `adjustSize` is the ask.
+        self.adjustSize()
+
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
         """Fill the pane on hover, and empty it on leave."""
         kind = event.type()
@@ -149,9 +178,7 @@ class TestDataChooser(QDialog):
         placeholder and measuring against it would size for a pane one pixel
         wide.
         """
-        width = self._description.width()
-        if width <= 1:
-            width = max(self.sizeHint().width(), 360)
+        width = self._measurement_width()
         metrics = QFontMetrics(self._description.font())
         tallest = 0
         for text in self.every_description():
@@ -166,6 +193,29 @@ class TestDataChooser(QDialog):
         self._description.setMinimumHeight(tallest)
         self._description.setMaximumHeight(tallest)
 
+    def _measurement_width(self) -> int:
+        """The width the pane will actually be drawn at.
+
+        Its own, ONCE A LAYOUT HAS RUN, and not before -- which is the whole
+        fix. A freshly constructed QWidget reports 100 px, a number Qt gives
+        every widget before anything sizes it and which this pane is never
+        drawn at. The old guard only rejected widths of 1 or less, so it
+        took the 100, wrapped 316 characters into a 100 px column, and
+        reserved 425 px of height for a pane that needs 119. That is where a
+        509 px dialog came from: not from the text, from measuring the text
+        against a placeholder.
+
+        Before the layout runs, the dialog's INTENDED width minus the
+        layout's margins. Not `sizeHint().width()` either -- at construction
+        that is whatever the two short buttons need, which is narrower still.
+        """
+        if self._laid_out and self._description.width() > 1:
+            return self._description.width()
+        layout = self.layout()
+        margins = layout.contentsMargins() if layout is not None else None
+        inset = (margins.left() + margins.right()) if margins is not None else 0
+        return max(self.DIALOG_WIDTH - inset, 240)
+
     def resizeEvent(self, event):  # noqa: N802 - Qt name
         """Re-measure when the dialog is resized.
 
@@ -174,6 +224,9 @@ class TestDataChooser(QDialog):
         this dialog, so this is reachable.
         """
         super().resizeEvent(event)
+        # A RESIZE IS THE PROOF a layout pass has happened, so from here the
+        # pane's own width is the real one and is what to measure against.
+        self._laid_out = True
         self._size_the_description_pane()
 
     def _choose(self, key: str) -> None:

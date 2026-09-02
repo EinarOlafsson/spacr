@@ -106,3 +106,57 @@ def test_a_longer_description_would_be_caught(chooser, monkeypatch):
     pane = chooser._description
     enormous = ("A sentence that keeps going. " * 200)
     assert wrapped_height(pane, enormous) > pane.height()
+
+
+# ---------------------------------------------------------------------------
+# ...and no taller than it has to be
+# ---------------------------------------------------------------------------
+#
+# Reported on 2026-09-02: "the loade test data window in annotate started out
+# way to tall. make it be as small as possible while still fitting the text".
+#
+# It opened 509 px tall against a layout wanting 203, and the cause was in
+# this file's own subject matter: the pane measured how tall its text would
+# be AT ITS OWN WIDTH, and asked before any layout had run, when every Qt
+# widget reports the placeholder 100 px. Wrapping 316 characters into a
+# 100 px column reserves 425 px of height for a pane that needs 119.
+#
+# Both properties are pinned, because either alone is satisfiable by ruining
+# the other: text that fits, and a window no bigger than the text needs.
+
+def test_the_dialog_opens_no_taller_than_its_contents(chooser):
+    """As small as possible while still fitting the text."""
+    assert chooser.height() <= chooser.sizeHint().height(), (
+        f"opened {chooser.height()} px tall for contents wanting "
+        f"{chooser.sizeHint().height()}")
+
+
+def test_the_pane_is_measured_at_a_width_it_will_really_have(chooser):
+    """The placeholder 100 px is what made it tall, so it is what is
+    checked: the pane must be measured against the width it is drawn at."""
+    pane = chooser._description
+    assert pane.width() > 200, (
+        "the pane is being drawn in a column narrower than the dialog was "
+        "designed for; the height measured against it will be wrong")
+    tallest = max(wrapped_height(pane, text)
+                  for text in chooser.every_description())
+    # Fits, with the slack the sizing deliberately adds -- and not four
+    # times over, which is what measuring against 100 px produced.
+    assert tallest <= pane.height() <= tallest + 2 * pane.fontMetrics().lineSpacing()
+
+
+def test_a_construction_time_measurement_does_not_use_the_placeholder():
+    """Before any layout, the pane must not believe its own width.
+
+    Driven without showing the dialog, which is the state the bug lived in:
+    `QWidget.width()` is 100 for everything that has never been laid out.
+    """
+    from spacr.qt.widgets.test_data_chooser import TestDataChooser
+
+    dialog = TestDataChooser()
+    try:
+        assert dialog._laid_out is False
+        assert dialog._measurement_width() >= 240
+        assert dialog._measurement_width() != 100
+    finally:
+        dialog.deleteLater()
