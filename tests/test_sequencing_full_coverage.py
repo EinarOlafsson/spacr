@@ -900,6 +900,55 @@ def test_generate_barecode_mapping_skips_a_sample_with_no_reads(
     assert not os.path.isdir(os.path.join(str(tmp_path), "S1_paired"))
 
 
+def test_generate_barecode_mapping_names_a_missing_paired_mate(
+        tmp_path, mapping_env, monkeypatch, caplog):
+    """A partial pair is skipped at the sample boundary with useful context."""
+    import spacr.io as IO
+    monkeypatch.setattr(
+        IO, "parse_gz_files",
+        lambda src: {"archive_run": {"R1": os.path.join(src, "run_1.fastq.gz")}})
+
+    with caplog.at_level("WARNING", logger="spacr.sequencing"):
+        SEQ.generate_barecode_mapping({"src": str(tmp_path),
+                                       "mode": "paired"})
+
+    assert mapping_env == []
+    assert "archive_run: skipped" in caplog.text
+    assert "paired mode needs R1 and R2" in caplog.text
+    assert "has R1" in caplog.text
+
+
+def test_generate_barecode_mapping_single_falls_back_to_the_available_mate(
+        tmp_path, mapping_env, monkeypatch):
+    """Single-read decoding can use the sole mate when the preferred one is absent."""
+    import spacr.io as IO
+    only_r1 = os.path.join(str(tmp_path), "run_1.fastq.gz")
+    monkeypatch.setattr(IO, "parse_gz_files",
+                        lambda src: {"archive_run": {"R1": only_r1}})
+
+    SEQ.generate_barecode_mapping({"src": str(tmp_path), "mode": "single",
+                                   "single_direction": "R2"})
+
+    assert [call[0] for call in mapping_env] == ["single", "qc"]
+    assert mapping_env[0][1]["r1_file"] == only_r1
+    assert mapping_env[0][1]["r2_file"] is None
+
+
+def test_generate_barecode_mapping_names_an_empty_single_sample(
+        tmp_path, mapping_env, monkeypatch, caplog):
+    import spacr.io as IO
+    monkeypatch.setattr(IO, "parse_gz_files",
+                        lambda src: {"archive_run": {}})
+
+    with caplog.at_level("WARNING", logger="spacr.sequencing"):
+        SEQ.generate_barecode_mapping({"src": str(tmp_path), "mode": "single",
+                                       "single_direction": "R2"})
+
+    assert mapping_env == []
+    assert "single mode needs R2" in caplog.text
+    assert "has nothing" in caplog.text
+
+
 # ---------------------------------------------------------------------------
 # barecodes_reverse_complement
 # ---------------------------------------------------------------------------
