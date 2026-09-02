@@ -264,14 +264,16 @@ def transaction(
     if changed_timeout:
         connection.execute(f"PRAGMA busy_timeout = {attempt_busy_timeout}")
     try:
-        for attempt in range(1, attempts + 1):
+        attempt = 0
+        while True:
+            attempt += 1
             try:
                 connection.execute(f"BEGIN {selected}")
                 break
             except sqlite3.OperationalError as exc:
                 if not is_busy_error(exc):
                     raise
-                if attempt == attempts:
+                if attempt >= attempts:
                     raise DatabaseBusy(
                         f"database remained locked after {attempts} "
                         f"transaction attempts: {exc}") from exc
