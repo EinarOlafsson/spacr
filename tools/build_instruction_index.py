@@ -71,7 +71,7 @@ STAGE: Dict[str, str] = {
     "288": "coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; 1 open issue",
     "304": "~60% -- metadata in place; needs the Zenodo toggle and the bump",
     "305": "~60% -- startup accepted from an installed wheel; sdist, GPU, matrix, profiles left",
-    "306": "~90% -- catalogs source-current, but the caption ratchet is RED (6 failures)",
+    "306": "~93% -- 3 of 6 ratchet tests closed; 125 catalog rows owed, 6 compact rows need the maintainer",
     "310": "~27% -- 26 of 97 entries resolved; approximate, see the audit note",
     "314": "~35% -- diagnosed only; eleven causes eliminated and none is the defect",
     "315": "~75% -- 3a/3b/3c fixed; 3d now itemised into three named optimisations",
