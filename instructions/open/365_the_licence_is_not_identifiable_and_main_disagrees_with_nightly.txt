@@ -1,0 +1,97 @@
+================================================================================
+THE LICENCE IS NOT IDENTIFIABLE, AND THE TWO BRANCHES DO NOT AGREE ON IT
+================================================================================
+
+Status:    diagnosed 2026-09-02, not fixed. NEEDS THE MAINTAINER: the fix
+           touches `main`, and which licence is correct is not a decision to
+           be made from a branch diff.
+Requested: 2026-09-02 -- "i have a licence not identifiable on github, please
+           make the licence identifiable"
+Owner:     LICENSE, README.rst, pyproject.toml.
+
+--------------------------------------------------------------------------------
+WHAT GITHUB ACTUALLY REPORTS
+--------------------------------------------------------------------------------
+
+    GET /repos/EinarOlafsson/spacr
+    "license": { "key": "other", "spdx_id": "NOASSERTION", "name": "Other" }
+
+So GitHub is not failing to identify a BSD licence. It is correctly
+identifying a DIFFERENT licence, and one it does not have a name for.
+
+--------------------------------------------------------------------------------
+THE CAUSE: THE DEFAULT BRANCH CARRIES A DIFFERENT LICENCE
+--------------------------------------------------------------------------------
+
+GitHub reads the LICENSE file on the DEFAULT branch, and the default branch
+is `main`. The two branches do not hold the same licence:
+
+    main     PolyForm Noncommercial License 1.0.0   (116 lines)
+    nightly  BSD 3-Clause License                   (29 lines)
+
+`nightly` was relicensed on 2026-08-31 in commit c242e7fdc, "Relicense spaCR
+under BSD 3-Clause", which replaced 0d366f5e7 of 2026-07-30, "legal: adopt
+PolyForm noncommercial for future releases". `main` never received it.
+
+  THIS IS NOT A COSMETIC PROBLEM. The two licences are not compatible in
+  either direction -- one is a permissive licence allowing commercial use,
+  the other forbids commercial use entirely. Anyone who cloned the default
+  branch since 2026-08-31 took the code under PolyForm Noncommercial.
+
+  THE README IS CURRENTLY WRONG IN A WAY A READER CAN SEE. Its "Licensing"
+  section says spaCR "is released under the BSD 3-Clause License" and links
+  to `blob/main/LICENSE` -- a URL that serves the PolyForm text today. The
+  sentence and the link it sits on contradict each other.
+
+--------------------------------------------------------------------------------
+WHY GITHUB CANNOT NAME POLYFORM EITHER
+--------------------------------------------------------------------------------
+
+Worth recording so the fix is not misdirected at the LICENSE text. GitHub
+detects licences with `licensee`, which matches against the
+choosealicense.com set. PolyForm Noncommercial is a real licence with a real
+SPDX identifier (`PolyForm-Noncommercial-1.0.0`) but is NOT in that set, so
+even a perfect copy of it reports NOASSERTION. If the maintainer decides
+PolyForm is the correct licence, "identifiable on GitHub" is not achievable
+and the answer is to say so in the README instead.
+
+The BSD 3-Clause file on `nightly` was diffed against GitHub's own canonical
+copy (`GET /licenses/bsd-3-clause`). It differs only in the copyright line
+and a trailing newline, both of which `licensee` normalises away. So that
+file will be detected the moment it is the one on the default branch --
+there is nothing to fix in the text itself.
+
+--------------------------------------------------------------------------------
+WHAT TO DO -- THE MAINTAINER CHOOSES FIRST
+--------------------------------------------------------------------------------
+
+QUESTION ONE, and nothing proceeds without it: is BSD 3-Clause the intended
+licence for spaCR, or was the 2026-08-31 relicence to `nightly` provisional?
+
+  IF BSD 3-CLAUSE IS INTENDED:
+    1. Bring `main`'s LICENSE to the BSD 3-Clause text. GitHub re-detects
+       within minutes of the default branch changing.
+    2. Add an SPDX declaration to `pyproject.toml`, which today says only
+       `license = { file = "LICENSE" }` and names no licence at all. PEP 639
+       spelling: `license = "BSD-3-Clause"`. This is what PyPI and downstream
+       packagers read, and it is a separate claim from the LICENSE file.
+    3. Check the conda recipe and the desktop installers for a licence field,
+       and the EULA in `spacr/qt/terms.py`, which is a SEPARATE agreement from
+       the source licence and must not contradict it.
+    4. Consider a line in the README saying when the relicence took effect.
+       Users who took PolyForm code before it are not retroactively covered.
+
+  IF POLYFORM IS INTENDED: revert `nightly`'s LICENSE, correct the README's
+  "Licensing" section, which currently claims BSD, and accept NOASSERTION on
+  GitHub with a sentence explaining it.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* `gh api repos/EinarOlafsson/spacr --jq .license.spdx_id` returns the
+  intended identifier rather than NOASSERTION -- or this file records why
+  NOASSERTION is the correct outcome.
+* `main` and `nightly` hold the same LICENSE file.
+* The README's licence sentence and the file its link resolves to agree.
+* `pyproject.toml` names the licence, not only the file.
