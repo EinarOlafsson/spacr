@@ -2,7 +2,16 @@
 THREE MORE ANNOTATE TESTS FAIL, AND ONE OF THEM ONLY IN COMPANY
 ================================================================================
 
-Status:    not started, filed 2026-09-02.
+Status:    DONE 2026-09-02. Both order-dependent failures fixed, and
+           neither was a test defect -- an unowned `QTimer.singleShot` that
+           fired into a deleted button 1.2 s after teardown (a production bug
+           too), and a dialog whose floor was read before the stylesheet
+           reached its children, so it opened eight pixels short of its own
+           content. The second was fixed in `spacr/qt/dialogs.py` rather than
+           in Annotate, which closed `ExecutionProfileDialog` with it.
+           VERIFIED: the three named tests and their whole files, 382 passed
+           together; the pair that reproduced the stray timer, 102 passed +
+           1 error before, 103 passed after.
 Requested: not requested -- found while closing 341, and filed rather than
            narrated so it stops being rediscovered.
 Owner:     unassigned. Claude's lane (tests/qt).
