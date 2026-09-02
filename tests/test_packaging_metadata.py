@@ -795,6 +795,11 @@ def test_ci_installs_core_only_on_every_python_and_runs_the_fractal_extra():
     assert "allow-prereleases: ${{ matrix.python-version == '3.15' }}" in workflow
     assert "Install the core graph and import spaCR" in workflow
     assert "--extra-index-url https://download.pytorch.org/whl/cpu ." in workflow
+    install_step = workflow.split(
+        "- name: Install the core graph and import spaCR", 1
+    )[1].split("python - <<'PY'", 1)[0]
+    assert "--only-binary :all:" in install_step
+    assert "--no-binary trackpy,matplotlib-venn,gputil" in install_step
     assert "import spacr" in workflow
     assert "an extras-only distribution leaked into the core install" in workflow
 
