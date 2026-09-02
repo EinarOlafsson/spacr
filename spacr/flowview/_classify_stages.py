@@ -133,6 +133,12 @@ def _skip(collector: Collector, node_id: str, at: float) -> None:
 
 
 def _fresh_collector(settings: Mapping[str, Any], family: str) -> Collector:
+    """Create, install, and return a collector for one Classify run.
+
+    :param settings: Classify settings copied into the new graph blueprint.
+    :param family: Classifier family recorded in the copied settings.
+    :returns: Enabled collector with a fresh run identifier and start time.
+    """
     effective = dict(settings)
     effective["classifier_family"] = family
     started_at = _CLOCK()
