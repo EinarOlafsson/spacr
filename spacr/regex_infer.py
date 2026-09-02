@@ -465,6 +465,14 @@ def _assign_roles(slots: Sequence[FieldEvidence]) -> None:
             taken.add(info.role)
 
     def claim(info, role, because):
+        """Assign one still-available role to a slot.
+
+        :param info: field evidence to update when the claim succeeds.
+        :param role: proposed regex-group role; false-like roles are rejected.
+        :param because: explanation recorded with a successful assignment.
+        :returns: True after assigning and reserving a previously unused role;
+            otherwise False without changing the evidence or captured set.
+        """
         if role and role not in taken:
             info.role, info.because = role, because
             taken.add(role)
