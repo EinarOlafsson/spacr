@@ -148,3 +148,68 @@ def test_inference_reads_a_sample_not_the_whole_tree(corpus, tmp_path):
         p.write_bytes(b"")
     layout = infer_layout(root, sample=10)
     assert layout.sampled == 10, layout.sampled
+
+
+# ---------------------------------------------------------------------------
+# What the names cannot carry: axes inside the file.
+# ---------------------------------------------------------------------------
+
+def test_the_channel_inside_an_ome_file_is_read(corpus):
+    """``flat_ome``'s channels are pages, and the file says so."""
+    from spacr.image_import import read_axes_inside
+
+    tree = corpus["flat_ome"]
+    for path in sorted(tree.root.rglob("*.tif")):
+        inside = read_axes_inside(path)
+        assert inside.declared, f"{path.name}: the OME axes were not read"
+        assert inside.sizes.get("c") == 2, inside.sizes
+        assert not inside.is_ambiguous
+
+
+def test_a_z_stack_and_a_timelapse_are_told_apart(corpus):
+    """The pair the corpus exists to separate.
+
+    ``z_stack_in_file`` and ``time_in_file`` have IDENTICAL filenames and the
+    same page count. Nothing about the name distinguishes them, and a page
+    index alone means nothing -- so if this passes, it is the file's own
+    metadata doing the work and nothing else.
+    """
+    from spacr.image_import import read_axes_inside
+
+    z = read_axes_inside(sorted(corpus["z_stack_in_file"].root.rglob("*.tif"))[0])
+    t = read_axes_inside(sorted(corpus["time_in_file"].root.rglob("*.tif"))[0])
+    assert z.pages == t.pages == 5, (z.pages, t.pages)
+    assert z.sizes == {"z": 5}, z.sizes
+    assert t.sizes == {"t": 5}, t.sizes
+
+
+def test_pages_with_no_metadata_are_reported_as_unknown(tmp_path):
+    """The honest unknown, and the one that must never be guessed.
+
+    A multi-page TIFF carrying no axis metadata could be Z, T or C. Picking
+    one would produce a plate with a confidently wrong shape -- so the page
+    count is reported and ``declared`` stays False.
+    """
+    import numpy as np
+    import tifffile
+
+    from spacr.image_import import read_axes_inside
+
+    path = tmp_path / "mystery.tif"
+    tifffile.imwrite(str(path), np.zeros((3, 4, 4), dtype=np.uint16),
+                     photometric="minisblack")
+    inside = read_axes_inside(path)
+    assert inside.pages == 3
+    assert inside.is_ambiguous, "three unexplained pages were treated as known"
+    assert not inside.sizes, f"an axis was invented: {inside.sizes}"
+
+
+def test_an_unreadable_file_does_not_stop_the_scan(tmp_path):
+    """One truncated file must not fail a folder of thousands."""
+    from spacr.image_import import read_axes_inside
+
+    broken = tmp_path / "truncated.tif"
+    broken.write_bytes(b"II*\x00 not really a tiff")
+    inside = read_axes_inside(broken)
+    assert inside.pages == 0
+    assert not inside.declared

@@ -90,12 +90,29 @@ class CorpusTree:
         return {t["channel"] for t in self.truth.values() if "channel" in t}
 
 
-def _write(path: Path, pages: int = 1) -> None:
-    """Write a tiny TIFF, multi-page when ``pages`` > 1."""
+def _write(path: Path, pages: int = 1, axes: str = "") -> None:
+    """Write a tiny TIFF, multi-page when ``pages`` > 1.
+
+    ``axes`` NAMES WHAT THE PAGES ARE -- ``"ZYX"``, ``"TYX"``, ``"CYX"`` --
+    and is written into the file, because that is what a real microscope
+    emits and it is the only thing that can tell a Z-stack from a timelapse.
+    Without it tifffile reads a ``(2, 4, 4)`` array back as ONE image with two
+    samples per pixel, not as two pages, so a corpus that omitted it was
+    testing against files no microscope produces.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
-    data = np.zeros((pages, *TILE), dtype=np.uint16) if pages > 1 else \
-        np.zeros(TILE, dtype=np.uint16)
-    tifffile.imwrite(str(path), data)
+    if pages <= 1:
+        tifffile.imwrite(str(path), np.zeros(TILE, dtype=np.uint16))
+        return
+    data = np.zeros((pages, *TILE), dtype=np.uint16)
+    # `photometric="minisblack"` OR THE FIRST AXIS IS READ AS SAMPLES-PER-
+    # PIXEL: a (2, 4, 4) array with no hint comes back as one RGB-ish image
+    # rather than two pages, which is not what any of these trees mean.
+    kwargs = {"metadata": {"axes": axes or "ZYX"},
+              "photometric": "minisblack"}
+    if path.name.endswith((".ome.tif", ".ome.tiff")):
+        kwargs["ome"] = True
+    tifffile.imwrite(str(path), data, **kwargs)
 
 
 def _tree(name, root, truth, metadata_type, note) -> CorpusTree:
@@ -172,7 +189,7 @@ def build_flat_ome(root: Path) -> CorpusTree:
     for well in WELLS:
         for f in FIELDS:
             rel = f"Plate1_{well}_F{f:03d}.ome.tif"
-            _write(root / rel, pages=len(CHANNELS))
+            _write(root / rel, pages=len(CHANNELS), axes="CYX")
             truth[rel] = {"plate": "Plate1", "well": well, "field": f,
                           "channels_inside": len(CHANNELS)}
     return _tree("flat_ome", root, truth, "",
@@ -213,7 +230,7 @@ def build_z_stack_in_file(root: Path) -> CorpusTree:
         for f in FIELDS:
             for c in CHANNELS:
                 rel = f"plate1_{well}_F{f:03d}_C{c}.tif"
-                _write(root / rel, pages=5)
+                _write(root / rel, pages=5, axes="ZYX")
                 truth[rel] = {"plate": "plate1", "well": well, "field": f,
                               "channel": c, "z_pages": 5}
     return _tree("z_stack_in_file", root, truth, "",
@@ -226,12 +243,12 @@ def build_time_in_file(root: Path) -> CorpusTree:
         for f in FIELDS:
             for c in CHANNELS:
                 rel = f"plate1_{well}_F{f:03d}_C{c}.tif"
-                _write(root / rel, pages=5)
+                _write(root / rel, pages=5, axes="TYX")
                 truth[rel] = {"plate": "plate1", "well": well, "field": f,
                               "channel": c, "t_pages": 5}
     return _tree("time_in_file", root, truth, "",
-                 "Byte-identical in layout to z_stack_in_file: only the "
-                 "file's own metadata says whether the pages are Z or T.")
+                 "Identical in NAME to z_stack_in_file: only the file's "
+                 "own axes metadata says whether the pages are Z or T.")
 
 
 def build_tiled(root: Path) -> CorpusTree:

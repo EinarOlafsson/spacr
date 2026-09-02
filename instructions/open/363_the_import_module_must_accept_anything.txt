@@ -2,9 +2,9 @@
 THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
 ================================================================================
 
-Status:    CORPUS BUILT, GAP MEASURED, AND THE INFERENCE PASS WORKS --
-           8 of 10 layouts from names alone, against 2 of 10 for the fixed
-           convention list. The reviewable table, reading inside files, and
+Status:    CORPUS BUILT, GAP MEASURED, INFERENCE AND FILE-METADATA READING
+           WORK -- 9 of 10 layouts, against 2 of 10 for the fixed convention
+           list. The reviewable table, reading inside files, and
            writing the project are not started. Filed as 360, renumbered to 363 the
            same day (see 362 for why).
 Requested: 2026-09-02, verbatim -- "spacr has an import data module, this
@@ -192,8 +192,9 @@ THE INFERENCE PASS EXISTS: 8 OF 10, AND TWO HONEST REFUSALS
 sample of the folder rather than matching a whole filename against one of N
 templates.
 
-    fixed convention list   2 of 10 parse, 8 recover nothing
-    inference               8 of 10 fully resolved from names alone
+    fixed convention list          2 of 10 parse, 8 recover nothing
+    inference from names           8 of 10
+    plus reading inside the file   9 of 10
 
   THE OTHER TWO ARE REFUSALS, NOT FAILURES, and this is the design working:
     * `flat_ome` -- the channel is a PAGE INSIDE THE FILE. No name can carry
@@ -227,9 +228,25 @@ templates.
   `test_no_file_is_silently_dropped` exists because placed-plus-skipped is
   the only total that catches the first one.
 
-  STILL TO DO for this part: read the axes that live INSIDE files (the
-  `flat_ome` case), offer the user a mapping for an unplaced axis (the
-  `per_channel_folder` case), the reviewable table, and writing the project.
+  READING INSIDE THE FILE closes `flat_ome`: `read_axes_inside(path)` takes
+  the axes from the file's own metadata, so an OME-TIFF's two channels are
+  found, and -- the pair the corpus exists to separate -- a Z-stack and a
+  timelapse with IDENTICAL filenames and the same page count are told apart,
+  z=5 against t=5. Nothing but the file can do that.
+
+  IT REFUSES TO GUESS, and a test caught the first version doing so. A
+  three-page TIFF with no axis metadata could be Z, T or C. tifffile reports
+  its axes as `QYX`, and `Q` is tifffile's word for "these pages exist and I
+  do not know what they are" -- the first `declared` check accepted any axis
+  letter that was not Y, X or S, so `Q` passed and an unlabelled stack came
+  back as known. `declared` now means a NAMED C, Z or T axis was found and
+  nothing weaker; `is_ome` / `is_imagej` are not sufficient either, since a
+  file can carry either container and still not say what its pages mean.
+
+  STILL TO DO for this part: offer the user a mapping for an unplaced axis
+  (the `per_channel_folder` case, where DAPI/GFP folders are correctly
+  reported but nothing maps a dye to an index), the reviewable table, and
+  writing the project.
 
 --------------------------------------------------------------------------------
 ALREADY FIXED WHILE WRITING THIS FILE
