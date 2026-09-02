@@ -556,3 +556,13 @@ Final current-source result for ``spacr/plot.py``: 3041/3041 statements and
 1144/1144 branches, 100.00%, with zero missing lines and zero partial branches.
 This closes the plot module's part of 288; it does not make a whole-repository
 coverage claim.
+
+--------------------------------------------------------------------------------
+2026-09-02 — SPACROPS IS 100.00% ON CURRENT SOURCE
+--------------------------------------------------------------------------------
+
+A fresh guarded run of the 18 direct non-Qt spacrops test files passed all 506
+tests.  ``spacr/spacrops.py`` measured 2099/2099 statements and 844/844
+branches, 100.00%, with zero missing lines and zero partial branches.  No
+production or test change was needed.  This closes the spacrops module's part
+of 288; it does not make a whole-repository coverage claim.
