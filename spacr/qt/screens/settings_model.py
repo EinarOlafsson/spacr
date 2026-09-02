@@ -936,7 +936,22 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         # A closed alphabet: there are two families and a typo in a free-text
         # box would raise ClassifierFamilyError at run time, after the user
         # had walked away.
-        "classifier_family": ["cv", "ml"],
+        #
+        # (value, label) PAIRS, asked for on 2026-09-02: "in classify in
+        # classifier family spell out computer vision and machine learning
+        # and change machine learning to Tabular Machine Learning and cv to
+        # Computer vision (Torch)". "cv" and "ml" are abbreviations of
+        # abbreviations -- a dropdown reading `cv` / `ml` asks the user to
+        # already know which of two whole disciplines this module means, and
+        # the distinction that matters is what each one READS: one is fed
+        # object crops through Torch, the other rows of measured features.
+        # The stored values are unchanged, so every settings file already
+        # written goes on meaning what it meant, and `spacr.classify`
+        # dispatches on the same two strings.
+        "classifier_family": [
+            ("cv", "Computer Vision (Torch)"),
+            ("ml", "Tabular Machine Learning"),
+        ],
         # set_default_classify gives this screen all eight batch_* keys, so
         # it corrects batches exactly like the other three — but it was the
         # one app that listed no alphabet for them.

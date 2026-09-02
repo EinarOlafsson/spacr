@@ -3478,6 +3478,20 @@ class CellMontageView(QWidget):
         ]
         return "\n".join(lines)
 
+    def clear(self) -> None:
+        """Empty every open well tab's grid, leaving the tabs standing.
+
+        PUBLIC BECAUSE IT IS CALLED FROM OUTSIDE, which it was already: the
+        Regression screen empties this view when the loaded run changes,
+        because a montage answering a coefficient from the previous run's
+        table means nothing under the new one. It called ``clear()`` -- the
+        obvious name, and the name the well tabs themselves use -- and got an
+        AttributeError every time, reported by a user on 2026-09-02 (issue
+        116) whose Cells tab kept showing the run before the one he had just
+        loaded.
+        """
+        self._clear()
+
     def _clear(self) -> None:
         """Empty every open well tab's grid, leaving the tabs standing."""
         for tab in self.well_tabs():
