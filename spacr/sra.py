@@ -1,9 +1,8 @@
 """Fetch sequencing reads for the published screen straight from ENA/NCBI.
 
-Asked for on 2026-09-01: Map Barcodes should offer the paper's own sequencing
-data, and "it would be awesome if the application could download straight from
-NCBI and even better if the user could specify how many sequencing lines from
-each file".
+Map Barcodes can fetch the paper's own sequencing data directly. Each download
+accepts a read limit per file, so a small representative subset does not
+require transferring the complete archive.
 
 The reads are NCBI BioProject :data:`DEFAULT_BIOPROJECT`, runs
 SRR33531217-SRR33531220 -- the four plates, paired, named ``hilib_p1`` through
