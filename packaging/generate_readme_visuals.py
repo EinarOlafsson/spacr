@@ -85,62 +85,40 @@ DOCS_LOGO_SIZE = 512
 DOCS_LOGO_RADIUS = 96
 DOCS_LOGO_MARK = 340
 DOCS_LOGO_TEAL = (16, 52, 58, 255)  # #10343A
-# Percentage widths keep the linked images responsive on both GitHub and the
-# Sphinx API. The rows leave a little rounding headroom so the browser never
-# moves the last tile onto a new line.
-PIPELINE_DISPLAY_PERCENT = 14.5
-ARROW_DISPLAY_PERCENT = 2.5
-# SIX per band, so the largest section fits on one line: Home's bands are
-# 6, 6, 5 and 4 since the 2026-08-31 restructure, and a band that wraps
-# reads as two groups.
-APP_COLUMNS = 6
-APP_TILE_PADDING = 16
-APP_TILE_SIZE = BUTTON_SIZE - 2 * APP_TILE_PADDING
-# EVERY BUTTON THE SAME SIZE ON THE PAGE, asked for on 2026-08-31: "the
-# dimensions of the core module buttons should be the same as the other
-# module buttons".
+# ONE GRID OF IDENTICAL TILES, asked for on 2026-09-02: "make them all
+# the same size and present them on an evenly spaced grid with 6 modules
+# per row".
 #
-# They were not, and the reason is that the two rows carry different
-# things. The core row is six buttons AND five arrows in the full width;
-# an app row is six buttons. Sizing both rows to the same total width
-# therefore had to make the core buttons narrower -- 14.5% against an
-# effective 15.5% -- because the arrows have to come out of somewhere.
+# WHAT THIS REPLACED, so it is not rebuilt by accident. The modules used
+# to be drawn as two different things: a six-wide pipeline STRIP joined by
+# arrow glyphs, then three named bands ("Data", "Tools", "Assays") of
+# smaller tiles underneath. That made three separate problems, and they
+# were one problem:
 #
-# So the width the rows share is dropped, and the size the BUTTONS share
-# is kept instead. A core tile fills its 512px canvas; an app tile is
-# APP_TILE_SIZE inside one, so its canvas has to be wider by exactly that
-# ratio to draw the same number of pixels.
+#   * the two kinds of tile could not be the same size, because the strip
+#     had to fit six buttons AND five arrows in the width the bands used
+#     for six buttons, so the arrows came out of the buttons;
+#   * the bands were 6, 5 and 4 wide, so three of four rows ended short
+#     and the grid never read as a grid;
+#   * the band titles duplicated the Home screen's own grouping, and went
+#     stale every time Home was restructured.
 #
-# The consequence is deliberate: an app row now ends short of the right
-# margin rather than reaching it. Rows already anchor left, so a short
-# row was always the normal case -- three of the four bands are short.
-APP_DISPLAY_PERCENT = round(
-    PIPELINE_DISPLAY_PERCENT * BUTTON_SIZE / APP_TILE_SIZE - 0.0005, 3)
-# EVERY TILE DRAWN AT THE SAME OFFSET IN ITS CANVAS -- asked for as "make
-# all buttons the same size and aligned to the left".
-#
-# This used to distribute each tile's transparent gutter across the row,
-# left to right, so a FULL row met both edges of the core row above it
-# with one constant gap. The cost was that a button's position depended
-# on which column it landed in, so the same module moved within its
-# canvas when the row above it changed length -- and with bands of 6, 6,
-# 5 and 4, three of the four rows are short. A constant offset draws
-# every button identically and anchors every row, full or not, to the
-# left edge.
-APP_COLUMN_STEP = 0
-PIPELINE_DISPLAY_WIDTH = f"{PIPELINE_DISPLAY_PERCENT}%"
-ARROW_DISPLAY_WIDTH = f"{ARROW_DISPLAY_PERCENT}%"
-APP_DISPLAY_WIDTH = f"{APP_DISPLAY_PERCENT}%"
-
-# Match the arrow canvas aspect ratio to its displayed width relative to a
-# square pipeline tile. Even renderers that ignore RST's ``:align: middle``
-# therefore show the arrow glyph halfway up the neighbouring tiles.
-ARROW_CANVAS_WIDTH = 100
-ARROW_CANVAS_HEIGHT = round(
-    ARROW_CANVAS_WIDTH
-    * PIPELINE_DISPLAY_PERCENT
-    / ARROW_DISPLAY_PERCENT
-)
+# Deleting the arrows removed the width difference, which is what let
+# every tile become the same size, which is what makes an even grid
+# possible. The three changes are one change.
+GRID_COLUMNS = 6
+#: The transparent margin around each tile inside its square canvas. It is
+#: what puts an even gutter BETWEEN neighbours: RST inline images are
+#: joined with a zero-width ``\ `` separator, so tiles touch unless their
+#: own canvases hold the gap. Two margins meet between any two tiles, so
+#: the visible gutter is twice this.
+TILE_PADDING = 16
+TILE_SIZE = BUTTON_SIZE - 2 * TILE_PADDING
+#: Six of these per row. 6 x 16 = 96%, and the four points of headroom are
+#: deliberate: a browser that rounds each percentage up must still not push
+#: the sixth tile onto a line of its own.
+TILE_DISPLAY_PERCENT = 16.0
+TILE_DISPLAY_WIDTH = f"{TILE_DISPLAY_PERCENT}%"
 
 RESOURCE_SOURCES = {
     "biostudies": DATABANK_DIR / "bioimages.jpg",
@@ -419,58 +397,24 @@ def _render_workflow_tile(key: str, label: str) -> Image.Image:
     return tile
 
 
-def render_pipeline_tile(key: str, label: str) -> Image.Image:
-    """Render one linked workflow step as a standalone square tile."""
-    return _render_workflow_tile(key, label)
+def render_module_tile(key: str, label: str) -> Image.Image:
+    """Render one module as a linked grid tile.
 
+    EVERY tile goes through here -- the six pipeline modules and the
+    fifteen others alike -- which is the whole point: identical size is
+    not something the two paths have to be kept in agreement about, it is
+    something there is only one path to produce.
 
-def render_app_tile(key: str, label: str) -> Image.Image:
-    """Render a smaller tile positioned for a five-column linked row."""
+    The drawn button is ``TILE_SIZE`` centred in a ``BUTTON_SIZE`` canvas.
+    The canvas is square and constant so the RST percentage width means
+    the same thing for every tile, and the margin inside it is what
+    separates neighbours on the page.
+    """
     tile = _render_workflow_tile(key, label)
-    tile = tile.resize((APP_TILE_SIZE, APP_TILE_SIZE), Image.Resampling.LANCZOS)
-    canvas = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
-    canvas.alpha_composite(
-        tile,
-        (_app_column(key) * APP_COLUMN_STEP, APP_TILE_PADDING),
-    )
+    tile = tile.resize((TILE_SIZE, TILE_SIZE), Image.Resampling.LANCZOS)
+    canvas = Image.new("RGBA", (BUTTON_SIZE, BUTTON_SIZE), (0, 0, 0, 0))
+    canvas.alpha_composite(tile, (TILE_PADDING, TILE_PADDING))
     return canvas
-
-
-def render_pipeline_arrow() -> Image.Image:
-    """Render U+2192 midway up a tile-height transparent inline asset."""
-    arrow = Image.new(
-        "RGBA",
-        (ARROW_CANVAS_WIDTH, ARROW_CANVAS_HEIGHT),
-        (0, 0, 0, 0),
-    )
-    # Open Sans deliberately has no arrow glyph. DejaVu Sans is present in
-    # the Linux documentation/build environments and contains the real
-    # U+2192 glyph, avoiding both a hand-drawn approximation and a tofu box.
-    try:
-        font = ImageFont.truetype("DejaVuSans.ttf", 128)
-    except OSError as exc:
-        raise RuntimeError(
-            "DejaVu Sans is required to render the U+2192 workflow arrow"
-        ) from exc
-    probe = ImageDraw.Draw(arrow)
-    bounds = probe.textbbox((0, 0), "\u2192", font=font)
-    glyph = Image.new(
-        "RGBA",
-        (bounds[2] - bounds[0], bounds[3] - bounds[1]),
-        (0, 0, 0, 0),
-    )
-    ImageDraw.Draw(glyph).text(
-        (-bounds[0], -bounds[1]), "\u2192", font=font, fill=WHITE
-    )
-    glyph = _fit(glyph, 82)
-    arrow.alpha_composite(
-        glyph,
-        (
-            (arrow.width - glyph.width) // 2,
-            (arrow.height - glyph.height) // 2,
-        ),
-    )
-    return arrow
 
 
 def _inline_image_row(names: list[str]) -> str:
@@ -823,13 +767,36 @@ def _documentation_folds() -> str:
     return "\n".join(lines)
 
 
-def _app_column(key: str) -> int:
-    """Return the zero-based column occupied by an application tile."""
-    for items in _grouped_apps().values():
-        for index, (candidate, _label) in enumerate(items):
-            if candidate == key:
-                return index % APP_COLUMNS
-    raise KeyError(f"unknown non-pipeline application: {key}")
+def _module_grid() -> "list[tuple[str, str, str]]":
+    """Every module tile in one flat order: ``(key, label, image_path)``.
+
+    THE PIPELINE FIRST, then the other modules in the order Home lists
+    them. The six come first because they are the order a screen is
+    actually analysed in and a reader scanning left-to-right from the top
+    meets them in that order -- the arrows that used to say so were
+    decoration on a sequence the layout already carries.
+
+    ``image_path`` is relative to the icon root because the two groups
+    still live in different folders: the pipeline tiles are also used
+    elsewhere as module artwork, so they keep their place at the top
+    level. Nothing about the tiles themselves differs any more -- only
+    where they are stored.
+    """
+    pipeline = {key for key, _label in MAIN_PIPELINE}
+    rows = [(key, label, f"workflow/{key}.png")
+            for key, label in MAIN_PIPELINE]
+    for key, label in (item for items in _grouped_apps().values()
+                       for item in items):
+        if key in pipeline:  # pragma: no cover - _grouped_apps drops these
+            continue
+        rows.append((key, label, f"workflow/apps/{key}.png"))
+    return rows
+
+
+def _grid_rows(names: "list[str]") -> "list[list[str]]":
+    """Split substitution names into rows of :data:`GRID_COLUMNS`."""
+    return [names[start:start + GRID_COLUMNS]
+            for start in range(0, len(names), GRID_COLUMNS)]
 
 
 def _readme_workflow(
@@ -837,130 +804,60 @@ def _readme_workflow(
     *,
     alt_template: str = "Open the {module} API",
 ) -> str:
-    grouped = _grouped_apps()
+    """The README's module grid: one block, six tiles a row, no headings.
+
+    The section title lives in the README itself ("spaCR modules"), and
+    the grid carries no titles of its own -- the band headings that used
+    to sit above each row restated Home's grouping and went stale with it.
+    """
     urls = _api_urls()
-    pipeline_names = {key: f"Workflow_{key}" for key, _label in MAIN_PIPELINE}
-    top = []
-    for index, (key, _label) in enumerate(MAIN_PIPELINE):
-        if index:
-            top.append("|Workflow_arrow|")
-        top.append(f"|{pipeline_names[key]}|")
-    lines = [_inline_image_row(top), ""]
-    for key, label in MAIN_PIPELINE:
-        lines.extend([
-            f".. |{pipeline_names[key]}| image:: {icon_prefix}/workflow/{key}.png",
-            f"   :width: {PIPELINE_DISPLAY_WIDTH}",
+    grid = _module_grid()
+    names = {key: f"Module_{key}" for key, _label, _path in grid}
+    lines: list[str] = []
+    for row in _grid_rows([f"|{names[key]}|" for key, _l, _p in grid]):
+        lines.extend([_inline_image_row(row), ""])
+    definitions: list[str] = []
+    for key, label, image in grid:
+        definitions.extend([
+            f".. |{names[key]}| image:: {icon_prefix}/{image}",
+            f"   :width: {TILE_DISPLAY_WIDTH}",
             f"   :alt: {alt_template.format(module=label)}",
             f"   :target: {urls[key]}",
+            # MIDDLE, and it MUST be. These are SUBSTITUTION definitions
+            # used inline in a paragraph, and docutils accepts only
+            # top/middle/bottom there -- "left" is a block-image value and
+            # raises "not a valid value for the align option within a
+            # substitution definition".
+            #
+            # The failure mode is why this comment is long: the directive
+            # errors, the substitution is never defined, and GitHub
+            # renders the reference as its alt text. The whole grid turns
+            # into a column of blue links, which is what happened when
+            # this was set to "left" on 2026-08-31. Left-alignment comes
+            # from the rows being left-anchored paragraphs and every tile
+            # sharing one canvas -- not from this option.
             "   :align: middle",
         ])
-    lines.extend([
-        f".. |Workflow_arrow| image:: {icon_prefix}/workflow/arrow.png",
-        f"   :width: {ARROW_DISPLAY_WIDTH}",
-        "   :align: middle",
-        "",
-    ])
-
-    definitions: list[str] = []
-    for section in _home_layout()[0]:
-        items = grouped[section]
-        if not items:
-            continue
-        title = "More core tools" if section == "Core" else section
-        lines.extend([f"**{title}**", ""])
-        for start in range(0, len(items), APP_COLUMNS):
-            row = items[start:start + APP_COLUMNS]
-            lines.extend([
-                _inline_image_row([f"|App_{key}|" for key, _ in row]),
-                "",
-            ])
-        for key, label in items:
-            definitions.extend([
-                f".. |App_{key}| image:: {icon_prefix}/workflow/apps/{key}.png",
-                f"   :width: {APP_DISPLAY_WIDTH}",
-                f"   :alt: {alt_template.format(module=label)}",
-                f"   :target: {urls[key]}",
-                # MIDDLE, and it MUST be. These are SUBSTITUTION
-                # definitions used inline in a paragraph, and docutils
-                # accepts only top/middle/bottom there -- "left" is a
-                # block-image value and raises "not a valid value for the
-                # align option within a substitution definition".
-                #
-                # The failure mode is why this comment is long: the
-                # directive errors, the substitution is never defined,
-                # and GitHub renders the reference as its alt text. The
-                # whole grid turns into a column of blue links, which is
-                # what happened when this was set to "left" on
-                # 2026-08-31. Left-alignment comes from the rows being
-                # left-anchored paragraphs and every tile sharing one
-                # offset -- not from this option.
-                "   :align: middle",
-            ])
     return "\n".join([*lines, *definitions]).rstrip()
 
 
 def _documentation_workflow() -> str:
-    grouped = _grouped_apps()
+    """The same flat grid for the Sphinx page, with its own asset paths."""
     urls = _api_urls()
-    pipeline_names = {
-        key: f"DocWorkflow_{key}" for key, _label in MAIN_PIPELINE
-    }
-    top = []
-    for index, (key, _label) in enumerate(MAIN_PIPELINE):
-        if index:
-            top.append("|DocWorkflow_arrow|")
-        top.append(f"|{pipeline_names[key]}|")
-    lines = [
-        "Core workflow",
-        "~~~~~~~~~~~~~",
-        "",
-        _inline_image_row(top),
-        "",
-    ]
+    grid = _module_grid()
+    names = {key: f"DocModule_{key}" for key, _label, _path in grid}
+    lines = ["spaCR modules", "~~~~~~~~~~~~~", ""]
+    for row in _grid_rows([f"|{names[key]}|" for key, _l, _p in grid]):
+        lines.extend([_inline_image_row(row), ""])
     definitions: list[str] = []
-    for key, label in MAIN_PIPELINE:
+    for key, label, image in grid:
         definitions.extend([
-            f".. |{pipeline_names[key]}| image:: /_static/workflow/{key}.png",
-            f"   :width: {PIPELINE_DISPLAY_WIDTH}",
+            f".. |{names[key]}| image:: /_static/{image}",
+            f"   :width: {TILE_DISPLAY_WIDTH}",
             f"   :alt: Open the {label} API",
             f"   :target: {urls[key]}",
             "   :align: middle",
         ])
-    definitions.extend([
-        ".. |DocWorkflow_arrow| image:: /_static/workflow/arrow.png",
-        f"   :width: {ARROW_DISPLAY_WIDTH}",
-        "   :align: middle",
-        "",
-    ])
-    lines.extend(["Other applications", "~~~~~~~~~~~~~~~~~~", ""])
-    for section in _home_layout()[0]:
-        items = grouped[section]
-        if not items:
-            continue
-        title = "More core tools" if section == "Core" else section
-        lines.extend([
-            title,
-            "^" * len(title),
-            "",
-        ])
-        for start in range(0, len(items), APP_COLUMNS):
-            row = items[start:start + APP_COLUMNS]
-            lines.extend([
-                _inline_image_row(
-                    [f"|DocApp_{key}|" for key, _label in row]
-                ),
-                "",
-            ])
-        for key, label in items:
-            definitions.extend([
-                ".. |DocApp_"
-                f"{key}| image:: /_static/workflow/"
-                f"apps/{key}.png",
-                f"   :width: {APP_DISPLAY_WIDTH}",
-                f"   :alt: Open the {label} API",
-                f"   :target: {urls[key]}",
-                "   :align: middle",
-            ])
     return "\n".join([*lines, *definitions]).rstrip() + "\n"
 
 
@@ -1071,35 +968,29 @@ def main() -> int:
     print(target.relative_to(ROOT))
     WORKFLOW_DIR.mkdir(parents=True, exist_ok=True)
     DOC_WORKFLOW_DIR.mkdir(parents=True, exist_ok=True)
-    for key, label in MAIN_PIPELINE:
-        image = render_pipeline_tile(key, label)
-        target = WORKFLOW_DIR / f"{key}.png"
-        image.save(target, "PNG", optimize=True)
-        image.save(DOC_WORKFLOW_DIR / f"{key}.png", "PNG", optimize=True)
-        print(target.relative_to(ROOT))
-    target = WORKFLOW_DIR / "arrow.png"
-    arrow = render_pipeline_arrow()
-    arrow.save(target, "PNG", optimize=True)
-    arrow.save(DOC_WORKFLOW_DIR / "arrow.png", "PNG", optimize=True)
-    print(target.relative_to(ROOT))
     APP_WORKFLOW_DIR.mkdir(parents=True, exist_ok=True)
     doc_app_dir = DOC_WORKFLOW_DIR / "apps"
     doc_app_dir.mkdir(parents=True, exist_ok=True)
-    pipeline_keys = {item[0] for item in MAIN_PIPELINE}
-    # TILED rows. Rendering a tile image for a folded module would write a
-    # PNG nothing references, and `_app_column` refuses the key outright --
-    # which is how this was caught rather than shipped as dead artwork.
-    app_rows = [
-        row for row in _tiled_registry() if row[0] not in pipeline_keys
-    ]
-    for key, label, _description, _section in app_rows:
-        image = render_app_tile(key, label)
-        target = APP_WORKFLOW_DIR / f"{key}.png"
-        image.save(target, "PNG", optimize=True)
-        image.save(doc_app_dir / f"{key}.png", "PNG", optimize=True)
+    # ONE LOOP OVER ONE ORDER. The pipeline tiles and the rest are drawn
+    # by the same call now, so there is no second loop that could drift
+    # from the first -- which is how they came to be different sizes.
+    for key, label, image in _module_grid():
+        target = WORKFLOW_DIR.parent / image
+        render_module_tile(key, label).save(target, "PNG", optimize=True)
+        (DOC_WORKFLOW_DIR.parent / image).write_bytes(target.read_bytes())
         print(target.relative_to(ROOT))
-    for stale in _remove_stale_app_assets({row[0] for row in app_rows}):
+    app_keys = {key for key, _label, image in _module_grid()
+                if image.startswith("workflow/apps/")}
+    for stale in _remove_stale_app_assets(app_keys):
         print(f"removed {stale.relative_to(ROOT)}")
+    # The pipeline arrow is gone with the strip it joined. Delete the
+    # asset rather than leaving it: an unreferenced PNG in the resource
+    # tree is the kind of thing a later change quietly starts using again.
+    for stale_arrow in (WORKFLOW_DIR / "arrow.png",
+                        DOC_WORKFLOW_DIR / "arrow.png"):
+        if stale_arrow.is_file():
+            stale_arrow.unlink()
+            print(f"removed {stale_arrow.relative_to(ROOT)}")
     for readme in README_PATHS:
         _normalize_linked_resource_blocks(readme)
         prefix = (

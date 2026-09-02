@@ -3339,6 +3339,23 @@ REVIEWED_README_BLOCKS.update({
 })
 
 _REVIEWED_README_HEADINGS_ARCHIVE = {
+    # Replaced "Workflow at a glance" on 2026-09-02, when the arrow-joined
+    # pipeline strip and the three named bands under it became one grid of
+    # every module. The old heading described a diagram of the workflow;
+    # the section is now a list of what spaCR ships.
+    #
+    # "spaCR" IS NOT TRANSLATED in any of the nine -- it is the product
+    # name -- so each locale renders only "modules", in whatever form its
+    # grammar attaches to a foreign proper noun: a hyphenated compound in
+    # Swedish, German and Icelandic, a preposition in Spanish and
+    # Portuguese, bare apposition in French, Hindi, Korean and Chinese.
+    "spaCR modules": {
+        "sv": "spaCR-moduler", "de": "spaCR-Module",
+        "es": "Módulos de spaCR", "zh_CN": "spaCR 模块",
+        "pt": "Módulos do spaCR", "hi": "spaCR मॉड्यूल",
+        "ko": "spaCR 모듈", "is": "spaCR-einingar",
+        "fr": "Modules spaCR",
+    },
     "Workflow at a glance": {
         "sv": "Arbetsflödet i korthet", "de": "Workflow auf einen Blick",
         "es": "Flujo de trabajo de un vistazo", "zh_CN": "工作流程概览",
@@ -3506,7 +3523,7 @@ _REVIEWED_README_HEADINGS_ARCHIVE = {
 REVIEWED_README_HEADINGS = {
     heading: _REVIEWED_README_HEADINGS_ARCHIVE[heading]
     for heading in (
-        "Workflow at a glance",
+        "spaCR modules",
         "Command-line entry points",
         "Language & translation",
         "Animated setting guidance",

@@ -102,7 +102,7 @@ spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정�
      - 🟢 CPU
      - 🟢 CPU
 
-지원 (안정)  구현 (베타) 🔴 CPU 지원만
+🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
 
 .. spacr-hardware-end
 
@@ -260,131 +260,121 @@ conda-forge 설치
 
 동일한 프로젝트에서 플레이트 설계, 검정력 추정, 배치 효과 보정, 세그멘테이션 품질 점검, 연결된 플롯과 크롭 탐색, AnnData 내보내기, 중단된 작업 재개 및 각 결과에 사용된 설정 기록도 수행할 수 있습니다.
 
-작업 흐름 개요
---------------------
+spaCR 모듈
+--------
 
 .. spacr-workflow-begin
 
-|Workflow_mask|\ |Workflow_arrow|\ |Workflow_measure|\ |Workflow_arrow|\ |Workflow_annotate|\ |Workflow_arrow|\ |Workflow_classify_merged|\ |Workflow_arrow|\ |Workflow_map_barcodes|\ |Workflow_arrow|\ |Workflow_regression|
+|Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
 
-.. |Workflow_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
-   :width: 14.5%
+|Module_foreign|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|\ |Module_qc_dashboard|
+
+|Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|\ |Module_analyze_plaques|
+
+|Module_recruitment|\ |Module_invasion|\ |Module_replication|
+
+.. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
+   :width: 16.0%
    :alt: Mask API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
-.. |Workflow_measure| image:: ../../../spacr/resources/icons/workflow/measure.png
-   :width: 14.5%
+.. |Module_measure| image:: ../../../spacr/resources/icons/workflow/measure.png
+   :width: 16.0%
    :alt: Measure API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
    :align: middle
-.. |Workflow_annotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
-   :width: 14.5%
+.. |Module_annotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
+   :width: 16.0%
    :alt: Annotate API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
    :align: middle
-.. |Workflow_classify_merged| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
-   :width: 14.5%
+.. |Module_classify_merged| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
+   :width: 16.0%
    :alt: Classify API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
    :align: middle
-.. |Workflow_map_barcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
-   :width: 14.5%
+.. |Module_map_barcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
+   :width: 16.0%
    :alt: Map Barcodes API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
    :align: middle
-.. |Workflow_regression| image:: ../../../spacr/resources/icons/workflow/regression.png
-   :width: 14.5%
+.. |Module_regression| image:: ../../../spacr/resources/icons/workflow/regression.png
+   :width: 16.0%
    :alt: Regression API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
    :align: middle
-.. |Workflow_arrow| image:: ../../../spacr/resources/icons/workflow/arrow.png
-   :width: 2.5%
-   :align: middle
-
-**데이터**
-
-|App_foreign|\ |App_run_compare|\ |App_experiment_design|\ |App_power|\ |App_dose_response|\ |App_qc_dashboard|
-
-**Tools**
-
-|App_make_masks|\ |App_align|\ |App_umap|\ |App_gate_editor|\ |App_graph_builder|
-
-**분석**
-
-|App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
-
-.. |App_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
-   :width: 15.466%
+.. |Module_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
+   :width: 16.0%
    :alt: Import API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
    :align: middle
-.. |App_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
-   :width: 15.466%
+.. |Module_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
+   :width: 16.0%
    :alt: Run Compare API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
    :align: middle
-.. |App_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
-   :width: 15.466%
+.. |Module_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
+   :width: 16.0%
    :alt: Experiment Design API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
    :align: middle
-.. |App_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
-   :width: 15.466%
+.. |Module_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
+   :width: 16.0%
    :alt: Power / Design API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
    :align: middle
-.. |App_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
-   :width: 15.466%
+.. |Module_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
+   :width: 16.0%
    :alt: Dose–Response API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
    :align: middle
-.. |App_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
-   :width: 15.466%
+.. |Module_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
+   :width: 16.0%
    :alt: QC API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
-.. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 15.466%
+.. |Module_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
+   :width: 16.0%
    :alt: Make Masks API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
-.. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
-   :width: 15.466%
+.. |Module_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
+   :width: 16.0%
    :alt: Align & Stitch API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
    :align: middle
-.. |App_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
-   :width: 15.466%
+.. |Module_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
+   :width: 16.0%
    :alt: Image UMAP API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
-.. |App_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
-   :width: 15.466%
+.. |Module_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
+   :width: 16.0%
    :alt: Gate Editor API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
    :align: middle
-.. |App_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
-   :width: 15.466%
+.. |Module_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
+   :width: 16.0%
    :alt: Graph Builder API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
-.. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
-   :width: 15.466%
+.. |Module_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
+   :width: 16.0%
    :alt: Plaque Assay API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
-.. |App_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
-   :width: 15.466%
+.. |Module_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
+   :width: 16.0%
    :alt: Recruitment API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
-.. |App_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
-   :width: 15.466%
+.. |Module_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
+   :width: 16.0%
    :alt: Invasion Assay API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
-.. |App_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
-   :width: 15.466%
+.. |Module_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
+   :width: 16.0%
    :alt: Replication Assay API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle

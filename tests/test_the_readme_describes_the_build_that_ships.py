@@ -55,8 +55,16 @@ def _folded_keys() -> set:
     return keys
 
 
-def tiles(text: str, prefix: str = "App") -> set:
-    """The app keys a grid draws a tile for."""
+def tiles(text: str, prefix: str = "Module") -> set:
+    """The module keys a grid draws a tile for.
+
+    ONE PREFIX since 2026-09-02. The README used to draw two kinds of
+    tile under two prefixes -- ``Workflow_`` for the pipeline strip and
+    ``App_`` for the bands below it -- and callers had to say which
+    they meant. There is one grid and one prefix now, so the default
+    is the answer almost everywhere and the docs grid is the only
+    caller that still passes one.
+    """
     return set(re.findall(rf"\|{prefix}_([a-z0-9_]+)\|", text))
 
 
@@ -124,20 +132,35 @@ class TestTheReadmeGrid:
         assert drawn <= known, (
             f"the README draws tiles for unknown keys: {sorted(drawn - known)}")
 
-    def test_the_core_row_is_the_core_section(self):
-        """The workflow strip is Core's TILED members, in order.
+    def test_the_pipeline_leads_the_grid_and_is_the_core_section(self):
+        """Core's TILED members are the first six tiles, in pipeline order.
 
         Not every module filed under Core: several are folded onto
-        Regression and Classify, which are themselves in Core, and a
-        pipeline arrow between six boxes is a claim about the sequence a
-        user runs -- not about which modules happen to share a section.
+        Regression and Classify, which are themselves in Core.
+
+        This used to check a separate arrow-joined STRIP. The strip is
+        gone -- one grid of identical tiles since 2026-09-02 -- so the
+        claim it made, that these six are a sequence a user runs in this
+        order, is now carried by POSITION: they lead the grid, in order.
+        Nothing but position says it any more, which is exactly why it is
+        pinned here.
         """
+        import importlib.util
+
         from spacr.qt.app import tiled_apps
+
+        spec = importlib.util.spec_from_file_location(
+            "spacr_readme_visuals",
+            ROOT / "packaging" / "generate_readme_visuals.py")
+        generator = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(generator)
 
         core = {key for key, _n, _d, section in tiled_apps()
                 if section == "Core"}
-        drawn = tiles(README.read_text(encoding="utf-8"), prefix="Workflow")
-        assert drawn - {"arrow"} == core
+        order = [key for key, _label, _image in generator._module_grid()]
+        pipeline = [key for key, _label in generator.MAIN_PIPELINE]
+        assert order[:len(pipeline)] == pipeline
+        assert set(pipeline) == core
 
 
 class TestTheGeneratedDocsGrid:
@@ -151,16 +174,18 @@ class TestTheGeneratedDocsGrid:
         """
         from spacr.qt.app import tiled_apps
 
-        expected = {key for key, _n, _d, section in tiled_apps()
-                    if section != "Core"}
-        drawn = tiles(DOCS_GRID.read_text(encoding="utf-8"), prefix="DocApp")
+        # EVERY tiled module, Core included. Core used to be excluded here
+        # because it was drawn as a separate arrow-joined strip rather than
+        # as tiles; it is tiles like everything else now.
+        expected = {key for key, _n, _d, _section in tiled_apps()}
+        drawn = tiles(DOCS_GRID.read_text(encoding="utf-8"), prefix="DocModule")
         assert drawn == expected, (
             "the docs grid and the registry disagree: "
             f"extra={sorted(drawn - expected)} "
             f"missing={sorted(expected - drawn)}")
 
     def test_no_folded_module_survives_in_it(self, folded):
-        drawn = tiles(DOCS_GRID.read_text(encoding="utf-8"), prefix="DocApp")
+        drawn = tiles(DOCS_GRID.read_text(encoding="utf-8"), prefix="DocModule")
         assert not drawn & folded, sorted(drawn & folded)
 
     def test_it_has_no_section_the_gui_does_not(self, registry):
