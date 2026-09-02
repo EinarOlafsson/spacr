@@ -9,7 +9,7 @@ functions 32%. And AutoAPI does not emit them at all -- they are not module
 members -- so an undocumented closure is invisible twice: absent from the API
 and unexplained in the source.
 
-THIS IS A RATCHET, NOT A GATE. 436 of 643 were undocumented when it was
+THIS IS A RATCHET, NOT A GATE. 527 of 801 were undocumented when it was
 written, and a test that demanded all of them would be red for weeks and
 would say nothing new on any run. It pins a per-module budget instead: a
 module may not gain undocumented nested functions, and every module that is
@@ -27,7 +27,7 @@ PACKAGE = ROOT / "spacr"
 
 #: Modules whose nested functions are ALL documented. Nothing may fall out of
 #: this set: it is the part of the codebase where the instruction is met.
-#: Six of the 154 modules that have nested functions, measured 2026-09-02.
+#: Fourteen of the 170 modules that have nested functions, measured 2026-09-02.
 #:
 #: Add a module here the moment its last nested function gets a docstring.
 FULLY_DOCUMENTED = frozenset({
@@ -36,15 +36,19 @@ FULLY_DOCUMENTED = frozenset({
     "spacr/diameter.py",
     "spacr/graph_types.py",
     "spacr/group_lasso.py",
+    "spacr/image_stitch.py",
     "spacr/logger.py",
     "spacr/metadata_resolution.py",
+    "spacr/qt/screens/image_import.py",
+    "spacr/qt/widgets/home.py",
     "spacr/qt/widgets/measurement_compare_dialog.py",
+    "spacr/runctx.py",
     "spacr/sim.py",
     "spacr/toxo.py",
 })
 
 #: The largest number of UNDOCUMENTED nested functions each module may have.
-#: Generated from the code on 2026-09-02 -- 436 across 148 modules -- rather
+#: Generated from the code on 2026-09-02 -- 527 across 156 modules -- rather
 #: than written by hand, because a hand-written budget is wrong the moment it
 #: is typed. The first attempt at this file listed the two WORST modules as
 #: finished, having misread a table of undocumented counts as a table of
@@ -52,22 +56,22 @@ FULLY_DOCUMENTED = frozenset({
 #:
 #: A module missing from here must have none.
 BUDGET = {
-    "spacr/qt/widgets/figure_settings.py": 28,
-    "spacr/ml.py": 23,
-    "spacr/spacrops.py": 20,
+    "spacr/qt/widgets/figure_settings.py": 34,
+    "spacr/ml.py": 24,
+    "spacr/spacrops.py": 21,
     "spacr/utils.py": 17,
     "spacr/qt/widgets/fast_plots.py": 14,
     "spacr/qt/preferences.py": 12,
     "spacr/io.py": 10,
-    "spacr/qt/screens/app_screen.py": 10,
-    "spacr/timelapse.py": 9,
+    "spacr/qt/screens/app_screen.py": 11,
+    "spacr/timelapse.py": 12,
     "spacr/crashreport.py": 8,
     "spacr/parameter_sweep.py": 8,
     "spacr/plot.py": 8,
     "spacr/qt/tutorial/scripts.py": 8,
     "spacr/qt/widgets/gate_editor.py": 8,
     "spacr/settings.py": 8,
-    "spacr/qt/app.py": 6,
+    "spacr/qt/app.py": 7,
     "spacr/qt/screens/distributed_jobs.py": 6,
     "spacr/qt/screens/plate_view.py": 6,
     "spacr/regression_summary.py": 6,
@@ -81,15 +85,15 @@ BUDGET = {
     "spacr/qt/screens/annotate.py": 4,
     "spacr/qt/screens/db_browser.py": 4,
     "spacr/qt/thread_guard.py": 4,
-    "spacr/qt/widgets/fractal_travel.py": 4,
+    "spacr/qt/widgets/fractal_travel.py": 29,
     "spacr/attribution.py": 3,
     "spacr/foreign.py": 3,
     "spacr/measure.py": 3,
     "spacr/qt/screens/align.py": 3,
     "spacr/qt/screens/model_compare.py": 3,
-    "spacr/qt/screens/parameter_sweep.py": 3,
+    "spacr/qt/screens/parameter_sweep.py": 11,
     "spacr/qt/screens/settings_model.py": 3,
-    "spacr/qt/timing.py": 3,
+    "spacr/qt/timing.py": 10,
     "spacr/qt/widgets/live_preview.py": 3,
     "spacr/qt/widgets/measurement_scan_panel.py": 3,
     "spacr/run_journal.py": 3,
@@ -104,9 +108,9 @@ BUDGET = {
     "spacr/doctor.py": 2,
     "spacr/logging_util.py": 2,
     "spacr/predictions.py": 2,
-    "spacr/qt/bridge.py": 2,
+    "spacr/qt/bridge.py": 5,
     "spacr/qt/prerun.py": 2,
-    "spacr/qt/resource_cleanup.py": 2,
+    "spacr/qt/resource_cleanup.py": 3,
     "spacr/qt/screens/agreement.py": 2,
     "spacr/qt/screens/classifier_evaluation.py": 2,
     "spacr/qt/screens/convert.py": 2,
@@ -114,12 +118,12 @@ BUDGET = {
     "spacr/qt/screens/hyperparam.py": 2,
     "spacr/qt/screens/power.py": 2,
     "spacr/qt/screens/regression.py": 2,
-    "spacr/qt/screens/train_compare.py": 2,
+    "spacr/qt/screens/train_compare.py": 3,
     "spacr/qt/startup_benchmark.py": 2,
     "spacr/qt/widgets/dna_rain.py": 2,
-    "spacr/qt/widgets/figure_queue.py": 2,
-    "spacr/qt/widgets/graph_builder.py": 2,
-    "spacr/qt/widgets/provider_marks.py": 2,
+    "spacr/qt/widgets/figure_queue.py": 3,
+    "spacr/qt/widgets/graph_builder.py": 5,
+    "spacr/qt/widgets/provider_marks.py": 3,
     "spacr/qt/widgets/setup_card.py": 2,
     "spacr/resources/home/versions/_generators/render.py": 2,
     "spacr/schema.py": 2,
@@ -133,7 +137,7 @@ BUDGET = {
     "spacr/figures/scene.py": 1,
     "spacr/flowview/trace.py": 1,
     "spacr/gene_facts.py": 1,
-    "spacr/hits.py": 1,
+    "spacr/hits.py": 3,
     "spacr/hyperparam.py": 1,
     "spacr/layers.py": 1,
     "spacr/lineage.py": 1,
@@ -144,11 +148,11 @@ BUDGET = {
     "spacr/ome_zarr.py": 1,
     "spacr/projects.py": 1,
     "spacr/qt/__init__.py": 1,
-    "spacr/qt/ask_for_the_path.py": 1,
+    "spacr/qt/ask_for_the_path.py": 4,
     "spacr/qt/crop_thumbs.py": 1,
     "spacr/qt/dnd_handlers.py": 1,
-    "spacr/qt/hf_download.py": 1,
-    "spacr/qt/i18n.py": 1,
+    "spacr/qt/hf_download.py": 2,
+    "spacr/qt/i18n.py": 2,
     "spacr/qt/iconset.py": 1,
     "spacr/qt/regex_detect.py": 1,
     "spacr/qt/screens/batch.py": 1,
@@ -189,13 +193,25 @@ BUDGET = {
     "spacr/response_distribution.py": 1,
     "spacr/seg_qc.py": 1,
     "spacr/selection.py": 1,
-    "spacr/sequencing_qc.py": 1,
+    "spacr/sequencing_qc.py": 2,
     "spacr/setting_animations.py": 1,
     "spacr/settings_advisor.py": 1,
     "spacr/surrogate.py": 1,
     "spacr/validate.py": 1,
     "spacr/workspace.py": 1,
     "spacr/zstack.py": 1,
+    "spacr/flowview/collector.py": 1,
+    "spacr/flowview/layout.py": 1,
+    "spacr/gene_measurement_sweep.py": 1,
+    "spacr/qt/command_palette.py": 1,
+    "spacr/qt/dialogs.py": 6,
+    "spacr/qt/menus.py": 1,
+    "spacr/qt/screens/volcano.py": 5,
+    "spacr/qt/widgets/cell_montage_view.py": 1,
+    "spacr/qt/widgets/setup_slides.py": 1,
+    "spacr/qt/widgets/umap_explorer.py": 4,
+    "spacr/sra.py": 1,
+    "spacr/stream_dataset.py": 1,
 }
 
 
@@ -213,12 +229,47 @@ def _undocumented_nested(path: Path) -> "list[str]":
     for node in ast.walk(tree):
         if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             continue
-        if not isinstance(parents.get(node),
-                          (ast.FunctionDef, ast.AsyncFunctionDef)):
+        parent = parents.get(node)
+        while (parent is not None
+               and not isinstance(parent,
+                                  (ast.FunctionDef, ast.AsyncFunctionDef))):
+            parent = parents.get(parent)
+        if parent is None:
             continue
         if not ast.get_docstring(node):
             out.append(f"{node.name} (line {node.lineno})")
     return out
+
+
+def test_control_flow_does_not_hide_nested_functions(tmp_path):
+    """A helper remains nested beneath a loop, branch, try, or with block."""
+    source = tmp_path / "control_flow.py"
+    source.write_text(
+        """
+def outer(items, context):
+    def direct():
+        pass
+    for item in items:
+        def below_for():
+            pass
+    if items:
+        def below_if():
+            pass
+    try:
+        def below_try():
+            pass
+    except Exception:
+        pass
+    with context:
+        def below_with():
+            pass
+""",
+        encoding="utf-8",
+    )
+
+    assert {entry.split()[0] for entry in _undocumented_nested(source)} == {
+        "direct", "below_for", "below_if", "below_try", "below_with",
+    }
 
 
 def _modules():
