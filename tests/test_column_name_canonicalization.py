@@ -76,6 +76,8 @@ def _run_measure_crop(root):
         'plot': False, 'verbose': False, 'timelapse': False,
         'crop_mode': ['cell'], 'normalize': [1, 99], 'normalize_by': 'png',
         'experiment': 'exp', 'n_jobs': 1, 'test_mode': False, 'cytoplasm': True,
+        'cell_min_size': 0, 'nucleus_min_size': 0, 'pathogen_min_size': 0,
+        'organelle_min_size': 0, 'number_of_organelles': 1,
     })
     measure_crop(dict(settings))
     return os.path.join(root, 'measurements', 'measurements.db')
@@ -226,6 +228,36 @@ def test_organelle_summary_names_do_not_collide_with_the_organelle_table(fresh_d
 # ---------------------------------------------------------------------------
 # what happens to a database written before the rename
 # ---------------------------------------------------------------------------
+
+def test_feature_renames_are_reported_once_per_table(tmp_path, capsys):
+    """Many feature migrations stay visible without printing one line each."""
+    from spacr.utils import rename_columns_in_db
+
+    database = tmp_path / "legacy_features.db"
+    legacy = {
+        "cell_channel_0_periphery_25_percentile":
+            "cell_channel_0_periphery_percentile_25",
+        "organelle_summary_organelle_ch1_mean_intensity":
+            "organelle_summary_organelle_channel_1_mean_intensity",
+    }
+    with sqlite3.connect(database) as connection:
+        declarations = ", ".join(f'"{name}" REAL' for name in legacy)
+        connection.execute(f'CREATE TABLE "cell" ({declarations})')
+
+    renamed = rename_columns_in_db(str(database))
+
+    assert set(renamed) == {
+        ("cell", old, new) for old, new in legacy.items()
+    }
+    with sqlite3.connect(database) as connection:
+        columns = {
+            row[1] for row in connection.execute('PRAGMA table_info("cell")')
+        }
+    assert columns == set(legacy.values())
+    assert capsys.readouterr().out.count(
+        "Renamed 2 legacy feature column(s) in `cell`"
+    ) == 1
+
 
 def test_legacy_database_is_migrated_on_read(legacy_db):
     """The established repair-on-read contract, extended to these two families."""
