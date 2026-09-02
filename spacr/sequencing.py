@@ -151,6 +151,12 @@ def _map_within(reference, sequences, mismatches):
     cache = {}
 
     def resolve(sequence):
+        """Return the unique reference name within the mismatch budget.
+
+        Exact matches bypass the scan.  Inexact results, including an
+        ambiguous ``pd.NA``, are cached by their string representation so a
+        repeated read does not rescan every same-length reference.
+        """
         text = str(sequence)
         if text in reference:
             return reference[text]
@@ -1289,6 +1295,11 @@ def graph_sequencing_stats(settings):
         """
 
         def _line_plot(df, x, y, log_x, log_y):
+            """Plot columns ``x`` and ``y`` using the shared figure style.
+
+            The returned figure and axes let the caller add its chosen
+            threshold marker before either saving or displaying the plot.
+            """
             # No "are x and y in df.columns?" guard: this is a closure with one
             # call site eight lines below, and `df` there is the results_df
             # built two lines above it with exactly these two columns. The
