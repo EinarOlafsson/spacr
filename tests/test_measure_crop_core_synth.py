@@ -127,7 +127,8 @@ def test_measure_crop_core_writes_measurements_and_pngs(tmp_path, synth_masks_mu
     merged, name = _write_stack(tmp_path, data)
     settings = _settings_for(merged)
 
-    index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
+    index, avg_time, cells, figs, _error = _measure_crop_core(
+        0, [], name, settings)
 
     assert index == 0
     _assert_the_measurement_happened(tmp_path)
@@ -154,7 +155,8 @@ def test_measure_crop_core_cytoplasm_and_bounding_box(tmp_path, synth_masks_mult
         merged, cytoplasm=True, cytoplasm_min_size=1,
         use_bounding_box=True, nucleus_min_size=1, pathogen_min_size=1,
         cell_min_size=1)
-    index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
+    index, avg_time, cells, figs, _error = _measure_crop_core(
+        0, [], name, settings)
     assert index == 0
     _assert_the_measurement_happened(tmp_path)
     assert (tmp_path / "measurements" / "measurements.db").is_file()
@@ -167,7 +169,8 @@ def test_measure_crop_core_nucleus_and_pathogen_crop_modes(tmp_path, synth_masks
     settings = _settings_for(
         merged, crop_mode=["nucleus", "pathogen"],
         png_size=[[48, 48], [32, 32]])
-    index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
+    index, avg_time, cells, figs, _error = _measure_crop_core(
+        0, [], name, settings)
     assert index == 0
     _assert_the_measurement_happened(tmp_path)
 
@@ -177,7 +180,8 @@ def test_measure_crop_core_save_arrays(tmp_path, synth_masks_multi, rng):
     data = _build_merged_stack(synth_masks_multi, rng)
     merged, name = _write_stack(tmp_path, data)
     settings = _settings_for(merged, save_arrays=True, save_png=False)
-    index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
+    index, avg_time, cells, figs, _error = _measure_crop_core(
+        0, [], name, settings)
     assert index == 0
     _assert_the_measurement_happened(tmp_path, crops=False)
     assert isinstance(cells, np.ndarray), "the worker must not return its failure sentinel"
@@ -200,7 +204,8 @@ def test_measure_crop_core_organelle_summary(tmp_path, synth_masks_multi, rng):
     settings = _settings_for(
         merged, organelle_mask_dim=7, organelle_min_size=0,
         summarize_organelles_by=["cell", "nucleus", "pathogen"])
-    index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
+    index, avg_time, cells, figs, _error = _measure_crop_core(
+        0, [], name, settings)
     assert index == 0
     _assert_the_measurement_happened(tmp_path)
 
@@ -211,7 +216,8 @@ def test_measure_crop_core_no_cell_mask(tmp_path, synth_masks_multi, rng):
     data = _build_merged_stack(synth_masks_multi, rng)
     merged, name = _write_stack(tmp_path, data)
     settings = _settings_for(merged, cell_mask_dim=None, crop_mode=["nucleus"])
-    index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
+    index, avg_time, cells, figs, _error = _measure_crop_core(
+        0, [], name, settings)
     assert index == 0
     _assert_the_measurement_happened(tmp_path)
 
@@ -221,7 +227,8 @@ def test_measure_crop_core_float_input_converted(tmp_path, synth_masks_multi, rn
     data = _build_merged_stack(synth_masks_multi, rng).astype(np.float32)
     merged, name = _write_stack(tmp_path, data)
     settings = _settings_for(merged, verbose=True)
-    index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
+    index, avg_time, cells, figs, _error = _measure_crop_core(
+        0, [], name, settings)
     assert index == 0
     _assert_the_measurement_happened(tmp_path)
 
@@ -246,7 +253,8 @@ def test_measure_crop_core_plot_path(tmp_path, synth_masks_multi, rng):
     data = _build_merged_stack(synth_masks_multi, rng)
     merged, name = _write_stack(tmp_path, data)
     settings = _settings_for(merged, plot=True)
-    index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
+    index, avg_time, cells, figs, _error = _measure_crop_core(
+        0, [], name, settings)
     assert index == 0
     _assert_the_measurement_happened(tmp_path)
     # plot=True populates the figure dict with before/after/pngs entries.
@@ -263,7 +271,8 @@ def test_measure_crop_core_dilate_and_cytoplasm_crop(tmp_path, synth_masks_multi
         crop_mode=["cytoplasm", "organelle"],
         png_size=[[48, 48], [40, 40]],
         dialate_pngs=[True, True], dialate_png_ratios=[0.1, 0.1])
-    index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
+    index, avg_time, cells, figs, _error = _measure_crop_core(
+        0, [], name, settings)
     assert index == 0
     _assert_the_measurement_happened(tmp_path)
 
@@ -314,7 +323,8 @@ def test_measure_crop_core_timelapse_nucleus_relabel(tmp_path, synth_masks_multi
     settings = _settings_for(
         merged, timelapse=True, save_png=False,
         timelapse_objects="nucleus")
-    index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
+    index, avg_time, cells, figs, _error = _measure_crop_core(
+        0, [], name, settings)
     assert index == 0
     _assert_the_measurement_happened(tmp_path, crops=False)
 

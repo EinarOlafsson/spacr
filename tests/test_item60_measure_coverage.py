@@ -264,7 +264,7 @@ def test_measure_core_optional_masks_filters_and_field_rescale(
         })
     monkeypatch.setattr(M, "_write_intensity_rescale_record",
                         lambda *_a, **_k: None)
-    _index, _average, cells, _figs = M._measure_crop_core(
+    _index, _average, cells, _figs, _error = M._measure_crop_core(
         0, [], name, settings)
     assert isinstance(cells, np.ndarray)
     assert "NOT comparable" in capsys.readouterr().out
@@ -294,7 +294,8 @@ def test_measure_core_plot_handles_volume_and_malformed_plane(
         merged2, channels=[0], cell_mask_dim=None, nucleus_mask_dim=None,
         pathogen_mask_dim=None, plot=True, save_png=False,
         save_measurements=False)
-    _i, _t, cells, _f = M._measure_crop_core(0, [], name2, plane_settings)
+    _i, _t, cells, _f, _error = M._measure_crop_core(
+        0, [], name2, plane_settings)
     assert cells == 0
 
 
@@ -306,7 +307,8 @@ def test_measure_core_empty_png_size_returns_failure_sentinel(
         tmp_path, _build_merged_stack(synth_masks_multi, rng))
     settings = _settings_for(
         merged, png_size=[], save_measurements=False, save_png=True)
-    _i, _t, cells, _f = M._measure_crop_core(0, [], name, settings)
+    _i, _t, cells, _f, _error = M._measure_crop_core(
+        0, [], name, settings)
     assert cells == 0
     assert "png_size is empty" in capsys.readouterr().out
 

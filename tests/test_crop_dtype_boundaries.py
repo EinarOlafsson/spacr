@@ -105,7 +105,8 @@ def real_run(tmp_path):
     data = merged_uint16()
     name = "plate1_A01_F001.npy"
     np.save(merged / name, data)
-    index, _, cells, _ = _measure_crop_core(0, [], name, _measure_settings(merged))
+    index, _, cells, _, _error = _measure_crop_core(
+        0, [], name, _measure_settings(merged))
     assert index == 0 and np.max(cells) >= 1
     assert (root / "measurements" / "measurements.db").is_file()
     return str(root), str(merged / name), data
@@ -782,7 +783,7 @@ def test_measure_crop_core_measures_a_float_field_instead_of_zeroing_it(
     name = "plate1_A01_F001.npy"
     np.save(merged / name, data)
 
-    index, _, cells, _ = _measure_crop_core(
+    index, _, cells, _, _error = _measure_crop_core(
         0, [], name, _measure_settings(merged, verbose=verbose))
     assert index == 0 and np.max(cells) >= 1
     reported = "Converted data from float32 to uint16 (intensity x65535)" \
@@ -819,7 +820,8 @@ def test_plate_rescale_warning_and_database_record_ignore_verbose(tmp_path,
         merged, verbose=False, save_png=False, save_arrays=False)
     settings[PLAN_SETTINGS_KEY] = build_plate_plan(merged, [name], settings)
 
-    index, _, cells, _ = _measure_crop_core(0, [], name, settings)
+    index, _, cells, _, _error = _measure_crop_core(
+        0, [], name, settings)
     output = capsys.readouterr().out
     assert index == 0 and np.max(cells) >= 1
     assert "WARNING:" in output and "plate-wide" in output

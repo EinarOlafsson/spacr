@@ -100,7 +100,8 @@ def _run(tmp_path, masks, rng, data=None, **over):
         over.pop("_organelle", None)
     merged, name = _write_stack(tmp_path, data)
     settings = _settings_for(merged, **over)
-    _idx, _avg, cells, _figs = _measure_crop_core(0, [], name, settings)
+    _idx, _avg, cells, _figs, _error = _measure_crop_core(
+        0, [], name, settings)
     # _measure_crop_core's cross-process failure sentinel is the plain int 0;
     # the success path always assigns np.unique(...), an ndarray.
     succeeded = isinstance(cells, np.ndarray)

@@ -96,7 +96,7 @@ def test_measure_core_normalize_by_fov(tmp_path, rng):
     """normalize_by='fov' computes percentiles across the field first."""
     from spacr.measure import _measure_crop_core
     merged = _merged(tmp_path, rng)
-    idx, _t, _cells, _figs = _measure_crop_core(
+    idx, _t, _cells, _figs, _error = _measure_crop_core(
         0, [], "plate1_A01_F001.npy",
         _settings(merged, normalize_by="fov"))
     assert idx == 0
@@ -107,7 +107,7 @@ def test_measure_core_two_channel_png_gets_dummy_third(tmp_path, rng):
     """A 2-entry png_dims is padded with a zero channel before saving."""
     from spacr.measure import _measure_crop_core
     merged = _merged(tmp_path, rng)
-    idx, _t, _cells, _figs = _measure_crop_core(
+    idx, _t, _cells, _figs, _error = _measure_crop_core(
         0, [], "plate1_A01_F001.npy",
         _settings(merged, png_dims=[0, 1]))
     assert idx == 0
@@ -118,7 +118,7 @@ def test_measure_core_normalize_false_uses_full_range(tmp_path, rng):
     """normalize=False falls back to a 0-100 percentile stretch."""
     from spacr.measure import _measure_crop_core
     merged = _merged(tmp_path, rng)
-    idx, _t, _cells, _figs = _measure_crop_core(
+    idx, _t, _cells, _figs, _error = _measure_crop_core(
         0, [], "plate1_A01_F001.npy",
         _settings(merged, normalize=False))
     assert idx == 0
