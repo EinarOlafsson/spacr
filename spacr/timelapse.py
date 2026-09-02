@@ -202,6 +202,7 @@ def _masks_to_gif(masks, gif_folder, name, filenames, object_type):
     from .io import _save_mask_timelapse_as_gif
 
     def _display_gif(path):
+        """Read ``path`` into an IPython image, display it, and return ``None``."""
         with open(path, 'rb') as file:
             display(ipyimage(file.read()))
 
@@ -2474,6 +2475,7 @@ def _make_intensity_motility_panel(
             ax.set_visible(False)
 
     def _plot_pca_qc(ax, pdata):
+        """Plot ``pdata``'s 2-D embedding on ``ax``, or hide it, then return ``None``."""
         import numpy as np
     
         try:
@@ -2521,6 +2523,7 @@ def _make_intensity_motility_panel(
         ax.legend(fontsize=7)
 
     def _plot_xgb_importance_qc(ax, xdata):
+        """Plot ``xdata`` importances on ``ax``, or hide it, then return ``None``."""
         try:
             feat_names = xdata["feature_names"]
             feat_vals = xdata["feature_importances"]
@@ -2825,6 +2828,7 @@ def _make_intensity_motility_panel(
 
         # ----- all-tracks FOV plot (absolute coordinates) -----
         def _plot_all_tracks(ax):
+            """Plot tracks on ``ax`` in absolute pixel or calibrated coordinates; return ``None``."""
             # `well_tracks` is non-empty: the per-well guard above skips the
             # whole well -- and never reaches this figure -- when it is not.
             # A track too short to draw is a different case, and the
@@ -2902,6 +2906,7 @@ def _make_intensity_motility_panel(
 
         # ----- motility origin plots (infected vs uninfected) for this well -----
         def _plot_origin(ax, want_infected: bool):
+            """Plot the selected group on ``ax`` relative to its origins; return ``None``."""
             n_tr = 0
             color = INFECTED_COLOUR if want_infected else UNINFECTED_COLOUR
 
@@ -3319,6 +3324,7 @@ def _summarise_child_features_per_parent(
         return counts
 
     def _agg_for_feature(col_name: str) -> str:
+        """Return sum for area, minimum for distance, otherwise mean."""
         name = col_name.lower()
         if "area" in name:
             return "sum"
@@ -4568,6 +4574,7 @@ def _infection_qc_pca_clustering(
     # Helper: UMAP with hyperparameter search
     # ------------------------------------------------------------------
     def _search_umap(X_scaled, y_orig, gt_uninf, gt_inf, settings_local):
+        """Return coordinates, labels, statistics, and parameters from UMAP."""
         random_state = int(settings_local.get("infection_pca_random_state", 0))
         do_search = bool(settings_local.get("infection_pca_umap_search", True))
 
@@ -4638,6 +4645,7 @@ def _infection_qc_pca_clustering(
     # Helper: t-SNE with hyperparameter search
     # ------------------------------------------------------------------
     def _search_tsne(X_scaled, y_orig, gt_uninf, gt_inf, settings_local):
+        """Return coordinates, labels, statistics, and parameters from t-SNE."""
         random_state = int(settings_local.get("infection_pca_random_state", 0))
         do_search = bool(settings_local.get("infection_pca_tsne_search", True))
         n_samples = X_scaled.shape[0]
@@ -4645,6 +4653,7 @@ def _infection_qc_pca_clustering(
 
         # Utility: run one t-SNE
         def _run_tsne(perplexity, learning_rate):
+            """Return coordinates, labels, and statistics for one t-SNE pair."""
             tsne = TSNE(
                 n_components=2,
                 random_state=random_state,
@@ -5895,6 +5904,7 @@ def _feature_velocity_correlations(all_df, track_df, measurements_dir):
             return
 
         def _corr_subset(mask, label):
+            """Return correlations for at least five finite-velocity rows, else ``None``."""
             sub = track_features.loc[mask, candidate_cols + ["velocity"]].copy()
             sub = sub[np.isfinite(sub["velocity"])]
             if sub.shape[0] < 5:
@@ -6070,9 +6080,11 @@ def _make_motility_plots(
         return
 
     def _fmt_vel(val):
+        """Return finite ``val`` to two decimals, or ``n/a`` when non-finite."""
         return "n/a" if not np.isfinite(val) else f"{val:.2f}"
 
     def _apply_axis_limits(ax, xlim, ylim):
+        """Apply valid two-value limits to ``ax`` and return ``None``."""
         if xlim is not None and len(xlim) == 2:
             ax.set_xlim(float(xlim[0]), float(xlim[1]))
         if ylim is not None and len(ylim) == 2:
