@@ -57,7 +57,7 @@ from __future__ import annotations
 
 import os
 from functools import partial
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal
 from PySide6.QtWidgets import (
@@ -79,6 +79,7 @@ from PySide6.QtWidgets import (
 )
 
 from ... import foreign as fgn
+from ...object_roles import organelle_label
 from ...schema import SEGMENTED_ROLES
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette
@@ -87,6 +88,8 @@ from ..widgets.sortable_table import install_sorting
 
 __all__ = [
     "ForeignScreen",
+    "object_label",
+    "organelle_slots_offered",
     "ColumnMapModel",
     "MAP_COLUMNS",
     "OBJECT_CHOICES",
@@ -107,7 +110,48 @@ MAP_COLUMNS: Tuple[Tuple[str, str, bool], ...] = (
 )
 
 #: Mask classes, in the order their planes are appended to a merged array.
+#: The STORAGE spelling, which is what the backend takes and what a saved
+#: mapping carries. Never what the user is shown -- see :func:`object_label`.
 OBJECT_CHOICES: Tuple[str, ...] = tuple(SEGMENTED_ROLES)
+
+
+def object_label(role: str) -> str:
+    """What a mask class is CALLED, as opposed to what it is keyed by.
+
+    NO USER SEES A LETTER, asked for in as many words on 2026-09-02: "i dont
+    want to see organelle a b c d anywhere, organelle number should always be
+    controlled by number of organelles". The slots are stored lettered --
+    ``organelle``, ``organelleb``, ``organellec`` -- because a role name is
+    the prefix of every settings key it owns and ``organelle2`` cannot
+    round-trip through a ``prcfo`` key without colliding with the object
+    LABELLED 2. That is a storage decision and it has no business on screen,
+    where a slot is a NUMBER: Organelle 1, Organelle 2.
+
+    :param role: a role from :data:`OBJECT_CHOICES`.
+    """
+    name = str(role)
+    if name.startswith("organelle"):
+        return organelle_label(name)
+    return name.capitalize()
+
+
+def organelle_slots_offered(added: Sequence[str]) -> int:
+    """How many organelle slots a form should show, given what is filled.
+
+    THE COUNT FOLLOWS THE ORGANELLES, not a constant. Offering four slots to
+    a user with one organelle is three questions nobody asked, and offering
+    exactly the ones in use plus one is what "controlled by the number of
+    organelles" means on a form that has no separate count field: adding the
+    first makes the second available, and so on for as many as the mask
+    planes can carry.
+
+    :param added: the roles already mapped.
+    :returns: how many organelle slots to list, at least one.
+    """
+    filled = [role for role in added if str(role).startswith("organelle")]
+    capacity = sum(1 for role in OBJECT_CHOICES
+                   if role.startswith("organelle"))
+    return max(1, min(len(filled) + 1, capacity))
 
 #: What to do about a target that collides with a spaCR name.
 CONFLICT_CHOICES: Tuple[Tuple[str, str], ...] = (
@@ -331,8 +375,7 @@ class ForeignScreen(QWidget):
         mask_row = QHBoxLayout()
         mask_row.setSpacing(SPACING["sm"])
         self._object_box = QComboBox(self)
-        for name in OBJECT_CHOICES:
-            self._object_box.addItem(name, name)
+        self._refill_object_box()
         self._mask_edit = QLineEdit(self)
         self._mask_edit.setPlaceholderText(
             "…/their_cell_masks  — one folder of label images per class")
@@ -496,7 +539,8 @@ class ForeignScreen(QWidget):
         if name not in OBJECT_CHOICES:
             self._set_status(
                 f"{name!r} is not a spaCR mask class; expected one of "
-                f"{', '.join(OBJECT_CHOICES)}.", error=True)
+                f"{', '.join(object_label(role) for role in OBJECT_CHOICES)}.",
+                error=True)
             return False
         if not folder:
             self._set_status("Choose a mask folder before adding it.",
@@ -524,9 +568,37 @@ class ForeignScreen(QWidget):
     def _refresh_mask_list(self) -> None:
         self._mask_list.clear()
         for name, folder in self.mask_folders().items():
-            item = QListWidgetItem(f"{name}  →  {folder}")
+            item = QListWidgetItem(f"{object_label(name)}  →  {folder}")
             item.setData(Qt.UserRole, name)
             self._mask_list.addItem(item)
+        self._refill_object_box()
+
+    def _refill_object_box(self) -> None:
+        """List the classes worth offering, by name, keeping the selection.
+
+        Rebuilt as folders are added because the number of organelle slots
+        follows the organelles: one unfilled slot is on offer at a time, so
+        a user with one organelle is never asked about a second, third and
+        fourth they do not have.
+        """
+        wanted = [role for role in OBJECT_CHOICES
+                  if not role.startswith("organelle")]
+        slots = organelle_slots_offered(getattr(self, "_masks", {}))
+        wanted += [role for role in OBJECT_CHOICES
+                   if role.startswith("organelle")][:slots]
+        if [self._object_box.itemData(i)
+                for i in range(self._object_box.count())] == wanted:
+            return
+        chosen = self._object_box.currentData()
+        blocked = self._object_box.blockSignals(True)
+        self._object_box.clear()
+        for role in wanted:
+            self._object_box.addItem(object_label(role), role)
+        if chosen is not None:
+            index = self._object_box.findData(chosen)
+            if index >= 0:
+                self._object_box.setCurrentIndex(index)
+        self._object_box.blockSignals(blocked)
 
     def _add_from_fields(self) -> None:
         self.add_mask_folder(str(self._object_box.currentData()),
