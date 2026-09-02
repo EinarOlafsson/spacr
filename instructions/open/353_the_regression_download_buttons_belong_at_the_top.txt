@@ -80,3 +80,37 @@ HOW IT WILL BE CHECKED
   widget order, not by eye.
 * If the alignment is done: each button's horizontal centre is within a pixel
   or two of its column's centre, asserted after a resize as well as before.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE REQUIREMENT IS DONE. THE PREFERENCE IS NOT.
+--------------------------------------------------------------------------------
+
+`Section.add_prose_row` learned `at_top`, using the same `insertRow(0, ...)`
+that `add_prose` already had, and `_install_example_data_button` passes it.
+
+Input Tables now reads, top to bottom:
+
+    row 0   Load test data…        (the whole-screen button, unchanged)
+    row 1   Download   [Score] [Count] [Measurements (.db)] [Image crops]
+    row 2   Paired data
+    row 3   Metadata files
+    row 4   Count gRNA column
+    row 5   Count value column
+    ...
+
+Read out of the built screen rather than off the source: the row order above
+is what `QFormLayout` actually holds after `AppScreen(app_key="regression")`.
+
+WHY THE WHOLE-SCREEN BUTTON STAYS ABOVE THE DOWNLOAD ROW. Both insert at 0 and
+the button inserts last, so it wins the top slot. That is the right order
+anyway -- it fills BOTH slots at once, so it is the broader action, and the
+row below it is the narrower per-table one. Broadest first.
+
+VERIFIED against a HEAD baseline on the same selection: 10 failed before, 10
+after, no regressions. (Those 10 are the 345/346 order-dependent family.)
+
+THE PREFERENCE -- each button aligned over the column it fills -- IS NOT DONE
+and is deliberately left. Nothing above changes when it is: the row is in the
+right place now, and the alignment is a change to what that row CONTAINS.
+Read the WATCH section before starting it; the "one column model" point is the
+whole of it.

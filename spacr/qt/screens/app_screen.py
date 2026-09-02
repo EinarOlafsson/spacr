@@ -3784,7 +3784,14 @@ class AppScreen(QWidget):
         # form. `add_prose_row` rather than `add_row`, because `_row_widgets`
         # is taken to hold labelled SETTINGS by the module smoke test and a
         # row of buttons is not one.
-        section.add_prose_row("Download", row)
+        #
+        # AT THE TOP since 2026-09-02: "the input tables sould start with
+        # download buttons not end wit them". It fills the fields below it,
+        # and sitting under them read as a footer to a form it actually
+        # feeds. The whole-screen button below inserts at 0 afterwards, so
+        # the final order is: Load test data, then Download, then the
+        # fields -- broadest action first.
+        section.add_prose_row("Download", row, at_top=True)
 
         # The whole-screen button keeps its place ABOVE the form: it fills
         # both slots at once, so it belongs beside neither of them.
