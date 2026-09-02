@@ -1079,3 +1079,44 @@ taught to list every record instead of raising on the first. That change is
 now the FIRST thing worth building here, not the second: without it, both a
 maintainer and an agent are reduced to guessing at the shape of the work, and
 this note is what guessing looks like.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE AUDIT NOW LISTS EVERYTHING, AND THE REAL QUEUE IS THREE RECORDS
+--------------------------------------------------------------------------------
+
+`reviewed_runtime_translations` collected its problems instead of raising on
+the first one it reached, and the answer is much smaller than either guess
+above:
+
+    sv clean    de clean    pt clean    hi clean    is clean    fr clean
+    es  1       zh_CN  1    ko  1
+    TOTAL 3
+
+THREE RECORDS, ONE STRING, THREE LOCALES: `setting_tooltips/control_wells`
+in Spanish, Chinese and Korean. That is the whole of what stands between the
+docs job and a green runtime audit. Not seventeen, and not a translation pass.
+
+MY ENUMERATION TWO NOTES ABOVE WAS WRONG, and now I know why: it resolved the
+source tables itself instead of calling `canonical_sources()`, which is what
+the loader uses. The correction note doubted the list on the evidence of two
+disagreements; this is the measurement that settles it. THE LIST IS THREE.
+Delete the seventeen from your planning.
+
+AND THE CHANGE IS SMALL. The stored source and the live tooltip are 97.9%
+identical -- one clause moved:
+
+    OLD  "... and"          NEW  ". Regression any"
+
+So each of the three needs one sentence adjusted in an existing reviewed
+translation, not a fresh one. That is minutes of a reviewer's time, and it is
+the last thing between here and a green docs job on the runtime side.
+
+WHY THE TOOLING CHANGE WAS WORTH MAKING FIRST. Every estimate in this file
+before it was a guess, including two of mine, because the audit only ever
+showed one record. It is still a hard error, still the same exception type and
+still the same first line -- `tests/test_documentation_i18n.py` matches on it
+and still passes -- but the message now carries the whole list.
+
+    tests/test_documentation_i18n.py, test_i18n_coverage_audit.py,
+    test_runtime_i18n_syntax.py:   18 failed at HEAD, 18 failed after.
+    No regressions; those 18 are this item's own debt.
