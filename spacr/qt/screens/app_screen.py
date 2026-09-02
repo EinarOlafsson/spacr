@@ -1022,7 +1022,14 @@ EXAMPLE_DATA_SECTIONS = {
     # 2026-09-01. It had sat under Labels & Classes, which is where the
     # labels it brings are configured but not where the path it sets is --
     # so the control that fills `src` was two sections away from `src`.
+    # BOTH KEYS, and `classify_merged` is the one that matters: it is the
+    # module in the Core section that a user actually opens. `classify` is not
+    # in APPS and is not folded onto any host, so it is unreachable from the
+    # UI -- which means this entry named only the dead key and the Classify
+    # screen has never shown an example-data control at all. Found on
+    # 2026-09-01 while checking which core modules have test data.
     "classify": "Plate Sources & Workflow",
+    "classify_merged": "Plate Sources & Workflow",
     # Map Barcodes reads FASTQ, and the example is the paper's own: NCBI
     # BioProject PRJNA1261935, the four sequenced plates. Above `src`,
     # in the section that names it.
@@ -2652,7 +2659,7 @@ class AppScreen(QWidget):
                 self._install_example_data_button(section)
             elif self.app_key == "measure":
                 self._install_measure_example_button(section)
-            elif self.app_key == "classify":
+            elif self.app_key in ("classify", "classify_merged"):
                 self._install_annotate_example_button(section)
             elif self.app_key == "map_barcodes":
                 self._install_sequencing_example_button(section)
