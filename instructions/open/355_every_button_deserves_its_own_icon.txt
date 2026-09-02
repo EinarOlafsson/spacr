@@ -2,7 +2,9 @@
 EVERY BUTTON STILL WEARING THE DEFAULT ICON GETS AN INTUITIVE ONE
 ================================================================================
 
-Status:    not started, filed 2026-09-02.
+Status:    PARTLY DONE 2026-09-02 -- 7 buttons wore the default icon,
+           2 still do. Both are Regression's Diagnostics, which needs
+           artwork nobody has drawn. See WHAT WAS DONE at the bottom.
 Requested: 2026-09-02, verbatim -- "make an intuitive, elegant logo for all
            buttons that are currently using the default logo, dor example
            diagnostics in regression"
@@ -59,3 +61,152 @@ HOW IT WILL BE CHECKED
 * The list of what was missing is written into this file, because the next
   module added will miss too and the fix should be one line rather than a
   rediscovery.
+
+================================================================================
+WHAT WAS DONE, 2026-09-02
+================================================================================
+
+Status: PARTLY DONE. Three of the four causes are fixed; one button still
+        needs artwork nobody has drawn, and it is the one the maintainer
+        named. That debt is spelled out at the bottom of this file.
+
+--------------------------------------------------------------------------------
+THE MEASUREMENT, which is the part that should never be redone by eye
+--------------------------------------------------------------------------------
+
+Booted a MainWindow offscreen, opened all 36 registered module screens, and
+compared every QAbstractButton's icon against the puzzle piece
+`iconset.icon()` answers an unknown name with -- pixel comparison, not a
+table lookup, so an icon that resolves to a path and paints nothing counts
+as missing too.
+
+    unique buttons that carry an icon at all      208
+    of those, wearing the puzzle piece BEFORE       7
+    of those, wearing the puzzle piece AFTER        2
+
+Seven buttons, four causes. Three keys and one semantic glyph name:
+
+  key / name                where it drew the puzzle piece      instances
+  ------------------------  ---------------------------------   ---------
+  import_images             dock row + Import's fold button          2
+  explain_cv                dock row + Classify's fold button        2
+  regression_diagnostics    dock row + Regression's fold button      2
+  trash                     Run History's "Clear all"                1
+
+The three keys were already known (they are named in a comment in
+`spacr/qt/app.py` around line 2137). `trash` was NOT: `run_history.py:205`
+calls `icon("trash")` and `_NAME_TO_GLYPH` had no such name, so the one
+button in the GUI that throws away recorded runs drew the artwork of every
+unfiled key. That is what enumerating the IN-MODULE ACTIONS turned up, and
+it is why the new test harvests the names from the source rather than
+listing them.
+
+Everything else came back clean. All 36 Home tiles resolve. All 34 fold-strip
+children except the three above resolve. The ten Make Masks canvas tools all
+resolve (instruction 347 fixed the three that did not). The ~1185 buttons
+with a NULL icon are text buttons and toggles that draw their name and were
+never meant to carry one -- they are not part of this count.
+
+--------------------------------------------------------------------------------
+WHAT WAS MAPPED, and why each one suits its button
+--------------------------------------------------------------------------------
+
+No new artwork was drawn. Each of these is a picture that already ships,
+pointed at a button that had none.
+
+* import_images -> `fa5s.images` in `iconset._NAME_TO_GLYPH`.
+  Stacked photo frames, because "images" is the entire thing that separates
+  Import Images from its host Import (foreign.png, a net funnelling into a
+  down arrow) and from its two siblings Format Converter and External Masks.
+  No bundled PNG says "image files".
+
+* explain_cv -> `ml_analyze.png`, via `iconset.SHARED_ICON_ASSETS`.
+  A six-node decision tree, which is not a metaphor: `surrogate.fit_surrogate`
+  fits a random forest, a histogram gradient booster or XGBoost -- all tree
+  ensembles -- to reproduce the CV model from measured features, so a tree of
+  nodes is what the screen builds. The file is retired artwork: it was drawn
+  for the ML-classification route that folded into classify_merged, and
+  measured over all 61 registered-plus-folded keys, nothing else resolves to
+  it.
+
+* trash -> `fa5s.trash` in `iconset._NAME_TO_GLYPH`.
+  A solid bin for "Clear all". Distinct from `erase_object`'s outlined
+  `fa5s.trash-alt`, and the two never share a screen -- one is a Make Masks
+  canvas tool, the other a Run History toolbar button.
+
+Checked against this file's four rules, in tests/qt/
+test_every_button_deserves_its_own_icon.py: both new marks ink more than 4 %
+of a 16 px square (they measure 67 % and 23 %); `ml_analyze.png` clears the
+3.0 contrast floor in all four themes (16.1 dark / 15.8 light / 11.3 cell /
+9.7 glass) and inks a different colour in light than in dark, which is the
+proof the re-inking ran; and no two marks on either affected fold strip
+agree on more than 90 % of a 16 px silhouette.
+
+--------------------------------------------------------------------------------
+STILL OWED: ONE BUTTON, AND IT IS THE ONE THAT WAS ASKED ABOUT
+--------------------------------------------------------------------------------
+
+  regression_diagnostics -- "Diagnostics", folded onto Regression.
+  Two buttons: its dock row and its fold button on Regression's masthead.
+
+WHAT IT MEANS, so whoever draws it does not have to read the module:
+`spacr/regression_diagnostics.py` answers "can this fit be believed". Three
+groups of panels -- the DESIGN (wells per parameter, rank of the design
+matrix, condition number, collinear guide pairs), the RESIDUALS
+(residual-versus-fitted, scale-location, QQ, leverage, Cook's distance), and
+the INFERENCE (P-value histogram, observed-versus-expected quantiles with
+the genomic inflation factor). The module was written after a design with
+824 guides in 587 wells returned a confident P value for every guide from a
+rank-deficient matrix.
+
+WHAT THE MARK SHOULD BE: this file already says it -- a plot with a flagged
+point. Concretely, a residual scatter about a horizontal zero line with one
+point ringed or filled to mark it as influential. Single-colour line art on
+transparency, like every other bundled icon, so `iconset.reink` can paint it
+for the theme.
+
+WHY NOTHING WAS SUBSTITUTED:
+
+  * `outliers.png` is the only shipped artwork that draws a flagged point,
+    and it belongs to the Outliers module (Detect robust univariate and
+    multivariate outliers, folded onto QC Dashboard). Taking it would make
+    two live modules one picture, which rule three of this file forbids.
+  * `dose_response.png` and `gate_editor.png` are the only other unclaimed
+    plots. The first is a sigmoid, near-identical at 16 px to profiler.png
+    which sits beside Diagnostics on the same fold strip; the second is a
+    polygon gate, which means selection, not diagnostics.
+  * Font Awesome 5 solid has no residual plot. `stethoscope` and `heartbeat`
+    say "diagnostics" the way a gear says "settings" -- exactly the
+    substitution this file rules out.
+
+A wrong-but-present icon is worse than the fallback, because the fallback at
+least reads as "no icon chosen". So it was left on the fallback and written
+down here instead.
+
+TO RETIRE THE DEBT, once the artwork exists:
+  1. drop `regression_diagnostics.png` into `spacr/resources/icons/`;
+  2. add its row to `spacr/resources/icons/chosen_icons.json` (name ->
+     {candidate, sha256}), which `test_every_installed_icon_is_in_the_manifest`
+     requires;
+  3. in tests/qt/test_every_button_deserves_its_own_icon.py set
+     `STILL_OWED = None` and delete `TestWhatIsStillOwed`.
+No other code changes: `bundled_icon_path` tries `<key>.png` first, so the
+file alone is the fix.
+
+--------------------------------------------------------------------------------
+FOR THE NEXT MODULE, which will miss too
+--------------------------------------------------------------------------------
+
+A key with no `<key>.png` and no line in `iconset._NAME_TO_GLYPH` draws the
+puzzle piece, on its Home tile, its dock row, its fold button and its folded
+settings heading at once. The one-line fixes, in the order to prefer them:
+
+  1. artwork named for the key in `spacr/resources/icons/` -- outranks
+     everything and needs no code;
+  2. a line in `iconset.SHARED_ICON_ASSETS` when another key's picture is
+     genuinely about the same SUBJECT and that key is retired;
+  3. a line in `iconset._NAME_TO_GLYPH` when a Font Awesome glyph says the
+     right thing, as `align`, `data_manager` and `train_cellpose` already do.
+
+`tests/qt/test_every_button_deserves_its_own_icon.py` fails the day a new
+key or a new `icon("name")` call site misses, and names it.

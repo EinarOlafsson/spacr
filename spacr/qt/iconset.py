@@ -575,9 +575,25 @@ def bundled_icon_paths() -> Tuple[str, ...]:
 #: routes into it, and the merged screen is the only thing left that a user
 #: reaches for it expecting. Neither ``classify`` nor ``classify_ml`` is a
 #: registered key any more, so nothing else is claiming the file.
+#:
+#: ``explain_cv`` is the third of the same shape, and it comes from
+#: instruction 355. Of the 208 buttons that carry an icon at all -- counted
+#: by walking every ``QAbstractButton`` in a booted window with all 36
+#: module screens opened -- seven were still falling through to the puzzle
+#: piece, and two of the seven were Explain CV Model: its dock row and its
+#: fold button on Classify's masthead. ``ml_analyze.png`` is a
+#: six-node decision tree drawn for the ML-classification route that folded
+#: into ``classify_merged``; no GUI key resolves to it any more (measured:
+#: zero of the 61 registered + folded keys), so it is retired artwork rather
+#: than a borrowing from a live tile. It is also literally the right
+#: picture: :func:`spacr.surrogate.fit_surrogate` fits a random forest, a
+#: histogram gradient booster or XGBoost -- all tree ensembles -- to
+#: reproduce the CV model's decisions from measured features, so a tree of
+#: nodes is what this screen builds, not a metaphor for it.
 SHARED_ICON_ASSETS = {
     "investigate_hit": "hit_list.png",
     "classify_merged": "classify.png",
+    "explain_cv": "ml_analyze.png",
 }
 
 
@@ -675,6 +691,13 @@ _NAME_TO_GLYPH = {
     "brush":           "fa5s.paint-brush",
     "erase":           "fa5s.eraser",
     "erase_object":    "fa5s.trash-alt",
+    # Run History's "Clear all" asked for `trash` and this table had no
+    # such name, so the one button that throws away recorded runs drew the
+    # puzzle piece -- the artwork every unfiled key draws. A solid bin,
+    # distinct from `erase_object`'s outlined `trash-alt`; the two never
+    # share a screen (one is a Make Masks canvas tool, the other is a
+    # Run History toolbar button), so the family resemblance costs nothing.
+    "trash":           "fa5s.trash",
     "wand":            "fa5s.magic",
     "wand_add":        "fa5s.plus-circle",
     "wand_erase":      "fa5s.minus-circle",
@@ -733,6 +756,15 @@ _NAME_TO_GLYPH = {
     # bundled PNG (spacr.qt.app._FORCE_GLYPH) because no bundled artwork
     # says "stitched mosaic".
     "align":           "fa5s.border-all",
+    # Stacked photo frames: the module reads a FOLDER OF IMAGES off a
+    # microscope, and "images" is the whole thing that separates it from its
+    # host Import (`foreign.png`, a net funnelling into a down arrow) and
+    # from its two siblings on that fold strip -- Format Converter
+    # (`convert.png`, one field split raw/processed) and External Masks
+    # (`external_masks.png`, two crops arrowed into a folder). No bundled
+    # PNG says "image files", and without a line here the key fell through
+    # to the shared puzzle piece on both the dock row and the fold button.
+    "import_images":   "fa5s.images",
     "map_barcodes":    "fa5s.barcode",
     "ai_console":      "fa5s.robot",
     # Stacked platters: the app is about what a project weighs on disk and
@@ -740,4 +772,17 @@ _NAME_TO_GLYPH = {
     # to the shared puzzle piece, which is artwork every unfiled app draws
     # — indistinguishable tiles on Home.
     "data_manager":    "fa5s.hdd",
+    # DELIBERATELY ABSENT: `regression_diagnostics`. It is the one key of
+    # the four instruction 355 measured on the fallback that is still
+    # there, and it is left there on purpose. Regression Diagnostics is
+    # residual-versus-fitted, scale-location, QQ, leverage and Cook's
+    # distance (see spacr/regression_diagnostics.py), so the mark that
+    # names it is a scatter about a zero line with one point flagged.
+    # Nothing bundled draws that and is free -- `outliers.png` is the
+    # closest and is the live Outliers QC module's own mark, so taking it
+    # would make two modules one picture -- and no FA5 glyph draws it;
+    # `stethoscope` and `heartbeat` say "diagnostics" the way a gear says
+    # "settings", which is the substitution instruction 355 rules out.
+    # A wrong-but-present icon is worse than the fallback, because the
+    # fallback at least reads as "nobody has chosen one yet".
 }
