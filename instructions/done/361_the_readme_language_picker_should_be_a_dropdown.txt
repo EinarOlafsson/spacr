@@ -2,10 +2,21 @@
 THE README'S LANGUAGE PICKER: A DROPDOWN, AND WHY IT CANNOT STAY ON THE PAGE
 ================================================================================
 
-Status:    IMPLEMENTED 2026-09-02, not yet pushed. Kept open until the
-           front page has been read on github.com after the push, which
-           is the one success criterion below that a local checkout
-           cannot satisfy. See RESULT at the end of this file.
+Status:    DONE 2026-09-02. Pushed, and READ ON GITHUB.COM -- which was the
+           one criterion a local checkout could not satisfy. Asking the API
+           for `nightly`'s rendered README returns exactly one control:
+
+               <p>Languages: <a href="docs/i18n/readme/README.md">
+                  🌐 English ▾</a></p>
+
+           and POSTing the picker page to the same renderer returns
+           `<details open="">` around the table, so the dropdown works where
+           it now lives.
+
+           THE FRONT PAGE PROPER STILL SHOWS THE OLD TEN LINKS, and that is
+           not this item: the repository's default branch is `main` and every
+           branch of this work is on `nightly`. It appears on the front page
+           when nightly is merged for the release, which is 05 and 304.
 Requested: 2026-09-02, verbatim -- "for the readme translations on the github
            page when another language is chosen the user gets taken to a page.
            is it possible to set it up so they stay on the github nightly or

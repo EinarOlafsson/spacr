@@ -2,7 +2,16 @@
 REGRESSION'S INPUT TABLES START WITH THE DOWNLOAD BUTTONS, NOT END WITH THEM
 ================================================================================
 
-Status:    not started, filed 2026-09-02.
+Status:    DONE 2026-09-02, both halves. The buttons are at the top, and
+           each is centred on the column it fills: measured -111.0, -125.0
+           and -115.5 px out before, -0.0 after, and still -0.0 after
+           dragging two columns wider and shrinking the screen to 1000 px.
+           The columns widen to fit, because aligning a button to a column
+           narrower than itself clipped "Measurements (.db)" -- which also
+           fixed two headings that never fitted the default 100 px.
+           VERIFIED: 10 tests in
+           tests/qt/test_the_download_buttons_sit_over_their_columns.py,
+           5 of which fail against the unaligned code.
 Requested: 2026-09-02, verbatim -- "in the regression module. the downloade
            setting in input tables with the downloade buttons, should be at
            the top above the paired data setting if you can allign each button
