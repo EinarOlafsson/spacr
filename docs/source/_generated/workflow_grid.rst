@@ -9,7 +9,7 @@ spaCR modules
 .. |DocModule_mask| image:: /_static/workflow/mask.png
    :width: 16.0%
    :alt: Open the Mask API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
    :align: middle
 .. |DocModule_measure| image:: /_static/workflow/measure.png
    :width: 16.0%
@@ -79,7 +79,7 @@ spaCR modules
 .. |DocModule_umap| image:: /_static/workflow/apps/umap.png
    :width: 16.0%
    :alt: Open the Image UMAP API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap
    :align: middle
 .. |DocModule_gate_editor| image:: /_static/workflow/apps/gate_editor.png
    :width: 16.0%
@@ -94,20 +94,20 @@ spaCR modules
 .. |DocModule_analyze_plaques| image:: /_static/workflow/apps/analyze_plaques.png
    :width: 16.0%
    :alt: Open the Plaque Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques
    :align: middle
 .. |DocModule_recruitment| image:: /_static/workflow/apps/recruitment.png
    :width: 16.0%
    :alt: Open the Recruitment API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment
    :align: middle
 .. |DocModule_invasion| image:: /_static/workflow/apps/invasion.png
    :width: 16.0%
    :alt: Open the Invasion Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_invasion
    :align: middle
 .. |DocModule_replication| image:: /_static/workflow/apps/replication.png
    :width: 16.0%
    :alt: Open the Replication Assay API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_replication
    :align: middle
