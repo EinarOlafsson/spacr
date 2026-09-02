@@ -76,8 +76,10 @@ def _flowview_pipeline(family):
     """Finish or fail the active graph without changing pipeline semantics."""
 
     def decorate(function):
+        """Return a wrapper that reports ``function`` lifecycle for ``family``."""
         @functools.wraps(function)
         def observed(*args, **kwargs):
+            """Call the pipeline, preserving its result or error while tracing lifecycle."""
             settings = args[0] if args else kwargs.get("settings")
             active = _flowview_event("begin", settings, family)
             try:
