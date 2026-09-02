@@ -156,8 +156,8 @@ def _run_cli(
     )
 
 
-def test_current_packaging_denominator_is_527_not_asset_generators():
-    """The ratchet follows all 527 shipped modules, not asset generators.
+def test_current_packaging_denominator_is_528_not_asset_generators():
+    """The ratchet follows all 528 shipped modules, not asset generators.
 
     Since the previous 506-module pin, the product added the public
     accelerator resolver, plaque analysis, settings-pack support, and the
@@ -180,7 +180,7 @@ def test_current_packaging_denominator_is_527_not_asset_generators():
         for path in (ROOT / "spacr").rglob("*.py")
     }
 
-    assert len(shipped) == 527
+    assert len(shipped) == 528
     assert every_spacr_python - shipped == RESOURCE_GENERATORS
     assert not RESOURCE_GENERATORS & shipped
 
@@ -438,7 +438,7 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     )
     assert "coverage combine --keep" in combine_script
     assert "coverage json --pretty-print" in combine_script
-    assert "--expected-file-count 527" in combine_script
+    assert "--expected-file-count 528" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
     assert "coverage-combine" in jobs["release-gate"]["needs"]

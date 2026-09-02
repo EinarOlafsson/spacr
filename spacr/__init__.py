@@ -192,6 +192,7 @@ _DOCUMENTED_SUBMODULES: tuple[str, ...] = (
     # spell the vocabulary out independently and now derive from this, so it
     # is imported by nearly everything that touches a mask.
     "object_roles",
+    "object_settings_table",
     # The organelle presets: one cell-biology choice that fills in the
     # fifty-three organelle settings a user would otherwise have to reason
     # about. `settings`, `settings_spec` and `measure` all import it, so it

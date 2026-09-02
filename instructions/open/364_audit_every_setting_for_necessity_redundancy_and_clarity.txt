@@ -215,8 +215,32 @@ RENAMED, all four approved: 90 settings across 26 organelle slots.
   silently. It now names both, which also removed two entries from the
   tooltip-drift ledger: a variant the tooltip itself explains is not drift.
 
-STILL TO BUILD: the per-object TABLE (one row per question, one column per
-object), which the maintainer chose over tabs and over keeping the flat
-names. It is a presentation change with a settings-file migration behind it
-and it meets instruction 326 -- a new organelle should be a new COLUMN, not
-20 new settings.
+THE PER-OBJECT TABLE'S MODEL IS BUILT: `spacr/object_settings_table.py`.
+`to_table(settings)` reads a flat settings dict as {question: {object:
+value}} and `from_table` writes it back. Mask's 113 per-object keys become 55
+questions.
+
+  AND THERE IS NO SETTINGS-FILE MIGRATION AFTER ALL, which is the important
+  part. This file assumed one; there is none, because the table is a
+  PRESENTATION and the stored keys do not change. `from_table(to_table(s), s)
+  == s` for both Mask and Measure, so no saved settings file, notebook,
+  tutorial or headless `spacr-run` has to move. Storing a nested structure
+  instead would have been a file-format change -- the presentation was what
+  was wrong, so only the presentation changes.
+
+  `widen(table, 'organellec')` is the operation 326 needs: one call, one new
+  column, and the number of QUESTIONS does not move. It starts the new
+  organelle where the first one is rather than at a global default nobody
+  chose. In the flat vocabulary the same act is twenty new settings that
+  every consumer, tooltip and translation catalog has to learn.
+
+  TWO THINGS THE MODEL GETS RIGHT THAT A GUI WOULD OTHERWISE GET WRONG.
+  Object prefixes are matched LONGEST FIRST, or `organelleb_min_area` files
+  under `organelle` and twenty-six slots collapse into one column -- which no
+  assertion about totals would catch. And a question an object does not ask
+  is ABSENT from its row rather than present as None: cytoplasm is derived,
+  so it has no channel and no diameter, and that is a different fact from a
+  diameter nobody has chosen yet.
+
+STILL TO BUILD: the GUI that renders it, and the same treatment for the
+remaining modules in this file's order.
