@@ -1,4 +1,52 @@
-"""FASTQ barcode decoding, consensus generation, and mapping pipeline."""
+"""Decode pooled-screen FASTQ reads into per-well guide counts.
+
+WHAT IT IS FOR
+==============
+The **Map Barcodes** module connects a sequencing run to an image-based
+screen.  It finds the plate-column, guide, and plate-row barcode in each
+read, resolves those sequences against reference tables, and counts the
+resulting guides by well.  :func:`generate_barecode_mapping` is the GUI and
+Python entry point (the historical ``barecode`` spelling remains part of the
+public API); :func:`graph_sequencing_stats` can then help choose a read-fraction
+cutoff.
+
+WHAT IT NEEDS
+=============
+``src`` must contain gzip-compressed FASTQ files whose names let spaCR pair R1
+and R2 reads.  The run also needs three CSV reference tables -- ``row_csv``,
+``column_csv``, and ``grna_csv`` -- with ``sequence`` and ``name`` columns.
+``target_sequence`` anchors the barcode window, while ``offset_start``,
+``expected_end``, and a regex with the named groups ``columnID``, ``grna``,
+and ``rowID`` describe its layout.  Use ``mode='paired'`` for a
+quality-weighted R1/R2 consensus or ``mode='single'`` with
+``single_direction`` when only one mate should be read.
+
+WHAT IT PRODUCES
+================
+Each sample gets its own output directory beneath ``src``.  The essential
+artifacts are ``unique_combinations.csv`` (guide counts by row and column)
+and ``qc.csv``; ``annotated_reads.h5`` is also written when ``save_h5`` is
+enabled.  Optional barcode QC adds a report and plots under ``barcode_qc``.
+Run manifests and failure records identify samples that were skipped or
+could not be processed.
+
+WHAT TO DO NEXT
+===============
+Inspect the QC table and unmapped fraction before trusting the counts.  Use
+``test=True`` to process one chunk while checking the regex, read direction,
+and reference orientation, then run the full mapping and pass the resulting
+``unique_combinations.csv`` files to :func:`spacr.ml.perform_regression` as
+``count_data``.  :func:`barecodes_reverse_complement` can make an
+opposite-orientation copy of a reference CSV.
+
+There are three easy ways to obtain plausible but incomplete output.  The
+anchor match is exact and a wrong regex silently rejects reads; reference
+sequences are compared in their stored orientation; and a sequence within
+``barcode_mismatches`` of two references remains unassigned instead of being
+guessed.  Finally, read-level HDF5 output can be much larger than the count
+tables, and high compression may spend more time saving than decoding, so
+disable ``save_h5`` unless those individual annotations are needed.
+"""
 
 import logging
 import os, gzip, re, time

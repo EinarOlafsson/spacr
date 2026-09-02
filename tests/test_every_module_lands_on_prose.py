@@ -60,7 +60,6 @@ BAR = 60
 STILL_OWED = {
     "spacr.core": 7,
     "spacr.ml": 6,
-    "spacr.sequencing": 8,
     "spacr.submodules": 8,
 }
 
@@ -135,17 +134,18 @@ def test_a_module_that_climbed_past_the_bar_leaves_the_table(tiles):
     assert not stale, "\n  ".join(["remove these from STILL_OWED:"] + stale)
 
 
-def test_the_module_this_session_wrote_answers_the_four_questions(tiles):
-    """`spacr.measure` is the one fixed against 366's own bar, so it is the
-    one asserted against it rather than against a word count.
+@pytest.mark.parametrize("module", ["spacr.measure", "spacr.sequencing"])
+def test_each_repaired_module_answers_the_four_questions(tiles, module):
+    """Modules fixed against 366's own bar are asserted against it rather
+    than only against a word count.
 
     The four questions the instruction asks a landing page to answer are
     checked as headings, not as prose quality -- a reader still has to judge
     that, and no test can."""
-    doc = (importlib.import_module("spacr.measure").__doc__ or "").upper()
+    doc = (importlib.import_module(module).__doc__ or "").upper()
     for phrase in ("WHAT IT IS FOR", "WHAT IT NEEDS", "WHAT IT PRODUCES",
                    "WHAT TO DO NEXT"):
-        assert phrase in doc, f"spacr.measure's landing page never says {phrase}"
+        assert phrase in doc, f"{module}'s landing page never says {phrase}"
 
 
 def test_two_tiles_do_not_share_one_landing_page(tiles):
