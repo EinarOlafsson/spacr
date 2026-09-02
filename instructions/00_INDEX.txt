@@ -117,7 +117,7 @@ OPEN
        348_the_dock_should_behave_like_a_dock.txt
 
   350  A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
-       [~45% -- swept: English clean, German 38 clipped; five captions named]
+       [~50% -- swept properly: 5 clipped in 4 screens x 3 locales, all AiToggleLabel]
        350_no_text_is_cut_off_anywhere_in_the_package.txt
 
   351  FIX AND CLOSE EVERY GITHUB ISSUE
