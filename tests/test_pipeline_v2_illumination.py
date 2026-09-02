@@ -27,6 +27,23 @@ class _CaptureModel:
         return masks, None, None
 
 
+class _ThresholdModel:
+    def __init__(self, *args, **kwargs):
+        self.pretrained_model = None
+
+    def eval(self, images, **kwargs):
+        from scipy import ndimage
+
+        masks = []
+        for image in images:
+            plane = np.asarray(image)
+            if plane.ndim == 3:
+                plane = plane[..., 0]
+            mask, _count = ndimage.label(plane >= 0.6)
+            masks.append(mask.astype(np.uint16))
+        return masks, None, None
+
+
 class _Session:
     def __init__(self, *, fail=False):
         self.fail = fail
@@ -79,6 +96,42 @@ def _stack(tmp_path: Path):
         field_id="A01_F001", path=path, shape=_raw().shape,
         channels=["cell", "nucleus"],
     )
+
+
+def _vignette_model(tmp_path: Path):
+    from spacr.illumination import IlluminationField, IlluminationModel
+
+    rows, cols = np.indices((16, 16), dtype=np.float32)
+    radius = np.sqrt((rows - 7.5) ** 2 + (cols - 7.5) ** 2)
+    flat = np.clip(1.0 - 0.07 * radius, 0.30, 1.0).astype(np.float32)
+    model = IlluminationModel(
+        fields={
+            "stack": IlluminationField(
+                plate="stack", channels=(0,), flatfield=flat[None, ...],
+                dark=np.zeros(1, dtype=np.float32), n_fields=20,
+                estimator="polynomial", degree=2, bin_size=1,
+            ),
+        },
+        meta={
+            "application_contract_version": 1,
+            "channel_index_space": "persisted-intensity-axis",
+            "estimated_from_intensity_state": "raw",
+        },
+    )
+    return flat, Path(model.save(tmp_path / "known_vignette.npz"))
+
+
+def _write_vignette_plate(path: Path, flat: np.ndarray):
+    import tifffile
+
+    path.mkdir()
+    truth = np.zeros(flat.shape, dtype=np.float32)
+    truth[1:4, 1:4] = 1000
+    truth[7:10, 7:10] = 1000
+    raw = np.rint(truth * flat).astype(np.uint16)
+    tifffile.imwrite(
+        path / "plate1_A01_T01F01L01A01Z01C00.tif", raw)
+    return truth, raw
 
 
 @pytest.fixture
@@ -293,3 +346,70 @@ def test_run_v2_real_session_finishes_exact_fields_and_keeps_raw_intensity(
     model_path = record_path.parent / record["model_path"]
     assert hashlib.sha256(model_path.read_bytes()).hexdigest() == \
         record["model_sha256"]
+
+
+def test_known_vignette_recovers_the_dim_corner_object_before_segmentation(
+        tmp_path, monkeypatch):
+    flat, model_path = _vignette_model(tmp_path)
+    off = tmp_path / "off"
+    on = tmp_path / "on"
+    _write_vignette_plate(off, flat)
+    _write_vignette_plate(on, flat)
+    monkeypatch.setattr("cellpose.models.CellposeModel", _ThresholdModel)
+
+    off_result = PV.run_v2(
+        off, channels=(0,), batch_fields=1,
+        illumination_settings={"illumination_correction": False},
+    )
+    on_result = PV.run_v2(
+        on, channels=(0,), batch_fields=1,
+        illumination_settings={
+            "illumination_correction": True,
+            "illumination_model": str(model_path),
+            "illumination_qc": False,
+            "illumination_on_missing": "error",
+            "verbose": False,
+        },
+    )
+
+    off_mask = np.load(off_result["stacks"][0].path)[..., -1]
+    on_mask = np.load(on_result["stacks"][0].path)[..., -1]
+    assert int(off_mask.max()) == 1
+    assert int(on_mask.max()) == 2
+
+
+def test_segmentation_and_measure_share_a_model_without_squaring_its_gain(
+        tmp_path, monkeypatch):
+    from spacr.illumination import IlluminationCorrector, IlluminationModel
+    from spacr.measure_hooks import PreprocessingContext
+
+    flat, model_path = _vignette_model(tmp_path)
+    plate = tmp_path / "plate"
+    truth, raw = _write_vignette_plate(plate, flat)
+    monkeypatch.setattr("cellpose.models.CellposeModel", _ThresholdModel)
+    result = PV.run_v2(
+        plate, channels=(0,), batch_fields=1,
+        illumination_settings={
+            "illumination_correction": True,
+            "illumination_model": str(model_path),
+            "illumination_qc": False,
+            "illumination_on_missing": "error",
+            "verbose": False,
+        },
+    )
+
+    merged = np.load(result["stacks"][0].path)
+    assert np.array_equal(merged[..., 0], raw)
+    corrector = IlluminationCorrector(
+        IlluminationModel.load(model_path), verbose=False)
+    context = PreprocessingContext(
+        file_name=result["stacks"][0].path.name, channels=(0,), settings={})
+    measured_once = corrector(merged[..., :1], context)
+    applied_twice = corrector(measured_once, context)
+    object_pixels = truth[..., None] > 0
+    assert np.max(np.abs(
+        measured_once[object_pixels].astype(float) -
+        truth[..., None][object_pixels])) <= 2
+    assert np.max(np.abs(
+        applied_twice[object_pixels].astype(float) -
+        truth[..., None][object_pixels])) > 100
