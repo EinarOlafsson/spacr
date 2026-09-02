@@ -318,5 +318,23 @@ looks like a two-line change and is not:
     flat row that is hidden rather than deleted -- not a grid that owns the
     values and a widget dict that has lost them.
 
-Then the remaining modules in this instruction's order, and then preferences
-and spaceout as the request asks.
+REGRESSION IS AUDITED, 2026-09-02 -- see
+instructions/data/364_regression_settings_audit_2026-09-02.txt. 88 settings,
+nothing dead (the same scan that found nothing dead in mask and measure's
+268), and six findings. The two worth the maintainer's attention first:
+
+  * `Toxoplasma` and `annotation_source` ARE THE SAME REQUEST, and this is
+    not an inference -- `spacr/ml.py`'s own reconciler says so in its
+    docstring. Propose retiring the checkbox and keeping the field, with
+    `Toxoplasma` accepted as a legacy spelling the way `toxo` already is.
+    One case must survive: `Toxoplasma=False` with no field means NO
+    annotation, and a careless migration would turn that into the default.
+  * NINE SETTINGS SAY "CONTROL" AND MEAN FOUR DIFFERENT THINGS -- an
+    identifier, a set of wells, non-targeting gRNAs, and an invasion-assay
+    stain baseline. GitHub issues 91 and 92 are both this: a user putting
+    well names into the identifier settings. `positive_control` also means a
+    COLUMN VALUE in the machine-learning screen and a GENE/gRNA ID in gRNA
+    regression -- one key, two meanings, chosen by which family runs.
+
+Classify (114 settings) is counted and not yet audited; Annotate and Map
+Barcodes are untouched. Then preferences and spaceout as the request asks.
