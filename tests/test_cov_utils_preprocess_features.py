@@ -508,6 +508,44 @@ def test_preprocess_data_drops_a_wholly_missing_feature(capsys):
     assert "Dropped 1 columns with NaN values" in capsys.readouterr().out
 
 
+def test_preprocess_data_treats_infinity_as_a_missing_measurement():
+    """A ratio with a zero denominator must not reach ``StandardScaler``.
+
+    A partly observed feature uses the same median contract as an ordinary
+    missing measurement, while a feature with no finite observation is
+    removed.  The finite counterpart pins the exact matrix that the repaired
+    measurements must produce rather than merely asserting an absence.
+    """
+    from spacr.utils import preprocess_data
+
+    dirty = pd.DataFrame({
+        "cell_area": [1.0, 2.0, np.inf, 4.0],
+        "cell_perimeter": [np.inf, -np.inf, np.inf, -np.inf],
+    })
+    finite_counterpart = pd.DataFrame({
+        "cell_area": [1.0, 2.0, 2.0, 4.0],
+    })
+
+    repaired = preprocess_data(
+        dirty,
+        filter_by=None,
+        remove_highly_correlated=False,
+        log_data=False,
+        exclude=None,
+    )
+    expected = preprocess_data(
+        finite_counterpart,
+        filter_by=None,
+        remove_highly_correlated=False,
+        log_data=False,
+        exclude=None,
+    )
+
+    assert repaired.shape == expected.shape == (4, 1)
+    assert np.isfinite(repaired).all()
+    assert np.allclose(repaired, expected)
+
+
 # ---------------------------------------------------------------------------
 # remove_low_variance_columns / remove_highly_correlated_columns
 # ---------------------------------------------------------------------------
