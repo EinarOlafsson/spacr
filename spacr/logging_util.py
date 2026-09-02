@@ -725,12 +725,14 @@ def timed(fn: Optional[TimingCallable] = None, *,
     :param level: logging level for the "took Xms" line.
     """
     def _decorate(inner: TimingCallable) -> TimingCallable:
+        """Wrap ``inner`` with the selected label, logger, and timing marks."""
         label = name or f"{inner.__module__}.{inner.__qualname__}"
         mod = inner.__module__
         log_name = mod if mod.startswith("spacr") else "spacr.timing"
 
         @functools.wraps(inner)
         def _wrapped(*args, **kwargs):
+            """Call ``inner`` and log qualifying elapsed time, even on error."""
             if not _TIMING_ENABLED:
                 return inner(*args, **kwargs)
             log = logging.getLogger(log_name)
