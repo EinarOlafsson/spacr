@@ -1,43 +1,67 @@
-# Handoff — 2026-08-15
+# Handoff — header rewritten 2026-09-02
 
 Written for whoever picks this up next, human or agent. It records what is
 true right now, what needs the maintainer, and the traps that cost time so
 they cost nobody else any.
 
 Read this, then `instructions/00_INDEX.txt`, then the open instruction you are
-taking. The authoritative status is the current ledger and each instruction's
-latest dated record; older sections below are preserved as history.
+taking. The INDEX is generated from the folder and carries a percentage on
+every open row; this file carries the things a generator cannot know.
 
-Current checkpoint: branch `codex/tutorial-api-final`, 92 done / 10 open after
-this closeout. The complete tutorial release has 73 lessons, 508 purposeful
-scenes, eight languages, 50 voices, 3,650 strict-freshness narration tracks,
-and 73 4K silent masters. Its reusable audit skill, frame sampler, live
-verifier, and tests are committed. Two hundred new audio/timing pairs and four
-masters were uploaded to the existing Hugging Face release surface; the
-tutorial commits are ``4caa7db1`` and ``6aeb6693``, and the matching main
-publication change was merged through PR #105 at
-``ea0d96b7d6f545bae8f73c1a7af2460f8457979a``.
+## WHERE THINGS ACTUALLY STAND (2026-09-02)
 
-Instruction 83 is complete on the current source freeze: all nine API
-catalogs are current at 6,655 symbols, all nine runtime catalogs are current
-at 3,678 entries, and every installer catalog is current at 57 strings.
-Coverage, exact source-bound review evidence, signature/placeholder guards,
-and the English manifests were regenerated together. Instruction 108 records
-the bounded human review and the explicitly named mechanically checked
-remainder. The coherent catalog/evidence/test closeout is commit
-``16ee2065``.
-Instruction 99 adds first-class CV-model explanations and regression-hit to
-candidate-cell investigation with guarded provenance and quantitative evidence.
-Instructions 58 and 82 are closed in the immutable pre-rewrite ledger: the
-1.5.0.5 release remains canceled, while the approved contributor-history
-rewrite and green post-rewrite CI are the final external operations. Their new
-SHAs and run IDs are intentionally reported outside the repository because the
-history instruction forbids a later commit.
+Branch `nightly`. **322 done / 27 open.** The old header said 92/10 and named
+a `codex/tutorial-api-final` checkpoint; both were nine months of work out of
+date and are in section 8 below with the rest of the history.
 
-The remainder of this handoff contains historical investigation notes. Its old
-69-done / 17-open count and hands-off ownership table are superseded.
+Two sessions share this repository. `instructions/open/325` is the channel
+between them and the record of who owns what — **read it before touching
+anything**, and announce there before editing `setup.py`, `spacr/__init__.py`,
+`spacr/schema.py`, `spacr/accelerator.py` or `.github/**`.
 
----
+WHAT IS RELEASE-BLOCKING, from instruction 331 which splits the list into
+before and after the version bump: **288** (green CI, per-module coverage),
+**314** (the regression hang, diagnosed and not fixed), **05** and **304**
+(the bump and Zenodo, both needing the maintainer), **316** (translations),
+and **01** (Windows self-update, code-complete and waiting only on
+publication).
+
+WHAT NEEDS THE MAINTAINER AND NOTHING ELSE — see section 1 — is now short
+enough to list here: the Zenodo toggle, the 1.5.0.5 go-ahead, the measure
+settings instruction 337 part 3 needs, three sentences of Spanish, Chinese and
+Korean for instruction 306, and the nine hand-written `_ROWS` translations
+instruction 316 is waiting on.
+
+## THE MEASUREMENT LESSONS OF 2026-09-02
+
+Four items were advanced in one night and every one of them turned on a
+measurement being wrong before it was right. They are here because they cost
+hours and will cost them again.
+
+**A HEAD BASELINE, OR THE NUMBER MEANS NOTHING.** Run the same selection twice
+— once with the work stashed — and `comm` the two failure lists. Every claim of
+"no regressions" made this week rests on that and none of it would survive
+without it. It found two failures that were mine and cleared five that were
+not.
+
+**A CACHED IMPORT AND THE IMPORT ARE TWO PIECES OF STATE.** `monkeypatch`
+restores what it was asked to restore. It does not restore a module-level
+`_ZERNIKE_AVAILABLE` filled while a fake package sat in `sys.modules`, and it
+does not restore a module object deleted by a reload. Both poisoned the whole
+process from one file; instruction 346 has the bisect that found them.
+
+**MEASURE A WIDGET ONLY AFTER THE LAYOUT SETTLES.** One
+`app.processEvents()` after `show()` is not enough — widths are still
+pre-layout defaults. A clipping sweep run that way reported 38 problems in
+German where there are none. Pump until the geometry stops changing.
+
+**AND ASK A WIDGET WHAT IT IS PAINTING, NOT WHAT IT HOLDS.** A control that
+elides on purpose reports its full caption from `text()`. Comparing that to
+its width reports clipping by construction. `displayed_text()` exists for
+this.
+
+**TWO MEASUREMENTS THAT DISAGREE ARE WORTH MORE THAN ONE THAT LOOKS RIGHT.**
+Both clipping retractions were caught that way, not by re-reading the code.
 
 ## 0. THE FOUR LESSONS. READ THESE BEFORE YOU TOUCH ANYTHING.
 
@@ -114,15 +138,21 @@ creating anything, and prefer `Edit` over `Write` for a path that may exist.
 
 ## 2. State of the tree
 
-* Branch `nightly`, 51 commits on 2026-08-13, all pushed.
-* Working tree carries four files that are **not ours**: `README.rst`,
-  `docs/source/index.rst`, `skill/FACTS.md`, `tests/test_docs_media_budget.py`.
-  These belong to the concurrent codex session (48/83). **Do not commit them.**
-* `instructions/open/48` and `83` are codex's. So are
-  `docs/source/_extra/tutorials/**` and the i18n catalogs.
-* `spacr-nightly` at `/home/olafsson/repo/spacr-nightly` is a **stale**
-  checkout (last commit 2026-07-26). Line numbers quoted from it will not
-  match. The working copy is `/mnt/firecuda2/codex/repo/spacr`.
+* Branch `nightly`. SUPERSEDED 2026-09-02: the file list and ownership that
+  used to be here were true in August and are not now.
+  **`instructions/open/325` sections 1 and 2 are the current answer** to which
+  tree is whose and which files are whose, and it stays current because both
+  sessions write to it.
+* THERE ARE TWO LIVE TREES, one per session:
+
+      Claude   /mnt/firecuda2/Claude/repo/spacr
+      Codex    /mnt/firecuda2/codex/repo/spacr
+
+  Confirm with `git worktree list` before your first commit. An older version
+  of this section called the Claude tree a stale mirror; that stopped being
+  true in August and cost a session an hour of confusion on 2026-09-01.
+* `spacr-nightly` at `/home/olafsson/repo/spacr-nightly` IS still stale
+  (last commit 2026-07-26). Line numbers quoted from it will not match.
 
 ### The environment
 
@@ -271,6 +301,13 @@ looked.
 
 ## 5. Where each open instruction stands
 
+> **SUPERSEDED — this table is an August snapshot.** Several of its items are
+> closed and fourteen more have been filed since. `instructions/00_INDEX.txt`
+> is regenerated from the folder and carries a percentage on every open row;
+> read that instead. The table is kept because its one-line characterisations
+> of 52, 95, 94 and 47 are still the best short descriptions of what those
+> items were about.
+
 | # | Item | Stage |
 |---|---|---|
 | **52** | 3D plane-anchored gates | **Controls rebuilt today.** Plane picker, shape dropdown, spin/draw, dragged slab. Geometry (Cylinder/Prism/Box/Composite/thresholds) was already right |
@@ -346,3 +383,53 @@ looked.
   grouped, ImageNet statistics given to a run that asked for its own.
 * **Measure, then decide.** Every palette, threshold and default that changed
   this week changed on a number recorded in the instruction file.
+
+
+## 8. The header this file used to carry (August 2026)
+
+Preserved because this file's own convention is that older sections stay as
+history. It describes the tutorial release and the instruction-83 catalog
+freeze; its counts are the ones the 2026-09-02 header replaced.
+
+---
+
+# Handoff — 2026-08-15
+
+Written for whoever picks this up next, human or agent. It records what is
+true right now, what needs the maintainer, and the traps that cost time so
+they cost nobody else any.
+
+Read this, then `instructions/00_INDEX.txt`, then the open instruction you are
+taking. The authoritative status is the current ledger and each instruction's
+latest dated record; older sections below are preserved as history.
+
+Current checkpoint: branch `codex/tutorial-api-final`, 92 done / 10 open after
+this closeout. The complete tutorial release has 73 lessons, 508 purposeful
+scenes, eight languages, 50 voices, 3,650 strict-freshness narration tracks,
+and 73 4K silent masters. Its reusable audit skill, frame sampler, live
+verifier, and tests are committed. Two hundred new audio/timing pairs and four
+masters were uploaded to the existing Hugging Face release surface; the
+tutorial commits are ``4caa7db1`` and ``6aeb6693``, and the matching main
+publication change was merged through PR #105 at
+``ea0d96b7d6f545bae8f73c1a7af2460f8457979a``.
+
+Instruction 83 is complete on the current source freeze: all nine API
+catalogs are current at 6,655 symbols, all nine runtime catalogs are current
+at 3,678 entries, and every installer catalog is current at 57 strings.
+Coverage, exact source-bound review evidence, signature/placeholder guards,
+and the English manifests were regenerated together. Instruction 108 records
+the bounded human review and the explicitly named mechanically checked
+remainder. The coherent catalog/evidence/test closeout is commit
+``16ee2065``.
+Instruction 99 adds first-class CV-model explanations and regression-hit to
+candidate-cell investigation with guarded provenance and quantitative evidence.
+Instructions 58 and 82 are closed in the immutable pre-rewrite ledger: the
+1.5.0.5 release remains canceled, while the approved contributor-history
+rewrite and green post-rewrite CI are the final external operations. Their new
+SHAs and run IDs are intentionally reported outside the repository because the
+history instruction forbids a later commit.
+
+The remainder of this handoff contains historical investigation notes. Its old
+69-done / 17-open count and hands-off ownership table are superseded.
+
+---
