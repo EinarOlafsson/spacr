@@ -338,13 +338,27 @@ def test_the_in_app_terms_name_the_same_licence():
     assert "Noncommercial Purpose" not in "\n".join(terms.TERMS)
 
 
-def test_the_terms_version_was_bumped_for_the_relicence():
-    """A relicence is a new agreement, not a wording change: the
-    restriction a profile accepted under 3.0 is gone, so a profile that
-    accepted 3.0 is asked again."""
+def test_the_terms_version_is_bumped_whenever_the_agreement_changes():
+    """A profile re-accepts when the DOCUMENT changes, not when wording does.
+
+    4.0 was the relicence: the noncommercial restriction a profile accepted
+    under 3.0 was gone, so 3.0 profiles were asked again.
+
+    4.1 is the governing-language clause, Section 11.4, added on 2026-09-02
+    when the agreement began being presented in nine languages. That is a TERM
+    of the agreement -- it says a translation is a convenience and the English
+    governs -- rather than a note about it, so it is in the document and 4.0
+    profiles are asked again too.
+
+    Pinned rather than asserted-nonempty so a bump is deliberate: whoever
+    changes the agreement updates this line in the same commit and says which
+    clause moved.
+    """
     from spacr.qt import terms
 
-    assert terms.TERMS_VERSION == "4.0"
+    assert terms.TERMS_VERSION == "4.1"
+    assert any(clause.startswith("11.4 LANGUAGE.") for clause in terms.TERMS), (
+        "4.1 is defined by the governing-language clause; it is missing")
 
 
 # ---------------------------------------------------------------------------
