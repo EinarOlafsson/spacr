@@ -513,6 +513,11 @@ def _progress(out) -> object:
     state = {"percent": -1}
 
     def report(written: int, expected: Optional[int]) -> None:
+        """Redraw the terminal line when the integer percentage changes.
+
+        An unknown or zero total cannot yield a useful percentage and is
+        ignored; every emitted update is flushed so it is immediately visible.
+        """
         if not expected:
             return
         percent = int(written * 100 / expected)
