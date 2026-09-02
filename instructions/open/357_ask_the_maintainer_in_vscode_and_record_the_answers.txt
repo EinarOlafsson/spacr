@@ -213,3 +213,37 @@ catalog's reviewed row for the Home grouping caption still names SIX sections
 caption is built from the four that exist. So that row is stale against the
 running UI independently of any translation, and re-translating it without
 fixing the source would translate a sentence the application no longer says.
+
+--------------------------------------------------------------------------------
+2026-09-02 — ANSWERS, ROUND TWO. THIS IS THE ANSWER TO 316-C.
+--------------------------------------------------------------------------------
+
+WHICH LOCALES THE MAINTAINER CAN REVIEW: ICELANDIC, SWEDISH, GERMAN.
+Asked directly, answered as a multiple selection. He did NOT claim the other
+six: Spanish, Simplified Chinese, Portuguese, Hindi, Korean and French.
+
+METHOD: "I draft, you correct." He approves or replaces a candidate rather
+than authoring from scratch, which is what guideline 5 asks for and is the
+faster direction for a human.
+
+STALE SOURCE: fix the English first, before translating anything.
+
+SO 316-C IS ANSWERED, AND THE ANSWER IS A SPLIT rather than any of C1/C2/C3:
+
+    is, sv, de     FLUENT REVIEW BY EINAR, recorded per string with the date.
+    es, zh_CN, pt,
+    hi, ko, fr     NO fluent reviewer. These remain machine-drafted and
+                   technically checked, with English fallback, and 316's
+                   fluent-review criterion stays OPEN for them — which is
+                   exactly what C3 says, applied to six locales instead of
+                   nine.
+
+THE PUBLIC CLAIM MUST THEREFORE BE PER-LOCALE, not one sentence for all nine.
+"Nine languages, human-reviewed" would be false. "Three human-reviewed, six
+machine-drafted with English fallback" is what the evidence supports, and the
+README and localization page wording that instruction 316 lists as overclaiming
+must be narrowed to that.
+
+DO NOT RECORD A REVIEW FOR A LOCALE HE DID NOT NAME, even if a draft looks
+correct and even if a validator passes it. Guideline 4 is explicit and this is
+the case it was written for.
