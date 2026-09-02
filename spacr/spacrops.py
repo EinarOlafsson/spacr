@@ -731,6 +731,7 @@ class spacrStitcher:
         start = time.time()
 
         def _job(p):
+            """Return ``p`` with its features for the captured channel index."""
             return p, self._compute_features_one(p, channel_index)
 
         total = len(todo)
@@ -868,11 +869,14 @@ class spacrStitcher:
     
         # ---- helpers for dtype preservation ----
         def _series_dtype(p: str) -> np.dtype:
+            """Return the NumPy dtype of TIFF ``p``'s first series."""
             with tifffile.TiffFile(p) as tf:
                 return np.dtype(tf.series[0].dtype)
         def _common_dtype(*dts: np.dtype) -> np.dtype:
+            """Return the NumPy result dtype shared by ``dts``."""
             return np.result_type(*dts)
         def _cast(arr: np.ndarray, dtype: np.dtype) -> np.ndarray:
+            """Cast ``arr`` to ``dtype``, rounding and clipping integer targets."""
             dtype = np.dtype(dtype)
             if np.issubdtype(dtype, np.integer):
                 info = np.iinfo(dtype)
@@ -1343,6 +1347,7 @@ class spacrStitcher:
         too_many_pairs = (total_pairs > int(qc_pairs_threshold))
     
         def _job(pair):
+            """Stitch one path pair under the current QC policy, or return ``None``."""
             A, B = pair
             try:
                 thr_now = score_threshold if score_threshold is not None else self.score_threshold
@@ -1570,6 +1575,7 @@ class spacrStitcher:
     
         # --- Helpers to read channels from TIFFs (local, minimal axis handling) ---
         def _get_channel_count_tif_local(path: str) -> int:
+            """Infer and return TIFF ``path``'s channel count from axes or shape."""
             with tifffile.TiffFile(path) as tf:
                 series = tf.series[0]
                 axes = getattr(series, "axes", None)
@@ -1582,6 +1588,7 @@ class spacrStitcher:
             return 1
     
         def _read_plane_local(path: str, ch: int = 0) -> np.ndarray:
+            """Return channel ``ch`` of TIFF ``path`` as a float32 2-D plane."""
             with tifffile.TiffFile(path) as tf:
                 series = tf.series[0]
                 axes = getattr(series, "axes", None)
@@ -2023,10 +2030,12 @@ class spacrStitcher:
         """
         # dtype helpers
         def _series_dtype(p: str) -> np.dtype:
+            """Return the NumPy dtype of TIFF ``p``'s first series."""
             with tifffile.TiffFile(p) as tf:
                 return np.dtype(tf.series[0].dtype)
     
         def _cast(arr: np.ndarray, dtype: np.dtype) -> np.ndarray:
+            """Cast ``arr`` to ``dtype``, rounding and clipping integer targets."""
             dtype = np.dtype(dtype)
             if np.issubdtype(dtype, np.integer):
                 info = np.iinfo(dtype)
@@ -2220,10 +2229,12 @@ class spacrStitcher:
         """
         # ---- helpers for dtype preservation ----
         def _series_dtype(p: str) -> np.dtype:
+            """Return the NumPy dtype of TIFF ``p``'s first series."""
             with tifffile.TiffFile(p) as tf:
                 return np.dtype(tf.series[0].dtype)
     
         def _cast(arr: np.ndarray, dtype: np.dtype) -> np.ndarray:
+            """Cast ``arr`` to ``dtype``, rounding and clipping integer targets."""
             dtype = np.dtype(dtype)
             if np.issubdtype(dtype, np.integer):
                 info = np.iinfo(dtype)
@@ -2729,11 +2740,14 @@ class StitchedMultiAligner:
     
         # dtype helpers (local)
         def _series_dtype(p: str) -> np.dtype:
+            """Return the NumPy dtype of TIFF ``p``'s first series."""
             with tifffile.TiffFile(p) as tf:
                 return np.dtype(tf.series[0].dtype)
         def _common_dtype(dts: List[np.dtype]) -> np.dtype:
+            """Return the NumPy result dtype shared by ``dts``."""
             return np.result_type(*dts)
         def _cast(arr: np.ndarray, dtype: np.dtype) -> np.ndarray:
+            """Cast ``arr`` to ``dtype``, rounding and clipping integer targets."""
             dtype = np.dtype(dtype)
             if np.issubdtype(dtype, np.integer):
                 info = np.iinfo(dtype)
@@ -2922,6 +2936,7 @@ def stitch_cycle_wells(settings):
 
     # ---- Scan files ----
     def _iter_files(root: str, recursive_flag: bool, _exts: tuple):
+        """Yield matching files from ``root``, recursively when requested."""
         if recursive_flag:
             for r, _, files in os.walk(root):
                 for fn in files:
@@ -2972,6 +2987,7 @@ def stitch_cycle_wells(settings):
         os.makedirs(link_root, exist_ok=True)
 
     def _resolve_collision(dst_path: str) -> Optional[str]:
+        """Return the policy-selected destination, or ``None`` to skip."""
         if not os.path.exists(dst_path):
             return dst_path
         if collision == "skip":
@@ -3035,6 +3051,7 @@ def stitch_cycle_wells(settings):
 
         # sort by site number if present
         def _site_key(pth: str) -> int:
+            """Return the filename's site number, or a large sort-last key."""
             m = re.search(r"Site[-_](\d+)", os.path.basename(pth), re.IGNORECASE)
             return int(m.group(1)) if m else 10**9
 
@@ -3653,6 +3670,7 @@ def align_image_to_stitch(
 
     # ---------- helpers ----------
     def _scan_tifs(root: str, recursive: bool, exts: tuple) -> List[str]:
+        """Return matching TIFF paths from ``root``, optionally recursively."""
         out = []
         if recursive:
             for r, _, fs in os.walk(root):
@@ -3667,6 +3685,7 @@ def align_image_to_stitch(
         return out
 
     def _group_by_well(paths: List[str], meta_re: re.Pattern, well_group: str) -> Dict[str, List[str]]:
+        """Return parsed, uppercased well buckets with paths sorted by site."""
         buckets: Dict[str, List[str]] = {}
         for p in paths:
             m = meta_re.search(os.path.basename(p))
@@ -3678,6 +3697,7 @@ def align_image_to_stitch(
             buckets.setdefault(w, []).append(p)
         # sort per site if present
         def _site_key(p):
+            """Return a site, field, or FOV number, or a large sort-last key."""
             m = re.search(r"(?:Site|Field|FOV)[-_]?(\d+)", os.path.basename(p), re.IGNORECASE)
             return int(m.group(1)) if m else 10**9
         for w in list(buckets.keys()):
@@ -3685,6 +3705,7 @@ def align_image_to_stitch(
         return buckets
 
     def _symlink_list(files: List[str], target_dir: str) -> List[str]:
+        """Link or copy ``files`` into ``target_dir`` and return made paths."""
         os.makedirs(target_dir, exist_ok=True)
         made = []
         for sp in files:
