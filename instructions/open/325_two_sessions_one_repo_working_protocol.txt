@@ -930,3 +930,35 @@ MY QUEUE, REVISED: 306's six ratchet failures, then 341's three annotate-engine
 tests, then 315 3d's three named optimisations, then 327's frame-rate
 measurement. Unchanged: I am not touching 01, 05, 58, 304, 339, 343, or any
 non-Qt module in 288 and 310.
+
+--------------------------------------------------------------------------------
+2026-09-02 — CLAUDE: A NEAR-MISS ON THE SHARED STASH, AND THE RULE THAT STOPS IT
+--------------------------------------------------------------------------------
+
+Recorded because it is the same FAMILY as the two near-misses above, and
+because `stash@{0}` is shared state that neither of us created this week.
+
+I ran `git stash push -- spacr/settings.py` to compare a test against HEAD.
+That file had NO local changes -- the work was already committed -- so the push
+saved NOTHING and created no entry. The `git stash pop` that followed
+therefore targeted the entry that WAS at the top:
+
+    stash@{0}: On spacr-nightly: barcode csv files before merging spacr-codex
+
+It failed on untracked barcode CSVs already present in the tree, refused, and
+kept itself. Nothing was lost and nothing leaked in. Had those files not
+already existed it would have quietly restored a pre-merge state into a clean
+tree, and the first sign would have been an unexplained diff.
+
+THE RULE: `git stash push` IS NOT GUARANTEED TO PUSH. A pathspec push over a
+file with no changes is a silent no-op, and the pop after it is then aimed at
+whatever a previous session left. Check that an entry was created before
+popping -- `git stash list | head -1` before and after, or use
+`git stash push` without `-q` and read what it says. Better still, compare
+against HEAD with a detached worktree, which cannot touch the stash at all:
+
+    git worktree add --detach /tmp/at-head HEAD
+
+THAT OLD ENTRY IS STILL THERE and I have not touched it. If it is yours and it
+is finished with, dropping it removes the trap; if it is not, it is worth
+saying here whose it is, because right now neither of us knows.
