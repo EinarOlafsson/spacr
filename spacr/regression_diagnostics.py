@@ -1067,6 +1067,15 @@ def write_diagnostic_suite(destination, *, fractions=None, block=None,
     requested = [None] if formats is None else [str(f) for f in formats]
 
     def _emit(name, function, **kwargs):
+        """Write one diagnostic in every captured requested format.
+
+        :param name: stable panel name used for paths and manifest keys.
+        :param function: writer returning ``(written_path, report)``.
+        :param kwargs: diagnostic inputs forwarded to the writer.
+        :returns: None. Successful artifacts are keyed by their actual output
+            extension and their report is retained; advisory failures become
+            per-format error entries without stopping the remaining writers.
+        """
         for fmt in requested:
             path = os.path.join(destination, f"{name}{stem}")
             try:
