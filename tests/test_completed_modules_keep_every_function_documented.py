@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 FULLY_DOCUMENTED = (
     "spacr/cli_repro.py",
+    "spacr/foreign.py",
     "spacr/flowview/_classify_stages.py",
     "spacr/flowview/classify_blueprint.py",
     "spacr/intensity_rescale.py",

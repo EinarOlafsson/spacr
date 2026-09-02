@@ -644,6 +644,12 @@ class ColumnMap:
         :param row: column-map record keyed by the serialised field names.
         """
         def _get(key: str) -> str:
+            """Return one serialised mapping field as stripped text.
+
+            :param key: Column-map field name to read from ``row``.
+            :returns: Stripped text, or an empty string for a missing, null,
+                or NaN value.
+            """
             value = row.get(key, '')
             if value is None or (isinstance(value, float) and pd.isna(value)):
                 return ''
@@ -756,6 +762,10 @@ class Conflict:
     blocking: bool = True
 
     def __str__(self) -> str:
+        """Return a compact description of the conflicting column.
+
+        :returns: Conflict kind, source, target, and explanatory detail.
+        """
         return f'[{self.kind}] {self.source!r} -> {self.target!r}: {self.detail}'
 
 
@@ -1543,6 +1553,11 @@ def _resolve_columns(column_maps: Sequence[ColumnMap],
     taken: Set[str] = set()
 
     def _foreign(source: str) -> str:
+        """Build an unused prefixed target for one foreign column.
+
+        :param source: Foreign source-column name to sanitise.
+        :returns: SQL-safe prefixed target not present in ``taken``.
+        """
         return _unique(f'{prefix}{_sanitise_column(source)}', taken)
 
     def _note_shadow(source: str, target: str) -> None:
@@ -3277,6 +3292,12 @@ def run_import(plan: ImportPlan, dst: str, *,
     total = len(steps) + int(bool(measure)) + int(bool(crops))
 
     def _step(index: int, message: str) -> None:
+        """Report one import step when a progress callback is available.
+
+        :param index: One-based completed-step position.
+        :param message: Human-readable description of the current step.
+        :returns: ``None``.
+        """
         if progress is not None:
             progress(index, total, message)
 
