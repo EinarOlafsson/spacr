@@ -20,6 +20,50 @@ import sys
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def _only_one_spacr_measure_survives_this_file():
+    """Put the ORIGINAL ``spacr.measure`` back in ``sys.modules`` afterwards.
+
+    THIS FILE POISONED EVERY LATER TEST IN THE PROCESS, and the mechanism is
+    the nastiest kind: nothing fails where the mistake is.
+
+    `_reimport_measure` deletes `spacr.measure` from `sys.modules` so the
+    module-level capability probe runs again. The next `import spacr.measure`
+    then builds a SECOND, DIFFERENT module object -- and anything still
+    holding the first one is now talking to a module the pipeline does not
+    use.
+
+    `tests/test_measure_hooks.py` is exactly that: it registers hooks through
+    its own reference and then runs a measurement, which imports the other
+    copy and finds no hooks registered at all. Ten tests failed in company and
+    passed alone (instruction 346), and the bisect that found it took 112
+    files down to this one.
+
+    Restoring the original objects is enough, and is better than forbidding
+    the reload: the reload is the point of this file, and the probe genuinely
+    has to run twice to be tested.
+    """
+    # THE SAME PREDICATE `_reimport_measure` DELETES BY, and getting this
+    # wrong is how the first attempt at this fixture failed. That function
+    # says `startswith("spacr.measure")` -- no dot -- so it also removes
+    # `spacr.measure_hooks`, WHICH IS WHERE THE HOOK REGISTRY LIVES. A
+    # restore that matched only `spacr.measure` and `spacr.measure.*` put the
+    # module back and left the registry module rebuilt, which is exactly the
+    # state that made `tests/test_measure_hooks.py` register its hooks into a
+    # copy nobody reads.
+    def _ours(name):
+        return name.startswith("spacr.measure")
+
+    saved = {name: module for name, module in sys.modules.items()
+             if _ours(name)}
+    try:
+        yield
+    finally:
+        for name in [n for n in list(sys.modules) if _ours(n)]:
+            del sys.modules[name]
+        sys.modules.update(saved)
+
+
 def _reimport_measure():
     for name in [n for n in list(sys.modules) if n.startswith("spacr.measure")]:
         del sys.modules[name]

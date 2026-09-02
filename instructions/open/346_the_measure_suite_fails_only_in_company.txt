@@ -142,3 +142,57 @@ A CACHE OF THAT IMPORT ARE TWO PIECES OF STATE, and restoring one does not
 restore the other. Anywhere spaCR caches "is X installed", a test that fakes X
 has to put the cache back too. `_ZERNIKE_AVAILABLE` is not the only such
 cache.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE SECOND POISONER, AND 21 IS NOW 4
+--------------------------------------------------------------------------------
+
+With the Zernike cache fixed, `test_measure_3d.py`'s four went and
+`test_measure_hooks.py`'s ten remained -- a SECOND cause. Bisected the same
+way, 112 files to one:
+
+    first 27 files before measure_hooks    0 failures
+    first 28                              10
+    tests/test_cov_r8_measure_probes.py ALONE   10
+
+THE MECHANISM. That file's `_reimport_measure()` deletes every module whose
+name starts with `spacr.measure` from `sys.modules` so the capability probe
+runs again -- which is a legitimate thing for it to test. The next import then
+builds a NEW module object, and anything still holding the old one is talking
+to a module the pipeline does not use.
+
+`startswith("spacr.measure")` HAS NO DOT, so it also removes
+`spacr.measure_hooks` -- WHICH IS WHERE THE HOOK REGISTRY LIVES.
+`tests/test_measure_hooks.py` then registers its hooks through one copy and
+runs a measurement that imports the other, which has no hooks registered at
+all. Every hook test fails, and nothing fails where the mistake is.
+
+THE FIX is an autouse fixture that restores the ORIGINAL module objects
+afterwards, rather than forbidding the reload -- the reload is the point of
+that file and the probe genuinely has to run twice.
+
+AND THE FIRST VERSION OF THAT FIXTURE DID NOT WORK, which is worth recording
+because it looked right. It restored `spacr.measure` and `spacr.measure.*` --
+with the dot -- while the deletion used the dotless prefix. So it put the
+module back and left `spacr.measure_hooks` rebuilt: the exact state that
+caused the bug. THE RESTORE MUST USE THE SAME PREDICATE AS THE DELETION, and
+the fixture now says so in a comment beside the function it mirrors.
+
+    113 files:  21 failed -> 16 (Zernike) -> 4 failed, 3,110 passed
+
+THE FOUR THAT REMAIN, and they are four separate things rather than a family:
+
+    test_cov_w2_3_measure_preview.py::test_a_crop_pass_that_raises_is_reported_as_a_crop_failure
+    test_measure_hooks.py::test_region_filter_is_applied_before_features_are_computed
+    test_measure_hooks.py::test_measure_crop_checks_the_start_method_before_it_starts_the_pool
+    test_measure_intermittent.py::test_direct_insert_matches_pandas_arrow_timedelta_encoding
+
+Two are new to this list -- they were masked by the ten, which is normal when
+a poisoner is removed. Bisect each the same way.
+
+BOTH CAUSES ARE THE SAME SHAPE, and it is worth stating once: A TEST THAT
+FAKES AN IMPORT LEAVES TWO PIECES OF STATE BEHIND -- the import itself, which
+`monkeypatch` restores, and everything DERIVED from it, which it does not. A
+cached boolean in one case, a whole module object in the other. Anywhere
+spaCR caches an import or reloads a module, the test that does it owns
+putting both back.

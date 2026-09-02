@@ -108,7 +108,7 @@ OPEN
        345_three_more_annotate_tests_fail.txt
 
   346  TWENTY-ONE MEASURE TESTS FAIL ONLY IN COMPANY, AND HAVE FOR AT LEAST A DAY
-       [~25% -- the zernike-cache leak found and fixed, 21 down to 16]
+       [~80% -- both poisoners found and fixed, 21 down to 4]
        346_the_measure_suite_fails_only_in_company.txt
 
   348  THE DOCK: HELP GETS ITS OWN SECTION, THE ICONS GROW, AND THE NAMES MOVE OFF IT
