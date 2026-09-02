@@ -297,8 +297,7 @@ def generate_annotation_dataset(settings: Mapping[str, Any]) -> Dict[str, Any]:
         :func:`filter_selection` reads, and ``dst`` for where the crops go.
     :returns: the streaming report, plus ``table`` naming what was written.
     """
-    from .stream_dataset import (build_selection, selection_from_objects,
-                                 stream)
+    from .stream_dataset import build_selection, stream
 
     source = str(settings.get("stream_source") or "array").lower()
     src = str(settings.get("src") or "")
@@ -353,6 +352,15 @@ def generate_annotation_dataset(settings: Mapping[str, Any]) -> Dict[str, Any]:
     channels = list(settings.get("channel_arrays") or (0, 1, 2))
 
     def _write(path, array):
+        """Write and register one streamed crop through Measure's writer.
+
+        :param path: proposed crop path; its extension is replaced with
+            ``.png``.
+        :param array: crop array to normalize, select, pad, resize, and save.
+        :returns: None. The shared writer's returned path is appended to the
+            captured list using the captured channels and PNG size, preserving
+            alignment with the subsequently registered selection rows.
+        """
         # `measure_crop`'S OWN WRITER, not a second one.
         #
         # The annotation viewer shows pictures, so a set written as .npy is
