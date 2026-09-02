@@ -311,12 +311,43 @@ def test_region_filter_removes_exactly_the_excluded_objects(tmp_path):
     assert filtered["nucleus"]["object_label"].tolist() == [1, 3]
     assert filtered["pathogen"]["object_label"].tolist() == [1, 3]
 
-    # The surviving objects are measured exactly as they were: the filter
-    # suppressed objects, it did not perturb the measurement of the rest.
+    # The surviving objects are measured exactly as they were -- EXCEPT for
+    # the measurements that are ABOUT the other objects.
+    #
+    # This assertion used to cover every column and could not hold. A
+    # neighbourhood statistic is computed over the objects that are PRESENT:
+    # remove cells 2 and 4 and cell 1's second-nearest neighbour is a
+    # different cell, so `cell_second_neighbor_distance` changes by 100%. The
+    # code is right and the blanket claim was wrong.
+    #
+    # AND THE CHANGE IS THE DESIRABLE BEHAVIOUR, not a tolerated one. A region
+    # filter exists to say "these objects are not part of the analysis" --
+    # debris, edge fragments, a bad field. Counting an excluded object as a
+    # neighbour of a kept one would report a density the user explicitly
+    # filtered out.
+    #
+    # So the split is asserted in BOTH directions: per-object measurements are
+    # untouched, and neighbourhood ones DO move. Asserting only the first half
+    # would pass just as well against a build that stopped computing
+    # neighbours at all.
+    spatial = [column for column in baseline["cell"].columns
+               if any(mark in column for mark in
+                      ("neighbor", "neighbour", "percent_touching",
+                       "touching_neighbors"))]
+    assert spatial, "no neighbourhood columns to test the distinction with"
+
     kept = baseline["cell"][baseline["cell"]["object_label"].isin([1, 3])]
+    per_object = [c for c in baseline["cell"].columns if c not in spatial]
     pd.testing.assert_frame_equal(
-        kept.reset_index(drop=True),
-        filtered["cell"].reset_index(drop=True))
+        kept[per_object].reset_index(drop=True),
+        filtered["cell"][per_object].reset_index(drop=True))
+
+    moved = [c for c in spatial
+             if not kept[c].reset_index(drop=True).equals(
+                 filtered["cell"][c].reset_index(drop=True))]
+    assert moved, (
+        "no neighbourhood measurement changed when half the cells were "
+        f"excluded, which means the filter did not reach them: {spatial}")
 
 
 def test_verbose_reports_what_the_region_filter_dropped(tmp_path, capsys):

@@ -20,6 +20,37 @@ import pytest
 import spacr.measure as measure
 
 
+@pytest.fixture(autouse=True)
+def _zernike_cache_does_not_outlive_this_file(monkeypatch):
+    """Put ``measure._ZERNIKE_AVAILABLE`` back after every test here.
+
+    THIS FILE POISONED EVERY LATER TEST IN THE PROCESS, and the mechanism is
+    worth stating because nothing in it looks wrong.
+
+    `_ZERNIKE_AVAILABLE` is a module-level cache of "is Mahotas importable",
+    filled on first use. `stub_mahotas` puts a fake Mahotas into
+    `sys.modules`, and any measurement taken while it is there fills that
+    cache with **True**. `monkeypatch` then removes the fake from
+    `sys.modules` -- it restores what it was asked to restore -- but the CACHE
+    is not something it was asked about, so True survives into a process where
+    Mahotas does not exist.
+
+    Every later test that measures morphology then believes Zernike is
+    available, asks for it, and gets a frame with different columns. Measured
+    2026-09-02: after this file, `_ZERNIKE_AVAILABLE is True` while
+    `"mahotas" in sys.modules` is False, and ten tests in
+    `tests/test_measure_hooks.py` fail in company that pass alone
+    (instruction 346).
+
+    AUTOUSE AND FILE-LOCAL on purpose. It is a fixture rather than a teardown
+    in each test because the leak is caused by the CACHE being filled, which
+    can happen in any test here that touches a measurement -- including one
+    added later that does not think it is about Zernike at all.
+    """
+    monkeypatch.setattr(measure, "_ZERNIKE_AVAILABLE",
+                        measure._ZERNIKE_AVAILABLE, raising=False)
+
+
 def _block_mahotas(monkeypatch):
     """Exercise the optional-dependency branch even in the full CI profile."""
     original = builtins.__import__
