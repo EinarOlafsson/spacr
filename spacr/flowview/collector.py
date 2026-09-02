@@ -177,6 +177,13 @@ class Collector:
         if isinstance(event, StageMetric):
 
             def add_metric(node: Node) -> Node:
+                """Return a detached node carrying the captured metric event.
+
+                :param node: existing run-graph node to update.
+                :returns: a dataclass copy whose detached metrics mapping sets
+                    the captured event's name to its value. The input node and
+                    its original mapping are not mutated.
+                """
                 metrics = dict(node.metrics)
                 metrics[event.name] = event.value
                 return replace(node, metrics=metrics)
