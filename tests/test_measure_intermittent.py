@@ -269,7 +269,7 @@ def test_direct_insert_matches_pandas_scalar_and_null_encoding(tmp_path):
 def test_direct_insert_matches_pandas_arrow_timedelta_encoding(tmp_path):
     """Arrow durations retain pandas' nanosecond-normalisation rule.
 
-    THE FILTER IS FOR AN UPSTREAM DEPRECATION, NOT FOR A SPACR CHOICE, and
+    THE FILTER IS FOR AN UPSTREAM DEPRECATION, NOT FOR A spaCR CHOICE, and
     the evidence is in the traceback: the same warning is raised by the
     `pd.Series([...], dtype='duration[us][pyarrow]')` two lines below, before
     any spaCR code runs at all. `_insert_frame` already asks for an explicit
