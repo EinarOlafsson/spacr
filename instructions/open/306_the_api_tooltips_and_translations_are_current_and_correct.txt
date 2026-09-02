@@ -994,3 +994,58 @@ AND THE AUDIT REPORTS ONE AT A TIME. Fixing the first revealed the second;
 there may be more behind it. Whoever does the maintainer's pass should expect
 to iterate rather than to see the whole list at once, and it is worth teaching
 the audit to report every stale record in one run instead.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE STALE QUEUE, ENUMERATED RATHER THAN DISCOVERED ONE AT A TIME
+--------------------------------------------------------------------------------
+
+Since the audit stops at its first stale record, here is what is behind it.
+Produced by walking `docs/i18n/reviewed/runtime/**.json` and comparing each
+record's stored `source` against the live table, using the same comparison
+`build_i18n_catalogs` makes at its line 3438: `current_source != source`.
+
+SEVENTEEN distinct labels, almost all in the `ui` table:
+
+    ALL NINE LOCALES
+      ui/"Which fractal spaceout draws. Orbit fold is ..."   (the long one)
+      ui/"{location}: {path}"
+
+    ONE OR TWO LOCALES EACH
+      zh_CN  the channel-colour VIEW setting; "aggregates guide ranks by
+             gene without fitting every guide jointly"; "control gene or
+             guide, comma separated"; "gene or guide, comma separated";
+             "genes or guides"; "guides grouped by gene"; "k (robust SDs)";
+             spaCR's own three colours
+      ko     "Which family of coefficients every tab draws." (the level=both
+             explanation)
+      is     "Which mask plane a crop is cut by."
+      sv     "checksum"; the PCA standardisation note
+      fr     "on"; "trained on"
+
+READ THIS AS AN INVENTORY, NOT AS A LEDGER. It was produced with a helper of
+my own that resolves the source tables the way that function does, and it did
+NOT list `setting_tooltips/control_wells` -- which is the record the audit
+actually stops on. So the two disagree somewhere, and the difference is
+probably which table the helper resolves for `setting_tooltips`. Trust the
+audit for what is broken; trust this for the SHAPE of the queue.
+
+WHAT THE SHAPE SAYS, and it is the useful part:
+
+  * Most of it is ONE OR TWO LOCALES, not nine. Those are single sentences a
+    reviewer can do in one pass, not a re-translation.
+  * TWO records affect all nine, and one of them -- `{location}: {path}` -- is
+    a FORMAT STRING with no prose in it at all. That one is very likely
+    mechanical, the same way `regression_levels`' formula was, and should be
+    checked before anyone translates anything.
+  * The long fractal description is the real work: nine locales of a
+    paragraph, and it is the sort of copy that changed because the feature
+    changed.
+
+TWO THINGS WORTH BUILDING, in this order:
+  1. Teach the audit to report EVERY stale record and exit once, instead of
+     raising on the first. The maintainer cannot plan a pass they can only
+     see one item of.
+  2. Separate the mechanical records -- where source == translation, or the
+     string is a format template -- from the ones needing a reviewer. Tonight
+     nine catalogs were repaired without a translator because of exactly that
+     distinction.
