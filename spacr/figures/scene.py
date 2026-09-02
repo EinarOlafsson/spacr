@@ -1180,6 +1180,9 @@ def _translate_axes(plot, axes, look, report: SceneReport) -> None:
             if (isinstance(artist, Annotation)
                     and getattr(artist, "arrow_patch", None) is not None):
                 report.missing.append("Annotation arrow")
+                report.notes.append(
+                    "The annotation arrow cannot yet be carried by pyqtgraph."
+                )
                 continue
             report.items += _add_text(plot, artist, axes, look, report)
         elif isinstance(artist, Rectangle):
