@@ -67,11 +67,14 @@ SMALL_PX = 16
 #: the numbers in the assertions cannot drift apart.
 FALLBACK_BUTTONS_BEFORE = 7
 
-#: And after. Both remaining ones are ``regression_diagnostics``.
-FALLBACK_BUTTONS_AFTER = 2
+#: And after. Zero: `regression_diagnostics.png` was drawn on 2026-09-02,
+#: which was the last one.
+FALLBACK_BUTTONS_AFTER = 0
 
-#: The one key still owed real artwork.
-STILL_OWED = "regression_diagnostics"
+#: Nothing is owed artwork any more. Kept as a name rather than deleted
+#: because the two assertions below read better saying "nothing is missing"
+#: than comparing against an empty list literal in three places.
+STILL_OWED = None
 
 #: What was fixed, and with what. ``explain_cv`` borrows a bundled PNG
 #: through :data:`spacr.qt.iconset.SHARED_ICON_ASSETS`; the other two are
@@ -101,6 +104,22 @@ def render(icon, px: int = RENDER_PX):
 def coverage(pixels) -> float:
     """Fraction of the square the artwork actually inks."""
     return float((pixels[:, :, 3] > 8).mean())
+
+
+def _shares_artwork_on_purpose(first: str, second: str) -> bool:
+    """Whether these two keys are recorded as drawing one picture.
+
+    `iconset.SHARED_ICON_ASSETS` is the table where a deliberate sharing is
+    written down WITH ITS REASON, so consulting it is how this file tells a
+    decision from an accident.
+    """
+    shared = getattr(iconset, "SHARED_ICON_ASSETS", {})
+    for key, other in ((first, second), (second, first)):
+        alias = shared.get(key)
+        if alias and iconset.bundled_icon_path(other) == os.path.join(
+                iconset.RESOURCE_DIR, alias):
+            return True
+    return False
 
 
 def silhouette_difference(first, second) -> float:
@@ -164,7 +183,7 @@ class TestTheCount:
 
         missing = sorted(key for key in every_key()
                          if is_fallback(_icon_for_app(key), fallback))
-        assert missing == [STILL_OWED], (
+        assert missing == [], (
             f"keys drawing the shared fallback: {missing}. Give the new one "
             f"a line in iconset._NAME_TO_GLYPH or artwork named for the key, "
             f"and say why in one clause.")
@@ -181,7 +200,7 @@ class TestTheCount:
         """
         missing = sorted(key for key in every_key()
                          if is_fallback(iconset.app_icon(key), fallback))
-        assert missing == [STILL_OWED]
+        assert missing == []
 
     def test_no_semantic_glyph_name_the_source_asks_for_is_unmapped(self):
         """``icon("trash")`` returned the puzzle piece for Run History.
@@ -217,15 +236,14 @@ class TestTheCount:
 class TestTheRealButtons:
     """Resolvers are not buttons. These are the widgets a user clicks."""
 
-    def test_the_dock_draws_one_puzzle_piece_and_says_which(self, qtbot,
-                                                            fallback):
+    def test_no_dock_row_draws_the_puzzle_piece(self, qtbot, fallback):
         """The dock is 56 rows plus 34 indented fold children.
 
-        Three of those rows drew the fallback and one still does. Built
+        Three of those rows drew the fallback when this file was written and
+        one survived until `regression_diagnostics.png` was drawn. Built
         rather than reasoned about, because the dock sets its icon from
-        ``_icon_for_app`` in two separate places -- once for a module row
-        and once for a fold child -- and only the second one produced the
-        misses.
+        ``_icon_for_app`` in two separate places -- once for a module row and
+        once for a fold child -- and only the second one produced the misses.
         """
         from spacr.qt.app import Sidebar
 
@@ -234,12 +252,9 @@ class TestTheRealButtons:
         wearing = [btn for btn in dock.findChildren(QAbstractButton)
                    if not btn.icon().isNull()
                    and is_fallback(btn.icon(), fallback)]
-        assert len(wearing) == 1, (
+        assert wearing == [], (
             f"dock rows on the fallback: "
             f"{[b.property('moduleNameSource') or b.text() for b in wearing]}")
-        name = (wearing[0].property("moduleNameSource")
-                or wearing[0].text() or "").strip()
-        assert "Diagnostics" in name, name
 
     @pytest.mark.parametrize("key", ["import_images", "explain_cv"])
     def test_a_fold_button_now_carries_a_picture_not_a_letter(self, qtbot,
@@ -310,6 +325,12 @@ class TestTheNewMarksAreUsable:
                              "activation", "train_compare",
                              "feature_explorer"]),
         ("foreign", ["import_images", "convert", "external_masks"]),
+        # REGRESSION'S STRIP WAS NOT COVERED, which is how a mark could have
+        # been drawn that agreed with `profiler` on 90.2 % of the square and
+        # nothing would have said so. `regression_diagnostics` sits here.
+        ("regression", ["volcano_explorer", "hit_list", "methods_export",
+                        "investigate_hit", "profiler",
+                        "regression_diagnostics"]),
     ])
     def test_no_two_marks_on_one_fold_strip_are_the_same_shape(
             self, qapp, host, children):
@@ -324,6 +345,13 @@ class TestTheNewMarksAreUsable:
         drawn = {k: render(iconset.app_icon(k, theme="dark"), SMALL_PX)
                  for k in keys}
         for first, second in itertools.combinations(keys, 2):
+            if _shares_artwork_on_purpose(first, second):
+                # A RECORDED SHARING IS NOT A DUPLICATE. `investigate_hit`
+                # draws `hit_list.png` because the mark names A HIT rather
+                # than a tile, and `SHARED_ICON_ASSETS` says so with its
+                # reason. What this test is for is the sharing nobody
+                # decided.
+                continue
             assert silhouette_difference(drawn[first], drawn[second]) > 0.10, (
                 f"{first} and {second} are one picture at {SMALL_PX} px")
 
@@ -380,29 +408,34 @@ class TestTheBorrowingIsWrittenDown:
 class TestWhatIsStillOwed:
     """Regression's Diagnostics -- the button the maintainer named."""
 
-    def test_it_is_deliberately_unmapped_rather_than_forgotten(self):
-        """Neither route has an entry, and that is the state being asserted.
+    def test_the_last_one_was_drawn_rather_than_borrowed(self):
+        """Regression's Diagnostics -- the button the maintainer named.
 
-        Instruction 355: "'Diagnostics' under Regression is about residuals
-        and influence -- a plot with a flagged point says that; a generic
-        gear does not." ``outliers.png`` is the only shipped artwork that
-        draws a flagged point and it belongs to the Outliers QC module, so
-        taking it would make two modules one picture. Font Awesome 5 solid
-        has ``stethoscope`` and ``heartbeat``, which say "diagnostics" the
-        way a gear says "settings". Neither is better than the fallback.
+        It stayed on the fallback while every candidate was worse than no
+        icon: `outliers.png` is the live Outliers module's mark and taking
+        it makes two modules one picture; `dose_response.png` is a sigmoid
+        near-identical at 16 px to `profiler.png`, which sits BESIDE
+        Diagnostics on Regression's strip; and Font Awesome's `stethoscope`
+        says "diagnostics" the way a gear says "settings", which this
+        instruction rules out.
 
-        The day the artwork is drawn, dropping
-        ``regression_diagnostics.png`` into ``spacr/resources/icons/``
-        turns this red and turns
-        ``test_only_one_key_in_the_whole_registry_lacks_a_mark`` green;
-        the fix is then to delete this test and change ``STILL_OWED`` to
-        ``None``, which is one line each.
+        So it was drawn: a dashed zero line, six residuals scattered either
+        side of it, and one point ringed as influential -- which is what a
+        residual plot is, and what "Diagnostics" does. Measured against the
+        artwork that already ships: 8.9 % ink at 26 px where the bundled set
+        runs 3-5 % at 16, contrast 15.8 light and 16.1 dark against a floor
+        of 3.0, and it re-inks per theme like every other mask.
         """
-        assert STILL_OWED not in iconset._NAME_TO_GLYPH
-        assert STILL_OWED not in iconset.SHARED_ICON_ASSETS
-        assert iconset.bundled_icon_path(STILL_OWED) is None
+        path = iconset.bundled_icon_path("regression_diagnostics")
+        assert path is not None and os.path.isfile(path)
+        for theme in THEMES:
+            assert iconset.icon_contrast(path, theme) >= \
+                iconset.MIN_ICON_CONTRAST, theme
+        assert (iconset.icon_ink_color(path, "light")
+                != iconset.icon_ink_color(path, "dark"))
 
-    def test_the_debt_is_two_buttons_and_it_was_seven(self):
+    def test_the_debt_is_closed_and_it_was_seven(self):
         """The headline number, so a regression cannot hide behind prose."""
-        assert FALLBACK_BUTTONS_AFTER == 2
-        assert FALLBACK_BUTTONS_BEFORE - FALLBACK_BUTTONS_AFTER == 5
+        assert FALLBACK_BUTTONS_AFTER == 0
+        assert FALLBACK_BUTTONS_BEFORE - FALLBACK_BUTTONS_AFTER == 7
+        assert STILL_OWED is None
