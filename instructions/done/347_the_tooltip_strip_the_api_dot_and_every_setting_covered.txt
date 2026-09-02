@@ -136,3 +136,47 @@ Six new tests in `tests/qt/test_the_tooltip_marks_replace_the_words.py`.
 STILL OPEN IN 347: parts 1, 2 and 4 -- category help losing its popup to the
 strip, whether Regression's SETTING tooltips have wrongly moved to the strip
 already, and the "every setting has a tooltip" coverage claim.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THREE OF THE FOUR PARTS WERE ALREADY TRUE. MEASURED, THEN PINNED.
+--------------------------------------------------------------------------------
+
+Part 3 was built tonight (the dot and the square). The other three were
+checked before being coded, and all three already held.
+
+PART 1 -- A CATEGORY NEVER POPS. Measured across every built screen: of
+Regression's 7 categories and Mask's 17, ZERO carry `apiTooltipHtml`, which is
+the property `_ApiTooltipFilter` needs to show the sticky popup. Category help
+already goes only to the strip.
+
+PART 2 -- REGRESSION HAS NOT MOVED, and this was the thing to establish first
+rather than assume. Counted:
+
+    regression   apiTooltipHtml 158   settingKey 159   categories  7
+    mask         apiTooltipHtml 188   settingKey 187   categories 17
+    measure      apiTooltipHtml 123   settingKey 122   categories  9
+
+Regression is not different from the others. Its settings still have the
+sticky popup.
+
+WHY IT LOOKED OTHERWISE, and the two requests do not actually conflict.
+2026-09-01 asked for "i dont need the popup box if the tooltip is shown on the
+bottom", and `3a9107edc` delivered it by swallowing the NATIVE tooltip -- Qt's
+grey box -- for anything carrying `settingKey`. The STICKY popup, the one with
+the links in it, was never removed. So "keep the popup" was already satisfied;
+what disappeared was a different box.
+
+PART 4 -- EVERY SETTING HAS A TOOLTIP. Zero missing, across every module in
+`APPS`, measured the only way that is valid: the screens are BUILT first, so
+the six pipelines that register their tooltips from their own module have been
+imported. HANDOFF 3c is explicit that reading `spacr.settings.tooltips` cold
+reports false gaps -- and that a tool which then writes "no description" is
+not missing a sentence, it is writing a wrong one.
+
+PINNED, because "already true" decays. `tests/qt/test_the_two_help_surfaces.py`
+runs over five modules: a category never pops, a category still HAS help to
+put in the strip (without which the first test passes against a build that
+forgot category help entirely), every setting keeps the popup that carries its
+links, and every setting a module offers has a tooltip. 20 passed.
+
+CLOSING. All four parts hold and are asserted.
