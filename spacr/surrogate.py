@@ -839,6 +839,15 @@ def write_surrogate_result(result: SurrogateResult,
     paths: Dict[str, str] = {}
 
     def _csv(role: str, name: str, frame: pd.DataFrame) -> None:
+        """Write and register one non-empty result table.
+
+        :param role: artifact key to add to the captured path mapping.
+        :param name: CSV filename beneath the captured output directory.
+        :param frame: result table to write with its index; None and empty
+            tables are deliberately omitted.
+        :returns: None. A written table's absolute path is stored in the
+            captured artifact mapping.
+        """
         if frame is None or frame.empty:
             return
         path = os.path.join(root, name)
@@ -1042,8 +1051,8 @@ def run_explain_cv(settings: Mapping[str, Any]) -> Dict[str, Any]:
 
 def register_explain_cv_settings(replace: bool = False) -> bool:
     """Register Explain CV Model's settings with both desktop front ends."""
-    from .settings import (has_registered_defaults, register_defaults,
-                           tooltips as shared_tooltips)
+    from .settings import has_registered_defaults, register_defaults
+    from .settings import tooltips as shared_tooltips
     if has_registered_defaults(APP_KEY) and not replace:
         return False
     tooltips = {
