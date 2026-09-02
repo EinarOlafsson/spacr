@@ -168,3 +168,12 @@ and update this instruction in the same change. Mutation-checked: adding
 a fifth role to schema.ORGANELLE_ROLES fails that test and nothing else.
 
 `spacr/schema.py` was NOT modified. Step 1 only reads it.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDITED AGAINST THE CODE
+--------------------------------------------------------------------------------
+
+CONFIRMED at step 1 of 4. `organelle_types.MAX_ORGANELLES` is still 26 and
+`schema.ORGANELLE_ROLES` still holds four keyable roles, so the disagreement
+step 1 found is untouched and the pin test still guards it. Steps 2-4 (the
+scheme, the migration, the GUI) are not begun. ~20%.

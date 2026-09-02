@@ -1,0 +1,90 @@
+================================================================================
+THE OPEN LIST WAS AUDITED AGAINST THE CODE, AND FIVE ITEMS WERE WRONG
+================================================================================
+
+Status:    done, 2026-09-01.
+Requested: 2026-09-01 -- "check the all list items, many of the percentages are
+           wrong and many are already complete. so audit each item then remake
+           the instructions list and save the changes to the instructions list
+           file for the next sessions".
+Owner:     instructions/ and tools/build_instruction_index.py.
+
+The maintainer was right. Twenty-three open items were audited against the
+code, the tests and the git log rather than against their own headers. Three
+were already finished, one was at ~95% while reading as not-started, and one
+that declared itself finished has a red gate.
+
+--------------------------------------------------------------------------------
+WHAT THE AUDIT CHANGED
+--------------------------------------------------------------------------------
+
+CLOSED, moved to done/ with the evidence written into each file:
+
+  319  NON-NVIDIA ACCELERATORS. Its own last section said the nine translated
+       READMEs still said CUDA-only. `9493a7b79` regenerated them and the note
+       was never updated. Verified: five ROCm/Metal/XPU mentions in each of
+       the nine files.
+
+  330  NESTED DOCK AND MENU. Filed "AFTER THE VERSION UPDATE" and then built
+       in `940542f5b`. app.py builds `_fold_children` with indented child rows
+       (1886) and `_open_hosts` (1832), the menu bar gives each host a submenu
+       with its own action first, and child actions reuse `open_module`.
+
+  336  THE API LINK POINTS AT THE CONSUMER. Header said "not started"; built
+       in `05b7301b0`. `tools/build_setting_consumer_map.py` walks the AST and
+       generates `spacr/qt/screens/setting_api_targets.py`, which
+       `settings_model.py:4049` reads.
+
+CORRECTED IN PLACE:
+
+  327  Read as 0%; all five numbered parts have commits (a6c945995, bc03767b3,
+       92297788c, 9adfcbb2d, bfaa02a5a). ~95% -- what is missing is the
+       frame-rate evidence its own DONE MEANS asks for, not the code.
+
+  306  Read as "nothing remains but this ratchet, which is now done". The
+       ratchet is RED: six failures across the two named files, four of them
+       unattributed. ~90%, and it must not be closed on that note.
+
+  315  Section 3d's "diffuse, no single offender" was superseded by
+       `f92bb7711` and is now three named optimisations. ~75%.
+
+  310  Had no headline figure at all, so it could not be reported against
+       325 section 4. Counted: 26 of 97 entries resolved, ~27%, approximate
+       and labelled as such.
+
+CONFIRMED UNCHANGED, by reading the code rather than the header: 01 (uv.exe
+checked first at updater.py:161), 304, 326 (MAX_ORGANELLES still 26), 337
+(spatial defaults still False, corrected_manders still live), 339
+(prepare_illumination_correction called from measure.py only), 341 (three
+tests re-run and still failing).
+
+--------------------------------------------------------------------------------
+WHERE THE NUMBERS NOW LIVE
+--------------------------------------------------------------------------------
+
+In `tools/build_instruction_index.py`, in the `STAGE` table, so
+`instructions/00_INDEX.txt` carries a percentage on every open row and CI's
+`--check` keeps it honest. That file's own docstring already explains why the
+index is generated and not written: it went nine days stale once, and an index
+that disagrees with the folder is worse than none because it is believed.
+
+A percentage in STAGE is a hand-maintained number. It is right on the day it
+is written and decays like any other. RE-AUDIT BEFORE TRUSTING IT, and the
+cheapest way to do that is the one used here.
+
+--------------------------------------------------------------------------------
+THE METHOD, BECAUSE IT COST TWO HOURS AND SHOULD COST LESS NEXT TIME
+--------------------------------------------------------------------------------
+
+1. `git log --oneline --since=<date> --grep="\bNNN\b" -E` for every open
+   number. Work that shipped without its file being updated shows up here
+   immediately, and this is what found 319, 327, 330 and 336. It is the
+   single highest-yield step.
+2. Then grep the CODE for the thing the file says is missing. A commit
+   message is a claim; `MAX_ORGANELLES = 26` is a fact.
+3. Then RUN the tests the file names. 306 and 341 both turned on this, in
+   opposite directions.
+4. Only then read the trailing notes.
+
+The repository's standing warning -- the header often says "not started" when
+it is done -- is now measured at five of twenty-three in one sweep.

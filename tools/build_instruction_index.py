@@ -52,15 +52,37 @@ BLOCKED: Dict[str, str] = {
 }
 
 #: The two the maintainer has scheduled at the end, in this order.
-LAST: Dict[str, str] = {"82": "SECOND TO LAST", "58": "LAST"}
+LAST: Dict[str, str] = {
+    "82": "SECOND TO LAST",
+    "58": "LAST -- ~95%; history clean, GitHub's cached widget is all that is left",
+}
 
 #: How far along something is, where the file's own header does not say.
 STAGE: Dict[str, str] = {
-    "52": "controls rebuilt 2026-08-13; geometry was already right",
-    "75": "SUPERSEDED by 95 -- can be closed",
-    "93": "filed, not started",
-    "94": "~40% -- ladder built, five sites still ungrouped",
-    "95": "model + GPU button built; viewer, grid, walk NOT",
+    # Audited against the code on 2026-09-01, not read off the headers.
+    # Three items were found already complete and moved to done/ that day
+    # (319, 330, 336); two more were badly wrong about themselves (327 read
+    # as not-started with all five parts shipped, 306 read as finished with
+    # its ratchet red). Re-audit before trusting any figure here.
+    "01": "100% of the code; blocked on publishing 1.5.0.5",
+    "05": "~40% -- mechanism verified at 1.5.0.4; needs one green SHA, then approval",
+    "58": "~95% -- history clean; GitHub's cached widget is all that is left",
+    "253": "0% by construction -- closes last",
+    "288": "coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; 1 open issue",
+    "304": "~60% -- metadata in place; needs the Zenodo toggle and the bump",
+    "305": "~60% -- startup accepted from an installed wheel; sdist, GPU, matrix, profiles left",
+    "306": "~90% -- catalogs source-current, but the caption ratchet is RED (6 failures)",
+    "310": "~27% -- 26 of 97 entries resolved; approximate, see the audit note",
+    "314": "~35% -- diagnosed only; eleven causes eliminated and none is the defect",
+    "315": "~75% -- 3a/3b/3c fixed; 3d now itemised into three named optimisations",
+    "316": "~20% -- red, and waiting on the maintainer's own translation pass",
+    "325": "the channel between the two sessions -- open while both are running",
+    "326": "~20% -- step 1 of 4; the real ceiling is four roles, not 26",
+    "327": "~95% -- all five parts shipped; only the frame-rate evidence is missing",
+    "331": "a checklist over the other items -- no work of its own",
+    "337": "0% -- spatial defaults still False, corrected_manders still live",
+    "339": "0% -- illumination is called from measure and nowhere else",
+    "341": "0% -- three tests confirmed still failing on 2026-09-01",
 }
 
 

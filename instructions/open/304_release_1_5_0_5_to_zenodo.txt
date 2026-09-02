@@ -42,3 +42,13 @@ THE ORDER, and it matters
   The DOI from step 5 is a CONCEPT DOI plus a version DOI. Cite the concept
   one in the README -- it always resolves to the newest release -- and the
   version one wherever a specific result has to be reproducible.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDITED AGAINST THE CODE
+--------------------------------------------------------------------------------
+
+CONFIRMED unchanged and still blocked on the maintainer. .zenodo.json and
+CITATION.cff both exist; CITATION.cff still reads version 1.5.0.4 and
+date-released 2026-08-10, which is correct -- those move WITH the approved
+bump, not before it. The Zenodo GitHub toggle is still the first step and
+still cannot be done from here. ~60%, no engineering left in it.

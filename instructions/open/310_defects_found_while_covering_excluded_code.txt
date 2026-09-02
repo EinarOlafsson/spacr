@@ -2655,3 +2655,25 @@ is a row that renders rather than a button that attaches. The button is
 already written and lands on `plaque_model` today
 (`AppScreen._with_a_model_zoo_button`, `_MODEL_ZOO_KEYS`), so whenever the
 pathogen row appears it acquires the button with no further work.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDIT: A COUNT, SO THE ITEM HAS A PERCENTAGE
+--------------------------------------------------------------------------------
+
+This file had no headline figure, which made it impossible to report against
+the reporting rule in 325 section 4. Counted mechanically over both entry
+shapes (the numbered narrative sections and the A-entries), calling an entry
+resolved when its body carries FIXED / WITHDRAWN / NOT A DEFECT / CLOSED:
+
+    97 entries, 26 resolved, 71 open   -->  ~27%
+
+TREAT THAT AS APPROXIMATE AND NOT AS A LEDGER. It is a text scan, so an entry
+fixed in code without its verdict written back here counts as open, and an
+entry that merely quotes the word "fixed" while discussing something else
+counts as resolved. Two of this repository's most expensive mistakes were
+believing a header over the code, so the number above is a floor on progress,
+not a measurement of it.
+
+WHAT WOULD MAKE IT A MEASUREMENT: give every entry a one-word verdict line in
+a fixed position, the way the newer A-entries nearly do. Then the count is a
+grep and the next session does not re-derive it.

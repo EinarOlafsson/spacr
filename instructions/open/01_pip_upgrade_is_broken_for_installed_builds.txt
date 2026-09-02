@@ -133,3 +133,12 @@ REMAINS: publish the tested 1.5.0.5 wheel and all three native installers, then
 verify their installed acceptance jobs. Publishing PyPI/GitHub/Zenodo assets
 is public and irreversible and therefore requires the maintainer confirmation
 recorded by the release instructions; source tests cannot close this item.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDITED AGAINST THE CODE
+--------------------------------------------------------------------------------
+
+CONFIRMED code-complete. spacr/updater.py:161 reads
+`for name in ("uv.exe", "uv") if os.name == "nt" else ("uv", "uv.exe")`, so
+Windows checks uv.exe FIRST -- the exact gap 8eefc701 closed. Nothing further
+is reachable from a checkout; 100% of the code, 0% of the distribution.

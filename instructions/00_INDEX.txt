@@ -18,81 +18,94 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-318 done / 23 open (93%).
+322 done / 21 open (93%).
 
 --------------------------------------------------------------------------------
 OPEN
 --------------------------------------------------------------------------------
 
    01  THE DESKTOP INSTALLS CANNOT UPDATE THEMSELVES
+       [100% of the code; blocked on publishing 1.5.0.5]
        01_pip_upgrade_is_broken_for_installed_builds.txt
 
    05  THE VERSION BUMP AND GETTING ACTIONS GREEN
+       [~40% -- mechanism verified at 1.5.0.4; needs one green SHA, then approval]
        05_version_bump_and_github_actions.txt
 
    58  CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
-       [LAST]
+       [LAST -- ~95%; history clean, GitHub's cached widget is all that is left]
        58_remove_claude_and_github_actions_from_contributors.txt
 
   253  THE LAST ITEM: GO THROUGH THE WHOLE LIST AGAIN, THEN SHIP
+       [0% by construction -- closes last]
        253_the_last_item.txt
 
   288  288 COVERAGE STATE, MEASURED 2026-08-31
+       [coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; 1 open issue]
        288_coverage_state_2026-08-31.txt
 
   288  ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 100% PER-MODULE COVERAGE
+       [coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; 1 open issue]
        288_zero_issues_green_ci_and_per_module_coverage.txt
 
   304  Release 1.5.0.5, archived on Zenodo
+       [~60% -- metadata in place; needs the Zenodo toggle and the bump]
        304_release_1_5_0_5_to_zenodo.txt
 
   305  THE INSTALLED PACKAGE LOADS QUICKLY AND RUNS WITHIN MEASURED RESOURCE BUDGETS
+       [~60% -- startup accepted from an installed wheel; sdist, GPU, matrix, profiles left]
        305_the_installed_package_loads_and_runs_optimally.txt
 
   306  THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
+       [~90% -- catalogs source-current, but the caption ratchet is RED (6 failures)]
        306_the_api_tooltips_and_translations_are_current_and_correct.txt
 
   310  DEFECTS FOUND WHILE COVERING CODE THAT WAS EXCLUDED FROM COVERAGE
+       [~27% -- 26 of 97 entries resolved; approximate, see the audit note]
        310_defects_found_while_covering_excluded_code.txt
 
   314  THE REGRESSION MODULE HANGS, AND PREFERENCES IS SLOW AGAIN
+       [~35% -- diagnosed only; eleven causes eliminated and none is the defect]
        314_regression_hangs_and_preferences_is_slow_again.txt
 
   315  315 THE GUI MUST NEVER MAKE THE COMPOSITOR OFFER TO FORCE-QUIT
+       [~75% -- 3a/3b/3c fixed; 3d now itemised into three named optimisations]
        315_the_gui_must_never_make_the_compositor_offer_to_force_quit.txt
 
   316  THE TRANSLATIONS ARE PRESENT, CURRENT, AND IN PLACES WRONG
+       [~20% -- red, and waiting on the maintainer's own translation pass]
        316_the_translations_are_semantically_wrong_in_places.txt
 
-  319  USE NON-NVIDIA ACCELERATORS WHERE THEY EXIST, AND SAY SO IN SETUP
-       319_use_non_nvidia_accelerators_where_they_exist.txt
-
   325  TWO SESSIONS, ONE REPO: THE WORKING PROTOCOL
+       [the channel between the two sessions -- open while both are running]
        325_two_sessions_one_repo_working_protocol.txt
 
   326  THE ORGANELLE COUNT MUST BE ARBITRARY
+       [~20% -- step 1 of 4; the real ceiling is four roles, not 26]
        326_the_organelle_count_must_be_arbitrary.txt
 
   327  THE BACKDROP CAMERA AND THE POINTER SHOULD FEEL LIKE GRAVITY
+       [~95% -- all five parts shipped; only the frame-rate evidence is missing]
        327_the_backdrop_camera_and_the_pointer_should_feel_like_gravity.txt
 
-  330  THE DOCK AND THE MENU BAR SHOULD SHOW THE NESTED STRUCTURE
-       330_the_dock_and_menu_should_show_the_nested_structure.txt
-
   331  WHAT MUST BE TRUE BEFORE THE VERSION UPDATE
+       [a checklist over the other items -- no work of its own]
        331_before_the_version_update.txt
 
-  336  A SETTING'S API LINK POINTS AT THE MODULE, NOT AT WHAT READS IT
-       336_the_api_link_points_at_the_module_not_the_consumer.txt
-
   337  ONE MANDERS DEFINITION, SPATIAL MEASUREMENTS ON, AND THE RUN'S SETTINGS AS
+       [0% -- spatial defaults still False, corrected_manders still live]
        337_measure_defaults_manders_and_labels.txt
 
   339  ILLUMINATION CORRECTION BELONGS BEFORE SEGMENTATION, NOT ONLY BEFORE MEASURING
+       [0% -- illumination is called from measure and nowhere else]
        339_illumination_correction_before_segmentation.txt
 
   341  THREE ANNOTATE-ENGINE TESTS FAIL, AND HAVE FOR LONGER THAN ANYONE NOTICED
+       [0% -- three tests confirmed still failing on 2026-09-01]
        341_three_annotate_engine_tests_fail.txt
+
+  343  THE REGRESSION MODULE WRITES COMPLETE, TRACEABLE SUBMISSION PANEL PACKAGES
+       343_the_regression_module_writes_submission_panel_packages.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -402,6 +415,7 @@ DONE
   313  THE PYTHON CEILING ADMITS 3.15
   317  THE MASK EXAMPLE DATA: A CLIPPED DIALOG, AND SETTINGS THAT NEVER ARRIVE
   318  FEWER MODULE TILES: FOLD THE SATELLITES INTO WHAT THEY BELONG TO
+  319  USE NON-NVIDIA ACCELERATORS WHERE THEY EXIST, AND SAY SO IN SETUP
   320  THE QT CONSOLE IS NOISY, DUPLICATES EVERY LINE, AND CALLS WARNINGS ERRORS
   321  THE API AND README STILL SHOW THE OLD MODULE STRUCTURE
   322  REGRESSION MUST SHOW ITS DIAGNOSTICS, WHICH ARE ALREADY WRITTEN
@@ -409,10 +423,13 @@ DONE
   324  THE SETUP SLIDE'S CAPABILITY LIST BECOMES A TABLE
   328  A SOURCE INSTALL SHOULD NOT COST A GIGABYTE
   329  README, LOGOS, CHROME AND BACKDROP POLISH (2026-09-01)
+  330  THE DOCK AND THE MENU BAR SHOULD SHOW THE NESTED STRUCTURE
   332  MEASURE NEEDS DOWNLOADABLE TEST DATA, LIKE MASK HAS
   333  CUSTOM PATHOGEN MODELS MUST BE AVAILABLE IN LIVE PREVIEW
   334  NORMALIZE PERCENTILES ARE CAPPED AT TWO DECIMALS
   335  LIVE PREVIEW LOSES THE LOADED IMAGE AFTER A SETTINGS CHANGE
+  336  A SETTING'S API LINK POINTS AT THE MODULE, NOT AT WHAT READS IT
   338  GENERATE AN ANNOTATION DATABASE BY STREAMING, AND MAKE THE THREE ROUTES AGREE
   340  WHAT WAS ASKED FOR AND FINISHED ON 2026-09-01
   342  THE INDEPENDENT-VARIABLE TABLE MAY BE LONG OR WIDE, AND PLATE IS A LAYOUT TERM
+  344  THE OPEN LIST WAS AUDITED AGAINST THE CODE, AND FIVE ITEMS WERE WRONG

@@ -95,3 +95,33 @@ HOW TO KNOW IT WORKED
 * A setting with no addressable consumer shows no API link rather than a
   misleading one.
 * The consumer map is committed, so the next audit is a diff and not a rerun.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDIT: THIS SHIPPED IN 05b7301b0. CLOSING.
+--------------------------------------------------------------------------------
+
+The header says "not started". It was built in ``05b7301b0`` (336: link a
+setting to the function that reads it, not to the screen).
+
+WHAT EXISTS, read rather than inferred:
+
+  * ``tools/build_setting_consumer_map.py`` (271 lines) walks the package's
+    AST and records the enclosing function of every read of every setting
+    key -- which is the mechanical route WHERE TO START asked for, instead of
+    reading the code by hand.
+  * ``spacr/qt/screens/setting_api_targets.py`` (719 lines) is its generated
+    output: ``key -> (module, symbol, exact)``, committed, so the next audit
+    is a diff and not a rerun.
+  * It is WIRED, not merely generated: ``settings_model.py:4049-4052`` imports
+    ``SETTING_API_TARGETS`` and looks the key up when building the link.
+
+THE TWO TRAPS IN "WATCH OUT" ARE BOTH ANSWERED.
+``exact`` is False where the only consumer is a closure, because Sphinx cannot
+address one and the link then aims at the enclosing function it can address --
+so a setting with no addressable consumer does not get a confident wrong link.
+The targets are keyed per setting rather than per category, so the
+category-level mistake this file warned about is not reachable.
+
+WORTH KNOWING FOR 306: this item's own note predicted that promoting nested
+functions would move 306's API symbol counts. It did not have to -- the map
+records existing symbols rather than promoting new ones into the public API.

@@ -72,3 +72,21 @@ HOW IT WILL BE CHECKED
    tests/qt/test_cov_r8_annotate_engine_tails.py` is green.
 * Whichever way each went -- stale or real -- is written into the test or the
   code, so the next reader does not re-derive it.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDITED AGAINST THE CODE
+--------------------------------------------------------------------------------
+
+CONFIRMED still red, run rather than assumed:
+
+    pytest tests/qt/test_cov_w2_2_annotate_engine.py
+           tests/qt/test_cov_r8_annotate_engine_tails.py
+        3 failed, 73 passed
+
+    test_the_outline_model_takes_the_card_exactly_when_there_is_one[False]
+    test_a_torch_that_cannot_answer_leaves_the_card_alone
+    TestTwoEmptyResults::test_a_missing_annotation_column_cannot_reach_the_late_guard
+
+The third fails on `assert 1750 < 1702` -- a size/threshold comparison, not a
+missing-column guard, which is worth knowing before assuming the test is
+stale. 0%.

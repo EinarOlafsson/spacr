@@ -155,3 +155,31 @@ backdrop that every screen draws. A frame-rate regression here is felt
 everywhere, and `spacr/qt/widgets/fractal_travel.py` already carries a
 heavy-import lock whose contention caused a two-second freeze once. Do
 not hold it longer, and do not move work into the paint path.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDIT: ALL FIVE NUMBERED PARTS HAVE SHIPPED. ~95%.
+--------------------------------------------------------------------------------
+
+This file reads as not-started and is not. Every numbered request above has a
+commit:
+
+    (1) a6c945995  the adaptive resolution loop was disconnected
+    (2) bc03767b3  a speed change no longer teleports the camera
+    (3) 92297788c  twenty places worth looking at, and a tour that floats
+                   between them
+    (4) 9adfcbb2d  the pointer bends the picture instead of towing the camera
+    (5) bfaa02a5a  the orbit fold on the GPU, and one pattern list instead
+                   of two
+
+WHAT IS ACTUALLY LEFT is the evidence half of DONE MEANS, not the code:
+
+  * Fullscreen and windowed frame rates MEASURED AND REPORTED HERE, with the
+    cause named. (1) fixed a disconnected adaptive-resolution loop, which is
+    the plausible cause of "super choppy", but this file carries no
+    before/after number.
+  * NO REGRESSION IN THE BACKDROP, measured on both surfaces. This was the
+    explicit trade to avoid and it has not been demonstrated either way.
+
+So the remaining work is one measurement session on a real display, writing
+two numbers into this file. Do not re-implement any of the five; read the
+commits first.

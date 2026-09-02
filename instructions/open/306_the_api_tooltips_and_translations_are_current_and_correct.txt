@@ -811,3 +811,37 @@ checked before pinning, not assumed.
 
 WHAT REMAINS IN 306: nothing but this ratchet, which is now done. Semantic
 correctness moved to instruction 316.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDIT: "WHAT REMAINS: NOTHING BUT THIS RATCHET" IS NOT TRUE TODAY
+--------------------------------------------------------------------------------
+
+The section above closes with "WHAT REMAINS IN 306: nothing but this ratchet,
+which is now done." Measured on this tree, conda env ``spacr``, the ratchet
+file is RED:
+
+    pytest tests/qt/test_i18n_caption_ratchet.py
+           tests/qt/test_the_setup_screen_speaks_the_chosen_language.py
+        6 failed, 10 passed
+
+    test_compact_user_facing_caption_surface_has_exact_rows_and_is_pinned
+    test_compact_and_generated_caption_owners_are_disjoint
+    test_every_generated_catalog_candidate_has_a_source_hash
+    test_external_caption_layer_is_complete_exclusive_and_pinned
+    test_every_slide_title_and_blurb_is_in_the_catalog
+    test_choosing_a_language_redraws_the_screen_in_it
+
+Two of these are the ones this file already predicted and attributed
+elsewhere: the compact layer wants ``i18n._ROWS`` entries for 'Laptop' and
+'Workstation' from ``preferences.py`` PERFORMANCE_LABELS. The other four are
+NOT attributed anywhere yet, and the setup-screen pair overlaps 316's
+territory without being the same claim -- 316 is about translations being
+WRONG, these are about the inventory not being CLOSED.
+
+DO NOT CLOSE 306 ON THE STRENGTH OF THE NOTE ABOVE. Establish first which of
+the six belong to this item's mechanical completeness gate and which belong to
+316's semantic gate; the two lanes have opposite fixes, and this file's own
+history is that a ratchet was twice moved on a test that could not run.
+
+HONEST FIGURE: ~90%. The catalogs are at a source-current fixed point and the
+counts above are real; the gate that proves it is not green.
