@@ -8,19 +8,20 @@ truth; this module only applies a declared call rule and renders it.
 
 from __future__ import annotations
 
+import json
+import math
+import textwrap
 from dataclasses import dataclass
 from pathlib import Path
-import textwrap
-from typing import Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
-import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib import font_manager
 import numpy as np
 import pandas as pd
-from pypdf import PdfReader, PdfWriter
-from pypdf.annotations import Link
 from adjustText import adjust_text
+from matplotlib import font_manager
+from pypdf import PdfReader, PdfWriter, Transformation
+from pypdf.annotations import Link
 from pypdf.generic import (
     NameObject,
     TextStringObject,
@@ -108,6 +109,9 @@ class PanelStyle:
     axes_width: float = 0.62
     pdf_axes_bottom: float = 0.48
     pdf_axes_height: float = 0.507272727
+
+
+DEFAULT_PANEL_STYLE = PanelStyle()
 
 
 def _normalise_guide(value: object) -> str:
@@ -389,7 +393,7 @@ def write_panel_package(
     gene_url_column: str | None = None,
     point_label_column: str | None = None,
     statistics: Mapping[str, object] | None = None,
-    style: PanelStyle = PanelStyle(),
+    style: PanelStyle = DEFAULT_PANEL_STYLE,
     palette: Mapping[str, str] = LOPIT_COLOURS,
 ) -> dict[str, Path]:
     """Write the PDF, PNG, stats CSV, and plotted-data CSV for one panel."""
@@ -589,6 +593,638 @@ def write_panel_package(
     return paths
 
 
+def _load_panel_manifest(
+    manifest: Mapping[str, object] | str | Path,
+) -> dict[str, object]:
+    """Load one explicit figure manifest without inferring from filenames."""
+    if isinstance(manifest, (str, Path)):
+        path = Path(manifest)
+        try:
+            loaded = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise ValueError(f"Could not load panel manifest {path}: {error}") from error
+    else:
+        loaded = dict(manifest)
+    if not isinstance(loaded, dict):
+        raise ValueError("Panel manifest must be a JSON object")
+    panels = loaded.get("panels")
+    if not isinstance(panels, list) or not panels:
+        raise ValueError("Panel manifest needs a non-empty 'panels' list")
+    figure_id = str(loaded.get("figure_id") or "").strip()
+    if not figure_id or Path(figure_id).name != figure_id:
+        raise ValueError("Panel manifest needs a filename-safe 'figure_id'")
+    columns = loaded.get("columns", 2)
+    if not isinstance(columns, int) or isinstance(columns, bool) or columns < 1:
+        raise ValueError("Panel manifest 'columns' must be a positive integer")
+    return {**loaded, "figure_id": figure_id, "columns": columns}
+
+
+def _resolve_run_artifacts(
+    artifacts: Mapping[str, Mapping[str, object]],
+    sources: Sequence[str],
+) -> dict[str, dict[str, object]]:
+    """Resolve caller-named artifacts and retain their declared identity."""
+    resolved: dict[str, dict[str, object]] = {}
+    for source in dict.fromkeys(sources):
+        if source not in artifacts:
+            raise ValueError(f"Manifest source {source!r} is absent from run artifacts")
+        specification = artifacts[source]
+        if not isinstance(specification, Mapping):
+            raise ValueError(f"Run artifact {source!r} must be a mapping")
+        level = str(specification.get("level") or "").strip().lower()
+        phenotype = str(specification.get("phenotype") or "").strip()
+        if level not in {"grna", "gene"}:
+            raise ValueError(
+                f"Run artifact {source!r} declares invalid level {level!r}"
+            )
+        if not phenotype:
+            raise ValueError(f"Run artifact {source!r} needs a phenotype")
+        has_data = "data" in specification
+        has_path = "path" in specification
+        if has_data == has_path:
+            raise ValueError(
+                f"Run artifact {source!r} must supply exactly one of data or path"
+            )
+        if has_data:
+            data = specification["data"]
+            if not isinstance(data, pd.DataFrame):
+                raise ValueError(f"Run artifact {source!r} data must be a DataFrame")
+            frame = data.copy()
+        else:
+            path = Path(str(specification["path"]))
+            if not path.is_file():
+                raise ValueError(f"Run artifact {source!r} path does not exist: {path}")
+            try:
+                frame = pd.read_csv(path)
+            except Exception as error:  # noqa: BLE001 - report the exact source
+                raise ValueError(
+                    f"Could not read run artifact {source!r} from {path}: {error}"
+                ) from error
+        resolved[source] = {
+            "level": level,
+            "phenotype": phenotype,
+            "data": frame,
+        }
+    return resolved
+
+
+def _manifest_narrative(panel: Mapping[str, object]) -> PanelNarrative:
+    raw = panel.get("narrative")
+    if not isinstance(raw, Mapping):
+        raise ValueError(f"Panel {panel.get('panel_id')!r} needs a narrative")
+    values = {}
+    for name in ("legend", "purpose", "shows", "implications"):
+        value = str(raw.get(name) or "").strip()
+        if not value:
+            raise ValueError(
+                f"Panel {panel.get('panel_id')!r} narrative lacks {name!r}"
+            )
+        values[name] = value
+    return PanelNarrative(**values)
+
+
+def _required_columns(
+    frame: pd.DataFrame,
+    columns: Sequence[str],
+    *,
+    panel_id: str,
+) -> None:
+    missing = sorted({name for name in columns if name not in frame.columns})
+    if missing:
+        raise ValueError(f"Panel {panel_id!r} source lacks columns {missing}")
+
+
+def _finite_column(frame: pd.DataFrame, column: str, *, panel_id: str) -> None:
+    values = pd.to_numeric(frame[column], errors="raise").to_numpy(float)
+    if not np.isfinite(values).all():
+        raise ValueError(f"Panel {panel_id!r} column {column!r} must be finite")
+
+
+def _panel_file_paths(destination: Path, panel_id: str) -> dict[str, Path]:
+    stem = destination / panel_id
+    return {
+        "pdf": stem.with_suffix(".pdf"),
+        "png": stem.with_suffix(".png"),
+        "stats": destination / f"{panel_id}_stats.csv",
+        "data": destination / f"{panel_id}_data.csv",
+    }
+
+
+def _draw_box_jitter(
+    axis,
+    data: pd.DataFrame,
+    *,
+    categories: Sequence[str],
+    x_label: str,
+    y_label: str,
+    style: PanelStyle,
+) -> None:
+    grouped = [
+        data.loc[data["plot_category"].eq(category), "plot_y"].to_numpy(float)
+        for category in categories
+    ]
+    box = axis.boxplot(
+        grouped,
+        positions=np.arange(len(categories), dtype=float),
+        widths=0.50,
+        patch_artist=True,
+        showfliers=False,
+        medianprops={"color": style.line_color, "linewidth": style.line_width},
+        whiskerprops={"color": style.line_color, "linewidth": style.line_width},
+        capprops={"color": style.line_color, "linewidth": style.line_width},
+        boxprops={"color": style.line_color, "linewidth": style.line_width},
+    )
+    for patch in box["boxes"]:
+        patch.set_facecolor("#56B4E9")
+        patch.set_alpha(style.point_alpha)
+    axis.scatter(
+        data["plot_x"], data["plot_y"], s=style.point_size,
+        color="#0072B2", alpha=style.point_alpha, edgecolors="none",
+        linewidths=0, rasterized=False, zorder=3,
+    )
+    axis.set_xlim(float(data["plot_x_min"].iloc[0]),
+                  float(data["plot_x_max"].iloc[0]))
+    axis.set_ylim(float(data["plot_y_min"].iloc[0]),
+                  float(data["plot_y_max"].iloc[0]))
+    axis.set_xticks(np.arange(len(categories), dtype=float), categories)
+    axis.set_xlabel(x_label)
+    axis.set_ylabel(y_label)
+    axis.spines["top"].set_visible(False)
+    axis.spines["right"].set_visible(False)
+    for side in ("bottom", "left"):
+        axis.spines[side].set_color(style.line_color)
+        axis.spines[side].set_linewidth(style.line_width)
+    axis.tick_params(
+        axis="both", which="both", color=style.line_color,
+        labelcolor=INK_PRINT, width=style.line_width,
+    )
+
+
+def write_box_jitter_package(
+    results: pd.DataFrame,
+    destination: str | Path,
+    *,
+    panel_id: str,
+    category_column: str,
+    value_column: str,
+    category_order: Sequence[str],
+    x_label: str,
+    y_label: str,
+    narrative: PanelNarrative,
+    gene_label_column: str | None = None,
+    gene_url_column: str | None = None,
+    statistics: Mapping[str, object] | None = None,
+    style: PanelStyle = DEFAULT_PANEL_STYLE,
+) -> dict[str, Path]:
+    """Write one deterministic box-and-jitter four-file panel package."""
+    if not (0 < style.point_alpha <= 1):
+        raise ValueError("point_alpha must be in (0, 1]")
+    categories = [str(value) for value in category_order]
+    if not categories or len(categories) != len(set(categories)):
+        raise ValueError("category_order must contain distinct categories")
+    observed = set(results[category_column].astype(str))
+    if observed != set(categories):
+        raise ValueError(
+            "category_order must name every observed category exactly; "
+            f"observed {sorted(observed)}, declared {categories}"
+        )
+    values = pd.to_numeric(results[value_column], errors="raise")
+    if not np.isfinite(values.to_numpy(float)).all():
+        raise ValueError("Box-and-jitter values must be finite")
+    if gene_label_column is not None or gene_url_column is not None:
+        if not gene_label_column or not gene_url_column:
+            raise ValueError("gene label and URL columns must be supplied together")
+
+    data = results.copy()
+    data["plot_category"] = data[category_column].astype(str)
+    data["plot_y"] = values
+    data["plot_x"] = np.nan
+    for position, category in enumerate(categories):
+        indexes = data.index[data["plot_category"].eq(category)]
+        offsets = (
+            np.array([0.0])
+            if len(indexes) == 1
+            else np.linspace(-0.18, 0.18, len(indexes))
+        )
+        data.loc[indexes, "plot_x"] = float(position) + offsets
+    y_min = float(values.min())
+    y_max = float(values.max())
+    span = max(y_max - y_min, 1e-9)
+    y_limits = (y_min - 0.08 * span, y_max + 0.08 * span)
+    x_limits = (-0.5, float(len(categories)) - 0.5)
+    data["plot_x_min"] = x_limits[0]
+    data["plot_x_max"] = x_limits[1]
+    data["plot_y_min"] = y_limits[0]
+    data["plot_y_max"] = y_limits[1]
+    data["box_alpha"] = float(style.point_alpha)
+    data["point_alpha"] = float(style.point_alpha)
+    data["point_size"] = float(style.point_size)
+    data["marker_edge_color"] = "none"
+
+    destination = Path(destination)
+    destination.mkdir(parents=True, exist_ok=True)
+    paths = _panel_file_paths(destination, panel_id)
+    rc = {
+        "font.family": OPEN_SANS_FAMILY,
+        "font.size": 9.5,
+        "axes.labelsize": 10,
+        "xtick.labelsize": 8.5,
+        "ytick.labelsize": 8.5,
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+        "axes.unicode_minus": False,
+    }
+    with plt.rc_context(rc):
+        from .plot import save_figure
+
+        png_figure = plt.figure(
+            figsize=(style.figure_width, style.plot_height),
+            facecolor=LABEL_GROUND_PRINT,
+        )
+        png_axis = png_figure.add_axes([style.axes_left, 0.16, 0.78, 0.82])
+        _draw_box_jitter(
+            png_axis, data, categories=categories, x_label=x_label,
+            y_label=y_label, style=style,
+        )
+        save_figure(
+            png_figure, paths["png"], fmt="png", dpi=style.png_dpi,
+            close=True, save_mode="print", announce_colours=False,
+            bbox_inches="tight", facecolor=LABEL_GROUND_PRINT,
+        )
+
+        pdf_figure = plt.figure(
+            figsize=(style.figure_width, style.pdf_height),
+            facecolor=LABEL_GROUND_PRINT,
+        )
+        pdf_axis = pdf_figure.add_axes(
+            [style.axes_left, style.pdf_axes_bottom, style.axes_width,
+             style.pdf_axes_height]
+        )
+        _draw_box_jitter(
+            pdf_axis, data, categories=categories, x_label=x_label,
+            y_label=y_label, style=style,
+        )
+        blocks = (
+            _wrapped_block("Panel legend", narrative.legend),
+            _wrapped_block("The purpose of the panel", narrative.purpose),
+            _wrapped_block("What the panel shows", narrative.shows),
+            _wrapped_block(
+                "The implications of the panel's data", narrative.implications
+            ),
+        )
+        y = 0.445
+        for block in blocks:
+            pdf_figure.text(0.06, y, block, ha="left", va="top", fontsize=7.3,
+                            linespacing=1.15)
+            line_count = block.count("\n") + 1
+            line_height = (7.3 / 72.0) / style.pdf_height * 1.20
+            y -= line_count * line_height + 0.014
+        save_figure(
+            pdf_figure, paths["pdf"], fmt="pdf", close=True,
+            save_mode="print", announce_colours=False,
+            facecolor=LABEL_GROUND_PRINT,
+        )
+
+    linked_points = 0
+    if gene_label_column and gene_url_column:
+        linked_points = _add_pdf_point_links(
+            paths["pdf"], data, x_limits=x_limits, y_limits=y_limits,
+            x_column="plot_x", y_column="plot_y",
+            gene_label_column=gene_label_column,
+            gene_url_column=gene_url_column, style=style,
+        )
+    stats = {
+        "panel_id": panel_id,
+        "plot_kind": "box_jitter",
+        "plotted_points": int(len(data)),
+        "box_alpha": float(style.point_alpha),
+        "point_alpha": float(style.point_alpha),
+        "point_size": float(style.point_size),
+        "marker_edge_color": "none",
+        "linked_points": int(linked_points),
+        "category_order": "|".join(categories),
+        "x_min": x_limits[0], "x_max": x_limits[1],
+        "y_min": y_limits[0], "y_max": y_limits[1],
+        **dict(statistics or {}),
+    }
+    from .tabular import write_table
+
+    write_table(
+        pd.DataFrame([{"metric": key, "value": value}
+                      for key, value in stats.items()]),
+        paths["stats"],
+    )
+    write_table(data, paths["data"])
+    actual = {path.name for path in destination.iterdir() if path.is_file()}
+    expected = {path.name for path in paths.values()}
+    if actual != expected:
+        raise RuntimeError(
+            f"Panel folder must contain exactly four files; expected "
+            f"{sorted(expected)}, found {sorted(actual)}"
+        )
+    return paths
+
+
+def _copy_transformed_links(
+    writer: PdfWriter,
+    annotations: Sequence[object],
+    *,
+    scale: float,
+    translate_x: float,
+    translate_y: float,
+) -> int:
+    copied = 0
+    for reference in annotations:
+        annotation = reference.get_object()
+        action = annotation.get("/A")
+        uri = action.get("/URI") if action is not None else None
+        rect = annotation.get("/Rect")
+        if annotation.get("/Subtype") != "/Link" or not uri or rect is None:
+            continue
+        left, bottom, right, top = map(float, rect)
+        transformed = (
+            translate_x + scale * left,
+            translate_y + scale * bottom,
+            translate_x + scale * right,
+            translate_y + scale * top,
+        )
+        link = Link(rect=transformed, url=str(uri))
+        for key in ("/Contents", "/T"):
+            if annotation.get(key) is not None:
+                link[NameObject(key)] = TextStringObject(str(annotation[key]))
+        writer.add_annotation(0, link)
+        copied += 1
+    return copied
+
+
+def compose_vector_figure(
+    panel_pdfs: Sequence[str | Path],
+    destination: str | Path,
+    *,
+    columns: int = 2,
+) -> Path:
+    """Compose one vector page and transform every URI link rectangle."""
+    if not panel_pdfs:
+        raise ValueError("At least one panel PDF is required")
+    if columns < 1:
+        raise ValueError("columns must be positive")
+    readers = [PdfReader(Path(path)) for path in panel_pdfs]
+    pages = []
+    for path, reader in zip(panel_pdfs, readers):
+        if len(reader.pages) != 1:
+            raise ValueError(f"Panel PDF must have one page: {path}")
+        pages.append(reader.pages[0])
+    widths = [float(page.mediabox.width) for page in pages]
+    heights = [float(page.mediabox.height) for page in pages]
+    tile_width = max(widths)
+    tile_height = max(heights)
+    rows = int(math.ceil(len(pages) / columns))
+    writer = PdfWriter()
+    canvas = writer.add_blank_page(
+        width=tile_width * columns,
+        height=tile_height * rows,
+    )
+    for index, page in enumerate(pages):
+        width = widths[index]
+        height = heights[index]
+        scale = min(tile_width / width, tile_height / height)
+        column = index % columns
+        row = index // columns
+        translate_x = column * tile_width + (tile_width - width * scale) / 2
+        translate_y = (
+            (rows - row - 1) * tile_height + (tile_height - height * scale) / 2
+        )
+        annotations = list(page.get("/Annots", []))
+        page.pop(NameObject("/Annots"), None)
+        transform = Transformation().scale(scale).translate(
+            translate_x, translate_y
+        )
+        canvas.merge_transformed_page(page, transform, over=True, expand=False)
+        _copy_transformed_links(
+            writer, annotations, scale=scale,
+            translate_x=translate_x, translate_y=translate_y,
+        )
+    destination = Path(destination)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary = destination.with_name(f".{destination.name}.tmp")
+    with temporary.open("wb") as handle:
+        writer.write(handle)
+    temporary.replace(destination)
+    return destination
+
+
+def build_manifest_packages(
+    manifest: Mapping[str, object] | str | Path,
+    artifacts: Mapping[str, Mapping[str, object]],
+    destination: str | Path,
+    *,
+    style: PanelStyle = DEFAULT_PANEL_STYLE,
+) -> dict[str, Any]:
+    """Validate a declared run manifest, then write every panel and figure."""
+    loaded = _load_panel_manifest(manifest)
+    raw_panels = loaded["panels"]
+    panels: list[dict[str, object]] = []
+    panel_ids: set[str] = set()
+    sources: list[str] = []
+    for index, raw in enumerate(raw_panels):
+        if not isinstance(raw, Mapping):
+            raise ValueError(f"Panel manifest entry {index} must be a mapping")
+        panel = dict(raw)
+        panel_id = str(panel.get("panel_id") or "").strip()
+        if (not panel_id or Path(panel_id).name != panel_id
+                or panel_id in panel_ids):
+            raise ValueError(f"Panel entry {index} has an invalid/duplicate panel_id")
+        panel_ids.add(panel_id)
+        source = str(panel.get("source") or "").strip()
+        phenotype = str(panel.get("phenotype") or "").strip()
+        level = str(panel.get("level") or "").strip().lower()
+        kind = str(panel.get("kind") or "").strip().lower()
+        if not source or not phenotype or level not in {"grna", "gene"}:
+            raise ValueError(
+                f"Panel {panel_id!r} needs exact source, phenotype and level"
+            )
+        if kind not in {"scatter", "box_jitter"}:
+            raise ValueError(f"Panel {panel_id!r} has unsupported kind {kind!r}")
+        panel.update({"panel_id": panel_id, "source": source,
+                      "phenotype": phenotype, "level": level, "kind": kind,
+                      "narrative_object": _manifest_narrative(panel)})
+        panels.append(panel)
+        sources.append(source)
+
+    resolved = _resolve_run_artifacts(artifacts, sources)
+    for panel in panels:
+        source = str(panel["source"])
+        artifact = resolved[source]
+        if panel["level"] != artifact["level"]:
+            raise ValueError(
+                f"Panel {panel['panel_id']!r} declares level {panel['level']!r} "
+                f"but source {source!r} declares level {artifact['level']!r}"
+            )
+        if panel["phenotype"] != artifact["phenotype"]:
+            raise ValueError(
+                f"Panel {panel['panel_id']!r} declares phenotype "
+                f"{panel['phenotype']!r} but source {source!r} declares "
+                f"phenotype {artifact['phenotype']!r}"
+            )
+        frame = artifact["data"].copy()
+        common = [str(panel.get(name) or "") for name in (
+            "effect_column", "bh_column", "gene_label_column", "gene_url_column"
+        )]
+        _required_columns(frame, common, panel_id=str(panel["panel_id"]))
+        _finite_column(frame, common[0], panel_id=str(panel["panel_id"]))
+        if frame[common[2]].astype(str).str.strip().eq("").any() \
+                or frame[common[3]].astype(str).str.strip().eq("").any():
+            raise ValueError(
+                f"Panel {panel['panel_id']!r} needs a label and URL for every row"
+            )
+        if panel["kind"] == "scatter":
+            scatter = [str(panel.get(name) or "") for name in (
+                "y_column", "lopit_column", "x_label", "y_label",
+                "horizontal_threshold_label", "limit_group"
+            )]
+            if not all(scatter):
+                raise ValueError(
+                    f"Scatter panel {panel['panel_id']!r} lacks plot/limit metadata"
+                )
+            _required_columns(frame, scatter[:2], panel_id=str(panel["panel_id"]))
+            _finite_column(frame, scatter[0], panel_id=str(panel["panel_id"]))
+            unknown = sorted(set(frame[scatter[1]].astype(str)) - set(LOPIT_COLOURS))
+            if unknown:
+                raise ValueError(
+                    f"Panel {panel['panel_id']!r} LOPIT categories lack colours: "
+                    + ", ".join(unknown)
+                )
+            try:
+                float(panel["horizontal_threshold"])
+            except (KeyError, TypeError, ValueError) as error:
+                raise ValueError(
+                    f"Scatter panel {panel['panel_id']!r} needs a numeric "
+                    "horizontal_threshold"
+                ) from error
+        else:
+            box = [str(panel.get(name) or "") for name in (
+                "category_column", "value_column", "x_label", "y_label"
+            )]
+            order = panel.get("category_order")
+            if not all(box) or not isinstance(order, list) or not order:
+                raise ValueError(
+                    f"Box panel {panel['panel_id']!r} lacks category/value metadata"
+                )
+            _required_columns(frame, box[:2], panel_id=str(panel["panel_id"]))
+            _finite_column(frame, box[1], panel_id=str(panel["panel_id"]))
+        panel["frame"] = frame
+
+    thresholds: dict[str, tuple[float, dict[str, float | int]]] = {}
+    for phenotype in sorted({str(panel["phenotype"]) for panel in panels}):
+        guides = [panel for panel in panels
+                  if panel["phenotype"] == phenotype and panel["level"] == "grna"]
+        owners = {(str(panel["source"]), str(panel["effect_column"]))
+                  for panel in guides}
+        if len(owners) != 1:
+            raise ValueError(
+                f"Phenotype {phenotype!r} needs exactly one declared gRNA "
+                "source/effect column for its control threshold"
+            )
+        source, effect_column = next(iter(owners))
+        thresholds[phenotype] = guide_control_threshold(
+            resolved[source]["data"], effect_column=effect_column,
+        )
+
+    for panel in panels:
+        threshold, audit = thresholds[str(panel["phenotype"])]
+        panel["threshold"] = threshold
+        panel["threshold_audit"] = audit
+        panel["frame"] = apply_primary_call(
+            panel["frame"], effect_column=str(panel["effect_column"]),
+            bh_column=str(panel["bh_column"]), effect_threshold=threshold,
+        )
+
+    limits: dict[str, tuple[tuple[float, float], tuple[float, float]]] = {}
+    for group in sorted({str(panel["limit_group"]) for panel in panels
+                         if panel["kind"] == "scatter"}):
+        members = [panel for panel in panels
+                   if panel.get("limit_group") == group]
+        normalised = []
+        for panel in members:
+            frame = panel["frame"].copy()
+            frame["manifest_plot_x"] = pd.to_numeric(
+                frame[str(panel["effect_column"])], errors="raise"
+            )
+            frame["manifest_plot_y"] = pd.to_numeric(
+                frame[str(panel["y_column"])], errors="raise"
+            )
+            normalised.append(frame)
+        limits[group] = shared_limits(
+            normalised, x_column="manifest_plot_x", y_column="manifest_plot_y"
+        )
+
+    destination = Path(destination)
+    for panel in panels:
+        folder = destination / str(panel["panel_id"])
+        expected = {path.name for path in _panel_file_paths(
+            folder, str(panel["panel_id"])).values()}
+        if folder.exists():
+            unexpected = {path.name for path in folder.iterdir()} - expected
+            if unexpected:
+                raise ValueError(
+                    f"Panel folder {folder} contains unmanifested entries: "
+                    f"{sorted(unexpected)}"
+                )
+
+    written: dict[str, dict[str, Path]] = {}
+    for panel in panels:
+        panel_id = str(panel["panel_id"])
+        frame = panel["frame"]
+        threshold = float(panel["threshold"])
+        statistics = {
+            **dict(panel["threshold_audit"]),
+            "source": panel["source"],
+            "phenotype": panel["phenotype"],
+            "level": panel["level"],
+            "primary_calls": int(frame["primary_call"].sum()),
+        }
+        folder = destination / panel_id
+        if panel["kind"] == "scatter":
+            x_limits, y_limits = limits[str(panel["limit_group"])]
+            written[panel_id] = write_panel_package(
+                frame, folder, panel_id=panel_id,
+                x_column=str(panel["effect_column"]),
+                y_column=str(panel["y_column"]),
+                lopit_column=str(panel["lopit_column"]),
+                x_label=str(panel["x_label"]), y_label=str(panel["y_label"]),
+                x_limits=x_limits, y_limits=y_limits,
+                horizontal_threshold=float(panel["horizontal_threshold"]),
+                horizontal_threshold_label=str(
+                    panel["horizontal_threshold_label"]),
+                effect_threshold=threshold,
+                effect_threshold_label="gRNA NT mean + 3 sample SD",
+                narrative=panel["narrative_object"],
+                gene_label_column=str(panel["gene_label_column"]),
+                gene_url_column=str(panel["gene_url_column"]),
+                point_label_column=str(panel["gene_label_column"]),
+                statistics=statistics, style=style,
+            )
+        else:
+            written[panel_id] = write_box_jitter_package(
+                frame, folder, panel_id=panel_id,
+                category_column=str(panel["category_column"]),
+                value_column=str(panel["value_column"]),
+                category_order=panel["category_order"],
+                x_label=str(panel["x_label"]), y_label=str(panel["y_label"]),
+                narrative=panel["narrative_object"],
+                gene_label_column=str(panel["gene_label_column"]),
+                gene_url_column=str(panel["gene_url_column"]),
+                statistics={**statistics, "effect_threshold": threshold},
+                style=style,
+            )
+    figure_pdf = compose_vector_figure(
+        [written[str(panel["panel_id"])]["pdf"] for panel in panels],
+        destination / f"{loaded['figure_id']}.pdf",
+        columns=int(loaded["columns"]),
+    )
+    return {"panels": written, "figure_pdf": figure_pdf}
+
+
 __all__ = [
     "LOPIT_COLOURS",
     "LOPIT_ORDER",
@@ -598,7 +1234,10 @@ __all__ = [
     "PanelNarrative",
     "PanelStyle",
     "apply_primary_call",
+    "build_manifest_packages",
+    "compose_vector_figure",
     "guide_control_threshold",
     "shared_limits",
+    "write_box_jitter_package",
     "write_panel_package",
 ]
