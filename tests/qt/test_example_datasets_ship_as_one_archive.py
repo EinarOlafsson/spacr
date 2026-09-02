@@ -144,13 +144,28 @@ def test_the_archive_is_removed_after_unpacking():
     assert "target.unlink(missing_ok=True)" in _worker_source()
 
 
-def test_the_measure_set_still_expands_its_arrays():
-    """The .npz compression is a transport detail; Measure reads .npy."""
-    import inspect
+def test_the_measure_set_still_expands_its_arrays(tmp_path):
+    """The .npz compression is a transport detail; Measure reads .npy.
+
+    Asserted on BEHAVIOUR rather than on the source containing a particular
+    name. It used to grep ``after_extract`` for "_expand_arrays", which broke
+    when that helper was promoted to a module function to stop a QObject being
+    constructed on the download thread -- a change that did not alter what this
+    test is named for. Running it proves the same thing and survives a rename.
+    """
+    import numpy as np
 
     from spacr.qt.hf_download import _MeasureTarWorker
 
-    assert "_expand_arrays" in inspect.getsource(_MeasureTarWorker.after_extract)
+    merged = tmp_path / "merged"
+    merged.mkdir()
+    np.savez_compressed(merged / "field.npz", image=np.arange(4).reshape(2, 2))
+
+    worker = _MeasureTarWorker.__new__(_MeasureTarWorker)
+    worker.after_extract(str(tmp_path))
+
+    assert (merged / "field.npy").is_file()
+    assert not (merged / "field.npz").exists()
 
 
 def test_both_entry_points_use_the_tar_workers():
