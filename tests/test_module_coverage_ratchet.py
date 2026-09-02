@@ -156,8 +156,8 @@ def _run_cli(
     )
 
 
-def test_current_packaging_denominator_is_526_not_asset_generators():
-    """The ratchet follows all 526 shipped modules, not asset generators.
+def test_current_packaging_denominator_is_527_not_asset_generators():
+    """The ratchet follows all 527 shipped modules, not asset generators.
 
     Since the previous 506-module pin, the product added the public
     accelerator resolver, plaque analysis, settings-pack support, and the
@@ -168,11 +168,11 @@ def test_current_packaging_denominator_is_526_not_asset_generators():
     four more installed modules. The generated setting-to-API target map adds
     one more; all five must have coverage rows too.
 
-    526 since 2026-09-02: the pin had drifted to six modules behind the
-    package before `spacr-download` was written, and that command adds two
-    more -- `spacr/cli_download.py` and the Qt-free `spacr/example_archives.py`
-    it reads its repositories from. Both are installed Python and both need
-    coverage rows.
+    527 since 2026-09-02: the pin had drifted to six modules behind the
+    package before `spacr-download` was written, that command added two --
+    `spacr/cli_download.py` and the Qt-free `spacr/example_archives.py` it
+    reads its repositories from -- and `spacr/image_import.py` added the
+    tenth. All are installed Python and all need coverage rows.
     """
     shipped = set(ratchet.discover_shipped_python_files(ROOT))
     every_spacr_python = {
@@ -180,7 +180,7 @@ def test_current_packaging_denominator_is_526_not_asset_generators():
         for path in (ROOT / "spacr").rglob("*.py")
     }
 
-    assert len(shipped) == 526
+    assert len(shipped) == 527
     assert every_spacr_python - shipped == RESOURCE_GENERATORS
     assert not RESOURCE_GENERATORS & shipped
 
@@ -438,7 +438,7 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     )
     assert "coverage combine --keep" in combine_script
     assert "coverage json --pretty-print" in combine_script
-    assert "--expected-file-count 526" in combine_script
+    assert "--expected-file-count 527" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
     assert "coverage-combine" in jobs["release-gate"]["needs"]

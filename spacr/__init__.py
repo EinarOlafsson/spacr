@@ -169,6 +169,7 @@ _DOCUMENTED_SUBMODULES: tuple[str, ...] = (
     "plate_qc",
     "seg_qc",
     "model_compare",
+    "image_import",
     "model_zoo",
     "batch",
     "batch_correction",

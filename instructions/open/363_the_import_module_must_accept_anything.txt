@@ -2,8 +2,10 @@
 THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
 ================================================================================
 
-Status:    THE CORPUS IS BUILT AND THE GAP IS MEASURED, 2026-09-02. The
-           module itself is not started. Filed as 360, renumbered to 363 the
+Status:    CORPUS BUILT, GAP MEASURED, AND THE INFERENCE PASS WORKS --
+           8 of 10 layouts from names alone, against 2 of 10 for the fixed
+           convention list. The reviewable table, reading inside files, and
+           writing the project are not started. Filed as 360, renumbered to 363 the
            same day (see 362 for why).
 Requested: 2026-09-02, verbatim -- "spacr has an import data module, this
            module should make it easy for users to import their images
@@ -181,6 +183,53 @@ claims the tree:
   `CURRENTLY_PARSED = ("cellvoyager", "cq1")` in the test file is a RATCHET.
   Adding a layout adds a name; a name disappearing is a regression and is the
   only thing in that file that fails on an ordinary day.
+
+--------------------------------------------------------------------------------
+THE INFERENCE PASS EXISTS: 8 OF 10, AND TWO HONEST REFUSALS
+--------------------------------------------------------------------------------
+
+`spacr/image_import.py` -- `infer_layout(root)`. Reads what VARIES across a
+sample of the folder rather than matching a whole filename against one of N
+templates.
+
+    fixed convention list   2 of 10 parse, 8 recover nothing
+    inference               8 of 10 fully resolved from names alone
+
+  THE OTHER TWO ARE REFUSALS, NOT FAILURES, and this is the design working:
+    * `flat_ome` -- the channel is a PAGE INSIDE THE FILE. No name can carry
+      it. Well and field are resolved and no channel is claimed.
+    * `per_channel_folder` -- the channel is a folder named `DAPI`/`GFP`.
+      That is a real axis and nothing maps a dye to an index, so it is
+      reported in `unplaced` WITH ITS VALUES, which is what lets a caller ask
+      rather than decide for the user.
+
+  THE PRINCIPLE THAT DID THE WORK: a token that is the same in every file
+  carries no information; a token that varies is an axis. `L01` in
+  `plate1_A01_T0001F001L01A01Z01C01` is a constant and identifies nothing.
+  Variance says a token IS an axis; the marker letter in front says WHICH.
+
+  TWO BUGS FOUND BY MEASURING RATHER THAN REASONING, both worth keeping in
+  mind for the rest of this work, and both caught only because the corpus
+  existed first:
+
+    * The first cut scored 1 of 10 -- WORSE than the fixed list it replaced.
+      The name-shape used to group files of one convention included the
+      alphabetic runs, but the WELL LETTER is alphabetic and varies, so
+      `..._A01_...` and `..._B02_...` were two conventions, the majority won,
+      and half of every plate vanished before anything was inferred.
+    * Wells were matched on shape -- one uppercase letter plus two digits --
+      which in the CellVoyager name matches `A01`, `L01`, `A01` and `C01`.
+      All four became wells, the last overwriting the channel, so every plate
+      had four wells and no channels. Only `A` varies; the rest are the
+      convention's punctuation.
+
+  Both are pinned by tests named for the symptom, and
+  `test_no_file_is_silently_dropped` exists because placed-plus-skipped is
+  the only total that catches the first one.
+
+  STILL TO DO for this part: read the axes that live INSIDE files (the
+  `flat_ome` case), offer the user a mapping for an unplaced axis (the
+  `per_channel_folder` case), the reviewable table, and writing the project.
 
 --------------------------------------------------------------------------------
 ALREADY FIXED WHILE WRITING THIS FILE
