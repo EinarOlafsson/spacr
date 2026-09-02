@@ -132,11 +132,7 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "[0,1,2,3]", "[]", REPAIRED_TOOLTIP,
         "An empty importer list deliberately means all detected channels.",
     ),
-    ("external_masks", "cytoplasm"): DefaultVariant(
-        "False", "True", ACCURATE_SHARED,
-        "The importer intentionally enables the derived cytoplasm table.",
-    ),
-    ("external_masks", "dst"): DefaultVariant(
+        ("external_masks", "dst"): DefaultVariant(
         "''", "None", ACCURATE_SHARED,
         "Both falsey values select the module-computed destination.",
     ),
@@ -606,7 +602,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # point of the pin, so it moves with the change rather than being
     # widened to a range.
     assert comparisons == 670
-    assert len(variants) == 47
+    assert len(variants) == 46
     assert variants == expected
     assert {
         classification: sum(
@@ -615,7 +611,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
         )
         for classification in (ACCURATE_SHARED, REPAIRED_TOOLTIP, CONFIG_DEFECT)
     } == {
-        ACCURATE_SHARED: 22,
+        ACCURATE_SHARED: 21,
         REPAIRED_TOOLTIP: 25,
         CONFIG_DEFECT: 0,
     }

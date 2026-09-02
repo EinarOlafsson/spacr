@@ -264,9 +264,9 @@
     {
       "table": "setting_tooltips",
       "key": "pathogen_Signal_to_noise",
-      "source_sha256": "cf7414b86a7c8da4a186425439c9e023f8c0fc106116f62eac4edecd781d070a",
-      "source": "Expected foreground-to-background ratio of the pathogen channel. Multiplied by pathogen_background, it defines the minimum intensity for the normalisation ceiling. spaCR evaluates percentiles 98 through 99.5 and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. Increase it for a higher ceiling with less clipping; decrease it for greater contrast. Default 10.",
-      "translation": "病原体通道的预期前景背景比。将其与 pathogen_background 相乘可定义归一化上限所需的最小强度。spaCR 评估第 98 至 99.5 百分位数，并采用第一个达到阈值的值；若均未达到，则使用第 99.5 百分位数。增大此值会提高上限并减少裁剪；减小此值会增强对比度。默认值为 10。"
+      "source_sha256": "2a5e221d03bf215fd394749f084f8398e48198c7aa8af4ade86050bcd6cc1652",
+      "source": "Expected foreground-to-background ratio of the pathogen channel. Multiplied by pathogen_background, it defines the minimum intensity for the normalisation ceiling. spaCR evaluates percentiles 98 through 99.5 and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. Increase it for a higher ceiling with less clipping; decrease it for greater contrast. Default 20.",
+      "translation": "病原体通道的预期前景背景比。将其与 pathogen_background 相乘可定义归一化上限所需的最小强度。spaCR 评估第 98 至 99.5 百分位数，并采用第一个达到阈值的值；若均未达到，则使用第 99.5 百分位数。增大此值会提高上限并减少裁剪；减小此值会增强对比度。默认值为 20。"
     },
     {
       "table": "setting_tooltips",

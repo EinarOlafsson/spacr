@@ -80,6 +80,14 @@ def _settings(merged, **over):
     s = get_measure_crop_settings(settings={})
     s.update({
         "src": str(merged), "channels": [0, 1, 2, 3],
+        # SIZE FILTERS OFF FOR SYNTHETIC FIELDS. Instruction 337 adopted the
+        # maintainer's own 40x screening defaults -- cell 8000 px2, nucleus
+        # 2000, pathogen 500 -- and the objects drawn in this file are a few
+        # hundred pixels at most, so the real defaults correctly erase every
+        # one of them and the measurement has nothing to write. Named here
+        # rather than left to a permissive default, which is what made these
+        # tests depend on a value they never stated.
+        "cell_min_size": 0, "nucleus_min_size": 0, "pathogen_min_size": 0,
         "cell_mask_dim": 4, "nucleus_mask_dim": 5, "pathogen_mask_dim": 6,
         "png_dims": [0, 1, 2], "png_size": [16, 16],
         "save_measurements": False, "save_png": True, "save_arrays": False,

@@ -43,6 +43,15 @@ def _settings(tmp_path, *folders, **overrides):
         "inputs": [group.to_dict() for group in em.detect_inputs(list(folders))],
         "dst": str(tmp_path / "project"),
         "layout": "flat",
+        # SIZE FILTERS OFF FOR SYNTHETIC FIELDS. The importer hands Measure
+        # the full Measure contract, and instruction 337 made that contract
+        # the maintainer's own 40x screening defaults -- cell 8000 px2,
+        # nucleus 2000, pathogen 500. The masks written by `_one_field` and
+        # `_two_fields` are a few hundred pixels, so on the real defaults
+        # Measure correctly erases every object and the import ends in
+        # "finished without required output table". Stated here because it
+        # is a property of THESE FIXTURES, not of the importer.
+        "cell_min_size": 0, "nucleus_min_size": 0, "pathogen_min_size": 0,
     }
     values.update(overrides)
     return values
