@@ -161,3 +161,23 @@ Implementation series:
 * The completion commit containing this record — V1 integration, atomic field
   completion, exact resume validation, Mask/Timelapse controls, and the final
   real-pipeline regression.
+
+POST-COMMIT HARDENING. A second independent review found two set-level cases
+outside the original focused proof. Enabled timelapse now compares the complete
+source-NPY inventory with the filename grouper and refuses any malformed frame
+instead of silently omitting it. Enabled V1 also builds the complete new NPZ
+set in staging, validates its exact field manifest, then replaces the prior set
+with rollback; a shorter rerun therefore cannot leave a stale archive that the
+Cellpose glob would still consume. Failed runs remove their private staging
+directory. After corrected NPZ publication but BEFORE the application record
+becomes complete, enabled mask preprocessing invalidates every object-mask
+stack and the complete ``merged/`` directory made from superseded pixels and
+disables downstream resume; this ordering leaves no crash window in which old
+masks can accompany complete new provenance. A preprocessing-only
+``masks=False`` run neither prepares segmentation illumination nor deletes
+existing outputs, including the no-raw-files shortcut. The disabled-path
+payload is pinned to the SHA-256 measured independently from pre-integration
+commit ``3c1ca30bd``. Publication success, mid-publication rollback, empty
+staging, malformed time names, shorter reruns, stale mask/merged invalidation,
+preprocessing-only preservation, partial reads, and the original V1/V2
+scenarios pass in the final bounded 162-test run.

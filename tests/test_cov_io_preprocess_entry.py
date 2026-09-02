@@ -296,6 +296,38 @@ def test_existing_stack_prepares_v1_illumination_before_normalisation(
     assert recs["concat"].calls[0][1]["illumination_session"] is session
 
 
+def test_preprocessing_only_never_deletes_or_corrects_existing_masks(
+        tmp_path, monkeypatch):
+    """``masks=False`` remains a non-destructive preprocessing-only run."""
+    import spacr.illumination as illumination
+    from spacr.io import preprocess_img_data
+
+    src = tmp_path / "plate1"
+    stack = src / "stack"
+    stack.mkdir(parents=True)
+    np.save(stack / "fov.npy", np.ones((4, 4, 2), dtype=np.uint16))
+    old_mask = src / "masks" / "cell_mask_stack" / "fov.npy"
+    old_mask.parent.mkdir(parents=True)
+    np.save(old_mask, np.full((4, 4), 7, dtype=np.uint16))
+    _patch_common(monkeypatch)
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("preprocessing-only must not prepare segmentation")
+
+    monkeypatch.setattr(
+        illumination, "prepare_segmentation_illumination", forbidden)
+    settings = _settings(
+        src, masks=False, illumination_correction=True,
+        illumination_model="")
+
+    out_settings, out_src = preprocess_img_data(settings)
+
+    assert out_src == str(src)
+    assert out_settings.get("_illumination_v1_rebuild_required") is None
+    np.testing.assert_array_equal(
+        np.load(old_mask), np.full((4, 4), 7, dtype=np.uint16))
+
+
 def test_channel_subfolders_are_merged_into_a_stack(tmp_path, monkeypatch):
     """No recognised image extension in src -> _merge_channels builds stack/."""
     from spacr.io import preprocess_img_data
