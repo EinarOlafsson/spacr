@@ -29,7 +29,6 @@ import pytest
 
 from spacr import crops
 
-
 #: Settings that legitimately hold a list of SOURCE CHANNEL INDICES with no
 #: colour meaning. Adding to this list is a claim that the setting decides
 #: which channels are processed, not what colour anything is drawn in.
@@ -90,6 +89,21 @@ def test_a_miskeyed_colour_is_an_error_not_a_silent_drop():
     with pytest.raises(crops.CropError, match="every colour empty"):
         crops.resolve_png_channel_mapping(
             {"png_channel_mapping": {"r": None, "g": None, "b": None}})
+
+
+def test_a_colour_mapping_refuses_a_channel_index_that_is_not_an_integer():
+    """A named colour must still point to a real source-plane index.
+
+    Numeric strings remain accepted for settings loaded from CSV, while a
+    colour word cannot be silently interpreted as a plane or dropped.
+    """
+    assert crops.resolve_png_channel_mapping(
+        {"png_channel_mapping": {"r": "2", "g": 1, "b": 0}}
+    ) == {"r": 2, "g": 1, "b": 0}
+
+    with pytest.raises(crops.CropError, match="source channel index"):
+        crops.resolve_png_channel_mapping(
+            {"png_channel_mapping": {"r": "red", "g": 1, "b": 0}})
 
 
 def test_the_channel_sets_are_still_plain_lists():

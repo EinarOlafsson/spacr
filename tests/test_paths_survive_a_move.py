@@ -26,20 +26,25 @@ The anchor is now found from the RIGHT.
 from __future__ import annotations
 
 import os
-import shutil
-import sqlite3
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from spacr.crops import (
-    ALREADY_ANCHORED, NO_ANCHOR, PATH_ANCHORS, REANCHORED, MergedCropSource,
-    PngCropSource, basename_any, normalise_separators, path_components,
-    path_is_under, reanchor_frame, reanchor_path,
+    ALREADY_ANCHORED,
+    NO_ANCHOR,
+    PATH_ANCHORS,
+    REANCHORED,
+    MergedCropSource,
+    PngCropSource,
+    basename_any,
+    normalise_separators,
+    path_components,
+    path_is_under,
+    reanchor_frame,
+    reanchor_path,
 )
 from spacr.utils import correct_paths
-
 
 # --------------------------------------------------------------------------- #
 #  The four measured cases, through the real correct_paths
@@ -151,6 +156,24 @@ def test_every_path_bearing_column_is_re_anchored_not_only_png_path():
     assert report.describe() == ""
 
 
+def test_a_frame_counts_a_path_that_is_already_under_its_root(tmp_path):
+    """A path already on this machine is preserved and counted separately.
+
+    It is neither a successful move nor a failure, so the report must expose
+    the already-anchored outcome rather than silently folding it into either.
+    """
+    crop = tmp_path / "data" / "p1" / "a.png"
+    crop.parent.mkdir(parents=True)
+    crop.write_bytes(b"crop")
+    frame = pd.DataFrame({"png_path": [str(crop)]})
+
+    out, report = reanchor_frame(frame, str(tmp_path))
+
+    assert out["png_path"].tolist() == [str(crop)]
+    assert report.n_already == 1
+    assert report.n_reanchored == report.n_failed == 0
+
+
 def test_the_report_counts_what_it_could_not_place_and_names_one():
     frame = pd.DataFrame({"png_path": ["/old/exp/data/p1/a.png",
                                        "/somewhere/else/b.png",
@@ -214,3 +237,23 @@ def test_the_merged_source_prefers_the_anchor_over_the_flat_basename(tmp_path):
     source = MergedCropSource(merged_root=str(root / "merged"))
     got = source.resolve_path({"path_name": "/old/place/merged/plate1/f1.npy"})
     assert got == str(nested / "f1.npy")
+
+
+def test_the_merged_source_returns_the_recorded_path_when_no_fallback_exists(
+        tmp_path):
+    """A failed fallback must not invent a plausible merged-array path.
+
+    The flat-basename fallback remains active when that file really exists,
+    while an absent file is returned unchanged for the reader to report.
+    """
+    merged = tmp_path / "merged"
+    merged.mkdir()
+    source = MergedCropSource(merged_root=str(merged))
+    recorded = "/old/no-anchor/missing.npy"
+
+    assert source.resolve_path({"path_name": recorded}) == recorded
+
+    replacement = merged / "found.npy"
+    np.save(replacement, np.zeros((2, 2, 1), dtype=np.uint16))
+    found = "/old/no-anchor/found.npy"
+    assert source.resolve_path({"path_name": found}) == str(replacement)
