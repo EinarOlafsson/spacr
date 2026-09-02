@@ -1486,13 +1486,17 @@ def home_stages() -> dict:
 #: change that shows up immediately -- at the end of its band, where a
 #: new thing belongs until somebody decides where it goes.
 #: Screen modules that host folded modules, beyond the ones
-#: `fold_strip.FOLD_HOST_MODULES` already names. Those four grew fold
+#: `fold_strip.FOLD_HOST_MODULES` already names. These three grew fold
 #: strips later and were never added there.
+#:
+#: Import is no longer among them: Import Images is folded onto it and has
+#: no registry row, so `fold_strip` has to walk that host itself to find
+#: the name for its button. Naming it in both places would be the same
+#: fact written twice, and the copy is the one that goes stale.
 _EXTRA_FOLD_HOSTS: Tuple[str, ...] = (
     "spacr.qt.screens.graph_builder",
     "spacr.qt.screens.qc_dashboard",
     "spacr.qt.screens.db_browser",
-    "spacr.qt.screens.foreign",
 )
 
 

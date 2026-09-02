@@ -92,6 +92,13 @@ CHECKED_ALPHA = 0.30
 #: hosts, but it does not draw their buttons.
 FOLD_HOST_MODULES = (
     "spacr.qt.screens.make_masks",
+    # Import is here for a reason the others are not: Import Images never
+    # had a registry row, so this tuple is the ONLY route to its name, its
+    # sentence and its maturity. The three other late hosts -- Graph
+    # Builder, QC Dashboard, Database Browser -- fold modules that kept
+    # their rows, so the registry still answers for them and adding them
+    # here would change which host their folds are attributed to.
+    "spacr.qt.screens.foreign",
     "spacr.qt.screens.map_barcodes",
     "spacr.qt.screens.image_umap",
     "spacr.qt.screens.regression",

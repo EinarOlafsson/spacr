@@ -1651,6 +1651,36 @@ class AlignDropHandler(DropHandler):
         screen.apply_settings({"src": str(source)})
 
 
+class ImageImportDropHandler(DropHandler):
+    """Point Import Images at a dropped folder, or at a file's folder.
+
+    A FOLDER IS THE UNIT, and a dropped file is normalised to the one holding
+    it, because the module reads what VARIES ACROSS a folder to work out what
+    the names mean. One file has no variance and would say nothing; the
+    folder it came out of is what the user meant to hand over anyway.
+
+    A JSON file is a saved plan, not an acquisition: dropping one reloads the
+    answers from a previous import, which is the gesture that makes next
+    week's plate one press.
+    """
+
+    def can_accept(self, path: Path) -> bool:
+        return path.is_dir() or (
+            path.is_file()
+            and path.suffix.lower() in (_IMAGE_SUFFIXES | {".json"}))
+
+    def error_message(self, path: Path) -> str:
+        return ("Import Images accepts a folder of images, an image file "
+                "(its folder is read), or a saved import plan (.json).")
+
+    def apply(self, path: Path, screen) -> None:
+        if path.is_file() and path.suffix.lower() == ".json":
+            if screen.load_plan(str(path)) is False:
+                raise ValueError(f"Could not load the import plan {path}.")
+            return
+        screen.set_root(str(path.parent if path.is_file() else path))
+
+
 class ConvertDropHandler(DropHandler):
     """Use a dropped microscopy container or folder as converter input."""
 
@@ -2456,6 +2486,7 @@ _HANDLERS = {
     "cellpose_all":    MakeMasksDropHandler,
     "db_browser":      DatabaseDropHandler,
     "foreign":         ForeignProjectDropHandler,
+    "import_images":   ImageImportDropHandler,
     "align":           AlignDropHandler,
     "convert":         ConvertDropHandler,
     "queue":           PlateQueueDropHandler,

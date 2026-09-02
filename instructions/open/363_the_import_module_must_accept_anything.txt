@@ -2,12 +2,13 @@
 THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
 ================================================================================
 
-Status:    END TO END IN CODE: corpus, inference, file metadata, reviewable
-           plan, saved plans and project writing all work, and all 10 corpus
-           layouts import to a plate spaCR's own parser reads -- against 2 of
-           10 for the fixed convention list. The GUI screen is not started. The reviewable table, reading inside files, and
-           writing the project are not started. Filed as 360, renumbered to 363 the
-           same day (see 362 for why).
+Status:    END TO END, GUI INCLUDED. Corpus, inference, file metadata,
+           reviewable plan, saved plans, project writing AND the screen all
+           work, and all 10 corpus layouts import to a plate spaCR's own
+           parser reads -- against 2 of 10 for the fixed convention list.
+           LEFT: stitching tiles, which the maintainer decided on 2026-09-02
+           (see the tiles section). Filed as 360, renumbered to 363 the same
+           day (see 362 for why).
 Requested: 2026-09-02, verbatim -- "spacr has an import data module, this
            module should make it easy for users to import their images
            irrespective of format or naming structure into spacr so that the
@@ -297,8 +298,40 @@ templates.
   anything that stitches or measures per field is then wrong with nothing
   announcing it. Stitching is the other answer and belongs elsewhere.
 
-  STILL TO DO for this part: the GUI screen over this, and deciding whether
-  the canonical filename should grow a tile slot.
+  THE SCREEN EXISTS -- `spacr/qt/screens/image_import.py`, folded onto the
+  Import masthead as "Import Images", which is where the maintainer asked on
+  2026-08-31 for every way into a project to live. Folder in, Scan, and the
+  parse is on screen one row per file with the FILENAME BESIDE the fields it
+  was parsed into; what could not be named is asked as a question and Import
+  stays disabled until it is answered; answering re-resolves in memory
+  through `with_mapping` without re-walking the disk. Save/Load carry the
+  plan, and a dropped folder or a dropped plan is the same gesture.
+  35 tests in `tests/qt/test_the_import_images_screen_shows_before_it_writes.py`,
+  driven against the same ten corpus trees the engine is measured on, so the
+  screen is checked against real acquisition layouts rather than a fixture
+  written to suit it.
+
+  TWO THINGS THE SCREEN DELIBERATELY DOES NOT DO, both for the same reason:
+
+    * THE PROPOSAL TABLE IS NOT EDITABLE. A wrong guess is never wrong for
+      one file -- it is wrong for a token POSITION, in every name that has
+      one. Editing a row would fix one file and leave the other eight
+      thousand wrong, and there is no per-file override in `ImportPlan` for
+      it to write to. The correction is made where the mistake lives.
+    * IT NEVER WRITES INTO THE FOLDER IT READ. A destination under the
+      source is refused by name: that is the `consolidate` bug -- output
+      created inside the tree being walked, so the second run imports the
+      first run's output.
+
+  THE TILE QUESTION IS ANSWERED, 2026-09-02, by the maintainer: "tiles be
+  stitched at import with the option to not stitch but stitch by default."
+  So the canonical filename does NOT grow a tile slot -- stitching removes
+  the need for one, because a stitched field IS one image with one name.
+  `tiles_as_fields` stays as the opt-out for anyone who wants the tiles
+  themselves, and the default becomes: assemble the tiles of a field into
+  one image and write that.
+
+  STILL TO DO: the stitcher.
 
 --------------------------------------------------------------------------------
 ALREADY FIXED WHILE WRITING THIS FILE

@@ -55,6 +55,7 @@ __all__ = [
     "load_plan",
     "plan_import",
     "read_axes_inside",
+    "save_plan",
     "tokenise",
 ]
 
@@ -507,6 +508,44 @@ class ImportPlan:
         return ImportPlan(layout=self.layout, inside=self.inside,
                           mapping=merged)
 
+    @staticmethod
+    def _columns(entries: Dict[str, Dict[str, object]]) -> List[str]:
+        """The header for ``entries``, computed once for a caller that has
+        them already. :meth:`files` rebuilds on every access, and the table
+        needs the same dict for its header and its cells."""
+        axes = [a for a in AXES if any(a in e for e in entries.values())]
+        extra = sorted({k for e in entries.values() for k in e
+                        if k.endswith("_count")})
+        return ["file"] + axes + extra
+
+    def columns(self) -> List[str]:
+        """``file`` then every axis anything resolved, counts last.
+
+        ONLY THE AXES THIS FOLDER HAS. A column of empty cells for an axis no
+        file carries reads as "spaCR looked for a Z and found none", which is
+        a different claim from "this acquisition has no Z" and is the one a
+        user acts on. The tiled tree gains a `tile` column and the flat OME
+        one gains `c_count`; neither shows the other's.
+        """
+        return self._columns(self.files)
+
+    def rows(self, limit: Optional[int] = None) -> List[List[str]]:
+        """One row of strings per file, cells aligned to :meth:`columns`.
+
+        SEPARATE FROM :meth:`table` SO THE GUI AND THE TEXT CANNOT DISAGREE.
+        Both are the same proposal seen twice -- the Qt model draws these
+        rows into a widget and :meth:`table` pads them into a monospace
+        block -- and a screen that decided its own columns would be free to
+        show a different answer from the one the CLI and the saved plan show.
+        """
+        entries = self.files
+        keys = self._columns(entries)[1:]
+        order = sorted(entries)
+        if limit is not None:
+            order = order[:limit]
+        return [[rel] + [str(entries[rel].get(key, "")) for key in keys]
+                for rel in order]
+
     def table(self, limit: int = 8) -> str:
         """The proposal, as the table a user reads before pressing anything.
 
@@ -515,26 +554,21 @@ class ImportPlan:
         a column of numbers cannot tell you the field and the channel were
         swapped.
         """
-        entries = self.files
-        axes = [a for a in AXES if any(a in e for e in entries.values())]
-        extra = sorted({k for e in entries.values() for k in e
-                        if k.endswith("_count")})
-        header = ["file"] + axes + extra
+        header = self.columns()
+        rows = self.rows(limit=limit)
+        total = len(self.files)
         widths = [max(len(h), 12) for h in header]
-        rows = []
-        for rel in sorted(entries)[:limit]:
-            entry = entries[rel]
-            cells = [rel] + [str(entry.get(a, "")) for a in axes + extra]
+        for cells in rows:
             widths = [max(w, len(c)) for w, c in zip(widths, cells)]
-            rows.append(cells)
         lines = ["  ".join(h.ljust(w) for h, w in zip(header, widths)),
                  "  ".join("-" * w for w in widths)]
         lines += ["  ".join(c.ljust(w) for c, w in zip(r, widths)) for r in rows]
-        if len(entries) > limit:
-            lines.append(f"... and {len(entries) - limit} more")
+        if total > limit:
+            lines.append(f"... and {total - limit} more")
         counts = self.counts()
         lines.append("")
-        lines.append("  ".join(f"{a}={counts[a]}" for a in axes if a in counts))
+        lines.append("  ".join(f"{a}={counts[a]}" for a in header[1:]
+                               if a in counts and not a.endswith("_count")))
         for issue in self.problems():
             lines.append(f"  ! {issue}")
         return "\n".join(lines)
@@ -593,6 +627,27 @@ def _plan_as_json(plan: "ImportPlan") -> dict:
     }
 
 
+def save_plan(plan: "ImportPlan", path) -> Path:
+    """Write ``plan`` where :func:`load_plan` can read it back.
+
+    THE MAPPING IS THE ANSWER WORTH KEEPING. The per-file table is written
+    too, because a saved plan a person cannot read is not reviewable, but
+    :func:`load_plan` re-derives the files from the folder and trusts only
+    the mapping -- see its own docstring for why replaying a stale table
+    would import last week's images.
+
+    :returns: the path written, so a caller can report it.
+    """
+    import json
+
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(_plan_as_json(plan), indent=2, sort_keys=True,
+                               default=str),
+                    encoding="utf-8")
+    return path
+
+
 def load_plan(path) -> "ImportPlan":
     """Reload a saved plan, so the second import of the week is one press.
 
@@ -629,6 +684,33 @@ class ImportResult:
     linked: int = 0
     bytes_saved: int = 0
     skipped: Dict[str, str] = field(default_factory=dict)
+
+    def summary(self) -> str:
+        """What was written, what was not, and why.
+
+        EVERY SKIPPED FILE IS NAMED WITH ITS REASON, not counted. A count
+        says an import was incomplete; only the name and the reason say what
+        to do about it, and the reasons differ -- a tiled tree needs
+        ``tiles_as_fields``, an unwritable destination needs a different
+        folder. The `consolidate` bugs this module replaces lost images with
+        no message at all, so silence here would be the same failure with a
+        nicer table in front of it.
+        """
+        from .data_manager import human_bytes
+
+        lines = [f"{self.written} image(s) written to {self.destination}"]
+        if self.linked:
+            lines.append(
+                f"{self.linked} linked rather than copied -- "
+                f"{human_bytes(self.bytes_saved)} not duplicated")
+        if self.skipped:
+            lines.append("")
+            lines.append(f"{len(self.skipped)} file(s) NOT written:")
+            for rel, reason in sorted(self.skipped.items())[:20]:
+                lines.append(f"  {rel}: {reason}")
+            if len(self.skipped) > 20:
+                lines.append(f"  ... and {len(self.skipped) - 20} more")
+        return "\n".join(lines)
 
 
 def apply_import(plan: "ImportPlan", destination, *, link: bool = True,

@@ -19,7 +19,7 @@ Opened from a host's masthead
 * **Database Browser** opens `Lineage <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/lineage/index.html>`_, `Tabulate <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html>`_
 * **Graph Builder** opens `Plate Viewer <https://einarolafsson.github.io/spacr/api/spacr/plate_qc/index.html>`_, `Small Multiples <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/trellis/index.html>`_
 * **Image UMAP** opens Image Scatter, PCA
-* **Import** opens `Format Converter <https://einarolafsson.github.io/spacr/api/spacr/convert/index.html>`_, `External Masks <https://einarolafsson.github.io/spacr/api/spacr/external_masks/index.html>`_
+* **Import** opens `Format Converter <https://einarolafsson.github.io/spacr/api/spacr/convert/index.html>`_, `External Masks <https://einarolafsson.github.io/spacr/api/spacr/external_masks/index.html>`_, Import Images
 * **Map Barcodes** opens Barcode QC
 * **Mask** opens Timelapse
 * **Measure** opens AnnData Export, Illumination, Motility Assay
