@@ -161,13 +161,25 @@ def test_an_unhashable_language_is_resolved_rather_than_refused():
 
 
 def test_a_setting_with_no_prose_still_names_itself_in_the_footer():
-    """The hover footer says what the control is even with no description."""
+    """The hover footer says what the control is even with no description.
+
+    The invented sentence used to read "Controls src." -- the raw key,
+    because the humaniser only capitalised it. Commit 53a40ebce gave
+    ``src`` the exact label "Path" in ``object_roles.EXACT_LABELS`` so
+    that every surface names it the same way, which is a deliberate
+    change and not a regression: the footer still names the control it is
+    describing, it just spells the name the way the user sees it on the
+    form rather than the way the settings file spells it. The key is
+    still what selects the label, so the substitution is asserted through
+    ``src`` rather than by handing "path" straight to the function.
+    """
     described = SM.plain_tooltip("How many plates to read.", "measure", "src")
     bare = SM.plain_tooltip("", "measure", "src")
     nameless = SM.plain_tooltip("", "measure", "")
 
     assert "How many plates to read." in described
-    assert "Controls src." in bare
+    assert "Controls path." in bare
+    assert bare.startswith("Path ")
     assert nameless.startswith("Controls this setting.")
 
 
@@ -299,7 +311,13 @@ def test_an_api_dot_is_re_pointed_and_captioned_rather_than_re_described():
     SM.refresh_api_tooltips(owner, "en")
 
     caption = SM._api_reference_tooltip("src", "en", "measure")
-    assert caption and "src" in caption.lower()
+    # This asked for the raw key in the caption. Commit 53a40ebce made
+    # ``src`` render as its exact label "Path" everywhere, from one place
+    # in ``object_roles.EXACT_LABELS``, so a caption still carrying "src"
+    # would now be the bug: the dot sits beside a field the form calls
+    # Path, and its accessible name is read out on its own. What the
+    # caption has to do is name the setting it opens, which it does.
+    assert caption == "Open API reference for Path"
     assert dot.toolTip() == caption
     assert dot.accessibleName() == caption
     assert dot.url == SM.api_docs_url("measure", "src", "en")

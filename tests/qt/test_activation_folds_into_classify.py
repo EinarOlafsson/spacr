@@ -78,18 +78,29 @@ class _Window(QObject):
 # The button
 # ---------------------------------------------------------------------------
 
-def test_activation_is_the_last_of_classifys_three_folds(
-        qtbot, qt_theme_applied):
-    """The strip reads in the order of the visit, and ends here.
+def test_activation_is_classifys_third_fold(qtbot, qt_theme_applied):
+    """The strip reads in the order of the visit, and this is its third stop.
 
     Judge the model, ask which measured features it keyed on, then ask
     where in the image it looked -- so the order is asserted rather than
     left to a set.
+
+    This asserted ``FOLDED_APPS[-1] == APP_KEY`` and was named for three
+    folds until commit 2912437a7 wired instruction 318's remaining folds
+    and appended Training Runs and Feature Explorer, taking Classify to
+    five.  The claim that went stale is only "last": the reading order
+    the comment above ``FOLDED_APPS`` states is untouched by that append,
+    Activation is still the third and final step of it, and neither new
+    module is a step in reading one model at all -- Training Runs diffs a
+    pair of runs and Feature Explorer runs before anything is trained.
+    So the whole three-step prefix is pinned here rather than one index,
+    which is the claim the docstring above actually makes.
     """
     _screen, strip = _host(qtbot)
 
     assert list(strip.keys()) == list(classify.FOLDED_APPS)
-    assert classify.FOLDED_APPS[-1] == APP_KEY
+    assert classify.FOLDED_APPS[:3] == ("classifier_evaluation",
+                                        "explain_cv", APP_KEY)
     assert callable(classify.BUILDERS[APP_KEY])
 
 
@@ -502,12 +513,12 @@ def test_the_tab_the_page_arrives_on_speaks_the_same_language(
 
 def test_the_second_fold_opened_is_translated_as_well(
         qtbot, qt_theme_applied, monkeypatch):
-    """Classify folds three modules, and the strip is built by the first.
+    """Classify folds five modules, and the strip is built by the first.
 
     The page strip arrives once, with the first button pressed; every page
     after that lands on a strip that already exists. Watching only the
     arrival of the strip would translate the first module a user opens and
-    leave the second and third in English.
+    leave the other four in English.
     """
     screen, _strip = _swedish_host(qtbot, monkeypatch)
 
