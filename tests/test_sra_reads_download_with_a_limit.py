@@ -15,7 +15,6 @@ from __future__ import annotations
 import gzip
 import io
 import zlib
-from pathlib import Path
 
 import pytest
 
@@ -66,6 +65,20 @@ def test_the_portal_rows_become_one_entry_per_mate():
     assert files[0].library == "hilib_p4", "the library names the plate"
 
 
+def test_a_run_label_names_the_cost_when_the_archive_reports_it():
+    known = RunFile(
+        run="SRR1", library="hilib_p1", url="https://x/SRR1_1.fastq.gz",
+        mate=1, size_bytes=2_500_000_000, read_count=73_000_000,
+    )
+    unknown = RunFile(
+        run="SRR2", library="hilib_p2", url="https://x/SRR2_2.fastq.gz",
+        mate=2,
+    )
+
+    assert known.label() == "SRR1  ·  mate 1  ·  hilib_p1  ·  2.5 GB  ·  73M reads"
+    assert unknown.label() == "SRR2  ·  mate 2  ·  hilib_p2  ·  ?"
+
+
 def test_the_ftp_host_is_fetched_over_https():
     """FTP is blocked on many institutional networks, and a failure there
     would be unexplainable to the person it happens to."""
@@ -76,6 +89,20 @@ def test_the_ftp_host_is_fetched_over_https():
 def test_an_empty_or_broken_portal_answer_yields_nothing():
     assert runs_for(opener=lambda url: _Response(b"")) == ()
     assert runs_for(opener=lambda url: _Response(b"nonsense\n")) == ()
+
+
+def test_text_metadata_and_bad_archive_counts_degrade_to_unknown():
+    payload = (
+        "run_accession\tlibrary_name\tfastq_ftp\tfastq_bytes\tread_count\n"
+        "SRR1\tp1\thttps://x/one.fastq.gz;https://x/two.fastq.gz\t"
+        "not-a-size\tnot-a-count\n"
+    )
+    files = runs_for(opener=lambda url: io.StringIO(payload))
+
+    assert [(one.url, one.size_bytes, one.read_count) for one in files] == [
+        ("https://x/one.fastq.gz", 0, 0),
+        ("https://x/two.fastq.gz", 0, 0),
+    ]
 
 
 def test_the_limit_stops_the_download(tmp_path):
@@ -101,6 +128,33 @@ def test_no_limit_fetches_the_whole_file(tmp_path):
     written = fetch_reads(one, tmp_path, opener=lambda url: _Response(body))
     with gzip.open(written, "rt") as handle:
         assert len(handle.read().splitlines()) == 100
+
+
+def test_a_limited_download_accepts_records_arriving_across_small_chunks(tmp_path):
+    class TinyChunks(_Response):
+        def read(self, n=-1):
+            return super().read(min(n, 7))
+
+    body = _gzipped(_fastq(25))
+    one = RunFile(run="SRR1", library="p1", url="https://x/a.fastq.gz", mate=1)
+    written = fetch_reads(
+        one, tmp_path, max_reads=5, opener=lambda url: TinyChunks(body),
+    )
+
+    with gzip.open(written, "rt") as handle:
+        lines = handle.read().splitlines()
+    assert len(lines) == 20
+    assert lines[-4] == "@read4"
+
+
+def test_an_unlimited_download_preserves_a_final_line_without_a_newline(tmp_path):
+    body = _gzipped(b"@read0\nACGT\n+\nIIII")
+    one = RunFile(run="SRR1", library="p1", url="https://x/a.fastq.gz", mate=1)
+
+    written = fetch_reads(one, tmp_path, opener=lambda url: _Response(body))
+
+    with gzip.open(written, "rb") as handle:
+        assert handle.read() == b"@read0\nACGT\n+\nIIII"
 
 
 def test_the_output_is_gzipped_fastq(tmp_path):
