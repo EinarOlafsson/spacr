@@ -81,7 +81,7 @@ OPEN
        325_two_sessions_one_repo_working_protocol.txt
 
   326  THE ORGANELLE COUNT MUST BE ARBITRARY
-       [~20% -- step 1 of 4; the real ceiling is four roles, not 26]
+       [~25% -- unblocked: settings follow the count, and 100 slots must work; scheme designed]
        326_the_organelle_count_must_be_arbitrary.txt
 
   327  THE BACKDROP CAMERA AND THE POINTER SHOULD FEEL LIKE GRAVITY
