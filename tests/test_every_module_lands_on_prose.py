@@ -59,7 +59,6 @@ BAR = 60
 #: in this table.
 STILL_OWED = {
     "spacr.core": 7,
-    "spacr.ml": 6,
     "spacr.submodules": 8,
 }
 
@@ -134,7 +133,9 @@ def test_a_module_that_climbed_past_the_bar_leaves_the_table(tiles):
     assert not stale, "\n  ".join(["remove these from STILL_OWED:"] + stale)
 
 
-@pytest.mark.parametrize("module", ["spacr.measure", "spacr.sequencing"])
+@pytest.mark.parametrize(
+    "module", ["spacr.measure", "spacr.ml", "spacr.sequencing"]
+)
 def test_each_repaired_module_answers_the_four_questions(tiles, module):
     """Modules fixed against 366's own bar are asserted against it rather
     than only against a word count.
