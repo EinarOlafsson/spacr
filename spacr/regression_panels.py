@@ -624,6 +624,8 @@ def _resolve_run_artifacts(
     sources: Sequence[str],
 ) -> dict[str, dict[str, object]]:
     """Resolve caller-named artifacts and retain their declared identity."""
+    from .tabular import read_table
+
     resolved: dict[str, dict[str, object]] = {}
     for source in dict.fromkeys(sources):
         if source not in artifacts:
@@ -655,7 +657,7 @@ def _resolve_run_artifacts(
             if not path.is_file():
                 raise ValueError(f"Run artifact {source!r} path does not exist: {path}")
             try:
-                frame = pd.read_csv(path)
+                frame = read_table(path, report=None)
             except Exception as error:  # noqa: BLE001 - report the exact source
                 raise ValueError(
                     f"Could not read run artifact {source!r} from {path}: {error}"
