@@ -1249,6 +1249,7 @@ def compare_models(images: Sequence[np.ndarray],
     total_steps = 3
 
     def _tick(message: str, done: int) -> None:
+        """Forward ``message`` and ``done`` with the fixed total; return ``None``."""
         if progress is not None:
             progress(message, done, total_steps)
 
