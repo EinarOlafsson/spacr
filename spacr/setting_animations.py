@@ -13,7 +13,6 @@ from functools import lru_cache
 from pathlib import Path, PurePosixPath
 from typing import Dict, Iterator, Mapping, Optional, Tuple
 
-
 SCHEMA_VERSION = 1
 """Manifest schema understood by this spaCR release."""
 
@@ -359,6 +358,13 @@ def measure_border_artifact(path) -> float:
     band = _BORDER_BAND
 
     def perimeter(frame):
+        """Flatten every border pixel into RGB rows exactly once.
+
+        :param frame: captured-animation RGB frame to sample.
+        :returns: top and bottom bands followed by the left and right interior
+            bands. Omitting corners from the side bands prevents double
+            counting while preserving a stable comparison order.
+        """
         return np.concatenate([
             frame[:band].reshape(-1, 3),
             frame[-band:].reshape(-1, 3),

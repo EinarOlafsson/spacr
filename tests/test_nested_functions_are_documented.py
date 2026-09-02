@@ -27,7 +27,7 @@ PACKAGE = ROOT / "spacr"
 
 #: Modules whose nested functions are ALL documented. Nothing may fall out of
 #: this set: it is the part of the codebase where the instruction is met.
-#: Nineteen of the 170 modules that have nested functions, measured 2026-09-02.
+#: Twenty of the 170 modules that have nested functions, measured 2026-09-02.
 #:
 #: Add a module here the moment its last nested function gets a docstring.
 FULLY_DOCUMENTED = frozenset({
@@ -47,13 +47,14 @@ FULLY_DOCUMENTED = frozenset({
     "spacr/regex_infer.py",
     "spacr/response_distribution.py",
     "spacr/runctx.py",
+    "spacr/setting_animations.py",
     "spacr/sim.py",
     "spacr/toxo.py",
     "spacr/workspace.py",
 })
 
 #: The largest number of UNDOCUMENTED nested functions each module may have.
-#: Generated from the code on 2026-09-02 -- 522 across 151 modules -- rather
+#: Generated from the code on 2026-09-02 -- 521 across 150 modules -- rather
 #: than written by hand, because a hand-written budget is wrong the moment it
 #: is typed. The first attempt at this file listed the two WORST modules as
 #: finished, having misread a table of undocumented counts as a table of
@@ -195,7 +196,6 @@ BUDGET = {
     "spacr/seg_qc.py": 1,
     "spacr/selection.py": 1,
     "spacr/sequencing_qc.py": 2,
-    "spacr/setting_animations.py": 1,
     "spacr/settings_advisor.py": 1,
     "spacr/surrogate.py": 1,
     "spacr/validate.py": 1,
