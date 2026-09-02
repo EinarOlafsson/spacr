@@ -4361,8 +4361,6 @@ class AppScreen(QWidget):
         control = (model._widgets.get("src")
                    if model is not None and hasattr(model, "_widgets")
                    else None)
-        if control is not None and hasattr(control, "setText"):
-            control.setText(str(images))
         self._console.append_stdout(
             tr("Source directory (src): {path}", path=str(images)) + "\n"
         )
@@ -4377,6 +4375,30 @@ class AppScreen(QWidget):
         # were and left the user to import them, which is the work the example
         # exists to save -- so they are applied.
         self.apply_settings_that_came_with(images)
+
+        # `src` IS WRITTEN LAST, AND THAT ORDER IS THE FIX.
+        #
+        # Reported 2026-09-02: "loade test images dosnt loade the right path
+        # into src in mask generation it loads <src>". It was written FIRST
+        # and then overwritten -- `apply_settings_that_came_with` loads the
+        # shipped CSV and applies every key in it, `src` included, so whatever
+        # the publisher recorded won. `reanchor_example_paths` re-homes a
+        # recorded ABSOLUTE path onto this folder, but a value it cannot
+        # resolve -- a template token, or a path whose folder name does not
+        # match -- is deliberately left alone by every branch of it, and then
+        # lands in the field verbatim.
+        #
+        # THE FOLDER WE JUST UNPACKED INTO IS GROUND TRUTH, and it is known
+        # to exist. It beats anything the file can say about a machine that is
+        # not this one.
+        #
+        # ONLY ON THIS ROUTE. Measure's shipped `src` points at a SUBFOLDER
+        # (`merged/`) and collapsing that to the plate root would quietly
+        # measure the wrong directory -- `reanchor_example_paths` says so in
+        # its own docstring. This method is the example-IMAGES route only,
+        # where `src` is the plate folder by construction.
+        if control is not None and hasattr(control, "setText"):
+            control.setText(str(images))
         return {"src": str(images),
                 "settings": str(settings) if settings else ""}
 

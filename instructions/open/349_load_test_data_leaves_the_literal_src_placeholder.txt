@@ -97,3 +97,59 @@ at a SUBFOLDER and collapsing it would quietly measure the wrong directory.
 `_EXAMPLE_SETTINGS_FILES` (app_screen.py:3808) lists the files tried per
 module, which is where to look for the measure/classify/regression equivalents
 named in the section above.
+
+--------------------------------------------------------------------------------
+2026-09-02 — FOUND AND FIXED. THE ORDER WAS THE BUG.
+--------------------------------------------------------------------------------
+
+The reporter's hypothesis was right in substance and wrong in mechanism:
+nothing restarts, but something DOES re-apply after the path is written.
+
+`_put_the_example_images_in_place` wrote the download directory into the `src`
+widget and THEN called `apply_settings_that_came_with(images)`. That method
+loads the CSV the example shipped and applies EVERY key in it, `src` included.
+So the publisher's value was written second and won.
+
+`reanchor_example_paths` exists to stop exactly this and does its job: it
+re-homes a recorded ABSOLUTE path onto the local folder. But its docstring is
+explicit that a value it cannot resolve is left ALONE by every branch -- and a
+template token has no suffix to match and does not exist, so it survives
+untouched and lands in the field verbatim.
+
+THE PACK IS NOT AT FAULT, which is worth recording because the note above
+guessed it was. The cached settings pack on this machine reads
+
+    experiment,mitoscreen
+    src,/home/carruthers/datasets/plate1
+
+-- a real absolute path from the publisher's machine, not a token. Whatever
+the mask images pack ships, the ORDER made the field show it.
+
+THE FIX: `src` is written LAST, after the shipped settings are applied. The
+folder just unpacked into is ground truth -- it is known to exist, and it
+beats anything a file can say about a machine that is not this one.
+
+ONLY ON THIS ROUTE, and that limit is load-bearing. Measure's shipped `src`
+points at a SUBFOLDER (`merged/`), and `reanchor_example_paths` records that
+collapsing it to the plate root "would quietly measure the wrong directory
+rather than fail". `_put_the_example_images_in_place` is the example-IMAGES
+route only, where `src` is the plate folder by construction, so re-asserting
+it there cannot reach Measure.
+
+TESTS: `tests/qt/test_the_example_images_win_the_src_field.py`. Three shipped
+values are driven through the real method -- `<src>` as reported, a foreign
+absolute path, and an empty cell -- and all three now end with the download
+directory in the field. A fourth test asserts the shipped settings are STILL
+applied, because writing `src` last is only correct while they are applied
+first; the fix must not quietly become "stop configuring the panel".
+
+Verified both ways: 4 passed against the fix, 3 failed against the old order.
+62 of 64 example-settings tests pass; the 2 that fail
+(`test_mask_generation_has_the_button` and
+`test_the_button_comes_back_after_a_failure`) fail identically at HEAD and are
+not this change.
+
+STILL WORTH DOING, and not done here: the sibling modules. The chooser reached
+Measure, Classify, Annotate and Map Barcodes in the same week. Each has its own
+`_put_..._in_place` equivalent, and the same second-write hazard applies
+wherever one writes a path before applying shipped settings.
