@@ -50,7 +50,7 @@ class TestTheFileNameSuffix:
         from spacr import io as IO
 
         source = inspect.getsource(IO.process_non_tif_non_2D_images)
-        channel = source.index('suffix += f"_C{channel}"')
+        channel = source.index('suffix = f"_C{channel}"')
         z = source.index('suffix += f"_Z{z}"', channel)
         t = source.index('suffix += f"_T{t}"', z)
 
@@ -86,11 +86,11 @@ class TestTheCellposeChannelDedup:
                 continue
             pytest.fail(f"{raw!r} coerced to an int")
 
-    def test_the_writer_reuses_rather_than_reassigns(self):
+    def test_the_writer_uses_the_position_recorded_by_the_first_walk(self):
         from spacr import io as IO
 
         source = inspect.getsource(IO.preprocess_img_data)
-        assert "if ch in seen:" in source
+        assert "if ch in seen:" not in source
         assert 'settings[f"cellpose_{key}"] = seen[ch]' in source
 
 
@@ -135,31 +135,31 @@ class TestTheObjectKey:
 
 class TestTheDestinationFolder:
 
-    def test_a_run_with_no_images_stops_before_the_destination(self):
-        """THE PIN, for ``if dst is None``.
+    def test_a_run_with_no_images_stops_before_creating_the_destination(self):
+        """THE PIN for deleting the redundant ``dst is None`` guard.
 
         The refusal above it fires first for the case that actually
         happens -- a selection that matched nothing -- and the settings
-        schema supplies ``dst``. So the None check is belt and braces
-        after a check that already ran.
+        schema supplies ``dst``. The source should now express those two
+        premises directly instead of carrying an unreachable refusal.
         """
         from spacr import io as IO
 
         source = inspect.getsource(IO.generate_dataset)
         no_images = source.index('raise RuntimeError("No images selected')
-        no_dst = source.index("if dst is None:", no_images)
-        makedirs = source.index("os.makedirs(dst, exist_ok=True)", no_dst)
+        makedirs = source.index("os.makedirs(dst, exist_ok=True)", no_images)
 
-        assert no_images < no_dst < makedirs, (
+        assert no_images < makedirs, (
             "the destination is created before the empty-selection check, so "
             "a run that selected nothing still leaves a folder behind")
+        assert "if dst is None:" not in source
 
-    def test_both_refusals_say_which_one_it_was(self):
+    def test_the_live_refusal_says_what_was_missing(self):
         from spacr import io as IO
 
         source = inspect.getsource(IO.generate_dataset)
         assert "No images selected; nothing to tar." in source
-        assert "Destination folder (dst) was not set." in source
+        assert "Destination folder (dst) was not set." not in source
 
 
 class TestTheUniqueTrainingFolder:
@@ -185,17 +185,18 @@ class TestTheUniqueTrainingFolder:
             "the first free suffix is not chosen, so a second training run "
             "either overwrites the first or skips a number")
 
-    def test_the_bound_is_far_past_any_real_folder(self):
-        """THE PIN, for the loop running out.
+    def test_the_suffix_search_has_no_artificial_bound(self):
+        """THE PIN for deleting the unreachable bounded-loop exhaustion.
 
-        A hundred thousand training folders under one base is not a
-        state this reaches -- the bound exists so a bug cannot spin
-        forever, not because it is expected.
+        Every occupied suffix represents a real directory, so there is no
+        valid state where the search should give up and overwrite one. The
+        loop is monotonic and stops at the first absent path.
         """
         from spacr import io as IO
 
         source = inspect.getsource(IO)
-        assert "for j in range(1, 100000):" in source
+        assert "for j in range(1, 100000):" not in source
+        assert 'while os.path.exists(f"{base}_{j}"):' in source
 
 
 class TestTheDatasetModeDispatch:
@@ -223,34 +224,30 @@ class TestTheDatasetModeDispatch:
             "resolve_basis answers something outside the two the dispatch "
             "handles, so its else arm is live")
 
-    def test_the_refusal_names_the_two_that_work(self):
+    def test_the_unreachable_second_refusal_was_removed(self):
         from spacr import io as IO
 
         source = inspect.getsource(IO)
-        assert "Invalid dataset_mode:" in source
-        assert "Use \"'metadata' or 'annotation'.\"" in source or \
-            "'metadata' or 'annotation'." in source
+        assert "Invalid dataset_mode:" not in source
+        assert "elif dataset_mode == 'annotation':" not in source
 
 
 class TestOneWellPerOriginalFile:
 
-    def test_a_file_seen_again_keeps_the_well_it_had(self):
-        """THE ARC: ``file not in file_to_well`` is false.
+    def test_one_listdir_iteration_mints_exactly_one_well(self):
+        """THE PIN for deleting the impossible dictionary-reuse arm.
 
-        The walk meets the same original file once per channel and per
-        timepoint, and every one of those has to land in the SAME well --
-        otherwise one field's channels are scattered across the plate.
+        ``os.listdir`` contributes each filename once, and all channels and
+        timepoints are expanded inside that iteration. A local well therefore
+        carries the required reuse without a dictionary that cannot be hit.
         """
-        file_to_well = {}
-        wells = iter(["A01", "A02", "A03"])
-        assigned = []
-        for name in ("img.tif", "img.tif", "other.tif", "img.tif"):
-            if name not in file_to_well:
-                file_to_well[name] = next(wells)
-            assigned.append(file_to_well[name])
+        from spacr import io as IO
 
-        assert assigned == ["A01", "A01", "A02", "A01"]
-        assert file_to_well == {"img.tif": "A01", "other.tif": "A02"}
+        source = inspect.getsource(IO.convert_to_yokogawa)
+        loop = source.index("for file in sorted(os.listdir(folder)):")
+        well = source.index("well = _get_next_well(used_wells)", loop)
+        assert loop < well
+        assert "file_to_well" not in source
 
     def test_the_walk_is_sorted_so_the_wells_are_stable(self):
         """Two runs over the same folder must assign the same wells, or a
@@ -289,7 +286,7 @@ class TestAugmentingASmallFolder:
 
         source = inspect.getsource(IO)
         assert "EXACTLY `needed` augmented pairs" in source
-        assert 'the "balanced" split is balanced' in source
+        assert "keep every folder balanced" in source
 
     def test_without_augmentation_a_small_folder_stays_small(self):
         """The other arm, and why it is a choice rather than an

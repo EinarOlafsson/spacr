@@ -170,18 +170,16 @@ class TestTheLeakageSafeSplit:
 
     def test_the_second_copy_of_that_refusal_is_never_the_one_that_raises(
             self):
-        """THE PIN, for io.py's own "Leakage-safe ... leaves class empty".
+        """THE PIN for deleting io.py's duplicate class-empty refusal.
 
         `grouped_split` refuses first, with a message of its own, so the
-        check in `generate_dataset_from_lists` cannot be reached. Two
-        copies of one rule, and the one a reader finds by grepping the
-        caller is not the one that runs -- which is the whole reason to
-        write this down.
+        check formerly in `generate_dataset_from_lists` could not be reached.
+        The shared splitter is now the single owner of that rule.
         """
         import inspect
 
         caller = inspect.getsource(IO.generate_dataset_from_lists)
-        assert "Leakage-safe {group_by}-grouped split leaves class" in caller
+        assert "Leakage-safe {group_by}-grouped split leaves class" not in caller
 
         from spacr.classifier_evaluation import grouped_split
 
@@ -190,24 +188,21 @@ class TestTheLeakageSafeSplit:
             "the copy in generate_dataset_from_lists is now live")
 
     def test_the_provenance_guard_cannot_fire_for_a_class_with_data(self):
-        """THE PIN, for ``if grouped_splits is None: raise RuntimeError``.
+        """THE PIN for deleting ``if grouped_splits is None``.
 
         ``grouped_splits`` is None only when no class had any item -- and
         every class is then empty, so each one takes the ``continue``
-        four lines above and no iteration reaches the guard. It is a
-        provenance assertion, not a path.
+        before provenance is read. The only-empty behavior is exercised
+        below, so the dead assertion should not reappear.
         """
         import inspect
 
         source = inspect.getsource(IO.generate_dataset_from_lists)
         empty = source.index("if not data:")
-        guard = source.index("if grouped_splits is None:", empty)
+        next_class = source.index("train_data, test_data =", empty)
 
-        assert empty < guard, (
-            "the provenance guard now runs before the empty-class skip, so "
-            "a dataset of only-empty classes raises instead of writing the "
-            "empty folders the class list needs")
-        assert "continue" in source[empty:guard]
+        assert "continue" in source[empty:next_class]
+        assert "if grouped_splits is None:" not in source
 
     def test_only_empty_classes_write_their_folders_and_no_split(
             self, tmp_path):

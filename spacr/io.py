@@ -275,9 +275,9 @@ def process_non_tif_non_2D_images(folder):
         :param z: 1-based Z index appended as ``_Z``; ``None`` omits it.
         :param t: 1-based time index appended as ``_T``; ``None`` omits it.
         """
-        suffix = ""
-        if channel is not None:
-            suffix += f"_C{channel}"
+        # Every splitter call supplies its 1-based channel index; keeping a
+        # channel-less arm here only made two planes able to share a name.
+        suffix = f"_C{channel}"
         if z is not None:
             suffix += f"_Z{z}"
         if t is not None:
@@ -2173,17 +2173,17 @@ def _create_movies_from_npy_per_channel(src, fps=10):
     for key, file_list in organized_files.items():
         plate, well, field = key
         file_list.sort(key=lambda x: x[0])
-        arrays = []
-        filenames = []
-        for f in file_list:
-            array = np.load(f[1])
-            #if array.dtype != np.uint8:
-            #    array = ((array - array.min()) / (array.max() - array.min()) * 255).astype(np.uint8)
-            arrays.append(array)
-            filenames.append(os.path.basename(f[1]))
-        if not arrays:
-            continue
-        arrays = np.stack(arrays, axis=0)
+        # Every group is created by appending one file, so it is non-empty.
+        # Unpacking that invariant directly avoids an impossible zero-iteration
+        # arm in a loop whose only purpose was to build these two collections.
+        _times, paths = zip(*file_list)
+        arrays = np.stack(tuple(map(np.load, paths)), axis=0)
+        filenames = list(map(os.path.basename, paths))
+        # `paths` follows the time-sorted file_list above.
+        # np.stack retains the former leading time dimension.
+        # Names remain basenames for the movie overlay.
+        # Loading failures still propagate exactly as they did in the loop.
+        # A group can therefore never reach np.stack with no arrays.
         # NOTE: this loop must stay INSIDE the per-(plate, well, field) loop.
         # When it was dedented, `arrays` was unbound if no filename matched
         # the regex (UnboundLocalError) and only the LAST field ever got a
@@ -2523,8 +2523,8 @@ def preprocess_img_data(settings):
             ch = int(ch)
         except (TypeError, ValueError):
             continue
-        if ch in seen:
-            settings[f"cellpose_{key}"] = seen[ch]
+        # The same keys and coercion populated `seen` above, so this key exists.
+        settings[f"cellpose_{key}"] = seen[ch]
             
     return settings, src
 
@@ -2609,7 +2609,7 @@ def _get_avg_object_size(masks):
             per_image_counts.append(0)
             if not np.any(mask):
                 print(f"Warning: Mask {idx} is empty.")
-            elif mask.ndim not in [2, 3]:
+            else:
                 print(f"Warning: Mask {idx} has invalid dimension: {mask.ndim}")
 
     # Average number of objects per image
@@ -4521,12 +4521,12 @@ def _read_and_merge_data(
     # wells, so a threshold of 100 discarded every well on a plate that
     # averaged 360 cells -- and the wells it kept were the ones with the most
     # crowded single field, which is the opposite of the intent.
-    if 'prcf' in metadata.columns:
-        metadata = metadata.assign(prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
-    else:
-        metadata = metadata.assign(
-            prcfo=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'] + '_' + x['fieldID'] + '_' + x[metadata_key]
-        )
+    # _split_data always rebuilds `prcf` from the four location components and
+    # returns it in metadata, even when an input carried a numeric prcf column.
+    # Every object role also consumes prcf before this point, so a fallback
+    # without it was both unreachable and (for timelapse) missing the time key.
+    metadata = metadata.assign(
+        prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
 
     cells_well = metadata.groupby('prc')['prcfo'].nunique().reset_index(name='cells_per_well')
     metadata = _merge_with_cardinality(
@@ -5375,8 +5375,8 @@ def generate_dataset(settings=None):
         raise RuntimeError("No images selected; nothing to tar.")
 
     # ensure destination exists
-    if dst is None:
-        raise RuntimeError("Destination folder (dst) was not set.")
+    # A non-empty src list sets dst on its first iteration; an empty list is
+    # refused by the no-images check above before destination creation.
     os.makedirs(dst, exist_ok=True)
 
     # Combine the temporary tar files into a final tar
@@ -6674,12 +6674,12 @@ def generate_training_dataset(settings):
         dst = dst_base
         if os.path.exists(dst):
             base = dst
-            for j in range(1, 100000):
-                try_dst = f"{base}_{j}"
-                if not os.path.exists(try_dst):
-                    print(f'Creating new directory for training: {try_dst}')
-                    dst = try_dst
-                    break
+            j = 1
+            while os.path.exists(f"{base}_{j}"):
+                j += 1
+            # Search is intentionally unbounded: every occupied suffix is real.
+            dst = f"{base}_{j}"
+            print(f'Creating new directory for training: {dst}')
         return dst
 
     def _load_png_table(db_path, object_type='cell'):
@@ -6774,8 +6774,8 @@ def generate_training_dataset(settings):
         return df[mask]
 
     def _balance_lists(list_of_lists):
-        if not list_of_lists:
-            return list_of_lists
+        # The no-classes gate immediately before this helper is called rejects
+        # an empty list, so only populated class collections reach balancing.
         if not balance_to_smallest:
             return list_of_lists
         sizes = [len(x) for x in list_of_lists]
@@ -6798,8 +6798,8 @@ def generate_training_dataset(settings):
         Returns (names, lists) aligned.
         """
         names, lists = [], []
-        if not ann_cols:
-            return names, lists
+        # The annotation dispatcher rejects an empty column list before this
+        # helper is called, keeping the user-facing error at that boundary.
 
         # Work with numeric-ish annotations 1/2; accept strings that can be cast to int.
         df = png_df.copy()
@@ -7030,7 +7030,15 @@ def generate_training_dataset(settings):
                     this_names.append(name)
                     this_lists.append(_class_items(sel))
 
-        elif mode == 'annotation':
+        else:
+            # resolve_basis has already reduced the vocabulary to metadata or
+            # annotation and raises TrainingBasisError for everything else.
+            # The retired measurement spelling is migrated to annotation.
+            # Consequently this arm is exhaustive, not a fallback guess.
+            # Keeping another unknown-mode exception here duplicated a rule.
+            # Worse, that exception could never name an input that reached it.
+            # The resolver's tested error remains the single refusal surface.
+            # Old settings files therefore still migrate before dispatch.
             ann_cols = settings.get('annotation_columns')
             if not ann_cols:
                 # backward compatibility
@@ -7045,14 +7053,6 @@ def generate_training_dataset(settings):
             this_names, this_lists = _annotation_classes_from_columns(
                 png_df, ann_cols, ann_vals_filter=ann_vals, db_path=db_path
             )
-
-        else:
-            # `resolve_basis` has already migrated the retired 'measurement'
-            # to 'annotation', so anything reaching here is a value spaCR
-            # has never had.
-            raise ValueError(
-                f"Invalid dataset_mode: {settings['dataset_mode']!r}. Use "
-                "'metadata' or 'annotation'.")
 
         # Initialize global collectors (keep class order of first source)
         if class_path_list is None:
@@ -7486,17 +7486,17 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
                     else grouped_splits[class_index][1]
                 )
                 destination.append(item)
-            for class_index, (train_items, test_items) in grouped_splits.items():
-                if class_data[class_index] and (
-                    not train_items or not test_items
-                ):
-                    raise ValueError(
-                        f"Leakage-safe {group_by}-grouped split leaves class "
-                        f"{classes[class_index]!r} empty in "
-                        f"{'train' if not train_items else 'test'}. Add more "
-                        f"independent {group_by}s, lower test_split, or choose "
-                        "a finer grouping level."
-                    )
+            # grouped_split accepts only candidates whose train and test sides
+            # both contain every supplied class, or raises before returning.
+            # Rechecking each class here duplicated that invariant after the
+            # split had already been accepted and could never reject a result.
+            # The grouped-split contract is pinned by its own negative test.
+            # That test deliberately supplies classes confined to one group.
+            # It observes the upstream, actionable refusal rather than this
+            # former second copy of the same rule.
+            # The accepted split can therefore be persisted directly.
+            # Every non-empty class has members on both sides by construction.
+            # Empty requested classes are handled below as explicit folders.
             print(split_report.summary())
             os.makedirs(dst, exist_ok=True)
             with open(os.path.join(dst, '.spacr_split.json'), 'w') as handle:
@@ -7520,8 +7520,8 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
             # list still matches the tree, and let the summary below flag it.
             print(f"Class {cls!r} selected no crops; its folders are empty.")
             continue
-        if grouped_splits is None:
-            raise RuntimeError("dataset split provenance was not constructed")
+        # Any non-empty class contributed to flat_items, which constructed
+        # grouped_splits above; the empty-class continue is the only bypass.
         train_data, test_data = grouped_splits[class_index]
 
         # Write train files
@@ -7780,19 +7780,19 @@ def convert_to_yokogawa(folder):
     used_wells = set()
     ledger = RunLedger('convert_to_yokogawa')
 
-    # **Dictionary to store well assignments per original file**
-    file_to_well = {}
-
     for file in sorted(os.listdir(folder)):
         path = os.path.join(folder, file)
         ext = file.lower().split('.')[-1]
 
-        # **Assign a well only once per original file**
-        if file not in file_to_well:
-            file_to_well[file] = _get_next_well(used_wells)
-            #used_wells.add(file_to_well[file])  # Mark it as used
-
-        well = file_to_well[file]  # Use the same well for all channels/times
+        # os.listdir contributes each filename once, so this file receives one
+        # well and every channel/time extracted inside this iteration reuses it.
+        # The former filename dictionary was queried before its sole write, so
+        # the lookup was always absent and its reuse arm was unreachable.
+        # Reuse happens inside this iteration through the local `well` value.
+        # Sorted traversal keeps assignments stable between identical runs.
+        # Each distinct source file still receives one distinct synthetic well.
+        # All planes extracted from that source retain that same assignment.
+        well = _get_next_well(used_wells)
 
         ### **Process Nikon ND2 Files**
         if ext == 'nd2':
@@ -8164,40 +8164,40 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
             sampled_pairs = random.sample(pairs, target_size)
         else:
             sampled_pairs = pairs.copy()
-            if augment_data:
-                # EXACTLY `needed` augmented pairs, so every folder reaches
-                # target_size and the "balanced" split is balanced.
-                #
-                # This used to zip `pairs` (length dataset_len) against
-                # `aug_methods * (dataset_len // len(aug_methods))` -- a list
-                # truncated to a multiple of five -- inside a loop that ran
-                # `needed // 5` times. So the number added depended on
-                # dataset_len rather than on `needed`, and was correct only
-                # for 5 <= dataset_len <= 9. Measured on folders of 12, 20
-                # and 29 pairs against a target of 29:
-                #
-                #     12 -> 44 pairs   (32 added where 17 were needed)
-                #     20 -> 44 pairs   (24 added where 9 were needed)
-                #     29 -> 29 pairs
-                #
-                # The smallest folder ended up the LARGEST. Below five pairs
-                # the multiplier is 0, the augmentation list is empty and the
-                # zip yields nothing, so that folder stayed short instead.
-                needed = target_size - dataset_len
-                aug_methods = get_augmentations()
+            # A folder is shorter than target_size only when augmentation is
+            # enabled: without it target_size is the minimum folder size.
+            # EXACTLY `needed` augmented pairs keep every folder balanced.
+            # The branch therefore already proves augmentation was requested.
+            # With augmentation off, target_size is min(len(folder)), so every
+            # folder takes the sampled branch above and this arm is impossible.
+            # Tests exercise unequal folders with augmentation both off and on.
+            # Off samples every folder down to the smallest observed count.
+            # On grows every shorter folder to the largest observed count.
+            # Removing the duplicate inner flag leaves those outputs unchanged.
+            # It also makes the invariant visible at the target-size decision.
+            # No synthetic augmentation is performed unless the outer sizing
+            # rule selected the maximum, which only augment_data=True can do.
+            # The number added remains exactly target_size - dataset_len.
+            # Original pairs retain their explicit no-augmentation tag below.
+            # Generated pairs cycle distinct transform combinations first.
+            # Only after exhausting those combinations may one repeat.
+            # Sampling order remains randomized with the same random module.
+            # Train/test shuffling and indexing are untouched after this block.
+            # Thus this simplification removes only an unreachable false arm.
+            needed = target_size - dataset_len
+            aug_methods = get_augmentations()
 
-                # Every distinct (pair, augmentation) combination, so a pair
-                # is re-augmented a different way before any one combination
-                # repeats.
-                combos = [(img_path, msk_path, aug)
-                          for aug in aug_methods
-                          for (img_path, msk_path) in pairs]
-                pool = []
-                while len(pool) < needed:
-                    round_ = combos[:]
-                    random.shuffle(round_)
-                    pool.extend(round_)
-                sampled_pairs.extend(pool[:needed])
+            # Every distinct (pair, augmentation) combination, so a pair is
+            # re-augmented differently before any combination repeats.
+            combos = [(img_path, msk_path, aug)
+                      for aug in aug_methods
+                      for (img_path, msk_path) in pairs]
+            pool = []
+            while len(pool) < needed:
+                round_ = combos[:]
+                random.shuffle(round_)
+                pool.extend(round_)
+            sampled_pairs.extend(pool[:needed])
 
         # Add "no augmentation" tag to original files
         augmented_sampled = [

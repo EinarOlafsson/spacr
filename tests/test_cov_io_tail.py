@@ -368,6 +368,31 @@ def test_read_and_merge_change_plate_renames_plate(tmp_path):
     assert set(merged["plateID"]) == {"plate1"}
 
 
+def test_read_and_merge_all_core_object_roles_loudly(tmp_path, capsys):
+    """Merged child-role reporting and a numeric pathogen limit are live."""
+    cell = _entity_frame("cell")
+    cytoplasm = _entity_frame("cytoplasm")
+    nucleus = _child_frame("nucleus", [1, 2, 3, 4, 5, 6])
+    pathogen = _child_frame("pathogen", [1, 2, 3, 4, 5, 6])
+    db = _write_db(tmp_path / "all.db", {
+        "cell": cell,
+        "cytoplasm": cytoplasm,
+        "nucleus": nucleus,
+        "pathogen": pathogen,
+    })
+
+    merged, object_frames = IO._read_and_merge_data(
+        [db], ["cell", "cytoplasm", "nucleus", "pathogen"],
+        nuclei_limit=2, pathogen_limit=2, verbose=True)
+
+    assert len(merged) == 6
+    assert len(object_frames) == 4
+    output = capsys.readouterr().out
+    assert "cytoplasms: 6, cytoplasms grouped: 6" in output
+    assert "nucleus: 6, nucleus grouped: 6" in output
+    assert "pathogens: 6, pathogens grouped: 6" in output
+
+
 # ---------------------------------------------------------------------------
 # _read_mask / convert_numpy_to_tiff
 # ---------------------------------------------------------------------------
