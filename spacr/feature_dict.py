@@ -144,12 +144,11 @@ FEATURE_FAMILIES: dict[str, str] = {
         "intensity-weighted centroids."
     ),
     "spatial": (
-        "Where an object sits relative to the OTHER objects of its own kind "
-        "in the same field — how many are near it, how far the nearest ones "
-        "are, how much of its border another object shares. No intensity "
-        "enters these and they say nothing about the object's own shape; "
-        "they are the per-object handle on local density, which is the "
-        "dominant confounder in an image screen."
+        "Where an object, its centroid, or its intensity peaks sit relative "
+        "to its own boundary, the field edge, and other segmented object "
+        "types. This also includes same-type neighbourhood and touching "
+        "measurements, the per-object handle on local density — a dominant "
+        "confounder in image screens."
     ),
     "meta": (
         "Identifiers and bookkeeping — plate/well/field, object labels, file "
@@ -1081,6 +1080,139 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "the object namespace refuses a non-numeric column, and any name "
         "carrying 'label' is folded into the merge key.",
     ),
+    # ---------------- object geometry (object_distances.py)
+    "distance_to_own_boundary": PropertyInfo(
+        "spatial",
+        "Distance from this object's geometric centroid to its own nearest "
+        "boundary pixel.",
+        _PX,
+        "spacr.object_distances.between_object_types using "
+        "interior_distance_transform sampled at the object centroid",
+        "A large value can mean a large object, not necessarily a centred "
+        "one; relative_radial_position removes that size dependence.",
+    ),
+    "relative_radial_position": PropertyInfo(
+        "spatial",
+        "The centroid-to-boundary distance divided by the object's deepest "
+        "interior distance and reversed: 0 means the centroid lies at the "
+        "deepest point, while values approaching 1 place it near the rim.",
+        _DIMLESS + ", normally in [0, 1]",
+        "spacr.object_distances.between_object_types",
+        "NaN when the object has no positive interior distance. This is a "
+        "shape-relative position, not a distance in pixels.",
+    ),
+    "distance_to_field_edge": PropertyInfo(
+        "spatial",
+        "Smallest array-coordinate distance from this object's centroid to "
+        "any edge of the acquired field.",
+        "pixels in 2-D; voxels in 3-D (voxel spacing is not applied)",
+        "spacr.object_distances.between_object_types",
+        "Zero means the centroid is on the field edge. This flags objects "
+        "whose measurements may describe a clipped fragment; in anisotropic "
+        "3-D data the axes are not physically comparable because the current "
+        "emitter uses array coordinates here.",
+    ),
+    "centre_to_<other>_surface": PropertyInfo(
+        "spatial",
+        "Distance from this object's centroid to the nearest pixel belonging "
+        "to any {other} object.",
+        _PX,
+        "spacr.object_distances.between_object_types sampling "
+        "surface_distance_transform",
+        "Asymmetric: the reverse direction generally differs. Zero means "
+        "the centroid lies inside a {other}; infinity means no {other} is "
+        "present in the field.",
+    ),
+    "surface_to_<other>_surface": PropertyInfo(
+        "spatial",
+        "Shortest distance from any boundary pixel of this object to the "
+        "nearest {other} surface.",
+        _PX,
+        "spacr.object_distances.between_object_types using "
+        "_min_over_boundary on a surface_distance_transform",
+        "Zero when the masks touch or overlap; infinity when no {other} is "
+        "present in the field.",
+    ),
+    "centre_to_nearest_<other>_centre": PropertyInfo(
+        "spatial",
+        "Centroid-to-centroid distance to the nearest {other} object in the "
+        "same field.",
+        _PX,
+        "scipy.spatial.cKDTree.query in "
+        "spacr.object_distances.between_object_types",
+        "Only the nearest partner is retained. Infinity means no {other} is "
+        "present; unlike a surface distance this stays positive when two "
+        "large objects touch.",
+    ),
+    "<other>_overlap_fraction": PropertyInfo(
+        "spatial",
+        "Fraction of this object's pixels that are also labelled as any "
+        "{other} object.",
+        _FRACTION,
+        "spacr.object_distances.between_object_types",
+        "The denominator is this object's area, so the reverse fraction is "
+        "generally different. NaN is reserved for a zero-area object.",
+    ),
+    "intensity_centre_offset": PropertyInfo(
+        "spatial",
+        "Distance between this object's geometric centroid and the "
+        "intensity-weighted centroid of one image channel.",
+        _PX,
+        "skimage.measure.regionprops_table(centroid_weighted) in "
+        "spacr.object_distances.intensity_centre_offset",
+        "A uniformly stained object is near zero; a polarised signal is "
+        "larger. Written only when object_distance_intensity=True and image "
+        "data are available.",
+    ),
+    "maxima_count": PropertyInfo(
+        "spatial",
+        "Number of local intensity maxima retained inside this object for "
+        "one image channel.",
+        "count (local maxima)",
+        "skimage.feature.peak_local_max in "
+        "spacr.object_distances.maxima_distances",
+        "Peaks are at least 3 pixels apart and capped at 20 per object. Zero "
+        "means no peak was found; the associated distances are then NaN.",
+    ),
+    "maxima_spread": PropertyInfo(
+        "spatial",
+        "Mean pairwise distance among the retained local intensity maxima "
+        "inside this object for one channel.",
+        _PX,
+        "scipy.spatial.distance.pdist in "
+        "spacr.object_distances._pairwise_spread",
+        "Zero for fewer than two maxima. Read with maxima_count because zero "
+        "otherwise cannot distinguish one peak from none.",
+    ),
+    "maxima_to_own_boundary_<summary>": PropertyInfo(
+        "spatial",
+        "The {summary} distance from this channel's retained local maxima to "
+        "the object's own boundary.",
+        _PX,
+        "spacr.object_distances.maxima_distances sampling "
+        "interior_distance_transform",
+        "summary is min or mean over the retained peaks. NaN when no peak "
+        "was found; maxima_count records that case.",
+    ),
+    "maxima_to_centre_<summary>": PropertyInfo(
+        "spatial",
+        "The {summary} distance from this channel's retained local maxima to "
+        "the object's geometric centroid.",
+        _PX,
+        "numpy.linalg.norm in spacr.object_distances.maxima_distances",
+        "summary is min or mean over the retained peaks. NaN when no peak "
+        "was found; maxima_count records that case.",
+    ),
+    "maxima_to_<other>_surface_<summary>": PropertyInfo(
+        "spatial",
+        "The {summary} distance from this channel's retained local maxima to "
+        "the nearest {other} surface.",
+        _PX,
+        "spacr.object_distances.maxima_distances sampling "
+        "surface_distance_transform",
+        "summary is min or mean over the retained peaks. NaN when no peak "
+        "was found; infinity when peaks exist but no {other} is present.",
+    ),
     # ---------------- periphery / outside rings (measure.py:561-603)
     "periphery_mean": PropertyInfo(
         "intensity",
@@ -2001,6 +2133,10 @@ _CELL_ONLY = ("cell",)
 #: props frames (measure.py `_with_spatial`) and never onto cytoplasm, which
 #: is one object per cell by construction.
 _SPATIAL_OBJECTS = ("cell", "nucleus", "pathogen", *ORGANELLE_ROLES)
+#: The current measure integration calls ``_with_distances`` for these three
+#: frames.  ``object_distances`` itself is generic, but organelle and cytoplasm
+#: frames are not routed through it by ``_morphological_measurements``.
+_OBJECT_DISTANCE_OBJECTS = ("cell", "nucleus", "pathogen")
 #: `_summarize_organelles_per_parent` is called once per parent, and the
 #: result lands in its own ``<parent>_organelle_summary`` table.
 _SUMMARY_PARENTS = ("cell", "nucleus", "pathogen", "cytoplasm")
@@ -2140,6 +2276,30 @@ _set_scope(
                 "mask when requested; organelle type may add an interpretation "
                 "caveat but never removes the output columns."))
 _set_scope(
+    ("distance_to_own_boundary", "relative_radial_position",
+     "distance_to_field_edge", "centre_to_<other>_surface",
+     "surface_to_<other>_surface", "centre_to_nearest_<other>_centre",
+     "<other>_overlap_fraction"),
+    _scope(
+        _OBJECT_DISTANCE_OBJECTS, CHANNEL_NONE,
+        module="spacr.object_distances",
+        when="object_distances=True. The current measure pipeline writes "
+             "these for cell, nucleus and pathogen frames; each partner-type "
+             "column exists only when that mask is present and has the same "
+             "shape."))
+_set_scope(
+    ("intensity_centre_offset", "maxima_count", "maxima_spread",
+     "maxima_to_own_boundary_<summary>",
+     "maxima_to_centre_<summary>",
+     "maxima_to_<other>_surface_<summary>"),
+    _scope(
+        _OBJECT_DISTANCE_OBJECTS, CHANNEL_SINGLE,
+        module="spacr.object_distances",
+        when="object_distances=True and object_distance_intensity=True with "
+             "image data available. The maxima families additionally require "
+             "object_distance_maxima=True; partner-surface columns exist only "
+             "for same-shaped masks present in the field."))
+_set_scope(
     ("distance_to_nucleus", "distance_to_pathogen"),
     _scope(_CELL_ONLY, CHANNEL_SINGLE,
            when="distance_gaussian_sigma is a non-zero int, a cell mask "
@@ -2250,6 +2410,7 @@ _INTENSITY_KEYS = ("mean_intensity", "max_intensity", "min_intensity",
                    "periphery_percentile_<p>", "outside_percentile_<p>",
                    "periphery_<p>_percentile", "outside_<p>_percentile",
                    "frac_high90", "frac_low10", "shannon_entropy",
+                   "intensity_centre_offset", "maxima_count", "maxima_spread",
                    "organelle_summary_organelle_channel_<c>_mean_intensity_per_<parent>",
                    "organelle_summary_organelle_channel_<c>_std_intensity_per_<parent>")
 _SPREAD_KEYS = ("std_intensity", "skew_intensity", "kurtosis_intensity",
@@ -2260,6 +2421,13 @@ _TEXTURE_KEYS = ("homogeneity_distance_<d>", "blur", "entropy_intensity",
                  "gini_intensity", "cv_intensity", "std_intensity",
                  "skeleton_length", "skeleton_branch_points")
 _DISTANCE_KEYS = ("distance_to_nucleus", "distance_to_pathogen",
+                  "distance_to_own_boundary", "distance_to_field_edge",
+                  "centre_to_<other>_surface",
+                  "surface_to_<other>_surface",
+                  "centre_to_nearest_<other>_centre",
+                  "maxima_to_own_boundary_<summary>",
+                  "maxima_to_centre_<summary>",
+                  "maxima_to_<other>_surface_<summary>",
                   "rad_dist_channel_<c>_bin_<b>", "periphery_mean",
                   "periphery_percentile_<p>", "periphery_<p>_percentile",
                   "outside_mean", "outside_percentile_<p>",
@@ -2269,12 +2437,14 @@ _POSITION_KEYS = ("centroid_weighted-0", "centroid_weighted-1",
                   "centroid_weighted_z", "centroid_weighted_y",
                   "centroid_weighted_x", "centroid_weighted_local_z",
                   "centroid_weighted_local_y", "centroid_weighted_local_x",
+                  "distance_to_field_edge", "intensity_centre_offset",
                   "distance_to_nucleus", "distance_to_pathogen",
                   "rad_dist_channel_<c>_bin_<b>")
 _COLOC_KEYS = ("Pearson_correlation", "M1_correlation_<t>",
                "M2_correlation_<t>")
 _COUNT_KEYS = ("organelle_summary_organelle_count", "before_filtration",
-               "after_filtration", "timelapse", "skeleton_branch_points")
+               "after_filtration", "timelapse", "skeleton_branch_points",
+               "maxima_count")
 
 #: The concept vocabulary. Order is the order the panel lists them in.
 CONCEPTS: dict[str, Concept] = {
@@ -2431,6 +2601,25 @@ _PARAMETERIZED: tuple[tuple[re.Pattern[str], str], ...] = (
     # percentile is in percentile_<p>: two plates measured at different radii
     # carry different columns rather than the same column meaning two things.
     (re.compile(r"^neighbors_within_(?P<r>\d+)$"), "neighbors_within_<r>"),
+    (re.compile(
+        rf"^centre_to_(?P<other>{_OBJECT_ALTERNATION})_surface$"),
+     "centre_to_<other>_surface"),
+    (re.compile(
+        rf"^surface_to_(?P<other>{_OBJECT_ALTERNATION})_surface$"),
+     "surface_to_<other>_surface"),
+    (re.compile(
+        rf"^centre_to_nearest_(?P<other>{_OBJECT_ALTERNATION})_centre$"),
+     "centre_to_nearest_<other>_centre"),
+    (re.compile(rf"^(?P<other>{_OBJECT_ALTERNATION})_overlap_fraction$"),
+     "<other>_overlap_fraction"),
+    (re.compile(r"^maxima_to_own_boundary_(?P<summary>min|mean)$"),
+     "maxima_to_own_boundary_<summary>"),
+    (re.compile(r"^maxima_to_centre_(?P<summary>min|mean)$"),
+     "maxima_to_centre_<summary>"),
+    (re.compile(
+        rf"^maxima_to_(?P<other>{_OBJECT_ALTERNATION})_surface_"
+        r"(?P<summary>min|mean)$"),
+     "maxima_to_<other>_surface_<summary>"),
 )
 
 
@@ -2863,7 +3052,7 @@ def coverage(columns: Iterable[str],
 #: so the examples are names a user can paste into a query.
 _EXAMPLE_PARAMS: dict[str, str] = {
     "p": "75", "i": "12", "d": "16", "t": "85", "c": "1", "b": "3",
-    "parent": "cell",
+    "parent": "cell", "other": "nucleus", "summary": "mean",
 }
 
 #: Example column for each link key. These are per-object-table join keys with
