@@ -1,4 +1,64 @@
-"""Core image preprocessing, segmentation, and image-UMAP pipelines."""
+"""Create microscopy masks and explore measured phenotypes in two dimensions.
+
+WHAT IT IS FOR
+==============
+This landing page currently serves two spaCR tiles.  **Mask** runs
+:func:`preprocess_generate_masks` to turn raw multichannel acquisitions into
+preprocessed arrays and Cellpose masks for cells, nuclei, pathogens, and
+organelles.  **Image UMAP** runs :func:`generate_image_umap` to reduce measured
+single-object features, cluster them, and optionally place representative
+image crops on the embedding.  The same module also exposes the timelapse-mask
+entry point; the two main workflows remain independent, and UMAP does not
+segment images.
+
+WHAT IT NEEDS
+=============
+Mask generation needs one or more source folders, a filename metadata scheme
+(``cellvoyager`` or an automatic/custom regex), zero-based channel indices for
+the objects to segment, and suitable object diameters and model choices.  At
+least one segmentation channel must be enabled.  Start with ``dry_run=True``
+to validate paths, channels, models, and the planned writes without loading a
+model or changing the project.
+
+Image UMAP needs an existing ``measurements/measurements.db`` for every source,
+the object tables and features to include, and reduction/clustering settings.
+It embeds numeric measurements rather than raw pixels.  Thumbnail images come
+from the measured ``png_list`` table when ``crop_source='png'`` or are cut from
+``merged/*.npy`` on demand when ``crop_source='merged'``; the latter is useful
+when measurement crops were not saved.
+
+WHAT IT PRODUCES
+================
+A normal Mask run writes preprocessed stacks, object masks, overlays and
+segmentation-QC artifacts, settings CSVs, counts in ``measurements.db``, and a
+run manifest beneath the source tree; it normally returns ``None``.  A dry run
+instead returns its preflight problem list.  Timelapse mask generation also
+writes movies and masks relabelled with track identities.
+
+Image UMAP returns an annotated DataFrame containing the two-dimensional
+coordinates and ``cluster`` labels, or a Matplotlib figure when
+``return_fig=True``.  Depending on the save and plotting settings, it also
+writes the embedding, cluster views, representative-crop grids, feature
+summaries, and the resolved settings alongside the project.
+
+WHAT TO DO NEXT
+===============
+After Mask finishes, inspect overlays and segmentation-QC flags before running
+:func:`spacr.measure.measure_crop`; inaccurate masks make every downstream
+feature inaccurate.  After measurement, use Image UMAP to inspect phenotype
+structure, colour by plate or condition to expose batch effects, and validate
+clusters against their representative crops before treating them as biology.
+Use the Mask tile for :func:`preprocess_generate_masks` and the Image UMAP tile
+for :func:`generate_image_umap` until those tiles receive separate API pages.
+
+Three details are deliberately explicit.  Channel numbers are zero-based and
+diameters are pixels, so values copied from one magnification are not portable
+without conversion.  The default v1 mask pipeline preserves the directory
+layout expected by downstream tools; ``pipeline_style='v2'`` is opt-in and
+writes a different streaming layout.  Finally, removing UMAP cluster noise
+also removes those objects from the returned frame, keeping the table and the
+visible embedding aligned rather than silently returning different samples.
+"""
 
 import os, gc, torch, time, random
 import numpy as np
