@@ -10916,17 +10916,35 @@ def generate_image_path_map(root_folder, valid_extensions=("tif", "tiff", "png",
     """
     image_path_map = {}
 
-    for dirpath, _, filenames in os.walk(root_folder):
+    for dirpath, dirnames, filenames in os.walk(root_folder):
+        # NEVER RE-CONSOLIDATE OUR OWN OUTPUT. `consolidated` is created
+        # INSIDE the folder being walked, so a second run over the same
+        # `src` finds the copies from the first one and makes copies of
+        # those, prefixed again -- doubling the plate on every run and
+        # producing `consolidated_plate1_A01_f1_c1.tif`. Pruning the walk
+        # is what makes the operation repeatable.
+        dirnames[:] = [name for name in dirnames if name != "consolidated"]
         for file in filenames:
             ext = file.lower().split('.')[-1]
             if ext in valid_extensions:
                 # Get relative path of the image from root_folder
                 relative_path = os.path.relpath(dirpath, root_folder)
-                
-                # Construct new filename: Embed folder hierarchy into the name
-                folder_parts = relative_path.split(os.sep)  # Get all folder names
-                folder_info = "_".join(folder_parts) if folder_parts else ""  # Join with underscores
-                
+
+                # Construct new filename: Embed folder hierarchy into the name.
+                #
+                # `os.path.relpath(root, root)` is `'.'`, NOT `''`, so an image
+                # sitting directly in `src` used to be renamed `._name.tif`.
+                # That is a hidden file on Unix and the AppleDouble
+                # resource-fork convention on macOS, and `spacr.io` skips
+                # anything beginning with a dot -- so consolidating a flat
+                # folder made every image in it silently disappear from the
+                # run rather than failing.
+                if relative_path == os.curdir:
+                    folder_parts = []
+                else:
+                    folder_parts = relative_path.split(os.sep)
+                folder_info = "_".join(folder_parts)
+
                 # Generate new filename
                 new_filename = f"{folder_info}_{file}" if folder_info else file
 

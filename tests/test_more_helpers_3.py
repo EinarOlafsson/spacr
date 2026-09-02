@@ -11,6 +11,8 @@ import os
 
 import numpy as np
 import pandas as pd
+from pathlib import Path
+
 import pytest
 
 
@@ -164,14 +166,70 @@ def test_utils_remove_outliers_by_group_keeps_all_when_no_outlier():
 # ===========================================================================
 
 def test_utils_generate_image_path_map_indexes_by_key(tmp_path):
-    """generate_image_path_map walks a directory and returns a mapping
-    from a stable key (e.g., basename) to the file path."""
+    """generate_image_path_map maps each image to the name it will be copied to.
+
+    This test used to assert only ``m is not None``, which is how the two
+    bugs below survived: the function returned a mapping, and the mapping
+    was wrong.
+    """
     from spacr.utils import generate_image_path_map
     for name in ("a.tif", "b.png"):
         (tmp_path / name).write_text("")
     m = generate_image_path_map(str(tmp_path))
-    # Should return something iterable with our files present.
-    assert m is not None
+    assert {Path(k).name for k in m} == {"a.tif", "b.png"}
+    assert {Path(v).name for v in m.values()} == {"a.tif", "b.png"}
+
+
+def test_an_image_in_the_root_does_not_become_a_hidden_file(tmp_path):
+    """Consolidating a flat folder must not rename its images to ``._name``.
+
+    ``os.path.relpath(root, root)`` is ``'.'``, not ``''``, so the folder
+    prefix for an image sitting directly in ``src`` used to be ``.`` and
+    the copy was written as ``._name.tif``.
+
+    That is not a cosmetic name. It is a hidden file on Unix and the
+    AppleDouble resource-fork convention on macOS, and ``spacr.io`` skips
+    anything beginning with a dot when it counts and loads images. So
+    consolidating a flat plate made every image in it silently vanish from
+    the run -- no error, just fewer fields than the user put in.
+    """
+    from spacr.utils import generate_image_path_map
+
+    (tmp_path / "loose.tif").write_text("")
+    (tmp_path / "plate1" / "A01").mkdir(parents=True)
+    (tmp_path / "plate1" / "A01" / "f1_c1.tif").write_text("")
+
+    names = {Path(k).name: Path(v).name
+             for k, v in generate_image_path_map(str(tmp_path)).items()}
+    assert names["loose.tif"] == "loose.tif"
+    assert not names["loose.tif"].startswith(".")
+    # The nested case keeps its folder prefix -- that is the whole point of
+    # the operation and must not be broken by fixing the flat one.
+    assert names["f1_c1.tif"] == "plate1_A01_f1_c1.tif"
+
+
+def test_consolidating_twice_does_not_consolidate_the_first_run(tmp_path):
+    """The ``consolidated`` folder is created inside the folder being walked.
+
+    So a second run over the same ``src`` used to find the first run's
+    copies and copy THOSE, prefixing them again -- doubling the plate on
+    every run and producing ``consolidated_plate1_A01_f1_c1.tif``. Users
+    re-run a pipeline; the operation has to be repeatable.
+    """
+    from spacr.utils import copy_images_to_consolidated, generate_image_path_map
+
+    (tmp_path / "plate1").mkdir()
+    (tmp_path / "plate1" / "f1_c1.tif").write_text("")
+    (tmp_path / "loose.tif").write_text("")
+
+    first = generate_image_path_map(str(tmp_path))
+    copy_images_to_consolidated(first, str(tmp_path))
+    assert (tmp_path / "consolidated" / "plate1_f1_c1.tif").is_file()
+    assert (tmp_path / "consolidated" / "loose.tif").is_file()
+
+    second = generate_image_path_map(str(tmp_path))
+    assert {Path(k).name for k in second} == {"f1_c1.tif", "loose.tif"}
+    assert not any("consolidated" in Path(v).name for v in second.values())
 
 
 def test_utils_copy_images_to_consolidated_no_op_on_empty_map(tmp_path):
