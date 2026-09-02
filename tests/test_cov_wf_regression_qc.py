@@ -400,3 +400,47 @@ def test_every_panel_that_fell_back_to_matplotlib_is_named(tmp_path, capsys,
     assert quiet["renderer_counts"] == {"pyqtgraph": 2}
     assert quiet["renderer_fallbacks"] == []
     assert "fell back to matplotlib" not in quiet_printed
+
+
+def test_the_ols_assumption_page_names_its_renderer_fallback(tmp_path,
+                                                             monkeypatch):
+    """The OLS supplement records its own fallback, not just the full page's."""
+    import spacr.figures.scene as scene
+
+    drew = {"by": "matplotlib", "why": "combined pages need matplotlib"}
+
+    def _wrote(fig, path, *, fmt=None, dpi=None, renderer=None, announce=True,
+               title=None, **savefig):
+        target = path if os.path.splitext(path)[1] else f"{path}.png"
+        with open(target, "wb") as handle:
+            handle.write(b"png")
+        return target, drew["by"], drew["why"]
+
+    monkeypatch.setattr(scene, "scene_renderer", lambda force=None: ("pyqtgraph", ""))
+    monkeypatch.setattr(scene, "write_figure", _wrote)
+    n = 30
+    X = pd.DataFrame({"intercept": np.ones(n),
+                      "x": np.linspace(-1.0, 1.0, n)})
+    y = 1.0 + 2.0 * X["x"].to_numpy()
+    model = _Fit(fittedvalues=y)
+
+    fell_back = rq.regression_qc_report(
+        model, X, y, str(tmp_path / "fell"), regression_type="ols",
+        panels=rq.OLS_ASSUMPTION_PANELS, combined=True, verbose=False,
+    )
+
+    assert fell_back["assumptions"]
+    assert ("ols_assumption_diagnostics", drew["why"]) in \
+        fell_back["renderer_fallbacks"]
+
+    # Positive counterpart: the same page drawn by the requested renderer is
+    # still emitted, and is not mislabeled as a fallback.
+    drew.update(by="pyqtgraph", why="")
+    native = rq.regression_qc_report(
+        model, X, y, str(tmp_path / "native"), regression_type="ols",
+        panels=rq.OLS_ASSUMPTION_PANELS, combined=True, verbose=False,
+    )
+
+    assert native["assumptions"]
+    assert not any(name == "ols_assumption_diagnostics"
+                   for name, _why in native["renderer_fallbacks"])

@@ -1,4 +1,4 @@
-"""Two edges in regression QC: a fit with no quartiles, and an empty SVD.
+"""Regression QC edges that are refused before a statistic can mislead.
 
 Both sit where a statistic would otherwise be quoted off data that
 cannot support it -- which in a QC report is worse than no statistic,
@@ -125,16 +125,11 @@ class TestTheConditionNumbersRatio:
     def test_an_empty_design_matrix_is_refused_before_any_svd(self):
         """THE PIN.
 
-        ``if sv.size == 0`` inside the ratio can never fire: the only way
-        an SVD returns no singular values is a matrix with a zero
-        dimension, and the guard at the top of the function raises for
-        that first -- with a message naming the shape, which is the one
-        a caller can act on.
-
-        The inner guard is still right to keep: it returns ``inf``, and
-        ``inf`` is the honest condition number of a matrix with no
-        columns. But it is the outer refusal that has to hold, and this
-        is what fails if it stops holding.
+        The only way an SVD returns no singular values is a matrix with a zero
+        dimension, and the guard at the top of the function raises first --
+        with a message naming the shape, which is the one a caller can act on.
+        Every admitted two-dimensional shape therefore gives the ratio at
+        least one value; there is no second empty-spectrum case to handle.
         """
         for bad in (np.empty((0, 3)), np.empty((5, 0)), np.empty((0, 0))):
             with pytest.raises(ValueError, match="non-empty 2-D array"):
@@ -163,3 +158,44 @@ class TestTheConditionNumbersRatio:
         assert singular.size == 3
         assert float(singular[-1]) == pytest.approx(0.0, abs=1e-12)
         assert not np.isfinite(scaled) or scaled > 1e8
+
+
+class TestRecoveringTheDesignFromAModel:
+
+    def test_a_model_without_its_design_is_refused_by_name(self):
+        """A fitted estimator that stores no design cannot recreate residuals."""
+        with pytest.raises(rq.PanelUnavailable, match="does not keep the design matrix"):
+            rq.context_from_model(_Fit(), regression_type="lasso")
+
+    def test_a_statsmodels_result_rebuilds_the_context_it_fitted(self):
+        """The refusal above must not swallow models that do retain their data."""
+        sm = pytest.importorskip("statsmodels.api")
+        X = np.column_stack([np.ones(12), np.linspace(-1.0, 1.0, 12)])
+        y = 1.0 + 2.0 * X[:, 1]
+        model = sm.OLS(y, X).fit()
+
+        ctx = rq.context_from_model(model, regression_type="ols")
+
+        assert ctx.n == 12 and ctx.p == 2
+        np.testing.assert_allclose(ctx.X.to_numpy(), X)
+        np.testing.assert_allclose(ctx.y, y)
+
+
+class TestThePValueExpectation:
+
+    def test_every_admitted_histogram_has_a_finite_uniform_expectation(self):
+        """A non-empty finite p-value sample always has ``n / 20`` to draw."""
+        for n in range(1, 257):
+            diag = rq.diagnose_p_value_histogram(np.linspace(0.0, 1.0, n))
+            assert diag["expected"] == pytest.approx(n / 20.0)
+            assert np.isfinite(diag["expected"])
+
+    def test_a_histogram_with_no_finite_p_values_is_refused_first(self):
+        """The only non-finite expectation belongs to the sample not admitted."""
+        ctx = _context(
+            np.arange(6.0), np.arange(6.0),
+            coef_df=pd.DataFrame({"p_value": [np.nan, np.inf]}),
+        )
+
+        with pytest.raises(rq.PanelUnavailable, match="every p-value is non-finite"):
+            rq._panel_p_value_histogram(ctx, _axes())

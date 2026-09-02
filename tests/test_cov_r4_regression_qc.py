@@ -2,11 +2,10 @@
 
 The plate/row/column panels are the only place in this module where a
 statistic is computed by *partitioning* the residuals rather than transforming
-them, and the partition is the thing that has to hold. Two guards inside
-``_positional_effect_panel`` -- ``if edge.size and interior.size`` before the
-edge statistic, and ``if v.size`` before a group's raw points are drawn -- are
-only ever false if a group came back empty, and a group can only come back
-empty if ``_grouped_residuals`` stops being a partition of the fitted rows.
+them, and the partition is the thing that has to hold. The edge statistic and
+raw-point scatter now rely directly on that contract: an empty edge, interior,
+or group could only appear if ``_grouped_residuals`` stopped being a partition
+of the fitted rows.
 
 So what is pinned here is the partition itself: every group carries at least
 one residual, and the groups together carry each fitted row exactly once, for
@@ -185,7 +184,7 @@ def test_the_edge_statistic_needs_both_an_edge_and_an_interior_to_exist():
     assert np.isnan(column["edge_minus_interior_median"])
 
     # Every group was drawn, on all three panels: one scatter collection of raw
-    # points per group, which is the loop the empty-group guard protects.
+    # points per inhabited group, which is the partition contract above.
     assert len(row_ax.collections) == 4
     assert len(plate_ax.collections) == 4
     assert len(column_ax.collections) == 3
