@@ -1,6 +1,6 @@
 """One answer to "what should this run on, and what is it called".
 
-Instruction 319. spaCR grew up on NVIDIA, so roughly forty-five call sites
+spaCR grew up on NVIDIA, so roughly forty-five call sites
 ask ``torch.cuda.is_available()`` and most of them mean "is there a GPU?".
 Those are DIFFERENT QUESTIONS on every machine that is not NVIDIA, and
 conflating them is what makes a perfectly good card read as "no GPU":
@@ -8,9 +8,8 @@ conflating them is what makes a perfectly good card read as "no GPU":
 * ROCm answers ``torch.cuda.is_available()`` **True** and wants
   ``device="cuda"``. Code that then prints "CUDA" is naming a vendor that
   is not there; code that prints "no NVIDIA GPU" is denying one that is.
-* Apple's Metal answers it **False** and wants ``device="mps"``. This is
-  the case the instruction under-describes: MPS is filed there under
-  "Apple Silicon", but MPS is *Metal*, not an Apple-Silicon feature. On
+* Apple's Metal answers it **False** and wants ``device="mps"``. MPS is
+  *Metal*, not an Apple-Silicon feature. On
   the Intel iMac this was written on it drives an AMD Radeon Pro 5300 --
   measured 16x on conv2d inference and 2.7x on a training step against
   the same machine's CPU. ROCm has no macOS build at all, so Metal is the
@@ -29,13 +28,12 @@ each was measured rather than assumed:
   ``PYTORCH_ENABLE_MPS_FALLBACK=1`` turns those from a crash into a quiet
   CPU detour, so this module sets it when it selects MPS.
 
-DETECTED AND USABLE ARE REPORTED SEPARATELY, and the instruction is right
-to insist on it. A setup screen announcing an accelerator spaCR will never
-dispatch to is worse than one that says nothing, because the user then
-blames their hardware for CPU speed. Neural engines are the whole reason
-that distinction exists here: the Apple Neural Engine, Intel AI Boost and
-Qualcomm Hexagon are all real silicon with no portable torch device, so
-they are named as FOUND and never selected.
+DETECTED AND USABLE ARE REPORTED SEPARATELY. A setup screen announcing an
+accelerator spaCR will never dispatch to is worse than one that says nothing,
+because the user then blames their hardware for CPU speed. Neural engines are
+the whole reason that distinction exists here: the Apple Neural Engine, Intel
+AI Boost and Qualcomm Hexagon are all real silicon with no portable torch
+device, so they are named as FOUND and never selected.
 
 NOTHING HERE RAISES. A half-installed ROCm, a broken driver, a torch built
 without a backend it advertises -- all resolve to the CPU with a note. The
@@ -98,8 +96,7 @@ class Accelerator:
     #: the two have different jobs: a user recognises the name from the box
     #: and from About This Mac, while the route only matters where it is
     #: surprising. On NVIDIA the two would differ only by a suffix that
-    #: repeats the word NVIDIA, so the setup slide shows this one and its
-    #: output there is byte-for-byte what it was before instruction 319.
+    #: repeats the word NVIDIA, so the setup slide shows this undecorated name.
     name: str = ""
     detected: bool = True
     usable: bool = True
