@@ -39,6 +39,29 @@ def test_every_folded_module_has_a_dock_row(window):
     assert not wrong, f"rows indented under the wrong host: {wrong}"
 
 
+def test_no_dock_row_is_a_raw_registry_key(window):
+    """A row reading `investigate_hit` is not a row anyone can find.
+
+    The dock labels a folded child from `fold_strip.folded_modules`, which
+    read only the hosts' FOLD_FALLBACK tables -- the record a module keeps
+    AFTER its registry row is dropped. Four folds still hold their rows and
+    deliberately keep no such record, so they fell through to the key
+    title-cased by nothing at all: `feature_explorer`, `investigate_hit`,
+    `profiler` and `train_compare`, indented under Classify and Regression.
+    """
+    from PySide6.QtWidgets import QAbstractButton
+
+    raw = []
+    for btn in window._sidebar.findChildren(QAbstractButton):
+        key = str(btn.property("navKey") or "")
+        if not key or not btn.property("isFoldChild"):
+            continue
+        label = btn.text().strip()
+        if label == key or "_" in label:
+            raw.append(label)
+    assert not raw, f"dock rows showing a registry key rather than a name: {raw}"
+
+
 def test_every_folded_module_has_a_menu_entry(window):
     """The menu bar carries the same second level."""
     keys = {str(a.property("moduleAppKey") or "")

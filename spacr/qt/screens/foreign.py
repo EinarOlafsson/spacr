@@ -1056,51 +1056,25 @@ HOST_KEY = "foreign"
 #: no features".
 FOLDED_APPS: Tuple[str, ...] = ("import_images", "convert", "external_masks")
 
-#: ``key -> (name, sentence, maturity)`` for the three modules this masthead
-#: opens. What the dock's indented rows and the fold buttons read.
+#: ``key -> (name, sentence, maturity)`` for what the registry cannot say.
 #:
-#: IMPORT IMAGES HAS NO REGISTRY ROW AND NEVER HAD ONE, so nothing else can
-#: say what it is: not `spacr.qt.app.APPS`, not the declared catalogue.
-#: Without its entry the button would be headed by the key title-cased, hover
-#: no sentence at all, and light up stable-blue -- the registry answers a key
-#: it has never heard of exactly as it answers a typo, and "stable" is the
-#: answer it gives.
+#: ONE ENTRY, because Import Images has no registry row and never had one:
+#: not `spacr.qt.app.APPS`, not the declared catalogue. Without it the button
+#: would be headed by the key title-cased, hover no sentence at all, and
+#: light up stable-blue -- the registry answers a key it has never heard of
+#: exactly as it answers a typo, and "stable" is the answer it gives.
 #:
-#: THE OTHER TWO ARE COPIES OF THEIR REGISTRY ROWS, and the copy is
-#: deliberate. `fold_strip.folded_modules` only knows a fold exists if its
-#: host is walked, and it only records a key that some host kept a line for
-#: -- so listing this screen in `FOLD_HOST_MODULES` without these two would
-#: leave `folded_modules` disagreeing with the buttons actually drawn, which
-#: is the invariant `tests/qt/test_folded_buttons_keep_their_identity.py`
-#: exists to hold. It also fixes what the dock showed before: Import's two
-#: children were drawn as the raw keys `convert` and `external_masks`,
-#: because a catalogue miss falls back to the key.
-#:
-#: The registry still wins wherever it has the row -- `fold_description`
-#: reads it first -- so these two are read only after a row is dropped, and
-#: `tests/qt/test_module_tooltip_i18n.py` hashes whichever sentence is live
-#: against the reviewed translations, so a copy that drifts from its row goes
-#: red rather than quiet.
+#: Format Converter and External Masks are NOT here, and that is not an
+#: omission: both still hold their registry rows, and
+#: `fold_strip.folded_modules` asks the registry for a fold that has one.
+#: Copying those two sentences here would be the same text written twice,
+#: with the copy free to go stale.
 FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
     "import_images": (
         "Import Images",
         "Read a folder of images from any microscope into a spaCR project, "
         "working the naming out from the folder rather than from a list of "
         "conventions",
-        "beta"),
-    "convert": (
-        "Format Converter",
-        "Convert ND2, CZI, LIF and OME-TIFF images to Yokogawa TIFF layout "
-        "and record source mappings",
-        "stable"),
-    "external_masks": (
-        "External Masks",
-        "Import images and externally generated label masks as a measured "
-        "spaCR project ready for annotation",
-        # BETA, WHICH THE REGISTRY LITERAL DOES NOT SAY: `spacr.qt.maturity.
-        # apply` runs at launch and reassesses, so the stage a bare `import
-        # spacr.qt.app` reports is not the stage the open window uses. Copying
-        # the literal here would light this button as finished code.
         "beta"),
 }
 

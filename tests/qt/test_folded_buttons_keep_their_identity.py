@@ -95,6 +95,17 @@ def test_the_inventory_reports_the_host_that_draws_each_button(qapp):
     """Shared fallback copy must not be mistaken for fold ownership."""
     from importlib import import_module
 
+    # REGISTERED FIRST, because half the answer comes from the registry: a
+    # fold that still holds its row keeps its name, sentence and maturity
+    # there rather than in a host's FOLD_FALLBACK, and several of those rows
+    # are added by `register_self_registering_modules` rather than at import.
+    # Without this the test measures which modules this process happened to
+    # import, which is why it reported Feature Explorer as unrecorded while
+    # the running application draws its name correctly.
+    import spacr.qt
+
+    spacr.qt.register_self_registering_modules()
+
     expected = {}
     duplicates = {}
     for module_name in FOLD_HOST_MODULES:

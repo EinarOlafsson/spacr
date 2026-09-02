@@ -1888,7 +1888,7 @@ class Sidebar(QWidget):
         self._fold_children: dict[str, list] = {}
         self._open_hosts: set = set()
 
-        from .widgets.fold_strip import folded_modules
+        from .widgets.fold_strip import fold_label, folded_modules
 
         folded = folded_children()
         catalogue = folded_modules()
@@ -1929,7 +1929,16 @@ class Sidebar(QWidget):
                 btn.setProperty("hasFoldChildren", True)
                 for child in kids:
                     entry = catalogue.get(child)
-                    child_name = entry[0] if entry else child
+                    if entry is None:
+                        # A HOST THIS CATALOGUE DOES NOT WALK still draws
+                        # rows here -- Graph Builder, QC Dashboard and
+                        # Database Browser fold seven modules between them
+                        # -- and a row labelled `lineage` is not a row
+                        # anyone can find. `fold_label` reads the registry
+                        # and the declared catalogue, neither of which
+                        # imports a screen while the window is being built.
+                        entry = fold_label(child)
+                    child_name = entry[0] or child
                     child_desc = entry[1] if entry else ""
                     sub = self._make_item(f"   {child_name}", str(child_desc), child)
                     sub.setProperty("foldParent", key)
