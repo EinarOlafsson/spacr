@@ -82,6 +82,22 @@ def test_the_shared_catalogue_cannot_redefine_a_shipped_model(tmp_path):
         "a shared row replaced a shipped model's location")
 
 
+def test_the_shared_catalogue_adds_a_new_model(tmp_path):
+    uri = _serve(tmp_path, {"models": [
+        {"key": "community", "name": "community.CP_model",
+         "kind": "cellpose", "uri": "https://example.invalid/community",
+         "sha256": "d" * 64},
+    ]})
+    mz.shared_catalogue(uri=uri)
+
+    entries = mz.catalogue(include_bundled=False, remote=True,
+                           include_plugins=False)
+
+    matching = [entry for entry in entries if entry.key == "community"]
+    assert len(matching) == 1
+    assert matching[0].uri == "https://example.invalid/community"
+
+
 def test_a_shared_row_without_a_checksum_is_still_unverifiable(tmp_path):
     """A row is a claim about where a file lives. The hash is what makes it a
     claim about WHICH file. Without one, fetch must still refuse."""
@@ -145,6 +161,45 @@ def test_publish_model_with_a_client_reaches_input_validation(monkeypatch,
 
     with pytest.raises(mz.ModelZooError, match="is not a file"):
         mz.publish_model(tmp_path / "absent", "someone/repo", key="k")
+
+
+def test_publish_model_uploads_the_file_and_returns_its_catalogue_row(
+        monkeypatch, tmp_path):
+    checkpoint = tmp_path / "model.CP_model"
+    checkpoint.write_bytes(b"published weights")
+    calls = []
+
+    class FakeApi:
+        def create_repo(self, *args, **kwargs):
+            calls.append(("create_repo", args, kwargs))
+
+        def upload_file(self, *args, **kwargs):
+            calls.append(("upload_file", args, kwargs))
+
+    fake = types.ModuleType("huggingface_hub")
+    fake.HfApi = FakeApi
+    monkeypatch.setitem(sys.modules, "huggingface_hub", fake)
+
+    row = mz.publish_model(
+        checkpoint, "someone/repo", key="published", private=True,
+        trained_on="synthetic fields", trained_by="spaCR tests",
+        notes=("reviewed",))
+
+    assert [name for name, _args, _kwargs in calls] == [
+        "create_repo", "upload_file"]
+    assert calls[0][1] == ("someone/repo",)
+    assert calls[0][2] == {
+        "repo_type": "model", "private": True, "exist_ok": True}
+    assert calls[1][2]["path_or_fileobj"] == str(checkpoint)
+    assert calls[1][2]["path_in_repo"] == checkpoint.name
+    assert row == {
+        "key": "published", "name": checkpoint.name, "kind": "cellpose",
+        "repo_id": "someone/repo", "repo_type": "model",
+        "sha256": mz.sha256_file(checkpoint),
+        "size_bytes": checkpoint.stat().st_size,
+        "trained_on": "synthetic fields", "trained_by": "spaCR tests",
+        "notes": ("reviewed",),
+    }
 
 
 def test_the_retired_plaque_model_is_not_offered():

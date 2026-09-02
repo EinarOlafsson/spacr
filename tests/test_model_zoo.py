@@ -724,6 +724,23 @@ def test_benchmark_delegates_segmentation_to_model_compare(tmp_path,
     assert result.fields == ["f1", "f2"]
 
 
+def test_benchmark_reports_each_expensive_stage(tmp_path):
+    path = tmp_path / "m.CP_model"
+    write_checkpoint(path)
+    seen = []
+
+    zoo.benchmark(
+        zoo.entry_from_file(path), images=[a_field()],
+        segment_fn=FakeSegmenter(),
+        progress=lambda message, done, total: seen.append(
+            (message, done, total)))
+
+    assert [done for _message, done, _total in seen] == [0, 1, 2]
+    assert all(total == 2 for _message, _done, total in seen)
+    assert seen[0][0].startswith("Segmenting 1 field(s)")
+    assert seen[-1][0] == "Done"
+
+
 def test_benchmark_surfaces_the_arguments_cellpose_4_ignores(tmp_path):
     path = tmp_path / "m.CP_model"
     write_checkpoint(path)
@@ -998,6 +1015,11 @@ def test_hf_uri_matches_the_url_the_shipped_downloader_builds():
     assert zoo.hf_uri("me/models", "a.CP_model") == (
         "https://huggingface.co/datasets/me/models/resolve/main/"
         "a.CP_model?download=true")
+
+
+def test_hf_uri_refuses_an_unknown_repository_type():
+    with pytest.raises(ValueError, match="dataset.*model"):
+        zoo.hf_uri("me/models", "a.CP_model", repo_type="space")
 
 
 # ---------------------------------------------------------------------------
