@@ -299,8 +299,7 @@ def panel(values: Sequence[float], transform: str, ax=None,
         twin.hist(after, bins=40, alpha=0.55, label="after",
                   color="#DD8452")
         twin.set_xlabel(f"after {result['transform']}")
-        handles = [ax.patches[0]] if ax.patches else []
-        handles += [twin.patches[0]] if twin.patches else []
+        handles = [ax.patches[0], twin.patches[0]]
         ax.legend(handles, ["before", f"after {result['transform']}"],
                   loc="upper right", fontsize=8)
     else:
