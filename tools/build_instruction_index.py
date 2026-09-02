@@ -83,7 +83,7 @@ STAGE: Dict[str, str] = {
     "337": "~75% -- Manders, spatial defaults and both labels done; part 3 needs the maintainer's measure settings",
     "339": "0% -- illumination is called from measure and nowhere else",
     "341": "0% -- three tests confirmed still failing on 2026-09-01",
-    "350": "~30% -- the reported Annotate case is fixed and the reusable check exists; the sweep is not run",
+    "350": "~45% -- swept: English clean, German 38 clipped; five captions named",
     "353": "~60% -- the buttons are at the top; aligning them to their columns is not done",
     "345": "~35% -- the stale stub is fixed, 3 down to 2; the rest are order-dependent",
     "346": "~85% -- three causes fixed, 21 down to 3; one more poisoner to bisect",
