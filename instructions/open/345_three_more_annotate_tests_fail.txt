@@ -1,0 +1,72 @@
+================================================================================
+THREE MORE ANNOTATE TESTS FAIL, AND ONE OF THEM ONLY IN COMPANY
+================================================================================
+
+Status:    not started, filed 2026-09-02.
+Requested: not requested -- found while closing 341, and filed rather than
+           narrated so it stops being rediscovered.
+Owner:     unassigned. Claude's lane (tests/qt).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+`pytest tests/qt -k annotate` is 3 failed, 640 passed, 1 skipped. None of the
+three is a regression from 341: each was re-run with 341's changes STASHED and
+each still failed at HEAD, so they predate that work.
+
+TWO FAIL ALONE, which makes them ordinary bugs:
+
+    tests/qt/test_cov_r4_annotate.py::
+        test_a_column_that_cannot_be_created_stops_the_bulk_write
+    tests/qt/test_every_settings_window_resizes.py::TestEverySettingsWindow::
+        test_it_opens_at_the_size_it_always_did[annotate._SettingsDialog]
+
+ONE FAILS ONLY IN THE SUITE AND PASSES ON ITS OWN:
+
+    tests/qt/test_annotate_keyboard.py::
+        test_auto_advance_skips_already_labelled_crops
+
+--------------------------------------------------------------------------------
+WHY THE THIRD ONE MATTERS MORE THAN THE OTHER TWO
+--------------------------------------------------------------------------------
+
+An order-dependent failure in `tests/qt` has a known mechanism in this
+repository and it should be checked against that mechanism BEFORE it is
+assumed to be leaked global state. Instruction 288 records it: a widget built
+by a fixture with no parent and returned without teardown is destroyed at a
+moment nobody chose, and the same pairing can produce EITHER a segfault OR an
+ordinary failure -- `test_the_issue_preview_can_diagnose.py` plus
+`test_track_previews.py` failed the track test without dying.
+
+So the first question is not "what global did the earlier test leave behind".
+It is "which fixture built a widget that outlived its test". The fix shape is
+already written down there and is per-fixture: stop the timer, then `close()`,
+`setParent(None)`, `deleteLater()`, `processEvents()` -- stopping the timer
+FIRST is load-bearing.
+
+DO NOT add a between-tests `gc.collect()` fixture. 288 records it as measured
+not to work and as forbidden by
+`tests/qt/test_retained_widget_tree.py::
+test_no_boundary_fixture_forces_python_collection_over_live_qt_wrappers`.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. The two that fail alone: read the assertion, then decide stale-or-real the
+   way 341 did -- the code has been right in five of the six annotate tests
+   examined so far, so check the production side before editing the test.
+2. The third: bisect the suite to find the test it needs to be run after,
+   then check that test's fixtures for an unparented widget, then apply the
+   teardown above. Name the pair in this file either way.
+3. If it turns out to be the 288 mechanism, say so in 288 as well -- that
+   item is counting on `tests/qt` being green to mean something.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* `pytest tests/qt -k annotate` is green.
+* The third one is green BOTH alone and in the suite, and the reason it was
+  not is written down.

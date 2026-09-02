@@ -1172,9 +1172,11 @@ def fetch_filtered_paths(
     df = df.dropna(subset=["png_path"])
     if image_type:
         df = df[df["png_path"].str.contains(image_type)]
-    # NO `annotation_column not in df.columns` GUARD. Line 1106 above
-    # CREATES that column when the table lacks it -- `df[column] = None`
-    # -- so by here it is always present and the guard could not fire.
+    # NO `annotation_column not in df.columns` GUARD. The `if` near the
+    # top of this function CREATES that column when the table lacks it --
+    # `df[annotation_column] = None` -- so by here it is always present and
+    # the guard could not fire. (Named rather than given a line number: the
+    # number in this comment was already stale by 35 lines.)
     # It was marked `# pragma: no cover` and counted as an uncoverable
     # item; driving it returned a row instead of the empty list it
     # promised, which is how the contradiction surfaced.

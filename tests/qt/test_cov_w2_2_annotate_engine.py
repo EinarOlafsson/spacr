@@ -379,42 +379,65 @@ def test_the_outline_model_is_built_once_and_kept(stub_cellpose):
 @pytest.mark.parametrize("card", [True, False])
 def test_the_outline_model_takes_the_card_exactly_when_there_is_one(
         stub_cellpose, monkeypatch, card):
-    """``gpu=`` is whatever ``torch.cuda.is_available()`` said, and nothing else.
+    """``gpu=`` is whatever the ACCELERATOR RESOLVER said, and nothing else.
 
-    This used to assert ``gpu is False`` with the note "a test asked for the
+    Corrected twice, and both corrections are worth keeping because they are
+    different mistakes.
+
+    First it asserted ``gpu is False`` with the note "a test asked for the
     card". That reads as a policy and is really a fact about the machine: on
     a host with a GPU the model is built with ``gpu=True``, correctly, and
-    the test went red without spaCR changing. Worse, it only ever exercised
-    whichever branch the runner happened to have.
+    the test went red without spaCR changing.
 
-    Both are stated here, so the mapping is what is asserted rather than the
-    hardware -- and a build that ignored the probe and hard-coded either
-    value now fails on one of the two.
+    Then it asserted against ``torch.cuda.is_available()``, and instruction
+    319 moved the question. ``_get_cellpose_outline_model`` asks
+    ``accelerator.cellpose_kwargs()``, which asks ``accelerator.resolve()``,
+    which answers for ROCm, Metal and XPU as well as CUDA -- and answers from
+    a cache. Patching ``torch.cuda`` therefore reached nothing at all: on this
+    host the ``[False]`` case built ``gpu=True`` and the ``[True]`` case
+    passed by agreeing with the hardware rather than by being driven.
+
+    So the probe is faked at the layer that owns it. Both directions are
+    stated, so the MAPPING is asserted rather than the hardware, and a build
+    that hard-coded either value fails on one of the two.
     """
-    import torch
+    from spacr import accelerator
 
-    monkeypatch.setattr(torch.cuda, "is_available", lambda: card)
+    monkeypatch.setattr(
+        accelerator, "resolve",
+        lambda *a, **k: accelerator.Accelerator(
+            kind="cuda" if card else "cpu",
+            device="cuda" if card else "cpu",
+            label="fake"))
 
     ae._get_cellpose_outline_model()
 
     assert stub_cellpose[0]["gpu"] is card
 
 
-def test_a_torch_that_cannot_answer_leaves_the_card_alone(stub_cellpose,
-                                                          monkeypatch):
+def test_a_resolver_that_cannot_answer_leaves_the_card_alone(stub_cellpose,
+                                                             monkeypatch):
     """The except: a probe that raises must mean CPU, not crash the outline.
 
-    ``torch.cuda.is_available()`` raises on a broken or partially installed
-    driver, and an outline is a convenience -- refusing to draw one because
-    the GPU could not be interrogated would be a worse answer than drawing
-    it on the CPU.
+    An outline is a convenience. Refusing to draw one because the accelerator
+    could not be interrogated would be a worse answer than drawing it on the
+    CPU, so ``_get_cellpose_outline_model`` wraps the resolver in
+    ``except Exception: kwargs = {"gpu": False}``.
+
+    THE ARM IS DRIVEN WHERE IT CAN ACTUALLY BE REACHED. ``resolve()`` is
+    documented as never raising -- every probe inside it is individually
+    guarded -- so a broken CUDA driver produces a CPU answer rather than an
+    exception, and faking one at ``torch.cuda`` reaches this arm never. What
+    does reach it is ``cellpose_kwargs`` itself failing: an accelerator module
+    that cannot be imported, or a resolver changed later in a way that lets
+    something escape.
     """
-    import torch
+    from spacr import accelerator
 
     def unavailable():
-        raise RuntimeError("no CUDA driver could be loaded")
+        raise RuntimeError("the accelerator could not be interrogated")
 
-    monkeypatch.setattr(torch.cuda, "is_available", unavailable)
+    monkeypatch.setattr(accelerator, "cellpose_kwargs", unavailable)
 
     ae._get_cellpose_outline_model()
 
