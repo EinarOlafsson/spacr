@@ -3402,6 +3402,18 @@ def reviewed_runtime_translations(language: str) -> dict[str, str]:
         return {}
     sources = canonical_sources()
     reviewed: dict[str, str] = {}
+    # EVERY PROBLEM, NOT THE FIRST ONE.
+    #
+    # This function used to raise on the record it happened to reach first,
+    # so the docs job reported one stale entry, and fixing it revealed the
+    # next. A maintainer cannot plan a translation pass they can only see one
+    # item of, and an agent repairing them one CI run at a time is the same
+    # cost paid slowly. Recorded in instruction 306, which met this exactly.
+    #
+    # STILL A HARD ERROR, and still the same exception type and first line, so
+    # anything matching on the message keeps matching. What changes is that
+    # the message now carries the whole list.
+    problems: list[str] = []
     expected_fields = {
         "table", "key", "source_sha256", "source", "translation",
     }
@@ -3438,34 +3450,45 @@ def reviewed_runtime_translations(language: str) -> dict[str, str]:
                 source = str(record["source"])
                 target = str(record["translation"])
                 if current_source != source:
-                    raise ValueError(
+                    problems.append(
                         f"stale reviewed runtime source {table_name}/{key}: {path}"
                     )
+                    continue
                 if record["source_sha256"] != hashlib.sha256(
                     source.encode("utf-8")
                 ).hexdigest():
-                    raise ValueError(
+                    problems.append(
                         f"stale reviewed runtime hash {table_name}/{key}: {path}"
                     )
+                    continue
                 if _contextualize(target, language, source) != target:
-                    raise ValueError(
+                    problems.append(
                         f"non-idempotent reviewed runtime target "
                         f"{table_name}/{key}: {path}"
                     )
+                    continue
                 if _translation_rejection_reasons(
                     source, target, language, force=_looks_translatable(source),
                 ):
-                    raise ValueError(
+                    problems.append(
                         f"rejected reviewed runtime target "
                         f"{table_name}/{key}: {path}"
                     )
+                    continue
                 previous = reviewed.setdefault(source, target)
                 if previous != target:
-                    raise ValueError(
+                    problems.append(
                         f"conflicting reviewed runtime targets for {source!r}"
                     )
     finally:
         _REVIEWED_RUNTIME_LOADING.discard(language)
+    if problems:
+        raise ValueError(
+            "\n".join(problems) if len(problems) == 1 else
+            f"{problems[0]}\n"
+            f"...and {len(problems) - 1} more reviewed runtime problems "
+            f"in {language}:\n" + "\n".join(f"  {row}" for row in problems[1:])
+        )
     return reviewed
 
 
