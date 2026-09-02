@@ -456,6 +456,7 @@ def crop_name_metadata(names, timelapse: bool = False) -> pd.DataFrame:
     empty = (None,) * len(columns)
 
     def convert(value):
+        """Parse and cache one crop basename, or return all-missing metadata."""
         name = _clean_key(value)
         if name is None:
             return empty
@@ -471,6 +472,7 @@ def crop_name_metadata(names, timelapse: bool = False) -> pd.DataFrame:
                          index=names.index)
     # object_label without the 'o': that is the spelling the object tables use.
     def bare_object_label(value):
+        """Normalize a parsed object label and remove one leading ``o``."""
         # pandas 3 may infer these parsed text columns as StringDtype and
         # materialise a tuple's ``None`` as float ``nan``.  Normalize through
         # the same missing-key boundary used everywhere else before asking a

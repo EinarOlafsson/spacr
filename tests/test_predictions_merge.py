@@ -1416,6 +1416,28 @@ def test_crop_name_metadata_marks_a_name_it_cannot_parse(tmp_path):
     assert parsed["prcfo"].isna().tolist() == [False, True, True]
 
 
+def test_crop_name_metadata_parses_each_basename_once(monkeypatch):
+    """Repeated paths share a parse, while a different basename does not."""
+    from spacr.predictions import crop_name_metadata
+    from spacr import utils
+
+    calls = []
+
+    def parse(name, timelapse=False):
+        calls.append((name, timelapse))
+        label = "o3" if name == "same.png" else "o4"
+        return ("plate1", "r1", "c1", "f1",
+                f"plate1_r1_c1_f1_{label}", label)
+
+    monkeypatch.setattr(utils, "_map_wells_png", parse)
+    parsed = crop_name_metadata([
+        "/first/same.png", "/second/same.png", "/first/other.png",
+    ])
+
+    assert calls == [("same.png", False), ("other.png", False)]
+    assert parsed["object_label"].tolist() == ["3", "3", "4"]
+
+
 def test_the_legacy_timepoint_spelling_on_a_scores_file_still_joins(tmp_path):
     """``time_id`` and ``timeID`` are one concept; either spells the key.
 
