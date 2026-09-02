@@ -521,3 +521,21 @@ library test skipped because ``SPACR_GRNA_LIBRARY`` was unset, and
 
 This closes the sequencing module's part of 288. It does not change the
 whole-repository percentage or claim that the remaining modules are current.
+
+--------------------------------------------------------------------------------
+2026-09-02 — TIMELAPSE IS 100.00% ON CURRENT SOURCE
+--------------------------------------------------------------------------------
+
+A fresh branch-coverage measurement on current ``nightly`` ran 868 non-Qt,
+timelapse-focused tests under the 115 GiB process-tree guard: 840 passed and
+28 optional-btrack tests skipped because that backend is not installed.  That
+first selection measured 17 missing statements and 14 missing branch arcs.
+The owning non-Qt contract/helper files were then appended to the same
+coverage data in a second guarded run (216 passed).  No production or test
+change was needed: those paths already had direct owners which the first
+focused selection had not collected.
+
+Final current-source result for ``spacr/timelapse.py``: 3330/3330 statements
+and 1140/1140 branches, 100.00%, with zero missing lines and zero partial
+branches.  This closes the timelapse module's part of 288; it does not make a
+whole-repository coverage claim.
