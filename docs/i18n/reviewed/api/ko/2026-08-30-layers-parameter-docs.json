@@ -297,7 +297,7 @@
     },
     {
       "context": "Two- or three-dimensional array-like segmentation labels; values must be integers or exactly integral numbers.",
-      "label": "spacr.layers.LabelsLayer#2",
+      "label": "spacr.layers.LabelsLayer#4",
       "source": "Two- or three-dimensional array-like segmentation labels; values must be integers or exactly integral numbers.",
       "source_sha256": "e9e96d30dc1dc1d4bc20f5addc66b496d08cacfa77bc3dd2fb3808c7cf6aac28",
       "translation": "2차원 또는 3차원 배열형 분할 레이블입니다. 값은 정수이거나 정확히 정수인 수여야 합니다."

@@ -276,7 +276,7 @@
       "translation": "Efri styrkleikamörk í gagnaeiningum rásarinnar; þau verða að vera hærri en ``low``."
     },
     {
-      "label": "spacr.layers.LabelsLayer#2",
+      "label": "spacr.layers.LabelsLayer#4",
       "source": "Two- or three-dimensional array-like segmentation labels; values must be integers or exactly integral numbers.",
       "context": "Two- or three-dimensional array-like segmentation labels; values must be integers or exactly integral numbers.",
       "source_sha256": "e9e96d30dc1dc1d4bc20f5addc66b496d08cacfa77bc3dd2fb3808c7cf6aac28",

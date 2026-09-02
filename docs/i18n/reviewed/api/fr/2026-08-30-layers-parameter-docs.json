@@ -297,7 +297,7 @@
     },
     {
       "context": "Two- or three-dimensional array-like segmentation labels; values must be integers or exactly integral numbers.",
-      "label": "spacr.layers.LabelsLayer#2",
+      "label": "spacr.layers.LabelsLayer#4",
       "source": "Two- or three-dimensional array-like segmentation labels; values must be integers or exactly integral numbers.",
       "source_sha256": "e9e96d30dc1dc1d4bc20f5addc66b496d08cacfa77bc3dd2fb3808c7cf6aac28",
       "translation": "Étiquettes de segmentation bidimensionnelles ou tridimensionnelles de type tableau ; les valeurs doivent être des entiers ou des nombres exactement entiers."
