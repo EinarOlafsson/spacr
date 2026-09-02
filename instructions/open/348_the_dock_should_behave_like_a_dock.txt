@@ -1,0 +1,74 @@
+================================================================================
+THE DOCK: HELP GETS ITS OWN SECTION, THE ICONS GROW, AND THE NAMES MOVE OFF IT
+================================================================================
+
+Status:    not started, filed 2026-09-02.
+Requested: 2026-09-02, verbatim, in two messages --
+           "the dock module nested modules works great! but there are some
+           modules that have been mooved to help that are still in the dock
+           under core for example . these should be under the category Help,
+           which comes lowest on the dock."
+           "also in the dock enlarge the icons and add a magnification effect
+           so the dock functions like the osx dock and remove the text that
+           can be moved to the category tooltip location upon hover."
+Owner:     spacr/qt/app.py (the dock) and its icon path.
+Follows:   330, which put the folded modules in the dock and is DONE. This is
+           the next thing asked for on the same surface, and the praise for
+           330 is recorded above because it is the only report so far that
+           the nested rows work.
+
+--------------------------------------------------------------------------------
+THREE THINGS
+--------------------------------------------------------------------------------
+
+1. HELP IS A SECTION, AND IT IS LAST.
+   Modules that moved to Help are still listed under Core. The section list
+   and its order live with `APPS` / `SECTION_ORDER` in `spacr/qt/app.py`;
+   Help must exist as a section and sort last.
+
+   FIND WHICH MODULES ACTUALLY MOVED before editing the table. "moved to help"
+   is a statement about the module's category, and this repository has twice
+   had two copies of a section map disagree -- 330's own note records it. One
+   mapping, and the dock, the menu bar and the fold strips all read it.
+
+2. THE ICONS GROW AND MAGNIFY.
+   Bigger icons, with an OS X-style magnification under the pointer.
+
+   THE COST IS THE WHOLE RISK HERE, and there is a measured precedent to
+   respect: instruction 315 found that an application-wide event filter
+   watching mouse events cost 13,646 Python calls per second while a module
+   opened, and put 130 ms back onto a GUI-thread block that had just been
+   removed. A magnification effect is a per-mouse-move geometry update on up
+   to sixty rows. Do it with ONE handler on the dock that computes from the
+   pointer position, not a filter per row, and measure the module-open block
+   before and after -- 315's numbers are the baseline.
+
+3. THE NAMES COME OFF THE DOCK.
+   With icons doing the work, the text moves to the same place a category's
+   help text appears on hover -- which is the bottom-of-screen strip that
+   instruction 347 is making the single home for category help. THE TWO ITEMS
+   SHARE THAT SURFACE: do not build a second strip.
+
+--------------------------------------------------------------------------------
+WATCH
+--------------------------------------------------------------------------------
+
+* A DOCK WITH NO TEXT IS UNUSABLE IF THE STRIP IS EMPTY. The name must be in
+  the strip before the label is removed from the row, not after.
+* Accessibility: the row still needs an accessible name for a screen reader
+  even when it renders no visible text. `setAccessibleName`, and a test.
+* The dock already collapses sections and expands hosts (330). Bigger rows
+  make the collapsed default matter more, not less -- 33 folded children plus
+  Help must still fit.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* Every module whose category is Help appears under Help, and Help is the
+  last section. Counted from the one mapping, not from a hand-written list.
+* Hovering a dock row puts its name in the strip; the row itself renders no
+  text and still reports an accessible name.
+* The pointer magnifies the row under it and its neighbours, and the
+  module-open GUI-thread block is no worse than 315's recorded baseline --
+  measured, both numbers written here.
