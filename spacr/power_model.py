@@ -428,6 +428,7 @@ def prepare_model_data(
 
     # ---- pivot to (well x gene) matrices -------------------------------
     def _matrix(column: str) -> np.ndarray:
+        """Pivot ``column`` to captured well-by-gene order as float64."""
         wide = frame.pivot(index="well", columns="gene", values=column)
         return wide.reindex(index=wells, columns=genes).to_numpy(dtype=np.float64)
 
@@ -863,6 +864,7 @@ def _fit_torch_advi(
     entropy_const = 0.5 * n_params * math.log(2.0 * math.pi * math.e)
 
     def _unpack(theta: "torch.Tensor"):
+        """Split the final parameter axis while preserving leading draws."""
         z = theta[..., :n_genes]
         log_lambda = theta[..., n_genes:2 * n_genes]
         log_tau = theta[..., 2 * n_genes:2 * n_genes + 1]
@@ -871,6 +873,11 @@ def _fit_torch_advi(
         return z, log_lambda, log_tau, log_c2, intercept
 
     def _log_joint(theta: "torch.Tensor") -> "torch.Tensor":
+        """Evaluate the unnormalized horseshoe-Poisson log posterior.
+
+        The parameter-independent Poisson factorial is omitted, so each
+        leading draw receives the same optimizer-equivalent objective.
+        """
         z, log_lambda, log_tau, log_c2, intercept = _unpack(theta)
 
         # beta, bounded by the slab -- see the docstring.
@@ -1070,6 +1077,7 @@ def _fit_numpyro_nuts(
     log_offset = jnp.log(jnp.asarray(model_data.Ntotal, dtype=jnp.float64))
 
     def model():
+        """Define the regularized-horseshoe Poisson model for NumPyro NUTS."""
         z = numpyro.sample("z", dist.Normal(0.0, 1.0).expand([n_genes]))
         lam = numpyro.sample(
             "lam", dist.StudentT(df_local, 0.0, 1.0).expand([n_genes]).mask(False)
