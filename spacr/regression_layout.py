@@ -213,6 +213,12 @@ def normalise_count_table_layout(
             f"independent_variable_layout={layout!r}; choose one of "
             f"{REGRESSION_LAYOUTS}."
         )
+    # ``process_reads`` has accepted the historical downloadable-data header
+    # ``grna_name`` for years.  Canonicalise it before layout inference so an
+    # otherwise valid long table is not misdiagnosed as a malformed wide one.
+    if (guide_column == "grna" and "grna" not in frame.columns
+            and "grna_name" in frame.columns):
+        frame = frame.rename(columns={"grna_name": "grna"})
     resolved = (
         infer_regression_layout(
             frame, predictor_column=guide_column, value_column=count_column

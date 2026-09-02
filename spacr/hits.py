@@ -108,9 +108,13 @@ FLAG_MEANING: Dict[str, str] = {
 _BRACKET = re.compile(r"\[(.*?)\]")
 
 #: Design-matrix terms that are covariates rather than hypotheses: the
-#: intercept, and the plate row/column nuisance effects a screen is fitted
-#: with to soak up position artefacts. See :func:`tested_family`.
-NUISANCE_TERMS = re.compile(r"row|column|Intercept", re.IGNORECASE)
+#: intercept and the explicit plate, row, column, and screen effects fitted
+#: to soak up layout and experiment artefacts. Match term prefixes so a real
+#: guide whose identifier contains ``row`` or ``column`` remains testable.
+NUISANCE_TERMS = re.compile(
+    r"^(?:Intercept$|(?:plateID|rowID|columnID|screenID)(?:\[|$))",
+    re.IGNORECASE,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -130,7 +134,7 @@ def tested_family(features: Iterable[Any]) -> np.ndarray:
     -------
     numpy.ndarray of bool
         Boolean mask aligned with ``features``. Guide and gene terms are
-        ``True``; intercept and row or column nuisance terms are ``False``.
+        ``True``; intercept and layout nuisance terms are ``False``.
 
     Notes
     -----
