@@ -130,6 +130,7 @@ OPEN
        352_reasonable_coverage_everywhere_then_green_actions.txt
 
   353  REGRESSION'S INPUT TABLES START WITH THE DOWNLOAD BUTTONS, NOT END WITH THEM
+       [~60% -- the buttons are at the top; aligning them to their columns is not done]
        353_the_regression_download_buttons_belong_at_the_top.txt
 
 --------------------------------------------------------------------------------

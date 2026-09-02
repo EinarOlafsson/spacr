@@ -183,7 +183,7 @@ class Section(QFrame):
         self._apply_maturity(widget, setting=True)
 
     def add_prose_row(self, label: Union[str, QWidget],
-                      widget: QWidget) -> None:
+                      widget: QWidget, *, at_top: bool = False) -> None:
         """A labelled row that is NOT a setting.
 
         The difference from :meth:`add_row` is `_row_widgets`, for the reason
@@ -206,7 +206,15 @@ class Section(QFrame):
         label_row.addStretch(1)
         label_row.addWidget(label if isinstance(label, QWidget)
                             else QLabel(str(label), form_label))
-        self._form.addRow(form_label, widget)
+        if at_top:
+            # `insertRow(0, ...)`, the same mechanism :meth:`add_prose`
+            # uses. Asked for on 2026-09-02 for Regression's Input Tables:
+            # "the input tables sould start with download buttons not end
+            # wit them" -- a row of buttons that fills the fields below it
+            # reads as a footer when it sits under them.
+            self._form.insertRow(0, form_label, widget)
+        else:
+            self._form.addRow(form_label, widget)
 
     def add_widget(self, widget: QWidget) -> None:
         """Add a full-width (label-less) widget to the section's form body."""
