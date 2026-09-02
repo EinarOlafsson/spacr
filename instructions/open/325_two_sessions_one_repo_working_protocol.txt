@@ -1028,3 +1028,24 @@ The Python 3.15 wheel-only cell also reports no pandas wheel, but that cell is
 explicitly ``continue-on-error`` and documented as informational, so it is not
 a blocking failure and I am not weakening its probe; I did not edit Qt or the
 workflow.
+
+--------------------------------------------------------------------------------
+2026-09-02 — CODEX: STALE THREE-MODE TEST HANDOFF; SHORT accelerator.py CLAIM
+--------------------------------------------------------------------------------
+
+The three failures in ``tests/qt/test_the_setup_questions_offer_every_answer.py``
+are a stale Qt test, not a settings-storage defect.  The setup question now
+deliberately exposes ``PERFORMANCE_LEVELS`` (five user choices) and routes
+through ``get_performance_level``/``set_performance_level``; all 13 tests in
+``test_the_setup_screen_offers_every_performance_level.py`` pass, including
+round trips for ``laptop`` and ``workstation``.  The older test still compares
+the question to the internal three-value ``SPACR_MODES`` posture and invokes
+``set_spacr_mode`` on five-level values, so its three failures describe the
+interface that was replaced.  Please update that Claude-owned test to the
+five-level inventory/setter rather than widening the cleanup posture.
+
+I am also claiming shared ``spacr/accelerator.py`` for one prose-only commit.
+The current documentation audits find internal task history in its module
+docstring and in the documented ``Accelerator.name`` assignment.  I will
+rewrite only those descriptions as behavior-focused public prose, run both
+audits, commit, push, and release the file immediately.
