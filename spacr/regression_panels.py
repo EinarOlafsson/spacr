@@ -26,6 +26,8 @@ from pypdf.generic import (
     TextStringObject,
 )
 
+from .figures.style import INK_PRINT, LABEL_GROUND_PRINT
+
 OPEN_SANS_DIRECTORY = Path(__file__).resolve().parent / "resources/font/open_sans/static"
 OPEN_SANS_REGULAR = OPEN_SANS_DIRECTORY / "OpenSans-Regular.ttf"
 OPEN_SANS_BOLD = OPEN_SANS_DIRECTORY / "OpenSans-Bold.ttf"
@@ -97,7 +99,7 @@ class PanelStyle:
     point_size: float = 104.0
     point_alpha: float = 0.60
     line_width: float = 0.50
-    line_color: str = "#000000"
+    line_color: str = INK_PRINT
     figure_width: float = 7.2
     plot_height: float = 5.443902439
     pdf_height: float = 8.8
@@ -245,10 +247,10 @@ def _draw_panel(
         axis.spines[side].set_linewidth(style.line_width)
     axis.tick_params(
         axis="both", which="both", color=style.line_color,
-        labelcolor="#000000", width=style.line_width,
+        labelcolor=INK_PRINT, width=style.line_width,
     )
-    axis.xaxis.label.set_color("#000000")
-    axis.yaxis.label.set_color("#000000")
+    axis.xaxis.label.set_color(INK_PRINT)
+    axis.yaxis.label.set_color(INK_PRINT)
     axis.legend(
         title="LOPIT/TAGM",
         loc="upper left",
@@ -270,7 +272,7 @@ def _draw_panel(
                 float(row[x_column]),
                 float(row[y_column]),
                 str(row[point_label_column]),
-                color="#000000",
+                color=INK_PRINT,
                 fontsize=5.8,
                 ha="left",
                 va="bottom",
@@ -447,7 +449,8 @@ def write_panel_package(
         from .plot import save_figure
 
         png_figure = plt.figure(
-            figsize=(style.figure_width, style.plot_height), facecolor="white"
+            figsize=(style.figure_width, style.plot_height),
+            facecolor=LABEL_GROUND_PRINT,
         )
         png_axis = png_figure.add_axes(
             [style.axes_left, 0.16, style.axes_width, 0.82]
@@ -469,11 +472,12 @@ def write_panel_package(
             save_mode="print",
             announce_colours=False,
             bbox_inches="tight",
-            facecolor="white",
+            facecolor=LABEL_GROUND_PRINT,
         )
 
         pdf_figure = plt.figure(
-            figsize=(style.figure_width, style.pdf_height), facecolor="white"
+            figsize=(style.figure_width, style.pdf_height),
+            facecolor=LABEL_GROUND_PRINT,
         )
         pdf_axis = pdf_figure.add_axes(
             [
@@ -520,7 +524,7 @@ def write_panel_package(
             close=True,
             save_mode="print",
             announce_colours=False,
-            facecolor="white",
+            facecolor=LABEL_GROUND_PRINT,
         )
 
     linked_points = 0
