@@ -307,3 +307,54 @@ count question answered:
     3. make `declared_organelle_roles` follow `number_of_organelles`;
     4. then the GUI.
 Steps 2 and 3 are independent and 3 is the one the maintainer will see first.
+
+--------------------------------------------------------------------------------
+2026-09-02 — STEP 3 DONE. TWO ORGANELLES NOW MEANS TWO.
+--------------------------------------------------------------------------------
+
+The maintainer's example was a live defect, and it was worse at both ends:
+
+    asked   1  ->  4 slots        asked  26  -> 26  OK
+    asked   2  ->  4 slots        asked  27  -> 26  silently clamped
+    asked   5  ->  5  OK          asked 100  -> 26  silently clamped
+
+A low count was RAISED to a floor of four and a high one was CLAMPED to a
+ceiling of twenty-six. Now:
+
+    asked 1 -> 1      asked 2 -> 2      asked 5 -> 5      asked 26 -> 26
+
+WHERE THE FLOOR WAS. `settings.py`, in `get_measure_crop_settings`, a loop
+over `schema.ORGANELLE_ROLES[1:]` seeding every secondary slot with a disabled
+placeholder "even when ``number_of_organelles`` is zero or one", because
+"downstream readers iterate that fixed schema". Deliberate, documented, and
+overruled.
+
+AND IT WAS THE THING THAT MADE THE CEILING IMMOVABLE. This is why the
+2026-09-02 reconciliation attempt had to be reverted: widening the role
+vocabulary so a hundred slots could be KEYED widened that loop with it, and a
+five-organelle run came back carrying twenty-six. The two problems were one
+problem. Removing the floor is the prerequisite for raising the ceiling, and
+it is done first for that reason.
+
+FOUR TESTS MOVED WITH IT, none loosened:
+
+  * `test_legacy_measure_settings_leave_secondary_slots_disabled` asserted the
+    old contract exactly -- a one-organelle legacy file coming back with every
+    secondary slot present and disabled. Rewritten as
+    `..._carry_no_slots_they_did_not_ask_for`, and joined by
+    `test_the_slot_count_is_exactly_what_was_asked_for`, which drives the
+    maintainer's own example across 1, 2, 3, 5 and 26 -- both ends, because
+    both ends were wrong.
+  * the notebooks were regenerated (they carry every setting);
+  * two tooltip-contract pins moved: twelve claims fewer to compare
+    (682 -> 670) and six `organelleb/c/d_min_size` entries removed from the
+    repaired-tooltip contract (31 -> 25), because those settings no longer
+    exist in a default run.
+
+VERIFIED against a HEAD baseline over 120 organelle/measure/settings test
+files: 6 failed before, 6 after, no regressions and none of the six related.
+
+STILL TO DO -- STEP 2, THE CEILING. `MAX_ORGANELLES` is still 26 and 27 still
+raises. The carried-letter scheme is designed in the note above and the floor
+that blocked it is gone, so it is now a contained change to
+`organelle_types.organelle_role()` plus the vocabulary that mirrors it.

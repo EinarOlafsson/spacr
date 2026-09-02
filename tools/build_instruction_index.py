@@ -77,7 +77,7 @@ STAGE: Dict[str, str] = {
     "315": "~75% -- 3a/3b/3c fixed; 3d now itemised into three named optimisations",
     "316": "~20% -- red, and waiting on the maintainer's own translation pass",
     "325": "the channel between the two sessions -- open while both are running",
-    "326": "~25% -- unblocked: settings follow the count, and 100 slots must work; scheme designed",
+    "326": "~55% -- settings follow the count (2 means 2); the ceiling of 26 is what remains",
     "327": "~95% -- all five parts shipped; only the frame-rate evidence is missing",
     "331": "a checklist over the other items; regenerated 2026-09-02 after three closures and four new filings",
     "337": "~75% -- Manders, spatial defaults and both labels done; part 3 needs the maintainer's measure settings",
