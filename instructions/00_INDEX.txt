@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-326 done / 36 open (90%).
+326 done / 38 open (89%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -156,6 +156,12 @@ OPEN
 
   364  EVERY SETTING AUDITED: IS IT NEEDED, IS IT A DUPLICATE, IS ITS NAME HONEST
        364_audit_every_setting_for_necessity_redundancy_and_clarity.txt
+
+  365  THE LICENCE IS NOT IDENTIFIABLE, AND THE TWO BRANCHES DO NOT AGREE ON IT
+       365_the_licence_is_not_identifiable_and_main_disagrees_with_nightly.txt
+
+  366  EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
+       366_equal_gutters_one_module_section_and_thorough_api_pages.txt
 
 --------------------------------------------------------------------------------
 DONE
