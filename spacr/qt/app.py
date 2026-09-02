@@ -436,6 +436,23 @@ SECTION_DESIGN = "Design"
 #: reading an embedding, drawing a gate, building a plot, checking
 #: quality. Introduced 2026-08-31 when Home was cut to four categories.
 SECTION_TOOLS = "Tools"
+#: A DOCK HEADING, NOT A HOME CATEGORY, and the distinction is the whole
+#: reason this is not in :data:`SECTION_ORDER`.
+#:
+#: The Help-menu modules were filed under Data, so the dock drew them
+#: under Data next to the modules that get data in, which is not what
+#: any of them does. The maintainer asked for them under a Help heading,
+#: lowest in the dock.
+#:
+#: PUTTING IT IN `SECTION_ORDER` WAS TRIED FIRST AND REVERTED. A section
+#: is Home's categorisation: `home_categories`, `home_bands` and
+#: `section_members` all mean "a tab and the tiles on it", and thirteen
+#: tests defend the invariant that a declared section has tiles --
+#: `test_no_section_is_empty` says so by name. Every Help module is
+#: TILELESS by construction, so Help can never satisfy that and should
+#: not pretend to. The dock groups by this instead, and Home never sees
+#: it.
+SECTION_HELP = "Help"
 
 #: Every section an app may be filed under, in workflow order: the
 #: end-to-end pipeline first, then getting data in and running it at
@@ -478,6 +495,9 @@ _SECTION_NOTE_LIBRARY = {
                     "tiles, read an embedding, draw a gate, build a plot, "
                     "check quality."),
     SECTION_ASSAYS: "Quantitative readouts for biological assays.",
+    SECTION_HELP: ("Look something up or administer work that already "
+                   "exists: run history, the pipeline graph, the "
+                   "database browser, reports and the job runners."),
     SECTION_DESIGN: ("Plan statistical power, sample size, plate layouts, "
                      "controls and replicates."),
 }
@@ -703,6 +723,60 @@ class _LiveSections(list):
 #: the day its first app registers, which is what lets a module add
 #: itself to one without editing this file.
 SECTIONS = _LiveSections()
+
+
+# MOVED UP 2026-09-02, and the position is load-bearing:
+# `_refresh_sections` reads this to keep a tile-less section out of
+# Home's tab bar, and it runs during `register_app` at import time --
+# which is before this constant's old position further down the file.
+
+#: Apps that are REGISTERED but get no tile and no sidebar row.
+#:
+#: A tile says "start here". These are not things a user sets out to do:
+#: they are things reached for WHILE doing something else, and a tile for
+#: each put them at the same level as Mask and Regression. Instruction 318
+#: has the maintainer's list and which of the two doors each one gets --
+#: a button inside the module it belongs to, or an entry in Help.
+#:
+#: THE KEY IS NOT REMOVED, and that distinction is the whole of why this
+#: is a set rather than a deletion. `bridge.resolve_pipeline_entry`,
+#: `cli.INTERACTIVE_ONLY`, `validate.APP_FUNCTIONS`, `dnd_handlers`,
+#: `settings_model.resolve_default_settings` and every saved user state
+#: key off these strings. `spacr run_history` from a shell still runs, a
+#: saved session that had one of these open still restores it, and a
+#: pipeline that names one still resolves it. What changed is what Home
+#: OFFERS, not what exists.
+TILELESS_APPS = frozenset({
+    # Reached from Help -- a user looking something up.
+    "feature_dict",
+    "run_history",
+    "pipeline_graph",
+    "project_browser",
+    # Reached from a button in the module they belong to.
+    "investigate_hit",     # Regression, new tab
+    "profiler",            # Regression, new tab
+    "train_compare",       # Classify
+    "feature_explorer",    # Classify
+    "plate_view",          # Graph Builder
+    "trellis",             # Graph Builder -- "small multiples"
+    "lineage",             # Database Browser
+    "tabulate",            # Database Browser
+    "layer_viewer",        # QC
+    "control_chart",       # QC
+    "outliers",            # QC
+    # Folded into Import: one module for getting data in, three ways.
+    "convert",             # Import -- Format Converter
+    "external_masks",      # Import -- External Masks
+    # Help menu entries rather than tiles. None of the six is a place to
+    # START: each one inspects or administers work that already exists,
+    # which is what a menu is for and what a tile is not.
+    "report",
+    "data_manager",
+    "db_browser",
+    "queue",
+    "batch",
+    "distributed_jobs",
+})
 
 
 def _refresh_sections() -> None:
@@ -1287,55 +1361,6 @@ def app_stage(key: str) -> str:
     return APP_STAGE.get(key, STAGE_STABLE)
 
 
-#: Apps that are REGISTERED but get no tile and no sidebar row.
-#:
-#: A tile says "start here". These are not things a user sets out to do:
-#: they are things reached for WHILE doing something else, and a tile for
-#: each put them at the same level as Mask and Regression. Instruction 318
-#: has the maintainer's list and which of the two doors each one gets --
-#: a button inside the module it belongs to, or an entry in Help.
-#:
-#: THE KEY IS NOT REMOVED, and that distinction is the whole of why this
-#: is a set rather than a deletion. `bridge.resolve_pipeline_entry`,
-#: `cli.INTERACTIVE_ONLY`, `validate.APP_FUNCTIONS`, `dnd_handlers`,
-#: `settings_model.resolve_default_settings` and every saved user state
-#: key off these strings. `spacr run_history` from a shell still runs, a
-#: saved session that had one of these open still restores it, and a
-#: pipeline that names one still resolves it. What changed is what Home
-#: OFFERS, not what exists.
-TILELESS_APPS = frozenset({
-    # Reached from Help -- a user looking something up.
-    "feature_dict",
-    "run_history",
-    "pipeline_graph",
-    "project_browser",
-    # Reached from a button in the module they belong to.
-    "investigate_hit",     # Regression, new tab
-    "profiler",            # Regression, new tab
-    "train_compare",       # Classify
-    "feature_explorer",    # Classify
-    "plate_view",          # Graph Builder
-    "trellis",             # Graph Builder -- "small multiples"
-    "lineage",             # Database Browser
-    "tabulate",            # Database Browser
-    "layer_viewer",        # QC
-    "control_chart",       # QC
-    "outliers",            # QC
-    # Folded into Import: one module for getting data in, three ways.
-    "convert",             # Import -- Format Converter
-    "external_masks",      # Import -- External Masks
-    # Help menu entries rather than tiles. None of the six is a place to
-    # START: each one inspects or administers work that already exists,
-    # which is what a menu is for and what a tile is not.
-    "report",
-    "data_manager",
-    "db_browser",
-    "queue",
-    "batch",
-    "distributed_jobs",
-})
-
-
 #: The four tileless apps that get a Help entry, with the label and the
 #: status tip each one carries there.
 #:
@@ -1374,6 +1399,35 @@ _HELP_MODULES: Tuple[Tuple[str, str, str], ...] = (
      "Submit and monitor spaCR runs on SSH workstations, Slurm, or "
      "cloud and HPC commands."),
 )
+
+
+def dock_rows() -> List[Tuple[str, str, str, str]]:
+    """:data:`APPS` as the DOCK draws it: Help-menu modules under Help, last.
+
+    The dock walks its rows in order and starts a new heading whenever the
+    section changes, so grouping IS ordering here -- a row out of place draws
+    its heading a second time.
+
+    WHY THIS IS A DOCK-ONLY VIEW AND NOT A REAL SECTION: see
+    :data:`SECTION_HELP`. A section is Home's categorisation and every Help
+    module is tileless, so Help would be a tab with nothing on it. The dock
+    has no such constraint: it lists modules, tiled or not.
+
+    DRIVEN BY `_HELP_MODULES`, which already says which modules the Help menu
+    opens. A second hand-written list is the shape that has caused two bugs on
+    this surface -- 330's note records one and the retired-section map records
+    the other.
+    """
+    wanted = {row[0] for row in _HELP_MODULES}
+    rank = {section: index for index, section in enumerate(SECTION_ORDER)}
+    rows = [
+        (key, name, desc, SECTION_HELP if key in wanted else section)
+        for key, name, desc, section in APPS
+    ]
+    # Stable, so the order WITHIN a section is the registry order the dock
+    # has always used; only the grouping moves.
+    rows.sort(key=lambda row: rank.get(row[3], len(rank)))
+    return rows
 
 
 def app_is_visible(key: str) -> bool:
@@ -1837,7 +1891,7 @@ class Sidebar(QWidget):
         catalogue = folded_modules()
 
         current_section = None
-        for key, name, desc, section in APPS:
+        for key, name, desc, section in dock_rows():
             if section != current_section:
                 header = QLabel(section)
                 header.setObjectName("SidebarSection")

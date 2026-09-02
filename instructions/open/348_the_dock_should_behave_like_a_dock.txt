@@ -72,3 +72,62 @@ HOW IT WILL BE CHECKED
 * The pointer magnifies the row under it and its neighbours, and the
   module-open GUI-thread block is no worse than 315's recorded baseline --
   measured, both numbers written here.
+
+--------------------------------------------------------------------------------
+2026-09-02 — PART 1 DONE: HELP IS A DOCK HEADING, AND IT IS NOT A SECTION
+--------------------------------------------------------------------------------
+
+The eight Help-menu modules -- queue, batch, distributed_jobs, db_browser,
+run_history, report, data_manager, pipeline_graph -- now draw under a Help
+heading at the BOTTOM of the dock. They were filed under Data, so the dock
+drew them beside the modules that get data IN, which is not what any of them
+does. (The report said "under core"; measured, they were all under Data. The
+three tileless rows under Core -- train_compare, profiler, investigate_hit --
+are folded children reached from a button in their host, not from Help, and
+were correctly left alone.)
+
+MAKING HELP A REAL SECTION WAS TRIED FIRST AND REVERTED. Recorded because it
+looks like the obvious implementation and costs an hour to discover otherwise.
+
+Adding `SECTION_HELP` to `SECTION_ORDER` broke THIRTEEN tests across six
+files, and they were right to break. A section in this codebase is HOME's
+categorisation: `home_categories`, `home_bands` and `section_members` all mean
+"a tab and the tiles on it", and `test_no_section_is_empty` defends the
+invariant by name. Every Help module is TILELESS by construction, so Help can
+never satisfy it. Patching `_refresh_sections` to count only tiled apps made
+it worse -- it broke the separate invariant that `SECTIONS` is the set of
+sections `APPS` uses, which `test_no_section_is_used_that_was_never_declared`
+holds.
+
+THE FIX IS A DOCK-ONLY VIEW. `app.dock_rows()` returns APPS with the
+Help-menu modules re-labelled and stably re-sorted, and the dock walks that
+instead of `APPS`. Home never sees it, `SECTION_ORDER` stays at four, and the
+thirteen tests go back to green untouched.
+
+DRIVEN BY `_HELP_MODULES`, not by a second list -- that table already says
+which modules the Help menu opens, and a hand-written copy is the shape that
+has caused two bugs on this surface.
+
+TWO TESTS WERE UPDATED, and both were asserting the same wrong thing: that the
+sidebar's headings equal Home's. `test_sidebar_draws_exactly_one_heading_per_
+section_in_order` compared against `home_bands()` and
+`test_a_registered_app_is_drawn_on_home_and_in_the_sidebar` against
+`SECTIONS`. Both now compare against `dock_rows()` and additionally assert
+that the dock's list is Home's plus Help, so the relationship is pinned rather
+than the equality dropped.
+
+VERIFIED AGAINST A HEAD BASELINE, same 1,249-test selection, twice:
+
+    HEAD    21 failed
+    part 1  21 failed        regressions: none, fixes: none
+
+THE 21 ARE PRE-EXISTING and are the 345/346 family again -- several pass in
+isolation. One of them, `test_the_sidebar_re_inks_its_icons_when_the_theme_
+changes`, was chased here and cleared: it fails at HEAD in isolation too, and
+the sidebar's 33 null-icon rows are byte-identical before and after this
+change.
+
+STILL OPEN IN THIS ITEM: part 2 (bigger icons and the magnifier) and part 3
+(row text moves to the strip). The menu bar was NOT given a Help submenu --
+only the dock was asked for, and the Help menu already lists these modules,
+so a Help submenu inside the Help menu would say it twice.

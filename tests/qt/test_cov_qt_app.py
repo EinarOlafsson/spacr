@@ -513,9 +513,26 @@ def test_sidebar_draws_exactly_one_heading_per_section_in_order(
     qtbot.addWidget(bar)
     headings = [lbl.text() for lbl in bar.findChildren(QLabel)
                 if lbl.objectName() == "SidebarSection"]
-    # The sidebar walks APPS and heads each run, so it shows exactly the
-    # sections apps are filed under — the same list as the Home bands.
-    assert headings == [s for s, _rows in home_bands()]
+    # The sidebar walks `dock_rows()` and heads each run, so it shows the
+    # DOCK's grouping.
+    #
+    # NOT `home_bands()` ANY MORE, and the difference is the point. A section
+    # is Home's categorisation and every Help module is tileless, so Help can
+    # never be a Home band -- `test_no_section_is_empty` says as much. The
+    # dock lists modules whether or not they have a tile, so it gets one more
+    # heading than Home does. Comparing the two was what made this test read
+    # as "the dock is Home", which it is not.
+    from spacr.qt.app import dock_rows
+
+    expected = []
+    for _key, _name, _desc, section in dock_rows():
+        if not expected or expected[-1] != section:
+            expected.append(section)
+    assert headings == expected
+    # And the extra one is Help, last -- asserted so a future change that
+    # quietly drops it fails here rather than in the maintainer's dock.
+    assert headings[-1] == "Help"
+    assert [s for s, _rows in home_bands()] == headings[:-1]
 
 
 def test_sidebar_has_one_row_per_app_plus_home_in_apps_order(

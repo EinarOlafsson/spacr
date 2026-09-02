@@ -114,6 +114,7 @@ OPEN
        347_the_tooltip_strip_the_api_dot_and_every_setting_covered.txt
 
   348  THE DOCK: HELP GETS ITS OWN SECTION, THE ICONS GROW, AND THE NAMES MOVE OFF IT
+       [~35% -- Help is a dock heading and is last; the magnifier and the text move are open]
        348_the_dock_should_behave_like_a_dock.txt
 
   349  "LOAD TEST DATA" PUTS THE LITERAL <src> INTO MASK GENERATION'S PATH FIELD
