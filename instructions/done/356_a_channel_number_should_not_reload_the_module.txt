@@ -2,7 +2,18 @@
 TYPING A CHANNEL NUMBER SHOULD REVEAL ITS CATEGORY, NOT RELOAD THE MODULE
 ================================================================================
 
-Status:    not started, filed 2026-09-02.
+Status:    DONE 2026-09-02 for case 1, which is what was asked. Committing
+           a value into an object channel cost a full screen rebuild -- 455 ms
+           and a DIFFERENT screen object in the window's stack, taking every
+           uncommitted edit, scroll position and open fold with it -- to
+           change which rows are visible. Measured after: 0 rebuilds, 18 ms,
+           same screen. `number_of_organelles` keeps its rebuild and a test
+           pins it, because its 52 `organelleb_*` controls do not exist until
+           it is raised, which the request itself accepts ("the settings
+           themselves have to be spawned"). Doing that half without a rebuild
+           is recorded at the end of this file and wants 364's per-object
+           table first, where a second organelle is a COLUMN and not 52 rows.
+           VERIFIED: 5 tests, 4 of which fail against the unfixed screen.
 Requested: 2026-09-02, verbatim -- "in mask generation. when a number is added
            to any of the object channel settings, or number of organels, the
            entire module reloads . i would like the presense of integers in
