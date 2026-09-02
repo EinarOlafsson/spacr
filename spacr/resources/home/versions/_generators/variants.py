@@ -84,6 +84,11 @@ def variant(slug: str, title: str, *, changes: str, adds: str,
             removes: str, argument: str, notes: str = ""):
     """Register a variant builder plus the prose that describes it."""
     def deco(fn: Callable[[Ctx], QWidget]):
+        """Append ``fn`` and this decorator's metadata, then preserve ``fn``.
+
+        Registration order supplies the one-based variant number used by the
+        generated comparison pages.
+        """
         VARIANTS.append({
             "n": len(VARIANTS) + 1,
             "slug": slug,
