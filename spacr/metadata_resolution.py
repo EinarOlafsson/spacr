@@ -10,15 +10,14 @@ from __future__ import annotations
 
 import json
 import re
-from difflib import SequenceMatcher
 from dataclasses import dataclass, field
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Sequence, Tuple
 
 import pandas as pd
 
 from . import schema
-
 
 IDENTITY_COLUMNS: Tuple[str, ...] = (
     schema.PLATE_KEY,
@@ -123,6 +122,11 @@ def build_metadata_request(frame: pd.DataFrame,
     available = tuple(str(column) for column in frame.columns)
 
     def comparable(value: str) -> str:
+        """Reduce a metadata name to case-insensitive alphanumeric text.
+
+        :param value: canonical or source column name to compare.
+        :returns: case-folded name with punctuation and whitespace removed.
+        """
         return re.sub(r"[^a-z0-9]", "", value.casefold())
 
     guesses: Dict[str, str] = {}
@@ -130,7 +134,19 @@ def build_metadata_request(frame: pd.DataFrame,
         target_key = comparable(target)
         target_root = re.sub(r"(?:id|label)$", "", target_key)
 
-        def guess_score(source: str) -> float:
+        def guess_score(source: str, target_key: str = target_key,
+                        target_root: str = target_root) -> float:
+            """Score one available column against the current missing target.
+
+            :param source: available source-column name to rank.
+            :param target_key: normalized current target, bound when the scorer
+                is created so the surrounding loop cannot change it.
+            :param target_root: target without an ``id`` or ``label`` suffix,
+                likewise bound for this scorer.
+            :returns: sequence similarity plus a root-name bonus when the
+                target without an ``id`` or ``label`` suffix occurs in the
+                normalized source name.
+            """
             source_key = comparable(source)
             similarity = SequenceMatcher(None, target_key, source_key).ratio()
             if target_root and target_root in source_key:
