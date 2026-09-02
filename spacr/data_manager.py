@@ -549,6 +549,7 @@ def _walk_project(root: str) -> Tuple[Dict[str, int], List[str], List[str]]:
     errors: List[str] = []
 
     def _note(exc: OSError) -> None:
+        """Record an inaccessible walk entry without stopping the scan."""
         errors.append(f"{getattr(exc, 'filename', '')}: {exc}")
 
     for dirpath, dirnames, filenames in os.walk(root, followlinks=False,
@@ -666,6 +667,7 @@ def scan_project(root: Any, *,
     stats: Dict[str, Dict[str, int]] = {}
 
     def _bucket(kind: str) -> Dict[str, int]:
+        """Return the shared zero-initialized counters for ``kind``."""
         return stats.setdefault(kind, {
             "size": 0, "files": 0, "paths": 0, "artifacts": 0,
             "registered": 0, "unregistered": 0, "recorded": 0, "shared": 0})
