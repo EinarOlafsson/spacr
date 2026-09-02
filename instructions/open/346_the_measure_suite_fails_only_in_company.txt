@@ -234,3 +234,48 @@ raises_is_reported_as_a_crop_failure`, could not be judged: run alone it needs
 a display this session does not have, and it reported a Gdk assertion rather
 than a result. It needs a run under xvfb before anything is concluded about
 it.)
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE LAST TWO NEED A DIFFERENT TECHNIQUE. HANDOFF.
+--------------------------------------------------------------------------------
+
+File bisection has taken this as far as it goes. The remaining two are still
+`test_cov_r8_measure_probes.py` -- the reloading file -- but the fixture added
+above IS working, and what is left is an INTERACTION rather than that file
+acting alone:
+
+    test_cov_r8_measure_probes.py + measure_hooks                    0 failures
+    files 1..27                   + measure_hooks                    0
+    files 1..27 + probes          + measure_hooks                    2
+    test_cov_r8_measure_crop_entry_pins.py + probes + measure_hooks   2
+    test_cov_r6_tracking_and_measurement.py + probes + measure_hooks  2
+
+So it takes ANY earlier file that touches measure, PLUS the reload. The reload
+alone is harmless now and the earlier files alone are harmless; the pair is
+not.
+
+THE TWO THAT FAIL:
+
+    test_region_filter_is_applied_before_features_are_computed
+    test_measure_crop_checks_the_start_method_before_it_starts_the_pool
+
+THE HYPOTHESIS WORTH TESTING FIRST, from the second name: multiprocessing. A
+reloaded `spacr.measure` re-runs whatever module-level work sets up the pool
+or records the start method, while an earlier import of the same module left a
+Pool, a start-method decision or a registered initializer behind. Both
+surviving failures are about the pool and about work done BEFORE features are
+computed, which is the same phase.
+
+WHAT NOT TO DO: do not widen the fixture's restore further without a
+measurement saying what else is stale. The first version of it was widened by
+guess -- the dot in the prefix -- and put the module back while leaving
+`spacr.measure_hooks` rebuilt, which is the bug it was written to fix.
+
+HOW TO FIND IT: the technique changes from bisecting FILES to bisecting STATE.
+Add a probe test after the pair, as was done for `_ZERNIKE_AVAILABLE`, and
+print the module-level names those two tests read -- the start method, any
+pool handle, the hook registries, and the identity of every `spacr.measure*`
+module. Compare the values with and without the earlier file. The Zernike
+cause was found in one such probe.
+
+    113 files: 21 failed at the start of this session, 3 now, 3,111 passed.
