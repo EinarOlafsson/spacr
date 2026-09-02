@@ -261,7 +261,7 @@ Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-
 同一项目还可以设计实验孔板、估算统计功效、校正批次效应、检查分割质量、浏览关联图表和图像裁剪、导出 AnnData、继续中断的工作，并记录生成各项结果时使用的设置。
 
 spaCR 模块
---------
+-------------
 
 .. spacr-workflow-begin
 
@@ -381,7 +381,7 @@ spaCR 模块
 
 .. spacr-workflow-end
 
-选择一个工作流程模块以打开其 API 页面。网格包含其余所有应用，其分类和顺序与 spaCR 主屏幕一致。
+Every module spaCR ships, in the order the home screen lists them: the six pipeline modules first, then everything else. Select a tile to open that module's API page.
 
 
 Make Masks
@@ -437,6 +437,40 @@ Cellpose-SAM runs here show the cell-probability map and the flow field beside t
    :width: 72
    :alt: 打开 bioRxiv 预印本
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
+
+动物园模型
+~~~~~~~~~~
+
+spaCR 附带一个训练好的模型目录，并在需要时下载。在主界面打开 **Model Zoo** 浏览并安装模型，或在设置文件中指定键名 -- ``pathogen_model: toxoplasma_pv_v1`` -- 模型会在首次需要时下载并校验其校验和。每个已发布条目都带有 SHA-256；没有校验和的条目会被拒绝而不是安装，因为被截断或被替换的检查点无法与真实文件区分。
+
+.. spacr-model-zoo-begin
+
+.. list-table::
+   :header-rows: 1
+   :widths: 26 30 44
+
+   * - Key
+     - Trained on
+     - Measured performance and limits
+   * - ``toxoplasma_pv_v1``
+       (cpsam_v2_toxo_r2)
+     - Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. 115 pairs (104 train / 11 test), 100 epochs, base cpsam_v2
+     - F1 0.867 at IoU 0.5 against 0.713 for stock cpsam; AJI 0.808 against 0.426; accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry
+   * - ``toxoplasma_plaque_v1``
+       (cpsam_plaque_r3)
+     - Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set
+     - F1 0.856 in-domain and 0.834 on the literature set, against 0.718 / 0.755 for round 1; round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay
+   * - ``toxoplasma_well_detector_v1``
+       (yolo_welldetect_v3.pt)
+     - Whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640
+     - mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987; locates WELLS, not plaques; it is the front half of a two-stage pipeline with toxoplasma_plaque_v1, and the well it finds also gives the diameter that makes areas comparable across microscopes
+
+.. spacr-model-zoo-end
+
+上面的数字是发布时测得的，并且与之一同给出了适用范围：模型只对其测量过的任务有效，而不是对所有任务都有效。``toxoplasma_well_detector_v1`` 和 ``toxoplasma_plaque_v1`` 是同一条流程的两个环节——检测器找到孔位，分割模型在孔内找到蚀斑，而孔径使不同显微镜之间的面积可以相互比较。
+
+模型托管在各自作者本人的 Hugging Face 账户下，因此贡献一个模型并不意味着要交出他人账户的写入权限。``spacr.model_zoo`` 的 ``publish_model`` 会完成上传，并打印出需要添加的目录条目。
+
 
 性能诊断
 ----------------------

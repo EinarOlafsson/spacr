@@ -335,9 +335,16 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "notes": (
             "F1 0.856 in-domain and 0.834 on the literature set, against "
             "0.718 / 0.755 for round 1",
-            "round 3 trades precision (0.939 -> 0.858) for recall (0.631 -> "
-            "0.811) on the literature set, which is the right direction for "
-            "a counting assay",
+            # "down to" / "up to" rather than "->" BECAUSE THIS PROSE IS
+            # PUBLISHED. It is printed into the README's model zoo table and
+            # from there into all nine localized READMEs, and
+            # test_localized_readme_inline_markup_is_balanced_and_tight
+            # forbids ">" in those files -- it is looking for HTML that has
+            # leaked through a translation model, and an ASCII arrow reads as
+            # exactly that. It also translates better as words.
+            "round 3 trades precision (0.939 down to 0.858) for recall "
+            "(0.631 up to 0.811) on the literature set, which is the right "
+            "direction for a counting assay",
         ),
     },
     {

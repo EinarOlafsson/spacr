@@ -381,7 +381,7 @@ spaCR-einingar
 
 .. spacr-workflow-end
 
-Veldu verkflæðiseiningu til að opna API-síðu hennar. Taflan sýnir öll önnur forrit í sömu flokkum og röð og á upphafssíðu spaCR.
+Hver mólur spaCR skipar, í orði heimaskæran listar þá: sjö pipeline mólus fyrst, þá allt annað. Veldu skál til að opna API síðu þessara mólusa.
 
 
 Make Masks
@@ -437,6 +437,40 @@ Viðmiðunargagnasöfn
    :width: 72
    :alt: Opna bioRxiv-forprentið
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
+
+Góðursvæði
+~~~~~~~~~~
+
+spaCR fylgir safn af þjálfuðum líkönum og sækir þau eftir þörfum. Opnaðu **Líkanasafn** af heimaskjánum til að skoða þau og setja upp, eða tilgreindu lykil í stillingaskrá -- ``pathogen_model: toxoplasma_pv_v1`` -- og líkanið er sótt og gátsumma þess staðfest í fyrsta sinn sem þess er þörf. Hver birt færsla ber SHA-256; færslu án hennar er hafnað fremur en sett upp, því ekki er hægt að greina stytt eða útskipt líkan frá því rétta.
+
+.. spacr-model-zoo-begin
+
+.. list-table::
+   :header-rows: 1
+   :widths: 26 30 44
+
+   * - Key
+     - Trained on
+     - Measured performance and limits
+   * - ``toxoplasma_pv_v1``
+       (cpsam_v2_toxo_r2)
+     - Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. 115 pairs (104 train / 11 test), 100 epochs, base cpsam_v2
+     - F1 0.867 at IoU 0.5 against 0.713 for stock cpsam; AJI 0.808 against 0.426; accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry
+   * - ``toxoplasma_plaque_v1``
+       (cpsam_plaque_r3)
+     - Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set
+     - F1 0.856 in-domain and 0.834 on the literature set, against 0.718 / 0.755 for round 1; round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay
+   * - ``toxoplasma_well_detector_v1``
+       (yolo_welldetect_v3.pt)
+     - Whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640
+     - mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987; locates WELLS, not plaques; it is the front half of a two-stage pipeline with toxoplasma_plaque_v1, and the well it finds also gives the diameter that makes areas comparable across microscopes
+
+.. spacr-model-zoo-end
+
+Númerur ovan eru þeir sem mætt eru á útgáfu, og takmarkanir eru tilkynnt með þeim: myndavél er gagnlegt fyrir vinnu sem það var mætt á, ekki fyrir hverri vinnu. ``toxoplasma_well_detector_v1`` og ``toxoplasma_plaque_v1`` eru tvö hálfa af einum tækjum - uppgötvuninn finnur bólkurnar, seggjandi finnur plakkum inni í þeim, og vel þægindi er það sem gerir svæðum samanburðar milli mikroskópum.
+
+Modelli eru veitt á eigin Hugging Face reikningum rithöfundar síns, þannig að að taka þátt þýðir ekki að veita skrifu aðgang að einhverjum öðrum. ``spacr.model_zoo`` ``publish_model`` gerir upplifun og trúa á listanum eftir að bæta.
+
 
 Greining á afköstum
 ----------------------

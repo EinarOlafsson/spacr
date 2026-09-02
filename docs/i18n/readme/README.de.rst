@@ -261,7 +261,7 @@ Der primäre Arbeitsablauf umfasst sechs Module:
 Dasselbe Projekt kann außerdem Versuchsplatten entwerfen, statistische Power schätzen, Batch-Effekte korrigieren, die Segmentierungsqualität prüfen, verknüpfte Diagramme und Bildausschnitte untersuchen, AnnData exportieren, unterbrochene Verarbeitung fortsetzen und die Einstellungen zu jedem Ergebnis protokollieren.
 
 spaCR-Module
-------------
+-------------
 
 .. spacr-workflow-begin
 
@@ -381,7 +381,7 @@ spaCR-Module
 
 .. spacr-workflow-end
 
-Wählen Sie ein Workflow-Modul aus, um dessen API-Seite zu öffnen. Das Raster enthält alle weiteren Anwendungen in denselben Kategorien und in derselben Reihenfolge wie auf der spaCR-Startseite.
+Jedes Modul spaCR Schiffe, in der Reihenfolge, die der Home-Bildschirm listet sie: die sechs Pipeline-Module zuerst, dann alles andere. Wählen Sie eine Kachel, um das Modul API Seite öffnen.
 
 
 Make Masks
@@ -437,6 +437,40 @@ Referenzdatensätze
    :width: 72
    :alt: bioRxiv-Preprint öffnen
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
+
+Modellzoo
+~~~~~~~~~
+
+spaCR liefert einen Katalog trainierter Modelle mit und ruft sie bei Bedarf ab. Öffnen Sie **Model Zoo** vom Startbildschirm aus, um sie zu durchsuchen und zu installieren, oder geben Sie einen Schlüssel in einer Einstellungsdatei an -- ``pathogen_model: toxoplasma_pv_v1`` -- und das Modell wird beim ersten Bedarf heruntergeladen und per Prüfsumme verifiziert. Jeder veröffentlichte Eintrag trägt einen SHA-256; ein Eintrag ohne einen wird abgelehnt statt installiert, weil ein abgeschnittener oder ersetzter Checkpoint nicht vom echten unterschieden werden kann.
+
+.. spacr-model-zoo-begin
+
+.. list-table::
+   :header-rows: 1
+   :widths: 26 30 44
+
+   * - Key
+     - Trained on
+     - Measured performance and limits
+   * - ``toxoplasma_pv_v1``
+       (cpsam_v2_toxo_r2)
+     - Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. 115 pairs (104 train / 11 test), 100 epochs, base cpsam_v2
+     - F1 0.867 at IoU 0.5 against 0.713 for stock cpsam; AJI 0.808 against 0.426; accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry
+   * - ``toxoplasma_plaque_v1``
+       (cpsam_plaque_r3)
+     - Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set
+     - F1 0.856 in-domain and 0.834 on the literature set, against 0.718 / 0.755 for round 1; round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay
+   * - ``toxoplasma_well_detector_v1``
+       (yolo_welldetect_v3.pt)
+     - Whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640
+     - mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987; locates WELLS, not plaques; it is the front half of a two-stage pipeline with toxoplasma_plaque_v1, and the well it finds also gives the diameter that makes areas comparable across microscopes
+
+.. spacr-model-zoo-end
+
+Die obigen Zahlen sind diejenigen, die bei der Veröffentlichung gemessen werden, und die Grenzen sind mit ihnen angegeben: ein Modell ist nützlich für den Job, an dem es gemessen wurde, nicht für jeden Job. ``toxoplasma_well_detector_v1`` und ``toxoplasma_plaque_v1`` sind die beiden Hälften einer Pipeline -- der Detektor findet die Wells, der Segmenter findet die Plaques in ihnen, und der Brunnendurchmesser ist das, was Bereiche zwischen Mikroskopen vergleichbar macht.
+
+Modelle werden auf dem eigenen Hugging Face-Konto ihres Autors gehostet, daher bedeutet der Beitrag nicht, Schreibzugriff auf das Konto eines anderen zu geben. ``spacr.model_zoo`` s ``publish_model`` führt den Upload aus und druckt die Katalogzeile zum Hinzufügen.
+
 
 Leistungsdiagnose
 ----------------------

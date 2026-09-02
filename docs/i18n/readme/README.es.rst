@@ -381,7 +381,7 @@ Módulos de spaCR
 
 .. spacr-workflow-end
 
-Seleccione un módulo del flujo de trabajo para abrir su página de API. La cuadrícula contiene las demás aplicaciones, organizadas en las mismas categorías y en el mismo orden que en la pantalla de inicio de spaCR.
+Cada módulo spaCR envía, en el orden en que la pantalla de inicio los lista: los seis módulos de flujo de trabajo primero, luego todo lo demás. Seleccione una tesela para abrir la página API de ese módulo.
 
 
 Make Masks
@@ -437,6 +437,40 @@ Conjuntos de datos de referencia
    :width: 72
    :alt: Abrir la prepublicación de bioRxiv
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
+
+Zoológico modelo
+~~~~~~~~~~~~~~~~
+
+spaCR incluye un catálogo de modelos entrenados y los descarga cuando se necesitan. Abra **Model Zoo** desde la pantalla de inicio para explorarlos e instalarlos, o indique una clave en un archivo de configuración -- ``pathogen_model: toxoplasma_pv_v1`` -- y el modelo se descarga y se verifica su suma de comprobación la primera vez que se necesita. Cada entrada publicada lleva un SHA-256; una entrada sin él se rechaza en lugar de instalarse, porque un punto de control truncado o sustituido no puede distinguirse del auténtico.
+
+.. spacr-model-zoo-begin
+
+.. list-table::
+   :header-rows: 1
+   :widths: 26 30 44
+
+   * - Key
+     - Trained on
+     - Measured performance and limits
+   * - ``toxoplasma_pv_v1``
+       (cpsam_v2_toxo_r2)
+     - Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. 115 pairs (104 train / 11 test), 100 epochs, base cpsam_v2
+     - F1 0.867 at IoU 0.5 against 0.713 for stock cpsam; AJI 0.808 against 0.426; accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry
+   * - ``toxoplasma_plaque_v1``
+       (cpsam_plaque_r3)
+     - Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set
+     - F1 0.856 in-domain and 0.834 on the literature set, against 0.718 / 0.755 for round 1; round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay
+   * - ``toxoplasma_well_detector_v1``
+       (yolo_welldetect_v3.pt)
+     - Whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640
+     - mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987; locates WELLS, not plaques; it is the front half of a two-stage pipeline with toxoplasma_plaque_v1, and the well it finds also gives the diameter that makes areas comparable across microscopes
+
+.. spacr-model-zoo-end
+
+Las cifras anteriores son las medidas en la publicación, y los límites se indican con ellas: un modelo es útil para el trabajo en el que se midió, no para cada trabajo. ``toxoplasma_well_detector_v1`` y ``toxoplasma_plaque_v1`` son las dos mitades de una flujo de trabajo: el detector encuentra los pozos, el segmentador encuentra las placas dentro de ellos, y el diámetro del pozo es lo que hace que las áreas sean comparables entre microscopios.
+
+Models are hosted on their author's own Hugging Face account, so contributing one does not mean handing write access to anyone else's. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add.
+
 
 Diagnóstico del rendimiento
 ---------------------------

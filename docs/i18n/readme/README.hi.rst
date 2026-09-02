@@ -381,7 +381,7 @@ spaCR मॉड्यूल
 
 .. spacr-workflow-end
 
-किसी कार्यप्रवाह मॉड्यूल का API पृष्ठ खोलने के लिए उसे चुनें। ग्रिड में अन्य सभी ऐप उसी श्रेणी और क्रम में हैं जैसा spaCR की होम स्क्रीन पर है।
+प्रत्येक मॉड्यूल spaCR जहाज है, जिस क्रम में होम स्क्रीन उन्हें सूचीबद्ध करता है: छह पाइपलाइन मॉडल पहले, फिर सब कुछ. उस मॉडल के API पृष्ठ को खोलने के लिए एक शीट चुनें.
 
 
 Make Masks
@@ -437,6 +437,40 @@ Cellpose-SAM यहां चलता है सेल संभावना �
    :width: 72
    :alt: bioRxiv प्रीप्रिंट खोलें
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
+
+जानवरों का मॉडल
+~~~~~~~~~~~~~~~
+
+spaCR प्रशिक्षित मॉडलों की एक सूची के साथ आता है और आवश्यकता पड़ने पर उन्हें डाउनलोड करता है। उन्हें देखने और स्थापित करने के लिए होम स्क्रीन से **Model Zoo** खोलें, या सेटिंग्स फ़ाइल में एक कुंजी दें -- ``pathogen_model: toxoplasma_pv_v1`` -- और पहली बार आवश्यकता होने पर मॉडल डाउनलोड होकर उसका चेकसम सत्यापित किया जाता है। प्रत्येक प्रकाशित प्रविष्टि में SHA-256 होता है; जिसमें यह नहीं है उसे स्थापित करने के बजाय अस्वीकार कर दिया जाता है, क्योंकि कटे हुए या बदले गए चेकपॉइंट को असली से अलग नहीं पहचाना जा सकता।
+
+.. spacr-model-zoo-begin
+
+.. list-table::
+   :header-rows: 1
+   :widths: 26 30 44
+
+   * - Key
+     - Trained on
+     - Measured performance and limits
+   * - ``toxoplasma_pv_v1``
+       (cpsam_v2_toxo_r2)
+     - Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. 115 pairs (104 train / 11 test), 100 epochs, base cpsam_v2
+     - F1 0.867 at IoU 0.5 against 0.713 for stock cpsam; AJI 0.808 against 0.426; accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry
+   * - ``toxoplasma_plaque_v1``
+       (cpsam_plaque_r3)
+     - Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set
+     - F1 0.856 in-domain and 0.834 on the literature set, against 0.718 / 0.755 for round 1; round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay
+   * - ``toxoplasma_well_detector_v1``
+       (yolo_welldetect_v3.pt)
+     - Whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640
+     - mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987; locates WELLS, not plaques; it is the front half of a two-stage pipeline with toxoplasma_plaque_v1, and the well it finds also gives the diameter that makes areas comparable across microscopes
+
+.. spacr-model-zoo-end
+
+उपरोक्त आंकड़े प्रकाशन में मापा गया है, और सीमाओं को उनके साथ व्यक्त किया गया है: एक मॉडल उस पर मापा काम के लिए उपयोगी है, न कि प्रत्येक कार्य के लिए. ``toxoplasma_well_detector_v1`` और ``toxoplasma_plaque_v1`` एक पाइपलाइन के दो आधे हैं - डिटेक्टर बर्तनों को ढूंढता है, सेगमेंटर उनके अंदर प्लेटों को पाता है और अच्छी व्यास यह है कि माइक्रोस्कोप के बीच क्षेत्रों की तुलना की जा सकती है।
+
+मॉडलों को उनके लेखक के स्वयं के Hugging Face खाते पर होस्ट किया जाता है, इसलिए एक में योगदान करने का मतलब किसी और के लेखन एक्सेस को सौंपना नहीं है. ``spacr.model_zoo`` का ``publish_model`` अपलोड करता है और जोड़ने के लिए कैटलॉग पंक्ति प्रिंट करता है.
+
 
 प्रदर्शन का निदान
 ----------------------
