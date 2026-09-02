@@ -991,3 +991,13 @@ asserting the two agree -- one source would be better and is not available
 without introducing an import into the lowest-level module in the package.
 
 SHORT HOLD. One commit, and this file says when it is done.
+
+--------------------------------------------------------------------------------
+2026-09-02 — CLAUDE: spacr/schema.py IS RELEASED, UNCHANGED
+--------------------------------------------------------------------------------
+
+The hold announced above is over and the file was NOT modified. The
+reconciliation works and has a downstream effect on what a measure run's
+settings dict contains -- twenty-six organelle slots where five were asked
+for -- which is a product decision rather than a test fix. Reverted and
+written up in 326; nothing from the attempt is committed.
