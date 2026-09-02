@@ -327,7 +327,7 @@ def _import(root, destination, *, wells, cells_per_well, extra):
         # filtered by area: a min_size default that moved would otherwise
         # silently change which objects the goldens are about.
         "cell_min_size": 0, "nucleus_min_size": 0, "pathogen_min_size": 0,
-        "cytoplasm_min_size": 0, "organelle_min_size": 0,
+        "cytoplasm_min_size": 0, "organelle_min_area": 0,
     }
     settings.update(extra)
     plan = em.plan_external_masks(settings)

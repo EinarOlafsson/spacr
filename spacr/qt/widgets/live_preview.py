@@ -2496,7 +2496,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     #:
     #: The panel has ONE diameter / flow / probability triple and an object
     #: selector, while Mask declares all three per compartment
-    #: (``cell_diameter``, ``nucleus_FT``, ...). Which compartment the
+    #: (``cell_diameter``, ``nucleus_flow_threshold``, ...). Which compartment the
     #: triple means is therefore decided by the selector, and this table is
     #: the whole of the translation — used in BOTH directions so the two
     #: cannot drift apart again.
@@ -2541,8 +2541,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             f"{self._active_organelle_role}_channel": int(
                 self._organelle_channel.value()),
             f"{primary}_diameter": float(self._diameter.value()),
-            f"{primary}_FT": float(self._flow.value()),
-            f"{primary}_CP_prob": float(self._prob.value()),
+            f"{primary}_flow_threshold": float(self._flow.value()),
+            f"{primary}_cellprob_threshold": float(self._prob.value()),
             "normalize": bool(self._normalise_check.isChecked()),
             "lower_percentile": float(self._lo_pct.value()),
         }
@@ -2975,7 +2975,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         # -- which looks up `remove_background_{obj}` per object in its loop
         # -- silently skipped it and the toggle appeared to do half a job.
         for obj in self._selected_object_types():
-            out[f"{obj}_Signal_to_noise"] = self._widget_value(
+            out[f"{obj}_signal_to_noise"] = self._widget_value(
                 self._common_widgets["signal_to_noise"])
             out[f"remove_background_{obj}"] = self._widget_value(
                 self._common_widgets["remove_background"])
@@ -4002,14 +4002,14 @@ class LiveSettingsDialog(QDialog):
             p._pathogen_channel: "pathogen_channel",
             p._organelle_channel: "organelle_channel",
             p._diameter: "cell_diameter",
-            p._flow: "cell_FT",
-            p._prob: "cell_CP_prob",
+            p._flow: "cell_flow_threshold",
+            p._prob: "cell_cellprob_threshold",
             p._normalise_check: "normalize",
             p._lo_pct: "lower_percentile",
             p._hi_pct: "upper_percentile",
             p._outline_colour: "outline_color",
             p._outline_thickness: "outline_thickness",
-            p._common_widgets["signal_to_noise"]: "cell_Signal_to_noise",
+            p._common_widgets["signal_to_noise"]: "cell_signal_to_noise",
             p._common_widgets["remove_background"]: "remove_background_cell",
             p._common_widgets["background"]: "cell_background",
             p._adjust_cells: "adjust_cells",

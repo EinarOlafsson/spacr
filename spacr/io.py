@@ -1667,17 +1667,17 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
 
         if settings.get('nucleus_channel') is not None and channel == settings['nucleus_channel']:
             background = settings['nucleus_background']
-            signal_threshold = settings['nucleus_Signal_to_noise']*settings['nucleus_background']
+            signal_threshold = settings['nucleus_signal_to_noise']*settings['nucleus_background']
             remove_background = settings['remove_background_nucleus']
 
         if settings.get('cell_channel') is not None and channel == settings['cell_channel']:
             background = settings['cell_background']
-            signal_threshold = settings['cell_Signal_to_noise']*settings['cell_background']
+            signal_threshold = settings['cell_signal_to_noise']*settings['cell_background']
             remove_background = settings['remove_background_cell']
 
         if settings.get('pathogen_channel') is not None and channel == settings['pathogen_channel']:
             background = settings['pathogen_background']
-            signal_threshold = settings['pathogen_Signal_to_noise']*settings['pathogen_background']
+            signal_threshold = settings['pathogen_signal_to_noise']*settings['pathogen_background']
             remove_background = settings['remove_background_pathogen']
 
         # Organelle channel — use organelle-specific settings when
@@ -1685,7 +1685,7 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
         if settings.get('organelle_channel') is not None and channel == settings['organelle_channel']:
             background = settings.get('organelle_background', background)
             signal_threshold = settings.get(
-                'organelle_Signal_to_noise',
+                'organelle_signal_to_noise',
                 settings.get('Signal_to_noise', 10)) * background
             remove_background = settings.get(
                 'remove_background_organelle', remove_background)
@@ -1944,18 +1944,18 @@ def _get_lists_for_normalization(settings):
         if not ch is None:
             if ch == settings['nucleus_channel']:
                 backgrounds.append(settings['nucleus_background'])
-                signal_to_noise.append(settings['nucleus_Signal_to_noise'])
-                signal_thresholds.append(settings['nucleus_Signal_to_noise']*settings['nucleus_background'])
+                signal_to_noise.append(settings['nucleus_signal_to_noise'])
+                signal_thresholds.append(settings['nucleus_signal_to_noise']*settings['nucleus_background'])
                 remove_background.append(settings['remove_background_nucleus'])
             elif ch == settings['cell_channel']:
                 backgrounds.append(settings['cell_background'])
-                signal_to_noise.append(settings['cell_Signal_to_noise'])
-                signal_thresholds.append(settings['cell_Signal_to_noise']*settings['cell_background'])
+                signal_to_noise.append(settings['cell_signal_to_noise'])
+                signal_thresholds.append(settings['cell_signal_to_noise']*settings['cell_background'])
                 remove_background.append(settings['remove_background_cell'])
             elif ch == settings['pathogen_channel']:
                 backgrounds.append(settings['pathogen_background'])
-                signal_to_noise.append(settings['pathogen_Signal_to_noise'])
-                signal_thresholds.append(settings['pathogen_Signal_to_noise']*settings['pathogen_background'])
+                signal_to_noise.append(settings['pathogen_signal_to_noise'])
+                signal_thresholds.append(settings['pathogen_signal_to_noise']*settings['pathogen_background'])
                 remove_background.append(settings['remove_background_pathogen'])
 
     return backgrounds, signal_to_noise, signal_thresholds, remove_background

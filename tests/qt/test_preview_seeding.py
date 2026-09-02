@@ -13,7 +13,7 @@ Two separate defects, and the second is the one that would look fixed:
 * nothing ever called ``apply_settings`` for these four, and
 
 * for Mask, calling it would not have helped. The panel emits
-  ``cell_diameter`` / ``cell_FT`` / ``cell_CP_prob`` and reads back
+  ``cell_diameter`` / ``cell_flow_threshold`` / ``cell_cellprob_threshold`` and reads back
   ``diameter`` / ``flow_threshold`` / ``CP_prob``, so the two directions are
   not inverses. Mask declares no such keys -- ``cell_channel`` and
   ``nucleus_channel`` DO land, so a seed written without the rename map
@@ -41,11 +41,11 @@ def _mask_settings(**over):
     """A Mask settings dict in the module's OWN vocabulary."""
     out = {
         "cell_diameter": 42.5,
-        "cell_FT": 0.9,
-        "cell_CP_prob": -1.5,
+        "cell_flow_threshold": 0.9,
+        "cell_cellprob_threshold": -1.5,
         "nucleus_diameter": 17.0,
-        "nucleus_FT": 0.15,
-        "nucleus_CP_prob": 2.0,
+        "nucleus_flow_threshold": 0.15,
+        "nucleus_cellprob_threshold": 2.0,
         "cell_channel": 2,
         "nucleus_channel": 3,
         "pathogen_channel": 1,
@@ -139,8 +139,8 @@ class TestMaskPreviewSeeding:
 
         out = p.settings_for_propagation()
         assert out["cell_diameter"] == pytest.approx(42.5)
-        assert out["cell_FT"] == pytest.approx(0.9)
-        assert out["cell_CP_prob"] == pytest.approx(-1.5)
+        assert out["cell_flow_threshold"] == pytest.approx(0.9)
+        assert out["cell_cellprob_threshold"] == pytest.approx(-1.5)
         assert out["cell_channel"] == 2
         assert out["nucleus_channel"] == 3
 
@@ -188,7 +188,7 @@ class TestMaskPreviewSeeding:
     def test_junk_values_do_not_take_the_panel_down(self, qtbot):
         p = LP.LivePreviewPanel()
         qtbot.addWidget(p)
-        p.apply_settings({"cell_diameter": "thirty", "cell_FT": None})
+        p.apply_settings({"cell_diameter": "thirty", "cell_flow_threshold": None})
         assert p._build_request() is not None
 
 
@@ -285,7 +285,7 @@ class TestTheScreenSeedsOnFirstShow:
     def test_mask_seeds_the_panel_when_the_switch_is_turned_on(self, qtbot):
         scr = self._screen(qtbot, "mask")
         scr._settings_model.set_value_for_key("cell_diameter", 77.0)
-        scr._settings_model.set_value_for_key("cell_FT", 0.75)
+        scr._settings_model.set_value_for_key("cell_flow_threshold", 0.75)
 
         scr._on_preview_switch(True)
 

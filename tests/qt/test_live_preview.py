@@ -607,7 +607,7 @@ class TestCompartmentSettings:
         # Object = pathogen -> common keys are pathogen_*.
         p._object_box.setCurrentIndex(p._object_box.findText("pathogen"))
         s = p.settings_for_propagation()
-        assert s["pathogen_Signal_to_noise"] == 42
+        assert s["pathogen_signal_to_noise"] == 42
         assert s["pathogen_background"] == 77
         assert s["remove_background_pathogen"] is True
 

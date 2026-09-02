@@ -129,7 +129,7 @@ def test_a_key_outside_the_slots_comes_back_unchanged():
     an ``organelle_`` spelling that nothing reads."""
     from spacr.organelle_types import primary_setting
 
-    assert primary_setting("cell_CP_prob") == "cell_CP_prob"
+    assert primary_setting("cell_cellprob_threshold") == "cell_cellprob_threshold"
     assert primary_setting("src") == "src"
     assert primary_setting("") == ""
 

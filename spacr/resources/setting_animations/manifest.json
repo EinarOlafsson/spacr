@@ -492,7 +492,7 @@
         "cell_intensity_split",
         "cell_area_multiplier",
         "cell_min_distance",
-        "cell_min_object_area"
+        "cell_min_split_area"
       ],
       "slug": "cell_intensity_split",
       "title": "Cell watershed split",
@@ -555,7 +555,7 @@
         "nucleus_intensity_split",
         "nucleus_area_multiplier",
         "nucleus_min_distance",
-        "nucleus_min_object_area"
+        "nucleus_min_split_area"
       ],
       "slug": "nucleus_intensity_split",
       "title": "Nucleus watershed split",
@@ -618,7 +618,7 @@
         "pathogen_intensity_split",
         "pathogen_area_multiplier",
         "pathogen_min_distance",
-        "pathogen_min_object_area"
+        "pathogen_min_split_area"
       ],
       "slug": "pathogen_intensity_split",
       "title": "Pathogen watershed split",
@@ -681,7 +681,7 @@
         "organelle_intensity_split",
         "organelle_area_multiplier",
         "organelle_min_distance",
-        "organelle_min_object_area"
+        "organelle_min_split_area"
       ],
       "slug": "organelle_intensity_split",
       "title": "Organelle watershed split",
@@ -694,15 +694,15 @@
     },
     {
       "category": "Segmentation",
-      "file": "gifs/cell_CP_prob.gif",
+      "file": "gifs/cell_cellprob_threshold.gif",
       "params": {
         "kind": "cell"
       },
       "scene": "probability",
       "settings": [
-        "cell_CP_prob"
+        "cell_cellprob_threshold"
       ],
-      "slug": "cell_CP_prob",
+      "slug": "cell_cellprob_threshold",
       "title": "Cell probability threshold",
       "validation": {
         "bytes": 34189,
@@ -713,15 +713,15 @@
     },
     {
       "category": "Segmentation",
-      "file": "gifs/cell_FT.gif",
+      "file": "gifs/cell_flow_threshold.gif",
       "params": {
         "kind": "cell"
       },
       "scene": "flow",
       "settings": [
-        "cell_FT"
+        "cell_flow_threshold"
       ],
-      "slug": "cell_FT",
+      "slug": "cell_flow_threshold",
       "title": "Cell flow threshold",
       "validation": {
         "bytes": 104407,
@@ -771,15 +771,15 @@
     },
     {
       "category": "Image preprocessing",
-      "file": "gifs/cell_Signal_to_noise.gif",
+      "file": "gifs/cell_signal_to_noise.gif",
       "params": {
         "kind": "cell"
       },
       "scene": "signal",
       "settings": [
-        "cell_Signal_to_noise"
+        "cell_signal_to_noise"
       ],
-      "slug": "cell_Signal_to_noise",
+      "slug": "cell_signal_to_noise",
       "title": "Cell signal-to-noise",
       "validation": {
         "bytes": 109042,
@@ -790,15 +790,15 @@
     },
     {
       "category": "Segmentation",
-      "file": "gifs/nucleus_CP_prob.gif",
+      "file": "gifs/nucleus_cellprob_threshold.gif",
       "params": {
         "kind": "nucleus"
       },
       "scene": "probability",
       "settings": [
-        "nucleus_CP_prob"
+        "nucleus_cellprob_threshold"
       ],
-      "slug": "nucleus_CP_prob",
+      "slug": "nucleus_cellprob_threshold",
       "title": "Nucleus probability threshold",
       "validation": {
         "bytes": 69750,
@@ -809,15 +809,15 @@
     },
     {
       "category": "Segmentation",
-      "file": "gifs/nucleus_FT.gif",
+      "file": "gifs/nucleus_flow_threshold.gif",
       "params": {
         "kind": "nucleus"
       },
       "scene": "flow",
       "settings": [
-        "nucleus_FT"
+        "nucleus_flow_threshold"
       ],
-      "slug": "nucleus_FT",
+      "slug": "nucleus_flow_threshold",
       "title": "Nucleus flow threshold",
       "validation": {
         "bytes": 90879,
@@ -867,15 +867,15 @@
     },
     {
       "category": "Image preprocessing",
-      "file": "gifs/nucleus_Signal_to_noise.gif",
+      "file": "gifs/nucleus_signal_to_noise.gif",
       "params": {
         "kind": "nucleus"
       },
       "scene": "signal",
       "settings": [
-        "nucleus_Signal_to_noise"
+        "nucleus_signal_to_noise"
       ],
-      "slug": "nucleus_Signal_to_noise",
+      "slug": "nucleus_signal_to_noise",
       "title": "Nucleus signal-to-noise",
       "validation": {
         "bytes": 135237,
@@ -886,15 +886,15 @@
     },
     {
       "category": "Segmentation",
-      "file": "gifs/pathogen_CP_prob.gif",
+      "file": "gifs/pathogen_cellprob_threshold.gif",
       "params": {
         "kind": "pathogen"
       },
       "scene": "probability",
       "settings": [
-        "pathogen_CP_prob"
+        "pathogen_cellprob_threshold"
       ],
-      "slug": "pathogen_CP_prob",
+      "slug": "pathogen_cellprob_threshold",
       "title": "Pathogen probability threshold",
       "validation": {
         "bytes": 148300,
@@ -905,15 +905,15 @@
     },
     {
       "category": "Segmentation",
-      "file": "gifs/pathogen_FT.gif",
+      "file": "gifs/pathogen_flow_threshold.gif",
       "params": {
         "kind": "pathogen"
       },
       "scene": "flow",
       "settings": [
-        "pathogen_FT"
+        "pathogen_flow_threshold"
       ],
-      "slug": "pathogen_FT",
+      "slug": "pathogen_flow_threshold",
       "title": "Pathogen flow threshold",
       "validation": {
         "bytes": 125379,
@@ -963,15 +963,15 @@
     },
     {
       "category": "Image preprocessing",
-      "file": "gifs/pathogen_Signal_to_noise.gif",
+      "file": "gifs/pathogen_signal_to_noise.gif",
       "params": {
         "kind": "pathogen"
       },
       "scene": "signal",
       "settings": [
-        "pathogen_Signal_to_noise"
+        "pathogen_signal_to_noise"
       ],
-      "slug": "pathogen_Signal_to_noise",
+      "slug": "pathogen_signal_to_noise",
       "title": "Pathogen signal-to-noise",
       "validation": {
         "bytes": 231751,
@@ -1001,15 +1001,15 @@
     },
     {
       "category": "Segmentation",
-      "file": "gifs/organelle_CP_prob.gif",
+      "file": "gifs/organelle_cellprob_threshold.gif",
       "params": {
         "kind": "organelle"
       },
       "scene": "probability",
       "settings": [
-        "organelle_CP_prob"
+        "organelle_cellprob_threshold"
       ],
-      "slug": "organelle_CP_prob",
+      "slug": "organelle_cellprob_threshold",
       "title": "Organelle probability threshold",
       "validation": {
         "bytes": 149614,
@@ -1020,15 +1020,15 @@
     },
     {
       "category": "Segmentation",
-      "file": "gifs/organelle_FT.gif",
+      "file": "gifs/organelle_flow_threshold.gif",
       "params": {
         "kind": "organelle"
       },
       "scene": "flow",
       "settings": [
-        "organelle_FT"
+        "organelle_flow_threshold"
       ],
-      "slug": "organelle_FT",
+      "slug": "organelle_flow_threshold",
       "title": "Organelle flow threshold",
       "validation": {
         "bytes": 174269,

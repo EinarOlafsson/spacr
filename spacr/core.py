@@ -200,7 +200,7 @@ def preprocess_generate_masks(settings):
         # answering with its own inline fallback rather than the declared
         # default.
         #
-        # One of them changes segmentation: `cell_FT` is declared 1.0 and the
+        # One of them changes segmentation: `cell_flow_threshold` is declared 1.0 and the
         # fallback here was 0.4, and it goes straight to
         # `model.eval(flow_threshold=...)`. Cellpose's remove_bad_flow_masks
         # drops a mask whose flow error exceeds the threshold, so on a field
@@ -241,8 +241,8 @@ def preprocess_generate_masks(settings):
                 metadata_type=settings.get('metadata_type', 'auto'),
                 custom_regex=settings.get('custom_regex'),
                 keep_npz=bool(settings.get('keep_npz', False)),
-                cellprob_threshold=float(settings.get('cell_CP_prob', 0.0)),
-                flow_threshold=float(settings.get('cell_FT', 0.4)),
+                cellprob_threshold=float(settings.get('cell_cellprob_threshold', 0.0)),
+                flow_threshold=float(settings.get('cell_flow_threshold', 0.4)),
                 min_size=int(settings.get('cell_min_area', 0)),
                 resample=True,
                 postprocess_settings=settings,

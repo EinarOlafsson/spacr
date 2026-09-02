@@ -140,10 +140,6 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "True", "False", REPAIRED_TOOLTIP,
         "The importer inherits Measure's no-normalization initial value.",
     ),
-    ("external_masks", "organelle_min_size"): DefaultVariant(
-        "10", "0", REPAIRED_TOOLTIP,
-        "Existing primary-organelle labels are not size-filtered initially.",
-    ),
                 ("external_masks", "verbose"): DefaultVariant(
         "True", "False", ACCURATE_SHARED,
         "The tooltip already places Measure-family tools on the quiet path.",
@@ -183,10 +179,6 @@ DEFAULT_VARIANT_EXPECTATIONS = {
     ("measure", "normalize"): DefaultVariant(
         "True", "False", REPAIRED_TOOLTIP,
         "Measure starts off and requires a percentile pair when enabled.",
-    ),
-    ("measure", "organelle_min_size"): DefaultVariant(
-        "10", "0", REPAIRED_TOOLTIP,
-        "Measurement does not size-filter existing primary-organelle labels.",
     ),
                 ("measure", "verbose"): DefaultVariant(
         "True", "False", ACCURATE_SHARED,
@@ -295,10 +287,6 @@ REPAIRED_TOOLTIP_FACTS = {
         "Measure and External Masks start at False",
         "two-number [low, high] percentile pair",
     ),
-    ("external_masks", "organelle_min_size"): (
-        "Measure and External Masks start every",
-        "at 0 because they consume existing labels",
-    ),
                 ("invasion", "intensity_statistic"): (
         "Invasion starts at 'auto'",
         "chooses periphery_95 when present, otherwise percentile_95",
@@ -317,10 +305,6 @@ REPAIRED_TOOLTIP_FACTS = {
     ("measure", "normalize"): (
         "Measure and External Masks start at False",
         "refuses bare True",
-    ),
-    ("measure", "organelle_min_size"): (
-        "Measure and External Masks start every",
-        "at 0 because they consume existing labels",
     ),
                 ("recruitment", "nuclei_limit"): (
         "Recruitment starts at 1",
@@ -601,8 +585,17 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # to compare -- six settings across two apps. The count is the whole
     # point of the pin, so it moves with the change rather than being
     # widened to a range.
-    assert comparisons == 670
-    assert len(variants) == 46
+    #
+    # 666 since 2026-09-02. Instruction 364 retired organelle_min_size and
+    # organelle_max_size in favour of the _area pair they duplicated, which
+    # removes two tooltips and therefore four comparisons across two apps.
+    assert comparisons == 666
+    # 44 since 2026-09-02. Instruction 364 unified organelle's duplicated
+    # size/area settings, and the surviving tooltip now NAMES its per-app
+    # defaults ("Default 10 in Mask; Measure and External Masks start at 0")
+    # instead of leaving the difference to be recorded here as drift. A
+    # variant that the tooltip itself explains is not drift.
+    assert len(variants) == 44
     assert variants == expected
     assert {
         classification: sum(
@@ -612,7 +605,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
         for classification in (ACCURATE_SHARED, REPAIRED_TOOLTIP, CONFIG_DEFECT)
     } == {
         ACCURATE_SHARED: 21,
-        REPAIRED_TOOLTIP: 25,
+        REPAIRED_TOOLTIP: 23,
         CONFIG_DEFECT: 0,
     }
     assert all(
@@ -631,7 +624,7 @@ def test_repaired_tooltips_state_each_module_value_and_behavior():
     }
     # 25 since 2026-09-02: the six organelleb/c/d min_size entries went with
     # the fixed slot floor removed by instruction 326.
-    assert len(REPAIRED_TOOLTIP_FACTS) == 25
+    assert len(REPAIRED_TOOLTIP_FACTS) == 23
     assert set(REPAIRED_TOOLTIP_FACTS) == repaired
 
     defaults_by_app = {}

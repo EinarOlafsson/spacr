@@ -29,14 +29,14 @@ pytestmark = pytest.mark.qt
 
 #: One setting per object, none of which is that object's own switch.
 OBJECT_ROWS = ("cell_diameter", "nucleus_diameter", "pathogen_diameter",
-               "organelle_diameter", "cell_CP_prob")
+               "organelle_diameter", "cell_cellprob_threshold")
 
 FRESH_VISIBILITY = {
     "cell_diameter": True,
     "nucleus_diameter": False,
     "pathogen_diameter": False,
     "organelle_diameter": False,
-    "cell_CP_prob": True,
+    "cell_cellprob_threshold": True,
 }
 
 
@@ -149,7 +149,7 @@ def test_cell_is_never_gated_even_under_all_settings(qtbot):
     qtbot.wait(1)
 
     assert screen.setting_row_is_visible("cell_diameter") is True
-    assert screen.setting_row_is_visible("cell_CP_prob") is True
+    assert screen.setting_row_is_visible("cell_cellprob_threshold") is True
     # Optional objects are omitted until their own switch is committed.
     assert screen.setting_row_is_visible("nucleus_diameter") is False
 

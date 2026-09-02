@@ -214,7 +214,7 @@ Organelle — Minimum object area
    :alt: Organelle — Minimum object area setting animation
    :width: 300px
 
-**Settings:** ``organelle_min_area``, ``organelle_min_size``
+**Settings:** ``organelle_min_area``, ``organelle_min_area``
 
 .. _setting-animation-organelle-max-area:
 
@@ -225,7 +225,7 @@ Organelle — Maximum object area
    :alt: Organelle — Maximum object area setting animation
    :width: 300px
 
-**Settings:** ``organelle_max_area``, ``organelle_max_size``
+**Settings:** ``organelle_max_area``, ``organelle_max_area``
 
 .. _setting-animation-organelle-min-intensity-percentile:
 
@@ -305,7 +305,7 @@ Cell watershed split
    :alt: Cell watershed split setting animation
    :width: 300px
 
-**Settings:** ``cell_intensity_split``, ``cell_area_multiplier``, ``cell_min_distance``, ``cell_min_object_area``
+**Settings:** ``cell_intensity_split``, ``cell_area_multiplier``, ``cell_min_distance``, ``cell_min_split_area``
 
 .. _setting-animation-nucleus-perimeter-fraction:
 
@@ -338,7 +338,7 @@ Nucleus watershed split
    :alt: Nucleus watershed split setting animation
    :width: 300px
 
-**Settings:** ``nucleus_intensity_split``, ``nucleus_area_multiplier``, ``nucleus_min_distance``, ``nucleus_min_object_area``
+**Settings:** ``nucleus_intensity_split``, ``nucleus_area_multiplier``, ``nucleus_min_distance``, ``nucleus_min_split_area``
 
 .. _setting-animation-pathogen-perimeter-fraction:
 
@@ -371,7 +371,7 @@ Pathogen watershed split
    :alt: Pathogen watershed split setting animation
    :width: 300px
 
-**Settings:** ``pathogen_intensity_split``, ``pathogen_area_multiplier``, ``pathogen_min_distance``, ``pathogen_min_object_area``
+**Settings:** ``pathogen_intensity_split``, ``pathogen_area_multiplier``, ``pathogen_min_distance``, ``pathogen_min_split_area``
 
 .. _setting-animation-organelle-perimeter-fraction:
 
@@ -404,7 +404,7 @@ Organelle watershed split
    :alt: Organelle watershed split setting animation
    :width: 300px
 
-**Settings:** ``organelle_intensity_split``, ``organelle_area_multiplier``, ``organelle_min_distance``, ``organelle_min_object_area``
+**Settings:** ``organelle_intensity_split``, ``organelle_area_multiplier``, ``organelle_min_distance``, ``organelle_min_split_area``
 
 .. _setting-animation-fill-in:
 
@@ -425,22 +425,22 @@ Segmentation
 Cell probability threshold
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../../spacr/resources/setting_animations/gifs/cell_CP_prob.gif
+.. image:: ../../spacr/resources/setting_animations/gifs/cell_cellprob_threshold.gif
    :alt: Cell probability threshold setting animation
    :width: 300px
 
-**Settings:** ``cell_CP_prob``
+**Settings:** ``cell_cellprob_threshold``
 
 .. _setting-animation-cell-FT:
 
 Cell flow threshold
 ~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../../spacr/resources/setting_animations/gifs/cell_FT.gif
+.. image:: ../../spacr/resources/setting_animations/gifs/cell_flow_threshold.gif
    :alt: Cell flow threshold setting animation
    :width: 300px
 
-**Settings:** ``cell_FT``
+**Settings:** ``cell_flow_threshold``
 
 .. _setting-animation-cell-diameter:
 
@@ -458,22 +458,22 @@ Cell diameter
 Nucleus probability threshold
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_CP_prob.gif
+.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_cellprob_threshold.gif
    :alt: Nucleus probability threshold setting animation
    :width: 300px
 
-**Settings:** ``nucleus_CP_prob``
+**Settings:** ``nucleus_cellprob_threshold``
 
 .. _setting-animation-nucleus-FT:
 
 Nucleus flow threshold
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_FT.gif
+.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_flow_threshold.gif
    :alt: Nucleus flow threshold setting animation
    :width: 300px
 
-**Settings:** ``nucleus_FT``
+**Settings:** ``nucleus_flow_threshold``
 
 .. _setting-animation-nucleus-diameter:
 
@@ -491,22 +491,22 @@ Nucleus diameter
 Pathogen probability threshold
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_CP_prob.gif
+.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_cellprob_threshold.gif
    :alt: Pathogen probability threshold setting animation
    :width: 300px
 
-**Settings:** ``pathogen_CP_prob``
+**Settings:** ``pathogen_cellprob_threshold``
 
 .. _setting-animation-pathogen-FT:
 
 Pathogen flow threshold
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_FT.gif
+.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_flow_threshold.gif
    :alt: Pathogen flow threshold setting animation
    :width: 300px
 
-**Settings:** ``pathogen_FT``
+**Settings:** ``pathogen_flow_threshold``
 
 .. _setting-animation-pathogen-diameter:
 
@@ -535,22 +535,22 @@ Organelle diameter
 Organelle probability threshold
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../../spacr/resources/setting_animations/gifs/organelle_CP_prob.gif
+.. image:: ../../spacr/resources/setting_animations/gifs/organelle_cellprob_threshold.gif
    :alt: Organelle probability threshold setting animation
    :width: 300px
 
-**Settings:** ``organelle_CP_prob``
+**Settings:** ``organelle_cellprob_threshold``
 
 .. _setting-animation-organelle-FT:
 
 Organelle flow threshold
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../../spacr/resources/setting_animations/gifs/organelle_FT.gif
+.. image:: ../../spacr/resources/setting_animations/gifs/organelle_flow_threshold.gif
    :alt: Organelle flow threshold setting animation
    :width: 300px
 
-**Settings:** ``organelle_FT``
+**Settings:** ``organelle_flow_threshold``
 
 Image preprocessing
 -------------------
@@ -571,11 +571,11 @@ Cell background subtraction
 Cell signal-to-noise
 ~~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../../spacr/resources/setting_animations/gifs/cell_Signal_to_noise.gif
+.. image:: ../../spacr/resources/setting_animations/gifs/cell_signal_to_noise.gif
    :alt: Cell signal-to-noise setting animation
    :width: 300px
 
-**Settings:** ``cell_Signal_to_noise``
+**Settings:** ``cell_signal_to_noise``
 
 .. _setting-animation-remove-background-nucleus:
 
@@ -593,11 +593,11 @@ Nucleus background subtraction
 Nucleus signal-to-noise
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_Signal_to_noise.gif
+.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_signal_to_noise.gif
    :alt: Nucleus signal-to-noise setting animation
    :width: 300px
 
-**Settings:** ``nucleus_Signal_to_noise``
+**Settings:** ``nucleus_signal_to_noise``
 
 .. _setting-animation-remove-background-pathogen:
 
@@ -615,11 +615,11 @@ Pathogen background subtraction
 Pathogen signal-to-noise
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_Signal_to_noise.gif
+.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_signal_to_noise.gif
    :alt: Pathogen signal-to-noise setting animation
    :width: 300px
 
-**Settings:** ``pathogen_Signal_to_noise``
+**Settings:** ``pathogen_signal_to_noise``
 
 .. _setting-animation-normalization-percentiles:
 

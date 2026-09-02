@@ -105,7 +105,7 @@ def test_summarize_organelles_by_survived_the_deletion():
 # ---------------------------------------------------------------------------
 
 def test_the_crop_pipelines_zero_min_size_is_left_alone():
-    """`get_measure_crop_settings` sets organelle_min_size = 0 deliberately.
+    """`get_measure_crop_settings` sets organelle_min_area = 0 deliberately.
 
     That is a real difference between two PIPELINES, not a drift between two
     COPIES. An unscoped scan for `setdefault('organelle_*')` catches it and
@@ -115,7 +115,7 @@ def test_the_crop_pipelines_zero_min_size_is_left_alone():
     from spacr.settings import get_measure_crop_settings
 
     crop = get_measure_crop_settings({"src": "/tmp"})
-    if "organelle_min_size" not in crop:
-        pytest.skip("this pipeline no longer declares organelle_min_size")
-    assert crop["organelle_min_size"] == 0
-    assert _set_organelle_defaults({})["organelle_min_size"] == 10
+    if "organelle_min_area" not in crop:
+        pytest.skip("this pipeline no longer declares organelle_min_area")
+    assert crop["organelle_min_area"] == 0
+    assert _set_organelle_defaults({})["organelle_min_area"] == 10

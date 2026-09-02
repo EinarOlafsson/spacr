@@ -190,7 +190,7 @@ def test_merge_split_filter_masks_noop_returns_same_object_identity():
         "cell_perimeter_fraction": 0,
         "cell_intensity_merge": False,
         "cell_intensity_split": False,
-        "cell_min_object_area": 0,
+        "cell_min_split_area": 0,
         "cell_min_area": 0,
         "cell_max_area": 0,
         "cell_remove_border_objects": False,

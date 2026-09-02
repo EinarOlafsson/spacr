@@ -2,8 +2,10 @@
 EVERY SETTING AUDITED: IS IT NEEDED, IS IT A DUPLICATE, IS ITS NAME HONEST
 ================================================================================
 
-Status:    MASK AND MEASURE AUDITED 2026-09-02, awaiting the maintainer's
-           decisions. See instructions/data/364_mask_and_measure_settings_
+Status:    MASK AND MEASURE AUDITED AND THE DECISIONS IMPLEMENTED 2026-09-02.
+           The maintainer approved retiring the _size pair, all four renames,
+           and a per-object TABLE for the repeated settings. The table is the
+           only part not yet built. See instructions/data/364_mask_and_measure_settings_
            audit_2026-09-02.txt for the proposals. Nothing changed yet.
 Requested: 2026-09-02, verbatim -- "look through each moduals settings and
            evaluate if any settings are unnecessary, redundant or are not
@@ -173,3 +175,48 @@ HOW IT WILL BE CHECKED
   removal is in `RETIRED_SETTINGS`, every rename has a tooltip, and an old
   settings file still loads.
 * No setting is left whose tooltip has to define its own name.
+
+
+--------------------------------------------------------------------------------
+DECIDED AND DONE, 2026-09-02
+--------------------------------------------------------------------------------
+
+RETIRED, as approved: `organelle_min_size` and `organelle_max_size`. Both are
+in `RETIRED_SETTINGS` mapped to their `_area` counterpart, so an old settings
+file loads with a message rather than an error. The batch mask writer now
+reads the `_area` pair the Qt live preview already used, so tuning the
+preview and pressing run finally apply the SAME filter. Mask went 203 -> 201.
+
+  THE DEFAULT CARRIED OVER, NOT RESET. `organelle_min_area` is now 10 -- the
+  value the batch run actually used through the retired `_size` setting --
+  rather than the 0 the preview had. Real runs are unchanged; it is the
+  preview that stops disagreeing with them.
+
+  AND A SECOND COPY WAS FOUND WHILE DOING IT. The mask factory hand-wrote
+  `organelle_min_area`/`organelle_max_area` as 0 beside
+  `_set_organelle_defaults`, which owns them per organelle type and sets 10.
+  That shadowing is what made the preview read 0 while the batch read 10, so
+  it is the other half of the same bug and is removed.
+
+RENAMED, all four approved: 90 settings across 26 organelle slots.
+
+    <object>_FT               -> <object>_flow_threshold
+    <object>_CP_prob          -> <object>_cellprob_threshold
+    <object>_Signal_to_noise  -> <object>_signal_to_noise
+    <object>_min_object_area  -> <object>_min_split_area
+
+  Done as a SUFFIX substitution rather than 90 literal renames, because the
+  organelle slots are generated and a literal list would miss the next one.
+  497 occurrences across 60 files, plus 94 more for the retirement.
+
+  THE TOOLTIPS NOW STATE THE REAL PER-APP DEFAULTS. The surviving
+  `organelle_min_area` tooltip said "Default 0 (disabled)" while Mask's
+  default is 10 -- a claim that was already wrong and would have stayed wrong
+  silently. It now names both, which also removed two entries from the
+  tooltip-drift ledger: a variant the tooltip itself explains is not drift.
+
+STILL TO BUILD: the per-object TABLE (one row per question, one column per
+object), which the maintainer chose over tabs and over keeping the flat
+names. It is a presentation change with a settings-file migration behind it
+and it meets instruction 326 -- a new organelle should be a new COLUMN, not
+20 new settings.

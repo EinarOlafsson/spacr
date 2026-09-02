@@ -102,8 +102,8 @@ PREVIEWS: Dict[str, PreviewSpec] = {
                 "committing the plate.",
         propagation={
             "cell_diameter": "diameter",
-            "cell_FT": "flow_threshold",
-            "cell_CP_prob": "CP_prob",
+            "cell_flow_threshold": "flow_threshold",
+            "cell_cellprob_threshold": "CP_prob",
             "model_name": "model_name",
             "normalize": "normalize",
         }),
@@ -113,8 +113,8 @@ PREVIEWS: Dict[str, PreviewSpec] = {
                 "field before running the assay.",
         propagation={
             "cell_diameter": "diameter",
-            "cell_FT": "flow_threshold",
-            "cell_CP_prob": "CP_prob",
+            "cell_flow_threshold": "flow_threshold",
+            "cell_cellprob_threshold": "CP_prob",
         }),
 }
 

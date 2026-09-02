@@ -1345,7 +1345,7 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
             "the whole plate is like this seg_qc already demotes it to a "
             "warning, because it is the assay and not a defect",
             "size or probability filters removing most of what was found "
-            "(cell_min_area, the *_CP_prob thresholds)",
+            "(cell_min_area, the *_cellprob_threshold thresholds)",
             "a field that is largely outside the well",
         ),
         fix=(
@@ -1850,7 +1850,7 @@ def _gradient_findings(
                     fix=(
                         f"{ILLUMINATION_ADVICE} If the raw images look evenly "
                         f"lit, the threshold is the other suspect: check "
-                        f"<object>_CP_prob and <object>_min_area, and measure "
+                        f"<object>_cellprob_threshold and <object>_min_area, and measure "
                         f"the diameter from your own images before re-masking."
                     ),
                     plate=plate,

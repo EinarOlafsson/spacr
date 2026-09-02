@@ -35,7 +35,7 @@ def test_migrated_measure_and_object_paths_emit_no_future_warning():
     label[4:16, 4:16] = 1
     image = np.arange(400, dtype=float).reshape(20, 20)
     settings = {
-        "organelle_min_size": 3,
+        "organelle_min_area": 3,
         "organelle_tophat_radius": 1,
         "organelle_watershed_spots": False,
         "organelle_adaptive_block_size": 5,

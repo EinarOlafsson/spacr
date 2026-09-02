@@ -1733,29 +1733,29 @@ class TestRuntimePanels:
         scr = _make_screen(qtbot, "mask")
         before = scr._settings_model.collect()
         scr._propagate_live_settings({
-            "cell_CP_prob": 3,          # QSpinBox
-            "cell_FT": 0.75,            # QDoubleSpinBox
+            "cell_cellprob_threshold": 3,          # QSpinBox
+            "cell_flow_threshold": 0.75,            # QDoubleSpinBox
             "normalize": False,         # QCheckBox
             "cell_diameter": 37,        # free-text field (default is None)
             "metadata_type": "cq1",     # QComboBox
             "not_a_setting_here": 1,    # unknown -> silently skipped
         })
         out = scr._settings_model.collect()
-        assert out["cell_CP_prob"] == 3
-        assert out["cell_FT"] == pytest.approx(0.75)
+        assert out["cell_cellprob_threshold"] == 3
+        assert out["cell_flow_threshold"] == pytest.approx(0.75)
         assert out["normalize"] is False
         assert out["metadata_type"] == "cq1"
         assert str(out["cell_diameter"]) == "37"
         # Nothing else was disturbed.
         moved = {k for k in before if before[k] != out[k]}
-        assert moved == {"cell_CP_prob", "cell_FT", "normalize",
+        assert moved == {"cell_cellprob_threshold", "cell_flow_threshold", "normalize",
                          "cell_diameter", "metadata_type"}
 
     def test_propagate_live_settings_without_a_model(self, qtbot):
         scr = _make_screen(qtbot, "mask")
         model, scr._settings_model = scr._settings_model, None
         before = model.collect()
-        scr._propagate_live_settings({"cell_FT": 0.1})   # must not raise
+        scr._propagate_live_settings({"cell_flow_threshold": 0.1})   # must not raise
         assert model.collect() == before
 
     def test_console_target_registration_failure_does_not_break_the_screen(

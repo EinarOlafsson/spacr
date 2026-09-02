@@ -927,7 +927,7 @@ def test_project_mode_filters_against_the_projection_it_segmented(
     settings = _base_settings(
         src, z_stack=True, z_segmentation_mode="project", z_projection="max",
         # force merge/split/filter to actually run
-        cell_min_object_area=1,
+        cell_min_split_area=1,
     )
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
 
@@ -952,7 +952,7 @@ def test_the_3d_modes_skip_the_2d_merge_split_filter_step(tmp_path, fake_model,
 
     settings = _base_settings(
         src, z_stack=True, z_segmentation_mode="volumetric", anisotropy=2.0,
-        cell_min_object_area=1,
+        cell_min_split_area=1,
     )
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
 

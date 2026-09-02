@@ -213,9 +213,9 @@ def _settings(src, **over):
         "timelapse": False,
         "n_jobs": 1,
         # keep merge/split/filter a no-op unless a test asks for it
-        "cell_min_object_area": 0,
-        "nucleus_min_object_area": 0,
-        "pathogen_min_object_area": 0,
+        "cell_min_split_area": 0,
+        "nucleus_min_split_area": 0,
+        "pathogen_min_split_area": 0,
     }
     s.update(over)
     return s
@@ -270,8 +270,8 @@ def test_basic_run_writes_masks_counts_and_uses_cpu_model(tmp_path, fake_model,
     assert kw["progress"] is True
     assert kw["min_size"] == 0          # cell_min_area default
     assert kw["resample"] is True       # _get_object_settings('cell')
-    assert kw["flow_threshold"] == 1.0  # cell_FT default
-    assert kw["cellprob_threshold"] == 0  # cell_CP_prob default
+    assert kw["flow_threshold"] == 1.0  # cell_flow_threshold default
+    assert kw["cellprob_threshold"] == 0  # cell_cellprob_threshold default
 
     # two-channel stack -> both cellpose channels handed to the model
     imgs = model.eval_inputs[0]

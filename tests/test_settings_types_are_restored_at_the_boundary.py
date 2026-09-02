@@ -81,7 +81,7 @@ def test_blank_and_unknown_keys_are_left_alone():
 
 
 def test_values_that_are_already_typed_are_returned_unchanged():
-    raw = {"cell_diameter": 60, "normalize": True, "cell_CP_prob": 0.5}
+    raw = {"cell_diameter": 60, "normalize": True, "cell_cellprob_threshold": 0.5}
     assert coerce_expected_types(raw, "mask") == raw
 
 

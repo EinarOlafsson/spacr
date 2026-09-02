@@ -260,7 +260,7 @@ def test_the_visible_count_went_down_and_this_is_the_number():
     Instruction 72 took it to 6; instruction 73 then pulled the shared
     families -- object filtration, intensity handling and the per-object
     image preprocessing -- out to headings of their own, because
-    `organelle_min_size` and `cell_min_size` are one decision applied to two
+    `organelle_min_area` and `cell_min_size` are one decision applied to two
     objects rather than two unrelated knobs. What is left under Organelle is
     the channel-shaped choices only.
 

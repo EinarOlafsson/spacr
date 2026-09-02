@@ -1341,8 +1341,8 @@ class TestPanelSettings:
         assert s["model_name"] == "cpsam"
         assert s["cell_channel"] == 1 and s["nucleus_channel"] == 2
         assert s["cell_diameter"] == pytest.approx(25.0)
-        assert s["cell_FT"] == pytest.approx(0.33)
-        assert s["cell_CP_prob"] == pytest.approx(1.5)
+        assert s["cell_flow_threshold"] == pytest.approx(0.33)
+        assert s["cell_cellprob_threshold"] == pytest.approx(1.5)
         assert s["normalize"] is True
         assert s["lower_percentile"] == pytest.approx(3.0)
 

@@ -29,7 +29,7 @@ SAMPLE = (
     "t_project_for_tracking",
     "pathogen_perimeter_fraction",
     "organelle_perimeter_fraction",
-    "nucleus_Signal_to_noise",
+    "nucleus_signal_to_noise",
     "nucleus_max_area",
     "normalization_percentiles",
     "organelle_max_intensity_percentile",

@@ -276,7 +276,7 @@ def test_an_imported_diameter_alone_re_reads_the_size_dependent_values():
     untouched = _organelle_panel()
     untouched._organelle_preset_owned["organelle"] = {
         "organelle_morphology": "spots"}
-    untouched.apply_organelle_presets_from_mapping({"organelle_min_size": 5})
+    untouched.apply_organelle_presets_from_mapping({"organelle_min_area": 5})
 
     assert untouched._widgets["organelle_morphology"].text() == "spots"
 

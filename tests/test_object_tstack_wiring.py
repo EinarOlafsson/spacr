@@ -548,7 +548,7 @@ def test_a_projected_4d_run_gives_one_2d_mask_per_timepoint(tmp_path,
     settings = _base_settings(
         src, t_stack=True, t_axis_order="TZYX",
         z_segmentation_mode="project", z_projection="max",
-        cell_min_object_area=1,          # force merge/split/filter to run
+        cell_min_split_area=1,          # force merge/split/filter to run
     )
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
 
@@ -567,7 +567,7 @@ def test_project_mode_filters_against_the_projection_it_segmented(
 
     settings = _base_settings(
         src, t_stack=True, t_axis_order="TZYX",
-        z_segmentation_mode="project", cell_min_object_area=1,
+        z_segmentation_mode="project", cell_min_split_area=1,
     )
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
 
@@ -588,7 +588,7 @@ def test_the_volumetric_4d_modes_skip_the_2d_merge_split_filter_step(
     settings = _base_settings(
         src, t_stack=True, t_axis_order="TZYX",
         z_segmentation_mode="volumetric", anisotropy=2.0,
-        cell_min_object_area=1,
+        cell_min_split_area=1,
     )
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
 

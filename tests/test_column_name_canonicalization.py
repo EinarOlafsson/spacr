@@ -77,7 +77,7 @@ def _run_measure_crop(root):
         'crop_mode': ['cell'], 'normalize': [1, 99], 'normalize_by': 'png',
         'experiment': 'exp', 'n_jobs': 1, 'test_mode': False, 'cytoplasm': True,
         'cell_min_size': 0, 'nucleus_min_size': 0, 'pathogen_min_size': 0,
-        'organelle_min_size': 0, 'number_of_organelles': 1,
+        'organelle_min_area': 0, 'number_of_organelles': 1,
     })
     measure_crop(dict(settings))
     return os.path.join(root, 'measurements', 'measurements.db')

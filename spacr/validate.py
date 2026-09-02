@@ -1019,6 +1019,14 @@ _APP_EXTRA_KEYS: Dict[str, frozenset] = {
 #: recorded as such; a guess here would send a user to a name that is also
 #: not read.
 RETIRED_SETTINGS: Dict[str, str] = {
+    # ONE FILTER FOR THE PREVIEW AND THE RUN. organelle carried both a
+    # `_size` pair and an `_area` pair meaning the same thing, and they were
+    # read by DIFFERENT code: `_size` by the batch mask writer, `_area` by
+    # the shared filter the Qt live preview uses. So tuning the preview until
+    # it looked right and then pressing run applied a different filter, with
+    # nothing saying so. cell, nucleus and pathogen only ever had `_area`.
+    "organelle_min_size": "organelle_min_area",
+    "organelle_max_size": "organelle_max_area",
     "minimum_cell_count": "min_cell_count",
     "redunction_method": "reduction_method",
     "barcode_coordinates": "",
@@ -1163,14 +1171,14 @@ def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
                     f"Set {key} between 0 and 100."))
 
         # cellprob_threshold is clamped to about -6..6 by Cellpose itself.
-        if number is not None and (key.endswith("_CP_prob") or key in ("CP_prob", "CP_probability")):
+        if number is not None and (key.endswith("_cellprob_threshold") or key in ("CP_prob", "CP_probability")):
             if not -6 <= number <= 6:
                 problems.append(Problem(
                     WARNING, key, f"{key}={value} is outside Cellpose's usable -6 to 6 range.",
                     "Lower it toward -6 to grow masks and keep faint objects; raise it toward 6 to shrink them."))
 
         # flow_threshold: 0 keeps only perfect masks, above ~3 keeps everything.
-        if number is not None and (key.endswith("_FT") or key in ("FT", "flow_threshold")):
+        if number is not None and (key.endswith("_flow_threshold") or key in ("FT", "flow_threshold")):
             if not 0 <= number <= 3:
                 problems.append(Problem(
                     WARNING, key, f"{key}={value} is outside the useful 0 to 3 flow-threshold range.",

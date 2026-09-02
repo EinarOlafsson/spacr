@@ -119,7 +119,7 @@ def test_the_worker_is_asked_for_a_compartment_it_knows(panel, language):
     settings = panel.settings_for_propagation()
     for compartment in ("cell", "nucleus"):
         assert f"remove_background_{compartment}" in settings
-        assert f"{compartment}_Signal_to_noise" in settings
+        assert f"{compartment}_signal_to_noise" in settings
     assert not [key for key in settings if key.startswith("cellen")]
 
 

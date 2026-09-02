@@ -82,8 +82,8 @@ def test_build_object_settings_uses_all_expected_keys():
     src = {
         "organelle_model_name": "cyto3",
         "organelle_diameter": 30,
-        "organelle_min_size": 12,
-        "organelle_max_size": 500,
+        "organelle_min_area": 12,
+        "organelle_max_area": 500,
         "organelle_resample": False,
         "organelle_remove_border": True,
     }
@@ -142,7 +142,7 @@ def _spot_settings(**overrides):
     base = {
         "organelle_tophat_radius": 3,
         "organelle_watershed_spots": False,
-        "organelle_min_size": 5,
+        "organelle_min_area": 5,
         "organelle_adaptive_block_size": 51,
         "organelle_adaptive_offset": -0.01,
         "organelle_log_min_sigma": 1.5,

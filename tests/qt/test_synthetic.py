@@ -138,7 +138,7 @@ def test_mask_demo_settings_can_be_reloaded_by_spacr(tmp_path: Path):
 
 
 def test_mask_demo_spells_signal_to_noise_the_way_spacr_reads_it(tmp_path: Path):
-    """`cell_signal_to_noise` is not a spaCR setting; `cell_Signal_to_noise` is.
+    """`cell_signal_to_noise` is not a spaCR setting; `cell_signal_to_noise` is.
 
     The lowercase spelling was accepted, ignored and the default silently used
     in its place — the exact failure mode spacr.validate exists to stop.
@@ -146,7 +146,7 @@ def test_mask_demo_spells_signal_to_noise_the_way_spacr_reads_it(tmp_path: Path)
     from spacr.validate import _known_setting_keys
     settings = syn.demo_settings("mask", str(tmp_path))
     assert "cell_signal_to_noise" not in settings
-    assert settings["cell_Signal_to_noise"] == 10
+    assert settings["cell_signal_to_noise"] == 10
     known = _known_setting_keys()
     assert set(settings) <= known | {"src"}, (
         "mask demo ships keys spaCR does not declare: "

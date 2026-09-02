@@ -372,11 +372,11 @@ def test_rolling_ball_and_clahe_preprocessing_still_finds_blobs(tmp_path):
 # --------------------------------------------------------------------------- #
 
 def test_max_size_filter_empties_masks_and_reports_zero_stats(tmp_path, capsys):
-    """Every object is larger than organelle_max_size -> empty stack, 0 counts."""
+    """Every object is larger than organelle_max_area -> empty stack, 0 counts."""
     src = tmp_path / "masks"
     _make_npz(str(src), ["f1.npy"])
 
-    _run(src, _base_settings(organelle_max_size=5))
+    _run(src, _base_settings(organelle_max_area=5))
 
     out = capsys.readouterr().out
     assert "Found 0.0 organelle/FOV" in out
@@ -484,7 +484,7 @@ def test_other_morphologies_run_end_to_end(tmp_path, morphology, method):
 
     _run(src, _base_settings(organelle_morphology=morphology,
                              organelle_method=method,
-                             organelle_min_size=5))
+                             organelle_min_area=5))
 
     mask = np.load(src / "organelle_mask_stack" / "f1.npy")
     assert mask.shape == (64, 64)
@@ -661,7 +661,7 @@ def test_unet_multichannel_logits_and_skeletonize(tmp_path):
     _run(src, _base_settings(organelle_morphology="network",
                              organelle_method="unet",
                              organelle_skeletonize=True,
-                             organelle_min_size=1,
+                             organelle_min_area=1,
                              organelle_unet_model_path=model_path))
 
     mask = np.load(src / "organelle_mask_stack" / "f1.npy")
@@ -731,8 +731,8 @@ def test_build_object_settings_maps_organelle_keys():
     settings = {
         "organelle_model_name": "cpsam",
         "organelle_diameter": 17,
-        "organelle_min_size": 3,
-        "organelle_max_size": 900,
+        "organelle_min_area": 3,
+        "organelle_max_area": 900,
         "organelle_resample": False,
         "organelle_remove_border": True,
     }
