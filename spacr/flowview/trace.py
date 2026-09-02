@@ -221,6 +221,15 @@ class _StageSpec:
 
         @functools.wraps(function)
         def traced(*args: Any, **kwargs: Any) -> Any:
+            """Call the captured function with optional stage tracing.
+
+            :param args: positional arguments forwarded unchanged.
+            :param kwargs: keyword arguments forwarded unchanged.
+            :returns: the captured function's result. Enablement is rechecked
+                at invocation time; enabled calls run inside a fresh stage
+                runtime, which records completion or failure while preserving
+                the original exception.
+            """
             if not is_enabled():
                 return function(*args, **kwargs)
             with _StageRuntime(self):
