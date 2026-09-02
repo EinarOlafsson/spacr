@@ -101,8 +101,7 @@ import os
 import re
 import textwrap
 from dataclasses import dataclass, field
-from typing import (Any, Callable, Dict, List, Mapping, NamedTuple, Optional,
-                    Tuple)
+from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -110,11 +109,21 @@ from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
 
 from . import schema
-from .figures.style import (ROLES, TRANSPARENT, TYPE_SCALE, WEIGHTS, annotate,
-                            descriptor, figure_style, reference_line,
-                            resolve_ink, resolve_label_ground, rotate_ticks,
-                            text_legend,
-                            theme_target)
+from .figures.style import (
+    ROLES,
+    TRANSPARENT,
+    TYPE_SCALE,
+    WEIGHTS,
+    annotate,
+    descriptor,
+    figure_style,
+    reference_line,
+    resolve_ink,
+    resolve_label_ground,
+    rotate_ticks,
+    text_legend,
+    theme_target,
+)
 
 __all__ = [
     "OLS_ASSUMPTION_PANELS",
@@ -603,6 +612,13 @@ def condition_number(X):
     raw_sv = np.linalg.svd(Xm, compute_uv=False)
 
     def _ratio(sv):
+        """Convert descending singular values to a stable condition number.
+
+        :param sv: non-empty descending singular-value array from the design.
+        :returns: largest divided by smallest as a float, or infinity when the
+            smallest is at or below NumPy's numerical-rank tolerance computed
+            from its dtype and the captured design shape.
+        """
         # LAPACK implementations do not all return an exact zero for the
         # same rank-deficient matrix. Use the numerical-rank threshold behind
         # ``numpy.linalg.matrix_rank`` so a duplicated predictor is singular
