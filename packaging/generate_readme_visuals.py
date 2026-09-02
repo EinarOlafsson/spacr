@@ -41,6 +41,9 @@ README_PATHS = (
     ROOT / "README.rst",
     *(ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"),
 )
+LANGUAGE_PICKER_PAGE = ROOT / "docs" / "i18n" / "readme" / "README.md"
+LANGUAGE_PICKER_BEGIN = ".. spacr-language-picker-begin"
+LANGUAGE_PICKER_END = ".. spacr-language-picker-end"
 WORKFLOW_BEGIN = ".. spacr-workflow-begin"
 WORKFLOW_END = ".. spacr-workflow-end"
 MODEL_ZOO_BEGIN = ".. spacr-model-zoo-begin"
@@ -732,6 +735,194 @@ def _model_zoo_table() -> str:
     return "\n".join(lines)
 
 
+#: "Languages" written in each translated README's own language.
+#:
+#: A DELIBERATE MIRROR of ``LANGUAGE_PICKER_LABELS`` in
+#: ``tools/build_documentation_i18n.py``. Two generators write this label:
+#: that one when a translated README is rebuilt from the English source, this
+#: one when the picker block is regenerated, and if the two ever disagree a
+#: regeneration would quietly put the English word "Languages:" back at the
+#: top of the Swedish page. It is copied rather than imported because that
+#: module imports ``build_i18n_catalogs`` by bare name and is therefore only
+#: importable with ``tools/`` on ``sys.path`` -- which a packaging script
+#: should not be arranging. ``tests/test_the_language_picker_is_a_dropdown.py``
+#: fails if the two tables drift apart.
+LANGUAGE_PICKER_LABELS = {
+    "en": "Languages",
+    "sv": "Språk",
+    "de": "Sprachen",
+    "es": "Idiomas",
+    "zh_CN": "语言",
+    "pt": "Idiomas",
+    "hi": "भाषाएँ",
+    "ko": "언어",
+    "is": "Tungumál",
+    "fr": "Langues",
+}
+
+#: The locales a fluent speaker actually read, recorded by instruction 316.
+#:
+#: The other six -- es, zh_CN, pt, hi, ko, fr -- are machine drafts nobody
+#: who speaks them has checked, and instruction 357's fourth guideline
+#: forbids implying otherwise. A picker is exactly where that difference has
+#: to be visible: a menu of ten languages with nothing said about them is
+#: itself the claim that all ten are equally good.
+SPOT_CHECKED_LOCALES = ("sv", "de", "is")
+
+#: The caret is what makes the link read as a control rather than as one more
+#: link in a row. It is a plain character, not markup: GitHub gives a README
+#: no CSS of its own, so a real menu affordance cannot be drawn here.
+PICKER_CARET = "\u25be"
+PICKER_GLOBE = "\U0001f310"
+
+
+def _languages() -> list:
+    """The ten shipped languages, from the registry the application uses.
+
+    ``spacr.qt.i18n.LANGUAGES`` is the only list of what spaCR ships, and it
+    already carries both spellings of each name. Retyping the native names
+    here is how a picker ends up offering a language the Preferences dialog
+    does not have, or spelling it differently from the way the application
+    does.
+    """
+    from spacr.qt.i18n import LANGUAGES
+
+    return list(LANGUAGES)
+
+
+def _language_picker_line(code: str) -> str:
+    """The one-line language control for one README.
+
+    ONE LINK, NOT TEN. The nine side-by-side links this replaces were the
+    first thing under the title on every page, and the request was for a
+    menu instead. The link shows the language you are reading now, which is
+    the label a language switcher carries everywhere else, and the leading
+    word is localized so a reader who cannot read the link text still meets
+    the word "language" in their own.
+
+    ``Languages:`` must stay the first token of the English line:
+    ``translatable_blocks`` in ``tools/build_documentation_i18n.py`` keys on
+    exactly that prefix to hold the picker out of the translation model, and
+    a picker that goes through a model comes back with its RST delimiters
+    rearranged.
+    """
+    label = LANGUAGE_PICKER_LABELS[code]
+    native = {language.code: language.native_name
+              for language in _languages()}[code]
+    # The English README sits at the repository root and the translated ones
+    # sit beside the picker page, so the same page has two relative paths.
+    target = ("docs/i18n/readme/README.md" if code == "en" else "README.md")
+    return f"{label}: `{PICKER_GLOBE} {native} {PICKER_CARET} <{target}>`_"
+
+
+def _language_picker_page() -> str:
+    """The picker itself: a ``<details>`` menu on a Markdown page.
+
+    WHY THE MENU IS NOT ON THE FRONT PAGE, measured on 2026-09-02 rather
+    than assumed. GitHub renders ``README.rst`` through docutils with
+    github/markup's settings, and those set ``raw_enabled=False``:
+
+    * ``.. raw:: html`` is refused. Rendered locally with those exact
+      settings it emits a "raw directive disabled" system message, and on
+      github.com the block is printed as a literal ``<pre>`` of escaped
+      HTML -- checked on a real rendered page, dask/dask's
+      ``docs/source/index.rst``, fetched through the contents API with
+      ``Accept: application/vnd.github.html``, which is the renderer the
+      site itself uses.
+    * ``<details>`` typed straight into the RST is escaped to a visible
+      ``&lt;details&gt;``, because to docutils it is not HTML at all, only
+      text with angle brackets in it.
+
+    So a collapsible menu cannot exist in a reStructuredText README, and no
+    JavaScript runs in one either. It CAN exist in Markdown: posting this
+    page's exact shape to ``api.github.com/markdown`` with ``mode=gfm``
+    returns ``<details open="">`` with the table nested inside it, so what is
+    written here is GitHub's own rendering rather than a hope about it.
+
+    THE MENU IS ``open``. This page has nothing else on it, and a reader who
+    followed a link to reach the languages should not have to click a second
+    time to see them. Collapsing it is still theirs to do.
+
+    The status column is not decoration: nine of these are machine drafts,
+    three of those were sampled by a fluent speaker, and instruction 316
+    requires the difference to be visible wherever the translations are
+    offered.
+    """
+    english_status = "Source text. Every other README is translated from it."
+    rows = []
+    for language in _languages():
+        target = ("../../../README.rst" if language.code == "en"
+                  else f"README.{language.code}.rst")
+        name = f"[{language.native_name}]({target})"
+        if language.native_name != language.english_name:
+            name = f"{name} ({language.english_name})"
+        if language.code == "en":
+            status = english_status
+        elif language.code in SPOT_CHECKED_LOCALES:
+            status = (
+                "Machine draft. A fluent speaker read a sample and their "
+                "corrections are kept."
+            )
+        else:
+            status = "Machine draft. No fluent-speaker review."
+        rows.append(f"| {name} | {status} |")
+    return "\n".join([
+        "<!-- Generated by packaging/generate_readme_visuals.py.",
+        "     Edit that generator, not this file. -->",
+        "",
+        "# spaCR in your language",
+        "",
+        "<details open>",
+        f"<summary><b>{PICKER_GLOBE} Choose a language</b></summary>",
+        "",
+        "| Language | Translation |",
+        "| --- | --- |",
+        *rows,
+        "",
+        "</details>",
+        "",
+        "Every spaCR README links here, so a reader who lands in the wrong",
+        "language is one click from the right one.",
+        "",
+        "English is the source text: where a translation and the English",
+        "README disagree, the English one is right. The models that drafted",
+        "the translations and their licenses are listed in",
+        "[TRANSLATION_MODELS.md](../TRANSLATION_MODELS.md), and the measured",
+        "per-locale coverage in [COVERAGE.md](../COVERAGE.md).",
+        "",
+        "The front page carries a single link to this page rather than the",
+        "menu itself because `README.rst` is reStructuredText: GitHub renders",
+        "it with raw HTML disabled, so `<details>` is printed as text there",
+        "and only renders here, in Markdown.",
+        "",
+    ])
+
+
+def _write_the_language_picker(path) -> bool:
+    """Replace the marked language-picker block in one README.
+
+    Between markers for the reason every other generated block here is: a
+    regeneration has to be able to REPLACE what it wrote last time, and
+    finding that by content is how a generator ends up with two pickers in
+    one file.
+    """
+    text = path.read_text(encoding="utf-8")
+    start = text.find(LANGUAGE_PICKER_BEGIN)
+    end = text.find(LANGUAGE_PICKER_END)
+    if start < 0 or end < 0:
+        return False
+    end += len(LANGUAGE_PICKER_END)
+    match = re.fullmatch(r"README\.(?P<language>[^.]+)\.rst", path.name)
+    code = match.group("language") if match else "en"
+    line = _language_picker_line(code)
+    block = (f"{LANGUAGE_PICKER_BEGIN}\n\n{line}\n\n"
+             f"{LANGUAGE_PICKER_END}")
+    updated = text[:start] + block + text[end:]
+    if updated != text:
+        path.write_text(updated, encoding="utf-8")
+    return True
+
+
 def _write_the_model_zoo_table(path) -> bool:
     """Replace the marked model-zoo block in ``path``.
 
@@ -1138,10 +1329,17 @@ def main() -> int:
     print(HARDWARE_TABLE.relative_to(ROOT))
     MODEL_ZOO_TABLE.write_text(_model_zoo_table() + "\n", encoding="utf-8")
     print(MODEL_ZOO_TABLE.relative_to(ROOT))
+    # The picker page before the pickers that point at it, so a fresh
+    # checkout never has ten links to a file that is not there yet.
+    LANGUAGE_PICKER_PAGE.parent.mkdir(parents=True, exist_ok=True)
+    LANGUAGE_PICKER_PAGE.write_text(_language_picker_page(), encoding="utf-8")
+    print(LANGUAGE_PICKER_PAGE.relative_to(ROOT))
     for readme_path in README_PATHS:
         if _write_the_hardware_table(readme_path):
             print(readme_path.relative_to(ROOT))
         if _write_the_model_zoo_table(readme_path):
+            print(readme_path.relative_to(ROOT))
+        if _write_the_language_picker(readme_path):
             print(readme_path.relative_to(ROOT))
     print(DOC_FOLDS.relative_to(ROOT))
     print(DOC_WORKFLOW.relative_to(ROOT))

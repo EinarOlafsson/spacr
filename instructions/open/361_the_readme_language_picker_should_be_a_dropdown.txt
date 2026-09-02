@@ -2,7 +2,10 @@
 THE README'S LANGUAGE PICKER: A DROPDOWN, AND WHY IT CANNOT STAY ON THE PAGE
 ================================================================================
 
-Status:    not started, filed 2026-09-02.
+Status:    IMPLEMENTED 2026-09-02, not yet pushed. Kept open until the
+           front page has been read on github.com after the push, which
+           is the one success criterion below that a local checkout
+           cannot satisfy. See RESULT at the end of this file.
 Requested: 2026-09-02, verbatim -- "for the readme translations on the github
            page when another language is chosen the user gets taken to a page.
            is it possible to set it up so they stay on the github nightly or
@@ -76,3 +79,126 @@ HOW IT WILL BE CHECKED
 * The control survives a regeneration of the i18n documentation.
 * This file records that staying on the same page is impossible on
   github.com, so the question is answered rather than reopened.
+
+--------------------------------------------------------------------------------
+RESULT (2026-09-02)
+--------------------------------------------------------------------------------
+
+Done, and the file's first premise had to be corrected before anything could
+be built: THE DROPDOWN CANNOT BE ON THE FRONT PAGE, because the front page is
+`README.rst` and GitHub renders reStructuredText with raw HTML switched off.
+The WATCH section asked for that to be measured rather than assumed, so it was
+measured three ways, twice against GitHub itself.
+
+  1. LOCALLY, with github/markup's own docutils settings -- the same dict
+     `tests/test_readme_installer_icons.py` has pinned since instruction 120,
+     `raw_enabled=False` included. A `.. raw:: html` block containing
+     `<details>` renders as a system message reading `"raw" directive
+     disabled` with the HTML printed underneath it in a literal block.
+     `<details>` typed straight into the RST is escaped to visible
+     `&lt;details&gt;` text, because docutils never sees it as HTML.
+
+  2. ON A REAL GITHUB PAGE, which is what this file asked for. GitHub's
+     contents API renders any file with the site's own renderer:
+
+         curl -H "Accept: application/vnd.github.html" \
+           https://api.github.com/repos/dask/dask/contents/docs/source/index.rst
+
+     dask's `index.rst` has a `.. raw:: html` block with a video embed in it.
+     GitHub returns that block as a `<pre>` of escaped HTML -- the raw markup
+     PRINTED ON THE PAGE, worse than dropped. So the answer is not a local
+     renderer's opinion.
+
+  3. THE MARKDOWN SIDE, also against GitHub. Posting the new picker page to
+     `api.github.com/markdown` with `mode=gfm` returns `<details open="">`
+     wrapping the language table, so `<details>`/`<summary>` -- and the `open`
+     attribute -- survive GitHub's Markdown sanitizer. The menu is real
+     wherever the page is Markdown.
+
+WHAT SHIPPED
+
+* THE MENU MOVED TO `docs/i18n/readme/README.md`, a new generated Markdown
+  page: one `<details open>` menu listing all ten languages, each row saying
+  what its translation actually is. Named `README.md` deliberately, for two
+  reasons. GitHub renders a directory's README.md when the folder is browsed,
+  so the folder of translated READMEs now introduces itself; and
+  `tools/build_documentation_i18n.py` already rewrites the prefix
+  `docs/i18n/readme/README.` to `README.` when it builds a translated README,
+  so the link resolves from inside that folder with no change to that tool.
+
+* THE FRONT PAGE, and each of the nine translated READMEs, carries ONE link
+  where ten used to sit:
+
+      Languages: `🌐 English ▾ <docs/i18n/readme/README.md>`_
+      Språk: `🌐 Svenska ▾ <README.md>`_
+
+  The link names the language the reader is already in, which is what a
+  language switcher shows everywhere else, and the word before it is
+  localized. `Languages:` stays the first token of the English line because
+  `translatable_blocks` keys on exactly that prefix to hold the picker out of
+  the translation model.
+
+* THE GENERATOR IS `packaging/generate_readme_visuals.py`, which already owns
+  every other marker-delimited block in the ten READMEs. It gained
+  `_language_picker_line`, `_language_picker_page` and
+  `_write_the_language_picker`, and writes the block between
+  `.. spacr-language-picker-begin/end`. The ten language names come from
+  `spacr.qt.i18n.LANGUAGES`, the registry Preferences uses, so the picker
+  cannot offer a language the application does not have.
+
+  ONLY THE PICKER HALF OF THAT GENERATOR WAS RUN. Its `main()` also redraws
+  every workflow tile and logo under `spacr/resources/icons/`, which is
+  outside this item and was being edited in parallel; the picker functions
+  were run over all ten READMEs and the page instead, and a test asserts a
+  full run would change nothing.
+
+* HONEST PER LOCALE, as instruction 316 requires. The menu's second column
+  says "Source text" for English, "Machine draft. A fluent speaker read a
+  sample and their corrections are kept." for sv, de and is, and "Machine
+  draft. No fluent-speaker review." for the six locales the reviewer did not
+  claim. A menu of ten languages with nothing said about them is itself the
+  claim that all ten are equally good.
+
+* `tests/test_the_language_picker_is_a_dropdown.py`, 28 tests, all passing.
+  It renders the probes above through github/markup's docutils settings so
+  the rule is pinned rather than remembered; it refuses `<details>`,
+  `<summary>`, `.. raw:: html` and `<script>` in any `.rst` README; it asserts
+  the front page renders exactly one language link and no `README.<lang>.rst`
+  links at all; it asserts each README's block is byte-for-byte what the
+  generator writes; and it asserts the two label tables -- this generator's
+  and `LANGUAGE_PICKER_LABELS` in `tools/build_documentation_i18n.py` -- agree,
+  because both write that word and the loser of a disagreement would put
+  "Languages:" back on the Swedish page.
+
+THE SECOND QUESTION IS ANSWERED AND SHOULD NOT BE REOPENED. Choosing a
+language still navigates. Nothing about this change makes the reader stay on
+github.com/EinarOlafsson/spacr, because a README is static HTML served by
+GitHub: no script from the file runs, no cookie is set, no Accept-Language
+header is read. What the change does buy is the thing the file called the
+honest scope -- one compact control instead of ten links, and a destination
+that is one click from every other language rather than a dead end.
+
+WHAT WAS NOT DONE, deliberately.
+
+* `docs/i18n/COVERAGE.md` was NOT regenerated. Its "README bytes" column is
+  now ~2.2 kB per locale out of date, but regenerating it rewrites the
+  runtime and API columns too (4983/4983 -> 4860/5099, 8861 -> 8896/9208):
+  that file was last written 242 commits ago and is already stale for reasons
+  that have nothing to do with this item, and sweeping that churn into this
+  change would hide it. `test_checked_in_coverage_report_is_the_live_source_
+  report` is red before and after.
+
+* The success criterion "checked on the real page" is satisfied for the
+  MECHANISM but not yet for this repository's own front page, which still
+  serves the old ten links until this branch is pushed. Fetching
+  `api.github.com/repos/EinarOlafsson/spacr/readme` with
+  `Accept: application/vnd.github.html` after the push renders it exactly as
+  the site does, and is how to confirm.
+
+PRE-EXISTING FAILURES SEEN WHILE VERIFYING, none of them from this change and
+each confirmed against `git show HEAD:`: the README never mentions
+`spacr-download`; the nine translated READMEs each carry one RST error,
+`Unknown target name: "citing spacr"`; `conda install` now sits after
+`python -m pip install` in all ten; the API docstring inventory has moved from
+8,861 to 9,213 symbols; and the module registry the localized-image test
+counts reads 21 where it expects 44.

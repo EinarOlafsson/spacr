@@ -44,15 +44,11 @@
 spaCR
 =====
 
-भाषाएँ: `English <../../../README.rst>`_ · `Svenska <README.sv.rst>`_ ·
-`Deutsch <README.de.rst>`_ ·
-`Español <README.es.rst>`_ ·
-`简体中文 <README.zh_CN.rst>`_ ·
-`Português <README.pt.rst>`_ ·
-`हिन्दी <README.hi.rst>`_ ·
-`한국어 <README.ko.rst>`_ ·
-`Íslenska <README.is.rst>`_ ·
-`Français <README.fr.rst>`_
+.. spacr-language-picker-begin
+
+भाषाएँ: `🌐 हिन्दी ▾ <README.md>`_
+
+.. spacr-language-picker-end
 
 **CRISPR स्क्रीनिंग का स्थानिक फीनोटाइप विश्लेषण।**
 
