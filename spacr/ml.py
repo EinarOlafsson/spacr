@@ -7674,6 +7674,87 @@ def _write_regression_diagnostics(res_folder, fractions, fits, settings):
     return written
 
 
+def _write_regression_panel_packages(outcome, settings):
+    """Build requested publication panels from this run's final CSV files."""
+    manifest = settings.get("regression_panel_manifest")
+    if manifest is None:
+        return None
+    settings["_regression_stage"] = "writing publication panel packages"
+    if not isinstance(outcome, dict):
+        raise TypeError("A regression panel manifest needs a mapping outcome")
+
+    raw_folder = (
+        outcome.get("res_folder")
+        or settings.get("_regression_folder")
+        or ""
+    )
+    if not raw_folder:
+        raise ValueError("A regression panel manifest needs a results folder")
+    res_folder = os.path.abspath(os.fspath(raw_folder))
+    settings["_regression_folder"] = res_folder
+
+    paths = outcome.get("paths")
+    paths = paths if isinstance(paths, dict) else {}
+    final_paths = {
+        "grna": os.path.abspath(os.fspath(
+            paths.get("results_grna")
+            or os.path.join(res_folder, "results_grna.csv")
+        )),
+        "gene": os.path.abspath(os.fspath(
+            paths.get("results_gene")
+            or os.path.join(res_folder, "results_gene.csv")
+        )),
+    }
+    missing = [path for path in final_paths.values() if not os.path.isfile(path)]
+    if missing:
+        raise FileNotFoundError(
+            "Regression panel source files do not exist: " + ", ".join(missing)
+        )
+
+    configured = settings.get("dependent_variable")
+    phenotypes = [configured] if isinstance(configured, str) else list(configured)
+    if not phenotypes or any(not isinstance(value, str) or not value.strip()
+                             for value in phenotypes):
+        raise ValueError(
+            "regression_panel_manifest needs one or more named "
+            "dependent_variable values"
+        )
+    phenotypes = [value.strip() for value in phenotypes]
+    fdr_alpha = float(settings.get("fdr_alpha", 0.05))
+    artifacts = {}
+    for level, path in final_paths.items():
+        table = pd.read_csv(path)
+        for phenotype in phenotypes:
+            selected = table
+            if len(phenotypes) > 1:
+                if "outcome" not in table.columns:
+                    raise ValueError(
+                        f"Multi-phenotype result {path} has no 'outcome' column"
+                    )
+                selected = table.loc[table["outcome"].eq(phenotype)].copy()
+                if selected.empty:
+                    raise ValueError(
+                        f"Result {path} has no rows for phenotype {phenotype!r}"
+                    )
+            artifacts[f"{phenotype}_{level}"] = {
+                "phenotype": phenotype,
+                "level": level,
+                "data": selected,
+                "run_artifact_path": path,
+                "res_folder": res_folder,
+                "dependent_variable": phenotype,
+                "fdr_alpha": fdr_alpha,
+            }
+
+    from .regression_panels import build_manifest_packages
+
+    return build_manifest_packages(
+        manifest,
+        artifacts,
+        os.path.join(res_folder, "publication_panels"),
+    )
+
+
 def perform_regression(settings):
     """Run the regression and report actionable details if it fails.
 
@@ -7701,6 +7782,9 @@ def perform_regression(settings):
         pass
     try:
         outcome = _perform_regression(settings)
+        publication_panels = _write_regression_panel_packages(outcome, settings)
+        if publication_panels is not None:
+            outcome["publication_panels"] = publication_panels
     except Exception as error:                                   # noqa: BLE001
         stage = ""
         folder = ""

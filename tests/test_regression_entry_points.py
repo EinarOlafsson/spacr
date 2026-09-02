@@ -251,6 +251,18 @@ def test_every_settings_key_perform_regression_indexes_has_a_default():
     assert read & _DERIVED_KEYS <= _keys_read_by_the_whole_call(ast.Store)
 
 
+def test_publication_manifest_is_optional_and_typed_without_a_gui_field():
+    from spacr.settings import categories, expected_types
+
+    assert _defaults()["regression_panel_manifest"] is None
+    assert expected_types["regression_panel_manifest"] == (
+        dict, str, type(None)
+    )
+    assert all(
+        "regression_panel_manifest" not in names for names in categories.values()
+    )
+
+
 def _assert_derived_before_read(fn, deriver, keys):
     """The call that derives ``keys`` precedes every read of them in ``fn``.
 

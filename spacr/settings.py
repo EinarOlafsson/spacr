@@ -2275,6 +2275,11 @@ def get_perform_regression_default_settings(settings):
     # ``spacr.ml.resolve_regression_src`` for resolution and creation rules.
     settings.setdefault('src', '')
     settings.setdefault('paired_data', [])
+    # Optional, programmatic publication contract. It is deliberately not a
+    # GUI category: a manifest is a structured figure specification (usually
+    # a versioned JSON file), not a value that can be edited safely in one
+    # line of a settings panel.
+    settings.setdefault('regression_panel_manifest', None)
     # ``regression`` preserves the historical simultaneous model.  The
     # alternative is a within-plate marginal guide test with empirical
     # P-values and an explicit multiple-testing family; it consumes the same
@@ -3435,6 +3440,7 @@ expected_types = {
     # is the evidence, and running them as two separate jobs made that
     # comparison a manual step.
     "dependent_variable": (str, list),
+    "regression_panel_manifest": (dict, str, type(None)),
     "analysis_mode": str,
     "inference": str,
     "analysis_unit": str,

@@ -1571,3 +1571,144 @@ def test_toxo_volcano_without_controls(screen, toxo_stubs):
     settings = parametric_settings(screen, toxo=True, controls=None)
     perform_regression(settings)
     assert len(toxo_stubs["volcano"]) == 1
+
+
+# ---------------------------------------------------------------------------
+# manifest-driven publication packages (instruction 343)
+# ---------------------------------------------------------------------------
+
+def _finished_panel_run(tmp_path, analysis_mode):
+    folder = tmp_path / analysis_mode
+    folder.mkdir()
+    paths = {}
+    for level in ("grna", "gene"):
+        path = folder / f"results_{level}.csv"
+        pd.DataFrame(
+            {level: [f"item_{level}"], "coefficient": [0.25]}
+        ).to_csv(path, index=False)
+        paths[f"results_{level}"] = str(path)
+    outcome = {"res_folder": str(folder), "analysis_mode": analysis_mode}
+    if analysis_mode == "guide_permutation":
+        outcome["paths"] = paths
+    return outcome, paths
+
+
+@pytest.mark.parametrize("analysis_mode", ["regression", "guide_permutation"])
+def test_public_regression_builds_panels_after_each_result_path_exists(
+    tmp_path, monkeypatch, analysis_mode
+):
+    """Both OLS and Freedman-Lane returns reach one post-success writer."""
+    import spacr.ml as ML
+    import spacr.regression_panels as RP
+
+    events = []
+    returned = {"figure_pdf": tmp_path / "publication" / "Figure_7.pdf"}
+
+    def fake_perform(_settings):
+        events.append("performing")
+        outcome, paths = _finished_panel_run(tmp_path, analysis_mode)
+        assert all(os.path.isfile(path) for path in paths.values())
+        events.append("results-written")
+        return outcome
+
+    def fake_builder(manifest, artifacts, destination):
+        events.append("writer")
+        assert manifest == {"figure_id": "Figure_7", "panels": [{}]}
+        assert set(artifacts) == {"pred_grna", "pred_gene"}
+        assert os.fspath(destination) == os.path.join(
+            os.fspath(tmp_path / analysis_mode), "publication_panels"
+        )
+        for level in ("grna", "gene"):
+            artifact = artifacts[f"pred_{level}"]
+            assert artifact["level"] == level
+            assert artifact["phenotype"] == "pred"
+            assert artifact["dependent_variable"] == "pred"
+            assert artifact["fdr_alpha"] == 0.025
+            assert artifact["res_folder"] == os.fspath(tmp_path / analysis_mode)
+            assert artifact["run_artifact_path"] == os.path.join(
+                os.fspath(tmp_path / analysis_mode), f"results_{level}.csv"
+            )
+            assert os.path.isfile(artifact["run_artifact_path"])
+            assert len(artifact["data"]) == 1
+        return returned
+
+    monkeypatch.setattr(ML, "_perform_regression", fake_perform)
+    monkeypatch.setattr(ML, "_write_fit_resources", lambda *_args: "")
+    monkeypatch.setattr(RP, "build_manifest_packages", fake_builder)
+    settings = {
+        "regression_panel_manifest": {"figure_id": "Figure_7", "panels": [{}]},
+        "dependent_variable": "pred",
+        "fdr_alpha": 0.025,
+    }
+
+    outcome = ML.perform_regression(settings)
+
+    assert events == ["performing", "results-written", "writer"]
+    assert outcome["publication_panels"] is returned
+
+
+def test_public_regression_without_a_manifest_preserves_the_outcome(
+    tmp_path, monkeypatch,
+):
+    """The shipped None default neither imports nor calls the panel writer."""
+    import spacr.ml as ML
+    import spacr.regression_panels as RP
+
+    expected = {"results": "unchanged", "res_folder": str(tmp_path / "untouched")}
+    monkeypatch.setattr(ML, "_perform_regression", lambda _settings: expected)
+    monkeypatch.setattr(ML, "_write_fit_resources", lambda *_args: "")
+    monkeypatch.setattr(
+        RP,
+        "build_manifest_packages",
+        lambda *_args, **_kwargs: pytest.fail("no manifest must not call writer"),
+    )
+
+    outcome = ML.perform_regression(
+        {"regression_panel_manifest": None, "dependent_variable": "pred"}
+    )
+
+    assert outcome is expected
+    assert outcome == {
+        "results": "unchanged", "res_folder": str(tmp_path / "untouched")
+    }
+
+
+def test_publication_writer_failure_uses_the_regression_failure_report(
+    tmp_path, monkeypatch,
+):
+    """An explicit package is part of the run and uses its existing reporter."""
+    import spacr.ml as ML
+    import spacr.regression_failure as RF
+    import spacr.regression_panels as RP
+
+    outcome, _paths = _finished_panel_run(tmp_path, "regression")
+    failure = RuntimeError("panel composition failed")
+    reports = []
+    monkeypatch.setattr(ML, "_perform_regression", lambda _settings: outcome)
+    monkeypatch.setattr(
+        RP,
+        "build_manifest_packages",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(failure),
+    )
+    monkeypatch.setattr(RF, "describe_failure", lambda *_args, **_kwargs: "report")
+
+    def fake_report(folder, error, **details):
+        reports.append((folder, error, details))
+        return ""
+
+    monkeypatch.setattr(RF, "write_failure_report", fake_report)
+    settings = {
+        "regression_panel_manifest": {"figure_id": "Figure_7", "panels": [{}]},
+        "dependent_variable": "pred",
+        "fdr_alpha": 0.05,
+    }
+
+    with pytest.raises(RuntimeError, match="panel composition failed") as raised:
+        ML.perform_regression(settings)
+
+    assert raised.value is failure
+    assert len(reports) == 1
+    folder, error, details = reports[0]
+    assert folder == os.fspath(tmp_path / "regression")
+    assert error is failure
+    assert details["stage"] == "writing publication panel packages"
