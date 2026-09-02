@@ -489,6 +489,16 @@ def lineage_frame(forest: Sequence[LineageNode]) -> pd.DataFrame:
     rows: List[Dict[str, Any]] = []
 
     def visit(node: LineageNode, parent: str, depth: int) -> None:
+        """Append one node and recursively flatten its descendants.
+
+        :param node: lineage node to record before visiting its children.
+        :param parent: key of the caller-supplied parent, or an empty string
+            for a root.
+        :param depth: zero-based depth to store for this node.
+        :returns: None. A row containing node metadata and its current child
+            count is appended to the captured list, then children are visited
+            in their existing order with this node as parent.
+        """
         rows.append({"key": node.key, "table": node.table,
                      "label": node.label, "field": node.field,
                      "parent_key": parent, "depth": depth,
