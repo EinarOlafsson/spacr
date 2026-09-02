@@ -344,7 +344,13 @@ def test_the_diagnostic_suite_writes_one_file_per_panel_that_opens(tmp_path,
 
     assert not [key for key in written if key.endswith("_error")], written
     on_disk = _image_files(tmp_path)
-    assert len(announced) == len(on_disk) == 2, (announced, on_disk)
+    expected = {
+        "design_diagnostics.png",
+        "design_identifiability.png",
+        "inference_diagnostics.png",
+    }
+    assert set(on_disk) == expected, on_disk
+    assert {os.path.basename(path) for path in announced} == expected, announced
     for name in on_disk:
         assert name.endswith(".png"), name
         assert _opens(os.path.join(tmp_path, name))

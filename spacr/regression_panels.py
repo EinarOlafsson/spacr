@@ -26,7 +26,6 @@ from pypdf.generic import (
     TextStringObject,
 )
 
-
 OPEN_SANS_DIRECTORY = Path(__file__).resolve().parent / "resources/font/open_sans/static"
 OPEN_SANS_REGULAR = OPEN_SANS_DIRECTORY / "OpenSans-Regular.ttf"
 OPEN_SANS_BOLD = OPEN_SANS_DIRECTORY / "OpenSans-Bold.ttf"
@@ -551,10 +550,15 @@ def write_panel_package(
         "effect_threshold_label": effect_threshold_label,
         **dict(statistics or {}),
     }
-    pd.DataFrame(
-        [{"metric": key, "value": value} for key, value in stats.items()]
-    ).to_csv(paths["stats"], index=False)
-    data.to_csv(paths["data"], index=False)
+    from .tabular import write_table
+
+    write_table(
+        pd.DataFrame(
+            [{"metric": key, "value": value} for key, value in stats.items()]
+        ),
+        paths["stats"],
+    )
+    write_table(data, paths["data"])
 
     actual = {path.name for path in destination.iterdir() if path.is_file()}
     expected = {path.name for path in paths.values()}
