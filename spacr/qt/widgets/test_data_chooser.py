@@ -10,7 +10,8 @@ and the screen does the work, which keeps it testable without a network.
 """
 from __future__ import annotations
 
-from PySide6.QtCore import QEvent, Qt
+from PySide6.QtCore import QEvent, QRect, Qt
+from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import (
     QDialog,
     QHBoxLayout,
@@ -85,10 +86,19 @@ class TestDataChooser(QDialog):
         self._description = QLabel(self.RESTING_TEXT, self)
         self._description.setWordWrap(True)
         self._description.setObjectName("TestDataDescription")
-        # A FIXED HEIGHT, so the dialog does not resize under the pointer as
-        # the text changes length -- the buttons would move away from the
-        # cursor that is hovering them.
-        self._description.setMinimumHeight(110)
+        # A HEIGHT THAT CANNOT CLIP, so the dialog does not resize under the
+        # pointer as the text changes length -- the buttons would move away
+        # from the cursor hovering them -- AND no description is cut off,
+        # which a fixed 110 px did to both routes.
+        #
+        # MEASURED, NOT CHOSEN. 110 fit whatever the descriptions said when
+        # it was written; both routes are two paragraphs now and overflowed
+        # it, and a larger font scale or a longer locale overflows any
+        # constant. `_size_the_description_pane` asks the font how tall the
+        # LONGEST of them is at the pane's own width, so the pane is stable
+        # under the pointer and stays right after a translation, a font-scale
+        # change, or a new route being added to ROUTES.
+        self._size_the_description_pane()
         self._description.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         layout.addWidget(self._description)
 
@@ -115,6 +125,54 @@ class TestDataChooser(QDialog):
     def description_text(self) -> str:
         """What the pane currently says. For tests and the accessibility tree."""
         return self._description.text()
+
+    def every_description(self) -> tuple:
+        """Every string the pane can ever show, resting text included.
+
+        Public because it is what a clipping check wants to iterate, and
+        because the sweep in instruction 350 needs the same list.
+        """
+        return (self.RESTING_TEXT,) + tuple(
+            description for _key, _label, description in self.ROUTES)
+
+    def _size_the_description_pane(self) -> None:
+        """Make the pane as tall as its tallest possible text, and pin it.
+
+        Both bounds are set: a MINIMUM so nothing clips, and a MAXIMUM so the
+        pane does not grow when a short description replaces a long one, which
+        is what would move the buttons out from under the pointer.
+
+        The width is the pane's own once it has one, and the dialog's hint
+        before that -- at construction no layout has run, so `width()` is a
+        placeholder and measuring against it would size for a pane one pixel
+        wide.
+        """
+        width = self._description.width()
+        if width <= 1:
+            width = max(self.sizeHint().width(), 360)
+        metrics = QFontMetrics(self._description.font())
+        tallest = 0
+        for text in self.every_description():
+            box = metrics.boundingRect(
+                QRect(0, 0, width, 0),
+                int(Qt.TextWordWrap | Qt.AlignTop | Qt.AlignLeft),
+                text)
+            tallest = max(tallest, box.height())
+        # A line of slack: boundingRect measures the ink, and a descender on
+        # the last line sits below the box it reports.
+        tallest += metrics.lineSpacing()
+        self._description.setMinimumHeight(tallest)
+        self._description.setMaximumHeight(tallest)
+
+    def resizeEvent(self, event):  # noqa: N802 - Qt name
+        """Re-measure when the dialog is resized.
+
+        A wider pane needs fewer lines and a narrower one needs more, so a
+        height measured at one width clips at another. The user can resize
+        this dialog, so this is reachable.
+        """
+        super().resizeEvent(event)
+        self._size_the_description_pane()
 
     def _choose(self, key: str) -> None:
         self.chosen = str(key)

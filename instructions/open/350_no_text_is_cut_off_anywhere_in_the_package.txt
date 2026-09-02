@@ -116,3 +116,53 @@ above: a fixed size that a longer string overflows, and a size that only holds
 at one font scale. Worth noting because it means the sweep cannot be a single
 pass at 1.0 in English -- the very first case found needs two of the four
 dimensions to reproduce reliably.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE REPORTED CASE IS FIXED, AND THE MEASUREMENT EXISTS
+--------------------------------------------------------------------------------
+
+MEASURED FIRST, so the size of the problem is on the record: at the dialog's
+own width of 260 px the three strings the pane can show need
+
+    resting text     51 px
+    Load route      153 px
+    Stream route    170 px
+
+against a pane of 110. The Stream description was losing 60 px -- most of its
+second paragraph.
+
+THE FIX REPLACES THE CONSTANT WITH A MEASUREMENT, and keeps the reason the
+constant existed. `_size_the_description_pane` asks `QFontMetrics` how tall
+the TALLEST of `every_description()` is at the pane's own width and sets BOTH
+bounds to it: a minimum so nothing clips, and a maximum so a short description
+replacing a long one cannot shrink the pane and move the buttons out from
+under the pointer hovering them. It re-runs on `resizeEvent`, because a height
+measured at one width clips at another and this dialog can be resized.
+
+One line of `lineSpacing()` slack is added: `boundingRect` measures the ink,
+and a descender on the last line sits below the box it reports.
+
+THE CHECK IS THE DELIVERABLE, not the fixed dialog.
+`tests/qt/test_no_caption_is_clipped.py` carries `wrapped_height(widget, text,
+width)`, which is what any "is this clipped" question compares against, plus
+three tests: every description fits, every description produces the SAME
+height, and -- the one that stops this passing by luck -- a manufactured
+overlong string IS caught. 288 records four tests that passed while exercising
+nothing; that third test is what keeps this out of that set.
+
+VERIFIED BOTH WAYS. Against current code: 3 passed. Against the pre-fix widget
+with everything else identical: 2 failed, 1 passed -- so the check catches the
+reported bug rather than merely agreeing with the repair. The three chooser
+suites are green alongside it, 31 passed.
+
+WHAT REMAINS IN 350, and it is the sweep rather than the tool:
+
+  * point `wrapped_height` at every screen and dialog, not just this one;
+  * run it at more than one font scale -- instruction 04 records that the
+    tests once measured a font scale no user has;
+  * and in the longest-rendering locale, because German and Portuguese run
+    materially longer than English and nobody reads those screens.
+
+This first case was cause 2 AND cause 3 from the list above at once -- a fixed
+size a longer string overflows, and a size that only holds at one font scale.
+That is the argument for the sweep being more than one pass.
