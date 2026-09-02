@@ -136,6 +136,12 @@ def _force_cpu(monkeypatch):
     ``torch.cuda.is_available()``; forcing it False keeps the numbers below
     reproducible (and the DataLoader's ``pin_memory`` off) everywhere.
     """
+    import spacr.accelerator as accelerator
+
+    # ``pick_device`` resolves through the shared accelerator cache.  Merely
+    # patching torch is insufficient on a GPU host when collection or an
+    # earlier test has already populated that cache with CUDA.
+    monkeypatch.setattr(accelerator, "_CACHED", None)
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
     assert not torch.cuda.is_available()
 

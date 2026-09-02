@@ -42,6 +42,12 @@ def _force_cpu(monkeypatch):
     train_model picks its device from torch.cuda.is_available(); on a
     GPU box these tests would otherwise move the stand-in model to cuda.
     """
+    import spacr.accelerator as accelerator
+
+    # ``pick_device`` consults this cache before torch.  Reset it so a CUDA
+    # result cached during collection or by an earlier test cannot defeat the
+    # CPU premise this module declares.
+    monkeypatch.setattr(accelerator, "_CACHED", None)
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
 
 
