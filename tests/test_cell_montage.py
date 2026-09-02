@@ -1079,6 +1079,9 @@ def test_the_fitted_intercept_is_named_as_the_baseline_and_moves_the_window():
     assert intercept.window.target == pytest.approx(0.9 + 0.2)
     assert "baseline the model's fitted intercept" in intercept.settings_line()
     assert "NON-DEFAULT" in intercept.settings_line()
+    arithmetic = intercept.arithmetic()
+    assert "baseline = the model's fitted intercept = 0.9" in arithmetic
+    assert "the median of the 32 supplied objects was not used" in arithmetic
     # And it really is a different montage, not just a different sentence.
     assert list(intercept.objects["pred"]) != list(median.objects["pred"])
     # Unlabelled, it is still recorded as 'given' -- the old spelling stands.
