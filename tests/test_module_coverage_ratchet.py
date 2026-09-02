@@ -156,8 +156,8 @@ def _run_cli(
     )
 
 
-def test_current_packaging_denominator_is_518_not_asset_generators():
-    """The ratchet follows all 518 shipped modules, not asset generators.
+def test_current_packaging_denominator_is_526_not_asset_generators():
+    """The ratchet follows all 526 shipped modules, not asset generators.
 
     Since the previous 506-module pin, the product added the public
     accelerator resolver, plaque analysis, settings-pack support, and the
@@ -167,6 +167,12 @@ def test_current_packaging_denominator_is_518_not_asset_generators():
     policy, the example-screen data picker and its headless data manifest add
     four more installed modules. The generated setting-to-API target map adds
     one more; all five must have coverage rows too.
+
+    526 since 2026-09-02: the pin had drifted to six modules behind the
+    package before `spacr-download` was written, and that command adds two
+    more -- `spacr/cli_download.py` and the Qt-free `spacr/example_archives.py`
+    it reads its repositories from. Both are installed Python and both need
+    coverage rows.
     """
     shipped = set(ratchet.discover_shipped_python_files(ROOT))
     every_spacr_python = {
@@ -174,7 +180,7 @@ def test_current_packaging_denominator_is_518_not_asset_generators():
         for path in (ROOT / "spacr").rglob("*.py")
     }
 
-    assert len(shipped) == 518
+    assert len(shipped) == 526
     assert every_spacr_python - shipped == RESOURCE_GENERATORS
     assert not RESOURCE_GENERATORS & shipped
 
@@ -432,7 +438,7 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     )
     assert "coverage combine --keep" in combine_script
     assert "coverage json --pretty-print" in combine_script
-    assert "--expected-file-count 518" in combine_script
+    assert "--expected-file-count 526" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
     assert "coverage-combine" in jobs["release-gate"]["needs"]

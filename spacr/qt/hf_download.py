@@ -18,16 +18,32 @@ a Tk mainloop just to see download progress.
 from __future__ import annotations
 
 import logging
-import os
-import socket
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Optional
 
 from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtWidgets import (QDialog, QHBoxLayout, QLabel,
                                QProgressBar, QProgressDialog,
                                QPushButton, QVBoxLayout, QWidget)
+
+# THE DATA HALF OF THIS MODULE NOW LIVES IN `spacr.example_archives`, and is
+# imported back here so nothing that already calls one of these names has to
+# change -- including the tests that patch `hf_download._download_one` and
+# `hf_download._list_files` to keep the demo flow off the network. Those still
+# name real attributes of this module, and they are still what the workers
+# below resolve.
+#
+# It moved because `spacr-download` fetches the same datasets from a cluster
+# login node, and importing this module to reach them would demand PySide6 on
+# a machine with no display to give it. What is left here is Qt: the dialog,
+# the threads, the signals. What left was only ever about the data.
+from ..example_archives import (                              # noqa: F401
+    ANNOTATE_EXAMPLE_REPO, DATASET_PLACEHOLDER, DATASET_REPO, DATASET_SUB,
+    EXAMPLE_ARCHIVES, MEASURE_EXAMPLE_REPO, SETTINGS_REPO, _content_length,
+    _download_one, _list_files, example_plate_folder, expand_measure_arrays,
+    explain_download_failure, extract_example_archive,
+    make_the_example_paths_absolute)
 
 LOG = logging.getLogger("spacr.qt.hf_download")
 
@@ -40,51 +56,6 @@ _WIDEST_CAPTION = "Downloading plate1_A01_T0001F001L01A01Z01C01.tif"
 #: Room for the dialog's frame, its margins and the progress bar's own
 #: padding, on top of the caption itself.
 _CAPTION_MARGIN = 96
-
-# Match the classic Tk GUI's demo endpoints so users see the same
-# dataset here they'd have seen in the Tk build.
-DATASET_REPO  = "einarolafsson/toxo_mito"
-DATASET_SUB   = "plate1"
-SETTINGS_REPO = "einarolafsson/spacr_settings"
-
-#: Measure's own example data: the merged arrays a Mask run produces, so
-#: Measure can be exercised without segmenting anything first.
-#:
-#: A SEPARATE REPO from the Mask demo because it is a different artefact at a
-#: different stage -- `toxo_mito` is raw acquisition, this is that plate after
-#: `preprocess_generate_masks`. Sixteen fields across four wells; the wells are
-#: all kept because well-level aggregation and between-condition comparison
-#: are most of what Measure does after the per-object step.
-MEASURE_EXAMPLE_REPO = "einarolafsson/spacr-example-measure"
-
-#: Annotate and Classify share one example set: the crops a Measure run cut,
-#: the measurements database that indexes them, and 88 real labels.
-#:
-#: ONE REPO, TWO SETTINGS FILES. Both modules read the same 282 MB of crops and
-#: the same database; only the settings differ. Publishing it twice would
-#: double the download and let the two copies drift.
-ANNOTATE_EXAMPLE_REPO = "einarolafsson/spacr-example-annotate"
-
-#: The token a published settings file uses for "wherever this was unpacked".
-DATASET_PLACEHOLDER = "<dataset>"
-
-
-def example_plate_folder() -> Path:
-    """The ONE folder every example dataset unpacks into.
-
-    ``~/.cache/spacr/example_data/plate1`` -- a real spaCR plate directory,
-    holding whichever of ``merged/``, ``data/``, ``measurements/`` and
-    ``settings/`` have been downloaded.
-
-    ONE FOLDER BECAUSE THE SETS ARE USED TOGETHER. `data/` is the crops and
-    `measurements/measurements.db` is what indexes them; downloading them into
-    separate trees meant the two halves of one plate could not be opened at
-    once, and the user had to know which download had put what where. Each
-    archive's members are relative to this folder, so the three unpack into it
-    side by side and compose into a plate that Measure, Annotate and Classify
-    can all be pointed at.
-    """
-    return Path.home() / ".cache" / "spacr" / "example_data" / "plate1"
 
 
 @dataclass
@@ -163,164 +134,6 @@ class _HFDownloadWorker(QObject):
         except Exception as e:
             LOG.warning("hf download failed: %s", e, exc_info=True)
             self.finished.emit(False, "", "", explain_download_failure(e))
-
-
-def explain_download_failure(exc: BaseException) -> str:
-    """Turn a download exception into something a user can act on.
-
-    This is the only demo in the Demos menu that needs the network — the six
-    synthetic generators are entirely offline — so it is the only one that can
-    fail for a reason outside spaCR. What the user saw before was
-    ``str(exc)``, which for the ordinary offline case is a nested urllib3
-    dump::
-
-        (MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443):
-        Max retries exceeded with url: /api/datasets/... (Caused by
-        NewConnectionError('<urllib3.connection.HTTPSConnection object at
-        0x7e8d...>: Failed to establish a new connection: [Errno 101] Network
-        is unreachable'))"), '(Request ID: 73ac20ed-...)')
-
-    — 300 characters that never say "you are offline" and never say what to do
-    instead. The three conditions this actually fails on are: no network, the
-    ``huggingface_hub`` extra not installed, and a truncated transfer. Each
-    gets a sentence naming the cause and the way out; anything else keeps its
-    own message with the same closing advice attached.
-
-    :param exc: the exception raised inside the download worker.
-    :returns: a multi-line message for the failure dialog.
-    """
-    offline_hint = (
-        "Every other entry in the Demos menu is synthetic and runs with no "
-        "network at all — use one of those to try the pipelines offline.")
-
-    if isinstance(exc, (ImportError, ModuleNotFoundError)):
-        return (
-            "The real-dataset demo needs the 'huggingface_hub' package to "
-            "list the demo repository, and it is not installed in this "
-            f"environment ({exc}).\n\n"
-            "Install it with:  pip install huggingface_hub\n\n"
-            + offline_hint)
-
-    # The truncation check comes first: `IOError` IS `OSError`, and the
-    # builtin ConnectionError below is an OSError subclass, so ordering these
-    # the other way round would let a half-finished transfer be reported as
-    # "check your internet connection" — true but useless, because the
-    # connection was fine right up to the point it was not.
-    if isinstance(exc, OSError) and "Truncated download" in str(exc):
-        return (
-            f"{exc}\n\n"
-            "The connection dropped part-way through. Nothing partial was "
-            "kept, so re-running the demo starts the file again.\n\n"
-            + offline_hint)
-
-    # requests is an install-time dependency of huggingface_hub, but the
-    # import is kept local so a broken environment reports the missing
-    # package above rather than dying here. The builtins are in the tuple
-    # too: `requests.exceptions.ConnectionError` descends from OSError, not
-    # from the builtin ConnectionError, and a DNS failure raised by anything
-    # other than requests (urllib, socket, huggingface_hub's own client)
-    # arrives as one of these instead.
-    network_errors: tuple = (ConnectionError, TimeoutError, socket.gaierror)
-    try:
-        import requests
-        network_errors += (
-            requests.exceptions.ConnectionError,
-            requests.exceptions.Timeout,
-        )
-    except Exception:
-        pass
-
-    if isinstance(exc, network_errors):
-        return (
-            "Could not reach huggingface.co, so the real demo dataset could "
-            "not be downloaded. Check your internet connection (or your "
-            "proxy settings) and try again.\n\n"
-            + offline_hint)
-
-    return f"{exc}\n\n{offline_hint}"
-
-
-def _list_files(repo_id: str, subfolder: str) -> List[str]:
-    """Return every file path in ``repo_id`` matching ``subfolder``.
-
-    Empty subfolder means "top-level CSVs only" (mirrors the Tk
-    downloader's behaviour for the settings pack).
-
-    :raises ImportError: when ``huggingface_hub`` is not installed. Re-raised
-        with the package named rather than letting the bare
-        ``ModuleNotFoundError`` text stand on its own, because
-        :func:`explain_download_failure` turns it into install instructions
-        and the message is what the user reads.
-    """
-    try:
-        from huggingface_hub import list_repo_files
-    except ImportError as exc:
-        raise ImportError(f"huggingface_hub is not installed: {exc}") from exc
-    files = list_repo_files(repo_id, repo_type="dataset")
-    if subfolder:
-        return [f for f in files if f.startswith(subfolder)]
-    return [f for f in files if f.endswith(".csv")]
-
-
-def _content_length(resp) -> Optional[int]:
-    """Declared body size from the response, or None when unusable.
-
-    Hugging Face always sends ``Content-Length`` for a resolved LFS
-    object, so this doubles as the integrity check for
-    :func:`_download_one`: fewer bytes on disk than advertised means the
-    stream was cut short.
-    """
-    headers = getattr(resp, "headers", None) or {}
-    raw = headers.get("Content-Length")
-    if raw is None:
-        return None
-    try:
-        return int(raw)
-    except (TypeError, ValueError):
-        return None
-
-
-def _download_one(repo_id: str, file_name: str, dest_dir: Path) -> Path:
-    """Stream one file from the HF repo to ``dest_dir/basename``.
-
-    Uses plain HTTP + streaming so we don't need the full ``hf_hub``
-    download machinery (and its cache dir) for a one-shot demo pull.
-
-    The body lands in a sibling ``.part`` file and is only moved onto
-    the final path once every advertised byte has arrived. Writing
-    straight to the destination meant a dropped connection left a
-    truncated image behind that was indistinguishable from a good
-    download — the next pipeline run then failed deep inside the mask
-    stage instead of at the download.
-    """
-    import requests
-    url = (f"https://huggingface.co/datasets/{repo_id}/resolve/main/"
-             f"{file_name}?download=true")
-    dst = dest_dir / Path(file_name).name
-    part = dst.with_name(dst.name + ".part")
-    resp = requests.get(url, stream=True, timeout=30)
-    resp.raise_for_status()
-    expected = _content_length(resp)
-    written = 0
-    try:
-        with part.open("wb") as fh:
-            for chunk in resp.iter_content(chunk_size=1 << 15):
-                if chunk:
-                    fh.write(chunk)
-                    written += len(chunk)
-        if expected is not None and written != expected:
-            raise IOError(
-                f"Truncated download for {file_name}: wrote {written} "
-                f"bytes but the server declared {expected}."
-            )
-        os.replace(part, dst)
-    except BaseException:
-        try:
-            part.unlink()
-        except OSError:
-            pass
-        raise
-    return dst
 
 
 # ---------------------------------------------------------------------------
@@ -607,109 +420,6 @@ class _MeasureExampleWorker(QObject):
         expand_measure_arrays(merged)
 
 
-def expand_measure_arrays(merged: Path) -> None:
-    """Write each ``.npz`` back out as the ``.npy`` Measure reads.
-
-    The compression is a TRANSPORT detail -- it halves a 700 MB download -- and
-    Measure loads `.npy`. Converting on arrival keeps that entirely inside the
-    downloader rather than teaching every reader about a second format.
-
-    The ``.npz`` is removed afterwards: keeping both doubles the disk cost of
-    an example dataset for a file nothing will open again.
-
-    A MODULE FUNCTION, NOT A METHOD, and that is the point. `after_extract`
-    runs on the download thread, and reaching this code through
-    ``_MeasureExampleWorker(dest)._expand_arrays(...)`` CONSTRUCTED a QObject
-    there purely to borrow a helper. `thread_guard` reported it exactly as it
-    should have: the object then lived on 'Dummy-6' and every later touch from
-    the GUI thread was illegal. Nothing in here ever read ``self``, so there
-    was never an object to need.
-    """
-    import numpy as np
-
-
-    if not merged.is_dir():
-        return
-    for archive in sorted(merged.glob("*.npz")):
-        target = archive.with_suffix(".npy")
-        if target.is_file():
-            archive.unlink(missing_ok=True)
-            continue
-        try:
-            with np.load(archive) as bundle:
-                # Written by the publisher under `image`; the first key is
-                # the fallback so a hand-made archive still loads.
-                key = "image" if "image" in bundle else bundle.files[0]
-                np.save(target, bundle[key])
-            archive.unlink(missing_ok=True)
-        except Exception:                                # noqa: BLE001
-            # One bad archive must not cost the other fifteen. It is left
-            # on disk, so what failed is visible rather than merely absent.
-            LOG.warning("could not unpack %s", archive, exc_info=True)
-
-
-#: The single archive each example repo ships, keyed by repo.
-#:
-#: ONE REQUEST INSTEAD OF THOUSANDS. The annotate set is 2,365 files; fetching
-#: it a file at a time spent most of its wall clock on HTTP round trips, and
-#: `snapshot_download` -- the obvious alternative -- cannot be interrupted, so
-#: Cancel did nothing and quitting mid-download aborted the process.
-#:
-#: A tar fixes all three: one stream that can be stopped between chunks, one
-#: progress figure that means something, and no per-file overhead at either
-#: end. It is NOT compressed: the payloads are PNGs and .npz arrays, already
-#: compressed, so gzip would cost minutes of CPU on every download to save
-#: almost nothing.
-EXAMPLE_ARCHIVES: Dict[str, str] = {
-    DATASET_REPO: "spacr-example-mask.tar",
-    MEASURE_EXAMPLE_REPO: "spacr-example-measure.tar",
-    ANNOTATE_EXAMPLE_REPO: "spacr-example-annotate.tar",
-}
-
-
-def extract_example_archive(archive, dest) -> int:
-    """Unpack a downloaded example archive under ``dest``.
-
-    EXTRACTED WITH ``filter="data"``, which is the whole reason this is a
-    function rather than two lines at the call site. A tar can name
-    ``../../etc/something`` or an absolute path, and a plain ``extractall``
-    will happily write there -- so unpacking downloaded content without a
-    filter hands whoever can publish to the repo a write anywhere the user can
-    write. The filter rejects those members, along with device nodes, setuid
-    bits and symlinks pointing outside the tree.
-
-    Python 3.12 and later have it built in. Older interpreters get an explicit
-    check instead of a silent unfiltered unpack.
-
-    :param archive: the ``.tar`` on disk.
-    :param dest: the folder to unpack into.
-    :returns: how many members were written.
-    """
-    import tarfile
-
-    dest = Path(dest)
-    dest.mkdir(parents=True, exist_ok=True)
-    with tarfile.open(str(archive)) as tar:
-        members = tar.getmembers()
-        if hasattr(tarfile, "data_filter"):
-            tar.extractall(str(dest), filter="data")
-        else:
-            # No filter available: refuse anything that leaves the tree rather
-            # than trusting the archive.
-            for member in members:
-                name = member.name
-                if name.startswith("/") or ".." in name.split("/"):
-                    raise ValueError(
-                        f"refusing to unpack {name!r}: it escapes the "
-                        f"destination folder")
-                if not (member.isfile() or member.isdir()):
-                    raise ValueError(
-                        f"refusing to unpack {name!r}: it is not a plain file "
-                        f"or directory")
-            tar.extractall(str(dest))
-    return len(members)
-
-
 class _TarExampleWorker(QObject):
     """Fetch one example dataset as a single archive and unpack it.
 
@@ -934,82 +644,6 @@ class _MaskTarWorker(_TarExampleWorker):
         prefix, which put the images one level deeper than the other sets.
         """
         return Path(dest)
-
-
-def make_the_example_paths_absolute(root) -> int:
-    """Point a downloaded example at where it actually landed.
-
-    A measurements database stores ABSOLUTE paths to its crops, which name the
-    machine that made it and resolve nowhere else. The published copy stores
-    them relative to the dataset root instead, so it is portable and carries no
-    account name -- and this is what turns them back into paths that open.
-
-    The settings files are rewritten the same way: they carry
-    :data:`DATASET_PLACEHOLDER` where the unpack location goes, so a user can
-    press Run without first editing a path.
-
-    Idempotent. A path that is already absolute is left alone, so running this
-    twice -- a re-download over an existing copy -- does not produce
-    ``/home/me/data//home/me/data/...``.
-
-    :param root: the folder the dataset was unpacked into.
-    :returns: how many values were rewritten.
-    """
-    import sqlite3
-
-    root = Path(root)
-    prefix = str(root).rstrip("/") + "/"
-    rewritten = 0
-
-    # WHEREVER THE DATABASE IS. spaCR keeps it at `measurements/measurements.db`
-    # inside a plate; the published archive used to carry it at the top. Both
-    # are checked so an already-unpacked older copy is still repaired.
-    for database in (root / "measurements" / "measurements.db",
-                     root / "measurements.db"):
-        if database.is_file():
-            break
-    if database.is_file():
-        connection = sqlite3.connect(str(database))
-        try:
-            tables = [r[0] for r in connection.execute(
-                "select name from sqlite_master where type='table'")]
-            for table in tables:
-                columns = [r[1] for r in connection.execute(
-                    f'PRAGMA table_info("{table}")')]
-                for column in columns:
-                    try:
-                        # Only the values that look like OUR relative paths.
-                        # A column holding prose is untouched, and one already
-                        # absolute is skipped by the same test.
-                        cursor = connection.execute(
-                            f'update "{table}" set "{column}" = ? || "{column}" '
-                            f'where cast("{column}" as text) like \'data/%\' '
-                            f'or cast("{column}" as text) like \'measurements/%\'',
-                            (prefix,))
-                        rewritten += cursor.rowcount or 0
-                    except sqlite3.Error:
-                        # A column that cannot be updated -- a generated one,
-                        # or a type that will not concatenate -- is not a
-                        # reason to abandon the other forty.
-                        continue
-            connection.commit()
-        finally:
-            connection.close()
-
-    for settings_file in sorted((root / "settings").glob("*.csv")):
-        try:
-            text = settings_file.read_text(encoding="utf-8")
-        except OSError:
-            continue
-        if DATASET_PLACEHOLDER not in text:
-            continue
-        settings_file.write_text(
-            text.replace(DATASET_PLACEHOLDER, str(root).rstrip("/")),
-            encoding="utf-8")
-        rewritten += 1
-
-    LOG.info("example dataset at %s: %d paths made absolute", root, rewritten)
-    return rewritten
 
 
 def download_annotate_example(parent, dest: Path,

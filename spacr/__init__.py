@@ -215,6 +215,13 @@ _DOCUMENTED_SUBMODULES: tuple[str, ...] = (
     # remembered traceback.
     "crashreport",
     "cli_leakage",
+    # `spacr-download`: the published example data as a command instead of a
+    # button, so a cluster login node can stage what a batch job will read.
+    # `example_archives` is the Qt-free half of the GUI's own downloader --
+    # which repositories publish what, and how an archive is fetched, unpacked
+    # and repaired -- shared by both.
+    "cli_download",
+    "example_archives",
     "cli_plugins",
     "cli_remote",
     "cli_repro",
