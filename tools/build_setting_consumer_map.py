@@ -47,6 +47,67 @@ def setting_keys() -> set[str]:
     return keys
 
 
+#: Names a settings mapping is plausibly bound to at a read site.
+#:
+#: WHY THE OBJECT HAS TO BE CHECKED AT ALL. Without this the visitor recorded
+#: EVERY string subscript on EVERY object as a settings read, so
+#: ``paths[f"min_{threshold}"] = path`` -- a local dict of CSV filenames in
+#: ``guide_permutation.save_guide_permutation_results`` -- made that function
+#: the published API target for thirty settings, including
+#: ``nucleus_min_area``. A reader clicking a size setting to learn where it is
+#: used arrived at a guide-permutation CSV writer, which reads no settings at
+#: all.
+SETTINGS_NAMES = frozenset({
+    "settings", "setting", "cfg", "config", "conf", "opts", "options",
+    "params", "parameters", "defaults", "kwargs",
+})
+
+
+def _settings_alias(value) -> bool:
+    """Whether an assigned VALUE is the settings mapping under a new name.
+
+    ``out = dict(settings)``, ``local = settings.copy()``, ``s = settings``.
+    Without this the object test below is too strict and loses real reads:
+    ``spacr.organelle_types.apply_preset`` copies the mapping to ``out`` and
+    then reads ``out.get("organelle_type")``, which is the ONLY public
+    consumer of that setting -- drop it and the setting's link falls back to
+    a module page.
+
+    An empty literal is deliberately not an alias, which is what keeps
+    ``paths: dict[str, Path] = {}`` out.
+    """
+    if isinstance(value, ast.Name) and value.id in SETTINGS_NAMES:
+        return True
+    if isinstance(value, ast.Call):
+        f = value.func
+        # dict(settings) / settings.copy() / deepcopy(settings)
+        if isinstance(f, ast.Attribute) and f.attr in ("copy", "deepcopy"):
+            return _is_settings_mapping(f.value)
+        if isinstance(f, ast.Name) and f.id in ("dict", "deepcopy", "copy"):
+            return any(_is_settings_mapping(a) for a in value.args)
+    return False
+
+
+def _is_settings_mapping(node, aliases=frozenset()) -> bool:
+    """Whether ``node`` plausibly evaluates to the settings mapping.
+
+    A bare name (``settings[...]``), an attribute whose final component is one
+    (``self.settings[...]``), or a local ``aliases`` name assigned from one.
+
+    Deliberately a NAME test rather than type inference: the alternative is
+    following assignments across the whole package, and the cost of being
+    wrong is a published link pointing at the wrong function. A conservative
+    rule that occasionally misses a read is the right trade -- a missed read
+    falls back to the module page, a wrong one sends the reader somewhere
+    unrelated and says nothing about it.
+    """
+    if isinstance(node, ast.Name):
+        return node.id in SETTINGS_NAMES or node.id in aliases
+    if isinstance(node, ast.Attribute):
+        return node.attr in SETTINGS_NAMES
+    return False
+
+
 class Reads(ast.NodeVisitor):
     """Collect setting reads with the qualified function that encloses them."""
 
@@ -60,6 +121,8 @@ class Reads(ast.NodeVisitor):
         #: -- and which of the two this is decides 336's route.
         self.stack: list[tuple[str, str]] = []
         self.hits: list[dict] = []
+        #: Local names currently bound to the settings mapping.
+        self.aliases: frozenset = frozenset()
 
     def _scoped(self, node, name, kind):
         self.stack.append((name, kind))
@@ -67,7 +130,23 @@ class Reads(ast.NodeVisitor):
         self.stack.pop()
 
     def visit_FunctionDef(self, node):        # noqa: N802 - ast naming
-        self._scoped(node, node.name, "function")
+        # Names this function binds to the settings mapping, so a read
+        # through the copy counts as a read. Collected before descending,
+        # because the copy is usually made on the first line and read after.
+        before = self.aliases
+        found = set(before)
+        for child in ast.walk(node):
+            if isinstance(child, ast.Assign) and _settings_alias(child.value):
+                found |= {t.id for t in child.targets if isinstance(t, ast.Name)}
+            elif (isinstance(child, ast.AnnAssign) and child.value is not None
+                    and _settings_alias(child.value)
+                    and isinstance(child.target, ast.Name)):
+                found.add(child.target.id)
+        self.aliases = frozenset(found)
+        try:
+            self._scoped(node, node.name, "function")
+        finally:
+            self.aliases = before
 
     visit_AsyncFunctionDef = visit_FunctionDef
 
@@ -107,20 +186,32 @@ class Reads(ast.NodeVisitor):
         for part in parts:
             if len(part) < 4:            # too short to identify a key
                 continue
+            # A FRAGMENT THAT IS NOT PART OF A KEY NAME. `_min_` matched every
+            # setting containing it, so an f-string building
+            # `{prefix}_min_{n}_wells.csv` claimed thirty of them. A key never
+            # contains a dot, a slash or a space, so a fragment that does is
+            # building a filename or a message, not a settings key.
+            if any(c in part for c in "./\\ %:"):
+                continue
             for key in self.keys:
-                if key.endswith(part) or part in key:
+                # SUFFIX OR PREFIX, NOT A BARE INFIX. `{object_type}_min_area`
+                # legitimately identifies `cell_min_area` by its tail; `_min_`
+                # floating in the middle of a filename identifies nothing.
+                if key.endswith(part) or key.startswith(part):
                     self._record(key, node, form + "-dynamic")
 
     def visit_Subscript(self, node):          # noqa: N802 - ast naming
-        if isinstance(node.slice, ast.Constant) and isinstance(node.slice.value, str):
-            self._record(node.slice.value, node, "subscript")
-        elif isinstance(node.slice, ast.JoinedStr):
-            self._record_dynamic(node.slice, node, "subscript")
+        if _is_settings_mapping(node.value, self.aliases):
+            if isinstance(node.slice, ast.Constant) and isinstance(node.slice.value, str):
+                self._record(node.slice.value, node, "subscript")
+            elif isinstance(node.slice, ast.JoinedStr):
+                self._record_dynamic(node.slice, node, "subscript")
         self.generic_visit(node)
 
     def visit_Call(self, node):               # noqa: N802 - ast naming
         f = node.func
-        if isinstance(f, ast.Attribute) and f.attr == "get" and node.args:
+        if (isinstance(f, ast.Attribute) and f.attr in ("get", "setdefault")
+                and node.args and _is_settings_mapping(f.value, self.aliases)):
             a = node.args[0]
             if isinstance(a, ast.Constant) and isinstance(a.value, str):
                 self._record(a.value, node, "get")
