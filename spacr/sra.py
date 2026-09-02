@@ -117,9 +117,10 @@ def runs_for(accession: str = DEFAULT_BIOPROJECT, *, timeout: float = 30.0,
     for row in rows[1:]:
         cells = row.split("\t")
 
-        def cell(name: str) -> str:
+        def cell(name: str, row_cells=cells) -> str:
             position = index.get(name, -1)
-            return cells[position] if 0 <= position < len(cells) else ""
+            return (row_cells[position]
+                    if 0 <= position < len(row_cells) else "")
 
         urls = [u for u in cell("fastq_ftp").split(";") if u]
         sizes = [s for s in cell("fastq_bytes").split(";") if s]
