@@ -74,9 +74,9 @@ projecting when the settings are on but no z axis survived ingest.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field as _dc_field
-from typing import (Any, Callable, Dict, Iterator, List, Optional, Sequence,
-                    Tuple)
+from dataclasses import dataclass
+from dataclasses import field as _dc_field
+from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -1815,6 +1815,14 @@ def detect_axes(
         )
 
     def _order(t_axis: int, z_axis: int, source: str) -> AxisOrder:
+        """Build one axis-order candidate with captured image axes.
+
+        :param t_axis: proposed time-axis index.
+        :param z_axis: proposed depth-axis index.
+        :param source: evidence label explaining how the proposal was chosen.
+        :returns: an axis order combining the proposal with the captured Y, X,
+            and normalized optional channel axes.
+        """
         return AxisOrder(t_axis=t_axis, z_axis=z_axis, y_axis=ay, x_axis=ax,
                          channel_axis=c_axis, source=source)
 
@@ -2990,7 +2998,7 @@ def format_4d(result) -> str:
         lines.append(f"  backend         : {result.backend}")
         lines.append(f"  tracks          : {result.n_tracks}")
         lines.append(
-            f"  anisotropy      : "
+            "  anisotropy      : "
             + (f"{result.anisotropy:g} (dz/dxy)" if result.anisotropy is not None
                else "not used by this backend")
         )
