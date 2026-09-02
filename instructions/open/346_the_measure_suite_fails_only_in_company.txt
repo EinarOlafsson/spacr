@@ -279,3 +279,49 @@ module. Compare the values with and without the earlier file. The Zernike
 cause was found in one such probe.
 
     113 files: 21 failed at the start of this session, 3 now, 3,111 passed.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE LAST TWO, DIAGNOSED EXACTLY. THE ERROR NAMES ITS OWN CAUSE.
+--------------------------------------------------------------------------------
+
+Run the trio and the failure says what is wrong in one line:
+
+    PicklingError: Can't pickle <function _measure_crop_core at 0x79da7d4e7100>:
+    it's not the same object as spacr.measure._measure_crop_core
+
+TWO LIVE COPIES OF ONE FUNCTION, and multiprocessing is what makes it visible:
+a Pool pickles a function BY QUALIFIED NAME and the far side checks identity,
+so a stale copy raises here instead of failing silently the way an ordinary
+call would. Both survivors go through the pool -- one measures with a region
+filter, the other checks the start method before starting it -- which is why
+these two and no others.
+
+WHAT DOES NOT FIX IT, tried and reverted so nobody repeats it: widening the
+fixture's restore from `spacr.measure*` to the WHOLE `spacr.` namespace. Same
+two failures. THE STALE REFERENCE IS NOT IN `sys.modules`. Restoring modules
+cannot reach a function object already captured somewhere else -- a default
+argument, a registry entry, a partial, a Pool initializer -- and one of those
+is holding the copy from the rebuilt module.
+
+THE NARROWER FIXTURE IS KEPT because it is what took ten failures to two; it
+is not the whole answer and the file now says so beside it.
+
+WHERE TO GO NEXT, in order of how much it would prove:
+
+  1. FIND THE HOLDER. `gc.get_referrers` on the function object from the
+     rebuilt module, run right after `_reimport_measure()`, will name what is
+     keeping it. That is one probe and it ends the guessing.
+  2. IF IT CANNOT BE RELEASED, MOVE THE RELOAD OUT OF THE PROCESS. The file's
+     purpose is to re-run a module-level capability probe, which a subprocess
+     can do without leaving anything behind:
+     `subprocess.run([sys.executable, "-c", ...])` returning the probe's
+     answer. That trades a little speed for an isolation the in-process
+     reload cannot give, and it is the standard remedy for exactly this.
+  3. Only then consider making `_measure_crop_core` resolvable by name at
+     call time rather than captured at import time. That would be a
+     PRODUCTION change to satisfy a test, which is the wrong order unless the
+     same hazard is reachable from a real run -- and whether it is should be
+     established first, because a user who reloads spaCR modules in a notebook
+     would hit it too.
+
+STATE: 113 files, 21 failed at the start of the session, 3 now.
