@@ -868,9 +868,11 @@ def _ask_for_attention_weights(blocks):
     originals = []
 
     def _wrap(block):
+        """Install the attention-weight adapter and return the original call."""
         original = block.forward
 
         def forward(*args, **kwargs):
+            """Request per-head weights unless a positional request owns them."""
             if len(args) < 5 and "need_weights" not in kwargs:
                 kwargs = dict(kwargs)
                 kwargs["need_weights"] = True
@@ -888,6 +890,7 @@ def _ask_for_attention_weights(blocks):
         originals.append((block, _wrap(block)))
 
     def restore():
+        """Restore every block's exact original bound forward method."""
         for block, original in originals:
             block.forward = original
 
