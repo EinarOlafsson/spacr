@@ -36,9 +36,9 @@ ROOT = Path(__file__).resolve().parents[2]
 # that say where Q and the arrows work.  Retired: "the Annotate and Make Masks
 # screens", which the longer scope replaces -- the arrows drive the field
 # browser too, and the shorter wording had stopped being true.
-COMPACT_CAPTION_COUNT = 207
+COMPACT_CAPTION_COUNT = 205
 COMPACT_CAPTION_SHA256 = (
-    "f628f56bc86c01e282e8827167d65b1b09288c3c60090a9ed8224c174219e8d9"
+    "1112038e3d318ebdbaf92e34d35da9e8e992443108b385821d4368891324a9d7"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -128,6 +128,7 @@ _RUNTIME_IDENTITY_CAPTIONS = {
     "%d px",
     "3D",
     '<a href="api">API</a>',
+    "CPU",
     "Cellpose-SAM",
     "GPU",
     "MIP",
@@ -361,7 +362,16 @@ def compact_user_facing_captions() -> frozenset[str]:
     )
     found.update(_shortcut_caption_fields())
     found.update(source for source, _values in TRANSLATIONS)
-    return frozenset(found)
+    # DELIBERATE TECHNICAL IDENTITIES ARE NOT PART OF THIS SURFACE.
+    #
+    # `_RUNTIME_IDENTITY_CAPTIONS` already held GPU and is asserted separately
+    # by `test_runtime_identity_captions_remain_exact_in_every_language`, but
+    # this function did not subtract it -- so GPU was simultaneously required
+    # to stay exact in every language AND required to have a translated
+    # `_ROWS` row. CPU joined it on 2026-09-02 when the maintainer answered
+    # 316-A: "Keep exact", the same reasoning instruction 318 used to hold
+    # 'QC' exact in every locale because QC is an identifier.
+    return frozenset(found) - _RUNTIME_IDENTITY_CAPTIONS
 
 
 def test_compact_user_facing_caption_surface_has_exact_rows_and_is_pinned():

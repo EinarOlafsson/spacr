@@ -85,6 +85,39 @@ def _row(*values: str) -> tuple[str, ...]:
 
 
 _ROWS: Dict[str, tuple[str, ...]] = {
+    "How much of this machine spaCR keeps between runs: processes, caches and GPU memory. Laptop keeps the least — for 8 GB or on battery; Workstation the most. The same spaCR code runs at every level, and the reproducibility hash records what each run used.": _row(
+        "Hur mycket av den här maskinen spaCR behåller mellan körningar: processer, cacheminne och GPU-minne. Bärbar dator behåller minst — för 8 GB eller på batteri; Arbetsstation mest. Samma spaCR-kod körs på alla nivåer, och reproducerbarhetshashen registrerar vad varje körning använde.",
+        "Wie viel von diesem Rechner spaCR zwischen Läufen behält: Prozesse, Caches und GPU-Speicher. Laptop behält am wenigsten — für 8 GB oder im Akkubetrieb; Arbeitsstation am meisten. Derselbe spaCR-Code läuft auf jeder Stufe, und der Reproduzierbarkeits-Hash hält fest, was jeder Lauf verwendet hat.",
+        "Cuánto de esta máquina conserva spaCR entre ejecuciones: procesos, cachés y memoria de GPU. Portátil conserva lo mínimo — para 8 GB o con batería; Estación de trabajo lo máximo. El mismo código de spaCR se ejecuta en todos los niveles, y el hash de reproducibilidad registra lo que usó cada ejecución.",
+        "spaCR 在两次运行之间保留本机的多少资源：进程、缓存和 GPU 内存。笔记本电脑保留最少——适用于 8 GB 或使用电池时；工作站保留最多。每个级别运行的 spaCR 代码完全相同，可复现性哈希会记录每次运行所使用的资源。",
+        "Quanto desta máquina o spaCR mantém entre execuções: processos, caches e memória da GPU. Portátil mantém o mínimo — para 8 GB ou com bateria; Estação de trabalho o máximo. O mesmo código do spaCR é executado em todos os níveis, e o hash de reprodutibilidade regista o que cada execução usou.",
+        "spaCR इस मशीन का कितना हिस्सा रन के बीच बनाए रखता है: प्रक्रियाएँ, कैश और GPU मेमोरी। लैपटॉप सबसे कम रखता है — 8 GB के लिए या बैटरी पर; वर्कस्टेशन सबसे अधिक। हर स्तर पर वही spaCR कोड चलता है, और पुनरुत्पादन हैश दर्ज करता है कि हर रन ने क्या उपयोग किया।",
+        "spaCR가 실행 사이에 이 컴퓨터의 자원을 얼마나 유지하는지: 프로세스, 캐시, GPU 메모리. 노트북은 가장 적게 유지하며 — 8 GB이거나 배터리 사용 시 — 워크스테이션은 가장 많이 유지합니다. 모든 수준에서 동일한 spaCR 코드가 실행되며, 재현성 해시가 각 실행이 사용한 자원을 기록합니다.",
+        "Hversu mikið af þessari vél spaCR heldur milli keyrslna: ferli, skyndiminni og GPU-minni. Fartölva heldur minnstu — fyrir 8 GB eða á rafhlöðu; Vinnustöð mestu. Sami spaCR-kóði keyrir á öllum stigum og samsvörðunarkennitalan skráir hvað hver keyrsla notaði.",
+        "Quelle part de cette machine spaCR conserve entre les exécutions : processus, caches et mémoire GPU. Ordinateur portable en conserve le moins — pour 8 Go ou sur batterie ; Station de travail le plus. Le même code spaCR s’exécute à chaque niveau, et le hachage de reproductibilité enregistre ce que chaque exécution a utilisé."),
+    "Primary modules are grouped here into Core, Data, Tools and Assays; related workflows are reached from their host module. Click any name to open it. Ctrl+1 through Ctrl+9 opens the first nine apps in sidebar order.": _row(
+        "Primära moduler grupperas här i Core, Data, Tools och Assays; relaterade arbetsflöden nås från sin värdmodul. Klicka på ett namn för att öppna det. Ctrl+1 till Ctrl+9 öppnar de nio första apparna i sidofältets ordning.",
+        "Hauptmodule sind hier in Core, Data, Tools und Assays gruppiert; zugehörige Arbeitsabläufe werden über ihr Hostmodul erreicht. Klicken Sie auf einen Namen, um ihn zu öffnen. Ctrl (Strg)+1 bis Ctrl+9 öffnen die ersten neun Apps in der Reihenfolge der Seitenleiste.",
+        "Los módulos principales se agrupan aquí en Core, Data, Tools y Assays; los flujos de trabajo relacionados se abren desde su módulo anfitrión. Haga clic en cualquier nombre para abrirlo. Ctrl+1 a Ctrl+9 abren las nueve primeras aplicaciones en el orden de la barra lateral.",
+        "主要模块在此分组为 Core、Data、Tools 和 Assays；相关工作流可从其宿主模块打开。点击任意名称即可打开。Ctrl+1 至 Ctrl+9 按侧边栏顺序打开前九个应用。",
+        "Os módulos principais estão agrupados aqui em Core, Data, Tools e Assays; os fluxos de trabalho relacionados são abertos a partir do seu módulo anfitrião. Clique em qualquer nome para o abrir. Ctrl+1 a Ctrl+9 abrem as nove primeiras aplicações pela ordem da barra lateral.",
+        "मुख्य मॉड्यूल यहाँ Core, Data, Tools और Assays में समूहित हैं; संबंधित वर्कफ़्लो उनके होस्ट मॉड्यूल से खोले जाते हैं। खोलने के लिए किसी भी नाम पर क्लिक करें। Ctrl+1 से Ctrl+9 साइडबार क्रम में पहले नौ ऐप खोलते हैं।",
+        "기본 모듈은 여기에서 Core, Data, Tools, Assays로 그룹화됩니다. 관련 워크플로는 해당 호스트 모듈에서 열립니다. 이름을 클릭하면 열립니다. Ctrl+1 부터 Ctrl+9 까지는 사이드바 순서대로 처음 아홉 개의 앱을 엽니다.",
+        "Aðaleiningar eru flokkaðar hér í Core, Data, Tools og Assays; tengd vinnuferli eru opnuð frá hýsileiningu sinni. Smelltu á hvaða heiti sem er til að opna það. Ctrl+1 til Ctrl+9 opna fyrstu níu forritin í röð hliðarstikunnar.",
+        "Les modules principaux sont regroupés ici en Core, Data, Tools et Assays ; les flux de travail associés s’ouvrent depuis leur module hôte. Cliquez sur un nom pour l’ouvrir. Ctrl+1 à Ctrl+9 ouvrent les neuf premières applications dans l’ordre de la barre latérale."),
+    # ---- HARDWARE STATUS AND PERFORMANCE LEVELS (instruction 316) ----
+    # Icelandic, Swedish and German REVIEWED BY EINAR on 2026-09-02,
+    # string by string, in VS Code. The other six locales are machine
+    # drafts with English fallback and are NOT claimed as reviewed --
+    # instruction 357 records who reviewed what and why the public claim
+    # has to be per-locale rather than "nine languages".
+    #
+    # CPU and GPU are deliberately absent: 316-A answered that they stay
+    # exact in every locale, as technical identifiers, like QC.
+    "none detected": _row(
+        "ingen upptäckt", "keine erkannt", "ninguno detectado", "未检测到", "nenhum detectado", "कोई नहीं मिला", "감지되지 않음", "ekkert greindist", "aucun détecté"),
+    "detected, not used by spaCR": _row(
+        "upptäckt, används inte av spaCR", "erkannt, wird von spaCR nicht verwendet", "detectado, no utilizado por spaCR", "已检测到，spaCR 未使用", "detectado, não utilizado pelo spaCR", "पाया गया, spaCR द्वारा उपयोग नहीं किया गया", "감지됨, spaCR에서 사용하지 않음", "greind, ekki notuð af spaCR", "détecté, non utilisé par spaCR"),
     # Navigation and common actions.
     "Home": _row(
         "Hem", "Startseite", "Inicio", "主页", "Início",
@@ -2086,8 +2119,10 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Laptop": _row(
         "Bärbar dator", "Laptop", "Portátil", "笔记本电脑", "Notebook",
         "लैपटॉप", "노트북", "Fartölva", "Ordinateur portable"),
+    # German REVIEWED BY EINAR 2026-09-02: "Arbeitsstation", not the
+    # English loanword. Icelandic and Swedish were already right.
     "Workstation": _row(
-        "Arbetsstation", "Workstation", "Estación de trabajo", "工作站",
+        "Arbetsstation", "Arbeitsstation", "Estación de trabajo", "工作站",
         "Estação de trabalho", "वर्कस्टेशन", "워크스테이션", "Vinnustöð",
         "Station de travail"),
     "Starfield": _row(

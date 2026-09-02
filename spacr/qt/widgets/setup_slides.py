@@ -66,7 +66,7 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
     ("How it runs",
      "How much of this machine spaCR keeps between runs: processes, "
      "caches and GPU memory. Laptop keeps the least — for 8 GB or on "
-     "battery; Workstation the most. The science is identical at every "
+     "battery; Workstation the most. The same spaCR code runs at every "
      "level, and the reproducibility hash records what each run used.",
      ("spacr_mode", "hash_inputs")),
     ("The assistant",

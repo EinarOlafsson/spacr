@@ -277,3 +277,62 @@ lane ratchets on does not move.
 Until then the buttons read as broken in every locale but English. That
 is a visible regression against the rename, and it is recorded here
 rather than quietly left for someone to find.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE FIRST HUMAN-REVIEWED TRANSLATIONS THIS ITEM HAS EVER HAD
+--------------------------------------------------------------------------------
+
+Instruction 357 put the questions to the maintainer in VS Code and he answered
+them string by string. WHAT WAS REVIEWED, BY WHOM, WHEN:
+
+    Reviewer   Einar Olafsson (the maintainer)
+    Locales    ICELANDIC, SWEDISH, GERMAN -- and only these three. He was
+               asked which he can read and named exactly those.
+    Date       2026-09-02
+    Method     shown the English and one locale at a time, approving or
+               correcting each draft.
+
+    "none detected"                     approved is, sv, de
+    "detected, not used by spaCR"       approved is, sv, de
+    Laptop / Extra Performance /
+      Performance / Balanced /
+      Workstation                       approved is, sv, de
+    the performance/resource caption    approved is, sv, de
+    the Home grouping caption           approved is, sv, de
+
+ONE CORRECTION HE MADE, and it is the kind only a reader catches: German
+"Workstation" was left as the English loanword in the existing catalog row.
+He translated it -- ARBEITSSTATION -- and asked for the other level names to
+be translated too rather than half the dropdown reading in English.
+
+TWO CHANGES TO THE ENGLISH ITSELF came out of the review:
+
+  * "The science is identical at every level" is now "The same spaCR code runs
+    at every level". His reason: refer to the code that executes being the
+    same, not to "the science". The old phrase claimed something broader than
+    the software can promise.
+  * A KEYBOARD KEY IS NAMED IN BOTH: "Ctrl (Strg)" in German. His instruction
+    was general -- "for these types of examples use Ctrl (Strg)" -- so it is a
+    CONVENTION, not one string: name the key as spaCR prints it, with the
+    local keyboard's name in parentheses. Only German is affected today; a
+    locale added later with its own key name follows the same rule.
+
+THE SIX LOCALES HE DID NOT CLAIM -- es, zh_CN, pt, hi, ko, fr -- have machine
+drafts with English fallback and ARE NOT RECORDED AS REVIEWED. 357 guideline 4
+forbids claiming a review for a locale the reviewer did not say he could
+evaluate, and this is the case it was written for.
+
+CPU AND GPU ARE NOW EXEMPT, per his answer to 316-A. `GPU` was already in
+`_RUNTIME_IDENTITY_CAPTIONS` and simultaneously required to have a translated
+row, because the compact surface never subtracted that set. It does now, and
+`CPU` joined it.
+
+    tests/qt/test_i18n_caption_ratchet.py + the setup-screen file:
+        6 failed at the start of the day -> 1 failed, 15 passed
+
+THE ONE REMAINING FAILURE IS DELIBERATE.
+`test_external_caption_layer_is_complete_exclusive_and_pinned` counts the
+GENERATED layer, and `audit_i18n_coverage` reads 4946/5093 per locale -- 147
+rows behind. Moving that pin would green a test over catalogs that are stale,
+which is the mistake this item's history is made of. It stays red until the
+rows exist.
