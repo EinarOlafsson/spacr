@@ -393,3 +393,30 @@ THE THEME IS WHAT TIPS BOTH, and anyone reproducing this by hand needs to
 know: built WITHOUT the application stylesheet the same screen reports every
 button at exactly its hint and nothing is clipped at all. The sweep runs with
 `qt_theme_applied` because that is the font the user has.
+
+--------------------------------------------------------------------------------
+2026-09-02, LATER: THE SUBTITLE ELIDES, SO ONE OF THE THREE IS CLOSED
+--------------------------------------------------------------------------------
+
+    measure / de           6   (open -- the action row's layout)
+    measure / is           5   (open -- same cause)
+    classify_merged / de   1 -> 0
+
+`ApiHelpLabel` is the module masthead's blurb and the only user of that
+class. The masthead has always MEANT it to be cut short -- its own docstring
+says the label "may shrink below its ideal width rather than force the window
+wider" and is "repeated in its own hover help so a truncated one is
+readable". What it did instead was CLIP: a `wordWrap(False)` QLabel paints as
+many characters as fit and stops, with no ellipsis and no hint that there is
+more, so the hover help was the answer to a question the reader had no way of
+knowing to ask.
+
+It elides now, which is the behaviour the docstring already described, and
+`full_text()` returns the whole sentence for anything that needs it. Measured
+on Classify in German: 1,354 px of text on a 1,281 px line, six characters
+gone without a mark -- and English fits, which is why nobody had seen it.
+
+THE RATCHET DID ITS OWN JOB HERE, which is worth recording as evidence that
+this shape of test earns its keep: the fix made the sweep FAIL, because the
+combination was recorded as having one offender and now has none, and the
+test refuses to let a closed entry sit in the table pretending to be debt.

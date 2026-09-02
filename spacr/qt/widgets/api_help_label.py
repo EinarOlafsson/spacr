@@ -5,6 +5,7 @@ from html import escape
 from typing import Optional
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import QLabel, QWidget
 
 
@@ -14,6 +15,20 @@ class ApiHelpLabel(QLabel):
     The link follows the active module and interface language. Labels without
     an application key retain their description but omit the documentation
     link. Hover content is also exposed through the Qt accessibility tree.
+
+    IT ELIDES RATHER THAN CLIPS, which is the difference between a sentence
+    the reader can SEE is unfinished and one that simply stops. This label is
+    the module masthead's blurb, and the masthead deliberately keeps it to
+    one line that "may shrink below its ideal width rather than force the
+    window wider" -- so being cut short is designed, and the hover help is
+    where the rest is meant to live.
+
+    A `wordWrap(False)` QLabel gives none of that away: Qt paints as many
+    characters as fit and stops, with no ellipsis and no hint there is more.
+    Measured by instruction 350's sweep on Classify in German, where the
+    blurb is 1,354 px of text on a 1,281 px line -- 73 px, about six
+    characters, gone without a mark. English fits, which is why it was
+    invisible until a second locale was measured.
     """
 
     def __init__(self, text: str = "", app_key: str = "",
@@ -26,7 +41,45 @@ class ApiHelpLabel(QLabel):
         self._help_filter = None
         if self._app_key:
             self.setProperty("moduleApiAppKey", self._app_key)
+        self._full_description = str(text)
         self._refresh_help()
+
+    # -- painting as much as fits ------------------------------------------
+
+    def setText(self, text: str) -> None:          # noqa: N802 (Qt casing)
+        """Remember the whole sentence, then paint as much of it as fits."""
+        self._full_description = str(text or "")
+        QLabel.setText(self, self._full_description)
+        self._elide_to_fit()
+
+    def full_text(self) -> str:
+        """The complete description, however much is being painted."""
+        return getattr(self, "_full_description", QLabel.text(self))
+
+    def resizeEvent(self, event):                  # noqa: N802 (Qt naming)
+        """Re-elide for the width just granted."""
+        super().resizeEvent(event)
+        self._elide_to_fit()
+
+    def _elide_to_fit(self) -> None:
+        """Paint the full text when it fits, an elided copy when it does not.
+
+        ONLY WHEN THE LABEL DOES NOT WRAP. A wrapping label uses its HEIGHT
+        for the overflow, and eliding one would throw away a line it had room
+        to draw.
+        """
+        full = getattr(self, "_full_description", "")
+        if not full or self.wordWrap():
+            return
+        margins = self.contentsMargins()
+        room = self.width() - margins.left() - margins.right()
+        if room <= 0:
+            return
+        metrics = QFontMetrics(self.font())
+        shown = (full if metrics.horizontalAdvance(full) <= room
+                 else metrics.elidedText(full, Qt.ElideRight, room))
+        if shown != QLabel.text(self):
+            QLabel.setText(self, shown)
 
     # -- what the label speaks for -----------------------------------------
 
