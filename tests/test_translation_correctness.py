@@ -71,13 +71,9 @@ DELIBERATELY_UNTRANSLATED = {
     "Figures": {"fr"},
     # The cognate is spelled identically in these three languages.
     "Animation": {"de", "fr", "sv"},
-    # The two performance levels that name a MACHINE rather than describe
-    # one. German borrows both words unchanged -- "Laptop" is the ordinary
-    # German noun, and "Workstation" is what the hardware is called in
-    # German technical writing; "Arbeitsstation" would read as a generic
-    # work area rather than the class of computer meant here.
+    # This performance level names a MACHINE rather than describing one.
+    # German borrows "Laptop" unchanged as the ordinary noun.
     "Laptop": {"de"},
-    "Workstation": {"de"},
     "Live": {"de", "sv"},
     # The QC module's name, after "QC Dashboard" was shortened to "QC" on
     # 2026-08-31. ALL NINE, because "QC" is declared identity text in
