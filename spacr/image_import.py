@@ -45,9 +45,11 @@ from typing import Dict, List, Optional, Sequence, Tuple
 __all__ = [
     "AXES",
     "MARKERS",
+    "InsideFile",
     "InferredLayout",
     "TokenSlot",
     "infer_layout",
+    "read_axes_inside",
     "tokenise",
 ]
 
@@ -299,3 +301,82 @@ def infer_layout(root, *, sample: int = 400,
         if found:
             layout.per_file[rel] = found
     return layout
+
+
+@dataclass(frozen=True)
+class InsideFile:
+    """What one file's own metadata says about the axes it holds.
+
+    :param pages: how many pages the file has. ``1`` means a plain 2-D image
+        and nothing below matters.
+    :param axes: the axis letters the file declares, e.g. ``"CYX"``,
+        ``"ZYX"``, ``"TYX"``. Empty when the file declares none.
+    :param sizes: ``{axis: length}`` for the non-spatial axes only, so
+        ``{"c": 2}`` or ``{"z": 5}``.
+    :param declared: whether the axes came from the FILE or were guessed.
+        ``False`` with ``pages > 1`` is the honest unknown -- a multi-page
+        TIFF with no metadata could be Z, T or C and nothing can say which.
+    """
+
+    pages: int
+    axes: str = ""
+    sizes: Dict[str, int] = field(default_factory=dict)
+    declared: bool = False
+
+    @property
+    def is_ambiguous(self) -> bool:
+        """Several pages and nothing saying what they are."""
+        return self.pages > 1 and not self.declared
+
+
+def read_axes_inside(path) -> InsideFile:
+    """What ``path``'s own metadata says its pages are.
+
+    THE AXIS THAT IS NOT IN THE NAME. ``infer_layout`` reads names, and a name
+    cannot carry what an acquisition put inside the file: an OME-TIFF holding
+    two channels is one filename, and a Z-stack and a timelapse of the same
+    field have IDENTICAL names. Only the file says which.
+
+    NEVER GUESSES. A multi-page TIFF with no axis metadata could be Z, T or C,
+    and this returns ``declared=False`` with the page count rather than
+    picking one. The caller shows that to the user; instruction 363's whole
+    complaint is about a page index being treated as meaningful on its own.
+
+    :param path: an image file.
+    :returns: an :class:`InsideFile`. A file that cannot be opened at all
+        comes back as ``InsideFile(pages=0)`` rather than raising -- a folder
+        of thousands should not fail wholesale because one file is truncated.
+    """
+    try:
+        import tifffile
+    except ImportError:                    # pragma: no cover - tifffile ships
+        return InsideFile(pages=0)
+
+    path = Path(path)
+    if path.suffix.lower() not in (".tif", ".tiff"):
+        # Only TIFF carries this. A PNG or JPEG is one plane by construction.
+        return InsideFile(pages=1 if path.is_file() else 0)
+    try:
+        with tifffile.TiffFile(str(path)) as handle:
+            pages = len(handle.pages)
+            series = handle.series[0] if handle.series else None
+            axes = (series.axes or "") if series is not None else ""
+            shape = tuple(series.shape) if series is not None else ()
+            sizes = {a.lower(): int(n) for a, n in zip(axes, shape)
+                     if a in "CZT"}
+            # DECLARED MEANS A NAMED NON-SPATIAL AXIS WAS FOUND, and nothing
+            # weaker. The first version accepted "any axis letter that is not
+            # Y, X or S", which let tifffile's own `Q` through -- and `Q` is
+            # precisely tifffile's word for "these pages exist and I do not
+            # know what they are". An unlabelled three-page stack came back
+            # declared, which is the guess this function exists not to make.
+            #
+            # is_ome and is_imagej are not sufficient either: a file can carry
+            # either container and still not say what its pages mean.
+            return InsideFile(pages=pages, axes=axes, sizes=sizes,
+                              declared=bool(sizes))
+    except Exception:
+        # Truncated, unreadable, or not really a TIFF. Reported as unknown so
+        # the folder-level scan carries on and the caller can list what it
+        # could not read.
+        return InsideFile(pages=0)
