@@ -3778,10 +3778,12 @@ def _resolve_invasion_intensity_column(df, compartment, channel,
     :raises KeyError: when the requested statistic is not in the table.
     """
     def _template(name):
+        """Return the requested statistic's formatted measurement column."""
         return _INVASION_STATISTIC_TEMPLATES[name].format(
             compartment=compartment, channel=channel)
 
     def _candidates(name):
+        """Yield the current and any legacy measurement column for ``name``."""
         yield _template(name)
         legacy = _INVASION_LEGACY_STATISTIC_TEMPLATES.get(name)
         if legacy is not None:
@@ -4135,6 +4137,7 @@ def _invasion_field_thresholds(df, value_column, settings, control_thresholds):
     tolerance = float(settings['threshold_agreement_tolerance'])
 
     def _auto(values):
+        """Return a finite-data threshold, or NaN below the object-count floor."""
         values = np.asarray(values, dtype=float)
         values = values[np.isfinite(values)]
         if values.size < floor:
