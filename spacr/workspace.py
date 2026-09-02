@@ -44,7 +44,7 @@ import shutil
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Mapping, Optional, Tuple
+from typing import Any, Callable, Dict, Iterator, List, Mapping, Optional, Tuple
 
 LOG = logging.getLogger("spacr.workspace")
 
@@ -347,6 +347,16 @@ def inventory(sections: Mapping[str, Any], *, hash_files: bool = True) -> List[D
     seen: Dict[str, Dict[str, Any]] = {}
 
     def add(role: str, raw: str, carry: bool) -> None:
+        """Add or promote one path in the captured inventory.
+
+        :param role: source role recorded when the path is first seen.
+        :param raw: path text to expand and inspect.
+        :param carry: whether the file must be included in a bundle.
+        :returns: None. Invalid and missing paths are ignored; repeated paths
+            reuse their first record and are promoted when any occurrence
+            requests carrying. File hashing follows the captured
+            ``hash_files`` policy.
+        """
         try:
             path = Path(raw).expanduser()
         except Exception:                             # noqa: BLE001
