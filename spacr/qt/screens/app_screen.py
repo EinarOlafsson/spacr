@@ -4109,6 +4109,51 @@ class AppScreen(QWidget):
         download(self, destination, _done)
         return placed
 
+    def keep_the_src_openable(self, destination) -> str:
+        """Take back a shipped ``src`` the panel cannot open. Return the value.
+
+        THE RULE, once, for every route that applies example settings.
+
+        A shipped settings file records the machine that GENERATED it, and
+        `reanchor_example_paths` re-homes what it can. What it cannot resolve
+        it deliberately leaves alone -- a template token, or a path whose
+        folder name matches nothing here -- and that value then reaches the
+        field verbatim. Reported 2026-09-02 as "loade test images dosnt loade
+        the right path into src in mask generation it loads <src>"
+        (instruction 349).
+
+        A MORE SPECIFIC SHIPPED VALUE IS KEPT. Measure's example points `src`
+        at the plate's `merged/` subfolder, and
+        :meth:`reanchor_example_paths` records that collapsing that to the
+        plate root "would quietly measure the wrong directory rather than
+        fail". So this only ever replaces a value that is not a directory --
+        never one that merely differs from ``destination``.
+
+        `Path("")` IS THE WORKING DIRECTORY and its ``is_dir()`` is True, so
+        an empty cell has to be rejected before the filesystem is asked or the
+        run reads the cwd.
+
+        :param destination: the folder the example was unpacked into.
+        :returns: the value the field ends up holding.
+        """
+        from pathlib import Path
+
+        fallback = str(Path(destination))
+        model = getattr(self, "_settings_model", None)
+        control = (model._widgets.get("src")
+                   if model is not None and hasattr(model, "_widgets")
+                   else None)
+        if control is None or not hasattr(control, "setText"):
+            return fallback
+        applied = str(control.text() if hasattr(control, "text") else "")
+        if applied.strip() and Path(applied).is_dir():
+            return applied
+        control.setText(fallback)
+        self._console.append_stdout(
+            tr("The example's recorded source does not exist here; "
+               "using {path}", path=fallback) + "\n")
+        return fallback
+
     def _put_the_measure_example_in_place(self, destination) -> dict:
         """Point ``src`` at the downloaded example and say so."""
         from pathlib import Path
@@ -4145,20 +4190,7 @@ class AppScreen(QWidget):
         # about it is specific to Mask -- it just showed up there first.
         # Falling back to the folder we downloaded into is strictly better
         # than a path that cannot be opened.
-        if control is not None and hasattr(control, "setText"):
-            applied = str(control.text() if hasattr(control, "text") else "")
-            # `.strip()` FIRST, and it is not tidiness: `Path("")` is
-            # `PosixPath(".")`, whose `is_dir()` is True because the working
-            # directory exists. An empty cell would otherwise be accepted as
-            # a valid source and the run would read the cwd.
-            if not applied.strip() or not Path(applied).is_dir():
-                control.setText(source)
-                self._console.append_stdout(
-                    tr("The example's recorded source does not exist here; "
-                       "using {path}", path=source) + "\n")
-                return {"src": source}
-            source = str(applied)
-        return {"src": source}
+        return {"src": self.keep_the_src_openable(destination)}
 
     def _install_sequencing_example_button(self, section) -> None:
         """Add Map Barcodes' control for the published reads."""
@@ -4318,7 +4350,12 @@ class AppScreen(QWidget):
                 app=self.app_key)
         self._console.append_stdout(
             tr("Example data ready: {path}", path=str(destination)) + "\n")
-        return {"src": str(destination)}
+        # THIS ROUTE NEVER WROTE `src` AT ALL, so the panel held whatever the
+        # shipped file said and the mapping below claimed the destination
+        # regardless -- a caller could believe `src` was the download folder
+        # while the form showed a path from another machine. Same guard,
+        # stated once.
+        return {"src": self.keep_the_src_openable(destination)}
 
     def example_images_destination(self):
         """The shared example plate folder. See `hf_download.example_plate_folder`."""

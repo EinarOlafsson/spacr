@@ -194,3 +194,38 @@ was read closely here. The question to ask of each is the one this item turned
 on: DOES ANYTHING WRITE A PATH BEFORE `apply_settings_that_came_with` RUNS,
 and if so, is the shipped value more specific (keep it, guard it) or merely a
 different machine's (take it back)?
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE RULE IS NOW STATED ONCE, AND ANNOTATE/CLASSIFY HAD NO GUARD
+--------------------------------------------------------------------------------
+
+`AppScreen.keep_the_src_openable(destination)` holds the whole rule, and both
+routes call it:
+
+  * a shipped `src` that IS a directory is kept, however much it differs from
+    the download folder -- that is Measure's `merged/` subfolder, and taking
+    it back would quietly measure the wrong directory;
+  * anything else -- a template token, an un-rehomed foreign path, an empty
+    cell -- is replaced by the folder we unpacked into, and the console says
+    so.
+
+THE ANNOTATE / CLASSIFY ROUTE WAS WORSE THAN MASK'S AND NOBODY HAD LOOKED.
+`_apply_the_example_settings` never wrote `src` AT ALL: it applied the shipped
+settings and then returned `{"src": str(destination)}` unconditionally. So the
+panel showed whatever the publisher recorded while the caller was told the
+download folder -- two different answers to "where is src", with no guard on
+either. It now goes through the same helper.
+
+TESTS: twelve in
+`tests/qt/test_the_example_images_win_the_src_field.py`, covering all three
+routes. The stub screens BIND THE REAL `keep_the_src_openable` rather than
+stubbing it -- it is the rule under test, and a stand-in would test the
+stand-in.
+
+  12 passed in that file; 97 passed across the eight example suites, with the
+  same two pre-existing failures that fail identically at HEAD.
+
+WHAT IS ACTUALLY LEFT: Map Barcodes. Its handler is the sequencing example
+button and it was not read. Ask it the same question -- does anything write a
+path before `apply_settings_that_came_with` runs, and is the shipped value
+more specific or merely foreign.
