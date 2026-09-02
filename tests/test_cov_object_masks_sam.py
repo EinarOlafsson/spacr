@@ -55,7 +55,14 @@ def _close_figures():
 def force_cpu(monkeypatch):
     """Force the CPU code path even on a CUDA box and record empty_cache()."""
     import torch
+
+    cpu = torch.device("cpu")
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    monkeypatch.setattr(
+        O.accelerator,
+        "cellpose_kwargs",
+        lambda: {"gpu": False, "device": cpu},
+    )
     calls = []
     monkeypatch.setattr(torch.cuda, "empty_cache", lambda: calls.append(1))
     return calls
@@ -270,7 +277,7 @@ def test_basic_run_writes_masks_counts_and_uses_cpu_model(tmp_path, fake_model,
     assert kw["progress"] is True
     assert kw["min_size"] == 0          # cell_min_area default
     assert kw["resample"] is True       # _get_object_settings('cell')
-    assert kw["flow_threshold"] == 1.0  # cell_flow_threshold default
+    assert kw["flow_threshold"] == 100  # cell_flow_threshold default
     assert kw["cellprob_threshold"] == 0  # cell_cellprob_threshold default
 
     # two-channel stack -> both cellpose channels handed to the model
