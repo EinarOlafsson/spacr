@@ -146,3 +146,70 @@ HOW IT WILL BE CHECKED
   module's landing page has no explanation -- otherwise part 2 has moved
   information from somewhere into nowhere.
 * The README's editorial word ceiling is lowered by what part 2 removed.
+
+--------------------------------------------------------------------------------
+2026-09-02: PART 3 MEASURED, AND IT IS WORSE THAN "SOME PAGES ARE THIN"
+--------------------------------------------------------------------------------
+
+This file said to measure per module before writing anything. Measured, as
+words in the module docstring the tile's API page opens with:
+
+    measure           spacr.measure            6   <- fixed, now 476
+    regression        spacr.ml                 6
+    mask              spacr.core               7
+    umap              spacr.core               7
+    map_barcodes      spacr.sequencing         8
+    analyze_plaques   spacr.submodules         8
+    recruitment       spacr.submodules         8
+    invasion          spacr.submodules         8
+    replication       spacr.submodules         8
+    ---------------------------------------------------
+    qc_dashboard      qt.screens.qc_dashboard        133
+    gate_editor       qt.screens.gate_editor         146
+    classify_merged   spacr.classify                 154
+    graph_builder     qt.screens.graph_builder       178
+    experiment_design qt.screens.experiment_design   239
+    run_compare       qt.screens.run_compare         275
+    make_masks        qt.screens.make_masks          281
+    dose_response     qt.screens.dose_response       296
+    annotate          qt.screens.annotate            384
+    power             qt.screens.power               509
+    align             spacr.align                    715
+    foreign           spacr.foreign                1180
+
+NINE OF TWENTY-ONE TILES LAND ON SIX TO EIGHT WORDS, and four of those nine
+are CORE pipeline modules -- Mask, Measure, Regression and Map Barcodes.
+There is nothing in between 8 and 133, so there is no judgement call about
+where the line is.
+
+AND THE DEEPER PROBLEM, which prose alone cannot fix: SIX TILES SHARE THREE
+PAGES. Mask and UMAP both open `spacr.core`; all four toxoplasma assays --
+Analyze Plaques, Recruitment, Invasion, Replication -- open
+`spacr.submodules`. A reader who clicks "Recruitment" because they do not
+know what it does lands on the same text as somebody who clicked "Analyze
+Plaques", and one page cannot answer for both. Those tiles need pages of
+their own, which is a change to where the tiles POINT (packaging + docs) and
+not to any docstring. Part 3 is not finished by writing prose.
+
+DONE HERE: `spacr/measure.py`, 6 words -> 476, written to this file's own bar
+rather than to a length -- what it is for, what it needs, what it produces,
+what to do next, and the three non-obvious things that are load-bearing (a
+field that fails to measure is recorded and stamped into the database rather
+than passed over; the 2-D path is bit-identical so a re-measured screen gives
+the same numbers; the neighbour radius is in the column name so two plates
+measured differently will not silently concatenate).
+
+NOT DONE, AND WHY: `spacr/core.py`, `spacr/ml.py`, `spacr/sequencing.py` and
+`spacr/submodules.py` are the OTHER SESSION'S files under the two-session
+protocol in instruction 325. They are the four biggest gaps and they are
+recorded rather than taken. See 325's channel section.
+
+`tests/test_every_module_lands_on_prose.py` makes the rest safe: a ratchet
+with each owed module's current word count, so a page may improve and leave
+the table but may not get thinner, a tile added tomorrow that lands on
+nothing fails immediately, and the six-tiles-three-pages fact is asserted as
+a KNOWN shape so that a new sharing has to be noticed and recorded.
+
+A WORD COUNT IS NOT THOROUGHNESS and the test says so in as many words. Six
+words cannot answer four questions, which is all a machine can tell; whether
+the prose is any good is a reader's judgement and stays one.

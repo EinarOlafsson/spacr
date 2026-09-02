@@ -1,4 +1,60 @@
-"""Per-object morphology and intensity measurement pipeline."""
+"""Turn masks and channels into one row per object, in a database.
+
+WHAT IT IS FOR. Segmentation says WHERE the objects are; this module says
+what they are LIKE. It reads the arrays Mask wrote and produces the table
+every downstream question is asked of -- which genes changed a phenotype,
+which cells to train a classifier on, which wells to believe.
+
+WHAT IT NEEDS. A ``merged/`` folder written by
+:func:`spacr.core.preprocess_generate_masks`: the intensity channels and the
+label masks for one field, saved together as ``.npy``. Which masks to measure
+is named per object -- ``cell_mask_dim``, ``nucleus_mask_dim``,
+``pathogen_mask_dim`` and the organelle slots -- and an object with no mask
+dimension is simply not measured, rather than measured as empty.
+
+WHAT IT PRODUCES.
+
+* ``measurements/measurements.db``, one SQLite table per object type, one row
+  per object, keyed by the plate/row/column/field/object identity
+  :mod:`spacr.schema` composes. The columns are shape, intensity, texture and
+  SPATIAL features -- how many neighbours an object has within a radius, how
+  far the nearest one is, what fraction of its border touches another.
+* Optionally, one PNG per object (``save_png``), cropped by the mask. Those
+  crops are what :func:`spacr.deep_spacr.deep_spacr` trains on and what
+  Annotate shows, which is why the cropping lives here rather than beside the
+  classifier: they must be cut by the same mask the measurements came from.
+
+WHAT TO DO NEXT. Annotate or Classify, if the crops were written; Regression,
+if the question is which perturbation moved which measurement. Both read the
+database this writes and neither re-measures anything.
+
+--------------------------------------------------------------------------
+
+THREE THINGS THAT ARE NOT OBVIOUS AND ARE LOAD-BEARING:
+
+A FIELD THAT FAILS TO MEASURE IS RECORDED, SUMMARISED AND STAMPED INTO THE
+DATABASE. Silence would let a regression analyse 344 of 384 wells and report
+a result with no sign that forty are missing, which is the failure this
+module is most careful about -- the same reason its 3-D path refuses a volume
+it cannot measure correctly instead of measuring it wrongly.
+
+THE 2-D PATH IS BIT-IDENTICAL AND DELIBERATELY SO. Mask can emit ``(Z, Y, X)``
+label volumes now (see :mod:`spacr.zstack`), and everything about voxel
+spacing, volume columns and the units stamp exists so that a 3-D field is
+measured in real units or refused. A 2-D field takes exactly the code it took
+before, with ``spacing=None``; a screen measured last year and re-measured
+today produces the same numbers.
+
+THE RADIUS IS IN THE COLUMN NAME. ``neighbors_within_30`` is a different
+column from ``neighbors_within_50``, following the same precedent as
+``homogeneity_distance_<d>``, so two plates measured at different radii will
+not silently concatenate into one frame that means two things.
+
+Illumination correction and a user-drawn ROI reach this module through the
+registries in :mod:`spacr.measure_hooks` rather than by editing it. Both are
+empty by default and both entry points return their input unchanged when they
+are, so an ordinary run is byte-identical to one from before they existed.
+"""
 
 import os, cv2, time, sqlite3, threading, traceback, shutil, inspect
 import numpy as np
