@@ -1228,3 +1228,56 @@ has an English sentence and no translation in any locale. Measured through
 before, 66 after. That is the whole increase -- the other folded modules
 already had their sentences, because `folded_modules` now reads a fold's
 registry row when its host keeps no record of its own.
+
+--------------------------------------------------------------------------------
+2026-09-02: THE DOCS JOB'S ONE FATAL FAILURE, AND IT WAS NOT A TRANSLATION
+--------------------------------------------------------------------------------
+
+`tools/build_documentation_i18n.py --audit` -- the check the Docs CI job runs
+-- did not report anything at all. It RAISED before printing a line:
+
+    ValueError: stale reviewed API source 'spacr.layers.LabelsLayer#2':
+    docs/i18n/reviewed/api/sv/2026-08-31-layers-parameter-docs.json
+
+MEASURED ACROSS EVERY REVIEWED API RECORD rather than fixed where it stopped,
+because an audit that aborts on its first finding hides the rest:
+
+    4,295  records correct
+        9  MIS-KEYED -- one record, in all nine languages
+        1  genuinely stale
+
+THE NINE WERE NOT STALE AT ALL, AND THAT IS THE INTERESTING PART. A reviewed
+record is addressed by POSITION -- `<symbol>#<block index>` -- and
+`spacr.layers.LabelsLayer` gained two blocks before the one that was
+reviewed: `seed`'s description and the "Colours come from ..." paragraph. So
+`#2` now addresses `seed` while the reviewed sentence sits at `#4`. The
+English and the translation are byte-identical to what a reviewer approved;
+only the address moved. Re-keying them re-certifies nothing.
+
+THE ONE THAT WAS REALLY STALE is `spacr.crops.resolve_crop_source#5` in
+Icelandic, and it is this file's own rule in miniature -- the English gained
+a clause:
+
+    reviewed  "a settings dict (with ``src``, optionally ``crop_source``) or
+               a source path -- the experiment root or its ``merged`` folder."
+    now       "a settings dict (with ``src``, optionally ``crop_source``), a
+               source path, OR A LIST/TUPLE WHOSE FIRST ENTRY IS THE SOURCE
+               PATH -- the experiment root or its ``merged`` folder."
+
+so the Icelandic is a faithful rendering of a sentence that no longer exists.
+Retired, which is remedy (a) recorded above, and the retired text is kept
+here so nothing is lost and a reviewer can put it back:
+
+    is: "uppsetningar lykil-gildi kortlagning (með ``src``, valkvætt
+         ``crop_source``) eða upprunaleið -- tilraunarrótin eða ``merged``
+         möppan hennar."
+
+  EINAR READS ICELANDIC, so this is the one stale record in the tree that
+  does not need a translator hired: one sentence from him closes it properly
+  rather than by machine.
+
+THE AUDIT NOW EXITS 0. What it prints is eight ordinary notices -- English
+catalog entries whose docstrings changed today, `spacr.illumination.*` from
+the other session and `spacr.image_import*` from this one. Those are the
+regeneration chore, not a failure, and they are what this file's 125-row debt
+is made of.
