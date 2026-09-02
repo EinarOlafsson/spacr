@@ -1689,8 +1689,8 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             "timelapse_frame_limits": [0, int(self._max_frames.value())],
             f"{obj}_channel": int(self._channel.value()),
             f"{obj}_diameter": float(self._diameter.value()),
-            "cell_FT": float(self._flow.value()),
-            "cell_CP_prob": float(self._prob.value()),
+            "cell_flow_threshold": float(self._flow.value()),
+            "cell_cellprob_threshold": float(self._prob.value()),
             "normalize": bool(self._normalise.isChecked()),
         }
 

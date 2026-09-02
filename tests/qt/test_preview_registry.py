@@ -142,13 +142,13 @@ def test_propagation_is_translated_into_the_modules_own_names(window, qtbot):
     host = screen._registry_preview
     host.on_propagate({
         "cell_diameter": 33.0,
-        "cell_FT": 0.6,
+        "cell_flow_threshold": 0.6,
         # Whole numbers only: Cellpose Masks declares `CP_prob` with an int
         # default, so `convert_settings_dict_for_gui` gives it an integer
         # spin box and a fractional probability is truncated on the way in.
         # That is the module's own declaration, not something propagation
         # can fix, and the test asserts what the widget can actually hold.
-        "cell_CP_prob": -2,
+        "cell_cellprob_threshold": -2,
     })
     collected = screen._settings_model.collect()
     assert collected["diameter"] == pytest.approx(33.0)

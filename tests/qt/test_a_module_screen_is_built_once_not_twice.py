@@ -333,7 +333,7 @@ class TestTheTranslationMemoAnswersTheSameThingTheCatalogsDo:
     """A memo that changed a string would be a mistranslation, not a speedup."""
 
     KEYS = ("src", "cell_channel", "nucleus_diameter", "plate", "n_jobs",
-            "organelle_CP_prob", "verbose")
+            "organelle_cellprob_threshold", "verbose")
 
     @pytest.mark.parametrize("language", ["en", "sv", "ko"])
     def test_a_tooltip_is_the_same_inside_and_outside_a_scope(self, language):

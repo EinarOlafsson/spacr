@@ -6,7 +6,7 @@ inside the per-source loop that the v2 branch never reaches. So every
 ``settings.get(key, fallback)`` in that branch answered with the fallback
 written beside it rather than with the module's declared default.
 
-One of them changes segmentation. ``cell_FT`` is declared 1.0 and the inline
+One of them changes segmentation. ``cell_flow_threshold`` is declared 1.0 and the inline
 fallback was 0.4, and it is forwarded verbatim to
 ``model.eval(flow_threshold=...)``. Cellpose's ``remove_bad_flow_masks``
 discards a mask whose flow error exceeds the threshold, so on a field with
@@ -51,14 +51,14 @@ def test_the_organelle_defaults_are_applied_too():
 def test_cell_ft_is_the_declared_value_not_the_inline_fallback():
     """The one fallback that changes segmentation output."""
     declared = S.set_default_settings_preprocess_generate_masks(
-        {"src": "/tmp/does-not-matter"})["cell_FT"]
+        {"src": "/tmp/does-not-matter"})["cell_flow_threshold"]
     assert declared == 1.0, (
-        "the declared cell_FT moved; this test pins the value the v2 branch "
+        "the declared cell_flow_threshold moved; this test pins the value the v2 branch "
         "must now agree with")
 
     body = _v2_branch_source()
-    assert "settings.get('cell_FT', 0.4)" in body or \
-           'settings.get("cell_FT", 0.4)' in body, (
+    assert "settings.get('cell_flow_threshold', 0.4)" in body or \
+           'settings.get("cell_flow_threshold", 0.4)' in body, (
         "the inline fallback is gone entirely -- fine, but then this test "
         "should assert the new spelling instead")
 
@@ -71,7 +71,7 @@ def test_the_defaults_helper_is_idempotent():
 
 
 def test_a_value_the_caller_set_still_wins():
-    """setdefault, not overwrite: an explicit cell_FT must survive."""
+    """setdefault, not overwrite: an explicit cell_flow_threshold must survive."""
     given = S.set_default_settings_preprocess_generate_masks(
-        {"src": "/tmp/x", "cell_FT": 0.25})
-    assert given["cell_FT"] == 0.25
+        {"src": "/tmp/x", "cell_flow_threshold": 0.25})
+    assert given["cell_flow_threshold"] == 0.25

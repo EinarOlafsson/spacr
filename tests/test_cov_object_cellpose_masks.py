@@ -305,7 +305,7 @@ def test_eval_receives_every_spacr_parameter_for_this_object_type(
     """The eval kwargs are where the silent-discard bugs live, so pin them."""
     src = tmp_path / "stack"
     _write_npz(src, n=3)
-    settings = _settings(src, batch_size=8, nucleus_FT=0.7, nucleus_CP_prob=-1.5,
+    settings = _settings(src, batch_size=8, nucleus_flow_threshold=0.7, nucleus_cellprob_threshold=-1.5,
                          nucleus_min_area=25)
 
     O.generate_cellpose_masks(str(src), settings, "nucleus")
@@ -358,8 +358,8 @@ def test_pathogen_uses_its_own_thresholds_and_does_not_resample(
         tmp_path, fake_cellpose):
     src = tmp_path / "stack"
     _write_npz(src, n=2, c=3)
-    settings = _settings(src, pathogen_channel=2, pathogen_FT=0.3,
-                         pathogen_CP_prob=2.0)
+    settings = _settings(src, pathogen_channel=2, pathogen_flow_threshold=0.3,
+                         pathogen_cellprob_threshold=2.0)
 
     O.generate_cellpose_masks(str(src), settings, "pathogen")
 
@@ -1192,7 +1192,7 @@ def test_the_sam_generator_keeps_the_batch_whole_for_unusable_frame_limits(
         src, timelapse=True, timelapse_objects=["cell"], timelapse_mode="trackpy",
         timelapse_displacement=10, timelapse_memory=3,
         timelapse_remove_transient=False, timelapse_frame_limits=limits,
-        batch_size=2, cell_min_object_area=0, nucleus_min_object_area=0,
+        batch_size=2, cell_min_split_area=0, nucleus_min_split_area=0,
     )
 
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
@@ -1213,7 +1213,7 @@ def test_sam_generator_routes_to_ultrack_with_its_solver_parameters(
         timelapse_remove_transient=True, timelapse_frame_limits=[0, 3],
         ultrack_max_distance=33.0, ultrack_division_weight=-0.25,
         ultrack_contour_sigma=1.5, ultrack_n_workers=2,
-        cell_min_object_area=0, nucleus_min_object_area=0,
+        cell_min_split_area=0, nucleus_min_split_area=0,
     )
 
     O.generate_cellpose_masks_sam(str(src), settings, "cell")

@@ -203,9 +203,9 @@ def test_normalize_img_batch():
     settings = {
         "nucleus_channel": 0, "cell_channel": 1,
         "pathogen_channel": None, "organelle_channel": None,
-        "nucleus_background": 100, "nucleus_Signal_to_noise": 5,
+        "nucleus_background": 100, "nucleus_signal_to_noise": 5,
         "remove_background_nucleus": True,
-        "cell_background": 100, "cell_Signal_to_noise": 5,
+        "cell_background": 100, "cell_signal_to_noise": 5,
         "remove_background_cell": False,
         "lower_percentile": 2,
     }
@@ -222,9 +222,9 @@ def test_normalize_img_batch_generic_channel():
     settings = {
         "nucleus_channel": 0, "cell_channel": 1,
         "pathogen_channel": None, "organelle_channel": None,
-        "nucleus_background": 100, "nucleus_Signal_to_noise": 5,
+        "nucleus_background": 100, "nucleus_signal_to_noise": 5,
         "remove_background_nucleus": False,
-        "cell_background": 100, "cell_Signal_to_noise": 5,
+        "cell_background": 100, "cell_signal_to_noise": 5,
         "remove_background_cell": False,
         "background": 100, "Signal_to_noise": 5, "remove_background": False,
         "lower_percentile": 2,
@@ -237,11 +237,11 @@ def test_normalize_img_batch_generic_channel():
 def test_get_lists_for_normalization():
     settings = {
         "nucleus_channel": 0, "cell_channel": 1, "pathogen_channel": 2,
-        "nucleus_background": 100, "nucleus_Signal_to_noise": 5,
+        "nucleus_background": 100, "nucleus_signal_to_noise": 5,
         "remove_background_nucleus": True,
-        "cell_background": 200, "cell_Signal_to_noise": 4,
+        "cell_background": 200, "cell_signal_to_noise": 4,
         "remove_background_cell": False,
-        "pathogen_background": 150, "pathogen_Signal_to_noise": 6,
+        "pathogen_background": 150, "pathogen_signal_to_noise": 6,
         "remove_background_pathogen": True,
     }
     bg, snr, thr, rb = IO._get_lists_for_normalization(settings)
@@ -253,7 +253,7 @@ def test_get_lists_for_normalization():
 def test_get_lists_for_normalization_skip_none():
     settings = {
         "nucleus_channel": None, "cell_channel": 1, "pathogen_channel": None,
-        "cell_background": 200, "cell_Signal_to_noise": 4,
+        "cell_background": 200, "cell_signal_to_noise": 4,
         "remove_background_cell": False,
     }
     bg, snr, thr, rb = IO._get_lists_for_normalization(settings)

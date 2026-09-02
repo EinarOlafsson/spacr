@@ -356,7 +356,7 @@ ROUND_TRIP = {
     "src": "/data/plate01",
     "experiment": "exp1",
     "magnification": 20,
-    "cell_CP_prob": -1.5,
+    "cell_cellprob_threshold": -1.5,
     "preprocess": True,
     "masks": False,
     "channels": [0, 1, 2, 3],
@@ -481,8 +481,8 @@ def test_file_values_beat_defaults(tmp_path):
     ("magnification", "40.0", 40),
     ("cell_min_size", "-1", -1),
     # float — declared float, so a bare int becomes one
-    ("nucleus_Signal_to_noise", "10", 10.0),
-    ("nucleus_Signal_to_noise", "3.5", 3.5),
+    ("nucleus_signal_to_noise", "10", 10.0),
+    ("nucleus_signal_to_noise", "3.5", 3.5),
     # list, as a literal and as the bare comma form
     ("channels", "[0, 1, 2]", [0, 1, 2]),
     ("channels", "0,1,2", [0, 1, 2]),

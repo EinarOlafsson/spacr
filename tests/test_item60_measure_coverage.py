@@ -255,7 +255,7 @@ def test_measure_core_optional_masks_filters_and_field_rescale(
     merged, name = _write_stack(tmp_path, data)
     settings = _settings_for(
         merged, nucleus_mask_dim=None, organelle_mask_dim=7,
-        organelle_min_size=1, save_measurements=False, save_png=False)
+        organelle_min_area=1, save_measurements=False, save_png=False)
     monkeypatch.setattr(
         M, "_resolve_intensity_rescale_record",
         lambda *_a, **_k: {

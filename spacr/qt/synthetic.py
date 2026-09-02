@@ -215,7 +215,7 @@ _ORGANELLES_PER_CELL = 4
 
 #: Background level and read noise, in raw 16-bit units. Real widefield data
 #: sits on a camera offset with Poisson-ish noise; these are the numbers the
-#: demo's *_background / *_Signal_to_noise settings are consistent with.
+#: demo's *_background / *_signal_to_noise settings are consistent with.
 _BACKGROUND = 400
 _NOISE = 90
 
@@ -970,21 +970,21 @@ def demo_settings(app_key: str, src: str,
             "pathogen_diameter": _RADIUS_PATHOGEN * 2,
             # The camera offset the images are actually drawn on. All three
             # object channels, not just the cell: `*_background` is multiplied
-            # by `*_Signal_to_noise` to set the normalisation ceiling, and a
+            # by `*_signal_to_noise` to set the normalisation ceiling, and a
             # demo that declares the right offset for one channel and the
             # 100 default for the other two normalises them differently for
             # no reason.
             "cell_background": _BACKGROUND,
             "nucleus_background": _BACKGROUND,
             "pathogen_background": _BACKGROUND,
-            # Real key is capital-S `cell_Signal_to_noise`. The demo shipped
+            # Real key is capital-S `cell_signal_to_noise`. The demo shipped
             # `cell_signal_to_noise` for a year: not a spaCR setting, so it
             # was accepted, ignored, and the default used instead.
-            "cell_Signal_to_noise": 10,
-            "nucleus_Signal_to_noise": 10,
-            "pathogen_Signal_to_noise": 10,
-            "cell_CP_prob": 0.0,
-            "cell_FT": 1.0,
+            "cell_signal_to_noise": 10,
+            "nucleus_signal_to_noise": 10,
+            "pathogen_signal_to_noise": 10,
+            "cell_cellprob_threshold": 0.0,
+            "cell_flow_threshold": 1.0,
             # 'cyto' / 'nuclei' until Cellpose 4 removed them. The demo
             # settings are what a new user copies, so they name the model
             # that exists; a legacy value in a real settings file is still

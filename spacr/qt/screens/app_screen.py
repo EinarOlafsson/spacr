@@ -7004,7 +7004,7 @@ class AppScreen(QWidget):
         Opening it also seeds the panel from the form, once. Before that,
         this screen wired only the push direction — ``set_propagate_callback``
         — so all four previews ran at their own hardcoded defaults. A user
-        set ``cell_FT``, opened Live preview to check the segmentation, and
+        set ``cell_flow_threshold``, opened Live preview to check the segmentation, and
         the preview segmented at 0.4 regardless: the preview is consulted to
         make a decision, which is the worst place for it to disagree with
         the run.

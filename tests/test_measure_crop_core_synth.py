@@ -210,7 +210,7 @@ def test_measure_crop_core_organelle_summary(tmp_path, synth_masks_multi, rng):
         data[cy:cy + 3, cx:cx + 3, 6] = 1        # pathogen slice (dim 6)
     merged, name = _write_stack(tmp_path, data)
     settings = _settings_for(
-        merged, organelle_mask_dim=7, organelle_min_size=0,
+        merged, organelle_mask_dim=7, organelle_min_area=0,
         summarize_organelles_by=["cell", "nucleus", "pathogen"])
     index, avg_time, cells, figs, _error = _measure_crop_core(
         0, [], name, settings)

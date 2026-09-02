@@ -23,7 +23,7 @@ from spacr.qt.widgets.hover_tooltip import HoverTooltip
 
 
 #: Settings the packaged registry really does have animations for.
-ANIMATED_KEYS = ("cell_diameter", "cell_CP_prob", "nucleus_diameter")
+ANIMATED_KEYS = ("cell_diameter", "cell_cellprob_threshold", "nucleus_diameter")
 
 HTML = (
     "<b>Cell diameter</b> <i>(int)</i><br>"

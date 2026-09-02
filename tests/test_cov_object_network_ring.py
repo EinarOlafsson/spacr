@@ -48,8 +48,8 @@ def _settings(**over):
     s = {
         "organelle_morphology": "network",
         "organelle_method": "otsu",
-        "organelle_min_size": 4,
-        "organelle_max_size": 10000,
+        "organelle_min_area": 4,
+        "organelle_max_area": 10000,
         "organelle_tophat_radius": 5,
         "organelle_watershed_spots": False,
         "organelle_log_min_sigma": 1,
@@ -229,8 +229,8 @@ def test_segment_network_min_size_drops_small_objects():
     from spacr.object import _segment_network
 
     img = _disk_image(radius=3, centers=((16, 16), (48, 48)))
-    kept = _segment_network(img, "otsu", _settings(organelle_min_size=4))
-    dropped = _segment_network(img, "otsu", _settings(organelle_min_size=5000))
+    kept = _segment_network(img, "otsu", _settings(organelle_min_area=4))
+    dropped = _segment_network(img, "otsu", _settings(organelle_min_area=5000))
 
     assert kept.max() == 2
     assert dropped.max() == 0

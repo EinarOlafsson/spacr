@@ -1907,8 +1907,8 @@ def _specs() -> List[Spec]:
             "border": (
                 "organelle_remove_border_objects", "organelle_remove_border",
             ),
-            "minimum": ("organelle_min_area", "organelle_min_size"),
-            "maximum": ("organelle_max_area", "organelle_max_size"),
+            "minimum": ("organelle_min_area", "organelle_min_area"),
+            "maximum": ("organelle_max_area", "organelle_max_area"),
             "dim": ("organelle_min_intensity_percentile",),
             "bright": ("organelle_max_intensity_percentile",),
         },
@@ -1956,20 +1956,20 @@ def _specs() -> List[Spec]:
             f"{kind}_intensity_split", f"{kind.capitalize()} watershed split",
             "Mask repair", "split",
             (f"{kind}_intensity_split", f"{kind}_area_multiplier",
-             f"{kind}_min_distance", f"{kind}_min_object_area"),
+             f"{kind}_min_distance", f"{kind}_min_split_area"),
             {"kind": kind},
         ))
 
     for kind in ("cell", "nucleus", "pathogen"):
         specs.extend([
             Spec(
-                f"{kind}_CP_prob", f"{kind.capitalize()} probability threshold",
+                f"{kind}_cellprob_threshold", f"{kind.capitalize()} probability threshold",
                 "Segmentation", "probability",
-                (f"{kind}_CP_prob",), {"kind": kind},
+                (f"{kind}_cellprob_threshold",), {"kind": kind},
             ),
             Spec(
-                f"{kind}_FT", f"{kind.capitalize()} flow threshold",
-                "Segmentation", "flow", (f"{kind}_FT",), {"kind": kind},
+                f"{kind}_flow_threshold", f"{kind.capitalize()} flow threshold",
+                "Segmentation", "flow", (f"{kind}_flow_threshold",), {"kind": kind},
             ),
             Spec(
                 f"{kind}_diameter", f"{kind.capitalize()} diameter",
@@ -1984,9 +1984,9 @@ def _specs() -> List[Spec]:
                 {"kind": kind},
             ),
             Spec(
-                f"{kind}_Signal_to_noise", f"{kind.capitalize()} signal-to-noise",
+                f"{kind}_signal_to_noise", f"{kind.capitalize()} signal-to-noise",
                 "Image preprocessing", "signal",
-                (f"{kind}_Signal_to_noise",), {"kind": kind},
+                (f"{kind}_signal_to_noise",), {"kind": kind},
             ),
         ])
     specs.extend([
@@ -1995,13 +1995,13 @@ def _specs() -> List[Spec]:
             "diameter", ("organelle_diameter",), {"kind": "organelle"},
         ),
         Spec(
-            "organelle_CP_prob", "Organelle probability threshold",
-            "Segmentation", "probability", ("organelle_CP_prob",),
+            "organelle_cellprob_threshold", "Organelle probability threshold",
+            "Segmentation", "probability", ("organelle_cellprob_threshold",),
             {"kind": "organelle"},
         ),
         Spec(
-            "organelle_FT", "Organelle flow threshold", "Segmentation",
-            "flow", ("organelle_FT",), {"kind": "organelle"},
+            "organelle_flow_threshold", "Organelle flow threshold", "Segmentation",
+            "flow", ("organelle_flow_threshold",), {"kind": "organelle"},
         ),
         Spec(
             "fill_in", "Fill holes in masks", "Mask repair", "fill_holes",

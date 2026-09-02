@@ -144,11 +144,11 @@ def test_cell_is_never_gated_by_its_channel(qtbot):
     assert model.collect()["cell_channel"] is None
     assert _row_shown(screen, "cell_channel") is True
     assert _row_shown(screen, "cell_diameter") is True
-    assert _row_shown(screen, "cell_CP_prob") is True
+    assert _row_shown(screen, "cell_cellprob_threshold") is True
 
     _set(model, "cell_channel", 1)
     assert _row_shown(screen, "cell_diameter") is True
-    assert _row_shown(screen, "cell_CP_prob") is True
+    assert _row_shown(screen, "cell_cellprob_threshold") is True
     # ONE OBJECT AT A TIME. Turning the cell on says nothing about a nucleus.
     assert _row_shown(screen, "nucleus_diameter") is False
 
@@ -245,7 +245,7 @@ def test_bulk_import_rebuilds_once_and_applies_every_slot_value(qapp, qtbot):
         "organelle_type": "filamentous",
         # An explicit advanced override wins over the type recommendation.
         "organelle_morphology": "spots",
-        "organelle_min_size": 77,
+        "organelle_min_area": 77,
     }
 
     assert original.apply_settings_dict(loaded) == len(loaded)
@@ -369,7 +369,7 @@ def test_an_organelle_slot_is_switched_by_its_own_channel(qtbot):
     assert _row_shown(screen, "organelleb_min_size") is True
     # Slot 1 was not asked about and is still off.
     assert _row_shown(screen, "organelle_type") is False
-    assert _row_shown(screen, "organelle_min_size") is False
+    assert _row_shown(screen, "organelle_min_area") is False
 
 
 def test_the_type_decides_which_of_a_slots_controls_are_shown(qtbot):
@@ -525,14 +525,14 @@ def test_measure_is_switched_by_the_mask_plane(qtbot):
     # It ships with the cell, nucleus and pathogen planes filled in and the
     # organelle planes empty.
     assert _row_shown(screen, "cell_min_size") is True
-    assert _row_shown(screen, "organelle_min_size") is False
+    assert _row_shown(screen, "organelle_min_area") is False
     assert _row_shown(screen, "organelle_mask_dim") is True
 
     _set(model, "organelle_mask_dim", 7)
-    assert _row_shown(screen, "organelle_min_size") is True
+    assert _row_shown(screen, "organelle_min_area") is True
 
     _set(model, "organelle_mask_dim", None)
-    assert _row_shown(screen, "organelle_min_size") is False
+    assert _row_shown(screen, "organelle_min_area") is False
     # And the plane it was on is still there to put back.
     assert _row_shown(screen, "organelle_mask_dim") is True
 

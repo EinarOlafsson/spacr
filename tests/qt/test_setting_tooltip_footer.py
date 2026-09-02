@@ -481,7 +481,7 @@ def test_the_reveal_does_not_survive_a_move_to_the_next_setting(
     _reveal(tooltip, _anchor(qtbot))
     assert tooltip.animations_shown()
 
-    tooltip.show_for(_anchor(qtbot, "cell_CP_prob"), HTML)
+    tooltip.show_for(_anchor(qtbot, "cell_cellprob_threshold"), HTML)
     assert not tooltip.animation_view().isVisible(), (
         "the second setting inherited the first one's reveal")
     assert tooltip.animation() is None

@@ -233,7 +233,7 @@ def test_the_toggle_shows_the_card_and_primes_it_once(qapp, monkeypatch):
     """Priming is deferred to the first show, and does not repeat."""
     monkeypatch.setitem(PREVIEWS, "w2_2_probe",
                         PreviewSpec(builder=f"{_HERE}:_build_test_card"))
-    model = _Model({"cell_diameter": 30, "cell_FT": 0.4})
+    model = _Model({"cell_diameter": 30, "cell_flow_threshold": 0.4})
     screen = _Screen("w2_2_probe", model=model)
     host = install(screen)
     panel = _LAST_BUILT["panel"]
@@ -241,7 +241,7 @@ def test_the_toggle_shows_the_card_and_primes_it_once(qapp, monkeypatch):
     assert panel.applied == [], "a preview nobody opened cost a form read"
 
     host.toggle.setChecked(True)
-    assert panel.applied == [{"cell_diameter": 30, "cell_FT": 0.4}]
+    assert panel.applied == [{"cell_diameter": 30, "cell_flow_threshold": 0.4}]
 
     host.toggle.setChecked(False)
     host.toggle.setChecked(True)
@@ -324,7 +324,7 @@ def test_propagation_renames_what_it_can_and_drops_what_it_cannot(qapp,
     host = _PreviewHost(_Screen("cellpose_masks", model=model), spec,
                         _Panel(), QWidget())
 
-    host.on_propagate({"cell_diameter": 42, "cell_FT": 0.7,
+    host.on_propagate({"cell_diameter": 42, "cell_flow_threshold": 0.7,
                        "cell_channel": 1})
 
     assert model.written == {"diameter": 42, "flow_threshold": 0.7}

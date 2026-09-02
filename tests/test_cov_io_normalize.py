@@ -59,10 +59,10 @@ def _base_settings(**over):
         "pathogen_channel": None,
         "organelle_channel": None,
         "nucleus_background": 100,
-        "nucleus_Signal_to_noise": 5,
+        "nucleus_signal_to_noise": 5,
         "remove_background_nucleus": False,
         "cell_background": 100,
-        "cell_Signal_to_noise": 5,
+        "cell_signal_to_noise": 5,
         "remove_background_cell": False,
         "background": 100,
         "Signal_to_noise": 5,
@@ -110,7 +110,7 @@ def test_normalize_img_batch_pathogen_channel_uses_pathogen_settings(capsys):
         "pathogen_channel": 1,
         "organelle_channel": None,
         "pathogen_background": 250,
-        "pathogen_Signal_to_noise": 2,
+        "pathogen_signal_to_noise": 2,
         "remove_background_pathogen": True,
         "lower_percentile": 2,
     }
@@ -140,7 +140,7 @@ def test_normalize_img_batch_organelle_channel_uses_organelle_settings(capsys):
         "Signal_to_noise": 5,
         "remove_background": False,
         "organelle_background": 200,
-        "organelle_Signal_to_noise": 3,
+        "organelle_signal_to_noise": 3,
         "remove_background_organelle": True,
         "lower_percentile": 2,
     }
@@ -598,7 +598,7 @@ def test_get_lists_for_normalization_pathogen_only():
         "cell_channel": None,
         "pathogen_channel": 3,
         "pathogen_background": 130,
-        "pathogen_Signal_to_noise": 2,
+        "pathogen_signal_to_noise": 2,
         "remove_background_pathogen": True,
     }
     bg, snr, thr, rb = _get_lists_for_normalization(settings)
@@ -617,13 +617,13 @@ def test_get_lists_for_normalization_order_follows_object_type():
         "cell_channel": 1,
         "pathogen_channel": 3,
         "nucleus_background": 111,
-        "nucleus_Signal_to_noise": 3,
+        "nucleus_signal_to_noise": 3,
         "remove_background_nucleus": False,
         "cell_background": 222,
-        "cell_Signal_to_noise": 4,
+        "cell_signal_to_noise": 4,
         "remove_background_cell": True,
         "pathogen_background": 333,
-        "pathogen_Signal_to_noise": 5,
+        "pathogen_signal_to_noise": 5,
         "remove_background_pathogen": False,
     }
     bg, snr, thr, rb = _get_lists_for_normalization(settings)

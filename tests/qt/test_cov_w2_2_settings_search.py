@@ -110,7 +110,7 @@ def form_screen(qapp):
     first = _Section(screen)
     second = _Section(screen)
     fields = {}
-    for section, keys in ((first, ("cell_diameter", "cell_CP_prob")),
+    for section, keys in ((first, ("cell_diameter", "cell_cellprob_threshold")),
                           (second, ("plot_dpi", "verbose"))):
         for key in keys:
             field = QLineEdit(section)
@@ -180,7 +180,7 @@ def test_a_strip_with_no_form_behind_it_says_nothing(qapp):
 def test_the_index_is_built_from_the_rendered_form(qapp, form_screen):
     """Which key went where is the screen's decision, read back, not redone."""
     bar = SettingsSearchBar(form_screen)
-    assert sorted(bar.indexed_keys()) == ["cell_CP_prob", "cell_diameter",
+    assert sorted(bar.indexed_keys()) == ["cell_cellprob_threshold", "cell_diameter",
                                           "plot_dpi", "verbose"]
 
 
@@ -192,7 +192,7 @@ def test_a_query_shows_the_rows_that_match_and_hides_the_rest(qapp,
     bar.set_level(ALL)
 
     bar.set_query("cell")
-    assert sorted(bar.visible_keys()) == ["cell_CP_prob", "cell_diameter"]
+    assert sorted(bar.visible_keys()) == ["cell_cellprob_threshold", "cell_diameter"]
 
     bar.set_query("")
     assert sorted(bar.visible_keys()) == sorted(bar.indexed_keys())
@@ -213,7 +213,7 @@ def test_the_modified_filter_narrows_to_what_no_longer_holds_its_default(
     assert bar.visible_keys() == []
 
     bar.set_modified_only(False)
-    assert sorted(bar.visible_keys()) == ["cell_CP_prob", "cell_diameter"]
+    assert sorted(bar.visible_keys()) == ["cell_cellprob_threshold", "cell_diameter"]
 
 
 def test_essentials_hides_the_rest_until_the_user_asks_for_all(qapp,

@@ -330,7 +330,7 @@ def _norm_settings(nucleus, cell, pathogen):
          'pathogen_channel': pathogen}
     for role in ('nucleus', 'cell', 'pathogen'):
         s[f'{role}_background'] = 100
-        s[f'{role}_Signal_to_noise'] = 5
+        s[f'{role}_signal_to_noise'] = 5
         s[f'remove_background_{role}'] = True
     return s
 

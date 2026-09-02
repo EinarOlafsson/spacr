@@ -34,7 +34,7 @@ def _classical_settings(**over):
         "organelle_method": "otsu",
         "organelle_tophat_radius": 5,
         "organelle_watershed_spots": False,
-        "organelle_min_size": 4,
+        "organelle_min_area": 4,
         "organelle_adaptive_block_size": 11,
         "organelle_adaptive_offset": 0.0,
         "organelle_log_min_sigma": 1.0,
@@ -120,7 +120,7 @@ def test_segment_unet_multichannel_prediction_uses_first_channel():
     model = _const_unet(logits)
     img = np.random.default_rng(0).random((1, h, w)).astype(np.float32)
 
-    masks = _segment_unet(img, model, {"organelle_min_size": 1})
+    masks = _segment_unet(img, model, {"organelle_min_area": 1})
 
     assert len(masks) == 1
     assert masks[0].shape == (h, w)
@@ -139,10 +139,10 @@ def test_segment_unet_threshold_setting_controls_foreground_area():
     logits = arr[None, None]
     img = np.random.default_rng(1).random((1, 8, 8)).astype(np.float32)
 
-    default = _segment_unet(img, _const_unet(logits), {"organelle_min_size": 1})
+    default = _segment_unet(img, _const_unet(logits), {"organelle_min_area": 1})
     lowered = _segment_unet(
         img, _const_unet(logits),
-        {"organelle_min_size": 1, "organelle_unet_threshold": 0.2},
+        {"organelle_min_area": 1, "organelle_unet_threshold": 0.2},
     )
 
     assert int((default[0] > 0).sum()) == 32     # only the p=0.7 half
@@ -156,7 +156,7 @@ def test_segment_unet_flat_image_is_zeroed_not_divided_by_zero():
     img = np.full((1, 8, 8), 7.0, dtype=np.float32)
     model = _const_unet(np.full((1, 1, 8, 8), -6.0))
 
-    masks = _segment_unet(img, model, {"organelle_min_size": 1})
+    masks = _segment_unet(img, model, {"organelle_min_area": 1})
 
     seen = model.seen[0]
     assert seen.shape == (1, 1, 8, 8)
@@ -177,9 +177,9 @@ def test_segment_unet_skeletonize_thins_the_mask():
     img = np.random.default_rng(2).random((1, h, w)).astype(np.float32)
 
     plain = _segment_unet(img, _const_unet(logits),
-                          {"organelle_min_size": 1})[0]
+                          {"organelle_min_area": 1})[0]
     skel = _segment_unet(img, _const_unet(logits),
-                         {"organelle_min_size": 1,
+                         {"organelle_min_area": 1,
                           "organelle_skeletonize": True})[0]
 
     assert int((plain > 0).sum()) == 9 * 16
@@ -188,7 +188,7 @@ def test_segment_unet_skeletonize_thins_the_mask():
 
 
 def test_segment_unet_min_size_removes_small_predictions():
-    """remove_small_objects is driven by ``organelle_min_size``."""
+    """remove_small_objects is driven by ``organelle_min_area``."""
     from spacr.object import _segment_unet
 
     arr = np.full((12, 12), -8.0)
@@ -196,8 +196,8 @@ def test_segment_unet_min_size_removes_small_predictions():
     logits = arr[None, None]
     img = np.random.default_rng(3).random((1, 12, 12)).astype(np.float32)
 
-    kept = _segment_unet(img, _const_unet(logits), {"organelle_min_size": 4})[0]
-    dropped = _segment_unet(img, _const_unet(logits), {"organelle_min_size": 5})[0]
+    kept = _segment_unet(img, _const_unet(logits), {"organelle_min_area": 4})[0]
+    dropped = _segment_unet(img, _const_unet(logits), {"organelle_min_area": 5})[0]
 
     assert int((kept > 0).sum()) == 4
     assert int((dropped > 0).sum()) == 0
@@ -208,7 +208,7 @@ def test_segment_unet_empty_batch_returns_empty_list():
 
     model = _const_unet(np.zeros((1, 1, 4, 4), dtype=np.float32))
     masks = _segment_unet(np.zeros((0, 4, 4), dtype=np.float32), model,
-                          {"organelle_min_size": 1})
+                          {"organelle_min_area": 1})
 
     assert masks == []
     assert model.seen == []          # the model was never invoked
@@ -388,7 +388,7 @@ def test_segment_spots_otsu_labels_every_disk():
     img = _disks((48, 48), [(10, 10), (10, 36), (36, 10)], radius=4)
     out = _segment_spots(img, "otsu",
                          _classical_settings(organelle_tophat_radius=6,
-                                             organelle_min_size=4))
+                                             organelle_min_area=4))
 
     assert out.shape == (48, 48)
     assert out.dtype.kind in "iu"
@@ -403,7 +403,7 @@ def test_segment_spots_watershed_splits_touching_disks():
 
     img = _disks((40, 40), [(20, 14), (20, 24)], radius=7)
     base = _classical_settings(organelle_tophat_radius=10,
-                               organelle_min_size=10)
+                               organelle_min_area=10)
 
     merged = _segment_spots(img, "otsu",
                             {**base, "organelle_watershed_spots": False})

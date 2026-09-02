@@ -74,8 +74,8 @@ def _sam_settings(src, **over):
         "save": True,
         "timelapse": False,
         "n_jobs": 1,
-        "cell_min_object_area": 0,
-        "nucleus_min_object_area": 0,
+        "cell_min_split_area": 0,
+        "nucleus_min_split_area": 0,
     }
     s.update(over)
     return s

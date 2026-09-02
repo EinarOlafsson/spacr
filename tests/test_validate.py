@@ -423,10 +423,10 @@ def test_inverted_percentile_pair_is_an_error(tmp_path):
 def test_cellpose_probability_outside_its_range_is_a_warning(tmp_path):
     src = make_raw_plate(tmp_path, n_channels=3)
     settings = valid_mask_settings(src)
-    settings["cell_CP_prob"] = 40
+    settings["cell_cellprob_threshold"] = 40
     problems = validate_settings(settings, "mask")
-    assert not settings_named(errors(problems), "cell_CP_prob")
-    assert settings_named(warnings_of(problems), "cell_CP_prob")
+    assert not settings_named(errors(problems), "cell_cellprob_threshold")
+    assert settings_named(warnings_of(problems), "cell_cellprob_threshold")
 
 
 def test_unusable_n_jobs_is_an_error(tmp_path):

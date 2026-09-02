@@ -272,7 +272,7 @@ def test_a_press_reaches_one_setting_and_the_preference_reaches_the_rest(
     _reveal(tooltip, pressed)
     assert tooltip.animations_shown() is True
 
-    other = _anchor(qtbot, "cell_CP_prob")
+    other = _anchor(qtbot, "cell_cellprob_threshold")
     tooltip.show_for(other, HTML)
     assert tooltip.animations_shown() is False, "the press leaked sideways"
 

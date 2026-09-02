@@ -386,7 +386,7 @@ def _spot_img(size=64):
 def _obj_settings(**over):
     s = {
         "organelle_morphology": "spots", "organelle_method": "otsu",
-        "organelle_min_size": 4, "organelle_max_size": 10000,
+        "organelle_min_area": 4, "organelle_max_area": 10000,
         "organelle_tophat_radius": 5, "organelle_watershed_spots": False,
         "organelle_log_min_sigma": 1, "organelle_log_max_sigma": 4,
         "organelle_log_num_sigma": 3, "organelle_log_threshold": 0.05,
@@ -429,7 +429,7 @@ def test_validate_organelle_settings_bad_method():
 def test_build_object_settings():
     s = {
         "organelle_model_name": "cyto", "organelle_diameter": 30,
-        "organelle_min_size": 5, "organelle_max_size": 500,
+        "organelle_min_area": 5, "organelle_max_area": 500,
         "organelle_resample": True, "organelle_remove_border": True,
     }
     out = OBJ._build_object_settings(s)
@@ -737,7 +737,7 @@ def _tiny_unet():
 def test_segment_unet():
     model = _tiny_unet()
     batch = np.random.default_rng(0).random((2, 16, 16)).astype(np.float32)
-    out = OBJ._segment_unet(batch, model, {"organelle_min_size": 2})
+    out = OBJ._segment_unet(batch, model, {"organelle_min_area": 2})
     assert len(out) == 2 and out[0].shape == (16, 16)
 
 
@@ -747,7 +747,7 @@ def test_segment_unet_skeletonize_and_flat():
     batch = np.stack([np.random.default_rng(1).random((16, 16)).astype(np.float32),
                       np.zeros((16, 16), dtype=np.float32)])
     out = OBJ._segment_unet(
-        batch, model, {"organelle_min_size": 2, "organelle_skeletonize": True})
+        batch, model, {"organelle_min_area": 2, "organelle_skeletonize": True})
     assert len(out) == 2
 
 
@@ -793,7 +793,7 @@ def test_segment_cellpose_ndim4(tmp_path):
         "nucleus_channel": 1, "cell_channel": None,
         "pathogen_channel": None, "organelle_channel": 0,
         "plot": False, "batch_size": 2, "organelle_diameter": 15,
-        "organelle_FT": 0.4, "organelle_CP_prob": 0.0,
+        "organelle_flow_threshold": 0.4, "organelle_cellprob_threshold": 0.0,
         "organelle_resample": True,
     }
     out = OBJ._segment_cellpose(
@@ -808,7 +808,7 @@ def test_segment_cellpose_ndim3(tmp_path):
         "nucleus_channel": None, "cell_channel": None,
         "pathogen_channel": None, "organelle_channel": None,
         "plot": True, "batch_size": 1, "organelle_diameter": 15,
-        "organelle_FT": 0.4, "organelle_CP_prob": 0.0,
+        "organelle_flow_threshold": 0.4, "organelle_cellprob_threshold": 0.0,
         "organelle_resample": False,
     }
     out = OBJ._segment_cellpose(
@@ -828,7 +828,7 @@ def test_segment_cellpose_sam(tmp_path, object_type, chan):
         "nucleus_channel": None, "cell_channel": None,
         "pathogen_channel": None, "organelle_channel": None,
         "plot": False,
-        f"{object_type}_FT": 0.4, f"{object_type}_CP_prob": 0.0,
+        f"{object_type}_flow_threshold": 0.4, f"{object_type}_cellprob_threshold": 0.0,
         f"{object_type}_resample": True,
     }
     settings.update(chan)

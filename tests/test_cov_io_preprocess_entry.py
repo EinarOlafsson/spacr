@@ -526,9 +526,9 @@ def test_end_to_end_real_run(yokogawa_cellvoyager_dir):
         randomize=False,
         lower_percentile=2,
         nucleus_channel=0, cell_channel=1,
-        nucleus_background=100, nucleus_Signal_to_noise=5,
+        nucleus_background=100, nucleus_signal_to_noise=5,
         remove_background_nucleus=False,
-        cell_background=100, cell_Signal_to_noise=5,
+        cell_background=100, cell_signal_to_noise=5,
         remove_background_cell=False,
     )
     out_settings, out_src = preprocess_img_data(settings)
