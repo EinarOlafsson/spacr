@@ -1,0 +1,143 @@
+================================================================================
+EVERY SETTING AUDITED: IS IT NEEDED, IS IT A DUPLICATE, IS ITS NAME HONEST
+================================================================================
+
+Status:    not started, filed 2026-09-02.
+Requested: 2026-09-02, verbatim -- "look through each moduals settings and
+           evaluate if any settings are unnecessary, redundant or are not
+           intuitive. then propose to remove settings that are unnecessary,
+           combine redundant settings, and change the names of non intuitive
+           settings. this should be done for all modules, starting with core
+           moduals, and all of their settings including any settings in live
+           previews, hyperparameter searches or other sub modules. start with
+           the mask and measure moduals. after you are done with the moduals
+           go on to the preferences in spaCR and spaceout."
+Owner:     spacr/settings.py, spacr/validate.py (RETIRED_SETTINGS),
+           spacr/qt/screens/preferences.py, spacr/qt/spaceout.py.
+
+PROPOSE, DO NOT DELETE. The maintainer asked to be shown proposals. Each
+phase produces a TABLE for review, and nothing is removed or renamed until
+that table comes back approved. A setting removed by surprise is a settings
+file in the wild that stops loading.
+
+--------------------------------------------------------------------------------
+THE SIZE OF IT, MEASURED 2026-09-02
+--------------------------------------------------------------------------------
+
+  get_timelapse_settings (mask, the superset)     203
+  get_perform_regression_default_settings          87
+  get_measure_crop_settings                        65
+  get_automated_motility_assay_default_settings    55
+  get_train_test_model_settings                    50
+  get_analyze_recruitment_default_settings         30
+  get_default_generate_activation_map_settings     27
+  get_identify_masks_finetune_default_settings     23
+  get_analyze_plaque_settings                      22
+  get_check_cellpose_models_default_settings       18
+  get_train_cellpose_default_settings              16
+  get_plot_data_from_csv_default_settings          13
+  get_default_apply_cellpose_model_settings        10
+  get_default_test_cellpose_model_settings          9
+  get_map_barcodes_default_settings                 5
+  get_analyze_reads_default_settings                3
+
+Mask alone asks 203 questions. That is the number to hold in mind: a user
+who has to answer, or decide not to answer, 203 questions before segmenting
+anything has been handed the maintainer's problem instead of a tool.
+
+--------------------------------------------------------------------------------
+WHERE THE REDUNDANCY ACTUALLY IS
+--------------------------------------------------------------------------------
+
+78 of mask's 203 settings are the SAME 20 QUESTIONS asked once per object
+type -- `cell_`, `nucleus_`, `pathogen_`, `organelle_`, `cytoplasm_`:
+
+  CP_prob x4        FT x4              Signal_to_noise x3   area_multiplier x4
+  background x3     channel x4         diameter x4          intensity_merge x4
+  ... and 12 more shapes
+
+This is the single biggest finding and it is NOT simply redundancy to
+delete: a user genuinely may want a different diameter for a nucleus than
+for a cell. But 20 shapes x N objects is a presentation problem being
+solved by multiplying the vocabulary, and instruction 326 has already
+established that the object count must be ARBITRARY -- so this multiplies
+without bound as soon as 326 lands. The two items meet here.
+
+  THE LIKELY SHAPE: one question per shape, answered per object in a small
+  table or per-object tab, rather than N flat settings per shape. That is a
+  presentation change with a settings-file migration behind it, not a
+  rename. Propose it as such.
+
+--------------------------------------------------------------------------------
+THE FOUR JUDGEMENTS, AND WHAT EVIDENCE EACH NEEDS
+--------------------------------------------------------------------------------
+
+UNNECESSARY -- propose removal. The evidence is not opinion:
+  * nothing reads it (grep the package, not just the module);
+  * it is read but every caller passes the default;
+  * it exposes an implementation detail the user cannot reason about;
+  * it duplicates something spaCR can measure or infer.
+  A setting that only ever takes its default is a question with one answer.
+
+REDUNDANT -- propose combining. Two settings are redundant when no
+combination of their values is meaningful that one setting could not
+express. Say which combinations become unreachable, because that is the
+cost.
+
+NOT INTUITIVE -- propose a rename. The test is whether the name says what
+the user is deciding, in the user's vocabulary. `pathogen_Signal_to_noise`
+mixes snake_case with a capitalised term of art; `FT` is an abbreviation of
+something; `intensity_merge` does not say what merges with what. Check the
+TOOLTIP against the NAME: where the tooltip has to explain what the word
+means before it can explain the setting, the word is wrong.
+
+  ONLY 14 TOOLTIPS ARE DEFINED against ~600 settings across all modules.
+  Any rename proposal should note where there is no tooltip at all, because
+  an unnamed, undocumented setting is the worst case and is invisible in a
+  count of "settings that need work".
+
+--------------------------------------------------------------------------------
+ORDER OF WORK, AS ASKED
+--------------------------------------------------------------------------------
+
+  1. Mask (203)          -- start here; the per-object families are here
+  2. Measure (65)
+  3. The rest of the core modules: Annotate, Classify, Map Barcodes,
+     Regression (87)
+  4. Sub-surfaces the maintainer named explicitly and which are easy to
+     forget because they are not on the module's main page: LIVE PREVIEW
+     settings, HYPERPARAMETER SEARCH settings (train_test_model 50,
+     check_cellpose_models 18, identify_masks_finetune 23), and the assay
+     sub-modules (motility 55, recruitment 30, plaques 22).
+  5. spaCR Preferences
+  6. spaceout Preferences
+
+--------------------------------------------------------------------------------
+TRAPS
+--------------------------------------------------------------------------------
+
+* A REMOVED SETTING GOES IN `RETIRED_SETTINGS` in `spacr/validate.py`, so an
+  old settings file loads with a message instead of an error. `corrected_manders`
+  is the worked example.
+* A RENAMED SETTING IS A REMOVAL PLUS AN ADDITION as far as every saved
+  settings file, published tutorial, notebook and reviewed translation
+  catalog is concerned. Each rename stales: the notebooks' generated setting
+  documentation, `docs/i18n/reviewed/runtime/**` records pinned to the old
+  tooltip text, and the tutorial JSON. Budget for that; instruction 337's
+  two-word default change staled two reviewed records on its own.
+* `settings.categories` MUST list every key, and a key added there without
+  being registered in `KEYS_ADDED_BY_REGROUP` fails two tests. This has
+  already caught one change this week.
+* Do not confuse "unused by the GUI" with "unused". Several settings exist
+  for the headless `spacr-run` path and notebooks only.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* One proposal table per module, reviewed by the maintainer BEFORE any edit:
+  setting, judgement, evidence, proposed action.
+* After each approved batch: the module's settings count falls, every
+  removal is in `RETIRED_SETTINGS`, every rename has a tooltip, and an old
+  settings file still loads.
+* No setting is left whose tooltip has to define its own name.

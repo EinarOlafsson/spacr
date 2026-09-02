@@ -4080,6 +4080,7 @@ def _copy_missclassified(df):
 def _read_db(db_loc, tables):
     import gc
     import os
+    import pathlib
     import sqlite3
     import pandas as pd
 
@@ -4116,12 +4117,44 @@ def _read_db(db_loc, tables):
     # when a malformed table happens to exist in SQLite.
     for table in tables:
         _quote_identifier(table)
-    ensure_database_schema(db_loc)
+
+    # A DATABASE NOBODY CAN WRITE TO IS STILL A DATABASE THAT CAN BE READ.
+    #
+    # GitHub issue #115 (SMB mounts): `ensure_database_schema` renames legacy
+    # columns and stamps the schema version, so calling it before every read
+    # meant that reading a PRE-MIGRATION database from a read-only source --
+    # an SMB share mounted read-only, a colleague's archived plate, a dataset
+    # on a read-only volume -- died with `OperationalError: attempt to write a
+    # readonly database`. The error named the write, not the reason, and the
+    # read was never the thing that needed writing.
+    #
+    # Migration is not required in order to READ. `correct_metadata` below
+    # canonicalises the frame -- `plate`/`row`/`col` to `plateID`/`rowID`/
+    # `columnID` and the rest -- so a legacy table is readable exactly as a
+    # current one is; the migration exists to make that permanent, not to
+    # make it possible. So when the database cannot be written, it is skipped
+    # and the file is opened read-only, which also stops SQLite trying to
+    # place a journal beside it.
+    #
+    # BOTH the file and its DIRECTORY are checked: SQLite writes its journal
+    # into the directory, so a writable file in a read-only directory is not
+    # a writable database.
+    directory = os.path.dirname(os.path.abspath(db_loc)) or "."
+    writable = (os.access(db_loc, os.W_OK) and os.access(directory, os.W_OK))
+    if writable:
+        ensure_database_schema(db_loc)
 
     dfs = []
     chunksize = 100_000  # internal safety setting; adjust if needed
 
-    with sqlite3.connect(db_loc, timeout=30) as conn:
+    if writable:
+        connect_to = db_loc
+        connect_kwargs = {}
+    else:
+        connect_to = f"file:{pathlib.Path(db_loc).as_uri()[7:]}?mode=ro"
+        connect_kwargs = {"uri": True}
+
+    with sqlite3.connect(connect_to, timeout=30, **connect_kwargs) as conn:
         # Optional but useful: fail early if a table name is wrong
         existing_tables = {
             row[0]

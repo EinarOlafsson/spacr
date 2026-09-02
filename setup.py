@@ -792,6 +792,13 @@ setup(
             # clusters: no Qt, no display. Importing spacr.cli pulls
             # neither torch nor matplotlib, so --help/--list answer instantly.
             'spacr-run=spacr.cli:main',
+            # spacr-download [what ...] — the example data as a command
+            # rather than as a button. Fetches the mask / measure / annotate
+            # example sets by default, and pieces of the 33 GB published
+            # screen only when they are asked for by kind and plate. Imports
+            # no Qt, so a cluster login node can stage the data a batch job
+            # will read.
+            'spacr-download=spacr.cli_download:main',
             # Persistent SSH / Slurm / cloud job submission and monitoring.
             'spacr-remote=spacr.cli_remote:main',
             # Installed plugin registry and failure diagnostics.
