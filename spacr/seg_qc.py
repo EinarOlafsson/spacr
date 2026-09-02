@@ -166,7 +166,8 @@ import math
 import os
 import re
 import time
-from dataclasses import dataclass, field as _dc_field
+from dataclasses import dataclass
+from dataclasses import field as _dc_field
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -2105,6 +2106,12 @@ def qc_roots(src: Any) -> Tuple[str, ...]:
     candidates: List[str] = []
 
     def _add(path: str) -> None:
+        """Append one unique existing directory to the captured candidates.
+
+        :param path: candidate directory path; false-like, missing, non-directory,
+            and already-recorded values are ignored.
+        :returns: None. Accepted paths retain discovery order.
+        """
         if path and os.path.isdir(path) and path not in candidates:
             candidates.append(path)
 
