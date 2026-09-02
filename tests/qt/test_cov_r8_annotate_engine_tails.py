@@ -222,32 +222,56 @@ class TestTwoEmptyResults:
         assert AE.parse_image_type("") == ("", [])
         assert AE.parse_image_type(None) == ("", [])
 
-    def test_a_missing_annotation_column_cannot_reach_the_late_guard(self):
-        """`if annotation_column not in df.columns: return []` is dead.
+    def test_a_missing_annotation_column_yields_unannotated_rows(
+            self, monkeypatch):
+        """A table without the annotation column returns ROWS, not [].
 
-        A database written before that column existed is handled far
-        earlier: `fetch_filtered_paths` CREATES the column, filled with
-        None, before it applies any threshold --
+        REWRITTEN 2026-09-02, and the old version is worth describing
+        because it went red without spaCR getting worse.
 
-            if annotation_column not in df.columns:
-                df[annotation_column] = None
+        It compared two source offsets: the position of
+        `df[annotation_column] = None` against `rindex` of
+        `if annotation_column not in df.columns:`, asserting the column was
+        created before a LATE guard that returned []. That guard has since
+        been deleted -- `fetch_filtered_paths` now carries a comment where it
+        used to be -- so `rindex` found the only remaining occurrence, which
+        is the CREATING one, and the test was comparing an `if` against its
+        own body. It could not pass again whatever the code did.
 
-        -- and the thresholds filter rows, not columns. So by the time
-        the late guard is reached the column is always present.
+        The claim underneath it is still worth pinning and is pinned here by
+        DRIVING it instead: the rows exist and are simply unannotated, which
+        is exactly what the annotator opens a database to fix, so answering
+        [] would be wrong.
+        """
+        import spacr.io as spacr_io
 
-        Answering [] there would be wrong anyway: the rows exist and are
-        simply unannotated, which is exactly what the annotator opens a
-        database to fix.
+        frame = pd.DataFrame({
+            "png_path": ["/crops/a.png", "/crops/b.png"],
+            "area": [10.0, 200.0],
+        })
+        monkeypatch.setattr(AE.os.path, "isfile", lambda _p: True)
+        monkeypatch.setattr(spacr_io, "_read_and_join_tables",
+                            lambda *a, **k: frame.copy())
 
-        Pinned from the producing side rather than forced.
+        rows = AE.fetch_filtered_paths(
+            "/nonexistent/measurements.db", "test_annot",
+            ["area"], [100.0], ["higher"])
+
+        assert rows == [["/crops/b.png", None]]
+
+    def test_no_late_guard_survives_to_be_dead_again(self):
+        """The deleted guard stays deleted, or the paragraph explaining it lies.
+
+        One occurrence only, and it is the one that CREATES the column.
+        A second would be the dead `return []` coming back -- which is how
+        this started: it was marked `# pragma: no cover`, counted as an
+        uncoverable item, and driving it returned a row instead of the empty
+        list it promised.
         """
         import inspect
 
         source = inspect.getsource(AE.fetch_filtered_paths)
-        assert "df[annotation_column] = None" in source, (
-            "the annotation column is no longer created up front; the late "
-            "`not in df.columns` guard may now be reachable")
+        assert source.count("annotation_column not in df.columns:") == 1
         create_at = source.index("df[annotation_column] = None")
-        guard_at = source.rindex("if annotation_column not in df.columns:")
-        assert create_at < guard_at, (
-            "the column is now created AFTER the guard that checks for it")
+        guard_at = source.index("if annotation_column not in df.columns:")
+        assert guard_at < create_at, "the guard no longer creates the column"

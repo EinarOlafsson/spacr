@@ -90,3 +90,56 @@ CONFIRMED still red, run rather than assumed:
 The third fails on `assert 1750 < 1702` -- a size/threshold comparison, not a
 missing-column guard, which is worth knowing before assuming the test is
 stale. 0%.
+
+--------------------------------------------------------------------------------
+2026-09-02 — DONE. TWO STALE, ONE STALE FOR A DIFFERENT REASON.
+--------------------------------------------------------------------------------
+
+All three were STALE, and step 1's instruction to establish which side is
+wrong before touching either was worth following: the code was right in all
+three cases and in two of them was right for a reason the test could not see.
+
+1 and 2. THE TWO TORCH-MODEL CARD TESTS. Both asserted against
+`torch.cuda.is_available()`. Instruction 319 moved that question:
+`_get_cellpose_outline_model` now asks `accelerator.cellpose_kwargs()`, which
+asks `accelerator.resolve()` -- which answers for ROCm, Metal and XPU as well
+as CUDA, is CACHED, and is documented as NEVER RAISING because every probe
+inside it is individually guarded.
+
+So the patch reached nothing. On this host the `[False]` case built `gpu=True`
+and the `[True]` case passed by AGREEING WITH THE HARDWARE rather than by
+being driven -- a false pass sitting next to the real failure, which is the
+more expensive half.
+
+Rewritten to fake the probe at the layer that owns it: `resolve` returns a
+fake `Accelerator` for the mapping test, and `cellpose_kwargs` itself raises
+for the `except Exception: kwargs = {"gpu": False}` arm. That arm is
+UNREACHABLE through a broken driver -- resolve swallows it -- and reachable
+through an accelerator module that fails to import, which is what the test now
+says.
+
+3. THE LATE-GUARD TEST. It compared source offsets: `df[annotation_column] =
+None` against `rindex` of `if annotation_column not in df.columns:`, to assert
+the column is created before a LATE guard that returned []. That guard has
+since been DELETED and replaced by a comment, so `rindex` found the only
+remaining occurrence -- the CREATING one -- and the test was comparing an `if`
+against its own body. `assert 1750 < 1702` could not pass again whatever the
+code did.
+
+Replaced by two tests that pin what is now true: one DRIVES a frame with no
+annotation column through `fetch_filtered_paths` and asserts unannotated rows
+come back rather than [], and one asserts the guard string occurs exactly once
+and is the creating one. Both mutation-checked -- deleting the creation kills
+the first, and the count kills the second.
+
+ALSO FIXED: the comment left where the guard was said "Line 1106 above CREATES
+that column". The creation is at 1141 and 1106 is the function signature; the
+number was stale by 35 lines. It now names the code instead of a line number.
+
+  pytest tests/qt/test_cov_w2_2_annotate_engine.py
+         tests/qt/test_cov_r8_annotate_engine_tails.py
+      77 passed
+
+THREE OTHER ANNOTATE FAILURES WERE FOUND WHILE DOING THIS and are NOT part of
+this item. They are filed as 345; all three were verified to fail at HEAD with
+this item's changes stashed, so none is a regression from this work.
