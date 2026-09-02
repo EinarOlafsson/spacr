@@ -140,7 +140,15 @@ else:
             )
             self.setRenderHint(QPainter.RenderHint.Antialiasing, True)
             self.setFrameShape(QFrame.Shape.NoFrame)
-            self.setBackgroundBrush(QBrush(QColor(CANVAS)))
+            # TRANSPARENT, not CANVAS. This brush is the near-black rectangle
+            # reported on 2026-09-01, and it is set HERE -- clearing the
+            # scene's brush in the panel left this one painting over it, which
+            # is why the box stayed black through the first attempt. The
+            # viewport must stop filling itself as well, or Qt paints the
+            # palette colour underneath before either brush is consulted.
+            self.setBackgroundBrush(QBrush(Qt.GlobalColor.transparent))
+            self.viewport().setAutoFillBackground(False)
+            self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
 
         @property
         def zoom(self) -> float:
@@ -190,6 +198,11 @@ else:
 
         SAMPLE_NOTE = "Live display is sampling updates because the event queue filled."
 
+        #: How tall the inspector starts. 118 px was about four lines, so
+        #: every stage worth inspecting needed scrolling before it could be
+        #: read. Asked for on 2026-09-01: start taller and be expandable.
+        INSPECTOR_MIN_HEIGHT = 240
+
         def __init__(
             self,
             collector: Collector,
@@ -205,15 +218,32 @@ else:
             super().__init__(parent)
             self.setObjectName("FlowViewPanel")
             self._embedded = bool(embedded)
+            # NO RIM, and the reason is worth keeping: the border here read
+            # `#FFFFFF1A`, which in a CSS file means white at 10% alpha
+            # (#RRGGBBAA) but in a QT STYLESHEET is parsed as #AARRGGBB --
+            # opaque rgb(255, 255, 26). That is the bright yellow rectangle
+            # around the inspector, reported on 2026-09-01 as "the yellow rim".
+            # The same literal in `export.py` is correct, because that one
+            # really is CSS and a browser really does read #RRGGBBAA.
+            #
+            # It is removed rather than corrected to a faint white, which is
+            # what was asked for: the panel sits inside a section that already
+            # draws the only box this needs.
             panel_surface = (
                 "background: transparent; border: none;"
                 if self._embedded
-                else f"background: {CARD}; border: 1px solid #FFFFFF1A;"
+                else "background: transparent; border: none;"
+                     " border-radius: 8px;"
             )
             self.setStyleSheet(
                 f"#FlowViewPanel {{ {panel_surface} }}"
                 f"QLabel, QPlainTextEdit {{ color: {TEXT_PRIMARY}; }}"
-                f"QPlainTextEdit {{ background: {CANVAS}; border: 1px solid #FFFFFF1A; }}"
+                # TRANSPARENT, ROUNDED, RIMLESS. The inspector was a black
+                # rectangle with the yellow border above; it now shows the
+                # page behind it like every other surface on the screen.
+                "QPlainTextEdit {"
+                " background: transparent; border: none;"
+                " border-radius: 8px; }"
             )
             self._collector = collector
             try:
@@ -250,17 +280,41 @@ else:
             outer.addWidget(self.sample_note)
 
             self.scene = QGraphicsScene(self)
-            self.scene.setBackgroundBrush(QBrush(QColor(CANVAS)))
+            # THE OTHER BLACK BOX. The scene painted CANVAS (#0E1216), which
+            # is a near-black rectangle sitting on top of whatever the screen
+            # behind it is showing. Transparent lets the page through, and the
+            # nodes carry their own fills so nothing becomes unreadable.
+            self.scene.setBackgroundBrush(QBrush(Qt.GlobalColor.transparent))
             self.view = FlowGraphicsView(self.scene, self)
+            # THE SCENE BRUSH IS NOT ENOUGH. A QGraphicsView paints its own
+            # widget background and its viewport's before the scene is drawn,
+            # so clearing only the brush left the same near-black rectangle on
+            # screen. All three have to give way for the page to show through.
+            self.view.setStyleSheet(
+                "QGraphicsView { background: transparent; border: none;"
+                " border-radius: 8px; }")
+            self.view.setFrameShape(QFrame.Shape.NoFrame)
+            self.view.viewport().setAutoFillBackground(False)
             self.inspector = QPlainTextEdit(self)
             self.inspector.setReadOnly(True)
             self.inspector.setPlaceholderText("Select a stage to inspect its run details.")
-            self.inspector.setMinimumHeight(118)
+            # TALLER TO START, AND FREE TO GROW. 118 px showed about four
+            # lines, so every stage worth inspecting needed scrolling
+            # immediately. The splitter below gives it a real share of the
+            # height rather than the sliver a minimum alone would earn it.
+            self.inspector.setMinimumHeight(self.INSPECTOR_MIN_HEIGHT)
             splitter = QSplitter(Qt.Orientation.Vertical, self)
             splitter.addWidget(self.view)
             splitter.addWidget(self.inspector)
-            splitter.setStretchFactor(0, 4)
-            splitter.setStretchFactor(1, 1)
+            # THE INSPECTOR GETS A REAL SHARE. At 4:1 it was a sliver that
+            # collapsed to its minimum the moment the graph had anything in
+            # it; the graph still leads, but the pane underneath is now a
+            # place text can actually be read, and the splitter handle stays
+            # so either can be given the whole height.
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 2)
+            splitter.setCollapsible(1, False)
+            self._splitter = splitter
             outer.addWidget(splitter, 1)
 
             self.export_status = QLabel("")
