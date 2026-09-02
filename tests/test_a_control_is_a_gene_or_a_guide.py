@@ -331,6 +331,15 @@ class TestItSaysWhenAControlMatchedNothing:
     chosen rather than defaulted.
     """
 
+    def test_no_control_selects_no_rows_and_says_nothing(self):
+        guides = pd.Series(["000000_1", "233460_1"], index=[4, 9])
+
+        mask, note = rows_for(None, guides)
+
+        assert mask.index.tolist() == [4, 9]
+        assert mask.tolist() == [False, False]
+        assert note == ""
+
     def test_a_control_that_matches_nothing_is_named(self, capsys):
         from spacr.ml import label_control_condition
 
