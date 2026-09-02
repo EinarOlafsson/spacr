@@ -7723,7 +7723,7 @@ def _write_regression_panel_packages(outcome, settings):
     fdr_alpha = float(settings.get("fdr_alpha", 0.05))
     artifacts = {}
     for level, path in final_paths.items():
-        table = pd.read_csv(path)
+        table = tabular.read_table(path, report=None)
         for phenotype in phenotypes:
             selected = table
             if len(phenotypes) > 1:
