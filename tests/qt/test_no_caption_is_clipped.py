@@ -24,6 +24,28 @@ from PySide6.QtWidgets import QLabel
 import pytest
 
 
+def painted_text(widget) -> str:
+    """What a widget is actually PAINTING, which is not always its text.
+
+    A control that elides on purpose reports its full logical caption from
+    `text()` and paints less. `AiToggleLabel` is the one in spaCR today: it
+    caps `minimumSizeHint` at ELIDE_ABOVE_PX so a long secondary caption
+    cannot force the whole row wider, and offers `displayed_text()` for
+    exactly this question -- its docstring says tests need both "to tell 'the
+    toggle says X' from 'the toggle currently fits this much of X'".
+
+    COMPARING `text()` AGAINST THE WIDTH OF SUCH A WIDGET ALWAYS REPORTS
+    CLIPPING, by construction. On 2026-09-02 that produced five confident
+    false positives across four screens and three locales -- the entire
+    result of a sweep -- before anyone noticed the control was doing what it
+    was built to do. Ask for the painted text first.
+    """
+    getter = getattr(widget, "displayed_text", None)
+    if callable(getter):
+        return getter()
+    return widget.text()
+
+
 def wrapped_height(widget: QLabel, text: str, width: int | None = None) -> int:
     """How tall ``text`` needs to be in ``widget``'s font at ``width``.
 

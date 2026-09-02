@@ -283,3 +283,54 @@ THE LESSON FOR THE SWEEP ITSELF, and it belongs in the method above: PUMP THE
 EVENT LOOP UNTIL THE GEOMETRY STOPS CHANGING BEFORE MEASURING ANYTHING. A
 clipping check that reads a width too early does not report a few extra
 findings -- it reports a completely different package, confidently.
+
+--------------------------------------------------------------------------------
+2026-09-02 — SECOND CORRECTION. THE FIVE SURVIVORS WERE DELIBERATE ELISION.
+--------------------------------------------------------------------------------
+
+The corrected note above named `AiToggleLabel` as "the only control that clips
+anywhere" and called it a small sharp fix. IT IS NOT A DEFECT EITHER.
+
+`AiToggleLabel` elides ON PURPOSE. `ELIDE_ABOVE_PX = 120` caps its
+`minimumSizeHint` so a long secondary caption cannot force the whole row
+wider -- the comment cites INVARIANTS 10, "a secondary control must not be
+able to starve the primary one" -- and `sizeHint` still asks for the full text
+so a roomy layout shows all of it. The behaviour is designed, documented and
+correct.
+
+AND THE CLASS OFFERS THE ANSWER MY CHECK SHOULD HAVE ASKED FOR:
+
+    text()            the full logical caption
+    displayed_text()  what it is actually painting, elided or not
+
+with a docstring saying tests need both "to tell 'the toggle says X' from
+'the toggle currently fits this much of X'". I compared `text()` against the
+width, which for an eliding widget reports clipping BY CONSTRUCTION.
+
+THE SWEEP'S ACTUAL RESULT, with the layout settled AND the check asking for
+painted text:
+
+    en 2      de 0      pt 2
+
+and the survivors are wrapped labels, i.e. the `_WrappedLabel` false-positive
+class already recorded above and still unaddressed. So the honest finding is
+that FOUR SCREENS IN THREE LANGUAGES SHOW NO PROVEN CLIPPING AT ALL, and the
+check is not yet sharp enough to say more than that.
+
+`painted_text()` is now in `tests/qt/test_no_caption_is_clipped.py` so the
+next use of this measurement starts with the rule rather than rediscovering
+it.
+
+THREE FALSE-POSITIVE CLASSES ARE NOW KNOWN, and any sweep must handle all
+three before its numbers mean anything:
+
+    1. measuring before the layout settles      (pump the event loop)
+    2. a wrapping label measured on one line    (use the wrap-aware path)
+    3. a control that elides by design          (ask for painted text)
+
+TWO WRONG HEADLINES IN ONE NIGHT, on the same item, both confident and both
+retracted within the hour. That is the honest character of this work: a
+clipping check is easy to write and hard to make true, and every number it
+produces should be doubted until a second, differently-shaped measurement
+agrees with it. The button-row width check is what caught the first; reading
+the widget's own class is what caught the second.
