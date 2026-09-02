@@ -89,7 +89,7 @@ OPEN
        327_the_backdrop_camera_and_the_pointer_should_feel_like_gravity.txt
 
   331  WHAT MUST BE TRUE BEFORE THE VERSION UPDATE
-       [a checklist over the other items -- no work of its own]
+       [a checklist over the other items; regenerated 2026-09-02 after three closures and four new filings]
        331_before_the_version_update.txt
 
   337  ONE MANDERS DEFINITION, SPATIAL MEASUREMENTS ON, AND THE RUN'S SETTINGS AS

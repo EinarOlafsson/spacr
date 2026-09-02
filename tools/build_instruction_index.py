@@ -79,7 +79,7 @@ STAGE: Dict[str, str] = {
     "325": "the channel between the two sessions -- open while both are running",
     "326": "~20% -- step 1 of 4; the real ceiling is four roles, not 26",
     "327": "~95% -- all five parts shipped; only the frame-rate evidence is missing",
-    "331": "a checklist over the other items -- no work of its own",
+    "331": "a checklist over the other items; regenerated 2026-09-02 after three closures and four new filings",
     "337": "~75% -- Manders, spatial defaults and both labels done; part 3 needs the maintainer's measure settings",
     "339": "0% -- illumination is called from measure and nowhere else",
     "341": "0% -- three tests confirmed still failing on 2026-09-01",
