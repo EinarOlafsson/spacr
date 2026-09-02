@@ -428,7 +428,8 @@ def kappa_detail(a: Sequence[Any], b: Sequence[Any],
     if labels is None:
         universe = _sorted_labels(set(ya) | set(yb))
     else:
-        universe = _sorted_labels({_scalar_label(l) for l in labels} - {None})
+        universe = _sorted_labels(
+            {_scalar_label(label) for label in labels} - {None})
     if not universe:
         universe = []
 
@@ -449,6 +450,16 @@ def kappa_detail(a: Sequence[Any], b: Sequence[Any],
     n_disagree = n - n_agree
 
     def _pack(kappa: float, p_o: float, p_e: float, note: str) -> PairAgreement:
+        """Build one complete agreement result from the captured counts.
+
+        :param kappa: computed Cohen's kappa, or NaN when it is undefined.
+        :param p_o: observed agreement fraction.
+        :param p_e: agreement fraction expected from the marginals.
+        :param note: explanation of the ordinary or degenerate result.
+        :returns: a result containing the supplied statistics together with
+            the captured annotator names, counts, labels, confusion matrix,
+            and interpretation.
+        """
         return PairAgreement(
             column_a=name_a, column_b=name_b, kappa=kappa,
             percent_agreement=p_o, expected_agreement=p_e,
@@ -944,8 +955,11 @@ def agreement_report(db_path: str, columns: Sequence[str],
     observed = set()
     for col in cols:
         observed |= {v for v in df[col] if v is not None}
-    universe = (_sorted_labels(observed) if labels is None
-                else _sorted_labels({_scalar_label(l) for l in labels} - {None}))
+    universe = (
+        _sorted_labels(observed) if labels is None
+        else _sorted_labels(
+            {_scalar_label(label) for label in labels} - {None})
+    )
 
     pairs = [kappa_detail(df[a], df[b], labels=universe,
                           name_a=a, name_b=b)
