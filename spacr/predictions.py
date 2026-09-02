@@ -406,8 +406,18 @@ def _prcfo_from_metadata(frame: pd.DataFrame) -> Optional[pd.Series]:
     # `_clean_prcfo` says they do: an older run stamps the plate `pplate1`
     # and everything computed since stamps it `plate1`. Normalising in one
     # place is what stops the two builders drifting apart again.
-    return (key.astype("object").where(valid, other=None)
-            .map(_clean_prcfo))
+    # Construct the result as explicit object data.  Under pandas 3 string
+    # inference, ``where(..., other=None).map(...)`` promotes the Series to
+    # StringDtype and exposes a missing key as float ``nan``; callers use
+    # identity with ``None`` to distinguish an absent key from a real one.
+    return pd.Series(
+        (
+            _clean_prcfo(value) if bool(is_valid) else None
+            for value, is_valid in zip(key, valid)
+        ),
+        index=frame.index,
+        dtype=object,
+    )
 
 
 def crop_name_metadata(names, timelapse: bool = False) -> pd.DataFrame:
