@@ -1,6 +1,7 @@
 """Direct drivers for the last small utils/timelapse coverage branches."""
 from __future__ import annotations
 
+import importlib
 import sqlite3
 from types import SimpleNamespace
 
@@ -15,6 +16,55 @@ import spacr.utils as utils
 class _RecordingCellposeModel:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
+
+
+def test_lazy_module_reset_repr_and_dir_reload_the_dependency(monkeypatch):
+    first = SimpleNamespace(marker="first", public_name=1)
+    second = SimpleNamespace(marker="second", public_name=2)
+    imports = iter((first, second))
+    imported_names = []
+
+    def fake_import(name):
+        imported_names.append(name)
+        return next(imports)
+
+    monkeypatch.setattr(importlib, "import_module", fake_import)
+    proxy = utils._LazyModule("instruction_288_fake_dependency")
+
+    assert "not yet imported" in repr(proxy)
+    assert proxy.marker == "first"
+    assert "loaded" in repr(proxy)
+    proxy.reset()
+    assert "not yet imported" in repr(proxy)
+    assert proxy.marker == "second"
+    assert "public_name" in dir(proxy)
+    assert imported_names == [
+        "instruction_288_fake_dependency",
+        "instruction_288_fake_dependency",
+    ]
+
+
+def test_null_measurement_stamp_is_legacy_and_refuses_3d_append(tmp_path):
+    database = tmp_path / "measurements.db"
+    with sqlite3.connect(database) as connection:
+        connection.execute(
+            "CREATE TABLE cell (measurement_ndim INTEGER, "
+            "measurement_units TEXT)"
+        )
+        connection.execute("INSERT INTO cell VALUES (NULL, 'unknown')")
+
+    assert utils._existing_measurement_identity(database, "cell") == {
+        (2, "px")
+    }
+    with pytest.raises(
+        utils.MeasurementUnitsMismatch,
+        match=r"3-D/um.*already holds 2-D/px",
+    ):
+        utils._assert_measurement_units_compatible(
+            database,
+            "cell",
+            {"measurement_ndim": 3, "measurement_units": "um"},
+        )
 
 
 def test_choose_model_none_device_keeps_the_resolved_accelerator(monkeypatch):
