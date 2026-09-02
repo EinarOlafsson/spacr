@@ -1246,6 +1246,83 @@ def load_segmentation_illumination_resume(
     return prepared
 
 
+def validate_measurement_illumination_inputs(
+        settings: Mapping[str, Any], *, src=None
+        ) -> Dict[str, Dict[str, Any]]:
+    """Fail closed before Measure corrects pixels a second time.
+
+    Segmentation is allowed to correct only its private model input.  If a
+    mask run ever records that it instead changed the persisted intensities,
+    Measure must not install another gain over those pixels: doing so squares
+    the optical field while producing entirely plausible numbers.  A missing
+    application record is the legacy/raw case and remains valid; a present
+    record must prove the current ``segmentation-input-only`` contract.
+
+    This check is deliberately read-only.  It neither creates an illumination
+    folder nor repairs a malformed record, and it does nothing when Measure's
+    own illumination correction is off.
+
+    :param settings: resolved Measure settings.
+    :param src: optional merged-folder override; defaults to
+        ``settings['src']`` and accepts the same folder-or-list shape.
+    :returns: absolute application-record paths mapped to their validated
+        JSON objects; an empty dict means no segmentation record was present.
+    :raises IlluminationError: when a present record is unreadable or cannot
+        prove that persisted intensity pixels remain raw.
+    """
+    if not settings.get('illumination_correction', False):
+        return {}
+    source = src if src is not None else settings.get('src')
+    if not source:
+        return {}
+
+    records: Dict[str, Dict[str, Any]] = {}
+    seen = set()
+    for folder in _source_folders(source):
+        path = os.path.abspath(os.path.join(
+            os.path.dirname(folder), 'illumination',
+            'segmentation_application.json'))
+        if path in seen:
+            continue
+        seen.add(path)
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path, encoding='utf-8') as handle:
+                record = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            raise IlluminationError(
+                'Measure cannot verify whether segmentation left persisted '
+                f'intensities raw because {path} is unreadable: {exc}. '
+                'Refusing a possible double correction; repair or remove the '
+                'invalid mask-run provenance before measuring.') from exc
+        if not isinstance(record, dict):
+            raise IlluminationError(
+                'Measure cannot verify whether segmentation left persisted '
+                f'intensities raw because {path} is not a JSON object. '
+                'Refusing a possible double correction.')
+
+        safe = (
+            type(record.get('schema_version')) is int and
+            record.get('schema_version') == 1 and
+            record.get('source_intensity_state') == 'raw' and
+            record.get('target_scope') == 'segmentation-input-only' and
+            type(record.get('correction_depth')) is int and
+            record.get('correction_depth') == 1 and
+            record.get('raw_persisted_intensities_modified') is False
+        )
+        if not safe:
+            raise IlluminationError(
+                'Measure refused a possible double correction: the '
+                f'segmentation record at {path} does not prove schema 1, raw '
+                'persisted input, segmentation-input-only scope, correction '
+                'depth 1, and raw_persisted_intensities_modified=false. '
+                'Rebuild masks with in-memory-only illumination or measure '
+                'without another illumination correction.')
+        records[path] = record
+    return records
+
+
 class SegmentationIlluminationSession:
     """Apply one illumination model exactly once per segmentation field.
 
