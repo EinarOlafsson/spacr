@@ -1155,8 +1155,12 @@ def test_the_sam_generator_also_builds_a_gpu_model_on_a_cuda_box(
         tmp_path, fake_sam_model, monkeypatch, capsys):
     import torch
     monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    gpu = torch.device("cuda:7")
     monkeypatch.setattr(
-        O.accelerator, "torch_device", lambda: torch.device("cuda:0"))
+        O.accelerator,
+        "cellpose_kwargs",
+        lambda: {"gpu": True, "device": gpu},
+    )
 
     src = tmp_path / "stack"
     _write_npz(src, n=2)
@@ -1164,7 +1168,7 @@ def test_the_sam_generator_also_builds_a_gpu_model_on_a_cuda_box(
 
     model = fake_sam_model["model"]
     assert model.gpu is True
-    assert str(model.device) == "cuda:0"
+    assert str(model.device) == "cuda:7"
     assert model.pretrained_model == "cpsam"
     assert "Torch CUDA is not available" not in capsys.readouterr().out
 

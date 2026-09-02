@@ -800,8 +800,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     if settings['verbose']:
         print(channels)
 
-    device = accelerator.torch_device()
-
     # pretrained_model used to be the literal 'cpsam' here, so a checkpoint
     # from spaCR's own Train Cellpose module was discarded and the stock
     # weights ran instead — silently, on the pipeline's DEFAULT path.
@@ -817,7 +815,10 @@ def generate_cellpose_masks_sam(src, settings, object_type):
         # names rather than silently falling back to cpsam.
         model_name = settings['pathogen_model']
     pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
-    model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), pretrained_model=pretrained, device=device)
+    model = cp_models.CellposeModel(
+        pretrained_model=pretrained,
+        **accelerator.cellpose_kwargs(),
+    )
     paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
     
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
