@@ -40,12 +40,12 @@ is unavailable, :class:`MixedBackendUnavailable` explains what is missing.
 from __future__ import annotations
 
 import math
+import os
 import re
 import time
 from dataclasses import dataclass, field
 from typing import Any, Sequence
 
-import os
 import numpy as np
 import pandas as pd
 
@@ -101,7 +101,6 @@ def torch_available() -> bool:
 # this module does not have to know that.
 from .regression_backends import cuda_present_without_importing_torch  # noqa: E402,F401
 
-
 #: How much of the memory a device reports the dense design may take. A fit
 #: is not the only thing in the process -- the merged frame it came from, both
 #: results tables and every figure already drawn are live beside it -- so
@@ -139,10 +138,11 @@ def available_memory(device: str = "cpu") -> int:
 
 def _readable(total: int) -> str:
     size = float(max(0, int(total)))
-    for unit in ("B", "KB", "MB", "GB", "TB"):
-        if size < 1024 or unit == "TB":
+    for unit in ("B", "KB", "MB", "GB"):
+        if size < 1024:
             return f"{size:.1f} {unit}"
         size /= 1024
+    return f"{size:.1f} TB"
 
 
 def _refuse_if_too_large(n: int, q: int, *, dtype=None, device: str = "cpu"):

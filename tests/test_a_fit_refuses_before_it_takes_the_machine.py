@@ -10,9 +10,6 @@ known exactly before the matrix exists, so the bytes are too -- and a refusal a
 user can read beats a machine they have to power-cycle.
 """
 
-import spacr
-
-
 import pytest
 
 
@@ -47,6 +44,12 @@ def test_an_impossible_design_is_refused_with_both_numbers():
     assert "free" in message, "and how much there was"
     # And what to do, because a refusal with no alternative is a dead end.
     assert "ols" in message
+
+
+def test_a_petabyte_is_still_reported_in_the_largest_supported_unit():
+    from spacr.mixed_gpu import _readable
+
+    assert _readable(1024 ** 5) == "1024.0 TB"
 
 
 def test_it_refuses_rather_than_allocating(monkeypatch):
