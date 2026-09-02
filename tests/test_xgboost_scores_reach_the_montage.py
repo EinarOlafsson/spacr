@@ -131,8 +131,13 @@ def test_a_partial_row_gets_no_key_rather_than_a_colliding_one():
     """An empty component would make two different objects share a key."""
     from spacr.predictions import _prcfo_from_metadata
 
-    png = _png_list(3)
-    png.loc[1, "fieldID"] = None
-    keys = _prcfo_from_metadata(png.drop(columns=["prcfo"]))
+    # pandas 3 enables string inference by default.  Enabling its pandas 2
+    # preview here makes the missing-value contract fail on both versions if
+    # the result is allowed to infer StringDtype (where ``None`` reads back as
+    # float ``nan``).
+    with pd.option_context("future.infer_string", True):
+        png = _png_list(3)
+        png.loc[1, "fieldID"] = None
+        keys = _prcfo_from_metadata(png.drop(columns=["prcfo"]))
     assert keys[1] is None
     assert keys[0] is not None
