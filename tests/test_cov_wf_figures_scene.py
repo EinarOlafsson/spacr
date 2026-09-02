@@ -211,6 +211,45 @@ def test_stems_with_no_colour_add_nothing(plot, look):
     assert len(plot.items) == 1
 
 
+def test_empty_and_short_stem_collections_draw_nothing(plot, look):
+    """A line collection needs at least one complete two-point segment.
+
+    Matplotlib accepts both an empty collection and isolated one-point
+    segments, but pyqtgraph's ``connect='pairs'`` cannot turn either into a
+    line.  A normal two-point segment is the positive counterpart: it must
+    still become exactly one batched plot item.
+    """
+    from matplotlib.collections import LineCollection
+
+    empty = LineCollection([], colors="green")
+    points_only = LineCollection([[[0.0, 1.0]], [[2.0, 3.0]]],
+                                 colors="green")
+    segment = LineCollection([[[0.0, 1.0], [2.0, 3.0]]], colors="green")
+
+    assert _add_line_collection(plot, empty, look) == 0
+    assert _add_line_collection(plot, points_only, look) == 0
+    assert _add_line_collection(plot, segment, look) == 1
+    assert len(plot.items) == 1
+
+
+def test_axes_fractions_use_geometric_midpoints_on_log_axes():
+    """Halfway across a log axis is its geometric, not arithmetic, midpoint.
+
+    ``_FractionPoint`` is the transform-free adapter used for rectangle
+    labels.  Pinning both axes ensures its fallback conversion keeps such a
+    label centred on logarithmic panels.
+    """
+    figure, axes = plt.subplots()
+    axes.set_xscale("log")
+    axes.set_yscale("log")
+    axes.set_xlim(1.0, 100.0)
+    axes.set_ylim(0.1, 1000.0)
+
+    position = sc._in_data_coordinates(sc._FractionPoint(0.5, 0.5), axes)
+
+    assert position == pytest.approx((10.0, 10.0))
+
+
 def test_what_cannot_be_placed_in_data_coordinates_is_left_off(plot, look):
     """A backdrop and an annotation are both positioned in axes fraction, and a
     fraction that is not a number cannot be converted.
@@ -338,6 +377,56 @@ class _AxesWithUnreadableTicks:
     def __init__(self):
         self.xaxis = _WillNotSayWhereItsTicksAre()
         self.yaxis = _WillNotSayWhereItsTicksAre()
+
+
+class _TickLabel:
+    """The one ``Text`` operation :func:`_carry_ticks` needs."""
+
+    def __init__(self, text):
+        self._text = text
+
+    def get_text(self):
+        return self._text
+
+
+class _TickAxis:
+    """A deterministic categorical axis, including malformed pairs."""
+
+    def __init__(self, locations, labels):
+        self._locations = locations
+        self._labels = labels
+
+    def get_ticklocs(self):
+        return self._locations
+
+    def get_ticklabels(self):
+        return [_TickLabel(text) for text in self._labels]
+
+
+class _AxesWithTicks:
+    """The x/y axis pair :func:`_carry_ticks` reads."""
+
+    def __init__(self, xaxis):
+        self.xaxis = xaxis
+        self.yaxis = _TickAxis([], [])
+
+
+def test_mismatched_tick_labels_are_not_carried(plot):
+    """Locations and labels are an indivisible mapping.
+
+    A formatter returning fewer labels than locations must leave the target
+    axis untouched; zipping it would silently mislabel data.  A matched
+    categorical pair remains the positive counterpart and is carried intact.
+    """
+    mismatch = _AxesWithTicks(_TickAxis([0.0, 1.0], ["plate 1"]))
+    _carry_ticks(plot, mismatch)
+    assert plot.getAxis("bottom")._tickLevels is None
+
+    matched = _AxesWithTicks(_TickAxis([0.0, 1.0], ["plate 1", "plate 2"]))
+    _carry_ticks(plot, matched)
+    assert plot.getAxis("bottom")._tickLevels == [
+        [(0.0, "plate 1"), (1.0, "plate 2")]
+    ]
 
 
 def test_ticks_that_cannot_be_carried_are_left_to_pyqtgraph(plot):
