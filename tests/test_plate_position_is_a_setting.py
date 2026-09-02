@@ -1,7 +1,9 @@
 """Plate position is a setting, and it is tested BY FITTING (instruction 143 A).
 
-"is rowID + columnID always run? this should be an opt in" -- it was:
-``prepare_formula`` ended with an unconditional ``+ rowID + columnID`` and
+"is rowID + columnID always run? this should be an opt in" -- it was. The
+fixed-effects state now includes ``plateID + rowID + columnID`` because row
+and column labels recur between plates and cannot represent a plate-wide shift.
+Historically, ``prepare_formula`` ended with ``+ rowID + columnID`` and
 ``random_row_column_effects`` only chose FIXED or RANDOM for terms that were
 already in. ``model_plate_position`` is the third state, and these tests hold
 it to the thing that actually matters: the DESIGN MATRIX gains or loses the
@@ -11,7 +13,7 @@ pass with a formula nothing fits.
 
 THE DEFAULT IS ON, and it was measured rather than chosen. Instruction 143
 proposed OFF; two fits per level of the maintainer's TSG101 screen (1945 rows,
-610 wells, 823 guides, 389 genes) said the opposite -- the 35 position terms
+610 wells, 823 guides, 389 genes) said the opposite -- the 35 spatial terms
 are jointly significant at F = 5.781, p = 6.71e-23 (guide) and F = 6.277,
 p = 2.33e-26 (gene), eight of nine real screens agree, dropping them costs 8.4
 points of R2 and 7.2% on the residual sd, and the exported gene hit list swaps
@@ -52,6 +54,8 @@ GUIDES_PER_GENE = 3
 #: against 0.29, which is the contrast these tests are for.
 N_PLATES, N_ROWS, N_COLS = 4, 8, 12
 POSITION_PARAMS = (N_ROWS - 1) + (N_COLS - 1)
+PLATE_PARAMS = N_PLATES - 1
+LAYOUT_PARAMS = PLATE_PARAMS + POSITION_PARAMS
 
 #: How many of the library's guides land in one well. The real TSG101 screen
 #: is 1945 rows over 610 wells -- 3.2 guides per well -- and the replication
@@ -167,7 +171,7 @@ def cleaned_flat():
 # 1. The design matrix, which is the thing that actually changes
 # ---------------------------------------------------------------------------
 
-def test_the_design_matrix_loses_exactly_the_row_and_column_columns(cleaned):
+def test_the_design_matrix_loses_exactly_the_plate_row_and_column_columns(cleaned):
     """Counted, not read off the formula string.
 
     The number is the one instruction 143 argues about: it counts a full
@@ -180,17 +184,17 @@ def test_the_design_matrix_loses_exactly_the_row_and_column_columns(cleaned):
     off, y_off, X_off = _fit(cleaned, False)
 
     position_on = [c for c in X_on.columns
-                   if c.startswith(("rowID[", "columnID["))]
-    assert len(position_on) == POSITION_PARAMS, position_on
+                   if c.startswith(("plateID[", "rowID[", "columnID["))]
+    assert len(position_on) == LAYOUT_PARAMS, position_on
     assert not [c for c in X_off.columns
-                if c.startswith(("rowID[", "columnID["))]
+                if c.startswith(("plateID[", "rowID[", "columnID["))]
 
     # Everything else is untouched: same rows, same guide block, and the
     # parameter count differs by exactly the position terms.
     assert list(y_on.index) == list(y_off.index)
     assert set(X_off.columns) == set(X_on.columns) - set(position_on)
-    assert X_on.shape[1] - X_off.shape[1] == POSITION_PARAMS
-    assert int(on.df_resid) == int(off.df_resid) - POSITION_PARAMS
+    assert X_on.shape[1] - X_off.shape[1] == LAYOUT_PARAMS
+    assert int(on.df_resid) == int(off.df_resid) - LAYOUT_PARAMS
     # Both designs are FULL RANK; the choice is not trading one deficiency
     # for another.
     assert np.linalg.matrix_rank(X_on.to_numpy()) == X_on.shape[1]
@@ -203,9 +207,9 @@ def test_the_gene_level_loses_the_same_columns(cleaned):
     _, _, X_off = _fit(cleaned, False, level="gene")
 
     assert len([c for c in X_on.columns
-                if c.startswith(("rowID[", "columnID["))]) == POSITION_PARAMS
+                if c.startswith(("plateID[", "rowID[", "columnID["))]) == LAYOUT_PARAMS
     assert not [c for c in X_off.columns
-                if c.startswith(("rowID[", "columnID["))]
+                if c.startswith(("plateID[", "rowID[", "columnID["))]
     assert any(c.startswith("gene_fraction:gene[") for c in X_off.columns)
 
 
@@ -223,7 +227,7 @@ def test_the_position_terms_are_jointly_significant_when_they_are_real(
     position effect is planted: F = 5.781, p = 6.71e-23 on the real screen."""
     on, _, X_on = _fit(cleaned, True)
     terms = [c for c in X_on.columns
-             if c.startswith(("rowID[", "columnID["))]
+             if c.startswith(("plateID[", "rowID[", "columnID["))]
     joint = on.f_test(" = 0, ".join(terms) + " = 0")
 
     assert float(joint.fvalue) > 3.0, float(joint.fvalue)
@@ -366,8 +370,8 @@ def test_the_three_states_are_three_different_formulas():
     random = prepare_formula("score", model_plate_position=True,
                              random_row_column_effects=True)
 
-    assert "rowID" not in out and "columnID" not in out
-    assert "rowID" in fixed and "columnID" in fixed
+    assert all(term not in out for term in ("plateID", "rowID", "columnID"))
+    assert all(term in fixed for term in ("plateID", "rowID", "columnID"))
     # RANDOM leaves them out of the FORMULA because fit_mixed_model puts them
     # into its variance components; that is the state the formula alone
     # cannot tell you about, which is why the model box has to name it.
@@ -503,14 +507,14 @@ def test_regression_fits_the_design_the_setting_asked_for(
         model_plate_position=model_plate_position)
 
     fitted = [t for t in model.params.index
-              if t.startswith(("rowID[", "columnID["))]
+              if t.startswith(("plateID[", "rowID[", "columnID["))]
     assert bool(fitted) is expected, fitted
     # The coefficient table is the guide block either way -- the position
     # terms are nuisance and process_model_coefficients filters them out --
     # so the setting is invisible downstream and can only be checked here.
     assert any(f.startswith("fraction:grna[")
                for f in coef_df["feature"])
-    assert not any(f.startswith(("rowID[", "columnID["))
+    assert not any(f.startswith(("plateID[", "rowID[", "columnID["))
                    for f in coef_df["feature"])
 
 

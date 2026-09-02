@@ -2209,6 +2209,16 @@ def _reject_a_threshold_that_cannot_mean_what_it_says(settings):
                 f"{key} must name a column of the count CSV; got {name!r}. "
                 f"An empty name cannot be looked up, and the failure would "
                 f"come out of pandas rather than out of the settings.")
+    for key, choices in (
+        ('independent_variable_layout', {'auto', 'long', 'wide'}),
+        ('model_data_layout', {'long', 'wide'}),
+    ):
+        value = str(settings[key] or '').strip().lower()
+        if value not in choices:
+            raise ValueError(
+                f"{key}={settings[key]!r}; choose one of {sorted(choices)}."
+            )
+        settings[key] = value
     return settings
 
 
@@ -2703,6 +2713,15 @@ def get_perform_regression_default_settings(settings):
     # pipeline spells differently ('sgRNA', 'reads', 'n').
     settings.setdefault('count_grna_column', 'grna')
     settings.setdefault('count_value_column', 'count')
+    # Count inputs may be one row per (well, guide) or one row per well with
+    # one guide per column. ``auto`` recognizes the former from the paired
+    # guide/value columns and otherwise uses the wide-column path. The model
+    # layout is a separate choice: a long input can be collapsed to one row
+    # per well for fixed-effects estimators, while a wide input can be melted
+    # for the historical formula and permutation paths.
+    settings.setdefault('independent_variable_layout', 'auto')
+    settings.setdefault('wide_predictor_columns', [])
+    settings.setdefault('model_data_layout', 'long')
     # sequencing.graph_sequencing_stats iterates settings['control_wells'] and
     # drops those wells from the count table before it sweeps for the fraction
     # threshold, exactly as ml.clean_controls drops filter_value from the score
@@ -3428,6 +3447,9 @@ expected_types = {
     # instruction 135 B.
     "count_grna_column": str,
     "count_value_column": str,
+    "independent_variable_layout": str,
+    "wide_predictor_columns": list,
+    "model_data_layout": str,
     # The regression keys perform_regression indexes directly. They had no
     # entry here at all, so the GUIs could not render them, check_settings could
     # not coerce them out of a settings CSV and validate could not type-check
@@ -4406,6 +4428,9 @@ tooltips = {
     "rra_permutations": "(int) - How many permuted rankings the robust rank aggregation null is built from. The smallest P value it can report is about 1/rra_permutations, so 10000 resolves the tail to 1e-4; raise it when many genes pile up at that floor and lower it while exploring, since the cost is linear in this number. Default 10000.",
     "count_grna_column": "(str) - Name of the column in the count CSV containing the guide identifier. Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
     "count_value_column": "(str) - Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.",
+    "independent_variable_layout": "(str) - Shape of the independent-variable/count table: 'long' means one row per well and guide, 'wide' means one row per well with one guide per column, and 'auto' detects long from count_grna_column plus count_value_column and otherwise treats the numeric non-metadata columns as guides. Wide input is melted losslessly before filtering. Default 'auto'.",
+    "wide_predictor_columns": "(list) - Guide columns in a wide independent-variable table. Leave empty to use all numeric columns other than plate/well metadata; list them explicitly when the table contains additional numeric metadata. Ignored for long input. Default [].",
+    "model_data_layout": "(str) - Shape handed to a fixed-effects estimator. 'long' preserves the historical repeated well-guide formula; 'wide' pivots guide or gene fractions to one row per independent well before fitting. Mixed models and Freedman-Lane permutation testing require the long representation and convert wide input back to long automatically. Default 'long'.",
     "fdr_alpha": "(float) - Family-level rejection threshold for adjusted P values in guide_permutation mode. Must be between 0 and 1. Default 0.05.",
     "tolerance": "(int or float) - How close a subsampled well mean has to be to the full-well mean before minimum_cell_simulation calls that sample size sufficient, which is what sets min_cell_count when you leave it None. An int is read as a percentage (2 means 2%), a float as a fraction (0.02 means the same); anything else raises ValueError. Tighten it toward 0.01 to demand more cells per well and drop more wells, loosen it to 0.05 to keep sparse wells at the cost of noisier per-well scores. Default 0.02.",
     "invert_dependent_variable": "(bool or int) - Transform the response before per-well aggregation when lower scores represent a stronger phenotype. False or 0 leaves the response unchanged, True or 1 uses 1 - x (appropriate for probabilities), and -1 uses 1 / x (appropriate for distances or counts). Any other value raises ValueError in process_scores. The transformation changes coefficient signs and therefore the side of the volcano plot on which significant effects appear. Default False.",
@@ -4535,7 +4560,7 @@ tooltips = {
     "group_lasso_lambda": "(float) - Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto.",
     "lasso_selection_threshold": "(float) - Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6.",
     "regression_qc": "(bool) - Write variance-homogeneity, residual, design, influence, and calibration diagnostics to <res_folder>/regression_qc/ as figures, a combined PDF, and a text report. One fit requires approximately 5.8 seconds and writes 19 files, so this is enabled for individual analyses but disabled automatically during parameter sweeps to avoid producing thousands of diagnostic files. Reopen a selected trial to generate its diagnostics. Applies to every regression_type. Default True.",
-    "model_plate_position": "(bool) - Include rowID and columnID terms to model spatial plate effects. random_row_column_effects selects fixed or random terms. Enabling random row or column effects requires this setting. In the reference screen these terms were jointly significant at p = 6.7e-23, so enable them when edge, row, or column effects are plausible. Default False.",
+    "model_plate_position": "(bool) - Include plateID, rowID, and columnID terms to model plate and spatial effects. random_row_column_effects selects fixed terms or a plate-grouped mixed model with row/column variance components. Enabling random effects requires this setting. In the reference screen the layout terms were jointly significant at p = 6.7e-23, so enable them when plate, edge, row, or column effects are plausible. Default False.",
     "random_row_column_effects": "(bool) - Fit plate, row and column as random effects instead of fixed ones: True overrides regression_type to 'mixed' and fits a MixedLM grouped by plateID with rowID and columnID variance components, dropping them from the fixed-effect formula. Use it when edge or row artefacts differ between plates; it is slower and may fail to converge. Default False.",
     "resample": "(bool) - Passed to Cellpose model.eval: run the mask-tracking dynamics at full image resolution instead of on the downsampled network grid. Enabling it gives smoother, better-fitting object outlines at the cost of time and memory, and helps most when objects differ a lot from the model's training diameter. Default False; the object pipeline sets True for cell/nucleus and False for pathogen.",
     "rescale": "(bool) - Let Cellpose rescale each image by 30/diameter before segmenting, so objects arrive at the size the model expects. Turn off only when the diameter is already correct for the model. Default False.",
@@ -5306,6 +5331,8 @@ categories = {
     "Regression: Response": [
         "dependent_variable", "invert_dependent_variable",
         "count_grna_column", "count_value_column",
+        "independent_variable_layout", "wide_predictor_columns",
+        "model_data_layout",
         "analysis_unit", "agg_type", "transform",
     ],
     # inference and regression_type lead: they decide whether anything in

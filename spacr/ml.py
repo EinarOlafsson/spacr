@@ -1062,8 +1062,9 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
     dependent_variable : str
         Name of the response column.
     random_row_column_effects : bool, default=False
-        Reserve ``rowID`` and ``columnID`` for variance components in
-        :func:`fit_mixed_model` instead of adding them as fixed effects.
+        Reserve ``plateID``, ``rowID`` and ``columnID`` for the grouping and
+        variance-component structure in :func:`fit_mixed_model` instead of
+        adding them as fixed effects.
     block_screen : bool, default=False
         Add ``screenID`` as a fixed effect. Use
         :func:`screen_is_blockable` before enabling this for user data.
@@ -1082,11 +1083,11 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
         pinned at exactly that number.
     model_plate_position : bool, default=True
         Include plate position in the model. With
-        ``random_row_column_effects=False`` it is included as fixed row and
-        column terms; with ``random_row_column_effects=True`` it is reserved
-        for mixed-model variance components. New application settings default
-        to ``False`` even though this helper retains ``True`` for API
-        compatibility.
+        ``random_row_column_effects=False`` it is included as fixed plate,
+        row, and column terms; with ``random_row_column_effects=True`` plate
+        supplies the grouping variable and row/column are variance
+        components. New application settings default to ``False`` even though
+        this helper retains ``True`` for API compatibility.
 
     Returns
     -------
@@ -1129,14 +1130,14 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
     origin = ' - 1' if mode in ('zero', 'value') else ''
     if random_row_column_effects and not model_plate_position:
         raise ValueError(
-            "model_plate_position=False takes rowID and columnID out of the "
+            "model_plate_position=False takes plateID, rowID and columnID out of the "
             "model entirely and random_row_column_effects=True asks for them "
             "as variance components, so there is no term left for the mixed "
             "fit to make random: one of the two has to go. Plate position "
             "has three states -- OUT (model_plate_position=False), FIXED "
             "(model_plate_position=True) and RANDOM (both True) -- and this "
-            "is a fourth. Set model_plate_position=True to fit row and "
-            "column as variance components, or "
+            "is a fourth. Set model_plate_position=True to fit plate, row "
+            "and column in the mixed-model structure, or "
             "random_row_column_effects=False to leave plate position out of "
             "the model.")
     if not model_plate_position:
@@ -1149,7 +1150,13 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
         # Row and column become variance components in fit_mixed_model, so
         # they must not also be fixed terms here.
         return f'{dependent_variable} ~ {term}{screen}{origin}'
-    return f'{dependent_variable} ~ {term} + rowID + columnID{screen}{origin}'
+    # FIXED LAYOUT ADJUSTMENT. Plate is deliberately explicit rather than
+    # assumed to be represented by row/column: the same row and column labels
+    # recur on every plate, so rowID + columnID alone cannot absorb a shift in
+    # the overall mean between plates. Patsy emits no contrast column when
+    # there is only one plate and k-1 columns when there are k plates.
+    return (f'{dependent_variable} ~ {term} + plateID + rowID + '
+            f'columnID{screen}{origin}')
 
 
 def screen_is_blockable(df) -> bool:
@@ -2195,7 +2202,12 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
         verbose=True)
     _say_when_a_control_matched_nothing(coef_df, nc, pc, controls)
 
-    return coef_df[~coef_df['feature'].str.contains('row|column')]
+    # Layout terms are nuisance adjustments, not screen hits. Match only the
+    # Patsy term prefix so a legitimate guide whose name happens to contain
+    # "plate", "row", or "column" is not discarded.
+    nuisance = coef_df['feature'].astype(str).str.match(
+        r'^(?:plateID|rowID|columnID|screenID)\[')
+    return coef_df[~nuisance]
 
 def _draw_the_threshold_sweep(settings, res_folder, *,
                               measured: bool = False) -> None:
@@ -4751,6 +4763,90 @@ def resolve_levels(regression_type, level='both'):
     return (key,)
 
 
+def _wide_fixed_effect_design(df, dependent_variable, *, level,
+                              model_plate_position=True,
+                              block_screen=False, intercept='fitted'):
+    """Build one fixed-effects row per independent well from long fractions.
+
+    This is the explicit long-to-wide alternative to Patsy's historical
+    long-row interaction formula. Each guide/gene becomes a numeric fraction
+    column, absent predictors are zero, and the response and metadata must be
+    constant within a well. The returned feature names keep spaCR's existing
+    ``fraction:grna[...]`` / ``gene_fraction:gene[...]`` contract so every
+    estimator and results consumer can use the same coefficient path.
+    """
+    from .regression_layout import long_to_wide_regression_data
+    from .schema import SCREEN_KEY
+
+    if level == 'grna':
+        predictor, value, prefix = 'grna', 'fraction', 'fraction:grna['
+    elif level == 'gene':
+        predictor, value, prefix = 'gene', 'gene_fraction', 'gene_fraction:gene['
+    else:
+        raise ValueError(f"wide model design needs one level, got {level!r}")
+    metadata = [dependent_variable, 'plateID', 'rowID', 'columnID']
+    if 'cell_count' in df.columns:
+        metadata.append('cell_count')
+    if block_screen and SCREEN_KEY in df.columns:
+        metadata.append(SCREEN_KEY)
+    wide = long_to_wide_regression_data(
+        df,
+        index_columns='prc',
+        predictor_column=predictor,
+        value_column=value,
+        metadata_columns=metadata,
+        fill_value=0.0,
+    ).sort_values('prc', kind='stable').reset_index(drop=True)
+
+    identifiers = sorted(
+        set(map(str, df[predictor].dropna().astype(str).unique()))
+    )
+    missing = [name for name in identifiers if name not in wide.columns]
+    if missing:
+        raise AssertionError(
+            "wide pivot lost predictor columns: " + ", ".join(missing[:5])
+        )
+    predictors = wide[identifiers].apply(pd.to_numeric, errors='raise').copy()
+    predictors.columns = [prefix + name + ']' for name in identifiers]
+
+    design_parts = []
+    mode = str(intercept or 'fitted').strip().lower()
+    if mode not in INTERCEPT_MODES:
+        raise ValueError(
+            f"intercept={intercept!r} is not one of {list(INTERCEPT_MODES)}"
+        )
+    if mode in ('fitted', 'control'):
+        design_parts.append(pd.DataFrame({'Intercept': np.ones(len(wide))}))
+    design_parts.append(predictors.reset_index(drop=True))
+
+    nuisance_columns = []
+    if model_plate_position:
+        nuisance_columns.extend(['plateID', 'rowID', 'columnID'])
+    if block_screen:
+        nuisance_columns.append(SCREEN_KEY)
+    for column in nuisance_columns:
+        if column not in wide.columns:
+            raise ValueError(
+                f"model_data_layout='wide' needs nuisance column {column!r}"
+            )
+        values = wide[column].astype(str)
+        levels = sorted(values.unique())
+        for category in levels[1:]:
+            design_parts.append(pd.DataFrame({
+                f'{column}[T.{category}]': values.eq(category).astype(float)
+            }))
+    X = pd.concat(design_parts, axis=1)
+    y = pd.DataFrame({
+        dependent_variable: pd.to_numeric(
+            wide[dependent_variable], errors='raise'
+        ).to_numpy(dtype=float)
+    })
+    if X.columns.duplicated().any():
+        duplicates = list(X.columns[X.columns.duplicated()])
+        raise ValueError("wide design has duplicate terms: " + ", ".join(duplicates))
+    return y, X, wide
+
+
 def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
                random_row_column_effects=False, nc='233460', pc='220950', controls=None,
                dst=None, cov_type=None, plot=False, l1_ratio=0.5, quantile=0.5,
@@ -4762,7 +4858,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                model_plate_position=True,
                regression_backend=DEFAULT_REGRESSION_BACKEND,
                verbose=False, transform="",
-               intercept='fitted', intercept_value=0.0):
+               intercept='fitted', intercept_value=0.0,
+               model_data_layout='long'):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
     :param df: Long-format DataFrame with gRNA/gene fractions and the
@@ -4781,8 +4878,10 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     :param alpha: Regularisation strength for penalised models.
     :param random_row_column_effects: If True, fit a mixed model with
         random row/column effects.
-    :param model_plate_position: Whether ``rowID`` and ``columnID`` are terms
-        in the model at all. Direct calls default to ``True`` for API
+    :param model_plate_position: Whether ``plateID``, ``rowID`` and
+        ``columnID`` are terms in a fixed-effects model (or the corresponding
+        grouping/variance structure in a mixed model). Direct calls default
+        to ``True`` for API
         compatibility; new application settings default to ``False`` so the
         terms are opt-in. See :func:`prepare_formula` for the measured costs
         of including or omitting them. ``False`` with
@@ -4823,6 +4922,11 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         distributions, which describe the DATA and not the fit. False on the
         second of two fits, so the figure grid gets one copy rather than two
         identical ones.
+    :param model_data_layout: ``'long'`` preserves the historical formula
+        with one fitted row per well-guide pair. ``'wide'`` pivots fractions
+        to one row per independent well before any fixed-effects estimator is
+        fitted. Mixed models require their long nesting representation and
+        therefore use long data even when a wide count input was supplied.
     :returns: ``(model, coef_df, regression_type)``.
     """
 
@@ -4857,6 +4961,12 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             f"{list(wanted)}. Call regression_levels(), which fits each of "
             f"them separately and corrects each within itself.")
     level = wanted[0]
+
+    model_layout = str(model_data_layout or 'long').strip().lower()
+    if model_layout not in {'long', 'wide'}:
+        raise ValueError(
+            f"model_data_layout={model_data_layout!r}; choose 'long' or 'wide'."
+        )
 
     print(f"Using regression type: {regression_type}")
 
@@ -4936,6 +5046,10 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     # fit_mixed_model built -- two things called 'mixed' in one function. There
     # is one now: gene fixed, guide random nested inside it.
     if regression_type == 'mixed' or random_row_column_effects:
+        if model_layout == 'wide':
+            print("model_data_layout='wide' was normalized back to long for "
+                  "the mixed model because guide-within-gene nesting is a "
+                  "long-data structure.")
         regression_type = 'mixed'
         level = 'gene'
         formula = prepare_formula(
@@ -4955,7 +5069,17 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                                   block_screen=block_screen, level=level,
                                   model_plate_position=model_plate_position,
                                   intercept=intercept)
-        y, X = dmatrices(formula, data=df, return_type='dataframe')
+        fit_df = df
+        if model_layout == 'wide':
+            y, X, fit_df = _wide_fixed_effect_design(
+                df, dependent_variable, level=level,
+                model_plate_position=model_plate_position,
+                block_screen=block_screen, intercept=intercept,
+            )
+            print(f"Model data pivoted to {len(fit_df)} independent well "
+                  f"rows and {X.shape[1]} design columns.")
+        else:
+            y, X = dmatrices(formula, data=df, return_type='dataframe')
         # Rows patsy actually kept. Every per-row vector handed to the model
         # below - weights, groups, exposure - is taken through this index, so
         # a row patsy dropped (a NaN predictor) cannot shift the rest by one.
@@ -4998,7 +5122,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
         # Per-well cell counts: var_weights for the binomial links, the WLS
         # weights, and the Poisson exposure for the horseshoe model.
-        weights = df['cell_count'].loc[model_index] if 'cell_count' in df.columns else None
+        weights = (fit_df['cell_count'].loc[model_index]
+                   if 'cell_count' in fit_df.columns else None)
         # `mixed` never reaches here any more -- it is caught by name at the
         # top and fitted by fit_mixed_model with the gene/guide nesting -- so
         # there is no grouping vector to build on this branch.
@@ -5075,7 +5200,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         # to disk and nowhere else, so `perform_regression`'s own return value
         # could not say whether the fit it just handed back was diagnosable.
         qc_manifest = _write_regression_qc(
-            model, qc_design[0], qc_design[1], df, level_dst,
+            model, qc_design[0], qc_design[1], fit_df, level_dst,
             coef_df=coef_df, regression_type=regression_type,
             volcano_path=volcano_path if plot else None)
 
@@ -5134,7 +5259,7 @@ def regression_levels(df, csv_path, dependent_variable='predictions',
     design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the
     SUM of the gene's gRNA fractions, so
 
-        ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``
+        ``y ~ fraction:grna + gene_fraction:gene + plateID + rowID + columnID``
 
     puts a block of columns and their own sums into one design. Measured on
     the reference TSG101 screen: 1248 parameters at rank 862 -- a
@@ -8088,6 +8213,26 @@ def _perform_regression(settings):
 
     settings = get_perform_regression_default_settings(settings)
     count_data_df, score_data_df = _perform_regression_read_data(settings)
+
+    # ONE CANONICAL BOUNDARY FOR LONG AND WIDE COUNT INPUTS. Downstream
+    # filtering has always consumed one row per (well, guide); accepting a
+    # one-guide-per-column table anywhere later would make every model invent
+    # its own melt rule. The inverse conversion remains available to the
+    # fixed-effects fit through model_data_layout='wide'.
+    from .regression_layout import normalise_count_table_layout
+
+    count_data_df, resolved_input_layout = normalise_count_table_layout(
+        count_data_df,
+        layout=settings.get('independent_variable_layout', 'auto'),
+        guide_column=str(settings.get('count_grna_column') or 'grna'),
+        count_column=str(settings.get('count_value_column') or 'count'),
+        wide_predictor_columns=(settings.get('wide_predictor_columns') or None),
+    )
+    settings['independent_variable_layout_resolved'] = resolved_input_layout
+    print(
+        f"Independent-variable input: {resolved_input_layout}; normalized to "
+        f"long rows ({len(count_data_df):,} well-guide values)."
+    )
     
     if "rowID" in count_data_df.columns:
         # A count CSV can carry rowID as the composite '<plate>_<row>' that
@@ -8748,9 +8893,11 @@ def _perform_regression(settings):
         # IS PLATE POSITION IN THE MODEL AT ALL (instruction 143 A).
         # `.get`, not indexed, for the same reason as the three below: no
         # settings CSV written before 2026-08-18 carries this key, and the
-        # value an absent one meant is True -- every run before today fitted
-        # rowID and columnID unconditionally.
+        # value an absent one meant is True -- layout adjustment is the
+        # backwards-compatible API behaviour. Fixed fits now include plateID
+        # explicitly as well as rowID and columnID.
         model_plate_position=settings.get('model_plate_position', True),
+        model_data_layout=settings.get('model_data_layout', 'long'),
         nc=settings['negative_control'], pc=settings['positive_control'],
         controls=settings['controls'], dst=res_folder,
         # 183: a quiet run gets the summary HEADER and a pointer at the file;

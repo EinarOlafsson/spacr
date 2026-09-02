@@ -872,6 +872,8 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
     "regression": {
         "batch_correction": _BATCH_CORRECTION_OPTIONS,
         "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
+        "independent_variable_layout": ["auto", "long", "wide"],
+        "model_data_layout": ["long", "wide"],
         # Filled from the modules that own each inventory in _widget_for, so
         # a family added to spacr.ml or a correction added to
         # spacr.multiple_testing appears here without a second edit.
@@ -1506,7 +1508,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         # table; see ``ml.resolve_regression_src``.
         ("Input Tables", ("paired_data", "metadata_files",
                           "count_grna_column", "count_value_column",
-                          "src")),
+                          "independent_variable_layout",
+                          "wide_predictor_columns", "src")),
         # CONTROLS AND FILTERS ARE ONE QUESTION: which rows reach the model.
         # Asked for on 2026-08-17 -- "merge quality & filters in here. change
         # the settings categoty to Controlls & Filters". They were two
@@ -1577,7 +1580,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # GPU should give the same answer and not the same runtime -- so
             # the two belong adjacent, and `level` follows them.
             "inference", "analysis_mode", "regression_type",
-            "regression_backend", "level",
+            "regression_backend", "level", "model_data_layout",
             # WHERE THE FITTED LINE IS ANCHORED. Still part of WHAT is
             # fitted rather than which terms are in it, so it reads with
             # the four above: `intercept` chooses fitted, zero, control or
