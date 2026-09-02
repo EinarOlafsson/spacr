@@ -162,6 +162,7 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
     dropping them here turns a sweep into thousands of identical tracebacks.
     """
     def mixed_replaces_the_backend(trial):
+        """Reject random row/column effects beside a non-mixed backend."""
         if trial.get("random_row_column_effects") and \
                 trial.get("regression_type") not in (None, "ols", "mixed"):
             return (f"random_row_column_effects=True fits a mixed model and "
@@ -169,6 +170,7 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
         return None
 
     def aggregation_belongs_to_wells(trial):
+        """Reject aggregation variants that a per-cell analysis ignores."""
         if trial.get("analysis_unit") == "cell" and \
                 trial.get("agg_type") not in (None, "mean"):
             # agg_type is forced to None for a per-cell fit, so sweeping it
@@ -177,6 +179,7 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
         return None
 
     def quantile_needs_its_own_unit(trial):
+        """Reject well-level quantile fits, which require per-object rows."""
         if trial.get("regression_type") == "quantile" and \
                 trial.get("analysis_unit") == "well":
             return ("regression_type='quantile' fits per-object values, so it "
@@ -184,6 +187,7 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
         return None
 
     def permutation_ignores_the_family(trial):
+        """Reject backend variants unused by nonparametric inference."""
         # The permutation test is its own estimator: it does not read
         # regression_type, and sweeping it would repeat one analysis 13 times.
         if trial.get("inference") == "nonparametric" and \
@@ -192,6 +196,7 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
         return None
 
     def permutation_at_cell_level_exhausts_memory(trial):
+        """Reject the per-cell permutation fit measured to require 57 GiB."""
         # THE COMBINATION THAT TOOK THE MACHINE DOWN.
         #
         # The permutation test builds `x_unit.T @ permuted_outcomes` in
@@ -210,6 +215,7 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
         return None
 
     def permutation_has_no_row_column_terms(trial):
+        """Reject row/column effects that the plate-blocked permutation omits."""
         if trial.get("inference") == "nonparametric" and \
                 trial.get("random_row_column_effects"):
             return ("inference='nonparametric' blocks on plate and does not "
@@ -217,6 +223,7 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
         return None
 
     def penalty_belongs_to_penalised_families(trial):
+        """Reject non-default alpha values for families that never read them."""
         # alpha is refused outright by every family that cannot read it, so
         # sweeping it against them would turn one axis into a wall of
         # identical rejections.
@@ -275,6 +282,7 @@ def build_trials(space: SweepSpace, *, mode: str = "grid",
     filters = list(space.filters) or _default_filters()
 
     def accept(trial):
+        """Return the first filter's rejection reason, or ``None``."""
         for rule in filters:
             reason = rule(trial)
             if reason:
