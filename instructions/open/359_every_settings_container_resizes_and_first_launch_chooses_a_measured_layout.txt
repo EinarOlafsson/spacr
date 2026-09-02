@@ -1,0 +1,154 @@
+================================================================================
+EVERY SETTINGS CONTAINER RESIZES, AND FIRST LAUNCH CHOOSES A MEASURED LAYOUT
+================================================================================
+
+Status:    OPEN, filed 2026-09-02. AFTER the version update unless the
+           maintainer explicitly promotes it; recording it does not change the
+           current pre-update gate.
+Requested: 2026-09-02 — in Regression's Measurements section, nested sections
+           become illegible because their containers are too small; every
+           container, subsection and sub-subsection must be height-resizable
+           and collapsible. On an M4 Mac laptop, widening some settings
+           containers did not widen their fields; fields must expand with the
+           container, and every module must initially open wide enough that
+           the right side of its settings is not cut off.
+           Also requested: simulate screen/window/font sizes, measure cutoff,
+           ship the resulting display map, and use first-run display metrics
+           to select spaCR's best defaults.
+Owner:     Qt layout/settings infrastructure, Regression's Measurements page,
+           display-policy generation and packaged assets.
+
+IS IT POSSIBLE, AND IS IT A GOOD IDEA?
+--------------------------------------
+
+YES, with one correction: screen resolution alone is not a sufficient key.
+The same pixel dimensions can describe a low-DPI external monitor, a Retina
+panel at 2x scaling, or an accessibility-scaled desktop. A static
+``resolution -> font size`` table would choose incorrectly on exactly the M4
+Mac that motivated this item.
+
+The useful design is a GENERATED, SHIPPED BREAKPOINT POLICY derived from the
+simulation matrix, combined at runtime with Qt's actual measurements:
+
+* available screen geometry, not total geometry hidden behind a dock/menu;
+* logical DPI, device-pixel ratio and operating-system scale;
+* current application font and ``QFontMetrics``;
+* widget ``minimumSizeHint``/``sizeHint`` and the real settings schema;
+* window width/height, locale and platform chrome.
+
+The policy may recommend an initial window size, settings-panel width, density
+mode and a bounded starting font size. It must not defeat an OS accessibility
+font or a user's saved choice merely to make text fit. When space is tight,
+wrap, reflow, collapse and scroll before shrinking below the readable floor.
+
+All detection and selection are local. This item does not authorise telemetry;
+"capture" means reading Qt screen metrics into local preferences/evidence, not
+sending hardware details anywhere.
+
+PART 1 — EVERY NESTED CONTAINER CAN BE READ
+-------------------------------------------
+
+1. Inventory Regression -> Measurements through every subsection and
+   sub-subsection. Replace fixed-height nesting with visible splitter handles
+   or another accessible height-resize affordance at every level.
+2. Give every section an explicit collapse/expand control with keyboard access,
+   focus state and translated accessible name. Collapsing one section must
+   release its space to siblings rather than leave a blank fixed-height box.
+3. Preserve useful splitter heights and collapsed state while navigating the
+   module. Reset/default layout must remain available so a dragged section can
+   never be made permanently unreachable.
+4. Size expensive previews/tables independently from their section header and
+   controls. A nested scroll area must not consume wheel/keyboard events in a
+   way that makes its parent impossible to reach.
+
+PART 2 — SETTINGS FIELDS FOLLOW THEIR CONTAINER
+------------------------------------------------
+
+1. Audit the shared settings renderer used by EVERY module, not only
+   Regression. Remove accidental fixed widths and maximum widths from ordinary
+   fields; use expanding horizontal size policies and layout stretch factors.
+2. When the settings panel grows by a measured amount, every field type that
+   can use the space—line edit, combo, path picker, list/table, spin box and
+   compound editor—must grow or deliberately allocate that space to its
+   associated action button. Labels wrap or reflow without covering fields.
+3. Initial module layout must derive a preferred settings width from real
+   content size hints and font metrics, then clamp it to the available screen.
+   The right edge of a field or action button must never begin off-screen.
+4. If a form truly cannot fit the available width, use a visible, accessible
+   fallback (reflow or scroll) rather than silently clipping it. A hidden
+   horizontal scrollbar is not a passing result.
+5. Recompute the responsive layout after a font, locale, theme, display scale,
+   screen or window change. Moving a live window between monitors is part of
+   the contract; first launch is not the only time the geometry can change.
+
+PART 3 — MEASURE THE PARAMETER SPACE AND SHIP THE POLICY
+--------------------------------------------------------
+
+Build a deterministic offscreen layout harness that launches every module and
+Regression's three nesting depths over at least:
+
+* available geometries 1280x720, 1366x768, 1440x900, 1920x1080, 2560x1440,
+  and current Apple-laptop Retina geometries including the reported M4 class;
+* device-pixel ratios 1.0, 1.25, 1.5 and 2.0, with representative logical DPI;
+* application font scales from the supported readable minimum through 200%;
+* compact, default and expanded window widths/heights;
+* English plus the locales with the widest measured labels, and at least one
+  non-Latin locale.
+
+Measure actual allocated/content rectangles after Qt finishes layout. Record
+clipped text, truncated controls, overlap, off-window geometry, unusably small
+nested panels, scrollbar visibility, and whether a field expands when its
+parent expands. Do not infer success only from a screenshot or from the absence
+of a Qt warning.
+
+Generate a compact versioned policy artifact from those results—for example a
+JSON breakpoint table in spaCR's packaged assets—and include the generator,
+schema, source matrix and deterministic test. The artifact must be installed
+in both wheel and sdist and loaded without importing heavy scientific or GPU
+libraries.
+
+FIRST-RUN AND ONGOING SELECTION
+-------------------------------
+
+On first run, read Qt's local screen/font metrics and choose the nearest safe
+policy row. Store the resolved layout/density/font recommendation locally with
+the metrics that justified it, while keeping the user's later changes
+authoritative. On a materially different monitor or scale, recompute the safe
+layout; do not overwrite a deliberate accessibility or font override.
+
+The OS/app font is the primary accessibility signal. The generated map may
+choose a starting font within tested bounds, but must prefer layout changes to
+making the text smaller and must expose an immediate preview/reset in
+Preferences.
+
+HOW TO KNOW IT WORKED
+---------------------
+
+* Regression's Measurements page has automated and manual tests at all three
+  nesting levels proving each container expands, contracts, collapses,
+  reopens, reallocates space and remains keyboard reachable.
+* On the reported M4-Mac profile, widening the settings container measurably
+  widens every eligible field; fresh module windows show the complete right
+  edge of settings and action buttons.
+* Every registered module passes the generated geometry/font/DPI/locale matrix
+  with no clipped text, overlaps, off-screen controls or unusable subsection.
+  The registry drives the test so a new module cannot escape it.
+* The same tests include positive controls that deliberately impose a fixed
+  field width or too-narrow nested container and go red; an absence-only test
+  that also passes broken layout proves nothing.
+* First launch selects the expected versioned policy for measured profiles,
+  window movement across different-DPI monitors triggers safe recalculation,
+  and a user font/accessibility override survives both.
+* Wheel and sdist installation tests prove the generated policy is present,
+  schema-valid and usable from a neutral working directory.
+* A real M4 Mac smoke test confirms the simulation before this item closes;
+  simulated Retina metrics are necessary for the matrix but not sufficient
+  evidence for the originally reported machine.
+
+BOUNDARY
+--------
+
+This item owns responsive sizing and display-policy selection. It does not
+replace instruction 350's package-wide text-fit audit; 350 consumes this
+item's matrix and should stop carrying ad-hoc per-screen geometry once the
+shared policy exists.
