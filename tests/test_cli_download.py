@@ -203,6 +203,41 @@ def test_the_help_text_answers_without_importing_anything_heavy():
     assert not offenders, f"--help imported heavy modules: {offenders}"
 
 
+def test_terminal_progress_redraws_only_when_truncated_percent_changes():
+    """A terminal redraw is stateful, sparse, and flushed immediately."""
+    class TTY:
+        def __init__(self):
+            self.writes = []
+            self.flushes = 0
+
+        def isatty(self):
+            return True
+
+        def write(self, message):
+            self.writes.append(message)
+            return len(message)
+
+        def flush(self):
+            self.flushes += 1
+
+    out = TTY()
+    report = cli_download._progress(out)
+    assert callable(report)
+
+    report(999, None)
+    report(999, 0)
+    assert out.writes == [] and out.flushes == 0
+
+    report(331, 1000)
+    report(339, 1000)
+    assert out.writes == ["\r      331 B of 1.0 KB  (33%)   "]
+    assert out.flushes == 1
+
+    report(340, 1000)
+    assert out.writes[-1] == "\r      340 B of 1.0 KB  (34%)   "
+    assert len(out.writes) == out.flushes == 2
+
+
 def test_the_qt_downloader_still_re_exports_what_moved_out_of_it():
     """The GUI must not notice that the data half moved.
 
