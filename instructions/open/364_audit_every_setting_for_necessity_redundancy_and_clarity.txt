@@ -288,9 +288,35 @@ The ceiling is refused out loud rather than hit silently: at 26 the button
 says the slots are lettered and the alphabet is what runs out.
 
 STILL TO DO: mounting the grid on Mask's own settings form in place of the
-78 flat rows, which is `spacr/qt/screens/settings_model.py`. Held back only
-because that file was in another agent's hands this session; the widget is
-finished and tested against Mask's real defaults
-(`tests/qt/test_the_per_object_settings_are_one_table.py`, 13 tests).
+78 flat rows. The widget is finished and tested against Mask's real defaults
+(`tests/qt/test_the_per_object_settings_are_one_table.py`, 13 tests), and
+the mount is NOT a small edit. Read before starting it, because the seam
+looks like a two-line change and is not:
+
+  * THE SEAM IS `_split_rows_by_object` (settings_model.py:2219) and its one
+    caller at 8312, which turns a family's rows into one sub-section per
+    object. Replacing those children with a single grid section is the
+    obvious move.
+  * WHAT MAKES IT NOT OBVIOUS is what a "row" is by the time the screen has
+    it. `AppScreen` reads each row as `(label, widget)` and then: derives the
+    setting key from the widget (`_key_of_field`); decides from that key
+    whether the run has an object for it and DEFERS the caption if not;
+    hands the key list to `SettingsWidgets.remember_section_rows`; lets the
+    settings search index the row by key; and `tests/qt/test_all_module_
+    smoke.py` reads every entry as a labelled setting row. A QTableView
+    holding 78 keys satisfies none of those five contracts.
+  * SO THE REAL WORK is teaching the row machinery about a SPANNING
+    COMPOSITE row that owns many keys -- what its key list is, how the
+    search reaches a cell, what "hidden because the run has no organelle 3"
+    means when the slot is a column rather than a row. That is a design
+    change to the most-used screen in the application, and it is worth doing
+    deliberately rather than in the same afternoon as the widget.
+  * THE WIDGETS THEMSELVES SHOULD SURVIVE THE MOUNT. `collect()` reads
+    `self._widgets`, and with it every coercion, canonicalisation and the
+    organelle-slot rule in `_organelle_slots_worth_keeping`. The cheap and
+    safe shape is therefore a grid that EDITS THE EXISTING WIDGETS and a
+    flat row that is hidden rather than deleted -- not a grid that owns the
+    values and a widget dict that has lost them.
+
 Then the remaining modules in this instruction's order, and then preferences
 and spaceout as the request asks.
