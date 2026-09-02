@@ -2253,9 +2253,15 @@ def select_fields(names, fields):
     if not wanted:
         return list(names)
 
-    # NORMALISED THROUGH schema, so 'f3', '3' and 'F003' are one field --
-    # the same rule the file names themselves were written by.
     def field_of(token):
+        """One field's canonical token, so 'f3', '3' and 'F003' are one field.
+
+        NORMALISED THROUGH `schema`, which is the same rule the file names
+        themselves were written by -- matching the raw text instead would
+        make a selection depend on which of three spellings the user typed.
+        Anything schema cannot read is lower-cased and passed through, so a
+        token from a convention it has not met still selects itself.
+        """
         try:
             index = schema.field_index(token)
         except Exception:                                    # noqa: BLE001
@@ -3323,7 +3329,14 @@ def _mask_movie_frame_geometry(masks, *, dpi=MASK_MOVIE_DPI,
     frame_w = max(1, int(round(width * scale)))
 
     def _points(fraction):
-        # px -> pt, at the dpi the writer will use.
+        """A font size in POINTS for a fraction of the frame's short side.
+
+        Matplotlib sizes text in points and this geometry is in pixels, so
+        the conversion has to use the dpi the writer will actually use --
+        computing it against a default dpi puts the labels at the wrong size
+        in the file while looking right on screen. Floored at 5 pt, below
+        which a label is ink rather than text.
+        """
         return max(5.0, round(min(frame_h, frame_w) * fraction * 72.0 / dpi, 1))
 
     return {
@@ -3643,6 +3656,17 @@ def _load_and_concatenate_arrays(
     mask_roles = []
 
     def add_mask_folder(role, enabled):
+        """Queue one object's mask stack, if this run has that object.
+
+        EITHER the caller named a channel dimension for it OR the folder is
+        on disk: a run that segmented an object always has the folder, and a
+        run being re-read from settings may name the object before the
+        folder is written. Requiring both would drop a mask stack that is
+        sitting right there.
+
+        :param role: the object, e.g. ``'cell'``.
+        :param enabled: that object's channel dimension, or None.
+        """
         folder = os.path.join(src, 'masks', f'{role}_mask_stack')
         if enabled is not None or os.path.exists(folder):
             folder_paths.append(folder)
@@ -3875,7 +3899,19 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
     """
 
     def _plot_and_save(train_df, val_df, column='accuracy', save=False, path=None, dpi=None):
-        
+        """Draw one training curve -- train against validation -- and write it.
+
+        One function per COLUMN rather than per figure because the caller
+        asks for accuracy, loss and the rest by name, and every one of them
+        is the same plot of the same two frames.
+
+        :param train_df: per-epoch training statistics.
+        :param val_df: the same for validation.
+        :param column: which statistic to draw.
+        :param save: write a PDF beside the model rather than only showing it.
+        :param path: the folder to write into.
+        :param dpi: resolution for the written file.
+        """
         pdf_path = os.path.join(path, f'{column}.pdf')
 
         # Create subplots
@@ -5206,16 +5242,29 @@ def crop_refs_for_rows(source, df, object_type='cell', name_column=None):
     n = len(df)
 
     def _col(name):
-        # Columns are pulled out as plain lists rather than walked with
-        # itertuples(): the joined UMAP frame carries a couple of hundred
-        # columns, and building a namedtuple per row of it costs more than
-        # the crops themselves do -- and itertuples silently renames any
-        # column whose name is not a valid identifier.
+        """One column as a plain list, or a column of None when it is absent.
+
+        PLAIN LISTS RATHER THAN `itertuples`, for two measured reasons: the
+        joined UMAP frame carries a couple of hundred columns, so building a
+        namedtuple per row of it costs more than reading the crops does, and
+        itertuples silently RENAMES any column whose name is not a valid
+        identifier -- which is how a lookup starts missing a column that is
+        plainly there.
+
+        :param name: the column, or a falsy value for "this frame has none".
+        """
         if name and name in df.columns:
             return df[name].tolist()
         return [None] * n
 
     def _missing(value):
+        """Whether a cell carries no answer.
+
+        NaN AS WELL AS None, because a column read out of pandas holds NaN
+        where a row had nothing and `None is not float('nan')`. Testing only
+        for None lets a NaN through as if it were a value, and it then
+        reaches a path name or an object label.
+        """
         return value is None or (isinstance(value, float) and np.isnan(value))
 
     png_paths = _col('png_path')
@@ -5536,6 +5585,18 @@ def _dataset_crop_refs(db_path, source, settings, object_type, verbose=True):
             conn.close()
 
     def _filter(frame, column):
+        """Keep the rows whose ``column`` contains any of the wanted terms.
+
+        SUBSTRING AND NOT REGEX (`regex=False`): the terms come from a user
+        naming plates or wells, and a stray `(` or `+` in one of them would
+        otherwise raise out of pandas rather than simply matching nothing.
+        Any term matching is enough -- several terms are alternatives, which
+        is what a user listing them means.
+
+        :param frame: the rows to filter.
+        :param column: the column to search; an absent one filters nothing,
+            because a frame that never had it cannot contradict the request.
+        """
         if not file_metadata or column not in frame.columns:
             return frame
         terms = file_metadata if isinstance(file_metadata, (list, tuple)) else [file_metadata]
@@ -6704,6 +6765,15 @@ def generate_training_dataset(settings):
 
     # --- helpers -------------------------------------------------------------
     def _ensure_unique_dir(dst_base):
+        """``dst_base``, or the first ``dst_base_N`` that does not exist yet.
+
+        A TRAINING SET IS NEVER WRITTEN OVER ONE THAT IS ALREADY THERE. The
+        folder is the record of what a model was trained on, so reusing the
+        name would leave a model whose training data cannot be reconstructed.
+
+        :param dst_base: the folder that was asked for.
+        :returns: a folder path nothing occupies.
+        """
         dst = dst_base
         if os.path.exists(dst):
             base = dst
@@ -6716,7 +6786,21 @@ def generate_training_dataset(settings):
         return dst
 
     def _load_png_table(db_path, object_type='cell'):
-        # read only png_list (we don't force-meet with measurements; keep it permissive)
+        """The per-object crop table, or the measurements standing in for it.
+
+        `png_list` ALONE, deliberately: joining it against the measurement
+        tables would drop every object those tables do not also carry, and a
+        training set is allowed to be a subset of what was measured.
+
+        NO `png_list` MEANS NO PNG FOLDER WAS EVER WRITTEN, which is not the
+        same as no data. The objects are still in the measurement table with
+        the same well metadata the class rules select on, so that is read
+        instead -- otherwise a project holding everything it needs reports
+        "0 classes".
+
+        :param db_path: the measurements database.
+        :param object_type: which object's table to fall back to.
+        """
         try:
             [png_df] = _read_db(db_loc=db_path, tables=['png_list'])
             png_df = png_df.copy()
@@ -6807,8 +6891,22 @@ def generate_training_dataset(settings):
         return df[mask]
 
     def _balance_lists(list_of_lists):
-        # The no-classes gate immediately before this helper is called rejects
-        # an empty list, so only populated class collections reach balancing.
+        """Cut every class down to the smallest one, when that was asked for.
+
+        A CLASSIFIER TRAINED ON 9,000 negatives and 300 positives learns to
+        say "negative", so balancing is the ordinary case rather than an
+        exotic one -- but it THROWS AWAY DATA, which is why it is a setting
+        and not a default of this function.
+
+        Sampled rather than truncated: the first N crops of a class share a
+        plate, a well and often a field, so taking them in order would trade
+        a class imbalance for a batch imbalance.
+
+        The no-classes gate immediately before the call rejects an empty
+        list, so only populated collections reach this.
+
+        :param list_of_lists: one list of crop paths per class.
+        """
         if not balance_to_smallest:
             return list_of_lists
         sizes = [len(x) for x in list_of_lists]
