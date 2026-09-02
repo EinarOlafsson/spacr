@@ -2,8 +2,9 @@
 THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
 ================================================================================
 
-Status:    not started, filed 2026-09-02 (as 360; renumbered to 363 the
-           same day, see 362 for why).
+Status:    THE CORPUS IS BUILT AND THE GAP IS MEASURED, 2026-09-02. The
+           module itself is not started. Filed as 360, renumbered to 363 the
+           same day (see 362 for why).
 Requested: 2026-09-02, verbatim -- "spacr has an import data module, this
            module should make it easy for users to import their images
            irrespective of format or naming structure into spacr so that the
@@ -132,6 +133,54 @@ change: they are the only working path today, and removing them before the
 replacement is proven strands every existing user and every settings file in
 the wild. Land the module, migrate, then retire, and record the retirement in
 `RETIRED_SETTINGS` the way `corrected_manders` was.
+
+--------------------------------------------------------------------------------
+THE CORPUS EXISTS, AND THE GAP IS TWO OF TEN
+--------------------------------------------------------------------------------
+
+`tests/import_corpus.py` builds ten synthetic acquisitions from real
+microscope conventions, and
+`tests/test_the_import_corpus_is_the_specification.py` measures the current
+parser against them. Built FIRST, deliberately: "accepts any format" has no
+meaning as a requirement until "any" is a list of concrete trees, and the
+failure this guards against is an importer that handles the shapes someone
+imagined rather than the ones microscopes emit.
+
+MEASURED 2026-09-02, with spaCR's default convention where no built-in one
+claims the tree:
+
+    layout               files  parsed  outcome
+    cellvoyager              8       8  OK
+    cq1                      8       8  OK
+    harmony                  8       0  nothing recovered
+    imagexpress              8       0  nothing recovered
+    flat_ome                 4       0  nothing recovered
+    per_well_folder          8       0  nothing recovered
+    per_channel_folder       8       0  nothing recovered
+    z_stack_in_file          8       0  nothing recovered
+    time_in_file             8       0  nothing recovered
+    tiled                   32       0  nothing recovered
+
+  TWO OF TEN. And the eight are not exotic: Opera Phenix and ImageXpress are
+  two of the most common high-content platforms in the field, and
+  per-well-folder and per-channel-folder trees are what people produce by
+  hand.
+
+  THE ONE PIECE OF GOOD NEWS, and it is load-bearing for the rewrite: not one
+  of the eight produced a PARTIAL answer. They recover nothing, which is
+  visible, rather than half a plate, which is not. The existing parser fails
+  honestly, and whatever replaces it must keep that property -- the
+  `consolidate` bugs below are what the alternative looks like.
+
+  WHAT EACH TREE IS FOR is written in `import_corpus.py`'s docstring, one
+  sentence each, e.g. harmony encodes row and column SEPARATELY so the
+  string "A01" never appears, and z_stack_in_file and time_in_file are
+  byte-identical in layout so that only the file's own metadata says which
+  a page index means.
+
+  `CURRENTLY_PARSED = ("cellvoyager", "cq1")` in the test file is a RATCHET.
+  Adding a layout adds a name; a name disappearing is a regression and is the
+  only thing in that file that fails on an ordinary day.
 
 --------------------------------------------------------------------------------
 ALREADY FIXED WHILE WRITING THIS FILE
