@@ -109,7 +109,7 @@ OPEN
        345_three_more_annotate_tests_fail.txt
 
   346  TWENTY-ONE MEASURE TESTS FAIL ONLY IN COMPANY, AND HAVE FOR AT LEAST A DAY
-       [~85% -- three causes fixed, 21 down to 3; one more poisoner to bisect]
+       [~90% -- 21 down to 3; the last two are two live copies of one function, diagnosed]
        346_the_measure_suite_fails_only_in_company.txt
 
   348  THE DOCK: HELP GETS ITS OWN SECTION, THE ICONS GROW, AND THE NAMES MOVE OFF IT

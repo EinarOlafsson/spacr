@@ -86,7 +86,7 @@ STAGE: Dict[str, str] = {
     "350": "~50% -- no proven clipping in 4 screens x 3 locales; three false-positive classes recorded",
     "353": "~60% -- the buttons are at the top; aligning them to their columns is not done",
     "345": "~35% -- the stale stub is fixed, 3 down to 2; the rest are order-dependent",
-    "346": "~85% -- three causes fixed, 21 down to 3; one more poisoner to bisect",
+    "346": "~90% -- 21 down to 3; the last two are two live copies of one function, diagnosed",
     "348": "~35% -- Help is a dock heading and is last; the magnifier and the text move are open",
     "343": "75% -- renderer complete; run/export integration and vector composition left",
 }

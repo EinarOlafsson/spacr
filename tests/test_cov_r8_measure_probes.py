@@ -51,6 +51,18 @@ def _only_one_spacr_measure_survives_this_file():
     # module back and left the registry module rebuilt, which is exactly the
     # state that made `tests/test_measure_hooks.py` register its hooks into a
     # copy nobody reads.
+    # THE SAME PREDICATE `_reimport_measure` DELETES BY, and getting this
+    # wrong is how the first attempt at this fixture failed. That function
+    # says `startswith("spacr.measure")` -- no dot -- so it also removes
+    # `spacr.measure_hooks`, WHICH IS WHERE THE HOOK REGISTRY LIVES. A
+    # restore that matched only `spacr.measure` and `spacr.measure.*` put the
+    # module back and left the registry module rebuilt, which is exactly the
+    # state that made `tests/test_measure_hooks.py` register its hooks into a
+    # copy nobody reads.
+    #
+    # WIDENING IT FURTHER DOES NOT HELP AND WAS TRIED: restoring the whole
+    # `spacr.` namespace leaves the same two failures, because the surviving
+    # stale reference is not in `sys.modules` at all. See instruction 346.
     def _ours(name):
         return name.startswith("spacr.measure")
 
