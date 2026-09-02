@@ -75,8 +75,16 @@ QWidget#{FLOWVIEW_SECTION_NAME} QWidget#FlowViewPanel {{
 register_widget_qss(FLOWVIEW_SECTION_NAME, _flowview_section_qss)
 
 #: Registry keys of the modules folded into it, in the order the strip
-#: draws them: judge the model first, then ask which measured features it
-#: is keying on, then where in the image it looked.
+#: draws them.  The first three are one reading of one model, in the
+#: order that reading is done: judge the model first, then ask which
+#: measured features it is keying on, then where in the image it looked.
+#:
+#: Training Runs and Feature Explorer were appended to that sequence
+#: rather than inserted into it, because neither is a step in it.
+#: Training Runs diffs two runs against each other, which is a question
+#: about a pair rather than about this model, and Feature Explorer ranks
+#: features before anything has been trained at all -- so putting either
+#: between the three would break the sentence above.
 FOLDED_APPS: Tuple[str, ...] = ("classifier_evaluation", "explain_cv",
                                 activation.APP_KEY, "train_compare",
                                 "feature_explorer")
