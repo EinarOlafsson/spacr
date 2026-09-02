@@ -1,0 +1,128 @@
+================================================================================
+THE DOCK: THE spaCR MARK FOR HOME, NAMES IN BLUE ON HOVER, NO GREY TRAY
+================================================================================
+
+Status:    not started, filed 2026-09-02. MEASURED THE SAME DAY -- two of the
+           seven asks are already true and are recorded below as done rather
+           than left for somebody to redo.
+Requested: 2026-09-02, verbatim -- "the home icon should be the spacr icon,
+           when an icon is hovered its name should appear in blue tetx center
+           left anlligned (to the right of the icon) and th icon should go
+           from white to blue, the background dark gray container can be
+           removed, the hover highlight should stay. and the icons should
+           match the modules on the home screen, nested modules should be
+           nested in the dock and help menue modules should be under a new
+           section at the botom called help."
+Owner:     spacr/qt/app.py (the `Sidebar` and its `_DockRow`), spacr/qt/theme.py
+           for anything that is a colour or a QSS rule.
+Follows:   348, which took the names off the rows, grew the icons from 16 to
+           26 px and gave the 34 fold children their first icons. This is the
+           next layer of the same surface and should be read with it.
+
+--------------------------------------------------------------------------------
+WHAT IS ALREADY TRUE, MEASURED ON A 1440x900 WINDOW
+--------------------------------------------------------------------------------
+
+Two asks are done, and both were done by earlier items rather than by luck:
+
+  * NESTED MODULES ARE NESTED. 71 dock rows: 37 top-level and 34 indented
+    fold children, each carrying `isFoldChild` and a `foldParent`. That is
+    instruction 330's work, and `tests/qt/test_the_dock_and_menu_show_the_
+    folded_modules.py` holds it.
+  * HELP IS A SECTION AT THE BOTTOM. The headings are Core, Data, Tools,
+    Assays, Help -- in that order, Help last. That is 348 part 1.
+
+So the five that remain are the appearance of a row and the mark on one of
+them.
+
+--------------------------------------------------------------------------------
+1. THE HOME ROW WEARS THE WRONG MARK, AND IT IS THE ONLY ROW THAT DOES
+--------------------------------------------------------------------------------
+
+Measured: for 39 of the 40 rows checked, the dock's icon is pixel-identical
+to what `spacr.qt.app._icon_for_app` gives the Home tile. Exactly one
+differs, and it is `__home__`.
+
+  SO ASKS 1 AND 5 ARE ONE DEFECT. "The home icon should be the spacr icon"
+  and "the icons should match the modules on the home screen" are the same
+  row, and the second is otherwise already satisfied. Say so when it is
+  fixed rather than claiming a sweep.
+
+`spacr/resources/icons/app_icon.png` ships and is the application's own mark.
+`iconset.bundled_icon_path("home")` answers None today, which is why the row
+falls back to something else.
+
+  WATCH: `app_icon.png` is one of the four assets
+  `tests/qt/test_space_theme.py::test_the_bundled_set_is_a_monochrome_alpha_
+  mask` exempts, because it carries tonal structure in RGB rather than being
+  an alpha mask. Every other dock icon is re-inked per theme; this one cannot
+  be, and dropping it in unchanged will either ignore the theme or come out
+  as a silhouette. Decide which is wanted BEFORE wiring it: the mark as
+  drawn, or a mask cut from it.
+
+--------------------------------------------------------------------------------
+2. THE NAME ON HOVER, IN BLUE, TO THE RIGHT OF THE ICON
+--------------------------------------------------------------------------------
+
+The names came off the rows in 348 -- deliberately, and the request that
+drove it was the maintainer's -- and the row's name currently appears in the
+STATUS STRIP at the bottom of the window when the row is hovered.
+
+This asks for something different and closer to hand: the name beside the
+icon it belongs to, vertically centred, left-aligned against the icon's right
+edge, in blue, only while hovered.
+
+  THE WIDTH IS THE HARD PART AND IS NOT A DETAIL. The dock is 220 px wide
+  (`WIDTH_MIN`, pinned by `test_sidebar_caps_its_width_and_elides_a_patho-
+  logical_name`). A name that appears INSIDE that width has to fit next to a
+  26 px icon; a name that appears OUTSIDE it -- floating over the page like a
+  tooltip -- does not, but is then a second tooltip beside the one the row
+  already has. Choose deliberately and record which:
+      (a) inside the dock, elided when it does not fit;
+      (b) an overlay that is allowed to exceed the dock's width.
+  Whichever is chosen, THE ROW MUST NOT RESIZE ON HOVER: 348 fixed the row
+  height for exactly this reason -- a target that moves under the pointer is
+  the flicker this dock has already been reported for once.
+
+  AND THE ACCESSIBLE NAME STAYS. Three things read `text()` back
+  (`clipped_items`, `fitting_width`, and the tutorial scripts' label
+  fallback) and all three fail silently on an empty string, which is why 348
+  cleared only the PAINT. Nothing here may clear the property.
+
+--------------------------------------------------------------------------------
+3. WHITE TO BLUE, AND THE TRAY GOES BUT THE HIGHLIGHT STAYS
+--------------------------------------------------------------------------------
+
+  * The icon is re-inked per theme by `iconset` already -- it is an alpha
+    mask and the ink colour is chosen by the theme -- so "white to blue on
+    hover" is a second ink colour on the hovered row, not new artwork. That
+    is the mechanism to use; painting a blue copy of every PNG is not.
+  * The dark grey container behind the rows goes. The HOVER HIGHLIGHT STAYS,
+    which means the highlight can no longer be "the tray showing through" and
+    has to be drawn by the row.
+  * `_DockRow` already paints its own plate and icon (348), so both changes
+    belong in its `paintEvent` rather than in a stylesheet that would have to
+    guess at the same geometry.
+
+  ONE COLOUR, NAMED ONCE. The blue is the theme's accent, not a literal:
+  `spacr/qt/theme.py` owns the palette and the dock reads it. A hard-coded
+  #RRGGBB here is a dock that stops matching the application the day the
+  palette moves, and there are four themes.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* The `__home__` row's icon is the application mark, and all 71 rows'
+  icons equal what the Home screen draws for the same key.
+* Hovering a row shows its name to the right of its icon in the accent
+  colour, and leaving hides it again -- driven with a real `QEnterEvent` and
+  `Leave`, not by calling the handler.
+* The row's geometry is IDENTICAL hovered and unhovered. Measured, both
+  ways, at the same window size.
+* The icon's ink differs hovered and unhovered, and both differ from the
+  fallback -- in all four themes.
+* No row paints its name when it is not hovered, and every row still
+  answers `accessibleName()`, `toolTip()` and `text()`.
+* The grey tray is gone from the painted result and the hover highlight is
+  still visible against the page behind it.
