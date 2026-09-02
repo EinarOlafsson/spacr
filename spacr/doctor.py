@@ -148,6 +148,7 @@ def _register(label: str) -> Callable[[Callable], Callable]:
     """Add a check to :data:`CHECKS` and give it the label the report shows."""
 
     def decorate(function: Callable) -> Callable:
+        """Label and register ``function``, then return it unchanged."""
         function.check_label = label  # type: ignore[attr-defined]
         CHECKS.append(function)
         return function
@@ -476,6 +477,7 @@ def _importable_spacr_dirs() -> List[Path]:
     found: List[Path] = []
 
     def add(path: Path) -> None:
+        """Resolve and append ``path`` once, ignoring unresolvable paths."""
         try:
             resolved = Path(path).resolve()
         except OSError:
