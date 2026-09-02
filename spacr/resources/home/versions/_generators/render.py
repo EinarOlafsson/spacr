@@ -385,9 +385,11 @@ def _scroll_finding(specs: Sequence[dict],
                         if flags.get("scrollbars")})
 
     def _listed(ns):
+        """Name variant numbers and titles for the generated finding."""
         return ", ".join(f"{n:02d} ({titles.get(n, '?')})" for n in ns)
 
     def _wrapped(sentence: str) -> str:
+        """Wrap a finding to 72 columns with its continuation indent."""
         # Re-wrapped to the width the surrounding hand-written findings
         # use, continuation lines under the list item's hanging indent.
         # Substituting one very long line into a numbered list turns the
