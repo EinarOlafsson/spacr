@@ -190,6 +190,44 @@ def test_existing_masks_folder_short_circuits_and_empty_dirs_are_pruned(tmp_path
     assert "Found existing masks folder. Skipping preprocessing" in out
 
 
+def test_existing_masks_with_illumination_require_exact_resume_provenance(
+        tmp_path, monkeypatch):
+    """The preprocessing shortcut cannot bypass the correction record."""
+    import spacr.illumination as illumination
+    from spacr.io import preprocess_img_data
+
+    src = tmp_path / "plate1"
+    masks = src / "masks"
+    masks.mkdir(parents=True)
+    np.savez_compressed(
+        masks / "stack_0_norm.npz",
+        data=np.zeros((2, 4, 4, 1), dtype=np.float32),
+        filenames=np.asarray(["f0.npy", "f1.npy"]),
+    )
+    seen = []
+
+    def validate(settings, **kwargs):
+        seen.append(kwargs)
+        return object()
+
+    monkeypatch.setattr(
+        illumination, "load_segmentation_illumination_resume", validate)
+    settings = _settings(
+        src, illumination_correction=True, illumination_model="")
+
+    out_settings, out_src = preprocess_img_data(settings)
+
+    assert out_settings is settings
+    assert out_src == str(src)
+    assert seen == [{
+        "provenance_path": str(
+            src / "illumination" / "segmentation_application.json"),
+        "pipeline_style": "v1",
+        "expected_fields": ("f0", "f1"),
+        "verbose": True,
+    }]
+
+
 def test_existing_stack_without_masks_is_reused_not_remerged(tmp_path, capsys, monkeypatch):
     """stack/ present, masks/ absent -> skip _merge_channels, normalize stack/."""
     from spacr.io import preprocess_img_data
@@ -221,6 +259,41 @@ def test_existing_stack_without_masks_is_reused_not_remerged(tmp_path, capsys, m
     out = capsys.readouterr().out
     assert "Found existing stack folder." in out
     assert "Found existing channel_stack folder." not in out.split("Found existing stack folder.")[0]
+
+
+def test_existing_stack_prepares_v1_illumination_before_normalisation(
+        tmp_path, monkeypatch):
+    """The fitted session reaches the exact V1 normalisation call."""
+    import spacr.illumination as illumination
+    from spacr.io import preprocess_img_data
+
+    src = tmp_path / "plate1"
+    stack = src / "stack"
+    stack.mkdir(parents=True)
+    np.save(stack / "fov.npy", np.ones((4, 4, 2), dtype=np.uint16))
+    recs = _patch_common(monkeypatch)
+    session = object()
+    seen = []
+
+    def prepare(settings, **kwargs):
+        assert stack.is_dir()
+        assert list(stack.glob("*.npy"))
+        seen.append((settings, kwargs))
+        return session
+
+    monkeypatch.setattr(
+        illumination, "prepare_segmentation_illumination", prepare)
+    settings = _settings(src, illumination_correction=True)
+
+    preprocess_img_data(settings)
+
+    assert len(seen) == 1
+    assert seen[0][1] == {
+        "src": str(stack),
+        "channels": [0, 1],
+        "pipeline_style": "v1",
+    }
+    assert recs["concat"].calls[0][1]["illumination_session"] is session
 
 
 def test_channel_subfolders_are_merged_into_a_stack(tmp_path, monkeypatch):

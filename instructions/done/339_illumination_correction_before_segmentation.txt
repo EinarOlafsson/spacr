@@ -2,10 +2,16 @@
 ILLUMINATION CORRECTION BELONGS BEFORE SEGMENTATION, NOT ONLY BEFORE MEASURING
 ================================================================================
 
-Status:    not started
+Status:    DONE 2026-09-02
 Requested: 2026-09-01 — "we have illumination correction in measure, shouldnt we
            have that in mask generation also or instead?"
-Owner:     unassigned
+Owner:     Codex
+
+Decision:  options 2 + 3. Segmentation corrects private in-memory inputs and
+           never rewrites the raw stack; Mask and Measure share a saved model
+           through ``illumination_model`` when one is supplied. Every enabled
+           segmentation run records the model, pipeline style, application
+           depth, and exact durable field set.
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
@@ -113,3 +119,45 @@ CONFIRMED not started. `prepare_illumination_correction` is called from
 measure.py:3836 and from nowhere else; core.py's
 `preprocess_generate_masks` does not mention it, and the key is absent from
 the Mask defaults. The decision in step 1 has not been written either. 0%.
+
+--------------------------------------------------------------------------------
+2026-09-02 — COMPLETION EVIDENCE
+--------------------------------------------------------------------------------
+
+Mask and Timelapse now expose the same nine illumination controls as Measure,
+under one named Illumination Correction section and OFF by default. V2 prepares
+one segmentation session and corrects a private array immediately before the
+segmenter. V1 now does the same before normalisation, writes the corrected
+segmentation input as an atomic NPZ, and marks a field complete only after that
+archive can be read; the raw ``stack/*.npy`` bytes never change.
+
+The application record is fail-closed. Fresh and resumed runs require the same
+model fingerprint and pipeline style, completion is refused unless the exact
+input field set is durable, and ``preprocess=False`` validates existing V1 NPZ
+manifests before the first Cellpose call. Measure validates the input-state
+record before installing its correction, which prevents corrected segmentation
+arrays from being corrected a second time as measurement inputs.
+
+Measured checks:
+
+* A real V1 synthetic vignette through preprocessing and the Cellpose adapter
+  finds one object without correction and both objects with correction; the raw
+  NPY is byte/value identical afterwards.
+* Enabled V1 and V2 runs cover success, interruption, exact resume, bad/missing
+  provenance, model mismatch, pipeline mismatch, atomic-write failure, and
+  missing-field refusal.
+* The OFF path produces exactly the same normalised arrays whether the optional
+  session argument is omitted or explicitly ``None``.
+* Illumination QC and the run ledger identify the segmentation-input stage.
+* Final bounded regression command: 157 passed in 47.95 s across the V1/V2,
+  core orchestration, Measure, settings-layout, and legacy IO test files.
+
+Implementation series:
+
+* ``d99be9524`` — resumable segmentation session and provenance contract.
+* ``3cc0c7bdd`` — V2 segmentation integration.
+* ``a32fbdc2d`` — V2 vignette, raw-array, and no-square proof.
+* ``77ffa908f`` — Measure input-state validation.
+* The completion commit containing this record — V1 integration, atomic field
+  completion, exact resume validation, Mask/Timelapse controls, and the final
+  real-pipeline regression.
