@@ -601,3 +601,24 @@ Final current-source result for ``spacr/hyperparam.py``: 1489/1489 statements
 and 610/610 branches, 100.00%, with zero missing lines and zero partial
 branches.  This closes the hyperparam module's part of 288; it does not make a
 whole-repository coverage claim.
+
+--------------------------------------------------------------------------------
+2026-09-02 — UTILS IS 100.00% ON CURRENT SOURCE
+--------------------------------------------------------------------------------
+
+The frozen report predated several current ``utils.py`` changes, so this close
+was re-measured from scratch under the 115 GiB process-tree guard.  Four clean
+coverage batches exercised the direct utility tests and the database, model,
+mask, metadata, plotting and pipeline callers that own shared utility paths:
+3417 tests passed and eight optional-AnnData tests skipped because that extra
+is not installed.  A deliberately broader exploratory batch had exposed two
+unrelated ``measure.py`` failures; that file was excluded from the clean proof,
+so no failing run contributes to this result.
+
+Two direct residual tests now own lazy-module reset/introspection and the rule
+that a NULL measurement stamp is legacy 2-D/pixel data and cannot silently
+accept 3-D rows.  Each test was watched fail against a deliberate source
+mutation before the source was restored.  Final current-source result for
+``spacr/utils.py``: 4824/4824 statements and 1906/1906 branches, 100.00%, with
+zero missing lines and zero partial branches.  This closes the utils module's
+part of 288; it does not make a whole-repository coverage claim.
