@@ -243,3 +243,67 @@ vocabulary, or from `number_of_organelles` alone.
 
 NOTHING IS COMMITTED FROM THIS ATTEMPT. `spacr/schema.py` is untouched and the
 hold announced in 325 is released. Still 20%.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE MAINTAINER ANSWERED, AND IT SETTLES BOTH HALVES
+--------------------------------------------------------------------------------
+
+Asked: should a five-organelle run carry settings keys for the other
+twenty-one? Answered, verbatim:
+
+    "no if the user chooses 2 organelles settings for 2 organells if the user
+     chooses 100 organelles settings for 100 organells"
+
+TWO THINGS FOLLOW, and the second is the whole original item.
+
+1. SETTINGS FOLLOW THE COUNT. A run configured for N organelles carries
+   exactly N slots' keys. So `declared_organelle_roles` must stop deriving
+   "declared" from the role VOCABULARY and derive it from
+   `number_of_organelles` -- which also removes the coupling that made the
+   reconciliation attempt above balloon a five-slot run to twenty-six.
+
+   `organelle_slots_beyond_the_count` exists to populate extra slots so the
+   GUI can reveal controls when the number goes up. That is a GUI concern and
+   must not reach the settings a run records: twenty-six slots of settings in
+   every settings CSV, every run journal and every reproducibility hash, for
+   slots the user never asked for, is exactly what the answer rules out.
+
+2. ONE HUNDRED MUST WORK, so the ceiling is not 26 and the lettering scheme
+   is not enough. `MAX_ORGANELLES = 26` exists because "slots are lettered, so
+   the alphabet is what runs out". A hundred organelles needs the arbitrary
+   prefix scheme this instruction was filed for.
+
+THE SCHEME THAT FITS THE EXISTING CONSTRAINTS, and it is the smallest one:
+KEEP THE LETTERS AND CARRY THEM.
+
+    slot 1        organelle          (unchanged, bare)
+    slots 2..26   organelleb .. organellez   (unchanged, exactly as today)
+    slots 27+     organelleaa, organelleab, ... then aaa, and so on
+
+  * DIGIT-FREE and SEPARATOR-FREE, which are the two hard constraints:
+    `organelle_2` cannot round-trip through a prcfo key and `organelle2` is
+    ambiguous with the object LABELLED 2. Letters have neither problem.
+  * EVERY EXISTING KEY IS UNCHANGED. Slots 1 to 26 keep their exact current
+    names, so no measurement database, settings CSV or saved state moves.
+    That is the "DONT BREAK ANYTHING" constraint satisfied by construction
+    rather than by migration.
+  * PREFIX AMBIGUITY IS ALREADY HANDLED. `organelle_types` sorts roles by
+    length descending before matching (line ~505), so `organelleaa` cannot be
+    read as `organellea` -- and `organellea` is never minted anyway, because
+    slot 1 is the bare word.
+  * UNBOUNDED. Two letters give 676 more, three give 17,576. A hundred needs
+    two.
+
+WHAT STILL NEEDS DECIDING, and it is small: whether `MAX_ORGANELLES` becomes a
+large number or disappears. The docstring argues a limit should exist so a
+settings file asking for thirty slots is TOLD which of its keys stopped
+existing rather than silently clamped. That argument survives; the number just
+stops being 26.
+
+ORDER OF WORK, unchanged from "DO IT IN THIS ORDER" above and now with the
+count question answered:
+    1. the round-trip property test already exists and passes (step 1, done);
+    2. extend the lettering, raise the ceiling, keep 1..26 byte-identical;
+    3. make `declared_organelle_roles` follow `number_of_organelles`;
+    4. then the GUI.
+Steps 2 and 3 are independent and 3 is the one the maintainer will see first.
