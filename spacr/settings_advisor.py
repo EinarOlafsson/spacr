@@ -1070,6 +1070,14 @@ def _from_the_run(reading: Reading, chosen: List[Choice],
         reading.run_folder
 
     def replace(key: str, value: str, why: str) -> None:
+        """Replace or append one recommendation in the captured choices.
+
+        :param key: setting-choice key to update.
+        :param value: value recommended from the completed run.
+        :param why: user-facing evidence for the recommendation.
+        :returns: None. The first same-key choice is replaced at its existing
+            position; a key not already present is appended once.
+        """
         for index, one in enumerate(chosen):
             if one.key == key:
                 chosen[index] = Choice(key, value, why)
