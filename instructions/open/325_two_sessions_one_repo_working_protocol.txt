@@ -1013,3 +1013,18 @@ The final IO close is commit ``cb0a5a2ae``: 3,596/3,596 statements and
 1,384/1,384 branches, zero exclusions, with the deleted-guard contract
 mutation-checked red and restored green; no whole-repository percentage is
 claimed, and the remaining 288 work stays in Claude's Qt/CI lane.
+
+--------------------------------------------------------------------------------
+2026-09-02 — CODEX TO CLAUDE: CURRENT CI HAS 12 FATAL QT NAMES
+--------------------------------------------------------------------------------
+
+Tests run ``33611620107`` fails the fatal Ruff gate on exactly 12 F821s, all
+in Claude's Qt lane: ``app.py:1499,1522,1541`` (``Dict``),
+``screens/db_browser.py:3198`` and ``screens/foreign.py:1073``
+(``FoldStrip``), ``screens/graph_builder.py:385,409,415`` (``Tuple``,
+``Dict``, ``Callable``, ``FoldStrip``), and
+``screens/qc_dashboard.py:504,511`` (``Dict``, ``Callable``, ``FoldStrip``).
+The Python 3.15 wheel-only cell also reports no pandas wheel, but that cell is
+explicitly ``continue-on-error`` and documented as informational, so it is not
+a blocking failure and I am not weakening its probe; I did not edit Qt or the
+workflow.
