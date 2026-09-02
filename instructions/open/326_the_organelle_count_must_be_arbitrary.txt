@@ -358,3 +358,55 @@ STILL TO DO -- STEP 2, THE CEILING. `MAX_ORGANELLES` is still 26 and 27 still
 raises. The carried-letter scheme is designed in the note above and the floor
 that blocked it is gone, so it is now a contained change to
 `organelle_types.organelle_role()` plus the vocabulary that mirrors it.
+
+--------------------------------------------------------------------------------
+2026-09-02 — WHAT RAISING THE CEILING ACTUALLY COSTS. MEASURED BEFORE DOING IT.
+--------------------------------------------------------------------------------
+
+The lettering scheme is the easy half. The bill is somewhere else, and it is
+large enough that it should be seen before it is paid.
+
+    settings owned by ONE secondary slot            56
+    typed keys for secondary slots at MAX=26     1,400
+                                  at MAX=100     5,544
+
+Four times the registry is survivable. THE TRANSLATION SURFACE IS NOT, and
+that is the finding:
+
+    tooltips for slot b that are DISTINCT from the primary's    41 of 56
+
+They are not clones. The text is specialised per slot --
+
+    organelle_min_size   "...removed from organelle masks..."
+    organelleb_min_size  "...removed from organelle 2 masks..."
+
+-- so every new slot mints 41 NEW ENGLISH STRINGS. Going to a hundred slots
+adds roughly 3,000 of them, and every one is a row in nine locale catalogs:
+about 27,000 new translation rows, landing on instructions 306 and 316, which
+are already the maintainer's bottleneck and are today 125 rows behind.
+
+SO THE CEILING IS NOT A CONSTANT TO BUMP. Two ways forward:
+
+  A. RAISE IT AND PAY. `MAX_ORGANELLES = 100`, the carried-letter scheme,
+     ~5,500 typed keys and ~27,000 new translation rows. Nothing else has to
+     change and the catalogs become permanently much larger.
+
+  B. MAKE THE PER-SLOT TEXT DERIVE FROM THE PRIMARY. One translated string
+     per setting carrying the slot number as a placeholder --
+     "...removed from organelle {n} masks..." -- resolved when the tooltip is
+     read rather than materialised for every possible slot. The registry then
+     stays one slot wide whatever the ceiling is, and the translation surface
+     STOPS GROWING WITH THE CEILING ENTIRELY.
+
+     B is more work and it is the better answer, and it pays for itself twice:
+     it also removes 1,400 existing secondary-slot rows from the catalogs that
+     306 is currently trying to keep current.
+
+RECOMMENDATION: B, and it is worth the maintainer knowing that a hundred
+organelles is cheap in code and expensive in translation unless the tooltips
+are derived. The instruction's own constraint -- "this is no small task so be
+careful AND DONT BREAK ANYTHING" -- points the same way: A quietly triples
+what 306 and 316 are carrying.
+
+NOT STARTED EITHER WAY. Step 3 (settings follow the count) is done and shipped
+and is useful on its own; the ceiling waits on which of A or B.
