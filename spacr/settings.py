@@ -955,8 +955,8 @@ def cellpose_live_model_menu(block=False, refresh=False):
     A live preview has no such obligation: nothing is being loaded from disk,
     the user is choosing what to look at now. And all four resolve to cpsam,
     so offering them there is offering four labels for one model and inviting
-    the question of which is better. Dropped, per the maintainer's request to
-    "remove the old models as options" in the live model view.
+    the question of which is better. The live view therefore exposes only the
+    canonical model name.
 
     Downloaded zoo checkpoints stay, because those ARE different models.
     """
@@ -968,11 +968,10 @@ def cellpose_live_model_menu(block=False, refresh=False):
 def downloaded_zoo_models():
     """Paths of model-zoo Cellpose checkpoints already on this machine.
 
-    Instruction 333. The live preview built its model from whatever the combo
-    held, and the combo held Cellpose's stock list -- so a user who had chosen
-    a zoo model for the RUN was shown a PREVIEW made with stock cpsam, while
-    tuning diameter and thresholds against it. The preview did not fail; it
-    quietly answered a different question than the one being asked.
+    The live preview builds its model from the combo value. Including local zoo
+    checkpoints here keeps that preview aligned with a selected run model;
+    otherwise it would silently render stock cpsam while the user tuned
+    diameter and thresholds for a different checkpoint.
 
     ONLY WHAT IS ALREADY DOWNLOADED. Listing a model that is not on disk would
     put an entry in a dropdown that cannot be selected without a 1.2 GB
