@@ -4127,6 +4127,37 @@ class AppScreen(QWidget):
             tr("Source directory (src): {path}", path=source) + "\n")
         # AND THE SETTINGS THAT CAME WITH IT, so Run is the next action.
         self.apply_settings_that_came_with(destination)
+
+        # THE SHIPPED `src` IS ALLOWED TO WIN HERE, UNLIKE THE IMAGES ROUTE,
+        # and only a BROKEN one is taken back.
+        #
+        # Measure's example records `src` as the `merged/` SUBFOLDER of the
+        # plate, which is more specific than the folder downloaded into and is
+        # the directory Measure must actually read --
+        # `reanchor_example_paths` says in its own docstring that collapsing
+        # it to the plate root "would quietly measure the wrong directory
+        # rather than fail". So this route deliberately does NOT re-assert the
+        # destination the way the images route does (instruction 349).
+        #
+        # What it does refuse is a value that is not a directory at all: a
+        # template token, or a publisher's path that could not be re-homed.
+        # That is the failure reported on 2026-09-02 for Mask, and nothing
+        # about it is specific to Mask -- it just showed up there first.
+        # Falling back to the folder we downloaded into is strictly better
+        # than a path that cannot be opened.
+        if control is not None and hasattr(control, "setText"):
+            applied = str(control.text() if hasattr(control, "text") else "")
+            # `.strip()` FIRST, and it is not tidiness: `Path("")` is
+            # `PosixPath(".")`, whose `is_dir()` is True because the working
+            # directory exists. An empty cell would otherwise be accepted as
+            # a valid source and the run would read the cwd.
+            if not applied.strip() or not Path(applied).is_dir():
+                control.setText(source)
+                self._console.append_stdout(
+                    tr("The example's recorded source does not exist here; "
+                       "using {path}", path=source) + "\n")
+                return {"src": source}
+            source = str(applied)
         return {"src": source}
 
     def _install_sequencing_example_button(self, section) -> None:
