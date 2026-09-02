@@ -32,6 +32,7 @@ PACKAGE = ROOT / "spacr"
 #: Add a module here the moment its last nested function gets a docstring.
 FULLY_DOCUMENTED = frozenset({
     "spacr/crops.py",
+    "spacr/diameter.py",
     "spacr/group_lasso.py",
     "spacr/logger.py",
     "spacr/qt/widgets/measurement_compare_dialog.py",
@@ -127,7 +128,6 @@ BUDGET = {
     "spacr/chaining.py": 1,
     "spacr/cli.py": 1,
     "spacr/cli_download.py": 1,
-    "spacr/diameter.py": 1,
     "spacr/figures/scene.py": 1,
     "spacr/flowview/trace.py": 1,
     "spacr/gene_facts.py": 1,
