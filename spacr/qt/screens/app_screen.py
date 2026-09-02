@@ -1017,7 +1017,12 @@ EXAMPLE_DATA_SECTIONS = {
     # Classify's example data is the MEASURE output plus real labels: 2,341
     # crops of which 88 are annotated. Unlabelled crops would exercise the
     # viewer and nothing else -- a training example needs labels.
-    "classify": "Labels & Classes",
+    #
+    # ABOVE src, in the section that names the sources, asked for on
+    # 2026-09-01. It had sat under Labels & Classes, which is where the
+    # labels it brings are configured but not where the path it sets is --
+    # so the control that fills `src` was two sections away from `src`.
+    "classify": "Plate Sources & Workflow",
 }
 
 
@@ -3868,7 +3873,17 @@ class AppScreen(QWidget):
                 loaded = self._load_settings_csv(str(path))
                 # BEFORE applying, not after: the panel must never hold the
                 # publisher's path, not even for a repaint.
-                loaded = self.reanchor_example_paths(loaded, folder)
+                #
+                # GUARDED SEPARATELY from the load. The surrounding handler
+                # turns any failure into "0 settings applied", so a fault in
+                # the re-homing would silently cost the user every setting the
+                # example shipped -- trading a wrong path for no configuration
+                # at all. A foreign path is the lesser failure and is at least
+                # visible, so it is what happens if this cannot run.
+                try:
+                    loaded = self.reanchor_example_paths(loaded, folder)
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not re-home %s", path, exc_info=True)
                 applied = self.apply_settings_dict(loaded)
             except Exception as exc:                         # noqa: BLE001
                 LOG.debug("could not apply %s", path, exc_info=True)
@@ -4057,9 +4072,34 @@ class AppScreen(QWidget):
             "with a measurements database, of which 88 are already labelled. "
             "Settings are filled in with it, so the module can be run "
             "straight away. Cached afterwards."))
-        button.clicked.connect(lambda: self.load_the_annotate_example())
+        button.clicked.connect(lambda: self.choose_the_test_data())
         self._annotate_example_button = button
         section.add_prose(button, at_top=True)
+
+    def choose_the_test_data(self, *, chooser=None, ask=None) -> dict:
+        """Ask which half of the example plate to fetch, then fetch it.
+
+        The same two routes Annotate offers, through the same dialog: the
+        crops that are already cut, or the merged arrays they were cut from.
+        Classify can train from either, and they differ by 110 MB, so the
+        choice is worth describing before it is made rather than after.
+
+        :param chooser: replaces the dialog, for tests.
+        :param ask: replaces the downloader, for tests.
+        :returns: the settings that were applied, or an empty mapping.
+        """
+        from ..widgets.test_data_chooser import TestDataChooser
+
+        dialog = chooser if chooser is not None else TestDataChooser(self)
+        if hasattr(dialog, "exec"):
+            dialog.exec()
+        route = str(getattr(dialog, "chosen", "") or "")
+        if not route:
+            return {}
+        self._test_data_route = route
+        if route == "stream":
+            return self.load_the_measure_example(ask=ask)
+        return self.load_the_annotate_example(ask=ask)
 
     def annotate_example_destination(self):
         """The shared example plate folder, which is where `data/` belongs."""

@@ -110,10 +110,17 @@ def test_it_reports_how_much_it_changed(unpacked):
 # Wiring
 # ---------------------------------------------------------------------------
 
-def test_classify_offers_the_button_where_its_labels_are():
+def test_classify_offers_the_button_where_its_sources_are():
+    """MOVED 2026-09-01, on the maintainer's request.
+
+    It sat under Labels & Classes, which is where the labels the example
+    brings are configured -- but the control fills ``src``, and ``src`` is two
+    sections away in Plate Sources & Workflow. "in classify in plate sources
+    and workflow above the src top entry there should be a Load test data".
+    """
     from spacr.qt.screens.app_screen import EXAMPLE_DATA_SECTIONS
 
-    assert EXAMPLE_DATA_SECTIONS["classify"] == "Labels & Classes"
+    assert EXAMPLE_DATA_SECTIONS["classify"] == "Plate Sources & Workflow"
 
 
 def test_every_example_lands_in_one_plate_folder():

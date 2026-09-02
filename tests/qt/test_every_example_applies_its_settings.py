@@ -44,6 +44,9 @@ class _Screen:
 
     _EXAMPLE_SETTINGS_FILES = AppScreen._EXAMPLE_SETTINGS_FILES
     apply_settings_that_came_with = AppScreen.apply_settings_that_came_with
+    # The applier re-homes the publisher's paths before applying them, so a
+    # stand-in that is "only what the applier touches" has to carry this too.
+    reanchor_example_paths = AppScreen.reanchor_example_paths
 
     def _load_settings_csv(self, path):
         self.loaded = path
