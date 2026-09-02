@@ -9,8 +9,6 @@ object -- so both the doing and the not-doing are worth pinning.
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
 
 # ---------------------------------------------------------------------------
 # _preserve_batchnorm_running_stats — a layer that keeps no running stats
@@ -57,6 +55,29 @@ def test_a_batchnorm_with_running_stats_has_them_restored():
         assert not torch.equal(layer.running_mean, before)
 
     assert torch.equal(layer.running_mean, before)
+
+
+def test_non_batchnorm_children_are_skipped_and_batchnorm_is_restored():
+    """A mixed module walks past ordinary layers and still restores BatchNorm."""
+    import torch
+    import torch.nn as nn
+
+    from spacr.utils import _preserve_batchnorm_running_stats
+
+    module = nn.Sequential(nn.Identity(), nn.BatchNorm2d(3))
+    batchnorm = module[1]
+    before = {
+        name: getattr(batchnorm, name).detach().clone()
+        for name in ("running_mean", "running_var", "num_batches_tracked")
+    }
+
+    with _preserve_batchnorm_running_stats(module):
+        module.train()
+        module(torch.randn(8, 3, 4, 4))
+        assert not torch.equal(batchnorm.running_mean, before["running_mean"])
+
+    for name, expected in before.items():
+        assert torch.equal(getattr(batchnorm, name), expected)
 
 
 # ---------------------------------------------------------------------------

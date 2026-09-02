@@ -89,6 +89,20 @@ def test_a_path_with_no_anchor_is_left_alone_but_counted_and_named(capsys):
     assert "/old/home/exp1/crops/p1/b.png" in said       # ONE of them named
 
 
+def test_pathless_values_keep_their_positions_beside_a_reanchored_path():
+    """Missing path values are data, not strings to rewrite or discard."""
+    got = correct_paths(
+        ["/old/home/exp1/data/p1/a.png", None, np.nan, ""],
+        "/mnt/newdisk/exp1",
+    )
+
+    assert got[0] == "/mnt/newdisk/exp1/data/p1/a.png"
+    assert got[1] is None
+    assert np.isnan(got[2])
+    assert got[3] == ""
+    assert len(got) == 4
+
+
 def test_a_root_that_is_a_substring_of_the_old_path_is_not_already_anchored():
     """``base_path not in path`` is a substring test standing in for a
     question about folders, and it answers wrongly."""
