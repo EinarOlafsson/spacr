@@ -12,6 +12,7 @@ journal" is therefore not a reason to trust it.
 from __future__ import annotations
 
 import os
+import shutil
 
 import pytest
 
@@ -145,6 +146,50 @@ def test_it_refuses_the_run_that_is_still_going(journal, monkeypatch):
     assert deleted == 2
     assert made[1].exists()
     assert any("still running" in message for message in refused)
+
+
+def test_a_broken_live_run_lookup_does_not_block_deletion(
+        journal, monkeypatch):
+    _root, made = journal
+
+    def broken_lookup():
+        raise RuntimeError("thread state is unavailable")
+
+    monkeypatch.setattr("spacr.run_journal.current_run", broken_lookup)
+    deleted, refused = delete_runs([made[0]])
+
+    assert (deleted, refused) == (1, [])
+    assert not made[0].exists()
+
+
+def test_an_unusable_path_does_not_abandon_later_runs(journal):
+    _root, made = journal
+
+    deleted, refused = delete_runs(["\0", made[0]])
+
+    assert deleted == 1
+    assert not made[0].exists()
+    assert len(refused) == 1
+    assert "not a usable path" in refused[0]
+
+
+def test_one_filesystem_failure_does_not_abandon_later_runs(
+        journal, monkeypatch):
+    _root, made = journal
+    real_rmtree = shutil.rmtree
+
+    def flaky_rmtree(target):
+        if target == made[0]:
+            raise OSError("read only")
+        return real_rmtree(target)
+
+    monkeypatch.setattr(shutil, "rmtree", flaky_rmtree)
+    deleted, refused = delete_runs([made[0], made[1]])
+
+    assert deleted == 1
+    assert made[0].exists()
+    assert not made[1].exists()
+    assert refused == ["run_a: OSError: read only"]
 
 
 def test_one_bad_path_does_not_abandon_the_rest(journal, tmp_path):
