@@ -1131,9 +1131,10 @@ def fit_temperature(
     if len(y) < 2 or np.unique(y).size < 2:
         raise ValueError(
             "Temperature calibration needs at least two classes and two samples."
-        )
+    )
 
     def objective(log_temperature: float) -> float:
+        """Return multiclass log loss after applying an exponentiated scale."""
         calibrated = _temperature_probabilities(
             probs, math.exp(float(log_temperature)),
         )
@@ -1638,6 +1639,7 @@ def write_evaluation_bundle(
     destination.mkdir(parents=True, exist_ok=True)
 
     def write_json(name: str, payload: Any) -> None:
+        """Atomically replace ``name`` with stable indented JSON."""
         path = destination / name
         temporary = path.with_name(f".{path.name}.tmp")
         temporary.write_text(
@@ -1647,6 +1649,7 @@ def write_evaluation_bundle(
         temporary.replace(path)
 
     def write_csv(name: str, frame: pd.DataFrame, *, index: bool = False) -> None:
+        """Atomically replace ``name`` with ``frame`` and optional index."""
         path = destination / name
         temporary = path.with_name(f".{path.name}.tmp")
         frame.to_csv(temporary, index=index)
@@ -1821,6 +1824,7 @@ def load_evaluation_bundle(path: Any) -> Dict[str, Any]:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
     def read_csv(key: str, **kwargs) -> pd.DataFrame:
+        """Load a manifest-named CSV, or an empty frame when it is absent."""
         file_name = manifest.get("files", EVALUATION_FILES).get(
             key, EVALUATION_FILES[key],
         )
