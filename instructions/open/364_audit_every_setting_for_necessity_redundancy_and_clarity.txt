@@ -336,5 +336,25 @@ nothing dead (the same scan that found nothing dead in mask and measure's
     COLUMN VALUE in the machine-learning screen and a GENE/gRNA ID in gRNA
     regression -- one key, two meanings, chosen by which family runs.
 
-Classify (114 settings) is counted and not yet audited; Annotate and Map
-Barcodes are untouched. Then preferences and spaceout as the request asks.
+CLASSIFY IS AUDITED TOO, 2026-09-02 -- see
+instructions/data/364_classify_settings_audit_2026-09-02.txt. 114 settings,
+nothing dead, seven findings. One of them should not wait for a rename batch:
+
+  * `intermedeate_save`'s TOOLTIP IS FALSE. It tells the user "It currently
+    has no effect ... those checkpoints are written regardless of this flag",
+    and `spacr/io.py:_save_model` plainly branches on it -- `False` gives an
+    empty threshold list, the comment beside it says so, `deep_spacr` passes
+    the setting through, and four test files exercise `False`. So the control
+    works and its own documentation tells everyone it does not. Anybody who
+    wanted to stop the extra checkpoints read that and gave up. It is also
+    the only misspelled key in the module.
+
+The rest are the familiar shapes: `cross_validation` and
+`cross_validation_enabled` are two switches for one question;
+`gradient_accumulation` is a boolean that `gradient_accumulation_steps = 1`
+already says; `normalize` and `normalization` are two letters apart and mean
+different things at different stages; and `min_max` is the plate heatmap's
+colour limits wearing the name of a normalisation method.
+
+Annotate and Map Barcodes are the remaining core modules. Then preferences
+and spaceout as the request asks.
