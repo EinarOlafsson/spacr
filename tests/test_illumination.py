@@ -25,6 +25,8 @@ reaches nothing, and the control proves the positive test can fail).
 
 from __future__ import annotations
 
+import hashlib
+import json
 import multiprocessing as mp
 import os
 import sqlite3
@@ -189,6 +191,27 @@ def context(name='plate1_A01_F000', channels=(0,), **kwargs):
     """A :class:`PreprocessingContext` for a hand-made array."""
     return PreprocessingContext(file_name=name, channels=list(channels),
                                 settings={}, **kwargs)
+
+
+def segmentation_prepared(tmp_path, *, legacy=False):
+    """A tiny saved model with the segmentation application contract."""
+    model = hand_model([
+        np.asarray([[0.5, 1.0], [1.0, 1.0]], dtype=np.float32)
+    ])
+    if not legacy:
+        model.meta.update({
+            'application_contract_version': 1,
+            'channel_index_space': 'persisted-intensity-axis',
+            'estimated_from_intensity_state': 'raw',
+        })
+    path = model.save(str(tmp_path / 'illumination' / 'model.npz'))
+    digest = hashlib.sha256((tmp_path / 'illumination' / 'model.npz').read_bytes())
+    return ill.PreparedIllumination(
+        model=model,
+        corrector=ill.IlluminationCorrector(model, verbose=False),
+        model_path=path,
+        model_sha256=digest.hexdigest(),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -1113,6 +1136,8 @@ def test_prepare_does_nothing_at_all_unless_it_is_asked_to(tmp_path):
     settings = ill.illumination_settings({'src': merged, 'channels': [0]})
 
     assert ill.prepare_illumination_correction(settings) is None
+    assert ill.prepare_segmentation_illumination(
+        settings, pipeline_style='v1') is None
     assert mh.preprocessing_hooks() == ()
     assert not os.path.isdir(tmp_path / 'illumination')
 
@@ -1149,6 +1174,457 @@ def test_prepare_refuses_to_correct_without_a_source(tmp_path):
     with pytest.raises(ill.IlluminationError, match='src'):
         ill.prepare_illumination_correction(
             {'illumination_correction': True, 'src': '', 'channels': [0]})
+
+
+def test_segmentation_preparation_labels_qc_and_preserves_raw_fields(tmp_path):
+    """Preparation fits beside the run but never rewrites microscope pixels."""
+    merged = write_plate(
+        tmp_path / 'merged', quadratic_vignette((64, 64)),
+        n_fields=12, radius=5, n_objects=4)
+    raw_before = {
+        name: (tmp_path / 'merged' / name).read_bytes()
+        for name in os.listdir(merged)
+    }
+    settings = ill.illumination_settings({
+        'src': merged,
+        'channels': [0],
+        'illumination_correction': True,
+        'verbose': False,
+    })
+
+    session = ill.prepare_segmentation_illumination(
+        settings, pipeline_style='v1')
+
+    assert isinstance(session, ill.SegmentationIlluminationSession)
+    assert mh.preprocessing_hooks() == ()
+    assert session.prepared.model.meta['application_contract_version'] == 1
+    assert session.prepared.model.meta['channel_index_space'] == \
+        'persisted-intensity-axis'
+    assert session.prepared.model.meta['estimated_from_intensity_state'] == 'raw'
+    folder = tmp_path / 'illumination'
+    assert (folder / 'illumination_model.npz').is_file()
+    assert (folder / 'illumination_qc_segmentation_input_plate1.png').is_file()
+    record = json.loads(
+        (folder / 'segmentation_application.json').read_text(encoding='utf-8'))
+    assert record['application_state'] == 'prepared'
+    assert record['completed_fields'] == []
+    assert record['target_scope'] == 'segmentation-input-only'
+    assert record['raw_persisted_intensities_modified'] is False
+    assert {
+        name: (tmp_path / 'merged' / name).read_bytes()
+        for name in os.listdir(merged)
+    } == raw_before
+
+
+def test_segmentation_session_corrects_a_copy_and_commits_only_after_mark(
+        tmp_path, monkeypatch):
+    """The application record distinguishes prepared, durable and complete."""
+    from spacr import run_journal
+
+    events = []
+
+    class FakeRun:
+        def _record_stage(self, stage_id, **payload):
+            events.append((stage_id, payload))
+
+    monkeypatch.setattr(run_journal, 'current_run', lambda: FakeRun())
+    base = segmentation_prepared(tmp_path)
+
+    class MutatingCorrector:
+        """A legal future corrector that edits the array it is handed."""
+        def __init__(self):
+            self.stats = {
+                'corrected': 0, 'skipped': 0,
+                'clipped_pixels': 0, 'clipped_fields': 0,
+            }
+
+        def __call__(self, array, _context):
+            array[0, 0, 0] *= 2
+            self.stats['corrected'] += 1
+            return array
+
+    prepared = ill.PreparedIllumination(
+        model=base.model,
+        corrector=MutatingCorrector(),
+        model_path=base.model_path,
+        model_sha256=base.model_sha256,
+    )
+    record_path = tmp_path / 'illumination' / 'application.json'
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+
+    initial = json.loads(record_path.read_text(encoding='utf-8'))
+    assert initial['application_state'] == 'prepared'
+    assert initial['completed_fields'] == []
+    assert events[-1][1]['metrics']['applied'] is False
+    raw = np.full((2, 2, 1), 10, dtype=np.uint16)
+    untouched = raw.copy()
+
+    corrected = session.correct('field-1', raw, context(channels=[0]))
+
+    np.testing.assert_array_equal(raw, untouched)
+    assert corrected is not raw
+    assert corrected[0, 0, 0] == 20
+    # In-memory correction is not durable output, so it cannot advance the
+    # application record on its own.
+    assert json.loads(record_path.read_text(encoding='utf-8')) == initial
+    assert events[-1][1]['metrics']['applied'] is True
+    assert session.mark_completed('field-1') is True
+    durable = json.loads(record_path.read_text(encoding='utf-8'))
+    assert durable['application_state'] == 'running'
+    assert durable['completed_fields'] == ['field-1']
+    assert session.mark_completed('field-1') is False
+    with pytest.raises(ill.IlluminationError, match='twice'):
+        session.correct('field-1', raw, context(channels=[0]))
+    with pytest.raises(ill.IlluminationError, match='missing'):
+        session.finish(['field-1', 'field-2'])
+    assert json.loads(record_path.read_text(encoding='utf-8')) == durable
+
+    session.finish(['field-1'])
+
+    complete = json.loads(record_path.read_text(encoding='utf-8'))
+    assert complete['application_state'] == 'complete'
+    assert complete['completed_fields'] == ['field-1']
+    assert events[-1][1]['state'] == 'done'
+
+    fresh = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+    reset = json.loads(record_path.read_text(encoding='utf-8'))
+    assert fresh.completed_fields == ()
+    assert reset['application_state'] == 'prepared'
+    assert reset['completed_fields'] == []
+    assert events[-1][1]['metrics']['applied'] is False
+
+
+def test_a_skipped_segmentation_field_cannot_be_claimed_as_corrected(tmp_path):
+    """Measure may skip a missing plate; segmentation provenance may not."""
+    base = segmentation_prepared(tmp_path)
+    prepared = ill.PreparedIllumination(
+        model=base.model,
+        corrector=ill.IlluminationCorrector(
+            base.model, on_missing='skip', verbose=False),
+        model_path=base.model_path,
+        model_sha256=base.model_sha256,
+    )
+    record_path = tmp_path / 'illumination' / 'application.json'
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v2')
+
+    with pytest.raises(ill.IlluminationError, match='uncorrected field'):
+        session.correct(
+            'field-2', np.full((2, 2, 1), 10, dtype=np.uint16),
+            context(name='plate2_A01_F000', channels=[0]))
+
+    assert session.applied_fields == ()
+    assert session.completed_fields == ()
+    with pytest.raises(ill.IlluminationError, match='before'):
+        session.mark_completed('field-2')
+    record = json.loads(record_path.read_text(encoding='utf-8'))
+    assert record['application_state'] == 'prepared'
+    assert record['completed_fields'] == []
+
+
+def test_segmentation_completion_is_atomic_when_the_replace_fails(
+        tmp_path, monkeypatch):
+    prepared = segmentation_prepared(tmp_path)
+    record_path = tmp_path / 'illumination' / 'application.json'
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+    session.correct(
+        'field-1', np.full((2, 2, 1), 10, dtype=np.uint16),
+        context(channels=[0]))
+    before = record_path.read_bytes()
+
+    monkeypatch.setattr(ill.os, 'replace', lambda *_args: (_ for _ in ()).throw(
+        OSError('disk refused replace')))
+    with pytest.raises(OSError, match='disk refused replace'):
+        session.mark_completed('field-1')
+
+    assert session.completed_fields == ()
+    assert record_path.read_bytes() == before
+    assert list(record_path.parent.glob('.segmentation_application_*.json')) == []
+
+
+def test_a_secondary_temp_cleanup_failure_keeps_the_original_record(
+        tmp_path, monkeypatch):
+    prepared = segmentation_prepared(tmp_path)
+    record_path = tmp_path / 'illumination' / 'application.json'
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+    session.correct(
+        'field-1', np.full((2, 2, 1), 10, dtype=np.uint16),
+        context(channels=[0]))
+    before = record_path.read_bytes()
+
+    def replace_fails(*_args):
+        raise OSError('original replace failure')
+
+    def cleanup_fails(*_args):
+        raise OSError('secondary cleanup failure')
+
+    monkeypatch.setattr(ill.os, 'replace', replace_fails)
+    monkeypatch.setattr(ill.os, 'remove', cleanup_fails)
+    with pytest.raises(OSError, match='original replace failure'):
+        session.mark_completed('field-1')
+
+    assert session.completed_fields == ()
+    assert record_path.read_bytes() == before
+    assert len(list(record_path.parent.glob(
+        '.segmentation_application_*.json'))) == 1
+
+
+def test_preprocess_false_resume_is_read_only_and_requires_a_complete_record(
+        tmp_path, monkeypatch):
+    prepared = segmentation_prepared(tmp_path)
+    record_path = tmp_path / 'illumination' / 'application.json'
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+    session.correct(
+        'field-1', np.full((2, 2, 1), 10, dtype=np.uint16),
+        context(channels=[0]))
+    session.mark_completed('field-1')
+    partial_bytes = record_path.read_bytes()
+    partial_mtime = record_path.stat().st_mtime_ns
+
+    with pytest.raises(ill.IlluminationError, match='only.*running'):
+        ill.load_segmentation_illumination_resume(
+            {'illumination_correction': True, 'illumination_model': ''},
+            provenance_path=str(record_path), pipeline_style='v1',
+            expected_fields=['field-1'], verbose=False)
+    assert record_path.read_bytes() == partial_bytes
+    assert record_path.stat().st_mtime_ns == partial_mtime
+
+    session.finish(['field-1'])
+    complete_bytes = record_path.read_bytes()
+    complete_mtime = record_path.stat().st_mtime_ns
+    partial_resume = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1',
+        resume=True)
+    assert partial_resume.completed_fields == ('field-1',)
+    assert record_path.read_bytes() == complete_bytes
+    assert record_path.stat().st_mtime_ns == complete_mtime
+    paths_before = sorted(path.name for path in record_path.parent.iterdir())
+    record_before = record_path.read_bytes()
+    record_mtime = record_path.stat().st_mtime_ns
+    model_before = (tmp_path / 'illumination' / 'model.npz').read_bytes()
+    model_mtime = (tmp_path / 'illumination' / 'model.npz').stat().st_mtime_ns
+
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError('a read-only resume attempted preparation work')
+
+    monkeypatch.setattr(ill, 'estimate_illumination', forbidden)
+    monkeypatch.setattr(ill, 'illumination_qc', forbidden)
+    monkeypatch.setattr(ill, 'enable_illumination_correction', forbidden)
+    resumed = ill.load_segmentation_illumination_resume(
+        {'illumination_correction': True, 'illumination_model': ''},
+        provenance_path=str(record_path), pipeline_style='v1',
+        expected_fields=['field-1'], verbose=False)
+
+    assert resumed.model_sha256 == prepared.model_sha256
+    assert mh.preprocessing_hooks() == ()
+    assert sorted(path.name for path in record_path.parent.iterdir()) == paths_before
+    assert record_path.read_bytes() == record_before
+    assert record_path.stat().st_mtime_ns == record_mtime
+    assert (tmp_path / 'illumination' / 'model.npz').read_bytes() == model_before
+    assert (tmp_path / 'illumination' / 'model.npz').stat().st_mtime_ns == \
+        model_mtime
+    with pytest.raises(ill.IlluminationError, match='does not cover exactly'):
+        ill.load_segmentation_illumination_resume(
+            {'illumination_correction': True, 'illumination_model': ''},
+            provenance_path=str(record_path), pipeline_style='v1',
+            expected_fields=['field-1', 'field-2'], verbose=False)
+    assert record_path.read_bytes() == record_before
+    assert record_path.stat().st_mtime_ns == record_mtime
+
+
+def test_segmentation_rejects_legacy_tampered_and_unknown_pipeline_models(
+        tmp_path):
+    legacy = segmentation_prepared(tmp_path / 'legacy', legacy=True)
+    with pytest.raises(ill.IlluminationError, match='legacy or incompatible'):
+        ill.SegmentationIlluminationSession(
+            legacy,
+            provenance_path=str(tmp_path / 'legacy' / 'application.json'),
+            pipeline_style='v1')
+
+    tampered = segmentation_prepared(tmp_path / 'tampered')
+    with open(tampered.model_path, 'ab') as handle:
+        handle.write(b'tampered')
+    with pytest.raises(ill.IlluminationError, match='SHA-256'):
+        ill.SegmentationIlluminationSession(
+            tampered,
+            provenance_path=str(tmp_path / 'tampered' / 'application.json'),
+            pipeline_style='v1')
+
+    valid = segmentation_prepared(tmp_path / 'valid')
+    absent_resume_path = tmp_path / 'valid' / 'absent.json'
+    with pytest.raises(ill.IlluminationError, match='no record exists'):
+        ill.SegmentationIlluminationSession(
+            valid,
+            provenance_path=str(absent_resume_path),
+            pipeline_style='v1', resume=True)
+    assert not absent_resume_path.exists()
+    with pytest.raises(ill.IlluminationError, match='v1.*v2'):
+        ill.SegmentationIlluminationSession(
+            valid,
+            provenance_path=str(tmp_path / 'valid' / 'application.json'),
+            pipeline_style='legacy')
+
+
+def test_malformed_segmentation_application_records_fail_closed(tmp_path):
+    prepared = segmentation_prepared(tmp_path)
+    record_path = tmp_path / 'illumination' / 'application.json'
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+    session.correct(
+        'field-1', np.full((2, 2, 1), 10, dtype=np.uint16),
+        context(channels=[0]))
+    session.mark_completed('field-1')
+    session.finish(['field-1'])
+    original = json.loads(record_path.read_text(encoding='utf-8'))
+
+    def refused(payload, fragment, *, settings=None):
+        if isinstance(payload, str):
+            record_path.write_text(payload, encoding='utf-8')
+        else:
+            record_path.write_text(
+                json.dumps(payload), encoding='utf-8')
+        before = record_path.read_bytes()
+        with pytest.raises(ill.IlluminationError, match=fragment):
+            ill.load_segmentation_illumination_resume(
+                settings or {
+                    'illumination_correction': True,
+                    'illumination_model': '',
+                },
+                provenance_path=str(record_path), pipeline_style='v1',
+                expected_fields=['field-1'], verbose=False)
+        assert record_path.read_bytes() == before
+
+    changed = dict(original)
+    changed['pipeline_style'] = 'v2'
+    refused(changed, 'different provenance')
+    changed = dict(original)
+    changed['completed_fields'] = 'field-1'
+    refused(changed, 'must be a list')
+    changed = dict(original)
+    changed['application_state'] = 'claimed'
+    refused(changed, 'application_state')
+    changed = dict(original)
+    changed['model_path'] = ''
+    refused(changed, 'no usable model_path')
+    changed = dict(original)
+    changed['model_path'] = 'missing-model.npz'
+    refused(changed, 'cannot be read')
+    changed = dict(original)
+    changed['model_sha256'] = '0' * 64
+    refused(changed, 'hash does not match')
+    changed = dict(original)
+    changed['qc_artifacts'] = 'not-a-list'
+    refused(changed, 'qc_artifacts must be a list')
+    changed = dict(original)
+    changed['model_path'] = prepared.model_path
+    refused(changed, 'different provenance')
+    refused(['not', 'an', 'object'], 'JSON object')
+    refused('{broken JSON', 'unreadable')
+
+    record_path.write_text(json.dumps(original), encoding='utf-8')
+    refused(
+        original,
+        "does not name the model recorded",
+        settings={
+            'illumination_correction': True,
+            'illumination_model': str(tmp_path / 'other-model.npz'),
+        },
+    )
+    with pytest.raises(ill.IlluminationError, match='requires.*True'):
+        ill.load_segmentation_illumination_resume(
+            {'illumination_correction': False},
+            provenance_path=str(record_path), pipeline_style='v1',
+            expected_fields=['field-1'], verbose=False)
+
+
+def test_segmentation_validation_names_a_missing_saved_model(tmp_path):
+    base = segmentation_prepared(tmp_path)
+    missing = ill.PreparedIllumination(
+        model=base.model,
+        corrector=base.corrector,
+        model_path=str(tmp_path / 'illumination' / 'gone.npz'),
+        model_sha256=base.model_sha256,
+    )
+    with pytest.raises(ill.IlluminationError, match='cannot verify'):
+        ill.SegmentationIlluminationSession(
+            missing,
+            provenance_path=str(tmp_path / 'illumination' / 'application.json'),
+            pipeline_style='v1')
+
+
+def test_a_broken_run_journal_cannot_replace_the_scientific_result(
+        tmp_path, monkeypatch):
+    from spacr import run_journal
+
+    class BrokenRun:
+        def _record_stage(self, *_args, **_kwargs):
+            raise RuntimeError('journal storage unavailable')
+
+    monkeypatch.setattr(run_journal, 'current_run', lambda: BrokenRun())
+    prepared = segmentation_prepared(tmp_path)
+    record_path = tmp_path / 'illumination' / 'application.json'
+
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+    corrected = session.correct(
+        'field-1', np.full((2, 2, 1), 10, dtype=np.uint16),
+        context(channels=[0]))
+
+    assert corrected[0, 0, 0] == 20
+    assert record_path.is_file()
+
+
+def test_an_external_model_keeps_application_provenance_in_the_current_run(
+        tmp_path):
+    shared = segmentation_prepared(tmp_path / 'shared')
+    stack = tmp_path / 'current_run' / 'stack'
+    stack.mkdir(parents=True)
+    settings = ill.illumination_settings({
+        'src': str(tmp_path / 'wrong_run' / 'stack'),
+        'channels': [0],
+        'illumination_correction': True,
+        'illumination_model': shared.model_path,
+        'illumination_qc': False,
+        'verbose': False,
+    })
+
+    session = ill.prepare_segmentation_illumination(
+        settings, src=str(stack), channels=[0], pipeline_style='v2')
+
+    expected = tmp_path / 'current_run' / 'illumination' / \
+        'segmentation_application.json'
+    assert session.provenance_path == str(expected)
+    assert expected.is_file()
+    assert not (tmp_path / 'shared' / 'illumination' /
+                'segmentation_application.json').exists()
+
+
+def test_a_measure_qc_failure_does_not_leave_a_new_model_behind(
+        tmp_path, monkeypatch):
+    merged = write_plate(
+        tmp_path / 'merged', quadratic_vignette((64, 64)),
+        n_fields=12, radius=5, n_objects=4)
+    settings = ill.illumination_settings({
+        'src': merged,
+        'channels': [0],
+        'illumination_correction': True,
+        'verbose': False,
+    })
+    monkeypatch.setattr(
+        ill, 'illumination_qc',
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            RuntimeError('QC could not be rendered')))
+
+    with pytest.raises(RuntimeError, match='QC could not be rendered'):
+        ill.prepare_illumination_correction(settings)
+
+    assert not (tmp_path / 'illumination' / 'illumination_model.npz').exists()
+    assert mh.preprocessing_hooks() == ()
 
 
 def test_describe_says_what_the_field_is_and_where_it_came_from(tmp_path):
