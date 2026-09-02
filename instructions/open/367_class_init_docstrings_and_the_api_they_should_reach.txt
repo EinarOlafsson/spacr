@@ -1,0 +1,135 @@
+================================================================================
+CLASSES DOCUMENT THEMSELVES BUT NOT THEIR __init__, WHERE THE PARAMETERS ARE
+================================================================================
+
+Status:    measured 2026-09-02, implementation started.
+Requested: 2026-09-02 -- "i noticed for classes in spacr many have a short
+           docstring and nothing for the __init__. the __init__ is where the
+           settings imports lie. so this section should have a docstring that
+           explains the settings. these explanations should be available in
+           the API. now users have to go to the source code to even see the
+           settings and there are often no descriptions there. so for classes
+           the API needs a complete docstring and API overhaul. implement
+           this."
+Owner:     every module defining a class; docs/source/conf.py is already
+           correct and needs no change.
+
+--------------------------------------------------------------------------------
+MEASURED, 2026-09-02
+--------------------------------------------------------------------------------
+
+    classes                       1272
+      with a class docstring      1246   (97%)
+      with an __init__             554
+      __init__ documented           59   (10%)
+
+That is the finding in one line: the class docstrings were done and the
+`__init__` docstrings were not. 495 constructors are undocumented, and a
+constructor's docstring is where its PARAMETERS are described -- so the
+project looks 97% documented while the thing a caller actually has to supply
+is documented 10% of the time.
+
+  THE MAINTAINER'S FRAMING IS RIGHT BUT NARROWER THAN THE PROBLEM. Only 11
+  constructors take an argument named `settings` (8 of them undocumented):
+
+      spacr/qt/screens/annotate.py       _SettingsDialog
+      spacr/qt/screens/annotate.py       _GenerateAnnotationDatabaseDialog
+      spacr/qt/screens/annotate.py       _AutoAnnotateDialog
+      spacr/qt/widgets/gate_editor.py    _ClusterSettingsDialog
+      spacr/qt/widgets/gate_settings.py  GateSettingsDialog
+      spacr/qt/widgets/measurement_compare_dialog.py  MeasurementComparePanel
+      spacr/qt/widgets/measurement_compare_dialog.py  MeasurementCompareDialog
+      spacr/submodules.py                CellposeLazyDataset
+
+  Fix those 8 first -- they are literally what was asked for -- but the real
+  scope is 495, because every one of them has parameters a reader currently
+  has to open the source to see.
+
+--------------------------------------------------------------------------------
+THE GOOD NEWS: THE API MACHINERY ALREADY DOES THIS
+--------------------------------------------------------------------------------
+
+`docs/source/conf.py` already sets
+
+    autoapi_python_class_content = 'both'   # class docstring + __init__ docstring
+
+so an `__init__` docstring is CONCATENATED onto its class's API page today.
+Nothing needs configuring, nothing needs a template change, and there is no
+"API overhaul" to do in the build -- the pipeline works and is waiting for
+content. Writing the docstring is the whole of the work, and it appears in
+the API the moment it exists.
+
+  VERIFY THIS ON A REAL BUILD BEFORE WRITING 495 DOCSTRINGS. Document one
+  constructor, build the docs, and confirm the parameter list appears on the
+  class page. If `autoapi_options` lacking `special-members` turns out to
+  suppress it after all, that is a one-line config change -- and much better
+  discovered now than after the writing.
+
+--------------------------------------------------------------------------------
+WHAT A CONSTRUCTOR DOCSTRING HAS TO SAY
+--------------------------------------------------------------------------------
+
+The repo already uses reST field lists and has a test that parses them
+(`tests/test_docstring_field_lists_are_parsed.py`), so the form is settled:
+
+    :param settings: ...
+    :param parent: ...
+    :raises ValueError: ...
+
+EVERY PARAMETER, and for a `settings` mapping that means the KEYS it reads,
+not the sentence "a settings dictionary". The complaint is that users "have
+to go to the source code to even see the settings", and a docstring saying
+"settings: the settings" leaves them exactly where they were.
+
+  WHERE THE KEY DESCRIPTIONS ALREADY EXIST, LINK RATHER THAN COPY.
+  `spacr/settings.py` carries tooltips for settings keys. A constructor
+  docstring that restates one is a second copy that goes stale -- the same
+  fault instruction 362 removed from the README grid and the model zoo table.
+  Name the keys and point at the settings reference; copy prose only where
+  none exists.
+
+  DO NOT DESCRIBE `self`, and do not write `:param parent: the parent` for a
+  Qt widget's parent. A docstring that documents the obvious to reach 100%
+  makes the page longer without making it more useful, and buries the
+  parameters that matter.
+
+--------------------------------------------------------------------------------
+ORDER OF WORK
+--------------------------------------------------------------------------------
+
+  1. The 8 undocumented `settings` constructors listed above.
+  2. Public classes in the core pipeline modules -- core, measure, io,
+     submodules, ml, classify, sequencing -- since these are what the module
+     tiles in the README link to, and instruction 366 is removing README
+     prose on the promise the API says it better.
+  3. Public classes elsewhere.
+  4. Private (`_`-prefixed) classes LAST, and only where a maintainer would
+     benefit; they are not in the public API and 366's promise does not cover
+     them.
+
+--------------------------------------------------------------------------------
+TRAPS
+--------------------------------------------------------------------------------
+
+* A NEW DOCSTRING IS NEW SOURCE TEXT FOR THE TRANSLATION CATALOGS. Every
+  docstring added here stales `docs/i18n/reviewed/api/**` records pinned to
+  the old text and adds rows to the translation backlog. One two-word default
+  change staled two reviewed records this week; 495 docstrings will not be
+  free. Coordinate with 306 and 316, and expect the API catalog job to go red
+  until the catalogs are rebuilt.
+* `tests/test_docstring_correctness.py` and
+  `tests/test_user_facing_docstrings.py` already fail at HEAD (6 failures).
+  Read them before writing, so 495 docstrings are not written in a shape
+  those tests reject.
+* Do not let the count become the goal. 10% -> 100% is not the objective;
+  a caller being able to use the class without opening the source is.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* The 8 settings constructors document every key they read.
+* A built API page for a documented class shows its parameters.
+* A test fails when a PUBLIC class's `__init__` takes parameters and
+  documents none of them -- ratcheted, so the number cannot go back up.
+* No constructor docstring restates a settings tooltip verbatim.
