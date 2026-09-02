@@ -28,9 +28,8 @@ anyone doing this themselves:
 """
 from __future__ import annotations
 
-import math
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -646,7 +645,7 @@ def _write(figure, path) -> None:
                     lambda a=axes, c=was, al=was_alpha: (
                         a.set_facecolor(c), a.patch.set_alpha(al)))
         for axes in figure.axes:
-            for artist, getter, setter in _chrome_of(axes):
+            for _artist, getter, setter in _chrome_of(axes):
                 replacement = export_colour(getter(), "chrome", look)
                 if replacement is None:
                     continue
@@ -718,7 +717,7 @@ def _readable(figure, *axes) -> str:
     str
         Resolved foreground color, suitable for additional annotations.
     """
-    from .figures.style import ROLES, TYPE_SCALE, WEIGHTS
+    from .figures.style import ROLES, TYPE_SCALE
 
     ink = ROLES["reference"]
     try:
@@ -857,6 +856,15 @@ def _order_like_neighbours(grid: pd.DataFrame) -> pd.DataFrame:
         from scipy.spatial.distance import pdist
 
         def order(matrix):
+            """Order one matrix axis by correlation-cluster neighbours.
+
+            :param matrix: numeric two-dimensional rows to arrange.
+            :returns: identity indices below three rows; otherwise average-
+                linkage leaf indices from correlation distances. Non-finite
+                matrix values are normalized for distance calculation and
+                undefined distances become 1.0. Any clustering failure is
+                handled by the parent's mean-order fallback.
+            """
             if matrix.shape[0] < 3:
                 return list(range(matrix.shape[0]))
             distance = pdist(np.nan_to_num(matrix), metric="correlation")
@@ -1130,7 +1138,7 @@ def plot_guide_concordance(result: "SweepResult", path: Optional[str] = None,
         return None
 
     rows = []
-    for (gene, measurement), block in passed.groupby(["gene", "measurement"]):
+    for (gene, _measurement), block in passed.groupby(["gene", "measurement"]):
         signs = np.sign(block["effect"].to_numpy(dtype=float))
         signs = signs[signs != 0]
         if len(signs) < 2:
@@ -1388,7 +1396,7 @@ def plot_gene_profile(result: "SweepResult", gene: Any,
         axes.set_xlabel("effect (partial correlation, within plate)", fontsize=8)
         axes.tick_params(labelsize=7)
         for i, (text, colour) in enumerate((
-                (f"raises it", HOUSE.GREEN), (f"lowers it", HOUSE.RUST),
+                ("raises it", HOUSE.GREEN), ("lowers it", HOUSE.RUST),
                 (f"not past BH at {alpha:g}", HOUSE.GREY))):
             axes.text(0.98, 0.03 + i * 0.055, text, transform=axes.transAxes,
                       fontsize=HOUSE.NOTE, color=colour, ha="right", va="bottom")
@@ -1532,7 +1540,7 @@ def plot_measurement_hits(result: "SweepResult", path: Optional[str] = None,
         bar.outline.set_visible(False)
         axes.text(0.98, 0.02,
                   "dot size = genes moving it" + (
-                      f" · ringed: moved by half the library" if loud.any()
+                      " · ringed: moved by half the library" if loud.any()
                       else ""),
                   transform=axes.transAxes, fontsize=HOUSE.NOTE,
                   color=HOUSE.GREY_DARK, va="bottom", ha="right")
