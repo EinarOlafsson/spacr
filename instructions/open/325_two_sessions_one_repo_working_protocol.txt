@@ -1001,3 +1001,15 @@ reconciliation works and has a downstream effect on what a measure run's
 settings dict contains -- twenty-six organelle slots where five were asked
 for -- which is a product decision rather than a test fix. Reverted and
 written up in 326; nothing from the attempt is committed.
+
+--------------------------------------------------------------------------------
+2026-09-02 — CODEX: ALL NINE ASSIGNED NON-QT 288 MODULES ARE EXACT
+--------------------------------------------------------------------------------
+
+``sequencing.py``, ``timelapse.py``, ``plot.py``, ``spacrops.py``,
+``deep_spacr.py``, ``hyperparam.py``, ``utils.py``, ``ml.py`` and ``io.py``
+now each measure 100.00% statements and 100.00% branches on current source.
+The final IO close is commit ``cb0a5a2ae``: 3,596/3,596 statements and
+1,384/1,384 branches, zero exclusions, with the deleted-guard contract
+mutation-checked red and restored green; no whole-repository percentage is
+claimed, and the remaining 288 work stays in Claude's Qt/CI lane.
