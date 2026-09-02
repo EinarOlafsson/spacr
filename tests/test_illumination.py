@@ -214,6 +214,25 @@ def segmentation_prepared(tmp_path, *, legacy=False):
     )
 
 
+def write_segmentation_application(root, **changes):
+    """Write the four facts Measure needs before correcting merged pixels."""
+    merged = root / 'merged'
+    merged.mkdir(parents=True)
+    illumination = root / 'illumination'
+    illumination.mkdir()
+    record = {
+        'schema_version': 1,
+        'source_intensity_state': 'raw',
+        'target_scope': 'segmentation-input-only',
+        'correction_depth': 1,
+        'raw_persisted_intensities_modified': False,
+    }
+    record.update(changes)
+    path = illumination / 'segmentation_application.json'
+    path.write_text(json.dumps(record, indent=2) + '\n')
+    return merged, path, record
+
+
 # ---------------------------------------------------------------------------
 # 1. Does it recover the field it was given?
 # ---------------------------------------------------------------------------
@@ -1949,3 +1968,87 @@ def test_measure_crop_leaves_an_uncorrected_run_alone(tmp_path, monkeypatch):
     assert dict(mh.preprocessing_hooks()) == before, (
         "a run with illumination_correction off installed a hook anyway")
     assert not os.path.isdir(plate / 'illumination')
+
+
+# ---------------------------------------------------------------------------
+# Segmentation-to-Measure handoff: persisted pixels must still be raw
+# ---------------------------------------------------------------------------
+
+def test_measure_input_guard_is_a_read_only_noop_without_a_segmentation_record(
+        tmp_path):
+    merged = tmp_path / 'plate' / 'merged'
+    merged.mkdir(parents=True)
+    absent_parent = merged.parent / 'illumination'
+
+    assert ill.validate_measurement_illumination_inputs({
+        'illumination_correction': False,
+        'src': str(merged),
+    }) == {}
+    assert ill.validate_measurement_illumination_inputs({
+        'illumination_correction': True,
+        'src': str(merged),
+    }) == {}
+    assert ill.validate_measurement_illumination_inputs({
+        'illumination_correction': True,
+        'src': '',
+    }) == {}
+    assert not absent_parent.exists()
+
+
+def test_measure_input_guard_accepts_raw_segmentation_records_without_writing(
+        tmp_path):
+    first, path, record = write_segmentation_application(tmp_path / 'plate1')
+    second = tmp_path / 'plate2' / 'merged'
+    second.mkdir(parents=True)
+    before = path.read_bytes()
+    stamp = path.stat().st_mtime_ns
+
+    found = ill.validate_measurement_illumination_inputs({
+        'illumination_correction': True,
+        'src': '/ignored/by/the/explicit/override',
+    }, src=[str(first), str(first), str(second)])
+
+    assert found == {str(path.resolve()): record}
+    assert path.read_bytes() == before
+    assert path.stat().st_mtime_ns == stamp
+    assert not (second.parent / 'illumination').exists()
+
+
+@pytest.mark.parametrize('change', [
+    {'source_intensity_state': 'corrected'},
+    {'target_scope': 'persisted-intensities'},
+    {'correction_depth': 2},
+    {'raw_persisted_intensities_modified': True},
+    {'raw_persisted_intensities_modified': 0},
+])
+def test_measure_input_guard_refuses_any_record_that_cannot_prove_raw_pixels(
+        tmp_path, change):
+    merged, path, _record = write_segmentation_application(
+        tmp_path / 'plate', **change)
+    before = path.read_bytes()
+
+    with pytest.raises(ill.IlluminationError, match='double correction'):
+        ill.validate_measurement_illumination_inputs({
+            'illumination_correction': True,
+            'src': str(merged),
+        })
+
+    assert path.read_bytes() == before
+
+
+def test_measure_input_guard_fails_closed_on_malformed_provenance(tmp_path):
+    merged, path, _record = write_segmentation_application(tmp_path / 'plate')
+    path.write_text('{broken')
+
+    with pytest.raises(ill.IlluminationError, match='cannot verify'):
+        ill.validate_measurement_illumination_inputs({
+            'illumination_correction': True,
+            'src': str(merged),
+        })
+
+    path.write_text('[]')
+    with pytest.raises(ill.IlluminationError, match='not a JSON object'):
+        ill.validate_measurement_illumination_inputs({
+            'illumination_correction': True,
+            'src': str(merged),
+        })
