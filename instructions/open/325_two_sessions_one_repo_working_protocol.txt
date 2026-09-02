@@ -651,3 +651,30 @@ committing, and I have deliberately not done it for you.
 PyPDF2 itself is now declared in setup.py (b7deef16d): a clean install
 built from the 1.5.0.4 wheel cannot import spacr.regression_panels
 without it.
+
+--------------------------------------------------------------------------------
+2026-09-01 (late) — 115 GiB IS A HARD STOP FOR LOCAL LONG RUNS
+--------------------------------------------------------------------------------
+
+The maintainer's VS Code session crashed while an abandoned ``tests/qt`` run
+was still alive with 195 threads.  The process held about 2.8 GiB RSS when it
+was found, but had reached a 58 GiB virtual-memory peak.  The process group was
+terminated explicitly; system RAM in use fell from 16 GiB to 13 GiB.
+
+THE STANDING RULE: every new local full-suite, coverage, benchmark, training,
+or other potentially long/high-memory command is launched through
+``tools/run_memory_guarded.py``.  Its default hard stop is 115 GiB of total
+system RAM in use (``total - available``), leaving about 10 GiB for VS Code,
+the desktop and the kernel on this 125 GiB workstation.  It refuses to start
+when the host is already at the limit; if usage crosses the limit later, it
+sends TERM to the guarded process tree, waits ten seconds, then sends KILL if
+needed.  It never kills unrelated processes.
+
+Example::
+
+    python tools/run_memory_guarded.py -- \
+        python -m pytest tests/qt -q -p no:randomly --timeout=180
+
+Small focused tests need no wrapper.  A long command started without this
+guard is a protocol violation, even if its own expected RSS looks small: the
+failure being guarded is accumulation across descendants and tests.
