@@ -104,8 +104,10 @@ def _flowview_pipeline(family):
     """Finish or fail the active graph without changing scientific output."""
 
     def decorate(function):
+        """Return a metadata-preserving lifecycle wrapper for ``function``."""
         @functools.wraps(function)
         def observed(*args, **kwargs):
+            """Call unchanged, reporting success or failure to an active trace."""
             settings = args[0] if args else kwargs.get("settings")
             active = _flowview_event("begin", settings, family)
             try:
@@ -1219,6 +1221,7 @@ def _answering_stop(model):
     original = model.loglike
 
     def loglike(*args, **kwargs):
+        """Check for cancellation, then return the original likelihood result."""
         checkpoint()
         return original(*args, **kwargs)
 
@@ -3632,6 +3635,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         for name, default in _MODEL_LEVEL_DEFAULTS.items()})
 
     def _find_best_alpha(model_cls):
+        """Fit and return the requested cross-validated penalty estimator."""
         alphas = np.logspace(-5, 5, 100)
         if model_cls == 'lasso':
             cv = LassoCV(alphas=alphas, cv=5, max_iter=10000).fit(X, y_flat)
@@ -3647,6 +3651,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         return cv
 
     def _glm_binomial(link=None, scale=None):
+        """Fit and return an optionally weighted binomial GLM for ``link`` and ``scale``."""
         family = sm.families.Binomial(link=link) if link else sm.families.Binomial()
         kwargs = {'family': family}
         if weights is not None:
@@ -3701,6 +3706,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         return np.log(n_total)
 
     def _glm_auto():
+        """Return a forced identity-link fit or the response-appropriate GLM."""
         # WHICH SCALE THE FAMILY IS CHOSEN ON (instruction 182). The response
         # itself is swapped by the CALLER -- see `regression` -- because
         # everything downstream of the fit (the coefficient table, McFadden,
@@ -3738,6 +3744,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
             **({'cov_type': cov_type} if cov_type else {}))
 
     def _glm_poisson():
+        """Validate counts and return a Poisson-log fit with any exposure offset."""
         _validate_poisson_response(y, X)
         family = sm.families.Poisson(link=sm.families.links.Log())
         # offset(log(cell_count)) turns the fit from "how many positive objects
@@ -3748,6 +3755,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
             **({'cov_type': cov_type} if cov_type else {}))
 
     def _wls():
+        """Validate captured per-well weights and return the fitted WLS model."""
         # WLS with unit weights IS OLS. Saying so is the point: a user who
         # picks 'wls' on a table with no cell_count column would otherwise get
         # an OLS fit labelled 'wls' in the results folder name, the volcano
@@ -3768,11 +3776,13 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
             **({'cov_type': cov_type} if cov_type else {}))
 
     def _rlm():
+        """Return a robust linear fit using the captured Huber tuning constant."""
         # HuberT's t is in units of the ESTIMATED residual scale (MAD), not of
         # y, so the same t means the same thing whatever the response units.
         return sm.RLM(y, X, M=sm.robust.norms.HuberT(t=huber_t)).fit()
 
     def _quantile():
+        """Validate the captured quantile and return its fitted regression."""
         if not 0.0 < float(quantile) < 1.0:
             raise ValueError(
                 f"quantile must lie strictly inside (0, 1); got {quantile!r}. "
@@ -3780,6 +3790,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         return sm.QuantReg(y, X).fit(q=float(quantile))
 
     def _hinge():
+        """Return a hinge classifier using auto-CV or fixed ``C = 1 / alpha``."""
         y_binary = binarise_response(y, hinge_threshold,
                                      name='dependent variable')
         # LinearSVC minimises C * sum(hinge) + 0.5 * ||w||^2, so its C is the
@@ -3887,6 +3898,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         return columns
 
     def _group_lasso():
+        """Fit the named gene-grouped design and return compatible results."""
         from . import group_lasso as group_lasso_module
 
         columns = _named_design('group_lasso')
@@ -3981,6 +3993,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         return model
 
     def _rra():
+        """Rank marginal design slopes and return gene-level alpha-RRA results."""
         from . import rra as rra_module
 
         columns = _named_design('rra')
@@ -4057,6 +4070,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         return _RRAResults(slopes, p_values, columns, table)
 
     def _horseshoe():
+        """Return a horseshoe-Poisson fit for the captured design and exposure."""
         return _fit_horseshoe_poisson(X, y, exposure)
 
     def _spline():
@@ -5956,6 +5970,7 @@ def normalize_regression_input_pairs(settings):
             })
     else:
         def paths(value):
+            """Return ``value`` as a fresh path list, treating ``None`` as empty."""
             if value is None:
                 return []
             return list(value) if isinstance(value, (list, tuple)) else [value]
@@ -5980,6 +5995,7 @@ def normalize_regression_input_pairs(settings):
     settings['paired_data'] = pairs
 
     def unique(key):
+        """Return truthy ``key`` paths once each in first-seen pair order."""
         return list(dict.fromkeys(
             os.fspath(row[key]) for row in pairs if row.get(key)))
 
@@ -6028,6 +6044,7 @@ def load_regression_input_pairs(pairs):
     _parsed: dict = {}
 
     def read(path):
+        """Return a cached corrected frame for ``path``, or ``None`` when blank."""
         import time
 
         if not path:
@@ -6056,6 +6073,7 @@ def load_regression_input_pairs(pairs):
         return _parsed[key]
 
     def plates(frame):
+        """Return the frame's non-null plate identifiers as strings."""
         if frame is None or 'plateID' not in frame.columns:
             return set()
         return {str(value) for value in frame['plateID'].dropna().unique()}
@@ -6185,6 +6203,7 @@ def _check_score_count_pairing(independent_df, dependent_df, merged_df, *,
         :data:`_MINIMUM_PAIRED_WELL_FRACTION` of the smaller input's wells.
     """
     def _plates(frame):
+        """Return sorted plate prefixes parsed from the frame's well column."""
         if well_column not in frame.columns:
             return []
         return sorted(frame[well_column].astype(str).str.split('_').str[0]
@@ -7939,6 +7958,7 @@ def _perform_regression(settings):
     from .toxo import custom_volcano_plot, plot_gene_phenotypes, plot_gene_heatmaps
 
     def _perform_regression_read_data(settings):
+            """Load paired inputs, validate the analysis, and return both frames."""
             _stage(settings, "reading the input tables")
             pairs, _migrated = normalize_regression_input_pairs(settings)
             count_data_df, score_data_df, audit = \
@@ -8021,6 +8041,7 @@ def _perform_regression(settings):
     
     
     def _count_variable_instances(df, column_1, column_2):
+        """Return ``df`` and value-count tables for both named columns."""
         # The single call site always passes both column names, so the
         # variable-arity returns this used to carry (two-tuple / bare df) were
         # unreachable; it now always returns the three-tuple its caller
@@ -8189,6 +8210,7 @@ def _perform_regression(settings):
         use_cv = alpha is None or (isinstance(alpha, str) and alpha == 'auto')
 
         def _estimator():
+            """Return the configured sklearn lasso or elastic-net estimator."""
             if regression_type == 'elasticnet':
                 return (ElasticNetCV(l1_ratio=l1_ratio, cv=5, max_iter=10000)
                         if use_cv else
@@ -8238,6 +8260,7 @@ def _perform_regression(settings):
                 block_penalty = float(group_lasso_lambda)
 
         def _resample_coefficients(design, response):
+            """Return group-lasso or sklearn coefficients for one resample."""
             if blocks is not None:
                 from . import group_lasso as group_lasso_module
 
@@ -9120,6 +9143,7 @@ def _perform_regression(settings):
     # gene once per guide -- which is what the collinear single design
     # produced and what put every gene on the volcano several times.
     def _stack(frames):
+        """Concatenate nonempty frames, or return the empty result template."""
         # pd.concat([]) raises "No objects to concatenate", and a run where
         # neither level called a hit is an ordinary outcome, not an error --
         # it is what a screen with nothing in it looks like. The empty table
