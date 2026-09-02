@@ -664,6 +664,7 @@ def _fitted_section(run: "_Run") -> List[SummaryField]:
     settings, out = run.settings, []
 
     def add(name, value=None, reason=None, kind=""):
+        """Append a labelled field to the fitted-model section."""
         out.append(SummaryField(name, LABELS[("fitted", name)],
                                 value=value, reason=reason, kind=kind))
 
@@ -837,6 +838,7 @@ def _design_section(run: "_Run") -> List[SummaryField]:
     out = []
 
     def add(name, value=None, reason=None, kind=""):
+        """Append a labelled field to the fitted-design section."""
         out.append(SummaryField(name, LABELS[("design", name)],
                                 value=value, reason=reason, kind=kind))
 
@@ -1021,6 +1023,7 @@ def _fit_quality_section(run: "_Run") -> List[SummaryField]:
     out, metrics = [], run.metrics
 
     def add(name, value=None, reason=None, kind=""):
+        """Append a labelled field to the fit-quality section."""
         out.append(SummaryField(name, LABELS[("fit_quality", name)],
                                 value=value, reason=reason, kind=kind))
 
@@ -1248,6 +1251,7 @@ def _assumptions_section(run: "_Run") -> List[SummaryField]:
     out = []
 
     def add(name, value=None, reason=None, kind=""):
+        """Append a labelled field to the assumptions section."""
         out.append(SummaryField(name, LABELS[("assumptions", name)],
                                 value=value, reason=reason, kind=kind))
 
@@ -1546,6 +1550,7 @@ def _call_section(run: "_Run") -> List[SummaryField]:
     out, frame = [], run.coef_df
 
     def add(name, value=None, reason=None, kind=""):
+        """Append a labelled field to the hit-calling section."""
         out.append(SummaryField(name, LABELS[("call", name)],
                                 value=value, reason=reason, kind=kind))
 
@@ -1745,6 +1750,7 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
     out, settings = [], run.settings
 
     def add(name, value=None, reason=None, kind=""):
+        """Append a labelled field to the exclusions section."""
         out.append(SummaryField(name, LABELS[("excluded", name)],
                                 value=value, reason=reason, kind=kind))
 
