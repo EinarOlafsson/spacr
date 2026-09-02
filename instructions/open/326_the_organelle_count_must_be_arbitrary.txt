@@ -410,3 +410,48 @@ what 306 and 316 are carrying.
 
 NOT STARTED EITHER WAY. Step 3 (settings follow the count) is done and shipped
 and is useful on its own; the ceiling waits on which of A or B.
+
+--------------------------------------------------------------------------------
+2026-09-02: NO LETTER REACHES A USER, AND IMPORT WAS THE ONE THAT DID
+--------------------------------------------------------------------------------
+
+Asked for, in the maintainer's words: "i dont want to see organellea b c d
+anywhere organelle number should allways be cointrolled by number of
+organells which can be any integer. now change that in e.g. import".
+
+TWO DIFFERENT THINGS, and only one of them was broken.
+
+The DISPLAY half was already right nearly everywhere: `setting_label`
+renders `organelleb_channel` as "Organelle 2 — Channel", the nine runtime
+catalogs carry the same numbering ("Organelle 2 — Kanal"), and Measure's
+preview labels its slots through `organelle_label`. Checked rather than
+assumed, and the letters are storage spellings that nothing but the Import
+screen put on screen.
+
+IMPORT WAS THE EXCEPTION. `spacr/qt/screens/foreign.py` built its mask-class
+combo straight from `schema.SEGMENTED_ROLES`, so its list read
+
+    cell, nucleus, pathogen, organelle, organelleb, organellec, organelled
+
+-- both faults in one control: the raw lettered keys, and four organelle
+slots offered to every user whether or not they have any. It now reads
+
+    Cell, Nucleus, Pathogen, Organelle 1
+
+and grows a slot as one is filled: adding Organelle 1 offers Organelle 2, and
+so on to the number of mask planes a merged array can carry. The value behind
+each entry is still the role, so nothing downstream changes, and the added
+list and the error message name slots the same way.
+
+THE COUNT FOLLOWING THE ORGANELLES is what "controlled by number of
+organelles" means on a form with no count field of its own. On the settings
+forms it is the `number_of_organelles` setting, which already works.
+
+WHAT REMAINS FOR "ANY INTEGER". The ceiling is still 26 and the choice
+between A and B above is still open and still the maintainer's. Import's own
+cap is lower and is NOT that ceiling: it stops at the organelle planes
+`crops.MASK_PLANE_ORDER` defines, which is four, because a fifth class has
+nowhere to go in a merged array. Lifting that is a change to
+`spacr/schema.py` and `spacr/crops.py`, which belong to the other session
+under protocol 325 -- it is not something the Import screen can do for
+itself, and pretending otherwise would offer a class the backend drops.

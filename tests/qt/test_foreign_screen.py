@@ -43,6 +43,8 @@ from spacr.qt.screens.foreign import (
     ForeignScreen,
     MAP_COLUMNS,
     OBJECT_CHOICES,
+    object_label,
+    organelle_slots_offered,
 )
 
 
@@ -804,3 +806,74 @@ def test_the_model_flags_an_invalid_index_as_merely_enabled(qtbot):
     flags = model.flags(QModelIndex())
     assert flags & Qt.ItemIsEnabled
     assert not (flags & Qt.ItemIsEditable)
+
+
+# ---------------------------------------------------------------------------
+# Organelle slots are numbered, and there are as many as there are organelles
+# ---------------------------------------------------------------------------
+
+def _offered(screen):
+    box = screen._object_box
+    return [box.itemText(i) for i in range(box.count())]
+
+
+def test_no_mask_class_is_offered_as_a_letter(screen):
+    """Asked for on 2026-09-02: "i dont want to see organelle a b c d
+    anywhere". The slots are STORED lettered because a role name is the
+    prefix of every settings key it owns; that is a storage decision and it
+    has no business on screen."""
+    shown = _offered(screen)
+    assert not [text for text in shown if text.startswith("organelle")]
+    assert "Organelle 1" in shown
+    assert shown[:3] == ["Cell", "Nucleus", "Pathogen"]
+
+
+def test_the_role_behind_each_name_is_unchanged(screen):
+    """The label is new; the value the backend gets is not."""
+    box = screen._object_box
+    assert [box.itemData(i) for i in range(box.count())] == [
+        "cell", "nucleus", "pathogen", "organelle"]
+    assert object_label("organellec") == "Organelle 3"
+    assert object_label("cell") == "Cell"
+
+
+def test_the_slots_offered_follow_the_organelles_in_use(screen, tmp_path):
+    """"organelle number should always be controlled by number of
+    organelles": one unfilled slot at a time, so a user with one organelle
+    is never asked about a second, third and fourth they do not have."""
+    assert _offered(screen).count("Organelle 1") == 1
+    assert "Organelle 2" not in _offered(screen)
+
+    assert screen.add_mask_folder("organelle", str(tmp_path)) is True
+    assert "Organelle 2" in _offered(screen)
+    assert "Organelle 3" not in _offered(screen)
+
+    assert screen.add_mask_folder("organelleb", str(tmp_path)) is True
+    assert "Organelle 3" in _offered(screen)
+
+
+def test_the_offer_stops_where_the_mask_planes_do(screen, tmp_path):
+    """A fifth slot would be a class the merged array has no plane for, so
+    it is not offered -- the cap is the backend's, not a number typed here."""
+    capacity = sum(1 for role in OBJECT_CHOICES if role.startswith("organelle"))
+    for role in OBJECT_CHOICES:
+        if role.startswith("organelle"):
+            screen.add_mask_folder(role, str(tmp_path))
+    assert len([t for t in _offered(screen) if t.startswith("Organelle")]) \
+        == capacity
+    assert organelle_slots_offered(["organelle"] * 99) == capacity
+
+
+def test_the_added_list_names_the_slot_rather_than_the_key(screen, tmp_path):
+    screen.add_mask_folder("organelleb", str(tmp_path))
+    rows = [screen._mask_list.item(i).text()
+            for i in range(screen._mask_list.count())]
+    assert rows and rows[0].startswith("Organelle 2  \u2192")
+    # The item still CARRIES the role, which is what Remove is keyed on.
+    assert screen._mask_list.item(0).data(Qt.UserRole) == "organelleb"
+
+
+def test_an_unknown_class_is_refused_in_the_names_it_offered(screen, tmp_path):
+    assert screen.add_mask_folder("organellez", str(tmp_path)) is False
+    assert "Organelle 1" in screen.status_text()
+    assert "organelleb" not in screen.status_text()
