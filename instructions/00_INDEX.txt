@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-326 done / 40 open (89%).
+327 done / 39 open (89%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -41,11 +41,11 @@ OPEN
        253_the_last_item.txt
 
   288  288 COVERAGE STATE, MEASURED 2026-08-31
-       [coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; 1 open issue]
+       [coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; zero open issues]
        288_coverage_state_2026-08-31.txt
 
   288  ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 100% PER-MODULE COVERAGE
-       [coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; 1 open issue]
+       [coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; zero open issues]
        288_zero_issues_green_ci_and_per_module_coverage.txt
 
   304  Release 1.5.0.5, archived on Zenodo
@@ -119,9 +119,6 @@ OPEN
   350  A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
        [~50% -- no proven clipping in 4 screens x 3 locales; three false-positive classes recorded]
        350_no_text_is_cut_off_anywhere_in_the_package.txt
-
-  351  FIX AND CLOSE EVERY GITHUB ISSUE
-       351_close_every_github_issue_by_fixing_it.txt
 
   352  EVERY MODULE AT THE HIGHEST REASONABLE COVERAGE, THEN GREEN GITHUB ACTIONS
        352_reasonable_coverage_everywhere_then_green_actions.txt
@@ -498,4 +495,5 @@ DONE
   344  THE OPEN LIST WAS AUDITED AGAINST THE CODE, AND FIVE ITEMS WERE WRONG
   347  CATEGORY HELP BELONGS ONLY IN THE STRIP, THE API LINK BECOMES A DOT, AND EVERY
   349  "LOAD TEST DATA" PUTS THE LITERAL <src> INTO MASK GENERATION'S PATH FIELD
+  351  FIX AND CLOSE EVERY GITHUB ISSUE
   354  WHAT WAS DONE ON THE NIGHT OF 2026-09-02

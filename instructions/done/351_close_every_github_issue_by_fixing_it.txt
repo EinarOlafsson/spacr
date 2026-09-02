@@ -2,7 +2,7 @@
 FIX AND CLOSE EVERY GITHUB ISSUE
 ================================================================================
 
-Status:    not started as a standing item, filed 2026-09-02.
+Status:    done, 2026-09-02.
 Requested: 2026-09-02 -- "also now add to your instructions list to fix and
            close all github issues"
 Owner:     unassigned; whoever is running the session.
@@ -22,7 +22,7 @@ zero". So this file tracks the BACKLOG reaching zero; the recurring check
 stays in HANDOFF.
 
 --------------------------------------------------------------------------------
-WHAT THE STATE IS (2026-09-02)
+WHAT THE STATE WAS WHEN FILED (2026-09-02)
 --------------------------------------------------------------------------------
 
     gh issue list --repo EinarOlafsson/spacr --state open
@@ -34,7 +34,37 @@ WHAT THE STATE IS (2026-09-02)
         Those need OPPOSITE fixes, which is why it is waiting rather than
         being guessed at.
 
-One open issue. 25 of 26 were closed under instruction 81.
+One issue was open when this item was filed. 25 of 26 had already been closed
+under instruction 81.
+
+--------------------------------------------------------------------------------
+DONE EVIDENCE (2026-09-02)
+--------------------------------------------------------------------------------
+
+    gh issue list --repo EinarOlafsson/spacr --state open
+
+returns no issues. #115 is closed.
+
+The fixing commit is:
+
+    6fccdd9a8d4b82e3dd0b4f2657094d5405a94628
+
+The failure was a read path trying to migrate a legacy schema on a read-only
+SMB source. `_read_db` now skips in-place migration when either the database
+or its directory is not writable and opens SQLite with `mode=ro`; writable
+databases still follow the normal migration path.
+
+`tests/test_a_readonly_database_can_still_be_read.py` pins four parts of the
+fix: a read-only legacy database can be read, returned columns are
+canonicalised without mutating the source, reading creates no side files, and
+a writable legacy database is still migrated. The public closing record now
+names the fixing commit and summarizes the repair:
+
+    https://github.com/EinarOlafsson/spacr/issues/115#issuecomment-5512674945
+
+This closes the finite issue backlog tracked here. The recurring issue check
+in HANDOFF section 6 remains a standing practice and is not closed by this
+file.
 
 --------------------------------------------------------------------------------
 HOW TO WORK ONE, from what instruction 81 learned the hard way
@@ -49,8 +79,9 @@ HOW TO WORK ONE, from what instruction 81 learned the hard way
   the maintainer. An issue that is a duplicate, a question, or a decision for
   the maintainer gets SAID SO on the issue rather than left open in silence.
 * An auto-filed issue carries the pipeline settings and a traceback
-  fingerprint, so most are reproducible without asking the reporter. #115 is
-  not one of those, which is why it is stalled.
+  fingerprint, so most are reproducible without asking the reporter. #115 was
+  not one of those, which is why its exact read-only failure had to be
+  reconstructed before it could be fixed.
 
 --------------------------------------------------------------------------------
 HOW IT WILL BE CHECKED
