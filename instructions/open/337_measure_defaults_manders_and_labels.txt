@@ -155,3 +155,120 @@ untouched; `corrected_manders` is still live in feature_dict.py and measure.py,
 so the Manders removal is untouched. The fourth part still needs the
 maintainer's 2026-09-01 measure settings, which were never written to a file.
 0%.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THREE OF THE FOUR PARTS ARE DONE. THE FOURTH STILL NEEDS THE ASK.
+--------------------------------------------------------------------------------
+
+PART 1, THE MANDERS DEFINITION — DONE.
+
+`_calculate_correlation_object_level` now writes `manders_m1`, `manders_m2`
+and `manders_overlap_coefficient` UNCONDITIONALLY, and no longer writes
+`M1_correlation_<t>` / `M2_correlation_<t>` at all. The `corrected_manders`
+switch is gone.
+
+  WHAT MADE THIS SAFE TO DO IN ONE PASS: the function has exactly ONE caller
+  (`measure.py:1728`). The activation-map report that also mentions Manders
+  uses a DIFFERENT function -- `deep_spacr.calculate_activation_correlations`
+  -- so removing the percentile loop here could not reach it. Checked before
+  editing, because `manders_thresholds` appears in both stories and reads as
+  one shared setting.
+
+  `manders_thresholds` therefore SURVIVES but no longer affects a measure run.
+  It is out of the Measure category and out of the measure defaults, still
+  declared, still defaulted in the deep_spacr path at [15, 50, 75], and its
+  tooltip now says which of the two it belongs to. Leaving it visible in
+  Measure would have been instruction 77's defect exactly: a setting the panel
+  offers and nothing reads.
+
+  `corrected_manders` is in `validate.RETIRED_SETTINGS` with an empty
+  replacement, so a settings CSV naming it is reported as RETIRED rather than
+  unknown -- which is what this file asked for.
+
+  ALSO REMOVED: `total_intensity1` / `total_intensity2`, computed per object
+  and read only by the deleted loop.
+
+PART 2, SPATIAL MEASUREMENTS ON — DONE. `spatial_measurements` and
+`object_distances` both default True. Their comments used to justify the old
+default ("it is real time on a 3-D field"); they now say why the trade went
+the other way, which is that measuring again afterwards costs twenty minutes
+a plate. Both tooltips' "Default False" moved with them.
+
+PART 4, THE TWO LABELS — DONE, and they were two different kinds of thing.
+
+  `src` rendered as "Src" because the humaniser capitalises the key and stops.
+  Fixed at the single label source, `object_roles.EXACT_LABELS`, so every
+  settings surface and every locale catalog gets it from one place.
+  NOT applied to regression, which overrides `src` to "Output directory" in
+  `settings_model._label_for`: that is not an abbreviation, it is a more
+  specific true statement, since regression's `src` is where results are
+  written rather than where images are read. Overrule that in one line if the
+  "always" was meant literally.
+
+  `exp` was not a label at all -- it was the DEFAULT VALUE of the experiment
+  field (`measure_preview.py`, `QLineEdit("exp")`), so it also became the
+  experiment name of every run left untouched. Now "experiment". The pipeline
+  defaults agreed with neither: `settings.py` had 'exp' in one place and
+  'exp.' in another. Both are 'experiment' now. `experiment_1` (barcodes) and
+  `foreign_import` (foreign) are left alone -- they are words, and they are
+  distinguishing.
+
+PART 3, THE RUN'S SETTINGS AS THE DEFAULTS — STILL BLOCKED, unchanged.
+The mask half is in the published example at `settings/gen_mask_settings.csv`.
+The measure half was never written to a file and the panel has been through
+several runs since. ASK BEFORE STARTING IT; guessing would put an
+approximation into the defaults every future run inherits.
+
+TESTS. 124 passed across the measure-object and item-60 measure files, and
+549 passed across the manders/correlation/feature-dict/retired selection.
+Three tests were updated rather than loosened:
+`test_calculate_correlation_object_level` now asserts the trio is present AND
+that no `M1_correlation*`/`M2_correlation*` column survives;
+`test_the_manders_coefficients_need_no_setting_at_all` drives an EMPTY
+settings dict, which is what proves the gate is gone rather than defaulted
+True somewhere; and `test_the_retired_manders_switch_is_reported_as_retired`
+pins the retirement.
+
+A NOTE FOR 306. This change moves setting labels and tooltips, so the English
+manifest and the nine catalogs shift again. That is 306's 125-row debt getting
+slightly larger, not a new problem.
+
+VERIFICATION, against a HEAD BASELINE rather than against zero. The same 113
+settings/measure/validate test files were run twice, once with this work
+stashed:
+
+    HEAD          24 failed, 3086 passed
+    with 337      21 failed, 3091 passed
+    regressions    0   (comm -23 of the two failure lists is empty)
+
+Three of HEAD's failures are closed by this work. Two of those were MINE from
+earlier the same night: instruction 342 added `independent_variable_layout`,
+`model_data_layout` and `wide_predictor_columns` to `settings.categories`
+without registering them in `KEYS_ADDED_BY_REGROUP`, and I did not catch it
+because I ran the layout tests and not the category tests. Registered now.
+
+FOUR THINGS THE FIRST ATTEMPT GOT WRONG, all caught by that baseline run:
+
+  1. Deleting `manders_thresholds` from `categories` left it UNGROUPED rather
+     than gone -- the `activation` panel still offers it. It is now filed
+     under "Activation Maps", which is where it is actually read.
+  2. The `experiment` tooltip used to say "Defaults vary by pipeline", which
+     states no parseable default and so was never compared. Naming a real
+     default made it comparable in two more apps, moving a pinned count from
+     680 to 682.
+  3. That in turn exposed a real variant: `external_masks` names its run
+     after itself rather than taking the generic label. Registered with its
+     reason rather than papered over.
+  4. `test_a_colocalisation_pair_holds_the_values_the_whole_field_gives`
+     compares against a hand-written oracle that still produced the deleted
+     columns. Rewritten to the Manders trio, kept as a SECOND implementation
+     of the arithmetic rather than a call into `spacr.measure` -- an oracle
+     that shares the code it checks would agree with a windowing bug as
+     happily as with correct code, and windowing is what that file is for.
+
+The committed notebooks were regenerated (`build_notebook_settings.py`), which
+closes a failure that pre-dated this work.
+
+THE 21 THAT REMAIN ARE NOT THIS ITEM'S and are not new: they fail identically
+at HEAD, they are all in the measure suite, and each PASSES WHEN RUN ALONE.
+That is the same order-dependent shape as 345 and it is filed as 346.

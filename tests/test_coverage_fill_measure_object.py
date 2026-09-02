@@ -210,14 +210,51 @@ def test_calculate_radial_distribution():
 
 
 def test_calculate_correlation_object_level():
+    """One Manders definition, and it is the standards-compliant one.
+
+    The `M1_correlation_<t>` / `M2_correlation_<t>` pair was removed on
+    2026-09-02 (instruction 337): it was never Manders' coefficient, it was
+    ~99% self-redundant, and it shipped ON by default beside the correct
+    columns under names that did not say which definition produced them.
+
+    `manders_thresholds` is still passed here on purpose -- a settings dict
+    from before the change still carries it, and the function must ignore it
+    rather than fail on it.
+    """
     m = _two_object_mask()
     c1 = np.random.default_rng(5).random((32, 32)).astype(np.float32)
     c2 = np.random.default_rng(6).random((32, 32)).astype(np.float32)
     df = M._calculate_correlation_object_level(
         c1, c2, m, {"manders_thresholds": [15, 85]})
     assert "Pearson_correlation" in df.columns
-    assert "M1_correlation_15" in df.columns
     assert len(df) == 2
+
+    for column in ("manders_m1", "manders_m2", "manders_overlap_coefficient"):
+        assert column in df.columns, column
+    assert not [c for c in df.columns if c.startswith(("M1_correlation",
+                                                       "M2_correlation"))]
+
+
+def test_the_manders_coefficients_need_no_setting_at_all():
+    """The trio is unconditional: an empty settings dict still produces it.
+
+    `corrected_manders` used to gate these and is retired. Driving the
+    function with NOTHING in the dict is what proves the gate is gone rather
+    than defaulted to True somewhere.
+    """
+    m = _two_object_mask()
+    c1 = np.random.default_rng(5).random((32, 32)).astype(np.float32)
+    c2 = np.random.default_rng(6).random((32, 32)).astype(np.float32)
+    df = M._calculate_correlation_object_level(c1, c2, m, {})
+    assert "manders_overlap_coefficient" in df.columns
+
+
+def test_the_retired_manders_switch_is_reported_as_retired():
+    """A settings CSV naming `corrected_manders` says so, not "unknown"."""
+    from spacr.validate import RETIRED_SETTINGS
+
+    assert "corrected_manders" in RETIRED_SETTINGS
+    assert RETIRED_SETTINGS["corrected_manders"] == ""
 
 
 def test_create_dataframe():

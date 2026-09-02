@@ -2298,18 +2298,22 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
 
         .. note::
 
-           **The ``M1_correlation_<t>`` / ``M2_correlation_<t>`` columns are not
-           Manders' coefficients and are DEPRECATED.** Both channels are cut at
-           their *own within-object percentile* ``t`` and then share a single
-           overlap mask, so M1 is capped at the object's own top-``(100-t)``
-           intensity fraction no matter where the other channel is: with
-           ``channel_image2 == channel_image1`` the value is that cap, not 1.0.
-           The pair is ~99% redundant (measured r(M1, M2) ~ 0.99) and two pure
-           noise channels score 0.047 rather than ~0. The columns keep their
-           names and their values so old plates keep agreeing with themselves.
+           **The ``M1_correlation_<t>`` / ``M2_correlation_<t>`` columns were
+           removed on 2026-09-02 and are no longer written.** They were never
+           Manders' coefficients: both channels were cut at their *own
+           within-object percentile* ``t`` and then shared a single overlap
+           mask, so M1 was capped at the object's own top-``(100-t)``
+           intensity fraction no matter where the other channel was -- with
+           ``channel_image2 == channel_image1`` the value was that cap, not
+           1.0. The pair was ~99% redundant (measured r(M1, M2) ~ 0.99) and
+           two pure noise channels scored 0.047 rather than ~0.
 
-           With ``settings['corrected_manders'] = True`` (default ``False``)
-           three additional columns are written per object, per channel pair:
+           They were kept for a while beside the correct columns, behind
+           ``corrected_manders``, so old plates kept agreeing with themselves.
+           That is the shape the maintainer asked to end: two definitions
+           shipping at once, under names that do not say which produced them,
+           with the WRONG one on by default. The setting is retired and the
+           three correct columns are now written unconditionally:
 
            * ``manders_m1`` -- the true M1: the fraction of channel 1's
              above-background intensity that lies where channel 2 is above
@@ -2334,12 +2338,6 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
            64.5% of background-only objects would produce one. The cost is that
            "no signal" and "signal that does not colocalise" both read 0.0.
         """
-        thresholds = settings['manders_thresholds']
-        # .get, not [...]: this function is called by tests (and by external
-        # code) with a bare dict carrying only 'manders_thresholds'. A KeyError
-        # here would be a break with no relation to the colocalisation fix.
-        corrected_manders = bool(settings.get('corrected_manders', False))
-
         corr_data = {}
         # Each object's pixels are gathered from its own bounding box rather
         # than by comparing the whole field once per object. The pixels and
@@ -2352,9 +2350,6 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
             object_mask = (mask[window] == i)
             object_channel_image1 = channel_image1[window][object_mask]
             object_channel_image2 = channel_image2[window][object_mask]
-            total_intensity1 = np.sum(object_channel_image1)
-            total_intensity2 = np.sum(object_channel_image2)
-
             if len(object_channel_image1) < 2 or len(object_channel_image2) < 2:
                 pearson_corr = np.nan
             else:
@@ -2363,41 +2358,30 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
             corr_data[i] = {f'label_correlation': i,
                             f'Pearson_correlation': pearson_corr}
 
-            for thresh in thresholds:
-                chan1_thresh = np.percentile(object_channel_image1, thresh)
-                chan2_thresh = np.percentile(object_channel_image2, thresh)
+            # UNCONDITIONAL since 2026-09-02: the deprecated pair this used to
+            # sit beside is gone, so there is nothing left to choose between.
+            # Reuses the object_channel_image1/2 vectors the loop already
+            # extracted -- that reuse is what makes this ~+20% on the
+            # colocalisation block instead of ~+46%.
+            v1 = np.asarray(object_channel_image1, dtype=np.float64)
+            v2 = np.asarray(object_channel_image2, dtype=np.float64)
+            med1 = np.median(v1)
+            thr1 = med1 + 3.0 * 1.4826 * np.median(np.abs(v1 - med1))
+            med2 = np.median(v2)
+            thr2 = med2 + 3.0 * 1.4826 * np.median(np.abs(v2 - med2))
+            a = np.clip(v1 - thr1, 0, None)
+            b = np.clip(v2 - thr2, 0, None)
+            sa = a.sum()
+            sb = b.sum()
+            # 0.0, not NaN -- see the note in this function's docstring.
+            M1_true = float(a[v2 > thr2].sum() / sa) if sa > 0 else 0.0
+            M2_true = float(b[v1 > thr1].sum() / sb) if sb > 0 else 0.0
+            den = np.sqrt((a * a).sum() * (b * b).sum())
+            MOC = float((a * b).sum() / den) if den > 0 else 0.0
 
-                # boolean mask where both signals are present
-                overlap_mask = (object_channel_image1 > chan1_thresh) & (object_channel_image2 > chan2_thresh)
-                M1 = np.sum(object_channel_image1[overlap_mask]) / total_intensity1 if total_intensity1 > 0 else 0
-                M2 = np.sum(object_channel_image2[overlap_mask]) / total_intensity2 if total_intensity2 > 0 else 0
-
-                corr_data[i].update({f'M1_correlation_{thresh}': M1,
-                                     f'M2_correlation_{thresh}': M2})
-
-            if corrected_manders:
-                # Reuses the object_channel_image1/2 vectors the loop already
-                # extracted -- that reuse is what makes this ~+20% on the
-                # colocalisation block instead of ~+46%.
-                v1 = np.asarray(object_channel_image1, dtype=np.float64)
-                v2 = np.asarray(object_channel_image2, dtype=np.float64)
-                med1 = np.median(v1)
-                thr1 = med1 + 3.0 * 1.4826 * np.median(np.abs(v1 - med1))
-                med2 = np.median(v2)
-                thr2 = med2 + 3.0 * 1.4826 * np.median(np.abs(v2 - med2))
-                a = np.clip(v1 - thr1, 0, None)
-                b = np.clip(v2 - thr2, 0, None)
-                sa = a.sum()
-                sb = b.sum()
-                # 0.0, not NaN -- see the note in this function's docstring.
-                M1_true = float(a[v2 > thr2].sum() / sa) if sa > 0 else 0.0
-                M2_true = float(b[v1 > thr1].sum() / sb) if sb > 0 else 0.0
-                den = np.sqrt((a * a).sum() * (b * b).sum())
-                MOC = float((a * b).sum() / den) if den > 0 else 0.0
-
-                corr_data[i].update({'manders_m1': M1_true,
-                                     'manders_m2': M2_true,
-                                     'manders_overlap_coefficient': MOC})
+            corr_data[i].update({'manders_m1': M1_true,
+                                 'manders_m2': M2_true,
+                                 'manders_overlap_coefficient': MOC})
 
         return pd.DataFrame(corr_data.values())
 

@@ -451,7 +451,11 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     def _build_controls(self) -> None:
         # General
-        self._experiment = QLineEdit("exp", self)
+        # "experiment", not "exp". The abbreviation was the DEFAULT VALUE
+        # of the field, so it also became the experiment name of every run
+        # left untouched -- a folder called `exp` says nothing six months
+        # later. Asked for on 2026-09-01 with the `src` label.
+        self._experiment = QLineEdit("experiment", self)
         self._measurement_channels = QLineEdit("0,1,2,3", self)
         self._object_box = QComboBox(self)
         self._object_box.addItems(_OBJECTS)

@@ -1258,7 +1258,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('src', 'path')
 
     settings.setdefault('verbose', False)
-    settings.setdefault('experiment', 'exp')
+    settings.setdefault('experiment', 'experiment')
     
     # Test mode
     settings.setdefault('test_mode', False)
@@ -1272,20 +1272,24 @@ def get_measure_crop_settings(settings=None):
     #measurement settings
     settings.setdefault('save_measurements',True)
     settings.setdefault('radial_dist', True)
-    settings.setdefault('spatial_measurements', False)
+    # ON BY DEFAULT since 2026-09-01, by the maintainer's decision: these
+    # are the measurements a host-pathogen screen is run FOR, and a
+    # default run that omitted them was discovered after the run, when
+    # measuring again costs twenty minutes a plate. The KD-tree and
+    # boundary pass they cost are paid for by not repeating the run.
+    settings.setdefault('spatial_measurements', True)
     # The radius is part of the COLUMN NAME (neighbors_within_50), so it
     # is declared rather than read raw from the dict: an undeclared key
     # has no widget and is refused by check_settings, which would leave
     # the neighbourhood size settable only by editing the source.
     settings.setdefault('spatial_neighbor_radius', 50)
-    # EVERY DISTANCE WORTH MEASURING, off by default for the same
-    # reason: it is real time on a 3-D field.
-    settings.setdefault('object_distances', False)
+    # EVERY DISTANCE WORTH MEASURING. On by default for the same reason as
+    # spatial_measurements above; it is real time on a 3-D field and that
+    # is the cheaper half of the trade.
+    settings.setdefault('object_distances', True)
     settings.setdefault('object_distance_maxima', True)
     settings.setdefault('object_distance_intensity', True)
-    settings.setdefault('corrected_manders', False)
     settings.setdefault('calculate_correlation', True)
-    settings.setdefault('manders_thresholds', [15,85,95])
     settings.setdefault('homogeneity', True)
     settings.setdefault('homogeneity_distances', [8,16,32])
 
@@ -1723,7 +1727,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('apply_model_to_dataset',True)
     settings.setdefault('file_metadata',None)
     settings.setdefault('sample',None)
-    settings.setdefault('experiment','exp.')
+    settings.setdefault('experiment','experiment')
     settings.setdefault('score_threshold',0.5)
     settings.setdefault('dataset','')
     settings.setdefault('model_path','')
@@ -3339,7 +3343,6 @@ expected_types = {
     "radial_dist": bool,
     "spatial_measurements": bool,
     "spatial_neighbor_radius": int,
-    "corrected_manders": bool,
     "calculate_correlation": bool,
     "manders_thresholds": list,
     "homogeneity": bool,
@@ -4132,8 +4135,9 @@ tooltips = {
         "(both directions), surface to surface -- which is zero when two "
         "objects touch and is what 'how far apart are they' means -- the "
         "overlap fraction, how far the centre sits from its own boundary, "
-        "and how close the object is to the edge of the field. Off by "
-        "default because the calculation is computationally expensive on a 3-D field. The cost is one "
+        "and how close the object is to the edge of the field. On by "
+        "default: the calculation is computationally expensive on a 3-D field, but measuring "
+        "again afterwards costs more. The cost is one "
         "distance transform per object type per field, not one per pair of "
         "objects.",
     'object_distance_maxima':
@@ -4379,7 +4383,7 @@ tooltips = {
     "backgrounds": "(list of float) - Legacy compatibility field retained in settings snapshots. Current mask preprocessing ignores this list and reads cell_background, nucleus_background, pathogen_background and each organelle background setting instead, so changing it does not alter segmentation. Default [100, 100, 100, 100].",
     "barcodes": "(str) - Path to a CSV of screen/plate barcodes for the legacy barcode-mapping helper. Nothing in the current code reads this key: get_map_barcodes_default_settings, the only place it is defined, is never called by any pipeline, so setting it has no effect. The live equivalents consumed by generate_barecode_mapping are row_csv, column_csv and grna_csv.",
     "black_background": "(bool) - Choose the standalone/CLI embedding fallback: black canvas with white axes when True, white canvas with black axes when False. In the Qt app, Image UMAP automatically matches its enclosing card in the active theme and uses that theme's readable foreground color instead. Default True.",
-    "calculate_correlation": "(bool) - For every pair of measured channels and every object mask, compute a per-object Pearson correlation plus Manders M1/M2 at each cut-off in manders_thresholds, stored as <object>_channel_i_channel_j_* columns. Needs at least two channels. Turn it off to cut measurement time and database size when colocalisation is not part of the phenotype. Default True.",
+    "calculate_correlation": "(bool) - For every pair of measured channels and every object mask, compute a per-object Pearson correlation and the three Manders coefficients (manders_m1, manders_m2, manders_overlap_coefficient), stored as <object>_channel_i_channel_j_* columns. Needs at least two channels. Turn it off to cut measurement time and database size when colocalisation is not part of the phenotype. Default True.",
     "cell_background": "(int) - Background intensity of the cell channel in raw image units. Pixels below it are zeroed when remove_background_cell is True, and it is multiplied by cell_Signal_to_noise to set the intensity the normalisation ceiling must reach. Set it from a genuinely empty region; too high and dim cells are erased. Default 100.",
     "nucleus_background": "(int) - Raw intensity value treated as background in the nucleus channel. When remove_background_nucleus is True, every pixel below it is zeroed before normalization; it is also multiplied by nucleus_Signal_to_noise to set the upper-clip target. Raise it for images with high offset or autofluorescence, lower it if dim nuclei disappear. Default 100.",
     "pathogen_background": "(int) - Assumed background intensity of the pathogen channel in raw image units. It has two jobs: when remove_background_pathogen is True every pixel below it is zeroed, and it is multiplied by pathogen_Signal_to_noise to set the brightness the normalisation ceiling must reach. Raise it if dim haze is being segmented; lower it if faint parasites vanish. Default 100.",
@@ -4454,7 +4458,7 @@ tooltips = {
     "exclude": "(str or list) - Names of measurement columns to drop from the feature set before UMAP embedding or ML training, applied after the channel_of_interest selection. Use it to remove features that leak the label or swamp the embedding. It does not filter database rows; use exclude_rows for that. Default None keeps every feature.",
     "exclude_conditions": "(list) - Condition labels dropped from the image UMAP input, matched against the cond column that map_condition derives from the pos, neg and mix column IDs; the only possible entries are 'neg', 'pos', 'mix' and 'screen'. A bare string is accepted and wrapped in a list. Use it to embed screen wells only. Default None.",
     "exclude_rows": "(dict or None) - General UMAP row exclusions. Choose one or more database columns, then check the values whose rows should be removed. Rules are combined with OR, so a row matching any selected column/value pair is excluded. Default None keeps every row.",
-    "experiment": "(str) - Free-text run label. Its real effect is naming the exported PNG dataset tar as <YYMMDD>_<experiment>.tar (a random-numbered variant is used if that name already exists), so give each screen a distinct value to avoid confusing dataset tars. It is also passed to the measurement-database writer but not stored there. Defaults vary by pipeline: 'exp', 'exp.' or 'experiment_1'.",
+    "experiment": "(str) - Free-text run label. Its real effect is naming the exported PNG dataset tar as <YYMMDD>_<experiment>.tar (a random-numbered variant is used if that name already exists), so give each screen a distinct value to avoid confusing dataset tars. It is also passed to the measurement-database writer but not stored there. Default 'experiment' (the barcode pipeline uses 'experiment_1' and a foreign import uses 'foreign_import').",
     "figuresize": "(int) - Base figure size in inches; figures are built square as figuresize x figuresize and font sizes are derived from it (legend, axis labels and ticks at 0.75x, overlay text at 0.5x). Raise it when text is unreadable at publication scale, lower it to fit panels on screen. Default 10; cluster grids cap total width at 200 inches.",
     "filter_by": "(str or None) - Restricts the feature matrix before dimensionality reduction: only columns matching this channel are kept and the other channel_1-channel_4 columns are dropped. Accepts 'channel_0'-'channel_3', an int, a list of channel numbers, or 'morphology' to keep only shape features (area, eccentricity, Zernike moments, ...). None, 'None', 'all', and '*' disable filtering. Default 'channel_0'.",
     "fill_in": '(bool) - Post-process each Cellpose mask with fill_holes_in_mask in the mask-finetune and plaque tools. The mask is relabelled by connectivity over all nonzero pixels, then interior holes are filled component by component. Relabelling does not preserve the original label values, so touching objects can merge. Default False. Plaque Analysis starts with this enabled so plaque interiors are filled before scoring.',
@@ -4484,7 +4488,7 @@ tooltips = {
     "location_column": "(str) - Metadata column searched for positive_control and negative_control values when labelling rows for machine-learning training, normally 'columnID' or 'rowID'. Set 'rowID' when controls are arranged along plate rows instead of columns. annotation_column overrides this setting when specified. Default 'columnID'.",
     "log_data": "(bool) - Apply log(x + 1e-6) to every numeric feature, after the correlation filter and before standard scaling. Compresses heavy-tailed measurements such as intensity sums and areas so a handful of bright or huge objects stop dominating the embedding. Negative feature values become NaN and are then filled with the column mean. Default False.",
     "lower_percentile": "(float) - Percentile of the non-zero pixels in each channel used as the low anchor when rescaling that channel to 0-1; the high anchor is chosen automatically between the 98th and 99.5th percentile. Raise it to crush more dim background to black, lower it to preserve faint signal. Valid 0-100, default 2.",
-    "manders_thresholds": "(list) - Percentiles (0-100) at which Manders' overlap coefficients are computed. For each object, each entry thresholds both channels at that percentile; pixels above both count as overlap, and M1/M2 report each channel's fraction of total object intensity there, saved as M1_correlation_<t> and M2_correlation_<t>. High values isolate the brightest puncta. Requires calculate_correlation. Default [15, 85, 95].",
+    "manders_thresholds": "(list) - Percentiles (0-100) used by the activation-map correlation report in spacr.deep_spacr. It no longer affects a measure run: the percentile-pair columns it drove there were removed on 2026-09-02, and measure now writes the three standards-compliant Manders coefficients, which estimate each channel's background inside each object and take no percentile. Default [15, 50, 75].",
     "mask": "(bool) - Whether to generate masks for the segmented objects. If True, masks will be generated for the nucleus, cell, and pathogen.",
     "measurement": "(str) - Measurement column(s) from measurements.db used to prefilter which object crops the annotator loads, applied together with threshold and threshold_direction. Accepts a single column, a comma-separated list (each paired with the same-index threshold), or a JSON list-of-lists where an inner pair is filtered as a ratio (first divided by second). Empty (default) loads every crop unfiltered.",
     "merge_edge_pathogen_cells": "(bool) - During measurement, reconcile pathogens straddling two host-cell masks: if 90 percent or more of the pathogen lies in one cell, its pixels in the neighbours are erased; otherwise the overlapping cell labels are fused into a single cell. Switch off to keep the raw cell segmentation when parasites legitimately touch two cells. Default True.",
@@ -4532,9 +4536,8 @@ tooltips = {
     "png_size": "(list of int) - Output crop size as [width, height] in pixels, centred on the object centroid; larger keeps more surroundings, smaller clips large objects. Should match the classifier input size (default [224,224]). With several crop_mode entries pass a list of lists, one size per mode, or a single size is reused for all.",
     "positive_control": "(str) - Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
     "preprocess": "(bool) - Run image preparation before segmentation: group raw files into per-field channel stacks, optionally subtract background, and percentile-normalize each channel into floating-point arrays. Keep True for unprocessed input; set False only when the normalized arrays already exist, because segmentation requires those arrays. Default True.",
-    "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default False.",
+    "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
     "spatial_neighbor_radius": "(int) - Radius used by spatial_measurements when counting neighbouring objects. The value is expressed in the units recorded for the measurement table: pixels for two-dimensional data and micrometres for calibrated three-dimensional data. The radius is included in the output column name, so use one value consistently across plates that will be combined. Ignored unless spatial_measurements is enabled. Default 50.",
-    "corrected_manders": "(bool) - Add standards-compliant Manders coefficients (manders_m1, manders_m2 and manders_overlap_coefficient) alongside the deprecated M1_correlation_* columns, which use a different definition. Existing columns remain unchanged for compatibility across measurement runs. Use the new columns for Manders analyses. Default False.",
     "radial_dist": "(bool) - Measure how each channel's intensity varies with distance from the nucleus, pathogen and organelle boundaries inside each cell, binned into 6 shells and saved as <object>_rad_dist_channel_<c>_bin_0-5. Keep it on to quantify recruitment or intensity gradients toward an object; turn it off to shrink the feature table and speed up measurement. Default True.",
     "random_test": "(bool) - Seed the random draw of test-mode image sets with a fixed value (42), so every test run picks the same subset and results stay comparable. The selection is shuffled either way; set False when you want a different random subset each run to check that behaviour is not subset-specific. Default True.",
     "randomize": "(bool) - Shuffle the order of the per-field arrays before they are grouped into normalization batches, so each batch spans plates and wells instead of one acquisition block - this matters because normalization percentiles are computed per batch. Forced to False for timelapse runs to keep frames in sequence. Default True.",
@@ -5164,7 +5167,7 @@ categories = {
     #   * parasite_table / compartment, from "Invasion Assay", which name the
     #     table and compartment the objects are read from. Leaving them there
     #     made the Replication module render a heading called "Invasion Assay".
-    "Measurements": ["save_measurements", "calculate_correlation", "corrected_manders", "spatial_measurements", "spatial_neighbor_radius", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     # The flat-field correction Measure applies before it measures anything.
     # One heading, not the four the Illumination screen splits them across:
@@ -5418,7 +5421,7 @@ categories = {
     # today; the QC suite is where further diagnostic toggles will land.
     "Regression: Diagnostics": ["regression_qc"],
 
-    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "normalize_input"],
+    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input"],
 
     "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "expected_end", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 

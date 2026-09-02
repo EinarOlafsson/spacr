@@ -97,6 +97,16 @@ def organelle_label(role: str) -> str:
 #: not confused in settings forms.
 EXACT_LABELS = {
     "controls": "Control gRNA/Gene",
+    # "Src" is an abbreviation of an abbreviation: the humaniser capitalises
+    # the key and stops there, so the field that asks for the images read
+    # "Src". Asked for on 2026-09-01 -- "path should always just say path".
+    # The KEY stays `src`; every settings CSV in existence uses it.
+    #
+    # NOT applied to regression, which overrides this to "Output directory"
+    # in `settings_model._label_for`. That one is not an abbreviation, it is
+    # a more specific true statement -- regression's `src` is where results
+    # are written, not where images are read from.
+    "src": "Path",
     # "Sample" reads as the thing being sampled; it is a CAP on how many
     # crops are drawn. The key stays `sample` -- every settings CSV in
     # existence uses it, and this renames the label, not the setting.

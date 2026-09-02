@@ -1045,6 +1045,13 @@ RETIRED_SETTINGS: Dict[str, str] = {
     "infection_xgb_proba": "",
     "highlight": "",
     "guide_permutation_plot": "",
+    # Retired 2026-09-02 with the deprecated M1_correlation_<t> /
+    # M2_correlation_<t> columns it used to switch on. The correct
+    # coefficients it gated -- manders_m1, manders_m2 and
+    # manders_overlap_coefficient -- are now written unconditionally,
+    # so there is nothing left for it to choose and no replacement to
+    # name.
+    "corrected_manders": "",
 }
 #: NOT HERE: a setting withdrawn from ONE panel while `spacr.settings` still
 #: declares it. `log_x`, `log_y`, `x_lim`, `y_lims` and `png_type` left the
