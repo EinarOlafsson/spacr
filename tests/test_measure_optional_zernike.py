@@ -12,6 +12,21 @@ import pytest
 
 
 def _block_mahotas(monkeypatch):
+    from spacr import measure
+
+    # THE IMPORT AND THE CACHE OF THE IMPORT ARE TWO PIECES OF STATE.
+    # `_zernike_is_available` answers once per PROCESS and prints its notice
+    # with that first answer, so any earlier test that measured morphology --
+    # `tests/test_measure_3d.py` does, and needs no Mahotas to do it --
+    # leaves `_ZERNIKE_AVAILABLE` already False and the notice already spent.
+    # Blocking the import then proves nothing: the probe never runs and
+    # `test_automatic_morphology_skips_zernike_when_extra_is_missing` sees an
+    # empty capsys. Clearing the cache is what makes the block observable,
+    # and `monkeypatch` puts the previous answer back afterwards so this file
+    # does not become the next file's poisoner. Same shape as instruction
+    # 346's first cause, from the other side of it.
+    monkeypatch.setattr(measure, "_ZERNIKE_AVAILABLE", None)
+
     original = builtins.__import__
 
     def guarded(name, *args, **kwargs):

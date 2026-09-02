@@ -51,29 +51,67 @@ def _only_one_spacr_measure_survives_this_file():
     # module back and left the registry module rebuilt, which is exactly the
     # state that made `tests/test_measure_hooks.py` register its hooks into a
     # copy nobody reads.
-    # THE SAME PREDICATE `_reimport_measure` DELETES BY, and getting this
-    # wrong is how the first attempt at this fixture failed. That function
-    # says `startswith("spacr.measure")` -- no dot -- so it also removes
-    # `spacr.measure_hooks`, WHICH IS WHERE THE HOOK REGISTRY LIVES. A
-    # restore that matched only `spacr.measure` and `spacr.measure.*` put the
-    # module back and left the registry module rebuilt, which is exactly the
-    # state that made `tests/test_measure_hooks.py` register its hooks into a
-    # copy nobody reads.
     #
-    # WIDENING IT FURTHER DOES NOT HELP AND WAS TRIED: restoring the whole
-    # `spacr.` namespace leaves the same two failures, because the surviving
-    # stale reference is not in `sys.modules` at all. See instruction 346.
+    # WIDENING IT ACROSS `sys.modules` DOES NOT HELP AND WAS TRIED: restoring
+    # the whole `spacr.` namespace leaves the same failures, because the
+    # surviving stale reference is not in `sys.modules` at all.
+    #
+    # IT IS THE PARENT PACKAGE'S ATTRIBUTE. Importing `spacr.measure` sets
+    # `spacr.measure` as an attribute ON THE `spacr` MODULE OBJECT, and that
+    # binding is a SECOND piece of state that `sys.modules` does not own.
+    # Putting the original back in `sys.modules` leaves `spacr.measure` --
+    # the attribute -- pointing at the rebuilt copy, so the process ends up
+    # with the two copies reachable by two different routes:
+    #
+    #   sys.modules["spacr.measure"]  -> the ORIGINAL   (what `import` finds)
+    #   spacr.measure                 -> the REBUILT    (what getattr finds)
+    #
+    # and that split is what actually broke the later tests. `monkeypatch`
+    # resolves a dotted target by GETATTR from the package down
+    # (`_pytest.monkeypatch.resolve`), so `monkeypatch.setattr(
+    # "spacr.measure.measure_crop", fake)` patched the REBUILT copy, while
+    # `from .measure import measure_crop` inside the pipeline imported the
+    # ORIGINAL and ran the real thing. The same split raises
+    # `PicklingError: ... not the same object as spacr.measure.
+    # _measure_crop_core` when a pool pickles a worker function by name.
+    #
+    # So the restore has to put BOTH back, keyed the same way: the
+    # `sys.modules` entries, and the attribute each of them is bound to on
+    # its parent package.
     def _ours(name):
         return name.startswith("spacr.measure")
+
+    def _rebind(name, module):
+        """Make the parent package's attribute agree with ``sys.modules``.
+
+        UNCONDITIONALLY, and that is the point: by the time the second test
+        in this file runs the two are ALREADY split, so a restore that only
+        put back an attribute it had seen agreeing at setup would decline to
+        repair exactly the case it exists for.
+        """
+        parent_name, _, leaf = name.rpartition(".")
+        parent = sys.modules.get(parent_name)
+        if parent is None:
+            return
+        if module is None:
+            # Never imported before this file ran; leave nothing bound, so
+            # the next import builds one copy and binds it in both places.
+            if hasattr(parent, leaf):
+                delattr(parent, leaf)
+        else:
+            setattr(parent, leaf, module)
 
     saved = {name: module for name, module in sys.modules.items()
              if _ours(name)}
     try:
         yield
     finally:
-        for name in [n for n in list(sys.modules) if _ours(n)]:
+        rebuilt = [name for name in list(sys.modules) if _ours(name)]
+        for name in rebuilt:
             del sys.modules[name]
         sys.modules.update(saved)
+        for name in set(rebuilt) | set(saved):
+            _rebind(name, saved.get(name))
 
 
 def _reimport_measure():

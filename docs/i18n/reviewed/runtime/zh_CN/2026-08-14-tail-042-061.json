@@ -61,9 +61,9 @@
     {
       "table": "setting_tooltips",
       "key": "remove_background_pathogen",
-      "source_sha256": "824f0797ae269f9729e19a83b5be785aea1d23b916b24d56889cc016bb7805c8",
-      "source": "Before normalising the pathogen channel, hard-zero every pixel whose raw intensity is below pathogen_background. Enable it when diffuse autofluorescence inflates the low percentile and Cellpose starts segmenting haze; leave it off for dim parasites, since the clipping erases real signal and biases downstream intensity measurements. Default False.",
-      "translation": "归一化病原体图像数据通道前，把原始强度低于 pathogen_background 的每个像素强制设为零。当弥散自体荧光抬高低分位数并使 Cellpose 开始分割雾状背景时可启用；对于较暗的寄生虫应关闭，因为截断会擦除真实信号并使下游强度测量产生偏差。默认值为 False。"
+      "source_sha256": "44adbc9151e8526933fcce396bd833038e1e552c4ea3a56579a50a0fbc462071",
+      "source": "Before normalising the pathogen channel, hard-zero every pixel whose raw intensity is below pathogen_background. Enable it when diffuse autofluorescence inflates the low percentile and Cellpose starts segmenting haze; leave it off for dim parasites, since the clipping erases real signal and biases downstream intensity measurements. Default True.",
+      "translation": "归一化病原体图像数据通道前，把原始强度低于 pathogen_background 的每个像素强制设为零。当弥散自体荧光抬高低分位数并使 Cellpose 开始分割雾状背景时可启用；对于较暗的寄生虫应关闭，因为截断会擦除真实信号并使下游强度测量产生偏差。默认值为 True。"
     },
     {
       "table": "setting_tooltips",

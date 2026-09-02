@@ -62,6 +62,15 @@ def _settings_for(merged_dir, **over):
     s.update({
         "src": str(merged_dir),
         "channels": [0, 1, 2, 3],
+        # SIZE FILTERS OFF FOR SYNTHETIC FIELDS. Instruction 337 adopted the
+        # maintainer's own screening defaults, which are for a 40x plate:
+        # cell 8000 px2, nucleus 2000, pathogen 500. The objects drawn in
+        # these fixtures are a few dozen pixels, so the real defaults
+        # correctly remove every one of them and the test measures nothing.
+        # Stated here rather than relying on a permissive default, which is
+        # what made these tests depend on a value they never named.
+        "cell_min_size": 0, "nucleus_min_size": 0,
+        "pathogen_min_size": 0, "cytoplasm_min_size": 0,
         "cell_mask_dim": 4, "nucleus_mask_dim": 5, "pathogen_mask_dim": 6,
         "png_dims": [0, 1, 2], "png_size": [64, 64],
         "save_measurements": True, "save_png": True, "save_arrays": False,
