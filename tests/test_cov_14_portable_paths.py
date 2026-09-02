@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import os
 
+import pandas as pd
 import pytest
 
 from spacr import portable_paths
@@ -110,6 +111,27 @@ def test_a_database_path_yields_the_folder_above_measurements(tmp_path):
 
     assert portable_paths.source_root_for_database(str(db)) == \
         str(tmp_path / "plate1")
+
+
+def test_an_existing_crop_path_is_neither_moved_nor_reported_missing(tmp_path):
+    """A path already on this machine is a successful no-op.
+
+    This is the case where re-rooting returns no prefix because it had no work
+    to do.  It must not fall through to the unresolved-path bookkeeping merely
+    because the returned path equals the recorded one.
+    """
+    crops = [tmp_path / "already_here.png", tmp_path / "also_here.png"]
+    for crop in crops:
+        crop.write_bytes(b"crop")
+    recorded = [str(crop) for crop in crops]
+    frame = pd.DataFrame({"png_path": recorded})
+
+    report = portable_paths.reroot_column(frame, "png_path", str(tmp_path))
+
+    assert frame["png_path"].tolist() == recorded
+    assert report.moved == 0
+    assert report.unresolved == 0
+    assert report.first_unresolved == ""
 
 
 def test_a_database_file_is_read_as_the_folder_that_holds_it(tmp_path):
