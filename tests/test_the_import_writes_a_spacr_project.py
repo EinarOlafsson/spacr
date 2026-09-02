@@ -89,27 +89,56 @@ def test_a_plan_with_problems_is_refused(corpus, tmp_path):
         not list((tmp_path / "refused").iterdir())
 
 
-def test_tiles_cannot_be_written_without_being_asked_about(corpus, tmp_path):
-    """spaCR's filename has NO TILE SLOT, and that must not be silent.
+def test_tiles_are_stitched_back_into_the_field_they_came_from(corpus,
+                                                               tmp_path):
+    """The maintainer's decision, 2026-09-02: "tiles be stitched at import
+    with the option to not stitch but stitch by default."
 
-    A field split into four tiles produces four images with one canonical
-    name. Overwriting three of them is exactly the failure this module exists
-    to prevent, so by default they are skipped WITH A REASON, and turning
-    tiles into fields is something the caller says explicitly -- because it
-    discards the fact that they are one field, which anything stitching or
-    measuring per field then gets wrong.
+    It is also what makes spaCR's filename sufficient. The convention has no
+    tile slot, so four tiles of one field share one canonical name -- and
+    stitching removes the question instead of answering it, because a
+    stitched field IS one image with one name.
     """
     plan = plan_import(corpus["tiled"].root)
     assert plan.counts().get("tile") == 4, "the tile axis was not even found"
 
-    refused = apply_import(plan, tmp_path / "refused")
-    assert refused.written == 8
-    assert len(refused.skipped) == 24
-    assert all("axis is missing" in why for why in refused.skipped.values())
+    stitched = apply_import(plan, tmp_path / "stitched")
+    #: 2 wells x 2 fields x 2 channels, each from its four tiles.
+    assert stitched.written == 8
+    assert stitched.stitched == 8
+    assert not stitched.skipped
+    written = sorted(p.name for p in stitched.destination.iterdir())
+    assert len(written) == 8
+
+    # THE CORPUS TILES ARE BLANK, so there is nothing for the placement to
+    # correlate and the mosaic says so rather than claiming a seam it did
+    # not measure. That report is the point: a butt-joined field a user was
+    # told about is a different thing from one they were not.
+    assert len(stitched.unverified) == 8
+    assert all("unverified" in why for why in stitched.unverified.values())
+    assert "unverified" in stitched.summary()
+
+
+def test_the_tiles_themselves_can_still_be_had(corpus, tmp_path):
+    """The opt-out, and the older answer under it.
+
+    ``tiles_as_fields`` is the more specific request and takes precedence:
+    a caller who says each tile is a field has said what they want. With
+    both off, tiled images are skipped WITH A REASON -- the only honest
+    answer before stitching existed, and still better than writing three of
+    four images over each other.
+    """
+    plan = plan_import(corpus["tiled"].root)
 
     asked = apply_import(plan, tmp_path / "asked", tiles_as_fields=True)
     assert asked.written == 32, "an image was lost with tiles_as_fields on"
+    assert asked.stitched == 0
     assert not asked.skipped
+
+    refused = apply_import(plan, tmp_path / "refused", stitch_tiles=False)
+    assert refused.written == 8
+    assert len(refused.skipped) == 24
+    assert all("axis is missing" in why for why in refused.skipped.values())
 
 
 def test_a_saved_plan_reproduces_the_import(corpus, tmp_path):

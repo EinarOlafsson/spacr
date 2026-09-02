@@ -677,6 +677,11 @@ class ImportResult:
     :param linked: how many were symlinked rather than copied.
     :param bytes_saved: source bytes not duplicated by linking.
     :param skipped: source paths that were not written, with the reason.
+    :param stitched: fields assembled from several tiles.
+    :param unverified: written name -> why its seams are not believed. A
+        stitch whose tiles correlate on nothing is still the best answer
+        available, and saying so is the difference between a field a user
+        can check and one they cannot.
     """
 
     destination: Path
@@ -684,6 +689,8 @@ class ImportResult:
     linked: int = 0
     bytes_saved: int = 0
     skipped: Dict[str, str] = field(default_factory=dict)
+    stitched: int = 0
+    unverified: Dict[str, str] = field(default_factory=dict)
 
     def summary(self) -> str:
         """What was written, what was not, and why.
@@ -699,6 +706,11 @@ class ImportResult:
         from .data_manager import human_bytes
 
         lines = [f"{self.written} image(s) written to {self.destination}"]
+        if self.stitched:
+            lines.append(f"{self.stitched} field(s) assembled from their "
+                         f"tiles")
+        for name, why in sorted(self.unverified.items())[:10]:
+            lines.append(f"  ? {name}: {why}")
         if self.linked:
             lines.append(
                 f"{self.linked} linked rather than copied -- "
@@ -713,9 +725,66 @@ class ImportResult:
         return "\n".join(lines)
 
 
+def _stitch_fields(plan: "ImportPlan", entries: Dict[str, Dict[str, object]],
+                   destination: Path, plate: str):
+    """Write one image per field from the tiles of that field.
+
+    Returns ``(entries without the tiles, written name -> what made it,
+    written name -> why its seams are doubted, source -> why it was
+    skipped)``.
+
+    THE GROUPING IS THE CANONICAL NAME MINUS THE TILE, which is exactly the
+    collision that made tiles a problem in the first place: images sharing a
+    canonical name are images of one field, and the tile index is the axis
+    that distinguishes them. So the thing that used to make the import lose
+    images is the thing that says which images belong together.
+    """
+    from .image_stitch import plan_mosaic, stitch_tiles as stitch
+
+    groups: Dict[str, List[Tuple[object, str]]] = {}
+    for rel, entry in entries.items():
+        if "tile" not in entry:
+            continue
+        groups.setdefault(canonical_name(entry, plate=plate), []).append(
+            (entry["tile"], rel))
+
+    remaining = {rel: entry for rel, entry in entries.items()
+                 if "tile" not in entry}
+    made: Dict[str, str] = {}
+    unverified: Dict[str, str] = {}
+    skipped: Dict[str, str] = {}
+    for name, members in sorted(groups.items()):
+        members.sort(key=lambda pair: str(pair[0]))
+        tiles = [tile for tile, _rel in members]
+        paths = [plan.root / rel for _tile, rel in members]
+        array, mosaic = stitch(paths, tiles)
+        if array is None:
+            # NOT WRITTEN AND NOT GUESSED AT. A field whose tiles cannot be
+            # read is a field nobody can stitch, and writing one tile of it
+            # under the field's name would be a quarter of a field wearing
+            # the name of the whole.
+            for _tile, rel in members:
+                skipped[rel] = (f"the tiles of {name} could not be read as "
+                                f"one field, so it was not written")
+            continue
+        try:
+            import tifffile
+
+            tifffile.imwrite(str(destination / name), array)
+        except Exception as exc:                         # noqa: BLE001
+            for _tile, rel in members:
+                skipped[rel] = f"could not write the stitched {name}: {exc}"
+            continue
+        made[name] = f"{len(members)} tiles"
+        if not mosaic.is_believed:
+            unverified[name] = mosaic.describe()
+    return remaining, made, unverified, skipped
+
+
 def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
                  plate: str = "plate1",
-                 tiles_as_fields: bool = False) -> ImportResult:
+                 tiles_as_fields: bool = False,
+                 stitch_tiles: bool = True) -> ImportResult:
     """Write the spaCR project ``plan`` describes.
 
     LINKS BY DEFAULT, AND THAT IS THE POINT. ``consolidate`` -- the closest
@@ -733,20 +802,31 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
     :param destination: the plate folder to create.
     :param link: symlink rather than copy. Falls back to copying per file.
     :param plate: the plate name to write into the filenames.
-    :param tiles_as_fields: give each tile its own field number.
+    :param stitch_tiles: put each field's tiles back together into the one
+        image the field is. ON BY DEFAULT, decided by the maintainer on
+        2026-09-02: "tiles be stitched at import with the option to not
+        stitch but stitch by default."
 
-        spaCR's filename has no tile slot. The convention the core modules
-        read is plate/well/T/field/L/A/Z/channel, so a field split into four
-        tiles produces four images with one name and three of them would be
-        overwritten. The corpus found this: a tiled tree resolves `tile: 4`
-        perfectly and then cannot be written.
+        THIS IS WHY THE FILENAME NEEDS NO TILE SLOT. The convention the core
+        modules read is plate/well/T/field/L/A/Z/channel, so four tiles of
+        one field produce four images with one name and three would be
+        overwritten. Stitching removes the question rather than answering
+        it: a stitched field IS one image with one name, and nothing
+        downstream has to learn what a tile is. See
+        :mod:`spacr.image_stitch` for how the placement is worked out, and
+        for what it does when the tiles give it nothing to work with.
+    :param tiles_as_fields: give each tile its own field number instead.
 
-        Off by default, because silently turning tiles into fields discards
-        the fact that they are ONE field -- anything that stitches them, or
-        measures per field, is then wrong in a way nothing announces. On, each
-        tile becomes its own field, every image survives, and the caller has
-        said that is what they want. Stitching is the other answer and is not
-        this function's job.
+        THE OPT-OUT, and it takes precedence over ``stitch_tiles`` because
+        it is the more specific request: a caller who says "each tile is a
+        field" has said what they want the tiles to be. It discards the fact
+        that they are ONE field, so anything measuring per field is then
+        counting quarters of one -- which is why it is not the default.
+
+        With both off, tiled images are SKIPPED with a reason rather than
+        overwritten. That was the only honest answer before stitching
+        existed, and it is kept because refusing to write is still better
+        than writing three of four images over each other.
     :raises ValueError: when the plan still has problems.
     """
     import os
@@ -776,7 +856,22 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
             by_well[well] = by_well.get(well, 0) + 1
             tile_fields[(well, fld, tile)] = by_well[well]
 
-    for rel, entry in sorted(plan.files.items()):
+    # THE TILES COME OUT OF THE LOOP FIRST, because a stitched field is one
+    # image made of several sources and the loop below writes one image per
+    # source. Everything else is untouched: a tree with no tile axis takes
+    # exactly the path it took before stitching existed.
+    entries = dict(plan.files)
+    stitched_count = 0
+    unverified: Dict[str, str] = {}
+    if stitch_tiles and not tiles_as_fields:
+        entries, made, unverified, stitch_skipped = _stitch_fields(
+            plan, entries, destination, plate)
+        skipped.update(stitch_skipped)
+        used.update(made)
+        stitched_count = len(made)
+        written += stitched_count
+
+    for rel, entry in sorted(entries.items()):
         source = (plan.root / rel).resolve()
         if tiles_as_fields and "tile" in entry:
             entry = dict(entry)
@@ -811,4 +906,5 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
         written += 1
 
     return ImportResult(destination=destination, written=written,
-                        linked=linked, bytes_saved=saved, skipped=skipped)
+                        linked=linked, bytes_saved=saved, skipped=skipped,
+                        stitched=stitched_count, unverified=unverified)

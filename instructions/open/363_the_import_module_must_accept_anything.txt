@@ -6,9 +6,11 @@ Status:    END TO END, GUI INCLUDED. Corpus, inference, file metadata,
            reviewable plan, saved plans, project writing AND the screen all
            work, and all 10 corpus layouts import to a plate spaCR's own
            parser reads -- against 2 of 10 for the fixed convention list.
-           LEFT: stitching tiles, which the maintainer decided on 2026-09-02
-           (see the tiles section). Filed as 360, renumbered to 363 the same
-           day (see 362 for why).
+           Tiles are stitched back into their field, which the maintainer
+           decided on 2026-09-02, so the filename needs no tile slot. LEFT:
+           retiring `metadata_type` and `consolidate`, which is deliberately
+           a separate change. Filed as 360, renumbered to 363 the same day
+           (see 362 for why).
 Requested: 2026-09-02, verbatim -- "spacr has an import data module, this
            module should make it easy for users to import their images
            irrespective of format or naming structure into spacr so that the
@@ -327,11 +329,54 @@ templates.
   stitched at import with the option to not stitch but stitch by default."
   So the canonical filename does NOT grow a tile slot -- stitching removes
   the need for one, because a stitched field IS one image with one name.
-  `tiles_as_fields` stays as the opt-out for anyone who wants the tiles
-  themselves, and the default becomes: assemble the tiles of a field into
-  one image and write that.
 
-  STILL TO DO: the stitcher.
+  DONE, in `spacr/image_stitch.py`. `apply_import(stitch_tiles=True)` is the
+  default; the screen offers all three answers as one control, because each
+  loses something different: stitch, keep each tile as a field, skip them.
+
+  A TILE INDEX IS NOT A POSITION, and that is the whole difficulty. `tile03`
+  says an image is the third of some number; it does not say where it goes,
+  what order the stage walked, or how far the tiles overlap. Each of those
+  comes from evidence, in this order:
+
+    1. THE FILE'S OWN STAGE COORDINATES. An OME-TIFF records PositionX/Y in
+       microns and the pixel size beside them, so the layout is read rather
+       than inferred. It is also the only thing that can place BLANK tiles,
+       which correlate on nothing.
+    2. THE PIXELS. Adjacent tiles overlap, and the overlap is the same
+       picture twice. This also settles the ORDER: row-major and serpentine
+       put different tiles beside each other, so the arrangement that
+       correlates is the one the microscope used -- and a serpentine field
+       read row-major has its bottom row reversed, which looks almost right.
+    3. NOTHING, in which case it says so. Tiles are butt-joined and the
+       mosaic is marked `assumed`, which reaches the screen as "the seams
+       are unverified".
+
+  MEASURED, AND IT CHANGED THE ALGORITHM. The first cut picked the tallest
+  phase-correlation peaks and scored those. Phase-peak height goes with the
+  AREA two tiles share, so at a 6% overlap -- an ordinary acquisition
+  setting -- the true displacement did not appear in the top TWELVE peaks
+  while scoring 1.00 on the overlap it implies. It now scores every
+  admissible displacement instead, which an FFT gives all at once, and there
+  is nothing left to miss.
+
+  AND THE PERPENDICULAR OFFSET CANNOT WAIT UNTIL AFTERWARDS, which the
+  second cut assumed. A stage misses its row by a few pixels every field,
+  and two tiles compared three pixels out of step correlate on nothing --
+  so the search picked a displacement out of the noise and the pair was
+  written off as unmeasurable. The offset is part of the search now, and
+  every tile is placed from its own measurement rather than from a grid
+  pitch: a uniform grid puts the stage's error into the seam, where it
+  doubles a structure or drops a strip.
+
+  18 tests in `tests/test_the_tiles_of_a_field_are_put_back_together.py`.
+  The measure is RECONSTRUCTION -- cut a known field into overlapping tiles,
+  stitch, and assert the pixels come back -- because "it produced an image"
+  is what a mosaic assembled at the wrong overlap also does.
+
+  STILL TO DO: nothing known. 363 is ready to close once the retirement of
+  `metadata_type` and `consolidate` is scheduled (see above: land, migrate,
+  then retire -- and this is the "land" half).
 
 --------------------------------------------------------------------------------
 ALREADY FIXED WHILE WRITING THIS FILE

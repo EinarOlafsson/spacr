@@ -170,6 +170,9 @@ _DOCUMENTED_SUBMODULES: tuple[str, ...] = (
     "seg_qc",
     "model_compare",
     "image_import",
+    # The other half of reading a folder of images: a field that arrived as
+    # tiles is put back together, so spaCR's filename needs no tile slot.
+    "image_stitch",
     "model_zoo",
     "batch",
     "batch_correction",
