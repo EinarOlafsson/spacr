@@ -33,6 +33,7 @@ from .empty_state import EmptyState
 # any late registered block to the screen before its first paint.
 from .hover_tooltip import HoverTooltip
 from .info_link import InfoLink
+from .object_settings_grid import ObjectSettingsGrid, ObjectSettingsModel
 from .section import Section
 from .tile import HTile, Tile
 from .toggle import Toggle
@@ -89,7 +90,8 @@ __all__ = [
     "ElidingLabel", "ElidingPushButton",
     "EmptyState", "FigureQueue", "GraphBuilderPanel", "GraphCanvas",
     "HTile", "HoverTooltip", "InfoLink",
-    "ImageUmapExplorer", "LivePreviewPanel", "Section",
+    "ImageUmapExplorer", "LivePreviewPanel",
+    "ObjectSettingsGrid", "ObjectSettingsModel", "Section",
     "Tile", "Toggle",
     "UsageBar",
 ]

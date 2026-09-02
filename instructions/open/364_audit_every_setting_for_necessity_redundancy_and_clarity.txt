@@ -244,3 +244,53 @@ questions.
 
 STILL TO BUILD: the GUI that renders it, and the same treatment for the
 remaining modules in this file's order.
+
+--------------------------------------------------------------------------------
+2026-09-02: THE TABLE IS BUILT -- MODEL AND VIEW
+--------------------------------------------------------------------------------
+
+`spacr/object_settings_table.py` was the model and drew nothing; the view is
+now `spacr/qt/widgets/object_settings_grid.py`. One row per question, one
+column per object, and the button that widens it.
+
+WHAT IT COSTS THE SETTINGS FILE: nothing, and that is the whole design.
+`to_table` reads a flat dict and `from_table` writes it back, so the stored
+keys are unchanged and no settings file, notebook, tutorial or `spacr-run`
+invocation migrates. `test_showing_a_settings_dict_changes_nothing_in_it`
+round-trips Mask's own 201 defaults and checks the TYPE of every value as
+well as its value.
+
+TWO THINGS THE VIEW HAD TO GET RIGHT, both of which corrupt a settings file
+rather than merely look wrong, and both now pinned:
+
+  * A VALUE KEEPS ITS TYPE. A table hands back strings. `cell_background` is
+    an int and `organelle_cellprob_threshold` is a float -- the SAME question
+    with two types, which is exactly the case a single "cast to the row's
+    type" rule gets wrong. Where the cell being replaced is None there is no
+    type to copy, so the same question asked about another object is used
+    instead: a diameter is a diameter whether it is a cell's or a nucleus's.
+  * A QUESTION AN OBJECT DOES NOT ASK STAYS ABSENT. `cytoplasm` is derived --
+    cell minus the rest -- so it has no channel, no diameter and no detection
+    method. Those cells are not editable, because a value typed there invents
+    a settings key nothing reads. They read as blank rather than as `auto`,
+    which is a different claim: `auto` means "work it out" and is what an
+    unset diameter says.
+
+WHERE IT MEETS 326. Adding an organelle is `widen()` -- one column, seeded
+from the first organelle's answers rather than from a global default nobody
+chose. The question count does not move. In the flat vocabulary the same
+operation was twenty new settings that every consumer, tooltip table and
+translation catalog had to learn, which is why 326's ceiling could not be
+raised before this existed. The column headers are NUMBERED ("Organelle 2"),
+never lettered, per the maintainer on the same day.
+
+The ceiling is refused out loud rather than hit silently: at 26 the button
+says the slots are lettered and the alphabet is what runs out.
+
+STILL TO DO: mounting the grid on Mask's own settings form in place of the
+78 flat rows, which is `spacr/qt/screens/settings_model.py`. Held back only
+because that file was in another agent's hands this session; the widget is
+finished and tested against Mask's real defaults
+(`tests/qt/test_the_per_object_settings_are_one_table.py`, 13 tests).
+Then the remaining modules in this instruction's order, and then preferences
+and spaceout as the request asks.
