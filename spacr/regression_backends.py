@@ -68,9 +68,13 @@ import os
 import sys
 from html import escape
 
-from .regression_spec import (ALL_REGRESSION_TYPES, DEFAULT_REGRESSION_BACKEND,
-                              REGRESSION_BACKENDS, REGRESSION_BACKEND_LABELS,
-                              REGRESSION_BACKEND_ORDER, REGRESSION_TYPES)
+from .regression_spec import (
+    ALL_REGRESSION_TYPES,
+    DEFAULT_REGRESSION_BACKEND,
+    REGRESSION_BACKEND_LABELS,
+    REGRESSION_BACKEND_ORDER,
+    REGRESSION_BACKENDS,
+)
 
 __all__ = [
     "resolve_backend_name", "backend_label", "backend_supports",
@@ -222,6 +226,13 @@ def backend_status(name, regression_type=None) -> dict:
     }
 
     def refuse(reason, short):
+        """Disable and explain the captured backend status.
+
+        :param reason: full user-facing explanation of the refusal.
+        :param short: combo-entry-length form of the same explanation.
+        :returns: the captured status mapping after setting ``enabled`` false
+            and storing both explanations.
+        """
         status['enabled'] = False
         status['reason'] = reason
         status['short_reason'] = short
@@ -617,8 +628,7 @@ def backend_install_offer(name, regression_type=None):
         is fixed by choosing another family, not by installing anything.
     :returns: a :class:`spacr.updater.InstallOffer`.
     """
-    from .updater import (offer_elsewhere, offer_impossible, offer_install,
-                          offer_ready)
+    from .updater import offer_elsewhere, offer_impossible, offer_install, offer_ready
 
     key = resolve_backend_name(name)
     spec = REGRESSION_BACKENDS[key]
