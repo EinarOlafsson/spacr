@@ -1,0 +1,82 @@
+================================================================================
+REGRESSION'S INPUT TABLES START WITH THE DOWNLOAD BUTTONS, NOT END WITH THEM
+================================================================================
+
+Status:    not started, filed 2026-09-02.
+Requested: 2026-09-02, verbatim -- "in the regression module. the downloade
+           setting in input tables with the downloade buttons, should be at
+           the top above the paired data setting if you can allign each button
+           to their respective columns below in the table that would be
+           perfect. potentially you could just make another table above Paired
+           data table and puit the buttons in the table and center the butons
+           to the center of each cell and lock the width of the downloade
+           table columns to the width of the paired data column counterparts
+           below. but in any cas the input tables sould start with download
+           buttons not end wit them."
+Owner:     spacr/qt -- the Regression screen's Input Tables category.
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED FOR, IN TWO PARTS OF DIFFERENT SIZE
+--------------------------------------------------------------------------------
+
+THE REQUIREMENT: the download buttons move to the TOP of Input Tables, above
+`paired_data`. "in any cas the input tables sould start with download buttons
+not end wit them" -- that sentence is the acceptance criterion and it is
+satisfied by reordering alone.
+
+THE PREFERENCE: each download button sits above the column it fills, in a
+second table whose column widths are locked to the paired-data table below,
+with each button centred in its cell. "if you can allign each button to their
+respective columns below in the table that would be perfect."
+
+DO THE REQUIREMENT FIRST AND SHIP IT. The preference is worth doing and is
+strictly harder; a reorder that lands tonight is better than an alignment that
+lands next week, and the two are independent.
+
+--------------------------------------------------------------------------------
+WHY THE ALIGNMENT IS THE HARD HALF
+--------------------------------------------------------------------------------
+
+Two widgets whose columns must agree are two layouts that must be kept in
+step, and this repository already knows what that costs -- "One source of
+truth. Two editors of the same setting drift; the `_ClusterSettingsDialog`
+docstring records what it cost last time."
+
+So do NOT build a second table with its own column model and try to keep the
+widths equal by setting both. Either
+
+  * put the buttons in the SAME table as a header row or a first row, so
+    there is one column model and alignment is free; or
+  * have the button strip READ the paired-data table's column geometry
+    (`sectionSize`/`sectionPosition`) and follow it, one direction only,
+    re-reading on `sectionResized`.
+
+The first is simpler and cannot drift. Prefer it unless the table's model
+makes a widget row impossible.
+
+--------------------------------------------------------------------------------
+WATCH
+--------------------------------------------------------------------------------
+
+* The Input Tables category is defined in
+  `spacr/qt/screens/settings_model.py` under `_APP_CATEGORY_SPECS["regression"]`
+  and currently reads `("Input Tables", ("paired_data", "metadata_files",
+  "count_grna_column", "count_value_column", "independent_variable_layout",
+  "wide_predictor_columns", "src"))`. A reorder is an edit THERE, not in the
+  screen, and it moves the whole row rather than only the buttons -- check
+  which of those keys the download buttons actually belong to before moving
+  anything.
+* A column that is hidden or reordered by the user must not orphan a button
+  above it. If the table allows either, the strip has to follow.
+* 347 is changing what a settings row renders (the API dot and the animation
+  square). Both items touch the same rows; whoever does the second should read
+  the first's commit rather than re-deriving the layout.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* Input Tables renders the download buttons above `paired_data`, asserted on
+  widget order, not by eye.
+* If the alignment is done: each button's horizontal centre is within a pixel
+  or two of its column's centre, asserted after a resize as well as before.
