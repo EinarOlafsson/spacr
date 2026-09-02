@@ -1,0 +1,76 @@
+================================================================================
+A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
+================================================================================
+
+Status:    not started, filed 2026-09-02.
+Requested: 2026-09-02, verbatim -- "do a sweep of the entire package and make
+           user that all tesxt fits within its button, box or container, and
+           is not cut off at all." Reported alongside a concrete instance:
+           "in annotation the loade test data tooltips do not fit in the popup
+           window."
+Owner:     spacr/qt -- every screen, dialog and widget.
+
+--------------------------------------------------------------------------------
+THE KNOWN INSTANCE, WHICH IS THE PLACE TO START
+--------------------------------------------------------------------------------
+
+Annotate's "Load test data" tooltips overflow their popup. That is a concrete,
+reproducible case and it should be fixed and TURNED INTO THE MEASUREMENT the
+rest of the sweep uses -- one instance fixed by hand teaches nothing; one
+instance fixed with a check that then runs over every widget finds the others.
+
+--------------------------------------------------------------------------------
+WHY A SWEEP AND NOT A LIST
+--------------------------------------------------------------------------------
+
+Text is cut off for four different reasons and they need four different fixes,
+so an audit that only records "this one is clipped" produces a list nobody can
+act on:
+
+  * the string is too long for a fixed-width control  -> the string, or a
+    wrapping/eliding policy;
+  * the control has a fixed size that a longer TRANSLATION overflows -> the
+    layout, and it will only reproduce in one of the nine locales;
+  * a font scale other than 1.0 -> instruction 04 records that the tests
+    measured a font scale no user has, so a check that runs at one scale
+    proves nothing about the others;
+  * the container does not grow -> a layout stretch or size policy.
+
+THE TRANSLATION CASE IS THE ONE MOST LIKELY TO BE MISSED and the most likely
+to be wrong in the shipped product: German and Portuguese run materially
+longer than English for the same caption, and nobody reads those screens.
+Any sweep that runs only in English is a partial sweep and should say so.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Write the check first, against the Annotate instance, so it is known to
+   catch a real failure before it is trusted on anything else. For a rendered
+   widget, `QFontMetrics.boundingRect` of the text against the widget's
+   contents rect answers this without a screenshot.
+2. Run it over every screen and dialog, at more than one font scale, in
+   English AND in the longest locale.
+3. Fix by category, not one control at a time, and record which of the four
+   causes each fix addressed.
+
+--------------------------------------------------------------------------------
+WATCH
+--------------------------------------------------------------------------------
+
+* ELIDING IS NOT ALWAYS THE FIX. A tooltip that elides has lost the sentence
+  it existed to say. Prefer wrapping or a wider container for prose; elide
+  only identifiers and paths, where the head or tail is enough.
+* A control that grows can push its neighbour off the screen. Assert the
+  CONTAINER still fits too, or the sweep trades one clipped string for
+  another.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* The Annotate "Load test data" tooltip fits, asserted rather than eyeballed.
+* A committed check walks every screen and dialog and reports zero clipped
+  strings, at the default font scale and at the largest one preferences
+  offers, in English and in the longest-rendering locale.
+* Each fix names which of the four causes it was.

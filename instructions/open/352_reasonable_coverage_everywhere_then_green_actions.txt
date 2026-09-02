@@ -1,0 +1,87 @@
+================================================================================
+EVERY MODULE AT THE HIGHEST REASONABLE COVERAGE, THEN GREEN GITHUB ACTIONS
+================================================================================
+
+Status:    not started, filed 2026-09-02. THE STANDING GOAL AFTER THE LIST.
+Requested: 2026-09-02, verbatim -- "When you are done with all the items on
+           your instructions list, work on gettings all modules to the highest
+           reasonable test coverage (not 100% jut everything that makeses sese
+           to test should have a test) , and after that make sure github tests
+           are clean."
+Owner:     unassigned; this is what to pick up when `open/` is otherwise empty.
+
+--------------------------------------------------------------------------------
+THIS IS A CHANGE OF TARGET FROM 288, AND THAT IS THE POINT
+--------------------------------------------------------------------------------
+
+288 asks for 100% per module. This asks for "the highest REASONABLE coverage
+-- not 100%, just everything that makes sense to test". Those are different
+goals and the second is the maintainer's current one.
+
+WHAT THE DIFFERENCE BUYS, in this repository's own measured experience:
+
+  * 288's own file records that chasing the last items produced FOUR TESTS
+    THAT PASSED WHILE EXERCISING NOTHING -- every one asserted an absence,
+    which is what a function returns when it did not run. Those raise a
+    number and find nothing.
+  * `deep_spacr`'s remaining six arcs need a model, a data loader and a real
+    epoch. That is an integration test worth having for its own sake and a
+    terrible way to buy six items.
+  * The 2026-08-31 audit wrongly recorded 307 sites as "unreachable by
+    construction". The correction is real and useful -- an `except ImportError`
+    arm is ALWAYS drivable -- but the effort went into re-deriving reachability
+    rather than into finding defects.
+
+AGAINST THAT: the coverage sweep is also what FOUND the defects in instruction
+310, ninety-seven of them, because code behind a pragma has by construction
+never run. So the sweep pays for itself in bugs, not in percentage.
+
+THE READING TO WORK TO: cover what a reader would call a behaviour. Stop at
+what only a line counter would call one.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Last complete measurement (batched11, 2026-08-31, now stale): 99.87% lines,
+355 items across 108 of 510 modules. `spacr/sequencing.py` reached 100.00% on
+current source on 2026-09-02 and its 9 items should come off that list.
+
+    25 ml.py    24 io.py    23 plot.py    19 timelapse.py
+    13 qt/preferences.py    10 qt/screens/app_screen.py
+     8 measure.py    8 guide_attribution.py    7 utils.py
+     7 regression_annotation.py    6 spacrops.py    6 hyperparam.py
+     6 qt/widgets/cell_montage_view.py    6 deep_spacr.py
+
+THE MEASUREMENT IS THE HARD PART, NOT THE TESTS. Every trap is recorded in
+288 and in 288_coverage_state: run BATCHED not under xdist, measure a FROZEN
+tree, clear `/tmp/pytest-of-olafsson` first, and check the statement and file
+counts against the previous run rather than believing the combine step's log
+line. And do it in the `spacr` conda env -- `spacr12` lacks pytest-cov and
+exits 4 per batch while the wrapper reports success.
+
+--------------------------------------------------------------------------------
+AND THEN: GREEN ACTIONS
+--------------------------------------------------------------------------------
+
+Second, and only after the above: `tests.yml`, `compat-matrix.yml` and
+`docs.yml` green on one pushed nightly SHA. That is 288's and 05's gate as
+well, so this item does not duplicate them -- it says which order the
+maintainer wants them in.
+
+TWO THINGS IN THE WAY THAT ARE ALREADY KNOWN, and neither is a coverage
+problem: 345 (three annotate tests) and 346 (twenty-one measure tests) both
+fail ONLY IN COMPANY. A suite that is red only when run whole cannot be made
+green by adding tests to it.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* A fresh complete batched measurement, with its statement and file counts
+  matching the previous run, recorded with its date and commit.
+* Every module either at a coverage the reader agrees is reasonable, or named
+  here with the reason it stops short -- a decision not to test is a result
+  and is recorded like one.
+* No test added under this item asserts only an absence.
+* The three required workflows green on one pushed nightly SHA.
