@@ -265,16 +265,53 @@ def test_an_unreadable_answer_can_be_corrected(screen, corpus):
 # Tiles: the thing spaCR's filename cannot say
 # ---------------------------------------------------------------------------
 
-def test_the_tiled_tree_says_what_it_would_lose_before_it_loses_it(screen,
-                                                                   corpus):
-    """spaCR's convention has no tile slot, so four tiles of one field share
-    one name. The plan says so while it can still be prevented."""
+def test_the_report_says_what_each_tile_policy_will_do(screen, corpus):
+    """Each of the three choices loses something different, and only one of
+    them is recoverable by pressing the button again. So the report says
+    which, before the press rather than after it."""
     _scanned(screen, corpus["tiled"])
-    assert "tile" in screen.report_text().lower()
+    assert screen.tile_policy() == "stitch", "stitching is the default"
+    assert "assembled into 8 field" in screen.report_text()
 
+    assert screen.set_tile_policy("fields") is True
+    assert "field of its own" in screen.report_text()
+
+    assert screen.set_tile_policy("skip") is True
+    assert "SKIPPED" in screen.report_text()
+
+
+def test_a_tile_policy_that_is_not_offered_is_refused_inline(screen):
+    assert screen.set_tile_policy("mosaic") is False
+    assert screen.last_error
+    assert screen.tile_policy() == "stitch"
+
+
+def test_the_two_state_spelling_still_means_what_it_used_to(screen):
+    """`tiles_as_fields` predates the stitcher and callers still use it."""
     screen.set_tiles_as_fields(True)
-    screen._refresh_report()
-    assert "own field" not in screen.report_text()
+    assert screen.tile_policy() == "fields"
+    assert screen.tiles_as_fields() is True
+    screen.set_tiles_as_fields(False)
+    assert screen.tile_policy() == "stitch"
+    assert screen.stitch_tiles() is True
+
+
+def test_a_tiled_field_is_stitched_into_one_image_by_default(screen, corpus,
+                                                             tmp_path):
+    """The maintainer's decision, 2026-09-02: stitch by default. Eight
+    fields out of thirty-two tiles, and no image lost."""
+    destination = tmp_path / "stitched_project"
+    _scanned(screen, corpus["tiled"], destination)
+
+    assert screen.run_import() is True
+    result = screen.result()
+    assert result.written == 8
+    assert result.stitched == 8
+    assert not result.skipped
+    # The corpus tiles are blank, so nothing correlates and the screen says
+    # so rather than presenting a butt-joined field as a measured one.
+    assert "unverified" in screen.status_text()
+    assert screen.last_error
 
 
 def test_every_tile_survives_when_each_becomes_its_own_field(screen, corpus,
@@ -293,10 +330,12 @@ def test_every_tile_survives_when_each_becomes_its_own_field(screen, corpus,
 def test_tiles_are_skipped_with_a_reason_rather_than_overwritten(screen,
                                                                  corpus,
                                                                  tmp_path):
-    """The alternative is three of every four tiles disappearing silently,
+    """The answer before there was a stitcher, kept behind the third policy:
+    the alternative is three of every four tiles disappearing silently,
     which is exactly the failure this module was written against."""
     tree = corpus["tiled"]
     _scanned(screen, tree, tmp_path / "lossy_project")
+    screen.set_tile_policy("skip")
 
     assert screen.run_import() is True
     result = screen.result()

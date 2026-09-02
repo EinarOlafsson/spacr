@@ -70,6 +70,7 @@ from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QCheckBox,
+    QComboBox,
     QFileDialog,
     QHBoxLayout,
     QHeaderView,
@@ -92,10 +93,24 @@ from ..widgets.sortable_table import install_sorting
 
 __all__ = [
     "ANSWER_COLUMNS",
+    "TILE_POLICIES",
     "AnswerModel",
     "ImageImportScreen",
     "ProposalModel",
 ]
+
+#: What to do with a field that arrives as several tiles, as
+#: ``(label, value)``. STITCHING IS FIRST AND IS THE DEFAULT, decided by the
+#: maintainer on 2026-09-02: "tiles be stitched at import with the option to
+#: not stitch but stitch by default." The other two are the answers that
+#: existed before there was a stitcher, and each loses something a user
+#: should have to choose: keeping tiles as fields discards the fact that they
+#: are one field, and skipping them discards the images.
+TILE_POLICIES: Tuple[Tuple[str, str], ...] = (
+    ("Stitch into one field", "stitch"),
+    ("Keep each tile as a field", "fields"),
+    ("Skip tiled images", "skip"),
+)
 
 #: The answer table's columns. Only the last is editable: a token's POSITION
 #: and the VALUE seen there are facts about the folder, and letting either be
@@ -472,14 +487,18 @@ class ImageImportScreen(QWidget):
             "plate would otherwise cost 600 GB to import. Untick it if the "
             "project has to survive the originals moving, or if it is going "
             "somewhere symlinks do not work.")
-        self._tiles_box = QCheckBox("Each tile becomes its own field", self)
+        self._tiles_box = QComboBox(self)
+        for label, value in TILE_POLICIES:
+            self._tiles_box.addItem(label, value)
+        self._tiles_box.currentIndexChanged.connect(self._on_tiles_changed)
         self._tiles_box.setToolTip(
-            "spaCR's filename has no tile slot, so four tiles of one field "
-            "would share one name and three would be overwritten. Left off, "
-            "tiled images are SKIPPED and listed. Turned on, every tile "
-            "survives as a field of its own — at the cost of the fact that "
-            "they are one field, which anything measuring per field then "
-            "gets wrong. Stitch them first if that matters.")
+            "What to do when a field arrives as several tiles. Stitching is "
+            "the default and is what makes spaCR's filename enough: the "
+            "convention has no tile slot, so four tiles of one field would "
+            "share one name — and a stitched field IS one image with one "
+            "name. Keeping the tiles as fields discards the fact that they "
+            "are one field, which anything measuring per field then gets "
+            "wrong; skipping them loses them, with a reason.")
         self._btn_save_plan = QPushButton("Save plan…", self)
         self._btn_save_plan.clicked.connect(self._pick_save_plan)
         self._btn_load_plan = QPushButton("Load plan…", self)
@@ -488,6 +507,7 @@ class ImageImportScreen(QWidget):
         self._btn_import.setObjectName("PrimaryButton")
         self._btn_import.clicked.connect(self.run_import)
         act_row.addWidget(self._link_box)
+        act_row.addWidget(QLabel("Tiles"))
         act_row.addWidget(self._tiles_box)
         act_row.addStretch(1)
         act_row.addWidget(self._btn_save_plan)
@@ -585,13 +605,44 @@ class ImageImportScreen(QWidget):
         """Whether the import will symlink."""
         return self._link_box.isChecked()
 
+    def set_tile_policy(self, policy: str) -> bool:
+        """Choose what happens to a field that arrives as several tiles.
+
+        :param policy: one of the values in :data:`TILE_POLICIES`.
+        :returns: False for a policy that is not offered, with the reason
+            inline rather than as an exception into a GUI slot.
+        """
+        index = self._tiles_box.findData(str(policy))
+        if index < 0:
+            self._set_status(
+                f"{policy!r} is not a way to treat tiles; expected one of "
+                f"{', '.join(value for _label, value in TILE_POLICIES)}.",
+                error=True)
+            return False
+        self._tiles_box.setCurrentIndex(index)
+        return True
+
+    def tile_policy(self) -> str:
+        """What will happen to tiled fields: stitch, fields or skip."""
+        return str(self._tiles_box.currentData())
+
     def set_tiles_as_fields(self, on: bool) -> None:
-        """Whether each tile is given a field number of its own."""
-        self._tiles_box.setChecked(bool(on))
+        """Whether each tile is given a field number of its own.
+
+        The older two-state spelling of :meth:`set_tile_policy`, kept because
+        it is what a caller who has not heard of stitching means: off is now
+        the DEFAULT policy rather than the skip it used to be, since a
+        stitched field is what it always wanted.
+        """
+        self.set_tile_policy("fields" if on else "stitch")
 
     def tiles_as_fields(self) -> bool:
         """Whether tiles will be written as fields."""
-        return self._tiles_box.isChecked()
+        return self.tile_policy() == "fields"
+
+    def stitch_tiles(self) -> bool:
+        """Whether tiles will be assembled into the field they came from."""
+        return self.tile_policy() == "stitch"
 
     # -- pickers -----------------------------------------------------------
 
@@ -700,15 +751,13 @@ class ImageImportScreen(QWidget):
             if len(plan.layout.skipped) > 10:
                 lines.append(f"  ... and {len(plan.layout.skipped) - 10} more")
         problems = plan.problems()
-        tiled = self._tiles_at_risk()
+        tiled = self._tiled_images()
         if problems or tiled:
             lines.append("")
             lines += [f"  ! {issue}" for issue in problems]
             if tiled:
                 lines.append(f"  ! {tiled} image(s) are tiles of a field. "
-                             f"spaCR's filename has no tile slot, so they "
-                             f"would be skipped; tick 'each tile becomes its "
-                             f"own field' to keep them.")
+                             f"{self._tile_plan(tiled)}")
         self._set_report("\n".join(lines))
 
         counts = plan.counts()
@@ -726,17 +775,49 @@ class ImageImportScreen(QWidget):
                 f"Nothing has been written yet.")
         self._update_controls()
 
-    def _tiles_at_risk(self) -> int:
-        """How many images would be dropped for want of a tile slot.
+    def _tile_plan(self, tiled: int) -> str:
+        """What the current policy will do with ``tiled`` tile images.
 
-        Zero when the box is ticked, because then each tile becomes a field
-        and none is dropped. Counted BEFORE the import rather than reported
-        after it: the whole point of the plan is that a loss is visible while
-        it can still be prevented.
+        Said in the report BEFORE the import, because each of the three
+        choices loses something different and only one of them is
+        recoverable by pressing the button again.
         """
-        if self._plan is None or self.tiles_as_fields():
+        policy = self.tile_policy()
+        if policy == "stitch":
+            fields = len({canonical for canonical in (
+                imp.canonical_name(entry, plate=self.plate_name())
+                for entry in self._plan.files.values() if "tile" in entry)})
+            return (f"They will be assembled into {fields} field(s). Any "
+                    f"whose tiles do not correlate is butt-joined and said "
+                    f"so in the summary.")
+        if policy == "fields":
+            return ("Each will be written as a field of its own, which "
+                    "discards the fact that they are one field.")
+        return ("They will be SKIPPED: spaCR's filename has no tile slot, so "
+                "they would share one name. Stitch them instead to keep "
+                "them.")
+
+    def _tiled_images(self) -> int:
+        """How many of the images on screen are tiles of some field."""
+        if self._plan is None:
             return 0
         return sum(1 for entry in self._plan.files.values() if "tile" in entry)
+
+    def _tiles_at_risk(self) -> int:
+        """How many images the current tile policy would DROP.
+
+        Zero unless the policy is to skip them: stitching writes every tile
+        into a field and keeping them as fields writes every tile as one.
+        Counted BEFORE the import rather than reported after it -- the whole
+        point of the plan is that a loss is visible while it can still be
+        prevented.
+        """
+        return self._tiled_images() if self.tile_policy() == "skip" else 0
+
+    def _on_tiles_changed(self, *_args) -> None:
+        """The tile policy changed: it changes what the report has to say."""
+        if self._plan is not None:
+            self._refresh_report()
 
     # -- what the screen is showing ----------------------------------------
 
@@ -847,6 +928,7 @@ class ImageImportScreen(QWidget):
         link = self.link()
         plate = self.plate_name()
         tiles = self.tiles_as_fields()
+        stitch = self.stitch_tiles()
 
         def _job():
             """Write the project in the worker thread.
@@ -857,7 +939,7 @@ class ImageImportScreen(QWidget):
             stale answer.
             """
             return imp.apply_import(plan, dst, link=link, plate=plate,
-                                    tiles_as_fields=tiles)
+                                    tiles_as_fields=tiles, stitch_tiles=stitch)
 
         self._progress_bar.setVisible(True)
         self._set_status(f"Importing {len(plan.files)} image(s) into {dst}…")
@@ -887,16 +969,24 @@ class ImageImportScreen(QWidget):
             self._update_controls()
             return
         self._set_report(result.summary())
+        made = (f"Imported {result.written} image(s)"
+                + (f", {result.stitched} of them stitched from their tiles"
+                   if result.stitched else "")
+                + f" into {result.destination}")
         if result.skipped:
             self._set_status(
-                f"Imported {result.written} image(s) into {result.destination}, "
-                f"but {len(result.skipped)} were NOT written — see the summary "
-                f"for each one and why.", error=True)
+                f"{made}, but {len(result.skipped)} source image(s) were NOT "
+                f"written — see the summary for each one and why.", error=True)
+        elif result.unverified:
+            self._set_status(
+                f"{made}. {len(result.unverified)} field(s) had nothing to "
+                f"correlate, so their tiles were butt-joined and the seams "
+                f"are unverified — check those fields before measuring.",
+                error=True)
         else:
             self._set_status(
-                f"Imported {result.written} image(s) into "
-                f"{result.destination}. Point Mask at that folder — it is a "
-                f"spaCR project now, and no convention has to be chosen.")
+                f"{made}. Point Mask at that folder — it is a spaCR project "
+                f"now, and no convention has to be chosen.")
         self._update_controls()
 
     # -- controls ----------------------------------------------------------
