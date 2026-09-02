@@ -410,15 +410,38 @@ def test_the_folded_modules_no_longer_need_a_registry_row(qtbot):
     tables :func:`resolve_default_settings` and
     :func:`resolve_pipeline_entry` read. The assertion is the same
     question asked of the answer that is left.
+
+    THE ASSERTION MOVED ONCE, ON 2026-09-02. It was written on 2026-08-25 as
+    "not in APPS", which was then the same statement as "draws no tile". On
+    2026-08-31 `TILELESS_APPS` split those two: a module can hold a registry
+    row and still be absent from Home, which is how the modules reached from
+    a button inside another module -- Profiler, Trellis, Lineage, and
+    `train_compare` -- keep their name, sentence and maturity colour in one
+    place. `train_compare` was folded into Classify that same day and kept
+    its row deliberately, so the test had been failing on a proxy that had
+    stopped standing for the thing it was a proxy for.
+
+    So the question is asked directly now: a folded module must not be
+    OFFERED on Home. Dropping the row entirely is still the ordinary way to
+    do that and eight of the ten folds do it -- and for those, the stale
+    `APP_META` check is unchanged, because a row that is gone must not leave
+    its metadata behind.
     """
-    from spacr.qt.app import APP_META, APPS
+    from spacr.qt.app import APP_META, APPS, TILELESS_APPS
 
     folded = (list(map_barcodes.FOLDED_APPS) + list(classify.FOLDED_APPS)
               + list(measure.FOLDED_APPS) + list(ANNOTATE_FOLDS))
     rows = {row[0] for row in APPS}
     for key in folded:
-        assert key not in rows, f"{key} is folded but still draws a tile"
-        assert key not in APP_META, f"{key} kept a stale metadata entry"
+        if key in rows:
+            assert key in TILELESS_APPS, (
+                f"{key} is folded but still draws a tile. Fold it properly by "
+                f"dropping its registry row, or -- if the row is kept on "
+                f"purpose so one place holds its name, sentence and maturity "
+                f"-- say so by naming it in TILELESS_APPS."
+            )
+        else:
+            assert key not in APP_META, f"{key} kept a stale metadata entry"
         name, description, stage = map_barcodes.fold_description(key)
         assert name and description, f"{key} has nothing to show on a button"
         assert stage in ("alpha", "beta", "stable"), f"{key}: {stage!r}"
