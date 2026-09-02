@@ -735,7 +735,7 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
     :param plate: the plate name to write into the filenames.
     :param tiles_as_fields: give each tile its own field number.
 
-        SPACR'S FILENAME HAS NO TILE SLOT. The convention the core modules
+        spaCR's filename has no tile slot. The convention the core modules
         read is plate/well/T/field/L/A/Z/channel, so a field split into four
         tiles produces four images with one name and three of them would be
         overwritten. The corpus found this: a tiled tree resolves `tile: 4`
