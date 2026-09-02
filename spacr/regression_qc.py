@@ -3000,7 +3000,15 @@ def _grouped_residuals(ctx, column):
         raise PanelUnavailable(
             f"metadata has no {column!r} column (present: "
             f"{', '.join(map(str, ctx.metadata.columns[:8]))})")
-    keys = ctx.metadata[column].astype(str).to_numpy()
+    # Pandas 3 preserves missing values when ``astype(str)`` is applied to
+    # its native string dtype.  The resulting object array contains ``nan``;
+    # since ``nan != nan``, grouping on it creates a named but empty group and
+    # silently drops every well whose position is missing.  Normalise scalars
+    # at the Python boundary and give missing positions a stable display name.
+    keys = np.asarray([
+        "<missing>" if pd.isna(value) else str(value)
+        for value in ctx.metadata[column].to_numpy(dtype=object)
+    ])
     groups = sorted(pd.unique(keys), key=_natural_key)
     if len(groups) < 2:
         raise PanelUnavailable(
