@@ -2,9 +2,10 @@
 THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
 ================================================================================
 
-Status:    CORPUS, INFERENCE, FILE METADATA AND THE REVIEWABLE PLAN ALL WORK
-           -- 10 of 10 layouts, against 2 of 10 for the fixed convention
-           list. Saving a plan and writing the project are not started. The reviewable table, reading inside files, and
+Status:    END TO END IN CODE: corpus, inference, file metadata, reviewable
+           plan, saved plans and project writing all work, and all 10 corpus
+           layouts import to a plate spaCR's own parser reads -- against 2 of
+           10 for the fixed convention list. The GUI screen is not started. The reviewable table, reading inside files, and
            writing the project are not started. Filed as 360, renumbered to 363 the
            same day (see 362 for why).
 Requested: 2026-09-02, verbatim -- "spacr has an import data module, this
@@ -265,8 +266,39 @@ templates.
   would claim each file is channel 2. The plan carries `<axis>_count`
   separately for exactly this reason.
 
-  STILL TO DO for this part: saving and reloading a plan so the second import
-  of the week is one press, and writing the project.
+  THE PROJECT IS WRITTEN, AND SPACR'S OWN PARSER READS IT. `apply_import`
+  names every image in the convention `utils._get_regex('cellvoyager')`
+  already speaks, so every downstream module works unchanged. All ten corpus
+  layouts import to a plate the shipped parser reads -- that is the measure
+  that says the import is finished rather than finished-shaped.
+
+  IT LINKS RATHER THAN COPIES. `consolidate` copies every image to rearrange
+  its name, so a 300 GB plate costs 600 GB to import; nothing about renaming
+  requires duplicating bytes. Symlinks by default, per-file fallback to a
+  copy where they are unavailable, and the result reports what linking saved.
+
+  IT REFUSES A PLAN WITH PROBLEMS. The import is the irreversible half, and
+  every stated problem is a way for the result to be quietly wrong.
+
+  A SAVED PLAN REPRODUCES AN IMPORT, from the CLI, with no GUI -- a lab
+  images the same way every week and re-answering the same questions each
+  time is how a tool stops being used. The plan is re-derived from the folder
+  and the saved MAPPING rather than from a saved file table: the folder may
+  have gained images since, and replaying a stale table would silently import
+  last week's files.
+
+  FOUND BY DOING IT: SPACR'S FILENAME HAS NO TILE SLOT. The convention is
+  plate/well/T/field/L/A/Z/channel, so a field split into four tiles produces
+  four images with ONE canonical name and three would be overwritten. The
+  tiled tree resolves `tile: 4` perfectly and then cannot be written. By
+  default those images are SKIPPED WITH A REASON rather than overwritten, and
+  `tiles_as_fields=True` gives each tile its own field -- opt-in, because
+  turning tiles into fields discards the fact that they are one field, and
+  anything that stitches or measures per field is then wrong with nothing
+  announcing it. Stitching is the other answer and belongs elsewhere.
+
+  STILL TO DO for this part: the GUI screen over this, and deciding whether
+  the canonical filename should grow a tile slot.
 
 --------------------------------------------------------------------------------
 ALREADY FIXED WHILE WRITING THIS FILE
