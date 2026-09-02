@@ -93,6 +93,25 @@ def test_auto_layout_accepts_long_and_wide_count_tables():
     assert set(normalized["grna"]) == {"g1", "g2"}
 
 
+def test_auto_layout_accepts_the_legacy_grna_name_header():
+    """The downloadable example uses the header process_reads already accepts."""
+    legacy = pd.DataFrame(
+        {
+            "plateID": ["p1", "p1"],
+            "rowID": ["r1", "r1"],
+            "columnID": ["c1", "c1"],
+            "grna_name": ["g1", "g2"],
+            "count": [7, 3],
+        }
+    )
+
+    normalized, resolved = normalise_count_table_layout(legacy, layout="auto")
+
+    assert resolved == "long"
+    assert normalized["grna"].tolist() == ["g1", "g2"]
+    assert "grna_name" not in normalized.columns
+
+
 def test_partial_long_signature_is_refused_instead_of_guessed_wide():
     frame = pd.DataFrame({"grna": ["g1"], "p1": [4]})
     try:

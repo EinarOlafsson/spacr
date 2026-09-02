@@ -125,6 +125,7 @@ def test_the_screen_term_becomes_real_design_columns():
     n = 40
     frame = pd.DataFrame({
         SCREEN_KEY: ["A"] * (n // 2) + ["B"] * (n // 2),
+        "plateID": ["plate1"] * n,
         "rowID": [f"r{i % 4}" for i in range(n)],
         "columnID": [f"c{i % 5}" for i in range(n)],
         "predictions": rng.normal(size=n),
@@ -154,6 +155,7 @@ def test_a_constant_screen_would_have_been_rank_deficient():
     n = 30
     frame = pd.DataFrame({
         SCREEN_KEY: ["only_one"] * n,          # a single-screen project
+        "plateID": ["plate1"] * n,
         "rowID": [f"r{i % 3}" for i in range(n)],
         "columnID": [f"c{i % 5}" for i in range(n)],
         "predictions": rng.normal(size=n),

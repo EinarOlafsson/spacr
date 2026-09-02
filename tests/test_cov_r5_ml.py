@@ -578,13 +578,13 @@ def _score_csv(path, n_wells=4, n_cells=30, seed=7):
     return str(path)
 
 
-def test_a_cell_count_sweep_that_drew_nothing_reports_no_minimum(
+def test_a_cell_count_sweep_returns_the_same_minimum_without_a_renderer(
         tmp_path, monkeypatch, capsys):
-    """No figure means no answer, rather than a number nobody can check.
+    """A renderer refusal must not erase the numerical sweep result.
 
-    The elbow is read off the curve, so a run with nowhere to draw it has not
-    measured a minimum cell count -- and returning one anyway would put an
-    unaudited threshold into ``process_scores``.
+    The elbow is calculated from the curve before the optional renderer sees
+    it.  Plot availability therefore changes only the saved evidence, not the
+    threshold passed into ``process_scores``.
     """
     settings = {
         'score_data': _score_csv(tmp_path / 'scores.csv'),
@@ -595,20 +595,22 @@ def test_a_cell_count_sweep_that_drew_nothing_reports_no_minimum(
 
     monkeypatch.setattr(ml, '_draw_the_cell_count_sweep',
                         lambda summary, mark, path: None)
-    assert ml.minimum_cell_simulation(
+    np.random.seed(17)
+    answer_without_figure = ml.minimum_cell_simulation(
         dict(settings), num_repeats=2, increment=10,
-        dst=str(tmp_path / 'out')) is None
+        dst=str(tmp_path / 'out'))
+    assert answer_without_figure is not None
     assert 'Saved' not in capsys.readouterr().out
 
-    # with a figure the same screen answers with its elbow, so the None above
-    # is the missing drawing and not the sweep declining to measure
+    # The positive counterpart proves the renderer changes only the artifact.
     written = tmp_path / 'out' / 'cell_min_threshold.pdf'
     monkeypatch.setattr(ml, '_draw_the_cell_count_sweep',
                         lambda summary, mark, path: str(written))
-    answer = ml.minimum_cell_simulation(
+    np.random.seed(17)
+    answer_with_figure = ml.minimum_cell_simulation(
         dict(settings), num_repeats=2, increment=10,
         dst=str(tmp_path / 'out'))
-    assert answer is not None and float(answer) >= 2
+    assert answer_with_figure == answer_without_figure
     assert f'Saved {written}' in capsys.readouterr().out
 
 

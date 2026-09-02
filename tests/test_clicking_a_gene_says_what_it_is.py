@@ -458,6 +458,16 @@ def test_gene_of_and_tested_family_still_behave_as_they_did():
         False, True]
 
 
+def test_tested_family_excludes_every_layout_term_but_not_guide_names():
+    from spacr.hits import tested_family
+
+    terms = [
+        "plateID[T.plate2]", "rowID[T.r2]", "columnID[T.c3]",
+        "screenID[T.screen2]", "fraction:grna[g_row_column_1]",
+    ]
+    assert tested_family(terms).tolist() == [False, False, False, False, True]
+
+
 def test_nothing_in_the_path_opens_a_socket(results, monkeypatch):
     """"Nothing in the path makes a network call while the user waits."
 
