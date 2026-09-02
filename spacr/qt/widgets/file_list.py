@@ -11,12 +11,14 @@ and command-line calls share the same value representation.
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 from typing import Any, Iterable, List, Sequence
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
+from PySide6.QtGui import (QDragEnterEvent, QDragMoveEvent, QDropEvent,
+                           QFontMetrics)
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QFileDialog,
@@ -31,6 +33,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from .sortable_table import install_sorting, table_item
+
+LOG = logging.getLogger(__name__)
 
 
 def _pair_tokens(path: str) -> set[str]:
@@ -254,6 +258,7 @@ class PairedFileTableWidget(QWidget):
              "Measurements DB", "Plate rule"])
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.itemChanged.connect(lambda *_: self.value_changed.emit())
+        self._fit_columns_to_their_headers()
         layout.addWidget(self.table)
         # What the table just did, in words. A database attached to "the
         # first row without one" that says nothing is a file the user
@@ -296,6 +301,163 @@ class PairedFileTableWidget(QWidget):
     # moved right when the database column was inserted; it is named here so
     # that the next column to arrive moves one number, not four.
     RULE_COLUMN = 4
+
+    #: The Download buttons that sit above this table, and the column each one
+    #: fills. Instruction 353's second half: "if you can allign each button to
+    #: their respective columns below in the table that would be perfect."
+    #:
+    #: FOUND BY THE ATTRIBUTE THE SCREEN KEEPS THEM ON, not by what a button
+    #: says. `AppScreen.load_the_screen_data` renames a button to "Fetching…"
+    #: while its download runs and `load_the_example_screen` renames it to
+    #: "Fetching N file(s)…", so a strip identified by button text would lose
+    #: its buttons in the middle of the download the user is watching.
+    #:
+    #: `None` is a button whose download fills a SETTING rather than a column:
+    #: Image crops writes `src`, which is a row of the same form rather than
+    #: anything in this table, so it has no column to sit over and trails the
+    #: aligned ones instead of being centred on a column it does not fill.
+    DOWNLOAD_BUTTONS = (
+        ("_example_scores_button", SIDE_COLUMNS["score"]),
+        ("_example_counts_button", SIDE_COLUMNS["count"]),
+        ("_screen_feature_button", SIDE_COLUMNS["database"]),
+        ("_screen_crops_button", None),
+    )
+
+    def _fit_columns_to_their_headers(self) -> None:
+        """Widen any column too narrow to show its own heading.
+
+        MEASURED AT THE DEFAULT WIDTH, which is where a user meets this
+        table: Qt gives every section 100 px, and at 100 px "Plate /
+        proposal" draws as "late / propos" and "Measurements DB" loses its
+        last word. Two of five headings, unreadable before anybody has
+        touched anything -- and instruction 350 is that every piece of text
+        fits its container.
+
+        A MINIMUM AND NOT A FIXED WIDTH. The section stays interactively
+        resizable, because a user who wants a narrow column is allowed to
+        have one; this only moves the width it STARTS at.
+        """
+        header = self.table.horizontalHeader()
+        metrics = QFontMetrics(header.font())
+        for column in range(self.table.columnCount()):
+            item = self.table.horizontalHeaderItem(column)
+            text = item.text() if item is not None else ""
+            # The sort indicator and the section's own padding both sit
+            # beside the text; 18 px covers them at every font scale this
+            # has been measured at.
+            needed = metrics.horizontalAdvance(text) + 18
+            if header.sectionSize(column) < needed:
+                header.resizeSection(column, needed)
+
+    def _widen_columns_for(self, columns) -> None:
+        """Make sure each Download button's column can hold the button.
+
+        THE BUTTON AND THE HEADING ARE TWO NAMES FOR ONE COLUMN, so the
+        wider of them is what the column has to fit. Aligning a button to a
+        column NARROWER than the button leaves two bad choices -- overlap
+        the neighbour, or clip the caption -- and the strip's layout takes
+        the second, so "Measurements (.db)" lost its ending at the default
+        100 px. Widening the column removes the choice.
+
+        Done from the TABLE, which owns its header, rather than from the
+        strip: a layout that wrote back to the geometry it reads would
+        re-enter itself on the resize it caused.
+
+        Once only, and never against the user: a column the user has since
+        dragged narrower is theirs, and this must not drag it back on every
+        show.
+
+        :param columns: ``(button, column)`` pairs, column None for a button
+            that fills a setting rather than a column.
+        """
+        if getattr(self, "_download_widths_applied", False):
+            return
+        self._download_widths_applied = True
+        header = self.table.horizontalHeader()
+        for button, column in columns:
+            if column is None:
+                continue
+            wanted = button.sizeHint().width()
+            if header.sectionSize(column) < wanted:
+                header.resizeSection(column, wanted)
+
+    def showEvent(self, event):                               # noqa: N802
+        """Take the Download row above over this table's columns.
+
+        WHY THE TABLE REACHES UP FOR THE STRIP RATHER THAN THE OTHER WAY
+        ROUND. The strip is built by the generic `AppScreen`, which knows
+        nothing about this table's columns -- it is four buttons in a
+        QHBoxLayout, and every module's example-data row is built the same
+        way. This widget is the only object that knows what the columns ARE,
+        and it is the only widget in the form that is Regression's alone, so
+        the knowledge and the alignment are kept in the same place.
+
+        ON SHOW rather than in `__init__`: the strip is added to the section
+        AFTER the settings rows are, so at construction there is nothing to
+        find, and the widget has no parent chain to walk up either. Once
+        installed the layout follows the header on its own, and the call is
+        idempotent, so repeated shows cost one dictionary lookup.
+        """
+        super().showEvent(event)
+        try:
+            self.align_download_buttons()
+        except Exception:                                     # noqa: BLE001
+            # A strip that failed to align is a strip in the wrong place; a
+            # table that failed to show is no input at all.
+            LOG.debug("could not align the Download row", exc_info=True)
+
+    def align_download_buttons(self) -> bool:
+        """Put the Download buttons over the columns they fill.
+
+        :returns: True when the strip was found and is now following this
+            table's header; False when this table was not built into a screen
+            that has a Download row -- which is every use of it outside
+            Regression's Input Tables, and every test that builds it bare.
+        """
+        screen = self._owning_screen()
+        if screen is None:
+            return False
+        strip = None
+        columns = []
+        for name, column in self.DOWNLOAD_BUTTONS:
+            button = getattr(screen, name, None)
+            if button is None:
+                return False
+            # ONE STRIP OR NONE. The four buttons share a parent because
+            # `_install_example_data_button` puts them in one row widget; if
+            # that ever stops being true, aligning some of them would leave
+            # the rest laid out by a layout that no longer holds them.
+            if strip is None:
+                strip = button.parentWidget()
+            elif button.parentWidget() is not strip:
+                return False
+            columns.append((button, column))
+        if strip is None:
+            return False
+        from .column_aligned_row import align_row_to_columns
+
+        # BEFORE the strip is handed to the layout: the layout centres a
+        # button in whatever the column is, so a column too narrow for its
+        # button has to be widened first or the caption is clipped by the
+        # alignment that was supposed to make it readable.
+        self._widen_columns_for(columns)
+        return align_row_to_columns(
+            strip, self.table.horizontalHeader(), columns) is not None
+
+    def _owning_screen(self):
+        """The screen holding the Download buttons, or None.
+
+        Walked up the parent chain and recognised by the attribute the
+        buttons are kept on rather than by class: importing `AppScreen` here
+        would be a widget importing the screen that hosts it, and this file
+        is imported while that module is still being built.
+        """
+        node = self.parentWidget()
+        while node is not None:
+            if hasattr(node, self.DOWNLOAD_BUTTONS[0][0]):
+                return node
+            node = node.parentWidget()
+        return None
 
     def add_paths_for_side(self, paths, side: str = "score") -> int:
         """Add files to one column of the table and re-propose the pairing.
