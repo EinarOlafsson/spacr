@@ -109,6 +109,80 @@ FOLD_HOST_MODULES = (
 )
 
 
+def _registered(key: str):
+    """``(name, description, stage)`` from the registry, or None.
+
+    THE STAGE IS ASKED FOR RATHER THAN READ, and the difference is visible:
+    :func:`spacr.qt.maturity.apply` reassesses modules at launch, so the
+    literal in the registry row is not always what the open window uses, and
+    a button built from the literal lights a beta module in the colour of
+    finished code.
+
+    None for a key with no row, so a fold that has no record anywhere is
+    still absent from :func:`folded_modules` -- which is what its invariant
+    test reports, and what would otherwise be papered over with the key
+    title-cased.
+    """
+    try:
+        from .. import app as app_module
+    except Exception:                                   # noqa: BLE001
+        return None
+    stage_of = getattr(app_module, "app_stage", None)
+    for row in getattr(app_module, "APPS", ()):
+        if row and row[0] == key:
+            stage = stage_of(key) if callable(stage_of) else "stable"
+            return (row[1] or "", row[2] or "", stage)
+    return None
+
+
+def _declared(key: str):
+    """``(name, description, stage)`` from the declared catalogue, or None.
+
+    THE LAST SOURCE, AFTER THE HOSTS' OWN RECORDS, and the order matters: a
+    host's ``FOLD_FALLBACK`` carries the maturity somebody ASSESSED, while
+    the catalogue carries the literal a module was declared with, and
+    :func:`spacr.qt.maturity.apply` moves the first at launch. Consulted
+    ahead of the fallback, this table lit three Regression buttons in the
+    colour of finished code for modules assessed alpha.
+
+    It is consulted at all because several rows only reach ``APPS`` through
+    :func:`spacr.qt.register_self_registering_modules`, which has not
+    necessarily run when the dock is built -- so a module that is perfectly
+    well registered in the running window was invisible for no reason but
+    the order of two calls. `app_catalog` is a static table with no Qt or
+    scientific imports behind it, so reading it costs nothing at startup,
+    which importing the screen would not.
+    """
+    try:
+        from ..app_catalog import DECLARED_APPS
+    except Exception:                                   # noqa: BLE001
+        return None
+    for declared in DECLARED_APPS:
+        if declared.key == key:
+            return (declared.name or "", declared.desc or "",
+                    declared.stage or "stable")
+    return None
+
+
+def fold_label(key: str) -> Tuple[str, str, str]:
+    """``(name, description, stage)`` for one folded key, from anywhere.
+
+    THE ANSWER FOR A CALLER THAT HAS A KEY AND NEEDS WORDS, whether or not
+    that key's host is one this module walks. :func:`folded_modules` walks
+    eight hosts; the dock draws rows for eleven, because four more grew fold
+    strips later and are named only in :data:`spacr.qt.app._EXTRA_FOLD_HOSTS`
+    -- so the seven modules folded onto Graph Builder, QC Dashboard and
+    Database Browser had no catalogue entry and their rows read as the raw
+    key: `lineage`, `tabulate`, `control_chart`.
+
+    Adding those hosts here would fix the rows and import three more screen
+    modules while the window is still being built, which is precisely the
+    startup cost instruction 314 is open about. Asking for the words instead
+    of for the host costs nothing.
+    """
+    return _describe(key)
+
+
 def folded_modules() -> dict:
     """Every folded key, as ``key -> (name, description, stage, host)``.
 
@@ -123,8 +197,27 @@ def folded_modules() -> dict:
     list a duplicated key still wins, making an accidental double fold
     deterministic until its invariant test reports the duplication.
 
+    AND THEN THE REGISTRY, for a fold that still holds its row. Those keep
+    their name, sentence and maturity where every other module keeps them,
+    so their hosts deliberately record nothing -- Regression says so in as
+    many words beside `investigate_hit` and `profiler`. Reading only the
+    fallback tables therefore left four folded modules out of this answer
+    entirely, and the dock drew their rows as the raw key: a user looking
+    for Investigate Hit found `investigate_hit` indented under Regression.
+    A copy of the registry text in each host would fix the rows and be the
+    same sentence written twice, with the copy free to go stale; asking the
+    registry costs nothing and cannot.
+
     Imported lazily, one host at a time and each guarded: this module is
     imported while a screen is being built, and the hosts import it back.
+
+    THE REGISTRY HALF IS ONLY COMPLETE ONCE THE REGISTRY IS. Several rows
+    arrive from :func:`spacr.qt.register_self_registering_modules`, so a
+    caller that asks before registration gets the folds whose hosts kept a
+    record and not the ones whose rows have not been added yet. Every caller
+    inside the application asks after the window is built; a test that asks
+    earlier has to register first, and one that does not is testing the
+    order it happened to import in.
 
     :returns: a fresh dict; callers may keep or mutate it.
     """
@@ -158,6 +251,8 @@ def folded_modules() -> dict:
                     (table[key] for table in fallback_tables if table.get(key)),
                     None,
                 )
+            if not entry:
+                entry = _registered(key) or _declared(key)
             if key in found or not entry:
                 continue
             name, description, stage = (tuple(entry) + ("", "", ""))[:3]
@@ -195,24 +290,18 @@ def _describe(key: str) -> Tuple[str, str, str]:
     module-level import would close that circle.
     """
     default_name = key.replace("_", " ").title()
-    try:
-        from .. import app as app_module
-    except Exception:
-        app_module = None
-    name, description, registered = default_name, "", False
-    for row in (getattr(app_module, "APPS", ()) if app_module else ()):
-        if row and row[0] == key:
-            name = row[1] or name
-            description = row[2] or ""
-            registered = True
-            break
-    if registered:
-        stage_of = getattr(app_module, "app_stage", None)
-        stage = stage_of(key) if callable(stage_of) else "stable"
-        return name, description, stage
+    known = _registered(key)
+    if known is not None:
+        return (known[0] or default_name, known[1], known[2] or "stable")
     kept_name, kept_description, kept_stage = folded_fallback(key)
-    return (kept_name or name, kept_description or description,
-            kept_stage or "stable")
+    if kept_name or kept_description:
+        return (kept_name or default_name, kept_description,
+                kept_stage or "stable")
+    declared = _declared(key)
+    if declared is not None:
+        return (declared[0] or default_name, declared[1],
+                declared[2] or "stable")
+    return default_name, "", "stable"
 
 
 class FoldButton(QPushButton):

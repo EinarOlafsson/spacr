@@ -88,7 +88,14 @@ def test_no_key_is_both_a_fold_button_and_a_tile(qapp):
     """
     import spacr.qt.screens as screens_package
 
-    registered = {row[0] for row in app_module.APPS}
+    # A TILE, NOT A ROW, and the difference is the whole rule. A folded
+    # module KEEPS its registry row -- it still has a screen, an icon, a
+    # section and a key to navigate to, and `spacr.qt.app.tiled_apps` says
+    # so in as many words; what it loses is the tile. Read against `APPS`
+    # this swept up nine modules that have exactly one front door, among
+    # them Format Converter and Investigate Hit, and reported them as
+    # having two. `tiled_apps()` is what Home actually draws.
+    tiled = {row[0] for row in app_module.tiled_apps()}
     both = {}
     for found in pkgutil.iter_modules(screens_package.__path__):
         try:
@@ -97,7 +104,7 @@ def test_no_key_is_both_a_fold_button_and_a_tile(qapp):
         except Exception:                                       # noqa: BLE001
             continue
         for key in getattr(module, "FOLDED_APPS", ()) or ():
-            if key in registered:
+            if key in tiled:
                 both.setdefault(key, []).append(found.name)
 
     assert both == {}, (
@@ -178,8 +185,18 @@ def test_the_regression_strip_still_draws_all_three_in_order(
     _screen, strip = _host(qtbot)
 
     assert list(strip.keys()) == list(regression.FOLDED_APPS)
+    # NOT ALL ALPHA ANY MORE. This read "every button is alpha" when the
+    # strip carried three, and Diagnostics joined them assessed as beta --
+    # so the sweep started failing on a fact about the screen that is
+    # correct. The maturity each button lights in is worth pinning; that
+    # they all light in ONE colour never was.
+    expected = {"volcano_explorer": "alpha", "hit_list": "alpha",
+                "methods_export": "alpha", "investigate_hit": "alpha",
+                "profiler": "alpha", regression.DIAGNOSTICS_KEY: "beta"}
+    assert set(expected) == set(regression.FOLDED_APPS), (
+        "a fold arrived or left without this test being told its maturity")
     for key in regression.FOLDED_APPS:
-        assert strip.button_for(key).property("stage") == "alpha"
+        assert strip.button_for(key).property("stage") == expected[key]
 
 
 @pytest.mark.parametrize("key,module", LAST_TWO)
