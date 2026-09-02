@@ -131,3 +131,159 @@ STILL OPEN IN THIS ITEM: part 2 (bigger icons and the magnifier) and part 3
 (row text moves to the strip). The menu bar was NOT given a Help submenu --
 only the dock was asked for, and the Help menu already lists these modules,
 so a Help submenu inside the Help menu would say it twice.
+
+--------------------------------------------------------------------------------
+2026-09-02 — PARTS 2 AND 3 DONE: THE ICONS GROW AND MAGNIFY, THE NAMES COME OFF
+--------------------------------------------------------------------------------
+
+MEASURED BEFORE AND AFTER, one 1440x900 MainWindow with the dark stylesheet on
+the application, same script both sides. The "before" side runs HEAD's
+`spacr/qt/app.py` loaded under its own name, so nothing but the dock differs
+and no sibling agent's working tree was disturbed to get it.
+
+                              before        after
+    icon, top-level row       16 px         26 px
+    icon, folded child        16 px         19 px
+    icon under the pointer    16 px         40 px  (36 / 30 / 26 going out)
+    rows with a NULL icon     34            0
+    row height                38 px         48 px
+    dock width               220 px        220 px
+    title / section heading   61 / 31 px    61 / 31 px  (unchanged)
+    rows PAINTING their name  10 of 10      0 of 10
+    rows with an accessible
+      name / a tooltip        71 / 71       71 / 71
+    rows fitting a 900 px
+      window                  18            14
+    collapsed default        10 rows 565px 10 rows 665px   (both fit)
+    + Regression expanded    16 rows 793px 16 rows 845px   (both fit)
+    every section open       43 rows 1819px 43 rows 2249px (both scroll)
+
+THE COST, which is the risk 348 named. 315's rejected filter was 13,646 Python
+calls a second while a module opened, for 130 ms back on the GUI-thread block.
+
+    one second of a pointer sweep, 101 positions, 10 visible rows
+        1.25 ms of GUI thread, 4,905 Python calls
+    the same second with every section forced open, 37 visible rows
+        2.09 ms, 9,470 calls
+    module-open GUI-thread block, three runs each side
+        HEAD    mask 2098-2585 ms   measure 904-914 ms   annotate 115-124 ms
+        after   mask 1994-2060 ms   measure 902-929 ms   annotate 115-116 ms
+
+The magnifier costs NOTHING while a module opens, because it is one handler
+installed on the dock's own rows and on nothing else -- it is handed no event
+unless the pointer is over the dock. The first cut cost 11.02 ms and 9,640
+calls for that same second; `scaled_px` reads QSettings through
+`get_font_scale` and `magnify_from` was asking for three of them per pointer
+position. `Sidebar.magnifier_metrics()` caches them and is dropped by
+`_forget_row_positions`, which the preferences path already reaches.
+
+THE ROW HEIGHT IS FIXED AT 48 px AND MAGNIFYING NEVER MOVES IT. This is the
+one place the effect departs from the OS X dock. Growing the rows themselves,
+the way OS X does, was reasoned through and rejected BEFORE it was written:
+a row that grows pushes every row below it down, so the row under a STATIONARY
+pointer stops being the row under the pointer, and the next mouse move
+computes from geometry the last one moved. This dock has already been reported flickering once for a hover
+that moved geometry ("the dock on linux is acting up, flickering when mouse is
+hovered", 2026-09-01). 48 px = the largest icon plus 4 px above and below, so
+a magnified icon is never clipped by its own row.
+`test_magnifying_never_changes_a_row_height` holds the heights AND the tops.
+
+THE NAME IS STILL SET ON THE ROW; ONLY THE PAINTING DROPS IT, and that is the
+decision in this change most likely to look wrong later. `setText("")` is the
+obvious implementation and was rejected before it was written, because three
+pieces of code read a dock row's name and none of them is about pixels:
+`tutorial.scripts._sidebar_button` falls back to a label match ("Mask") when a
+script names a row by its display name; `clipped_items()` -- which
+`test_no_shipping_sidebar_label_is_clipped` and
+`test_sidebar_caps_its_width_and_elides_a_pathological_name` both read -- can
+only answer about text the row still holds; and `fitting_width()` sizes the
+column from the widest NAME. All three fail silently on a blank string, and
+two of them live in files this session was not allowed to edit. `_DockRow`
+paints the QSS plate and the icon and clears `opt.text`, so the name stays as
+data and leaves the screen. The test that says so RENDERS the row and looks
+for ink, with an ordinary button carrying the same text as a control -- a
+"no ink" verdict from a probe that cannot see ink at all would pass forever.
+
+THE STRIP WAS ALREADY CARRYING THE NAME BEFORE THE LABEL CAME OFF, which is
+what 348's WATCH demanded and it is checked rather than assumed:
+`test_hovering_a_dock_row_puts_its_name_in_the_status_strip` PASSES AT HEAD
+as well as after. `spacr.qt.module_hints` reads `moduleNameSource` /
+`moduleSummarySource`, which `_make_item` has always stamped, and routes them
+to the bottom-of-window status bar -- 347's surface. No second strip was
+built. `setAccessibleName` / `setAccessibleDescription` / `navKey` / the
+tooltip are all untouched: 71 rows carry all four before and after.
+
+THE 34 FOLDED CHILDREN HAD NO ICON AT ALL and would have become 34 blank
+strips. They were identified purely by three indented words. Measured before
+wiring anything: 31 of the 34 resolve to a DISTINCT icon and only
+`import_images`, `regression_diagnostics` and `explain_cv` fall through to the
+shared puzzle piece -- so giving them icons is worth doing, where a fallback
+that gave them all one picture would have been no better than blank.
+`test_no_dock_row_is_blank` fails at HEAD with all 34 and passes now.
+
+330's THREE LEADING SPACES were the only mark of a child row, and with no
+label to indent they moved into the icon: a child is drawn at x=30 instead of
+x=12 and at 19 px instead of 26 px.
+
+VERIFIED, `tests/qt/test_the_dock_behaves_like_a_dock.py`, 12 tests:
+
+    against HEAD's app.py    8 failed, 3 passed
+    working tree            12 passed
+
+The 3 that pass on both sides are the preservation guards -- accessible names,
+tooltips and the status strip -- and they are MEANT to pass on both sides:
+348's WATCH says the name has to be in the strip BEFORE the label comes off
+the row, and a test that only passes afterwards cannot say that. One of the
+twelve drives a real `QMouseEvent` and `QEnterEvent` rather than calling
+`magnify_from`, so the filter installation, the mouse tracking and the
+coordinate mapping into the scrolled row host are all covered; the rest would
+pass over a magnifier nothing ever calls.
+
+WHAT WAS DELIBERATELY NOT DONE
+
+* THE DOCK WAS NOT NARROWED. It is 220 px before and after, which is
+  `Sidebar.WIDTH_MIN` and not the width of any name -- measured,
+  `fitting_width()` returns the floor in both versions, so the hidden names
+  cost nothing. An icon-only column 220 px wide is arguably too wide, but
+  narrowing it was not asked for, it would change where every section heading
+  sits, and `test_sidebar_caps_its_width_and_elides_a_pathological_name`
+  pins the current bounds. Left for whoever the maintainer tells.
+* `spacr/qt/theme.py` AND `spacr/qt/iconset.py` WERE NOT TOUCHED. Nothing in
+  this change is a colour or a stylesheet rule: the row height, the icon
+  sizes, the indent and the falloff are all layout decisions the dock makes
+  in Python and the magnifier has to read back. One number does duplicate the
+  sheet -- `Sidebar.ICON_LEFT_PX = 12` matches `SPACING["md"]` in the
+  `QPushButton#SidebarItem` padding -- and is commented as such on both
+  counts.
+* NO MENU-BAR CHANGE, as in part 1: only the dock was asked for.
+
+THE WHOLE SIDEBAR SELECTION, both sides. Every `tests/qt` file that mentions
+`_sidebar`, 30 files, run against HEAD's `app.py` and then against this one:
+
+    HEAD    18 failed, 1354 passed, 4 skipped
+    after   11 failed, 1361 passed, 4 skipped     regressions: NONE
+
+THE 11 ARE COMMON TO BOTH and are not this change:
+
+  * four (`test_home_layout::test_sidebar_renders_every_app_under_every_
+    section_heading` x2, `test_cov_qt_app::test_every_app_is_filed_under_
+    the_section_it_belongs_to`, `::test_sidebar_has_one_row_per_app_plus_
+    home_in_apps_order`) compare the dock's rows to `APPS` by NAME and trip
+    over 330's folded children ("   Control Charts", "   Napari Bridge",
+    ...). 330 debt. Proved not to be this change rather than argued: the
+    dock's 71 row labels are byte-identical before and after, md5
+    ddcc3999dbf62d0bd157f29a7ee37cf9 over the sorted labels, because this
+    change removes the PAINTING of a label and not the label;
+  * two are classify's, and another session owns that screen;
+  * the other five (`test_maturity_visibility_preferences`,
+    `test_module_tooltip_i18n`, `test_real_startup_readiness`,
+    `test_space_theme` x2) fail identically on both sides.
+
+THE 7 THAT ONLY THE HEAD RUN FAILED ARE THE BASELINE HARNESS'S OWN FAULT and
+are recorded so nobody reads them as fixes. HEAD's `app.py` is loaded from a
+scratch path under the name `spacr.qt.app` -- which is what makes a baseline
+possible without stashing a tree three other agents are working in -- and the
+icon-resource tests resolve their paths from that module's `__file__`. Run
+alone with the same plugin they still fail; run alone without it they pass.
+`test_the_sidebar_re_inks_its_icons_when_the_theme_changes` is the seventh and
+was already recorded in part 1 as failing at HEAD in isolation.
