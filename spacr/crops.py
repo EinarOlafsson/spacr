@@ -2981,6 +2981,45 @@ def reanchor_frame(df, root: str, columns: Sequence[str] = PATH_COLUMNS,
     moved = 0
     already = 0
     failures: List[str] = []
+    # WHAT ONE FOLDER ANSWERS, THE WHOLE FOLDER ANSWERS. Both of these exist
+    # in `spacr.portable_paths.reroot_frame` already, with its own measurement
+    # beside them -- 8.2 s over 60,816 rows against 0.6 s once a prefix is
+    # known -- and this function, which is the one the cell montage calls,
+    # never got them.
+    #
+    # WHAT IT COST, measured on the reporter's shape in GitHub issue 116:
+    # `_reroot_with_prefix` asks the filesystem about ~22 candidate locations
+    # for every path it cannot place, so 16,000 recorded paths produced
+    # 360,000 stat calls. His four plates carry roughly a million paths, and
+    # he had just RENAMED the databases, so not one of them was already
+    # anchored -- about 22 million filesystem probes before the montage
+    # selected the few hundred cells it was going to draw. "Show the cells"
+    # sat on "reading 4 database(s)" for as long as he left it.
+    #
+    #: (recorded prefix, prefix on this machine) pairs already discovered.
+    #: Every crop of a plate shares one, so the first row that resolves pays
+    #: for the search and the rest are a string replacement and one stat.
+    prefixes: List[Tuple[str, str]] = []
+    #: Folders whose search has failed, and how many times. Without this a
+    #: route that is not on this machine at all -- a screen with PNG crops
+    #: and no `merged/`, which is healthy and common -- costs a full search
+    #: per ROW.
+    #:
+    #: A COUNT AND NOT A SET, and the difference is a bug this file's first
+    #: version had: a folder written off after ONE failed search takes every
+    #: later row in it down too, and the first row of a folder is not
+    #: guaranteed to be one whose file was exported. Measured -- a single
+    #: never-exported crop at the head of a folder lost all three real crops
+    #: behind it. Three strikes costs at most two extra searches per folder,
+    #: which is nothing against the per-row search this replaces, and a
+    #: folder does not hang on its unluckiest row.
+    #:
+    #: `spacr.portable_paths.reroot_frame` gives up after one and has the
+    #: same hole; it is left alone here rather than changed blind, and is
+    #: named in the instruction record.
+    unresolvable: Dict[str, int] = {}
+    #: How many failed searches condemn a folder.
+    give_up_after = 3
     for column in columns:
         if column not in getattr(df, "columns", ()):
             continue
@@ -3002,11 +3041,46 @@ def reanchor_frame(df, root: str, columns: Sequence[str] = PATH_COLUMNS,
             # that searches the recorded structure under every folder the root
             # could mean and returns only what EXISTS.
             if outcome != ALREADY_ANCHORED and not os.path.exists(new):
-                from .portable_paths import reroot_crop_path
+                from .portable_paths import _reroot_with_prefix
 
-                found = reroot_crop_path(value, root)
-                if found and found != value and os.path.exists(found):
-                    new, outcome = found, REANCHORED
+                forward = value.replace("\\", "/")
+                # A PREFIX ALREADY DISCOVERED, FIRST. One string replacement
+                # and one stat, against the ~22 stats a fresh search costs.
+                #
+                # `placed`, NOT `outcome`, decides whether the search still
+                # has to run: the structural pass above returns REANCHORED
+                # for a path it rewrote WITHOUT asking the disk, and that
+                # path may not exist -- which is the whole reason the search
+                # below exists. Reading the search's necessity off `outcome`
+                # skipped it exactly when it was needed, and a root one level
+                # above the plate stopped resolving.
+                placed = False
+                for was, now in prefixes:
+                    if not forward.startswith(was):
+                        continue
+                    candidate = now + forward[len(was):]
+                    if os.path.exists(candidate):
+                        new, outcome, placed = candidate, REANCHORED, True
+                    break
+                if not placed:
+                    folder = os.path.dirname(forward)
+                    # Only the SEARCH is skipped for a folder that has failed
+                    # its allowance -- the prefix above is still tried for
+                    # every row, so a folder where one crop is missing and
+                    # the next is present still places the next one.
+                    if unresolvable.get(folder, 0) < give_up_after:
+                        found, discovered = _reroot_with_prefix(value, root)
+                        if discovered is not None and discovered not in prefixes:
+                            prefixes.append(discovered)
+                        if found and found != value and os.path.exists(found):
+                            new, outcome = found, REANCHORED
+                            # It resolves after all: the folder is on this
+                            # machine and its earlier misses were missing
+                            # FILES, which is a different fact.
+                            unresolvable.pop(folder, None)
+                        else:
+                            unresolvable[folder] = (
+                                unresolvable.get(folder, 0) + 1)
             if outcome == REANCHORED:
                 moved += 1
             elif outcome == ALREADY_ANCHORED:
