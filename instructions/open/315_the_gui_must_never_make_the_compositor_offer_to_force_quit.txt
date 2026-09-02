@@ -363,3 +363,45 @@ AND THE NUMBER THAT SAYS THIS IS STILL A REAL DEFECT: 305's accepted
 installed-wheel acceptance run measured a 7,069 ms cold event-loop stall on
 Regression against a 5,000 ms mutter check-alive-timeout. The compositor is
 entitled to offer force-quit during it. ~75%.
+
+--------------------------------------------------------------------------------
+2026-09-02 — BEFORE ANYONE STARTS 3d: THE FUNCTION THIS FILE NAMES DOES NOT EXIST
+--------------------------------------------------------------------------------
+
+The 3d note above says "`theme.batched_widget_qss()` already solves exactly
+this shape at window level; the same trick per-screen is the fix." There is no
+`batched_widget_qss` anywhere in the package:
+
+    grep -rn "batched_widget_qss" --include=*.py spacr/     ->  no matches
+
+What DOES exist in `spacr/qt/theme.py` is the widget-QSS REGISTRY, which is
+the same idea under a different name -- one composed sheet instead of N
+`setStyleSheet` calls:
+
+    register_widget_qss(name, fn)          3265
+    unregister_widget_qss(name)            3318
+    widget_qss_names()                     3323
+    load_widget_qss_registrars()           3228
+    set_widget_qss_context(app, theme, font_scale, ...)   3344
+
+So the fix shape is real and the name is not. Reuse the registry rather than
+writing a new batching helper, and do not spend time looking for the function
+this file invented.
+
+WHERE THE CALLS ACTUALLY ARE, counted rather than estimated. The 54 the note
+attributes to `screens/` are not evenly spread:
+
+    app_screen.py      11        annotate.py         6
+    train_compare.py    3        plate_view.py       3
+    model_compare.py    3        hyperparam.py       3
+    settings_model.py   2        report.py           2
+
+`app_screen.py` is the one every module screen is built from, so it is where
+a per-screen batch would pay most and where a mistake would show everywhere.
+
+THE THIRD TARGET IS CONFIRMED AND BIGGER THAN THE NOTE SAYS.
+`RegressionResultsPanel` (`widgets/regression_results.py:629`) calls
+`self.tabs.addTab` FOURTEEN times, not ten: Coefficients, Volcano, Effect
+rank, Effect distribution, p-values, Q-Q, Controls, Residuals,
+Scale-location, Influence, Annotation check, Summary, Guide support, Gene.
+The `indexOf(self.effect_rank)` call the note warns about is at line 892.

@@ -973,21 +973,21 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "Same caveats as M1_correlation_<t>; the two differ only in which "
         "channel's intensity is summed over the shared overlap mask.",
     ),
-    # ---------------- corrected Manders (measure.py, corrected_manders)
+    # ---------------- Manders (measure.py; unconditional since 2026-09-02)
     "manders_m1": PropertyInfo(
         "correlation",
         "Manders' M1: the fraction of the FIRST channel's above-background "
         "intensity inside the object that lies in pixels where the SECOND "
         "channel is above its own background.",
         _FRACTION,
-        "spacr.measure._calculate_correlation_object_level (corrected_manders)",
+        "spacr.measure._calculate_correlation_object_level",
         "This is the statistic M1_correlation_<t> was named after and is not. "
         "Each channel's background is estimated inside each object as "
         "median + 3 * 1.4826 * MAD and subtracted before the fraction is "
         "taken, so the two channels are thresholded independently rather than "
-        "sharing one overlap mask. Written beside the deprecated "
-        "M1_correlation_<t> columns rather than replacing them, so a plate "
-        "measured before this existed still agrees with itself. 0.0, never "
+        "sharing one overlap mask. It REPLACED the deprecated "
+        "M1_correlation_<t> columns on 2026-09-02; a plate measured before "
+        "that still carries them and still agrees with itself. 0.0, never "
         "NaN, when the channel has no above-background intensity in the "
         "object -- a NaN would delete the column from every model matrix.",
     ),
@@ -997,7 +997,7 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "intensity inside the object that lies in pixels where the FIRST "
         "channel is above its own background.",
         _FRACTION,
-        "spacr.measure._calculate_correlation_object_level (corrected_manders)",
+        "spacr.measure._calculate_correlation_object_level",
         "The mirror of manders_m1 and subject to the same caveats; the two "
         "differ only in which channel's intensity is summed.",
     ),
@@ -1008,8 +1008,8 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "subtracted, non-negative channel vectors. One symmetric number for "
         "the pair, unlike M1 and M2.",
         _DIMLESS + ", in [0, 1]",
-        "spacr.measure._calculate_correlation_object_level (corrected_manders)",
-        "Nothing in spaCR computed this before corrected_manders, although "
+        "spacr.measure._calculate_correlation_object_level",
+        "Nothing in spaCR computed this before 2026-08, although "
         "the colocalisation tooltips have long named it. Backgrounds are the "
         "per-object median + 3 * 1.4826 * MAD of each channel. 0.0, never "
         "NaN, when either channel has no above-background intensity.",
@@ -2127,14 +2127,13 @@ _set_scope(
 _set_scope(
     ("manders_m1", "manders_m2", "manders_overlap_coefficient"),
     _scope(_ALL_OBJECTS, CHANNEL_PAIR,
-           when="corrected_manders=True (default False) AND "
-                "calculate_correlation=True with at least two channels; one "
+           when="calculate_correlation=True with at least two channels; one "
                 "column per unordered channel pair (i < j)."))
 _set_scope(
     ("neighbors_within_<r>", "nearest_neighbor_distance",
      "second_neighbor_distance", "percent_touching", "touching_neighbors"),
     _scope(_SPATIAL_OBJECTS, CHANNEL_NONE,
-           when="spatial_measurements=True (default False). Never written "
+           when="spatial_measurements=True (default True since 2026-09-02). Never written "
                 "for cytoplasm, which is cell-minus-its-contents and so is "
                 "one object per cell by construction -- its neighbours are "
                 "the cell's, restated. Written for every configured organelle "

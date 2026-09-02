@@ -1313,7 +1313,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # them into the trailing "Additional Settings" bucket -- which is
             # not a heading anyone chose, it is the absence of one. They
             # extend calculate_correlation, so they sit beside it.
-            "corrected_manders", "spatial_measurements",
+            "spatial_measurements",
             # The radius the neighbourhood is counted in, immediately after
             # the switch that turns it on: it is baked into the column name,
             # so a screen has to pick one value and keep it.

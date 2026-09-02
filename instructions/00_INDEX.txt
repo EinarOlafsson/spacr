@@ -93,7 +93,7 @@ OPEN
        331_before_the_version_update.txt
 
   337  ONE MANDERS DEFINITION, SPATIAL MEASUREMENTS ON, AND THE RUN'S SETTINGS AS
-       [0% -- spatial defaults still False, corrected_manders still live]
+       [~75% -- Manders, spatial defaults and both labels done; part 3 needs the maintainer's measure settings]
        337_measure_defaults_manders_and_labels.txt
 
   339  ILLUMINATION CORRECTION BELONGS BEFORE SEGMENTATION, NOT ONLY BEFORE MEASURING

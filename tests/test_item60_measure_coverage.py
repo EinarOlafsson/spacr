@@ -192,18 +192,18 @@ def test_radial_distribution_empty_parent_and_zero_distance(monkeypatch):
     assert zero[(1, 1, 0)][0] == 1
 
 
-def test_corrected_manders_signal_and_background_paths():
+def test_manders_signal_and_background_paths():
     mask = np.array([[0, 1, 1], [0, 1, 1]], dtype=int)
     signal = np.array([[0., 0., 0.], [0., 0., 8.]])
     out = M._calculate_correlation_object_level(
         signal, signal * 2, mask,
-        {"manders_thresholds": [50], "corrected_manders": True})
+        {})
     assert out.loc[0, "manders_m1"] == pytest.approx(1.)
     assert out.loc[0, "manders_overlap_coefficient"] == pytest.approx(1.)
 
     background = M._calculate_correlation_object_level(
         np.zeros_like(signal), np.zeros_like(signal), mask,
-        {"manders_thresholds": [50], "corrected_manders": True})
+        {})
     assert background.loc[0, "manders_m1"] == 0
     assert background.loc[0, "manders_m2"] == 0
     assert background.loc[0, "manders_overlap_coefficient"] == 0

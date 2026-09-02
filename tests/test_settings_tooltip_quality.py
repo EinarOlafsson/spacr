@@ -73,6 +73,13 @@ CONFIG_DEFECT = "default/config defect"
 # difference is accepted.  Adding, removing, or substituting one row fails an
 # ordinary mapping comparison with a useful diff.
 DEFAULT_VARIANT_EXPECTATIONS = {
+    ("external_masks", "experiment"): DefaultVariant(
+        "'experiment'", "'external_masks'", ACCURATE_SHARED,
+        "The external-mask import names its own run after itself rather than "
+        "taking the generic label, which is more useful in a results folder "
+        "than a second directory called experiment; the shared tooltip is "
+        "correct for every other module that offers the key.",
+    ),
     ("analyze_plaques", "background"): DefaultVariant(
         "100", "200", ACCURATE_SHARED,
         "The tooltip explicitly names 200 for plaque analysis.",
@@ -633,8 +640,15 @@ def test_real_default_claims_have_no_unrecorded_drift():
         pair: (variant.claimed, variant.actual_repr)
         for pair, variant in DEFAULT_VARIANT_EXPECTATIONS.items()
     }
-    assert comparisons == 680
-    assert len(variants) == 52
+    # 682 since 2026-09-02, and the two are both `experiment`. Its tooltip
+    # used to read "Defaults vary by pipeline: 'exp', 'exp.' or
+    # 'experiment_1'", which states no parseable default and so was not
+    # compared at all. Instruction 337 made the abbreviations one word, so
+    # the tooltip can now name a real default and IS compared -- in two
+    # apps, against their actual value, and `variants` stayed at 52, which
+    # is what says the new claim is true rather than merely new.
+    assert comparisons == 682
+    assert len(variants) == 53
     assert variants == expected
     assert {
         classification: sum(
@@ -643,7 +657,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
         )
         for classification in (ACCURATE_SHARED, REPAIRED_TOOLTIP, CONFIG_DEFECT)
     } == {
-        ACCURATE_SHARED: 21,
+        ACCURATE_SHARED: 22,
         REPAIRED_TOOLTIP: 31,
         CONFIG_DEFECT: 0,
     }

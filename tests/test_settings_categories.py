@@ -278,6 +278,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "well_detection", "well_confidence", "well_pad",
     "plate_format", "well_diameter_mm",
 
+    # ---- the regression input/model layout (instruction 342) -----------
+    # A count table may arrive one row per (well, guide) or one guide per
+    # column, and the shape handed to a fixed-effects estimator is a second,
+    # separate choice. All three are read by `spacr.ml.perform_regression`.
+    "independent_variable_layout", "model_data_layout",
+    "wide_predictor_columns",
+
     # ---- added when Illumination was folded into Measure -------------
     # The flat-field correction is applied before any intensity feature is
     # computed, so it has to be settable on the measure run it changes.

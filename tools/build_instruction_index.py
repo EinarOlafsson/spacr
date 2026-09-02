@@ -80,7 +80,7 @@ STAGE: Dict[str, str] = {
     "326": "~20% -- step 1 of 4; the real ceiling is four roles, not 26",
     "327": "~95% -- all five parts shipped; only the frame-rate evidence is missing",
     "331": "a checklist over the other items -- no work of its own",
-    "337": "0% -- spatial defaults still False, corrected_manders still live",
+    "337": "~75% -- Manders, spatial defaults and both labels done; part 3 needs the maintainer's measure settings",
     "339": "0% -- illumination is called from measure and nowhere else",
     "341": "0% -- three tests confirmed still failing on 2026-09-01",
     "343": "75% -- renderer complete; run/export integration and vector composition left",

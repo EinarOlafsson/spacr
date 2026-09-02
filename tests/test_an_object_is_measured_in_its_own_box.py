@@ -150,23 +150,45 @@ def _periphery_oracle(label_mask, image):
     return stats
 
 
-def _colocalisation_oracle(first, second, mask, thresholds):
-    """Pearson and the M1/M2 pair, computed over the whole field per object."""
+def _colocalisation_oracle(first, second, mask, thresholds=None):
+    """Pearson and the three Manders coefficients, whole-field per object.
+
+    The percentile M1/M2 pair this used to mirror was removed on 2026-09-02
+    (instruction 337); `thresholds` is kept in the signature because the
+    other caller in this file still passes one, and is unused here.
+
+    Deliberately a SECOND IMPLEMENTATION of the same arithmetic rather than a
+    call into `spacr.measure`: an oracle that shares the code it checks would
+    agree with a windowing bug as happily as with correct code, and windowing
+    is the whole point of this file.
+    """
+    del thresholds
     rows = []
     for region in np.unique(mask)[1:]:
         selected = mask == region
         a, b = first[selected], second[selected]
-        total_a, total_b = np.sum(a), np.sum(b)
         pearson = np.nan if len(a) < 2 else pearsonr(a, b)[0]
-        row = {"label_correlation": region, "Pearson_correlation": pearson}
-        for threshold in thresholds:
-            overlap = ((a > np.percentile(a, threshold))
-                       & (b > np.percentile(b, threshold)))
-            row[f"M1_correlation_{threshold}"] = (
-                np.sum(a[overlap]) / total_a if total_a > 0 else 0)
-            row[f"M2_correlation_{threshold}"] = (
-                np.sum(b[overlap]) / total_b if total_b > 0 else 0)
-        rows.append(row)
+        v1 = np.asarray(a, dtype=np.float64)
+        v2 = np.asarray(b, dtype=np.float64)
+        med1 = np.median(v1)
+        thr1 = med1 + 3.0 * 1.4826 * np.median(np.abs(v1 - med1))
+        med2 = np.median(v2)
+        thr2 = med2 + 3.0 * 1.4826 * np.median(np.abs(v2 - med2))
+        above1 = np.clip(v1 - thr1, 0, None)
+        above2 = np.clip(v2 - thr2, 0, None)
+        sum1, sum2 = above1.sum(), above2.sum()
+        denominator = np.sqrt((above1 * above1).sum() * (above2 * above2).sum())
+        rows.append({
+            "label_correlation": region,
+            "Pearson_correlation": pearson,
+            # 0.0 rather than NaN, matching production: one NaN anywhere makes
+            # utils.filter_dataframe_features drop the whole column.
+            "manders_m1": float(above1[v2 > thr2].sum() / sum1) if sum1 > 0 else 0.0,
+            "manders_m2": float(above2[v1 > thr1].sum() / sum2) if sum2 > 0 else 0.0,
+            "manders_overlap_coefficient": (
+                float((above1 * above2).sum() / denominator)
+                if denominator > 0 else 0.0),
+        })
     return pd.DataFrame(rows)
 
 
@@ -373,9 +395,10 @@ def test_a_colocalisation_pair_reads_only_the_objects_own_box():
 def test_a_colocalisation_pair_holds_the_values_the_whole_field_gives():
     """The cropped pair loop reports exactly the whole-field correlations.
 
-    Pearson's r and the M1/M2 thresholds are order-sensitive floating-point
-    reductions, so this asserts on exact equality: a window that gathered the
-    same pixels in a different order would drift in the last bits.
+    Pearson's r and the Manders coefficients are order-sensitive
+    floating-point reductions, so this asserts on exact equality: a window
+    that gathered the same pixels in a different order would drift in the
+    last bits.
     """
     mask, image = _object_field()
     other = (np.random.default_rng(16).random(mask.shape) * 4000).astype(np.uint16)
