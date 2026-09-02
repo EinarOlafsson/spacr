@@ -54,7 +54,7 @@ See Also:
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
 import numpy as np
@@ -912,6 +912,12 @@ def derive_threshold(counts: pd.DataFrame, target_grnas_per_well: float,
     target = float(target_grnas_per_well)
 
     def stat(value: float) -> float:
+        """Evaluate the captured well-fraction statistic at one threshold.
+
+        :param value: abundance-fraction threshold to evaluate.
+        :returns: the selected mean or median gRNAs-per-well value as a float;
+            the retained-well details returned alongside it are discarded.
+        """
         return float(fractions.statistic_at(value, statistic)[0])
 
     def choice_at(index: int, achieved: float, attainable: bool
@@ -1377,6 +1383,13 @@ def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
             # c12 — a position-effect panel whose columns are out of plate
             # order cannot be read against the plate.
             def _natural(value):
+                """Split a position label into text and numeric sort parts.
+
+                :param value: row or column position label to stringify.
+                :returns: all non-digits followed by the concatenated digits as
+                    an integer, or zero when none are present, so labels such as
+                    ``c1``, ``c2``, and ``c10`` follow physical plate order.
+                """
                 text = str(value)
                 digits = "".join(ch for ch in text if ch.isdigit())
                 return ("".join(ch for ch in text if not ch.isdigit()),
@@ -1570,8 +1583,8 @@ def _register() -> None:
     not a duplicate registration; a genuine second claimant on the key
     would be a different module, and that still raises.
     """
-    from .settings import (has_registered_defaults, register_defaults,
-                           tooltips as shared_tooltips)
+    from .settings import has_registered_defaults, register_defaults
+    from .settings import tooltips as shared_tooltips
 
     if has_registered_defaults(APP_KEY):
         return
@@ -1698,7 +1711,7 @@ def barcode_qc(settings: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         flagged = positions[positions["flagged"]] if not positions.empty \
             else positions
         if not flagged.empty:
-            print(f"Position effects flagged: "
+            print("Position effects flagged: "
                   + ", ".join(f"{r.plateID} {r.axis} {r.label} "
                               f"({r.ratio_to_plate:.2f}x)"
                               for r in flagged.itertuples()))
