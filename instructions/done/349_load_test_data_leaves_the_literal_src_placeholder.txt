@@ -229,3 +229,34 @@ WHAT IS ACTUALLY LEFT: Map Barcodes. Its handler is the sequencing example
 button and it was not read. Ask it the same question -- does anything write a
 path before `apply_settings_that_came_with` runs, and is the shipped value
 more specific or merely foreign.
+
+--------------------------------------------------------------------------------
+2026-09-02 — MAP BARCODES IS CLEAN. ALL FOUR ROUTES ACCOUNTED FOR. CLOSING.
+--------------------------------------------------------------------------------
+
+`load_the_sequencing_example` writes `src` to the folder the reads land in and
+NEVER CALLS `apply_settings_that_came_with`. No second write, so the hazard
+this item is about cannot arise there. Read rather than assumed, and recorded
+as a negative result so the next audit does not re-derive it.
+
+THE FOUR ROUTES, FINAL STATE:
+
+    mask (images)       FIXED   `src` is written after the shipped settings
+    measure             FIXED   shipped `merged/` kept; unopenable taken back
+    annotate / classify FIXED   had no guard at all, and disagreed with its
+                                own return value
+    map barcodes        CLEAN   applies no shipped settings
+
+WHAT THIS ITEM WAS REALLY ABOUT, worth one line for the next reader: not a
+placeholder string, and not a restart. Two writers to one field, in an order
+nobody had stated, where the second writer's value came from another machine
+and the code that re-homes it is documented to leave alone anything it cannot
+resolve. The fix is that the field has ONE rule now
+(`AppScreen.keep_the_src_openable`) and every route asks it.
+
+THE ORIGINAL GUESS IN THIS FILE WAS WRONG and is left above on purpose. It
+reasoned from "the package never emits `<src>`" to "the published pack must
+contain it". The premise was right and the conclusion did not follow: the pack
+holds a real path, and the literal the maintainer saw came from a file this
+session never downloaded. The step that actually solved it was reading the
+CALLER, not the data.

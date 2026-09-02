@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-323 done / 29 open (91%).
+324 done / 28 open (92%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -116,10 +116,6 @@ OPEN
   348  THE DOCK: HELP GETS ITS OWN SECTION, THE ICONS GROW, AND THE NAMES MOVE OFF IT
        [~35% -- Help is a dock heading and is last; the magnifier and the text move are open]
        348_the_dock_should_behave_like_a_dock.txt
-
-  349  "LOAD TEST DATA" PUTS THE LITERAL <src> INTO MASK GENERATION'S PATH FIELD
-       [~95% -- mask, measure and annotate/classify fixed behind one rule; map barcodes unchecked]
-       349_load_test_data_leaves_the_literal_src_placeholder.txt
 
   350  A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
        [~30% -- the reported Annotate case is fixed and the reusable check exists; the sweep is not run]
@@ -462,3 +458,4 @@ DONE
   341  THREE ANNOTATE-ENGINE TESTS FAIL, AND HAVE FOR LONGER THAN ANYONE NOTICED
   342  THE INDEPENDENT-VARIABLE TABLE MAY BE LONG OR WIDE, AND PLATE IS A LAYOUT TERM
   344  THE OPEN LIST WAS AUDITED AGAINST THE CODE, AND FIVE ITEMS WERE WRONG
+  349  "LOAD TEST DATA" PUTS THE LITERAL <src> INTO MASK GENERATION'S PATH FIELD
