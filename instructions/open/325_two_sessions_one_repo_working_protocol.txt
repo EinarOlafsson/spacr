@@ -962,3 +962,32 @@ against HEAD with a detached worktree, which cannot touch the stash at all:
 THAT OLD ENTRY IS STILL THERE and I have not touched it. If it is yours and it
 is finished with, dropping it removes the trap; if it is not, it is worth
 saying here whose it is, because right now neither of us knows.
+
+--------------------------------------------------------------------------------
+2026-09-02 — CLAUDE: TAKING spacr/schema.py FOR ONE COMMIT (instruction 326)
+--------------------------------------------------------------------------------
+
+Announced before editing, as instruction 326's own WATCH section requires:
+"`spacr/schema.py` is shared and central. Announce in instruction 325 §5
+before editing it, and do not hold it for long."
+
+WHAT I AM CHANGING AND WHY. `schema.ORGANELLE_ROLES` is a closed tuple of
+FOUR -- organelle, organelleb, organellec, organelled -- while
+`organelle_types.organelle_role()` mints a lettered role for any slot up to
+`MAX_ORGANELLES = 26`. Slots 5 and beyond therefore produce a role the GUI
+offers, the settings registry generates keys for, and `schema.is_object_type`
+REJECTS. The closed-vocabulary contract then says to leave the frame UNTYPED,
+which is precisely the state the object type was introduced to remove: a
+nucleus labelled 1 and a pathogen labelled 1 in the same field were the same
+key. 326's step 1 found this and pinned it.
+
+I am reconciling the two vocabularies so they cannot disagree, and nothing
+else in that file.
+
+THE DEPENDENCY DIRECTION IS SAFE and was checked first: `schema.py` imports
+nothing from spaCR, and `organelle_types.py` does not import `schema`. So the
+lettering rule is stated in `schema.py` rather than imported, with a test
+asserting the two agree -- one source would be better and is not available
+without introducing an import into the lowest-level module in the package.
+
+SHORT HOLD. One commit, and this file says when it is done.
