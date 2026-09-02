@@ -1,4 +1,62 @@
-"""Classical machine-learning and regression analysis pipelines."""
+"""Find screen phenotypes and test which guides or genes explain them.
+
+WHAT IT IS FOR
+==============
+The **Regression** tile opens this module because
+:func:`perform_regression` is its main entry point: it joins per-well image
+scores to sequencing counts and estimates guide- or gene-level associations
+for a pooled screen.  The module also contains a separate classical
+machine-learning workflow, :func:`generate_ml_scores`, which trains a
+classifier on measured single-object features and turns those predictions
+into the score table a regression can consume.
+
+WHAT IT NEEDS
+=============
+A regression run is configured with ``paired_data``: ordered score/count CSV
+pairs whose plate and well identities agree.  Older ``score_data`` and
+``count_data`` lists are migrated positionally, but explicit pairs are safer.
+Choose the score column with ``dependent_variable`` and provide the relevant
+control wells, plate metadata, analysis ``level`` (guide, gene, or both),
+multiple-testing threshold, and either a supported ``regression_type`` or
+``None`` for distribution-based selection.  Family-specific settings are
+validated rather than silently ignored.  The classical-ML path instead needs
+one or more ``measurements.db`` files, labelled positive and negative controls
+or an annotation column, and a model choice such as XGBoost, logistic
+regression, or random forest.
+
+WHAT IT PRODUCES
+================
+Regression results go into a new, non-overwriting
+``<output root>/results/<analysis kind>[_n]`` directory.  ``results.csv`` is
+the primary combined table; ``results_grna.csv`` and ``results_gene.csv``
+make the fitted levels explicit, and ``results_significant.csv`` records
+thresholded hits.  The same directory holds summaries, diagnostics, volcano
+and plate figures, optional publication-panel packages, resource measurements,
+or a detailed failure report.  A requested level with no fitted rows is kept
+as a header-only CSV so downstream tools can distinguish "tested, no rows"
+from a missing artifact.  Classical ML writes predictions, feature-importance
+tables, evaluation results, and a plate heatmap beneath ``results``.
+
+WHAT TO DO NEXT
+===============
+Read the diagnostic and failure/resource records before ranking hits, then
+review the significant table alongside the complete level tables and check
+whether guide and gene effects agree.  Open the generated result panels for
+visual QC and retain the settings/manifests with any reported hit list.  If
+scores do not yet exist, run :func:`generate_ml_scores`; if counts do not yet
+exist, create them with
+:func:`spacr.sequencing.generate_barecode_mapping`.
+
+Several statistical distinctions are deliberate.  Guide and gene fits are
+separate multiple-testing families and receive separate corrections; the
+nominal ``alpha``, effect-size threshold, and corrected significance cutoff
+are not interchangeable.  A mixed model reports guide effects as shrunken
+BLUP predictions without guide p- or q-values, so they must not be read as a
+second guide significance test.  Diagnostic or report-generation failures do
+not erase successful scientific output, while an actual regression failure
+is recorded and then re-raised unchanged so callers cannot mistake it for a
+completed run.
+"""
 
 import functools
 import logging
