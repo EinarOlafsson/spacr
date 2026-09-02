@@ -55,3 +55,45 @@ HOW IT WILL BE CHECKED
 * The value survives whatever rebuild follows the download, driven through the
   real button.
 * The same assertion passes for every module that offers the chooser.
+
+--------------------------------------------------------------------------------
+2026-09-02 — WHERE IT IS NOT, WHICH NARROWS IT A LOT
+--------------------------------------------------------------------------------
+
+Searched before guessing. THE LITERAL `<src>` IS NOT PRODUCED BY THE PACKAGE.
+Every occurrence of the string in `spacr/` is prose -- docstrings in
+`object.py`, `doctor.py` and `report.py` describing output layout -- and there
+is no generic angle-bracket placeholder builder (`f"<{key}>"` and friends
+appear only in `report.py`, `layers.py`, `verbose_logger.py` and `db_browser.py`,
+none of which writes a settings field).
+
+The settings-model placeholders are `{"src": "path to images"}` and
+`{"src": "path"}` at `settings_model.py:297-298`. Neither has brackets. So a
+rebuilt screen falling back to its placeholder would show "path", NOT `<src>`.
+
+THAT WEAKENS THE RESTART HYPOTHESIS AND POINTS AT THE PUBLISHED FILE. The most
+likely source is the example settings CSV itself carrying `src,<src>` as a
+template token. `AppScreen.reanchor_example_paths` re-roots RECORDED ABSOLUTE
+PATHS onto the download directory -- it was written for
+`src,/home/carruthers/datasets/plate1` -- and a placeholder token is not an
+absolute path, has no suffix to match, and does not resolve, so every branch
+of that method correctly leaves it alone. The value then reaches the field
+verbatim.
+
+WHAT TO CHECK FIRST, in this order, and it is cheap:
+
+  1. Download the example pack and read `settings/gen_mask_settings.csv`. If
+     its `src` cell is `<src>`, the fix is in the loader (substitute the
+     destination for the token) or in the published file, and the restart is
+     a red herring.
+  2. Only if the CSV holds a real path, pursue the rebuild.
+
+IF IT IS THE TOKEN: substituting it is a one-line addition to
+`reanchor_example_paths`, but do it as a NAMED TOKEN rather than by treating
+any unresolvable value as a root -- the method's docstring already records why
+substituting the destination outright is wrong, because Measure's `src` points
+at a SUBFOLDER and collapsing it would quietly measure the wrong directory.
+
+`_EXAMPLE_SETTINGS_FILES` (app_screen.py:3808) lists the files tried per
+module, which is where to look for the measure/classify/regression equivalents
+named in the section above.
