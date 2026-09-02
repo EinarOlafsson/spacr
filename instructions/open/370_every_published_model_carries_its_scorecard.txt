@@ -1,0 +1,159 @@
+================================================================================
+EVERY PUBLISHED MODEL CARRIES A SCORECARD: FINETUNED AGAINST VANILLA, ON A
+HELD-OUT SET, IN THE TOOLTIP, ON HUGGING FACE, AND IN THE API
+================================================================================
+
+Status:    not started, filed 2026-09-02. State below MEASURED the same day.
+Requested: 2026-09-02, in two messages, verbatim --
+           "for every model that is uploaded to model zoo, a table should
+           accompany each model showing a comparison between the finetuned
+           model and the vanilla model on a hold out test set. this tables
+           data should be accessable in a tooltip when the model is hovered
+           in spacr (e.g. in the model zoo or model zoo button in mask
+           geenration), the information should be in a csv and in graph folm
+           on hugging face and should be available in graph form and as a
+           table on the spaCR API, which should like to Huggingface and have
+           a API section for each model in the model zoo."
+           "include all possible metrics, djicard, IoU, F1, boundry F1,
+           recall, precsision, AUPRC, etc, all the common ones for that model
+           type."
+Owner:     spacr/model_zoo.py, spacr/model_compare.py, a new evaluation
+           module, packaging/generate_readme_visuals.py for the generated API
+           page, and whatever publishes to `einarolafsson/models`.
+
+--------------------------------------------------------------------------------
+WHAT EXISTS, AND THE ONE THING THAT DOES NOT
+--------------------------------------------------------------------------------
+
+Most of the plumbing is already here:
+
+  * `ModelEntry` carries a `metrics: Dict[str, Any]`, the published catalogue
+    already has a `metrics` key per row, and `ModelEntry.describe()` renders
+    it -- and `describe()` IS the tooltip: `spacr/qt/screens/model_zoo.py`
+    does `item.setToolTip(entry.describe())`. So the tooltip route is
+    already wired; what reaches it is free-form text.
+  * `compare_entries()` puts two entries head to head through
+    `model_compare.compare_models`, with split/merge attribution.
+  * The catalogue is published on Hugging Face already --
+    `HF_MODELS_REPO = "einarolafsson/models"` with `REMOTE_CATALOGUE_URI`.
+  * The API already has a generated model-zoo page,
+    `docs/source/_generated/model_zoo_table.rst`, written by
+    `packaging/generate_readme_visuals.py::_model_zoo_rows`.
+
+THE THING THAT DOES NOT EXIST IS ACCURACY. Nothing in spaCR measures a
+segmentation against GROUND TRUTH. `model_compare` compares two models to
+EACH OTHER and says so in its own docstring -- "neither model is ground
+truth" -- and `seg_qc` scores a field with no labels at all: it flags splits,
+merges and implausible diameters. Both are useful and neither is Dice.
+
+  SO THE CRUX OF THIS ITEM IS THE HELD-OUT SET, NOT THE TABLE. A number
+  computed on "three fields" chosen at call time is not comparable between
+  two models, between two versions of one model, or between two days. What
+  makes the table worth publishing is that every model is scored on the SAME
+  named, versioned, labelled set, and that the set is published beside the
+  models so the number can be checked by somebody else.
+
+  A grep for the metric vocabulary: `IoU` appears in `model_compare` (as
+  object matching between two models), `precision`, `recall`, `f1`, `brier`
+  and `calibration` in the classifier-quality modules. `Dice`, boundary F1
+  and AUPRC appear nowhere. Most of this is to be written, not wired.
+
+--------------------------------------------------------------------------------
+WHAT THE SCORECARD HOLDS -- BY MODEL TYPE, BECAUSE THEY SHARE ALMOST NOTHING
+--------------------------------------------------------------------------------
+
+"All the common ones for that model type" is the requirement, and the two
+types have different literatures. Report every metric for BOTH the finetuned
+and the vanilla model, plus the difference, so the table answers "is it
+better" and not only "what is it".
+
+SEGMENTATION (Cellpose and anything else that emits label masks):
+
+    Dice / F1 per object            the overlap measure the field quotes
+    IoU (Jaccard), mean and per     the same thing on the other scale
+    AP at IoU 0.5 .. 0.9 in 0.05    the Cellpose/StarDist convention; one
+                                    number hides whether a model is good at
+                                    finding objects or at outlining them
+    precision, recall, F1 at        matched at a stated IoU, so a reader
+      each threshold                knows what "a hit" meant
+    boundary F1 (at 1, 2, 3 px)     the outline, which Dice barely moves for
+    split and merge counts          spaCR already attributes these
+    object-count error              per field, signed
+    per-object area error           what a measurement inherits
+
+CLASSIFIERS:
+
+    accuracy, balanced accuracy     the second because screens are unbalanced
+    precision, recall, F1           per class and macro
+    AUROC and AUPRC                 AUPRC first when positives are rare,
+                                    which in a screen they are
+    MCC                             one number that survives imbalance
+    confusion matrix                counts, not proportions
+    Brier score and ECE             calibration, which spaCR already computes
+                                    and which decides whether a threshold
+                                    means anything
+    threshold used                  stated, not implied
+
+  EVERY NUMBER CARRIES ITS N. A Dice of 0.91 on eleven objects is not a
+  result, and a table that omits the count invites that mistake.
+
+--------------------------------------------------------------------------------
+THE FOUR SURFACES, AND THEY ARE ONE SOURCE
+--------------------------------------------------------------------------------
+
+1. HUGGING FACE -- the CSV is the artifact everything else is derived from,
+   published beside the model in `einarolafsson/models`, one row per metric
+   per model with its n and its hold-out set version. The graph beside it is
+   generated from that CSV, never drawn by hand.
+2. THE TOOLTIP in spaCR, on hover, in the Model Zoo and on Mask's model-zoo
+   button. This is the surface with the least room: it must lead with the
+   handful of numbers that decide a choice and say where the rest is.
+3. THE API -- a section per model, with the table AND the graph, linking to
+   the Hugging Face page. `model_zoo_table.rst` is generated, so this is an
+   extension of that generator rather than a hand-written page that will go
+   stale.
+4. THE ZOO SCREEN itself, which already shows `describe()`.
+
+  ONE SOURCE, FOUR RENDERINGS. If the tooltip and the API page can disagree,
+  they eventually will -- see 366's finding that six README tiles pointed at
+  three API pages. The CSV is the source; the entry's `metrics` is loaded
+  from it; the tooltip and the page render the entry.
+
+--------------------------------------------------------------------------------
+TRAPS, EACH ALREADY PAID FOR ONCE SOMEWHERE ELSE
+--------------------------------------------------------------------------------
+
+* "VANILLA" IS NOT A CONSTANT. `cyto3` today is not `cyto3` of two releases
+  ago. The baseline must be pinned by version and checksum in the scorecard,
+  or next year's table silently compares against a different model.
+* THE ZOO IMPORTS WITHOUT TORCH, deliberately, and a test asserts it.
+  Browsing models, reading the scorecard and rendering the table must keep
+  working on a machine with neither torch nor cellpose; only RE-RUNNING an
+  evaluation may need them.
+* THE HELD-OUT IMAGES CANNOT SHIP IN THE WHEEL. They belong beside the models
+  on Hugging Face, with the same size-before-download treatment
+  `spacr-download` already gives the example data.
+* A SCORECARD WITHOUT ITS SET IS A NUMBER WITHOUT A UNIT. The hold-out set
+  needs a version, a checksum and a count, in the CSV and in the tooltip.
+* AND THE HONEST CASE: a model whose scorecard is missing must SAY the
+  scorecard is missing, not show blanks. `ModelEntry.provenance_known`
+  already draws that distinction for training provenance -- "this model does
+  not say what it was trained on, so nothing here tells you whether it suits
+  your images" -- and the same sentence is owed for accuracy.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* One published model, end to end: a CSV on Hugging Face, a graph generated
+  from it, the same numbers in the tooltip, and the same numbers in the API
+  section, with no third place they could disagree.
+* The evaluation runs from the command line on a named hold-out set and
+  produces the CSV -- so a new model can be scored without a GUI.
+* Every metric above appears for the type it belongs to, each with its n and
+  the hold-out set's version.
+* Re-running the evaluation on the same set and the same checkpoints
+  reproduces the numbers.
+* A model with no scorecard says so, in all four surfaces.
+* The zoo still imports, browses and renders with neither torch nor cellpose
+  installed.
