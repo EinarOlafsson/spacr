@@ -198,7 +198,13 @@ def v2_mask_source(merged_dir, object_type: str = "cell"):
     plane = len(image_channels) + offset
 
     def _reader(path):
+        """Return a lazy zero-argument reader for one captured stack path."""
         def read():
+            """Memory-map the stack and return its selected 2-D mask plane.
+
+            A stale sidecar whose selected plane is absent raises an
+            ``IndexError`` that names the stack, plane, and observed shape.
+            """
             stack = np.load(path, mmap_mode="r")
             if stack.ndim < 3 or plane >= stack.shape[2]:
                 raise IndexError(
