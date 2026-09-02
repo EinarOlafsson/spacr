@@ -153,3 +153,44 @@ STILL WORTH DOING, and not done here: the sibling modules. The chooser reached
 Measure, Classify, Annotate and Map Barcodes in the same week. Each has its own
 `_put_..._in_place` equivalent, and the same second-write hazard applies
 wherever one writes a path before applying shipped settings.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE SIBLING ROUTE, AND WHY IT GETS A DIFFERENT RULE
+--------------------------------------------------------------------------------
+
+`_put_the_measure_example_in_place` has the SAME shape -- write `src`, then
+apply the shipped settings -- and it is NOT fixed the same way, deliberately.
+
+Measure's example records `src` as the plate's `merged/` SUBFOLDER. That is
+more specific than the folder downloaded into and is the directory Measure
+must actually read; `reanchor_example_paths` states in its own docstring that
+collapsing it to the plate root "would quietly measure the wrong directory
+rather than fail". So on this route the shipped value is RIGHT to win, and
+re-asserting the destination -- the images-route fix -- would be a regression.
+
+What it now refuses is a value that is not a directory at all: a template
+token, or a publisher's path that could not be re-homed. Nothing about that
+failure was specific to Mask; it simply showed up there first. Falling back to
+the folder we downloaded into is strictly better than a path that cannot be
+opened, and the console says it happened rather than doing it silently.
+
+ONE TRAP, FOUND BY THE TEST AND WORTH KEEPING. `Path("")` is `PosixPath(".")`
+and its `is_dir()` is True, because the working directory exists. An empty
+settings cell therefore passed the "is it a directory" check and would have
+pointed the run at the cwd. The guard strips and tests for empty BEFORE
+asking the filesystem.
+
+TESTS, in the same file: the merged/ subfolder WINS when it exists -- the
+opposite of the images rule, asserted so a later reader does not "fix" the
+asymmetry -- and three unopenable values are taken back.
+
+  8 passed in that file; 76 passed across the seven example suites. The two
+  failures there (`test_mask_generation_has_the_button`,
+  `test_the_button_comes_back_after_a_failure`) fail identically at HEAD.
+
+STILL UNCHECKED: Classify, Annotate and Map Barcodes. Their handlers are
+`_apply_the_example_settings` (line 4283) and the sequencing one, and neither
+was read closely here. The question to ask of each is the one this item turned
+on: DOES ANYTHING WRITE A PATH BEFORE `apply_settings_that_came_with` RUNS,
+and if so, is the shipped value more specific (keep it, guard it) or merely a
+different machine's (take it back)?

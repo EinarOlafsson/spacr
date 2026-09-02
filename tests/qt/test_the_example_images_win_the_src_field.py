@@ -102,3 +102,52 @@ def test_the_shipped_settings_are_still_applied(put_in_place, tmp_path):
     put_in_place(screen, images, None)
 
     assert screen.applied_with == images
+
+
+# ---------------------------------------------------------------------------
+# The MEASURE route, which is deliberately not the same rule
+# ---------------------------------------------------------------------------
+
+class _MeasureScreen(_Screen):
+    app_key = "measure"
+
+
+@pytest.fixture
+def put_measure_in_place():
+    from spacr.qt.screens.app_screen import AppScreen
+
+    return AppScreen._put_the_measure_example_in_place
+
+
+def test_measure_keeps_a_shipped_subfolder_that_exists(put_measure_in_place,
+                                                       tmp_path):
+    """The merged/ subfolder must WIN, which is the opposite of the images rule.
+
+    `reanchor_example_paths` records why: Measure's example points `src` at
+    the plate's `merged/` folder, and collapsing that to the plate root would
+    quietly measure the wrong directory rather than fail. So this route must
+    not re-assert the download folder the way the images route does.
+    """
+    plate = tmp_path / "plate1"
+    merged = plate / "merged"
+    merged.mkdir(parents=True)
+    screen = _MeasureScreen(str(merged))
+
+    result = put_measure_in_place(screen, plate)
+
+    assert screen._field.text() == str(merged)
+    assert result["src"] == str(merged)
+
+
+@pytest.mark.parametrize("shipped", ["<src>", "/nowhere/that/exists", ""])
+def test_measure_refuses_a_shipped_src_that_is_not_a_directory(
+        put_measure_in_place, tmp_path, shipped):
+    """A value that cannot be opened is taken back; a real one is not."""
+    plate = tmp_path / "plate1"
+    plate.mkdir()
+    screen = _MeasureScreen(shipped)
+
+    result = put_measure_in_place(screen, plate)
+
+    assert screen._field.text() == str(plate)
+    assert result["src"] == str(plate)
