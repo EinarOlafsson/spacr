@@ -74,3 +74,71 @@ HOW IT WILL BE CHECKED
 * The 113-file run is green, or its remaining failures are named and owned.
 * Each formerly order-dependent test passes both alone and in the group.
 * The mechanism is written down here, not just the fix.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE MECHANISM IS FOUND, NAMED, AND FIVE OF THE 21 ARE CLOSED
+--------------------------------------------------------------------------------
+
+Bisected rather than reasoned about, exactly as step 1 above asks. 112
+candidate files, halved four times:
+
+    first 56 files before measure_hooks   10 failures
+    first 28                              10
+    first 14                               4
+    first 10                               0
+    first 12                               4      <- between 10 and 12
+    test_cov_11_measure.py ALONE           4
+    test_cov_14_settings_model.py ALONE    0
+
+`tests/test_cov_11_measure.py` is the poisoner, on its own.
+
+THE MECHANISM, and nothing in it looks wrong at the site:
+
+`spacr.measure._ZERNIKE_AVAILABLE` is a module-level cache of "is Mahotas
+importable", filled on first use. The file's `stub_mahotas` fixture puts a
+FAKE Mahotas into `sys.modules`; a measurement taken while it is there fills
+that cache with **True**. `monkeypatch` then removes the fake -- it restores
+what it was asked to restore -- but THE CACHE IS NOT SOMETHING IT WAS ASKED
+ABOUT, so True survives into a process where Mahotas does not exist.
+
+Measured directly, with a probe test appended after that file:
+
+    after test_cov_11_measure.py:   _ZERNIKE_AVAILABLE is True
+                                    "mahotas" in sys.modules is False
+    on its own:                     _ZERNIKE_AVAILABLE is None
+
+Every later test that measures morphology then believes Zernike is available,
+asks for it, and gets a frame with different columns. That is the whole of the
+`test_measure_hooks.py` family.
+
+THE FIX is an autouse fixture in the offending file that puts the cache back
+after every test. File-local and autouse on purpose: the leak happens whenever
+the cache is FILLED, which any test there can do -- including one added later
+by someone who does not think it is about Zernike.
+
+    113 files:   21 failed  ->  16 failed, 3,098 passed
+
+A SECOND, UNRELATED BUG WAS FIXED IN PASSING and it was a real one.
+`test_region_filter_removes_exactly_the_excluded_objects` also failed ALONE,
+on `cell_second_neighbor_distance`. Its claim was that the survivors are
+"measured exactly as they were" -- true of per-object measurements and false
+of neighbourhood ones, which are computed over the objects PRESENT. Excluding
+cells 2 and 4 changes cell 1's second-nearest neighbour, and it SHOULD: a
+region filter exists to say those objects are not part of the analysis, so
+counting an excluded object as a neighbour would report a density the user
+filtered out. The assertion is now split in both directions -- per-object
+columns identical, neighbourhood columns required to MOVE -- because asserting
+only the first half would pass against a build that stopped computing
+neighbours at all.
+
+WHAT IS LEFT: 16, and they are not one family.
+`test_measure_spawn.py` (3), `test_measure_3d.py` (4),
+`test_measure_hooks.py` (still some), and one each from intermittent,
+join_contracts, manager_guard and optional_zernike. Bisect them the same way;
+the method above took about fifteen minutes for the first one.
+
+THE GENERAL LESSON, worth more than the five tests: A MONKEYPATCHED IMPORT AND
+A CACHE OF THAT IMPORT ARE TWO PIECES OF STATE, and restoring one does not
+restore the other. Anywhere spaCR caches "is X installed", a test that fakes X
+has to put the cache back too. `_ZERNIKE_AVAILABLE` is not the only such
+cache.

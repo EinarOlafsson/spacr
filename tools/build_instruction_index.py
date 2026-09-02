@@ -85,6 +85,7 @@ STAGE: Dict[str, str] = {
     "341": "0% -- three tests confirmed still failing on 2026-09-01",
     "350": "~30% -- the reported Annotate case is fixed and the reusable check exists; the sweep is not run",
     "353": "~60% -- the buttons are at the top; aligning them to their columns is not done",
+    "346": "~25% -- the zernike-cache leak found and fixed, 21 down to 16",
     "348": "~35% -- Help is a dock heading and is last; the magnifier and the text move are open",
     "343": "75% -- renderer complete; run/export integration and vector composition left",
 }
