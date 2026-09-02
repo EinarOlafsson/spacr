@@ -2,9 +2,36 @@
 EVERY BUTTON STILL WEARING THE DEFAULT ICON GETS AN INTUITIVE ONE
 ================================================================================
 
-Status:    PARTLY DONE 2026-09-02 -- 7 buttons wore the default icon,
-           2 still do. Both are Regression's Diagnostics, which needs
-           artwork nobody has drawn. See WHAT WAS DONE at the bottom.
+Status:    DONE 2026-09-02. Seven buttons wore the default icon; ZERO do.
+           Measured by booting a window, opening all 36 module screens and
+           comparing every QAbstractButton's icon pixel-for-pixel against
+           the artwork `iconset.icon()` returns for a name it does not know.
+
+           Five were mapped to pictures that already ship. THE LAST ONE --
+           Regression's Diagnostics, the button this request names -- was
+           DRAWN, because every candidate was worse than no icon:
+           `outliers.png` is the live Outliers module's mark, `dose_response
+           .png` is a sigmoid near-identical at 16 px to `profiler.png`
+           which sits beside Diagnostics on the same strip, and Font
+           Awesome's `stethoscope` says "diagnostics" the way a gear says
+           "settings", which this file rules out.
+
+           What it draws is what the module does: a dashed zero line, six
+           residuals scattered either side, one point ringed as influential.
+           Measured against the set it joins -- 8.9% ink at 26 px where the
+           bundled artwork runs 3-5% at 16, contrast 15.8 light and 16.1
+           dark against a floor of 3.0, re-inks per theme like every other
+           mask, and 13.3% of the square disagrees with `profiler`, its
+           nearest neighbour, where the bar is 10%.
+
+           A gap in the tests is closed with it: the strip-distinctness
+           check covered Classify's and Import's strips and not
+           Regression's, which is how a mark agreeing with `profiler` on
+           90.2% of the square could have shipped unnoticed. Regression's
+           strip is covered now, and a sharing recorded in
+           `SHARED_ICON_ASSETS` -- `investigate_hit` drawing `hit_list.png`
+           -- is exempted as the decision it is rather than silencing the
+           check.
 Requested: 2026-09-02, verbatim -- "make an intuitive, elegant logo for all
            buttons that are currently using the default logo, dor example
            diagnostics in regression"

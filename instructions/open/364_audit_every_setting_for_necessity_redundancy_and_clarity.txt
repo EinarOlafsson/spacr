@@ -358,3 +358,77 @@ colour limits wearing the name of a normalisation method.
 
 Annotate and Map Barcodes are the remaining core modules. Then preferences
 and spaceout as the request asks.
+
+ANNOTATE AND MAP BARCODES ARE AUDITED, 2026-09-02 -- see
+instructions/data/364_annotate_and_map_barcodes_settings_audit_2026-09-02.txt.
+That completes the six core modules. Annotate: 23 settings in its defaults
+factory, 31 counting the screen's own table, 44 counting the Cells-tab
+picture panel. Map Barcodes: 18 declared, 20 that the pipeline actually
+reads, plus 5 in a factory nothing calls. Thirteen findings, and this pair
+does NOT look like the first four.
+
+  SOMETHING IS DEAD AT LAST, AND IT SAYS SO ITSELF. `barcodes` and `grna`
+  are in `get_map_barcodes_default_settings`, which is called by nothing
+  under spacr/. Their own tooltips state it -- "Nothing in the current code
+  reads this key ... so setting it has no effect" -- and the grep confirms
+  it: `settings['grna']` and `settings.get('grna')` appear nowhere. Both are
+  still typed, tooltipped, categorised under Paths, and translated into all
+  ten catalogs.
+
+  WHICH MEANS THE "NOTHING IS DEAD" SCAN HAS A HOLE. The file-count scan the
+  first four audits used says `grna` is named in 66 files and `barcodes` in
+  46 -- every one of them `grna_csv`, `barcodes_column.csv` or the pandas
+  column `df['grna']`. It is the same collision `test_dead_settings.py`
+  already exempts `nc` and `pc` for. The four earlier "nothing is dead"
+  results are probably still right -- those modules' keys are long and
+  distinctive -- but they are worth re-checking with the stricter test
+  (grep for `settings['<key>']`, not for the bare word) before they are
+  relied on.
+
+  AND THE ONE THAT COSTS A USER SOMETHING EVERY SESSION: ANNOTATE HAS TWO
+  DEFAULT TABLES THAT DISAGREE ON 15 OF THE 21 KEYS THEY SHARE, TEN OF THEM
+  SUBSTANTIVELY. `set_annotate_default_settings`
+  is what every tooltip documents; the screen does
+  `self._settings = AnnotateSettings()` (annotate.py:2237) and never consults
+  it. `outline_sigma` is 4 in the factory and 1.0 on screen, and its tooltip
+  says "Default 4." `crop_source` is the serious one: the factory ships
+  'png' under a capitalised comment citing instructions 170 and 171 -- "This
+  shipped 'auto', which takes the PNG folder whenever one exists ... and
+  unaskable when a user wants the other" -- and the dataclass still starts at
+  'auto'. The decision landed in the factory and the annotation screen never
+  saw it.
+
+  A RELATED ONE THAT IS PURE NAMING: `img_size` (factory, int) and
+  `image_size` (screen, tuple) are one question, and the screen's own
+  settings-CSV importer looks for `image_size` while the defaults factory
+  writes `img_size` -- so a settings file made from spaCR's own defaults
+  silently sets no image size.
+
+The rest are the familiar shapes plus one new one. `threshold`'s tooltip
+offers quantile codes 'q1'-'q9' that no code in the package parses, so acting
+on it raises `ValueError` on a worker thread; the same tooltip pair claims
+`>=`/`<=` where `_apply_threshold` is strictly `>`/`<`. `expected_end` is a
+window LENGTH whose own docstring has to say "window *length*, not an end
+coordinate" twice. `n_jobs`'s shared tooltip tells the Map Barcodes user that
+-1 means every core, and `_chunk_worker_count` raises on anything below 1.
+`image_type` / `object_array` / `object_type` are three names for "which
+object", one per crop source, and the panel already copies one into another.
+`cv_group_by` and `object_size` are the first two settings in five modules
+that are genuinely UNNECESSARY -- offered by Annotate, never acted on by it.
+
+  THE NEW SHAPE, and it is what let the rest happen: ANNOTATE IS NOT
+  REGISTERED AS A SETTINGS MODULE. `settings_model.py:295` returns
+  `{"src": "path to images"}` for it, and it is absent from
+  `GUI_MODULE_DEFAULTS`, so `test_every_setting_a_module_offers_has_a_
+  category` never runs for it. 28 of its 44 keys have no category, 28 have no
+  `expected_types` entry -- which is exactly why `edge_image` still ships the
+  STRING 'False', a truthy value for a checkbox -- and 7 are declared nowhere
+  at all: `object_filters`, `outline_method`, `grid_rows`, `grid_cols`,
+  `stored_channel_order`, `display_order`, `display_primaries`. Three of
+  those are combo boxes on the form with hand-written setToolTip strings.
+  Registering Annotate the way every other module is registered would have
+  caught most of this file on its own.
+
+Preferences and spaceout are next, as the request asks, followed by the
+sub-surfaces it named: live previews, the hyperparameter searches, and the
+assay sub-modules.
