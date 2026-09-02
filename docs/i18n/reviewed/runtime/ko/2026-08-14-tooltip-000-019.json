@@ -103,9 +103,9 @@
     {
       "table": "setting_tooltips",
       "key": "control_wells",
-      "source_sha256": "380c2189435411b0a8b17720e81b26923b9f9e18bca40f81b8f5eb6f87e2e7bb",
-      "source": "These wells set the empirical negative distribution for the pre-permeabilisation stain and are excluded from efficiency calculations. Set a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key whose parasites received no stain; None uses the automatic per-field method. Screen Regression reuses this key for a list matching filter_value and initializes it from filter_value plus declared control blocks (the shipped default is ['c1', 'c2', 'c3']). Default None.",
-      "translation": "이 웰은 투과 전 염색의 경험적 음성 분포를 설정하며 효율 계산에서 제외됩니다. 기생충이 염색되지 않은 열('c12'), 행('r1'), 웰('r1_c12') 또는 전체 플레이트 키를 지정합니다. None 은 자동 필드별 방법을 사용합니다. 스크린 회귀는 이 키를 filter_value 와 일치하는 목록으로 재사용하며, filter_value 와 선언된 대조 블록으로 초기화합니다(제공되는 기본값은 ['c1', 'c2', 'c3']). 기본값 None."
+      "source_sha256": "c2973f1861aec26da18854b73c62efeb1b764afbda87f3489a8737d342588dd7",
+      "source": "These wells set the empirical negative distribution for the pre-permeabilisation stain and are excluded from efficiency calculations. Set a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key whose parasites received no stain; None uses the automatic per-field method. Screen Regression reuses this key for a list matching filter_value. Regression initializes it from filter_value plus any declared control blocks (the shipped default is ['c1', 'c2', 'c3']). Default None.",
+      "translation": "이 웰은 투과 전 염색의 경험적 음성 분포를 설정하며 효율 계산에서 제외됩니다. 기생충이 염색되지 않은 열('c12'), 행('r1'), 웰('r1_c12') 또는 전체 플레이트 키를 지정합니다. None 은 자동 필드별 방법을 사용합니다. 스크린 회귀는 이 키를 filter_value 와 일치하는 목록으로 재사용합니다. 회귀는 filter_value 와 선언된 모든 대조 블록으로 초기화합니다(제공되는 기본값은 ['c1', 'c2', 'c3']). 기본값 None."
     },
     {
       "table": "setting_tooltips",

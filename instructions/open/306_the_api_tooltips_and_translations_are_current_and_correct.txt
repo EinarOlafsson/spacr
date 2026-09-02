@@ -1120,3 +1120,42 @@ and still passes -- but the message now carries the whole list.
     tests/test_documentation_i18n.py, test_i18n_coverage_audit.py,
     test_runtime_i18n_syntax.py:   18 failed at HEAD, 18 failed after.
     No regressions; those 18 are this item's own debt.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE THREE ARE FIXED, ON THE MAINTAINER'S INSTRUCTION
+--------------------------------------------------------------------------------
+
+"Fix the translations!" -- 2026-09-02. Recorded because the note above said
+this needed the maintainer's own pass, and this is that instruction
+overriding it.
+
+WHAT THE ENGLISH DID, and the edits mirror exactly this and nothing else:
+
+    OLD  "...a list matching filter_value AND initializes it from
+          filter_value plus DECLARED control blocks..."
+    NEW  "...a list matching filter_value. REGRESSION initializes it from
+          filter_value plus ANY declared control blocks..."
+
+One sentence split, and one "any" added. So each locale needed the same two
+edits inside an existing reviewed sentence:
+
+    es     "...corresponde a filter_value. La regresión la inicializa a
+            partir de filter_value más CUALQUIER bloque de control declarado"
+    zh_CN  "...匹配的列表。回归会根据 filter_value 以及任何已声明的对照区组
+            进行初始化"
+    ko     "...목록으로 재사용합니다. 회귀는 filter_value 와 선언된 모든
+            대조 블록으로 초기화합니다"
+
+Nothing else in any of the three sentences was touched, and no other record
+was edited.
+
+ALL NINE LOCALES NOW PASS `reviewed_runtime_translations`, which is the gate
+that raises on drift, on a bad hash, on a non-idempotent target and on a
+target the ordinary rejection rules refuse. The runtime side of the docs
+audit is clean.
+
+STILL FOR THE MAINTAINER, and not changed by this: instruction 316's five
+named semantic defects and its nine-locale sign-off. This was a two-word
+adjustment to sentences a reviewer had already approved; 316 is about prose
+nobody has read. THESE THREE SHOULD STILL BE GLANCED AT in the next pass --
+they are marked reviewed and were last touched by an agent.

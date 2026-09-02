@@ -26,9 +26,9 @@
     {
       "table": "setting_tooltips",
       "key": "control_wells",
-      "source_sha256": "380c2189435411b0a8b17720e81b26923b9f9e18bca40f81b8f5eb6f87e2e7bb",
-      "source": "These wells set the empirical negative distribution for the pre-permeabilisation stain and are excluded from efficiency calculations. Set a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key whose parasites received no stain; None uses the automatic per-field method. Screen Regression reuses this key for a list matching filter_value and initializes it from filter_value plus declared control blocks (the shipped default is ['c1', 'c2', 'c3']). Default None.",
-      "translation": "Estos pocillos establecen la distribución negativa empírica de la tinción previa a la permeabilización y se excluyen de los cálculos de eficiencia. Indique una columna ('c12'), fila ('r1'), pocillo ('r1_c12') o clave de placa completa cuyos parásitos no recibieron tinción; None utiliza el método automático por campo. La regresión de cribado reutiliza esta clave para una lista que corresponde a filter_value y la inicializa a partir de filter_value más los bloques de control declarados (el valor predeterminado incluido es ['c1', 'c2', 'c3']). Valor predeterminado: None."
+      "source_sha256": "c2973f1861aec26da18854b73c62efeb1b764afbda87f3489a8737d342588dd7",
+      "source": "These wells set the empirical negative distribution for the pre-permeabilisation stain and are excluded from efficiency calculations. Set a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key whose parasites received no stain; None uses the automatic per-field method. Screen Regression reuses this key for a list matching filter_value. Regression initializes it from filter_value plus any declared control blocks (the shipped default is ['c1', 'c2', 'c3']). Default None.",
+      "translation": "Estos pocillos establecen la distribución negativa empírica de la tinción previa a la permeabilización y se excluyen de los cálculos de eficiencia. Indique una columna ('c12'), fila ('r1'), pocillo ('r1_c12') o clave de placa completa cuyos parásitos no recibieron tinción; None utiliza el método automático por campo. La regresión de cribado reutiliza esta clave para una lista que corresponde a filter_value. La regresión la inicializa a partir de filter_value más cualquier bloque de control declarado (el valor predeterminado incluido es ['c1', 'c2', 'c3']). Valor predeterminado: None."
     }
   ]
 }
