@@ -116,3 +116,62 @@ def test_the_analysis_needs_no_import_of_spacr(flow):
     assert "spacr" not in imported, sorted(imported)
     for heavy in ("torch", "PySide6", "matplotlib", "cellpose"):
         assert heavy not in imported
+
+
+# ---------------------------------------------------------------------------
+# Phase 3: the page the reader actually clicks.
+# ---------------------------------------------------------------------------
+
+def test_every_branch_in_the_page_is_clickable(data, flow):
+    """"All branches should be clickable" is the request, so the page must
+    not render the tree as preformatted text.
+
+    A ``::`` literal block would be simpler and would show the same shape,
+    and nothing in it would be a link. The page uses a line block instead,
+    which keeps one source line per output line AND interprets roles.
+    """
+    page = flow.rst_for(data, keys=["cell_channel"])
+    assert "::" not in page.split("cell_channel")[-1].split("Read by")[0], (
+        "the tree is in a literal block, where nothing is clickable")
+    assert ":py:func:`~spacr.core.preprocess_generate_masks`" in page
+    assert page.count(":py:func:") >= 4, "hardly anything is a link"
+
+
+def test_the_shape_survives_the_line_block(data, flow):
+    """Indentation carries the meaning, so it must not be collapsed.
+
+    RST discards ordinary leading whitespace inside a line block, so the
+    depth is drawn with non-breaking spaces. Without them every node would
+    appear at the same level and the tree would say nothing.
+    """
+    page = flow.rst_for(data, keys=["cell_channel"])
+    rows = [r for r in page.splitlines() if r.startswith("| ")]
+    assert rows, "no line-block rows at all"
+    depths = {len(r) - len(r.replace(" ", "")) for r in rows}
+    assert len(depths) > 1, f"every row is at one depth: {depths}"
+
+
+def test_a_private_reader_is_named_but_not_linked(data, flow):
+    """AutoAPI publishes no page for a private function.
+
+    Emitting a link to one produces a Sphinx warning and a broken link for
+    the reader, so those are shown as plain names -- which still tells the
+    reader where the value is used.
+    """
+    page = flow.rst_for(data, keys=["cell_channel"])
+    assert "``_normalize_img_batch``" in page
+    assert ":py:func:`~spacr.io._normalize_img_batch`" not in page
+
+
+def test_each_setting_has_an_anchor_to_arrive_at(data, flow):
+    """A reader coming from a tooltip lands on that setting, not the top."""
+    page = flow.rst_for(data, keys=["cell_channel", "nucleus_channel"])
+    assert ".. _setting-flow-cell_channel:" in page
+    assert ".. _setting-flow-nucleus_channel:" in page
+
+
+def test_the_page_says_what_it_could_not_follow(data, flow):
+    """The unresolved marker has to survive into the rendered page."""
+    page = flow.rst_for(data)
+    assert "[UNRESOLVED]" in page
+    assert "cannot follow" in page, "the page never explains the marker"

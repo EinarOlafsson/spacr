@@ -2,9 +2,9 @@
 EVERY FUNCTION DOCUMENTED, AND A CLICKABLE TREE OF WHERE EACH SETTING IS USED
 ================================================================================
 
-Status:    PHASE 1 AND 2 DONE 2026-09-02 -- `tools/settings_flow.py` emits
-           the flow data and prints a pruned tree per setting. The Sphinx
-           page (phase 3) and the docstrings (phase 4) are not started.
+Status:    PHASES 1-3 DONE 2026-09-02 -- the analyser, the pruned tree, and
+           the Sphinx page with every branch clickable. Phase 4, the
+           docstrings, is not started.
 Requested: 2026-09-02 -- "many functions and subfunctions lack docstrings ...
            all functions should have a docstring that explains their inputs
            and outputs, this goes for subfunctions as well ... when it comes
@@ -187,7 +187,29 @@ that ratio collapses, because a tree that is mostly holes is not usable.
   that silently omits what it could not follow looks complete, and the reader
   has no way to tell which they are looking at.
 
-STILL TO DO: the Sphinx page per setting with every node a link (phase 3),
-and the docstrings (phase 4). The map those links resolve against was fixed
+PHASE 3 IS BUILT. `python tools/settings_flow.py --rst` writes
+`docs/source/_generated/settings_flow.rst`: one section per setting that is
+read anywhere, an anchor per section so a tooltip can land on it, and every
+node a `:py:func:` link to its API page.
+
+  A LINE BLOCK, NOT A LITERAL BLOCK, and that is the whole of the difficulty.
+  `::` is the obvious way to draw a tree and renders it as preformatted text
+  in which NOTHING IS CLICKABLE -- and "all branches should be clickable" is
+  the request. A line block keeps one source line per output line and still
+  interprets roles. RST then discards ordinary leading whitespace inside one,
+  so the depth is drawn with non-breaking spaces; without them every node
+  appears at the same level and the tree says nothing.
+
+  A PRIVATE READER IS NAMED BUT NOT LINKED. AutoAPI publishes no page for an
+  underscore function, so a link to one is a Sphinx warning and a broken link
+  for the reader. `_normalize_img_batch` appears as plain text, which still
+  says where the value is used.
+
+  ONE PAGE, NOT 1058. A page per setting is a file per setting and a toctree
+  nobody can scan. The anchors give a reader arriving from a tooltip the same
+  landing while keeping the rest browsable.
+
+STILL TO DO: the docstrings (phase 4), and including the page in the doc
+tree once the Sphinx build is next run. The map those links resolve against was fixed
 earlier today -- 59 settings pointed at a function that reads no settings --
 so the ground is now sound.
