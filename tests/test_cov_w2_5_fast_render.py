@@ -301,6 +301,15 @@ def test_control_groups_use_the_paper_figures_own_names(results):
     assert set(keys) == set(groups)
 
 
+def test_control_groups_do_not_invent_keys_without_a_feature_column(results):
+    """Unlabelled effect rows remain drawable without fabricated row keys."""
+    groups, keys = fr._control_groups(results.drop(columns=["feature"]),
+                                      "coefficient")
+
+    assert set(groups) == {"negative", "positive", "screen"}
+    assert keys == {}
+
+
 # ---------------------------------------------------------------------------
 # writing one
 # ---------------------------------------------------------------------------
