@@ -126,6 +126,16 @@ def test_hover_tooltip_refreshes_after_theme_change(qtbot, monkeypatch):
     anchor = hover_tooltip.QWidget()
     qtbot.addWidget(anchor)
     tip.show_for(anchor, "Help")
-    assert "#445566" in tip.styleSheet()
-    assert "#0a63c4" in tip.styleSheet(), (
-        "the API word kept the old theme's accent")
+    assert "#445566" in tip.styleSheet(), (
+        "the popup kept the old theme's surface")
+
+    # THE TWO MARKS ARE NAMED COLOURS, NOT THEME COLOURS, and that is the
+    # point of them. This used to assert the API link carried
+    # `palette['accent']`; on 2026-09-02 the maintainer asked for "a teel dot
+    # for api and a purple square for annimation", so both are fixed
+    # constants -- a theme switch must NOT repaint a colour that was chosen.
+    # The animation link was already a constant for the same reason.
+    assert hover_tooltip.TEAL in tip.styleSheet()
+    assert hover_tooltip.PURPLE in tip.styleSheet()
+    assert "#0a63c4" not in tip.styleSheet(), (
+        "a theme accent leaked back into the marks")

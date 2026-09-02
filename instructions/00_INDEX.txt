@@ -111,6 +111,7 @@ OPEN
        346_the_measure_suite_fails_only_in_company.txt
 
   347  CATEGORY HELP BELONGS ONLY IN THE STRIP, THE API LINK BECOMES A DOT, AND EVERY
+       [~35% -- the API dot and animation square are in; the strip rules and tooltip coverage are not]
        347_the_tooltip_strip_the_api_dot_and_every_setting_covered.txt
 
   348  THE DOCK: HELP GETS ITS OWN SECTION, THE ICONS GROW, AND THE NAMES MOVE OFF IT

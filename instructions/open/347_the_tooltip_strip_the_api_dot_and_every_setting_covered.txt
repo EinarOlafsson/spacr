@@ -84,3 +84,55 @@ HOW IT WILL BE CHECKED
 * Every setting a built-in module offers has a non-empty tooltip, measured
   AFTER the modules that register them have been imported.
 * A setting whose API target is unknown shows no teal dot.
+
+--------------------------------------------------------------------------------
+2026-09-02 — PART 3 DONE: THE FOOTER IS A TEAL DOT AND A PURPLE SQUARE
+--------------------------------------------------------------------------------
+
+The popup footer already had two separate link widgets with accessible names,
+so this was a rendering change and not a restructure: `_LinkWord("API")` and
+`_LinkWord("Animation")` now draw `API_MARK` (●) and `ANIMATION_MARK` (■).
+
+THE COLOURS SWAPPED, and the API mark is the one that moved. It used to carry
+`palette['accent']` -- the theme blue -- and is TEAL now, with the animation
+mark taking PURPLE. Both are named constants, so a theme switch cannot repaint
+a colour the maintainer chose. `PURPLE = "#7C3AED"` is new; the palette has no
+purple and `info` is only a second name for the blue accent.
+
+SHAPE AS WELL AS COLOUR, and there is a test that says so. Instruction 89
+added a colourblind mode: a dot and a square differ in FORM, so they stay
+distinguishable when the colours do not. Two dots in two colours would be one
+distinction where there are meant to be two.
+
+THE WORDS DID NOT DISAPPEAR, they moved to where a reader can still reach
+them: `accessibleName` stays "API" / "Animation" -- a screen reader announcing
+"black circle" would be a regression -- and each mark now carries a tooltip
+naming itself, so a pointer can still ask.
+
+The marks are drawn four pixels above the prose size. At the popup's small
+font a circle is a few pixels across, and these are click targets rather than
+decoration.
+
+FOUR TESTS WERE UPDATED, and one of them lost strength honestly rather than
+quietly:
+
+  * the footer test asserts the marks and the accessible names;
+  * the colour test asserts teal/purple, still scored against the WRONG
+    colour so it cannot pass for any two non-background inks;
+  * the provenance test now records where purple comes from as well as teal;
+  * THE UNDERLINE TEST CHANGED SHAPE. Its probe was "a near-full-width run of
+    ink on one row is an underline", which is true of a WORD and false of a
+    filled square -- ■ is a full-width run on every row it occupies and would
+    trip the probe while being perfectly un-underlined. The marks are now
+    checked on the font and the declared `text-decoration: none`, and the
+    pixel probe is KEPT as a control against a real `<a href>` that Qt does
+    underline. That control is what stops the file quietly losing the ability
+    to detect one.
+
+Six new tests in `tests/qt/test_the_tooltip_marks_replace_the_words.py`.
+583 passed across every hover/tooltip/palette test; the 2 failures there are
+306's catalog debt and fail identically at HEAD.
+
+STILL OPEN IN 347: parts 1, 2 and 4 -- category help losing its popup to the
+strip, whether Regression's SETTING tooltips have wrongly moved to the strip
+already, and the "every setting has a tooltip" coverage claim.

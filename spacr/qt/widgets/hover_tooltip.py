@@ -120,6 +120,23 @@ _UNBOUNDED = 16777215
 #: only teal spaCR already ships as a named constant.
 TEAL = "#009B9B"
 
+#: The purple half. Same reasoning as TEAL: the palette has no purple, and
+#: `accent` is the blue. Chosen to clear WCAG AA large-text contrast on both
+#: the light and dark popup surfaces, which a lighter violet does not.
+PURPLE = "#7C3AED"
+
+#: THE TWO MARKS, asked for on 2026-09-02: "instead of API just show a teel
+#: dot for api and a purple square for annimation". The words were repeated on
+#: every row that had them, so they cost a line and carried no information
+#: after the first reading.
+#:
+#: SHAPE AS WELL AS COLOUR, and that is not decoration. Instruction 89 added a
+#: colourblind mode; a teal dot and a purple square differ in FORM, so the two
+#: stay distinguishable when the colours do not. Never reduce these to two
+#: dots of different colours.
+API_MARK = "\u25CF"        # ● BLACK CIRCLE
+ANIMATION_MARK = "\u25A0"  # ■ BLACK SQUARE
+
 _ANCHOR_RE = re.compile(
     r"<a\b[^>]*?href\s*=\s*([\"'])(.*?)\1[^>]*>(.*?)</a>",
     re.IGNORECASE | re.DOTALL,
@@ -430,18 +447,25 @@ class HoverTooltip(QFrame):
         links_row = QHBoxLayout(self._links)
         links_row.setContentsMargins(0, 0, 0, 0)
         links_row.setSpacing(SPACING["sm"])
-        self._api_link = _LinkWord("API", "HoverTooltipApiLink", self._links)
+        # THE MARK IS WHAT IS DRAWN; THE WORD IS WHAT IS ANNOUNCED. The
+        # accessible name stays "API" / "Animation" -- a screen reader saying
+        # "black circle" would be a regression -- and each carries a tooltip
+        # so a pointer can still ask what the mark means.
+        self._api_link = _LinkWord(API_MARK, "HoverTooltipApiLink",
+                                   self._links)
         self._api_link.setAccessibleName("API")
         self._api_link.setAccessibleDescription(
             "Open spaCR API documentation for this setting."
         )
+        self._api_link.setToolTip("API documentation for this setting")
         self._api_link.clicked.connect(self.open_api_documentation)
         self._animation_link = _LinkWord(
-            "Animation", "HoverTooltipAnimationLink", self._links)
+            ANIMATION_MARK, "HoverTooltipAnimationLink", self._links)
         self._animation_link.setAccessibleName("Animation")
         self._animation_link.setAccessibleDescription(
             "Show or hide this setting's animation."
         )
+        self._animation_link.setToolTip("Show or hide this setting's animation")
         self._animation_link.clicked.connect(self.toggle_animation)
         links_row.addWidget(self._api_link)
         links_row.addWidget(self._animation_link)
@@ -523,13 +547,22 @@ class HoverTooltip(QFrame):
             f"QLabel#SettingTooltipAnimation {{"
             f"  background: transparent;"
             f"}}"
-            # Two words, two colours, no underline anywhere.
+            # Two marks, two colours, no underline anywhere. Teal DOT for
+            # the API, purple SQUARE for the animation -- the colours the
+            # maintainer named, and the shapes carry the same distinction
+            # for a reader who cannot separate the colours.
+            #
+            # A LARGER FONT THAN THE PROSE: these glyphs are drawn at the
+            # label's font size, and at the popup's small size a circle
+            # reduces to a few pixels. They are targets as well as marks.
             f"QLabel#HoverTooltipApiLink {{"
-            f"  color: {palette['accent']};"
+            f"  color: {TEAL};"
+            f"  font-size: {font_px('small') + 4}px;"
             f"  text-decoration: none;"
             f"}}"
             f"QLabel#HoverTooltipAnimationLink {{"
-            f"  color: {TEAL};"
+            f"  color: {PURPLE};"
+            f"  font-size: {font_px('small') + 4}px;"
             f"  text-decoration: none;"
             f"}}"
         )
