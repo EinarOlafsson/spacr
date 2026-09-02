@@ -2,7 +2,9 @@
 EVERY SETTING AUDITED: IS IT NEEDED, IS IT A DUPLICATE, IS ITS NAME HONEST
 ================================================================================
 
-Status:    not started, filed 2026-09-02.
+Status:    MASK AND MEASURE AUDITED 2026-09-02, awaiting the maintainer's
+           decisions. See instructions/data/364_mask_and_measure_settings_
+           audit_2026-09-02.txt for the proposals. Nothing changed yet.
 Requested: 2026-09-02, verbatim -- "look through each moduals settings and
            evaluate if any settings are unnecessary, redundant or are not
            intuitive. then propose to remove settings that are unnecessary,
@@ -67,6 +69,36 @@ without bound as soon as 326 lands. The two items meet here.
   table or per-object tab, rather than N flat settings per shape. That is a
   presentation change with a settings-file migration behind it, not a
   rename. Propose it as such.
+
+--------------------------------------------------------------------------------
+WHAT THE FIRST AUDIT FOUND (mask + measure, 2026-09-02)
+--------------------------------------------------------------------------------
+
+NOTHING IS DEAD. All 268 settings across the two modules are read somewhere.
+An audit hunting for removable settings would have reported "nothing to do"
+and missed every real problem. The axes that matter are REDUNDANCY and
+NAMING.
+
+THE ONE THAT IS A BUG, NOT UNTIDINESS: organelle carries BOTH
+`_min_size`/`_max_size` and `_min_area`/`_max_area`. They mean the same
+thing, and they are read by DIFFERENT code -- the `_size` pair by the batch
+organelle mask writer, the `_area` pair by the shared filter the Qt live
+preview uses. So tuning the preview and then running the batch applies a
+different filter, silently. cell, nucleus and pathogen have only the `_area`
+pair; organelle alone answers the question twice.
+
+FOUR RENAMES PROPOSED, all where the tooltip must translate the name before
+it can explain the setting: `_FT` -> `_flow_threshold`, `_CP_prob` ->
+`_cellprob_threshold`, `_Signal_to_noise` -> `_signal_to_noise`, and
+`_min_object_area` -> `_min_split_area` (that last one is not style: it is
+the floor below which an object is never SPLIT, and its current name reads
+as a variant of `_min_area`, which it is not).
+
+AND A FINDING FROM OUTSIDE THIS ITEM: 59 of the 706 settings in the
+generated `setting_api_targets.py` map point at a function that reads no
+settings at all -- 30 of them at one guide-permutation CSV writer. That map
+is what a setting's "where is this used" API link follows, and instruction
+368 proposes building a settings-flow tree on it. It has to be right first.
 
 --------------------------------------------------------------------------------
 THE FOUR JUDGEMENTS, AND WHAT EVIDENCE EACH NEEDS
