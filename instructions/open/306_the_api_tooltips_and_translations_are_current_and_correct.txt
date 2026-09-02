@@ -845,3 +845,106 @@ history is that a ratchet was twice moved on a test that could not run.
 
 HONEST FIGURE: ~90%. The catalogs are at a source-current fixed point and the
 counts above are real; the gate that proves it is not green.
+
+--------------------------------------------------------------------------------
+2026-09-02 — SIX RED TESTS DOWN TO THREE, AND THE PIN DELIBERATELY NOT MOVED
+--------------------------------------------------------------------------------
+
+WHAT WAS DONE. `build_i18n_catalogs.py --sources-only` -- which writes the
+English manifest and returns BEFORE any translation model is loaded, so it
+cannot draft prose and cannot collide with 316. It took 2.8 seconds.
+
+    SETTING_LABELS    1018 -> 1027      UI_SOURCES     2695 -> 2785
+    SETTING_TOOLTIPS  1013 -> 1022      MODULE_SUMMARIES  64 -> 65
+    SOURCE_HASHES     4982 -> 5091
+
+That alone turned two tests green: the double-owner failure ('Import' had
+acquired a second generated owner) and the missing source hashes.
+
+A THIRD WAS A STALE TEST, not a translation gap.
+`test_choosing_a_language_redraws_the_screen_in_it` asserted
+`"1 von 7" == slides._where.text()` and got "". `_show_slide` now writes ""
+at index 0 ON PURPOSE -- the code says why: "1 of 7" was landing on top of
+the GPU note and says least on the first slide anyway. Rewritten to assert
+the blank AND to advance one slide and assert the counter is translated
+there, because asserting only the blank would pass against a counter that had
+stopped being translated entirely.
+
+THE REVIEW THE RATCHET ASKS FOR, done rather than skipped:
+
+  * +9 SETTING_LABELS/TOOLTIPS are setting KEYS and identifier-shaped by
+    design: independent_variable_layout, model_data_layout,
+    wide_predictor_columns (all three from 342, tonight), plaque_model,
+    plate_format, well_confidence, well_detection, well_diameter_mm,
+    well_pad.
+  * +1 MODULE_SUMMARIES is `regression_diagnostics`.
+  * -9 UI_SOURCES are all RENAMES, not deletions: 'Import', 'Train CV',
+    'Train XG', 'Load the example screen…', 'Use bundled example',
+    'Fetching the example plate…' and three more. This is 316's word-salad
+    family arriving in the inventory: `tr()` keys by source string, so each
+    rename orphaned nine translations.
+  * +99 UI_SOURCES are the week's new chrome -- test-data choosers, the model
+    zoo picker, annotate streaming, the measure crop preview.
+
+THE COUNT PIN WAS NOT MOVED, AND THIS IS THE POINT OF THIS ENTRY.
+`audit_i18n_coverage.py`, run after the refresh:
+
+    every language   4966/5091 current runtime entries, 10 orphans
+    every language   8929/9035 fresh API docstrings
+
+So the nine catalogs are 125 runtime rows and 106 API docstrings BEHIND the
+sources this refresh just corrected. Moving `test_external_caption_layer_is_
+complete_exclusive_and_pinned` to the new counts would make it green while the
+catalogs are 125 rows stale -- which is the exact failure this file's own
+history is made of: "A ratchet moved on a red or unrunnable test is not a
+ratchet." It stays red until the rows exist.
+
+--------------------------------------------------------------------------------
+WHAT REMAINS IN 306, AND WHICH HALF IS BLOCKED
+--------------------------------------------------------------------------------
+
+THREE RED TESTS, TWO CAUSES.
+
+CAUSE 1 -- THE GENERATED LAYER IS 125 ROWS BEHIND. This is ordinary 306 work
+and is NOT blocked: the sanctioned mechanism is a full
+`build_i18n_catalogs.py` run, which is how all 4,966 existing rows were made.
+It is not hand-drafting and it is not 316's prohibition.
+
+  IT IS ALSO THE HEAVIEST JOB EITHER SESSION HAS RUN. Nine languages through
+  a translation model is exactly the profile of the process that OOM-killed
+  this machine at 115.4 GiB on 2026-09-01. Run it through
+  `tools/run_memory_guarded.py`, announce it in 325 section 5 first so the
+  other session does not start a coverage run into it, and do not start it
+  unattended.
+
+  Closes: `test_external_caption_layer_is_complete_exclusive_and_pinned`
+  (then move the pin, on a green test).
+
+CAUSE 2 -- SIX COMPACT CAPTIONS NEED HAND-WRITTEN ROWS. BLOCKED ON THE
+MAINTAINER. `_ROWS` entries go through `_row()`, which RAISES unless given
+exactly nine translations, so there is no English-only row to add. These are
+the reviewed layer, not the generated one, and 316 reserves them.
+
+    'CPU'
+    'GPU'
+    'none detected'
+    'detected, not used by spaCR'
+    'How much of this machine spaCR keeps between runs: processes, caches and
+     GPU memory. Laptop keeps the least — for 8 GB or on battery; Workstation
+     the most. …'
+    'Primary modules are grouped here into Core, Data, Tools and Assays; …'
+
+  ONE OF THEM MAY NOT NEED TRANSLATING AT ALL. 'CPU' and 'GPU' are acronym
+  identifiers, and this repository already has that concept: instruction 318
+  kept 'QC' exact in every language "because QC is an identifier", and this
+  same test already exempts language native names and AI product names. If
+  they are identities they belong in the exemption, not in `_ROWS` -- decide
+  that before writing eighteen translations of two acronyms.
+
+  Closes: `test_compact_user_facing_caption_surface_has_exact_rows_and_is_
+  pinned` and `test_every_slide_title_and_blurb_is_in_the_catalog`, which
+  fail on the same performance-selector paragraph.
+
+CORRECTION TO THE 2026-08-31 NOTE ABOVE: it predicts the missing compact rows
+are 'Laptop' and 'Workstation'. They are not, and have not been for two days.
+The set is the six above.

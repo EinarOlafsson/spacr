@@ -59,9 +59,23 @@ def test_choosing_a_language_redraws_the_screen_in_it(slides, qapp):
     qapp.processEvents()
 
     assert "Sprache" in slides._title.text()
-    # Seven since the terms of use became a slide of their own.
-    assert "1 von 7" == slides._where.text()
     assert slides._next.text() == i18n.tr("Next ›", "de")
+
+    # THE COUNTER IS BLANK ON SLIDE ONE, ON PURPOSE. This used to assert
+    # "1 von 7" and went red without the translation getting worse:
+    # `_show_slide` now writes "" at index 0, because "1 of 7" was landing on
+    # top of the GPU note and says least there anyway -- nobody needs telling
+    # they are at the beginning.
+    assert slides._where.text() == ""
+
+    # So the counter is proved translated on a slide that HAS one, rather
+    # than the assertion being dropped. Asserting only the blank would pass
+    # against a counter that had stopped being translated entirely.
+    slides._show_slide(1)
+    qapp.processEvents()
+    assert slides._where.text() == i18n.tr("{n} of {total}", "de").format(
+        n=2, total=len(SLIDES))
+    assert slides._where.text() != "2 of 7"
 
 
 def test_it_switches_between_two_translations_not_through_english(slides,

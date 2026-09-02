@@ -57,7 +57,7 @@ OPEN
        305_the_installed_package_loads_and_runs_optimally.txt
 
   306  THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
-       [~90% -- catalogs source-current, but the caption ratchet is RED (6 failures)]
+       [~93% -- 3 of 6 ratchet tests closed; 125 catalog rows owed, 6 compact rows need the maintainer]
        306_the_api_tooltips_and_translations_are_current_and_correct.txt
 
   310  DEFECTS FOUND WHILE COVERING CODE THAT WAS EXCLUDED FROM COVERAGE
