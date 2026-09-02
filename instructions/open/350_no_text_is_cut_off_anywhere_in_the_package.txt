@@ -225,3 +225,61 @@ and a core dump. That is the widget-teardown family instructions 288, 345 and
 346 are about, reproduced here from a plain script with no pytest involved --
 which is worth knowing, because it means the mechanism is not a test-harness
 artefact.
+
+--------------------------------------------------------------------------------
+2026-09-02 — CORRECTION. THE NOTE ABOVE IS WRONG. I MEASURED BEFORE THE LAYOUT
+             SETTLED, AND GERMAN IS THE CLEANEST LOCALE, NOT THE WORST.
+--------------------------------------------------------------------------------
+
+The previous note's headline -- "3 clipped in English, 38 in German, 33 in
+Portuguese" -- IS AN ARTEFACT AND MUST NOT BE PLANNED AGAINST. Retracted in
+full, including the five named captions and the claim that cause 2 dominates
+by an order of magnitude.
+
+WHAT WENT WRONG. The probe called `app.processEvents()` ONCE after `show()`
+and then read `widget.width()`. That is too early: Qt had not finished the
+layout pass, so most widgets still carried a pre-layout default width and
+every caption looked too big for its control. Measured directly on one
+button, in German:
+
+    after  1 processEvents:  width=111   sizeHint=171   text=156   -> "clipped"
+    after  5 processEvents:  width=171   sizeHint=171   text=156   -> fits
+    after 20 processEvents:  width=171   sizeHint=171   text=156   -> fits
+
+Every "clipped" button in that list was a 111 measured against a 156 that
+would have been a 171. The button row was never even close to overflowing --
+715 px of buttons in an 845 px row in German -- and checking THAT is what
+exposed the contradiction. Two measurements disagreeing is what caught this;
+one measurement on its own looked entirely plausible.
+
+THE REAL NUMBERS, same screens, same 1100x800 window, layout allowed to
+settle over twelve event-loop turns:
+
+    en   2 clipped        de   0 clipped        pt   3 clipped
+
+German is the CLEANEST of the three. The opposite of what I reported.
+
+AND THE REAL LIST IS ONE WIDGET CLASS:
+
+    en  mask, measure         AiToggleLabel  'Time'                  +7 px
+    pt  mask, measure         AiToggleLabel  'Tempo'                 +19 px
+    pt  regression            AiToggleLabel  'Varredura de parâmetros' +40 px
+
+`AiToggleLabel` is the only control that clips anywhere in four screens and
+three languages, and it clips in ENGLISH too -- so this is not a translation
+problem at all, it is one control whose width does not follow its caption.
+That is a small, sharp fix and it is the whole of what this sweep found.
+
+WHAT SURVIVES FROM THE RETRACTED NOTE:
+
+  * the `_WrappedLabel` false-positive warning -- a wrapping label measured
+    with `horizontalAdvance` still asks for its width on one line;
+  * the observation that a plain script building screens ends in the
+    `QThread: Destroyed while thread is still running` core dump, with no
+    pytest involved (288/345/346);
+  * that a larger font scale is still untested.
+
+THE LESSON FOR THE SWEEP ITSELF, and it belongs in the method above: PUMP THE
+EVENT LOOP UNTIL THE GEOMETRY STOPS CHANGING BEFORE MEASURING ANYTHING. A
+clipping check that reads a width too early does not report a few extra
+findings -- it reports a completely different package, confidently.
