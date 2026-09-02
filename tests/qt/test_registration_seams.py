@@ -309,10 +309,25 @@ def test_a_registered_app_is_drawn_on_home_and_in_the_sidebar(
     assert "seam_probe" in keys
     # One heading per section, still: the row was filed beside its own
     # section rather than appended after everything.
+    #
+    # AGAINST `dock_rows()`, NOT `SECTIONS`. The dock groups the Help-menu
+    # modules under a Help heading of its own, which is deliberately not a
+    # Home section -- every module in it is tileless, and a Home section with
+    # no tiles is what `test_no_section_is_empty` forbids. So the dock has one
+    # heading more than `SECTIONS`, and comparing to `SECTIONS` asserted that
+    # the dock and Home group identically, which they no longer do.
     headings = [lbl.text() for lbl in bar.findChildren(QLabel)
                 if lbl.objectName() == "SidebarSection"]
-    assert headings == list(app_mod.SECTIONS)
+    expected = []
+    for _key, _name, _desc, section in app_mod.dock_rows():
+        if not expected or expected[-1] != section:
+            expected.append(section)
+    assert headings == expected
+    # The newly registered Tools app did not start a second Tools heading,
+    # which is what "filed beside its own section" means and is the thing
+    # this assertion is really for.
     assert len(headings) == len(set(headings))
+    assert list(app_mod.SECTIONS) == [h for h in headings if h != "Help"]
 
 
 def test_claiming_an_empty_section_makes_it_appear_with_its_note(
