@@ -117,6 +117,14 @@ def runs_for(accession: str = DEFAULT_BIOPROJECT, *, timeout: float = 30.0,
         cells = row.split("\t")
 
         def cell(name: str, row_cells=cells) -> str:
+            """Read one named value from the bound portal row.
+
+            :param name: ENA header name to look up in the captured index.
+            :param row_cells: cells bound when this row's helper is created,
+                preventing later loop iterations from changing the source row.
+            :returns: the indexed cell, or an empty string when the column is
+                absent or the row is too short.
+            """
             position = index.get(name, -1)
             return (row_cells[position]
                     if 0 <= position < len(row_cells) else "")
