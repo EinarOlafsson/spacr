@@ -394,6 +394,18 @@ def _segment_index() -> Dict[str, Tuple[Segment, ...]]:
 
     def collect(kind: str, index: int, start: str, end: str, length: str
                 ) -> None:
+        """Collect one supplementary-table segment slot by gene.
+
+        :param kind: segment family recorded on each result.
+        :param index: one-based position within that family.
+        :param start: supplementary column holding the first residue.
+        :param end: supplementary column holding the last residue.
+        :param length: optional supplementary column holding the segment span.
+        :returns: None. Missing coordinate columns and invalid gene IDs are
+            skipped; valid rows append to the captured index using a finite
+            recorded numeric length or the inclusive ``end - start + 1``
+            fallback.
+        """
         if start not in frame.columns or end not in frame.columns:
             return
         keep = ["gene_nr", start, end]
