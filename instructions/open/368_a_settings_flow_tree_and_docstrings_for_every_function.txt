@@ -1,0 +1,136 @@
+================================================================================
+EVERY FUNCTION DOCUMENTED, AND A CLICKABLE TREE OF WHERE EACH SETTING IS USED
+================================================================================
+
+Status:    MEASURED AND PLANNED 2026-09-02. Not started -- the maintainer
+           asked for the plan before the implementation.
+Requested: 2026-09-02 -- "many functions and subfunctions lack docstrings ...
+           all functions should have a docstring that explains their inputs
+           and outputs, this goes for subfunctions as well ... when it comes
+           to functions that pass along settings ... there should be a tree
+           representation in the API. So if the user clicks on an api link
+           say cell channel in the mask module and this links to
+           preprocess_mask or similar, the user should see preprocess_mask
+           and all the branches below preprocess_mask that lead to functions
+           or classes that use the cell_channel setting, and all branches
+           should be clickable ... first explain to me how you intend to
+           implement this ... if you need to change api compiler from sphinx
+           to something different that is fine just inform me."
+
+--------------------------------------------------------------------------------
+MEASURED FIRST, 2026-09-02 -- these numbers decide what is possible
+--------------------------------------------------------------------------------
+
+DOCSTRING COVERAGE
+    module-level functions   7036   documented 6541  (92%)
+    methods                  8794   documented 5915  (67%)
+    nested "sub" functions    742   documented  241  (32%)
+
+  The maintainer's observation is confirmed and located: the gap is METHODS
+  and NESTED FUNCTIONS, not module-level functions. 2879 undocumented
+  methods and 501 undocumented nested functions.
+
+SETTINGS READS
+    literal-string key reads  4251   (95%)
+    dynamic key reads          233   (5%)
+    distinct keys read          954
+
+  The 5% is not scattered noise. It is dominated by ONE pattern --
+  f'{object_type}_intensity_merge', f'{object_type}_min_area' and siblings --
+  which is the per-object family instruction 364 measured from the other
+  side. Expanding `object_type` over the known object vocabulary resolves
+  most of it, so effective coverage is well above 95%.
+
+THE SETTINGS-PROPAGATING CALL GRAPH -- the part the tree actually needs
+    functions receiving a settings-shaped argument   562
+    settings-propagating call sites                  698
+      resolved by a bare-name + import-table pass    481   (68%)
+      unresolved: method / attribute / dynamic       217   (31%)
+
+  THIS IS THE FINDING THAT MAKES THE FEATURE FEASIBLE. The tree does not
+  need the whole call graph -- 156,371 call sites, of which a naive
+  name-match resolves 18%. It needs only the subgraph along which settings
+  travel, and that is 698 edges over 562 functions. A tractable object.
+
+  The unresolved 31% are `self.method(settings)` and `obj.method(settings)`.
+  Those are resolvable, but by class-attribute analysis, which is phase 2
+  work rather than a reason to abandon the design.
+
+--------------------------------------------------------------------------------
+THE ANSWER ON SPHINX: KEEP IT
+--------------------------------------------------------------------------------
+
+Changing the API compiler would cost everything and buy nothing, because no
+compiler -- Sphinx, mkdocs, pdoc, Doxygen -- does settings-flow analysis.
+None of them knows what a "setting" is. The tree has to be built by a
+purpose-written static analyser whatever renders the result.
+
+Sphinx is also already carrying work that would have to be rebuilt: nine
+translated API catalogs with source-hash pinning, `autoapi_python_class_content
+= 'both'`, the reviewed-translation gates, and the tests that pin every
+module tile to its API destination.
+
+  SO: a new tool emits the trees as data, and Sphinx renders them. The
+  analyser is the deliverable; the renderer is a detail.
+
+--------------------------------------------------------------------------------
+WHAT WILL BE BUILT
+--------------------------------------------------------------------------------
+
+PHASE 1 -- THE ANALYSER (`tools/settings_flow.py`)
+  Walks the package with `ast` and emits one JSON artifact:
+    * every settings key read, and by which qualified function;
+    * for each function, which settings-shaped parameters it receives;
+    * the propagation edges (caller -> callee, with the argument passed);
+    * a confidence marker per edge: RESOLVED, AMBIGUOUS or UNRESOLVED.
+  No import of spaCR at build time -- pure `ast`, so it cannot be defeated
+  by an import failure and needs no GPU, no Qt and no torch.
+
+PHASE 2 -- THE TREE, per setting
+  For a key K: root at each module entry point that owns K, walk the
+  propagation edges, mark nodes that READ K, and PRUNE branches that reach
+  no reader. Pruning is what makes it a usable tree rather than a call-graph
+  dump. Cycles get cut with a "(recurses)" marker.
+
+PHASE 3 -- THE PAGE
+  One page per setting, listing the tree with every node a link to its
+  existing API page. Cross-linked from the settings reference so clicking
+  `cell_channel` lands on its tree. Nodes whose edge is UNRESOLVED are shown
+  AS UNRESOLVED rather than omitted -- a tree that silently drops what it
+  could not resolve is worse than one that admits the gap.
+
+PHASE 4 -- THE DOCSTRINGS
+  2879 methods and 501 nested functions, worked in the order of instruction
+  367: the settings-carrying ones first, then the core pipeline, then the
+  rest. Nested functions are the maintainer's explicit ask and are today the
+  worst covered at 32%.
+
+  NOTE: AutoAPI does not emit nested functions at all -- they are not module
+  members. Making them "visible in parent functions" therefore needs the
+  parent's page to carry them, which the analyser can supply since it has
+  already parsed them. This is why phase 4 comes after phase 1.
+
+--------------------------------------------------------------------------------
+WHAT THIS WILL NOT DO, STATED UP FRONT
+--------------------------------------------------------------------------------
+
+* Static analysis cannot follow a call through `getattr`, a dispatch dict, a
+  Qt signal, or a callback passed as a value. Those edges will be marked
+  UNRESOLVED, not guessed.
+* A settings dict rebuilt or filtered mid-flow (`sub = {k: settings[k] ...}`)
+  breaks the chain. The analyser should DETECT and report these rather than
+  follow them wrongly.
+* "Every branch below" is bounded by these limits. The tree is a strong
+  guide, not a proof of reachability, and the page must say so once.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* A known key -- `cell_channel` -- produces a tree whose readers match a
+  hand-audited list. Build the hand list FIRST; it is the specification.
+* Every node in a rendered tree links to a page that exists.
+* The analyser runs in CI and fails when an edge that used to resolve stops
+  resolving, so refactors cannot silently empty the trees.
+* Coverage ratchets for methods and nested functions, so the numbers above
+  cannot go back up.
