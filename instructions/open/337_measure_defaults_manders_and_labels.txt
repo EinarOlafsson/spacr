@@ -143,3 +143,15 @@ say path exp should be experiment". The `exp` half has a concrete address --
 and needs finding in the settings-model layout rather than in a widget
 constructor.
 
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDITED AGAINST THE CODE
+--------------------------------------------------------------------------------
+
+CONFIRMED not started, checked in the code rather than the header.
+`settings.py:1275` still has `spatial_measurements` defaulting False and
+`:1283` `object_distances` defaulting False, so the "on by default" half is
+untouched; `corrected_manders` is still live in feature_dict.py and measure.py,
+so the Manders removal is untouched. The fourth part still needs the
+maintainer's 2026-09-01 measure settings, which were never written to a file.
+0%.

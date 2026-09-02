@@ -327,3 +327,39 @@ loader, so laziness has to survive both an indexOf during construction and an
 attribute touch before the tab is ever shown. A `__getattr__` that materialises
 on first touch covers both; it was scoped but deliberately not shipped
 half-tested.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDIT: 3d's "DIFFUSE" WAS SUPERSEDED, AND THE ITEM IS ~75%
+--------------------------------------------------------------------------------
+
+Section 3d above says the remaining ~1.4 s is "diffuse -- imports,
+settings_search.install, widget construction -- with no single offender".
+``f92bb7711`` (315 3d: the module build is not diffuse, measured on a real
+display) replaced that: the warm Regression build is 1,263 ms median of seven,
+and the other ~800 ms of the reported 1.4 s is ONCE-PER-PROCESS IMPORT that is
+not paid per open. Read 3d together with the later section, not on its own.
+
+STATE OF THE WHOLE ITEM, by section:
+
+    3a  dock/header flicker            FIXED (popup_state.py, 100% covered)
+    3b  black box in Regression        FIXED (732657f3b, 6f230472c)
+    3c  verbose profile hook           FIXED (e4b14c51d, 476x -> 1.04x)
+    3d  the 1,263 ms module build      OPEN, and now itemised rather than
+                                       diffuse:
+          - 54 setStyleSheet/setFont/setPalette calls on already-populated
+            subtrees, ~1,330 descendant events each; the fix shape already
+            exists as theme.batched_widget_qss() at window level
+          - field_fade's filter, 109,410 dispatches for zero Paint events;
+            needs a per-widget install or a suspend scope
+          - RegressionResultsPanel builds ten pyqtgraph plots eagerly at
+            199 ms for one visible tab
+    3e  the nine retained codex branches   CLOSED, no replay needed
+
+TWO THINGS NOT TO REDO, both measured and recorded above: reordering the
+button_roles filter (5% SLOWER), and breathing inside Section.add_row
+(reverted, made opens slower).
+
+AND THE NUMBER THAT SAYS THIS IS STILL A REAL DEFECT: 305's accepted
+installed-wheel acceptance run measured a 7,069 ms cold event-loop stall on
+Regression against a 5,000 ms mutter check-alive-timeout. The compositor is
+entitled to offer force-quit during it. ~75%.

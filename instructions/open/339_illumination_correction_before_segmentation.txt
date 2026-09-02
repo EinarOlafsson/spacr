@@ -104,3 +104,12 @@ HOW IT WILL BE CHECKED
 * Correcting at both stages does not apply the field twice -- asserted on
   pixel values, not on a log line.
 * A run with the switch off is byte-identical to one from before this change.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDITED AGAINST THE CODE
+--------------------------------------------------------------------------------
+
+CONFIRMED not started. `prepare_illumination_correction` is called from
+measure.py:3836 and from nowhere else; core.py's
+`preprocess_generate_masks` does not mention it, and the key is absent from
+the Mask defaults. The decision in step 1 has not been written either. 0%.

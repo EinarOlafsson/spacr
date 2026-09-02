@@ -56,3 +56,37 @@ DONE MEANS
   appears without anyone editing a list.
 * The dock still fits: sections collapsed by default except Core, as
   now, and children collapsed with their parent.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDIT: THIS SHIPPED IN 940542f5b. CLOSING.
+--------------------------------------------------------------------------------
+
+Filed "AFTER THE VERSION UPDATE" and then built anyway, in ``940542f5b``
+(330: show the folded modules in the dock and the menu bar). The header was
+never corrected, so the item has been carried as not-started.
+
+READ IN THE CODE, against all three DONE MEANS criteria:
+
+  1. THE DOCK. ``spacr/qt/app.py`` builds ``self._fold_children`` (line 1831)
+     and appends one indented row per folded child at line 1886.
+     ``self._open_hosts`` (1832, 1922, 1928, 1953) is separate from
+     ``_open_sections`` precisely so a child needs BOTH its section open and
+     its host expanded -- which is the "collapsible with their parent"
+     requirement, and what keeps the dock from becoming sixty rows.
+
+  2. THE MENU BAR. ``app.py`` around 2880 gives every host with children its
+     own ``QMenu``, with the host's own action FIRST, a separator, then one
+     action per child.
+
+  3. THE OPENER IS REUSED. The child actions call ``self.open_module(k)``,
+     which resolves a folded key to its host and switches the fold on -- the
+     same route the fold-strip button takes, not a reimplementation.
+
+  4. ONE MAPPING. Both surfaces call ``folded_children()`` (app.py:1445) and
+     ``fold_strip.folded_modules()``. Nothing here grows a second list, so a
+     module folded later appears without an edit.
+
+NOT DONE, and deliberately not held for: there is no test that presses a child
+row. Nothing in ``tests/qt`` names ``_fold_children`` or ``_open_hosts``. That
+belongs to 288's coverage lane rather than to this item, and it is recorded
+in 310 rather than here so it is not lost.
