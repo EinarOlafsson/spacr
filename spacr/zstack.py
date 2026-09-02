@@ -287,6 +287,97 @@ MEASUREMENT_MEANING_3D: Dict[str, Dict[str, str]] = {
             "major/minor_axis_length carry the shape information instead."
         ),
     },
+    "nearest_neighbor_distance": {
+        "kind": "same", "means": "nearest centroid distance",
+        "units_2d": "px", "units_3d": "measurement units",
+        "note": (
+            "The 3-D KD-tree includes z and scales every centroid by the "
+            "voxel spacing. -1 remains the sentinel for no neighbour."
+        ),
+    },
+    "second_neighbor_distance": {
+        "kind": "same", "means": "second-nearest centroid distance",
+        "units_2d": "px", "units_3d": "measurement units",
+        "note": (
+            "The 3-D KD-tree includes z and scales every centroid by the "
+            "voxel spacing. -1 remains the sentinel when no second neighbour "
+            "exists."
+        ),
+    },
+    "percent_touching": {
+        "kind": "same", "means": "percent of expanded boundary touching",
+        "units_2d": "percent", "units_3d": "percent",
+        "note": (
+            "The boundary is a perimeter in 2-D and a surface in 3-D. Label "
+            "expansion honours voxel spacing before the fraction is taken."
+        ),
+    },
+    "touching_neighbors": {
+        "kind": "same", "means": "number of adjacent objects",
+        "units_2d": "count", "units_3d": "count",
+        "note": "Adjacency is checked across every axis of the label array.",
+    },
+    "distance_to_own_boundary": {
+        "kind": "same", "means": "centroid to own boundary distance",
+        "units_2d": "px", "units_3d": "measurement units",
+        "note": (
+            "The 3-D distance transform uses voxel spacing, so z contributes "
+            "its physical distance rather than its plane count."
+        ),
+    },
+    "relative_radial_position": {
+        "kind": "same", "means": "relative centroid depth inside object",
+        "units_2d": "ratio", "units_3d": "ratio",
+        "note": (
+            "One minus centroid-to-boundary distance divided by the deepest "
+            "interior distance, evaluated over the complete volume."
+        ),
+    },
+    "distance_to_field_edge": {
+        "kind": "renamed", "means": "minimum centroid coordinate to a face",
+        "units_2d": "px", "units_3d": "voxel indices",
+        "note": (
+            "The 3-D value considers the z faces as well as y and x, but the "
+            "current calculation is not spacing-scaled. Do not interpret this "
+            "column as micrometres even when the row's unit stamp says um."
+        ),
+    },
+}
+
+#: Meaning templates for emitted names whose radius or partner object is part
+#: of the column name. Keeping these out of ``MEASUREMENT_MEANING_3D`` avoids
+#: pretending that a literal wildcard is itself a measurement column.
+_MEASUREMENT_FAMILY_MEANING_3D: Dict[str, Dict[str, str]] = {
+    "neighbors_within": {
+        "kind": "renamed", "means": "objects inside a 3-D radius",
+        "units_2d": "count inside a radius in px",
+        "units_3d": "count inside a radius in measurement units",
+        "note": (
+            "The suffix records the radius. A 2-D circle becomes a 3-D sphere, "
+            "and spacing-scaled centroids make the radius physical when voxel "
+            "sizes are known."
+        ),
+    },
+    "centre_to_surface": {
+        "kind": "same", "means": "centroid to nearest partner surface",
+        "units_2d": "px", "units_3d": "measurement units",
+        "note": "The 3-D distance transform includes z and uses voxel spacing.",
+    },
+    "surface_to_surface": {
+        "kind": "same", "means": "nearest surface-to-surface distance",
+        "units_2d": "px", "units_3d": "measurement units",
+        "note": "The 3-D distance transform includes z and uses voxel spacing.",
+    },
+    "centre_to_nearest_centre": {
+        "kind": "same", "means": "centroid to nearest partner centroid",
+        "units_2d": "px", "units_3d": "measurement units",
+        "note": "The 3-D KD-tree includes z and scales coordinates by spacing.",
+    },
+    "overlap_fraction": {
+        "kind": "same", "means": "fraction overlapping a partner object",
+        "units_2d": "ratio", "units_3d": "ratio",
+        "note": "The numerator and denominator are voxel counts in a 3-D run.",
+    },
 }
 
 #: Measurements a 3-D run writes that a 2-D run does not.
@@ -338,6 +429,25 @@ def describe_3d_measurement(name: str) -> Dict[str, str]:
     for key in (text, _bare_property(text)):
         if key in MEASUREMENT_MEANING_3D:
             return dict(MEASUREMENT_MEANING_3D[key])
+    bare = _bare_property(text)
+    if (bare.startswith("neighbors_within_")
+            and bare.removeprefix("neighbors_within_").isdigit()):
+        return dict(_MEASUREMENT_FAMILY_MEANING_3D["neighbors_within"])
+    object_names = tuple(prefix[:-1] for prefix in _OBJECT_PREFIXES)
+    if (bare.startswith("centre_to_nearest_") and bare.endswith("_centre")
+            and bare[len("centre_to_nearest_"):-len("_centre")]
+            in object_names):
+        return dict(
+            _MEASUREMENT_FAMILY_MEANING_3D["centre_to_nearest_centre"])
+    if (bare.startswith("centre_to_") and bare.endswith("_surface")
+            and bare[len("centre_to_"):-len("_surface")] in object_names):
+        return dict(_MEASUREMENT_FAMILY_MEANING_3D["centre_to_surface"])
+    if (bare.startswith("surface_to_") and bare.endswith("_surface")
+            and bare[len("surface_to_"):-len("_surface")] in object_names):
+        return dict(_MEASUREMENT_FAMILY_MEANING_3D["surface_to_surface"])
+    if (bare.endswith("_overlap_fraction")
+            and bare[:-len("_overlap_fraction")] in object_names):
+        return dict(_MEASUREMENT_FAMILY_MEANING_3D["overlap_fraction"])
     return {
         "kind": "unknown", "means": "-", "units_2d": "-", "units_3d": "-",
         "note": (
