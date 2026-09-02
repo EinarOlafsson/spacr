@@ -2,121 +2,817 @@
   "schema": 1,
   "language": "is",
   "records": [
-    {"label":"spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_filter_changed#0","source":"Apply a newly published shared filter to the loaded rows.","context":"Apply a newly published shared filter to the loaded rows.","source_sha256":"64eacbd97f7383e07bc48fe5c301df88b4cb691d768e119be13a55d587b200df","translation":"Beita nýbirtri sameiginlegri síu á hlaðnar raðir."},
-    {"label":"spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_filter_changed#1","source":"current process-wide filter; the linked-view state already owns it, so this callback only refreshes row visibility.","context":"current process-wide filter; the linked-view state already owns it, so this callback only refreshes row visibility.","source_sha256":"3d02ded03fc5d3ccc0f79cea0ab67e03d8ae34235c511497673f62428b10ae1a","translation":"núverandi sía fyrir allt ferlið; staða tengda yfirlitsins heldur þegar utan um hana, þannig að þetta bakakall endurnýjar aðeins sýnileika raðanna."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.canFetchMore#0","source":"Return whether the root model can request another chunk.","context":"Return whether the root model can request another chunk.","source_sha256":"a9464c06cb3aeefb070dc719f9e0123b5a19a9d16086d1f25f7808df4214f2a6","translation":"Skila því hvort rótarlíkanið geti óskað eftir öðrum gagnabút."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.canFetchMore#1","source":"Qt parent index; valid child indexes cannot fetch.","context":"Qt parent index; valid child indexes cannot fetch.","source_sha256":"bab97ac05155e1f6c3c86b420e1e6ef331475bab3c5db37a7b82e76aebbc2379","translation":"Qt-foreldravísir; ekki er hægt að sækja gögn fyrir gilda barnavísa."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.columnCount#0","source":"Return visible columns for the root model and zero for children.","context":"Return visible columns for the root model and zero for children.","source_sha256":"bf0825490db011a8a5fe0566844f374783a4e228541012c22db1ae2b7d2a08e0","translation":"Skila fjölda sýnilegra dálka fyrir rótarlíkanið og núlli fyrir börn."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.columnCount#1","source":"Qt parent index whose child-column count is requested.","context":"Qt parent index whose child-column count is requested.","source_sha256":"46bd124e3cb8402f7bc1d43492d9e203df98ae792a2b3757c08e92d05f3b8b3b","translation":"Qt-foreldravísir sem beðið er um fjölda barnadálka fyrir."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.data#0","source":"Return the display, tooltip, or exact editor value for a cell.","context":"Return the display, tooltip, or exact editor value for a cell.","source_sha256":"8059e763018b66d6c392ca28f0513222dcf090c0c7f37b7848a82bab6bc5fe36","translation":"Skila birtingargildi, verkfæraábendingu eða nákvæmu ritilgildi reits."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.data#1","source":"model index identifying the requested cell.","context":"model index identifying the requested cell.","source_sha256":"9a3bbb69d9ef1955c160236cc5cc853cfc081c3675f7174304fe325fe0244a53","translation":"líkansvísir sem auðkennir umbeðinn reit."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.data#2","source":"Qt data role; unsupported roles return ``None``.","context":"Qt data role; unsupported roles return ``None``.","source_sha256":"dc74937680539ca72f01551d044a54fb9fd0192a062a203616cacdc65e5c3221","translation":"Qt-gagnahlutverk; óstudd hlutverk skila ``None``."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.fetchMore#0","source":"Request the next chunk through the configured fetch hook.","context":"Request the next chunk through the configured fetch hook.","source_sha256":"36561f91513ab8930de319d7658e1f0e232e80e1efab89ccc13d68d065077c69","translation":"Óska eftir næsta gagnabút í gegnum stillt sóknarkall."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.fetchMore#1","source":"Qt parent index; valid child indexes are ignored.","context":"Qt parent index; valid child indexes are ignored.","source_sha256":"0e8e6c705227bf90adb552cd362f8b5e4bcecb3059a115267d02bc473bae2b16","translation":"Qt-foreldravísir; gildar barnavísanir eru hunsaðar."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.flags#0","source":"Return Qt item flags for ``index``, including armed editability.","context":"Return Qt item flags for ``index``, including armed editability.","source_sha256":"6314eb09af2a17cd7e6ff689c44ba48720a2ed5b264ac70f78c52583bce0397c","translation":"Skila Qt-atriðisflöggum fyrir ``index``, þar á meðal ritunarflöggi þegar ritun er virkjuð."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.flags#1","source":"model index whose interaction flags are requested.","context":"model index whose interaction flags are requested.","source_sha256":"f23ffaac5e5f4a8b8f2dd97000759e37654ea0faf9f6d0549c4abbd02c3915f8","translation":"líkansvísir sem beðið er um samskiptaflögg fyrir."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.headerData#0","source":"Return a column name or one-based absolute row number.","context":"Return a column name or one-based absolute row number.","source_sha256":"413574b45a5099d9fe11e9dca63f9a7cb8d38450a710305cf698a812c37c5351","translation":"Skila dálkheiti eða algildu raðnúmeri talið frá einum."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.headerData#1","source":"zero-based visible column or row-header section.","context":"zero-based visible column or row-header section.","source_sha256":"7f9d7282b8e15e7db8a22c5de01e05a8b1ad00c34ac13a1cf220584156fdde67","translation":"talið frá núlli: sýnilegur dálkur eða hluti raðhauss."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.headerData#2","source":"horizontal for names, vertical for row numbers.","context":"horizontal for names, vertical for row numbers.","source_sha256":"b56e2b24188807b6f8e339cf619bc8cf229c1271ddd9c3e318f09d36abfca9a4","translation":"lárétt stefna fyrir heiti, lóðrétt fyrir raðnúmer."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.headerData#3","source":"Qt data role; only :attr:`Qt.DisplayRole` is served.","context":"Qt data role; only :attr:`Qt.DisplayRole` is served.","source_sha256":"91a57e479ef0a6302c558ade7d5b3d3522f99267726851dda33de12b1ce345f1","translation":"Qt-gagnahlutverk; aðeins :attr:`Qt.DisplayRole` er skilað."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.rowCount#0","source":"Return loaded rows for the root model and zero for children.","context":"Return loaded rows for the root model and zero for children.","source_sha256":"e05ac46e4a57db4d0904b9494f7339f734938ef52b1dc1dde9800d8375f1bbc2","translation":"Skila fjölda hlaðinna raða fyrir rótarlíkanið og núlli fyrir börn."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.rowCount#1","source":"Qt parent index whose child-row count is requested.","context":"Qt parent index whose child-row count is requested.","source_sha256":"39956c5486f47f8f7a4c90192c6a5379146dbf131960caf75ea5e62b8fe8e3ee","translation":"Qt-foreldravísir sem beðið er um fjölda barnaraða fyrir."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.setData#0","source":"Commit an editor value through the guarded screen callback.","context":"Commit an editor value through the guarded screen callback.","source_sha256":"ff4424ecfd8ea4df900a81596aa8e8468da28e21ed966f1c68533936705ade38","translation":"Vista ritilgildi með vernduðu bakakalli skjásins."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.setData#1","source":"valid editable model index.","context":"valid editable model index.","source_sha256":"667909a495db854da63a9d584f51f55cac726b97ae54c73229ab8554f7760a64","translation":"gildur, breytanlegur líkansvísir."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.setData#2","source":"raw editor value passed to the commit hook.","context":"raw editor value passed to the commit hook.","source_sha256":"e401e58ff5cf7be7fa3a1e50aebdeb5aec0c3847ab29b1cf6c7c105b7bf00b3b","translation":"óunnið ritilgildi sem sent er vistunarkallinu."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.setData#3","source":"Qt role, which must be :attr:`Qt.EditRole`.","context":"Qt role, which must be :attr:`Qt.EditRole`.","source_sha256":"6811177313c24753c873829cfdfd23000dd312eeb83a39d3669ce981fcc0ca03","translation":"Qt-hlutverk sem verður að vera :attr:`Qt.EditRole`."},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.setData#4","source":"whether the commit hook accepted and wrote the change.","context":"whether the commit hook accepted and wrote the change.","source_sha256":"4d7493cefdd8b1c7253aecbc5295865e0c82c15e9b51a7479e1babe2f897325b","translation":"hvort vistunarkallið samþykkti og skrifaði breytinguna."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.mask#0","source":"Select finite rows inside every bounded side of the rectangle.","context":"Select finite rows inside every bounded side of the rectangle.","source_sha256":"a33da19d60b716922448285066299bb6cfabf96e04c28ddb2ec76e232dae2a73","translation":"Velja endanlegar raðir sem liggja innan allra afmarkaðra hliða rétthyrningsins."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.mask#1","source":"measurement table containing both axis columns.","context":"measurement table containing both axis columns.","source_sha256":"acd9799f1b8d37f897d83fe589111b9cd5ccb734142ff50daaea5d2d4e7c1d1f","translation":"mælingatafla sem inniheldur dálka beggja ása."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.scaled#0","source":"Return this rectangle resized about a fixed data-space point.","context":"Return this rectangle resized about a fixed data-space point.","source_sha256":"feefc6484b42d37ec035ae7e14f30ab4e512a835cb7fc2792ce778b001af071d","translation":"Skila þessum rétthyrningi með breyttri stærð um fastan punkt í gagnahnitakerfinu."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.scaled#1","source":"positive scale factor; values above one grow the gate.","context":"positive scale factor; values above one grow the data-selection boundary.","source_sha256":"b2833332adb24666c24d9444f94aa44c8281f060e3a7648bc2e2b25d9b040110","translation":"jákvæður kvarðastuðull; gildi yfir einum stækka gagnavalsmörkin."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.scaled#2","source":"point held fixed, or ``None`` to use the rectangle's finite centre independently on each axis. Without an explicit point, an axis lacking two finite bounds stays unchanged.","context":"point held fixed, or ``None`` to use the rectangle's finite centre independently on each axis. Without an explicit point, an axis lacking two finite bounds stays unchanged.","source_sha256":"265c9e1135fde0caf76eecb2528bbba5082c08bb7b1da33b8b8b0b3b93c8e7d9","translation":"punktur sem helst fastur, eða ``None`` til að nota endanlega miðju rétthyrningsins sjálfstætt á hvorum ás. Án tiltekins punkts helst ás sem hefur ekki tvenn endanleg mörk óbreyttur."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.scaled#3","source":"when ``factor`` is not positive.","context":"when ``factor`` is not positive.","source_sha256":"890325752e2c2d55c06df2661881929ef7f2a050538d39688c7f2df745e7139f","translation":"þegar ``factor`` er ekki jákvæður."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.translated#0","source":"Return a copy shifted along both measurement axes.","context":"Return a copy shifted along both measurement axes.","source_sha256":"32eff74b0ea833426db56cfbf7de1f129b05ad51c230d325f56933d3c849997b","translation":"Skila afriti sem hefur verið hliðrað eftir báðum mælingaásum."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.translated#1","source":"displacement in horizontal-axis data units.","context":"displacement in horizontal-axis data units.","source_sha256":"30706eb1eca23de6d20281c1bafc66afac88c69f693adac9f06e5719ea84a3f0","translation":"tilfærsla í gagnaeiningum lárétta ássins."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.translated#2","source":"displacement in vertical-axis data units.","context":"displacement in vertical-axis data units.","source_sha256":"01e432235a34a8338bf3c2e7e5f47dc220bc85741075bfaafa4a1b25d22e0888","translation":"tilfærsla í gagnaeiningum lóðrétta ássins."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_handle#0","source":"Return the rectangle after dragging one side or corner handle.","context":"Return the rectangle after dragging one side or corner handle.","source_sha256":"d0f9c73b8bd207f0a72822cf2e8896bac9af27e056ed49475acc18cd423bb92f","translation":"Skila rétthyrningnum eftir að handfang á hlið eða horni hefur verið dregið."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_handle#1","source":"one of the four side names emitted by :meth:`handles`, or one horizontal and one vertical side joined by a comma for a corner.","context":"one of the four side names emitted by :meth:`handles`, or one horizontal and one vertical side joined by a comma for a corner.","source_sha256":"aed0eb7b30859b68ca7474a5876aaf34d641b247c86086859e28f0545b05b64d","translation":"eitt fjögurra hliðarheita sem :meth:`handles` skilar, eða ein lárétt og ein lóðrétt hlið, tengdar með kommu fyrir horn."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_handle#2","source":"new horizontal coordinate used by any horizontal role.","context":"new horizontal coordinate used by any horizontal role.","source_sha256":"c23d39d5517a26896f456266c4ecba5e21997df96347485d08cda4140cbc6491","translation":"nýtt lárétt hnit sem öll lárétt hlutverk nota."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_handle#3","source":"new vertical coordinate used by any vertical role.","context":"new vertical coordinate used by any vertical role.","source_sha256":"bf3ba9fa8ec043d18595f23986bb4c9a627dfabb262860504624df3d6b416329","translation":"nýtt lóðrétt hnit sem öll lóðrétt hlutverk nota."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_handle#4","source":"when ``role`` names no rectangle handle.","context":"when ``role`` names no rectangle handle.","source_sha256":"45ff43ca5f79926072d69f8fbca5f868a99c60954dc731abc55b4033d9c52a8c","translation":"þegar ``role`` nefnir ekkert handfang rétthyrningsins."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_threshold#0","source":"Return this gate with replacement bounds on one axis.","context":"Return this data-selection boundary with replacement bounds on one axis.","source_sha256":"d701959f21c798765ae6835567715896ca9b075d0c4f98b759c4499f5cf1b102","translation":"Skila þessum gagnavalsmörkum með nýjum mörkum á einum ás."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_threshold#1","source":"horizontal or vertical measurement column to change.","context":"horizontal or vertical measurement column to change.","source_sha256":"50e73ad342925f1bf2589b0004c1448700e3932c73ed1781e3cd97dde3eb7022","translation":"láréttur eða lóðréttur mælingadálkur sem á að breyta."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_threshold#2","source":"inclusive lower bound, or ``None`` for an open lower side.","context":"inclusive lower bound, or ``None`` for an open lower side.","source_sha256":"c1c74dee76f5bc342eda7ecb14127d289a5c1c4cb9b5d317e4516322492b233c","translation":"innifalin neðri mörk, eða ``None`` fyrir opna neðri hlið."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_threshold#3","source":"inclusive upper bound, or ``None`` for an open upper side.","context":"inclusive upper bound, or ``None`` for an open upper side.","source_sha256":"6dc745eeff7f26e70b3f8f485455cb62d369a11e4e13e744c7fa9e3586e95b22","translation":"innifalin efri mörk, eða ``None`` fyrir opna efri hlið."},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_threshold#4","source":"when ``column`` is not one of this rectangle's axes.","context":"when ``column`` is not one of this rectangle's axes.","source_sha256":"1b22e124de0410fcbc96e208e61e033d30a7c7c8a9bd18a3d756a0c31b2fc731","translation":"þegar ``column`` er ekki annar af ásum þessa rétthyrnings."},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.scaled#0","source":"Return this threshold resized about a horizontal anchor.","context":"Return this threshold resized about a horizontal anchor.","source_sha256":"dd418caacdc8e93faf2036fb27ca339be6cb7afe02e230dc37066a7ee0b88d16","translation":"Skila þessum þröskuldi með breyttri stærð um láréttan akkerispunkt."},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.scaled#1","source":"positive scale factor; values above one move every finite bound away from the anchor.","context":"positive scale factor; values above one move every finite bound away from the anchor.","source_sha256":"4f80f1e7825bac7ddd08c43be5846aa75e644c75103ba314bd6753725dd80b18","translation":"jákvæður kvarðastuðull; gildi yfir einum færa öll endanleg mörk frá akkerinu."},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.scaled#2","source":"point whose first coordinate stays fixed, or ``None`` to use the threshold's finite centre. A half-open threshold has no finite centre and is returned unchanged when this is ``None``.","context":"point whose first coordinate stays fixed, or ``None`` to use the threshold's finite centre. A half-open threshold has no finite centre and is returned unchanged when this is ``None``.","source_sha256":"bf0dfc6245f6c6b231ea2e9410f705609a8e6876e94c1a818f0155bfc029bb81","translation":"punktur sem heldur fyrra hnitinu föstu, eða ``None`` til að nota endanlega miðju þröskuldsins. Hálfopinn þröskuldur hefur enga endanlega miðju og er skilað óbreyttum þegar þetta er ``None``."},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#0","source":"Return the threshold after dragging one of its bound handles.","context":"Return the threshold after dragging one of its bound handles.","source_sha256":"7e6afe1b4a639baf65e2734d9de79cbd9b5f0c35f201096e792e13320a2731e1","translation":"Skila þröskuldinum eftir að eitt af markahandföngum hans hefur verið dregið."},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#1","source":"``\"low\"`` or ``\"high\"`` for the bound being moved.","context":"``\"low\"`` or ``\"high\"`` for the bound being moved.","source_sha256":"d15f769019e4c256b0d971fcc1ff082c39301b2e1d2d06347275431a63b9151d","translation":"``\"low\"`` eða ``\"high\"`` eftir því hvaða mörk eru færð."},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#2","source":"new bound value in the threshold column's data units.","context":"new bound value in the threshold column's data units.","source_sha256":"5a00ade99267bfe3a262a0e75e7552bac2b0ee7e17cd4c2f749b47f617221c5b","translation":"nýtt markgildi í gagnaeiningum þröskuldsdálksins."},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#3","source":"vertical handle coordinate, ignored by this one-column gate.","context":"vertical handle coordinate, ignored by this one-column data-selection boundary.","source_sha256":"5bbc40dbe744b14bf3b3168a6e9b839709042ce72bd811ffbc9a2bae8f28ec09","translation":"lóðrétt hnit handfangsins; gagnavalsmörk á einum dálki hunsa það."},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#4","source":"when ``role`` names no threshold handle.","context":"when ``role`` names no threshold handle.","source_sha256":"777bf1de206439f11b5a9ec208f56cfa46b63f8223b647326cefa09d483685b8","translation":"þegar ``role`` nefnir ekkert handfang þröskuldsins."},
-    {"label":"spacr.ml.QuasiBinomial.variance#0","source":"Adjust the variance with the dispersion parameter.","context":"Adjust the variance with the dispersion parameter.","source_sha256":"1fca926957d90cfe3391015467a4d981982052803a020d1745730c94024db40e","translation":"Aðlaga dreifnina með dreifingarstikunni."},
-    {"label":"spacr.ml.beta_logit#0","source":"A proportion on the logit scale, with the endpoints squeezed in.","context":"A proportion on the logit scale, with the endpoints squeezed in.","source_sha256":"502eb9e99c7b6648b60ad6749cefd06d688f69c35beaca609b2f27d2e66c9c42","translation":"Hlutfall á logit-kvarða þar sem endapunktunum er þrýst inn á við."},
-    {"label":"spacr.ml.beta_logit#1","source":"``transform='beta'`` is intended for proportional responses such as classification scores and their well aggregates, where a logarithm is not appropriate.","context":"``transform='beta'`` is intended for proportional responses such as classification scores and their well aggregates, where a logarithm is not appropriate.","source_sha256":"9fc52c3acbacf37d496c04a3ba36d41ecca24f1ef98c618e9688cce513cea7e1","translation":"``transform='beta'`` er ætlað fyrir hlutfallssvör, svo sem flokkunarstig og samantektir þeirra eftir brunnum, þegar lógaritmi á ekki við."},
-    {"label":"spacr.ml.beta_logit#2","source":"This is distinct from ``regression_type='beta'``, which selects a beta GLM. One transforms the response; the other selects the model family.","context":"This is distinct from ``regression_type='beta'``, which selects a beta GLM. One transforms the response; the other selects the model family.","source_sha256":"79c9fe41e8c92216fd07dbb4f1b734d4b824b75cd584b17e079a75b8fb670e27","translation":"Þetta er annað en ``regression_type='beta'``, sem velur beta-GLM. Annað umbreytir svarbreytunni; hitt velur líkanafjölskylduna."},
-    {"label":"spacr.ml.check_normality#0","source":"Check if the data is normally distributed using the Shapiro-Wilk test.","context":"Check if the data is normally distributed using the Shapiro-Wilk test.","source_sha256":"322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c","translation":"Athuga með Shapiro-Wilk-prófi hvort gögnin séu normaldreifð."},
-    {"label":"spacr.ml.generate_ml_scores#0","source":"Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.","context":"Train a classical ML machine-learning classification model (XGBoost / logistic / RF) on per-object features and score every microplate sample position of a screen.","source_sha256":"a1cafc3a9f5b819a7e7e49b46a68d39d798891b4ef469e0a6616cb1fc367056e","translation":"Þjálfa hefðbundinn ML-flokkara (XGBoost / logistic / RF) á eiginleikum einstakra hluta og reikna stig fyrir hverja sýnisstöðu örplötu í skimuninni."},
-    {"label":"spacr.ml.generate_ml_scores#1","source":"Reads the ``measurements.db`` produced by :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the wells marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a plate heatmap into ``results/`` next to the source DB.","context":"Reads the ``measurements.db`` produced by :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the microplate sample positions marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a laboratory microplate heatmap into ``results/`` next to the source DB.","source_sha256":"0ff1beae2f012bb566a9a3d73b348fffe0977eb688f17b77174e6960fa38f437","translation":"Les ``measurements.db`` sem :func:`spacr.measure.measure_crop` býr til, sameinar eiginleikatöflur frumna, kjarna, sýkla og umfrymis, notar sýnisstöður örplatna merktar ``positive_control`` / ``negative_control`` (eða skýringardálk) sem þjálfunarmerki, felur :func:`ml_analysis` að passa líkanið og skrifar spár fyrir hvern hlut, umraðana- og eiginleikamikilvægistöflur ásamt hitakorti rannsóknarörplötu í ``results/`` við hlið upprunagagnagrunnsins."},
-    {"label":"spacr.ml.generate_ml_scores#2","source":"Settings dict, canonicalized via :func:`spacr.settings.set_default_analyze_screen`. Key entries:","context":"Settings key-value mapping, canonicalized via :func:`spacr.settings.set_default_analyze_screen`. Structured-data entries:","source_sha256":"74aea7343be214b65d61228568b199720441d78049b01956370c20a94d0ebb8d","translation":"Lykla-/gildavörpun stillinga, stöðluð með :func:`spacr.settings.set_default_analyze_screen`. Færslur skipulagðra gagna:"},
-    {"label":"spacr.ml.generate_ml_scores#3","source":"``src`` (str or list) — folder(s) containing ``measurements/measurements.db``.","context":"``src`` (str or list) — folder(s) containing ``measurements/measurements.db``.","source_sha256":"fab81072e6783efa1c366297835b86f3fd46e93cc5a71d99a6d339f41df4689a","translation":"``src`` (strengur eða listi) — mappa eða möppur sem innihalda ``measurements/measurements.db``."},
-    {"label":"spacr.ml.generate_ml_scores#4","source":"``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.","context":"``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.","source_sha256":"e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343","translation":"``channel_of_interest`` — rás talin frá núlli fyrir recruitment-hlutfallseiginleikann; hún stjórnar einnig töfluvali."},
-    {"label":"spacr.ml.generate_ml_scores#5","source":"``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.","context":"``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.","source_sha256":"a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041","translation":"``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``."},
-    {"label":"spacr.ml.generate_ml_scores#6","source":"``positive_control`` / ``negative_control`` — well IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.","context":"``positive_control`` / ``negative_control`` — microplate sample position IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.","source_sha256":"9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487","translation":"``positive_control`` / ``negative_control`` — auðkenni sýnisstaða örplatna (t.d. ``'c2'`` / ``'c1'``) sem eru notuð sem þjálfunarmerki."},
-    {"label":"spacr.ml.generate_ml_scores#7","source":"``annotation_column`` — override controls with a PNG-level annotation column.","context":"``annotation_column`` — override controls with a PNG-level annotation column.","source_sha256":"3f461869af6c98fe2d7759f49c734fccd7f0b7c383b2fa64eb823648a04fc723","translation":"``annotation_column`` — nota skýringardálk á PNG-stigi í stað stýringa."},
-    {"label":"spacr.ml.generate_ml_scores#8","source":"``location_column`` — ``'columnID'`` or ``'rowID'``.","context":"``location_column`` — ``'columnID'`` or ``'rowID'``.","source_sha256":"ff6d95d3dcfbaab265aae863ebbc3b2c960830aae94685accd7aba8d945926a6","translation":"``location_column`` — ``'columnID'`` or ``'rowID'``."},
-    {"label":"spacr.ml.generate_ml_scores#9","source":"``heatmap_feature`` — feature plotted on the plate heatmap.","context":"``heatmap_feature`` — feature plotted on the plate heatmap.","source_sha256":"cb0a243031c3f5cd2044fa67b61c4530305e7a250c7f099e31997ed1060c88bd","translation":"``heatmap_feature`` — eiginleiki sem er teiknaður á hitakort plötunnar."},
-    {"label":"spacr.ml.generate_ml_scores#10","source":"``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.","context":"``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.","source_sha256":"9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b","translation":"``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``."},
-    {"label":"spacr.ml.generate_ml_scores#11","source":"``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.","context":"``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.","source_sha256":"8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800","translation":"``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``."},
-    {"label":"spacr.ml.generate_ml_scores#12","source":"The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.","context":"The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.","source_sha256":"5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773","translation":"Tveggja staka listinn ``[output, plate_heatmap]``, þar sem ``output`` er tíu staka niðurstöðulisti :func:`ml_analysis` og ``plate_heatmap`` er ``matplotlib``-mynd hitakorts plötunnar. CSV-skrár og myndir eru skrifaðar í ``results/`` sem hliðarverkun; slóðum þeirra er ekki skilað."},
-    {"label":"spacr.ml.generate_ml_scores#13","source":"if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.","context":"if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.","source_sha256":"c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96","translation":"ef ``annotation_column`` er stillt en ``png_list``-töfluna vantar ``prcfo`` / þann dálk, hlutaauðkenni hennar tengjast ekki mælingunum eða færri en tveir flokkar koma fyrir í henni, eða ef ``heatmap_feature`` er ekki meðal eiginleikanna sem líkanið var þjálfað á."},
-    {"label":"spacr.ml.generate_ml_scores#14","source":"Example:","context":"Example:","source_sha256":"872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad","translation":"Dæmi:"},
-    {"label":"spacr.ml.generate_ml_scores#15","source":"See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-well ML scores.","context":"See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-microplate sample position ML scores.","source_sha256":"b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d","translation":"Sjá einnig: :func:`ml_analysis` — undirliggjandi aðferð til að passa og meta. :func:`perform_regression` — aðhvarf blandaðra áhrifa á ML-stig fyrir hverja sýnisstöðu örplötu."},
-    {"label":"spacr.ml.load_regression_input_pairs#0","source":"Read paired inputs and resolve plate identity without filename guesses.","context":"Read paired inputs and resolve plate identity without filename guesses.","source_sha256":"d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e","translation":"Lesa pöruð inntök og ákvarða plötuauðkenni án ágiskana út frá skráarheitum."},
-    {"label":"spacr.ml.load_regression_input_pairs#1","source":"Resolution order is own column, partner column, then pair-row order. Conflicting declarations are refused. Returns ``(count_frame, score_frame, audit_rows)``.","context":"Resolution order is own column, partner column, then pair-row order. Conflicting declarations are refused. Returns ``(count_frame, score_frame, audit_rows)``.","source_sha256":"10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad","translation":"Röð ákvörðunar er: eigin dálkur, dálkur makans og loks röð parsins. Mótsagnakenndum yfirlýsingum er hafnað. Skilar ``(count_frame, score_frame, audit_rows)``."},
-    {"label":"spacr.ml.normalize_regression_input_pairs#0","source":"Return explicit ``score``/``count`` rows, migrating legacy lists.","context":"Return explicit ``score``/``count`` rows, migrating legacy lists.","source_sha256":"85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94","translation":"Skila skýrum ``score``/``count`` röðum og færa eldri lista yfir á nýja sniðið."},
-    {"label":"spacr.ml.normalize_regression_input_pairs#1","source":"New settings store ``paired_data``. Older files remain valid: their flat lists are zipped positionally, exactly matching the former behaviour, and the migration is reported so the invisible legacy assumption is visible.","context":"New settings store ``paired_data``. Older files remain valid: their flat lists are zipped positionally, exactly matching the former behaviour, and the migration is reported so the invisible legacy assumption is visible.","source_sha256":"c0bf94d5d0a25900508c26bb11d37e76473de517c001bbe422704f3867618bed","translation":"Nýjar stillingar geyma ``paired_data``. Eldri skrár gilda áfram: flatir listar þeirra eru paraðir saman eftir staðsetningu, nákvæmlega eins og eldri hegðun gerði, og flutningurinn er tilkynntur svo ósýnilega eldri forsendan verði sýnileg."},
-    {"label":"spacr.ml.regression_levels#0","source":"Fit every level the run asked for, SEPARATELY, and return one per level.","context":"Fit every level the run asked for, SEPARATELY, and return one per level.","source_sha256":"bc4a920892bf5c55bdcdeb3ec6a7c9f9e81f3a4857054bad68af04d341493699","translation":"Passa hvert stig sem keyrslan bað um, HVERT FYRIR SIG, og skila einni niðurstöðu fyrir hvert stig."},
-    {"label":"spacr.ml.regression_levels#1","source":"THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so","context":"THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so","source_sha256":"35e27a88334a307cc6e74d5c1137cd964b46c973ffc159e0edc2026fe3fe8b1e","translation":"ÞETTA ER INNGANGSPUNKTUR TVEGGJA PASSANA. Hann er til vegna þess að alls ekki er hægt að passa eina hönnunina sem spaCR notaði áður. ``gene_fraction`` er SUM gRNA-hlutfalla gensins, þannig að"},
-    {"label":"spacr.ml.regression_levels#2","source":"``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``","context":"``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``","source_sha256":"7b1d5ff99fd566bd78fdf516053ce92d0f5ec341a8defe99176ad441b6ca78e1","translation":"``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``"},
-    {"label":"spacr.ml.regression_levels#3","source":"puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.","context":"puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.","source_sha256":"0b6580b48091e760bac4983f95e1e5346ded73b05ad1eb3d69b09ef0dbf62d50","translation":"setur blokk dálka og summur þeirra í eina hönnun. Á viðmiðunarskimuninni TSG101 mældust 1248 stikar við röð 862 -- 386-vítt EXACT núllrúm -- og kvaðratsumma leifa í passaninni sem statsmodels skilaði var bitafyrirbita eins og sú sem fæst með því að bæta sjöföldum núllvigri við hana. Sjá :data:`COLLINEAR_FORMULA_FRAGMENT`."},
-    {"label":"spacr.ml.regression_levels#4","source":"Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same wells, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.","context":"Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same microplate sample positions, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.","source_sha256":"7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a","translation":"Tvær passanir, tvær töflur, TVÆR LEIÐRÉTTINGAR. Hver passan er eigin fjölprófunarfjölskylda og er leiðrétt innan hennar. Að sameina þær væri tvöfalt rangt: þær eru ekki óháðar -- sömu sýnisstöður örplatna eru notaðar og aðhvarfsbreyta gensins ER summa aðhvarfsbreyta leiðaranna -- og tvöföldun fjölskyldustærðar dregur úr tölfræðilegum styrk án verndar. :func:`perform_regression` beitir leiðréttingunni fyrir hvert stig og skrifar ``results_grna.csv`` og ``results_gene.csv``."},
-    {"label":"spacr.ml.regression_levels#5","source":"``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.","context":"``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.","source_sha256":"94933110c12ab286e7b86c65039275d3e77a8c15fabaa36b5e24a566236d69c2","translation":"``regression_type='mixed'`` passar EINU SINNI og skilar einni færslu, ``'gene'``: líkanið inniheldur þegar bæði stigin, genið sem föst áhrif og leiðarann sem slembiáhrif falin innan gensins. Úttak þess fyrir leiðarann er BLUPs, þess vegna er ekki hægt að skipta því í tvær prófunarfjölskyldur."},
-    {"label":"spacr.ml.regression_levels#6","source":"``'both'`` (default), ``'grna'`` or ``'gene'``.","context":"``'both'`` (default), ``'grna'`` or ``'gene'``.","source_sha256":"6e604094dd6249e5ec74de6194cb8e755d06002d16daece0305d65250ad8416c","translation":"``'both'`` (sjálfgefið), ``'grna'`` eða ``'gene'``."},
-    {"label":"spacr.ml.regression_levels#7","source":"the run folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.","context":"the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.","source_sha256":"d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b","translation":"mappa vinnslulotunnar. Þegar passanir eru fleiri en ein fara FIGURES hvers stigs í ``<dst>/<level>/`` svo þær geti ekki skrifað hver yfir aðra; töflurnar eru áfram í ``<dst>``, þar sem allir neytendur leita að þeim."},
-    {"label":"spacr.ml.regression_levels#8","source":"passed straight through to :func:`regression`.","context":"passed straight through to :func:`regression`.","source_sha256":"de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549","translation":"sent óbreytt áfram til :func:`regression`."},
-    {"label":"spacr.ml.regression_levels#9","source":"``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.","context":"``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.","source_sha256":"36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b","translation":"``dict`` sem varpar stigi á ``(model, coef_df, regression_type)`` í röð passana."},
-    {"label":"spacr.ml.regression_levels#10","source":"for a level that is not one of :data:`LEVEL_CHOICES`.","context":"for a level that is not one of :data:`LEVEL_CHOICES`.","source_sha256":"865eaa1be2505059a461326afa1015fd8bef1631ba5eb0764cada93b6024d342","translation":"fyrir stig sem er ekki eitt af :data:`LEVEL_CHOICES`."},
-    {"label":"spacr.ml.resolve_auto_inference#0","source":"Choose ``analysis_mode`` for ``inference='auto'`` from the design.","context":"Choose ``analysis_mode`` for ``inference='auto'`` from the design.","source_sha256":"7cf082f068e8dc6920a3e3f7c6db4b58ddf766a3aff281191b0b98a1a6916a90","translation":"Velja ``analysis_mode`` fyrir ``inference='auto'`` út frá hönnuninni."},
-    {"label":"spacr.ml.resolve_auto_inference#1","source":"The simultaneous model estimates one coefficient per guide from the wells, so it needs more wells than guides -- with an intercept and any plate fixed effects on top -- before those coefficients are identifiable at all. Below that the design matrix is rank deficient: statsmodels still returns a number for every guide, but the numbers are one arbitrary solution out of infinitely many, and their P values describe nothing.","context":"The simultaneous model estimates one coefficient per guide from the microplate sample positions, so it needs more microplate sample positions than guides -- with an intercept and any laboratory microplate fixed effects on top -- before those coefficients are identifiable at all. Below that the design matrix is rank deficient: statsmodels still returns a number for every guide, but the numbers are one arbitrary solution out of infinitely many, and their P values describe nothing.","source_sha256":"5da7d5b53d5165fc0a5b64f74bea0f4eab979984b8cf5fa353176d9d9897811c","translation":"Samtímislíkanið metur einn stuðul fyrir hvern leiðara út frá sýnisstöðum örplatna og þarf því fleiri sýnisstöður en leiðara -- auk skurðpunkts og fastra áhrifa rannsóknarörplatna -- áður en stuðlarnir eru yfirleitt auðkennanlegir. Fyrir neðan þau mörk er hönnunarfylkið ekki af fullri röð: statsmodels skilar samt tölu fyrir hvern leiðara, en tölurnar eru ein handahófskennd lausn af óendanlega mörgum og P-gildi þeirra lýsa engu."},
-    {"label":"spacr.ml.resolve_auto_inference#2","source":"That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed wells; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.","context":"That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed microplate sample positions; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.","source_sha256":"77d015d82b509d50fd4a78edb7f8ce55dffc03c6d31aaf26ce4cd46a1b321a03","translation":"Þetta er ekki tilgáta. Skimunin sem þetta var skrifað fyrir hefur 824 leiðara á 587 greindum sýnisstöðum örplatna; birta passanin hafði 825 stika, röð 579 og átta frígráður leifa, og endurpassan endurgerði ekki eigin stuðla."},
-    {"label":"spacr.ml.resolve_auto_inference#3","source":"``auto`` therefore picks the permutation test whenever the simultaneous fit would be unidentifiable, and says so. It is deliberately conservative: it needs a real margin (``_IDENTIFIABILITY_MARGIN`` wells per guide) rather than a bare majority, because a design that only just fits is one dropped well away from not fitting.","context":"``auto`` therefore picks the permutation test whenever the simultaneous fit would be unidentifiable, and says so. It is deliberately conservative: it needs a real margin (``_IDENTIFIABILITY_MARGIN`` microplate sample positions per guide) rather than a bare majority, because a design that only just fits is one dropped well away from not fitting.","source_sha256":"a44ab47e0b58d5fb59fa0baeae5d5ddcc0ae83aeb597d91c74ec8a1e3b6f5cc3","translation":"``auto`` velur því umraðaprófið þegar samtímis passan væri óauðkennanleg og segir frá því. Valið er vísvitandi varfærið: það krefst raunverulegs svigrúms (``_IDENTIFIABILITY_MARGIN`` sýnisstaða örplatna fyrir hvern leiðara), ekki aðeins naums meirihluta, því hönnun sem rétt sleppur er einni brottfallinni sýnisstöðu frá því að passa ekki."},
-    {"label":"spacr.ml.resolve_auto_inference#4","source":"Anything other than ``inference='auto'`` is returned untouched, so an explicit choice is never overridden.","context":"Anything other than ``inference='auto'`` is returned untouched, so an explicit choice is never overridden.","source_sha256":"a93b7b1521d7691697bde55ae145778777edd71235ef7b2eed4462f3c3d48bd9","translation":"Öllu öðru en ``inference='auto'`` er skilað óbreyttu, þannig að skýru vali er aldrei hnekkt."},
-    {"label":"spacr.ml.resolve_auto_inference#5","source":"``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.","context":"``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.","source_sha256":"11380b9e5f6bcf7fb4065e9e1ff8cd68a01aff3c9eede1fc3158890a49297f92","translation":"``(analysis_mode, reason)``. ``reason`` er setning sem tilgreinir fjöldana og hentar í annálinn og aðferðahlutann."},
-    {"label":"spacr.ml.results_folder_kind#0","source":"What a run's results folder is NAMED after.","context":"What a processing session's results folder is NAMED after.","source_sha256":"9aa310e1c499c3609c3d787ecfa5bed677dbf44c0ba20f560bb0f47fd646fcde","translation":"Það sem heiti niðurstöðumöppu vinnslulotu byggist á."},
-    {"label":"spacr.ml.results_folder_kind#1","source":"The inference method when it decides the answer, and the regression type otherwise. Under `analysis_mode='guide_permutation'` the regression type is never read -- ols and mixed produce byte-identical results -- so a folder called `ridge` would name something the run did not do.","context":"The inference method when it decides the answer, and the regression type otherwise. Under `analysis_mode='guide_permutation'` the regression type is never read -- ols and mixed produce byte-identical results -- so a folder called `ridge` would name something the processing session did not do.","source_sha256":"9b52a8b1956d3070227014c2ab32c353bba0754f759d0bf009dadb6d47d9c5c9","translation":"Ályktunaraðferðinni þegar hún ræður svarinu, annars tegund aðhvarfs. Undir `analysis_mode='guide_permutation'` er tegund aðhvarfs aldrei lesin -- ols og mixed skila bætasamsömum niðurstöðum -- svo mappa sem heitir `ridge` myndi nefna eitthvað sem vinnslulotan gerði ekki."},
-    {"label":"spacr.ml.results_folder_kind#2","source":"PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every run that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.","context":"PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every processing session that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.","source_sha256":"e1f650f69fe5b9dcac25308be0248c082de61d0cbbc10e8e0135609a2fccf5b8","translation":"OPINBERT, OG EINA AFRITIÐ. Próf sem leiddi þessa reglu aftur út varð úrelt þegar reglan breyttist og tilkynnti 39 CSV-skrár sem vantaði, þótt allar vinnsluloturnar sem skrifuðu þær væru í lagi. Þetta er bilunin sem `results_dir`-hjálparfallið í tests/test_cov_ml_perform_regression.py hafði þegar verið skrifað einu sinni til að koma í veg fyrir. Prófunarsafn sem bendir á ranga skrá er verra en þögult safn."},
-    {"label":"spacr.ml.screen_is_blockable#0","source":"Whether ``screenID`` can be a term in this frame's design.","context":"Whether ``screenID`` can be a term in this frame's design.","source_sha256":"f75d0803f78ebc8bb3c8e6300d5ffc799cddf1de7732b679267f3dc24d15dae5","translation":"Hvort ``screenID`` geti verið liður í hönnun þessa gagnaramma."},
-    {"label":"spacr.ml.screen_is_blockable#1","source":"True only when the column exists and carries more than one distinct value. A single-screen project is the normal case and must be untouched by the design: it has no screenID at all, or one value, and either way the term would be a constant column.","context":"True only when the column exists and carries more than one distinct value. A single-screen project is the normal case and must be untouched by the design: it has no screenID at all, or one value, and either way the term would be a constant column.","source_sha256":"614d082528bdf4410704514e30e38dd8858b2f785bd2559b1861e0246537239f","translation":"True aðeins ef dálkurinn er til og hefur fleiri en eitt ólíkt gildi. Verkefni með einni skimun er venjulega tilvikið og hönnunin má ekki breyta því: annaðhvort hefur það ekkert screenID eða eitt gildi; í báðum tilvikum væri liðurinn fastur dálkur."},
-    {"label":"spacr.ml.screen_is_blockable#2","source":"The same rule :func:`spacr.measurement_scan._dummy_block` applies, stated once for the formula path so a frame cannot be blocked on by one and not the other.","context":"The same rule :func:`spacr.measurement_scan._dummy_block` applies, stated once for the formula path so a frame cannot be blocked on by one and not the other.","source_sha256":"85cf17e98cd765620cef074f22be95c88557bab382d69162fc4336f5d69cbcdf","translation":"Sama regla og :func:`spacr.measurement_scan._dummy_block` gildir; hún er sett fram einu sinni fyrir formúluleiðina svo ekki sé hægt að blokka gagnaramma með annarri leiðinni en ekki hinni."},
-    {"label":"spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections#0","source":"The section widgets actually mounted in the settings panel.","context":"The section widgets actually mounted in the settings panel.","source_sha256":"ecaa07a03b598b553f1a3e41550640aa7f996e3d269ce28ed3378648446de478","translation":"Hlutagræjurnar sem raunverulega eru settar upp á stillingaspjaldinu."},
-    {"label":"spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections#1","source":"``_settings_sections`` deliberately also contains dormant forms for object-gated settings.  Visual consumers -- maturity and category hints in particular -- must use this subset instead.","context":"``_settings_sections`` deliberately also contains dormant forms for object-gated settings.  Visual consumers -- maturity and category hints in particular -- must use this subset instead.","source_sha256":"e35b27cc0baeb61dcbe7ff265878df496655e979470f768ee9638a30fb364e4a","translation":"``_settings_sections`` inniheldur viljandi einnig óvirk eyðublöð fyrir stillingar sem eru háðar hlutum. Sjónrænir neytendur -- einkum vísbendingar um þroskastig og flokka -- verða að nota þetta hlutmengi í staðinn."},
-    {"label":"spacr.qt.shortcuts#0","source":"Keyboard-first shortcuts for the spaCR Qt GUI.","context":"Keyboard-first shortcuts for the spaCR Qt GUI.","source_sha256":"26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483","translation":"Lyklaborðsmiðaðir flýtilyklar fyrir spaCR Qt GUI."},
-    {"label":"spacr.qt.shortcuts#1","source":"Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:","context":"Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:","source_sha256":"b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a","translation":"Skráir víðværar :class:`QShortcut`-bindingar á aðalglugganum svo hægt sé að nota allt forritið án músar:"},
-    {"label":"spacr.qt.shortcuts#2","source":"Go home","context":"Go home","source_sha256":"a0aac9145249f1675ee0380260d152d217a7abe140e85aad3871ec30da1c319b","translation":"Fara heim"},
-    {"label":"spacr.qt.shortcuts#3","source":"Switch to the Nth app in the sidebar","context":"Switch to the Nth app in the sidebar","source_sha256":"f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f","translation":"Skipta yfir í N-ta forritið í hliðarstikunni"},
-    {"label":"spacr.qt.shortcuts#4","source":"Open the command palette","context":"Open the command palette","source_sha256":"2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555","translation":"Opna skipanaspjaldið"},
-    {"label":"spacr.qt.shortcuts#5","source":"Show the shortcuts cheat sheet","context":"Show the shortcuts cheat sheet","source_sha256":"c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d","translation":"Sýna yfirlit flýtilykla"},
-    {"label":"spacr.qt.shortcuts#6","source":"Open Preferences","context":"Open Preferences","source_sha256":"b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014","translation":"Opna kjörstillingar"},
-    {"label":"spacr.qt.shortcuts#7","source":"Open the AI Console","context":"Open the AI Console","source_sha256":"28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d","translation":"Opna AI-stjórnborðið"},
-    {"label":"spacr.qt.shortcuts#8","source":"Ctrl+End      Jump to the newest console line F11           Toggle full screen Esc           Close any open dialog / popup","context":"Ctrl+End      Jump to the newest console line F11           Toggle full application view Esc           Close any open dialog / popup","source_sha256":"4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3","translation":"Ctrl+End      Fara í nýjustu línu stjórnborðsins F11           Víxla heilskjá forritsins Esc           Loka öllum opnum svargluggum / sprettigluggum"},
-    {"label":"spacr.qt.shortcuts#9","source":":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.","context":":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.","source_sha256":"c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce","translation":":func:`install` er kallað einu sinni úr ``MainWindow.__init__``. Hver binding er skráð í :data:`SHORTCUTS` svo yfirlitsgluggi flýtilykla haldist samstilltur við það sem raunverulega er tengt."},
-    {"label":"spacr.settings.get_perform_regression_default_settings#0","source":"Populate default settings for gRNA/score regression analysis.","context":"Populate default settings for gRNA/score regression analysis.","source_sha256":"0a58e1c77ed3e9569cb536aa77ddb4aa3883233c14ae9d5c74c022a3124ff047","translation":"Fylla inn sjálfgefnar stillingar fyrir gRNA/stiga-aðhvarfsgreiningu."},
-    {"label":"spacr.settings.get_perform_regression_default_settings#1","source":"Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.","context":"Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.","source_sha256":"78caac1266c292e60eebd31f9dcd53cd418015c2df20333e38c43b74e357f50f","translation":"Skiptir ``agg_type`` sjálfkrafa í None þegar skammtaaðhvarf er valið, þannig að ``alpha`` er túlkað sem skammtamark."},
-    {"label":"spacr.settings.get_perform_regression_default_settings#2","source":"Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the dict from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a run that had started cleanly.","context":"Every structured-data name :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the key-value mapping from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a processing session that had started cleanly.","source_sha256":"165034b2f73d58f8deaceea0de62331e1c48dd872d7b481bf818106b1ceed0f0","translation":"Hér er fyllt inn hvert heiti skipulagðra gagna sem :func:`spacr.ml.perform_regression` les með ``settings[...]``. Sex vantaði. Báðir ræsarnir -- Qt-spjaldið með ``qt.screens.settings_model.resolve_default_settings`` og ``spacr-run regression`` með ``cli.module_defaults`` -- byggja lykla-/gildavörpunina úr þessu eina falli, svo ekki var hægt að ræsa aðhvarfið neins staðar: það stöðvaðist á ``KeyError: 'verbose'`` í ml.py:1409 eftir að báðar CSV-inntaksskrárnar höfðu verið lesnar og ``settings/regression.csv`` skrifuð, svo bilunin leit út eins og vinnslulota sem hefði hafist eðlilega."},
-    {"label":"spacr.settings.get_perform_regression_default_settings#3","source":"dict to fill in place.","context":"key-value mapping to fill in place.","source_sha256":"98891dad7f1238087a23b92eadf791b02ba2ba024950c9ca53982adbb82458ed","translation":"lykla-/gildavörpun sem fylla á beint."},
-    {"label":"spacr.settings.get_perform_regression_default_settings#4","source":"the settings dict with defaults applied.","context":"the settings key-value mapping with defaults applied.","source_sha256":"f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a","translation":"lykla-/gildavörpun stillinga eftir að sjálfgefnum gildum hefur verið beitt."}
+    {
+      "label": "spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_filter_changed#0",
+      "source": "Apply a newly published shared filter to the loaded rows.",
+      "context": "Apply a newly published shared filter to the loaded rows.",
+      "source_sha256": "64eacbd97f7383e07bc48fe5c301df88b4cb691d768e119be13a55d587b200df",
+      "translation": "Beita nýbirtri sameiginlegri síu á hlaðnar raðir."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_filter_changed#1",
+      "source": "current process-wide filter; the linked-view state already owns it, so this callback only refreshes row visibility.",
+      "context": "current process-wide filter; the linked-view state already owns it, so this callback only refreshes row visibility.",
+      "source_sha256": "3d02ded03fc5d3ccc0f79cea0ab67e03d8ae34235c511497673f62428b10ae1a",
+      "translation": "núverandi sía fyrir allt ferlið; staða tengda yfirlitsins heldur þegar utan um hana, þannig að þetta bakakall endurnýjar aðeins sýnileika raðanna."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.canFetchMore#0",
+      "source": "Return whether the root model can request another chunk.",
+      "context": "Return whether the root model can request another chunk.",
+      "source_sha256": "a9464c06cb3aeefb070dc719f9e0123b5a19a9d16086d1f25f7808df4214f2a6",
+      "translation": "Skila því hvort rótarlíkanið geti óskað eftir öðrum gagnabút."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.canFetchMore#1",
+      "source": "Qt parent index; valid child indexes cannot fetch.",
+      "context": "Qt parent index; valid child indexes cannot fetch.",
+      "source_sha256": "bab97ac05155e1f6c3c86b420e1e6ef331475bab3c5db37a7b82e76aebbc2379",
+      "translation": "Qt-foreldravísir; ekki er hægt að sækja gögn fyrir gilda barnavísa."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.columnCount#0",
+      "source": "Return visible columns for the root model and zero for children.",
+      "context": "Return visible columns for the root model and zero for children.",
+      "source_sha256": "bf0825490db011a8a5fe0566844f374783a4e228541012c22db1ae2b7d2a08e0",
+      "translation": "Skila fjölda sýnilegra dálka fyrir rótarlíkanið og núlli fyrir börn."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.columnCount#1",
+      "source": "Qt parent index whose child-column count is requested.",
+      "context": "Qt parent index whose child-column count is requested.",
+      "source_sha256": "46bd124e3cb8402f7bc1d43492d9e203df98ae792a2b3757c08e92d05f3b8b3b",
+      "translation": "Qt-foreldravísir sem beðið er um fjölda barnadálka fyrir."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.data#0",
+      "source": "Return the display, tooltip, or exact editor value for a cell.",
+      "context": "Return the display, tooltip, or exact editor value for a cell.",
+      "source_sha256": "8059e763018b66d6c392ca28f0513222dcf090c0c7f37b7848a82bab6bc5fe36",
+      "translation": "Skila birtingargildi, verkfæraábendingu eða nákvæmu ritilgildi reits."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.data#1",
+      "source": "model index identifying the requested cell.",
+      "context": "model index identifying the requested cell.",
+      "source_sha256": "9a3bbb69d9ef1955c160236cc5cc853cfc081c3675f7174304fe325fe0244a53",
+      "translation": "líkansvísir sem auðkennir umbeðinn reit."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.data#2",
+      "source": "Qt data role; unsupported roles return ``None``.",
+      "context": "Qt data role; unsupported roles return ``None``.",
+      "source_sha256": "dc74937680539ca72f01551d044a54fb9fd0192a062a203616cacdc65e5c3221",
+      "translation": "Qt-gagnahlutverk; óstudd hlutverk skila ``None``."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.fetchMore#0",
+      "source": "Request the next chunk through the configured fetch hook.",
+      "context": "Request the next chunk through the configured fetch hook.",
+      "source_sha256": "36561f91513ab8930de319d7658e1f0e232e80e1efab89ccc13d68d065077c69",
+      "translation": "Óska eftir næsta gagnabút í gegnum stillt sóknarkall."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.fetchMore#1",
+      "source": "Qt parent index; valid child indexes are ignored.",
+      "context": "Qt parent index; valid child indexes are ignored.",
+      "source_sha256": "0e8e6c705227bf90adb552cd362f8b5e4bcecb3059a115267d02bc473bae2b16",
+      "translation": "Qt-foreldravísir; gildar barnavísanir eru hunsaðar."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.flags#0",
+      "source": "Return Qt item flags for ``index``, including armed editability.",
+      "context": "Return Qt item flags for ``index``, including armed editability.",
+      "source_sha256": "6314eb09af2a17cd7e6ff689c44ba48720a2ed5b264ac70f78c52583bce0397c",
+      "translation": "Skila Qt-atriðisflöggum fyrir ``index``, þar á meðal ritunarflöggi þegar ritun er virkjuð."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.flags#1",
+      "source": "model index whose interaction flags are requested.",
+      "context": "model index whose interaction flags are requested.",
+      "source_sha256": "f23ffaac5e5f4a8b8f2dd97000759e37654ea0faf9f6d0549c4abbd02c3915f8",
+      "translation": "líkansvísir sem beðið er um samskiptaflögg fyrir."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.headerData#0",
+      "source": "Return a column name or one-based absolute row number.",
+      "context": "Return a column name or one-based absolute row number.",
+      "source_sha256": "413574b45a5099d9fe11e9dca63f9a7cb8d38450a710305cf698a812c37c5351",
+      "translation": "Skila dálkheiti eða algildu raðnúmeri talið frá einum."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.headerData#1",
+      "source": "zero-based visible column or row-header section.",
+      "context": "zero-based visible column or row-header section.",
+      "source_sha256": "7f9d7282b8e15e7db8a22c5de01e05a8b1ad00c34ac13a1cf220584156fdde67",
+      "translation": "talið frá núlli: sýnilegur dálkur eða hluti raðhauss."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.headerData#2",
+      "source": "horizontal for names, vertical for row numbers.",
+      "context": "horizontal for names, vertical for row numbers.",
+      "source_sha256": "b56e2b24188807b6f8e339cf619bc8cf229c1271ddd9c3e318f09d36abfca9a4",
+      "translation": "lárétt stefna fyrir heiti, lóðrétt fyrir raðnúmer."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.headerData#3",
+      "source": "Qt data role; only :attr:`Qt.DisplayRole` is served.",
+      "context": "Qt data role; only :attr:`Qt.DisplayRole` is served.",
+      "source_sha256": "91a57e479ef0a6302c558ade7d5b3d3522f99267726851dda33de12b1ce345f1",
+      "translation": "Qt-gagnahlutverk; aðeins :attr:`Qt.DisplayRole` er skilað."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.rowCount#0",
+      "source": "Return loaded rows for the root model and zero for children.",
+      "context": "Return loaded rows for the root model and zero for children.",
+      "source_sha256": "e05ac46e4a57db4d0904b9494f7339f734938ef52b1dc1dde9800d8375f1bbc2",
+      "translation": "Skila fjölda hlaðinna raða fyrir rótarlíkanið og núlli fyrir börn."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.rowCount#1",
+      "source": "Qt parent index whose child-row count is requested.",
+      "context": "Qt parent index whose child-row count is requested.",
+      "source_sha256": "39956c5486f47f8f7a4c90192c6a5379146dbf131960caf75ea5e62b8fe8e3ee",
+      "translation": "Qt-foreldravísir sem beðið er um fjölda barnaraða fyrir."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.setData#0",
+      "source": "Commit an editor value through the guarded screen callback.",
+      "context": "Commit an editor value through the guarded screen callback.",
+      "source_sha256": "ff4424ecfd8ea4df900a81596aa8e8468da28e21ed966f1c68533936705ade38",
+      "translation": "Vista ritilgildi með vernduðu bakakalli skjásins."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.setData#1",
+      "source": "valid editable model index.",
+      "context": "valid editable model index.",
+      "source_sha256": "667909a495db854da63a9d584f51f55cac726b97ae54c73229ab8554f7760a64",
+      "translation": "gildur, breytanlegur líkansvísir."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.setData#2",
+      "source": "raw editor value passed to the commit hook.",
+      "context": "raw editor value passed to the commit hook.",
+      "source_sha256": "e401e58ff5cf7be7fa3a1e50aebdeb5aec0c3847ab29b1cf6c7c105b7bf00b3b",
+      "translation": "óunnið ritilgildi sem sent er vistunarkallinu."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.setData#3",
+      "source": "Qt role, which must be :attr:`Qt.EditRole`.",
+      "context": "Qt role, which must be :attr:`Qt.EditRole`.",
+      "source_sha256": "6811177313c24753c873829cfdfd23000dd312eeb83a39d3669ce981fcc0ca03",
+      "translation": "Qt-hlutverk sem verður að vera :attr:`Qt.EditRole`."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.setData#4",
+      "source": "whether the commit hook accepted and wrote the change.",
+      "context": "whether the commit hook accepted and wrote the change.",
+      "source_sha256": "4d7493cefdd8b1c7253aecbc5295865e0c82c15e9b51a7479e1babe2f897325b",
+      "translation": "hvort vistunarkallið samþykkti og skrifaði breytinguna."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.mask#0",
+      "source": "Select finite rows inside every bounded side of the rectangle.",
+      "context": "Select finite rows inside every bounded side of the rectangle.",
+      "source_sha256": "a33da19d60b716922448285066299bb6cfabf96e04c28ddb2ec76e232dae2a73",
+      "translation": "Velja endanlegar raðir sem liggja innan allra afmarkaðra hliða rétthyrningsins."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.mask#1",
+      "source": "measurement table containing both axis columns.",
+      "context": "measurement table containing both axis columns.",
+      "source_sha256": "acd9799f1b8d37f897d83fe589111b9cd5ccb734142ff50daaea5d2d4e7c1d1f",
+      "translation": "mælingatafla sem inniheldur dálka beggja ása."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.scaled#0",
+      "source": "Return this rectangle resized about a fixed data-space point.",
+      "context": "Return this rectangle resized about a fixed data-space point.",
+      "source_sha256": "feefc6484b42d37ec035ae7e14f30ab4e512a835cb7fc2792ce778b001af071d",
+      "translation": "Skila þessum rétthyrningi með breyttri stærð um fastan punkt í gagnahnitakerfinu."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.scaled#1",
+      "source": "positive scale factor; values above one grow the gate.",
+      "context": "positive scale factor; values above one grow the data-selection boundary.",
+      "source_sha256": "b2833332adb24666c24d9444f94aa44c8281f060e3a7648bc2e2b25d9b040110",
+      "translation": "jákvæður kvarðastuðull; gildi yfir einum stækka gagnavalsmörkin."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.scaled#2",
+      "source": "point held fixed, or ``None`` to use the rectangle's finite centre independently on each axis. Without an explicit point, an axis lacking two finite bounds stays unchanged.",
+      "context": "point held fixed, or ``None`` to use the rectangle's finite centre independently on each axis. Without an explicit point, an axis lacking two finite bounds stays unchanged.",
+      "source_sha256": "265c9e1135fde0caf76eecb2528bbba5082c08bb7b1da33b8b8b0b3b93c8e7d9",
+      "translation": "punktur sem helst fastur, eða ``None`` til að nota endanlega miðju rétthyrningsins sjálfstætt á hvorum ás. Án tiltekins punkts helst ás sem hefur ekki tvenn endanleg mörk óbreyttur."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.scaled#3",
+      "source": "when ``factor`` is not positive.",
+      "context": "when ``factor`` is not positive.",
+      "source_sha256": "890325752e2c2d55c06df2661881929ef7f2a050538d39688c7f2df745e7139f",
+      "translation": "þegar ``factor`` er ekki jákvæður."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.translated#0",
+      "source": "Return a copy shifted along both measurement axes.",
+      "context": "Return a copy shifted along both measurement axes.",
+      "source_sha256": "32eff74b0ea833426db56cfbf7de1f129b05ad51c230d325f56933d3c849997b",
+      "translation": "Skila afriti sem hefur verið hliðrað eftir báðum mælingaásum."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.translated#1",
+      "source": "displacement in horizontal-axis data units.",
+      "context": "displacement in horizontal-axis data units.",
+      "source_sha256": "30706eb1eca23de6d20281c1bafc66afac88c69f693adac9f06e5719ea84a3f0",
+      "translation": "tilfærsla í gagnaeiningum lárétta ássins."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.translated#2",
+      "source": "displacement in vertical-axis data units.",
+      "context": "displacement in vertical-axis data units.",
+      "source_sha256": "01e432235a34a8338bf3c2e7e5f47dc220bc85741075bfaafa4a1b25d22e0888",
+      "translation": "tilfærsla í gagnaeiningum lóðrétta ássins."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_handle#0",
+      "source": "Return the rectangle after dragging one side or corner handle.",
+      "context": "Return the rectangle after dragging one side or corner handle.",
+      "source_sha256": "d0f9c73b8bd207f0a72822cf2e8896bac9af27e056ed49475acc18cd423bb92f",
+      "translation": "Skila rétthyrningnum eftir að handfang á hlið eða horni hefur verið dregið."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_handle#1",
+      "source": "one of the four side names emitted by :meth:`handles`, or one horizontal and one vertical side joined by a comma for a corner.",
+      "context": "one of the four side names emitted by :meth:`handles`, or one horizontal and one vertical side joined by a comma for a corner.",
+      "source_sha256": "aed0eb7b30859b68ca7474a5876aaf34d641b247c86086859e28f0545b05b64d",
+      "translation": "eitt fjögurra hliðarheita sem :meth:`handles` skilar, eða ein lárétt og ein lóðrétt hlið, tengdar með kommu fyrir horn."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_handle#2",
+      "source": "new horizontal coordinate used by any horizontal role.",
+      "context": "new horizontal coordinate used by any horizontal role.",
+      "source_sha256": "c23d39d5517a26896f456266c4ecba5e21997df96347485d08cda4140cbc6491",
+      "translation": "nýtt lárétt hnit sem öll lárétt hlutverk nota."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_handle#3",
+      "source": "new vertical coordinate used by any vertical role.",
+      "context": "new vertical coordinate used by any vertical role.",
+      "source_sha256": "bf3ba9fa8ec043d18595f23986bb4c9a627dfabb262860504624df3d6b416329",
+      "translation": "nýtt lóðrétt hnit sem öll lóðrétt hlutverk nota."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_handle#4",
+      "source": "when ``role`` names no rectangle handle.",
+      "context": "when ``role`` names no rectangle handle.",
+      "source_sha256": "45ff43ca5f79926072d69f8fbca5f868a99c60954dc731abc55b4033d9c52a8c",
+      "translation": "þegar ``role`` nefnir ekkert handfang rétthyrningsins."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_threshold#0",
+      "source": "Return this gate with replacement bounds on one axis.",
+      "context": "Return this data-selection boundary with replacement bounds on one axis.",
+      "source_sha256": "d701959f21c798765ae6835567715896ca9b075d0c4f98b759c4499f5cf1b102",
+      "translation": "Skila þessum gagnavalsmörkum með nýjum mörkum á einum ás."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_threshold#1",
+      "source": "horizontal or vertical measurement column to change.",
+      "context": "horizontal or vertical measurement column to change.",
+      "source_sha256": "50e73ad342925f1bf2589b0004c1448700e3932c73ed1781e3cd97dde3eb7022",
+      "translation": "láréttur eða lóðréttur mælingadálkur sem á að breyta."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_threshold#2",
+      "source": "inclusive lower bound, or ``None`` for an open lower side.",
+      "context": "inclusive lower bound, or ``None`` for an open lower side.",
+      "source_sha256": "c1c74dee76f5bc342eda7ecb14127d289a5c1c4cb9b5d317e4516322492b233c",
+      "translation": "innifalin neðri mörk, eða ``None`` fyrir opna neðri hlið."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_threshold#3",
+      "source": "inclusive upper bound, or ``None`` for an open upper side.",
+      "context": "inclusive upper bound, or ``None`` for an open upper side.",
+      "source_sha256": "6dc745eeff7f26e70b3f8f485455cb62d369a11e4e13e744c7fa9e3586e95b22",
+      "translation": "innifalin efri mörk, eða ``None`` fyrir opna efri hlið."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_threshold#4",
+      "source": "when ``column`` is not one of this rectangle's axes.",
+      "context": "when ``column`` is not one of this rectangle's axes.",
+      "source_sha256": "1b22e124de0410fcbc96e208e61e033d30a7c7c8a9bd18a3d756a0c31b2fc731",
+      "translation": "þegar ``column`` er ekki annar af ásum þessa rétthyrnings."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.scaled#0",
+      "source": "Return this threshold resized about a horizontal anchor.",
+      "context": "Return this threshold resized about a horizontal anchor.",
+      "source_sha256": "dd418caacdc8e93faf2036fb27ca339be6cb7afe02e230dc37066a7ee0b88d16",
+      "translation": "Skila þessum þröskuldi með breyttri stærð um láréttan akkerispunkt."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.scaled#1",
+      "source": "positive scale factor; values above one move every finite bound away from the anchor.",
+      "context": "positive scale factor; values above one move every finite bound away from the anchor.",
+      "source_sha256": "4f80f1e7825bac7ddd08c43be5846aa75e644c75103ba314bd6753725dd80b18",
+      "translation": "jákvæður kvarðastuðull; gildi yfir einum færa öll endanleg mörk frá akkerinu."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.scaled#2",
+      "source": "point whose first coordinate stays fixed, or ``None`` to use the threshold's finite centre. A half-open threshold has no finite centre and is returned unchanged when this is ``None``.",
+      "context": "point whose first coordinate stays fixed, or ``None`` to use the threshold's finite centre. A half-open threshold has no finite centre and is returned unchanged when this is ``None``.",
+      "source_sha256": "bf0dfc6245f6c6b231ea2e9410f705609a8e6876e94c1a818f0155bfc029bb81",
+      "translation": "punktur sem heldur fyrra hnitinu föstu, eða ``None`` til að nota endanlega miðju þröskuldsins. Hálfopinn þröskuldur hefur enga endanlega miðju og er skilað óbreyttum þegar þetta er ``None``."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#0",
+      "source": "Return the threshold after dragging one of its bound handles.",
+      "context": "Return the threshold after dragging one of its bound handles.",
+      "source_sha256": "7e6afe1b4a639baf65e2734d9de79cbd9b5f0c35f201096e792e13320a2731e1",
+      "translation": "Skila þröskuldinum eftir að eitt af markahandföngum hans hefur verið dregið."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#1",
+      "source": "``\"low\"`` or ``\"high\"`` for the bound being moved.",
+      "context": "``\"low\"`` or ``\"high\"`` for the bound being moved.",
+      "source_sha256": "d15f769019e4c256b0d971fcc1ff082c39301b2e1d2d06347275431a63b9151d",
+      "translation": "``\"low\"`` eða ``\"high\"`` eftir því hvaða mörk eru færð."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#2",
+      "source": "new bound value in the threshold column's data units.",
+      "context": "new bound value in the threshold column's data units.",
+      "source_sha256": "5a00ade99267bfe3a262a0e75e7552bac2b0ee7e17cd4c2f749b47f617221c5b",
+      "translation": "nýtt markgildi í gagnaeiningum þröskuldsdálksins."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#3",
+      "source": "vertical handle coordinate, ignored by this one-column gate.",
+      "context": "vertical handle coordinate, ignored by this one-column data-selection boundary.",
+      "source_sha256": "5bbc40dbe744b14bf3b3168a6e9b839709042ce72bd811ffbc9a2bae8f28ec09",
+      "translation": "lóðrétt hnit handfangsins; gagnavalsmörk á einum dálki hunsa það."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#4",
+      "source": "when ``role`` names no threshold handle.",
+      "context": "when ``role`` names no threshold handle.",
+      "source_sha256": "777bf1de206439f11b5a9ec208f56cfa46b63f8223b647326cefa09d483685b8",
+      "translation": "þegar ``role`` nefnir ekkert handfang þröskuldsins."
+    },
+    {
+      "label": "spacr.ml.QuasiBinomial.variance#0",
+      "source": "Adjust the variance with the dispersion parameter.",
+      "context": "Adjust the variance with the dispersion parameter.",
+      "source_sha256": "1fca926957d90cfe3391015467a4d981982052803a020d1745730c94024db40e",
+      "translation": "Aðlaga dreifnina með dreifingarstikunni."
+    },
+    {
+      "label": "spacr.ml.beta_logit#0",
+      "source": "A proportion on the logit scale, with the endpoints squeezed in.",
+      "context": "A proportion on the logit scale, with the endpoints squeezed in.",
+      "source_sha256": "502eb9e99c7b6648b60ad6749cefd06d688f69c35beaca609b2f27d2e66c9c42",
+      "translation": "Hlutfall á logit-kvarða þar sem endapunktunum er þrýst inn á við."
+    },
+    {
+      "label": "spacr.ml.beta_logit#1",
+      "source": "``transform='beta'`` is intended for proportional responses such as classification scores and their well aggregates, where a logarithm is not appropriate.",
+      "context": "``transform='beta'`` is intended for proportional responses such as classification scores and their well aggregates, where a logarithm is not appropriate.",
+      "source_sha256": "9fc52c3acbacf37d496c04a3ba36d41ecca24f1ef98c618e9688cce513cea7e1",
+      "translation": "``transform='beta'`` er ætlað fyrir hlutfallssvör, svo sem flokkunarstig og samantektir þeirra eftir brunnum, þegar lógaritmi á ekki við."
+    },
+    {
+      "label": "spacr.ml.beta_logit#2",
+      "source": "This is distinct from ``regression_type='beta'``, which selects a beta GLM. One transforms the response; the other selects the model family.",
+      "context": "This is distinct from ``regression_type='beta'``, which selects a beta GLM. One transforms the response; the other selects the model family.",
+      "source_sha256": "79c9fe41e8c92216fd07dbb4f1b734d4b824b75cd584b17e079a75b8fb670e27",
+      "translation": "Þetta er annað en ``regression_type='beta'``, sem velur beta-GLM. Annað umbreytir svarbreytunni; hitt velur líkanafjölskylduna."
+    },
+    {
+      "label": "spacr.ml.check_normality#0",
+      "source": "Check if the data is normally distributed using the Shapiro-Wilk test.",
+      "context": "Check if the data is normally distributed using the Shapiro-Wilk test.",
+      "source_sha256": "322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c",
+      "translation": "Athuga með Shapiro-Wilk-prófi hvort gögnin séu normaldreifð."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#0",
+      "source": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.",
+      "context": "Train a classical ML machine-learning classification model (XGBoost / logistic / RF) on per-object features and score every microplate sample position of a screen.",
+      "source_sha256": "a1cafc3a9f5b819a7e7e49b46a68d39d798891b4ef469e0a6616cb1fc367056e",
+      "translation": "Þjálfa hefðbundinn ML-flokkara (XGBoost / logistic / RF) á eiginleikum einstakra hluta og reikna stig fyrir hverja sýnisstöðu örplötu í skimuninni."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#1",
+      "source": "Reads the ``measurements.db`` produced by :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the wells marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a plate heatmap into ``results/`` next to the source DB.",
+      "context": "Reads the ``measurements.db`` produced by :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the microplate sample positions marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a laboratory microplate heatmap into ``results/`` next to the source DB.",
+      "source_sha256": "0ff1beae2f012bb566a9a3d73b348fffe0977eb688f17b77174e6960fa38f437",
+      "translation": "Les ``measurements.db`` sem :func:`spacr.measure.measure_crop` býr til, sameinar eiginleikatöflur frumna, kjarna, sýkla og umfrymis, notar sýnisstöður örplatna merktar ``positive_control`` / ``negative_control`` (eða skýringardálk) sem þjálfunarmerki, felur :func:`ml_analysis` að passa líkanið og skrifar spár fyrir hvern hlut, umraðana- og eiginleikamikilvægistöflur ásamt hitakorti rannsóknarörplötu í ``results/`` við hlið upprunagagnagrunnsins."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#2",
+      "source": "Settings dict, canonicalized via :func:`spacr.settings.set_default_analyze_screen`. Key entries:",
+      "context": "Settings key-value mapping, canonicalized via :func:`spacr.settings.set_default_analyze_screen`. Structured-data entries:",
+      "source_sha256": "74aea7343be214b65d61228568b199720441d78049b01956370c20a94d0ebb8d",
+      "translation": "Lykla-/gildavörpun stillinga, stöðluð með :func:`spacr.settings.set_default_analyze_screen`. Færslur skipulagðra gagna:"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#3",
+      "source": "``src`` (str or list) — folder(s) containing ``measurements/measurements.db``.",
+      "context": "``src`` (str or list) — folder(s) containing ``measurements/measurements.db``.",
+      "source_sha256": "fab81072e6783efa1c366297835b86f3fd46e93cc5a71d99a6d339f41df4689a",
+      "translation": "``src`` (strengur eða listi) — mappa eða möppur sem innihalda ``measurements/measurements.db``."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#4",
+      "source": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.",
+      "context": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.",
+      "source_sha256": "e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343",
+      "translation": "``channel_of_interest`` — rás talin frá núlli fyrir recruitment-hlutfallseiginleikann; hún stjórnar einnig töfluvali."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#5",
+      "source": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
+      "context": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
+      "source_sha256": "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
+      "translation": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#6",
+      "source": "``positive_control`` / ``negative_control`` — well IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
+      "context": "``positive_control`` / ``negative_control`` — microplate sample position IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
+      "source_sha256": "9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487",
+      "translation": "``positive_control`` / ``negative_control`` — auðkenni sýnisstaða örplatna (t.d. ``'c2'`` / ``'c1'``) sem eru notuð sem þjálfunarmerki."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#7",
+      "source": "``annotation_column`` — override controls with a PNG-level annotation column.",
+      "context": "``annotation_column`` — override controls with a PNG-level annotation column.",
+      "source_sha256": "3f461869af6c98fe2d7759f49c734fccd7f0b7c383b2fa64eb823648a04fc723",
+      "translation": "``annotation_column`` — nota skýringardálk á PNG-stigi í stað stýringa."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#8",
+      "source": "``location_column`` — ``'columnID'`` or ``'rowID'``.",
+      "context": "``location_column`` — ``'columnID'`` or ``'rowID'``.",
+      "source_sha256": "ff6d95d3dcfbaab265aae863ebbc3b2c960830aae94685accd7aba8d945926a6",
+      "translation": "``location_column`` — ``'columnID'`` or ``'rowID'``."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#9",
+      "source": "``heatmap_feature`` — feature plotted on the plate heatmap.",
+      "context": "``heatmap_feature`` — feature plotted on the plate heatmap.",
+      "source_sha256": "cb0a243031c3f5cd2044fa67b61c4530305e7a250c7f099e31997ed1060c88bd",
+      "translation": "``heatmap_feature`` — eiginleiki sem er teiknaður á hitakort plötunnar."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#10",
+      "source": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
+      "context": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
+      "source_sha256": "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
+      "translation": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#11",
+      "source": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
+      "context": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
+      "source_sha256": "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
+      "translation": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#12",
+      "source": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
+      "context": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
+      "source_sha256": "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
+      "translation": "Tveggja staka listinn ``[output, plate_heatmap]``, þar sem ``output`` er tíu staka niðurstöðulisti :func:`ml_analysis` og ``plate_heatmap`` er ``matplotlib``-mynd hitakorts plötunnar. CSV-skrár og myndir eru skrifaðar í ``results/`` sem hliðarverkun; slóðum þeirra er ekki skilað."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#13",
+      "source": "if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
+      "context": "if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
+      "source_sha256": "c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96",
+      "translation": "ef ``annotation_column`` er stillt en ``png_list``-töfluna vantar ``prcfo`` / þann dálk, hlutaauðkenni hennar tengjast ekki mælingunum eða færri en tveir flokkar koma fyrir í henni, eða ef ``heatmap_feature`` er ekki meðal eiginleikanna sem líkanið var þjálfað á."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#14",
+      "source": "Example:",
+      "context": "Example:",
+      "source_sha256": "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+      "translation": "Dæmi:"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#15",
+      "source": "See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-well ML scores.",
+      "context": "See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-microplate sample position ML scores.",
+      "source_sha256": "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d",
+      "translation": "Sjá einnig: :func:`ml_analysis` — undirliggjandi aðferð til að passa og meta. :func:`perform_regression` — aðhvarf blandaðra áhrifa á ML-stig fyrir hverja sýnisstöðu örplötu."
+    },
+    {
+      "label": "spacr.ml.load_regression_input_pairs#0",
+      "source": "Read paired inputs and resolve plate identity without filename guesses.",
+      "context": "Read paired inputs and resolve plate identity without filename guesses.",
+      "source_sha256": "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
+      "translation": "Lesa pöruð inntök og ákvarða plötuauðkenni án ágiskana út frá skráarheitum."
+    },
+    {
+      "label": "spacr.ml.load_regression_input_pairs#1",
+      "source": "Resolution order is own column, partner column, then pair-row order. Conflicting declarations are refused. Returns ``(count_frame, score_frame, audit_rows)``.",
+      "context": "Resolution order is own column, partner column, then pair-row order. Conflicting declarations are refused. Returns ``(count_frame, score_frame, audit_rows)``.",
+      "source_sha256": "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad",
+      "translation": "Röð ákvörðunar er: eigin dálkur, dálkur makans og loks röð parsins. Mótsagnakenndum yfirlýsingum er hafnað. Skilar ``(count_frame, score_frame, audit_rows)``."
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs#0",
+      "source": "Return explicit ``score``/``count`` rows, migrating legacy lists.",
+      "context": "Return explicit ``score``/``count`` rows, migrating legacy lists.",
+      "source_sha256": "85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94",
+      "translation": "Skila skýrum ``score``/``count`` röðum og færa eldri lista yfir á nýja sniðið."
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs#1",
+      "source": "New settings store ``paired_data``. Older files remain valid: their flat lists are zipped positionally, exactly matching the former behaviour, and the migration is reported so the invisible legacy assumption is visible.",
+      "context": "New settings store ``paired_data``. Older files remain valid: their flat lists are zipped positionally, exactly matching the former behaviour, and the migration is reported so the invisible legacy assumption is visible.",
+      "source_sha256": "c0bf94d5d0a25900508c26bb11d37e76473de517c001bbe422704f3867618bed",
+      "translation": "Nýjar stillingar geyma ``paired_data``. Eldri skrár gilda áfram: flatir listar þeirra eru paraðir saman eftir staðsetningu, nákvæmlega eins og eldri hegðun gerði, og flutningurinn er tilkynntur svo ósýnilega eldri forsendan verði sýnileg."
+    },
+    {
+      "label": "spacr.ml.regression_levels#0",
+      "source": "Fit every level the run asked for, SEPARATELY, and return one per level.",
+      "context": "Fit every level the run asked for, SEPARATELY, and return one per level.",
+      "source_sha256": "bc4a920892bf5c55bdcdeb3ec6a7c9f9e81f3a4857054bad68af04d341493699",
+      "translation": "Passa hvert stig sem keyrslan bað um, HVERT FYRIR SIG, og skila einni niðurstöðu fyrir hvert stig."
+    },
+    {
+      "label": "spacr.ml.regression_levels#1",
+      "source": "THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
+      "context": "THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
+      "source_sha256": "35e27a88334a307cc6e74d5c1137cd964b46c973ffc159e0edc2026fe3fe8b1e",
+      "translation": "ÞETTA ER INNGANGSPUNKTUR TVEGGJA PASSANA. Hann er til vegna þess að alls ekki er hægt að passa eina hönnunina sem spaCR notaði áður. ``gene_fraction`` er SUM gRNA-hlutfalla gensins, þannig að"
+    },
+    {
+      "label": "spacr.ml.regression_levels#2",
+      "source": "``y ~ fraction:grna + gene_fraction:gene + plateID + rowID + columnID``",
+      "context": "``y ~ fraction:grna + gene_fraction:gene + plateID + rowID + columnID``",
+      "source_sha256": "d560f321a4a70d1c256bf7fc129309834279c65af1b52cd12f938b543460f2e9",
+      "translation": "``y ~ fraction:grna + gene_fraction:gene + plateID + rowID + columnID``"
+    },
+    {
+      "label": "spacr.ml.regression_levels#3",
+      "source": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
+      "context": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
+      "source_sha256": "0b6580b48091e760bac4983f95e1e5346ded73b05ad1eb3d69b09ef0dbf62d50",
+      "translation": "setur blokk dálka og summur þeirra í eina hönnun. Á viðmiðunarskimuninni TSG101 mældust 1248 stikar við röð 862 -- 386-vítt EXACT núllrúm -- og kvaðratsumma leifa í passaninni sem statsmodels skilaði var bitafyrirbita eins og sú sem fæst með því að bæta sjöföldum núllvigri við hana. Sjá :data:`COLLINEAR_FORMULA_FRAGMENT`."
+    },
+    {
+      "label": "spacr.ml.regression_levels#4",
+      "source": "Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same wells, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
+      "context": "Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same microplate sample positions, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
+      "source_sha256": "7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a",
+      "translation": "Tvær passanir, tvær töflur, TVÆR LEIÐRÉTTINGAR. Hver passan er eigin fjölprófunarfjölskylda og er leiðrétt innan hennar. Að sameina þær væri tvöfalt rangt: þær eru ekki óháðar -- sömu sýnisstöður örplatna eru notaðar og aðhvarfsbreyta gensins ER summa aðhvarfsbreyta leiðaranna -- og tvöföldun fjölskyldustærðar dregur úr tölfræðilegum styrk án verndar. :func:`perform_regression` beitir leiðréttingunni fyrir hvert stig og skrifar ``results_grna.csv`` og ``results_gene.csv``."
+    },
+    {
+      "label": "spacr.ml.regression_levels#5",
+      "source": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
+      "context": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
+      "source_sha256": "94933110c12ab286e7b86c65039275d3e77a8c15fabaa36b5e24a566236d69c2",
+      "translation": "``regression_type='mixed'`` passar EINU SINNI og skilar einni færslu, ``'gene'``: líkanið inniheldur þegar bæði stigin, genið sem föst áhrif og leiðarann sem slembiáhrif falin innan gensins. Úttak þess fyrir leiðarann er BLUPs, þess vegna er ekki hægt að skipta því í tvær prófunarfjölskyldur."
+    },
+    {
+      "label": "spacr.ml.regression_levels#6",
+      "source": "``'both'`` (default), ``'grna'`` or ``'gene'``.",
+      "context": "``'both'`` (default), ``'grna'`` or ``'gene'``.",
+      "source_sha256": "6e604094dd6249e5ec74de6194cb8e755d06002d16daece0305d65250ad8416c",
+      "translation": "``'both'`` (sjálfgefið), ``'grna'`` eða ``'gene'``."
+    },
+    {
+      "label": "spacr.ml.regression_levels#7",
+      "source": "the run folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
+      "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
+      "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
+      "translation": "mappa vinnslulotunnar. Þegar passanir eru fleiri en ein fara FIGURES hvers stigs í ``<dst>/<level>/`` svo þær geti ekki skrifað hver yfir aðra; töflurnar eru áfram í ``<dst>``, þar sem allir neytendur leita að þeim."
+    },
+    {
+      "label": "spacr.ml.regression_levels#8",
+      "source": "passed straight through to :func:`regression`.",
+      "context": "passed straight through to :func:`regression`.",
+      "source_sha256": "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
+      "translation": "sent óbreytt áfram til :func:`regression`."
+    },
+    {
+      "label": "spacr.ml.regression_levels#9",
+      "source": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
+      "context": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
+      "source_sha256": "36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b",
+      "translation": "``dict`` sem varpar stigi á ``(model, coef_df, regression_type)`` í röð passana."
+    },
+    {
+      "label": "spacr.ml.regression_levels#10",
+      "source": "for a level that is not one of :data:`LEVEL_CHOICES`.",
+      "context": "for a level that is not one of :data:`LEVEL_CHOICES`.",
+      "source_sha256": "865eaa1be2505059a461326afa1015fd8bef1631ba5eb0764cada93b6024d342",
+      "translation": "fyrir stig sem er ekki eitt af :data:`LEVEL_CHOICES`."
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#0",
+      "source": "Choose ``analysis_mode`` for ``inference='auto'`` from the design.",
+      "context": "Choose ``analysis_mode`` for ``inference='auto'`` from the design.",
+      "source_sha256": "7cf082f068e8dc6920a3e3f7c6db4b58ddf766a3aff281191b0b98a1a6916a90",
+      "translation": "Velja ``analysis_mode`` fyrir ``inference='auto'`` út frá hönnuninni."
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#1",
+      "source": "The simultaneous model estimates one coefficient per guide from the wells, so it needs more wells than guides -- with an intercept and any plate fixed effects on top -- before those coefficients are identifiable at all. Below that the design matrix is rank deficient: statsmodels still returns a number for every guide, but the numbers are one arbitrary solution out of infinitely many, and their P values describe nothing.",
+      "context": "The simultaneous model estimates one coefficient per guide from the microplate sample positions, so it needs more microplate sample positions than guides -- with an intercept and any laboratory microplate fixed effects on top -- before those coefficients are identifiable at all. Below that the design matrix is rank deficient: statsmodels still returns a number for every guide, but the numbers are one arbitrary solution out of infinitely many, and their P values describe nothing.",
+      "source_sha256": "5da7d5b53d5165fc0a5b64f74bea0f4eab979984b8cf5fa353176d9d9897811c",
+      "translation": "Samtímislíkanið metur einn stuðul fyrir hvern leiðara út frá sýnisstöðum örplatna og þarf því fleiri sýnisstöður en leiðara -- auk skurðpunkts og fastra áhrifa rannsóknarörplatna -- áður en stuðlarnir eru yfirleitt auðkennanlegir. Fyrir neðan þau mörk er hönnunarfylkið ekki af fullri röð: statsmodels skilar samt tölu fyrir hvern leiðara, en tölurnar eru ein handahófskennd lausn af óendanlega mörgum og P-gildi þeirra lýsa engu."
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#2",
+      "source": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed wells; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
+      "context": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed microplate sample positions; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
+      "source_sha256": "77d015d82b509d50fd4a78edb7f8ce55dffc03c6d31aaf26ce4cd46a1b321a03",
+      "translation": "Þetta er ekki tilgáta. Skimunin sem þetta var skrifað fyrir hefur 824 leiðara á 587 greindum sýnisstöðum örplatna; birta passanin hafði 825 stika, röð 579 og átta frígráður leifa, og endurpassan endurgerði ekki eigin stuðla."
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#3",
+      "source": "``auto`` therefore picks the permutation test whenever the simultaneous fit would be unidentifiable, and says so. It is deliberately conservative: it needs a real margin (``_IDENTIFIABILITY_MARGIN`` wells per guide) rather than a bare majority, because a design that only just fits is one dropped well away from not fitting.",
+      "context": "``auto`` therefore picks the permutation test whenever the simultaneous fit would be unidentifiable, and says so. It is deliberately conservative: it needs a real margin (``_IDENTIFIABILITY_MARGIN`` microplate sample positions per guide) rather than a bare majority, because a design that only just fits is one dropped well away from not fitting.",
+      "source_sha256": "a44ab47e0b58d5fb59fa0baeae5d5ddcc0ae83aeb597d91c74ec8a1e3b6f5cc3",
+      "translation": "``auto`` velur því umraðaprófið þegar samtímis passan væri óauðkennanleg og segir frá því. Valið er vísvitandi varfærið: það krefst raunverulegs svigrúms (``_IDENTIFIABILITY_MARGIN`` sýnisstaða örplatna fyrir hvern leiðara), ekki aðeins naums meirihluta, því hönnun sem rétt sleppur er einni brottfallinni sýnisstöðu frá því að passa ekki."
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#4",
+      "source": "Anything other than ``inference='auto'`` is returned untouched, so an explicit choice is never overridden.",
+      "context": "Anything other than ``inference='auto'`` is returned untouched, so an explicit choice is never overridden.",
+      "source_sha256": "a93b7b1521d7691697bde55ae145778777edd71235ef7b2eed4462f3c3d48bd9",
+      "translation": "Öllu öðru en ``inference='auto'`` er skilað óbreyttu, þannig að skýru vali er aldrei hnekkt."
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#5",
+      "source": "``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.",
+      "context": "``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.",
+      "source_sha256": "11380b9e5f6bcf7fb4065e9e1ff8cd68a01aff3c9eede1fc3158890a49297f92",
+      "translation": "``(analysis_mode, reason)``. ``reason`` er setning sem tilgreinir fjöldana og hentar í annálinn og aðferðahlutann."
+    },
+    {
+      "label": "spacr.ml.results_folder_kind#0",
+      "source": "What a run's results folder is NAMED after.",
+      "context": "What a processing session's results folder is NAMED after.",
+      "source_sha256": "9aa310e1c499c3609c3d787ecfa5bed677dbf44c0ba20f560bb0f47fd646fcde",
+      "translation": "Það sem heiti niðurstöðumöppu vinnslulotu byggist á."
+    },
+    {
+      "label": "spacr.ml.results_folder_kind#1",
+      "source": "The inference method when it decides the answer, and the regression type otherwise. Under `analysis_mode='guide_permutation'` the regression type is never read -- ols and mixed produce byte-identical results -- so a folder called `ridge` would name something the run did not do.",
+      "context": "The inference method when it decides the answer, and the regression type otherwise. Under `analysis_mode='guide_permutation'` the regression type is never read -- ols and mixed produce byte-identical results -- so a folder called `ridge` would name something the processing session did not do.",
+      "source_sha256": "9b52a8b1956d3070227014c2ab32c353bba0754f759d0bf009dadb6d47d9c5c9",
+      "translation": "Ályktunaraðferðinni þegar hún ræður svarinu, annars tegund aðhvarfs. Undir `analysis_mode='guide_permutation'` er tegund aðhvarfs aldrei lesin -- ols og mixed skila bætasamsömum niðurstöðum -- svo mappa sem heitir `ridge` myndi nefna eitthvað sem vinnslulotan gerði ekki."
+    },
+    {
+      "label": "spacr.ml.results_folder_kind#2",
+      "source": "PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every run that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
+      "context": "PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every processing session that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
+      "source_sha256": "e1f650f69fe5b9dcac25308be0248c082de61d0cbbc10e8e0135609a2fccf5b8",
+      "translation": "OPINBERT, OG EINA AFRITIÐ. Próf sem leiddi þessa reglu aftur út varð úrelt þegar reglan breyttist og tilkynnti 39 CSV-skrár sem vantaði, þótt allar vinnsluloturnar sem skrifuðu þær væru í lagi. Þetta er bilunin sem `results_dir`-hjálparfallið í tests/test_cov_ml_perform_regression.py hafði þegar verið skrifað einu sinni til að koma í veg fyrir. Prófunarsafn sem bendir á ranga skrá er verra en þögult safn."
+    },
+    {
+      "label": "spacr.ml.screen_is_blockable#0",
+      "source": "Whether ``screenID`` can be a term in this frame's design.",
+      "context": "Whether ``screenID`` can be a term in this frame's design.",
+      "source_sha256": "f75d0803f78ebc8bb3c8e6300d5ffc799cddf1de7732b679267f3dc24d15dae5",
+      "translation": "Hvort ``screenID`` geti verið liður í hönnun þessa gagnaramma."
+    },
+    {
+      "label": "spacr.ml.screen_is_blockable#1",
+      "source": "True only when the column exists and carries more than one distinct value. A single-screen project is the normal case and must be untouched by the design: it has no screenID at all, or one value, and either way the term would be a constant column.",
+      "context": "True only when the column exists and carries more than one distinct value. A single-screen project is the normal case and must be untouched by the design: it has no screenID at all, or one value, and either way the term would be a constant column.",
+      "source_sha256": "614d082528bdf4410704514e30e38dd8858b2f785bd2559b1861e0246537239f",
+      "translation": "True aðeins ef dálkurinn er til og hefur fleiri en eitt ólíkt gildi. Verkefni með einni skimun er venjulega tilvikið og hönnunin má ekki breyta því: annaðhvort hefur það ekkert screenID eða eitt gildi; í báðum tilvikum væri liðurinn fastur dálkur."
+    },
+    {
+      "label": "spacr.ml.screen_is_blockable#2",
+      "source": "The same rule :func:`spacr.measurement_scan._dummy_block` applies, stated once for the formula path so a frame cannot be blocked on by one and not the other.",
+      "context": "The same rule :func:`spacr.measurement_scan._dummy_block` applies, stated once for the formula path so a frame cannot be blocked on by one and not the other.",
+      "source_sha256": "85cf17e98cd765620cef074f22be95c88557bab382d69162fc4336f5d69cbcdf",
+      "translation": "Sama regla og :func:`spacr.measurement_scan._dummy_block` gildir; hún er sett fram einu sinni fyrir formúluleiðina svo ekki sé hægt að blokka gagnaramma með annarri leiðinni en ekki hinni."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections#0",
+      "source": "The section widgets actually mounted in the settings panel.",
+      "context": "The section widgets actually mounted in the settings panel.",
+      "source_sha256": "ecaa07a03b598b553f1a3e41550640aa7f996e3d269ce28ed3378648446de478",
+      "translation": "Hlutagræjurnar sem raunverulega eru settar upp á stillingaspjaldinu."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections#1",
+      "source": "``_settings_sections`` deliberately also contains dormant forms for object-gated settings.  Visual consumers -- maturity and category hints in particular -- must use this subset instead.",
+      "context": "``_settings_sections`` deliberately also contains dormant forms for object-gated settings.  Visual consumers -- maturity and category hints in particular -- must use this subset instead.",
+      "source_sha256": "e35b27cc0baeb61dcbe7ff265878df496655e979470f768ee9638a30fb364e4a",
+      "translation": "``_settings_sections`` inniheldur viljandi einnig óvirk eyðublöð fyrir stillingar sem eru háðar hlutum. Sjónrænir neytendur -- einkum vísbendingar um þroskastig og flokka -- verða að nota þetta hlutmengi í staðinn."
+    },
+    {
+      "label": "spacr.qt.shortcuts#0",
+      "source": "Keyboard-first shortcuts for the spaCR Qt GUI.",
+      "context": "Keyboard-first shortcuts for the spaCR Qt GUI.",
+      "source_sha256": "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
+      "translation": "Lyklaborðsmiðaðir flýtilyklar fyrir spaCR Qt GUI."
+    },
+    {
+      "label": "spacr.qt.shortcuts#1",
+      "source": "Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:",
+      "context": "Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:",
+      "source_sha256": "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
+      "translation": "Skráir víðværar :class:`QShortcut`-bindingar á aðalglugganum svo hægt sé að nota allt forritið án músar:"
+    },
+    {
+      "label": "spacr.qt.shortcuts#2",
+      "source": "Go home",
+      "context": "Go home",
+      "source_sha256": "a0aac9145249f1675ee0380260d152d217a7abe140e85aad3871ec30da1c319b",
+      "translation": "Fara heim"
+    },
+    {
+      "label": "spacr.qt.shortcuts#3",
+      "source": "Switch to the Nth app in the sidebar",
+      "context": "Switch to the Nth app in the sidebar",
+      "source_sha256": "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
+      "translation": "Skipta yfir í N-ta forritið í hliðarstikunni"
+    },
+    {
+      "label": "spacr.qt.shortcuts#4",
+      "source": "Open the command palette",
+      "context": "Open the command palette",
+      "source_sha256": "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
+      "translation": "Opna skipanaspjaldið"
+    },
+    {
+      "label": "spacr.qt.shortcuts#5",
+      "source": "Show the shortcuts cheat sheet",
+      "context": "Show the shortcuts cheat sheet",
+      "source_sha256": "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
+      "translation": "Sýna yfirlit flýtilykla"
+    },
+    {
+      "label": "spacr.qt.shortcuts#6",
+      "source": "Open Preferences",
+      "context": "Open Preferences",
+      "source_sha256": "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
+      "translation": "Opna kjörstillingar"
+    },
+    {
+      "label": "spacr.qt.shortcuts#7",
+      "source": "Open the AI Console",
+      "context": "Open the AI Console",
+      "source_sha256": "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
+      "translation": "Opna AI-stjórnborðið"
+    },
+    {
+      "label": "spacr.qt.shortcuts#8",
+      "source": "Ctrl+End      Jump to the newest console line F11           Toggle full screen Esc           Close any open dialog / popup",
+      "context": "Ctrl+End      Jump to the newest console line F11           Toggle full application view Esc           Close any open dialog / popup",
+      "source_sha256": "4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3",
+      "translation": "Ctrl+End      Fara í nýjustu línu stjórnborðsins F11           Víxla heilskjá forritsins Esc           Loka öllum opnum svargluggum / sprettigluggum"
+    },
+    {
+      "label": "spacr.qt.shortcuts#9",
+      "source": ":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.",
+      "context": ":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.",
+      "source_sha256": "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
+      "translation": ":func:`install` er kallað einu sinni úr ``MainWindow.__init__``. Hver binding er skráð í :data:`SHORTCUTS` svo yfirlitsgluggi flýtilykla haldist samstilltur við það sem raunverulega er tengt."
+    },
+    {
+      "label": "spacr.settings.get_perform_regression_default_settings#0",
+      "source": "Populate default settings for gRNA/score regression analysis.",
+      "context": "Populate default settings for gRNA/score regression analysis.",
+      "source_sha256": "0a58e1c77ed3e9569cb536aa77ddb4aa3883233c14ae9d5c74c022a3124ff047",
+      "translation": "Fylla inn sjálfgefnar stillingar fyrir gRNA/stiga-aðhvarfsgreiningu."
+    },
+    {
+      "label": "spacr.settings.get_perform_regression_default_settings#1",
+      "source": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
+      "context": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
+      "source_sha256": "78caac1266c292e60eebd31f9dcd53cd418015c2df20333e38c43b74e357f50f",
+      "translation": "Skiptir ``agg_type`` sjálfkrafa í None þegar skammtaaðhvarf er valið, þannig að ``alpha`` er túlkað sem skammtamark."
+    },
+    {
+      "label": "spacr.settings.get_perform_regression_default_settings#2",
+      "source": "Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the dict from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a run that had started cleanly.",
+      "context": "Every structured-data name :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the key-value mapping from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a processing session that had started cleanly.",
+      "source_sha256": "165034b2f73d58f8deaceea0de62331e1c48dd872d7b481bf818106b1ceed0f0",
+      "translation": "Hér er fyllt inn hvert heiti skipulagðra gagna sem :func:`spacr.ml.perform_regression` les með ``settings[...]``. Sex vantaði. Báðir ræsarnir -- Qt-spjaldið með ``qt.screens.settings_model.resolve_default_settings`` og ``spacr-run regression`` með ``cli.module_defaults`` -- byggja lykla-/gildavörpunina úr þessu eina falli, svo ekki var hægt að ræsa aðhvarfið neins staðar: það stöðvaðist á ``KeyError: 'verbose'`` í ml.py:1409 eftir að báðar CSV-inntaksskrárnar höfðu verið lesnar og ``settings/regression.csv`` skrifuð, svo bilunin leit út eins og vinnslulota sem hefði hafist eðlilega."
+    },
+    {
+      "label": "spacr.settings.get_perform_regression_default_settings#3",
+      "source": "dict to fill in place.",
+      "context": "key-value mapping to fill in place.",
+      "source_sha256": "98891dad7f1238087a23b92eadf791b02ba2ba024950c9ca53982adbb82458ed",
+      "translation": "lykla-/gildavörpun sem fylla á beint."
+    },
+    {
+      "label": "spacr.settings.get_perform_regression_default_settings#4",
+      "source": "the settings dict with defaults applied.",
+      "context": "the settings key-value mapping with defaults applied.",
+      "source_sha256": "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a",
+      "translation": "lykla-/gildavörpun stillinga eftir að sjálfgefnum gildum hefur verið beitt."
+    }
   ]
 }

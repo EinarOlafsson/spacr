@@ -557,10 +557,10 @@
     },
     {
       "label": "spacr.ml.regression_levels#2",
-      "source": "``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``",
-      "context": "``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``",
-      "source_sha256": "7b1d5ff99fd566bd78fdf516053ce92d0f5ec341a8defe99176ad441b6ca78e1",
-      "translation": "``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``"
+      "source": "``y ~ fraction:grna + gene_fraction:gene + plateID + rowID + columnID``",
+      "context": "``y ~ fraction:grna + gene_fraction:gene + plateID + rowID + columnID``",
+      "source_sha256": "d560f321a4a70d1c256bf7fc129309834279c65af1b52cd12f938b543460f2e9",
+      "translation": "``y ~ fraction:grna + gene_fraction:gene + plateID + rowID + columnID``"
     },
     {
       "label": "spacr.ml.regression_levels#3",

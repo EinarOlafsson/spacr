@@ -2,117 +2,789 @@
   "schema": 1,
   "language": "hi",
   "records": [
-    {"label":"spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_filter_changed#0","source":"Apply a newly published shared filter to the loaded rows.","context":"Apply a newly published shared filter to the loaded rows.","source_sha256":"64eacbd97f7383e07bc48fe5c301df88b4cb691d768e119be13a55d587b200df","translation":"लोड की गई पंक्तियों पर हाल ही में प्रकाशित साझा फ़िल्टर लागू करें।"},
-    {"label":"spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_filter_changed#1","source":"current process-wide filter; the linked-view state already owns it, so this callback only refreshes row visibility.","context":"current process-wide filter; the linked-view state already owns it, so this callback only refreshes row visibility.","source_sha256":"3d02ded03fc5d3ccc0f79cea0ab67e03d8ae34235c511497673f62428b10ae1a","translation":"वर्तमान प्रक्रिया-व्यापी फ़िल्टर; लिंक-व्यू स्थिति पहले से इसे स्वामित्व में रखती है, इसलिए यह कॉलबैक केवल पंक्ति दृश्यता को ताज़ा करता है।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.canFetchMore#0","source":"Return whether the root model can request another chunk.","context":"Return whether the root model can request another chunk.","source_sha256":"a9464c06cb3aeefb070dc719f9e0123b5a19a9d16086d1f25f7808df4214f2a6","translation":"वापस करें कि क्या मूल मॉडल एक और खंड का अनुरोध कर सकता है।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.canFetchMore#1","source":"Qt parent index; valid child indexes cannot fetch.","context":"Qt parent index; valid child indexes cannot fetch.","source_sha256":"bab97ac05155e1f6c3c86b420e1e6ef331475bab3c5db37a7b82e76aebbc2379","translation":"Qt माता-पिता अनुक्रमांक; मान्य बच्चे अनुक्रमांक डेटा प्राप्त नहीं कर सकते।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.columnCount#0","source":"Return visible columns for the root model and zero for children.","context":"Return visible columns for the root model and zero for children.","source_sha256":"bf0825490db011a8a5fe0566844f374783a4e228541012c22db1ae2b7d2a08e0","translation":"मूल मॉडल के लिए दिखाई देने वाले कॉलम और बच्चों के लिए शून्य लौटाएँ।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.columnCount#1","source":"Qt parent index whose child-column count is requested.","context":"Qt parent index whose child-column count is requested.","source_sha256":"46bd124e3cb8402f7bc1d43492d9e203df98ae792a2b3757c08e92d05f3b8b3b","translation":"Qt माता-पिता अनुक्रमांक जिसका बच्चा-कॉलम संख्या अनुरोध किया गया है।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.data#0","source":"Return the display, tooltip, or exact editor value for a cell.","context":"Return the display, tooltip, or exact editor value for a cell.","source_sha256":"8059e763018b66d6c392ca28f0513222dcf090c0c7f37b7848a82bab6bc5fe36","translation":"किसी सेल के लिए डिस्प्ले, टूलटिप या सटीक संपादक मान लौटाएँ।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.data#1","source":"model index identifying the requested cell.","context":"model index identifying the requested cell.","source_sha256":"9a3bbb69d9ef1955c160236cc5cc853cfc081c3675f7174304fe325fe0244a53","translation":"अनुरोधित सेल की पहचान करने वाला मॉडल इंडेक्स।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.data#2","source":"Qt data role; unsupported roles return ``None``.","context":"Qt data role; unsupported roles return ``None``.","source_sha256":"dc74937680539ca72f01551d044a54fb9fd0192a062a203616cacdc65e5c3221","translation":"Qt डेटा भूमिका; असमर्थित भूमिकाएँ ``None`` लौटाती हैं।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.fetchMore#0","source":"Request the next chunk through the configured fetch hook.","context":"Request the next chunk through the configured fetch hook.","source_sha256":"36561f91513ab8930de319d7658e1f0e232e80e1efab89ccc13d68d065077c69","translation":"कॉन्फ़िगर किए गए फ़ेच हुक के माध्यम से अगला खंड अनुरोध करें।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.fetchMore#1","source":"Qt parent index; valid child indexes are ignored.","context":"Qt parent index; valid child indexes are ignored.","source_sha256":"0e8e6c705227bf90adb552cd362f8b5e4bcecb3059a115267d02bc473bae2b16","translation":"Qt पैरेंट इंडेक्स; मान्य चाइल्ड इंडेक्स की अनदेखी की जाती है।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.flags#0","source":"Return Qt item flags for ``index``, including armed editability.","context":"Return Qt item flags for ``index``, including armed editability.","source_sha256":"6314eb09af2a17cd7e6ff689c44ba48720a2ed5b264ac70f78c52583bce0397c","translation":"संपादन-सक्षमता सक्रिय होने सहित, ``index`` के लिए Qt आइटम फ़्लैग लौटाएँ।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.flags#1","source":"model index whose interaction flags are requested.","context":"model index whose interaction flags are requested.","source_sha256":"f23ffaac5e5f4a8b8f2dd97000759e37654ea0faf9f6d0549c4abbd02c3915f8","translation":"मॉडल इंडेक्स जिसकी इंटरैक्शन फ़्लैग्स मांगी गई हैं।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.headerData#0","source":"Return a column name or one-based absolute row number.","context":"Return a column name or one-based absolute row number.","source_sha256":"413574b45a5099d9fe11e9dca63f9a7cb8d38450a710305cf698a812c37c5351","translation":"कॉलम नाम या एक-आधारित पूर्ण पंक्ति संख्या लौटाएँ।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.headerData#1","source":"zero-based visible column or row-header section.","context":"zero-based visible column or row-header section.","source_sha256":"7f9d7282b8e15e7db8a22c5de01e05a8b1ad00c34ac13a1cf220584156fdde67","translation":"शून्य-आधारित दृश्यमान कॉलम या रो-हेडर सेक्शन।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.headerData#2","source":"horizontal for names, vertical for row numbers.","context":"horizontal for names, vertical for row numbers.","source_sha256":"b56e2b24188807b6f8e339cf619bc8cf229c1271ddd9c3e318f09d36abfca9a4","translation":"नामों के लिए क्षैतिज, पंक्ति संख्याओं के लिए लंबवत।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.headerData#3","source":"Qt data role; only :attr:`Qt.DisplayRole` is served.","context":"Qt data role; only :attr:`Qt.DisplayRole` is served.","source_sha256":"91a57e479ef0a6302c558ade7d5b3d3522f99267726851dda33de12b1ce345f1","translation":"Qt डेटा भूमिका; केवल :attr:`Qt.DisplayRole` लौटाई जाती है।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.rowCount#0","source":"Return loaded rows for the root model and zero for children.","context":"Return loaded rows for the root model and zero for children.","source_sha256":"e05ac46e4a57db4d0904b9494f7339f734938ef52b1dc1dde9800d8375f1bbc2","translation":"मूल मॉडल के लिए लोड की गई पंक्तियाँ लौटाएँ और बच्चों के लिए शून्य लौटाएँ।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.rowCount#1","source":"Qt parent index whose child-row count is requested.","context":"Qt parent index whose child-row count is requested.","source_sha256":"39956c5486f47f8f7a4c90192c6a5379146dbf131960caf75ea5e62b8fe8e3ee","translation":"Qt माता-पिता सूचकांक जिसकी चाइल्ड-पंक्ति गिनती अनुरोध की गई है।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.setData#0","source":"Commit an editor value through the guarded screen callback.","context":"Commit an editor value through the guarded screen callback.","source_sha256":"ff4424ecfd8ea4df900a81596aa8e8468da28e21ed966f1c68533936705ade38","translation":"संरक्षित स्क्रीन कॉलबैक के माध्यम से संपादक मान कमिट करें।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.setData#1","source":"valid editable model index.","context":"valid editable model index.","source_sha256":"667909a495db854da63a9d584f51f55cac726b97ae54c73229ab8554f7760a64","translation":"मान्य संपादन योग्य मॉडल सूचकांक।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.setData#2","source":"raw editor value passed to the commit hook.","context":"raw editor value passed to the commit hook.","source_sha256":"e401e58ff5cf7be7fa3a1e50aebdeb5aec0c3847ab29b1cf6c7c105b7bf00b3b","translation":"कमिट हुक को पास किया गया कच्चा संपादक मान।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.setData#3","source":"Qt role, which must be :attr:`Qt.EditRole`.","context":"Qt role, which must be :attr:`Qt.EditRole`.","source_sha256":"6811177313c24753c873829cfdfd23000dd312eeb83a39d3669ce981fcc0ca03","translation":"Qt भूमिका, जो :attr:`Qt.EditRole` होनी चाहिए।"},
-    {"label":"spacr.qt.screens.db_browser.PreviewModel.setData#4","source":"whether the commit hook accepted and wrote the change.","context":"whether the commit hook accepted and wrote the change.","source_sha256":"4d7493cefdd8b1c7253aecbc5295865e0c82c15e9b51a7479e1babe2f897325b","translation":"क्या कमिट हुक ने परिवर्तन स्वीकार किया और लिखा।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.mask#0","source":"Select finite rows inside every bounded side of the rectangle.","context":"Select finite rows inside every bounded side of the rectangle.","source_sha256":"a33da19d60b716922448285066299bb6cfabf96e04c28ddb2ec76e232dae2a73","translation":"आयत की प्रत्येक परिबद्ध भुजा के भीतर की परिमित पंक्तियाँ चुनें।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.mask#1","source":"measurement table containing both axis columns.","context":"measurement table containing both axis columns.","source_sha256":"acd9799f1b8d37f897d83fe589111b9cd5ccb734142ff50daaea5d2d4e7c1d1f","translation":"माप तालिका जिसमें दोनों अक्ष कॉलम शामिल हैं।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.scaled#0","source":"Return this rectangle resized about a fixed data-space point.","context":"Return this rectangle resized about a fixed data-space point.","source_sha256":"feefc6484b42d37ec035ae7e14f30ab4e512a835cb7fc2792ce778b001af071d","translation":"इस आयत को एक निश्चित डेटा-स्थान बिंदु के बारे में पुनः आकार दें।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.scaled#1","source":"positive scale factor; values above one grow the gate.","context":"positive scale factor; values above one grow the data-selection boundary.","source_sha256":"b2833332adb24666c24d9444f94aa44c8281f060e3a7648bc2e2b25d9b040110","translation":"सकारात्मक स्केल फैक्टर; एक से ऊपर के मान डेटा-चयन सीमा को बढ़ाते हैं।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.scaled#2","source":"point held fixed, or ``None`` to use the rectangle's finite centre independently on each axis. Without an explicit point, an axis lacking two finite bounds stays unchanged.","context":"point held fixed, or ``None`` to use the rectangle's finite centre independently on each axis. Without an explicit point, an axis lacking two finite bounds stays unchanged.","source_sha256":"265c9e1135fde0caf76eecb2528bbba5082c08bb7b1da33b8b8b0b3b93c8e7d9","translation":"स्थिर रखा जाने वाला बिंदु; अथवा हर अक्ष पर स्वतंत्र रूप से आयत के परिमित केंद्र का उपयोग करने के लिए ``None``। स्पष्ट बिंदु न होने पर, जिन अक्षों की दो परिमित सीमाएँ नहीं हैं वे अपरिवर्तित रहते हैं।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.scaled#3","source":"when ``factor`` is not positive.","context":"when ``factor`` is not positive.","source_sha256":"890325752e2c2d55c06df2661881929ef7f2a050538d39688c7f2df745e7139f","translation":"जब ``factor`` सकारात्मक नहीं होता।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.translated#1","source":"displacement in horizontal-axis data units.","context":"displacement in horizontal-axis data units.","source_sha256":"30706eb1eca23de6d20281c1bafc66afac88c69f693adac9f06e5719ea84a3f0","translation":"क्षैतिज-अक्ष डेटा इकाइयों में विस्थापन।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.translated#2","source":"displacement in vertical-axis data units.","context":"displacement in vertical-axis data units.","source_sha256":"01e432235a34a8338bf3c2e7e5f47dc220bc85741075bfaafa4a1b25d22e0888","translation":"ऊर्ध्वाधर-अक्ष डेटा इकाइयों में विस्थापन।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_handle#0","source":"Return the rectangle after dragging one side or corner handle.","context":"Return the rectangle after dragging one side or corner handle.","source_sha256":"d0f9c73b8bd207f0a72822cf2e8896bac9af27e056ed49475acc18cd423bb92f","translation":"एक साइड या कोने हैंडल को खींचने के बाद आयत को लौटाएं।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_handle#1","source":"one of the four side names emitted by :meth:`handles`, or one horizontal and one vertical side joined by a comma for a corner.","context":"one of the four side names emitted by :meth:`handles`, or one horizontal and one vertical side joined by a comma for a corner.","source_sha256":"aed0eb7b30859b68ca7474a5876aaf34d641b247c86086859e28f0545b05b64d","translation":"चार में से एक साइड का नाम जो :meth:`handles` द्वारा निकाला गया है, या एक क्षैतिज और एक लंबवत साइड जो कोने के लिए अल्पविराम द्वारा जुड़ी हो।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_handle#2","source":"new horizontal coordinate used by any horizontal role.","context":"new horizontal coordinate used by any horizontal role.","source_sha256":"c23d39d5517a26896f456266c4ecba5e21997df96347485d08cda4140cbc6491","translation":"किसी भी क्षैतिज भूमिका द्वारा प्रयुक्त नया क्षैतिज निर्देशांक।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_handle#3","source":"new vertical coordinate used by any vertical role.","context":"new vertical coordinate used by any vertical role.","source_sha256":"bf3ba9fa8ec043d18595f23986bb4c9a627dfabb262860504624df3d6b416329","translation":"किसी भी लंबवत भूमिका द्वारा प्रयुक्त नया लंबवत निर्देशांक।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_threshold#0","source":"Return this gate with replacement bounds on one axis.","context":"Return this data-selection boundary with replacement bounds on one axis.","source_sha256":"d701959f21c798765ae6835567715896ca9b075d0c4f98b759c4499f5cf1b102","translation":"इस डेटा-सेलेक्शन सीमा को एक अक्ष पर प्रतिस्थापन सीमा के साथ लौटाएँ।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_threshold#1","source":"horizontal or vertical measurement column to change.","context":"horizontal or vertical measurement column to change.","source_sha256":"50e73ad342925f1bf2589b0004c1448700e3932c73ed1781e3cd97dde3eb7022","translation":"परिवर्तित करने के लिए क्षैतिज या लंबवत माप कॉलम।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_threshold#2","source":"inclusive lower bound, or ``None`` for an open lower side.","context":"inclusive lower bound, or ``None`` for an open lower side.","source_sha256":"c1c74dee76f5bc342eda7ecb14127d289a5c1c4cb9b5d317e4516322492b233c","translation":"समावेशी निचली सीमा, या खुली निचली साइड के लिए ``None``।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_threshold#3","source":"inclusive upper bound, or ``None`` for an open upper side.","context":"inclusive upper bound, or ``None`` for an open upper side.","source_sha256":"6dc745eeff7f26e70b3f8f485455cb62d369a11e4e13e744c7fa9e3586e95b22","translation":"समावेशी ऊपरी सीमा, या खुली ऊपरी साइड के लिए ``None``।"},
-    {"label":"spacr.qt.widgets.gate_spec.RectGate.with_threshold#4","source":"when ``column`` is not one of this rectangle's axes.","context":"when ``column`` is not one of this rectangle's axes.","source_sha256":"1b22e124de0410fcbc96e208e61e033d30a7c7c8a9bd18a3d756a0c31b2fc731","translation":"जब ``column`` इस आयत के अक्षों में से एक नहीं है।"},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.scaled#0","source":"Return this threshold resized about a horizontal anchor.","context":"Return this threshold resized about a horizontal anchor.","source_sha256":"dd418caacdc8e93faf2036fb27ca339be6cb7afe02e230dc37066a7ee0b88d16","translation":"इस थ्रेशोल्ड को क्षैतिज एंकर के आसपास पुनः आकार दें।"},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.scaled#1","source":"positive scale factor; values above one move every finite bound away from the anchor.","context":"positive scale factor; values above one move every finite bound away from the anchor.","source_sha256":"4f80f1e7825bac7ddd08c43be5846aa75e644c75103ba314bd6753725dd80b18","translation":"धनात्मक स्केल फ़ैक्टर; एक से अधिक मान प्रत्येक परिमित सीमा को एंकर से दूर ले जाते हैं।"},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.scaled#2","source":"point whose first coordinate stays fixed, or ``None`` to use the threshold's finite centre. A half-open threshold has no finite centre and is returned unchanged when this is ``None``.","context":"point whose first coordinate stays fixed, or ``None`` to use the threshold's finite centre. A half-open threshold has no finite centre and is returned unchanged when this is ``None``.","source_sha256":"bf0dfc6245f6c6b231ea2e9410f705609a8e6876e94c1a818f0155bfc029bb81","translation":"बिंदु जिसका पहला समन्वय स्थिर रहता है, या थ्रेशोल्ड के सीमित केंद्र का उपयोग करने के लिए ``None``. एक आधा-खुला थ्रेशोल्ड में कोई सीमित केंद्र नहीं होता है और जब यह ``None`` होता है तो इसे अपरिवर्तित लौटाया जाता है।"},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#0","source":"Return the threshold after dragging one of its bound handles.","context":"Return the threshold after dragging one of its bound handles.","source_sha256":"7e6afe1b4a639baf65e2734d9de79cbd9b5f0c35f201096e792e13320a2731e1","translation":"एक बाउंड हैंडल को खींचने के बाद थ्रेशोल्ड लौटाएँ।"},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#1","source":"``\"low\"`` or ``\"high\"`` for the bound being moved.","context":"``\"low\"`` or ``\"high\"`` for the bound being moved.","source_sha256":"d15f769019e4c256b0d971fcc1ff082c39301b2e1d2d06347275431a63b9151d","translation":"``\"low\"`` या ``\"high\"`` उस बाउंड के लिए जो खींचा जा रहा है।"},
-    {"label":"spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#2","source":"new bound value in the threshold column's data units.","context":"new bound value in the threshold column's data units.","source_sha256":"5a00ade99267bfe3a262a0e75e7552bac2b0ee7e17cd4c2f749b47f617221c5b","translation":"थ्रेशोल्ड कॉलम की डेटा इकाइयों में नया बाउंड मान।"},
-    {"label":"spacr.ml.QuasiBinomial.variance#0","source":"Adjust the variance with the dispersion parameter.","context":"Adjust the variance with the dispersion parameter.","source_sha256":"1fca926957d90cfe3391015467a4d981982052803a020d1745730c94024db40e","translation":"डिस्पर्शन पैरामीटर के अनुसार वैरिएंस समायोजित करें।"},
-    {"label":"spacr.ml.beta_logit#0","source":"A proportion on the logit scale, with the endpoints squeezed in.","context":"A proportion on the logit scale, with the endpoints squeezed in.","source_sha256":"502eb9e99c7b6648b60ad6749cefd06d688f69c35beaca609b2f27d2e66c9c42","translation":"लॉजिट स्केल पर एक अनुपात, जिसमें अंत-बिंदुओं को संकुचित किया गया है।"},
-    {"label":"spacr.ml.beta_logit#1","source":"``transform='beta'`` is intended for proportional responses such as classification scores and their well aggregates, where a logarithm is not appropriate.","context":"``transform='beta'`` is intended for proportional responses such as classification scores and their well aggregates, where a logarithm is not appropriate.","source_sha256":"9fc52c3acbacf37d496c04a3ba36d41ecca24f1ef98c618e9688cce513cea7e1","translation":"``transform='beta'`` वर्गीकरण स्कोर और उनके वेल-स्तरीय समुच्चयों जैसी आनुपातिक प्रतिक्रियाओं के लिए है, जहाँ लघुगणक उपयुक्त नहीं है।"},
-    {"label":"spacr.ml.beta_logit#2","source":"This is distinct from ``regression_type='beta'``, which selects a beta GLM. One transforms the response; the other selects the model family.","context":"This is distinct from ``regression_type='beta'``, which selects a beta GLM. One transforms the response; the other selects the model family.","source_sha256":"79c9fe41e8c92216fd07dbb4f1b734d4b824b75cd584b17e079a75b8fb670e27","translation":"यह ``regression_type='beta'`` से अलग है, जो बीटा GLM का चयन करता है। एक प्रतिक्रिया को बदलता है; दूसरा मॉडल परिवार चुनता है।"},
-    {"label":"spacr.ml.check_normality#0","source":"Check if the data is normally distributed using the Shapiro-Wilk test.","context":"Check if the data is normally distributed using the Shapiro-Wilk test.","source_sha256":"322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c","translation":"Shapiro-Wilk परीक्षण का उपयोग करके जांचें कि डेटा सामान्य रूप से वितरित है या नहीं।"},
-    {"label":"spacr.ml.generate_ml_scores#0","source":"Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.","context":"Train a classical ML machine-learning classification model (XGBoost / logistic / RF) on per-object features and score every microplate sample position of a screen.","source_sha256":"a1cafc3a9f5b819a7e7e49b46a68d39d798891b4ef469e0a6616cb1fc367056e","translation":"Per-object फीचर्स पर एक पारंपरिक ML मशीन-लर्निंग वर्गीकरण मॉडल (XGBoost / लॉजिस्टिक / RF) प्रशिक्षित करें और स्क्रीनिंग के हर माइक्रोप्लेट सैंपल स्थान का स्कोर करें।"},
-    {"label":"spacr.ml.generate_ml_scores#1","source":"Reads the ``measurements.db`` produced by :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the wells marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a plate heatmap into ``results/`` next to the source DB.","context":"Reads the ``measurements.db`` produced by :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the microplate sample positions marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a laboratory microplate heatmap into ``results/`` next to the source DB.","source_sha256":"0ff1beae2f012bb566a9a3d73b348fffe0977eb688f17b77174e6960fa38f437","translation":"``measurements.db`` को पढ़ता है, जिसे :func:`spacr.measure.measure_crop` बनाता है; सेल/नाभिक/रोगजनक/साइटोप्लाज्म फ़ीचर तालिकाएँ मिलाता है; ``positive_control`` / ``negative_control`` के रूप में चिह्नित माइक्रोप्लेट नमूना स्थानों (या एनोटेशन कॉलम) को प्रशिक्षण लेबल बनाता है; फ़िटिंग :func:`ml_analysis` को सौंपता है; और स्रोत DB के पास ``results/`` में प्रति-ऑब्जेक्ट पूर्वानुमान, क्रमपरिवर्तन और फ़ीचर-महत्त्व तालिकाएँ तथा माइक्रोप्लेट हीटमैप लिखता है।"},
-    {"label":"spacr.ml.generate_ml_scores#2","source":"Settings dict, canonicalized via :func:`spacr.settings.set_default_analyze_screen`. Key entries:","context":"Settings key-value mapping, canonicalized via :func:`spacr.settings.set_default_analyze_screen`. Structured-data entries:","source_sha256":"74aea7343be214b65d61228568b199720441d78049b01956370c20a94d0ebb8d","translation":"सेटिंग्स कुंजी-मूल्य मैपिंग, :func:`spacr.settings.set_default_analyze_screen` के माध्यम से मानकीकृत। संरचित डेटा प्रविष्टियाँ:"},
-    {"label":"spacr.ml.generate_ml_scores#3","source":"``src`` (str or list) — folder(s) containing ``measurements/measurements.db``.","context":"``src`` (str or list) — folder(s) containing ``measurements/measurements.db``.","source_sha256":"fab81072e6783efa1c366297835b86f3fd46e93cc5a71d99a6d339f41df4689a","translation":"``src`` (स्ट्रिंग या सूची) — वे फ़ोल्डर जिनमें ``measurements/measurements.db`` है।"},
-    {"label":"spacr.ml.generate_ml_scores#4","source":"``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.","context":"``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.","source_sha256":"e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343","translation":"``channel_of_interest`` — रिक्रूटमेंट अनुपात फ़ीचर के लिए 0-आधारित चैनल; यह तालिका चयन भी नियंत्रित करता है।"},
-    {"label":"spacr.ml.generate_ml_scores#5","source":"``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.","context":"``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.","source_sha256":"a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041","translation":"``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``."},
-    {"label":"spacr.ml.generate_ml_scores#6","source":"``positive_control`` / ``negative_control`` — well IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.","context":"``positive_control`` / ``negative_control`` — microplate sample position IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.","source_sha256":"9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487","translation":"``positive_control`` / ``negative_control`` — माइक्रोप्लेट नमूना स्थिति आईडी (जैसे ``'c2'`` / ``'c1'``) जो प्रशिक्षण लेबल के रूप में उपयोग की जाती हैं।"},
-    {"label":"spacr.ml.generate_ml_scores#7","source":"``annotation_column`` — override controls with a PNG-level annotation column.","context":"``annotation_column`` — override controls with a PNG-level annotation column.","source_sha256":"3f461869af6c98fe2d7759f49c734fccd7f0b7c383b2fa64eb823648a04fc723","translation":"``annotation_column`` — नियंत्रणों के स्थान पर PNG-स्तरीय एनोटेशन कॉलम का उपयोग करें।"},
-    {"label":"spacr.ml.generate_ml_scores#8","source":"``location_column`` — ``'columnID'`` or ``'rowID'``.","context":"``location_column`` — ``'columnID'`` or ``'rowID'``.","source_sha256":"ff6d95d3dcfbaab265aae863ebbc3b2c960830aae94685accd7aba8d945926a6","translation":"``location_column`` — ``'columnID'`` or ``'rowID'``."},
-    {"label":"spacr.ml.generate_ml_scores#9","source":"``heatmap_feature`` — feature plotted on the plate heatmap.","context":"``heatmap_feature`` — feature plotted on the plate heatmap.","source_sha256":"cb0a243031c3f5cd2044fa67b61c4530305e7a250c7f099e31997ed1060c88bd","translation":"``heatmap_feature`` — प्लेट हीटमैप पर प्लॉट की गई विशेषता।"},
-    {"label":"spacr.ml.generate_ml_scores#10","source":"``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.","context":"``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.","source_sha256":"9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b","translation":"``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``."},
-    {"label":"spacr.ml.generate_ml_scores#11","source":"``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.","context":"``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.","source_sha256":"8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800","translation":"``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``."},
-    {"label":"spacr.ml.generate_ml_scores#12","source":"The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.","context":"The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.","source_sha256":"5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773","translation":"दो-तत्वों वाली सूची ``[output, plate_heatmap]``, जहाँ ``output`` :func:`ml_analysis` की 10-तत्वों वाली परिणाम सूची है और ``plate_heatmap`` प्लेट-हीटमैप की ``matplotlib`` आकृति है। CSV और आकृतियाँ साइड इफ़ेक्ट के रूप में ``results/`` में लिखी जाती हैं; उनके पथ नहीं लौटाए जाते।"},
-    {"label":"spacr.ml.generate_ml_scores#13","source":"if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.","context":"if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.","source_sha256":"c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96","translation":"यदि ``annotation_column`` सेट है, लेकिन ``png_list`` तालिका में ``prcfo`` / वह कॉलम नहीं है, तालिका के ऑब्जेक्ट आईडी मापन डेटा से नहीं जुड़ते, उस कॉलम में दो से कम प्रेक्षित वर्ग हैं, या यदि ``heatmap_feature`` प्रशिक्षित विशेषताओं में शामिल नहीं है।"},
-    {"label":"spacr.ml.generate_ml_scores#14","source":"Example:","context":"Example:","source_sha256":"872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad","translation":"उदाहरण:"},
-    {"label":"spacr.ml.generate_ml_scores#15","source":"See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-well ML scores.","context":"See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-microplate sample position ML scores.","source_sha256":"b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d","translation":"संबंधित देखें: :func:`ml_analysis` — अंतर्निहित फिट/मूल्यांकन रूटीन। :func:`perform_regression` — प्रति-माइक्रोप्लेट नमूना स्थिति ML स्कोर पर मिश्रित-प्रभाव प्रतिगमन।"},
-    {"label":"spacr.ml.load_regression_input_pairs#0","source":"Read paired inputs and resolve plate identity without filename guesses.","context":"Read paired inputs and resolve plate identity without filename guesses.","source_sha256":"d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e","translation":"युग्मित इनपुट पढ़ें और फ़ाइल नाम का अनुमान लगाए बिना प्लेट की पहचान निर्धारित करें।"},
-    {"label":"spacr.ml.load_regression_input_pairs#1","source":"Resolution order is own column, partner column, then pair-row order. Conflicting declarations are refused. Returns ``(count_frame, score_frame, audit_rows)``.","context":"Resolution order is own column, partner column, then pair-row order. Conflicting declarations are refused. Returns ``(count_frame, score_frame, audit_rows)``.","source_sha256":"10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad","translation":"निर्धारण क्रम है: अपना कॉलम, सहभागी कॉलम, फिर युग्म-पंक्ति क्रम। परस्पर-विरोधी घोषणाएँ अस्वीकार की जाती हैं। ``(count_frame, score_frame, audit_rows)`` लौटाता है।"},
-    {"label":"spacr.ml.normalize_regression_input_pairs#0","source":"Return explicit ``score``/``count`` rows, migrating legacy lists.","context":"Return explicit ``score``/``count`` rows, migrating legacy lists.","source_sha256":"85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94","translation":"स्पष्ट ``score``/``count`` पंक्तियाँ लौटाएँ, पुरानी सूचियों को स्थानांतरित करते हुए।"},
-    {"label":"spacr.ml.normalize_regression_input_pairs#1","source":"New settings store ``paired_data``. Older files remain valid: their flat lists are zipped positionally, exactly matching the former behaviour, and the migration is reported so the invisible legacy assumption is visible.","context":"New settings store ``paired_data``. Older files remain valid: their flat lists are zipped positionally, exactly matching the former behaviour, and the migration is reported so the invisible legacy assumption is visible.","source_sha256":"c0bf94d5d0a25900508c26bb11d37e76473de517c001bbe422704f3867618bed","translation":"नई सेटिंग्स ``paired_data`` संग्रहीत करती हैं। पुरानी फ़ाइलें वैध रहती हैं: उनकी समतल सूचियाँ स्थितिगत रूप से ज़िप की जाती हैं, जो पुराने व्यवहार से ठीक मेल खाता है; माइग्रेशन की सूचना दी जाती है ताकि अदृश्य पुरानी धारणा स्पष्ट हो।"},
-    {"label":"spacr.ml.regression_levels#0","source":"Fit every level the run asked for, SEPARATELY, and return one per level.","context":"Fit every level the run asked for, SEPARATELY, and return one per level.","source_sha256":"bc4a920892bf5c55bdcdeb3ec6a7c9f9e81f3a4857054bad68af04d341493699","translation":"रन द्वारा माँगे गए प्रत्येक स्तर को अलग-अलग फ़िट करें और हर स्तर के लिए एक परिणाम लौटाएँ।"},
-    {"label":"spacr.ml.regression_levels#1","source":"THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so","context":"THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so","source_sha256":"35e27a88334a307cc6e74d5c1137cd964b46c973ffc159e0edc2026fe3fe8b1e","translation":"यह दो-फ़िट प्रवेश बिंदु है। यह इसलिए मौजूद है क्योंकि spaCR द्वारा पहले उपयोग किया गया एकल डिज़ाइन बिल्कुल फ़िट नहीं किया जा सकता। ``gene_fraction`` जीन के gRNA अंशों का SUM है, इसलिए"},
-    {"label":"spacr.ml.regression_levels#2","source":"``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``","context":"``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``","source_sha256":"7b1d5ff99fd566bd78fdf516053ce92d0f5ec341a8defe99176ad441b6ca78e1","translation":"``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``"},
-    {"label":"spacr.ml.regression_levels#3","source":"puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.","context":"puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.","source_sha256":"0b6580b48091e760bac4983f95e1e5346ded73b05ad1eb3d69b09ef0dbf62d50","translation":"यह कॉलमों और उन्हीं कॉलमों के योगों को एक ही डिज़ाइन में रखता है। संदर्भ TSG101 स्क्रीनिंग पर मापन में: रैंक 862 पर 1248 पैरामीटर -- 386-आयामी EXACT नल स्पेस -- और लौटाए गए statsmodels फ़िट का अवशिष्ट वर्ग-योग उस परिणाम से बिट-दर-बिट समान था जो उसमें नल वेक्टर का सात गुना जोड़ने पर मिलता है। :data:`COLLINEAR_FORMULA_FRAGMENT` देखें।"},
-    {"label":"spacr.ml.regression_levels#4","source":"Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same wells, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.","context":"Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same microplate sample positions, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.","source_sha256":"7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a","translation":"दो फिट्स, दो टेबल्स, दो सुधार। प्रत्येक फिट अपनी खुद की मल्टीपल-टेस्टिंग फेमिली है और अपने भीतर ही इसे सुधारा जाता है। इन्हें मिलाना दो बार गलत होगा: ये स्वतंत्र नहीं हैं -- वही माइक्रोप्लेट सैंपल पोजीशन्स हैं, और जीन रेग्रेसर गाइड रेग्रेसर्स का योग है -- और फेमिली का आकार दोगुना करने से कोई सुरक्षा नहीं मिलती, केवल शक्ति की हानि होती है। :func:`perform_regression` प्रत्येक स्तर पर सुधार लागू करता है और ``results_grna.csv`` और ``results_gene.csv`` लिखता है।"},
-    {"label":"spacr.ml.regression_levels#5","source":"``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.","context":"``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.","source_sha256":"94933110c12ab286e7b86c65039275d3e77a8c15fabaa36b5e24a566236d69c2","translation":"``regression_type='mixed'`` एक बार फिट होता है और एक एंट्री लौटाता है, ``'gene'``: उस मॉडल में पहले ही दोनों स्तर हैं, जीन को फ़िक्स्ड इफेक्ट के रूप में और गाइड को जीन में नेस्टेड रैंडम इफेक्ट के रूप में। इसका गाइड आउटपुट BLUPs है, यही कारण है कि इसे दो टेस्टिंग फेमिलीज़ में नहीं बांटा जा सकता।"},
-    {"label":"spacr.ml.regression_levels#6","source":"``'both'`` (default), ``'grna'`` or ``'gene'``.","context":"``'both'`` (default), ``'grna'`` or ``'gene'``.","source_sha256":"6e604094dd6249e5ec74de6194cb8e755d06002d16daece0305d65250ad8416c","translation":"``'both'`` (डिफ़ॉल्ट), ``'grna'`` या ``'gene'``."},
-    {"label":"spacr.ml.regression_levels#7","source":"the run folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.","context":"the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.","source_sha256":"d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b","translation":"प्रोसेसिंग-सत्र फ़ोल्डर। एक से अधिक फ़िट होने पर प्रत्येक स्तर के FIGURES ``<dst>/<level>/`` में जाते हैं, ताकि वे एक-दूसरे को ओवरराइट न करें; तालिकाएँ ``<dst>`` में रहती हैं, जहाँ हर उपभोक्ता उन्हें खोजता है।"},
-    {"label":"spacr.ml.regression_levels#8","source":"passed straight through to :func:`regression`.","context":"passed straight through to :func:`regression`.","source_sha256":"de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549","translation":"सीधे :func:`regression` में पास किया गया।"},
-    {"label":"spacr.ml.regression_levels#9","source":"``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.","context":"``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.","source_sha256":"36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b","translation":"``dict`` जो फ़िट क्रम में स्तर को ``(model, coef_df, regression_type)`` से मैप करता है।"},
-    {"label":"spacr.ml.regression_levels#10","source":"for a level that is not one of :data:`LEVEL_CHOICES`.","context":"for a level that is not one of :data:`LEVEL_CHOICES`.","source_sha256":"865eaa1be2505059a461326afa1015fd8bef1631ba5eb0764cada93b6024d342","translation":"ऐसे स्तर के लिए जो :data:`LEVEL_CHOICES` में से एक नहीं है।"},
-    {"label":"spacr.ml.resolve_auto_inference#0","source":"Choose ``analysis_mode`` for ``inference='auto'`` from the design.","context":"Choose ``analysis_mode`` for ``inference='auto'`` from the design.","source_sha256":"7cf082f068e8dc6920a3e3f7c6db4b58ddf766a3aff281191b0b98a1a6916a90","translation":"डिजाइन से ``analysis_mode`` के लिए ``inference='auto'`` का चयन करें।"},
-    {"label":"spacr.ml.resolve_auto_inference#1","source":"The simultaneous model estimates one coefficient per guide from the wells, so it needs more wells than guides -- with an intercept and any plate fixed effects on top -- before those coefficients are identifiable at all. Below that the design matrix is rank deficient: statsmodels still returns a number for every guide, but the numbers are one arbitrary solution out of infinitely many, and their P values describe nothing.","context":"The simultaneous model estimates one coefficient per guide from the microplate sample positions, so it needs more microplate sample positions than guides -- with an intercept and any laboratory microplate fixed effects on top -- before those coefficients are identifiable at all. Below that the design matrix is rank deficient: statsmodels still returns a number for every guide, but the numbers are one arbitrary solution out of infinitely many, and their P values describe nothing.","source_sha256":"5da7d5b53d5165fc0a5b64f74bea0f4eab979984b8cf5fa353176d9d9897811c","translation":"सिमल्टेनियस मॉडल माइक्रोप्लेट सैंपल पोज़िशन्स से हर गाइड के लिए एक कोएफ़िशिएंट का अनुमान लगाता है, इसलिए इसे गाइड्स की तुलना में अधिक माइक्रोप्लेट सैंपल पोज़िशन्स की आवश्यकता होती है -- इसके ऊपर इंटरसेप्ट और किसी भी लैब माइक्रोप्लेट फिक्स्ड इफेक्ट्स के साथ -- इससे पहले कि ये कोएफ़िशिएंट्स पूरी तरह से पहचाने जा सकें। इससे कम होने पर डिज़ाइन मैट्रिक्स रैंक डेफिशिएंट होता है: statsmodels अभी भी हर गाइड के लिए एक संख्या लौटाता है, लेकिन वे संख्याएँ अनंत संभावित समाधान में से एक मनमाना समाधान होती हैं, और उनके पी मान कुछ भी वर्णित नहीं करते हैं।"},
-    {"label":"spacr.ml.resolve_auto_inference#2","source":"That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed wells; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.","context":"That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed microplate sample positions; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.","source_sha256":"77d015d82b509d50fd4a78edb7f8ce55dffc03c6d31aaf26ce4cd46a1b321a03","translation":"यह काल्पनिक नहीं है। जिस स्क्रीनिंग के लिए यह लिखा गया था, उसमें 587 विश्लेषित माइक्रोप्लेट सैंपल पोज़िशन्स में 824 गाइड्स थे; प्रकाशित फ़िट में 825 पैरामीटर थे, रैंक 579 और 8 शेष डिग्रीज़ ऑफ़ फ्रीडम थीं, और इसे फिर से फिट करने पर इसके अपने कोएफ़िशिएंट्स पुन: उत्पन्न नहीं हुए।"},
-    {"label":"spacr.ml.resolve_auto_inference#3","source":"``auto`` therefore picks the permutation test whenever the simultaneous fit would be unidentifiable, and says so. It is deliberately conservative: it needs a real margin (``_IDENTIFIABILITY_MARGIN`` wells per guide) rather than a bare majority, because a design that only just fits is one dropped well away from not fitting.","context":"``auto`` therefore picks the permutation test whenever the simultaneous fit would be unidentifiable, and says so. It is deliberately conservative: it needs a real margin (``_IDENTIFIABILITY_MARGIN`` microplate sample positions per guide) rather than a bare majority, because a design that only just fits is one dropped well away from not fitting.","source_sha256":"a44ab47e0b58d5fb59fa0baeae5d5ddcc0ae83aeb597d91c74ec8a1e3b6f5cc3","translation":"इसलिए जब भी समकालिक फ़िट पहचाने जाने योग्य न हो, ``auto`` क्रमपरिवर्तन परीक्षण चुनता है और इसका कारण बताता है। यह जानबूझकर रूढ़िवादी है: केवल साधारण बहुमत के बजाय इसे वास्तविक अंतर (प्रति गाइड ``_IDENTIFIABILITY_MARGIN`` माइक्रोप्लेट नमूना स्थान) चाहिए, क्योंकि मुश्किल से फ़िट होने वाला डिज़ाइन केवल एक वेल हटते ही फ़िट न होने वाला बन सकता है।"},
-    {"label":"spacr.ml.resolve_auto_inference#4","source":"Anything other than ``inference='auto'`` is returned untouched, so an explicit choice is never overridden.","context":"Anything other than ``inference='auto'`` is returned untouched, so an explicit choice is never overridden.","source_sha256":"a93b7b1521d7691697bde55ae145778777edd71235ef7b2eed4462f3c3d48bd9","translation":"``inference='auto'`` के अलावा कुछ भी बिना बदले लौटाया जाता है, इसलिए कोई स्पष्ट चयन कभी भी अधिलेखित नहीं होता।"},
-    {"label":"spacr.ml.resolve_auto_inference#5","source":"``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.","context":"``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.","source_sha256":"11380b9e5f6bcf7fb4065e9e1ff8cd68a01aff3c9eede1fc3158890a49297f92","translation":"``(analysis_mode, reason)``। ``reason`` वह वाक्य है जो गणनाओं का नाम करता है, लॉग और मेथड्स अनुभाग के लिए उपयुक्त।"},
-    {"label":"spacr.ml.results_folder_kind#0","source":"What a run's results folder is NAMED after.","context":"What a processing session's results folder is NAMED after.","source_sha256":"9aa310e1c499c3609c3d787ecfa5bed677dbf44c0ba20f560bb0f47fd646fcde","translation":"किस आधार पर किसी प्रोसेसिंग सत्र के परिणाम फ़ोल्डर का नाम रखा जाता है।"},
-    {"label":"spacr.ml.results_folder_kind#1","source":"The inference method when it decides the answer, and the regression type otherwise. Under `analysis_mode='guide_permutation'` the regression type is never read -- ols and mixed produce byte-identical results -- so a folder called `ridge` would name something the run did not do.","context":"The inference method when it decides the answer, and the regression type otherwise. Under `analysis_mode='guide_permutation'` the regression type is never read -- ols and mixed produce byte-identical results -- so a folder called `ridge` would name something the processing session did not do.","source_sha256":"9b52a8b1956d3070227014c2ab32c353bba0754f759d0bf009dadb6d47d9c5c9","translation":"अनुमान विधि जब उत्तर तय करता है, और अन्यथा प्रतिगमन प्रकार। `analysis_mode='guide_permutation'` के अंतर्गत, प्रतिगमन प्रकार कभी भी पढ़ा नहीं जाता -- ols और मिश्रित बाइट-समान परिणाम पैदा करते हैं -- इसलिए `ridge` नामक फ़ोल्डर कुछ ऐसा नाम देगा जो प्रोसेसिंग सत्र ने वास्तव में नहीं किया।"},
-    {"label":"spacr.ml.results_folder_kind#2","source":"PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every run that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.","context":"PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every processing session that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.","source_sha256":"e1f650f69fe5b9dcac25308be0248c082de61d0cbbc10e8e0135609a2fccf5b8","translation":"सार्वजनिक, और इसकी एकमात्र प्रति। इस नियम को दोबारा निकालने वाला परीक्षण नियम बदलने पर पुराना पड़ गया और उसने 39 CSV गायब बताईं, जबकि उन्हें लिखने वाला हर प्रोसेसिंग सत्र ठीक था। इसी विफलता को tests/test_cov_ml_perform_regression.py का `results_dir` सहायक पहले ही एक बार रोकने के लिए लिखा गया था। गलत फ़ाइल की ओर संकेत करने वाला परीक्षण-सूट मौन रहने वाले सूट से भी बदतर है।"},
-    {"label":"spacr.ml.screen_is_blockable#0","source":"Whether ``screenID`` can be a term in this frame's design.","context":"Whether ``screenID`` can be a term in this frame's design.","source_sha256":"f75d0803f78ebc8bb3c8e6300d5ffc799cddf1de7732b679267f3dc24d15dae5","translation":"क्या ``screenID`` इस फ़्रेम के डिज़ाइन में एक पद हो सकता है।"},
-    {"label":"spacr.ml.screen_is_blockable#1","source":"True only when the column exists and carries more than one distinct value. A single-screen project is the normal case and must be untouched by the design: it has no screenID at all, or one value, and either way the term would be a constant column.","context":"True only when the column exists and carries more than one distinct value. A single-screen project is the normal case and must be untouched by the design: it has no screenID at all, or one value, and either way the term would be a constant column.","source_sha256":"614d082528bdf4410704514e30e38dd8858b2f785bd2559b1861e0246537239f","translation":"True केवल तभी जब कॉलम मौजूद हो और उसमें एक से अधिक अलग मान हों। एकल स्क्रीनिंग परियोजना सामान्य स्थिति है और डिज़ाइन को उससे अप्रभावित रहना चाहिए: उसमें या तो screenID नहीं होता या केवल एक मान होता है; दोनों स्थितियों में यह पद एक स्थिर कॉलम होगा।"},
-    {"label":"spacr.ml.screen_is_blockable#2","source":"The same rule :func:`spacr.measurement_scan._dummy_block` applies, stated once for the formula path so a frame cannot be blocked on by one and not the other.","context":"The same rule :func:`spacr.measurement_scan._dummy_block` applies, stated once for the formula path so a frame cannot be blocked on by one and not the other.","source_sha256":"85cf17e98cd765620cef074f22be95c88557bab382d69162fc4336f5d69cbcdf","translation":"समान नियम :func:`spacr.measurement_scan._dummy_block` लागू होता है, जिसे एक बार फॉर्मूला पथ के लिए बताया गया है ताकि एक फ्रेम को एक के द्वारा ब्लॉक न किया जा सके और दूसरे द्वारा नहीं।"},
-    {"label":"spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections#0","source":"The section widgets actually mounted in the settings panel.","context":"The section widgets actually mounted in the settings panel.","source_sha256":"ecaa07a03b598b553f1a3e41550640aa7f996e3d269ce28ed3378648446de478","translation":"सेक्शन विजेट्स जो वास्तव में सेटिंग्स पैनल में माउंट किए गए हैं।"},
-    {"label":"spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections#1","source":"``_settings_sections`` deliberately also contains dormant forms for object-gated settings.  Visual consumers -- maturity and category hints in particular -- must use this subset instead.","context":"``_settings_sections`` deliberately also contains dormant forms for object-gated settings.  Visual consumers -- maturity and category hints in particular -- must use this subset instead.","source_sha256":"e35b27cc0baeb61dcbe7ff265878df496655e979470f768ee9638a30fb364e4a","translation":"``_settings_sections`` में जानबूझकर ऑब्जेक्ट-नियंत्रित सेटिंग्स के निष्क्रिय फ़ॉर्म भी रहते हैं। दृश्य घटकों -- विशेषकर परिपक्वता और श्रेणी संकेतों -- को इसके बजाय इसी उपसमूह का उपयोग करना चाहिए।"},
-    {"label":"spacr.qt.shortcuts#0","source":"Keyboard-first shortcuts for the spaCR Qt GUI.","context":"Keyboard-first shortcuts for the spaCR Qt GUI.","source_sha256":"26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483","translation":"कीबोर्ड-प्रथम शॉर्टकट्स spaCR Qt GUI के लिए।"},
-    {"label":"spacr.qt.shortcuts#1","source":"Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:","context":"Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:","source_sha256":"b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a","translation":"मुख्य विंडो पर वैश्विक :class:`QShortcut` बाइंडिंग्स को पंजीकृत करता है ताकि पूरी एप्लिकेशन माउस के बिना इस्तेमाल योग्य हो:"},
-    {"label":"spacr.qt.shortcuts#2","source":"Go home","context":"Go home","source_sha256":"a0aac9145249f1675ee0380260d152d217a7abe140e85aad3871ec30da1c319b","translation":"होम जाएँ"},
-    {"label":"spacr.qt.shortcuts#3","source":"Switch to the Nth app in the sidebar","context":"Switch to the Nth app in the sidebar","source_sha256":"f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f","translation":"साइडबार में Nवीं एप्लिकेशन पर स्विच करें"},
-    {"label":"spacr.qt.shortcuts#4","source":"Open the command palette","context":"Open the command palette","source_sha256":"2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555","translation":"कमान्ड पैलेट खोलें"},
-    {"label":"spacr.qt.shortcuts#5","source":"Show the shortcuts cheat sheet","context":"Show the shortcuts cheat sheet","source_sha256":"c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d","translation":"शॉर्टकट्स चीट शीट दिखाएँ"},
-    {"label":"spacr.qt.shortcuts#6","source":"Open Preferences","context":"Open Preferences","source_sha256":"b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014","translation":"प्राथमिकताएँ खोलें"},
-    {"label":"spacr.qt.shortcuts#7","source":"Open the AI Console","context":"Open the AI Console","source_sha256":"28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d","translation":"एआई कंसोल खोलें"},
-    {"label":"spacr.qt.shortcuts#8","source":"Ctrl+End      Jump to the newest console line F11           Toggle full screen Esc           Close any open dialog / popup","context":"Ctrl+End      Jump to the newest console line F11           Toggle full application view Esc           Close any open dialog / popup","source_sha256":"4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3","translation":"Ctrl+End      नवीनतम कंसोल लाइन पर जाएँ F11           पूर्ण एप्लिकेशन व्यू टॉगल करें Esc           कोई भी खुला संवाद / पॉपअप बंद करें"},
-    {"label":"spacr.qt.shortcuts#9","source":":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.","context":":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.","source_sha256":"c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce","translation":":func:`install` को ``MainWindow.__init__`` से एक बार बुलाया जाता है। हर बाइंडिंग :data:`SHORTCUTS` में दर्ज है, ताकि चीट-शीट संवाद वास्तव में जोड़े गए शॉर्टकटों के साथ समन्वित रहे।"},
-    {"label":"spacr.settings.get_perform_regression_default_settings#0","source":"Populate default settings for gRNA/score regression analysis.","context":"Populate default settings for gRNA/score regression analysis.","source_sha256":"0a58e1c77ed3e9569cb536aa77ddb4aa3883233c14ae9d5c74c022a3124ff047","translation":"gRNA/स्कोर रिग्रेशन विश्लेषण के लिए डिफ़ॉल्ट सेटिंग्स भरें।"},
-    {"label":"spacr.settings.get_perform_regression_default_settings#1","source":"Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.","context":"Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.","source_sha256":"78caac1266c292e60eebd31f9dcd53cd418015c2df20333e38c43b74e357f50f","translation":"जब क्वांटाइल रिग्रेशन चुना जाता है, तो ``agg_type`` को स्वतः None में बदल दिया जाता है, ताकि ``alpha`` को क्वांटाइल के रूप में माना जा सके।"},
-    {"label":"spacr.settings.get_perform_regression_default_settings#2","source":"Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the dict from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a run that had started cleanly.","context":"Every structured-data name :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the key-value mapping from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a processing session that had started cleanly.","source_sha256":"165034b2f73d58f8deaceea0de62331e1c48dd872d7b481bf818106b1ceed0f0","translation":"यहाँ हर संरचित-डेटा नाम भरा जाता है जिसे :func:`spacr.ml.perform_regression` ``settings[...]`` से पढ़ता है। छह नाम पहले नहीं भरे जाते थे। दोनों डिस्पैचर -- ``qt.screens.settings_model.resolve_default_settings`` वाला Qt पैनल और ``spacr-run regression`` का ``cli.module_defaults`` -- इसी एक फ़ंक्शन से की-वैल्यू मैपिंग बनाते हैं, इसलिए प्रतिगमन किसी भी प्रवेश बिंदु से शुरू नहीं हो पाता था: ml.py:1409 पर ``KeyError: 'verbose'`` आया, जबकि दोनों इनपुट CSV पढ़े जा चुके थे और ``settings/regression.csv`` लिखा जा चुका था; इसलिए विफलता साफ़-सुथरे ढंग से शुरू हुए प्रोसेसिंग सत्र जैसी दिखती थी।"},
-    {"label":"spacr.settings.get_perform_regression_default_settings#3","source":"dict to fill in place.","context":"key-value mapping to fill in place.","source_sha256":"98891dad7f1238087a23b92eadf791b02ba2ba024950c9ca53982adbb82458ed","translation":"उसी स्थान पर भरने के लिए की-वैल्यू मैपिंग।"},
-    {"label":"spacr.settings.get_perform_regression_default_settings#4","source":"the settings dict with defaults applied.","context":"the settings key-value mapping with defaults applied.","source_sha256":"f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a","translation":"डिफ़ॉल्ट लागू की गई सेटिंग्स की की-वैल्यू मैपिंग।"}
+    {
+      "label": "spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_filter_changed#0",
+      "source": "Apply a newly published shared filter to the loaded rows.",
+      "context": "Apply a newly published shared filter to the loaded rows.",
+      "source_sha256": "64eacbd97f7383e07bc48fe5c301df88b4cb691d768e119be13a55d587b200df",
+      "translation": "लोड की गई पंक्तियों पर हाल ही में प्रकाशित साझा फ़िल्टर लागू करें।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_filter_changed#1",
+      "source": "current process-wide filter; the linked-view state already owns it, so this callback only refreshes row visibility.",
+      "context": "current process-wide filter; the linked-view state already owns it, so this callback only refreshes row visibility.",
+      "source_sha256": "3d02ded03fc5d3ccc0f79cea0ab67e03d8ae34235c511497673f62428b10ae1a",
+      "translation": "वर्तमान प्रक्रिया-व्यापी फ़िल्टर; लिंक-व्यू स्थिति पहले से इसे स्वामित्व में रखती है, इसलिए यह कॉलबैक केवल पंक्ति दृश्यता को ताज़ा करता है।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.canFetchMore#0",
+      "source": "Return whether the root model can request another chunk.",
+      "context": "Return whether the root model can request another chunk.",
+      "source_sha256": "a9464c06cb3aeefb070dc719f9e0123b5a19a9d16086d1f25f7808df4214f2a6",
+      "translation": "वापस करें कि क्या मूल मॉडल एक और खंड का अनुरोध कर सकता है।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.canFetchMore#1",
+      "source": "Qt parent index; valid child indexes cannot fetch.",
+      "context": "Qt parent index; valid child indexes cannot fetch.",
+      "source_sha256": "bab97ac05155e1f6c3c86b420e1e6ef331475bab3c5db37a7b82e76aebbc2379",
+      "translation": "Qt माता-पिता अनुक्रमांक; मान्य बच्चे अनुक्रमांक डेटा प्राप्त नहीं कर सकते।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.columnCount#0",
+      "source": "Return visible columns for the root model and zero for children.",
+      "context": "Return visible columns for the root model and zero for children.",
+      "source_sha256": "bf0825490db011a8a5fe0566844f374783a4e228541012c22db1ae2b7d2a08e0",
+      "translation": "मूल मॉडल के लिए दिखाई देने वाले कॉलम और बच्चों के लिए शून्य लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.columnCount#1",
+      "source": "Qt parent index whose child-column count is requested.",
+      "context": "Qt parent index whose child-column count is requested.",
+      "source_sha256": "46bd124e3cb8402f7bc1d43492d9e203df98ae792a2b3757c08e92d05f3b8b3b",
+      "translation": "Qt माता-पिता अनुक्रमांक जिसका बच्चा-कॉलम संख्या अनुरोध किया गया है।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.data#0",
+      "source": "Return the display, tooltip, or exact editor value for a cell.",
+      "context": "Return the display, tooltip, or exact editor value for a cell.",
+      "source_sha256": "8059e763018b66d6c392ca28f0513222dcf090c0c7f37b7848a82bab6bc5fe36",
+      "translation": "किसी सेल के लिए डिस्प्ले, टूलटिप या सटीक संपादक मान लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.data#1",
+      "source": "model index identifying the requested cell.",
+      "context": "model index identifying the requested cell.",
+      "source_sha256": "9a3bbb69d9ef1955c160236cc5cc853cfc081c3675f7174304fe325fe0244a53",
+      "translation": "अनुरोधित सेल की पहचान करने वाला मॉडल इंडेक्स।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.data#2",
+      "source": "Qt data role; unsupported roles return ``None``.",
+      "context": "Qt data role; unsupported roles return ``None``.",
+      "source_sha256": "dc74937680539ca72f01551d044a54fb9fd0192a062a203616cacdc65e5c3221",
+      "translation": "Qt डेटा भूमिका; असमर्थित भूमिकाएँ ``None`` लौटाती हैं।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.fetchMore#0",
+      "source": "Request the next chunk through the configured fetch hook.",
+      "context": "Request the next chunk through the configured fetch hook.",
+      "source_sha256": "36561f91513ab8930de319d7658e1f0e232e80e1efab89ccc13d68d065077c69",
+      "translation": "कॉन्फ़िगर किए गए फ़ेच हुक के माध्यम से अगला खंड अनुरोध करें।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.fetchMore#1",
+      "source": "Qt parent index; valid child indexes are ignored.",
+      "context": "Qt parent index; valid child indexes are ignored.",
+      "source_sha256": "0e8e6c705227bf90adb552cd362f8b5e4bcecb3059a115267d02bc473bae2b16",
+      "translation": "Qt पैरेंट इंडेक्स; मान्य चाइल्ड इंडेक्स की अनदेखी की जाती है।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.flags#0",
+      "source": "Return Qt item flags for ``index``, including armed editability.",
+      "context": "Return Qt item flags for ``index``, including armed editability.",
+      "source_sha256": "6314eb09af2a17cd7e6ff689c44ba48720a2ed5b264ac70f78c52583bce0397c",
+      "translation": "संपादन-सक्षमता सक्रिय होने सहित, ``index`` के लिए Qt आइटम फ़्लैग लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.flags#1",
+      "source": "model index whose interaction flags are requested.",
+      "context": "model index whose interaction flags are requested.",
+      "source_sha256": "f23ffaac5e5f4a8b8f2dd97000759e37654ea0faf9f6d0549c4abbd02c3915f8",
+      "translation": "मॉडल इंडेक्स जिसकी इंटरैक्शन फ़्लैग्स मांगी गई हैं।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.headerData#0",
+      "source": "Return a column name or one-based absolute row number.",
+      "context": "Return a column name or one-based absolute row number.",
+      "source_sha256": "413574b45a5099d9fe11e9dca63f9a7cb8d38450a710305cf698a812c37c5351",
+      "translation": "कॉलम नाम या एक-आधारित पूर्ण पंक्ति संख्या लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.headerData#1",
+      "source": "zero-based visible column or row-header section.",
+      "context": "zero-based visible column or row-header section.",
+      "source_sha256": "7f9d7282b8e15e7db8a22c5de01e05a8b1ad00c34ac13a1cf220584156fdde67",
+      "translation": "शून्य-आधारित दृश्यमान कॉलम या रो-हेडर सेक्शन।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.headerData#2",
+      "source": "horizontal for names, vertical for row numbers.",
+      "context": "horizontal for names, vertical for row numbers.",
+      "source_sha256": "b56e2b24188807b6f8e339cf619bc8cf229c1271ddd9c3e318f09d36abfca9a4",
+      "translation": "नामों के लिए क्षैतिज, पंक्ति संख्याओं के लिए लंबवत।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.headerData#3",
+      "source": "Qt data role; only :attr:`Qt.DisplayRole` is served.",
+      "context": "Qt data role; only :attr:`Qt.DisplayRole` is served.",
+      "source_sha256": "91a57e479ef0a6302c558ade7d5b3d3522f99267726851dda33de12b1ce345f1",
+      "translation": "Qt डेटा भूमिका; केवल :attr:`Qt.DisplayRole` लौटाई जाती है।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.rowCount#0",
+      "source": "Return loaded rows for the root model and zero for children.",
+      "context": "Return loaded rows for the root model and zero for children.",
+      "source_sha256": "e05ac46e4a57db4d0904b9494f7339f734938ef52b1dc1dde9800d8375f1bbc2",
+      "translation": "मूल मॉडल के लिए लोड की गई पंक्तियाँ लौटाएँ और बच्चों के लिए शून्य लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.rowCount#1",
+      "source": "Qt parent index whose child-row count is requested.",
+      "context": "Qt parent index whose child-row count is requested.",
+      "source_sha256": "39956c5486f47f8f7a4c90192c6a5379146dbf131960caf75ea5e62b8fe8e3ee",
+      "translation": "Qt माता-पिता सूचकांक जिसकी चाइल्ड-पंक्ति गिनती अनुरोध की गई है।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.setData#0",
+      "source": "Commit an editor value through the guarded screen callback.",
+      "context": "Commit an editor value through the guarded screen callback.",
+      "source_sha256": "ff4424ecfd8ea4df900a81596aa8e8468da28e21ed966f1c68533936705ade38",
+      "translation": "संरक्षित स्क्रीन कॉलबैक के माध्यम से संपादक मान कमिट करें।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.setData#1",
+      "source": "valid editable model index.",
+      "context": "valid editable model index.",
+      "source_sha256": "667909a495db854da63a9d584f51f55cac726b97ae54c73229ab8554f7760a64",
+      "translation": "मान्य संपादन योग्य मॉडल सूचकांक।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.setData#2",
+      "source": "raw editor value passed to the commit hook.",
+      "context": "raw editor value passed to the commit hook.",
+      "source_sha256": "e401e58ff5cf7be7fa3a1e50aebdeb5aec0c3847ab29b1cf6c7c105b7bf00b3b",
+      "translation": "कमिट हुक को पास किया गया कच्चा संपादक मान।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.setData#3",
+      "source": "Qt role, which must be :attr:`Qt.EditRole`.",
+      "context": "Qt role, which must be :attr:`Qt.EditRole`.",
+      "source_sha256": "6811177313c24753c873829cfdfd23000dd312eeb83a39d3669ce981fcc0ca03",
+      "translation": "Qt भूमिका, जो :attr:`Qt.EditRole` होनी चाहिए।"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.PreviewModel.setData#4",
+      "source": "whether the commit hook accepted and wrote the change.",
+      "context": "whether the commit hook accepted and wrote the change.",
+      "source_sha256": "4d7493cefdd8b1c7253aecbc5295865e0c82c15e9b51a7479e1babe2f897325b",
+      "translation": "क्या कमिट हुक ने परिवर्तन स्वीकार किया और लिखा।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.mask#0",
+      "source": "Select finite rows inside every bounded side of the rectangle.",
+      "context": "Select finite rows inside every bounded side of the rectangle.",
+      "source_sha256": "a33da19d60b716922448285066299bb6cfabf96e04c28ddb2ec76e232dae2a73",
+      "translation": "आयत की प्रत्येक परिबद्ध भुजा के भीतर की परिमित पंक्तियाँ चुनें।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.mask#1",
+      "source": "measurement table containing both axis columns.",
+      "context": "measurement table containing both axis columns.",
+      "source_sha256": "acd9799f1b8d37f897d83fe589111b9cd5ccb734142ff50daaea5d2d4e7c1d1f",
+      "translation": "माप तालिका जिसमें दोनों अक्ष कॉलम शामिल हैं।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.scaled#0",
+      "source": "Return this rectangle resized about a fixed data-space point.",
+      "context": "Return this rectangle resized about a fixed data-space point.",
+      "source_sha256": "feefc6484b42d37ec035ae7e14f30ab4e512a835cb7fc2792ce778b001af071d",
+      "translation": "इस आयत को एक निश्चित डेटा-स्थान बिंदु के बारे में पुनः आकार दें।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.scaled#1",
+      "source": "positive scale factor; values above one grow the gate.",
+      "context": "positive scale factor; values above one grow the data-selection boundary.",
+      "source_sha256": "b2833332adb24666c24d9444f94aa44c8281f060e3a7648bc2e2b25d9b040110",
+      "translation": "सकारात्मक स्केल फैक्टर; एक से ऊपर के मान डेटा-चयन सीमा को बढ़ाते हैं।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.scaled#2",
+      "source": "point held fixed, or ``None`` to use the rectangle's finite centre independently on each axis. Without an explicit point, an axis lacking two finite bounds stays unchanged.",
+      "context": "point held fixed, or ``None`` to use the rectangle's finite centre independently on each axis. Without an explicit point, an axis lacking two finite bounds stays unchanged.",
+      "source_sha256": "265c9e1135fde0caf76eecb2528bbba5082c08bb7b1da33b8b8b0b3b93c8e7d9",
+      "translation": "स्थिर रखा जाने वाला बिंदु; अथवा हर अक्ष पर स्वतंत्र रूप से आयत के परिमित केंद्र का उपयोग करने के लिए ``None``। स्पष्ट बिंदु न होने पर, जिन अक्षों की दो परिमित सीमाएँ नहीं हैं वे अपरिवर्तित रहते हैं।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.scaled#3",
+      "source": "when ``factor`` is not positive.",
+      "context": "when ``factor`` is not positive.",
+      "source_sha256": "890325752e2c2d55c06df2661881929ef7f2a050538d39688c7f2df745e7139f",
+      "translation": "जब ``factor`` सकारात्मक नहीं होता।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.translated#1",
+      "source": "displacement in horizontal-axis data units.",
+      "context": "displacement in horizontal-axis data units.",
+      "source_sha256": "30706eb1eca23de6d20281c1bafc66afac88c69f693adac9f06e5719ea84a3f0",
+      "translation": "क्षैतिज-अक्ष डेटा इकाइयों में विस्थापन।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.translated#2",
+      "source": "displacement in vertical-axis data units.",
+      "context": "displacement in vertical-axis data units.",
+      "source_sha256": "01e432235a34a8338bf3c2e7e5f47dc220bc85741075bfaafa4a1b25d22e0888",
+      "translation": "ऊर्ध्वाधर-अक्ष डेटा इकाइयों में विस्थापन।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_handle#0",
+      "source": "Return the rectangle after dragging one side or corner handle.",
+      "context": "Return the rectangle after dragging one side or corner handle.",
+      "source_sha256": "d0f9c73b8bd207f0a72822cf2e8896bac9af27e056ed49475acc18cd423bb92f",
+      "translation": "एक साइड या कोने हैंडल को खींचने के बाद आयत को लौटाएं।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_handle#1",
+      "source": "one of the four side names emitted by :meth:`handles`, or one horizontal and one vertical side joined by a comma for a corner.",
+      "context": "one of the four side names emitted by :meth:`handles`, or one horizontal and one vertical side joined by a comma for a corner.",
+      "source_sha256": "aed0eb7b30859b68ca7474a5876aaf34d641b247c86086859e28f0545b05b64d",
+      "translation": "चार में से एक साइड का नाम जो :meth:`handles` द्वारा निकाला गया है, या एक क्षैतिज और एक लंबवत साइड जो कोने के लिए अल्पविराम द्वारा जुड़ी हो।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_handle#2",
+      "source": "new horizontal coordinate used by any horizontal role.",
+      "context": "new horizontal coordinate used by any horizontal role.",
+      "source_sha256": "c23d39d5517a26896f456266c4ecba5e21997df96347485d08cda4140cbc6491",
+      "translation": "किसी भी क्षैतिज भूमिका द्वारा प्रयुक्त नया क्षैतिज निर्देशांक।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_handle#3",
+      "source": "new vertical coordinate used by any vertical role.",
+      "context": "new vertical coordinate used by any vertical role.",
+      "source_sha256": "bf3ba9fa8ec043d18595f23986bb4c9a627dfabb262860504624df3d6b416329",
+      "translation": "किसी भी लंबवत भूमिका द्वारा प्रयुक्त नया लंबवत निर्देशांक।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_threshold#0",
+      "source": "Return this gate with replacement bounds on one axis.",
+      "context": "Return this data-selection boundary with replacement bounds on one axis.",
+      "source_sha256": "d701959f21c798765ae6835567715896ca9b075d0c4f98b759c4499f5cf1b102",
+      "translation": "इस डेटा-सेलेक्शन सीमा को एक अक्ष पर प्रतिस्थापन सीमा के साथ लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_threshold#1",
+      "source": "horizontal or vertical measurement column to change.",
+      "context": "horizontal or vertical measurement column to change.",
+      "source_sha256": "50e73ad342925f1bf2589b0004c1448700e3932c73ed1781e3cd97dde3eb7022",
+      "translation": "परिवर्तित करने के लिए क्षैतिज या लंबवत माप कॉलम।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_threshold#2",
+      "source": "inclusive lower bound, or ``None`` for an open lower side.",
+      "context": "inclusive lower bound, or ``None`` for an open lower side.",
+      "source_sha256": "c1c74dee76f5bc342eda7ecb14127d289a5c1c4cb9b5d317e4516322492b233c",
+      "translation": "समावेशी निचली सीमा, या खुली निचली साइड के लिए ``None``।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_threshold#3",
+      "source": "inclusive upper bound, or ``None`` for an open upper side.",
+      "context": "inclusive upper bound, or ``None`` for an open upper side.",
+      "source_sha256": "6dc745eeff7f26e70b3f8f485455cb62d369a11e4e13e744c7fa9e3586e95b22",
+      "translation": "समावेशी ऊपरी सीमा, या खुली ऊपरी साइड के लिए ``None``।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_threshold#4",
+      "source": "when ``column`` is not one of this rectangle's axes.",
+      "context": "when ``column`` is not one of this rectangle's axes.",
+      "source_sha256": "1b22e124de0410fcbc96e208e61e033d30a7c7c8a9bd18a3d756a0c31b2fc731",
+      "translation": "जब ``column`` इस आयत के अक्षों में से एक नहीं है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.scaled#0",
+      "source": "Return this threshold resized about a horizontal anchor.",
+      "context": "Return this threshold resized about a horizontal anchor.",
+      "source_sha256": "dd418caacdc8e93faf2036fb27ca339be6cb7afe02e230dc37066a7ee0b88d16",
+      "translation": "इस थ्रेशोल्ड को क्षैतिज एंकर के आसपास पुनः आकार दें।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.scaled#1",
+      "source": "positive scale factor; values above one move every finite bound away from the anchor.",
+      "context": "positive scale factor; values above one move every finite bound away from the anchor.",
+      "source_sha256": "4f80f1e7825bac7ddd08c43be5846aa75e644c75103ba314bd6753725dd80b18",
+      "translation": "धनात्मक स्केल फ़ैक्टर; एक से अधिक मान प्रत्येक परिमित सीमा को एंकर से दूर ले जाते हैं।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.scaled#2",
+      "source": "point whose first coordinate stays fixed, or ``None`` to use the threshold's finite centre. A half-open threshold has no finite centre and is returned unchanged when this is ``None``.",
+      "context": "point whose first coordinate stays fixed, or ``None`` to use the threshold's finite centre. A half-open threshold has no finite centre and is returned unchanged when this is ``None``.",
+      "source_sha256": "bf0dfc6245f6c6b231ea2e9410f705609a8e6876e94c1a818f0155bfc029bb81",
+      "translation": "बिंदु जिसका पहला समन्वय स्थिर रहता है, या थ्रेशोल्ड के सीमित केंद्र का उपयोग करने के लिए ``None``. एक आधा-खुला थ्रेशोल्ड में कोई सीमित केंद्र नहीं होता है और जब यह ``None`` होता है तो इसे अपरिवर्तित लौटाया जाता है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#0",
+      "source": "Return the threshold after dragging one of its bound handles.",
+      "context": "Return the threshold after dragging one of its bound handles.",
+      "source_sha256": "7e6afe1b4a639baf65e2734d9de79cbd9b5f0c35f201096e792e13320a2731e1",
+      "translation": "एक बाउंड हैंडल को खींचने के बाद थ्रेशोल्ड लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#1",
+      "source": "``\"low\"`` or ``\"high\"`` for the bound being moved.",
+      "context": "``\"low\"`` or ``\"high\"`` for the bound being moved.",
+      "source_sha256": "d15f769019e4c256b0d971fcc1ff082c39301b2e1d2d06347275431a63b9151d",
+      "translation": "``\"low\"`` या ``\"high\"`` उस बाउंड के लिए जो खींचा जा रहा है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#2",
+      "source": "new bound value in the threshold column's data units.",
+      "context": "new bound value in the threshold column's data units.",
+      "source_sha256": "5a00ade99267bfe3a262a0e75e7552bac2b0ee7e17cd4c2f749b47f617221c5b",
+      "translation": "थ्रेशोल्ड कॉलम की डेटा इकाइयों में नया बाउंड मान।"
+    },
+    {
+      "label": "spacr.ml.QuasiBinomial.variance#0",
+      "source": "Adjust the variance with the dispersion parameter.",
+      "context": "Adjust the variance with the dispersion parameter.",
+      "source_sha256": "1fca926957d90cfe3391015467a4d981982052803a020d1745730c94024db40e",
+      "translation": "डिस्पर्शन पैरामीटर के अनुसार वैरिएंस समायोजित करें।"
+    },
+    {
+      "label": "spacr.ml.beta_logit#0",
+      "source": "A proportion on the logit scale, with the endpoints squeezed in.",
+      "context": "A proportion on the logit scale, with the endpoints squeezed in.",
+      "source_sha256": "502eb9e99c7b6648b60ad6749cefd06d688f69c35beaca609b2f27d2e66c9c42",
+      "translation": "लॉजिट स्केल पर एक अनुपात, जिसमें अंत-बिंदुओं को संकुचित किया गया है।"
+    },
+    {
+      "label": "spacr.ml.beta_logit#1",
+      "source": "``transform='beta'`` is intended for proportional responses such as classification scores and their well aggregates, where a logarithm is not appropriate.",
+      "context": "``transform='beta'`` is intended for proportional responses such as classification scores and their well aggregates, where a logarithm is not appropriate.",
+      "source_sha256": "9fc52c3acbacf37d496c04a3ba36d41ecca24f1ef98c618e9688cce513cea7e1",
+      "translation": "``transform='beta'`` वर्गीकरण स्कोर और उनके वेल-स्तरीय समुच्चयों जैसी आनुपातिक प्रतिक्रियाओं के लिए है, जहाँ लघुगणक उपयुक्त नहीं है।"
+    },
+    {
+      "label": "spacr.ml.beta_logit#2",
+      "source": "This is distinct from ``regression_type='beta'``, which selects a beta GLM. One transforms the response; the other selects the model family.",
+      "context": "This is distinct from ``regression_type='beta'``, which selects a beta GLM. One transforms the response; the other selects the model family.",
+      "source_sha256": "79c9fe41e8c92216fd07dbb4f1b734d4b824b75cd584b17e079a75b8fb670e27",
+      "translation": "यह ``regression_type='beta'`` से अलग है, जो बीटा GLM का चयन करता है। एक प्रतिक्रिया को बदलता है; दूसरा मॉडल परिवार चुनता है।"
+    },
+    {
+      "label": "spacr.ml.check_normality#0",
+      "source": "Check if the data is normally distributed using the Shapiro-Wilk test.",
+      "context": "Check if the data is normally distributed using the Shapiro-Wilk test.",
+      "source_sha256": "322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c",
+      "translation": "Shapiro-Wilk परीक्षण का उपयोग करके जांचें कि डेटा सामान्य रूप से वितरित है या नहीं।"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#0",
+      "source": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.",
+      "context": "Train a classical ML machine-learning classification model (XGBoost / logistic / RF) on per-object features and score every microplate sample position of a screen.",
+      "source_sha256": "a1cafc3a9f5b819a7e7e49b46a68d39d798891b4ef469e0a6616cb1fc367056e",
+      "translation": "Per-object फीचर्स पर एक पारंपरिक ML मशीन-लर्निंग वर्गीकरण मॉडल (XGBoost / लॉजिस्टिक / RF) प्रशिक्षित करें और स्क्रीनिंग के हर माइक्रोप्लेट सैंपल स्थान का स्कोर करें।"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#1",
+      "source": "Reads the ``measurements.db`` produced by :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the wells marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a plate heatmap into ``results/`` next to the source DB.",
+      "context": "Reads the ``measurements.db`` produced by :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the microplate sample positions marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a laboratory microplate heatmap into ``results/`` next to the source DB.",
+      "source_sha256": "0ff1beae2f012bb566a9a3d73b348fffe0977eb688f17b77174e6960fa38f437",
+      "translation": "``measurements.db`` को पढ़ता है, जिसे :func:`spacr.measure.measure_crop` बनाता है; सेल/नाभिक/रोगजनक/साइटोप्लाज्म फ़ीचर तालिकाएँ मिलाता है; ``positive_control`` / ``negative_control`` के रूप में चिह्नित माइक्रोप्लेट नमूना स्थानों (या एनोटेशन कॉलम) को प्रशिक्षण लेबल बनाता है; फ़िटिंग :func:`ml_analysis` को सौंपता है; और स्रोत DB के पास ``results/`` में प्रति-ऑब्जेक्ट पूर्वानुमान, क्रमपरिवर्तन और फ़ीचर-महत्त्व तालिकाएँ तथा माइक्रोप्लेट हीटमैप लिखता है।"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#2",
+      "source": "Settings dict, canonicalized via :func:`spacr.settings.set_default_analyze_screen`. Key entries:",
+      "context": "Settings key-value mapping, canonicalized via :func:`spacr.settings.set_default_analyze_screen`. Structured-data entries:",
+      "source_sha256": "74aea7343be214b65d61228568b199720441d78049b01956370c20a94d0ebb8d",
+      "translation": "सेटिंग्स कुंजी-मूल्य मैपिंग, :func:`spacr.settings.set_default_analyze_screen` के माध्यम से मानकीकृत। संरचित डेटा प्रविष्टियाँ:"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#3",
+      "source": "``src`` (str or list) — folder(s) containing ``measurements/measurements.db``.",
+      "context": "``src`` (str or list) — folder(s) containing ``measurements/measurements.db``.",
+      "source_sha256": "fab81072e6783efa1c366297835b86f3fd46e93cc5a71d99a6d339f41df4689a",
+      "translation": "``src`` (स्ट्रिंग या सूची) — वे फ़ोल्डर जिनमें ``measurements/measurements.db`` है।"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#4",
+      "source": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.",
+      "context": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.",
+      "source_sha256": "e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343",
+      "translation": "``channel_of_interest`` — रिक्रूटमेंट अनुपात फ़ीचर के लिए 0-आधारित चैनल; यह तालिका चयन भी नियंत्रित करता है।"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#5",
+      "source": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
+      "context": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
+      "source_sha256": "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
+      "translation": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#6",
+      "source": "``positive_control`` / ``negative_control`` — well IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
+      "context": "``positive_control`` / ``negative_control`` — microplate sample position IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
+      "source_sha256": "9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487",
+      "translation": "``positive_control`` / ``negative_control`` — माइक्रोप्लेट नमूना स्थिति आईडी (जैसे ``'c2'`` / ``'c1'``) जो प्रशिक्षण लेबल के रूप में उपयोग की जाती हैं।"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#7",
+      "source": "``annotation_column`` — override controls with a PNG-level annotation column.",
+      "context": "``annotation_column`` — override controls with a PNG-level annotation column.",
+      "source_sha256": "3f461869af6c98fe2d7759f49c734fccd7f0b7c383b2fa64eb823648a04fc723",
+      "translation": "``annotation_column`` — नियंत्रणों के स्थान पर PNG-स्तरीय एनोटेशन कॉलम का उपयोग करें।"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#8",
+      "source": "``location_column`` — ``'columnID'`` or ``'rowID'``.",
+      "context": "``location_column`` — ``'columnID'`` or ``'rowID'``.",
+      "source_sha256": "ff6d95d3dcfbaab265aae863ebbc3b2c960830aae94685accd7aba8d945926a6",
+      "translation": "``location_column`` — ``'columnID'`` or ``'rowID'``."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#9",
+      "source": "``heatmap_feature`` — feature plotted on the plate heatmap.",
+      "context": "``heatmap_feature`` — feature plotted on the plate heatmap.",
+      "source_sha256": "cb0a243031c3f5cd2044fa67b61c4530305e7a250c7f099e31997ed1060c88bd",
+      "translation": "``heatmap_feature`` — प्लेट हीटमैप पर प्लॉट की गई विशेषता।"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#10",
+      "source": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
+      "context": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
+      "source_sha256": "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
+      "translation": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#11",
+      "source": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
+      "context": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
+      "source_sha256": "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
+      "translation": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#12",
+      "source": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
+      "context": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
+      "source_sha256": "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
+      "translation": "दो-तत्वों वाली सूची ``[output, plate_heatmap]``, जहाँ ``output`` :func:`ml_analysis` की 10-तत्वों वाली परिणाम सूची है और ``plate_heatmap`` प्लेट-हीटमैप की ``matplotlib`` आकृति है। CSV और आकृतियाँ साइड इफ़ेक्ट के रूप में ``results/`` में लिखी जाती हैं; उनके पथ नहीं लौटाए जाते।"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#13",
+      "source": "if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
+      "context": "if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
+      "source_sha256": "c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96",
+      "translation": "यदि ``annotation_column`` सेट है, लेकिन ``png_list`` तालिका में ``prcfo`` / वह कॉलम नहीं है, तालिका के ऑब्जेक्ट आईडी मापन डेटा से नहीं जुड़ते, उस कॉलम में दो से कम प्रेक्षित वर्ग हैं, या यदि ``heatmap_feature`` प्रशिक्षित विशेषताओं में शामिल नहीं है।"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#14",
+      "source": "Example:",
+      "context": "Example:",
+      "source_sha256": "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+      "translation": "उदाहरण:"
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#15",
+      "source": "See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-well ML scores.",
+      "context": "See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-microplate sample position ML scores.",
+      "source_sha256": "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d",
+      "translation": "संबंधित देखें: :func:`ml_analysis` — अंतर्निहित फिट/मूल्यांकन रूटीन। :func:`perform_regression` — प्रति-माइक्रोप्लेट नमूना स्थिति ML स्कोर पर मिश्रित-प्रभाव प्रतिगमन।"
+    },
+    {
+      "label": "spacr.ml.load_regression_input_pairs#0",
+      "source": "Read paired inputs and resolve plate identity without filename guesses.",
+      "context": "Read paired inputs and resolve plate identity without filename guesses.",
+      "source_sha256": "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
+      "translation": "युग्मित इनपुट पढ़ें और फ़ाइल नाम का अनुमान लगाए बिना प्लेट की पहचान निर्धारित करें।"
+    },
+    {
+      "label": "spacr.ml.load_regression_input_pairs#1",
+      "source": "Resolution order is own column, partner column, then pair-row order. Conflicting declarations are refused. Returns ``(count_frame, score_frame, audit_rows)``.",
+      "context": "Resolution order is own column, partner column, then pair-row order. Conflicting declarations are refused. Returns ``(count_frame, score_frame, audit_rows)``.",
+      "source_sha256": "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad",
+      "translation": "निर्धारण क्रम है: अपना कॉलम, सहभागी कॉलम, फिर युग्म-पंक्ति क्रम। परस्पर-विरोधी घोषणाएँ अस्वीकार की जाती हैं। ``(count_frame, score_frame, audit_rows)`` लौटाता है।"
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs#0",
+      "source": "Return explicit ``score``/``count`` rows, migrating legacy lists.",
+      "context": "Return explicit ``score``/``count`` rows, migrating legacy lists.",
+      "source_sha256": "85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94",
+      "translation": "स्पष्ट ``score``/``count`` पंक्तियाँ लौटाएँ, पुरानी सूचियों को स्थानांतरित करते हुए।"
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs#1",
+      "source": "New settings store ``paired_data``. Older files remain valid: their flat lists are zipped positionally, exactly matching the former behaviour, and the migration is reported so the invisible legacy assumption is visible.",
+      "context": "New settings store ``paired_data``. Older files remain valid: their flat lists are zipped positionally, exactly matching the former behaviour, and the migration is reported so the invisible legacy assumption is visible.",
+      "source_sha256": "c0bf94d5d0a25900508c26bb11d37e76473de517c001bbe422704f3867618bed",
+      "translation": "नई सेटिंग्स ``paired_data`` संग्रहीत करती हैं। पुरानी फ़ाइलें वैध रहती हैं: उनकी समतल सूचियाँ स्थितिगत रूप से ज़िप की जाती हैं, जो पुराने व्यवहार से ठीक मेल खाता है; माइग्रेशन की सूचना दी जाती है ताकि अदृश्य पुरानी धारणा स्पष्ट हो।"
+    },
+    {
+      "label": "spacr.ml.regression_levels#0",
+      "source": "Fit every level the run asked for, SEPARATELY, and return one per level.",
+      "context": "Fit every level the run asked for, SEPARATELY, and return one per level.",
+      "source_sha256": "bc4a920892bf5c55bdcdeb3ec6a7c9f9e81f3a4857054bad68af04d341493699",
+      "translation": "रन द्वारा माँगे गए प्रत्येक स्तर को अलग-अलग फ़िट करें और हर स्तर के लिए एक परिणाम लौटाएँ।"
+    },
+    {
+      "label": "spacr.ml.regression_levels#1",
+      "source": "THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
+      "context": "THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
+      "source_sha256": "35e27a88334a307cc6e74d5c1137cd964b46c973ffc159e0edc2026fe3fe8b1e",
+      "translation": "यह दो-फ़िट प्रवेश बिंदु है। यह इसलिए मौजूद है क्योंकि spaCR द्वारा पहले उपयोग किया गया एकल डिज़ाइन बिल्कुल फ़िट नहीं किया जा सकता। ``gene_fraction`` जीन के gRNA अंशों का SUM है, इसलिए"
+    },
+    {
+      "label": "spacr.ml.regression_levels#2",
+      "source": "``y ~ fraction:grna + gene_fraction:gene + plateID + rowID + columnID``",
+      "context": "``y ~ fraction:grna + gene_fraction:gene + plateID + rowID + columnID``",
+      "source_sha256": "d560f321a4a70d1c256bf7fc129309834279c65af1b52cd12f938b543460f2e9",
+      "translation": "``y ~ fraction:grna + gene_fraction:gene + plateID + rowID + columnID``"
+    },
+    {
+      "label": "spacr.ml.regression_levels#3",
+      "source": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
+      "context": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
+      "source_sha256": "0b6580b48091e760bac4983f95e1e5346ded73b05ad1eb3d69b09ef0dbf62d50",
+      "translation": "यह कॉलमों और उन्हीं कॉलमों के योगों को एक ही डिज़ाइन में रखता है। संदर्भ TSG101 स्क्रीनिंग पर मापन में: रैंक 862 पर 1248 पैरामीटर -- 386-आयामी EXACT नल स्पेस -- और लौटाए गए statsmodels फ़िट का अवशिष्ट वर्ग-योग उस परिणाम से बिट-दर-बिट समान था जो उसमें नल वेक्टर का सात गुना जोड़ने पर मिलता है। :data:`COLLINEAR_FORMULA_FRAGMENT` देखें।"
+    },
+    {
+      "label": "spacr.ml.regression_levels#4",
+      "source": "Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same wells, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
+      "context": "Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same microplate sample positions, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
+      "source_sha256": "7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a",
+      "translation": "दो फिट्स, दो टेबल्स, दो सुधार। प्रत्येक फिट अपनी खुद की मल्टीपल-टेस्टिंग फेमिली है और अपने भीतर ही इसे सुधारा जाता है। इन्हें मिलाना दो बार गलत होगा: ये स्वतंत्र नहीं हैं -- वही माइक्रोप्लेट सैंपल पोजीशन्स हैं, और जीन रेग्रेसर गाइड रेग्रेसर्स का योग है -- और फेमिली का आकार दोगुना करने से कोई सुरक्षा नहीं मिलती, केवल शक्ति की हानि होती है। :func:`perform_regression` प्रत्येक स्तर पर सुधार लागू करता है और ``results_grna.csv`` और ``results_gene.csv`` लिखता है।"
+    },
+    {
+      "label": "spacr.ml.regression_levels#5",
+      "source": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
+      "context": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
+      "source_sha256": "94933110c12ab286e7b86c65039275d3e77a8c15fabaa36b5e24a566236d69c2",
+      "translation": "``regression_type='mixed'`` एक बार फिट होता है और एक एंट्री लौटाता है, ``'gene'``: उस मॉडल में पहले ही दोनों स्तर हैं, जीन को फ़िक्स्ड इफेक्ट के रूप में और गाइड को जीन में नेस्टेड रैंडम इफेक्ट के रूप में। इसका गाइड आउटपुट BLUPs है, यही कारण है कि इसे दो टेस्टिंग फेमिलीज़ में नहीं बांटा जा सकता।"
+    },
+    {
+      "label": "spacr.ml.regression_levels#6",
+      "source": "``'both'`` (default), ``'grna'`` or ``'gene'``.",
+      "context": "``'both'`` (default), ``'grna'`` or ``'gene'``.",
+      "source_sha256": "6e604094dd6249e5ec74de6194cb8e755d06002d16daece0305d65250ad8416c",
+      "translation": "``'both'`` (डिफ़ॉल्ट), ``'grna'`` या ``'gene'``."
+    },
+    {
+      "label": "spacr.ml.regression_levels#7",
+      "source": "the run folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
+      "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
+      "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
+      "translation": "प्रोसेसिंग-सत्र फ़ोल्डर। एक से अधिक फ़िट होने पर प्रत्येक स्तर के FIGURES ``<dst>/<level>/`` में जाते हैं, ताकि वे एक-दूसरे को ओवरराइट न करें; तालिकाएँ ``<dst>`` में रहती हैं, जहाँ हर उपभोक्ता उन्हें खोजता है।"
+    },
+    {
+      "label": "spacr.ml.regression_levels#8",
+      "source": "passed straight through to :func:`regression`.",
+      "context": "passed straight through to :func:`regression`.",
+      "source_sha256": "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
+      "translation": "सीधे :func:`regression` में पास किया गया।"
+    },
+    {
+      "label": "spacr.ml.regression_levels#9",
+      "source": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
+      "context": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
+      "source_sha256": "36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b",
+      "translation": "``dict`` जो फ़िट क्रम में स्तर को ``(model, coef_df, regression_type)`` से मैप करता है।"
+    },
+    {
+      "label": "spacr.ml.regression_levels#10",
+      "source": "for a level that is not one of :data:`LEVEL_CHOICES`.",
+      "context": "for a level that is not one of :data:`LEVEL_CHOICES`.",
+      "source_sha256": "865eaa1be2505059a461326afa1015fd8bef1631ba5eb0764cada93b6024d342",
+      "translation": "ऐसे स्तर के लिए जो :data:`LEVEL_CHOICES` में से एक नहीं है।"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#0",
+      "source": "Choose ``analysis_mode`` for ``inference='auto'`` from the design.",
+      "context": "Choose ``analysis_mode`` for ``inference='auto'`` from the design.",
+      "source_sha256": "7cf082f068e8dc6920a3e3f7c6db4b58ddf766a3aff281191b0b98a1a6916a90",
+      "translation": "डिजाइन से ``analysis_mode`` के लिए ``inference='auto'`` का चयन करें।"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#1",
+      "source": "The simultaneous model estimates one coefficient per guide from the wells, so it needs more wells than guides -- with an intercept and any plate fixed effects on top -- before those coefficients are identifiable at all. Below that the design matrix is rank deficient: statsmodels still returns a number for every guide, but the numbers are one arbitrary solution out of infinitely many, and their P values describe nothing.",
+      "context": "The simultaneous model estimates one coefficient per guide from the microplate sample positions, so it needs more microplate sample positions than guides -- with an intercept and any laboratory microplate fixed effects on top -- before those coefficients are identifiable at all. Below that the design matrix is rank deficient: statsmodels still returns a number for every guide, but the numbers are one arbitrary solution out of infinitely many, and their P values describe nothing.",
+      "source_sha256": "5da7d5b53d5165fc0a5b64f74bea0f4eab979984b8cf5fa353176d9d9897811c",
+      "translation": "सिमल्टेनियस मॉडल माइक्रोप्लेट सैंपल पोज़िशन्स से हर गाइड के लिए एक कोएफ़िशिएंट का अनुमान लगाता है, इसलिए इसे गाइड्स की तुलना में अधिक माइक्रोप्लेट सैंपल पोज़िशन्स की आवश्यकता होती है -- इसके ऊपर इंटरसेप्ट और किसी भी लैब माइक्रोप्लेट फिक्स्ड इफेक्ट्स के साथ -- इससे पहले कि ये कोएफ़िशिएंट्स पूरी तरह से पहचाने जा सकें। इससे कम होने पर डिज़ाइन मैट्रिक्स रैंक डेफिशिएंट होता है: statsmodels अभी भी हर गाइड के लिए एक संख्या लौटाता है, लेकिन वे संख्याएँ अनंत संभावित समाधान में से एक मनमाना समाधान होती हैं, और उनके पी मान कुछ भी वर्णित नहीं करते हैं।"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#2",
+      "source": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed wells; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
+      "context": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed microplate sample positions; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
+      "source_sha256": "77d015d82b509d50fd4a78edb7f8ce55dffc03c6d31aaf26ce4cd46a1b321a03",
+      "translation": "यह काल्पनिक नहीं है। जिस स्क्रीनिंग के लिए यह लिखा गया था, उसमें 587 विश्लेषित माइक्रोप्लेट सैंपल पोज़िशन्स में 824 गाइड्स थे; प्रकाशित फ़िट में 825 पैरामीटर थे, रैंक 579 और 8 शेष डिग्रीज़ ऑफ़ फ्रीडम थीं, और इसे फिर से फिट करने पर इसके अपने कोएफ़िशिएंट्स पुन: उत्पन्न नहीं हुए।"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#3",
+      "source": "``auto`` therefore picks the permutation test whenever the simultaneous fit would be unidentifiable, and says so. It is deliberately conservative: it needs a real margin (``_IDENTIFIABILITY_MARGIN`` wells per guide) rather than a bare majority, because a design that only just fits is one dropped well away from not fitting.",
+      "context": "``auto`` therefore picks the permutation test whenever the simultaneous fit would be unidentifiable, and says so. It is deliberately conservative: it needs a real margin (``_IDENTIFIABILITY_MARGIN`` microplate sample positions per guide) rather than a bare majority, because a design that only just fits is one dropped well away from not fitting.",
+      "source_sha256": "a44ab47e0b58d5fb59fa0baeae5d5ddcc0ae83aeb597d91c74ec8a1e3b6f5cc3",
+      "translation": "इसलिए जब भी समकालिक फ़िट पहचाने जाने योग्य न हो, ``auto`` क्रमपरिवर्तन परीक्षण चुनता है और इसका कारण बताता है। यह जानबूझकर रूढ़िवादी है: केवल साधारण बहुमत के बजाय इसे वास्तविक अंतर (प्रति गाइड ``_IDENTIFIABILITY_MARGIN`` माइक्रोप्लेट नमूना स्थान) चाहिए, क्योंकि मुश्किल से फ़िट होने वाला डिज़ाइन केवल एक वेल हटते ही फ़िट न होने वाला बन सकता है।"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#4",
+      "source": "Anything other than ``inference='auto'`` is returned untouched, so an explicit choice is never overridden.",
+      "context": "Anything other than ``inference='auto'`` is returned untouched, so an explicit choice is never overridden.",
+      "source_sha256": "a93b7b1521d7691697bde55ae145778777edd71235ef7b2eed4462f3c3d48bd9",
+      "translation": "``inference='auto'`` के अलावा कुछ भी बिना बदले लौटाया जाता है, इसलिए कोई स्पष्ट चयन कभी भी अधिलेखित नहीं होता।"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#5",
+      "source": "``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.",
+      "context": "``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.",
+      "source_sha256": "11380b9e5f6bcf7fb4065e9e1ff8cd68a01aff3c9eede1fc3158890a49297f92",
+      "translation": "``(analysis_mode, reason)``। ``reason`` वह वाक्य है जो गणनाओं का नाम करता है, लॉग और मेथड्स अनुभाग के लिए उपयुक्त।"
+    },
+    {
+      "label": "spacr.ml.results_folder_kind#0",
+      "source": "What a run's results folder is NAMED after.",
+      "context": "What a processing session's results folder is NAMED after.",
+      "source_sha256": "9aa310e1c499c3609c3d787ecfa5bed677dbf44c0ba20f560bb0f47fd646fcde",
+      "translation": "किस आधार पर किसी प्रोसेसिंग सत्र के परिणाम फ़ोल्डर का नाम रखा जाता है।"
+    },
+    {
+      "label": "spacr.ml.results_folder_kind#1",
+      "source": "The inference method when it decides the answer, and the regression type otherwise. Under `analysis_mode='guide_permutation'` the regression type is never read -- ols and mixed produce byte-identical results -- so a folder called `ridge` would name something the run did not do.",
+      "context": "The inference method when it decides the answer, and the regression type otherwise. Under `analysis_mode='guide_permutation'` the regression type is never read -- ols and mixed produce byte-identical results -- so a folder called `ridge` would name something the processing session did not do.",
+      "source_sha256": "9b52a8b1956d3070227014c2ab32c353bba0754f759d0bf009dadb6d47d9c5c9",
+      "translation": "अनुमान विधि जब उत्तर तय करता है, और अन्यथा प्रतिगमन प्रकार। `analysis_mode='guide_permutation'` के अंतर्गत, प्रतिगमन प्रकार कभी भी पढ़ा नहीं जाता -- ols और मिश्रित बाइट-समान परिणाम पैदा करते हैं -- इसलिए `ridge` नामक फ़ोल्डर कुछ ऐसा नाम देगा जो प्रोसेसिंग सत्र ने वास्तव में नहीं किया।"
+    },
+    {
+      "label": "spacr.ml.results_folder_kind#2",
+      "source": "PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every run that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
+      "context": "PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every processing session that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
+      "source_sha256": "e1f650f69fe5b9dcac25308be0248c082de61d0cbbc10e8e0135609a2fccf5b8",
+      "translation": "सार्वजनिक, और इसकी एकमात्र प्रति। इस नियम को दोबारा निकालने वाला परीक्षण नियम बदलने पर पुराना पड़ गया और उसने 39 CSV गायब बताईं, जबकि उन्हें लिखने वाला हर प्रोसेसिंग सत्र ठीक था। इसी विफलता को tests/test_cov_ml_perform_regression.py का `results_dir` सहायक पहले ही एक बार रोकने के लिए लिखा गया था। गलत फ़ाइल की ओर संकेत करने वाला परीक्षण-सूट मौन रहने वाले सूट से भी बदतर है।"
+    },
+    {
+      "label": "spacr.ml.screen_is_blockable#0",
+      "source": "Whether ``screenID`` can be a term in this frame's design.",
+      "context": "Whether ``screenID`` can be a term in this frame's design.",
+      "source_sha256": "f75d0803f78ebc8bb3c8e6300d5ffc799cddf1de7732b679267f3dc24d15dae5",
+      "translation": "क्या ``screenID`` इस फ़्रेम के डिज़ाइन में एक पद हो सकता है।"
+    },
+    {
+      "label": "spacr.ml.screen_is_blockable#1",
+      "source": "True only when the column exists and carries more than one distinct value. A single-screen project is the normal case and must be untouched by the design: it has no screenID at all, or one value, and either way the term would be a constant column.",
+      "context": "True only when the column exists and carries more than one distinct value. A single-screen project is the normal case and must be untouched by the design: it has no screenID at all, or one value, and either way the term would be a constant column.",
+      "source_sha256": "614d082528bdf4410704514e30e38dd8858b2f785bd2559b1861e0246537239f",
+      "translation": "True केवल तभी जब कॉलम मौजूद हो और उसमें एक से अधिक अलग मान हों। एकल स्क्रीनिंग परियोजना सामान्य स्थिति है और डिज़ाइन को उससे अप्रभावित रहना चाहिए: उसमें या तो screenID नहीं होता या केवल एक मान होता है; दोनों स्थितियों में यह पद एक स्थिर कॉलम होगा।"
+    },
+    {
+      "label": "spacr.ml.screen_is_blockable#2",
+      "source": "The same rule :func:`spacr.measurement_scan._dummy_block` applies, stated once for the formula path so a frame cannot be blocked on by one and not the other.",
+      "context": "The same rule :func:`spacr.measurement_scan._dummy_block` applies, stated once for the formula path so a frame cannot be blocked on by one and not the other.",
+      "source_sha256": "85cf17e98cd765620cef074f22be95c88557bab382d69162fc4336f5d69cbcdf",
+      "translation": "समान नियम :func:`spacr.measurement_scan._dummy_block` लागू होता है, जिसे एक बार फॉर्मूला पथ के लिए बताया गया है ताकि एक फ्रेम को एक के द्वारा ब्लॉक न किया जा सके और दूसरे द्वारा नहीं।"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections#0",
+      "source": "The section widgets actually mounted in the settings panel.",
+      "context": "The section widgets actually mounted in the settings panel.",
+      "source_sha256": "ecaa07a03b598b553f1a3e41550640aa7f996e3d269ce28ed3378648446de478",
+      "translation": "सेक्शन विजेट्स जो वास्तव में सेटिंग्स पैनल में माउंट किए गए हैं।"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections#1",
+      "source": "``_settings_sections`` deliberately also contains dormant forms for object-gated settings.  Visual consumers -- maturity and category hints in particular -- must use this subset instead.",
+      "context": "``_settings_sections`` deliberately also contains dormant forms for object-gated settings.  Visual consumers -- maturity and category hints in particular -- must use this subset instead.",
+      "source_sha256": "e35b27cc0baeb61dcbe7ff265878df496655e979470f768ee9638a30fb364e4a",
+      "translation": "``_settings_sections`` में जानबूझकर ऑब्जेक्ट-नियंत्रित सेटिंग्स के निष्क्रिय फ़ॉर्म भी रहते हैं। दृश्य घटकों -- विशेषकर परिपक्वता और श्रेणी संकेतों -- को इसके बजाय इसी उपसमूह का उपयोग करना चाहिए।"
+    },
+    {
+      "label": "spacr.qt.shortcuts#0",
+      "source": "Keyboard-first shortcuts for the spaCR Qt GUI.",
+      "context": "Keyboard-first shortcuts for the spaCR Qt GUI.",
+      "source_sha256": "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
+      "translation": "कीबोर्ड-प्रथम शॉर्टकट्स spaCR Qt GUI के लिए।"
+    },
+    {
+      "label": "spacr.qt.shortcuts#1",
+      "source": "Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:",
+      "context": "Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:",
+      "source_sha256": "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
+      "translation": "मुख्य विंडो पर वैश्विक :class:`QShortcut` बाइंडिंग्स को पंजीकृत करता है ताकि पूरी एप्लिकेशन माउस के बिना इस्तेमाल योग्य हो:"
+    },
+    {
+      "label": "spacr.qt.shortcuts#2",
+      "source": "Go home",
+      "context": "Go home",
+      "source_sha256": "a0aac9145249f1675ee0380260d152d217a7abe140e85aad3871ec30da1c319b",
+      "translation": "होम जाएँ"
+    },
+    {
+      "label": "spacr.qt.shortcuts#3",
+      "source": "Switch to the Nth app in the sidebar",
+      "context": "Switch to the Nth app in the sidebar",
+      "source_sha256": "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
+      "translation": "साइडबार में Nवीं एप्लिकेशन पर स्विच करें"
+    },
+    {
+      "label": "spacr.qt.shortcuts#4",
+      "source": "Open the command palette",
+      "context": "Open the command palette",
+      "source_sha256": "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
+      "translation": "कमान्ड पैलेट खोलें"
+    },
+    {
+      "label": "spacr.qt.shortcuts#5",
+      "source": "Show the shortcuts cheat sheet",
+      "context": "Show the shortcuts cheat sheet",
+      "source_sha256": "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
+      "translation": "शॉर्टकट्स चीट शीट दिखाएँ"
+    },
+    {
+      "label": "spacr.qt.shortcuts#6",
+      "source": "Open Preferences",
+      "context": "Open Preferences",
+      "source_sha256": "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
+      "translation": "प्राथमिकताएँ खोलें"
+    },
+    {
+      "label": "spacr.qt.shortcuts#7",
+      "source": "Open the AI Console",
+      "context": "Open the AI Console",
+      "source_sha256": "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
+      "translation": "एआई कंसोल खोलें"
+    },
+    {
+      "label": "spacr.qt.shortcuts#8",
+      "source": "Ctrl+End      Jump to the newest console line F11           Toggle full screen Esc           Close any open dialog / popup",
+      "context": "Ctrl+End      Jump to the newest console line F11           Toggle full application view Esc           Close any open dialog / popup",
+      "source_sha256": "4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3",
+      "translation": "Ctrl+End      नवीनतम कंसोल लाइन पर जाएँ F11           पूर्ण एप्लिकेशन व्यू टॉगल करें Esc           कोई भी खुला संवाद / पॉपअप बंद करें"
+    },
+    {
+      "label": "spacr.qt.shortcuts#9",
+      "source": ":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.",
+      "context": ":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.",
+      "source_sha256": "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
+      "translation": ":func:`install` को ``MainWindow.__init__`` से एक बार बुलाया जाता है। हर बाइंडिंग :data:`SHORTCUTS` में दर्ज है, ताकि चीट-शीट संवाद वास्तव में जोड़े गए शॉर्टकटों के साथ समन्वित रहे।"
+    },
+    {
+      "label": "spacr.settings.get_perform_regression_default_settings#0",
+      "source": "Populate default settings for gRNA/score regression analysis.",
+      "context": "Populate default settings for gRNA/score regression analysis.",
+      "source_sha256": "0a58e1c77ed3e9569cb536aa77ddb4aa3883233c14ae9d5c74c022a3124ff047",
+      "translation": "gRNA/स्कोर रिग्रेशन विश्लेषण के लिए डिफ़ॉल्ट सेटिंग्स भरें।"
+    },
+    {
+      "label": "spacr.settings.get_perform_regression_default_settings#1",
+      "source": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
+      "context": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
+      "source_sha256": "78caac1266c292e60eebd31f9dcd53cd418015c2df20333e38c43b74e357f50f",
+      "translation": "जब क्वांटाइल रिग्रेशन चुना जाता है, तो ``agg_type`` को स्वतः None में बदल दिया जाता है, ताकि ``alpha`` को क्वांटाइल के रूप में माना जा सके।"
+    },
+    {
+      "label": "spacr.settings.get_perform_regression_default_settings#2",
+      "source": "Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the dict from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a run that had started cleanly.",
+      "context": "Every structured-data name :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the key-value mapping from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a processing session that had started cleanly.",
+      "source_sha256": "165034b2f73d58f8deaceea0de62331e1c48dd872d7b481bf818106b1ceed0f0",
+      "translation": "यहाँ हर संरचित-डेटा नाम भरा जाता है जिसे :func:`spacr.ml.perform_regression` ``settings[...]`` से पढ़ता है। छह नाम पहले नहीं भरे जाते थे। दोनों डिस्पैचर -- ``qt.screens.settings_model.resolve_default_settings`` वाला Qt पैनल और ``spacr-run regression`` का ``cli.module_defaults`` -- इसी एक फ़ंक्शन से की-वैल्यू मैपिंग बनाते हैं, इसलिए प्रतिगमन किसी भी प्रवेश बिंदु से शुरू नहीं हो पाता था: ml.py:1409 पर ``KeyError: 'verbose'`` आया, जबकि दोनों इनपुट CSV पढ़े जा चुके थे और ``settings/regression.csv`` लिखा जा चुका था; इसलिए विफलता साफ़-सुथरे ढंग से शुरू हुए प्रोसेसिंग सत्र जैसी दिखती थी।"
+    },
+    {
+      "label": "spacr.settings.get_perform_regression_default_settings#3",
+      "source": "dict to fill in place.",
+      "context": "key-value mapping to fill in place.",
+      "source_sha256": "98891dad7f1238087a23b92eadf791b02ba2ba024950c9ca53982adbb82458ed",
+      "translation": "उसी स्थान पर भरने के लिए की-वैल्यू मैपिंग।"
+    },
+    {
+      "label": "spacr.settings.get_perform_regression_default_settings#4",
+      "source": "the settings dict with defaults applied.",
+      "context": "the settings key-value mapping with defaults applied.",
+      "source_sha256": "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a",
+      "translation": "डिफ़ॉल्ट लागू की गई सेटिंग्स की की-वैल्यू मैपिंग।"
+    }
   ]
 }
