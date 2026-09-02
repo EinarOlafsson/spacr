@@ -231,3 +231,49 @@ been a cost paid nine times in text no reviewer could check at a glance.
 Shortening it before translating is cheaper than translating it and
 shortening it afterwards, which would waste the pass this file is
 waiting for.
+
+--------------------------------------------------------------------------------
+2026-09-01 — THREE RENAMED LABELS NOW RENDER AS WORD SALAD
+--------------------------------------------------------------------------------
+
+The example-data buttons were renamed on the maintainer's instruction --
+"change that button text to Load test data same for measure and classify
+and annotate and map barcodes". `tr()` keys by SOURCE STRING, so the nine
+translations of the old labels were orphaned by the rename and the
+runtime fallback now produces half-translated captions:
+
+    Load test data…      de  "Load Test Daten…"
+                         es  "Load Prueba Datos…"
+                         sv  "Load Test Data…"
+    Fetching test data…  de  "Fetching Test Daten…"
+                         es  "Fetching Prueba Datos…"
+    Load test data       de  "Load Test Daten"
+                         es  "Load Prueba Datos"
+
+This is THIS FILE'S OWN FINDING happening live: a mechanical pipeline
+producing text that passes every gate while being wrong. It is worse than
+the five defects above, because those are at least fluent -- these are
+visibly broken in the first word.
+
+NOT FIXED HERE, AND DELIBERATELY. Three routes were considered:
+
+  * hand-edit `spacr/qt/i18n_catalogs/<lang>.py`. Refused: 319 already
+    recorded that those files are generated and a hand edit is
+    overwritten by the next build.
+  * machine-draft nine translations through the catalog builder. Refused:
+    that is the practice this instruction exists to stop, and a
+    machine-drafted "Load test data" is how the current wrong text was
+    produced in the first place.
+  * write nine translations by hand into the reviewed set. This is the
+    only correct route and it is the maintainer's single pass, which is
+    what this file is already waiting for.
+
+WHAT TO TRANSLATE, and it is three short strings rather than prose:
+"Load test data", "Load test data…" and "Fetching test data…". The old
+rows exist under the previous English and can be replaced rather than
+added, the way 319 replaced the setup slide's sentence, so the count this
+lane ratchets on does not move.
+
+Until then the buttons read as broken in every locale but English. That
+is a visible regression against the rename, and it is recorded here
+rather than quietly left for someone to find.
