@@ -864,8 +864,15 @@ class AnnotateSettings:
     threshold_direction: Optional[Any] = None
     outline: Optional[List[str]] = None
     outline_method: str = "otsu"        # "otsu" | "cellpose"
-    outline_threshold_factor: float = 1.0
-    outline_sigma: float = 1.0
+    #: 1.25 AND 4, BECAUSE THAT IS WHAT THE TOOLTIPS PROMISE. Both settings
+    #: are described in `settings.py` as "Default 1.25." and "Default 4.",
+    #: and `set_annotate_default_settings` ships exactly those, but this
+    #: dataclass shipped 1.0 and 1.0 -- and the SCREEN builds itself from
+    #: this dataclass, never from the factory. So the two numbers that decide
+    #: the whole shape of the outline an annotator draws were, on the only
+    #: surface where anyone draws one, not the numbers the help text named.
+    outline_threshold_factor: float = 1.25
+    outline_sigma: float = 4.0
     edge_thickness: float = 1.0
     edge_transparency: float = 100.0
     edge_image: bool = False
@@ -894,8 +901,15 @@ class AnnotateSettings:
     queue_diversity: str = "well"       # well | field | plate | none
     queue_limit: int = 0                # 0 = the whole unlabelled pool
     # 'auto' | 'png' | 'merged' -- see spacr.crops.resolve_crop_source.
-    # 'auto' prefers the PNG folder, so existing projects are unaffected.
-    crop_source: str = "auto"
+    #
+    # 'png' IS LOAD IMAGES, WHICH IS WHAT INSTRUCTIONS 170 AND 171 DECIDED.
+    # This field shipped 'auto' and the factory was changed to 'png' without
+    # it, so the fix landed everywhere except the screen people annotate on.
+    # Nothing about a real dataset changes: 'png' and 'auto' both take the
+    # PNG folder when there is one and both fall through to 'merged' when
+    # there is not -- resolve_crop_source only records a different `reason`.
+    # What changes is that the default is now the one that was chosen.
+    crop_source: str = "png"
 
     @property
     def page_size(self) -> int:
