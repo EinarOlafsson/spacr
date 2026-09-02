@@ -663,7 +663,7 @@ def _model_zoo_rows() -> "list[tuple[str, str, str, str]]":
     READ FROM THE CATALOGUE, never restated. ``BUNDLED_REMOTE_MODELS`` in
     ``spacr/model_zoo.py`` is the only list of what spaCR publishes, and a
     second hand-written copy in the README is a copy that goes stale --
-    which is exactly the fault part 1 of instruction 359 spent a day
+    which is exactly the fault part 1 of instruction 362 spent a day
     removing from the module grid.
 
     Importing :mod:`spacr.model_zoo` here is cheap: it pulls no torch and

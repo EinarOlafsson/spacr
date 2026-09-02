@@ -325,3 +325,87 @@ WHERE TO GO NEXT, in order of how much it would prove:
      would hit it too.
 
 STATE: 113 files, 21 failed at the start of the session, 3 now.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE THIRD POISONER IS FOUND. IT IS NOT IN `sys.modules` BECAUSE
+IT IS THE PARENT PACKAGE'S ATTRIBUTE.
+--------------------------------------------------------------------------------
+
+The handoff above said "THE STALE REFERENCE IS NOT IN `sys.modules`" and
+guessed at a default argument, a registry entry, a partial or a Pool
+initializer. It is none of those, and it is simpler than all of them.
+
+IMPORTING A SUBMODULE BINDS IT IN TWO PLACES. `import spacr.measure` writes
+`sys.modules["spacr.measure"]` AND sets `measure` as an attribute on the
+`spacr` MODULE OBJECT. `_reimport_measure()` deletes only the first; the
+re-import then rewrites both, pointing them at the rebuilt copy. The fixture
+put the first one back. Nothing put the second one back, so the process ran
+on with:
+
+    sys.modules["spacr.measure"]  ->  the ORIGINAL   (what `import` finds)
+    spacr.measure                 ->  the REBUILT    (what getattr finds)
+
+MEASURED, not argued -- a probe test appended after the file:
+
+    PROBE sys.modules entry is package attribute: False
+    PROBE resolve("spacr.measure") is sys.modules entry: False
+
+WHY THAT BREAKS THE TWO SURVIVORS, and why it looked like multiprocessing.
+`_pytest.monkeypatch.resolve` walks a dotted target BY GETATTR from the top
+package down, so `monkeypatch.setattr("spacr.measure.measure_crop", fake)`
+patched the REBUILT copy, while `from .measure import measure_crop` inside
+the pipeline went through `sys.modules` and got the ORIGINAL. The stand-in
+was installed on a module nobody called. The pool made the same split
+visible more loudly, because pickling a worker function by qualified name
+checks identity on the far side:
+
+    PicklingError: Can't pickle <function _measure_crop_core ...>:
+    it's not the same object as spacr.measure._measure_crop_core
+
+Same one cause, two symptoms. Multiprocessing was the messenger.
+
+THE FIX, in the same fixture: rebind the parent package's attribute to
+whatever is being restored into `sys.modules`, and delete the attribute for a
+module that was not imported before this file ran, so the next import builds
+ONE copy and binds it in both places.
+
+AND THE GUARD HAS TO BE UNCONDITIONAL, which the first attempt at this got
+wrong too. Recording the attribute only when it already AGREED with
+`sys.modules` at fixture setup repairs nothing from the second test onward:
+by then the two are already split, which is precisely the case the fixture
+exists for.
+
+WHAT IT CLOSED. Both survivors named in the handoff --
+`test_region_filter_is_applied_before_features_are_computed` and
+`test_measure_crop_checks_the_start_method_before_it_starts_the_pool` -- pass
+in the trio that reproduced them
+(`test_cov_r6_tracking_and_measurement.py + probes + measure_hooks`: 2 failed
+-> 65 passed). So did two order-dependent failures in
+`test_cov_w2_1_external_masks.py` that instruction 337's stricter size
+defaults had just made visible; they had the same cause and would have been
+attributed to 337.
+
+A FOURTH, FOUND WHILE VERIFYING, AND IT IS THE FIRST CAUSE FROM THE OTHER
+SIDE. `test_measure_optional_zernike.py::test_automatic_morphology_skips_
+zernike_when_extra_is_missing` fails after `test_measure_3d.py`.
+`_zernike_is_available` answers once per process and PRINTS ITS NOTICE WITH
+THE FIRST ANSWER; `test_measure_3d.py` measures morphology and so spends both.
+Blocking the import afterwards proves nothing -- the probe never runs and the
+test reads an empty capsys. Its `_block_mahotas` now clears
+`_ZERNIKE_AVAILABLE` through `monkeypatch`, which is what
+`tests/test_cov_11_measure.py`'s namesake already did. THE SAME CACHE, CAUGHT
+FROM THE READING SIDE INSTEAD OF THE WRITING SIDE.
+
+THE LESSON, now stated once for all four: A NAME HAS MORE THAN ONE BINDING.
+An import lives in `sys.modules` AND on its parent package. A capability
+lives in the import AND in the cache of it AND in the notice printed with it.
+Restoring one binding is not restoring the name.
+
+STATE: the file selection that carried these -- probes, entry pins, r6, 11,
+external masks x2, measure preview, final gaps, hooks, manager guard, spawn,
+3d, intermittent, join contracts, optional zernike, crop core synth, crop mode
+broadcast -- runs 335 passed, 1 skipped, 1 failed. The one failure is
+`test_cov_object_masks_sam.py::test_basic_run_writes_masks_counts_and_uses_
+cpu_model`, which fails identically at HEAD, is not order-dependent, and is
+not this item: it asserts the Cellpose model landed on `cpu` and gets
+`cuda:0` on a machine whose own log line says "Torch CUDA is not available".

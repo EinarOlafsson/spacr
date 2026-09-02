@@ -2,7 +2,8 @@
 THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
 ================================================================================
 
-Status:    not started, filed 2026-09-02.
+Status:    not started, filed 2026-09-02 (as 360; renumbered to 363 the
+           same day, see 362 for why).
 Requested: 2026-09-02, verbatim -- "spacr has an import data module, this
            module should make it easy for users to import their images
            irrespective of format or naming structure into spacr so that the
@@ -131,6 +132,28 @@ change: they are the only working path today, and removing them before the
 replacement is proven strands every existing user and every settings file in
 the wild. Land the module, migrate, then retire, and record the retirement in
 `RETIRED_SETTINGS` the way `corrected_manders` was.
+
+--------------------------------------------------------------------------------
+ALREADY FIXED WHILE WRITING THIS FILE
+--------------------------------------------------------------------------------
+
+Commit 4f87b6259 fixes two bugs in `consolidate`, both found by RUNNING
+`generate_image_path_map` rather than reading it, and both of which make
+images disappear rather than fail:
+
+  * `os.path.relpath(root, root)` is `'.'`, not `''`, so an image sitting
+    directly in `src` was copied to `._name.tif` -- a hidden file on Unix,
+    the AppleDouble resource-fork convention on macOS, and `spacr.io`
+    skips anything beginning with a dot. Consolidating a FLAT folder
+    therefore dropped every image in it silently.
+  * the `consolidated` folder is created inside the folder being walked,
+    so a second run consolidated the first run's output, prefixing it
+    again and doubling the plate on every run.
+
+Both are worth reading before starting this work, because they are the
+kind of defect this module has to stop producing: no error, no message,
+just fewer fields than the user supplied. The existing test asserted only
+that the function returned something non-None, which is how they survived.
 
 --------------------------------------------------------------------------------
 HOW IT WILL BE CHECKED

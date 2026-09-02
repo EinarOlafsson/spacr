@@ -2,7 +2,13 @@
 THE README FRONT PAGE: ONE MODULE GRID, A MODEL ZOO, AND ONE DOWNLOAD COMMAND
 ================================================================================
 
-Status:    part 1 done 2026-09-02; parts 2 and 3 in progress.
+Status:    parts 1 and 2 done 2026-09-02; part 3 in progress.
+Numbering: FILED AS 359, RENUMBERED TO 362 the same day. The other
+           session had already taken 358 and 359 (09:18 and 10:08
+           against 10:34 and 11:04), and two files sharing a number
+           is worse than a gap -- the index lists both and neither
+           can be referred to. Commits 5498a16a1 and e62fc3787 say
+           "359" and cannot be rewritten; they mean this file.
 Requested: 2026-09-02, in four messages:
   (a) "in the readme the app module tiles, make them all the same size and
       present them on an evenly spaced grid with 6 modules per row. with the
@@ -59,13 +65,14 @@ sequence, and position claims it now.
   `REVIEWED_README_HEADINGS`. "spaCR" is not translated in any of them.
 
 --------------------------------------------------------------------------------
-PART 2 -- A MODEL ZOO SECTION  [IN PROGRESS]
+PART 2 -- A MODEL ZOO SECTION  [DONE 2026-09-02]
 --------------------------------------------------------------------------------
 
 `spacr.model_zoo.catalogue(remote=True)` publishes three trained models,
 each carrying `trained_on`, `trained_by`, `notes` and a `sha256`. None of
-it is in the README, so a reader has no way to learn the models exist
-without opening the GUI.
+it was in the README, so a reader had no way to learn the models exist
+without opening the GUI. There is now a "Model zoo" section under `Data`,
+generated between `.. spacr-model-zoo-begin/end` markers.
 
   GENERATED, NOT TYPED. The catalogue is a literal in `spacr/model_zoo.py`
   and the README section must be written from it by
