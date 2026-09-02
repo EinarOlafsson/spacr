@@ -444,6 +444,8 @@ def write_panel_package(
         "axes.unicode_minus": False,
     }
     with plt.rc_context(rc):
+        from .plot import save_figure
+
         png_figure = plt.figure(
             figsize=(style.figure_width, style.plot_height), facecolor="white"
         )
@@ -458,11 +460,17 @@ def write_panel_package(
             effect_threshold=effect_threshold, style=style, palette=palette,
             point_label_column="point_label",
         )
-        png_figure.savefig(
-            paths["png"], dpi=style.png_dpi, bbox_inches="tight",
+        save_figure(
+            png_figure,
+            paths["png"],
+            fmt="png",
+            dpi=style.png_dpi,
+            close=True,
+            save_mode="print",
+            announce_colours=False,
+            bbox_inches="tight",
             facecolor="white",
         )
-        plt.close(png_figure)
 
         pdf_figure = plt.figure(
             figsize=(style.figure_width, style.pdf_height), facecolor="white"
@@ -505,8 +513,15 @@ def write_panel_package(
             line_count = block.count("\n") + 1
             line_height = (7.3 / 72.0) / style.pdf_height * 1.20
             y -= line_count * line_height + 0.014
-        pdf_figure.savefig(paths["pdf"], format="pdf", facecolor="white")
-        plt.close(pdf_figure)
+        save_figure(
+            pdf_figure,
+            paths["pdf"],
+            fmt="pdf",
+            close=True,
+            save_mode="print",
+            announce_colours=False,
+            facecolor="white",
+        )
 
     linked_points = 0
     if gene_label_column is not None or gene_url_column is not None:
