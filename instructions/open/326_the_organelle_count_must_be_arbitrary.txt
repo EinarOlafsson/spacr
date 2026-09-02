@@ -177,3 +177,69 @@ CONFIRMED at step 1 of 4. `organelle_types.MAX_ORGANELLES` is still 26 and
 `schema.ORGANELLE_ROLES` still holds four keyable roles, so the disagreement
 step 1 found is untouched and the pin test still guards it. Steps 2-4 (the
 scheme, the migration, the GUI) are not begun. ~20%.
+
+--------------------------------------------------------------------------------
+2026-09-02 — STEP 2 ATTEMPTED AND REVERTED. THE RECONCILIATION HAS A PRICE.
+--------------------------------------------------------------------------------
+
+Step 1 said the first question is that two modules disagree about how many
+organelles exist, and that reconciling them "is the smaller and better-defined
+piece of work". It is smaller. It is not free, and this is what it costs.
+
+WHAT WAS TRIED. `schema.ORGANELLE_ROLES` was generated from the same lettering
+rule `organelle_types.organelle_role()` uses, giving all 26 instead of the
+hand-written four. That is a three-line change and it does exactly what step 1
+asked: `is_object_type('organellee')` becomes True, every slot the panel
+offers can be written into an object key, and the untyped-frame path closes.
+The round-trip suite went to 32 passing, including a new equality test and a
+rewritten boundary test that still proves the vocabulary is CLOSED -- an
+arbitrary type like 'mitochondrion' is still refused.
+
+WHY IT WAS REVERTED. Measured against a HEAD baseline over 34 schema/organelle
+test files: 945 passed before, 1010 after, and TWO REAL REGRESSIONS.
+
+  1. `test_multiple_organelles.py::test_role_registry_has_stable_internal_and_
+     numbered_display_names` asserts `ORGANELLE_ROLES == (four names)`. That is
+     another hand-written pin and would simply move with the change.
+
+  2. `test_the_number_of_organelles_is_a_setting.py::test_measure_offers_the_
+     same_slots_the_masks_were_made_with` is NOT just a pin. It asserts that a
+     five-organelle run does not carry slot SIX's settings, and after the
+     change it carries all twenty-six:
+
+         get_measure_crop_settings({'src': ..., 'number_of_organelles': 5})
+             -> organelle_mask_dim ... organellez_mask_dim   (26 keys)
+
+     `declared_organelle_roles` derives "which slots does this dict declare"
+     from `organelle_role_of(key)`, which asks the role vocabulary. Widening
+     the vocabulary widens what counts as a declared slot, so the settings
+     dict every measure run carries changes shape.
+
+THAT IS A PRODUCT DECISION, NOT A TEST FIX, and it is why this stops here.
+This instruction opens with the maintainer's own governing constraint --
+"this is no small task so be careful AND DONT BREAK ANYTHING" -- and changing
+what a measure run's settings contain reaches instruction 337, where the
+maintainer has separately asked for "the settings i set now for measure and
+mask should be the new defaults". Deciding that at 4am on a night run is
+exactly the wrong trade.
+
+WHAT THE NEXT SESSION NEEDS TO DECIDE, and it is one question:
+
+    Should a run configured for five organelles carry settings keys for the
+    other twenty-one?
+
+  * YES is defensible: `organelle_slots_beyond_the_count` already exists to
+    "populate declarable organelle slots without changing the active count",
+    so the GUI can reveal controls when the number goes up, and its docstring
+    says values ride along untouched. On that reading the extra keys are
+    intended and the test is asserting an accident of the four-role ceiling.
+  * NO is defensible: twenty-six slots of settings on every measure run is
+    noise in every settings CSV, every run journal and every reproducibility
+    hash, for slots the user never asked for.
+
+The reconciliation is correct either way. What changes is whether
+`declared_organelle_roles` should keep deriving declared slots from the
+vocabulary, or from `number_of_organelles` alone.
+
+NOTHING IS COMMITTED FROM THIS ATTEMPT. `spacr/schema.py` is untouched and the
+hold announced in 325 is released. Still 20%.
