@@ -539,3 +539,20 @@ Final current-source result for ``spacr/timelapse.py``: 3330/3330 statements
 and 1140/1140 branches, 100.00%, with zero missing lines and zero partial
 branches.  This closes the timelapse module's part of 288; it does not make a
 whole-repository coverage claim.
+
+--------------------------------------------------------------------------------
+2026-09-02 — PLOT IS 100.00% ON CURRENT SOURCE
+--------------------------------------------------------------------------------
+
+A fresh branch-coverage measurement on current ``nightly`` started with 41
+direct plot test files (849 passed, one documented default-level case skipped)
+and appended the lightweight non-Qt owners of the remaining shared figure
+helpers.  The final five items were a supplied-title branch and the
+per-bin clustered-model failure fallback.  Two direct residual tests now own
+those behaviours, and both tests were watched fail against deliberately
+broken source before the source was restored.
+
+Final current-source result for ``spacr/plot.py``: 3041/3041 statements and
+1144/1144 branches, 100.00%, with zero missing lines and zero partial branches.
+This closes the plot module's part of 288; it does not make a whole-repository
+coverage claim.
