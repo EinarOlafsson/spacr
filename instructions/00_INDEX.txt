@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-317 done / 23 open (93%).
+318 done / 23 open (93%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -415,3 +415,4 @@ DONE
   335  LIVE PREVIEW LOSES THE LOADED IMAGE AFTER A SETTINGS CHANGE
   338  GENERATE AN ANNOTATION DATABASE BY STREAMING, AND MAKE THE THREE ROUTES AGREE
   340  WHAT WAS ASKED FOR AND FINISHED ON 2026-09-01
+  342  THE INDEPENDENT-VARIABLE TABLE MAY BE LONG OR WIDE, AND PLATE IS A LAYOUT TERM
