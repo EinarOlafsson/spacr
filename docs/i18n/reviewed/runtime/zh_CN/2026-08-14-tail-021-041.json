@@ -110,9 +110,9 @@
     {
       "table": "setting_tooltips",
       "key": "pathogen_area_multiplier",
-      "source_sha256": "a882df63e45d15dbf6152c5a260bde23872d2fa5b883aa18c0d05184688bf854",
-      "source": "Splitting threshold expressed as a multiple of the median pathogen area in the field. Only labels above this threshold and pathogen_min_object_area are processed by watershed segmentation. Lower values, such as 1.5, split more objects; higher values restrict splitting to larger aggregates. Used only when pathogen_intensity_split is True. Default 2.0.",
-      "translation": "拆分阈值表示为该显微镜视野中病原体面积中位数的倍数。只有同时超过该阈值和 pathogen_min_object_area 的标签才会进行分水岭分割。较低的值（如 1.5）会拆分更多对象；较高的值仅拆分较大的聚集体。仅当 pathogen_intensity_split 为 True 时使用。默认值 2.0。"
+      "source_sha256": "34efd8898f8de5328d2fab6e6aa73e11e0c7e357566d59e5e2147b247d84e7f6",
+      "source": "Splitting threshold expressed as a multiple of the median pathogen area in the field. Only labels above this threshold and pathogen_min_split_area are processed by watershed segmentation. Lower values, such as 1.5, split more objects; higher values restrict splitting to larger aggregates. Used only when pathogen_intensity_split is True. Default 2.0.",
+      "translation": "拆分阈值表示为该显微镜视野中病原体面积中位数的倍数。只有同时超过该阈值和 pathogen_min_split_area 的标签才会进行分水岭分割。较低的值（如 1.5）会拆分更多对象；较高的值仅拆分较大的聚集体。仅当 pathogen_intensity_split 为 True 时使用。默认值 2.0。"
     },
     {
       "table": "setting_tooltips",
@@ -124,9 +124,9 @@
     {
       "table": "setting_tooltips",
       "key": "pathogen_channel",
-      "source_sha256": "62cc696a6695965f1bc626fa7ff9d0e3b0a4e472ec07a0d37e5eb8f63cd8962e",
-      "source": "Zero-indexed raw acquisition channel segmented into pathogen masks (Toxoplasma etc.), and the channel pathogen_background, pathogen_Signal_to_noise and remove_background_pathogen apply to. None disables pathogen segmentation, the pathogen table, the infected-only filter (uninfected) and the adjust_cells step, which needs cell, nucleus and pathogen masks together. Default None.",
-      "translation": "用于分割病原体掩模（弓形虫等）的从零开始编号的原始采集图像数据通道；pathogen_background、pathogen_Signal_to_noise 和 remove_background_pathogen 也应用于此图像数据通道。设为 None 会禁用病原体分割、病原体表、仅感染对象过滤器（uninfected）以及 adjust_cells 步骤；后者需要同时存在细胞、细胞核和病原体掩模。默认值为 None。"
+      "source_sha256": "7000eb3fe8c4b8ad4698c1996184ca7c191ee30304c6e0965c3efccdb7fcc81f",
+      "source": "Zero-indexed raw acquisition channel segmented into pathogen masks (Toxoplasma etc.), and the channel pathogen_background, pathogen_signal_to_noise and remove_background_pathogen apply to. None disables pathogen segmentation, the pathogen table, the infected-only filter (uninfected) and the adjust_cells step, which needs cell, nucleus and pathogen masks together. Default None.",
+      "translation": "用于分割病原体掩模（弓形虫等）的从零开始编号的原始采集图像数据通道；pathogen_background、pathogen_signal_to_noise 和 remove_background_pathogen 也应用于此图像数据通道。设为 None 会禁用病原体分割、病原体表、仅感染对象过滤器（uninfected）以及 adjust_cells 步骤；后者需要同时存在细胞、细胞核和病原体掩模。默认值为 None。"
     },
     {
       "table": "setting_tooltips",

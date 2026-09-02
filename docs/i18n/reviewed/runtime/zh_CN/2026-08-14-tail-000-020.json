@@ -26,9 +26,9 @@
     {
       "table": "setting_tooltips",
       "key": "cell_channel",
-      "source_sha256": "35e77e98f217ed372aae2d216196766756bbae82207de3a35f420eb552ea883f",
-      "source": "Zero-indexed raw acquisition channel that Cellpose segments into cell masks; it also selects which channel the cell_background, cell_Signal_to_noise and remove_background_cell settings are applied to during preprocessing. Set to None and no cell masks, cell table or cell crops are produced. At least one of cell/nucleus/pathogen/organelle_channel must be an integer or the run aborts. Default None.",
-      "translation": "Cellpose 用于分割细胞掩模的从零开始编号的原始采集图像数据通道；预处理期间，cell_background、cell_Signal_to_noise 和 remove_background_cell 设置也会应用到此图像数据通道。设为 None 时不会生成细胞掩模、细胞表或细胞提取图像区域。cell/nucleus/pathogen/organelle_channel 中至少有一个必须是整数，否则运行会中止。默认值为 None。"
+      "source_sha256": "dab66a028aa6a4297eeb02bffc2a0b61ca6190974b8f4136e5ecc2dc39d3d057",
+      "source": "Zero-indexed raw acquisition channel that Cellpose segments into cell masks; it also selects which channel the cell_background, cell_signal_to_noise and remove_background_cell settings are applied to during preprocessing. Set to None and no cell masks, cell table or cell crops are produced. At least one of cell/nucleus/pathogen/organelle_channel must be an integer or the run aborts. Default None.",
+      "translation": "Cellpose 用于分割细胞掩模的从零开始编号的原始采集图像数据通道；预处理期间，cell_background、cell_signal_to_noise 和 remove_background_cell 设置也会应用到此图像数据通道。设为 None 时不会生成细胞掩模、细胞表或细胞提取图像区域。cell/nucleus/pathogen/organelle_channel 中至少有一个必须是整数，否则运行会中止。默认值为 None。"
     },
     {
       "table": "setting_tooltips",
