@@ -1,0 +1,99 @@
+================================================================================
+REDO EVERY CORE-MODULE TUTORIAL WITH LIVE DATA AND THE FOLDED-IN ACTIONS
+================================================================================
+
+Status:    OPEN, filed 2026-09-02. AFTER the version update, following the
+           tooltip/API/translation sweep and README review already ordered.
+Requested: 2026-09-02 — "the tutorials for all of the core moduals need to be
+           redone. there is now live data for all core moduals that should be
+           used in the tutorials, there are also several buttons that have been
+           folded into the core modules that to be mentioned in the core
+           modual tutorials. but for these we can retain the old tutorials and
+           just reference other tutorials in the core module tutorials."
+Owner:     the Codex tutorial session. The editable tutorial source and the
+           derived documentation/media tree must not be edited concurrently by
+           another session; instruction 48's ownership rule still applies.
+
+WHY THIS IS NEW WORK
+--------------------
+
+Instruction 48 verified the previous tutorial release, but the application has
+since changed its module structure. Core modules now expose downloadable live
+test data and absorb actions that used to appear as separate module tiles. A
+tutorial can therefore be technically polished and still teach a navigation
+path, input source or module boundary the current application no longer has.
+
+The Core tutorial is the current top-level workflow. A still-accurate older
+specialist tutorial remains useful evidence and should be linked at the point
+the folded action is introduced; it should not be deleted or narrated again
+merely to make the Core tutorial self-contained.
+
+WHAT TO DO
+----------
+
+1. Derive the Core-module inventory from the runtime module registry and Home
+   grouping used by the running application. Do not copy a historical list
+   from instruction 48 or hard-code a second list that can drift.
+
+2. For every current Core module, rebuild its top-level tutorial against the
+   running UI and current module name, category, settings layout, action row,
+   output surfaces and completion state.
+
+3. Use that module's real downloadable/live test dataset through the same
+   control a user sees. Show the input arriving, run a bounded representative
+   operation, and inspect a real output; a mocked path, static screenshot or
+   source-only validation is not a live-data tutorial.
+
+4. Name every action/button folded into the Core module and show where it now
+   lives. When an existing specialist tutorial still explains the action
+   accurately, retain it and link to it from the Core tutorial at that point
+   instead of duplicating its full walkthrough.
+
+5. Update references to renamed, merged or removed modules and controls. In
+   particular, explain current test-data controls, live previews, GPU/device
+   acceleration where the module uses it, and other capabilities added since
+   the last tutorial release; do not present NVIDIA/CUDA as the only
+   acceleration route.
+
+6. Keep useful old tutorials. Remove one only when its workflow no longer
+   exists or its surviving content is fully and more accurately replaced, and
+   record that decision in this file before removing any published lesson.
+
+7. Re-run instruction 48's production checks: current screenshots/video,
+   highlight geometry and timing, concise narration, intelligible technical
+   pronunciation, caption/narration synchronisation, mobile playback, media
+   hashes/budgets and the live deployment verifier. The new lessons inherit
+   the old quality bar rather than replacing it.
+
+8. Publish only after the version-update hold is released and the intended
+   application version is the one shown. Commit and push each completed Core
+   tutorial or small coherent tutorial group so a crash cannot strand the
+   whole rebuild.
+
+HOW TO KNOW IT WORKED
+---------------------
+
+* A generated inventory test maps every current runtime Core module to exactly
+  one current top-level tutorial and fails when a new Core module appears
+  without one.
+* Every Core tutorial downloads/loads its registered live dataset through the
+  UI, completes a bounded real operation, and shows an inspectable real output.
+* A generated folded-action inventory proves each action is mentioned in its
+  owning Core tutorial and that every referenced specialist tutorial exists.
+* Links are valid and no retained lesson points to a removed module, stale
+  button name, obsolete settings category or old module hierarchy.
+* Tutorials that use acceleration describe the current resolver and supported
+  GPU backends accurately, and remain usable on CPU-only hardware.
+* The repository tutorial/media tests, external tutorial suite, multilingual
+  narration/caption checks, mobile player checks, hashes and media budget all
+  pass against the exact published artifacts.
+* A manual catalog-order review confirms the tutorial set teaches the current
+  spaCR module structure and features rather than merely satisfying the
+  inventory tests.
+
+BOUNDARY
+--------
+
+This item records and later executes the tutorial rebuild. It does not weaken
+the explicit hold on 1.5.0.5, move tutorials onto the pre-update list, or
+authorise edits in the tutorial media tree by a second concurrent session.
