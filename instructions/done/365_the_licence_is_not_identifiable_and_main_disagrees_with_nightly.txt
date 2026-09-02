@@ -2,9 +2,13 @@
 THE LICENCE IS NOT IDENTIFIABLE, AND THE TWO BRANCHES DO NOT AGREE ON IT
 ================================================================================
 
-Status:    diagnosed 2026-09-02, not fixed. NEEDS THE MAINTAINER: the fix
-           touches `main`, and which licence is correct is not a decision to
-           be made from a branch diff.
+Status:    DONE 2026-09-02. The maintainer chose the README's BSD 3-Clause.
+           `main` now carries it, and
+
+               gh api repos/EinarOlafsson/spacr --jq .license.spdx_id
+               BSD-3-Clause
+
+           where it answered NOASSERTION before.
 Requested: 2026-09-02 -- "i have a licence not identifiable on github, please
            make the licence identifiable"
 Owner:     LICENSE, README.rst, pyproject.toml.
@@ -95,3 +99,44 @@ HOW IT WILL BE CHECKED
 * `main` and `nightly` hold the same LICENSE file.
 * The README's licence sentence and the file its link resolves to agree.
 * `pyproject.toml` names the licence, not only the file.
+
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE, 2026-09-02
+--------------------------------------------------------------------------------
+
+The maintainer's answer was "use the README's BSD", so BSD 3-Clause it is,
+and `main` was brought to it in commit cbab8c13b -- a MINIMAL, TARGETED
+commit. `main` is 2782 commits behind `nightly` and was NOT merged forward:
+that is a release, and this was a licence correction.
+
+FOUR CLAIMS HAD TO MOVE TOGETHER, because keeping only some of them right is
+what produced the split in the first place:
+
+  LICENSE          the BSD 3-Clause text, taken from nightly
+  README.rst       the badge alt text AND the licensing section
+  pyproject.toml   the classifier, which said "License :: Other/Proprietary
+                   License" and now says "License :: OSI Approved :: BSD
+                   License" -- what PyPI reads, a separate claim from the
+                   LICENSE file GitHub reads
+  the packaging    it asserted the PolyForm text. It now asserts BSD's three
+  test             clauses and its disclaimer INDIVIDUALLY -- a file missing
+                   one of them is a different licence -- and that the README
+                   agrees with it.
+
+A FIFTH THING WAS FOUND ON NIGHTLY WHILE DOING IT. All nine translated
+READMEs still carried a "PolyForm Noncommercial" licence BADGE, months after
+the English one said BSD. The licensing sections had been retranslated and
+the badge alt text had not, so every non-English reader saw the wrong licence
+named beside a badge linking to the right one. Fixed in all nine.
+
+The German, Icelandic and Swedish licence sentences were also wrong and are
+corrected: German had left "spaCR is released under the" in ENGLISH,
+Icelandic said "frelsað" (liberated) rather than "gefið út" (released) and
+called it "3-Klausur", and Swedish used "frisätts", which is release in the
+physical sense.
+
+MIT HISTORY IS KEPT. Released versions through 1.4.9.9 remain under the MIT
+licence that accompanied them, and the README now records that PolyForm
+applied briefly between the two and has been withdrawn -- so a user who took
+the code in that window can tell what applied to them.

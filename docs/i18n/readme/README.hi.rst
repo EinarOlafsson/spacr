@@ -26,7 +26,7 @@
    :alt: GitHub समस्याएँ
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm गैर-व्यावसायिक लाइसेंस
+   :alt: BSD 3-Clause लाइसेंस
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI

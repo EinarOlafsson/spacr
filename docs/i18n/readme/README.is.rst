@@ -26,7 +26,7 @@
    :alt: GitHub-mál
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm Noncommercial-leyfi
+   :alt: BSD 3-Clause-leyfi
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
@@ -568,7 +568,7 @@ Sendu villutilkynningar og afmarkaðar óskir um eiginleika í gegnum `GitHub-m�
 Leyfi
 ~~~~~~~~~
 
-spaCR er frelsað undir `BSD 3-Klausur leyfi <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
+spaCR er gefið út undir `BSD 3-Clause-leyfinu <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
 
 Ef spaCR hjálpaði að útgáfa verk, er nefndur verðmæt og er ekki skilyrði fyrir leyfi — sjá `Citing spaCR`_ hér neðan.
 

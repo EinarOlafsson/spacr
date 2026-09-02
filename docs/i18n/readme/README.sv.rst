@@ -26,7 +26,7 @@
    :alt: GitHub-ärenden
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm Noncommercial-licens
+   :alt: BSD 3-Clause-licens
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo-DOI
@@ -568,7 +568,7 @@ Skicka felrapporter och avgränsade funktionsförslag via `GitHub-ärenden <http
 Licens
 ~~~~~~~~~
 
-spaCR frisätts under `BSD 3-Clause-licens <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
+spaCR distribueras under `BSD 3-Clause-licensen <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
 
 Om spaCR bidrog till publicerade verk uppskattas en hänvisning och är inte ett villkor för licensen – se `Citing spaCR`_ nedan.
 
