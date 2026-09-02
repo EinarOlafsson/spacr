@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-326 done / 27 open (92%).
+326 done / 29 open (91%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -129,6 +129,12 @@ OPEN
   353  REGRESSION'S INPUT TABLES START WITH THE DOWNLOAD BUTTONS, NOT END WITH THEM
        [~60% -- the buttons are at the top; aligning them to their columns is not done]
        353_the_regression_download_buttons_belong_at_the_top.txt
+
+  355  EVERY BUTTON STILL WEARING THE DEFAULT ICON GETS AN INTUITIVE ONE
+       355_every_button_deserves_its_own_icon.txt
+
+  356  TYPING A CHANNEL NUMBER SHOULD REVEAL ITS CATEGORY, NOT RELOAD THE MODULE
+       356_a_channel_number_should_not_reload_the_module.txt
 
 --------------------------------------------------------------------------------
 DONE

@@ -1,0 +1,61 @@
+================================================================================
+EVERY BUTTON STILL WEARING THE DEFAULT ICON GETS AN INTUITIVE ONE
+================================================================================
+
+Status:    not started, filed 2026-09-02.
+Requested: 2026-09-02, verbatim -- "make an intuitive, elegant logo for all
+           buttons that are currently using the default logo, dor example
+           diagnostics in regression"
+Owner:     spacr/qt -- the icon set and whatever resolves a button to an icon.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Some buttons fall through to a generic default icon. Regression's Diagnostics
+is the example the maintainer named; it will not be the only one.
+
+FIND THEM MECHANICALLY, NOT BY EYE. `_icon_for_app` and the iconset are what
+resolve a key to artwork, and a key with no entry is what produces the
+default. Enumerating the keys that miss is a loop, and it gives the real list
+rather than the ones somebody happened to notice:
+
+    for key, name, desc, section in APPS:
+        icon = _icon_for_app(key)          # or whatever the miss looks like
+        ...
+
+Do the same for the buttons that are not module tiles -- the fold-strip
+children and the in-module actions -- because Diagnostics is one of those
+rather than a module tile.
+
+--------------------------------------------------------------------------------
+WHAT MAKES AN ICON RIGHT HERE, and it is not taste
+--------------------------------------------------------------------------------
+
+* IT MUST READ AT 16 PX. The dock draws at 16 and the fold strip is not much
+  larger. An icon that only works at 64 is a picture, not an icon.
+* IT MUST WORK IN BOTH THEMES AND SURVIVE RE-INKING.
+  `Sidebar.refresh_icons` re-inks on a theme change because a QIcon bakes its
+  pixmap when it is built -- see
+  `tests/qt/test_cov_qt_app.py::test_the_sidebar_re_inks_its_icons_when_the_theme_changes`.
+  A multi-colour icon cannot be re-inked and will look wrong in one theme.
+  Single-colour line art is what the existing set uses and why.
+* IT MUST DIFFER IN SHAPE FROM ITS NEIGHBOURS, not only in detail.
+  Instruction 89 added a colourblind mode; instruction 347's teal dot and
+  purple square carry the same rule. Two icons that differ only in a small
+  interior mark are one icon at 16 px.
+* THE MODULE IT BELONGS TO SHOULD BE GUESSABLE FROM IT. "Diagnostics" under
+  Regression is about residuals and influence -- a plot with a flagged point
+  says that; a generic gear does not.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* No button anywhere renders the default icon; asserted by a test that walks
+  the same resolver the GUI uses, so a new module without artwork fails it.
+* Every new icon renders non-empty at 16 px in both themes, and re-inks --
+  the existing sidebar test is the model.
+* The list of what was missing is written into this file, because the next
+  module added will miss too and the fix should be one line rather than a
+  rediscovery.
