@@ -2,7 +2,29 @@
 THE README FRONT PAGE: ONE MODULE GRID, A MODEL ZOO, AND ONE DOWNLOAD COMMAND
 ================================================================================
 
-Status:    parts 1 and 2 done 2026-09-02; part 3 in progress.
+Status:    DONE 2026-09-02, all three parts. Part 3 verified against this
+           file's own four criteria rather than by inspection:
+
+             `spacr-download --help`   exit 0 in 0.1 s, no display, and torch
+                                       is never imported
+             `--list`                  prints all three example sets and the
+                                       four screen plates with their sizes,
+                                       downloading nothing
+             a bare run                fetches the ~1.07 GB example sets and
+                                       NAMES the screen rather than starting
+                                       it -- the 33 GB needs --screen
+             the network               `tests/test_cli_download.py`, 52 tests,
+                                       mocks it entirely
+
+           The Qt-free requirement holds by construction: the command reads
+           `spacr.example_archives`, not `spacr.qt.hf_download`, which imports
+           PySide6 at module scope, and a test pins that too.
+
+           NOT PART OF THIS ITEM, and recorded so it is not mistaken for a
+           gap: the README does not yet mention `spacr-download`. Where the
+           front page describes what exists is 366 part 2's question, and 366
+           is deliberately not removing or adding README prose until the API
+           pages it defers to are worth arriving at.
 Numbering: FILED AS 359, RENUMBERED TO 362 the same day. The other
            session had already taken 358 and 359 (09:18 and 10:08
            against 10:34 and 11:04), and two files sharing a number
