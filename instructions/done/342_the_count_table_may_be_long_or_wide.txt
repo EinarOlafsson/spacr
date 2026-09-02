@@ -1,0 +1,97 @@
+================================================================================
+THE INDEPENDENT-VARIABLE TABLE MAY BE LONG OR WIDE, AND PLATE IS A LAYOUT TERM
+================================================================================
+
+Status:    done, 2026-09-01. Code complete and green; committed 2026-09-01.
+Requested: 2026-09-01, in the session VS Code lost. THE EXACT WORDING IS NOT
+           RECORDED -- this file is reconstructed from the code and its tests
+           rather than from the ask, and is marked so on purpose. If the
+           maintainer's phrasing turns up, put it in a `Requested:` line here
+           and check the acceptance list below against it.
+Owner:     spacr/regression_layout.py, spacr/ml.py, spacr/settings.py and the
+           regression settings layout.
+
+--------------------------------------------------------------------------------
+WHAT WAS WRONG
+--------------------------------------------------------------------------------
+
+1. THE COUNT TABLE HAD ONE ACCEPTED SHAPE. `perform_regression` assumed one
+   row per (well, guide), named by `count_grna_column` and
+   `count_value_column`. A count table that arrives with ONE GUIDE PER COLUMN
+   -- which is what several sequencing pipelines write -- had no route in at
+   all, and the failure came out of pandas rather than out of the settings.
+
+2. PLATE WAS NOT IN THE FIXED-EFFECTS MODEL. `prepare_formula` ended with
+   `+ rowID + columnID`. The same row and column labels recur on every plate,
+   so those two terms cannot absorb a shift in the overall mean BETWEEN
+   plates: a four-plate screen with a plate-level offset had nowhere to put
+   it, and it went into the guide coefficients.
+
+3. THE NUISANCE FILTER WAS A SUBSTRING MATCH. `process_model_coefficients`
+   dropped every coefficient whose feature name merely CONTAINED "row" or
+   "column", so a legitimate guide named e.g. `ROW1_sg2` was silently
+   removed from the hit list.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+`spacr/regression_layout.py` -- lossless long/wide conversion, deliberately
+strict: a value is never silently selected when duplicate rows disagree.
+`infer_regression_layout` recognises long from the paired guide/value columns
+and otherwise treats the numeric non-metadata columns as guides;
+`normalise_count_table_layout` melts wide input before any filtering, so the
+fraction sweep and every downstream consumer see the shape they already knew.
+
+THREE SETTINGS, all with defaults, declared types, tooltips and categories, so
+they render in the GUI and survive a settings CSV round trip:
+
+    independent_variable_layout   auto | long | wide     default 'auto'
+    wide_predictor_columns        list                   default []
+    model_data_layout             long | wide            default 'long'
+
+INPUT LAYOUT AND MODEL LAYOUT ARE TWO QUESTIONS, not one, and that is the
+design decision worth keeping. A long input can be collapsed to one row per
+well for a fixed-effects estimator; a wide input can be melted for the
+historical formula and for the permutation paths. `ml._wide_fixed_effect_design`
+builds the explicit one-row-per-well design and keeps spaCR's existing
+`fraction:grna[...]` / `gene_fraction:gene[...]` feature-name contract, so
+every estimator and every results consumer reads coefficients the same way.
+
+MIXED MODELS AND FREEDMAN-LANE PERMUTATION need the long nesting
+representation, so `model_data_layout='wide'` is normalised back to long for
+them and the run says so rather than silently disagreeing with the setting.
+
+PLATE IS NOW EXPLICIT: `prepare_formula` emits `+ plateID + rowID + columnID`,
+and `random_row_column_effects=True` uses plate as the grouping variable with
+row and column as variance components. Patsy emits no contrast column when
+there is only one plate, so a single-plate screen is unchanged.
+
+THE NUISANCE FILTER now matches the Patsy term prefix
+(`^(?:plateID|rowID|columnID|screenID)\[`) instead of a substring.
+
+--------------------------------------------------------------------------------
+HOW IT WAS CHECKED
+--------------------------------------------------------------------------------
+
+  tests/test_regression_layout_conversion.py     the conversions and the
+                                                 settings defaults
+  tests/test_plate_position_is_a_setting.py      23 tests, BY FITTING: the
+                                                 design matrix gains and loses
+                                                 exactly the plate/row/column
+                                                 columns, counted rather than
+                                                 read off the formula string
+
+Both green on 2026-09-01 in conda env `spacr` (3.12.13): 4 passed and 23
+passed respectively.
+
+--------------------------------------------------------------------------------
+WHAT IS NOT IN THIS ITEM
+--------------------------------------------------------------------------------
+
+`spacr/regression_panels.py` was written in the same lost session and is NOT
+part of this item. It writes a four-file publication panel package (vector PDF
+with a narrative legend, plot-only PNG, point-level CSV, statistics CSV) and
+its tests pass, but `write_panel_package` has NO CALLER anywhere in spaCR --
+there is no way for a user to reach it. It needs its own instruction, with the
+maintainer's ask in it, before it is wired to anything.
