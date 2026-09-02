@@ -27,7 +27,7 @@ PACKAGE = ROOT / "spacr"
 
 #: Modules whose nested functions are ALL documented. Nothing may fall out of
 #: this set: it is the part of the codebase where the instruction is met.
-#: Forty-four of the 170 modules that have nested functions, measured 2026-09-02.
+#: Forty-five of the 170 modules that have nested functions, measured 2026-09-02.
 #:
 #: Add a module here the moment its last nested function gets a docstring.
 FULLY_DOCUMENTED = frozenset({
@@ -79,7 +79,7 @@ FULLY_DOCUMENTED = frozenset({
 })
 
 #: The largest number of UNDOCUMENTED nested functions each module may have.
-#: Generated from the code on 2026-09-02 -- 496 across 126 modules -- rather
+#: Generated from the code on 2026-09-02 -- 486 across 125 modules -- rather
 #: than written by hand, because a hand-written budget is wrong the moment it
 #: is typed. The first attempt at this file listed the two WORST modules as
 #: finished, having misread a table of undocumented counts as a table of
