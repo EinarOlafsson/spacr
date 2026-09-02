@@ -253,6 +253,7 @@ def test_every_settings_key_perform_regression_indexes_has_a_default():
 
 def test_publication_manifest_is_optional_and_typed_without_a_gui_field():
     from spacr.settings import categories, expected_types
+    from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
 
     assert _defaults()["regression_panel_manifest"] is None
     assert expected_types["regression_panel_manifest"] == (
@@ -261,6 +262,7 @@ def test_publication_manifest_is_optional_and_typed_without_a_gui_field():
     assert all(
         "regression_panel_manifest" not in names for names in categories.values()
     )
+    assert "regression_panel_manifest" in _APP_HIDDEN_KEYS["regression"]
 
 
 def _assert_derived_before_read(fn, deriver, keys):

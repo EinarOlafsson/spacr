@@ -413,6 +413,11 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     # a shared runtime default reaches this module it must not appear on the
     # panel the instruction just cleared.
     "regression": {
+        # Programmatic export contract for ``perform_regression``.  A mapping
+        # or manifest path belongs in a script/CLI call, not in a scalar GUI
+        # field; keeping it in the defaults makes runs reproducible, while
+        # hiding it here prevents it falling into ``Additional Settings``.
+        "regression_panel_manifest",
         "regression_qc", "guide_permutation_plot",
         "log_x", "log_y", "x_lim", "y_lims", "split_axis_lims",
         "strict_errors", "max_failure_rate", "on_error",
