@@ -4650,29 +4650,71 @@ def generate_cellpose_train_test(src, test_split=0.1):
             shutil.copy(mask_path, new_mask_path)
             print(f'Copied {idx+1}/{len(ls)} images to {_type} set')#, end='\r', flush=True)
 
+#: How a mate is spelled in a FASTQ filename, mapped to the key spaCR uses.
+#:
+#: ``R1``/``R2`` is the Illumina convention. ``1``/``2`` is what ENA and the
+#: SRA publish -- every file downloaded from those archives is
+#: ``<run>_1.fastq.gz`` and ``<run>_2.fastq.gz`` -- and not recognising it was
+#: reported on 2026-09-01 as ``KeyError: 'R1'`` after a successful download of
+#: the project's own reads.
+_MATE_SPELLINGS = {
+    "r1": "R1", "1": "R1", "read1": "R1", "fwd": "R1",
+    "r2": "R2", "2": "R2", "read2": "R2", "rev": "R2",
+}
+
+
 def parse_gz_files(folder_path):
     """Group ``.fastq.gz`` files in ``folder_path`` by sample name and read direction.
 
-    :param folder_path: Directory containing gzipped FASTQ files named
-        ``<sample>_R1_...`` / ``<sample>_R2_...``.
-    :returns: Mapping ``{sample_name: {"R1": path, "R2": path}}``.
+    Accepts both naming conventions in the wild: ``<sample>_R1_...`` from an
+    Illumina run, and ``<run>_1.fastq.gz`` from ENA or the SRA. See
+    :data:`_MATE_SPELLINGS`.
+
+    A file whose mate cannot be identified contributes NOTHING rather than an
+    empty entry. The previous version created ``{sample: {}}`` for it, which
+    turned an unrecognised filename into a ``KeyError: 'R1'`` several frames
+    later in :func:`spacr.sequencing.generate_barecode_mapping` -- a crash that
+    named neither the file nor the problem.
+
+    :param folder_path: Directory containing gzipped FASTQ files.
+    :returns: Mapping ``{sample_name: {"R1": path, "R2": path}}``. Samples may
+        have only one of the two.
     """
     files = os.listdir(folder_path)
     gz_files = [f for f in files if f.endswith('.fastq.gz')]
 
     samples_dict = {}
     for gz_file in gz_files:
-        parts = gz_file.split('_')
-        sample_name = parts[0]
-        read_direction = parts[1]
+        stem = gz_file[:-len('.fastq.gz')]
+        parts = stem.split('_')
+        if len(parts) < 2:
+            # No separator, so there is no mate to read off the name. A
+            # single-ended file still deserves to be seen.
+            samples_dict.setdefault(stem, {})['R1'] = os.path.join(
+                folder_path, gz_file)
+            continue
 
-        if sample_name not in samples_dict:
-            samples_dict[sample_name] = {}
+        sample_name = '_'.join(parts[:-1])
+        mate = _MATE_SPELLINGS.get(parts[-1].strip().lower())
+        if mate is None:
+            # Illumina's full form is `<sample>_S1_L001_R1_001.fastq.gz`, so
+            # the mate is not always last. Look for it anywhere in the name
+            # before giving up on the file.
+            for position, token in enumerate(parts):
+                candidate = _MATE_SPELLINGS.get(token.strip().lower())
+                if candidate is not None and position > 0:
+                    mate = candidate
+                    sample_name = '_'.join(parts[:position])
+                    break
+        if mate is None:
+            LOG.warning(
+                "%s: cannot tell which mate this is, so it is skipped. "
+                "Expected a name like <sample>_R1.fastq.gz or "
+                "<run>_1.fastq.gz.", gz_file)
+            continue
 
-        if read_direction == "R1":
-            samples_dict[sample_name]['R1'] = os.path.join(folder_path, gz_file)
-        elif read_direction == "R2":
-            samples_dict[sample_name]['R2'] = os.path.join(folder_path, gz_file)
+        samples_dict.setdefault(sample_name, {})[mate] = os.path.join(
+            folder_path, gz_file)
     return samples_dict
 
 
