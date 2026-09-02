@@ -2,7 +2,13 @@
 TWENTY-ONE MEASURE TESTS FAIL ONLY IN COMPANY, AND HAVE FOR AT LEAST A DAY
 ================================================================================
 
-Status:    not started, filed 2026-09-02.
+Status:    DONE 2026-09-02. The two leaked module bindings and the cached
+           optional-dependency verdict were restored by their owning tests;
+           the one remaining baseline failure exposed during verification was
+           a real accelerator defect in the SAM generator and is fixed too.
+           VERIFIED: the 17-file reproduction is green (330 passed), the
+           object/accelerator selection is green (121 passed), and the CPU and
+           simulated-GPU tests now pin one coherent Cellpose device contract.
 Requested: not requested -- found while verifying 337 against a HEAD baseline,
            and filed rather than narrated.
 Owner:     unassigned. Mixed lane: the tests are `tests/`, the suspected
@@ -409,3 +415,38 @@ broadcast -- runs 335 passed, 1 skipped, 1 failed. The one failure is
 cpu_model`, which fails identically at HEAD, is not order-dependent, and is
 not this item: it asserts the Cellpose model landed on `cpu` and gets
 `cuda:0` on a machine whose own log line says "Torch CUDA is not available".
+
+--------------------------------------------------------------------------------
+2026-09-02 — CLOSED. THE BASELINE FAILURE WAS A REAL CROSS-BACKEND DEFECT.
+--------------------------------------------------------------------------------
+
+The SAM generator built `CellposeModel` from two independent answers:
+`gpu=torch.cuda.is_available()` and `device=accelerator.torch_device()`. On the
+machine that exposed the failure those answers were False and `cuda:0`, so the
+model was explicitly told both CPU and CUDA. It was also wrong on Metal:
+Cellpose branches on `gpu` before looking at `device`, so a valid MPS device
+paired with CUDA's False flag is forced back to CPU.
+
+The generator now consumes `accelerator.cellpose_kwargs()`, the existing
+single resolver that returns a coherent `gpu`, `device`, and (when necessary)
+`use_bfloat16` tuple. The CPU test was deliberately changed to patch only that
+helper and watched fail against the old source, proving it was not merely
+asserting an absence. The simulated-GPU test now does the same from the other
+side with a distinctive `cuda:7` device, so reverting to either independent
+answer fails.
+
+The apparent follow-on failure was a stale assertion: the Mask default is
+`cell_flow_threshold=100`, migrated without changing its value from legacy
+`cell_FT=100` and documented as 100 in the setting's tooltip. The test still
+expected 1.0 and now pins the actual published default.
+
+FINAL MEASUREMENTS:
+
+    the 17-file reproduction, under Xvfb       330 passed
+    object + accelerator focused selection     121 passed
+    SAM generator whole test file               22 passed
+
+No order-dependent Measure failure remains in the reproduction, and the
+unrelated baseline failure it uncovered is fixed rather than left as a named
+exception. This satisfies both acceptance paths: the formerly failing tests
+pass alone and together, and each mechanism is recorded above.
