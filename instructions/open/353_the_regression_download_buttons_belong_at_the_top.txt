@@ -114,3 +114,103 @@ and is deliberately left. Nothing above changes when it is: the row is in the
 right place now, and the alignment is a change to what that row CONTAINS.
 Read the WATCH section before starting it; the "one column model" point is the
 whole of it.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE PREFERENCE IS DONE TOO. EACH BUTTON IS OVER ITS COLUMN.
+--------------------------------------------------------------------------------
+
+WHAT WAS MISALIGNED, MEASURED BEFORE TOUCHING ANY LAYOUT CODE. An `AppScreen(
+app_key="regression")` shown offscreen at 1400x900, Input Tables expanded, the
+table left at its default 100 px columns. Button centres and column centres,
+both in the screen's own coordinates:
+
+    button                  centre    its column          centre    out by
+    Score                    240.0    1 Score CSV          351.0   -111.0 px
+    Count                    326.0    2 Count CSV          451.0   -125.0 px
+    Measurements (.db)       435.5    3 Measurements DB    551.0   -115.5 px
+    Image crops              547.5    -- fills `src` --        --        --
+
+Every one of them was left of the column it fills, because the row was a plain
+QHBoxLayout starting at the strip's left edge -- which is also the TABLE's left
+edge, so the buttons were spread across "Plate / proposal" and the two columns
+after it. The button that fills the score column sat over the plate column.
+
+AFTER, same screen, same widths: -0.0, -0.0, -0.0 px. After dragging column 1
+to 180 px and column 3 to 160 px: -0.0, -0.0, -0.5 px (the half pixel is a
+column whose width and its button's differ by an odd number, split by integer
+division). After shrinking the screen to 1000 px: unchanged. Hiding a column
+moves its button out of the aligned run rather than leaving it stacked on its
+neighbour, and showing the column again brings it back.
+
+HOW, AND WHY IT IS NOT THE SECOND TABLE THE REQUEST OFFERED. New
+`spacr/qt/widgets/column_aligned_row.py`: a QLayout that asks a QHeaderView
+where each section is, every time it lays out, and writes nothing back. There
+is one column model -- the paired table's -- and the strip follows it in one
+direction, so there is nothing to keep in step and nothing to drift. It
+re-lays-out on `sectionResized`, `sectionMoved` and `geometriesChanged`, and
+on the header viewport moving or resizing under it.
+
+WHO INSTALLS IT, AND WHY IT IS THE TABLE. The strip is built by the generic
+`AppScreen._install_example_data_button`, which knows nothing about these
+columns -- every module's example-data row is built by the same method. The
+paired table is the only widget in the form that is Regression's alone and the
+only object that knows what the columns are, so `PairedFileTableWidget` grew
+`align_download_buttons()` and calls it from its own `showEvent`. It finds the
+buttons by the ATTRIBUTES the screen keeps them on
+(`_example_scores_button`, `_example_counts_button`, `_screen_feature_button`,
+`_screen_crops_button`), never by the text on them: a download in progress
+renames a button to "Fetching…", and a strip identified by caption would lose
+its buttons in the middle of the download the user is watching. The columns
+come from the table's own `SIDE_COLUMNS`, which is the same mapping the drop
+router files a dropped file into -- one statement of which column is which.
+
+IMAGE CROPS HAS NO COLUMN and is not pretended to have one. It fills `src`, a
+setting row of the same form, so it trails the aligned run instead of being
+centred over "Plate rule", which it has nothing to do with.
+
+A BUTTON IS CLAMPED TO ITS COLUMN'S WIDTH. "Measurements (.db)" wants 127 px
+and the column is 100 px, so at its natural width it would reach 3.5 px into
+the Count button -- two download buttons drawn overlapping, which is the
+confusion the alignment exists to remove. It is given its column and no more,
+which is also what "lock the width ... to the width of the paired data column
+counterparts below" asks for.
+
+WHAT THAT COSTS, AND THE ONE THING LEFT. At the default 100 px the clamped
+caption is clipped to "surements (". The table's OWN headers are clipped the
+same way at that width and were before any of this -- "Plate / proposal" draws
+as "late / propos", "Measurements DB" as "asurements" -- so this is the paired
+table's default column widths being too narrow for their own labels, not
+something the alignment introduced. Widening them is a change to the TABLE and
+must stay one: sizing a column from the button above it would be the strip
+writing back into the column model, which is the drift this design exists to
+avoid. Left for whoever takes that on.
+
+TEST: `tests/qt/test_the_download_buttons_sit_over_their_columns.py`, 7 tests.
+Failing before the change (the alignment reverted through a pytest plugin
+rather than by stashing in a repository a second session is working in):
+
+    5 failed, 2 passed
+    E  Score is centred at 240.0 but column 1 is centred at 351.0 -- -111.0 px out
+    E  Measurements (.db) is 127 px wide over a 100 px column
+    E  the Download row is laid out by QHBoxLayout
+
+After: `7 passed in 5.31s`.
+
+ALSO FIXED, because 353's first half left them red: two source-text assertions
+in `tests/qt/test_the_screen_data_picker.py`. `add_prose_row("Download", row)`
+gained `at_top=True` and no longer matched (now matched without the closing
+bracket, so the next argument does not break it again), and
+`QPushButton("Feature")` had been renamed to `QPushButton("Measurements
+(.db)")`. That file now passes 31/31.
+
+REGRESSION RUN, all with the memory guard at 20 GiB: file_list, example-screen
+button, layout drops, regression panel, example settings (185 passed);
+all-module smoke and the two dnd files (233 passed); app_screen and
+settings_model coverage (312 passed); the six regression-screen files (100
+passed). Six failures across those, ALL pre-existing and all shown to fail
+identically with the alignment reverted or against `git show HEAD`:
+three in test_the_regression_folds_kept_every_capability, one in
+test_greying_is_not_regression_only (a `get_setting_dependencies` diff), and
+two captions a rename left behind -- `test_the_example_screen_button` wants
+"Load the example screen…" and `test_cov_r4_app_screen` wants "Load the
+example images", where the source says "Load test data…" at HEAD.

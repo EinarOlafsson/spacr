@@ -225,14 +225,20 @@ def test_the_feature_dialog_says_what_reads_them(qapp, tmp_path):
 
 
 def test_the_four_download_buttons_exist():
-    """Score and Count are cheap and fetch at once; Feature and Image crops
-    cost gigabytes and open a picker."""
+    """Score and Count are cheap and fetch at once; Measurements (.db) and
+    Image crops cost gigabytes and open a picker.
+
+    The third button was called "Feature" until it was renamed for the file
+    it fetches -- "Feature" is what the tables HOLD, and a user asking for
+    "the measurements.db button" could not find it. This assertion still
+    named the old caption, so it was red against a source that was right.
+    """
     from pathlib import Path
 
     import spacr.qt.screens.app_screen as module
 
     source = Path(module.__file__).read_text(encoding="utf-8")
-    assert 'QPushButton("Feature")' in source
+    assert 'QPushButton("Measurements (.db)")' in source
     assert 'QPushButton("Image crops")' in source
     assert '("Score", "scores",' in source
     assert '("Count", "counts",' in source
@@ -240,13 +246,22 @@ def test_the_four_download_buttons_exist():
 
 def test_the_row_is_labelled_and_aligned_with_the_settings():
     """A row of buttons floating above the form reads as unrelated to it; one
-    whose label sits in the same column reads as part of it."""
+    whose label sits in the same column reads as part of it.
+
+    ``at_top=True`` since instruction 353 -- "the input tables sould start
+    with download buttons not end wit them" -- which this exact-string
+    assertion was left failing by. Matched WITHOUT the closing bracket so the
+    next argument the row grows does not break it a second time; the label
+    and the fact that it goes through ``add_prose_row`` are what this test is
+    about, and where in the form it lands is asserted by
+    ``test_the_download_buttons_sit_over_their_columns``.
+    """
     from pathlib import Path
 
     import spacr.qt.screens.app_screen as module
 
     source = Path(module.__file__).read_text(encoding="utf-8")
-    assert 'section.add_prose_row("Download", row)' in source
+    assert 'section.add_prose_row("Download", row' in source
 
 
 def test_the_labelled_row_is_not_a_setting():
