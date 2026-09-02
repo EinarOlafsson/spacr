@@ -222,7 +222,9 @@ def preprocess_generate_masks(settings):
     #from .timelapse import _summarise_object_relationships
     from .object import (_eval_diameter, generate_organelle_masks_sam,
                          generate_cellpose_masks_sam)
-    from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa, convert_separate_files_to_yokogawa
+    from .io import (preprocess_img_data, _load_and_concatenate_arrays,
+                     _normalized_npz_field_ids, convert_to_yokogawa,
+                     convert_separate_files_to_yokogawa)
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, reset_cellpose_model_reports
     from .settings import set_default_settings_preprocess_generate_masks, _set_organelle_defaults
@@ -464,6 +466,27 @@ def preprocess_generate_masks(settings):
                         # exist_ok, so the normal path where preprocessing
                         # just made it is unaffected.
                         os.makedirs(mask_src, exist_ok=True)
+
+                        if (not settings['preprocess'] and
+                                settings.get('illumination_correction', False)):
+                            # The normalized V1 NPZs are already on disk, so
+                            # fitting or rewriting here would make the masks
+                            # impossible to trace. Accept them only when the
+                            # prior application record proves the same model,
+                            # pipeline style, and exact field set completed.
+                            from .illumination import (
+                                load_segmentation_illumination_resume,
+                            )
+                            load_segmentation_illumination_resume(
+                                settings,
+                                provenance_path=os.path.join(
+                                    src, 'illumination',
+                                    'segmentation_application.json'),
+                                pipeline_style='v1',
+                                expected_fields=(
+                                    _normalized_npz_field_ids(mask_src)),
+                                verbose=settings.get('verbose', True),
+                            )
 
                         if settings['cell_channel'] != None:
                             cancellation_checkpoint()
