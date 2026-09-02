@@ -23,6 +23,7 @@ import spacr.measure as measure
 def _block_mahotas(monkeypatch):
     """Exercise the optional-dependency branch even in the full CI profile."""
     original = builtins.__import__
+    monkeypatch.setattr(measure, "_ZERNIKE_AVAILABLE", None)
 
     def guarded(name, *args, **kwargs):
         if name == "mahotas" or name.startswith("mahotas."):
