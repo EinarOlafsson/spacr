@@ -66,6 +66,10 @@ authors = [
     { name = "Einar Birnir Olafsson", email = "olafsson@med.umich.com" },
 ]
 license = { file = "LICENSE" }
+# SPDX identifier as well as the file: PyPI and downstream
+# packagers read this, and it is a separate claim from the
+# LICENSE file that GitHub reads.
+license-files = ["LICENSE"]
 
 # ---------------------------------------------------------------------------
 # Classifiers are a *claim of support*. `Operating System :: OS Independent`
@@ -89,7 +93,7 @@ license = { file = "LICENSE" }
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: Other/Proprietary License",
+    "License :: OSI Approved :: BSD License",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
     "Operating System :: Microsoft :: Windows",

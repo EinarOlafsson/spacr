@@ -262,8 +262,19 @@ def test_operating_system_classifiers_are_named_explicitly():
         assert expected in cls, f"missing OS classifier: {expected}"
 
 
-def test_noncommercial_license_metadata_is_explicit_and_not_osi_claimed():
-    """A commercial-use restriction must not be advertised as open source."""
+def test_the_license_metadata_says_bsd_and_says_it_everywhere():
+    """spaCR is BSD 3-Clause, and every place that states a licence agrees.
+
+    It was PolyForm Noncommercial for a few weeks. GitHub reads the LICENSE
+    file on the DEFAULT BRANCH and reported `NOASSERTION`, because PolyForm
+    is a real SPDX licence that is not in the set GitHub's detector matches
+    against -- so the repository showed no licence at all while the README
+    claimed BSD and linked to a file that served PolyForm.
+
+    Three separate claims have to agree and are checked together here,
+    because keeping two of them right is what produced that state: the
+    LICENSE file (GitHub), the classifier (PyPI), and the README.
+    """
     data = _toml_loads(_pyproject_text())
     if data is not None:
         assert data["project"]["license"] == {"file": "LICENSE"}
@@ -275,18 +286,23 @@ def test_noncommercial_license_metadata_is_explicit_and_not_osi_claimed():
         )
 
     classifiers = _classifiers()
-    assert "License :: Other/Proprietary License" in classifiers
-    assert not any(
-        classifier.startswith("License :: OSI Approved")
-        for classifier in classifiers
-    )
+    assert "License :: OSI Approved :: BSD License" in classifiers
+    assert "License :: Other/Proprietary License" not in classifiers
 
     license_text = (REPO_ROOT / "LICENSE").read_text(encoding="utf-8")
-    assert license_text.startswith("# PolyForm Noncommercial License 1.0.0")
-    assert "Required Notice: Copyright 2025-2026 Einar Birnir Olafsson." in (
-        license_text
-    )
-    assert "Any noncommercial purpose is a permitted purpose." in license_text
+    assert license_text.startswith("BSD 3-Clause License")
+    # The three clauses and the disclaimer are what make it BSD 3-Clause
+    # rather than 2-Clause or a lookalike. A file missing one of them is a
+    # different licence, and GitHub would decline to name it.
+    assert "Redistributions of source code must retain" in license_text
+    assert "Redistributions in binary form must reproduce" in license_text
+    assert "Neither the name of the copyright holder" in license_text
+    assert "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS" in license_text
+    assert "PolyForm" not in license_text
+
+    readme = (REPO_ROOT / "README.rst").read_text(encoding="utf-8")
+    assert "BSD 3-Clause License" in readme
+    assert ":alt: BSD 3-Clause license" in readme
 
 
 # ---------------------------------------------------------------------------

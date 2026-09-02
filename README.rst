@@ -26,7 +26,7 @@
    :alt: GitHub issues
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm Noncommercial license
+   :alt: BSD 3-Clause license
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343317-blue
    :target: https://doi.org/10.5281/zenodo.21343317
    :alt: Zenodo DOI
@@ -675,12 +675,11 @@ collects most of that for you.
 Licensing
 ~~~~~~~~~
 
-The current development branch is source-available under the
-`PolyForm Noncommercial License 1.0.0
-<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Commercial use
-requires a separate license from the copyright holder. Released versions
-through spaCR 1.4.9.9 remain available under the MIT License that accompanied
-those releases.
+spaCR is released under the `BSD 3-Clause License
+<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Released
+versions through spaCR 1.4.9.9 remain available under the MIT License that
+accompanied those releases, and the PolyForm Noncommercial License that
+briefly applied between them has been withdrawn in favour of BSD 3-Clause.
 
 Tutorials
 ~~~~~~~~~
