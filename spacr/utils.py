@@ -8809,8 +8809,10 @@ def preprocess_data(
     # The unfiltered UMAP/statistics path does not pass through
     # ``filter_dataframe_features``.  Give it the same missing-measurement
     # contract before transformations or estimators see an all-NaN feature.
-    if numeric_data.isna().to_numpy().any():
-        numeric_data = _resolve_missing_model_features(numeric_data)
+    # Resolve every non-finite representation, not only pandas NA. A feature
+    # frame containing only +/- infinity has no ``isna`` bit set but is just
+    # as unfit for correlation filters and estimators as one containing NaN.
+    numeric_data = _resolve_missing_model_features(numeric_data)
     
     # Check if numeric_data is empty
     if numeric_data.empty:
@@ -8980,18 +8982,25 @@ def feature_columns(columns, selection):
 
 
 def _resolve_missing_model_features(df):
-    """Make missing measurements fit-ready without inventing zero signal.
+    """Make non-finite measurements fit-ready without inventing zero signal.
 
-    A measurement absent from every object has no evidence behind it and is
-    removed.  A measurement available for at least one object is retained,
-    with its missing rows filled by that feature's median.  Median imputation
-    gives an object with no measurement the typical observed value, so the
-    absence itself cannot masquerade as unusually strong or weak signal; it
-    is also robust to the long-tailed intensity distributions common here.
+    A missing value and either sign of infinity carry the same information at
+    this boundary: no finite measurement exists for that object. A measurement
+    absent from every object is removed. A measurement available for at least
+    one object is retained, with its non-finite rows filled by that feature's
+    median. Median imputation gives an object with no measurement the typical
+    observed value, so the absence itself cannot masquerade as unusually
+    strong or weak signal; it is also robust to the long-tailed intensity
+    distributions common here.
 
     :param df: numeric model-feature frame.
     :returns: a frame with no missing values.
     """
+    # Ratios measured over an empty compartment legitimately reach the model
+    # table as +/- infinity. Pandas does not classify those values as missing,
+    # and scikit-learn's scalers refuse them, so normalize them into the same
+    # explicit missing-value contract before deciding which columns survive.
+    df = df.replace([np.inf, -np.inf], np.nan)
     missing = df.isna()
     all_missing = missing.all(axis=0)
     all_missing_columns = all_missing[all_missing].index.tolist()
