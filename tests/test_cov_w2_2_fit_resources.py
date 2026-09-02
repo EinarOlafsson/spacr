@@ -18,17 +18,24 @@ import builtins
 import sys
 import types
 
-from spacr.fit_resources import (RESOURCE_KEY, STAGE_KEY, describe_resources,
-                                 gpu_allocated, host_rss, peak, readable,
-                                 record_stage)
-
+from spacr.fit_resources import (
+    RESOURCE_KEY,
+    STAGE_KEY,
+    describe_resources,
+    gpu_allocated,
+    host_rss,
+    peak,
+    readable,
+    record_stage,
+)
 
 # ---------------------------------------------------------------------------
 # resident memory
 # ---------------------------------------------------------------------------
 
-def _break_statm(monkeypatch, error=OSError("no /proc here")):
+def _break_statm(monkeypatch, error=None):
     """Make only `/proc/self/statm` unopenable; everything else is untouched."""
+    error = error or OSError("no /proc here")
     real_open = builtins.open
 
     def guarded(file, *args, **kwargs):
@@ -83,6 +90,11 @@ def test_an_unmeasured_reading_is_spelled_not_measured():
     assert readable(None) == "not measured"
     assert readable(0) == "0.0 B"
     assert readable(2048) == "2.0 KB"
+
+
+def test_a_petabyte_is_still_reported_in_the_largest_supported_unit():
+    """Values beyond the unit table stay truthful rather than disappearing."""
+    assert readable(1024 ** 5) == "1024.0 TB"
 
 
 # ---------------------------------------------------------------------------

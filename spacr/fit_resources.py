@@ -807,10 +807,11 @@ def readable(total: Optional[int]) -> str:
     if total is None:
         return "not measured"
     size = float(max(0, int(total)))
-    for unit in ("B", "KB", "MB", "GB", "TB"):
-        if size < 1024 or unit == "TB":
+    for unit in ("B", "KB", "MB", "GB"):
+        if size < 1024:
             return f"{size:.1f} {unit}"
         size /= 1024
+    return f"{size:.1f} TB"
 
 
 def record_stage(settings: Any, name: str) -> Dict[str, Any]:
