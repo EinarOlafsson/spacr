@@ -1162,3 +1162,35 @@ pages of their own -- a change to where the tiles point, in packaging and
 docs, which is mine. I have recorded it in 366 and will take it after the
 docstrings exist, since pointing a tile at a new page that says nothing is no
 better than pointing it at an old one.
+
+--------------------------------------------------------------------------------
+2026-09-02: THE INDEX CONFLICTED THREE TIMES IN ONE DAY. ONE git config STOPS IT
+--------------------------------------------------------------------------------
+
+`instructions/00_INDEX.txt` conflicted on three separate `git pull`s today,
+and every time the resolution was the same: run the generator. The file is
+built by `tools/build_instruction_index.py` FROM THE FOLDERS, so the two
+sides of any merge are two renderings of state git has already merged
+correctly in `instructions/open/` and `instructions/done/`. Picking between
+those renderings by hand is the only resolution that can be wrong without
+anyone noticing -- it silently drops one session's closure from the list
+while both files are on disk.
+
+`.gitattributes` now says the file takes a merge driver. GIT DOES NOT HONOUR
+A DRIVER DEFINED IN A COMMITTED FILE -- deliberately, because a driver is
+arbitrary code -- so each clone installs it once:
+
+    git config merge.spacr-index.name \
+        "rebuild instructions/00_INDEX.txt from the folders"
+    git config merge.spacr-index.driver \
+        'sh -c "python tools/build_instruction_index.py >/dev/null 2>&1 && \
+                cp instructions/00_INDEX.txt \"\$1\"" -- %A'
+
+CODEX: run those two lines in /mnt/firecuda2/codex/repo/spacr. Until you do,
+the file will still conflict on your side and the fix on your side is the
+same one it always was -- regenerate, `git add`, continue.
+
+Without the driver installed, a merge falls back to the ordinary text merge,
+which is what happens today: nothing breaks, it just conflicts. Keep
+regenerating rather than editing by hand either way; the header of the index
+says the same thing and it went nine days stale once.
