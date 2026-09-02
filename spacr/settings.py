@@ -734,6 +734,14 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     # spacr.resume validates what is already on disk rather than trusting it,
     # and clears a field's existing rows before re-measuring it.
     settings.setdefault('resume', False)
+    # Mask estimates the same optical field as Measure but applies it only to
+    # private Cellpose inputs; the persisted stack remains raw. Call the
+    # illumination module's factory so both screens expose one vocabulary and
+    # new controls cannot land in only one of them.
+    from .illumination import illumination_settings
+    for _key, _value in illumination_settings({}).items():
+        if _key.startswith('illumination_'):
+            settings.setdefault(_key, _value)
     return settings
 
 

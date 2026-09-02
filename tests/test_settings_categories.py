@@ -1195,9 +1195,10 @@ def _rendered_sections(app_key):
             "Output & Database", "Plots & Heatmaps",
             "Runtime & Reliability",
         ]),
-        ("mask", [
-            "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
-            "Cell Segmentation", "Nucleus Segmentation",
+            ("mask", [
+                "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
+                "Illumination Correction",
+                "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
             # The three advanced families, in the order the layout writes
@@ -1226,9 +1227,10 @@ def _rendered_sections(app_key):
             "Preview & Diagnostics", "3D Calibration (Beta)",
             "Runtime & Reliability",
         ]),
-        ("timelapse", [
-            "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
-            "Cell Segmentation", "Nucleus Segmentation",
+            ("timelapse", [
+                "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
+                "Illumination Correction",
+                "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
             # The three advanced families, in the order the layout writes

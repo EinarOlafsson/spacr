@@ -3872,7 +3872,11 @@ def measure_crop(settings):
                 # this call is the whole feature: without it the setting is a
                 # switch that does nothing and every intensity feature keeps
                 # its position-dependent bias. See spacr.illumination.
-                from .illumination import prepare_illumination_correction
+                from .illumination import (
+                    prepare_illumination_correction,
+                    validate_measurement_illumination_inputs,
+                )
+                validate_measurement_illumination_inputs(settings)
                 prepare_illumination_correction(settings)
 
                 if settings['cell_mask_dim'] is None:

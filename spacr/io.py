@@ -1730,7 +1730,90 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
 
     return normalized_stack.astype(save_dtype)
 
-def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=None):
+def _save_npz_atomic(output_path, **arrays):
+    """Write a compressed NumPy archive by atomically replacing its path.
+
+    :param output_path: final ``.npz`` path.
+    :param arrays: named arrays passed to :func:`numpy.savez_compressed`.
+    :returns: ``output_path`` after the durable replacement.
+    """
+    directory = os.path.dirname(output_path) or '.'
+    os.makedirs(directory, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(
+        prefix='.spacr_npz_', suffix='.npz', dir=directory)
+    os.close(fd)
+    try:
+        np.savez_compressed(temporary, **arrays)
+        with open(temporary, 'rb') as handle:
+            os.fsync(handle.fileno())
+        os.replace(temporary, output_path)
+    except BaseException:
+        try:
+            os.remove(temporary)
+        except OSError:
+            pass
+        raise
+    return output_path
+
+
+def _normalized_npz_field_ids(src):
+    """Return exact field stems carried by V1 normalised mask archives.
+
+    :param src: the V1 ``masks/`` directory.
+    :returns: sorted, de-duplicated field stems as a tuple.
+    :raises FileNotFoundError: when no normalised archives exist.
+    :raises ValueError: when an archive has no ``filenames`` manifest.
+    """
+    archives = sorted(
+        os.path.join(src, name) for name in os.listdir(src)
+        if name.endswith('.npz'))
+    if not archives:
+        raise FileNotFoundError(
+            'preprocess=False with segmentation illumination requires the '
+            f'normalised V1 .npz inputs in {src}; none were found.')
+    fields = set()
+    for path in archives:
+        with np.load(path, allow_pickle=False) as archive:
+            if 'filenames' not in archive:
+                raise ValueError(
+                    'preprocess=False cannot validate segmentation '
+                    f'illumination because {path} has no filenames manifest.')
+            for name in np.asarray(archive['filenames']).reshape(-1):
+                fields.add(os.path.splitext(os.path.basename(str(name)))[0])
+    return tuple(sorted(fields))
+
+
+def _correct_v1_segmentation_batch(
+        stack, filenames, channels, settings, illumination_session):
+    """Correct selected V1 channels on a private batch copy.
+
+    :returns: ``(working_stack, field_ids)``; without a session the original
+        stack and an empty tuple are returned unchanged.
+    """
+    if illumination_session is None:
+        return stack, ()
+    from .measure_hooks import PreprocessingContext
+
+    working = np.array(stack, copy=True)
+    field_ids = []
+    for index, filename in enumerate(filenames):
+        field_id = os.path.splitext(os.path.basename(str(filename)))[0]
+        context = PreprocessingContext(
+            file_name=os.path.basename(str(filename)),
+            channels=list(channels),
+            settings=settings,
+        )
+        selected = working[index][..., list(channels)]
+        corrected = illumination_session.correct(
+            field_id, selected, context)
+        working[index][..., list(channels)] = corrected
+        field_ids.append(field_id)
+    return working, tuple(field_ids)
+
+
+def concatenate_and_normalize(
+        src, channels, save_dtype=np.float32, settings=None,
+        illumination_session=None):
     """Concatenate per-file channel arrays and normalise them into a single stack.
 
     :param src: Directory containing per-FOV ``.npy`` channel arrays.
@@ -1742,6 +1825,9 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
         batch_size and plotting keys used elsewhere in preprocessing. The
         ``None`` in the signature is kept only so the argument can still be
         passed positionally; omitting it is an error.
+    :param illumination_session: optional segmentation-only illumination
+        session. It corrects private copies of the selected channels before
+        normalisation and records completion only after each NPZ is durable.
     :returns: Path to the directory where normalised arrays were saved.
     :raises ValueError: if ``settings`` is not supplied.
     """
@@ -1796,10 +1882,15 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
     # Every FOV that fails to load is dropped from the normalised stacks.
     # Nothing downstream can tell, so account for it here.
     ledger = RunLedger('concatenate_and_normalize')
+    intended_fields = []
 
     if settings['timelapse']:
         try:
             time_stack_path_lists = _generate_time_lists(os.listdir(src))
+            intended_fields = [
+                os.path.splitext(os.path.basename(str(filename)))[0]
+                for group in time_stack_path_lists for filename in group
+            ]
             for i, time_stack_list in enumerate(time_stack_path_lists):
                 start = time.time()
                 stack_region = []
@@ -1819,6 +1910,9 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 files_to_process = len(time_stack_path_lists)
                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
                 stack = np.stack(stack_region)
+                stack, field_ids = _correct_v1_segmentation_batch(
+                    stack, filenames_region, channels, settings,
+                    illumination_session)
 
                 normalized_stack = _normalize_img_batch(stack=stack,
                                                         channels=channels, 
@@ -1828,7 +1922,14 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 normalized_stack = normalized_stack[..., channels]
                 
                 save_loc = os.path.join(output_fldr, f'{name}_norm_timelapse.npz')
-                np.savez_compressed(save_loc, data=normalized_stack, filenames=filenames_region)
+                arrays = dict(data=normalized_stack,
+                              filenames=filenames_region)
+                if illumination_session is None:
+                    np.savez_compressed(save_loc, **arrays)
+                else:
+                    _save_npz_atomic(save_loc, **arrays)
+                    for field_id in field_ids:
+                        illumination_session.mark_completed(field_id)
                 
                 # Only plot when the user asked for it: an interactive
                 # matplotlib backend makes plt.show() block, which would hang
@@ -1841,6 +1942,11 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
         except Exception as e:
             print(f"Error processing files, make sure filenames metadata is structured plate_well_field_time.npy")
             print(f"Error: {e}")
+            if illumination_session is not None:
+                # A partially corrected timelapse cannot be presented as a
+                # successful raw/off run. Let the run policy record the real
+                # failure and leave provenance incomplete for resume.
+                raise
     else:
         for file in os.listdir(src):
             if file.endswith('.npy'):
@@ -1848,6 +1954,9 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 paths.append(path)
         if settings['randomize']:
             random.shuffle(paths)
+        intended_fields = [
+            os.path.splitext(os.path.basename(path))[0] for path in paths
+        ]
         nr_files = len(paths)
         batch_index = 0
         stack_ls = []
@@ -1889,6 +1998,10 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                     stack = np.stack(padded_stack_ls)
                 else:
                     stack = np.stack(stack_ls)
+
+                stack, field_ids = _correct_v1_segmentation_batch(
+                    stack, filenames_batch, channels, settings,
+                    illumination_session)
                 
                 normalized_stack = _normalize_img_batch(stack=stack,
                                                         channels=channels,
@@ -1901,7 +2014,14 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 # Lossless-compressed so the on-disk normalised batch is much
                 # smaller (np.load reads it transparently); it's deleted with
                 # masks/ after merged/ is built unless keep_intermediate is set.
-                np.savez_compressed(save_loc, data=normalized_stack, filenames=filenames_batch)
+                arrays = dict(data=normalized_stack,
+                              filenames=filenames_batch)
+                if illumination_session is None:
+                    np.savez_compressed(save_loc, **arrays)
+                else:
+                    _save_npz_atomic(save_loc, **arrays)
+                    for field_id in field_ids:
+                        illumination_session.mark_completed(field_id)
                 # Gated on settings['plot'] — see the timelapse branch above:
                 # an interactive backend blocks the pipeline on plt.show().
                 if batch_index == 0 and settings.get('plot'):
@@ -1914,6 +2034,8 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 filenames_batch = []
                 padded_stack_ls = []
 
+    if illumination_session is not None:
+        illumination_session.finish(intended_fields)
     print(f'All files concatenated and normalized. Saved to: {output_fldr}')
     # Emitted last so a partially-loaded stack cannot scroll off the top of
     # a 400-line progress log. No stamp: output_fldr is masks/, which the
@@ -2363,6 +2485,20 @@ def preprocess_img_data(settings):
             print('Found existing channel_stack folder.')
         if os.path.exists(os.path.join(src,'masks')):
             print('Found existing masks folder. Skipping preprocessing')
+            if settings.get('illumination_correction', False):
+                from .illumination import (
+                    load_segmentation_illumination_resume,
+                )
+                mask_src = os.path.join(src, 'masks')
+                load_segmentation_illumination_resume(
+                    settings,
+                    provenance_path=os.path.join(
+                        src, 'illumination',
+                        'segmentation_application.json'),
+                    pipeline_style='v1',
+                    expected_fields=_normalized_npz_field_ids(mask_src),
+                    verbose=settings.get('verbose', True),
+                )
             return settings, src
 
     #mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel'], settings['organelle_channel']]
@@ -2512,10 +2648,21 @@ def preprocess_img_data(settings):
             f"No image stacks were produced from {src}. spaCR found "
             f"{len(images)} image file(s) directly in that folder.{hint}")
 
+    illumination_session = None
+    if settings.get('illumination_correction', False):
+        from .illumination import prepare_segmentation_illumination
+        illumination_session = prepare_segmentation_illumination(
+            settings,
+            src=stack_path,
+            channels=mask_channels,
+            pipeline_style='v1',
+        )
+
     concatenate_and_normalize(src=stack_path,
                               channels=mask_channels,
                               save_dtype=np.float32,
-                              settings=settings)
+                              settings=settings,
+                              illumination_session=illumination_session)
         
     for key in mask_channel_keys:
         ch = settings.get(key)

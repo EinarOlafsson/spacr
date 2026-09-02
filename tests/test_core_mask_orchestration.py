@@ -175,6 +175,91 @@ def test_partial_mask_folder_is_regenerated(run_dir, stubs):
     assert [c[0][2] for c in stubs["cellpose"].calls] == ["cell"]
 
 
+def test_preprocess_false_validates_exact_illumination_fields_before_cellpose(
+        run_dir, stubs, monkeypatch):
+    """Existing corrected segmentation inputs need a complete matching record."""
+    import spacr.illumination as illumination
+    from spacr.core import preprocess_generate_masks
+
+    masks = run_dir / "masks"
+    masks.mkdir()
+    np.savez_compressed(
+        masks / "stack_0_norm.npz",
+        data=np.zeros((3, 8, 8, 2), dtype=np.float32),
+        filenames=np.asarray(["f0.npy", "f1.npy", "f2.npy"]),
+    )
+    events = []
+
+    def validate(settings, **kwargs):
+        events.append(("validate", kwargs))
+        return object()
+
+    monkeypatch.setattr(
+        illumination, "load_segmentation_illumination_resume", validate)
+    original_cellpose = stubs["cellpose"]
+
+    def cellpose(*args, **kwargs):
+        events.append(("cellpose", args[2]))
+        return original_cellpose(*args, **kwargs)
+
+    import spacr.object as sobj
+    monkeypatch.setattr(sobj, "generate_cellpose_masks_sam", cellpose)
+
+    preprocess_generate_masks(_mask_settings(
+        run_dir,
+        illumination_correction=True,
+        illumination_model="",
+        preprocess=False,
+        masks=True,
+        cell_channel=1,
+        nucleus_channel=None,
+    ))
+
+    assert events[0][0] == "validate"
+    assert events[0][1] == {
+        "provenance_path": str(
+            run_dir / "illumination" / "segmentation_application.json"),
+        "pipeline_style": "v1",
+        "expected_fields": ("f0", "f1", "f2"),
+        "verbose": False,
+    }
+    assert events[1:] == [("cellpose", "cell")]
+
+
+def test_preprocess_false_stops_before_cellpose_when_provenance_is_invalid(
+        run_dir, stubs, monkeypatch):
+    """A stale application record cannot be bypassed by re-masking."""
+    import spacr.illumination as illumination
+    from spacr.core import preprocess_generate_masks
+
+    masks = run_dir / "masks"
+    masks.mkdir()
+    np.savez_compressed(
+        masks / "stack_0_norm.npz",
+        data=np.zeros((3, 8, 8, 2), dtype=np.float32),
+        filenames=np.asarray(["f0.npy", "f1.npy", "f2.npy"]),
+    )
+
+    def refuse(*args, **kwargs):
+        raise illumination.IlluminationError("provenance mismatch")
+
+    monkeypatch.setattr(
+        illumination, "load_segmentation_illumination_resume", refuse)
+
+    with pytest.raises(illumination.IlluminationError,
+                       match="provenance mismatch"):
+        preprocess_generate_masks(_mask_settings(
+            run_dir,
+            illumination_correction=True,
+            preprocess=False,
+            masks=True,
+            cell_channel=1,
+            nucleus_channel=None,
+        ))
+
+    assert stubs["cellpose"].n == 0
+
+
 # ---------------------------------------------------------------------------
 # merge step
 # ---------------------------------------------------------------------------
