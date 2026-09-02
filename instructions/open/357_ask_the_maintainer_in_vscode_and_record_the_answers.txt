@@ -157,3 +157,59 @@ HOW TO KNOW THIS ITEM WORKED
   pushed one item at a time.
 * No release is cut and no translation is called fluent-reviewed merely
   because this intake item itself is complete.
+
+--------------------------------------------------------------------------------
+2026-09-02 — ANSWERS, ROUND ONE. ASKED IN VS CODE, RECORDED VERBATIM.
+--------------------------------------------------------------------------------
+
+316-A  ANSWERED: A1 — "Keep exact (recommended)".
+       CPU and GPU stay exactly as they are in every locale, as technical
+       identifiers, and go into the deliberate-identity exemption alongside
+       'QC' (instruction 318). AUTHORISES: exempting those two strings from
+       the compact caption surface. Does not authorise exempting anything
+       else.
+
+316-C  NOT ANSWERED AS OFFERED. The maintainer replied: "for each of these
+       sentences, tell me the english version and use vs code questions to
+       aske me what the translations are so we can close 316-C."
+       So neither C1, C2 nor C3 is chosen: he intends to SUPPLY the
+       translations himself, string by string, through the question flow.
+       That is a fourth option the question did not offer and it is better
+       than all three — it produces a named human reviewer for every locale.
+       RECORD FOR EACH: the reviewer (Einar), the locale, the exact source and
+       target, and the date, per guideline 4.
+
+337-B  ANSWERED: B1 — "Keep 'Output directory'".
+       Regression keeps the semantically precise label; every other screen
+       shows "Path". This CONFIRMS what was already implemented on
+       2026-09-02, so no code change follows — the answer closes the open
+       question rather than opening work.
+
+306-A  ANSWERED: A1 — approve both.
+       "none detected" and "detected, not used by spaCR" go for translation
+       as written.
+
+306-B  ANSWERED: keep BOTH long captions as written.
+       (i) the setup slide's performance/resource caption and (ii) the Home
+       grouping caption are approved for translation unrevised. The maintainer
+       first chose "revise first" in the abstract and then, shown the actual
+       strings, chose to keep both — which is the reason the question showed
+       the text rather than describing it.
+
+WHAT THIS UNBLOCKS, and it is now a closed set of FOUR strings needing nine
+locales each:
+
+    "none detected"
+    "detected, not used by spaCR"
+    the performance/resource caption   (44 words, setup_slides.py)
+    the Home grouping caption          (first_run.py)
+
+CPU and GPU are exempt and need no translation. That is the whole of 306's
+compact-layer debt.
+
+ONE THING FOUND WHILE ASKING, and it belongs to 306 rather than here: the
+catalog's reviewed row for the Home grouping caption still names SIX sections
+— "Core, Data, Results & QC, Explore, Assays and Design" — while the live
+caption is built from the four that exist. So that row is stale against the
+running UI independently of any translation, and re-translating it without
+fixing the source would translate a sentence the application no longer says.
