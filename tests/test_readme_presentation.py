@@ -291,9 +291,18 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
         assert gone not in block, f"{gone} is still a heading over the grid"
     assert "spaCR modules\n-------------" in text
 
+    # A LINE BLOCK, so every row starts "| ". Measured on the real GitHub
+    # page on 2026-09-02: with each row as its own PARAGRAPH the gap between
+    # rows was 2.5 to 3 times the gap between columns, because the horizontal
+    # gutter is two tile canvases meeting and the vertical one was GitHub's
+    # paragraph margin stacked on top of the same padding. A line block has
+    # no paragraph margin, so both gutters become the same measurement.
     rows = [line for line in text.splitlines()
-            if line.startswith("|Module_")]
+            if line.startswith("| |Module_")]
     assert rows, "the grid emitted no rows"
+    assert not any(line.startswith("|Module_") for line in text.splitlines()), (
+        "a grid row is a bare paragraph again; its bottom margin is what made "
+        "the vertical gutter three times the horizontal one")
     assert sum(line.count("|Module_") for line in rows) == len(grid)
     # SIX PER ROW, and the last row is the only short one.
     assert all(line.count("|Module_") == generator.GRID_COLUMNS

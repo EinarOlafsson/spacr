@@ -1,13 +1,10 @@
 spaCR modules
 ~~~~~~~~~~~~~
 
-|DocModule_mask|\ |DocModule_measure|\ |DocModule_annotate|\ |DocModule_classify_merged|\ |DocModule_map_barcodes|\ |DocModule_regression|
-
-|DocModule_foreign|\ |DocModule_run_compare|\ |DocModule_experiment_design|\ |DocModule_power|\ |DocModule_dose_response|\ |DocModule_qc_dashboard|
-
-|DocModule_make_masks|\ |DocModule_align|\ |DocModule_umap|\ |DocModule_gate_editor|\ |DocModule_graph_builder|\ |DocModule_analyze_plaques|
-
-|DocModule_recruitment|\ |DocModule_invasion|\ |DocModule_replication|
+| |DocModule_mask|\ |DocModule_measure|\ |DocModule_annotate|\ |DocModule_classify_merged|\ |DocModule_map_barcodes|\ |DocModule_regression|
+| |DocModule_foreign|\ |DocModule_run_compare|\ |DocModule_experiment_design|\ |DocModule_power|\ |DocModule_dose_response|\ |DocModule_qc_dashboard|
+| |DocModule_make_masks|\ |DocModule_align|\ |DocModule_umap|\ |DocModule_gate_editor|\ |DocModule_graph_builder|\ |DocModule_analyze_plaques|
+| |DocModule_recruitment|\ |DocModule_invasion|\ |DocModule_replication|
 
 .. |DocModule_mask| image:: /_static/workflow/mask.png
    :width: 16.0%

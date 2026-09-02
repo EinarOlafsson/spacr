@@ -893,6 +893,36 @@ def _module_grid() -> "list[tuple[str, str, str]]":
     return rows
 
 
+def _grid_lines(names: "list[str]") -> "list[str]":
+    """The grid as an RST LINE BLOCK, one line per row.
+
+    MEASURED ON THE REAL PAGE, 2026-09-02: with each row as its own
+    paragraph, the gap between rows was 2.5 to 3 times the gap between
+    columns. The horizontal gutter is deliberate and controlled -- two tile
+    canvases meet, so it is exactly ``2 * TILE_PADDING``. The vertical one
+    was not controlled at all: it was GitHub's paragraph margin, about 16px,
+    stacked on top of the same tile padding, and nothing in this repository
+    sets it.
+
+    A line block removes the paragraph entirely. Each row becomes one line
+    inside a single block, so what separates two rows is the line box rather
+    than a margin, and the only space left between them is the transparent
+    padding the tiles already carry -- which is the same padding that makes
+    the horizontal gap. The two gutters are then the same measurement rather
+    than two numbers that happen to be close.
+
+    SIX PER ROW STAYS EXPLICIT. The other way to drop the margins is to let
+    one flowing paragraph wrap, and then the row length is the browser's
+    decision: a narrow viewport or a different font size gives five or seven.
+    A line block keeps the row length ours.
+    """
+    return [
+        *(f"| {_inline_image_row(row)}"
+          for row in _grid_rows(names)),
+        "",
+    ]
+
+
 def _grid_rows(names: "list[str]") -> "list[list[str]]":
     """Split substitution names into rows of :data:`GRID_COLUMNS`."""
     return [names[start:start + GRID_COLUMNS]
@@ -914,8 +944,7 @@ def _readme_workflow(
     grid = _module_grid()
     names = {key: f"Module_{key}" for key, _label, _path in grid}
     lines: list[str] = []
-    for row in _grid_rows([f"|{names[key]}|" for key, _l, _p in grid]):
-        lines.extend([_inline_image_row(row), ""])
+    lines.extend(_grid_lines([f"|{names[key]}|" for key, _l, _p in grid]))
     definitions: list[str] = []
     for key, label, image in grid:
         definitions.extend([
@@ -947,8 +976,7 @@ def _documentation_workflow() -> str:
     grid = _module_grid()
     names = {key: f"DocModule_{key}" for key, _label, _path in grid}
     lines = ["spaCR modules", "~~~~~~~~~~~~~", ""]
-    for row in _grid_rows([f"|{names[key]}|" for key, _l, _p in grid]):
-        lines.extend([_inline_image_row(row), ""])
+    lines.extend(_grid_lines([f"|{names[key]}|" for key, _l, _p in grid]))
     definitions: list[str] = []
     for key, label, image in grid:
         definitions.extend([
