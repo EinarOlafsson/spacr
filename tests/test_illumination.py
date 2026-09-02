@@ -926,6 +926,11 @@ def test_measure_crop_writes_corrected_intensities_under_a_spawn_pool(
         'experiment': 'exp', 'n_jobs': 2, 'test_mode': False,
         'cytoplasm': False, 'homogeneity': False, 'radial_dist': False,
         'calculate_correlation': False,
+        # This is an illumination transport test, not a size-filter test.
+        # The synthetic discs are deliberately tiny so the spawn run stays
+        # cheap; pin their filters instead of inheriting production defaults.
+        'cell_min_size': 0, 'nucleus_min_size': 0,
+        'pathogen_min_size': 0,
     })
 
     model = ill.estimate_illumination(estimate_from, channels=[0, 1],
@@ -1695,6 +1700,39 @@ def test_measure_offers_every_illumination_setting():
     assert measure['src'] == 'path'
 
 
+def test_mask_offers_every_illumination_setting_off_by_default():
+    """Mask owns the same correction controls, with correction opt-in."""
+    from spacr.settings import set_default_settings_preprocess_generate_masks
+
+    mask = set_default_settings_preprocess_generate_masks({})
+    expected = ill.illumination_settings({})
+    for key, value in expected.items():
+        if not key.startswith('illumination_'):
+            continue
+        assert key in mask
+        assert mask[key] == value
+    assert mask['illumination_correction'] is False
+
+
+def test_the_mask_panel_places_illumination_under_one_heading():
+    """Mask must expose every correction knob in a named section."""
+    pytest.importorskip('PySide6')
+    from spacr.qt.screens.settings_model import (
+        categories_for_app, resolve_default_settings,
+    )
+    import spacr.settings as S
+
+    sections = categories_for_app('mask', S.categories)
+    defaults = resolve_default_settings('mask')
+    illumination_keys = {key for key in defaults
+                         if key.startswith('illumination_')}
+    assert illumination_keys
+    homes = {name for name, keys in sections.items()
+             if illumination_keys & set(keys)}
+    assert homes == {'Illumination Correction'}
+    assert illumination_keys <= set(sections['Illumination Correction'])
+
+
 def test_the_measure_panel_shows_them_under_one_heading():
     """Folded into one section, not the four the Illumination screen uses.
 
@@ -1866,9 +1904,18 @@ def test_measure_crop_prepares_the_correction_before_it_measures(
     from spacr import measure as measure_mod
     from spacr.settings import get_measure_crop_settings
 
-    seen = {}
+    seen = {'events': []}
+
+    def validate(settings, **kwargs):
+        seen['events'].append('validate')
+        seen['validated_src'] = settings['src']
+        return {}
+
+    monkeypatch.setattr(
+        ill, 'validate_measurement_illumination_inputs', validate)
 
     def spy(settings, **kwargs):
+        seen['events'].append('prepare')
         seen['src'] = settings['src']
         seen['before_pool'] = 'pool' not in seen
         return None
@@ -1876,6 +1923,7 @@ def test_measure_crop_prepares_the_correction_before_it_measures(
     monkeypatch.setattr(ill, 'prepare_illumination_correction', spy)
 
     def no_pool(*args, **kwargs):
+        seen['events'].append('pool')
         seen['pool'] = True
         raise RuntimeError('stop here')
 
@@ -1919,6 +1967,8 @@ def test_measure_crop_prepares_the_correction_before_it_measures(
     assert seen.get('before_pool') is True, (
         "the correction was installed after the worker pool was built, so "
         "no spawned worker inherits it")
+    assert seen['events'] == ['validate', 'prepare', 'pool']
+    assert os.path.basename(seen['validated_src']) == 'merged'
 
 
 def test_measure_crop_leaves_an_uncorrected_run_alone(tmp_path, monkeypatch):
