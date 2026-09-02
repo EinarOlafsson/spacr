@@ -238,6 +238,25 @@ def test_exhausted_lock_budget_raises_database_busy(tmp_path):
         contender.close()
 
 
+def test_zero_attempts_is_clamped_to_one_lock_attempt(tmp_path):
+    path = tmp_path / "busy.sqlite"
+    _create_database(path)
+    holder = connect(path, timeout=0.01)
+    contender = connect(path, timeout=0.01)
+    try:
+        holder.execute("BEGIN IMMEDIATE")
+        with pytest.raises(DatabaseBusy, match="after 1 transaction attempt"):
+            with transaction(
+                contender, attempts=0, initial_delay=0,
+                maximum_delay=0, busy_timeout=0,
+            ):
+                pytest.fail("a locked transaction body must never start")
+    finally:
+        holder.rollback()
+        holder.close()
+        contender.close()
+
+
 def test_read_only_connection_is_enforced_by_sqlite(tmp_path):
     path = tmp_path / "readonly.sqlite"
     _create_database(path)
