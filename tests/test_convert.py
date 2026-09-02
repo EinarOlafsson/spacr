@@ -1354,6 +1354,23 @@ def test_convert_folder_preview_only_writes_nothing(run1, tmp_path, capsys):
     assert len(result.plan) == 20
 
 
+def test_convert_folder_previews_an_empty_source_without_an_empty_table(
+        tmp_path, capsys):
+    src = tmp_path / "empty"
+    src.mkdir()
+
+    result = cv.convert_folder(src=str(src), preview_only=True, preview_rows=5)
+
+    printed = capsys.readouterr().out
+    assert result.plan.ok
+    assert len(result.plan.mappings) == 0
+    assert result.n_written == 0
+    assert "No readable images were found." in printed
+    assert "preview_only is set" in printed
+    assert "Empty DataFrame" not in printed
+    assert not os.path.exists(result.dst)
+
+
 def test_convert_folder_truncates_a_long_preview(run1, capsys):
     cv.convert_folder({"src": run1, "preview_only": True, "preview_rows": 5})
     printed = capsys.readouterr().out
