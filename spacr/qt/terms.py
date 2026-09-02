@@ -8,6 +8,8 @@ prefix.
 """
 from __future__ import annotations
 
+import logging
+
 from typing import Dict, Tuple
 
 #: The version of the terms below.
@@ -26,7 +28,14 @@ from typing import Dict, Tuple
 #: profile accepted is a different licence, the noncommercial restriction
 #: is gone, and the warranty and liability terms are now the licence's own
 #: rather than this document's. A profile that accepted 3.0 is asked again.
-TERMS_VERSION = "4.0"
+#: 4.1 adds Section 11.4, the governing-language clause, when the
+#: agreement began being presented in nine languages on 2026-09-02. A
+#: translation is a convenience and the English governs; that is a term
+#: of the agreement rather than a note about it, so it is IN the
+#: agreement and a profile that accepted 4.0 is asked again.
+LOG = logging.getLogger(__name__)
+
+TERMS_VERSION = "4.1"
 
 #: What the licence is called, and where the whole of it can be read.
 #:
@@ -234,6 +243,7 @@ TERMS: Tuple[str, ...] = (
     "referenced in Section 2.1, is the entire agreement between You and "
     "the Licensor concerning the Software. Where the two differ, the "
     "licence governs.",
+    "11.4 LANGUAGE. This Agreement is written in English. spaCR may present a translation of it for convenience, and a translation is not a separate agreement: if a translated version differs from the English in any respect, THE ENGLISH VERSION GOVERNS. You accept the English Agreement whichever language You read it in.",
 )
 
 #: The line shown on the agreement control itself.
@@ -270,8 +280,36 @@ def _settings():
     return store()
 
 
-def terms_text() -> str:
-    """Return the terms with a blank line between clauses."""
+def terms_text(language: str | None = None) -> str:
+    """Return the terms with a blank line between clauses.
+
+    :param language: language code to present the agreement in. ``None`` uses
+        the profile's current language. A locale with no translated
+        presentation gets the English, which is always correct here.
+
+    THE ENGLISH IS THE AGREEMENT. Section 11.4 says so: a translation is a
+    convenience and the English governs. So a missing or partial translation
+    is never an error condition -- it falls back and the document a profile
+    accepts is unchanged, which is why `record_agreement` stores
+    `TERMS_VERSION` and nothing about the language on screen.
+    """
+    if language is None:
+        try:
+            from .i18n import current_language
+
+            language = current_language()
+        except Exception:                                    # noqa: BLE001
+            language = "en"
+    if str(language) != "en":
+        try:
+            from . import terms_i18n
+
+            translated = terms_i18n.paragraphs(str(language))
+            if translated:
+                return "\n\n".join(translated)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no translated agreement for %s", language,
+                      exc_info=True)
     return "\n\n".join(TERMS)
 
 
