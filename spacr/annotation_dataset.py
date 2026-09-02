@@ -21,7 +21,6 @@ Comparing the two is therefore only meaningful with ``bounding_box=True``.
 :func:`spacr.annotation_dataset` says so in the settings it accepts, and the
 GUI says it beside the picker.
 
-Instruction 338.
 """
 from __future__ import annotations
 
