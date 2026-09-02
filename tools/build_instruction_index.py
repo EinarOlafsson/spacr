@@ -68,7 +68,7 @@ STAGE: Dict[str, str] = {
     "05": "~40% -- mechanism verified at 1.5.0.4; needs one green SHA, then approval",
     "58": "~95% -- history clean; GitHub's cached widget is all that is left",
     "253": "0% by construction -- closes last",
-    "288": "coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; 1 open issue",
+    "288": "coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; zero open issues",
     "304": "~60% -- metadata in place; needs the Zenodo toggle and the bump",
     "305": "~60% -- startup accepted from an installed wheel; sdist, GPU, matrix, profiles left",
     "306": "~93% -- 3 of 6 ratchet tests closed; 125 catalog rows owed, 6 compact rows need the maintainer",
