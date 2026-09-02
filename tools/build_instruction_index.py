@@ -83,7 +83,7 @@ STAGE: Dict[str, str] = {
     "337": "~75% -- Manders, spatial defaults and both labels done; part 3 needs the maintainer's measure settings",
     "339": "0% -- illumination is called from measure and nowhere else",
     "341": "0% -- three tests confirmed still failing on 2026-09-01",
-    "350": "~50% -- swept properly: 5 clipped in 4 screens x 3 locales, all AiToggleLabel",
+    "350": "~50% -- no proven clipping in 4 screens x 3 locales; three false-positive classes recorded",
     "353": "~60% -- the buttons are at the top; aligning them to their columns is not done",
     "345": "~35% -- the stale stub is fixed, 3 down to 2; the rest are order-dependent",
     "346": "~85% -- three causes fixed, 21 down to 3; one more poisoner to bisect",
