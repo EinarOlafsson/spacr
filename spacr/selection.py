@@ -85,7 +85,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from types import MappingProxyType
-from typing import Any, Iterable, Mapping, Optional, Sequence, Tuple
+from typing import Any, Iterable, Mapping, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -963,6 +963,14 @@ class ObjectRequest:
             plain_rows = typed_rows
 
         def rank(typed: str, plain: str) -> int:
+            """Find a row key's position in the captured request.
+
+            :param typed: row key including its object type when available.
+            :param plain: the same row key without an object type.
+            :returns: request position using exact typed, loose untyped, then
+                narrowed typed-request precedence. Narrowing is allowed only
+                for an untyped row (``typed == plain``); absent keys return -1.
+            """
             found = exact.get(typed)
             if found is None:
                 found = loose.get(plain)
