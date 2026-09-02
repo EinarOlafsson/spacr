@@ -166,3 +166,62 @@ WHAT REMAINS IN 350, and it is the sweep rather than the tool:
 This first case was cause 2 AND cause 3 from the list above at once -- a fixed
 size a longer string overflows, and a size that only holds at one font scale.
 That is the argument for the sweep being more than one pass.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE SWEEP, RUN. ENGLISH IS FINE AND GERMAN IS TEN TIMES WORSE.
+--------------------------------------------------------------------------------
+
+THE NUMBER THIS ITEM EXISTS FOR. Eight module screens, same widgets, same
+window, only the language changed:
+
+    window 1100x800     en      3 clipped
+                        de     38 clipped
+                        pt     33 clipped
+
+At 1400x950 in English the count is ZERO across twelve screens. So a sweep run
+the obvious way -- one language, one generous window -- would have reported
+this package clean, and the WATCH section above predicted exactly that. The
+locale is not a refinement of this item; it is the item.
+
+WHICH CAPTIONS, measured on three screens in German and ordered by how far
+they overrun. Each repeats on every module screen, so the fix is one control
+each rather than one per screen:
+
+    QPushButton  'Einstellungen importieren…'          short by 45 px
+    QLabel       'Einstellungen konfigurieren, dann…'  short by 52 px
+    QLabel       'Herunterladen'                       short by 25 px
+    QPushButton  'Remote übermitteln…'                 short by 15 px
+    QPushButton  'Konsole kopieren'                    short by  9 px
+
+THE BUTTONS ARE CERTAIN. A QPushButton does not wrap, so a caption needing
+more than the button's width is clipped, full stop.
+
+THE THREE LARGEST HITS ARE PROBABLY FALSE POSITIVES AND ARE LISTED SEPARATELY
+FOR THAT REASON. `_WrappedLabel` "short by 579 px" is a WRAPPING label
+measured with `horizontalAdvance`, which asks for its width on ONE line. My
+probe only took the wrap-aware path for a `QLabel` whose `wordWrap()` is set,
+and that subclass wraps by another route. Anyone extending the check must fix
+that first, or the sweep will chase three phantoms on every screen.
+
+'Herunterladen' IS THE ROW LABEL MOVED TONIGHT BY INSTRUCTION 353. Moving the
+Download row to the top of Input Tables did not cause the clipping -- the
+label is the same width wherever it sits -- but the two items now touch the
+same control, and whoever widens it should read 353 first.
+
+WHAT THIS CHANGES ABOUT THE PLAN. The four causes listed at the top of this
+file are still the four causes, but their WEIGHT is now measured: cause 2, a
+fixed size a longer translation overflows, is the dominant one by an order of
+magnitude. The Annotate pane fixed earlier tonight was cause 2 and 3 together.
+Start with the five captions above, in German, and re-measure in Portuguese
+before calling any of them done.
+
+STILL NOT RUN: a larger font scale. Instruction 04 records that the tests once
+measured a font scale no user has, so that dimension is untested here and the
+counts above are for the default scale only.
+
+ONE MORE THING SEEN IN PASSING. Building eight screens in one process and
+letting them go ended in `QThread: Destroyed while thread '' is still running`
+and a core dump. That is the widget-teardown family instructions 288, 345 and
+346 are about, reproduced here from a plain script with no pytest involved --
+which is worth knowing, because it means the mechanism is not a test-harness
+artefact.
