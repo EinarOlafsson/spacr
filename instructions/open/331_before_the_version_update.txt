@@ -52,3 +52,76 @@ That is a maintainer's call and not an engineering one. What engineering
 can say is: 01 is ready either way, 314 is characterised well enough for
 someone to finish, and 288's gate is genuinely unmet rather than nearly
 met.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE LIST AFTER THE AUDIT AND ONE NIGHT'S WORK
+--------------------------------------------------------------------------------
+
+The AFTER list above is stale in three places and the BEFORE list in two.
+Regenerated here rather than edited in place, so the original stays readable.
+
+BEFORE THE UPDATE, still
+
+  288  GREEN CI. Still the gate and still unmet. Coverage last measured
+       99.87%, 355 items in 108 modules (2026-08-31, now stale); sequencing
+       reached 100.00% on current source on 2026-09-02. CI is red on docs
+       and compat-matrix. Two NEW order-dependent families were found on
+       2026-09-02 and filed as 345 (three annotate tests) and 346
+       (twenty-one measure tests) -- both are exactly the "green means
+       something" problem this gate exists for, and neither was visible to
+       anyone running one file.
+
+  314  THE REGRESSION HANG. Unchanged, and the count is now ELEVEN causes
+       measured and rejected, not seven. Still reproduces only through
+       `spacr.qt.run()`.
+
+  01   WINDOWS SELF-UPDATE. Re-verified in the code on 2026-09-02:
+       `updater.py:161` checks `uv.exe` before `uv` on Windows. Nothing
+       further is reachable from a checkout.
+
+  05 / 304  THE MECHANISM AND THE RELEASE. Unchanged; both need the
+       maintainer, and 304 also needs the Zenodo toggle switched on BEFORE
+       the release is cut.
+
+  316  TRANSLATIONS. Unchanged as an item, but the number moved: six of the
+       failures it shares with 306 were measured on 2026-09-02, and Codex
+       confirmed all six sit inside 316's 23. The acceptance boundary is
+       still split -- 306 owns the six mechanical ones, 316 stays open for
+       the five semantic defects and the nine-locale human review.
+
+AFTER THE UPDATE, corrected
+
+  CLOSED since this list was written, and no longer on either side:
+       319  accelerator polish        (the nine READMEs were regenerated)
+       330  nested dock and menu      (shipped in 940542f5b)
+       336  the API link              (shipped in 05b7301b0)
+
+  STILL AFTER
+       326  arbitrary organelle count   315  the force-quit dialog
+       306  API and tooltip currency    305  load time within resources
+       327  backdrop camera             58   contributor listing
+       337  measure defaults            253  the whole list again, then ship
+       345  three annotate tests        346  twenty-one measure tests
+       347  the tooltip strip and the API dot
+       348  the dock behaves like a dock
+       343  regression panel packages   (Codex)
+
+  MOVED, and it is worth saying why: 306 was on the AFTER side as "API and
+  tooltip currency". Half of it is now BEFORE-shaped -- the catalogs are 125
+  rows behind the sources, and shipping nine locales that are 125 rows stale
+  is a translation claim the release makes in public. It is left on the AFTER
+  side only because an English fallback is readable, which is 316's own
+  argument. If that argument is ever withdrawn, 306 moves.
+
+THE TENSION, RESTATED AND NOW WORSE IN ONE DIRECTION
+----------------------------------------------------
+Nothing has changed about 01 being the escape hatch. What HAS changed is that
+two more order-dependent test families surfaced in a single day, both
+invisible to a single-file run. That is evidence about 288's gate rather than
+about the release: the suite has been less green than it looked for at least a
+day, and probably longer. It makes "wait for green CI" a longer wait than it
+appeared on 2026-09-01, which pushes the balance further toward shipping
+1.5.0.5 with 314 open rather than further from it.
+
+Still a maintainer's call. Engineering's position is unchanged and better
+evidenced.
