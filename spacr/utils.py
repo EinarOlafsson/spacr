@@ -154,6 +154,7 @@ def _preserve_batchnorm_running_stats(module: nn.Module):
 def _checkpoint_module(module: nn.Module, function, *args):
     """Checkpoint ``function`` while preserving stateful normalization buffers."""
     def contexts():
+        """Return forward and recomputation contexts for non-reentrant checkpointing."""
         return nullcontext(), _preserve_batchnorm_running_stats(module)
 
     return checkpoint(function, *args, use_reentrant=False,
@@ -1644,13 +1645,16 @@ def pretty_print_settings(settings, title="Settings"):
     g = _BOX_GLYPHS['unicode'] if console_can_encode(pretty) else _BOX_GLYPHS['ascii']
 
     def _say(line):
+        """Print a console-safe form of ``line`` and return ``None``."""
         print(console_safe(line))
 
     def _fmt(v):
+        """Return ``v`` as text truncated to the table's value width."""
         s = str(v)
         return s if len(s) <= 44 else s[:41] + g['ellipsis']
 
     def _row(k, v):
+        """Return one padded key-and-formatted-value table row."""
         return f"  {str(k):<{key_w}}  {_fmt(v)}"
 
     bar = g['h'] * line_w
@@ -2200,6 +2204,7 @@ def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogen
         _update_database_with_merged_info(db_path, df, table='png_list', columns=['pathogen', 'treatment', 'host_cells', 'condition', 'prcfo'])
     
     def _compartment_column(compartment):
+        """Return the selected compartment series, or raise for a missing column."""
         suffix = f'_channel_{channel_of_interest}_{measurement}'
         col = f'{compartment}{suffix}'
         if col not in df.columns:
@@ -4723,6 +4728,7 @@ def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, red
     """
     # --- helpers -------------------------------------------------------------
     def _focal_bce_with_logits(logits, y, alpha=1.0, gamma=2.0, reduction="mean"):
+        """Return focal binary cross-entropy for ``logits`` and targets ``y``."""
         p = torch.sigmoid(logits)
         ce = F.binary_cross_entropy_with_logits(logits, y, reduction="none")
         p_t = p * y + (1 - p) * (1 - y)
@@ -4734,6 +4740,7 @@ def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, red
         return loss
 
     def _focal_cross_entropy(logits, y_idx, alpha=1.0, gamma=2.0, reduction="mean"):
+        """Return focal cross-entropy for logits and class indices ``y_idx``."""
         log_p = F.log_softmax(logits, dim=1)
         p = log_p.exp()
         log_p_t = log_p.gather(1, y_idx.view(-1,1)).squeeze(1)
@@ -4948,10 +4955,12 @@ def suggest_training_changes(
         return float(val)
 
     def _find_csv(root, hint):
+        """Return the lexically last matching CSV in ``root``, if any."""
         cs = sorted(glob.glob(os.path.join(root, f"*{hint}*.csv")))
         return cs[-1] if cs else None
 
     def _normalize_cols(df):
+        """Return ``df`` with normalized, aliased, first-occurrence columns."""
         # Lowercase and strip; map common variants
         m = {c: c.strip().lower() for c in df.columns}
         df = df.rename(columns=m)
@@ -4984,6 +4993,7 @@ def suggest_training_changes(
         return df
 
     def _poly_slope(y):
+        """Return the finite linear slope of ``y``, or zero when undefined."""
         if len(y) < 2 or np.allclose(y, y[0]):
             return 0.0
         x = np.arange(len(y), dtype=float)
@@ -4995,6 +5005,7 @@ def suggest_training_changes(
         return float(coef[0])
 
     def _last_seq(series, k):
+        """Return at most the final ``k`` values as a floating-point array."""
         s = np.asarray(series, dtype=float)
         return s[-min(k, len(s)):] if len(s) else np.array([])
 
@@ -5249,6 +5260,7 @@ def build_loss(loss_type: str = "ce",
 
     # -------- helpers (scoped) --------
     def _infer_indices(target: torch.Tensor, C: int) -> torch.Tensor:
+        """Return class indices from an index vector or 2-D target matrix."""
         # Accept indices (N,) or one-hot (N,C); return indices (N,)
         if target.ndim == 2:
             return target.argmax(dim=1).long()
@@ -5273,6 +5285,7 @@ def build_loss(loss_type: str = "ce",
 
     # ----- binary focal BCE -----
     def _focal_bce(logits, y, alpha, gamma):
+        """Return mean focal binary cross-entropy for ``logits`` and ``y``."""
         p = torch.sigmoid(logits)
         ce = F.binary_cross_entropy_with_logits(logits, y, reduction="none")
         pt = p * y + (1 - p) * (1 - y)
@@ -5283,6 +5296,7 @@ def build_loss(loss_type: str = "ce",
 
     # ----- multiclass focal-CE -----
     def _focal_ce(logits, y_idx, alpha, gamma):
+        """Return mean focal cross-entropy for logits and class indices."""
         log_p = F.log_softmax(logits, dim=1)
         p = log_p.exp()
         log_p_t = log_p.gather(1, y_idx.view(-1, 1)).squeeze(1)
@@ -5300,6 +5314,7 @@ def build_loss(loss_type: str = "ce",
 
     # ----- Asymmetric Loss (multilabel-style one-vs-all) -----
     def _asl(logits, y, gpos, gneg, clip):
+        """Return mean asymmetric multilabel loss for logits and targets."""
         x_sigmoid = torch.sigmoid(logits)
         xs_pos = x_sigmoid
         xs_neg = 1 - x_sigmoid
@@ -5312,6 +5327,7 @@ def build_loss(loss_type: str = "ce",
 
     # Auto heuristic
     def _auto_choice() -> str:
+        """Return the default loss name from class count and imbalance."""
         if num_classes >= 2:
             if class_counts is not None:
                 props = (class_counts.float() / class_counts.sum().clamp_min(1))
@@ -9941,6 +9957,7 @@ def feature_folder_name(channel_of_interest) -> str:
         return 'all_features'
 
     def _one(member):
+        """Return one filesystem-safe selection-member slug."""
         return re.sub(r'[^0-9A-Za-z]+', '_', str(member)).strip('_') or 'x'
 
     if isinstance(selection, int):
