@@ -116,7 +116,11 @@ def test_grouping_residuals_by_a_plate_column_is_a_partition_of_the_fitted_rows(
             assert sorted(np.concatenate(values)) == sorted(resid)
             # The labels are the distinct stringified column values, so a group
             # can never name a well that is not there.
-            assert set(groups) == set(ctx.metadata[column].astype(str))
+            expected_groups = {
+                "<missing>" if pd.isna(value) else str(value)
+                for value in ctx.metadata[column].to_numpy(dtype=object)
+            }
+            assert set(groups) == expected_groups
 
     # The two routes selected the same wells, which is what makes the loop
     # above two independent checks of one invariant rather than one repeated.
@@ -126,6 +130,7 @@ def test_grouping_residuals_by_a_plate_column_is_a_partition_of_the_fitted_rows(
     # the wells carry 'p1' and half carry the stringified blank.
     plate_groups, plate_values = rq._grouped_residuals(by_length,
                                                        schema.PLATE_KEY)
+    assert set(plate_groups) == {"p1", "<missing>"}
     assert len(plate_groups) == 2
     assert sorted(v.size for v in plate_values) == [6, 6]
 
