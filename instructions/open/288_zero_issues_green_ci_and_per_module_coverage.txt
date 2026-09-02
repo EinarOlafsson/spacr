@@ -583,3 +583,21 @@ coverage data after the fixture repair.  Final result for
 ``spacr/deep_spacr.py``: 1831/1831 statements and 704/704 branches, 100.00%,
 with zero missing lines and zero partial branches.  This closes the deep_spacr
 module's part of 288; it does not make a whole-repository coverage claim.
+
+--------------------------------------------------------------------------------
+2026-09-02 — HYPERPARAM IS 100.00% ON CURRENT SOURCE
+--------------------------------------------------------------------------------
+
+The frozen report's six-item estimate predated the Activation-search API.  A
+fresh guarded run of the 14 direct non-Qt hyperparameter files passed all 574
+tests and exposed 32 statements plus 16 arcs in that new API.  Ten direct
+residual tests now own its parameter translation, mask and randomisation
+scores, unavailable-criterion diagnostics, grid route, model/source guards,
+merged-array selection, unnormalised tar route and preloaded-data route.  A
+deliberate seven-point source mutation made eight of those tests fail before
+the source was restored; the restored suite passes 10/10.
+
+Final current-source result for ``spacr/hyperparam.py``: 1489/1489 statements
+and 610/610 branches, 100.00%, with zero missing lines and zero partial
+branches.  This closes the hyperparam module's part of 288; it does not make a
+whole-repository coverage claim.
