@@ -1534,6 +1534,7 @@ def walk_search(fit_fn: Callable[[Dict[str, Any]], Any],
     rounds_completed = int(state.get("rounds_completed", 0) or 0)
 
     def _persisted_state() -> Dict[str, Any]:
+        """Return a fresh walk checkpoint with legacy two-axis centre keys."""
         # `centre_n`/`centre_d` are written alongside the general `centre`
         # so a checkpoint from this build stays readable by the 1.5.x
         # two-axis reader. Dropping them would make an in-flight search
