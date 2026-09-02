@@ -83,6 +83,7 @@ STAGE: Dict[str, str] = {
     "337": "0% -- spatial defaults still False, corrected_manders still live",
     "339": "0% -- illumination is called from measure and nowhere else",
     "341": "0% -- three tests confirmed still failing on 2026-09-01",
+    "343": "75% -- renderer complete; run/export integration and vector composition left",
 }
 
 

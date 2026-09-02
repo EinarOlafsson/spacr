@@ -3,11 +3,12 @@ THE INDEPENDENT-VARIABLE TABLE MAY BE LONG OR WIDE, AND PLATE IS A LAYOUT TERM
 ================================================================================
 
 Status:    done, 2026-09-01. Code complete and green; committed 2026-09-01.
-Requested: 2026-09-01, in the session VS Code lost. THE EXACT WORDING IS NOT
-           RECORDED -- this file is reconstructed from the code and its tests
-           rather than from the ask, and is marked so on purpose. If the
-           maintainer's phrasing turns up, put it in a `Requested:` line here
-           and check the acceptance list below against it.
+Requested: 2026-09-01 -- "because Plate, row, and column terms can be added
+           to an OLS these should be added to the analasys"; and "if the user
+           inputs long form independent variable a transformation to wide and
+           accommodations for this for each model and the reverse if a user
+           inputs wide data to transform to tall and accommodation for this
+           with all models."
 Owner:     spacr/regression_layout.py, spacr/ml.py, spacr/settings.py and the
            regression settings layout.
 

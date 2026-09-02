@@ -1,12 +1,13 @@
 # spaCR — instruction progress
 
 Regenerated whenever an item is checked off or the maintainer adds one.
-Branch `nightly`. Last regenerated 2026-08-19 16:05.
+Branch `nightly`. Last regenerated 2026-09-01.
 
 ## Finished
 
 | # | Summary | % |
 |---|---|---|
+| **342** | **Count tables may be long or wide; OLS includes plate, row and column** | **100%** |
 | **176** | **A panel cannot write an impossible number** | **100%** |
 | **177** | **One parse per input file** | **100%** |
 | **160** | **Two regressions hung the machine** | **100%** |
@@ -36,6 +37,7 @@ code -- the file was wrong about itself.
 
 | # | Summary | % |
 |---|---|---|
+| **343** | **Regression writes complete submission panel packages** | **75% — renderer complete; run/export integration left** |
 | **170** | **Cells tab: two modes + annotator settings** | **75% — PRIORITISED** |
 | **175** | **Every gene against every measurement** | **80%** |
 | **173** | **A guide and a probability for every cell** | **75%** |
@@ -69,6 +71,28 @@ code -- the file was wrong about itself.
 | 126 | The theme must not lag while a run is going | 0% |
 | 114 | A parameter search that cannot take the machine down | 0% |
 | **60** | **Every module at 100% test coverage** | **IN PROGRESS -- 42,851 tests** |
+
+## 2026-09-01 -- regression module edit recorded
+
+| Instruction | Component | % | Evidence / remaining work |
+|---|---|---:|---|
+| **342** | Lossless long/wide independent-variable conversion | 100% | `regression_layout.py` and conversion tests are committed. |
+| **342** | Plate, row and column fixed effects in OLS | 100% | The fitted design and nuisance-coefficient filtering are covered by tests. |
+| **343** | Four-file publication panel renderer | 100% | PDF, PNG, stats CSV and plotted-data CSV contract is committed and tested. |
+| **343** | gRNA-derived mean + 3 sample-SD call rule | 100% | The guide threshold is reused unchanged on a gene table in the focused test. |
+| **343** | Matched XGBoost/MaxViT axis-limit helper | 100% | Shared finite limits are tested. |
+| **343** | Open Sans, fill-only points, opacity, line widths and LOPIT colours | 100% | The style is written into the plotted-data and statistics CSVs and tested. |
+| **343** | Gene labels and links on every point | 100% | PDF annotations and labels above both thresholds are tested. |
+| **343** | Legend, purpose, shows and implications in the panel PDF | 100% | Narrative fields and extracted PDF text are tested. |
+| **343** | Regression-run/export integration | 0% | `write_panel_package` has no caller in the regression workflow. |
+| **343** | Box-and-jitter panels and final vector-PDF composition | 0% | These paths do not exist in the package renderer yet. |
+
+Regression edit subtotal: **6 completed component-points out of 8 weighted
+component-points (75%) for instruction 343; instruction 342 is complete.**
+Across instructions 342 and 343, the recorded regression-module edit is
+**87.5% complete** when the two owning instructions are weighted equally.
+The authoritative whole-repository count is generated in `00_INDEX.txt` from
+the files themselves.
 
 ## 141 went DOWN in scope, and the file was wrong twice
 
