@@ -524,7 +524,7 @@ because a truncated or substituted checkpoint cannot be told from the real one.
    * - ``toxoplasma_plaque_v1``
        (cpsam_plaque_r3)
      - Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set
-     - F1 0.856 in-domain and 0.834 on the literature set, against 0.718 / 0.755 for round 1; round 3 trades precision (0.939 -> 0.858) for recall (0.631 -> 0.811) on the literature set, which is the right direction for a counting assay
+     - F1 0.856 in-domain and 0.834 on the literature set, against 0.718 / 0.755 for round 1; round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay
    * - ``toxoplasma_well_detector_v1``
        (yolo_welldetect_v3.pt)
      - Whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640

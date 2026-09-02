@@ -261,7 +261,7 @@ conda-forge 설치
 동일한 프로젝트에서 플레이트 설계, 검정력 추정, 배치 효과 보정, 세그멘테이션 품질 점검, 연결된 플롯과 크롭 탐색, AnnData 내보내기, 중단된 작업 재개 및 각 결과에 사용된 설정 기록도 수행할 수 있습니다.
 
 spaCR 모듈
---------
+-------------
 
 .. spacr-workflow-begin
 
@@ -381,7 +381,7 @@ spaCR 모듈
 
 .. spacr-workflow-end
 
-작업 흐름 모듈을 선택하면 해당 API 페이지가 열립니다. 격자에는 나머지 모든 애플리케이션이 spaCR 홈 화면과 동일한 범주와 순서로 배치되어 있습니다.
+Every module spaCR ships, in the order the home screen lists them: the six pipeline modules first, then everything else. Select a tile to open that module's API page.
 
 
 Make Masks
@@ -437,6 +437,40 @@ Cellpose-SAM runs here show the cell-probability map and the flow field beside t
    :width: 72
    :alt: bioRxiv 사전 인쇄본 열기
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
+
+모델 동물원
+~~~~~~~~~~~
+
+spaCR는 학습된 모델 카탈로그를 함께 제공하며 필요할 때 내려받습니다. 홈 화면에서 **Model Zoo**를 열어 모델을 살펴보고 설치하거나, 설정 파일에 키를 지정하면 -- ``pathogen_model: toxoplasma_pv_v1`` -- 처음 필요한 시점에 모델을 내려받고 체크섬을 검증합니다. 공개된 항목은 모두 SHA-256을 포함하며, 이것이 없는 항목은 설치하지 않고 거부합니다. 잘리거나 바꿔치기된 체크포인트는 진짜와 구별할 수 없기 때문입니다.
+
+.. spacr-model-zoo-begin
+
+.. list-table::
+   :header-rows: 1
+   :widths: 26 30 44
+
+   * - Key
+     - Trained on
+     - Measured performance and limits
+   * - ``toxoplasma_pv_v1``
+       (cpsam_v2_toxo_r2)
+     - Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. 115 pairs (104 train / 11 test), 100 epochs, base cpsam_v2
+     - F1 0.867 at IoU 0.5 against 0.713 for stock cpsam; AJI 0.808 against 0.426; accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry
+   * - ``toxoplasma_plaque_v1``
+       (cpsam_plaque_r3)
+     - Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set
+     - F1 0.856 in-domain and 0.834 on the literature set, against 0.718 / 0.755 for round 1; round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay
+   * - ``toxoplasma_well_detector_v1``
+       (yolo_welldetect_v3.pt)
+     - Whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640
+     - mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987; locates WELLS, not plaques; it is the front half of a two-stage pipeline with toxoplasma_plaque_v1, and the well it finds also gives the diameter that makes areas comparable across microscopes
+
+.. spacr-model-zoo-end
+
+위 수치는 공개 시점에 측정한 값이며, 한계도 함께 명시되어 있습니다. 모델은 측정한 작업에 유용할 뿐 모든 작업에 유용한 것은 아닙니다. ``toxoplasma_well_detector_v1``과 ``toxoplasma_plaque_v1``은 하나의 파이프라인을 이루는 두 부분입니다. 검출기가 웰을 찾고, 분할 모델이 그 안의 플라크를 찾으며, 웰 지름 덕분에 서로 다른 현미경 사이에서 면적을 비교할 수 있습니다.
+
+모델은 각 작성자 본인의 Hugging Face 계정에 호스팅되므로, 모델을 기여한다고 해서 다른 사람의 계정에 쓰기 권한을 넘겨줄 필요가 없습니다. ``spacr.model_zoo``의 ``publish_model``이 업로드를 수행하고 추가할 카탈로그 항목을 출력합니다.
+
 
 성능 진단
 ----------------------
