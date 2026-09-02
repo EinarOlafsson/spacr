@@ -70,3 +70,50 @@ HOW IT WILL BE CHECKED
 * `pytest tests/qt -k annotate` is green.
 * The third one is green BOTH alone and in the suite, and the reason it was
   not is written down.
+
+--------------------------------------------------------------------------------
+2026-09-02 — ONE FIXED, AND IT WAS A STALE STUB. TWO LEFT, BOTH ORDER-DEPENDENT.
+--------------------------------------------------------------------------------
+
+`test_cov_r4_annotate.py::test_a_column_that_cannot_be_created_stops_the_bulk_write`
+FIXED. Its stub was
+
+    def _refuse(_db_path, _column):
+        raise sqlite3.OperationalError("attempt to write a readonly database")
+
+and `ensure_annotation_column` has since grown a keyword-only `table`
+parameter, which the Annotate screen passes. So the stub raised TypeError
+("unexpected keyword argument 'table'") instead of the OperationalError the
+test is about, and the assertion failed on a message about the wrong
+exception entirely:
+
+    "The annotation column 'auto_class' could not be created:
+     _refuse() got an unexpected keyword argument 'table'"
+
+The stub now mirrors the real signature, `table` named rather than swallowed
+by `**kwargs` -- a stub that accepts anything would have hidden the drift
+instead of failing on it, and naming the parameter is what makes this test
+fail usefully the next time the signature moves.
+
+    tests/qt -k annotate:   3 failed -> 2 failed, 649 passed
+
+THE OTHER TWO ARE ORDER-DEPENDENT and both pass alone:
+
+    test_annotate_keyboard.py::test_reassigning_a_digit_overwrites_rather_than_toggling
+    test_every_settings_window_resizes.py::TestEverySettingsWindow::
+        test_it_opens_at_the_size_it_always_did[annotate._SettingsDialog]
+
+THE SET CHANGED WHEN THE FIRST WAS FIXED, which is worth noting rather than
+finding again: `test_auto_advance_skips_already_labelled_crops` was in this
+list and is now green, while `test_reassigning_a_digit_overwrites_rather_than_
+toggling` -- from the same file -- appeared. Fixing the stub changed what ran
+before them. That is the ordinary behaviour of an order-dependent family and
+it means THE NAMES IN THIS FILE ARE NOT STABLE; the count is the thing to
+track.
+
+HOW TO FINISH IT: the file-bisection method in instruction 346 found two
+causes in about twenty minutes each and is written out there step by step.
+Both remaining failures are in `tests/qt`, so run it over the qt selection
+rather than the measure one. 346 also records the two shapes found so far --
+a cached import and a reloaded module -- and both are worth checking for
+first, because a Qt screen caches a great deal more than a measure run does.

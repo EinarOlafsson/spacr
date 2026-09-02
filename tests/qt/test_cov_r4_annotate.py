@@ -184,7 +184,20 @@ def test_a_column_that_cannot_be_created_stops_the_bulk_write(
     monkeypatch.setattr(annotate_mod.QMessageBox, "warning",
                         lambda *args, **kwargs: warned.append(args))
 
-    def _refuse(_db_path, _column):
+    # THE STUB MIRRORS THE REAL SIGNATURE, keyword-only `table` included.
+    #
+    # It used to be `_refuse(_db_path, _column)`. `ensure_annotation_column`
+    # has since grown `*, table=DEFAULT_PNG_TABLE`, and the Annotate screen
+    # passes it -- so the stub raised TypeError ("unexpected keyword argument
+    # 'table'") instead of the OperationalError this test is about. The
+    # assertions below still fired, on a message about the wrong exception,
+    # and the test failed for a reason that had nothing to do with a readonly
+    # database (instruction 345).
+    #
+    # A stub that accepts `**kwargs` would have hidden the drift instead of
+    # failing on it. Naming the parameter is what keeps this test honest the
+    # next time the signature moves.
+    def _refuse(_db_path, _column, *, table=None):
         raise sqlite3.OperationalError("attempt to write a readonly database")
 
     monkeypatch.setattr(engine, "ensure_annotation_column", _refuse)
