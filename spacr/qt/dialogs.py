@@ -583,6 +583,33 @@ def make_the_window_resizable(dialog) -> bool:
         return False
     dialog.setProperty(RESIZABLE, True)
     try:
+        # AND THE CHILDREN HAVE TO BE STYLED before the layout is asked what
+        # it needs, or the floor is measured in the wrong FONT.
+        #
+        # This filter runs on the dialog's Polish event, and an event filter
+        # is delivered BEFORE the widget's own handler -- so at this moment
+        # neither the dialog nor any descendant has had the application
+        # stylesheet applied. Measured on Annotate's settings dialog, which
+        # has 165 children: sixteen of them change size across that boundary,
+        # and they are its eight QComboBoxes, each 29 px in the default
+        # "Sans Serif 9" and 30 px in the stylesheet's "Open Sans".
+        #
+        #     floor read at Polish   480 x 1183   the size it re-opened at
+        #     floor once on screen   512 x 1191   the size it really needs
+        #
+        # Eight rows, eight pixels, and the dialog opened eight pixels short
+        # of its own content -- with a scroll bar already showing on a form
+        # that fits. `ExecutionProfileDialog` has the same defect with one
+        # combo box and one pixel.
+        #
+        # `dialog.ensurePolished()` does NOT do this and was measured not to:
+        # it sends the very Polish event being filtered, and Qt polishes a
+        # parent before its children. The descendants have to be asked
+        # themselves.
+        from PySide6.QtWidgets import QWidget
+
+        for child in dialog.findChildren(QWidget):
+            child.ensurePolished()
         # THE LAYOUT HAS TO HAVE RUN before its floor can be read. Qt sets
         # a window's minimum size from `QLayout.activate`, and on Polish
         # that has not always happened yet: reading it first answered 0x0

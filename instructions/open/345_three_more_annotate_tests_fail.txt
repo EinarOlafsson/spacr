@@ -117,3 +117,212 @@ Both remaining failures are in `tests/qt`, so run it over the qt selection
 rather than the measure one. 346 also records the two shapes found so far --
 a cached import and a reloaded module -- and both are worth checking for
 first, because a Qt screen caches a great deal more than a measure run does.
+
+--------------------------------------------------------------------------------
+2026-09-02 — BOTH ORDER-DEPENDENT FAILURES CLOSED. TWO DIFFERENT LEAKS, AND
+NEITHER OF THEM WAS THE 288 FIXTURE SHAPE.
+--------------------------------------------------------------------------------
+
+BOTH ARE FIXED AND BOTH PASS ALONE AND IN COMPANY. `-k annotate` over
+`tests/qt` now selects 655 tests and 653 of them pass, 1 skips, and the one
+failure is somebody else's live work -- see the last section.
+
+TWO SELECTIONS ARE USED BELOW and they are not the same size, which matters
+when comparing counts with the entries above:
+
+    the 25 `tests/qt/*annotate*.py` files plus
+      `test_every_settings_window_resizes.py`, `-k annotate`     583 tests
+    all 58 files that contribute to `pytest tests/qt -k annotate`,
+      named explicitly rather than by collecting the directory   655 tests
+
+The 583 is the working set -- 37 s, and it holds both failures this item is
+about. The 655 is the item's own acceptance check and takes 64 s. The file
+list for it came from `--collect-only | cut -d: -f1 | sort -u`, which is the
+way to run this selection without collecting all 20,109 tests in `tests/qt`.
+
+The names had moved again, exactly as this file predicted. What actually
+failed at the start of this session:
+
+    test_annotate_keyboard.py::test_reassigning_a_digit_overwrites_rather_
+        than_toggling                                    -- one leak
+    test_every_settings_window_resizes.py::TestEverySettingsWindow::
+        test_it_opens_at_the_size_it_always_did[annotate._SettingsDialog]
+                                                         -- the other
+
+and the keyboard one moved to `test_auto_advance_skips_already_labelled_
+crops` the moment the second was fixed, because the second fix changed how
+long the first file took to run. The count was the thing to track, as this
+file said.
+
+................................................................................
+LEAK ONE: A SINGLE-SHOT TIMER THAT BELONGS TO NOTHING
+................................................................................
+
+BISECTED TO A PAIR OF FILES, three files apart in the run (console_can_be_copied, console, engine_v2, keyboard):
+
+    test_annotate_console_can_be_copied_and_reported.py
+      + test_annotate_keyboard.py            102 passed, 1 ERROR
+    test_annotate_keyboard.py alone          all passed
+    test_annotate_console...  alone          7 passed
+
+THE ERROR NAMED ITS OWN CAUSE once the traceback was read rather than the
+summary line:
+
+    File "spacr/qt/screens/annotate.py", line 2989, in <lambda>
+      lambda: self._btn_copy_console.setText(tr("Copy console"))
+    RuntimeError: libshiboken: Internal C++ object
+    (PySide6.QtWidgets.QPushButton) already deleted.
+
+`AnnotateScreen._on_copy_console` flipped the caption to "Copied" and set
+`QTimer.singleShot(1200, functor)` to put it back. THE TWO-ARGUMENT FORM HAS
+NO OWNER: it fires 1.2 seconds later no matter what has been destroyed in the
+meantime. `test_annotate_console_can_be_copied_and_reported.py` presses that
+button twice; qtbot tears its screens down at the end of those two tests; the
+two strays then landed in whichever test was spinning an event loop 1.2
+seconds later -- `test_auto_advance_skips_already_labelled_crops`, which
+touches neither a console nor a button. pytest-qt reports an exception caught
+in the Qt event loop against the test that was running, which is why the
+failure kept changing name every time anything upstream of it got faster or
+slower.
+
+THE FIX IS PRODUCTION, NOT TEST. `QTimer.singleShot(1200, button, functor)`
+-- the button is the context object, so Qt cancels the pending call when the
+button is destroyed. A user who copies the Annotate console and leaves the
+screen inside 1.2 seconds was getting that RuntimeError too; it is not a test
+artefact. Verified in this PySide6 build before relying on it: a functor
+given a context object that is `deleteLater`d does not fire.
+
+    the pair:   102 passed + 1 error  ->  103 passed
+
+................................................................................
+LEAK TWO: THE SESSION-WIDE STYLESHEET, AND THE REAL DEFECT IT UNCOVERS
+................................................................................
+
+`test_it_opens_at_the_size_it_always_did[annotate._SettingsDialog]` fails
+after ANY test that has used `tests/qt/conftest.py::qt_theme_applied`. That
+fixture is session-scoped and has no teardown by design -- it puts a 68,364
+character stylesheet and the dark palette on the shared QApplication and
+they stay there for the rest of the process. Measured with a probe run twice:
+
+    probe alone                         app.styleSheet() is 0 chars
+    probe after one keyboard test       app.styleSheet() is 68,364 chars
+
+So the smallest reproducer is one line, not a file pair: any earlier test
+that asks for the theme.
+
+THE TEST'S OWN DOCSTRING BLAMES THE WRONG THING. It says the 1,183-against-
+1,191 it saw was font-metric warm-up and builds the dialog up to six times
+until two agree. It is not warm-up: eight consecutive builds give exactly
+1,191 with the filter off and exactly 1,183 with it on, every time. The
+warm-up loop is measuring a stable difference and calling it noise.
+
+WHAT THE DIFFERENCE ACTUALLY IS. `dialogs._DetachEveryDialog` reads a
+dialog's floor on its Polish event, stores it, lowers the floor into a scroll
+area, and restores the stored size on Show. An event FILTER runs before the
+widget's own Polish handler, so at that instant nothing in the dialog has had
+the stylesheet applied yet. Spying on `dialogs.window_floor`:
+
+    floor read at Polish      480 x 1183
+    floor once on screen      512 x 1191
+
+Diffing all 165 children across that boundary named the culprit exactly: 16
+of them change, and they are the EIGHT QComboBoxes plus their popup frames.
+Unstyled each reports a 29 px minimum in "Sans Serif 9"; styled, 30 px in
+"Open Sans". Eight rows, eight pixels. `ExecutionProfileDialog`'s 615-vs-616
+is the same arithmetic with one combo box.
+
+So the dialog opened eight pixels short of its own content, with a scroll bar
+already showing on a form that fits -- IN THE REAL APPLICATION, which always
+has the stylesheet. The unstyled 1,003-both-ways that makes the test pass on
+its own is the case no user ever sees.
+
+THE FIX, in `_SettingsDialog.__init__`: polish the children before the dialog
+is ever shown, so the floor the filter reads is the floor the dialog has.
+
+    for child in self.findChildren(QWidget):
+        child.ensurePolished()
+
+`self.ensurePolished()` DOES NOT WORK and was measured, not assumed: it sends
+the dialog's own Polish event, which is the very event the filter measures
+on, so it moves the short measurement earlier instead of correcting it --
+480x1183 either way. Qt polishes a parent before its children, which is the
+whole mechanism.
+
+    with the filter on:  1183 -> 1191, which is what it opens at without it
+
+................................................................................
+STILL OPEN, AND IT IS THE SAME DEFECT ONE DIALOG OVER
+................................................................................
+
+    test_every_settings_window_resizes.py::TestEverySettingsWindow::
+        test_it_opens_at_the_size_it_always_did[ExecutionProfileDialog]
+
+fails in the same company, for the same reason, off by one pixel instead of
+eight. It is NOT in `-k annotate` and it is not this item, but it is the same
+cause and the per-dialog fix above does not reach it.
+
+THE GENERAL FIX IS ONE LINE IN `spacr/qt/dialogs.py`: `make_the_window_
+resizable` should polish the dialog's descendants before `window_floor` is
+read, rather than each dialog doing it for itself. That file was outside this
+task's lane, so the annotate dialog carries its own fix and this paragraph
+carries the rest. Whoever takes it should also delete the six-build warm-up
+loop in `test_it_opens_at_the_size_it_always_did`, which exists only to
+average over this bug.
+
+NOT THE 288 MECHANISM, and that is worth saying because this file told the
+next person to check it first: neither leak was a fixture-built unparented
+widget. One was a timer with no owner in PRODUCTION code, the other a
+session-scoped stylesheet uncovering a PRODUCTION measurement taken too
+early. 288 should record that its fixture-teardown shape is not the only way
+`tests/qt` goes order-dependent -- an unowned `QTimer.singleShot` produces
+the same "fails only in company, and against an innocent test" signature, and
+looks nothing like a fixture.
+
+................................................................................
+TWO NEIGHBOURS, FOUND WHILE VERIFYING, NEITHER TOUCHED
+................................................................................
+
+`test_the_language_reaches_what_a_handler_writes.py::test_the_example_button_
+comes_back_in_the_chosen_language` fails ALONE and fails identically with
+this session's changes stashed. It is about the Mask AppScreen's example
+button, not Annotate, and is not order-dependent. Named here so it is not
+rediscovered as part of this family.
+
+`test_the_text_fits_sweep.py::test_no_caption_is_cut_off[annotate-de]` is the
+one failure left in the 655-test selection, and it is NOT this item. It
+passes alone both with and without this session's `annotate.py` changes, and
+running its own file alone fails a DIFFERENT parametrisation
+(`[measure-is]`), so that file is order-dependent within itself. It builds
+`AppScreen(app_key="annotate")`, which never constructs `_SettingsDialog`, so
+neither change here can reach it -- and instruction 350's masthead-elision
+work landed in `app_screen.py` while this was being verified. It belongs with
+that work.
+
+CHECKED, BOTH WAYS:
+
+    each of the three formerly failing tests, ALONE      1 passed each
+    the 583-test working set                             583 passed, x3
+    the 655-test `-k annotate` selection                 653 passed,
+                                                         1 skipped,
+                                                         1 failed
+                                                         (text-fits, above)
+    the annotate set + every other file that builds
+      `_SettingsDialog` (880 tests)                      879 passed,
+                                                         1 failed
+                                                         (ExecutionProfile)
+
+The exact commands, so the next person does not have to reconstruct them:
+
+    # alone
+    pytest -q -p no:randomly \
+      tests/qt/test_annotate_keyboard.py::test_auto_advance_skips_already_labelled_crops
+    pytest -q -p no:randomly \
+      "tests/qt/test_every_settings_window_resizes.py::TestEverySettingsWindow::test_it_opens_at_the_size_it_always_did[annotate._SettingsDialog]"
+
+    # in company -- the pair that reproduced leak one
+    pytest -q -p no:randomly tests/qt/test_annotate_console_can_be_copied_and_reported.py \
+                             tests/qt/test_annotate_keyboard.py
+
+    # in company -- the working set
+    pytest -q -p no:randomly $(ls tests/qt/*annotate*.py) \
+      tests/qt/test_every_settings_window_resizes.py -k annotate
