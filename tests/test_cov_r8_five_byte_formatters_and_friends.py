@@ -14,9 +14,7 @@ import re
 import sqlite3
 
 import numpy as np
-import pandas as pd
 import pytest
-
 
 # ---------------------------------------------------------------------------
 # Every byte formatter in the package
@@ -42,18 +40,14 @@ class TestEveryByteFormatter:
 
     @pytest.mark.parametrize("module_name,function_name,last,base",
                              _FORMATTERS)
-    def test_the_loop_always_returns_from_inside(self, module_name,
-                                                 function_name, last, base):
+    def test_the_last_scale_has_an_explicit_return(self, module_name,
+                                                  function_name, last, base):
         """THE PIN, five times over.
 
-        Each loop ends with ``or unit == "<last>"``, which makes the
-        final pass return unconditionally -- so the line after the loop
-        is one no input can reach. Two of the five say so in a comment;
-        this says it in a way that fails when it stops being true.
-
-        The unit list and the clause are read out of the source and
-        compared, so a sixth unit appended without extending the clause
-        lands here rather than returning an unlabelled number.
+        A formatter may return its display ceiling from the loop, or iterate
+        through the smaller units and return the ceiling immediately after it.
+        Both shapes are truthful; what is forbidden is falling through with an
+        unlabelled number or appending a unit after an in-loop ceiling.
         """
         source = inspect.getsource(_load(module_name, function_name))
         units = re.search(r"for unit in \(([^)]*)\)", source, re.S)
@@ -61,13 +55,21 @@ class TestEveryByteFormatter:
 
         names = [part.strip().strip("'\"") for part in
                  units.group(1).split(",") if part.strip()]
-        assert names[-1] == last, (
-            f"{module_name}.{function_name} now ends on {names[-1]!r}, not "
-            f"{last!r}; check the unconditional clause below it")
-        assert f'unit == "{last}"' in source, (
-            f"{module_name}.{function_name} no longer returns unconditionally "
-            f"on its last unit, so the line after the loop is reachable and "
-            f"needs a test")
+        assert last not in names or names[-1] == last, (
+            f"{module_name}.{function_name} puts another unit after its "
+            f"{last!r} display ceiling")
+
+        loop_ceiling = any(token in source for token in (
+            f'unit == "{last}"', f"unit == '{last}'"))
+        return_lines = [line.strip() for line in source.splitlines()
+                        if line.strip().startswith("return ")]
+        fallback_ceiling = bool(return_lines and last in return_lines[-1])
+        assert loop_ceiling or fallback_ceiling, (
+            f"{module_name}.{function_name} has no explicit {last!r} return")
+        if loop_ceiling:
+            assert names[-1] == last, (
+                f"{module_name}.{function_name} returns on {last!r} inside "
+                "the loop but continues iterating through later units")
 
     @pytest.mark.parametrize("module_name,function_name,last,base",
                              _FORMATTERS)
@@ -228,25 +230,25 @@ class TestTheTransactionRetryLoop:
             assert check.execute("SELECT COUNT(*) FROM cell").fetchone()[0] \
                 == 1
 
-    def test_the_for_else_cannot_run(self):
+    def test_the_retry_loop_cannot_fall_through(self):
         """THE PIN.
 
-        The loop's body either breaks on success or, on the last
-        attempt, raises -- so the ``else`` clause after it is
-        unreachable, which its own comment says. The pin is on both
-        exits, because losing either one is what would let the loop end
-        quietly and start a transaction that was never begun.
+        The open-ended loop either breaks on success or raises when its
+        normalised attempt budget is exhausted. Losing either exit would let
+        it retry forever or enter a transaction body that never began.
         """
         from spacr import database_concurrency as C
 
         source = inspect.getsource(C.transaction)
-        loop = source[source.index("for attempt in range(1, attempts + 1):"):]
+        assert "attempts = max(1, int(attempts))" in source
+        loop = source[source.index("while True:"):]
         loop = loop[:loop.index("finally:")]
 
+        assert "attempt += 1" in loop
         assert "break" in loop, "the success path no longer leaves the loop"
-        assert "if attempt == attempts:" in loop, (
-            "the last attempt no longer raises, so the for-else is live")
+        assert "if attempt >= attempts:" in loop, (
+            "the exhausted attempt budget no longer raises")
+        assert "raise DatabaseBusy(" in loop
         assert "else:" not in loop, (
-            "the loop cannot exhaust normally, so a for-else arm would be "
-            "unreachable")
+            "the retry loop has no normal exhaustion path")
         assert "raise DatabaseBusy(str(last_error))" not in loop
