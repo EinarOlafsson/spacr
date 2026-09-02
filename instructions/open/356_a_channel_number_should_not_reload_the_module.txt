@@ -1,0 +1,96 @@
+================================================================================
+TYPING A CHANNEL NUMBER SHOULD REVEAL ITS CATEGORY, NOT RELOAD THE MODULE
+================================================================================
+
+Status:    not started, filed 2026-09-02.
+Requested: 2026-09-02, verbatim -- "in mask generation. when a number is added
+           to any of the object channel settings, or number of organels, the
+           entire module reloads . i would like the presense of integers in
+           these settings to toggle visability of their corresponding settings
+           categories without reloading the entire module. please change this
+           so that the module, or its settings dosnt have to be reloaded, the
+           organelle settings are different because number of organelles
+           should spawn new settings depending on the number of organelles.
+           but the settings categories can behave the same as for the other
+           objects, the settings themselves have to be spawned, but if this
+           can be done smoothely with out reloading that would be a better
+           user experience"
+Owner:     spacr/qt/screens -- the Mask settings form.
+
+--------------------------------------------------------------------------------
+TWO CASES, AND THE MAINTAINER HAS ALREADY SEPARATED THEM
+--------------------------------------------------------------------------------
+
+CASE 1 -- AN OBJECT CHANNEL. Typing a number into `nucleus_channel`,
+`cell_channel` or `pathogen_channel` should SHOW that object's settings
+category; clearing it should hide it. The settings already exist either way.
+This is a visibility toggle and needs no rebuild at all.
+
+CASE 2 -- `number_of_organelles`. The settings do not exist yet, so they have
+to be SPAWNED. The maintainer's own words: "the settings themselves have to be
+spawned, but if this can be done smoothely with out reloading that would be a
+better user experience". So the CATEGORY behaves like case 1; only the new
+rows are built, and only the ones that are new.
+
+--------------------------------------------------------------------------------
+WHY THIS IS WORTH REAL CARE
+--------------------------------------------------------------------------------
+
+REBUILDING THE FORM IS WHAT COSTS THE 1,263 ms IN INSTRUCTION 315. That item
+measured a module build and found 54 `setStyleSheet` calls on already-
+populated subtrees, each sending ~1,330 events to its descendants, plus an
+event filter dispatched 109,410 times. Every one of those is paid again on a
+reload. So this is not only a smoothness request -- it is the same cost 315 is
+trying to remove, being paid on a keystroke.
+
+AND A REBUILD LOSES STATE. Instruction 335 was "live preview loses the image
+after a settings change", and instruction 349 -- fixed 2026-09-02 -- was a
+path being written and then overwritten by a rebuild. A form that rebuilds
+on a keystroke is the same hazard: anything the user typed and has not
+committed, any scroll position, any expanded fold.
+
+--------------------------------------------------------------------------------
+WHERE TO LOOK
+--------------------------------------------------------------------------------
+
+`AppScreen` builds its sections through `settings_model`, and there is already
+machinery for showing and hiding rows: `_lay_out_the_rows_that_are_back` is
+named in instruction 310's last entry as the thing that brings conditional
+object sections back, and the Pathogen/Nucleus/Organelle sections are already
+described there as "conditional on the run having that object". So the
+conditional-visibility concept EXISTS. The question is whether the current
+path re-enters a full build to apply it.
+
+FIND THE REBUILD FIRST, and do not assume it is a deliberate `rebuild()` call
+-- it may be a signal connected to a slot that happens to reconstruct. 310's
+entry records that setting `pathogen_channel` through the widget did NOT bring
+the rows back, which suggests the current wiring is already partly broken and
+is worth understanding before adding to it.
+
+--------------------------------------------------------------------------------
+WATCH
+--------------------------------------------------------------------------------
+
+* GREYED, NOT REMOVED (INVARIANTS 6) applies to a control another mode does
+  not read. Hiding a whole CATEGORY the run has no object for is different
+  from hiding one control, and is what is asked for here -- but the values in
+  it must survive being hidden, exactly as lowering `number_of_organelles`
+  keeps the higher slots' values today.
+* SPAWNING ONLY WHAT IS NEW. Going from 2 organelles to 3 should build one
+  slot, not rebuild three. Going 3 -> 2 should hide, not delete.
+* Instruction 326 has just made the slot count exact -- a run configured for N
+  carries N slots' keys -- so the spawn boundary is now well defined.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* Typing a channel number reveals that object's category and clears it hides
+  it, with NO widget outside that category destroyed and rebuilt -- asserted
+  by identity (`is`) on a sample of widgets taken before and after, not by
+  timing.
+* Raising `number_of_organelles` from 2 to 3 leaves slots 1 and 2's widgets
+  the same objects and adds slot 3's.
+* A value typed into an unrelated field survives both.
+* The GUI-thread block for a channel keystroke is measured and reported here,
+  against 315's 1,263 ms module build as the thing being avoided.
