@@ -158,7 +158,8 @@ class TestSplittingAMultiDimensionalImage:
         assert calls, "save_grayscale_images is no longer called at all"
         assert all("channel=c+1" in call for call in calls), (
             f"a caller now omits the channel: {calls}")
-        assert "if channel is not None:" in source
+        assert "if channel is not None:" not in source
+        assert 'suffix = f"_C{channel}"' in source
 
 
 # ---------------------------------------------------------------------------
@@ -192,13 +193,13 @@ class TestAverageObjectSize:
 
         assert "invalid dimension: 4" in capsys.readouterr().out
 
-    def test_the_two_warnings_cannot_both_be_skipped(self):
-        """THE PIN.
+    def test_the_two_warning_cases_are_exhaustive(self):
+        """THE PIN for replacing the always-true ``elif`` with ``else``.
 
         The else branch is reached only when the mask is empty OR its
         dimension is wrong, and those two are exactly the two warnings.
-        So the loop cannot go round from the second ``elif`` being false
-        -- a mask that is non-empty AND 2/3-D took the ``if`` above.
+        A mask that is non-empty and 2/3-D took the outer ``if`` above,
+        so a non-empty mask in the other arm necessarily has invalid rank.
 
         The pin is on the shape of the condition, because a third reason
         to skip a mask added without a third warning would make a mask
@@ -207,7 +208,8 @@ class TestAverageObjectSize:
         source = inspect.getsource(io._get_avg_object_size)
         assert "if mask.ndim in [2, 3] and np.any(mask):" in source
         assert "if not np.any(mask):" in source
-        assert "elif mask.ndim not in [2, 3]:" in source
+        assert "elif mask.ndim not in [2, 3]:" not in source
+        assert "else:\n                print(f\"Warning: Mask {idx} has invalid" in source
 
 
 # ---------------------------------------------------------------------------
@@ -223,41 +225,26 @@ class TestAverageObjectSize:
 
 class TestTheRemainingDecisions:
 
-    def test_the_object_key_falls_back_to_its_four_components(self):
-        """``_read_and_merge_data``: prcf, or the four columns it joins.
+    def test_the_object_key_uses_the_prcf_rebuilt_by_the_splitter(self):
+        """``_read_and_merge_data`` uses the complete field identity.
 
-        ``prcf`` is written by the measurement step. A table from a
-        source that predates it, or assembled by hand, carries the four
-        components and not the join, and keying on the missing column is
-        a KeyError raised after the whole read has been paid for.
-
-        Pinned on both halves, because the two must build the SAME key --
-        a fallback that ordered the components differently would silently
-        fail to join.
+        ``_split_data`` rebuilds ``prcf`` before returning metadata, and every
+        object role already consumes it earlier in the function. The former
+        four-component fallback was unreachable and also omitted time.
         """
         source = inspect.getsource(io._read_and_merge_data)
-        assert "if 'prcf' in metadata.columns:" in source
+        assert "if 'prcf' in metadata.columns:" not in source
         assert "prcfo=lambda x: x['prcf'] + '_' + x[metadata_key]" in source
-        fallback = source[source.index("prcfo=lambda x: x['plateID']"):]
-        assert fallback.startswith(
-            "prcfo=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + "
-            "x['columnID'] + '_' + x['fieldID'] + '_' + x[metadata_key]"), (
-            "the fallback no longer builds plate_row_column_field_object, so "
-            "it and the prcf branch can now disagree about the key")
+        assert "prcfo=lambda x: x['plateID']" not in source
 
-    def test_a_missing_tar_destination_is_named_rather_than_crashed_on(self):
-        """``generate_dataset``: ``os.makedirs(None)``.
-
-        That is a TypeError from inside the tar loop, after every image
-        has been selected and counted -- minutes of work, and a message
-        that names neither the setting nor the run. The refusal costs
-        nothing and says which setting is missing.
-        """
+    def test_a_tar_destination_is_set_before_nonempty_input_can_reach_it(self):
+        """The unreachable ``dst is None`` guard stays deleted."""
         source = inspect.getsource(io.generate_dataset)
-        assert "if dst is None:" in source
-        assert "Destination folder (dst) was not set." in source
-        assert source.index("if dst is None:") < source.index(
-            "os.makedirs(dst"), "the guard no longer precedes the makedirs"
+        assert "if dst is None:" not in source
+        assert "Destination folder (dst) was not set." not in source
+        assert source.index("if i == 0:") < source.index("os.makedirs(dst")
+        assert source.index("No images selected; nothing to tar.") < \
+            source.index("os.makedirs(dst")
 
     def test_a_dataset_mode_spacr_never_had_is_refused_by_name(self):
         """``generate_training_dataset``: the else after the two modes.
@@ -268,10 +255,13 @@ class TestTheRemainingDecisions:
         naming the two that are legal is the difference between a
         fixable message and a KeyError several frames down.
         """
+        from spacr.training_basis import TrainingBasisError, resolve_basis
+
+        with pytest.raises(TrainingBasisError, match="not one of"):
+            resolve_basis({"dataset_mode": "not-real"})
         source = inspect.getsource(io.generate_training_dataset)
-        assert "Invalid dataset_mode:" in source
-        assert "Use " in source and "'metadata' or 'annotation'." in source
-        assert "elif mode == 'annotation':" in source
+        assert "Invalid dataset_mode:" not in source
+        assert "else:" in source and "resolve_basis has already reduced" in source
 
     def test_balancing_nothing_returns_nothing_rather_than_raising(self):
         """``_balance_lists``: ``min()`` over an empty list raises.
@@ -283,21 +273,17 @@ class TestTheRemainingDecisions:
         source = inspect.getsource(io.generate_training_dataset)
         balancer = source[source.index("def _balance_lists"):]
         balancer = balancer[:balancer.index("def _annotation_classes")]
-        assert "if not list_of_lists:" in balancer
-        assert balancer.index("if not list_of_lists:") < balancer.index(
-            "min(sizes)"), "the empty guard no longer precedes the min()"
+        assert "if not list_of_lists:" not in balancer
+        gate = source.index("if not class_path_list or sum(")
+        call = source.index("class_path_list = _balance_lists")
+        assert gate < call
 
-    def test_the_unique_training_directory_search_is_bounded(self):
-        """``_ensure_unique_dir``: 99,999 suffixes and then the original.
-
-        Exhausting them means 99,999 existing training folders under one
-        name. The bound is right -- an unbounded search on a corrupted
-        directory never returns -- and its end is not something a test
-        can arrange.
-        """
+    def test_the_unique_training_directory_search_has_no_false_exhaustion(self):
+        """Every occupied suffix advances to the next rather than returning it."""
         source = inspect.getsource(io.generate_training_dataset)
-        assert "for j in range(1, 100000):" in source
-        assert "if not os.path.exists(try_dst):" in source
+        assert "for j in range(1, 100000):" not in source
+        assert 'while os.path.exists(f"{base}_{j}"):' in source
+        assert "j += 1" in source
 
     def test_a_well_is_minted_once_per_file_not_once_per_channel(self):
         """``convert_to_yokogawa``: the loop runs per channel/timepoint.
@@ -307,7 +293,7 @@ class TestTheRemainingDecisions:
         do.
         """
         source = inspect.getsource(io.convert_to_yokogawa)
-        assert "if file not in file_to_well:" in source
-        assert "well = file_to_well[file]" in source
-        assert source.index("if file not in file_to_well:") < source.index(
-            "well = file_to_well[file]")
+        assert "file_to_well" not in source
+        assert "well = _get_next_well(used_wells)" in source
+        assert source.index("for file in sorted(os.listdir(folder)):") < \
+            source.index("well = _get_next_well(used_wells)")
