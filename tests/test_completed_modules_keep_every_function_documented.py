@@ -96,6 +96,7 @@ FULLY_DOCUMENTED = (
     "spacr/resources/home/versions/_generators/variants.py",
     "spacr/resources/icons/backup_icons/_generators/group_trellis_gate_feature_napari.py",
     "spacr/restart_state.py",
+    "spacr/run_recommendations.py",
     "spacr/run_journal.py",
     "spacr/runctx.py",
     "spacr/schema.py",
