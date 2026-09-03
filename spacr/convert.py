@@ -691,6 +691,16 @@ class Mapping:
         the plane index — or ``'max(1..N)'`` when it was projected.
     :ivar plane: ``(t, z, c)`` index into the source's 5-D array;
         ``z == -1`` means "every plane, projected".
+    :ivar source_plate: plate identifier read from the original source.
+    :ivar source_well: well identifier read from the original source.
+    :ivar source_field: field identifier read from the original source.
+    :ivar source_channel: channel identifier read from the original source.
+    :ivar source_t: original timepoint token or plane index.
+    :ivar z_handling: whether z planes are kept, projected, or reduced to the
+        first plane for this output.
+    :ivar n_z_planes: source z-plane count recorded even after projection.
+    :ivar n_timepoints: source timepoint count recorded for reversibility.
+    :ivar meta: source metadata retained in the conversion map as JSON.
     """
 
     source: str
@@ -778,6 +788,11 @@ class ConversionPlan:
     :ivar well_map: ``{(plate key, well key): well id}`` — the record of
         how folder names became wells.
     :ivar plate_map: ``{plate key: plate token}``.
+    :ivar sources: scanned source images used to build and later validate the
+        plan before any conversion starts.
+    :ivar channel_map: source plate/channel identities mapped to their stable
+        one-based output channel numbers.
+    :ivar z_handling: plan-wide z policy applied to every source stack.
     """
 
     mappings: List[Mapping] = dc_field(default_factory=list)

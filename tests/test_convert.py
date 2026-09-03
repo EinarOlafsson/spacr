@@ -203,6 +203,12 @@ def test_channel_ids_sort_naturally_so_c10_is_not_c2(tmp_path):
         _write(str(root / "plateA" / "wellA" / f"fov01_C{channel}.tif"),
                value=channel)
     plan = cv.plan(cv.scan(str(root)))
+    for field in ("sources", "channel_map", "z_handling"):
+        assert f":ivar {field}:" in (type(plan).__doc__ or "")
+    for field in ("source_plate", "source_well", "source_field",
+                  "source_channel", "source_t", "z_handling", "n_z_planes",
+                  "n_timepoints", "meta"):
+        assert f":ivar {field}:" in (type(plan.mappings[0]).__doc__ or "")
     lookup = {m.source_channel: m.channel for m in plan.mappings}
     assert lookup["C1"] == 1
     assert lookup["C2"] == 2
