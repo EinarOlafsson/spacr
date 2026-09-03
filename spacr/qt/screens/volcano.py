@@ -130,6 +130,13 @@ def _make_screen(app_key=None, host=None):
     from ..widgets.volcano_explorer import VolcanoExplorer
 
     class VolcanoScreen(QWidget):
+        """The volcano plot, as the registry builds it.
+
+        :param host: the main window, passed by the registry for navigation.
+            NOT a Qt parent: handing it to ``QWidget.__init__`` raises,
+            because the registry's host is not always a QWidget.
+        """
+
         def __init__(self, host=None):
             # `host` is the main window, passed by the registry for
             # navigation -- NOT a Qt parent. Handing it to QWidget.__init__

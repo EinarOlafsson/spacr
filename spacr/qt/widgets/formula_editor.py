@@ -402,6 +402,11 @@ class FormulaDialog(QDialog):
 
     Non-modal, so the chart behind it redraws as columns are added — which is
     the point of adding them.
+
+    :param parent: parent widget.
+    :param panel: an existing :class:`FormulaPanel` to host. ``None`` builds
+        one, which is the ordinary case; passing one lets a screen keep the
+        panel alive across openings so a half-written formula survives.
     """
 
     def __init__(self, parent=None, *, panel: Optional[FormulaPanel] = None):

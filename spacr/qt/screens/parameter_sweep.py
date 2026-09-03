@@ -75,6 +75,14 @@ def _make_screen(app_key=None, host=None):
     )
 
     class ParameterSweepScreen(QWidget):
+        """The parameter sweep, as the registry builds it.
+
+        :param host: the main window, passed by the registry for navigation.
+            NOT a Qt parent -- the registry's host is not always a QWidget,
+            so it is kept as an attribute and never handed to
+            ``QWidget.__init__``.
+        """
+
         def __init__(self, host=None):
             # `host` is the main window the registry passes for navigation,
             # not a Qt parent.

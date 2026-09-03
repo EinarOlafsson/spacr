@@ -149,7 +149,12 @@ def panel_canvas_class():
     from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 
     class PanelCanvas(FigureCanvasQTAgg):
-        """A matplotlib canvas drawn on a rounded translucent panel."""
+        """A matplotlib canvas drawn on a rounded translucent panel.
+
+        :param figure: the matplotlib figure to draw. The canvas is made
+            translucent so the rounded panel below it is the visible surface,
+            which is why the figure's own patch is not the background.
+        """
 
         def __init__(self, figure):
             super().__init__(figure)

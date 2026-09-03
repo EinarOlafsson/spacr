@@ -358,6 +358,9 @@ class PowerCurveView(QWidget):
 
     :meth:`describe` returns exactly what is drawn, as text, so a test can
     assert the content of the plot without reading pixels.
+
+    :param title: the caption drawn above the curve. Empty draws none.
+    :param parent: parent widget.
     """
 
     def __init__(self, title: str = "", parent: Optional[QWidget] = None):

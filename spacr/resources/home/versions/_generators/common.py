@@ -235,7 +235,12 @@ class Ctx:
     """Per-theme rendering context: palette, stylesheet, icon cache."""
 
     def __init__(self, app, theme: str):
-        """Bind the application and load the requested theme palette."""
+        """Bind the application and load the requested theme palette.
+
+        :param app: the running QApplication, for the stylesheet.
+        :param theme: which theme to render in. Its palette is loaded here,
+            so one Ctx renders one theme and a second theme needs a second.
+        """
         from spacr.qt.theme import palette_for
         self.app = app
         self.theme = theme

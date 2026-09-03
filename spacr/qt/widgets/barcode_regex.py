@@ -104,7 +104,12 @@ def evaluate_barcode_regex(pattern: str, sample: str = "") -> BarcodeRegexResult
 
 
 class BarcodeRegexDialog(QDialog):
-    """Edit and test a barcode regex against a representative read."""
+    """Edit and test a barcode regex against a representative read.
+
+    :param initial_regex: the expression to open with. Empty opens the field
+        empty; the dialog proposes nothing until the user tests a read.
+    :param parent: parent widget.
+    """
 
     def __init__(self, initial_regex: str = "", parent=None):
         super().__init__(parent)
