@@ -46,6 +46,8 @@ class Screen:
     :ivar true_fractions: the same before the bias, kept so a test can ask
         how much of a failure was the fraction rather than the method.
     :ivar guides: every guide in the screen.
+    :ivar meta: auxiliary simulation facts used to interpret a scenario,
+        empty when the generator has no additional facts to report.
     """
 
     features: np.ndarray
