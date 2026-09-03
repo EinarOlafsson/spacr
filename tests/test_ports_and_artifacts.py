@@ -951,6 +951,8 @@ def test_a_read_only_consumer_refuses_to_conjure_a_registry(tmp_path):
 
 
 def test_a_registry_needs_somewhere_to_live():
+    assert "Open this project's registry" in (artifacts.Registry.__init__.__doc__
+                                               or "")
     with pytest.raises(ValueError, match="nowhere to keep"):
         artifacts.Registry()
 

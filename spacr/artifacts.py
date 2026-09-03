@@ -481,6 +481,11 @@ class Registry:
                  project: Union[str, os.PathLike, None] = None,
                  timeout: float = 30.0,
                  create: bool = True) -> None:
+        """Open this project's registry, creating its schema when requested.
+
+        Constructor arguments and refusal cases are documented on
+        :class:`Registry` so the rendered class contract has one source.
+        """
         self.project = (os.path.abspath(os.path.expanduser(os.fspath(project)))
                         if project else "")
         self.path = (os.path.abspath(os.path.expanduser(os.fspath(path)))
