@@ -79,6 +79,13 @@ def test_the_default_space_covers_every_axis_the_screen_offers():
     assert set(space.axes["multiple_testing_method"]) == set(METHODS)
 
 
+def test_an_empty_axis_reports_the_zero_trials_it_can_build():
+    """The displayed raw-space size must agree with the Cartesian product."""
+    space = SweepSpace(axes={"regression_type": []})
+
+    assert space.size() == len(build_trials(space)) == 0
+
+
 def test_illegal_combinations_never_reach_a_trial():
     trials = build_trials(SweepSpace(), mode="grid", max_trials=4000)
     for trial in trials:
