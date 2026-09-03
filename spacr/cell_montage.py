@@ -486,6 +486,7 @@ class Coefficient:
     guides: Tuple[str, ...] = ()
 
     def __post_init__(self):
+        """Normalize identifiers and reject unsupported levels or effects."""
         object.__setattr__(self, "name", str(self.name))
         object.__setattr__(self, "effect", float(self.effect))
         object.__setattr__(self, "guides", tuple(str(g) for g in self.guides))
@@ -575,6 +576,7 @@ class ScoreWindow:
 
 
 def _finite_scores(objects: pd.DataFrame, score_column: str) -> np.ndarray:
+    """Return finite scores, refusing a missing or wholly unusable column."""
     if score_column not in objects.columns:
         raise MissingScores(
             f"the object frame has no {score_column!r} column; it has "
@@ -673,6 +675,7 @@ def score_window(objects: pd.DataFrame, effect: float, *,
 # ---------------------------------------------------------------------------
 
 def _require(frame: pd.DataFrame, columns: Sequence[str], what: str) -> None:
+    """Require every named column or raise an error identifying what lacks it."""
     missing = [c for c in columns if c not in frame.columns]
     if missing:
         raise MontageError(
@@ -1168,6 +1171,7 @@ class MontagePlan:
 
 
 def _well_labels(frame: pd.DataFrame, keys: Sequence[str]) -> pd.Series:
+    """Join complete well-key rows while preserving incomplete rows as null."""
     columns = frame.loc[:, list(keys)]
     missing = columns.isna().any(axis=1)
     # pandas 3 preserves missing values while casting string-dtype columns to
@@ -2423,6 +2427,7 @@ class RouteRequirements:
 
 
 def _has_column(frame, name: str) -> bool:
+    """Return whether a non-null frame advertises the named column."""
     return frame is not None and name in getattr(frame, "columns", ())
 
 
