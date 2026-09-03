@@ -89,6 +89,7 @@ FULLY_DOCUMENTED = (
     "spacr/run_journal.py",
     "spacr/schema.py",
     "spacr/style_base.py",
+    "spacr/sra.py",
     "spacr/surrogate.py",
     "spacr/thresholds.py",
     "spacr/timelapse.py",
