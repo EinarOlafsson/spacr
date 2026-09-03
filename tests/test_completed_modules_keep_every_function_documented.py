@@ -69,6 +69,8 @@ FULLY_DOCUMENTED = (
     "spacr/regression_panels.py",
     "spacr/regression_qc.py",
     "spacr/report.py",
+    "spacr/resources/home/versions/_generators/common.py",
+    "spacr/resources/home/versions/_generators/parts.py",
     "spacr/restart_state.py",
     "spacr/run_journal.py",
     "spacr/schema.py",

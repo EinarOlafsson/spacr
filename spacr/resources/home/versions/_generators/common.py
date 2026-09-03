@@ -154,6 +154,7 @@ def available_themes() -> Tuple[str, ...]:
 # ---------------------------------------------------------------------------
 
 def _registry():
+    """Return the live app registry together with its icon display overrides."""
     # ``spacr.qt.run`` performs these registrations before constructing
     # MainWindow. Home and the sidebar therefore show this launched registry,
     # not the shorter import-time table from ``app.py`` alone.
@@ -234,6 +235,7 @@ class Ctx:
     """Per-theme rendering context: palette, stylesheet, icon cache."""
 
     def __init__(self, app, theme: str):
+        """Bind the application and load the requested theme palette."""
         from spacr.qt.theme import palette_for
         self.app = app
         self.theme = theme
