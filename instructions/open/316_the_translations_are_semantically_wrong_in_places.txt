@@ -388,3 +388,50 @@ THE PATTERN WORTH NAMING: reviewed evidence is bound to source text by hash
 or by position, and every ordinary edit to prose is a potential orphaning.
 Nothing warns at the time -- the audit notices later, and in case (2) it
 notices by refusing to run at all.
+
+--------------------------------------------------------------------------------
+2026-09-03: THE FIVE DEFECTS ARE REPAIRED, AND READING THE OTHER FOUR LOCALES
+FOUND THREE MORE
+--------------------------------------------------------------------------------
+
+316-B was answered "yes, repair to those meanings", so all five recorded
+defects are fixed -- in `MANUAL_UI` / `MANUAL_TRANSLATIONS` in
+`tools/build_i18n_catalogs.py`, which is the override the generator honours,
+and applied into the shipped catalogs so the fix is live now rather than at
+the next full regeneration.
+
+    is     "Allir notendur" (ALL USERS)      -> "Öll forrit"
+    is     "1.5 er óþekkt" (1.5 IS UNKNOWN)  -> "1.5 er sjálfgefið gildi"
+    es     "se ciernen para revelar"          -> "pasa el cursor para revelar"
+    hi     instruction dropped entirely       -> restored
+    zh_CN  "hover to reveal" left in English  -> "悬停以显示"
+
+AND READING ALL NINE, WHICH THIS FILE'S OWN FINDING SAYS IS THE ONLY METHOD
+THAT WORKS, TURNED UP THREE MORE ON THE SAME STRING:
+
+    ko     "공개 할 수 있습니다" = "can be disclosed". No pointer at all.
+           REPAIRED, because Korean has no fluent reviewer and 316-C's answer
+           leaves it machine-drafted either way.
+    sv     "sväva för att avslöja" -- "sväva" is to float in the AIR. The
+           same bird-of-prey error as Spanish, in a locale nobody had
+           flagged.
+    de     "Hover zu offenbaren" -- "offenbaren" is revelation in the
+           scriptural sense, and "Hover" is left English.
+
+  sv AND de ARE NOT TOUCHED, and neither is the English "hover" still sitting
+  in the Icelandic. Those three locales are the ones the maintainer said he
+  can review, and his answer to 316-C was "I draft, you correct". Drafts are
+  in instruction 357 as questions rather than shipped unapproved. The
+  Icelandic MEANING error was repaired because 316-B names it; its wording
+  was not.
+
+  THE COUNT MATTERS MORE THAN THE FIX. This file records five defects "found
+  by READING" and offers that as evidence that mechanical proxies do not
+  work. Re-reading ONE STRING across all nine locales found three more --
+  so the five were not the population, they were what one pass happened to
+  catch. Six of nine locales rendered a single caption wrongly, in four
+  different ways, and every one passed every gate.
+
+NOTHING HERE IS A FLUENT REVIEW and none of it is recorded as one. 10 catalog
+tests fail before and after this change, identically -- measured in a
+worktree at HEAD, not assumed.

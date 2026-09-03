@@ -2320,6 +2320,29 @@ SOURCE_CONTEXT_REGEX_REPLACEMENTS: Mapping[
 }
 
 MANUAL_TRANSLATIONS: dict[str, dict[str, str]] = {
+    # "1.5 IS THE DEFAULT" BECAME "1.5 ER ÓÞEKKT" -- 1.5 IS UNKNOWN.
+    # Instruction 316's first recorded defect, repaired 2026-09-03
+    # under 316-B. A user reading the Icelandic was told the value in
+    # front of them was unrecognised, which is the opposite of what
+    # the setting says and would send them looking for a fault.
+    #
+    # ONLY THAT CLAUSE IS REPAIRED. The rest of the sentence is poor
+    # Icelandic -- "mönnun rennur, dreifir" is not what warping and
+    # shearing are -- but poor is not WRONG, and rewriting it would
+    # be authoring rather than repairing. Icelandic is one of the
+    # three locales the maintainer can review; the rest of this
+    # sentence is drafted into instruction 357 for him.
+    (
+        'How much the pattern warps, drifts and shears as it travels.'
+        ' 0.0 is a still camera moving straight in; 1.5 is the default, and hig'
+        'her values exaggerate the motion without a fixed ceiling. It costs nothing extra to raise.'
+    ): {
+        "is": "Hversu mikið mynstrið aflagast, rekur og skekkist "
+              "eftir því sem það ferðast. 0.0 er kyrr myndavél sem "
+              "hreyfist beint inn; 1.5 er sjálfgefið gildi, og hærri "
+              "gildi ýkja hreyfinguna án fasts þaks. Það kostar "
+              "ekkert aukalega að hækka það.",
+    },
     (
         "Wells occupied by each entry of cell_types, one inner list per cell "
         "type in the same order, e.g. [['c2','c3'],['c4']]. Every identifier "
@@ -2400,6 +2423,39 @@ MANUAL_TRANSLATIONS: dict[str, dict[str, str]] = {
 }
 
 MANUAL_UI: dict[str, dict[str, str]] = {
+    # THE HOME GROUPING CAPTION, repaired 2026-09-03 under instruction 316-B,
+    # which the maintainer answered "yes, repair to those meanings".
+    #
+    # FIVE OF NINE LOCALES SAID SOMETHING ELSE, and each failed differently
+    # while passing every gate this repository has -- present, source-hash
+    # current, plausible length:
+    #
+    #   is    "Allir notendur" = ALL USERS. It is a grouping of apps.
+    #   es    "se ciernen para revelar" = "they LOOM in order to reveal" --
+    #         the bird-of-prey sense of hover, conjugated to agree with
+    #         "aplicaciones", so it is grammatical and about falconry.
+    #   hi    dropped the instruction entirely; only the shortcut survived.
+    #   zh_CN left "hover to reveal" in English inside a Chinese sentence.
+    #   ko    "공개 할 수 있습니다" = "can be disclosed" -- no pointer at all.
+    #
+    # `sv` has the SAME bird-of-prey error ("sväva" is to float in the air)
+    # and `de` renders reveal as "offenbaren", which is revelation in the
+    # scriptural sense. THOSE TWO ARE NOT TOUCHED HERE. With `is` they are
+    # the three locales the maintainer said he can review, and his answer to
+    # 316-C was "I draft, you correct" -- so they are drafted into
+    # instruction 357 as questions rather than shipped unapproved. The
+    # Icelandic MEANING error above is repaired because 316-B names it
+    # explicitly; its remaining English "hover" is not, and is in 357 too.
+    #
+    # None of this is a fluent review and none is recorded as one.
+    "All apps — hover to reveal (Ctrl+Shift+A)": {
+        "is": "Öll forrit — hover til að sýna (Ctrl + Shift + A)",
+        "es": "Todas las aplicaciones — pasa el cursor para revelar "
+              "(Ctrl+Mayús+A)",
+        "hi": "सभी ऐप्लिकेशन — दिखाने के लिए कर्सर ले जाएँ (Ctrl+Shift+A)",
+        "zh_CN": "所有应用 — 悬停以显示 (Ctrl+Shift+A)",
+        "ko": "모든 앱 — 마우스를 올리면 표시 (Ctrl+Shift+A)",
+    },
     "A qc": {
         "sv": "A — kvalitetskontroll",
         "de": "A — Qualitätskontrolle",

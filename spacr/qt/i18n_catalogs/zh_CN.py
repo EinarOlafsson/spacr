@@ -2422,7 +2422,7 @@ UI = {
     'After (optional) — job ids, comma separated; this job is skipped if they fail': '之后(可选) - 工作ID,comma分开;如果他们失败,这个工作被排除',
     'Aggregation rules…': '集成规则...',
     'Agree': '同意',
-    'All apps — hover to reveal (Ctrl+Shift+A)': '所有应用程式 — hover to reveal (Ctrl+Shift+A)',
+    'All apps — hover to reveal (Ctrl+Shift+A)': '所有应用 — 悬停以显示 (Ctrl+Shift+A)',
     'All text size': '所有文本大小',
     'Already downloaded. Tick it to fetch it again, which replaces the copy on disk.': '已经下载了. 点击它再次捕捉它,这取代了磁盘上的副本。',
     'Ambiguous mapping': '双重地图',
