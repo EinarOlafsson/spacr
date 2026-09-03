@@ -955,6 +955,27 @@ class AmbientEngine:
 
     Positions are rolled in *normalised* 0..1 units and multiplied up at paint
     time, so a resize re-frames the animation instead of re-rolling it.
+
+    Every numeric parameter below is CLAMPED to its range rather than
+    rejected: these arrive from saved preferences, and a value that has drifted
+    outside its range should slow the animation down, not refuse to draw it.
+
+    :param colors: the palette to paint from, as :class:`QColor` or as any
+        string :class:`QColor` accepts.
+    :param background: the colour behind the palette.
+    :param seed: the roll that fixes this engine's constants. The same seed
+        gives the same animation, which is what lets a test compare two
+        renders byte for byte. ``None`` rolls a new one.
+    :param blur: softness of the painted shapes, 0.0 to 3.0.
+    :param speed: how fast :attr:`time` advances the animation, 0.1 to 4.0.
+    :param size: scale of the painted shapes, 0.25 to 2.5.
+    :param resolution: scale of the buffer painted through, 0.25 to 2.0.
+        Below 1.0 paints fewer pixels and scales them up, which is the lever
+        that makes the backdrop affordable on a weak GPU.
+    :param density: how many shapes are rolled, 0.25 to 3.0.
+    :param direction: which way the animation drifts. An unrecognised name
+        falls back to the default rather than raising, for the same reason
+        the numbers are clamped.
     """
 
     name = ""

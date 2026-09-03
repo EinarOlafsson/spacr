@@ -52,6 +52,13 @@ class Folder:
     Not a QWidget. The panels this serves are already built and already in
     their layouts, and a wrapper would mean re-parenting them -- which
     changes what their stylesheets match and what their splitters remember.
+
+    :param heading: the label that folds the panel when clicked. It is
+        rewritten to carry the arrow, so it must be a label this owns.
+    :param body: the widget shown and hidden.
+    :param name: what the panel is called, for the tooltip and for anything
+        remembering fold state. Defaults to the heading's own text.
+    :param on_change: called with the new shut/open state after each fold.
     """
 
     def __init__(self, heading: QLabel, body: QWidget, name: str = "",
