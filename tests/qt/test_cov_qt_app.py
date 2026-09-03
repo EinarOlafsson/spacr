@@ -856,15 +856,46 @@ def test_icon_overrides_all_point_at_files_that_exist():
 
 @pytest.mark.parametrize("key,twin", [
     ("train_cellpose", "cellpose_masks"),   # shares the Cellpose glyph
-    ("agreement",      "annotate"),         # scores annotation columns
-    ("plate_view",     "map_barcodes"),     # ruled bars read as a well grid
-        ("model_compare",  "mask"),             # one field, segmented two ways
+    # FOUR PAIRS BECAME ONE ON 2026-09-02, and the three that left are the
+    # point rather than the loss. `agreement`, `plate_view`,
+    # `model_compare`, `analyze_plaques` and `model_zoo` were each drawn
+    # their OWN artwork, and it is better than what they were borrowing --
+    # two overlapping circles for annotator agreement, a plate for the plate
+    # viewer, a grid of model cards for the zoo. The table's own rule is
+    # that an override is for an app that BORROWS another app's picture and
+    # "is not the place to record 'this app has an icon'".
+    #
+    # They were invisible until then: three surfaces resolved icons WITHOUT
+    # consulting the table, so the fold buttons already drew the artwork
+    # while the tiles drew the borrow. See
+    # `tests/qt/test_a_folded_module_wears_its_own_picture.py`.
+    #
+    # `train_cellpose` is the one real borrow left: its own file is a
+    # DUMBBELL, the training glyph, and the Cellpose Workbench must not wear
+    # it -- which is exactly what was reported.
 ])
 def test_an_override_makes_two_keys_share_one_glyph(key, twin):
     """The override table is the only reason these render alike; a typo in
     it would send one of the pair to the fallback glyph instead."""
     assert _ICON_OVERRIDES[key].endswith(".png")
     assert _img(_icon_for_app(key)) == _img(_icon_for_app(twin))
+
+
+@pytest.mark.parametrize("key", ["agreement", "plate_view", "model_compare",
+                                 "analyze_plaques", "model_zoo"])
+def test_a_module_with_its_own_art_no_longer_borrows(key):
+    """The other half of the change above, asserted rather than assumed.
+
+    Each of these has a `<key>.png` and must now draw it. Without this a
+    later "tidy-up" could put the override back and nothing would notice:
+    the borrow renders a perfectly good icon, just the wrong one.
+    """
+    from spacr.qt import iconset
+
+    assert key not in _ICON_OVERRIDES, (
+        f"{key} has artwork of its own; an override would hide it")
+    own = iconset.bundled_icon_path(key)
+    assert own is not None and own.endswith(f"{key}.png")
 
 
 def test_apps_without_a_shared_source_do_not_render_alike():
