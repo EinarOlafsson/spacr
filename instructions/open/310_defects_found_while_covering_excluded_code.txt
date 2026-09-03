@@ -3086,9 +3086,22 @@ the same class of failure pointing the other way. The two honest answers are
 to cut by the requested plane with the labels that exist (what it did
 before), or to refuse and say the png_list carries no nucleus labels.
 
-NOT CHANGED HERE. `spacr/png_list.py` is the other session's file and the
-commit is 40 minutes old, so it may still be in flight. The semantics are a
-judgement call that belongs with whoever made it.
+RESOLVED 2026-09-03 on the maintainer's instruction: cut by the requested
+plane, keep the labels that exist.
+
+Done by ADDING A COLUMN rather than reverting, because both sides were right.
+One column was answering two questions:
+
+    object_type        an INSTRUCTION the crop cutter obeys: which plane
+    object_label_type  PROVENANCE: whose labels were actually available
+
+The commit's concern -- carrying nucleus labels forward as cells silently
+cuts a different object -- is real and is still recorded, now in its own
+column. `object_type` goes back to being what the caller asked for, which is
+what `spacr.crops` reads per row. Measured on the fixture: the nucleus
+montage has 498 non-zero pixels against the cell montage's 1,074, the
+"strictly smaller region" its test was written around. The two tests that
+pinned the old behaviour assert both columns now.
 
 ALSO NOTE `_merged_field_paths` was switched to `effective_object_type` in
 the same commit and that part looks harmless: its own docstring says every
