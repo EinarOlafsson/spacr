@@ -110,6 +110,7 @@ FULLY_DOCUMENTED = (
     "spacr/sra.py",
     "spacr/surrogate.py",
     "spacr/thresholds.py",
+    "spacr/tiff_io.py",
     "spacr/timelapse.py",
     "spacr/trial_metrics.py",
     "spacr/uniprot.py",
