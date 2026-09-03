@@ -325,6 +325,8 @@ class Series:
     :ivar label: complete legend label for this plotted line.
     :ivar frame: ``epoch`` plus the numeric metric columns, in epoch order and
         **at this series' own length** — never resampled onto a shared axis.
+    :ivar n_folds: number of folds represented by this line; one for an
+        individual split or fold and the contributing fold count for a mean.
     """
     run_id: str
     split: str
