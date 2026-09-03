@@ -156,8 +156,8 @@ def _run_cli(
     )
 
 
-def test_current_packaging_denominator_is_528_not_asset_generators():
-    """The ratchet follows all 528 shipped modules, not asset generators.
+def test_current_packaging_denominator_is_532_not_asset_generators():
+    """The ratchet follows all 532 shipped modules, not asset generators.
 
     Since the previous 506-module pin, the product added the public
     accelerator resolver, plaque analysis, settings-pack support, and the
@@ -173,6 +173,11 @@ def test_current_packaging_denominator_is_528_not_asset_generators():
     `spacr/cli_download.py` and the Qt-free `spacr/example_archives.py` it
     reads its repositories from -- and `spacr/image_import.py` added the
     tenth. All are installed Python and all need coverage rows.
+
+    532 since 2026-09-02: image stitching and the Import screen that exposes
+    it add two modules, while the shared column-aligned row and per-object
+    settings grid add two more.  A coverage artifact missing any of those
+    four describes an older product and cannot satisfy the current gate.
     """
     shipped = set(ratchet.discover_shipped_python_files(ROOT))
     every_spacr_python = {
@@ -180,7 +185,7 @@ def test_current_packaging_denominator_is_528_not_asset_generators():
         for path in (ROOT / "spacr").rglob("*.py")
     }
 
-    assert len(shipped) == 528
+    assert len(shipped) == 532
     assert every_spacr_python - shipped == RESOURCE_GENERATORS
     assert not RESOURCE_GENERATORS & shipped
 
