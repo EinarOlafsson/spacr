@@ -629,6 +629,7 @@ class OmeroConnection:
 
 
 def _env_lookup(env: Mapping[str, str], key: str) -> Optional[str]:
+    """Return the first nonblank configured environment alias for ``key``."""
     for name in ENV_VARS[key]:
         value = env.get(name)
         if value is not None and str(value).strip() != "":
@@ -637,6 +638,7 @@ def _env_lookup(env: Mapping[str, str], key: str) -> Optional[str]:
 
 
 def _parse_bool(value: Any, *, source: str) -> bool:
+    """Parse a boolean or documented yes/no string with a source-aware error."""
     if isinstance(value, bool):
         return value
     text = str(value).strip().lower()
@@ -898,6 +900,7 @@ def parse_object_ref(value: Any) -> OmeroRef:
 
 
 def _checked_ref(kind: Optional[str], object_id: int, text: str) -> OmeroRef:
+    """Build an OMERO reference after requiring a positive object identifier."""
     if object_id <= 0:
         raise OmeroIdError(
             f"{text!r} gives object id {object_id}; OMERO ids are positive "
@@ -1004,6 +1007,7 @@ def well_position(row: Any, column: Any) -> WellPosition:
 
 
 def _plate_index(value: Any, what: str) -> int:
+    """Normalize one nonnegative integer row or column index from OMERO."""
     if value is None:
         raise OmeroWellError(
             f"the well has no {what} index (OMERO returned None). A well that "
@@ -1241,6 +1245,7 @@ def _call(obj: Any, *names: str, default: Any = None) -> Any:
 
 
 def _size(image: Any, name: str) -> int:
+    """Read a positive image dimension, falling back to one when unavailable."""
     value = _call(image, name, default=None)
     try:
         value = int(value)
@@ -1250,6 +1255,7 @@ def _size(image: Any, name: str) -> int:
 
 
 def _channel_names(image: Any) -> Tuple[str, ...]:
+    """Return channel labels in order, substituting one-based numeric names."""
     channels = _call(image, "getChannels", default=None) or ()
     names: List[str] = []
     for index, channel in enumerate(channels):
@@ -1259,6 +1265,7 @@ def _channel_names(image: Any) -> Tuple[str, ...]:
 
 
 def _iter_dataset_images(dataset: Any) -> Iterator[Any]:
+    """Yield images exposed through either supported dataset child accessor."""
     for child in _call(dataset, "listChildren", "getChildren", default=()) or ():
         yield child
 
@@ -1293,6 +1300,7 @@ def _iter_well_images(well: Any) -> Iterator[Any]:
 
 
 def _resolve(gateway: Any, kind: str, object_id: int) -> Any:
+    """Resolve a visible OMERO object or raise an actionable container error."""
     obj = gateway.getObject(kind, object_id)
     if obj is None:
         raise OmeroContainerError(
@@ -1407,6 +1415,7 @@ class ContainerListing:
 
 def _image_info(image: Any, *, well: Optional[str] = None,
                 field_id: Optional[int] = None) -> ImageInfo:
+    """Project an OMERO image wrapper into pixel-free inspection metadata."""
     return ImageInfo(
         image_id=int(_call(image, "getId", default=0) or 0),
         name=str(_call(image, "getName", default="") or ""),
@@ -1626,6 +1635,7 @@ class ImportResult:
 
 def _plane_plans(info: ImageInfo, plate: str, well: str, position: WellPosition,
                  field_id: int, well_source: str) -> Iterator[PlanePlan]:
+    """Yield one deterministic output plan for every time, z, and channel plane."""
     for t in range(1, info.size_t + 1):
         for z in range(1, info.size_z + 1):
             for c in range(1, info.size_c + 1):
@@ -1650,6 +1660,7 @@ def _plane_plans(info: ImageInfo, plate: str, well: str, position: WellPosition,
 def _write_planes(image_by_id: Mapping[int, Any],
                   plans: Sequence[PlanePlan], dst: Path,
                   overwrite: bool) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:
+    """Fetch and write planned planes, returning written and skipped names."""
     written: List[str] = []
     skipped: List[str] = []
     pixels_cache: Dict[int, Any] = {}
@@ -1678,6 +1689,7 @@ def _write_sidecars(dst: Path, result_kind: str, object_id: int, name: str,
                     plate: str, plans: Sequence[PlanePlan],
                     listing: ContainerListing, settings: Optional[OmeroConnection],
                     dry_run: bool, limit: Optional[int]) -> None:
+    """Write the plane map and redacted import-provenance sidecars."""
     with open(dst / SIDECAR_CSV, "w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(MAP_CSV_COLUMNS))
         writer.writeheader()
@@ -1713,6 +1725,7 @@ def _write_sidecars(dst: Path, result_kind: str, object_id: int, name: str,
 
 
 def _prepare_dst(dst: Union[str, os.PathLike]) -> Path:
+    """Create and return the destination directory."""
     path = Path(dst)
     path.mkdir(parents=True, exist_ok=True)
     return path
@@ -2093,6 +2106,7 @@ def format_map_value(value: Any, *, float_format: str = FLOAT_FORMAT,
 
 
 def _clean_key(key: Any) -> str:
+    """Collapse whitespace and truncate a map-annotation key to OMERO's limit."""
     text = " ".join(str(key).split())
     if len(text) > MAX_KEY_CHARS:
         text = text[: MAX_KEY_CHARS - 1] + "…"
@@ -2420,6 +2434,7 @@ def plan_tag(existing: Iterable[Sequence[Any]], namespace: str, text: str,
 
 
 def _check_mode_and_namespace(mode: str, namespace: str) -> None:
+    """Require a supported write mode and a spaCR-owned annotation namespace."""
     if mode not in ANNOTATION_MODES:
         raise OmeroError(
             f"mode={mode!r} is not one of {ANNOTATION_MODES}.")
@@ -2522,6 +2537,7 @@ def _annotations_with_ns(target: Any, namespace: str) -> List[Tuple[int, Any, An
 
 def _make_annotation(gateway: Any, wrapper_name: str,
                      annotation_factory: Optional[Any]) -> Any:
+    """Construct an annotation through a test factory or the OMERO gateway module."""
     if annotation_factory is not None:
         return annotation_factory(wrapper_name, gateway)
     gateway_module = require_omero()
