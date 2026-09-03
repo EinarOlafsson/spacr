@@ -53,7 +53,15 @@ APP_KEY = "feature_explorer"
 
 
 class FeatureExplorerScreen(QWidget):
-    """A table, a filter, computed columns, and a ranking of every feature."""
+    """A table, a filter, computed columns, and a ranking of every feature.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        screen's views join, so a selection made here reaches the others.
+        ``None`` joins the shared one; pass a private one in a test.
+    :param threaded: whether the work runs off the GUI thread. False runs it
+        inline, which is what makes a test deterministic.
+    """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
         super().__init__(parent)

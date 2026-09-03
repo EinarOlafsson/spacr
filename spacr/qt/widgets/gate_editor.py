@@ -222,6 +222,20 @@ class GateCanvas(GraphCanvas):
     Adds interactive gate drawing, dragging and hit-testing to the shared
     canvas, and pins the axes while a gate exists -- see
     :data:`RESCALE_ON_FILTER` for why that is not optional here.
+
+    Emits :attr:`gate_drawn` with a finished
+    :class:`~spacr.qt.widgets.gate_spec.Gate` that has **no name yet** --
+    naming is the host's job, because a gate is not a gate until it is named
+    and a dialog does not belong in a canvas.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
     """
 
     #: Gating is the one place a filter must NOT move the axes. A gate is
@@ -229,13 +243,6 @@ class GateCanvas(GraphCanvas):
     #: it kept moves that view out from under it, which reads as the plot
     #: zooming into the gate and makes the gate impossible to drag.
     RESCALE_ON_FILTER = False
-
-    """The plot, with gates drawn on it and a tool that draws more.
-
-    Emits :attr:`gate_drawn` with a finished :class:`~spacr.qt.widgets.gate_spec.Gate`
-    that has **no name yet** — naming is the host's job, because a gate is not
-    a gate until it is named, and a dialog does not belong in a canvas.
-    """
 
     #: A shape was completed. Carries a gate named ``"(unnamed)"``.
     gate_drawn = Signal(object)
@@ -2806,6 +2813,15 @@ class GateEditorPanel(QWidget):
     :meth:`publish` is the point of the screen — it turns the selected gate
     into a :class:`~spacr.selection.DataFilter` clause and pushes it onto the
     shared filter, so every open view narrows to the gated population.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
     """
 
     gates_changed = Signal()

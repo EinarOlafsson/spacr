@@ -136,7 +136,15 @@ class _AxisCutoffDialog(QDialog):
 
 
 class GateEditorScreen(QWidget):
-    """A table, two axis pickers, the gating surface, and save/load."""
+    """A table, two axis pickers, the gating surface, and save/load.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        screen's views join, so a selection made here reaches the others.
+        ``None`` joins the shared one; pass a private one in a test.
+    :param threaded: whether the work runs off the GUI thread. False runs it
+        inline, which is what makes a test deterministic.
+    """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
         super().__init__(parent)
