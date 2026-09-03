@@ -25,7 +25,6 @@ from typing import List, NamedTuple, Optional, Tuple
 
 import imageio.v2 as imageio
 import numpy as np
-from scipy.ndimage import binary_fill_holes, label
 
 from ..curation import LOG_SUFFIX, CurationLog
 from ..tiff_io import write_tiff
@@ -39,6 +38,23 @@ CURATION_SOURCE = "spacr-qt make_masks"
 #: Eight-connectivity: two objects touching only at a corner are one blob to
 #: the eye and must be one object to the label image too, or a hand-drawn
 #: diagonal stroke arrives on disk as a string of separate cells.
+def _ndimage():
+    """``scipy.ndimage``, imported on first use rather than at module scope.
+
+    THIS MODULE IS ON THE STARTUP PATH. `app.folded_children()` imports every
+    fold host to read its `FOLDED_APPS`, and `make_masks` imports this one --
+    so a module-level `from scipy.ndimage import ...` put scipy into the
+    process before Home had painted. The packaged smoke test asserts Home
+    crosses no operation-only import boundary and named scipy for exactly
+    that reason.
+
+    :returns: the ``scipy.ndimage`` module.
+    """
+    from scipy import ndimage
+
+    return ndimage
+
+
 _EIGHT = np.ones((3, 3), dtype=np.uint8)
 
 
@@ -175,14 +191,14 @@ def canonical_labels(mask: np.ndarray) -> np.ndarray:
     m = np.asarray(mask)
     values = np.unique(m[m > 0])
     if values.size <= 1:
-        labeled, _ = label(m > 0, structure=_EIGHT)
+        labeled, _ = _ndimage().label(m > 0, structure=_EIGHT)
         return labeled.astype(np.uint16)
 
     out = m.astype(np.int64, copy=True)
     used = {int(v) for v in values}
     candidate = 1
     for value in values:
-        pieces, count = label(m == value, structure=_EIGHT)
+        pieces, count = _ndimage().label(m == value, structure=_EIGHT)
         if count <= 1:
             continue
         areas = np.bincount(pieces.ravel())
@@ -468,7 +484,7 @@ def divide_object(mask: np.ndarray, p0, p1,
     for source in crossed:
         body = out == source
         remainder = body & ~band
-        pieces, count = label(remainder, structure=_EIGHT)
+        pieces, count = _ndimage().label(remainder, structure=_EIGHT)
         if count < 2:
             continue                      # the line stopped short: not a cut
         areas = np.bincount(pieces.ravel())
@@ -488,14 +504,14 @@ def divide_object(mask: np.ndarray, p0, p1,
 def fill_holes(mask: np.ndarray) -> np.ndarray:
     """Fill holes inside True regions; returns a relabeled mask."""
     binary = mask > 0
-    filled = binary_fill_holes(binary)
-    labeled, _ = label(filled)
+    filled = _ndimage().binary_fill_holes(binary)
+    labeled, _ = _ndimage().label(filled)
     return labeled.astype(mask.dtype)
 
 
 def relabel_objects(mask: np.ndarray) -> np.ndarray:
     """Return a mask whose connected components are labeled 1..N."""
-    labeled, _ = label(mask > 0)
+    labeled, _ = _ndimage().label(mask > 0)
     return labeled.astype(mask.dtype)
 
 
@@ -515,7 +531,7 @@ def remove_small_objects(mask: np.ndarray, min_area: int) -> np.ndarray:
     """Drop connected components with area < min_area (in pixels)."""
     if min_area <= 0:
         return mask.copy()
-    labeled, n = label(mask > 0)
+    labeled, n = _ndimage().label(mask > 0)
     if n == 0:
         return mask.copy()
     counts = np.bincount(labeled.ravel())

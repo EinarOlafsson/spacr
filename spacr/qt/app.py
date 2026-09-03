@@ -1518,8 +1518,6 @@ def folded_children() -> Dict[str, Tuple[str, ...]]:
     nothing, because a navigation aid must not be able to stop the
     window being built.
     """
-    import importlib
-
     try:
         from .widgets.fold_strip import FOLD_HOST_MODULES
     except Exception:                                    # noqa: BLE001
@@ -1527,21 +1525,146 @@ def folded_children() -> Dict[str, Tuple[str, ...]]:
 
     found: Dict[str, Tuple[str, ...]] = {}
     for module_name in tuple(FOLD_HOST_MODULES) + _EXTRA_FOLD_HOSTS:
-        try:
-            module = importlib.import_module(module_name)
-        except Exception:                                # noqa: BLE001
-            LOG.debug("fold host %s unavailable", module_name, exc_info=True)
+        declared = _declared_folds(module_name)
+        if declared is None:
+            LOG.debug("fold host %s unavailable", module_name)
             continue
-        # FOLD_ORDER as well as FOLDED_APPS: make_masks spells it the
-        # other way, and a host missed here is a submenu that silently
-        # has nothing in it.
-        folded = (getattr(module, "FOLDED_APPS", None)
-                  or getattr(module, "FOLD_ORDER", None) or ())
-        host = (getattr(module, "APP_KEY", None)
-                or getattr(module, "HOST_KEY", None))
+        host, folded = declared
         if host and folded:
             found[str(host)] = tuple(str(k) for k in folded)
     return found
+
+
+def _declared_constant(module_name: str, name: str):
+    """One module-level string constant, read from source without importing.
+
+    :param module_name: dotted name of the module to read.
+    :param name: the constant to look for.
+    :returns: the string, or ``None`` when it is absent or not a plain string.
+    """
+    import ast
+    import importlib.util
+    import pathlib
+
+    try:
+        spec = importlib.util.find_spec(module_name)
+        tree = ast.parse(
+            pathlib.Path(spec.origin).read_text(encoding="utf-8"))
+    except Exception:                                    # noqa: BLE001
+        return None
+    for node in tree.body:
+        if isinstance(node, ast.AnnAssign):
+            targets, value = [node.target], node.value
+        elif isinstance(node, ast.Assign):
+            targets, value = node.targets, node.value
+        else:
+            continue
+        if not isinstance(value, ast.Constant) or not isinstance(
+                value.value, str):
+            continue
+        for target in targets:
+            if isinstance(target, ast.Name) and target.id == name:
+                return value.value
+    return None
+
+
+def _declared_folds(module_name: str):
+    """``(host key, folded keys)`` read from a host's SOURCE, not by importing.
+
+    WHY NOT `import_module`. This runs while the menu bar is being built, so
+    importing every fold host pulls their whole dependency tree into the
+    process before Home has painted -- `make_masks` alone reached pandas and
+    scipy through `curation`, `mask_engine` and the settings model. The
+    packaged smoke test asserts that Home crosses no operation-only import
+    boundary, and it was failing on exactly that.
+
+    The declarations themselves are simple: a string for the host key and a
+    tuple of strings for the folds, with the occasional reference to another
+    module-level string constant in the same file (`MASK_FOLDER_KEY`). Those
+    are read out of the syntax tree, which costs a file read and no imports.
+
+    :param module_name: dotted name of the host module.
+    :returns: ``(host, folded)``, or ``None`` when the module cannot be read.
+    """
+    import ast
+    import importlib.util
+    import pathlib
+
+    try:
+        spec = importlib.util.find_spec(module_name)
+        source = pathlib.Path(spec.origin).read_text(encoding="utf-8")
+        tree = ast.parse(source)
+    except Exception:                                    # noqa: BLE001
+        return None
+
+    #: Module-level names bound to a plain string, so a fold list may name one.
+    constants: Dict[str, str] = {}
+    declared: Dict[str, object] = {}
+    for node in tree.body:
+        # ANNOTATED ASSIGNMENTS TOO. Most hosts write
+        # `FOLDED_APPS: Tuple[str, ...] = (...)`, which is an `AnnAssign` and
+        # not an `Assign` -- reading only the latter found the host key and an
+        # empty fold list for ten of the twelve hosts.
+        if isinstance(node, ast.AnnAssign):
+            targets, value = [node.target], node.value
+        elif isinstance(node, ast.Assign):
+            targets, value = node.targets, node.value
+        else:
+            continue
+        if value is None:
+            continue
+        for target in targets:
+            if not isinstance(target, ast.Name):
+                continue
+            if isinstance(value, ast.Constant) and isinstance(value.value, str):
+                constants[target.id] = value.value
+            if target.id in ("FOLDED_APPS", "FOLD_ORDER", "APP_KEY",
+                             "HOST_KEY"):
+                declared[target.id] = value
+
+    #: `from . import activation` -> {"activation": "spacr.qt.screens.activation"},
+    #: so `activation.APP_KEY` in a fold list can be resolved the same way.
+    siblings: Dict[str, str] = {}
+    package = module_name.rpartition(".")[0]
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom) and node.level:
+            base = package
+            for _ in range(node.level - 1):
+                base = base.rpartition(".")[0]
+            if node.module:
+                base = f"{base}.{node.module}"
+            for alias in node.names:
+                siblings[alias.asname or alias.name] = f"{base}.{alias.name}"
+
+    def _as_string(node, _depth=0):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            return node.value
+        if isinstance(node, ast.Name):
+            return constants.get(node.id)
+        # ANOTHER MODULE'S CONSTANT, read the same way rather than by
+        # importing it: `classify` writes `activation.APP_KEY` in its fold
+        # list, and importing `activation` to learn one string is the cost
+        # this whole function exists to avoid. One level only, which is all
+        # any host uses.
+        if isinstance(node, ast.Attribute) and _depth == 0:
+            owner = node.value
+            if isinstance(owner, ast.Name) and owner.id in siblings:
+                other = _declared_constant(siblings[owner.id], node.attr)
+                if other is not None:
+                    return other
+        return None
+
+    host = _as_string(declared.get("APP_KEY")) or _as_string(
+        declared.get("HOST_KEY"))
+    folded: Tuple[str, ...] = ()
+    for name in ("FOLDED_APPS", "FOLD_ORDER"):
+        node = declared.get(name)
+        if isinstance(node, (ast.Tuple, ast.List)):
+            keys = [_as_string(element) for element in node.elts]
+            if all(keys):
+                folded = tuple(keys)
+                break
+    return host, folded
 
 
 SECTION_TILE_ORDER: Dict[str, Tuple[str, ...]] = {

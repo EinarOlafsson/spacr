@@ -49,7 +49,6 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
-import pandas as pd
 
 __all__ = [
     "CurationError",
@@ -63,6 +62,23 @@ __all__ = [
     "log_path_for",
     "is_curated",
 ]
+
+
+def _pandas():
+    """``pandas``, imported on first use rather than at module scope.
+
+    THIS MODULE IS ON THE STARTUP PATH. `app.folded_children()` imports every
+    fold host to read its `FOLDED_APPS`, and `make_masks` imports
+    :class:`CurationLog` from here -- so a module-level ``import pandas`` put
+    pandas into the process before Home had painted. The packaged smoke test
+    asserts Home crosses no operation-only import boundary and named pandas
+    for exactly that reason.
+
+    :returns: the ``pandas`` module.
+    """
+    import pandas
+
+    return pandas
 
 
 class CurationError(ValueError):
@@ -776,7 +792,7 @@ class TrackCuration:
     it fail with the same message.
     """
 
-    def __init__(self, tracks: pd.DataFrame, *, artifact: Any = "",
+    def __init__(self, tracks: "pd.DataFrame", *, artifact: Any = "",
                  log: Optional[CurationLog] = None):
         """Validate key columns and attach a copied table and provenance log.
 
@@ -833,7 +849,7 @@ class TrackCuration:
         frames = self.frames_of(track_id)
         return (frames[0], frames[-1]) if frames else None
 
-    def to_frame(self) -> pd.DataFrame:
+    def to_frame(self) -> "pd.DataFrame":
         """The curated table, sorted by track then frame."""
         return self.tracks.sort_values(
             ["track_id", "frame"], kind="stable").reset_index(drop=True)
@@ -845,9 +861,9 @@ class TrackCuration:
         track deleted ten minutes ago makes the ledger ambiguous, and the
         ledger is the point.
         """
-        numeric = pd.to_numeric(self.tracks["track_id"], errors="coerce")
+        numeric = _pandas().to_numeric(self.tracks["track_id"], errors="coerce")
         top = numeric.max()
-        return int(top) + 1 if pd.notna(top) else 1
+        return int(top) + 1 if _pandas().notna(top) else 1
 
     # -- consistency ---------------------------------------------------------
     def check(self) -> List[str]:

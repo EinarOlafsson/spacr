@@ -32,7 +32,30 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
-from . import convert as cv
+class _LazyConvert:
+    """``spacr.convert``, imported on first attribute access.
+
+    THIS MODULE IS ON THE STARTUP PATH, three links down: the settings model
+    imports the external-mask widget, which imports this, and `convert`
+    imports pandas. The packaged smoke test asserts Home crosses no
+    operation-only import boundary and was failing on pandas for exactly that
+    chain.
+
+    A proxy rather than sixteen function-level imports, so every existing
+    ``cv.something`` reads the same. Safe because this module declares
+    ``from __future__ import annotations``: the annotations that name
+    ``cv.ConversionPlan`` are strings and never evaluated at import.
+    """
+
+    __slots__ = ()
+
+    def __getattr__(self, name: str):
+        from . import convert
+
+        return getattr(convert, name)
+
+
+cv = _LazyConvert()
 from . import crops
 from .errors import ConfigurationError
 

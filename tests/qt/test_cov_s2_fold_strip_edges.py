@@ -39,14 +39,20 @@ class TestOneBrokenHostDoesNotEmptyTheInventory:
         intact = folded_modules()
         assert intact, "no folded modules to speak of; the fixture is stale"
         broken = FOLD_HOST_MODULES[0]
-        real_import = importlib.import_module
+
+        # UNREADABLE, NOT UNIMPORTABLE. `folded_modules` reads each host's
+        # declarations out of its source and imports nothing -- importing
+        # every host pulled pandas and scipy into the process before Home had
+        # painted. So the failure to simulate is a host whose source cannot
+        # be located or parsed, which is what `_host_declarations` guards.
+        real_declarations = fold_strip._host_declarations
 
         def refusing(name, *args, **kwargs):
             if name == broken:
-                raise ImportError(f"{name} is unavailable")
-            return real_import(name, *args, **kwargs)
+                return None
+            return real_declarations(name, *args, **kwargs)
 
-        monkeypatch.setattr(importlib, "import_module", refusing)
+        monkeypatch.setattr(fold_strip, "_host_declarations", refusing)
         surviving = folded_modules()
 
         assert surviving, "one broken host emptied the whole inventory"
