@@ -13,8 +13,16 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from spacr.sudoku import (ABSTAIN, anchors_for, constrain_to_fractions,
-                          propagate, similarity_graph, sudoku, sudoku_all)
+from spacr.sudoku import (
+    ABSTAIN,
+    SudokuResult,
+    anchors_for,
+    constrain_to_fractions,
+    propagate,
+    similarity_graph,
+    sudoku,
+    sudoku_all,
+)
 
 
 def _cells(n_per_well: int = 12, seed: int = 3):
@@ -176,6 +184,8 @@ def test_a_run_with_no_guides_returns_an_empty_result_that_says_why():
     assert result.guides == ()
     assert result.affirm.shape == (8, 0)
     assert result.report["reason"] == "no cells or no guides"
+    assert "relative to the median positive reach" in " ".join(
+        (SudokuResult.__doc__ or "").split())
 
 
 def test_a_run_with_no_cells_returns_an_empty_result_that_says_why():

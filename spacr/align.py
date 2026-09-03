@@ -416,21 +416,19 @@ class PairResult:
 class Placement:
     """Where one tile goes, and how much that position is worth.
 
-    :ivar tile: the :class:`Tile` this places.
-    :ivar y: solved row offset, in the global frame. May be negative —
-        :func:`plan_canvas` turns the frame into canvas indices.
-    :ivar x: solved column offset, in the global frame.
-    :ivar confidence: best pair confidence backing this tile; 0.0 for a
-        nominal fallback, 1.0 for the single-tile case.
-    :ivar method: one of :data:`METHOD_REGISTRATION`,
-        :data:`METHOD_NOMINAL`, :data:`METHOD_SINGLE`.
-    :ivar note: human explanation, e.g. which pairs were refused.
-    :ivar residual: RMS distance, in pixels, between this tile's solved
-        position and what its own accepted pairs asked for. 0.0 when the
-        tile has no pairs. **This is the number to sort on**: a tile that
-        registered against neighbours that disagree shows up here and
-        nowhere else.
-    :ivar n_pairs: accepted pairs incident on this tile.
+    :param tile: source :class:`Tile` placed by this result.
+    :param y: solved row offset in the global frame; negative positions are
+        preserved until canvas planning.
+    :param x: solved column offset in the global frame.
+    :param confidence: greatest accepted-pair confidence supporting this
+        tile, zero for nominal fallback, or one for the single-tile case.
+    :param method: placement method, one of :data:`METHOD_REGISTRATION`,
+        :data:`METHOD_NOMINAL`, or :data:`METHOD_SINGLE`.
+    :param note: explanation of fallback or refused-pair evidence.
+    :param residual: root-mean-square disagreement, in pixels, between the
+        solved position and accepted incident pairs.
+    :param n_pairs: number of accepted registration pairs incident on this
+        tile.
     """
 
     tile: Tile

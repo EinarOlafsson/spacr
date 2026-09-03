@@ -267,6 +267,8 @@ def test_a_missing_section_is_the_only_kind_that_was_not_found():
     assert R.Section(title="t", status=R.STATUS_MISSING).found is False
     assert R.Section(title="t", status=R.STATUS_PROBLEM).found is True
     assert R.Section(title="t").found is True
+    assert "plugins use their registered contribution" in (
+        R.Section.__doc__ or "")
 
 
 # ---------------------------------------------------------------------------
