@@ -49,6 +49,7 @@ FULLY_DOCUMENTED = (
     "spacr/gpu_reduce.py",
     "spacr/guide_concordance.py",
     "spacr/guide_permutation.py",
+    "spacr/gene_measurement_compare.py",
     "spacr/hit_investigation.py",
     "spacr/gene_tile.py",
     "spacr/lineage.py",

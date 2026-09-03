@@ -58,7 +58,7 @@ def test_lookup_records_document_every_generated_constructor_field(record):
     """Search results and their supporting records explain every value."""
     documentation = record.__doc__ or ""
     for item in fields(record):
-        assert f":ivar {item.name}:" in documentation
+        assert f":param {item.name}:" in documentation
 
 REAL_COLUMNS_FILE = Path(__file__).parent / "data" / "real_measurement_columns.tsv"
 
