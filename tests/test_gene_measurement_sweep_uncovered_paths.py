@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import io
 import warnings
+from dataclasses import fields
 
 import matplotlib
 matplotlib.use("Agg")
@@ -78,10 +79,12 @@ def test_a_circularity_bar_removes_the_pairs_the_score_already_tracks():
                          n_blocks=2, dropped=("cell_id",),
                          circularity_known=True)
 
-    assert ":ivar dropped:" in (SweepResult.__doc__ or "")
-    assert ":ivar circularity_known:" in (SweepResult.__doc__ or "")
+    assert all(
+        f":param {field.name}:" in (SweepResult.__doc__ or "")
+        for field in fields(SweepResult)
+    )
     assert result.dropped == ("cell_id",)
-    assert "1 identifier column(s) were left out" in result.describe()
+    assert "1 input column(s) were left out" in result.describe()
     assert list(result.survivors(alpha=0.05)["guide"]) == ["clean", "circular"]
     kept = result.survivors(alpha=0.05, max_circularity=0.15)
     assert list(kept["guide"]) == ["clean"]
