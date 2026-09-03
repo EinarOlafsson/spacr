@@ -259,6 +259,10 @@ def _object_prefixes(df: pd.DataFrame, object_type: Any) -> Optional[pd.Series]:
 
 
 def _key_columns(timelapse: bool) -> list:
+    """Return object-key columns in schema join order.
+
+    Include ``timeID`` when ``timelapse`` is true.
+    """
     cols = list(OBJECT_KEY_COLUMNS)
     if timelapse:
         # Insert the timepoint before the object label, matching the order
@@ -455,6 +459,7 @@ class RangeFilter:
         return keep
 
     def describe(self) -> str:
+        """Return a compact description of this filter's inclusive bounds."""
         if self.low is None and self.high is None:
             return f"{self.column}: any"
         if self.low is None:
@@ -494,6 +499,7 @@ class CategoryFilter:
         return df[self.column].astype(str).isin(wanted).to_numpy()
 
     def describe(self) -> str:
+        """Return a compact description showing at most three accepted values."""
         if not self.values:
             return f"{self.column}: none"
         shown = ", ".join(str(v) for v in self.values[:3])
@@ -535,11 +541,13 @@ class DataFilter:
         return self
 
     def clear(self) -> "DataFilter":
+        """Remove every clause and return this filter for fluent chaining."""
         self.clauses = []
         return self
 
     @property
     def is_empty(self) -> bool:
+        """Return whether this filter contains no clauses."""
         return not self.clauses
 
     def mask(self, df: pd.DataFrame) -> np.ndarray:
@@ -691,9 +699,11 @@ class Selection:
 
     @property
     def is_active(self) -> bool:
+        """Return whether this is an explicit, possibly empty, selection."""
         return self.keys is not None
 
     def __len__(self) -> int:
+        """Return the selected-key count, or zero in the resting state."""
         return 0 if self.keys is None else len(self.keys)
 
     def mask_for(self, df: pd.DataFrame, *, timelapse: bool = False,
@@ -800,6 +810,7 @@ class Selection:
 
     @classmethod
     def none(cls) -> "Selection":
+        """Return the resting selection with no keys and no source."""
         return cls(keys=None, source="")
 
 
@@ -843,7 +854,7 @@ def as_key_index(keys: Any, *, timelapse: bool = False,
     :func:`spacr.active_learning.crops_for_object_keys`), and rewriting those
     into something that looks like an object key would break the resolution
     they were relying on. Untyped and typed keys are reconciled where they are
-    *compared* — :func:`_match_keys` — not where they are collected.
+    *compared* — :func:`match_keys` — not where they are collected.
     """
     if isinstance(keys, Selection):
         if keys.keys is None:
@@ -879,16 +890,16 @@ def as_key_index(keys: Any, *, timelapse: bool = False,
 class ObjectRequest:
     """One "open exactly these objects" act, on its way to whatever shows them.
 
-    Built by the view that asked and handed, unchanged, to the opener
+    Built by the view that asked and routed to the opener
     registered for :attr:`kind` — see
     :func:`spacr.qt.linked_selection.open_objects`. Openers take this one
     object rather than a handful of arguments so the request can grow a field
     without breaking every registered opener.
 
-    :param keys: anything :func:`as_key_index` accepts. Normalised to a
-        :class:`pandas.Index` of :data:`OBJECT_KEY_COLUMNS` keys on
-        construction, so an opener may assume ``request.keys`` is an Index of
-        ``str``, in the caller's order, without duplicates.
+    :param keys: anything :func:`as_key_index` accepts. Normalised on
+        construction to an Index of strings in the caller's order, with
+        duplicates removed. Existing strings are neither validated nor
+        recomposed, so they need not use :data:`OBJECT_KEY_COLUMNS`.
     :param reason: why these objects, in the words the receiving view will
         put on screen ("predicted infected, annotated uninfected"). Required
         and non-blank: a grid showing twelve crops out of ninety thousand and
@@ -900,8 +911,8 @@ class ObjectRequest:
     :param timelapse: whether ``keys`` carry a timepoint, so the receiver
         resolves them against its own table the same way they were built.
     :param context: free-form extras for the destination — per-key scores to
-        sort by, a column to annotate into. Copied and made read-only, so a
-        caller mutating their dict cannot change a request already sent.
+        sort by, a column to annotate into. Shallow-copied into a read-only
+        outer mapping; nested mutable values remain shared with the caller.
     :raises ValueError: on a blank ``reason``.
 
     An EMPTY request is legal. A confusion-matrix cell holding no errors is a
@@ -917,6 +928,7 @@ class ObjectRequest:
     context: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
+        """Normalise keys and reason, then freeze a shallow context copy."""
         object.__setattr__(
             self, "keys", as_key_index(self.keys, timelapse=self.timelapse))
         reason = str(self.reason).strip()
@@ -929,6 +941,7 @@ class ObjectRequest:
         object.__setattr__(self, "context", MappingProxyType(dict(self.context)))
 
     def __len__(self) -> int:
+        """Return the number of normalised keys in this request."""
         return len(self.keys)
 
     def select_from(self, df: pd.DataFrame, *,
