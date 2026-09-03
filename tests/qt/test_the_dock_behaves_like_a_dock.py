@@ -139,76 +139,110 @@ def test_every_icon_is_the_same_size_whatever_the_pointer_does(dock):
         assert children < hosts, "a folded child is not drawn smaller"
 
 
-def test_a_row_sits_on_a_translucent_rounded_plate(dock, qapp):
-    """The box asked for on 2026-09-03, measured off the rendered row.
+def _paint_only(widget, background="#ff00ff"):
+    """``widget`` rendered over ``background`` WITHOUT the window fill.
 
-    Three claims, and all three are what the request named. TRANSLUCENT and
-    VISIBLE: the plate is a step off whatever is behind the dock rather
-    than either invisible or an opaque slab. ROUNDED: the row's corner is
-    NOT the plate, because the plate's corner is cut away there. HIGHLIGHTS
-    ON HOVER: the step gets bigger.
+    `QWidget.render` defaults to `DrawWindowBackground | DrawChildren`, and
+    the window fill comes from the widget's PALETTE whatever its `paintEvent`
+    does -- so a plain render reports `#161719` for a row that paints nothing
+    at all, which is exactly the colour the defect being tested used to
+    paint. Dropping that flag leaves only what the widget itself draws, which
+    is the question.
+    """
+    from PySide6.QtCore import QPoint
+    from PySide6.QtGui import QColor, QPixmap, QRegion
+    from PySide6.QtWidgets import QWidget
 
-    Read off pixels rather than off the stylesheet on purpose. The QSS
-    rule that used to be believed to draw this reaches no dock row at all
-    (see `_DockRow._paint_plate`), and a test that had asserted the QSS
-    text would have passed for the whole time the dock had no plate.
+    shot = QPixmap(widget.size())
+    shot.fill(QColor(background))
+    widget.render(shot, QPoint(), QRegion(),
+                  QWidget.RenderFlag.DrawChildren)
+    return shot.toImage()
+
+
+def test_a_row_paints_nothing_behind_its_icon(dock, qapp):
+    """No plate, no button, no box. Asked for on 2026-09-03.
+
+    "the icon with text also has fields which appear whne hovered, remove
+    these, i just want the transparent dock holder with rounded edges, the
+    icons and when hovered the icons turn blue and you see the text which is
+    also blue. nothing else."
+
+    Measured by rendering the row over a colour nothing in the palette uses
+    and asking whether that colour survives beside the icon. This has failed
+    for two different reasons on the same day: `drawControl(CE_PushButton)`
+    rendering a NATIVE button panel from the palette's Button role -- an
+    opaque `#161719` behind every icon, drawn over the dock's own slab --
+    and a plate this class painted itself for a few hours.
     """
     row = next(r for r in _visible(dock) if not r.property("isFoldChild"))
+    image = _paint_only(row)
 
-    def sample():
-        shot = QPixmap(row.size())
-        shot.fill()
-        row.render(shot)
-        image = shot.toImage()
-        inside = image.pixelColor(row.width() - 10, row.height() // 2)
-        corner = image.pixelColor(0, 0)
-        return inside, corner
-
-    row._hovered = False
-    rest, behind = sample()
-    row._hovered = True
-    hover, hover_corner = sample()
-    row._hovered = False
-
-    def step(a, b):
-        return max(abs(x - y) for x, y in
-                   ((a.red(), b.red()), (a.green(), b.green()),
-                    (a.blue(), b.blue())))
-
-    assert step(rest, behind) >= 8, (
-        f"the resting plate {rest.name()} is invisible against "
-        f"{behind.name()}")
-    assert rest.alpha() == 255 and behind.alpha() == 255, (
-        "sampled a transparent pixel -- the render never happened")
-    assert step(hover, rest) >= 8, (
-        f"hover does not highlight: {rest.name()} -> {hover.name()}")
-    assert behind.name() == hover_corner.name(), (
-        "the corner changed on hover, so the plate is not inset there")
-    assert step(rest, behind) < 200, (
-        f"the resting plate {rest.name()} is opaque, not translucent")
+    beside = image.pixelColor(row.width() - 12, row.height() // 2)
+    assert beside.name().lower() == "#ff00ff", (
+        f"the row painted {beside.name()} behind its icon")
+    corner = image.pixelColor(0, 0)
+    assert corner.name().lower() == "#ff00ff", (
+        f"the row painted {corner.name()} in its corner")
 
 
-def test_the_open_module_is_marked_by_its_plate_and_an_accent_bar(dock):
-    """Selection has to survive a hover, or the dock forgets where you are.
+def test_hovering_a_row_inks_it_in_the_accent(dock, qapp):
+    """The whole of a row's hover: blue icon, blue name, nothing else."""
+    from PySide6.QtGui import QColor, QPixmap
 
-    Before the plate existed, `:checked` was an opaque QSS background that
-    never reached the row -- so the accent bar was the only mark, and it
-    was drawn square against a plate that is now rounded.
-    """
     from spacr.qt.theme import active_palette
 
     row = next(r for r in _visible(dock) if not r.property("isFoldChild"))
+
+    def bluish_pixels():
+        image = _paint_only(row, "#000000")
+        return sum(
+            1
+            for x in range(0, row.width(), 2)
+            for y in range(0, row.height(), 2)
+            if (lambda c: c.blue() > c.red() + 20 and c.blue() > 40)(
+                image.pixelColor(x, y)))
+
+    row._hovered = False
+    rest = bluish_pixels()
+    row._hovered = True
+    hot = bluish_pixels()
+    row._hovered = False
+
+    assert rest == 0, "the row is already blue with nothing hovering it"
+    assert hot > 0, "hovering the row did not ink anything in the accent"
+    accent = QColor(active_palette()["accent"])
+    assert accent.blue() > accent.red(), "the accent is not a blue"
+
+
+def test_the_open_module_keeps_its_icon_inked(dock):
+    """Selection has to be visible, or the dock forgets where you are.
+
+    IT IS THE ICON, not a bar and not a plate. Every box in the dock came
+    off on 2026-09-03; what marks the open module is the same accent ink a
+    hover uses, left on. Its NAME is not drawn -- that would put a permanent
+    label back in the column the dock stopped drawing labels in.
+    """
+    from PySide6.QtGui import QColor, QPixmap
+
+    row = next(r for r in _visible(dock) if not r.property("isFoldChild"))
+
+    def bluish_pixels():
+        image = _paint_only(row, "#000000")
+        return sum(
+            1
+            for x in range(0, row.width(), 2)
+            for y in range(0, row.height(), 2)
+            if (lambda c: c.blue() > c.red() + 20 and c.blue() > 40)(
+                image.pixelColor(x, y)))
+
+    plain = bluish_pixels()
     row.setProperty("selected", "true")
-    shot = QPixmap(row.size())
-    shot.fill()
-    row.render(shot)
-    image = shot.toImage()
-    accent = active_palette()["accent"]
-    bar = image.pixelColor(row.PLATE_INSET_PX + 1, row.height() // 2)
+    marked = bluish_pixels()
     row.setProperty("selected", None)
-    assert bar.name().lower() == accent.lower(), (
-        f"the selected row's left edge is {bar.name()}, not the accent "
-        f"{accent}")
+    assert marked > plain, (
+        "the open module is not marked at all: "
+        f"{plain} accent pixels unselected, {marked} selected")
 
 
 def test_every_row_is_taller_than_the_icon_it_shows(dock):
@@ -371,21 +405,39 @@ def test_no_dock_row_is_blank(dock):
     assert not blank, f"dock rows that would draw nothing at all: {blank}"
 
 
-def test_hovering_a_dock_row_puts_its_name_in_the_status_strip(window, dock):
-    """The strip is where the name went, and it has to be there.
+def test_hovering_a_dock_row_explains_it_in_the_hint_strip(window, dock,
+                                                          qapp):
+    """The strip is where the description went, and it has to be there.
+
+    NOT THE STATUS BAR ANY MORE. It went to the bottom-LEFT status line with
+    a four-second linger until 2026-09-03, and that is what the maintainer
+    reported: "in the bottom of the screen to the left is text that also
+    flickers sometimes like its going to what is hovered and something else
+    back and forthe." Two writers, alternating -- this filter on every hover,
+    and Qt restoring the permanent message four seconds later.
+
+    It goes to the page's hint strip now, which holds the last module for
+    thirty seconds and carries its API and Tutorial links.
 
     Driven through the filter Qt would hand the ToolTip event to, so this
-    fails if the row stops carrying `moduleNameSource` as well as if the
-    strip stops listening.
+    fails if the row stops carrying `moduleAppKey` as well as if the strip
+    stops listening.
     """
     hints = window._module_hints
     assert hints is not None, "module hints are not installed on the window"
+    home = window._startup
+    window._stack.setCurrentWidget(home)
+    home._hint_bar.release()
     row = next(r for r in _visible(dock)
                if str(r.property("navKey")) == "mask")
     window.statusBar().clearMessage()
     hints.eventFilter(row, QHelpEvent(QEvent.Type.ToolTip, QPoint(1, 1),
                                       row.mapToGlobal(QPoint(1, 1))))
-    assert "Mask" in window.statusBar().currentMessage()
+    qapp.processEvents()
+    assert home._hint_bar.module_key == "mask", (
+        f"the strip is explaining {home._hint_bar.module_key!r}")
+    assert window.statusBar().currentMessage() == "", (
+        "the status bar is being written on hover again")
 
 
 def test_a_folded_child_is_inset_and_smaller_than_its_host(dock, qapp):

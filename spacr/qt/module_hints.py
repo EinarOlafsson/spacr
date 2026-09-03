@@ -1,7 +1,17 @@
-"""Module descriptions go to the bottom of the window, not over the grid.
+"""Module descriptions go to the hint strip, not over the grid and not
+into the status bar.
 
-A module description is shown in the status line at the bottom of the
-window and nowhere else -- never as a popup over the grid.
+A module description is shown in ONE place -- the hint strip along the
+bottom of the page -- and never as a popup over the grid.
+
+IT USED TO GO TO THE STATUS BAR, the line in the bottom LEFT of the
+window, with a four-second linger. That is what the maintainer reported on
+2026-09-03: "in the bottom of the screen to the left is text that also
+flickers sometimes like its going to what is hovered and something else
+back and forthe." Two writers, not one: this filter put the description
+there on every hover and Qt put the permanent message back four seconds
+later, so the corner alternated. The strip does not alternate -- it holds
+the last module for thirty seconds and is replaced only by the next.
 
 Home already worked this way and the reason is written on ``AppTile``:
 these blurbs run to several hundred characters, which is fine in a fixed
@@ -35,22 +45,19 @@ LOG = logging.getLogger(__name__)
 SUMMARY_PROPERTY = "moduleSummarySource"
 NAME_PROPERTY = "moduleNameSource"
 
-#: How long the description stays after the pointer leaves. Long enough
-#: to finish reading a sentence the pointer has already moved off,
-#: short enough not to describe a module nobody is pointing at.
-LINGER_MS = 4000
+#: Which module a widget describes. The strip resolves the sentence and
+#: both links from this, so no description is composed or truncated here.
+KEY_PROPERTY = "moduleAppKey"
 
-#: Longest hint put on the status bar.
+#: Longest hint `module_hint_text` will compose. Still public, so a caller
+#: that puts the result somewhere narrow gets the same protection.
 #:
-#: THE BAR MUST NOT RESIZE. Module descriptions run to 154 characters,
-#: and a status bar whose text demands more width than the window has
-#: raises the window's own minimum width -- so every hover relaid the
-#: main window out and the dock flickered. Reported 2026-09-01: "the
-#: dock on linux is acting up, flickering when mouse is hovered".
-#:
-#: Eliding here rather than relying on the label to do it, because the
-#: reflow happens when the bar ASKS for the width, which is before any
-#: painting-time elision could help.
+#: 96 BECAUSE OF A RESIZE. Module descriptions run to 154 characters, and
+#: a status bar whose text demands more width than the window has raises
+#: the window's own minimum width -- so every hover relaid the main window
+#: out and the dock flickered. Reported 2026-09-01: "the dock on linux is
+#: acting up, flickering when mouse is hovered". Nothing writes the status
+#: bar on hover any more, so that constraint is historical.
 MAX_HINT_CHARS = 96
 
 
@@ -83,20 +90,33 @@ def module_hint_text(widget: QWidget) -> str:
 
 
 class _ModuleHints(QObject):
-    """Diverts module tooltips into a window's status bar."""
+    """Diverts module tooltips into the window's hint strip."""
 
     def __init__(self, window):
         super().__init__(window)
         self._window = window
 
-    def _show(self, text: str) -> bool:
+    def _show(self, widget) -> bool:
+        """Write ``widget``'s module into the strip. True if it landed.
+
+        Routed through the window rather than written here, because the
+        strip is whichever one the page in front owns -- Home's, or a
+        module screen's -- and `MainWindow._show_module_hint` is what knows
+        that, and what resolves the sentence and the two links.
+        """
         try:
-            bar = self._window.statusBar()
+            key = str(widget.property(KEY_PROPERTY) or "")
+        except RuntimeError:                    # the C++ half has gone
+            return False
+        if not key or key == "__home__":
+            return False
+        router = getattr(self._window, "_show_module_hint", None)
+        if not callable(router):
+            return False
+        try:
+            router(key)
         except (AttributeError, RuntimeError):
             return False
-        if bar is None:
-            return False
-        bar.showMessage(text, LINGER_MS)
         return True
 
     @staticmethod
@@ -123,7 +143,7 @@ class _ModuleHints(QObject):
         text = module_hint_text(watched)
         if not text:
             return False
-        landed = self._show(text)
+        landed = self._show(watched)
         # AN ICON-ONLY BUTTON KEEPS ITS POPUP. The description still goes
         # to the status bar -- that is what was asked for -- but the
         # popup is not suppressed, because a button with no label has
