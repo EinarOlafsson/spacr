@@ -36,18 +36,20 @@ __all__ = [
 class Screen:
     """Simulated screen with known cell-level guide assignments.
 
-    :ivar features: ``(n_cells, n_features)``.
-    :ivar scores: the classification score per cell, with the classifier's
-        error already applied.
-    :ivar wells: one well label per cell.
-    :ivar truth: the guide carried by each cell.
-    :ivar fractions: ``{well: {guide: fraction}}`` as sequencing reports
-        them -- biased and thresholded, i.e. what the method actually gets.
-    :ivar true_fractions: the same before the bias, kept so a test can ask
-        how much of a failure was the fraction rather than the method.
-    :ivar guides: every guide in the screen.
-    :ivar meta: auxiliary simulation facts used to interpret a scenario,
-        empty when the generator has no additional facts to report.
+    :param features: ``(n_cells, n_features)`` simulated cell-measurement
+        matrix.
+    :param scores: classifier score for each cell after applying the scenario's
+        configured classifier error.
+    :param wells: well identifier for each simulated cell.
+    :param truth: known guide carried by each simulated cell.
+    :param fractions: biased and thresholded
+        ``{well: {guide: fraction}}`` values exposed to the annotation method.
+    :param true_fractions: corresponding unbiased well-guide fractions retained
+        as simulation truth.
+    :param guides: every guide represented by the simulated screen, in
+        generator order.
+    :param meta: simulation parameters and auxiliary facts needed to interpret
+        the scenario.
     """
 
     features: np.ndarray

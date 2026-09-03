@@ -192,24 +192,20 @@ class PowerFitError(SpacrError):
 class ModelData:
     """Well-level design for the Poisson model, one row per well.
 
-    :ivar wells: well labels, in the order the rows of the design appear.
-    :ivar genes: gene labels, in the order the columns of
-        ``log10expression`` (and hence of ``beta``) appear.
-    :ivar Npositive: positive cells per well, summed over genes.
-    :ivar Ntotal: cells imaged per well; the Poisson offset is
-        ``log(Ntotal)``, so every well here has ``Ntotal > 0``.
-    :ivar log10expression: ``(n_wells, n_genes)`` matrix of
+    :param wells: retained well identifiers in design-row order.
+    :param genes: gene identifiers in the column order of
+        ``log10expression`` and fitted gene effects.
+    :param Npositive: positive-cell counts per retained well, summed over genes.
+    :param Ntotal: imaged-cell counts per retained well; every value is positive
+        because the model uses ``log(Ntotal)`` as its offset.
+    :param log10expression: ``(n_wells, n_genes)`` matrix of
         ``log10(reads_gene_well / reads_well + 1e-4)``.
-    :ivar dropped_wells: wells removed because ``Ntotal <= 0``.  A well
-        with no imaged cells has an infinite offset and contributes
-        nothing but a divide-by-zero.
-    :ivar zero_read_wells: wells whose sequencing returned no reads at
-        all.  Their read *fractions* are 0/0; see
-        :func:`prepare_model_data` for why they are set to 0 rather than
-        NaN, and note that such wells inform only the intercept.
-    :ivar unidentified_genes: genes whose ``log10expression`` column is
-        constant across every retained well.  Their coefficients are
-        confounded with the intercept and are reported as ``NaN``.
+    :param dropped_wells: wells removed because their imaged-cell count was not
+        positive.
+    :param zero_read_wells: retained wells with no sequencing reads; their
+        expression fractions use the pseudocount rather than ``nan``.
+    :param unidentified_genes: genes whose expression column is constant across
+        retained wells and whose fitted effect must remain unidentified.
     """
 
     wells: np.ndarray
