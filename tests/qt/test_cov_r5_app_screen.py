@@ -266,7 +266,13 @@ class TestWatchingTheShapingSettings:
 
         screen._watch_the_settings_that_decide_the_form()
 
-        assert done.connected == [screen._rebuild_the_form]
+        # IT HIDES THE ROWS, it does not rebuild the screen. Committing a
+        # plane used to call `rebuild_app_screen` -- 455 ms and a different
+        # screen object in the stack -- to change which rows are visible,
+        # taking every uncommitted edit, scroll position and open fold with
+        # it. `_show_the_objects_the_run_has` does the same job in place, and
+        # is what a shaping field is wired to now.
+        assert done.connected == [screen._show_the_objects_the_run_has]
 
 
 # ---------------------------------------------------------------------------

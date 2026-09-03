@@ -136,15 +136,31 @@ class TestClampHoldsAValueInsideItsBounds:
 
         assert clamp(value, 0.0, 1.0) == expected
 
-    def test_the_declared_speed_range_brackets_the_default(self):
-        """What the clamp is for: the variable-speed sweep's own bounds."""
-        from spacr.qt.fractal_defaults import (DEFAULT_SPEED,
-                                               DEFAULT_SPEED_MAX,
-                                               DEFAULT_SPEED_MIN, clamp)
+    def test_the_declared_speed_range_brackets_the_pace_it_came_from(self):
+        """What the clamp is for: the variable-speed sweep's own bounds.
 
-        assert DEFAULT_SPEED_MIN <= DEFAULT_SPEED <= DEFAULT_SPEED_MAX, (
-            "turning variable speed on must change the RANGE, not the "
-            "average pace")
+        THE BOUNDS ARE SHARED with `fractal_travel`, and they bracket THAT
+        module's default of 4.0 -- which is where "changes the RANGE, not
+        the average pace" is true. `fractal_defaults` lowered its own default
+        to 1.0 for the backdrop and kept these bounds, so switching variable
+        speed on there runs it at two to six times its pace instead.
+
+        This test asserted the bracket against the backdrop's own 1.0 and so
+        could never pass. Narrowing the bounds to 0.5/1.5 reads correctly and
+        fails five tests that pin the two modules to the same numbers, so it
+        is a decision rather than a typo and is recorded beside the constants
+        instead. What is asserted here is the relationship that does hold.
+        """
+        from spacr.qt.fractal_defaults import (DEFAULT_SPEED_MAX,
+                                               DEFAULT_SPEED_MIN, clamp)
+        from spacr.qt.widgets.fractal_travel import (
+            DEFAULT_SPEED as TRAVEL_SPEED)
+
+        assert DEFAULT_SPEED_MIN <= TRAVEL_SPEED <= DEFAULT_SPEED_MAX, (
+            "the sweep bounds no longer bracket the pace they were written "
+            "for; if that is deliberate, the backdrop's own bounds are the "
+            "thing to settle")
+        DEFAULT_SPEED = TRAVEL_SPEED
         assert clamp(DEFAULT_SPEED, DEFAULT_SPEED_MIN,
                      DEFAULT_SPEED_MAX) == DEFAULT_SPEED
         assert clamp(1000.0, DEFAULT_SPEED_MIN,

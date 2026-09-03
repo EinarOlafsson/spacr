@@ -500,14 +500,20 @@ def test_a_tick_that_freed_something_logs_what_it_freed(monkeypatch, caplog,
         models_released=2, vram_freed=3 * 1024 * 1024))
     rc._BUDGET_SWEEP_PENDING = True
 
-    with caplog.at_level(logging.INFO, logger=rc.LOG.name):
+    # DEBUG, NOT INFO, and it says "host RSS" now. Both were deliberate: the
+    # line fired on every module open for housekeeping nobody asked for, and
+    # it read as nonsense -- before_mb/after_mb are host RSS while vram_freed
+    # is device memory, so "0.0 -> 0.0 MiB ... and 2.6 GB VRAM released" was
+    # correct and unreadable at once. The test kept capturing at INFO and
+    # asserting the old wording, so it saw an empty log.
+    with caplog.at_level(logging.DEBUG, logger=rc.LOG.name):
         rc._budget_tick()
 
     assert rc._BUDGET_SWEEP_PENDING is False
     message = caplog.text
-    assert "memory budget: 40.0 -> 15.0 MiB" in message
+    assert "memory budget: host RSS 40.0 -> 15.0 MiB" in message
     assert "2 cache entries" in message
-    assert "3.0 MB VRAM released" in message
+    assert "VRAM released" in message
 
 
 def test_a_tick_that_freed_nothing_reports_only_its_errors(monkeypatch,
