@@ -31,6 +31,7 @@ __all__ = [
 
 
 def _hash_run(folder: str) -> str:
+    """Hash the names and contents of direct CSV/JSON outputs in ``folder``."""
     root = Path(folder).expanduser().resolve()
     if not root.is_dir():
         raise HitAttributionError(f"no regression results folder at {root}")
@@ -49,6 +50,7 @@ def _hash_run(folder: str) -> str:
 
 def _read_cells(db_path: str, predictions_file: str,
                 score_column: str, path_column: str) -> pd.DataFrame:
+    """Return measured cells joined to predictions by object or crop key."""
     from .io import _read_and_join_tables
     cells = _read_and_join_tables(db_path)
     if cells.index.name == "prcfo" and "prcfo" not in cells:
@@ -89,6 +91,7 @@ def _read_cells(db_path: str, predictions_file: str,
 
 
 def _read_fractions(path: str) -> pd.DataFrame:
+    """Read canonical fractions, deriving missing well keys from ``prc``."""
     # THROUGH THE FUNNEL (145). Read raw, this required plateID/rowID/columnID
     # and fell through to the `prc` split when the file spelled them
     # row_name / column_name -- which the count CSVs on the maintainer's own
@@ -142,6 +145,7 @@ def control_fitted_embedding(result: HitAttributionResult) -> pd.DataFrame:
 
 def _review_gallery_selection(result: HitAttributionResult,
                               per_stratum: int) -> pd.DataFrame:
+    """Select deterministic, deduplicated candidates from four score strata."""
     cells = result.cells.copy()
     if "png_path" not in cells:
         return pd.DataFrame()

@@ -134,6 +134,7 @@ canonical_column_name = _schema.canonical_column_name
 
 
 def _quote_identifier(name: str) -> str:
+    """Return a validated, safely quoted SQLite identifier."""
     if not isinstance(name, str) or not name:
         raise DatabaseMigrationError(f"invalid SQLite identifier: {name!r}")
     return '"' + name.replace('"', '""') + '"'
@@ -205,6 +206,7 @@ def _validated_migrations(
     migrations: Sequence[Migration],
     target_version: int,
 ) -> Tuple[Migration, ...]:
+    """Sort migrations after validating a contiguous prefix through the target."""
     ordered = tuple(sorted(migrations, key=lambda item: item.version))
     versions = tuple(item.version for item in ordered)
     expected = tuple(range(1, target_version + 1))
@@ -217,6 +219,7 @@ def _validated_migrations(
 
 
 def _pragma_int(connection: sqlite3.Connection, pragma: str) -> int:
+    """Return the first value of a SQLite pragma as an integer, or zero."""
     row = connection.execute(f"PRAGMA {pragma}").fetchone()
     return int(row[0]) if row else 0
 
@@ -257,6 +260,7 @@ def _commit_migration(
     connection: sqlite3.Connection,
     transaction: Tuple[str, bool],
 ) -> None:
+    """Commit the transaction or release its migration savepoint."""
     name, is_savepoint = transaction
     if is_savepoint:
         connection.execute(f"RELEASE SAVEPOINT {name}")
@@ -268,6 +272,7 @@ def _rollback_migration(
     connection: sqlite3.Connection,
     transaction: Tuple[str, bool],
 ) -> None:
+    """Roll back the transaction or its migration savepoint."""
     name, is_savepoint = transaction
     if is_savepoint:
         connection.execute(f"ROLLBACK TO SAVEPOINT {name}")

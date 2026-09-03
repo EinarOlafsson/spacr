@@ -65,6 +65,7 @@ def _field_stem(field: _PathValue) -> str:
 
 
 def _merged_dir(path: _PathValue) -> Path:
+    """Resolve and return ``path`` after requiring a ``merged`` basename."""
     folder = Path(path).expanduser().resolve()
     if folder.name != "merged":
         raise ValueError(
@@ -73,6 +74,7 @@ def _merged_dir(path: _PathValue) -> Path:
 
 
 def _quarantine_dir(path: _PathValue) -> Path:
+    """Resolve and return ``path`` after requiring the quarantine basename."""
     folder = Path(path).expanduser().resolve()
     if folder.name != QUARANTINE_DIRNAME:
         raise ValueError(
@@ -104,15 +106,18 @@ def quarantine_record_path(
 
 
 def _field_path(folder: Path, field: _PathValue) -> Path:
+    """Return the validated ``.npy`` path for ``field`` beneath ``folder``."""
     return folder / f"{_field_stem(field)}.npy"
 
 
 def _now() -> str:
+    """Return the current UTC time as a seconds-precision ISO 8601 string."""
     return _datetime.datetime.now(_datetime.timezone.utc).isoformat(
         timespec="seconds")
 
 
 def _who(value: Optional[str]) -> str:
+    """Return an explicit actor, the OS account, or ``"unknown"``."""
     if value is not None and str(value).strip():
         return str(value).strip()
     try:
@@ -123,6 +128,7 @@ def _who(value: Optional[str]) -> str:
 
 
 def _read_record(path: Path) -> Dict[str, Any]:
+    """Read a ledger object, retaining an explanation for malformed content."""
     if not path.is_file():
         return {}
     try:
@@ -165,6 +171,7 @@ def _write_record(path: Path, record: Dict[str, Any]) -> None:
 
 
 def _move_without_overwrite(source: Path, destination: Path) -> None:
+    """Move a regular file without replacing an existing destination."""
     if destination.exists() or destination.is_symlink():
         raise FileExistsError(
             f"refusing to overwrite existing field {destination}")
