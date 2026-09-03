@@ -34,7 +34,7 @@ def test_plugin_records_document_every_generated_constructor_field(record):
     """The public records explain the manifest, failure, and report payloads."""
     documented = record.__doc__ or ""
     for item in fields(record):
-        assert f":ivar {item.name}:" in documented
+        assert f":param {item.name}:" in documented
 
 
 # --------------------------------------------------------------------------

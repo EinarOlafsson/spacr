@@ -58,7 +58,7 @@ def test_edge_effect_report_documents_every_reported_field():
     missing = [
         item.name
         for item in fields(EdgeEffectReport)
-        if f":ivar {item.name}:" not in (EdgeEffectReport.__doc__ or "")
+        if f":param {item.name}:" not in (EdgeEffectReport.__doc__ or "")
     ]
     assert not missing, f"undocumented EdgeEffectReport fields: {missing}"
 

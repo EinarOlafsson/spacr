@@ -2382,10 +2382,10 @@ def _module_from_provenance(computed_by: str) -> str:
 class Concept:
     """One searchable idea, and the curated keys that answer to it.
 
-    :ivar name: canonical concept identifier accepted by the search filter.
-    :ivar gloss: short human explanation of the scientific idea.
-    :ivar synonyms: alternative query phrases resolved to :attr:`name`.
-    :ivar keys: curated feature keys associated with the concept, ordered from
+    :param name: canonical concept identifier accepted by the search filter.
+    :param gloss: short human explanation of the scientific idea.
+    :param synonyms: alternative query phrases resolved to :attr:`name`.
+    :param keys: curated feature keys associated with the concept, ordered from
         most to least characteristic for search ranking.
     """
 
@@ -3014,9 +3014,9 @@ def describe_columns(columns: Iterable[str],
 class Coverage:
     """How much of a set of column names the dictionary can explain.
 
-    :ivar total: number of input column names examined, including repeats.
-    :ivar explained: number of inputs that resolved to a known feature.
-    :ivar unknown: unresolved names in input order, with duplicates removed.
+    :param total: number of input column names examined, including repeats.
+    :param explained: number of inputs that resolved to a known feature.
+    :param unknown: unresolved names in input order, with duplicates removed.
     """
 
     total: int
@@ -3101,27 +3101,27 @@ class FeatureDoc:
     columns onto them, because a user reading a results table wants "what is a
     percentile here" answered once, not four hundred times.
 
-    :ivar key: the curated key — the feature's identity.
-    :ivar title: a human title for the key.
-    :ivar kind: ``"feature"``, ``"metadata"``, or ``"link"``, identifying
+    :param key: the curated key — the feature's identity.
+    :param title: a human title for the key.
+    :param kind: ``"feature"``, ``"metadata"``, or ``"link"``, identifying
         how the column participates in a measurement table.
-    :ivar family: feature family used for browsing and search filtering.
-    :ivar concepts: searchable scientific concepts associated with the key.
-    :ivar description: scientific meaning of the value, or ``None`` when the
+    :param family: feature family used for browsing and search filtering.
+    :param concepts: searchable scientific concepts associated with the key.
+    :param description: scientific meaning of the value, or ``None`` when the
         curated dictionary has no definition.
-    :ivar unit: the unit, with a conditional unit spelled out in full.
-    :ivar computed_by: function or algorithm responsible for producing the
+    :param unit: the unit, with a conditional unit spelled out in full.
+    :param computed_by: function or algorithm responsible for producing the
         value.
-    :ivar module: spaCR module that owns that computation or metadata field.
-    :ivar object_types: object types the feature is written for. Empty means
+    :param module: spaCR module that owns that computation or metadata field.
+    :param object_types: object types the feature is written for. Empty means
         "not per-object" (metadata) or "never written" (dead code).
-    :ivar channel_scope: :data:`CHANNEL_NONE` / :data:`CHANNEL_SINGLE` /
+    :param channel_scope: :data:`CHANNEL_NONE` / :data:`CHANNEL_SINGLE` /
         :data:`CHANNEL_PAIR`.
-    :ivar written_when: condition under which the column is emitted, or
+    :param written_when: condition under which the column is emitted, or
         ``None`` when it is unconditional.
-    :ivar notes: caveats needed to interpret the value, or ``None`` when no
+    :param notes: caveats needed to interpret the value, or ``None`` when no
         additional warning applies.
-    :ivar examples: concrete column names that resolve back to this key.
+    :param examples: concrete column names that resolve back to this key.
     """
 
     key: str
@@ -3257,9 +3257,9 @@ def doc_for(key: str) -> FeatureDoc | None:
 class SearchHit:
     """One search result: a feature, how well it matched, and why.
 
-    :ivar doc: feature definition selected by the search.
-    :ivar score: accumulated relevance score used for descending result order.
-    :ivar reason: semicolon-separated explanation of the rules that matched.
+    :param doc: feature definition selected by the search.
+    :param score: accumulated relevance score used for descending result order.
+    :param reason: semicolon-separated explanation of the rules that matched.
     """
 
     doc: FeatureDoc

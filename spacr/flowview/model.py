@@ -30,21 +30,21 @@ class NodeState(str, Enum):
 class Node:
     """One immutable snapshot of a pipeline stage or artifact.
 
-    :ivar id: stable identifier used by events and graph edges.
-    :ivar label: human-readable stage or artifact name shown in FlowView.
-    :ivar kind: input, process, or output role controlling the node's meaning
+    :param id: stable identifier used by events and graph edges.
+    :param label: human-readable stage or artifact name shown in FlowView.
+    :param kind: input, process, or output role controlling the node's meaning
         and presentation.
-    :ivar state: current lifecycle state, normalized to :class:`NodeState`.
-    :ivar started_at: start time in seconds on the producer's clock, if known.
-    :ivar ended_at: completion, failure, or skip time on that clock, if known.
-    :ivar progress: completed and total work-unit counts, or ``None`` before a
+    :param state: current lifecycle state, normalized to :class:`NodeState`.
+    :param started_at: start time in seconds on the producer's clock, if known.
+    :param ended_at: completion, failure, or skip time on that clock, if known.
+    :param progress: completed and total work-unit counts, or ``None`` before a
         stage reports progress.
-    :ivar metrics: named scalar results displayed on the node and retained in
+    :param metrics: named scalar results displayed on the node and retained in
         exported provenance.
-    :ivar thumbnail: path of a cached representative image, if provided.
-    :ivar params: stage configuration or provenance values displayed in the
+    :param thumbnail: path of a cached representative image, if provided.
+    :param params: stage configuration or provenance values displayed in the
         inspector and retained in exports.
-    :ivar error: formatted failure diagnostic, or ``None`` when no failure was
+    :param error: formatted failure diagnostic, or ``None`` when no failure was
         recorded.
     """
 
@@ -73,11 +73,11 @@ class Node:
 class Edge:
     """A directed transfer between two nodes.
 
-    :ivar src: identifier of the node producing the transfer.
-    :ivar dst: identifier of the node receiving the transfer.
-    :ivar label: optional relationship or payload caption, such as
+    :param src: identifier of the node producing the transfer.
+    :param dst: identifier of the node receiving the transfer.
+    :param label: optional relationship or payload caption, such as
         ``"consumes"`` or ``"produces"``.
-    :ivar volume: optional number of objects, files, or rows transferred; the
+    :param volume: optional number of objects, files, or rows transferred; the
         renderer uses it to scale edge width.
     """
 
@@ -91,12 +91,12 @@ class Edge:
 class RunGraph:
     """A serialisable snapshot of one FlowView run.
 
-    :ivar run_id: stable identifier for the captured run.
-    :ivar started_at: run start time in seconds on the producer's clock.
-    :ivar nodes: node identifiers mapped to their immutable snapshots.
-    :ivar edges: directed transfers connecting the recorded nodes.
-    :ivar spacr_version: spaCR version that produced the run.
-    :ivar settings_digest: hash of the settings used for the run.
+    :param run_id: stable identifier for the captured run.
+    :param started_at: run start time in seconds on the producer's clock.
+    :param nodes: node identifiers mapped to their immutable snapshots.
+    :param edges: directed transfers connecting the recorded nodes.
+    :param spacr_version: spaCR version that produced the run.
+    :param settings_digest: hash of the settings used for the run.
     """
 
     run_id: str

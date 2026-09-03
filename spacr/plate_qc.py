@@ -1183,44 +1183,44 @@ class EdgeEffectReport:
     :attr:`cliffs_delta` — "the outer ring reads 31 % higher, δ = 0.78" —
     with :attr:`p_value` as supporting evidence rather than the verdict.
 
-    :ivar plate: plate identifier analysed, or None when none was selected.
-    :ivar value_col: measurement aggregated per well, or None for counts.
-    :ivar grouping: per-well aggregation used to build the layout.
-    :ivar ok: False when the plate could not be tested at all (empty
+    :param plate: plate identifier analysed, or None when none was selected.
+    :param value_col: measurement aggregated per well, or None for counts.
+    :param grouping: per-well aggregation used to build the layout.
+    :param ok: False when the plate could not be tested at all (empty
         frame, one well, no interior); :attr:`notes` says why.
-    :ivar plate_format: nominal well count used to choose the plate grid, or
+    :param plate_format: nominal well count used to choose the plate grid, or
         ``None`` when geometry is non-standard or unavailable.
-    :ivar n_rows: number of rows in the grid used to classify plate rings.
-    :ivar n_cols: number of columns in the grid used to classify plate rings.
-    :ivar n_wells: wells retaining usable values after count and NaN filtering.
-    :ivar n_edge_wells: usable wells assigned to the outermost ring.
-    :ivar n_interior_wells: usable wells inside the outermost ring.
-    :ivar min_count: minimum number of objects a well needed to remain in the
+    :param n_rows: number of rows in the grid used to classify plate rings.
+    :param n_cols: number of columns in the grid used to classify plate rings.
+    :param n_wells: wells retaining usable values after count and NaN filtering.
+    :param n_edge_wells: usable wells assigned to the outermost ring.
+    :param n_interior_wells: usable wells inside the outermost ring.
+    :param min_count: minimum number of objects a well needed to remain in the
         analysis.
-    :ivar edge_detected: the outer ring differs from the interior by more
+    :param edge_detected: the outer ring differs from the interior by more
         than :attr:`min_effect`, at better than :attr:`alpha`.
-    :ivar p_value: two-sided Mann-Whitney U p-value comparing outer-ring and
+    :param p_value: two-sided Mann-Whitney U p-value comparing outer-ring and
         interior wells, or ``None`` when the comparison is unavailable.
-    :ivar cliffs_delta: signed rank effect size for that comparison; positive
+    :param cliffs_delta: signed rank effect size for that comparison; positive
         values mean the outer ring reads higher.
-    :ivar edge_median: median usable value on the outermost ring.
-    :ivar interior_median: median usable value inside the outermost ring.
-    :ivar median_difference: ``edge_median - interior_median``.
-    :ivar pct_difference: median difference as a percentage of the interior
+    :param edge_median: median usable value on the outermost ring.
+    :param interior_median: median usable value inside the outermost ring.
+    :param median_difference: ``edge_median - interior_median``.
+    :param pct_difference: median difference as a percentage of the interior
         median, or ``None`` when the baseline is zero or unavailable.
-    :ivar gradient_detected: at least one axis shows a monotonic drift.
-    :ivar dominant: ``'edge'``, ``'gradient'``, or ``'none'`` — which
+    :param gradient_detected: at least one axis shows a monotonic drift.
+    :param dominant: ``'edge'``, ``'gradient'``, or ``'none'`` — which
         pattern better explains the plate.
-    :ivar alpha: p-value threshold used together with :attr:`min_effect`.
-    :ivar min_effect: minimum absolute Cliff's delta required to flag an edge.
-    :ivar min_gradient_rho: minimum absolute Spearman correlation required to
+    :param alpha: p-value threshold used together with :attr:`min_effect`.
+    :param min_effect: minimum absolute Cliff's delta required to flag an edge.
+    :param min_gradient_rho: minimum absolute Spearman correlation required to
         flag a row or column gradient.
-    :ivar rings: ring-by-ring profile, outermost first.
-    :ivar gradients: one :class:`GradientStats` per axis.
-    :ivar n_dropped_min_count: wells removed by ``min_count``. A heatmap
+    :param rings: ring-by-ring profile, outermost first.
+    :param gradients: one :class:`GradientStats` per axis.
+    :param n_dropped_min_count: wells removed by ``min_count``. A heatmap
         missing a third of its wells looks like data; this is the number
         that says it isn't.
-    :ivar notes: filtering, geometry, and degenerate-input explanations safe
+    :param notes: filtering, geometry, and degenerate-input explanations safe
         to present to the user.
     """
     plate: Optional[str]

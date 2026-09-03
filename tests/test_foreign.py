@@ -50,7 +50,7 @@ def test_import_records_document_every_generated_constructor_field(record):
     """The executable plan and its result explain every value they expose."""
     documentation = record.__doc__ or ""
     for item in fields(record):
-        assert f":ivar {item.name}:" in documentation
+        assert f":param {item.name}:" in documentation
 
 
 # ---------------------------------------------------------------------------

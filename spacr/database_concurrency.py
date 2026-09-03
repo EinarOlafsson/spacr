@@ -485,27 +485,27 @@ def enable_wal_where_safe(path: os.PathLike | str) -> Optional[str]:
 class DatabaseHealth:
     """Read-only SQLite configuration and integrity snapshot.
 
-    :ivar path: normalized absolute path of the inspected database.
-    :ivar sqlite_version: SQLite runtime version exposed by Python.
-    :ivar sqlite_threadsafe: DB-API thread-safety level reported by
+    :param path: normalized absolute path of the inspected database.
+    :param sqlite_version: SQLite runtime version exposed by Python.
+    :param sqlite_threadsafe: DB-API thread-safety level reported by
         :data:`sqlite3.threadsafety`.
-    :ivar journal_mode: actual uppercase journal mode read from the database.
-    :ivar foreign_keys: whether enforcement is enabled on the audit
+    :param journal_mode: actual uppercase journal mode read from the database.
+    :param foreign_keys: whether enforcement is enabled on the audit
         connection, not a persistent database-wide promise.
-    :ivar busy_timeout_ms: audit connection's effective busy timeout in
+    :param busy_timeout_ms: audit connection's effective busy timeout in
         milliseconds.
-    :ivar filesystem: detected filesystem type, or ``None`` when unavailable.
-    :ivar network_filesystem: whether the detected type is in the known
+    :param filesystem: detected filesystem type, or ``None`` when unavailable.
+    :param network_filesystem: whether the detected type is in the known
         network-filesystem set; false with an unknown type does not prove the
         storage is local.
-    :ivar quick_check: joined ``PRAGMA quick_check`` result when requested,
+    :param quick_check: joined ``PRAGMA quick_check`` result when requested,
         otherwise ``None``.
-    :ivar file_bytes: main database-file size at inspection time.
-    :ivar wal_bytes: ``-wal`` sidecar size at inspection time, or zero when it
+    :param file_bytes: main database-file size at inspection time.
+    :param wal_bytes: ``-wal`` sidecar size at inspection time, or zero when it
         is absent.
-    :ivar shm_bytes: ``-shm`` sidecar size at inspection time, or zero when it
+    :param shm_bytes: ``-shm`` sidecar size at inspection time, or zero when it
         is absent.
-    :ivar warnings: actionable integrity or unsafe network-WAL findings.
+    :param warnings: actionable integrity or unsafe network-WAL findings.
     """
 
     path: str
@@ -584,19 +584,19 @@ def inspect_database(
 class ConcurrencyProbeResult:
     """Outcome of a disposable simultaneous reader/writer stress probe.
 
-    :ivar path: scratch database path; a clean temporary probe removes it,
+    :param path: scratch database path; a clean temporary probe removes it,
         while explicit or stalled probes retain it for inspection.
-    :ivar journal_mode: actual uppercase journal mode read after the run.
-    :ivar writers: validated number of writer threads launched.
-    :ivar readers: validated number of polling reader threads launched.
-    :ivar writes_per_writer: one-row committed transactions each writer tries.
-    :ivar expected_rows: ``writers * writes_per_writer``, independent of any
+    :param journal_mode: actual uppercase journal mode read after the run.
+    :param writers: validated number of writer threads launched.
+    :param readers: validated number of polling reader threads launched.
+    :param writes_per_writer: one-row committed transactions each writer tries.
+    :param expected_rows: ``writers * writes_per_writer``, independent of any
         worker failures.
-    :ivar actual_rows: final row count verified after the bounded joins.
-    :ivar reader_queries: total successful ``COUNT`` queries across readers.
-    :ivar duration_seconds: monotonic worker start-to-join elapsed time,
+    :param actual_rows: final row count verified after the bounded joins.
+    :param reader_queries: total successful ``COUNT`` queries across readers.
+    :param duration_seconds: monotonic worker start-to-join elapsed time,
         excluding setup and final verification.
-    :ivar errors: immutable worker exceptions and surviving-thread timeout
+    :param errors: immutable worker exceptions and surviving-thread timeout
         messages collected by the probe.
     """
 
