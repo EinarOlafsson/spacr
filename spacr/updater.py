@@ -54,6 +54,8 @@ class UpdateInfo:
     :ivar latest_release: latest PyPI release, or ``None`` when unavailable.
     :ivar nightly_sha: abbreviated nightly-branch commit, or ``None`` when
         unavailable.
+    :ivar error: first service or lookup failure encountered, or ``None``
+        when both version checks succeeded.
     """
     installed_version: str
     latest_release:    Optional[str]

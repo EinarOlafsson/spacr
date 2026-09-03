@@ -29,6 +29,8 @@ def test_a_check_that_learned_no_release_offers_no_upgrade():
                               latest_release=None,
                               nightly_sha=None,
                               error="pypi: timed out")
+    assert ":ivar error:" in (updater.UpdateInfo.__doc__ or "")
+    assert info.error == "pypi: timed out"
     assert info.upgrade_available is False
 
 
