@@ -23,6 +23,6 @@ def test_every_public_flow_event_field_is_documented():
         f"{event.__name__}.{field.name}"
         for event in PUBLIC_EVENTS
         for field in fields(event)
-        if f":ivar {field.name}:" not in (event.__doc__ or "")
+        if f":param {field.name}:" not in (event.__doc__ or "")
     ]
     assert not missing, f"undocumented FlowView event fields: {missing}"
