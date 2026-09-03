@@ -88,7 +88,18 @@ def sweep_inputs(cells, counts, *, score_column: str = "pred", scores=None):
 
 
 class SweepPanel(QWidget):
-    """The button, the table, and the picture."""
+    """The button, the table, and the picture.
+
+    The providers are CALLED when a sweep runs rather than read at
+    construction, so the panel always sweeps what is on screen now.
+
+    :param cells_provider: called for the cell table to sweep.
+    :param counts_provider: called for the per-well counts.
+    :param parent: parent widget.
+    :param threaded: whether the sweep runs off the GUI thread. False runs it
+        inline, which is what a test wants.
+    :param scores_provider: called for the scores, when the sweep needs them.
+    """
 
     finished = Signal(object)
 

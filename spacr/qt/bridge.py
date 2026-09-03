@@ -465,6 +465,14 @@ class RunHandle(QObject):
     Lives on the GUI thread. ``progress`` is scraped from the worker's
     stdout (see :data:`_PROGRESS_RE`) rather than reported by the
     pipeline, because the pipelines have no reporting channel.
+
+    :param app_key: which module is running. Falls back to ``"job"`` so a
+        handle always has a name to show.
+    :param worker: the :class:`PipelineWorker` doing the work. Its
+        ``worker_count`` is read once here rather than on every update.
+    :param thread: the thread the worker was moved to. Held so the handle
+        can wait on it, not so it can be restarted.
+    :param parent: parent object.
     """
 
     changed = Signal()

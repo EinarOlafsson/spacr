@@ -976,7 +976,19 @@ class MeasurementComparePanel(QWidget):
 
 
 class MeasurementCompareDialog(QDialog):
-    """The panel above, in a window. Kept so the button still opens one."""
+    """The panel above, in a window. Kept so the button still opens one.
+
+    Every parameter is handed straight to
+    :class:`MeasurementComparePanel`, which documents what each one means.
+
+    :param objects: object rows for the montage and reference contrasts.
+    :param groups: selected group names mapped to object-index values.
+    :param parent: parent widget.
+    :param settings: run settings saved alongside exported results.
+    :param databases: measurement databases available for widening the
+        object table.
+    :param counts: per-well counts, used to resolve control wells.
+    """
 
     def __init__(self, objects, groups: Dict[str, Any],
                  parent: Optional[QWidget] = None,

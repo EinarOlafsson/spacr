@@ -52,6 +52,15 @@ class ScreenDataPicker(QDialog):
     }
 
     def __init__(self, folder=None, parent=None, kind=None):
+        """Ask which pieces of a published screen to fetch.
+
+        :param folder: where the download will be written.
+        :param parent: parent widget.
+        :param kind: which screen's data to offer. ``None`` means it could
+            not be told, which is deliberately NOT the same as "nothing is
+            published" -- the dialog says so rather than showing an empty
+            list.
+        """
         super().__init__(parent)
         self.setWindowTitle("Download screen data")
         self.setMinimumWidth(520)

@@ -1181,6 +1181,16 @@ class FastPlot(QWidget):
     :ivar keys_selected: emitted with the identifiers of EVERY row behind the
         thing that was clicked. A scatter point is one row and emits both; a
         histogram bar is a hundred rows and can only honestly emit this one.
+
+    :param title: heading above the plot.
+    :param x_label: caption under the horizontal axis.
+    :param y_label: caption beside the vertical axis.
+    :param parent: parent widget.
+
+    Constructing this without pyqtgraph installed does NOT raise: the widget
+    lays itself out, sets :attr:`plots_available` to False and says why it is
+    empty, because a missing optional plotting library should not take a
+    screen down with it.
     """
 
     point_clicked = Signal(int)

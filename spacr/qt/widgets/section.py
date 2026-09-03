@@ -74,7 +74,15 @@ def module_mark(key: str):
 
 
 class Section(QFrame):
-    """Collapsible section with an animated chevron header + form body."""
+    """Collapsible section with an animated chevron header + form body.
+
+    :param title: the heading text, which is also what the hover strip looks
+        this section's help up by.
+    :param parent: parent widget.
+    :param expanded: whether it opens unfolded. Sections start CLOSED by
+        default because a screen that opens every one of them is a wall of
+        settings before the user has chosen anything.
+    """
 
     toggled = Signal(bool)
 
