@@ -42,9 +42,16 @@ def main(argv=None) -> int:
     Returns
     -------
     int
-        ``0`` when a result was produced, ``2`` for invalid arguments, or a
-        nonzero status when the trial raised. Trial exceptions are also
-        written to the output file.
+        ``0`` once a result document was written, including when that document
+        reports a failed trial, or ``2`` when the argument count is invalid.
+
+    Raises
+    ------
+    OSError
+        If the settings document cannot be read or the result document cannot
+        be written.
+    json.JSONDecodeError
+        If the settings document is not valid JSON.
     """
     argv = list(sys.argv[1:] if argv is None else argv)
     if len(argv) != 2:
