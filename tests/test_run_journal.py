@@ -22,6 +22,11 @@ def test_open_run_creates_folder_with_settings(tmp_path):
     from spacr.run_journal import open_run
     with open_run("mask", {"src": "/tmp/x", "n_epochs": 3}) as run:
         pass
+    docs = type(run).__doc__ or ""
+    assert ":ivar stages:" in docs
+    assert ":ivar stdout_path:" in docs
+    assert run.stages == []
+    assert run.stdout_path is None
     assert run.dir.exists()
     assert (run.dir / "settings.json").exists()
     assert (run.dir / "settings.csv").exists()
@@ -89,6 +94,8 @@ def test_failed_run_records_traceback(tmp_path):
         with open_run("mask", {}) as run:
             raise RuntimeError("boom")
     m = json.loads((run.dir / "manifest.json").read_text())
+    assert ":ivar error_traceback:" in (type(run).__doc__ or "")
+    assert "RuntimeError" in run.error_traceback
     assert m["status"] == "failed"
     assert "RuntimeError" in (m.get("traceback") or "")
 
