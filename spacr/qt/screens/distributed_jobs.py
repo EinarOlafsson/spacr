@@ -72,7 +72,12 @@ def _item(value) -> QTableWidgetItem:
 
 
 class ExecutionProfileDialog(QDialog):
-    """Create or edit one distributed execution profile."""
+    """Create or edit one distributed execution profile.
+
+    :param parent: parent widget.
+    :param profile: the profile to edit. ``None`` CREATES one -- the dialog
+        is both routes, which is why it is not two classes.
+    """
 
     def __init__(
         self,

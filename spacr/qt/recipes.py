@@ -389,7 +389,13 @@ def capture_recipe(screen, name: str, notes: str = "") -> Recipe:
 # ---------------------------------------------------------------------------
 
 class RecipeDialog(QDialog):
-    """List, apply, share and delete the recipes for one module."""
+    """List, apply, share and delete the recipes for one module.
+
+    :param screen: the module screen whose recipes these are. Its `app_key`
+        is what the list is filtered by, and it becomes the dialog's parent
+        when none is given.
+    :param parent: parent widget. Defaults to ``screen``.
+    """
 
     def __init__(self, screen, parent: Optional[QWidget] = None):
         super().__init__(parent or screen)

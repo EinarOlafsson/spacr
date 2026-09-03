@@ -136,7 +136,13 @@ _COLUMNS = ("ID", "App", "Label", "Status", "Elapsed", "")
 
 
 class QueueScreen(QWidget):
-    """Main widget rendering the plate queue."""
+    """Main widget rendering the plate queue.
+
+    :param queue: the queue to render. ``None`` loads spaCR's own, which is
+        the ordinary case; a test passes one built on a temporary path so it
+        does not disturb the user's real queue.
+    :param parent: parent widget.
+    """
 
     # Emitted whenever the queue changes size (add / remove / clear).
     # MainWindow can use this to update the Home-tile badge count.

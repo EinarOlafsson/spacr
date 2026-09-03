@@ -120,6 +120,10 @@ class GroupedPlot(FastPlot):
     """A pyqtgraph plot of a :class:`PlotSpec`, redrawable as any kind.
 
     :ivar spec: what is drawn. Assign through :meth:`show_spec`.
+
+    :param spec: what to draw. ``None`` builds an empty plot; assign later
+        through :meth:`show_spec` rather than by setting :attr:`spec`.
+    :param parent: parent widget.
     """
 
     def __init__(self, spec: Optional[PlotSpec] = None, parent=None,
