@@ -137,9 +137,9 @@ class AppContribution:
 class ModelProviderContribution:
     """Immutable record naming a plugin's model-zoo provider.
 
-    :ivar key: identifier for the provider; must match
+    :param key: identifier for the provider; must match
         ``^[a-z][a-z0-9_]{1,63}$`` and be unique across all loaded plugins.
-    :ivar provider: ``"module:callable"`` reference string -- not the callable
+    :param provider: ``"module:callable"`` reference string -- not the callable
         itself -- resolved at catalogue time to a zero-argument callable
         returning model-zoo entries or entry mappings.
     """
