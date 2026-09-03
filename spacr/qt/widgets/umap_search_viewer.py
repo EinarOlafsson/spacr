@@ -180,7 +180,16 @@ def axis_frame(coords: Any, width: int, height: int, *, yaw: float = 0.0,
 
 
 class UmapAppearanceDialog(QDialog):
-    """Non-modal point renderer controls for one embedding view."""
+    """Non-modal point renderer controls for one embedding view.
+
+    :param appearance: the settings to open on, read with ``.get`` so a
+        partial dict is legitimate and anything absent falls back to the
+        control's own default.
+    :param parent: parent widget.
+
+    NON-MODAL, which is the point: the view stays visible and usable while
+    this is open, so a change can be judged against the picture it changes.
+    """
 
     applied = Signal(dict)
 
@@ -492,7 +501,14 @@ class UmapExplorer(QWidget):
 
 
 class UmapGalleryDialog(QDialog):
-    """All table embeddings on black, with a click returning the real trial."""
+    """All table embeddings on black, with a click returning the real trial.
+
+    :param trials: the trials to show. Clicking one emits it through
+        :attr:`trial_chosen` UNCHANGED -- the gallery hands back the object
+        it was given rather than an index into a list the caller would have
+        to keep in step.
+    :param parent: parent widget.
+    """
 
     trial_chosen = Signal(object)
 
