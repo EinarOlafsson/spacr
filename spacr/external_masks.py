@@ -63,13 +63,18 @@ _OBJECT_PATTERNS = (
 class InputGroup:
     """A set of files sharing one proposed role and object type.
 
-    :ivar key: stable identifier for this detected input group.
-    :ivar root: absolute directory against which the paths were detected.
-    :ivar paths: absolute paths assigned to the group.
-    :ivar role: proposed ``image``, ``mask``, or ``ignore`` role.
-    :ivar object_type: proposed spaCR object role for a mask group.
-    :ivar confidence: confidence in the automatic role proposal.
-    :ivar reason: pixel or filename evidence supporting the proposal.
+    :param key: stable identifier derived from the input root, proposed role,
+        and detected file family.
+    :param root: absolute directory from which the files were detected and
+        later scanned.
+    :param paths: absolute paths assigned to this group.
+    :param role: reviewed ``"image"``, ``"mask"``, or ``"ignore"`` role.
+    :param object_type: proposed spaCR object type for a mask group, or
+        ``None`` when no mask type is assigned.
+    :param confidence: confidence score for the automatic role proposal;
+        detected multi-file groups retain their lowest member score.
+    :param reason: pixel or filename evidence supporting the automatic
+        proposal.
     """
 
     key: str

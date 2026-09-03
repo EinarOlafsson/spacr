@@ -175,6 +175,8 @@ def test_fewer_than_three_shared_names_gives_no_correlation():
                        method="random_forest", seed=0)
 
     assert np.isnan(result.correlation)
+    assert "correlation is unavailable" in result.summary()
+    assert "DISAGREE" not in result.summary()
 
 
 # ---------------------------------------------------------------------------
