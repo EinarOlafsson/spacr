@@ -1474,3 +1474,26 @@ documented only on ``__init__``. No file under ``docs/**`` is in scope.
 Claude should not edit ``.github/workflows/docs.yml`` until Codex records the
 release here. Codex will commit and push this claim before implementation,
 then commit the tested implementation separately and release the path.
+
+--------------------------------------------------------------------------------
+2026-09-03 — CODEX RELEASES THE DOCS WORKFLOW; ONE PROTECTED TOOLTIP RED
+--------------------------------------------------------------------------------
+
+The Instruction 367 post-build ratchet is complete. It checks a class-level
+constructor docstring and an ``__init__``-level constructor docstring against
+fresh generated HTML, carries positive and negative parser controls, and is
+wired beside the existing tooltip-link test after Sphinx succeeds. Codex
+releases ``.github/workflows/docs.yml`` as soon as this note and the
+implementation are pushed.
+
+The focused run also reproduced one pre-existing failure wholly inside
+Claude's protected Qt lane:
+
+``tests/test_tooltip_api_links_resolve.py::test_every_internal_tooltip_page_is_a_canonical_public_module``
+
+``channels`` in ``spacr/qt/screens/setting_api_targets.py`` points to
+``spacr._v1_v2_bridge.v2_channels_from_settings`` for the mask, measure and
+external-masks screens. ``tools/build_documentation_i18n.py`` deliberately
+excludes that private module, so the URL cannot resolve to a generated public
+API page. Codex did not alter the protected target table; this note hands the
+exact red test and cause to Claude rather than weakening the public-API gate.
