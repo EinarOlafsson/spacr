@@ -146,6 +146,9 @@ class FovMovie(QWidget):
     Renders lazily and caches by ``(frame, objects, tracks)``. Flipping a
     toggle on a 30-frame field would otherwise re-render every frame twice
     -- once for the movie and once for the strip -- on the GUI thread.
+
+    :param title: the caption above the movie. Empty draws none.
+    :param parent: parent widget.
     """
 
     def __init__(self, title: str = "", parent: Optional[QWidget] = None):

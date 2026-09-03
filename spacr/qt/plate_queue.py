@@ -97,6 +97,10 @@ class PlateQueue:
     The queue is thread-agnostic — the Qt screen owns exclusive
     access. If two callers ever need to touch it concurrently, wrap
     each mutation in a lock at the call site.
+
+    :param path: where the snapshot is written. ``None`` uses spaCR's own
+        queue file, which is the ordinary case; a test passes a temporary
+        path so it does not disturb the user's real queue.
     """
 
     def __init__(self, path: Optional[Path] = None):

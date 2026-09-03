@@ -274,6 +274,11 @@ class LayerCanvas(QFrame):
 
     Wheel zooms about the cursor, dragging pans, and every change re-renders
     at the widget's own resolution rather than scaling a stale pixmap.
+
+    :param stack: the layers to paint. ``None`` builds an EMPTY stack rather
+        than leaving the canvas without one, so every later call has something
+        to act on instead of guarding for None.
+    :param parent: parent widget.
     """
 
     #: ``(layer, world, value)`` — whatever :meth:`LayerStack.pick` found.
@@ -530,6 +535,11 @@ class LayerListWidget(QListWidget):
     acetates), while a list reads top-down, so the topmost row is the layer
     nearest the viewer. Every drag and every button here is translated back
     into a model index, so the model stays the single source of order.
+
+    :param stack: the layers to list. Required here, unlike the canvas: this
+        widget IS the stack's presentation and has nothing to show without
+        one.
+    :param parent: parent widget.
     """
 
     def __init__(self, stack: LayerStack, parent=None):
@@ -647,7 +657,12 @@ class LayerListWidget(QListWidget):
 
 class LayerViewer(LinkedView, QWidget):
     """Canvas, layer list and per-layer controls over one
-    :class:`~spacr.layers.LayerStack`."""
+    :class:`~spacr.layers.LayerStack`.
+
+    :param stack: the layers to show. Handed to the canvas and the list, so
+        the three share one stack rather than three copies of it.
+    :param parent: parent widget.
+    """
 
     #: A labels layer was clicked and it knew its object key.
     object_picked = Signal(str)
