@@ -95,6 +95,7 @@ FULLY_DOCUMENTED = (
     "spacr/merge_tables.py",
     "spacr/model_check.py",
     "spacr/mixed_gpu.py",
+    "spacr/multi_database.py",
     "spacr/nonparametric_fits.py",
     "spacr/normalization.py",
     "spacr/notebook_export.py",

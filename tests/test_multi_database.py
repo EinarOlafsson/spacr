@@ -71,6 +71,23 @@ def test_the_plan_names_the_sources_readably(two_plates):
     assert [s.label for s in plan.sources] == ["plateA", "plateB"]
 
 
+def test_a_source_lists_each_canonical_plate_identity_once(tmp_path):
+    """Stored aliases must not become duplicate labels after normalization."""
+    path = tmp_path / "aliases.db"
+    frame = pd.DataFrame({
+        "plateID": ["plate1", "pplate1"],
+        "rowID": ["r1", "r2"],
+        "columnID": ["c1", "c1"],
+        "area": [1.0, 2.0],
+    })
+    with sqlite3.connect(path) as db:
+        frame.to_sql("cell", db, index=False)
+
+    (source,) = describe_merge([str(path)], "cell").sources
+    assert source.stored_plates == ("plate1", "pplate1")
+    assert source.plates == ("plate1",)
+
+
 def test_databases_sharing_a_filename_still_get_distinct_labels(tmp_path):
     """Every plate's database is often called measurements.db under a
     differently-named folder, so the stem alone is not a name."""

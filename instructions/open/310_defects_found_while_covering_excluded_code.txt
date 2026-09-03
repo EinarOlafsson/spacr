@@ -3682,3 +3682,22 @@ contract fail.
 
 REVISED COUNT: 143 entries, 74 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+86. CANONICAL PLATE LISTS COULD CONTAIN THE SAME ID TWICE
+==============================================================================
+
+Found 2026-09-03 while completing ``multi_database.py`` function
+documentation. SQLite ``DISTINCT`` operated on stored spellings before
+``_plates`` canonicalised them, so one table containing ``plate1`` and
+``pplate1`` produced ``["plate1", "plate1"]``. That contradicts the plan's
+canonical-identity contract and could show duplicate plate labels in previews.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/multi_database.py``. Canonical IDs
+are now deduplicated after normalization while ``stored_plates`` deliberately
+retains both source spellings for diagnosis. A focused database test pins both
+views; restoring the generator-backed sort makes the canonical assertion fail.
+
+REVISED COUNT: 144 entries, 75 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
