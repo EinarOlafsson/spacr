@@ -60,9 +60,10 @@ def plate_ramp(target: str = "screen"):
 
     Parameters
     ----------
-    target : {"screen", "print"}, default="screen"
-        Output surface. The screen ramp avoids the darkest print color so
-        high values remain distinct from a dark interface background.
+    target : str, default="screen"
+        ``"print"`` selects the print ramp. Every other value selects the
+        screen ramp, which avoids the darkest print color so high values
+        remain distinct from a dark interface background.
 
     Returns
     -------
@@ -85,7 +86,7 @@ def plate_ramp(target: str = "screen"):
 # --------------------------------------------------------------------------- #
 
 def plate_names(frame) -> List[str]:
-    """The plates in this frame, in the order their identifiers give.
+    """Return distinct nonempty plate identifiers in first-occurrence order.
 
     ``prc`` keys are parsed from the right: the final tokens are row and
     column, while every preceding token belongs to the plate identifier.
@@ -96,6 +97,8 @@ def plate_names(frame) -> List[str]:
     first token because there is nothing in front of it.
 
     :param frame: long-format table whose ``prc`` values identify wells.
+    :returns: Plate identifiers parsed from the right. Keys with fewer than
+        three underscore-delimited tokens are retained verbatim.
     """
     if "prc" not in getattr(frame, "columns", ()):
         return []
@@ -163,8 +166,10 @@ def well_matrices(frame, variable: str, *, grouping: str = "mean",
     :param grouping: ``'mean'``, ``'sum'`` or ``'count'``.
     :param min_count: wells with fewer rows than this are dropped, and then
         read as absent rather than as zero.
-    :param plates: draw only these plates, in this order.
-    :returns: ``(names, matrices, (n_rows, n_columns))``.
+    :param plates: return only these plates, in this order.
+    :returns: ``(names, matrices, (n_rows, n_columns))`` with equally many
+        names and matrices on the smallest fitting standard plate grid.
+        Absent or unreadable wells and wells below ``min_count`` are ``nan``.
     """
     import pandas as pd
 
@@ -277,6 +282,16 @@ def _drop_unreadable_wells(heatmap, present, subset, readable, name, variable):
     out the wells that have nothing numeric at all. A well that is half
     unreadable is still the mean of the half that is readable, which is what
     ``generate_plate_heatmap`` computes.
+
+    :param heatmap: plate-aggregation callable used to count readable rows.
+    :param present: per-well row-count frame produced before numeric filtering.
+    :param subset: rows belonging to the plate being processed.
+    :param readable: boolean row mask, aligned with ``subset``, identifying
+        values that can be interpreted as numbers.
+    :param name: plate identifier passed to ``heatmap``.
+    :param variable: measurement column passed to ``heatmap``.
+    :returns: A presence frame aligned with ``present``, with zero only where
+        no readable numeric row exists.
     """
     measured = subset[readable].copy()
     if not len(measured):
@@ -295,12 +310,14 @@ def shared_limits(matrices: Sequence[np.ndarray], min_max="allq"
     independent scales make the same colour mean four different numbers and
     turn a batch effect into an invisible one.
 
-    The ``min_max`` spec is :func:`spacr.plot.generate_plate_heatmap`'s --
-    ``'all'``, ``'allq'`` or a two-element range, floats being quantiles --
-    so a caller's existing setting keeps its meaning.
-
     :param matrices: per-plate value matrices; non-finite wells are excluded
         from the shared scale.
+    :param min_max: A two-float sequence selects those quantiles; a two-item
+        sequence containing a non-float supplies absolute endpoints.
+        ``'allq'`` selects the 2nd and 98th percentiles, while every other
+        value selects the finite extrema.
+    :returns: ``(low, high)`` shared by every matrix. An empty finite pool
+        returns ``(0.0, 1.0)``; equal endpoints are widened by ``1e-6``.
     """
     pool = np.concatenate([m.ravel() for m in matrices]) if matrices \
         else np.array([], dtype="float64")
@@ -336,8 +353,10 @@ def small_multiple_layout(count: int, plate_aspect: float,
 
     :param count: number of plates to place. A non-positive count has no grid
         and returns ``(0, 0)``.
-    :param plate_aspect: one plate's width over its height, in wells.
-    :param target: the composite width-over-height to aim at.
+    :param plate_aspect: one plate's width over its height, in wells. For a
+        positive ``count``, this and ``target`` must be positive; unsupported
+        nonpositive ratios may propagate arithmetic domain or division errors.
+    :param target: the positive composite width-over-height to aim at.
     :returns: ``(rows, columns)``.
     """
     if count <= 0:
@@ -362,9 +381,14 @@ def plate_figure_name(variable: str, prefix: str = "plate_heatmap",
     NOT :func:`spacr.schema.escape_filename_component`, which escapes the
     key separator -- ``log_pred`` would be written as ``log%5Fpred``. This
     is a file name and not a key: an underscore is exactly what belongs in
-    it, and only characters a path cannot hold are replaced.
+    it. Unicode alphanumerics and ``-_.`` in ``variable`` are retained;
+    every other character is replaced with an underscore.
 
     :param variable: measurement name to include in the file name.
+    :param prefix: filename prefix, used verbatim.
+    :param suffix: filename suffix, including any extension, used verbatim.
+    :returns: ``prefix``, a sanitized nonempty variable component, and
+        ``suffix`` joined into one filename.
     """
     text = "".join(character if character.isalnum() or character in "-_."
                    else "_" for character in str(variable).strip())
@@ -377,6 +401,9 @@ def _tick_step(n: int) -> int:
     Twenty-four column numbers under a plate that is two inches wide at
     6.2 pt is a solid line of digits. The step is chosen from the count
     rather than the width because the width is derived from the count.
+
+    :param n: number of row or column labels available.
+    :returns: ``1`` through 12 labels, ``2`` through 26, otherwise ``4``.
     """
     if n <= 12:
         return 1
@@ -402,9 +429,13 @@ def draw_plate(ax, matrix: np.ndarray, *, vmin: float, vmax: float, cmap,
     :param cmap: matplotlib colormap (or registered colormap name) used for
         measured wells.
     :param ink: colour used for ticks, labels, spines and the plate wash.
+    :param name: optional plate title; false values leave the title unset.
     :param row_labels: ``True`` to draw the row letters, ``False`` to leave
         the axis bare (an inner plate of the small multiple shares the
         outer one's).
+    :param column_labels: truthy to draw column numbers; false values leave
+        the axis bare when an outer plate already supplies them.
+    :returns: ``None``; artists are added to ``ax`` in place.
     """
     from matplotlib.patches import Rectangle
 
@@ -446,7 +477,11 @@ def draw_plate(ax, matrix: np.ndarray, *, vmin: float, vmax: float, cmap,
 
 
 def _wash(ink: str) -> tuple:
-    """The colour of a well that was never measured."""
+    """Return the translucent wash for a well that was never measured.
+
+    :param ink: colour to convert to RGBA.
+    :returns: RGBA tuple whose alpha is :data:`EMPTY_WASH_ALPHA`.
+    """
     from matplotlib.colors import to_rgba
 
     return to_rgba(ink, EMPTY_WASH_ALPHA)
@@ -462,6 +497,7 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
     :param frame: long-format frame with a ``prc`` column and ``variable``.
     :param variable: the measurement to aggregate per well.
     :param grouping: ``'mean'``, ``'sum'`` or ``'count'``.
+    :param min_count: minimum number of rows required for a well to be drawn.
     :param min_max: colour-scale spec, as
         :func:`spacr.plot.generate_plate_heatmap` defines it -- but applied
         ONCE, over every plate at the same time.
@@ -477,8 +513,9 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
         plate to a tile computes :func:`shared_limits` over every plate once
         and passes the same pair to each figure, so splitting the small
         multiple up does not silently give each plate its own scale again.
-    :returns: ``(figure, Panel)``. The panel carries the legend sentence,
-        generated from what was actually drawn.
+    :returns: ``(figure, Panel)``. With no matrix the panel has ``drawn=False``
+        plus its missing requirements and reason. Otherwise its caption
+        records the actual aggregation, well counts, and shared limits.
     """
     import matplotlib.pyplot as plt
 
@@ -554,7 +591,12 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
 
 
 def _named(cmap):
-    """A colormap from whatever the caller passed."""
+    """Return a detached colormap with transparent missing values.
+
+    :param cmap: registered colormap name or colormap object.
+    :returns: A copy whose bad-value colour is transparent. The caller's
+        colormap object is not mutated.
+    """
     if isinstance(cmap, str):
         from matplotlib import colormaps
 
@@ -571,6 +613,14 @@ def _colour_bar(figure, image, variable: str, ink: str, width: float,
     One, because there is one scale. Horizontal and low, because the
     composite is wider than it is tall and a bar down the right side would
     steal a plate's width.
+
+    :param figure: figure receiving the colour-bar axes and variable label.
+    :param image: plotted image carrying the shared colour normalization.
+    :param variable: measurement name rendered below the bar.
+    :param ink: colour used for the outline, ticks, and label.
+    :param width: figure width in inches.
+    :param height: figure height in inches.
+    :returns: ``None``; one axes and one text artist are added to ``figure``.
     """
     bar_w = min(BAR["width"], width * 0.42)
     cax = figure.add_axes([(width - bar_w) / 2 / width, BAR["bottom"] / height,
