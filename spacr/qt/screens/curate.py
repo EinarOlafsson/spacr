@@ -253,14 +253,19 @@ def register(*, section: Optional[str] = None, stage: Optional[str] = None,
 
     :returns: the registry row, or ``None`` when the key was already there.
     """
-    from ..app import APPS, SECTION_MODELS, STAGE_ALPHA, register_app
+    from ..app import APPS, SECTION_TOOLS, STAGE_ALPHA, register_app
     if any(row[0] == key for row in APPS):
         return None
     return register_app(
-        # SEGMENTATION MODELS, not Core. Curate fixes a mask by hand;
-        # Core is the pipeline you run, and a section that lists
-        # everything sorts nothing.
-        key, APP_NAME, APP_DESCRIPTION, section or SECTION_MODELS,
+        # TOOLS, not Core. Curate fixes a mask by hand; Core is the pipeline
+        # you run, and a section that lists everything sorts nothing.
+        #
+        # It asked for SECTION_MODELS until 2026-09-03, which is still
+        # DEFINED and still described but was dropped from SECTION_ORDER when
+        # Home was restructured to Core / Data / Tools / Assays. So every
+        # call to this function raised "app 'curate' has unknown section
+        # 'Segmentation models'" and the screen could not register at all.
+        key, APP_NAME, APP_DESCRIPTION, section or SECTION_TOOLS,
         factory=make_curate_screen,
         stage=STAGE_ALPHA if stage is None else stage,
         intro=APP_INTRO, cli_note=APP_CLI_NOTE,

@@ -662,7 +662,14 @@ def register() -> bool:
     module at all: the launch reads the table, and the screen is imported when
     somebody opens it.
 
-    ``SECTION_DESIGN``, which is not the obvious answer and is the right one.
+
+    SECTION NOTE, 2026-09-03: the sections were restructured to Core / Data /
+    Tools / Assays and this screen now files under Data. The reasoning below
+    is about a section that no longer exists; it is kept because it still
+    says what the screen IS, but the section it names is not the one it gets.
+
+    ``SECTION_DESIGN``, which was not the obvious answer and was the right
+    one at the time.
     Design is "everything that happens before the microscope: power, sample
     size, plate layout, controls and replicates", and it already holds Power /
     Design. A dose–response series is the *other* pre-experiment calculation a
