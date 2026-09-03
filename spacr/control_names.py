@@ -29,6 +29,8 @@ class ControlSpec:
     :ivar typed: original nonblank identifier entered by the user.
     :ivar level: resolved level, :data:`GENE` or :data:`GUIDE`.
     :ivar value: normalized gene or guide identifier to match.
+    :ivar prefix: common organism or strain token removed during resolution,
+        or an empty string when the stored identifiers have no such prefix.
     """
 
     typed: str
