@@ -1321,9 +1321,11 @@ A13. spacr/parameter_sweep.py:1322-1324 (run_sweep, in-process failure path)
 A14. spacr/volcano_style.py:683-692, _annotate
     WHAT: When a labelled point's y value falls inside the break of a split axis (outside every panel's ylim), the `for panel in panels` loop falls through and the label is annotated onto `panels[0]` at data coordinates outside that panel's y range. Annotations are created with clip_on=True, so the text is clipped away entirely. Verified by drawing: with split_y_lims=((0,2),(5,10)) and a point at y=3.5, the annotation's window extent comes back at y 0-1 while the panel occupies y 596-845 -- the text is present in `panels[0].texts` but paints nothing.
     COST: A user who explicitly types a guide into the annotation list on a broken-axis volcano gets no label and no message; the label is silently swallowed rather than clamped to the nearest panel edge or reported as unplottable. Low severity (the point itself is also hidden by the break), but the `target = axis` fall-through is effectively a no-op that reads like a deliberate fallback.
-    VERDICT 2026-08-31: STILL LIVE. `target = panels[0]` before the `for panel
-    in panels` loop, so a y inside the break of a split axis is annotated onto
-    the first panel at coordinates outside its ylim. Not fixed here.
+    VERDICT 2026-09-02: RESOLVED by `4d153c1b34`. A y value inside the split
+    is clamped to the nearest visible panel edge and offset inward.
+    `test_a_label_lands_on_the_panel_whose_range_can_show_its_point` proves
+    both ordinary upper/lower placement and the rendered, visible clamped
+    label; its clamped-anchor assertion fails against the parent source.
 
 A15. spacr/qt/widgets/figure_settings.py:1534 (derive_replot_recipe)
     WHAT: The guard `if frame[DERIVED_GROUP].nunique() < 1: return None` cannot fire for any real figure. The group column is built only from `_named()`, which returns either a non-empty stripped tick label or `f"{float(x):g}"` -- always a str, never NaN -- and line 1531 has already guaranteed at least 2 rows, so nunique() is >= 1 by construction. It is a dead guard of the kind tests/test_a_guard_no_input_could_reach_is_gone.py exists to catch.
@@ -1335,10 +1337,13 @@ A15. spacr/qt/widgets/figure_settings.py:1534 (derive_replot_recipe)
 A16. spacr/regression_qc.py:2683-2735 `_panel_p_value_histogram` together with `diagnose_p_value_histogram` (line 833: `np.histogram(p, bins=n_bins, range=(0.0, 1.0))`)
     WHAT: Finite p-values outside [0, 1] are silently discarded by the fixed histogram range, and only the non-finite ones are guarded against (`if finite.size == 0: raise PanelUnavailable`). Feeding `coef_df` a `p_value` column of `[3.0, 7.0, 12.0]` gives `n == 0`, `verdict == 'too-few'`, message 'only 0 p-value(s)', `frac_below_0.05 == nan`, an empty histogram and no uniform reference line -- with no complaint anywhere that three values were supplied and all three were thrown away.
     COST: A caller who wires the wrong column into `coef_df` (a test statistic, a -log10 p, a chi2) gets the panel's 'too few coefficients to read a shape' limitation stamped on the report for a screen with thousands of coefficients. The report then states a coefficient count that contradicts the table it was built from, and the reader concludes the model is small rather than that the input is not p-values. The panel's own reason for existing -- catching a mis-specified null -- is silently unavailable.
-    VERDICT 2026-08-31: STILL LIVE. `p = p[np.isfinite(p)]` then
-    `np.histogram(p, range=(0.0, 1.0))` -- finite p outside [0,1] is dropped by
-    the range with no diagnostic, and only the non-finite case raises
-    PanelUnavailable. Not fixed here.
+    VERDICT 2026-09-02: RESOLVED by `4876158a6c`. The diagnostic boundary now
+    rejects finite p-values outside [0, 1] with `ValueError`, and the panel
+    translates that into `PanelUnavailable`. Two focused regression-QC tests
+    prove rejection and valid 0/1 boundaries, while
+    `test_a_coefficient_table_outside_zero_to_one_draws_no_uniform_line`
+    proves the panel boundary; the rejection tests fail against the parent
+    source, which silently returned a zero-count `too-few` histogram.
 
 A17. spacr/qt/mask_engine.py:733-753, magic_wand()
     WHAT: The max_pixels budget counts only pixels that CHANGE state (added is incremented at 743-746 only when a zero pixel is added or a nonzero pixel is erased), so a flood that changes nothing is completely unbounded. Erasing where the mask is already empty, or adding over ground the mask already owns, walks every in-tolerance pixel in the frame no matter how small max_pixels is.
