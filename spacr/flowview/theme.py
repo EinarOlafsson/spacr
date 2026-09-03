@@ -58,6 +58,8 @@ def node_accent(kind: NodeKind | str, state: NodeState | str) -> str:
     :param kind: Input, process, or output role of the node.
     :param state: Current execution state of the node.
     :returns: Alarm red for a failed node, otherwise the accent for ``kind``.
+    :raises ValueError: if ``state`` is unknown, or if a non-failed node has
+        an unknown ``kind``.
     """
 
     normalised_state = NodeState(state)
@@ -71,6 +73,7 @@ def state_label(state: NodeState | str) -> str:
 
     :param state: Current execution state of the node.
     :returns: Uppercase state label displayed on the node card.
+    :raises ValueError: if ``state`` is not a recognised execution state.
     """
 
     return STATE_LABELS[NodeState(state)]
