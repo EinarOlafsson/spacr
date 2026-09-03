@@ -525,7 +525,15 @@ def questions_for(reading: Reading) -> Tuple[Question, ...]:
 
 @dataclass(frozen=True)
 class Advice:
-    """What the data decided, what it would not, and what it was read from."""
+    """What the data decided, what it would not, and what it was read from.
+
+    :param chosen: ordered setting proposals carrying their keys, values, and
+        evidence; :meth:`as_settings` converts them to a mapping.
+    :param undecided: unresolved or withdrawn proposals with explanations
+        returned by :meth:`why` and displayed to the user.
+    :param reading: optional measured screen and completed-run evidence from
+        which the proposals were derived.
+    """
 
     chosen: Tuple[Choice, ...] = ()
     undecided: Tuple[Undecided, ...] = ()
