@@ -8,6 +8,8 @@ plate underneath the user.
 """
 from __future__ import annotations
 
+from dataclasses import fields
+
 import pandas as pd
 import pytest
 
@@ -207,9 +209,8 @@ def test_a_prompt_that_answers_properly_still_resolves_the_frame():
     """The refusal above must not have broken the answer it guards."""
     frame = pd.DataFrame({"condition": ["a", "b"]})
 
-    for field in ("column_map", "well_column", "pseudo_source",
-                  "allow_pseudo", "save_path", "remember"):
-        assert f":ivar {field}:" in (MetadataDecision.__doc__ or "")
+    for field in fields(MetadataDecision):
+        assert f":param {field.name}:" in (MetadataDecision.__doc__ or "")
     result = resolve_metadata_columns(
         frame, [schema.PLATE_KEY],
         prompt=lambda request: MetadataDecision(

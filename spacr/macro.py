@@ -665,13 +665,19 @@ class _RunIdCapture(logging.Handler):
 class Recording:
     """One run being recorded. Created by :func:`begin_recording`.
 
-    :ivar module: application key of the pipeline being recorded.
-    :ivar settings: copied launch settings captured before pipeline mutation.
-    :ivar run_dir: run-journal folder associated with the pipeline invocation.
-    :ivar started: wall-clock timestamp used for elapsed-time calculation.
-    :ivar started_utc: UTC timestamp written into the reproducibility record.
-    :ivar capture: temporary log handler collecting run ids opened by the
-        recorded invocation.
+    :param module: normalized application key used to resolve the recorded
+        entry point, defaults, project root, outputs, and step module.
+    :param settings: copied launch settings used when
+        :func:`finish_recording` receives no override; copying protects them
+        from pipeline mutation.
+    :param run_dir: run-journal directory copied to the recorded step and used
+        to recover a fallback run id when no log record exposes one.
+    :param started: :func:`time.time` value captured at start and subtracted at
+        finish to produce a nonnegative elapsed duration.
+    :param started_utc: UTC start timestamp copied into the reproducibility
+        step.
+    :param capture: optional root-log handler that collects run ids during the
+        invocation; finishing removes and closes it before recording its ids.
     """
 
     module: str

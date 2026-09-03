@@ -1028,7 +1028,7 @@ def test_objectid_documents_every_identity_component():
     """A typed object key's optional timepoint is part of its API contract."""
     missing = [
         field.name for field in fields(S.ObjectID)
-        if f":ivar {field.name}:" not in (S.ObjectID.__doc__ or "")
+        if f":param {field.name}:" not in (S.ObjectID.__doc__ or "")
     ]
     assert not missing, f"undocumented ObjectID fields: {missing}"
 
