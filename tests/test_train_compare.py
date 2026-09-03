@@ -59,7 +59,7 @@ def test_series_documents_and_retains_its_fold_count():
     series = Series("run", "val", "mean", "mean", "run · val · mean",
                     frame, n_folds=4)
 
-    assert ":ivar n_folds:" in (Series.__doc__ or "")
+    assert ":param n_folds:" in (Series.__doc__ or "")
     assert series.n_folds == 4
 
 

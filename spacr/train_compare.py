@@ -315,18 +315,18 @@ class TrainingRun:
 class Series:
     """One line on the plot: a run, a split and (for k-fold) a fold.
 
-    :ivar run_id: identifier of the training run that produced this line.
-    :ivar split: logged data split, such as ``'train'`` or ``'val'``.
-    :ivar fold: fold name, empty for a single split and ``'mean'`` for a fold
-        mean.
-    :ivar kind: ``'single'`` (one train/val split), ``'fold'`` (one fold of a
-        k-fold run) or ``'mean'`` (the fold mean, with ``__sd`` columns and an
-        ``n_folds`` column recording how many folds reached each epoch).
-    :ivar label: complete legend label for this plotted line.
-    :ivar frame: ``epoch`` plus the numeric metric columns, in epoch order and
-        **at this series' own length** — never resampled onto a shared axis.
-    :ivar n_folds: number of folds represented by this line; one for an
-        individual split or fold and the contributing fold count for a mean.
+    :param run_id: identifier of the training run that produced this series.
+    :param split: logged data split, normally ``"train"`` or ``"val"``.
+    :param fold: fold name, an empty string for a single split, or ``"mean"``
+        for a fold aggregate.
+    :param kind: ``"single"``, ``"fold"``, or ``"mean"``, describing how
+        the series was assembled.
+    :param label: complete legend label for the plotted line.
+    :param frame: epoch-ordered, unresampled frame containing ``epoch`` and
+        this series' numeric metrics.
+    :param n_folds: total folds represented by the series; one for an
+        individual split or fold. For a mean, per-epoch support is retained
+        separately in ``frame["n_folds"]``.
     """
     run_id: str
     split: str

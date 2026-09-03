@@ -3207,3 +3207,43 @@ existing ``.npy`` and ``npz`` calls remain positive counterparts.
 
 REVISED COUNT: 119 entries, 50 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+62. SUDOKU REACH DOCUMENTATION DESCRIBED THE WRONG QUANTITY
+==============================================================================
+
+Found 2026-09-03 while completing constructor documentation in
+``spacr/sudoku.py``. ``SudokuResult.reach`` was described as total propagated
+anchor mass, but ``sudoku`` divides that mass by the median positive reach and
+``sudoku_all`` retains each cell's maximum relative value across rounds. A
+caller interpreting the field as absolute mass would compare incompatible
+quantities.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/sudoku.py:53-77``. Constructor prose
+now names the normalized quantity and sequential aggregation, while focused
+empty and single-measurement runs pin the runtime shapes. Replacing the
+normalized contract with the former mass wording makes its focused API
+assertion fail.
+
+REVISED COUNT: 120 entries, 51 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+63. REPORT SECTION DOCUMENTATION EXCLUDED SUPPORTED PLUGIN KEYS
+==============================================================================
+
+Found 2026-09-03 while completing constructor documentation in
+``spacr/report.py``. ``Section.key`` claimed every stable identifier belonged
+to the built-in ``SECTION_KEYS`` collection, although registered report
+plugins intentionally contribute their own identifiers and the builder accepts
+them.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/report.py:489-519``. The contract now
+distinguishes built-in from registered plugin keys. The plugin insertion test
+pins the supported runtime path, and replacing the contract with the former
+built-in-only claim makes the focused API assertion fail.
+
+REVISED COUNT: 121 entries, 52 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
