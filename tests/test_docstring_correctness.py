@@ -1506,6 +1506,7 @@ def test_baseline_constructor_documents_every_field():
     "spacr.external_masks.MaskMatch",
     "spacr.feature_dict.FeatureScope",
     "spacr.foreign.Conflict",
+    "spacr.foreign.ColumnMap",
     "spacr.benchmark.Recommendation",
     "spacr.portable_paths.RerootReport",
     "spacr.figures.fast_render.RenderedPanel",
@@ -1525,6 +1526,7 @@ def test_baseline_constructor_documents_every_field():
     "spacr.measure_hooks.RegisteredHook",
     "spacr.model_check.ModelReport",
     "spacr.multiple_testing.MethodSpec",
+    "spacr.hyperparam.Trial",
     "spacr.schema.ColumnCollision",
     "spacr.schema.FieldID",
     "spacr.schema.ObjectID",
@@ -1544,6 +1546,8 @@ def test_baseline_constructor_documents_every_field():
     "spacr.plugins.ModelProviderContribution",
     "spacr.plugins.ReportSectionContribution",
     "spacr.report.Table",
+    "spacr.report.Figure",
+    "spacr.regex_infer.Proposal",
     "spacr.run_recommendations.Recommendation",
     "spacr.runctx.RunContext",
     "spacr.settings_advisor.Advice",
@@ -1553,6 +1557,7 @@ def test_baseline_constructor_documents_every_field():
     "spacr.updater.PackageChange",
     "spacr.updater.UpdateInfo",
     "spacr.umap_search.SearchRow",
+    "spacr.umap_search.ClusterWalkRow",
 ))
 def test_repaired_record_documents_every_constructor_parameter(symbol):
     """Each repaired generated record remains callable from its API prose."""
@@ -2212,7 +2217,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
 
 
 def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
-    """Freeze the 425 visible fields and four ordinary counterexamples."""
+    """Freeze the 416 visible fields and four ordinary counterexamples."""
     items = list(_public_callables())
     rendered_docs = _documentation_public_docstrings()
     required_ivars = {
@@ -2234,12 +2239,12 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         if by_symbol[symbol].category not in GENERATED_CONSTRUCTOR_CATEGORIES
     }
 
-    assert len(required_ivars) == 90
-    assert sum(map(len, required_ivars.values())) == 436
-    assert len(generated) == 86
-    assert sum(map(len, generated.values())) == 425
+    assert len(required_ivars) == 85
+    assert sum(map(len, required_ivars.values())) == 427
+    assert len(generated) == 81
+    assert sum(map(len, generated.values())) == 416
     assert Counter(by_symbol[symbol].category for symbol in generated) == {
-        "dataclass_constructor": 85,
+        "dataclass_constructor": 80,
         "namedtuple_constructor": 1,
     }
     assert Counter(
@@ -2247,7 +2252,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         for symbol in generated
         for _name in generated[symbol]
     ) == {
-        "dataclass_constructor": 420,
+        "dataclass_constructor": 411,
         "namedtuple_constructor": 5,
     }
     assert len(ordinary) == 4
@@ -2260,7 +2265,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         symbol: _missing_required_parameters(by_symbol[symbol])
         for symbol in generated
     }
-    assert sum(not names for names in remaining.values()) == 86
+    assert sum(not names for names in remaining.values()) == 81
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(

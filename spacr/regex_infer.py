@@ -172,28 +172,14 @@ class FieldEvidence:
 class Proposal:
     """Store a candidate filename regex and the evidence for reviewing it.
 
-    :ivar pattern: regular-expression pattern with named capture groups.
-    :ivar fields: evidence for each proposed named capture group.
-    :ivar matched: number of evaluated basenames matched by ``pattern``.
-    :ivar total: number of non-empty input basenames evaluated.
-    :ivar unmatched: basenames that ``pattern`` could not parse, retained for
-        review rather than hidden behind the coverage percentage.
-    :ivar suffix: shared filename extension without its leading period.
-
-    Attributes
-    ----------
-    pattern
-        Regular-expression pattern with named capture groups.
-    fields
-        Evidence indexed by proposed group name.
-    matched
-        Number of input basenames matched by ``pattern``.
-    total
-        Total number of non-empty input basenames evaluated.
-    unmatched
-        Input basenames not matched by ``pattern``.
-    suffix
-        Extension of the filename family, without a leading period.
+    :param pattern: regular-expression pattern containing the proposed named
+        capture groups.
+    :param fields: evidence indexed by proposed capture-group name.
+    :param matched: number of evaluated basenames matched by ``pattern``.
+    :param total: number of non-empty input basenames evaluated.
+    :param unmatched: basenames the pattern could not parse, retained for
+        review.
+    :param suffix: shared filename extension without its leading period.
     """
 
     pattern: str
