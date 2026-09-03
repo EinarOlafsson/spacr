@@ -1391,3 +1391,44 @@ run is a race with whatever they wrote meanwhile. Use a worktree for a
 baseline instead — `git worktree add --detach <path> <commit>` — which is
 what proved tonight that three preview tests were broken by a rename and a
 fourth was not.
+
+--------------------------------------------------------------------------------
+2026-09-03 — TWO BACKGROUND JOBS THAT RAN FOR HOURS AND SHOULD NOT HAVE
+--------------------------------------------------------------------------------
+
+Both were mine and both are worth recording, because neither announced
+itself: a wedged background job looks exactly like a slow one.
+
+1. `pgrep -f "<pattern>"` MATCHES THE WAITER'S OWN COMMAND LINE.
+
+       until ! pgrep -f "build_documentation_i18n.py --audit"; do sleep 30; done
+
+   The shell running that loop has the pattern IN its own `bash -c` argument,
+   so `pgrep -f` finds it, the condition is never false, and the loop waits
+   for itself forever. It ran 43 minutes before anything noticed, and would
+   have run until the session ended.
+
+   Match on something the waiter does not contain -- a PID captured when the
+   job started, a marker line in its log, or `pgrep -f` with a pattern the
+   loop spells differently from the process it is watching.
+
+2. A REPAIR PASS RAN FOR 6 HOURS 18 MINUTES AGAINST A MOVING SOURCE.
+
+   `--repair-api-blocks` over nine locales, started 19:50, still going at
+   02:08. Its useful output landed at 00:31 and was committed; nothing was
+   written in the ninety minutes before it was stopped. It was chasing
+   docstrings the other session was still editing -- 199 English records
+   went stale again while it worked -- so finishing would not have helped.
+
+   THE FIX IS THE ONE THE 306 PASS PROPOSED: a `--freeze-sources` snapshot,
+   so a nine-language run is generated from ONE tree by construction. Until
+   that exists, do not start a repair pass while another session is
+   committing to `spacr/`.
+
+   IT CACHES ON THE RESEARCH VOLUME. `--model-root` points at
+   `toxoplasma_projects/.../translation_models/opus`, and the tool writes
+   `.spacr_translation_cache` beside the models -- 148 MB now. That is the
+   tool's design and the cache is worth keeping (it is what makes a second
+   pass fast), but it is a WRITE to the 1.1 TB volume and should be a
+   deliberate one. The 306 pass mirrored the models into scratch to avoid
+   it; that mirror is still there and is the safer default.
