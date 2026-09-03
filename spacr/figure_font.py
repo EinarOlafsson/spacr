@@ -42,17 +42,22 @@ def font_dir() -> str:
 
 
 def bundled_faces() -> List[str]:
-    """Every bundled ``.ttf``.
+    """Every bundled TrueType or OpenType face.
 
-    :returns: absolute paths, empty when the directory is missing rather
-        than raising -- a figure drawn in the wrong font is a blemish, and
-        never a reason for a plot not to appear.
+    :returns: Absolute paths in filename order. A missing or unreadable font
+        directory returns an empty list rather than raising -- a figure drawn
+        in the wrong font is a blemish, and never a reason for a plot not to
+        appear.
     """
     directory = font_dir()
     if not os.path.isdir(directory):
         return []
+    try:
+        names = sorted(os.listdir(directory))
+    except OSError:
+        return []
     return [os.path.join(directory, name)
-            for name in sorted(os.listdir(directory))
+            for name in names
             if name.lower().endswith((".ttf", ".otf"))]
 
 

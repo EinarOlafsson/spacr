@@ -56,6 +56,34 @@ def test_the_shipped_directory_holds_ttf_faces():
     assert all(f.lower().endswith((".ttf", ".otf")) for f in faces)
 
 
+def test_a_readable_font_directory_is_filtered_and_sorted(tmp_path,
+                                                           monkeypatch):
+    """Readable directories return only supported faces in filename order."""
+    from spacr import figure_font
+
+    for name in ("zeta.ttf", "ignore.txt", "Alpha.OTF"):
+        (tmp_path / name).write_bytes(b"font fixture")
+    monkeypatch.setattr(figure_font, "font_dir", lambda: str(tmp_path))
+
+    assert [os.path.basename(path) for path in figure_font.bundled_faces()] == [
+        "Alpha.OTF",
+        "zeta.ttf",
+    ]
+
+
+def test_an_unreadable_font_directory_yields_no_faces(monkeypatch):
+    """A directory race or permissions error must not prevent a plot."""
+    from spacr import figure_font
+
+    monkeypatch.setattr(figure_font.os.path, "isdir", lambda _path: True)
+
+    def unreadable(_path):
+        raise OSError("permission denied")
+
+    monkeypatch.setattr(figure_font.os, "listdir", unreadable)
+    assert figure_font.bundled_faces() == []
+
+
 # ---------------------------------------------------------------------------
 # use_open_sans_for_figures — the early return, and every refusal
 # ---------------------------------------------------------------------------
@@ -129,6 +157,22 @@ def _font_manager_where(monkeypatch, cold, *, ttflist, addfont=None):
 class _Face:
     def __init__(self, name):
         self.name = name
+
+
+def test_an_unreadable_font_directory_is_declined_by_registration(
+        cold, monkeypatch):
+    """The user-facing registration path must contain enumeration failure."""
+    manager = _font_manager_where(
+        monkeypatch, cold, ttflist=[_Face("DejaVu Sans")])
+    monkeypatch.setattr(cold.os.path, "isdir", lambda _path: True)
+
+    def unreadable(_path):
+        raise OSError("stale font directory")
+
+    monkeypatch.setattr(cold.os, "listdir", unreadable)
+
+    assert cold.use_open_sans_for_figures() is False
+    assert manager.added == []
 
 
 def test_a_font_manager_that_will_not_list_its_fonts_still_answers(cold,
