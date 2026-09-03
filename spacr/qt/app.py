@@ -2332,6 +2332,13 @@ class Sidebar(QWidget):
     #: page the fold exists to remove.
     fold_child_selected = Signal(str)
 
+    #: Emitted with an app key when the pointer enters that row, so the
+    #: window can explain the module in whichever bottom strip is on screen.
+    #: Asked for on 2026-09-03: "the hover over the doc should function the
+    #: same" -- the same strip, the same links, the same thirty-second hold
+    #: the tiles got.
+    module_hovered = Signal(str)
+
     #: Width bounds in px at 100 % font scale. The column starts at
     #: ``WIDTH_MIN`` and widens — up to ``WIDTH_MAX`` — if the longest app
     #: name needs it, so a new long name can't quietly get cut in half.
@@ -2631,14 +2638,25 @@ class Sidebar(QWidget):
         hover paint and its click.
         """
         if isinstance(watched, _DockRow):
-            # NOTHING TO DO ON A ROW'S OWN MOUSE TRAFFIC. The magnifier
+            # THE ROW'S OWN PAINTING NEEDS NOTHING FROM HERE. The magnifier
             # that swelled the icon under the pointer was removed on
-            # 2026-09-03 at the maintainer's request; the row now gets its
-            # hover highlight from the stylesheet's `:hover` rule and its
-            # name from `_DockRow.enterEvent`, and neither needs this
-            # filter. The branch is kept so a row's own events are visibly
-            # not consumed rather than falling through to the section
-            # handling below, which would read `sectionName` off a row.
+            # 2026-09-03; the row draws its own plate and its own name from
+            # `_DockRow.enterEvent`, and neither needs this filter.
+            #
+            # What IS done here is announcing the hover, so the window can
+            # write the module into the bottom strip. Announced from the
+            # FILTER rather than from the row so the row stays a widget that
+            # paints itself and knows nothing about where help is shown.
+            #
+            # `__home__` is not a module and has no documentation page or
+            # lesson; it is skipped rather than announced as one.
+            if event.type() == QEvent.Type.Enter:
+                key = str(watched.property("navKey") or "")
+                if key and key != "__home__":
+                    self.module_hovered.emit(key)
+            # NEVER CONSUMED. The row still gets its hover paint and its
+            # click, and returning here keeps a row out of the section
+            # handling below, which would read `sectionName` off it.
             return False
         section = watched.property("sectionName") if watched else None
         if not section:
@@ -2842,7 +2860,17 @@ class Sidebar(QWidget):
             btn.setProperty("moduleSummarySource", desc)
             btn.setProperty("moduleTooltipStyle", "sidebar")
         btn.setCursor(Qt.PointingHandCursor)
-        btn.setToolTip(f"{name} — {desc}" if desc else name)
+        # NO TOOLTIP. A dock row explains itself in three places already --
+        # the name it paints beside its icon on hover (369), the strip along
+        # the bottom of the window (2026-09-03), and the accessible
+        # description below -- and the maintainer asked for the popup to go:
+        # "remove the popup window tooltip on the moduals. the tooltip is
+        # shown at the botom of the screen."
+        #
+        # The strip is what a native tooltip could not be. It carries an API
+        # link and a Tutorial link and holds for thirty seconds, so the words
+        # can actually be reached; a tooltip disappears the moment the
+        # pointer moves toward it.
         # Accessibility — screen readers announce the app name +
         # its one-line description as the button's role.
         btn.setAccessibleName(name)
@@ -3123,6 +3151,7 @@ class MainWindow(QMainWindow):
         # the key names a fold rather than a screen, and navigating to it
         # directly would build an orphan page with no way back.
         self._sidebar.fold_child_selected.connect(self.open_module)
+        self._sidebar.module_hovered.connect(self._show_module_hint)
 
         from .widgets.drawer import EdgeDrawer
         self._app_drawer = EdgeDrawer(self._stack, self._sidebar,
@@ -4889,6 +4918,49 @@ class MainWindow(QMainWindow):
             return get_dock_mode()
         except Exception:
             return "locked"
+
+    def _show_module_hint(self, key: str) -> None:
+        """Explain the hovered dock row in whichever bottom strip is showing.
+
+        ROUTED RATHER THAN OWNED, because there is no single bar to write to.
+        Home carries a `ModuleHintBar` at the foot of the startup page and a
+        module screen carries its own per-setting strip at the foot of the
+        form; both are the bottom of the window from the reader's side, and
+        a third window-level bar under whichever is on screen would stack two
+        strips on Home.
+
+        THE SENTENCE IS RESOLVED HERE, once, and handed on.
+        `module_summary` falls back to the registry's English description,
+        so called without one it answers an empty string -- which is how a
+        dock hover over a module screen silently wrote nothing. The window is
+        the one object with `APPS` already to hand; a screen would have to
+        import the module that built it.
+
+        Silent when the page in front has no strip: a hover is not a place to
+        raise anything, and a screen that cannot show help is not broken.
+        """
+        key = str(key or "")
+        if not key:
+            return
+        handler = getattr(self._stack.currentWidget(), "show_module_hint",
+                          None)
+        if not callable(handler):
+            return
+        summary = ""
+        try:
+            from .i18n_module_summaries import module_summary
+            source = next((desc for k, _n, desc, _s in APPS if k == key), "")
+            if source:
+                summary = module_summary(key, source)
+        except Exception:                                        # noqa: BLE001
+            summary = ""
+        try:
+            handler(key, summary)
+        except Exception:                                        # noqa: BLE001
+            # A hover handler must not take the window with it.
+            import logging
+            logging.getLogger(__name__).debug(
+                "could not write the hint for %s", key, exc_info=True)
 
     def apply_dock_mode(self, mode: Optional[str] = None) -> None:
         """Put the app list where the preference says it goes.

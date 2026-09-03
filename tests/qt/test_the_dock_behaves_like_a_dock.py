@@ -333,19 +333,29 @@ def test_every_dock_row_still_says_what_it_is(dock):
     A row with no visible name, no accessible name and no tooltip is a row
     a user cannot identify -- 348's own WATCH says so.
     """
-    nameless, tipless, keyless = [], [], []
+    nameless, described, keyless, popups = [], [], [], []
     for row in dock._items:
         key = str(row.property("navKey") or "")
         if not key:
             keyless.append(row)
         if not row.accessibleName().strip():
             nameless.append(key)
-        if not row.toolTip().strip():
-            tipless.append(key)
+        if row.toolTip().strip():
+            popups.append(key)
+        if key != "__home__" and not row.accessibleDescription().strip():
+            described.append(key)
     assert dock._items, "no dock rows at all"
     assert not keyless, "a dock row carries no navKey"
     assert not nameless, f"rows with no accessible name: {nameless}"
-    assert not tipless, f"rows with no tooltip: {tipless}"
+    assert not described, f"rows that describe themselves to nobody: {described}"
+    # AND NO TOOLTIP, which is the change of 2026-09-03: "remove the popup
+    # window tooltip on the moduals. the tooltip is shown at the botom of
+    # the screen." The sentence moved to the accessible description above
+    # and to the strip at the foot of the window, which -- unlike a popup --
+    # can carry the API and Tutorial links and hold them long enough to be
+    # pressed. This assertion is the direction that matters now: a row that
+    # grew a tooltip back has put the popup back.
+    assert not popups, f"these rows still pop a tooltip: {popups}"
 
 
 def test_no_dock_row_is_blank(dock):

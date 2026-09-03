@@ -6,6 +6,10 @@ recursive-include spacr/resources/data *.csv
 # tools/build_release_notes.py before a tag; a wheel without it shows
 # an empty News panel and no error.
 include spacr/resources/release_notes.json
+# app_key -> tutorial lesson, for the Tutorial link in the hover
+# strip. Built by tools/build_tutorial_index.py from the docs
+# build's lesson catalog.
+include spacr/resources/tutorial_index.json
 recursive-include packaging/linux *.desktop *.png
 include packaging/spacr.spec
 recursive-include spacr/resources/setting_animations *.gif *.json

@@ -1140,7 +1140,17 @@ def test_hovering_a_tile_explains_it_in_the_hint_bar(home):
     # this test is defending is that hovering EXPLAINS the tile, and it
     # still does.
     assert desc in home._hint_bar.text()
+    # AND IT STAYS AFTER THE POINTER LEAVES. Since 2026-09-03 the strip
+    # carries an API link and a Tutorial link, and it holds the last module
+    # for thirty seconds -- because a link that is removed the moment the
+    # pointer moves toward it is a link that can never be pressed. Clearing
+    # on Leave, which this used to assert, is exactly the behaviour that
+    # made the words unreachable.
     home.eventFilter(tile, QEvent(QEvent.Leave))
+    assert desc in home._hint_bar.text(), (
+        "the strip was cleared on Leave, so its links cannot be reached")
+    assert home._hint_bar.is_holding()
+    home._hint_bar.release()
     assert desc not in home._hint_bar.text()
 
 
