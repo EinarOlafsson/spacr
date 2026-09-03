@@ -28,6 +28,7 @@ FULLY_DOCUMENTED = (
     "spacr/cancellation.py",
     "spacr/chaining.py",
     "spacr/classify_classes.py",
+    "spacr/classifier_quality.py",
     "spacr/cli.py",
     "spacr/cli_download.py",
     "spacr/cli_plugins.py",
