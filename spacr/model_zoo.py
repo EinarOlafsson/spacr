@@ -347,23 +347,30 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d",
         "display_name": "Toxoplasma Plaque v1",
         "architecture": "Cellpose-SAM (cpsam)",
-        # IMAGE COUNT NOT RECORDED. Said so rather than guessed -- the PV
-        # row states 115 because 115 was measured, and a number invented
-        # to fill the column would be indistinguishable from it.
-        "dataset": "Toxoplasma plaque assays; 2 datasets, in-domain and literature; image count not recorded",
-        # NO STOCK BASELINE EXISTS FOR THIS ONE. The published comparison
-        # is round 3 against round 1 of the same model, which is a
-        # different claim and must not be printed under a heading that
-        # says "against stock".
-        "versus_stock": "F1 0.856 in-domain and 0.834 on the literature set; no stock cpsam baseline measured",
+        # FROM THE TRAINING RECORD, `models/cpsam_seg_r3/model.db` in the
+        # plaque_assay_model project: 184 rows in `training_set`, by source
+        # nas_patrick 68 + nas_bigbean 27 (95 in-house) and lit_pmc_staged
+        # 67 + lit_curate_single 22 (89 literature, counted as one dataset).
+        "dataset": "crystal violet plaque wells; 184 wells from 3 datasets, "
+                   "95 in-house and 89 literature",
+        # THE LITERATURE FIGURE IS 0.806, NOT 0.834, and this row published
+        # the wrong one until 2026-09-02. The project corrected it on
+        # 2026-08-09 and its own model.db names the old value
+        # `literature_generalisation_SINGLESPLIT_optimistic`: 0.834 came
+        # from ONE 19-well split and turned out to be the best of three
+        # folds. The cross-validated mean is 0.806 with an SD of 0.020
+        # (per fold 0.795 / 0.789 / 0.834). The in-domain 0.856 is
+        # confirmed -- an independent harness reproduced 0.855.
+        "versus_stock": "F1 0.856 in-domain; 0.806 on literature "
+                        "(3-fold cross-validated, SD 0.020)",
         "trained_on": (
             "Toxoplasma gondii plaque assays; round 3, evaluated in-domain "
             "(NAS) and against a literature generalisation set"
         ),
         "trained_by": "einarolafsson",
         "notes": (
-            "F1 0.856 in-domain and 0.834 on the literature set, against "
-            "0.718 / 0.755 for round 1",
+            "F1 0.856 in-domain and 0.806 on the literature set (3-fold "
+            "cross-validated, SD 0.020), against 0.718 for round 1",
             # "down to" / "up to" rather than "->" BECAUSE THIS PROSE IS
             # PUBLISHED. It is printed into the README's model zoo table and
             # from there into all nine localized READMEs, and
@@ -387,10 +394,21 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c",
         "display_name": "Toxoplasma Plaque Well Detector v1",
         "architecture": "YOLO11n",
-        "dataset": "whole-plate and multi-well plaque-assay images; 1 dataset; image count not recorded",
-        # There is no stock model that finds wells, so there is nothing to
-        # compare against and saying so is the honest cell.
-        "versus_stock": "mAP50 0.993, mAP50-95 0.886; no stock model detects wells",
+        # FROM `data/detector_v3` and the v3 training record: 441 training
+        # images (289 wells + 152 background) and 121 validation (83 + 38).
+        # The background half is not padding -- v2 was trained on positives
+        # only and fired on histology, chest X-rays, logos and Venn
+        # diagrams, so the negatives are the reason v3 is the published
+        # model.
+        "dataset": "whole-plate and multi-well crystal violet images; 562 "
+                   "images from 1 dataset, 190 of them with no well in them",
+        # No stock model detects wells, so this is the hold-out score and
+        # not a comparison. mAP50-95 is 0.886 from the final training epoch
+        # in `runs/well_detector_v3/results.csv`; a separate val run in
+        # model.db reports 0.892, and the two are the same measurement
+        # taken twice rather than a disagreement worth publishing.
+        "versus_stock": "mAP50 0.993, mAP50-95 0.886, precision and recall "
+                        "both 0.987",
         "trained_on": (
             "whole-plate and multi-well Toxoplasma plaque-assay images; "
             "yolo11n base, 150 epochs, batch 16, imgsz 640"
