@@ -63,6 +63,10 @@ class ClassRule:
     """One class: its name, and what makes an object a member.
 
     :ivar name: class label assigned to objects selected by this rule.
+    :ivar column: source metadata or annotation column for an explicit rule.
+    :ivar value: value in ``column`` that selects this class.
+    :ivar random_complement: select an equally sized random sample from rows
+        not claimed by any explicit rule instead.
 
     Either a ``column``/``value`` pair, or ``random_complement`` -- never
     both. A rule that says both would have two answers for the same object and
