@@ -1,8 +1,8 @@
 """Command-line entry point for ``python -m spacr``.
 
-The module builds and dispatches spaCR's command-line subcommands. With no
-subcommand it opens the legacy Tk interface; use ``python -m spacr.qt`` or the
-installed ``spacr`` command to open the PySide6 application.
+The module builds and dispatches spaCR's command-line subcommands. Every
+window command opens the PySide6 application; with no subcommand it opens on
+the Home tab.
 
 Copyright © 2025 olafsson lab
 """
@@ -56,10 +56,11 @@ def main(argv: list[str] | None = None) -> int:
     """CLI entry point; dispatch to the requested spacr subcommand.
 
     :param argv: Argument list to parse. When None, ``sys.argv[1:]`` is used.
-    :returns: Process exit code, 0 on success.
-    :raises SystemExit: with code 2 for a command the parser accepts and the
-        dispatch below does not know -- `parser.error` never returns, so
-        there is no exit code to hand back for that case.
+    :returns: ``0`` for the version command; window commands return the Qt
+        launcher's integer exit status.
+    :raises SystemExit: with code ``2`` when argparse rejects the arguments or
+        a command accepted by the parser has no dispatcher. ``parser.error``
+        never returns, so there is no exit code to hand back in either case.
     """
     parser = build_parser()
     args = parser.parse_args(argv)
