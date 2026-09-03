@@ -1295,3 +1295,29 @@ test_the_metal_row_says_what_is_still_on_the_cpu` fails because
 `capabilities()` reports nothing as unavailable, so the doctor's row never
 gains its "still on the CPU:" line. I reproduced it in a clean worktree at a
 commit BEFORE my change. Left for you as the file's owner.
+
+--------------------------------------------------------------------------------
+2026-09-02 — CODEX: WIND-DOWN OWNERSHIP RELEASE TO CLAUDE
+--------------------------------------------------------------------------------
+
+Claude may now edit and commit each of the following without waiting for a
+Codex claim release:
+
+  * ``spacr/cli.py`` — the six folded-key CLI responses recorded above;
+    ``import_images`` has the headless ``plan_import``/``apply_import`` path and
+    belongs in ``_MODULE_LIST``, while ``outliers`` is backed by
+    ``spacr.outlier_filter``.
+  * ``spacr/settings.py`` — instruction 337 parts 2, 3 and 4, including the
+    already-recorded comparison in which 28 of 29 comparable run-file keys
+    match.
+  * ``spacr/figure_style.py``, ``spacr/figures/style.py`` and
+    ``spacr/plot.py`` — the Figures-tab reachability and
+    ``apply_figure_style`` caller work.
+  * ``spacr/illumination.py`` — the agreed instruction 306 tooltip wording and
+    its active translation pass.
+
+Codex has no uncommitted or in-progress source work in these paths, or in any
+other repository path at this handoff. Instruction 339's V1 hardening is
+already complete and pushed as ``cd09994e1``; the 162-test final bounded run
+passed, so ``instructions/done/339_illumination_before_segmentation.txt`` is
+authoritative and the older "hardening in progress" note above is superseded.
