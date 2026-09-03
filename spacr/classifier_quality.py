@@ -79,6 +79,7 @@ class Confusion:
 
     @property
     def prevalence(self) -> float:
+        """Return the positively labelled share of all cells."""
         total = (self.true_positive + self.false_positive
                  + self.true_negative + self.false_negative)
         return ((self.true_positive + self.false_negative) / total
@@ -95,6 +96,7 @@ class Confusion:
         return bool(np.isfinite(total) and total > 1.0)
 
     def summary(self) -> str:
+        """Return sensitivity, specificity, accuracy, and prevalence text."""
         return (f"se {self.sensitivity:.3f}  sp {self.specificity:.3f}  "
                 f"(accuracy {self.accuracy:.3f} at prevalence "
                 f"{self.prevalence:.3f})")
