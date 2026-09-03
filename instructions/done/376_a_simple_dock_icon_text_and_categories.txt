@@ -1,0 +1,115 @@
+================================================================================
+A SIMPLE DOCK: AN ICON, A NAME, AND A CATEGORY HEADING
+================================================================================
+
+Status:    COMPLETE 2026-09-03, commit 21a280731. Filed after the fact, which
+           is against this repository's own rule that a feature is filed
+           before it is coded. Recorded rather than quietly skipped: the rule
+           exists so the request survives in the maintainer's words, and that
+           is still worth having an hour late.
+Requested: 2026-09-03, after four rounds of fixes at home had not settled it.
+
+  "I was trying to fix the dock for a while at home so I propose you start
+  from scratch and write a simple dock no effects just icon and text in
+  categories. Scrap the sub categories, only effect should be hover is blue
+  and tooltip at bottom of screen"
+
+Two decisions taken on the same day, when asked:
+  * the category headings STILL COLLAPSE when clicked;
+  * the folded modules lose their dock route entirely -- "Yes, scrap them
+    from the dock".
+
+--------------------------------------------------------------------------------
+WHAT THE STATE WAS
+--------------------------------------------------------------------------------
+
+1,095 lines: `_DockRow` (311) and `Sidebar` (784) inside `spacr/qt/app.py`,
+which was 6,598 lines. Six commits between 2026-09-02 and 2026-09-03 tried to
+fix the same visible defect and the log reads as a series of retractions --
+"The dock's black box was the dock", "The black box was Qt filling the row,
+not the stylesheet", "A way to see the dock, since four rounds of fixes could
+not", and one revert.
+
+MEASURED, NOT ASSUMED, once the code was read: nearly every line removed
+existed to defeat itself.
+
+  * A translucent slab painted in `Sidebar.paintEvent`. THAT was the black
+    box. Four commits looked for it in the stylesheet.
+  * A per-row icon-size model -- `resting_icon_px`, `_place_icon`,
+    `_set_icon_px`, `_forget_icon_sizes`, `_rest_every_icon` -- that grew the
+    icon under the pointer and shrank it again. Resizing a child relayouts
+    the column, and THAT was the blink and the "un-hovering the row the
+    pointer was sitting on".
+  * The name painted only while hovered, so a resting dock was a column of
+    unlabelled glyphs.
+  * A second, indented level of 33 folded modules with its own expand state.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+`spacr/qt/widgets/dock.py`, 252 lines. A row is a `QPushButton` with an icon
+and its name, always both. One stylesheet rule decides what hover looks like,
+using the theme accent. No `paintEvent` anywhere -- a test asserts that, so
+the box cannot grow back.
+
+`Sidebar` KEEPS ITS NAME and becomes a 27-line binding to the new `Dock`. It
+had to: the theme carries `#Sidebar` rules, and the tutorial highlighter, the
+two home-variant generators and 28 test files all reach the dock by that name.
+Deleting it would have been a 30-file cascade for no reader-visible gain.
+
+KEPT BECAUSE SOMETHING ELSE READS IT, each verified before assuming:
+  * `SidebarItem` and `SidebarSection` object names -- the theme carries
+    eight `QPushButton#SidebarItem` rules, so a rename un-styles the dock;
+  * `navKey`, and `moduleAppKey` / `moduleNameSource` / `moduleSummarySource`,
+    which is `module_hints`' own mechanism rather than a second one;
+  * the `QScrollArea` and the title above it -- 28 rows do not fit 900 px,
+    and without it the last modules were unreachable;
+  * `refresh_visibility`'s Alpha/Beta filter, including hiding a heading whose
+    modules are ALL filtered out, which is a different thing from a shut one;
+  * Home, as a section-less row above the headings, because it is how you get
+    back and must not live inside a category that can be shut;
+  * `fitting_width`, `clipped_items`, `sync_hover` and the `_items` /
+    `_section_headers` names the suites reach into.
+
+`expand_host` remains and does nothing, documented: a method that vanished
+would fail at its call site, away from the reason.
+
+--------------------------------------------------------------------------------
+HOW IT WAS KNOWN TO WORK
+--------------------------------------------------------------------------------
+
+A HEAD BASELINE, per HANDOFF's own lesson. The same ten suites were run with
+the work stashed and again with it applied:
+
+    before   4 failed, 335 passed
+    after    4 failed, 360 passed
+
+The same four, all in `test_the_navigation_is_grouped_and_collapsed.py`, and
+all failing before the first line was written. NO REGRESSION WAS INTRODUCED,
+and the number means something because the baseline was taken.
+
+Five test files asserting the removed design were retired -- the slab, the
+folded modules, the row background, the relayout-on-hover, the name-on-hover.
+Their four surviving invariants moved into
+`tests/qt/test_the_dock_is_icon_text_and_categories.py`, 25 tests: hover moves
+no geometry, no row paints a box, every icon is one size in every state, and
+the collapsed dock fits a 900 px laptop.
+
+Three suites that enumerated every `APPS` key now enumerate `dock_rows()`,
+which is what the dock actually draws.
+
+app.py 6,598 -> 5,530 lines. The fatal lint gate stays green, and app.py loses
+two of its eight import-order warnings.
+
+--------------------------------------------------------------------------------
+WHAT THIS COST, AND WHO SHOULD KNOW
+--------------------------------------------------------------------------------
+
+The 33 folded modules -- Volcano Explorer, Layer Viewer, Lineage, Convert,
+Tabulate, Plate View, Profiler, Investigate Hit, External Masks,
+Train Compare and the rest -- are NO LONGER REACHABLE FROM THE DOCK. They are
+reached from their host screen's fold strip and from the Help heading. This
+was asked for explicitly and confirmed; it is recorded here because
+`dock_rows`' own docstring argues the opposite case, and a reader finding that
+docstring later should know it was overtaken rather than overlooked.
