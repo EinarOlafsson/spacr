@@ -71,6 +71,9 @@ class Accelerator:
         the only thing a user can act on is the true vendor.
     :param device: the string to hand ``torch.device``.
     :param label: human text for the setup slide and the doctor.
+    :param name: undecorated hardware marketing name shown to users, without
+        the backend or version suffix carried by ``label``; empty when no
+        device name was discovered.
     :param detected: the hardware is present.
     :param usable: spaCR will actually dispatch to it. Never true unless
         ``detected``; false for accelerators with no torch device.
@@ -467,6 +470,14 @@ def _measure_dtypes(torch, found: Accelerator) -> Accelerator:
     than the conservative default it already carries.
     """
     def accepts(name: str) -> Optional[bool]:
+        """Probe whether the resolved device accepts one named torch dtype.
+
+        :param name: torch dtype attribute name, such as ``"float64"`` or
+            ``"bfloat16"``.
+        :returns: ``True`` when a two-element tensor allocates on the device,
+            ``False`` for the errors used by unsupported dtypes, or ``None``
+            when torch lacks the dtype or the probe fails unexpectedly.
+        """
         dtype = getattr(torch, name, None)
         if dtype is None:
             return None
@@ -650,11 +661,19 @@ def _keep_cellpose_flows_off_metal() -> None:
         return
 
     def on_the_cpu(masks, flows, threshold=0.4, device=None):
+        """Run Cellpose flow-error filtering on the CPU for Metal.
+
+        :param masks: label masks forwarded unchanged to Cellpose.
+        :param flows: flow field forwarded unchanged to Cellpose.
+        :param threshold: flow-error threshold forwarded to Cellpose.
+        :param device: ignored compatibility argument; the wrapped call
+            always receives ``torch.device("cpu")``.
+        :returns: the original ``remove_bad_flow_masks`` return value.
+        """
         return original(masks, flows, threshold=threshold,
                         device=torch.device("cpu"))
 
     on_the_cpu._spacr_cpu_flows = True
-    on_the_cpu.__doc__ = original.__doc__
     dynamics.remove_bad_flow_masks = on_the_cpu
     LOG.debug("cellpose flow-error pass pinned to the CPU (Metal indexing bug)")
 

@@ -14,6 +14,9 @@ apart, on the same machines, in both directions.
 """
 from __future__ import annotations
 
+import sys
+import types
+
 import pytest
 
 from spacr import accelerator as acc
@@ -113,6 +116,7 @@ def test_nvidia_is_unchanged(monkeypatch):
     assert found.is_cuda and found.is_gpu
     assert found.float64 and found.autocast
     assert "RTX 4090" in found.label and "NVIDIA" in found.label
+    assert found.name == "RTX 4090"
 
 
 def test_rocm_is_a_gpu_but_is_not_cuda(monkeypatch):
@@ -295,6 +299,34 @@ def test_cellpose_is_told_yes_on_every_gpu_not_only_cuda(monkeypatch):
     monkeypatch.setattr(acc, "_CACHED", None, raising=False)
     _install(monkeypatch, _Torch(cuda=False))
     assert acc.cellpose_gpu() is False
+
+
+def test_metal_flow_patch_changes_only_cellpose_device(monkeypatch):
+    """The Metal workaround keeps inputs and output while forcing the CPU."""
+    calls = []
+    result = object()
+
+    def original(masks, flows, threshold=0.4, device=None):
+        calls.append((masks, flows, threshold, device))
+        return result
+
+    torch = types.ModuleType("torch")
+    torch.device = lambda value: f"device({value})"
+    dynamics = types.SimpleNamespace(remove_bad_flow_masks=original)
+    cellpose = types.ModuleType("cellpose")
+    cellpose.dynamics = dynamics
+    monkeypatch.setitem(sys.modules, "torch", torch)
+    monkeypatch.setitem(sys.modules, "cellpose", cellpose)
+    monkeypatch.setattr(acc, "_FLOW_PATCH_APPLIED", False)
+
+    acc._keep_cellpose_flows_off_metal()
+    masks, flows = object(), object()
+    returned = dynamics.remove_bad_flow_masks(
+        masks, flows, threshold=0.7, device="mps")
+
+    assert returned is result
+    assert calls == [(masks, flows, 0.7, "device(cpu)")]
+    assert "CPU for Metal" in dynamics.remove_bad_flow_masks.__doc__
 
 
 @pytest.mark.parametrize(

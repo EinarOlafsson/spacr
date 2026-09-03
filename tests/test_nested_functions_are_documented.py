@@ -33,6 +33,7 @@ PACKAGE = ROOT / "spacr"
 FULLY_DOCUMENTED = frozenset({
     "spacr/_v1_v2_bridge.py",
     "spacr/active_learning.py",
+    "spacr/accelerator.py",
     "spacr/agreement.py",
     "spacr/align.py",
     "spacr/annotation_dataset.py",
@@ -149,7 +150,6 @@ BUDGET = {
     "spacr/qt/timing.py": 10,
     "spacr/qt/widgets/live_preview.py": 3,
     "spacr/qt/widgets/measurement_scan_panel.py": 3,
-    "spacr/accelerator.py": 2,
     "spacr/qt/bridge.py": 5,
     "spacr/qt/prerun.py": 2,
     "spacr/qt/resource_cleanup.py": 3,
