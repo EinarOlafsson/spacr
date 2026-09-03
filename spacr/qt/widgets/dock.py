@@ -31,22 +31,37 @@ hovered module for thirty seconds with its API and tutorial links. This dock
 only says which module is under the pointer, via :attr:`Dock.module_hovered`;
 the bar decides how to explain it.
 
-CATEGORIES STILL COLLAPSE. The headings are clickable, because the module
-list is longer than a short screen and a dock taller than its window is the
-failure the sections were introduced to fix.
+WHAT IS KEPT, BECAUSE SOMETHING ELSE READS IT. Categories still collapse —
+the list is longer than a short screen. Rows still carry ``navKey`` and
+headers are still ``SidebarSection``, because the theme, the tutorial script
+and the maturity tests all reach the dock through those names. And
+:meth:`refresh_visibility` still applies the Alpha/Beta maturity filter and
+hides a heading whose modules are all filtered out, which is a separate
+reason for a row to be absent from its section being shut.
+
+NOTHING HERE IMPORTS :mod:`spacr.qt.app`. The registry lives there and would
+be a circular import, so the rows, the icon lookup and the maturity
+predicate are all injected.
 """
 from __future__ import annotations
 
 from typing import Callable, Dict, Iterable, List, Optional, Tuple
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QFrame, QLabel, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 
 from ..theme import active_palette
 from .eliding import ElidingPushButton
 
 #: A dock row as the registry hands it over: key, name, description, section.
 Row = Tuple[str, str, str, str]
+
+#: The key of the row that goes Home. Never filtered out.
+HOME_KEY = "__home__"
+
+#: Icon edge, in unscaled pixels. Big enough to read as a picture rather
+#: than the bullet the dock used to draw, and the same in every state.
+ICON_PX = 20
 
 
 class DockRow(ElidingPushButton):
@@ -63,7 +78,26 @@ class DockRow(ElidingPushButton):
         super().__init__(name, parent)
         self.key = key
         self.desc = desc
-        self.setObjectName("DockRow")
+        # THE LEGACY OBJECT NAME, deliberately: the theme carries eight
+        # `QPushButton#SidebarItem` rules and a rename would silently
+        # un-style every row in the dock.
+        self.setObjectName("SidebarItem")
+        # What the bottom strip reads off whatever the pointer is over.
+        self.setProperty("moduleNameSource", name)
+        self.setProperty("moduleSummarySource", desc)
+        # `navKey` is how refresh_icons, the tutorial highlighter and the
+        # maturity tests find a row. It is the row's identity to everything
+        # outside this module.
+        self.setProperty("navKey", key)
+        # `moduleAppKey` is module_hints.KEY_PROPERTY: the bottom strip's
+        # event filter reads it off whatever the pointer is over. Setting it
+        # here is what makes the dock explain itself through the SAME
+        # mechanism as the menus and the tiles, rather than a second one.
+        self.setProperty("moduleAppKey", key)
+        # AN ACCESSIBLE NAME EVEN THOUGH THE TEXT IS VISIBLE. The old row
+        # painted no text and needed one; a screen reader still needs the
+        # full name when a long one has been elided down to fit the column.
+        self.setAccessibleName(name)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setSizePolicy(QSizePolicy.Policy.Preferred,
                            QSizePolicy.Policy.Fixed)
@@ -90,19 +124,16 @@ class DockRow(ElidingPushButton):
 class SectionHeader(QLabel):
     """A category heading. A label rather than a button, because it is
     already styled as a heading and a button would have to be un-styled
-    back into one; the click arrives through :meth:`mousePressEvent`."""
-
-    clicked = Signal(str)
+    back into one; the click arrives through :meth:`Dock.eventFilter`."""
 
     def __init__(self, section: str, parent=None):
         super().__init__(section, parent)
         self.section = section
-        self.setObjectName("DockSection")
+        # The legacy name, deliberately: the theme styles `SidebarSection`
+        # and the maturity test looks headers up by it.
+        self.setObjectName("SidebarSection")
+        self.setProperty("sectionName", section)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-
-    def mousePressEvent(self, event):           # noqa: N802 - Qt naming
-        self.clicked.emit(self.section)
-        super().mousePressEvent(event)
 
 
 class Dock(QWidget):
@@ -111,38 +142,87 @@ class Dock(QWidget):
     :param rows: the modules to draw, in order, as ``(key, name, desc,
         section)``. Grouping IS ordering: a new heading starts whenever the
         section changes, so a row out of place draws its heading twice.
-    :param icon_for: optional ``key -> QIcon | None`` used for the row icons.
-        Injected rather than imported so this module does not depend on
+    :param icon_for: optional ``key -> QIcon | None`` for the row icons.
+    :param is_visible: optional ``key -> bool`` maturity predicate. Injected
+        rather than imported so this module does not depend on
         :mod:`spacr.qt.app`, which is what defines the registry.
     """
 
     nav_selected = Signal(str)           #: a row was clicked
     module_hovered = Signal(str)         #: a row is under the pointer
 
+    #: The column starts at ``WIDTH_MIN`` and widens, up to ``WIDTH_MAX``,
+    #: if the longest name needs it. Both scale with the font.
+    WIDTH_MIN = 220
+    WIDTH_MAX = 320
+
     def __init__(self, rows: Iterable[Row],
                  icon_for: Optional[Callable[[str], object]] = None,
+                 is_visible: Optional[Callable[[str], bool]] = None,
                  parent=None):
         super().__init__(parent)
         self.setObjectName("Dock")
         self._icon_for = icon_for
+        self._is_visible = is_visible
         self._rows: List[DockRow] = []
         self._headers: Dict[str, SectionHeader] = {}
         self._section_rows: Dict[str, List[DockRow]] = {}
+        self._section_of: Dict[str, str] = {}
         self._open: set = set()
+        # THE OLD PRIVATE NAMES, bound to the same objects. Several suites
+        # reach into `_items` and `_section_headers` rather than through
+        # `rows()` and `sections()`, and a rename that broke them would be
+        # churn with no reader-visible gain.
+        self._items = self._rows
+        self._section_headers = self._headers
 
-        column = QVBoxLayout(self)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(0)
+
+        title = QLabel("spaCR")
+        title.setObjectName("SidebarTitle")
+        outer.addWidget(title)
+
+        # THE ROWS SCROLL AND THE TITLE DOES NOT. Measured at 1440x900 -- the
+        # realistic laptop -- a row per module plus a heading per section
+        # asks for more height than the window has, and the last few modules
+        # were simply unreachable. This is structure, not decoration.
+        self._scroll = QScrollArea(self)
+        self._scroll.setObjectName("SidebarScroll")
+        self._scroll.setWidgetResizable(True)
+        self._scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self._scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self._scroll.viewport().setAutoFillBackground(False)
+
+        inner = QWidget()
+        inner.setObjectName("SidebarInner")
+        column = QVBoxLayout(inner)
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(0)
+        self._scroll.setWidget(inner)
+        outer.addWidget(self._scroll, 1)
 
         current = None
         for key, name, desc, section in rows:
-            if section != current:
+            # A ROW WITH NO SECTION stands above the headings and is never
+            # collapsed away. Home is the one that needs it: it is how you
+            # get back, so it cannot live inside a category you can shut.
+            if section and section != current:
                 header = SectionHeader(section)
-                header.clicked.connect(self.toggle_section)
+                # The heading is a label, so the click comes through the
+                # filter rather than a pressed signal.
+                header.installEventFilter(self)
                 column.addWidget(header)
                 self._headers[section] = header
                 self._section_rows.setdefault(section, [])
-                self._open.add(section)
+                # ONLY THE FIRST CATEGORY STARTS OPEN. Every section open at
+                # once makes the dock taller than a 900 px laptop screen,
+                # which is the failure collapsing was introduced to fix. The
+                # first is the pipeline, and it is why the dock is on screen.
+                if not self._headers or len(self._headers) == 1:
+                    self._open.add(section)
                 current = section
             row = DockRow(key, name, desc)
             row.clicked.connect(lambda _checked=False, k=key:
@@ -150,11 +230,14 @@ class Dock(QWidget):
             row.hovered.connect(self._on_row_hovered)
             column.addWidget(row)
             self._rows.append(row)
-            self._section_rows.setdefault(section, []).append(row)
+            if section:
+                self._section_rows.setdefault(section, []).append(row)
+            self._section_of[key] = section or ""
         column.addStretch(1)
 
         self.refresh_icons()
         self.apply_theme()
+        self.refresh_visibility()
 
     # -- what the pointer does -------------------------------------------
     def _on_row_hovered(self, key: str, entered: bool) -> None:
@@ -167,12 +250,47 @@ class Dock(QWidget):
         if entered:
             self.module_hovered.emit(key)
 
+    def eventFilter(self, watched, event):       # noqa: N802 - Qt naming
+        """Light a heading under the pointer, and toggle it on release.
+
+        ON RELEASE, NOT PRESS: a press that toggled would fire while the
+        pointer was still down, so a drag that began on a heading and ended
+        elsewhere would still have shut the section.
+
+        The hover state is a PROPERTY rather than a colour set from here,
+        because the stylesheet is the one place that decides what the dock
+        looks like.
+        """
+        from PySide6.QtCore import QEvent
+
+        if isinstance(watched, SectionHeader):
+            kind = event.type()
+            if kind in (QEvent.Type.Enter, QEvent.Type.Leave):
+                watched.setProperty("hovered", kind == QEvent.Type.Enter)
+                watched.style().unpolish(watched)
+                watched.style().polish(watched)
+            elif (kind == QEvent.Type.MouseButtonRelease
+                    and event.button() == Qt.MouseButton.LeftButton):
+                self.toggle_section(watched.section)
+                return True
+        return super().eventFilter(watched, event)
+
     def hovered_row(self) -> Optional[DockRow]:
         """The row under the pointer, or ``None``."""
         for row in self._rows:
             if row.is_hovered():
                 return row
         return None
+
+    def sync_hover(self, entered=None) -> Optional[str]:
+        """Report which row the pointer is on.
+
+        The old dock needed this to repair hover state it had broken by
+        relaying out under the pointer. Nothing relayouts now, so this only
+        answers the question. Kept because ``tools/diagnose_dock.py`` asks.
+        """
+        row = self.hovered_row()
+        return row.key if row is not None else None
 
     # -- categories -------------------------------------------------------
     def sections(self) -> List[str]:
@@ -196,24 +314,69 @@ class Dock(QWidget):
         self.refresh_visibility()
         return section in self._open
 
+    def expand_host(self, host_key: str) -> None:
+        """Accepted and does nothing: there are no folded child rows.
+
+        The second level was removed on request. This remains so the callers
+        that opened a host on navigation do not have to know that, and
+        because a method that quietly disappeared would fail at the call
+        site rather than here, where the reason is written down.
+        """
+        return None
+
+    def host_is_expanded(self, host_key: str) -> bool:
+        """Always ``False``: there are no folded child rows to expand."""
+        return False
+
+    # -- visibility -------------------------------------------------------
     def refresh_visibility(self) -> None:
-        """Show each row if, and only if, its category is open."""
-        for section, rows in self._section_rows.items():
-            visible = section in self._open
-            for row in rows:
-                row.setVisible(visible)
+        """Show a row if its category is open AND maturity allows it.
+
+        Two separate reasons for a row to be absent, and they are kept
+        separate: a shut section hides rows that are perfectly mature, and
+        the Alpha/Beta filter hides rows inside an open one. A heading
+        stays put whether its section is open or shut — it is what you
+        click to open it — and hides only when every module beneath it is
+        filtered out.
+        """
+        allowed = self._is_visible or (lambda _key: True)
+        populated = set()
+        for row in self._rows:
+            mature = row.key == HOME_KEY or bool(allowed(row.key))
+            section = self._section_of.get(row.key, "")
+            # A section-less row (Home) has no heading to be shut by.
+            row.setVisible(mature and (not section or section in self._open))
+            if mature and section:
+                populated.add(section)
+        for section, header in self._headers.items():
+            header.setVisible(section in populated)
+            # The stylesheet and the tests both read `open` off the heading
+            # to tell a shut category from one that is merely empty.
+            header.setProperty("open", section in self._open)
+            header.style().unpolish(header)
+            header.style().polish(header)
+        self.setFixedWidth(self.fitting_width())
 
     # -- appearance -------------------------------------------------------
     def refresh_icons(self) -> None:
         """Re-ask the provider for every row's icon.
 
-        Every icon is set once, at one size, and never changed again — the
-        old dock's growing/shrinking icons are what made hover relayout the
-        column.
+        A QIcon bakes its pixmap when it is built, so re-applying the
+        stylesheet does not recolour icons that already exist. Every icon
+        is set once at one size and never resized — the old dock's growing
+        and shrinking icons are what made hover relayout the column.
         """
-        if self._icon_for is None:
-            return
+        from PySide6.QtCore import QSize
+
+        from ..preferences import scaled_px
+        side = scaled_px(ICON_PX)
         for row in self._rows:
+            # ONE SIZE, SET ONCE, FOR EVERY ROW IN EVERY STATE. The old dock
+            # grew the icon under the pointer and shrank it again, and that
+            # is what relaid the column out and made it blink.
+            row.setIconSize(QSize(side, side))
+            if self._icon_for is None:
+                continue
             icon = self._icon_for(row.key)
             if icon is not None:
                 row.setIcon(icon)
@@ -222,16 +385,37 @@ class Dock(QWidget):
         """Install the one rule that decides what hover looks like."""
         accent = active_palette()["accent"]
         self.setStyleSheet(
-            "QPushButton#DockRow {"
+            "QPushButton#SidebarItem {"
             "  background: transparent; border: none; text-align: left;"
             "  padding: 6px 10px;"
             "}"
-            f"QPushButton#DockRow:hover {{ color: {accent}; }}"
-            "QLabel#DockSection {"
+            f"QPushButton#SidebarItem:hover {{ color: {accent}; }}"
+            "QLabel#SidebarSection {"
             "  padding: 10px 10px 4px 10px; font-weight: 600;"
             "}"
+            f"QLabel#SidebarSection:hover {{ color: {accent}; }}"
         )
 
     def row_height(self) -> int:
         """The height of a row, or 0 if the dock is empty."""
         return self._rows[0].sizeHint().height() if self._rows else 0
+
+    def fitting_width(self) -> int:
+        """Width that shows the longest visible name in full, within bounds.
+
+        Font scale moves both bounds; the widest visible row moves the
+        result between them. Public because the locked dock re-applies it
+        after being re-parented out of the drawer, which had resized it.
+        """
+        from ..preferences import scaled_px
+        widest = max((r.sizeHint().width() for r in self._rows
+                      if not r.isHidden()), default=0)
+        return max(scaled_px(self.WIDTH_MIN),
+                   min(widest + scaled_px(12), scaled_px(self.WIDTH_MAX)))
+
+    def clipped_items(self) -> list:
+        """Rows whose name had to be shortened to fit.
+
+        Empty in a healthy layout, and a test asserts that.
+        """
+        return [r for r in self._rows if r.is_elided()]

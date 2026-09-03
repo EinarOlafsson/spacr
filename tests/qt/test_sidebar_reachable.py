@@ -28,14 +28,20 @@ def test_the_nav_rows_live_in_a_scroll_area(qtbot):
 
 
 def test_every_app_row_is_reachable_at_1440x900(qtbot):
-    from spacr.qt.app import APPS
+    # THE DOCK'S OWN ROWS, NOT `APPS`. The folded second level was removed on
+    # 2026-09-03 ("Scrap the sub categories"), so the nine modules that only
+    # ever reached the dock as an indented child -- train_compare, profiler,
+    # investigate_hit, convert, external_masks, lineage, layer_viewer,
+    # tabulate, plate_view -- have no row here. They are reached from their
+    # host screen's fold strip.
+    from spacr.qt.app import dock_rows
     w = _sidebar(qtbot)
     w.resize(w.width(), LAPTOP[1])
     w.show()
     qtbot.waitExposed(w)
 
     keys = {b.property("navKey") for b in w._items}
-    for key, name, _desc, _section in APPS:
+    for key, name, _desc, _section in dock_rows():
         assert key in keys, f"{name} has no sidebar row at all"
 
     # The scroll area's contents may be taller than the viewport -- that is
