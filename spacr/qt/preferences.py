@@ -3271,9 +3271,9 @@ def get_tooltips_bottom_enabled() -> bool:
 
     The strip already shows CATEGORY help on hover; this puts SETTING help
     there too, and holds it for ten seconds after the pointer leaves so its
-    API link can be reached -- which is the whole reason instruction 371
-    asked for it. Without that hold the link is unreachable: it appears only
-    while the pointer is on the setting, and moving toward it removes it.
+    API link can be reached. Without that hold the link is unreachable: it
+    appears only while the pointer is on the setting, and moving toward it
+    removes it.
     """
     return _as_bool(_settings().value(_KEY_TOOLTIPS_BOTTOM,
                                       DEFAULT_TOOLTIPS_BOTTOM),

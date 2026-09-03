@@ -25,8 +25,8 @@ class ApiHelpLabel(QLabel):
 
     A `wordWrap(False)` QLabel gives none of that away: Qt paints as many
     characters as fit and stops, with no ellipsis and no hint there is more.
-    Measured by instruction 350's sweep on Classify in German, where the
-    blurb is 1,354 px of text on a 1,281 px line -- 73 px, about six
+    Measured on Classify in German, where the blurb is 1,354 px of text on
+    a 1,281 px line -- 73 px, about six
     characters, gone without a mark. English fits, which is why it was
     invisible until a second locale was measured.
     """
@@ -71,9 +71,8 @@ class ApiHelpLabel(QLabel):
         lose text harmlessly was the one control that refused to give any
         width up.
 
-        TWO THINGS FOLLOWED, both measured by instruction 350's sweep on the
-        Power screen in Icelandic at the largest font scale preferences
-        offers:
+        TWO THINGS FOLLOWED, both measured on the Power screen in Icelandic
+        at the largest font scale preferences offers:
 
           * THE MODULE TITLE WAS WHAT GOT CUT. The header needed 1274 px and
             had 1168, and every one of those 106 px came off the title --

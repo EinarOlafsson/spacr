@@ -249,9 +249,9 @@ def compose_labels(image: Optional[np.ndarray], mask: Any,
 def _tooltip_for(entry) -> str:
     """`describe()`, led by the few numbers that decide a choice.
 
-    Instruction 370 asks for the scorecard in a tooltip and says this is
-    "the surface with the least room: it must lead with the handful of
-    numbers that decide a choice and say where the rest is". A scorecard is
+    The tooltip is the scorecard's smallest surface, so it leads with the
+    handful of numbers that decide a choice and says where the rest is. A
+    scorecard is
     37 rows, and `describe()` renders `metrics` one per line -- which is the
     same mistake the model-zoo table made before it was cut to three
     columns: complete and unreadable.

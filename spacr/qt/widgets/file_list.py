@@ -330,8 +330,8 @@ class PairedFileTableWidget(QWidget):
         table: Qt gives every section 100 px, and at 100 px "Plate /
         proposal" draws as "late / propos" and "Measurements DB" loses its
         last word. Two of five headings, unreadable before anybody has
-        touched anything -- and instruction 350 is that every piece of text
-        fits its container.
+        touched anything -- and the rule is that every piece of text fits
+        its container.
 
         A MINIMUM AND NOT A FIXED WIDTH. The section stays interactively
         resizable, because a user who wants a narrow column is allowed to

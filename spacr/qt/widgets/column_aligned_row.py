@@ -2,11 +2,9 @@
 
 Regression's Input Tables category starts with a Download row -- Score,
 Count, Measurements (.db), Image crops -- and the first three of those fill
-one column each of the paired-data table directly below. Asked for on
-2026-09-02: "if you can allign each button to their respective columns below
-in the table that would be perfect ... center the butons to the center of
-each cell and lock the width of the downloade table columns to the width of
-the paired data column counterparts below."
+one column each of the paired-data table directly below. Each button is
+centred on its column, and the download table's column widths are locked to
+the widths of their counterparts in the paired-data table below.
 
 ONE COLUMN MODEL, READ IN ONE DIRECTION. The build the request describes --
 a second table above the first, both told to keep the same widths -- is two

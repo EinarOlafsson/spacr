@@ -96,9 +96,8 @@ class UsageBar(QWidget):
     def _size_the_columns(self) -> None:
         """Set both fixed widths from the font actually in use.
 
-        INSTRUCTION 350, CAUSE 3 -- "a fixed size that only holds at one font
-        scale" -- caught by the sweep at the largest scale preferences
-        offers. `setFixedWidth(48)` and `setFixedWidth(40)` were written at
+        A FIXED SIZE ONLY HOLDS AT ONE FONT SCALE, caught by a sweep at the
+        largest scale preferences offers. `setFixedWidth(48)` and `setFixedWidth(40)` were written at
         100 %, and at 200 % the glyphs doubled while the boxes did not:
 
             'VRAM'  48 px of column, 66 px of text

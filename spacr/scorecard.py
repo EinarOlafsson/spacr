@@ -1,9 +1,8 @@
 """Score a segmentation against GROUND TRUTH, which nothing in spaCR did.
 
-Instruction 370 asks every published model to carry a table comparing the
-finetuned model with the vanilla one on a held-out set, "all the common
-ones for that model type". Auditing what existed found the gap this module
-fills:
+Every published model carries a table comparing the finetuned model with the
+vanilla one on a held-out set, with all the common metrics for that model
+type. Auditing what existed found the gap this module fills:
 
 * :mod:`spacr.model_compare` compares two models to EACH OTHER and says so
   in its own docstring -- "neither model is ground truth". It answers "do
@@ -351,7 +350,7 @@ def score_segmentation(truth: np.ndarray, pred: np.ndarray, *,
                        iou_thresholds: Sequence[float] = DEFAULT_IOU_THRESHOLDS,
                        boundary_tolerances: Sequence[int]
                        = DEFAULT_BOUNDARY_TOLERANCES) -> Dict[str, float]:
-    """Every segmentation metric instruction 370 asks for, on one field.
+    """Every segmentation metric the published table reports, on one field.
 
     :param threshold: the IoU at which precision, recall, F1, Dice and the
         area error are matched. Reported in the result as ``match_iou`` so a
@@ -387,8 +386,8 @@ def compare_against_baseline(truth: np.ndarray, finetuned: np.ndarray,
 
     :returns: ``{"finetuned": ..., "vanilla": ..., "delta": ...}``.
 
-    THE DELTA IS THE ANSWER THE TABLE EXISTS FOR. Instruction 370 asks for a
-    comparison "between the finetuned model and the vanilla model", and a
+    THE DELTA IS THE ANSWER THE TABLE EXISTS FOR. The table compares the
+    finetuned model against the vanilla one, and a
     reader given two columns of eleven numbers will do this subtraction by
     eye and get it wrong somewhere. Reporting it is not a convenience.
 
@@ -492,7 +491,7 @@ def _ece(labels: np.ndarray, scores: np.ndarray, bins: int = 10) -> float:
 def score_classifier(labels: Sequence[int], scores: Sequence[float], *,
                      threshold: float = 0.5,
                      calibration_bins: int = 10) -> Dict[str, float]:
-    """Every classifier metric instruction 370 asks for, at a STATED threshold.
+    """Every classifier metric the published table reports, at a STATED threshold.
 
     :param labels: ground truth, 0 or 1.
     :param scores: predicted probability of the positive class.
@@ -678,9 +677,9 @@ def scorecard_rows(finetuned: HoldoutScore, vanilla: HoldoutScore
                    ) -> List[Dict[str, object]]:
     """The published table, one row per metric. THE SOURCE THE REST DERIVE FROM.
 
-    Instruction 370 asks for four renderings -- the CSV on Hugging Face, the
-    tooltip, the API section and the zoo screen -- and warns that "if the
-    tooltip and the API page can disagree, they eventually will". This is the
+    The table has four renderings -- the CSV on Hugging Face, the tooltip,
+    the API section and the zoo screen -- and if the tooltip and the API page
+    can disagree, they eventually will. This is the
     one place a number is computed; everything else formats these rows.
 
     :raises ValueError: when the two were scored on different sets. That is
