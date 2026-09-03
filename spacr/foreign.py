@@ -1389,46 +1389,46 @@ class ImportPlan:
     three lists that matter — :attr:`unmapped`, :attr:`conflicts` and
     :attr:`warnings` — are the ones a user has to read before agreeing.
 
-    :ivar images: the :class:`spacr.convert.ConversionPlan` for their
+    :param images: the :class:`spacr.convert.ConversionPlan` for their
         image files. Built by :func:`spacr.convert.plan`; this module adds
         no second naming scheme.
-    :ivar masks: :class:`PairingReport` — which mask belongs to which
+    :param masks: :class:`PairingReport` — which mask belongs to which
         field, and every file on either side that did not pair.
-    :ivar measurements: their table, as read.
-    :ivar column_maps: the reviewed mapping that will be applied.
-    :ivar unmapped: source columns with no mapping, **by name**. They are
+    :param measurements: their table, as read.
+    :param column_maps: the reviewed mapping that will be applied.
+    :param unmapped: source columns with no mapping, **by name**. They are
         still imported, under :data:`FOREIGN_PREFIX`.
-    :ivar conflicts: :class:`Conflict` entries; a blocking one makes
+    :param conflicts: :class:`Conflict` entries; a blocking one makes
         :attr:`ok` False.
-    :ivar warnings: non-blocking things the user must see — an
+    :param warnings: non-blocking things the user must see — an
         uncalibrated column, a low join match rate, a lossy z handling.
-    :ivar resolved: the derived, executable form of ``column_maps``.
-    :ivar join: :class:`JoinReport`.
-    :ivar errors: blocking planning problems that make :attr:`ok` false.
-    :ivar notes: non-problem planning facts shown before the user confirms
+    :param resolved: the derived, executable form of ``column_maps``.
+    :param join: :class:`JoinReport`.
+    :param errors: blocking planning problems that make :attr:`ok` false.
+    :param notes: non-problem planning facts shown before the user confirms
         the import.
-    :ivar object_types: mask/object classes to import, in spaCR mask-plane
+    :param object_types: mask/object classes to import, in spaCR mask-plane
         order.
-    :ivar n_channels: common number of intensity channels in each imported
+    :param n_channels: common number of intensity channels in each imported
         image field.
-    :ivar mask_dims: zero-based merged-array mask-plane index keyed by object
+    :param mask_dims: zero-based merged-array mask-plane index keyed by object
         type.
-    :ivar um_per_px: image calibration in micrometres per pixel, or ``None``
+    :param um_per_px: image calibration in micrometres per pixel, or ``None``
         when physical length and area conversions must remain uncalibrated.
-    :ivar prefix: namespace prepended to foreign target columns that do not
+    :param prefix: namespace prepended to foreign target columns that do not
         use a reviewed spaCR name.
-    :ivar on_conflict: ``"refuse"`` to block colliding targets or ``"rename"``
+    :param on_conflict: ``"refuse"`` to block colliding targets or ``"rename"``
         to assign an unused prefixed name.
-    :ivar allow_spacr_targets: explicit opt-in allowing reviewed foreign
+    :param allow_spacr_targets: explicit opt-in allowing reviewed foreign
         columns to use names owned by spaCR.
-    :ivar sources: absolute source locations keyed by ``"images"``,
+    :param sources: absolute source locations keyed by ``"images"``,
         ``"measurements"``, and ``"mask:<object_type>"``.
-    :ivar base_warnings: the warnings that do *not* come from the column
+    :param base_warnings: the warnings that do *not* come from the column
         mapping (unpaired masks, the join, z handling). Kept apart so
         :meth:`with_column_maps` can rebuild the mapping's own warnings
         without losing them or duplicating them.
-    :ivar base_errors: likewise for blocking problems.
-    :ivar proposed: true while the column mapping is inferred and has not yet
+    :param base_errors: likewise for blocking problems.
+    :param proposed: true while the column mapping is inferred and has not yet
         been returned through :meth:`with_column_maps` for review.
     """
 
@@ -2183,26 +2183,26 @@ def format_plan(plan: ImportPlan) -> str:
 class ImportResult:
     """What :func:`run_import` actually did.
 
-    :ivar plan: import plan represented by this result.
-    :ivar dst: destination project directory.
-    :ivar conversion: the :class:`spacr.convert.ConversionResult` for
+    :param plan: import plan represented by this result.
+    :param dst: destination project directory.
+    :param conversion: the :class:`spacr.convert.ConversionResult` for
         their images — the provenance back to the original filenames.
-    :ivar db_path: the ``measurements.db`` that was written.
-    :ivar column_map_path: path of the applied column mapping saved beside the
+    :param db_path: the ``measurements.db`` that was written.
+    :param column_map_path: path of the applied column mapping saved beside the
         imported project.
-    :ivar stacks: per-field intensity-stack ``.npy`` files written for the
+    :param stacks: per-field intensity-stack ``.npy`` files written for the
         project.
-    :ivar mask_files: per-field label-mask ``.npy`` files written for the
+    :param mask_files: per-field label-mask ``.npy`` files written for the
         project.
-    :ivar merged: merged ``.npy`` paths, one per imported field.
-    :ivar rows: rows written into each foreign object table.
-    :ivar crops: PNG paths cut from the merged arrays, if any.
-    :ivar measured: True when spaCR's own measurements were re-extracted.
-    :ivar ledger: :class:`RunLedger` carrying per-item outcomes and overall
+    :param merged: merged ``.npy`` paths, one per imported field.
+    :param rows: rows written into each foreign object table.
+    :param crops: PNG paths cut from the merged arrays, if any.
+    :param measured: True when spaCR's own measurements were re-extracted.
+    :param ledger: :class:`RunLedger` carrying per-item outcomes and overall
         completeness, or ``None`` when no ledger was produced.
-    :ivar warnings: non-fatal execution problems, including fields skipped
+    :param warnings: non-fatal execution problems, including fields skipped
         after planning.
-    :ivar notes: things that happened and are not problems — chiefly a
+    :param notes: things that happened and are not problems — chiefly a
         canonical object table that was already populated and was
         therefore left exactly as it was found.
     """
