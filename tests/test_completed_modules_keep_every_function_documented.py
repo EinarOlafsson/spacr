@@ -67,6 +67,7 @@ FULLY_DOCUMENTED = (
     "spacr/gene_measurement_compare.py",
     "spacr/gene_measurement_sweep.py",
     "spacr/hit_investigation.py",
+    "spacr/image_colors.py",
     "spacr/gene_tile.py",
     "spacr/lineage.py",
     "spacr/localisation.py",
