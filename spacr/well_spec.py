@@ -211,6 +211,17 @@ def parse_one(text: str, layout: int = DEFAULT_LAYOUT) -> Set[Tuple[int, int]]:
 
 def _check(row: int, column: int, rows: int, columns: int, token: str,
            layout: int) -> None:
+    """Validate that one coordinate lies inside the selected plate layout.
+
+    :param row: One-based row coordinate to validate.
+    :param column: One-based column coordinate to validate.
+    :param rows: Number of rows in the selected plate shape.
+    :param columns: Number of columns in the selected plate shape.
+    :param token: Original selection token named in an error.
+    :param layout: Well count used to identify the selected layout.
+    :returns: ``None`` when the coordinate is in bounds.
+    :raises WellSpecError: The coordinate falls outside the plate shape.
+    """
     if not (1 <= row <= rows and 1 <= column <= columns):
         raise WellSpecError(
             f"{token!r} is outside a {layout}-well plate, which has {rows} "

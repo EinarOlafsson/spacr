@@ -35,6 +35,12 @@ GUIDE_COLUMNS: Tuple[str, ...] = ("grna", "grna_name", "gRNA", "guide",
 
 
 def _column(frame: pd.DataFrame, names: Sequence[str]) -> Optional[str]:
+    """Return the first candidate column present in a table.
+
+    :param frame: Table, or table-like object, whose columns are inspected.
+    :param names: Candidate names in preference order.
+    :returns: First present candidate, or ``None`` when none are available.
+    """
     return next((c for c in names if c in getattr(frame, "columns", ())),
                 None)
 

@@ -45,6 +45,12 @@ def _make_cell(cell_type: str, source: str) -> Dict[str, Any]:
 
 
 def _read_manifest(run_dir: Path) -> Dict[str, Any]:
+    """Read a run's JSON manifest when it is available and valid.
+
+    :param run_dir: Run-journal directory that may contain ``manifest.json``.
+    :returns: Decoded manifest, or an empty dictionary when it is missing,
+        unreadable, or malformed.
+    """
     manifest_path = run_dir / "manifest.json"
     if not manifest_path.exists():
         return {}
