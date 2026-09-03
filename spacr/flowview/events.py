@@ -12,7 +12,9 @@ from .model import Edge, Node
 class NodeAdded:
     """Declare a node before it starts running.
 
-    :ivar node: immutable node definition added to the displayed flow graph.
+    :param node: node snapshot to insert by identifier when that identifier is
+        not already declared. A duplicate declaration leaves the existing
+        node unchanged.
     """
 
     node: Node
@@ -22,7 +24,8 @@ class NodeAdded:
 class EdgeAdded:
     """Declare a directed relationship between two nodes.
 
-    :ivar edge: directed dependency added to the displayed flow graph.
+    :param edge: directed transfer to add to the displayed flow graph. An
+        equal edge is retained only once.
     """
 
     edge: Edge
@@ -32,8 +35,11 @@ class EdgeAdded:
 class StageStarted:
     """Mark a declared or newly observed stage as running.
 
-    :ivar node: stage definition whose run has begun.
-    :ivar at: event time as seconds on the producer's clock.
+    :param node: stage snapshot supplying its identifier, label, kind, and
+        parameters. An absent node is declared; a prior node keeps its state
+        while receiving the new snapshot's parameters.
+    :param at: producer timestamp stored as the stage's start time. Starting
+        clears any earlier end time and error.
     """
 
     node: Node
@@ -44,9 +50,10 @@ class StageStarted:
 class StageProgress:
     """Report completed and total work for a stage.
 
-    :ivar node_id: stable identifier of the stage being updated.
-    :ivar current: number of work units completed so far.
-    :ivar total: total work units expected, used as the progress denominator.
+    :param node_id: identifier of the existing stage to update. An unknown
+        identifier is ignored by the collector.
+    :param current: completed-work count stored verbatim, without clamping.
+    :param total: expected-work count stored verbatim, without validation.
     """
 
     node_id: str
@@ -58,9 +65,11 @@ class StageProgress:
 class StageMetric:
     """Attach one scalar metric to a stage.
 
-    :ivar node_id: stable identifier of the stage that produced the metric.
-    :ivar name: human-readable metric name shown beside the stage.
-    :ivar value: scalar value retained without numeric coercion.
+    :param node_id: identifier of the existing stage that owns the metric. An
+        unknown identifier is ignored by the collector.
+    :param name: metric key; a later event with the same name replaces it.
+    :param value: float, integer, or string retained without coercion in the
+        stage's detached metrics mapping.
     """
 
     node_id: str
@@ -72,8 +81,10 @@ class StageMetric:
 class StageThumbnail:
     """Attach a cached thumbnail path to a stage.
 
-    :ivar node_id: stable identifier of the stage represented by the image.
-    :ivar path: filesystem path of the cached thumbnail.
+    :param node_id: identifier of the existing stage represented by the
+        image. An unknown identifier is ignored by the collector.
+    :param path: thumbnail path stored without checking that it exists; trace
+        producers normalise path-like values before constructing the event.
     """
 
     node_id: str
@@ -84,8 +95,9 @@ class StageThumbnail:
 class StageCompleted:
     """Mark a stage as successfully completed.
 
-    :ivar node_id: stable identifier of the stage that finished.
-    :ivar at: completion time as seconds on the producer's clock.
+    :param node_id: identifier of the existing stage that finished. An
+        unknown identifier is ignored by the collector.
+    :param at: producer timestamp stored as the stage's end time.
     """
 
     node_id: str
@@ -96,9 +108,12 @@ class StageCompleted:
 class StageFailed:
     """Mark a stage as failed and retain its formatted traceback.
 
-    :ivar node_id: stable identifier of the stage that failed.
-    :ivar at: failure time as seconds on the producer's clock.
-    :ivar error: formatted exception or traceback presented to the user.
+    :param node_id: identifier of the existing stage that failed. An unknown
+        identifier is ignored and does not affect known descendants.
+    :param at: failure timestamp stored as the stage's end time and assigned
+        to known downstream stages when they are marked skipped.
+    :param error: formatted exception or traceback retained on the failed
+        stage; its known downstream stages are marked skipped.
     """
 
     node_id: str

@@ -47,6 +47,7 @@ FULLY_DOCUMENTED = (
     "spacr/foreign.py",
     "spacr/flowview/_classify_stages.py",
     "spacr/flowview/classify_blueprint.py",
+    "spacr/flowview/events.py",
     "spacr/flowview/export.py",
     "spacr/flowview/model.py",
     "spacr/flowview/trace.py",

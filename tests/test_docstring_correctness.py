@@ -1515,6 +1515,14 @@ def test_baseline_constructor_documents_every_field():
     "spacr.illumination.IlluminationField",
     "spacr.illumination.IlluminationModel",
     "spacr.illumination.PreparedIllumination",
+    "spacr.flowview.events.NodeAdded",
+    "spacr.flowview.events.EdgeAdded",
+    "spacr.flowview.events.StageStarted",
+    "spacr.flowview.events.StageProgress",
+    "spacr.flowview.events.StageMetric",
+    "spacr.flowview.events.StageThumbnail",
+    "spacr.flowview.events.StageCompleted",
+    "spacr.flowview.events.StageFailed",
 ))
 def test_repaired_record_documents_every_constructor_parameter(symbol):
     """Each repaired generated record remains callable from its API prose."""
