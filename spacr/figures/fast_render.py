@@ -66,6 +66,10 @@ class RenderedPanel:
     reason: str = ""
 
     def __bool__(self) -> bool:
+        """Return whether the panel was drawn and has an output path.
+
+        :returns: ``True`` only for a drawn panel with a non-empty path.
+        """
         return bool(self.drawn and self.path)
 
 

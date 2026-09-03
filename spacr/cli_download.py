@@ -725,6 +725,12 @@ class _Parser(argparse.ArgumentParser):
     """ArgumentParser whose usage errors exit 2 through the same path as ours."""
 
     def error(self, message: str) -> None:  # type: ignore[override]
+        """Print a usage error and terminate with the CLI usage status.
+
+        :param message: Argument error to write after the usage line.
+        :returns: Never returns normally.
+        :raises SystemExit: Always, with :data:`EXIT_USAGE`.
+        """
         self.print_usage(sys.stderr)
         print(f"error: {message}", file=sys.stderr)
         raise SystemExit(EXIT_USAGE)

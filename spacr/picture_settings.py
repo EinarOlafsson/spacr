@@ -648,6 +648,13 @@ def _as_channel_list(value):
 
 
 def _as_pair(value, default=DEFAULT_PERCENTILES):
+    """Resolve one percentile setting through the shared pair parser.
+
+    :param value: Percentile pair in any form accepted by
+        :func:`percentile_pair`.
+    :param default: Pair returned when ``value`` does not provide one.
+    :returns: Normalized low/high percentile pair.
+    """
     return percentile_pair(value, default)
 
 
