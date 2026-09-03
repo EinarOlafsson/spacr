@@ -674,6 +674,7 @@ class _UmapCheckpoint:
 
     def __init__(self, path: str, signature: Mapping[str, Any],
                  resume: bool, keep_embeddings: bool) -> None:
+        """Create the checkpoint store and record embedding retention."""
         self.store = CheckpointStore(
             path, workflow="umap_hyperparameter_search",
             signature=signature, boundary="trial", resume=resume)
@@ -1191,6 +1192,7 @@ class WalkAxis:
     resolution: int = 2
 
     def __post_init__(self) -> None:
+        """Normalize the axis and reject unusable names, choices, or ranges."""
         if not str(self.name).strip():
             raise ValueError("A Walk axis needs a parameter name.")
         self.name = str(self.name)

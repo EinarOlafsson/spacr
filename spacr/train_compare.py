@@ -281,10 +281,12 @@ class TrainingRun:
 
     @property
     def has_curves(self) -> bool:
+        """Return whether at least one usable curve row was loaded."""
         return not self.curves.empty
 
     @property
     def is_cv(self) -> bool:
+        """Return whether one or more fold directories were discovered."""
         return bool(self.folds)
 
     def metrics(self) -> List[str]:
@@ -339,10 +341,12 @@ class Series:
 
     @property
     def epochs(self) -> np.ndarray:
+        """Return the epoch column coerced to a NumPy numeric array."""
         return pd.to_numeric(self.frame["epoch"], errors="coerce").to_numpy()
 
     @property
     def n_epochs(self) -> int:
+        """Return the number of rows in this series."""
         return int(len(self.frame))
 
     def values(self, metric: str) -> np.ndarray:
@@ -394,6 +398,7 @@ class Series:
         return int(self.epochs[idx])
 
     def epoch_range(self) -> Tuple[int, int]:
+        """Return the minimum and maximum finite epochs, or ``(0, 0)``."""
         eps = self.epochs
         finite = eps[np.isfinite(eps)]
         if not finite.size:
@@ -454,6 +459,7 @@ class Comparison:
     fold_mode: str = "per_fold"
 
     def labels(self) -> List[str]:
+        """Return the plot-series labels in comparison order."""
         return [s.label for s in self.series]
 
     def series_for(self, label: str) -> Optional[Series]:
@@ -474,6 +480,7 @@ class Comparison:
         return [s for s in self.series if s.has(metric)]
 
     def epoch_ranges(self) -> Dict[str, Tuple[int, int]]:
+        """Return each series label mapped to its finite epoch span."""
         return {s.label: s.epoch_range() for s in self.series}
 
     def lengths_differ(self) -> bool:
@@ -482,6 +489,7 @@ class Comparison:
         return len(spans) > 1
 
     def splits(self) -> List[str]:
+        """Return the distinct split names in sorted order."""
         return sorted({s.split for s in self.series})
 
 
@@ -490,6 +498,7 @@ class Comparison:
 # ---------------------------------------------------------------------------
 
 def _empty_curves() -> pd.DataFrame:
+    """Return an empty curve frame with the required identity columns."""
     return pd.DataFrame(columns=["run_id", "split", "fold", "epoch"])
 
 
@@ -521,6 +530,7 @@ def _fold_dirs(path: Path) -> List[Path]:
 
 
 def _has_curve_file(path: Path) -> bool:
+    """Return whether ``path`` contains a recognized split-progress CSV."""
     return any((path / f).is_file() for f in SPLIT_FILES.values())
 
 
@@ -741,6 +751,7 @@ def _run_shape_from_path(path: Path) -> Tuple[str, str]:
 
 
 def _settings_stems(model_type: str, epochs: str) -> List[str]:
+    """Return plausible settings-file stems for the model and epoch count."""
     if not model_type or not epochs:
         return []
     return [f"train_test_{model_type}_{epochs}",
@@ -749,6 +760,7 @@ def _settings_stems(model_type: str, epochs: str) -> List[str]:
 
 
 def _exact_settings_name(path: Path, model_type: str, epochs: str) -> bool:
+    """Return whether ``path`` exactly names a plausible run settings file."""
     return path.stem in _settings_stems(model_type, epochs)
 
 
@@ -769,6 +781,7 @@ def _pick_settings_file(cands: Sequence[Path], model_type: str,
 
 
 def _load_manifest(path: Path) -> Dict[str, Any]:
+    """Return the run manifest mapping, or an empty mapping when unusable."""
     mp = path / "manifest.json"
     if not mp.is_file():
         return {}
@@ -978,6 +991,7 @@ def find_runs(root: Any, max_depth: int = DEFAULT_SCAN_DEPTH,
 
 
 def _folder_mtime(path: Path) -> float:
+    """Return the folder modification time, or ``0.0`` when unavailable."""
     try:
         return path.stat().st_mtime
     except OSError:
@@ -1293,6 +1307,7 @@ _SPLIT_STYLE = {"train": "--", "val": "-"}
 
 
 def _run_colours(run_ids: Sequence[str]) -> Dict[str, str]:
+    """Assign run identifiers colors from Matplotlib's active cycle."""
     from matplotlib import pyplot as plt
     cycle = plt.rcParams["axes.prop_cycle"].by_key().get("color") or ["#4A9EFF"]
     return {rid: cycle[i % len(cycle)] for i, rid in enumerate(run_ids)}
