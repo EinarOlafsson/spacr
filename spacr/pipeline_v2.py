@@ -116,6 +116,7 @@ class FilenameMapper:
 
     def __init__(self, records: List[FilenameRecord],
                   metadata_type: str, regex: str):
+        """Store parsed filename records and the metadata rule that made them."""
         self.records = records
         self.metadata_type = metadata_type
         self.regex = regex
