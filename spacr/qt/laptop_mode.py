@@ -140,14 +140,50 @@ def describe() -> str:
     return "\n".join(lines)
 
 
+#: The process-local backdrop switch, and the only thing this module turns.
+#:
+#: SUPPRESSING IS NOT THE SAME AS DECIDING, and this module used to do the
+#: second. It called `preferences.set_ambient_enabled(False)`, which is the
+#: USER'S stored answer -- so on a machine under the core or memory bar,
+#: every launch overwrote a preference the user had set, and a user who
+#: turned the animation back on got it taken away again the next time they
+#: started spaCR, with nothing on the surface to say why. A hardware guess
+#: was writing into the one row that is supposed to mean "what I chose".
+#:
+#: `SPACR_NO_BACKDROP` is the mechanism that already existed for exactly
+#: this, and `get_ambient_enabled` documents it: process-local, never saved,
+#: honoured before the stored value, "so the next clean run brings it back
+#: with nothing for the user to undo". `crash_recovery` uses it after spaCR
+#: has died on launch twice. A performance constraint is the same shape of
+#: thing -- true for this run, on this machine, and none of it the user's
+#: opinion.
+#:
+#: Found by instruction 364's Preferences audit.
+_NO_BACKDROP = "SPACR_NO_BACKDROP"
+
+#: Whether the variable above is OURS to clear.
+#:
+#: `crash_recovery` sets the same variable, and it sets it because spaCR has
+#: already failed to start twice. Turning the mode off must not hand the
+#: backdrop back to a driver that has crashed on it -- so `apply` clears the
+#: variable only when this module is what set it.
+_suppressed_here = False
+
+
 def apply(on: Optional[bool] = None) -> Dict[str, object]:
     """Turn the mode on or off. Returns what was decided and what changed.
 
     :param on: force the answer; ``None`` measures the machine.
-    :returns: ``{"on", "why", "changed"}`` -- `changed` names each setting
-        actually written, so a caller can say what happened rather than
+    :returns: ``{"on", "why", "changed"}`` -- `changed` names each thing
+        actually done, so a caller can say what happened rather than
         claim it.
+
+    NOTHING HERE IS PERSISTED. See :data:`_NO_BACKDROP` for why: this is a
+    decision about one run on one machine, and the user's stored preference
+    is not this module's to answer.
     """
+    global _suppressed_here
+
     if on is None:
         on, why = wanted()
     else:
@@ -160,8 +196,14 @@ def apply(on: Optional[bool] = None) -> Dict[str, object]:
             from . import preferences
 
             if preferences.get_ambient_enabled():
-                preferences.set_ambient_enabled(False)
-                changed.append("ambient_enabled=False")
+                os.environ[_NO_BACKDROP] = "1"
+                _suppressed_here = True
+                changed.append("ambient backdrop suppressed for this run")
         except Exception:                                # noqa: BLE001
             pass
+    elif _suppressed_here:
+        # Only ever our own suppression -- see `_suppressed_here`.
+        os.environ.pop(_NO_BACKDROP, None)
+        _suppressed_here = False
+        changed.append("ambient backdrop restored")
     return {"on": on, "why": why, "changed": changed}

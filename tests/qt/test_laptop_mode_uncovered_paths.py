@@ -97,31 +97,78 @@ def _ambient_seam(monkeypatch, preferences, enabled, written):
 
 
 def test_turning_the_mode_on_turns_the_ambient_backdrop_off(monkeypatch):
+    import os
+
     from spacr.qt import preferences
 
     written = []
     _ambient_seam(monkeypatch, preferences, True, written)
+    monkeypatch.delenv("SPACR_NO_BACKDROP", raising=False)
+    monkeypatch.setattr(LM, "_suppressed_here", False, raising=True)
 
     result = LM.apply(True)
 
     assert result["on"] is True
-    assert written == [False], "the ambient backdrop was not actually turned off"
-    assert result["changed"] == ["ambient_enabled=False"]
+    assert os.environ.get("SPACR_NO_BACKDROP") == "1", (
+        "the ambient backdrop was not actually turned off")
+    assert result["changed"] == ["ambient backdrop suppressed for this run"]
     assert "the caller" in result["why"]
 
 
+def test_the_mode_never_writes_the_users_preference(monkeypatch):
+    """THE DEFECT THIS PAIR OF TESTS USED TO PIN IN PLACE.
+
+    `apply` called `preferences.set_ambient_enabled(False)`, which is the
+    user's STORED answer. On a machine under the core or memory bar that
+    ran at every launch, so a user who turned the animation back on had it
+    taken away again the next time they started spaCR, with nothing on the
+    surface to say why -- a hardware guess writing into the one row that is
+    supposed to mean "what I chose".
+
+    The suppression is process-local now, through the same
+    `SPACR_NO_BACKDROP` variable `crash_recovery` uses and
+    `get_ambient_enabled` documents as "never saved". Nothing about the
+    stored preference is this module's to answer, so `written` must stay
+    empty however the mode is applied.
+    """
+    from spacr.qt import preferences
+
+    written = []
+    _ambient_seam(monkeypatch, preferences, True, written)
+    monkeypatch.delenv("SPACR_NO_BACKDROP", raising=False)
+    # `raising=False` HERE ONLY, against this file's own rule about
+    # manufacturing names -- and for the reason the rule exists. The point of
+    # this test is behavioural, so it has to reach its assertion against a
+    # module that has no `_suppressed_here` at all; failing on a missing
+    # attribute would tell us nothing about whether the preference was
+    # written. The seam above is still strict.
+    monkeypatch.setattr(LM, "_suppressed_here", False, raising=False)
+
+    LM.apply(True)
+    LM.apply(False)
+    LM.apply(None)
+
+    assert written == [], (
+        f"laptop mode wrote the user's ambient preference: {written}")
+
+
 def test_an_already_dark_backdrop_is_not_reported_as_changed(monkeypatch):
-    """`changed` names what was written, so it must stay empty when nothing was."""
+    """`changed` names what was done, so it must stay empty when nothing was."""
+    import os
+
     from spacr.qt import preferences
 
     written = []
     _ambient_seam(monkeypatch, preferences, False, written)
+    monkeypatch.delenv("SPACR_NO_BACKDROP", raising=False)
+    monkeypatch.setattr(LM, "_suppressed_here", False, raising=True)
 
     result = LM.apply(True)
 
     assert result["on"] is True
     assert written == []
     assert result["changed"] == []
+    assert "SPACR_NO_BACKDROP" not in os.environ
 
 
 def test_turning_the_mode_off_writes_no_preference_at_all(monkeypatch):
@@ -129,11 +176,27 @@ def test_turning_the_mode_off_writes_no_preference_at_all(monkeypatch):
 
     written = []
     _ambient_seam(monkeypatch, preferences, True, written)
+    monkeypatch.setattr(LM, "_suppressed_here", False, raising=True)
 
     result = LM.apply(False)
 
     assert result["on"] is False
     assert written == []
+    assert result["changed"] == []
+
+
+def test_a_crash_recoverys_suppression_is_not_ours_to_lift(monkeypatch):
+    """`crash_recovery` sets the same variable, and it sets it because spaCR
+    has already failed to start twice. Turning laptop mode off must not hand
+    the backdrop back to a driver that has crashed on it."""
+    import os
+
+    monkeypatch.setenv("SPACR_NO_BACKDROP", "1")
+    monkeypatch.setattr(LM, "_suppressed_here", False, raising=True)
+
+    result = LM.apply(False)
+
+    assert os.environ.get("SPACR_NO_BACKDROP") == "1"
     assert result["changed"] == []
 
 
