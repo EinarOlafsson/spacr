@@ -1,0 +1,122 @@
+================================================================================
+THE API HOMEPAGE MUST SHOW THE MODULE STRUCTURE THE REST OF spaCR SHOWS
+================================================================================
+
+Status:    not started, filed 2026-09-02. MEASURED the same day; the numbers
+           below are what is on disk, not an impression.
+Requested: 2026-09-02 -- "the API homepage needs to reflect the new module
+           structure like the readme does."
+Owner:     docs/source/_autoapi_templates/index.rst,
+           packaging/generate_readme_visuals.py (the generated blocks it
+           writes), docs/source/conf.py if the toctree has to change.
+
+--------------------------------------------------------------------------------
+WHAT IS THERE NOW, AND WHAT THE README HAS THAT IT DOES NOT
+--------------------------------------------------------------------------------
+
+THEY ALREADY SHARE THE GRID, which is worth knowing before anything is
+rebuilt: `docs/source/_autoapi_templates/index.rst` does
+
+    .. include:: ../_generated/workflow_grid.rst
+
+and that is the same 21-tile block the README draws, written by
+`packaging/generate_readme_visuals.py`. So the tiles, their order, their
+artwork and their destinations are already one thing in two places. DO NOT
+FORK IT.
+
+What the API homepage is missing is everything AROUND the grid.
+
+    the README                         the API homepage
+    -------------------------------------------------------------------
+    "Core workflow" names the SIX      nothing says which six are the
+    primary modules with a sentence    pipeline; all 21 tiles are equal
+    each
+
+    "Make Masks" gets a section, and   no per-module prose at all
+    366 part 2 moves the rest of the
+    per-module explanation INTO the
+    API, which has not happened yet
+
+    the grid is grouped and read as    the grid is a flat 6-per-row block
+    a pipeline in prose above it       with no section headings (0 of them)
+
+AND THE PART THAT IS ACTIVELY MISLEADING: the "Complete module reference"
+section lists every top-level object autoapi found, alphabetically. That is
+**215 top-level Python modules** out of 537 files in the package. It is a
+list of FILES, and it has no relationship to the structure a user knows.
+Somebody who used Mask and wants its API has to already know that Mask is
+`spacr.core`; somebody who used Recruitment has to know it is a function
+inside `spacr.submodules`.
+
+THE NESTING IS ABSENT TOO. Ten modules are folded into a host screen and 23
+are tileless in total -- Timelapse under Mask, Illumination under Measure,
+Cellpose Workbench and Model Compare and Curate under Make Masks, Classifier
+Evaluation and Explain CV under Classify, and so on. The Home screen shows
+that nesting, instruction 369 is about the dock showing it, and the API
+homepage shows none of it.
+
+--------------------------------------------------------------------------------
+WHAT "REFLECT THE MODULE STRUCTURE" HAS TO MEAN HERE
+--------------------------------------------------------------------------------
+
+A reader arriving at the API homepage should be able to find a module BY THE
+NAME THEY USED IT UNDER, and see how it relates to the others, without
+already knowing which Python file implements it.
+
+THREE THINGS, in the order they are worth doing:
+
+1. GROUP THE GRID BY SECTION. The Home registry already has the sections --
+   Core, Data, Results & QC, Explore, Assays, Design -- and
+   `generate_readme_visuals._grouped_apps()` already reads and VALIDATES them
+   against the Home layout, raising when the two disagree. So the grouping is
+   available and enforced; it is simply not emitted into the grid.
+
+   Emit it as a second generated block rather than changing `workflow_grid`,
+   OR add section headings to the existing one and let the README take them
+   too. Decide which, and say why here. The README's own grid is flat today
+   and the request says the API should be like the README, so a change that
+   improves both is preferable to one that makes them differ again.
+
+2. SHOW THE NESTING. A folded module needs to appear UNDER its host, not
+   missing and not floating beside it. `FOLDED_APPS` on each host screen and
+   `TILELESS_APPS` in `spacr/qt/app.py` are the two lists that answer this,
+   and `spacr/qt/screens/map_barcodes.fold_description` gives the name and
+   sentence for a key whose registry row is gone.
+
+3. MAKE THE COMPLETE REFERENCE SECONDARY, NOT ABSENT. 215 alphabetical
+   module links are useful to a contributor and useless to a user, and the
+   template already says as much: "Application code should prefer the
+   curated workflow entry points above." Put it behind a collapsed section
+   or a separate page, and keep every link -- this is a demotion, not a
+   deletion.
+
+--------------------------------------------------------------------------------
+WHAT THIS SHARES WITH OTHER OPEN ITEMS, so it is not done three times
+--------------------------------------------------------------------------------
+
+366 PART 2 removes per-module prose from the README on the promise that the
+API says it better. That prose has to land somewhere on these pages, so the
+two items should be done together or in that order -- 366 first, then this,
+or this file will be rewritten by it.
+
+366 PART 3 IS DONE and is the reason the grid's destinations are now worth
+grouping: each tile lands on its own anchor rather than six of them sharing
+three pages.
+
+369 asks the DOCK to show the nesting. Same fact, third surface. Whatever
+resolves nesting here should be the same resolver, not a fourth copy of the
+fold tables.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* The API homepage groups its tiles by the same six sections as Home, and a
+  test fails when the two disagree -- `_grouped_apps()` already raises on
+  that for the README and the same guarantee must cover this page.
+* Every folded module is reachable from the API homepage, under its host.
+* No tile's destination changes: 366 part 3's anchors survive.
+* The complete 215-module reference is still reachable and every link still
+  resolves.
+* The grid is still ONE generated block shared with the README. A test fails
+  if the two files stop sharing it.
