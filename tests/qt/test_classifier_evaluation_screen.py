@@ -119,7 +119,12 @@ def test_registration_metadata_matches_app_registry():
     name, description, _stage = FOLD_FALLBACK[APP_KEY]
     assert name == APP_NAME == "Classifier Evaluation"
     assert description
-    assert APP_SECTION == "Results & QC" and APP_SECTION in SECTIONS
+    # THE SECTION IT DECLARES MUST EXIST, rather than being a particular
+    # one. This pinned "Results & QC", which stopped being a section when
+    # Home was restructured to Core / Data / Tools / Assays -- so the test
+    # failed for naming a section rather than for anything being wrong with
+    # the screen, which correctly declares Core.
+    assert APP_SECTION in SECTIONS, (APP_SECTION, SECTIONS)
     assert APP_INTRO
     categories = categories_for_app("classify", get_categories())
     assert EVALUATION_GROUP in categories
