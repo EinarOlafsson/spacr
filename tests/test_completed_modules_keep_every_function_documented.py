@@ -54,6 +54,7 @@ FULLY_DOCUMENTED = (
     "spacr/normalization.py",
     "spacr/notebook_export.py",
     "spacr/organelle_types.py",
+    "spacr/omero.py",
     "spacr/picture_settings.py",
     "spacr/plate_qc.py",
     "spacr/plot.py",
