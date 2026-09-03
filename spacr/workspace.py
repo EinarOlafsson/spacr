@@ -712,6 +712,12 @@ def restore(
 # ---------------------------------------------------------------------------
 
 def _human_size(n: Any) -> str:
+    """Format a byte count using compact binary-scaled units.
+
+    :param n: Byte count or number-like value to display.
+    :returns: Rounded text in B, KB, MB, GB, or TB, or ``?`` when ``n`` is
+        not numeric.
+    """
     try:
         size = float(n)
     except (TypeError, ValueError):

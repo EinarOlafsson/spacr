@@ -371,6 +371,14 @@ def _sort_label(value: Any) -> Tuple[int, Any]:
 
 def _node(row: Mapping[str, Any], table: str, *,
           typed: bool = True) -> LineageNode:
+    """Build a leaf lineage node from one measurement row.
+
+    :param row: Measurement row containing object and field identifiers.
+    :param table: Object-table name recorded on the node and optionally in its
+        key.
+    :param typed: Include ``table`` in the generated object key when true.
+    :returns: Leaf node with a normalized numeric label and a copied row.
+    """
     label = _object_label(row.get(schema.OBJECT_LABEL_KEY))
     return LineageNode(key=node_key(row, table if typed else None),
                        table=table,
