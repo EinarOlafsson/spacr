@@ -170,7 +170,22 @@ def _attach_picking_help(editor, key: str) -> None:
 
 
 class PictureSettingsDialog(QDialog):
-    """Edit picture settings while retaining mode-inapplicable values."""
+    """Edit picture settings while retaining mode-inapplicable values.
+
+    :param values: the settings to open with. Keys outside the picture
+        vocabulary are IGNORED rather than carried, and keys the dialog knows
+        but the current mode does not apply are kept untouched -- which is
+        what "retaining" in the summary above means, and why editing PNG
+        settings does not silently drop the array ones.
+    :param mode: which crop SOURCE the pictures come from. It decides which
+        settings apply -- a plane index means something to the array route
+        and nothing to the database route, which finds its rows by
+        coordinate columns -- so an inapplicable setting is greyed with a
+        reason rather than hidden.
+    :param parent: parent widget.
+    :param source: where the pictures come from, for the previews.
+    :param objects: the objects available to crop, for the previews.
+    """
 
     def __init__(self, values: Optional[Dict[str, Any]] = None,
                  mode: str = "png", parent: Optional[QWidget] = None, *,

@@ -82,6 +82,13 @@ class SraPicker(QDialog):
     DIALOG_WIDTH = 520
 
     def __init__(self, destination, parent=None, *, files=None):
+        """Offer the published runs and download the ticked ones.
+
+        :param destination: the folder downloads are written to.
+        :param parent: parent widget.
+        :param files: the runs to offer. ``None`` asks the index for them,
+            so a test can supply a list without reaching the network.
+        """
         super().__init__(parent)
         self.setWindowTitle(tr("Load test data"))
         self.setMinimumWidth(self.DIALOG_WIDTH)
