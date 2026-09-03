@@ -141,6 +141,16 @@ class Section(QFrame):
         self._body = QWidget(self)
         self._body.setObjectName("SectionBody")
         self._form = QFormLayout(self._body)
+        # SET EXPLICITLY, because the default is the STYLE's answer and not
+        # every style answers the same way. Issue 115 reported "field and
+        # setting do not expand with container" on macOS. Measured: with
+        # Fusion, a 1,178 px section gives its QLineEdit 1,115 px; under a
+        # style whose SH_FormLayoutFieldGrowthPolicy is FieldsStayAtSizeHint
+        # -- hostile, but a valid Qt answer, and the shape the reporter's
+        # platform style chose -- the same section gives the field 108 px.
+        # Naming the policy here takes the decision away from the platform.
+        self._form.setFieldGrowthPolicy(
+            QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self._form.setLabelAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self._form.setFormAlignment(Qt.AlignTop)
         self._form.setContentsMargins(SPACING["md"], SPACING["md"],
