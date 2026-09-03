@@ -30,6 +30,7 @@ FULLY_DOCUMENTED = (
     "spacr/cli_repro.py",
     "spacr/column_groups.py",
     "spacr/confusion.py",
+    "spacr/control_names.py",
     "spacr/crop_source.py",
     "spacr/database_concurrency.py",
     "spacr/database_schema.py",
