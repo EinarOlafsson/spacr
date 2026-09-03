@@ -148,6 +148,23 @@ LOG = logging.getLogger(__name__)
 #: about.
 FOLDED_APPS = ("agreement",)
 
+#: Registry key of the screen this module hangs its strip on.
+#:
+#: MISSING UNTIL 2026-09-03, AND IT COST THE FOLD ITS PLACE EVERYWHERE.
+#: `app.folded_children()` builds the one host-to-children map the dock, the
+#: spaCR menu and the generated API page all read, and it identifies a host
+#: by `APP_KEY` or `HOST_KEY`. This module declared neither, so it was
+#: skipped -- `FOLDED_APPS` above was read by the fold STRIP, which is handed
+#: the key by the screen, and by nothing else. Annotator Agreement therefore
+#: had a button on this masthead and no nested row in the dock, no entry
+#: under Annotate in the menu, and no line on the API page, while every other
+#: host's children had all three.
+#:
+#: Found while wiring the nesting into the API homepage (instruction 374).
+#: It is the same shape as the bug in the same commit's other half: one
+#: mapping read by three surfaces, and a host that quietly is not in it.
+HOST_KEY = "annotate"
+
 
 def _build_agreement(host_window) -> QWidget:
     """Annotator Agreement's own screen, unchanged.
