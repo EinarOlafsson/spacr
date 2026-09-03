@@ -375,6 +375,14 @@ def apply_preset(settings: Mapping[str, object],
 
 
 def _explain(preset: OrganelleType, diameter, applied, kept) -> None:
+    """Print how an organelle preset affected resolved settings.
+
+    :param preset: Resolved organelle preset being explained.
+    :param diameter: Requested organelle diameter shown for size-split presets.
+    :param applied: Setting values supplied by the preset.
+    :param kept: Existing setting values retained instead of preset values.
+    :returns: ``None``.
+    """
     if not applied and not kept:
         return
     print(f"organelle_type = {preset.label}")

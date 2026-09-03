@@ -225,6 +225,13 @@ def select_crops(paths: Iterable[str], settings: Mapping[str, Any]
 # ---------------------------------------------------------------------------
 
 def _as_indices(value, what: str) -> List[int]:
+    """Normalize one plane selection to integer indices.
+
+    :param value: One integer index or an iterable of integer-like indices.
+    :param what: Setting name used to identify an invalid selection.
+    :returns: Selected plane indices as ordinary integers.
+    :raises CropSourceError: The selection is unset or cannot be converted.
+    """
     if value is None:
         raise CropSourceError(f"{what} is not set")
     if isinstance(value, (int, np.integer)):
