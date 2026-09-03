@@ -113,7 +113,45 @@ class SurrogateResult:
         and ``shap`` columns where each was computed.
     :param n_objects: rows the surrogate was fitted on.
     :param class_counts: how many objects the CV model put in each class.
+    :param split_report: JSON-safe grouped-split provenance and realised
+        training and held-out group and object counts.
     :param warnings: anything that should be read before the ranking is.
+    :param model_family: canonical requested estimator family:
+        ``"random_forest"``, ``"hist_gradient_boosting"``, or ``"xgboost"``.
+    :param backend: fully qualified class name of the estimator actually fitted.
+    :param backend_version: installed distribution version for that estimator.
+    :param random_seed: seed shared by grouped splitting, estimator fitting,
+        and permutation importance so the run can be reproduced.
+    :param model_params: effective estimator constructor options after defaults
+        and caller overrides are combined.
+    :param feature_columns: ordered numeric features actually fitted after
+        identifier, leakage, and explicit exclusions.
+    :param excluded_columns: sorted union of automatically detected
+        answer-leaking features and columns named by the caller's ``exclude``.
+    :param balanced_accuracy: held-out balanced accuracy of surrogate
+        predictions against the CV model's decisions.
+    :param f1_macro: macro-averaged F1 on the held-out objects.
+    :param class_metrics: held-out precision, recall, F1, and support indexed
+        by CV class.
+    :param confusion: held-out confusion matrix with CV classes on rows and
+        surrogate predictions on columns.
+    :param held_out: held-out identifiers, CV and surrogate predictions, and
+        per-class probabilities when the backend supplies them.
+    :param shap_values: signed SHAP contributions for sampled held-out objects;
+        empty when SHAP is unavailable or fails.
+    :param shap_feature_values: measured values for the same sampled rows and
+        feature columns as ``shap_values``.
+    :param correlated_features: strong training-split feature pairs and their
+        Spearman coefficients at the configured absolute threshold.
+    :param feature_distributions: long held-out table of count, mean, median,
+        and standard deviation for each feature within each CV class.
+    :param family_importance: gain, permutation, and SHAP importance totals
+        grouped by the feature-family heuristic.
+    :param model: fitted estimator retained for downstream inspection and
+        omitted from the dataclass representation.
+    :param minimum_fidelity_improvement: minimum accuracy gain over the
+        majority baseline required by :attr:`is_faithful` before rankings are
+        presented.
     """
 
     fidelity: float
