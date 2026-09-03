@@ -291,6 +291,11 @@ class DropZone(QFrame):
     Emits :attr:`column_changed` with ``(channel, column_or_empty)``. The
     empty string rather than ``None`` so the signal can be typed ``str, str``
     and connected across a queued connection without a custom metatype.
+
+    :param channel: which channel this zone accepts. It is carried in every
+        :attr:`column_changed`, so the host does not have to remember which
+        zone it connected.
+    :param parent: parent widget.
     """
 
     column_changed = Signal(str, str)

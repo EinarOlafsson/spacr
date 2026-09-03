@@ -98,7 +98,14 @@ class _PathRow(QWidget):
 
 
 class ExplainCvPanel(QWidget):
-    """Run and render one provenance-bearing surrogate explanation."""
+    """Run and render one provenance-bearing surrogate explanation.
+
+    :param host: the screen that runs training on this panel's behalf --
+        `host._on_train_requested` is what the "train" action reaches.
+        ``None`` is guarded for, so the panel still builds and renders and
+        the action simply does nothing, which is what a test wants.
+    :param parent: parent widget.
+    """
 
     def __init__(self, host=None, parent=None):
         super().__init__(parent)
@@ -310,7 +317,14 @@ class ExplainCvPanel(QWidget):
 
 
 class InvestigateHitPanel(QWidget):
-    """Guide-fraction-aware, cross-fitted candidate-cell investigation."""
+    """Guide-fraction-aware, cross-fitted candidate-cell investigation.
+
+    :param host: the screen that runs training on this panel's behalf --
+        `host._on_train_requested` is what the "train" action reaches.
+        ``None`` is guarded for, so the panel still builds and renders and
+        the action simply does nothing, which is what a test wants.
+    :param parent: parent widget.
+    """
 
     def __init__(self, host=None, parent=None):
         super().__init__(parent)
@@ -578,7 +592,14 @@ class ModelExplanationScreen(QWidget):
 
 
 class InvestigateHitScreen(QWidget):
-    """Dedicated post-regression screen with explicit promotion and undo."""
+    """Dedicated post-regression screen with explicit promotion and undo.
+
+    :param host: the screen that runs training on this panel's behalf --
+        `host._on_train_requested` is what the "train" action reaches.
+        ``None`` is guarded for, so the panel still builds and renders and
+        the action simply does nothing, which is what a test wants.
+    :param parent: parent widget.
+    """
 
     def __init__(self, host=None, parent=None):
         super().__init__(parent)

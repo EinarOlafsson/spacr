@@ -300,6 +300,11 @@ class DataFilterPanel(QWidget):
 
     Emits :attr:`filter_changed` after publishing, for a host that wants to
     update a count label without subscribing to the shared model itself.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` the
+        filter publishes into, so filtering here narrows every view on it.
+        ``None`` joins the shared one; pass a private one in a test.
     """
 
     filter_changed = Signal()

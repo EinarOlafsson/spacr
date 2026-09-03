@@ -160,6 +160,12 @@ class SettingsSearchBar(QWidget):
     ``SettingsWidgets`` model and shows or hides rows that already exist.
     Hiding rather than rebuilding is what keeps a half-typed value alive
     across a filter change, which a rebuild would silently discard.
+
+    :param screen: the module screen to filter. The bar owns no settings
+        state -- it reads that screen's `SettingsWidgets` model and shows or
+        hides rows that already exist, which is what keeps a half-typed value
+        alive across a filter change.
+    :param parent: parent widget.
     """
 
     def __init__(self, screen: QWidget, parent: Optional[QWidget] = None):

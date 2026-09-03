@@ -196,6 +196,11 @@ class LazyFlowViewSection(CollapsibleSection):
     dependency tree.  Classify gets only this small header on first paint;
     the panel, its scene and the approved preview graph arrive on the first
     expansion.
+
+    :param screen: the Classify screen this footer belongs to. Read on the
+        first EXPANSION rather than here, which is the whole point of the
+        class: nothing about FlowView is imported until someone opens it.
+    :param parent: parent widget.
     """
 
     OPEN_MINIMUM = 420

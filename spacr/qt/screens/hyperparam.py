@@ -2432,7 +2432,11 @@ class HyperparamPanel(QWidget):
 # ---------------------------------------------------------------------------
 
 class UmapSearchSettingsDialog(QDialog):
-    """Tabbed search and UMAP-graph settings for :class:`HyperparamPanel`."""
+    """Tabbed search and UMAP-graph settings for :class:`HyperparamPanel`.
+
+    :param panel: the panel these settings belong to. It is also the dialog's
+        parent, and the widgets the dialog lays out belong to it.
+    """
 
     def __init__(self, panel: HyperparamPanel):
         super().__init__(panel)
@@ -2849,6 +2853,8 @@ class WalkAxesDialog(QDialog):
     limit. Ten axes at resolution 2 is 1024 fits to take one step, and a
     user who has to discover that by waiting has been failed by the
     control, not by the search.
+
+    :param panel: the panel whose axes this walks. Also the dialog's parent.
     """
 
     def __init__(self, panel: "HyperparamPanel"):

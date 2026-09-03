@@ -77,6 +77,11 @@ class ColumnAlignedRow(QLayout):
     The header is read, never written. Nothing here calls ``resizeSection``
     or a resize mode, so the user's own column widths remain the only source
     of truth for what a column is.
+
+    :param header: the ``QHeaderView`` whose sections the row aligns to. READ,
+        never written -- nothing here calls `resizeSection` or a resize mode,
+        so the user's own column widths stay the only source of the geometry.
+    :param parent: parent widget.
     """
 
     def __init__(self, header, parent: Optional[QWidget] = None) -> None:
