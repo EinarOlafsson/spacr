@@ -89,13 +89,13 @@ def stars(p) -> str:
 class Assumption:
     """One assumption check, and whether it could see anything.
 
-    :ivar name: name of the assumption test.
-    :ivar statistic: test statistic, or ``nan`` when it could not be computed.
-    :ivar p_value: test p-value, or ``nan`` when it could not be computed.
-    :ivar informative: whether the check had enough usable data to interpret.
-    :ivar verdict: plain-language conclusion, including inconclusive cases.
-    :ivar passed: whether the assumption holds under this check's own
-        decision rule; callers must not re-derive it from ``p_value``.
+    :param name: name of the assumption test.
+    :param statistic: test statistic, or ``nan`` when it could not be computed.
+    :param p_value: test p-value, or ``nan`` when it could not be computed.
+    :param informative: whether the check had enough usable data to interpret.
+    :param verdict: plain-language conclusion, including inconclusive cases.
+    :param passed: decision made by the check's own rule; callers must not
+        re-derive it from ``p_value``.
     """
 
     name: str

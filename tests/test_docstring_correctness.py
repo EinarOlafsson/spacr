@@ -1563,6 +1563,11 @@ def test_baseline_constructor_documents_every_field():
     "spacr.align.CanvasSpec",
     "spacr.attribution.Agreement",
     "spacr.lineage.LineageNode",
+    "spacr.multi_database.MergePlan",
+    "spacr.train_compare.Comparison",
+    "spacr.figures.stats.Assumption",
+    "spacr.annotation_validation.Verdict",
+    "spacr.confusion.ConfusionCell",
 ))
 def test_repaired_record_documents_every_constructor_parameter(symbol):
     """Each repaired generated record remains callable from its API prose."""
@@ -2244,12 +2249,12 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         if by_symbol[symbol].category not in GENERATED_CONSTRUCTOR_CATEGORIES
     }
 
-    assert len(required_ivars) == 80
-    assert sum(map(len, required_ivars.values())) == 410
-    assert len(generated) == 76
-    assert sum(map(len, generated.values())) == 399
+    assert len(required_ivars) == 75
+    assert sum(map(len, required_ivars.values())) == 385
+    assert len(generated) == 71
+    assert sum(map(len, generated.values())) == 374
     assert Counter(by_symbol[symbol].category for symbol in generated) == {
-        "dataclass_constructor": 75,
+        "dataclass_constructor": 70,
         "namedtuple_constructor": 1,
     }
     assert Counter(
@@ -2257,7 +2262,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         for symbol in generated
         for _name in generated[symbol]
     ) == {
-        "dataclass_constructor": 394,
+        "dataclass_constructor": 369,
         "namedtuple_constructor": 5,
     }
     assert len(ordinary) == 4
@@ -2270,7 +2275,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         symbol: _missing_required_parameters(by_symbol[symbol])
         for symbol in generated
     }
-    assert sum(not names for names in remaining.values()) == 76
+    assert sum(not names for names in remaining.values()) == 71
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(

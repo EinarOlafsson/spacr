@@ -197,6 +197,61 @@ def test_staging_falls_back_to_csv_without_a_parquet_engine(tmp_path,
     frame_handoff.release(path)
 
 
+def test_a_failed_durable_write_withdraws_the_in_memory_offer(
+        tmp_path, monkeypatch):
+    """A raised stage cannot leave its path looking successfully published."""
+    monkeypatch.setattr(frame_handoff, "_columnar_engine", lambda: None)
+
+    frame = pd.DataFrame({"cell_area": [1.0, 2.0]})
+    path = tmp_path / "failed.csv"
+
+    def fail_write(_frame, temporary_path):
+        assert frame_handoff.held(path) is frame
+        assert temporary_path != str(path)
+        with open(temporary_path, "w", encoding="utf-8") as stream:
+            stream.write("partial")
+        raise OSError("disk is full")
+
+    monkeypatch.setattr(tabular, "write_table", fail_write)
+
+    with pytest.raises(OSError, match="disk is full"):
+        frame_handoff.stage(frame, tmp_path, "failed", report=None)
+
+    assert frame_handoff.held(path) is None
+    assert frame_handoff.describe(path) == ""
+    assert not path.exists()
+    assert not list(tmp_path.glob(".failed.staging-*"))
+
+
+def test_a_failed_restage_restores_the_previous_offer(tmp_path, monkeypatch):
+    """A failed replacement cannot erase a producer's earlier live offer."""
+    monkeypatch.setattr(frame_handoff, "_columnar_engine", lambda: None)
+    path = tmp_path / "restaged.csv"
+    previous = pd.DataFrame({"cell_area": [3.0]})
+    replacement = pd.DataFrame({"cell_area": [4.0, 5.0]})
+    frame_handoff.hold(path, previous)
+    path.write_text("old durable value", encoding="utf-8")
+
+    def fail_write(_frame, temporary_path):
+        assert frame_handoff.held(path) is replacement
+        with open(temporary_path, "w", encoding="utf-8") as stream:
+            stream.write("partial replacement")
+        raise OSError("disk is full")
+
+    monkeypatch.setattr(tabular, "write_table", fail_write)
+    try:
+        with pytest.raises(OSError, match="disk is full"):
+            frame_handoff.stage(
+                replacement, tmp_path, "restaged", report=None)
+
+        assert frame_handoff.held(path) is previous
+        assert "1 rows x 1 columns" in frame_handoff.describe(path)
+        assert path.read_text(encoding="utf-8") == "old durable value"
+        assert not list(tmp_path.glob(".restaged.staging-*"))
+    finally:
+        frame_handoff.release(path)
+
+
 def test_a_frame_offered_for_nothing_is_refused(tmp_path):
     """Holding None would answer a later reader with a frame that is not one."""
     with pytest.raises(ValueError, match="no frame"):

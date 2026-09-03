@@ -2881,3 +2881,52 @@ restored resolver passes the downstream crop-source check.
 
 REVISED COUNT: 105 entries, 37 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+48. A FAILED FRAME STAGE LEAKED ITS OFFER AND COULD DAMAGE THE OLD ARTEFACT
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/frame_handoff.py``. ``stage`` deliberately offered a frame before its
+durable write so a concurrent reader could not parse a partial file, but a
+writer exception left that unsuccessful frame live in the offer registry. The
+writer also targeted the final path directly, so a failed replacement could
+truncate a previously valid artefact even though ``stage`` raised.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/frame_handoff.py``. Staging now writes
+to a same-directory temporary path and atomically replaces the destination
+only after success; every failure removes the temporary and exactly restores
+the prior offer and shape before re-raising the original exception. Focused
+tests observe the new frame during the attempted write, then prove a new-path
+failure leaves no offer or partial file and a failed restage preserves both
+the prior live frame and durable bytes. Removing atomic staging made both
+tests fail, while replacing exact registry rollback with unconditional
+release made the prior-offer test fail.
+
+REVISED COUNT: 106 entries, 38 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+49. PERMUTATION QC ACCEPTED MISALIGNED OBSERVATION AND LABEL VECTORS
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/permutation_qc.py``. ``position_effect`` and
+``block_residual_report`` assumed that residuals, block labels, and every
+position column had identical lengths. Unequal inputs escaped the public API
+contract and failed later as NumPy boolean-index ``IndexError`` exceptions,
+rather than explicitly refusing a statistically invalid pairing before any
+partial report was assembled.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/permutation_qc.py``. Both public
+calculations now materialise and validate their paired inputs first, naming
+the mismatched vector and both lengths in ``ValueError``. Focused tests cover
+shorter and longer position vectors, a short block vector, and a short named
+position column; removing the guards made all four cases fail with the former
+raw ``IndexError``, while the existing valid noise, gradient, and per-block
+counterparts remain green.
+
+REVISED COUNT: 107 entries, 39 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
