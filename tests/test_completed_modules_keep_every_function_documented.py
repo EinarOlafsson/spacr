@@ -35,6 +35,7 @@ FULLY_DOCUMENTED = (
     "spacr/cli_download.py",
     "spacr/cli_plugins.py",
     "spacr/cli_repro.py",
+    "spacr/cli_workspace.py",
     "spacr/column_groups.py",
     "spacr/columns.py",
     "spacr/confusion.py",
