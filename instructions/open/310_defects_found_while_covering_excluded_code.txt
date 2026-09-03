@@ -2793,3 +2793,24 @@ pins ``space.size() == len(build_trials(space)) == 0``.
 
 REVISED COUNT: 101 entries, 33 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+44. SEARCH-TABLE SLICES RETURNED A LIST DESPITE A SINGLE-ROW TYPE CONTRACT
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/umap_search.py``. ``SearchTable.__getitem__`` delegated directly to a
+list, so a slice returned ``list[SearchRow]``, but its annotation accepted only
+an integer and promised one ``SearchRow``. Runtime callers worked while static
+API users were told the valid slice operation had the wrong input and result.
+
+VERDICT 2026-09-03: RESOLVED. The annotation and prose now describe both list
+lookup forms, and a focused test proves integer lookup returns the retained row
+while slicing returns a detachable outer list whose mutation cannot reorder
+the table. The same pass corrected the stronger false claim that a recipe can
+rebuild identical coordinates across nondeterministic backends; the stored
+``SearchRow.embedding`` is the exact scored map.
+
+REVISED COUNT: 102 entries, 34 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
