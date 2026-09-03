@@ -1386,11 +1386,14 @@ def compose_prcfo(plate: Any, row: Any, column: Any, field: Any,
 class FieldID:
     """One imaging field's identity — the key of every measurement row.
 
-    :ivar plateID: plate id.
-    :ivar rowID: ``'r<N>'``.
-    :ivar columnID: ``'c<N>'``.
-    :ivar fieldID: ``'f<N>'``.
-    :ivar timeID: ``'t<N>'``, or ``None`` outside a timelapse.
+    :param plateID: plate identifier, escaped when composed into a field key.
+    :param rowID: stored row component, normally ``r<N>`` but potentially a
+        legacy positional-well passthrough.
+    :param columnID: stored column component, normally ``c<N>`` but potentially
+        a legacy positional-well passthrough.
+    :param fieldID: canonical ``f<label>`` imaging-field component.
+    :param timeID: canonical ``t<label>`` timepoint component inserted after
+        the field, or ``None`` outside a timelapse.
     """
 
     plateID: str
@@ -1494,18 +1497,21 @@ class FieldID:
 class ObjectID:
     """One segmented object's identity — the ``prcfo`` a merged row is keyed on.
 
-    :ivar plateID: plate identifier carried by the containing field.
-    :ivar rowID: canonical ``'r<N>'`` row identifier.
-    :ivar columnID: canonical ``'c<N>'`` column identifier.
-    :ivar fieldID: canonical ``'f<N>'`` imaging-site identifier.
-    :ivar objectID: ``'o<N>'`` when the object's type is not stated, or
-        ``'<type><N>'`` when it is. The type lives *inside* this field rather
+    :param plateID: plate identifier carried by the containing field and
+        escaped when composed into a field or object key.
+    :param rowID: stored row component, normally ``r<N>`` but potentially a
+        legacy positional-well passthrough.
+    :param columnID: stored column component, normally ``c<N>`` but potentially
+        a legacy positional-well passthrough.
+    :param fieldID: canonical ``f<label>`` imaging-field component.
+    :param objectID: ``o<label>`` when the object's type is not stated, or
+        ``<type><label>`` when it is. The type lives *inside* this field rather
         than beside it so that two :class:`ObjectID` values compare equal
         exactly when they name the same object — a separate ``objectType``
         field would let ``('o7', 'nucleus')`` and ``('nucleus7', None)``
         describe one object and compare unequal.
-    :ivar timeID: canonical ``'t<N>'`` timepoint identifier, or ``None`` for
-        an object from a non-timelapse field.
+    :param timeID: canonical ``t<label>`` timepoint component inserted between
+        field and object, or ``None`` outside a timelapse.
     """
 
     plateID: str
@@ -2654,12 +2660,12 @@ def comparable_key_values(values) -> Tuple[str, ...]:
 class ColumnCollision:
     """What happened when several columns claimed one metadata key.
 
-    :ivar canonical: canonical metadata key claimed by all source columns.
-    :ivar sources: source columns in their original frame order.
-    :ivar chosen: source column retained under the canonical name.
-    :ivar dropped: redundant source columns removed from the frame.
-    :ivar disagreeing_rows: number of rows whose source values disagreed.
-    :ivar rows: total number of rows compared.
+    :param canonical: canonical metadata key claimed by all source columns.
+    :param sources: source columns in their original frame order.
+    :param chosen: source column retained under the canonical name.
+    :param dropped: redundant source columns removed from the frame.
+    :param disagreeing_rows: number of rows whose source values disagreed.
+    :param rows: total number of rows compared.
     """
 
     #: the canonical key they all meant, e.g. ``'wellID'``.

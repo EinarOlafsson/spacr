@@ -53,10 +53,10 @@ class MetadataResolutionRequired(ValueError):
 class MetadataRequest:
     """All unresolved targets and evidence shown to one prompt.
 
-    :ivar missing: canonical columns that still require a decision.
-    :ivar available: source columns available for mapping.
-    :ivar examples: representative string values for each source column.
-    :ivar guesses: best-effort source-column suggestion for each target.
+    :param missing: canonical columns that still require a decision.
+    :param available: source columns available for mapping.
+    :param examples: representative string values for each source column.
+    :param guesses: best-effort source-column suggestion for each target.
     """
 
     missing: Tuple[str, ...]
@@ -69,19 +69,19 @@ class MetadataRequest:
 class MetadataDecision:
     """One all-at-once answer returned by a UI or a saved setting.
 
-    :ivar column_map: canonical target names mapped to their actual source
-        columns; the resolver applies every rename together before deriving
-        any missing identities.
-    :ivar well_column: source column containing parseable well labels from
-        which missing row and column identifiers may be derived.
-    :ivar pseudo_source: source identity whose distinct values receive stable
-        pseudo-well coordinates when real well metadata is unavailable.
-    :ivar allow_pseudo: explicit permission to synthesize those coordinates;
-        ``pseudo_source`` alone never changes the data.
-    :ivar save_path: optional JSON audit path recording the chosen mappings
-        and any generated pseudo-well assignments.
-    :ivar remember: cache a prompted decision under the caller's ``cache_key``
-        so one run is not interrupted by the same metadata question twice.
+    :param column_map: mapping from each canonical target name to an existing
+        source column, applied collision-safely before identity derivation.
+    :param well_column: optional source column whose values are parsed strictly
+        as well labels to supply missing ``rowID`` and ``columnID`` values.
+    :param pseudo_source: optional source column whose distinct typed values
+        receive pseudo row and column coordinates when real well metadata is
+        unavailable.
+    :param allow_pseudo: explicit permission to synthesize coordinates from
+        ``pseudo_source``; the source alone never changes the frame.
+    :param save_path: optional JSON audit destination written after successful
+        resolution with the decision and generated pseudo-well assignments.
+    :param remember: whether a prompted decision is cached under a supplied
+        ``cache_key`` for the remainder of the current process.
     """
 
     column_map: Mapping[str, str] = field(default_factory=dict)
@@ -96,11 +96,11 @@ class MetadataDecision:
 class ResolutionResult:
     """Resolved frame plus the auditable decisions that changed it.
 
-    :ivar frame: normalized frame containing every required metadata column.
-    :ivar column_map: explicit canonical-target to source-column mappings used.
-    :ivar derived_from_well: well column used to derive row and column IDs, if
+    :param frame: normalized frame containing every required metadata column.
+    :param column_map: explicit canonical-target to source-column mappings used.
+    :param derived_from_well: well column used to derive row and column IDs, if
         derivation was necessary.
-    :ivar pseudo_map: audited source identities and their generated pseudo
+    :param pseudo_map: audited source identities and their generated pseudo
         well coordinates.
     """
 

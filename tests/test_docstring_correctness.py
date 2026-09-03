@@ -1501,6 +1501,17 @@ def test_baseline_constructor_documents_every_field():
     "spacr.selection.RangeFilter",
     "spacr.selection.Selection",
     "spacr.sra.RunFile",
+    "spacr.api.MaskConfig",
+    "spacr.api.MeasureConfig",
+    "spacr.gene_measurement_sweep.SweepResult",
+    "spacr.macro.Recording",
+    "spacr.metadata_resolution.MetadataDecision",
+    "spacr.metadata_resolution.MetadataRequest",
+    "spacr.metadata_resolution.ResolutionResult",
+    "spacr.model_check.ModelReport",
+    "spacr.schema.ColumnCollision",
+    "spacr.schema.FieldID",
+    "spacr.schema.ObjectID",
 ))
 def test_repaired_record_documents_every_constructor_parameter(symbol):
     """Each repaired generated record remains callable from its API prose."""
