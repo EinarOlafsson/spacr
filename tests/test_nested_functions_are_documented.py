@@ -53,6 +53,7 @@ FULLY_DOCUMENTED = frozenset({
     "spacr/doctor.py",
     "spacr/flowview/collector.py",
     "spacr/flowview/layout.py",
+    "spacr/flowview/thumbs.py",
     "spacr/flowview/trace.py",
     "spacr/figures/scene.py",
     "spacr/foreign.py",
