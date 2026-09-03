@@ -3766,3 +3766,25 @@ constructor contract fail.
 
 REVISED COUNT: 147 entries, 78 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+90. ATTRIBUTION DOCUMENTATION OMITTED FAILED-METHOD PLACEHOLDERS
+==============================================================================
+
+Found 2026-09-03 while repairing ``Attribution`` constructor documentation in
+``spacr/attribution.py``. Several fields promised only successful registered
+methods even though ``compare_methods(..., skip_failures=True)`` deliberately
+returns a zero-map placeholder retaining the requested method and layer, empty
+family/backend values, and failure notes. ``params`` also overstated a partial
+record as every effective argument.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/attribution.py``. All twelve
+constructor parameters now distinguish successful maps from skipped-failure
+placeholders and state the normalized class, map, raw-attribution, layer, and
+recorded-option boundaries. Focused CNN, transformer, signed-channel,
+single-logit, result-object, and skipped-method examples pin both forms;
+reverting ``method`` to ``:ivar:`` makes the exact constructor contract fail.
+
+REVISED COUNT: 148 entries, 79 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
