@@ -176,18 +176,18 @@ class ReportSectionContribution:
 class SpacrPlugin:
     """Validated plugin manifest returned by a ``spacr.plugins`` entry point.
 
-    :ivar name: human-readable plugin name used in diagnostics and discovery
+    :param name: human-readable plugin name used in diagnostics and discovery
         output.
-    :ivar version: version of the plugin distribution, reported to users
+    :param version: version of the plugin distribution, reported to users
         without being interpreted by spaCR.
-    :ivar api_version: plugin SDK version the manifest targets; its major
+    :param api_version: plugin SDK version the manifest targets; its major
         version must match :data:`PLUGIN_API_VERSION`.
-    :ivar apps: runnable applications the plugin adds to the GUI and headless
+    :param apps: runnable applications the plugin adds to the GUI and headless
         registry.
-    :ivar model_providers: providers that extend the model-zoo catalogue.
-    :ivar report_sections: builders that insert plugin-owned sections into
+    :param model_providers: providers that extend the model-zoo catalogue.
+    :param report_sections: builders that insert plugin-owned sections into
         generated reports.
-    :ivar translations: locale-to-message mappings that translate the
+    :param translations: locale-to-message mappings that translate the
         plugin's own visible strings.
     """
 
@@ -204,11 +204,11 @@ class SpacrPlugin:
 class PluginDiagnostic:
     """One discovery or contribution error visible to users and logs.
 
-    :ivar plugin: entry-point or manifest name identifying the plugin that
+    :param plugin: entry-point or manifest name identifying the plugin that
         could not be loaded.
-    :ivar severity: diagnostic level, such as ``"error"`` or ``"warning"``.
-    :ivar message: concise user-facing account of the failed operation.
-    :ivar exception: captured exception text with the technical cause; empty
+    :param severity: diagnostic level, such as ``"error"`` or ``"warning"``.
+    :param message: concise user-facing account of the failed operation.
+    :param exception: captured exception text with the technical cause; empty
         when no exception accompanied the diagnostic.
     """
 
@@ -222,12 +222,12 @@ class PluginDiagnostic:
 class ReportContext:
     """Read-only inputs passed to plugin report-section builders.
 
-    :ivar src: source folder or object from which the core report is built.
-    :ivar artifacts: named core report artifacts available for reuse by the
+    :param src: source folder or object from which the core report is built.
+    :param artifacts: named core report artifacts available for reuse by the
         plugin section.
-    :ivar runs: immutable sequence of recorded run summaries associated with
+    :param runs: immutable sequence of recorded run summaries associated with
         the report source.
-    :ivar options: report-generation options supplied by the caller.
+    :param options: report-generation options supplied by the caller.
     """
 
     src: Any

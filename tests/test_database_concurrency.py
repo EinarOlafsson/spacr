@@ -39,7 +39,7 @@ def test_database_audit_records_document_every_reported_field(record):
     missing = [
         item.name
         for item in fields(record)
-        if f":ivar {item.name}:" not in documentation
+        if f":param {item.name}:" not in documentation
     ]
     assert not missing, f"{record.__name__}: {missing}"
 
