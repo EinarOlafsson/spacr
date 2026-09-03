@@ -1442,3 +1442,216 @@ the guarded job. It compares against total RAM in use, so any value below the
 current baseline refuses to start with exit 137 and no work happens at all --
 `--limit-gib 20` on a box already at 38.3 GiB never runs. This pass used 60,
 which left the guard live with ~22 GiB of headroom over the baseline.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE ILLUMINATION TOOLTIP IS STAGE-NEUTRAL, ENGLISH AND NINE LOCALES
+--------------------------------------------------------------------------------
+
+Done on the Codex session's request, recorded in 325: the tooltip "still says
+only 'before any intensity feature is measured'", which stopped being true when
+illumination correction gained a segmentation consumer. CHECKED IN THE CODE
+BEFORE REWRITING rather than taken on trust -- `spacr/io.py` carries an
+`illumination_session` documented as "optional segmentation-only illumination"
+and `core.py` resumes it through `load_segmentation_illumination_resume`, so
+the correction really is applied at segmentation as well as at measurement.
+
+THREE TRANSLATABLE STRINGS SAY IT, and all three were wrong the same way:
+
+    spacr/illumination.py        `_TOOLTIPS['illumination_correction']`
+    spacr/illumination.py        `_DESCRIPTION`  (the settings-category text)
+    spacr/qt/screens/measure.py  `FOLD_FALLBACK['illumination']`
+
+plus the module comment at the top of `measure.py`, which described the same
+single consumer to the next reader of the code.
+
+THE WORDING NAMES NO STAGE, DELIBERATELY:
+
+    "divide it out of the pixels at every enabled stage"
+
+The field is estimated ONCE and applied wherever it is switched on, so the
+sentence stays true when a third stage is added and does not have to be
+rewritten again. Enumerating "segmentation and measurement" would have been
+more concrete and would have gone stale on the next feature. "measures the
+same" became "looks and measures the same" for the same reason: segmentation
+looks at pixels, it does not measure them. The `(bool)` type and the
+`Default False.` tail are untouched, so the house tooltip shape still holds.
+
+ENGLISH FIRST, THEN ONE GENERATION PASS PER LANGUAGE. Editing `en.py` by hand
+would have been reverted by the next build, since it is generated from
+`canonical_sources()`. `_invalid_catalog_sources` went to exactly +3 per locale
+after the source edit -- confirmation that the reword touched three
+translatable strings and nothing else.
+
+--------------------------------------------------------------------------------
+2026-09-02 — A BARE RELATIVE CLAUSE IS A GARDEN PATH FOR EVERY MODEL WE SHIP
+--------------------------------------------------------------------------------
+
+WORTH WRITING DOWN BECAUSE IT IS REUSABLE, and because the first version of the
+sentence above was mine and was wrong.
+
+The first draft read "divide it out of the pixels every enabled stage reads" --
+correct English, and a relative clause with the pronoun dropped. Run through
+the actual checkpoints this repository ships, all three Marian models produced
+UNGRAMMATICAL output, because each tried to parse "every enabled stage reads"
+as a noun phrase:
+
+    sv  "...ur pixlarna varje aktiverad steg läser"      (no relative pronoun)
+    fr  "...hors des pixels chaque étape activée lit"    (ungrammatical)
+    es  "...fuera de los píxeles cada etapa habilitada lee"
+
+Restoring the pronoun ("the pixels THAT every enabled stage reads") fixed all
+three -- sv `som`, fr `que`, es `que`. Deleting the clause altogether ("the
+pixels AT every enabled stage") also fixed all three and is the shorter, better
+English, so that is what shipped. A fourth candidate that dropped the object
+("divide it out at each enabled stage") was rejected: without "pixels" the
+French model rendered flat-field as `terrain plat`, flat GROUND.
+
+THE RULE THIS GIVES US, for anyone writing a tooltip that will be translated:
+KEEP THE RELATIVE PRONOUN, or write a prepositional phrase instead. English
+lets you drop "that"; none of the nine target models recovers it reliably, and
+the failure is silent -- the output is fluent, hash-current, passes every
+structural gate, and is simply bad grammar in the target. No test we have
+catches it. The only reason this one was caught is that the generated rows
+were read after the run.
+
+--------------------------------------------------------------------------------
+2026-09-02 — 364'S RENAME SILENTLY DISARMED THE OBJECT-NAME PROTECTION
+--------------------------------------------------------------------------------
+
+FOUND WHILE READING THE REFRESHED LABELS, and it is a real bug in
+`tools/build_i18n_catalogs.py` rather than a translation defect.
+
+The tool protects the four Cellpose object names with a reviewed table,
+`_OBJECT_LABELS`, and the comment above it says why: "asking a general
+translation model to infer these abbreviations produced labels such as
+'chairman' and 'organic' in otherwise plausible catalogs." That protection is
+installed by KEYING `MANUAL_UI` and `MANUAL_TRANSLATIONS` ON THE ENGLISH LABEL:
+
+    MANUAL_UI["Organelle cp prob"], MANUAL_TRANSLATIONS["Organelle 1 — Cp prob"]
+
+b7ae412af (item 364) renamed those settings, so the live English labels are now
+`Organelle 1 — Cellprob threshold` and `Organelle 1 — Flow threshold`. The
+table keys no longer match anything, the protection stopped applying, and
+nobody found out BECAUSE A LOOKUP THAT MISSES IS NOT AN ERROR.
+
+WHAT IT COSTS, measured on the refreshed catalogs: of the 14 labels in the
+renamed families the model localized `Cell` and `Nucleus` unaided, but left
+`Organelle` (four slots) and `Pathogen` in ENGLISH in eight of the nine
+locales -- 10 labels per locale. Korean now reads `Organelle 1 - Cellprob
+범위` while the reviewed name 소기관 sits unused in `_OBJECT_LABELS`, next to
+병원체 for Pathogen. Only Swedish reached "Organell" on its own.
+
+NOT REPAIRED HERE, and the reason is 316 rather than effort. Re-keying the
+table to the new English is one line; supplying its TARGET is not, because the
+new label ends in "Cellprob threshold" instead of the abbreviation "CP", so all
+nine targets would need a descriptive tail drafted -- exactly the prose an
+agent must not write. The mechanical half is ready for whoever takes it: the
+reviewed object names already exist and are correct; only the keys and the
+tails are missing.
+
+AND IT CHANGES THE FIX FOR THE STALE TEST RECORDED ABOVE.
+`test_runtime_uses_external_static_and_context_keyed_setting_text` asserts on
+the deleted `organelle_CP_prob`. The obvious one-line swap to
+`organelle_cellprob_threshold` would assert `== 'Organelle 1 - Cellprob 범위'`
+and PIN THIS BUG INTO A TEST. The test and the re-keying are one job, not two,
+and the line after it -- `_translated_setting_name("FT", "sv")` -- is worth
+checking for the same staleness while someone is in there.
+
+ONE MORE STALE COPY, outside this pass's writable set:
+`Notebooks/02_measure_and_crop.ipynb` still quotes the OLD
+`illumination_correction` tooltip verbatim, so the notebook and the shipped
+tooltip now disagree. 325's own quotation of the old phrase is historical
+record and is correct as it stands.
+
+--------------------------------------------------------------------------------
+2026-09-03 — A CATALOG PASS IS A RACE AGAINST THE TREE IT IS GENERATED FROM
+--------------------------------------------------------------------------------
+
+WORTH RECORDING AS AN OPERATING FACT, because it will happen to the next person
+and it looks like a mistake when it is not one.
+
+The nine catalogs were regenerated, audited clean, and then the audit went red
+again WITHOUT ANY CATALOG BEING TOUCHED -- because 369's dock work had landed
+four new UI strings in the meantime:
+
+    'Tooltips box'   'Tooltips bottom'
+    "Hovering a setting's title opens a box beside it with the explanation, an
+     API link and an Animation link. ..."
+    "The same explanation appears along the bottom of the window, ..."
+
+`--audit` reported `en/UI_SOURCES: canonical source catalog is stale` and
+`<lang>/UI: 4 missing` in all nine. Nothing was wrong with the catalogs; the
+SOURCE had moved. During this single session HEAD advanced from the commit the
+first baseline was taken at, through c97b68d8e and 59c975533, to 9321e282a and
+past it, and `settings.py` itself changed twice near the end.
+
+WHAT THAT MEANS PRACTICALLY, and it is not "regenerate more often":
+
+  * EVERY LOCALE PROCESS CALLS `canonical_sources()` FOR ITSELF. A nine-language
+    pass takes the better part of an hour because hi and zh_CN re-run their
+    permanently-failing rows through MADLAD each time, so a source change
+    halfway through leaves the early locales generated from one tree and the
+    late ones from another. The audit catches it as missing rows, but only
+    afterwards.
+  * SO THE CATALOGS ARE ONLY EVER "CURRENT AS OF A COMMIT", never current
+    absolutely, and the honest thing is to name that commit rather than to
+    claim the catalogs are up to date.
+  * AND THE COST OF A TOP-UP IS NOT PROPORTIONAL TO THE CHANGE. Four new UI
+    strings cost a full pass, because the two M2M100 locales pay their fixed
+    ~20 minutes of MADLAD retries whether four rows changed or four hundred.
+
+TWO THINGS WORTH BUILDING, and the second is cheap:
+
+  1. A `--freeze-sources` mode that resolves `canonical_sources()` ONCE, writes
+     it, and has every locale read that snapshot, so a nine-language pass is
+     generated from one tree by construction instead of by luck.
+  2. A NEGATIVE CACHE FOR PERMANENTLY-REJECTED ROWS. hi has 14 rows and zh_CN 4
+     that every route refuses on every run; they have no valid cached value, so
+     `--repair-invalid-only` retries them forever. Recording "this source, this
+     model set, this gate version -> refused" would cut roughly forty minutes
+     off every future nine-language pass and lose nothing: the rows are already
+     reported by the audit, which is where the maintainer reads them.
+
+--------------------------------------------------------------------------------
+2026-09-03 — WHERE THE CATALOGS ACTUALLY STAND, MEASURED ON THE FINAL TREE
+--------------------------------------------------------------------------------
+
+Generated against 9321e282a and after, with `foreign` restored to its committed
+value in all nine afterwards.
+
+    tools/build_i18n_catalogs.py --audit    311 failure lines  ->  26
+    _invalid_catalog_sources, nine locales  2,070 rows         ->  27
+    canonical UI sources                    2,808              ->  2,812
+
+Per locale: 196 rows added, 48-62 changed, 76 removed -- 2,903 row changes in
+all. The 76 removals per locale are 364's `_CP_prob` / `_FT` renames, not lost
+prose.
+
+THE 27 THAT REMAIN, named so nobody has to re-derive them:
+
+     9  `foreign`, one per locale, PRESERVED ON PURPOSE (see above). 18 of the
+        26 audit lines are this one decision.
+     4  zh_CN, refused by every route including the MADLAD secondary:
+        `independent_variable_layout`, `plaque_model`, and two UI sentences.
+    14  hi, falling back to English rather than shipping the Cyrillic the
+        MADLAD Hindi route keeps producing.
+
+Tests, 31 files, against a `git archive` of 59c975533 taken the same night:
+
+    HEAD    27 failed, 731 passed, 4 skipped
+    here    21 failed, 737 passed, 4 skipped
+
+Seven fixed, one new, and the new one is the stale `organelle_CP_prob`
+assertion described above -- a dead key that only passed while the catalogs
+were stale enough to still carry it.
+`test_reviewed_summary_hashes_match_current_builtin_sources` is red at HEAD and
+red here, unchanged: still `foreign`, still not this pass's to retire.
+
+THE ILLUMINATION REWORD REACHED ALL NINE, verified by source hash rather than
+by reading for the phrase -- `SOURCE_HASHES[('MODULE_SUMMARIES','illumination')]`
+matches the live English in every locale, and every one renders the stage as a
+prepositional phrase: `i varje aktiverat steg`, `en cada etapa habilitada`,
+`em cada estágio habilitado`, `à chaque étape activée`, `in jeder aktivierten
+Stufe`, `모든 활성화 된 단계에서`, `प्रत्येक सक्षम चरण में`, `在每个启用阶段`.
+Icelandic remains the weakest catalog and was weak before; that is 316's pass,
+not this one's.
