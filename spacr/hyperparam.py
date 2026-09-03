@@ -360,13 +360,15 @@ class SearchSpace:
 class Trial:
     """One evaluated configuration, successful or not.
 
-    :ivar params: the configuration that was evaluated.
-    :ivar score: the primary metric, or None when the trial failed.
-    :ivar extra_metrics: any other numbers the fit function reported
-        (per-fold scores, alternative criteria, runtime counters).
-    :ivar duration: wall-clock seconds spent on this trial.
-    :ivar error: the failure message, or None when the trial succeeded.
-    :ivar index: position in the deterministic trial order, from zero.
+    :param params: parameter configuration that was evaluated.
+    :param score: primary metric value, or ``None`` when no usable score was
+        produced.
+    :param extra_metrics: additional fit outputs such as fold scores,
+        alternate criteria, embeddings, or runtime counters.
+    :param duration: wall-clock seconds spent evaluating the trial.
+    :param error: failure message, or ``None`` when evaluation succeeded.
+    :param index: position in deterministic trial order; ``-1`` means an order
+        has not yet been assigned.
     """
 
     params: Dict[str, Any]
