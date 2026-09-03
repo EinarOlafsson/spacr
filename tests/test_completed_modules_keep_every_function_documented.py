@@ -30,6 +30,7 @@ FULLY_DOCUMENTED = (
     "spacr/annotation.py",
     "spacr/annotation_validation.py",
     "spacr/cancellation.py",
+    "spacr/cell_montage.py",
     "spacr/chaining.py",
     "spacr/checkpoint.py",
     "spacr/classify_classes.py",
