@@ -58,6 +58,7 @@ class ColumnNotFound(KeyError):
 
     def __init__(self, message: str, *, name: str = "",
                  available: Sequence[str] = ()):
+        """Initialize a readable error with structured column context."""
         super().__init__(message)
         self.message = message
         #: What was asked for.
@@ -68,6 +69,7 @@ class ColumnNotFound(KeyError):
         self.available = list(available)
 
     def __str__(self) -> str:                       # trivial
+        """Return the message without :class:`KeyError`'s added quoting."""
         return self.message
 
 

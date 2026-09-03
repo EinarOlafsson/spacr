@@ -35,6 +35,7 @@ FULLY_DOCUMENTED = (
     "spacr/cli_plugins.py",
     "spacr/cli_repro.py",
     "spacr/column_groups.py",
+    "spacr/columns.py",
     "spacr/confusion.py",
     "spacr/control_names.py",
     "spacr/crop_source.py",
