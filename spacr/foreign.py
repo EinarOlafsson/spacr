@@ -676,17 +676,19 @@ class ResolvedColumn:
     property that can be checked: the mapping is the input, the resolution
     is the derivation, and the derivation is deterministic.
 
-    :ivar mapping: the reviewed :class:`ColumnMap` this came from.
-    :ivar target: the column name actually written, after any rename.
-    :ivar factor: multiplier applied to every value, or None when the
-        values are written unchanged because the conversion could not be
-        performed.
-    :ivar calibrated: False when the stored values are *not* in
-        ``unit_out`` — the flag that stops a µm² column being read as px².
-    :ivar unit: the unit the stored values really are in.
-    :ivar status: ``'mapped'``, ``'renamed'``, ``'uncalibrated'`` or
-        ``'unmapped'``.
-    :ivar reason: why, in words, for anything but ``'mapped'``.
+    :param mapping: reviewed source-to-target column mapping from which this
+        resolution was derived.
+    :param target: column name actually written after conflict handling and
+        any rename.
+    :param factor: multiplier applied to numeric values, or ``None`` when a
+        requested conversion could not be performed.
+    :param calibrated: whether stored values are valid in the unit reported
+        by ``unit``.
+    :param unit: unit of the stored values, or an empty string when unknown.
+    :param status: resolution state: ``"mapped"``, ``"renamed"``,
+        ``"uncalibrated"``, or ``"unmapped"``.
+    :param reason: explanation for a non-``"mapped"`` resolution, otherwise
+        an empty string.
     """
 
     mapping: ColumnMap
