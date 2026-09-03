@@ -78,6 +78,11 @@ class ClassifierFamilyError(ValueError):
 def _begin_flowview_run(settings: Mapping[str, Any]) -> object | None:
     """Start a live graph only when optional FlowView tracing is enabled.
 
+    :param settings: Raw Classify settings fingerprinted into the new
+        FlowView graph.
+    :returns: The newly installed collector when tracing is enabled,
+        otherwise ``None``.
+
     The common disabled path is a module-cache lookup and an environment
     check; importantly, it imports no FlowView code.  A panel can enable the
     already-loaded trace module, while ``SPACR_FLOWVIEW`` opts a headless run
@@ -184,6 +189,8 @@ def classify(settings: Mapping[str, Any]) -> Any:
     :param settings: the run settings.
     :returns: whatever the dispatched pipeline returns.
     :raises ClassifierFamilyError: an unrecognised family.
+    :raises ValueError: when pre-dispatch validation rejects the selected ML
+        estimator or CV crop source.
     """
     from .classify_classes import normalize_settings as normalize_classes
     from .training_basis import normalize_settings

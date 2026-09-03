@@ -33,6 +33,7 @@ FULLY_DOCUMENTED = (
     "spacr/cell_montage.py",
     "spacr/chaining.py",
     "spacr/checkpoint.py",
+    "spacr/classify.py",
     "spacr/classify_classes.py",
     "spacr/classifier_quality.py",
     "spacr/cli.py",
