@@ -525,15 +525,26 @@ class TestTheHoverFilterIgnoresWhatIsNotAHover:
         assert scr._hint_strip.text(), "hovering a setting wrote nothing"
         assert "https://" in scr._hint_strip.text()
 
+        held = scr._hint_strip.text()
         QApplication.sendEvent(label, QEvent(QEvent.Leave))
         qtbot.wait(10)
-        assert scr._hint_strip.text() == scr._default_hint()
+        # HELD, NOT BLANKED. The strip keeps a setting's help after the
+        # pointer leaves so the API link inside it can be reached -- moving
+        # toward the link is what generates this Leave, so restoring the
+        # prompt here is what made the link unreachable.
+        assert scr._hint_strip.text() == held
 
-    def test_leaving_puts_the_default_prompt_back(self, qtbot):
+    def test_leaving_holds_the_help_until_the_hold_runs_out(self, qtbot):
         scr = _make_screen(qtbot, "mask")
         label = next(iter(scr._hint_map))
         scr.eventFilter(label, QEvent(QEvent.Enter))
+        held = scr._hint_strip.text()
+        assert held != scr._default_hint(), "hovering wrote nothing to hold"
+
         scr.eventFilter(label, QEvent(QEvent.Leave))
+        assert scr._hint_strip.text() == held
+
+        scr._release_the_hint()
         assert scr._hint_strip.text() == scr._default_hint()
 
     def test_a_category_header_still_writes_its_own_blurb(self, qtbot):
