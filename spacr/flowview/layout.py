@@ -21,7 +21,15 @@ from .theme import (
 
 @dataclass(frozen=True)
 class NodeLayout:
-    """Top-left card position and its stable layer/order assignment."""
+    """Top-left card position and its stable layer/order assignment.
+
+    :ivar x: horizontal coordinate of the card's left edge on the canvas.
+    :ivar y: vertical coordinate of the card's top edge on the canvas.
+    :ivar width: rendered card width used for edge routing and canvas bounds.
+    :ivar height: rendered card height, including metrics and any thumbnail.
+    :ivar layer: deterministic longest-path column assigned to the node.
+    :ivar order: stable top-to-bottom position within that layer.
+    """
 
     x: float
     y: float
@@ -39,7 +47,12 @@ class NodeLayout:
 
 @dataclass(frozen=True)
 class GraphLayout(Mapping[str, NodeLayout]):
-    """A mapping of node identifiers plus deterministic canvas dimensions."""
+    """A mapping of node identifiers plus deterministic canvas dimensions.
+
+    :ivar nodes: node identifiers mapped to their computed card geometries.
+    :ivar width: complete canvas width including its outer margins.
+    :ivar height: complete canvas height including its outer margins.
+    """
 
     nodes: dict[str, NodeLayout]
     width: float

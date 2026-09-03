@@ -69,6 +69,10 @@ def test_layered_layout_is_deterministic_longest_path_and_semantically_pinned():
     first = layout_graph(graph(nodes, edges))
     second = compute_layout(graph(list(reversed(nodes)), list(reversed(edges))))
 
+    for field in ("nodes", "width", "height"):
+        assert f":ivar {field}:" in (GraphLayout.__doc__ or "")
+    for field in ("x", "y", "width", "height", "layer", "order"):
+        assert f":ivar {field}:" in (NodeLayout.__doc__ or "")
     assert first == second
     assert first["input-a"].layer == first["input-b"].layer == 0
     assert first["left"].layer == first["right"].layer == 1

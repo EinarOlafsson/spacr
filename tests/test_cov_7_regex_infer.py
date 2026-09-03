@@ -65,6 +65,8 @@ def test_a_literal_between_two_slots_is_not_mistaken_for_a_well():
     proposal = _proposal_for(["1x2.tif", "3x4.tif"], ["1x2.tif", "3x4.tif"])
 
     assert proposal is not None
+    for field in ("fields", "matched", "total", "unmatched", "suffix"):
+        assert f":ivar {field}:" in (type(proposal).__doc__ or "")
     assert "wellID" not in proposal.fields
     assert proposal.matched == 2
     assert len(proposal.fields) == 2
@@ -128,6 +130,8 @@ def test_a_letter_and_two_digits_are_folded_into_one_well_slot():
 
     assert len(pieces) == 1
     merged = pieces[0]["slot"]
+    for field in ("before", "role", "fixed_tail", "because"):
+        assert f":ivar {field}:" in (type(merged).__doc__ or "")
     assert merged.role == "wellID"
     assert merged.values == ("A01", "B02")
     assert "read as a well" in merged.because

@@ -594,6 +594,25 @@ class MergeReport:
 
     :ivar table: database table into which prediction results were merged.
     :ivar key: join-key strategy selected for the merge.
+    :ivar columns: prediction columns requested for insertion or update.
+    :ivar db_rows: target-table rows considered by the merge.
+    :ivar result_rows: incoming prediction rows considered by the merge.
+    :ivar matched_rows: target rows that received at least one prediction.
+    :ivar matched_keys: distinct incoming identities found in the target table.
+    :ivar unmatched_db_rows: target rows left unchanged because no result
+        carried their identity.
+    :ivar unmatched_result_rows: parseable result rows whose identity was not
+        present in the target table.
+    :ivar unparsed_result_rows: result rows from which no join identity could
+        be constructed.
+    :ivar ambiguous_keys: identities repeated with conflicting prediction
+        values and therefore deliberately not written.
+    :ivar ambiguous_result_rows: incoming rows involved in those conflicts.
+    :ivar fanout_rows: additional target rows sharing a matched identity and
+        receiving the same value, such as alternate crops of one object.
+    :ivar repaired: legacy prediction columns repaired before this merge, as
+        ``(table, column, rows_repaired)`` records.
+    :ivar added_columns: prediction columns newly created in the target table.
 
     Returned by :func:`merge_prediction_results` and printed by it. Every
     count is here because a merge that matched three rows of forty thousand
