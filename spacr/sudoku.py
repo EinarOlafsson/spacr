@@ -53,16 +53,22 @@ DEFAULT_DECISION = 0.55
 class SudokuResult:
     """Cell-level guide assignments and their separate evidence components.
 
-    :ivar guides: one guide name per input cell, or
-        :data:`ABSTAIN`.
-    :ivar affirm: ``(n_cells, n_guides)`` support from each guide's anchors.
-    :ivar eliminate: ``(n_cells, n_guides)`` support from competing anchors.
-        Keeping this separate from ``affirm`` distinguishes ambiguous cells
-        from cells unsupported by any anchor population.
-    :ivar reach: ``(n_cells,)`` total propagated anchor mass.
-    :ivar posterior: ``(n_cells, n_guides)`` after the well constraint.
-    :ivar names: the guide names, in the column order of the matrices.
-    :ivar report: assignment counts, settings, and diagnostic warnings.
+    :param guides: assigned guide for each input cell, using :data:`ABSTAIN`
+        when no guide is called; empty when there are no cells or candidate
+        guides.
+    :param affirm: ``(n_cells, n_guides)`` normalized support propagated from
+        each guide's anchors.
+    :param eliminate: ``(n_cells, n_guides)`` competing-guide evidence,
+        computed as one minus ``affirm``.
+    :param reach: ``(n_cells,)`` propagated support relative to the median
+        positive reach; sequential runs retain each cell's maximum across
+        processed rounds.
+    :param posterior: ``(n_cells, n_guides)`` guide probabilities after
+        applying the well-level fraction constraint.
+    :param names: guide names in the matrix-column order used by ``affirm``,
+        ``eliminate``, and ``posterior``.
+    :param report: assignment counts, thresholds, anchor diagnostics, and
+        warnings recorded by the run.
     """
 
     guides: Tuple[str, ...]
