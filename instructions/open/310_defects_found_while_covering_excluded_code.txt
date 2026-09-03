@@ -3446,3 +3446,61 @@ fail rather than letting the repaired record disappear from the audit.
 
 REVISED COUNT: 131 entries, 62 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+74. COUNTING MARKERS ACCEPTED NONPOSITIVE AND NON-FINITE DIAMETERS
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/counting.py``. Zero, negative, NaN, and infinite marker diameters were
+accepted and passed into point-layer rendering, while a nonnumeric value
+escaped as a raw ``ValueError`` rather than the module's ``LayerError`` setup
+contract.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/counting.py``. Session construction
+now normalizes the value once and requires a positive finite world-unit
+diameter before creating any layer. Five focused invalid cases fail on the old
+source and now produce the same actionable ``LayerError``; ordinary finite
+marker sizes retain their existing placement and radius tests.
+
+REVISED COUNT: 132 entries, 63 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+75. NEGATIVE COUNTING SHORTCUT POSITIONS GENERATED INVALID KEYS
+==============================================================================
+
+Found 2026-09-03 in ``spacr/counting.py``. The documented zero-based
+``shortcut_index`` accepted negative positions, turning ``-1`` into shortcut
+``"0"`` and lower values into negative key strings that the numeric shortcut
+row can never select.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/counting.py``. An auto-assigned
+shortcut position must now be non-negative, while an explicit shortcut keeps
+the documented precedence and remains independent of the ignored index. The
+negative-position test is red without the guard and the existing ``1`` through
+``9`` assignment test remains its positive counterpart.
+
+REVISED COUNT: 133 entries, 64 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+76. DUPLICATE COUNTING SHORTCUTS MADE A LATER CLASS UNREACHABLE
+==============================================================================
+
+Found 2026-09-03 in ``spacr/counting.py``. Class names were unique but their
+nonblank keyboard shortcuts were not. ``class_for_shortcut`` returns the first
+match, so a later class sharing that key could be displayed and counted but
+never selected with the shortcut it advertised.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/counting.py``. Class insertion now
+refuses a nonblank shortcut already assigned in the session before it creates
+a layer. The focused test first accepts two distinct explicit shortcuts, then
+requires the duplicate to fail; removing the uniqueness check makes only that
+refusal turn red.
+
+REVISED COUNT: 134 entries, 65 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
