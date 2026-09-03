@@ -740,6 +740,7 @@ class WellFractions:
 
     def __init__(self, counts: pd.DataFrame,
                  wells: Optional[Iterable[str]] = None):
+        """Prepare a nonempty, optionally restricted well population."""
         if wells is not None:
             keep = set(str(w) for w in wells)
             counts = counts[counts["prc"].astype(str).isin(keep)]
