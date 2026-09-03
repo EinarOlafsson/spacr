@@ -61,10 +61,14 @@ def features_dir() -> Path:
 class CustomFeature:
     """One discovered feature function.
 
-    :ivar name: label used as the DB column prefix; when the function
-        returns a dict, keys are appended to make ``<name>_<key>``.
-    :ivar source: the ``.py`` file the function lives in.
-    :ivar fn: the callable itself.
+    :param name: public function name discovered in the user module;
+        :func:`call_feature` uses it as the scalar output key or as the
+        prefix in ``<name>_<returned_key>``.
+    :param source: path of the user ``.py`` module that defined ``fn``,
+        retained as the feature's origin metadata.
+    :param fn: discovered callable invoked by :func:`call_feature` as
+        ``fn(mask, image, **kwargs)``. Exceptions are logged under ``name``
+        and produce an empty result.
     """
     name:   str
     source: Path

@@ -299,9 +299,14 @@ class ConditionalUnit:
     exactly why the dictionary has to read it from the data rather than assert
     it.
 
-    :ivar px: the unit when ``measurement_units == 'px'`` (a 2-D run).
-    :ivar px_xy: the unit when ``measurement_units == 'px_xy'``.
-    :ivar um: the unit when ``measurement_units == 'um'``.
+    :param px: unit text for rows stamped ``measurement_units='px'`` (the 2-D
+        pixel mode), or ``None`` when the column is not written in that mode.
+    :param px_xy: unit text for rows stamped ``measurement_units='px_xy'``
+        (3-D geometry scaled by anisotropy in xy-pixel units), or ``None``
+        when the column is not written in that mode.
+    :param um: unit text for rows stamped ``measurement_units='um'`` (3-D
+        geometry measured with physical voxel sizes), or ``None`` when the
+        column is not written in that mode.
 
     A field is ``None`` when the column is not written at all in that mode —
     the ``_z``/``_y``/``_x`` centroid axes exist only in 3-D, for instance.

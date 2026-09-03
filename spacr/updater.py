@@ -64,6 +64,7 @@ class UpdateInfo:
 
     @property
     def upgrade_available(self) -> bool:
+        """Return whether PyPI advertises a version newer than this install."""
         if not self.latest_release:
             return False
         return _lt(self.installed_version, self.latest_release)

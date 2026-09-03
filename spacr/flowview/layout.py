@@ -49,9 +49,9 @@ class NodeLayout:
 class GraphLayout(Mapping[str, NodeLayout]):
     """A mapping of node identifiers plus deterministic canvas dimensions.
 
-    :ivar nodes: node identifiers mapped to their computed card geometries.
-    :ivar width: complete canvas width including its outer margins.
-    :ivar height: complete canvas height including its outer margins.
+    :param nodes: node identifiers mapped to their computed card geometries.
+    :param width: full canvas width, including both outer margins.
+    :param height: full canvas height, including both outer margins.
     """
 
     nodes: dict[str, NodeLayout]
