@@ -30,8 +30,10 @@ from PySide6.QtCore import QObject, Qt, QThread, Signal
 from PySide6.QtWidgets import (QAbstractItemView, QDialog, QDialogButtonBox,
                                QFileDialog, QHBoxLayout, QHeaderView, QLabel,
                                QLineEdit, QMessageBox, QProgressBar,
-                               QPushButton, QTableWidget, QTableWidgetItem,
+                               QPushButton, QTableWidget,
                                QVBoxLayout, QWidget)
+
+from .sortable_table import install_sorting, table_item
 
 #: Where checkpoints land unless the user says otherwise.
 DEFAULT_MODEL_DIR = os.path.join(os.path.expanduser("~"), ".spacr", "models")
@@ -181,6 +183,7 @@ class ModelZooPicker(QDialog):
         layout.addWidget(blurb)
 
         self.table = QTableWidget(0, len(_COLUMNS), self)
+        install_sorting(self.table)
         self.table.setHorizontalHeaderLabels(_COLUMNS)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
@@ -276,7 +279,7 @@ class ModelZooPicker(QDialog):
                 "on this machine" if local else "not downloaded",
             )
             for column, text in enumerate(cells):
-                item = QTableWidgetItem(str(text))
+                item = table_item(str(text))
                 if column == 3 and local:
                     item.setToolTip(local)
                 self.table.setItem(row, column, item)

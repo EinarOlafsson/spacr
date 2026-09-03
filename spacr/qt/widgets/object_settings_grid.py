@@ -54,6 +54,7 @@ from ...object_settings_table import (OBJECT_ORDER, column_label, from_table,
                                       to_table, widen)
 from ...organelle_types import MAX_ORGANELLES, organelle_role
 from ..theme import SPACING
+from .sortable_table import install_sorting
 
 __all__ = ["AUTO_TEXT", "ObjectSettingsGrid", "ObjectSettingsModel"]
 
@@ -255,6 +256,11 @@ class ObjectSettingsGrid(QWidget):
 
         self._table = QTableView(self)
         self._table.setModel(self._model)
+        # AFTER setModel, as the contract requires: a QTableView is wrapped in
+        # a proxy, so the selection model has to be taken afterwards. The
+        # stored answers are unaffected -- `table()` reads the model, not the
+        # view, so sorting the questions on screen reorders nothing on disk.
+        install_sorting(self._table)
         self._table.setSelectionBehavior(QAbstractItemView.SelectItems)
         self._table.setAlternatingRowColors(True)
         self._table.horizontalHeader().setSectionResizeMode(
