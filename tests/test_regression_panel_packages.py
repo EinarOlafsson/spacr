@@ -1,4 +1,5 @@
 import importlib.util
+import inspect
 import json
 import sys
 from pathlib import Path
@@ -34,6 +35,31 @@ from spacr.regression_panels import (  # noqa: E402
     shared_limits,
     write_panel_package,
 )
+
+
+@pytest.mark.parametrize(
+    "model,expected",
+    [
+        (PanelNarrative, {"legend", "purpose", "shows", "implications"}),
+        (
+            PanelStyle,
+            {
+                "point_size", "point_alpha", "line_width", "line_color",
+                "figure_width", "plot_height", "pdf_height", "png_dpi",
+                "axes_left", "axes_width", "pdf_axes_bottom",
+                "pdf_axes_height",
+            },
+        ),
+    ],
+)
+def test_panel_models_publish_every_constructor_parameter(model, expected):
+    """The live panel signatures and API prose must describe the same fields."""
+    parameters = set(inspect.signature(model).parameters)
+    assert parameters == expected
+    documentation = inspect.getdoc(model) or ""
+    assert "Parameters\n----------" in documentation
+    for name in parameters:
+        assert f"\n{name} :" in documentation
 
 
 def _guide_results():
