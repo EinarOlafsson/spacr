@@ -50,6 +50,7 @@ FULLY_DOCUMENTED = (
     "spacr/core.py",
     "spacr/counting.py",
     "spacr/crop_source.py",
+    "spacr/crops.py",
     "spacr/curation.py",
     "spacr/custom_features.py",
     "spacr/database_concurrency.py",
