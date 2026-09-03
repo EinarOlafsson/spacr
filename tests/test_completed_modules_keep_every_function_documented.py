@@ -157,6 +157,7 @@ FULLY_DOCUMENTED = (
     "spacr/thresholds.py",
     "spacr/tiff_io.py",
     "spacr/timelapse.py",
+    "spacr/train_compare.py",
     "spacr/trial_metrics.py",
     "spacr/uniprot.py",
     "spacr/umap_annotations.py",
