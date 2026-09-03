@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import json
 from collections import deque
+from dataclasses import fields
+import inspect
 
 import pytest
 
@@ -16,6 +18,30 @@ from spacr.remote_execution import (
     RemoteJobManager,
     map_settings_paths,
 )
+
+
+@pytest.mark.parametrize("record", (CommandResult, ExecutionProfile, RemoteJob))
+def test_remote_records_document_every_constructor_parameter(record):
+    """Every persisted or captured field is explained on the API page."""
+    documentation = inspect.getdoc(record) or ""
+    missing = [
+        item.name
+        for item in fields(record)
+        if f":param {item.name}:" not in documentation
+    ]
+    assert not missing, f"{record.__name__}: {missing}"
+
+
+@pytest.mark.parametrize("service", (ProfileStore, JobStore, RemoteJobManager))
+def test_remote_services_document_every_constructor_parameter(service):
+    """Service dependencies and state-file locations are discoverable."""
+    documentation = inspect.getdoc(service) or ""
+    missing = [
+        name
+        for name in inspect.signature(service).parameters
+        if f":param {name}:" not in documentation
+    ]
+    assert not missing, f"{service.__name__}: {missing}"
 
 
 class QueueRunner:
