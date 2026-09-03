@@ -1,8 +1,20 @@
-from dataclasses import FrozenInstanceError
+from dataclasses import FrozenInstanceError, fields
 
 import pytest
 
 from spacr.flowview.model import Edge, Node, NodeKind, NodeState, RunGraph
+
+
+@pytest.mark.parametrize("record", (Node, Edge, RunGraph))
+def test_model_records_document_every_serialized_field(record):
+    """Every value retained in the graph snapshot is explained in the API."""
+    documentation = record.__doc__ or ""
+    missing = [
+        item.name
+        for item in fields(record)
+        if f":ivar {item.name}:" not in documentation
+    ]
+    assert not missing, f"{record.__name__}: {missing}"
 
 
 def test_nodes_normalise_enums_copy_mappings_and_are_frozen():
