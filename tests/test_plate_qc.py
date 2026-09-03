@@ -13,6 +13,7 @@ paying a multi-second import.
 """
 from __future__ import annotations
 
+from dataclasses import fields
 import hashlib
 import json
 import math
@@ -50,6 +51,16 @@ from spacr.plate_qc import (
     well_id,
     write_layout_csv,
 )
+
+
+def test_edge_effect_report_documents_every_reported_field():
+    """Every value exposed to callers must be explained in the API."""
+    missing = [
+        item.name
+        for item in fields(EdgeEffectReport)
+        if f":ivar {item.name}:" not in (EdgeEffectReport.__doc__ or "")
+    ]
+    assert not missing, f"undocumented EdgeEffectReport fields: {missing}"
 
 
 # ---------------------------------------------------------------------------
