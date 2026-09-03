@@ -3642,3 +3642,22 @@ makes the exact constructor contract fail.
 
 REVISED COUNT: 141 entries, 72 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+84. VOLCANO AXIS LABELS IGNORED THEIR DEDICATED SIZE
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/volcano_style.py``. ``FigureStyle.label_font_size`` explicitly owns
+axis-label size, but ``_finish_axes`` rendered both axis labels with the
+general ``font_size``. The colorbar and legend already used the dedicated
+value, so one setting produced inconsistent label sizes within one figure.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/volcano_style.py``. Ordinary and
+split-axis x/y labels now use ``label_font_size`` while titles and ticks keep
+their own controls. A focused render sets deliberately different general and
+label sizes; restoring ``font_size`` makes the assertion fail.
+
+REVISED COUNT: 142 entries, 73 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.

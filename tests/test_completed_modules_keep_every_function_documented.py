@@ -150,6 +150,7 @@ FULLY_DOCUMENTED = (
     "spacr/umap_annotations.py",
     "spacr/umap_search.py",
     "spacr/updater.py",
+    "spacr/volcano_style.py",
     "spacr/well_scope.py",
     "spacr/well_spec.py",
     "spacr/workspace.py",
