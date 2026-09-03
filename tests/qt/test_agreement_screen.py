@@ -274,12 +274,19 @@ def test_agreement_has_a_title_and_an_intro():
 
 
 def test_agreement_icon_resolves_to_a_real_resource_file():
+    """It has its own PNG now, so it needs no override to point at another.
+
+    This asserted an `_ICON_OVERRIDES` entry, which was right while the
+    module had no artwork of its own and had to borrow Annotate's. The
+    override was removed with four others once `agreement.png` was
+    installed; the property worth keeping is that the icon RESOLVES.
+    """
     from spacr.qt import app as qt_app
-    assert "agreement" in qt_app._ICON_OVERRIDES, (
-        "agreement needs an _ICON_OVERRIDES entry — no binary was added")
     here = os.path.dirname(os.path.abspath(qt_app.__file__))
+    override = qt_app._ICON_OVERRIDES.get("agreement")
+    name = override or "agreement.png"
     path = os.path.normpath(os.path.join(
-        here, "..", "resources", "icons", qt_app._ICON_OVERRIDES["agreement"]))
+        here, "..", "resources", "icons", name))
     assert os.path.isfile(path), f"missing icon file: {path}"
 
 
@@ -309,8 +316,17 @@ def test_the_sidebar_no_longer_lists_annotator_agreement(qtbot,
     labels = {b.accessibleName() for b in bar.findChildren(QPushButton)}
     keys = {b.property("navKey") for b in bar.findChildren(QPushButton)}
 
-    assert "Annotator Agreement" not in labels
-    assert "agreement" not in keys
+    # NESTED UNDER ITS HOST, not absent. Asked for on 2026-09-02 -- "nested
+    # modules should be nested in the dock" -- so a folded module now has a
+    # row again, indented under Annotate and hidden until that host is
+    # opened. The fold's point still holds: it is not a SECOND top-level
+    # door beside its host, which is what this test was written to prevent.
+    row = next((b for b in bar.findChildren(QPushButton)
+                if b.property("navKey") == "agreement"), None)
+    assert row is not None, "the folded module lost its dock row entirely"
+    assert row.property("isFoldChild"), "it is a top-level row again"
+    assert str(row.property("foldParent")) == "annotate"
+    assert row.isHidden(), "a folded row shows only while its host is open"
     assert "Annotate" in labels, "the host it folded into must still be there"
     assert "agreement" in FOLDED_APPS
 

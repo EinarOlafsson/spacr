@@ -414,6 +414,18 @@ class SettingsSearchBar(QWidget):
                 if field is None:
                     continue
                 key = by_widget.get(id(field))
+                if key is None:
+                    # THE FIELD IN THE ROW IS NOT ALWAYS THE FIELD. A setting
+                    # that takes a Cellpose checkpoint sits in a little
+                    # holder beside its "Model zoo…" button, so the form's
+                    # row is the HOLDER and matching on it alone left
+                    # `cell_model_name` out of the index entirely -- typing
+                    # "model" on Mask found nothing and the row could not be
+                    # reached from the search at all.
+                    for child in field.findChildren(QWidget):
+                        key = by_widget.get(id(child))
+                        if key is not None:
+                            break
                 if key is not None:
                     self._index[key] = (section, field)
 

@@ -68,10 +68,27 @@ def _form_rows(screen) -> dict:
 
 
 def _captioned(screen) -> set:
-    """The setting keys whose row has a caption beside it."""
+    """The setting keys whose row has a caption beside it.
+
+    WALKS UP FROM THE FIELD. The widget the FORM knows is not always the
+    widget the model holds: a setting that takes a Cellpose checkpoint sits
+    in a little holder beside its "Model zoo…" button, and the form's row is
+    the holder. Matching on the field alone reported `cell_model_name` as
+    having no caption when it has one, which is the same confusion the
+    panel's own `_set_row_visible` walks up to avoid.
+    """
     rows = _form_rows(screen)
-    return {key for key, field in screen._settings_model._widgets.items()
-            if id(field) in rows and rows[id(field)][3] is not None}
+    found = set()
+    for key, field in screen._settings_model._widgets.items():
+        node = field
+        while node is not None:
+            row = rows.get(id(node))
+            if row is not None:
+                if row[3] is not None:
+                    found.add(key)
+                break
+            node = node.parentWidget()
+    return found
 
 
 # ---------------------------------------------------------------------------
