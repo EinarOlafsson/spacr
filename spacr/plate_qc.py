@@ -1129,16 +1129,23 @@ def row_column_trends(df: pd.DataFrame,
 class RingStats:
     """One concentric ring of the plate, compared against its core.
 
-    :ivar ring: 0 for the outermost ring, 1 for one well in, and so on.
-    :ivar n_wells: wells surviving ``min_count`` in this ring.
-    :ivar median: median well value in the ring.
-    :ivar mean: mean well value in the ring.
-    :ivar delta: ``median(ring) - median(core)``.
-    :ivar pct: ``delta`` as a percentage of the core median, or ``None``
-        when the core median is zero.
-    :ivar p_value: two-sided Mann-Whitney U against the core.
-    :ivar cliffs_delta: rank effect size in ``[-1, 1]``; positive means
-        this ring reads higher than the core.
+    :param ring: zero-based distance from the plate edge: zero is the
+        outermost ring, one is one well inward, and so on.
+    :param n_wells: number of usable wells in this ring after minimum-count
+        and missing-value filtering.
+    :param median: finite median of the per-well values in this ring, or
+        ``None`` when it is unavailable.
+    :param mean: finite mean of the per-well values in this ring, or ``None``
+        when it is unavailable.
+    :param delta: ring median minus the selected core median, or ``None`` when
+        either median is unavailable.
+    :param pct: ``delta`` as a percentage of the absolute core median, or
+        ``None`` when the difference or baseline is unavailable or zero.
+    :param p_value: two-sided Mann-Whitney U p-value comparing this ring with
+        the selected core, or ``None`` when the comparison is unavailable.
+    :param cliffs_delta: signed Cliff's delta for the same comparison, in
+        ``[-1, 1]``; positive values mean this ring reads higher than the core,
+        or ``None`` when unavailable.
     """
     ring: int
     n_wells: int
@@ -1154,16 +1161,24 @@ class RingStats:
 class GradientStats:
     """A monotonic drift along one axis of the plate.
 
-    :ivar axis: ``'row'`` or ``'column'``.
-    :ivar spearman_rho: rank correlation of well value with the axis
-        index; ``None`` when undefined (constant values, <3 wells).
-    :ivar p_value: two-sided p for ``spearman_rho``.
-    :ivar first_label: label of the lowest-index row/column present.
-    :ivar last_label: label of the highest-index row/column present.
-    :ivar delta_first_last: median of the last minus median of the first.
-    :ivar pct_first_last: that difference as a percentage of the first.
-    :ivar detected: both ``p_value`` and ``|rho|`` cleared their
-        thresholds.
+    :param axis: plate axis tested, either ``"row"`` or ``"column"``.
+    :param spearman_rho: Spearman rank correlation between each usable well's
+        value and its row or column index, or ``None`` when fewer than three
+        wells are available or the correlation is undefined.
+    :param p_value: two-sided p-value for ``spearman_rho``, or ``None`` when
+        the correlation is unavailable.
+    :param first_label: label of the lowest-index row or column present in the
+        usable wells.
+    :param last_label: label of the highest-index row or column present in the
+        usable wells.
+    :param delta_first_last: median value at the last axis index minus the
+        median at the first, or ``None`` when either median is unavailable.
+    :param pct_first_last: ``delta_first_last`` as a percentage of the absolute
+        first-index median, or ``None`` when the difference or baseline is
+        unavailable or zero.
+    :param detected: whether ``p_value < alpha`` and
+        ``abs(spearman_rho) >= min_gradient_rho`` for the thresholds used to
+        produce the profile.
     """
     axis: str
     spearman_rho: Optional[float]
