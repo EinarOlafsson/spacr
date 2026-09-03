@@ -336,3 +336,55 @@ GENERATED layer, and `audit_i18n_coverage` reads 4946/5093 per locale -- 147
 rows behind. Moving that pin would green a test over catalogs that are stale,
 which is the mistake this item's history is made of. It stays red until the
 rows exist.
+
+--------------------------------------------------------------------------------
+2026-09-03: ORPHANED REVIEW EVIDENCE IN THREE PLACES, AND A MECHANISM FOR IT
+--------------------------------------------------------------------------------
+
+The same problem turned up three times tonight, in three different files, and
+it is one problem: A HUMAN REVIEW BOUND TO SOURCE TEXT THAT HAS SINCE BEEN
+REWRITTEN. The review happened. The sentence it covered did not survive.
+
+  1. `docs/i18n/reviewed/readme/2026-08-26-nightly-merge-gaps.json`
+     11 of 16 records, all marked reviewed in nine locales, bound to README
+     text removed in `f9f43a5ba`. RESOLVED: the maintainer chose "mark them
+     retired, in place" over archiving to a second file and over deleting
+     them, and each now carries `retired` and a `retired_reason`.
+
+  2. `docs/i18n/reviewed/api/is/2026-08-14-tail-075-099.json`
+     One record, `spacr.io.concatenate_and_normalize#4`, whose source block
+     appears nowhere in the current docstring. This one BLOCKED THE WHOLE
+     DOCS AUDIT -- `reviewed_api_block_translations` raises on the first
+     stale record, so nothing downstream ran. RESOLVED the same way: the
+     reader now skips a record carrying `retired`, which is the mechanism
+     the maintainer approved for (1) applied to the same question.
+
+     A second API record was merely MIS-KEYED rather than orphaned:
+     `usage_bar.UsageBar#1` became `#2` when today's 350 fix added a
+     paragraph above it. Re-keyed by matching the recorded hash against the
+     current blocks, which is repair rather than retirement -- the review is
+     still valid for text that still exists, it had just moved.
+
+  3. `REVIEWED_README_BLOCKS` in `tools/build_documentation_i18n.py`
+     MEASURED: 37 of its 47 keys are no longer in README.rst.
+     `test_github_summary_has_reviewed_domain_translations` asserts every
+     key is present, and has been red for some time.
+
+     NOT RESOLVED TONIGHT, and the reason is the number. The maintainer
+     approved retirement for eleven records they were shown; 37 of 47 is a
+     different question, and at that scale some are likely to be NEAR
+     MISSES -- the README was reworded, not rewritten, so the reviewed
+     sentence may exist in a slightly changed form and want RE-BINDING
+     rather than retiring. Retiring a review that could have been re-bound
+     loses it for nothing.
+
+     WHAT TO DO: sort the 37 into "the text is gone" and "the text moved or
+     was lightly edited" before touching any of them. The second group is
+     repair, like the UsageBar case. Only the first is a retirement, and
+     only that group needs the maintainer's decision again -- at which
+     point the mechanism already exists in two of the three files.
+
+THE PATTERN WORTH NAMING: reviewed evidence is bound to source text by hash
+or by position, and every ordinary edit to prose is a potential orphaning.
+Nothing warns at the time -- the audit notices later, and in case (2) it
+notices by refusing to run at all.

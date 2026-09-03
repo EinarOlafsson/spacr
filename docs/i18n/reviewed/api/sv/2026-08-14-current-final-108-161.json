@@ -108,7 +108,7 @@
       "translation": "enradig undertext (till exempel app tagline)."
     },
     {
-      "label": "spacr.qt.widgets.usage_bar.UsageBar#1",
+      "label": "spacr.qt.widgets.usage_bar.UsageBar#2",
       "source_sha256": "a678db1d8e3c60645deb76fd4c7a4b9ab43d9642b652cde9a0858501e9810bcb",
       "source": "text shown to the left of the bar (e.g. \"RAM\", \"GPU\").",
       "context": "text shown to the left of the bar (e.g. \"RAM\", \"GPU\").",

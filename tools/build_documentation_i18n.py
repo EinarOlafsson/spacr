@@ -5759,6 +5759,21 @@ def reviewed_api_block_translations(
             if not isinstance(record, Mapping):
                 raise ValueError(f"invalid reviewed API record: {path}")
             label = str(record.get("label", ""))
+            # RETIRED RECORDS ARE KEPT AND NOT CHECKED, the mechanism the
+            # maintainer chose on 2026-09-03 for the README gap ledger when
+            # asked the same question about the same situation: a human
+            # review bound to source text that has since been rewritten.
+            #
+            # Deleting it is the obvious fix and the wrong one. Instruction
+            # 357's guideline 4 forbids CLAIMING a review nobody gave; its
+            # mirror is that a review somebody DID give is not ours to
+            # discard because the sentence it covered changed. The record
+            # keeps its reviewer, its locale and its translation, and is
+            # simply no longer compared against a docstring that no longer
+            # contains it. `retired_reason` says why, so the next reader can
+            # tell a deliberate retirement from a record that quietly broke.
+            if record.get("retired"):
+                continue
             symbol, separator, raw_index = label.rpartition("#")
             if not separator:
                 raise ValueError(f"invalid reviewed API label {label!r}: {path}")
