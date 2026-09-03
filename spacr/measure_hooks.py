@@ -158,13 +158,14 @@ class MeasurementHookError(ConfigurationError):
 class RegisteredHook(NamedTuple):
     """One entry in a hook registry.
 
-    :ivar name: unique key; pass it to the matching ``unregister_*``.
-    :ivar func: the callable itself.
-    :ivar priority: lower runs first; ties break on ``sequence``.
-    :ivar sequence: monotonic registration counter, for stable ordering.
-    :ivar source: ``'api'`` for :func:`register_preprocessing_hook` and
-        friends, ``'env'`` for anything installed via :data:`HOOKS_ENV_VAR`.
-        Only ``'api'`` hooks fail to reach a non-``fork`` worker pool.
+    :param name: unique registry key accepted by the corresponding unregister
+        function.
+    :param func: registered preprocessing or region-filter callable.
+    :param priority: execution priority; lower values run first.
+    :param sequence: monotonic registration number used to preserve order
+        between equal priorities.
+    :param source: ``"api"`` for direct registration or ``"env"`` for
+        installation through :data:`HOOKS_ENV_VAR`.
     """
 
     name: str

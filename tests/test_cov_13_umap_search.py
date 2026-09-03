@@ -55,10 +55,11 @@ def test_the_best_row_ignores_the_unscored_ones_entirely():
 
 
 def test_the_table_reports_its_length_and_hands_back_a_detachable_row_list():
-    """``rows`` must be a copy, so a caller cannot edit the search in place.
+    """``rows`` must copy the outer list, so a caller cannot reorder the table.
 
-    Screens sort and filter what they get back. Handing out the live list
-    would let a display-side sort silently reorder the record of the search.
+    The retained row objects remain shared. Screens sort and filter the outer
+    list; handing out that live list would let a display-side sort silently
+    reorder the record of the search.
     """
     table = SearchTable()
     first = table.add(_row(score=0.1))

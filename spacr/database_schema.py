@@ -91,11 +91,13 @@ class Migration:
 class MigrationReport:
     """Result of bringing one database to a requested schema version.
 
-    :ivar path: database path label, or ``None`` for an unnamed connection.
-    :ivar from_version: schema version observed before migration.
-    :ivar to_version: schema version after successful migration.
-    :ivar applied: ordered names of migrations that ran.
-    :ivar column_renames: ``(table, old, new)`` column repairs that ran.
+    :param path: database path label copied into the report, or ``None`` for
+        an unnamed connection.
+    :param from_version: schema version observed before migration.
+    :param to_version: schema version reached after successful migration.
+    :param applied: ordered names of migrations that ran.
+    :param column_renames: ``(table, old, new)`` column repairs performed by
+        the migrations.
     """
 
     path: Optional[str]

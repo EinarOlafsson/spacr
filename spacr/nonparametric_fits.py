@@ -197,6 +197,7 @@ class Curve:
 
     @property
     def has_band(self) -> bool:
+        """Return whether both lower and upper uncertainty bounds exist."""
         return self.lower is not None and self.upper is not None
 
 
@@ -311,6 +312,7 @@ class Agreement:
     note: str = ""
 
     def summary(self) -> str:
+        """Describe rank agreement and at most eight guide disagreements."""
         agree = "agree" if self.correlation >= 0.5 else "DISAGREE"
         head = (f"{self.method} against the linear ranking: Spearman "
                 f"{self.correlation:+.2f}, which is to say they {agree}.")

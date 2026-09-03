@@ -19,6 +19,8 @@ def cv2_to_rgb(image: Optional[np.ndarray]) -> Optional[np.ndarray]:
     """Convert an OpenCV BGR/BGRA array to spaCR's RGB/RGBA contract.
 
     :param image: decoded OpenCV array, grayscale array, or ``None``.
+    :returns: contiguous RGB/RGBA data for three- or four-channel inputs;
+        ``None``, grayscale, and other channel counts pass through unchanged.
     """
     if image is None:
         return None
@@ -36,6 +38,8 @@ def rgb_to_cv2(image: np.ndarray) -> np.ndarray:
     """Convert an RGB/RGBA array only for an immediate OpenCV write call.
 
     :param image: spaCR RGB/RGBA array, or a grayscale array to pass through.
+    :returns: contiguous BGR/BGRA data for three- or four-channel inputs;
+        grayscale and other channel counts pass through unchanged.
     """
     arr = np.asarray(image)
     if arr.ndim != 3:
@@ -51,6 +55,10 @@ def read_image_rgb(path: PathValue, flags: int = -1) -> Optional[np.ndarray]:
     """Read with OpenCV and immediately return RGB/RGBA in memory.
 
     :param path: image path accepted by OpenCV.
+    :param flags: OpenCV read mode; ``-1`` preserves the stored dtype and
+        alpha channel.
+    :returns: RGB/RGBA or grayscale image data, or ``None`` when OpenCV cannot
+        read the path.
     """
     import cv2
 
@@ -62,6 +70,8 @@ def write_image_rgb(path: PathValue, image: np.ndarray, params=None) -> bool:
 
     :param path: output image path passed to OpenCV.
     :param image: spaCR RGB/RGBA array, converted immediately before encoding.
+    :param params: optional OpenCV encoder parameter sequence.
+    :returns: whether OpenCV encoded and wrote the image successfully.
     """
     import cv2
 

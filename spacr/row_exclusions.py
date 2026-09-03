@@ -15,6 +15,9 @@ def normalize_row_exclusions(value: Any) -> dict[str, list[Any]]:
 
     ``None`` and an empty value mean no exclusions. A scalar value is accepted
     as a one-item list so hand-written settings remain convenient.
+
+    :returns: stripped column names mapped to ordered, deduplicated values.
+    :raises ValueError: when a nonempty value cannot be parsed as a mapping.
     """
     if value in (None, "", {}, []):
         return {}
