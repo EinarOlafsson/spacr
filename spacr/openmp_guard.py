@@ -76,8 +76,13 @@ def _clamping_platform() -> bool:
 
 
 def _looks_like_openmp(path: str) -> bool:
+    """Return whether a mapped image basename starts with a runtime marker.
+
+    :param path: mapped-image path to classify by basename.
+    :returns: whether its basename begins with a supported OpenMP marker.
+    """
     name = os.path.basename(path)
-    return any(marker in name for marker in _OPENMP_MARKERS)
+    return any(name.startswith(marker) for marker in _OPENMP_MARKERS)
 
 
 def _macos_images() -> List[str]:
@@ -86,6 +91,11 @@ def _macos_images() -> List[str]:
     ``_dyld_get_image_name`` is the only way to see what is actually mapped;
     walking site-packages would find copies that were never loaded and miss a
     system one that was.
+
+    :returns: mapped image paths in dyld image-index order, retaining
+        duplicates.
+    :raises Exception: if the platform image API cannot be loaded or queried;
+        :func:`resident_openmp_runtimes` converts that failure to unknown.
     """
     from ctypes import CDLL, c_char_p, c_uint32, util
 
@@ -100,7 +110,11 @@ def _macos_images() -> List[str]:
 
 
 def _linux_images() -> List[str]:
-    """Loaded image paths, from the process's own memory map."""
+    """Return absolute mapped-image paths from ``/proc/self/maps`` in order.
+
+    Duplicate mappings remain in the result. File and parse errors propagate
+    to :func:`resident_openmp_runtimes`, which converts them to unknown.
+    """
     paths = []
     with open("/proc/self/maps", "r") as handle:
         for line in handle:
@@ -118,7 +132,9 @@ def resident_openmp_runtimes() -> List[str]:
     globals, so they are counted separately — but a symlink and its target are
     one file and are not.
 
-    Returns ``[]`` on any platform or failure where the answer is unknown.
+    :returns: resolved, deduplicated runtime paths in sorted order, or ``[]``
+        on any platform or failure where the answer is unknown.
+
     Unknown must read as "no evidence of trouble", because the caller's
     fallback is the behaviour spaCR has always had.
     """
@@ -129,25 +145,25 @@ def resident_openmp_runtimes() -> List[str]:
             images = _linux_images()
         else:
             return []
+        found = set()
+        for path in images:
+            if not _looks_like_openmp(path):
+                continue
+            try:
+                found.add(os.path.realpath(path))
+            except Exception:
+                found.add(path)
+        return sorted(found)
     except Exception:
         return []
-
-    found = set()
-    for path in images:
-        if not _looks_like_openmp(path):
-            continue
-        try:
-            found.add(os.path.realpath(path))
-        except Exception:
-            found.add(path)
-    return sorted(found)
 
 
 def openmp_runtime_is_duplicated() -> bool:
     """True when this process has more than one OpenMP runtime mapped.
 
     Reports the condition on every platform. Whether it is acted on is
-    :func:`single_threaded_openmp`'s decision, not this one's.
+    :func:`single_threaded_openmp`'s decision, not this one's, unless
+    ``SPACR_OPENMP_GUARD=off`` explicitly forces ``False``.
     """
     if _guard_disabled():
         return False
@@ -160,6 +176,11 @@ def _handle(path: str):
     ``dlopen`` on a mapped image returns the existing handle and bumps a
     refcount; it does not load a second copy, which would be the one thing this
     module must never do.
+
+    :param path: mapped runtime image path to open.
+    :returns: cached :class:`ctypes.CDLL` handle with OpenMP signatures set.
+    :raises OSError: if the mapped image cannot be opened.
+    :raises AttributeError: if the runtime lacks the required OpenMP symbols.
     """
     handle = _HANDLES.get(path)
     if handle is None:
@@ -172,30 +193,47 @@ def _handle(path: str):
 
 
 def _warn_once(runtimes: List[str], label: str) -> None:
+    """Emit at most one best-effort warning about duplicate runtimes.
+
+    :param runtimes: distinct mapped OpenMP runtime paths.
+    :param label: user-facing name of the work that will attempt a clamp.
+    :returns: ``None``; output failures are suppressed so warning cannot stop
+        the protected work.
+    """
     global _WARNED
     with _LOCK:
         if _WARNED:
             return
         _WARNED = True
-    print(
-        f"[openmp_guard] {len(runtimes)} OpenMP runtimes are loaded in this "
-        f"process. Mixing them crashes the interpreter (SIGSEGV inside "
-        f"libomp's thread barrier), so {label} will run single-threaded on "
-        f"this thread. It will be slower and it will finish."
-    )
-    for path in runtimes:
-        print(f"[openmp_guard]   {path}")
-    print(
-        "[openmp_guard] To get the threads back, make the process load one "
-        "runtime: install xgboost, torch and scikit-learn from builds that "
-        "share an OpenMP, or set SPACR_OPENMP_GUARD=off to accept the risk."
-    )
+    try:
+        print(
+            f"[openmp_guard] {len(runtimes)} OpenMP runtimes are loaded in "
+            f"this process. Mixing them can crash the interpreter (SIGSEGV "
+            f"inside libomp's thread barrier), so {label} will attempt a "
+            f"single-thread clamp on every usable runtime.",
+            file=sys.stderr,
+        )
+        for path in runtimes:
+            print(f"[openmp_guard]   {path}", file=sys.stderr)
+        print(
+            "[openmp_guard] To get the threads back, make the process load "
+            "one runtime: install xgboost, torch and scikit-learn from builds "
+            "that share an OpenMP, or set SPACR_OPENMP_GUARD=off to accept "
+            "the risk.",
+            file=sys.stderr,
+        )
+    except Exception:
+        pass
 
 
 def guarded_n_jobs(requested, label: str = "this step"):
     """``1`` while the clamp is in force, otherwise ``requested`` unchanged.
 
     :param requested: caller-requested job count to constrain when guarded.
+    :param label: name of the surrounding guarded call site; retained for API
+        consistency and diagnostics but does not alter the returned count.
+    :returns: ``1`` when duplicate runtimes are being clamped, otherwise
+        ``requested``; probe failures also return ``requested``.
 
     For joblib call sites *inside* a :class:`single_threaded_openmp` region —
     ``permutation_importance`` above all, which re-enters the fitted model.
@@ -233,29 +271,37 @@ class single_threaded_openmp(contextlib.ContextDecorator):
     ``SPACR_OPENMP_GUARD=off``. Restores each runtime's previous value on the
     way out, so the clamp lasts exactly as long as the region it wraps.
 
-    Never raises. A failure here leaves the thread exactly as it was: this
-    guard protects a run, it must not be able to end one (INVARIANTS §10).
+    Guard setup and restoration are best-effort and suppress their own
+    failures. Exceptions from the protected body propagate unchanged.
 
     :param label: user-facing name of the protected work, included in the
         one-time warning when duplicate runtimes require serialization.
     """
 
     def __init__(self, label: str = "this model"):
+        """Initialise a reusable OpenMP-clamping context.
+
+        :param label: user-facing protected-work name used in the warning.
+        """
         self.label = label
-        self._restore: List[tuple] = []
+        self._restore_stack: List[List[tuple]] = []
 
     def _recreate_cm(self):
         """Give every decorated invocation independent restoration state.
 
         ``ContextDecorator`` otherwise reuses this instance for every call.
         A recursive or concurrent pipeline invocation could then overwrite
-        another invocation's ``_restore`` list and leave its OpenMP thread
+        another invocation's restoration state and leave its OpenMP thread
         limit pinned at one after both calls return.
+
+        :returns: an independent context carrying the same user-facing label.
         """
         return type(self)(self.label)
 
     def __enter__(self):
-        self._restore = []
+        """Attempt to clamp every usable duplicate runtime and return self."""
+        restore: List[tuple] = []
+        self._restore_stack.append(restore)
         try:
             if _guard_disabled() or not _clamping_platform():
                 return self
@@ -268,20 +314,32 @@ class single_threaded_openmp(contextlib.ContextDecorator):
                     handle = _handle(path)
                     previous = handle.omp_get_max_threads()
                     handle.omp_set_num_threads(1)
-                    self._restore.append((handle, previous))
+                    restore.append((handle, previous))
                 except Exception:
                     # A runtime without the symbols, or one that will not
                     # dlopen. Leave it alone; the others still help.
                     continue
         except Exception:
-            self._restore = []
+            for handle, previous in reversed(restore):
+                try:
+                    handle.omp_set_num_threads(previous)
+                except Exception:
+                    continue
+            restore.clear()
         return self
 
     def __exit__(self, exc_type, exc, tb):
-        for handle, previous in reversed(self._restore):
+        """Restore this entry's limits and propagate any body exception.
+
+        :param exc_type: protected-body exception type, or ``None``.
+        :param exc: protected-body exception instance, or ``None``.
+        :param tb: protected-body traceback, or ``None``.
+        :returns: ``False`` so protected-body exceptions propagate.
+        """
+        restore = self._restore_stack.pop() if self._restore_stack else []
+        for handle, previous in reversed(restore):
             try:
                 handle.omp_set_num_threads(previous)
             except Exception:
                 continue
-        self._restore = []
         return False

@@ -2997,3 +2997,65 @@ fail, while the ordinary comparison tests retain their positive counterpart.
 
 REVISED COUNT: 110 entries, 41 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+53. NON-RUNTIME LIBRARY NAMES WERE MISCLASSIFIED AS OPENMP RUNTIMES
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/openmp_guard.py``. Runtime detection searched for a marker anywhere in
+the mapped image's basename, so a library such as ``notlibomp.so`` was counted
+as OpenMP. Two unrelated lookalikes could therefore trigger an unnecessary
+single-thread clamp and warning on guarded platforms.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/openmp_guard.py``. Supported runtime
+markers must now begin the basename, retaining ordinary and content-hashed
+``libomp``/``libgomp`` spellings while rejecting embedded lookalikes. Restoring
+substring matching makes the focused negative case fail; the two real-runtime
+names are its positive counterparts.
+
+REVISED COUNT: 111 entries, 42 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+54. A BROKEN WARNING STREAM PREVENTED THE OPENMP SAFETY CLAMP
+==============================================================================
+
+Found 2026-09-03 while auditing the duplicate-runtime guard. Its one-time
+warning ran before any runtime was clamped. If output itself raised—for
+example during interpreter or redirected-stream teardown—the context's broad
+fallback suppressed the warning error but entered the protected model body
+with both hazardous runtimes still at their original thread counts.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/openmp_guard.py``. Warning output is
+now best-effort, goes to stderr, describes the clamp as an attempt, and cannot
+interrupt runtime handling. A focused broken-stream test observes both fake
+runtimes clamped inside the body and restored afterwards; re-raising the
+warning failure makes it fail, while the ordinary once-only warning remains
+the positive counterpart.
+
+REVISED COUNT: 112 entries, 43 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+55. RE-ENTERING ONE OPENMP CONTEXT LOST THE OUTER RESTORATION STATE
+==============================================================================
+
+Found 2026-09-03 while documenting ``single_threaded_openmp``. Reusing one
+context instance in nested ``with`` blocks replaced its single restoration
+list. The inner exit then restored the original maximum and cleared the list,
+so the outer protected region unexpectedly regained parallel OpenMP and its
+exit had no state left to restore.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/openmp_guard.py``. Each direct entry
+now pushes an independent restoration list and each exit pops only its own,
+while decorated calls continue to receive independent contexts through
+``_recreate_cm``. The focused nested-use test proves the inner exit remains
+clamped and the outer exit returns to the original maximum; collapsing the
+stack back to one restoration list makes that test fail.
+
+REVISED COUNT: 113 entries, 44 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.

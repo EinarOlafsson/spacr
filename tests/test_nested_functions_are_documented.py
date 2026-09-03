@@ -75,6 +75,7 @@ FULLY_DOCUMENTED = frozenset({
     "spacr/model_zoo.py",
     "spacr/object.py",
     "spacr/ome_zarr.py",
+    "spacr/openmp_guard.py",
     "spacr/parameter_sweep.py",
     "spacr/plot.py",
     "spacr/power_model.py",
