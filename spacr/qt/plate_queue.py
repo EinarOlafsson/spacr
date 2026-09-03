@@ -148,6 +148,26 @@ class PlateQueue:
             self.save()
         return changed
 
+    def clear(self) -> int:
+        """Remove EVERY item whatever its status; return count removed.
+
+        The counterpart to :meth:`clear_finished`, which keeps what is still
+        waiting. This one does not, so a RUNNING item goes too -- and that is
+        the whole reason to say so here: dropping the record does NOT stop
+        the run. The worker holds its own settings and keeps going; what
+        disappears is the queue's knowledge of it, so its completion is never
+        written back.
+
+        Only reachable from **Clear** on Home's Queued panel, where the
+        queue being wrong is what the user is trying to fix. A caller that
+        wants to leave a live run alone wants :meth:`clear_finished`.
+        """
+        removed = len(self._items)
+        if removed:
+            self._items = []
+            self.save()
+        return removed
+
     def clear_finished(self) -> int:
         """Remove SUCCESS/FAILED/SKIPPED items; return count removed."""
         before = len(self._items)

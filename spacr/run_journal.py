@@ -1225,7 +1225,12 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     to seconds and would produce ties. Only the newest
     ``max(limit * 4, limit + 64)`` folders by name are opened at all
     (for non-negative ``limit``), so startup cost does not grow with the
-    size of the journal. A folder with no ``manifest.json`` is skipped
+    size of the journal.
+
+    PASS ``None`` FOR "EVERY RUN", never a negative number. The truncation
+    at the end is ``all_entries[:limit]``, so ``limit=-1`` reads the whole
+    journal and then hands back all but the OLDEST entry -- measured
+    2026-09-03 on an 11,027-run journal, which returned 11,026. A folder with no ``manifest.json`` is skipped
     quietly; one whose manifest cannot be parsed is skipped with a
     logged warning.
 

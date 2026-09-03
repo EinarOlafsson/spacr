@@ -41,8 +41,15 @@ class TestReservedSurface:
         win = MainWindow()
         qtbot.addWidget(win)
         labels = [w.text() for w in win._startup.findChildren(QLabel)]
-        assert any("Reserved for featured" in lbl for lbl in labels)
         assert any(lbl.startswith("NEWS") for lbl in labels)
+        # THE PLACEHOLDER WORDING IS GONE with 2026-09-03: the panel lists
+        # the bundled release notes instead of reserving room for something
+        # that never arrived. The heading and the newest release are what a
+        # reader sees there now.
+        from spacr.qt.widgets.home import NewsPanel
+        releases = NewsPanel.read_releases()
+        assert releases, "no bundled release notes"
+        assert any(releases[0]["name"] in lbl for lbl in labels)
 
     def test_set_reserved_content_swaps_widget(self, qtbot,
                                                    _empty_journal):

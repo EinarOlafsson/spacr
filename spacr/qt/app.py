@@ -1405,27 +1405,49 @@ _HELP_MODULES: Tuple[Tuple[str, str, str], ...] = (
 
 
 def dock_rows() -> List[Tuple[str, str, str, str]]:
-    """:data:`APPS` as the DOCK draws it: Help-menu modules under Help, last.
+    """The dock's TOP-LEVEL rows: Home's tiles, then Help, in that order.
 
-    The dock walks its rows in order and starts a new heading whenever the
-    section changes, so grouping IS ordering here -- a row out of place draws
-    its heading a second time.
+    ONE RULE: a row is a dock host if, and only if, Home draws a tile for
+    it. Everything else in the registry reaches the dock as an indented
+    child under its fold host, or under one of the Help modules, and
+    nothing appears twice.
 
-    WHY THIS IS A DOCK-ONLY VIEW AND NOT A REAL SECTION: see
-    :data:`SECTION_HELP`. A section is Home's categorisation and every Help
-    module is tileless, so Help would be a tab with nothing on it. The dock
-    has no such constraint: it lists modules, tiled or not.
+    THIS USED TO RETURN ALL OF :data:`APPS`, and the maintainer reported
+    what that looked like on 2026-09-03: "the moduals that should be in the
+    Help category are not yet and potentially some moduals that should be
+    nested are not. the modules in the dock should mimic the screen module
+    tiles ... everything else is nested and in help dropdown."
 
-    DRIVEN BY `_HELP_MODULES`, which already says which modules the Help menu
-    opens. A second hand-written list is the shape that has caused two bugs on
-    this surface -- 330's note records one and the retired-section map records
-    the other.
+    Measured before the change: 36 top-level dock rows against 19 Home
+    tiles, and NINE keys drawn twice -- ``convert``, ``external_masks``,
+    ``investigate_hit``, ``layer_viewer``, ``lineage``, ``plate_view``,
+    ``profiler``, ``tabulate`` and ``train_compare`` each had a top-level
+    row AND an indented row under the host they fold into. A module that
+    appears in two places in the same column is a module the reader cannot
+    learn the location of.
+
+    :func:`tiled_apps` is the authority rather than a second hand-written
+    list, so the dock cannot drift from Home again: promoting a module to a
+    tile gives it a dock row, and folding one takes its dock row away, both
+    without touching this function. That is the same lesson `_HELP_MODULES`
+    already encodes below -- 330's note records one bug from a duplicated
+    list and the retired-section map records another.
+
+    WHY HELP IS NOT A REAL SECTION: see :data:`SECTION_HELP`. A section is
+    Home's categorisation and every Help module is tileless, so Help would
+    be a tab with nothing on it. The dock has no such constraint.
+
+    The dock walks these rows in order and starts a new heading whenever
+    the section changes, so grouping IS ordering here -- a row out of place
+    draws its heading a second time.
     """
-    wanted = {row[0] for row in _HELP_MODULES}
+    helpers = {row[0] for row in _HELP_MODULES}
+    tiles = {row[0] for row in tiled_apps()}
     rank = {section: index for index, section in enumerate(SECTION_ORDER)}
     rows = [
-        (key, name, desc, SECTION_HELP if key in wanted else section)
+        (key, name, desc, SECTION_HELP if key in helpers else section)
         for key, name, desc, section in APPS
+        if key in tiles or key in helpers
     ]
     # Stable, so the order WITHIN a section is the registry order the dock
     # has always used; only the grouping moves.
@@ -1998,10 +2020,10 @@ class _DockRow(ElidingPushButton):
     reasons are about where it goes. The indent that told a folded child
     from its host was three leading spaces in the label (330) and had to
     move into the icon's position when the label stopped being drawn; and
-    the magnifier needs the icon to grow about a FIXED CENTRE, or a row
-    under the pointer appears to slide sideways as it swells. Those are
-    decisions this class has to make, and a style asked to lay out a
-    button with no text would be making them instead.
+    a folded child's icon is drawn smaller than its host's yet has to share
+    that same centre, or the column of icons would not line up. Those are
+    decisions this class has to make, and a style asked to lay out a button
+    with no text would be making them instead.
     """
 
     #: Gap between the icon's right edge and the hovered name, in px.
@@ -2024,9 +2046,9 @@ class _DockRow(ElidingPushButton):
         """Remember the pointer arrived, and repaint.
 
         Tracked here rather than read from `underMouse()` at paint time
-        because the magnifier repaints neighbouring rows too, and
-        `underMouse()` answers for the widget the cursor is over rather
-        than the one being painted.
+        because `underMouse()` answers for the widget the cursor is over
+        rather than for the one being painted, and a repaint can be
+        triggered for a row the pointer has already left.
         """
         self._hovered = True
         self.update()
@@ -2070,7 +2092,17 @@ class _DockRow(ElidingPushButton):
         stylesheet reported the 48 px and hid it. Answering with the height
         from :meth:`sizeHint` as well is what the layout actually reads.
         """
-        self._row_height = int(height)
+        wanted = int(height)
+        if wanted == self._row_height:
+            # NOTHING TO DO, AND THAT MATTERS. `setFixedHeight` plus
+            # `updateGeometry` on an unchanged height still invalidates the
+            # dock's layout and repaints it, and this used to be called on
+            # all 71 rows every time the pointer crossed the dock -- see
+            # `Sidebar.leaveEvent`, which is where the flicker reported on
+            # 2026-09-03 was coming from. Writing back a value the widget
+            # already has is never free in Qt.
+            return
+        self._row_height = wanted
         self.setFixedHeight(self._row_height)
         self.updateGeometry()
 
@@ -2087,8 +2119,8 @@ class _DockRow(ElidingPushButton):
     def icon_rect(self) -> QRect:
         """Where the icon is painted, in row coordinates.
 
-        Public so a test can assert the indent and the magnified size
-        without screen-scraping a rendered pixmap.
+        Public so a test can assert the indent and the icon size without
+        screen-scraping a rendered pixmap.
         """
         size = self.iconSize()
         return QRect(self._icon_centre - size.width() // 2,
@@ -2102,7 +2134,11 @@ class _DockRow(ElidingPushButton):
         so QStyleSheetStyle paints the background, the border and the
         3 px accent bar that marks the selected row -- everything the
         stylesheet in `theme.py` describes -- and then draws nothing
-        inside it. The icon follows, at the size the magnifier chose.
+        inside it. The icon follows, at its resting size.
+
+        EXCEPT THE PLATE, which `_paint_plate` draws instead. See there:
+        QStyleSheetStyle does not paint a background for these rows at all,
+        and had not since the rows started painting themselves.
         """
         opt = QStyleOptionButton()
         self.initStyleOption(opt)
@@ -2110,6 +2146,7 @@ class _DockRow(ElidingPushButton):
         opt.icon = QIcon()
         painter = QStylePainter(self)
         painter.drawControl(QStyle.ControlElement.CE_PushButton, opt)
+        self._paint_plate(painter)
         icon = self.icon()
         if icon.isNull():
             return
@@ -2142,6 +2179,105 @@ class _DockRow(ElidingPushButton):
             return
         icon.paint(painter, rect, Qt.AlignmentFlag.AlignCenter,
                    mode, QIcon.State.Off)
+
+    #: Corner radius of the row's plate, in px, and the inset from the row
+    #: edge on each side. The inset is what makes the plate read as a box
+    #: rather than as a full-width band: without it the plates meet their
+    #: neighbours and the rounding has nothing to round against.
+    PLATE_RADIUS_PX = 10
+    PLATE_INSET_PX = 3
+
+    #: Plate alpha at rest and under the pointer. The ink is the theme's
+    #: `fg` -- near-white on the three dark themes, near-black on light --
+    #: so ONE pair of numbers lifts the plate off every backdrop the dock
+    #: can sit on, including the ambient animation, instead of each theme
+    #: needing its own plate colour.
+    #:
+    #: `surface_hi` was tried first, at 0.55 and 0.90, and is what the QSS
+    #: rule still names. It is 5 units off the dock fill on dark: measured,
+    #: the plate came out (27, 28, 31) against a (22, 23, 25) dock and the
+    #: whole hover step was 3 more units. A box you cannot see is not the
+    #: box that was asked for.
+    PLATE_ALPHA = 0.10
+    PLATE_ALPHA_HOVER = 0.20
+
+    #: The plate's hairline edge, at the same ink. A fill alone reads as a
+    #: patch of slightly different background; the stroke is what makes the
+    #: ROUNDED CORNERS visible, and rounded edges are half of what was
+    #: asked for. Kept fainter than the fill so the box is an edge rather
+    #: than an outline.
+    PLATE_EDGE_ALPHA = 0.16
+    PLATE_EDGE_ALPHA_HOVER = 0.34
+
+    #: The open module's plate, in the ACCENT rather than in `fg`, because
+    #: the row's icon and name are already drawn in the accent when it is
+    #: selected and a neutral plate under blue ink reads as a hover that
+    #: got stuck.
+    PLATE_ALPHA_SELECTED = 0.20
+
+    def _paint_plate(self, painter) -> None:
+        """Draw the row's translucent rounded plate.
+
+        PAINTED HERE RATHER THAN LEFT TO THE STYLESHEET, and not by choice.
+        `theme.py` carries a `QPushButton#SidebarItem` rule with a
+        background, a radius and a `:hover` arm, and NONE of it reaches
+        these rows: measured 2026-09-03, a plain `QPushButton` with the same
+        object name renders the rule's background and a `_DockRow` renders
+        the dock's own fill, because a `paintEvent` that goes straight to
+        `drawControl(CE_PushButton)` skips the pass in which
+        QStyleSheetStyle fills a widget's background. So the dock has had NO
+        per-row plate since 348 gave the rows their own painting -- which is
+        precisely the "black box behind the icons" reported on 2026-09-03:
+        with no plate, every icon sits directly on the flat dark dock, and
+        the QSS hover highlight never appeared either.
+
+        The colours come from the LIVE palette, not from literals and not
+        from the QSS text, so a theme change moves the plate without a
+        rebuild -- the same rule `_accent` follows.
+        """
+        from PySide6.QtGui import QColor, QPainterPath
+        from PySide6.QtCore import QRectF
+        from .theme import active_palette
+
+        palette = active_palette()
+        selected = self.isChecked() or self.property("selected") in (True,
+                                                                     "true")
+        if selected:
+            colour, alpha = palette["accent"], self.PLATE_ALPHA_SELECTED
+        elif self._hovered and self.isEnabled():
+            colour, alpha = palette["fg"], self.PLATE_ALPHA_HOVER
+        else:
+            colour, alpha = palette["fg"], self.PLATE_ALPHA
+        hot = selected or (self._hovered and self.isEnabled())
+        fill = QColor(colour)
+        fill.setAlphaF(alpha)
+        edge = QColor(colour)
+        edge.setAlphaF(self.PLATE_EDGE_ALPHA_HOVER if hot
+                       else self.PLATE_EDGE_ALPHA)
+        inset = self.PLATE_INSET_PX
+        # HALF A PIXEL IN from the fill's box. A 1 px stroke straddles the
+        # path, so a path on the integer edge puts half the line outside the
+        # widget where it is clipped away and the corner loses its curve.
+        box = QRectF(self.rect()).adjusted(inset + 0.5, inset + 0.5,
+                                           -inset - 0.5, -inset - 0.5)
+        path = QPainterPath()
+        path.addRoundedRect(box, self.PLATE_RADIUS_PX, self.PLATE_RADIUS_PX)
+        painter.save()
+        painter.setRenderHint(painter.RenderHint.Antialiasing, True)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.fillPath(path, fill)
+        painter.setPen(edge)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawPath(path)
+        painter.setPen(Qt.PenStyle.NoPen)
+        if selected:
+            # THE ACCENT BAR that marks the open module, clipped to the
+            # plate so it follows the rounding instead of squaring off the
+            # left edge the plate just rounded.
+            painter.setClipPath(path)
+            painter.fillRect(int(box.left()), int(box.top()), 3,
+                             int(box.height()), QColor(palette["accent"]))
+        painter.restore()
 
     def _accent(self) -> str:
         """The theme's accent, resolved at paint time.
@@ -2202,32 +2338,29 @@ class Sidebar(QWidget):
     WIDTH_MIN = 220
     WIDTH_MAX = 320
 
-    #: Icon size in px at 100 % font scale: at rest, and directly under the
-    #: pointer. Instruction 348 asked for both -- "enlarge the icons and add
-    #: a magnification effect so the dock functions like the osx dock".
+    #: Icon size in px at 100 % font scale. 26 px, up from the 16 px the
+    #: rows carried since the dock was a list of labels with a glyph in
+    #: front of each: with the name no longer painted (:class:`_DockRow`)
+    #: the icon is the whole row, and a 16 px mark in a 48 px row is a
+    #: bullet point rather than a dock tile.
     #:
-    #: 26 px at rest, up from the 16 px the rows carried since the dock was
-    #: a list of labels with a glyph in front of each. With the name no
-    #: longer painted (:class:`_DockRow`) the icon is the whole row, and a
-    #: 16 px mark in a 38 px row is a bullet point rather than a dock tile.
+    #: EVERY ROW SHOWS THIS SIZE, always. Instruction 348 also asked for an
+    #: OS X-style magnification under the pointer, and it shipped; it was
+    #: removed on 2026-09-03 at the maintainer's request, in favour of the
+    #: translucent plate the stylesheet now draws behind each row.
     ICON_PX = 26
+
+    #: The icon box each row reserves, in px at 100 % font scale. Larger
+    #: than ``ICON_PX`` on purpose: with ``ROW_PAD_PX`` it is what fixes the
+    #: row height, and the space around a 26 px icon is what makes the
+    #: plate behind it read as a tile rather than as a tight outline. It
+    #: was the magnifier's peak size before that effect was removed.
     ICON_MAX_PX = 40
 
     #: Padding above and below the LARGEST icon. This is what fixes the row
     #: height, and the row height is fixed on purpose -- see
-    #: :meth:`magnify_from` for the flicker that letting rows grow causes.
     ROW_PAD_PX = 4
 
-    #: How far the swell reaches, measured in row heights either side of
-    #: the pointer. Measured at 3.0, pointer on the centre of a row:
-    #: 40 px under it, 36 px one row away, 30 px two rows away, resting
-    #: 26 px from three rows out -- the OS X dock's curve.
-    #:
-    #: 2.0 was tried first and is wrong by exactly one row: the reach is
-    #: 2 x 48 px = 96 px and the second row's centre is 96 px away, so it
-    #: was excluded on the boundary and only the immediate neighbours
-    #: moved, which reads as a hover highlight rather than a magnifier.
-    MAGNIFY_SPAN_ROWS = 3.0
 
     #: A folded child's icon, as a fraction of its host's. The rows used to
     #: be indented by three leading spaces in the label (330); with no label
@@ -2249,7 +2382,13 @@ class Sidebar(QWidget):
         self.setObjectName("Sidebar")
 
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(0, 0, 0, 0)
+        # MARGINS SO THE SLAB HAS ITS CORNERS. `paintEvent` draws the dock's
+        # plate inset by `PLATE_INSET_PX`; without matching margins the title
+        # and the rows are painted over the rounding, and a corner with a row
+        # through it is not a rounded corner.
+        from .preferences import scaled_px as _scaled_px
+        _inset = _scaled_px(self.PLATE_INSET_PX)
+        outer.setContentsMargins(_inset, _inset, _inset, _inset)
         outer.setSpacing(0)
 
         title = QLabel("spaCR")
@@ -2280,23 +2419,18 @@ class Sidebar(QWidget):
         self._scroll.setWidget(inner)
         outer.addWidget(self._scroll, 1)
 
+        #: Whether the pointer is anywhere in the dock. Drives the slab's
+        #: brightness in `paintEvent`; the ROWS track their own hover
+        #: separately, because the two highlight different things.
+        self._pointer_inside = False
         self._items: list[ElidingPushButton] = []
         self._section_headers: dict[str, QLabel] = {}
 
-        #: The widget the rows are laid out in. Every y the magnifier works
-        #: in is in THIS widget's coordinates, not the dock's, so scrolling
-        #: needs no correction: a row's `y()` inside `inner` does not move
-        #: when the scroll area slides `inner` under its viewport.
+        #: The widget the rows are laid out in, inside the scroll area.
         self._rows_host = inner
-        #: Row centres in `_rows_host` coordinates, newest layout first.
-        #: `None` means "ask the widgets again"; see `_row_centres`.
-        self._centres: Optional[list] = None
-        #: Rows whose icon is currently bigger than its resting size. Kept
-        #: so a pointer move only has to shrink the handful that were
-        #: swollen, instead of writing a size onto all 71 rows.
-        self._lifted: set = set()
-        #: ``(resting, peak, reach, child_resting)`` in px, or `None`.
-        #: Cached beside the centres and dropped by the same call.
+        #: ``(resting, child_resting)`` in px, or `None` for "not measured
+        #: yet". Cached because computing it reads QSettings; dropped by
+        #: `_forget_icon_sizes` when the font scale may have moved.
         self._sizes: Optional[tuple] = None
 
         home = self._make_item("Home", "Back to the start page", "__home__")
@@ -2409,33 +2543,102 @@ class Sidebar(QWidget):
         self._apply_section_state()
         self.refresh_visibility()
 
+    #: The dock's own plate: corner radius, and how far it is inset from
+    #: the column's edges, in px at 100 % font scale.
+    #:
+    #: THE BOX THE MAINTAINER ASKED FOR on 2026-09-03 -- "replace the black
+    #: box behind thicons with a translucent box with rounded edges. the
+    #: translucent box should also highlight upon hover." On the dark theme
+    #: `DOCK_FILL` is literally `"transparent"`, so the dock column showed
+    #: the page's pure black straight through: a black box the width of the
+    #: dock and the height of the window, behind every icon. That is the box.
+    #:
+    #: The inset is what makes it a BOX rather than a band -- a slab flush
+    #: with three window edges has no visible corners to round.
+    PLATE_RADIUS_PX = 14
+    PLATE_INSET_PX = 6
+
+    #: Plate alpha at rest and while the pointer is anywhere in the dock,
+    #: over the theme's `fg`. Same ink and the same reason as `_DockRow`:
+    #: near-white on the three dark themes, near-black on light, so one pair
+    #: of numbers lifts the slab off every backdrop -- including the ambient
+    #: animation, which still shows through it.
+    PLATE_ALPHA = 0.07
+    PLATE_ALPHA_HOVER = 0.12
+    PLATE_EDGE_ALPHA = 0.14
+    PLATE_EDGE_ALPHA_HOVER = 0.24
+
+    def enterEvent(self, event):                # noqa: N802 - Qt naming
+        """The pointer came into the dock: brighten the slab."""
+        self._pointer_inside = True
+        self.update()
+        super().enterEvent(event)
+
+    def plate_rect(self):
+        """The slab's rectangle, inset from the column. For tests."""
+        from PySide6.QtCore import QRectF
+        from .preferences import scaled_px
+
+        inset = scaled_px(self.PLATE_INSET_PX)
+        return QRectF(self.rect()).adjusted(inset, inset, -inset, -inset)
+
+    def paintEvent(self, event):                # noqa: N802 - Qt naming
+        """Draw the dock's translucent rounded slab, and nothing else.
+
+        PAINTED HERE RATHER THAN IN QSS for the same reason `_DockRow` paints
+        its own plate: a `border-radius` in a stylesheet only reaches a plain
+        `QWidget` that has `WA_StyledBackground` set, and setting that makes
+        the widget opaque -- which is the one thing this must not be. Painting
+        it means the alpha is real and whatever is behind the dock, including
+        the ambient animation, shows through.
+
+        The rows draw their own plates on top of this one. They are the same
+        ink at higher alpha, so a hovered row reads as part of the slab
+        getting brighter rather than as a second, unrelated box.
+        """
+        from PySide6.QtGui import QColor, QPainter, QPainterPath
+        from .preferences import scaled_px
+        from .theme import active_palette
+
+        palette = active_palette()
+        hot = bool(getattr(self, "_pointer_inside", False))
+        fill = QColor(palette["fg"])
+        fill.setAlphaF(self.PLATE_ALPHA_HOVER if hot else self.PLATE_ALPHA)
+        edge = QColor(palette["fg"])
+        edge.setAlphaF(self.PLATE_EDGE_ALPHA_HOVER if hot
+                       else self.PLATE_EDGE_ALPHA)
+        box = self.plate_rect().adjusted(0.5, 0.5, -0.5, -0.5)
+        radius = scaled_px(self.PLATE_RADIUS_PX)
+        path = QPainterPath()
+        path.addRoundedRect(box, radius, radius)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.fillPath(path, fill)
+        painter.setPen(edge)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawPath(path)
+
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
         """Toggle a section when its header is clicked, and light it on hover.
 
-        Also the dock's ONE magnifier handler. It is installed on the rows
-        themselves rather than on the application, which is the whole
-        difference between this and the application-wide filter that was
-        thrown away for its cost: this object is handed nothing but the
-        dock's own mouse traffic, so
-        it costs exactly zero while a module is opening and the pointer is
-        somewhere else. Neither branch consumes the event -- a row still
-        gets its own hover paint and its click.
+        Installed on the rows themselves rather than on the application,
+        which is the whole difference between this and the application-wide
+        filter that was thrown away for its cost: this object is handed
+        nothing but the dock's own mouse traffic, so it costs exactly zero
+        while a module is opening and the pointer is somewhere else.
+        Neither branch consumes a row's own events -- a row still gets its
+        hover paint and its click.
         """
         if isinstance(watched, _DockRow):
-            kind = event.type()
-            if kind in (QEvent.Type.MouseMove, QEvent.Type.Enter):
-                here = watched.mapTo(self._rows_host,
-                                     event.position().toPoint())
-                self.magnify_from(here.y())
-            elif kind == QEvent.Type.Leave:
-                # Only when the pointer has left the DOCK. Crossing from one
-                # row to the next is a Leave immediately followed by the
-                # neighbour's Enter, and resetting in between would drop
-                # every icon to its resting size for one frame -- a flicker
-                # exactly where the effect is meant to be smooth.
-                if not self.rect().contains(
-                        self.mapFromGlobal(QCursor.pos())):
-                    self.magnify_from(None)
+            # NOTHING TO DO ON A ROW'S OWN MOUSE TRAFFIC. The magnifier
+            # that swelled the icon under the pointer was removed on
+            # 2026-09-03 at the maintainer's request; the row now gets its
+            # hover highlight from the stylesheet's `:hover` rule and its
+            # name from `_DockRow.enterEvent`, and neither needs this
+            # filter. The branch is kept so a row's own events are visibly
+            # not consumed rather than falling through to the section
+            # handling below, which would read `sectionName` off a row.
             return False
         section = watched.property("sectionName") if watched else None
         if not section:
@@ -2451,23 +2654,33 @@ class Sidebar(QWidget):
         return super().eventFilter(watched, event)
 
     def leaveEvent(self, event):                # noqa: N802 - Qt naming
-        """Put every icon back when the pointer leaves the dock.
+        """Un-hover any row still showing its name when the pointer leaves.
 
         The rows' own Leave handling covers a pointer that steps off a row
         onto its neighbour; this covers the pointer that leaves the column
         altogether, including straight off the bottom row onto the empty
         stretch below it, where no other row will ever be entered.
 
-        THE NAME AND THE INK GO WITH THE MAGNIFICATION, and that is not
-        belt-and-braces. Two different things mean "the pointer is no
-        longer here" -- the icon size the magnifier chose, and the accent
-        ink plus name that 369 added -- and they were reset by two
-        different handlers. A dock Leave that put every icon back while
-        leaving one row blue with its name showing is a row that looks
-        hovered when nothing is. Resetting both here means the pair cannot
-        disagree, whatever order the events arrive in.
+        IT NO LONGER RE-SIZES EVERY ICON, and that is the fix for the
+        flicker reported on 2026-09-03: "hovering on the dock induces
+        flickering. and only if i hover", seen on one machine and not
+        another. This called `_rest_every_icon()`, which walked all 71 rows
+        through `_place_icon` and so through `set_row_height` --
+        `setFixedHeight` plus `updateGeometry` on each -- invalidating the
+        dock's whole layout. A Leave arrives on the dock every time the
+        pointer crosses from the column's own surface onto one of its rows,
+        so an ordinary sweep down the dock asked for a full relayout per
+        row. Whether that shows as flicker depends on the compositor, which
+        is exactly why it appeared on one machine only.
+
+        Nothing needs putting back any more: with the magnifier gone
+        (2026-09-03) an icon's size does not depend on where the pointer
+        is. Only the hover paint does, and only the rows that HAVE it are
+        touched -- an empty loop when the pointer left from a header or the
+        empty stretch.
         """
-        self.magnify_from(None)
+        self._pointer_inside = False
+        self.update()
         for row in self._items:
             if getattr(row, "_hovered", False):
                 row._hovered = False
@@ -2571,12 +2784,11 @@ class Sidebar(QWidget):
         for section, header in self._section_headers.items():
             header.setVisible(section in visible_sections)
         self.setFixedWidth(self.fitting_width())
-        # EVERY ROW BELOW A SHOWN OR HIDDEN ONE HAS MOVED, so the centres
-        # the magnifier computes from are stale; and a row that has just
-        # been hidden must not stay swollen behind the section it went
-        # back into.
-        self._forget_row_positions()
-        self.magnify_from(None)
+        # A ROW THAT HAS JUST BEEN HIDDEN must not keep a size that was
+        # computed for a different font scale, and a row that has just
+        # appeared has never been sized at all.
+        self._forget_icon_sizes()
+        self._rest_every_icon()
 
     def refresh_icons(self) -> None:
         """Re-ink every nav icon for the current theme.
@@ -2596,13 +2808,13 @@ class Sidebar(QWidget):
             if icon is not None:
                 btn.setIcon(icon)
             # OUTSIDE the `if`, and through `_place_icon` rather than a
-            # literal size. A theme switch must not undo the magnifier's
+            # literal size. A theme switch must not undo the dock's own
             # sizing rules, and this used to write a flat 16 px onto every
             # row -- including the folded children, which are drawn smaller
             # than their host. It also re-reads the font scale, which is
             # the other preference that arrives down this path.
             self._place_icon(btn)
-        self.magnify_from(None)
+        self._rest_every_icon()
 
     def _make_item(self, name: str, desc: str,
                    nav_key: str) -> "ElidingPushButton":
@@ -2647,32 +2859,20 @@ class Sidebar(QWidget):
         self._items.append(btn)
         return btn
 
-    # -- sizes and the magnifier ------------------------------------------
+    # -- icon sizes -------------------------------------------------------
     def row_height(self) -> int:
         """Fixed height of every dock row, in px at the current font scale."""
         from .preferences import scaled_px
         return scaled_px(self.ICON_MAX_PX + 2 * self.ROW_PAD_PX)
 
-    def magnifier_metrics(self) -> tuple:
-        """``(resting, peak, reach, child_resting)`` in px, cached.
+    def icon_metrics(self) -> tuple:
+        """``(resting, child_resting)`` in px, cached.
 
-        CACHED BECAUSE `scaled_px` READS QSettings. Every call goes through
-        `preferences.get_font_scale`, which asks QSettings for the saved
-        zoom, and `magnify_from` wanted three of them per pointer position.
-        Measured over one second of a pointer sweep -- 101 positions, the
-        rate a mouse actually reports at, over a ten-row dock:
+        CACHED BECAUSE `scaled_px` READS QSettings, and every row asks. It
+        goes through `preferences.get_font_scale`, which reads the saved zoom
+        each time, and every one of the dock's rows asks on every relayout.
 
-            uncached   11.02 ms of GUI thread, 9,640 Python calls
-            cached      1.25 ms,               4,905 calls
-
-        against the 13,646 calls a second that made the earlier
-        application-wide filter untenable. And unlike that filter, this
-        costs nothing at
-        all unless the pointer is moving over the dock. Worst case, every
-        section forced open so 37 rows are on screen: 2.09 ms and 9,470
-        calls for the same second.
-
-        Dropped by `_forget_row_positions`, which the preferences path
+        Dropped by `_forget_icon_sizes`, which the preferences path
         already reaches through `refresh_icons` -- so a font-scale change
         re-reads the setting exactly once.
         """
@@ -2681,15 +2881,13 @@ class Sidebar(QWidget):
             base = scaled_px(self.ICON_PX)
             self._sizes = (
                 base,
-                scaled_px(self.ICON_MAX_PX),
-                max(1, int(self.MAGNIFY_SPAN_ROWS * self.row_height())),
                 max(1, int(round(base * self.FOLD_ICON_SCALE))),
             )
         return self._sizes
 
     def resting_icon_px(self, row) -> int:
         """The icon size ``row`` returns to when the pointer is elsewhere."""
-        base, _peak, _reach, child = self.magnifier_metrics()
+        base, child = self.icon_metrics()
         return child if row.property("isFoldChild") else base
 
     def _place_icon(self, row) -> None:
@@ -2700,101 +2898,48 @@ class Sidebar(QWidget):
         the label no longer painted, size and inset are the only things
         left that say a row hangs off the one above it.
 
-        The ROW HEIGHT is set here too, and it is as tall as the biggest
-        icon the row will ever show -- that is what lets `magnify_from`
-        change an icon without moving any geometry. Re-applied on every
-        call rather than only at build time so a font-scale change, which
-        arrives through `refresh_icons`, actually resizes the dock.
+        The ROW HEIGHT is set here too, from `row_height` rather than from
+        this row's own icon, so every row is the same height whatever it
+        holds. Re-applied on every call rather than only at build time so a
+        font-scale change, which arrives through `refresh_icons`, actually
+        resizes the dock.
         """
         from .preferences import scaled_px
         size = self.resting_icon_px(row)
-        row.setIconSize(QSize(size, size))
+        if row.iconSize().width() != size:
+            # GUARDED, like the height below: `setIconSize` drops the
+            # cached size hint and repaints even when the size is the one
+            # the row already has.
+            row.setIconSize(QSize(size, size))
         row.set_row_height(self.row_height())
         left = scaled_px(self.ICON_LEFT_PX)
         if row.property("isFoldChild"):
             left += scaled_px(self.FOLD_INDENT_PX)
-        row._icon_centre = left + self.magnifier_metrics()[0] // 2
+        row._icon_centre = left + self.icon_metrics()[0] // 2
 
-    def _row_centres(self) -> list:
-        """``(centre_y, row)`` for every visible row, in host coordinates.
+    def _forget_icon_sizes(self) -> None:
+        """Drop the cached icon sizes, because a preference may have moved.
 
-        CACHED, and that is the whole point of it. A pointer sweep down the
-        dock delivers roughly a hundred mouse-move events a second, and
-        asking 71 buttons for their geometry on each of them is the shape
-        of the cost that made the earlier filter untenable. The cache is
-        dropped
-        whenever the layout can have moved -- a section opens, a host
-        expands, the maturity filter runs -- and rebuilt on the next move.
+        `icon_metrics` bakes the font scale into what it returns, and the
+        preferences path arrives here through `refresh_icons`. Until 2026-09-03
+        this was `_forget_row_positions` and dropped a row-centre cache too,
+        which the dock magnifier needed; with the magnifier gone the sizes are
+        the only derived thing left to invalidate.
         """
-        if self._centres is None:
-            self._centres = [(row.y() + row.height() // 2, row)
-                             for row in self._items if not row.isHidden()]
-        return self._centres
-
-    def _forget_row_positions(self) -> None:
-        """Drop what the magnifier caches, because the dock has changed.
-
-        The row centres AND the sizes: a preference change arrives through
-        `refresh_icons`, and the font scale it may have moved is baked into
-        both.
-        """
-        self._centres = None
         self._sizes = None
 
-    def magnify_from(self, y) -> None:
-        """Swell the rows near ``y``; ``None`` puts every row back.
+    def _rest_every_icon(self) -> None:
+        """Put every row's icon back to its resting size.
 
-        ``y`` is in the coordinates of the widget the rows are laid out in,
-        so the caller does not have to correct for the scroll position.
-
-        THE ROW HEIGHT DOES NOT MOVE, only the icon inside it, and that is
-        the one place this departs from the OS X dock it imitates. Growing
-        the rows themselves was reasoned through and rejected before it was
-        written: a taller row pushes every row below it down, so the row
-        under a STATIONARY pointer stops being the row under the pointer as
-        soon as the one above it swells, and the next mouse move computes
-        from geometry the previous one moved. The target chases the
-        pointer. This dock has been here from the other direction already
-        -- "the dock on linux is acting up, flickering when mouse is
-        hovered" (2026-09-01) was a status-bar hint widening the whole
-        window on hover -- so a fixed row height it is, and a mouse move
-        now invalidates no geometry at all. `test_magnifying_never_changes_
-        a_row_height` holds both the heights and the tops.
-
-        Cost: this walks only the rows within reach of the pointer plus the
-        handful the previous position left swollen, over a cached list of
-        centres. Every other row is untouched.
+        What `magnify_from(None)` used to do. The magnifier was removed on
+        2026-09-03 at the maintainer's request -- the icon under the pointer
+        no longer swells -- but the paths that used to reset it are still the
+        paths that need every icon sized correctly: a theme change, a font
+        scale change, and a section opening or closing.
         """
-        base, peak, span, child_base = self.magnifier_metrics()
-        wanted = {}
-        if y is not None:
-            for centre, row in self._row_centres():
-                distance = abs(centre - y)
-                if distance >= span:
-                    continue
-                # Smoothstep rather than a straight line. Its slope is
-                # zero at BOTH ends, so the icon under the pointer holds
-                # its 40 px across the middle of a row instead of peaking
-                # at one exact y, and the outermost row in reach eases off
-                # its resting size instead of stepping off it. Measured
-                # from the centre of a row: 40 / 36 / 30 / 26 px going
-                # outwards.
-                near = 1.0 - distance / span
-                lift = near * near * (3.0 - 2.0 * near)
-                size = base + (peak - base) * lift
-                if row.property("isFoldChild"):
-                    size *= self.FOLD_ICON_SCALE
-                wanted[row] = max(1, int(round(size)))
-        for row in self._lifted:
-            if row not in wanted:
-                self._set_icon_px(
-                    row,
-                    child_base if row.property("isFoldChild") else base)
-        for row, size in wanted.items():
-            self._set_icon_px(row, size)
-        self._lifted = set(wanted)
+        for row in self._items:
+            self._place_icon(row)
 
-    @staticmethod
     def _set_icon_px(row, size: int) -> None:
         """Resize one row's icon, unless it is already that size.
 
@@ -2806,12 +2951,13 @@ class Sidebar(QWidget):
         if row.iconSize().width() != size:
             row.setIconSize(QSize(size, size))
 
-    def magnified_sizes(self) -> dict:
+    def icon_widths(self) -> dict:
         """``navKey -> icon width`` for every visible row.
 
-        Public because the magnifier's whole observable effect is these
-        numbers, and a test that reads them is measuring the effect rather
-        than the code that produces it.
+        Public so a test can assert the sizing rules -- one size for hosts,
+        a smaller one for folded children, both moving with the font scale,
+        and none of them changing on hover -- by reading numbers off the
+        rows rather than by re-deriving them.
         """
         return {str(row.property("navKey") or ""): row.iconSize().width()
                 for row in self._items if not row.isHidden()}

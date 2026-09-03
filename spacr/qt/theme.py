@@ -3905,19 +3905,25 @@ QMenu::separator {{
    THE EDGE IS KEPT EITHER WAY: `#Sidebar` still draws its right border, so
    the page still ends at a line rather than bleeding into the dock.
 
-   THE HOVER HIGHLIGHT SURVIVES BECAUSE IT WAS NEVER THE TRAY. It is the
-   `QPushButton#SidebarItem:hover` rule below, painted by the row itself
-   through `_DockRow.paintEvent`, which draws the QSS plate before the icon.
-   Removing the plane behind it changes what it sits ON, not whether it is
-   drawn, and `surface_hi` is opaque.
+   THE HOVER HIGHLIGHT SURVIVES BECAUSE IT WAS NEVER THE TRAY. It is drawn
+   by the row itself, in `_DockRow._paint_plate`, and translucently on
+   purpose: removing the plane behind it changes what it sits ON, not
+   whether it is drawn. (It is NOT the `QPushButton#SidebarItem:hover`
+   rule below, which this comment used to claim and which reaches no dock
+   row -- see the note on that rule.)
 
    IF THE MAINTAINER WANTS IT GONE OVER THE PICTURES TOO, this is one line:
    drop the `over_image` arm of `DOCK_FILL` below. */
 #EdgeDrawer, #Sidebar, #SidebarScroll, #SidebarInner {{
     background-color: {DOCK_FILL};
 }}
+/* NO RIGHT BORDER. The dock is a rounded slab painted by `Sidebar.
+   paintEvent` (2026-09-03), and a full-height 1 px rule down its right edge
+   cuts straight across the two corners it just rounded. The slab draws its
+   own hairline edge, all the way round, which is what separates the dock
+   from the page now. */
 #Sidebar {{
-    border-right: 1px solid {P["border_soft"]};
+    border: none;
 }}
 #SidebarTitle {{
     color: {P["accent"]};
@@ -3943,6 +3949,24 @@ QMenu::separator {{
 #SidebarSection[open="true"], #SidebarSection[hovered="true"] {{
     color: {P["accent"]};
 }}
+/* THE ROW'S PLATE IS NOT DRAWN FROM HERE. Look in
+   `_DockRow._paint_plate` (spacr/qt/app.py) -- the translucent rounded box
+   behind each icon, its hover step and the accent bar on the open module
+   are all painted there, from the live palette.
+
+   That is not a style preference, it is what was measured on 2026-09-03: a
+   plain `QPushButton` carrying this object name renders the background
+   below, and a `_DockRow` renders the dock's own fill instead, because a
+   `paintEvent` that goes straight to `drawControl(CE_PushButton)` skips the
+   pass in which QStyleSheetStyle fills a widget's background. So no
+   `background` written here has reached a dock row since 348 gave the rows
+   their own painting, INCLUDING the `:hover` arm below -- which is why the
+   dock had no per-row box at all and every icon sat flat on the dark dock.
+
+   The rules are kept, at their pre-348 values, for the `color` they set --
+   which QStyleSheetStyle does apply, through the palette it hands the
+   row -- and so that any other widget given this object name still looks
+   like a dock row. Edit the plate's colours in `_DockRow`, not here. */
 QPushButton#SidebarItem {{
     text-align: left;
     background: transparent;
@@ -3953,8 +3977,6 @@ QPushButton#SidebarItem {{
     border-radius: 0px;
     font-size: {F["body"]}px;
 }}
-/* `surface_hi`, not `surface_alt`: the dock IS `surface_alt` now, and a
-   hover the same colour as the thing under it is no hover at all. */
 QPushButton#SidebarItem:hover {{
     background: {P["surface_hi"]};
     color: {P["fg"]};
