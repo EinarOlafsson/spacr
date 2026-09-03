@@ -61,12 +61,26 @@ def signal_max(data: np.ndarray,
 
 
 def _plate_id(filename: str, settings: Mapping[str, Any]) -> str:
+    """Parse and return the plate identifier encoded in a field filename.
+
+    :param filename: Field filename whose schema metadata is parsed.
+    :param settings: Settings supplying the optional ``timelapse`` mode.
+    :returns: Parsed plate identifier.
+    """
     field = schema.parse_field_stem(
         filename, timelapse=bool(settings.get("timelapse", False)))
     return field.plateID
 
 
 def _kind(dtype: np.dtype, top: float, has_intensity: bool) -> str:
+    """Classify the conversion needed for an image's intensity values.
+
+    :param dtype: NumPy data type of the image array.
+    :param top: Largest finite, non-negative intensity in the array.
+    :param has_intensity: Whether the image contains an intensity plane.
+    :returns: ``no_intensity``, ``identity``, ``fixed_normalized``, or
+        ``raw`` according to the conversion the image requires.
+    """
     if not has_intensity:
         return "no_intensity"
     if top == 0.0:

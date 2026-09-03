@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 
 import numpy as np
@@ -101,7 +102,7 @@ def test_v1_corrects_private_inputs_then_atomically_completes_the_batch(
         "correct", "correct", "complete", "complete", "finish"]
     corrected_ids = tuple(event[1] for event in session.events[:2])
     assert set(corrected_ids) == {"plate1_A01_F000", "plate1_A01_F001"}
-    assert tuple(event[1] for event in session.events[2:4]) == corrected_ids
+    assert {event[1] for event in session.events[2:4]} == set(corrected_ids)
     assert session.events[-1] == ("finish", corrected_ids)
     assert {
         path.stem: path.read_bytes() for path in corrected_stack.glob("*.npy")
@@ -113,7 +114,7 @@ def test_v1_corrects_private_inputs_then_atomically_completes_the_batch(
 
 
 def test_v1_off_path_keeps_the_existing_normalised_values(tmp_path):
-    """Passing no session is the historical path, including its exact arrays."""
+    """Passing no session retains the exact pre-339 scientific output."""
     from spacr.io import concatenate_and_normalize
 
     implicit = tmp_path / "implicit" / "stack"
@@ -132,6 +133,107 @@ def test_v1_off_path_keeps_the_existing_normalised_values(tmp_path):
     with np.load(implicit_npz) as left, np.load(explicit_npz) as right:
         np.testing.assert_array_equal(left["data"], right["data"])
         np.testing.assert_array_equal(left["filenames"], right["filenames"])
+
+    # Measured by running the same one-field fixture against the parent of
+    # the V1 integration commit (3c1ca30bd), not derived from this code path.
+    # The archive container carries timestamps, so the stable artifact is the
+    # decompressed float payload plus its exact filename manifest.
+    golden = tmp_path / "golden" / "stack"
+    golden.mkdir(parents=True)
+    rows, cols = np.indices((8, 8))
+    first = 20 + rows * 5 + cols * 3
+    second = 40 + rows * 2 + cols * 6
+    np.save(
+        golden / "plate1_A01_F000.npy",
+        np.stack([first, second], axis=-1).astype(np.uint16),
+    )
+    golden_settings = _settings(golden)
+    golden_settings["batch_size"] = 1
+    concatenate_and_normalize(
+        str(golden), [0, 1], settings=golden_settings)
+    golden_npz = next((golden.parent / "masks").glob("*.npz"))
+    with np.load(golden_npz) as archive:
+        payload = np.ascontiguousarray(archive["data"]).tobytes()
+        assert hashlib.sha256(payload).hexdigest() == (
+            "35d7acd5f7717f07d55d35be6128371957b8e7420a9dc8c57cbda9ac18b4751f"
+        )
+        assert archive["filenames"].tolist() == ["plate1_A01_F000.npy"]
+
+
+def test_v1_enabled_rerun_replaces_the_whole_published_npz_set(tmp_path):
+    """A shorter rerun cannot leave an old uncorrected batch for Cellpose."""
+    from spacr.io import concatenate_and_normalize
+
+    stack = tmp_path / "plate" / "stack"
+    _stack(stack)
+    masks = stack.parent / "masks"
+    masks.mkdir()
+    np.savez_compressed(
+        masks / "stale_batch_norm.npz",
+        data=np.zeros((1, 8, 8, 2), dtype=np.float32),
+        filenames=np.asarray(["stale_field.npy"]),
+    )
+    old_masks = masks / "cell_mask_stack"
+    old_masks.mkdir()
+    np.save(
+        old_masks / "stale_field.npy",
+        np.full((8, 8), 9, dtype=np.uint16),
+    )
+    merged = stack.parent / "merged"
+    merged.mkdir()
+    np.save(
+        merged / "stale_field.npy",
+        np.full((8, 8, 2), 9, dtype=np.uint16),
+    )
+    settings = _settings(stack)
+    settings["resume"] = True
+
+    class InspectingSession(_Session):
+        def finish(self, expected_fields):
+            # The durable record must not become complete before outputs made
+            # from the superseded pixels have been invalidated.
+            assert not old_masks.exists()
+            assert not merged.exists()
+            assert settings["resume"] is False
+            return super().finish(expected_fields)
+
+    session = InspectingSession(stack, masks)
+
+    concatenate_and_normalize(
+        str(stack), [0, 1], settings=settings,
+        illumination_session=session,
+    )
+
+    assert [path.name for path in masks.glob("*.npz")] == [
+        "stack_0_norm.npz"]
+    assert session.events[-1][0] == "finish"
+    assert "stale_field" not in session.events[-1][1]
+
+
+def test_v1_enabled_timelapse_refuses_an_ungrouped_source_frame(tmp_path):
+    """Every source NPY must enter the correction and completion inventory."""
+    import pytest
+
+    from spacr.io import concatenate_and_normalize
+
+    stack = tmp_path / "plate" / "stack"
+    stack.mkdir(parents=True)
+    values = np.arange(32, dtype=np.uint16).reshape(4, 4, 2)
+    np.save(stack / "plate1_A01_1_1.npy", values)
+    np.save(stack / "malformed.npy", values)
+    session = _Session(stack, stack.parent / "masks")
+    settings = _settings(stack)
+    settings["timelapse"] = True
+
+    with pytest.raises(ValueError, match="could not group every source NPY"):
+        concatenate_and_normalize(
+            str(stack), [0, 1], settings=settings,
+            illumination_session=session,
+        )
+
+    assert session.events == []
+    assert not list((stack.parent / "masks").glob("*.npz"))
+    assert not list(stack.parent.glob(".spacr_v1_npz_*"))
 
 
 def test_v1_atomic_save_failure_never_marks_or_finishes(
@@ -157,6 +259,7 @@ def test_v1_atomic_save_failure_never_marks_or_finishes(
 
     assert [event[0] for event in session.events] == ["correct", "correct"]
     assert not list((stack.parent / "masks").glob("*.npz"))
+    assert not list(stack.parent.glob(".spacr_v1_npz_*"))
     assert {
         path.stem: path.read_bytes() for path in stack.glob("*.npy")
     } == session.raw_before
@@ -181,6 +284,58 @@ def test_atomic_npz_replace_preserves_previous_file_and_cleans_temp(
 
     assert output.read_bytes() == b"previous complete archive"
     assert not list(tmp_path.glob(".spacr_npz_*.npz"))
+
+
+def test_v1_archive_set_publication_rolls_back_both_sides(
+        tmp_path, monkeypatch):
+    """A mid-publication failure restores the old set and retains the new."""
+    import pytest
+
+    import spacr.io as IO
+
+    output = tmp_path / "masks"
+    staging = tmp_path / ".spacr_v1_npz_stage"
+    output.mkdir()
+    staging.mkdir()
+    np.savez_compressed(
+        output / "old.npz", data=np.zeros((1, 1)),
+        filenames=np.asarray(["old.npy"]),
+    )
+    for name in ("a.npz", "b.npz"):
+        np.savez_compressed(
+            staging / name, data=np.ones((1, 1)),
+            filenames=np.asarray([f"{name}.npy"]),
+        )
+    real_replace = IO.os.replace
+
+    def fail_on_second_new(source, destination):
+        if Path(source) == staging / "b.npz":
+            raise OSError("second publication refused")
+        return real_replace(source, destination)
+
+    monkeypatch.setattr(IO.os, "replace", fail_on_second_new)
+    with pytest.raises(OSError, match="second publication refused"):
+        IO._publish_v1_normalized_archives(staging, output)
+
+    assert [path.name for path in output.glob("*.npz")] == ["old.npz"]
+    assert sorted(path.name for path in staging.glob("*.npz")) == [
+        "a.npz", "b.npz"]
+    assert not list(tmp_path.glob(".spacr_previous_v1_npz_*"))
+
+
+def test_v1_archive_set_publication_refuses_an_empty_stage(tmp_path):
+    """No successful run can replace real batches with an empty set."""
+    import pytest
+
+    import spacr.io as IO
+
+    output = tmp_path / "masks"
+    staging = tmp_path / "stage"
+    output.mkdir()
+    staging.mkdir()
+
+    with pytest.raises(ValueError, match="empty V1 normalized archive set"):
+        IO._publish_v1_normalized_archives(staging, output)
 
 
 def test_v1_missing_input_cannot_finalize_a_partial_field_set(
@@ -210,6 +365,7 @@ def test_v1_missing_input_cannot_finalize_a_partial_field_set(
 
     assert set(session.completed) != {
         "plate1_A01_F000", "plate1_A01_F001"}
+    assert not list(stack.parent.glob(".spacr_v1_npz_*"))
 
 
 def test_v1_resume_inventory_is_exact_and_rejects_missing_manifests(tmp_path):
@@ -373,6 +529,16 @@ def test_known_vignette_reaches_cellpose_and_recovers_the_dim_corner(
         stack = tmp_path / name / "stack"
         stack.mkdir(parents=True)
         np.save(stack / "plate1_A01_F001.npy", raw)
+        if enabled:
+            # A complete mask from an uncorrected prior run must not trigger
+            # either skip guard after corrected inputs are published.
+            (stack.parent / "source.tif").write_bytes(b"existing stack wins")
+            old_masks = stack.parent / "masks" / "cell_mask_stack"
+            old_masks.mkdir(parents=True)
+            np.save(
+                old_masks / "plate1_A01_F001.npy",
+                np.full(flat.shape, 9, dtype=np.uint16),
+            )
         settings = _settings(stack)
         settings.update({
             "cell_channel": 0,

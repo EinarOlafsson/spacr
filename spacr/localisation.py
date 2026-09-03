@@ -29,6 +29,11 @@ ALL = "\x00all-localisations"
 
 
 def _looks_numeric(text: str) -> bool:
+    """Return whether a compartment value can be interpreted as a number.
+
+    :param text: Compartment value to inspect.
+    :returns: ``True`` when conversion to ``float`` succeeds.
+    """
     try:
         float(text)
     except (TypeError, ValueError):

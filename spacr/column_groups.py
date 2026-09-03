@@ -36,6 +36,11 @@ NON_FEATURE_FAMILIES: Tuple[str, ...] = ("meta",)
 
 
 def _entry(column: str):
+    """Return the feature-dictionary descriptor for one column when known.
+
+    :param column: Measurement-column name to describe.
+    :returns: Parsed feature descriptor, or ``None`` when parsing fails.
+    """
     from .feature_dict import parse_column
 
     try:
