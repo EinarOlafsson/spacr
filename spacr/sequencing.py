@@ -76,6 +76,12 @@ except Exception:
     # never blocks. spaCR only calls display() from notebook
     # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
+        """Ignore notebook display requests while IPython is unavailable.
+
+        :param args: positional display values accepted for API compatibility.
+        :param kwargs: display options accepted for API compatibility.
+        :returns: ``None``.
+        """
         pass
 
 # Function to map sequences to names (same as your original)
