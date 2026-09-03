@@ -129,6 +129,7 @@ FULLY_DOCUMENTED = (
     "spacr/profiler.py",
     "spacr/projects.py",
     "spacr/qc_quarantine.py",
+    "spacr/refit.py",
     "spacr/regression_failure.py",
     "spacr/regression_families.py",
     "spacr/regression_layout.py",
