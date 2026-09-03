@@ -34,6 +34,11 @@ class ModelReport:
 
     :ivar ok: whether the chosen model is compatible with the requested run.
     :ivar source: resolved built-in model name or custom model path.
+    :ivar problems: incompatibilities that name the setting needed to fix
+        each one.
+    :ivar notes: useful compatibility facts that do not block the run.
+    :ivar channels: input channel count inferred from the model, when known.
+    :ivar classes: output class count inferred from the model, when known.
     """
 
     ok: bool
