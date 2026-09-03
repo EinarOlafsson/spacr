@@ -17,6 +17,7 @@ never make those imports heavier.
 """
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import os
@@ -55,7 +56,7 @@ def _utc_now() -> str:
 
 
 def json_safe(value: Any) -> Any:
-    """Return ``value`` in a deterministic JSON-compatible form.
+    """Return supported values in a deterministic JSON-compatible form.
 
     Paths, sets, tuples, NumPy scalars and other scalar-like objects are
     normalised without importing NumPy.  Unknown objects fall back to their
@@ -64,16 +65,24 @@ def json_safe(value: Any) -> Any:
 
     :param value: object to normalise.
     :returns: JSON-compatible value with mapping keys sorted as strings.
+    :raises ValueError: if distinct mapping keys normalize to the same string.
     """
     if value is None or isinstance(value, (bool, int, float, str)):
         return value
     if isinstance(value, os.PathLike):
         return os.fspath(value)
     if isinstance(value, Mapping):
-        return {
-            str(key): json_safe(value[key])
-            for key in sorted(value, key=lambda item: str(item))
-        }
+        converted = {}
+        original_keys = {}
+        for key in sorted(value, key=lambda item: str(item)):
+            normalized = str(key)
+            if normalized in converted:
+                raise ValueError(
+                    f"mapping keys {original_keys[normalized]!r} and {key!r} "
+                    f"both normalize to {normalized!r}")
+            original_keys[normalized] = key
+            converted[normalized] = json_safe(value[key])
+        return converted
     if isinstance(value, (list, tuple)):
         return [json_safe(item) for item in value]
     if isinstance(value, (set, frozenset)):
@@ -103,7 +112,14 @@ def fingerprint(value: Any) -> str:
 
 
 def _atomic_json(path: Path, payload: Mapping[str, Any]) -> None:
-    """Atomically write one JSON document to ``path``."""
+    """Atomically replace one JSON document through a sibling temporary.
+
+    :param path: destination JSON path whose parent is created when absent.
+    :param payload: JSON-like mapping to normalize and write.
+    :returns: ``None`` after the flushed temporary has replaced ``path``.
+    Normalization and filesystem failures propagate after best-effort
+    temporary cleanup.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     handle, temp_name = tempfile.mkstemp(
         prefix=f".{path.name}.", suffix=".tmp", dir=str(path.parent))
@@ -147,6 +163,22 @@ class CheckpointStore:
         boundary: str,
         resume: bool = False,
     ) -> None:
+        """Open a compatible checkpoint or create fresh running state.
+
+        :param path: checkpoint JSON path, expanded and resolved before use.
+        :param workflow: stable workflow identifier stored in and checked
+            against the document.
+        :param signature: a precomputed 64-character signature or JSON-like
+            identity to fingerprint.
+        :param boundary: safe work-unit label stored in and checked against
+            the document.
+        :param resume: read an existing file when true; a false value or absent
+            file creates and atomically writes fresh state.
+        :raises CheckpointMismatch: if an existing checkpoint has a different
+            version, workflow, signature, or boundary.
+        :raises CheckpointError: if existing state cannot be decoded or fresh
+            state cannot be written.
+        """
         self.path = Path(path).expanduser().resolve()
         self.workflow = str(workflow)
         self.signature = (
@@ -182,15 +214,15 @@ class CheckpointStore:
 
     @property
     def completed(self) -> Dict[str, Any]:
-        """Copy of completed-unit payloads keyed by unit id."""
+        """Detached copy of completed-unit payloads keyed by unit id."""
         value = self._document.get("completed", {})
-        return dict(value) if isinstance(value, Mapping) else {}
+        return copy.deepcopy(value) if isinstance(value, Mapping) else {}
 
     @property
     def meta(self) -> Dict[str, Any]:
-        """Copy of workflow-specific state."""
+        """Detached copy of workflow-specific state."""
         value = self._document.get("meta", {})
-        return dict(value) if isinstance(value, Mapping) else {}
+        return copy.deepcopy(value) if isinstance(value, Mapping) else {}
 
     @property
     def status(self) -> str:
@@ -198,10 +230,16 @@ class CheckpointStore:
         return str(self._document.get("status", "running"))
 
     def _read(self) -> Dict[str, Any]:
+        """Read and decode the checkpoint as a JSON object.
+
+        :returns: decoded document mapping.
+        :raises CheckpointError: if the file is unreadable, is invalid UTF-8
+            or JSON, or does not contain an object.
+        """
         try:
             with self.path.open("r", encoding="utf-8") as stream:
                 payload = json.load(stream)
-        except (OSError, json.JSONDecodeError) as exc:
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
             raise CheckpointError(
                 f"Checkpoint {self.path} could not be read: {exc}. Keep it "
                 "for diagnosis, then start without Resume to create a fresh "
@@ -212,6 +250,14 @@ class CheckpointStore:
         return payload
 
     def _validate(self) -> None:
+        """Validate loaded state against this store and its table schema.
+
+        :returns: ``None`` when the checkpoint is compatible.
+        :raises CheckpointMismatch: if version, workflow, signature, or
+            boundary differs.
+        :raises CheckpointError: if completed units or metadata is not a
+            mapping.
+        """
         version = self._document.get("version")
         if version != CHECKPOINT_VERSION:
             raise CheckpointMismatch(
@@ -231,6 +277,12 @@ class CheckpointStore:
                 "material settings. spaCR will not combine units produced by "
                 "different configurations; restore the original settings or "
                 "start without Resume.")
+        actual_boundary = self._document.get("boundary")
+        if actual_boundary != self.boundary:
+            raise CheckpointMismatch(
+                f"Checkpoint {self.path} records completed units at boundary "
+                f"{actual_boundary!r}, not {self.boundary!r}. Choose the "
+                "matching checkpoint or start without Resume.")
         if not isinstance(self._document.get("completed", {}), dict):
             raise CheckpointError(
                 f"Checkpoint {self.path} has an invalid completed-unit table.")
@@ -239,15 +291,31 @@ class CheckpointStore:
                 f"Checkpoint {self.path} has invalid workflow metadata.")
 
     def flush(self) -> None:
-        """Atomically persist the current document."""
-        self._document["updated_at"] = _utc_now()
+        """Atomically persist the current document.
+
+        :returns: ``None`` after replacement succeeds.
+        :raises CheckpointError: if the document cannot be written.
+        """
+        self._commit(self._document)
+
+    def _commit(self, document: Dict[str, Any]) -> None:
+        """Atomically persist candidate state and publish it after success.
+
+        :param document: detached candidate checkpoint document.
+        :returns: ``None`` after durable replacement and in-memory
+            publication.
+        :raises CheckpointError: if the candidate cannot be written.
+        """
+        candidate = dict(document)
+        candidate["updated_at"] = _utc_now()
         try:
-            _atomic_json(self.path, self._document)
-        except OSError as exc:
+            _atomic_json(self.path, candidate)
+        except (OSError, UnicodeError) as exc:
             raise CheckpointError(
                 f"Checkpoint {self.path} could not be written: {exc}. The "
                 "workflow stopped rather than pretending it can be resumed."
             ) from exc
+        self._document = candidate
 
     def mark(
         self,
@@ -261,13 +329,22 @@ class CheckpointStore:
         :param unit: stable unit id.
         :param payload: JSON-like result metadata for the unit.
         :param meta: workflow state to merge into the document metadata.
+        :returns: ``None`` after the completed unit is durable.
+        :raises CheckpointError: if the checkpoint cannot be written; the
+            in-memory document remains unchanged.
+        :raises spacr.cancellation.PipelineCancelled: after successful
+            persistence when the active cancellation token requests a stop.
         """
-        completed = self._document.setdefault("completed", {})
+        candidate = dict(self._document)
+        completed = dict(candidate.get("completed", {}))
         completed[str(unit)] = json_safe(dict(payload or {}))
+        candidate["completed"] = completed
         if meta:
-            self._document.setdefault("meta", {}).update(json_safe(dict(meta)))
-        self._document["status"] = "running"
-        self.flush()
+            metadata = dict(candidate.get("meta", {}))
+            metadata.update(json_safe(dict(meta)))
+            candidate["meta"] = metadata
+        candidate["status"] = "running"
+        self._commit(candidate)
         # The unit is now durable.  This is the earliest safe point at which
         # a GUI Stop request may leave the workflow without losing or
         # half-writing that unit.
@@ -279,26 +356,55 @@ class CheckpointStore:
         meta: Optional[Mapping[str, Any]] = None,
         status: Optional[str] = None,
     ) -> None:
-        """Persist workflow metadata or status without completing a unit."""
+        """Persist workflow metadata or status without completing a unit.
+
+        :param meta: workflow state to merge into the document metadata.
+        :param status: replacement status, or ``None`` to retain the current
+            value.
+        :returns: ``None`` after the update is durable.
+        :raises CheckpointError: if the checkpoint cannot be written; the
+            in-memory document remains unchanged.
+        """
+        candidate = dict(self._document)
         if meta:
-            self._document.setdefault("meta", {}).update(json_safe(dict(meta)))
+            metadata = dict(candidate.get("meta", {}))
+            metadata.update(json_safe(dict(meta)))
+            candidate["meta"] = metadata
         if status is not None:
-            self._document["status"] = str(status)
-        self.flush()
+            candidate["status"] = str(status)
+        self._commit(candidate)
 
     def finish(self, *, meta: Optional[Mapping[str, Any]] = None) -> None:
-        """Mark the workflow complete while retaining its inspectable state."""
+        """Mark the workflow complete while retaining its inspectable state.
+
+        :param meta: final workflow metadata to merge before completion.
+        :returns: ``None`` after the completed status is durable.
+        :raises CheckpointError: if the checkpoint cannot be written.
+        """
         self.update(meta=meta, status="complete")
 
     def artifact_path(self, unit: str, suffix: str = ".npy") -> Path:
         """Return a collision-resistant artifact path for ``unit``.
 
         :param unit: stable work-unit identity to hash into the filename.
+        :param suffix: non-empty filename suffix, with or without its leading
+            period; path separators, NUL, and dot-only values are refused.
+        :returns: path below :attr:`artifact_dir`, which is created lazily
+            after validation.
+        :raises ValueError: if ``suffix`` is empty or contains path syntax.
 
         The directory is created lazily. ``unit`` itself is not used as a
         filename; its digest prevents paths/settings from becoming filesystem
         syntax.
         """
+        raw_suffix = str(suffix)
+        if (not raw_suffix or raw_suffix in {".", ".."}
+                or "/" in raw_suffix or "\\" in raw_suffix
+                or "\x00" in raw_suffix):
+            raise ValueError(
+                "suffix must be a non-empty filename suffix without path "
+                "syntax")
+        ending = (raw_suffix if raw_suffix.startswith(".")
+                  else f".{raw_suffix}")
         self.artifact_dir.mkdir(parents=True, exist_ok=True)
-        ending = suffix if str(suffix).startswith(".") else f".{suffix}"
         return self.artifact_dir / f"{fingerprint(str(unit))}{ending}"
