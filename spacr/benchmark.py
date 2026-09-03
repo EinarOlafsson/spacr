@@ -54,10 +54,12 @@ class Measurement:
 
     @property
     def per_item_seconds(self) -> float:
+        """Return mean wall time per measured item, or NaN when none ran."""
         return self.seconds / self.items if self.items else float("nan")
 
     @property
     def items_per_second(self) -> float:
+        """Return measured throughput, or NaN for a nonpositive duration."""
         return self.items / self.seconds if self.seconds > 0 else float("nan")
 
     @property
@@ -94,6 +96,7 @@ class Recommendation:
     available_bytes: int = 0
 
     def __str__(self) -> str:
+        """Return the worker count followed by its sizing explanation."""
         return f"{self.workers} worker(s): {self.reason}"
 
 
@@ -126,6 +129,7 @@ def _vram_bytes() -> Optional[int]:
 
 
 def _reset_vram() -> None:
+    """Reset PyTorch's peak CUDA counter when that facility is available."""
     try:
         import torch
 
