@@ -659,3 +659,40 @@ the morning.
   screens will say whether the cost is per-widget -- in which case building
   less is the fix -- or a fixed cost per open, which points somewhere else
   entirely.
+
+--------------------------------------------------------------------------------
+2026-09-03 -- THE RE-ENTRY GUARD IS IN, VERIFIED, AND WAS NOT MISSING
+--------------------------------------------------------------------------------
+
+The standing handoff asked for the `_already_current` guard to be restored,
+reporting that the walkthrough edit "has disappeared from the worktree and no
+`_already_current` guard exists at origin/nightly `57f83fbb4`".
+
+CHECKED BEFORE REBUILDING IT, which is this repository's own first lesson.
+It is there: `spacr/qt/walkthrough.py:266`, used at :312, and both guard
+tests are committed rather than untracked. Seven tests pass:
+
+    tests/qt/test_walkthrough_does_not_renavigate.py
+    tests/qt/test_no_backdrop_thread_outlives_a_test.py
+
+The guard also documents the ordering that caused the bug -- 
+`QStackedWidget.currentChanged` fires AFTER the screen is current, so
+navigating unconditionally re-entered `_on_nav_selected` for the module
+already on screen, and that nested trip ran before the outer call had
+installed its readiness watcher -- and it deliberately FAILS TOWARD
+NAVIGATING, because a walkthrough highlighting a screen nobody is looking at
+is the more expensive mistake than one redundant trip.
+
+So this item did not need doing, and the note describing it as outstanding
+was written against an older tree. Nothing was rebuilt.
+
+WHAT 314 STILL OWES, unchanged and already measured elsewhere in this file:
+the guard was never going to meet the 500 ms gate on its own. Regression's
+`build widgets` span is 0.367 s; the 6.101 s stall begins after it, at the
+last settings-model breath near `settings_model.py:8112-8126`. The phases
+after `_build_settings_panel` -- runtime panel, wiring, backdrop, surface,
+palette, workspace, then app.py's theme/retranslate/retarget path -- have no
+yield at all, and none of them is instrumented. That measurement is the next
+step, and it wants the maintainer's own screen rather than a synthetic one:
+every previous round of this instruction found its real causes only on real
+data.
