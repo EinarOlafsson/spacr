@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import os
+import threading
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -169,3 +172,109 @@ def test_cache_rejects_impossible_limits_and_preserves_foreign_files(tmp_path):
     kept.store("one", np.zeros((4, 4)))
     assert kept.discard() == 1
     assert kept.directory.exists() and sentinel.exists()
+
+
+def test_foreign_png_is_not_owned_counted_evicted_or_cleared(tmp_path):
+    payload = thumbnail_png(np.zeros((4, 4), dtype=np.uint8))
+    cache = ThumbnailCache(tmp_path / "shared", max_bytes=len(payload))
+    foreign = cache.directory / "figure.png"
+    foreign.write_bytes(b"user-owned image")
+    os.utime(foreign, ns=(1, 1))
+
+    assert cache.total_bytes == 0
+    generated = cache.store("generated", np.zeros((4, 4), dtype=np.uint8))
+    assert foreign.read_bytes() == b"user-owned image"
+    assert cache.total_bytes == generated.stat().st_size == len(payload)
+
+    assert cache.clear() == 1
+    assert not generated.exists()
+    assert foreign.read_bytes() == b"user-owned image"
+    assert cache.discard() == 0
+    assert cache.directory.exists()
+
+
+def test_store_publishes_complete_pngs_atomically_and_coordinates_get(
+    tmp_path,
+    monkeypatch,
+):
+    directory = tmp_path / "shared"
+    writer = ThumbnailCache(directory)
+    reader = ThumbnailCache(directory)
+    key = "same-key"
+    path = writer.store(key, np.zeros((4, 4), dtype=np.uint8))
+
+    replacement_reached = threading.Event()
+    allow_replacement = threading.Event()
+    real_replace = os.replace
+
+    def pause_before_publication(source, destination):
+        if Path(destination) == path:
+            replacement_reached.set()
+            assert allow_replacement.wait(5), "test did not release atomic publication"
+        real_replace(source, destination)
+
+    monkeypatch.setattr(thumbs.os, "replace", pause_before_publication)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        store_future = pool.submit(
+            writer.store,
+            key,
+            np.full((4, 4), 255, dtype=np.uint8),
+        )
+        get_future = None
+        try:
+            assert replacement_reached.wait(2), "store did not reach atomic publication"
+
+            old_path = reader.get(key)
+            assert old_path == path
+            with Image.open(old_path) as old_image:
+                old_image.load()
+                assert np.asarray(old_image).tolist() == [[0] * 4 for _ in range(4)]
+
+            get_future = pool.submit(writer.get, key)
+            assert not get_future.done(), "same-cache get bypassed the publication lock"
+        finally:
+            allow_replacement.set()
+
+        assert store_future.result(timeout=5) == path
+        assert get_future is not None and get_future.result(timeout=5) == path
+
+    with Image.open(path) as new_image:
+        new_image.load()
+        assert np.asarray(new_image).tolist() == [[255] * 4 for _ in range(4)]
+
+
+@pytest.mark.parametrize("cleanup_fails", [False, True])
+def test_failed_atomic_publication_preserves_the_previous_png_and_error(
+    tmp_path,
+    monkeypatch,
+    cleanup_fails,
+):
+    cache = ThumbnailCache(tmp_path / "cache")
+    key = "same-key"
+    path = cache.store(key, np.zeros((4, 4), dtype=np.uint8))
+    previous = path.read_bytes()
+
+    def reject_publication(source, destination):
+        raise OSError("publication failed")
+
+    monkeypatch.setattr(thumbs.os, "replace", reject_publication)
+    real_unlink = Path.unlink
+    if cleanup_fails:
+
+        def reject_cleanup(temporary, *args, **kwargs):
+            if temporary.suffix == ".tmp":
+                raise OSError("cleanup failed")
+            return real_unlink(temporary, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "unlink", reject_cleanup)
+
+    with pytest.raises(OSError, match="publication failed"):
+        cache.store(key, np.full((4, 4), 255, dtype=np.uint8))
+
+    assert path.read_bytes() == previous
+    temporary_paths = list(cache.directory.glob(".*.tmp"))
+    assert bool(temporary_paths) is cleanup_fails
+    if cleanup_fails:
+        monkeypatch.setattr(Path, "unlink", real_unlink)
+        for temporary in temporary_paths:
+            temporary.unlink()

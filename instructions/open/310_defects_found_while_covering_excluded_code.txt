@@ -3326,3 +3326,45 @@ the bounded-queue lifecycle retains ``None``, negative, and positive examples.
 
 REVISED COUNT: 125 entries, 56 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+68. THUMBNAIL CACHE MAINTENANCE CLAIMED EVERY PNG IN A SHARED DIRECTORY
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/flowview/thumbs.py``. Size accounting, eviction, and ``clear`` treated
+every ``*.png`` in the cache directory as a generated thumbnail. A user image
+such as ``figure.png`` could therefore consume the cache budget and be deleted
+by an otherwise routine thumbnail write or cleanup.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/flowview/thumbs.py``. Cache ownership
+is now restricted to regular PNG files whose stems match the 64-character
+lowercase SHA-256 namespace emitted by ``path_for``. A focused test places an
+older foreign PNG beside a generated entry and proves it is neither counted,
+evicted, nor cleared; restoring the broad glob makes that test fail at its
+first byte-count assertion.
+
+REVISED COUNT: 126 entries, 57 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+69. THUMBNAIL WRITES PUBLISHED PARTIAL PNG FILES
+==============================================================================
+
+Found 2026-09-03 in ``spacr/flowview/thumbs.py``. ``store`` wrote directly to
+the final cache path, while ``get`` read without the instance lock. Concurrent
+readers could therefore observe a truncated PNG during replacement, and a
+failed write could destroy the prior complete thumbnail for the same key.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/flowview/thumbs.py``. Encoding is
+published with a same-directory temporary file and ``os.replace`` while the
+instance lock orders same-cache reads. A coordinated two-instance test pauses
+immediately before replacement: the independent reader decodes the complete
+old PNG, the same-instance reader waits, and both see the complete new PNG
+after publication. Removing atomic replacement or the read lock makes the
+focused test fail.
+
+REVISED COUNT: 127 entries, 58 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
