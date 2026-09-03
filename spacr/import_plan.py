@@ -51,6 +51,8 @@ class Renamed:
     :ivar well: captured well identifier.
     :ivar field: captured field-of-view identifier.
     :ivar channel: captured imaging-channel identifier.
+    :ivar time: captured timepoint identifier, or an empty string for a
+        non-timelapse filename.
     """
 
     before: str

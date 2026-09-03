@@ -9,6 +9,7 @@ missing.
 from __future__ import annotations
 
 import builtins
+from dataclasses import fields
 
 import pytest
 
@@ -16,6 +17,16 @@ import pytest
 # ---------------------------------------------------------------------------
 # import_plan.role_trouble
 # ---------------------------------------------------------------------------
+
+def test_a_planned_rename_documents_every_captured_identifier():
+    """The optional timepoint is part of the import preview contract."""
+    from spacr.import_plan import Renamed
+
+    missing = [
+        field.name for field in fields(Renamed)
+        if f":ivar {field.name}:" not in (Renamed.__doc__ or "")
+    ]
+    assert not missing, f"undocumented Renamed fields: {missing}"
 
 def test_a_complete_assignment_has_no_trouble():
     """The baseline: every required role taken exactly once."""
