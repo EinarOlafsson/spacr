@@ -1092,6 +1092,14 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract` for the
     run/cancel/status protocol, :meth:`set_propagate_callback` to push tuned
     values back into the main settings panel, and a ``build_*_card`` factory.
+
+    :param parent: parent widget.
+    :param threaded: whether the jobs run off the GUI thread. Opening a
+        sequence reads a TIFF header or memory-maps a stack and then lists
+        every sibling field of view, which is not GUI-thread work on a plate.
+        False runs each job inline, emitting the same signals in the same
+        order, so a test can drive this panel synchronously without the
+        behaviour diverging.
     """
 
     preview_ready = Signal(object)   # TrackStats, or None on failure

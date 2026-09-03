@@ -28,6 +28,13 @@ class AggregationRulesDialog(QDialog):
     Only columns that were CHANGED become overrides. Recording every row would
     freeze today's defaults into the settings, so a later improvement to the
     rules would never reach a user who had once opened this window.
+
+    :param frame: the loaded table. Its COLUMNS are what the dialog offers a
+        rule for, so a screen with nothing loaded offers nothing.
+    :param parent: parent widget.
+    :param overrides: the rules the user has already chosen, column to rule.
+        Copied, and only the columns named here differ from the default the
+        rules derive -- which is the mechanism behind the paragraph above.
     """
 
     rules_changed = Signal(dict)

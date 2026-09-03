@@ -691,6 +691,11 @@ class ImageSetSampler:
     (folder, total, cap, nonce), so re-rendering after any settings change
     returns the identical sets. The sample changes only when the user changes
     the cap or calls :meth:`reshuffle`.
+
+    :param max_sets: how many image sets a preview may load at once. It is
+        the ``cap`` in the sampling described above, so changing it changes
+        the sample -- which is why it is a constructor argument rather than
+        something read per render.
     """
 
     def __init__(self, max_sets: int = DEFAULT_MAX_SETS):

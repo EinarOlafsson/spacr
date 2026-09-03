@@ -12,7 +12,13 @@ class Toggle(QCheckBox):
     """A compact switch that can be clicked or dragged between states."""
 
     def __init__(self, text: str = "", parent=None):
-        """Initialize the switch with an optional trailing label."""
+        """Initialize the switch with an optional trailing label.
+
+        :param text: the label drawn after the switch. Empty leaves the
+            switch alone, which is what a settings row wants -- the caption
+            beside it is the form's, not the control's.
+        :param parent: parent widget.
+        """
         super().__init__(text, parent)
         # Approximately 75% of the original 40 x 22 px switch.
         # Leave two physical pixels before the track: a track starting at x=0

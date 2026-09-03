@@ -121,6 +121,11 @@ class LazyScreenFactory:
     screen construction, allowing signature inspection to use the underlying
     callable. Direct calls are also supported; only keyword arguments accepted
     by the resolved factory are forwarded unless it accepts ``**kwargs``.
+
+    :param module: dotted path of the module holding the factory. NOT
+        imported here -- that is the whole point: naming a screen must not
+        pull its imports into application startup.
+    :param attribute: the factory's name inside that module.
     """
 
     __slots__ = ("module", "attribute", "_resolved")

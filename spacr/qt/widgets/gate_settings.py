@@ -247,6 +247,13 @@ class GateSettingsDialog(QDialog):
     sampling, which means re-reading the table -- are applied by the screen
     when it sees them change, which is why the signal carries the whole
     settings object rather than one field.
+
+    :param settings: the settings to edit. Held, not copied -- the dialog is
+        live and emits :attr:`settings_changed` as controls move, so a caller
+        wanting cancel-to-revert keeps its own copy.
+    :param parent: parent widget.
+    :param columns: the columns currently loaded, for the aggregation table.
+        Empty is legitimate and means the screen has no data yet.
     """
 
     #: The settings changed. Carries a whole :class:`GateEditorSettings`.

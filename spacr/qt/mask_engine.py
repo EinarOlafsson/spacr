@@ -949,6 +949,11 @@ class RecropRefused(ValueError):
 
     :ivar reason: Stable reason code: ``"no_field"``, ``"too_small"``, or
         ``"redraw"``.
+
+    :param reason: the stable code above. Callers branch on it, so it must
+        be one of the three rather than prose.
+    :param message: what to say to the user. This is the exception's own
+        message, so it is what an unhandled raise would print.
     """
 
     def __init__(self, reason: str, message: str):
