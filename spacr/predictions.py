@@ -592,27 +592,27 @@ def _choose_key(results: pd.DataFrame, db_frame: pd.DataFrame,
 class MergeReport:
     """What one merge did, in numbers.
 
-    :ivar table: database table into which prediction results were merged.
-    :ivar key: join-key strategy selected for the merge.
-    :ivar columns: prediction columns requested for insertion or update.
-    :ivar db_rows: target-table rows considered by the merge.
-    :ivar result_rows: incoming prediction rows considered by the merge.
-    :ivar matched_rows: target rows that received at least one prediction.
-    :ivar matched_keys: distinct incoming identities found in the target table.
-    :ivar unmatched_db_rows: target rows left unchanged because no result
+    :param table: database table into which prediction results were merged.
+    :param key: join-key strategy selected for the merge.
+    :param columns: prediction columns requested for insertion or update.
+    :param db_rows: target-table rows considered by the merge.
+    :param result_rows: incoming prediction rows considered by the merge.
+    :param matched_rows: target rows that received at least one prediction.
+    :param matched_keys: distinct incoming identities found in the target table.
+    :param unmatched_db_rows: target rows left unchanged because no result
         carried their identity.
-    :ivar unmatched_result_rows: parseable result rows whose identity was not
+    :param unmatched_result_rows: parseable result rows whose identity was not
         present in the target table.
-    :ivar unparsed_result_rows: result rows from which no join identity could
+    :param unparsed_result_rows: result rows from which no join identity could
         be constructed.
-    :ivar ambiguous_keys: identities repeated with conflicting prediction
+    :param ambiguous_keys: identities repeated with conflicting prediction
         values and therefore deliberately not written.
-    :ivar ambiguous_result_rows: incoming rows involved in those conflicts.
-    :ivar fanout_rows: additional target rows sharing a matched identity and
+    :param ambiguous_result_rows: incoming rows involved in those conflicts.
+    :param fanout_rows: additional target rows sharing a matched identity and
         receiving the same value, such as alternate crops of one object.
-    :ivar repaired: legacy prediction columns repaired before this merge, as
+    :param repaired: legacy prediction columns repaired before this merge, as
         ``(table, column, rows_repaired)`` records.
-    :ivar added_columns: prediction columns newly created in the target table.
+    :param added_columns: prediction columns newly created in the target table.
 
     Returned by :func:`merge_prediction_results` and printed by it. Every
     count is here because a merge that matched three rows of forty thousand
