@@ -62,6 +62,7 @@ FULLY_DOCUMENTED = (
     "spacr/mask_io.py",
     "spacr/measure_hooks.py",
     "spacr/merge_tables.py",
+    "spacr/model_check.py",
     "spacr/normalization.py",
     "spacr/notebook_export.py",
     "spacr/organelle_types.py",
