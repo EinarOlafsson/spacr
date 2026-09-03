@@ -1321,9 +1321,11 @@ A13. spacr/parameter_sweep.py:1322-1324 (run_sweep, in-process failure path)
 A14. spacr/volcano_style.py:683-692, _annotate
     WHAT: When a labelled point's y value falls inside the break of a split axis (outside every panel's ylim), the `for panel in panels` loop falls through and the label is annotated onto `panels[0]` at data coordinates outside that panel's y range. Annotations are created with clip_on=True, so the text is clipped away entirely. Verified by drawing: with split_y_lims=((0,2),(5,10)) and a point at y=3.5, the annotation's window extent comes back at y 0-1 while the panel occupies y 596-845 -- the text is present in `panels[0].texts` but paints nothing.
     COST: A user who explicitly types a guide into the annotation list on a broken-axis volcano gets no label and no message; the label is silently swallowed rather than clamped to the nearest panel edge or reported as unplottable. Low severity (the point itself is also hidden by the break), but the `target = axis` fall-through is effectively a no-op that reads like a deliberate fallback.
-    VERDICT 2026-08-31: STILL LIVE. `target = panels[0]` before the `for panel
-    in panels` loop, so a y inside the break of a split axis is annotated onto
-    the first panel at coordinates outside its ylim. Not fixed here.
+    VERDICT 2026-09-02: RESOLVED by `4d153c1b34`. A y value inside the split
+    is clamped to the nearest visible panel edge and offset inward.
+    `test_a_label_lands_on_the_panel_whose_range_can_show_its_point` proves
+    both ordinary upper/lower placement and the rendered, visible clamped
+    label; its clamped-anchor assertion fails against the parent source.
 
 A15. spacr/qt/widgets/figure_settings.py:1534 (derive_replot_recipe)
     WHAT: The guard `if frame[DERIVED_GROUP].nunique() < 1: return None` cannot fire for any real figure. The group column is built only from `_named()`, which returns either a non-empty stripped tick label or `f"{float(x):g}"` -- always a str, never NaN -- and line 1531 has already guaranteed at least 2 rows, so nunique() is >= 1 by construction. It is a dead guard of the kind tests/test_a_guard_no_input_could_reach_is_gone.py exists to catch.
@@ -1335,10 +1337,13 @@ A15. spacr/qt/widgets/figure_settings.py:1534 (derive_replot_recipe)
 A16. spacr/regression_qc.py:2683-2735 `_panel_p_value_histogram` together with `diagnose_p_value_histogram` (line 833: `np.histogram(p, bins=n_bins, range=(0.0, 1.0))`)
     WHAT: Finite p-values outside [0, 1] are silently discarded by the fixed histogram range, and only the non-finite ones are guarded against (`if finite.size == 0: raise PanelUnavailable`). Feeding `coef_df` a `p_value` column of `[3.0, 7.0, 12.0]` gives `n == 0`, `verdict == 'too-few'`, message 'only 0 p-value(s)', `frac_below_0.05 == nan`, an empty histogram and no uniform reference line -- with no complaint anywhere that three values were supplied and all three were thrown away.
     COST: A caller who wires the wrong column into `coef_df` (a test statistic, a -log10 p, a chi2) gets the panel's 'too few coefficients to read a shape' limitation stamped on the report for a screen with thousands of coefficients. The report then states a coefficient count that contradicts the table it was built from, and the reader concludes the model is small rather than that the input is not p-values. The panel's own reason for existing -- catching a mis-specified null -- is silently unavailable.
-    VERDICT 2026-08-31: STILL LIVE. `p = p[np.isfinite(p)]` then
-    `np.histogram(p, range=(0.0, 1.0))` -- finite p outside [0,1] is dropped by
-    the range with no diagnostic, and only the non-finite case raises
-    PanelUnavailable. Not fixed here.
+    VERDICT 2026-09-02: RESOLVED by `4876158a6c`. The diagnostic boundary now
+    rejects finite p-values outside [0, 1] with `ValueError`, and the panel
+    translates that into `PanelUnavailable`. Two focused regression-QC tests
+    prove rejection and valid 0/1 boundaries, while
+    `test_a_coefficient_table_outside_zero_to_one_draws_no_uniform_line`
+    proves the panel boundary; the rejection tests fail against the parent
+    source, which silently returned a zero-count `too-few` histogram.
 
 A17. spacr/qt/mask_engine.py:733-753, magic_wand()
     WHAT: The max_pixels budget counts only pixels that CHANGE state (added is incremented at 743-746 only when a zero pixel is added or a nonzero pixel is erased), so a flood that changes nothing is completely unbounded. Erasing where the mask is already empty, or adding over ground the mask already owns, walks every in-tolerance pixel in the frame no matter how small max_pixels is.
@@ -1666,6 +1671,11 @@ A57. spacr/qt/widgets/feature_rank.py:658-670 (_null_threshold)
 A58. spacr/settings_advisor.py:844-848 (_thresholds), reached from read_the_counts lines 244-256
     WHAT: When every well total is zero (a plate that sequenced to nothing), fractions_from_counts returns a 'fraction' column that is present and numeric but entirely NaN. read_the_counts filters it to empty at line 246, so fraction_median stays None, and _thresholds then explains the missing recommendation with 'the count tables did not yield a fraction column'. The column WAS yielded; every value in it is NaN because the denominator was zero. read_the_counts also adds nothing to 'trouble' for this case, so the reading reports plates/wells/guides with no note at all.
     COST: A user whose sequencing failed (or whose count column was read as zeros) is told to go looking for a missing 'fraction' column that is sitting right there in their table, and the reading beside the advice looks healthy -- it names the plates, wells and guides it counted and flags no trouble. The one number that would have told them the run is worthless (no reads anywhere) is the one that is silently absent.
+    VERDICT 2026-09-02: RESOLVED by `6b2916aff`. Zero-read tables now carry
+    `_NO_USABLE_FRACTIONS`, so `_thresholds` reports that no fraction can be
+    computed rather than claiming the column is missing; a genuinely absent
+    fraction column remains a separate diagnosis. The focused zero-read and
+    missing-column counterparts pass together (2 passed in 5.55 s).
 
 
 ==============================================================================
@@ -2519,6 +2529,30 @@ The lesson the deletion confirms rather than the fix: the duplicate had zero
 unique commits, so the lineage that had been silently answering imports for an
 unknown length of time was contributing nothing but the ambiguity.
 
+ENTRY 30, FULLY RESOLVED ON THE CURRENT HOST 2026-09-02
+------------------------------------------------------------------------------
+
+The same base-environment hazard persisted on this host under Python 3.12:
+`site-packages/spacr` was still a resource-only namespace, and the second
+editable distribution `spacr_nightly-1.1.5` still pointed at the absent
+`/home/olafsson/repo/spacr-claude/spacr`. Before repair, a neutral
+`import spacr` produced `__file__ = None` and no version.
+
+The namespace directory and the stale nightly distribution's `.pth`, finder,
+bytecode and dist-info were moved—not deleted—to the recoverable backup
+`/home/olafsson/.cache/spacr/environment-backups/`
+`base-spacr-namespace-20260902-eahb67`. The valid editable `spacr-1.5.0.4`
+distribution was left intact. From `/tmp`, `spacr`, `spacr.cli`, and
+`spacr.qt.spaceout` now import from `/mnt/firecuda2/Claude/repo/spacr/spacr`.
+
+The authoritative neutral-cwd verification is `spacr-doctor --no-gpu-probe
+--json`: 14 PASS, 0 FAIL, 0 ERROR; it reports one importable spaCR package,
+one spaCR distribution, all 15 commands resolved, core imports available, and
+the expected editable checkout running. The sole warning is the unrelated
+optional `lightgbm` extra. Entry 30's environment repair is therefore complete
+and can be restored by moving the five backup artifacts to their original
+paths if needed.
+
 
 ==============================================================================
 38. A NEGATIVE RESULT: THE OBVIOUS EARLY-OUT IN button_roles IS 5% SLOWER
@@ -2677,3 +2711,41 @@ not a measurement of it.
 WHAT WOULD MAKE IT A MEASUREMENT: give every entry a one-word verdict line in
 a fixed position, the way the newer A-entries nearly do. Then the count is a
 grep and the next session does not re-derive it.
+
+
+==============================================================================
+40. AN ENABLED TIMELAPSE COULD OMIT A MALFORMED SOURCE FIELD
+==============================================================================
+
+Found during the post-commit review of instruction 339. The V1 timelapse path
+trusted `_generate_time_lists`: an NPY whose name could not be parsed as
+`plate_well_field_time` was absent from the returned groups, so illumination
+correction could finish with a provenance manifest that never mentioned that
+source field. Cellpose would process the grouped subset without reporting the
+omission.
+
+VERDICT 2026-09-02: RESOLVED by `cd09994e1`. When illumination is enabled,
+`concatenate_and_normalize` now compares the complete source-NPY inventory to
+the grouped inventory and refuses the run with the exact omitted filenames.
+The focused malformed-time-name test proves the refusal, while the ordinary
+timelapse counterpart proves valid names still group and publish.
+
+
+==============================================================================
+41. A SHORTER V1 RERUN COULD LEAVE A STALE NPZ FOR CELLPOSE
+==============================================================================
+
+Also found during instruction 339's post-commit review. V1 wrote each new
+normalised archive over the old directory independently; if a rerun produced
+fewer batches, an old top-level NPZ survived and remained visible to the
+Cellpose glob even though it was not in the new illumination manifest.
+
+VERDICT 2026-09-02: RESOLVED by `cd09994e1`. V1 now builds and validates the
+complete archive set in a private staging directory, atomically replaces the
+published set with rollback on failure, and removes staging on every exit.
+Focused tests prove a shorter rerun removes stale archives, successful
+publication is exact, and a mid-publication failure restores the prior set.
+
+REVISED COUNT after recording these two already-resolved findings and the A14,
+A16 and A58 verdict corrections above: 99 entries, 31 recorded as resolved. This
+is still a prose-derived progress aid rather than an acceptance ledger.

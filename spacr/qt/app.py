@@ -20,7 +20,7 @@ from typing import List, Optional, Tuple
 from PySide6.QtCore import (QEvent, QObject, QPoint, QRect, QSize, Qt,
                             QThread, Signal)
 from PySide6.QtGui import (QAction, QColor, QCursor, QIcon, QKeySequence,
-                           QPalette)
+                           QPainter, QPalette)
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
@@ -1883,6 +1883,9 @@ class _DockRow(ElidingPushButton):
     button with no text would be making them instead.
     """
 
+    #: Gap between the icon's right edge and the hovered name, in px.
+    NAME_GAP_PX = 10
+
     def __init__(self, text: str = "", parent=None):
         super().__init__(text, parent)
         #: x of the resting icon's centre, in row coordinates. Set by
@@ -1890,6 +1893,46 @@ class _DockRow(ElidingPushButton):
         self._icon_centre = 0
         #: The one height this row ever has. 0 until `set_row_height`.
         self._row_height = 0
+        #: Whether the pointer is on this row. Instruction 369 asks for the
+        #: name and a second ink colour on hover, and BOTH are paint-only:
+        #: nothing here changes a size, because 348 pinned the row height
+        #: precisely so a target does not move under the pointer.
+        self._hovered = False
+
+    def enterEvent(self, event):                # noqa: N802 - Qt naming
+        """Remember the pointer arrived, and repaint.
+
+        Tracked here rather than read from `underMouse()` at paint time
+        because the magnifier repaints neighbouring rows too, and
+        `underMouse()` answers for the widget the cursor is over rather
+        than the one being painted.
+        """
+        self._hovered = True
+        self.update()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):                # noqa: N802 - Qt naming
+        """The pointer left: drop the name and the accent ink."""
+        self._hovered = False
+        self.update()
+        super().leaveEvent(event)
+
+    def is_hovered(self) -> bool:
+        """Public so a test can assert the state without a screenshot."""
+        return self._hovered
+
+    def name_rect(self) -> QRect:
+        """Where the hovered name is drawn, in row coordinates.
+
+        INSIDE the dock, elided when it does not fit -- option (a) of the
+        two 369 offers. The alternative was an overlay allowed to exceed
+        the dock's 220 px, and it was rejected because the row already has
+        a status-strip hint and a native tooltip: a third floating label
+        for the same string is not more help, it is more to dismiss.
+        """
+        icon = self.icon_rect()
+        left = icon.right() + self.NAME_GAP_PX
+        return QRect(left, 0, max(0, self.width() - left - 8), self.height())
 
     def set_row_height(self, height: int) -> None:
         """Pin the row's height, against the app stylesheet as well.
@@ -1951,8 +1994,69 @@ class _DockRow(ElidingPushButton):
             return
         mode = (QIcon.Mode.Normal if self.isEnabled()
                 else QIcon.Mode.Disabled)
-        icon.paint(painter, self.icon_rect(), Qt.AlignmentFlag.AlignCenter,
+        rect = self.icon_rect()
+        if self._hovered and self.isEnabled():
+            # WHITE TO BLUE, as a second ink rather than a second drawing.
+            # 369: "the icon is re-inked per theme by `iconset` already ...
+            # so 'white to blue on hover' is a second ink colour on the
+            # hovered row, not new artwork. Painting a blue copy of every
+            # PNG is not the mechanism to use."
+            #
+            # `SourceIn` over the icon's own pixmap recolours every visible
+            # pixel and leaves alpha -- including the antialiased edge --
+            # exactly as the mask drew it, which is the same promise
+            # `iconset.reink` makes.
+            tinted = icon.pixmap(rect.size(), mode, QIcon.State.Off)
+            if not tinted.isNull():
+                tint = QPainter(tinted)
+                tint.setCompositionMode(
+                    QPainter.CompositionMode.CompositionMode_SourceIn)
+                tint.fillRect(tinted.rect(), QColor(self._accent()))
+                tint.end()
+                painter.drawPixmap(rect, tinted)
+            else:
+                icon.paint(painter, rect, Qt.AlignmentFlag.AlignCenter,
+                           mode, QIcon.State.Off)
+            self._paint_name(painter)
+            return
+        icon.paint(painter, rect, Qt.AlignmentFlag.AlignCenter,
                    mode, QIcon.State.Off)
+
+    def _accent(self) -> str:
+        """The theme's accent, resolved at paint time.
+
+        NOT a literal. There are four themes and the palette is a live
+        preference, so a hard-coded blue here is a dock that stops matching
+        the application the day the palette moves.
+        """
+        from .theme import active_palette
+
+        return active_palette()["accent"]
+
+    def _paint_name(self, painter) -> None:
+        """The row's name, in the accent, to the right of its icon.
+
+        Only while hovered, and only as PAINT: `text()` is never cleared
+        and never set. Three things read it back -- the tutorial scripts'
+        label fallback, `Sidebar.clipped_items` and `Sidebar.fitting_width`
+        -- and all three fail silently on an empty string, which is why
+        348 cleared the painting rather than the property and why this
+        adds painting rather than restoring it.
+        """
+        name = self.text()
+        if not name:
+            return
+        box = self.name_rect()
+        if box.width() <= 0:
+            return
+        metrics = painter.fontMetrics()
+        shown = metrics.elidedText(name, Qt.TextElideMode.ElideRight,
+                                   box.width())
+        painter.setPen(QColor(self._accent()))
+        painter.drawText(
+            box,
+            int(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft),
+            shown)
 
 
 class Sidebar(QWidget):
@@ -2072,7 +2176,15 @@ class Sidebar(QWidget):
         self._sizes: Optional[tuple] = None
 
         home = self._make_item("Home", "Back to the start page", "__home__")
-        home.setIcon(iconset.icon("home"))
+        # `app_icon`, NOT `icon`. Instruction 369 ask 1: the Home row
+        # was the ONE row of forty whose mark differed from what the
+        # Home screen draws, because `icon("home")` answers a Font
+        # Awesome house and there was no bundled `home.png` to find.
+        # There is now -- an alpha mask cut from the application's own
+        # tile by `tools/icon_generators/home_from_the_app_mark.py` --
+        # and `app_icon` re-inks it for the theme like every other row,
+        # while still falling back to the glyph if the file ever goes.
+        home.setIcon(iconset.app_icon("home"))
         home.clicked.connect(lambda: self.nav_selected.emit("__home__"))
         layout.addWidget(home)
 
@@ -2220,8 +2332,21 @@ class Sidebar(QWidget):
         onto its neighbour; this covers the pointer that leaves the column
         altogether, including straight off the bottom row onto the empty
         stretch below it, where no other row will ever be entered.
+
+        THE NAME AND THE INK GO WITH THE MAGNIFICATION, and that is not
+        belt-and-braces. Two different things mean "the pointer is no
+        longer here" -- the icon size the magnifier chose, and the accent
+        ink plus name that 369 added -- and they were reset by two
+        different handlers. A dock Leave that put every icon back while
+        leaving one row blue with its name showing is a row that looks
+        hovered when nothing is. Resetting both here means the pair cannot
+        disagree, whatever order the events arrive in.
         """
         self.magnify_from(None)
+        for row in self._items:
+            if getattr(row, "_hovered", False):
+                row._hovered = False
+                row.update()
         super().leaveEvent(event)
 
     def expand_host(self, host_key: str) -> None:
@@ -2335,7 +2460,7 @@ class Sidebar(QWidget):
             key = btn.property("navKey")
             if not key:
                 continue
-            icon = (iconset.icon("home") if key == "__home__"
+            icon = (iconset.app_icon("home") if key == "__home__"
                     else _icon_for_app(key))
             if icon is not None:
                 btn.setIcon(icon)

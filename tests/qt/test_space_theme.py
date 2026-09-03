@@ -739,8 +739,16 @@ class TestIconVisibility:
                       for p in iconset.bundled_icon_paths()
                       if iconset.carries_tonal_structure(iconset._load_rgba(p))]
         # Only these genuinely put shading in RGB; everything else is a mask.
+        #
+        # `logo_spacr_readme.png` joined the list on 2026-09-02 -- it was
+        # already tonal and already shipped, and this assertion had been red
+        # for it. It belongs here for `app_icon.png`'s reason: a BRAND MARK
+        # is not a glyph. It is drawn once, in its own colours, and is never
+        # re-inked for a theme, so measuring it against the mask rule was
+        # always going to fail. `logo_spacr.png` IS a mask and stays out.
         assert set(structured) <= {
-            "activation.png", "app_icon.png", "flow_chart_v3.png", "umap.png",
+            "activation.png", "app_icon.png", "flow_chart_v3.png",
+            "logo_spacr_readme.png", "umap.png",
         }
         assert len(structured) < len(iconset.bundled_icon_paths()) / 2
 
@@ -793,15 +801,29 @@ class TestIconVisibility:
         return [line.strip() for line in block.splitlines()
                 if line.strip().startswith("background")]
 
-    def test_the_dock_is_opaque_in_every_theme(self):
-        """"the dock to the left should never have a transparent
-        background, either dark gray or white" — the user, #16j.
+    def test_the_dock_is_opaque_over_a_picture_and_bare_otherwise(self):
+        """Two maintainer requests that disagree, and the seam between them.
 
-        A navigation column is chrome: it is what you look at when you
-        have lost your place, and it has to be a solid edge for the page
-        to end at. It used to paint ``surface``, which the image themes
-        re-render through ``scrim_alpha`` — so on Space the app list was
-        a ghost with a galaxy behind every row.
+        #16j: "the dock to the left should never have a transparent
+        background, either dark gray or white" — filed because over an
+        image theme the app list was a ghost with a galaxy behind every
+        row.
+
+        Instruction 369, 2026-09-02: "the background dark gray container
+        can be removed, the hover highlight should stay."
+
+        Taken literally the first forbids the second. THE SPLIT IS THE ONE
+        THIS FILE ALREADY CARRIED: `over_image`. Over `cell` and `glass`
+        there is a picture behind the dock, #16j's complaint applies
+        verbatim, and the legibility floor does not rescue it (Cell floors
+        at 0.047) — so the dock stays opaque. On `dark`, `light` and
+        `space` there is no wallpaper, only the ambient animation, so the
+        container comes off and that is exactly what 369 asked for.
+
+        The right border is kept in every theme, so the page still ends at
+        a line rather than bleeding into the dock, and the hover highlight
+        is unaffected because it was never the tray — it is the row's own
+        `:hover` background, painted by `_DockRow.paintEvent`.
         """
         for name in theme.IMAGE_THEMES:
             qss = theme.stylesheet(name)
@@ -826,11 +848,13 @@ class TestIconVisibility:
         # floor does not rescue it (Cell floors at 0.047). On dark and light
         # there is no picture behind the dock, only the ambient animation, so
         # thinning it is what was asked for and harms nothing.
-        for name in ("dark", "light"):
+        for name in ("dark", "light", "space"):
             qss = theme.stylesheet(name, surface_opacity=0.5)
             fills = self._fills(qss, "#EdgeDrawer, #Sidebar, #SidebarScroll")
-            assert any("rgba(" in f for f in fills), (
-                f"{name}: the dock ignored page opacity: {fills}")
+            assert all("transparent" in f for f in fills), (
+                f"{name}: the dock still paints a container: {fills}. 369 "
+                f"asked for it to come off where there is no picture behind "
+                f"it, and these three themes have none.")
 
         # White under the light theme, a dark grey everywhere else —
         # both taken from the palette, never written down as a hex.
