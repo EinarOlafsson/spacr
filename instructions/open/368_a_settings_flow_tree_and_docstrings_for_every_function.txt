@@ -250,3 +250,14 @@ reference-rule rendering, and the full axis-finishing side effect. The pass
 also found and fixed axis labels ignoring ``label_font_size``; direct render
 and serialization tests pin both behavior contracts. The module is now in
 the completed-module registry.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``agreement.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The four final gaps now state the exact one-line pair summary, annotator
+count, signed κ formatting, and percentage fallback contracts. Existing
+tests already exercise defined and undefined pair strings, report cardinality,
+and both formatter fallbacks; the completed-module registry now prevents any
+function docstring from disappearing.
