@@ -229,6 +229,8 @@ def test_a_resolver_that_dies_mid_read_is_still_a_readable_refusal(
 
     result = updater.dry_run_install("torch", runner=_broken)
 
+    for field in ("changes", "error", "raw"):
+        assert f":ivar {field}:" in (updater.DryRun.__doc__ or "")
     assert result.ok is False
     assert result.error == "Cannot allocate memory"
     assert result.raw == ""
