@@ -523,7 +523,7 @@ def clear_mask(mask: np.ndarray) -> np.ndarray:
 def invert_mask(mask: np.ndarray) -> np.ndarray:
     """Return the mask with foreground/background flipped and relabeled."""
     out = np.where(mask > 0, 0, 1).astype(mask.dtype)
-    labeled, _ = label(out)
+    labeled, _ = _ndimage().label(out)
     return labeled.astype(mask.dtype)
 
 
@@ -541,7 +541,7 @@ def remove_small_objects(mask: np.ndarray, min_area: int) -> np.ndarray:
             keep[i] = True
     filtered = keep[labeled]
     out = np.where(filtered, mask, 0)
-    labeled, _ = label(out > 0)
+    labeled, _ = _ndimage().label(out > 0)
     return labeled.astype(mask.dtype)
 
 
@@ -664,7 +664,7 @@ def connected_instances(binary: np.ndarray, min_area: int = 0) -> np.ndarray:
         labelled, so a detection does not hand back a field of single-pixel
         speckles for the user to delete by hand.
     """
-    components, count = label(np.asarray(binary, dtype=bool), structure=_EIGHT)
+    components, count = _ndimage().label(np.asarray(binary, dtype=bool), structure=_EIGHT)
     out = np.zeros(components.shape, dtype=np.int32)
     next_id = 1
     for old in range(1, count + 1):
@@ -1050,7 +1050,7 @@ def cut_recrop(image: np.ndarray, mask: np.ndarray,
         edge = edge[edge > 0]
         if edge.size:
             sub_mask = np.where(np.isin(sub_mask, edge), 0, sub_mask)
-    relabelled, _ = label(sub_mask > 0, structure=_EIGHT)
+    relabelled, _ = _ndimage().label(sub_mask > 0, structure=_EIGHT)
     return sub_image, relabelled.astype(np.uint16)
 
 

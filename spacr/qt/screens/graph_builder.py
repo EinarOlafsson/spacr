@@ -27,9 +27,12 @@ from __future__ import annotations
 import logging
 import os
 import sqlite3
-from typing import List, Optional
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Tuple
 
 import pandas as pd
+
+if TYPE_CHECKING:
+    from ..widgets.fold_strip import FoldStrip
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QSplitter,
