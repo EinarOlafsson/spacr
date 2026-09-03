@@ -105,6 +105,7 @@ FULLY_DOCUMENTED = (
     "spacr/timelapse.py",
     "spacr/trial_metrics.py",
     "spacr/uniprot.py",
+    "spacr/updater.py",
     "spacr/well_scope.py",
     "spacr/well_spec.py",
     "spacr/workspace.py",
