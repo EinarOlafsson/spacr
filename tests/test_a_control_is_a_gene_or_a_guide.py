@@ -36,7 +36,7 @@ def test_the_resolved_control_documents_every_stored_field():
     """A caller can interpret the prefix retained in the public result."""
     missing = [
         field.name for field in fields(ControlSpec)
-        if f":ivar {field.name}:" not in (ControlSpec.__doc__ or "")
+        if f":param {field.name}:" not in (ControlSpec.__doc__ or "")
     ]
     assert not missing, f"undocumented ControlSpec fields: {missing}"
 
