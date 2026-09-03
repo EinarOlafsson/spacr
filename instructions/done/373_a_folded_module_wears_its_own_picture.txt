@@ -1,0 +1,90 @@
+================================================================================
+THE CELLPOSE WORKBENCH DREW A DUMBBELL, AND FIVE MODULES WERE BORROWING ART
+THEY NO LONGER NEEDED TO
+================================================================================
+
+Status:    DONE 2026-09-02, same day. Filed as a record rather than as work
+           to do: the cause was found while measuring the request and the fix
+           was two lines plus a table edit.
+Requested: 2026-09-02 — "the cellpose workbench icon should be the cellpose
+           white ico ni made, not the train icon."
+Owner:     spacr/qt/app.py, spacr/qt/widgets/{fold_strip,section}.py,
+           spacr/qt/screens/map_barcodes.py, tests/qt.
+
+--------------------------------------------------------------------------------
+WHAT WAS ACTUALLY WRONG, AND IT WAS NOT THE ICON
+--------------------------------------------------------------------------------
+
+`_ICON_OVERRIDES` in `spacr/qt/app.py` is the table for a module that BORROWS
+another module's picture, and `app._icon_for_app` passes it to
+`iconset.app_icon`. THREE OTHER SURFACES CALLED `iconset.app_icon` DIRECTLY:
+
+    spacr/qt/widgets/fold_strip.py      the fold strip button
+    spacr/qt/widgets/section.py         the settings-heading mark
+    spacr/qt/screens/map_barcodes.py    the same strip on that host
+
+`iconset.app_icon` cannot look the table up itself, and deliberately so --
+the table lives beside the app registry it describes and that module "only
+knows how to render what it's pointed at". So those three resolved a key by
+FILENAME ALONE.
+
+The Cellpose Workbench is the key `train_cellpose`. `train_cellpose.png` is a
+DUMBBELL, the training glyph. Its override sends it to `cellpose_masks.png`,
+the white cell outline. So the tile drew the outline and the fold button drew
+a dumbbell, from one key, on one screen — which is exactly what was reported.
+
+  IT WAS NEVER ONLY CELLPOSE. Every borrowing key was wrong on those three
+  surfaces: `analyze_plaques`, `agreement`, `plate_view`, `model_compare` and
+  `model_zoo`. Nobody had looked at those particular buttons.
+
+--------------------------------------------------------------------------------
+AND FIXING IT EXPOSED THE OTHER HALF
+--------------------------------------------------------------------------------
+
+With the override finally taking effect everywhere at once, ALL SIX entries
+fired — and five of them made things WORSE, because each of those modules has
+since been given artwork of its own:
+
+    key                own art                        was borrowing
+    ---------------------------------------------------------------------
+    agreement          two overlapping circles        Annotate's crops
+    model_zoo          a grid of model cards          a download arrow
+    plate_view         a plate with wells             a row of barcodes
+    analyze_plaques    a well full of plaques         the plaque glyph
+    model_compare      two overlapping discs          the split-field mask
+
+The table's own rule, written when four earlier entries were removed for the
+same reason: "An override is for an app that BORROWS another app's picture;
+it is not the place to record 'this app has an icon'." These five joined
+them.
+
+`train_cellpose` KEEPS its override. It is the one real borrow left, its own
+file is the dumbbell the request asked to be rid of, and the dumbbell stays
+on disk for anything that genuinely means "train".
+
+--------------------------------------------------------------------------------
+WHY THIS WAS INVISIBLE, WHICH IS THE PART WORTH KEEPING
+--------------------------------------------------------------------------------
+
+The two halves hid each other. The three surfaces ignored the overrides, so
+the five stale entries never drew anything and nobody noticed they were
+stale; and because the entries looked live, nobody questioned the surfaces.
+Each bug was the other's cover.
+
+`tests/qt/test_a_folded_module_wears_its_own_picture.py` is written against
+the RESOLVER rather than against one button: it walks the package for any
+`iconset.app_icon` call with no `override=`, because the next module to
+borrow a picture will be broken by the same omission and nobody will be
+looking at its icon that day.
+
+  IT COMPARES BY PATH, NOT BY QIcon. A QIcon is re-inked for the active theme
+  and two of them compare unequal even when drawn from the same file. An
+  image-equality test would have passed while the wrong picture was on
+  screen, which is close to how this survived.
+
+`test_the_mark_is_the_one_the_registry_ships` failed on the way through and
+passes now. It compared the heading mark against the UN-overridden resolver,
+so it had been asserting the bug; removing the `agreement` override made both
+resolvers agree.
+
+190 tests pass across the icon, fold, dock, home and README suites.
