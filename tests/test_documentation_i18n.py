@@ -1529,7 +1529,32 @@ def test_post_merge_readme_gap_ledger_is_source_bound_and_truthful():
     all_languages = {
         "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
     }
-    for record in records:
+
+    # RETIRED RECORDS ARE KEPT AND NOT CHECKED AGAINST THE README.
+    #
+    # Eleven of the sixteen are bound to text that left README.rst in
+    # f9f43a5ba, when the page was restructured. Each is marked `reviewed`
+    # in all nine locales, so deleting them would erase evidence that a human
+    # review happened -- and the mirror of instruction 357's guideline 4,
+    # which forbids CLAIMING a review nobody gave, is that a review somebody
+    # did give is not ours to discard because the sentence it covered was
+    # rewritten. They keep their reviewer, locales and dates; they are simply
+    # no longer bound to a source that is not there.
+    #
+    # Decided by the maintainer on 2026-09-02, offered against archiving them
+    # to a second file and against deleting them outright.
+    retired = [r for r in records if r.get("retired")]
+    live = [r for r in records if not r.get("retired")]
+    assert len(retired) == 11 and len(live) == 5
+    assert all(r.get("retired_reason") for r in retired), (
+        "a retired record must say WHY, or the next reader cannot tell a "
+        "deliberate retirement from a record that was quietly broken")
+    for record in retired:
+        assert canonical.count(record["source"]) == 0, (
+            f"{record['source'][:40]!r} is retired but is back in the "
+            f"README -- re-bind the record rather than leaving it retired")
+
+    for record in live:
         source = record["source"]
         assert canonical.count(source) == 1
         assert record["source_sha256"] == hashlib.sha256(
@@ -1548,6 +1573,24 @@ def test_post_merge_readme_gap_ledger_is_source_bound_and_truthful():
             status in {"reviewed", "pending_native_review"}
             for status in record["status"].values()
         )
+
+
+def test_the_retirement_note_explains_itself_to_the_next_reader():
+    """A flag nobody can interpret is the same as no flag.
+
+    The ledger carries a `retirement_note` saying what `retired` means and
+    what to do if the wording ever comes back. It is asserted because the
+    whole reason the records were kept rather than deleted is that somebody
+    later has to be able to tell a retired review from a lost one.
+    """
+    path = (
+        ROOT / "docs" / "i18n" / "reviewed" / "readme"
+        / "2026-08-26-nightly-merge-gaps.json"
+    )
+    note = json.loads(path.read_text(encoding="utf-8")).get("retirement_note", "")
+    assert "retired" in note and "re-bind" in note, (
+        "the ledger must say what a retired record is and what to do when "
+        "its source text returns")
 
 
 def test_translation_protection_has_no_nested_tokens_and_round_trips():
