@@ -627,23 +627,26 @@ class SourceImage:
     "each field a unique field id" holds whether the fields arrived as
     separate files or as series inside one.
 
-    :ivar path: absolute path of the source file.
-    :ivar plate: the *source* plate key — the folder name, before any
-        renaming. ``''`` when the layout has no plate folder.
-    :ivar well: the *source* well key — the folder name, before any
-        renaming.
-    :ivar field: the *source* field key: the filename stem with its
-        channel/z/t tokens removed, plus ``#s<n>`` for a series.
-    :ivar channel: the *source* channel key parsed from the filename
-        (``'C2'``), or None when the channels live inside the file.
-    :ivar z: number of z planes this source contributes.
-    :ivar t: number of timepoints this source contributes.
-    :ivar meta: everything else — ``ext``, ``shape``, ``dtype``,
-        ``axes``, ``series``, ``z_index``/``t_index`` (the plane index
-        parsed from the filename, when the stack is spread across
-        files), ``axes_assumed`` and, for a source that cannot be read,
-        ``error``.
-    :ivar n_channels: number of channels inside the file itself.
+    :param path: source-image path discovered beneath :func:`scan`'s input
+        directory. It remains relative when the input directory was relative.
+    :param plate: source plate key inferred from the input layout: the plate
+        directory for ``plate_well``, or the source-directory basename for
+        ``well`` and ``flat`` layouts.
+    :param well: source well key inferred from the input layout, or
+        :data:`DEFAULT_WELL` for a flat layout.
+    :param field: source field key formed from the filename stem after removing
+        channel, z, and time tokens; nested directory components and a
+        ``#s<n>`` series suffix are included when applicable.
+    :param channel: channel token parsed from the filename, such as ``"C2"``,
+        or ``None`` when channels are stored inside the source file.
+    :param z: number of z planes contributed by the source, or zero for a
+        source that could not be read during scanning.
+    :param t: number of timepoints contributed by the source, or zero for a
+        source that could not be read during scanning.
+    :param meta: remaining scan metadata, including extension, dimensions,
+        axes, series and source-relative path, assumptions, and any read error.
+    :param n_channels: number of channels reported or inferred inside the
+        file; defaults to one when no internal channel dimension is available.
     """
 
     path: str
@@ -679,28 +682,34 @@ class Mapping:
     Every field needed to walk the arrow backwards is here, which is why
     the map file can be a straight dump of these.
 
-    :ivar source: absolute source path.
-    :ivar target: output filename (basename only).
-    :ivar plate: assigned plate token.
-    :ivar well: assigned well id.
-    :ivar field: assigned 1-based field id.
-    :ivar channel: assigned 1-based channel id.
-    :ivar z: assigned 1-based z id.
-    :ivar t: assigned 1-based timepoint id.
-    :ivar source_z: the z index this came from — the filename token or
-        the plane index — or ``'max(1..N)'`` when it was projected.
-    :ivar plane: ``(t, z, c)`` index into the source's 5-D array;
-        ``z == -1`` means "every plane, projected".
-    :ivar source_plate: plate identifier read from the original source.
-    :ivar source_well: well identifier read from the original source.
-    :ivar source_field: field identifier read from the original source.
-    :ivar source_channel: channel identifier read from the original source.
-    :ivar source_t: original timepoint token or plane index.
-    :ivar z_handling: whether z planes are kept, projected, or reduced to the
-        first plane for this output.
-    :ivar n_z_planes: source z-plane count recorded even after projection.
-    :ivar n_timepoints: source timepoint count recorded for reversibility.
-    :ivar meta: source metadata retained in the conversion map as JSON.
+    :param source: path of the source image as retained by the scan.
+    :param target: basename of the output TIFF.
+    :param plate: assigned and sanitized output plate token.
+    :param well: assigned output well identifier.
+    :param field: assigned one-based output field number.
+    :param channel: assigned one-based output channel number.
+    :param z: assigned one-based output z number.
+    :param t: assigned one-based output timepoint number.
+    :param source_plate: plate key inferred from the original input layout.
+    :param source_well: well key inferred from the original input layout.
+    :param source_field: field key parsed from the original source.
+    :param source_channel: channel key parsed or inferred from the original
+        source.
+    :param source_z: provenance text for the selected source z plane, including
+        the original filename token, a one-based plane ordinal, or
+        ``"max(1..N)"`` for a projection.
+    :param source_t: provenance text for the selected source timepoint: the
+        original filename token or a one-based plane ordinal.
+    :param z_handling: z-plane policy applied to this output: ``"keep"``,
+        ``"max"``, or ``"first"``.
+    :param n_z_planes: number of z planes in the source before any projection
+        or first-plane reduction.
+    :param n_timepoints: number of timepoints recorded for the source.
+    :param plane: zero-based ``(t, z, c)`` source-array index; a z index of
+        ``-1`` requests projection over every z plane.
+    :param meta: selected source provenance serialized into the conversion
+        map, including series, extension, reader, relative path, axes, and axis
+        assumptions when available.
     """
 
     source: str
@@ -885,18 +894,25 @@ class ConversionPlan:
 class ConversionResult:
     """What :func:`convert` actually did.
 
-    :ivar plan: reviewed conversion plan that the run executed.
-    :ivar dst: destination folder that received converted files.
-    :ivar written: mappings whose TIFF was created by this run.
-    :ivar existing: mappings whose target was already on disk and was
-        therefore left alone — a re-run is a no-op, never a rewrite.
-    :ivar failed: mappings belonging to sources that raised.
-    :ivar skipped: sources skipped without being attempted (an absent
-        optional reader, an unreadable file), as ``(path, reason)``.
-    :ivar ledger: the :class:`spacr.errors.RunLedger` for the run.
-    :ivar map_path: where the map file went.
-    :ivar checkpoint_path: atomic field-level resume document.
-    :ivar resumed_fields: fields accepted from a compatible checkpoint.
+    :param plan: conversion plan supplied to the run or returned with a
+        preview-only result.
+    :param dst: destination directory associated with the conversion.
+    :param written: mappings whose TIFF targets were created by this run.
+    :param existing: mappings whose valid targets were already present,
+        including fields accepted from a resume checkpoint, and were left
+        untouched.
+    :param failed: planned mappings left unwritten after their source or source
+        series raised during conversion.
+    :param skipped: ``(item, reason)`` pairs for unreadable sources and for
+        attempted source or source-series groups that failed.
+    :param ledger: run ledger recording conversion successes and failures, or
+        ``None`` for a preview-only or manually constructed result.
+    :param map_path: path of the written conversion-map CSV, or ``""`` when no
+        map was written.
+    :param checkpoint_path: path of the atomic field-level checkpoint, or
+        ``""`` when no checkpoint is associated with the result.
+    :param resumed_fields: field identifiers accepted from a compatible
+        checkpoint after all recorded TIFF targets were revalidated.
     """
 
     plan: ConversionPlan

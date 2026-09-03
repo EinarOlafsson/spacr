@@ -3388,3 +3388,61 @@ record. Restoring either stale-state assignment makes its exact test fail.
 
 REVISED COUNT: 128 entries, 59 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+71. SOURCE-IMAGE DOCUMENTATION INVENTED AN ABSOLUTE PATH AND EMPTY PLATE
+==============================================================================
+
+Found 2026-09-03 while repairing constructor documentation in
+``spacr/convert.py``. ``SourceImage.path`` was described as always absolute,
+although a relative scan root produces relative paths, and ``plate`` claimed
+to be empty without a plate folder even though well and flat layouts use the
+source-directory basename.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/convert.py``. The constructor contract
+now describes both relative-path preservation and the layout-specific plate
+key. Existing layout and explicit-layout tests exercise the stated cases, and
+changing the first field back to ``:ivar:`` makes the exact repaired-record
+contract fail.
+
+REVISED COUNT: 129 entries, 60 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+72. CONVERSION MAPPING DOCUMENTATION ALSO INVENTED AN ABSOLUTE SOURCE PATH
+==============================================================================
+
+Found 2026-09-03 in ``spacr/convert.py``. ``Mapping.source`` repeated the
+absolute-path claim even though it retains ``SourceImage.path`` unchanged; its
+z provenance prose also blurred filename tokens, plane ordinals, and projected
+ranges into one supposed index.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/convert.py``. The constructor contract
+now names the retained scan path and separately describes each supported z
+provenance form. Naming and reversibility tests remain the positive runtime
+counterparts, while reverting the first parameter field makes the exact
+contract test fail.
+
+REVISED COUNT: 130 entries, 61 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+73. CONVERSION RESULT DOCUMENTATION OMITTED ATTEMPTED FAILURES FROM skipped
+==============================================================================
+
+Found 2026-09-03 in ``spacr/convert.py``. ``ConversionResult.skipped`` claimed
+to contain only sources skipped without an attempt. Runtime conversion errors
+also append the failing source or source-series item there, in addition to the
+corresponding planned mappings in ``failed``.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/convert.py``. The contract now names
+both unreadable inputs and attempted groups that failed, and distinguishes the
+mapping-level ``failed`` list. Focused failure-summary tests exercise this
+shape; reverting the required ``plan`` field makes the exact record contract
+fail rather than letting the repaired record disappear from the audit.
+
+REVISED COUNT: 131 entries, 62 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
