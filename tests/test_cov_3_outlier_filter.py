@@ -8,7 +8,9 @@ leave the table untouched rather than raising in the middle of a pipeline.
 """
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
+import pytest
 
 from spacr import outlier_filter
 
@@ -65,6 +67,16 @@ def test_a_zero_threshold_disables_the_criterion_silently():
 
     assert len(out) == 5
     assert report == []
+
+
+@pytest.mark.parametrize("mads", [-1.0, 0.0, np.nan, np.inf, -np.inf])
+def test_a_disabled_direct_threshold_never_marks_every_finite_value(mads):
+    """The low-level helper follows the same disabled-threshold contract."""
+    values = [9.0, 10.0, 11.0, 12.0, 100.0]
+    assert not outlier_filter.outliers(values, mads=mads).any()
+    assert outlier_filter.outliers(values, mads=5.0).tolist() == [
+        False, False, False, False, True,
+    ]
 
 
 def test_a_criterion_with_no_column_is_reported_with_the_label():

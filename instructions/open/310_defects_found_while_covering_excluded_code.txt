@@ -2814,3 +2814,70 @@ rebuild identical coordinates across nondeterministic backends; the stored
 
 REVISED COUNT: 102 entries, 34 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+45. A DIRECT NONPOSITIVE MAD THRESHOLD MARKED ORDINARY VALUES AS OUTLIERS
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/outlier_filter.py``. The public ``apply`` path treated a nonpositive
+MAD threshold as disabled, but the lower-level ``outliers`` helper multiplied
+by it directly. At ``0`` every non-median value was flagged; below zero every
+finite value was flagged, so direct API callers received the opposite of the
+documented disabled-filter behavior.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/outlier_filter.py:88-90``. The helper
+now returns an all-false mask for nonpositive or non-finite thresholds, matching
+``apply``. A parameterized test covers negative, zero, NaN, and both infinities
+and retains a positive-threshold counterpart; restoring the old multiplication
+made the negative, zero, and negative-infinity cases fail.
+
+REVISED COUNT: 103 entries, 35 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+46. THE PACKAGE NULL HANDLER PREVENTED FILE LOGGING FROM BEING CONFIGURED
+==============================================================================
+
+Found 2026-09-03 while checking the documentation contract in
+``spacr/logger.py``. Importing the package installs a ``NullHandler`` on the
+``spacr`` logger, while ``configure_logger`` returned early whenever *any*
+handler existed. Its default call therefore installed no rotating file
+handler. The same early return prevented a later ``stream=True`` request and
+updated the logger level without updating the handlers it claimed to control.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/logger.py:39-74``. Handlers installed
+by this helper are tagged as file or stream handlers, foreign/bootstrap
+handlers are preserved without counting as configuration, late stream requests
+add exactly one handler, and every reuse updates the owned handler levels.
+Three focused regressions all failed when the old early return was restored
+and pass with the repaired lifecycle.
+
+REVISED COUNT: 104 entries, 36 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+47. PNG-LIST FALLBACKS COULD CUT OR LABEL A DIFFERENT OBJECT
+==============================================================================
+
+Found 2026-09-03 while auditing the lightweight crop resolver in
+``spacr/png_list.py``. Three permissive conversions shared the same failure
+mode: a fractional float was truncated into another label (and a boolean into
+object 1), an unknown ``object_type`` silently selected ``cell_id``, and a
+frame carrying another mode's ID column borrowed that label while continuing
+to stamp and resolve paths under the requested mode. With multiple alternate
+ID columns, dictionary order silently chose the mask.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/png_list.py:40-168``. Only finite,
+integral, non-boolean numeric IDs are accepted; unsupported modes are named and
+refused; one alternate ID column carries its effective object type through the
+field lookup and returned rows; multiple alternates are refused as ambiguous.
+Mutation proof against the permissive implementation produced eight focused
+failures, including both wrong results and infinity exceptions, and the
+restored resolver passes the downstream crop-source check.
+
+REVISED COUNT: 105 entries, 37 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.

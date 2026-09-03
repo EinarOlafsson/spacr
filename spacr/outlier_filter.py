@@ -47,6 +47,8 @@ def column_for(frame: pd.DataFrame, criterion: str) -> Optional[str]:
 
     :param frame: object-measurement table whose columns are searched.
     :param criterion: supported outlier-filter setting from :data:`CRITERIA`.
+    :returns: first matching measurement-column name, or ``None`` when this
+        table cannot supply the criterion.
     """
     for name in COLUMNS.get(str(criterion), ()):
         if name in getattr(frame, "columns", ()):
@@ -72,7 +74,7 @@ def outliers(values, *, mads: float = DEFAULT_MADS) -> np.ndarray:
         Values to evaluate. Non-numeric and non-finite values are not flagged.
     mads : float, default=DEFAULT_MADS
         Distance from the median in robust sigma units, computed as
-        ``1.4826 * MAD``.
+        ``1.4826 * MAD``. Nonpositive or non-finite values disable detection.
 
     Returns
     -------
@@ -83,13 +85,16 @@ def outliers(values, *, mads: float = DEFAULT_MADS) -> np.ndarray:
     data = pd.to_numeric(pd.Series(values), errors="coerce").to_numpy(float)
     good = np.isfinite(data)
     out = np.zeros(data.shape, dtype=bool)
+    threshold = float(mads)
+    if not np.isfinite(threshold) or threshold <= 0:
+        return out
     if good.sum() < 3:
         return out
     median = float(np.median(data[good]))
     mad = float(np.median(np.abs(data[good] - median)))
     if mad <= 0:
         return out
-    limit = float(mads) * mad * _TO_SIGMA
+    limit = threshold * mad * _TO_SIGMA
     out[good] = np.abs(data[good] - median) > limit
     return out
 
@@ -104,7 +109,8 @@ def apply(frame: pd.DataFrame, settings: Optional[Dict[str, Any]] = None
         Object-level measurements.
     settings : dict, optional
         Thresholds keyed as ``"<criterion>_outlier_mads"``. Missing or
-        ``None`` values disable that criterion.
+        ``None`` values disable that criterion; nonpositive thresholds also
+        disable it without adding a report row.
 
     Returns
     -------
@@ -155,6 +161,7 @@ def describe(report: Sequence[Dict[str, Any]]) -> str:
     """Format the per-criterion outlier report for run output.
 
     :param report: per-criterion records returned by :func:`apply`.
+    :returns: multiline run summary, or ``""`` for an empty report.
     """
     if not report:
         return ""
