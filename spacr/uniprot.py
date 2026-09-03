@@ -234,6 +234,7 @@ class Resolution:
     near: Tuple[str, ...] = ()
 
     def __bool__(self) -> bool:
+        """Return whether the text resolved to a supported annotation kind."""
         return self.kind != "unknown"
 
 
@@ -304,10 +305,12 @@ def organisms_for(group: str = "") -> Tuple[str, ...]:
 # ---------------------------------------------------------------------------
 
 def _cache_path(cache_dir, key: str) -> str:
+    """Return the ``uniprot_<key>.json`` path beneath ``cache_dir``."""
     return os.path.join(str(cache_dir), f"uniprot_{key}.json")
 
 
 def _read_cache(cache_dir, key: str):
+    """Read a cached payload, or return ``None`` when disabled or unreadable."""
     if not cache_dir:
         return None
     path = _cache_path(cache_dir, key)
@@ -319,6 +322,7 @@ def _read_cache(cache_dir, key: str):
 
 
 def _write_cache(cache_dir, key: str, payload) -> None:
+    """Best-effort write a JSON-serializable UniProt payload to the cache."""
     if not cache_dir:
         return
     try:
@@ -361,6 +365,7 @@ def _next_page(link_header: str) -> str:
 
 
 def _search_url(query: str, size: int) -> str:
+    """Build a UniProtKB TSV search URL for ``query`` and page ``size``."""
     return (f"{REST}/uniprotkb/search?"
             + urllib.parse.urlencode({
                 "query": query,

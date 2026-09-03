@@ -146,6 +146,7 @@ class MergePolicy:
     keep_uninfected: bool = True
 
     def __post_init__(self) -> None:
+        """Validate the NA policy and retain a private copy of overrides."""
         if self.na not in NA_POLICIES:
             raise MergeError(
                 f"na={self.na!r} is not one of {list(NA_POLICIES)}")
@@ -229,6 +230,7 @@ def aggregation_plan(frame: pd.DataFrame, *,
 
 
 def _connect(db_path: str) -> sqlite3.Connection:
+    """Open a measurement database through SQLite's read-only URI."""
     return sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=30)
 
 
@@ -255,11 +257,13 @@ def mergeable_tables(db_path: str) -> Tuple[str, ...]:
 
 
 def _read(db_path: str, table: str) -> pd.DataFrame:
+    """Read every row and column from one quoted database table."""
     with _connect(db_path) as db:
         return pd.read_sql_query(f'SELECT * FROM "{table}"', db)
 
 
 def _keys_in(frame: pd.DataFrame) -> List[str]:
+    """Return canonical identity columns present, in identity order."""
     return [c for c in IDENTITY if c in frame.columns]
 
 
