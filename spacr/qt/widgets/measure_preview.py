@@ -1034,15 +1034,33 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             "normalize_by": self._normalize_by.currentText(),
             "dialate_pngs": self._dilate.isChecked(),
             "dialate_png_ratios": [float(self._dilate_ratio.value())],
-            "cell_min_size": int(self._min_sizes["cell"].value()),
-            "nucleus_min_size": int(self._min_sizes["nucleus"].value()),
-            "pathogen_min_size": int(self._min_sizes["pathogen"].value()),
-            "organelle_min_size": int(self._min_sizes["organelle"].value()),
-            "cytoplasm_min_size": int(self._min_sizes["cytoplasm"].value()),
+            # EVERY FLOOR THE PANEL OFFERS, built from the controls the way
+            # the mask dims above are. Written out as literals this listed
+            # five of the eight, so the organelleb, organellec and organelled
+            # spin boxes could be set and were dropped on propagate.
+            **{self._size_floor_key(name): int(widget.value())
+               for name, widget in self._min_sizes.items()},
             "uninfected": self._uninfected.isChecked(),
             "merge_edge_pathogen_cells":
                 self._merge_edge_pathogen_cells.isChecked(),
         }
+
+    @staticmethod
+    def _size_floor_key(name: str) -> str:
+        """The settings key holding ``name``'s size floor.
+
+        Organelle's is spelled `_min_area`; every other object still spells
+        it `_min_size`. The two names were one setting asked twice, and the
+        organelle spelling was retired -- so writing `organelle_min_size`
+        here would set a key the run does not read, and this control would
+        propagate a value that is silently discarded. That is the same fault
+        the `png_dims` comment above records, in the same dictionary.
+
+        :param name: the object, as `_min_sizes` keys it.
+        :returns: the settings key to read and write.
+        """
+        return (f"{name}_min_area" if name.startswith("organelle")
+                else f"{name}_min_size")
 
     def _png_channel_mapping(self) -> Dict[str, Optional[int]]:
         """The RGB control, as the ``{r, g, b}`` mapping the run reads."""
@@ -1090,7 +1108,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                         -1 if value is None else int(value))
                 except Exception:
                     LOG.debug("apply_settings: bad %s", key, exc_info=True)
-            _set(self._min_sizes[name].setValue, f"{name}_min_size", int)
+            _set(self._min_sizes[name].setValue,
+                 self._size_floor_key(name), int)
         _set(self._min_sizes["cytoplasm"].setValue, "cytoplasm_min_size", int)
 
         for widget, key in (
@@ -1578,7 +1597,7 @@ class CropSettingsDialog(QDialog):
         for name, widget in panel._crop_mode_checks.items():
             widget_keys[widget] = "crop_mode"
         for name, widget in panel._min_sizes.items():
-            widget_keys[widget] = f"{name}_min_size"
+            widget_keys[widget] = panel._size_floor_key(name)
         install_api_tooltips(self, "measure", widget_keys)
         self.resize(620, 720)
 
