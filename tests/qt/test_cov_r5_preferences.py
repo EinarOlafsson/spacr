@@ -64,6 +64,17 @@ def test_the_fractal_defaults_are_the_published_ones_or_the_written_fallback(
     assert fallback["seconds_per_decade"] == 24.0
     assert fallback["precision_digits"] == 320
 
+    # EVERY SHARED KEY, not three of them. The fallback is a hand-written
+    # copy -- it has to be, since it runs where the renderer cannot be
+    # imported -- and it had drifted on two keys before this compared them
+    # all: supersampling and max_depth were still the lighter preset's.
+    monkeypatch.undo()
+    from spacr.qt.widgets.fractal_mandelbrot import DEFAULTS
+
+    drift = {key: (DEFAULTS[key], fallback[key]) for key in fallback
+             if key in DEFAULTS and DEFAULTS[key] != fallback[key]}
+    assert not drift, f"the written fallback no longer matches DEFAULTS: {drift}"
+
 
 def test_the_lazy_defaults_load_once_through_whichever_read_comes_first(
         monkeypatch):

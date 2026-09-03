@@ -248,14 +248,23 @@ def _mandelbrot_defaults() -> dict:
         # a later instruction wins over an earlier inference.
         return dict(DEFAULTS)
     except Exception:                                        # noqa: BLE001
-        return {"supersampling": 1, "seconds_per_decade": 24.0,
+        # A LITERAL COPY, because this branch exists for the build where the
+        # renderer cannot be imported at all -- so it cannot read the
+        # numbers it is mirroring. It had drifted from them twice:
+        # `supersampling` was still 1 and `max_depth` still 34.0 from the
+        # version that deliberately shipped a lighter preset, against the
+        # renderer's 2 and 21.0. A headless install therefore opened on a
+        # different pattern from the one that is documented.
+        # `test_the_fractal_defaults_are_the_published_ones_or_the_written_
+        # fallback` now compares every shared key, so a third drift fails.
+        return {"supersampling": 2, "seconds_per_decade": 24.0,
                 "base_iterations": 300, "iterations_per_decade": 55.0,
                 "max_iterations": 2200, "precision_digits": 320,
                 "initial_scale": 1.25, "zoom_rate": 1.0,
                 "render_scale": 1.0, "steering_strength": 0.09,
                 "steering_interval_decades": 0.40,
                 "steering_duration": 3.8, "candidate_count": 24,
-                "max_depth": 34.0}
+                "max_depth": 21.0}
 
 
 class _LazyDefaults(dict):
