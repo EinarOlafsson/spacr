@@ -272,3 +272,58 @@ closes a failure that pre-dated this work.
 THE 21 THAT REMAIN ARE NOT THIS ITEM'S and are not new: they fail identically
 at HEAD, they are all in the measure suite, and each PASSES WHEN RUN ALONE.
 That is the same order-dependent shape as 345 and it is filed as 346.
+
+--------------------------------------------------------------------------------
+2026-09-02: THE RUN FILE WAS FOUND, AND PART 3 IS ALMOST ALREADY DONE
+--------------------------------------------------------------------------------
+
+357's question 337-A is answered and the file located:
+
+    ~/.cache/spacr/example_data/plate1/settings/crop_measure_settings.csv
+    37 keys, written 2026-09-01 15:49 -- the date this instruction names --
+    with src=/home/carruthers/datasets/plate1/merged, so it is the record of
+    the real run rather than a GUI session's leftovers.
+
+THE CONDITIONAL IN THE ANSWER DID NOT FIRE. The maintainer said that if the
+export could not be found, Measure would have to be changed to save its
+settings into the working directory for reproducibility. It was found, in the
+run's own `<src>/settings/` folder, so Measure already has that property and
+no change to it is authorised.
+
+DIFFED AGAINST `get_measure_crop_settings({})`:
+
+    37 keys in the file
+    28 ALREADY MATCH the shipped default
+     6 are not Measure settings at all
+     2 differ
+
+AND NEITHER OF THE TWO SHOULD SIMPLY BE COPIED:
+
+    experiment    shipped 'experiment'   run file 'exp'
+      The run file is the OLDER value. This instruction's own request says
+      "exp should be experiment", so the shipped default is already the
+      wanted one and copying the run file would undo the fix. Part 4 of this
+      file asks for exactly this and it is done.
+
+    png_size      shipped [224, 224]     run file [[224, 224]]
+      A nesting difference rather than a different size. Decide which shape
+      is canonical and normalise the reader, rather than changing a default
+      to a doubly-wrapped list to match a file.
+
+SO PART 3 IS NEARLY FREE, and that is worth knowing before anyone budgets for
+it: "the settings i set now for measure should be the new defaults" turns out
+to be true of 28 of the 29 comparable keys already.
+
+THE SIX THAT ARE NOT MEASURE SETTINGS, recorded because they are a question
+rather than a gap: `png_dims`, `include_uninfected`, `n_job`,
+`manders_thresholds`, `plot_filtration`, `representative_images`. They were
+written by the run, so they meant something to the code that wrote them.
+Before assuming they are dead, check whether each was RENAMED (`n_job` beside
+a possible `n_jobs` is the obvious suspect) or moved to another factory.
+`manders_thresholds` is part 1's territory and should be settled there rather
+than here.
+
+OWNERSHIP, under protocol 325: parts 2, 3 and 4 land in `spacr/settings.py`,
+which is the other session's file. Part 1's reader half is in
+`spacr/measure.py`, which is mine. The measurement above is handed over so it
+does not have to be redone.
