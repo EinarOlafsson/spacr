@@ -32,7 +32,9 @@
         "ko": "reviewed",
         "pt": "reviewed",
         "zh_CN": "reviewed"
-      }
+      },
+      "retired": "2026-09-02",
+      "retired_reason": "source text removed from README.rst in f9f43a5ba, when the page was restructured; the review below stands for the wording it was given and is retired rather than withdrawn"
     },
     {
       "label": "host-modules-introduction",
@@ -48,7 +50,9 @@
         "ko": "reviewed",
         "pt": "reviewed",
         "zh_CN": "reviewed"
-      }
+      },
+      "retired": "2026-09-02",
+      "retired_reason": "source text removed from README.rst in f9f43a5ba, when the page was restructured; the review below stands for the wording it was given and is retired rather than withdrawn"
     },
     {
       "label": "make-masks-heading",
@@ -80,7 +84,9 @@
         "ko": "reviewed",
         "pt": "reviewed",
         "zh_CN": "reviewed"
-      }
+      },
+      "retired": "2026-09-02",
+      "retired_reason": "source text removed from README.rst in f9f43a5ba, when the page was restructured; the review below stands for the wording it was given and is retired rather than withdrawn"
     },
     {
       "label": "make-masks-recrop",
@@ -96,7 +102,9 @@
         "ko": "reviewed",
         "pt": "reviewed",
         "zh_CN": "reviewed"
-      }
+      },
+      "retired": "2026-09-02",
+      "retired_reason": "source text removed from README.rst in f9f43a5ba, when the page was restructured; the review below stands for the wording it was given and is retired rather than withdrawn"
     },
     {
       "label": "make-masks-cellpose-sam",
@@ -112,7 +120,9 @@
         "ko": "reviewed",
         "pt": "reviewed",
         "zh_CN": "reviewed"
-      }
+      },
+      "retired": "2026-09-02",
+      "retired_reason": "source text removed from README.rst in f9f43a5ba, when the page was restructured; the review below stands for the wording it was given and is retired rather than withdrawn"
     },
     {
       "label": "objects-settings-heading",
@@ -128,7 +138,9 @@
         "ko": "reviewed",
         "pt": "reviewed",
         "zh_CN": "reviewed"
-      }
+      },
+      "retired": "2026-09-02",
+      "retired_reason": "source text removed from README.rst in f9f43a5ba, when the page was restructured; the review below stands for the wording it was given and is retired rather than withdrawn"
     },
     {
       "label": "objects-settings-inventory",
@@ -144,7 +156,9 @@
         "ko": "reviewed",
         "pt": "reviewed",
         "zh_CN": "reviewed"
-      }
+      },
+      "retired": "2026-09-02",
+      "retired_reason": "source text removed from README.rst in f9f43a5ba, when the page was restructured; the review below stands for the wording it was given and is retired rather than withdrawn"
     },
     {
       "label": "objects-settings-visibility",
@@ -160,7 +174,9 @@
         "ko": "reviewed",
         "pt": "reviewed",
         "zh_CN": "reviewed"
-      }
+      },
+      "retired": "2026-09-02",
+      "retired_reason": "source text removed from README.rst in f9f43a5ba, when the page was restructured; the review below stands for the wording it was given and is retired rather than withdrawn"
     },
     {
       "label": "performance-heading",
@@ -208,7 +224,9 @@
         "ko": "reviewed",
         "pt": "reviewed",
         "zh_CN": "reviewed"
-      }
+      },
+      "retired": "2026-09-02",
+      "retired_reason": "source text removed from README.rst in f9f43a5ba, when the page was restructured; the review below stands for the wording it was given and is retired rather than withdrawn"
     },
     {
       "label": "performance-report-scope",
@@ -224,7 +242,9 @@
         "ko": "reviewed",
         "pt": "reviewed",
         "zh_CN": "reviewed"
-      }
+      },
+      "retired": "2026-09-02",
+      "retired_reason": "source text removed from README.rst in f9f43a5ba, when the page was restructured; the review below stands for the wording it was given and is retired rather than withdrawn"
     },
     {
       "label": "performance-report-platform",
@@ -240,7 +260,9 @@
         "ko": "reviewed",
         "pt": "reviewed",
         "zh_CN": "reviewed"
-      }
+      },
+      "retired": "2026-09-02",
+      "retired_reason": "source text removed from README.rst in f9f43a5ba, when the page was restructured; the review below stands for the wording it was given and is retired rather than withdrawn"
     },
     {
       "label": "support-performance-context",
@@ -258,5 +280,6 @@
         "zh_CN": "reviewed"
       }
     }
-  ]
+  ],
+  "retirement_note": "A record with `retired` set is bound to README text that no longer exists. It is KEPT, with its reviewer, its locales and its dates unchanged: the review happened and deleting it would erase that. It is simply no longer checked against README.rst, because there is nothing to check it against. If the wording ever returns, re-bind the record rather than commissioning the review again."
 }
