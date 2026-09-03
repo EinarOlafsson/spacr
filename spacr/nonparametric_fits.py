@@ -293,14 +293,18 @@ class Agreement:
     strengthens the result, while disagreement is itself a finding to
     inspect.
 
-    :ivar method: alternative ranking method compared with the linear fit.
-    :ivar guides: guide names shared by both rankings.
-    :ivar linear_rank: one-based rank of each guide's absolute linear effect.
-    :ivar other_rank: one-based rank assigned by the alternative method.
-    :ivar correlation: Spearman correlation between the two rankings.
-    :ivar disagreements: guides whose two ranks differ by the requested
-        reportable amount, with both rank values.
-    :ivar note: caveat needed to interpret the alternative ranking.
+    :param method: alternative ranking method compared with the linear fit.
+    :param guides: guide names shared by the design and linear-effect mapping,
+        in design-column order.
+    :param linear_rank: one-based guide ranks ordered by descending absolute
+        linear effect.
+    :param other_rank: one-based guide ranks ordered by descending permutation
+        importance from ``method``.
+    :param correlation: Spearman correlation between the two rankings, or
+        ``nan`` when fewer than three guides are shared.
+    :param disagreements: ``(guide, linear_rank, other_rank)`` tuples whose
+        ranks differ by the reportable threshold, ordered by largest movement.
+    :param note: caveat needed to interpret the alternative ranking.
     """
 
     method: str
@@ -313,9 +317,14 @@ class Agreement:
 
     def summary(self) -> str:
         """Describe rank agreement and at most eight guide disagreements."""
-        agree = "agree" if self.correlation >= 0.5 else "DISAGREE"
-        head = (f"{self.method} against the linear ranking: Spearman "
-                f"{self.correlation:+.2f}, which is to say they {agree}.")
+        if np.isfinite(self.correlation):
+            agree = "agree" if self.correlation >= 0.5 else "DISAGREE"
+            head = (f"{self.method} against the linear ranking: Spearman "
+                    f"{self.correlation:+.2f}, which is to say they {agree}.")
+        else:
+            head = (f"{self.method} against the linear ranking: Spearman "
+                    "correlation is unavailable with fewer than three shared "
+                    "guides.")
         if not self.disagreements:
             return head + " No guide moved far enough to be worth naming."
         named = ", ".join(
