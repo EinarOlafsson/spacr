@@ -2161,6 +2161,7 @@ class StoppingVerdict:
                  labels_in_window: int = 0, window_from: Optional[int] = None,
                  confident: bool = False, noise: Optional[float] = None,
                  trend: str = "unknown"):
+        """Normalize and store the recommendation and its measured evidence."""
         self.stop = bool(stop)
         self.reason = str(reason)
         self.gain = gain
@@ -2175,6 +2176,7 @@ class StoppingVerdict:
         return self.stop
 
     def __repr__(self) -> str:
+        """Return stop, trend, gain, and labels-in-window for diagnostics."""
         return (f"StoppingVerdict(stop={self.stop!r}, trend={self.trend!r}, "
                 f"gain={self.gain!r}, labels_in_window="
                 f"{self.labels_in_window!r})")
@@ -2540,6 +2542,7 @@ class RoundResult:
                  "card_path", "verdict", "notes", "classes", "model_type")
 
     def __init__(self, **fields: Any):
+        """Populate supported fields and normalize missing containers."""
         for name in self.__slots__:
             setattr(self, name, fields.get(name))
         self.notes = list(self.notes or [])
@@ -2560,6 +2563,7 @@ class RoundResult:
                 for i, a in enumerate(accs)}
 
     def __repr__(self) -> str:
+        """Return the round, label count, and four-decimal held-out accuracy."""
         return (f"RoundResult(round={self.round_index!r}, "
                 f"n_labels={self.n_labels!r}, accuracy={self.accuracy:.4f})")
 
