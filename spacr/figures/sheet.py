@@ -44,9 +44,11 @@ CELL_HEIGHT = 2.05
 class Sheet:
     """A rendered sheet and everything needed to write its legend.
 
-    :ivar figure: Matplotlib figure containing the rendered panel grid.
-    :ivar panels: successfully drawn panels, in figure-reading order.
-    :ivar skipped: unavailable panels retained with their reasons.
+    :param figure: Matplotlib figure containing the rendered multi-panel grid.
+    :param panels: successfully rendered panel records in figure-reading
+        order; their sequence supplies legend letters and captions.
+    :param skipped: panel records omitted from the grid, retaining their
+        titles and failure reasons for the legend.
     """
 
     figure: object
