@@ -77,6 +77,7 @@ FULLY_DOCUMENTED = (
     "spacr/image_colors.py",
     "spacr/gene_tile.py",
     "spacr/lineage.py",
+    "spacr/logger.py",
     "spacr/localisation.py",
     "spacr/macro.py",
     "spacr/mask_io.py",

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 _LOGGER_NAME = "spacr"
+_HANDLER_KIND = "_spacr_handler_kind"
 
 
 def configure_logger(
@@ -17,47 +18,60 @@ def configure_logger(
     level: int = logging.INFO,
     stream: bool = False,
 ) -> logging.Logger:
-    """Return a named logger backed by a rotating file handler in the user's home.
+    """Return a named logger backed by a rotating file in the user's home.
 
-    Reuses an already-configured logger with the same name to avoid duplicate handlers.
+    Repeated calls reuse handlers installed here, update their levels, and may
+    add the optional stream handler later. Handlers installed by callers are
+    preserved; a bootstrap :class:`logging.NullHandler` does not count as file
+    logging.
 
     :param name: Logger name to fetch or create. Default ``"spacr"``.
-    :param log_file_name: File name (placed under ``$HOME``) for rotating log output.
+    :param log_file_name: file name under the user's home for the first file
+        handler installed for ``name``. Later calls keep that file.
     :param level: Logging level applied to the logger and its handlers.
     :param stream: When True, also attach a stderr stream handler.
     :returns: Configured ``logging.Logger`` instance.
     """
     logger = logging.getLogger(name)
-
-    if logger.handlers:
-        logger.setLevel(level)
-        return logger
-
     logger.setLevel(level)
     logger.propagate = False
 
-    log_path = Path.home() / log_file_name
-    file_handler = RotatingFileHandler(
-        log_path,
-        maxBytes=2_000_000,
-        backupCount=3,
-        encoding="utf-8",
-    )
-    file_handler.setLevel(level)
-    file_handler.setFormatter(
-        logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    file_handlers = [
+        handler for handler in logger.handlers
+        if getattr(handler, _HANDLER_KIND, None) == "file"
+    ]
+    if not file_handlers:
+        log_path = Path.home() / log_file_name
+        file_handler = RotatingFileHandler(
+            log_path,
+            maxBytes=2_000_000,
+            backupCount=3,
+            encoding="utf-8",
         )
-    )
-    logger.addHandler(file_handler)
+        setattr(file_handler, _HANDLER_KIND, "file")
+        file_handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            )
+        )
+        logger.addHandler(file_handler)
+        file_handlers.append(file_handler)
 
-    if stream:
+    stream_handlers = [
+        handler for handler in logger.handlers
+        if getattr(handler, _HANDLER_KIND, None) == "stream"
+    ]
+    if stream and not stream_handlers:
         stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(level)
+        setattr(stream_handler, _HANDLER_KIND, "stream")
         stream_handler.setFormatter(
             logging.Formatter("%(levelname)s - %(message)s")
         )
         logger.addHandler(stream_handler)
+        stream_handlers.append(stream_handler)
+
+    for handler in (*file_handlers, *stream_handlers):
+        handler.setLevel(level)
 
     return logger
 
@@ -67,7 +81,13 @@ logger.addHandler(logging.NullHandler())
 
 
 def _safe_repr(value: Any, max_length: int = 200) -> str:
-    """Return a truncated ``repr`` that never raises."""
+    """Return a truncated ``repr`` that never raises.
+
+    :param value: object to represent for a log record.
+    :param max_length: largest returned character count.
+    :returns: ordinary or truncated representation, or a type-naming fallback
+        when ``repr`` raises.
+    """
     try:
         text = repr(value)
     except Exception:
