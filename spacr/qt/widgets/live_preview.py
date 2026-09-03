@@ -2931,9 +2931,27 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "(bool) Adjust cell masks using the nucleus/pathogen masks.")
 
         self._compartment_widgets: Dict[str, Dict[str, QWidget]] = {}
+        # THE PIPELINE'S OWN DEFAULT PER COMPARTMENT, not one constant for
+        # all of them. `COMPARTMENT_FIELDS` carries a single fallback per
+        # field, so when the pipeline gave `organelle_min_area` a default of
+        # 10 while cell, nucleus and pathogen kept 0, the preview went on
+        # showing 0 for the organelle -- and Propagate then wrote that 0 into
+        # the run. A preview whose defaults disagree with the run is the
+        # fault the per-object filters were unified to remove.
+        try:
+            from spacr.settings import (
+                set_default_settings_preprocess_generate_masks as _mask_defaults)
+            pipeline_defaults = _mask_defaults({})
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("live preview: no pipeline defaults", exc_info=True)
+            pipeline_defaults = {}
+
         for comp in COMPARTMENTS:
             group: Dict[str, QWidget] = {}
             for suffix, label, kind, spin_args in COMPARTMENT_FIELDS:
+                shipped = pipeline_defaults.get(f"{comp}_{suffix}")
+                if shipped is not None and kind in ("int", "float"):
+                    spin_args = (spin_args[0], spin_args[1], shipped)
                 w = _spin(kind, spin_args)
                 key = f"{comp}_{suffix}"
                 desc = _spacr_desc.get(key) or _spacr_desc.get(suffix)
@@ -2973,6 +2991,47 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             return _combo_value(w)
         return w.value()
 
+    #: Keys whose "no limit" the pipeline spells ``None`` rather than 0.
+    #: Filled on first use from the module's own defaults.
+    _OFF_IS_NONE: Optional[frozenset] = None
+
+    @classmethod
+    def _keys_whose_off_is_none(cls) -> frozenset:
+        """Setting keys where ``None`` disables and 0 means something else.
+
+        The two filters that read an upper area bound do NOT agree on what
+        switches it off. `spacr.utils._filter_objects` tests ``max_area > 0``,
+        so 0 disables it; `spacr.object._postprocess_masks` tests
+        ``max_size is not None``, so 0 there means "remove every object
+        bigger than nothing" and takes the whole mask with it.
+
+        The module's own default is the honest signal for which convention a
+        key follows, so it is read rather than guessed at.
+        """
+        if cls._OFF_IS_NONE is None:
+            try:
+                from spacr.settings import (
+                    set_default_settings_preprocess_generate_masks as _d)
+                shipped = _d({})
+            except Exception:                                # noqa: BLE001
+                shipped = {}
+            cls._OFF_IS_NONE = frozenset(
+                key for key, value in shipped.items()
+                if value is None and key.endswith(("_max_area", "_max_size")))
+        return cls._OFF_IS_NONE
+
+    def _off_as_the_run_spells_it(self, key: str, value):
+        """Write "no limit" the way the run reads it, for ``key``.
+
+        A spin box cannot hold ``None``, so it says "no limit" with 0. For a
+        key whose reader treats 0 as a REAL limit of zero pixels, propagating
+        that 0 does not carry the user's answer across -- it replaces "no
+        cap" with "delete everything".
+        """
+        if value == 0 and key in self._keys_whose_off_is_none():
+            return None
+        return value
+
     def _compartment_settings(self) -> dict:
         """Map every compartment + common tuning widget to its setting key."""
         out: dict = {}
@@ -2983,7 +3042,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             prefix = (self._active_organelle_role
                       if comp == "organelle" else comp)
             for suffix, w in group.items():
-                out[f"{prefix}_{suffix}"] = self._widget_value(w)
+                key = f"{prefix}_{suffix}"
+                out[key] = self._off_as_the_run_spells_it(
+                    key, self._widget_value(w))
         # The common controls are one widget each, retargeted to whatever is
         # selected. Written for EVERY selected object type, not just the
         # primary: with "cell + nucleus" chosen, keying them off
