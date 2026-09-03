@@ -99,6 +99,7 @@ FULLY_DOCUMENTED = (
     "spacr/measurement_scan.py",
     "spacr/metadata_resolution.py",
     "spacr/merge_tables.py",
+    "spacr/ml.py",
     "spacr/model_check.py",
     "spacr/mixed_gpu.py",
     "spacr/multi_database.py",
