@@ -101,12 +101,14 @@ class SearchRow:
     Recomputing an embedding when a row is selected could produce different
     coordinates with a non-deterministic backend.
 
-    :ivar recipe: complete embedding recipe evaluated by this trial.
-    :ivar scores: named quality measurements calculated from this embedding.
-    :ivar embedding: exact coordinates those scores describe, retained so
+    :param recipe: complete embedding recipe evaluated by this trial.
+    :param scores: named quality measurements calculated from this embedding.
+    :param embedding: exact coordinates those scores describe, retained so
         selecting the row never silently refits a different map.
-    :ivar labels: optional cluster assignment for each embedded row.
-    :ivar note: warning or explanatory text that must travel with this trial.
+    :param labels: optional cluster assignment aligned with the embedded rows;
+        negative labels represent noise.
+    :param note: warning or explanatory text retained and exported with the
+        trial.
     """
 
     recipe: UmapRecipe
