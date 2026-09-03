@@ -16,9 +16,11 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 FULLY_DOCUMENTED = (
+    "spacr/align.py",
     "spacr/attribution_columns.py",
     "spacr/batch.py",
     "spacr/annotation.py",
+    "spacr/cli.py",
     "spacr/cli_download.py",
     "spacr/cli_plugins.py",
     "spacr/cli_repro.py",

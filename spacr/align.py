@@ -722,6 +722,7 @@ class _TileReader:
     """
 
     def __init__(self, tile: Tile):
+        """Open window-readable sources for every channel belonging to ``tile``."""
         self.tile = tile
         self._sources: List[Any] = []
         self._fields: List[Any] = []
@@ -893,6 +894,7 @@ class _ReaderCache:
     MIN_OPEN = 2
 
     def __init__(self, max_open: int = 8):
+        """Create an LRU reader cache with room for at least one tile pair."""
         self.max_open = max(self.MIN_OPEN, int(max_open))
         self._open: "Dict[int, _TileReader]" = {}
         self._order: List[int] = []
@@ -1955,6 +1957,7 @@ class _StreamCanvas:
     """
 
     def __init__(self, path: str, spec: CanvasSpec):
+        """Create an NPY canvas and open its data region for sequential writes."""
         self.path = path
         self.spec = spec
         array = np.lib.format.open_memmap(
@@ -1992,6 +1995,7 @@ class _MemmapCanvas:
     """
 
     def __init__(self, path: str, spec: CanvasSpec):
+        """Create a memory-mapped NPY canvas matching ``spec``."""
         self.path = path
         self.spec = spec
         self.array = np.lib.format.open_memmap(

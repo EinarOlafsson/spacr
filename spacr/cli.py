@@ -1314,10 +1314,12 @@ class _NoShow:
     """
 
     def __init__(self) -> None:
+        """Initialize empty references for a reversible pyplot patch."""
         self._plt = None
         self._original = None
 
     def __enter__(self) -> "_NoShow":
+        """Replace ``pyplot.show`` with figure cleanup when available."""
         try:
             import matplotlib.pyplot as plt
         except Exception:
@@ -1343,6 +1345,7 @@ class _NoShow:
         return self
 
     def __exit__(self, *exc_info: Any) -> bool:
+        """Restore pyplot, close remaining figures, and propagate exceptions."""
         if self._plt is not None and self._original is not None:
             try:
                 self._plt.show = self._original
@@ -1715,6 +1718,7 @@ class _Parser(argparse.ArgumentParser):
     """ArgumentParser whose usage errors exit 2 through the same path as ours."""
 
     def error(self, message: str) -> None:  # type: ignore[override]
+        """Print usage and ``message``, then exit with the usage status."""
         self.print_usage(sys.stderr)
         print(f"error: {message}", file=sys.stderr)
         raise SystemExit(EXIT_USAGE)
