@@ -213,6 +213,12 @@ def _nuisance_design(
 
 
 def _residualize(values: np.ndarray, q_basis: np.ndarray) -> np.ndarray:
+    """Remove the projection of values onto an orthonormal design basis.
+
+    :param values: Outcome or predictor values to residualize.
+    :param q_basis: Orthonormal basis spanning the nuisance design.
+    :returns: Values after subtracting their projection onto ``q_basis``.
+    """
     return values - q_basis @ (q_basis.T @ values)
 
 
