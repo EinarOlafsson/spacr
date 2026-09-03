@@ -194,6 +194,18 @@ class GracefulQuitWatcher(QObject):
     Stops asking as soon as ``still_running()`` reports False, and stops
     for good once force is chosen, so a user who is already leaving is not
     asked a second time on the way out.
+
+    :param parent: widget the question is shown over, or ``None``.
+    :param still_running: called with no arguments before each prompt and
+        answers whether anything is left to wait for. A callable rather
+        than a list of handles, so the caller may retire them underneath.
+    :param what: what is still running, named in the question the user
+        reads. Keyword-only.
+    :param describe: called with no arguments for a longer line under that
+        question, when there is more worth saying than ``what``.
+    :param on_force: called if the user chooses to force the quit. Nothing
+        here kills anything itself.
+    :param interval_ms: milliseconds between prompts.
     """
 
     def __init__(self, parent: Optional[QWidget],

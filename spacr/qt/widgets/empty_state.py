@@ -58,6 +58,18 @@ class EmptyState(QWidget):
     """Centered vertical stack: icon → title → subtitle → CTA button.
 
     Any element can be omitted by passing an empty string / None.
+
+    :param title: heading, in the page's title weight. Omitted when empty.
+    :param subtitle: one or two sentences under the title saying what the
+        reader can do about the emptiness. Omitted when empty.
+    :param icon: mark above the title. Omitted when ``None``.
+    :param cta_label: caption for the action button. No button is built
+        when this is empty, so a state with nothing to offer costs no
+        widget rather than showing a disabled one.
+    :param on_action: called when that button is pressed. The
+        :attr:`action_triggered` signal is emitted either way, so a host may
+        connect to it instead.
+    :param parent: owning widget, or ``None``.
     """
 
     action_triggered = Signal()

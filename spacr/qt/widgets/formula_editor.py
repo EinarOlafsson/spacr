@@ -71,7 +71,11 @@ DEBOUNCE_MS = 120
 class FormulaPanel(QWidget):
     """Define computed columns for one table.
 
-    :param frame: the table, or ``None`` until :meth:`set_frame`.
+    :param parent: owning widget, or ``None``.
+
+    The panel starts with no table. Give it one with :meth:`set_frame`, which
+    may be called again whenever the table changes; the formulas defined so
+    far are kept and re-validated against the new columns.
 
     Emits :attr:`formulas_changed` whenever the set changes — the host's cue
     to re-read :meth:`computed_frame`.
