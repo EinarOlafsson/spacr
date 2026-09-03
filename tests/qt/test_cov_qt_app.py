@@ -290,7 +290,7 @@ EXPECTED_SECTIONS = {
     'graph_builder': 'Tools',
     'invasion': 'Assays',
     'investigate_hit': 'Core',
-    'layer_viewer': 'Tools',
+    'layer_viewer': 'Data',
     'lineage': 'Data',
     'make_masks': 'Tools',
     'map_barcodes': 'Core',
@@ -300,7 +300,7 @@ EXPECTED_SECTIONS = {
     'plate_view': 'Tools',
     'power': 'Data',
     'profiler': 'Core',
-    'qc_dashboard': 'Tools',
+    'qc_dashboard': 'Data',
     'queue': 'Data',
     'recruitment': 'Assays',
     'regression': 'Core',
@@ -539,10 +539,22 @@ def test_sidebar_has_one_row_per_app_plus_home_in_apps_order(
         qtbot, qt_theme_applied):
     bar = Sidebar()
     qtbot.addWidget(bar)
-    keys = [b.property("navKey") for b in bar.findChildren(QPushButton)]
-    assert keys == ["__home__"] + [k for k, *_r in APPS]
+    # TOP-LEVEL ROWS ONLY, in APPS order. Folded modules are nested under
+    # their hosts in the dock now, so the button list also carries their
+    # child rows -- indented, hidden until the host is opened, and not part
+    # of the order this test is about.
+    # IN DOCK ORDER, which is APPS with the Help-menu modules moved to the
+    # end under their own heading -- `dock_rows` is the function that does
+    # it, and comparing against raw APPS asserted an order the dock stopped
+    # drawing.
+    from spacr.qt.app import dock_rows
+
+    keys = [b.property("navKey") for b in bar.findChildren(QPushButton)
+            if not b.property("isFoldChild")]
+    assert keys == ["__home__"] + [k for k, *_r in dock_rows()]
     # Each row announces itself to a screen reader with name + description
-    by_key = {b.property("navKey"): b for b in bar.findChildren(QPushButton)}
+    by_key = {b.property("navKey"): b for b in bar.findChildren(QPushButton)
+              if not b.property("isFoldChild")}
     for key, name, desc, _s in APPS:
         btn = by_key[key]
         assert btn.accessibleName() == name
