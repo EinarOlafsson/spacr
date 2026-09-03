@@ -35,6 +35,14 @@ def _plan(**kwargs) -> MontagePlan:
 
 class TestTheCaptionSaysTheGuidesShareCells:
 
+    def test_a_well_documents_and_displays_the_fraction_it_actually_used(self):
+        well = WellSelection(well="1_A_01", fraction=0.2, share=0.75,
+                             n_objects=8, n_reported=8, n_expected=6,
+                             n_in_window=8, n_selected=6)
+
+        assert ":param share:" in (WellSelection.__doc__ or "")
+        assert "round(8 x 0.75) = 6" in well.describe()
+
     def test_the_note_is_in_the_arithmetic(self):
         said = _plan().arithmetic()
 
