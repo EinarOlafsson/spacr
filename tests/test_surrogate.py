@@ -11,11 +11,24 @@ people skip, so it is the one most heavily tested here.
 """
 from __future__ import annotations
 
+from dataclasses import fields
+
 import numpy as np
 import pandas as pd
 import pytest
 
 from spacr import surrogate
+
+
+def test_surrogate_result_documents_every_constructor_field():
+    """Every fitted artifact and fidelity caveat is visible in the API."""
+    documentation = surrogate.SurrogateResult.__doc__ or ""
+    missing = [
+        item.name
+        for item in fields(surrogate.SurrogateResult)
+        if f":param {item.name}:" not in documentation
+    ]
+    assert not missing, f"undocumented SurrogateResult fields: {missing}"
 
 
 def _frame(n=400, seed=0, driver_strength=1.0):
