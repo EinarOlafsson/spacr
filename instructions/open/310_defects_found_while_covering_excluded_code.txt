@@ -1671,6 +1671,11 @@ A57. spacr/qt/widgets/feature_rank.py:658-670 (_null_threshold)
 A58. spacr/settings_advisor.py:844-848 (_thresholds), reached from read_the_counts lines 244-256
     WHAT: When every well total is zero (a plate that sequenced to nothing), fractions_from_counts returns a 'fraction' column that is present and numeric but entirely NaN. read_the_counts filters it to empty at line 246, so fraction_median stays None, and _thresholds then explains the missing recommendation with 'the count tables did not yield a fraction column'. The column WAS yielded; every value in it is NaN because the denominator was zero. read_the_counts also adds nothing to 'trouble' for this case, so the reading reports plates/wells/guides with no note at all.
     COST: A user whose sequencing failed (or whose count column was read as zeros) is told to go looking for a missing 'fraction' column that is sitting right there in their table, and the reading beside the advice looks healthy -- it names the plates, wells and guides it counted and flags no trouble. The one number that would have told them the run is worthless (no reads anywhere) is the one that is silently absent.
+    VERDICT 2026-09-02: RESOLVED by `6b2916aff`. Zero-read tables now carry
+    `_NO_USABLE_FRACTIONS`, so `_thresholds` reports that no fraction can be
+    computed rather than claiming the column is missing; a genuinely absent
+    fraction column remains a separate diagnosis. The focused zero-read and
+    missing-column counterparts pass together (2 passed in 5.55 s).
 
 
 ==============================================================================
@@ -2741,6 +2746,6 @@ published set with rollback on failure, and removes staging on every exit.
 Focused tests prove a shorter rerun removes stale archives, successful
 publication is exact, and a mid-publication failure restores the prior set.
 
-REVISED COUNT after recording these two already-resolved findings and the A14
-and A16 verdict corrections above: 99 entries, 30 recorded as resolved. This
+REVISED COUNT after recording these two already-resolved findings and the A14,
+A16 and A58 verdict corrections above: 99 entries, 31 recorded as resolved. This
 is still a prose-derived progress aid rather than an acceptance ledger.
