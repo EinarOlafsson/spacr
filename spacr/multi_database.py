@@ -236,10 +236,12 @@ class MergePlan:
 
     @property
     def total_rows(self) -> int:
+        """Return the sum of pre-merge row counts across all sources."""
         return sum(source.rows for source in self.sources)
 
     @property
     def has_collisions(self) -> bool:
+        """Return whether a plate identity collides within one screen."""
         return bool(self.colliding_plates)
 
     @property
@@ -435,6 +437,11 @@ def source_labels(paths: Sequence[str]) -> Tuple[str, ...]:
 
 
 def _table_columns(path: str, table: str) -> List[str]:
+    """Return stored column names in table order without reading data rows.
+
+    :param path: SQLite database path opened read-only.
+    :param table: table whose metadata is requested.
+    """
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
         rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
     return [row[1] for row in rows]
@@ -493,6 +500,11 @@ def column_kinds(path: str, table: str) -> Dict[str, str]:
 
 
 def _row_count(path: str, table: str) -> int:
+    """Return the exact number of rows in one SQLite table.
+
+    :param path: SQLite database path opened read-only.
+    :param table: table to count.
+    """
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
         return int(db.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0])
 
@@ -528,6 +540,12 @@ def _stored_plates(path: str, table: str,
 
 
 def _plates(path: str, table: str, plate_column: Optional[str]) -> List[str]:
+    """Return sorted distinct canonical plate IDs from one table.
+
+    :param path: SQLite database path opened read-only.
+    :param table: table containing the plate column.
+    :param plate_column: stored plate-column name, or ``None`` when absent.
+    """
     if not plate_column:
         return []
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
@@ -536,8 +554,8 @@ def _plates(path: str, table: str, plate_column: Optional[str]) -> List[str]:
     # Normalised, so the PLAN names a plate the same way the DATA will after
     # `normalise_plate_ids`. A plan that says `pplate1` while the frame says
     # `plate1` would make the collision check compare two vocabularies.
-    return sorted(canonical_plate_id(row[0])
-                  for row in rows if row[0] is not None)
+    return sorted({canonical_plate_id(row[0])
+                   for row in rows if row[0] is not None})
 
 
 def _screen_plate_pairs(path: str, table: str, plate_column: Optional[str],
