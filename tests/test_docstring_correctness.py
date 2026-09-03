@@ -1490,6 +1490,7 @@ def test_baseline_constructor_documents_every_field():
 
 
 @pytest.mark.parametrize("symbol", (
+    "spacr.accelerator.Accelerator",
     "spacr.classify_classes.ClassRule",
     "spacr.control_names.ControlSpec",
     "spacr.benchmark.Recommendation",

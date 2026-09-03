@@ -16,6 +16,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 FULLY_DOCUMENTED = (
+    "spacr/accelerator.py",
     "spacr/align.py",
     "spacr/api.py",
     "spacr/artifacts.py",
