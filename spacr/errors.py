@@ -251,6 +251,7 @@ class RunLedger:
     """
 
     def __init__(self, name: str = 'run', logger: Optional[logging.Logger] = None):
+        """Initialize an empty, uniquely identified run ledger."""
         self.name = str(name)
         self.run_id = uuid.uuid4().hex[:12]
         self.started_utc = _utcnow()
@@ -304,6 +305,7 @@ class RunLedger:
         return not self._failures
 
     def __repr__(self) -> str:
+        """Return a compact run name, status, and item-count summary."""
         return (f'<RunLedger {self.name!r} status={self.status} '
                 f'attempted={self.n_attempted} failed={self.n_failed}>')
 

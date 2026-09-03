@@ -43,6 +43,7 @@ FULLY_DOCUMENTED = (
     "spacr/database_concurrency.py",
     "spacr/database_schema.py",
     "spacr/diameter.py",
+    "spacr/errors.py",
     "spacr/example_data.py",
     "spacr/feature_dict.py",
     "spacr/figures/distributions.py",
