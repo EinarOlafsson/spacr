@@ -2151,14 +2151,15 @@ _SUMMARY_PARENTS = ("cell", "nucleus", "pathogen", "cytoplasm")
 class FeatureScope:
     """Where a curated feature exists, and what has to be on for it to.
 
-    :ivar objects: object types the feature is written for. Empty for a
-        feature that is not per-object at all (a settings row, a field count).
-    :ivar channels: one of :data:`CHANNEL_NONE`, :data:`CHANNEL_SINGLE`,
-        :data:`CHANNEL_PAIR`.
-    :ivar module: the spaCR module that produces it — what a user should read
-        (or re-run) to change it.
-    :ivar written_when: the condition under which the column exists at all,
-        in prose. ``None`` means "every run writes it".
+    :param objects: object types whose per-object tables receive the feature.
+        An empty tuple denotes a non-per-object or never-written feature.
+    :param channels: channel arity, one of :data:`CHANNEL_NONE`,
+        :data:`CHANNEL_SINGLE`, or :data:`CHANNEL_PAIR`, indicating whether
+        the feature depends on zero, one, or two intensity channels.
+    :param module: dotted spaCR module name that computes or emits the
+        feature.
+    :param written_when: human-readable condition under which the column is
+        emitted, or ``None`` when every run writes it.
     """
 
     objects: tuple[str, ...]
