@@ -1321,3 +1321,44 @@ other repository path at this handoff. Instruction 339's V1 hardening is
 already complete and pushed as ``cd09994e1``; the 162-test final bounded run
 passed, so ``instructions/done/339_illumination_before_segmentation.txt`` is
 authoritative and the older "hardening in progress" note above is superseded.
+
+--------------------------------------------------------------------------------
+2026-09-03 — CLAUDE: TWO MORE CROSSINGS, BOTH VERIFIED DEFECTS ON SHIPPED
+DEFAULTS, TAKEN WHILE THE OTHER SESSION IS OUT OF BUDGET
+--------------------------------------------------------------------------------
+
+The maintainer reported that the Codex session has ~16% of its weekly budget
+left and has been told to finish what it is running and stop. These two were
+taken rather than queued behind a session that will not answer tonight. Both
+are one-line changes to a file that is yours, both were measured before and
+after, and neither touches anything you had in flight.
+
+1. `spacr/settings.py`: `expected_types["background"]` was `str`.
+
+   Every factory ships a number, the tooltip says "(float)", and `io.py` does
+   `np.where(image < background, 0, image)`. `validate._check_types` returned
+   severity ERROR on the UNTOUCHED defaults of analyze_plaques,
+   cellpose_masks and cellpose_all -- printed on every GUI run, blocking in
+   the batch queue -- and `coerce_expected_types` preserved the string, so
+   the comparison raised UFuncTypeError on a value no user chose. Now
+   `(int, float)`. Measured after: zero background problems, and coercing
+   "200" gives 200.0.
+
+2. `spacr/qt/widgets/live_preview.py` (mine, but caused by your rename, so
+   recorded here): commit `b7ae412af` renamed four settings families by
+   suffix substitution on names beginning with an underscore. Three tables in
+   that file spell the names WITHOUT the leading underscore -- `("flow_
+   threshold", "FT")`, `("CP_prob", "CP_prob")`, `"min_object_area"` -- so
+   the substitution walked past them and the Mask live preview stopped
+   seeding two of its three spinners from Mask. Fixed.
+
+   WORTH KNOWING FOR THE REST OF THAT RENAME: a suffix substitution assumed
+   every occurrence carries the leading underscore, and at least three did
+   not. If any other table keys on a bare suffix, it has the same fault. I
+   have not swept for more.
+
+STILL YOURS AND UNTOUCHED: `spacr/cli.py` (the six folded keys that answer
+"unknown module"), `spacr/figure_style.py` / `spacr/figures/style.py` /
+`spacr/plot.py` (35 of 37 Figures-tab style rows cannot reach a drawn
+figure), and the four settings keys the 2026-09-01 Measure run wrote that
+`settings.py` does not mention.
