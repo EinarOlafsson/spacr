@@ -1,0 +1,150 @@
+================================================================================
+AN OPS BUTTON ON ALIGN AND STITCH, OVER CODE THAT IS ALREADY IN THE REPOSITORY
+================================================================================
+
+Status:    not started, filed 2026-09-02. MEASURED the same day, and the
+           measurement changes the shape of the job -- see PART 0.
+Requested: 2026-09-02 -- "for the allign and stitch module id like to add a
+           OPS (optical pooled screening button) for analyzing OPS data. i had
+           a bunch of code for doing this earlier, i dont know if that module
+           is stil there. other wize take inspiration from this paper:
+           https://www.nature.com/articles/s41467-026-73643-7 and its codebase
+           https://github.com/cheeseman-lab/brieflow"
+Owner:     spacr/spacrops.py, spacr/qt/screens/ (the Align host), settings,
+           spacr/cli.py for the headless name, tests.
+
+--------------------------------------------------------------------------------
+PART 0 -- THE CODE IS STILL THERE. IT IS 3,891 LINES AND NOTHING CAN REACH IT
+--------------------------------------------------------------------------------
+
+The question in the request is answered: YES. `spacr/spacrops.py` is 3,891
+lines, and it is OPS code, not generic stitching:
+
+    ops_preprocess(settings)              the whole pipeline entry point
+    get_preprocess_ops_settings(settings) its settings factory, ~40 keys
+    stitch_cycle_wells(settings)          per-well mosaics, PER CYCLE
+    align_image_to_stitch(...)            phenotype onto the genotype mosaic
+    spacrStitcher                         ORB/RANSAC feature stitcher
+    StitchedMultiAligner                  multi-acquisition alignment
+    FOVAlignAndCropper                    per-FOV alignment and crops
+    _DiskFeatureStore                     NPZ feature cache with a RAM LRU
+
+`ops_preprocess`'s own docstring: "Run the full ops preprocessing pipeline:
+per-genotype stitching + phenotype alignment. Iterates over one or more
+genotype folders, calls stitch_cycle_wells on each, then aligns the phenotype
+images to the resulting mosaics."
+
+THE ONLY REFERENCE TO ANY OF IT UNDER `spacr/qt/` IS ONE LINE, and it is not
+a button:
+
+    spacr/qt/screens/setting_api_targets.py:511
+        'plate': ('spacr.spacrops', 'stitch_cycle_wells', True)
+
+-- a documentation link for one setting. There is no registry row, no
+builder, no entry in `spacr.cli`, no settings panel. A user cannot run any of
+it from the GUI and `spacr-run ops_preprocess` says "unknown module".
+
+  SO THIS IS NOT "WRITE AN OPS MODULE". It is mostly WIRING UP ONE THAT WAS
+  WRITTEN AND NEVER CONNECTED, and the first job is to find out what of it
+  still runs. Do that before designing anything: 3,891 lines that nothing
+  imports have had no test and no user for however long they have been
+  there, and the `#settings.setdefault("meta_regex", ...)` line commented
+  out above the live one is the sort of thing that survives in unreached
+  code.
+
+--------------------------------------------------------------------------------
+PART 1 -- WHAT OPS NEEDS THAT spaCR DOES NOT HAVE
+--------------------------------------------------------------------------------
+
+Optical pooled screening reads the barcode OUT OF THE IMAGES, across several
+in-situ sequencing cycles. spaCR's existing barcode module does something
+else entirely, and the two must not be confused:
+
+    spacr/sequencing.py     "Decode pooled-screen FASTQ reads into per-well
+                            guide counts" -- NGS. Reads gzipped FASTQ, finds
+                            row/column/guide barcodes, counts guides by well.
+    OPS                     no FASTQ at all. Four channels per cycle, one
+                            base per cycle per spot, read off the pixels.
+
+So Map Barcodes is NOT the back half of this and must not be pointed at it.
+
+WHAT EXISTS (the front half):        stitching, cycle alignment, phenotype
+                                     alignment, FOV cropping -- spacrops.py
+WHAT DOES NOT EXIST (the back half): spot detection over the cycle stack,
+                                     per-cycle base calling, assembling a
+                                     barcode from one spot's bases, mapping
+                                     reads to a guide library, assigning a
+                                     read to a segmented cell
+
+The back half is the work. The front half is the wiring.
+
+--------------------------------------------------------------------------------
+PART 2 -- WHAT TO TAKE FROM BRIEFLOW, AND WHAT NOT TO
+--------------------------------------------------------------------------------
+
+Brieflow (Cheeseman lab, Nat Commun 2026, s41467-026-73643-7;
+github.com/cheeseman-lab/brieflow) is a Snakemake pipeline with SIX named
+stages, and the naming is worth stealing because it separates concerns spaCR
+currently mixes:
+
+    preprocess   ND2 to tiled TIFF, plus metadata (cycle, tile, well)
+    sbs          find and decode the in-situ barcodes
+    phenotype    per-cell morphology and intensity features
+    merge        match phenotype features to decoded barcodes
+    aggregate    collapse single cells by perturbation or barcode
+    cluster      unsupervised structure across perturbations
+
+  MAP THAT ONTO WHAT spaCR ALREADY HAS RATHER THAN ADDING SIX MODULES.
+  `phenotype` is Measure. `aggregate` and `cluster` are Regression and Image
+  UMAP. `preprocess` is Import plus `stitch_cycle_wells`. So the genuinely
+  new surface is **sbs** and **merge**, which is the same conclusion Part 1
+  reaches from the other direction -- and two agreeing derivations is the
+  reason to trust it.
+
+  DO NOT COPY THE SNAKEMAKE ARCHITECTURE. spaCR runs from a GUI button and a
+  `spacr-run` name, and a workflow engine underneath one is a second way to
+  describe a pipeline that has to be kept in step with the first.
+
+  I DID NOT READ THE ALGORITHMS. The README and the readthedocs landing page
+  describe the stages and not the steps inside `sbs` -- no spot detection, no
+  peak calling, no base-calling detail. Read the source before implementing,
+  and record here what it actually does; a plausible reconstruction of a
+  method from its stage name is exactly the kind of thing that produces a
+  pipeline that runs and is wrong. The paper is the other half of that
+  reading.
+
+--------------------------------------------------------------------------------
+PART 3 -- THE BUTTON
+--------------------------------------------------------------------------------
+
+An **OPS** button on Align and Stitch, the way the request asks. That is a
+fold on the existing host rather than a new tile: the request says "for the
+allign and stitch module id like to add a OPS button", and instruction 318's
+rule -- reached from the module it belongs to -- puts it there.
+
+The fold needs what every fold needs and what `spacrops.py` has none of: a
+registry entry or a `FOLD_FALLBACK` name and sentence, a settings panel built
+from `get_preprocess_ops_settings`, a maturity stage (ALPHA, honestly), an
+API page, and a `spacr-run ops` name so a plate can be processed without the
+GUI. See 325's note about the six folded keys that `spacr-run` currently
+denies -- do not add a seventh.
+
+  ~40 SETTINGS COME WITH IT, none of which has a tooltip, a category or an
+  `expected_types` entry today. Instruction 364 found that a module absent
+  from `GUI_MODULE_DEFAULTS` is never checked, and that is how a checkbox
+  came to ship the string 'False'. Register this one properly on the way in;
+  it is far cheaper than auditing it later.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* A report, written into this file BEFORE any new code, saying which of
+  `spacrops.py`'s eight public entry points still run and on what data.
+* The OPS button appears on Align and Stitch, builds its panel, and is not a
+  tile.
+* `spacr-run ops` resolves, and its settings round-trip through a CSV.
+* Every OPS setting has a category, a type and a tooltip -- the 364 standard,
+  applied on the way in rather than retrofitted.
+* The sbs and merge halves are specified from READING brieflow's source and
+  the paper, with what they do recorded here, before either is written.
