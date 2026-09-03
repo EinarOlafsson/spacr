@@ -645,8 +645,8 @@ def test_promoting_a_run_with_no_stored_cells_names_the_run(png_db,
                                                             investigation):
     """A run id nobody stored is a typo, and the message quotes it."""
     for field in ("guides", "fdr", "direction"):
-        assert f":ivar {field}:" in (type(investigation.context).__doc__ or "")
-    assert ":ivar warnings:" in (type(investigation).__doc__ or "")
+        assert f":param {field}:" in (type(investigation.context).__doc__ or "")
+    assert ":param warnings:" in (type(investigation).__doc__ or "")
     ha.store_attribution(png_db, investigation)
 
     with pytest.raises(HitAttributionError) as caught:

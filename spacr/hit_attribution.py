@@ -394,16 +394,18 @@ class HitAttributionResult:
 class HitRunContext:
     """The exact regression result a cell investigation came from.
 
-    :ivar regression_results_folder: folder containing the source regression
-        result.
-    :ivar regression_run_sha256: SHA-256 digest identifying that regression
-        run.
-    :ivar gene: selected hit gene.
-    :ivar phenotype: selected regression phenotype.
-    :ivar effect: regression effect estimate for the selected hit.
-    :ivar guides: guide identifiers assigned to the selected hit gene.
-    :ivar fdr: multiple-testing-adjusted significance of the selected hit.
-    :ivar direction: phenotype direction used to interpret candidate cells,
+    :param regression_results_folder: folder containing the regression result
+        from which this investigation was launched.
+    :param regression_run_sha256: SHA-256 digest identifying that source
+        regression run.
+    :param gene: selected hit-gene identifier.
+    :param phenotype: regression phenotype for which the gene was selected.
+    :param effect: regression effect estimate for the selected gene and
+        phenotype.
+    :param guides: guide identifiers assigned to the selected hit gene.
+    :param fdr: multiple-testing-adjusted significance of the selected hit, or
+        ``nan`` when unavailable.
+    :param direction: phenotype direction used to rank candidate cells,
         normally ``"positive"`` or ``"negative"``.
     """
 
@@ -421,15 +423,20 @@ class HitRunContext:
 class HitInvestigationResult:
     """Portable result bundle used by the GUI and database persistence.
 
-    :ivar attribution_run_id: identifier assigned to this investigation.
-    :ivar context: regression hit and source-run provenance.
-    :ivar cells: cell-level candidate probabilities and calls.
-    :ivar wells: well-level candidate-prevalence summary.
-    :ivar enrichment: well-level enrichment and resampling statistics.
-    :ivar feature_columns: morphology features used by the classifier.
-    :ivar split_level: held-out grouping level used for cross-fitting.
-    :ivar warnings: design or fit caveats retained for the GUI, exports, and
-        database record of the investigation.
+    :param attribution_run_id: unique identifier under which this investigation
+        is persisted.
+    :param context: source regression hit and run-provenance contract.
+    :param cells: cell-level candidate probabilities, uncertainty, calls, and
+        held-out fold assignments.
+    :param wells: well-level candidate-prevalence summary.
+    :param enrichment: well-level effect estimates, confidence intervals, and
+        resampling statistics.
+    :param feature_columns: morphology-feature columns used by the cross-fitted
+        classifier.
+    :param split_level: grouping level held out during cross-fitting, normally
+        ``"plate"`` or ``"well"``.
+    :param warnings: design and fit caveats retained for display and
+        persistence.
     """
 
     attribution_run_id: str

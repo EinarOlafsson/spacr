@@ -140,14 +140,18 @@ class MaskMatch:
 class ExternalMaskPlan:
     """Read-only preview of an external-mask import.
 
-    :ivar groups: normalized image, mask, and ignored input groups.
-    :ivar images: proposed intensity-image conversion plan.
-    :ivar masks: object roles mapped to field stems and matched mask files.
-    :ivar destination: root of the spaCR project that would be written.
-    :ivar n_channels: number of intensity channels in each merged field.
-    :ivar mask_dims: merged-array plane assigned to each supplied mask role.
-    :ivar errors: blocking problems that make the preview unrunnable.
-    :ivar warnings: non-blocking ambiguities shown before import.
+    :param groups: normalized image, mask, and ignored input groups reviewed for
+        this import.
+    :param images: proposed intensity-image conversion plan.
+    :param masks: spaCR object types mapped to canonical field stems and their
+        matched label-mask files.
+    :param destination: root of the spaCR project that would be written.
+    :param n_channels: number of intensity-image channels in each generated
+        merged field.
+    :param mask_dims: merged-array plane index assigned to each supplied mask
+        type.
+    :param errors: blocking problems that make the preview unrunnable.
+    :param warnings: non-blocking ambiguities shown before the import proceeds.
     """
 
     groups: List[InputGroup]
