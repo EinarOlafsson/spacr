@@ -1496,6 +1496,11 @@ def test_baseline_constructor_documents_every_field():
     "spacr.portable_paths.RerootReport",
     "spacr.figures.fast_render.RenderedPanel",
     "spacr.figures.scene.SceneReport",
+    "spacr.selection.CategoryFilter",
+    "spacr.selection.DataFilter",
+    "spacr.selection.RangeFilter",
+    "spacr.selection.Selection",
+    "spacr.sra.RunFile",
 ))
 def test_repaired_record_documents_every_constructor_parameter(symbol):
     """Each repaired generated record remains callable from its API prose."""
