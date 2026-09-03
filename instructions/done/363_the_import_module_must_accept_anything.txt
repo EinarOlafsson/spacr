@@ -414,3 +414,24 @@ HOW IT WILL BE CHECKED
 * Nothing is written before the user confirms the plan.
 * A saved plan reproduces an import exactly, from the CLI, with no GUI.
 * Inspecting a large archive is sub-linear in file count.
+
+--------------------------------------------------------------------------------
+2026-09-02: CLOSING. THE RETIREMENT IS SCHEDULED AS 375.
+--------------------------------------------------------------------------------
+
+This file said it was "ready to close once the retirement of `metadata_type`
+and `consolidate` is scheduled (see above: land, migrate, then retire -- and
+this is the 'land' half)". It is scheduled: instruction 375 carries the
+migrate and retire halves, in that order, with the measurement that makes the
+caution concrete -- `metadata_type` is read at 7 sites across 30 files and
+`consolidate` at 1 across 30, and every settings CSV anyone has saved names
+them.
+
+375 also records the trap `RETIRED_SETTINGS` warns about in its own comment,
+which is the one way this could be got wrong while looking right: retiring a
+key in `validate.py` while `spacr.settings` still declares it warns a user
+off a setting that still works.
+
+LAND IS DONE: the corpus answers ten of ten, tiles are stitched back into
+fields by default with the option not to, the screen shows the plan before it
+writes anything, and a destination inside the source is refused.
