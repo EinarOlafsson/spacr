@@ -20,6 +20,7 @@ FULLY_DOCUMENTED = (
     "spacr/api.py",
     "spacr/artifacts.py",
     "spacr/attribution_columns.py",
+    "spacr/baseline.py",
     "spacr/batch.py",
     "spacr/annotation.py",
     "spacr/cancellation.py",
