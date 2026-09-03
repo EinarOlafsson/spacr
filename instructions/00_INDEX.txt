@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-342 done / 29 open (92%).
+343 done / 28 open (92%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -83,10 +83,6 @@ OPEN
   337  ONE MANDERS DEFINITION, SPATIAL MEASUREMENTS ON, AND THE RUN'S SETTINGS AS
        [~75% -- Manders, spatial defaults and both labels done; part 3 needs the maintainer's measure settings]
        337_measure_defaults_manders_and_labels.txt
-
-  348  THE DOCK: HELP GETS ITS OWN SECTION, THE ICONS GROW, AND THE NAMES MOVE OFF IT
-       [~35% -- Help is a dock heading and is last; the magnifier and the text move are open]
-       348_the_dock_should_behave_like_a_dock.txt
 
   350  A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
        [~50% -- no proven clipping in 4 screens x 3 locales; three false-positive classes recorded]
@@ -462,6 +458,7 @@ DONE
   345  THREE MORE ANNOTATE TESTS FAIL, AND ONE OF THEM ONLY IN COMPANY
   346  TWENTY-ONE MEASURE TESTS FAIL ONLY IN COMPANY, AND HAVE FOR AT LEAST A DAY
   347  CATEGORY HELP BELONGS ONLY IN THE STRIP, THE API LINK BECOMES A DOT, AND EVERY
+  348  THE DOCK: HELP GETS ITS OWN SECTION, THE ICONS GROW, AND THE NAMES MOVE OFF IT
   349  "LOAD TEST DATA" PUTS THE LITERAL <src> INTO MASK GENERATION'S PATH FIELD
   351  FIX AND CLOSE EVERY GITHUB ISSUE
   353  REGRESSION'S INPUT TABLES START WITH THE DOWNLOAD BUTTONS, NOT END WITH THEM
