@@ -162,6 +162,8 @@ def test_the_dry_run_and_the_install_use_the_same_tool(monkeypatch):
 
 def test_nothing_may_be_run_for_an_offer_that_is_not_an_install():
     """`InstallOffer.command` is the gate, and it is closed on two of three."""
+    for field in ("requirement", "recipe", "runs_anything"):
+        assert f":ivar {field}:" in (updater.InstallOffer.__doc__ or "")
     assert updater.offer_elsewhere("t", "m", "r").command is None
     assert updater.offer_impossible("t", "m").command is None
     assert updater.offer_ready("t", "m").command is None

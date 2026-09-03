@@ -131,6 +131,12 @@ class SourceSummary:
     :ivar rows: number of rows the source table contributes.
     :ivar columns: source table's stored column names in order.
     :ivar plates: canonical plate identifiers contributed by the source.
+    :ivar screen: caller-supplied screen label, or ``None`` when the source's
+        stored value or the default should determine it.
+    :ivar screen_plates: distinct post-normalisation ``(screen, plate)``
+        identities used to detect true within-screen collisions.
+    :ivar stored_plates: plate identifiers exactly as stored, retained so a
+        report can distinguish unusual spelling from canonical identity.
     """
 
     path: str
@@ -196,6 +202,10 @@ class MergePlan:
         that contain it.
     :ivar colliding_plates: plate ids duplicated within a screen, mapped to
         the source labels that contribute them.
+    :ivar colliding_identities: duplicate ``(screen, plate)`` identities
+        mapped to contributing sources so the affected screen can be named.
+    :ivar shared_plates_across_screens: plate ids reused by distinct screens;
+        reported for review but intentionally not treated as collisions.
     """
 
     sources: Tuple[SourceSummary, ...]
@@ -685,6 +695,10 @@ class MergeDecision:
     :ivar dropped_columns: columns omitted by the selected merge rule.
     :ivar colliding_plates: duplicate plate ids mapped to their source labels.
     :ivar outcome: final ``'merged'`` or ``'refused'`` result.
+    :ivar resolution: operator's recorded explanation of how a collision or
+        other merge decision was resolved.
+    :ivar when: ISO-formatted timestamp identifying when the decision was
+        made and appended to the audit log.
     """
 
     table: str
