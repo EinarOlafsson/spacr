@@ -14,14 +14,18 @@
       "label": "spacr.measurement_scan.MeasurementEffect#10",
       "source": "Simes global-null P value passed to the across-scan correction.",
       "source_sha256": "c623b6031be9e5965307b7b82275bbdf4397b128cc85dcffba6bca017bfd3cfe",
-      "translation": "Valor-p da hipótese nula global de Simes fornecido à correção entre varreduras."
+      "translation": "Valor-p da hipótese nula global de Simes fornecido à correção entre varreduras.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "context": "source table's stored column names in order.",
       "label": "spacr.multi_database.SourceSummary#5",
       "source": "source table's stored column names in order.",
       "source_sha256": "bbe84b4b849b10f27384c3db3d1e55ac39d2bd0112e477d911291405ac2cd54d",
-      "translation": "nomes de colunas armazenados na tabela de origem, por ordem."
+      "translation": "nomes de colunas armazenados na tabela de origem, por ordem.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "context": "run-results directory in which to write the report.",

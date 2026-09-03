@@ -112,7 +112,9 @@
       "source_sha256": "b41d2d110abc9dc99397658c4ad0b8741d7fafa5d152c46146db9295fd8d5e1f",
       "source": "the *source* channel key parsed from the filename (``'C2'``), or None when the channels live inside the file.",
       "context": "the *source* channel key parsed from the filename (``'C2'``), or None when the channels live inside the file.",
-      "translation": "파일 이름에서 분석한 *원본* 이미지 데이터 채널 식별자(``'C2'``)이며, 이미지 데이터 채널이 파일 내부에 있으면 None 입니다."
+      "translation": "파일 이름에서 분석한 *원본* 이미지 데이터 채널 식별자(``'C2'``)이며, 이미지 데이터 채널이 파일 내부에 있으면 None 입니다.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.omero.WellPosition#5",

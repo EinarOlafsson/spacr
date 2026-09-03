@@ -14,7 +14,9 @@
       "source": "Simes global-null P value passed to the across-scan correction.",
       "context": "Simes global-null P value passed to the across-scan correction.",
       "source_sha256": "c623b6031be9e5965307b7b82275bbdf4397b128cc85dcffba6bca017bfd3cfe",
-      "translation": "Global-Null-P-Wert nach Simes, der an die scanübergreifende Korrektur übergeben wird."
+      "translation": "Global-Null-P-Wert nach Simes, der an die scanübergreifende Korrektur übergeben wird.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.merge_tables.object_keys#1",
@@ -70,7 +72,9 @@
       "source": "source training runs, in comparison order.",
       "context": "source training processing sessions, in comparison order.",
       "source_sha256": "4c086e88d5bd466a9747247d5cac3b2192742de94e50f8127a3f5073dfc32adb",
-      "translation": "Quellläufe des Trainings in der Reihenfolge des Vergleichs."
+      "translation": "Quellläufe des Trainings in der Reihenfolge des Vergleichs.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.updater.dry_run_command#2",

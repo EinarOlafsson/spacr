@@ -42,7 +42,9 @@
       "source_sha256": "f940218b527e80cad41643e281677945d78a68275b3c585b081cff055e387c19",
       "source": "the reviewed :class:`ColumnMap` this came from.",
       "context": "the reviewed :class:`ColumnMap` this came from.",
-      "translation": "生成该结果的、已经审核的 :class:`ColumnMap`。"
+      "translation": "生成该结果的、已经审核的 :class:`ColumnMap`。",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.foreign.release_canonical_copy#1",

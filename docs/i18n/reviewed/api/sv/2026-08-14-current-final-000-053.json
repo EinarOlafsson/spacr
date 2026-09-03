@@ -42,7 +42,9 @@
       "source_sha256": "cfcd5b78129853f7a76d8e9681d0d9e05d3de29c6751ca004835beea2c930c11",
       "source": "well token parsed from the filename, e.g. ``'B07'``.",
       "context": "well token parsed from the filename, e.g. ``'B07'``.",
-      "translation": "well-token tolkad från filnamnet, till exempel ``'B07'``."
+      "translation": "well-token tolkad från filnamnet, till exempel ``'B07'``.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.artifacts.Artifact#3",
@@ -252,7 +254,9 @@
       "source_sha256": "263b79b0b0c6e70851b8026a77ec395d6d8ffaf57915c8fae25b8f735c14adca",
       "source": "the unit their values are in, e.g. ``'um^2'``. Required for any non-identity, non-literal transform: converting without knowing what you are converting *from* is guessing.",
       "context": "the unit their values are in, e.g. ``'um^2'``. Required for any non-identity, non-literal transform: converting without knowing what you are converting *from* is guessing.",
-      "translation": "vilken enhet deras värden är i, till exempel ``'um^2'``. Krävs för varje icke-identitet, icke bokstavlig omvandling: konvertera utan att veta vad du konverterar *from* är att gissa."
+      "translation": "vilken enhet deras värden är i, till exempel ``'um^2'``. Krävs för varje icke-identitet, icke bokstavlig omvandling: konvertera utan att veta vad du konverterar *from* är att gissa.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.gui_core.setup_plot_section#3",

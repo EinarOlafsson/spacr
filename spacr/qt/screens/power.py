@@ -182,6 +182,13 @@ _HELD_FIELDS = (
 )
 
 
+# SECTION NOTE, 2026-09-03: the sections were restructured to Core / Data /
+# Tools / Assays, and SECTION_DESIGN / SECTION_EXPLORE / SECTION_RESULTS are
+# still declared but are no longer in SECTION_ORDER. Every screen below now
+# files under Data. The docstrings keep their original reasoning because it
+# still says what each screen IS -- and they are published, translated API
+# prose, so editing them invalidates reviewed translations in nine languages.
+
 def _power_qss(palette: dict, opacity: Optional[float] = None) -> str:
     """QSS for this screen, contributed through :func:`register_widget_qss`.
 
@@ -1476,12 +1483,8 @@ def register_settings(replace: bool = False) -> bool:
 def register() -> bool:
     """Put Power / Design in the app registry, through the public seam.
 
-    SECTION NOTE, 2026-09-03: it files under Data. It used to claim
-    :data:`spacr.qt.app.SECTION_DESIGN`, which is still declared but was
-    dropped from ``SECTION_ORDER`` when the sections were restructured to
-    Core / Data / Tools / Assays.
-
-    That section had never had an app — its note already reads
+    It claims :data:`spacr.qt.app.SECTION_DESIGN`, which is declared in
+    ``SECTION_ORDER`` and has never had an app — its note already reads
     "Plan the experiment before it runs: power, sample size, plate layout,
     controls and replicates", so registering makes that tab appear with the
     description it was written for.

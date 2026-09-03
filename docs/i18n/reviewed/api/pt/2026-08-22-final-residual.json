@@ -20,7 +20,9 @@
       "label": "spacr.flowview.collector.Collector.emit#0",
       "source": "Queue *event* without waiting for capacity.",
       "source_sha256": "7dd9952da0c1eb212241e3bdd5a9dd4c97542923ed3e5490d8ecc024ade75ed9",
-      "translation": "Adiciona *event* à fila sem esperar por capacidade."
+      "translation": "Adiciona *event* à fila sem esperar por capacidade.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     }
   ],
   "schema": 1

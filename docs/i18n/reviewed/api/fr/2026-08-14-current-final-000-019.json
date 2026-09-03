@@ -56,7 +56,9 @@
       "source_sha256": "0e9f5cd53c9955b4eeda4bdbaf6172c2d6d2bdf6bc9be37fd05fea044b9d891e",
       "source": "sources skipped without being attempted (an absent optional reader, an unreadable file), as ``(path, reason)``.",
       "context": "sources skipped without being attempted (an absent optional reader, an unreadable file), as ``(path, reason)``.",
-      "translation": "sources ignorées sans tentative (lecteur facultatif manquant ou fichier illisible), sous la forme ``(path, reason)``."
+      "translation": "sources ignorées sans tentative (lecteur facultatif manquant ou fichier illisible), sous la forme ``(path, reason)``.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.core.generate_screen_graphs#2",

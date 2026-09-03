@@ -77,7 +77,9 @@
       "source_sha256": "0573f354a89c4fad028f16c70b99a280594b0f1d18df7506f593a680479e41f3",
       "source": "how many to return when no explicit grid is given. The default grid walks ``n_neighbors``, which is the parameter that actually changes the shape of a UMAP; ``min_dist`` mostly changes how tightly it packs.",
       "context": "how many to return when no explicit grid is given. The default grid walks ``n_neighbors``, which is the parameter that actually changes the shape of a UMAP; ``min_dist`` mostly changes how tightly it packs.",
-      "translation": "명시적 그리드가 없을 때 반환할 개수입니다. 기본 그리드는 UMAP 형태를 실제로 바꾸는 매개변수인 ``n_neighbors``를 순회합니다. ``min_dist``는 주로 점들이 얼마나 촘촘하게 배치되는지를 바꿉니다."
+      "translation": "명시적 그리드가 없을 때 반환할 개수입니다. 기본 그리드는 UMAP 형태를 실제로 바꾸는 매개변수인 ``n_neighbors``를 순회합니다. ``min_dist``는 주로 점들이 얼마나 촘촘하게 배치되는지를 바꿉니다.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.qt.widgets.dose_response#25",

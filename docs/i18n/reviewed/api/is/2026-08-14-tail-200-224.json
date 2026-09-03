@@ -112,7 +112,9 @@
       "source_sha256": "f0ec947f2f5a5581ed380d566d18f0aa4ea7f933af28047b3a7d9877d7548daf",
       "source": "long-form per-epoch metrics with identity columns ``run_id``, ``split``, ``fold`` and ``epoch``, one row per logged epoch. Empty (with the identity columns present) when the run logged nothing.",
       "context": "long-form per-epoch metrics with identity columns ``run_id``, ``split``, ``fold`` and ``epoch``, one row per logged epoch. Empty (with the identity columns present) when the run logged nothing.",
-      "translation": "Langformaðar mælikvarðar fyrir hverja lotu með auðkennisdálkum ``run_id``, ``split``, ``fold`` og ``epoch``, einn röð fyrir hverja skráða lotu. Tóm (með auðkennisdálkunum til staðar) þegar keyrsla skráði ekkert."
+      "translation": "Langformaðar mælikvarðar fyrir hverja lotu með auðkennisdálkum ``run_id``, ``split``, ``fold`` og ``epoch``, einn röð fyrir hverja skráða lotu. Tóm (með auðkennisdálkunum til staðar) þegar keyrsla skráði ekkert.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.model_zoo.default_local_roots#1",

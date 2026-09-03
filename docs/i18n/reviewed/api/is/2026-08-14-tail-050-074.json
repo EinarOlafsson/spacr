@@ -7,7 +7,9 @@
       "source_sha256": "ac160a3a390f8911db65fc7d7e5144a568fb3cf76b03529d1bdbe5443d5e168f",
       "source": "``{series_label: {...}}`` — per split and fold, the epoch count and **both** the last-epoch and best-epoch value of every metric. See :func:`format_comparison` for why both.",
       "context": "``{series_label: {...}}`` — per split and fold, the epoch count and **both** the last-epoch and best-epoch value of every metric. See :func:`format_comparison` for why both.",
-      "translation": "``{series_label: {...}}`` — fyrir hverja skiptingu og fellingu: fjöldi tímabila og **bæði** gildi síðasta tímabils og besta tímabils fyrir hvert mæligildi. Sjá :func:`format_comparison` um ástæðu þess að bæði eru geymd."
+      "translation": "``{series_label: {...}}`` — fyrir hverja skiptingu og fellingu: fjöldi tímabila og **bæði** gildi síðasta tímabils og besta tímabils fyrir hvert mæligildi. Sjá :func:`format_comparison` um ástæðu þess að bæði eru geymd.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.layers.Canvas.pixel_at#0",

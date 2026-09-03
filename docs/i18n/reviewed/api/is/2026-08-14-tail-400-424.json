@@ -84,7 +84,9 @@
       "source_sha256": "955fe4da06ce5e380ca87963c2f0baae34c31b9436ae45169282aea87f8153b8",
       "source": "The clamp is a per-thread ICV, so a joblib worker thread starts with the process default (10 here, not 1) and builds a team the region was supposed to prevent. Measured on this repository's own ``ml_analysis``: 19 threads parked in ``__kmp_launch_worker`` unguarded, still 10 with only the region clamp, and those 10 belong to Homebrew's libomp — xgboost's runtime, the one that crashed. Keeping joblib on the calling thread keeps the clamp meaningful.",
       "context": "The clamp is a per-independent execution path ICV, so a joblib background execution unit starts with the process default (10 here, not 1) and builds a team the region was supposed to prevent. Measured on this repository's own ``ml_analysis``: 19 independent execution paths parked in ``__kmp_launch_worker`` unguarded, still 10 with only the region clamp, and those 10 belong to Homebrew's libomp — xgboost's runtime, the one that crashed. Keeping joblib on the calling independent execution path keeps the clamp meaningful.",
-      "translation": "Klemman er per sjálfstæðum útfærsluleið ICV, svo joblib bakgrunnsútfærslu-eining byrjar með sjálfgefið ferli (10 hér, ekki 1) og byggir upp lið sem svæðið átti að koma í veg fyrir. Mælt á þessum eigin gagnageymslu ``ml_analysis``: 19 sjálfstæðar útfærsluleiðir staðsettar í ``__kmp_launch_worker`` óvarðar, samt 10 aðeins með klemmu svæðisins, og þau 10 tilheyra Homebrew's libomp — keyrslutíma xgboost, sá sem hrundi. Að halda joblib á köllunarsjálfstæðu útfærsluleiðinni gerir klemmuna merkingarbæra."
+      "translation": "Klemman er per sjálfstæðum útfærsluleið ICV, svo joblib bakgrunnsútfærslu-eining byrjar með sjálfgefið ferli (10 hér, ekki 1) og byggir upp lið sem svæðið átti að koma í veg fyrir. Mælt á þessum eigin gagnageymslu ``ml_analysis``: 19 sjálfstæðar útfærsluleiðir staðsettar í ``__kmp_launch_worker`` óvarðar, samt 10 aðeins með klemmu svæðisins, og þau 10 tilheyra Homebrew's libomp — keyrslutíma xgboost, sá sem hrundi. Að halda joblib á köllunarsjálfstæðu útfærsluleiðinni gerir klemmuna merkingarbæra.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.plot.plot_proportion_stacked_bars#1",
@@ -98,7 +100,9 @@
       "source_sha256": "ae1f1202d569208dffc511734a0110be9f5146d525df244976c2b7b28619b8cf",
       "source": "False when the stored values are *not* in ``unit_out`` — the flag that stops a µm² column being read as px².",
       "context": "False when the stored values are *not* in ``unit_out`` — the flag that stops a µm² column being read as px².",
-      "translation": "False þegar geymd gildi eru *ekki* í ``unit_out`` — fáni sem kemur í veg fyrir að µm² dálkur sé lesinn sem px²."
+      "translation": "False þegar geymd gildi eru *ekki* í ``unit_out`` — fáni sem kemur í veg fyrir að µm² dálkur sé lesinn sem px².",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.core.generate_image_umap#3",

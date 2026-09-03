@@ -7,14 +7,18 @@
       "source": "share of called cells assigned to the correct guide.",
       "context": "share of called cells assigned to the correct guide.",
       "source_sha256": "79ca4cc565c7aa9d5be65aaa198d715fa512a9940ba810e623a9fba02127adff",
-      "translation": "已判定细胞中被分配至正确引导序列的比例。"
+      "translation": "已判定细胞中被分配至正确引导序列的比例。",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.foreign.MaskMapping#4",
       "source": "plate identifier parsed from the matched field stem.",
       "context": "laboratory microplate identifier parsed from the matched microscope field of view stem.",
       "source_sha256": "a29b6a1a06d7434045fb842685ca1113ddb0aa727648f96e08e2d967cc2c1ce0",
-      "translation": "从匹配的显微镜视野文件名主干中解析出的实验室微孔板标识符。"
+      "translation": "从匹配的显微镜视野文件名主干中解析出的实验室微孔板标识符。",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.guide_attribution.Attribution#4",

@@ -21,14 +21,18 @@
       "label": "spacr.__main__.main#2",
       "source": "Process exit code, 0 on success.",
       "source_sha256": "70e0666185c3ff9cc8178a7a6f24d73230df5d32f6060103572841a4915a7c9c",
-      "translation": "프로세스 종료 코드이며, 성공 시 0입니다."
+      "translation": "프로세스 종료 코드이며, 성공 시 0입니다.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "context": "with code 2 for a command the parser accepts and the dispatch below does not know -- `parser.error` never returns, so there is no exit code to hand back for that case.",
       "label": "spacr.__main__.main#3",
       "source": "with code 2 for a command the parser accepts and the dispatch below does not know -- `parser.error` never returns, so there is no exit code to hand back for that case.",
       "source_sha256": "47eb1f812a0ba6dc4735951cd9b1bb4f1094d198ba8a78a414a757205ae09b12",
-      "translation": "파서가 허용하지만 아래 디스패치가 알지 못하는 명령의 경우 코드 2와 함께 종료됩니다 -- `parser.error`는 절대 반환하지 않으므로 이 경우 돌려줄 종료 코드가 없습니다."
+      "translation": "파서가 허용하지만 아래 디스패치가 알지 못하는 명령의 경우 코드 2와 함께 종료됩니다 -- `parser.error`는 절대 반환하지 않으므로 이 경우 돌려줄 종료 코드가 없습니다.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     }
   ]
 }

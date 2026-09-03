@@ -302,7 +302,24 @@ def _wheel_version(wheel: Path) -> str:
 
 def _run(command: list[str], **kwargs) -> subprocess.CompletedProcess[str]:
     print("+", subprocess.list2cmdline(command), flush=True)
-    return subprocess.run(command, check=True, text=True, **kwargs)
+    try:
+        return subprocess.run(command, check=True, text=True, **kwargs)
+    except subprocess.CalledProcessError as failure:
+        # SAY WHAT THE CHILD SAID. Several of these calls pass
+        # `capture_output=True`, so on failure the child's stdout and stderr
+        # are on the exception and nowhere else -- CI printed eight seconds of
+        # silence and then a bare CalledProcessError naming the command. The
+        # probe that actually explains the failure was written and thrown
+        # away. Re-raised unchanged afterwards, so nothing about the exit
+        # status or the caller changes.
+        for name, stream in (("stdout", failure.stdout),
+                             ("stderr", failure.stderr)):
+            text = (stream or "").strip()
+            if text:
+                print(f"--- {subprocess.list2cmdline(command)}: {name}",
+                      flush=True)
+                print(text, flush=True)
+        raise
 
 
 def _pip(*arguments: str) -> None:
