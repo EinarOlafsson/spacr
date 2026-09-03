@@ -26,16 +26,17 @@ from ..figures.style import figure_style, theme_target
 class Panel:
     """Metadata describing a rendered or unavailable figure panel.
 
-    :ivar key: stable registry key for the panel.
-    :ivar title: short display title for the panel.
-    :ivar caption: one-sentence legend stating the statistical comparison,
+    :param key: stable registry key identifying the panel.
+    :param title: short display title used on the figure sheet.
+    :param caption: figure-legend sentence describing the comparison,
         sample size, and significance convention used by the rendered panel.
-    :ivar drawn: whether the requested panel was successfully rendered.
-    :ivar reason: actionable explanation when ``drawn`` is false.
-    :ivar needs: source columns required before the panel can be rendered.
-    :ivar data: rows actually rendered, including any panel-specific filter.
-    :ivar groups: labelled comparison groups, or ``None`` for panels that do
-        not compare groups.
+    :param drawn: whether the panel was rendered successfully.
+    :param reason: actionable explanation when ``drawn`` is false.
+    :param needs: source-column names required before the panel can be
+        rendered.
+    :param data: rows actually rendered after any panel-specific filtering.
+    :param groups: labelled comparison groups, or ``None`` when the panel
+        defines no group comparison.
     """
 
     key: str

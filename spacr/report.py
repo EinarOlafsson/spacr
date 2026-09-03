@@ -493,16 +493,20 @@ class Section:
     whose :attr:`status` is :data:`STATUS_MISSING` renders with its heading
     and a sentence explaining what was looked for and not found.
 
-    :ivar title: heading text.
-    :ivar body_html: pre-escaped HTML for the section body.
-    :ivar figures: embedded (or listed) figures.
-    :ivar table: the section's primary table, if it has one.
-    :ivar notes: caveats rendered as a bullet list under the body.
-    :ivar key: stable id, one of :data:`SECTION_KEYS`.
-    :ivar status: :data:`STATUS_OK`, :data:`STATUS_MISSING` or
+    :param title: section heading shown in rendered reports.
+    :param body_html: ready-to-render HTML fragment; callers must escape
+        dynamic values before supplying it.
+    :param figures: figures embedded in or listed by this section.
+    :param table: primary tabular result, or ``None`` when the section has no
+        table.
+    :param notes: caveats rendered as a bullet list beneath the section body.
+    :param key: stable section identifier; built-in sections use
+        :data:`SECTION_KEYS`, while plugins use their registered contribution
+        key.
+    :param status: :data:`STATUS_OK`, :data:`STATUS_MISSING`, or
         :data:`STATUS_PROBLEM`.
-    :ivar text_lines: plain-text rendering used for the PDF, so the PDF is
-        not a re-parse of the HTML.
+    :param text_lines: plain-text rendering used by text and PDF output
+        without reparsing ``body_html``.
     """
     title: str
     body_html: str = ""
