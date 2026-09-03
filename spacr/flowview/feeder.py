@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+import math
+import operator
 import pickle
 import queue
 import threading
@@ -43,15 +45,52 @@ class _QueueSink(Protocol):
     put_nowait: Callable[[object], None]
 
 
+def _positive_byte_limit(value: object) -> int:
+    """Return a positive integer byte limit or reject the invalid value."""
+    if isinstance(value, bool):
+        raise ValueError("max_event_bytes must be a positive integer")
+    try:
+        limit = operator.index(value)
+    except TypeError as exc:
+        raise ValueError("max_event_bytes must be a positive integer") from exc
+    if limit <= 0:
+        raise ValueError("max_event_bytes must be a positive integer")
+    return limit
+
+
+def _finite_seconds(value: object, name: str, *, allow_zero: bool) -> float:
+    """Return a finite duration satisfying the caller's zero policy."""
+    if isinstance(value, bool):
+        raise ValueError(f"{name} must be a finite number of seconds")
+    try:
+        seconds = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{name} must be a finite number of seconds") from exc
+    if not math.isfinite(seconds):
+        raise ValueError(f"{name} must be finite")
+    if seconds < 0 and allow_zero:
+        raise ValueError(f"{name} cannot be negative")
+    if seconds <= 0 and not allow_zero:
+        raise ValueError(f"{name} must be greater than zero")
+    return seconds
+
+
 def is_transport_event(
     value: object,
     *,
     max_event_bytes: int = MAX_EVENT_BYTES,
 ) -> bool:
-    """Return whether *value* is a declared, small, picklable FlowView event."""
+    """Return whether a candidate is a bounded public transport event.
 
-    if max_event_bytes <= 0:
-        raise ValueError("max_event_bytes must be greater than zero")
+    :param value: candidate value to inspect.
+    :param max_event_bytes: positive integer ceiling for its highest-protocol
+        pickle.
+    :returns: ``False`` for the wrong type, a pickle failure, or an oversized
+        pickle; otherwise ``True``.
+    :raises ValueError: if ``max_event_bytes`` is not a positive integer.
+    """
+
+    max_event_bytes = _positive_byte_limit(max_event_bytes)
     if not isinstance(value, _EVENT_TYPES):
         return False
     try:
@@ -67,7 +106,15 @@ def put_event_nowait(
     *,
     max_event_bytes: int = MAX_EVENT_BYTES,
 ) -> bool:
-    """Put one validated event without waiting, returning whether it was queued."""
+    """Validate and offer one event without waiting for queue capacity.
+
+    :param destination: queue-like sink providing ``put_nowait``.
+    :param event: candidate public FlowView event.
+    :param max_event_bytes: positive integer pickle-size ceiling.
+    :returns: ``True`` only when the event validates and ``put_nowait`` returns
+        without raising; otherwise ``False``.
+    :raises ValueError: if ``max_event_bytes`` is not a positive integer.
+    """
 
     if not is_transport_event(event, max_event_bytes=max_event_bytes):
         return False
@@ -82,23 +129,9 @@ def put_event_nowait(
 class MultiprocessingFeeder:
     """Feed a multiprocessing-compatible queue into an in-process collector.
 
-    The source remains owned by the caller.  In particular, stopping the
-    feeder never closes or drains it, so analysis workers may continue using
-    the queue independently of the optional visualisation.
-
-    :param source: the queue events arrive on, typically a
-        ``multiprocessing.Queue`` shared with analysis workers. OWNED BY THE
-        CALLER -- see above; the feeder only reads from it.
-    :param collector: the in-process :class:`~spacr.flowview.collector.Collector`
-        the events are forwarded to.
-    :param poll_interval: seconds to wait between reads when the source is
-        empty. Trades display latency against idle CPU.
-    :param max_event_bytes: the largest event accepted from the source. A
-        cap rather than a guess: the source may be written to by another
-        process, so an oversized payload is a reason to reject the event
-        rather than to allocate for it.
-    :raises ValueError: when ``poll_interval`` or ``max_event_bytes`` is not
-        positive.
+    The source remains owned by the caller. Stopping does not close or
+    intentionally empty it, but one value returned by an in-flight read after
+    shutdown can be consumed and discarded rather than emitted.
     """
 
     def __init__(
@@ -109,10 +142,22 @@ class MultiprocessingFeeder:
         poll_interval: float = 0.05,
         max_event_bytes: int = MAX_EVENT_BYTES,
     ) -> None:
-        if poll_interval <= 0:
-            raise ValueError("poll_interval must be greater than zero")
-        if max_event_bytes <= 0:
-            raise ValueError("max_event_bytes must be greater than zero")
+        """Initialise a stopped queue-to-collector bridge.
+
+        :param source: caller-owned queue-like source whose
+            ``get(timeout=...)`` returns candidate events.
+        :param collector: in-process collector that receives validated public
+            events.
+        :param poll_interval: positive finite seconds for each source read and
+            fault backoff.
+        :param max_event_bytes: positive integer byte ceiling applied when an
+            event is re-pickled before forwarding. This limits forwarded data;
+            the producer helper must be used to enforce it before enqueue.
+        :raises ValueError: if either limit is invalid.
+        """
+        poll_interval = _finite_seconds(
+            poll_interval, "poll_interval", allow_zero=False)
+        max_event_bytes = _positive_byte_limit(max_event_bytes)
         self._source = source
         self._collector = collector
         self._poll_interval = poll_interval
@@ -123,13 +168,13 @@ class MultiprocessingFeeder:
 
     @property
     def running(self) -> bool:
-        """Whether the daemon feeder thread is alive."""
+        """Return whether this feeder currently has a live daemon thread."""
 
         with self._state_lock:
             return self._thread is not None and self._thread.is_alive()
 
     def start(self) -> "MultiprocessingFeeder":
-        """Start the daemon feeder once and return this feeder."""
+        """Start one daemon feeder thread if none is alive and return this feeder."""
 
         with self._state_lock:
             if self._thread is not None and self._thread.is_alive():
@@ -144,10 +189,15 @@ class MultiprocessingFeeder:
         return self
 
     def stop(self, timeout: float = 1.0) -> bool:
-        """Request shutdown and return whether the thread stopped in time."""
+        """Request shutdown and report whether no feeder thread remains.
 
-        if timeout < 0:
-            raise ValueError("timeout cannot be negative")
+        :param timeout: non-negative finite seconds to wait for the thread.
+        :returns: ``True`` if no thread remains, or ``False`` when the timeout
+            expires or the feeder thread itself requests shutdown.
+        :raises ValueError: if ``timeout`` is negative or non-finite.
+        """
+
+        timeout = _finite_seconds(timeout, "timeout", allow_zero=True)
         self._stop_requested.set()
         with self._state_lock:
             thread = self._thread
@@ -159,6 +209,13 @@ class MultiprocessingFeeder:
         return not thread.is_alive()
 
     def _run(self) -> None:
+        """Poll validated source events into the collector until stopped.
+
+        Source timeouts continue polling; other source and collector failures
+        are logged and isolated. A value returned by an in-flight read after
+        shutdown is consumed but not emitted, and the thread reference is
+        cleared on every exit.
+        """
         try:
             while not self._stop_requested.is_set():
                 try:

@@ -2930,3 +2930,48 @@ counterparts remain green.
 
 REVISED COUNT: 107 entries, 39 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+50. NON-FINITE FLOWVIEW FEEDER LIMITS PASSED POSITIVITY CHECKS
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/flowview/feeder.py``. The constructor and transport validator checked
+limits only with ``<= 0``. Consequently NaN passed every guard, an infinite
+poll interval could fail or strand the feeder thread, a NaN byte ceiling
+silently rejected every otherwise valid event, and ``stop(timeout=nan)``
+reached platform thread behavior with an invalid join timeout. Fractional and
+boolean byte limits were also accepted despite the integer byte contract.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/flowview/feeder.py``. Poll and stop
+durations must now be finite numeric seconds with the appropriate zero policy,
+and byte ceilings must be positive non-boolean integer-index values. Fourteen
+parameterized invalid cases failed when the former comparison-only guards were
+restored, while the focused delivery, restart, shutdown, and producer-helper
+counterparts remain green.
+
+REVISED COUNT: 108 entries, 40 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+51. FLOWVIEW USER DOCUMENTATION OVERSTATES QUEUE OWNERSHIP ON SHUTDOWN
+==============================================================================
+
+Found 2026-09-03 while auditing ``spacr/flowview/feeder.py``. The source and
+its existing focused shutdown test establish that a value returned by an
+in-flight queue read after shutdown is consumed and discarded. The class/API
+contract now says so, but ``docs/flowview.md`` still promises that stopping
+the feeder never drains the source and therefore remains false.
+
+VERDICT 2026-09-03: OPEN, documentation-owner handoff. The docs lane is owned
+by the other active session, so this pass did not edit that protected file.
+The repair is wording-only: stopping does not close or intentionally empty the
+caller-owned queue, but one value returned by an in-flight read can be
+consumed and discarded; the existing
+``test_stop_does_not_emit_a_value_released_after_shutdown_request`` pins the
+behavior the prose must match.
+
+REVISED COUNT: 109 entries, 40 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
