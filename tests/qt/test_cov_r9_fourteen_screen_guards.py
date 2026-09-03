@@ -107,7 +107,14 @@ class TestTheExampleButtonCaption:
         from spacr.qt.screens import app_screen as A
 
         source = inspect.getsource(A.AppScreen.load_the_example_screen)
-        assert 'button.setText(tr("Load the example screen' in source
+        # THROUGH tr, whatever the caption says. This pinned the literal
+        # "Load the example screen", which was reworded to "Load test data…"
+        # so a user with no data of their own could find the control -- and
+        # the test then failed for the wording rather than for the property
+        # it is about, which is that the restore goes through `tr`.
+        assert "button.setText(tr(" in source, (
+            "the caption is put back as a plain string, which shows English "
+            "to a non-English user and opts the button out of later passes")
         assert "opt the button out of every" in source, (
             "the reason the caption goes back through tr is no longer "
             "written down")
