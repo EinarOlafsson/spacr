@@ -1,0 +1,89 @@
+================================================================================
+RETIRE metadata_type AND consolidate, ONCE IMPORT HAS ACTUALLY REPLACED THEM
+================================================================================
+
+Status:    not started, filed 2026-09-02. THE SCHEDULING HALF OF 363, which
+           refused to do this in the same change and was right to.
+Requested: implied by 363 -- "Once this exists, `metadata_type` and
+           `consolidate` are import concerns sitting in Mask's settings, and
+           Mask should read a project that is already a project. Retiring
+           them is the natural end of this work -- but NOT in the same
+           change: they are the only working path today, and removing them
+           before the replacement is proven strands every existing user and
+           every settings file in the wild. Land the module, migrate, then
+           retire."
+Owner:     spacr/settings.py and spacr/validate.py (the other session's files
+           under 325), with the migration itself in spacr/qt/screens/
+           image_import.py, which is mine.
+Follows:   363, which is the LAND half and is closed. This is the migrate and
+           retire halves, and they are in that order for a reason.
+
+--------------------------------------------------------------------------------
+WHY THIS IS A SEPARATE ITEM AND NOT A LOOSE END
+--------------------------------------------------------------------------------
+
+363 built `spacr/image_import.py` and its screen: a module that infers a
+plate's layout from the filenames, reads OME stage coordinates, stitches
+tiles back into fields, and writes a project. That makes `metadata_type` --
+"which microscope wrote these names" -- and `consolidate` -- "copy everything
+into one folder first" -- into import concerns that Mask should no longer
+have to hold.
+
+BUT THEY ARE STILL THE ONLY WORKING PATH FOR AN EXISTING USER. Measured
+2026-09-02: `metadata_type` is read at 7 sites and mentioned in 30 files;
+`consolidate` is read at 1 and mentioned in 30. Every settings CSV anyone has
+saved names them.
+
+--------------------------------------------------------------------------------
+THE THREE STEPS, IN ORDER. DO NOT REORDER THEM.
+--------------------------------------------------------------------------------
+
+1. PROVE THE REPLACEMENT ON REAL DATA, not on the corpus. The ten synthetic
+   acquisitions in `tests/import_corpus.py` are the specification and the new
+   module answers all ten -- but a synthetic corpus is written by the same
+   person who writes the parser, and that is exactly the shape of evidence
+   this step must not rest on. Run the new Import over the acquisitions the
+   maintainer actually has, including the ones `metadata_type` was added for,
+   and record what it got right and what it did not.
+
+2. MIGRATE. A settings file naming `metadata_type` or `consolidate` must keep
+   working, and the user must be told once where the answer now lives. The
+   shape is already in the package: `RETIRED_SETTINGS` in
+   `spacr/validate.py` maps a withdrawn name either to its replacement
+   (`organelle_min_size` -> `organelle_min_area`) or to `""` when there is
+   none, and `_check_retired_keys` raises a Problem naming it.
+
+   NEITHER OF THESE HAS A ONE-KEY REPLACEMENT, so both map to `""` -- and the
+   message has to do the work instead. "Retired" is not enough for a setting
+   somebody is relying on: say that Import now infers it, and that the way to
+   get the old behaviour is to run Import once on the folder.
+
+3. RETIRE. Only then. Add both to `RETIRED_SETTINGS` with a comment in the
+   style of `corrected_manders`'s -- which says what it used to switch on,
+   what replaced it, and why there is no replacement name -- and remove the
+   rows from Mask's settings panel.
+
+--------------------------------------------------------------------------------
+THE TRAP, RECORDED BECAUSE IT HAS BEEN SPRUNG BEFORE IN THIS FILE'S FAMILY
+--------------------------------------------------------------------------------
+
+`RETIRED_SETTINGS` carries its own warning: "NOT HERE: a setting withdrawn
+from ONE panel while `spacr.settings` still declares it ... naming one here
+would warn a user off a setting that works." So step 3 is not done until the
+setting is gone from `spacr.settings` as well. A key that is retired in
+`validate.py` and still declared in `settings.py` produces a warning about a
+setting that is still read, which is worse than either state alone.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* A settings CSV naming either key still loads, and the user is told once
+  where the answer moved -- asserted on the message, not just on the absence
+  of a crash.
+* Neither key is read anywhere in `spacr/` afterwards; the 7 + 1 read sites
+  measured above are zero.
+* Neither key is declared in `spacr.settings` while being named in
+  `RETIRED_SETTINGS`.
+* Import's own path answers, on the maintainer's real acquisitions, whatever
+  `metadata_type` was being set to answer.
