@@ -34,6 +34,14 @@ from spacr import macro
 REPO_ROOT = str(Path(__file__).resolve().parent.parent)
 
 
+def test_macro_documents_and_retains_its_last_touch_time():
+    """The public idle-chain timestamp remains discoverable and usable."""
+    chain = macro.Macro(touched=123.5)
+
+    assert ":param touched:" in (macro.Macro.__doc__ or "")
+    assert chain.touched == 123.5
+
+
 # ---------------------------------------------------------------------------
 # A real, importable pipeline module — the thing the emitted script imports
 # ---------------------------------------------------------------------------
