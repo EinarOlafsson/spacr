@@ -82,6 +82,7 @@ except Exception:
     # never blocks. spaCR only calls display() from notebook
     # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
+        """Accept and discard display arguments when IPython is unavailable."""
         pass
 import scipy.stats as st
 import statsmodels.api as sm
@@ -648,6 +649,7 @@ class _DispersedVariance:
     """
 
     def __init__(self, varfunc, dispersion):
+        """Store the variance callable and its multiplicative dispersion."""
         self._varfunc = varfunc
         self.dispersion = dispersion
 
@@ -2981,6 +2983,7 @@ class _AbsorbedDesign:
     """
 
     def __init__(self, endog, exog, exog_names):
+        """Store response, full design, and statsmodels-compatible names."""
         self.endog = np.asarray(endog, dtype=float).reshape(-1)
         self.exog = np.asarray(exog, dtype=float)
         self.exog_names = list(exog_names)
@@ -3025,6 +3028,7 @@ class _AbsorbedLeastSquaresResults:
     def __init__(self, params, bse, pvalues, resid, fitted, scale,
                  df_model, df_resid, nobs, model, converged, absorbed,
                  rsquared):
+        """Store absorbed-fit estimates and derive their t statistics."""
         self.params = params
         self.bse = bse
         self.pvalues = pvalues
@@ -3063,9 +3067,11 @@ class _AbsorbedSummary:
     """``.as_text()`` for :class:`_AbsorbedLeastSquaresResults`."""
 
     def __init__(self, results):
+        """Bind the absorbed-fit results rendered by this summary."""
         self._results = results
 
     def as_text(self):
+        """Return a multiline report of the absorbed least-squares fit."""
         r = self._results
         lines = [
             "Absorbed least squares (pyfixest alternating projections)",
@@ -3086,6 +3092,7 @@ class _AbsorbedSummary:
         return "\n".join(lines)
 
     def __str__(self):
+        """Return the same report as :meth:`as_text`."""
         return self.as_text()
 
 
@@ -3277,6 +3284,7 @@ class _GlumResults:
     def __init__(self, params, bse, pvalues, resid, fitted, scale,
                  df_model, df_resid, nobs, model, family, llf,
                  null_deviance, deviance, n_iter, llnull=None):
+        """Store glum estimates in the statsmodels-compatible results shape."""
         self.params = params
         self.bse = bse
         self.pvalues = pvalues
@@ -3313,6 +3321,7 @@ class _GlumResults:
             "regression_backend='statsmodels' if you need to predict.")
 
     def summary(self):
+        """Return the text-summary adapter for this fit."""
         return _GlumSummary(self)
 
 
@@ -3320,9 +3329,11 @@ class _GlumSummary:
     """``.as_text()`` for :class:`_GlumResults`."""
 
     def __init__(self, results):
+        """Bind the glum results rendered by this summary."""
         self._results = results
 
     def as_text(self):
+        """Return a multiline report of the glum fit."""
         r = self._results
         lines = [
             f"Generalized linear model fitted by glum "
@@ -3344,6 +3355,7 @@ class _GlumSummary:
         return "\n".join(lines)
 
     def __str__(self):
+        """Return the same report as :meth:`as_text`."""
         return self.as_text()
 
 
@@ -4442,6 +4454,7 @@ class _HorseshoeResults:
     """
 
     def __init__(self, fit, estimates):
+        """Validate the posterior table and expose identified coefficients."""
         required = ('gene', 'mean', 'sd', 'prob_positive', 'identified')
         missing = [c for c in required if c not in estimates.columns]
         if missing:
@@ -4504,6 +4517,7 @@ class _GroupLassoResults:
     """
 
     def __init__(self, coefficients, intercept, groups, lam, converged):
+        """Store flattened coefficients and fitted group-lasso metadata."""
         self.coef_ = np.asarray(coefficients, dtype=float).ravel()
         self.intercept_ = float(intercept)
         self.groups = list(groups)
@@ -4554,6 +4568,7 @@ class _RRAResults:
     """
 
     def __init__(self, scores, p_values, index, genes):
+        """Index marginal scores and permutation p-values by design column."""
         feature_index = pd.Index([str(name) for name in index])
         self.params = pd.Series(np.asarray(scores, dtype=float),
                                 index=feature_index)
@@ -7034,6 +7049,13 @@ _AUTOMATIC_SETTINGS: dict = {}
 
 
 def _perform_regression_set_paths(settings):
+    """Resolve and reserve a run's result directory and output paths.
+
+    :param settings: Normalized regression settings; updated with resolved
+        ``src`` and ``_regression_folder``.
+    :returns: Results, gene, guide, and significant CSV paths, followed by the
+        results directory and first count-data path.
+    """
     # _perform_regression_read_data has already normalised both keys to
     # lists by the time this runs, so the old scalar fallbacks here were
     # unreachable.
