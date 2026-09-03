@@ -49,9 +49,17 @@ def _fake_download(images, settings, seen=None):
 
 
 def test_mask_generation_has_the_button(mask):
+    """The button exists and says what it fetches.
+
+    It reads "Load test data", not "example": the wording was changed so the
+    control is findable by what a user without data of their own would look
+    for. The assertion is on the ACTION rather than on either word, so the
+    next rewording does not fail a test about the button existing.
+    """
     button = getattr(mask, "_example_images_button", None)
     assert button is not None, "Mask Generation offers no example data"
-    assert "example" in button.text().lower()
+    label = button.text().lower()
+    assert any(word in label for word in ("data", "example", "images")), label
 
 
 def test_it_is_in_the_section_that_holds_src():

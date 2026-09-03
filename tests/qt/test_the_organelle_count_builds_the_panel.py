@@ -216,21 +216,27 @@ def test_a_file_written_at_seven_opens_at_two_with_all_seven_kept(qtbot):
     assert len(_slots_on_screen(back, "measure")) == 7
 
 
-def test_an_untouched_slot_above_the_count_is_not_written_out(qtbot):
-    """Only requested slots beyond Measure's fixed four-slot schema persist.
+def test_a_run_carries_the_slots_it_asked_for_and_no_others(qtbot):
+    """The count decides the keys. There is no floor of four.
 
-    Measure deliberately carries its four shipped slot keys for downstream
-    table allocation even when the form builds none. Slots five onward are
-    panel additions and appear in collected settings only when requested.
+    Measure used to carry four shipped slot keys whatever the count was, so a
+    two-organelle run wrote four slots into every settings CSV, run journal
+    and reproducibility hash. That floor was removed: if the user chooses two
+    organelles they get settings for two.
+
+    SLOT ONE IS ALWAYS THERE, which is why the floor is one and not zero. It
+    is the organelle itself rather than an extra slot, and it is seeded by
+    hand beside `organelle_type` rather than by the loop that adds the rest.
     """
     from spacr.organelle_types import organelle_role_of, organelle_roles
 
     def slots(settings):
         return {role for role in map(organelle_role_of, settings) if role}
 
-    for count in (0, 4, 6):
+    for count in (0, 1, 2, 4, 6):
         _screen_, model = _screen_for_count(qtbot, "measure", count)
-        assert slots(model.collect()) == set(organelle_roles(max(4, count)))
+        assert slots(model.collect()) == set(organelle_roles(max(1, count))), (
+            f"a {count}-organelle run carried the wrong slots")
 
 
 # ---------------------------------------------------------------------------

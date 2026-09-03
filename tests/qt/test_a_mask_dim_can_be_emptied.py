@@ -138,6 +138,13 @@ def test_a_committed_optional_mask_dim_rebuilds_the_live_form(
         qapp.processEvents()
         assert window._screens["measure"] is screen
 
+        # EMPTYING THE PLANE HIDES ITS ROWS. It does not rebuild the screen,
+        # and this test used to assert that it did. Committing a plane used
+        # to call `rebuild_app_screen` -- 455 ms, and a DIFFERENT screen
+        # object in the window's stack -- to change which rows are visible,
+        # so everything uncommitted, every scroll position and every open
+        # fold went with it. `refresh_object_visibility` does the same job in
+        # place.
         retired = []
         monkeypatch.setattr(
             screen, "_shutdown_settings_widgets",
@@ -145,17 +152,22 @@ def test_a_committed_optional_mask_dim_rebuilds_the_live_form(
         switch.clear()
         switch.editingFinished.emit()
         qapp.processEvents()
-        screen = window._screens["measure"]
-        assert len(retired) == 1
-        assert follower not in screen._settings_model._widgets
+
+        assert retired == [], "emptying a plane rebuilt the whole screen"
+        assert window._screens["measure"] is screen, "the screen was replaced"
         assert screen.setting_row_is_visible(follower) is False
+        # THE WIDGET STAYS, holding its value. Hidden and not dropped is what
+        # lets the row come back with the number the user typed, rather than
+        # with the module default.
+        assert follower in screen._settings_model._widgets
         assert f"{role}_mask_dim" in screen._settings_model._widgets
 
         switch = screen._settings_model._widgets[f"{role}_mask_dim"]
         switch.setText("4")
         switch.editingFinished.emit()
         qapp.processEvents()
-        screen = window._screens["measure"]
+
+        assert window._screens["measure"] is screen
         assert follower in screen._settings_model._widgets
         assert screen.setting_row_is_visible(follower) is True
     finally:
@@ -163,9 +175,18 @@ def test_a_committed_optional_mask_dim_rebuilds_the_live_form(
         remember_disclosure("measure", previous)
 
 
-def test_a_shape_edit_waits_for_the_running_thread_before_rebuilding(
-        qapp, qtbot):
-    """A form edit during a run must not cancel it through closeEvent."""
+def test_a_shape_edit_during_a_run_leaves_the_run_alone(qapp, qtbot):
+    """A form edit during a run must not cancel it through closeEvent.
+
+    This used to be a test about DEFERRING a rebuild until the thread
+    finished, because emptying a plane replaced the whole screen and closing
+    the old one cancelled the run underneath it. Rows are hidden in place
+    now, so there is no rebuild to defer and no closeEvent to reach the
+    worker -- the danger is gone rather than scheduled.
+
+    The property still worth pinning is the one in the summary: the run is
+    untouched, and the form still answers correctly while it is going.
+    """
     from spacr.qt.app import MainWindow
 
     class RunningThread:
@@ -198,15 +219,18 @@ def test_a_shape_edit_waits_for_the_running_thread_before_rebuilding(
     qapp.processEvents()
 
     assert window._screens["measure"] is original
-    assert worker.cancelled == []
-    assert original._form_rebuild_deferred is True
+    assert worker.cancelled == [], "editing the form cancelled the run"
+    assert original.setting_row_is_visible("nucleus_min_size") is False
+    assert original._settings_model.collect()["nucleus_mask_dim"] is None
 
+    # AND WHEN THE RUN ENDS, still no rebuild: there is nothing queued that
+    # the finishing thread could set off.
     thread.running = False
     original._clear_thread_refs()
-    qtbot.waitUntil(lambda: window._screens["measure"] is not original)
-    rebuilt = window._screens["measure"]
-    assert "nucleus_min_size" not in rebuilt._settings_model._widgets
-    assert rebuilt._settings_model.collect()["nucleus_mask_dim"] is None
+    qapp.processEvents()
+
+    assert window._screens["measure"] is original
+    assert worker.cancelled == []
 
 
 def test_the_measure_panel_can_say_the_run_has_no_masks_at_all(qtbot):

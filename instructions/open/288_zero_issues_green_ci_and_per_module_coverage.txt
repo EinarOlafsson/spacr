@@ -665,3 +665,36 @@ THE TRACTABLE NEXT STEP, in order of cost:
 
 NOT ATTEMPTED TONIGHT: this is a test-infrastructure change affecting every
 Qt test, and the diagnosis above is worth more than a guess at the fix.
+
+CORRECTION, same night, after running the control. THE TIMER HYPOTHESIS ABOVE
+IS NOT SUPPORTED, and the segfault is not reliably reproducible.
+
+Three runs of the same 125 files:
+
+  1. no guard, while several other Qt processes were running: SEGFAULT at 82%
+  2. with the timer guard, machine otherwise quiet: completed, 11m01s
+  3. NO GUARD, machine otherwise quiet: completed, 11m12s
+
+Run 3 is the control I should have run before writing the diagnosis. It
+completed with byte-identical results to run 2 -- 13 failed, 2933 passed, 24
+skipped -- so the guard changed nothing and the difference between run 1 and
+the rest is not the guard.
+
+WHAT THE EVIDENCE ACTUALLY SUPPORTS: the crash is load-dependent and
+intermittent. It happened once, while this session was running other
+offscreen Qt processes against the same repository. It did not happen twice
+on a quiet machine. The stack in `_process_events` is still where it died,
+and is still consistent with an event reaching a destroyed object -- but a
+stack from one crash is not a cause, and I presented it as one.
+
+SO THE USABLE FINDING IS THE OPPOSITE OF WHAT I WROTE: the suite is not
+blocked. 125 of the 993 `tests/qt` files run to completion in eleven minutes
+on a quiet machine. Whoever picks up the whole-repository number should
+budget for an intermittent crash under concurrent load and re-run, rather
+than treat the segfault as a wall to be dismantled first.
+
+AND THE 13 FAILURES ARE REAL AND WERE INVISIBLE. Not because of the segfault
+-- the run completes -- but because nobody had run these 125 files together.
+Every one of them predates tonight. They are listed and being worked through
+separately; several were tests asserting behaviour that a later instruction
+deliberately replaced.
