@@ -136,6 +136,61 @@ def test_configure_logger_stream_handler_optional(tmp_path, monkeypatch):
     assert has_stream
 
 
+def test_a_bootstrap_null_handler_does_not_prevent_file_logging(
+        tmp_path, monkeypatch):
+    """The package's import-time NullHandler is not a completed setup."""
+    monkeypatch.setenv("HOME", str(tmp_path))
+    from spacr import logger as mod
+
+    name = "spacr.test.bootstrap-only"
+    lg = logging.getLogger(name)
+    for handler in list(lg.handlers):
+        lg.removeHandler(handler)
+        handler.close()
+    lg.addHandler(logging.NullHandler())
+
+    configured = mod.configure_logger(name=name, log_file_name="bootstrap.log")
+    files = [handler for handler in configured.handlers
+             if isinstance(handler, logging.handlers.RotatingFileHandler)]
+    assert len(files) == 1
+    configured.error("written after bootstrap")
+    files[0].flush()
+    assert "written after bootstrap" in (
+        tmp_path / "bootstrap.log").read_text(encoding="utf-8")
+
+
+def test_a_later_stream_request_adds_one_handler_without_duplicates(
+        tmp_path, monkeypatch):
+    """Configuration can opt into stderr after file logging already exists."""
+    monkeypatch.setenv("HOME", str(tmp_path))
+    from spacr import logger as mod
+
+    name = "spacr.test.late-stream"
+    lg = mod.configure_logger(name=name, stream=False)
+    assert not [handler for handler in lg.handlers
+                if getattr(handler, mod._HANDLER_KIND, None) == "stream"]
+    mod.configure_logger(name=name, stream=True)
+    mod.configure_logger(name=name, stream=True)
+    assert len([handler for handler in lg.handlers
+                if getattr(handler, mod._HANDLER_KIND, None) == "stream"]) == 1
+
+
+def test_reconfiguration_updates_every_owned_handler_level(
+        tmp_path, monkeypatch):
+    """A reused logger and both spaCR handlers follow the requested level."""
+    monkeypatch.setenv("HOME", str(tmp_path))
+    from spacr import logger as mod
+
+    name = "spacr.test.level-update"
+    lg = mod.configure_logger(name=name, level=logging.DEBUG, stream=True)
+    mod.configure_logger(name=name, level=logging.ERROR)
+    owned = [handler for handler in lg.handlers
+             if getattr(handler, mod._HANDLER_KIND, None)]
+    assert lg.level == logging.ERROR
+    assert len(owned) == 2
+    assert {handler.level for handler in owned} == {logging.ERROR}
+
+
 def test_safe_repr_truncates_long_values():
     from spacr.logger import _safe_repr
     s = _safe_repr("x" * 500, max_length=50)

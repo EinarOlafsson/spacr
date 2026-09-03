@@ -20,25 +20,38 @@ import pytest
 # ---------------------------------------------------------------------------
 
 def test_a_crop_table_from_another_mode_still_finds_its_object_column(
-        tmp_path):
+        tmp_path, monkeypatch):
     """``png_list`` carries only the id column of the mode that wrote it.
 
     Asking for ``cell_id`` on a nucleus crop table and finding nothing would
     drop every row -- silently, because an empty result is a valid one.
     """
-    from spacr.png_list import crop_rows_from_png_list
+    from spacr import png_list
 
     frame = pd.DataFrame({
         "nucleus_id": ["o5", "o7", "omulti"],
-        "path_name": ["/merged/f1.npy"] * 3,
+        "plateID": [1] * 3,
+        "rowID": [1] * 3,
+        "columnID": [1] * 3,
+        "fieldID": [1] * 3,
         "png_path": ["/crops/a.png", "/crops/b.png", "/crops/c.png"],
     })
+    seen = []
 
-    out = crop_rows_from_png_list(str(tmp_path / "measurements.db"), frame,
-                                  object_type="cell", verbose=False)
+    def field_paths(_db_path, object_type):
+        seen.append(object_type)
+        return {(1, 1, 1, 1): ("/merged/f1.npy", "f1.npy")}
+
+    monkeypatch.setattr(png_list, "_merged_field_paths", field_paths)
+
+    out = png_list.crop_rows_from_png_list(
+        str(tmp_path / "measurements.db"), frame,
+        object_type="cell", verbose=False,
+    )
 
     assert list(out["object_label"]) == [5, 7]
-    assert list(out["object_type"]) == ["cell", "cell"]
+    assert list(out["object_type"]) == ["nucleus", "nucleus"]
+    assert seen == ["nucleus"]
     assert len(out) == 2
 
 
