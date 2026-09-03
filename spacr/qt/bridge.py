@@ -579,6 +579,8 @@ class RunRegistry(QObject):
     that a surface which is *not* the screen that started the job — the
     Home page — can show what spaCR is doing, without teaching every
     screen to report in.
+
+    :param parent: parent widget.
     """
 
     changed = Signal()

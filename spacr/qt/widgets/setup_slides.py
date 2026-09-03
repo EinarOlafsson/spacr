@@ -474,7 +474,10 @@ def _held_at_the_top(label: QLabel) -> QWidget:
 
 
 class SetupSlides(QDialog):
-    """The setup screen: one question per slide, over a moving backdrop."""
+    """The setup screen: one question per slide, over a moving backdrop.
+
+    :param parent: parent widget.
+    """
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)

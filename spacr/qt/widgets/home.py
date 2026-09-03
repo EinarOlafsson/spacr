@@ -681,6 +681,8 @@ class QueuedPanel(Panel):
     hides itself when the queue is empty rather than drawing an empty
     box, which is the difference between "nothing queued" and "queue
     broken".
+
+    :param parent: parent widget.
     """
 
     #: Rows drawn before the rest collapse into a "+N more" line.
@@ -829,6 +831,8 @@ class SystemPanel(Panel):
     row reads as "broken", while ``n/a`` honestly says the lightweight
     system probe could not measure a device.  Home must not import a model
     runtime merely to decorate the dashboard.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):
@@ -916,7 +920,10 @@ def _nvml():
 
 
 class TotalsPanel(Panel):
-    """Aggregate counts from the automatically complete run journal."""
+    """Aggregate counts from the automatically complete run journal.
+
+    :param parent: parent widget.
+    """
 
     def __init__(self, parent=None):
         super().__init__("Totals", parent)
@@ -966,6 +973,8 @@ class StageLegend(Panel):
     The rows are built from :data:`spacr.qt.theme.STAGE_HOVER`, which is
     the same table the stylesheet builds the hover rules from, so the
     swatch and the tile it explains cannot drift apart.
+
+    :param parent: parent widget.
     """
 
     #: Side of the colour chip in px, at 100 % font scale.

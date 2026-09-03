@@ -147,6 +147,8 @@ class FoldingSummaryView(QScrollArea):
     Keeps ``setPlainText`` and ``toPlainText`` so the panel that fills it does
     not have to know which it got, and so the text a test reads is the text
     the file holds.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):

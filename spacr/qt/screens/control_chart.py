@@ -139,6 +139,8 @@ class ControlChartCanvas(QWidget):
     limit arrays rather than from a single pair of numbers, so a campaign whose
     plates carry different numbers of control wells draws the stepped limits
     that are actually in force rather than an average that is in force nowhere.
+
+    :param parent: parent widget.
     """
 
     #: Emitted after every draw with the result that was drawn (or ``None``).

@@ -268,6 +268,8 @@ class SweepRunsPanel(QWidget):
         view should be showing that run. The older of the two names for that
         one event -- see :attr:`loaded_run_changed`.
     :ivar loaded: emitted with the number of rows shown.
+
+    :param parent: parent widget.
     """
 
     trial_activated = Signal(dict)

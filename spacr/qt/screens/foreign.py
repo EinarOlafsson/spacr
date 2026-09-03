@@ -173,6 +173,8 @@ class ColumnMapModel(QAbstractTableModel):
     per-row status, updating the status refreshes the tooltips, and
     refreshing tooltips emits ``dataChanged`` again — one keystroke
     recursed until the interpreter ran out of stack.
+
+    :param parent: parent widget.
     """
 
     #: Emitted when a cell's value actually changed. Never on a tooltip

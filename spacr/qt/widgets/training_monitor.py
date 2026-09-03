@@ -41,6 +41,8 @@ class TrainingMonitor(QWidget):
     curves : dict of str to pyqtgraph.PlotDataItem
         Persistent plot items keyed by metric name. Each item is created when
         its metric first appears and reused for subsequent epochs.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent: Optional[QWidget] = None):

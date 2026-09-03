@@ -454,7 +454,10 @@ class _ChatInput(QTextEdit):
 # ---------------------------------------------------------------------------
 
 class AIChatPanel(QWidget):
-    """Full chat panel — embed inside a QDockWidget or any container."""
+    """Full chat panel — embed inside a QDockWidget or any container.
+
+    :param parent: parent widget.
+    """
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)

@@ -140,6 +140,8 @@ class PlanTableModel(QAbstractTableModel):
     A model rather than a QTableWidget because the preview for a full
     plate is tens of thousands of rows and populating that many
     QTableWidgetItems freezes the window for seconds.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):

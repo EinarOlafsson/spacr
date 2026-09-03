@@ -180,6 +180,8 @@ class ScatterCanvas(QFrame):
     Kept separate from the screen so the hit-testing and the caching can be
     tested without a database, and so a second consumer (a facetted view, a
     comparison grid) can reuse it.
+
+    :param parent: parent widget.
     """
 
     #: The point under the cursor changed. Carries its index, or ``-1``.

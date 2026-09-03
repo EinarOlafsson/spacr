@@ -32,7 +32,10 @@ def _as_bool(value: Any) -> bool:
 
 
 class InstallerConsentDialog(QDialog):
-    """One first-launch page whose three optional choices start off."""
+    """One first-launch page whose three optional choices start off.
+
+    :param parent: parent widget.
+    """
 
     def __init__(self, parent=None):
         super().__init__(parent)

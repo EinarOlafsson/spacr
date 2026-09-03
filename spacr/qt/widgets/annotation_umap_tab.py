@@ -58,6 +58,8 @@ class PurityScatter(FastPlot):
     sizes and the distances between clusters are artefacts, so the picture
     exists to show WHERE a cell sits among the controls, and the number that
     says how positive that neighbourhood is comes off the colour scale.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):

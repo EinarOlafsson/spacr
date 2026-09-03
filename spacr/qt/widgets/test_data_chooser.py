@@ -35,6 +35,8 @@ class TestDataChooser(QDialog):
 
     Nothing is fetched by this dialog. It reports the chosen route and the
     screen does the work, so the dialog stays testable without a network.
+
+    :param parent: parent widget.
     """
 
     #: ``key -> (button text, what it fetches)``. The sizes are the real

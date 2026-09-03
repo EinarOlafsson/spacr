@@ -149,6 +149,8 @@ class CellposeWorkbenchScreen(QWidget):
     :ivar remote_submit_requested: re-emitted the same way, so submitting a
         run to Distributed Jobs from either tab carries that tab's key and
         that tab's settings.
+
+    :param parent: parent widget.
     """
 
     error_explain_requested = Signal(str, str)

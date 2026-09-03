@@ -122,6 +122,8 @@ class LinkedSelection(QObject):
     The opener registry lives on the instance rather than in a module global
     so that a test — or a second window — gets its own routing table by
     constructing its own :class:`LinkedSelection`.
+
+    :param parent: parent widget.
     """
 
     filter_changed = Signal()

@@ -240,6 +240,8 @@ class PivotTable(QTableWidget):
     One column per row key so the table can be copied out whole, then one per
     column-level combination. Every populated cell ends with its ``n``; every
     empty one is blank.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):
@@ -379,7 +381,10 @@ class PivotTable(QTableWidget):
 
 
 class PivotPanel(QWidget):
-    """The well, the three axes, the aggregations and the grid."""
+    """The well, the three axes, the aggregations and the grid.
+
+    :param parent: parent widget.
+    """
 
     #: Emitted after every successful pivot.
     computed = Signal(object)

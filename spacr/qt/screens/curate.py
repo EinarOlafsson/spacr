@@ -40,7 +40,10 @@ APP_KEY = "curate"
 
 
 class CurateScreen(QWidget):
-    """Correct a mask by hand and curate its tracks, on the record."""
+    """Correct a mask by hand and curate its tracks, on the record.
+
+    :param parent: parent widget.
+    """
 
     #: A mask was opened. Carries the path.
     mask_opened = Signal(str)

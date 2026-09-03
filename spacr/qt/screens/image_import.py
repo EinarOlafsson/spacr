@@ -131,6 +131,8 @@ class ProposalModel(QAbstractTableModel):
     Its header and its cells both come from the plan, so this screen and the
     text table :meth:`spacr.image_import.ImportPlan.table` prints cannot
     disagree about what was inferred — one is the other with padding.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):
@@ -205,6 +207,8 @@ class AnswerModel(QAbstractTableModel):
     screen listens to the former — re-resolving the plan refreshes this
     table's tooltips, and a live re-resolve hung off ``dataChanged`` would
     recurse.
+
+    :param parent: parent widget.
     """
 
     #: Emitted when a cell's value actually changed.

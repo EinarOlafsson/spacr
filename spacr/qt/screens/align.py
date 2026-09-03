@@ -93,6 +93,8 @@ class TileLayoutWidget(QWidget):
     the layout of a 700 MB stitch costs nothing. Hovering is not wired;
     the per-tile detail lives in the report pane beside it, where it can
     be read and copied.
+
+    :param parent: parent widget.
     """
 
     #: emitted with the tile index when a tile is clicked, -1 for the void
