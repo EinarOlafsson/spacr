@@ -1,0 +1,1188 @@
+================================================================================
+364 -- LIVE PREVIEWS, HYPERPARAMETER SEARCHES AND ASSAY SUB-MODULES,
+       SETTINGS AUDIT, MEASURED 2026-09-02
+PROPOSALS FOR REVIEW. Nothing here has been changed.
+================================================================================
+
+(a) LIVE PREVIEWS
+      Mask live preview (LivePreviewPanel)                  95 setting rows
+        18 named controls, 13 filters x 4 compartments, a 25-field
+        organelle column
+      Crop preview (MeasurePreviewPanel)                    27 rows, 24 written
+      Track preview, timelapse (TimelapsePreviewPanel)      14 rows, 11 written
+      Track preview, motility (MotilityPreviewPanel)        11 rows,  8 written
+
+(b) THE HYPERPARAMETER SEARCHES
+      cellpose_masks   get_identify_masks_finetune_default_settings      23
+      cellpose_all     get_check_cellpose_models_default_settings        18
+      train_test_model get_train_test_model_settings (live)              50
+                       set_default_train_test_model (uncalled)           49
+      the search panel's own run controls                                16
+
+(c) THE ASSAY SUB-MODULES
+      recruitment      get_analyze_recruitment_default_settings          30
+      invasion         set_analyze_invasion_defaults                     37
+      replication      set_analyze_replication_defaults                  25
+      analyze_plaques  get_analyze_plaque_settings                       22
+      and two API-only relatives: test_cellpose_model 9, apply_cellpose_model 10
+
+The same three questions the six previous audits asked, in the same order,
+against the same standard of evidence: every claim below is either a
+quotation from the setting's own tooltip or a line of code that reads it, or
+does not.
+
+THESE THREE SURFACES BREAK THE PATTERN AGAIN, and in a new way. The six
+modules were dicts a pipeline reads. A PREVIEW is a TRANSLATION TABLE between
+two vocabularies -- the panel's widget names and the module's settings keys --
+and the failure mode is not a dead setting or a bad tooltip. It is a key that
+lands nowhere, in a surface whose entire purpose is that what you tuned is
+what runs. The scan used here is therefore: for every key a preview WRITES,
+is it in the target module's defaults dict; and for every key a preview READS,
+does the module produce one.
+
+IT FOUND A LIVE REGRESSION SHIPPED TODAY, by this instruction's own rename
+batch, and `tests/qt/test_preview_seeding.py` is RED on `nightly` right now.
+That is Finding 1 and it should be read before anything else here.
+
+  Command, output quoted in full under Finding 1:
+    QT_QPA_PLATFORM=offscreen python -m pytest -p no:randomly -q \
+        tests/qt/test_preview_seeding.py
+    -> 4 failed, 20 passed
+
+AND THE GOOD NEWS, because it is a real result and the instruction asks for
+it plainly: THE INVASION AND REPLICATION ASSAYS ARE CLEAN. 62 settings
+between them, nothing dead, no duplicate pair, no tooltip that contradicts
+its code, and per-module clauses already written into the shared tooltips
+("Default 'mean'. Invasion starts at 'auto'"; "['pc'] for the control-based
+paths"). They are the best-documented settings surface audited in this item.
+Their two defects are both about REGISTRATION rather than content, and are
+Finding 9.
+
+--------------------------------------------------------------------------------
+FINDING 0 -- HOW THE DEAD-SETTING SCAN WAS RUN HERE, AND WHAT IT COST
+--------------------------------------------------------------------------------
+
+Recorded first because the previous audit's closing note asked for exactly
+this and the answer has one honest gap.
+
+The strict test the Annotate audit called for was run over all nine defaults
+factories in scope: for each key, grep the package for `settings['<key>']`,
+`settings["<key>"]`, `settings.get('<key>'` and `settings.get("<key>"`, not
+for the bare word.
+
+TWO KEYS CAME BACK WITH ZERO STRICT HITS, AND BOTH ARE ALIVE. This is the
+false positive the method produces and it is worth writing down so the next
+person does not act on it:
+
+  `class_folder_names` -- read through a helper, not by name:
+      spacr/deep_spacr.py:121   def _class_folder_names(settings):
+      spacr/deep_spacr.py:1230      classes=_class_folder_names(settings),
+  and `spacr/classify_classes.py:39` holds the literal in a constant
+  (`CLASS_FOLDER_NAMES = "class_folder_names"`).
+
+  `evaluation_calibration` -- read once, on the cross-validation path only:
+      spacr/deep_spacr.py:1550-1552
+          calibration_method = settings.get(
+              'evaluation_calibration', 'temperature',
+          )
+  A single-split training run never reaches it. That is not dead; it is
+  conditional, and the tooltip does not say which condition.
+
+SO: NOTHING IS DEAD BY THE STRICT TEST in the two hyperparameter modules or
+in invasion, replication or plaques. The three genuinely unnecessary settings
+in this audit (Finding 5) were found a different way -- by reading the ONE
+function that consumes the dict, rather than the whole package. A key can be
+read by five files and by none of the ones the module runs.
+
+--------------------------------------------------------------------------------
+FINDING 1 -- THE MASK LIVE PREVIEW LOST SIX SETTINGS TO TODAY'S RENAME, AND
+             FOUR TESTS ARE RED ON `nightly` BECAUSE OF IT
+--------------------------------------------------------------------------------
+
+PROPOSE: FIX BEFORE ANYTHING ELSE IN THIS FILE. This is not an audit finding
+in the ordinary sense -- it is a regression introduced this afternoon by
+commit b7ae412af ("364: retire organelle's duplicate size settings, rename
+four families"), and it re-creates the exact defect that commit was written to
+remove.
+
+The rename was done, deliberately, as a SUFFIX substitution -- `_FT` ->
+`_flow_threshold`, `_CP_prob` -> `_cellprob_threshold`, `_min_object_area` ->
+`_min_split_area` -- because the organelle slots are generated and a literal
+list would miss the next one. The open instruction records that choice and
+its reason.
+
+THREE TABLES IN THE LIVE PREVIEW SPELL THOSE NAMES WITHOUT THE LEADING
+UNDERSCORE, so the substitution walked past all three.
+
+  1. `_SEGMENTATION_ALIASES` -- the READ direction of the round trip.
+
+        spacr/qt/widgets/live_preview.py:2509-2513
+            _SEGMENTATION_ALIASES: Tuple[Tuple[str, str], ...] = (
+                ("diameter", "diameter"),
+                ("flow_threshold", "FT"),
+                ("CP_prob", "CP_prob"),
+            )
+
+     and its one use:
+
+        spacr/qt/widgets/live_preview.py:2640-2644
+            for native, suffix in self._SEGMENTATION_ALIASES:
+                widget = {"diameter": self._diameter,
+                          "flow_threshold": self._flow,
+                          "CP_prob": self._prob}[native]
+                _seed(widget, (native, f"{primary}_{suffix}"), float)
+
+     The commit updated the WRITE direction beside it (`f"{primary}_FT"` ->
+     `f"{primary}_flow_threshold"`) and the docstring above it, and left this.
+     So the panel now emits `cell_flow_threshold` and reads back `cell_FT`,
+     which Mask has not declared since 13:13 today. The table's own docstring,
+     three lines up, says why that matters:
+
+        #: this table is the whole of the translation -- used in BOTH
+        #: directions so the two cannot drift apart again.
+
+     MEASURED, not inferred. Mask's own defaults:
+
+        cell_flow_threshold = 100     cell_cellprob_threshold = 0
+        (spacr.settings.set_default_settings_preprocess_generate_masks)
+
+     and there is no `cell_FT` and no `cell_CP_prob` in that dict at all.
+     `_seed` tries the native name first (`flow_threshold`, absent from Mask)
+     and then `cell_FT` (absent), writes nothing, and the spinner keeps the
+     panel's hardcoded 0.4:
+
+        tests/qt/test_preview_seeding.py:69
+        >       assert req.flow_threshold == pytest.approx(0.9)
+        E       assert 0.4 == 0.9 +- 9.0e-07
+
+     Four tests fail: `test_the_three_segmentation_settings_reach_the_
+     cellpose_request`, `test_the_selected_compartment_decides_which_settings_
+     are_read`, `test_apply_then_propagate_is_a_fixed_point`, and
+     `test_mask_seeds_the_panel_when_the_switch_is_turned_on`. `cell_diameter`
+     still lands, because "diameter" was never abbreviated.
+
+     The docstring of `apply_settings` names this exact defect as the one it
+     was written for: "The panel emitted ``cell_diameter`` and read back
+     ``diameter`` ... so a Mask screen seeded here kept the panel's own
+     hardcoded 30 px, 0.4 flow and 0.0 probability while ``cell_channel`` and
+     ``nucleus_channel`` DID land -- the preview visibly changed and looked
+     seeded, having silently dropped exactly the three settings it is opened
+     to check." That is now true again for two of the three.
+
+  2. `COMPARTMENT_FIELDS` -- the per-compartment filter table.
+
+        spacr/qt/widgets/live_preview.py:239
+            ("min_object_area", "Min object area", "int", (0, 100_000_000, 100)),
+
+     written out at :2969 as `out[f"{prefix}_{suffix}"]`, i.e.
+     `cell_min_object_area`. The run reads the renamed key:
+
+        spacr/object.py:120
+            moa = settings.get(f'{object_type}_min_split_area', 0)
+
+     Four dead keys -- cell / nucleus / pathogen / organelle. The comment
+     three lines below the field says what that costs: "They are both what the
+     preview filters with and what the Propagate button writes into the main
+     settings panel, so any drift silently re-tunes the real run."
+
+     THE TOOLTIP IS GONE TOO, and silently. :2922 does
+     `_spacr_desc.get(key) or _spacr_desc.get(suffix)` and falls back to a
+     generated sentence when neither exists. `settings.tooltips` has no
+     `cell_min_object_area` and no `min_object_area` any more, so the spinner
+     now reads "Min object area for cell objects." while the real explanation
+     sits under `cell_min_split_area`, unreachable.
+
+  3. `ORGANELLE_METHOD_FIELDS[None]` -- the organelle column.
+
+        spacr/qt/widgets/live_preview.py:198-199
+            ("min_size", "Min size (px2)", "int", (0, 100_000_000, 0)),
+            ("max_size", "Max size (px2)", "int", (0, 100_000_000, 0)),
+
+     written out at :3109 as `organelle_min_size` / `organelle_max_size` --
+     the two keys the SAME COMMIT put into `RETIRED_SETTINGS`:
+
+        spacr/validate.py:1028-1029
+            "organelle_min_size": "organelle_min_area",
+            "organelle_max_size": "organelle_max_area",
+
+     so pressing Propagate now produces a settings dict that trips spaCR's
+     own retired-key check ("'organelle_min_size' was renamed ... as it stands
+     the value is ignored and the default is used").
+
+     AND THEY DO NOT REACH THE PREVIEW EITHER. The preview's own post-filter
+     prefers the `_area` pair and uses the `_size` pair only as a fallback:
+
+        spacr/qt/widgets/live_preview.py:991-992
+            min_area = _num(f"{obj}_min_area", _num(f"{obj}_min_size", 0))
+            max_area = _num(f"{obj}_max_area", _num(f"{obj}_max_size", 0))
+
+     `organelle_min_area` is now always present (10, from
+     `_set_organelle_defaults`), so it wins and the spinner's value is
+     discarded before it is looked at. Both spinners are inert in both
+     directions.
+
+THE COMPLETE LIST, measured by taking every key the two field tables can
+write and asking whether Mask declares it. It is exactly six and no others:
+
+    cell_min_object_area      nucleus_min_object_area
+    pathogen_min_object_area  organelle_min_object_area
+    organelle_min_size        organelle_max_size
+
+  THE PROPOSAL IS NOT JUST "FIX THE THREE TABLES", and this is the part worth
+  the maintainer's attention. Fixing the alias alone introduces a second,
+  quieter defect:
+
+        spacr/qt/widgets/live_preview.py:1464
+            self._flow.setRange(-1, 3)
+
+  and Mask ships `cell_flow_threshold = 100`. Qt clamps, so a corrected
+  `_seed` writes 3.0 into the spinner, and the next Propagate writes 3.0 back
+  into the settings panel. The round trip stops being a fixed point for the
+  SHIPPED DEFAULT, and `test_apply_then_propagate_is_a_fixed_point` would not
+  catch it because it uses 0.9. Either the spinner's range has to admit 100 or
+  Mask's default has to move -- and `cell_flow_threshold`'s own tooltip
+  already says the two disagree: "Usable range about 0-3 (GUI allows -1 to 3).
+  Default 100." One sentence, giving a range and then a default outside it.
+
+--------------------------------------------------------------------------------
+FINDING 2 -- `background` IS DECLARED `str`, AND spaCR'S OWN DEFAULTS FAIL
+             spaCR'S OWN PRE-FLIGHT ON EVERY ONE OF THESE THREE MODULES
+--------------------------------------------------------------------------------
+
+PROPOSE: change `expected_types["background"]` to `(int, float)`. One line,
+and it fixes an ERROR that three shipped defaults dicts produce against
+themselves.
+
+        spacr/settings.py:3269
+            "background": str,
+
+Every factory that ships it ships a number:
+
+        settings.setdefault('background', 100)   cellpose_masks   (:3011)
+        settings.setdefault('background', 100)   cellpose_all     (:2993)
+        settings.setdefault('background', 200)   analyze_plaques  (:6750)
+
+and its own tooltip declares a third type:
+
+        "background": "(float) - Per-channel background level in raw
+        intensity units..."   (settings.py:4408)
+
+MEASURED. `spacr.validate._check_types` over each factory's untouched output:
+
+    get_analyze_plaque_settings:                  1 problem
+        [background] background=200 is a int, but str is expected.
+        fix: Set background to a str.
+    get_identify_masks_finetune_default_settings: 1 problem
+    get_check_cellpose_models_default_settings:   1 problem
+    set_analyze_invasion_defaults:                0
+    set_analyze_replication_defaults:             0
+    get_analyze_recruitment_default_settings:     0
+    get_train_test_model_settings:                0
+
+That is severity ERROR, not WARNING (`validate.py:967-971`), and it is printed on
+every GUI run of those three modules:
+
+        spacr/qt/bridge.py:1394-1397
+            mark = "ERROR" if problem.severity == ERROR else "WARNING"
+            ...
+            print(f"[settings] {mark}{where}: {problem.message}")
+
+and it is raised as a blocking problem by the batch queue (`batch.py:930`)
+and by `spacr-run --check` (`cli.py:1500`).
+
+  AND THE COERCION BOUNDARY MAKES IT WORSE RATHER THAN BETTER, which is the
+  part that can actually corrupt a run. `coerce_expected_types` exists to
+  restore types after a settings-CSV round trip, and it restores them TO THE
+  DECLARED TYPE. Measured on a plaque settings dict whose two numbers came
+  back from CSV as strings:
+
+        background -> '200'          (left a string: str is what is declared)
+        Signal_to_noise -> 10        (restored to int)
+
+  Downstream, one of the two uses of `background` survives a string and the
+  other does not:
+
+        spacr/io.py:511   signal_thresholds = float(background) * float(...)
+        spacr/io.py:541   image = np.where(image < background, 0, image)
+
+  The first coerces. The second is a numpy comparison against a str and
+  raises:
+
+        np.where(np.zeros((3,3), np.uint16) < '200', 0, a)
+        -> UFuncTypeError: ufunc 'less' did not contain a loop with signature
+           matching types (UInt16DType, StrDType)
+
+  That path is behind `remove_background`, which is False by default, so it is
+  a trap rather than a daily failure -- but `remove_background` is a control
+  the cellpose_masks form offers, and turning it on after loading a settings
+  CSV is how you reach it.
+
+--------------------------------------------------------------------------------
+FINDING 3 -- RECRUITMENT OFFERS THREE SETTINGS IT NEVER READS, AT THE TOP OF
+             ITS FORM, UNDER A HINT TELLING THE USER TO GET THEM RIGHT
+--------------------------------------------------------------------------------
+
+PROPOSE: RETIRE `cell_mask_dim`, `nucleus_mask_dim` and `pathogen_mask_dim`
+from `get_analyze_recruitment_default_settings`. They stay live keys of the
+Measure module, so nothing is added to `RETIRED_SETTINGS` -- only the
+recruitment factory drops them.
+
+These are the third, fourth and fifth genuinely UNNECESSARY settings found in
+eight modules, and unlike Annotate's two they are not tucked away.
+
+MEASURED, inside `analyze_recruitment` alone -- the only function that
+consumes this dict (`spacr/submodules.py:1048-1050`) -- counting
+`settings['<key>']` and `settings.get('<key>'`:
+
+    cell_mask_dim         0 reads          cell_chann_dim         3 reads
+    nucleus_mask_dim      0 reads          nucleus_chann_dim      3 reads
+    pathogen_mask_dim     0 reads          pathogen_chann_dim     3 reads
+
+Every other one of the 30 is read at least once. And a strict grep over the
+whole package shows where the three ARE read: `spacr/measure.py` (24 sites)
+and `spacr/plot.py` (5). Not one is on a recruitment path. The module builds
+its own channel list from the OTHER three:
+
+        spacr/submodules.py:1074
+            mask_chans=[settings['nucleus_chann_dim'],
+                        settings['pathogen_chann_dim'],
+                        settings['cell_chann_dim']]
+
+  THEY ARE THE FIRST THREE CONTROLS ON THE FORM. The layout interleaves them
+  with their live twins:
+
+        spacr/qt/screens/settings_model.py:1731-1735
+            ("Mask & Channel Mapping", (
+                "cell_mask_dim", "cell_chann_dim", "nucleus_mask_dim",
+                "nucleus_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim",
+                "channel_dims", "channel_of_interest",
+            )),
+
+  and the section's own hint says (settings_model.py:3662-3664):
+
+        "Which array plane holds each mask and each intensity channel, and
+        which one the recruitment is measured on. A wrong index here measures
+        the wrong compartment without complaining."
+
+  Three of the six controls in that section do nothing, and the sentence above
+  them tells the user that getting them wrong is silently costly.
+
+  THEIR TOOLTIPS ARE MEASURE'S. All three describe `measure_crop`: "None makes
+  measure_crop skip all cell measurements and cell crops. Default 4." The
+  module already HAS the convention for a shared key -- `cell_chann_dim`'s
+  tooltip opens "Recruitment analysis only (analyze_recruitment):" -- so the
+  fix for the three, if they are kept for API compatibility rather than
+  retired, is the same sentence the other three already carry.
+
+--------------------------------------------------------------------------------
+FINDING 4 -- RECRUITMENT'S THREE INTENSITY FILTERS EACH READ THE NEXT
+             OBJECT'S CHANNEL, AND ONE TOOLTIP OF THREE SAYS SO
+--------------------------------------------------------------------------------
+
+PROPOSE: this is a BUG with a documented half. Decide whether to fix the code
+or finish documenting it, but the current state -- one tooltip warning and two
+asserting the opposite -- is the worst of the three options.
+
+        spacr/submodules.py:1074
+            mask_chans = [nucleus_chann_dim, pathogen_chann_dim, cell_chann_dim]
+
+        spacr/submodules.py:1138  _object_filter(df, 'cell',     ..., mask_chans, 0)
+        spacr/submodules.py:1143  _object_filter(df, 'nucleus',  ..., mask_chans, 1)
+        spacr/submodules.py:1145  _object_filter(df, 'pathogen', ..., mask_chans, 2)
+
+and the filter indexes the list it was handed:
+
+        spacr/utils.py:6650
+            df = df[df[f'{object_type}_channel_{mask_chans[mask_chan]}'
+                       f'_mean_intensity'] > intensity_range[0]]
+
+So the CELL filter reads channel `mask_chans[0]` = nucleus_chann_dim, the
+NUCLEUS filter reads pathogen_chann_dim, and the PATHOGEN filter reads
+cell_chann_dim. All three are rotated by one, not just the first.
+
+`cell_intensity_range`'s tooltip already concedes it:
+
+    "Legacy [min, max] bounds used during recruitment analysis when
+    cell_chann_dim is set. Despite the setting name, the current
+    _object_filter call uses index 0 from [nucleus, pathogen, cell] and
+    therefore filters the nucleus-channel mean intensity. Review the filtered
+    object counts when using this setting."
+
+The other two assert the behaviour the code does not have:
+
+    nucleus_intensity_range: "Two-element [min, max] bound on mean
+    nucleus-channel intensity..."
+    pathogen_intensity_range: "...pathogens whose mean intensity in the
+    paired mask channel falls outside the open interval..."
+
+  A SECOND TRAP IN THE SAME SIX LINES, and this one all three tooltips DO
+  document: `_object_filter` guards every bound with `isinstance(x, int)`
+  (utils.py:6641, :6644, :6649, :6652), so a float bound is skipped in
+  silence. `cell_size_range = [0.0, 100000.0]` filters nothing and says
+  nothing. Recorded because it is the kind of thing a settings-CSV round trip
+  or a GUI spin box produces without anyone choosing it.
+
+  AND `figuresize` IS HONOURED BY TWO OF FOUR FIGURES. It is a declared
+  recruitment setting (default 10) and is read at :1165 and :1167. The other
+  two calls hardcode a number, and not the same number:
+
+        spacr/submodules.py:1128     figuresize=10
+        spacr/submodules.py:1162     figuresize=5
+
+--------------------------------------------------------------------------------
+FINDING 5 -- ANALYZE_PLAQUES PUTS ITS MODEL CHOICE AND ITS RULER IN
+             "ADDITIONAL SETTINGS"
+--------------------------------------------------------------------------------
+
+PROPOSE: add the six to `_APP_CATEGORY_SPECS["analyze_plaques"]`. This is a
+layout fix, not a settings change, but it is the difference between a setting
+that exists and one anybody finds.
+
+The module's layout places 16 of its 22 keys:
+
+        spacr/qt/screens/settings_model.py:1820-1831
+            ("Input & Channels", ("src", "masks")),
+            ("Model", ("diameter",)),
+            ("Detection Thresholds", ("CP_prob", "flow_threshold", "rescale",
+                                      "resample", "fill_in")),
+            ("Image Geometry", ("resize", "target_height", "target_width")),
+            ("Background & Denoising", ("remove_background", "background",
+                                        "Signal_to_noise")),
+            ("Output & Runtime", ("save", "batch_size", "verbose")),
+
+Anything a layout does not claim goes to a bucket (`_categories_from_spec`,
+settings_model.py:2070-2077). Rendering the spec against the module's own
+defaults gives:
+
+        [Additional Settings] plaque_model, well_detection, well_confidence,
+                              well_pad, plate_format, well_diameter_mm
+
+  `plaque_model` IS THE ONE THE MODULE ARGUES HARDEST ABOUT. Twelve lines of
+  capitalised comment in `settings.py:6730-6739` explain why the default stays
+  'bundled' even though `toxoplasma_plaque_v1` is markedly better ("F1 0.856
+  vs 0.718 in-domain; the bundled model recalls 0.631 on the literature set,
+  missing about a third of the plaques"), and it closes: "Selecting it is one
+  setting". That one setting is in the unnamed bucket, and the section
+  actually called "Model" holds only `diameter`.
+
+  `plate_format` AND `well_diameter_mm` ARE "THE RULER", in the factory's own
+  words: "Without one of these, areas stay in pixels -- which are a property
+  of the microscope, so they cannot be pooled across scopes." Both are in the
+  bucket. So are the three settings that switch the module into per-well mode.
+
+  AND THE SECTION THAT IS THERE IS MISSING ITS SWITCH. "Background &
+  Denoising" names `remove_background`, and `get_analyze_plaque_settings` does
+  not ship it -- so no widget is built and the heading holds `background` and
+  `Signal_to_noise` alone. `background`'s tooltip then describes an action the
+  module cannot take: "Pixels below it are zeroed when remove_background is
+  on". On this form there is nothing to turn on. (The value is defaulted to
+  False downstream by `identify_masks_finetune`, so the behaviour is correct;
+  it is the documentation and the heading that are wrong.)
+
+  ONE MORE, AND IT IS THE ANNOTATE FINDING 5 SHAPE: `plaque_model` is copied
+  into `custom_model` before the defaults are even applied --
+
+        spacr/submodules.py:1406-1407
+            model_path = _resolve_plaque_model(settings)
+            settings['custom_model'] = model_path
+
+  -- so the module has two model settings, one of which exists only to be
+  written into the other. `custom_model` is not declared by the plaque factory
+  and is not on its form, which is the right answer; it is worth recording so
+  the next audit does not propose merging them the wrong way round.
+
+--------------------------------------------------------------------------------
+FINDING 6 -- `check_cellpose_models` HAS 18 SETTINGS, A GUI LAYOUT, A TEST
+             THAT GUARDS IT, AND NO WAY TO RUN IT
+--------------------------------------------------------------------------------
+
+PROPOSE: retire `cellpose_all` as a settings module -- drop
+`get_check_cellpose_models_default_settings`, its `_APP_CATEGORY_SPECS` entry,
+its section hints and its `GUI_MODULE_DEFAULTS` line -- or give the function a
+`src` and an entry point. It cannot stay as it is, because right now the tests
+guard a module nobody can open while leaving two real ones unguarded
+(Finding 9).
+
+    `cellpose_all` is NOT in Qt's `APPS` (36 tiles; checked).
+    `cellpose_all` is NOT in `spacr.cli.MODULES` (29 modules; checked).
+    In both places it is an ALIAS pointing somewhere else:
+
+        spacr/cli.py:613-618
+            # cellpose_all was "benchmark every Cellpose model on one folder".
+            # Cellpose 4 ships exactly one model, so the comparison had a
+            # single entrant and the run was `cellpose_masks` under another
+            # name ... Kept as an alias, not deleted.
+            "cellpose_all": "cellpose_masks",
+
+        spacr/validate.py:156
+            "cellpose_all": "cellpose_masks",
+
+    So `spacr-run cellpose_all` runs `identify_masks_finetune`, NOT
+    `check_cellpose_models`. `check_cellpose_models` is named nowhere in
+    `MODULES` (checked programmatically), and `spacr/qt/bridge.py` mentions
+    only `cellpose_masks`.
+
+WHAT IS STILL WIRED UP FOR IT: 18 settings with categories, expected_types and
+tooltips; a dispatch branch (`settings_model.py:279-280`); a full six-section
+GUI layout (`settings_model.py:1794`); section hints (`:3587`); an API module
+map (`:4003`); a module blurb (`settings.py:3076`); and a line in
+`GUI_MODULE_DEFAULTS` (`tests/test_settings_categories.py:593`) that makes
+`test_every_setting_a_module_offers_has_a_category` run for it every CI pass.
+
+  ITS DESCRIPTION IS ALSO SOMEBODY ELSE'S. `settings.py:3076-3080` says
+  "Segment microscopy images with Cellpose and extract object measurements in
+  sequence" -- which is Mask plus Measure. `check_cellpose_models` runs each
+  stock model over one folder for side-by-side comparison and measures
+  nothing.
+
+  AND THE FUNCTION CANNOT RUN ON ITS OWN DEFAULTS. It reads `src` first:
+
+        spacr/spacr_cellpose.py:421-422
+            settings = get_check_cellpose_models_default_settings(settings)
+            src = settings['src']
+
+  and `src` is the one key that factory does not set. `check_cellpose_models(
+  get_check_cellpose_models_default_settings({}))` raises `KeyError: 'src'`.
+  Its rendered layout has no "Data source" section either, so the panel could
+  not supply one.
+
+--------------------------------------------------------------------------------
+FINDING 7 -- ONE CELLPOSE PARAMETER, THREE SPELLINGS AND TWO DEFAULTS 250x
+             APART, AND EVERY TOOLTIP HAS TO TRANSLATE ITS OWN NAME FIRST
+--------------------------------------------------------------------------------
+
+PROPOSE: RENAME `FT` -> `flow_threshold` and `CP_probability` -> `CP_prob` in
+`get_default_test_cellpose_model_settings` and
+`get_default_apply_cellpose_model_settings`, folding the four API-only
+submodules into the spelling the two hyperparameter modules already use. Then
+decide the default question separately, because it is a different question.
+
+THE SPELLINGS, all live today:
+
+    flow threshold          cellprob threshold        where
+    --------------------------------------------------------------------
+    <object>_flow_threshold <object>_cellprob_threshold  Mask (after 364)
+    flow_threshold          CP_prob                      cellpose_masks,
+                                                         cellpose_all, plaques
+    FT                      CP_probability               test_cellpose_model,
+                                                         apply_cellpose_model
+
+The open instruction's stated test for a wrong name is "where the tooltip has
+to explain what the word means before it can explain the setting". Both of
+these spend their FIRST CLAUSE doing exactly that:
+
+    "FT": "(int) - Cellpose flow_threshold for the standalone apply/test-model
+    submodules, the counterpart of the Mask module's per-object
+    <object>_flow_threshold..."
+
+    "CP_probability": "(int) - Cellpose cellprob_threshold used by the
+    standalone apply/test-model submodules, where it carries this name instead
+    of the per-object <object>_cellprob_threshold used by the Mask module..."
+
+  NEITHER HAS A CATEGORY. `FT`, `CP_probability` and `circularize` are the
+  three keys in this audit's scope with a tooltip and an `expected_types`
+  entry and no entry in `settings.categories`. That is harmless today because
+  their two factories are API-only (`test_cellpose_model` and
+  `apply_cellpose_model` are in neither `MODULES` nor `APPS`), and it is
+  exactly what would break the moment anyone gave them a screen.
+
+  AND THE DEFAULT IS THE SHARPER PROBLEM. `FT` ships 100 and `flow_threshold`
+  ships 0.4 -- the same Cellpose argument, on a scale Cellpose uses over about
+  0 to 3. `FT`'s tooltip is honest about it ("Default 100, which effectively
+  accepts every candidate"); `flow_threshold`'s says "Default 0.4." and stops.
+  Mask sits on BOTH sides of the split: `cell_`/`nucleus_`/`pathogen_
+  flow_threshold` are 100 and `organelle_flow_threshold` is 0.4. Renaming
+  without settling that would give one name two defaults, which is worse than
+  two names with two defaults.
+
+  `Signal_to_noise` IS THE FOURTH FAMILY THE RENAME BATCH DID NOT REACH, for
+  the same reason as Finding 1: the substitution was on `_Signal_to_noise`.
+  Mask now says `cell_signal_to_noise`; `cellpose_masks`, `cellpose_all` and
+  `analyze_plaques` still say `Signal_to_noise`. If the four renames were
+  worth doing per object they are worth doing here, and this is a three-line
+  change against three factories.
+
+--------------------------------------------------------------------------------
+FINDING 8 -- `set_default_train_test_model` IS A SECOND DEFAULTS TABLE FOR THE
+             HYPERPARAMETER SEARCH'S OWN MODULE, IT IS CALLED BY NOTHING, AND
+             IT DISAGREES
+--------------------------------------------------------------------------------
+
+PROPOSE: DELETE `set_default_train_test_model`. This is the Annotate Finding 2
+shape with the mitigating detail that the losing table is uncalled -- so
+deleting it costs nothing and leaves nothing behind.
+
+    `get_train_test_model_settings`  (settings.py:1809)  -- LIVE.
+        spacr/deep_spacr.py:1664-1667   the pipeline calls it
+        spacr/cli.py:302                the CLI names it
+
+    `set_default_train_test_model`   (settings.py:1576)  -- called from
+        NOWHERE under spacr/. A strict grep returns only `settings.py` itself
+        and six test files.
+
+They share 49 keys and give a different value for six of them:
+
+    setting               live factory     the uncalled one
+    ---------------------------------------------------------
+    learning_rate         0.0001           0.001        (10x)
+    pin_memory            True             False
+    augment               True             False
+    verbose               True             False
+    n_jobs                30               _default_worker_count(reserve=2)
+    crop_source           (absent)         'auto'
+
+  THE ONES THAT ARE NOT SYMMETRIC. The uncalled table has five keys the live
+  one lacks -- `crop_source`, `holdout_plate`, `strict_errors`,
+  `max_failure_rate` and the `_size` of its own worker calculation -- and the
+  live table has six the uncalled one lacks: `label_smoothing`, `focal_gamma`,
+  `focal_alpha`, `logit_adjust_tau`, `early_stopping_patience` and
+  `cv_group_by`. So it is not a stale copy; it is a fork, and each side has
+  had settings added to it that the other never got.
+
+  `crop_source` IS THE ONE THAT MATTERS, and it is the same setting the
+  Annotate audit found landing in the wrong table. `tests/test_crop_source_
+  wiring.py:246-248` asserts crop-source wiring against
+  `set_default_train_test_model` -- the copy nothing calls -- so the live
+  factory is not covered by that test at all. `get_train_test_model_settings`
+  produces no `crop_source` key.
+
+  `learning_rate` IS THE ONE THE SEARCH TOUCHES. `DEFAULT_SPACES["classify"]`
+  sweeps `learning_rate` over `[1e-4, 3e-4, 1e-3]`, which spans both defaults.
+  Which one a user is comparing the winner against depends on which table
+  they happen to have read.
+
+--------------------------------------------------------------------------------
+FINDING 9 -- INVASION AND REPLICATION ARE THE TWO CLEANEST SETTINGS SURFACES
+             IN THE ITEM, AND NEITHER IS REGISTERED WITH THE TEST THAT WOULD
+             KEEP THEM THAT WAY
+--------------------------------------------------------------------------------
+
+PROPOSE: add `"invasion"` and `"replication"` to `GUI_MODULE_DEFAULTS`. Both
+pass `test_every_setting_a_module_offers_has_a_category` today -- checked, all
+62 keys have a category and an `expected_types` entry -- so this is a
+zero-diff registration, which is the cheapest moment to do it.
+
+        tests/test_settings_categories.py:583-599
+            GUI_MODULE_DEFAULTS = {
+                "mask": ..., "timelapse": ..., "motility": ..., "measure": ...,
+                "classify": ..., "umap": ..., "train_cellpose": ...,
+                "ml_analyze": ..., "cellpose_masks": ..., "cellpose_all": ...,
+                "map_barcodes": ..., "regression": ..., "recruitment": ...,
+                "activation": ..., "analyze_plaques": ...,
+            }
+
+`invasion` and `replication` are absent. They are REAL TILES --
+`spacr/qt/app.py:1132-1133`, section ASSAYS -- with real CLI modules
+(`spacr.cli.MODULES['invasion'] -> spacr.submodules:analyze_invasion`), full
+layouts (`settings_model.py:1747`, `:1914`) and section hints. `cellpose_all`,
+which is an alias for another module and has no entry point at all
+(Finding 6), IS in the table. So the two surfaces the test guards least are
+the two it should guard most.
+
+  THE DRIFT THAT IS ALREADY THERE, and which no test can see: three
+  replication settings are filed under the `"Invasion Assay"` category.
+
+        max_parasite_area       -> Invasion Assay
+        min_parasite_area       -> Invasion Assay
+        seed_wells_from_cells   -> Invasion Assay
+
+  All three are genuine replication settings too; the shared category map has
+  one slot per key and invasion claimed it first. The test only asserts that
+  every key HAS a category, so this passes and would keep passing.
+
+  THE SECOND REGISTRATION DEFECT IS A DUPLICATE FALLBACK TABLE, and it is
+  benign today by design rather than by accident:
+
+        spacr/submodules.py:3725  def _set_analyze_invasion_defaults(settings)
+        spacr/submodules.py:2762  def _set_analyze_replication_defaults(settings)
+
+  Each is a full copy of its `spacr.settings` twin, documented as "used only
+  while ``spacr.settings.set_analyze_invasion_defaults`` does not exist yet".
+  It does exist (settings.py:6822), and the call sites run it FIRST
+  (submodules.py:4991-4995, :3475-3479) so `setdefault` makes it
+  authoritative. The copies are therefore inert -- and they have already
+  drifted where nothing can notice:
+
+        pathogen_types       spacr/settings.py: ['pc']
+                             spacr/submodules.py: ['nc', 'pc']
+        bimodality_cutoff    spacr/settings.py: 0.5555555555555556
+                             spacr/submodules.py: 5.0 / 9.0
+
+  The second pair is the same number written two ways, and the settings.py
+  side is the worse one: `5/9` is the bimodality coefficient of a uniform
+  distribution -- a named reference value -- and the sixteen-digit expansion
+  in the tooltip ("Default 0.5555555555555556.") tells the reader nothing
+  about where it came from.
+
+  PROPOSE: delete both private copies, and say `5/9` in the tooltip.
+
+--------------------------------------------------------------------------------
+FINDING 10 -- FIVE PREVIEW CONTROLS POINT AT KEYS THAT ARE NOT SETTINGS
+--------------------------------------------------------------------------------
+
+PROPOSE: this is Annotate's Finding 4 on the preview surface -- "the worst
+case, and invisible in a count of settings that need work". Either declare
+them or stop mapping them.
+
+`install_api_tooltips` takes a `{widget: settings key}` map and gives each
+widget the shared tooltip plus a link to that setting's API page. Five of the
+mapped keys are declared NOWHERE: not by any of the ~40 `set_default_*` /
+`get_*_settings` factories, not in `settings.tooltips`, not in
+`expected_types`, not in `settings.categories`, and not in
+`setting_api_targets.SETTING_API_TARGETS`.
+
+    upper_percentile       live_preview.py:4009, measure_preview.py:1567,
+                           and annotate.py:1515
+    preview_max_area       measure_preview.py:1574
+    preview_max_crops      measure_preview.py:1575
+    preview_group_cells    measure_preview.py:1576
+    lock_aspect_ratio      measure_preview.py:1561
+
+`attach_api_tooltip` (settings_model.py:6356-6361) falls back to the widget's
+own hand-written tooltip when the key is unknown, so nothing looks broken --
+the label just quietly stops being a link to anything.
+
+  `upper_percentile` IS THE ONE THAT COSTS SOMETHING. It is the Mask live
+  preview's high-percentile spinner. Its partner `lower_percentile` IS a real
+  Mask setting and IS propagated:
+
+        spacr/qt/widgets/live_preview.py:2547
+            "lower_percentile": float(self._lo_pct.value()),
+
+  and `upper_percentile` is not in `settings_for_propagation` at all. So half
+  of a two-ended control reaches the run and half does not -- correctly, as it
+  happens, because the pipeline chooses its own high anchor:
+
+        "lower_percentile": "... the high anchor is chosen automatically
+        between the 98th and 99.5th percentile."
+
+  The spinner is therefore a DISPLAY control sitting in a row with a settings
+  control, wearing a settings-shaped API tooltip, and nothing on screen says
+  which of the two it is.
+
+  `preview_max_area` / `preview_max_crops` / `preview_group_cells` are
+  honestly named -- the crop preview's own comment calls them "Preview-only
+  controls" (measure_preview.py:531) -- and then the api map hands all three a
+  settings key anyway.
+
+--------------------------------------------------------------------------------
+FINDING 11 -- THREE PREVIEW TOOLTIPS DESCRIBE SOMEBODY ELSE'S SETTING, AND ONE
+              OF THEM CLAIMS A BEHAVIOUR THE PANEL DOES NOT HAVE
+--------------------------------------------------------------------------------
+
+PROPOSE: CORRECT THESE NOW, separately from any rename batch. Same class as
+Classify's `intermedeate_save` and Annotate's `threshold`: not untidiness,
+misinformation.
+
+  1. THE "NORMALISE" TOGGLE SAYS IT AFFECTS SEGMENTATION. IT DOES NOT.
+
+        spacr/qt/widgets/live_preview.py:1536-1537
+            self._normalise_check.setToolTip(
+                "(bool) Percentile-normalise the image for display + "
+                "segmentation.")
+
+     `_normalise_check`, `_lo_pct` and `_hi_pct` are read in exactly two
+     places -- `_refresh_canvases` (:3463-3468) and `_snapshot_run`
+     (:3707-3709) -- and both hand them to `_to_uint8`, which draws a picture.
+     `_build_request` (:3353-3380) never mentions them, and `_segment_multi`
+     (:871-935) passes the raw plane (or the background-thresholded one) to
+     `model.eval`. The preview segments what Cellpose is given, and the toggle
+     changes only what the user is shown.
+
+     THE SAME SENTENCE IS ON THE TIMELAPSE PANEL AND THERE IT IS TRUE:
+
+        spacr/qt/widgets/timelapse_preview.py:1255-1256
+            "(bool) Percentile-stretch each frame for display + segmentation."
+        spacr/qt/widgets/timelapse_preview.py:405-408
+            if params.get("normalise", True):
+                plane = _to_uint8(plane, normalise=True, lo_pct=..., hi_pct=...)
+
+     So the two previews of the same Cellpose call disagree with each other,
+     and neither matches the run, which normalises with `lower_percentile` and
+     an automatic high anchor. THREE normalisations for one question. The
+     timelapse one is also fixed at 2/98 -- `_seg_params` (:1800-1808) passes
+     no `lo_pct`/`hi_pct`, so `params.get` returns its own defaults -- which
+     means its two percentile spinners do not reach its own segmentation
+     either.
+
+  2. THE TIMELAPSE DIAMETER SPINNER REPEATS A CLAIM ITS SIBLING FILE MEASURED
+     AND REFUTED.
+
+        spacr/qt/widgets/timelapse_preview.py:1235-1236
+            self._diameter.setToolTip(
+                "(float, px) Expected object diameter. Ignored by "
+                "Cellpose-SAM.")
+
+     `live_preview.DIAMETER_TOOLTIP` (:82-110) exists solely to correct that
+     sentence, with the counts: "``CellposeModel._run_cp`` in cellpose 4.0.7
+     still does ``image_scaling = 30. / diameter``" and a measured table
+     (diameter 30 -> 66 cells, diameter 60 -> 71). Its comment even explains
+     why the false claim was believable: "30 matches 'unset' because 30/30 is
+     a no-op rescale ... and 30 is the spinner's default". The timelapse
+     spinner's default is also 30.0 (:1233).
+
+  3. THE LIVE PREVIEW'S OBJECT SELECTOR CARRIES THE ACTIVATION-MAPS TOOLTIP.
+
+        spacr/qt/widgets/live_preview.py:4002
+            p._object_box: "object_type",
+
+        "object_type": "(str) - Mask used to define an object when the
+        pointing game scores an attribution map ... The metric checks only
+        whether the map's maximum-valued pixel lies inside that mask."
+
+     This is the SECOND surface to inherit it -- the Annotate audit found the
+     same tooltip on the Cells tab. On the Mask live preview the combo means
+     "which object am I segmenting", and it offers five choices including
+     "cell + nucleus" and "organelle"; the tooltip lists four and none of them
+     is either.
+
+     And in the same map, `p._outline_colour: "outline_color"` gives the
+     preview's colour combo a tooltip about a different vocabulary entirely:
+     "Three-letter code choosing the RGB colours for cell, nucleus and
+     pathogen outlines, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. The
+     default 'gbr' ... An unrecognised string falls back to 'rbg' without
+     warning". The combo offers `("auto", "color (random)", "green",
+     "magenta", "yellow", "cyan", "white", "red")` (:265-266) and defaults to
+     "color (random)". Not one of the eight is a value that tooltip would
+     accept, and the tooltip's own warning is what would happen to anyone who
+     followed it. `outline_thickness` is the same shape: range 1-5, default 1
+     (:1505-1506), tooltip "Default 3."
+
+--------------------------------------------------------------------------------
+FINDING 12 -- "PROPAGATE SETTINGS" REPORTS SUCCESS WITHOUT CHECKING, AND THREE
+              PANELS RELY ON THAT
+--------------------------------------------------------------------------------
+
+PROPOSE: make `_propagate_live_settings` count what landed and say so. This is
+one function and it is what turns each of the three cases below from a silent
+loss into a visible one.
+
+`set_value_for_key` is explicitly a two-outcome call:
+
+        spacr/qt/screens/settings_model.py:9118-9127
+            def set_value_for_key(self, key: str, value: Any) -> bool:
+                """... Returns True if the key existed and was set."""
+                w = self._widgets.get(key)
+                if w is None:
+                    return False
+
+The screen-owned route discards the answer:
+
+        spacr/qt/screens/app_screen.py:7639-7645
+            def _propagate_live_settings(self, settings: dict) -> None:
+                ...
+                for key, value in settings.items():
+                    model.set_value_for_key(key, value)
+
+The registry route, five hundred lines away, documents precisely why that is
+wrong and does the opposite:
+
+        spacr/qt/preview_registry.py:204-208
+            Unmapped names are dropped rather than passed through: a module
+            that has no ``cell_channel`` gains nothing from being offered one,
+            and ``set_value_for_key`` would return False for each in silence,
+            leaving "propagate" looking like it worked.
+
+THREE PANELS GO THROUGH THE ROUTE THAT DOES NOT CHECK, and each loses
+something different:
+
+  * THE CROP PREVIEW WRITES A RETIRED KEY.
+
+        spacr/qt/widgets/measure_preview.py:1040
+            "organelle_min_size": int(self._min_sizes["organelle"].value()),
+
+    Measure declares `cell_`, `nucleus_`, `pathogen_` and `cytoplasm_min_size`
+    and no organelle one, so there has never been a widget for it. Since this
+    afternoon the key is also in `RETIRED_SETTINGS`. Its row is on the panel
+    (`_OBJECTS = tuple(ALL_ROLES)`, measure_preview.py:64), the propagate
+    button reports success, and nothing moves. Measure's own layout still
+    names it too (`settings_model.py:1366`).
+
+  * THE HYPERPARAMETER SEARCH SAYS "APPLIED" UNCONDITIONALLY.
+
+        spacr/qt/screens/hyperparam.py:2178-2186
+            self._apply_cb(dict(params))
+            ...
+            msg = f"Applied {format_params(params)} to the settings panel."
+
+    with `_apply_cb` wired to the same `_propagate_live_settings`
+    (app_screen.py:5989). The four shipped search spaces all name real
+    settings -- checked: `n_neighbors`, `min_dist`, `learning_rate`,
+    `dropout_rate`, `n_estimators`, `cam_type`, `smoothgrad_samples` are each
+    in their module's defaults dict -- so this is currently a latent problem
+    rather than a live one. It stops being latent the moment anyone types a
+    parameter name into the editable grid (`hyperparam.py:826`), which is a
+    free-text `QLineEdit` validated against nothing.
+
+  * AND THE SIX KEYS OF FINDING 1 GO THE SAME WAY, silently.
+
+--------------------------------------------------------------------------------
+FINDING 13 -- THE TRACK PREVIEW WRITES THE CELL'S SETTINGS WHATEVER OBJECT IS
+              TRACKED, AND TURNS A PREVIEW BUDGET INTO A RUN LIMIT
+--------------------------------------------------------------------------------
+
+PROPOSE: two edits in one function, and they are opposite in kind -- one key
+is under-parameterised and one should not be written at all.
+
+        spacr/qt/widgets/timelapse_preview.py:1679-1695
+            obj = self._object_box.currentText()
+            return {
+                "timelapse_mode": ...,
+                "timelapse_displacement": ...,
+                "timelapse_memory": ...,
+                "timelapse_objects": [obj],
+                "timelapse_remove_transient": ...,
+                "timelapse_frame_limits": [0, int(self._max_frames.value())],
+                f"{obj}_channel": int(self._channel.value()),
+                f"{obj}_diameter": float(self._diameter.value()),
+                "cell_flow_threshold": float(self._flow.value()),
+                "cell_cellprob_threshold": float(self._prob.value()),
+                "normalize": bool(self._normalise.isChecked()),
+            }
+
+  1. `cell_flow_threshold` AND `cell_cellprob_threshold` ARE HARDCODED TO
+     `cell_` while the two lines above them use `obj`. The panel's object
+     combo offers "cell", "nucleus" and "pathogen" (:1223). Track nuclei, tune
+     the flow threshold until the nuclei separate, press Propagate, and the
+     value lands on `cell_flow_threshold`; `nucleus_flow_threshold` keeps its
+     100.
+
+     THE SIBLING PANEL FIXED EXACTLY THIS AND SAID SO. `live_preview.
+     settings_for_propagation` (:2517-2521): "With 'nucleus' selected the
+     panel runs Cellpose on the nucleus, so writing the result to
+     `cell_diameter` left `nucleus_diameter` untouched and the run used
+     neither the tuned number nor the one on screen."
+
+  2. `timelapse_frame_limits` IS WRITTEN FROM A CONTROL WHOSE OWN TOOLTIP SAYS
+     IT IS ABOUT THE PREVIEW.
+
+        spacr/qt/widgets/timelapse_preview.py:1249-1252
+            self._max_frames.setToolTip(
+                "(int) How many frames of the sequence the preview reads. The "
+                "rest of the movie is never loaded.")
+
+     and the run slices the real stack by it:
+
+        spacr/object.py:859-862
+            if isinstance(timelapse_frame_limits, list):
+                if len(timelapse_frame_limits) >= 2:
+                    stack = stack[timelapse_frame_limits[0]:
+                                  timelapse_frame_limits[1], ...]
+
+     Timelapse ships `[5,]` -- a one-element list, which the tooltip correctly
+     says "has no effect". Opening the track preview and pressing Propagate
+     replaces it with `[0, 12]` and truncates every subsequent run to twelve
+     frames. The panel's tooltips otherwise follow a clear convention: a
+     control that IS a setting names its key ("timelapse_mode --", "(int)
+     timelapse_memory --"), and a preview-only one does not. `_max_frames`
+     follows the preview-only convention and is the one that writes a setting.
+
+  3. THE ROUND TRIP IS NOT ONE. `apply_settings` (:1705-1732) reads back
+     `timelapse_mode`, `timelapse_displacement`, `timelapse_memory`,
+     `timelapse_objects`, `timelapse_remove_transient`, `{obj}_channel` and
+     `{obj}_diameter` -- seven of the eleven keys it writes. `cell_flow_
+     threshold`, `cell_cellprob_threshold`, `normalize` and `timelapse_frame_
+     limits` are written and never read, so the panel cannot show what the run
+     is currently set to for four of its own controls.
+
+  MOTILITY IS THE SAME SHAPE, SMALLER AND MILDER. `settings_for_propagation`
+  (motility_preview.py:1042-1063) writes eight keys and all eight are real
+  Motility settings; `apply_settings` reads back seven, dropping only
+  `pathogen_channel`. Its `_min_len` and `_tracked_plane` controls are
+  preview-only and correspond to no Motility setting, which is honest -- the
+  module has no `min_track_length`. Recorded as checked rather than as a
+  finding.
+
+--------------------------------------------------------------------------------
+FINDING 14 -- THE PREVIEW REGISTRY'S TWO ATTACHED MODULES DROP MOST OF WHAT
+              THE PANEL TUNES
+--------------------------------------------------------------------------------
+
+PROPOSE: extend the two `propagation` maps, or say in the card's tooltip which
+controls reach the run. The mechanism here is RIGHT -- unmapped names are
+dropped deliberately and the reasoning is written down (preview_registry.py:
+204-208) -- so this is about the maps being short, not about the design.
+
+        spacr/qt/preview_registry.py:99-119
+            "cellpose_masks": PreviewSpec(..., propagation={
+                "cell_diameter": "diameter",
+                "cell_flow_threshold": "flow_threshold",
+                "cell_cellprob_threshold": "CP_prob",
+                "model_name": "model_name",
+                "normalize": "normalize",
+            }),
+            "analyze_plaques": PreviewSpec(..., propagation={
+                "cell_diameter": "diameter",
+                "cell_flow_threshold": "flow_threshold",
+                "cell_cellprob_threshold": "CP_prob",
+            }),
+
+The Mask panel these two reuse emits, for a one-object cell run: four channel
+keys, `model_name`, `{primary}_model_name`, three segmentation keys,
+`normalize`, `lower_percentile`, `adjust_cells`, thirteen per-compartment
+filters, and three common tuning keys.
+
+  FOR `cellpose_masks` the three common ones are the loss that matters:
+  `cell_signal_to_noise`, `remove_background_cell` and `cell_background` are
+  emitted by the panel and are not in the map -- while `Signal_to_noise`,
+  `remove_background` and `background` are all real cellpose_masks settings,
+  on its form, under a heading called "Background & Denoising". The user tunes
+  the background until the haze goes, presses Propagate, and the module's
+  `background` is still 100.
+
+  FOR `analyze_plaques` THE MODEL IS DROPPED. The map has no `model_name`
+  entry, and the plaque module's model setting is `plaque_model` anyway
+  (Finding 5), so picking `toxoplasma_plaque_v1` in the preview's zoo button
+  and propagating leaves the run on 'bundled' -- which is the 0.718-F1 model
+  the settings comment says misses about a third of the plaques. That is the
+  most expensive silent drop found in this audit.
+
+  THE COMMENT ABOVE THE TWO SPECS IS ALSO NOW HALF WRONG: "Their settings even
+  share its names -- the panel reads `diameter`, `flow_threshold` and
+  `CP_prob` straight out of the dict, which is what makes reuse honest rather
+  than approximate." The panel's `_seed` does try those three native names
+  first (`_SEGMENTATION_ALIASES`, Finding 1), so for these two modules the
+  READ direction still works -- it is Mask, the panel's own module, that
+  Finding 1 broke.
+
+--------------------------------------------------------------------------------
+FINDING 15 -- THE SEARCH PANEL OVERRIDES ONE CROSS-VALIDATION SETTING, IGNORES
+              ITS TWIN, AND NEVER TRIES THE MODULE'S OWN DEFAULT
+--------------------------------------------------------------------------------
+
+PROPOSE: three small clarifications rather than a settings change. The panel
+itself is well built -- sixteen run controls, every one with a written tooltip
+that names its API function where there is one, and the four shipped search
+spaces all name real settings. These are the edges.
+
+  1. `folds` IS A SECOND CONTROL FOR `cross_validation_folds`, AND IT WINS.
+
+        spacr/hyperparam.py:3683-3684
+            cfg["cross_validation_folds"] = n_folds
+            cfg.setdefault("cv_group_by", settings.get("cv_group_by", "well"))
+
+     Note the asymmetry: `cross_validation_folds` is ASSIGNED (the panel wins)
+     and `cv_group_by` is `setdefault`ed (the module wins). Nothing on either
+     surface says which.
+
+     AND `cross_validation_enabled` IS NEVER SET. The training run gates on
+     the fold count alone:
+
+        spacr/deep_spacr.py:1742-1744
+            cv_folds = int(settings.get('cross_validation_folds', 0) or 0)
+            if settings.get('cross_validation_enabled') and cv_folds < 2:
+                cv_folds = 5
+
+     so a search cross-validates on a module whose "cross validation enabled"
+     checkbox is off. The Classify audit already proposed merging those two
+     switches; this is the case that shows why it is not cosmetic.
+
+  2. THE FOLDS TOOLTIP STATES AS FACT WHAT IS ACTUALLY A SETTING.
+
+        spacr/qt/screens/hyperparam.py:907-909
+            "Cross-validation folds per trial. Folds are grouped by well, so
+            crops from one well never straddle a split."
+
+     True only while `cv_group_by == 'well'`, which is the default and is what
+     the line above honours from the user's own settings. `cv_group_by` also
+     accepts 'cell' and 'field' (`hyperparam.py:3011`), and `make_cv_folds`
+     says of the first: "group_by='cell': folds are a plain stratified split"
+     (:3071) -- i.e. crops from one well DO straddle the split. One sentence
+     would fix it.
+
+  3. THE UMAP GRID NEVER INCLUDES THE MODULE'S OWN VALUE.
+
+        spacr/hyperparam.py:222-225
+            "umap": {"n_neighbors": [5, 15, 50, 100],
+                     "min_dist": [0.0, 0.1, 0.5]},
+
+     and `set_default_umap_image_settings` ships `n_neighbors = 1000`. The
+     grid fields are seeded from `DEFAULT_SPACES` rather than from the current
+     settings (`hyperparam.py:826-830`), so every value tried is between ten
+     and two hundred times below the value the user is already running, and
+     the winner is declared against four candidates none of which is the
+     incumbent. `min_dist` is fine -- the module ships 0.1 and the grid
+     contains it.
+
+--------------------------------------------------------------------------------
+WHAT WAS CHECKED AND IS NOT A FINDING
+--------------------------------------------------------------------------------
+
+Recorded so the next reader does not re-open them.
+
+* INVASION'S 37 AND REPLICATION'S 25 ARE CLEAN ON CONTENT. Nothing dead by
+  the strict test; no duplicate pair; every tooltip matches the code that
+  reads it, including the awkward ones -- `intensity_statistic` says "Default
+  'mean'. Invasion starts at 'auto': it chooses periphery_95 when present,
+  otherwise percentile_95, and uses mean only as a warned last resort", which
+  is exactly what `_resolve_invasion_intensity_column` does. Two shared keys
+  are the exception and they are the familiar shape rather than a new one:
+  `level`'s tooltip spends four sentences on regression before "For proportion
+  plots, the same key selects 'object', 'well', or 'plate' aggregation", and
+  `cmap`'s says "Default 'inferno' for image plots and 'viridis' for plate
+  heatmaps" on a form where the value is 'viridis' and neither kind of figure
+  is drawn.
+
+* THE MASK LIVE PREVIEW'S ORGANELLE COLUMN IS GATED CORRECTLY.
+  `ORGANELLE_METHOD_FIELDS` is keyed by morphology and `_organelle_settings`
+  writes only the group the current morphology reads, "otherwise a cell run
+  would propagate a morphology and a method nothing in it reads"
+  (live_preview.py:3092-3096). The comment above the table says it mirrors
+  `spacr.object._extract_classical_settings` and warns that drift would offer
+  a setting segmentation never reads. Only the two `_size` fields are wrong
+  (Finding 1); the other 23 are right.
+
+* THE COMMON TUNING CONTROLS ARE WRITTEN PER SELECTED OBJECT, NOT PER PRIMARY
+  (live_preview.py:2977-2983), with the reason recorded: keying them off the
+  primary alone "wrote `remove_background_cell` and left the nucleus channel
+  with no key at all, so the segmentation worker ... silently skipped it and
+  the toggle appeared to do half a job." That is the right shape.
+
+* THE MASK PREVIEW READS `metadata_type` AND `custom_regex` OFF THE SCREEN
+  rather than assuming the default (live_preview.py:2064-2078), which is what
+  makes a preview of a cq1 folder group correctly. The crop preview does not
+  need it (it reads merged `.npy`).
+
+* `save_h5`-style conditionals were looked for in the assays and are not
+  there. Invasion's `outside_threshold` / `outside_threshold_method` /
+  `control_wells` are a genuine three-way fallback and each tooltip says which
+  of the others it overrides.
+
+* `test_cellpose_model` and `apply_cellpose_model` are API-only (in neither
+  `spacr.cli.MODULES` nor `spacr.qt.app.APPS`). Their `FT` / `CP_probability`
+  / `circularize` therefore have no category, and that is correct rather than
+  a gap -- they render on no form. It is only Finding 7's naming point that
+  applies to them.
+
+* The hyperparameter panel's own sixteen run controls are all preview-of-the-
+  search parameters rather than module settings, and every one carries a
+  hand-written tooltip; ten of its tooltips name their API function. This is the
+  best-documented hand-built control surface in the item and needs nothing.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+The six core modules, Preferences, spaceout, and now the three sub-surfaces
+the request named are all audited. What is not audited, and was noticed while
+doing this:
+
+  * THE MOTILITY ASSAY (55 settings). Named in the open instruction's own list
+    beside recruitment and plaques, and it is a first-class module with a
+    tile-less registration, a preview panel, and thirty-nine `infection_*`
+    keys that are a whole sub-vocabulary of their own. It is the largest
+    unaudited surface left in this item.
+
+  * THE ACTIVATION MAPS MODULE (27). It is in `GUI_MODULE_DEFAULTS` and has a
+    search space, and two of this audit's findings reached into it sideways --
+    `object_type`'s tooltip is its setting, appearing on two other modules'
+    forms.
+
+  * AND ONE THING THIS AUDIT OWES THE RENAME BATCH. Finding 1 is a suffix
+    substitution that missed three literals because they had no leading
+    underscore. The same batch renamed `_Signal_to_noise`, and
+    `Signal_to_noise` (no underscore) is still shipped by three modules
+    (Finding 7). Before the next rename in this item, the check to run is:
+    grep the package for the BARE suffix as a quoted string, not only for the
+    underscored key. In this case that is four greps and it would have found
+    all six of Finding 1's dead keys the same afternoon they were created.
