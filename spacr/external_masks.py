@@ -115,10 +115,14 @@ class InputGroup:
 class MaskMatch:
     """One label-mask file matched to an intensity-image field.
 
-    :ivar path: Absolute mask-file path.
-    :ivar object_type: spaCR object role such as ``cell`` or ``nucleus``.
-    :ivar stem: Canonical field stem shared with the intensity image.
-    :ivar match: Description of the matching rule that succeeded.
+    :param path: absolute path of the matched source label-mask file; the
+        importer reads this file and reports it in validation errors.
+    :param object_type: valid spaCR object role assigned to the mask group,
+        such as ``cell`` or ``nucleus``.
+    :param stem: canonical ``<plate>_<well>_<field>`` stem of the intensity
+        field to which the mask was paired.
+    :param match: pairing rule that succeeded, currently ``"exact"`` or
+        ``"normalised"`` after stripping mask/object-role suffixes.
     """
 
     path: str

@@ -386,16 +386,17 @@ class LabelEdit:
     brush stroke touches a few thousand voxels of a field that is tens of
     millions, so a hundred strokes cost less than one copy of the mask.
 
-    :ivar index: one integer array per axis — what
-        :meth:`spacr.layers.LabelsLayer.brush_index` returned, restricted to
-        the elements that actually changed.
-    :ivar before: the label each of those elements held.
-    :ivar after: the label they were set to.
-    :ivar radius: the brush radius this dab was laid with, in world units.
-        Carried on the dab rather than read off the session when the stroke
-        closes, because the session's radius is a mutable default and the
-        ledger has to say what *happened*, not what the controls read
-        afterwards.
+    :param index: one integer coordinate array per labels-data axis,
+        restricted to positions this dab actually changed and aligned
+        element-for-element with ``before``.
+    :param before: previous label value at each coordinate in ``index``; undo
+        groups these values and writes each one back to its original
+        positions.
+    :param after: integer label written at every indexed position; stroke
+        summaries record it as the value painted.
+    :param radius: brush radius used for this dab in world units. It is
+        retained as provenance even if the session radius changes later;
+        defaults to ``0.0`` for manually constructed records.
     """
 
     index: Tuple[np.ndarray, ...]
