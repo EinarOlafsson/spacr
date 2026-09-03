@@ -125,18 +125,23 @@ class MergeCancelled(RuntimeError):
 class SourceSummary:
     """What one database contributes to a merge.
 
-    :ivar path: filesystem path of the source database.
-    :ivar label: short unique provenance label assigned to the source.
-    :ivar table: table inspected in the source database.
-    :ivar rows: number of rows the source table contributes.
-    :ivar columns: source table's stored column names in order.
-    :ivar plates: canonical plate identifiers contributed by the source.
-    :ivar screen: caller-supplied screen label, or ``None`` when the source's
-        stored value or the default should determine it.
-    :ivar screen_plates: distinct post-normalisation ``(screen, plate)``
-        identities used to detect true within-screen collisions.
-    :ivar stored_plates: plate identifiers exactly as stored, retained so a
-        report can distinguish unusual spelling from canonical identity.
+    :param path: filesystem path of the source database, preserved in the
+        form supplied to :func:`describe_merge`.
+    :param label: short provenance label assigned uniquely across the
+        requested source set.
+    :param table: database table inspected for the merge.
+    :param rows: number of rows in the inspected source table before any
+        per-source preview limit.
+    :param columns: stored source-table column names in database order.
+    :param plates: sorted canonical plate identifiers contributed by the
+        source.
+    :param screen: caller-supplied screen override, or ``None`` when a stored
+        ``screenID`` or :data:`spacr.schema.DEFAULT_SCREEN` determines it.
+    :param screen_plates: sorted distinct canonical ``(screenID, plateID)``
+        identities contributed after applying the screen override or stored
+        screen values.
+    :param stored_plates: sorted distinct plate identifiers exactly as stored,
+        retained so non-canonical spellings can be reported.
     """
 
     path: str
@@ -559,7 +564,7 @@ def _screen_plate_pairs(path: str, table: str, plate_column: Optional[str],
         rows = db.execute(
             f'SELECT DISTINCT "{screen_column}", "{plate_column}" '
             f'FROM "{table}"').fetchall()
-    return sorted({(schema.screen_id(row[0]), str(row[1]))
+    return sorted({(schema.screen_id(row[0]), canonical_plate_id(row[1]))
                    for row in rows if row[1] is not None})
 
 
@@ -688,18 +693,24 @@ class MergeDecision:
     the session, so it holds strings and numbers rather than objects whose
     class may not exist by the time somebody reads it back.
 
-    :ivar table: database table the merge targeted.
-    :ivar sources: source database paths in merge order.
-    :ivar labels: provenance labels corresponding to ``sources``.
-    :ivar rows: pre-merge row count keyed by source label.
-    :ivar columns: column-selection rule used for the merge.
-    :ivar dropped_columns: columns omitted by the selected merge rule.
-    :ivar colliding_plates: duplicate plate ids mapped to their source labels.
-    :ivar outcome: final ``'merged'`` or ``'refused'`` result.
-    :ivar resolution: operator's recorded explanation of how a collision or
-        other merge decision was resolved.
-    :ivar when: ISO-formatted timestamp identifying when the decision was
-        made and appended to the audit log.
+    :param table: database table targeted by the recorded merge.
+    :param sources: source database paths in requested merge order.
+    :param labels: provenance labels corresponding positionally to
+        ``sources``.
+    :param rows: pre-merge row count keyed by source label.
+    :param columns: column-selection rule supplied for the merge, normally
+        ``"common"`` or ``"union"``.
+    :param dropped_columns: columns omitted by the selected rule; empty for a
+        union merge.
+    :param colliding_plates: within-screen duplicate plate identifiers mapped
+        to their contributing source labels.
+    :param outcome: caller-supplied outcome label, such as ``"merged"``,
+        ``"refused"``, or ``"resolved"``.
+    :param resolution: operator explanation of how a collision or other
+        decision was resolved, or ``""`` when no explanation was recorded.
+    :param when: ISO-formatted timestamp attached to the decision;
+        :func:`decision_for` generates local time to second precision when
+        none is supplied.
     """
 
     table: str
@@ -711,7 +722,7 @@ class MergeDecision:
     columns: str
     dropped_columns: Tuple[str, ...]
     colliding_plates: Mapping[str, Tuple[str, ...]]
-    #: ``'merged'`` or ``'refused'`` -- what actually happened.
+    #: Caller-supplied outcome label describing what actually happened.
     outcome: str
     #: What the user did about it, in their own terms. Empty when there was
     #: nothing to decide.
@@ -742,7 +753,8 @@ def decision_for(plan: MergePlan, *, outcome: str, columns: str = "common",
     """Build the record for what ``plan`` was asked to do.
 
     :param plan: the plan the decision is about.
-    :param outcome: ``'merged'`` or ``'refused'``.
+    :param outcome: caller-supplied outcome label, such as ``"merged"``,
+        ``"refused"``, or ``"resolved"``.
     :param columns: the column rule that was used.
     :param resolution: what the user chose, in words.
     :param when: ISO timestamp; ``None`` takes the current local time.

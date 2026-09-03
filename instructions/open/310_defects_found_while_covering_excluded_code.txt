@@ -3563,3 +3563,61 @@ record contract fail.
 
 REVISED COUNT: 137 entries, 68 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+80. SOURCE-SUMMARY ROWS WERE DOCUMENTED AS THE PREVIEW ROWS
+==============================================================================
+
+Found 2026-09-03 while repairing constructor documentation in
+``spacr/multi_database.py``. ``SourceSummary.rows`` was described as the rows
+the source contributes, which becomes false when a caller asks
+``read_merged`` for a per-source preview limit: the summary records the full
+table count before that limit.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/multi_database.py``. The constructor
+contract now distinguishes the inspected table count from a later preview,
+and names the stored and canonical identities carried by every field.
+Reverting ``path`` to ``:ivar:`` makes the exact record contract fail.
+
+REVISED COUNT: 138 entries, 69 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+81. MERGE-DECISION DOCUMENTATION EXCLUDED A LIVE OUTCOME
+==============================================================================
+
+Found 2026-09-03 in ``spacr/multi_database.py``. ``MergeDecision.outcome``
+and :func:`decision_for` claimed only ``merged`` and ``refused`` were valid,
+although the established audit-log path records ``resolved`` and the function
+accepts other caller-supplied labels. The timestamp was also described as the
+append time even though it is created before :func:`record_decision` runs.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/multi_database.py``. Class, field,
+and function prose now agree with the actual open outcome vocabulary and name
+decision construction as the timestamp boundary. Reverting ``table`` to
+``:ivar:`` makes the exact record contract fail.
+
+REVISED COUNT: 139 entries, 70 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+82. STORED SCREEN LABELS BYPASSED PLATE-ID CANONICALISATION
+==============================================================================
+
+Found 2026-09-03 while verifying ``SourceSummary.screen_plates``. The branch
+that trusted a stored ``screenID`` returned the stored plate spelling, while
+the explicit-screen and no-screen branches canonicalised it. Two databases
+from screen ``kd`` containing ``pplate1`` and ``plate1`` therefore appeared
+safe in the plan, then both became ``plate1`` when the frames were read.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/multi_database.py``. Every
+``screen_plates`` branch now uses :func:`canonical_plate_id`, so the preview
+refuses exactly the identity the merged data would otherwise pool. A focused
+regression drives both spellings through stored screen labels; restoring the
+raw string makes that test fail, while distinct stored screens still pass.
+
+REVISED COUNT: 140 entries, 71 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
