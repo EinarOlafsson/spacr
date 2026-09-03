@@ -52,12 +52,16 @@ CONTROL_LABELS = ("nc", "negative", "non-targeting", "nontargeting",
 class Baseline:
     """Store a selected baseline and its reporting sentence.
 
-    :ivar kind: baseline strategy that was selected or resolved.
-    :ivar shift: constant subtracted from every reported effect.
-    :ivar n: number of coefficients used to estimate the shift.
-    :ivar sentence: non-empty caption sentence explaining the baseline.
-    :ivar reason: why the requested strategy could not be honoured, or
-        ``None`` when it was applied as requested.
+    :param kind: baseline strategy actually applied; fallback results use
+        :data:`ZERO` even when another strategy was requested.
+    :param shift: effect offset subtracted from the selected coefficient
+        column by :func:`apply`; zero leaves values unchanged.
+    :param n: number of coefficients supporting the resolved decision; zero
+        for a zero or hand-supplied baseline.
+    :param sentence: nonempty caption text explaining the reference that must
+        accompany reported effects.
+    :param reason: explanation for falling back from the requested strategy,
+        or ``None`` when it was applied as requested.
     """
 
     kind: str

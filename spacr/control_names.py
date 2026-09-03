@@ -26,11 +26,15 @@ GUIDE = "grna"
 class ControlSpec:
     """Resolved interpretation of a user-entered control.
 
-    :ivar typed: original nonblank identifier entered by the user.
-    :ivar level: resolved level, :data:`GENE` or :data:`GUIDE`.
-    :ivar value: normalized gene or guide identifier to match.
-    :ivar prefix: common organism or strain token removed during resolution,
-        or an empty string when the stored identifiers have no such prefix.
+    :param typed: original trimmed nonblank identifier supplied by the user,
+        retained for diagnostics and prefix-retry logic.
+    :param level: resolved identifier level, :data:`GENE` or :data:`GUIDE`,
+        which selects gene-wide versus exact-guide matching.
+    :param value: normalized gene or guide identifier used for matching after
+        any recognized organism prefix is removed.
+    :param prefix: inferred or explicit organism or strain token without the
+        separator, retained so prefixed and unprefixed stored names both
+        match; empty when none is known.
     """
 
     typed: str

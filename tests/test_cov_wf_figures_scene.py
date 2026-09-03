@@ -13,6 +13,7 @@ the widget that refuses deletion -- neither of which a real object can do.
 """
 from __future__ import annotations
 
+from dataclasses import fields
 import os
 
 import matplotlib
@@ -85,8 +86,8 @@ def test_scene_report_documents_and_retains_translation_evidence():
     report = SceneReport(axes=2, items=7, missing=["mathtext"],
                          data_colours=["#3366AA"], notes=["fallback"])
 
-    for name in ("axes", "items", "missing", "data_colours", "notes"):
-        assert f":ivar {name}:" in (SceneReport.__doc__ or "")
+    for field in fields(SceneReport):
+        assert f":param {field.name}:" in (SceneReport.__doc__ or "")
     assert (report.axes, report.items) == (2, 7)
     assert report.data_colours == ["#3366AA"]
     assert report.notes == ["fallback"]

@@ -90,7 +90,7 @@ def test_a_report_counts_as_its_moved_number():
                                           unresolved=4, root="/x")
 
     for name in ("column", "moved", "unresolved", "first_unresolved", "root"):
-        assert f":ivar {name}:" in (portable_paths.RerootReport.__doc__ or "")
+        assert f":param {name}:" in (portable_paths.RerootReport.__doc__ or "")
     assert moved.first_unresolved == "/gone/a.png"
     assert "/gone/a.png" in moved.describe()
     assert bool(moved) is True

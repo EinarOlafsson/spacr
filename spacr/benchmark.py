@@ -68,14 +68,23 @@ class Measurement:
 
 @dataclass(frozen=True)
 class Recommendation:
-    """A worker count, and every number that produced it.
+    """A worker count and the retained evidence supporting it.
 
-    :ivar workers: recommended number of parallel workers.
-    :ivar reason: human-readable explanation of the binding limit.
-    :ivar measurement: benchmark observation used to size each worker, or
-        ``None`` when only the core count was available.
-    :ivar cores: processor-core ceiling used by the recommendation.
-    :ivar available_bytes: currently available memory used for worker sizing.
+    :param workers: final recommended parallel-worker count; always at least
+        one and bounded by the normalized core count, measured memory capacity
+        when usable, and configured maximum.
+    :param reason: human-readable explanation of the branch that set
+        ``workers``: missing measurement, one-worker fallback, memory bound,
+        core bound, or configured maximum.
+    :param measurement: exact :class:`Measurement` supplied to
+        :func:`recommend_workers`; ``None`` means no benchmark was available,
+        while a zero-work-footprint measurement is retained but triggers the
+        core-count fallback.
+    :param cores: effective logical-core ceiling after defaulting from
+        :func:`os.cpu_count` and clamping to at least one.
+    :param available_bytes: available-memory snapshot before the configured
+        reserve is subtracted; supplied by the caller or measured by spaCR,
+        and zero when unavailable.
     """
 
     workers: int

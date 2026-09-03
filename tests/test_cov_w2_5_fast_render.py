@@ -8,6 +8,7 @@ Qt, no pyqtgraph, no QApplication, no columns, no destination, no disk.
 from __future__ import annotations
 
 import builtins
+from dataclasses import fields
 import os
 import sys
 import types
@@ -52,8 +53,8 @@ def test_a_record_is_true_only_when_something_was_written():
     """``bool(record)`` answers "is there a file", not "was it attempted"."""
     record = fr.RenderedPanel("qq", path="/tmp/qq.pdf",
                               renderer="matplotlib", drawn=True, reason="")
-    for name in ("path", "renderer", "drawn", "reason"):
-        assert f":ivar {name}:" in (fr.RenderedPanel.__doc__ or "")
+    for field in fields(fr.RenderedPanel):
+        assert f":param {field.name}:" in (fr.RenderedPanel.__doc__ or "")
     assert record.renderer == "matplotlib" and record.reason == ""
     assert bool(record)
     assert not bool(fr.RenderedPanel("qq", path="/tmp/qq.pdf", drawn=False))
