@@ -190,38 +190,40 @@ class PropertyInfo:
 class FeatureEntry:
     """A single database column, decomposed and explained.
 
-    :ivar column: The column name exactly as it appears in the database.
-    :ivar object_type: ``cell`` / ``nucleus`` / ``pathogen`` / ``organelle`` /
-        ``cytoplasm``, or ``None`` for metadata and un-prefixed columns.
-    :ivar channel: Zero-based index of the measured channel, or ``None``.
-    :ivar family: One of the keys of :data:`FEATURE_FAMILIES`.
-    :ivar description: Prose meaning, or ``None`` when undetermined.
-    :ivar unit: Unit of the value, or ``None``.
-    :ivar computed_by: Provenance string; ``"unknown"`` for unrecognised names.
-    :ivar notes: Caveats, or ``None``.
-    :ivar channel_2: Second channel index for two-channel (colocalisation)
-        columns, otherwise ``None``.
-    :ivar object_type_2: Second object type, set when a column carries a
-        pandas merge suffix such as ``..._nucleus`` from
-        :func:`spacr.io._read_and_join_tables`.
-    :ivar measurement_units: The ``measurement_units`` value ``unit`` was
-        resolved under — ``px``, ``px_xy``, ``um``, or ``None`` when it was not
-        known and ``unit`` therefore states its own condition. Always ``None``
-        for columns whose unit does not depend on it.
-    :ivar key: The curated :data:`KNOWN_PROPERTIES` / :data:`META_COLUMNS` key
-        this column resolved through — the *feature*, as opposed to this one
-        instantiation of it. ``None`` for an unrecognised column.
-    :ivar object_types: Every object type this feature is written for, which
-        is not the same thing as ``object_type`` (the one this column came
-        from): ``nucleus_periphery_mean`` exists and ``cell_periphery_mean``
-        does not. Empty when the feature is not per-object.
-    :ivar channel_scope: :data:`CHANNEL_NONE`, :data:`CHANNEL_SINGLE` or
-        :data:`CHANNEL_PAIR` — how channels enter this feature at all, as
-        opposed to which channel this column happens to be.
-    :ivar module: The spaCR module that produces the value.
-    :ivar written_when: What has to be true for the column to exist, or
-        ``None`` when every run writes it.
-    :ivar concepts: The :data:`CONCEPTS` this feature answers to.
+    :param column: Column name exactly as it appears in the database.
+    :param object_type: Object-type prefix parsed from the column, or ``None``
+        when the column has no object prefix.
+    :param channel: Zero-based first channel index parsed from the column, or
+        ``None`` when no channel enters it.
+    :param family: Feature-family key from :data:`FEATURE_FAMILIES`.
+    :param description: Prose meaning of the value, or ``None`` when the
+        meaning is undetermined.
+    :param unit: Unit text for the value, or ``None`` for identifiers and
+        unrecognised columns.
+    :param computed_by: Provenance string naming the producer, or ``"unknown"``
+        for an unrecognised column.
+    :param notes: Optional caveats about the column, or ``None`` when none
+        apply.
+    :param channel_2: Zero-based second channel index for two-channel
+        colocalisation columns, otherwise ``None``.
+    :param object_type_2: Second object type carried by a pandas merge suffix
+        such as ``..._nucleus``, otherwise ``None``.
+    :param measurement_units: Measurement-unit stamp supplied while resolving
+        a conditional unit; ``None`` for fixed-unit columns or when no stamp
+        was supplied. An unrecognised supplied stamp is retained while
+        ``unit`` states the unresolved conditions.
+    :param key: Curated :data:`KNOWN_PROPERTIES` or :data:`META_COLUMNS` key
+        through which the column resolved, or ``None`` for an unrecognised
+        column.
+    :param object_types: Object types for which the feature is written; empty
+        for features that are not per-object.
+    :param channel_scope: :data:`CHANNEL_NONE`, :data:`CHANNEL_SINGLE`, or
+        :data:`CHANNEL_PAIR`, describing how channels enter the feature.
+    :param module: spaCR module that produces the value, or ``"unknown"`` when
+        it cannot be identified.
+    :param written_when: Condition under which the column exists, or ``None``
+        when no condition is recorded.
+    :param concepts: Names from :data:`CONCEPTS` associated with the feature.
     """
 
     column: str
