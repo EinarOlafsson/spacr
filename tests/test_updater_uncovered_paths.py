@@ -29,7 +29,7 @@ def test_a_check_that_learned_no_release_offers_no_upgrade():
                               latest_release=None,
                               nightly_sha=None,
                               error="pypi: timed out")
-    assert ":ivar error:" in (updater.UpdateInfo.__doc__ or "")
+    assert ":param error:" in (updater.UpdateInfo.__doc__ or "")
     assert info.error == "pypi: timed out"
     assert info.upgrade_available is False
 
@@ -230,7 +230,7 @@ def test_a_resolver_that_dies_mid_read_is_still_a_readable_refusal(
     result = updater.dry_run_install("torch", runner=_broken)
 
     for field in ("changes", "error", "raw"):
-        assert f":ivar {field}:" in (updater.DryRun.__doc__ or "")
+        assert f":param {field}:" in (updater.DryRun.__doc__ or "")
     assert result.ok is False
     assert result.error == "Cannot allocate memory"
     assert result.raw == ""
