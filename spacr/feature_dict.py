@@ -167,15 +167,16 @@ FEATURE_FAMILIES: dict[str, str] = {
 class PropertyInfo:
     """One curated definition, shared by every column that instantiates it.
 
-    :ivar family: One of the keys of :data:`FEATURE_FAMILIES`.
-    :ivar description: What the number means, in prose. ``None`` only when the
+    :param family: feature-family key from :data:`FEATURE_FAMILIES` used to
+        group and filter the measurement.
+    :param description: prose explaining what the value means, or ``None``
+        only when the
         meaning could not be determined from the spaCR source.
-    :ivar unit: Physical/derived unit, or ``None`` for identifiers. A
-        :class:`ConditionalUnit` for the geometric columns, whose unit depends
-        on the row's ``measurement_units``; :func:`parse_column` resolves it.
-    :ivar computed_by: The real provenance — the function or library call that
-        produces the value. Never empty.
-    :ivar notes: Caveats, known defects, comparability warnings.
+    :param unit: physical or derived unit, ``None`` for identifiers, or a
+        :class:`ConditionalUnit` resolved from the row's measurement units.
+    :param computed_by: function or library call that produces the value;
+        curated properties require non-empty provenance.
+    :param notes: optional caveats, known defects, or comparability warnings.
     """
 
     family: str
