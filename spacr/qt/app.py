@@ -1721,17 +1721,33 @@ def demo_label_for_app(app_key: str) -> Optional[str]:
 # doesn't match any resource filename. Add entries here rather than
 # renaming resource files.
 _ICON_OVERRIDES = {
-    "analyze_plaques": "plaque.png",
-    "train_cellpose":  "cellpose_masks.png",  # share the Cellpose Masks icon
-    "agreement":       "annotate.png",     # shares the Annotate glyph: it
-                                           # scores annotation columns
-    "plate_view":      "map_barcodes.png", # ruled bars read as a well grid
-    "model_compare":   "mask.png",         # mask.png is one field split down
-                                           # the middle -- raw objects on one
-                                           # side, contours on the other. That
-                                           # IS Model Compare: the same field,
-                                           # segmented two ways, side by side.
-    "model_zoo":       "download.png",     # the zoo is where models come from
+    # ONE ENTRY, and it is the only genuine borrow left.
+    #
+    # The Cellpose Workbench is the key `train_cellpose`, and
+    # `train_cellpose.png` is a DUMBBELL -- the training glyph. Reported
+    # 2026-09-02: "the cellpose workbench icon should be the cellpose white
+    # ico ni made, not the train icon." So this key keeps borrowing the white
+    # cell outline, and the dumbbell stays on disk for anything that really
+    # does mean "train".
+    "train_cellpose":  "cellpose_masks.png",
+    #
+    # FIVE ENTRIES WERE REMOVED HERE on 2026-09-02 -- `analyze_plaques`
+    # (plaque.png), `agreement` (annotate.png), `plate_view`
+    # (map_barcodes.png), `model_compare` (mask.png) and `model_zoo`
+    # (download.png) -- for the same reason the four before them went: each
+    # has since been given ARTWORK OF ITS OWN, and it is better than what it
+    # was borrowing. `agreement.png` is two overlapping circles, which is
+    # what agreement between two annotators looks like; `model_zoo.png` is a
+    # grid of model cards rather than a download arrow; `plate_view.png` is a
+    # plate rather than a row of barcodes. An override is for an app that
+    # BORROWS another app's picture; it is not the place to record "this app
+    # has an icon".
+    #
+    # They were invisible until now: three surfaces resolved icons WITHOUT
+    # this table, so the fold buttons and settings headings were already
+    # showing the artwork while the tiles showed the borrow. Fixing those
+    # three surfaces is what made the staleness visible, by making all five
+    # borrows take effect everywhere at once.
     #
     # FOUR entries were REMOVED here — `timelapse`→run.png,
     # `motility`→recruitment.png, `db_browser`→map_barcodes.png and

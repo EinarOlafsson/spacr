@@ -60,7 +60,12 @@ def module_mark(key: str):
         glyphs = getattr(iconset, "_NAME_TO_GLYPH", {}) or {}
         if not has_art and key not in glyphs:
             return None
-        mark = iconset.app_icon(key)
+        # See the note in `fold_strip.py`: `iconset.app_icon` knows
+        # nothing of `_ICON_OVERRIDES`, so a module that borrows
+        # another's picture gets the wrong file. This heading marks a
+        # folded module's settings and must match its button.
+        from ..app import _icon_for_app
+        mark = _icon_for_app(key)
     except Exception:                                   # noqa: BLE001
         return None
     if mark is None or mark.isNull():

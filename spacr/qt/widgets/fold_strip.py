@@ -327,7 +327,22 @@ class FoldButton(QPushButton):
         self.setIconSize(QSize(ICON_PX, ICON_PX))
         icon = None
         try:
-            icon = iconset.app_icon(key)
+            # THROUGH `app._icon_for_app`, NOT `iconset.app_icon`.
+            # `iconset.app_icon` is told nothing about `_ICON_OVERRIDES`, so
+            # it resolves a key by filename alone -- and for every module
+            # that BORROWS another module's picture that is the wrong file.
+            # Reported 2026-09-02: the Cellpose Workbench button drew a
+            # DUMBBELL, because `train_cellpose.png` exists and is the
+            # training glyph, while the override sends that key to
+            # `cellpose_masks.png`, the white cell outline. The same was
+            # true of every other borrower: analyze_plaques, agreement,
+            # plate_view, model_compare and model_zoo.
+            #
+            # Imported inside the call because `spacr.qt.app` imports this
+            # module; at call time the cycle is closed and the lookup is a
+            # dict hit.
+            from ..app import _icon_for_app
+            icon = _icon_for_app(key)
         except Exception:
             icon = None
         if icon is not None and not icon.isNull():
