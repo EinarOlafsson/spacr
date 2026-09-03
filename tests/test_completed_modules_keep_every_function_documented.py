@@ -76,6 +76,7 @@ FULLY_DOCUMENTED = (
     "spacr/notebook_export.py",
     "spacr/organelle_types.py",
     "spacr/omero.py",
+    "spacr/parameter_sweep.py",
     "spacr/picture_settings.py",
     "spacr/plate_measurements.py",
     "spacr/plate_qc.py",

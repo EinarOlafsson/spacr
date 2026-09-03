@@ -2772,3 +2772,24 @@ protected-removal test fail.
 
 REVISED COUNT: 100 entries, 32 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+43. AN EMPTY SWEEP AXIS WAS REPORTED AS ONE COMBINATION
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/parameter_sweep.py``. ``SweepSpace.size`` multiplied each axis by at
+least one, so an explicitly empty value list was reported as one raw
+combination. ``build_trials`` correctly used the Cartesian product and built
+zero trials, leaving the displayed size inconsistent with the work that could
+actually run.
+
+VERDICT 2026-09-03: RESOLVED. ``SweepSpace.size`` now multiplies by the real
+axis length, retaining the conventional one combination for a space with no
+axes while returning zero when any configured axis is empty. The focused
+regression first failed with ``1 == 0`` against the old implementation and now
+pins ``space.size() == len(build_trials(space)) == 0``.
+
+REVISED COUNT: 101 entries, 33 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
