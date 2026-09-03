@@ -2906,3 +2906,27 @@ release made the prior-offer test fail.
 
 REVISED COUNT: 106 entries, 38 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+49. PERMUTATION QC ACCEPTED MISALIGNED OBSERVATION AND LABEL VECTORS
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/permutation_qc.py``. ``position_effect`` and
+``block_residual_report`` assumed that residuals, block labels, and every
+position column had identical lengths. Unequal inputs escaped the public API
+contract and failed later as NumPy boolean-index ``IndexError`` exceptions,
+rather than explicitly refusing a statistically invalid pairing before any
+partial report was assembled.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/permutation_qc.py``. Both public
+calculations now materialise and validate their paired inputs first, naming
+the mismatched vector and both lengths in ``ValueError``. Focused tests cover
+shorter and longer position vectors, a short block vector, and a short named
+position column; removing the guards made all four cases fail with the former
+raw ``IndexError``, while the existing valid noise, gradient, and per-block
+counterparts remain green.
+
+REVISED COUNT: 107 entries, 39 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.

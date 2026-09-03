@@ -10,7 +10,10 @@ from __future__ import annotations
 
 import math
 
-from spacr.permutation_qc import autocorrelation, position_effect
+import pytest
+
+from spacr.permutation_qc import (autocorrelation, block_residual_report,
+                                  position_effect)
 
 
 def test_all_zero_residuals_have_no_measurable_autocorrelation():
@@ -41,3 +44,30 @@ def test_non_finite_residuals_are_dropped_before_the_count():
                              ["A", "B", "A", "B"])
     assert math.isnan(result["eta_squared"])
     assert result["levels"] == 0.0
+
+
+@pytest.mark.parametrize("positions", [["A"], ["A", "B", "C"]])
+def test_position_effect_refuses_unpaired_observations(positions):
+    """A statistical pair cannot be silently truncated or indexed raw."""
+    with pytest.raises(
+            ValueError,
+            match=r"residuals and positions must have the same length; got 2"):
+        position_effect([1.0, 2.0], positions)
+
+
+def test_block_report_refuses_an_unpaired_block_vector():
+    """Every residual must belong to exactly one permutation block."""
+    with pytest.raises(
+            ValueError,
+            match=r"residuals and blocks must have the same length; got 3 and 2"):
+        block_residual_report([1.0, 2.0, 3.0], ["p1", "p1"])
+
+
+def test_block_report_names_an_unpaired_position_column():
+    """All named position columns are validated before a report is built."""
+    with pytest.raises(
+            ValueError,
+            match=r"position column 'rowID'.*got 2 and 3"):
+        block_residual_report(
+            [1.0, 2.0, 3.0], ["p1", "p1", "p1"],
+            {"rowID": ["A", "B"]})
