@@ -1504,6 +1504,8 @@ class ObjectID:
         exactly when they name the same object — a separate ``objectType``
         field would let ``('o7', 'nucleus')`` and ``('nucleus7', None)``
         describe one object and compare unequal.
+    :ivar timeID: canonical ``'t<N>'`` timepoint identifier, or ``None`` for
+        an object from a non-timelapse field.
     """
 
     plateID: str
