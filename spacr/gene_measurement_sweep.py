@@ -171,6 +171,7 @@ class SweepResult:
         return out.sort_values("q")
 
     def describe(self) -> str:
+        """Summarize grid size, significance, circularity, and omitted inputs."""
         survived = int((self.table["q"] < 0.05).sum())
         clean = (int(((self.table["q"] < 0.05)
                       & (self.table["circularity"] < 0.15)).sum())
@@ -184,7 +185,7 @@ class SweepResult:
                   " (circularity NOT computed -- the score joined to no "
                   "well, so it must not be read as 'not circular'). ")
         return (head + middle
-                + f"{len(self.dropped):,} identifier column(s) were left out.")
+                + f"{len(self.dropped):,} input column(s) were left out.")
 
 
 def _residualise(matrix: np.ndarray, blocks: np.ndarray) -> np.ndarray:

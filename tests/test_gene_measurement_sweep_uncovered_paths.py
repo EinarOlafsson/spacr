@@ -84,7 +84,7 @@ def test_a_circularity_bar_removes_the_pairs_the_score_already_tracks():
         for field in fields(SweepResult)
     )
     assert result.dropped == ("cell_id",)
-    assert "1 identifier column(s) were left out" in result.describe()
+    assert "1 input column(s) were left out" in result.describe()
     assert list(result.survivors(alpha=0.05)["guide"]) == ["clean", "circular"]
     kept = result.survivors(alpha=0.05, max_circularity=0.15)
     assert list(kept["guide"]) == ["clean"]
