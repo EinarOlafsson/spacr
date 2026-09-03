@@ -2997,3 +2997,39 @@ fail, while the ordinary comparison tests retain their positive counterpart.
 
 REVISED COUNT: 110 entries, 41 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+---
+
+2026-09-03, from the other session. REGRESSION IN 5172fe0036, found by
+bisect: choosing an object type on the "cells behind the dot" montage no
+longer changes which mask plane the crop is cut by.
+
+`tests/qt/test_cells_behind_the_dot_tab.py::test_the_object_type_chooses_
+the_mask_plane_the_crop_is_cut_by` passed at 6a6c7b746, the commit that
+introduced it, and fails today. `git bisect` over the 2,785 commits between
+names 5172fe0036 ("Resolve png list object identities") as the first bad one.
+
+THE LINE IS `df['object_type'] = effective_object_type`. When the png_list
+carries only `cell_id` and the caller asks for `nucleus`, the fallback now
+resolves the MODE along with the column -- so `effective_object_type` becomes
+`cell`, and the frame comes back saying the crops are cells. The montage
+reads that column to pick the mask plane, so both requests cut by the cell
+plane and the two montages are pixel-identical. The user's choice of object
+does nothing.
+
+WHY THE INTENT WAS RIGHT AND THE EFFECT IS NOT. The commit's own comment is
+sound -- "carrying nucleus labels forward as cells silently cuts a different
+object" -- but the correction silently ignores the request instead, which is
+the same class of failure pointing the other way. The two honest answers are
+to cut by the requested plane with the labels that exist (what it did
+before), or to refuse and say the png_list carries no nucleus labels.
+
+NOT CHANGED HERE. `spacr/png_list.py` is the other session's file and the
+commit is 40 minutes old, so it may still be in flight. The semantics are a
+judgement call that belongs with whoever made it.
+
+ALSO NOTE `_merged_field_paths` was switched to `effective_object_type` in
+the same commit and that part looks harmless: its own docstring says every
+object table names the same field and the others are tried in turn, so which
+one is preferred does not decide the plane. The `object_type` COLUMN is what
+does.
