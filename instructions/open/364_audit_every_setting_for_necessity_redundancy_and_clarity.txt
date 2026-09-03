@@ -586,3 +586,37 @@ It needs to read the AST and count reads only, and to be seeded with the
 metadata/annotation keys (`metadata_rules`, `annotation_columns`,
 `annotation_values`, `metadata_type_by`) which come from a settings family
 outside the per-module factories rather than from nowhere.
+
+---
+
+2026-09-03, 06:20. THE MOUNT IS DONE, and the one question this file said
+needed the maintainer is answered by making it a preference.
+
+`Preferences -> Appearance -> "Per-object settings as a table"`, OFF by
+default. Clear, `_mount_the_object_grid` returns before touching anything and
+the form is exactly what it was. Set, the 78 per-object rows are hidden and
+the grid takes their place.
+
+WHAT MADE IT SAFE, and both were found by reading rather than guessing:
+
+  * `Section.add_row` records the pair in `_row_widgets`, and the module
+    smoke test takes every entry there to BE a labelled setting with its own
+    `settingKey` and linked API help. `add_prose_row` exists for exactly that
+    distinction and is what the grid goes in through. This was the blocker I
+    had recorded as a reason to wait; it turned out to be a solved problem
+    with a method already written for it.
+  * `refresh_object_visibility` recomputes its hidden set from scratch on
+    every pass, so the grid's keys live in `_hidden_by_the_grid` and are
+    unioned in. In `_hidden_by_the_run` they would have reappeared the first
+    time a channel was typed -- which is the trap this file predicted.
+
+MEASURED, NOT ASSERTED: `collect()` returns the same keys AND the same values
+with the grid on and off, so a settings file written either way is the same
+file. The module smoke test, the caption contract, the settings search and
+the object-gating suites were all re-run with the grid FORCED ON -- 221 tests
+-- because "off by default" is only safe if on is also correct.
+
+WHAT IS LEFT ON THIS ITEM: nothing that is mine. The recruitment finding and
+the organelle preprocessing gap above both need `spacr/settings.py`, which is
+the other session's file, and both are recorded with the measurement that
+found them.

@@ -121,3 +121,31 @@ def test_the_grid_is_not_a_labelled_setting_row(qtbot, grid_preference):
                    if screen._object_grid in s.findChildren(type(screen._object_grid)))
 
     assert screen._object_grid not in [w for _l, w in section._row_widgets]
+
+
+# ---------------------------------------------------------------------------
+# Reachable without editing QSettings by hand
+# ---------------------------------------------------------------------------
+
+def test_preferences_offers_the_choice_and_saves_it(qtbot, grid_preference):
+    """A preference nobody can find is a preference nobody has.
+
+    The row is on the Appearance tab beside the two tooltip switches, and
+    accepting the dialog is what writes it -- so this drives the dialog
+    rather than calling the setter, which would test nothing about the row.
+    """
+    from PySide6.QtWidgets import QDialogButtonBox
+
+    dialog = grid_preference.PreferencesDialog()
+    qtbot.addWidget(dialog)
+    toggles = [w for w in dialog.findChildren(object)
+               if getattr(w, "objectName", lambda: "")() == "ObjectSettingsGrid"]
+
+    assert len(toggles) == 1, "the Appearance tab offers no such row"
+    assert toggles[0].isChecked() is grid_preference.get_object_grid_enabled()
+
+    toggles[0].setChecked(True)
+    for box in dialog.findChildren(QDialogButtonBox):
+        box.accepted.emit()
+
+    assert grid_preference.get_object_grid_enabled() is True
