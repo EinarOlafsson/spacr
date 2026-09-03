@@ -3958,17 +3958,38 @@ QMenu::separator {{
    dock holder with rounded edges, the icons and when hovered the icons turn
    blue and you see the text which is also blue. nothing else."
 
-   WHAT REACHES THESE ROWS, because getting it wrong cost two failed fixes.
-   A `_DockRow`'s `paintEvent` paints its icon and returns, so the pass in
-   which QStyleSheetStyle fills a widget's BASE background never runs --
-   which is why a background written on the first rule appeared to do
-   nothing, and why the `drawControl(CE_PushButton)` call that used to open
-   that method was rendering a native button panel from the palette instead.
-   The `:hover` and `:checked` arms DO reach the row, through the style's
-   state handling, which is exactly why the box appeared only under the
-   pointer and on the open module. Both routes are closed now: the
-   `drawControl` call is gone from `app.py`, and there is nothing here to
-   fill with.
+   `background-color` AND `background`, AND EVERY STATE SPELLED OUT. Both of
+   those are load-bearing, and getting either wrong cost four failed fixes
+   on 2026-09-03 -- the box was reported, "fixed", and reported again, four
+   times.
+
+   The generic rules above this file's dock section paint EVERY QPushButton:
+
+       QPushButton              background-color: surface_alt   (#161719)
+       QPushButton:hover        background-color: surface_hi    (#1f2124)
+       QPushButton:pressed      background-color: <accent>      (blue)
+       QPushButton:checked      background-color: <selection>
+
+   This rule used to say `background: transparent` only. An id selector beats
+   a type selector, so that looks like it should win -- and it does, for the
+   property it names. Qt merges declarations PER PROPERTY, and `background`
+   and `background-color` are two properties: setting one leaves the other
+   exactly as the generic rule left it. So `#161719` was painted behind every
+   icon at rest, `#1f2124` appeared under the pointer, and `:pressed` flashed
+   the accent. That is the "black box", the "fields which appear whne
+   hovered", and the blue flash, all of them, from one missing word.
+
+   It survived every measurement because `QWidget.render()` and `grab()` do
+   not put a widget through the stylesheet's background pass the way a live
+   paint does -- so every probe reported a clean row while the running
+   application drew the box.
+
+   Painting a QSS background is ALSO not something a `paintEvent` can
+   prevent: QStyleSheetStyle fills it from `QWidget::event(QEvent::Paint)`
+   before `paintEvent` runs. Removing the `drawControl(CE_PushButton)` call
+   from `app.py` was worth doing -- it was rendering a native button panel
+   from the palette on top of this -- but it could never have been enough on
+   its own.
 
    The dock's own translucent rounded slab is painted by
    `Sidebar.paintEvent`, and it is the only box in the column. */
@@ -3976,8 +3997,11 @@ QPushButton#SidebarItem,
 QPushButton#SidebarItem:hover,
 QPushButton#SidebarItem:pressed,
 QPushButton#SidebarItem:checked,
+QPushButton#SidebarItem:checked:hover,
+QPushButton#SidebarItem:disabled,
 QPushButton#SidebarItem[selected="true"] {{
     background: transparent;
+    background-color: transparent;
     border: none;
     padding: {S["sm"]}px {S["md"]}px;
     text-align: left;
