@@ -232,6 +232,7 @@ def load_object(reference: str) -> Any:
 
 
 def _tuple_strings(value: Any, field_name: str) -> Tuple[str, ...]:
+    """Normalize an optional string sequence into a nonblank string tuple."""
     if value is None:
         return ()
     if isinstance(value, str) or not isinstance(value, Sequence):
@@ -243,6 +244,7 @@ def _tuple_strings(value: Any, field_name: str) -> Tuple[str, ...]:
 
 
 def _mapping_of_strings(value: Any, field_name: str) -> Dict[str, str]:
+    """Normalize an optional mapping by converting every key and value to text."""
     if value is None:
         return {}
     if not isinstance(value, Mapping):
@@ -251,6 +253,7 @@ def _mapping_of_strings(value: Any, field_name: str) -> Dict[str, str]:
 
 
 def _app_from_mapping(value: Any) -> AppContribution:
+    """Coerce and validate one application contribution."""
     if isinstance(value, AppContribution):
         app = value
     elif isinstance(value, Mapping):
@@ -295,6 +298,7 @@ def _app_from_mapping(value: Any) -> AppContribution:
 
 
 def _model_from_mapping(value: Any) -> ModelProviderContribution:
+    """Coerce and validate one model-provider contribution."""
     if isinstance(value, ModelProviderContribution):
         contribution = value
     elif isinstance(value, Mapping):
@@ -307,6 +311,7 @@ def _model_from_mapping(value: Any) -> ModelProviderContribution:
 
 
 def _report_from_mapping(value: Any) -> ReportSectionContribution:
+    """Coerce and validate one report-section contribution."""
     if isinstance(value, ReportSectionContribution):
         contribution = value
     elif isinstance(value, Mapping):
@@ -345,6 +350,7 @@ def plugin_from_mapping(value: Mapping[str, Any]) -> SpacrPlugin:
 
 
 def _validate_plugin(plugin: SpacrPlugin) -> None:
+    """Validate plugin metadata, contribution shapes, and unique local keys."""
     if not plugin.name.strip() or not plugin.version.strip():
         raise ValueError("plugin name and version are required")
     if plugin.api_version.split(".", 1)[0] != PLUGIN_API_VERSION.split(".", 1)[0]:
@@ -374,6 +380,7 @@ def _validate_plugin(plugin: SpacrPlugin) -> None:
 
 
 def _coerce_plugin(value: Any) -> SpacrPlugin:
+    """Resolve an entry-point value or factory into a validated plugin."""
     if callable(value) and not isinstance(value, type):
         value = value()
     if isinstance(value, SpacrPlugin):
@@ -385,6 +392,7 @@ def _coerce_plugin(value: Any) -> SpacrPlugin:
 
 
 def _installed_sources() -> Iterable[Tuple[str, Callable[[], Any]]]:
+    """Yield named plugin loaders from installed entry points and the environment."""
     # Importing the metadata machinery costs more than the rest of this
     # dependency-light SDK. Keep the documented SPACR_DISABLE_PLUGINS path a
     # true opt-out: _build_registry() returns before reaching this generator,
@@ -412,6 +420,7 @@ def _installed_sources() -> Iterable[Tuple[str, Callable[[], Any]]]:
 
 
 def _build_registry() -> _Registry:
+    """Discover valid contributions while recording each isolated load failure."""
     registry = _Registry()
     if os.environ.get(DISABLE_PLUGINS_ENV, "").strip().lower() in {
         "1", "true", "yes", "on",
@@ -455,6 +464,7 @@ def _build_registry() -> _Registry:
 
 
 def _registry() -> _Registry:
+    """Return the lazily built process-wide plugin registry under its lock."""
     global _REGISTRY
     with _LOCK:
         if _REGISTRY is None:
