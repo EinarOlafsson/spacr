@@ -189,6 +189,11 @@ _KEY_AMBIENT_SCALE   = "prefs/ambient_motion_scale"
 AMBIENT_MOTION_SCALE = 2
 _KEY_SPINNER_DELAY   = "prefs/spinner_delay"
 _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
+#: The two tooltip surfaces, instruction 371. INDEPENDENT: both on,
+#: both off, or either alone are all legal, which is why they are two
+#: booleans and not a three-way choice wearing two checkboxes.
+_KEY_TOOLTIPS_BOX = "prefs/tooltips_box"
+_KEY_TOOLTIPS_BOTTOM = "prefs/tooltips_bottom"
 _KEY_SPACR_MODE = "prefs/spacr_mode"
 _KEY_LAPTOP_MODE = "prefs/laptop_mode"
 _KEY_FONT_WEIGHT = "prefs/interface_font_weight"
@@ -3209,6 +3214,65 @@ def set_spinner_delay(seconds: float) -> None:
 #: escape hatch for the reader who never wants to be asked.
 DEFAULT_SETTING_ANIMATIONS = False
 
+#: The two tooltip surfaces, instruction 371, BOTH ON by default.
+#:
+#: The box is today's behaviour -- `spacr.qt.widgets.hover_tooltip` has been
+#: the setting tooltip for some time -- and the bottom strip is the nearest
+#: thing to it, since the same strip already carries CATEGORY help on hover.
+#: Defaulting either to off would take away help nobody asked to lose.
+#:
+#: BOTH OFF IS A LEGAL STATE AND IT COSTS SOMETHING. On several forms the
+#: API link inside a setting's tooltip is the only route from that setting to
+#: its documentation, so a reader who clears both has no way from the control
+#: to the page describing it. The Preferences rows say so; see the tooltips
+#: on the two switches.
+#:
+#: NEITHER TOUCHES THE CATEGORY STRIP, which answers a different question --
+#: "what is this whole group of settings for" -- and was not part of the
+#: request.
+DEFAULT_TOOLTIPS_BOX = True
+DEFAULT_TOOLTIPS_BOTTOM = True
+
+
+def get_tooltips_box_enabled() -> bool:
+    """Whether hovering a setting's title opens the tooltip box.
+
+    The box is `spacr.qt.widgets.hover_tooltip.HoverTooltip`: a QFrame the
+    pointer can move INTO, which is what lets its API and Animation links be
+    clicked at all. Cleared, no box opens and the bottom strip -- if it is on
+    -- is the only place a setting explains itself.
+    """
+    return _as_bool(_settings().value(_KEY_TOOLTIPS_BOX,
+                                      DEFAULT_TOOLTIPS_BOX),
+                    DEFAULT_TOOLTIPS_BOX)
+
+
+def set_tooltips_box_enabled(on: bool) -> None:
+    """Turn the hover tooltip box on or off, effective at the next hover."""
+    _settings().setValue(_KEY_TOOLTIPS_BOX, bool(on))
+    _settings().sync()
+
+
+def get_tooltips_bottom_enabled() -> bool:
+    """Whether a hovered setting's help also appears in the bottom strip.
+
+    The strip already shows CATEGORY help on hover; this puts SETTING help
+    there too, and holds it for ten seconds after the pointer leaves so its
+    API link can be reached -- which is the whole reason instruction 371
+    asked for it. Without that hold the link is unreachable: it appears only
+    while the pointer is on the setting, and moving toward it removes it.
+    """
+    return _as_bool(_settings().value(_KEY_TOOLTIPS_BOTTOM,
+                                      DEFAULT_TOOLTIPS_BOTTOM),
+                    DEFAULT_TOOLTIPS_BOTTOM)
+
+
+def set_tooltips_bottom_enabled(on: bool) -> None:
+    """Turn the bottom tooltip strip on or off, effective at the next hover."""
+    _settings().setValue(_KEY_TOOLTIPS_BOTTOM, bool(on))
+    _settings().sync()
+
+
 
 def get_setting_animations_enabled() -> bool:
     """Whether setting tooltips show their animation WITHOUT being asked.
@@ -4693,6 +4757,58 @@ class PreferencesDialog:
         setting_anim_check.setChecked(get_setting_animations_enabled())
         appearance.addRow(tr("Setting animations"), setting_anim_check)
 
+        # THE TWO TOOLTIP SURFACES, instruction 371. Two switches rather than
+        # one three-way control, because the request is explicit that both on,
+        # both off, and either alone are all legal -- and "both off" is a
+        # choice a user is allowed to make, not a state to be prevented.
+        tooltips_box_check = Toggle(tr("Tooltips box"))
+        tooltips_box_check.setObjectName("TooltipsBox")
+        tooltips_box_check.setToolTip(
+            "Hovering a setting's title opens a box beside it with the "
+            "explanation, an API link and an Animation link. The box stays "
+            "while the pointer moves into it, which is what makes those two "
+            "links clickable at all."
+        )
+        tooltips_box_check.setChecked(get_tooltips_box_enabled())
+        appearance.addRow(tr("Tooltips box"), tooltips_box_check)
+
+        tooltips_bottom_check = Toggle(tr("Tooltips bottom"))
+        tooltips_bottom_check.setObjectName("TooltipsBottom")
+        tooltips_bottom_check.setToolTip(
+            "The same explanation appears along the bottom of the window, "
+            "where a category's help already appears. It holds the LAST "
+            "setting you hovered for ten seconds, so you can move the "
+            "pointer down to its API link and press it."
+        )
+        tooltips_bottom_check.setChecked(get_tooltips_bottom_enabled())
+        appearance.addRow(tr("Tooltips bottom"), tooltips_bottom_check)
+
+        def _warn_when_both_are_off() -> None:
+            """Say what turning both off costs, on the rows themselves.
+
+            Not a refusal: both off is legal and the request says so. But on
+            several forms the API link inside a setting's tooltip is the only
+            route from that control to its documentation, so a reader who
+            clears both loses that route with nothing on screen to say why.
+            The warning is on the switches because that is where the choice
+            is made.
+            """
+            silent = not (tooltips_box_check.isChecked()
+                          or tooltips_bottom_check.isChecked())
+            for widget in (tooltips_box_check, tooltips_bottom_check):
+                widget.setProperty("warns", "true" if silent else "false")
+                widget.setToolTip(widget.toolTip().split("\n\nBOTH OFF")[0]
+                                  + ("\n\nBOTH OFF: no setting will explain "
+                                     "itself anywhere, and the API link in a "
+                                     "setting's tooltip is the only route "
+                                     "from some controls to their "
+                                     "documentation. Category help is "
+                                     "unaffected." if silent else ""))
+
+        tooltips_box_check.toggled.connect(_warn_when_both_are_off)
+        tooltips_bottom_check.toggled.connect(_warn_when_both_are_off)
+        _warn_when_both_are_off()
+
         # How long work has to run before the busy indicator appears.
         # Seconds, not a percentage: this one is a real duration and the
         # reader is entitled to see it as one.
@@ -5970,6 +6086,9 @@ class PreferencesDialog:
                 set_ambient_drift_direction(direction_choice)
             set_spinner_delay(spinner_slider.value() / 10.0)
             set_setting_animations_enabled(setting_anim_check.isChecked())
+            set_tooltips_box_enabled(tooltips_box_check.isChecked())
+            set_tooltips_bottom_enabled(
+                tooltips_bottom_check.isChecked())
             set_font_scale(scale_slider.value() / 100.0)
             set_dock_mode(dock_combo.currentData())
             set_pane_opacity(opacity_slider.value() / 100.0)

@@ -125,17 +125,27 @@ TEAL = "#009B9B"
 #: the light and dark popup surfaces, which a lighter violet does not.
 PURPLE = "#7C3AED"
 
-#: THE TWO MARKS, asked for on 2026-09-02: "instead of API just show a teel
-#: dot for api and a purple square for annimation". The words were repeated on
-#: every row that had them, so they cost a line and carried no information
-#: after the first reading.
+#: THE TWO WORDS. Instruction 371, 2026-09-02: "an API link and Annimation
+#: link text (remove the dot)", and again for the bottom strip, "which should
+#: also just say API".
 #:
-#: SHAPE AS WELL AS COLOUR, and that is not decoration. Instruction 89 added a
-#: colourblind mode; a teal dot and a purple square differ in FORM, so the two
-#: stay distinguishable when the colours do not. Never reduce these to two
-#: dots of different colours.
-API_MARK = "\u25CF"        # ● BLACK CIRCLE
-ANIMATION_MARK = "\u25A0"  # ■ BLACK SQUARE
+#: THIS REVERSES A REQUEST MADE EARLIER THE SAME DAY -- "instead of API just
+#: show a teel dot for api and a purple square for annimation" -- so the
+#: marks are recorded here rather than deleted silently, in case the reasons
+#: matter again:
+#:
+#:   * the words were repeated on every row that had them, so they cost a
+#:     line and carried no information after the first reading;
+#:   * the marks differed in SHAPE as well as colour, because instruction 89
+#:     added a colourblind mode and a teal dot beside a purple square stays
+#:     distinguishable when the colours do not.
+#:
+#: THE SECOND REASON IS SATISFIED BY THIS CHANGE RATHER THAN DROPPED BY IT.
+#: "API" and "Animation" are distinguishable with no colour at all, which is
+#: strictly better on that axis than two shapes. If the marks ever come back,
+#: they must differ in form and not only in hue.
+API_MARK = "API"
+ANIMATION_MARK = "Animation"
 
 _ANCHOR_RE = re.compile(
     r"<a\b[^>]*?href\s*=\s*([\"'])(.*?)\1[^>]*>(.*?)</a>",
@@ -447,10 +457,12 @@ class HoverTooltip(QFrame):
         links_row = QHBoxLayout(self._links)
         links_row.setContentsMargins(0, 0, 0, 0)
         links_row.setSpacing(SPACING["sm"])
-        # THE MARK IS WHAT IS DRAWN; THE WORD IS WHAT IS ANNOUNCED. The
-        # accessible name stays "API" / "Animation" -- a screen reader saying
-        # "black circle" would be a regression -- and each carries a tooltip
-        # so a pointer can still ask what the mark means.
+        # The drawn text and the announced text are the same again, which
+        # they were not while the marks were drawn. The accessible names are
+        # set explicitly all the same: they were correct throughout and are
+        # what a screen reader has always said, so leaving them to be
+        # inferred from the label would be trading a guarantee for a
+        # coincidence.
         self._api_link = _LinkWord(API_MARK, "HoverTooltipApiLink",
                                    self._links)
         self._api_link.setAccessibleName("API")
