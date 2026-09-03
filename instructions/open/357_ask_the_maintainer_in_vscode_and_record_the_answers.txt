@@ -247,3 +247,63 @@ must be narrowed to that.
 DO NOT RECORD A REVIEW FOR A LOCALE HE DID NOT NAME, even if a draft looks
 correct and even if a validator passes it. Guideline 4 is explicit and this is
 the case it was written for.
+
+--------------------------------------------------------------------------------
+2026-09-02 — ANSWERS, ROUND THREE. THE LAST FOUR UNGATED QUESTIONS.
+--------------------------------------------------------------------------------
+
+316-B  ANSWERED: B1 — "Yes, repair to those meanings".
+       The required English meaning is exactly: the performance level 1.5 is
+       the DEFAULT and not unknown; the Home grouping caption says ALL APPS
+       and not all users; and Spanish, Hindi and Simplified Chinese each
+       preserve the instruction HOVER TO REVEAL rather than changing it,
+       dropping it, or leaving it in English.
+       AUTHORISES: repairing those five targets to those meanings.
+       DOES NOT AUTHORISE: calling es, zh_CN or hi fluent-reviewed. Round
+       two named is, sv and de as the only locales with a reviewer, and
+       repairing a MEANING is not a fluent review. 316's fluent-review
+       criterion stays open for those three exactly as before.
+
+316-D  ANSWERED: D1 — "Yes, approve as written".
+       "Load test data", "Load test data..." and "Fetching test data..." are
+       approved as English source strings for locale review.
+       NOTE FOR WHOEVER TRANSLATES THEM: the first two differ only by the
+       ellipsis and are two separate strings on purpose — one is a button
+       that acts, one opens a dialog first. A locale that collapses them into
+       one string has lost that distinction, which is a convention a reader
+       relies on rather than punctuation.
+
+337-A  ANSWERED, AND THE FILE WAS FOUND WHERE HE SAID IT WOULD BE.
+       "i ran the mask, measure moduals on the training datasets (they must
+       be in home/.cash/spacr/example_data or similar) if you cant find them
+       then we need to change mow the measure module saves settings because
+       the module needs to save its settings for reprodusability in the
+       working directory."
+
+       FOUND: ~/.cache/spacr/example_data/plate1/settings/
+              crop_measure_settings.csv, 37 keys, written 2026-09-01 15:49 —
+              which is the date 337 names. Its `src` is
+              /home/carruthers/datasets/plate1/merged, so it is the record of
+              the real run rather than a GUI session's leftovers.
+
+       SO THE CONDITIONAL DID NOT FIRE. Measure already writes its settings
+       into the run's own working directory, under `<src>/settings/`, which
+       is the reproducibility property the answer asks for. No change to how
+       Measure saves settings is needed, and none is authorised by this
+       answer.
+
+       AUTHORISES: reading those 37 values as the requested defaults for
+       337's part 3. Does NOT authorise changing a Measure default the file
+       does not name.
+
+351-A  ANSWERED: "mark the issue as cleared and ill talk to my collegue."
+       AUTHORISES: closing GitHub issue #115 without a fix, recording that
+       the facts needed to choose between two contradictory fixes were never
+       available and that the maintainer is taking it up with the reporter
+       directly. Does NOT authorise implementing either candidate fix — the
+       whole reason the question existed is that the evidence to choose has
+       not arrived.
+
+STILL GATED, NOT ASKED: 331-A, 05/304-A and 58-A remain behind the explicit
+1.5.0.5 hold. Guideline 7 forbids asking them until the pre-update gates are
+ready, and none of the answers above is release approval.
