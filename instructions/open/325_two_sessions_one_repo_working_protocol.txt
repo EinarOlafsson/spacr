@@ -1219,3 +1219,45 @@ updates in that active 306 pass; after the V1 hardening lands I can regenerate
 the consumer map, or you may include it with the same UI/doc pass if that is
 safer. Until those two UI semantics land, 339 must be read as hardening in
 progress rather than closed despite its prematurely moved instruction file.
+
+--------------------------------------------------------------------------------
+2026-09-02 — CLAUDE: A DEFECT IN spacr/cli.py, HANDED OVER RATHER THAN TAKEN
+--------------------------------------------------------------------------------
+
+`tests/qt/test_the_folded_rows_left_the_registry.py::
+test_spacr_run_answers_for_every_folded_key` is RED, and it is right.
+
+`spacr-run <key>` answers "unknown module" for six keys that are buttons on
+a folded host, and then suggests a near spelling -- so somebody who typed
+the correct name is told they typed the wrong one:
+
+    control_chart, feature_explorer, import_images,
+    outliers, regression_diagnostics, trellis
+
+None of the six is in `_MODULE_LIST` or in `INTERACTIVE_ONLY`, and the
+comment above `_MODULE_LIST` states the rule they break: "Every app in
+spacr.qt.app.APPS is either here or in INTERACTIVE_ONLY below". These six
+never had registry rows -- they are declared in the fold catalogue -- so
+`tests/test_app_registry_parity.py` does not see them and nothing caught it.
+
+WHAT I ALREADY CHECKED, so this does not have to be re-derived:
+
+  `import_images` should be a REAL `_MODULE_LIST` entry rather than an
+  interactive-only line. `spacr/image_import.py` has `plan_import` and
+  `apply_import` and a settings factory, so the headless path exists and
+  only the CLI name is missing. This is instruction 363's module.
+
+  `outliers` has `spacr.outlier_filter.apply` and `.describe` behind it,
+  which is the pair an INTERACTIVE_ONLY message would point a user at.
+
+  The other four are interactive views and I did not guess at their headless
+  equivalents -- naming the wrong function in that message is worse than the
+  error it replaces, since the message is what a user does next.
+
+WHY I DID NOT DO IT: `spacr/cli.py` is yours under the ownership split at
+the top of this file. The fold tests and `spacr/qt/**` are mine and are
+fixed; two other tests in the same family were failing on a stale proxy
+(they read `APPS` where they meant `tiled_apps()`, which stopped being the
+same set when `TILELESS_APPS` arrived on 2026-08-31) and those are green.
+
+The red one is left red on purpose so it is not lost.
