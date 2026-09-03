@@ -342,6 +342,10 @@ class HitAttributionResult:
     :ivar threshold: probability cutoff used for ``hit_like_call``.
     :ivar split_level: held-out grouping level used for cross-fitting.
     :ivar random_seed: seed used for validation resampling.
+    :ivar source_regression_run: source regression run identifier persisted
+        with the attribution so the morphology evidence remains traceable.
+    :ivar warnings: circularity or design caveats that must accompany the
+        probabilities and summary rather than being lost after fitting.
     """
 
     cells: pd.DataFrame
@@ -397,6 +401,10 @@ class HitRunContext:
     :ivar gene: selected hit gene.
     :ivar phenotype: selected regression phenotype.
     :ivar effect: regression effect estimate for the selected hit.
+    :ivar guides: guide identifiers assigned to the selected hit gene.
+    :ivar fdr: multiple-testing-adjusted significance of the selected hit.
+    :ivar direction: phenotype direction used to interpret candidate cells,
+        normally ``"positive"`` or ``"negative"``.
     """
 
     regression_results_folder: str
@@ -420,6 +428,8 @@ class HitInvestigationResult:
     :ivar enrichment: well-level enrichment and resampling statistics.
     :ivar feature_columns: morphology features used by the classifier.
     :ivar split_level: held-out grouping level used for cross-fitting.
+    :ivar warnings: design or fit caveats retained for the GUI, exports, and
+        database record of the investigation.
     """
 
     attribution_run_id: str
