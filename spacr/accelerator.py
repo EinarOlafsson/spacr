@@ -288,8 +288,10 @@ def _why_metal_is_unavailable() -> Tuple[str, str]:
                 f"support this GPU either. spaCR runs on the CPU here and "
                 f"THERE IS NOTHING TO INSTALL OR CONFIGURE: this is a gap "
                 f"between two vendors, not a setup problem. Segmentation "
-                f"and training will be slow; a CUDA machine is the only way "
-                f"round it.")
+                f"and training will be slow here, so run the batch on a "
+                f"CUDA machine instead: `spacr-remote` is built for that "
+                f"and shares its profiles with the Distributed Jobs screen, "
+                f"which leaves this Mac as the client it is good at being.")
 
     return (gpu,
             "torch has Metal support but this system does not offer a Metal "

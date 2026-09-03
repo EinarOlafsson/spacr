@@ -86,6 +86,10 @@ def test_both_vendors_are_named_and_so_is_the_absence_of_a_fix(monkeypatch):
     assert "does not offer a Metal device" not in note, (
         "this machine HAS a Metal device; that sentence is what made the "
         "old message wrong")
+    assert "spacr-remote" in note, (
+        "'get a CUDA machine' is true and unhelpful when spaCR ships a "
+        "client for exactly that; `spacr-remote` runs the batch on a Linux "
+        "box and shares its profiles with the Distributed Jobs screen")
 
 
 @pytest.mark.parametrize("gpu", [
