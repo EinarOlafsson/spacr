@@ -267,6 +267,7 @@ def _chrome(fig, ax=None):
 
 
 def _legend_chrome(legend):
+    """Yield colour accessors for a legend's frame, ground, and text."""
     frame = legend.get_frame()
     yield "chrome", frame, frame.get_edgecolor, frame.set_edgecolor
     yield "ground", frame, frame.get_facecolor, frame.set_facecolor
@@ -2850,6 +2851,7 @@ def _imshow_gpu(img, labels, nrow=20, color='white', fontsize=12):
     return fig
     
 def _plot_histograms_and_stats(df):
+    """Print prediction statistics and show a histogram for each condition."""
     conditions = df['condition'].unique()
     
     for condition in conditions:
@@ -2949,6 +2951,11 @@ def _show_residules(model):
     print(f'Shapiro-Wilk Test W-statistic: {W}, p-value: {p_value}')
     
 def _reg_v_plot(df, grouping=None, variable=None, plate_number=None):
+    """Show the legacy regression volcano and label significant rows.
+
+    ``-log10(p)`` is added to ``df`` in place.  The other arguments are
+    retained only for compatibility with historical call sites.
+    """
     # grouping/variable/plate_number are unused by the body but kept for
     # call-site compatibility; they default so utils.MLR's `_reg_v_plot(df)`
     # call works instead of raising TypeError.

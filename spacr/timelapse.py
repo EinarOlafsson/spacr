@@ -350,6 +350,13 @@ def _require_2d_frames(masks, caller):
 
 
 def _prepare_for_tracking(mask_array):
+    """Convert 2-D label frames into the region table used by trackers.
+
+    :param mask_array: label masks ordered by frame; every frame must be 2-D.
+    :returns: one row per labelled region with frame, centroid, mass, source
+        label, bounding box, and eccentricity.
+    :raises ValueError: if any frame is not two-dimensional.
+    """
     _require_2d_frames(mask_array, '_prepare_for_tracking')
     frames = []
     for t, frame in enumerate(mask_array):
@@ -6765,6 +6772,12 @@ def _infection_qc_histogram(
     pathogen_chan,
     motility_dir,
 ):
+    """Refine mask infection labels from pathogen-channel intensity.
+
+    The mutable ``settings`` mapping receives the histogram payload, panel
+    type, and optional panel path.  The returned pair is the updated frame
+    and infection-column name; insufficient data preserves the input pair.
+    """
     import matplotlib.pyplot as plt
     import os
     import numpy as np
