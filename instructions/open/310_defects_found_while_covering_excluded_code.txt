@@ -3368,3 +3368,23 @@ focused test fail.
 
 REVISED COUNT: 127 entries, 58 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+70. REUSING A TIMER EXPOSED AND RECOMPUTED A STALE INTERVAL
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/logging_util.py``. Entering a previously used ``Timer`` retained its
+old ``elapsed_ms`` while the next block was still running, and ``__exit__``
+left the start marker armed. A second exit therefore recomputed and logged the
+same interval again even though no new interval had begun.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/logging_util.py``. Entry now clears
+the prior duration, while exit consumes and clears the start marker before it
+calculates or logs. One focused test observes ``None`` inside the second use;
+another exits the same interval twice and requires one stable duration and one
+record. Restoring either stale-state assignment makes its exact test fail.
+
+REVISED COUNT: 128 entries, 59 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
