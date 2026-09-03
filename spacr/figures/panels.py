@@ -117,6 +117,12 @@ def tested(frame) -> np.ndarray:
 
 
 def _finite(values) -> np.ndarray:
+    """Convert values to floats while representing non-finite entries as NaN.
+
+    :param values: Array-like values to normalize for plotting.
+    :returns: Shape-preserving ``float64`` array with infinities replaced by
+        ``numpy.nan``.
+    """
     array = np.asarray(values, dtype="float64")
     return np.where(np.isfinite(array), array, np.nan)
 

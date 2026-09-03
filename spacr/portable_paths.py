@@ -146,9 +146,11 @@ class RerootReport:
     root: str = ""
 
     def __bool__(self) -> bool:
+        """Return whether at least one path was moved to a new root."""
         return bool(self.moved)
 
     def __int__(self) -> int:
+        """Return the number of paths moved to a new root."""
         return int(self.moved)
 
     @property

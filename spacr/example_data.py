@@ -87,6 +87,7 @@ def cache_folder() -> str:
 
 
 def _digest(path) -> str:
+    """Return the file's hexadecimal SHA-256 digest, read in 1 MiB blocks."""
     sha = hashlib.sha256()
     with open(path, "rb") as handle:
         for block in iter(lambda: handle.read(1 << 20), b""):
@@ -197,6 +198,7 @@ def _download(entry, folder, progress=None, cancelled=None) -> str:
 
 
 def _forget(path) -> None:
+    """Best-effort remove ``path``, including when it is already absent."""
     try:
         os.remove(path)
     except OSError:

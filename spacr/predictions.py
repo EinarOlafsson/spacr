@@ -668,6 +668,10 @@ class MergeReport:
         return "\n".join(lines)
 
     def __str__(self) -> str:
+        """Return the same human-readable report as :meth:`summary`.
+
+        :returns: Multi-line prediction-merge summary.
+        """
         return self.summary()
 
 

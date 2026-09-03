@@ -682,6 +682,10 @@ class ProjectSummary:
         return format_project(self)
 
     def __str__(self) -> str:
+        """Return the complete human-readable project report.
+
+        :returns: Text produced by :func:`format_project` for this summary.
+        """
         return format_project(self)
 
 

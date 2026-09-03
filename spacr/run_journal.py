@@ -197,6 +197,7 @@ def _new_run_dir(app_key: str) -> Path:
 # ---------------------------------------------------------------------------
 
 def _pkg_version(name: str) -> str:
+    """Return an installed distribution version or ``"not installed"``."""
     try:
         from importlib.metadata import version as _v
         return _v(name)
@@ -2000,6 +2001,7 @@ def _render_change_pair(av: Any, bv: Any, width: int = 46) -> tuple:
 
 
 def _render_elapsed(v: Any) -> str:
+    """Render a duration to one decimal second, or an em dash when invalid."""
     try:
         return f"{float(v):.1f}s"
     except (TypeError, ValueError):

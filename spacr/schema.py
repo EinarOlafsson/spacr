@@ -1018,6 +1018,7 @@ def strip_prefix(value: Any, prefix: str) -> str:
 
 
 def _index_of(value: Any, prefix: str) -> Optional[int]:
+    """Strip an optional prefix and parse an integer index, preserving ``None``."""
     if value is None:
         return None
     return parse_int_token(strip_prefix(value, prefix), allow_prefix=False)
@@ -1308,6 +1309,7 @@ def is_within_plate_format(row: Any, column: Any, n_wells: int) -> bool:
 # ---------------------------------------------------------------------------
 
 def _check_plate(plate: Any) -> str:
+    """Return a normalized non-empty plate identifier or raise by name."""
     text = '' if plate is None else str(plate).strip()
     if not text:
         raise KeyParseError(
