@@ -316,23 +316,29 @@ class Tile:
     the only file. Either way there is exactly one :class:`Tile`, and so
     exactly one :class:`Placement`, per stage position.
 
-    :ivar path: absolute path of the reference-channel file.
-    :ivar index: position in the list handed to :func:`estimate_offsets`.
-        The pair graph and the least-squares solve are indexed by it.
-    :ivar plate: plate token parsed from the filename.
-    :ivar well: well token parsed from the filename, e.g. ``'B07'``.
-    :ivar field: 1-based field id.
-    :ivar channel: the channel that drives registration for this site.
-    :ivar shape: ``(H, W, C)`` of the assembled site — ``C`` counts the
-        sibling files when channels are split across them.
-    :ivar dtype: dtype name, e.g. ``'uint16'``.
-    :ivar grid_row: nominal row in the acquisition grid.
-    :ivar grid_col: nominal column in the acquisition grid.
-    :ivar nominal_y: nominal stage position, canvas rows.
-    :ivar nominal_x: nominal stage position, canvas columns.
-    :ivar channel_paths: one path per channel, or ``()`` when the channels
-        live inside :attr:`path`.
-    :ivar error: why this tile could not be read; ``''`` when it can.
+    :param path: absolute path of the reference-channel file, or the sole file
+        when all channels are planes of one array.
+    :param index: zero-based tile index used by pair results, the global solve,
+        and the reader cache.
+    :param plate: plate token parsed from the filename, or ``""`` when absent.
+    :param well: well token parsed from the filename, such as ``"B07"``, or
+        ``""`` when absent.
+    :param field: one-based field identifier assigned during scanning; zero
+        only on a manually constructed tile without an assigned field.
+    :param channel: zero-based assembled-channel index selected to drive
+        registration.
+    :param shape: assembled-site shape ``(height, width, channels)``;
+        unreadable headers retain zero height and width.
+    :param dtype: NumPy dtype name reported by the reference header, or
+        ``"uint16"`` as the unreadable-header fallback.
+    :param grid_row: zero-based nominal row in the acquisition grid.
+    :param grid_col: zero-based nominal column in the acquisition grid.
+    :param nominal_y: nominal vertical stage position in pixels.
+    :param nominal_x: nominal horizontal stage position in pixels.
+    :param channel_paths: absolute sibling-file paths in assembled channel
+        order, or ``()`` when all channels live inside :attr:`path`.
+    :param error: header-read failure text, or ``""`` when the tile is
+        readable.
     """
 
     path: str
@@ -380,18 +386,26 @@ class Tile:
 class PairResult:
     """One neighbour pair, registered or refused.
 
-    :ivar i: index of the first tile.
-    :ivar j: index of the second tile.
-    :ivar dy: measured displacement of ``j`` relative to ``i``, rows.
-    :ivar dx: measured displacement of ``j`` relative to ``i``, columns.
-    :ivar nominal_dy: what the stage positions said the displacement was.
-    :ivar nominal_dx: ditto, columns.
-    :ivar confidence: normalised cross-correlation of the two overlap
-        strips *after* ``(dy, dx)`` is applied. 0.0 when refused.
-    :ivar accepted: whether this pair fed the global solve.
-    :ivar overlap_px: pixels compared. A pair scored on 200 pixels is
-        worth less than one scored on 400 000 and the note records it.
-    :ivar note: why a refused pair was refused.
+    :param i: index of the first tile.
+    :param j: index of the second tile.
+    :param dy: row displacement of tile ``j`` relative to tile ``i`` used by
+        this result: measured when accepted and normally the nominal fallback
+        when refused.
+    :param dx: column displacement of tile ``j`` relative to tile ``i`` used
+        by this result: measured when accepted and normally the nominal
+        fallback when refused.
+    :param nominal_dy: row displacement predicted by nominal stage positions.
+    :param nominal_dx: column displacement predicted by nominal stage
+        positions.
+    :param confidence: best non-negative normalized cross-correlation score.
+        It may be below the acceptance threshold for a refused pair and is
+        zero when no usable candidate could be scored.
+    :param accepted: whether this pair contributes an edge to the global
+        position solve.
+    :param overlap_px: number of overlap pixels associated with the
+        registration decision.
+    :param note: explanation for a refused pair, or ``""`` for an accepted
+        pair.
     """
 
     i: int
@@ -549,21 +563,27 @@ class CanvasSpec:
 class AlignResult:
     """What :func:`write_stack` actually did.
 
-    :ivar plan: the plan that was written.
-    :ivar canvas: the geometry it was written at.
-    :ivar stack_path: the ``.npy`` written, ``''`` for a dry run.
-    :ivar n_written: tiles composited into the canvas.
-    :ivar n_skipped: tiles that could not be read at write time. A tile
-        whose header parsed but whose pixels do not is caught here, not
-        in :func:`estimate_offsets`.
-    :ivar peak_buffer_bytes: the largest in-RAM buffer the write
-        allocated — band accumulator plus weight plane. Compare it with
-        ``canvas.nbytes``: that ratio is the whole point of this module.
-    :ivar band_rows: canvas rows held in RAM at once.
-    :ivar writer: ``'memmap'`` or ``'stream'``.
-    :ivar status: ``RunLedger`` status — ``complete`` / ``partial`` / ``empty``.
-    :ivar warnings: anything non-fatal that happened during the write.
-    :ivar db_path: database :func:`save_coordinates` wrote to, if any.
+    :param plan: alignment plan supplied to the write or retained by a preview
+        result.
+    :param canvas: planned output-canvas geometry.
+    :param stack_path: path of the written ``.npy`` stack, or ``""`` for a dry
+        run, preview, or empty write.
+    :param n_written: number of distinct tiles that contributed at least one
+        pixel to the canvas.
+    :param n_skipped: number of tiles whose reader or window read failed while
+        writing; each tile is counted at most once.
+    :param peak_buffer_bytes: predicted maximum bytes occupied by the band
+        accumulator and weight plane.
+    :param band_rows: maximum number of canvas rows held in one write band.
+    :param writer: canvas writer selected for the run, ``"stream"`` or
+        ``"memmap"``.
+    :param status: write outcome: ``"empty"`` before pixels are written,
+        ``"complete"`` when no tile read failed, or ``"partial"`` when at
+        least one tile was skipped.
+    :param warnings: non-fatal dry-run, empty-canvas, read-failure, placement,
+        or artifact-stamping messages.
+    :param db_path: coordinate database written by :func:`save_coordinates`,
+        or ``""`` when coordinates were not saved.
     """
 
     plan: AlignPlan
