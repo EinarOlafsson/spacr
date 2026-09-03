@@ -1363,8 +1363,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
             "nucleus_min_size", "nucleus_max_size",
-            "pathogen_min_size", "pathogen_max_size", "organelle_min_size",
-            *(f"{role}_min_size" for role in ALL_ORGANELLE_ROLES[1:]),
+            "pathogen_min_size", "pathogen_max_size", "organelle_min_area",
+            *(f"{role}_min_area" for role in ALL_ORGANELLE_ROLES[1:]),
             "merge_edge_pathogen_cells",
         )),
         ("Crop Output", (
@@ -2645,7 +2645,7 @@ def categories_for_app(
     if app_key == "external_masks":
         filter_keys = (
             "uninfected", "cell_min_size", "cytoplasm_min_size",
-            "nucleus_min_size", "pathogen_min_size", "organelle_min_size",
+            "nucleus_min_size", "pathogen_min_size", "organelle_min_area",
             "merge_edge_pathogen_cells",
         )
         for keys in result.values():
@@ -4256,6 +4256,31 @@ def _set_auto_or_number(box, value) -> None:
 def _read_auto_or_number(box):
     """"auto" when the box is at its minimum, otherwise the float."""
     return AUTO_TEXT if box.value() <= box.minimum() else float(box.value())
+
+
+def _permits_float(key: str) -> bool:
+    """Whether ``spacr.settings`` allows this setting to hold a fraction.
+
+    The widget for a number is otherwise chosen from the DEFAULT VALUE's
+    Python type, and a float-valued setting that happens to ship a round
+    default ships an ``int``. `cell_flow_threshold` defaults to 100 and is
+    documented "usable range about 0-3" with Cellpose's own default at 0.4,
+    so an integer box let the user choose 0, 1, 2 or 3 and nothing between.
+    `perimeter_fraction` is declared a plain float and a FRACTION, and could
+    only be set to 0 or 1.
+
+    :param key: the setting name.
+    :returns: True when the declared type admits a float.
+    """
+    try:
+        from spacr.settings import expected_types
+    except Exception:                                    # noqa: BLE001
+        return False
+    declared = expected_types.get(key)
+    if declared is None:
+        return False
+    types = declared if isinstance(declared, tuple) else (declared,)
+    return float in types
 
 
 def _float_domain(key: str, default: float):
@@ -8941,6 +8966,14 @@ class SettingsWidgets:
                 w = Toggle()
                 w.setChecked(default)
                 return w
+            # THE DECLARED TYPE WINS over the default's Python type. A
+            # setting spacr.settings types as a float gets a float box even
+            # when the number it ships happens to be round -- otherwise the
+            # box silently refuses every value between the whole ones, and
+            # the setting most affected was the Cellpose flow threshold whose
+            # own tooltip names 0.4.
+            if isinstance(default, int) and _permits_float(key):
+                default = float(default)
             if isinstance(default, int):
                 w = QSpinBox()
                 # Wide enough for the defaults the modules actually ship:
