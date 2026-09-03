@@ -497,3 +497,62 @@ twice.
 The commit-msg guard stays. It is what stops a third round: the 30
 trailers this rewrite removed were themselves reintroduced after the
 first complete rewrite, by a lane that had no guard.
+
+--------------------------------------------------------------------------------
+2026-09-03 -- A SECOND REINTRODUCTION, AND WHY THE GUARD DID NOT STOP IT
+--------------------------------------------------------------------------------
+
+Measured on arriving at this checkout, not assumed:
+
+    origin/nightly    70 Co-Authored-By: Claude Opus 5 trailers
+    origin/main        0
+    Claude as author or committer, anywhere    0
+
+All 70 were dated 2026-09-02 and 2026-09-03 -- after the complete rewrite
+this file records as finished -- and the newest was two hours old. So this
+is the SECOND reintroduction, and the count is larger than the 38 the
+original rewrite removed.
+
+THE GUARD THIS FILE SAYS "STAYS" DID NOT EXIST HERE. `.git/hooks/` in this
+checkout held nothing but the 2024 `.sample` files. That is the whole
+explanation, and it is a property of git rather than of anyone's diligence:
+hooks live in `.git/`, which is not tracked and does not clone, sync or
+travel. A guard installed in one checkout protects one checkout. The
+sentence in this file described a machine, and read like a repository.
+
+FIRST COUNT WAS WRONG, and is recorded because it would have justified a
+far larger rewrite. `git log --grep='Co-Authored-By: Claude'` reported 71 on
+nightly and 1 on main. Both extras are this very instruction's own filing
+commit, whose MESSAGE quotes the phrase. This file warns about exactly that
+and gives `%(trailers:key=Co-Authored-By,valueonly)` as the honest count;
+reading it first turned a 3,748-commit rewrite into a 364-commit one and
+left `main` untouched.
+
+DONE, and verified four ways rather than one:
+
+    trailers on origin/nightly      70 -> 0
+    trailers on origin/main          0 (never touched)
+    files differing from the
+      pre-rewrite backup             0   <- a message-only rewrite must
+                                             not alter one byte of content
+    commits                       6304 -> 6304, none lost
+
+`git filter-branch --msg-filter` over `6e8cba023~1..HEAD`, force-with-lease
+to nightly. The pre-rewrite history is kept locally on
+`backup/pre-claude-trailer-strip` (e16620487) and was never pushed.
+
+ONE HARMLESS RESIDUE: a revert commit's body still quotes the pre-rewrite
+hash of what it reverts, because git writes that hash into the message when
+the revert is made. Rewriting message bodies to chase it would be a larger
+edit than the problem.
+
+STILL OPEN, unchanged: GitHub's server-owned contributor widget, ticket
+#4711257. Nothing here can force it.
+
+WHAT WOULD ACTUALLY STOP A THIRD ROUND. A `commit-msg` hook is installed in
+this checkout now and refuses any Co-Authored-By naming Claude, plus any
+"Generated with ... Claude" line; both refusals were exercised before it was
+trusted. But it protects THIS checkout only, for the reason above. A guard
+that survives a fresh clone has to be tracked -- a hook file in the tree
+plus `core.hooksPath` -- and that is a decision for the maintainer, because
+it changes what every clone of this repository executes.
