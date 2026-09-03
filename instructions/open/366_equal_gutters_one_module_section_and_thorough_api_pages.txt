@@ -213,3 +213,26 @@ a KNOWN shape so that a new sharing has to be noticed and recorded.
 A WORD COUNT IS NOT THOROUGHNESS and the test says so in as many words. Six
 words cannot answer four questions, which is all a machine can tell; whether
 the prose is any good is a reader's judgement and stays one.
+
+--------------------------------------------------------------------------------
+2026-09-02: CODEX-OWNED PART 3 LANDING PAGES ARE DONE
+--------------------------------------------------------------------------------
+
+The four pages previously recorded as the other session's work now meet this
+item's reader-facing bar:
+
+* `spacr/core.py` (`11fed2ece`) explains Mask and Image UMAP;
+* `spacr/ml.py` (`c50ca0860`) explains regression and classical ML;
+* `spacr/sequencing.py` (`670bee72a`) explains barcode mapping; and
+* `spacr/submodules.py` (`342c9d5f4`) explains the four assay workflows.
+
+Each page explicitly answers WHAT IT IS FOR, WHAT IT NEEDS, WHAT IT PRODUCES,
+and WHAT TO DO NEXT. The six formerly shared tile destinations now carry
+entry-point anchors (`a48c16999`), so Mask/UMAP and the four assays land on
+their own relevant function prose rather than merely sharing a module page.
+`STILL_OWED` is empty, and the current focused verifier is green: 11 passed in
+7.49 s from `tests/test_every_module_lands_on_prose.py` at `82121ce1e`.
+
+This closes the Codex-owned 366b subset. Instruction 366 itself remains open
+for its README editorial work and any final rendered-page review in the other
+session's lane.
