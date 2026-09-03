@@ -243,6 +243,9 @@ def offer(frame, x: str = "", y: str = "") -> List[Tuple[str, str, str]]:
     """List graph choices for a frame, with compatible choices first.
 
     :param frame: data frame whose selected columns determine the shape.
+    :param x: horizontal-axis column, or an empty string for an ungrouped
+        distribution.
+    :param y: vertical-axis measurement column.
 
     Returns
     -------
