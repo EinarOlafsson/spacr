@@ -28,7 +28,7 @@ def test_the_simulated_screen_documents_every_stored_field():
     """Scenario metadata is public evidence, not an unexplained sidecar."""
     missing = [
         field.name for field in fields(validation.Screen)
-        if f":ivar {field.name}:" not in (validation.Screen.__doc__ or "")
+        if f":param {field.name}:" not in (validation.Screen.__doc__ or "")
     ]
     assert not missing, f"undocumented Screen fields: {missing}"
 
