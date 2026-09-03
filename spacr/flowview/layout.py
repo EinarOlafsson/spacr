@@ -23,12 +23,12 @@ from .theme import (
 class NodeLayout:
     """Top-left card position and its stable layer/order assignment.
 
-    :ivar x: horizontal coordinate of the card's left edge on the canvas.
-    :ivar y: vertical coordinate of the card's top edge on the canvas.
-    :ivar width: rendered card width used for edge routing and canvas bounds.
-    :ivar height: rendered card height, including metrics and any thumbnail.
-    :ivar layer: deterministic longest-path column assigned to the node.
-    :ivar order: stable top-to-bottom position within that layer.
+    :param x: horizontal coordinate of the card's left edge on the canvas.
+    :param y: vertical coordinate of the card's top edge on the canvas.
+    :param width: rendered card width used for edge routing and canvas bounds.
+    :param height: rendered card height including metrics and any thumbnail.
+    :param layer: deterministic longest-path column assigned to the node.
+    :param order: stable top-to-bottom position within that layer.
     """
 
     x: float
