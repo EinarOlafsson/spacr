@@ -180,6 +180,11 @@ class Curve:
     :ivar method: registered diagnostic method that produced the curve.
     :ivar x: ordered predictor coordinates at which the curve is evaluated.
     :ivar y: fitted response values aligned one-to-one with ``x``.
+    :ivar lower: lower uncertainty-band coordinates, when the method reports
+        a band.
+    :ivar upper: upper uncertainty-band coordinates aligned with ``lower``.
+    :ivar note: preprocessing or interpretation detail that belongs beside
+        the curve.
     """
 
     method: str
@@ -292,6 +297,9 @@ class Agreement:
     :ivar linear_rank: one-based rank of each guide's absolute linear effect.
     :ivar other_rank: one-based rank assigned by the alternative method.
     :ivar correlation: Spearman correlation between the two rankings.
+    :ivar disagreements: guides whose two ranks differ by the requested
+        reportable amount, with both rank values.
+    :ivar note: caveat needed to interpret the alternative ranking.
     """
 
     method: str

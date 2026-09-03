@@ -55,6 +55,7 @@ def test_the_warm_up_item_is_run_but_not_counted():
     out = benchmark(lambda i: seen.append(i), [0, 1, 2], warmup=1)
     assert seen == [0, 1, 2], "the warm-up item still runs"
     assert out.items == 2, "but it is not in the timing"
+    assert ":param notes:" in (Measurement.__doc__ or "")
     assert any("warm-up" in note for note in out.notes)
 
 
@@ -160,6 +161,8 @@ def test_the_recommendation_carries_its_evidence():
     """A number a user disagrees with should be arguable, not just overridable."""
     measurement = _measurement()
     out = recommend_workers(measurement, cores=8, available_bytes=32 * GIB)
+    for name in ("measurement", "cores", "available_bytes"):
+        assert f":ivar {name}:" in (Recommendation.__doc__ or "")
     assert out.measurement is measurement
     assert out.cores == 8 and out.available_bytes == 32 * GIB
     assert str(out).startswith(f"{out.workers} worker(s):")
