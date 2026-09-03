@@ -153,7 +153,9 @@ jobs:
           QT_QPA_PLATFORM: offscreen
           SPACR_DOCS_BUILT: "1"
         run: |
-          python -m pytest -q tests/test_tooltip_api_links_resolve.py
+          python -m pytest -q \
+            tests/test_tooltip_api_links_resolve.py \
+            tests/test_built_constructor_api.py
 
       # --- production Pages path: main, or an explicit audited nightly ---
       - name: Configure Pages

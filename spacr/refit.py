@@ -64,7 +64,12 @@ RESOLVED_OUTPUT_KEYS = ("results_path", "res_folder", "volcano_path")
 
 
 def _first_usable_count_path(settings: dict) -> Optional[str]:
-    """Return the first real path in ``count_data``, or ``None``."""
+    """Return the first non-empty filesystem-compatible count-data path.
+
+    :param settings: Mapping whose ``count_data`` value may be one path or a
+        path sequence.
+    :returns: The first usable decoded path, or ``None``.
+    """
     from .chaining import is_empty_path
 
     value = settings.get("count_data")
@@ -84,6 +89,9 @@ def _first_usable_count_path(settings: dict) -> Optional[str]:
 
 def policed_settings() -> Dict[str, object]:
     """``{setting: the value that means "not asked for"}``.
+
+    :returns: Backend-specific setting names mapped to their inactive
+        defaults.
 
     Values are read from :mod:`spacr.regression_spec`, the same source used by
     the regression implementation, so reset behavior tracks backend settings.
@@ -263,6 +271,8 @@ def destination(settings: dict) -> Optional[str]:
     """Return the output directory a run would use without executing it.
 
     :param settings: regression settings used to resolve source and model kind.
+    :returns: The predicted results directory, or ``None`` when no count-data
+        path or writable folder choice can be resolved.
 
     The result uses the same folder-selection rule as the regression run.
     """
