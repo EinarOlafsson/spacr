@@ -66,7 +66,7 @@ def test_a_literal_between_two_slots_is_not_mistaken_for_a_well():
 
     assert proposal is not None
     for field in ("fields", "matched", "total", "unmatched", "suffix"):
-        assert f":ivar {field}:" in (type(proposal).__doc__ or "")
+        assert f":param {field}:" in (type(proposal).__doc__ or "")
     assert "wellID" not in proposal.fields
     assert proposal.matched == 2
     assert len(proposal.fields) == 2
