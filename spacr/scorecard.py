@@ -642,6 +642,12 @@ def score_holdout(pairs: Sequence[Tuple[np.ndarray, np.ndarray]], *,
     precision, recall = _ratio(tp, tp + fp), _ratio(tp, tp + fn)
 
     def weighted(key: str, weight_key: str = "n_matched") -> float:
+        """Average ``key`` across fields, weighted by how much each holds.
+
+        A plain mean would let a field with four objects count as much as one
+        with four hundred, so a sparse corner of the plate could move the
+        published number more than the plate does.
+        """
         weights = [float(s.get(weight_key, 0)) for s in scored]
         total = sum(weights)
         if not total:
@@ -865,6 +871,12 @@ def score_model_on_holdout(holdout: HoldoutSet, predict, *,
     """
     if read_mask is None:
         def read_mask(path):                     # noqa: WPS440 - local default
+            """Read a label image off disk.
+
+            The default, used when the caller passes none. Imported here
+            rather than at module scope so scoring an already-loaded pair of
+            arrays needs no tifffile.
+            """
             import tifffile
 
             return np.asarray(tifffile.imread(str(path)))

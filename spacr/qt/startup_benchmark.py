@@ -40,7 +40,21 @@ def _timeout_seconds() -> float:
 
 
 class BenchmarkController(QObject):
-    """Advance through Home and an exact snapshot of the live app registry."""
+    """Advance through Home and an exact snapshot of the live app registry.
+
+    :param app: the running :class:`QApplication`, also this object's parent.
+    :param window: the main window to drive.
+    :param keys: the module keys to visit, in order.
+    :param output: where to write the measurements.
+    :param timeout_s: how long one module may take before the run is
+        abandoned. ``None`` uses the default.
+    :param live_keys: called for the registry as it stands NOW, so a run can
+        check the snapshot in ``keys`` still matches the app it is driving.
+    :param measure_preferences: whether to open Preferences and time it.
+        ``None`` decides from the environment.
+    :param preferences_factory: builds the Preferences dialog, so a test can
+        supply one without the real dialog.
+    """
 
     def __init__(self, app, window, keys: Iterable[str], output: str, *,
                  timeout_s: Optional[float] = None,

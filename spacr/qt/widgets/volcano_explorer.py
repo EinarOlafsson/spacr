@@ -265,7 +265,15 @@ class _ReadOnlyValue(QLabel):
 
 
 class VolcanoExplorer(QWidget):
-    """An interactive volcano: click a point, restyle it, export it."""
+    """An interactive volcano: click a point, restyle it, export it.
+
+    :param results: the fitted table to plot. Copied with the index reset, so
+        the row numbers a clicked point reports are positions in the plot
+        rather than whatever index the caller happened to carry.
+    :param style: the styling to open with. A fresh :class:`VolcanoStyle` is
+        used when none is given.
+    :param parent: parent widget.
+    """
 
     point_selected = Signal(dict)
     style_changed = Signal()

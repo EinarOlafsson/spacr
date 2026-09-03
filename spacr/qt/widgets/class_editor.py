@@ -71,6 +71,15 @@ class ClassChip(QWidget):
     Random-complement classes omit the value pill because they do not select
     a specific value. Name and value colours come from the active theme's
     ``chip_class`` and ``chip_value`` roles.
+
+    :param index: which rule this chip stands for. It is what ``removed``
+        carries, so it must be the rule's position in the editor's list
+        rather than a running count of chips built.
+    :param rule: the rule to show. Read once, at construction: a chip does
+        not follow a rule that changes underneath it.
+    :param palette: the active theme's colour roles, as a mapping. Needs at
+        least ``chip_class``, ``chip_value`` and ``bg``.
+    :param parent: parent widget.
     """
 
     removed = Signal(int)

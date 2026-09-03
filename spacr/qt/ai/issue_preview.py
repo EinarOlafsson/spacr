@@ -33,7 +33,17 @@ DIAGNOSE_TIMEOUT_MS = 180_000
 
 
 class IssuePreviewDialog(QDialog):
-    """Show the exact public payload and require a Send click."""
+    """Show the exact public payload and require a Send click.
+
+    :param report: the payload, as ``body`` and ``fingerprint``. What this
+        dialog shows is what would be sent, with nothing added afterwards --
+        which is the whole reason it exists.
+    :param parent: parent widget.
+    :param console: the AI console that owns the conversation. Taken from
+        ``parent`` when not given, so the screen opening this does not have
+        to know about the button.
+    :param traceback_text: the traceback to offer, if there is one.
+    """
 
     def __init__(self, report: Mapping[str, str], parent=None,
                  console=None, traceback_text: str = ""):
