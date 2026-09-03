@@ -119,7 +119,11 @@ def test_a_narrowing_search_opens_the_sections_it_kept(mask_screen):
     behind collapsed headings is worse than not filtering at all."""
     bar = install(mask_screen)
     bar.set_level(ALL)
-    assert not any(s.is_expanded() for s in mask_screen._settings_sections)
+    # WHAT WAS OPEN BEFORE THE SEARCH, rather than "nothing was". The section
+    # carrying "Load test data" is deliberately opened when the form is
+    # built, because a button inside a collapsed body is a button nobody can
+    # find. So the question this test asks is what the SEARCH changed.
+    open_before = {s for s in mask_screen._settings_sections if s.is_expanded()}
 
     bar.set_query("merge pathogens")
     holding = bar._index["merge_pathogens"][0]
@@ -132,8 +136,10 @@ def test_a_narrowing_search_opens_the_sections_it_kept(mask_screen):
     assert emptied.isHidden()
 
     bar.set_query("")
-    assert not holding.is_expanded(), (
-        "clearing the box left the form splayed open instead of restoring it")
+    assert {s for s in mask_screen._settings_sections if s.is_expanded()} == \
+        open_before, (
+            "clearing the box left the form splayed open instead of "
+            "restoring what was showing before the search")
 
 
 def test_a_search_that_matches_nothing_says_what_to_do(mask_screen):

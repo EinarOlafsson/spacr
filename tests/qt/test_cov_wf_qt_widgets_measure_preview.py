@@ -115,7 +115,12 @@ def test_switching_propagation_off_copies_nothing_into_the_run(panel):
 
     panel._on_propagate_toggled(True)
     assert len(seen) == 1
-    assert seen[0]["experiment"] == "exp"
+    # WHAT WAS COPIED IS THE PANEL'S OWN ANSWER, checked against the panel
+    # rather than against a literal. The experiment field ships Measure's own
+    # default ("experiment"); "exp" is only the fallback for a field the user
+    # has emptied, and asserting the fallback here tested nothing about
+    # propagation.
+    assert seen[0] == panel.settings_for_propagation()
 
     panel._on_propagate_toggled(False)
     assert len(seen) == 1, "switching propagation off still copied settings"

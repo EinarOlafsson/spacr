@@ -114,11 +114,37 @@ def test_the_link_costs_a_line_rather_than_overflowing(screen):
     assert _lines_used(screen._hint_strip) <= HINT_STRIP_LINES
 
 
-def test_leaving_a_setting_restores_the_prompt(screen):
+def test_leaving_a_setting_holds_the_help_rather_than_blanking_it(screen):
+    """The pointer leaving is how the user reaches the API link.
+
+    The strip's help carries a link, and the only way to click it is to move
+    the pointer OFF the setting and onto the strip. Restoring the prompt on
+    Leave -- which this test used to assert -- made the link unreachable: it
+    existed only while the pointer was somewhere it could not be clicked
+    from. So the help is HELD instead, and released on a timer.
+    """
+    target = next((w for w in screen.findChildren(QWidget)
+                   if w.property("settingKey")), None)
+    if target is None:
+        pytest.skip("this module renders no keyed setting rows")
+    screen.eventFilter(target, QEvent(QEvent.Enter))
+    held = screen._hint_strip.text()
+    assert held != screen._default_hint(), "nothing was shown to hold"
+
+    screen.eventFilter(target, QEvent(QEvent.Leave))
+
+    assert screen._hint_strip.text() == held, "the help was dropped on Leave"
+
+
+def test_the_held_help_goes_away_when_the_hold_runs_out(screen):
+    """Held is not permanent: the prompt comes back when the timer fires."""
     target = next((w for w in screen.findChildren(QWidget)
                    if w.property("settingKey")), None)
     if target is None:
         pytest.skip("this module renders no keyed setting rows")
     screen.eventFilter(target, QEvent(QEvent.Enter))
     screen.eventFilter(target, QEvent(QEvent.Leave))
+
+    screen._release_the_hint()
+
     assert screen._hint_strip.text() == screen._default_hint()
