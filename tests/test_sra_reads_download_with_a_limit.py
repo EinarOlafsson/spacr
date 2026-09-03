@@ -65,7 +65,7 @@ def test_the_portal_rows_become_one_entry_per_mate():
                      opener=lambda url: _Response(PORTAL_TSV.encode()))
     for name in ("run", "library", "url", "mate", "size_bytes",
                  "read_count"):
-        assert f":ivar {name}:" in (RunFile.__doc__ or "")
+        assert f":param {name}:" in (RunFile.__doc__ or "")
     assert [f.mate for f in files] == [1, 2]
     assert {f.run for f in files} == {"SRR33531217"}
     assert files[0].library == "hilib_p4", "the library names the plate"
