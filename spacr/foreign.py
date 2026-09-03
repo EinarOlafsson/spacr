@@ -1075,6 +1075,7 @@ class MaskMapping:
         image's, ``'normalised'`` when it matched only after stripping a
         mask suffix. Recorded because a normalised match is a guess, and
         the plan shows it.
+    :ivar labels: positive object labels found in this mask at plan time.
     """
 
     source: str
@@ -1203,6 +1204,7 @@ class JoinReport:
     :ivar image_key: their column naming the image a row belongs to, or
         ``''`` when the whole table is one field.
     :ivar label_key: their column holding the object's integer label.
+    :ivar object_type: mask object class the measurement rows describe.
     :ivar rows_total: rows in their table.
     :ivar rows_matched: rows whose ``(field, label)`` exists in a mask.
     :ivar unresolved_fields: ``(value, count)`` for image-key values that
@@ -1213,6 +1215,7 @@ class JoinReport:
         row measures.
     :ivar ambiguous_keys: image-key spellings that matched more than one
         field and were therefore not used.
+    :ivar examples: representative row-level failures shown after the counts.
     """
 
     image_key: str = ''
