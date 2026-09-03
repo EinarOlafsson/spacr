@@ -71,6 +71,7 @@ FULLY_DOCUMENTED = (
     "spacr/report.py",
     "spacr/resources/home/versions/_generators/common.py",
     "spacr/resources/home/versions/_generators/parts.py",
+    "spacr/resources/home/versions/_generators/render.py",
     "spacr/restart_state.py",
     "spacr/run_journal.py",
     "spacr/schema.py",
