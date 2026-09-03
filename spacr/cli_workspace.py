@@ -34,6 +34,8 @@ def main(argv=None) -> int:
         reads :data:`sys.argv`.
     :returns: ``0`` when a workspace was printed, or ``2`` when the requested
         path or workspace document does not exist.
+    :raises SystemExit: with status ``2`` when command-line arguments are
+        invalid.
     """
     parser = argparse.ArgumentParser(
         prog="spacr-workspace",
