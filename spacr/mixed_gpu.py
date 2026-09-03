@@ -317,29 +317,44 @@ class TorchMixedResults:
     absolute variances on the response scale. ``device``, ``fit_seconds``,
     ``n_deviance_evals``, and ``gradient_norm`` record backend diagnostics.
 
-    :ivar fe_params: estimated fixed-effect coefficients, indexed by design
-        column.
-    :ivar bse_fe: standard errors of the fixed-effect estimates.
-    :ivar params: statsmodels-compatible combined parameter vector.
-    :ivar bse: standard errors aligned with ``params``.
-    :ivar tvalues: fixed-effect test statistics aligned with ``params``.
-    :ivar pvalues: two-sided p-values aligned with ``params``.
-    :ivar scale: estimated residual variance.
-    :ivar cov_re: covariance matrix of the outer-group random intercept.
-    :ivar vcomp: absolute variance estimates for nested variance components.
-    :ivar random_effects: conditional random-effect estimates keyed by group.
-    :ivar resid: conditional residual for each input observation.
-    :ivar fittedvalues: conditional fitted value for each input observation.
-    :ivar converged: whether the optimizer met its convergence contract.
-    :ivar llf: maximized restricted log-likelihood.
-    :ivar n_obs: number of observations included in the fit.
-    :ivar k_fe: number of fixed-effect coefficients.
-    :ivar backend: backend identifier recorded in logs and run metadata.
-    :ivar device: PyTorch device used for the fit.
-    :ivar fit_seconds: elapsed optimizer time in seconds.
-    :ivar n_deviance_evals: number of profiled-deviance evaluations.
-    :ivar theta: variance ratios relative to residual variance.
-    :ivar gradient_norm: optimizer gradient norm at the reported solution.
+    :param fe_params: Estimated fixed-effect coefficients indexed by
+        fixed-design column.
+    :param bse_fe: Standard errors of the fixed-effect coefficients, indexed
+        like ``fe_params``.
+    :param params: Combined statsmodels-shaped vector of fixed-effect
+        coefficients followed by variance ratios.
+    :param bse: Standard errors aligned with ``params``; variance-ratio entries
+        are ``nan`` because this backend does not estimate their standard
+        errors.
+    :param tvalues: Fixed-effect z statistics aligned with ``params``;
+        variance-ratio entries are ``nan``.
+    :param pvalues: Two-sided standard-normal p-values aligned with ``params``;
+        variance-ratio entries are ``nan``.
+    :param scale: Estimated residual variance on the response scale.
+    :param cov_re: One-by-one covariance matrix for the outer-group random
+        intercept on the response scale.
+    :param vcomp: Absolute variances of the nested variance components, in the
+        input component order.
+    :param random_effects: Conditional random-effect estimates keyed by
+        outer-group level, with statsmodels-compatible component labels.
+    :param resid: Conditional residuals, ``y - fittedvalues``, in
+        input-observation order.
+    :param fittedvalues: Conditional fitted values including fixed and random
+        effects, in input-observation order.
+    :param converged: Whether the final log-variance gradient norm is below the
+        backend's reported-convergence threshold of ``1e-3``.
+    :param llf: Restricted log-likelihood at the reported solution.
+    :param n_obs: Number of observations included in the fit.
+    :param k_fe: Number of fixed-effect coefficients.
+    :param backend: Backend identifier recorded in logs and run metadata.
+    :param device: PyTorch device used for the fit.
+    :param fit_seconds: Wall-clock seconds spent in L-BFGS optimization.
+    :param n_deviance_evals: Number of profiled-deviance evaluations performed
+        during optimization and finalization.
+    :param theta: Variance ratios relative to residual variance, ordered as the
+        outer-group intercept followed by nested components.
+    :param gradient_norm: Euclidean norm of the final gradient with respect to
+        log variance ratios.
     """
 
     fe_params: pd.Series

@@ -1432,3 +1432,68 @@ itself: a wedged background job looks exactly like a slow one.
    pass fast), but it is a WRITE to the 1.1 TB volume and should be a
    deliberate one. The 306 pass mirrored the models into scratch to avoid
    it; that mirror is still there and is the safer default.
+
+--------------------------------------------------------------------------------
+2026-09-03 — CODEX: TWO ISOLATED MEASURE FAILURES HANDED TO CLAUDE
+--------------------------------------------------------------------------------
+
+While closing the documentation-only ``spacr/object_roles.py`` unit, the
+broader companion file exposed two failures in Claude-owned ``spacr/measure.py``.
+Both reproduce together and individually on clean ``nightly`` at
+``d514148465d84192f7f441830236f72cfa2b8883``:
+
+  * ``tests/test_multiple_organelles.py::test_two_organelle_measurement_is_separate_joinable_and_wide``
+    receives the worker failure sentinel after ``measure.py:3437`` attempts a
+    pandas merge whose right-hand frame has no ``label`` column
+    (``KeyError: 'label'``).
+  * ``tests/test_multiple_organelles.py::test_enabled_but_empty_slot_writes_zero_parent_summary``
+    completes the worker call but the resulting database has no
+    ``cell_organelle_summary`` table.
+
+Exact guarded reproduction:
+
+    python tools/run_memory_guarded.py --limit-gib 110 -- python -m pytest -q \
+      tests/test_multiple_organelles.py::test_two_organelle_measurement_is_separate_joinable_and_wide \
+      tests/test_multiple_organelles.py::test_enabled_but_empty_slot_writes_zero_parent_summary
+
+The remaining direct object-role suites passed 110 tests. Codex made no edit
+to ``spacr/measure.py`` or ``tests/test_multiple_organelles.py``; this note is
+the ownership handoff, not a partial fix.
+
+--------------------------------------------------------------------------------
+2026-09-03 — CODEX CLAIMS THE INSTRUCTION 367 POST-BUILD API RATCHET
+--------------------------------------------------------------------------------
+
+Codex is taking one narrow shared-infrastructure unit: a new
+``tests/test_built_constructor_api.py`` and the single command-line addition
+that runs it after the Sphinx build in ``.github/workflows/docs.yml``. The
+test proves that constructor parameters reach generated class pages for both
+supported source shapes: parameters documented on a class and parameters
+documented only on ``__init__``. No file under ``docs/**`` is in scope.
+
+Claude should not edit ``.github/workflows/docs.yml`` until Codex records the
+release here. Codex will commit and push this claim before implementation,
+then commit the tested implementation separately and release the path.
+
+--------------------------------------------------------------------------------
+2026-09-03 — CODEX RELEASES THE DOCS WORKFLOW; ONE PROTECTED TOOLTIP RED
+--------------------------------------------------------------------------------
+
+The Instruction 367 post-build ratchet is complete. It checks a class-level
+constructor docstring and an ``__init__``-level constructor docstring against
+fresh generated HTML, carries positive and negative parser controls, and is
+wired beside the existing tooltip-link test after Sphinx succeeds. Codex
+releases ``.github/workflows/docs.yml`` as soon as this note and the
+implementation are pushed.
+
+The focused run also reproduced one pre-existing failure wholly inside
+Claude's protected Qt lane:
+
+``tests/test_tooltip_api_links_resolve.py::test_every_internal_tooltip_page_is_a_canonical_public_module``
+
+``channels`` in ``spacr/qt/screens/setting_api_targets.py`` points to
+``spacr._v1_v2_bridge.v2_channels_from_settings`` for the mask, measure and
+external-masks screens. ``tools/build_documentation_i18n.py`` deliberately
+excludes that private module, so the URL cannot resolve to a generated public
+API page. Codex did not alter the protected target table; this note hands the
+exact red test and cause to Claude rather than weakening the public-API gate.

@@ -120,7 +120,11 @@ class Well:
         return min(self.width, self.height) / long_side
 
     def as_dict(self) -> Dict[str, Any]:
-        """The box plus its derived measures, for a results table."""
+        """The box plus its derived measures, for a results table.
+
+        :returns: The stored coordinates and confidence plus derived
+            ``diameter_px`` and ``axis_ratio`` values.
+        """
         out = asdict(self)
         out.update(diameter_px=self.diameter_px, axis_ratio=self.axis_ratio)
         return out
@@ -153,6 +157,12 @@ class PlaqueScale:
 
 def _load_detector(weights: str):
     """Load the YOLO well detector, or say what to install.
+
+    :param weights: Checkpoint path passed unchanged to
+        :class:`ultralytics.YOLO`.
+    :returns: The constructed YOLO detector.
+    :raises ImportError: when the optional ``ultralytics`` dependency is
+        unavailable.
 
     Kept separate so the import failure has ONE address and one message.
     ``ultralytics`` is an optional spaCR dependency: most users never need
@@ -224,7 +234,7 @@ def crop_well(image: np.ndarray, well: Well, *, pad: int = 0) -> np.ndarray:
     :param image: the full field.
     :param well: the box to cut out.
     :param pad: extra pixels around the box, clipped to the image.
-    :returns: a view-shaped copy of that region.
+    :returns: the clipped image region selected by the padded box.
     """
     height, width = image.shape[:2]
     x0 = max(0, well.x0 - pad)

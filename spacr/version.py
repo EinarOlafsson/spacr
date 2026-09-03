@@ -75,6 +75,10 @@ __version__ = get_version()
 def __getattr__(name: str):
     """Resolve ``version_str`` lazily (PEP 562).
 
+    :param name: Module attribute requested by Python's fallback lookup.
+    :returns: The formatted environment report for ``version_str``.
+    :raises AttributeError: If ``name`` is not ``version_str``.
+
     ``format_version_info()`` calls ``get_torch_version()``, which imports
     torch — roughly 0.94 s. Evaluating it at module scope meant every
     ``import spacr`` paid for torch whether or not anything needed it, which

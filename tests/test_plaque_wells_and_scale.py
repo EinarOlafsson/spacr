@@ -71,6 +71,20 @@ def test_a_lopsided_box_is_reported_as_lopsided():
     assert well.axis_ratio == 0.5, "and the disagreement is still visible"
 
 
+def test_a_well_dict_includes_stored_and_derived_geometry():
+    well = Well(1, 2, 5, 8, 0.75)
+
+    assert well.as_dict() == {
+        "x0": 1,
+        "y0": 2,
+        "x1": 5,
+        "y1": 8,
+        "confidence": 0.75,
+        "diameter_px": 5.0,
+        "axis_ratio": pytest.approx(2 / 3),
+    }
+
+
 def test_a_zero_sized_box_has_no_axis_ratio_or_physical_scale():
     """Degenerate detector output cannot become a plausible ruler."""
     well = Well(x0=4, y0=4, x1=4, y1=4)

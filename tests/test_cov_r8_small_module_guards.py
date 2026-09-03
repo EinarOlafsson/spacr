@@ -26,6 +26,13 @@ class TestClassifysFlowViewGate:
     def _no_ambient_trace(self, monkeypatch):
         monkeypatch.delitem(sys.modules, "spacr.flowview.trace",
                             raising=False)
+        flowview_package = sys.modules.get("spacr.flowview")
+        if flowview_package is not None:
+            # Importing a submodule stores it both in ``sys.modules`` and on
+            # its parent package.  Clear both caches so this test class has
+            # the same lazy-import starting state regardless of collection
+            # or execution order.
+            monkeypatch.delattr(flowview_package, "trace", raising=False)
         monkeypatch.delenv("SPACR_FLOWVIEW", raising=False)
 
     def test_an_unset_environment_starts_no_graph(self):

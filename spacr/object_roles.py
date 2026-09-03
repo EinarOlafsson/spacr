@@ -43,6 +43,7 @@ def is_segmented(role: str) -> bool:
     :param role: object kind, e.g. ``"nucleus"``. Unknown names are False
         rather than an error, because callers use this to decide whether to
         look for a channel setting; an unknown kind has none.
+    :returns: ``True`` only for roles in :data:`SEGMENTED_ROLES`.
     """
     return role in SEGMENTED_ROLES
 
@@ -51,6 +52,7 @@ def is_organelle(role: str) -> bool:
     """True when ``role`` is one of the closed organelle slots.
 
     :param role: object-role name to test.
+    :returns: ``True`` only for roles in :data:`ORGANELLE_ROLES`.
     """
     return str(role) in ORGANELLE_ROLES
 
@@ -59,6 +61,8 @@ def organelle_index(role: str) -> int:
     """Return the one-based user-facing index of an organelle slot.
 
     :param role: organelle role whose numeric slot is requested.
+    :returns: The one-based slot encoded by ``role``.
+    :raises ValueError: if ``role`` is not an organelle slot.
 
     ANSWERED FROM THE LETTER, not from a list of the slots that happen to
     segment today. The suffix IS the number -- organelle, organelleb,
@@ -80,6 +84,8 @@ def organelle_label(role: str) -> str:
     """Human-readable label for a slot (``Organelle 1``, ``Organelle 2``).
 
     :param role: organelle role to render for users.
+    :returns: The numbered user-facing organelle label.
+    :raises ValueError: if ``role`` is not an organelle slot.
     """
     from .organelle_types import organelle_slot_label
 
@@ -156,7 +162,11 @@ CASED_TERMS = {
 
 
 def _recase(text: str) -> str:
-    """Restore the terms `capitalize()` flattened."""
+    """Restore the terms `capitalize()` flattened.
+
+    :param text: Human-readable text whose established terms need recasing.
+    :returns: The text with :data:`CASED_TERMS` spellings restored.
+    """
     return " ".join(CASED_TERMS.get(word.lower(), word)
                     for word in str(text).split(" "))
 
@@ -166,6 +176,9 @@ def _split_id_suffix(key: str) -> str:
 
     Identifier columns such as ``plateID`` and ``objectID`` contain no
     underscore, so ordinary tokenization would render them as ``Plateid``.
+
+    :param key: Setting key that may end in a camel-case ``ID`` suffix.
+    :returns: The key with spacing inserted before a terminal ``ID``.
     """
     import re
 
@@ -176,6 +189,7 @@ def setting_label(key: str) -> str:
     """Humanise a setting key, giving organelle slots numbered labels.
 
     :param key: canonical setting key to turn into a display label.
+    :returns: The canonical human-readable setting label.
     """
     from .organelle_types import organelle_role_of
 
@@ -201,6 +215,8 @@ def role_setting(role: str, suffix: str) -> str:
 
     :param role: segmented object role that owns the setting.
     :param suffix: role-relative setting suffix such as ``channel``.
+    :returns: The canonical ``<role>_<suffix>`` setting key.
+    :raises ValueError: if ``role`` is not segmented.
     """
     role = str(role)
     if role not in SEGMENTED_ROLES:
@@ -212,6 +228,7 @@ def enabled_organelle_roles(settings: Mapping[str, Any]) -> Tuple[str, ...]:
     """Organelle slots whose ``<role>_channel`` is enabled, in plane order.
 
     :param settings: settings mapping carrying per-role channel assignments.
+    :returns: Enabled organelle slots in schema and mask-plane order.
     """
     return tuple(role for role in ORGANELLE_ROLES
                  if settings.get(role_setting(role, "channel")) is not None)
@@ -222,6 +239,9 @@ def organelle_settings_view(settings: Mapping[str, Any], role: str) -> Dict[str,
 
     :param settings: complete settings mapping to adapt without mutating it.
     :param role: organelle slot to expose under legacy key names.
+    :returns: A copied mapping exposing the selected slot through legacy
+        ``organelle_*`` keys.
+    :raises ValueError: if ``role`` is not an organelle slot.
 
     The classical organelle segmenter predates slots and reads roughly forty
     ``organelle_*`` keys. Keeping that well-tested implementation and adapting
@@ -251,6 +271,7 @@ def ordered(*roles: str) -> Tuple[str, ...]:
     keeping its own private copy of what the names are.
 
     :param roles: object kinds in this module's required order.
+    :returns: ``roles`` unchanged as a tuple.
     :raises ValueError: if a name is not in :data:`ALL_ROLES`, naming it and
         listing the valid kinds.
     """
@@ -315,6 +336,7 @@ def is_one_row_per_cell(table: str) -> bool:
     """True when ``table`` holds one row per cell and needs no roll-up.
 
     :param table: object-table name to classify.
+    :returns: Whether the table needs no child-to-cell roll-up.
     """
     return str(table).strip().lower() in ONE_ROW_PER_CELL
 
