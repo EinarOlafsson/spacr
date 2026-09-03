@@ -816,6 +816,7 @@ class ConversionPlan:
     z_handling: str = Z_KEEP
 
     def __len__(self) -> int:
+        """Return the number of planned outputs, not source files."""
         return len(self.mappings)
 
     @property
@@ -1619,6 +1620,7 @@ def _to_5d(array: np.ndarray, axes: str, n_t: int, n_z: int, n_c: int) -> np.nda
 
 
 def _read_tiff(source: SourceImage) -> np.ndarray:
+    """Read the first TIFF series and normalize its axes to ``(T,Z,C,Y,X)``."""
     import tifffile
 
     with tifffile.TiffFile(source.path) as handle:
@@ -1628,6 +1630,7 @@ def _read_tiff(source: SourceImage) -> np.ndarray:
 
 
 def _read_plain(source: SourceImage) -> np.ndarray:
+    """Read a Pillow image as channel-first color or single-channel 5-D data."""
     from PIL import Image
 
     with Image.open(source.path) as image:
@@ -1639,6 +1642,7 @@ def _read_plain(source: SourceImage) -> np.ndarray:
 
 
 def _read_nd2(source: SourceImage) -> np.ndarray:
+    """Read every declared ND2 time, z, and channel plane as 5-D data."""
     module = _import_reader('.nd2')
     series = int(source.meta.get('series', 0) or 0)
     planes = []
@@ -1654,6 +1658,7 @@ def _read_nd2(source: SourceImage) -> np.ndarray:
 
 
 def _read_czi(source: SourceImage) -> np.ndarray:
+    """Select the declared CZI scene, when present, and return 5-D data."""
     module = _import_reader('.czi')
     series = int(source.meta.get('series', 0) or 0)
     with module.CziFile(source.path) as handle:
@@ -1667,6 +1672,7 @@ def _read_czi(source: SourceImage) -> np.ndarray:
 
 
 def _read_lif(source: SourceImage) -> np.ndarray:
+    """Read every plane of the declared LIF image series as 5-D data."""
     module = _import_reader('.lif')
     series = int(source.meta.get('series', 0) or 0)
     images = list(module.Reader(source.path).getIterImage())
