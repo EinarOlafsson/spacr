@@ -65,6 +65,11 @@ class MaskConfig:
         Advanced settings not represented by typed fields. Keys that repeat a
         typed field are refused so one script cannot contain two answers.
 
+    :ivar test_mode: run a small representative subset and enable diagnostic
+        output before committing compute to the complete plate.
+    :ivar dry_run: validate the source, settings, and planned outputs without
+        loading a model, running segmentation, or writing files.
+
     Examples
     --------
     >>> config = MaskConfig(
@@ -150,6 +155,15 @@ class MeasureConfig:
         Mapping from ``r``, ``g`` and ``b`` to source intensity planes.
     extra:
         Advanced settings not represented by typed fields.
+
+    :ivar save_png: write per-object PNG crops and register their paths for
+        downstream annotation, classification, and image plots.
+    :ivar test_mode: measure a small sample of merged fields with diagnostic
+        plotting enabled before processing the complete dataset.
+    :ivar dry_run: validate the measurement plan and return its problems
+        without loading the measurement pipeline or writing files.
+    :ivar resume: continue an interrupted run after validating completed
+        fields and clearing any partial database rows before retrying them.
     """
 
     src: SourceInput
