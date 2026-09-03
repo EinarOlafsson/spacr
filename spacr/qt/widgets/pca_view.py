@@ -391,6 +391,15 @@ class PCAScoresCanvas(GraphCanvas):
     pair of components happens to be on x and y, read from the spec rather than
     configured separately, so the arrows cannot end up describing a different
     plane from the points.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
     """
 
     def __init__(self, parent=None, *, link=None, source: str = "pca"):

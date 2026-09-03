@@ -57,7 +57,15 @@ def images_under(paths: Sequence[str], *, limit: int = 5000) -> List[str]:
 
 
 class ImportWorkbench(QWidget):
-    """The table, the regex, the roles and the preview, in one panel."""
+    """The table, the regex, the roles and the preview, in one panel.
+
+    :param filenames: the names to work the pattern out from. Copied to a
+        list of strings, so a generator or a set of paths is accepted and the
+        caller's sequence is not consumed.
+    :param regex: the pattern to start from. Empty starts with none, which is
+        the ordinary case -- working the pattern out is what this is for.
+    :param parent: parent widget.
+    """
 
     def __init__(self, filenames: Sequence[str] = (),
                  regex: str = "", parent: Optional[QWidget] = None):
@@ -301,7 +309,15 @@ class ImportWorkbench(QWidget):
 
 
 class ImportWorkbenchDialog(QDialog):
-    """The workbench in a window, returning the accepted regex."""
+    """The workbench in a window, returning the accepted regex.
+
+    :param filenames: the names to work the pattern out from.
+    :param regex: the pattern to start from.
+    :param parent: parent widget.
+
+    Both are handed to the :class:`ImportWorkbench` this wraps, which
+    documents what they mean.
+    """
 
     def __init__(self, filenames: Sequence[str] = (), regex: str = "",
                  parent: Optional[QWidget] = None):
