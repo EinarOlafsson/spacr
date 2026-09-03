@@ -889,6 +889,7 @@ def test_region_context_handles_a_3d_mask():
     mask[1:3, 2:4, 2:4] = 1
     context = mh.RegionContext(object_type="cell", file_name="f", mask=mask,
                                settings={}, spacing=(2.0, 0.5, 0.5))
+    assert ":param spacing:" in (mh.RegionContext.__init__.__doc__ or "")
     assert context.ndim == 3
     assert context.centroids.shape == (1, 3)
     np.testing.assert_allclose(context.centroids[0], [1.5, 2.5, 2.5])
@@ -899,6 +900,9 @@ def test_preprocessing_context_reports_spacing_and_volumetric():
     context = mh.PreprocessingContext(
         file_name="f", channels=np.array([2, 0]), settings={"src": "/x"},
         volumetric=True, spacing=(2.0, 0.5, 0.5))
+    docs = mh.PreprocessingContext.__init__.__doc__ or ""
+    assert ":param volumetric:" in docs
+    assert ":param spacing:" in docs
     assert context.channels == (2, 0)
     assert context.volumetric is True
     assert context.spacing == (2.0, 0.5, 0.5)
