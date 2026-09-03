@@ -148,6 +148,7 @@ FULLY_DOCUMENTED = (
     "spacr/selection.py",
     "spacr/sequencing.py",
     "spacr/sequencing_qc.py",
+    "spacr/spacr_cellpose.py",
     "spacr/settings_advisor.py",
     "spacr/style_base.py",
     "spacr/sweep_child.py",
