@@ -115,6 +115,8 @@ def test_a_one_per_cell_table_is_unaffected_by_consolidation():
 
 
 def test_consolidate_on_cell_is_the_recommended_default():
+    assert ":param consolidate_on_cell:" in (MergePolicy.__doc__ or "")
+    assert ":param keep_uninfected:" in (MergePolicy.__doc__ or "")
     assert MergePolicy().consolidate_on_cell is True
     assert MergePolicy().keep_uninfected is True
 
