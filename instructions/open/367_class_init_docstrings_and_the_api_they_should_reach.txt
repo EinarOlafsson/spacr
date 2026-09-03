@@ -199,3 +199,41 @@ prose: what the parameter is, what it does, its default and its units.
   the other session has been adding docstrings all night. Those numbers want
   re-recording by whoever owns that campaign, and until they are, a genuine
   regression in that file would be invisible behind the drift.
+
+---
+
+2026-09-03, overnight. THE BACKLOG NUMBER IN THIS FILE IS WRONG, and every
+way it is wrong makes documented code look undocumented. Recording this
+because the ratchet this item asks for will report false work otherwise, and
+because I nearly rewrote two docstrings that were already complete.
+
+A parameter counts as documented if it is named in ANY of:
+
+  1. `:param x:` in the class docstring -- what was being checked.
+  2. A NumPy `Parameters\n----------` block. `MeasurementComparePanel`
+     documents all six that way.
+  3. Either style on the `__init__` docstring rather than the class's.
+     `StreamWorker` does this.
+
+And the parameter list must come from `args` PLUS `kwonlyargs`. Reading only
+`args` reports every correctly documented keyword-only parameter as a GHOST:
+`BenchmarkController`'s `timeout_s`, `live_keys`, `measure_preferences` and
+`preferences_factory` all came back as ghosts against a docstring that names
+them correctly.
+
+CORRECTED COUNT: 170 public classes in the package take parameters and
+document none of them. 165 of those -- 97% -- are in `spacr/qt`.
+
+That last number is the useful one. The backlog is not spread across the
+repository; it is almost entirely in the Qt lane, so it does not need
+splitting between sessions and it does not need the other session at all.
+
+Ten documented so far. The remaining 155 are mostly two-parameter widgets
+(`something, parent=None`), which is why parameter COUNT is the right order
+to work in: the value is concentrated in the few classes whose parameters
+carry a precondition a caller cannot guess from the name.
+
+STILL TRUE, and still the trap that caught me: `tests/test_user_facing_
+docstrings.py` rejects internal provenance in docstrings. I wrote five
+violations into `spacr/scorecard.py` AFTER recording that warning here. They
+were three red tests on nightly until 412525308.
