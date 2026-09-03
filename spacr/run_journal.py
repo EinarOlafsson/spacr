@@ -572,6 +572,10 @@ class Run:
         manifest instead of being silently discarded.
     :ivar run_warnings: distinct warning lines emitted by the pipeline.
     :ivar environment: host, spaCR, Git, and installed-package versions.
+    :ivar stages: consolidated FlowView lifecycle records in execution order.
+    :ivar stdout_path: captured standard-output log path, when one is attached.
+    :ivar error_traceback: formatted exception traceback for failed or
+        cancelled runs; empty for successful runs.
     """
     app_key: str
     settings: Dict[str, Any]
