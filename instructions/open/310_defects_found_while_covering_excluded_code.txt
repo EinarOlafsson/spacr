@@ -2682,3 +2682,41 @@ not a measurement of it.
 WHAT WOULD MAKE IT A MEASUREMENT: give every entry a one-word verdict line in
 a fixed position, the way the newer A-entries nearly do. Then the count is a
 grep and the next session does not re-derive it.
+
+
+==============================================================================
+40. AN ENABLED TIMELAPSE COULD OMIT A MALFORMED SOURCE FIELD
+==============================================================================
+
+Found during the post-commit review of instruction 339. The V1 timelapse path
+trusted `_generate_time_lists`: an NPY whose name could not be parsed as
+`plate_well_field_time` was absent from the returned groups, so illumination
+correction could finish with a provenance manifest that never mentioned that
+source field. Cellpose would process the grouped subset without reporting the
+omission.
+
+VERDICT 2026-09-02: RESOLVED by `cd09994e1`. When illumination is enabled,
+`concatenate_and_normalize` now compares the complete source-NPY inventory to
+the grouped inventory and refuses the run with the exact omitted filenames.
+The focused malformed-time-name test proves the refusal, while the ordinary
+timelapse counterpart proves valid names still group and publish.
+
+
+==============================================================================
+41. A SHORTER V1 RERUN COULD LEAVE A STALE NPZ FOR CELLPOSE
+==============================================================================
+
+Also found during instruction 339's post-commit review. V1 wrote each new
+normalised archive over the old directory independently; if a rerun produced
+fewer batches, an old top-level NPZ survived and remained visible to the
+Cellpose glob even though it was not in the new illumination manifest.
+
+VERDICT 2026-09-02: RESOLVED by `cd09994e1`. V1 now builds and validates the
+complete archive set in a private staging directory, atomically replaces the
+published set with rollback on failure, and removes staging on every exit.
+Focused tests prove a shorter rerun removes stale archives, successful
+publication is exact, and a mid-publication failure restores the prior set.
+
+REVISED COUNT after recording these two already-resolved findings and the A14
+and A16 verdict corrections above: 99 entries, 30 recorded as resolved. This
+is still a prose-derived progress aid rather than an acceptance ledger.
