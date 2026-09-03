@@ -121,6 +121,7 @@ FULLY_DOCUMENTED = (
     "spacr/sequencing_qc.py",
     "spacr/settings_advisor.py",
     "spacr/style_base.py",
+    "spacr/sweep_child.py",
     "spacr/sra.py",
     "spacr/surrogate.py",
     "spacr/thresholds.py",
