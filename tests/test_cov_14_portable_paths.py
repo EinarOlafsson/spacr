@@ -83,10 +83,16 @@ def test_a_suffix_the_recorded_path_does_not_end_with_is_skipped(tmp_path):
 def test_a_report_counts_as_its_moved_number():
     """``bool`` and ``int`` on the record answer about ``moved``."""
     moved = portable_paths.RerootReport(column="png_path", moved=3,
-                                        unresolved=1, root="/x")
+                                        unresolved=1,
+                                        first_unresolved="/gone/a.png",
+                                        root="/x")
     nothing = portable_paths.RerootReport(column="png_path", moved=0,
                                           unresolved=4, root="/x")
 
+    for name in ("column", "moved", "unresolved", "first_unresolved", "root"):
+        assert f":ivar {name}:" in (portable_paths.RerootReport.__doc__ or "")
+    assert moved.first_unresolved == "/gone/a.png"
+    assert "/gone/a.png" in moved.describe()
     assert bool(moved) is True
     assert int(moved) == 3
     assert bool(nothing) is False
