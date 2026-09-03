@@ -309,7 +309,7 @@ def run_install_command(args, timeout: float = 1800.0):
 # :mod:`spacr.qt.widgets.availability_panel`, and the split is what lets the
 # three answers below be tested without a screen.
 
-#: Packages where an install that MOVES one is a change to spaCR's results and
+#: Packages where an install that MOVES OR REMOVES one changes spaCR's results
 #: not to its tooling. A user pressing Install on an optional accelerator has
 #: asked for a faster lasso, not for a numpy major upgrade under an
 #: image-analysis stack -- so a plan that touches any of these is refused by
@@ -425,6 +425,11 @@ class PackageChange:
                 and self.current != self.proposed)
 
     @property
+    def is_removal(self) -> bool:
+        """A distribution installed today would be removed."""
+        return self.current is not None and self.proposed is None
+
+    @property
     def protected(self) -> bool:
         """Is this one of :data:`PROTECTED_PACKAGES`?"""
         return canonical_package_name(self.name) in {
@@ -436,6 +441,8 @@ class PackageChange:
             return f"{self.name} {self.proposed or '?'} (new)"
         if self.is_move:
             return f"{self.name} {self.current} -> {self.proposed}"
+        if self.is_removal:
+            return f"{self.name} {self.current} (removed)"
         return f"{self.name} {self.current} (unchanged)"
 
 
@@ -474,9 +481,22 @@ class DryRun:
         return tuple(c for c in self.changes if c.is_move)
 
     @property
+    def removals(self) -> Tuple[PackageChange, ...]:
+        """Packages already installed that the resolver would remove."""
+        return tuple(c for c in self.changes if c.is_removal)
+
+    @property
     def protected_moves(self) -> Tuple[PackageChange, ...]:
         """The moves that land on :data:`PROTECTED_PACKAGES`."""
         return tuple(c for c in self.moves if c.protected)
+
+    @property
+    def protected_changes(self) -> Tuple[PackageChange, ...]:
+        """Protected packages whose version would change or be removed."""
+        return tuple(
+            change for change in self.changes
+            if change.protected and (change.is_move or change.is_removal)
+        )
 
     def summary(self) -> str:
         """Return the report shown before installation confirmation."""
@@ -484,6 +504,7 @@ class DryRun:
             return (f"Could not work out what installing {self.requirement} "
                     f"would change.\n{self.error or ''}".strip())
         moves = self.moves
+        removals = self.removals
         additions = self.additions
         lines = [f"Installing {self.requirement} would:"]
         if additions:
@@ -498,7 +519,14 @@ class DryRun:
             lines.append("  CHANGE the version of "
                          f"{len(moves)} package(s) already installed:")
             lines.extend(f"      {c.describe()}" for c in moves)
-        if not additions and not moves:
+        if removals:
+            lines.append(
+                f"  REMOVE {len(removals)} package(s): "
+                + ", ".join(f"{c.name} {c.current or '?'}"
+                            for c in removals[:12])
+                + (" ..." if len(removals) > 12 else "")
+            )
+        if not additions and not moves and not removals:
             lines.append("  change nothing -- it is already satisfied.")
         return "\n".join(lines)
 
@@ -624,8 +652,9 @@ def _parse_uv_dry_run(text: str):
 def install_decision(dry_run: DryRun) -> dict:
     """Whether a plan may proceed, and what a second confirmation must say.
 
-    An install that would move NumPy, PyTorch, pandas, or scikit-learn is
-    refused by default and needs a second confirmation naming what moves.
+    An install that would move or remove NumPy, PyTorch, pandas, or
+    scikit-learn is refused by default and needs a second confirmation naming
+    what changes.
 
     :param dry_run: the result of :func:`dry_run_install`.
     :returns: ``{allowed, needs_second_confirmation, moves, headline,
@@ -636,7 +665,7 @@ def install_decision(dry_run: DryRun) -> dict:
         return {'allowed': False, 'needs_second_confirmation': False,
                 'moves': (), 'headline': dry_run.summary(),
                 'report': dry_run.summary()}
-    protected = dry_run.protected_moves
+    protected = dry_run.protected_changes
     if protected:
         named = "; ".join(change.describe() for change in protected)
         return {
@@ -644,7 +673,8 @@ def install_decision(dry_run: DryRun) -> dict:
             'needs_second_confirmation': True,
             'moves': protected,
             'headline': (
-                "REFUSED BY DEFAULT. This install would move packages spaCR's "
+                "REFUSED BY DEFAULT. This install would change or remove "
+                "packages spaCR's "
                 f"own results depend on: {named}. Every measurement made "
                 "before and after would be made by different code. Confirm "
                 "again only if that is what you meant."),

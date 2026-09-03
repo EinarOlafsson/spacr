@@ -210,12 +210,15 @@ def test_with_uv_and_no_pip_the_dry_run_goes_through_uv(monkeypatch):
 def test_each_kind_of_change_describes_itself():
     added = updater.PackageChange("cuml-cu12", None, "26.8.0")
     moved = updater.PackageChange("numpy", "1.26.4", "2.2.6")
+    removed = updater.PackageChange("legacy-addon", "1.4", None)
     same = updater.PackageChange("pandas", "2.2.3", "2.2.3")
     assert added.describe() == "cuml-cu12 26.8.0 (new)"
     assert moved.describe() == "numpy 1.26.4 -> 2.2.6"
+    assert removed.describe() == "legacy-addon 1.4 (removed)"
     assert same.describe() == "pandas 2.2.3 (unchanged)"
     assert added.is_addition and not added.is_move
     assert moved.is_move and moved.protected
+    assert removed.is_removal and not removed.is_move
     assert not same.is_move
 
 
