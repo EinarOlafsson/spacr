@@ -726,7 +726,7 @@ def _model_zoo_table() -> str:
         "",
         "   * - Model",
         "     - Training data",
-        "     - Hold-out against stock",
+        "     - Hold-out performance",
     ]
     for key, architecture, dataset, versus in rows:
         lines.extend([
