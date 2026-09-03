@@ -26,6 +26,7 @@ FULLY_DOCUMENTED = (
     "spacr/benchmark.py",
     "spacr/annotation.py",
     "spacr/cancellation.py",
+    "spacr/chaining.py",
     "spacr/classify_classes.py",
     "spacr/cli.py",
     "spacr/cli_download.py",
