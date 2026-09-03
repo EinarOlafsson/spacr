@@ -2557,9 +2557,16 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "pathogen_channel": int(self._pathogen_channel.value()),
             f"{self._active_organelle_role}_channel": int(
                 self._organelle_channel.value()),
-            f"{primary}_diameter": float(self._diameter.value()),
-            f"{primary}_flow_threshold": float(self._flow.value()),
-            f"{primary}_cellprob_threshold": float(self._prob.value()),
+            # `_unclamped` for the three the panel seeds: a spin box that
+            # could not hold what it was given shows the clamp, and handing
+            # that back would rewrite the user's setting with the editor's
+            # limit. Untouched means unchanged.
+            f"{primary}_diameter": self._unclamped(
+                self._diameter, float(self._diameter.value())),
+            f"{primary}_flow_threshold": self._unclamped(
+                self._flow, float(self._flow.value())),
+            f"{primary}_cellprob_threshold": self._unclamped(
+                self._prob, float(self._prob.value())),
             "normalize": bool(self._normalise_check.isChecked()),
             "lower_percentile": float(self._lo_pct.value()),
         }
@@ -2643,12 +2650,26 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         primary = self._primary_object()
 
         def _seed(widget, keys, cast):
-            """Write the first present, usable value of ``keys``."""
+            """Write the first present, usable value of ``keys``.
+
+            A SPIN BOX CLAMPS WHAT IT CANNOT HOLD, silently. The flow
+            threshold runs -1 to 3 here while Mask ships 100 -- "accept
+            everything Cellpose proposes" -- so seeding wrote 3, and
+            propagating then handed 3 back as if the user had chosen it. The
+            value that did not fit is remembered so propagation can return it
+            untouched; see :meth:`_unclamped`.
+            """
             for key in keys:
                 if key not in settings or settings[key] is None:
                     continue
                 try:
-                    widget.setValue(cast(settings[key]))
+                    wanted = cast(settings[key])
+                    widget.setValue(wanted)
+                    held = widget.value()
+                    if held != wanted:
+                        self._clamped_on_seeding[id(widget)] = (held, wanted)
+                    else:
+                        self._clamped_on_seeding.pop(id(widget), None)
                 except Exception:
                     LOG.debug("apply_settings: %r is not usable for %r",
                               settings[key], key, exc_info=True)
@@ -2676,6 +2697,17 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._seed_organelle_column(settings)
 
         _seed(self._lo_pct, ("lower_percentile",), float)
+        # SEEDED BECAUSE IT IS PROPAGATED. This toggle was written out by
+        # `settings_for_propagation` and never read in, so it always sent the
+        # unchecked box it was built with -- and Mask ships `adjust_cells`
+        # True. Propagating from an untouched preview therefore switched off
+        # the adjustment of cell masks by the nucleus and pathogen masks,
+        # without the user having touched the control that did it.
+        if settings.get("adjust_cells") is not None:
+            try:
+                self._adjust_cells.setChecked(bool(settings["adjust_cells"]))
+            except Exception:                                # noqa: BLE001
+                LOG.debug("apply_settings: bad adjust_cells", exc_info=True)
         if settings.get("normalize") is not None:
             try:
                 # Mask declares a bool; the crop-preview vocabulary allows a
@@ -2931,6 +2963,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "(bool) Adjust cell masks using the nucleus/pathogen masks.")
 
         self._compartment_widgets: Dict[str, Dict[str, QWidget]] = {}
+        #: ``id(widget) -> (what it holds, what it was given)`` for a
+        #: seeded value the widget could not represent.
+        self._clamped_on_seeding: Dict[int, tuple] = {}
         # THE PIPELINE'S OWN DEFAULT PER COMPARTMENT, not one constant for
         # all of them. `COMPARTMENT_FIELDS` carries a single fallback per
         # field, so when the pipeline gave `organelle_min_area` a default of
@@ -3019,6 +3054,19 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 key for key, value in shipped.items()
                 if value is None and key.endswith(("_max_area", "_max_size")))
         return cls._OFF_IS_NONE
+
+    def _unclamped(self, widget, value):
+        """The value the panel gave, when this widget could not hold it.
+
+        Only while the widget still shows what the clamp left: the moment a
+        user moves it, the number on screen is their answer and is what
+        propagates.
+        """
+        remembered = self._clamped_on_seeding.get(id(widget))
+        if remembered is None:
+            return value
+        held, wanted = remembered
+        return wanted if value == held else value
 
     def _off_as_the_run_spells_it(self, key: str, value):
         """Write "no limit" the way the run reads it, for ``key``.
