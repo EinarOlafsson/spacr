@@ -215,7 +215,14 @@ class FlatComboBox(_FlatStyleMixin, QComboBox):
 
 
 class FlatButton(_FlatStyleMixin, QPushButton):
-    """Text-only push button styled like the **Live** toggle."""
+    """Text-only push button styled like the **Live** toggle.
+
+    :param text: the caption.
+    :param parent: parent widget.
+    :param tooltip: hover text. An empty string leaves the button with no
+        tooltip rather than an empty one, which would otherwise show as a
+        blank box on hover.
+    """
 
     _flat_selector = "QPushButton"
 
@@ -237,6 +244,13 @@ class FlatSpinBox(_FlatStyleMixin, QSpinBox):
     carried in the box's *suffix*, so the control states ``20 of 24576 sets``
     in one place and a sampled preview can never be mistaken for the whole
     plate.
+
+    :param parent: parent widget.
+    :param tooltip: hover text.
+    :param value: the cap to open on. The minimum is 1, and the maximum is
+        left wide open until a folder has been enumerated --
+        ``configure_max_sets_box`` then clamps it to the number of sets that
+        exist, so the box cannot ask for more than there are.
     """
 
     _flat_selector = "QSpinBox"

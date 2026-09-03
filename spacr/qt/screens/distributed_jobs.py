@@ -407,7 +407,17 @@ class ExecutionProfileDialog(QDialog):
 
 
 class DistributedJobsScreen(QWidget):
-    """Submit and monitor distributed spaCR jobs without blocking Qt."""
+    """Submit and monitor distributed spaCR jobs without blocking Qt.
+
+    :param parent: parent widget.
+    :param manager: the job manager to submit through. One is created when
+        none is given, so a test can supply a manager that reaches no cluster.
+    :param threaded: whether submissions and polls run off the GUI thread.
+        False runs them inline, which is what makes a test deterministic.
+    :param auto_poll: whether the screen starts its own refresh timer. False
+        leaves the job list to be refreshed by hand, so a test is not racing
+        a timer it did not start.
+    """
 
     def __init__(
         self,
