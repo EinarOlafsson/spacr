@@ -491,3 +491,65 @@ the fix rather than doubt about the finding:
   the other session's file with a blast radius I cannot measure end-to-end
   without running recruitment on real data. Both halves, together, with the
   module exercised -- not one half at one in the morning.
+
+---
+
+2026-09-03, overnight. THE GRID IS BOUND, AND THE RETIREMENT IS FINISHED.
+
+THE MOUNT IS NO LONGER AN OPEN QUESTION. This item warned that mounting the
+per-object grid on Mask's form is "a design change to the most-used screen"
+and should not be done in the same afternoon as the widget. Reading the seam
+properly showed the shape it proposed -- "a grid that EDITS THE EXISTING
+WIDGETS" -- is cheap, because every primitive it needs already exists and is
+proven in other work:
+
+  * `SettingsWidgets.set_value_for_key` writes a value into the widget for a
+    key and handles every widget class. Live Preview's "Propagate settings"
+    already uses it.
+  * `collect()` reads the other direction.
+  * `_set_row_visible(key, False)` hides a row, LABEL AND ALL, and
+    `_guard_hidden_rows` keeps it hidden against something else showing it --
+    which is 364's "hidden rather than deleted" half, already built for the
+    rule that hides an object whose channel names no plane.
+
+`spacr/qt/widgets/object_grid_binding.py` is the write-through binding, with
+11 tests. It is NOT mounted on Mask. What remains is genuinely small:
+
+  1. Build the grid into Mask's form as one section.
+  2. Seed it, and reseed when a settings file is applied.
+  3. Hide the flat per-object rows through a set kept SEPARATE from
+     `_hidden_by_the_run` -- that set is recomputed from scratch on every
+     `refresh_object_visibility` pass, so grid-hidden rows put into it would
+     be shown again on the next pass. Union the two in the pass.
+  4. Decide whether the grid is on by default or behind a preference.
+
+Only 4 is a question for the maintainer.
+
+WHAT THE BINDING PINNED THAT IS WORTH KNOWING: reading both sides BEFORE
+writing either is what protects values, not the reentrancy guard. The guard
+only stops the table being rebuilt under the cursor. They were conflated in
+the first draft of the test, which passed against the guard removed.
+
+THE RETIREMENT IN b7ae412af HAD STOPPED HALFWAY, and it left three tests red
+on nightly. Same cause as the live-preview aliases fixed last night: the
+suffix substitution walked past every spelling that was not its literal.
+
+  * `measure_crop` read `{role}_min_size` while the factory shipped none, so
+    the organelle size filter never ran -- silently, because a missing key is
+    falsy.
+  * Measure's first organelle slot was seeded by hand and never given a size
+    floor at all, while slots 2..n got one.
+  * `_translate_legacy_setting_keys` never consulted RETIRED_SETTINGS, so
+    `spacr-doctor` reported a rename for a file whose value the panel had
+    just dropped. It now does, with a suffix rule for the generated slots,
+    since the table names only the first one and a run can declare
+    organellez.
+
+Fixed in 2120c905f. The two stale test lines were left by the same
+substitution; the legacy-CSV one now pins the migration rather than asserting
+the pre-migration names.
+
+SEPARATELY: `docs/setting_consumers.json` was stale at HEAD -- every "where
+is this setting read?" link pointed at line numbers 14 to 36 lines out.
+Confirmed not mine by regenerating at clean HEAD in a worktree. Regenerated
+in 1f39dfaf0, on its own so the churn did not bury the fix.
