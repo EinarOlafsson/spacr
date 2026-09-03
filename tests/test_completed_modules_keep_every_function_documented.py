@@ -58,6 +58,7 @@ FULLY_DOCUMENTED = (
     "spacr/figures/sheet.py",
     "spacr/figures/summary.py",
     "spacr/foreign.py",
+    "spacr/frame_handoff.py",
     "spacr/flowview/_classify_stages.py",
     "spacr/flowview/classify_blueprint.py",
     "spacr/flowview/events.py",
