@@ -504,6 +504,11 @@ class CropSpec:
     normalize_by: str = "png"
 
     def __post_init__(self):
+        """Normalize integer fields and reject unsupported crop options.
+
+        :raises CropError: If ``object_type`` or ``normalize_by`` is
+            unsupported.
+        """
         object.__setattr__(self, "channels", tuple(int(c) for c in self.channels))
         w, h = self.size
         object.__setattr__(self, "size", (int(w), int(h)))
@@ -539,6 +544,7 @@ class _LabelIndex:
                  "count", "_ysum", "_xsum", "shape")
 
     def __init__(self, mask: np.ndarray):
+        """Build compact per-label geometry from a two-dimensional mask."""
         self.shape = (int(mask.shape[0]), int(mask.shape[1]))
         ys, xs = np.nonzero(mask)
         if ys.size == 0:
@@ -569,9 +575,14 @@ class _LabelIndex:
         self._pos = {int(lbl): i for i, lbl in enumerate(self.labels)}
 
     def __contains__(self, label: int) -> bool:
+        """Return whether ``label`` occurs among nonbackground mask pixels."""
         return int(label) in self._pos
 
     def _index(self, label: int) -> int:
+        """Return the compact-array offset for ``label``.
+
+        :raises LabelMissing: If the label is absent from the mask.
+        """
         try:
             return self._pos[int(label)]
         except KeyError:
@@ -644,6 +655,7 @@ class MergedField:
     """
 
     def __init__(self, path: str, array=None, mask_dims: Optional[Mapping[str, int]] = None):
+        """Open or adopt a three-dimensional field and resolve its mask layout."""
         self.path = os.fspath(path)
         if mask_dims is None:
             layout = read_merged_plane_layout(self.path)
@@ -947,6 +959,10 @@ def _ensure_cache_budget_sweep() -> None:
 
 
 def _cache_key(path: str) -> Tuple[str, int, int]:
+    """Return absolute path, nanosecond mtime, and size as a cache key.
+
+    :raises MergedFileMissing: If the path cannot be inspected.
+    """
     try:
         st = os.stat(path)
     except OSError as exc:
@@ -1741,6 +1757,7 @@ def clear_crop_format_cache() -> None:
 
 
 def _sidecar_path(folder: str) -> str:
+    """Return the crop-format sidecar path inside ``folder``."""
     return os.path.join(os.fspath(folder), CROP_FORMAT_SIDECAR)
 
 
@@ -3254,6 +3271,7 @@ class PngCropSource(CropSource):
 
     def __init__(self, root: Optional[str] = None, folder: str = "data",
                  reason: str = "", db_path: Optional[str] = None):
+        """Configure reanchoring and discover an existing default database."""
         self.root = root
         self.folder = folder
         self.reason = reason
@@ -3344,6 +3362,7 @@ class MergedCropSource(CropSource):
                  merged_root: Optional[str] = None,
                  object_type: Optional[str] = None,
                  reason: str = ""):
+        """Configure on-demand crops, optionally overriding the object type."""
         self.spec = spec or CropSpec(merged_path="")
         if object_type:
             self.spec = replace(self.spec, object_type=object_type)
