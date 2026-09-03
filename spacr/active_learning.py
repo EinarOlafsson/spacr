@@ -2520,6 +2520,8 @@ def round_features(db_path: str, table: str = PNG_TABLE,
 class RoundResult:
     """What one retrain round produced.
 
+    :param fields: named values for the round fields below; omitted list and
+        mapping fields are normalized to empty containers.
     :param round_index: the round number recorded.
     :param n_labels: labels the model was fitted on.
     :param n_new_labels: labels added since the previous round.
