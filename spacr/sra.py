@@ -56,12 +56,12 @@ CHUNK_BYTES = 65536
 class RunFile:
     """One downloadable FASTQ: a run, and which mate of the pair.
 
-    :ivar run: archive run accession shared by its mate files.
-    :ivar library: experiment library name used to identify the source plate.
-    :ivar url: HTTPS location of the compressed FASTQ stream.
-    :ivar mate: one-based mate number within a paired-end run.
-    :ivar size_bytes: archive-reported compressed size, or zero when unknown.
-    :ivar read_count: archive-reported reads in the run, or zero when unknown.
+    :param run: archive run accession shared by its mate files.
+    :param library: experiment library name used to identify the source plate.
+    :param url: HTTPS location of the compressed FASTQ stream.
+    :param mate: one-based mate number within a paired-end run.
+    :param size_bytes: archive-reported compressed size, or zero when unknown.
+    :param read_count: archive-reported reads in the run, or zero when unknown.
     """
 
     run: str
