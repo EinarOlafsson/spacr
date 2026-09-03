@@ -43,6 +43,7 @@ import pandas as pd
 
 
 def _first_column(frame: pd.DataFrame, *names: str) -> Optional[str]:
+    """Return the first candidate present in ``frame``, or ``None``."""
     for name in names:
         if name in frame.columns:
             return name
@@ -50,6 +51,7 @@ def _first_column(frame: pd.DataFrame, *names: str) -> Optional[str]:
 
 
 def _numeric(frame: pd.DataFrame, column: Optional[str]) -> np.ndarray:
+    """Coerce a present column to a float array, or return an empty array."""
     if not column or column not in frame.columns:
         return np.array([], dtype="float64")
     return pd.to_numeric(frame[column], errors="coerce").to_numpy(dtype="float64")

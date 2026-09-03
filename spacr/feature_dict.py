@@ -2164,6 +2164,7 @@ class FeatureScope:
 
 def _scope(objects: tuple[str, ...], channels: str, module: str = "spacr.measure",
            when: str | None = None) -> FeatureScope:
+    """Build an immutable feature scope with a normalized object tuple."""
     return FeatureScope(objects=tuple(objects), channels=channels,
                         module=module, written_when=when)
 
@@ -2182,6 +2183,7 @@ FEATURE_SCOPE: dict[str, FeatureScope] = {}
 
 
 def _set_scope(keys: Iterable[str], scope: FeatureScope) -> None:
+    """Associate every feature ``key`` with the shared ``scope`` record."""
     for key in keys:
         FEATURE_SCOPE[key] = scope
 
