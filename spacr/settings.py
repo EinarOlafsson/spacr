@@ -3266,7 +3266,22 @@ expected_types = {
     "filter_min_max": (list, type(None)),
     "channel_dims": list,
     "backgrounds": list,
-    "background": str,
+    # (int, float), NOT str. Declared `str` and contradicted by everything
+    # around it: the tooltip says "(float) - Per-channel background level in
+    # raw intensity units", every factory ships a number (100, and 200 for
+    # Cellpose training and plaque analysis), and `io.py` compares it to
+    # pixels -- `np.where(image < background, 0, image)`.
+    #
+    # THE COST WAS NOT COSMETIC. `validate._check_types` returned severity
+    # ERROR -- "background=200 is a int, but str is expected" -- for
+    # analyze_plaques, cellpose_masks and cellpose_all on their UNTOUCHED
+    # defaults, printed on every GUI run and blocking in the batch queue. And
+    # `coerce_expected_types`, whose whole job is restoring types after a CSV
+    # round trip, dutifully PRESERVED the string, so the comparison above
+    # raised UFuncTypeError on a value the user never chose.
+    #
+    # Found by instruction 364's audit of the assay sub-modules, 2026-09-02.
+    "background": (int, float),
     "outline_thickness": int,
     "outline_palette": str,
     "input_statistics": str,
