@@ -30,12 +30,23 @@ by one guide, so nothing corroborates it". This is the same rule at the well.
 """
 from __future__ import annotations
 
+from dataclasses import fields
+
 import numpy as np
 import pandas as pd
 import pytest
 
-from spacr.measurement_scan import (MIN_WELLS_PER_GENE, ScanRefused,
+from spacr.measurement_scan import (MIN_WELLS_PER_GENE, ScanRefused, ScanResult,
                                     scan_measurements)
+
+
+def test_the_scan_result_documents_every_reported_field():
+    """Dropped-gene evidence is part of the public result, not a sidecar."""
+    missing = [
+        field.name for field in fields(ScanResult)
+        if f":ivar {field.name}:" not in (ScanResult.__doc__ or "")
+    ]
+    assert not missing, f"undocumented ScanResult fields: {missing}"
 
 
 def _screen(n_measurements=40, seed=0, singletons=8, replicated_wells=16):
