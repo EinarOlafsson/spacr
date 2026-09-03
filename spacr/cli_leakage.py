@@ -13,7 +13,7 @@ from .classifier_evaluation import (
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Return the leakage-audit argument parser."""
+    """Return the configured ``spacr-leakage`` argument parser."""
     parser = argparse.ArgumentParser(
         prog="spacr-leakage",
         description=(
@@ -39,7 +39,13 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
-    """Audit the requested dataset; return 0 pass, 1 leakage, or 2 unusable."""
+    """Audit a requested classifier dataset without training a model.
+
+    :param argv: command arguments without the executable name, or ``None`` to
+        read :data:`sys.argv`.
+    :returns: zero for a clean audit, one for leakage, or two when the dataset
+        cannot be audited.
+    """
     args = build_parser().parse_args(argv)
     try:
         report = audit_dataset_splits(
