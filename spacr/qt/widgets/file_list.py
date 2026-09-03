@@ -902,6 +902,19 @@ class FilePathListWidget(QWidget):
     saved. Every run from that file was then refused by the pre-flight --
     "column_csv=[...] is a list, but str is expected" -- against a value the
     user had never typed and could not correct from the panel that wrote it.
+
+    :param value: what the setting already holds. A bare string stays a
+        string -- see above; that is the whole point of this widget.
+    :param kind: which file filter the chooser opens with, one of
+        :data:`FILE_KIND_FILTERS`. An unrecognised name falls back to
+        ``"any"`` rather than raising, so a new setting cannot break a panel
+        by naming a filter that does not exist yet.
+    :param title: the file dialog's window title.
+    :param allow_folders: whether a folder may be picked. Forced off when
+        ``single`` is set: expanding a folder into "every CSV in here" cannot
+        mean anything for a setting that names ONE file.
+    :param single: whether the setting holds one path rather than a list.
+    :param parent: parent widget.
     """
 
     value_changed = Signal()
