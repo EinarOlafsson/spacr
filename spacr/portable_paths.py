@@ -137,6 +137,12 @@ class RerootReport:
     and otherwise fails later as a missing file with less context. The report
     counts unresolved paths and includes an example so callers can explain the
     problem where re-rooting was attempted.
+
+    :ivar column: path-bearing table column examined by this pass.
+    :ivar moved: paths successfully resolved beneath the new root.
+    :ivar unresolved: dead paths that could not be placed on this machine.
+    :ivar first_unresolved: representative unresolved source path.
+    :ivar root: destination root searched for recorded suffixes.
     """
 
     column: str = ""
