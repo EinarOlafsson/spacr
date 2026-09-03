@@ -185,6 +185,10 @@ class DiameterEstimate:
         return isinstance(self.diameter, float) and not math.isnan(self.diameter)
 
     def __str__(self) -> str:
+        """Return the estimate and interval, or the reason none is usable.
+
+        :returns: Compact human-readable diameter-estimate summary.
+        """
         if not self.usable:
             return f"{self.object_type}: no estimate ({self.note})"
         return (
