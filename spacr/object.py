@@ -15,6 +15,7 @@ except Exception:
     # never blocks. spaCR only calls display() from notebook
     # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
+        """Discard display payloads when IPython's helper is unavailable."""
         pass
 import warnings
 from cellpose import models as cp_models
