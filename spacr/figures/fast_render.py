@@ -57,6 +57,10 @@ class RenderedPanel:
     figure in a folder has to be able to find out which one they are holding.
 
     :ivar key: generated-panel key identifying the requested figure.
+    :ivar path: written figure path, or ``None`` when nothing was saved.
+    :ivar renderer: renderer that actually produced the panel.
+    :ivar drawn: whether rendering completed successfully.
+    :ivar reason: explanation for fallback or refusal, empty when unnecessary.
     """
 
     key: str

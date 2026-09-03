@@ -50,7 +50,12 @@ def no_columns():
 
 def test_a_record_is_true_only_when_something_was_written():
     """``bool(record)`` answers "is there a file", not "was it attempted"."""
-    assert bool(fr.RenderedPanel("qq", path="/tmp/qq.pdf", drawn=True))
+    record = fr.RenderedPanel("qq", path="/tmp/qq.pdf",
+                              renderer="matplotlib", drawn=True, reason="")
+    for name in ("path", "renderer", "drawn", "reason"):
+        assert f":ivar {name}:" in (fr.RenderedPanel.__doc__ or "")
+    assert record.renderer == "matplotlib" and record.reason == ""
+    assert bool(record)
     assert not bool(fr.RenderedPanel("qq", path="/tmp/qq.pdf", drawn=False))
     assert not bool(fr.RenderedPanel("qq", path=None, drawn=True))
     assert not bool(fr.RenderedPanel("qq"))
