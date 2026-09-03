@@ -41,6 +41,7 @@ class CancellationToken:
     """
 
     def __init__(self, reason: str = "cancelled by the user") -> None:
+        """Create an unset token carrying the fallback cancellation reason."""
         self._event = threading.Event()
         self._reason = str(reason)
         self._lock = threading.Lock()

@@ -21,6 +21,7 @@ FULLY_DOCUMENTED = (
     "spacr/attribution_columns.py",
     "spacr/batch.py",
     "spacr/annotation.py",
+    "spacr/cancellation.py",
     "spacr/cli.py",
     "spacr/cli_download.py",
     "spacr/cli_plugins.py",
