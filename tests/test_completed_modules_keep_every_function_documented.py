@@ -66,6 +66,7 @@ FULLY_DOCUMENTED = (
     "spacr/figures/distributions.py",
     "spacr/figures/fast_render.py",
     "spacr/figures/panels.py",
+    "spacr/figures/plates.py",
     "spacr/figures/scene.py",
     "spacr/figures/sheet.py",
     "spacr/figures/summary.py",
