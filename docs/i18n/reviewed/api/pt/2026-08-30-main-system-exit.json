@@ -21,14 +21,18 @@
       "label": "spacr.__main__.main#2",
       "source": "Process exit code, 0 on success.",
       "source_sha256": "70e0666185c3ff9cc8178a7a6f24d73230df5d32f6060103572841a4915a7c9c",
-      "translation": "Código de saída do processo, 0 em caso de sucesso."
+      "translation": "Código de saída do processo, 0 em caso de sucesso.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "context": "with code 2 for a command the parser accepts and the dispatch below does not know -- `parser.error` never returns, so there is no exit code to hand back for that case.",
       "label": "spacr.__main__.main#3",
       "source": "with code 2 for a command the parser accepts and the dispatch below does not know -- `parser.error` never returns, so there is no exit code to hand back for that case.",
       "source_sha256": "47eb1f812a0ba6dc4735951cd9b1bb4f1094d198ba8a78a414a757205ae09b12",
-      "translation": "com código 2 para um comando que o analisador aceita, mas que o despacho abaixo não reconhece -- `parser.error` nunca retorna, portanto não há código de saída a devolver nesse caso."
+      "translation": "com código 2 para um comando que o analisador aceita, mas que o despacho abaixo não reconhece -- `parser.error` nunca retorna, portanto não há código de saída a devolver nesse caso.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     }
   ]
 }

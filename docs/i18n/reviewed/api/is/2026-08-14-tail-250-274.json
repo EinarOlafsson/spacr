@@ -132,7 +132,9 @@
       "label": "spacr.foreign.ImportPlan#11",
       "source": "the warnings that do *not* come from the column mapping (unpaired masks, the join, z handling). Kept apart so :meth:`with_column_maps` can rebuild the mapping's own warnings without losing them or duplicating them.",
       "source_sha256": "ef73f4b56443047fc67a036613d1271934a7b93e2eb30c9f5df752faa47046c7",
-      "translation": "viðvörunarnar *utan* dálkakortlagningarinnar (ósamsett grímur, samruni, z-meðhöndlun). Þær halda sér aðskildar svo :meth:`with_column_maps` geti endurbyggt viðvaranir kortlagningarinnar án þess að tapa þeim eða tvítekja þær."
+      "translation": "viðvörunarnar *utan* dálkakortlagningarinnar (ósamsett grímur, samruni, z-meðhöndlun). Þær halda sér aðskildar svo :meth:`with_column_maps` geti endurbyggt viðvaranir kortlagningarinnar án þess að tapa þeim eða tvítekja þær.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     }
   ],
   "schema": 1

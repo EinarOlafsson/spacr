@@ -118,7 +118,9 @@
       "label": "spacr.flowview.feeder.MultiprocessingFeeder.stop#0",
       "source": "Request shutdown and return whether the thread stopped in time.",
       "source_sha256": "8c546040e7a61b878b08adf7b7d240242f7da7612424c50d8218496ba97a9dd0",
-      "translation": "Óskar eftir stöðvun og skilar því hvort þráðurinn hafi stöðvast innan tímamarkanna."
+      "translation": "Óskar eftir stöðvun og skilar því hvort þráðurinn hafi stöðvast innan tímamarkanna.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     }
   ],
   "schema": 1

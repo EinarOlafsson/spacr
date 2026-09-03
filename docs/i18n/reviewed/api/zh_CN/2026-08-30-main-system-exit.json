@@ -21,14 +21,18 @@
       "label": "spacr.__main__.main#2",
       "source": "Process exit code, 0 on success.",
       "source_sha256": "70e0666185c3ff9cc8178a7a6f24d73230df5d32f6060103572841a4915a7c9c",
-      "translation": "进程退出代码，成功时为 0。"
+      "translation": "进程退出代码，成功时为 0。",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "context": "with code 2 for a command the parser accepts and the dispatch below does not know -- `parser.error` never returns, so there is no exit code to hand back for that case.",
       "label": "spacr.__main__.main#3",
       "source": "with code 2 for a command the parser accepts and the dispatch below does not know -- `parser.error` never returns, so there is no exit code to hand back for that case.",
       "source_sha256": "47eb1f812a0ba6dc4735951cd9b1bb4f1094d198ba8a78a414a757205ae09b12",
-      "translation": "对于解析器接受但下方分派无法识别的命令，退出代码为 2 -- `parser.error` 永不返回，因此在这种情况下没有可返回的退出代码。"
+      "translation": "对于解析器接受但下方分派无法识别的命令，退出代码为 2 -- `parser.error` 永不返回，因此在这种情况下没有可返回的退出代码。",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     }
   ]
 }

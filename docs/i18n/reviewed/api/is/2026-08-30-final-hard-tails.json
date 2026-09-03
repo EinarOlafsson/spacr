@@ -21,7 +21,9 @@
       "label": "spacr.qt.bridge.PipelineWorker#10",
       "source": "optional explicit module name for run-history records.",
       "source_sha256": "9043c52584eb211b1ea3dae11e1f22212e45310a6242632606fb68b11ba01972",
-      "translation": "valfrjálst skýrt heiti einingar fyrir færslur í keyrslusögu."
+      "translation": "valfrjálst skýrt heiti einingar fyrir færslur í keyrslusögu.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "context": "explicit filename to try first. The per-application view structured-data name → filename table lives in :mod:`spacr.qt.app` next to the app registry it describes; this module only knows how to *render* what it's pointed at, plus the handful of structured-data names in :data:`SHARED_ICON_ASSETS` that share one picture everywhere.",

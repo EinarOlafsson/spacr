@@ -28,7 +28,9 @@
       "source": "pixel or filename evidence supporting the proposal.",
       "context": "pixel or filename evidence supporting the proposal.",
       "source_sha256": "a59360e7d422201e44300a4746b93c9cab21d4d14a126920c5bd893ce0747329",
-      "translation": "sönnunargögn úr dílum eða skráarheiti sem styðja tillöguna."
+      "translation": "sönnunargögn úr dílum eða skráarheiti sem styðja tillöguna.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.import_plan.Renamed#5",

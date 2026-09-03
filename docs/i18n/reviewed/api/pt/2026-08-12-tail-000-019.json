@@ -63,7 +63,9 @@
       "source_sha256": "210cb0a06ba55b38fc1354312091da2ea3f51bfd823324f6ce2666a915b88d4b",
       "source": "the largest in-RAM buffer the write allocated — band accumulator plus weight plane. Compare it with ``canvas.nbytes``: that ratio is the whole point of this module.",
       "context": "the largest in-RAM buffer the write allocated — band accumulator plus weight image layer. Compare it with ``canvas.nbytes``: that ratio is the whole point of this module.",
-      "translation": "o maior buffer em RAM alocado pela gravação — o acumulador da faixa mais a camada de imagem de pesos. Compare-o com ``canvas.nbytes``: essa proporção é a razão de ser deste módulo."
+      "translation": "o maior buffer em RAM alocado pela gravação — o acumulador da faixa mais a camada de imagem de pesos. Compare-o com ``canvas.nbytes``: essa proporção é a razão de ser deste módulo.",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "label": "spacr.anndata_export#28",

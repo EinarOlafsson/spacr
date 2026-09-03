@@ -65,6 +65,13 @@ from ..theme import (RADIUS, SPACING, block_surface, register_widget_qss)
 CONTROLS_OBJECT = "OutlierControls"
 
 
+# SECTION NOTE, 2026-09-03: the sections were restructured to Core / Data /
+# Tools / Assays, and SECTION_DESIGN / SECTION_EXPLORE / SECTION_RESULTS are
+# still declared but are no longer in SECTION_ORDER. Every screen below now
+# files under Data. The docstrings keep their original reasoning because it
+# still says what each screen IS -- and they are published, translated API
+# prose, so editing them invalidates reviewed translations in nine languages.
+
 def _outliers_qss(palette: dict, opacity=None) -> str:
     """This screen's QSS block, appended to every generated stylesheet.
 
@@ -668,12 +675,6 @@ def register() -> bool:
     which row. That is what lets the app be registered without importing this
     module at all: the launch reads the table, and the screen is imported when
     somebody opens it.
-
-
-    SECTION NOTE, 2026-09-03: the sections were restructured to Core / Data /
-    Tools / Assays and this screen now files under Data. The reasoning below
-    is about a section that no longer exists; it is kept because it still
-    says what the screen IS, but the section it names is not the one it gets.
 
     ``SECTION_EXPLORE`` rather than ``SECTION_RESULTS``, and the reasoning is
     worth writing down because the first instinct is the other one. This screen

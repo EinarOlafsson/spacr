@@ -7,14 +7,18 @@
       "label": "spacr.qt.bridge.PipelineWorker#8",
       "source": "keyword-style dict passed as the sole argument.",
       "source_sha256": "c2bca6e76183ba4514b1a907ec3d9064567bf6d9c0738f31ce14b14b5575cdf8",
-      "translation": "एकमात्र तर्क के रूप में दी गई कीवर्ड-शैली की कुंजी-मूल्य मैपिंग।"
+      "translation": "एकमात्र तर्क के रूप में दी गई कीवर्ड-शैली की कुंजी-मूल्य मैपिंग।",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "context": "intercept Matplotlib output for an analysis run. Read-only UI jobs disable this so polling cannot load the plotting stack merely by opening an application view.",
       "label": "spacr.qt.bridge.PipelineWorker#12",
       "source": "intercept Matplotlib output for an analysis run. Read-only UI jobs disable this so polling cannot load the plotting stack merely by opening a screen.",
       "source_sha256": "036576593c410044ae2417d97b951f64ae5617259283f74a6818627c8e814ac7",
-      "translation": "विश्लेषण रन के लिए Matplotlib आउटपुट को इंटरसेप्ट करें। केवल-पढ़ने योग्य UI कार्य इसे अक्षम रखते हैं, ताकि किसी एप्लिकेशन स्क्रीन को केवल खोलने पर पोलिंग प्लॉटिंग स्टैक लोड न कर दे।"
+      "translation": "विश्लेषण रन के लिए Matplotlib आउटपुट को इंटरसेप्ट करें। केवल-पढ़ने योग्य UI कार्य इसे अक्षम रखते हैं, ताकि किसी एप्लिकेशन स्क्रीन को केवल खोलने पर पोलिंग प्लॉटिंग स्टैक लोड न कर दे।",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
     },
     {
       "context": "frame_provider : callable or None, optional Zero-argument callable returning the current microplate sample position-level frame to scan. It is evaluated when needed so a newly loaded run replaces the previous frame. parent : QWidget or None, optional Parent widget. database_provider : callable or None, optional Zero-argument callable returning the regression input rows and their attached measurement databases. threaded : bool, default=True Run database merges outside the main GUI execution path. Set to ``False`` for synchronous use in tests or headless callers. destination_provider : callable or None, optional Zero-argument callable returning the directory where the merged measurement frame is written. settings_provider : callable or None, optional Zero-argument callable returning the current regression settings. Column fits copy these settings and vary only the response. fit : callable or None, optional Function used to fit one selected measurement column. ``None`` uses the standard regression implementation.",
