@@ -3661,3 +3661,24 @@ label sizes; restoring ``font_size`` makes the assertion fail.
 
 REVISED COUNT: 142 entries, 73 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+85. TRAINING-RUN DOCUMENTATION OMITTED A SETTINGS SOURCE AND INVENTED BESTS
+==============================================================================
+
+Found 2026-09-03 while repairing constructor documentation in
+``spacr/train_compare.py``. ``TrainingRun.settings`` omitted the supported
+run-local ``settings.csv`` source, while ``final_metrics`` promised a best
+epoch for every metric. Directionless metrics deliberately retain last values
+without inventing a best observation.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/train_compare.py``. All nine fields
+now describe the actual discovery fallbacks, empty forms, fold ordering, and
+direction-aware summary contract. Existing run-local, ancestor-settings,
+manifest, directionless-metric, and unreadable-fold tests provide positive
+examples; reverting ``run_id`` to ``:ivar:`` makes the exact constructor
+contract fail.
+
+REVISED COUNT: 143 entries, 74 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
