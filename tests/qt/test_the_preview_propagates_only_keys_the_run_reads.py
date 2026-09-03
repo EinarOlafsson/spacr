@@ -13,7 +13,9 @@ in favour of `organelle_min_area` and the substitution that renamed it did
 not reach a literal inside a dict.
 
 So this is a ratchet over the whole dictionary rather than a test per
-control: whatever the panel propagates, Measure has to be able to read it.
+control: whatever a panel propagates, some module that reaches it has to be
+able to read it. Both previews are covered -- Measure's, where the two known
+faults were, and Mask's live preview, which is clean and stays that way.
 """
 from __future__ import annotations
 
@@ -72,3 +74,41 @@ def test_the_size_floors_seed_from_the_same_keys_they_write(panel):
         key = panel._size_floor_key(name)
         assert key in written, f"{key} is not propagated at all"
         assert again[key] == value, f"{key} did not survive the round trip"
+
+
+# ---------------------------------------------------------------------------
+# The Mask live preview, which serves several modules at once
+# ---------------------------------------------------------------------------
+
+#: The modules that reach the live preview, directly or through
+#: :mod:`spacr.qt.preview_registry`. A key it propagates has to be read by one
+#: of them; `model_name` is read only by `cellpose_masks`, which is why the
+#: union rather than Mask alone is the right comparison.
+_LIVE_PREVIEW_MODULES = (
+    "get_timelapse_settings",
+    "get_identify_masks_finetune_default_settings",
+    "get_analyze_plaque_settings",
+)
+
+
+def test_the_live_preview_propagates_nothing_unread(qtbot, qt_theme_applied):
+    """Every tuned value has a module that reads it back."""
+    import spacr.settings as settings_module
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    known = set()
+    for name in _LIVE_PREVIEW_MODULES:
+        try:
+            known |= set(getattr(settings_module, name)(
+                {"number_of_organelles": 4}))
+        except Exception:                                # noqa: BLE001
+            continue
+
+    propagated = set(screen._live_preview.settings_for_propagation())
+
+    unread = sorted(propagated - known)
+    assert not unread, (
+        "the live preview propagates keys no module it serves reads, so "
+        f"tuning them changes nothing: {unread}")
