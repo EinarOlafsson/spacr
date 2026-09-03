@@ -864,13 +864,34 @@ def test_api_doc_catalog_is_symbol_keyed_and_source_hashed():
 
 
 def test_github_readme_links_every_external_language_page():
+    """Every language is one click from README.rst, THROUGH the picker page.
+
+    This used to require all nine ``docs/i18n/readme/README.<lang>.rst`` paths
+    to appear in README.rst itself, and instruction 361 made that impossible
+    on purpose. The maintainer asked for the links to be a dropdown; on GitHub
+    a dropdown is ``<details>``/``<summary>``, and README.rst cannot carry it,
+    because github/markup renders reStructuredText with raw HTML disabled --
+    ``.. raw:: html`` is refused and a literal ``<details>`` is escaped to
+    visible text. So the menu lives in ``docs/i18n/readme/README.md``, which
+    is Markdown and does render it, and README.rst carries ONE link to it.
+
+    Asserting the old shape here would have demanded exactly what
+    ``tests/test_the_language_picker_is_a_dropdown.py`` forbids in 28 tests.
+    The requirement did not disappear -- every language must still be
+    reachable and every page must still be a real translation -- so it is
+    checked where it now lives.
+    """
     readme = (ROOT / "README.rst").read_text(encoding="utf-8")
-    for language in LANGUAGES:
-        relative = f"docs/i18n/readme/README.{language}.rst"
-        assert relative in readme
-        translated = ROOT / relative
-        assert translated.is_file() and translated.stat().st_size > 10_000
+    picker_relative = "docs/i18n/readme/README.md"
+    assert picker_relative in readme, "README.rst does not link the picker"
     assert "docs/i18n/TRANSLATION_MODELS.md" in readme
+
+    picker = (ROOT / picker_relative).read_text(encoding="utf-8")
+    for language in LANGUAGES:
+        assert f"README.{language}.rst" in picker, (
+            f"{language} is not on the picker page, so it is unreachable")
+        translated = ROOT / f"docs/i18n/readme/README.{language}.rst"
+        assert translated.is_file() and translated.stat().st_size > 10_000
 
 
 def test_api_language_selector_supports_all_catalog_languages():

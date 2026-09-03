@@ -1709,3 +1709,79 @@ Preferences -> Appearance gained a row: the caption "Per-object settings as a
 table" and its tooltip. Both are new UI strings in nine locales' worth of
 catalog. That is the ordinary cost of any new control and is recorded here
 rather than left for the next person to discover in a diff.
+
+--------------------------------------------------------------------------------
+2026-09-03 -- ONE FAILURE WAS A SUPERSEDED REQUIREMENT; THE OTHER SEVEN ARE
+              ALL THE SAME BLOCKER
+--------------------------------------------------------------------------------
+
+Re-measured: `tests/qt/test_external_i18n_catalogs.py` 8 failed / 23 passed,
+matching the previous note exactly. Sorted by what each one actually needs,
+which turns out to be two piles rather than eight problems.
+
+FIXED, AND IT WAS NOT A TRANSLATION PROBLEM.
+`test_github_readme_links_every_external_language_page` required all nine
+`docs/i18n/readme/README.<lang>.rst` paths to appear inside README.rst.
+INSTRUCTION 361 MADE THAT IMPOSSIBLE ON PURPOSE: the maintainer asked for the
+links to be a dropdown, a dropdown on GitHub is `<details>`/`<summary>`, and
+README.rst cannot carry it because github/markup renders reStructuredText
+with raw HTML disabled. So the menu moved to `docs/i18n/readme/README.md`,
+which is Markdown and does render it, and README.rst carries ONE link.
+
+The two tests were therefore asserting opposite things, and
+`tests/test_the_language_picker_is_a_dropdown.py` was winning on 28 tests
+with the GitHub renderer actually queried as evidence. The requirement did
+not disappear -- every language must still be one click away and every page
+must still be a real translation -- so it is now checked where it lives: the
+picker link and the model attribution in README.rst, and all nine languages
+plus their >10 kB pages on the picker page. Verified: 7 failed / 52 passed
+with the dropdown file's 28 still green. Nothing was weakened to get there.
+
+THE OTHER SEVEN ARE ONE BLOCKER WEARING SEVEN HATS: text that only a fluent
+speaker can supply. Listed with the exact strings, because "needs a reviewer"
+without them is a note that cannot be acted on.
+
+  1. MODULE_SUMMARIES['foreign'] -- ONE stale source hash, nine stale
+     translations. And the hash must NOT simply be bumped. The English was
+     reworded from
+
+       "Import external images, masks and a measurement table into a spaCR
+        project and map source columns to spaCR fields"
+
+     to
+
+       "Bring images, masks and measurement tables into a spaCR project --
+        converting microscope formats, mapping source columns, or adopting
+        masks made elsewhere"
+
+     which ADDS two capabilities. The German still says the old, narrower
+     thing, and so do the other eight. Bumping the hash would certify nine
+     sentences as current that describe a feature set the module has
+     outgrown -- precisely the failure this instruction was filed to catch,
+     "complete, fresh and wrong in context".
+
+  2. zh_CN carries ENGLISH for two tooltips, `independent_variable_layout`
+     and `plaque_model`, which is what three of the seven are reporting.
+
+  3. Korean has a reviewed false-friend variant unresolved: the catalog
+     answers `소기관 1 — Cp prob` where the reviewed term is `소기관 1 — CP`.
+
+  4. Swedish carries English for the Preferences -> Appearance row added on
+     2026-09-02, "Per-object settings as a table" and its tooltip -- the debt
+     the previous note recorded against itself, now showing up as a failure.
+
+  5. The API-doc catalog is short of current symbols, which is the same
+     regeneration the previous note showed cannot be run half-way.
+
+WHY NONE OF IT WAS REPAIRED HERE, and this is a decision rather than an
+omission. `tools/build_i18n_catalogs.py` runs a translation MODEL, and the
+tests failing above are exactly the ones that REFUSE unreviewed machine
+output. Firing it would either not fix them or would fix them by writing the
+thing they exist to catch. The previous note already measured the model-free
+half making it worse -- `--sources-only` took the file from 8 failures to 10,
+because regenerating the source adds keys the nine locale catalogs lack.
+
+So the mechanical work in this instruction is done, and what remains is four
+short pieces of prose in Chinese, Korean, Swedish and the nine-locale
+`foreign` summary. That is a maintainer/reviewer gate, and it is the one the
+HANDOFF already lists as owed.
