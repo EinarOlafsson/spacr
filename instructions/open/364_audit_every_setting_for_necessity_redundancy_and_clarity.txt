@@ -432,3 +432,62 @@ that are genuinely UNNECESSARY -- offered by Annotate, never acted on by it.
 Preferences and spaceout are next, as the request asks, followed by the
 sub-surfaces it named: live previews, the hyperparameter searches, and the
 assay sub-modules.
+
+--------------------------------------------------------------------------------
+2026-09-03: THE PREVIEWS / SEARCHES / ASSAYS AUDIT LANDED, AND ONE FINDING WAS
+A LIVE REGRESSION
+--------------------------------------------------------------------------------
+
+`instructions/data/364_previews_searches_and_assays_settings_audit_2026-09-02
+.txt`: 1,188 lines, 16 findings. Mask live preview 95 rows, Crop preview 27,
+Timelapse 14, Motility 11; the three hyperparameter surfaces 23 / 18 / 50 plus
+16 run controls; recruitment 30, invasion 37, replication 25, analyze_plaques
+22.
+
+INVASION AND REPLICATION ARE CLEAN. 62 settings between them, nothing dead,
+no duplicate pair, no tooltip contradicting its code. Recorded as a result,
+because "we looked and it was fine" is one.
+
+TWO FINDINGS ACTED ON THE SAME NIGHT, both verified before and after:
+
+  * THE MASK LIVE PREVIEW HAD STOPPED READING MASK. `b7ae412af` renamed four
+    settings families by suffix substitution on names beginning with an
+    underscore; three tables in `live_preview.py` spell them without one, so
+    the substitution walked past them. The panel propagated
+    `cell_flow_threshold` OUT and read `cell_FT` back IN. Fixed; a worktree
+    at `b7ae412af^` proves the rename broke exactly three tests and the
+    fourth was already red.
+
+    I then swept the package for other tables keyed on a bare suffix. The
+    remaining `FT` / `CP_prob` / `Signal_to_noise` are a DIFFERENT and
+    intentional family -- the standalone apply/test-model submodules use
+    unprefixed names, and `FT`'s own tooltip says it is "the counterpart of
+    the Mask module's per-object <object>_flow_threshold". So no further
+    breakage. It does leave two names for one quantity, which is a
+    redundancy finding for this instruction rather than a bug.
+
+  * `expected_types["background"] = str`, so spaCR's own untouched defaults
+    failed spaCR's own pre-flight with severity ERROR on three modules, and
+    `coerce_expected_types` preserved the string into a numpy comparison.
+    Fixed to `(int, float)`.
+
+ONE FINDING DELIBERATELY NOT ACTED ON TONIGHT, and the reason is the shape of
+the fix rather than doubt about the finding:
+
+  RECRUITMENT OFFERS THREE SETTINGS IT NEVER READS. Measured inside
+  `analyze_recruitment`, its only consumer: `cell_mask_dim`,
+  `nucleus_mask_dim` and `pathogen_mask_dim` have ZERO reads each, against
+  four each for their `*_chann_dim` twins. The form interleaves the dead
+  three with the live three in one section (`settings_model.py:1731-1735`)
+  under a hint reading "A wrong index here measures the wrong compartment
+  without complaining" -- so half that section does nothing and its tooltips
+  describe `measure_crop`.
+
+  WHY IT WAITS: the keys are shipped by `get_analyze_recruitment_default_
+  settings` in `spacr/settings.py`, and `recruitment` is in
+  `GUI_MODULE_DEFAULTS`, so `test_every_setting_a_module_offers_has_a_
+  category` runs for it. Dropping them from the panel alone leaves three
+  factory keys uncategorised; dropping them from the factory is a change to
+  the other session's file with a blast radius I cannot measure end-to-end
+  without running recruitment on real data. Both halves, together, with the
+  module exercised -- not one half at one in the morning.
