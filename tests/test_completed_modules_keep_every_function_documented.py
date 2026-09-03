@@ -60,6 +60,7 @@ FULLY_DOCUMENTED = (
     "spacr/gene_tile.py",
     "spacr/lineage.py",
     "spacr/localisation.py",
+    "spacr/macro.py",
     "spacr/mask_io.py",
     "spacr/measure_hooks.py",
     "spacr/merge_tables.py",
