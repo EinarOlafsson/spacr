@@ -236,7 +236,11 @@ ORGANELLE_MORPHOLOGIES = ("spots", "network", "irregular", "ring")
 COMPARTMENT_FIELDS = (
     ("min_area",                   "Min area (px²)",        "int",   (0, 100_000_000, 0)),
     ("max_area",                   "Max area (px²)",        "int",   (0, 100_000_000, 0)),
-    ("min_object_area",            "Min object area",       "int",   (0, 100_000_000, 100)),
+    # `min_split_area` since 2026-09-02. Renamed with the rest by
+    # `b7ae412af`, and missed here for the same reason as the two
+    # aliases above: the name is written without its leading
+    # underscore, so a suffix substitution did not see it.
+    ("min_split_area",             "Min object area",       "int",   (0, 100_000_000, 100)),
     ("min_distance",               "Min distance",          "int",   (0, 100_000, 10)),
     ("area_multiplier",            "Area multiplier",       "float", (0.0, 1000.0, 2.0)),
     # Defaults MUST match spacr.settings.set_default_settings_preprocess_generate_masks.
@@ -2506,10 +2510,23 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     #: (``cellpose_masks``, ``analyze_plaques``), which have one object type
     #: and call it ``diameter``. Those keep working: a native name present
     #: in the dict wins over the compartment alias.
+    #: ``(this panel's own name, the compartment key's suffix)``.
+    #:
+    #: THE SUFFIXES WENT STALE ON 2026-09-02 and the panel stopped seeding
+    #: two of its three spinners. Commit `b7ae412af` renamed the Mask
+    #: settings -- `cell_FT` became `cell_flow_threshold` and `cell_CP_prob`
+    #: became `cell_cellprob_threshold` -- as a suffix substitution on names
+    #: beginning with an underscore, and these two are written WITHOUT one,
+    #: so it walked straight past them. `settings_for_propagation` a few
+    #: lines up already wrote the new names, so the panel was propagating
+    #: `cell_flow_threshold` OUT and reading `cell_FT` back IN: the round
+    #: trip the seeding exists for was broken in the middle, and the flow
+    #: and cell-probability spinners silently showed their defaults instead
+    #: of the values Mask holds.
     _SEGMENTATION_ALIASES: Tuple[Tuple[str, str], ...] = (
         ("diameter", "diameter"),
-        ("flow_threshold", "FT"),
-        ("CP_prob", "CP_prob"),
+        ("flow_threshold", "flow_threshold"),
+        ("CP_prob", "cellprob_threshold"),
     )
 
     def settings_for_propagation(self) -> dict:
