@@ -3504,3 +3504,62 @@ refusal turn red.
 
 REVISED COUNT: 134 entries, 65 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+77. ALIGNMENT TILE DOCUMENTATION CONFUSED SOURCE AND ASSEMBLED CHANNELS
+==============================================================================
+
+Found 2026-09-03 while repairing constructor documentation in
+``spacr/align.py``. ``Tile.channel`` was described as the acquisition channel
+that drives registration. For split-channel input it is instead the zero-based
+index in the assembled sibling sequence; selecting source channel 4 from
+``[2, 4]`` stores index 1.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/align.py``. The constructor contract
+now names the assembled index and separately describes the ordered absolute
+sibling paths. Reference-channel scan and shared-solution tests exercise that
+boundary; reverting the required ``path`` field makes the exact record test
+fail.
+
+REVISED COUNT: 135 entries, 66 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+78. REFUSED ALIGNMENT PAIRS WERE DOCUMENTED AS MEASURED WITH ZERO CONFIDENCE
+==============================================================================
+
+Found 2026-09-03 in ``spacr/align.py``. ``PairResult.dy`` and ``dx`` were
+called measured values unconditionally, while refused pairs normally retain
+nominal fallback displacement. The same prose claimed refusal forces zero
+confidence even though a scored candidate below threshold keeps its positive
+score.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/align.py``. The contract now
+distinguishes accepted measurements, refused nominal fallback, sub-threshold
+scores, and cases where no candidate was scorable. Noise-refusal, no-overlap,
+drift, and recovered-offset tests provide positive runtime examples; changing
+``i`` back to ``:ivar:`` makes the exact contract fail.
+
+REVISED COUNT: 136 entries, 67 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+79. ALIGNMENT RESULT DOCUMENTATION CALLED PREVIEW STATE A LEDGER WRITE
+==============================================================================
+
+Found 2026-09-03 in ``spacr/align.py``. ``AlignResult.plan`` and ``canvas``
+were described as already written even for preview, dry, and empty results,
+and ``status`` was labelled a ``RunLedger`` value although ``write_stack``
+assigns the local outcome directly.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/align.py``. Constructor prose now
+describes planned geometry, every no-path case, and the exact empty, complete,
+and partial write outcomes. Dry-run, preview, write-failure, and bounded-buffer
+tests exercise those cases; reverting ``plan`` to ``:ivar:`` makes the exact
+record contract fail.
+
+REVISED COUNT: 137 entries, 68 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
