@@ -22,6 +22,7 @@ FULLY_DOCUMENTED = (
     "spacr/attribution_columns.py",
     "spacr/baseline.py",
     "spacr/batch.py",
+    "spacr/benchmark.py",
     "spacr/annotation.py",
     "spacr/cancellation.py",
     "spacr/classify_classes.py",
