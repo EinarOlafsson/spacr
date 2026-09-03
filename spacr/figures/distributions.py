@@ -96,6 +96,11 @@ def response_column(frame, column: Optional[str] = None) -> Optional[str]:
 
 
 def _finite(values) -> np.ndarray:
+    """Return finite values as a flat floating-point array.
+
+    :param values: Array-like values to convert and filter.
+    :returns: One-dimensional ``float64`` array containing only finite values.
+    """
     array = np.asarray(values, dtype="float64").ravel()
     return array[np.isfinite(array)]
 

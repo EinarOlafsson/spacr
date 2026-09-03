@@ -139,6 +139,7 @@ def confidence_threshold(n_classes: int) -> float:
 
 
 def _require(frame: pd.DataFrame, columns: Sequence[str]) -> None:
+    """Raise :class:`ConfusionError` naming required columns that are absent."""
     missing = [c for c in columns if c not in frame.columns]
     if missing:
         raise ConfusionError(
@@ -588,6 +589,7 @@ class ConfusionCell:
         return self.true_class != self.predicted_class
 
     def __len__(self) -> int:
+        """Return the number of evaluated objects represented by this cell."""
         return len(self.rows)
 
     def keys(self, which: str = "all", *,

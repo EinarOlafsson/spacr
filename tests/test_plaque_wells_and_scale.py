@@ -71,6 +71,60 @@ def test_a_lopsided_box_is_reported_as_lopsided():
     assert well.axis_ratio == 0.5, "and the disagreement is still visible"
 
 
+def test_a_zero_sized_box_has_no_axis_ratio_or_physical_scale():
+    """Degenerate detector output cannot become a plausible ruler."""
+    well = Well(x0=4, y0=4, x1=4, y1=4)
+
+    assert well.axis_ratio == 0.0
+    assert scale_from_well(well, well_diameter_mm=10.0) is None
+
+
+def test_well_detection_filters_bad_boxes_and_orders_the_rest(
+    monkeypatch, caplog
+):
+    """Detector output is parsed, filtered, and returned in reading order."""
+    class Box:
+        def __init__(self, xyxy, confidence):
+            self.xyxy = np.asarray([xyxy], dtype=float)
+            self.conf = confidence
+
+    boxes = [
+        Box((30, 20, 40, 30), np.asarray([0.8])),
+        Box((4, 4, 4, 12), np.asarray([0.7])),
+        Box((0, 0, 20, 5), np.asarray([0.6])),
+        Box((10, 5, 20, 15), None),
+    ]
+    results = [types.SimpleNamespace(boxes=None), types.SimpleNamespace(boxes=boxes)]
+    calls = []
+
+    class Detector:
+        def predict(self, **kwargs):
+            calls.append(kwargs)
+            return results
+
+    monkeypatch.setattr(plaque, "_load_detector", lambda weights: Detector())
+
+    with caplog.at_level("WARNING"):
+        wells = plaque.detect_wells(
+            np.zeros((40, 40), dtype=np.uint8),
+            "wells.pt",
+            confidence=0.4,
+            imgsz=320,
+            min_axis_ratio=0.7,
+        )
+
+    assert [(well.x0, well.y0, well.confidence) for well in wells] == [
+        (10, 5, 1.0),
+        (30, 20, 0.8),
+    ]
+    assert len(calls) == 1
+    assert np.array_equal(
+        calls[0].pop("source"), np.zeros((40, 40), dtype=np.uint8)
+    )
+    assert calls[0] == {"conf": 0.4, "imgsz": 320, "verbose": False}
+    assert "axis ratio 0.25 is below 0.70" in caplog.text
+
+
 def test_the_conversion_is_right_against_a_worked_example():
     """A 6-well well is 34.8 mm. Measured at 348 px, that is 10 px/mm.
 

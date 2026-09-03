@@ -245,6 +245,12 @@ def available_backends() -> Dict[str, Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 def _read_png_list(db_path: str) -> pd.DataFrame:
+    """Read the crop-to-object bridge table from a measurements database.
+
+    :param db_path: Path to the SQLite measurements database.
+    :returns: Complete ``png_list`` table as a pandas data frame.
+    :raises SurrogateError: ``db_path`` does not name an existing file.
+    """
     if not os.path.isfile(db_path):
         raise SurrogateError(f"no measurements database at {db_path}")
     with sqlite3.connect(db_path, timeout=30) as conn:

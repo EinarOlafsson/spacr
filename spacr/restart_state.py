@@ -67,6 +67,7 @@ def describe_running(running: Sequence[Mapping[str, Any]]) -> str:
 
 
 def _elapsed(seconds: Any) -> str:
+    """Format elapsed seconds for the restart warning, or say it is running."""
     try:
         total = int(float(seconds))
     except (TypeError, ValueError):
@@ -229,6 +230,7 @@ def take() -> Optional[Dict[str, Any]]:
 
 
 def _too_old(document: Mapping[str, Any]) -> bool:
+    """Return whether a valid saved timestamp exceeds the restart-state age."""
     stamp = str(document.get("saved") or "")
     if not stamp:
         return False
