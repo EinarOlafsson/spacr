@@ -470,6 +470,10 @@ class Table:
     n_total_rows: int = 0
 
     def __post_init__(self) -> None:
+        """Default the source-row count to the number of retained rows.
+
+        :returns: ``None``.
+        """
         if not self.n_total_rows:
             self.n_total_rows = len(self.rows)
 

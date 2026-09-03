@@ -257,6 +257,12 @@ class FittedLinear:
     label: str = "fitted coefficients"
 
     def __post_init__(self) -> None:
+        """Validate the link and normalize coefficients to floating point.
+
+        :returns: ``None``.
+        :raises ValueError: :attr:`link` does not name a supported inverse
+            link.
+        """
         if self.link not in LINKS:
             raise ValueError(
                 f"unknown link {self.link!r}; choose from {sorted(LINKS)}")

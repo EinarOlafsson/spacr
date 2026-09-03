@@ -237,6 +237,13 @@ class _TranslatableText(str):
     """English text retaining the template and values used to build it."""
 
     def __new__(cls, source: str, values: Dict[str, Any]):
+        """Render text while retaining its source template and substitutions.
+
+        :param source: English format string used as the localization key.
+        :param values: Named values substituted into ``source``.
+        :returns: String instance carrying copied ``source`` and ``values``
+            metadata for later translation.
+        """
         rendered = str(source).format(**values)
         instance = super().__new__(cls, rendered)
         instance.source = str(source)
