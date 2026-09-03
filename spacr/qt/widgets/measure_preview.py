@@ -381,6 +381,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     cannot preview. It used to be alone in every one of those columns —
     its button said "Refresh crops", nothing could be cancelled, and a
     press with no array loaded did nothing and said nothing.
+
+    :param parent: parent widget.
+    :param threaded: whether the panel's jobs run off the GUI thread. False
+        runs each one inline, emitting the same signals in the same order, so
+        a test can drive the panel synchronously without the behaviour
+        diverging.
     """
 
     # The list of crops a pass produced, or None when it produced nothing.
@@ -1446,7 +1452,13 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
 
 class CropSettingsDialog(QDialog):
-    """Tabbed live settings dialog for :class:`MeasurePreviewPanel`."""
+    """Tabbed live settings dialog for :class:`MeasurePreviewPanel`.
+
+    :param panel: the preview panel this dialog edits. It is also the
+        dialog's PARENT, and the widgets the dialog lays out belong to the
+        panel rather than to it -- the dialog only knows which rows they sit
+        on, which is what lets a morphology change re-gate them.
+    """
 
     def refresh_organelle_slots(self) -> None:
         """Show one organelle slot per slot the run declares.

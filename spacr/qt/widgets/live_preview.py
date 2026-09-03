@@ -1293,6 +1293,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`: the
     other three live views wear the same run button, the same cancel
     button and the same words as this one.
+
+    :param parent: parent widget.
+    :param threaded: whether the panel's jobs run off the GUI thread. False
+        runs each one inline, emitting the same signals in the same order, so
+        a test can drive the panel synchronously without the behaviour
+        diverging.
     """
 
     preview_ready = Signal(object)   # {object_type: mask}
@@ -3937,6 +3943,11 @@ class LiveSettingsDialog(QDialog):
       * Object channel (cell / nucleus depending on selection)
       * Pre  (bool)
       * Post (bool)
+
+    :param panel: the preview panel this dialog edits. It is also the
+        dialog's PARENT, and the widgets the dialog lays out belong to the
+        panel rather than to it -- the dialog only knows which rows they sit
+        on, which is what lets a morphology change re-gate them.
     """
 
     def __init__(self, panel: "LivePreviewPanel"):
