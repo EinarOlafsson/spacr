@@ -62,6 +62,7 @@ FULLY_DOCUMENTED = (
     "spacr/frame_handoff.py",
     "spacr/flowview/_classify_stages.py",
     "spacr/flowview/classify_blueprint.py",
+    "spacr/flowview/collector.py",
     "spacr/flowview/events.py",
     "spacr/flowview/feeder.py",
     "spacr/flowview/export.py",
