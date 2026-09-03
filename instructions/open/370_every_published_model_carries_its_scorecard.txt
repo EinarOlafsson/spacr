@@ -244,8 +244,36 @@ threshold reported rather than implied.
   and so dented AUROC as well. All three are written into the test
   docstrings.
 
+THE SET-LEVEL HALF IS DONE. `score_holdout(pairs, name=, version=)` scores
+a model over a whole set and `scorecard_rows(finetuned, vanilla)` produces
+the published table -- one row per metric, carrying the delta, the field and
+object counts, and the set's NAME AND VERSION. `scorecard_csv` renders those
+rows, and they are the single source this file asks for: "if the tooltip and
+the API page can disagree, they eventually will".
+
+  POOLED FROM THE COUNTS, NOT AVERAGED FROM THE RATIOS. A field with three
+  objects and one with three hundred are not equal evidence, and a mean of
+  per-field precisions treats them as though they were -- so a model that
+  fails on one sparse field is punished as hard as one that fails on a
+  confluent one. Precision, recall and F1 are recomputed from the summed
+  true and false positives; the genuinely per-object means are weighted by
+  the objects behind them. There is a test with a 4-object field and a
+  1-object field asserting the pooled recall is 4/5 and not the mean of 1.0
+  and 0.0.
+
+  TWO MODELS SCORED ON DIFFERENT SETS ARE REFUSED, by name and version. A
+  table headed "finetuned against vanilla" whose two columns came from
+  different data is exactly the mistake that cannot be seen by reading it.
+
+  A COUNT HAS NO DELTA. `match_iou`, `n_fields`, `n_truth` and `n_pred` are
+  in the table because a reader needs them, and their difference is `None`
+  rather than 0.0 -- a zero in that column reads as a result and invites
+  somebody to plot it.
+
+  29 tests.
+
 STILL TO DO:
-  1. THE HELD-OUT SET, which this file calls the real crux: a named,
+  1. THE HELD-OUT SET ITSELF -- the labelled images, which this file calls the real crux: a named,
      versioned, labelled set published beside the models, so a number is
      comparable between two models, two versions and two days.
   2. THE FOUR RENDERINGS -- CSV on Hugging Face, tooltip, API section, zoo
