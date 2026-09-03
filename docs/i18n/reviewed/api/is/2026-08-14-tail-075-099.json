@@ -154,7 +154,9 @@
       "source_sha256": "83d1c230a84c8889e9d447df805ba5d82a0317f0b09c3047a561220e0af6dbc6",
       "source": "Preprocessing settings dict. **Required** — it must contain the background, signal-to-noise, randomize, timelapse, batch_size and plotting keys used elsewhere in preprocessing. The ``None`` in the signature is kept only so the argument can still be passed positionally; omitting it is an error.",
       "context": "Preprocessing settings key-value mapping. **Required** — it must contain the background, signal-to-noise, randomize, timelapse, batch_size and plotting structured-data names used elsewhere in preprocessing. The ``None`` in the signature is kept only so the argument can still be passed positionally; omitting it is an error.",
-      "translation": "Fyrirvinnslustillingar lykil-gildi kortlagning. **Skylt** — það verður að innihalda bakgrunn, styrk-til-snjós, slembiröðun, tímaraðir, batch_size og nafngreiningu á uppsettu gögnum sem notuð eru annars staðar í fyrirvinnslu. ``None`` í undirskriftinni er haldið aðeins til að hægt sé að senda röksemdina eftir stöðu; að sleppa henni er villa."
+      "translation": "Fyrirvinnslustillingar lykil-gildi kortlagning. **Skylt** — það verður að innihalda bakgrunn, styrk-til-snjós, slembiröðun, tímaraðir, batch_size og nafngreiningu á uppsettu gögnum sem notuð eru annars staðar í fyrirvinnslu. ``None`` í undirskriftinni er haldið aðeins til að hægt sé að senda röksemdina eftir stöðu; að sleppa henni er villa.",
+      "retired": "2026-09-03",
+      "retired_reason": "the reviewed source block no longer appears anywhere in spacr.io.concatenate_and_normalize's docstring; the prose was rewritten, so the Icelandic review stands for wording the function no longer has. Retired, not withdrawn: if the wording returns, re-bind this record rather than commissioning the review again."
     }
   ]
 }
