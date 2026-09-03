@@ -246,6 +246,34 @@ def compose_labels(image: Optional[np.ndarray], mask: Any,
     return np.clip(out, 0, 255).astype(np.uint8)
 
 
+def _tooltip_for(entry) -> str:
+    """`describe()`, led by the few numbers that decide a choice.
+
+    Instruction 370 asks for the scorecard in a tooltip and says this is
+    "the surface with the least room: it must lead with the handful of
+    numbers that decide a choice and say where the rest is". A scorecard is
+    37 rows, and `describe()` renders `metrics` one per line -- which is the
+    same mistake the model-zoo table made before it was cut to three
+    columns: complete and unreadable.
+
+    So the headline goes FIRST, and the full card follows it unchanged. A
+    model whose `metrics` is free-form -- a note, a training loss, anything
+    that is not a scorecard -- gets exactly what it got before, because
+    `headline` returns nothing it does not recognise and this must not turn
+    somebody's two-line note into a truncated table.
+    """
+    card = entry.describe()
+    try:
+        from ...scorecard import headline
+
+        lines = headline(entry.metrics or {})
+    except Exception:                                        # noqa: BLE001
+        return card
+    if not lines:
+        return card
+    return "\n".join(lines) + "\n\n" + card
+
+
 class ModelZooScreen(QWidget):
     """Browse, verify, download and benchmark models supported by spaCR.
 
@@ -557,7 +585,7 @@ class ModelZooScreen(QWidget):
                     item.setForeground(_brush(active_palette()["warning"]))
                 if c == 5 and entry.checksum_state == "none":
                     item.setForeground(_brush(active_palette()["warning"]))
-                item.setToolTip(entry.describe())
+                item.setToolTip(_tooltip_for(entry))
                 table.setItem(r, c, item)
         table.blockSignals(False)
         table.resizeColumnsToContents()

@@ -534,3 +534,70 @@ def test_scoring_a_model_carries_the_sets_name_and_version(tmp_path):
     assert scored.name == "toxo_pv" and scored.version == "2026-09-03"
     assert scored.n_fields == 2
     assert scored.metrics["f1"] == pytest.approx(1.0)
+
+
+# ---------------------------------------------------------------------------
+# The tooltip: the surface with the least room
+# ---------------------------------------------------------------------------
+
+
+def test_the_headline_leads_with_the_numbers_that_decide_a_choice():
+    lines = scorecard.headline(
+        {"f1": 0.867, "dice_per_object": 0.91, "ap_mean": 0.72,
+         "boundary_f1_1px": 0.64, "n_truth": 115, "n_fields": 11})
+
+    assert len(lines) == 4, lines            # three metrics plus the count
+    assert lines[0].startswith("F1 0.867")
+    assert lines[-1] == "on 115 objects, 11 fields", (
+        "every number carries its n, in the tooltip too")
+
+
+def test_the_headline_shows_the_difference_because_that_is_the_question():
+    """"F1 0.867" answers "what is it". The request is "is it better"."""
+    lines = scorecard.headline({"f1": 0.867}, baseline={"f1": 0.713})
+    assert "+0.154 vs stock" in lines[0]
+
+    worse = scorecard.headline({"f1": 0.60}, baseline={"f1": 0.713})
+    assert "-0.113 vs stock" in worse[0], "a regression must read as one"
+
+
+def test_free_form_metrics_are_left_completely_alone():
+    """A model whose metrics is a note must not have it turned into a
+    truncated table."""
+    assert scorecard.headline({"note": "trained by hand", "loss": "n/a"}) == []
+    assert scorecard.headline({}) == []
+
+
+def test_a_metric_that_is_not_a_number_is_skipped_not_crashed():
+    lines = scorecard.headline({"f1": "unknown", "dice_per_object": 0.9})
+    assert lines and lines[0].startswith("Dice")
+
+
+def test_the_zoo_tooltip_leads_with_the_headline_and_keeps_the_card():
+    pytest.importorskip("PySide6")
+    from spacr.qt.screens.model_zoo import _tooltip_for
+
+    class Entry:
+        metrics = {"f1": 0.867, "n_truth": 115}
+
+        def describe(self):
+            return "cpsam_v2  [cellpose]\n  trained on Toxoplasma PVs"
+
+    text = _tooltip_for(Entry())
+    assert text.startswith("F1 0.867")
+    assert "trained on Toxoplasma PVs" in text, (
+        "the full provenance card must survive; the headline is added, not "
+        "substituted")
+
+
+def test_the_zoo_tooltip_is_unchanged_for_a_model_without_a_scorecard():
+    pytest.importorskip("PySide6")
+    from spacr.qt.screens.model_zoo import _tooltip_for
+
+    class Entry:
+        metrics = {"note": "hand tuned"}
+
+        def describe(self):
+            return "old_model  [cellpose]"
+
+    assert _tooltip_for(Entry()) == "old_model  [cellpose]"
