@@ -86,6 +86,7 @@ class InputGroup:
     reason: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return every group field as a recursively copied plain mapping."""
         return asdict(self)
 
     @classmethod
@@ -165,19 +166,23 @@ class ExternalMaskPlan:
 
     @property
     def stems(self) -> List[str]:
+        """Return sorted field stems covered by every supplied mask type."""
         return sorted(set.intersection(
             *(set(per_stem) for per_stem in self.masks.values())
         )) if self.masks else []
 
     @property
     def object_types(self) -> List[str]:
+        """Return supplied mask roles in canonical object-type order."""
         return [name for name in OBJECT_TYPES if name in self.masks]
 
     @property
     def ok(self) -> bool:
+        """Return whether images, shared fields, and importer checks are valid."""
         return bool(self.images.ok and self.stems and not self.errors)
 
     def summary(self) -> str:
+        """Return a multiline read-only preview of mappings and problems."""
         lines = [
             "External masks → Measure project (preview; nothing written)",
             f"  intensity mappings: {len(self.images)}",
@@ -219,6 +224,7 @@ class ExternalMaskResult:
     plan: ExternalMaskPlan
 
     def summary(self) -> str:
+        """Return one line naming materialized fields and output locations."""
         return (
             f"Prepared {len(self.merged)} field(s) in {self.destination}. "
             f"measurements.db tables: {', '.join(self.tables) or 'none'}. "
@@ -227,6 +233,11 @@ class ExternalMaskResult:
 
 
 def _all_files(path: Path, recursive: bool) -> List[Path]:
+    """Collect supported files from a file or directory input.
+
+    :param path: input file or directory; missing paths produce no files.
+    :param recursive: descend through directory children when true.
+    """
     if path.is_file():
         return [path] if _supported(path) else []
     if not path.is_dir():
@@ -237,11 +248,17 @@ def _all_files(path: Path, recursive: bool) -> List[Path]:
 
 
 def _supported(path: Path) -> bool:
+    """Return whether a path has a supported suffix, case-insensitively."""
     name = path.name.lower()
     return any(name.endswith(suffix) for suffix in SUPPORTED_SUFFIXES)
 
 
 def _suggest_object(name: str) -> Optional[str]:
+    """Infer the first matching spaCR object role from path-name tokens.
+
+    :param name: filename or path whose stem and parent tokens are inspected.
+    :returns: canonical object type, or ``None`` when no pattern matches.
+    """
     # Include parent folders: externally generated masks are commonly named
     # ``cell_masks/fov001.tif`` rather than ``fov001_cell_mask.tif``.
     stem = cv._split_ext(str(name))[0]
@@ -326,6 +343,12 @@ def detect_inputs(paths: Sequence[Any], *, recursive: bool = True
 
 
 def _coerce_groups(value: Any, *, recursive: bool) -> List[InputGroup]:
+    """Normalize path-like or serialized inputs into reviewed groups.
+
+    :param value: absent input, one path, path sequence, group instances, or
+        serialized group mappings.
+    :param recursive: directory traversal rule used when detecting paths.
+    """
     if value is None:
         return []
     if isinstance(value, (str, os.PathLike)):
@@ -348,6 +371,7 @@ def _scan_group(group: InputGroup, *, layout: str = "auto"
 
 
 def _stem(mapping: cv.Mapping) -> str:
+    """Return the canonical ``plate_well_integer-field`` destination stem."""
     return f"{mapping.plate}_{mapping.well}_{int(mapping.field)}"
 
 
@@ -356,6 +380,16 @@ def _pair_masks(image_plan: cv.ConversionPlan,
                 *,
                 layout: str = "auto",
                 ) -> Tuple[Dict[str, Dict[str, MaskMatch]], List[str], List[str]]:
+    """Pair reviewed mask sources to image fields by canonical identity.
+
+    Exact source identities are preferred before normalized loose-field
+    matching. The return tuple contains mappings by object type, blocking
+    errors, and non-blocking ambiguity warnings.
+
+    :param image_plan: reviewed intensity-image conversion plan.
+    :param groups: reviewed inputs, including zero or more mask groups.
+    :param layout: filename-layout rule forwarded while scanning each group.
+    """
     errors: List[str] = []
     warnings: List[str] = []
     source_to_stem: Dict[Tuple[str, str, str], str] = {}
@@ -544,6 +578,12 @@ def plan_external_masks(settings: Optional[Mapping[str, Any]] = None
 
 
 def _save_npy(path: str, array: np.ndarray) -> str:
+    """Atomically replace one NumPy destination through a PID-specific file.
+
+    :param path: destination ``.npy`` path.
+    :param array: array to serialize.
+    :returns: ``path`` after replacement succeeds.
+    """
     os.makedirs(os.path.dirname(path), exist_ok=True)
     temporary = f"{path}.tmp-{os.getpid()}.npy"
     np.save(temporary, array)
@@ -552,6 +592,7 @@ def _save_npy(path: str, array: np.ndarray) -> str:
 
 
 def _tables(path: str) -> List[str]:
+    """Return sorted SQLite table names, or none for a missing database."""
     if not os.path.isfile(path):
         return []
     with sqlite3.connect(path, timeout=30) as connection:
