@@ -4,7 +4,7 @@ from __future__ import annotations
 from html import escape
 from typing import Optional
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import QLabel, QWidget
 
@@ -55,6 +55,57 @@ class ApiHelpLabel(QLabel):
     def full_text(self) -> str:
         """The complete description, however much is being painted."""
         return getattr(self, "_full_description", QLabel.text(self))
+
+    def minimumSizeHint(self) -> QSize:            # noqa: N802 (Qt casing)
+        """Ask the layout for one word, not for the whole sentence.
+
+        THE MASTHEAD ALREADY SAID THIS AND QT WAS NOT LISTENING. It builds
+        this label with ``setSizePolicy(QSizePolicy.Maximum, ...)`` and
+        ``setMinimumWidth(0)`` and documents the intent -- the blurb "may
+        shrink below its ideal width rather than force the window wider".
+        Neither call achieves it: ``qSmartMinSize`` takes a shrinkable
+        widget's minimum from ``minimumSizeHint()``, which for a
+        non-wrapping ``QLabel`` is the width of the ENTIRE sentence, and it
+        only lets an explicit ``minimumWidth`` override that when the value
+        is greater than zero. So the one control on the masthead that can
+        lose text harmlessly was the one control that refused to give any
+        width up.
+
+        TWO THINGS FOLLOWED, both measured by instruction 350's sweep on the
+        Power screen in Icelandic at the largest font scale preferences
+        offers:
+
+          * THE MODULE TITLE WAS WHAT GOT CUT. The header needed 1274 px and
+            had 1168, and every one of those 106 px came off the title --
+            'Tölfræðilegt afl / hönnun' painted in 577 px of a 683 px hint --
+            while the blurb sat at its full width beside it. A module name
+            cut mid-word, next to a sentence that had room to spare and a
+            hover copy of itself.
+          * AND IT SET THE FLOOR UNDER EVERY MODULE SCREEN. The masthead's
+            minimum was 1166 px at 100 %, which is most of the ~1198 px
+            minimum the whole screen reported -- so this label, alone, was
+            why a module page could not be shown narrow.
+
+        ONE WORD PLUS THE ELLIPSIS, rather than a constant: it is measured
+        in the label's own font, so it tracks the font scale without being
+        told about it, and at its narrowest the blurb still says what it is
+        about instead of collapsing to a dot. Never wider than the sentence
+        itself, so a short description keeps behaving exactly as it did.
+
+        Only when the label does not wrap. A wrapping label trades width for
+        HEIGHT, and Qt's own minimum already knows how.
+        """
+        base = super().minimumSizeHint()
+        if self.wordWrap():
+            return base
+        full = " ".join(self.full_text().split())
+        if not full:
+            return base
+        margins = self.contentsMargins()
+        metrics = QFontMetrics(self.font())
+        floor = (metrics.horizontalAdvance(full.split()[0] + "\u2026")
+                 + margins.left() + margins.right())
+        return QSize(max(1, min(base.width(), floor)), base.height())
 
     def resizeEvent(self, event):                  # noqa: N802 (Qt naming)
         """Re-elide for the width just granted."""

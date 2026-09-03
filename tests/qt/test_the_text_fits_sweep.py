@@ -26,6 +26,22 @@ THE LOCALES ARE CHOSEN, NOT SAMPLED. English is the source text; German makes
 the longest compounds in the set and is where a fixed-width control gives
 first; Icelandic is the maintainer's own language, so a defect there is one he
 meets rather than one he is told about.
+
+AND SO IS THE FONT SCALE, which is the axis this sweep spent its first night
+without. Instruction 04 records that the tests once measured a font scale no
+user has, and every number instruction 350 recorded before this file grew a
+`scale` parameter was at 100 %. A LOCALE MAKES A STRING 20 % LONGER; THE SCALE
+MAKES EVERY STRING ON THE SCREEN TWICE AS LONG AT ONCE, which is a different
+kind of pressure -- it is the only one of the four causes that moves the
+glyphs and the boxes independently, so it is the only one that can find a
+control sized in hard-coded pixels. It found two of them, and neither was
+visible in any locale at 100 %.
+
+EVERY SCREEN IS BUILT AS A PAGE IN A CONTAINER THAT WILL NOT GROW, which is
+the other half of what was missing -- see `screen_in_a_container`. A screen
+shown as a top-level widget answers "does this fit?" by growing until it
+does, and instruction 350's WATCH section has asked since the day it was
+filed for the CONTAINER to be checked too.
 """
 from __future__ import annotations
 
@@ -35,9 +51,11 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QRect, Qt                       # noqa: E402
 from PySide6.QtGui import QFontMetrics                     # noqa: E402
-from PySide6.QtWidgets import QLabel, QPushButton          # noqa: E402
+from PySide6.QtWidgets import (QLabel, QPushButton,        # noqa: E402
+                               QStackedWidget)
 
 from spacr.qt import i18n as I                             # noqa: E402
+from spacr.qt.preferences import FONT_SCALE_MAX            # noqa: E402
 
 from .test_no_caption_is_clipped import painted_text       # noqa: E402
 
@@ -49,6 +67,20 @@ SCREENS = ("measure", "regression", "classify_merged", "foreign", "annotate",
 
 #: See the module docstring: source, worst case, and the maintainer's own.
 LOCALES = ("en", "de", "is")
+
+#: THE DIMENSION THIS SWEEP WAS MISSING, and instruction 350 said so from the
+#: day it was filed: "a font scale other than 1.0 -- instruction 04 records
+#: that the tests measured a font scale no user has, so a check that runs at
+#: one scale proves nothing about the others". Every number this item
+#: recorded before today was at 1.0.
+#:
+#: THE TWO ENDS, NOT A LADDER. `FONT_SCALE_MAX` rather than a hand-picked
+#: 1.5, because "the largest one preferences offers" is what the file's own
+#: HOW IT WILL BE CHECKED section asks for and it is the only value that
+#: cannot go stale when the slider's range moves. Everything 1.5 finds, 2.0
+#: finds too and further out: the one caption 1.5 clipped ("100%" in a 40 px
+#: box, 46 px of text) is the same box that loses 22 px at 2.0.
+SCALES = (1.0, FONT_SCALE_MAX)
 
 #: A widget narrower than this has not been laid out, whatever it reports.
 LAID_OUT_PX = 8
@@ -159,6 +191,94 @@ def settle(qtbot, screen, rounds: int = 60) -> int:
     return rounds
 
 
+@pytest.fixture
+def at_font_scale(qapp, qt_theme_applied):
+    """Put the font-scale PREFERENCE and the STYLESHEET on the same scale.
+
+    THE REAL MECHANISM, NOT A STYLESHEET HACK, and the distinction decides
+    whether the measurement describes anything a user can reach. The
+    preference is one number with two consumers: the application stylesheet,
+    built by `theme.stylesheet(font_scale=...)`, sets every FONT SIZE from it;
+    `preferences.scaled_px` scales every WIDGET SIZE set from Python by the
+    same number. `preferences.apply_preferences_to_app` writes the preference
+    and then rebuilds the sheet from it, and this does exactly that pair --
+    which is why it also catches the bug it found: a control sized in
+    hard-coded pixels stays put while the glyphs inside it grow.
+
+    Setting only the sheet would move the glyphs and not the boxes, and would
+    "find" clipping in every control the package sizes correctly. Setting only
+    the preference would move the boxes and not the glyphs and would find
+    none. Both, or the number means nothing.
+
+    The scale has to be in place BEFORE the screen is built, because
+    `scaled_px` is read at construction; callers apply it first and then
+    build.
+
+    Restores the shared application's 100 % sheet on the way out --
+    `conftest._restore_font_scale` puts the preference back, and leaving the
+    sheet at 200 % would move every later test that measures a pixel.
+    """
+    from spacr.qt import preferences
+    from spacr.qt.theme import set_widget_qss_context, stylesheet
+
+    def _apply(scale: float) -> float:
+        preferences.set_font_scale(scale)
+        # What `apply_preferences_to_app` records before it composes the
+        # sheet, so a late widget-QSS block agrees with the global one about
+        # the scale rather than emitting a 100 % copy over a 200 % sheet.
+        set_widget_qss_context(qapp, preferences.resolve_effective_theme(),
+                               scale, preferences.get_pane_opacity())
+        qapp.setStyleSheet(stylesheet(font_scale=scale))
+        qapp.processEvents()
+        return scale
+
+    yield _apply
+    qapp.setStyleSheet(stylesheet())
+    qapp.processEvents()
+
+
+def screen_in_a_container(qtbot, app_key, width=1200, height=850):
+    """Build ``app_key`` the way the application holds it: as a PAGE.
+
+    AND THIS IS THE CONTAINER CHECK, which instruction 350 has asked for
+    since the day it was filed -- "a control that grows can push its
+    neighbour off the screen. Assert the CONTAINER still fits too, or the
+    sweep trades one clipped string for another" -- and which had never been
+    run at a font scale other than 1.0.
+
+    It is run by BUILDING the screen somewhere that cannot grow rather than
+    by adding a second assertion, because a top-level widget answers the
+    question by escaping it: `QLayout::activate` raises a WINDOW's minimum to
+    its layout's total minimum, so a screen asked for 1200 px whose contents
+    need 1529 simply becomes 1529 px wide and reports nothing clipped. That
+    is not how a screen lives. It is a page in a `QStackedWidget` inside one
+    window, and a page gets whatever the window has -- less than its own
+    minimum included. Measured on Measure in English at 200 %: as a top-level
+    widget it came up 1529 px when asked for 1200.
+
+    So the container is a `QStackedWidget` with an EXPLICIT 1x1 minimum,
+    which is what stops the container growing out of the problem in its turn.
+    Anything that no longer fits is then squeezed, and a squeezed caption is
+    what `_fits` reports.
+    """
+    from spacr.qt.screens.app_screen import AppScreen
+
+    host = QStackedWidget()
+    qtbot.addWidget(host)
+    screen = AppScreen(app_key=app_key)
+    host.addWidget(screen)
+    host.setCurrentWidget(screen)
+    host.setMinimumSize(1, 1)
+    host.resize(width, height)
+    host.show()
+    qtbot.waitExposed(host)
+    # RULE 1: nothing measured below is true until the layout has STOPPED
+    # running. See `settle` -- the flat `qtbot.wait(30)` this replaced was
+    # reading every module screen one delivered event too early.
+    settle(qtbot, screen)
+    return host, screen
+
+
 def _offenders(screen):
     """Every clipped caption on ``screen``, as sentences a reader can check."""
     found = []
@@ -208,38 +328,83 @@ def _offenders(screen):
 #: screen reports every button at exactly its hint and nothing is clipped.
 #: The sweep therefore runs with `qt_theme_applied`, because that is the font
 #: the user has.
+#: THE SCALE AXIS ADDED IT NOTHING EITHER, and that is the result rather
+#: than the absence of one. The one family the largest scale did find was
+#: FIXED before it was recorded, because it was a defect and not a layout
+#: decision: `UsageBar` set `setFixedWidth(48)` on its caption column and
+#: `setFixedWidth(40)` on its percent readout, so at 200 % the glyphs
+#: doubled and the boxes did not --
+#:
+#:     'VRAM'  66 px of text in 48 px of column
+#:     'RAM'   52                48
+#:     '100%'  62                40         (and 46 at 150 %)
+#:
+#: on the System card of every module screen, in every locale, which is why
+#: it read as five offenders per screen and not as one. Both widths now take
+#: the larger of `scaled_px` and the widest string the control can ever hold.
 KNOWN_OFFENDERS: dict = {}
 
 
+@pytest.mark.parametrize("scale", SCALES)
 @pytest.mark.parametrize("locale", LOCALES)
 @pytest.mark.parametrize("app_key", SCREENS)
-def test_no_caption_is_cut_off(app_key, locale, qtbot, qt_theme_applied,
+def test_no_caption_is_cut_off(app_key, locale, scale, qtbot, at_font_scale,
                                monkeypatch):
-    """One screen in one language, judged by the four rules above."""
-    monkeypatch.setenv(I.ENV_LANGUAGE, locale)
-    from spacr.qt.screens.app_screen import AppScreen
+    """One screen, in one language, at one font scale, by the rules above.
 
-    screen = AppScreen(app_key=app_key)
-    qtbot.addWidget(screen)
-    screen.resize(1200, 850)
-    screen.show()
-    qtbot.waitExposed(screen)
-    # RULE 1: nothing below is true until the layout has STOPPED running.
-    # See `settle` -- the flat `qtbot.wait(30)` this replaced was reading
-    # every module screen one delivered event too early.
-    settle(qtbot, screen)
+    THE SCALE IS APPLIED BEFORE THE SCREEN IS BUILT, which is not a detail:
+    `scaled_px` is read at construction, so a screen built at 100 % and then
+    handed a 200 % stylesheet is a shape no user has -- 200 % glyphs in 100 %
+    boxes -- and would report clipping the application does not have.
+    """
+    monkeypatch.setenv(I.ENV_LANGUAGE, locale)
+    at_font_scale(scale)
+    _host, screen = screen_in_a_container(qtbot, app_key)
 
     offenders = _offenders(screen)
-    allowed = KNOWN_OFFENDERS.get((app_key, locale), 0)
+    allowed = KNOWN_OFFENDERS.get((app_key, locale, scale), 0)
     detail = ("; ".join(offenders[:6])
               + (f" (and {len(offenders) - 6} more)"
                  if len(offenders) > 6 else ""))
     assert len(offenders) <= allowed, (
-        f"{app_key} in {locale}: {len(offenders)} captions cut off, "
-        f"{allowed} recorded. {detail}")
+        f"{app_key} in {locale} at {scale:g}x: {len(offenders)} captions cut "
+        f"off, {allowed} recorded. {detail}")
     assert len(offenders) == allowed or allowed == 0, (
-        f"{app_key} in {locale} now has {len(offenders)} of the {allowed} "
-        f"recorded -- lower or remove its entry in KNOWN_OFFENDERS")
+        f"{app_key} in {locale} at {scale:g}x now has {len(offenders)} of "
+        f"the {allowed} recorded -- lower or remove its entry in "
+        f"KNOWN_OFFENDERS")
+
+
+@pytest.mark.parametrize("scale,reported",
+                         [(1.0, False), (FONT_SCALE_MAX, True)])
+def test_the_scale_axis_can_actually_fail(scale, reported, qtbot,
+                                          at_font_scale):
+    """The new axis has teeth: the SAME widget passes at 1.0 and fails at 2.0.
+
+    Written because a sweep that never fails and a sweep that always fails
+    look identical from the summary line, and instruction 350 has four
+    confident wrong headlines on the record -- one of them a run that
+    "failed" twenty-five combinations without measuring a single widget.
+    Adding a dimension that cannot report anything would be the fifth.
+
+    This is the pre-fix `UsageBar` caption column exactly: a hard-coded 48 px
+    box holding "VRAM". It fits at 100 %, where the number was chosen, and it
+    does not at 200 %, where the glyphs doubled and the box did not -- so a
+    green run of this file at 2.0 is evidence that the boxes moved with the
+    glyphs, rather than evidence that nothing was looked at.
+    """
+    at_font_scale(scale)
+    label = QLabel("VRAM")
+    qtbot.addWidget(label)
+    label.setFixedWidth(48)                     # the constant, as it was
+    label.show()
+    qtbot.waitExposed(label)
+    qtbot.wait(10)
+
+    assert bool(_fits(label)) is reported, (
+        f"a 48 px box holding {label.text()!r} at {scale:g}x: "
+        f"{_fits(label) or 'reported as fitting'}, and "
+        f"{'a clip' if reported else 'no clip'} was expected")
 
 
 def test_the_sweep_can_actually_fail(qtbot, qt_theme_applied):
