@@ -526,3 +526,80 @@ stays at 0.82 s), pressing the real sidebar button rather than calling
 the handler (0.85 s), draining the event loop until genuinely idle
 rather than for a fixed number of turns (0.82 s -- so the harness was
 not stopping its clock early), and a cold icon cache (0.86 s).
+
+--------------------------------------------------------------------------------
+2026-09-03: REPRODUCED, MEASURED, AND THE INSTRUMENT WAS BROKEN TOO
+--------------------------------------------------------------------------------
+
+Run on an idle machine -- every agent and background job stopped first,
+because this file says a timing taken beside a test run is not evidence --
+from a CLEAN WORKTREE AT HEAD, under a real X server (xvfb), through
+`tools/spacr_startup_benchmark.py --record-only`.
+
+THE CONFOUND THIS FILE NAMES IS GONE. It says `pip -e` points at
+`/mnt/firecuda2/codex/repo/spacr`, the tree that was part stale and part
+unsaved. Measured today, `import spacr` outside any repository resolves to
+`/mnt/firecuda2/Claude/repo/spacr`, which is clean and in sync with origin.
+So the numbers below describe the shipped product, and step 1 of WHAT TO DO
+is answered: the hang is NOT the working tree.
+
+FIRST, THE INSTRUMENT WAS NOT MEASURING NINE MODULES.
+`startup_benchmark._advance` demanded exactly one sidebar row per key and
+errored on nine: profiler, train_compare, convert, external_masks,
+layer_viewer, lineage, tabulate, plate_view and investigate_hit. Each of
+those is folded onto a host's masthead AND keeps its registry row, so the
+dock draws it twice -- once from the registry, once as an indented child.
+Both are hidden, so a USER never sees a duplicate; the driver did, and gave
+up. That is this file's own suspicion -- "the ratchet is not running on the
+path the user actually takes" -- as a fact. FIXED: the driver prefers the
+registry row, which is the module's own identity rather than the second door
+onto the same screen.
+
+THEN THE MEASUREMENT, against 284's closing table:
+
+    module              now      284    budget   worst event-loop stall
+    ---------------------------------------------------------------------
+    Home               4.51     2.03      5.0        57 ms
+    Preferences        1.14        -      3.0      1110 ms
+    mask               4.71     4.26     10.0      4451 ms
+    measure            2.12     1.45     10.0      1951 ms
+    regression         6.66     4.68     10.0      6252 ms
+    classify_merged    3.43     1.56     10.0      3143 ms
+    map_barcodes       1.11     0.25     10.0      1010 ms
+    annotate           0.20     0.15     10.0       195 ms
+    umap               2.57        -     10.0      2402 ms
+    external_masks     1.79        -     10.0      1603 ms
+    recruitment        1.68        -     10.0      1481 ms
+
+    14 of 46 measured intervals exceed the 500 ms stall ceiling.
+
+BOTH REPORTED SYMPTOMS ARE REPRODUCED, and they are the same defect:
+
+  * "the program hung twice" opening REGRESSION -- a 6.25 SECOND event-loop
+    stall. There is no traceback and no dialog; the window is simply frozen.
+    Six seconds of that is indistinguishable from a hang, which is what this
+    file says is the worst failure shape spaCR has.
+  * "triggering the preferences took a verry long time" -- a 1.11 SECOND
+    stall inside a 1.14 second open. Almost the entire cost is a freeze.
+
+AND EVERY MODULE IS INSIDE ITS BUDGET. That is the finding that matters:
+284's ratchet asks "did it finish in ten seconds" and every one did, while
+the GUI thread was blocked for six. A budget measures patience; a stall
+measures whether the application is responding. The stall data is in the
+artifact and is not what the ratchet gates on.
+
+  Home has also doubled, 2.03 -> 4.51 s, and is now within 0.5 s of its own
+  5-second budget with no stall to explain it. That is a separate regression
+  from the stalls and should not be folded into them.
+
+STILL TO DO, and step 3 of WHAT TO DO is now the whole job: take the stack
+while it is stalled. `faulthandler.dump_traceback_later(2, repeat=True)`
+during a Regression open will name the blocking call directly -- six seconds
+is long enough that a sampler cannot miss it. Instruction 160 was diagnosed
+exactly this way.
+
+CAVEAT ON THE NUMBERS: xvfb rather than a real compositor, on a machine that
+had been running tests all night. That affects absolute values and not the
+shape -- a 6.25 second stall is not scheduling noise, and the ORDERING
+(regression worst, then mask, then classify) is the diagnosis worth acting
+on.

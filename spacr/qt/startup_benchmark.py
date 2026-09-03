@@ -246,6 +246,27 @@ class BenchmarkController(QObject):
             button for button in getattr(self.window._sidebar, "_items", ())
             if str(button.property("navKey") or "") == key
         ]
+        # NINE KEYS HAVE TWO ROWS, and neither is a mistake. A module that is
+        # folded onto a host's masthead AND keeps its registry row -- profiler,
+        # train_compare, convert, external_masks, layer_viewer, lineage,
+        # tabulate, plate_view, investigate_hit -- is drawn once from the
+        # registry and once as an indented child of its host. Both are hidden
+        # (the registry row because the key is in `TILELESS_APPS`, the child
+        # until its host is expanded), so a user never sees a duplicate.
+        #
+        # BUT THIS DRIVER DEMANDED EXACTLY ONE AND ERRORED ON ALL NINE, which
+        # is how instruction 284's ratchet stopped measuring nine modules
+        # without anyone noticing -- 314's own suspicion, that "the ratchet is
+        # not running on the path the user actually takes", made concrete.
+        #
+        # The REGISTRY row is the one to press: it is the module's own
+        # identity, and the fold child is a second door onto the same screen
+        # that resolves through `open_module` rather than plain navigation.
+        if len(buttons) > 1:
+            registry_rows = [b for b in buttons
+                             if not b.property("isFoldChild")]
+            if len(registry_rows) == 1:
+                buttons = registry_rows
         if len(buttons) != 1:
             self._record_error(
                 key, f"expected one live sidebar button, found {len(buttons)}")
