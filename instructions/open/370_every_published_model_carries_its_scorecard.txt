@@ -214,14 +214,39 @@ plausible number for any input.
   construction and so scored a perfect boundary F1. Both are recorded in the
   test docstrings, because both are the mistake a reader would make next.
 
-STILL TO DO, and none of it is blocked any more:
-  1. THE CLASSIFIER HALF -- accuracy, balanced accuracy, per-class and macro
-     P/R/F1, AUROC, AUPRC, MCC, confusion matrix, Brier, ECE, and the
-     threshold stated rather than implied. `spacr` already computes Brier and
-     calibration somewhere in the classifier-quality modules; find them
-     before rewriting them.
-  2. THE HELD-OUT SET, which this file calls the real crux: a named,
+THE CLASSIFIER HALF IS DONE TOO, in the same module: accuracy, balanced
+accuracy, precision/recall/F1 for both classes and macro, specificity, MCC,
+AUROC, AUPRC, Brier, ECE, the full confusion matrix as COUNTS, and the
+threshold reported rather than implied.
+
+  BUILT ON `classifier_quality.Confusion`'S TERRITORY RATHER THAN BESIDE IT
+  in spirit: that module already owns sensitivity, specificity, accuracy and
+  the refusal to report a correction its inputs cannot identify, and this one
+  adds what 370 asks for on top rather than restating those four.
+
+  THE THRESHOLD-FREE NUMBERS ARE MARKED AS SUCH BY CARRYING `threshold`
+  BESIDE THEM. AUROC, AUPRC, Brier and ECE do not move when the cutoff does,
+  and a test asserts that -- they are the numbers that survive a reader
+  disagreeing with the threshold, and the rest are not.
+
+  TIES ARE RANK-AVERAGED IN AUROC. Without it a model that outputs one
+  constant scores 1.0 or 0.0 depending on how the sort broke ties, rather
+  than the 0.5 it has earned. There is a test.
+
+  AUPRC IS THE STEP FORM, not the trapezoid: interpolating between operating
+  points reports a precision no threshold achieves, which is the number
+  people quote and cannot reproduce.
+
+  23 tests. Three of them were wrong on the first run and the code was right
+  each time -- an IoU asserted for a diagonal offset as though it were
+  axial, a "ragged" edge nibbled one pixel when the tolerance is one pixel,
+  and an AUPRC case that put a seventh of the negatives above the positives
+  and so dented AUROC as well. All three are written into the test
+  docstrings.
+
+STILL TO DO:
+  1. THE HELD-OUT SET, which this file calls the real crux: a named,
      versioned, labelled set published beside the models, so a number is
      comparable between two models, two versions and two days.
-  3. THE FOUR RENDERINGS -- CSV on Hugging Face, tooltip, API section, zoo
+  2. THE FOUR RENDERINGS -- CSV on Hugging Face, tooltip, API section, zoo
      screen -- from the one CSV.

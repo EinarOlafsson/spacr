@@ -405,3 +405,178 @@ def compare_against_baseline(truth: np.ndarray, finetuned: np.ndarray,
     # is noise; leaving it in the delta invites someone to plot it.
     delta.pop("match_iou", None)
     return {"finetuned": a, "vanilla": b, "delta": delta}
+
+
+# ---------------------------------------------------------------------------
+# Classifiers
+#
+# A screen is unbalanced -- that is what a screen IS -- so several of these
+# exist only because accuracy is uninformative when 98% of objects are
+# negative. Instruction 370 asks for AUPRC "first when positives are rare,
+# which in a screen they are", and for balanced accuracy and MCC for the
+# same reason.
+#
+# BUILT ON `spacr.classifier_quality.Confusion` RATHER THAN BESIDE IT. That
+# module already owns the confusion matrix, sensitivity, specificity and
+# accuracy, and already refuses to report a correction its inputs cannot
+# identify. A second implementation of the same four numbers is a second
+# thing to keep in step, and they would disagree first in the place nobody
+# is looking.
+# ---------------------------------------------------------------------------
+
+
+def _auroc(labels: np.ndarray, scores: np.ndarray) -> float:
+    """Area under the ROC curve, by rank, ties averaged.
+
+    Computed here rather than imported so a scorecard can be read without
+    sklearn present -- the zoo has to browse on a machine that never trained
+    anything. The rank form is exact, not an approximation of the curve.
+    """
+    positive, negative = int(labels.sum()), int((1 - labels).sum())
+    if not positive or not negative:
+        return 0.0
+    order = np.argsort(scores, kind="mergesort")
+    ranks = np.empty(len(scores), dtype=float)
+    ranks[order] = np.arange(1, len(scores) + 1, dtype=float)
+    # Average the ranks of tied scores, or a model that outputs one constant
+    # scores 1.0 or 0.0 depending on sort order rather than the 0.5 it earns.
+    values = np.asarray(scores)[order]
+    start = 0
+    for index in range(1, len(values) + 1):
+        if index == len(values) or values[index] != values[start]:
+            if index - start > 1:
+                ranks[order[start:index]] = ranks[order[start:index]].mean()
+            start = index
+    return float((ranks[labels == 1].sum()
+                  - positive * (positive + 1) / 2) / (positive * negative))
+
+
+def _auprc(labels: np.ndarray, scores: np.ndarray) -> float:
+    """Average precision: the step-wise area under precision-recall.
+
+    THE STEP FORM, not the trapezoid. Interpolating between operating points
+    on a PR curve reports a precision no threshold achieves, which is the
+    number people quote and cannot reproduce.
+    """
+    positive = int(labels.sum())
+    if not positive:
+        return 0.0
+    order = np.argsort(-np.asarray(scores), kind="mergesort")
+    hits = labels[order].astype(float)
+    tp = np.cumsum(hits)
+    precision = tp / np.arange(1, len(hits) + 1)
+    return float((precision * hits).sum() / positive)
+
+
+def _ece(labels: np.ndarray, scores: np.ndarray, bins: int = 10) -> float:
+    """Expected calibration error: |confidence - accuracy| by bin, weighted.
+
+    Calibration decides whether a threshold means anything. A model at 0.9
+    that is right 60% of the time is not "90% confident"; it is wrong about
+    its own confidence, and every downstream cutoff inherits that.
+    """
+    edges = np.linspace(0.0, 1.0, int(bins) + 1)
+    total = 0.0
+    for low, high in zip(edges[:-1], edges[1:]):
+        inside = (scores > low) & (scores <= high) if low > 0 else (
+            (scores >= low) & (scores <= high))
+        if not inside.any():
+            continue
+        weight = inside.mean()
+        total += weight * abs(float(scores[inside].mean())
+                              - float(labels[inside].mean()))
+    return float(total)
+
+
+def score_classifier(labels: Sequence[int], scores: Sequence[float], *,
+                     threshold: float = 0.5,
+                     calibration_bins: int = 10) -> Dict[str, float]:
+    """Every classifier metric instruction 370 asks for, at a STATED threshold.
+
+    :param labels: ground truth, 0 or 1.
+    :param scores: predicted probability of the positive class.
+    :param threshold: where a score becomes a positive call. Reported back in
+        the result, because "precision 0.94" without it is not a claim
+        anybody can check or reproduce.
+
+    AUROC, AUPRC, Brier and ECE are threshold-FREE and are the numbers that
+    survive a reader disagreeing with the cutoff; everything else moves when
+    the threshold does. Both kinds are here, and the result says which is
+    which by carrying `threshold` beside them.
+    """
+    labels = np.asarray(labels).astype(int).ravel()
+    scores = np.asarray(scores, dtype=float).ravel()
+    if labels.shape != scores.shape:
+        raise ValueError(
+            f"{labels.size} labels against {scores.size} scores; a metric "
+            f"between them would be meaningless")
+    if labels.size == 0:
+        raise ValueError("no predictions to score")
+
+    called = (scores >= threshold).astype(int)
+    tp = int(((called == 1) & (labels == 1)).sum())
+    fp = int(((called == 1) & (labels == 0)).sum())
+    fn = int(((called == 0) & (labels == 1)).sum())
+    tn = int(((called == 0) & (labels == 0)).sum())
+
+    precision = _ratio(tp, tp + fp)
+    recall = _ratio(tp, tp + fn)                     # sensitivity
+    specificity = _ratio(tn, tn + fp)
+    negative_precision = _ratio(tn, tn + fn)
+    negative_recall = specificity
+
+    # MCC survives imbalance where accuracy and F1 do not: it is the only one
+    # of these that uses all four cells of the matrix symmetrically.
+    denominator = float((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+    mcc = ((tp * tn - fp * fn) / np.sqrt(denominator)) if denominator else 0.0
+
+    return {
+        "threshold": float(threshold),
+        "n": int(labels.size),
+        "n_positive": int(labels.sum()),
+        "prevalence": _ratio(int(labels.sum()), labels.size),
+        "true_positives": tp, "false_positives": fp,
+        "true_negatives": tn, "false_negatives": fn,
+        "accuracy": _ratio(tp + tn, labels.size),
+        # THE SECOND ONE BECAUSE SCREENS ARE UNBALANCED. With 98% negatives,
+        # calling everything negative scores 0.98 accuracy and 0.5 balanced.
+        "balanced_accuracy": (recall + specificity) / 2.0,
+        "precision": precision,
+        "recall": recall,
+        "specificity": specificity,
+        "f1": _ratio(2 * precision * recall, precision + recall),
+        "precision_negative": negative_precision,
+        "recall_negative": negative_recall,
+        "f1_macro": (
+            _ratio(2 * precision * recall, precision + recall)
+            + _ratio(2 * negative_precision * negative_recall,
+                     negative_precision + negative_recall)) / 2.0,
+        "mcc": float(mcc),
+        "auroc": _auroc(labels, scores),
+        "auprc": _auprc(labels, scores),
+        # Brier is the mean squared error of the probability itself, so it
+        # penalises a confident wrong answer more than a hesitant one.
+        "brier": float(np.mean((scores - labels) ** 2)),
+        "ece": _ece(labels, scores, calibration_bins),
+    }
+
+
+def compare_classifier_against_baseline(labels: Sequence[int],
+                                        finetuned: Sequence[float],
+                                        vanilla: Sequence[float],
+                                        **kwargs
+                                        ) -> Dict[str, Dict[str, float]]:
+    """Two classifiers on the same labels, and the difference.
+
+    The same shape as :func:`compare_against_baseline`, and for the same
+    reason: the delta is what the published table is for. `threshold` and
+    the counts are dropped from it -- a difference in `n` is not a result,
+    it is a sign the two were scored on different data, which this signature
+    makes impossible.
+    """
+    a = score_classifier(labels, finetuned, **kwargs)
+    b = score_classifier(labels, vanilla, **kwargs)
+    delta = {key: a[key] - b[key] for key in a}
+    for setting in ("threshold", "n", "n_positive", "prevalence"):
+        delta.pop(setting, None)
+    return {"finetuned": a, "vanilla": b, "delta": delta}

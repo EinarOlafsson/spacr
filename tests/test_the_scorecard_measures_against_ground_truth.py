@@ -214,3 +214,117 @@ def test_the_module_needs_no_torch():
     done = subprocess.run([sys.executable, "-c", code],
                           capture_output=True, text=True)
     assert done.returncode == 0, done.stderr[-2000:]
+
+
+# ---------------------------------------------------------------------------
+# Classifiers
+# ---------------------------------------------------------------------------
+
+
+def test_a_perfect_classifier_scores_one_and_a_useless_one_scores_chance():
+    perfect = scorecard.score_classifier([1, 1, 0, 0], [0.9, 0.8, 0.2, 0.1])
+    assert perfect["accuracy"] == 1.0
+    assert perfect["auroc"] == 1.0
+    assert perfect["auprc"] == 1.0
+    assert perfect["mcc"] == pytest.approx(1.0)
+
+    inverted = scorecard.score_classifier([1, 1, 0, 0], [0.1, 0.2, 0.8, 0.9])
+    assert inverted["auroc"] == 0.0
+    assert inverted["mcc"] == pytest.approx(-1.0)
+
+
+def test_a_constant_score_is_chance_not_an_artefact_of_sort_order():
+    """Ties are rank-averaged. Without that, a model that outputs one number
+    scores 1.0 or 0.0 depending on how the sort happened to break ties."""
+    labels = [1, 0, 1, 0, 1, 0]
+    assert scorecard.score_classifier(
+        labels, [0.5] * 6)["auroc"] == pytest.approx(0.5)
+
+
+def test_accuracy_flatters_an_unbalanced_screen_and_balanced_accuracy_does_not():
+    """The reason 370 asks for the second one. A screen IS unbalanced."""
+    labels = np.r_[np.ones(20, int), np.zeros(980, int)]
+    calls_everything_negative = np.zeros(1000)
+
+    scored = scorecard.score_classifier(labels, calls_everything_negative)
+    assert scored["accuracy"] == pytest.approx(0.98)
+    assert scored["balanced_accuracy"] == pytest.approx(0.5)
+    assert scored["recall"] == 0.0
+    assert scored["mcc"] == 0.0
+
+
+def test_auprc_is_the_one_that_notices_rare_positives():
+    """"AUPRC first when positives are rare, which in a screen they are."
+
+    A ranker that puts a few false positives above the true ones barely
+    dents AUROC and visibly dents AUPRC, which is the whole argument for
+    reporting it.
+    """
+    # TWENTY false positives ranked above ten true ones, out of 990
+    # negatives. AUROC loses only 20/990 of its pairs and stays near 0.98;
+    # AUPRC sees precision of 10/30 at the point that matters and collapses.
+    #
+    # The first version of this test put ~146 negatives above the positives
+    # by accident -- `np.linspace(0.95, 0, 990)` puts a seventh of them above
+    # 0.81 -- which dented AUROC too and proved nothing about the pair.
+    labels = np.r_[np.ones(10, int), np.zeros(990, int)]
+    scores = np.r_[np.full(10, 0.80),
+                   np.full(20, 0.90),
+                   np.linspace(0.70, 0.0, 970)]
+
+    scored = scorecard.score_classifier(labels, scores)
+    assert scored["auroc"] > 0.97, scored["auroc"]
+    assert scored["auprc"] < 0.6
+    assert scored["auprc"] < scored["auroc"]
+
+
+def test_brier_punishes_confident_wrongness_more_than_hesitant_wrongness():
+    confident = scorecard.score_classifier([1, 0], [0.0, 1.0])["brier"]
+    hesitant = scorecard.score_classifier([1, 0], [0.45, 0.55])["brier"]
+    assert confident > hesitant
+
+
+def test_ece_is_zero_for_a_calibrated_model_and_large_for_an_overconfident_one():
+    """Calibration decides whether a threshold means anything: a model at
+    0.9 that is right 60% of the time is wrong about its own confidence."""
+    rng = np.random.default_rng(11)
+    probabilities = rng.uniform(0.05, 0.95, 4000)
+    honest = (rng.uniform(size=4000) < probabilities).astype(int)
+    assert scorecard.score_classifier(honest, probabilities)["ece"] < 0.05
+
+    overconfident = np.full(4000, 0.95)
+    truth = (rng.uniform(size=4000) < 0.5).astype(int)
+    assert scorecard.score_classifier(truth, overconfident)["ece"] > 0.4
+
+
+def test_the_threshold_is_reported_because_the_numbers_move_with_it():
+    labels = [1, 1, 0, 0]
+    scores = [0.9, 0.6, 0.55, 0.1]
+    low = scorecard.score_classifier(labels, scores, threshold=0.5)
+    high = scorecard.score_classifier(labels, scores, threshold=0.7)
+
+    assert low["threshold"] == 0.5 and high["threshold"] == 0.7
+    assert low["recall"] > high["recall"]
+    # Threshold-free numbers must NOT move. That is what makes them the ones
+    # a reader who disagrees with the cutoff can still use.
+    assert low["auroc"] == high["auroc"]
+    assert low["auprc"] == high["auprc"]
+    assert low["brier"] == high["brier"]
+
+
+def test_the_classifier_comparison_drops_the_settings_from_its_delta():
+    labels = [1, 1, 0, 0, 1, 0]
+    good = [0.9, 0.8, 0.1, 0.2, 0.95, 0.05]
+    poor = [0.5, 0.4, 0.6, 0.55, 0.45, 0.5]
+
+    out = scorecard.compare_classifier_against_baseline(labels, good, poor)
+    assert out["delta"]["auroc"] > 0
+    for setting in ("threshold", "n", "n_positive", "prevalence"):
+        assert setting not in out["delta"], (
+            f"{setting} is a property of the DATA, not a score; a difference "
+            f"in it means the two were scored on different sets")
+
+
+def test_mismatched_lengths_are_refused():
+    with pytest.raises(ValueError, match="meaningless"):
+        scorecard.score_classifier([1, 0, 1], [0.5, 0.5])
