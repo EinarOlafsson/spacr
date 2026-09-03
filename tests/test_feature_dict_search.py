@@ -18,11 +18,13 @@ able to find a feature by saying what they mean.
 """
 from __future__ import annotations
 
+from dataclasses import fields
 import sqlite3
 from pathlib import Path
 
 import pytest
 
+from spacr import feature_dict as feature_dictionary
 from spacr.feature_dict import (
     CHANNEL_NONE,
     CHANNEL_PAIR,
@@ -41,6 +43,22 @@ from spacr.feature_dict import (
     scope_for,
     search_features,
 )
+
+
+@pytest.mark.parametrize(
+    "record",
+    (
+        feature_dictionary.Concept,
+        feature_dictionary.Coverage,
+        feature_dictionary.FeatureDoc,
+        feature_dictionary.SearchHit,
+    ),
+)
+def test_lookup_records_document_every_generated_constructor_field(record):
+    """Search results and their supporting records explain every value."""
+    documentation = record.__doc__ or ""
+    for item in fields(record):
+        assert f":ivar {item.name}:" in documentation
 
 REAL_COLUMNS_FILE = Path(__file__).parent / "data" / "real_measurement_columns.tsv"
 
