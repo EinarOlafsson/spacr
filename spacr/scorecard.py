@@ -48,6 +48,7 @@ label arrays into numbers; publishing them is 370's other half.
 
 from __future__ import annotations
 
+import pathlib
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -734,3 +735,143 @@ def scorecard_csv(rows: Sequence[Dict[str, object]]) -> str:
     writer.writeheader()
     writer.writerows(rows)
     return buffer.getvalue()
+
+
+# ---------------------------------------------------------------------------
+# The set itself: named, versioned, checksummed
+#
+# "What makes the table worth publishing is that every model is scored on the
+# SAME named, versioned, labelled set, and that the set is published beside
+# the models so the number can be checked by somebody else." -- 370.
+#
+# A manifest is what makes that checkable. Without one, "scored on the
+# hold-out set" is a claim about a folder on somebody's laptop.
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class HoldoutField:
+    """One labelled field: the image a model reads, and the truth it is
+    scored against.
+
+    :param image: path to the field, relative to the manifest.
+    :param truth: path to the label mask, relative to the manifest.
+    :param sha256: digest of the TRUTH mask, or ``""``.
+    """
+
+    image: str
+    truth: str
+    sha256: str = ""
+
+
+@dataclass(frozen=True)
+class HoldoutSet:
+    """A named, versioned set of labelled fields, as declared by a manifest.
+
+    :param name: stable name, e.g. ``toxo_pv_holdout``.
+    :param version: the version two numbers must share to be comparable.
+    :param fields: the labelled fields, in manifest order.
+    :param root: directory the relative paths resolve against.
+    """
+
+    name: str
+    version: str
+    fields: Tuple[HoldoutField, ...]
+    root: "pathlib.Path"
+
+    def path_to(self, relative: str) -> "pathlib.Path":
+        return self.root / relative
+
+
+def load_holdout(manifest_path) -> HoldoutSet:
+    """Read a hold-out manifest.
+
+    :raises ValueError: when the manifest lacks a name, a version or any
+        field. All three are refusals rather than defaults, and the version
+        most of all: a set that does not say which version it is cannot be
+        compared against anything, and a default would let one be published
+        as though it could.
+    """
+    import json
+    import pathlib
+
+    path = pathlib.Path(manifest_path)
+    data = json.loads(path.read_text(encoding="utf-8"))
+    name = str(data.get("name") or "").strip()
+    version = str(data.get("version") or "").strip()
+    if not name:
+        raise ValueError(f"{path} declares no name")
+    if not version:
+        raise ValueError(
+            f"{path} declares no version; a hold-out set that cannot say "
+            f"which version it is cannot be compared against anything")
+    raw_fields = data.get("fields") or []
+    if not raw_fields:
+        raise ValueError(f"{path} declares no fields")
+
+    fields = []
+    for entry in raw_fields:
+        image = str(entry.get("image") or "").strip()
+        truth = str(entry.get("truth") or "").strip()
+        if not image or not truth:
+            raise ValueError(
+                f"{path}: a field needs both an image and a truth mask; "
+                f"got {entry!r}")
+        fields.append(HoldoutField(image, truth,
+                                   str(entry.get("sha256") or "").strip()))
+    return HoldoutSet(name, version, tuple(fields), path.parent)
+
+
+def verify_holdout(holdout: HoldoutSet) -> List[str]:
+    """Check every truth mask is present and matches its digest.
+
+    :returns: one line per problem; empty when the set is intact.
+
+    A DIGEST IS OPTIONAL AND ITS ABSENCE IS REPORTED. A set published without
+    them can still be scored, and nobody can then tell whether two people
+    scored the same masks -- which is the entire point of naming and
+    versioning it. So "no digest" is a finding, not a pass.
+    """
+    import hashlib
+
+    problems: List[str] = []
+    for field in holdout.fields:
+        target = holdout.path_to(field.truth)
+        if not target.is_file():
+            problems.append(f"missing truth mask: {field.truth}")
+            continue
+        if not field.sha256:
+            problems.append(f"no digest published for {field.truth}")
+            continue
+        digest = hashlib.sha256(target.read_bytes()).hexdigest()
+        if digest != field.sha256:
+            problems.append(
+                f"{field.truth} does not match its digest "
+                f"(published {field.sha256[:12]}..., found {digest[:12]}...)")
+    return problems
+
+
+def score_model_on_holdout(holdout: HoldoutSet, predict, *,
+                           read_mask=None, **kwargs) -> HoldoutScore:
+    """Run ``predict`` over a hold-out set and score it against the truth.
+
+    :param predict: ``image path -> label array``. Injected rather than
+        imported: this module must keep importing without torch, and a
+        segmentation model is the one thing that cannot.
+    :param read_mask: ``path -> label array``. Defaults to tifffile, which
+        the package already depends on.
+
+    THE SET'S NAME AND VERSION TRAVEL WITH THE SCORE, so a published number
+    can never be read without knowing what it was measured on.
+    """
+    if read_mask is None:
+        def read_mask(path):                     # noqa: WPS440 - local default
+            import tifffile
+
+            return np.asarray(tifffile.imread(str(path)))
+
+    pairs = [(read_mask(holdout.path_to(f.truth)),
+              predict(holdout.path_to(f.image)))
+             for f in holdout.fields]
+    return score_holdout(pairs, name=holdout.name, version=holdout.version,
+                         **kwargs)
