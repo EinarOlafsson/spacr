@@ -272,3 +272,14 @@ meaning, SQLite metadata reads, exact row counts, and canonical plate
 discovery. The pass also deduplicated stored aliases after canonicalization,
 while retaining their original spellings separately for diagnosis. A focused
 database test and the completed-module registry pin both contracts.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``external_masks.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The final fourteen gaps now document serialization, preview properties and
+summaries, supported-file discovery, role inference, input coercion, canonical
+stems, mask pairing, atomic NumPy writes, and database-table discovery. The
+module already had direct focused behavior coverage for each path and is now
+in the completed-module registry so the documentation cannot regress.
