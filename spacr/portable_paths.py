@@ -138,11 +138,16 @@ class RerootReport:
     counts unresolved paths and includes an example so callers can explain the
     problem where re-rooting was attempted.
 
-    :ivar column: path-bearing table column examined by this pass.
-    :ivar moved: paths successfully resolved beneath the new root.
-    :ivar unresolved: dead paths that could not be placed on this machine.
-    :ivar first_unresolved: representative unresolved source path.
-    :ivar root: destination root searched for recorded suffixes.
+    :param column: DataFrame column inspected and, when at least one value
+        moves, rewritten in place.
+    :param moved: number of nonblank path values replaced by existing paths
+        discovered below a candidate root.
+    :param unresolved: number of nonblank string paths that remained missing
+        after re-rooting; existing, blank, and non-string values do not count.
+    :param first_unresolved: first unresolved source path encountered, or an
+        empty string when none remained.
+    :param root: first normalized candidate derived from ``src_root``, used in
+        report messages; it need not be the ancestor where a match was found.
     """
 
     column: str = ""

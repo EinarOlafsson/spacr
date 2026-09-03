@@ -62,11 +62,15 @@ class ClassDefinitionError(ValueError):
 class ClassRule:
     """One class: its name, and what makes an object a member.
 
-    :ivar name: class label assigned to objects selected by this rule.
-    :ivar column: source metadata or annotation column for an explicit rule.
-    :ivar value: value in ``column`` that selects this class.
-    :ivar random_complement: select an equally sized random sample from rows
-        not claimed by any explicit rule instead.
+    :param name: nonblank class label written to matched rows and retained as
+        the ordered training and folder name.
+    :param column: source-table column compared by an explicit rule; leave it
+        blank only for a random-complement rule.
+    :param value: exact value selected by equality in ``column`` for an
+        explicit rule.
+    :param random_complement: when true, sample unclaimed rows with
+        :func:`assign_classes`'s seed, up to the largest explicit class size;
+        it cannot be combined with ``column`` or ``value``.
 
     Either a ``column``/``value`` pair, or ``random_complement`` -- never
     both. A rule that says both would have two answers for the same object and

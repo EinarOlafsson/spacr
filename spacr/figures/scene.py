@@ -64,11 +64,18 @@ class SceneReport:
     the message, because "it fell back" without naming the artist is a report
     nobody can act on.
 
-    :ivar axes: matplotlib axes translated into the output scene.
-    :ivar items: plot and annotation items successfully carried across.
-    :ivar missing: unsupported artist kinds that make the translation partial.
-    :ivar data_colours: normalized data colours used for legibility checks.
-    :ivar notes: non-blocking translation details for the caller.
+    :param axes: number of matplotlib axes traversed and represented, including
+        colour-bar axes.
+    :param items: number of data, annotation, legend, and colour-bar items
+        successfully added to the scene.
+    :param missing: blocking capability or failure labels, including
+        unsupported artists, renderer unavailability, and runtime or exporter
+        failures; any entry makes ``complete`` false.
+    :param data_colours: deduplicated normalized data-mark colours retained for
+        the post-export contrast check; chrome, separators, and colour-map
+        ramps are excluded.
+    :param notes: human-readable diagnostic details accompanying failures or
+        fallback decisions; notes do not independently determine ``complete``.
     """
 
     axes: int = 0
