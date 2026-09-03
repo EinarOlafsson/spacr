@@ -2128,32 +2128,46 @@ class _DockRow(ElidingPushButton):
                      size.width(), size.height())
 
     def paintEvent(self, event):                # noqa: N802 - Qt naming
-        """Draw the QSS plate and the icon, and no text at all.
+        """Draw the icon, and nothing else at all.
 
-        `opt.text` and `opt.icon` are both cleared before the style runs,
-        so QStyleSheetStyle paints the background, the border and the
-        3 px accent bar that marks the selected row -- everything the
-        stylesheet in `theme.py` describes -- and then draws nothing
-        inside it. The icon follows, at its resting size.
+        NO BUTTON IS DRAWN, and that is a fix rather than a style. This
+        called `drawControl(CE_PushButton)` first, on the belief that
+        QStyleSheetStyle would paint the row's QSS background and border.
+        It never did -- a `paintEvent` that goes straight to `drawControl`
+        skips the pass a stylesheet's background is filled in -- so what
+        `CE_PushButton` actually rendered was a NATIVE button panel, filled
+        from the palette's Button role.
 
-        EXCEPT THE PLATE, which `_paint_plate` draws instead. See there:
-        QStyleSheetStyle does not paint a background for these rows at all,
-        and had not since the rows started painting themselves.
+        Measured 2026-09-03: that panel is the `#161719` rectangle behind
+        every icon, the "black box" reported three times, and it was
+        painted OVER the dock's own translucent slab. Removing the call
+        removes the box; the slab shows through, which is what was asked
+        for: "i just want the transparent dock holder with rounded edges,
+        the icons and when hovered the icons turn blue and you see the text
+        which is also blue. nothing else."
+
+        NO PLATE BEHIND THE ICON, and none is wanted. One was drawn here
+        between the morning and the afternoon of 2026-09-03 and removed the
+        same day: "the icon with text also has fields which appear whne
+        hovered, remove these, i just want the transparent dock holder with
+        rounded edges, the icons and when hovered the icons turn blue and
+        you see the text which is also blue. nothing else."
+
+        Which means the QSS `background` on `QPushButton#SidebarItem` does
+        not matter either -- and it never reached these rows anyway, because
+        `drawControl(CE_PushButton)` skips the pass QStyleSheetStyle fills a
+        widget's background in. The hover is the ink and the name below.
         """
-        opt = QStyleOptionButton()
-        self.initStyleOption(opt)
-        opt.text = ""
-        opt.icon = QIcon()
         painter = QStylePainter(self)
-        painter.drawControl(QStyle.ControlElement.CE_PushButton, opt)
-        self._paint_plate(painter)
         icon = self.icon()
         if icon.isNull():
             return
         mode = (QIcon.Mode.Normal if self.isEnabled()
                 else QIcon.Mode.Disabled)
         rect = self.icon_rect()
-        if self._hovered and self.isEnabled():
+        selected = (self.isChecked()
+                    or self.property("selected") in (True, "true"))
+        if (self._hovered or selected) and self.isEnabled():
             # WHITE TO BLUE, as a second ink rather than a second drawing.
             # 369: "the icon is re-inked per theme by `iconset` already ...
             # so 'white to blue on hover' is a second ink colour on the
@@ -2175,109 +2189,15 @@ class _DockRow(ElidingPushButton):
             else:
                 icon.paint(painter, rect, Qt.AlignmentFlag.AlignCenter,
                            mode, QIcon.State.Off)
-            self._paint_name(painter)
+            # THE NAME ONLY WHILE THE POINTER IS ON IT. The OPEN module is
+            # marked by its icon staying accent-coloured; drawing its name
+            # permanently would put a second label in the column the dock
+            # stopped drawing labels in.
+            if self._hovered:
+                self._paint_name(painter)
             return
         icon.paint(painter, rect, Qt.AlignmentFlag.AlignCenter,
                    mode, QIcon.State.Off)
-
-    #: Corner radius of the row's plate, in px, and the inset from the row
-    #: edge on each side. The inset is what makes the plate read as a box
-    #: rather than as a full-width band: without it the plates meet their
-    #: neighbours and the rounding has nothing to round against.
-    PLATE_RADIUS_PX = 10
-    PLATE_INSET_PX = 3
-
-    #: Plate alpha at rest and under the pointer. The ink is the theme's
-    #: `fg` -- near-white on the three dark themes, near-black on light --
-    #: so ONE pair of numbers lifts the plate off every backdrop the dock
-    #: can sit on, including the ambient animation, instead of each theme
-    #: needing its own plate colour.
-    #:
-    #: `surface_hi` was tried first, at 0.55 and 0.90, and is what the QSS
-    #: rule still names. It is 5 units off the dock fill on dark: measured,
-    #: the plate came out (27, 28, 31) against a (22, 23, 25) dock and the
-    #: whole hover step was 3 more units. A box you cannot see is not the
-    #: box that was asked for.
-    PLATE_ALPHA = 0.10
-    PLATE_ALPHA_HOVER = 0.20
-
-    #: The plate's hairline edge, at the same ink. A fill alone reads as a
-    #: patch of slightly different background; the stroke is what makes the
-    #: ROUNDED CORNERS visible, and rounded edges are half of what was
-    #: asked for. Kept fainter than the fill so the box is an edge rather
-    #: than an outline.
-    PLATE_EDGE_ALPHA = 0.16
-    PLATE_EDGE_ALPHA_HOVER = 0.34
-
-    #: The open module's plate, in the ACCENT rather than in `fg`, because
-    #: the row's icon and name are already drawn in the accent when it is
-    #: selected and a neutral plate under blue ink reads as a hover that
-    #: got stuck.
-    PLATE_ALPHA_SELECTED = 0.20
-
-    def _paint_plate(self, painter) -> None:
-        """Draw the row's translucent rounded plate.
-
-        PAINTED HERE RATHER THAN LEFT TO THE STYLESHEET, and not by choice.
-        `theme.py` carries a `QPushButton#SidebarItem` rule with a
-        background, a radius and a `:hover` arm, and NONE of it reaches
-        these rows: measured 2026-09-03, a plain `QPushButton` with the same
-        object name renders the rule's background and a `_DockRow` renders
-        the dock's own fill, because a `paintEvent` that goes straight to
-        `drawControl(CE_PushButton)` skips the pass in which
-        QStyleSheetStyle fills a widget's background. So the dock has had NO
-        per-row plate since 348 gave the rows their own painting -- which is
-        precisely the "black box behind the icons" reported on 2026-09-03:
-        with no plate, every icon sits directly on the flat dark dock, and
-        the QSS hover highlight never appeared either.
-
-        The colours come from the LIVE palette, not from literals and not
-        from the QSS text, so a theme change moves the plate without a
-        rebuild -- the same rule `_accent` follows.
-        """
-        from PySide6.QtGui import QColor, QPainterPath
-        from PySide6.QtCore import QRectF
-        from .theme import active_palette
-
-        palette = active_palette()
-        selected = self.isChecked() or self.property("selected") in (True,
-                                                                     "true")
-        if selected:
-            colour, alpha = palette["accent"], self.PLATE_ALPHA_SELECTED
-        elif self._hovered and self.isEnabled():
-            colour, alpha = palette["fg"], self.PLATE_ALPHA_HOVER
-        else:
-            colour, alpha = palette["fg"], self.PLATE_ALPHA
-        hot = selected or (self._hovered and self.isEnabled())
-        fill = QColor(colour)
-        fill.setAlphaF(alpha)
-        edge = QColor(colour)
-        edge.setAlphaF(self.PLATE_EDGE_ALPHA_HOVER if hot
-                       else self.PLATE_EDGE_ALPHA)
-        inset = self.PLATE_INSET_PX
-        # HALF A PIXEL IN from the fill's box. A 1 px stroke straddles the
-        # path, so a path on the integer edge puts half the line outside the
-        # widget where it is clipped away and the corner loses its curve.
-        box = QRectF(self.rect()).adjusted(inset + 0.5, inset + 0.5,
-                                           -inset - 0.5, -inset - 0.5)
-        path = QPainterPath()
-        path.addRoundedRect(box, self.PLATE_RADIUS_PX, self.PLATE_RADIUS_PX)
-        painter.save()
-        painter.setRenderHint(painter.RenderHint.Antialiasing, True)
-        painter.setPen(Qt.PenStyle.NoPen)
-        painter.fillPath(path, fill)
-        painter.setPen(edge)
-        painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.drawPath(path)
-        painter.setPen(Qt.PenStyle.NoPen)
-        if selected:
-            # THE ACCENT BAR that marks the open module, clipped to the
-            # plate so it follows the rounding instead of squaring off the
-            # left edge the plate just rounded.
-            painter.setClipPath(path)
-            painter.fillRect(int(box.left()), int(box.top()), 3,
-                             int(box.height()), QColor(palette["accent"]))
-        painter.restore()
 
     def _accent(self) -> str:
         """The theme's accent, resolved at paint time.
@@ -2426,10 +2346,20 @@ class Sidebar(QWidget):
         self._scroll.setWidget(inner)
         outer.addWidget(self._scroll, 1)
 
-        #: Whether the pointer is anywhere in the dock. Drives the slab's
-        #: brightness in `paintEvent`; the ROWS track their own hover
-        #: separately, because the two highlight different things.
-        self._pointer_inside = False
+        # NOTHING BETWEEN THE SLAB AND THE EYE PAINTS A BOX. `paintEvent`
+        # draws the dock as a rounded translucent plate; a solid rectangle
+        # painted by anything inside it is the "black box behind it"
+        # reported on 2026-09-03. Measured at `#161719` -- the palette's
+        # Window role, filled by these containers because a
+        # `background-color: transparent` in the stylesheet does not stop a
+        # widget filling from its palette.
+        #
+        # `make_transparent` does stop it, and it takes the scroll area's
+        # viewport with it -- the widget that actually paints, and the
+        # obvious one to forget.
+        from .theme import make_transparent
+        make_transparent(self, self._scroll, inner)
+
         self._items: list[ElidingPushButton] = []
         self._section_headers: dict[str, QLabel] = {}
 
@@ -2565,21 +2495,23 @@ class Sidebar(QWidget):
     PLATE_RADIUS_PX = 14
     PLATE_INSET_PX = 6
 
-    #: Plate alpha at rest and while the pointer is anywhere in the dock,
-    #: over the theme's `fg`. Same ink and the same reason as `_DockRow`:
-    #: near-white on the three dark themes, near-black on light, so one pair
-    #: of numbers lifts the slab off every backdrop -- including the ambient
-    #: animation, which still shows through it.
+    #: The slab's fill and edge, over the theme's `fg`: near-white on the
+    #: three dark themes, near-black on light, so one pair of numbers lifts
+    #: it off every backdrop -- including the ambient animation, which still
+    #: shows through it.
+    #:
+    #: ONE STATE, NO HOVER. The slab brightened while the pointer was in the
+    #: dock for a few hours on 2026-09-03 and the maintainer asked for it
+    #: gone with everything else: "i just want the transparent dock holder
+    #: with rounded edges, the icons and when hovered the icons turn blue and
+    #: you see the text which is also blue. nothing else."
+    #:
+    #: It also cost a repaint of the WHOLE dock on every Enter and Leave,
+    #: and a Leave arrives each time the pointer crosses from the column's
+    #: own surface onto one of its rows. That is a flicker source, and the
+    #: dock has now been reported flickering three times.
     PLATE_ALPHA = 0.07
-    PLATE_ALPHA_HOVER = 0.12
     PLATE_EDGE_ALPHA = 0.14
-    PLATE_EDGE_ALPHA_HOVER = 0.24
-
-    def enterEvent(self, event):                # noqa: N802 - Qt naming
-        """The pointer came into the dock: brighten the slab."""
-        self._pointer_inside = True
-        self.update()
-        super().enterEvent(event)
 
     def plate_rect(self):
         """The slab's rectangle, inset from the column. For tests."""
@@ -2599,21 +2531,19 @@ class Sidebar(QWidget):
         it means the alpha is real and whatever is behind the dock, including
         the ambient animation, shows through.
 
-        The rows draw their own plates on top of this one. They are the same
-        ink at higher alpha, so a hovered row reads as part of the slab
-        getting brighter rather than as a second, unrelated box.
+        THE ROWS DRAW NOTHING BEHIND THEIR ICONS. This slab is the only box
+        in the dock, which is what was asked for; a row's hover is its icon
+        and its name turning blue, and that is all.
         """
         from PySide6.QtGui import QColor, QPainter, QPainterPath
         from .preferences import scaled_px
         from .theme import active_palette
 
         palette = active_palette()
-        hot = bool(getattr(self, "_pointer_inside", False))
         fill = QColor(palette["fg"])
-        fill.setAlphaF(self.PLATE_ALPHA_HOVER if hot else self.PLATE_ALPHA)
+        fill.setAlphaF(self.PLATE_ALPHA)
         edge = QColor(palette["fg"])
-        edge.setAlphaF(self.PLATE_EDGE_ALPHA_HOVER if hot
-                       else self.PLATE_EDGE_ALPHA)
+        edge.setAlphaF(self.PLATE_EDGE_ALPHA)
         box = self.plate_rect().adjusted(0.5, 0.5, -0.5, -0.5)
         radius = scaled_px(self.PLATE_RADIUS_PX)
         path = QPainterPath()
@@ -2697,8 +2627,6 @@ class Sidebar(QWidget):
         touched -- an empty loop when the pointer left from a header or the
         empty stretch.
         """
-        self._pointer_inside = False
-        self.update()
         for row in self._items:
             if getattr(row, "_hovered", False):
                 row._hovered = False
@@ -2934,6 +2862,16 @@ class Sidebar(QWidget):
         """
         from .preferences import scaled_px
         size = self.resting_icon_px(row)
+        if not isinstance(row, _DockRow):
+            # A ROW THIS DOCK DID NOT BUILD. `_items` is a plain list and
+            # `_rest_every_icon` walks all of it, so a plain
+            # `ElidingPushButton` appended by a caller reaches here and has
+            # no `set_row_height` -- it is not a dock row and has no fixed
+            # height to pin. Size its icon and leave the rest alone rather
+            # than raising out of a theme or font-scale refresh.
+            if row.iconSize().width() != size:
+                row.setIconSize(QSize(size, size))
+            return
         if row.iconSize().width() != size:
             # GUARDED, like the height below: `setIconSize` drops the
             # cached size hint and repaints even when the size is the one

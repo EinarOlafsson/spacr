@@ -552,19 +552,43 @@ def test_sidebar_has_one_row_per_app_plus_home_in_apps_order(
     keys = [b.property("navKey") for b in bar.findChildren(QPushButton)
             if not b.property("isFoldChild")]
     assert keys == ["__home__"] + [k for k, *_r in dock_rows()]
-    # Each row announces itself to a screen reader with name + description
-    by_key = {b.property("navKey"): b for b in bar.findChildren(QPushButton)
-              if not b.property("isFoldChild")}
+    # EVERY APP HAS A ROW SOMEWHERE, top level or nested. Since 2026-09-03
+    # the dock's top level is Home's tiles and nothing else, so eight
+    # modules that used to appear twice -- `train_compare`, `profiler`,
+    # `investigate_hit`, `convert`, `external_masks`, `lineage`,
+    # `layer_viewer`, `tabulate` -- are now ONLY a child row. Looking them
+    # up in the top-level map raised `KeyError`, which reads as "the app
+    # lost its row" when the app has exactly one row for the first time.
+    by_key = {b.property("navKey"): b
+              for b in bar.findChildren(QPushButton)}
+    # Each row announces itself to a screen reader with name + description.
     for key, name, desc, _s in APPS:
-        btn = by_key[key]
-        assert btn.accessibleName() == name
-        assert btn.accessibleDescription() == desc
-        assert btn.toolTip() == f"{name} — {desc}"
+        btn = by_key.get(key)
+        assert btn is not None, f"{key} has no row in the dock at all"
+        child = bool(btn.property("isFoldChild"))
+        # A CHILD ROW IS INDENTED, in its label and so in its accessible
+        # name: three leading spaces were how 330 marked a folded module and
+        # they outlived the labels being drawn.
+        assert btn.accessibleName().strip() == name
+        if child:
+            # Its description comes from the fold catalogue rather than the
+            # registry row, so it is checked for being SAID rather than for
+            # being the same string.
+            assert btn.accessibleDescription().strip(), (
+                f"the child row for {key} describes itself to nobody")
+        else:
+            assert btn.accessibleDescription() == desc
+        # AND NO TOOLTIP. The module popup came off on 2026-09-03 ("remove
+        # the popup window tooltip on the moduals"); the sentence is in the
+        # accessible description above and in the hint strip at the foot of
+        # the page, with its API and Tutorial links.
+        assert btn.toolTip() == "", "the module popup is back"
         # "&&" is how Qt is told to DRAW an ampersand: a lone "&" is a
         # mnemonic, and "Align & Stitch" was rendering as "Align _Stitch"
-        # in this column. The accessible name and the tooltip above
-        # carry the real string.
-        assert btn.full_text() == f"  {name}".replace("&", "&&")
+        # in this column. The accessible name above carries the real
+        # string.
+        if not child:
+            assert btn.full_text() == f"  {name}".replace("&", "&&")
 
 
 def test_sidebar_emits_the_key_of_the_row_that_was_clicked(
@@ -710,7 +734,11 @@ def test_sidebar_caps_its_width_and_elides_a_pathological_name(
     clipped = bar.clipped_items()
     assert [b.full_text().strip() for b in clipped] == [huge]
     assert clipped[0].text() != huge and "…" in clipped[0].text()
-    assert huge in clipped[0].toolTip()
+    # THE FULL NAME IS IN THE ACCESSIBLE NAME, not in a tooltip. The row's
+    # popup came off on 2026-09-03, so what carries a name too long to draw
+    # is the text a screen reader reads -- and it is the same string, not a
+    # truncation of it.
+    assert clipped[0].accessibleName().strip() == huge
 
 
 def test_the_sidebar_re_inks_its_icons_when_the_theme_changes(

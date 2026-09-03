@@ -57,12 +57,23 @@ def dock(request, qtbot, qt_theme_applied, monkeypatch):
     win.hide()
 
 
-def _render(dock, name):
-    """The dock painted over its own page colour, as the window shows it."""
-    page = QColor(theme_module.palette_for(name)["bg"])
+def _render(dock, name, background=None):
+    """The dock painted over its page colour, WITHOUT the window fill.
+
+    `QWidget.render` defaults to `DrawWindowBackground | DrawChildren`, and
+    the window fill comes from the PALETTE whatever `paintEvent` does -- so a
+    plain render reports the palette's Window colour for a widget that paints
+    a translucent slab, which is the very thing this file exists to tell
+    apart. Dropping the flag leaves only what the dock and its children draw.
+    """
+    from PySide6.QtCore import QPoint
+    from PySide6.QtGui import QRegion
+    from PySide6.QtWidgets import QWidget
+
+    page = QColor(background or theme_module.palette_for(name)["bg"])
     shot = QPixmap(dock.size())
     shot.fill(page)
-    dock.render(shot)
+    dock.render(shot, QPoint(), QRegion(), QWidget.RenderFlag.DrawChildren)
     return shot.toImage()
 
 
@@ -100,26 +111,87 @@ def test_the_slab_has_corners_the_page_shows_through(dock):
     assert Sidebar.PLATE_RADIUS_PX > 0
 
 
-def test_the_slab_highlights_while_the_pointer_is_in_the_dock(dock):
-    """"the translucent box should also highlight upon hover"."""
+def test_the_slab_does_not_react_to_the_pointer(dock, qapp):
+    """ONE STATE. It brightened while the pointer was in the dock for a few
+    hours on 2026-09-03 and was asked for gone with everything else: "i just
+    want the transparent dock holder with rounded edges, the icons and when
+    hovered the icons turn blue and you see the text which is also blue.
+    nothing else."
+
+    It also cost a repaint of the WHOLE dock on every Enter and Leave, and a
+    Leave arrives each time the pointer crosses from the column's own surface
+    onto one of its rows -- see
+    `test_the_dock_does_not_relayout_on_hover.py`, which counts them.
+    """
+    from PySide6.QtCore import QEvent
+
     name = dock.theme_name
     box = dock.plate_rect()
     point = (int(box.center().x()), int(box.top()) + 30)
+    before = _render(dock, name).pixelColor(*point)
 
-    dock._pointer_inside = False
-    rest = _render(dock, name).pixelColor(*point)
-    dock._pointer_inside = True
-    hot = _render(dock, name).pixelColor(*point)
-    dock._pointer_inside = False
+    qapp.sendEvent(dock, QEvent(QEvent.Type.Enter))
+    assert _render(dock, name).pixelColor(*point).name() == before.name(), (
+        "the slab changed when the pointer entered the dock")
+    qapp.sendEvent(dock, QEvent(QEvent.Type.Leave))
+    assert _render(dock, name).pixelColor(*point).name() == before.name()
+    assert not hasattr(Sidebar, "PLATE_ALPHA_HOVER"), (
+        "the slab has a hover state again")
 
-    assert _step(hot, rest) >= 4, (
-        f"the slab does not brighten on hover: {rest.name()} -> {hot.name()}")
+
+def test_nothing_is_painted_over_the_slab(dock):
+    """The slab is the ONLY box in the dock.
+
+    THE DEFECT THIS PINS was reported three times and measured on
+    2026-09-03: every row ran `drawControl(CE_PushButton)` first, on the
+    belief that QStyleSheetStyle would paint its QSS background. It never
+    did -- a `paintEvent` that goes straight to `drawControl` skips the pass
+    a stylesheet's background is filled in -- so what was rendered was a
+    NATIVE button panel from the palette's Button role: an opaque `#161719`
+    rectangle behind every icon, drawn OVER the translucent slab.
+
+    Checked by forcing the slab to a colour nothing else uses and asking
+    whether it survives to the middle of a row. Sampling for "not the page
+    colour" would have passed all along -- the button panel is not the page
+    colour either.
+    """
+    from PySide6.QtGui import QColor, QPixmap
+
+    name = dock.theme_name
+    row = next(r for r in dock._items
+               if str(r.property("navKey")) == "mask")
+    page = QColor(theme_module.palette_for(name)["bg"])
+
+    original = Sidebar.PLATE_ALPHA
+    marker = "#ff00ff"
+    patched = dict(theme_module.palette_for(name))
+    patched["fg"] = marker
+    real = theme_module.active_palette
+    theme_module.active_palette = lambda: patched
+    Sidebar.PLATE_ALPHA = 1.0
+    try:
+        image = _render(dock, name, page.name())
+        # To the right of the icon, well inside the row and inside the slab.
+        top_left = row.mapTo(dock, row.rect().topLeft())
+        x = top_left.x() + row.width() - 30
+        y = top_left.y() + row.height() // 2
+        seen = image.pixelColor(x, y)
+    finally:
+        Sidebar.PLATE_ALPHA = original
+        theme_module.active_palette = real
+
+    assert seen.name().lower() == marker, (
+        f"something paints {seen.name()} over the slab in the middle of a "
+        f"row -- the slab was forced to {marker}")
 
 
-def test_leaving_the_dock_puts_the_slab_back(dock, qapp):
-    """A slab left bright is a dock that looks hovered when nothing is."""
+def test_leaving_the_dock_leaves_no_row_looking_hovered(dock, qapp):
+    """The one thing `leaveEvent` still does."""
     from PySide6.QtCore import QEvent
 
-    dock._pointer_inside = True
+    for row in dock._items[:3]:
+        row._hovered = True
     qapp.sendEvent(dock, QEvent(QEvent.Type.Leave))
-    assert dock._pointer_inside is False
+    still_hot = [str(r.property("navKey")) for r in dock._items
+                 if getattr(r, "_hovered", False)]
+    assert not still_hot, f"these rows still look hovered: {still_hot}"
