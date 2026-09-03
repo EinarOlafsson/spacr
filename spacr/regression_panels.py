@@ -85,7 +85,21 @@ LOPIT_COLOURS = {
 
 @dataclass(frozen=True)
 class PanelNarrative:
-    """Text placed below a panel in its PDF deliverable."""
+    """Text placed below a panel in its PDF deliverable.
+
+    Parameters
+    ----------
+    legend : str
+        Panel-specific opening of the legend. The writer appends the shared
+        palette and statistical-threshold explanations.
+    purpose : str
+        Scientific question or comparison the panel was designed to address.
+    shows : str
+        Direct visual result a reader should be able to find in the panel.
+    implications : str
+        Interpretation supported by the displayed data, kept distinct from
+        the observation in ``shows``.
+    """
 
     legend: str
     purpose: str
@@ -95,7 +109,35 @@ class PanelNarrative:
 
 @dataclass(frozen=True)
 class PanelStyle:
-    """Visual settings shared by all manuscript panels."""
+    """Visual settings shared by all manuscript panels.
+
+    Parameters
+    ----------
+    point_size : float
+        Scatter-marker area in squared typographic points; must be positive.
+    point_alpha : float
+        Marker and box opacity in the interval ``(0, 1]``.
+    line_width : float
+        Width in points for threshold lines, spines, ticks, and box outlines.
+    line_color : str
+        Matplotlib-compatible color for those lines and outlines.
+    figure_width : float
+        Width in inches shared by raster, vector, and PDF deliverables.
+    plot_height : float
+        Height in inches of the standalone PNG and SVG plot canvas.
+    pdf_height : float
+        Height in inches of the PDF page containing plot and narrative text.
+    png_dpi : int
+        Raster resolution in dots per inch used for the PNG deliverable.
+    axes_left : float
+        Left edge of the plotting axes in normalized figure coordinates.
+    axes_width : float
+        Width of the plotting axes as a fraction of the figure width.
+    pdf_axes_bottom : float
+        Bottom edge of the PDF plotting axes in normalized figure coordinates.
+    pdf_axes_height : float
+        Height of the PDF plotting axes as a fraction of the page height.
+    """
 
     point_size: float = 104.0
     point_alpha: float = 0.60
