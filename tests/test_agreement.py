@@ -139,6 +139,7 @@ def test_cohens_kappa_matches_the_hand_computed_value():
     assert detail.expected_agreement == pytest.approx(0.50)
     assert detail.kappa == pytest.approx(0.400)
     assert cohens_kappa(a, b) == pytest.approx(0.400)
+    assert ":ivar interpretation:" in (type(detail).__doc__ or "")
     assert detail.interpretation == "fair"      # Landis & Koch: 0.21-0.40
     assert detail.defined is True
 
@@ -600,7 +601,10 @@ def test_report_on_two_annotators_uses_cohens_kappa(two_annotator_db):
     pair = report.pair("bob", "alice")           # order-insensitive lookup
     assert pair is not None and pair.kappa == pytest.approx(0.400)
     assert report.pair("alice", "nobody") is None
+    assert ":ivar convention:" in (type(report).__doc__ or "")
+    assert ":ivar warnings:" in (type(report).__doc__ or "")
     assert report.convention == CONVENTION
+    assert isinstance(report.warnings, list)
 
 
 def test_report_per_class_kappa_equals_the_overall_for_a_binary_problem(
