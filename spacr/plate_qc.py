@@ -199,10 +199,12 @@ def _finite(value: Any) -> Optional[float]:
 
 
 def _median(values: np.ndarray) -> Optional[float]:
+    """Return the finite median, or ``None`` when unavailable."""
     return _finite(np.median(values)) if values.size else None
 
 
 def _mean(values: np.ndarray) -> Optional[float]:
+    """Return the finite mean, or ``None`` when unavailable."""
     return _finite(np.mean(values)) if values.size else None
 
 
@@ -582,6 +584,7 @@ def _prc_parts(series: pd.Series) -> Optional[pd.DataFrame]:
 
 
 def _first_column(df: pd.DataFrame, names: Sequence[str]) -> Optional[str]:
+    """Return the first candidate column present in ``df``, or ``None``."""
     for name in names:
         if name in df.columns:
             return name
@@ -669,6 +672,7 @@ def _is_layout(df: pd.DataFrame) -> bool:
 
 
 def _empty_layout() -> pd.DataFrame:
+    """Create an empty typed plate layout with independent default metadata."""
     frame = pd.DataFrame({
         "plateID": pd.Series(dtype=object),
         "well": pd.Series(dtype=object),
@@ -1549,6 +1553,7 @@ def _fmt_pct(value: Optional[float]) -> str:
 
 
 def _fmt_p(value: Optional[float]) -> str:
+    """Format a p-value compactly, including undefined and sub-floor values."""
     if value is None:
         return "undefined"
     if value < 1e-4:

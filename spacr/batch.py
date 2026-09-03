@@ -242,6 +242,7 @@ class Problem:
         return self.severity == ERROR
 
     def __str__(self) -> str:
+        """Render the problem message followed by its corrective action."""
         where = f'{self.job_id}: ' if self.job_id else ''
         key = f'[{self.setting}] ' if self.setting else ''
         return f'{where}{key}{self.message}\n    fix: {self.fix}'
@@ -489,9 +490,11 @@ class Queue:
     # -- container ---------------------------------------------------------
 
     def __len__(self) -> int:
+        """Return the number of jobs currently in the queue."""
         return len(self.jobs)
 
     def __iter__(self):
+        """Iterate over the jobs in queue order."""
         return iter(self.jobs)
 
     @property

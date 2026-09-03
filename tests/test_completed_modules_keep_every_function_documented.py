@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 FULLY_DOCUMENTED = (
     "spacr/attribution_columns.py",
+    "spacr/batch.py",
     "spacr/annotation.py",
     "spacr/cli_download.py",
     "spacr/cli_plugins.py",
@@ -45,10 +46,12 @@ FULLY_DOCUMENTED = (
     "spacr/localisation.py",
     "spacr/mask_io.py",
     "spacr/measure_hooks.py",
+    "spacr/merge_tables.py",
     "spacr/normalization.py",
     "spacr/notebook_export.py",
     "spacr/organelle_types.py",
     "spacr/picture_settings.py",
+    "spacr/plate_qc.py",
     "spacr/plot.py",
     "spacr/portable_paths.py",
     "spacr/predictions.py",
@@ -65,6 +68,7 @@ FULLY_DOCUMENTED = (
     "spacr/thresholds.py",
     "spacr/timelapse.py",
     "spacr/trial_metrics.py",
+    "spacr/uniprot.py",
     "spacr/well_scope.py",
     "spacr/well_spec.py",
     "spacr/workspace.py",
