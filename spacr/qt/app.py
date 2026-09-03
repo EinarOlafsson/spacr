@@ -2424,9 +2424,15 @@ class Sidebar(QWidget):
             # still applies inside an open one -- the two are separate
             # reasons for a row not to be there.
             if btn.property("isFoldChild"):
-                # A folded key has no APPS row, so `app_is_visible` cannot
-                # answer for it; its host's maturity already gated it.
-                btn.setVisible(not bool(btn.property("sectionClosed")))
+                # ITS OWN MATURITY WHEN IT HAS ONE. 26 of the 35 folded keys
+                # have no APPS row and `app_is_visible` answers True for
+                # them, so their host's maturity is what gated them and that
+                # is unchanged. The other NINE are registered apps as well --
+                # `convert` and `lineage` are alpha -- and hiding alpha left
+                # them showing under an open host, which is the preference
+                # being honoured on one surface and not the other.
+                btn.setVisible(app_is_visible(key)
+                               and not bool(btn.property("sectionClosed")))
                 continue
             visible = app_is_visible(key) and not bool(
                 btn.property("sectionClosed"))

@@ -141,8 +141,25 @@ def test_sidebar_refreshes_without_rebuilding_or_leaving_empty_headers(
         if not sidebar.section_is_open(section):
             sidebar.toggle_section(section)
 
+    # A THIRD REASON, since folded modules were nested under their hosts: a
+    # child row is hidden until its host is opened, and `expand_host` opens
+    # ONE host at a time on purpose -- 33 children at once would make the
+    # dock taller than the screen. So they cannot all be revealed here, and
+    # a child's visibility is not the maturity filter's answer anyway.
     for key, button in buttons.items():
-        assert button.isHidden() == (app_stage(key) != "stable")
+        if button.property("isFoldChild"):
+            continue
+        assert button.isHidden() == (app_stage(key) != "stable"), key
+
+    # The children are still covered, one host at a time: opening a host
+    # reveals the stable ones and the filter still hides the rest.
+    for host in {str(b.property("foldParent")) for b in buttons.values()
+                 if b.property("isFoldChild")}:
+        sidebar.expand_host(host)
+        for key, button in buttons.items():
+            if str(button.property("foldParent") or "") != host:
+                continue
+            assert button.isHidden() == (app_stage(key) != "stable"), key
     headers = {
         label.text(): label
         for label in sidebar.findChildren(QLabel)
