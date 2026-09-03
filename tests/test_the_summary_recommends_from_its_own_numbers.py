@@ -12,7 +12,20 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from spacr.regression_summary import build_run_summary, format_run_summary
+from spacr.regression_summary import (
+    RunSummary,
+    build_run_summary,
+    format_run_summary,
+)
+
+
+def test_run_summary_documents_and_retains_recommendations():
+    """The public advice field remains both discoverable and functional."""
+    advice = [object()]
+    summary = RunSummary(recommendations=advice)
+
+    assert ":param recommendations:" in (RunSummary.__doc__ or "")
+    assert summary.recommendations is advice
 
 
 @pytest.fixture(scope="module")

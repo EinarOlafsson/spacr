@@ -510,6 +510,8 @@ class Macro:
     :param macro_id: twelve hex characters, the same shape as a run id.
     :param steps: the recorded steps, in the order they ran.
     :param created_utc: when the chain started.
+    :param touched: wall-clock timestamp of the most recent step, used to
+        decide when an idle chain must be closed.
     """
 
     macro_id: str = field(default_factory=lambda: uuid.uuid4().hex[:12])
