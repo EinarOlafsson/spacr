@@ -53,9 +53,21 @@ def test_queue_is_bounded_drop_oldest_and_reports_sampling():
     assert collector.sampled is False
 
 
-def test_queue_size_must_be_positive():
-    with pytest.raises(ValueError, match="greater than zero"):
-        Collector(_graph(), max_queue_size=0)
+@pytest.mark.parametrize(
+    "value", [0, -1, float("nan"), float("inf"), 1.5, True, "2"],
+)
+def test_queue_size_must_be_a_positive_integer(value):
+    with pytest.raises(ValueError, match="positive integer"):
+        Collector(_graph(), max_queue_size=value)
+
+
+@pytest.mark.parametrize(
+    "value", [float("nan"), float("inf"), 1.5, True, "2"],
+)
+def test_drain_limit_must_be_an_integer_or_none(value):
+    collector = Collector(_graph())
+    with pytest.raises(ValueError, match="integer or None"):
+        collector.drain(value)
 
 
 def test_every_event_folds_and_snapshots_do_not_share_mappings():
@@ -109,6 +121,124 @@ def test_every_event_folds_and_snapshots_do_not_share_mappings():
     fresh = collector.snapshot().nodes["stage"]
     assert fresh.metrics["objects"] == 42
     assert fresh.params["added"] == "yes"
+
+
+def test_nodes_are_recursively_detached_at_every_ownership_boundary():
+    initial = Node(
+        "initial", "Initial", NodeKind.INPUT,
+        params={"nested": {"values": [1]}},
+    )
+    collector = Collector(_graph([initial]))
+    initial.params["nested"]["values"].append(2)
+    assert collector.snapshot().nodes["initial"].params == {
+        "nested": {"values": [1]},
+    }
+
+    added = Node(
+        "added", "Added", NodeKind.PROCESS,
+        params={"nested": {"values": [3]}},
+    )
+    assert collector.fold(NodeAdded(added)) is True
+    added.params["nested"]["values"].append(4)
+    assert collector.snapshot().nodes["added"].params == {
+        "nested": {"values": [3]},
+    }
+
+    started = Node(
+        "started", "Started", NodeKind.PROCESS,
+        params={"nested": {"values": [6]}},
+    )
+    assert collector.fold(StageStarted(started, 2.0)) is True
+    started.params["nested"]["values"].append(7)
+    assert collector.snapshot().nodes["started"].params == {
+        "nested": {"values": [6]},
+    }
+
+    snapshot = collector.snapshot()
+    snapshot.nodes["added"].params["nested"]["values"].append(5)
+    assert collector.snapshot().nodes["added"].params == {
+        "nested": {"values": [3]},
+    }
+
+
+def test_node_events_are_detached_when_the_producer_queues_them():
+    collector = Collector(_graph())
+    added = Node(
+        "added", "Added", NodeKind.INPUT,
+        params={"nested": {"values": [1]}},
+    )
+    collector.emit(NodeAdded(added))
+    added.params["nested"]["values"].append(2)
+    collector.drain()
+    assert collector.snapshot().nodes["added"].params == {
+        "nested": {"values": [1]},
+    }
+
+    started = Node(
+        "started", "Started", NodeKind.PROCESS,
+        params={"nested": {"values": [3]}},
+    )
+    collector.emit(StageStarted(started, 2.0))
+    started.params["nested"]["values"].append(4)
+    collector.drain()
+    assert collector.snapshot().nodes["started"].params == {
+        "nested": {"values": [3]},
+    }
+
+
+def test_concurrent_drains_preserve_queue_order_when_lock_acquisition_overtakes(
+        monkeypatch):
+    class OvertakingStateLock:
+        def __init__(self):
+            self._real = threading.RLock()
+            self.first_arrived = threading.Event()
+            self.release_first = threading.Event()
+
+        def __enter__(self):
+            if threading.current_thread().name == "flowview-consumer-1":
+                self.first_arrived.set()
+                assert self.release_first.wait(timeout=2.0)
+            self._real.acquire()
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            self._real.release()
+
+    node = Node("stage", "Stage", NodeKind.PROCESS)
+    collector = Collector(_graph([node]))
+    gate = OvertakingStateLock()
+    monkeypatch.setattr(collector, "_state_lock", gate)
+    collector.emit(StageStarted(node, 2.0))
+
+    results = []
+    first = threading.Thread(
+        target=lambda: results.append(collector.drain(1)),
+        name="flowview-consumer-1",
+    )
+    first.start()
+    second = None
+    try:
+        assert gate.first_arrived.wait(timeout=2.0)
+        collector.emit(StageCompleted("stage", 3.0))
+        second = threading.Thread(
+            target=lambda: results.append(collector.drain(1)),
+            name="flowview-consumer-2",
+        )
+        second.start()
+        second.join(timeout=2.0)
+        assert not second.is_alive()
+    finally:
+        gate.release_first.set()
+        first.join(timeout=2.0)
+        if second is not None:
+            second.join(timeout=2.0)
+
+    assert not first.is_alive()
+    assert sorted(results) == [1, 1]
+    final = collector.snapshot().nodes["stage"]
+    assert final.state is NodeState.DONE
+    assert final.started_at == 2.0
+    assert final.ended_at == 3.0
 
 
 def test_out_of_order_updates_are_ignored_but_start_can_declare_a_node():
