@@ -157,3 +157,71 @@ HOW IT WILL BE CHECKED
 * A model with no scorecard says so, in all four surfaces.
 * The zoo still imports, browses and renders with neither torch nor cellpose
   installed.
+
+--------------------------------------------------------------------------------
+2026-09-03: THE MEASUREMENT EXISTS NOW. `spacr/scorecard.py`, WITH TESTS.
+--------------------------------------------------------------------------------
+
+This file's own crux -- "THE THING THAT DOES NOT EXIST IS ACCURACY" -- is
+answered for the segmentation half. `spacr/scorecard.py` scores a label mask
+against ground truth and returns every metric the request names:
+
+    Dice, per-object and pixel-wise      the two are reported separately
+                                         because they answer different
+                                         questions and are routinely confused
+    IoU, matrix and mean of matched
+    AP at IoU 0.5 .. 0.9 in 0.05         the Cellpose/StarDist convention,
+                                         and the docstring says outright that
+                                         this is TP/(TP+FP+FN) and not the
+                                         area under a PR curve, because
+                                         reporting the other thing under the
+                                         same name is how two papers stop
+                                         being comparable
+    precision, recall, F1 at a STATED IoU
+    boundary F1 / precision / recall at 1, 2 and 3 px
+    split and merge counts
+    object-count error, signed
+    per-object area error, signed and absolute
+    n_truth and n_pred in every result
+
+`compare_against_baseline(truth, finetuned, vanilla)` returns both scorecards
+AND the delta, because a reader given two columns of numbers will do that
+subtraction by eye and get it wrong somewhere.
+
+THREE DECISIONS WORTH KEEPING:
+
+  * MATCHING IS OPTIMAL, NOT GREEDY (`linear_sum_assignment`). A greedy pass
+    down the IoU matrix takes the first pair it sees when one prediction
+    overlaps two truths, so the score depends on label ORDER -- an
+    implementation detail of whoever wrote the mask. There is a test that
+    relabels both masks and asserts the score does not move.
+  * EMPTY RESULTS ARE 0.0, NEVER NaN. These numbers go into a published
+    table and a tooltip, and one NaN in a column is enough for a reader to
+    distrust the column.
+  * NO TORCH, asserted in a subprocess. The zoo imports without torch on
+    purpose; reading a scorecard must not be what drags in a GPU stack, since
+    the reader is browsing a list.
+
+14 tests, every one built on a case whose answer is known by construction --
+a perfect copy, a diagonal offset with the arithmetic written out, one object
+split in two, two merged into one, a 3 px ragged edge. A metrics module is
+the easiest kind of code to get confidently wrong: every function returns a
+plausible number for any input.
+
+  TWO OF THOSE TESTS WERE WRONG ON THE FIRST RUN AND THE CODE WAS RIGHT. The
+  IoU case asserted a 20x30 intersection for squares offset diagonally, and
+  the "ragged edge" nibbled one pixel, which is INSIDE the 1 px tolerance by
+  construction and so scored a perfect boundary F1. Both are recorded in the
+  test docstrings, because both are the mistake a reader would make next.
+
+STILL TO DO, and none of it is blocked any more:
+  1. THE CLASSIFIER HALF -- accuracy, balanced accuracy, per-class and macro
+     P/R/F1, AUROC, AUPRC, MCC, confusion matrix, Brier, ECE, and the
+     threshold stated rather than implied. `spacr` already computes Brier and
+     calibration somewhere in the classifier-quality modules; find them
+     before rewriting them.
+  2. THE HELD-OUT SET, which this file calls the real crux: a named,
+     versioned, labelled set published beside the models, so a number is
+     comparable between two models, two versions and two days.
+  3. THE FOUR RENDERINGS -- CSV on Hugging Face, tooltip, API section, zoo
+     screen -- from the one CSV.
