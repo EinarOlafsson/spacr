@@ -148,3 +148,223 @@ HOW IT WILL BE CHECKED
   applied on the way in rather than retrofitted.
 * The sbs and merge halves are specified from READING brieflow's source and
   the paper, with what they do recorded here, before either is written.
+
+--------------------------------------------------------------------------------
+PART 0b -- THE MEASUREMENT PART 0 ASKED FOR: ALL EIGHT RUN, AND THE MODULE IS AT
+           100% COVERAGE. THE "NO TEST AND NO USER" PREMISE IS HALF WRONG.
+--------------------------------------------------------------------------------
+Measured 2026-09-02 on branch `nightly`, commit 59c975533.
+
+  PART 0 IS RIGHT THAT NOTHING REACHES `spacrops.py` FROM THE GUI OR THE CLI.
+  IT IS WRONG THAT IT HAS HAD NO TEST. It has 419 of them, and they hold the
+  file at 100.00% statement AND branch coverage. "No user" is true; "no test"
+  is not, and that shrinks 372 considerably.
+
+  spacr/spacrops.py    2099 stmts   0 miss   844 branch   0 partial   100.00%
+  419 passed, 15 warnings in 69.19s
+
+reproduced with:
+
+  QT_QPA_PLATFORM=offscreen python tools/run_memory_guarded.py --limit-gib 60 -- \
+    python -m pytest -p no:randomly -q --cov=spacr.spacrops --cov-report=term-missing \
+    tests/test_spacrops_pipelines.py tests/test_spacrops_stitch_and_mosaic.py \
+    tests/test_spacrops_store_and_features.py tests/test_spacrops_edge_paths.py \
+    tests/test_spacrops_settings_are_honoured.py tests/test_cov_13_spacrops.py \
+    tests/test_coverage_fill_spacrops.py tests/test_cov_r4_spacrops.py \
+    tests/test_cov_r8_spacrops_downsample_pins.py tests/test_cov_r8_spacrops_mosaic_root.py \
+    tests/test_cov_wf_spacrops.py tests/test_timelapse_and_spacrops.py \
+    tests/test_cellpose4_spacrops_submodules.py
+
+The tests are not import-smoke or mock theatre. `tests/spacrops_synth.py` builds
+every tile as *a crop of one canvas at a known offset*, so the recovered
+translation is compared against a ground truth rather than "an array came back"
+-- e.g. `tests/test_spacrops_pipelines.py:710`
+`assert float(rows[0]["tx"]) == pytest.approx(180, abs=1.5)`.
+
+  72  tests/test_spacrops_pipelines.py          multialigner, FOV cropper, the
+                                                settings factory, stitch_cycle_wells,
+                                                align_image_to_stitch, ops_preprocess
+  74  tests/test_spacrops_stitch_and_mosaic.py  spacrStitcher, run_folder, mosaics
+ 108  tests/test_spacrops_store_and_features.py _DiskFeatureStore, feature prep
+  46  tests/test_spacrops_edge_paths.py         readers, manifest builder edges
+   4  tests/test_spacrops_settings_are_honoured.py
+  15  tests/test_cov_13_spacrops.py
+  17  tests/test_coverage_fill_spacrops.py
+  20  tests/test_cov_r4_spacrops.py
+   5  tests/test_cov_r8_spacrops_downsample_pins.py
+   8  tests/test_cov_r8_spacrops_mosaic_root.py
+  12  tests/test_cov_wf_spacrops.py
+  22  tests/test_timelapse_and_spacrops.py
+  16  tests/test_cellpose4_spacrops_submodules.py
+
+`tests/test_spacrops_pipelines.py` first appears in commit edfd7e775
+(2026-07-26, "coverage wave 1: fourteen modules, and the bugs the tests found"),
+and `spacr/spacrops.py` has been touched since by at least 15 commits including
+`15b95a766 fix(spacrops): honour cap_one_per_dir; stop laundering qc_outlines`.
+So it is unreachable code, not abandoned code. Somebody has been maintaining it.
+
+VERDICT PER ENTRY POINT
+-----------------------
+Checked twice: (a) by the suite above, and (b) by an independent probe run
+outside pytest that constructs each object with its DEFAULT arguments and feeds
+it synthetic tiles built by `tests/spacrops_synth.py`. Both agree. Probe results
+verbatim:
+
+  1. ops_preprocess(settings)              RUNS.
+        `ops_preprocess({"phenotype_source": …, "genotype_source": …})` with
+        nothing else set returns
+            stitch_n=1 align={} npy_out_root_exists=True
+        -- it completes, but the align half is EMPTY on defaults. See ROT #1.
+        With `mosaic=True` it aligns and writes .npy crops
+        (tests/test_spacrops_pipelines.py:779).
+
+  2. get_preprocess_ops_settings(settings)  RUNS.
+        `get_preprocess_ops_settings({})` returns 62 keys, not ~40 as Part 0
+        estimates -- correct that number in PART 3. Of those 62, five settings
+        the module reads are NOT among them (see ROT #1) and two are read by
+        nothing at all (see ROT #3).
+
+  3. stitch_cycle_wells(settings)          RUNS.
+        Minimal settings (`src`, `dst_root`) on three overlapping 320px tiles:
+            wells=['A1'] mosaic_cyx=None mosaic_tif=None mosaic_csv=None
+            pairwise_csv_exists=True
+        i.e. it organises the plate and writes the pairwise CSV, and on DEFAULTS
+        writes no mosaic at all. See ROT #1.
+
+  4. align_image_to_stitch(...)            RUNS.
+        Against a `stitch_cycle_wells`-shaped `<root>/<WELL>/stitch/P1_A1_mosaic_allc.tif`:
+            wells=['A1'] manifest_rows=1
+        recovering tx/ty within ~1.5 px of ground truth. But it silently dropped
+        one of the two input files -- see ROT #2.
+
+  5. spacrStitcher                         RUNS.
+        Default construction; `stitch_pair` on two tiles cropped 150 px apart:
+            score=0.6092 dx_px_full=149.85 dy_px_full=0.00 inlier_ratio=0.685
+        (ground truth dx=+150, dy=0). Sub-pixel. ORB/RANSAC is healthy.
+
+  6. StitchedMultiAligner                  RUNS.
+        Default construction; `align([ref, mov], nuclei_channel_indices=[0,0])`
+        on planes cropped (130,160) vs (100,100):
+            stack=(2, 400, 400)  rows tx=59.89 ty=30.02
+        (ground truth dx=60, dy=30). Sub-pixel.
+
+  7. FOVAlignAndCropper                    RUNS.
+        Default construction; `run(stitched_path=…, folder=…)` on a 700px
+        2-channel mosaic and one 256px FOV:
+            rows=1 tx=170.11 ty=149.92 npy=(3, 256, 256)
+        (ground truth tx=170, ty=150). Sub-pixel; the .npy is FOV channel +
+        2 mosaic channels warped into the FOV frame, as documented.
+        NOTE for the GUI: with a 200px FOV instead of 256px the same call
+        returned `rows=0` and printed nothing -- fewer than 4 matched
+        keypoints hits a bare `continue` at spacr/spacrops.py:3526-3527. A silent
+        skip is the wrong behaviour behind a button; the fold needs a
+        "0 of N FOVs aligned" report.
+
+  8. _DiskFeatureStore                     RUNS.
+        `put`/`get` round-trips through an .npz on disk and the RAM LRU:
+            keys=['H','Hds','W','Wds','desc','ds8','pts'] miss=None npz_on_disk=1
+        `put` requires the full 7-key schema produced by
+        `_compute_features_one` (spacr/spacrops.py:694); a partial dict raises
+        `KeyError: 'ds8'` at spacr/spacrops.py:99. Internal contract, but an
+        undocumented one.
+
+NOTHING WAS UNTESTABLE. There is no "untested" row on this list.
+
+THE ROT, WITH LINE NUMBERS
+--------------------------
+ROT #1 -- THE TWO SWITCHES THAT MATTER ARE NOT IN THE SETTINGS FACTORY.
+  `stitch_cycle_wells` reads them with a `False` fallback:
+      spacr/spacrops.py:3178   stitch=settings.get("stitch", False),
+      spacr/spacrops.py:3181   mosaic=settings.get("mosaic", False),
+  but `get_preprocess_ops_settings` never `setdefault`s either one. Five keys
+  are read and not defaulted: `stitch` (3178), `mosaic` (3181), and
+  `plate` / `plate_id` / `experiment` (all spacr/spacrops.py:2931).
+
+  CONSEQUENCE FOR PART 3, and it is the single most important finding here:
+  A SETTINGS PANEL BUILT FROM `get_preprocess_ops_settings` WOULD NOT OFFER
+  `mosaic`, SO THE BUTTON'S DEFAULT RUN PRODUCES NO MOSAIC, AND
+  `align_image_to_stitch` THEN FINDS NO MOSAICS AND RETURNS `{}` -- WITH NO
+  ERROR. That is the `align={}` in probe result 1. The pipeline "succeeds"
+  and produces nothing. Fix the factory before building the panel.
+
+  There is a second joke in the same place: the ONE reference to spacrops
+  under `spacr/qt/` --
+      spacr/qt/screens/setting_api_targets.py:511
+          'plate': ('spacr.spacrops', 'stitch_cycle_wells', True)
+  -- documents `plate`, which is one of the five keys the settings factory
+  does not know about.
+
+ROT #2 -- THREE COPIES OF `meta_regex`, TWO OF THEM A REVISION BEHIND.
+      spacr/spacrops.py:3261  #settings.setdefault("meta_regex", …)   <- the commented-out one Part 0 spotted
+      spacr/spacrops.py:3262   settings.setdefault("meta_regex", …)   <- LIVE, has `(?:_[0-9]+)?`
+      spacr/spacrops.py:2917   settings.get("meta_regex", <OLD>)      <- DEAD: the factory ran at :2903, so the key always exists
+      spacr/spacrops.py:3627   align_image_to_stitch(meta_regex=<OLD>) <- LIVE default of a public function
+  The live version differs from the other three by `(?:_[0-9]+)?` before the
+  extension, which is exactly what `stitch_cycle_wells`' own default
+  `collision="rename"` policy produces:
+      spacr/spacrops.py:2998   cand = f"{base}_{k:03d}{ext}"
+  Verified:
+      10X_c1_A1_Site-2.tif        live=True   stale=True
+      10X_c1_A1_Site-2_001.tif    live=True   stale=False
+  And verified end to end: `align_image_to_stitch(root, src)` with two files
+  in `src`, one of them named `…_Site-2_001.tif`, linked and aligned ONE:
+      wells=['A1'] manifest_rows=1 linked=['20X_c1_A1_Site-1.tif']
+  `ops_preprocess` is safe because it passes the live regex explicitly at
+  spacr/spacrops.py:3871. Any DIRECT caller of `align_image_to_stitch` -- which
+  is what a GUI fold would be if it wires the two halves separately -- silently
+  drops collision-renamed files. Delete :3261 and :2917 and make :3627 read the
+  factory.
+
+ROT #3 -- TWO SETTINGS THAT NOTHING READS.
+      spacr/spacrops.py:3306   settings.setdefault("max_qc_plots_total", 1000)
+      spacr/spacrops.py:3307   settings.setdefault("plot_only_above_threshold", True)
+  Each appears exactly once in the whole 3,891-line file: on its own
+  `setdefault` line. There is no reader. Under the 364 standard these must not
+  get a tooltip and a category on the way in -- they must be deleted, or given
+  the reader their names promise.
+
+  A further eight defaulted keys are inert for the `stitch_cycle_wells` path
+  specifically, because that function computes its own local value and never
+  consults the setting: `blend`, `preview_downsample`, `tmp_dir`, `out_tif`,
+  `out_png`, `mosaic_out`, `mosaic_csv_out`, `feature_cache_dir`. They are real
+  parameters of `spacrStitcher.build_multichannel_mosaic_from_manifest`
+  (spacr/spacrops.py:1490) and `run_folder` (:1241), so they are not dead code
+  -- but a GUI panel that offers them under the OPS button would offer eight
+  knobs that do nothing. Decide per key: plumb it or drop it from the panel.
+
+ROT #4 -- cosmetic, but it confirms nobody has read this path in a while.
+      spacr/spacrops.py:1462   print(f"[run_folder] mosaic_out: {mosaic_out}, skipping masaic tif, …")
+      spacr/spacrops.py:1463   #    mosaic_out = os.path.join(self.outdir, "mosaic_full.tif")
+  A typo'd message and, right under it, the commented-out assignment that would
+  have made the message unnecessary.
+
+THE HOST IS RUNNING A DIFFERENT STITCHER
+----------------------------------------
+PART 3 says the fold goes on Align and Stitch. Worth knowing before designing it:
+`spacr/qt/screens/align.py` (815 lines) imports `from ... import align as align_mod`
+at spacr/qt/screens/align.py:51 and does not import `spacr.spacrops` at all. The
+Align screen's engine is `spacr/align.py` -- another 2,608 lines, with its own
+`Tile`, `PairResult`, `Placement`, `AlignPlan`, `CanvasSpec`, `AlignResult`. So
+the repository has TWO independent stitchers, and an OPS fold on Align would put
+a second engine behind the same host: the screen's plan-before-write contract
+(headers and overlap strips only, canvas RAM stated before the write button
+enables) is implemented in `spacr/align.py` and `spacrops.py` has no equivalent.
+Either the fold gets its own settings-panel path that bypasses the plan view, or
+`spacrStitcher` needs a plan step. That choice is not yet made and it is the
+biggest design question in 372.
+
+`spacr-run` confirms the other half of Part 0: `spacr.cli.MODULES` holds 29
+modules and the only stitching-related key is `align`. There is no `ops`.
+
+HOW BIG IS 372 NOW
+------------------
+Front half (PART 3, the button): SMALLER THAN FILED. The engine works, is at
+100% coverage, and recovers known transforms to sub-pixel accuracy. The work is
+a registry row, a settings panel, a maturity stage, an API page and a
+`spacr-run ops` name -- plus the four rot fixes above, which are perhaps 30
+lines and must land BEFORE the panel is generated from the factory, because
+ROT #1 makes the default run silently produce nothing.
+
+Back half (PARTS 1 and 2, sbs and merge): unchanged. Nothing measured here
+touches spot detection, base calling, barcode assembly, library mapping or
+read-to-cell assignment. None of it exists. That is still the work.
