@@ -305,6 +305,7 @@ class SegmentationQCFailed(RuntimeError):
     """
 
     def __init__(self, message: str, summary: Optional[Dict[str, Any]] = None):
+        """Initialize the message and copy its structured QC summary."""
         super().__init__(message)
         self.summary = dict(summary or {})
 
@@ -346,6 +347,7 @@ class FieldQC:
         return self.severity == "fail"
 
     def __str__(self) -> str:
+        """Return one line naming the field, count, severity, and flags."""
         flags = ", ".join(self.flags) if self.flags else "clean"
         return f"{self.field}: {self.n_objects} objects [{self.severity}] {flags}"
 
@@ -1265,6 +1267,7 @@ class FlagGuidance:
     illumination: bool = False
 
     def __str__(self) -> str:
+        """Return the flag identifier and its short explanatory headline."""
         return f"{self.flag}: {self.headline}"
 
     def text(self) -> str:
@@ -1551,6 +1554,7 @@ class FieldAddress:
         return bool(self.well)
 
     def __str__(self) -> str:
+        """Return ``plate/well`` when known, otherwise the plate name."""
         return f"{self.plate}/{self.well}" if self.well else self.plate
 
 
@@ -1679,6 +1683,7 @@ class Finding:
     illumination: bool = False
 
     def __str__(self) -> str:
+        """Return the severity-tagged finding headline."""
         return f"[{self.severity}] {self.headline}"
 
     def text(self) -> str:
@@ -2025,6 +2030,7 @@ class Scorecard:
         return str(self.summary.get("verdict", "empty"))
 
     def __str__(self) -> str:
+        """Return object type and verdict, marking a stale card out of date."""
         stale = " (out of date)" if self.stale else ""
         return f"{self.object_type}: {self.verdict}{stale}"
 
@@ -2092,6 +2098,7 @@ class QCDigest:
         }))
 
     def __str__(self) -> str:
+        """Return the overall verdict followed by its actionable headline."""
         return f"{self.verdict}: {self.headline}"
 
 

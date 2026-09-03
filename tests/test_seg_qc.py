@@ -816,6 +816,17 @@ def test_a_failing_plate_raises_and_carries_its_summary(tmp_path, monkeypatch):
     assert "seg_qc='report'" in str(excinfo.value), "say how to run anyway"
 
 
+def test_a_qc_failure_owns_a_snapshot_of_its_summary():
+    """Later mutation by a reporting caller cannot rewrite the exception."""
+    from spacr.seg_qc import SegmentationQCFailed
+
+    summary = {"verdict": "fail", "message": "8 of 10 fields failed"}
+    failure = SegmentationQCFailed("gate failed", summary)
+    summary["verdict"] = "ok"
+
+    assert failure.summary["verdict"] == "fail"
+
+
 def test_the_gate_never_fires_on_a_warning(tmp_path, monkeypatch):
     """Halting on an unsure verdict is how a gate gets switched off."""
     import spacr.seg_qc as sq
