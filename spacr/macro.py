@@ -667,6 +667,11 @@ class Recording:
 
     :ivar module: application key of the pipeline being recorded.
     :ivar settings: copied launch settings captured before pipeline mutation.
+    :ivar run_dir: run-journal folder associated with the pipeline invocation.
+    :ivar started: wall-clock timestamp used for elapsed-time calculation.
+    :ivar started_utc: UTC timestamp written into the reproducibility record.
+    :ivar capture: temporary log handler collecting run ids opened by the
+        recorded invocation.
     """
 
     module: str
