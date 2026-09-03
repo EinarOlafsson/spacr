@@ -2,7 +2,10 @@
 A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
 ================================================================================
 
-Status:    not started, filed 2026-09-02.
+Status:    the sweep is written, green and running in three locales at two
+           font scales; four defects found and fixed. Filed 2026-09-02,
+           last measured 2026-09-03. What remains is coverage -- more
+           screens, more locales, and the dialogs -- not the method.
 Requested: 2026-09-02, verbatim -- "do a sweep of the entire package and make
            user that all tesxt fits within its button, box or container, and
            is not cut off at all." Reported alongside a concrete instance:
@@ -627,3 +630,177 @@ scale no user has; every number in this file, tonight's included, is the default
 scale. A row that wraps to two lines at 1.0 wraps to four at 1.5, and the
 container check -- "assert the CONTAINER still fits too" -- has never been run
 there. That is where this sweep should go next.
+
+--------------------------------------------------------------------------------
+2026-09-03: THE FONT SCALE, RUN AT LAST — AND IT FOUND THE TWO THINGS EVERY
+            LOCALE PASS HAD MISSED. THE SWEEP IS NOW 51 GREEN AT 100 % AND 200 %.
+--------------------------------------------------------------------------------
+
+THE SCALE TESTED IS `FONT_SCALE_MAX`, 2.00 — the largest the preferences
+slider offers — alongside the 1.00 default, which is what this file's own HOW
+IT WILL BE CHECKED section asked for. Named rather than hard-coded, so the
+sweep follows the slider if its range ever moves.
+
+Applied the way the application applies it, which is the part that decides
+whether the measurement describes anything a user can reach. The preference is
+ONE number with TWO consumers: `theme.stylesheet(font_scale=...)` sets every
+FONT SIZE from it, and `preferences.scaled_px` scales every WIDGET SIZE set
+from Python by it. `apply_preferences_to_app` writes the preference and then
+rebuilds the sheet from it; the `at_font_scale` fixture does exactly that pair.
+Set only the sheet and the glyphs grow while the boxes do not, and the sweep
+"finds" clipping in every control the package sizes correctly. Set only the
+preference and it finds none. THE SCALE ALSO HAS TO BE IN PLACE BEFORE THE
+SCREEN IS BUILT, because `scaled_px` is read at construction.
+
+WHY NOT 1.5 AS WELL. Measured, before choosing: at 150 % the whole package
+showed ONE clipped caption, and it was the same 40 px box that loses 22 px at
+200 %. Everything 1.5 can find, 2.0 finds further out, so the two ends are the
+measurement and a middle point is a third of the runtime for nothing.
+
+    caged, 1200x850, 8 screens x 3 locales      1.0   1.5   2.0
+    ------------------------------------------------------------
+    before                                        0     1    ~5 per screen
+    after                                         0     -     0
+
+FINDING 1 — `UsageBar`, AND IT IS CAUSE 3 IN ITS PUREST FORM: A FIXED SIZE
+THAT ONLY HOLDS AT ONE FONT SCALE. `spacr/qt/widgets/usage_bar.py` set
+
+    self._label.setFixedWidth(48)      # the caption column: RAM / GPU / VRAM
+    self._pct.setFixedWidth(40)        # the percent readout
+
+so at 200 % the glyphs doubled and the boxes did not. Measured:
+
+    'VRAM'   66 px of text in 48 px of column
+    'RAM'    52                48
+    '100%'   62                40          (and 46 px at 150 %)
+
+This is the System card on EVERY module screen in EVERY locale, which is why
+it read as five separate offenders per screen rather than as one widget — and
+why it was invisible to a sweep that only ever varied the language. Both
+widths now take the LARGER of `scaled_px(base)` and the widest string the
+control can ever hold, re-measured on a font change and on show. The floor
+keeps the four bars aligned; the metrics keep the text whole. `scaled_px`
+alone would have been enough for the scale, and its own docstring says so —
+"any control tuned to match a text width goes wrong at large font scales" —
+but a scale is not the only way a glyph gets wider, and the readout is sized
+to "100%" rather than to the live number, which also makes the width
+deterministic instead of a function of current RAM.
+
+FINDING 2 — `ApiHelpLabel`, AND IT IS THE WATCH SECTION'S OWN WARNING LANDING
+EXACTLY WHERE IT SAID IT WOULD. With the meters fixed, one caption was left:
+
+    power / is / 2.0   QLabel 'Tölfræðilegt afl / hönnun'   577 px, needs 683
+
+THE MODULE TITLE, cut mid-word. The masthead needed 1274 px and had 1168, and
+every one of those 106 px came off the TITLE while the blurb beside it sat at
+its full width — a module name losing its ending next to a sentence that has a
+hover copy of itself and is documented as the thing that should give way.
+
+THE MASTHEAD ALREADY SAID SO AND QT WAS NOT LISTENING. It builds the blurb
+with `setSizePolicy(QSizePolicy.Maximum, ...)` and `setMinimumWidth(0)` and
+its docstring says the label "may shrink below its ideal width rather than
+force the window wider". Neither call achieves it: `qSmartMinSize` takes a
+shrinkable widget's minimum from `minimumSizeHint()`, which for a
+`wordWrap(False)` QLabel is the width of the WHOLE sentence, and it only lets
+an explicit `minimumWidth` override that when the value is GREATER THAN ZERO.
+Zero is the one value that does nothing. So the single control on the masthead
+that can lose text harmlessly was the single control that refused to give up
+any width at all.
+
+`ApiHelpLabel.minimumSizeHint` now asks for ONE WORD PLUS THE ELLIPSIS,
+measured in its own font so it tracks the scale without being told, and never
+more than the sentence itself. AND THE SECOND CONSEQUENCE IS LARGER THAN THE
+FIRST — this label was the floor under every module screen's width:
+
+                     screen minimumSizeHint().width()
+                          before      after
+    power / en / 1.0        1198        408
+    power / de / 1.0        1196        424
+    power / is / 1.0        1199        449
+    power / en / 2.0        1193        591
+    power / de / 2.0        1195        702
+    power / is / 2.0        1306        859
+
+The masthead's own minimum went from 1166 px to 285 in English at 100 %. A
+module page could not be shown under about 1200 px, in any locale, at the
+DEFAULT scale, and the reason was one blurb's size hint. That is the same
+defect the action row had — a control whose minimum overrules the window — in
+the one place nobody had looked, and it was reachable at 100 % all along; the
+font scale is only what made it clip loudly enough to be seen.
+
+THE CONTAINER CHECK, WHICH THIS FILE HAS ASKED FOR SINCE THE DAY IT WAS FILED,
+IS NOW HOW THE SWEEP IS BUILT rather than an extra assertion. Every screen goes
+into a `QStackedWidget` with an explicit 1x1 minimum — `screen_in_a_container`
+— because a top-level widget answers "does this fit?" BY GROWING: `QLayout::
+activate` raises a window's minimum to its layout's total minimum, so Measure
+in English at 200 % came up 1529 px wide when asked for 1200 and reported
+nothing clipped. A page in a `QStackedWidget` gets whatever the window has, its
+own minimum included, and a squeezed caption is then a caption `_fits` reports.
+
+AND THE ACTION ROW HOLDS AT 200 %, measured the same way, on Measure in a
+1000 px page that will not grow:
+
+                    100 %                        200 %
+    en   0 clipped, 2 lines, 322 px column   0 clipped, 4 lines, 322 px
+    de   0 clipped, 2 lines, 322 px          0 clipped, 4 lines, 299 px
+    is   0 clipped, 2 lines, 322 px          0 clipped, 4 lines, 322 px
+
+The strip answers a doubled font the way it answers a long translation: two
+more lines rather than a shrunken caption. The screen is still the 1000 px it
+was given (its minimum is 660–761 px at 200 %), and the settings column keeps
+its quarter. THE HEIGHT IS THE PRICE, paid by the console, which is the pane on
+that screen that can afford it.
+
+VERIFIED BOTH WAYS, because this item has four wrong headlines on its record
+and a new axis that cannot fail would be the fifth.
+`test_the_scale_axis_can_actually_fail` is the pre-fix `UsageBar` column
+exactly — a 48 px box holding "VRAM" — and it asserts that the SAME widget
+fits at 1.0 and is reported at 2.0. A green run at 200 % is therefore evidence
+that the boxes moved with the glyphs, not evidence that nothing was looked at.
+
+GREEN: `test_the_text_fits_sweep.py` 51 passed (8 screens x 3 locales x 2
+scales, `KNOWN_OFFENDERS` still EMPTY, plus the two teeth tests);
+`test_the_action_row_wraps_instead_of_squeezing.py` 23 passed (was 13; the
+container assertions are parametrised by scale now). Also green:
+`test_cov_r8_api_help_label.py`, `test_screen_headers.py`,
+`test_no_information_dots.py`, `test_widgets.py`, `test_app_screen.py`,
+`test_no_caption_is_clipped.py`, `test_cov_r4_app_screen.py`,
+`test_chaining_gui.py`, `test_preferences_gear.py`,
+`test_preferences_gear_visible.py`, `test_activity_spinner.py`,
+`test_polish.py`, `test_prerun.py`, `test_preview_registry.py`,
+`test_category_tooltips.py`, `test_cov_5_button_roles.py`,
+`test_gui_run_and_console.py`, `test_the_dock_behaves_like_a_dock.py`,
+`test_cellpose_workbench.py`, `test_cov_r5_train_cellpose.py`,
+`test_the_make_masks_segmentation_workbench.py`, `test_home_variants.py`,
+`test_zoom_reaches_text.py` — 148, 311, 349, 268 and 157 passed in five
+batches.
+
+SEVEN FAILURES SEEN AND NOT MINE, each reproduced with `usage_bar.py` and
+`api_help_label.py` restored from HEAD and everything else identical:
+`test_cov_app_screen.py::TestRuntimePanels::test_propagate_live_settings_writes_into_the_panel`
+(already on this file's own not-mine list), five in `test_cov_qt_app.py` about
+`_ICON_OVERRIDES` and the app sections, and
+`test_settings_search.py::test_a_narrowing_search_opens_the_sections_it_kept`.
+
+AND A LEAK CHECK, because the scale is persisted state and `conftest` has a
+long note about what that costs: the sweep, the action-row file and the two
+files conftest names as previous victims of a leaked 1.5 —
+`test_settings_search.py` and `test_zoom_reaches_text.py` — were run TOGETHER
+IN ONE PROCESS, and nothing moved. `at_font_scale` restores the 100 % sheet on
+the way out and `conftest._restore_font_scale` puts the preference back.
+
+WHAT IS LEFT IN 350, and it is narrower than what it replaces:
+
+  * THE SWEEP IS EIGHT SCREENS OF THE REGISTRY AND THREE LOCALES OF NINE.
+    Both were chosen for shape rather than coverage and both are one constant
+    away from being wider; the cost is linear and the runtime is already 3m49s
+    for 51 combinations, so widening it wants a faster screen build or a
+    subset marker rather than just a longer tuple.
+  * DIALOGS ARE STILL OUTSIDE IT. The Annotate chooser has its own file
+    (`test_no_caption_is_clipped.py`) and nothing else does; the sweep walks
+    screens, and a dialog is exactly where a fixed height was found first.
+  * THE `_WrappedLabel` FALSE POSITIVE, recorded twice above, is handled here
+    only for `QLabel` subclasses that set `wordWrap()`. Anything that wraps by
+    another route is still measured on one line.
+  * THE TEARDOWN CORE DUMP (288 / 345 / 346) is unchanged and still the thing
+    that makes a run of this size feel risky.

@@ -32,6 +32,22 @@ while the action row took 908 / 1092 / 1068.
 WHAT IT DOES NOW: 0 / 0 / 0 clipped at 1000 px, the window is the width it
 was asked for in all three locales, and the settings column is 389 px in all
 three at 1200 -- the split the screen asked for in the first place.
+
+AND NOW AT 200 % TOO, which is the last dimension instruction 350 had never
+measured. Every assertion below runs at 100 % and at the largest scale the
+preferences slider offers, and the wrap holds at both -- measured on Measure
+in a 1000 px page that will not grow:
+
+                        100 %                       200 %
+    en   0 clipped, 2 lines, 322 px column   0 clipped, 4 lines, 322 px
+    de   0 clipped, 2 lines, 322 px          0 clipped, 4 lines, 299 px
+    is   0 clipped, 2 lines, 322 px          0 clipped, 4 lines, 322 px
+
+The strip answers a doubled font the way it answers a long translation: it
+takes another two lines rather than shrinking a caption, the screen is still
+the 1000 px it was given (its minimum is 660-761 px at 200 %), and the
+settings column keeps its quarter. THE HEIGHT IS THE PRICE, and it is paid
+by the console, which is the pane on this screen that can afford it.
 """
 from __future__ import annotations
 
@@ -44,11 +60,23 @@ from PySide6.QtWidgets import (QHBoxLayout, QPushButton,       # noqa: E402
 
 from spacr.qt import i18n as I                                 # noqa: E402
 
-from .test_the_text_fits_sweep import _fits, settle            # noqa: E402
+from .test_the_text_fits_sweep import (SCALES, _fits,         # noqa: E402,F401
+                                       at_font_scale, settle)
 
 #: Source, longest compounds, and the maintainer's own -- the same three the
 #: sweep uses, for the same reasons, so the two files' numbers compare.
 LOCALES = ("en", "de", "is")
+
+#: 100 % and the largest scale preferences offers, imported from the sweep so
+#: the two files cannot drift apart on what "a large font scale" means.
+#:
+#: THIS IS THE DIMENSION THE WRAP WAS NEVER TESTED IN, and it is the one that
+#: matters most for a wrapping strip: a row that takes two lines at 100 %
+#: takes four at 200 %, and every line it gains is height taken from the
+#: console below it and width pressure put on the settings column beside it.
+#: "A control that grows can push its neighbour off the screen. Assert the
+#: CONTAINER still fits too" is instruction 350's own WATCH note, and until
+#: now it had only ever been asserted at one scale.
 
 #: A window a user really can have. The developers' windows are wide, which
 #: is the whole reason this survived to be reported.
@@ -91,9 +119,10 @@ def _action_buttons(screen):
 # The failure a user meets
 # ---------------------------------------------------------------------------
 
+@pytest.mark.parametrize("scale", SCALES)
 @pytest.mark.parametrize("locale", LOCALES)
-def test_no_action_button_is_cut_off_in_a_narrow_window(locale, qtbot,
-                                                        qt_theme_applied,
+def test_no_action_button_is_cut_off_in_a_narrow_window(locale, scale, qtbot,
+                                                        at_font_scale,
                                                         monkeypatch):
     """Every caption in the row is drawn whole at 1000 px, in every locale.
 
@@ -103,18 +132,20 @@ def test_no_action_button_is_cut_off_in_a_narrow_window(locale, qtbot,
     anyone reproducing it by hand.
     """
     monkeypatch.setenv(I.ENV_LANGUAGE, locale)
+    at_font_scale(scale)
     _host, screen = _screen_in_a_window(qtbot, "measure", NARROW)
 
     cut = [f"{button.text()!r}: {_fits(button)}"
            for button in _action_buttons(screen) if _fits(button)]
     assert not cut, (
-        f"measure in {locale} at {NARROW} px: {len(cut)} action captions cut "
-        f"off -- {'; '.join(cut)}")
+        f"measure in {locale} at {NARROW} px and {scale:g}x: {len(cut)} "
+        f"action captions cut off -- {'; '.join(cut)}")
 
 
+@pytest.mark.parametrize("scale", SCALES)
 @pytest.mark.parametrize("locale", LOCALES)
-def test_the_screen_fits_the_window_it_was_given(locale, qtbot,
-                                                 qt_theme_applied,
+def test_the_screen_fits_the_window_it_was_given(locale, scale, qtbot,
+                                                 at_font_scale,
                                                  monkeypatch):
     """A SECOND MEASUREMENT OF THE SAME THING, differently shaped.
 
@@ -132,6 +163,7 @@ def test_the_screen_fits_the_window_it_was_given(locale, qtbot,
     form in which Qt reports the minimum by growing rather than by clipping.
     """
     monkeypatch.setenv(I.ENV_LANGUAGE, locale)
+    at_font_scale(scale)
     from spacr.qt.screens.app_screen import AppScreen
 
     screen = AppScreen(app_key="measure")
@@ -142,14 +174,16 @@ def test_the_screen_fits_the_window_it_was_given(locale, qtbot,
     settle(qtbot, screen)
 
     assert screen.width() <= NARROW, (
-        f"measure in {locale} forced itself to {screen.width()} px when asked "
-        f"for {NARROW}: the action row's minimum width is "
+        f"measure in {locale} at {scale:g}x forced itself to {screen.width()} "
+        f"px when asked for {NARROW}: the screen's minimum width is "
+        f"{screen.minimumSizeHint().width()} and the action row's is "
         f"{screen._actions_row.minimumSizeHint().width()}")
 
 
+@pytest.mark.parametrize("scale", SCALES)
 @pytest.mark.parametrize("locale", LOCALES)
-def test_the_settings_column_is_not_starved_by_the_row(locale, qtbot,
-                                                       qt_theme_applied,
+def test_the_settings_column_is_not_starved_by_the_row(locale, scale, qtbot,
+                                                       at_font_scale,
                                                        monkeypatch):
     """The row must not take the settings column's width to fit itself.
 
@@ -161,12 +195,13 @@ def test_the_settings_column_is_not_starved_by_the_row(locale, qtbot,
     what 67 px of settings column in German was.
     """
     monkeypatch.setenv(I.ENV_LANGUAGE, locale)
+    at_font_scale(scale)
     _host, screen = _screen_in_a_window(qtbot, "measure", 1200)
 
     column = screen._settings_panel.width()
     assert column >= screen.width() // 4, (
-        f"measure in {locale}: the settings column is {column} px of a "
-        f"{screen.width()} px screen because the action row took "
+        f"measure in {locale} at {scale:g}x: the settings column is {column} "
+        f"px of a {screen.width()} px screen because the action row took "
         f"{screen._actions_row.width()}")
 
 
@@ -174,8 +209,9 @@ def test_the_settings_column_is_not_starved_by_the_row(locale, qtbot,
 # The mechanism, not just the absence of the symptom
 # ---------------------------------------------------------------------------
 
-def test_the_strip_wraps_rather_than_shrinking_its_buttons(qtbot,
-                                                           qt_theme_applied,
+@pytest.mark.parametrize("scale", SCALES)
+def test_the_strip_wraps_rather_than_shrinking_its_buttons(scale, qtbot,
+                                                           at_font_scale,
                                                            monkeypatch):
     """German at 1000 px: more than one line, and every button full width.
 
@@ -186,13 +222,14 @@ def test_the_strip_wraps_rather_than_shrinking_its_buttons(qtbot,
     of the three answers it got.
     """
     monkeypatch.setenv(I.ENV_LANGUAGE, "de")
+    at_font_scale(scale)
     _host, screen = _screen_in_a_window(qtbot, "measure", NARROW)
 
     buttons = _action_buttons(screen)
     lines = {button.y() for button in buttons}
     assert len(lines) > 1, (
         f"the strip stayed on one line of {len(buttons)} buttons at "
-        f"{NARROW} px in German, so it is not wrapping")
+        f"{NARROW} px in German at {scale:g}x, so it is not wrapping")
     for button in buttons:
         assert button.width() >= button.sizeHint().width(), (
             f"{button.text()!r} wrapped and was STILL squeezed: "
