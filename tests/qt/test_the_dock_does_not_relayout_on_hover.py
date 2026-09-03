@@ -47,9 +47,24 @@ def window(qapp, qt_theme_applied):
     qapp.processEvents()
 
 
+def _point_at(row):
+    """Put the REAL cursor on ``row``.
+
+    The dock reads the cursor to decide what is inked (`Sidebar.sync_hover`),
+    so a synthetic Enter alone describes a pointer that is not there and the
+    dock rightly ignores it. Moving the cursor first is what makes these
+    sequences the ones a pointer actually delivers.
+    """
+    from PySide6.QtGui import QCursor
+
+    QCursor.setPos(row.mapToGlobal(QPoint(row.width() // 2,
+                                          row.height() // 2)))
+
+
 def _sweep(dock, rows, qapp):
     """Move the pointer over each row, then off the dock, as Qt would."""
     for row in rows:
+        _point_at(row)
         local = QPointF(row.width() / 2, row.height() / 2)
         globally = QPointF(row.mapToGlobal(QPoint(int(local.x()),
                                                   int(local.y()))))
@@ -62,6 +77,14 @@ def _sweep(dock, rows, qapp):
         # The dock's OWN Leave, which is what a pointer crossing from the
         # column onto a row delivers and what used to do the damage.
         QApplication.sendEvent(dock, QEvent(QEvent.Type.Leave))
+    # AND OFF THE DOCK AT THE END, cursor included. The sweep is "the
+    # pointer crossed the dock and left"; stopping with the cursor still on
+    # the last row would be a different sequence, and the ink following it
+    # there is correct rather than a leak.
+    from PySide6.QtGui import QCursor
+
+    QCursor.setPos(dock.mapToGlobal(QPoint(dock.width() + 400, 400)))
+    QApplication.sendEvent(dock, QEvent(QEvent.Type.Leave))
     qapp.processEvents()
 
 
@@ -161,9 +184,9 @@ def test_a_dock_leave_does_not_unhover_the_row_under_the_pointer(window,
 
     dock = window._sidebar
     row = next(r for r in dock._items if not r.isHidden())
-    # The cursor really is over the dock during this sequence; that is what
+    # The cursor really is on the ROW during this sequence; that is what
     # tells a child-took-the-pointer Leave from a left-the-dock one.
-    QCursor.setPos(dock.mapToGlobal(QPoint(dock.width() // 2, 200)))
+    _point_at(row)
     qapp.processEvents()
 
     local = QPointF(row.width() / 2, row.height() / 2)
@@ -184,19 +207,8 @@ def test_the_ink_moves_cleanly_from_one_row_to_the_next(window, qapp):
 
     dock = window._sidebar
     rows = [r for r in dock._items if not r.isHidden()][:4]
-    # The window is module-scoped, so start from a known state rather than
-    # from whatever the previous test left hovered.
-    for row in dock._items:
-        row._hovered = False
-    QCursor.setPos(dock.mapToGlobal(QPoint(dock.width() // 2, 200)))
-    qapp.processEvents()
-
     for row in rows:
-        # Qt sends the row being left its own Leave before the next Enter;
-        # this loop does the same so it measures the handover rather than a
-        # sequence Qt never delivers.
-        for other in dock._items:
-            other._hovered = False
+        _point_at(row)
         local = QPointF(row.width() / 2, row.height() / 2)
         QApplication.sendEvent(row, QEnterEvent(
             local, local,

@@ -2031,6 +2031,27 @@ class _DockRow(ElidingPushButton):
 
     def __init__(self, text: str = "", parent=None):
         super().__init__(text, parent)
+        # THE ROW FILLS NOTHING. This is the "black box behind thicons",
+        # reported four times on 2026-09-03 and wrongly blamed on the
+        # stylesheet three of them.
+        #
+        # A widget that overrides `paintEvent` and does not paint a
+        # background still gets one: Qt fills the widget's rectangle with
+        # its palette brush first, and that brush is `surface_alt` --
+        # `#161719`, the exact colour measured behind every icon.
+        # `WA_NoSystemBackground` is what stops it.
+        #
+        # MEASURED, one plain button and one row carrying the SAME object
+        # name, rendered over magenta:
+        #
+        #     plain QPushButton#SidebarItem   #ff00ff   (no fill)
+        #     _DockRow                        #161719   (the box)
+        #     _DockRow, WA_NoSystemBackground #ff00ff   (no fill)
+        #
+        # Which is why editing `QPushButton#SidebarItem` never helped: the
+        # stylesheet was already transparent in every state, and this fill
+        # happens before any of it.
+        self.setAttribute(Qt.WidgetAttribute.WA_NoSystemBackground, True)
         #: x of the resting icon's centre, in row coordinates. Set by
         #: `Sidebar._place_icon` once the row's indent is known.
         self._icon_centre = 0
@@ -2043,22 +2064,52 @@ class _DockRow(ElidingPushButton):
         self._hovered = False
 
     def enterEvent(self, event):                # noqa: N802 - Qt naming
-        """Remember the pointer arrived, and repaint.
-
-        Tracked here rather than read from `underMouse()` at paint time
-        because `underMouse()` answers for the widget the cursor is over
-        rather than for the one being painted, and a repaint can be
-        triggered for a row the pointer has already left.
-        """
-        self._hovered = True
-        self.update()
+        """Ask the dock to work out what is hovered. See `sync_hover`."""
+        self._ask_the_dock(entered=True)
         super().enterEvent(event)
 
     def leaveEvent(self, event):                # noqa: N802 - Qt naming
-        """The pointer left: drop the name and the accent ink."""
-        self._hovered = False
-        self.update()
+        """Ask the dock to work out what is hovered. See `sync_hover`."""
+        self._ask_the_dock(entered=False)
         super().leaveEvent(event)
+
+    def _ask_the_dock(self, entered: bool) -> None:
+        """Hand the question to whoever owns the whole column.
+
+        A ROW DOES NOT DECIDE WHETHER IT IS HOVERED any more, and that is
+        the fix for the blink. It used to set its own flag from Enter and
+        clear it from Leave, which makes the ink a function of the ORDER
+        events arrive in -- and Qt sends the parent a Leave whenever a
+        child takes the pointer, so an ordinary move across the dock
+        delivers Enter and Leave in both orders. Reported 2026-09-03: "if i
+        hover quickly an element in the dock it blinks blue a bunch of
+        times then stays blue after a while."
+
+        Now every event asks the same question of the same source -- where
+        the cursor actually is -- so no ordering can produce a wrong answer.
+        Falls back to the old behaviour when the row is not in a dock,
+        which is how a row built alone in a test still hovers.
+        """
+        dock = self.parent()
+        while dock is not None and not isinstance(dock, Sidebar):
+            dock = dock.parent()
+        if dock is not None:
+            dock.sync_hover(entered=self if entered else None)
+            return
+        self._set_hovered(entered)
+
+    def _set_hovered(self, hovered: bool) -> None:
+        """Set the ink, and repaint ONLY if it changed.
+
+        The guard is what keeps `sync_hover` cheap enough to call from every
+        mouse event in the column: with 71 rows, an unguarded pass would ask
+        for 71 repaints per pointer move.
+        """
+        hovered = bool(hovered)
+        if hovered == self._hovered:
+            return
+        self._hovered = hovered
+        self.update()
 
     def is_hovered(self) -> bool:
         """Public so a test can assert the state without a screenshot."""
@@ -2646,30 +2697,59 @@ class Sidebar(QWidget):
         bottom row onto the empty stretch below it, where no other row will
         ever be entered.
         """
-        if self._pointer_is_inside():
-            super().leaveEvent(event)
-            return
-        for row in self._items:
-            if getattr(row, "_hovered", False):
-                row._hovered = False
-                row.update()
+        # THE SAME ONE QUESTION as every other hover event in the column:
+        # which row is the cursor on? A Leave here does not mean the pointer
+        # left the dock -- Qt sends it whenever a CHILD takes the pointer --
+        # so answering it by clearing every row wiped the ink off the row the
+        # pointer had just landed on. `sync_hover` cannot get that wrong: it
+        # reads the cursor and inks whatever is under it, which is nothing at
+        # all when the pointer really has gone.
+        self.sync_hover()
         super().leaveEvent(event)
 
-    def _pointer_is_inside(self) -> bool:
-        """Whether the pointer is anywhere over the dock, children included.
+    def sync_hover(self, entered=None) -> Optional[str]:
+        """Ink exactly the row under the pointer, and no other.
 
-        Asked of the CURSOR rather than of `underMouse()`, because
-        `underMouse()` answers for the widget the cursor is over -- which,
-        during the Leave this guards, is the child that just took it.
-        Falls back to "outside" if the cursor cannot be read, which is the
-        conservative answer: it resets, as the method did before.
+        ONE SOURCE OF TRUTH, asked of the cursor. Every hover event in the
+        column comes here rather than each row deciding for itself, because
+        a row deciding for itself makes the ink a function of the order Qt
+        delivers Enter and Leave -- and Qt sends a widget a Leave whenever a
+        CHILD takes the pointer, so moving across the dock delivers both
+        orders. That is the blink reported on 2026-09-03: "if i hover
+        quickly an element in the dock it blinks blue a bunch of times then
+        stays blue after a while."
+
+        Recomputing from scratch means an event that arrives late, twice, or
+        out of order reaches the same answer as one that does not.
+
+        :param entered: the row whose Enter prompted this, if any. Used
+            ONLY when the cursor is over no row at all -- which happens
+            when the pointer is warped rather than moved, and in a test
+            that sends the events Qt would send without a pointer to send
+            them. The cursor wins wherever it can answer, so the ordering
+            bug cannot come back through this door: a Leave passes nothing,
+            and a Leave with the cursor still on a row leaves it inked.
+        :returns: the ``navKey`` of the inked row, or ``None``.
         """
         from PySide6.QtGui import QCursor
 
         try:
-            return self.rect().contains(self.mapFromGlobal(QCursor.pos()))
-        except (RuntimeError, TypeError):       # no cursor, or gone
-            return False
+            where = QCursor.pos()
+        except (RuntimeError, TypeError):       # no cursor to ask
+            where = None
+        live = [row for row in self._items
+                if not row.isHidden() and row.isEnabled()]
+        under = None
+        if where is not None:
+            for row in live:
+                if row.rect().contains(row.mapFromGlobal(where)):
+                    under = row
+                    break
+        if under is None and entered is not None and entered in live:
+            under = entered
+        for row in self._items:
+            row._set_hovered(row is under)
+        return None if under is None else str(under.property("navKey") or "")
 
     def expand_host(self, host_key: str) -> None:
         """Reveal ``host_key``'s folded rows, and only that host's.
