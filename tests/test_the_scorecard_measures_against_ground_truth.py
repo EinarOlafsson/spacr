@@ -328,3 +328,96 @@ def test_the_classifier_comparison_drops_the_settings_from_its_delta():
 def test_mismatched_lengths_are_refused():
     with pytest.raises(ValueError, match="meaningless"):
         scorecard.score_classifier([1, 0, 1], [0.5, 0.5])
+
+
+# ---------------------------------------------------------------------------
+# A held-out SET, not a field
+# ---------------------------------------------------------------------------
+
+
+def _pair(lo, hi, size=80):
+    return _square(size=size, box=(lo, hi))
+
+
+def test_a_set_pools_its_counts_instead_of_averaging_its_ratios():
+    """The reason pooling is not a detail.
+
+    One field with a single object and one with many are not equal evidence.
+    A mean of per-field precisions treats them as though they were, so a
+    model that fails on the sparse field is punished as hard as one that
+    fails on the crowded one.
+    """
+    crowded_truth = np.zeros((90, 90), dtype=int)
+    for index, start in enumerate(range(5, 85, 20), start=1):
+        crowded_truth[start:start + 15, 5:20] = index          # 4 objects
+    sparse_truth = _pair(10, 40)                                # 1 object
+
+    # Perfect on the crowded field, wrong on the sparse one.
+    scored = scorecard.score_holdout(
+        [(crowded_truth, crowded_truth.copy()),
+         (sparse_truth, np.zeros_like(sparse_truth))],
+        name="demo", version="v1")
+
+    # Pooled recall is 4 of 5, not the mean of 1.0 and 0.0.
+    assert scored.metrics["recall"] == pytest.approx(4 / 5)
+    assert scored.metrics["n_truth"] == 5
+    assert scored.n_fields == 2
+
+
+def test_a_set_carries_its_name_and_version_into_every_row():
+    """Two numbers are comparable only when the set and version match."""
+    truth = [_pair(10, 40), _pair(20, 60)]
+    good = scorecard.score_holdout([(t, t.copy()) for t in truth],
+                                   name="toxo_pv", version="2026-09-03")
+    poor = scorecard.score_holdout(
+        [(truth[0], _pair(15, 35)), (truth[1], _pair(30, 50))],
+        name="toxo_pv", version="2026-09-03")
+
+    rows = scorecard.scorecard_rows(good, poor)
+    assert rows and all(r["holdout"] == "toxo_pv" for r in rows)
+    assert all(r["holdout_version"] == "2026-09-03" for r in rows)
+    assert all(r["n_fields"] == 2 for r in rows)
+
+
+def test_two_models_scored_on_different_sets_are_refused():
+    """A table headed "finetuned against vanilla" whose columns came from
+    different data is the mistake that cannot be seen by reading it."""
+    truth = _pair(10, 40)
+    a = scorecard.score_holdout([(truth, truth.copy())],
+                                name="toxo_pv", version="v1")
+    b = scorecard.score_holdout([(truth, truth.copy())],
+                                name="toxo_pv", version="v2")
+    with pytest.raises(ValueError, match="different held-out sets"):
+        scorecard.scorecard_rows(a, b)
+
+
+def test_a_count_has_no_delta_because_a_difference_in_it_is_not_a_result():
+    truth = [_pair(10, 40)]
+    a = scorecard.score_holdout([(truth[0], truth[0].copy())],
+                                name="d", version="1")
+    rows = {r["metric"]: r for r in scorecard.scorecard_rows(a, a)}
+    for setting in ("match_iou", "n_fields", "n_truth", "n_pred"):
+        assert rows[setting]["delta"] is None, (
+            f"{setting} describes the DATA; a zero in the delta column reads "
+            f"as a result and invites someone to plot it")
+    assert rows["f1"]["delta"] == pytest.approx(0.0)
+
+
+def test_an_empty_set_is_refused_rather_than_scored_as_zero():
+    with pytest.raises(ValueError, match="no fields"):
+        scorecard.score_holdout([], name="d", version="1")
+
+
+def test_the_csv_round_trips_through_the_stdlib_reader():
+    import csv
+    import io
+
+    truth = [_pair(10, 40), _pair(20, 60)]
+    good = scorecard.score_holdout([(t, t.copy()) for t in truth],
+                                   name="d", version="1")
+    text = scorecard.scorecard_csv(scorecard.scorecard_rows(good, good))
+
+    back = list(csv.DictReader(io.StringIO(text)))
+    assert back and {"metric", "finetuned", "vanilla", "delta", "holdout",
+                     "holdout_version"} <= set(back[0])
+    assert any(row["metric"] == "f1" for row in back)

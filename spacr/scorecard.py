@@ -580,3 +580,157 @@ def compare_classifier_against_baseline(labels: Sequence[int],
     for setting in ("threshold", "n", "n_positive", "prevalence"):
         delta.pop(setting, None)
     return {"finetuned": a, "vanilla": b, "delta": delta}
+
+
+# ---------------------------------------------------------------------------
+# A held-out SET, not a field
+#
+# Instruction 370: "A number computed on 'three fields' chosen at call time
+# is not comparable between two models, between two versions of one model, or
+# between two days. What makes the table worth publishing is that every model
+# is scored on the SAME named, versioned, labelled set."
+#
+# So the unit of a published number is the SET. Everything below aggregates
+# per-field scorecards into one, and the aggregation is not a mean of means.
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class HoldoutScore:
+    """One model's result on one named, versioned held-out set.
+
+    :param name: the set's name, e.g. ``toxo_pv_holdout``.
+    :param version: the set's version. Two numbers are comparable only when
+        this matches, and it is carried into every published row for that
+        reason rather than being assumed from context.
+    :param metrics: the pooled scorecard.
+    :param per_field: one scorecard per field, in the order they were given.
+    """
+
+    name: str
+    version: str
+    metrics: Dict[str, float]
+    per_field: Tuple[Dict[str, float], ...] = ()
+
+    @property
+    def n_fields(self) -> int:
+        return len(self.per_field)
+
+
+def score_holdout(pairs: Sequence[Tuple[np.ndarray, np.ndarray]], *,
+                  name: str, version: str, **kwargs) -> HoldoutScore:
+    """Score a model over a whole held-out set.
+
+    :param pairs: ``(truth, prediction)`` per field.
+
+    POOLED FROM THE COUNTS, NOT AVERAGED FROM THE RATIOS. A field with three
+    objects and a field with three hundred are not equal evidence, and a mean
+    of per-field precisions treats them as though they were -- so a model
+    that fails on one sparse field is punished as hard as one that fails on a
+    confluent one. Precision, recall and F1 are recomputed from the summed
+    true and false positives; only the genuinely per-object means (IoU, Dice,
+    area error) are averaged, and those are weighted by the objects behind
+    them.
+    """
+    scored = [score_segmentation(truth, pred, **kwargs) for truth, pred in pairs]
+    if not scored:
+        raise ValueError("a held-out set with no fields cannot be scored")
+
+    tp = sum(int(s["true_positives"]) for s in scored)
+    fp = sum(int(s["false_positives"]) for s in scored)
+    fn = sum(int(s["false_negatives"]) for s in scored)
+    precision, recall = _ratio(tp, tp + fp), _ratio(tp, tp + fn)
+
+    def weighted(key: str, weight_key: str = "n_matched") -> float:
+        weights = [float(s.get(weight_key, 0)) for s in scored]
+        total = sum(weights)
+        if not total:
+            return 0.0
+        return sum(float(s[key]) * w for s, w in zip(scored, weights)) / total
+
+    pooled: Dict[str, float] = {
+        "n_fields": len(scored),
+        "n_truth": sum(int(s["n_truth"]) for s in scored),
+        "n_pred": sum(int(s["n_pred"]) for s in scored),
+        "true_positives": tp, "false_positives": fp, "false_negatives": fn,
+        "match_iou": scored[0]["match_iou"],
+        "precision": precision,
+        "recall": recall,
+        "f1": _ratio(2 * precision * recall, precision + recall),
+        "splits": sum(int(s["splits"]) for s in scored),
+        "merges": sum(int(s["merges"]) for s in scored),
+        "count_error": sum(int(s["count_error"]) for s in scored),
+        "dice_per_object": weighted("dice_per_object"),
+        "iou_mean": weighted("iou_mean"),
+        "area_error_mean": weighted("area_error_mean"),
+        "area_error_abs_mean": weighted("area_error_abs_mean"),
+    }
+    # The pixel-wise and boundary measures are field-level by nature, so they
+    # are averaged over FIELDS and weighted by the objects each holds.
+    for key in scored[0]:
+        if key.startswith(("ap_", "boundary_", "dice_pixel")):
+            pooled[key] = weighted(key, "n_truth")
+    return HoldoutScore(str(name), str(version), pooled, tuple(scored))
+
+
+def scorecard_rows(finetuned: HoldoutScore, vanilla: HoldoutScore
+                   ) -> List[Dict[str, object]]:
+    """The published table, one row per metric. THE SOURCE THE REST DERIVE FROM.
+
+    Instruction 370 asks for four renderings -- the CSV on Hugging Face, the
+    tooltip, the API section and the zoo screen -- and warns that "if the
+    tooltip and the API page can disagree, they eventually will". This is the
+    one place a number is computed; everything else formats these rows.
+
+    :raises ValueError: when the two were scored on different sets. That is
+        not a defensive check for its own sake: a table headed "finetuned
+        against vanilla" whose two columns came from different data is
+        exactly the mistake that cannot be seen by reading it.
+    """
+    if (finetuned.name, finetuned.version) != (vanilla.name, vanilla.version):
+        raise ValueError(
+            f"scored on different held-out sets -- {finetuned.name}"
+            f"@{finetuned.version} against {vanilla.name}@{vanilla.version}; "
+            f"the difference between them would mean nothing")
+
+    rows: List[Dict[str, object]] = []
+    for key in finetuned.metrics:
+        if key not in vanilla.metrics:
+            continue
+        a, b = finetuned.metrics[key], vanilla.metrics[key]
+        rows.append({
+            "metric": key,
+            "finetuned": a,
+            "vanilla": b,
+            # `None` rather than 0.0 for a setting or a count: a "difference"
+            # in `match_iou` or `n_truth` is not a result, and a zero in that
+            # column reads as one.
+            "delta": (a - b) if key not in _NOT_A_SCORE else None,
+            "n_fields": finetuned.metrics.get("n_fields"),
+            "n_objects": finetuned.metrics.get("n_truth"),
+            "holdout": finetuned.name,
+            "holdout_version": finetuned.version,
+        })
+    return rows
+
+
+#: Keys that describe the DATA or the settings, not the model's performance.
+#: They appear in the table -- a reader needs the n -- but they have no
+#: meaningful difference, and printing one invites somebody to plot it.
+_NOT_A_SCORE = frozenset({
+    "match_iou", "n_fields", "n_truth", "n_pred", "count_error",
+})
+
+
+def scorecard_csv(rows: Sequence[Dict[str, object]]) -> str:
+    """The rows as CSV text. Written by the caller, wherever it belongs."""
+    import csv
+    import io
+
+    if not rows:
+        return ""
+    buffer = io.StringIO()
+    writer = csv.DictWriter(buffer, fieldnames=list(rows[0]))
+    writer.writeheader()
+    writer.writerows(rows)
+    return buffer.getvalue()
