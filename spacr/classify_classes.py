@@ -85,6 +85,7 @@ class ClassRule:
     random_complement: bool = False
 
     def __post_init__(self) -> None:
+        """Reject blank names and contradictory or incomplete selectors."""
         if not str(self.name).strip():
             raise ClassDefinitionError("a class must have a name")
         if self.random_complement:
@@ -99,6 +100,7 @@ class ClassRule:
                 f"comes from, so it cannot select objects")
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return the serializable selector shape stored in ``classes``."""
         if self.random_complement:
             return {"random_complement": True}
         return {"column": self.column, "value": self.value}

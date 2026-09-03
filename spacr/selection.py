@@ -417,9 +417,9 @@ def untyped_object_key(key: Any) -> str:
 class RangeFilter:
     """Keep rows whose ``column`` lies within ``[low, high]``.
 
-    :ivar column: numeric column evaluated by the range filter.
-    :ivar low: inclusive lower bound, or ``None`` for no lower bound.
-    :ivar high: inclusive upper bound, or ``None`` for no upper bound.
+    :param column: numeric column evaluated by the range filter.
+    :param low: inclusive lower bound, or ``None`` for no lower bound.
+    :param high: inclusive upper bound, or ``None`` for no upper bound.
 
     ``None`` on either bound means unbounded on that side, which is what a
     slider dragged to its end should mean — not "exclude everything".
@@ -468,8 +468,8 @@ class RangeFilter:
 class CategoryFilter:
     """Keep rows whose ``column`` is one of ``values``.
 
-    :ivar column: categorical column evaluated by the filter.
-    :ivar values: accepted values; an empty tuple accepts no rows.
+    :param column: categorical column evaluated by the filter.
+    :param values: accepted values; an empty tuple accepts no rows.
 
     An EMPTY ``values`` keeps nothing, and that is deliberate: unticking every
     box in a category list means "show me none of these", and quietly
@@ -508,7 +508,7 @@ class DataFilter:
     Declarative and re-appliable: the same filter means something on a
     re-run's table, which is what separates it from a selection.
 
-    :ivar clauses: range and category predicates combined with logical AND.
+    :param clauses: range and category predicates combined with logical AND.
     """
 
     clauses: list = field(default_factory=list)
@@ -682,8 +682,8 @@ class Selection:
     a lasso around blank space. Views draw those two differently: the first
     is the resting state, the second is a result.
 
-    :ivar keys: selected object keys, or ``None`` for the resting state.
-    :ivar source: view name that published the selection, used to avoid echo.
+    :param keys: selected object keys, or ``None`` for the resting state.
+    :param source: view name that published the selection, used to avoid echo.
     """
 
     keys: Optional[pd.Index] = None

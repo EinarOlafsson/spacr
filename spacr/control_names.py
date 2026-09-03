@@ -44,6 +44,7 @@ class ControlSpec:
 
     @property
     def is_gene(self) -> bool:
+        """Return whether this specification selects every guide for a gene."""
         return self.level == GENE
 
     def note(self, matched_guides: int = -1, matched_wells: int = -1) -> str:

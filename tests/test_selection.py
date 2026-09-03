@@ -101,8 +101,8 @@ def test_object_keys_on_an_empty_frame_is_empty_not_an_error():
 def test_range_filter_keeps_the_closed_interval():
     df = _frame(5, area=[1.0, 5.0, 10.0, 15.0, 20.0])
     rule = RangeFilter("area", low=5.0, high=15.0)
-    assert ":ivar low:" in (RangeFilter.__doc__ or "")
-    assert ":ivar high:" in (RangeFilter.__doc__ or "")
+    assert ":param low:" in (RangeFilter.__doc__ or "")
+    assert ":param high:" in (RangeFilter.__doc__ or "")
     assert (rule.low, rule.high) == (5.0, 15.0)
     keep = rule.mask(df)
     assert list(df.loc[keep, "area"]) == [5.0, 10.0, 15.0]
@@ -199,7 +199,7 @@ def test_clauses_are_anded():
     f = (DataFilter()
          .add(RangeFilter("area", low=3.0))
          .add(CategoryFilter("rowID", ("r1",))))
-    assert ":ivar clauses:" in (DataFilter.__doc__ or "")
+    assert ":param clauses:" in (DataFilter.__doc__ or "")
     assert len(f.clauses) == 2
     out = f.apply(df)
     assert (out["area"] >= 3.0).all()
@@ -259,8 +259,8 @@ def test_selection_round_trips_through_keys():
     df = _frame(6)
     chosen = df.iloc[[1, 3]]
     sel = Selection.from_frame(chosen, source="umap")
-    assert ":ivar keys:" in (Selection.__doc__ or "")
-    assert ":ivar source:" in (Selection.__doc__ or "")
+    assert ":param keys:" in (Selection.__doc__ or "")
+    assert ":param source:" in (Selection.__doc__ or "")
     mask = sel.mask_for(df)
     assert mask.tolist() == [False, True, False, True, False, False]
     assert sel.source == "umap"

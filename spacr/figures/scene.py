@@ -58,11 +58,11 @@ _APPLICATION = None
 class SceneReport:
     """What the translation could and could not carry.
 
-    ``complete`` is the only field a caller has to read, and it is the whole
-    contract: a translation that dropped something is not a picture of the
-    panel, so the caller writes the matplotlib page instead. The rest is for
-    the message, because "it fell back" without naming the artist is a report
-    nobody can act on.
+    ``complete`` is the only decision a caller has to read, and it is the
+    whole contract: a scene operation that cannot produce a faithful file is
+    not a picture of the panel, so the caller writes the matplotlib page
+    instead. The rest is for the message, because "it fell back" without
+    naming the cause is a report nobody can act on.
 
     :param axes: number of matplotlib axes traversed and represented, including
         colour-bar axes.
@@ -86,10 +86,11 @@ class SceneReport:
 
     @property
     def complete(self) -> bool:
+        """Return whether no blocking translation or export failure was recorded."""
         return not self.missing
 
     def reason(self) -> str:
-        """One sentence naming what stopped the translation."""
+        """Return one sentence naming what stopped scene output."""
         if self.complete:
             return ""
         counts: Dict[str, int] = {}
@@ -295,11 +296,12 @@ class _Look:
     """Apply one saved-figure appearance consistently to translated artists.
 
     Delegate colour decisions to :func:`spacr.figure_style.export_colour`.
-    Each matplotlib artist's type determines whether its colour represents
-    chrome, data, a reference, or the figure ground.
+    Each translation path assigns its artist's chrome, data, reference, or
+    figure-ground role.
     """
 
     def __init__(self, mode=None, dpi: float = 100.0):
+        """Initialize export appearance and its point-to-pixel scale at ``dpi``."""
         from ..figure_style import saved_figure_appearance
 
         self.look = saved_figure_appearance(mode)
@@ -322,6 +324,7 @@ class _Look:
 
     @property
     def ground(self) -> Optional[str]:
+        """Return the export ground, or ``None`` when none replaces it."""
         return self.look.ground
 
     def paint(self, colour: Optional[str], kind: str,
@@ -678,19 +681,22 @@ class _FractionPoint:
     """A point in axes fraction, shaped like the bit of ``Text``
     :func:`_in_data_coordinates` reads.
 
-    A three-line adapter rather than a second copy of the conversion: the log
+    A tiny adapter rather than a second copy of the conversion: the log
     handling in there is the part that is easy to get subtly wrong, and one
     figure with a rectangle placed by one rule and its label by another is the
     kind of disagreement this whole module exists to remove.
     """
 
     def __init__(self, x, y):
+        """Store one point's ``x`` and ``y`` axes-fraction coordinates."""
         self._position = (x, y)
 
     def get_position(self):
+        """Return the stored ``(x, y)`` axes-fraction coordinates."""
         return self._position
 
     def get_transform(self):
+        """Return ``None`` so conversion uses its axes-fraction fallback."""
         return None
 
 
@@ -972,6 +978,7 @@ def _add_image(plot, artist, look) -> int:
 # --------------------------------------------------------------------------- #
 
 def _axis_pen(look):
+    """Return an export-scaled 0.8-point pen in resolved chrome colour."""
     import pyqtgraph as pg
 
     ink = look.paint("#FFFFFF", "chrome") or "#222222"
@@ -1088,6 +1095,7 @@ def _carry_ticks(plot, axes) -> None:
 
 
 def _looks_numeric(label: str) -> bool:
+    """Return whether ``label`` parses as a float after minus normalization."""
     try:
         float(str(label).replace("−", "-"))
         return True
