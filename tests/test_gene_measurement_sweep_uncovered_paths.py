@@ -75,8 +75,13 @@ def test_a_circularity_bar_removes_the_pairs_the_score_already_tracks():
                    q=[0.001, 0.001, 0.40],
                    circularity=[0.02, 0.91, 0.01])
     result = SweepResult(table=table, effects=pd.DataFrame(), n_wells=40,
-                         n_blocks=2, circularity_known=True)
+                         n_blocks=2, dropped=("cell_id",),
+                         circularity_known=True)
 
+    assert ":ivar dropped:" in (SweepResult.__doc__ or "")
+    assert ":ivar circularity_known:" in (SweepResult.__doc__ or "")
+    assert result.dropped == ("cell_id",)
+    assert "1 identifier column(s) were left out" in result.describe()
     assert list(result.survivors(alpha=0.05)["guide"]) == ["clean", "circular"]
     kept = result.survivors(alpha=0.05, max_circularity=0.15)
     assert list(kept["guide"]) == ["clean"]

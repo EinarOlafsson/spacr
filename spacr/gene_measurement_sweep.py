@@ -126,6 +126,9 @@ class SweepResult:
     :ivar effects: per-measurement effect estimates underlying the table.
     :ivar n_wells: number of independent wells included in the fit.
     :ivar n_blocks: number of experimental blocks included in the design.
+    :ivar dropped: identifier columns excluded before fitting.
+    :ivar circularity_known: whether measurement-to-score circularity was
+        actually computed; false prevents a missing join looking clean.
     """
 
     table: pd.DataFrame
