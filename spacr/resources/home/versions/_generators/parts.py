@@ -311,6 +311,7 @@ class Page(QWidget):
     def __init__(self, ctx: Ctx, *, chrome: bool = True,
                  margins: Tuple[int, int, int, int] = (28, 22, 28, 18),
                  spacing: int = 16):
+        """Build the themed home canvas, optional chrome, and content column."""
         super().__init__()
         self.ctx = ctx
         self.setObjectName("Page")
@@ -625,6 +626,7 @@ class FixedButton(QPushButton):
     """
 
     def __init__(self, width: int, height: int, parent=None):
+        """Create a button whose size hints preserve the requested dimensions."""
         super().__init__(parent)
         self._fixed = QSize(int(width), int(height))
         self.setFixedSize(self._fixed)
@@ -650,6 +652,7 @@ class BigTile(FixedButton):
     def __init__(self, ctx: Ctx, key: str, *, width: int, height: int,
                  icon_px: int = 56, blurb_lines: int = 0,
                  accent: bool = False, badge: str = ""):
+        """Build an illustrated launcher tile for one registered app key."""
         super().__init__(width, height)
         self.setObjectName("BigTileAccent" if accent else "BigTile")
         self.setCursor(Qt.PointingHandCursor)
@@ -720,6 +723,7 @@ class DenseRow(QPushButton):
                  name_width: int = 136, icon_px: int = 20,
                  show_blurb: bool = True, badge: str = "",
                  shortcut: str = ""):
+        """Build one compact launcher row with optional blurb, badge, and shortcut."""
         super().__init__()
         self.setObjectName("DenseRow")
         self.setCursor(Qt.PointingHandCursor)
@@ -908,6 +912,7 @@ def project_status_strip(ctx: Ctx) -> QWidget:
 
 
 def _dot(ctx: Ctx) -> QLabel:
+    """Create the muted separator used between project summary values."""
     return text_label(ctx, "·", size=13, color=ctx.P["fg_dim"])
 
 
