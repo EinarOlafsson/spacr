@@ -478,25 +478,33 @@ def _check_spatial_activation(module: nn.Module, wrapped: ClassScoreModel,
 class Attribution:
     """One attribution map plus everything needed to judge it.
 
-    :ivar method: registered method name.
-    :ivar map: 2-D ``(H, W)`` float32 array at the input's spatial resolution,
-        guaranteed finite. Larger means "ranked higher by this method"; the
-        scale is arbitrary and differs between methods, which is why every
-        analysis here uses ranks rather than values.
-    :ivar raw: the method's signed, per-channel output where it has one
-        (gradient and perturbation families), else None. The CAM family has no
-        per-channel form.
-    :ivar target: the class index the map explains.
-    :ivar n_classes: how many classes the head exposes (2 for a single logit).
-    :ivar single_logit: whether the underlying head emits one logit.
-    :ivar predicted: the class the model actually predicted for this input.
-    :ivar layer: the layer a CAM hooked, else None.
-    :ivar family: ``'cam'``, ``'gradient'``, ``'perturbation'`` or
-        ``'attention'``.
-    :ivar backend: which library produced it — ``'torchcam'``, ``'captum'`` or
-        ``'spacr'``.
-    :ivar params: the keyword arguments that produced this map.
-    :ivar notes: caveats the caller must surface.
+    :param method: Requested attribution-method name; normally a key of
+        :data:`ATTRIBUTION_METHODS`, and retained verbatim on a skipped-failure
+        placeholder.
+    :param map: Finite 2-D float32 map at input spatial resolution; larger
+        values rank pixels higher, while a skipped failure carries an all-zero
+        placeholder.
+    :param target: Class index this map was requested to explain.
+    :param n_classes: Number of classes exposed by the normalized head,
+        including two for a single-logit binary head.
+    :param single_logit: Whether the underlying model head emitted one binary
+        logit.
+    :param predicted: Class predicted by the model for the attributed input.
+    :param raw: Signed per-channel attribution retained by methods that expose
+        it, or ``None`` when no such representation exists.
+    :param layer: Resolved CAM target-layer name, the caller's requested layer
+        on a skipped failure, or ``None`` when no layer applies.
+    :param family: Registered family (``"cam"``, ``"gradient"``,
+        ``"perturbation"``, or ``"attention"``), or an empty string for an
+        unregistered skipped failure.
+    :param backend: Registered implementation provider (``"torchcam"``,
+        ``"captum"``, or ``"spacr"``), or an empty string for an unregistered
+        skipped failure.
+    :param params: Recorded call options, including the resolved layer and
+        SmoothGrad flag for registry-dispatched methods; this is not a complete
+        expansion of every effective default.
+    :param notes: User-facing caveats, flat-map or single-logit context, or the
+        reason a placeholder method failed.
     """
 
     method: str
