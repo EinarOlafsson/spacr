@@ -186,6 +186,11 @@ tutorial_colab.ipynb
 !/docs/source/installer_guide.rst
 !/docs/source/features.rst
 !/docs/source/python_api.rst
+# The model zoo's own page, added 2026-09-03 for instruction 370. It
+# includes the two generated blocks beside it; before it existed
+# `_generated/model_zoo_table.rst` was written on every run and
+# included by nothing, so the API had no model zoo page at all.
+!/docs/source/model_zoo.rst
 !/docs/source/_autoapi_templates/
 !/docs/source/_autoapi_templates/**
 !/docs/source/_generated/

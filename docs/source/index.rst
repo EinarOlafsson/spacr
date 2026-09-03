@@ -124,6 +124,7 @@ Contents
    installers
    features
    python_api
+   model_zoo
    Language <localization>
    setting_animations
    checkpoint_resume

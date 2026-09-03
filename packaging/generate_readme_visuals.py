@@ -37,6 +37,8 @@ DOC_FOLDS = ROOT / "docs" / "source" / "_generated" / "folded_modules.rst"
 HARDWARE_TABLE = ROOT / "docs" / "source" / "_generated" / "hardware_table.rst"
 MODEL_ZOO_TABLE = (ROOT / "docs" / "source" / "_generated"
                    / "model_zoo_table.rst")
+MODEL_ZOO_SECTIONS = (ROOT / "docs" / "source" / "_generated"
+                      / "model_zoo_sections.rst")
 DOC_WORKFLOW_DIR = ROOT / "docs" / "source" / "_static" / "workflow"
 README_PATHS = (
     ROOT / "README.rst",
@@ -717,6 +719,74 @@ def _model_zoo_rows() -> "list[tuple[str, str, str, str]]":
             str(entry.get("versus_stock") or "").strip().rstrip("."),
         ))
     return rows
+
+
+def _model_zoo_sections() -> str:
+    """One API section per published model, with its Hugging Face link.
+
+    Instruction 370 asks for "a API section for each model in the model zoo",
+    linking to Hugging Face. Measured 2026-09-03: the generated
+    `model_zoo_table.rst` was INCLUDED BY NOTHING -- so the API had no model
+    zoo page at all, and neither the table nor a per-model section reached a
+    reader. Both are emitted here and the page that includes them is
+    `docs/source/model_zoo.rst`.
+
+    THE FULL PROSE LIVES HERE, NOT IN THE TABLE. The table is deliberately
+    three short columns (see `_model_zoo_table`); this is where a reader who
+    clicked through gets `trained_on` in full, every note, the checksum and
+    the place to fetch it from -- which is the split 370 asks for between the
+    surface with the least room and the one with the most.
+    """
+    from spacr.model_zoo import BUNDLED_REMOTE_MODELS
+
+    lines: list[str] = []
+    for entry in BUNDLED_REMOTE_MODELS:
+        key = str(entry.get("key") or entry.get("name") or "")
+        if not key:
+            continue
+        title = str(entry.get("display_name") or key)
+        lines += [title, "-" * len(title), ""]
+
+        architecture = str(entry.get("architecture") or "").strip()
+        if architecture:
+            lines += [f"**Architecture.** {architecture}", ""]
+
+        trained_on = str(entry.get("trained_on") or "").strip()
+        if trained_on:
+            lines += [f"**Trained on.** {trained_on}", ""]
+
+        versus = str(entry.get("versus_stock") or "").strip()
+        if versus:
+            lines += [f"**Measured.** {versus}", ""]
+
+        for note in entry.get("notes") or ():
+            note = str(note).strip()
+            if note:
+                lines += [f"* {note}"]
+        if entry.get("notes"):
+            lines += [""]
+
+        repo = str(entry.get("repo_id") or "").strip()
+        if repo:
+            kind = str(entry.get("repo_type") or "model")
+            where = "datasets/" if kind == "dataset" else ""
+            lines += [
+                f"Published as `{repo} "
+                f"<https://huggingface.co/{where}{repo}>`_, as "
+                f"``{entry.get('name')}``.",
+                "",
+            ]
+
+        digest = str(entry.get("sha256") or "").strip()
+        if digest:
+            # THE CHECKSUM IS PUBLISHED BECAUSE FETCH REFUSES WITHOUT ONE.
+            # An entry with no digest is declined rather than installed --
+            # a truncated or substituted checkpoint cannot be told from the
+            # real one -- so the digest is part of what makes the model
+            # usable, not a footnote.
+            lines += [f"SHA-256 ``{digest}``.", ""]
+
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def _model_zoo_table() -> str:
@@ -1473,6 +1543,8 @@ def main() -> int:
     HARDWARE_TABLE.write_text(_hardware_table(), encoding="utf-8")
     print(HARDWARE_TABLE.relative_to(ROOT))
     MODEL_ZOO_TABLE.write_text(_model_zoo_table() + "\n", encoding="utf-8")
+    MODEL_ZOO_SECTIONS.write_text(_model_zoo_sections(),
+                                  encoding="utf-8")
     print(MODEL_ZOO_TABLE.relative_to(ROOT))
     # The picker page before the pickers that point at it, so a fresh
     # checkout never has ten links to a file that is not there yet.

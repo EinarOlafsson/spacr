@@ -276,5 +276,39 @@ STILL TO DO:
   1. THE HELD-OUT SET ITSELF -- the labelled images, which this file calls the real crux: a named,
      versioned, labelled set published beside the models, so a number is
      comparable between two models, two versions and two days.
-  2. THE FOUR RENDERINGS -- CSV on Hugging Face, tooltip, API section, zoo
-     screen -- from the one CSV.
+  2. THE REMAINING RENDERINGS -- the CSV on Hugging Face, the tooltip, and
+     the zoo screen -- from the one CSV. The API section is done; see below.
+
+--------------------------------------------------------------------------------
+2026-09-03: THE API SECTION EXISTS, AND THE TABLE WAS REACHING NOBODY
+--------------------------------------------------------------------------------
+
+This item asks for "a API section for each model in the model zoo, which
+should link to Huggingface". Measured while building it, and it is worse than
+the item assumed:
+
+  `docs/source/_generated/model_zoo_table.rst` WAS INCLUDED BY NOTHING.
+
+It had been generated on every run, committed, and read by nobody. So the API
+had no model zoo page at all -- neither the table this file lists as already
+existing, nor any per-model detail. A generated file that nothing includes
+still regenerates, still passes its own content tests and still looks healthy
+in a diff, which is why it went unnoticed.
+
+NOW: `docs/source/model_zoo.rst` is in the toctree and includes both the
+table and a new generated `model_zoo_sections.rst` -- one section per model
+carrying the architecture, the FULL `trained_on` prose, the measured result,
+every note, the Hugging Face link and the SHA-256.
+
+  THE SPLIT IS DELIBERATE AND IS THIS FILE'S OWN. The table is three short
+  columns because the maintainer called the long one "way to much
+  information"; the sections are where the full account goes, which is the
+  only reason the table is allowed to be short. 370 asks for exactly that
+  split between "the surface with the least room" and the one with the most.
+
+  THE CHECKSUM IS PUBLISHED because `fetch` refuses an entry without one --
+  a truncated or substituted checkpoint cannot be told from the real one --
+  so the digest is part of what makes a model usable rather than a footnote.
+
+Six tests, and the first of them asserts the page is IN THE TOCTREE, because
+being generated and being reachable turned out to be different things.
