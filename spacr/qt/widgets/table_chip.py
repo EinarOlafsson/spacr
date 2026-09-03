@@ -43,7 +43,16 @@ register_widget_qss(QSS_NAME, _chip_qss, replace=True)
 
 
 class TableChip(QWidget):
-    """One table in the working set. Emits :attr:`removed` with its name."""
+    """One table in the working set. Emits :attr:`removed` with its name.
+
+    :param name: the table's name. It is both the caption and the payload of
+        :attr:`removed`, so it has to be the name the working set keys on
+        rather than anything prettied up for display.
+    :param parent: parent widget.
+    :param removable: whether the chip offers its remove button. The Gate
+        Editor passes False for the LAST table in the set, so the working set
+        can never be emptied to nothing.
+    """
 
     removed = Signal(str)
 
