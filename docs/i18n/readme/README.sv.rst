@@ -29,16 +29,16 @@
    :alt: PolyForm Noncommercial-licens
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-   :alt: bioRxiv preprint
+   :alt: Zenodo-DOI
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
-   :alt: Zenodo-DOI
+   :alt: Senaste installationsprogrammen
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
-   :alt: Senaste installationsprogrammen
+   :alt: conda-forge-version
 .. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
    :target: https://anaconda.org/conda-forge/spacr
-   :alt: conda-forge-version
+   :alt: spaCR
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
@@ -101,7 +101,7 @@ Hårdvarustöd
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+Stödda (stabila)  och genomförda (beta) - CPU stöd endast
 
 .. spacr-hardware-end
 
@@ -463,7 +463,17 @@ spaCR skickar en katalog med utbildade modeller och hämtar dem på begäran. Ö
 
 .. spacr-model-zoo-end
 
-Siffrorna ovan är de som mäts vid publiceringen, och gränserna anges med dem: en modell är användbar för det arbete den mättes på, inte för varje jobb. ``toxoplasma_well_detector_v1`` och ``toxoplasma_plaque_v1`` är de två halvorna av en rörledning -- detektorn hittar brunnarna, segmentören hittar placken inuti dem, och brunnens diameter är det som gör områden jämförbara mellan mikroskop.
+Varje figur ovan mäts på bilder modellen aldrig såg i träning.
+
+**Precision** is how many of the objects a model reported are real; **recall** is how many of the real objects it found. They fail in opposite directions: poor precision invents plaques, poor recall misses them.
+
+**F1** är de två kombinerade, och citeras eftersom var och en av dem är trivialt gamed - rapportera en omisskännlig plakett för nära perfekt precision, eller varje mörk blob för nära-perfect recall. Som du hellre skulle förlora beror på analysen, och räkning är vanligtvis bättre betjänas av over-calling: plaque-modellen accepterades med precision 0.858 med reclosure 0.811 under en tidigare runda på 0,939 och 0,631.
+
+**IoU**, intersection over union, is how much a predicted object and the real one overlap, divided by the area they cover together. It is the ruler the rest are read against, so a score means nothing without its threshold: "F1 0.867 at IoU 0.5" counts a vacuole as found when the two outlines agree over half their combined area.
+
+**mAP50** och **mAP50-95** tillhör detektorn. Den första frågar om brunnarna hittades; den andra upprepar det över tio tröskelvärden från 0,5 till 0,95, så den frågar också hur tätt varje låda dras. Klyftan mellan dem är placering, inte detektion.
+
+**Cross-validerad**, med en **SD**, betyder att poängen är medelvärdet av tre körningar på olika splitar och SD är hur långt de flyttade isär. En split kan ha tur: denna modells litteraturfigur är 0,834 på en enda 19-håls split och 0,806 på alla tre.
 
 Modeller är värd på sin författares eget Hugging Face konto, så bidragande betyder inte att ge skrivåtkomst till någon annans. ``spacr.model_zoo`` s ``publish_model`` utför uppladdningen och skriver ut katalograden att lägga till.
 

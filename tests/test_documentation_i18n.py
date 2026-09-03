@@ -3285,9 +3285,12 @@ def test_localized_readmes_preserve_safety_meaning_and_language_names():
 
 
 def test_localized_readmes_keep_the_badge_row_structurally_intact():
+    # `|Preprint|` joined the row on 2026-09-02, next to the Zenodo DOI: one
+    # is the paper, the other the software archive. The preprint had been
+    # reachable only as a databank button further down the page.
     expected = (
         "|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| "
-        "|Source| |Issues| |License| |DOI|"
+        "|Source| |Issues| |License| |Preprint| |DOI|"
     )
     for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
         assert path.read_text(encoding="utf-8").splitlines()[0] == expected
@@ -3304,9 +3307,11 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     )
 
     canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    # 14 since the bioRxiv preprint badge joined the row: 13 badge alts plus
+    # the logo's.
     assert len(_readme_substitution_alt_text(
         canonical, README_BADGE_SUBSTITUTIONS,
-    )) + int(bool(_readme_logo_alt_text(canonical))) == 13
+    )) + int(bool(_readme_logo_alt_text(canonical))) == 14
     assert len(_readme_substitution_alt_text(
         canonical, README_INSTALLER_SUBSTITUTIONS,
     )) == 4
@@ -3322,7 +3327,12 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         for alt in canonical_alt
         if (match := re.fullmatch(r"Open the (.+) API", alt)) is not None
     ]
-    assert len(module_names) == 44
+    # 21, NOT 44. 44 is the size of the app REGISTRY; the grid draws one
+    # tile per TILED app, and instruction 318 moved everything reached from
+    # another module's button off the grid. This number was left at the
+    # registry size when that happened, so this test has been red on a stale
+    # count rather than on anything about accessible text.
+    assert len(module_names) == 21
     readme_root = ROOT / "docs" / "i18n" / "readme"
     for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
         text = (readme_root / f"README.{language}.rst").read_text(
@@ -3333,10 +3343,13 @@ def test_localized_readme_images_have_reviewed_accessible_text():
             ".. spacr-workflow-begin"
         )[2].partition(".. spacr-workflow-end")[0]
         workflow_alt = re.findall(r"(?m)^   :alt: (.+)$", workflow)
-        assert len(workflow_alt) == 44
-        # Thirteen badges, 44 linked Home applications, four installer/archive
-        # icons and five resource icons.
-        assert len(alt_text) == 66
+        assert len(workflow_alt) == 21
+        # Fourteen badges, 21 linked Home applications, four installer/archive
+        # icons and five resource icons. The badge count rose by one on
+        # 2026-09-02 when the bioRxiv preprint joined the row; the
+        # application count fell from 44 to 21 with instruction 318 and was
+        # never brought down here.
+        assert len(alt_text) == 44
         assert all(
             module in alt
             for module, alt in zip(
