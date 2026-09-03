@@ -1471,7 +1471,17 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._diameter.setRange(0, 400); self._diameter.setValue(30.0)
         self._diameter.setSuffix(" px")
         self._flow = QDoubleSpinBox(self)
-        self._flow.setRange(-1, 3); self._flow.setSingleStep(0.05)
+        # UP TO 100, WHICH IS WHAT MASK SHIPS. The useful range is about 0 to
+        # 3 -- Cellpose's own default is 0.4, and that is what this box opens
+        # on for the single-object modules that also reach this panel. But
+        # Mask ships 100 per object, documented as "accepts every candidate",
+        # and a box that stops at 3 CANNOT HOLD ITS OWN SETTING: seeding the
+        # panel from Mask clamped 100 to 3 silently, and propagating handed
+        # that 3 back as if the user had chosen it.
+        #
+        # The step stays at 0.05, so the useful end is still reachable a
+        # notch at a time; 100 is typed, not scrolled to.
+        self._flow.setRange(-1, 100); self._flow.setSingleStep(0.05)
         self._flow.setValue(0.4)
         self._prob = QDoubleSpinBox(self)
         self._prob.setRange(-6, 6); self._prob.setSingleStep(0.1)

@@ -73,15 +73,41 @@ def test_the_cell_adjustment_toggle_arrives_the_way_the_form_holds_it(opened):
         == panel["adjust_cells"]
 
 
-def test_a_value_the_spin_box_cannot_hold_is_given_back_unchanged(opened):
-    """The clamp is the editor's limit, not the user's answer."""
-    preview = opened._live_preview
-    panel = opened._settings_model.collect()
-    shipped = panel["cell_flow_threshold"]
+def test_the_flow_box_can_hold_what_mask_ships(opened):
+    """The editor must be able to express its own setting.
 
-    assert preview._flow.maximum() < shipped, (
-        "the spin box can hold the shipped value now, so this test no longer "
-        "exercises the clamp -- check whether the range was widened instead")
+    Mask ships 100, documented as "accepts every candidate". The box used to
+    stop at 3, so seeding clamped silently and propagating handed the 3 back
+    as the user's answer. The range was widened rather than the default
+    changed: 0.4 is still what the single-object modules on this same panel
+    open with, and the step is still 0.05, so the useful end is reachable a
+    notch at a time.
+    """
+    preview = opened._live_preview
+    shipped = opened._settings_model.collect()["cell_flow_threshold"]
+
+    assert preview._flow.maximum() >= shipped, (
+        f"the box tops out at {preview._flow.maximum()} and Mask ships "
+        f"{shipped}; it cannot hold its own setting")
+    assert preview._flow.value() == pytest.approx(float(shipped))
+    assert preview.settings_for_propagation()["cell_flow_threshold"] == shipped
+
+
+def test_a_value_no_box_could_hold_is_still_given_back_unchanged(opened):
+    """The clamp guard stays, because the next setting may not fit either.
+
+    Exercised by narrowing the box on purpose: widening the flow range fixed
+    the one case that bit, and left nothing in the shipped panel that clamps.
+    A guard with no live example is a guard that quietly stops working.
+    """
+    preview = opened._live_preview
+    panel = opened._settings_model
+    shipped = panel.collect()["cell_flow_threshold"]
+
+    preview._flow.setRange(-1, 3)          # the range it used to have
+    preview.apply_settings(panel.collect())
+
+    assert preview._flow.value() == 3.0, "the narrowed box did not clamp"
     assert preview.settings_for_propagation()["cell_flow_threshold"] == shipped
 
 
