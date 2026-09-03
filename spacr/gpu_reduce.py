@@ -69,6 +69,7 @@ def rapids_available() -> bool:
 
 
 def _env_allows() -> bool:
+    """Return whether :data:`ENV_FLAG` is unset or not a recognized false value."""
     raw = os.environ.get(ENV_FLAG)
     if raw is None:
         return True
@@ -124,6 +125,7 @@ def make_reducer(method: str, *, prefer_gpu: bool = False, **kwargs) -> Tuple[An
 
 
 def _cuml_estimator(name: str, **kwargs):
+    """Construct the named cuML reducer or clusterer with ``kwargs``."""
     import cuml
 
     if name == "umap":
@@ -140,6 +142,7 @@ def _cuml_estimator(name: str, **kwargs):
 
 
 def _cpu_estimator(name: str, **kwargs):
+    """Construct the named CPU reducer or clusterer with ``kwargs``."""
     if name == "umap":
         # The package-level ``umap`` import eagerly reaches parametric UMAP
         # and TensorFlow. spaCR's lazy proxy loads only ``umap.umap_``, which
