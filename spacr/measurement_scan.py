@@ -145,6 +145,8 @@ class ScanResult:
     :ivar alpha: significance level used for both correction stages.
     :ivar effective_n_tests: Li–Ji estimate of the number of independent
         measurement tests, or ``nan`` when unavailable.
+    :ivar genes_dropped: genes omitted because too few wells represented them,
+        mapped to each gene's observed well count.
     """
 
     rows: Tuple[MeasurementEffect, ...]
