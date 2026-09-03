@@ -48,8 +48,10 @@ class Choice:
 class Undecided:
     """A setting this module will not guess, and why not.
 
-    :ivar key: setting name left unresolved.
-    :ivar why: evidence-based reason the setting cannot be inferred.
+    :param key: setting name or advisory topic left unresolved;
+        :meth:`Advice.why` uses it to retrieve this record's explanation.
+    :param why: evidence-based explanation of why no value was proposed or
+        why a refused proposal was withdrawn.
     """
 
     key: str

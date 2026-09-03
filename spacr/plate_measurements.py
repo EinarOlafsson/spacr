@@ -89,8 +89,12 @@ _UNPREFIXED: Tuple[str, ...] = IDENTITY + (
 class PlateDatabase:
     """One plate row of the input table and the database attached to it.
 
-    :ivar plate: input-table plate label used in user-facing diagnostics.
-    :ivar path: filesystem path to the plate's measurements database.
+    :param plate: input-table plate label used to map screen metadata and
+        identify missing or duplicate attachments in diagnostics. A blank
+        label normalised from an input row becomes ``"row N"``.
+    :param path: filesystem path to the plate's measurements database. An
+        empty value means no database is attached; a nonempty path is checked
+        for existence before table discovery and merging.
     """
 
     plate: str
