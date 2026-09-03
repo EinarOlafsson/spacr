@@ -41,6 +41,8 @@ class Measurement:
         "not measured", the other "measured, and it used none".
     :param baseline_rss_bytes: RSS before the work started, so the caller can
         tell the interpreter's own footprint from the work's.
+    :param notes: caveats about warm-up or unavailable measurements that must
+        accompany the numeric result.
     """
 
     items: int
@@ -70,6 +72,10 @@ class Recommendation:
 
     :ivar workers: recommended number of parallel workers.
     :ivar reason: human-readable explanation of the binding limit.
+    :ivar measurement: benchmark observation used to size each worker, or
+        ``None`` when only the core count was available.
+    :ivar cores: processor-core ceiling used by the recommendation.
+    :ivar available_bytes: currently available memory used for worker sizing.
     """
 
     workers: int
