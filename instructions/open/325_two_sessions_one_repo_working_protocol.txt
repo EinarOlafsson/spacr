@@ -1362,3 +1362,32 @@ STILL YOURS AND UNTOUCHED: `spacr/cli.py` (the six folded keys that answer
 `spacr/plot.py` (35 of 37 Figures-tab style rows cannot reach a drawn
 figure), and the four settings keys the 2026-09-01 Measure run wrote that
 `settings.py` does not mention.
+
+--------------------------------------------------------------------------------
+2026-09-03 — `git commit` SWEEPS AN AGENT'S STAGED WORK. USE `-o`.
+--------------------------------------------------------------------------------
+
+Recorded because it happened and because the symptom is confusing rather
+than loud.
+
+`git commit` commits THE WHOLE INDEX, not the files you just added. With
+several agents working in one clone, another agent's `git add` puts its work
+in the same index — so a commit that names only your own files still carries
+theirs, under your message. Tonight a 374 agent's nine files landed inside a
+commit whose message is about instruction 371, and the agent noticed before I
+did.
+
+    git commit -o <paths> -F -        commits ONLY those paths
+    git commit -F -                   commits everything staged, including
+                                      whatever an agent staged a second ago
+
+Nothing is lost when it happens -- the work is committed and correct -- but
+the history says the wrong thing about who changed what and why, and that is
+the whole value of these messages. `-o` costs nothing and is now the habit.
+
+The other half of the same lesson: DO NOT `git stash` in a shared clone. It
+takes every agent's uncommitted work with it, and `stash pop` after a test
+run is a race with whatever they wrote meanwhile. Use a worktree for a
+baseline instead — `git worktree add --detach <path> <commit>` — which is
+what proved tonight that three preview tests were broken by a rename and a
+fourth was not.
