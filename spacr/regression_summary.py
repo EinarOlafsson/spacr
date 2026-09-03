@@ -352,6 +352,8 @@ class RunSummary:
     :param verbatim: the statsmodels text summary, appended unchanged, or
         ``None``.
     :param verbatim_note: what the verbatim block is, or why there is none.
+    :param recommendations: evidence-backed changes derived from values in
+        this summary, in display order.
     """
 
     sections: List[SummarySection] = field(default_factory=list)
