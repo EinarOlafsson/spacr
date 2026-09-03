@@ -1655,3 +1655,36 @@ prepositional phrase: `i varje aktiverat steg`, `en cada etapa habilitada`,
 Stufe`, `모든 활성화 된 단계에서`, `प्रत्येक सक्षम चरण में`, `在每个启用阶段`.
 Icelandic remains the weakest catalog and was weak before; that is 316's pass,
 not this one's.
+
+---
+
+2026-09-03. EIGHT OF THE THIRTY-ONE RUNTIME-CATALOG TESTS ARE FAILING, and
+have been since before last night. Found by running `tests/qt` in slices;
+nobody had run this file lately.
+
+    tests/qt/test_external_i18n_catalogs.py:  8 failed, 23 passed
+
+What they say, in the order they are worth reading:
+
+  * `test_external_runtime_catalogs_have_exact_current_source_keys` -- one
+    source hash differs: `('MODULE_SUMMARIES', 'foreign')`. 5,102 other keys
+    match, so this is one module's summary having been reworded since the
+    catalogs were built, not a wholesale drift.
+  * `test_runtime_tooltips_have_no_exact_english_prose_fallbacks` and
+    `..._no_unreviewed_exact_english_fallbacks` -- zh_CN carries English for
+    `independent_variable_layout` and `plaque_model`.
+  * `..._need_no_incremental_repairs`, plus four more on reviewed terms,
+    false friends and the API-doc catalog.
+
+NOT REPAIRED HERE, and the reason is what the repair costs rather than
+doubt about the diagnosis. `tools/build_i18n_catalogs.py` takes
+`--model-root`, `--device {cpu,cuda}`, `--batch-size` and `--beams`: it runs
+a translation MODEL. Firing that unattended would put machine output into
+nine locales at six in the morning, and the very tests failing here are the
+ones that refuse unreviewed text -- so a blind rebuild would either not fix
+them or would fix them by writing exactly what they exist to catch.
+
+THE SHAPE OF THE JOB: the hash mismatch is one summary and can be repaired
+incrementally; the two zh_CN tooltips need a reviewer or a targeted
+`MANUAL_TRANSLATIONS` entry, which is how the Icelandic "1.5 er óþekkt" fix
+was made. Neither wants the whole catalog rebuilt.
