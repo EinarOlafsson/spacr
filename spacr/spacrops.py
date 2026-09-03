@@ -2405,8 +2405,8 @@ class StitchedMultiAligner:
 
     Output image axes: CYX (channels stacked in the order inputs are provided).
 
-    Args
-    ----
+    Parameters
+    ----------
     detector : {"ORB","SIFT"}
         Feature detector for keypoint matching.
     nfeatures : int

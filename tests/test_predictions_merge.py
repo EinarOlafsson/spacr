@@ -131,6 +131,12 @@ def test_cv_merge_scores_every_row_of_a_two_plate_database(tmp_path):
 
     report = merge_cv_predictions(df, db)
 
+    for field in ("columns", "db_rows", "result_rows", "matched_rows",
+                  "matched_keys", "unmatched_db_rows",
+                  "unmatched_result_rows", "unparsed_result_rows",
+                  "ambiguous_keys", "ambiguous_result_rows", "fanout_rows",
+                  "repaired", "added_columns"):
+        assert f":ivar {field}:" in (type(report).__doc__ or "")
     assert report.key == "prcfo", "prcfo is the canonical per-object identity"
     assert report.matched_rows == report.db_rows == 24
     assert report.unmatched_db_rows == 0
