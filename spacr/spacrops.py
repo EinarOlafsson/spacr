@@ -3271,6 +3271,39 @@ def get_preprocess_ops_settings(settings):
     settings.setdefault("dry_run", False)
     settings.setdefault("verbose", True)
 
+    # THE TWO SWITCHES THE PIPELINE'S OWN PURPOSE DEPENDS ON, and they were
+    # not here. `stitch_cycle_wells` reads both with a `False` fallback
+    # (~:3178 and ~:3181) and this factory never set either, so a settings
+    # panel generated from it would not OFFER them -- and a default run
+    # therefore wrote no mosaic, after which `align_image_to_stitch` found
+    # none and returned `{}` WITH NO ERROR. The pipeline succeeded and
+    # produced nothing.
+    #
+    # FALSE, WHICH IS WHAT THEY ALREADY WERE. Adding them here changes no
+    # run: the fallback at the read sites is `False` and that is what is set.
+    # What changes is that a panel generated from this factory now OFFERS
+    # them, which was the audit's actual complaint -- the switches existed
+    # and were unreachable.
+    #
+    # THEY PROBABLY SHOULD DEFAULT TRUE AND THAT IS NOT MINE TO DECIDE.
+    # `ops_preprocess`'s docstring is "per-genotype stitching + phenotype
+    # alignment", and with `mosaic` off the alignment half has nothing to
+    # align to, so the default run succeeds and produces nothing. But
+    # flipping it was tried and it turns that silent no-op into a RAISE on
+    # input that cannot be mosaicked --
+    # `test_the_post_stitch_move_never_finds_a_tile_already_at_its_target`
+    # goes from passing to `RuntimeError: mosaic_all_channels_from_csv: CSV
+    # has no usable rows`. Silence and a crash are both wrong and the choice
+    # between them is a product decision about what an OPS run is FOR, made
+    # with the maintainer awake. Recorded in instruction 372.
+    settings.setdefault("stitch", False)
+    settings.setdefault("mosaic", False)
+
+    # Read at ~:2931 as `plate` or `plate_id` or `experiment`, falling back to
+    # the destination folder's name. Offered here so a panel can show it; ""
+    # is falsy, so leaving it empty keeps the existing fallback exactly.
+    settings.setdefault("plate", "")
+
     # pipeline toggles
     settings.setdefault("do_organize", True)
     settings.setdefault("do_nuc_stitch", True)
@@ -3303,8 +3336,13 @@ def get_preprocess_ops_settings(settings):
     settings.setdefault("line_thickness", 1)
     settings.setdefault("outline_alpha", 1.0)
     settings.setdefault("feature_cache_mode", "disk")
-    settings.setdefault("max_qc_plots_total", 1000)   # hard cap across the whole run
-    settings.setdefault("plot_only_above_threshold", True)
+    # REMOVED 2026-09-03: `max_qc_plots_total` and `plot_only_above_threshold`
+    # were read by nothing. Each appeared exactly once in the package -- on
+    # its own `setdefault` here -- so the cap was never applied and the
+    # threshold never consulted. Instruction 364's standard is that a setting
+    # offered and never acted on is deleted rather than documented, because a
+    # tooltip on a dead control teaches the user a lie about what the run
+    # will do. Found by 372's audit.
     settings.setdefault("feature_cache_dir", None)     # per well
     settings.setdefault("max_ram_features", 256)
     settings.setdefault("n_workers_features", None)

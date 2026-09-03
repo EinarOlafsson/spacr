@@ -368,3 +368,55 @@ ROT #1 makes the default run silently produce nothing.
 Back half (PARTS 1 and 2, sbs and merge): unchanged. Nothing measured here
 touches spot detection, base calling, barcode assembly, library mapping or
 read-to-cell assignment. None of it exists. That is still the work.
+
+--------------------------------------------------------------------------------
+2026-09-03: THE ROT FIXES, AND ONE DECISION LEFT FOR THE MAINTAINER
+--------------------------------------------------------------------------------
+
+DONE, in `get_preprocess_ops_settings`:
+
+  * `stitch`, `mosaic` and `plate` are now in the factory. A panel generated
+    from it will OFFER them, which was ROT #1's actual complaint: the
+    switches existed and were unreachable.
+  * `max_qc_plots_total` and `plot_only_above_threshold` are DELETED. Each
+    appeared exactly once in the whole package -- on its own `setdefault` --
+    so the cap was never applied and the threshold never consulted.
+    Instruction 364's standard is that a setting offered and never acted on
+    is deleted rather than documented, because a tooltip on a dead control
+    teaches a lie about what the run will do.
+
+  231 spacrops tests pass.
+
+NOT DONE, AND IT IS A PRODUCT DECISION RATHER THAN A LINE OF CODE:
+WHAT SHOULD `mosaic` DEFAULT TO?
+
+`stitch` and `mosaic` are set to False, which is what the read sites already
+fell back to, so no run changes. ROT #1 argues they should be True -- with
+`mosaic` off the alignment half has nothing to align to, so
+`align_image_to_stitch` returns `{}` and the pipeline succeeds having
+produced nothing.
+
+I TRIED TRUE AND IT IS NOT FREE.
+`tests/test_cov_r4_spacrops.py::test_the_post_stitch_move_never_finds_a_tile_
+already_at_its_target` goes from passing to
+
+    RuntimeError: mosaic_all_channels_from_csv: CSV has no usable rows
+
+So the choice is not "silence versus correctness". It is SILENCE VERSUS A
+CRASH on input that cannot be mosaicked, and both are wrong answers to
+different questions:
+
+    mosaic=False   a default run finishes and produces nothing, quietly
+    mosaic=True    a default run over unmosaickable input stops with a
+                   RuntimeError from a function three layers down
+
+The right answer is probably neither: `align_image_to_stitch` finding no
+mosaics should SAY SO rather than return `{}`, and an unmosaickable well
+should be reported and skipped rather than raising. Then True is safe. That
+is a change to the error handling in `spacrops.py`, it is more than a
+default, and it wants the maintainer's view on what an OPS run is for --
+whether a well that cannot be stitched is a failure of the run or a fact
+about the plate.
+
+RECORDED RATHER THAN CHOSEN at two in the morning on a module nobody can
+reach yet, which is also the reason there is no hurry.
