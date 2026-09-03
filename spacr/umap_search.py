@@ -37,9 +37,11 @@ class UmapRecipe:
     """Everything needed to redraw one embedding, and nothing else.
 
     Frozen and round-tripping, so a row saved to disk today rebuilds the same
-    map tomorrow. ``columns`` is part of it: a recipe that recorded only the
-    hyperparameters would rebuild a different map the moment the column
-    selection changed, and the score beside it would then describe neither.
+    requested configuration tomorrow. ``columns`` is part of it: a recipe
+    that recorded only the hyperparameters would request a different map the
+    moment the column selection changed. The exact scored coordinates remain
+    on :class:`SearchRow`, because nondeterministic backends and dependency
+    changes can produce a different map from the same recipe.
 
     :ivar n_neighbors: neighbourhood size balancing local detail against
         global structure in the embedding.
@@ -64,15 +66,18 @@ class UmapRecipe:
     backend: str = "cpu"
 
     def __post_init__(self) -> None:
+        """Normalize columns and clamp dimensions to the supported 2--3."""
         object.__setattr__(self, "columns", tuple(self.columns))
         object.__setattr__(self, "n_components",
                            max(2, min(3, int(self.n_components))))
 
     @property
     def is_3d(self) -> bool:
+        """Return whether this recipe requests a three-dimensional map."""
         return self.n_components >= 3
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return a storable field mapping with columns represented as a list."""
         return {**asdict(self), "columns": list(self.columns)}
 
     @classmethod
@@ -80,6 +85,7 @@ class UmapRecipe:
         """Build a recipe from known fields in a stored mapping.
 
         :param payload: serialized recipe mapping, possibly with newer fields.
+        :returns: normalized recipe containing only fields this version knows.
         """
         data = {k: v for k, v in dict(payload).items()
                 if k in cls.__dataclass_fields__}
@@ -88,7 +94,7 @@ class UmapRecipe:
         return cls(**data)
 
     def label(self) -> str:
-        """The short description a table cell shows."""
+        """Return the compact configuration label shown in a table cell."""
         return (f"n={self.n_neighbors} d={self.min_dist:g} "
                 f"{self.n_components}D {self.backend}")
 
@@ -142,33 +148,41 @@ class SearchTable:
     """
 
     def __init__(self) -> None:
+        """Initialize an empty insertion-ordered search-result table."""
         self._rows: List[SearchRow] = []
 
     def add(self, row: SearchRow) -> SearchRow:
         """Append and return one search result row.
 
         :param row: search result to retain in insertion order.
+        :returns: ``row`` after appending it.
         """
         self._rows.append(row)
         return row
 
     def __len__(self) -> int:
+        """Return the number of retained search rows."""
         return len(self._rows)
 
     def __iter__(self):
+        """Iterate over retained rows in insertion order."""
         return iter(self._rows)
 
-    def __getitem__(self, index: int) -> SearchRow:
+    def __getitem__(self, index: int | slice) -> SearchRow | List[SearchRow]:
+        """Return one row or a list slice using ordinary list semantics."""
         return self._rows[index]
 
     @property
     def rows(self) -> List[SearchRow]:
+        """Return a shallow outer-list copy in insertion order."""
         return list(self._rows)
 
     def best(self) -> Optional[SearchRow]:
         """The highest-scoring row, or None when nothing scored.
 
         Rows with a NaN score are excluded from the comparison.
+
+        :returns: highest-scoring finite row, or ``None`` when none exists.
         """
         scored = [r for r in self._rows if not np.isnan(r.score)]
         return max(scored, key=lambda r: r.score) if scored else None
@@ -178,14 +192,17 @@ class SearchTable:
 
         More than one is worth saying out loud: a table mixing cuML and
         umap-learn rows is comparing two libraries as well as the settings.
+
+        :returns: sorted distinct backend names from retained recipes.
         """
         return tuple(sorted({r.recipe.backend for r in self._rows}))
 
     def mixed_backends(self) -> bool:
+        """Return whether retained recipes name multiple backends."""
         return len(self.backends()) > 1
 
     def to_dicts(self) -> List[Dict[str, Any]]:
-        """The table without its arrays, for saving beside a run."""
+        """Return serializable rows without embedding or label arrays."""
         return [{"recipe": r.recipe.to_dict(), "scores": dict(r.scores),
                  "clusters": r.cluster_count(), "note": r.note}
                 for r in self._rows]
@@ -215,14 +232,19 @@ class ClusterWalkRow:
 
     @property
     def score(self) -> float:
-        """Ranking score: separation, discounted by unassigned points."""
+        """Return separation discounted by the unassigned-point fraction."""
         if not np.isfinite(self.silhouette):
             return float("-inf")
         return float(self.silhouette) * (1.0 - float(self.noise_fraction))
 
 
 def _embedding_array(embedding: Any) -> np.ndarray:
-    """Validate coordinates at the clustering/viewer boundary."""
+    """Validate coordinates at the clustering/viewer boundary.
+
+    :param embedding: candidate coordinate array.
+    :returns: finite float coordinates shaped ``(rows, 2)`` or ``(rows, 3)``.
+    :raises ValueError: when the shape, row count, or values are invalid.
+    """
     values = np.asarray(embedding, dtype=float)
     if values.ndim != 2 or values.shape[1] not in (2, 3):
         raise ValueError(
@@ -249,6 +271,14 @@ def cluster_embedding(
 
     :param embedding: finite coordinate array shaped ``(rows, 2)`` or
         ``(rows, 3)``.
+    :param min_cluster_size: smallest group HDBSCAN may call a cluster; at
+        least two and smaller than the embedding row count.
+    :param min_samples: optional HDBSCAN core-sample threshold; ``None`` and
+        zero leave it unset.
+    :returns: one integer label per embedding row, with noise labelled ``-1``.
+    :raises ValueError: when the coordinates or clustering thresholds cannot
+        describe a valid partition.
+    :raises RuntimeError: when HDBSCAN returns the wrong number of labels.
     """
     values = _embedding_array(embedding)
     size = int(min_cluster_size)
@@ -285,12 +315,18 @@ def walk_clusters(
 
     This is the clustering half of the Starplast-style walk.  It can run for
     every UMAP trial as that trial arrives, or later against the table row the
-    user chose.  Failed/oversized scales are skipped individually; if no scale
-    is meaningful the result is empty rather than a fabricated one-cluster
-    winner.
+    user chose. Duplicate and out-of-range candidate sizes are skipped; if no
+    size is meaningful the call is refused rather than fabricating a
+    one-cluster winner. A clustering failure propagates, while an undefined
+    silhouette is retained as ``nan`` and ranks below every measured score.
 
     :param embedding: fixed finite 2-D or 3-D coordinates to cluster at each
         candidate scale.
+    :param min_cluster_sizes: candidate HDBSCAN minimum cluster sizes.
+    :param min_samples: optional HDBSCAN core-sample threshold passed to every
+        candidate.
+    :returns: scored partitions ordered best-first, then by cluster size.
+    :raises ValueError: when the map or candidate sequence is invalid.
     """
     values = _embedding_array(embedding)
     candidates: List[int] = []
@@ -343,10 +379,16 @@ def walk_recipes(base: UmapRecipe, *, steps: int = 12,
     :param base: recipe cloned for every candidate. Its values fill dimensions
         with no explicit grid, and its neighbour count scales the default
         neighbour walk.
-    :param steps: how many to return when no explicit grid is given. The
-        default grid walks ``n_neighbors``, which is the parameter that
-        actually changes the shape of a UMAP; ``min_dist`` mostly changes how
-        tightly it packs.
+    :param steps: target sample count when no explicit grid is given. At least
+        two neighbor values are attempted, and integer rounding plus
+        deduplication may change the final count.
+    :param neighbors: explicit neighborhood-size values, or empty to derive a
+        walk from ``base`` and ``steps``.
+    :param min_dists: explicit minimum-distance values, or empty to retain the
+        base value.
+    :param components: explicit dimensionalities, or empty to retain the base
+        value.
+    :returns: distinct recipes in Cartesian-product order.
     """
     if not any((neighbors, min_dists, components)):
         low, high = 5, max(6, int(base.n_neighbors) * 4)

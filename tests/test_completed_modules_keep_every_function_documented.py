@@ -123,6 +123,7 @@ FULLY_DOCUMENTED = (
     "spacr/trial_metrics.py",
     "spacr/uniprot.py",
     "spacr/umap_annotations.py",
+    "spacr/umap_search.py",
     "spacr/updater.py",
     "spacr/well_scope.py",
     "spacr/well_spec.py",
