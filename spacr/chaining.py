@@ -230,6 +230,7 @@ class PinStore:
     """
 
     def __init__(self, path: Optional[str] = None) -> None:
+        """Initialize a lazily loaded store at an expanded absolute path."""
         self.path = os.path.abspath(os.path.expanduser(path or state_path()))
         self._data: Optional[Dict[str, Dict[str, Any]]] = None
 

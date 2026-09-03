@@ -744,15 +744,14 @@ class ResolvedColumn:
 class Conflict:
     """A foreign column whose target would collide with something of spaCR's.
 
-    :ivar kind: ``'reserved'`` (a join key), ``'spacr_name'`` (a column
-        spaCR itself writes), ``'duplicate_target'`` (two sources, one
-        target) or ``'shadows_spacr'`` (an unmapped column whose own name
-        is a spaCR name — carried under the foreign prefix, so not
-        blocking, but the user needs to know).
-    :ivar source: foreign source column involved in the collision.
-    :ivar target: requested destination column that conflicts.
-    :ivar detail: human-readable explanation of the collision.
-    :ivar blocking: True when the import refuses until it is resolved.
+    :param kind: collision category: ``"reserved"``, ``"spacr_name"``,
+        ``"duplicate_target"``, or the non-blocking ``"shadows_spacr"``
+        notice.
+    :param source: foreign source-column name involved in the collision.
+    :param target: requested destination-column name that conflicts.
+    :param detail: human-readable explanation of the collision.
+    :param blocking: whether the import must refuse the plan until the
+        collision is resolved.
     """
 
     kind: str
