@@ -83,6 +83,7 @@ FULLY_DOCUMENTED = (
     "spacr/gene_tile.py",
     "spacr/lineage.py",
     "spacr/logger.py",
+    "spacr/logging_util.py",
     "spacr/localisation.py",
     "spacr/macro.py",
     "spacr/mask_io.py",

@@ -143,6 +143,37 @@ def test_timer_nested_blocks_log_independently(caplog):
     assert "inner" in log_text
 
 
+def test_reused_timer_clears_its_previous_duration_while_running():
+    from spacr.logging_util import Timer
+
+    timer = Timer("reused")
+    with timer:
+        pass
+    assert timer.elapsed_ms is not None
+
+    with timer:
+        assert timer.elapsed_ms is None
+    assert timer.elapsed_ms is not None
+
+
+def test_exiting_one_timer_twice_does_not_measure_or_log_twice(caplog):
+    from spacr.logging_util import Timer
+
+    timer = Timer("once")
+    timer.__enter__()
+    with caplog.at_level(logging.INFO, logger="spacr.timing"):
+        assert timer.__exit__(None, None, None) is None
+        first_elapsed = timer.elapsed_ms
+        assert timer.__exit__(None, None, None) is None
+
+    assert timer.elapsed_ms == first_elapsed
+    records = [
+        record for record in caplog.records
+        if record.name == "spacr.timing" and record.message.startswith("once took")
+    ]
+    assert len(records) == 1
+
+
 # ---------------------------------------------------------------------------
 # time_module bulk wrapper
 # ---------------------------------------------------------------------------
