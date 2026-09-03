@@ -2543,27 +2543,13 @@ class Sidebar(QWidget):
     #:
     #: The inset is what makes it a BOX rather than a band -- a slab flush
     #: with three window edges has no visible corners to round.
-    PLATE_RADIUS_PX = 16
+    PLATE_RADIUS_PX = 14
     PLATE_INSET_PX = 6
 
     #: The slab's fill and edge, over the theme's `fg`: near-white on the
     #: three dark themes, near-black on light, so one pair of numbers lifts
     #: it off every backdrop -- including the ambient animation, which still
     #: shows through it.
-    #:
-    #: 0.16, NOT 0.07, AND THE NUMBER WAS READ OFF A SCREEN RECORDING.
-    #: At 0.07 over a pure-black page the slab renders `(17, 17, 17)` --
-    #: measured in the capture the maintainer made on 2026-09-03 -- and a
-    #: rectangle three units off black is not a translucent panel, it is
-    #: the "black box" they reported four times. The slab was drawing
-    #: correctly the whole time, rounded corners and all; it was simply too
-    #: dark to read as anything but black.
-    #:
-    #: 0.16 puts it at `(41, 41, 41)` with a `(87, 87, 87)` edge, which is a
-    #: panel you can see the shape of. It is still translucent -- whatever
-    #: is behind the dock, including the ambient animation, still shows
-    #: through -- and that is the property the alpha is for, not the
-    #: darkness.
     #:
     #: ONE STATE, NO HOVER. The slab brightened while the pointer was in the
     #: dock for a few hours on 2026-09-03 and the maintainer asked for it
@@ -2575,8 +2561,8 @@ class Sidebar(QWidget):
     #: and a Leave arrives each time the pointer crosses from the column's
     #: own surface onto one of its rows. That is a flicker source, and the
     #: dock has now been reported flickering three times.
-    PLATE_ALPHA = 0.16
-    PLATE_EDGE_ALPHA = 0.34
+    PLATE_ALPHA = 0.07
+    PLATE_EDGE_ALPHA = 0.14
 
     def plate_rect(self):
         """The slab's rectangle, inset from the column. For tests."""
@@ -2737,42 +2723,28 @@ class Sidebar(QWidget):
         out of order reaches the same answer as one that does not.
 
         :param entered: the row whose Enter prompted this, if any. Used
-            only when neither `underMouse()` nor the cursor can answer --
-            a warped pointer, or a test sending the events Qt would send
-            with no pointer to send them. It cannot reopen the ordering
-            bug: a Leave passes nothing, and a Leave arriving while a row
-            still has the pointer leaves that row inked.
+            ONLY when the cursor is over no row at all -- which happens
+            when the pointer is warped rather than moved, and in a test
+            that sends the events Qt would send without a pointer to send
+            them. The cursor wins wherever it can answer, so the ordering
+            bug cannot come back through this door: a Leave passes nothing,
+            and a Leave with the cursor still on a row leaves it inked.
         :returns: the ``navKey`` of the inked row, or ``None``.
         """
+        from PySide6.QtGui import QCursor
+
+        try:
+            where = QCursor.pos()
+        except (RuntimeError, TypeError):       # no cursor to ask
+            where = None
         live = [row for row in self._items
                 if not row.isHidden() and row.isEnabled()]
-        # `underMouse()` FIRST, and on Wayland it is the only one that
-        # works. Qt maintains `WA_UnderMouse` from its own Enter/Leave
-        # bookkeeping, so it is right at the moment a Leave is delivered --
-        # the row that has just taken the pointer already has it set, which
-        # is the case the old handler got wrong.
-        #
-        # `QCursor.pos()` was tried first and is WRONG HERE: Wayland does
-        # not give a client the global pointer position, so Qt returns the
-        # last value it happened to see. A stale one puts the cursor over no
-        # row, `sync_hover` clears the ink, the next event puts it back --
-        # which is the blink, recorded on 2026-09-03 and read off three
-        # consecutive frames of the capture: icon blue, icon white, icon
-        # blue, with the pointer never leaving the row.
-        under = next((row for row in live if row.underMouse()), None)
-        if under is None:
-            # X11 and offscreen, where the global position IS available and
-            # a synthetic Enter may not have set `WA_UnderMouse`.
-            from PySide6.QtGui import QCursor
-
-            try:
-                where = QCursor.pos()
-            except (RuntimeError, TypeError):   # no cursor to ask
-                where = None
-            if where is not None:
-                under = next(
-                    (row for row in live
-                     if row.rect().contains(row.mapFromGlobal(where))), None)
+        under = None
+        if where is not None:
+            for row in live:
+                if row.rect().contains(row.mapFromGlobal(where)):
+                    under = row
+                    break
         if under is None and entered is not None and entered in live:
             under = entered
         for row in self._items:
