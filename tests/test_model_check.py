@@ -13,6 +13,18 @@ def _classes(n=2):
     return {f"c{i}": {"column": "annot", "value": i} for i in range(n)}
 
 
+def test_model_report_documents_and_retains_its_diagnostic_fields():
+    """All public compatibility evidence survives direct construction."""
+    report = ModelReport(True, "custom.pth", problems=("bad head",),
+                         notes=("adapted input",), channels=3, classes=2)
+
+    for name in ("problems", "notes", "channels", "classes"):
+        assert f":ivar {name}:" in (ModelReport.__doc__ or "")
+    assert report.problems == ("bad head",)
+    assert report.notes == ("adapted input",)
+    assert (report.channels, report.classes) == (3, 2)
+
+
 # ---------------------------------------------------------------------------
 # Which model is actually used
 # ---------------------------------------------------------------------------
