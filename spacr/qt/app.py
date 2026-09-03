@@ -2626,12 +2626,50 @@ class Sidebar(QWidget):
         is. Only the hover paint does, and only the rows that HAVE it are
         touched -- an empty loop when the pointer left from a header or the
         empty stretch.
+
+        A LEAVE HERE DOES NOT MEAN THE POINTER LEFT THE DOCK. Qt sends a
+        widget a Leave whenever a CHILD takes the pointer, so moving from the
+        column's own surface onto a row delivers Enter to the row and Leave
+        to this -- and clearing every row then wipes the blue off the row the
+        pointer is sitting on. Measured 2026-09-03: `Enter(row)` leaves
+        `_hovered` True, and the `Leave(Sidebar)` that follows it sets it
+        back to False.
+
+        That is the flicker: "if i hover quickly an element in the dock it
+        blinks blue a bunch of times then stays blue after a while" -- the
+        ink going on with the Enter and off with the Leave, over and over,
+        and staying on whenever the two happen to arrive the other way round.
+
+        So the pointer's ACTUAL position decides. Still inside the dock means
+        a child took it and there is nothing to reset; outside means the
+        pointer really has gone, which is the case this exists for -- off the
+        bottom row onto the empty stretch below it, where no other row will
+        ever be entered.
         """
+        if self._pointer_is_inside():
+            super().leaveEvent(event)
+            return
         for row in self._items:
             if getattr(row, "_hovered", False):
                 row._hovered = False
                 row.update()
         super().leaveEvent(event)
+
+    def _pointer_is_inside(self) -> bool:
+        """Whether the pointer is anywhere over the dock, children included.
+
+        Asked of the CURSOR rather than of `underMouse()`, because
+        `underMouse()` answers for the widget the cursor is over -- which,
+        during the Leave this guards, is the child that just took it.
+        Falls back to "outside" if the cursor cannot be read, which is the
+        conservative answer: it resets, as the method did before.
+        """
+        from PySide6.QtGui import QCursor
+
+        try:
+            return self.rect().contains(self.mapFromGlobal(QCursor.pos()))
+        except (RuntimeError, TypeError):       # no cursor, or gone
+            return False
 
     def expand_host(self, host_key: str) -> None:
         """Reveal ``host_key``'s folded rows, and only that host's.

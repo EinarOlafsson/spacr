@@ -3949,42 +3949,39 @@ QMenu::separator {{
 #SidebarSection[open="true"], #SidebarSection[hovered="true"] {{
     color: {P["accent"]};
 }}
-/* THE ROW'S PLATE IS NOT DRAWN FROM HERE. Look in
-   `_DockRow._paint_plate` (spacr/qt/app.py) -- the translucent rounded box
-   behind each icon, its hover step and the accent bar on the open module
-   are all painted there, from the live palette.
+/* A DOCK ROW PAINTS NO BOX, IN ANY STATE, and every state is listed below
+   so none can be added back by accident.
 
-   That is not a style preference, it is what was measured on 2026-09-03: a
-   plain `QPushButton` carrying this object name renders the background
-   below, and a `_DockRow` renders the dock's own fill instead, because a
-   `paintEvent` that goes straight to `drawControl(CE_PushButton)` skips the
-   pass in which QStyleSheetStyle fills a widget's background. So no
-   `background` written here has reached a dock row since 348 gave the rows
-   their own painting, INCLUDING the `:hover` arm below -- which is why the
-   dock had no per-row box at all and every icon sat flat on the dark dock.
+   `:hover` used to fill `surface_hi`, and `:checked` filled it and added a
+   3 px accent bar. Those are the "fields which appear whne hovered" the
+   maintainer asked to remove on 2026-09-03: "i just want the transparent
+   dock holder with rounded edges, the icons and when hovered the icons turn
+   blue and you see the text which is also blue. nothing else."
 
-   The rules are kept, at their pre-348 values, for the `color` they set --
-   which QStyleSheetStyle does apply, through the palette it hands the
-   row -- and so that any other widget given this object name still looks
-   like a dock row. Edit the plate's colours in `_DockRow`, not here. */
-QPushButton#SidebarItem {{
-    text-align: left;
+   WHAT REACHES THESE ROWS, because getting it wrong cost two failed fixes.
+   A `_DockRow`'s `paintEvent` paints its icon and returns, so the pass in
+   which QStyleSheetStyle fills a widget's BASE background never runs --
+   which is why a background written on the first rule appeared to do
+   nothing, and why the `drawControl(CE_PushButton)` call that used to open
+   that method was rendering a native button panel from the palette instead.
+   The `:hover` and `:checked` arms DO reach the row, through the style's
+   state handling, which is exactly why the box appeared only under the
+   pointer and on the open module. Both routes are closed now: the
+   `drawControl` call is gone from `app.py`, and there is nothing here to
+   fill with.
+
+   The dock's own translucent rounded slab is painted by
+   `Sidebar.paintEvent`, and it is the only box in the column. */
+QPushButton#SidebarItem,
+QPushButton#SidebarItem:hover,
+QPushButton#SidebarItem:pressed,
+QPushButton#SidebarItem:checked,
+QPushButton#SidebarItem[selected="true"] {{
     background: transparent;
-    color: {P["fg_muted"]};
-    padding: {S["sm"]}px {S["md"]}px;
     border: none;
-    border-left: 3px solid transparent;
-    border-radius: 0px;
+    padding: {S["sm"]}px {S["md"]}px;
+    text-align: left;
     font-size: {F["body"]}px;
-}}
-QPushButton#SidebarItem:hover {{
-    background: {P["surface_hi"]};
-    color: {P["fg"]};
-}}
-QPushButton#SidebarItem:checked, QPushButton#SidebarItem[selected="true"] {{
-    background: {P["surface_hi"]};
-    color: {P["accent"]};
-    border-left: 3px solid {P["accent"]};
 }}
 
 /* -----------------------------------------------------------------
