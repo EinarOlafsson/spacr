@@ -6,14 +6,16 @@ Kept in its own module so :mod:`spacr.core` doesn't grow another 200
 lines and so unit tests can hit the translation code without spinning
 up Cellpose.
 
-Two responsibilities:
+Three responsibilities:
 
 * :func:`v2_channels_from_settings` — extract ``(channels,
   channel_names)`` in a stable order from the mask/cell/nucleus/
   pathogen/organelle settings keys.
 * :func:`report_disk_savings` — after a v2 run, log an estimate of
-  how much disk v1 would have used vs. what v2 actually used, so
-  users can see the payoff.
+  how much disk v1 would have used versus the supplied stack files plus
+  the three known sidecars, so users can see the payoff.
+* :func:`v2_mask_source` — expose mask planes embedded in v2 stacks through
+  the lazy reader interface used by segmentation quality control.
 """
 from __future__ import annotations
 
@@ -44,8 +46,12 @@ def v2_channels_from_settings(settings: Dict[str, Any]
 
     :param settings: v1 settings carrying object-channel assignments.
 
-    Order is fixed: nucleus, cell, pathogen, organelle (drops any that
-    are None or absent). Uses the same C-axis convention that
+    Order is fixed: nucleus, cell, pathogen, organelle. Missing,
+    ``None``, and non-integer assignments are skipped. The top-level
+    ``channels`` sequence is used only when none of those named assignments
+    survives; its generated names preserve each value's original position.
+    With neither usable form, the four-channel default is ``[0, 1, 2, 3]``.
+    Uses the same C-axis convention that
     ``spacr.qt.synthetic.CHANNEL_LAYOUT`` uses so demo data flows
     end-to-end through v2 unchanged.
 
@@ -99,8 +105,10 @@ def report_disk_savings(src: Path, stacks: Sequence[Any]) -> Dict[str, Any]:
 
     :param src: plate root.
     :param stacks: the list of :class:`StackFile` produced by the run.
-    :returns: dict of ``{"v2_bytes", "v1_estimated_bytes",
-        "saved_pct"}``; also logged at INFO.
+    :returns: Dict containing ``v2_bytes``, ``v1_estimated_bytes``,
+        ``saved_bytes``, and ``saved_pct``; also logged at INFO. Stack entries
+        without a readable ``path`` and missing or unreadable sidecars are
+        omitted from the byte total.
     """
     src = Path(src)
     v2_bytes = 0
@@ -138,7 +146,11 @@ def report_disk_savings(src: Path, stacks: Sequence[Any]) -> Dict[str, Any]:
 
 
 def _human(n_bytes: int) -> str:
-    """Render byte count in a human-friendly unit."""
+    """Render a byte count in a human-friendly unit.
+
+    :param n_bytes: Byte count to format.
+    :returns: Decimal-unit text from bytes through terabytes.
+    """
     for unit, div in (("TB", 1e12), ("GB", 1e9), ("MB", 1e6),
                        ("KB", 1e3)):
         if n_bytes >= div:
@@ -160,12 +172,12 @@ def v2_mask_source(merged_dir, object_type: str = "cell"):
     :param object_type: which mask channel to score, matched by name against
         ``channel_order.json``'s ``mask_channels``.
     :returns: ``{field_id: callable}`` -- one thunk per field, each loading
-        its own stack and slicing one plane. Empty when the sidecar is
-        missing, names no mask, or names none matching ``object_type``;
-        scoring nothing is the honest answer to "there is no mask here", and
-        the caller says so rather than this raising into a finished run.
+        its own stack and slicing one plane. An unreadable or syntactically
+        invalid JSON sidecar returns an empty mapping. A sole mask whose name
+        does not match ``object_type`` is deliberately selected; multiple
+        unmatched masks return an empty mapping rather than guessing.
 
-    Loaded through ``mmap_mode='r'`` and copied plane-first, so a 1536-field
+    Loaded through ``mmap_mode='r'`` and sliced plane-first, so a 1536-field
     plate is scored one field at a time rather than read whole.
     """
     import json
@@ -198,9 +210,17 @@ def v2_mask_source(merged_dir, object_type: str = "cell"):
     plane = len(image_channels) + offset
 
     def _reader(path):
-        """Return a lazy zero-argument reader for one captured stack path."""
+        """Return a lazy zero-argument reader for one captured stack path.
+
+        :param path: Stack path captured by the returned closure.
+        :returns: A zero-argument callable that reads the selected mask plane.
+        """
         def read():
             """Memory-map the stack and return its selected 2-D mask plane.
+
+            :returns: The selected mask plane as an array.
+            :raises IndexError: If the deferred stack lacks the sidecar's
+                selected plane.
 
             A stale sidecar whose selected plane is absent raises an
             ``IndexError`` that names the stack, plane, and observed shape.

@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 FULLY_DOCUMENTED = (
     "spacr/__main__.py",
+    "spacr/_v1_v2_bridge.py",
     "spacr/accelerator.py",
     "spacr/active_learning.py",
     "spacr/agreement.py",
