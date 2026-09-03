@@ -67,6 +67,7 @@ FULLY_DOCUMENTED = (
     "spacr/flowview/theme.py",
     "spacr/intensity_rescale.py",
     "spacr/gpu_reduce.py",
+    "spacr/gate_library.py",
     "spacr/guide_concordance.py",
     "spacr/guide_permutation.py",
     "spacr/gene_measurement_compare.py",
