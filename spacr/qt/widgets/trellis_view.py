@@ -71,6 +71,15 @@ class TrellisCanvas(GraphCanvas):
     linked selection, brushing, the large-data policy, the colour order — with
     the layout and the scales taken from
     :class:`~spacr.qt.widgets.trellis_spec.TrellisSpec`.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
     """
 
     #: Emitted after every render with the :class:`Trellis` that was drawn.
@@ -316,6 +325,17 @@ class TrellisPanelWidget(QWidget):
     :class:`~spacr.qt.widgets.graph_builder.DropZone` unchanged, so a column
     dragged here and a column dragged in the Graph Builder are the same
     gesture with the same payload type.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
+
+    The three are handed straight to the :class:`TrellisCanvas` this builds.
     """
 
     spec_changed = Signal(object)

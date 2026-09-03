@@ -235,7 +235,14 @@ def _same(first: Any, second: Any) -> bool:
 
 
 class SettingsAdvisorDialog(QDialog):
-    """Questions, then proposal, then -- only on Apply -- the settings."""
+    """Questions, then proposal, then -- only on Apply -- the settings.
+
+    :param reading: what was measured from the user's data, which is what the
+        questions are derived from.
+    :param current: the settings as they stand. Copied, not held: nothing is
+        written back until Apply, which is the promise in the summary above.
+    :param parent: parent widget.
+    """
 
     def __init__(self, reading: Reading, current: Dict[str, Any],
                  parent: Optional[QWidget] = None):
