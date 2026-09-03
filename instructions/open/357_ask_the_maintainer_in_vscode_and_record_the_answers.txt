@@ -307,3 +307,43 @@ the case it was written for.
 STILL GATED, NOT ASKED: 331-A, 05/304-A and 58-A remain behind the explicit
 1.5.0.5 hold. Guideline 7 forbids asking them until the pre-update gates are
 ready, and none of the answers above is release approval.
+
+--------------------------------------------------------------------------------
+2026-09-03: THREE DRAFTS AWAITING THE MAINTAINER, IN THE LOCALES HE CAN READ
+--------------------------------------------------------------------------------
+
+316-C's answer was "I draft, you correct", and these are the drafts. All
+three are the SAME English caption, and all three are in Icelandic, Swedish
+or German -- the only locales he named. The other six were repaired without
+him because they have no reviewer either way.
+
+English:  "All apps — hover to reveal (Ctrl+Shift+A)"
+
+316-E — SWEDISH. Shipping: "Alla appar — sväva för att avslöja". `sväva` is
+  to float or hover IN THE AIR, the same bird-of-prey error Spanish had.
+    E1  "Alla appar — hovra för att visa (Ctrl+Shift+A)"   RECOMMENDED
+    E2  "Alla appar — peka för att visa (Ctrl+Shift+A)"
+    E3  Einar supplies his own.
+
+316-F — GERMAN. Shipping: "Alle Apps — Hover zu offenbaren". `offenbaren` is
+  revelation in the scriptural sense, and `Hover` is left English.
+    F1  "Alle Apps — zum Anzeigen mit der Maus darüberfahren (Strg+Shift+A)"
+        RECOMMENDED
+    F2  "Alle Apps — überfahren zum Einblenden (Strg+Shift+A)"
+    F3  Einar supplies his own.
+
+316-G — ICELANDIC. Now reads "Öll forrit — hover til að sýna" after the
+  MEANING repair 316-B authorised ("Allir notendur" was ALL USERS). The
+  English word `hover` is still in it, which 316-B did not cover.
+    G1  "Öll forrit — farðu með bendilinn yfir til að sýna (Ctrl+Shift+A)"
+        RECOMMENDED
+    G2  Leave `hover` -- it is understood by Icelandic speakers in software.
+    G3  Einar supplies his own.
+
+  A FOURTH THING TO DECIDE WITH THEM, and it is bigger than the three:
+  re-reading ONE caption across nine locales found EIGHT defects, where this
+  instruction had recorded five found the same way. Five was not the
+  population; it was what one pass caught. So the question is whether a
+  reading pass is owed over the whole UI surface per locale, and if so
+  whether it is worth doing for the six locales that have no reviewer to
+  confirm the result.
