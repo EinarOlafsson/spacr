@@ -3691,6 +3691,11 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     DOCK_BG = (dock_colour(theme) if over_image else css_color(
         dock_colour(theme),
         panel_alpha(theme, "surface_alt", surface_opacity)))
+    #: What the dock actually paints. See the Sidebar block below: 369 takes
+    #: the container off, #16j says it may never be transparent over a
+    #: picture, and `over_image` is the seam that was already carrying that
+    #: distinction.
+    DOCK_FILL = DOCK_BG if over_image else "transparent"
     # The theme ink used by outlined horizontal tiles, and the three maturity
     # hues a module tile switches to on hover. Resting AppTiles are rimless;
     # the hover fill is the stage colour at a low alpha so the tile lights UP
@@ -3880,12 +3885,36 @@ QMenu::separator {{
 /* -----------------------------------------------------------------
  *  Sidebar (main window navigation)
  * ----------------------------------------------------------------- */
-/* NEVER translucent, in any theme — see `dock_colour`. Every widget
-   between the dock's edge and its rows is named here, because the
-   image themes make `QWidget` transparent by default and one unnamed
-   container is enough to put the galaxy back behind the app list. */
+/* THE TRAY GOES ON THE FLAT THEMES AND STAYS OVER A PICTURE, AND THAT SPLIT
+   IS TWO MAINTAINER REQUESTS THAT DISAGREE.
+
+   2026-09-02, instruction 369: "the background dark gray container can be
+   removed, the hover highlight should stay."
+   Earlier, #16j: "the dock to the left should never have a transparent
+   background, either dark gray or white" -- filed because on Space the app
+   list was a ghost with a galaxy behind every row.
+
+   Both are real. Taken literally the second forbids the first. The split
+   already in this file resolves it, and 369 is applied along the SAME seam
+   rather than a new one: on `dark` and `light` there is no wallpaper behind
+   the dock -- only the ambient animation -- so the container comes off and
+   that is exactly what was asked for. Over `space` and `cell` there IS a
+   picture, #16j's complaint applies verbatim, and the legibility floor does
+   not rescue it (Cell floors at 0.047), so the dock stays opaque there.
+
+   THE EDGE IS KEPT EITHER WAY: `#Sidebar` still draws its right border, so
+   the page still ends at a line rather than bleeding into the dock.
+
+   THE HOVER HIGHLIGHT SURVIVES BECAUSE IT WAS NEVER THE TRAY. It is the
+   `QPushButton#SidebarItem:hover` rule below, painted by the row itself
+   through `_DockRow.paintEvent`, which draws the QSS plate before the icon.
+   Removing the plane behind it changes what it sits ON, not whether it is
+   drawn, and `surface_hi` is opaque.
+
+   IF THE MAINTAINER WANTS IT GONE OVER THE PICTURES TOO, this is one line:
+   drop the `over_image` arm of `DOCK_FILL` below. */
 #EdgeDrawer, #Sidebar, #SidebarScroll, #SidebarInner {{
-    background-color: {DOCK_BG};
+    background-color: {DOCK_FILL};
 }}
 #Sidebar {{
     border-right: 1px solid {P["border_soft"]};
@@ -3897,7 +3926,7 @@ QMenu::separator {{
     font-weight: 300;                 /* Light */
     letter-spacing: -0.5px;
     padding: {S["lg"]}px {S["md"]}px {S["md"]}px;
-    background: {DOCK_BG};
+    background: {DOCK_FILL};
 }}
 #SidebarSection {{
     color: {P["fg_dim"]};
@@ -3906,7 +3935,7 @@ QMenu::separator {{
     padding: {S["md"]}px {S["md"]}px {S["xs"]}px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    background: {DOCK_BG};
+    background: {DOCK_FILL};
 }}
 /* AN OPEN SECTION IS BLUE, and so is one under the pointer. The header is
    the control that opens it, and a control that looks identical whether it

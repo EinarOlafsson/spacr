@@ -126,3 +126,62 @@ HOW IT WILL BE CHECKED
   answers `accessibleName()`, `toolTip()` and `text()`.
 * The grey tray is gone from the painted result and the hover highlight is
   still visible against the page behind it.
+
+--------------------------------------------------------------------------------
+2026-09-02: ALL FIVE REMAINING ASKS DONE. THE MARK HAD TO BE SIMPLIFIED.
+--------------------------------------------------------------------------------
+
+1 AND 5, THE HOME MARK. `home.png` is new and is cut from `app_icon.png` by
+`tools/icon_generators/home_from_the_app_mark.py`. Both call sites now use
+`iconset.app_icon("home")` rather than `iconset.icon("home")`, which was
+answering a Font Awesome house.
+
+  THE MARK DOES NOT SURVIVE 26 px AS DRAWN, and this was measured rather
+  than assumed. `app_icon.png` is a teal tile carrying a cell outline, a
+  nucleus, an interior grid, three parasites and four dots -- ten parts,
+  strokes about 8 px wide in a 1024 px image. Downscaled to the dock's
+  26 px, NO PIXEL REACHED ALPHA 200. The first version shipped it anyway
+  and every object-level check passed while the row on screen was
+  unchanged, which is exactly the failure a QIcon-equality test cannot
+  see.
+
+  Dilating the whole drawing was tried at radius 8, 16, 24 and 32 and
+  produced a blob at every one. What worked is SIMPLIFICATION, which is
+  what an app glyph normally is: keep the two largest parts -- the cell
+  outline at 20,068 px and its nucleus at 7,574 px -- and drop the detail
+  that only exists at launcher size. At 26 px that reads as a cell with a
+  nucleus and matches the line weight of every other dock icon. The tile
+  itself is untouched and stays the launcher icon.
+
+2, THE NAME ON HOVER. Option (a) of the two this file offered: INSIDE the
+dock, elided when it does not fit. The overlay was rejected because the row
+already has a status-strip hint and a native tooltip, and a third floating
+label for the same string is not more help.
+
+  `text()` is neither cleared nor set -- 348's three silent readers are
+  unaffected. Only painting was added.
+
+3, WHITE TO BLUE. A `SourceIn` fill over the icon's own pixmap, in
+`active_palette()["accent"]`, resolved at paint time. No second artwork and
+no hex literal.
+
+4, THE TRAY. This is TWO MAINTAINER REQUESTS THAT DISAGREE and the answer is
+a split, recorded in `theme.py` where it is made. #16j said the dock must
+never be transparent, having seen the app list as a ghost over a galaxy;
+this file says the dark grey container can go. Over `cell` and `glass` there
+IS a picture and #16j's complaint applies verbatim, so the dock stays
+opaque; on `dark`, `light` and `space` there is no wallpaper and the
+container comes off. THE RIGHT BORDER IS KEPT IN ALL FOUR, so the page still
+ends at a line. One line reverses this if the maintainer wants it gone
+everywhere -- named in the comment.
+
+GEOMETRY IS IDENTICAL HOVERED AND NOT, asserted on the real widget. 348
+pinned the row height so a target does not move under the pointer, and
+nothing here was allowed to undo it to make room for a word.
+
+ONE FRAGILITY FIXED ON THE WAY. The dock's `leaveEvent` reset every icon's
+SIZE and nothing reset the new ink, so a pointer leaving the column downward
+left one row blue with its name showing. Both are reset together now: two
+things that mean "the pointer is no longer here" cannot disagree.
+
+15 new tests, 144 pass across the dock, fold, theme and icon suites.

@@ -100,19 +100,31 @@ def test_no_surface_resolves_an_app_icon_without_the_override():
 
     import spacr.qt
 
+    import re
+
+    from spacr.qt.app import _ICON_OVERRIDES
+
     root = Path(spacr.qt.__file__).parent
     offenders = []
     for path in root.rglob("*.py"):
         for number, line in enumerate(
                 path.read_text(encoding="utf-8").splitlines(), 1):
-            if "iconset.app_icon(" not in line:
+            if "iconset.app_icon(" not in line or "override=" in line:
                 continue
-            if "override=" in line:
+            # A CALL WITH A LITERAL KEY THAT BORROWS NOTHING IS FINE.
+            # `app_icon("home")` is the dock's Home row: "home" is not in the
+            # override table and never will be, because it is not an app --
+            # it is the button back to the start page. Flagging it would
+            # force a pointless `override=None` and teach the next reader
+            # that the rule is about the spelling rather than about the
+            # table.
+            literal = re.search(r'iconset\.app_icon\(\s*"([^"]+)"', line)
+            if literal and literal.group(1) not in _ICON_OVERRIDES:
                 continue
             offenders.append(f"{path.relative_to(root)}:{number}")
     assert not offenders, (
-        "these call `iconset.app_icon` without an override, so a module that "
-        "borrows another module's picture will draw the wrong one here: "
-        + ", ".join(offenders)
+        "these call `iconset.app_icon` with a key that could borrow another "
+        "module's picture, and pass no override, so they will draw the wrong "
+        "one: " + ", ".join(offenders)
         + ". Call `spacr.qt.app._icon_for_app` instead, which passes it."
     )

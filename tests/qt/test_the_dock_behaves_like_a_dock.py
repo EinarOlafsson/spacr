@@ -212,11 +212,18 @@ def test_every_row_is_as_tall_as_the_largest_icon_it_can_show(dock):
 # ---------------------------------------------------------------------------
 
 def test_a_dock_row_paints_no_text(dock, qapp):
-    """Rendered, a row is a plate and an icon and nothing else.
+    """Rendered AND UNHOVERED, a row is a plate and an icon and nothing else.
 
     Probed by rendering rather than by reading ``text()``, because the row
     deliberately still HOLDS its name -- see the class docstring on
     ``_DockRow`` -- and the maintainer's ask was about what is on screen.
+
+    UNHOVERED IS NOW PART OF THE CLAIM. 348 took the name off the row; 369
+    put it back for as long as the pointer is on it, in the accent colour,
+    beside the icon. The two are not in conflict: the complaint 348 fixed
+    was a permanent column of names duplicating the status strip, and a
+    label that exists only under the pointer is the opposite of permanent.
+    `test_the_dock_names_itself_on_hover.py` holds the hovered half.
 
     The second half is a control. A probe that reports "no ink" against a
     row that is in fact drawing its name would pass for the wrong reason

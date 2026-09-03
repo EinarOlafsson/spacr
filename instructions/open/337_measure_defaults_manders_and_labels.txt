@@ -327,3 +327,32 @@ OWNERSHIP, under protocol 325: parts 2, 3 and 4 land in `spacr/settings.py`,
 which is the other session's file. Part 1's reader half is in
 `spacr/measure.py`, which is mine. The measurement above is handed over so it
 does not have to be redone.
+
+--------------------------------------------------------------------------------
+2026-09-02: THE FOUR QUESTIONABLE RUN-FILE KEYS ARE CLASSIFIED
+--------------------------------------------------------------------------------
+
+Each result below was checked with exact dictionary-access searches, not a
+bare-word search:
+
+* `include_uninfected` was RENAMED to `uninfected` in `14f288f49`. That
+  commit changed the Measure default, expected type, category, tooltip,
+  `_exclude_objects` argument and every Measure consumer together. The old
+  run-file key has no current `spacr/` reader.
+* `n_job` is a misspelling of the live `n_jobs` setting, not a second setting
+  or a moved field. Current Measure defaults and consumers use only `n_jobs`;
+  the settings validator/GUI diagnostic explicitly reports `n_job` as an
+  unknown setting and recommends `n_jobs`.
+* `plot_filtration` was FOLDED INTO `plot` in `62291a450`. That commit removed
+  the dedicated default/type/tooltip and changed the before/after-filtration
+  rendering path; current `measure.py` renders both views under
+  `settings['plot']`, with no `plot_filtration` access left.
+* `representative_images` is a RETIRED/DEAD run-file key, not a rename or
+  another factory's setting. `62291a450` removed its default/type/tooltip and
+  its guarded Measure post-processing block together; the lower-level
+  `_generate_representative_images` helper remains in `spacr.utils`, but no
+  current Measure setting or consumer reconnects this key to it.
+
+No setting was deleted by this classification. The old file is therefore a
+useful provenance record containing three historical names and one typo, but
+those four rows are not candidates for new Measure defaults.
