@@ -442,6 +442,11 @@ class DryRun:
 
     :ivar requirement: pip requirement string that was resolved.
     :ivar ok: whether the packaging tool returned a readable successful plan.
+    :ivar changes: packages the resolver would add or move, including their
+        installed and proposed versions.
+    :ivar error: actionable resolver or launch failure when ``ok`` is false.
+    :ivar raw: combined resolver output retained for diagnostics and parsing
+        failures rather than shown as an installation recommendation.
     """
 
     requirement: str
@@ -661,6 +666,12 @@ class InstallOffer:
         ``impossible`` when installing cannot satisfy the requirement.
     :ivar title: short heading shown for the optional capability.
     :ivar message: explanation shown with the offer.
+    :ivar requirement: exact pip requirement that may be installed in this
+        environment, or ``None`` when no command is safe here.
+    :ivar recipe: instructions for preparing another environment or optional
+        context displayed beneath the message.
+    :ivar runs_anything: whether accepting this offer can execute an install;
+        informational and external-environment offers always leave it false.
     """
 
     action: str
