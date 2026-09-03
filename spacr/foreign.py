@@ -478,19 +478,19 @@ class ColumnMap:
     what comes back from :func:`load_column_map` — there is no path by
     which an inferred mapping reaches the database unreviewed.
 
-    :ivar source: the column name in their table, verbatim.
-    :ivar target: the column name in ``measurements.db``. Empty means
-        "not mapped", which is reported rather than dropped.
-    :ivar transform: ``'identity'`` (copy), ``'length'`` / ``'area'`` /
-        ``'volume'`` (apply the pixel size to the 1st / 2nd / 3rd power),
-        or an explicit literal factor such as ``'*0.65'`` or ``'/1000'``.
-    :ivar unit_in: the unit their values are in, e.g. ``'um^2'``. Required
-        for any non-identity, non-literal transform: converting without
-        knowing what you are converting *from* is guessing.
-    :ivar unit_out: the unit the stored values are in. Defaults to
-        spaCR's own (``px`` / ``px^2`` / ``px^3``) for a scaling transform.
-    :ivar note: free text carried into the plan, the map file and the
-        ``foreign_columns`` table.
+    :param source: source-table column name, preserved verbatim.
+    :param target: destination column in ``measurements.db``; an empty value
+        is reported as unmapped and routed under the foreign prefix rather
+        than dropped.
+    :param transform: ``"identity"``, a pixel-size ``"length"``/``"area"``/
+        ``"volume"`` conversion, or a literal factor such as ``"*0.65"`` or
+        ``"/1000"``.
+    :param unit_in: declared source unit; required for non-identity,
+        non-literal conversions.
+    :param unit_out: stored-value unit; scaling transforms default to spaCR's
+        corresponding pixel unit when omitted.
+    :param note: reviewer prose retained in the map file, import plan, and
+        ``foreign_columns`` provenance table.
     """
 
     source: str

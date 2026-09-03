@@ -425,13 +425,13 @@ def _read_csv_head(path: Path, max_rows: int,
 class Figure:
     """One figure found under ``src``.
 
-    :ivar path: where the figure lives on disk.
-    :ivar title: caption shown above it.
-    :ivar mime: MIME type of :attr:`data`.
-    :ivar data: the bytes embedded in the HTML, or ``None`` when the figure
-        was found but not embedded.
-    :ivar reason: why it was not embedded, when it was not.
-    :ivar n_bytes: size of the file on disk.
+    :param path: location of the discovered figure on disk.
+    :param title: caption displayed with the figure.
+    :param mime: MIME type used for embedded ``data``.
+    :param data: embedded image bytes, or ``None`` when the figure was only
+        listed.
+    :param reason: explanation for why a discovered figure was not embedded.
+    :param n_bytes: size of the source file on disk.
     """
     path: Path
     title: str = ""

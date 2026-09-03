@@ -217,11 +217,14 @@ class ClusterWalkRow:
     prevents a cluster button from quietly refitting UMAP and making the row
     the user selected cease to be the row they are looking at.
 
-    :ivar min_cluster_size: HDBSCAN minimum cluster size used for this trial.
-    :ivar labels: cluster label for every embedding row, with noise as ``-1``.
-    :ivar silhouette: silhouette score over assigned points when defined.
-    :ivar n_clusters: number of non-noise clusters found.
-    :ivar noise_fraction: fraction of embedding rows assigned to noise.
+    :param min_cluster_size: HDBSCAN minimum cluster size used for this trial.
+    :param labels: cluster label for each embedding row, with noise represented
+        by ``-1``.
+    :param silhouette: silhouette score over assigned points when defined; a
+        non-finite value makes :attr:`score` rank below every measured trial.
+    :param n_clusters: number of non-noise clusters found.
+    :param noise_fraction: fraction of embedding rows assigned to noise, used
+        to discount :attr:`score`.
     """
 
     min_cluster_size: int
