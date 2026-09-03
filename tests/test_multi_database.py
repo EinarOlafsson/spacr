@@ -67,7 +67,7 @@ def test_the_plan_reports_what_the_merge_would_cost(two_plates):
 def test_the_plan_names_the_sources_readably(two_plates):
     plan = describe_merge(list(two_plates), "cell")
     for field in ("screen", "screen_plates", "stored_plates"):
-        assert f":ivar {field}:" in (type(plan.sources[0]).__doc__ or "")
+        assert f":param {field}:" in (type(plan.sources[0]).__doc__ or "")
     assert [s.label for s in plan.sources] == ["plateA", "plateB"]
 
 
@@ -487,7 +487,7 @@ def test_a_merge_decision_is_written_down(tmp_path, colliding):
     decision = decision_for(plan, outcome="resolved",
                             resolution="removed runB from the working set")
     for field in ("resolution", "when"):
-        assert f":ivar {field}:" in (type(decision).__doc__ or "")
+        assert f":param {field}:" in (type(decision).__doc__ or "")
 
     log = tmp_path / "merge_decisions.jsonl"
     assert record_decision(decision, str(log)) == str(log)

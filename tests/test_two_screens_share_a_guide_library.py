@@ -289,6 +289,27 @@ def test_a_stored_screen_id_that_repeats_is_a_collision_again(tmp_path):
         read_merged(paths, "cell")
 
 
+def test_stored_screen_collisions_use_the_canonical_plate_identity(tmp_path):
+    """Stored ``pplate1`` and ``plate1`` become the same merged identity.
+
+    The merged frame canonicalizes both spellings, so the preview must refuse
+    their collision before data from one screen can be pooled silently.
+    """
+    paths = [_screen(tmp_path, "stored_odd", plates=("pplate1",),
+                     screen_column="kd"),
+             _screen(tmp_path, "stored_canonical", plates=("plate1",),
+                     screen_column="kd")]
+
+    plan = describe_merge(paths, "cell")
+    assert [source.screen_plates for source in plan.sources] == [
+        (("kd", "plate1"),),
+        (("kd", "plate1"),),
+    ]
+    assert plan.has_collisions
+    with pytest.raises(MergeRefused):
+        read_merged(paths, "cell")
+
+
 def test_an_explicit_screen_label_overrides_a_stored_one(tmp_path):
     """The caller is looking at the files. When they say which screen a
     database is, that is the answer -- and the stored column is replaced, not
