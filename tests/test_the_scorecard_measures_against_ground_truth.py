@@ -421,3 +421,116 @@ def test_the_csv_round_trips_through_the_stdlib_reader():
     assert back and {"metric", "finetuned", "vanilla", "delta", "holdout",
                      "holdout_version"} <= set(back[0])
     assert any(row["metric"] == "f1" for row in back)
+
+
+# ---------------------------------------------------------------------------
+# The set itself: named, versioned, checksummed
+# ---------------------------------------------------------------------------
+
+
+def _write_holdout(tmp_path, *, name="toxo_pv", version="2026-09-03",
+                   digests=True, fields=2):
+    import hashlib
+    import json
+
+    import tifffile
+
+    entries = []
+    for i in range(fields):
+        truth = _square(box=(10 + 5 * i, 40 + 5 * i))
+        tifffile.imwrite(tmp_path / f"t{i}.tif", truth.astype("uint16"))
+        tifffile.imwrite(tmp_path / f"f{i}.tif", (truth > 0).astype("uint16"))
+        entry = {"image": f"f{i}.tif", "truth": f"t{i}.tif"}
+        if digests:
+            entry["sha256"] = hashlib.sha256(
+                (tmp_path / f"t{i}.tif").read_bytes()).hexdigest()
+        entries.append(entry)
+    manifest = tmp_path / "holdout.json"
+    manifest.write_text(json.dumps(
+        {"name": name, "version": version, "fields": entries}), encoding="utf-8")
+    return manifest
+
+
+def test_a_manifest_without_a_version_is_refused():
+    """A set that cannot say which version it is cannot be compared against
+    anything, and a default would let one be published as though it could."""
+    import json
+    import tempfile
+    from pathlib import Path
+
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "m.json"
+        path.write_text(json.dumps(
+            {"name": "x", "fields": [{"image": "a", "truth": "b"}]}))
+        with pytest.raises(ValueError, match="version"):
+            scorecard.load_holdout(path)
+
+
+def test_a_manifest_with_no_fields_or_no_name_is_refused(tmp_path):
+    import json
+
+    for payload, complaint in (
+            ({"name": "x", "version": "1", "fields": []}, "no fields"),
+            ({"version": "1", "fields": [{"image": "a", "truth": "b"}]},
+             "no name")):
+        path = tmp_path / "m.json"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        with pytest.raises(ValueError, match=complaint):
+            scorecard.load_holdout(path)
+
+
+def test_a_field_missing_its_truth_mask_is_refused(tmp_path):
+    import json
+
+    path = tmp_path / "m.json"
+    path.write_text(json.dumps(
+        {"name": "x", "version": "1", "fields": [{"image": "a.tif"}]}),
+        encoding="utf-8")
+    with pytest.raises(ValueError, match="image and a truth"):
+        scorecard.load_holdout(path)
+
+
+def test_a_set_verifies_against_its_digests(tmp_path):
+    pytest.importorskip("tifffile")
+    holdout = scorecard.load_holdout(_write_holdout(tmp_path))
+
+    assert holdout.name == "toxo_pv" and holdout.version == "2026-09-03"
+    assert scorecard.verify_holdout(holdout) == []
+
+
+def test_a_tampered_mask_is_reported(tmp_path):
+    pytest.importorskip("tifffile")
+    import tifffile
+
+    manifest = _write_holdout(tmp_path)
+    holdout = scorecard.load_holdout(manifest)
+    tifffile.imwrite(tmp_path / "t0.tif", _square(box=(1, 70)).astype("uint16"))
+
+    problems = scorecard.verify_holdout(holdout)
+    assert any("does not match its digest" in p for p in problems)
+
+
+def test_a_set_published_without_digests_is_a_finding_not_a_pass(tmp_path):
+    """Without them nobody can tell whether two people scored the same masks,
+    which is the entire point of naming and versioning the set."""
+    pytest.importorskip("tifffile")
+    holdout = scorecard.load_holdout(_write_holdout(tmp_path, digests=False))
+
+    problems = scorecard.verify_holdout(holdout)
+    assert problems and all("no digest published" in p for p in problems)
+
+
+def test_scoring_a_model_carries_the_sets_name_and_version(tmp_path):
+    pytest.importorskip("tifffile")
+    import tifffile
+
+    holdout = scorecard.load_holdout(_write_holdout(tmp_path))
+    # A "model" that returns the truth: the plumbing is what is under test.
+    scored = scorecard.score_model_on_holdout(
+        holdout,
+        predict=lambda image: np.asarray(
+            tifffile.imread(str(image).replace("/f", "/t"))))
+
+    assert scored.name == "toxo_pv" and scored.version == "2026-09-03"
+    assert scored.n_fields == 2
+    assert scored.metrics["f1"] == pytest.approx(1.0)
