@@ -286,7 +286,13 @@ def test_a_run_with_neither_family_is_not_told_to_switch_level(qtbot):
     assert "Its 2 guide-level coefficients are still here" in with_guides
     assert "set Level to gRNA" in with_guides
 
-    nuisance = pd.DataFrame({"feature": ["Intercept", "column[c3]"],
+    # THE SPELLING spaCR ACTUALLY WRITES. `prepare_formula` emits
+    # "fraction ~ fraction:grna + plateID + rowID + columnID", so the layout
+    # covariates come back as `columnID[T.c3]`. This said `column[c3]`, which
+    # no spaCR run produces and which `hits.NUISANCE_TERMS` therefore does
+    # not match -- so the row counted as a gene-level coefficient and the
+    # test failed against a fixture, not against the code.
+    nuisance = pd.DataFrame({"feature": ["Intercept", "columnID[T.c3]"],
                              "coefficient": [0.5, 0.6],
                              "p_value": [0.2, 0.3]})
     panel.set_frame(nuisance, "/runs/nuisance/results.csv")
