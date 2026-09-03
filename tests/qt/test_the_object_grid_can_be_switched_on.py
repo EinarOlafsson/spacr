@@ -42,7 +42,7 @@ def _screen(qtbot, prefs, on):
     return screen
 
 
-def test_the_default_is_the_form_that_was_always_there(qtbot, grid_preference):
+def test_the_default_is_the_form_that_was_always_there(qtbot, qt_theme_applied, grid_preference):
     """Nothing changes for a user who has not asked for the grid."""
     from spacr.qt import preferences as prefs
 
@@ -54,7 +54,7 @@ def test_the_default_is_the_form_that_was_always_there(qtbot, grid_preference):
     assert screen.setting_row_is_visible("cell_diameter") is True
 
 
-def test_switching_it_on_puts_the_grid_where_the_rows_were(qtbot,
+def test_switching_it_on_puts_the_grid_where_the_rows_were(qtbot, qt_theme_applied,
                                                            grid_preference):
     """The rows go, the grid arrives, the widgets stay."""
     screen = _screen(qtbot, grid_preference, True)
@@ -66,7 +66,7 @@ def test_switching_it_on_puts_the_grid_where_the_rows_were(qtbot,
     assert "cell_diameter" in screen._settings_model._widgets
 
 
-def test_the_settings_are_the_same_either_way(qtbot, grid_preference):
+def test_the_settings_are_the_same_either_way(qtbot, qt_theme_applied, grid_preference):
     """The whole safety argument, asked directly."""
     off = _screen(qtbot, grid_preference, False)._settings_model.collect()
     on = _screen(qtbot, grid_preference, True)._settings_model.collect()
@@ -76,7 +76,7 @@ def test_the_settings_are_the_same_either_way(qtbot, grid_preference):
         assert on[key] == value, f"{key} differs with the grid on"
 
 
-def test_editing_a_cell_reaches_the_settings_the_run_reads(qtbot,
+def test_editing_a_cell_reaches_the_settings_the_run_reads(qtbot, qt_theme_applied,
                                                            grid_preference):
     """Through `setData`, which is what typing in a cell calls."""
     from PySide6.QtCore import Qt
@@ -95,7 +95,7 @@ def test_editing_a_cell_reaches_the_settings_the_run_reads(qtbot,
 
 
 def test_a_row_the_grid_speaks_for_stays_hidden_across_a_refresh(
-        qtbot, grid_preference):
+        qtbot, qt_theme_applied, grid_preference):
     """`refresh_object_visibility` recomputes its hidden set from scratch.
 
     So the grid's keys are kept in a set of their own and unioned in. Putting
@@ -109,7 +109,7 @@ def test_a_row_the_grid_speaks_for_stays_hidden_across_a_refresh(
     assert screen.setting_row_is_visible("cell_diameter") is False
 
 
-def test_the_grid_is_not_a_labelled_setting_row(qtbot, grid_preference):
+def test_the_grid_is_not_a_labelled_setting_row(qtbot, qt_theme_applied, grid_preference):
     """It goes in through `add_prose_row`, and that matters.
 
     Every entry in `Section._row_widgets` is taken to BE a labelled setting
@@ -127,7 +127,7 @@ def test_the_grid_is_not_a_labelled_setting_row(qtbot, grid_preference):
 # Reachable without editing QSettings by hand
 # ---------------------------------------------------------------------------
 
-def test_preferences_offers_the_choice_and_saves_it(qtbot, grid_preference):
+def test_preferences_offers_the_choice_and_saves_it(qtbot, qt_theme_applied, grid_preference):
     """A preference nobody can find is a preference nobody has.
 
     The row is on the Appearance tab beside the two tooltip switches, and
