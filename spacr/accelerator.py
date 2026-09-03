@@ -197,14 +197,18 @@ def _mps(torch) -> Optional[Accelerator]:
         return None
     try:
         if not backend.is_available():
-            # Built but unavailable is a real and confusing state: an
-            # x86 mac on macOS < 12.3, or a machine with no Metal device.
+            # Built but unavailable is a real and confusing state, and it
+            # has SEVERAL causes that a user can act on differently. This
+            # used to answer all of them with "this system does not offer a
+            # Metal device", which on an Intel Mac with Intel graphics is
+            # simply false -- the machine has a Metal device, drives its
+            # display with it, and torch still cannot use it. Reported by
+            # the maintainer on a 2020 Intel Mac.
             if backend.is_built():
+                label, note = _why_metal_is_unavailable()
                 return Accelerator(
-                    kind="mps", device="cpu", label="Apple Metal (MPS)",
-                    detected=True, usable=False,
-                    note="torch has Metal support but this system does not "
-                         "offer a Metal device; running on the CPU.")
+                    kind="mps", device="cpu", label=label,
+                    name=label, detected=True, usable=False, note=note)
             return None
     except Exception:                                        # noqa: BLE001
         return None
@@ -214,6 +218,82 @@ def _mps(torch) -> Optional[Accelerator]:
         name=metal_name,
         # MEASURED, not assumed -- see this module's docstring.
         float64=False, autocast=False, fallback=True)
+
+
+#: Intel's integrated GPU families, as `system_profiler` spells them.
+#:
+#: These are the parts in Intel Macs that have no PyTorch backend AT ALL --
+#: see :func:`_why_metal_is_unavailable`. Matched on the name because that is
+#: the only thing available: torch reports nothing about a device it refuses
+#: to open, and `system_profiler` is already being asked for the marketing
+#: name a page or two above.
+_INTEL_INTEGRATED = ("iris", "uhd graphics", "hd graphics")
+
+
+def _why_metal_is_unavailable() -> Tuple[str, str]:
+    """``(label, note)`` for a torch with Metal built in and no Metal device.
+
+    THREE DIFFERENT ANSWERS, because the reader can act on them differently
+    and the third one is the whole reason this function exists.
+
+    * macOS older than 12.3: the MPS backend did not exist yet. Upgrading
+      fixes it, and that is worth saying.
+    * An Intel Mac with Intel integrated graphics: NOTHING fixes it, and
+      saying so is the useful answer. Apple's Metal backend for PyTorch
+      covers Apple Silicon and the AMD discrete cards Apple shipped in
+      Intel Macs; Intel's integrated parts were never added. Intel's own
+      PyTorch path -- IPEX, ``torch.xpu`` -- targets the Arc and Xe
+      DISCRETE GPUs on Linux and Windows, has no macOS build, and does not
+      support these iGPUs either. So the CPU is not a fallback here, it is
+      the only device, and a user who goes looking for the driver they must
+      have installed wrong will not find one.
+    * Anything else: the honest generic, which is what this function
+      answered for every case before.
+
+    :returns: the label the doctor puts in front of "was detected but spaCR
+        cannot use it", and the sentence under it.
+    """
+    if platform.system() != "Darwin":
+        return ("Apple Metal (MPS)",
+                "torch is built with Metal support but this is not macOS, "
+                "so there is no Metal device to use; running on the CPU.")
+
+    gpu = _metal_gpu_name()
+    release = platform.mac_ver()[0]
+    intel_mac = platform.machine() in ("x86_64", "i386")
+
+    # ASKED FIRST, because on macOS 12.2 an Apple Silicon Mac reaches here
+    # too and "upgrade macOS" is the true answer for it as well.
+    if release:
+        try:
+            major, minor = (int(part) for part in release.split(".")[:2])
+        except ValueError:                                   # noqa: BLE001
+            major = minor = 0
+        if major and (major, minor) < (12, 3):
+            return (gpu,
+                    f"macOS {release} is older than 12.3, which is where "
+                    f"PyTorch's Metal (MPS) backend begins. Upgrading macOS "
+                    f"is what enables it; until then spaCR runs on the CPU.")
+
+    lowered = gpu.lower()
+    if intel_mac and any(family in lowered for family in _INTEL_INTEGRATED):
+        return (gpu,
+                f"{gpu} is Intel integrated graphics in an Intel Mac, and no "
+                f"PyTorch backend supports it. Apple's Metal (MPS) backend "
+                f"covers Apple Silicon and the AMD discrete cards Apple "
+                f"shipped in Intel Macs; Intel's integrated GPUs were never "
+                f"added to it. Intel's own PyTorch path -- IPEX and "
+                f"torch.xpu -- targets the Arc and Xe discrete cards on "
+                f"Linux and Windows, has no macOS build, and does not "
+                f"support this GPU either. spaCR runs on the CPU here and "
+                f"THERE IS NOTHING TO INSTALL OR CONFIGURE: this is a gap "
+                f"between two vendors, not a setup problem. Segmentation "
+                f"and training will be slow; a CUDA machine is the only way "
+                f"round it.")
+
+    return (gpu,
+            "torch has Metal support but this system does not offer a Metal "
+            "device to it; running on the CPU.")
 
 
 @lru_cache(maxsize=1)
