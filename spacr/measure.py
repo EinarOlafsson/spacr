@@ -3199,7 +3199,13 @@ def _measure_crop_core(index, time_ls, file, settings):
             dim = settings.get(f'{organelle_role}_mask_dim')
             if dim is not None:
                 current_mask = data[..., dim].astype(data_type)
-                minimum = settings.get(f'{organelle_role}_min_size')
+                # THE SURVIVING NAME. `_min_size` was retired in favour
+                # of `_min_area` because the two meant the same thing
+                # and were read by different code, so the preview and
+                # the run filtered differently with nothing saying so.
+                # A file still carrying `_min_size` is migrated by
+                # `RETIRED_SETTINGS` before it reaches here.
+                minimum = settings.get(f'{organelle_role}_min_area')
                 if minimum:
                     current_mask = _filter_object(current_mask, minimum)
             else:
