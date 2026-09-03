@@ -200,6 +200,9 @@ class PreprocessingContext:
         :param file_name: field stem identifying the source array.
         :param channels: source channel indices in array-axis order.
         :param settings: run settings to expose through a read-only view.
+        :param volumetric: whether the source has a leading Z dimension.
+        :param spacing: voxel spacing in array-index order, or ``None`` for
+            unscaled 2-D measurements.
         """
         self.file_name = file_name
         self.channels = tuple(int(c) for c in channels)
@@ -253,6 +256,7 @@ class RegionContext:
         :param file_name: field stem identifying the source array.
         :param mask: label mask to expose through a read-only array view.
         :param settings: run settings to expose through a read-only view.
+        :param spacing: voxel spacing in mask-index order, or ``None`` in 2-D.
         """
         self.object_type = object_type
         self.file_name = file_name
