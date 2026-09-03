@@ -418,6 +418,8 @@ class RangeFilter:
     """Keep rows whose ``column`` lies within ``[low, high]``.
 
     :ivar column: numeric column evaluated by the range filter.
+    :ivar low: inclusive lower bound, or ``None`` for no lower bound.
+    :ivar high: inclusive upper bound, or ``None`` for no upper bound.
 
     ``None`` on either bound means unbounded on that side, which is what a
     slider dragged to its end should mean — not "exclude everything".
@@ -505,6 +507,8 @@ class DataFilter:
 
     Declarative and re-appliable: the same filter means something on a
     re-run's table, which is what separates it from a selection.
+
+    :ivar clauses: range and category predicates combined with logical AND.
     """
 
     clauses: list = field(default_factory=list)
@@ -677,6 +681,9 @@ class Selection:
     empty index meaning "an explicit selection that happens to be empty" —
     a lasso around blank space. Views draw those two differently: the first
     is the resting state, the second is a result.
+
+    :ivar keys: selected object keys, or ``None`` for the resting state.
+    :ivar source: view name that published the selection, used to avoid echo.
     """
 
     keys: Optional[pd.Index] = None
