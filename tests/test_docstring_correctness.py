@@ -1479,6 +1479,20 @@ def _missing_required_parameters(item: _PublicCallable) -> frozenset[str]:
     return item.required_parameters - documented
 
 
+def test_baseline_constructor_documents_every_field():
+    """Baseline's optional failure reason is part of its public contract."""
+    item = next(
+        candidate for candidate in _public_callables()
+        if candidate.symbol == "spacr.baseline.Baseline"
+    )
+    documented = (
+        _documented_parameter_names(item.docstring)
+        | frozenset(name.lstrip("*") for name in IVAR_FIELD.findall(
+            item.docstring))
+    )
+    assert item.parameters <= documented
+
+
 def _required_parameter_omission_inventory(
     items,
     canonical_aliases=frozenset(),

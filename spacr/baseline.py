@@ -56,6 +56,8 @@ class Baseline:
     :ivar shift: constant subtracted from every reported effect.
     :ivar n: number of coefficients used to estimate the shift.
     :ivar sentence: non-empty caption sentence explaining the baseline.
+    :ivar reason: why the requested strategy could not be honoured, or
+        ``None`` when it was applied as requested.
     """
 
     kind: str
