@@ -455,3 +455,37 @@ nowhere to go in a merged array. Lifting that is a change to
 `spacr/schema.py` and `spacr/crops.py`, which belong to the other session
 under protocol 325 -- it is not something the Import screen can do for
 itself, and pretending otherwise would offer a class the backend drops.
+
+--------------------------------------------------------------------------------
+2026-09-02 (late): STEP 2 IS BLOCKED ON A LIVE JOB, NOT ON A DECISION
+--------------------------------------------------------------------------------
+
+The choice between A and B above is not close, and the file's own numbers
+settle it: A mints roughly 3,000 new English strings and about 27,000 new
+locale rows, landing on instructions 306 and 316 — which are release-blocking
+and are the maintainer's stated bottleneck. Paying that to raise a ceiling is
+the wrong trade by a wide margin. B keeps the registry one slot wide whatever
+the ceiling is and the translation surface stops growing with it entirely.
+
+SO THE ANSWER IS B, and the reason it is still not done tonight is
+mechanical rather than editorial: B is a rewrite of the per-slot tooltip
+registry in `spacr/settings.py`, and a session is at this moment regenerating
+all nine locale catalogs FROM that registry. Editing the source of a
+regeneration while it runs produces catalogs that match neither the old
+registry nor the new one, and the audit that would catch it is the same run.
+
+WHAT B ACTUALLY REQUIRES, so the next session does not re-derive it:
+
+  * one translated string per setting, carrying the slot as a placeholder --
+    "...removed from organelle {n} masks..." -- resolved when the tooltip is
+    READ rather than materialised per slot;
+  * the 41-of-56 secondary tooltips that are genuinely distinct from the
+    primary's collapse into those placeholders; the other 15 are already
+    clones and collapse for free;
+  * `MAX_ORGANELLES` then stops being a translation question and becomes only
+    the "tell the user which keys stopped existing" question its docstring
+    describes, which the file argues should keep a limit and just not 26.
+
+ORDER: wait for the catalog regeneration to land and be committed, then do B,
+then raise the ceiling. Doing it the other way round means translating strings
+that are about to stop existing.
