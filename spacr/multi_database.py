@@ -196,16 +196,17 @@ class MergePlan:
     afterwards that half the measurements were dropped is finding out too
     late.
 
-    :ivar sources: per-database summaries in the requested merge order.
-    :ivar common_columns: canonical columns present in every source.
-    :ivar partial_columns: mapping from a non-common column to source labels
-        that contain it.
-    :ivar colliding_plates: plate ids duplicated within a screen, mapped to
-        the source labels that contribute them.
-    :ivar colliding_identities: duplicate ``(screen, plate)`` identities
-        mapped to contributing sources so the affected screen can be named.
-    :ivar shared_plates_across_screens: plate ids reused by distinct screens;
-        reported for review but intentionally not treated as collisions.
+    :param sources: per-database summaries in requested merge order.
+    :param common_columns: canonical columns present in every source.
+    :param partial_columns: non-common columns mapped to the source labels
+        that contain them.
+    :param colliding_plates: plate identifiers duplicated within one screen,
+        mapped to contributing source labels.
+    :param colliding_identities: duplicate ``(screen, plate)`` identities
+        mapped to contributing source labels.
+    :param shared_plates_across_screens: plate identifiers reused by distinct
+        screens; reported for review but deliberately not treated as
+        collisions.
     """
 
     sources: Tuple[SourceSummary, ...]

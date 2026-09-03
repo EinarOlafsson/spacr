@@ -68,12 +68,14 @@ class Screen:
 class Verdict:
     """How an annotation did against a known truth.
 
-    :ivar coverage: share of cells that received a non-abstaining call.
-    :ivar precision: share of called cells assigned to the correct guide.
-    :ivar recall: share of all cells assigned to the correct guide.
-    :ivar per_guide: guide names mapped to ``(precision, recall)``.
-    :ivar confusion: counts keyed by ``(true guide, called guide)``.
-    :ivar n: total number of truth labels evaluated.
+    :param coverage: fraction of cells receiving a non-abstaining annotation.
+    :param precision: fraction of annotated cells assigned to the correct
+        guide.
+    :param recall: fraction of all evaluated cells assigned to the correct
+        guide.
+    :param per_guide: guide names mapped to ``(precision, recall)`` values.
+    :param confusion: counts keyed by ``(true guide, called guide)``.
+    :param n: total number of truth labels evaluated.
     """
 
     coverage: float          # share of cells annotated at all

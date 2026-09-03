@@ -56,7 +56,7 @@ def test_the_plan_reports_what_the_merge_would_cost(two_plates):
     plan = describe_merge(list(two_plates), "cell")
 
     for field in ("colliding_identities", "shared_plates_across_screens"):
-        assert f":ivar {field}:" in (type(plan).__doc__ or "")
+        assert f":param {field}:" in (type(plan).__doc__ or "")
     assert plan.total_rows == 8
     assert set(plan.common_columns) == {"plateID", "rowID", "columnID", "area"}
     assert "perimeter" in plan.partial_columns

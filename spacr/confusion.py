@@ -534,14 +534,15 @@ class ConfusionCell:
     everything it draws — the two lists, the keys to route, and the sentences
     — rather than orchestrating five functions in a mouse handler.
 
-    :ivar rows: every object in the cell, in table order.
-    :ivar high: confidence ``>= threshold``, most confident first. Suspect the
-        label.
-    :ivar low: confidence ``< threshold``, least confident first. Suspect the
-        boundary.
-    :ivar true_class: annotated class naming the matrix row.
-    :ivar predicted_class: model class naming the matrix column.
-    :ivar threshold: confidence cutoff separating the two review queues.
+    :param true_class: annotated class naming the confusion-matrix row.
+    :param predicted_class: model class naming the confusion-matrix column.
+    :param threshold: confidence boundary separating the two review queues.
+    :param rows: every object in this matrix cell, retained in source-table
+        order.
+    :param high: rows with confidence at least ``threshold``, ordered most
+        confident first.
+    :param low: rows below ``threshold``—including missing confidence—ordered
+        least confident first.
     """
 
     true_class: str

@@ -434,15 +434,16 @@ class Series:
 class Comparison:
     """The result of :func:`compare_runs` — series to plot plus the diff.
 
-    :ivar runs: source training runs, in comparison order.
-    :ivar series: every line that will be drawn, in run order.
-    :ivar settings_diff: the bucketed diff (see :func:`diff_settings`).
-    :ivar metrics: metric columns available on at least one series, sorted with
-        the common ones first.
-    :ivar problems: ``[{'run_id', 'note'}]`` — every note from every run,
-        flattened so a caller can show them all in one place.
-    :ivar fold_mode: which of ``per_fold`` / ``mean`` / ``both`` produced
-        :attr:`series`, so the caller can state it.
+    :param runs: source training runs in comparison order.
+    :param series: plot-ready series in run order.
+    :param settings_diff: bucketed settings comparison produced by
+        :func:`diff_settings`.
+    :param metrics: metric names available on at least one series, with shared
+        metrics ordered first.
+    :param problems: flattened ``{'run_id', 'note'}`` records collected from
+        all runs.
+    :param fold_mode: ``"per_fold"``, ``"mean"``, or ``"both"``, identifying
+        how ``series`` was assembled.
     """
     runs: List[TrainingRun]
     series: List[Series]
