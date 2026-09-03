@@ -50,12 +50,14 @@ GITHUB_NIGHTLY_API = (
 class UpdateInfo:
     """Result of a version check.
 
-    :ivar installed_version: version of the locally installed spaCR package.
-    :ivar latest_release: latest PyPI release, or ``None`` when unavailable.
-    :ivar nightly_sha: abbreviated nightly-branch commit, or ``None`` when
-        unavailable.
-    :ivar error: first service or lookup failure encountered, or ``None``
-        when both version checks succeeded.
+    :param installed_version: locally installed spaCR version, or ``"unknown"``
+        when neither distribution's metadata is readable.
+    :param latest_release: latest spaCR version returned by PyPI, or ``None``
+        when it is missing or unavailable.
+    :param nightly_sha: first seven characters of the nightly branch head
+        returned by GitHub, or ``None`` when unavailable.
+    :param error: first PyPI or GitHub request failure, prefixed by service
+        name, or ``None`` when neither request failed.
     """
     installed_version: str
     latest_release:    Optional[str]
@@ -398,9 +400,12 @@ def dry_run_command(requirement) -> list:
 class PackageChange:
     """One line of a dry-run report: what a package is now, and would be.
 
-    :ivar name: distribution name reported by the resolver.
-    :ivar current: installed version, or ``None`` when the package is absent.
-    :ivar proposed: resolved version, or ``None`` when it would be removed.
+    :param name: distribution name as reported by the resolver; its spelling
+        is retained.
+    :param current: installed version, or the version reported as removed by
+        uv, or ``None`` when the distribution is absent.
+    :param proposed: version the resolver would install, or ``None`` when it
+        would remove the distribution.
     """
 
     name: str
@@ -441,13 +446,15 @@ class DryRun:
     ``ok`` is False when the resolver refused, when the tool could not be
     run, or when it returned no machine-readable plan.
 
-    :ivar requirement: pip requirement string that was resolved.
-    :ivar ok: whether the packaging tool returned a readable successful plan.
-    :ivar changes: packages the resolver would add or move, including their
-        installed and proposed versions.
-    :ivar error: actionable resolver or launch failure when ``ok`` is false.
-    :ivar raw: combined resolver output retained for diagnostics and parsing
-        failures rather than shown as an installation recommendation.
+    :param requirement: pip requirement string that was resolved.
+    :param ok: whether the packaging command succeeded and returned a readable
+        machine plan.
+    :param changes: parsed resolver entries, including additions, version
+        moves, and removals as :class:`PackageChange` records.
+    :param error: resolver or launch failure detail when ``ok`` is false,
+        otherwise ``None``.
+    :param raw: concatenated resolver stdout and stderr retained for
+        diagnostics.
     """
 
     requirement: str
@@ -661,18 +668,17 @@ class InstallOffer:
     UMAP's GPU acceleration (:func:`spacr.gpu_reduce.install_offer`) -- so the
     panel that shows it does not have to know which asked.
 
-    :ivar action: one of :data:`OFFER_ACTIONS`: ``ready`` when nothing needs
-        installing; ``install`` when this environment can accept the package;
-        ``elsewhere`` when the recipe requires another environment; or
-        ``impossible`` when installing cannot satisfy the requirement.
-    :ivar title: short heading shown for the optional capability.
-    :ivar message: explanation shown with the offer.
-    :ivar requirement: exact pip requirement that may be installed in this
-        environment, or ``None`` when no command is safe here.
-    :ivar recipe: instructions for preparing another environment or optional
-        context displayed beneath the message.
-    :ivar runs_anything: whether accepting this offer can execute an install;
-        informational and external-environment offers always leave it false.
+    :param action: offer state, normally one of :data:`OFFER_ACTIONS`; only
+        ``"install"`` with a nonempty requirement can produce a command.
+    :param title: short capability heading shown by the availability interface.
+    :param message: primary explanation shown with the offer.
+    :param requirement: pip requirement used to build a local install command
+        for an install action, or ``None`` when no local command is available.
+    :param recipe: optional setup or external-environment instructions appended
+        to the message.
+    :param runs_anything: informational local-install marker set by
+        :func:`offer_install`; :attr:`command`, not this flag, controls
+        execution.
     """
 
     action: str
