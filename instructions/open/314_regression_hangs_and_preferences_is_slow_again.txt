@@ -603,3 +603,59 @@ had been running tests all night. That affects absolute values and not the
 shape -- a 6.25 second stall is not scheduling noise, and the ORDERING
 (regression worst, then mask, then classify) is the diagnosis worth acting
 on.
+
+--------------------------------------------------------------------------------
+2026-09-03: THE STACK, TAKEN WHILE IT WAS STALLED. STEP 3 DONE.
+--------------------------------------------------------------------------------
+
+`faulthandler.dump_traceback_later(1.2, repeat=True)` around
+`MainWindow._on_nav_selected("regression")`. Four samples landed inside the
+freeze; the main thread was in two places, and BOTH are ordinary synchronous
+GUI-thread work rather than anything waiting on IO or a lock:
+
+  SAMPLE 1, about 1.2 s in -- BUILDING THE SCREEN.
+
+      app.py:5151   _on_nav_selected
+      app.py:5404   _build_screen
+      app.py:5514   _build_screen_timed
+      app_screen.py:1366   AppScreen.__init__
+          -> body.addWidget(self._build_runtime_panel())
+      app_screen.py:5658   _build_runtime_panel
+          -> left.addTab(self._results_split, "Results")
+
+  SAMPLE 2, about 2.4 s in -- INSERTING IT INTO THE STACK.
+
+      app.py:5169   _on_nav_selected
+          -> self._stack.addWidget(self._screens[key])
+
+THE SECOND ONE IS THE SURPRISE AND IS WORTH SAYING PLAINLY: `addWidget` on a
+`QStackedWidget` is not free. It reparents the screen, which polishes it --
+Qt walks the whole widget tree resolving the stylesheet against every child.
+Regression's tree is the largest in the application, and this is a single
+statement that no reading of the code would flag as a cost.
+
+  The line above it is `self._theme_screen(...)`, wrapped in a try because
+  "decoration must never stop a screen from opening". The sample landed on
+  the line AFTER it, so the reparent-polish is its own cost and not theming
+  spilling over -- but the two are adjacent and both walk the same tree, so
+  measure them together before attributing.
+
+THE OTHER THREAD WAS IDLE THROUGHOUT -- `ambient.py:4389` in
+`threading.Event.wait`, which is the backdrop animation parked correctly.
+Nothing here is lock contention.
+
+WHAT THIS MEANS FOR THE FIX, and why it is not attempted tonight: both
+hotspots are the ordinary construction path of the most-used screen in the
+application. Making them cheaper means either building less at construction
+(the runtime panel's Results tab is built whether or not anybody opens it)
+or paying the polish somewhere the user is not waiting. Both are design
+changes to the path every module open takes, and instruction 364 records the
+same warning about the same screen: worth doing deliberately, not at two in
+the morning.
+
+  A CHEAP FIRST MEASUREMENT FOR WHOEVER TAKES IT: time
+  `_build_runtime_panel` alone, then time `addWidget` alone, on Regression
+  and on Annotate (0.20 s, the fastest module). The ratio between those two
+  screens will say whether the cost is per-widget -- in which case building
+  less is the fix -- or a fixed cost per open, which points somewhere else
+  entirely.
