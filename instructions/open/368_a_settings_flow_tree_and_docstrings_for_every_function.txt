@@ -213,3 +213,16 @@ STILL TO DO: the docstrings (phase 4), and including the page in the doc
 tree once the Sphinx build is next run. The map those links resolve against was fixed
 earlier today -- 59 settings pointed at a function that reads no settings --
 so the ground is now sound.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``mixed_gpu.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The three remaining undocumented callables were small but user-visible in
+their results: ``_readable`` now states its coercion, clamping, precision, and
+largest unit; ``_RandomTerm.n_levels`` names what it counts; and
+``TorchMixedResults.df_resid`` names the exact residual-degrees-of-freedom
+calculation. The module is now in the completed-module registry (and was
+already in the nested-function zero-debt registry), so deleting any function
+docstring makes the focused ratchet fail.
