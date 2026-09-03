@@ -92,6 +92,7 @@ FULLY_DOCUMENTED = (
     "spacr/restart_state.py",
     "spacr/run_journal.py",
     "spacr/schema.py",
+    "spacr/selection.py",
     "spacr/style_base.py",
     "spacr/sra.py",
     "spacr/surrogate.py",
