@@ -33,6 +33,7 @@ from spacr.merge_tables import (AGGREGATIONS, FIRST, MEAN, MIN, SUM,
 from spacr.multi_database import SCREEN_COLUMN, SOURCE_COLUMN, MergeRefused
 from spacr.plate_measurements import (PlateDatabase, PlateMerge,
                                       available_tables,
+                                      classify_default_columns,
                                       default_aggregated_columns,
                                       merge_plate_databases, missing_databases,
                                       plate_databases, unattached_plates)
@@ -246,6 +247,41 @@ def test_a_column_the_user_overrode_is_not_reported_as_a_default(two_plates):
 
     assert merge.default_aggregation_columns == ()
     assert merge.tables[1].aggregations["texture_contrast"] == MEAN
+
+
+def test_default_columns_are_split_by_kind_after_decisions_are_removed():
+    """Only genuinely unclassified columns enter the three disclosure buckets.
+
+    The positive entries prove that numeric, text and unknown measurements are
+    all inspected.  The overridden and rule-matched entries are deliberately
+    given those same kinds, so their absence can only come from the two early
+    decision branches rather than from an empty or unrelated input.
+    """
+    columns = (
+        "chosen_numeric",
+        "pathogen_area",
+        "unruled_numeric",
+        "sample_identifier",
+        "type_not_recorded",
+    )
+    kinds = {
+        "chosen_numeric": "numeric",
+        "pathogen_area": "numeric",
+        "unruled_numeric": "numeric",
+        "sample_identifier": "text",
+    }
+
+    classified = classify_default_columns(
+        columns,
+        kinds,
+        overrides={"chosen_numeric": SUM},
+    )
+
+    assert classified == {
+        "mean": ("unruled_numeric",),
+        "identifier": ("sample_identifier",),
+        "unknown": ("type_not_recorded",),
+    }
 
 
 def test_the_panel_is_told_which_aggregation_every_column_got(two_plates):
