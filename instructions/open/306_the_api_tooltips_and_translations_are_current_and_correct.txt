@@ -1281,3 +1281,164 @@ catalog entries whose docstrings changed today, `spacr.illumination.*` from
 the other session and `spacr.image_import*` from this one. Those are the
 regeneration chore, not a failure, and they are what this file's 125-row debt
 is made of.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE 125-ROW CATALOG DEBT IS PAID, AND TWO GATE GAPS PAID WITH IT
+--------------------------------------------------------------------------------
+
+`build_i18n_catalogs.py --repair-invalid-only` was run on CPU over all nine
+locales against the local checkpoints, one language per process so the model
+memory is freed between them. Measured with the tool's OWN
+`_invalid_catalog_sources`, which is exactly the set that mode retries, rather
+than with a helper of my own -- the correction note above is about what
+happens when those two disagree:
+
+    before   230 invalid source strings per locale, 2,070 across the nine
+    after     27 across the nine
+
+`--audit` went from 311 reported failures to 26 lines. Per locale the refresh
+added 192 rows, changed 45-59, and removed 76; the removals are the `_CP_prob`
+/ `_FT` families that 364 renamed in `settings.py`, not deletions of prose.
+
+`import_images` HAS ITS SENTENCE IN ALL NINE. It was the row this file added
+to the debt the same day, and `canonical_sources()` now reports 66 module
+summaries where it reported 65.
+
+WHAT THE REMAINING 27 ARE, because a number with no shape is the thing this
+file keeps complaining about:
+
+  * NINE are `foreign`, one per locale, and they are there ON PURPOSE. See
+    the next section.
+  * FOUR are zh_CN, where every route -- M2M100, sentence, clause, fragment
+    and the MADLAD secondary -- was refused by the release gates:
+    `independent_variable_layout`, `plaque_model`, and two UI sentences. The
+    tool left the English standing rather than shipping a mangled protected
+    literal, which is the behaviour we want; they need a Chinese reader.
+  * FOURTEEN are hi, and they are the price of the second gate below.
+
+I DID NOT TOUCH `docs/i18n/reviewed/` OR `i18n_module_summaries*.py`. The nine
+catalogs and `tools/build_i18n_catalogs.py` are the whole change.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE TOOL WANTED TO SUPERSEDE THE `foreign` REVIEWED ROW; REFUSED
+--------------------------------------------------------------------------------
+
+RECORDED BECAUSE IT IS THE EXACT TRAP THIS FILE WARNS ABOUT, arriving from the
+direction nobody had written down.
+
+`_reviewed_module_summary_translations` SKIPS a reviewed row whose stored hash
+no longer matches the live English -- correctly, so it does not hand a stale
+target to the gates. But the consequence is that a plain
+`--repair-invalid-only` then treats `foreign` as an ordinary untranslated row
+and writes a MACHINE translation of the new Import sentence into all nine
+generated catalogs, with a current hash.
+
+THAT CHANGES WHAT A USER SEES, and not in the safe direction. `module_summary`
+returns the reviewed target only when `expected == current`; on a stale hash it
+falls through to the generated catalog. While the generated row was ALSO stale
+the fall-through reached nothing and a Swedish user saw ENGLISH, which is what
+the 2026-09-02 note above describes as the machinery doing the right thing.
+Refresh the generated half alone and the same user silently gets unreviewed
+machine prose in place of a sentence nine reviewers signed off differently.
+
+So the generated `foreign` row and its `MODULE_SUMMARIES` source hash were
+RESTORED to their committed values in all nine catalogs after the run. The
+audit now reports, per locale:
+
+    <lang>/MODULE_SUMMARIES: 1 protected literal or markup failures (foreign)
+    <lang>/SOURCE_HASHES: missing=0 stale=0 wrong=1
+
+Eighteen of the 26 remaining audit lines are that one decision, and they are an
+HONEST report of debt that really is still outstanding. The four-part change
+this file already enumerated -- reviewed rows, `REVIEWED_SOURCE_HASHES`, the
+generated row, and the `== 30` assertion -- is atomic, and doing only the part
+an agent is allowed to do is what breaks it. It stays whole for its owner.
+
+CONFIRMING THE TWO TESTS EITHER WAY, since both orderings cost exactly one:
+keeping the regenerated row turns `test_external_catalogs_use_the_reviewed_
+module_summaries` red, because that test binds generated to reviewed with no
+hash condition; restoring it turns `test_external_runtime_catalogs_have_exact_
+current_source_keys` red instead. Same count, and restoring is the one that
+does not re-certify unread prose.
+
+--------------------------------------------------------------------------------
+2026-09-02 — TWO REAL GAPS IN THE SEMANTIC GATE, FOUND BY READING THE OUTPUT
+--------------------------------------------------------------------------------
+
+Both were found by reading the generated rows rather than the test results,
+which is the only way this class of defect surfaces: they are fluent,
+hash-current, and pass every structural check.
+
+GAP 1 -- A FABRICATED VENDOR NAME. M2M100 renders technical tokens it does not
+know as the Microsoft brand. Five rows across three locales:
+
+    ko     'import_images' and the `…/raw_images` caption -- "microscope"
+    hi     'guide_permutation_seed', 'surrogate_shap_max_samples'
+    zh_CN  'smoothgrad_samples'
+
+Two of those five were NEW, written by this pass; three predate it and were
+sitting in the committed catalogs. spaCR was telling a scientist that the
+folder their microscope wrote came from a software vendor. `Microsoft` is a
+proper noun, so it can only be right when the English source names it --
+which is a source-conditioned predicate exactly like the ones already in
+`_semantic_false_friends`, and that is where it went.
+
+GAP 2 -- CYRILLIC IN CATALOGS WITH NO CYRILLIC LANGUAGE. Repairing gap 1 in
+Hindi produced `'минералजगत की परिभाषाएँ'` for a permutation seed. The
+existing script check asks whether SOME target script is present, so a
+mixed-script row satisfies it; nothing asked the other half. A scan found 17
+such rows already committed -- 12 in hi, 5 in es. None of the nine targets is
+written in Cyrillic, so a Cyrillic run is always the model reaching into the
+wrong language.
+
+WHAT THE SECOND GATE COST, stated plainly because it is a real trade and the
+next person may want it back: es came out clean, but 14 hi rows now fall back
+to EXACT ENGLISH, and that is the whole of hi's share of the remaining 27.
+A Hindi user reading "Guide permutation seed" is strictly better off than one
+reading "минералजगत की परिभाषाएँ", and the audit now NAMES those 14 instead
+of hiding them behind a fluent wrong answer. Both predicates are ~10 lines in
+`_semantic_false_friends` and are trivially revertible if that call is wrong.
+
+--------------------------------------------------------------------------------
+2026-09-02 — WHAT THIS PASS MEASURED, AND ONE STALE TEST IT EXPOSED
+--------------------------------------------------------------------------------
+
+Against a `git archive HEAD` tree taken AFTER 75f7f8497 and f36f3cf9e landed
+mid-session -- the first baseline was taken before them and had to be redone,
+which is worth knowing in a two-session repo:
+
+    27 i18n/catalog test files      HEAD 30 failed / 543 passed
+                                    here 24 failed / 549 passed
+
+Seven fixed, one new, and the new one is NOT a translation defect:
+
+    tests/qt/test_external_i18n_catalogs.py::
+        test_runtime_uses_external_static_and_context_keyed_setting_text
+
+It asserts `_translated_setting_name("organelle_CP_prob", "ko") == "소기관 1 — CP"`.
+`organelle_CP_prob` DOES NOT EXIST -- b7ae412af (364) renamed the four families
+to `*_cellprob_threshold` / `*_flow_threshold`. The assertion passed only
+because the catalogs were 125 rows stale and still carried the dead key, so
+refreshing them is what revealed it. This is the same shape as the `"1 von 7"`
+case recorded above: A STALE TEST, NOT A TRANSLATION GAP. It needs a key that
+still exists; the test file was outside this pass's writable set, so it is
+reported rather than edited.
+
+`test_reviewed_summary_hashes_match_current_builtin_sources` is red at HEAD and
+red here, unchanged -- still the `foreign` row, still not this pass's to retire.
+
+TWO NOTES FOR WHOEVER RUNS THE TOOL NEXT.
+
+THE MODEL ROOT IS WRITTEN TO, WHICH IS NOT OBVIOUS FROM THE FLAG NAME.
+`_translate_batches` keeps its cache in `<model-root>/.spacr_translation_cache`
+and `_merge_write_translation_cache` DELETES keys from it. Pointing
+`--model-root` at the maintainer's 1.1 TB research volume therefore writes to
+that volume. This pass mirrored the nine pairs as symlinks into a scratch
+directory and copied the caches, so the research volume was read-only
+throughout; `find -newermt` over it confirms nothing of mine landed there.
+
+`run_memory_guarded.py --limit-gib` IS A SYSTEM-WIDE CEILING, not a budget for
+the guarded job. It compares against total RAM in use, so any value below the
+current baseline refuses to start with exit 137 and no work happens at all --
+`--limit-gib 20` on a box already at 38.3 GiB never runs. This pass used 60,
+which left the guard live with ~22 GiB of headroom over the baseline.
