@@ -118,20 +118,30 @@ class TableMerge:
     One of these per table the user ticked, including the anchor. It is the
     record a panel reads to answer "what happened to my numbers": which
     aggregation each column got, whether the table was rolled up or joined
-    directly, and which join type its cardinality earned it.
+    directly, and which join mode the merge policy selected.
 
-    :ivar table: source object-table name.
-    :ivar plan: multi-database read plan used for this table.
-    :ivar rows: number of source rows read before joining or roll-up.
-    :ivar keys: columns used to join or group the table.
-    :ivar how: join mode selected from the table cardinality.
-    :ivar rolled_up: whether child rows were aggregated onto the anchor.
-    :ivar aggregations: aggregation chosen for each source measurement.
-    :ivar default_columns: source columns that matched no named aggregation
-        rule.
-    :ivar dropped: columns absent from at least one source database and
-        omitted by a common-column merge.
-    :ivar note: explanation when this table contributed no rows.
+    :param table: Chosen source object-table name, including the anchor table.
+    :param plan: Multi-database read plan used to read this table.
+    :param rows: Number of source rows read across the attached databases
+        before joining or child roll-up.
+    :param keys: Source identity, join, or grouping columns retained without a
+        table prefix.
+    :param how: Child-table join mode returned by
+        :meth:`spacr.merge_tables.MergePolicy.how_for`; empty for the anchor
+        or a skipped table.
+    :param rolled_up: Whether this child table's rows were aggregated onto the
+        anchor; false for the anchor, a directly joined one-row-per-cell table,
+        or a skipped table.
+    :param aggregations: Source-column-to-aggregation mapping actually applied
+        during child roll-up; empty for the anchor, a direct join, or a skipped
+        table.
+    :param default_columns: Source columns in ``aggregations`` that used the
+        default because no named aggregation rule matched and no override
+        applied.
+    :param dropped: Source columns absent from at least one attached database
+        and therefore omitted by the common-column read.
+    :param note: Explanation when the table was skipped and contributed no
+        merged columns; empty otherwise.
     """
 
     table: str
