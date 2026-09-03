@@ -3095,3 +3095,115 @@ the same commit and that part looks harmless: its own docstring says every
 object table names the same field and the others are tried in turn, so which
 one is preferred does not decide the plane. The `object_type` COLUMN is what
 does.
+
+==============================================================================
+56. A FAILED CHECKPOINT WRITE POISONED THE NEXT SUCCESSFUL UPDATE
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/checkpoint.py``. ``mark`` and ``update`` changed the live document
+before attempting the atomic write. A disk-full failure therefore raised but
+left the rejected unit, metadata, and status in memory, and the next successful
+write made that failed state durable.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/checkpoint.py:293-375``. Updates now
+build a copy-on-write candidate, persist it, and publish it only after the
+atomic replacement succeeds; cancellation is still checked after the completed
+unit is durable. Two focused failure/recovery tests turned red when publication
+was deliberately moved before the write and pass with transactional ordering.
+
+REVISED COUNT: 114 entries, 45 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+57. CHECKPOINT ACCESSORS EXPOSED NESTED LIVE STATE
+==============================================================================
+
+Found 2026-09-03 in ``spacr/checkpoint.py``. The ``completed`` and ``meta``
+properties copied only their outer dictionaries, so callers could append to a
+nested list or mutate a nested mapping and silently alter a later checkpoint
+without calling ``mark`` or ``update``.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/checkpoint.py:215-225``. Both public
+accessors now return recursively detached copies. The focused test mutates
+nested values through both accessors and checks memory and disk; replacing the
+deep copies with the former shallow copies makes it fail.
+
+REVISED COUNT: 115 entries, 46 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+58. RESUME IGNORED A DIFFERENT SAFE-UNIT BOUNDARY
+==============================================================================
+
+Found 2026-09-03 in ``spacr/checkpoint.py``. A checkpoint records whether its
+completed keys represent fields, trials, or another safe unit, but resume
+validated version, workflow, and signature without comparing that boundary.
+Compatible settings could therefore combine progress recorded at incompatible
+granularity.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/checkpoint.py:280-285``. Resume now
+names and refuses a boundary mismatch before exposing completed state. Removing
+the new comparison makes the field-versus-trial regression fail, while the
+same-boundary resume lifecycle remains its positive counterpart.
+
+REVISED COUNT: 116 entries, 47 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+59. INVALID UTF-8 ESCAPED THE CHECKPOINT ERROR CONTRACT
+==============================================================================
+
+Found 2026-09-03 in ``spacr/checkpoint.py``. A corrupt JSON file was wrapped
+with actionable checkpoint guidance, but invalid UTF-8 escaped as a raw
+``UnicodeDecodeError`` even though both inputs are unreadable checkpoint
+documents and must be preserved for diagnosis.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/checkpoint.py:239-246``. Decode errors
+now become ``CheckpointError`` with the existing recovery guidance and never
+overwrite the bad bytes. Removing ``UnicodeError`` from the handler makes the
+focused corrupt-byte test fail with the former raw exception.
+
+REVISED COUNT: 117 entries, 48 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+60. STRING-NORMALISED MAPPING KEYS COULD SILENTLY COLLIDE
+==============================================================================
+
+Found 2026-09-03 in ``spacr/checkpoint.py``. ``json_safe`` converts mapping
+keys to strings, so distinct keys such as integer ``1`` and string ``"1"``
+overwrote one another. A workflow signature could consequently omit a material
+setting and treat different configurations as resumable.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/checkpoint.py:74-85``. Normalisation
+now detects and names colliding original keys instead of discarding either.
+Both insertion orders are covered; removing the collision guard makes both
+focused cases fail while ordinary mixed keys retain deterministic ordering.
+
+REVISED COUNT: 118 entries, 49 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+61. ARTIFACT SUFFIXES COULD ESCAPE THE CHECKPOINT DIRECTORY
+==============================================================================
+
+Found 2026-09-03 in ``spacr/checkpoint.py``. ``artifact_path`` appended its
+caller-supplied suffix after a digest without validation. A suffix containing
+path separators or traversal components could return a path outside the
+artifact directory, and invalid empty, dot-only, or NUL forms were also
+accepted after creating that directory.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/checkpoint.py:386-410``. The helper
+validates the suffix before creating storage, refusing separators, NUL,
+emptiness, and dot-only values while retaining unusual path-safe and compound
+suffixes. Removing validation makes all seven focused unsafe cases fail; the
+existing ``.npy`` and ``npz`` calls remain positive counterparts.
+
+REVISED COUNT: 119 entries, 50 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.

@@ -77,6 +77,19 @@ def test_mapping_keys_are_sorted_as_strings_so_the_digest_is_stable():
     assert list(cp.json_safe({2: "b", 10: "a", "1": "c"})) == ["1", "10", "2"]
 
 
+@pytest.mark.parametrize(
+    "mapping",
+    [
+        {1: "number", "1": "text"},
+        {"1": "text", 1: "number"},
+    ],
+)
+def test_mapping_keys_that_normalise_to_the_same_text_are_refused(mapping):
+    """A signature cannot silently discard one of two distinct settings."""
+    with pytest.raises(ValueError, match=r"both normalize to '1'"):
+        cp.json_safe(mapping)
+
+
 def test_two_equivalent_signatures_share_one_digest():
     assert cp.fingerprint({"a": 1, "b": [1, 2]}) == \
         cp.fingerprint({"b": (1, 2), "a": 1})
@@ -105,6 +118,25 @@ def test_a_completed_unit_is_on_disk_before_the_call_returns(store):
     assert payload["meta"]["round"] == 2
     assert store.completed["trial_1"] == {"score": 0.9}
     assert store.meta == {"round": 2}
+
+
+def test_returned_state_is_detached_at_every_nested_level(store):
+    """Editing an accessor result cannot alter a later durable checkpoint."""
+    store.mark(
+        "trial_1", {"targets": ["one.tif"]},
+        meta={"rounds": {"accepted": [1]}})
+
+    completed = store.completed
+    metadata = store.meta
+    completed["trial_1"]["targets"].append("not-completed.tif")
+    metadata["rounds"]["accepted"].append(99)
+    store.flush()
+
+    assert store.completed["trial_1"]["targets"] == ["one.tif"]
+    assert store.meta["rounds"]["accepted"] == [1]
+    document = json.loads(store.path.read_text())
+    assert document["completed"]["trial_1"]["targets"] == ["one.tif"]
+    assert document["meta"]["rounds"]["accepted"] == [1]
 
 
 def test_a_finished_workflow_keeps_its_state_and_says_it_is_done(store):
@@ -172,6 +204,16 @@ def test_changed_settings_refuse_to_be_combined_with_the_old_units(tmp_path):
                            boundary="field", resume=True)
 
 
+def test_a_different_safe_unit_boundary_is_refused(tmp_path):
+    path = tmp_path / "run.json"
+    cp.CheckpointStore(path, workflow="w", signature={"cells": 10},
+                       boundary="field").mark("field-1")
+
+    with pytest.raises(cp.CheckpointMismatch, match=r"boundary.*field.*trial"):
+        cp.CheckpointStore(path, workflow="w", signature={"cells": 10},
+                           boundary="trial", resume=True)
+
+
 def test_a_json_document_that_is_not_an_object_is_refused(tmp_path):
     path = tmp_path / "run.json"
     _write(path, [1, 2, 3])
@@ -186,6 +228,17 @@ def test_a_corrupt_checkpoint_says_to_keep_it_for_diagnosis(tmp_path):
     with pytest.raises(cp.CheckpointError, match="Keep it"):
         cp.CheckpointStore(path, workflow="w", signature="x" * 64,
                            boundary="field", resume=True)
+
+
+def test_invalid_utf8_is_a_checkpoint_error_and_is_not_overwritten(tmp_path):
+    path = tmp_path / "run.json"
+    path.write_bytes(b"\xff")
+
+    with pytest.raises(cp.CheckpointError, match="could not be read"):
+        cp.CheckpointStore(path, workflow="w", signature="x" * 64,
+                           boundary="field", resume=True)
+
+    assert path.read_bytes() == b"\xff"
 
 
 def test_a_completed_table_that_is_not_a_table_is_refused(tmp_path):
@@ -222,6 +275,49 @@ def test_a_write_that_cannot_reach_the_disk_stops_the_workflow(store,
     monkeypatch.setattr(os, "fsync", _no_disk)
     with pytest.raises(cp.CheckpointError, match="could not be written"):
         store.mark("trial_1", {"score": 0.9})
+
+
+def test_a_failed_mark_cannot_leak_into_a_later_successful_write(
+        store, monkeypatch):
+    real_fsync = os.fsync
+
+    def _no_disk(_fd):
+        raise OSError(28, "No space left on device")
+
+    monkeypatch.setattr(os, "fsync", _no_disk)
+    with pytest.raises(cp.CheckpointError, match="could not be written"):
+        store.mark(
+            "failed-trial", {"targets": ["not-durable.npy"]},
+            meta={"failed_round": 2})
+
+    assert "failed-trial" not in store.completed
+    assert "failed_round" not in store.meta
+    monkeypatch.setattr(os, "fsync", real_fsync)
+    store.update(meta={"later": "durable"})
+    document = json.loads(store.path.read_text())
+    assert "failed-trial" not in document["completed"]
+    assert document["meta"] == {"later": "durable"}
+
+
+def test_a_failed_update_restores_nested_meta_and_status(store, monkeypatch):
+    store.update(meta={"keep": {"values": [1]}}, status="running")
+    real_fsync = os.fsync
+
+    def _no_disk(_fd):
+        raise OSError(28, "No space left on device")
+
+    monkeypatch.setattr(os, "fsync", _no_disk)
+    with pytest.raises(cp.CheckpointError, match="could not be written"):
+        store.update(meta={"keep": {"values": [2]}, "bad": True},
+                     status="stopped")
+
+    assert store.meta == {"keep": {"values": [1]}}
+    assert store.status == "running"
+    monkeypatch.setattr(os, "fsync", real_fsync)
+    store.flush()
+    document = json.loads(store.path.read_text())
+    assert document["meta"] == {"keep": {"values": [1]}}
+    assert document["status"] == "running"
 
 
 def test_updating_meta_alone_leaves_the_status_where_it_was(store):
@@ -270,3 +366,14 @@ def test_a_temporary_that_cannot_be_removed_does_not_mask_the_real_failure(
     monkeypatch.setattr(os, "unlink", _cannot_unlink)
     with pytest.raises(cp.CheckpointError, match="No space left"):
         store.flush()
+
+
+@pytest.mark.parametrize(
+    "suffix", ["", ".", "..", "../escape.npy", "folder/file.npy",
+               r"folder\file.npy", "\x00npy"],
+)
+def test_an_artifact_suffix_cannot_supply_path_syntax(store, suffix):
+    with pytest.raises(ValueError, match="filename suffix"):
+        store.artifact_path("trial-1", suffix)
+
+    assert not store.artifact_dir.exists()
