@@ -55,6 +55,8 @@ def test_the_plan_reports_what_the_merge_would_cost(two_plates):
     Finding out afterwards is finding out too late."""
     plan = describe_merge(list(two_plates), "cell")
 
+    for field in ("colliding_identities", "shared_plates_across_screens"):
+        assert f":ivar {field}:" in (type(plan).__doc__ or "")
     assert plan.total_rows == 8
     assert set(plan.common_columns) == {"plateID", "rowID", "columnID", "area"}
     assert "perimeter" in plan.partial_columns
@@ -64,6 +66,8 @@ def test_the_plan_reports_what_the_merge_would_cost(two_plates):
 
 def test_the_plan_names_the_sources_readably(two_plates):
     plan = describe_merge(list(two_plates), "cell")
+    for field in ("screen", "screen_plates", "stored_plates"):
+        assert f":ivar {field}:" in (type(plan.sources[0]).__doc__ or "")
     assert [s.label for s in plan.sources] == ["plateA", "plateB"]
 
 
@@ -482,6 +486,8 @@ def test_a_merge_decision_is_written_down(tmp_path, colliding):
     plan = describe_merge(list(colliding), "cell")
     decision = decision_for(plan, outcome="resolved",
                             resolution="removed runB from the working set")
+    for field in ("resolution", "when"):
+        assert f":ivar {field}:" in (type(decision).__doc__ or "")
 
     log = tmp_path / "merge_decisions.jsonl"
     assert record_decision(decision, str(log)) == str(log)
