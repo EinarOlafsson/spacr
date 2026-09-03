@@ -2524,6 +2524,30 @@ The lesson the deletion confirms rather than the fix: the duplicate had zero
 unique commits, so the lineage that had been silently answering imports for an
 unknown length of time was contributing nothing but the ambiguity.
 
+ENTRY 30, FULLY RESOLVED ON THE CURRENT HOST 2026-09-02
+------------------------------------------------------------------------------
+
+The same base-environment hazard persisted on this host under Python 3.12:
+`site-packages/spacr` was still a resource-only namespace, and the second
+editable distribution `spacr_nightly-1.1.5` still pointed at the absent
+`/home/olafsson/repo/spacr-claude/spacr`. Before repair, a neutral
+`import spacr` produced `__file__ = None` and no version.
+
+The namespace directory and the stale nightly distribution's `.pth`, finder,
+bytecode and dist-info were moved—not deleted—to the recoverable backup
+`/home/olafsson/.cache/spacr/environment-backups/`
+`base-spacr-namespace-20260902-eahb67`. The valid editable `spacr-1.5.0.4`
+distribution was left intact. From `/tmp`, `spacr`, `spacr.cli`, and
+`spacr.qt.spaceout` now import from `/mnt/firecuda2/Claude/repo/spacr/spacr`.
+
+The authoritative neutral-cwd verification is `spacr-doctor --no-gpu-probe
+--json`: 14 PASS, 0 FAIL, 0 ERROR; it reports one importable spaCR package,
+one spaCR distribution, all 15 commands resolved, core imports available, and
+the expected editable checkout running. The sole warning is the unrelated
+optional `lightgbm` extra. Entry 30's environment repair is therefore complete
+and can be restored by moving the five backup artifacts to their original
+paths if needed.
+
 
 ==============================================================================
 38. A NEGATIVE RESULT: THE OBVIOUS EARLY-OUT IN button_roles IS 5% SLOWER
