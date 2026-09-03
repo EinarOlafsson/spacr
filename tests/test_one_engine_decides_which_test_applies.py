@@ -74,6 +74,14 @@ _ROWS = [
 ]
 
 
+def test_assumption_documents_and_retains_its_own_decision():
+    """The corrected decision remains public instead of being re-derived."""
+    check = FS.Assumption("normality", 1.25, 0.04, True, "holds", True)
+
+    assert ":ivar passed:" in (FS.Assumption.__doc__ or "")
+    assert check.passed is True
+
+
 def _frame(groups):
     labels, values = [], []
     for name, array in groups.items():

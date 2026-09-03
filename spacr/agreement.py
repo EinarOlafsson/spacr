@@ -339,6 +339,7 @@ class PairAgreement:
     :ivar labels: ordered class universe used for the confusion matrix.
     :ivar confusion: ``a`` labels down the rows, ``b`` across the columns.
     :ivar note: why κ is ``nan``, or what to watch out for when it is not.
+    :ivar interpretation: convention label that explains the κ magnitude.
     """
 
     column_a: str
@@ -804,6 +805,8 @@ class AgreementReport:
     :ivar n_disagreements: rows where two annotators who both committed
         chose differently. This is the review queue's length.
     :ivar percent_agreement: fraction of complete rows with unanimous labels.
+    :ivar convention: named interpretation scale applied to κ values.
+    :ivar warnings: report-level caveats that must be shown to the reader.
     """
 
     db_path: str
