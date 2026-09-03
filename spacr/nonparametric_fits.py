@@ -177,13 +177,13 @@ class Curve:
     a diagnostic that could be mistaken for an inferential test would be
     more misleading than omitting the method.
 
-    :ivar method: registered diagnostic method that produced the curve.
-    :ivar x: ordered predictor coordinates at which the curve is evaluated.
-    :ivar y: fitted response values aligned one-to-one with ``x``.
-    :ivar lower: lower uncertainty-band coordinates, when the method reports
-        a band.
-    :ivar upper: upper uncertainty-band coordinates aligned with ``lower``.
-    :ivar note: preprocessing or interpretation detail that belongs beside
+    :param method: registered diagnostic method that produced the curve.
+    :param x: ordered predictor coordinates at which the curve is evaluated.
+    :param y: fitted response values aligned one-to-one with ``x``.
+    :param lower: optional lower uncertainty-band coordinates.
+    :param upper: optional upper uncertainty-band coordinates aligned with
+        ``lower``.
+    :param note: preprocessing or interpretation detail that belongs beside
         the curve.
     """
 

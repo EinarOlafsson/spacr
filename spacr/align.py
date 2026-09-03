@@ -514,13 +514,14 @@ class AlignPlan:
 class CanvasSpec:
     """Canvas geometry, computed before a single byte is allocated.
 
-    :ivar height: canvas rows.
-    :ivar width: canvas columns.
-    :ivar channels: canvas planes.
-    :ivar dtype: numpy dtype name.
-    :ivar origin_y: global-frame row that maps to canvas row 0. Negative
-        offsets live here rather than being clipped away.
-    :ivar origin_x: global-frame column that maps to canvas column 0.
+    :param height: number of rows in the output canvas.
+    :param width: number of columns in the output canvas.
+    :param channels: number of image planes in the output canvas.
+    :param dtype: NumPy dtype name used for the output array.
+    :param origin_y: global-frame row mapped to canvas row zero, preserving
+        negative vertical offsets.
+    :param origin_x: global-frame column mapped to canvas column zero,
+        preserving negative horizontal offsets.
     """
 
     height: int

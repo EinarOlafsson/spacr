@@ -158,15 +158,15 @@ def node_key(row: Mapping[str, Any],
 class LineageNode:
     """One object and everything inside it.
 
-    :ivar key: the shared object key — the same string every other view uses.
-    :ivar table: which object table the row came from.
-    :ivar label: the integer object label within its field.
-    :ivar field: the ``prcf`` this object belongs to.
-    :ivar children: contained objects, grouped table by table in
-        :data:`LINEAGE_TABLES` order and by label within a table, so two runs
-        of the same data draw the same tree.
-    :ivar row: the source row, so a view can show a measurement beside the
-        name without going back to the frame.
+    :param key: shared typed object key used by spaCR's other views and
+        selections.
+    :param table: object-table name from which the source row came.
+    :param label: integer object label within its field.
+    :param field: ``prcf`` field identifier containing the object.
+    :param children: contained objects, grouped in :data:`LINEAGE_TABLES`
+        order and then by label for deterministic trees.
+    :param row: copied source row retained so views can display measurements
+        without reopening the frame.
     """
 
     key: str

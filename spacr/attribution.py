@@ -1908,12 +1908,15 @@ def randomization_sanity_check(
 class Agreement:
     """Pairwise rank correlation between several methods on the same image.
 
-    :ivar methods: method names, in matrix order.
-    :ivar matrix: symmetric ``(n, n)`` Spearman correlation matrix.
-    :ivar mean: mean of the off-diagonal entries.
-    :ivar minimum: smallest off-diagonal entry.
-    :ivar pairs: every ``(method_a, method_b, rho)``, most disagreeing first.
-    :ivar notes: the verdict in words.
+    :param methods: attribution-method names in matrix row and column order.
+    :param matrix: symmetric Spearman rank-correlation matrix for those
+        methods.
+    :param mean: mean of the finite off-diagonal correlations.
+    :param minimum: smallest finite off-diagonal correlation.
+    :param pairs: ``(method_a, method_b, rho)`` comparisons ordered from
+        greatest disagreement upward.
+    :param notes: verdict and interpretive caveats accompanying the agreement
+        result.
     """
 
     methods: List[str]
