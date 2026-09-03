@@ -60,6 +60,12 @@ REMEDIES = (
 
 
 def _remedy(error: BaseException) -> str:
+    """Return the first known remedy matching a regression failure.
+
+    :param error: Failure whose type and message are searched for a signature.
+    :returns: Actionable advice for a known signature, otherwise an empty
+        string.
+    """
     text = f"{type(error).__name__}: {error}".lower()
     for needle, advice in REMEDIES:
         if needle in text:

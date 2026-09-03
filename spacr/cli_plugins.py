@@ -27,6 +27,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _payload() -> dict:
+    """Collect installed plugin contributions and discovery diagnostics.
+
+    :returns: JSON-serializable plugin SDK version, plugins, apps, and
+        diagnostics for console or machine-readable output.
+    """
     installed = discover_plugins()
     return {
         "sdk_version": PLUGIN_API_VERSION,

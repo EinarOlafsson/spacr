@@ -27,6 +27,12 @@ CLASSIFY_NODE_IDS = (
 
 
 def _source_value(settings: Mapping[str, Any]) -> Any:
+    """Return the graph-safe source value from Classify settings.
+
+    :param settings: Classify settings that may contain ``src``.
+    :returns: Filesystem string for a path-like source, otherwise a
+        JSON-safe representation of the value.
+    """
     source = settings.get("src")
     if isinstance(source, os.PathLike):
         return os.fspath(source)

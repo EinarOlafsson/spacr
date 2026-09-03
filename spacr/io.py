@@ -1783,6 +1783,97 @@ def _normalized_npz_field_ids(src):
     return tuple(sorted(fields))
 
 
+def _publish_v1_normalized_archives(staging_dir, output_dir):
+    """Replace the complete published V1 NPZ set, with in-process rollback.
+
+    :param staging_dir: directory containing only the new, fully written NPZs.
+    :param output_dir: ``masks/`` directory consumed by the V1 segmenters.
+    :returns: final archive paths in stable name order.
+
+    Existing archives are derived preprocessing artifacts, but they are moved
+    to a sibling backup until every new archive is in place.  A raised replace
+    therefore restores the prior complete set rather than leaving a mixture
+    from two runs; a process crash still leaves provenance incomplete, so no
+    caller can accept a partially published set as corrected.
+    """
+    staged = sorted(
+        name for name in os.listdir(staging_dir) if name.endswith('.npz'))
+    if not staged:
+        raise ValueError('cannot publish an empty V1 normalized archive set')
+    previous = sorted(
+        name for name in os.listdir(output_dir) if name.endswith('.npz'))
+    backup_dir = tempfile.mkdtemp(
+        prefix='.spacr_previous_v1_npz_', dir=os.path.dirname(output_dir))
+    moved_previous = []
+    moved_staged = []
+    try:
+        for name in previous:
+            os.replace(os.path.join(output_dir, name),
+                       os.path.join(backup_dir, name))
+            moved_previous.append(name)
+        for name in staged:
+            os.replace(os.path.join(staging_dir, name),
+                       os.path.join(output_dir, name))
+            moved_staged.append(name)
+    except BaseException:
+        for name in reversed(moved_staged):
+            published = os.path.join(output_dir, name)
+            if os.path.exists(published):
+                os.replace(published, os.path.join(staging_dir, name))
+        for name in reversed(moved_previous):
+            saved = os.path.join(backup_dir, name)
+            if os.path.exists(saved):
+                os.replace(saved, os.path.join(output_dir, name))
+        shutil.rmtree(backup_dir, ignore_errors=True)
+        raise
+    shutil.rmtree(backup_dir)
+    shutil.rmtree(staging_dir)
+    return tuple(os.path.join(output_dir, name) for name in staged)
+
+
+def _invalidate_v1_object_masks(output_dir):
+    """Remove object masks made from the superseded normalised NPZ set.
+
+    :param output_dir: V1 ``masks/`` directory containing derived mask stacks.
+    :returns: removed mask-stack directory names in stable order.
+
+    A fresh illumination application changes the pixels presented to every
+    segmenter. Keeping an existing ``*_mask_stack`` would let both the outer
+    completeness check and per-batch resume check reuse masks drawn from the
+    old, potentially uncorrected pixels.
+    """
+    removed = []
+    for name in sorted(os.listdir(output_dir)):
+        path = os.path.join(output_dir, name)
+        if name.endswith('_mask_stack') and os.path.isdir(path):
+            shutil.rmtree(path)
+            removed.append(name)
+    return tuple(removed)
+
+
+def _invalidate_v1_segmentation_outputs(src):
+    """Remove V1 outputs derived from a superseded segmentation-input set.
+
+    :param src: experiment root containing ``masks/`` and optional ``merged/``.
+    :returns: names of removed mask-stack directories and whether ``merged/``
+        was removed.
+
+    This runs only from the full Mask pipeline immediately before it redraws
+    masks. Removing the complete ``merged/`` directory is intentional: a
+    shorter rerun must not leave an old field that is absent from the new raw
+    stack but would otherwise still be measured later.
+    """
+    masks_dir = os.path.join(src, 'masks')
+    removed_masks = (
+        _invalidate_v1_object_masks(masks_dir)
+        if os.path.isdir(masks_dir) else ())
+    merged_dir = os.path.join(src, 'merged')
+    removed_merged = os.path.isdir(merged_dir)
+    if removed_merged:
+        shutil.rmtree(merged_dir)
+    return removed_masks, removed_merged
+
+
 def _correct_v1_segmentation_batch(
         stack, filenames, channels, settings, illumination_session):
     """Correct selected V1 channels on a private batch copy.
@@ -1811,9 +1902,9 @@ def _correct_v1_segmentation_batch(
     return working, tuple(field_ids)
 
 
-def concatenate_and_normalize(
+def _concatenate_and_normalize_impl(
         src, channels, save_dtype=np.float32, settings=None,
-        illumination_session=None):
+        illumination_session=None, archive_output_fldr=None):
     """Concatenate per-file channel arrays and normalise them into a single stack.
 
     :param src: Directory containing per-FOV ``.npy`` channel arrays.
@@ -1879,6 +1970,7 @@ def concatenate_and_normalize(
     time_ls = []
     output_fldr = os.path.join(os.path.dirname(src), 'masks')
     os.makedirs(output_fldr, exist_ok=True)
+    archive_output_fldr = archive_output_fldr or output_fldr
     # Every FOV that fails to load is dropped from the normalised stacks.
     # Nothing downstream can tell, so account for it here.
     ledger = RunLedger('concatenate_and_normalize')
@@ -1886,7 +1978,18 @@ def concatenate_and_normalize(
 
     if settings['timelapse']:
         try:
-            time_stack_path_lists = _generate_time_lists(os.listdir(src))
+            source_npy_names = sorted(
+                name for name in os.listdir(src) if name.endswith('.npy'))
+            time_stack_path_lists = _generate_time_lists(source_npy_names)
+            grouped_names = sorted(
+                filename for group in time_stack_path_lists
+                for filename in group)
+            if (illumination_session is not None and
+                    grouped_names != source_npy_names):
+                missing = sorted(set(source_npy_names) - set(grouped_names))
+                raise ValueError(
+                    'illumination correction could not group every source '
+                    f'NPY as plate_well_field_time: {missing}')
             intended_fields = [
                 os.path.splitext(os.path.basename(str(filename)))[0]
                 for group in time_stack_path_lists for filename in group
@@ -1910,7 +2013,7 @@ def concatenate_and_normalize(
                 files_to_process = len(time_stack_path_lists)
                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
                 stack = np.stack(stack_region)
-                stack, field_ids = _correct_v1_segmentation_batch(
+                stack, _field_ids = _correct_v1_segmentation_batch(
                     stack, filenames_region, channels, settings,
                     illumination_session)
 
@@ -1921,15 +2024,14 @@ def concatenate_and_normalize(
                 
                 normalized_stack = normalized_stack[..., channels]
                 
-                save_loc = os.path.join(output_fldr, f'{name}_norm_timelapse.npz')
+                save_loc = os.path.join(
+                    archive_output_fldr, f'{name}_norm_timelapse.npz')
                 arrays = dict(data=normalized_stack,
                               filenames=filenames_region)
                 if illumination_session is None:
                     np.savez_compressed(save_loc, **arrays)
                 else:
                     _save_npz_atomic(save_loc, **arrays)
-                    for field_id in field_ids:
-                        illumination_session.mark_completed(field_id)
                 
                 # Only plot when the user asked for it: an interactive
                 # matplotlib backend makes plt.show() block, which would hang
@@ -1999,7 +2101,7 @@ def concatenate_and_normalize(
                 else:
                     stack = np.stack(stack_ls)
 
-                stack, field_ids = _correct_v1_segmentation_batch(
+                stack, _field_ids = _correct_v1_segmentation_batch(
                     stack, filenames_batch, channels, settings,
                     illumination_session)
                 
@@ -2010,7 +2112,8 @@ def concatenate_and_normalize(
                 
                 normalized_stack = normalized_stack[..., channels]
 
-                save_loc = os.path.join(output_fldr, f'stack_{batch_index}_norm.npz')
+                save_loc = os.path.join(
+                    archive_output_fldr, f'stack_{batch_index}_norm.npz')
                 # Lossless-compressed so the on-disk normalised batch is much
                 # smaller (np.load reads it transparently); it's deleted with
                 # masks/ after merged/ is built unless keep_intermediate is set.
@@ -2020,8 +2123,6 @@ def concatenate_and_normalize(
                     np.savez_compressed(save_loc, **arrays)
                 else:
                     _save_npz_atomic(save_loc, **arrays)
-                    for field_id in field_ids:
-                        illumination_session.mark_completed(field_id)
                 # Gated on settings['plot'] — see the timelapse branch above:
                 # an interactive backend blocks the pipeline on plt.show().
                 if batch_index == 0 and settings.get('plot'):
@@ -2035,6 +2136,22 @@ def concatenate_and_normalize(
                 padded_stack_ls = []
 
     if illumination_session is not None:
+        staged_fields = _normalized_npz_field_ids(archive_output_fldr)
+        if set(staged_fields) != set(intended_fields):
+            missing = sorted(set(intended_fields) - set(staged_fields))
+            extra = sorted(set(staged_fields) - set(intended_fields))
+            raise RuntimeError(
+                'incomplete illumination fields before V1 publication: '
+                f'missing={missing}, unexpected={extra}')
+        _publish_v1_normalized_archives(
+            archive_output_fldr, output_fldr)
+        # Invalidate downstream products BEFORE provenance becomes complete.
+        # A crash after finish must never leave a complete correction record
+        # beside masks/merged fields drawn from the superseded pixels.
+        _invalidate_v1_segmentation_outputs(os.path.dirname(src))
+        settings['resume'] = False
+        for field_id in staged_fields:
+            illumination_session.mark_completed(field_id)
         illumination_session.finish(intended_fields)
     print(f'All files concatenated and normalized. Saved to: {output_fldr}')
     # Emitted last so a partially-loaded stack cannot scroll off the top of
@@ -2042,6 +2159,39 @@ def concatenate_and_normalize(
     # segmentation step globs, and a stray sidecar there is not worth the risk.
     ledger.finalize()
     return output_fldr
+
+
+def concatenate_and_normalize(
+        src, channels, save_dtype=np.float32, settings=None,
+        illumination_session=None):
+    """Concatenate, optionally correct, and normalise V1 field arrays.
+
+    :param src: directory containing per-field ``.npy`` channel arrays.
+    :param channels: channel indices retained in the output archives.
+    :param save_dtype: NumPy dtype for normalised arrays. Defaults to float32.
+    :param settings: required preprocessing settings mapping.
+    :param illumination_session: optional segmentation-only correction
+        session. Corrected archives are staged privately and published as one
+        complete set; the staging directory is removed on success or failure.
+    :returns: the ``masks/`` directory containing normalised NPZ archives.
+    """
+    if illumination_session is None:
+        return _concatenate_and_normalize_impl(
+            src, channels, save_dtype=save_dtype, settings=settings)
+
+    output_fldr = os.path.join(os.path.dirname(src), 'masks')
+    os.makedirs(output_fldr, exist_ok=True)
+    # Cellpose enumerates every top-level NPZ in masks/. Build elsewhere so a
+    # failure cannot expose a mixed old/new set, and let TemporaryDirectory's
+    # context guarantee cleanup on every exception path.
+    with tempfile.TemporaryDirectory(
+            prefix='.spacr_v1_npz_', dir=os.path.dirname(output_fldr)
+            ) as staging_dir:
+        return _concatenate_and_normalize_impl(
+            src, channels, save_dtype=save_dtype, settings=settings,
+            illumination_session=illumination_session,
+            archive_output_fldr=staging_dir)
+
 
 def _get_lists_for_normalization(settings):
     """
@@ -2485,7 +2635,8 @@ def preprocess_img_data(settings):
             print('Found existing channel_stack folder.')
         if os.path.exists(os.path.join(src,'masks')):
             print('Found existing masks folder. Skipping preprocessing')
-            if settings.get('illumination_correction', False):
+            if (settings.get('illumination_correction', False) and
+                    settings.get('masks', True)):
                 from .illumination import (
                     load_segmentation_illumination_resume,
                 )
@@ -2649,7 +2800,8 @@ def preprocess_img_data(settings):
             f"{len(images)} image file(s) directly in that folder.{hint}")
 
     illumination_session = None
-    if settings.get('illumination_correction', False):
+    if (settings.get('illumination_correction', False) and
+            settings.get('masks', True)):
         from .illumination import prepare_segmentation_illumination
         illumination_session = prepare_segmentation_illumination(
             settings,
