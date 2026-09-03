@@ -1526,7 +1526,6 @@ def _merge_channels(src, plot=False):
     return num_matching_folders
 
 def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_size=100):
-    from .utils import print_progress
     """
     Concatenates channel data from multiple files and saves the concatenated data as numpy arrays.
 
@@ -1540,6 +1539,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
     Returns:
         str: The directory path where the concatenated channel data is saved.
     """
+    from .utils import print_progress
     channels = [item for item in channels if item is not None]
     paths = []
     time_ls = []
@@ -1631,8 +1631,6 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
     return channel_stack_loc
 
 def _normalize_img_batch(stack, channels, save_dtype, settings):
-    
-    from .utils import print_progress
     """
     Normalize the stack of images.
 
@@ -1645,6 +1643,7 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     Returns:
         numpy.ndarray: The normalized stack.
     """
+    from .utils import print_progress
 
     # Channel indices may arrive as strings (e.g. from a settings CSV);
     # coerce so ``stack[:, :, :, channel]`` indexing works.
@@ -2932,7 +2931,6 @@ def _get_avg_object_size(masks):
     return avg_num_objects_per_image, avg_object_size
     
 def _save_figure(fig, src, text, dpi=None, i=1, all_folders=1):
-    from .utils import print_progress
     """
     Save a figure to a specified location.
 
@@ -2943,6 +2941,7 @@ def _save_figure(fig, src, text, dpi=None, i=1, all_folders=1):
     dpi (int, optional): Resolution. ``None`` (the default) follows the
         user's figure-resolution preference -- see spacr.plot.save_figure.
     """
+    from .utils import print_progress
 
     save_folder = os.path.dirname(src)
     obj_type = os.path.basename(src)

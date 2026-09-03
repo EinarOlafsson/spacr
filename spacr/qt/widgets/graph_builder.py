@@ -529,6 +529,15 @@ class GraphCanvas(LinkedView, QWidget):
 
     A :class:`LinkedView`, so a selection made here propagates to the other
     views sharing its model, and the base class for :class:`GateCanvas`.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
     """
 
     #: Whether the axes follow a filter.
@@ -544,14 +553,6 @@ class GraphCanvas(LinkedView, QWidget):
     #: the gate appears to jump or to fill the plot -- and dragging it
     #: becomes impossible because the ground moves with every apply.
     RESCALE_ON_FILTER = True
-
-    """The chart itself: a spec in, a faceted figure out, brushing back.
-
-    Linked to the shared selection as ``source`` (``"graph_builder"`` by
-    default). Pass ``link`` a private
-    :class:`~spacr.qt.linked_selection.LinkedSelection` in tests so a run does
-    not narrow every other open view.
-    """
 
     #: Emitted after every render with the :class:`RenderData` that was drawn,
     #: so a host can put the large-data notice in its own status bar.
@@ -1511,7 +1512,17 @@ class GraphCanvas(LinkedView, QWidget):
 # ---------------------------------------------------------------------------
 
 class GraphBuilderPanel(QWidget):
-    """The well, the six zones, the plot-type override and the canvas."""
+    """The well, the six zones, the plot-type override and the canvas.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
+    """
 
     spec_changed = Signal(object)
 
