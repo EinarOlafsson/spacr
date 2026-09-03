@@ -1493,11 +1493,14 @@ def test_baseline_constructor_documents_every_field():
     "spacr.accelerator.Accelerator",
     "spacr.classify_classes.ClassRule",
     "spacr.control_names.ControlSpec",
+    "spacr.curation.LabelEdit",
     "spacr.custom_features.CustomFeature",
     "spacr.database_schema.Migration",
     "spacr.feature_dict.ConditionalUnit",
     "spacr.figures.sheet.Sheet",
     "spacr.flowview.layout.GraphLayout",
+    "spacr.external_masks.MaskMatch",
+    "spacr.feature_dict.FeatureScope",
     "spacr.benchmark.Recommendation",
     "spacr.portable_paths.RerootReport",
     "spacr.figures.fast_render.RenderedPanel",
@@ -1530,7 +1533,11 @@ def test_baseline_constructor_documents_every_field():
     "spacr.flowview.events.StageCompleted",
     "spacr.flowview.events.StageFailed",
     "spacr.plate_measurements.PlateDatabase",
+    "spacr.plate_measurements.PlateMerge",
     "spacr.plugins.ModelProviderContribution",
+    "spacr.plugins.ReportSectionContribution",
+    "spacr.report.Table",
+    "spacr.run_recommendations.Recommendation",
     "spacr.runctx.RunContext",
     "spacr.settings_advisor.Advice",
     "spacr.settings_advisor.Undecided",
@@ -2197,7 +2204,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
 
 
 def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
-    """Freeze the 479 visible fields and four ordinary counterexamples."""
+    """Freeze the 459 visible fields and four ordinary counterexamples."""
     items = list(_public_callables())
     rendered_docs = _documentation_public_docstrings()
     required_ivars = {
@@ -2219,12 +2226,12 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         if by_symbol[symbol].category not in GENERATED_CONSTRUCTOR_CATEGORIES
     }
 
-    assert len(required_ivars) == 104
-    assert sum(map(len, required_ivars.values())) == 490
-    assert len(generated) == 100
-    assert sum(map(len, generated.values())) == 479
+    assert len(required_ivars) == 98
+    assert sum(map(len, required_ivars.values())) == 470
+    assert len(generated) == 94
+    assert sum(map(len, generated.values())) == 459
     assert Counter(by_symbol[symbol].category for symbol in generated) == {
-        "dataclass_constructor": 98,
+        "dataclass_constructor": 92,
         "namedtuple_constructor": 2,
     }
     assert Counter(
@@ -2232,7 +2239,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         for symbol in generated
         for _name in generated[symbol]
     ) == {
-        "dataclass_constructor": 469,
+        "dataclass_constructor": 449,
         "namedtuple_constructor": 10,
     }
     assert len(ordinary) == 4
@@ -2245,7 +2252,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         symbol: _missing_required_parameters(by_symbol[symbol])
         for symbol in generated
     }
-    assert sum(not names for names in remaining.values()) == 100
+    assert sum(not names for names in remaining.values()) == 94
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(

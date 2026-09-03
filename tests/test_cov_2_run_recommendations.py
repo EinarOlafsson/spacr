@@ -8,11 +8,23 @@ three wells cannot support the families the sweep would resolve.
 """
 from __future__ import annotations
 
-from spacr.run_recommendations import VIF_HIGH, recommend
+from spacr.run_recommendations import Recommendation, VIF_HIGH, recommend
 
 
 def _settings_by(items):
     return {item.setting for item in items}
+
+
+def test_recommendation_lines_distinguish_blocking_from_advisory_actions():
+    """The display marker exposes severity without changing its explanation."""
+    advisory = Recommendation("alpha", "raise it", "the fit was noisy")
+    blocking = Recommendation(
+        "alpha", "raise it", "the fit was noisy", severity="blocking")
+
+    assert advisory.line() == (
+        "  - alpha: raise it\n      because the fit was noisy")
+    assert blocking.line() == (
+        "  ! alpha: raise it\n      because the fit was noisy")
 
 
 def test_a_high_vif_recommends_a_penalised_regression():

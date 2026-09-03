@@ -459,10 +459,12 @@ class Figure:
 class Table:
     """A rectangle of already-stringified cells.
 
-    :ivar columns: header row.
-    :ivar rows: body rows, already truncated to what will be shown.
-    :ivar caption: one line above the table.
-    :ivar n_total_rows: rows the source had, so truncation can be stated.
+    :param columns: header cells, already converted to display strings.
+    :param rows: displayed body rows, already converted to strings and
+        truncated to what will be shown.
+    :param caption: optional line rendered above the table.
+    :param n_total_rows: original source-row count; zero defaults to the
+        number of retained rows during initialization.
     """
     columns: List[str] = field(default_factory=list)
     rows: List[List[str]] = field(default_factory=list)

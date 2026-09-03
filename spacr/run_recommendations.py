@@ -18,11 +18,14 @@ __all__ = ["Recommendation", "recommend", "format_recommendations"]
 class Recommendation:
     """One thing to change, why, and how strongly.
 
-    :ivar setting: the setting to change, spelled as the run reads it.
-    :ivar action: what to set it to.
-    :ivar because: the measurement that triggered this, with its number.
-    :ivar severity: ``'blocking'`` if the result should not be trusted as
-        it stands, ``'consider'`` otherwise.
+    :param setting: spaCR setting key the recommendation proposes changing.
+    :param action: human-readable proposed value or action; it is display
+        prose and is not applied automatically.
+    :param because: measured evidence explaining why the recommendation
+        fired.
+    :param severity: ``"blocking"`` for a result that should not be trusted
+        until addressed; ``"consider"`` by default, with every other value
+        rendered as advisory.
     """
 
     setting: str
@@ -31,6 +34,7 @@ class Recommendation:
     severity: str = "consider"
 
     def line(self) -> str:
+        """Return the two-line display block for this recommendation."""
         mark = "!" if self.severity == "blocking" else "-"
         return f"  {mark} {self.setting}: {self.action}\n      because {self.because}"
 

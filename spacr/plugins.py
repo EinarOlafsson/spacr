@@ -155,15 +155,16 @@ class ReportSectionContribution:
     :func:`spacr.report.collect_report` resolves and calls the builder, and
     substitutes a visible problem section if it fails.
 
-    :ivar key: identifier for the section; must match
-        ``^[a-z][a-z0-9_]{1,63}$`` and not repeat an existing section key.
-    :ivar title: heading for the section, used when the builder returns no
-        title of its own and when the builder fails; cannot be blank.
-    :ivar builder: ``"module:callable"`` reference string -- not the callable
-        itself -- to a callable taking a :class:`ReportContext` and returning
-        a ``spacr.report.Section``.
-    :ivar after: key of the existing section this one is inserted directly
-        after; an unmatched key appends it to the end of the report.
+    :param key: stable section identifier; plugin validation requires
+        ``^[a-z][a-z0-9_]{1,63}$`` and discovery rejects duplicate
+        contribution keys.
+    :param title: fallback section heading used when the builder returns no
+        title and when the builder fails; cannot be blank.
+    :param builder: ``"module:callable"`` reference resolved at report
+        collection to a callable taking :class:`ReportContext` and returning
+        a :class:`spacr.report.Section`.
+    :param after: existing section key after which this section is inserted;
+        an unmatched key appends it to the report.
     """
 
     key: str
