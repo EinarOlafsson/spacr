@@ -82,6 +82,13 @@ class CountClass:
     shortcut: str = ''
 
     def __post_init__(self) -> None:
+        """Normalize the name, display colour, and keyboard shortcut.
+
+        :returns: ``None`` after storing normalized immutable fields.
+        :raises LayerError: when the class name is blank or the colour is not
+            accepted by :func:`spacr.layers.to_rgba`.
+        """
+
         name = str(self.name).strip()
         if not name:
             raise LayerError('a counting class needs a non-blank name')
@@ -112,12 +119,31 @@ class CountingSession:
                  classes: Optional[Iterable[Any]] = None,
                  spacing: Optional[Spacing] = None, size: float = 12.0,
                  field: Optional[FieldKey] = None):
+        """Create marker layers and session state for a manual count.
+
+        :param stack: layer stack that owns the generated point layers.
+        :param classes: class specifications, or ``None`` for
+            :data:`DEFAULT_CLASSES`.
+        :param spacing: marker spacing, or ``None`` to inherit the first
+            two-dimensional layer and the stack's units.
+        :param size: positive finite marker diameter in world units.
+        :param field: optional field identity copied into exported rows.
+        :raises LayerError: when the stack, marker size, class name, or class
+            shortcut cannot define an unambiguous counting session.
+        """
+
         if not isinstance(stack, LayerStack):
             raise LayerError(
                 f'a counting session counts on a LayerStack, got {stack!r}')
+        try:
+            marker_size = float(size)
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise LayerError('marker size must be a positive finite diameter') from exc
+        if not np.isfinite(marker_size) or marker_size <= 0:
+            raise LayerError('marker size must be a positive finite diameter')
         self._stack = stack
         self._spacing = spacing or self._default_spacing(stack)
-        self._size = float(size)
+        self._size = marker_size
         self._field = field
         self._classes: List[CountClass] = []
         self._layers: Dict[str, PointsLayer] = {}
@@ -129,6 +155,13 @@ class CountingSession:
 
     @staticmethod
     def _default_spacing(stack: LayerStack) -> Spacing:
+        """Choose two-dimensional marker spacing for *stack*.
+
+        :param stack: layer stack inspected in display order.
+        :returns: the first two-dimensional layer's spacing, or isotropic
+            unit spacing carrying the stack's units when no plane exists.
+        """
+
         for layer in stack:
             if layer.ndim == 2:
                 return layer.spacing
@@ -167,6 +200,9 @@ class CountingSession:
         if not entry.shortcut and shortcut_index is None:
             shortcut_index = len(self._classes)
         if not entry.shortcut and shortcut_index is not None \
+                and shortcut_index < 0:
+            raise LayerError('shortcut_index must be a non-negative position')
+        if not entry.shortcut and shortcut_index is not None \
                 and shortcut_index < 9:
             entry = CountClass(entry.name, entry.color,
                                str(shortcut_index + 1))
@@ -174,6 +210,11 @@ class CountingSession:
             raise LayerError(
                 f'this session already counts {entry.name!r}. Two classes with '
                 f'one name is a tally nobody can interpret.')
+        if entry.shortcut and any(
+            existing.shortcut == entry.shortcut for existing in self._classes
+        ):
+            raise LayerError(
+                f'shortcut {entry.shortcut!r} already selects another class')
         layer = self._stack.add_points(
             name=f'{LAYER_PREFIX}{entry.name}', ndim=self._spacing.ndim,
             spacing=self._spacing, size=self._size, face_color=entry.color,
@@ -185,6 +226,8 @@ class CountingSession:
         return entry
 
     def _next_color(self) -> str:
+        """Return the next cyclic default channel-colour name."""
+
         from .layers import DEFAULT_CHANNEL_COLORMAPS
         return DEFAULT_CHANNEL_COLORMAPS[
             len(self._classes) % len(DEFAULT_CHANNEL_COLORMAPS)]
@@ -211,9 +254,22 @@ class CountingSession:
 
     @active.setter
     def active(self, name: str) -> None:
+        """Select the validated class that receives the next marker.
+
+        :param name: existing class name to make active.
+        :raises LayerError: when this session does not count *name*.
+        """
+
         self._active = self._check_class(name)
 
     def _check_class(self, name: Optional[str]) -> str:
+        """Resolve and validate an explicit or active class name.
+
+        :param name: explicit class, or ``None`` to use :attr:`active`.
+        :returns: validated class name present in the session.
+        :raises LayerError: when the resolved class is not counted here.
+        """
+
         key = self._active if name is None else str(name)
         if key not in self._layers:
             raise LayerError(
@@ -302,6 +358,13 @@ class CountingSession:
     @staticmethod
     def _index_of(layer: PointsLayer,
                   coordinates: np.ndarray) -> Optional[int]:
+        """Return the last row approximately matching *coordinates*.
+
+        :param layer: point layer whose data-coordinate rows are searched.
+        :param coordinates: data-coordinate vector to locate.
+        :returns: last matching row index, or ``None`` when none exists.
+        """
+
         data = layer.data
         if len(data) == 0:
             return None

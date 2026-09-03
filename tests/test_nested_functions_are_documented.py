@@ -42,6 +42,7 @@ FULLY_DOCUMENTED = frozenset({
     "spacr/chaining.py",
     "spacr/cli.py",
     "spacr/cli_download.py",
+    "spacr/counting.py",
     "spacr/classifier_evaluation.py",
     "spacr/classifier_quality.py",
     "spacr/crashreport.py",
