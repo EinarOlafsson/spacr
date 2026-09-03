@@ -237,3 +237,41 @@ STILL TRUE, and still the trap that caught me: `tests/test_user_facing_
 docstrings.py` rejects internal provenance in docstrings. I wrote five
 violations into `spacr/scorecard.py` AFTER recording that warning here. They
 were three red tests on nightly until 412525308.
+
+---
+
+2026-09-03, 06:55. THE COUNT IS ZERO.
+
+    389 public classes in the package take constructor parameters
+      0 document none of them
+
+It was 170 when the corrected measurement was taken last night, and 165 of
+those were in `spacr/qt`. Every one is now documented, by hand or by a helper
+whose output was verified against `__doc__` rather than against the diff.
+
+WHAT A RATCHET FOR THIS SHOULD CHECK, now that the backlog is gone. A
+parameter counts as documented if it is named in ANY of: `:param x:` in the
+class docstring, a NumPy `Parameters` block, or either style on the
+`__init__` docstring. The parameter list must come from `args` PLUS
+`kwonlyargs`. All four were got wrong in the first attempt and each one makes
+documented code look undocumented -- the third reports a correctly documented
+keyword-only parameter as a GHOST.
+
+FOUR WAYS THE WRITING ITSELF WENT WRONG, all caught by verification and worth
+knowing before anyone automates more of this:
+
+  1. `#: :param x:` is a Sphinx ATTRIBUTE comment. It renders beside whatever
+     follows and documents no parameter at all, so it counts as work done
+     while `__doc__` stays empty. Written twice.
+  2. A docstring that opens on one line and closes on the next is not a
+     one-liner. Treating it as one ate three characters off the closing line
+     and turned `:class:` into `"""ass:`.
+  3. A class nested inside a function needs deeper indentation. Writing at a
+     fixed four spaces left the module unparseable.
+  4. A plausible reading of the NAME is not the meaning. `mode` was the crop
+     source, not a png/array split; `removable` was "not the last one", not
+     "not required"; `host` was where training is requested, not where output
+     is published. Each was corrected by reading the call site.
+
+THE OTHER HALF OF THIS ITEM -- whether the API pages these docstrings reach
+render them correctly -- is untouched and is what remains.

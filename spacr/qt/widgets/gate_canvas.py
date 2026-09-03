@@ -89,6 +89,9 @@ class AxisCutoffs:
 
     Empty cutoffs are removed rather than stored as ``(None, None)``. A
     measurement is therefore present only when at least one limit is active.
+
+    :param initial: cutoffs to start from, keyed by measurement. Copied, so
+        the caller's dict is not mutated as the session sets more.
     """
 
     def __init__(self, initial: Optional[Dict[str, AxisCutoff]] = None):

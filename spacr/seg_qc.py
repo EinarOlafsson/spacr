@@ -297,6 +297,11 @@ class SegmentationQCFailed(RuntimeError):
 
     Carries the summary so a caller can report WHICH fields failed and why,
     rather than only that something did.
+
+    :param message: the exception's own message.
+    :param summary: the QC summary, so a caller can report WHICH fields
+        failed and why rather than only that something did. ``None`` when
+        there is nothing to carry.
     """
 
     def __init__(self, message: str, summary: Optional[Dict[str, Any]] = None):

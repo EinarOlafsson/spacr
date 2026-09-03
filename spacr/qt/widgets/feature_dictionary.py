@@ -463,7 +463,12 @@ class FeatureDictionaryPanel(QWidget):
 
 
 class FeatureDictionaryDialog(QDialog):
-    """:class:`FeatureDictionaryPanel` in a non-modal window."""
+    """:class:`FeatureDictionaryPanel` in a non-modal window.
+
+    :param parent: parent widget.
+    :param column: the measurement to open on. ``None`` opens on the whole
+        dictionary rather than on a lookup nobody asked for.
+    """
 
     def __init__(self, parent: Optional[QWidget] = None,
                  column: Optional[str] = None):

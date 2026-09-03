@@ -437,6 +437,10 @@ class CascadeEngine:
     the sub-pixel grid over time. This one takes all four samples inside a
     single frame, so there is nothing to remember between frames -- which is
     also why pausing and resuming it cannot show a seam.
+
+    :param thread_count: worker threads to render with. Clamped to at least
+        one, so a caller that computed zero from an unavailable CPU count
+        still renders.
     """
 
     def __init__(self, thread_count: int) -> None:

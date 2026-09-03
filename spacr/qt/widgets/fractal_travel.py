@@ -649,6 +649,10 @@ class OrbitEngine:
 
     Holds no keyframes: the only state is the ring of the last four jitter
     phases, which is what the antialiasing needs and all it needs.
+
+    :param thread_count: worker threads to render with. Clamped to at least
+        one, so a caller that computed zero from an unavailable CPU count
+        still renders.
     """
 
     def __init__(self, thread_count: int) -> None:
@@ -842,6 +846,8 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
         `paintEvent` only blits: every fractal evaluation happens on the
         worker thread, so a slow frame makes the picture late and never makes
         the interface late.
+
+        :param parent: parent widget.
         """
 
         backend_name: Final[str] = "cpu"
@@ -2154,7 +2160,10 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                     f"detail {self._detail}\n{timing}")
 
     class GpuFractalWidget(QWidget):
-        """The GLSL fractal. The GPU does the work; Qt only hosts it."""
+        """The GLSL fractal. The GPU does the work; Qt only hosts it.
+
+        :param parent: parent widget.
+        """
 
         backend_name: Final[str] = "gpu"
 

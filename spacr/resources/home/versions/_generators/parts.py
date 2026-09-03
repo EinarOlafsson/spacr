@@ -626,7 +626,15 @@ class FixedButton(QPushButton):
     """
 
     def __init__(self, width: int, height: int, parent=None):
-        """Create a button whose size hints preserve the requested dimensions."""
+        """Create a button whose size hints preserve the requested dimensions.
+
+        :param width: width to report through the size hints, in px.
+        :param height: height to report through the size hints, in px.
+        :param parent: parent widget.
+
+        Reported through ``sizeHint``/``minimumSizeHint`` rather than set with
+        ``setFixedSize``, for the reason the class docstring gives.
+        """
         super().__init__(parent)
         self._fixed = QSize(int(width), int(height))
         self.setFixedSize(self._fixed)
@@ -652,7 +660,18 @@ class BigTile(FixedButton):
     def __init__(self, ctx: Ctx, key: str, *, width: int, height: int,
                  icon_px: int = 56, blurb_lines: int = 0,
                  accent: bool = False, badge: str = ""):
-        """Build an illustrated launcher tile for one registered app key."""
+        """Build an illustrated launcher tile for one registered app key.
+
+        :param ctx: the theme context supplying the palette and icons.
+        :param key: the registered app this tile launches; its name, blurb
+            and icon are read from the registry rather than passed in.
+        :param width: tile width in px.
+        :param height: tile height in px.
+        :param icon_px: icon size in px.
+        :param blurb_lines: how many lines of blurb to draw. 0 draws none.
+        :param accent: whether to draw the accented variant.
+        :param badge: short text for the corner badge. Empty draws none.
+        """
         super().__init__(width, height)
         self.setObjectName("BigTileAccent" if accent else "BigTile")
         self.setCursor(Qt.PointingHandCursor)
@@ -717,6 +736,16 @@ class DenseRow(QPushButton):
 
     The "dense list" answer to the tile grid — many more apps above the
     fold, at the cost of the tile's visual weight.
+
+    :param ctx: the theme context supplying the palette and icons.
+    :param key: the registered app this row launches.
+    :param width: row width in px.
+    :param name_width: px reserved for the name column, so names line up
+        down the list rather than each row sizing to its own text.
+    :param icon_px: icon size in px.
+    :param show_blurb: whether to draw the blurb after the name.
+    :param badge: short text for the badge. Empty draws none.
+    :param shortcut: the keyboard shortcut to show. Empty draws none.
     """
 
     def __init__(self, ctx: Ctx, key: str, *, width: int,
