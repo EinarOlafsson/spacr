@@ -56,6 +56,8 @@ def test_a_panel_with_no_effect_column_names_what_it_needed(
     sentence the user can act on."""
     panel = panel_fn(ax, _no_effect_frame())
 
+    for field in ("caption", "drawn", "reason", "needs", "data", "groups"):
+        assert f":ivar {field}:" in (panels.Panel.__doc__ or "")
     assert panel.drawn is False
     assert panel.key == key
     assert panel.reason == "no effect column"
