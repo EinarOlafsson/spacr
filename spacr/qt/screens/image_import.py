@@ -438,6 +438,7 @@ class ImageImportScreen(QWidget):
         self._answers.answers_edited.connect(self._on_answer_edited)
         self._answer_table = QTableView(self)
         self._answer_table.setModel(self._answers)
+        install_sorting(self._answer_table)
         self._answer_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._answer_table.setMaximumHeight(120)
         self._answer_table.horizontalHeader().setSectionResizeMode(
