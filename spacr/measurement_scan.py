@@ -77,25 +77,29 @@ class ScanRefused(ValueError):
 class MeasurementEffect:
     """One scanned measurement: its best gene, and both corrections.
 
-    :ivar measurement: name of the scanned response column.
-    :ivar n_wells: wells used to fit this measurement's model.
-    :ivar n_genes: non-baseline gene terms fitted in the design.
-    :ivar top_gene: gene with the largest absolute standardised effect.
-    :ivar effect_size: signed top-gene coefficient in residual-standard-
-        deviation units.
-    :ivar coefficient: signed top-gene effect in the measurement's own units.
-    :ivar p_value: raw two-sided P value for the top gene.
-    :ivar within_run_q: best adjusted P value across this measurement's genes.
-    :ivar within_run_hits: genes called significant by the within-run
-        correction.
-    :ivar measurement_p: Simes global-null P value passed to the across-scan
-        correction.
-    :ivar across_scan_q: adjusted P value for this measurement in the full
-        scan.
-    :ivar survives_within_run: whether the within-run correction called at
-        least one gene at the requested alpha.
-    :ivar survives_across_scan: whether this measurement survived the
-        across-scan correction at the requested alpha.
+    :param measurement: Name of the numeric response column that was scanned.
+    :param n_wells: Number of wells with finite values used for this
+        measurement's fit.
+    :param n_genes: Number of non-baseline gene terms in this measurement's
+        fitted design.
+    :param top_gene: Gene term with the largest absolute standardized effect.
+    :param effect_size: Signed coefficient of ``top_gene`` divided by this
+        measurement's residual standard deviation.
+    :param coefficient: Signed ``top_gene`` coefficient in the measurement's
+        original units.
+    :param p_value: Raw two-sided P value for ``top_gene``.
+    :param within_run_q: Smallest adjusted P value across all gene terms for
+        this measurement; it need not belong to ``top_gene``.
+    :param within_run_hits: Number of gene terms rejected by the
+        within-measurement correction at the requested alpha.
+    :param measurement_p: Simes global-null P value combining this
+        measurement's raw gene-term P values for the across-scan family.
+    :param across_scan_q: This measurement's value after correction across all
+        successfully scanned measurements.
+    :param survives_within_run: Whether at least one gene term survived the
+        within-measurement correction.
+    :param survives_across_scan: Whether this measurement survived the
+        across-scan correction.
     """
 
     measurement: str
