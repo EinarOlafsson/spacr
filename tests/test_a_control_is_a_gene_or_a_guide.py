@@ -12,6 +12,8 @@ user pastes out of a library file are full guide names (TGGT1_233460_4).
 """
 from __future__ import annotations
 
+from dataclasses import fields
+
 import pandas as pd
 import pytest
 
@@ -28,6 +30,15 @@ LIBRARY = [f"TGGT1_{gene}_{n}"
 #: The same library as spaCR actually stores it, after process_reads has
 #: split off the organism token.
 STORED = [name.split("_", 1)[1] for name in LIBRARY]
+
+
+def test_the_resolved_control_documents_every_stored_field():
+    """A caller can interpret the prefix retained in the public result."""
+    missing = [
+        field.name for field in fields(ControlSpec)
+        if f":ivar {field.name}:" not in (ControlSpec.__doc__ or "")
+    ]
+    assert not missing, f"undocumented ControlSpec fields: {missing}"
 
 
 class TestTheCommonPrefixIsMeasured:
