@@ -70,7 +70,14 @@ def _muted(text: str, parent=None) -> QLabel:
 
 
 class QuestionsPage(QWidget):
-    """The questions the data cannot answer, and why each one matters."""
+    """The questions the data cannot answer, and why each one matters.
+
+    :param reading: what was measured from the data. The questions are what
+        it could NOT answer, so this decides which rows exist -- a reading
+        that answered everything builds an empty page rather than a page of
+        questions with answers already in them.
+    :param parent: parent widget.
+    """
 
     def __init__(self, reading: Reading, parent: Optional[QWidget] = None):
         super().__init__(parent)
