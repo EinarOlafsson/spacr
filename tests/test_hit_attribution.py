@@ -53,6 +53,8 @@ def _fit(**kwargs):
 
 def test_crossfit_holds_wells_out_and_excludes_original_score_by_default():
     result = _fit()
+    for field in ("source_regression_run", "warnings"):
+        assert f":ivar {field}:" in (type(result).__doc__ or "")
     assert result.split_level == "well"
     assert result.cells["hit_like_probability"].between(0, 1).all()
     assert result.cells["attribution_fold"].nunique() >= 3
