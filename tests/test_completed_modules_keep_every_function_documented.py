@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 FULLY_DOCUMENTED = (
     "spacr/align.py",
+    "spacr/artifacts.py",
     "spacr/attribution_columns.py",
     "spacr/batch.py",
     "spacr/annotation.py",
