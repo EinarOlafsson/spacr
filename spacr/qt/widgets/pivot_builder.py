@@ -106,6 +106,11 @@ class DropWell(QWidget):
     Removing is Delete, Backspace or a double-click. There is no drag-out: a
     column dragged from here to another well would have to decide whether it
     was a move or a copy, and getting that wrong silently loses an axis.
+
+    :param axis: which pivot axis this well holds. Must be a key of
+        :data:`AXIS_LABELS`; anything else RAISES here rather than drawing a
+        well nothing can be dropped into.
+    :param parent: parent widget.
     """
 
     changed = Signal()
