@@ -71,9 +71,15 @@ class Migration:
     ``version`` is the schema version after ``apply`` succeeds.  Consequently
     a migration numbered ``3`` upgrades version ``2`` to version ``3``.
 
-    :ivar version: schema version reached after the migration succeeds.
-    :ivar name: human-readable transition name recorded in migration reports.
-    :ivar apply: callable that mutates a connection and reports column renames.
+    :param version: schema version reached by this transition. It determines
+        registry order and selection and becomes SQLite ``user_version``
+        after successful application.
+    :param name: human-readable transition label appended to
+        :attr:`MigrationReport.applied` when the migration runs.
+    :param apply: callable invoked with the open SQLite connection inside the
+        migration transaction. It mutates the schema and returns
+        ``(table, old, new)`` column-renaming records; an exception rolls the
+        transition back.
     """
 
     version: int
