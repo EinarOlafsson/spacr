@@ -9804,6 +9804,19 @@ class SettingsWidgets:
         declared[id(section)] = (section, tuple(keys), bool(has_children))
         self._slot_heading_cache = None
 
+    def hide_the_rows_the_grid_speaks_for(self, keys) -> None:
+        """Take ``keys`` off the form because a grid now shows them.
+
+        The widgets STAY -- they are what `collect()` reads and what the grid
+        writes through to -- so this hides rows rather than dropping them.
+        The settings search still indexes them and every check that walks the
+        form still finds them holding their values.
+
+        :param keys: the setting keys the grid answers.
+        """
+        self._hidden_by_the_grid = set(keys or ())
+        self.refresh_object_visibility()
+
     def refresh_object_visibility(self) -> None:
         """Show only the rows whose object this run actually has.
 
@@ -9834,6 +9847,13 @@ class SettingsWidgets:
             # last one -- otherwise showing a row whose channel was just
             # typed would look, to the guard, like something else putting a
             # hidden row back.
+            # AND THE ROWS THE GRID SPEAKS FOR. Kept in a set of its own
+            # because this pass recomputes `hidden` from scratch every time:
+            # putting the grid's keys into `_hidden_by_the_run` would show
+            # them again on the next channel edit. Union, so a row hidden for
+            # either reason stays hidden.
+            hidden = set(hidden) | set(
+                getattr(self, "_hidden_by_the_grid", ()) or ())
             self._hidden_by_the_run = set(hidden)
             # BEFORE THE ROWS MOVE, for the other reason too: a row the screen
             # left unbuilt because this rule hid it has to exist before the

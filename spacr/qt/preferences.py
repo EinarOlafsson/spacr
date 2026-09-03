@@ -193,6 +193,7 @@ _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
 #: both off, or either alone are all legal, which is why they are two
 #: booleans and not a three-way choice wearing two checkboxes.
 _KEY_TOOLTIPS_BOX = "prefs/tooltips_box"
+_KEY_OBJECT_GRID = "prefs/object_settings_grid"
 _KEY_TOOLTIPS_BOTTOM = "prefs/tooltips_bottom"
 _KEY_SPACR_MODE = "prefs/spacr_mode"
 _KEY_LAPTOP_MODE = "prefs/laptop_mode"
@@ -3255,6 +3256,11 @@ DEFAULT_SETTING_ANIMATIONS = False
 DEFAULT_TOOLTIPS_BOX = False
 DEFAULT_TOOLTIPS_BOTTOM = True
 
+#: OFF until someone chooses it. The grid is a different way to read
+#: the most-used screen in the application, so it arrives as an offer
+#: rather than as a change to what everyone already knows.
+DEFAULT_OBJECT_GRID = False
+
 
 def get_tooltips_box_enabled() -> bool:
     """Whether hovering a setting's title opens the tooltip box.
@@ -3272,6 +3278,28 @@ def get_tooltips_box_enabled() -> bool:
 def set_tooltips_box_enabled(on: bool) -> None:
     """Turn the hover tooltip box on or off, effective at the next hover."""
     _settings().setValue(_KEY_TOOLTIPS_BOX, bool(on))
+    _settings().sync()
+
+
+def get_object_grid_enabled() -> bool:
+    """Whether the per-object settings are shown as one table.
+
+    78 of Mask's 201 settings are the same twenty-odd questions asked once
+    per object type, so a form that lists them flat asks 203 questions before
+    anything is segmented. Set, those rows are hidden and a grid takes their
+    place -- one row per question, one column per object.
+
+    THE STORED KEYS DO NOT CHANGE either way. The grid edits the same widgets
+    the flat rows do, so a settings file written with this on is the same file
+    written with it off.
+    """
+    return _as_bool(_settings().value(_KEY_OBJECT_GRID, DEFAULT_OBJECT_GRID),
+                    DEFAULT_OBJECT_GRID)
+
+
+def set_object_grid_enabled(on: bool) -> None:
+    """Turn the per-object grid on or off, effective at the next form build."""
+    _settings().setValue(_KEY_OBJECT_GRID, bool(on))
     _settings().sync()
 
 
