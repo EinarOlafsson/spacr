@@ -183,6 +183,121 @@ def fold_label(key: str) -> Tuple[str, str, str]:
     return _describe(key)
 
 
+def _host_declarations(module_name: str):
+    """``(folded keys, fallback table)`` read from a host's SOURCE.
+
+    Reads `FOLDED_APPS` (or `FOLD_ORDER`) and `FOLD_FALLBACK` out of the
+    syntax tree, which costs a file read and imports nothing. Three of the
+    six hosts build `FOLD_FALLBACK` from expressions rather than writing a
+    literal; those come back empty and the caller answers from the registry
+    and the declared catalogue instead, exactly as it already does for a key
+    no table names.
+
+    :param module_name: dotted name of the host module.
+    :returns: ``(members, table)``, or ``None`` when the source cannot be read.
+    """
+    import ast
+    import importlib.util
+    import pathlib
+
+    try:
+        spec = importlib.util.find_spec(module_name)
+        tree = ast.parse(
+            pathlib.Path(spec.origin).read_text(encoding="utf-8"))
+    except Exception:                                   # noqa: BLE001
+        return None
+
+    constants: dict = {}
+    declared: dict = {}
+    siblings: dict = {}
+    package = module_name.rpartition(".")[0]
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom) and node.level:
+            base = package
+            for _ in range(node.level - 1):
+                base = base.rpartition(".")[0]
+            if node.module:
+                base = f"{base}.{node.module}"
+            for alias in node.names:
+                siblings[alias.asname or alias.name] = f"{base}.{alias.name}"
+        if isinstance(node, ast.AnnAssign):
+            targets, value = [node.target], node.value
+        elif isinstance(node, ast.Assign):
+            targets, value = node.targets, node.value
+        else:
+            continue
+        if value is None:
+            continue
+        for target in targets:
+            if not isinstance(target, ast.Name):
+                continue
+            if isinstance(value, ast.Constant) and isinstance(value.value, str):
+                constants[target.id] = value.value
+            if target.id in ("FOLDED_APPS", "FOLD_ORDER", "FOLD_FALLBACK"):
+                declared[target.id] = value
+
+    def _as_string(node):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            return node.value
+        if isinstance(node, ast.Name):
+            return constants.get(node.id)
+        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
+            owner = siblings.get(node.value.id)
+            if owner:
+                return _sibling_constant(owner, node.attr)
+        return None
+
+    members: tuple = ()
+    for name in ("FOLDED_APPS", "FOLD_ORDER"):
+        node = declared.get(name)
+        if isinstance(node, (ast.Tuple, ast.List)):
+            keys = [_as_string(element) for element in node.elts]
+            if all(keys):
+                members = tuple(keys)
+                break
+
+    table: dict = {}
+    fallback = declared.get("FOLD_FALLBACK")
+    if isinstance(fallback, ast.Dict):
+        for key_node, value_node in zip(fallback.keys, fallback.values):
+            key = _as_string(key_node)
+            if key is None:
+                continue
+            try:
+                table[key] = ast.literal_eval(value_node)
+            except Exception:                           # noqa: BLE001
+                continue
+    return members, table
+
+
+def _sibling_constant(module_name: str, name: str):
+    """One module-level string constant, read from source without importing."""
+    import ast
+    import importlib.util
+    import pathlib
+
+    try:
+        spec = importlib.util.find_spec(module_name)
+        tree = ast.parse(
+            pathlib.Path(spec.origin).read_text(encoding="utf-8"))
+    except Exception:                                   # noqa: BLE001
+        return None
+    for node in tree.body:
+        if isinstance(node, ast.AnnAssign):
+            targets, value = [node.target], node.value
+        elif isinstance(node, ast.Assign):
+            targets, value = node.targets, node.value
+        else:
+            continue
+        if not isinstance(value, ast.Constant) or not isinstance(
+                value.value, str):
+            continue
+        for target in targets:
+            if isinstance(target, ast.Name) and target.id == name:
+                return value.value
+    return None
+
+
 def folded_modules() -> dict:
     """Every folded key, as ``key -> (name, description, stage, host)``.
 
@@ -221,24 +336,18 @@ def folded_modules() -> dict:
 
     :returns: a fresh dict; callers may keep or mutate it.
     """
-    import importlib
-
     hosts = []
     for module_name in FOLD_HOST_MODULES:
-        try:
-            module = importlib.import_module(module_name)
-        except Exception:                               # noqa: BLE001
+        # READ, NOT IMPORTED. This runs while the menu bar and the dock are
+        # being built, and importing every fold host pulls their dependency
+        # trees into the process before Home has painted -- pandas and scipy
+        # arrived that way, through `make_masks`, `foreign` and the settings
+        # model. The packaged smoke test asserts Home crosses no
+        # operation-only import boundary and was failing on exactly this.
+        declared = _host_declarations(module_name)
+        if declared is None:
             continue
-        members = getattr(module, "FOLDED_APPS", None)
-        if members is None:
-            members = getattr(module, "FOLD_ORDER", ())
-        try:
-            members = tuple(str(key) for key in (members or ()))
-        except TypeError:
-            continue
-        table = getattr(module, "FOLD_FALLBACK", None)
-        if not isinstance(table, dict):
-            table = {}
+        members, table = declared
         hosts.append((module_name, members, table))
 
     fallback_tables = [table for _name, _members, table in hosts if table]

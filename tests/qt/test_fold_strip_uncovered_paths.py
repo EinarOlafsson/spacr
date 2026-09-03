@@ -161,14 +161,23 @@ def test_a_host_whose_fold_list_is_not_a_list_is_skipped_not_fatal(monkeypatch):
     ``FOLDED_APPS`` that cannot be iterated has to cost that host its rows
     rather than take down the screen that asked what is folded into it.
     """
-    import importlib
-
     intact = fold_strip.folded_modules()
     assert intact, "no folded modules to speak of; the fixture is stale"
     broken = next(host for _n, _d, _s, host in intact.values())
-    module = importlib.import_module(broken)
-    attribute = "FOLDED_APPS" if hasattr(module, "FOLDED_APPS") else "FOLD_ORDER"
-    monkeypatch.setattr(module, attribute, 7)
+
+    # THE DECLARATIONS ARE READ FROM SOURCE, not imported -- importing every
+    # host put pandas and scipy in the process before Home had painted. So a
+    # host whose fold list cannot be read comes back with no members, and
+    # this simulates that rather than setting an attribute on a module the
+    # function never looks at.
+    real_declarations = fold_strip._host_declarations
+
+    def unreadable(name, *args, **kwargs):
+        if name == broken:
+            return (), {}
+        return real_declarations(name, *args, **kwargs)
+
+    monkeypatch.setattr(fold_strip, "_host_declarations", unreadable)
 
     surviving = fold_strip.folded_modules()
 
