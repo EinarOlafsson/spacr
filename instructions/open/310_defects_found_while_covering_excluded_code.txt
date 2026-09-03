@@ -2814,3 +2814,24 @@ rebuild identical coordinates across nondeterministic backends; the stored
 
 REVISED COUNT: 102 entries, 34 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+45. A DIRECT NONPOSITIVE MAD THRESHOLD MARKED ORDINARY VALUES AS OUTLIERS
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/outlier_filter.py``. The public ``apply`` path treated a nonpositive
+MAD threshold as disabled, but the lower-level ``outliers`` helper multiplied
+by it directly. At ``0`` every non-median value was flagged; below zero every
+finite value was flagged, so direct API callers received the opposite of the
+documented disabled-filter behavior.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/outlier_filter.py:88-90``. The helper
+now returns an all-false mask for nonpositive or non-finite thresholds, matching
+``apply``. A parameterized test covers negative, zero, NaN, and both infinities
+and retains a positive-threshold counterpart; restoring the old multiplication
+made the negative, zero, and negative-infinity cases fail.
+
+REVISED COUNT: 103 entries, 35 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
