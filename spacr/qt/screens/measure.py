@@ -30,8 +30,10 @@ HOST_KEY = "measure"
 
 #: Registry keys of the modules folded into it, in the order the strip
 #: draws them -- which is the order a plate goes through them: the field
-#: is estimated and divided out before any intensity feature is measured,
-#: the AnnData file is written from the tables afterwards.
+#: is estimated once and divided out of the pixels at every later enabled
+#: stage -- segmentation today as well as measurement, which is why this
+#: text names no single consumer -- and the AnnData file is written from
+#: the tables afterwards.
 #:
 #: ILLUMINATION KEEPS ITS OWN FORM as well as its settings category here,
 #: because the two ask different questions. The category is "correct these
@@ -68,7 +70,7 @@ FOLD_FALLBACK = {
     "illumination": (
         "Illumination",
         "Estimate the flat-field from the plate itself and divide it out "
-        "before any intensity feature is measured",
+        "of the pixels at every enabled stage",
         "beta"),
     "anndata_export": (
         "AnnData Export",

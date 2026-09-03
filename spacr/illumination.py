@@ -2092,10 +2092,11 @@ def illumination_settings(settings=None):
 _TOOLTIPS = {
     'illumination_correction': (
         '(bool) - Estimate the uneven illumination of the microscope from the '
-        'fields themselves and divide it out before any intensity feature is '
-        'measured. Off by default. On, the same cell measures the same '
-        'wherever it sits in the field of view, which is what removes the '
-        'position-dependent bias behind plate edge effects. Default False.'),
+        'fields themselves and divide it out of the pixels at every '
+        'enabled stage. Off by default. On, the same cell looks and measures '
+        'the same wherever it sits in the field of view, which is what '
+        'removes the position-dependent bias behind plate edge effects. '
+        'Default False.'),
     'illumination_model': (
         '(str) - Path to an illumination model saved earlier. Empty means '
         'estimate a fresh one from the fields in src, which is what you want '
@@ -2154,9 +2155,9 @@ _TYPES = {
 
 _DESCRIPTION = (
     'Illumination / flat-field correction. Estimates the microscope\'s '
-    'uneven illumination from the fields of a plate and divides it out '
-    'before any intensity feature is measured, so the same cell measures '
-    'the same wherever it sat in the field of view.'
+    'uneven illumination once from the fields of a plate and divides it '
+    'out of the pixels at every enabled stage, so the same cell looks '
+    'and measures the same wherever it sat in the field of view.'
 )
 
 

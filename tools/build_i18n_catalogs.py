@@ -1555,6 +1555,36 @@ def _semantic_false_friends(
         and re.search(r"(?:密钥|密鑰)", target_text)
     ):
         failures.append("mapping-key-as-secret-key")
+    # A FABRICATED VENDOR NAME, which no other predicate here catches because
+    # it is not a sense error: M2M100 renders technical tokens it does not
+    # know -- "microscope", "smoothgrad", "surrogate", "permutation" -- as
+    # the Microsoft brand.  Measured on the 2026-09-02 catalogs: ko
+    # 'import_images' and the raw_images caption, hi 'guide_permutation_seed'
+    # and 'surrogate_shap_max_samples', zh_CN 'smoothgrad_samples'.  The
+    # brand is a proper noun, so it can only be correct when the English
+    # source names it; otherwise spaCR is telling a scientist that a
+    # microscope folder came from a software vendor.  Falling back to English
+    # is strictly better than shipping the wrong company's name.
+    if not re.search(r"microsoft", source_text, re.I):
+        brand_bad = {
+            "ko": r"마이크로소프트",
+            "zh_CN": r"(?:微软|微軟)",
+            "hi": r"माइक्रोसॉफ्ट",
+        }.get(language, r"\bMicrosoft\b")
+        if re.search(brand_bad, target_text, re.I):
+            failures.append("hallucinated-microsoft-brand")
+    # CYRILLIC IN A CATALOG THAT HAS NO CYRILLIC LANGUAGE.  None of the nine
+    # supported targets is written in Cyrillic, so a Cyrillic run is always
+    # the model reaching into the wrong language -- 'минерал' for a
+    # permutation seed in Hindi, and five more in Spanish that predate this
+    # pass.  The existing script check only asks whether SOME target script
+    # is present, so a mixed-script row satisfies it; this asks the other
+    # half of the question.  Guarded on the source so a genuine Cyrillic
+    # literal in the English would still be allowed through.
+    if re.search(r"[Ѐ-ӿ]", target_text) and not re.search(
+        r"[Ѐ-ӿ]", source_text
+    ):
+        failures.append("cyrillic-script-contamination")
 
     if target_raw.count(">") > source_raw.count(">"):
         failures.append("surplus-angle-bracket")
