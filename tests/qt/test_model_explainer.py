@@ -478,14 +478,34 @@ def test_the_box_text_is_legible_against_its_own_background(qtbot,
     # back byte-identical and the test reports "the text is not painting"
     # about a box that is painting perfectly -- which it did, once the box
     # moved inside its section and the layout took a turn to settle.
+    def settled_grab():
+        """Grab once the picture has stopped changing.
+
+        A FIXED WAIT IS A GUESS ABOUT THE MACHINE. This was `qtbot.wait(20)`,
+        and 20 ms is enough on a quiet developer laptop and not enough here:
+        the two grabs came back nearly identical and the test reported "the
+        text is not painting" about a box painting perfectly. Raising the
+        number would only move the machine it is wrong on -- measured, the
+        same grab needs 300 ms here and 20 ms elsewhere.
+
+        Two consecutive identical grabs mean the repaint has landed,
+        whatever the machine.
+        """
+        previous = None
+        for _ in range(100):
+            qtbot.wait(10)
+            current = screen.grab().toImage()
+            if previous is not None and current == previous:
+                return current
+            previous = current
+        return previous
+
     written = box.toPlainText()
-    qtbot.wait(20)
-    with_text = screen.grab().toImage()
+    with_text = settled_grab()
     box.setPlainText("\n".join(
         "".join(ch if ch.isspace() else " " for ch in line)
         for line in written.splitlines()))
-    qtbot.wait(20)
-    blank = screen.grab().toImage()
+    blank = settled_grab()
     box.setPlainText(written)
 
     assert with_text.size() == blank.size()
