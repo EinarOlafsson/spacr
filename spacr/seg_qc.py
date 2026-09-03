@@ -2042,6 +2042,8 @@ class QCDigest:
     :param findings: what :func:`diagnose` made of every card together.
     :param stale: True when any card is older than its masks.
     :param checked_at: when this digest was built (``time.time()``).
+    :param blocks_run: always ``False``; segmentation QC advises the user but
+        never prevents them from continuing a run.
     """
 
     root: str = ""
