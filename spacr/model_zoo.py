@@ -312,6 +312,16 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "sha256":
             "182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0",
         "display_name": "Toxoplasma PV v1",
+        # THE README TABLE READS THESE THREE, and nothing else.
+        # `trained_on` and `notes` stay full length because the Model Zoo
+        # screen and instruction 370's scorecard are where the detail
+        # belongs; the README table was carrying all of it and became
+        # unreadable. Asked 2026-09-02: "just state the model name and
+        # architecture, training dataset (staining + number of images from
+        # n datasets), and performance on hold out data compared to stock".
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset",
+        "versus_stock": "F1 0.867 against 0.713 for stock cpsam, at IoU 0.5",
         "trained_on": (
             "Toxoplasma tachyzoite parasitophorous vacuoles stained with goat "
             "anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the "
@@ -336,6 +346,16 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "sha256":
             "eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d",
         "display_name": "Toxoplasma Plaque v1",
+        "architecture": "Cellpose-SAM (cpsam)",
+        # IMAGE COUNT NOT RECORDED. Said so rather than guessed -- the PV
+        # row states 115 because 115 was measured, and a number invented
+        # to fill the column would be indistinguishable from it.
+        "dataset": "Toxoplasma plaque assays; 2 datasets, in-domain and literature; image count not recorded",
+        # NO STOCK BASELINE EXISTS FOR THIS ONE. The published comparison
+        # is round 3 against round 1 of the same model, which is a
+        # different claim and must not be printed under a heading that
+        # says "against stock".
+        "versus_stock": "F1 0.856 in-domain and 0.834 on the literature set; no stock cpsam baseline measured",
         "trained_on": (
             "Toxoplasma gondii plaque assays; round 3, evaluated in-domain "
             "(NAS) and against a literature generalisation set"
@@ -366,6 +386,11 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "sha256":
             "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c",
         "display_name": "Toxoplasma Plaque Well Detector v1",
+        "architecture": "YOLO11n",
+        "dataset": "whole-plate and multi-well plaque-assay images; 1 dataset; image count not recorded",
+        # There is no stock model that finds wells, so there is nothing to
+        # compare against and saying so is the honest cell.
+        "versus_stock": "mAP50 0.993, mAP50-95 0.886; no stock model detects wells",
         "trained_on": (
             "whole-plate and multi-well Toxoplasma plaque-assay images; "
             "yolo11n base, 150 epochs, batch 16, imgsz 640"

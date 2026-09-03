@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
+|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |Preprint| |DOI|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -26,7 +26,10 @@
    :alt: GitHub 问题
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: BSD 3-Clause 许可证
+   :alt: PolyForm 非商业许可证
+.. |Preprint| image:: https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
+   :alt: bioRxiv preprint
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
@@ -434,35 +437,35 @@ Cellpose-SAM runs here show the cell-probability map and the flow field beside t
 动物园模型
 ~~~~~~~~~~
 
-spaCR 附带一个训练好的模型目录，并在需要时下载。在主界面打开 **Model Zoo** 浏览并安装模型，或在设置文件中指定键名 -- ``pathogen_model: toxoplasma_pv_v1`` -- 模型会在首次需要时下载并校验其校验和。每个已发布条目都带有 SHA-256；没有校验和的条目会被拒绝而不是安装，因为被截断或被替换的检查点无法与真实文件区分。
+spaCR ships a catalogue of trained models and fetches them on demand. Open **Model Zoo** from the home screen to browse and install them, or name a key in a settings file -- ``pathogen_model: toxoplasma_pv_v1`` -- and the model is downloaded and checksum-verified the first time it is needed. Every published entry carries a SHA-256; an entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one.
 
 .. spacr-model-zoo-begin
 
 .. list-table::
    :header-rows: 1
-   :widths: 26 30 44
+   :widths: 24 34 42
 
-   * - Key
-     - Trained on
-     - Measured performance and limits
+   * - Model
+     - Training data
+     - Hold-out against stock
    * - ``toxoplasma_pv_v1``
-       (cpsam_v2_toxo_r2)
-     - Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. 115 pairs (104 train / 11 test), 100 epochs, base cpsam_v2
-     - F1 0.867 at IoU 0.5 against 0.713 for stock cpsam; AJI 0.808 against 0.426; accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry
+       (Cellpose-SAM (cpsam_v2))
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
+     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
    * - ``toxoplasma_plaque_v1``
-       (cpsam_plaque_r3)
-     - Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set
-     - F1 0.856 in-domain and 0.834 on the literature set, against 0.718 / 0.755 for round 1; round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay
+       (Cellpose-SAM (cpsam))
+     - Toxoplasma plaque assays; 2 datasets, in-domain and literature; image count not recorded
+     - F1 0.856 in-domain and 0.834 on the literature set; no stock cpsam baseline measured
    * - ``toxoplasma_well_detector_v1``
-       (yolo_welldetect_v3.pt)
-     - Whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640
-     - mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987; locates WELLS, not plaques; it is the front half of a two-stage pipeline with toxoplasma_plaque_v1, and the well it finds also gives the diameter that makes areas comparable across microscopes
+       (YOLO11n)
+     - whole-plate and multi-well plaque-assay images; 1 dataset; image count not recorded
+     - mAP50 0.993, mAP50-95 0.886; no stock model detects wells
 
 .. spacr-model-zoo-end
 
-上面的数字是发布时测得的，并且与之一同给出了适用范围：模型只对其测量过的任务有效，而不是对所有任务都有效。``toxoplasma_well_detector_v1`` 和 ``toxoplasma_plaque_v1`` 是同一条流程的两个环节——检测器找到孔位，分割模型在孔内找到蚀斑，而孔径使不同显微镜之间的面积可以相互比较。
+上面的数字是出版时测量的数字,并与它们表达了限制:一个模型对它测量的工作有用,而不是每个工作。 ``toxoplasma_well_detector_v1`` 和 ``toxoplasma_plaque_v1`` 是一条流程的两半 - 探测器发现孔,分区器发现里面的板块,直径是微镜之间的区域相似的。
 
-模型托管在各自作者本人的 Hugging Face 账户下，因此贡献一个模型并不意味着要交出他人账户的写入权限。``spacr.model_zoo`` 的 ``publish_model`` 会完成上传，并打印出需要添加的目录条目。
+模型在其作者自己的 Hugging Face 帐户上托管,因此捐款并不意味着向其他人提供写作访问。 ``spacr.model_zoo`` 的 ``publish_model`` 进行上传并打印添加的目录行。
 
 
 性能诊断

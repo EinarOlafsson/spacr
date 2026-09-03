@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
+|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |Preprint| |DOI|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -26,7 +26,10 @@
    :alt: GitHub-ärenden
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: BSD 3-Clause-licens
+   :alt: PolyForm Noncommercial-licens
+.. |Preprint| image:: https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
+   :alt: bioRxiv preprint
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo-DOI
@@ -434,29 +437,29 @@ Referensdatauppsättningar
 Förlaga till djurpark
 ~~~~~~~~~~~~~~~~~~~~~
 
-spaCR levereras med en katalog med tränade modeller och hämtar dem vid behov. Öppna **Modellzoo** från startskärmen för att bläddra bland dem och installera dem, eller ange en nyckel i en inställningsfil -- ``pathogen_model: toxoplasma_pv_v1`` -- och modellen laddas ner och kontrollsummeverifieras första gången den behövs. Varje publicerad post innehåller en SHA-256; en post utan en sådan avvisas i stället för att installeras, eftersom en trunkerad eller utbytt kontrollpunkt inte kan skiljas från den äkta.
+spaCR skickar en katalog med utbildade modeller och hämtar dem på begäran. Öppna **Modellzoo** från startskärmen för att bläddra och installera dem, eller namnge en nyckel i en inställningsfil -- ``pathogen_model: toxoplasma_pv_v1`` -- och modellen laddas ner och kontrolleras första gången den behövs. Varje publicerad post innehåller en SHA-256; en post utan en nekas snarare än installeras, eftersom en trunkerad eller ersatt kontrollpunkt inte kan meddelas från den verkliga.
 
 .. spacr-model-zoo-begin
 
 .. list-table::
    :header-rows: 1
-   :widths: 26 30 44
+   :widths: 24 34 42
 
-   * - Key
-     - Trained on
-     - Measured performance and limits
+   * - Model
+     - Training data
+     - Hold-out against stock
    * - ``toxoplasma_pv_v1``
-       (cpsam_v2_toxo_r2)
-     - Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. 115 pairs (104 train / 11 test), 100 epochs, base cpsam_v2
-     - F1 0.867 at IoU 0.5 against 0.713 for stock cpsam; AJI 0.808 against 0.426; accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry
+       (Cellpose-SAM (cpsam_v2))
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
+     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
    * - ``toxoplasma_plaque_v1``
-       (cpsam_plaque_r3)
-     - Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set
-     - F1 0.856 in-domain and 0.834 on the literature set, against 0.718 / 0.755 for round 1; round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay
+       (Cellpose-SAM (cpsam))
+     - Toxoplasma plaque assays; 2 datasets, in-domain and literature; image count not recorded
+     - F1 0.856 in-domain and 0.834 on the literature set; no stock cpsam baseline measured
    * - ``toxoplasma_well_detector_v1``
-       (yolo_welldetect_v3.pt)
-     - Whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640
-     - mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987; locates WELLS, not plaques; it is the front half of a two-stage pipeline with toxoplasma_plaque_v1, and the well it finds also gives the diameter that makes areas comparable across microscopes
+       (YOLO11n)
+     - whole-plate and multi-well plaque-assay images; 1 dataset; image count not recorded
+     - mAP50 0.993, mAP50-95 0.886; no stock model detects wells
 
 .. spacr-model-zoo-end
 
@@ -561,7 +564,7 @@ Skicka felrapporter och avgränsade funktionsförslag via `GitHub-ärenden <http
 Licens
 ~~~~~~~~~
 
-spaCR distribueras under `BSD 3-Clause-licensen <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
+spaCR frisätts under `BSD 3-Clause-licens <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
 
 Om spaCR bidrog till publicerade verk uppskattas en hänvisning och är inte ett villkor för licensen – se `Citing spaCR`_ nedan.
 

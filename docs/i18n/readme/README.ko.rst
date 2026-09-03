@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
+|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |Preprint| |DOI|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -26,7 +26,10 @@
    :alt: GitHub 이슈
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: BSD 3-Clause 라이선스
+   :alt: PolyForm 비상업용 라이선스
+.. |Preprint| image:: https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
+   :alt: bioRxiv preprint
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
@@ -434,35 +437,35 @@ Cellpose-SAM runs here show the cell-probability map and the flow field beside t
 모델 동물원
 ~~~~~~~~~~~
 
-spaCR는 학습된 모델 카탈로그를 함께 제공하며 필요할 때 내려받습니다. 홈 화면에서 **Model Zoo**를 열어 모델을 살펴보고 설치하거나, 설정 파일에 키를 지정하면 -- ``pathogen_model: toxoplasma_pv_v1`` -- 처음 필요한 시점에 모델을 내려받고 체크섬을 검증합니다. 공개된 항목은 모두 SHA-256을 포함하며, 이것이 없는 항목은 설치하지 않고 거부합니다. 잘리거나 바꿔치기된 체크포인트는 진짜와 구별할 수 없기 때문입니다.
+spaCR ships a catalogue of trained models and fetches them on demand. Open **Model Zoo** from the home screen to browse and install them, or name a key in a settings file -- ``pathogen_model: toxoplasma_pv_v1`` -- and the model is downloaded and checksum-verified the first time it is needed. Every published entry carries a SHA-256; an entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one.
 
 .. spacr-model-zoo-begin
 
 .. list-table::
    :header-rows: 1
-   :widths: 26 30 44
+   :widths: 24 34 42
 
-   * - Key
-     - Trained on
-     - Measured performance and limits
+   * - Model
+     - Training data
+     - Hold-out against stock
    * - ``toxoplasma_pv_v1``
-       (cpsam_v2_toxo_r2)
-     - Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. 115 pairs (104 train / 11 test), 100 epochs, base cpsam_v2
-     - F1 0.867 at IoU 0.5 against 0.713 for stock cpsam; AJI 0.808 against 0.426; accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry
+       (Cellpose-SAM (cpsam_v2))
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
+     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
    * - ``toxoplasma_plaque_v1``
-       (cpsam_plaque_r3)
-     - Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set
-     - F1 0.856 in-domain and 0.834 on the literature set, against 0.718 / 0.755 for round 1; round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay
+       (Cellpose-SAM (cpsam))
+     - Toxoplasma plaque assays; 2 datasets, in-domain and literature; image count not recorded
+     - F1 0.856 in-domain and 0.834 on the literature set; no stock cpsam baseline measured
    * - ``toxoplasma_well_detector_v1``
-       (yolo_welldetect_v3.pt)
-     - Whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640
-     - mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987; locates WELLS, not plaques; it is the front half of a two-stage pipeline with toxoplasma_plaque_v1, and the well it finds also gives the diameter that makes areas comparable across microscopes
+       (YOLO11n)
+     - whole-plate and multi-well plaque-assay images; 1 dataset; image count not recorded
+     - mAP50 0.993, mAP50-95 0.886; no stock model detects wells
 
 .. spacr-model-zoo-end
 
-위 수치는 공개 시점에 측정한 값이며, 한계도 함께 명시되어 있습니다. 모델은 측정한 작업에 유용할 뿐 모든 작업에 유용한 것은 아닙니다. ``toxoplasma_well_detector_v1``과 ``toxoplasma_plaque_v1``은 하나의 파이프라인을 이루는 두 부분입니다. 검출기가 웰을 찾고, 분할 모델이 그 안의 플라크를 찾으며, 웰 지름 덕분에 서로 다른 현미경 사이에서 면적을 비교할 수 있습니다.
+위의 숫자는 출판에서 측정되는 숫자이며, 그와 함께 제한이 표시됩니다 : 모델은 측정 된 작업에 유용하며, 각 작업이 아닙니다. ``toxoplasma_well_detector_v1`` 및 ``toxoplasma_plaque_v1``는 하나의 파이프 라인의 두 절반입니다 - 탐지기는 냄비를 발견하고, 분할기는 그 안에있는 플레이트를 발견하며, 좋은 직경은 마이크로스코프 사이의 영역을 비교할 수있는 것입니다.
 
-모델은 각 작성자 본인의 Hugging Face 계정에 호스팅되므로, 모델을 기여한다고 해서 다른 사람의 계정에 쓰기 권한을 넘겨줄 필요가 없습니다. ``spacr.model_zoo``의 ``publish_model``이 업로드를 수행하고 추가할 카탈로그 항목을 출력합니다.
+모델은 저자의 자신의 Hugging Face 계정에 호스팅되어 있으므로 참여하는 것은 다른 사람에게 글쓰기 액세스를 제공하는 것을 의미하지 않습니다. ``spacr.model_zoo``의 ``publish_model``는 업로드를 수행하고 추가 할 카탈로그 라인을 인쇄합니다.
 
 
 성능 진단
