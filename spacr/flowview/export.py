@@ -30,10 +30,12 @@ from .theme import (
 
 
 def _escape(value: object, *, quote: bool = False) -> str:
+    """Escape ``value`` for safe insertion into XML or HTML text."""
     return html.escape(str(value), quote=quote)
 
 
 def _number(value: float) -> str:
+    """Render a number compactly with at most three decimal places."""
     rounded = round(float(value), 3)
     if rounded == int(rounded):
         return str(int(rounded))
@@ -41,12 +43,14 @@ def _number(value: float) -> str:
 
 
 def _edge_width(volume: int | None) -> float:
+    """Map an optional transfer volume to a bounded logarithmic stroke width."""
     if volume is None or volume <= 0:
         return 1.0
     return min(6.0, 1.0 + 0.8 * math.log10(volume + 1.0))
 
 
 def _thumbnail_uri(path: str | None) -> str | None:
+    """Encode a readable thumbnail as a MIME data URI, or return ``None``."""
     if path is None:
         return None
     source = Path(path)
@@ -66,10 +70,12 @@ def _thumbnail_uri(path: str | None) -> str | None:
 
 
 def _edge_key(edge: Edge) -> tuple[str, str, str, int]:
+    """Return the deterministic sort key for an edge."""
     return (edge.src, edge.dst, edge.label or "", edge.volume or 0)
 
 
 def _render_edge(edge: Edge, layout: GraphLayout, graph: RunGraph) -> str:
+    """Render one labelled graph edge as an SVG group."""
     source = layout[edge.src]
     target = layout[edge.dst]
     start_x = source.x + source.width
@@ -110,6 +116,7 @@ def _render_edge(edge: Edge, layout: GraphLayout, graph: RunGraph) -> str:
 
 
 def _label_lines(label: str) -> list[str]:
+    """Wrap a node label into nonbreaking lines suitable for its card."""
     lines = textwrap.wrap(
         label,
         width=27,
@@ -120,6 +127,7 @@ def _label_lines(label: str) -> list[str]:
 
 
 def _metric_text(name: str, value: float | int | str) -> str:
+    """Format one named node metric for display."""
     if isinstance(value, float):
         rendered = f"{value:.6g}"
     elif isinstance(value, int):
@@ -130,6 +138,7 @@ def _metric_text(name: str, value: float | int | str) -> str:
 
 
 def _render_node(node: Node, box: NodeLayout) -> str:
+    """Render one node card at its assigned SVG layout box."""
     accent = node_accent(node.kind, node.state)
     state = state_label(node.state)
     state_width = max(45.0, len(state) * 6.5 + 14.0)
@@ -232,6 +241,7 @@ def render_svg(graph: RunGraph) -> str:
 
 
 def _json_value(value: Any) -> str:
+    """Serialize ``value`` as deterministic compact JSON for the inspector."""
     return json.dumps(
         value,
         ensure_ascii=False,
@@ -242,6 +252,7 @@ def _json_value(value: Any) -> str:
 
 
 def _inspector(graph: RunGraph) -> str:
+    """Render accessible HTML inspector sections for every graph node."""
     sections: list[str] = []
     for node_id, node in sorted(graph.nodes.items()):
         duration = (
