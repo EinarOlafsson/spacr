@@ -918,6 +918,17 @@ class TestHoverHints:
 
         The documentation link moved onto the strip rather than being lost
         with the popup -- the strip's own prompt promises one.
+
+        AND SINCE 2026-09-03 THE STRIP SURVIVES THE POINTER LEAVING.
+        Instruction 371: "for the user to be able to press the botom tooltip
+        API link ... the last setting the mouse hovered over should be
+        shown, not only when the mouse hovers the setting. this way the user
+        can hover then move the mouse to the link and click it, which is
+        otherwise not possible." Blanking on Leave made that link unreachable
+        by construction -- it appeared only while the pointer was on the
+        setting, and moving toward it removed it. A ten-second hold clears it
+        instead, and `test_the_bottom_tooltip_survives_the_pointer_leaving.py`
+        holds that behaviour.
         """
         from spacr.qt.widgets.hover_tooltip import HoverTooltip
         scr = _make_screen(qtbot, "mask")
@@ -941,6 +952,12 @@ class TestHoverHints:
         assert scr._hint_strip.openExternalLinks()
 
         scr.eventFilter(label, QEvent(QEvent.Leave))
+        assert scr._hint_strip.text() == shown, (
+            "the strip was blanked on Leave, which makes its API link "
+            "unreachable: moving the pointer toward the link removes it")
+        assert scr._hint_hold_timer.isActive(), (
+            "nothing will ever clear the strip again")
+        scr._release_the_hint()
         assert scr._hint_strip.text() == scr._default_hint()
         tip.cancel_hide()
 
