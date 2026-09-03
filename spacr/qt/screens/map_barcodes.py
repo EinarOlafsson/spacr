@@ -553,7 +553,11 @@ def show_as_page(screen: QWidget, host: Optional[QWidget],
         try:
             from .. import iconset
 
-            icon = iconset.app_icon(key)
+            # See the note in `widgets/fold_strip.py`: resolving by
+            # filename alone ignores `_ICON_OVERRIDES` and hands a
+            # borrowing module the wrong picture.
+            from ..app import _icon_for_app
+            icon = _icon_for_app(key)
             if icon is not None and not icon.isNull():
                 pages.setTabIcon(index, icon)
         except Exception:                                # noqa: BLE001
