@@ -75,6 +75,7 @@ FULLY_DOCUMENTED = (
     "spacr/metadata_resolution.py",
     "spacr/merge_tables.py",
     "spacr/model_check.py",
+    "spacr/nonparametric_fits.py",
     "spacr/normalization.py",
     "spacr/notebook_export.py",
     "spacr/organelle_types.py",
