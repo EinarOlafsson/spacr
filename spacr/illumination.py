@@ -232,24 +232,24 @@ class IlluminationError(ConfigurationError):
 class IlluminationField:
     """The illumination estimate for one plate, for one or more channels.
 
-    :ivar plate: the plate key, or :data:`ALL_PLATES` when the model was
+    :param plate: the plate key, or :data:`ALL_PLATES` when the model was
         estimated across every plate at once.
-    :ivar channels: source channel indices, in the order they index
+    :param channels: source channel indices, in the order they index
         :attr:`flatfield`'s first axis. These are indices into the *merged
         stack*, i.e. exactly the values in ``settings['channels']``.
-    :ivar flatfield: ``(C, Y, X)`` float32 multiplicative field, normalised so
+    :param flatfield: ``(C, Y, X)`` float32 multiplicative field, normalised so
         each channel's mean is 1.0. ``corrected = (observed - dark) /
         flatfield``.
-    :ivar dark: per-channel additive offset subtracted before dividing. Zero
+    :param dark: per-channel additive offset subtracted before dividing. Zero
         unless the user supplied a measured camera offset -- see the module
         docstring for why it is not estimated.
-    :ivar n_fields: how many fields the estimate was made from.
-    :ivar estimator: ``'polynomial'`` or ``'smooth'``.
-    :ivar degree: polynomial degree, or 0 for the smooth estimator.
-    :ivar bin_size: the binning factor the per-pixel median was computed at.
+    :param n_fields: how many fields the estimate was made from.
+    :param estimator: ``'polynomial'`` or ``'smooth'``.
+    :param degree: polynomial degree, or 0 for the smooth estimator.
+    :param bin_size: the binning factor the per-pixel median was computed at.
         Illumination is low-frequency, so binning costs nothing and buys both
         the memory to hold many fields at once and a quieter statistic.
-    :ivar floored: pixels the fitted surface had to be floored at (see
+    :param floored: pixels the fitted surface had to be floored at (see
         :data:`FLAT_FLOOR_FRACTION`). Non-zero means the fit went negative
         somewhere and the estimate should be looked at before it is trusted.
     """
@@ -343,10 +343,10 @@ class IlluminationField:
 class IlluminationModel:
     """Estimated illumination fields for every plate in a source folder.
 
-    :ivar fields: plate key -> :class:`IlluminationField`. A model estimated
+    :param fields: plate key -> :class:`IlluminationField`. A model estimated
         with ``per_plate=False`` holds the single key :data:`ALL_PLATES`,
         which matches every plate.
-    :ivar meta: provenance -- source folders, channels, when it was estimated,
+    :param meta: provenance -- source folders, channels, when it was estimated,
         the settings it was estimated with. Written into the ``.npz`` and read
         back, so a model on disk can always say what produced it.
     """
@@ -992,12 +992,12 @@ class PreparedIllumination:
     ``segmentation``: both stages may reuse the same optical estimate.  The
     stage that *applies* it owns that provenance separately.
 
-    :ivar model: loaded or newly estimated illumination model.
-    :ivar corrector: corrector configured with the requested missing-plate
+    :param model: loaded or newly estimated illumination model.
+    :param corrector: corrector configured with the requested missing-plate
         policy, but not registered as a Measure preprocessing hook.
-    :ivar model_path: absolute path of the saved model.
-    :ivar model_sha256: digest of the exact saved bytes at ``model_path``.
-    :ivar qc_artifacts: QC figure paths written while preparing the model.
+    :param model_path: absolute path of the saved model.
+    :param model_sha256: digest of the exact saved bytes at ``model_path``.
+    :param qc_artifacts: QC figure paths written while preparing the model.
     """
 
     model: IlluminationModel

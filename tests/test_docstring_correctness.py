@@ -1512,6 +1512,9 @@ def test_baseline_constructor_documents_every_field():
     "spacr.schema.ColumnCollision",
     "spacr.schema.FieldID",
     "spacr.schema.ObjectID",
+    "spacr.illumination.IlluminationField",
+    "spacr.illumination.IlluminationModel",
+    "spacr.illumination.PreparedIllumination",
 ))
 def test_repaired_record_documents_every_constructor_parameter(symbol):
     """Each repaired generated record remains callable from its API prose."""
