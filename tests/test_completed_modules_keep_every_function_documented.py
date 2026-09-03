@@ -52,6 +52,7 @@ FULLY_DOCUMENTED = (
     "spacr/flowview/classify_blueprint.py",
     "spacr/flowview/events.py",
     "spacr/flowview/export.py",
+    "spacr/flowview/layout.py",
     "spacr/flowview/model.py",
     "spacr/flowview/trace.py",
     "spacr/intensity_rescale.py",
