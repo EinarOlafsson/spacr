@@ -164,6 +164,9 @@ class TestSingleThreadedOpenmp:
     def test_single_runtime_does_not_touch_anything(
         self, monkeypatch, clamping_platform
     ):
+        guard = openmp_guard.single_threaded_openmp("classical ML")
+        assert ":param label:" in (type(guard).__doc__ or "")
+        assert guard.label == "classical ML"
         handle = self._fake_runtime(monkeypatch)
         monkeypatch.setattr(
             openmp_guard, "resident_openmp_runtimes", lambda: ["/a/libomp.dylib"]

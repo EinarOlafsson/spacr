@@ -235,6 +235,9 @@ class single_threaded_openmp(contextlib.ContextDecorator):
 
     Never raises. A failure here leaves the thread exactly as it was: this
     guard protects a run, it must not be able to end one (INVARIANTS §10).
+
+    :param label: user-facing name of the protected work, included in the
+        one-time warning when duplicate runtimes require serialization.
     """
 
     def __init__(self, label: str = "this model"):
