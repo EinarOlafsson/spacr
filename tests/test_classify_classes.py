@@ -34,6 +34,8 @@ def test_a_class_names_its_value_and_the_column_it_came_from():
     settings = {"classes": {"infected": {"column": "annot_1", "value": 1},
                             "clean": {"column": "annot_1", "value": 2}}}
     rules = class_rules(settings)
+    assert ":ivar column:" in (ClassRule.__doc__ or "")
+    assert ":ivar value:" in (ClassRule.__doc__ or "")
     assert [r.name for r in rules] == ["infected", "clean"]
     assert rules[0].column == "annot_1" and rules[0].value == 1
 
@@ -124,6 +126,7 @@ def test_one_annotated_class_gets_a_random_comparison_group():
     settings = {"classes": {"infected": {"column": "annot_1", "value": 1},
                             "control": {"random_complement": True}}}
     labels = assign_classes(_annotated(), settings)
+    assert ":ivar random_complement:" in (ClassRule.__doc__ or "")
     assert (labels == "infected").sum() == 5
     assert (labels == "control").sum() == 5, "the groups are lopsided"
 
