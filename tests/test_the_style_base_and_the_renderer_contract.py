@@ -15,6 +15,7 @@ effect-size threshold does not follow it there.
 from __future__ import annotations
 
 import dataclasses
+import inspect
 
 import matplotlib
 matplotlib.use("Agg")
@@ -61,6 +62,17 @@ class TestBothStylesShareOneVocabulary:
             item.name
             for item in dataclasses.fields(FigureStyle)
             if f":param {item.name}:" not in documentation
+        ]
+        assert not missing, missing
+
+    def test_the_comparison_style_documents_every_constructor_parameter(self):
+        """Inherited and comparison-specific controls all reach its API page."""
+        documentation = inspect.getdoc(ComparisonStyle) or ""
+        assert "Parameters\n----------" in documentation
+        missing = [
+            item.name
+            for item in dataclasses.fields(ComparisonStyle)
+            if f"\n{item.name} :" not in documentation
         ]
         assert not missing, missing
 
