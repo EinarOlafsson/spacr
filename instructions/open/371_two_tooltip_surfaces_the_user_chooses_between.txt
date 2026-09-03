@@ -1,0 +1,173 @@
+================================================================================
+TWO TOOLTIP SURFACES, EITHER OR BOTH, AND THE BOTTOM ONE STAYS LONG ENOUGH
+TO CLICK
+================================================================================
+
+Status:    not started, filed 2026-09-02. MEASURED the same day -- the state
+           section below is what is on disk now, not a guess.
+Requested: 2026-09-02 -- "for the tooltips there should be 2 options in
+           preferences appearence tab that are boolean and can both be on at
+           the same time or off at the same time or just one on. call them
+           tooltips bottom and tooltips box if tooltips box is true then
+           hovering the mouse over a tooltip setting title will show the
+           tooltip. if tooltip botom is true then the tooltip is shown at the
+           botom of the screen just like it is for category tooltips. For the
+           box tooltips all settings (not category level but all settings
+           level tooltips) should appear and an API link and Annimation link
+           text (remove the dot). same for the botom tooltips. however for the
+           user to be able to press the botom tooltip API link (which should
+           also just say API) the last setting the mouse hovered over should
+           be shown, not only when the mouse hovers the setting. this way the
+           user can hover then move the mouse to the link and click it, which
+           is otherwise not possible. the tooltip should be up for 10 seconds
+           before it disapears (or if another setting is hovered.)"
+Owner:     spacr/qt/preferences.py, spacr/qt/widgets/hover_tooltip.py,
+           spacr/qt/screens/app_screen.py (the category strip),
+           spacr/qt/widgets/hint_bar.py, tests/qt.
+
+--------------------------------------------------------------------------------
+WHAT IS ALREADY THERE, MEASURED 2026-09-02
+--------------------------------------------------------------------------------
+
+MOST OF THE BOX EXISTS. `spacr/qt/widgets/hover_tooltip.py` is a `QFrame`
+popup whose whole reason for existing is the problem this request names --
+its own docstring: "Unlike QToolTip, users can move their cursor into the
+popup to click links inside." It cancels its hide timer when the pointer
+enters it and hides only when neither the anchor nor the popup is under the
+cursor. It already lays the animation to the right of the text with both
+columns sharing a top edge, and it already decodes nothing until asked.
+
+  So `tooltips box` is not new work so much as A SWITCH ON WORK ALREADY
+  DONE, plus the two link words below. Do not rebuild it.
+
+THE BOTTOM STRIP EXISTS TOO, but only for categories.
+`app_screen.show_category_hint` / `clear_category_hint` feed `_category_hint`
+with the hovered heading's blurb, resolved BY PATH rather than by the bare
+word -- "Cell" under "Object filtration" is not the "Cell" segmentation
+category -- and fall back to the pinned (expanded) category when the pointer
+leaves. `spacr/qt/widgets/hint_bar.py` is a second, window-level bar with the
+same shape for ordinary controls.
+
+  So `tooltips bottom` is that strip pointed at a different source. The
+  request says "just like it is for category tooltips", and it means it.
+
+THE COUNTS THAT DECIDE THE SCALE:
+
+    settings-level tooltips (`spacr.settings.tooltips`)      2110
+    category-level tooltips (`CATEGORY_TOOLTIPS`)             161
+    settings with an animation                                141
+
+  2110 IS THE NUMBER THAT MATTERS. The request says "all settings (not
+  category level but all settings level tooltips) should appear", so this is
+  not a sampling exercise -- the sweep has to cover the set, and a test that
+  checks a handful will pass while most of the package has no help.
+
+--------------------------------------------------------------------------------
+PART 1 -- TWO INDEPENDENT BOOLEANS IN PREFERENCES > APPEARANCE
+--------------------------------------------------------------------------------
+
+`tooltips_box` and `tooltips_bottom`. FOUR STATES, ALL LEGAL: both on, both
+off, either alone. Not a three-way radio wearing two checkboxes -- the
+request is explicit, and "both off" is a real choice a user is allowed to
+make.
+
+Follow the existing preference shape: a `prefs/...` key each, a module-level
+default, and a getter beside `get_ambient_enabled`. Both default ON, because
+that is today's behaviour for the box and the nearest thing to it for the
+bottom.
+
+  BOTH OFF MEANS NO SETTING TOOLTIP APPEARS AT ALL, and that has to be
+  reachable without stranding the reader: the API link is the only route
+  from a setting to its documentation on some forms. Say in the row what
+  turning both off costs. It does NOT turn off the category strip, which
+  answers a different question and is not part of this request.
+
+--------------------------------------------------------------------------------
+PART 2 -- THE TWO LINK WORDS COME BACK, AND THIS REVERSES TODAY'S CHANGE
+--------------------------------------------------------------------------------
+
+READ THIS BEFORE CHANGING IT BACK. Earlier on 2026-09-02 the maintainer
+asked for the opposite: "instead of API just show a teel dot for api and a
+purple square for annimation", and `hover_tooltip.py` carries that decision
+as `API_MARK = "●"` and `ANIMATION_MARK = "■"` with a comment
+saying the words "cost a line and carried no information after the first
+reading".
+
+The request in this file supersedes it: "an API link and Annimation link
+text (remove the dot)", and again for the bottom, "which should also just say
+API". So the marks go back to the words **API** and **Animation**.
+
+  THE MARKS' COMMENT MAKES A POINT THAT MUST NOT BE LOST WITH THEM. It says
+  shape was chosen as well as colour because instruction 89 added a
+  colourblind mode, and a teal dot beside a purple square differs in FORM.
+  Words are strictly better on that axis -- "API" and "Animation" are
+  distinguishable with no colour at all -- so the requirement is satisfied
+  by this change rather than dropped by it. Say so where the marks were,
+  and delete the constants rather than leaving them unread.
+
+  The accessible names are already "API" and "Animation", so a screen
+  reader has been saying the right thing throughout; only the visible text
+  changes.
+
+--------------------------------------------------------------------------------
+PART 3 -- THE BOTTOM TOOLTIP HAS TO SURVIVE THE POINTER LEAVING
+--------------------------------------------------------------------------------
+
+THIS IS THE HALF THAT IS NOT A SWITCH, and the request explains exactly why
+it is needed: "for the user to be able to press the botom tooltip API link
+... the last setting the mouse hovered over should be shown, not only when
+the mouse hovers the setting. this way the user can hover then move the
+mouse to the link and click it, which is otherwise not possible."
+
+So the bottom strip shows the LAST hovered setting, not the currently
+hovered one. It clears on exactly two events:
+
+  * ten seconds pass; or
+  * another setting is hovered, which replaces it immediately.
+
+Nothing else clears it -- specifically not the pointer leaving the setting,
+which is the whole point, and not the pointer crossing the gap between the
+setting and the strip.
+
+  TEN SECONDS IS FROM THE REQUEST AND IS NOT A ROUND NUMBER TO TUNE. It is
+  the budget for noticing the strip, crossing the window and clicking. If a
+  measurement later says the reach takes longer, raise it and say so here;
+  do not shorten it because it feels long while reading code.
+
+  THE TIMER RESTARTS ON EACH NEW SETTING, so reading down a form is not a
+  race against a clock started by the first row.
+
+  A HOVER OVER THE STRIP ITSELF MUST NOT END IT. The pointer arriving is
+  the success case, and a strip that vanishes as the pointer reaches it
+  reproduces the exact defect this part exists to remove. Cancel the timer
+  on enter, the way `HoverTooltip` already does for the popup -- that
+  behaviour is written and tested, so borrow it rather than re-deriving it.
+
+  THE CATEGORY STRIP AND THIS ONE ARE THE SAME PIECE OF SCREEN. Decide and
+  record what happens when a setting's help is showing and the pointer
+  reaches a category header: the pinned-category fallback in
+  `clear_category_hint` already has an opinion about what the strip says
+  when nothing is hovered, and two writers with different clocks will
+  otherwise fight over one label. The likeliest right answer is that the
+  setting's help outranks the category's for its ten seconds, because it is
+  the more specific of the two and the one with a link in it -- but MEASURE
+  the interaction, do not assume it.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* Four preference states, four behaviours, asserted as four cases -- both
+  on, both off, and each alone.
+* A settings-level tooltip reaches BOTH surfaces, and a category-level one
+  reaches only the category strip. The request draws that line itself.
+* The words "API" and "Animation" are the visible text on both surfaces, and
+  no `●` or `■` is drawn anywhere in the package.
+* The bottom strip still holds the last setting's help after the pointer has
+  left the setting, its API link is clickable from there, and the destination
+  is that setting's page rather than the module's.
+* It clears at ten seconds, and on the next hover before that, and NOT on
+  pointer-leave, and NOT on the pointer entering the strip.
+* The sweep is over the whole tooltip set, not a sample. 2110 is the number.
+
+--------------------------------------------------------------------------------

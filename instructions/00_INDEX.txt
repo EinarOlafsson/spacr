@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-339 done / 28 open (92%).
+339 done / 29 open (92%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -124,6 +124,9 @@ OPEN
 
   370  EVERY PUBLISHED MODEL CARRIES A SCORECARD: FINETUNED AGAINST VANILLA, ON A
        370_every_published_model_carries_its_scorecard.txt
+
+  371  TWO TOOLTIP SURFACES, EITHER OR BOTH, AND THE BOTTOM ONE STAYS LONG ENOUGH
+       371_two_tooltip_surfaces_the_user_chooses_between.txt
 
 --------------------------------------------------------------------------------
 DONE
