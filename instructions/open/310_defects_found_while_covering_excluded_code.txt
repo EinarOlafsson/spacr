@@ -2835,3 +2835,25 @@ made the negative, zero, and negative-infinity cases fail.
 
 REVISED COUNT: 103 entries, 35 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+46. THE PACKAGE NULL HANDLER PREVENTED FILE LOGGING FROM BEING CONFIGURED
+==============================================================================
+
+Found 2026-09-03 while checking the documentation contract in
+``spacr/logger.py``. Importing the package installs a ``NullHandler`` on the
+``spacr`` logger, while ``configure_logger`` returned early whenever *any*
+handler existed. Its default call therefore installed no rotating file
+handler. The same early return prevented a later ``stream=True`` request and
+updated the logger level without updating the handlers it claimed to control.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/logger.py:39-74``. Handlers installed
+by this helper are tagged as file or stream handlers, foreign/bootstrap
+handlers are preserved without counting as configuration, late stream requests
+add exactly one handler, and every reuse updates the owned handler levels.
+Three focused regressions all failed when the old early return was restored
+and pass with the repaired lifecycle.
+
+REVISED COUNT: 104 entries, 36 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
