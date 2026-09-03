@@ -208,6 +208,7 @@ class PreprocessingContext:
         self.spacing = None if spacing is None else tuple(spacing)
 
     def __repr__(self) -> str:
+        """Return a concise field, channel, and dimensionality description."""
         return (f'PreprocessingContext(file_name={self.file_name!r}, '
                 f'channels={self.channels!r}, volumetric={self.volumetric!r})')
 
@@ -298,6 +299,7 @@ class RegionContext:
         return self._centroids
 
     def __repr__(self) -> str:
+        """Return a concise object type, field, and mask-shape description."""
         return (f'RegionContext(object_type={self.object_type!r}, '
                 f'file_name={self.file_name!r}, shape={self.mask.shape!r})')
 
