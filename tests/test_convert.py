@@ -208,7 +208,7 @@ def test_channel_ids_sort_naturally_so_c10_is_not_c2(tmp_path):
     for field in ("source_plate", "source_well", "source_field",
                   "source_channel", "source_t", "z_handling", "n_z_planes",
                   "n_timepoints", "meta"):
-        assert f":ivar {field}:" in (type(plan.mappings[0]).__doc__ or "")
+        assert f":param {field}:" in (type(plan.mappings[0]).__doc__ or "")
     lookup = {m.source_channel: m.channel for m in plan.mappings}
     assert lookup["C1"] == 1
     assert lookup["C2"] == 2

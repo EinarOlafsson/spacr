@@ -78,11 +78,24 @@ class _CompactTraceFormat(logging.Formatter):
     #: a gap is, and the date is the same on every line of one run.
     TRACE_FORMAT = "%(asctime)s %(message)s"
 
-    def __init__(self, fmt: str, datefmt: str = None):
+    def __init__(self, fmt: str, datefmt: Optional[str] = None):
+        """Create ordinary and compact trace-record formatters.
+
+        :param fmt: format string used for every non-trace record.
+        :param datefmt: optional date format used by the ordinary formatter.
+        """
+
         super().__init__(fmt, datefmt)
         self._trace = logging.Formatter(self.TRACE_FORMAT, "%H:%M:%S")
 
     def format(self, record: logging.LogRecord) -> str:
+        """Render one record with the compact form reserved for trace events.
+
+        :param record: logging record to render.
+        :returns: time-and-message text for ``spacr.trace``, otherwise the
+            ordinary configured format.
+        """
+
         if record.name == "spacr.trace":
             return self._trace.format(record)
         return super().format(record)
@@ -170,10 +183,22 @@ class LevelSetFilter(logging.Filter):
     """
 
     def __init__(self, levels: Iterable[int] = ()) -> None:
+        """Create an independently switchable logging-level filter.
+
+        :param levels: exact numeric levels to pass; an empty iterable passes
+            no records.
+        """
+
         super().__init__()
         self.levels = set(levels)
 
     def filter(self, record: logging.LogRecord) -> bool:
+        """Return whether *record* has one of the enabled exact levels.
+
+        :param record: logging record presented by a handler.
+        :returns: ``True`` only when ``record.levelno`` is enabled.
+        """
+
         return record.levelno in self.levels
 
 
@@ -776,6 +801,13 @@ class Timer:
     def __init__(self, label: str,
                   logger: str = "spacr.timing",
                   level: int = logging.INFO):
+        """Create an idle timer with its logging destination.
+
+        :param label: human-readable operation name included in timing records.
+        :param logger: logger name that receives completed timings.
+        :param level: logging level used for completed timings.
+        """
+
         self.label = label
         self._logger_name = logger
         self._level = level
@@ -783,13 +815,29 @@ class Timer:
         self.elapsed_ms: Optional[float] = None
 
     def __enter__(self) -> "Timer":
+        """Start or restart timing and clear any previous duration.
+
+        :returns: this timer, with :attr:`elapsed_ms` unset while it runs.
+        """
+
+        self.elapsed_ms = None
         self._t0 = time.perf_counter()
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
-        if self._t0 is None:
+        """Finish one active interval without suppressing body exceptions.
+
+        :param exc_type: exception type raised by the block, when present.
+        :param exc: exception instance raised by the block, when present.
+        :param tb: traceback raised by the block, when present.
+        :returns: ``None`` so any body exception continues to propagate.
+        """
+
+        started = self._t0
+        self._t0 = None
+        if started is None:
             return
-        self.elapsed_ms = (time.perf_counter() - self._t0) * 1000.0
+        self.elapsed_ms = (time.perf_counter() - started) * 1000.0
         if (_TIMING_ENABLED
                 and self.elapsed_ms >= _TIMING_THRESHOLD_MS):
             logging.getLogger(self._logger_name).log(
