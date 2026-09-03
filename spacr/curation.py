@@ -21,9 +21,10 @@ reproducibility hole: six months later nobody can say which fields were
 touched, by whom, or what they looked like before — and a reviewer asking "did
 you edit the data?" gets an answer based on memory. So every correction here
 goes through :class:`CurationLog`: an append-only ledger, written beside the
-artefact it describes, recording what changed, when, and to what. Nothing can
-be edited without leaving one, because the edit methods are the only way in
-and they all append.
+artefact it describes, recording what changed, when, and to what. Every
+correction made through the supported edit methods leaves an entry. The public
+layer and table objects remain accessible to views and advanced callers;
+mutating those objects directly bypasses this provenance guarantee.
 
 What the ledger is, and is not
 ------------------------------
@@ -175,6 +176,7 @@ class CurationEdit:
     detail: Mapping[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return the field mapping stored for this edit in a ledger."""
         return {"kind": self.kind, "target": self.target, "when": self.when,
                 "who": self.who, "n_changed": int(self.n_changed),
                 "detail": dict(self.detail)}
@@ -224,6 +226,13 @@ class CurationLog:
     """
 
     def __init__(self, artifact: Any = "", *, source: str = "spacr"):
+        """Initialize an empty ledger for one artifact and editing source.
+
+        :param artifact: artifact identity recorded in future serialized
+            ledgers; a falsey value becomes ``""``.
+        :param source: description of the editing application, coerced to
+            text.
+        """
         self.artifact = str(artifact or "")
         self.source = str(source)
         self._edits: List[CurationEdit] = []
@@ -266,6 +275,7 @@ class CurationLog:
         return edit
 
     def __len__(self) -> int:
+        """Return the number of corrections currently recorded."""
         return len(self._edits)
 
     def counts(self) -> Dict[str, int]:
@@ -289,6 +299,7 @@ class CurationLog:
 
     # -- persistence --------------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
+        """Return the versioned mapping written as the ledger JSON document."""
         return {"schema_version": 1, "artifact": self.artifact,
                 "source": self.source,
                 "edits": [edit.to_dict() for edit in self._edits]}
@@ -405,6 +416,7 @@ class LabelEdit:
     radius: float = 0.0
 
     def __len__(self) -> int:
+        """Return the number of label elements changed by this dab."""
         return int(len(self.before))
 
     def revert(self, layer) -> int:
@@ -461,6 +473,16 @@ class MaskCuration:
 
     def __init__(self, layer, *, artifact: Any = "", history: int = 64,
                  log: Optional[CurationLog] = None):
+        """Attach a labels layer, bounded undo history, and provenance log.
+
+        :param layer: labels layer whose data the brush edits.
+        :param artifact: artifact identity for persistence; a falsey value
+            falls back to the layer name and then ``"mask"``.
+        :param history: maximum completed strokes retained for undo, clamped
+            to at least one.
+        :param log: existing ledger to share, or ``None`` for a new curation
+            ledger.
+        """
         self.layer = layer
         self.artifact = str(artifact or getattr(layer, "name", "") or "mask")
         self.history = max(1, int(history))
@@ -663,6 +685,7 @@ class MaskCuration:
 
     @property
     def can_undo(self) -> bool:
+        """Return whether at least one completed stroke remains undoable."""
         return bool(self._strokes)
 
     def __len__(self) -> int:
@@ -687,12 +710,15 @@ class MaskCuration:
     def save_mask(self, artifact: Optional[Any] = None) -> str:
         """Write the corrected labels to disk, with the ledger beside them.
 
-        The pixels and the record are written by one call, because either one
-        alone is a lie. A ledger written on its own asserts corrections to a
-        file whose pixels are untouched, and :func:`is_curated` then reports
-        that untouched file as hand-edited; labels written on their own are a
-        curated mask that is byte-indistinguishable from a segmented one,
-        which is the hole this module exists to close.
+        The pixels and the record are requested by one call, because either
+        one alone is a lie. They are two sequential filesystem writes, not an
+        atomic transaction; if a process stops between them, call this method
+        again to bring the ledger back in step. A ledger written on its own
+        asserts corrections to a file whose pixels are untouched, and
+        :func:`is_curated` then reports that untouched file as hand-edited;
+        labels written on their own are a curated mask that is
+        byte-indistinguishable from a segmented one, which is the hole this
+        module exists to close.
 
         :param artifact: where the labels go; anything falsy — including the
             default ``None`` — means :attr:`artifact`. The extension chooses
@@ -736,21 +762,32 @@ class TrackCuration:
         to a fresh one for this artifact; pass the log a :class:`MaskCuration`
         is using to keep both halves of one curation session on one record.
 
-    Every operation leaves the table *consistent*, and consistency here has a
-    definition worth stating because it is what the checks enforce:
+    Every operation preserves a consistent input table, and consistency here
+    has a definition worth stating because it is what the checks enforce:
 
     * one row per ``(track_id, frame)`` — a track is one object's path, so a
       track that is in two places at one time is not a track;
     * every track's frames are the frames it actually has, and a join may not
       produce a track that overlaps itself in time.
 
-    :meth:`check` returns the violations rather than raising, so a table that
-    arrived broken can be *shown* to be broken instead of making every
-    operation on it fail with the same message.
+    Construction validates only the two key columns. :meth:`check` returns
+    pre-existing violations rather than raising, so a table that arrived
+    broken can be *shown* to be broken instead of making every operation on
+    it fail with the same message.
     """
 
     def __init__(self, tracks: pd.DataFrame, *, artifact: Any = "",
                  log: Optional[CurationLog] = None):
+        """Validate key columns and attach a copied table and provenance log.
+
+        :param tracks: source track table; it must contain ``frame`` and
+            ``track_id`` and is copied before any operation.
+        :param artifact: persisted track artifact identity; a falsey value
+            becomes ``"tracks"``.
+        :param log: existing ledger to share, or ``None`` for a new curation
+            ledger.
+        :raises CurationError: if either required key column is absent.
+        """
         columns = _track_columns()
         missing = [c for c in ("frame", "track_id") if c not in tracks.columns]
         if missing:
@@ -833,6 +870,11 @@ class TrackCuration:
         return problems
 
     def _require_track(self, track_id: Any) -> None:
+        """Require an exact current track identifier before an edit.
+
+        :param track_id: identifier compared exactly with current table values.
+        :raises CurationError: if no current row carries ``track_id``.
+        """
         if track_id not in set(self.tracks["track_id"]):
             raise CurationError(
                 f"no track {track_id!r} in this table; have "
@@ -956,7 +998,9 @@ class TrackCuration:
 
         One call, deliberately. A curated table written without its ledger is
         exactly the reproducibility hole this module exists to close, and
-        leaving the second write to the caller is how that happens.
+        leaving the second write to the caller is how that happens. The CSV
+        and ledger remain sequential filesystem writes rather than one atomic
+        transaction; retry this method if a process stops between them.
 
         :param path: where the CSV goes; missing parent directories are
             created. Two files are written, not one — the ledger lands at
