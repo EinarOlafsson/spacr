@@ -1,22 +1,47 @@
 """Interactive editing and curation of segmentation masks.
 
+Make Masks is filed under **Tools** on the home screen and is the manual
+half of segmentation: it corrects masks a model got wrong, one field at a
+time, and its masthead opens the Cellpose workflows that produced them.
 :class:`MakeMasksScreen` loads images and labelled masks from
-``<folder>/masks``, supports brush and erase operations, object filling and
-relabeling, inversion, size filtering, Otsu detection, magic-wand selection,
-region drawing and division, zooming, undo, and redo, and saves edited labels
-as ``uint16`` TIFF files. Draw closes and fills a traced boundary as one
-object. Divide separates a merged object, preserves the original identifier
-on the larger component, and assigns a new identifier to the smaller
-component; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` defines the cut
-width.
+``<folder>/masks`` and saves edited labels as ``uint16`` TIFF files.
+
+THE NINE TOOLS, in :data:`TOOL_MODES` order, because this vocabulary is what
+a reader needs before opening the screen:
+
+**Brush** and **Erase** paint and unpaint the active label a pixel at a time.
+**Erase object** removes a whole label in one click. **Wand +** and
+**Wand −** grow a region from the pixel clicked and add it to the label or
+take it out of it; the tolerance is relative to the image's intensity range
+by default, see :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw**
+traces a free-form outline that closes and fills as ONE object -- the tool a
+brush is not, because a brush stamps disks along the path, so tracing a rim
+with it labels the rim and leaves the middle background. **Divide** drags a
+line across a merged object and makes it two, keeping the original identifier
+on the larger component and giving the smaller a new one, with every other
+object untouched; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` is the cut
+width. **Zoom** rectangle-drags the view and changes no labels at all.
+
+**Recrop** is the ninth and is the only one that changes WHICH field is on
+screen rather than what is painted on it. A staged crop holding several cells
+is not one training example, and curating it as one teaches a network that
+two objects are one picture -- so a box round an object writes that region of
+both the image and the mask as a field of its own
+(:func:`spacr.qt.mask_engine.write_recrop`), queued straight after the current
+field, and the multi-object original is retired into
+``recropped_originals/`` rather than curated
+(:func:`spacr.qt.mask_engine.retire_recropped_original`). A box shorter than
+:data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` on a side, or repeating a cut
+already made past :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, is refused;
+objects the box cuts through are dropped, because an object whose boundary is
+where the mouse was released is not that object; and the labels that survive
+are renumbered from one.
 
 Each field has a :class:`spacr.curation.CurationLog`, initialized from any
 existing sidecar. :func:`spacr.qt.mask_engine.save_mask` writes the labels and
 ledger together, allowing :func:`spacr.curation.is_curated` to distinguish
 manually corrected masks from pipeline output. A single gesture produces one
-ledger entry and one undo step. Magic-wand tolerance is relative to the
-image's intensity range by default; see
-:func:`spacr.qt.mask_engine.relative_tolerance`.
+ledger entry and one undo step.
 
 :meth:`MakeMasksScreen.run_cellpose` applies the pipeline's resolved
 Cellpose-SAM model to the open field and displays the mask, cell-probability
@@ -25,9 +50,11 @@ map, and flow field. The intermediate outputs support evaluation of
 
 Editor modes are assembled from :func:`tool_row_entries` and
 :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserts
-non-mode actions into the same toolbar. The settings panel contains brush,
-wand, display, filtering, and object-operation controls and can be hidden to
-return its width to the canvas.
+non-mode actions into the same toolbar. The settings panel carries the
+operations that are not gestures -- object filling and relabeling, inversion,
+size filtering and Otsu detection, with undo and redo over all of them --
+alongside the brush, wand and display controls, and can be hidden to return
+its width to the canvas.
 
 Additional segmentation tools are opened from the masthead in
 :data:`FOLD_ORDER` through

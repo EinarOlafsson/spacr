@@ -96,7 +96,18 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
     literal_block = (r"(?ms)^(?:\.\. code-block::[^\n]*\n(?:[ \t]*\n)*)?"
                      r"(?:^[ \t]{3,}[^\n]*\n|^[ \t]*\n(?=[ \t]{3,}\S))+")
     prose_only = re.sub(literal_block, "", visible_prose)
-    assert len(prose_only.split()) < 1800, (
+    # 1800 -> 1750 on 2026-09-02, by instruction 366 part 2. Part 2 took the
+    # last per-module PROSE out of the README -- the sentence that catalogued
+    # what the fifteen non-pipeline modules do, and the Make Masks sentence
+    # about the Cellpose-SAM intermediates -- on the promise that the API
+    # says both, which part 3 made true. The README went 1753 -> 1708 words.
+    #
+    # THE CEILING COMES DOWN BY MORE THAN WAS REMOVED (50 against 45) rather
+    # than staying where it was, because a ceiling left at 1800 hands the
+    # freed 45 words to whoever writes the next paragraph and the reduction
+    # lasts until someone does. Lowering it is what makes part 2 a deletion
+    # rather than a rotation.
+    assert len(prose_only.split()) < 1750, (
         f"README prose is {len(prose_only.split())} words; trim it or move "
         f"detail into docs/source/features.rst")
     blocks = len(visible_prose.split()) - len(prose_only.split())
@@ -110,6 +121,58 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
         "Maturity labels",
     ):
         assert heading in features
+
+
+def test_make_masks_is_the_only_module_with_a_section_of_its_own():
+    """Instruction 366 part 2, stated as the contract it is.
+
+    Asked for on 2026-09-02: "in the readme make masks gets its own section
+    but no other moduals do. the information in this section should be
+    available in the api by clicking th emodual so remove this text."
+
+    Make Masks is kept because it is a MANUAL tool: Brush, Erase, Wand +,
+    Wand -, Draw, Divide, Zoom, Erase object and Recrop are a vocabulary a
+    reader needs before opening the screen, and
+    `test_the_readme_names_every_make_masks_tool` requires all nine to be
+    named here. Every other module's explanation lives behind its tile,
+    which part 3 made worth arriving at.
+
+    THE SIX-LINE "Core workflow" LIST IS NOT A SECTION and deliberately
+    stays -- ruled on 2026-09-02 when 366 flagged it as the judgement call.
+    It is a table of contents for the pipeline rather than an explanation of
+    any one module, and it is the only place the six are named apart from
+    the other fifteen, which instruction 374 needs.
+
+    Compared case-sensitively against the registry's own labels, so this
+    fails when somebody gives a module a heading and not when a heading
+    happens to share a word with one ("Model zoo" is not the "Model Zoo"
+    of any tile).
+    """
+    import importlib.util
+
+    path = ROOT / "packaging" / "generate_readme_visuals.py"
+    spec = importlib.util.spec_from_file_location("spacr_readme_visuals", path)
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+
+    text = _read(README)
+    labels = {label for _key, label, _description, _section
+              in generator._registry()}
+    headings = set(re.findall(r"(?m)^([^\n]+)\n[-~^]{3,}$", text))
+    assert headings & labels == {"Make Masks"}, (
+        f"these modules have a README section of their own: "
+        f"{sorted((headings & labels) - {'Make Masks'})}. 366 part 2 puts "
+        f"per-module explanation behind the module's tile in the API; only "
+        f"Make Masks keeps prose here, for its tool vocabulary.")
+
+    # AND THE PROSE UNDER IT IS ONLY ABOUT MAKE MASKS. The resource list
+    # used to sit inside this section as a bold paragraph, which made the
+    # one protected per-module section read as if the tutorials and the
+    # API reference were Make Masks' own.
+    section = text.partition("Make Masks\n~~~~~~~~~~\n")[2]
+    section = re.split(r"(?m)^[^\n]+\n[-~^]{3,}$", section)[0]
+    assert "Interactive tutorials" not in section
+    assert "Brush" in section and "Recrop" in section
 
 
 def test_readme_uses_branch_safe_documentation_links():

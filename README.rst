@@ -292,10 +292,6 @@ The primary workflow comprises six modules:
 - **Regression** estimates guide, gene, condition and control effects with
   model families suited to continuous, fractional and count responses.
 
-The same project can also design plates, estimate power, correct batch effects,
-inspect segmentation quality, explore linked plots and crops, export AnnData,
-resume interrupted work and record the settings behind each result.
-
 spaCR modules
 -------------
 
@@ -429,10 +425,10 @@ masks; its masthead opens the Cellpose workflows. Nine tools: **Brush**,
 Divide separates a merged object along a drawn line, Recrop turns one object
 in a crowded field into its own field.
 
-Cellpose-SAM runs here show the cell-probability map and the flow field beside
-the mask. See the `feature guide <docs/source/features.rst>`_ for each tool.
+See the `feature guide <docs/source/features.rst>`_ for each tool.
 
-**Other resources**
+Other resources
+~~~~~~~~~~~~~~~
 
 - `Interactive tutorials <https://einarolafsson.github.io/spacr/tutorials/>`_
   — 73 guided workflows from installation through hit investigation.

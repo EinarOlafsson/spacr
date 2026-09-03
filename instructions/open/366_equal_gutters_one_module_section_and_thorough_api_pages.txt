@@ -83,7 +83,7 @@ no reason to equal `2 * TILE_PADDING`.
      otherwise unexplainable.
 
 --------------------------------------------------------------------------------
-PART 2 -- MAKE MASKS KEEPS ITS SECTION; NO OTHER MODULE GETS ONE
+PART 2 -- MAKE MASKS KEEPS ITS SECTION; NO OTHER MODULE GETS ONE  [DONE 2026-09-02]
 --------------------------------------------------------------------------------
 
 The README currently has a "Make Masks" subsection listing its nine tools
@@ -213,3 +213,111 @@ a KNOWN shape so that a new sharing has to be noticed and recorded.
 A WORD COUNT IS NOT THOROUGHNESS and the test says so in as many words. Six
 words cannot answer four questions, which is all a machine can tell; whether
 the prose is any good is a reader's judgement and stays one.
+
+
+--------------------------------------------------------------------------------
+2026-09-02: PART 2 DONE. WHAT CAME OUT, AND WHERE IT NOW LIVES
+--------------------------------------------------------------------------------
+
+DONE AFTER PART 3, which this file insisted on and was right to: every claim
+below was READ ON THE API PAGE BEFORE IT WAS DELETED, not assumed to be there.
+
+THE JUDGEMENT CALL THIS FILE RAISED WAS RULED ON, AND THE SIX-LINE LIST STAYS.
+The maintainer's ruling: "Core workflow"'s six bullets are a TABLE OF CONTENTS
+for the pipeline, not an explanation of any one module, and they are the only
+place the six are named apart from the other fifteen -- which instruction 374,
+filed the same day, needs the API homepage to do. So
+`test_readme_keeps_the_feature_catalog_curated_and_points_to_detail` keeps its
+"The primary workflow comprises six modules" assertion. Longer per-module PROSE
+came out; the list did not.
+
+REMOVED FROM THE README -- both were the last per-module prose left:
+
+1. "The same project can also design plates, estimate power, correct batch
+   effects, inspect segmentation quality, explore linked plots and crops,
+   export AnnData, resume interrupted work and record the settings behind each
+   result." (36 words, closing "Core workflow".) It is the fifteen
+   non-pipeline modules explained in one sentence. Each of its eight claims,
+   verified on the page before deleting:
+
+     design plates ................ spacr.qt.screens.experiment_design
+                                    "Design the plate before it is acquired"
+     estimate power ............... spacr.qt.screens.power
+                                    "how many cells per well, and how many
+                                    wells, do I need?"
+     correct batch effects ........ spacr.batch_correction
+                                    "Plate/batch-effect correction for tabular
+                                    microscopy measurements"
+     inspect segmentation quality . spacr.qt.screens.qc_dashboard
+                                    "the segmentation, units, leakage,
+                                    plate-effect and agreement verdicts"
+     explore linked plots + crops . spacr.qt.linked_selection ("lassoing a
+                                    cluster in the UMAP highlights the same
+                                    cells ... in the crop grid") and
+                                    spacr.qt.screens.graph_builder
+     export AnnData ............... spacr.anndata_export
+     resume interrupted work ...... spacr.qt.plate_queue ("the queue serialises
+                                    ... so a crash or restart doesn't lose the
+                                    plan") and spacr.batch
+     record the settings .......... spacr.run_journal ("settings.csv -- exact
+                                    settings dict")
+
+   All eight are ALSO in docs/source/features.rst, under "Planning, quality
+   control and exploration" and "Reproducibility and interoperability", which
+   the README still links twice.
+
+2. "Cellpose-SAM runs here show the cell-probability map and the flow field
+   beside the mask." (16 words, in the Make Masks section.) The section stays
+   -- it is kept for the TOOL VOCABULARY, which a reader needs before opening a
+   manual tool -- but this sentence is not vocabulary and
+   `spacr.qt.screens.make_masks` already said it: "applies the pipeline's
+   resolved Cellpose-SAM model to the open field and displays the mask,
+   cell-probability map, and flow field". The pointer to the feature guide,
+   which carries the longer version, stays.
+
+ALSO STRUCTURAL: the "Other resources" bullet list was a bold paragraph INSIDE
+the Make Masks subsection, so the one protected per-module section read as
+though the tutorials and the API reference belonged to Make Masks. It is now a
+sibling heading. Nothing moved, nothing was cut.
+
+ADDED TO THE API, because the request's second clause asks for it: the
+information in the Make Masks section must be reachable by clicking the tile.
+`spacr/qt/screens/make_masks.py`, 281 words -> 577. It had never named Recrop
+at all, and described the palette generically ("brush and erase operations ...
+region drawing and division, zooming"). It now names all NINE tools in
+TOOL_MODES order with what each does, and gives Recrop its own paragraph --
+what it writes, where the multi-object original is retired to, and the three
+ways a box is refused -- sourced from `spacr.qt.mask_engine` rather than
+restated from the README.
+
+WORD COUNT: 1753 -> 1708. THE CEILING: 1800 -> 1750, which is 50 against 45
+removed, so none of the freed budget survives. A ceiling left at 1800 hands
+the 45 words to whoever writes the next paragraph, and the reduction lasts
+only until somebody does.
+
+NEW GUARD: `test_make_masks_is_the_only_module_with_a_section_of_its_own` in
+tests/test_readme_presentation.py compares README headings against the
+registry's own labels, so the contract in "HOW IT WILL BE CHECKED" is checked
+rather than asserted. Both halves were mutation-tested: a "Regression" heading
+fails it, and putting "Other resources" back inside the Make Masks section
+fails it.
+
+ONE KNOWN CONSEQUENCE, RECORDED RATHER THAN FIXED, because it is 306's file
+and this session may not edit tools/: the deleted "The same project can also
+..." sentence is a key in `REVIEWED_README_BLOCKS` in
+tools/build_documentation_i18n.py, and `test_documentation_i18n.py::
+test_github_summary_has_reviewed_domain_translations` asserts every such key
+is still in README.rst. THAT TEST WAS ALREADY RED at HEAD, on a block nothing
+to do with this work: 17 of its 47 keys are bound to text that left the README
+in earlier restructures, and it fails on the first of them ("For image-based
+pooled CRISPR screens ..."). This work makes it 18. The repair is the same one
+the gap ledger already uses for exactly this case -- retire the reviewed block
+with a reason, keeping the reviewer and locales -- and it belongs to whoever
+owns tools/build_documentation_i18n.py.
+
+NOT RUN: tools/build_documentation_i18n.py, and docs/i18n/** was left alone,
+another session being mid-rewrite there. `packaging/generate_readme_visuals.py`
+was re-run as required; it also writes the nine localized READMEs and clobbered
+their translated hardware legend with the English one, so those nine files were
+reverted to HEAD. THE GENERATOR DOES THAT ON EVERY RUN, which is worth knowing
+before the next person runs it against a dirty i18n tree.
