@@ -80,6 +80,19 @@ def _refuse_the_font(monkeypatch):
     monkeypatch.setattr(sc, "_font", _boom)
 
 
+def test_scene_report_documents_and_retains_translation_evidence():
+    """Every value explaining a faithful or refused scene stays public."""
+    report = SceneReport(axes=2, items=7, missing=["mathtext"],
+                         data_colours=["#3366AA"], notes=["fallback"])
+
+    for name in ("axes", "items", "missing", "data_colours", "notes"):
+        assert f":ivar {name}:" in (SceneReport.__doc__ or "")
+    assert (report.axes, report.items) == (2, 7)
+    assert report.data_colours == ["#3366AA"]
+    assert report.notes == ["fallback"]
+    assert not report.complete and "mathtext" in report.reason()
+
+
 class _RefusesASecondApplication:
     """A ``QApplication`` class reporting none living and allowing no new one.
 

@@ -63,6 +63,12 @@ class SceneReport:
     panel, so the caller writes the matplotlib page instead. The rest is for
     the message, because "it fell back" without naming the artist is a report
     nobody can act on.
+
+    :ivar axes: matplotlib axes translated into the output scene.
+    :ivar items: plot and annotation items successfully carried across.
+    :ivar missing: unsupported artist kinds that make the translation partial.
+    :ivar data_colours: normalized data colours used for legibility checks.
+    :ivar notes: non-blocking translation details for the caller.
     """
 
     axes: int = 0
