@@ -140,6 +140,7 @@ FULLY_DOCUMENTED = (
     "spacr/runctx.py",
     "spacr/schema.py",
     "spacr/screen_data.py",
+    "spacr/seg_qc.py",
     "spacr/selection.py",
     "spacr/sequencing.py",
     "spacr/sequencing_qc.py",
