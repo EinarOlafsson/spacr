@@ -669,6 +669,12 @@ def register() -> bool:
     module at all: the launch reads the table, and the screen is imported when
     somebody opens it.
 
+
+    SECTION NOTE, 2026-09-03: the sections were restructured to Core / Data /
+    Tools / Assays and this screen now files under Data. The reasoning below
+    is about a section that no longer exists; it is kept because it still
+    says what the screen IS, but the section it names is not the one it gets.
+
     ``SECTION_EXPLORE`` rather than ``SECTION_RESULTS``, and the reasoning is
     worth writing down because the first instinct is the other one. This screen
     looks like QC — it is about whether to believe what a run produced — but

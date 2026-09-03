@@ -1471,8 +1471,12 @@ def register_settings(replace: bool = False) -> bool:
 def register() -> bool:
     """Put Power / Design in the app registry, through the public seam.
 
-    It claims :data:`spacr.qt.app.SECTION_DESIGN`, which is declared in
-    ``SECTION_ORDER`` and has never had an app — its note already reads
+    SECTION NOTE, 2026-09-03: it files under Data. It used to claim
+    :data:`spacr.qt.app.SECTION_DESIGN`, which is still declared but was
+    dropped from ``SECTION_ORDER`` when the sections were restructured to
+    Core / Data / Tools / Assays.
+
+    That section had never had an app — its note already reads
     "Plan the experiment before it runs: power, sample size, plate layout,
     controls and replicates", so registering makes that tab appear with the
     description it was written for.
