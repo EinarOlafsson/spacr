@@ -132,7 +132,10 @@ class QuestionsPage(QWidget):
 
 
 class ProposalPage(QWidget):
-    """What would change, with the current value beside the new one."""
+    """What would change, with the current value beside the new one.
+
+    :param parent: parent widget.
+    """
 
     #: The columns, in the order the argument runs: what is being set, what
     #: it is now, what it would become, and the measurement that decided it.

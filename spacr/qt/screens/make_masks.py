@@ -1550,6 +1550,8 @@ class NapariBridgeScreen(QWidget):
     Qt event loop remains active. Corrected labels are validated and recorded
     in the same curation ledger used by the Curate screen. The corresponding
     headless operations are available from :mod:`spacr.napari_bridge`.
+
+    :param parent: parent widget.
     """
 
     #: A field was opened in napari. Carries the mask path.
@@ -1805,6 +1807,8 @@ class MakeMasksScreen(QWidget):
 
     Owns the canvas, the tools panel, and the file-navigation state; see
     the module docstring for the full feature list.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent: Optional[QWidget] = None):

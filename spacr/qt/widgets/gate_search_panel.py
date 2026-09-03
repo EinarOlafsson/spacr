@@ -27,7 +27,10 @@ __all__ = ["GateSearchPanel"]
 
 
 class GateSearchPanel(QWidget):
-    """DBSCAN's parameters and the Walk toggle, live beside the plot."""
+    """DBSCAN's parameters and the Walk toggle, live beside the plot.
+
+    :param parent: parent widget.
+    """
 
     #: A parameter changed. Carries ``{field: value}`` for the caller to
     #: fold into its settings -- the panel does not own them.

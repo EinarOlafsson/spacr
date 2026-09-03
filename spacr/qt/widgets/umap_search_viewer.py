@@ -259,7 +259,10 @@ def thumbnail_image(coords: Any, labels: Optional[Sequence[int]] = None,
 
 
 class UmapEmbeddingView(QWidget):
-    """A black-background 2-D/3-D point view; drag a 3-D map to spin it."""
+    """A black-background 2-D/3-D point view; drag a 3-D map to spin it.
+
+    :param parent: parent widget.
+    """
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -479,7 +482,10 @@ class UmapEmbeddingView(QWidget):
 
 
 class UmapExplorer(QWidget):
-    """Small shell around :class:`UmapEmbeddingView` with a reset control."""
+    """Small shell around :class:`UmapEmbeddingView` with a reset control.
+
+    :param parent: parent widget.
+    """
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)

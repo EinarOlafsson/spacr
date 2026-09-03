@@ -108,6 +108,8 @@ class FlowHost(QWidget):
     on its width. Without this the strip reported a one-line height however
     many chips it held, and ``controls`` (thirty of them) drew off the edge
     of the settings column instead of wrapping.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):

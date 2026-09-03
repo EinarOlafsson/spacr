@@ -506,6 +506,8 @@ class CaveatPanel(QWidget):
     where the COM-Poisson third moment sits at the same weight as "the R
     version overstates power" is a list that gets skimmed, and the one line
     that would have changed somebody's plate count goes with it.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent: Optional[QWidget] = None):

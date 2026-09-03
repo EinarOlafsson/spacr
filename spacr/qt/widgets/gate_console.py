@@ -180,7 +180,10 @@ def _builtins() -> dict:
 
 
 class GateConsole(QWidget):
-    """The console and the chat box, sharing one transcript."""
+    """The console and the chat box, sharing one transcript.
+
+    :param parent: parent widget.
+    """
 
     #: A question was asked of the assistant. The host answers by calling
     #: :meth:`reply`; nothing here talks to a network.

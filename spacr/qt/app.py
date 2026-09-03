@@ -2059,7 +2059,10 @@ class _DockRow(ElidingPushButton):
 
 class Sidebar(QWidget):
     """Left navigation column. Emits `nav_selected(str key)` when a tile
-    is clicked. `Home` reverts to the startup page."""
+    is clicked. `Home` reverts to the startup page.
+
+    :param parent: parent widget.
+    """
 
     from PySide6.QtCore import Signal
     nav_selected = Signal(str)

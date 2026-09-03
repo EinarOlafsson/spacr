@@ -2260,7 +2260,10 @@ _AUTO_ANNOTATE_OPEN_UMAP = 101
 
 
 class AnnotateScreen(QWidget):
-    """Main Qt widget for the annotate app."""
+    """Main Qt widget for the annotate app.
+
+    :param parent: parent widget.
+    """
 
     # Emitted with (target_app_key, seed_settings_dict); MainWindow
     # picks this up to switch to that screen and preseed values.

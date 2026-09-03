@@ -110,6 +110,8 @@ class ObjectSettingsModel(QAbstractTableModel):
     A model rather than a widget full of cells because the table is 55 rows
     by as many objects as the run has, and every one of those cells would
     otherwise be a widget the form has to build, lay out and translate.
+
+    :param parent: parent widget.
     """
 
     #: Emitted when a cell's value actually changed.

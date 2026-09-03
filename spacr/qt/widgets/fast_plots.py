@@ -6124,6 +6124,8 @@ class VolcanoPlot(FastPlot):
     one thing this plot will not do is jitter the y axis to separate ties.
     That moves a point away from its own value, and this class exists because
     a plot was showing something the data did not say.
+
+    :param parent: parent widget.
     """
 
     #: What the y axis measures, in the order the menu offers them.
@@ -7235,6 +7237,8 @@ class EffectRankPlot(FastPlot):
     :class:`GuideAgreementPlot` follows for its over-represented gene, and for
     the same reason: a point outside the opening view is still a point, and a
     point that was dropped is gone.
+
+    :param parent: parent widget.
     """
 
     #: What multiplies a standard error into half an interval. 1.96 is the
@@ -7724,6 +7728,8 @@ class PValueHistogram(BinnedPlot):
     at zero is a screen with real hits in it; one that slopes, or piles up near
     one, says the model is misspecified and every q-value downstream of it is
     decoration.
+
+    :param parent: parent widget.
     """
 
     QUANTITY = "p"
@@ -7786,6 +7792,8 @@ class EffectDistribution(BinnedPlot):
     :func:`spacr.figures.panels.control_threshold` measures the effect-size
     cut from, so the dashed lines here and the lines on the volcano cannot
     disagree about where three sigmas is.
+
+    :param parent: parent widget.
     """
 
     QUANTITY = "effect"
@@ -7874,6 +7882,8 @@ class QQPlot(FastPlot):
     Points on the diagonal mean the test is behaving. A curve that lifts off it
     early means inflation: the design is confounded, and the hits at the top of
     the volcano are partly an artefact of that rather than biology.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):
@@ -7941,6 +7951,8 @@ class ResidualPlot(FastPlot):
     A horizontal band is what a well-specified model gives. A funnel means the
     variance grows with the fit and the standard errors are wrong, which is a
     p-value problem rather than a cosmetic one.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):
@@ -7998,6 +8010,8 @@ class ScaleLocationPlot(FastPlot):
     has no error scale (quantile regression, a hinge classifier). That is a
     real answer and is said out loud rather than drawn from ``y - fitted`` and
     labelled as though it were the same quantity.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):
@@ -8066,6 +8080,8 @@ class InfluencePlot(FastPlot):
     The wells past the 4/n screening rule are the only ones coloured, which is
     the house rule -- everything else is grey, because the sentence here is
     "these ones are worth going back to the microscope for".
+
+    :param parent: parent widget.
     """
 
     #: Genes and wells the fit is not resting on.
@@ -8254,6 +8270,8 @@ class ControlSeparation(GroupedPlot):
     This is the assay window. If the controls do not separate, nothing further
     down the pipeline can be trusted, and it is worth seeing before the volcano
     rather than after arguing about a hit list.
+
+    :param parent: parent widget.
     """
 
     #: The medians are what the status line quotes and what the reader
@@ -8422,6 +8440,8 @@ class GuideAgreementPlot(GroupedPlot):
     THE HOUSE RULE DECIDES THE COLOURING. Everything is grey except what the
     sentence is about, and the sentence here is "these ones rest on a single
     guide", so those are the only points that get colour.
+
+    :param parent: parent widget.
     """
 
     #: Default ink for a gene whose guides corroborate each other.
@@ -8644,6 +8664,8 @@ class ResultsTable(QWidget):
         the one to connect a plot to: an index only means anything to the
         frame it came from, and the table's frame and the plot's frame are
         not required to be the same one.
+
+    :param parent: parent widget.
     """
 
     row_selected = Signal(int)

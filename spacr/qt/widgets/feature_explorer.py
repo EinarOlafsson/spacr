@@ -64,7 +64,10 @@ DEBOUNCE_MS = 150
 
 
 class FeatureExplorerPanel(QWidget):
-    """Rank features by how well they separate the classes, and draw the top."""
+    """Rank features by how well they separate the classes, and draw the top.
+
+    :param parent: parent widget.
+    """
 
     #: Emitted after every ranking with the :class:`ExplorerResult`.
     ranked = Signal(object)

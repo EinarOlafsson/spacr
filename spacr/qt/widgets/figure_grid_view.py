@@ -371,6 +371,8 @@ class FigureGridView(QScrollArea):
         cell is right-clicked. The grid holds pictures, not figures, so the
         menu itself is the caller's to build -- it is the one that still has
         the matplotlib object.
+
+    :param parent: parent widget.
     """
 
     figure_activated = Signal(int)

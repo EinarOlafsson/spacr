@@ -2349,6 +2349,8 @@ class GateTree(QWidget):
     :class:`~spacr.qt.widgets.gate_spec.GateStats` — 90% of a parent that is 2%
     of the table is 1.8% of the objects, and a strategy that prints only the
     first is flattering itself.
+
+    :param parent: parent widget.
     """
 
     #: The selected gate changed — carries the name, or ``""`` for the root.

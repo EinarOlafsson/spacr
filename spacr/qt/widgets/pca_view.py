@@ -159,6 +159,8 @@ class FeaturePicker(QWidget):
     anybody makes twice. The default ticks every continuous column, which is
     what :func:`~spacr.qt.widgets.pca_model.candidate_features` offers and what
     a user exploring a new table wants first.
+
+    :param parent: parent widget.
     """
 
     changed = Signal()
@@ -285,6 +287,8 @@ class ScreePlot(QWidget):
     Clicking a bar emits :attr:`component_picked`, so the scree plot is the
     control that chooses what the scores plot draws rather than a decoration
     beside it.
+
+    :param parent: parent widget.
     """
 
     component_picked = Signal(int)

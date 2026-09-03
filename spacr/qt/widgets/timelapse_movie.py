@@ -84,6 +84,8 @@ class FilmStrip(QScrollArea):
 
     Horizontal only. A vertical scrollbar here would fight the panel's own,
     and there is never more than one row.
+
+    :param parent: parent widget.
     """
 
     frame_picked = Signal(int)
@@ -392,6 +394,8 @@ class TimelapseMoviePanel(QWidget):
     Stacked rather than tabbed on purpose: comparing two fields is the
     point of showing more than one, and a tab hides the thing you are
     comparing against.
+
+    :param parent: parent widget.
     """
 
     max_fields_changed = Signal(int)

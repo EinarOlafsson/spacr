@@ -40,6 +40,8 @@ class SetupDialog(QDialog):
     parent : QWidget, optional
         Parent window. When available, a blurred snapshot is used as a
         decorative background.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent: Optional[QWidget] = None):

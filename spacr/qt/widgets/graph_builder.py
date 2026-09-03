@@ -198,6 +198,8 @@ class ColumnWell(QWidget):
     offers — the same rule the Local Data Filter uses to decide what is worth
     a control. A measurement table has hundreds of columns and listing all of
     them is the same as listing none.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):

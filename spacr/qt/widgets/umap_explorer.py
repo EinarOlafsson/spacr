@@ -325,6 +325,8 @@ class ImageUmapExplorer(LinkedView, QWidget):
 
     Linked to the shared selection as ``"umap"``. See the module docstring
     for why an incoming selection highlights and an incoming filter dims.
+
+    :param parent: parent widget.
     """
 
     annotation_finished = Signal(int, int)
