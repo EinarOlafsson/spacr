@@ -66,6 +66,7 @@ FULLY_DOCUMENTED = (
     "spacr/regression_failure.py",
     "spacr/regression_layout.py",
     "spacr/regression_panels.py",
+    "spacr/regression_qc.py",
     "spacr/report.py",
     "spacr/restart_state.py",
     "spacr/run_journal.py",
