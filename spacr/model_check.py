@@ -55,6 +55,7 @@ class ModelReport:
     classes: Optional[int] = None
 
     def summary(self) -> str:
+        """Return a one-line verdict followed by its notes or blocking problems."""
         if self.ok:
             head = f"{self.source} looks compatible"
             return "; ".join([head, *self.notes]) if self.notes else head
