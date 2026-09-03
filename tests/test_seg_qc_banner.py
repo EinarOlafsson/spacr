@@ -24,6 +24,7 @@ CPU-only, offline, deterministic, unmarked.
 """
 from __future__ import annotations
 
+from dataclasses import fields
 import os
 from pathlib import Path
 
@@ -544,6 +545,14 @@ def test_a_damaged_card_is_an_error_not_an_invented_verdict(clean_project):
 # ---------------------------------------------------------------------------
 # 8. it informs, it does not block
 # ---------------------------------------------------------------------------
+
+def test_a_qc_digest_documents_every_reported_field():
+    """The advisory gate value must be visible in the public contract."""
+    missing = [
+        field.name for field in fields(seg_qc.QCDigest)
+        if f":param {field.name}:" not in (seg_qc.QCDigest.__doc__ or "")
+    ]
+    assert not missing, f"undocumented QCDigest fields: {missing}"
 
 def test_a_digest_never_blocks_a_run(stepped_project):
     """The worst verdict this module can reach still gates nothing."""

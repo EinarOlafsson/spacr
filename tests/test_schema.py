@@ -26,6 +26,7 @@ the migration is provably a repair and not a change of contract.
 
 from __future__ import annotations
 
+from dataclasses import fields
 import os
 import sqlite3
 import subprocess
@@ -1022,6 +1023,14 @@ def test_strict_parsing_is_available_as_a_preflight():
 # ===========================================================================
 # FieldID / ObjectID
 # ===========================================================================
+
+def test_objectid_documents_every_identity_component():
+    """A typed object key's optional timepoint is part of its API contract."""
+    missing = [
+        field.name for field in fields(S.ObjectID)
+        if f":ivar {field.name}:" not in (S.ObjectID.__doc__ or "")
+    ]
+    assert not missing, f"undocumented ObjectID fields: {missing}"
 
 def test_fieldid_build_from_a_well_or_from_row_and_column():
     a = S.FieldID.build('plate1', well='B03', field=2)
