@@ -903,6 +903,18 @@ class PipelineWorker(QObject):
     * ``figure_ready(object)`` — a matplotlib Figure that the pipeline
       asked to show(); emitted from the worker thread so the UI slot can
       attach it.
+
+    :param fn: the pipeline function to run. It is called on the worker
+        thread, so anything it constructs belongs to that thread.
+    :param settings: the settings dict handed to ``fn``.
+    :param worker_count: how many workers the run is allowed, passed through
+        to the pipeline rather than used here.
+    :param app_key: which module is running, for the journal and for routing
+        output back to the right screen.
+    :param journal: whether to record the run in the journal.
+    :param capture_figures: whether a figure the pipeline shows is captured
+        and emitted through ``figure_ready``. False leaves matplotlib alone,
+        which is what a run wants when nobody is watching it.
     """
 
     line_ready = Signal(str)
