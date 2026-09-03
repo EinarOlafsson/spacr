@@ -66,7 +66,6 @@ class ModuleHintBar(QLabel):
         self._timer: Optional[QTimer] = None
         self.setObjectName(BAR_NAME)
         self.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-        self.setWordWrap(True)
         self.setTextFormat(Qt.RichText)
         # The links leave the application, so Qt opens them. `setOpenExternal
         # Links` also makes the label focusable for a keyboard user, which is
@@ -74,10 +73,30 @@ class ModuleHintBar(QLabel):
         self.setOpenExternalLinks(True)
         self.setTextInteractionFlags(Qt.TextBrowserInteraction)
         self.linkActivated.connect(self._on_link)
-        # Derived from the font rather than pinned. A hard number is a
-        # promise about text metrics that no longer holds the moment the
-        # font scale or the theme's font stack changes.
-        self.setMinimumHeight(max(32, self.sizeHint().height() + 4))
+        # A FIXED HEIGHT, and it is load-bearing rather than tidy.
+        #
+        # A strip that takes whatever height its text needs GROWS when a long
+        # summary wraps and shrinks when a short one does not -- so moving
+        # the pointer between two modules relayouts the page under it. The
+        # dock is in that layout. Reported 2026-09-03: "if i hover quickly an
+        # element in the dock it blinks blue a bunch of times then stays blue
+        # after a while" -- the row moving out from under the pointer and
+        # back, delivering an Enter and a Leave each time.
+        #
+        # The same lesson twice already: `HintBar` caps itself at three lines
+        # ("moving the pointer between two controls whose help differs in
+        # length made the whole dialog jump") and the status bar is pinned
+        # for it too ("without this the dock flickered on Linux each time one
+        # arrived"). This is the third surface and the first to forget.
+        #
+        # TWO LINES: the summary and the row of links under it. Measured from
+        # the font rather than pinned at a number, so it stays right at any
+        # font scale -- a hard number is a promise about text metrics that
+        # breaks the moment the scale or the theme's font stack changes.
+        line = max(1, self.fontMetrics().lineSpacing())
+        self.setFixedHeight(line * 2 + 10)
+        # And the text is ELIDED into it rather than wrapping past it.
+        self.setWordWrap(False)
 
     # -- what it shows ---------------------------------------------------
 
@@ -101,7 +120,12 @@ class ModuleHintBar(QLabel):
         if stage:
             text = f"{text} — {stage}" if text else str(stage)
         self._key = str(key or "")
-        html = escape(text)
+        # ELIDED TO ONE LINE, because the strip is two lines tall and the
+        # second is the links. A module blurb runs to several hundred
+        # characters; letting it wrap is what made the strip resize and the
+        # page relayout under the pointer. The whole sentence stays in the
+        # accessible description below, which is what a screen reader reads.
+        html = escape(self._fit(text))
         links = self._links_html(self._key)
         if links:
             html = f"{html}<br>{links}" if html else links
@@ -111,6 +135,22 @@ class ModuleHintBar(QLabel):
         self.setAccessibleDescription(text)
         self._hold(True)
         return html
+
+    def _fit(self, text: str) -> str:
+        """``text`` shortened to the one line the strip has for it.
+
+        Measured against the font Qt is actually painting and the width the
+        strip actually has, so it stays correct at any font scale rather than
+        at the one this was written on. A strip with no width yet -- asked
+        before it is laid out -- gets the text back untouched, because
+        eliding to nothing would be worse than a first paint that is long.
+        """
+        from PySide6.QtCore import Qt as _Qt
+
+        room = self.width() - 16
+        if room <= 0:
+            return text
+        return self.fontMetrics().elidedText(text, _Qt.ElideRight, room)
 
     def _links_html(self, key: str) -> str:
         """``API`` and ``Tutorial`` as anchors, whichever of them resolve.

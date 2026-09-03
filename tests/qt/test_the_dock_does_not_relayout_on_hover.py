@@ -134,3 +134,98 @@ def test_a_font_scale_change_still_resizes_every_row(window, qapp):
         dock._forget_icon_sizes()
         dock.refresh_icons()
         qapp.processEvents()
+
+
+# ---------------------------------------------------------------------------
+# The blink
+# ---------------------------------------------------------------------------
+
+def test_a_dock_leave_does_not_unhover_the_row_under_the_pointer(window,
+                                                                 qapp):
+    """The blink, and it was never a repaint problem.
+
+    Reported 2026-09-03: "if i hover quickly an element in the dock it blinks
+    blue a bunch of times then stays blue after a while."
+
+    Qt sends a widget a Leave whenever a CHILD takes the pointer. So moving
+    from the dock's own surface onto one of its rows delivers Enter to the
+    row and Leave to the dock -- and `Sidebar.leaveEvent` then cleared the
+    hover ink off every row, including the one the pointer had just landed
+    on. The ink went on with the Enter and off with the Leave, over and over;
+    it "stayed blue" whenever the two happened to arrive the other way round.
+
+    MEASURED before the fix: `Enter(row)` left `_hovered` True and the
+    `Leave(Sidebar)` immediately after it set it back to False.
+    """
+    from PySide6.QtGui import QCursor
+
+    dock = window._sidebar
+    row = next(r for r in dock._items if not r.isHidden())
+    # The cursor really is over the dock during this sequence; that is what
+    # tells a child-took-the-pointer Leave from a left-the-dock one.
+    QCursor.setPos(dock.mapToGlobal(QPoint(dock.width() // 2, 200)))
+    qapp.processEvents()
+
+    local = QPointF(row.width() / 2, row.height() / 2)
+    QApplication.sendEvent(row, QEnterEvent(
+        local, local,
+        QPointF(row.mapToGlobal(QPoint(int(local.x()), int(local.y()))))))
+    assert row._hovered is True, "the row did not take the hover at all"
+
+    QApplication.sendEvent(dock, QEvent(QEvent.Type.Leave))
+    assert row._hovered is True, (
+        "a dock Leave un-hovered the row the pointer is sitting on -- "
+        "this is the blink")
+
+
+def test_the_ink_moves_cleanly_from_one_row_to_the_next(window, qapp):
+    """Exactly one row is inked while the pointer crosses the dock."""
+    from PySide6.QtGui import QCursor
+
+    dock = window._sidebar
+    rows = [r for r in dock._items if not r.isHidden()][:4]
+    # The window is module-scoped, so start from a known state rather than
+    # from whatever the previous test left hovered.
+    for row in dock._items:
+        row._hovered = False
+    QCursor.setPos(dock.mapToGlobal(QPoint(dock.width() // 2, 200)))
+    qapp.processEvents()
+
+    for row in rows:
+        # Qt sends the row being left its own Leave before the next Enter;
+        # this loop does the same so it measures the handover rather than a
+        # sequence Qt never delivers.
+        for other in dock._items:
+            other._hovered = False
+        local = QPointF(row.width() / 2, row.height() / 2)
+        QApplication.sendEvent(row, QEnterEvent(
+            local, local,
+            QPointF(row.mapToGlobal(QPoint(int(local.x()),
+                                           int(local.y()))))))
+        QApplication.sendEvent(dock, QEvent(QEvent.Type.Leave))
+        inked = [str(r.property("navKey")) for r in dock._items
+                 if getattr(r, "_hovered", False)]
+        assert inked == [str(row.property("navKey"))], (
+            f"hovering {row.property('navKey')!r} left {inked} inked")
+        QApplication.sendEvent(row, QEvent(QEvent.Type.Leave))
+
+
+def test_the_pointer_really_leaving_still_clears_every_row(window, qapp):
+    """The case `leaveEvent` exists for, kept.
+
+    A pointer can leave the dock off the bottom row onto the empty stretch
+    below it, where no other row will ever be entered -- so a row left inked
+    there would look hovered with nothing hovering it.
+    """
+    from PySide6.QtGui import QCursor
+
+    dock = window._sidebar
+    for row in dock._items[:3]:
+        row._hovered = True
+    # Well outside the dock.
+    QCursor.setPos(dock.mapToGlobal(QPoint(dock.width() + 400, 400)))
+    qapp.processEvents()
+    QApplication.sendEvent(dock, QEvent(QEvent.Type.Leave))
+    still = [str(r.property("navKey")) for r in dock._items
+             if getattr(r, "_hovered", False)]
+    assert not still, f"these rows stayed inked after the pointer left: {still}"

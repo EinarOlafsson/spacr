@@ -1778,7 +1778,20 @@ class HomePage(QWidget):
         # here, so returning to Home never blocks on it. journal=False:
         # reading the journal is not itself a run.
         from ..job_runner import JobRunner
-        self._journal_jobs = JobRunner(self, app_key="home journal")
+        # `user_visible=False`: NOTHING THE USER STARTED. This walk is
+        # housekeeping -- it reads the run journal to fill Recent runs and
+        # Totals on the way back to Home -- and a visible job claims a run
+        # BANNER, which is the blue "home journal - running" box reported
+        # over the Home screen on 2026-09-03. It still turns the activity
+        # spinner, because something is genuinely running.
+        #
+        # The same mistake the usage poller made, and `JobRunner`'s own
+        # docstring records that one: "without this Home flashes '<module>
+        # usage - running' on and off for as long as a module screen is
+        # open." A journal of 11,000 runs takes long enough for this one to
+        # sit there rather than flash.
+        self._journal_jobs = JobRunner(self, app_key="home journal",
+                                       user_visible=False)
         self._apps = list(apps)
         self._icon_provider = icon_provider
         self._section_notes = dict(section_notes or {})

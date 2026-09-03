@@ -188,7 +188,11 @@ def test_the_edge_survives_in_every_theme(name):
     assert "border-right" not in block, (
         "a QSS border-right is back, and it will cut the slab's corners")
     assert Sidebar.PLATE_EDGE_ALPHA > 0, "the slab draws no edge at all"
-    assert Sidebar.PLATE_EDGE_ALPHA_HOVER > Sidebar.PLATE_EDGE_ALPHA
+    # ONE STATE. The slab brightened while the pointer was in the dock for a
+    # few hours on 2026-09-03; it was removed with every other box, and
+    # because repainting the whole dock on each Enter and Leave is a flicker
+    # source in a column whose children take the pointer constantly.
+    assert not hasattr(Sidebar, "PLATE_EDGE_ALPHA_HOVER")
 
 
 def _row_rgb(row):
