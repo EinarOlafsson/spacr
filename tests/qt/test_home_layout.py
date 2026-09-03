@@ -33,11 +33,18 @@ from spacr.qt.app import (
     SECTIONS,
     Sidebar,
     _icon_for_app,
+    dock_rows,
     home_bands,
     make_home_page,
     section_members,
 )
 from spacr.qt.widgets.home import AppTile, HomePage
+
+#: What the dock actually draws, which is Home's tiles plus the Help modules
+#: and NOT every key in ``APPS``. The folded second level was removed on
+#: 2026-09-03, so a module that only ever had an indented child row has no
+#: row to measure here.
+_DOCK_ROWS = list(dock_rows())
 
 # ---------------------------------------------------------------------------
 # helpers
@@ -316,10 +323,19 @@ def test_home_tile_shows_the_whole_name(home, key, name, desc, section):
         f"{name!r} is elided but its tooltip does not carry the full name")
 
 
-@pytest.mark.parametrize("key,name,desc,section", APPS,
-                         ids=[a[0] for a in APPS])
+@pytest.mark.parametrize("key,name,desc,section", _DOCK_ROWS,
+                         ids=[a[0] for a in _DOCK_ROWS])
 def test_sidebar_item_shows_the_whole_name(home, key, name, desc, section):
-    """Same contract for the left navigation column."""
+    """Same contract for the left navigation column.
+
+    OVER THE DOCK'S OWN ROWS, NOT ``APPS``. The folded second level was
+    removed on 2026-09-03 ("Scrap the sub categories"), so the nine modules
+    that reached the dock only as indented children -- ``convert``,
+    ``lineage``, ``layer_viewer``, ``tabulate``, ``plate_view``,
+    ``profiler``, ``investigate_hit``, ``external_masks`` and
+    ``train_compare`` -- have no row to measure. They are still reachable
+    from their host screen's fold strip.
+    """
     _theme, _page, bar = home
     btn = _nav_buttons_by_name(bar).get(name)
     assert btn is not None, f"{name} has no sidebar entry"
@@ -512,21 +528,14 @@ def test_sidebar_renders_every_app_under_every_section_heading(home):
     that only exist as subject tabs.
     """
     _theme, _page, bar = home
-    # APPS PLUS THE FOLDED CHILDREN. A module folded onto a host is nested
-    # UNDER it in the dock rather than left off it -- asked for on
-    # 2026-09-02, "nested modules should be nested in the dock" -- and its
-    # row is indented, which is why the names are compared stripped. Before
-    # that, comparing against APPS alone was the whole list.
-    from spacr.qt.app import folded_children
-    from spacr.qt.widgets.fold_strip import fold_label, folded_modules
-
-    catalogue = folded_modules()
-    children = {key for keys in folded_children().values() for key in keys}
-    # NAMED THE WAY THE DOCK NAMES THEM: the catalogue first, `fold_label`
-    # for a host the catalogue does not walk. Deriving the names any other
-    # way makes this a test of the derivation rather than of the dock.
-    expected = {a[1] for a in APPS} | {
-        (catalogue.get(key) or fold_label(key))[0] or key for key in children}
+    # THE DOCK'S OWN ROWS. It used to be APPS plus the folded children,
+    # because a folded module was nested under its host -- asked for on
+    # 2026-09-02, "nested modules should be nested in the dock". That second
+    # level was removed on 2026-09-03 ("Scrap the sub categories"), so the
+    # dock now draws exactly `dock_rows`: Home's tiles and the Help modules.
+    # A folded module is reached from its host screen's fold strip instead.
+    # Home itself is not in here -- `_nav_buttons_by_name` excludes it.
+    expected = {row[1] for row in _DOCK_ROWS}
     assert {name.strip() for name in _nav_buttons_by_name(bar)} == expected
 
     # PLUS THE DOCK-ONLY HELP HEADING. `SECTION_HELP` is not a real section

@@ -222,9 +222,15 @@ def test_the_sidebar_button_carries_them_too():
 
     from spacr.qt import app as app_mod
 
-    source = inspect.getsource(app_mod.Sidebar)
+    # THE ROW, NOT THE DOCK. `Sidebar` became a thin binding to
+    # `spacr.qt.widgets.dock` on 2026-09-03; the properties the bottom strip
+    # reads are stamped where they belong, on the row itself.
+    from spacr.qt.widgets.dock import DockRow
+
+    source = inspect.getsource(DockRow)
     assert M.SUMMARY_PROPERTY in source
     assert M.NAME_PROPERTY in source
+    assert app_mod.Sidebar is not None
 
 
 def test_the_main_window_installs_the_filter():
