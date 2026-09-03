@@ -115,6 +115,7 @@ DEFAULT_PANEL_STYLE = PanelStyle()
 
 
 def _normalise_guide(value: object) -> str:
+    """Strip whitespace and a known Toxoplasma locus prefix from a guide."""
     text = str(value).strip()
     for prefix in ("TGGT1_", "TGME49_"):
         if text.startswith(prefix):
@@ -216,6 +217,7 @@ def _draw_panel(
     palette: Mapping[str, str],
     point_label_column: str,
 ) -> None:
+    """Draw one categorized effect-versus-significance scatter panel."""
     for category in LOPIT_ORDER:
         mask = data[lopit_column].astype(str).eq(category)
         if not mask.any():
@@ -369,6 +371,7 @@ def _add_pdf_point_links(
 
 
 def _wrapped_block(title: str, text: str, width: int = 112) -> str:
+    """Return a titled, whitespace-normalized paragraph wrapped to ``width``."""
     return f"{title}\n" + textwrap.fill(str(text).strip(), width=width)
 
 
@@ -671,6 +674,7 @@ def _resolve_run_artifacts(
 
 
 def _manifest_narrative(panel: Mapping[str, object]) -> PanelNarrative:
+    """Validate and construct the four required narrative fields for a panel."""
     raw = panel.get("narrative")
     if not isinstance(raw, Mapping):
         raise ValueError(f"Panel {panel.get('panel_id')!r} needs a narrative")
@@ -691,18 +695,21 @@ def _required_columns(
     *,
     panel_id: str,
 ) -> None:
+    """Require every named source column for ``panel_id``."""
     missing = sorted({name for name in columns if name not in frame.columns})
     if missing:
         raise ValueError(f"Panel {panel_id!r} source lacks columns {missing}")
 
 
 def _finite_column(frame: pd.DataFrame, column: str, *, panel_id: str) -> None:
+    """Require ``column`` to contain only numeric finite values."""
     values = pd.to_numeric(frame[column], errors="raise").to_numpy(float)
     if not np.isfinite(values).all():
         raise ValueError(f"Panel {panel_id!r} column {column!r} must be finite")
 
 
 def _panel_file_paths(destination: Path, panel_id: str) -> dict[str, Path]:
+    """Return the four required artifact paths for a manuscript panel."""
     stem = destination / panel_id
     return {
         "pdf": stem.with_suffix(".pdf"),
@@ -721,6 +728,7 @@ def _draw_box_jitter(
     y_label: str,
     style: PanelStyle,
 ) -> None:
+    """Draw a styled categorical box plot with its individual observations."""
     grouped = [
         data.loc[data["plot_category"].eq(category), "plot_y"].to_numpy(float)
         for category in categories
@@ -935,6 +943,7 @@ def _copy_transformed_links(
     translate_x: float,
     translate_y: float,
 ) -> int:
+    """Copy URI link annotations after scaling and translating their rectangles."""
     copied = 0
     for reference in annotations:
         annotation = reference.get_object()

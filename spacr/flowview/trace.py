@@ -34,10 +34,12 @@ _Function = TypeVar("_Function", bound=Callable[..., Any])
 
 
 def _environment_enabled() -> bool:
+    """Return whether the FlowView environment switch contains a true value."""
     return os.environ.get("SPACR_FLOWVIEW", "").strip().casefold() in _TRUE_ENV_VALUES
 
 
 def _new_collector() -> Collector:
+    """Create a collector around a new empty, versioned run graph."""
     started_at = time.time()
     graph = RunGraph(
         run_id=f"flowview-{time.time_ns()}",
@@ -97,6 +99,7 @@ def _emit_event(factory: Callable[[], object]) -> None:
 
 
 def _stable_id(prefix: str, label: str) -> str:
+    """Build a readable deterministic identifier from ``prefix`` and ``label``."""
     readable = re.sub(r"[^a-z0-9]+", "-", label.casefold()).strip("-") or prefix
     digest = hashlib.sha256(label.encode("utf-8")).hexdigest()[:10]
     return f"{prefix}:{readable}:{digest}"
@@ -108,21 +111,27 @@ class _NullStage:
     node_id: None = None
 
     def __call__(self, function: _Function) -> _Function:
+        """Return a decorated function unchanged while tracing is disabled."""
         return function
 
     def __enter__(self) -> "_NullStage":
+        """Enter the reusable no-op stage."""
         return self
 
     def __exit__(self, exc_type: object, exc: BaseException | None, tb: object) -> bool:
+        """Leave the no-op stage without suppressing an exception."""
         return False
 
     def progress(self, current: int, total: int) -> None:
+        """Ignore a disabled stage's progress update."""
         return None
 
     def metric(self, name: str, value: float | int | str) -> None:
+        """Ignore a disabled stage's metric."""
         return None
 
     def thumbnail(self, value: str | os.PathLike[str] | object) -> None:
+        """Ignore a disabled stage's thumbnail."""
         return None
 
 
@@ -133,10 +142,12 @@ class _StageRuntime:
     """One active invocation of a stage specification."""
 
     def __init__(self, spec: "_StageSpec") -> None:
+        """Bind this invocation to its immutable stage specification."""
         self._spec = spec
         self.node_id = spec.node_id
 
     def __enter__(self) -> "_StageRuntime":
+        """Emit stage, artifact, edge, and start events for this invocation."""
         stage_node = Node(
             id=self.node_id,
             label=self._spec.label,
@@ -168,6 +179,7 @@ class _StageRuntime:
         return self
 
     def __exit__(self, exc_type: object, exc: BaseException | None, tb: object) -> bool:
+        """Emit completion or failure events without suppressing exceptions."""
         ended_at = time.time()
         if exc is None:
             _emit_event(lambda: StageCompleted(self.node_id, ended_at))
@@ -185,12 +197,15 @@ class _StageRuntime:
         return False
 
     def progress(self, current: int, total: int) -> None:
+        """Emit a progress event for this stage invocation."""
         _emit_event(lambda: StageProgress(self.node_id, current, total))
 
     def metric(self, name: str, value: float | int | str) -> None:
+        """Emit one named metric for this stage invocation."""
         _emit_event(lambda: StageMetric(self.node_id, name, value))
 
     def thumbnail(self, value: str | os.PathLike[str] | object) -> None:
+        """Emit the filesystem path of this stage's representative thumbnail."""
         _emit_event(lambda: StageThumbnail(self.node_id, os.fsdecode(os.fspath(value))))
 
 
@@ -207,6 +222,7 @@ class _StageSpec:
         params: Mapping[str, Any] | None,
         node_id: str | None,
     ) -> None:
+        """Normalize the reusable metadata that describes a traced stage."""
         self.label = label
         self.kind = NodeKind(kind)
         self.consumes = tuple(consumes)
@@ -216,6 +232,7 @@ class _StageSpec:
         self._context: _StageRuntime | None = None
 
     def __call__(self, function: _Function) -> _Function:
+        """Return ``function`` wrapped in a fresh runtime when tracing is enabled."""
         if not is_enabled():
             return function
 
@@ -238,6 +255,7 @@ class _StageSpec:
         return cast(_Function, traced)
 
     def __enter__(self) -> _StageRuntime | _NullStage:
+        """Enter a fresh runtime, or the shared no-op stage when disabled."""
         if not is_enabled():
             return _NULL_STAGE
         runtime = _StageRuntime(self)
@@ -245,6 +263,7 @@ class _StageSpec:
         return runtime.__enter__()
 
     def __exit__(self, exc_type: object, exc: BaseException | None, tb: object) -> bool:
+        """Exit and clear the active context runtime without suppressing errors."""
         runtime = self._context
         self._context = None
         if runtime is None:
