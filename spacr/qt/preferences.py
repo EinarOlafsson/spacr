@@ -3230,7 +3230,20 @@ DEFAULT_SETTING_ANIMATIONS = False
 #: NEITHER TOUCHES THE CATEGORY STRIP, which answers a different question --
 #: "what is this whole group of settings for" -- and was not part of the
 #: request.
-DEFAULT_TOOLTIPS_BOX = True
+#: THE BOX DEFAULTS OFF, AND THAT IS NOT A JUDGEMENT ABOUT THE BOX. On
+#: 2026-09-01 the maintainer asked: "i dont need the popup box if the tooltip
+#: is shown on the bottom of the window", and that preference has been wired
+#: in ever since -- the popup appeared only on screens with no strip.
+#: Instruction 371 asks for both surfaces to be CHOOSABLE, which is a request
+#: for a switch, not a request to reverse the earlier answer. Defaulting the
+#: box on would hand back the popup somebody had explicitly said they did not
+#: want, and they would have to find a checkbox to undo it.
+#:
+#: So the shipped behaviour is unchanged and the box is one click away.
+#: `tests/qt/test_setting_tooltip_footer.py::
+#: test_hovering_a_real_setting_shows_no_tooltip_box` is the guard for the
+#: 2026-09-01 request and still passes.
+DEFAULT_TOOLTIPS_BOX = False
 DEFAULT_TOOLTIPS_BOTTOM = True
 
 
