@@ -115,3 +115,27 @@ def test_the_label_column_falls_back_only_when_the_file_is_silent(dialog,
     path = _write(tmp_path, [("annotation_column", "something_else")])
     dialog._apply_example_settings(path)
     assert dialog._ann_col.text() == "something_else"
+
+
+def test_the_crop_size_is_filled_in_from_the_factory_spelling(dialog, tmp_path):
+    """`set_annotate_default_settings` writes `img_size`, not `image_size`.
+
+    So a settings CSV made from spaCR's OWN defaults used to set every field
+    in this dialog except the crop size. Nothing said so: the form had mostly
+    filled itself in, and the one row that had not looked no different from
+    a row the file did not carry. Instruction 364's Annotate audit found it.
+    """
+    # 176, NOT the factory's own 200. `AnnotateSettings.image_size` defaults
+    # to (200, 200) and the spin box opens on it, so asserting 200 here would
+    # have passed against the broken code by agreeing with the default -- it
+    # did, on the first run of this test, which is why the number is odd.
+    path = _write(tmp_path, [("img_size", "176")])
+    assert dialog._apply_example_settings(path) == 1
+    assert dialog._img_size.value() == 176
+
+
+def test_the_screens_own_spelling_still_wins(dialog, tmp_path):
+    """A file carrying both is not ambiguous: `image_size` is this form's."""
+    path = _write(tmp_path, [("img_size", "176"), ("image_size", "224")])
+    assert dialog._apply_example_settings(path) == 1
+    assert dialog._img_size.value() == 224
