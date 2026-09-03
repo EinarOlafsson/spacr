@@ -356,3 +356,45 @@ bare-word search:
 No setting was deleted by this classification. The old file is therefore a
 useful provenance record containing three historical names and one typo, but
 those four rows are not candidates for new Measure defaults.
+
+--------------------------------------------------------------------------------
+2026-09-02: ALL FOUR PARTS ARE TRUE. CLOSING, WITH EACH ONE CHECKED.
+--------------------------------------------------------------------------------
+
+Checked against the running code rather than against commit messages, because
+this file was written when three of the four were still open and two sessions
+have worked on it since.
+
+PART 1, TWO MANDERS DEFINITIONS. Done. `corrected_manders` is in
+`RETIRED_SETTINGS` and is no longer a live setting; the deprecated
+`M1_correlation_<t>` / `M2_correlation_<t>` writers are gone from the
+measurement path and survive only in `feature_dict.py`, which is where they
+belong -- a plate measured before 2026-09-02 still has those columns and a
+reader still has to be able to look them up. The three correct coefficients
+-- `manders_m1`, `manders_m2` and `manders_overlap_coefficient` -- are
+written unconditionally, and the third had never been computed at all despite
+the tooltips naming it.
+
+PART 2, SPATIAL MEASUREMENTS OFF BY DEFAULT. Done. `spatial_measurements` and
+`object_distances` both default True. They are the measurements the module is
+for in a host-pathogen screen, and every default run used to produce a
+database missing them.
+
+PART 3, THE DEFAULTS DO NOT MATCH A REAL RUN. Done, and it turned out to need
+almost nothing -- see the 2026-09-02 note above. Of the 37 keys in the located
+run file, 28 already match, 6 are not Measure settings, and the 2 that differ
+should NOT be copied: the file's `experiment='exp'` is the older value that
+part 4 exists to replace, and `png_size` differs only by nesting.
+
+PART 4, path AND exp. Done. `experiment` defaults to `'experiment'`, not
+`'exp'`. `src` displays as "Path" everywhere except Regression, which keeps
+"Output directory" -- the maintainer's answer to 357's question 337-B, chosen
+over applying the rule literally, because Regression uses `src` as a
+DESTINATION and a screen that calls a destination "Path" is wrong in the one
+place the distinction matters.
+
+THE ONE THING NOT DONE, and it is not this file's: the six keys the run wrote
+that are not Measure settings (`png_dims`, `include_uninfected`, `n_job`,
+`manders_thresholds`, `plot_filtration`, `representative_images`). Two exist
+elsewhere in `settings.py`; four have no mention at all and may be renames.
+Handed to the other session in 325 rather than guessed at.
