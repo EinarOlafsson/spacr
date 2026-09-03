@@ -94,6 +94,7 @@ FULLY_DOCUMENTED = (
     "spacr/outlier_filter.py",
     "spacr/omero.py",
     "spacr/parameter_sweep.py",
+    "spacr/permutation_qc.py",
     "spacr/picture_settings.py",
     "spacr/plate_measurements.py",
     "spacr/plate_qc.py",
