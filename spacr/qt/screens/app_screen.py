@@ -5290,8 +5290,19 @@ class AppScreen(QWidget):
             else:
                 hint = self._hint_map.get(obj)
                 html = self._html_tip_map.get(obj)
+            # THE TWO SURFACES ARE NOW SWITCHES, instruction 371. Before
+            # this the strip always won and the popup appeared only where
+            # there was no strip -- the 2026-09-01 request, "i dont need the
+            # popup box if the tooltip is shown on the bottom of the window".
+            # 371 asks for both to be choosable, so that preference stops
+            # being wired in and becomes a cleared checkbox: `Tooltips box`
+            # off reproduces it exactly.
+            from ..preferences import (get_tooltips_bottom_enabled,
+                                       get_tooltips_box_enabled)
+            want_bottom = get_tooltips_bottom_enabled()
+            want_box = get_tooltips_box_enabled()
             shown_at_the_bottom = False
-            if hint and hasattr(self, "_hint_strip"):
+            if hint and want_bottom and hasattr(self, "_hint_strip"):
                 link = ""
                 if key:
                     try:
@@ -5299,7 +5310,7 @@ class AppScreen(QWidget):
                         link = api_docs_url(self.app_key, str(key))
                     except Exception:                        # noqa: BLE001
                         link = ""
-                self._write_hint(hint, link)
+                self._write_hint(hint, link, hold=True)
                 shown_at_the_bottom = True
             # ONE PLACE, NOT TWO. Asked for on 2026-09-01: "i dont need the
             # popup box if the tooltip is shown on the bottom of the window".
@@ -5307,13 +5318,26 @@ class AppScreen(QWidget):
             # was a second copy drawn over the form the user was reading -- the
             # same objection that moved the module blurbs to the bottom.
             #
-            # The popup still appears where there is no strip to write to, so
-            # a screen without one does not silently lose its help.
-            if html and not shown_at_the_bottom:
+            # The popup still appears where there is no strip to write to,
+            # so a screen without one does not silently lose its help -- and
+            # that fallback survives BOTH switches being cleared, because
+            # "no tooltips" is a choice about the two surfaces and not a
+            # request to make a screen that has neither say nothing at all.
+            if html and (want_box or not shown_at_the_bottom):
                 HoverTooltip.instance().show_for(obj, html)
         else:
-            if hasattr(self, "_hint_strip"):
-                self._write_hint(self._default_hint())
+            # THE STRIP IS NOT CLEARED ON LEAVE, and that is the whole point
+            # of instruction 371's third part: "for the user to be able to
+            # press the botom tooltip API link ... the last setting the mouse
+            # hovered over should be shown, not only when the mouse hovers
+            # the setting. this way the user can hover then move the mouse to
+            # the link and click it, which is otherwise not possible."
+            #
+            # Blanking here made the link unreachable by construction: it
+            # appeared only while the pointer was on the setting, and moving
+            # toward it removed it. The hold started in `_write_hint` clears
+            # the strip instead, ten seconds later or when another setting is
+            # hovered.
             HoverTooltip.instance().start_hide()
         return super().eventFilter(obj, event)
 
@@ -6471,7 +6495,8 @@ class AppScreen(QWidget):
 
         splitter.splitterMoved.connect(_save)
 
-    def _write_hint(self, text: str, url: str = "") -> None:
+    def _write_hint(self, text: str, url: str = "",
+                    hold: bool = False) -> None:
         """Put ``text`` in the strip, trimmed to the lines the strip has.
 
         ``url`` adds the documentation link on its own line. Suppressing the
@@ -6501,15 +6526,58 @@ class AppScreen(QWidget):
             from html import escape as _escape
 
             from ..i18n import tr as _tr
+            # "API", not "Open spaCR API documentation". Instruction 371:
+            # "which should also just say API". The long form repeated on
+            # every setting and the strip has four lines to spend.
             strip.setText(
                 f"{_escape(fitted)}<br>"
                 f"<a href=\"{_escape(str(url), quote=True)}\">"
-                f"{_escape(_tr('Open spaCR API documentation'))}</a>")
+                f"{_escape(_tr('API'))}</a>")
         else:
             strip.setText(fitted)
         # The untrimmed text stays reachable: the tooltip is what a reader who
         # wants the rest, or a screen reader, asks for.
         strip.setToolTip(str(text))
+        # `hold` IS PASSED, NOT INFERRED. Inferring it from "the text is not
+        # empty" starts the timer on the DEFAULT prompt too, and since
+        # `_release_the_hint` writes that prompt, the strip would restart its
+        # own hold forever. Only a hovered setting holds.
+        self._hold_the_hint(hold)
+
+    #: How long the strip keeps the LAST hovered setting, in milliseconds.
+    #:
+    #: Ten seconds, from instruction 371, and it is not a round number to
+    #: tune down because it feels long while reading code. It is the budget
+    #: for noticing the strip, crossing the window and pressing the link --
+    #: the reach the hold exists to make possible. If a measurement ever says
+    #: the reach takes longer, raise it and say so.
+    HINT_HOLD_MS = 10_000
+
+    def _hold_the_hint(self, holding: bool) -> None:
+        """Start, restart or stop the strip's ten-second hold.
+
+        RESTARTED ON EACH NEW SETTING, so reading down a form is not a race
+        against a clock started by the first row. Stopped outright when the
+        strip is being put back to its default, or the timer would blank a
+        strip that is already blank and fight whatever wrote it next.
+        """
+        timer = getattr(self, "_hint_hold_timer", None)
+        if timer is None:
+            from PySide6.QtCore import QTimer
+
+            timer = QTimer(self)
+            timer.setSingleShot(True)
+            timer.timeout.connect(self._release_the_hint)
+            self._hint_hold_timer = timer
+        timer.stop()
+        if holding:
+            timer.start(self.HINT_HOLD_MS)
+
+    def _release_the_hint(self) -> None:
+        """Put the strip back to its prompt once the hold has run out."""
+        if getattr(self, "_hint_strip", None) is None:
+            return
+        self._write_hint(self._default_hint())
 
     def _sync_hint_strip_height(self) -> None:
         """Reserve four lines using the font Qt is actually painting."""

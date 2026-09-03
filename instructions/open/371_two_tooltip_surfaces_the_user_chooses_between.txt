@@ -171,3 +171,56 @@ HOW IT WILL BE CHECKED
 * The sweep is over the whole tooltip set, not a sample. 2110 is the number.
 
 --------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+2026-09-03: PARTS 1, 2 AND 3 DONE. ONE PART OF THE REQUEST IS NOT, AND IS NAMED.
+--------------------------------------------------------------------------------
+
+PART 1. `Tooltips box` and `Tooltips bottom` in Preferences > Appearance, two
+independent booleans. Four legal states, and "both off" is one of them --
+clearing the second rewrites both tooltips to say what it costs, because on
+several forms the API link inside a setting's tooltip is the only route from
+that control to its documentation.
+
+  THE BOX DEFAULTS OFF AND THE STRIP DEFAULTS ON, which is exactly today's
+  behaviour. On 2026-09-01 the maintainer said "i dont need the popup box if
+  the tooltip is shown on the bottom of the window", and that has been wired
+  in ever since. 371 asks for the two to be CHOOSABLE -- a request for a
+  switch, not a request to reverse the earlier answer. Defaulting the box on
+  would hand back a popup somebody had explicitly said they did not want and
+  make them find a checkbox to undo it. The guard for the 2026-09-01 request
+  still passes, unchanged.
+
+PART 2. The footer draws "API" and "Animation" again, reversing this
+morning's marks. The constant's comment keeps the marks and their reasons,
+because one of them still matters: they differed in SHAPE as well as colour
+for instruction 89's colourblind mode, and words are strictly better on that
+axis. The test asserting it is deliberately unchanged across the reversal --
+it is the requirement, not the implementation.
+
+PART 3. The strip holds the LAST hovered setting. It is no longer blanked on
+Leave, which is what made the link unreachable by construction: it appeared
+only while the pointer was on the setting, and moving toward it removed it.
+Ten seconds, restarted on each new setting so reading down a form is not a
+race against a clock started by the first row, and the link now says "API".
+
+  `hold` IS PASSED, NOT INFERRED. Inferring it from "the text is not empty"
+  starts the timer on the default prompt too -- and `_release_the_hint`
+  writes that prompt, so the strip would restart its own hold forever. There
+  is a test for that specific loop.
+
+WHAT IS NOT DONE, and it is a real part of the request: "For the box tooltips
+all settings ... should appear and an API link and Annimation link text ...
+same for the botom tooltips." THE STRIP HAS NO ANIMATION LINK. Only the box
+does, and 141 settings have an animation.
+
+  That is why the box's default matters more than it looks: with the box off,
+  the animations are currently unreachable. Adding an Animation affordance to
+  the strip is the remaining work, and it is not a copy of the box's -- the
+  box reveals the movie beside its text in a column sized for it, and the
+  strip is four lines at the bottom of the window with nowhere to put one.
+  Decide whether pressing it opens the box for that setting, plays inline, or
+  something else, and record the choice here.
+
+7 new tests for the hold and the switches; 328 pass across the tooltip
+family.

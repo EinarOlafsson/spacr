@@ -1,10 +1,36 @@
 spaCR modules
 ~~~~~~~~~~~~~
 
+Core
+^^^^
+
+Core sequence from microscopy images through segmentation, measurements,
+annotations, classification, barcode mapping and regression.
+
 | |DocModule_mask|\ |DocModule_measure|\ |DocModule_annotate|\ |DocModule_classify_merged|\ |DocModule_map_barcodes|\ |DocModule_regression|
+
+Data
+^^^^
+
+Import images and tables into spaCR projects and execute reproducible
+multi-plate workflows.
+
 | |DocModule_foreign|\ |DocModule_run_compare|\ |DocModule_experiment_design|\ |DocModule_power|\ |DocModule_dose_response|\ |DocModule_qc_dashboard|
-| |DocModule_make_masks|\ |DocModule_align|\ |DocModule_umap|\ |DocModule_gate_editor|\ |DocModule_graph_builder|\ |DocModule_analyze_plaques|
-| |DocModule_recruitment|\ |DocModule_invasion|\ |DocModule_replication|
+
+Tools
+^^^^^
+
+Point these at a project: edit masks by hand, stitch tiles, read an
+embedding, draw a gate, build a plot, check quality.
+
+| |DocModule_make_masks|\ |DocModule_align|\ |DocModule_umap|\ |DocModule_gate_editor|\ |DocModule_graph_builder|
+
+Assays
+^^^^^^
+
+Quantitative readouts for biological assays.
+
+| |DocModule_analyze_plaques|\ |DocModule_recruitment|\ |DocModule_invasion|\ |DocModule_replication|
 
 .. |DocModule_mask| image:: /_static/workflow/mask.png
    :width: 16.0%

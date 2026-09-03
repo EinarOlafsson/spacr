@@ -16,6 +16,7 @@ from __future__ import annotations
 import os
 import re
 import sys
+import textwrap
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -126,6 +127,17 @@ TILE_SIZE = BUTTON_SIZE - 2 * TILE_PADDING
 #: the sixth tile onto a line of its own.
 TILE_DISPLAY_PERCENT = 16.0
 TILE_DISPLAY_WIDTH = f"{TILE_DISPLAY_PERCENT}%"
+#: The underline that turns a section name into a heading over its band.
+#:
+#: ``^`` because RST binds a level to an underline CHARACTER by order of
+#: first appearance in the file, and this one block is included into three
+#: documents whose heading ladders were each decided elsewhere. README.rst
+#: introduces ``=``, ``~`` then ``-`` in that order, so ``~`` there is a
+#: LEVEL ABOVE ``-`` and a band heading written with it would break out of
+#: the "spaCR modules" section it belongs to. ``^`` appears in none of the
+#: three, so wherever the block lands it is introduced immediately under
+#: the heading above it and becomes that heading's child.
+SECTION_HEADING_CHAR = "^"
 
 RESOURCE_SOURCES = {
     "biostudies": DATABANK_DIR / "bioimages.jpg",
@@ -971,20 +983,58 @@ def _write_the_hardware_table(path) -> bool:
 def _fold_hosts() -> "dict[str, str]":
     """``{folded key: host key}`` for every module opened from a masthead.
 
-    Walked from the same table the application walks --
-    `map_barcodes.FOLD_HOST_MODULES` plus each host module's
-    `FOLDED_APPS` -- so the documentation cannot claim a fold the GUI does
-    not install, or miss one it does.
+    ASKED OF `spacr.qt.app.folded_children`, WHICH IS THE RESOLVER THE DOCK
+    AND THE MENU BAR USE. This function used to do its own walk over
+    `map_barcodes.FOLD_HOST_MODULES` -- a different table, with the same
+    name as the one in `fold_strip`, mapping host keys to screen module
+    names -- and it was wrong in a way that only showed on this page:
+
+      * it missed MAKE MASKS entirely, because Make Masks spells its list
+        `FOLD_ORDER` rather than `FOLDED_APPS`. Six modules -- Cellpose
+        Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate
+        and Napari Bridge -- were folded in the application and absent from
+        the documentation of what is folded, which is the exact failure
+        instruction 374 describes;
+      * it was a FOURTH copy of the fold tables, after the hosts
+        themselves, `fold_strip.folded_modules` and `folded_children`,
+        and 374 asks for it not to be.
+
+    `folded_children` handles both spellings and both host lists
+    (`fold_strip.FOLD_HOST_MODULES` plus `app._EXTRA_FOLD_HOSTS`), never
+    raises, and is what draws the nesting in the running window.
+
+    `fold_strip.folded_modules` IS THEN ASKED FOR WHAT IT ALONE KNOWS, and
+    the reason is a gap in the application rather than a preference here.
+    The two shipped resolvers do not cover the same set:
+
+      * `folded_children` keys its answer by HOST KEY, which it reads from
+        the host module's `APP_KEY` or `HOST_KEY`. `annotate` declares
+        neither, so its one fold -- Annotator Agreement -- falls out of
+        that answer, and out of the dock with it;
+      * `folded_modules` keys its answer by host MODULE, so it keeps
+        Annotator Agreement, but its own docstring records that it walks
+        eight hosts while the dock draws eleven -- the seven modules folded
+        onto Graph Builder, QC Dashboard and Database Browser are missing
+        from it.
+
+    Neither is a superset of the other, so the union is the only complete
+    answer available without writing a fifth table. A module name is turned
+    into a host key only when it IS a registered key, so this cannot invent
+    a host. Giving `spacr/qt/screens/annotate.py` an `APP_KEY` would make
+    the second half unnecessary -- and would fix the dock at the same time
+    -- but that is `spacr/` source and not this item's to change.
     """
-    from importlib import import_module
+    from spacr.qt.app import APPS, folded_children
+    from spacr.qt.widgets.fold_strip import folded_modules
 
-    from spacr.qt.screens.map_barcodes import FOLD_HOST_MODULES
-
-    hosts = {}
-    for host_key, module_name in FOLD_HOST_MODULES.items():
-        module = import_module(f"spacr.qt.screens.{module_name}")
-        for key in getattr(module, "FOLDED_APPS", ()):
-            hosts[key] = host_key
+    hosts = {key: host
+             for host, keys in folded_children().items()
+             for key in keys}
+    registered = {row[0] for row in APPS}
+    for key, entry in folded_modules().items():
+        host = str(entry[3]).rsplit(".", 1)[-1]
+        if key not in hosts and host in registered:
+            hosts[key] = host
     return hosts
 
 
@@ -1001,6 +1051,7 @@ def _documentation_folds() -> str:
     from the API index at all.
     """
     from spacr.qt.app import APPS, _HELP_MODULES
+    from spacr.qt.screens.settings_model import api_docs_url
 
     names = {key: label for key, label, _desc, _section in APPS}
     urls = _api_urls()
@@ -1014,12 +1065,24 @@ def _documentation_folds() -> str:
     # them.
     from spacr.qt.screens.map_barcodes import fold_description
 
+    # What `api_docs_url` answers for a key it has never heard of: the API
+    # index itself. Fourteen folded modules used to come out of this page
+    # as bare text, because `_api_urls` is keyed on the REGISTRY and a
+    # module folded hard enough loses its registry row. Asking the
+    # resolver directly finds the page for all but five, and this sentinel
+    # is how those five are told apart from a real destination -- linking
+    # them to the index would point the reader back at the page they are
+    # already reading.
+    unresolved = api_docs_url("no_such_module_key")
+
     def _link(key: str) -> str:
         label = names.get(key) or fold_description(key)[0]
         if not label:
             label = key.replace("_", " ").title()
-        target = urls.get(key)
-        return f"`{label} <{target}>`_" if target else label
+        target = urls.get(key) or api_docs_url(key)
+        if not target or target == unresolved:
+            return label
+        return f"`{label} <{target}>`_"
 
     lines = [
         "Modules reached from another screen",
@@ -1061,6 +1124,55 @@ def _documentation_folds() -> str:
     return "\n".join(lines)
 
 
+def _grid_sections() -> "list[tuple[str, str, list[tuple[str, str, str]]]]":
+    """The grid as Home groups it: ``(section, note, tiles)`` per band.
+
+    THE HEADINGS ARE READ, NOT WRITTEN. Instruction 374 asks the API
+    homepage to show the module structure the rest of spaCR shows, and
+    the objection that removed the old band titles on 2026-09-02 was
+    never that a grid should be flat -- it was that those titles were a
+    SECOND COPY of Home's grouping, typed here, going stale every time
+    Home was restructured. `_grouped_apps` closed that hole: it reads
+    `SECTION_ORDER` and `SECTION_TILE_ORDER` out of `spacr.qt.app` and
+    RAISES when the registry and the documented order disagree. So the
+    grouping is now the registry's own answer, and a heading over each
+    band cannot say anything Home does not.
+
+    ``note`` is Home's own tab description for that section, from
+    `SECTION_NOTES`, for the same reason: the API homepage carries no
+    prose at all around the grid, and a bare four-word heading does not
+    tell a reader which six modules are the pipeline. One sentence per
+    band does, and it is the sentence the running GUI shows.
+
+    CORE IS THE PIPELINE BAND. `_home_layout` drops the six pipeline
+    keys from every section because they used to be drawn as a separate
+    arrow-joined strip; they are ordinary tiles now, and
+    `SECTION_TILE_ORDER["Core"]` is exactly :data:`MAIN_PIPELINE` in
+    exactly that order, so putting them back under their own heading
+    restores the section without reordering a single tile.
+
+    ``image_path`` is relative to the icon root because the two groups
+    still live in different folders: the pipeline tiles are also used
+    elsewhere as module artwork, so they keep their place at the top
+    level. Nothing about the tiles themselves differs any more -- only
+    where they are stored.
+    """
+    from spacr.qt.app import SECTION_CORE, SECTION_NOTES
+
+    grouped = _grouped_apps()
+    bands = [(
+        SECTION_CORE,
+        [(key, label, f"workflow/{key}.png") for key, label in MAIN_PIPELINE],
+    )]
+    bands.extend(
+        (section, [(key, label, f"workflow/apps/{key}.png")
+                   for key, label in items])
+        for section, items in grouped.items()
+    )
+    return [(section, SECTION_NOTES[section], tiles)
+            for section, tiles in bands if tiles]
+
+
 def _module_grid() -> "list[tuple[str, str, str]]":
     """Every module tile in one flat order: ``(key, label, image_path)``.
 
@@ -1070,21 +1182,11 @@ def _module_grid() -> "list[tuple[str, str, str]]":
     meets them in that order -- the arrows that used to say so were
     decoration on a sequence the layout already carries.
 
-    ``image_path`` is relative to the icon root because the two groups
-    still live in different folders: the pipeline tiles are also used
-    elsewhere as module artwork, so they keep their place at the top
-    level. Nothing about the tiles themselves differs any more -- only
-    where they are stored.
+    This is :func:`_grid_sections` flattened, so the order the headings
+    group and the order the artwork is rendered in cannot drift apart.
     """
-    pipeline = {key for key, _label in MAIN_PIPELINE}
-    rows = [(key, label, f"workflow/{key}.png")
-            for key, label in MAIN_PIPELINE]
-    for key, label in (item for items in _grouped_apps().values()
-                       for item in items):
-        if key in pipeline:  # pragma: no cover - _grouped_apps drops these
-            continue
-        rows.append((key, label, f"workflow/apps/{key}.png"))
-    return rows
+    return [tile for _section, _note, tiles in _grid_sections()
+            for tile in tiles]
 
 
 def _grid_lines(names: "list[str]") -> "list[str]":
@@ -1123,64 +1225,104 @@ def _grid_rows(names: "list[str]") -> "list[list[str]]":
             for start in range(0, len(names), GRID_COLUMNS)]
 
 
+def _grid_markup(
+    name_prefix: str,
+    image_prefix: str,
+    *,
+    alt_template: str = "Open the {module} API",
+) -> str:
+    """The module grid, grouped by section, for ONE surface.
+
+    THE ONE PLACE THE GRID IS BUILT. The README and the API homepage draw
+    the same grid and used to build it in two nearly identical functions
+    that differed in a substitution prefix and an asset root. Two builders
+    is how a heading, a row width or a target lands on one page and not the
+    other, which is the drift instruction 374 was filed about; one builder
+    with two arguments cannot do that.
+
+    :param name_prefix: substitution namespace. The README uses ``Module``
+        and the Sphinx page ``DocModule`` because the two files are
+        rendered by different toolchains and the tests tell them apart by
+        it.
+    :param image_prefix: what the paths from :func:`_grid_sections` hang
+        off -- a repository-relative icon root for the README, ``/_static``
+        for Sphinx, which copies the same PNGs.
+    :param alt_template: accessibility text; localized per language for
+        the translated READMEs.
+
+    The heading underline is :data:`SECTION_HEADING_CHAR` on BOTH surfaces,
+    which is not cosmetic. RST assigns heading levels by order of first
+    appearance, and ``^`` is unused in README.rst and in both Sphinx index
+    pages, so it is introduced directly beneath whatever heading the grid
+    is included under and becomes that heading's child in all three. A
+    character either file already uses would have bound to a level chosen
+    somewhere else in that file.
+    """
+    urls = _api_urls()
+    lines: list[str] = []
+    definitions: list[str] = []
+    for section, note, tiles in _grid_sections():
+        names = {key: f"{name_prefix}_{key}" for key, _label, _path in tiles}
+        lines.extend([
+            section,
+            SECTION_HEADING_CHAR * len(section),
+            "",
+            # Wrapped, because these land in README.rst beside prose a
+            # human wrapped at the same width and a one-line paragraph
+            # would be the only 130-column line in the file. RST joins the
+            # lines back into one paragraph, so nothing about the rendered
+            # page depends on where they break.
+            # `break_on_hyphens=False`: the default splits
+            # "multi-plate" across two lines, and RST rejoins them
+            # with a space -- "multi- plate" on the rendered page.
+            *textwrap.wrap(note, width=76, break_on_hyphens=False),
+            "",
+        ])
+        lines.extend(_grid_lines([f"|{names[key]}|" for key, _l, _p in tiles]))
+        for key, label, image in tiles:
+            definitions.extend([
+                f".. |{names[key]}| image:: {image_prefix}/{image}",
+                f"   :width: {TILE_DISPLAY_WIDTH}",
+                f"   :alt: {alt_template.format(module=label)}",
+                f"   :target: {urls[key]}",
+                # MIDDLE, and it MUST be. These are SUBSTITUTION definitions
+                # used inline in a paragraph, and docutils accepts only
+                # top/middle/bottom there -- "left" is a block-image value
+                # and raises "not a valid value for the align option within
+                # a substitution definition".
+                #
+                # The failure mode is why this comment is long: the
+                # directive errors, the substitution is never defined, and
+                # GitHub renders the reference as its alt text. The whole
+                # grid turns into a column of blue links, which is what
+                # happened when this was set to "left" on 2026-08-31.
+                # Left-alignment comes from the rows being left-anchored
+                # paragraphs and every tile sharing one canvas -- not from
+                # this option.
+                "   :align: middle",
+            ])
+    return "\n".join([*lines, *definitions]).rstrip()
+
+
 def _readme_workflow(
     icon_prefix: str,
     *,
     alt_template: str = "Open the {module} API",
 ) -> str:
-    """The README's module grid: one block, six tiles a row, no headings.
+    """The README's module grid.
 
-    The section title lives in the README itself ("spaCR modules"), and
-    the grid carries no titles of its own -- the band headings that used
-    to sit above each row restated Home's grouping and went stale with it.
+    The block's own title lives in the README ("spaCR modules"); the
+    section headings inside it come from Home through
+    :func:`_grid_sections`.
     """
-    urls = _api_urls()
-    grid = _module_grid()
-    names = {key: f"Module_{key}" for key, _label, _path in grid}
-    lines: list[str] = []
-    lines.extend(_grid_lines([f"|{names[key]}|" for key, _l, _p in grid]))
-    definitions: list[str] = []
-    for key, label, image in grid:
-        definitions.extend([
-            f".. |{names[key]}| image:: {icon_prefix}/{image}",
-            f"   :width: {TILE_DISPLAY_WIDTH}",
-            f"   :alt: {alt_template.format(module=label)}",
-            f"   :target: {urls[key]}",
-            # MIDDLE, and it MUST be. These are SUBSTITUTION definitions
-            # used inline in a paragraph, and docutils accepts only
-            # top/middle/bottom there -- "left" is a block-image value and
-            # raises "not a valid value for the align option within a
-            # substitution definition".
-            #
-            # The failure mode is why this comment is long: the directive
-            # errors, the substitution is never defined, and GitHub
-            # renders the reference as its alt text. The whole grid turns
-            # into a column of blue links, which is what happened when
-            # this was set to "left" on 2026-08-31. Left-alignment comes
-            # from the rows being left-anchored paragraphs and every tile
-            # sharing one canvas -- not from this option.
-            "   :align: middle",
-        ])
-    return "\n".join([*lines, *definitions]).rstrip()
+    return _grid_markup("Module", icon_prefix, alt_template=alt_template)
 
 
 def _documentation_workflow() -> str:
-    """The same flat grid for the Sphinx page, with its own asset paths."""
-    urls = _api_urls()
-    grid = _module_grid()
-    names = {key: f"DocModule_{key}" for key, _label, _path in grid}
-    lines = ["spaCR modules", "~~~~~~~~~~~~~", ""]
-    lines.extend(_grid_lines([f"|{names[key]}|" for key, _l, _p in grid]))
-    definitions: list[str] = []
-    for key, label, image in grid:
-        definitions.extend([
-            f".. |{names[key]}| image:: /_static/{image}",
-            f"   :width: {TILE_DISPLAY_WIDTH}",
-            f"   :alt: Open the {label} API",
-            f"   :target: {urls[key]}",
-            "   :align: middle",
-        ])
-    return "\n".join([*lines, *definitions]).rstrip() + "\n"
+    """The same grid for the Sphinx pages, with its own asset paths."""
+    heading = ["spaCR modules", "~~~~~~~~~~~~~", ""]
+    return "\n".join(heading) + "\n" + _grid_markup(
+        "DocModule", "/_static") + "\n"
 
 
 def _replace_workflow_block(path: Path, markup: str) -> None:

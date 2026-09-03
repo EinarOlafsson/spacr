@@ -348,11 +348,28 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
     assert "arrow" not in block.lower()
     assert not hasattr(generator, "render_pipeline_arrow")
 
-    # THE BAND TITLES ARE GONE. They restated Home's own grouping and went
-    # stale every time Home was restructured.
+    # THE HAND-TYPED BAND TITLES ARE STILL GONE, and the distinction
+    # matters because the grid is grouped again since instruction 374.
+    #
+    # What was removed on 2026-09-02 was a bold line per band written out
+    # in the generator beside a SECTION_ORDER tuple typed there -- a
+    # second copy of Home's grouping that went stale every time Home was
+    # restructured, and did, for a fortnight. The headings the grid
+    # carries now are read from `spacr.qt.app` through `_grid_sections`
+    # and validated against it by `_grouped_apps`, which raises rather
+    # than emitting a band Home does not have. So the copy stays
+    # forbidden and the derived heading is required; the two are checked
+    # here and in
+    # `tests/test_the_api_homepage_shows_the_module_structure.py`.
     for gone in ("**Data**", "**Tools**", "**Assays**", "**More core tools**"):
-        assert gone not in block, f"{gone} is still a heading over the grid"
+        assert gone not in block, (
+            f"{gone} is a hand-typed band title over the grid again; the "
+            "headings must come from Home through _grid_sections")
     assert "spaCR modules\n-------------" in text
+    underline = generator.SECTION_HEADING_CHAR
+    for section, _note, _tiles in generator._grid_sections():
+        assert f"{section}\n{underline * len(section)}\n" in block, (
+            f"the grid does not head its {section!r} band")
 
     # A LINE BLOCK, so every row starts "| ". Measured on the real GitHub
     # page on 2026-09-02: with each row as its own PARAGRAPH the gap between
@@ -367,10 +384,24 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
         "a grid row is a bare paragraph again; its bottom margin is what made "
         "the vertical gutter three times the horizontal one")
     assert sum(line.count("|Module_") for line in rows) == len(grid)
-    # SIX PER ROW, and the last row is the only short one.
-    assert all(line.count("|Module_") == generator.GRID_COLUMNS
-               for line in rows[:-1])
-    assert 1 <= rows[-1].count("|Module_") <= generator.GRID_COLUMNS
+    # SIX PER ROW, AND A SECTION IS WHERE A SHORT ROW IS ALLOWED. The grid
+    # was one run of tiles until instruction 374 grouped it, and "only the
+    # last row is short" was how that said it. A band of five cannot fill
+    # six columns, so the claim is now made per band: inside one section
+    # every row but its last is full, and no row anywhere exceeds six.
+    sections = generator._grid_sections()
+    assert len(rows) == sum(
+        -(-len(tiles) // generator.GRID_COLUMNS)
+        for _s, _n, tiles in sections)
+    consumed = 0
+    for _section, _note, tiles in sections:
+        wide = -(-len(tiles) // generator.GRID_COLUMNS)
+        band = rows[consumed:consumed + wide]
+        consumed += wide
+        assert sum(line.count("|Module_") for line in band) == len(tiles)
+        assert all(line.count("|Module_") == generator.GRID_COLUMNS
+                   for line in band[:-1])
+        assert 1 <= band[-1].count("|Module_") <= generator.GRID_COLUMNS
     # Zero-width separators: one fewer than the tiles they join, so the
     # browser puts no whitespace between neighbours and the gutter is
     # exactly the two canvas margins that meet.

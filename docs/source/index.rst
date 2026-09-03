@@ -25,11 +25,13 @@ who need per-cell measurements from plate images. The GUI route needs no
 programming; the same processing steps are available through the Python API
 for scripted and reproducible workflows.
 
-The GUI groups its applications into six categories: *Core* for the
-segment-measure-classify pipeline, *Data* for import, inspection and hand
-correction of masks, *Results & QC* for regression and its diagnostics,
-*Explore* for the interactive figures, *Assays* for the parasite-specific
-readouts, and *Design* for planning a screen before it runs.
+The GUI groups its applications into four categories: *Core* for the
+segment-measure-classify pipeline, *Data* for getting images and tables in
+and running them at scale, *Tools* for the instruments you point at a
+project — hand mask correction, stitching, embeddings, gates, plots and
+quality control — and *Assays* for the parasite-specific readouts. The
+bands under "Applications and workflow" below are those categories, in that
+order, with the tiles each one holds.
 
 Not every screen is a tile, which is why no count of them is printed here.
 Work that only makes sense inside another step opens from that step's

@@ -15,16 +15,18 @@ that covers all of them.
 Opened from a host's masthead
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* **Classify** opens Activation, Classifier Evaluation, Explain CV Model, `Feature Explorer <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/feature_explorer/index.html>`_, `Training Runs <https://einarolafsson.github.io/spacr/api/spacr/train_compare/index.html>`_
+* **Annotate** opens `Annotator Agreement <https://einarolafsson.github.io/spacr/api/spacr/agreement/index.html>`_
+* **Classify** opens `Activation <https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html>`_, `Classifier Evaluation <https://einarolafsson.github.io/spacr/api/spacr/classifier_evaluation/index.html>`_, `Explain CV Model <https://einarolafsson.github.io/spacr/api/spacr/surrogate/index.html>`_, `Feature Explorer <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/feature_explorer/index.html>`_, `Training Runs <https://einarolafsson.github.io/spacr/api/spacr/train_compare/index.html>`_
 * **Database Browser** opens `Lineage <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/lineage/index.html>`_, `Tabulate <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html>`_
 * **Graph Builder** opens `Plate Viewer <https://einarolafsson.github.io/spacr/api/spacr/plate_qc/index.html>`_, `Small Multiples <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/trellis/index.html>`_
-* **Image UMAP** opens Image Scatter, PCA
+* **Image UMAP** opens `Image Scatter <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/image_scatter/index.html>`_, `PCA <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/pca/index.html>`_
 * **Import** opens `Format Converter <https://einarolafsson.github.io/spacr/api/spacr/convert/index.html>`_, `External Masks <https://einarolafsson.github.io/spacr/api/spacr/external_masks/index.html>`_, Import Images
-* **Map Barcodes** opens Barcode QC
-* **Mask** opens Timelapse
-* **Measure** opens AnnData Export, Illumination, Motility Assay
+* **Make Masks** opens `Mask the whole folder <https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html>`_, `Curate <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/curate/index.html>`_, `Model Compare <https://einarolafsson.github.io/spacr/api/spacr/model_compare/index.html>`_, `Model Zoo <https://einarolafsson.github.io/spacr/api/spacr/model_zoo/index.html>`_, Napari Bridge, `Cellpose Workbench <https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html>`_
+* **Map Barcodes** opens `Barcode QC <https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html>`_
+* **Mask** opens `Timelapse <https://einarolafsson.github.io/spacr/api/spacr/core/index.html>`_
+* **Measure** opens `AnnData Export <https://einarolafsson.github.io/spacr/api/spacr/anndata_export/index.html>`_, `Illumination <https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html>`_, `Motility Assay <https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html>`_
 * **QC** opens `Control Charts <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/control_chart/index.html>`_, `Layer Viewer <https://einarolafsson.github.io/spacr/api/spacr/qt/layer_viewer/index.html>`_, `Outliers <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/outliers/index.html>`_
-* **Regression** opens Hit List, `Investigate Hit <https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html>`_, Methods & Results, `Prediction Profiler <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/profiler/index.html>`_, Diagnostics, Volcano Explorer
+* **Regression** opens Hit List, `Investigate Hit <https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html>`_, Methods & Results, `Prediction Profiler <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/profiler/index.html>`_, Diagnostics, `Volcano Explorer <https://einarolafsson.github.io/spacr/api/spacr/volcano_style/index.html>`_
 
 Opened from the Help menu
 ~~~~~~~~~~~~~~~~~~~~~~~~~
