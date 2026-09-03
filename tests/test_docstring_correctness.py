@@ -1553,6 +1553,7 @@ def test_baseline_constructor_documents_every_field():
     "spacr.plate_qc.RingStats",
     "spacr.plate_measurements.PlateDatabase",
     "spacr.plate_measurements.PlateMerge",
+    "spacr.plate_measurements.TableMerge",
     "spacr.plugins.ModelProviderContribution",
     "spacr.plugins.ReportSectionContribution",
     "spacr.report.Table",
@@ -2261,7 +2262,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
 
 
 def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
-    """Freeze the 205 visible fields and four ordinary counterexamples."""
+    """Freeze the 202 visible fields and four ordinary counterexamples."""
     items = list(_public_callables())
     rendered_docs = _documentation_public_docstrings()
     required_ivars = {
@@ -2283,12 +2284,12 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         if by_symbol[symbol].category not in GENERATED_CONSTRUCTOR_CATEGORIES
     }
 
-    assert len(required_ivars) == 41
-    assert sum(map(len, required_ivars.values())) == 216
-    assert len(generated) == 37
-    assert sum(map(len, generated.values())) == 205
+    assert len(required_ivars) == 40
+    assert sum(map(len, required_ivars.values())) == 213
+    assert len(generated) == 36
+    assert sum(map(len, generated.values())) == 202
     assert Counter(by_symbol[symbol].category for symbol in generated) == {
-        "dataclass_constructor": 36,
+        "dataclass_constructor": 35,
         "namedtuple_constructor": 1,
     }
     assert Counter(
@@ -2296,7 +2297,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         for symbol in generated
         for _name in generated[symbol]
     ) == {
-        "dataclass_constructor": 200,
+        "dataclass_constructor": 197,
         "namedtuple_constructor": 5,
     }
     assert len(ordinary) == 4
@@ -2309,7 +2310,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         symbol: _missing_required_parameters(by_symbol[symbol])
         for symbol in generated
     }
-    assert sum(not names for names in remaining.values()) == 37
+    assert sum(not names for names in remaining.values()) == 36
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(
