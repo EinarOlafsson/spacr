@@ -226,3 +226,16 @@ largest unit; ``_RandomTerm.n_levels`` names what it counts; and
 calculation. The module is now in the completed-module registry (and was
 already in the nested-function zero-debt registry), so deleting any function
 docstring makes the focused ratchet fail.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``roi.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The final six gaps now document geometry and rule normalization, aggregate
+ROI counting, filter initialization, missing-field policy, and cumulative
+keep/drop accounting. ``RoiRegionFilter`` also states that its field counter
+tracks distinct raster/cache misses rather than uncovered, empty, or
+waved-through fields. The module is in the completed-module registry, and a
+direct test pins :meth:`RoiSet.__len__` to the number of drawings across all
+field entries.
