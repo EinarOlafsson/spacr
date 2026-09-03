@@ -2300,10 +2300,69 @@ class AppScreen(QWidget):
             else:
                 layout.addWidget(section)
 
+        self._mount_the_object_grid(layout)
         self.refresh_maturity_visibility()
         layout.addStretch(1)
         scroll.setWidget(content)
         return scroll
+
+    def _mount_the_object_grid(self, layout) -> None:
+        """Show the per-object settings as one table, if preferences ask.
+
+        78 of Mask's 201 settings are the same twenty-odd questions asked once
+        per object type. This puts them in a grid -- one row per question, one
+        column per object -- and hides the flat rows they came from.
+
+        OFF UNLESS CHOSEN. This is the most-used screen in the application, so
+        the grid arrives as an offer rather than as a change to what everyone
+        already knows: `get_object_grid_enabled` is False by default and this
+        method returns before touching anything.
+
+        NOTHING DOWNSTREAM LEARNS THE GRID EXISTS. It writes through to the
+        same widgets the flat rows do, so `collect()` is unchanged and a
+        settings file written with this on is the same file written with it
+        off. The flat rows are HIDDEN, not dropped, so the settings search
+        still indexes them and every check that walks the form still finds
+        them holding their values.
+
+        A PROSE ROW, not a setting row: `Section.add_row` records the pair in
+        `_row_widgets`, and the module smoke test takes every entry there to
+        BE a labelled setting with its own `settingKey` and API help. A grid
+        is neither, and `add_prose_row` is the seam that exists for exactly
+        that distinction.
+        """
+        try:
+            from ..preferences import get_object_grid_enabled
+
+            if not get_object_grid_enabled():
+                return
+            model = getattr(self, "_settings_model", None)
+            if model is None or not getattr(model, "_widgets", None):
+                return
+
+            from ..widgets.object_grid_binding import ObjectGridBinding
+            from ..widgets.object_settings_grid import ObjectSettingsGrid
+            from ..widgets.section import Section
+
+            section = Section("Per-object settings", self)
+            grid = ObjectSettingsGrid(section)
+            binding = ObjectGridBinding(grid, model, self)
+            binding.seed()
+            owned = binding.owned_keys()
+            if not owned:
+                # Nothing repeats per object on this module, so a grid of one
+                # column is a table pretending to be one.
+                section.deleteLater()
+                return
+            section.add_prose_row("", grid)
+            self._object_grid = grid
+            self._object_grid_binding = binding
+            model.hide_the_rows_the_grid_speaks_for(owned)
+            layout.addWidget(section)
+            self._settings_sections.append(section)
+            section.set_expanded(True)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not mount the per-object grid", exc_info=True)
 
     def _widget_key_index(self) -> dict:
         """``id(widget) -> setting key`` for this panel's settings model.
