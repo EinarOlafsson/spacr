@@ -92,6 +92,7 @@ FULLY_DOCUMENTED = (
     "spacr/normalization.py",
     "spacr/notebook_export.py",
     "spacr/organelle_types.py",
+    "spacr/openmp_guard.py",
     "spacr/outlier_filter.py",
     "spacr/omero.py",
     "spacr/parameter_sweep.py",
