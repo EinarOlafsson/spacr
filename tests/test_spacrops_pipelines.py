@@ -6,6 +6,7 @@ offset so the recovered transforms can be compared with a ground truth.
 from __future__ import annotations
 
 import csv
+import inspect
 import os
 
 import matplotlib
@@ -41,6 +42,10 @@ def test_multialigner_stores_its_configuration(tmp_path):
     al = StitchedMultiAligner(outdir=str(tmp_path / "o"), max_keypoints=None,
                               arr_axes="CYX", mip=True, z_index=1, t_index=2,
                               downsample=0.25)
+    doc = inspect.getdoc(StitchedMultiAligner) or ""
+    assert "\nParameters\n----------\n" in doc
+    for name in inspect.signature(StitchedMultiAligner).parameters:
+        assert f"\n{name} :" in doc
     assert al.max_keypoints is None and al.arr_axes == "CYX"
     assert (al.mip, al.z_index, al.t_index) == (True, 1, 2)
     assert os.path.isdir(al.outdir)
