@@ -471,6 +471,11 @@ class TestSettings:
 
         recording = macro.begin_recording(
             "mask", {"src": str(tmp_path), "cell_diameter": Odd()})
+        for name in ("run_dir", "started", "started_utc", "capture"):
+            assert f":ivar {name}:" in (macro.Recording.__doc__ or "")
+        assert recording.run_dir == ""
+        assert recording.started > 0 and recording.started_utc
+        assert recording.capture is not None
         step = macro.finish_recording(recording, status="success")
         source = macro.current_macro().source()
         assert "'cell_diameter': 'odd-value'," in source
