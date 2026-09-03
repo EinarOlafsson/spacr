@@ -104,6 +104,11 @@ class FieldEvidence:
     :ivar index: token position in the filename family.
     :ivar values: observed values for this slot, in input order.
     :ivar numeric: whether every observed value contains only digits.
+    :ivar before: literal filename text immediately preceding this slot.
+    :ivar role: suggested spaCR metadata field, or an empty string when the
+        evidence does not support a role.
+    :ivar fixed_tail: constant suffix absorbed into this slot's capture group.
+    :ivar because: human-readable evidence supporting the suggested role.
 
     Attributes
     ----------
@@ -168,6 +173,12 @@ class Proposal:
     """Store a candidate filename regex and the evidence for reviewing it.
 
     :ivar pattern: regular-expression pattern with named capture groups.
+    :ivar fields: evidence for each proposed named capture group.
+    :ivar matched: number of evaluated basenames matched by ``pattern``.
+    :ivar total: number of non-empty input basenames evaluated.
+    :ivar unmatched: basenames that ``pattern`` could not parse, retained for
+        review rather than hidden behind the coverage percentage.
+    :ivar suffix: shared filename extension without its leading period.
 
     Attributes
     ----------
