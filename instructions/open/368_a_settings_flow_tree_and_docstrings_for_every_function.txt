@@ -239,3 +239,14 @@ tracks distinct raster/cache misses rather than uncovered, empty, or
 waved-through fields. The module is in the completed-module registry, and a
 direct test pins :meth:`RoiSet.__len__` to the number of drawings across all
 field entries.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``volcano_style.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The final three callables now document detached style serialization,
+reference-rule rendering, and the full axis-finishing side effect. The pass
+also found and fixed axis labels ignoring ``label_font_size``; direct render
+and serialization tests pin both behavior contracts. The module is now in
+the completed-module registry.
