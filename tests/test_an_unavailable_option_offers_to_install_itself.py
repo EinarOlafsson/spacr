@@ -147,6 +147,30 @@ def test_uv_dry_run_output_is_understood_too(monkeypatch):
     assert result.protected_moves
 
 
+def test_a_protected_removal_is_named_and_needs_confirmation():
+    """Removing NumPy cannot disappear as an already-satisfied install."""
+    removal = updater.PackageChange("numpy", "1.26.4", None)
+    result = updater.DryRun("example", True, (removal,))
+
+    assert result.removals == (removal,)
+    assert "remove 1 package(s): numpy 1.26.4" in result.summary().lower()
+    decision = updater.install_decision(result)
+    assert decision["needs_second_confirmation"] is True
+    assert decision["moves"] == (removal,)
+    assert "remove" in decision["headline"].lower()
+
+
+def test_an_unprotected_removal_is_reported_without_an_extra_gate():
+    """The safety gate remains specific to packages spaCR depends on."""
+    removal = updater.PackageChange("legacy-addon", "1.4", None)
+    result = updater.DryRun("example", True, (removal,))
+
+    assert "legacy-addon 1.4" in result.summary()
+    decision = updater.install_decision(result)
+    assert decision["allowed"] is True
+    assert decision["needs_second_confirmation"] is False
+
+
 def test_the_dry_run_and_the_install_use_the_same_tool(monkeypatch):
     """A report produced by one resolver and an install run by another is a
     report about a different question."""
@@ -163,7 +187,7 @@ def test_the_dry_run_and_the_install_use_the_same_tool(monkeypatch):
 def test_nothing_may_be_run_for_an_offer_that_is_not_an_install():
     """`InstallOffer.command` is the gate, and it is closed on two of three."""
     for field in ("requirement", "recipe", "runs_anything"):
-        assert f":ivar {field}:" in (updater.InstallOffer.__doc__ or "")
+        assert f":param {field}:" in (updater.InstallOffer.__doc__ or "")
     assert updater.offer_elsewhere("t", "m", "r").command is None
     assert updater.offer_impossible("t", "m").command is None
     assert updater.offer_ready("t", "m").command is None
