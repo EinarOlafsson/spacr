@@ -1,10 +1,10 @@
 """The repeated per-object settings, drawn as one row per question.
 
-Instruction 364 measured the problem: 78 of Mask's 201 settings are the SAME
-twenty-odd questions asked once per object type -- ``cell_diameter``,
-``nucleus_diameter``, ``pathogen_diameter``, ``organelle_diameter`` -- and a
-form that lists them flat asks 203 questions before anything is segmented.
-The maintainer chose a table over tabs and over leaving the names flat.
+78 of Mask's 201 settings are the SAME twenty-odd questions asked once per
+object type -- ``cell_diameter``, ``nucleus_diameter``,
+``pathogen_diameter``, ``organelle_diameter`` -- and a form that lists them
+flat asks 203 questions before anything is segmented. A table was chosen over
+tabs and over leaving the names flat.
 
 :mod:`spacr.object_settings_table` is the model and draws nothing; this is
 the view over it. The split matters more than it looks: the stored keys never
@@ -12,8 +12,8 @@ change, so no settings file, notebook, tutorial or ``spacr-run`` invocation
 migrates. What was wrong was the presentation, so only the presentation
 changes.
 
-WHY THIS SHAPE IS WHAT LETS 326 LAND. Instruction 326 makes the organelle
-count arbitrary. In a flat vocabulary each new organelle is twenty new
+WHY THIS SHAPE IS WHAT LETS AN ARBITRARY ORGANELLE COUNT LAND. The number of
+organelles a run may declare is not fixed. In a flat vocabulary each new organelle is twenty new
 settings that every tooltip table and translation catalog has to learn; here
 it is one COLUMN, and the number of questions does not move. :meth:`
 ObjectSettingsGrid.add_object` is that operation, and it starts a new

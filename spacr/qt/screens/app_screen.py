@@ -1168,8 +1168,8 @@ def _resume_the_fractal(screen) -> int:
 class _WrappingButtonStrip(FlowLayout):
     """The action row's buttons, laid out so they wrap rather than squeeze.
 
-    WHY THIS EXISTS, WITH THE NUMBERS. Instruction 350. The action buttons
-    want 651 px of caption in English, 836 in German and 741 in Icelandic,
+    WHY THIS EXISTS, WITH THE NUMBERS. The action buttons want 651 px of
+    caption in English, 836 in German and 741 in Icelandic,
     and with the progress bar and the switches beside them a single
     ``QHBoxLayout`` made the whole row's MINIMUM width 908 / 1092 / 1068 px
     in those three locales. A minimum that large does damage two ways, and
@@ -2531,17 +2531,16 @@ class AppScreen(QWidget):
     def _object_switches_on_this_form(self) -> tuple[str, ...]:
         """The committed values that only decide which objects are SHOWN.
 
-        THE OTHER HALF OF :meth:`_form_shaping_keys`, and the distinction the
-        maintainer drew for instruction 356: "the presense of integers in
-        these settings [should] toggle visability of their corresponding
-        settings categories without reloading the entire module". A channel
-        number does not add or remove a single row -- the panel already built
+        THE OTHER HALF OF :meth:`_form_shaping_keys`, and the distinction
+        that matters: a channel number toggles the visibility of the
+        categories it belongs to WITHOUT reloading the module. It does not
+        add or remove a single row -- the panel already built
         a control for every object it can name -- so the rule that decides
         which of them are on screen is the whole of the work.
 
         `number_of_organelles` is deliberately NOT here. Its rows do not
         exist until it is raised, so they have to be spawned, which is the
-        one case the same request accepts a rebuild for.
+        one case a rebuild is accepted for.
         """
         model = getattr(self, "_settings_model", None)
         widgets = getattr(model, "_widgets", {}) or {}
@@ -2561,7 +2560,7 @@ class AppScreen(QWidget):
         455 ms and put a DIFFERENT SCREEN OBJECT in the window's stack -- to
         change which rows are visible. Everything the user had not committed,
         every scroll position and every expanded fold went with it, and it is
-        the same cost instruction 315 is trying to remove, being paid on a
+        the same startup cost the screen works to avoid, being paid on a
         keystroke.
 
         `refresh_object_visibility` is what the rebuild was reaching for the

@@ -177,7 +177,7 @@ def fold_label(key: str) -> Tuple[str, str, str]:
 
     Adding those hosts here would fix the rows and import three more screen
     modules while the window is still being built, which is precisely the
-    startup cost instruction 314 is open about. Asking for the words instead
+    startup cost this strip exists to avoid. Asking for the words instead
     of for the host costs nothing.
     """
     return _describe(key)

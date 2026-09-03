@@ -505,7 +505,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "alpha",
-    "line": 148,
+    "line": 150,
     "module": "spacr.figures.sheet",
     "nested": false,
     "qualname": "build_sheet"
@@ -8521,7 +8521,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "channels",
-    "line": 2168,
+    "line": 2173,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "_scope"
@@ -8998,7 +8998,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "channels",
-    "line": 1274,
+    "line": 1293,
     "module": "spacr.qt.widgets.measure_preview",
     "nested": false,
     "qualname": "MeasurePreviewPanel.refresh"
@@ -12662,7 +12662,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 1110,
+    "line": 1129,
     "module": "spacr.qt.widgets.measure_preview",
     "nested": false,
     "qualname": "MeasurePreviewPanel.apply_settings"
@@ -12671,7 +12671,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 1111,
+    "line": 1130,
     "module": "spacr.qt.widgets.measure_preview",
     "nested": false,
     "qualname": "MeasurePreviewPanel.apply_settings"
@@ -18452,7 +18452,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 5412,
+    "line": 5433,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"
@@ -23649,7 +23649,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "level",
-    "line": 624,
+    "line": 627,
     "module": "spacr.macro",
     "nested": false,
     "qualname": "_RunIdCapture.__init__"
@@ -25315,7 +25315,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "max_area",
-    "line": 1274,
+    "line": 1293,
     "module": "spacr.qt.widgets.measure_preview",
     "nested": false,
     "qualname": "MeasurePreviewPanel.refresh"
@@ -27906,7 +27906,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "mode",
-    "line": 8678,
+    "line": 8703,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "SettingsWidgets._widget_for"
@@ -27969,7 +27969,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "mode",
-    "line": 1431,
+    "line": 1446,
     "module": "spacr.runctx",
     "nested": false,
     "qualname": "_start_resource_accounting"
@@ -31900,7 +31900,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 1124,
+    "line": 1143,
     "module": "spacr.qt.widgets.measure_preview",
     "nested": false,
     "qualname": "MeasurePreviewPanel.apply_settings"
@@ -31909,7 +31909,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "normalize",
-    "line": 1274,
+    "line": 1293,
     "module": "spacr.qt.widgets.measure_preview",
     "nested": false,
     "qualname": "MeasurePreviewPanel.refresh"
@@ -34130,7 +34130,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "number_of_organelles",
-    "line": 1147,
+    "line": 1166,
     "module": "spacr.qt.widgets.measure_preview",
     "nested": false,
     "qualname": "MeasurePreviewPanel.apply_settings"
@@ -34139,7 +34139,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "number_of_organelles",
-    "line": 1148,
+    "line": 1167,
     "module": "spacr.qt.widgets.measure_preview",
     "nested": false,
     "qualname": "MeasurePreviewPanel.apply_settings"
@@ -34556,7 +34556,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2687,
+    "line": 2692,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "_entry"
@@ -34565,7 +34565,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2717,
+    "line": 2722,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "_unknown"
@@ -34574,7 +34574,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2767,
+    "line": 2772,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "_parse_organelle_summary"
@@ -34583,7 +34583,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2786,
+    "line": 2791,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "_parse_organelle_summary"
@@ -34592,7 +34592,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2792,
+    "line": 2797,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "_parse_organelle_summary"
@@ -34601,7 +34601,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2866,
+    "line": 2871,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "parse_column"
@@ -34610,7 +34610,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2873,
+    "line": 2878,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "parse_column"
@@ -34619,7 +34619,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2906,
+    "line": 2911,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "parse_column"
@@ -34628,7 +34628,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2922,
+    "line": 2927,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "parse_column"
@@ -34637,7 +34637,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2928,
+    "line": 2933,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "parse_column"
@@ -34646,7 +34646,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2935,
+    "line": 2940,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "parse_column"
@@ -34655,7 +34655,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2947,
+    "line": 2952,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "parse_column"
@@ -34664,7 +34664,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2967,
+    "line": 2972,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "parse_column"
@@ -34673,7 +34673,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 2985,
+    "line": 2990,
     "module": "spacr.feature_dict",
     "nested": false,
     "qualname": "parse_column"
@@ -35222,7 +35222,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 732,
+    "line": 742,
     "module": "spacr.selection",
     "nested": false,
     "qualname": "Selection.mask_for"
@@ -35231,7 +35231,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 766,
+    "line": 776,
     "module": "spacr.selection",
     "nested": false,
     "qualname": "Selection.from_frame"
@@ -35240,7 +35240,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 798,
+    "line": 808,
     "module": "spacr.selection",
     "nested": false,
     "qualname": "Selection.from_keys"
@@ -35249,7 +35249,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 856,
+    "line": 867,
     "module": "spacr.selection",
     "nested": false,
     "qualname": "as_key_index"
@@ -35258,7 +35258,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "object_type",
-    "line": 965,
+    "line": 978,
     "module": "spacr.selection",
     "nested": false,
     "qualname": "ObjectRequest.select_from"
@@ -40983,7 +40983,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 1274,
+    "line": 1293,
     "module": "spacr.qt.widgets.measure_preview",
     "nested": false,
     "qualname": "MeasurePreviewPanel.refresh"
@@ -41670,7 +41670,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "plate",
-    "line": 330,
+    "line": 334,
     "module": "spacr.plate_measurements",
     "nested": false,
     "qualname": "_rows"
@@ -43836,7 +43836,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "random_seed",
-    "line": 621,
+    "line": 623,
     "module": "spacr.runctx",
     "nested": false,
     "qualname": "resolve_seed"
@@ -44588,7 +44588,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "regex",
-    "line": 287,
+    "line": 291,
     "module": "spacr.selection",
     "nested": false,
     "qualname": "_compose"
@@ -45064,7 +45064,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 8756,
+    "line": 8781,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "SettingsWidgets._widget_for"
@@ -45361,7 +45361,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 1047,
+    "line": 1057,
     "module": "spacr.settings_advisor",
     "nested": false,
     "qualname": "_stale_against"
@@ -49588,7 +49588,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "size",
-    "line": 4160,
+    "line": 4181,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "make_engine"
@@ -49597,7 +49597,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "size",
-    "line": 4532,
+    "line": 4553,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "AmbientWidget.__init__"
@@ -49606,7 +49606,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "size",
-    "line": 4676,
+    "line": 4697,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "AmbientWidget._rebuild_engine"
@@ -50641,7 +50641,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "size",
-    "line": 264,
+    "line": 263,
     "module": "spacr.scorecard",
     "nested": false,
     "qualname": "_boundary"
@@ -50650,7 +50650,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "size",
-    "line": 264,
+    "line": 263,
     "module": "spacr.scorecard",
     "nested": false,
     "qualname": "_boundary"
@@ -51858,7 +51858,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 822,
+    "line": 825,
     "module": "spacr.macro",
     "nested": false,
     "qualname": "_project_root"
@@ -52443,7 +52443,7 @@
     "form": "keyword",
     "function_depth": 2,
     "key": "src",
-    "line": 4130,
+    "line": 4133,
     "module": "spacr.qt.app",
     "nested": true,
     "qualname": "MainWindow._run_e2e_chain._settings_for"
@@ -52641,7 +52641,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1150,
+    "line": 1169,
     "module": "spacr.qt.widgets.measure_preview",
     "nested": false,
     "qualname": "MeasurePreviewPanel.apply_settings"
@@ -52650,7 +52650,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1151,
+    "line": 1170,
     "module": "spacr.qt.widgets.measure_preview",
     "nested": false,
     "qualname": "MeasurePreviewPanel.apply_settings"
@@ -54615,7 +54615,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "tables",
-    "line": 838,
+    "line": 842,
     "module": "spacr.plate_measurements",
     "nested": false,
     "qualname": "merge_plate_databases"
@@ -55375,7 +55375,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "target",
-    "line": 6131,
+    "line": 6134,
     "module": "spacr.qt.app",
     "nested": false,
     "qualname": "launch"
@@ -55681,7 +55681,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "target",
-    "line": 4310,
+    "line": 4331,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "_FrameProducer.start"
@@ -56710,7 +56710,7 @@
     "form": "keyword",
     "function_depth": 2,
     "key": "threshold",
-    "line": 653,
+    "line": 673,
     "module": "spacr.accelerator",
     "nested": true,
     "qualname": "_keep_cellpose_flows_off_metal.on_the_cpu"
@@ -57739,7 +57739,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 732,
+    "line": 742,
     "module": "spacr.selection",
     "nested": false,
     "qualname": "Selection.mask_for"
@@ -57748,7 +57748,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 766,
+    "line": 776,
     "module": "spacr.selection",
     "nested": false,
     "qualname": "Selection.from_frame"
@@ -57757,7 +57757,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 798,
+    "line": 808,
     "module": "spacr.selection",
     "nested": false,
     "qualname": "Selection.from_keys"
@@ -57766,7 +57766,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 856,
+    "line": 867,
     "module": "spacr.selection",
     "nested": false,
     "qualname": "as_key_index"
@@ -57775,7 +57775,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 921,
+    "line": 933,
     "module": "spacr.selection",
     "nested": false,
     "qualname": "ObjectRequest.__post_init__"
@@ -57784,7 +57784,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 965,
+    "line": 978,
     "module": "spacr.selection",
     "nested": false,
     "qualname": "ObjectRequest.select_from"
@@ -57793,7 +57793,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 968,
+    "line": 981,
     "module": "spacr.selection",
     "nested": false,
     "qualname": "ObjectRequest.select_from"

@@ -1834,13 +1834,11 @@ def _icon_for_app(key: str) -> Optional[QIcon]:
 class _DockRow(ElidingPushButton):
     """A dock row that draws its ICON and never its name.
 
-    Instruction 348, part 3: "remove the text that can be moved to the
-    category tooltip location upon hover". The name now appears in the
-    status strip at the bottom of the window -- `spacr.qt.module_hints`
-    already routes it there from the `moduleNameSource` /
-    `moduleSummarySource` properties `Sidebar._make_item` stamps on every
-    row -- so painting it on the row as well is the duplication the
-    maintainer asked to remove.
+    The name now appears in the status strip at the bottom of the window --
+    `spacr.qt.module_hints` already routes it there from the
+    `moduleNameSource` / `moduleSummarySource` properties
+    `Sidebar._make_item` stamps on every row -- so painting it on the row as
+    well duplicates what the strip already says.
 
     THE TEXT IS STILL SET ON THE BUTTON; only the painting drops it, and
     that is deliberate rather than an oversight. `setText("")` is the
@@ -2290,8 +2288,9 @@ class Sidebar(QWidget):
 
         Also the dock's ONE magnifier handler. It is installed on the rows
         themselves rather than on the application, which is the whole
-        difference between this and the filter instruction 315 threw away:
-        this object is handed nothing but the dock's own mouse traffic, so
+        difference between this and the application-wide filter that was
+        thrown away for its cost: this object is handed nothing but the
+        dock's own mouse traffic, so
         it costs exactly zero while a module is opening and the pointer is
         somewhere else. Neither branch consumes the event -- a row still
         gets its own hover paint and its click.
@@ -2534,8 +2533,9 @@ class Sidebar(QWidget):
             uncached   11.02 ms of GUI thread, 9,640 Python calls
             cached      1.25 ms,               4,905 calls
 
-        against the 13,646 calls a second that made instruction 315 throw
-        its own filter away. And unlike that filter, this costs nothing at
+        against the 13,646 calls a second that made the earlier
+        application-wide filter untenable. And unlike that filter, this
+        costs nothing at
         all unless the pointer is moving over the dock. Worst case, every
         section forced open so 37 rows are on screen: 2.09 ms and 9,470
         calls for the same second.
@@ -2589,7 +2589,8 @@ class Sidebar(QWidget):
         CACHED, and that is the whole point of it. A pointer sweep down the
         dock delivers roughly a hundred mouse-move events a second, and
         asking 71 buttons for their geometry on each of them is the shape
-        of the cost instruction 315 warned about. The cache is dropped
+        of the cost that made the earlier filter untenable. The cache is
+        dropped
         whenever the layout can have moved -- a section opens, a host
         expands, the maturity filter runs -- and rebuilt on the next move.
         """

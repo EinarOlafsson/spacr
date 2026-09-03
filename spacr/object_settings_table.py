@@ -1,13 +1,11 @@
 """The repeated per-object settings, as one row per question.
 
-Instruction 364 measured it: 78 of Mask's 201 settings are the SAME 20
-questions asked once per object type -- ``cell_diameter``,
-``nucleus_diameter``, ``pathogen_diameter``, ``organelle_diameter`` and so on
-across twenty shapes. The maintainer chose a table over tabs and over leaving
-the names flat.
+78 of Mask's 201 settings are the SAME 20 questions asked once per object
+type -- ``cell_diameter``, ``nucleus_diameter``, ``pathogen_diameter``,
+``organelle_diameter`` and so on across twenty shapes. A table was chosen
+over tabs and over leaving the names flat.
 
-WHY A TABLE IS NOT A COSMETIC CHOICE. Instruction 326 makes the organelle
-count arbitrary, up to :data:`spacr.organelle_types.MAX_ORGANELLES` of 26. A
+WHY A TABLE IS NOT A COSMETIC CHOICE. The organelle count is arbitrary, up to :data:`spacr.organelle_types.MAX_ORGANELLES` of 26. A
 flat vocabulary grows by TWENTY SETTINGS per organelle, so the module would
 be asking several hundred questions at the ceiling. In a table a new
 organelle is a new COLUMN and the number of questions does not move. The two

@@ -1,6 +1,6 @@
 """Work out how a folder of images is named, instead of being told.
 
-Instruction 363: spaCR's import path asks the user to pick a filename
+spaCR's import path used to ask the user to pick a filename
 convention from a closed list -- ``cellvoyager``, ``cq1``, ``custom`` (write
 your own regular expression), ``auto`` -- and the corpus in
 ``tests/import_corpus.py`` measures what that costs: of ten real acquisition
@@ -28,8 +28,8 @@ is short because the conventions agree more than they disagree.
 WHAT THIS DELIBERATELY DOES NOT DO. It never guesses a role it has no
 evidence for. A token that varies and carries no recognisable marker is
 reported as UNPLACED, with its values, so the caller can ask rather than
-assume. Instruction 363's own criterion is that a partly-unparseable tree
-"imports what it can and REPORTS the rest": a wrong answer that looks
+assume. The criterion is that a partly-unparseable tree imports what it can
+and REPORTS the rest: a wrong answer that looks
 plausible is the failure mode this whole module exists to avoid, and it is
 the one the ``consolidate`` bugs demonstrated -- images disappearing with no
 error rather than an import refusing.
@@ -205,8 +205,7 @@ def infer_layout(root, *, sample: int = 400,
     :param sample: how many files to read before deciding. A SAMPLE, not the
         whole tree: the answer is a naming convention, and a convention is
         visible in a few hundred names. This is what keeps inspecting a
-        400-plate archive as fast as inspecting one plate, which instruction
-        363 requires.
+        400-plate archive as fast as inspecting one plate.
     :param extensions: which files count as images.
     :returns: an :class:`InferredLayout`. Never raises for an unrecognised
         tree -- an empty ``per_file`` with populated ``unplaced`` is the
@@ -345,8 +344,8 @@ def read_axes_inside(path) -> InsideFile:
 
     NEVER GUESSES. A multi-page TIFF with no axis metadata could be Z, T or C,
     and this returns ``declared=False`` with the page count rather than
-    picking one. The caller shows that to the user; instruction 363's whole
-    complaint is about a page index being treated as meaningful on its own.
+    picking one. The caller shows that to the user: a page index treated as
+    meaningful on its own is exactly the guess this avoids.
 
     :param path: an image file.
     :returns: an :class:`InsideFile`. A file that cannot be opened at all
@@ -803,9 +802,8 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
     :param link: symlink rather than copy. Falls back to copying per file.
     :param plate: the plate name to write into the filenames.
     :param stitch_tiles: put each field's tiles back together into the one
-        image the field is. ON BY DEFAULT, decided by the maintainer on
-        2026-09-02: "tiles be stitched at import with the option to not
-        stitch but stitch by default."
+        image the field is. ON BY DEFAULT: a field arrives as one image,
+        and turning this off is the exception rather than the rule.
 
         THIS IS WHY THE FILENAME NEEDS NO TILE SLOT. The convention the core
         modules read is plate/well/T/field/L/A/Z/channel, so four tiles of

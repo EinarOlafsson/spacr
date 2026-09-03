@@ -1,13 +1,12 @@
 """Assemble the tiles of one field into the one image the field really is.
 
-Instruction 363 found that spaCR's filename convention --
+spaCR's filename convention --
 ``plate_well_T####F###L##A##Z##C##`` -- has no tile slot, so a field split
 into four tiles produces four images with ONE canonical name and three of
 them would be overwritten. Three answers were possible: grow the convention a
 tile slot, give each tile its own field number, or put the field back
-together. The maintainer chose the third on 2026-09-02 -- "tiles be stitched
-at import with the option to not stitch but stitch by default" -- and it is
-the right one: a stitched field IS one image with one name, so nothing
+together. spaCR stitches at import, with the option to turn it off, and that
+is the right answer: a stitched field IS one image with one name, so nothing
 downstream has to learn what a tile is.
 
 WHAT MAKES THIS HARD IS THAT A TILE INDEX IS NOT A POSITION. ``tile03`` says
