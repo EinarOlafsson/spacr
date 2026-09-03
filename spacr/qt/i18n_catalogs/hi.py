@@ -2421,7 +2421,7 @@ UI = {
     'After (optional) — job ids, comma separated; this job is skipped if they fail': 'बाद (वैकल्पिक) - नौकरी आईडी, comma अलग; यह नौकरी छोड़ दिया जाता है अगर वे विफल हो जाते हैं',
     'Aggregation rules…': 'संतुलन के नियम...',
     'Agree': 'सहमत',
-    'All apps — hover to reveal (Ctrl+Shift+A)': 'सभी एप्लिकेशन (Ctrl + Shift + A)',
+    'All apps — hover to reveal (Ctrl+Shift+A)': 'सभी ऐप्लिकेशन — दिखाने के लिए कर्सर ले जाएँ (Ctrl+Shift+A)',
     'All text size': 'सभी पाठ आकार',
     'Already downloaded. Tick it to fetch it again, which replaces the copy on disk.': 'पहले से ही डाउनलोड किया गया है. इसे फिर से पकड़ने के लिए टैप करें, जो डिस्क पर प्रतिलिपि को प्रतिस्थापित करता है.',
     'Ambiguous mapping': 'अविश्वसनीय मैपिंग',

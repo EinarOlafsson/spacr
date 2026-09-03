@@ -2421,7 +2421,7 @@ UI = {
     'After (optional) — job ids, comma separated; this job is skipped if they fail': 'Después (opcional) — ids de trabajo, coma separada; este trabajo se salta si fallan',
     'Aggregation rules…': 'Reglas de agregación...',
     'Agree': 'De acuerdo',
-    'All apps — hover to reveal (Ctrl+Shift+A)': 'Todas las aplicaciones — se ciernen para revelar (Ctrl+Mayús+A)',
+    'All apps — hover to reveal (Ctrl+Shift+A)': 'Todas las aplicaciones — pasa el cursor para revelar (Ctrl+Mayús+A)',
     'All text size': 'Tamaño de todo el texto',
     'Already downloaded. Tick it to fetch it again, which replaces the copy on disk.': 'Ya descargado. Márquelo para recuperarlo de nuevo, lo que reemplaza la copia en el disco.',
     'Ambiguous mapping': 'Mapeo ambiguo',

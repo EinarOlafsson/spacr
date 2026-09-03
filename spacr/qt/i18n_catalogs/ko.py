@@ -2421,7 +2421,7 @@ UI = {
     'After (optional) — job ids, comma separated; this job is skipped if they fail': '후 (선택) - 일자리 ID, comma 분리; 이 일자리 실패하는 경우 퇴원',
     'Aggregation rules…': '합동 규칙...',
     'Agree': '동의',
-    'All apps — hover to reveal (Ctrl+Shift+A)': '모든 응용 프로그램 - 공개 할 수 있습니다 (Ctrl + Shift + A)',
+    'All apps — hover to reveal (Ctrl+Shift+A)': '모든 앱 — 마우스를 올리면 표시 (Ctrl+Shift+A)',
     'All text size': '모든 텍스트 크기',
     'Already downloaded. Tick it to fetch it again, which replaces the copy on disk.': '이미 다운로드되었습니다. 다시 캡처하기 위해 그것을 눌러 디스크에 복사본을 대체합니다.',
     'Ambiguous mapping': '양심적인 지도',
