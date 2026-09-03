@@ -212,8 +212,19 @@ def test_the_ink_actually_changes_on_the_painted_pixels(qtbot,
     target = np.array([int(accent[i:i + 2], 16) for i in (0, 2, 4)])
     near = lambda a: int((np.abs(a - target).sum(axis=2) < 120).sum())
 
-    assert near(cold) == 0, "the row was already accent-coloured before hover"
-    assert near(hot) > 0, (
-        "hovering painted no accent pixels: the ink did not change and the "
-        "name was not drawn")
+    # MEASURED AS A CHANGE, NOT AS AN ABSOLUTE, and that is not slack. The
+    # claim is "the ink goes from white to blue", which is a difference; a
+    # single antialiased pixel landing within the colour tolerance is not
+    # evidence against it. Asserting `near(cold) == 0` failed exactly that
+    # way when this file ran after `test_the_text_fits_sweep.py`, which
+    # leaves a 200 % font scale behind -- conftest already names other files
+    # as victims of that leak.
+    #
+    # The icon alone contributes about 47 solid pixels plus its edges, and
+    # the name adds more, so a real change is worth tens of pixels and a
+    # stray one is not.
+    gained = near(hot) - near(cold)
+    assert gained > 20, (
+        f"hovering added only {gained} accent-coloured pixels: the ink did "
+        f"not change and the name was not drawn")
     assert (cold != hot).any(), "the render is identical hovered and not"
