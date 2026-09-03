@@ -42,6 +42,7 @@ FULLY_DOCUMENTED = (
     "spacr/figures/distributions.py",
     "spacr/figures/fast_render.py",
     "spacr/figures/panels.py",
+    "spacr/figures/scene.py",
     "spacr/figures/summary.py",
     "spacr/foreign.py",
     "spacr/flowview/_classify_stages.py",
