@@ -145,6 +145,7 @@ def render_all(app, specs: Sequence[dict], themes: Sequence[str]
 
 
 def _audit_path() -> str:
+    """Return the cached render-audit path beside the generator sources."""
     return os.path.join(common.here(), AUDIT_CACHE)
 
 
@@ -209,6 +210,7 @@ def build_sheet(specs: Sequence[dict], theme: str = "dark",
 
 
 def _sheet_font(size: int):
+    """Load the bundled contact-sheet font, falling back to Pillow's default."""
     from PIL import ImageFont
     path = os.path.join(common.repo_root(), "spacr", "qt", "resources",
                         "fonts", "OpenSans-SemiBold.ttf")
@@ -562,6 +564,7 @@ def measure_sidebar(app) -> Tuple[int, int]:
 # ---------------------------------------------------------------------------
 
 def main(argv: Optional[List[str]] = None) -> int:
+    """Render selected Home variants or audit the existing generated assets."""
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--only", action="append", type=int, default=None,
                     help="render only these variant numbers (repeatable)")
@@ -625,6 +628,7 @@ def _prune_stale_dirs(specs: Sequence[dict]) -> None:
 
 
 def _report_check(result: dict) -> None:
+    """Print a compact pass/fail summary for a generated-asset self-check."""
     rows = result["rows"]
     bad = [r for r in rows if not r["ok"]]
     stds = [r["std"] for r in rows if r.get("std") is not None]
