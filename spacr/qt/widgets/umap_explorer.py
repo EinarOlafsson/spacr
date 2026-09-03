@@ -154,6 +154,12 @@ class UmapDisplaySettings(QDialog):
     The ones that cannot are not disabled -- they are editable, saved, and
     take effect on the next run. A greyed control that holds a value the
     user wants to change is worse than a live one with a note beside it.
+
+    :param values: the settings to open on. Every key in :data:`FIELDS` is
+        looked up here; one that is absent falls back to its control's own
+        default rather than raising, so a settings file written before a
+        field existed still opens.
+    :param parent: parent widget.
     """
 
     #: ``key -> (label, kind, low, high, live)``. ``live`` decides which

@@ -336,6 +336,9 @@ class UmapFigureSettings(QWidget):
     dictionary after :data:`APPLY_DEBOUNCE_MS`. The containing figure-settings
     window applies style and redraw tiers immediately; rerun-tier values are
     retained for the next embedding run. No separate Apply action is required.
+
+    :param values: the settings to open on. ``None`` opens on the defaults.
+    :param parent: parent widget.
     """
 
     #: Debounced, and carries the WHOLE value dict rather than the delta: the
