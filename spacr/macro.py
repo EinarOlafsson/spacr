@@ -569,9 +569,11 @@ class Macro:
         return target
 
     def __len__(self) -> int:
+        """Return the number of recorded steps in this chain."""
         return len(self.steps)
 
     def __str__(self) -> str:
+        """Return the macro id followed by its ordered module chain."""
         return (f"macro {self.macro_id}: "
                 f"{' -> '.join(self.modules) or '(empty)'}")
 
@@ -621,6 +623,7 @@ class _RunIdCapture(logging.Handler):
     """
 
     def __init__(self, thread_id: int) -> None:
+        """Initialize empty id buckets for the recording thread and others."""
         super().__init__(level=logging.NOTSET)
         self.thread_id = int(thread_id)
         self.mine: List[str] = []
@@ -1013,6 +1016,7 @@ class _Threader:
     """
 
     def __init__(self, projects: Sequence[Tuple[str, str]]) -> None:
+        """Normalize project roots longest-first for unambiguous rewriting."""
         # Longest first, so a nested project does not lose to its parent.
         self.roots = sorted(
             ((os.path.normpath(path), name) for name, path in projects),
