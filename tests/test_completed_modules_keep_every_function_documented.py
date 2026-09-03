@@ -98,6 +98,7 @@ FULLY_DOCUMENTED = (
     "spacr/plate_qc.py",
     "spacr/plot.py",
     "spacr/plugins.py",
+    "spacr/png_list.py",
     "spacr/portable_paths.py",
     "spacr/predictions.py",
     "spacr/profiler.py",

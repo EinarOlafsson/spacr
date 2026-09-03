@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from spacr.png_list import (PNG_LIST_ID_COLUMNS, _merged_field_paths,
                             _object_id_int, crop_rows_from_png_list)
@@ -36,6 +37,40 @@ def test_a_nan_id_names_no_object_but_a_whole_float_does():
     """
     assert _object_id_int(float("nan")) is None
     assert _object_id_int(np.float64(12.0)) == 12
+
+
+@pytest.mark.parametrize(
+    "value",
+    [12.5, np.float32(12.5), np.inf, -np.inf, True, np.bool_(True)],
+)
+def test_only_an_exact_finite_non_boolean_number_can_be_an_object_id(value):
+    """Coercion must not turn a different or absent value into a label."""
+    assert _object_id_int(value) is None
+    assert _object_id_int(12.0) == 12
+
+
+def test_an_unknown_object_type_is_refused_before_labels_are_mapped(tmp_path):
+    """A typo cannot silently fall back to cell labels."""
+    frame = pd.DataFrame({"cell_id": ["o4"], "path_name": ["field.npy"]})
+    with pytest.raises(ValueError, match="object_type must be one of"):
+        crop_rows_from_png_list(
+            str(tmp_path / "measurements.db"), frame,
+            object_type="nucleuz", verbose=False,
+        )
+
+
+def test_multiple_alternate_id_columns_are_ambiguous(tmp_path):
+    """Dictionary order cannot decide which mask a requested crop belongs to."""
+    frame = pd.DataFrame({
+        "nucleus_id": ["o4"],
+        "pathogen_id": ["o7"],
+        "path_name": ["field.npy"],
+    })
+    with pytest.raises(ValueError, match="multiple alternate object ID"):
+        crop_rows_from_png_list(
+            str(tmp_path / "measurements.db"), frame,
+            object_type="cell", verbose=False,
+        )
 
 
 def test_a_database_that_is_not_there_yields_no_field_paths():
