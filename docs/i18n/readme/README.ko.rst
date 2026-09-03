@@ -29,16 +29,16 @@
    :alt: PolyForm 비상업용 라이선스
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-   :alt: bioRxiv preprint
+   :alt: 최신 설치 프로그램
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
-   :alt: 최신 설치 프로그램
+   :alt: conda-forge 버전
 .. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
    :target: https://anaconda.org/conda-forge/spacr
-   :alt: conda-forge 버전
+   :alt: spaCR
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
@@ -101,7 +101,7 @@ spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정�
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+지원 (안정)  구현 (베타) 🔴 CPU 지원만
 
 .. spacr-hardware-end
 
@@ -463,7 +463,17 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 .. spacr-model-zoo-end
 
-위의 숫자는 출판에서 측정되는 숫자이며, 그와 함께 제한이 표시됩니다 : 모델은 측정 된 작업에 유용하며, 각 작업이 아닙니다. ``toxoplasma_well_detector_v1`` 및 ``toxoplasma_plaque_v1``는 하나의 파이프 라인의 두 절반입니다 - 탐지기는 냄비를 발견하고, 분할기는 그 안에있는 플레이트를 발견하며, 좋은 직경은 마이크로스코프 사이의 영역을 비교할 수있는 것입니다.
+위의 각 숫자는 훈련에서 본 적이없는 모델의 이미지로 측정됩니다.
+
+**정밀**은 모델의 개체가 실제로 얼마나 많은지; **기억**은 그것이 발견 한 실제 개체의 수입니다.그들은 반대 방향으로 실패합니다 : 나쁜 정확도는 플레이트를 발명하고, 나쁜 추억은 그들을 놓치고 있습니다.
+
+**F1**은 두 가지를 결합하고 각각 삼각형으로 재생되어 있기 때문에 인용됩니다 - 거의 완벽한 정확도를위한 하나의 혼동 할 수없는 플레이트를보고, 또는 거의 완전한 추억을위한 모든 어두운 블로브.당신이 잃어 버리는 것은 추측에 따라 달라집니다, 그리고 계산은 일반적으로 더 나은 과도한 호출에 의해 제공됩니다 : 플레크 모델은 0.858의 정확도에서 0.811의 이전 라운드에서 0.939 및 0.631의 추억으로 받아 들여졌습니다.
+
+**IoU**, 연합 위의 교차점은 예측된 개체와 실제 하나가 서로 덮는 영역에 의해 분할되는 양입니다. 그것은 나머지는 반대로 읽을 수있는 통치자입니다, 그래서 점수는 그것의 한계없이 아무것도 의미하지 않습니다 : "F1 0.867에서 IoU 0.5"는 두 출력 라인이 결합 된 영역의 절반 이상에 동의 할 때 발견 된 바구니를 계산합니다.
+
+**mAP50** 및 **map50-95**은 탐지기에 속합니다. 첫 번째는 풀이 발견되었는지 물어보며, 두 번째는 0.5에서 0.95까지의 10 개의 경계선을 통해 반복하므로 각 상자가 얼마나 밀접하게 끌어 들이는지도 물어보고 있습니다.
+
+**Cross-validated**, **SD**, 점수는 다른 분할에서 3 라운드의 중간이며 SD는 그들이 얼마나 멀리 이동하는지 의미합니다.
 
 모델은 저자의 자신의 Hugging Face 계정에 호스팅되어 있으므로 참여하는 것은 다른 사람에게 글쓰기 액세스를 제공하는 것을 의미하지 않습니다. ``spacr.model_zoo``의 ``publish_model``는 업로드를 수행하고 추가 할 카탈로그 라인을 인쇄합니다.
 

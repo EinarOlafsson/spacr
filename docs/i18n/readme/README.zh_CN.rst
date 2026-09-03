@@ -29,16 +29,16 @@
    :alt: PolyForm 非商业许可证
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-   :alt: bioRxiv preprint
+   :alt: 最新安装程序
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
-   :alt: 最新安装程序
+   :alt: conda-forge 版本
 .. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
    :target: https://anaconda.org/conda-forge/spacr
-   :alt: conda-forge 版本
+   :alt: spaCR
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
@@ -101,7 +101,7 @@ spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐�
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+支持(稳定) 实施(beta) 🔴 CPU 仅支持
 
 .. spacr-hardware-end
 
@@ -463,7 +463,17 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 .. spacr-model-zoo-end
 
-上面的数字是出版时测量的数字,并与它们表达了限制:一个模型对它测量的工作有用,而不是每个工作。 ``toxoplasma_well_detector_v1`` 和 ``toxoplasma_plaque_v1`` 是一条流程的两半 - 探测器发现孔,分区器发现里面的板块,直径是微镜之间的区域相似的。
+上面的每个图像都是用模型从未在训练中看到的图像来测量的。
+
+**精度**是模型的对象中有多少是真实的; **回忆**是它发现的真实对象中的多少。
+
+**F1**是两个结合,并被引用,因为每个单独是三重播放 - 报告一个不可错误的板,以接近完美的精度,或每个黑暗的泡沫,以靠近完美的回报. 你会更喜欢失去取决于估计,并计算通常更好地通过过呼:板模型被接受的精度 0.858 与回报 0.811 上一个之前的轮子在 0.939 和 0.631.
+
+**IoU**,跨越联盟,是多少一个预测的对象和真正的一个超越,分为它们覆盖的区域。 它是统治者,其余的被阅读对,所以一个分数意味着没有它的边界: “F1 0.867 在 IoU 0.5” 计算一个空白,如发现,当两个分线同意超过他们的组合区域的一半。
+
+**mAP50** 和 **mAP50-95** 属于探测器. 第一问孔是否被发现; 第二重复它在十个从 0.5 到 0.95 的边界,所以它也问每个盒子是多么紧紧地拖动。
+
+**Cross-validated**,与一个**SD**,意味着得分是不同分区的三轮的平均值,而SD是它们移动到多远。
 
 模型在其作者自己的 Hugging Face 帐户上托管,因此捐款并不意味着向其他人提供写作访问。 ``spacr.model_zoo`` 的 ``publish_model`` 进行上传并打印添加的目录行。
 

@@ -528,6 +528,35 @@ because a truncated or substituted checkpoint cannot be told from the real one.
 
 .. spacr-model-zoo-end
 
+Every figure above is measured on images the model never saw in training.
+
+**Precision** is how many of the objects a model reported are real; **recall**
+is how many of the real objects it found. They fail in opposite directions:
+poor precision invents plaques, poor recall misses them.
+
+**F1** is the two combined, and is quoted because each alone is trivially
+gamed -- report one unmistakable plaque for near-perfect precision, or every
+dark blob for near-perfect recall. Which you would rather lose depends on the
+assay, and counting is usually better served by over-calling: the plaque model
+was accepted at precision 0.858 with recall 0.811 over an earlier round at
+0.939 and 0.631.
+
+**IoU**, intersection over union, is how much a predicted object and the real
+one overlap, divided by the area they cover together. It is the ruler the rest
+are read against, so a score means nothing without its threshold: "F1 0.867 at
+IoU 0.5" counts a vacuole as found when the two outlines agree over half their
+combined area.
+
+**mAP50** and **mAP50-95** belong to the detector. The first asks whether the
+wells were found; the second repeats it across ten thresholds from 0.5 to
+0.95, so it also asks how tightly each box is drawn. The gap between them is
+placement, not detection.
+
+**Cross-validated**, with an **SD**, means the score is the mean of three runs
+on different splits and the SD is how far they moved apart. One split can be
+lucky: this model's literature figure is 0.834 on a single 19-well split and
+0.806 across all three.
+
 Models are hosted on their author's own Hugging Face account, so contributing
 one does not mean handing write access to anyone else's. ``spacr.model_zoo``'s
 ``publish_model`` performs the upload and prints the catalogue row to add.

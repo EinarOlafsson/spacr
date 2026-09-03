@@ -29,16 +29,16 @@
    :alt: Licence PolyForm Noncommercial
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-   :alt: bioRxiv preprint
+   :alt: DOI Zenodo
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
-   :alt: DOI Zenodo
+   :alt: Derniers installateurs
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
-   :alt: Derniers installateurs
+   :alt: Version conda-forge
 .. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
    :target: https://anaconda.org/conda-forge/spacr
-   :alt: Version conda-forge
+   :alt: spaCR
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
@@ -101,7 +101,7 @@ Support matériel
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+Soutien (stable) Soutien (bêta) CPU seulement
 
 .. spacr-hardware-end
 
@@ -463,7 +463,17 @@ spaCR envoie un catalogue de modèles formés et les récupère sur demande. Ouv
 
 .. spacr-model-zoo-end
 
-Les chiffres ci-dessus sont ceux mesurés lors de la publication, et les limites sont indiquées avec eux : un modèle est utile pour le travail sur lequel il a été mesuré, pas pour chaque travail. ``toxoplasma_well_detector_v1`` et ``toxoplasma_plaque_v1`` sont les deux moitiés d'un pipeline -- le détecteur trouve les puits, le segmenteur trouve les plaques à l'intérieur, et le diamètre du puits est ce qui rend les zones comparables entre les microscopes.
+Chaque figure ci-dessus est mesurée sur des images que le modèle n'a jamais vues dans l'entraînement.
+
+**La précision** est le nombre d'objets déclarés par un modèle qui sont réels; **recall** est celui des objets réels qu'il a trouvés. Ils échouent dans des directions opposées: une mauvaise précision invente des plaques, un mauvais souvenir les manque.
+
+**F1** est les deux combinés et est cité parce que chacun d'eux est triviallement gamed - rapporter une plaque unique pour une précision presque parfaite, ou chaque blob sombre pour un rappel presque parfait. Ce que vous préféreriez perdre dépend de l'essai, et le comptage est généralement mieux servi par des surappels: le modèle de plaque a été accepté à la précision 0.858 avec le rappel 0.811 sur une ronde antérieure à 0.939 et 0.631.
+
+**IoU**, intersection au-dessus de l'union, est combien un objet prédit et le vrai chevauchement, divisé par la zone qu'ils couvrent ensemble. C'est la règle que le reste sont lus contre, donc un score ne signifie rien sans son seuil: "F1 0.867 à IoU 0.5" compte une vacuole comme trouvé lorsque les deux contours sont d'accord sur la moitié de leur zone combinée.
+
+**mAP50** et **mPA50-95** appartiennent au détecteur. Le premier demande si les puits ont été trouvés; le second le répète à travers dix seuils de 0,5 à 0,95, de sorte qu'il demande aussi à quel point chaque boîte est serrée. L'écart entre eux est le placement, et non la détection.
+
+**Cross-validated**, with an **SD**, means the score is the mean of three runs on different splits and the SD is how far they moved apart. One split can be lucky: this model's literature figure is 0.834 on a single 19-well split and 0.806 across all three.
 
 Les modèles sont hébergés sur le propre compte Hugging Face de leur auteur, ce qui signifie qu'on ne doit pas remettre l'accès d'écriture à quelqu'un d'autre. ``spacr.model_zoo`` ``publish_model`` exécute le téléchargement et imprime la ligne de catalogue à ajouter.
 

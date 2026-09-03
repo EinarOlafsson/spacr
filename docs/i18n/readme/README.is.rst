@@ -29,16 +29,16 @@
    :alt: PolyForm Noncommercial-leyfi
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-   :alt: bioRxiv preprint
+   :alt: Nýjustu uppsetningarforrit
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
-   :alt: Nýjustu uppsetningarforrit
+   :alt: conda-forge-útgáfa
 .. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
    :target: https://anaconda.org/conda-forge/spacr
-   :alt: conda-forge-útgáfa
+   :alt: spaCR
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
@@ -101,7 +101,7 @@ Hardware aðstoð
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+stuðlað (stabil)  framkvæmd (beta) 🔴 CPU stuðning aðeins
 
 .. spacr-hardware-end
 
@@ -463,7 +463,17 @@ spaCR skipar listan af þjálfað mönnunum og snúa þeim á eftirspurn. Opna *
 
 .. spacr-model-zoo-end
 
-Númerur ovan eru þeir sem mætt eru á útgáfu, og takmarkanir eru tilkynnt með þeim: myndavél er gagnlegt fyrir vinnu sem það var mætt á, ekki fyrir hverri vinnu. ``toxoplasma_well_detector_v1`` og ``toxoplasma_plaque_v1`` eru tvö hálfa af einum tækjum - uppgötvuninn finnur bólkurnar, seggjandi finnur plakkum inni í þeim, og vel þægindi er það sem gerir svæðum samanburðar milli mikroskópum.
+Hvert dæmi yfir er metið á myndum sem myndavél hefur aldrei séð í æfingu.
+
+**Trekkur** er hversu margir af hlutum mönnun er raunverulegur; **reikla** er hve mörg af raunverulegum hlutum það fann.
+
+**F1** er tvö sameiginlegt, og er kvótað vegna þess að hver einn er trivially gamed - tala um einn ómeðlilegt plakk fyrir næstum fullkomna nákvæmni, eða hvert myrkur blob fyrir næstu fullkomnu endurskoðun. Það sem þú myndi helst missa af því að mæla, og fjölda er yfirleitt betra með yfirskoðun: plakkamálið var samþykkt á nákvóm 0.858 með endurskoða 0.811 yfir fyrri runda á 0.939 og 0.631.
+
+**IoU**, kross yfir samfélag, er hversu mikið áætlað objekt og raunverulegur einn overlap, skipt af sviði sem þeir dekka saman. Það er stjórnandi aðrir eru lesin gegn, þannig að skólan þýðir ekkert án þangað: "F1 0.867 á IoU 0.5" talar vacuole eins og fannst þegar tvö útlínin sammála meira en helmingum samfélagi þeirra.
+
+**mAP50** og **map50-95** eru með uppgötvuna. fyrri spyr hvort bólkurnar voru fundið; annar endurtekur það yfir tíu þremur frá 0.5 til 0.95, þannig að það spyr einnig hversu þreyttur hver boksi er þreytur.
+
+**Cross-validated**, með **SD**, þýðir að skólan er miðjan þremur rún á mismunandi rúnum og SD er hversu langt þeir flytja út.
 
 Modelli eru veitt á eigin Hugging Face reikningum rithöfundar síns, þannig að að taka þátt þýðir ekki að veita skrifu aðgang að einhverjum öðrum. ``spacr.model_zoo`` ``publish_model`` gerir upplifun og trúa á listanum eftir að bæta.
 

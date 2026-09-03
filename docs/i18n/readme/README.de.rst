@@ -29,16 +29,16 @@
    :alt: PolyForm-Noncommercial-Lizenz
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-   :alt: bioRxiv preprint
+   :alt: Zenodo-DOI
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
-   :alt: Zenodo-DOI
+   :alt: Neueste Installationsprogramme
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
-   :alt: Neueste Installationsprogramme
+   :alt: conda-forge-Version
 .. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
    :target: https://anaconda.org/conda-forge/spacr
-   :alt: conda-forge-Version
+   :alt: spaCR
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
@@ -101,7 +101,7 @@ Hardware-Unterstützung
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+Nur unterstützte (stabile) Unterstützung implementierte (beta) Unterstützung CPU
 
 .. spacr-hardware-end
 
@@ -463,7 +463,17 @@ spaCR liefert einen Katalog von ausgebildeten Modellen und holt sie auf Anfrage 
 
 .. spacr-model-zoo-end
 
-Die obigen Zahlen sind diejenigen, die bei der Veröffentlichung gemessen werden, und die Grenzen sind mit ihnen angegeben: ein Modell ist nützlich für den Job, an dem es gemessen wurde, nicht für jeden Job. ``toxoplasma_well_detector_v1`` und ``toxoplasma_plaque_v1`` sind die beiden Hälften einer Pipeline -- der Detektor findet die Wells, der Segmenter findet die Plaques in ihnen, und der Brunnendurchmesser ist das, was Bereiche zwischen Mikroskopen vergleichbar macht.
+Jede Abbildung oben wird auf Bildern gemessen, die das Modell im Training nie gesehen hat.
+
+**Präzision** ist, wie viele der Objekte, von denen ein Modell berichtet wird, real sind; **Recall** ist wie viele Objekte es gefunden hat. Sie scheitern in entgegengesetzte Richtungen: schlechte Präzision erfindet Plaques, schlechte Erinnerung vermisst sie.
+
+**F1** ist die Kombination der beiden, und wird zitiert, weil jeder einzelne trivial gespielt wird -- berichten Sie eine unverwechselbare Plaque für nahezu perfekte Präzision, oder jeder dunkle Blob für nahezu perfekten Rückruf. Was Sie lieber verlieren würden, hängt vom Assay ab, und Zählen wird in der Regel besser durch Überrufen bedient: Das Plaque-Modell wurde mit Präzision 0.858 mit Rückruf 0.811 in einer früheren Runde bei 0.939 und 0.631 akzeptiert.
+
+**IoU**, Schnittpunkt über der Vereinigung, ist, wie viel ein vorhergesagtes Objekt und das reale überlappen, geteilt durch den Bereich, den sie zusammen decken. Es ist der Herrscher, gegen den der Rest gelesen wird, also bedeutet eine Partitur nichts ohne seine Schwelle: "F1 0.867 bei IoU 0,5" zählt eine Vakuole, wie gefunden, wenn die beiden Umrisse über die Hälfte ihrer kombinierten Fläche vereinbaren.
+
+**mAP50** und **mAPI50-95** gehören zum Detektor. Der erste fragt, ob die Wells gefunden wurden; der zweite wiederholt sie über zehn Schwellen von 0,5 bis 0,95, so dass er auch fragt, wie eng jede Box gezeichnet wird.
+
+**Cross-validated**, mit einem **SD**, bedeutet, dass die Punktzahl das Mittel von drei Runs auf verschiedenen Splits ist und der SD ist, wie weit sie auseinander bewegt. Ein Split kann Glück haben: Die Literatur dieses Modells ist 0,834 auf einem einzigen 19-Well-Split und 0,806 auf allen drei.
 
 Modelle werden auf dem eigenen Hugging Face-Konto ihres Autors gehostet, daher bedeutet der Beitrag nicht, Schreibzugriff auf das Konto eines anderen zu geben. ``spacr.model_zoo`` s ``publish_model`` führt den Upload aus und druckt die Katalogzeile zum Hinzufügen.
 

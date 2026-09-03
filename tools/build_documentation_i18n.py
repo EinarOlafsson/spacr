@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Callable, Iterable, Mapping
 
 from build_i18n_catalogs import (
+    NATIVE_LANGUAGE_NAMES,
     _COMPUTE_RUN_SOURCE,
     _COMPUTE_THREAD_SOURCE,
     _CONTEXT_HARD_PROTECT_RE,
@@ -3760,7 +3761,7 @@ REVIEWED_README_MODULE_ALT_TEMPLATES = WORKFLOW_MODULE_ALT_TEMPLATES
 
 README_BADGE_SUBSTITUTIONS = (
     "Docs", "Tutorials", "PyPI", "Python", "Tests", "Qt", "Source",
-    "Issues", "License", "DOI", "Release", "Conda",
+    "Issues", "License", "Preprint", "DOI", "Release", "Conda",
 )
 README_INSTALLER_SUBSTITUTIONS = (
     "InstallerWindows", "InstallerMacOS", "InstallerLinux", "InstallerLegacy",
@@ -6644,6 +6645,25 @@ def main() -> int:
             localized_readme = readme_translation["__readme__"]
             localized_readme = localized_readme.replace(
                 "Languages:", f"{LANGUAGE_PICKER_LABELS[language]}:", 1
+            )
+            # AND THE LANGUAGE'S OWN NAME BESIDE THE GLOBE, which is a
+            # separate substitution from the word "Languages" and was
+            # missing until 2026-09-02. The English source reads
+            # "Languages: (globe) English (caret)"; the label above was
+            # localized and the NAME was not, so every rebuild quietly put
+            # "English" in the picker of all nine translated READMEs -- a
+            # Hindi reader arriving at README.hi.rst was told they were
+            # reading English. The endonyms had been correct since
+            # 2026-08-11 and no rebuild had been run against them since.
+            #
+            # `NATIVE_LANGUAGE_NAMES` is the same table the installers use,
+            # imported rather than restated: a second copy is a second thing
+            # to keep in step, which is the fault the `LANGUAGE_PICKER_LABELS`
+            # mirror already documents a few lines up.
+            localized_readme = re.sub(
+                r"\U0001F310\s*[^\u25BE<`]*\u25BE",
+                f"\U0001F310 {NATIVE_LANGUAGE_NAMES[language]} \u25BE",
+                localized_readme, count=1,
             )
             localized_readme = _localize_readme_link_labels(
                 localized_readme,
