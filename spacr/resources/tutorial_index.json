@@ -1,0 +1,273 @@
+{
+  "lessons": {
+    "activation": {
+      "lesson": "16_activation",
+      "title": "Activation maps"
+    },
+    "agreement": {
+      "lesson": "23_agreement",
+      "title": "Annotator Agreement"
+    },
+    "align": {
+      "lesson": "32_align_stitch",
+      "title": "Align and Stitch"
+    },
+    "analyze_plaques": {
+      "lesson": "24_plaque",
+      "title": "Plaque Assay"
+    },
+    "anndata_export": {
+      "lesson": "59_anndata_export",
+      "title": "AnnData Export"
+    },
+    "annotate": {
+      "lesson": "09_annotate",
+      "title": "Annotate"
+    },
+    "barcode_qc": {
+      "lesson": "47_barcode_qc",
+      "title": "Barcode QC"
+    },
+    "batch": {
+      "lesson": "37_batch",
+      "title": "Batch Runner"
+    },
+    "cellpose_masks": {
+      "lesson": "20_cellpose_masks",
+      "title": "Cellpose Masks"
+    },
+    "classifier_evaluation": {
+      "lesson": "39_classifier_evaluation",
+      "title": "Classifier Evaluation"
+    },
+    "classify": {
+      "lesson": "10_classify_cv",
+      "title": "Classify, computer vision"
+    },
+    "classify_merged": {
+      "lesson": "41_classify",
+      "title": "Classify"
+    },
+    "control_chart": {
+      "lesson": "51_control_charts",
+      "title": "Control Charts"
+    },
+    "convert": {
+      "lesson": "35_converter",
+      "title": "Format Converter"
+    },
+    "curate": {
+      "lesson": "42_curate",
+      "title": "Curate"
+    },
+    "data_manager": {
+      "lesson": "44_data_manager",
+      "title": "Data Manager"
+    },
+    "db_browser": {
+      "lesson": "34_database",
+      "title": "Database Browser"
+    },
+    "distributed_jobs": {
+      "lesson": "38_distributed_jobs",
+      "title": "Distributed Jobs"
+    },
+    "dose_response": {
+      "lesson": "69_dose_response",
+      "title": "Dose–Response"
+    },
+    "experiment_design": {
+      "lesson": "67_experiment_design",
+      "title": "Experiment Design"
+    },
+    "explain_cv": {
+      "lesson": "70_explain_cv",
+      "title": "Explain CV Model"
+    },
+    "external_masks": {
+      "lesson": "31_external_masks",
+      "title": "External Masks"
+    },
+    "feature_dict": {
+      "lesson": "62_feature_dictionary",
+      "title": "Feature Dictionary"
+    },
+    "feature_explorer": {
+      "lesson": "65_feature_explorer",
+      "title": "Feature Explorer"
+    },
+    "foreign": {
+      "lesson": "36_import",
+      "title": "Import Project"
+    },
+    "gate_editor": {
+      "lesson": "64_gate_editor",
+      "title": "Gate Editor"
+    },
+    "graph_builder": {
+      "lesson": "58_graph_builder",
+      "title": "Graph Builder"
+    },
+    "hit_list": {
+      "lesson": "48_hit_list",
+      "title": "Hit List"
+    },
+    "illumination": {
+      "lesson": "43_illumination",
+      "title": "Illumination"
+    },
+    "image_scatter": {
+      "lesson": "55_image_scatter",
+      "title": "Image Scatter"
+    },
+    "invasion": {
+      "lesson": "26_invasion",
+      "title": "Invasion Assay"
+    },
+    "investigate_hit": {
+      "lesson": "71_investigate_hit",
+      "title": "Investigate Hit"
+    },
+    "layer_viewer": {
+      "lesson": "57_layer_viewer",
+      "title": "Layer Viewer"
+    },
+    "lineage": {
+      "lesson": "56_lineage",
+      "title": "Lineage"
+    },
+    "make_masks": {
+      "lesson": "14_make_masks",
+      "title": "Make Masks"
+    },
+    "map_barcodes": {
+      "lesson": "12_map_barcodes",
+      "title": "Map Barcodes"
+    },
+    "mask": {
+      "lesson": "07_mask",
+      "title": "Mask"
+    },
+    "measure": {
+      "lesson": "08_measure",
+      "title": "Measure"
+    },
+    "methods_export": {
+      "lesson": "49_methods_results",
+      "title": "Methods & Results"
+    },
+    "ml_analyze": {
+      "lesson": "11_classify_ml",
+      "title": "Classify, machine learning"
+    },
+    "model_compare": {
+      "lesson": "21_model_compare",
+      "title": "Model Compare"
+    },
+    "model_zoo": {
+      "lesson": "22_model_zoo",
+      "title": "Model Zoo"
+    },
+    "motility": {
+      "lesson": "18_motility",
+      "title": "Motility assay"
+    },
+    "napari_bridge": {
+      "lesson": "46_napari_bridge",
+      "title": "Napari Bridge"
+    },
+    "outliers": {
+      "lesson": "66_outliers",
+      "title": "Outliers"
+    },
+    "parameter_sweep": {
+      "lesson": "73_parameter_sweep",
+      "title": "Parameter Sweep"
+    },
+    "pca": {
+      "lesson": "60_pca",
+      "title": "PCA"
+    },
+    "pipeline_graph": {
+      "lesson": "52_pipeline_graph",
+      "title": "Pipeline Graph"
+    },
+    "plate_view": {
+      "lesson": "33_plate_viewer",
+      "title": "Plate Viewer"
+    },
+    "power": {
+      "lesson": "68_power_design",
+      "title": "Power / Design"
+    },
+    "profiler": {
+      "lesson": "53_prediction_profiler",
+      "title": "Prediction Profiler"
+    },
+    "project_browser": {
+      "lesson": "45_project_browser",
+      "title": "Project Browser"
+    },
+    "qc_dashboard": {
+      "lesson": "54_qc_dashboard",
+      "title": "QC Dashboard"
+    },
+    "queue": {
+      "lesson": "30_plate_queue",
+      "title": "Plate Queue"
+    },
+    "recruitment": {
+      "lesson": "25_recruitment",
+      "title": "Recruitment"
+    },
+    "regression": {
+      "lesson": "13_regression",
+      "title": "Regression"
+    },
+    "replication": {
+      "lesson": "27_replication",
+      "title": "Replication Assay"
+    },
+    "report": {
+      "lesson": "29_report",
+      "title": "Report"
+    },
+    "run_compare": {
+      "lesson": "50_run_compare",
+      "title": "Run Compare"
+    },
+    "run_history": {
+      "lesson": "40_run_history",
+      "title": "Run History"
+    },
+    "tabulate": {
+      "lesson": "61_tabulate",
+      "title": "Tabulate"
+    },
+    "timelapse": {
+      "lesson": "17_timelapse",
+      "title": "Timelapse"
+    },
+    "train_cellpose": {
+      "lesson": "19_train_cellpose",
+      "title": "Train Cellpose"
+    },
+    "train_compare": {
+      "lesson": "28_training_runs",
+      "title": "Training Runs"
+    },
+    "trellis": {
+      "lesson": "63_small_multiples",
+      "title": "Small Multiples"
+    },
+    "umap": {
+      "lesson": "15_image_umap",
+      "title": "Image UMAP"
+    },
+    "volcano_explorer": {
+      "lesson": "72_volcano_explorer",
+      "title": "Volcano Explorer"
+    }
+  },
+  "schema": 1
+}

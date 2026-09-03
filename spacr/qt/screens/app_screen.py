@@ -5470,6 +5470,64 @@ class AppScreen(QWidget):
             HoverTooltip.instance().start_hide()
         return super().eventFilter(obj, event)
 
+    def show_module_hint(self, key: str, summary: str = "") -> bool:
+        """Explain a MODULE in this screen's strip, for a dock hover.
+
+        The window routes a dock hover to whichever page is in front (see
+        `MainWindow._show_module_hint`), so on a module screen it arrives
+        here. The strip is the same one the per-setting help writes to --
+        deliberately, because it is the bottom of the window either way and a
+        second strip stacked under it would be two places to look.
+
+        THE HOLD IS THE MODULE ONE, not the setting one: thirty seconds
+        rather than ten, because these links leave the application. A hovered
+        SETTING overwrites this the moment the pointer reaches the form, and
+        that is the right precedence -- the reader has moved on.
+
+        :param key: the module to explain.
+        :param summary: the sentence, already resolved and translated by
+            `MainWindow._show_module_hint`. It has to arrive from there:
+            `module_summary` falls back to the registry's English
+            description, and a screen has no registry to look one up in.
+        :returns: whether anything was written.
+        """
+        key = str(key or "")
+        strip = getattr(self, "_hint_strip", None)
+        summary = str(summary or "").strip()
+        if not key or strip is None or not summary:
+            return False
+        try:
+            from ..tutorials import tutorial_url
+            from .settings_model import api_docs_url
+        except Exception:                                        # noqa: BLE001
+            return False
+        from html import escape as _escape
+
+        from ..i18n import tr as _tr
+        words = []
+        api = api_docs_url(key)
+        if api:
+            words.append(f'<a href="{_escape(api, quote=True)}">'
+                         f'{_escape(_tr("API"))}</a>')
+        lesson = tutorial_url(key)
+        if lesson:
+            words.append(f'<a href="{_escape(lesson, quote=True)}">'
+                         f'{_escape(_tr("Tutorial"))}</a>')
+        lines = HINT_STRIP_LINES - (1 if words else 0)
+        fitted = _fit_to_lines(summary, strip, max(1, lines))
+        strip.setText(
+            f"{_escape(fitted)}<br>{'&nbsp;&nbsp;'.join(words)}" if words
+            else _escape(fitted))
+        strip.setToolTip(summary)
+        self._hold_the_hint(True, self.MODULE_HINT_HOLD_MS)
+        return True
+
+    #: How long a MODULE stays in the strip, in milliseconds. Thirty
+    #: seconds, asked for on 2026-09-03 -- three times the per-setting hold
+    #: because the API and Tutorial words open a browser, which is a larger
+    #: decision than reaching for an animation.
+    MODULE_HINT_HOLD_MS = 30_000
+
     def _default_hint(self) -> str:
         """The prompt the per-setting strip falls back to, in the UI language.
 
@@ -6698,13 +6756,18 @@ class AppScreen(QWidget):
     #: the reach takes longer, raise it and say so.
     HINT_HOLD_MS = 10_000
 
-    def _hold_the_hint(self, holding: bool) -> None:
-        """Start, restart or stop the strip's ten-second hold.
+    def _hold_the_hint(self, holding: bool,
+                       duration_ms: Optional[int] = None) -> None:
+        """Start, restart or stop the strip's hold.
 
         RESTARTED ON EACH NEW SETTING, so reading down a form is not a race
         against a clock started by the first row. Stopped outright when the
         strip is being put back to its default, or the timer would blank a
         strip that is already blank and fight whatever wrote it next.
+
+        :param duration_ms: how long to hold. ``None`` is the per-setting
+            :data:`HINT_HOLD_MS`; a dock hover passes the longer module hold
+            instead, because its links leave the application.
         """
         timer = getattr(self, "_hint_hold_timer", None)
         if timer is None:
@@ -6716,7 +6779,8 @@ class AppScreen(QWidget):
             self._hint_hold_timer = timer
         timer.stop()
         if holding:
-            timer.start(self.HINT_HOLD_MS)
+            timer.start(self.HINT_HOLD_MS if duration_ms is None
+                        else int(duration_ms))
 
     def _on_hint_link(self, href: str) -> None:
         """Open the box for the setting the strip is showing, animation out.

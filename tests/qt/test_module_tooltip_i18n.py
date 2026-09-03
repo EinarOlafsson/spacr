@@ -131,11 +131,22 @@ def test_sidebar_module_help_retranslates_semantically(
     english = next(description for key, _name, description, _section in APPS
                    if key == "mask")
 
+    # NO TOOLTIP TO CHECK ANY MORE, and that is the point of the assertion
+    # that replaces it. The module popup came off on 2026-09-03 ("remove the
+    # popup window tooltip on the moduals"), so what has to retranslate is
+    # the ACCESSIBLE text -- which is what a screen reader reads, and the
+    # only place the sentence lives on the row itself now.
+    #
+    # `_refresh_module_help` is still the function under test: it is what
+    # clears the tooltip AND writes the translated name and summary, so a
+    # regression that put the popup back, or that stopped translating,
+    # fails here either way.
     retranslate_widget_tree(sidebar, "de")
     assert mask.accessibleName() == "Masken"
-    assert module_summary("mask", english, "de") in mask.toolTip()
     assert mask.accessibleDescription() == module_summary("mask", english, "de")
+    assert mask.toolTip() == "", "the module popup is back"
 
     retranslate_widget_tree(sidebar, "en")
     assert mask.accessibleName() == "Mask"
-    assert mask.toolTip() == f"Mask — {english}"
+    assert mask.accessibleDescription() == english
+    assert mask.toolTip() == "", "the module popup is back"

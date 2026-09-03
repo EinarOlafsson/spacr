@@ -3914,15 +3914,28 @@ def _refresh_module_help(obj, language: str) -> None:
     name = tr(str(name_source or app_key), language)
     summary = module_summary(str(app_key), str(summary_source), language)
     style = str(obj.property("moduleTooltipStyle") or "")
+    # NO QWidget TOOLTIP ON A MODULE, since 2026-09-03: "remove the popup
+    # window tooltip on the moduals. the tooltip is shown at the botom of the
+    # screen."
+    #
+    # The sentence MOVES rather than disappearing. It goes to the accessible
+    # description, which is what a screen reader reads, and the strip along
+    # the bottom of the window says it to everyone else -- with an API link
+    # and a Tutorial link, which a native tooltip could never carry because
+    # it vanishes the moment the pointer moves toward it.
+    #
+    # `AppTile` has said "NO TOOLTIP on the tile" in its own constructor
+    # since the hint bar was introduced, and this function was quietly
+    # putting one back on the next language refresh -- which runs at startup.
+    # That is why the popups were still there.
+    if style in ("sidebar", "tile"):
+        obj.setToolTip("")
     if style == "sidebar":
-        obj.setToolTip(f"{name} — {summary}")
         obj.setAccessibleName(name)
         obj.setAccessibleDescription(summary)
     elif style == "tile":
         stage_source = str(obj.property("moduleStageSource") or "")
         stage = tr(stage_source, language) if stage_source else ""
-        suffix = f" ({stage.lower()})" if stage else ""
-        obj.setToolTip(f"{name}{suffix} — {summary}")
         obj.setAccessibleName(name)
         obj.setAccessibleDescription(
             f"{stage} — {summary}" if stage else summary)

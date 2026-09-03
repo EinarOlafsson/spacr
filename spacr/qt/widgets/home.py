@@ -1824,16 +1824,15 @@ class HomePage(QWidget):
 
         outer.addWidget(body, 1)
 
-        self._hint_bar = QLabel(_DEFAULT_HINT)
-        self._hint_bar.setObjectName("HintBar")
-        self._hint_bar.setAlignment(Qt.AlignHCenter)
-        # Derived from the font rather than pinned at 32. A hard number is a
-        # promise about text metrics that no longer holds the moment the font
-        # scale, the theme's font stack or a label's size role changes — the
-        # hint text needed 35 px against a 32 px floor and clipped. Asking the
-        # label for its own sizeHint keeps the bar correct across all of them.
-        self._hint_bar.setMinimumHeight(
-            max(32, self._hint_bar.sizeHint().height() + SPACING["xs"]))
+        # A `ModuleHintBar`, not a plain QLabel, since 2026-09-03: the strip
+        # carries an API link and a Tutorial link now and holds the last
+        # module hovered for thirty seconds, because a link that vanishes
+        # when the pointer moves toward it cannot be clicked. It sizes itself
+        # from the font for the reason the plain bar did -- a hard 32 px is a
+        # promise about text metrics that breaks the moment the font scale or
+        # the theme's font stack changes, and the hint needed 35 px.
+        from .module_hint_bar import ModuleHintBar
+        self._hint_bar = ModuleHintBar(_DEFAULT_HINT)
         outer.addWidget(self._hint_bar)
 
         # Live job state. The registry is process-wide and outlives this
@@ -2685,6 +2684,36 @@ class HomePage(QWidget):
             self._fill_grid(grid, tiles,
                             self._columns_for(self.width(), tile_w))
 
+    def show_module_hint(self, key: str, summary: str = "") -> bool:
+        """Explain ``key`` in the strip. Called by the DOCK as well as Home.
+
+        The dock's rows and Home's tiles name the same modules, so they say
+        the same thing in the same place -- `MainWindow._show_module_hint`
+        routes a dock hover here whenever Home is the page on screen.
+
+        :param key: the module to explain.
+        :param summary: the sentence, already resolved and translated by the
+            caller. Empty falls back to Home's own registry, which is what a
+            tile hover uses -- it has the description in hand and has no
+            reason to ask the window for it.
+        :returns: whether anything was written. A key Home does not know is
+            not an error: the dock lists Help modules that have no tile.
+        """
+        key = str(key or "")
+        from ..theme import STAGE_LABEL
+
+        if not summary:
+            entry = self._by_key.get(key)
+            if entry is None:
+                return False
+            from ..i18n_module_summaries import module_summary
+            summary = module_summary(key, entry[2])
+        if not summary:
+            return False
+        stage = STAGE_LABEL.get(str(self._stages.get(key, "stable")), "")
+        self._hint_bar.show_module(key, summary, stage)
+        return True
+
     def eventFilter(self, obj, event):          # noqa: N802
         if event.type() == QEvent.Enter:
             hint = self._tile_hints.get(obj)
@@ -2701,11 +2730,19 @@ class HomePage(QWidget):
                 # reads neither the hue nor the accessibility tree.
                 mark = STAGE_LABEL.get(
                     str(obj.property("stage") or "stable"), "")
-                self._hint_bar.setText(
-                    f"{summary} — {mark}" if mark else summary)
+                self._hint_bar.show_module(key, summary, mark)
         elif event.type() == QEvent.Leave:
-            from ..i18n import tr
-            self._hint_bar.setText(tr(_DEFAULT_HINT))
+            # THE STRIP IS NOT CLEARED ON LEAVE, which is the whole point of
+            # the thirty-second hold: the API and Tutorial words appeared
+            # only while the pointer was on the tile, so moving toward them
+            # removed them and neither could ever be pressed. The hold in
+            # `ModuleHintBar` puts the prompt back instead, thirty seconds
+            # later or as soon as another module is hovered.
+            #
+            # A tile with nothing registered still clears, because it never
+            # wrote anything to reach.
+            if not self._hint_bar.is_holding():
+                self._hint_bar.release()
         return super().eventFilter(obj, event)
 
     def closeEvent(self, event):                # noqa: N802

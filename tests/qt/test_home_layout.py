@@ -330,8 +330,16 @@ def test_sidebar_item_shows_the_whole_name(home, key, name, desc, section):
         assert not btn.is_elided()
     else:
         assert btn.is_elided()
-    # Elided or not, hovering must reveal which app this is.
-    assert name in btn.toolTip()
+    # ELIDED OR NOT, THE ROW MUST STILL SAY WHICH APP IT IS -- and it no
+    # longer says it in a tooltip. The popup came off on 2026-09-03 ("remove
+    # the popup window tooltip on the moduals. the tooltip is shown at the
+    # botom of the screen"), so the name now reaches the reader three other
+    # ways: painted beside the icon on hover (369), written into the strip
+    # along the bottom of the window with its API and Tutorial links, and
+    # announced here to a screen reader.
+    assert btn.accessibleName().strip() == name, (
+        f"the row for {name!r} announces itself as "
+        f"{btn.accessibleName().strip()!r}")
 
 
 def test_no_sidebar_item_needs_eliding_at_the_default_font(home):
