@@ -43,6 +43,7 @@ FULLY_DOCUMENTED = (
     "spacr/confusion.py",
     "spacr/control_names.py",
     "spacr/crop_source.py",
+    "spacr/curation.py",
     "spacr/custom_features.py",
     "spacr/database_concurrency.py",
     "spacr/database_schema.py",

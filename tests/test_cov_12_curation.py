@@ -64,6 +64,14 @@ def test_reverting_a_dab_that_changed_nothing_moves_no_elements():
     assert empty.revert(layer) == 0
     assert int(layer.data.sum()) == 0
 
+    changed = LabelEdit(
+        index=(np.array([1, 2], dtype=np.intp),
+               np.array([3, 4], dtype=np.intp)),
+        before=np.array([7, 8], dtype=np.int64),
+        after=1,
+    )
+    assert len(changed) == 2
+
 
 def test_a_stroke_whose_dabs_changed_nothing_is_not_written_to_the_ledger():
     """``end_stroke`` returns None when the grouped dabs moved no elements.
