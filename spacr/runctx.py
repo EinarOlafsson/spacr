@@ -249,6 +249,7 @@ class RunIdFilter(logging.Filter):
     """
 
     def __init__(self, run_id: Optional[str] = None) -> None:
+        """Initialise the filter with an optional fixed run identifier."""
         super().__init__()
         self.run_id = run_id
 
@@ -459,6 +460,7 @@ class _RunLogHandler(logging.Handler):
     """
 
     def __init__(self, run_id: str, path: str, level: int = logging.NOTSET):
+        """Initialise a lazy JSONL handler for one run, path, and level."""
         super().__init__(level)
         self.run_id = str(run_id)
         self.path = path
@@ -851,6 +853,7 @@ class _SkippedType:
     _instance = None
 
     def __new__(cls):
+        """Return the singleton skipped-result sentinel."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
@@ -860,6 +863,7 @@ class _SkippedType:
         return False
 
     def __repr__(self) -> str:
+        """Return the stable ``'SKIPPED'`` representation."""
         return "SKIPPED"
 
 
@@ -923,6 +927,7 @@ class _Attempt:
 
     def __init__(self, policy: "ErrorPolicy", unit: str, stage: str,
                  number: int, of: int) -> None:
+        """Store one numbered attempt's policy, unit, stage, and total."""
         self.policy = policy
         self.unit = unit
         self.stage = stage
@@ -937,6 +942,7 @@ class _Attempt:
         return self.number >= self.of
 
     def __enter__(self) -> "_Attempt":
+        """Return this attempt as the context-manager value."""
         return self
 
     def __exit__(self, exc_type, exc, tb) -> bool:
@@ -950,6 +956,7 @@ class _Attempt:
         return True
 
     def __repr__(self) -> str:
+        """Return a debugger label naming the attempt, unit, and stage."""
         return (f"<attempt {self.number}/{self.of} on {self.unit!r} "
                 f"stage={self.stage!r}>")
 
@@ -993,6 +1000,7 @@ class ErrorPolicy:
                  run_id: str = "",
                  record: bool = True,
                  sleep: Optional[Callable[[float], None]] = None) -> None:
+        """Validate and store the error policy's mode and retry controls."""
         normalized = str(mode or DEFAULT_ON_ERROR).strip().lower()
         if normalized not in ON_ERROR_MODES:
             raise ValueError(
@@ -1055,6 +1063,7 @@ class ErrorPolicy:
         return list(self._retried)
 
     def __repr__(self) -> str:
+        """Return a mode and skip summary, with retry settings when used."""
         extra = (f" attempts={self.attempts} backoff={self.backoff}"
                  if self.mode == ON_ERROR_RETRY else "")
         return f"<ErrorPolicy {self.mode}{extra} skipped={self.n_skipped}>"
@@ -1257,6 +1266,12 @@ class RunContext:
     :param seed_report: what :func:`seed_everything` managed to seed.
     :param started_utc: when the run opened.
     :param log_path: the run's JSONL log, or ``""`` when logging is off.
+    :param resource_log_path: path to the run's process-tree resource JSON
+        document, or ``""`` when resource accounting is off or unavailable.
+        Set when sampling starts and used to register the document.
+    :param resource_artifact_id: artifact-registry identifier assigned after
+        successful resource-document registration, or ``""`` when no record
+        was created.
     """
 
     run_id: str

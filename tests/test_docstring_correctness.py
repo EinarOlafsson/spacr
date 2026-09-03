@@ -1524,6 +1524,7 @@ def test_baseline_constructor_documents_every_field():
     "spacr.flowview.events.StageThumbnail",
     "spacr.flowview.events.StageCompleted",
     "spacr.flowview.events.StageFailed",
+    "spacr.runctx.RunContext",
 ))
 def test_repaired_record_documents_every_constructor_parameter(symbol):
     """Each repaired generated record remains callable from its API prose."""
