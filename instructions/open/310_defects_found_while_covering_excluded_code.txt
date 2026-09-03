@@ -2857,3 +2857,27 @@ and pass with the repaired lifecycle.
 
 REVISED COUNT: 104 entries, 36 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+47. PNG-LIST FALLBACKS COULD CUT OR LABEL A DIFFERENT OBJECT
+==============================================================================
+
+Found 2026-09-03 while auditing the lightweight crop resolver in
+``spacr/png_list.py``. Three permissive conversions shared the same failure
+mode: a fractional float was truncated into another label (and a boolean into
+object 1), an unknown ``object_type`` silently selected ``cell_id``, and a
+frame carrying another mode's ID column borrowed that label while continuing
+to stamp and resolve paths under the requested mode. With multiple alternate
+ID columns, dictionary order silently chose the mask.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/png_list.py:40-168``. Only finite,
+integral, non-boolean numeric IDs are accepted; unsupported modes are named and
+refused; one alternate ID column carries its effective object type through the
+field lookup and returned rows; multiple alternates are refused as ambiguous.
+Mutation proof against the permissive implementation produced eight focused
+failures, including both wrong results and infinity exceptions, and the
+restored resolver passes the downstream crop-source check.
+
+REVISED COUNT: 105 entries, 37 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.

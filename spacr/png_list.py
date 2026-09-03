@@ -30,13 +30,21 @@ def _object_id_int(value):
 
     ``'omulti'`` / ``'onone'`` -- a crop that overlaps several objects or none
     -- have no single label to cut, and come back as None.
+
+    :param value: stored object identifier, optionally prefixed by ``"o"``.
+    :returns: exact integer label, or ``None`` for missing, non-integral,
+        boolean, non-finite, or non-numeric values.
     """
     if value is None:
         return None
+    if isinstance(value, (bool, np.bool_)):
+        return None
     if isinstance(value, (int, np.integer)):
         return int(value)
-    if isinstance(value, float):
-        return None if np.isnan(value) else int(value)
+    if isinstance(value, (float, np.floating)):
+        number = float(value)
+        return (int(number)
+                if np.isfinite(number) and number.is_integer() else None)
     text = str(value).strip()
     if text[:1] in ('o', 'O'):
         text = text[1:]
@@ -56,6 +64,10 @@ def _merged_field_paths(db_path, object_type='cell'):
 
     The requested object's own table is preferred and the other object tables
     are tried in turn, because every one of them names the same field.
+
+    :param db_path: measurement database to inspect without creating it.
+    :param object_type: preferred measurement table for resolving field paths.
+    :returns: field identifiers mapped to merged-array directory and filename.
     """
     out = {}
     if not os.path.isfile(db_path):
@@ -103,16 +115,34 @@ def crop_rows_from_png_list(db_path, png_df, object_type='cell', verbose=True):
     :param verbose: print the number of unusable rows when ``True``.
     :returns: a copy of ``png_df`` with ``path_name``, ``object_label`` and
         ``object_type`` columns, minus the rows that cannot be cut.
+    :raises ValueError: if ``object_type`` is unsupported, or if its ID column
+        is absent while multiple other object-ID columns make fallback
+        ambiguous.
     """
     df = png_df.copy()
-    id_col = PNG_LIST_ID_COLUMNS.get(object_type, 'cell_id')
+    try:
+        id_col = PNG_LIST_ID_COLUMNS[object_type]
+    except (KeyError, TypeError) as exc:
+        raise ValueError(
+            f"object_type must be one of {sorted(PNG_LIST_ID_COLUMNS)}; "
+            f"got {object_type!r}") from exc
+    effective_object_type = object_type
     if id_col not in df.columns:
         # A png_list written for one crop mode carries only that mode's id
-        # column; fall back to whichever object column it does have.
-        for candidate in PNG_LIST_ID_COLUMNS.values():
-            if candidate in df.columns:
-                id_col = candidate
-                break
+        # column. Resolve the MODE with its column, because carrying nucleus
+        # labels forward as cells silently cuts a different object.
+        alternatives = [
+            (mode, candidate)
+            for mode, candidate in PNG_LIST_ID_COLUMNS.items()
+            if candidate in df.columns
+        ]
+        if len(alternatives) > 1:
+            raise ValueError(
+                f"{object_type!r} needs {id_col!r}, but this frame carries "
+                f"multiple alternate object ID columns: "
+                f"{sorted(column for _mode, column in alternatives)}")
+        if alternatives:
+            effective_object_type, id_col = alternatives[0]
     if id_col in df.columns:
         labels = df[id_col].map(_object_id_int)
     elif 'object_label' in df.columns:
@@ -129,18 +159,19 @@ def crop_rows_from_png_list(db_path, png_df, object_type='cell', verbose=True):
     elif all(c in df.columns for c in key_cols):
         # png_list records where a crop was written, never which merged array
         # produced it; the object table is the only place that link exists.
-        fields = _merged_field_paths(db_path, object_type)
+        fields = _merged_field_paths(db_path, effective_object_type)
         keys = list(zip(*(df[c] for c in key_cols)))
         df['path_name'] = [fields.get(k, (None, None))[0] for k in keys]
     else:
         df['path_name'] = None
     df['object_label'] = labels
-    df['object_type'] = object_type
+    df['object_type'] = effective_object_type
 
     usable = df['object_label'].notna() & df['path_name'].notna()
     dropped = int((~usable).sum())
     if dropped and verbose:
         print(f"crop_rows_from_png_list: {dropped} of {len(df)} png_list rows "
               f"cannot be cut from merged/ (no single object label, or no "
-              f"matching row in the '{object_type}' table); they are skipped.")
+              f"matching row in the '{effective_object_type}' table); they "
+              f"are skipped.")
     return df[usable].copy()
