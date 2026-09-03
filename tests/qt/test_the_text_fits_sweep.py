@@ -103,16 +103,66 @@ def _fits(widget) -> str:
     return ""
 
 
+def _measurable(screen):
+    """Every widget this sweep judges, in a stable order.
+
+    ONE TYPE PER CALL: PySide6's `findChildren` takes a type, not a tuple,
+    and hands back a TypeError rather than an empty list -- which is how the
+    first run of this sweep "failed" on all 24 combinations without measuring
+    a single widget.
+    """
+    return list(screen.findChildren(QLabel)) + list(
+        screen.findChildren(QPushButton))
+
+
+def _geometry_of(screen):
+    """The geometry of everything measured, as one comparable value."""
+    return tuple((w.x(), w.y(), w.width(), w.height())
+                 for w in _measurable(screen))
+
+
+def settle(qtbot, screen, rounds: int = 60) -> int:
+    """Pump until the geometry stops changing. RULE 1, done as a measurement.
+
+    THIS REPLACES A FLAT ``qtbot.wait(30)``, AND THE DIFFERENCE WAS SIX
+    FINDINGS. ``QTest.qWait`` ends its loop with a *sleep*, not with a pass
+    of ``processEvents``: it processes events, sleeps 10 ms, checks the
+    clock, and breaks when the time is up. Anything posted during that last
+    sleep is still sitting in the queue when the call returns. On a module
+    screen the thing sitting there is the layout request raised by the
+    language pass, which runs a turn after the screen is built -- so the row
+    was read carrying GERMAN captions inside buttons still sized for the
+    ENGLISH ones they were built with, and every one of them looked clipped.
+    Measured on Measure in German: after ``qtbot.wait(30)`` the sweep found
+    6 clipped captions and ``_btn_run`` was 60 px wide against a 103 px
+    hint; after ONE more ``qtbot.wait(1)``, in the same test, it found 0 and
+    the button was 103. Nothing about the screen changed in that
+    millisecond except that Qt was finally allowed to deliver an event it
+    had been holding.
+
+    So the wait is a loop with a stopping CONDITION instead of a duration:
+    two consecutive readings of every measured widget's geometry, 10 ms
+    apart, that agree. That is the rule instruction 350 wrote down after the
+    first two wrong headlines -- "pump the event loop until the geometry
+    stops changing before measuring anything" -- and a fixed number of
+    milliseconds was never an implementation of it.
+
+    :returns: how many rounds it took, so a caller can print it.
+    """
+    previous = None
+    for turn in range(1, rounds + 1):
+        qtbot.wait(10)
+        current = _geometry_of(screen)
+        if current == previous:
+            return turn
+        previous = current
+    return rounds
+
+
 def _offenders(screen):
     """Every clipped caption on ``screen``, as sentences a reader can check."""
     found = []
-    # ONE TYPE PER CALL: PySide6's `findChildren` takes a type, not a tuple,
-    # and hands back a TypeError rather than an empty list -- which is how
-    # the first run of this sweep "failed" on all 24 combinations without
-    # measuring a single widget.
-    widgets = list(screen.findChildren(QLabel)) + list(
-        screen.findChildren(QPushButton))
-    for widget in widgets:
+    for widget in _measurable(screen):
         why = _fits(widget)
         if why:
             found.append(f"{type(widget).__name__} "
@@ -120,34 +170,45 @@ def _offenders(screen):
     return found
 
 
-#: What this sweep found the first time it ran honestly, as
+#: What this sweep found the last time it ran honestly, as
 #: ``(screen, locale) -> how many captions are cut off``.
 #:
-#: A RATCHET, NOT AN EXCUSE. Twenty-two of the twenty-five combinations are
-#: clean; these three are recorded with their counts so they cannot grow, a
-#: combination that is not listed may have none at all, and an entry that
-#: reaches zero has to be deleted. The alternative -- a permanently red sweep
-#: -- is how the four reds this session started with survived.
+#: A RATCHET, NOT AN EXCUSE. A recorded count cannot grow, a combination
+#: that is not listed must have none at all, and an entry that reaches zero
+#: has to be DELETED -- the sweep fails on a closed entry left in the table
+#: pretending to be debt. The alternative, a permanently red sweep, is how
+#: the four reds this file started life with survived.
 #:
-#: WHAT IS LEFT IS A LAYOUT DECISION AND NOT A CAPTION. Measure's action row
-#: is a QHBoxLayout whose buttons carry `policy=Minimum`; in English the row
-#: fits at 1200 px and in German it does not, so Qt compresses every button
-#: below its own hint -- "Ausführen" gets 60 px and wants 103. The row needs
-#: to wrap, scroll or elide rather than squeeze.
+#: IT IS EMPTY, AND ALL THREE ENTRIES IT HELD WERE CLOSED RATHER THAN
+#: FORGIVEN:
 #:
-#: Classify's subtitle was the third entry and is gone: `ApiHelpLabel` elides
-#: now, so the sentence the masthead cuts short says so with an ellipsis and
-#: keeps the rest in the hover help the masthead always intended to hold it.
+#:   * `classify_merged / de` (1): `ApiHelpLabel` elides now, so the sentence
+#:     the masthead cuts short says so with an ellipsis and keeps the rest in
+#:     the hover help the masthead always intended to hold it.
+#:   * `measure / de` (6) and `measure / is` (5): the action row's buttons
+#:     wrap now instead of being squeezed -- see `_WrappingButtonStrip` in
+#:     `spacr/qt/screens/app_screen.py`. Its minimum width fell from 1092 px
+#:     in German to 450, which is what gave Measure's settings column back
+#:     the 67 px it had been starved to.
+#:
+#: THOSE TWO COUNTS WERE ALSO MEASURED ONE EVENT TOO EARLY, and the
+#: correction belongs beside them rather than in a commit message: they were
+#: read after a flat `qtbot.wait(30)`, which leaves the language pass's
+#: layout request undelivered, so every button was read at the English width
+#: it was BUILT with while already carrying its German caption. See `settle`.
+#: The defect underneath was real and worse than the count suggested -- at
+#: 1000 px, where the window cannot grow out of it, the same row lost four
+#: captions in German, four in Icelandic and one in ENGLISH -- but the
+#: particular numbers 6 and 5 were an artefact, and
+#: `test_the_action_row_wraps_instead_of_squeezing.py` is where that defect
+#: is now pinned at a width that can actually show it.
 #:
 #: THE THEME IS WHAT TIPS IT, which is worth knowing before anyone tries to
 #: reproduce this by hand: built without the application stylesheet the same
 #: screen reports every button at exactly its hint and nothing is clipped.
 #: The sweep therefore runs with `qt_theme_applied`, because that is the font
 #: the user has.
-KNOWN_OFFENDERS = {
-    ("measure", "de"): 6,
-    ("measure", "is"): 5,
-}
+KNOWN_OFFENDERS: dict = {}
 
 
 @pytest.mark.parametrize("locale", LOCALES)
@@ -163,8 +224,10 @@ def test_no_caption_is_cut_off(app_key, locale, qtbot, qt_theme_applied,
     screen.resize(1200, 850)
     screen.show()
     qtbot.waitExposed(screen)
-    # RULE 1: nothing below is true until the layout has run.
-    qtbot.wait(30)
+    # RULE 1: nothing below is true until the layout has STOPPED running.
+    # See `settle` -- the flat `qtbot.wait(30)` this replaced was reading
+    # every module screen one delivered event too early.
+    settle(qtbot, screen)
 
     offenders = _offenders(screen)
     allowed = KNOWN_OFFENDERS.get((app_key, locale), 0)

@@ -451,3 +451,179 @@ the two entries stay in `KNOWN_OFFENDERS` where they can be seen.
   Icelandic, every caption in the action row loses its ending, including
   "Run". Widening the window fixes it, which is why it has survived -- the
   developers' windows are wide.
+
+--------------------------------------------------------------------------------
+2026-09-02: THE ACTION ROW WRAPS. THE LAST OF THE THREE IS CLOSED, AND THE
+            COUNTS 6 AND 5 WERE THEMSELVES MEASURED ONE EVENT TOO EARLY.
+--------------------------------------------------------------------------------
+
+    measure / de           6 -> 0
+    measure / is           5 -> 0
+
+`KNOWN_OFFENDERS` IS NOW EMPTY. All twenty-five combinations of the sweep are
+clean and no entry is being carried as debt.
+
+FIRST, THE CORRECTION, because the numbers this item has been planning against
+were not what they looked like. The sweep read every screen after a flat
+`qtbot.wait(30)`, and `QTest.qWait` ENDS ITS LOOP WITH A SLEEP, not with a pass
+of `processEvents`: it processes events, sleeps 10 ms, checks the clock, and
+breaks when the time is up. Whatever was posted during that last sleep is still
+in the queue when the call returns, and on a module screen the thing sitting
+there is the layout request raised by the language pass -- which runs a turn
+after the screen is built. So the row was read carrying GERMAN captions inside
+buttons still sized for the ENGLISH ones they had been constructed with, and
+every one of them looked clipped. In one test, in one run:
+
+    after qtbot.wait(30):  6 clipped, `_btn_run` 60 px wide, hint 103
+    after one more wait(1): 0 clipped, `_btn_run` 103 px wide, hint 103
+
+Nothing changed in that millisecond except that Qt was finally allowed to
+deliver an event it had been holding. That is the FOURTH confident wrong
+headline on this item and the second of the "measure before the layout settles"
+family -- rule 1 was written down after the first one and then implemented as a
+constant, which is not an implementation of it. `settle()` in the sweep is now a
+loop with a stopping CONDITION: two readings of every measured widget's
+geometry, 10 ms apart, that agree.
+
+SECOND, THE DEFECT UNDERNEATH IS REAL, AND WORSE THAN THE COUNT SUGGESTED. With
+the layout settled, the old row's MINIMUM width on Measure was
+
+    en   908 px      de   1092 px      is   1068 px
+
+and a minimum that large does damage two ways:
+
+  * AT 1200x850 IT TOOK THE WIDTH FROM ITS NEIGHBOUR. The screen asks its body
+    splitter for `setSizes([400, 800])`. What it got was a settings column of
+    251 px in English, 91 in Icelandic and 67 in GERMAN, because the runtime
+    side could not be narrower than the row. Nothing was clipped; the settings
+    form was simply crushed to a sliver. That is the WATCH section's own
+    warning -- "a control that grows can push its neighbour off the screen" --
+    landing exactly where it said it would.
+  * AND IN A WINDOW THAT CANNOT GROW, THE CAPTIONS WENT. Shown as a top-level
+    widget the screen escapes the problem, because `QLayout::activate` raises a
+    WINDOW's minimum to its layout's total minimum: asked for 1000x850 it came
+    up 1193x850 in German, 1169 in Icelandic and 1009 in English, and reported
+    nothing clipped. That is not how a screen lives. It is a page in a
+    `QStackedWidget`, and a page gets whatever the window has, its own minimum
+    included. Measured at 1000x850 in a container that would not grow:
+
+        en   1 caption cut off   'Submit remote…'              134 px / 143
+        de   4                   'Einstellungen importieren…'  106 px / 192
+                                 'Remote übermitteln…'         105 px / 178
+                                 'Konsole leeren'              106 px / 115
+                                 'Konsole kopieren'            105 px / 130
+        is   4                   'Flytja inn stillingar…'       96 px / 144
+                                 'Senda fjarvinnslu…'           96 px / 158
+                                 'Hreinsa stjórnborð'           95 px / 139
+                                 'Kopið konsól'                 96 px / 103
+
+    English loses one too, so this was never purely a translation defect --
+    German and Icelandic only reach the cliff sooner.
+
+THE FIX IS THE SPLIT THE PREVIOUS NOTE ASKED FOR, WITH ONE CHANGE OF SHAPE.
+`_WrappingButtonStrip` in `spacr/qt/screens/app_screen.py` is a `FlowLayout`
+subclass used as a SUB-LAYOUT of the row's `QHBoxLayout`, not as a `FlowHost`
+widget inside it. That distinction is the whole reason this was safe to do:
+
+  * a widget added to a sub-layout is parented to the widget that owns the
+    TOP-level layout, so every button is still a Qt child of `_actions_row`.
+    `test_chaining_gui.py` asserts `screen._btn_run.parent() is
+    screen._actions_row`; `_clear_page_surfaces` still has ONE widget to tag,
+    so no new opaque strip appears over the backdrop; `findChildren` from the
+    screen still reaches every button. A nested `FlowHost` breaks the first,
+    complicates the second and was rejected on that.
+  * `FlowLayout`'s own `sizeHint` is its `minimumSize` -- the widest single
+    chip -- which is right for a chip strip in a column and wrong in a
+    horizontal box, where a 192 px hint would let the stretch swallow the rest
+    and wrap eight buttons onto five lines in a row with room for one. The
+    subclass overrides `sizeHint` to ask for the whole line. THAT IS THE ONLY
+    THING FLOWLAYOUT LACKED; `spacr/qt/widgets/flow.py` is UNCHANGED, so the
+    three screens that use it are untouched.
+
+TWO THINGS THE SPLIT BROKE ON THE WAY, both found by running the suites and
+both worth knowing before anyone rearranges this row again:
+
+  * THE ACTIVITY SPINNER STOPPED BEING INSTALLED, silently, in the application
+    only. `attach_activity_spinner` finds its slot with
+    `_btn_clear.parentWidget().layout().indexOf(_btn_clear)` and inserts at
+    index + 1, and `QLayout.indexOf` DOES NOT DESCEND INTO A SUB-LAYOUT -- so
+    it answered -1 and the helper returned None. Every test of that helper
+    builds its own flat row, so all of them went on passing. The row now builds
+    its own spinner in the strip immediately right of Clear console and
+    publishes it as `_activity_spinner`, which is the attribute the helper
+    checks before it touches any layout, so the lazy path finds this one.
+  * THE PREFERENCES GEAR WAS ORPHANED BY THE WRAP. It was asked for by
+    position, "to the right of Copy console", and `test_preferences_gear.py`
+    checks that as `gear.x() > copy.x()`. It is a 46 px icon at the end of a
+    605 px run of captions, so it is always the item the wrap reaches first: on
+    Mask at 1400x900 the strip has 678 px and one line wants 699, and the gear
+    went to line two with x=0 against Copy console's 548. The two now enter the
+    strip as ONE item (an anonymous QWidget the surface sweep already tags), so
+    a wrap moves them together. Taking the gear out of the strip entirely also
+    passes, and was rejected on measurement: it left the gear floating at
+    mid-height beside a two-line stack, and its 46 px came off the strip at
+    every size -- Measure in German at 1000 px went to FOUR lines of buttons
+    and the console under it from 208 px to 180.
+
+AFTER, MEASURED THE SAME WAY (settled, in a container that will not grow):
+
+    1200x850   row 770 px wide, 86-88 tall (two lines), settings column 389 px
+               in ALL THREE locales, console 254-256 px, 0 captions clipped,
+               every button at its full hint.
+    1000x850   row 637 px wide, 86 (en) / 134 (de, is) tall, settings 322 px,
+               console 208-256 px, 0 clipped, and the screen is 1000 px wide
+               rather than refusing at 1193.
+
+TWO CONSEQUENCES WORTH SAYING OUT LOUD RATHER THAN LETTING SOMEONE FIND THEM:
+
+  * THE ROW IS TWO LINES AT 1200x850 IN ENGLISH TOO, where it used to be one.
+    That is not the wrap being greedy, it is the splitter finally getting the
+    split the screen asks for: the runtime panel is 770 px instead of 908,
+    because the row no longer overrules `setSizes([400, 800])`. The settings
+    column gains 138 px for it. The trade was made deliberately and is worth
+    revisiting only with a measurement, not a preference.
+  * A HIDDEN CHILD STILL COSTS ITS GAP IN A `FlowLayout`, unlike a
+    `QBoxLayout`, which skips empty items entirely. The strip therefore carries
+    16 px of dead space for the hidden `_btn_file_issue` and the idle spinner.
+    Left alone on purpose: fixing it means changing `_do_layout` in
+    `spacr/qt/widgets/flow.py`, which three other screens use, for 16 px that
+    changed no wrap point in any locale measured here.
+
+THE CHECK, and it is the deliverable rather than the fixed row.
+`tests/qt/test_the_action_row_wraps_instead_of_squeezing.py`, 13 tests: no
+caption cut off at 1000 px in three locales; the screen is the width it was
+given (a second, differently-shaped measurement of the same cause, since a row
+whose minimum exceeds the window shows up as a window that will not shrink);
+the settings column keeps at least a quarter of the screen; the strip WRAPS
+rather than eliding or shrinking; every name the rest of the package reaches
+into the row by still resolves; the spinner is still beside Clear console; and
+-- because this item has produced four wrong headlines -- a manufactured
+squeezed row that the same check still reports.
+
+VERIFIED BOTH WAYS. Against the fixed code: 13 passed. Against the pre-fix
+`app_screen.py` with everything else identical: 11 of the 13 FAILED, with the
+numbers quoted above coming straight out of the assertion messages. The sweep
+is 25 passed with `KNOWN_OFFENDERS` empty, and refused to pass with the two
+entries still in it -- the ratchet did its own job again.
+
+ALSO GREEN: `test_cov_r4_app_screen.py`, `test_the_dock_behaves_like_a_dock.py`,
+`test_chaining_gui.py`, `test_prerun.py`, `test_preview_registry.py`,
+`test_category_tooltips.py`, `test_activity_spinner.py`,
+`test_cov_5_button_roles.py`, `test_preferences_gear.py`,
+`test_preferences_gear_visible.py`, `test_app_screen.py`, `test_polish.py`,
+`test_gui_run_and_console.py` and the rest of the suites that reach into this
+row. Run in four batches against the final code: 145, 452, 345 and 321 passed
+(one file, `test_cov_r4_app_screen.py`, is in two of them).
+
+FIVE FAILURES SEEN AND NOT MINE, each reproduced against the pre-fix file:
+`test_cov_app_screen.py::...::test_propagate_live_settings_writes_into_the_panel`,
+`test_the_language_reaches_what_a_handler_writes.py::test_the_example_button_comes_back_in_the_chosen_language`,
+two in `test_the_folded_rows_left_the_registry.py`, and
+`test_cov_r6_qt_core_tail.py::...::test_the_declared_speed_range_brackets_the_default`.
+
+WHAT IS STILL OPEN IN 350, and it is the one dimension nobody has measured:
+A LARGER FONT SCALE. Instruction 04 records that the tests once measured a font
+scale no user has; every number in this file, tonight's included, is the default
+scale. A row that wraps to two lines at 1.0 wraps to four at 1.5, and the
+container check -- "assert the CONTAINER still fits too" -- has never been run
+there. That is where this sweep should go next.

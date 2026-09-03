@@ -48,6 +48,7 @@ from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import (SPACING, ensure_widget_qss_applied, register_widget_qss)
 from ..widgets import ApiHelpLabel, Card, Divider, Section, UsageBar
+from ..widgets.flow import FlowLayout
 from .settings_model import (
     CATEGORY_TOOLTIPS,
     SettingsWidgets,
@@ -1123,6 +1124,97 @@ def _resume_the_fractal(screen) -> int:
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not reach the fractal", exc_info=True)
     return resumed
+
+
+class _WrappingButtonStrip(FlowLayout):
+    """The action row's buttons, laid out so they wrap rather than squeeze.
+
+    WHY THIS EXISTS, WITH THE NUMBERS. Instruction 350. The action buttons
+    want 651 px of caption in English, 836 in German and 741 in Icelandic,
+    and with the progress bar and the switches beside them a single
+    ``QHBoxLayout`` made the whole row's MINIMUM width 908 / 1092 / 1068 px
+    in those three locales. A minimum that large does damage two ways, and
+    both were measured on Measure with the layout settled:
+
+    * AT 1200x850 IT TOOK THE WIDTH FROM ITS NEIGHBOUR. The screen asks its
+      body splitter for ``setSizes([400, 800])``; what it got instead was a
+      settings column of 251 px in English, 91 in Icelandic and 67 in
+      German, because the runtime side could not be narrower than the row.
+      67 px of settings column is not a settings column.
+    * AND IN A WINDOW THAT CANNOT GROW, THE CAPTIONS WENT. A page in a
+      ``QStackedWidget`` gets whatever the window has, its own minimum
+      included, and Qt's answer to a box it cannot satisfy is to shrink
+      every child below its hint. At 1000x850 that cut four captions in
+      German ("Einstellungen importieren…" 106 px against a 192 hint), four
+      in Icelandic, and one in ENGLISH. Asked to be 1000 px wide as a
+      top-level window the screen simply refused, and came up 1193 px in
+      German -- which is the same defect wearing the other face.
+
+    English very nearly fits, which is the only reason this shipped: the
+    developers' locale is the one where the row is 908 and not 1092.
+
+    :class:`~spacr.qt.widgets.flow.FlowLayout` already wraps, and it is used
+    here AS A SUB-LAYOUT of the row rather than inside a ``FlowHost`` widget
+    of its own. Both of those choices were forced, and both are worth reading
+    twice before anyone "simplifies" this:
+
+    * THE ROW IS NOT A ROW OF BUTTONS. It is eight buttons and an activity
+      spinner, then ``addStretch(1)``, then the progress bar and the 3D /
+      Time / Live / GPU / sweep / hyperparameter / interactive / AI
+      switches, and the stretch is load-bearing -- it is what holds the switches against the
+      right edge while the buttons stay left. ``FlowLayout`` has no
+      ``addStretch``, so the row itself cannot become one; an earlier attempt
+      swapped the layout wholesale and died immediately on ``AttributeError:
+      'FlowLayout' object has no attribute 'addStretch'``.
+    * A WIDGET ADDED TO A SUB-LAYOUT IS PARENTED TO THE WIDGET THAT OWNS THE
+      TOP-LEVEL ONE, so every button is still a Qt child of ``_actions_row``
+      and nothing that reaches into this row had to move.
+      ``tests/qt/test_chaining_gui.py`` asserts exactly that
+      (``screen._btn_run.parent() is screen._actions_row``), six test files
+      reach into the row by attribute, ``findChildren`` from the screen still
+      finds every button, and ``_clear_page_surfaces`` still has ONE widget
+      to tag -- a nested ``FlowHost`` would have broken the first and the
+      third, and added a second anonymous container to keep transparent.
+
+    THE ONE THING ``FlowLayout`` DOES NOT DO for this use is ask for a whole
+    line, and that is what this subclass adds. Its ``sizeHint`` is its
+    ``minimumSize`` -- the widest single chip -- which is right for a chip
+    strip in a column that hands it all the width there is, and wrong inside
+    a ``QHBoxLayout``, where a 192 px hint would let the stretch swallow
+    everything else and wrap eight buttons onto five lines in a row with room
+    for one. ``sizeHint`` below asks for the single line instead, so the box
+    layout keeps the strip on one line while it can and wraps it only when it
+    cannot -- which is the behaviour the row already had in English and now
+    has in every locale.
+    """
+
+    def __init__(self, spacing: int) -> None:
+        super().__init__(None, spacing=spacing)
+        # ``FlowLayout`` keeps its gap in a private attribute and never calls
+        # ``setSpacing``, so ``QLayout.spacing()`` would answer the style's
+        # default rather than this one. ``sizeHint`` needs the real number.
+        self._gap = int(spacing)
+
+    def sizeHint(self) -> QSize:                # noqa: N802 (Qt override)
+        """Every button on ONE line: the shape the row prefers when it fits.
+
+        Deliberately counts the gap after every item except the first even
+        when that item is empty -- a hidden ``_btn_file_issue`` reports a
+        zero-width hint through ``QWidgetItem`` while
+        ``FlowLayout._do_layout`` still advances by the spacing. Matching
+        that arithmetic exactly is what keeps "the width this hint asks for"
+        and "the width one line actually needs" the same number, to the
+        pixel; a hint one gap short would wrap the last button for nothing.
+        """
+        width = 0
+        height = 0
+        for index in range(self.count()):
+            hint = self.itemAt(index).sizeHint()
+            width += hint.width() + (self._gap if index else 0)
+            height = max(height, hint.height())
+        margins = self.contentsMargins()
+        return QSize(width + margins.left() + margins.right(),
+                     height + margins.top() + margins.bottom())
 
 
 class AppScreen(QWidget):
@@ -5988,24 +6080,37 @@ class AppScreen(QWidget):
         row = QHBoxLayout(actions)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
+
+        # THE CAPTIONED BUTTONS WRAP; NOTHING ELSE DOES. See
+        # `_WrappingButtonStrip` for the measurement and for why this is a
+        # sub-layout rather than a widget of its own -- in one line: the
+        # buttons stay Qt children of `_actions_row`, which is what everything
+        # that reaches into this row already depends on. Copy console and the
+        # Preferences gear enter it as ONE item, so a wrap cannot separate
+        # them (see below), and everything after `row.addStretch(1)` -- the
+        # progress bar and the switches -- stays in the horizontal row it was
+        # always in, held against the right edge by that stretch.
+        buttons = _WrappingButtonStrip(SPACING["sm"])
+        row.addLayout(buttons)
+
         self._btn_run = QPushButton("Run")
         self._btn_run.setObjectName("PrimaryButton")
         self._btn_run.setCursor(Qt.PointingHandCursor)
         self._btn_run.clicked.connect(self._on_run)
-        row.addWidget(self._btn_run)
+        buttons.addWidget(self._btn_run)
 
         self._btn_stop = QPushButton("Stop")
         self._btn_stop.setObjectName("DangerButton")
         self._btn_stop.setCursor(Qt.PointingHandCursor)
         self._btn_stop.setEnabled(False)
         self._btn_stop.clicked.connect(self._on_stop)
-        row.addWidget(self._btn_stop)
+        buttons.addWidget(self._btn_stop)
 
         self._btn_import = QPushButton("Import settings…")
         self._btn_import.setObjectName("GhostButton")
         self._btn_import.setCursor(Qt.PointingHandCursor)
         self._btn_import.clicked.connect(self._on_import_settings)
-        row.addWidget(self._btn_import)
+        buttons.addWidget(self._btn_import)
 
         self._btn_remote = QPushButton("Submit remote…")
         self._btn_remote.setObjectName("PrimaryButton")
@@ -6016,13 +6121,33 @@ class AppScreen(QWidget):
             "cloud/HPC command."
         )
         self._btn_remote.clicked.connect(self._on_remote_submit)
-        row.addWidget(self._btn_remote)
+        buttons.addWidget(self._btn_remote)
 
         self._btn_clear = QPushButton("Clear console")
         self._btn_clear.setObjectName("GhostButton")
         self._btn_clear.setCursor(Qt.PointingHandCursor)
         self._btn_clear.clicked.connect(lambda: self._console.clear())
-        row.addWidget(self._btn_clear)
+        buttons.addWidget(self._btn_clear)
+
+        # THE BACKGROUND-ACTIVITY SPINNER, BUILT HERE RATHER THAN FOUND
+        # LATER, and this is a consequence of the split above rather than a
+        # preference. `activity_spinner.attach_activity_spinner` normally
+        # installs it lazily from the global button filter, by asking
+        # `_btn_clear.parentWidget().layout().indexOf(_btn_clear)` and
+        # inserting at index + 1. Every part of that contract survives the
+        # buttons moving into a sub-layout except one: `QLayout.indexOf` does
+        # not descend into a sub-layout, so it would answer -1 and the helper
+        # would return None -- the spinner silently never installed, and in
+        # the real application only, because every test of that helper builds
+        # its own flat row and would have gone on passing.
+        #
+        # Building it here puts it exactly where the helper would have (
+        # immediately right of Clear console) and sets the attribute the
+        # helper checks BEFORE it touches any layout, so the lazy path finds
+        # this one and returns it instead of trying to insert a second.
+        from ..widgets.activity_spinner import ActivitySpinner
+        self._activity_spinner = ActivitySpinner(actions)
+        buttons.addWidget(self._activity_spinner)
 
         # Beside Clear, because the two are the same kind of act on the same
         # thing — and because the console is what a bug report is made of.
@@ -6032,7 +6157,8 @@ class AppScreen(QWidget):
         self._btn_copy_console.setToolTip(
             "Copy everything in the console, section headers included.")
         self._btn_copy_console.clicked.connect(self._on_copy_console)
-        row.addWidget(self._btn_copy_console)
+        # NOT ADDED HERE. It enters the strip welded to the Preferences gear
+        # a few lines below -- see the comment there.
 
         # Preferences, to the right of Copy console. Every module screen
         # gets it because every module screen is somewhere a user notices
@@ -6060,7 +6186,37 @@ class AppScreen(QWidget):
         self._btn_preferences.setToolTip("Open Preferences (Ctrl+,).")
         self._btn_preferences.setAccessibleName("Preferences")
         self._btn_preferences.clicked.connect(self._open_preferences_dialog)
-        row.addWidget(self._btn_preferences)
+
+        # COPY CONSOLE AND THE GEAR TRAVEL TOGETHER, as ONE item of the
+        # wrapping strip, and this pair exists because a wrap can otherwise
+        # separate them. The gear was asked for BY POSITION -- "to the right
+        # of Copy console" -- and `tests/qt/test_preferences_gear.py` checks
+        # exactly that, as `gear.x() > copy.x()` with both on one parent. Left
+        # as two independent items the wrap put them on different lines the
+        # moment the strip ran short: on Mask at 1400x900 the strip has 678 px
+        # and one line of buttons wants 699, so the gear went to line two and
+        # its x fell from 661 to 0. It is a 46 px icon at the end of a 605 px
+        # run of captions, so it is always the item the wrap reaches first.
+        #
+        # The alternative was to take the gear out of the strip entirely and
+        # make it a fixed item of the row. That also satisfies the position,
+        # and was rejected on two measurements: it left the gear floating at
+        # mid-height beside a two-line stack of buttons instead of sitting
+        # among them, and its 46 px came off the strip's width at every window
+        # size -- Measure in German at 1000 px went from three lines of
+        # buttons to four, and the console under it from 208 px to 180.
+        #
+        # An anonymous QWidget on purpose: `theme.clear_container_surfaces`
+        # tags exactly that -- a plain QWidget with no object name is
+        # scaffolding -- so this cannot become another opaque strip over the
+        # backdrop the way an untagged container does.
+        copy_and_gear = QWidget()
+        pair = QHBoxLayout(copy_and_gear)
+        pair.setContentsMargins(0, 0, 0, 0)
+        pair.setSpacing(SPACING["sm"])
+        pair.addWidget(self._btn_copy_console)
+        pair.addWidget(self._btn_preferences)
+        buttons.addWidget(copy_and_gear)
 
         # (The manual "Explain error" button was removed — errors now route to
         # the AI automatically when AI is enabled; see _on_pipeline_error.)
@@ -6081,7 +6237,7 @@ class AppScreen(QWidget):
         self._btn_file_issue.setEnabled(False)
         self._btn_file_issue.setVisible(False)
         self._btn_file_issue.clicked.connect(self._on_file_issue)
-        row.addWidget(self._btn_file_issue)
+        buttons.addWidget(self._btn_file_issue)
 
         row.addStretch(1)
 
