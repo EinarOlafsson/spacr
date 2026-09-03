@@ -37,6 +37,7 @@ class MetadataResolutionRequired(ValueError):
     """
 
     def __init__(self, missing: Sequence[str], available: Sequence[str]):
+        """Retain the unresolved and available columns for programmatic repair."""
         self.missing = tuple(missing)
         self.available = tuple(available)
         super().__init__(
@@ -119,6 +120,7 @@ def clear_run_metadata_decisions() -> None:
 
 
 def _examples(frame: pd.DataFrame, limit: int = 3) -> Dict[str, Tuple[str, ...]]:
+    """Return up to ``limit`` distinct non-null string examples per column."""
     out: Dict[str, Tuple[str, ...]] = {}
     for column in frame.columns:
         values = frame[column].dropna().drop_duplicates().head(limit)
@@ -213,6 +215,7 @@ def _apply_column_map(frame: pd.DataFrame,
 
 def _derive_well_columns(frame: pd.DataFrame, well_column: str,
                          needed: Sequence[str]) -> Tuple[pd.DataFrame, bool]:
+    """Strictly derive needed row and column ids from one complete well column."""
     if well_column not in frame.columns:
         return frame, False
     parsed = []
@@ -262,6 +265,7 @@ def _typed_value(value: Any) -> Tuple[str, str]:
 
 def _pseudo_wells(frame: pd.DataFrame, source: str,
                   needed: Sequence[str]) -> Tuple[pd.DataFrame, Tuple[Mapping[str, Any], ...]]:
+    """Assign first-seen source identities to pseudo wells and return an audit."""
     if source not in frame.columns:
         raise MetadataResolutionRequired(needed, frame.columns)
     identities = [_typed_value(value) for value in frame[source]]
@@ -291,6 +295,7 @@ def _pseudo_wells(frame: pd.DataFrame, source: str,
 
 def _save_audit(path: str, decision: MetadataDecision,
                 pseudo_map: Sequence[Mapping[str, Any]]) -> None:
+    """Write the applied decision and pseudo-well assignments as stable JSON."""
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     payload = {
