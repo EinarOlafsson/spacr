@@ -149,9 +149,10 @@ class SweepSpace:
     filters: list[Callable[[dict], str | None]] = field(default_factory=list)
 
     def size(self) -> int:
+        """Return the raw Cartesian-product size before filtering."""
         total = 1
         for values in self.axes.values():
-            total *= max(len(values), 1)
+            total *= len(values)
         return total
 
 

@@ -92,7 +92,7 @@ def test_the_embedding_travels_with_its_score():
     -- and with a non-deterministic backend, not even that."""
     row = _row(5)
     for field in ("scores", "embedding", "labels", "note"):
-        assert f":ivar {field}:" in (SearchRow.__doc__ or "")
+        assert f":param {field}:" in (SearchRow.__doc__ or "")
     table = SearchTable()
     table.add(row)
     assert table[0].embedding is row.embedding

@@ -36,11 +36,15 @@ __all__ = [
 class Confusion:
     """Binary confusion counts and their operating characteristics.
 
-    :ivar true_positive: positive cells called positive.
-    :ivar false_positive: negative cells called positive.
-    :ivar true_negative: negative cells called negative.
-    :ivar false_negative: positive cells called negative.
-    :ivar threshold: score cutoff used to make the calls.
+    :param true_positive: number of positively labelled cells whose score
+        meets the threshold.
+    :param false_positive: number of negatively labelled cells whose score
+        meets the threshold.
+    :param true_negative: number of negatively labelled cells whose score
+        falls below the threshold.
+    :param false_negative: number of positively labelled cells whose score
+        falls below the threshold.
+    :param threshold: score cutoff used to classify cells as positive.
     """
 
     true_positive: int
@@ -75,6 +79,7 @@ class Confusion:
 
     @property
     def prevalence(self) -> float:
+        """Return the positively labelled share of all cells."""
         total = (self.true_positive + self.false_positive
                  + self.true_negative + self.false_negative)
         return ((self.true_positive + self.false_negative) / total
@@ -91,6 +96,7 @@ class Confusion:
         return bool(np.isfinite(total) and total > 1.0)
 
     def summary(self) -> str:
+        """Return sensitivity, specificity, accuracy, and prevalence text."""
         return (f"se {self.sensitivity:.3f}  sp {self.specificity:.3f}  "
                 f"(accuracy {self.accuracy:.3f} at prevalence "
                 f"{self.prevalence:.3f})")
