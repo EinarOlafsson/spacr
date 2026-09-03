@@ -235,31 +235,51 @@ def test_a_dock_row_paints_no_text(dock, qapp):
     row = next(r for r in _visible(dock)
                if str(r.property("navKey")) == "mask")
 
-    def ink_right_of(widget, from_x):
+    def rendered(widget):
         pixmap = QPixmap(widget.size())
         pixmap.fill()
         widget.render(pixmap)
-        image = pixmap.toImage()
-        marked = 0
-        for x in range(from_x, image.width()):
-            for y in range(image.height()):
-                colour = image.pixelColor(x, y)
-                if (colour.red(), colour.green(), colour.blue()) != (255,) * 3:
-                    marked += 1
-                    break
-        return marked
+        return pixmap.toImage()
 
+    def differs_right_of(first, second, from_x):
+        """Columns where two renders of the same widget disagree."""
+        return sum(
+            1 for x in range(from_x, first.width())
+            if any(first.pixelColor(x, y) != second.pixelColor(x, y)
+                   for y in range(first.height())))
+
+    # THE CLAIM, ASKED DIRECTLY: give the row a different name and nothing
+    # about it changes. That is what "paints no text" means, and it is
+    # measurable without deciding which pixels are plate, which are the
+    # border and which are glyphs -- the earlier probe counted every
+    # non-white pixel, so the plate alone reported 177 columns of "text"
+    # and this test never passed from the day it was written.
     gap = row.icon_rect().right() + 6
-    assert ink_right_of(row, gap) == 0, (
-        "the dock row painted something to the right of its icon")
+    before = rendered(row)
+    was = row.text()
+    row.setText("A NAME THAT WOULD BE VERY WIDE INDEED")
+    qapp.processEvents()
+    after = rendered(row)
+    row.setText(was)
+    qapp.processEvents()
 
-    control = ElidingPushButton(row.text(), dock)
+    assert differs_right_of(before, after, gap) == 0, (
+        "the dock row painted its name: changing the text changed the "
+        "pixels to the right of the icon")
+
+    # The control: the same comparison over an ordinary button MUST see the
+    # difference, or the probe's verdict on the dock row means nothing.
+    control = ElidingPushButton(was, dock)
     control.setObjectName("SidebarItem")
     control.resize(row.size())
     control.setIcon(row.icon())
     control.setIconSize(row.iconSize())
     qapp.processEvents()
-    assert ink_right_of(control, gap) > 0, (
+    control_before = rendered(control)
+    control.setText("A NAME THAT WOULD BE VERY WIDE INDEED")
+    qapp.processEvents()
+    control_after = rendered(control)
+    assert differs_right_of(control_before, control_after, gap) > 0, (
         "the probe cannot see painted text at all, so its verdict on the "
         "dock row means nothing")
     control.deleteLater()

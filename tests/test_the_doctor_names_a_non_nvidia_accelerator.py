@@ -81,6 +81,18 @@ def test_the_metal_row_says_what_is_still_on_the_cpu(ctx, monkeypatch):
     """
     monkeypatch.setattr(doctor, "_import_torch", lambda: _torch(mps=True))
     monkeypatch.setattr(doctor, "_nvidia_driver", lambda: None)
+    # AND THE CAPABILITY TABLE, which `check_gpu` reads for this half of the
+    # answer. It calls `accelerator.capabilities()`, and that re-resolves the
+    # REAL machine rather than looking at the torch being diagnosed -- so on
+    # a CUDA box the row said "Metal GPU" while the details underneath it
+    # reported cuML accelerated. The test passed only where the developer
+    # happened to have no CUDA.
+    from spacr import accelerator
+
+    monkeypatch.setattr(accelerator, "capabilities", lambda: (
+        ("Segmentation (Cellpose)", True, "on the GPU"),
+        ("UMAP / t-SNE / clustering", False, "cuML is CUDA-only"),
+    ))
 
     details = " ".join(doctor.check_gpu(ctx).details or ())
 
