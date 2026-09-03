@@ -1688,3 +1688,24 @@ THE SHAPE OF THE JOB: the hash mismatch is one summary and can be repaired
 incrementally; the two zh_CN tooltips need a reviewer or a targeted
 `MANUAL_TRANSLATIONS` entry, which is how the Icelandic "1.5 er óþekkt" fix
 was made. Neither wants the whole catalog rebuilt.
+
+TRIED THE MODEL-FREE HALF, AND IT MAKES IT WORSE. `build_i18n_catalogs.py
+--sources-only` needs no translation model and regenerates the English source
+catalog, which is where the stale hash lives. Running it took the file from
+
+    8 failed, 23 passed        to        10 failed, 23 passed
+
+because regenerating the SOURCE adds keys the nine locale catalogs do not
+have, and the tests that refuse unreviewed English then fail on them. Two
+tests that were passing -- placeholder preservation and the README language
+links -- started failing. Reverted.
+
+So the two halves cannot be separated: the source rebuild and the translation
+pass have to happen together, and the translation pass wants a reviewer for
+anything the tests will not accept machine output for.
+
+AND I ADDED TO THE DEBT TONIGHT. The per-object grid needed a control, so
+Preferences -> Appearance gained a row: the caption "Per-object settings as a
+table" and its tooltip. Both are new UI strings in nine locales' worth of
+catalog. That is the ordinary cost of any new control and is recorded here
+rather than left for the next person to discover in a diff.
