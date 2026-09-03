@@ -348,15 +348,13 @@ def confusion_counts(predictions: pd.DataFrame,
 class Confusion:
     """One off-diagonal cell, ranked against the others.
 
-    :ivar true_class: what it really was.
-    :ivar predicted_class: what the model said.
-    :ivar count: how many objects.
-    :ivar share_of_errors: this cell's share of *all* mistakes. The number
-        that says where to spend the next hour.
-    :ivar rate_within_true: this cell as a fraction of the true class's whole
-        row. The number that says how bad it is for that class — a cell can
-        be 45% of all errors and still only 2% of a huge class, or 8% of the
-        errors and 60% of a small one, and those are different problems.
+    :param true_class: annotated class naming the confusion-matrix row.
+    :param predicted_class: model-assigned class naming the confusion-matrix
+        column.
+    :param count: number of objects in this off-diagonal cell.
+    :param share_of_errors: this cell's fraction of all off-diagonal errors.
+    :param rate_within_true: this cell's fraction of the complete row for
+        ``true_class``.
     """
 
     true_class: str

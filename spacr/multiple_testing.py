@@ -55,12 +55,14 @@ LOCAL_FDR_MIN_TESTS = 20
 class MethodSpec:
     """One correction: its canonical key, label, family and controlled rate.
 
-    :ivar key: canonical settings and command-line identifier.
-    :ivar label: human-readable name shown in method selectors.
-    :ivar controls: error rate controlled by the method, or ``'nothing'``.
-    :ivar statsmodels_name: name passed to ``statsmodels``, or ``None`` for a
-        correction implemented locally or no correction.
-    :ivar summary: concise explanation of the method and its assumptions.
+    :param key: canonical settings and command-line identifier for the
+        correction.
+    :param label: human-readable method name shown in selectors.
+    :param controls: error rate controlled by the method: ``"FDR"``,
+        ``"FWER"``, or ``"nothing"``.
+    :param statsmodels_name: method name passed to ``statsmodels``, or
+        ``None`` for locally implemented or absent correction.
+    :param summary: concise explanation of the method and its assumptions.
     """
 
     key: str
