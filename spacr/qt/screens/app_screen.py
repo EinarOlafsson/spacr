@@ -728,6 +728,10 @@ def _theme_wallpaper():
 #: point a dict meets the widgets, rather than in every producer.
 _RENAMED_SETTING_KEYS = {"png_dims": "png_channel_mapping"}
 
+#: ``organelleb_min_size`` -> role ``organelleb``, suffix ``min_size``.
+_ORGANELLE_SLOT_KEY = re.compile(
+    r"^(?P<role>organelle[a-z]*)_(?P<suffix>.+)$")
+
 
 def _translate_legacy_setting_keys(settings: dict) -> dict:
     """Rename retired setting keys so their values still reach a widget.
@@ -751,7 +755,42 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
         if old in out:
             value = out.pop(old)
             out.setdefault(new, value)
+    # AND EVERY RENAME THE VALIDATOR ALREADY KNOWS ABOUT. `RETIRED_SETTINGS`
+    # is where a rename is recorded, and it was consulted when a file was
+    # CHECKED but not when one was LOADED -- so `spacr-doctor` said "renamed
+    # to X" about the very file the panel had just dropped the value from.
+    for key in list(out):
+        replacement = _surviving_name_of(key)
+        if replacement and replacement != key:
+            out.setdefault(replacement, out.pop(key))
     return out
+
+
+def _surviving_name_of(key: str):
+    """What a retired setting is called now, or ``None`` if it is current.
+
+    :param key: the key a settings file carries.
+    :returns: the name that is read today, or ``None``.
+    """
+    from spacr.validate import RETIRED_SETTINGS
+
+    direct = RETIRED_SETTINGS.get(key)
+    if direct:
+        return direct
+    # THE GENERATED ORGANELLE SLOTS. The table names the first slot only --
+    # `organelle_min_size` -- but a run declares as many organelles as it
+    # likes and each slot repeats the same suffix, so a table of literals
+    # would migrate `organelleb` and silently miss `organellez`. The rename
+    # belongs to the SUFFIX, so it is looked up on the first slot's spelling
+    # and put back on the slot the key actually names.
+    match = _ORGANELLE_SLOT_KEY.match(key or "")
+    if match is None:
+        return None
+    suffix = match.group("suffix")
+    renamed = RETIRED_SETTINGS.get(f"organelle_{suffix}")
+    if not renamed or not renamed.startswith("organelle_"):
+        return None
+    return f"{match.group('role')}_{renamed[len('organelle_'):]}"
 
 
 def _elapsed_words(seconds: float) -> str:

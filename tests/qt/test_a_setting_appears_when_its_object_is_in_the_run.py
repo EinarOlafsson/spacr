@@ -267,6 +267,9 @@ def test_a_legacy_slot_mapping_infers_the_count_before_it_builds(qapp, qtbot):
     window._on_nav_selected("mask")
     qapp.processEvents()
     original = window._screens["mask"]
+    # A REAL PRE-COUNT FILE, so it still spells the size floor `_min_size`.
+    # That name was retired in favour of `_min_area`; the value has to reach
+    # the widget under the surviving name rather than be dropped on the way.
     loaded = {
         "organelleb_channel": 4,
         "organelleb_type": "tubular",
@@ -280,7 +283,10 @@ def test_a_legacy_slot_mapping_infers_the_count_before_it_builds(qapp, qtbot):
     values = rebuilt._settings_model.collect()
     assert rebuilt is not original
     assert values["number_of_organelles"] == 2
-    assert {key: values[key] for key in loaded} == loaded
+    assert values["organelleb_channel"] == 4
+    assert values["organelleb_type"] == "tubular"
+    assert values["organelleb_min_area"] == 91, "the retired name was dropped"
+    assert "organelleb_min_size" not in values
 
 
 def test_a_bulk_type_import_deferred_by_a_run_keeps_preset_provenance(
@@ -366,7 +372,7 @@ def test_an_organelle_slot_is_switched_by_its_own_channel(qtbot):
     _set(model, "organelleb_channel", 4)
 
     assert _row_shown(screen, "organelleb_type") is True
-    assert _row_shown(screen, "organelleb_min_size") is True
+    assert _row_shown(screen, "organelleb_min_area") is True
     # Slot 1 was not asked about and is still off.
     assert _row_shown(screen, "organelle_type") is False
     assert _row_shown(screen, "organelle_min_area") is False

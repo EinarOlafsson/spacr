@@ -1358,6 +1358,13 @@ def get_measure_crop_settings(settings=None):
     # punctate organelle and is a segmentation artefact for a reticular one.
     # Defaults to 'custom', which makes no claim, so a settings file written
     # before this existed still means exactly what it meant.
+    # THE FIRST ORGANELLE IS SEEDED BY HAND, so it has to be given the
+    # size floor the loop below gives every other slot. Without it
+    # `measure_crop` asked for a key the factory never shipped and the
+    # organelle filter silently never ran, while the form had no row
+    # to show. 0 rather than Mask's 10: Measure consumes labels that
+    # are already segmented, so it filters nothing unless asked.
+    settings.setdefault('organelle_min_area', 0)
     settings.setdefault('organelle_type', DEFAULT_ORGANELLE_TYPE)
     # HOW MANY ORGANELLES THIS RUN HAS. Measure reads the same count the mask
     # side does, because it is the same objects being measured: a run that
@@ -1366,7 +1373,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault(NUMBER_OF_ORGANELLES, _requested_organelle_count)
     for _role in declared_organelle_roles(settings)[1:]:
         settings.setdefault(f'{_role}_mask_dim', None)
-        settings.setdefault(f'{_role}_min_size', 0)
+        settings.setdefault(f'{_role}_min_area', 0)
         settings.setdefault(f'{_role}_type', DEFAULT_ORGANELLE_TYPE)
     # NO FIXED FLOOR OF FOUR. Removed 2026-09-02 on the maintainer's
     # instruction: "if the user chooses 2 organelles settings for 2 organells
@@ -1390,7 +1397,6 @@ def get_measure_crop_settings(settings=None):
     # is the count the user asked for plus any slot the file already carries.
     # A reader that needs to know which organelle tables a run has should ask
     # that, not a constant.
-        settings.setdefault(f'{_role}_type', DEFAULT_ORGANELLE_TYPE)
     settings.setdefault('cytoplasm_min_size',0)
     settings.setdefault('merge_edge_pathogen_cells', True)
     
