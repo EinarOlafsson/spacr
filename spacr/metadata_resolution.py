@@ -67,7 +67,22 @@ class MetadataRequest:
 
 @dataclass(frozen=True)
 class MetadataDecision:
-    """One all-at-once answer returned by a UI or a saved setting."""
+    """One all-at-once answer returned by a UI or a saved setting.
+
+    :ivar column_map: canonical target names mapped to their actual source
+        columns; the resolver applies every rename together before deriving
+        any missing identities.
+    :ivar well_column: source column containing parseable well labels from
+        which missing row and column identifiers may be derived.
+    :ivar pseudo_source: source identity whose distinct values receive stable
+        pseudo-well coordinates when real well metadata is unavailable.
+    :ivar allow_pseudo: explicit permission to synthesize those coordinates;
+        ``pseudo_source`` alone never changes the data.
+    :ivar save_path: optional JSON audit path recording the chosen mappings
+        and any generated pseudo-well assignments.
+    :ivar remember: cache a prompted decision under the caller's ``cache_key``
+        so one run is not interrupted by the same metadata question twice.
+    """
 
     column_map: Mapping[str, str] = field(default_factory=dict)
     well_column: Optional[str] = None
