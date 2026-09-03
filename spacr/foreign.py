@@ -1404,11 +1404,32 @@ class ImportPlan:
         uncalibrated column, a low join match rate, a lossy z handling.
     :ivar resolved: the derived, executable form of ``column_maps``.
     :ivar join: :class:`JoinReport`.
+    :ivar errors: blocking planning problems that make :attr:`ok` false.
+    :ivar notes: non-problem planning facts shown before the user confirms
+        the import.
+    :ivar object_types: mask/object classes to import, in spaCR mask-plane
+        order.
+    :ivar n_channels: common number of intensity channels in each imported
+        image field.
+    :ivar mask_dims: zero-based merged-array mask-plane index keyed by object
+        type.
+    :ivar um_per_px: image calibration in micrometres per pixel, or ``None``
+        when physical length and area conversions must remain uncalibrated.
+    :ivar prefix: namespace prepended to foreign target columns that do not
+        use a reviewed spaCR name.
+    :ivar on_conflict: ``"refuse"`` to block colliding targets or ``"rename"``
+        to assign an unused prefixed name.
+    :ivar allow_spacr_targets: explicit opt-in allowing reviewed foreign
+        columns to use names owned by spaCR.
+    :ivar sources: absolute source locations keyed by ``"images"``,
+        ``"measurements"``, and ``"mask:<object_type>"``.
     :ivar base_warnings: the warnings that do *not* come from the column
         mapping (unpaired masks, the join, z handling). Kept apart so
         :meth:`with_column_maps` can rebuild the mapping's own warnings
         without losing them or duplicating them.
     :ivar base_errors: likewise for blocking problems.
+    :ivar proposed: true while the column mapping is inferred and has not yet
+        been returned through :meth:`with_column_maps` for review.
     """
 
     images: 'cv.ConversionPlan'
@@ -2167,10 +2188,20 @@ class ImportResult:
     :ivar conversion: the :class:`spacr.convert.ConversionResult` for
         their images — the provenance back to the original filenames.
     :ivar db_path: the ``measurements.db`` that was written.
+    :ivar column_map_path: path of the applied column mapping saved beside the
+        imported project.
+    :ivar stacks: per-field intensity-stack ``.npy`` files written for the
+        project.
+    :ivar mask_files: per-field label-mask ``.npy`` files written for the
+        project.
     :ivar merged: merged ``.npy`` paths, one per imported field.
     :ivar rows: rows written into each foreign object table.
     :ivar crops: PNG paths cut from the merged arrays, if any.
     :ivar measured: True when spaCR's own measurements were re-extracted.
+    :ivar ledger: :class:`RunLedger` carrying per-item outcomes and overall
+        completeness, or ``None`` when no ledger was produced.
+    :ivar warnings: non-fatal execution problems, including fields skipped
+        after planning.
     :ivar notes: things that happened and are not problems — chiefly a
         canonical object table that was already populated and was
         therefore left exactly as it was found.

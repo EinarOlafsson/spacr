@@ -29,6 +29,7 @@ produces a real project or a plausible-looking wrong one:
 """
 from __future__ import annotations
 
+from dataclasses import fields
 import os
 import sqlite3
 
@@ -42,6 +43,14 @@ from spacr import crops as cropping
 from spacr import feature_dict as fdict
 from spacr import foreign as fg
 from spacr.errors import ConfigurationError
+
+
+@pytest.mark.parametrize("record", (fg.ImportPlan, fg.ImportResult))
+def test_import_records_document_every_generated_constructor_field(record):
+    """The executable plan and its result explain every value they expose."""
+    documentation = record.__doc__ or ""
+    for item in fields(record):
+        assert f":ivar {item.name}:" in documentation
 
 
 # ---------------------------------------------------------------------------
