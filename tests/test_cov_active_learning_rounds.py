@@ -455,6 +455,16 @@ def test_a_grouped_split_expands_when_the_requested_fold_has_one_class(
 # RoundResult — what the screen prints
 # ---------------------------------------------------------------------------
 
+def test_round_result_documents_and_normalizes_its_named_fields():
+    """The keyword-only construction contract remains public and usable."""
+    result = al.RoundResult(round_index=2, notes=None, report=None)
+
+    assert ":param fields:" in (al.RoundResult.__doc__ or "")
+    assert result.round_index == 2
+    assert result.notes == []
+    assert result.report == {}
+
+
 def test_a_round_summary_names_the_weakest_class_and_its_caveats():
     """An aggregate of 0.75 hides a class the model cannot do at all.
 
