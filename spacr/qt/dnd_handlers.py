@@ -2024,6 +2024,11 @@ class LayoutDropHandler(DropHandler):
     A drop that resolves to nothing reports
     :attr:`spacr.chaining.DropResolution.reason`, which is
     :func:`spacr.ports.check_ready`'s own sentence about what is missing.
+
+    :param app_key: which screen this handler belongs to, for the messages a
+        refused drop shows. Empty falls back to the subclass's `label`, and
+        then to its class name -- so a handler always has something to name
+        itself with rather than reporting an empty string to the user.
     """
 
     #: What this screen consumes, in the shared vocabulary. Empty means "the

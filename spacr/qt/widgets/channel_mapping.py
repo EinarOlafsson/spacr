@@ -44,7 +44,13 @@ _SLOTS = (
 
 
 class ChannelMappingWidget(QWidget):
-    """Editor for a ``{'r': int, 'g': int, 'b': int}`` channel mapping."""
+    """Editor for a ``{'r': int, 'g': int, 'b': int}`` channel mapping.
+
+    :param value: the mapping already saved. ``None`` opens with nothing
+        assigned, and a colour left empty STAYS empty -- the run must not put
+        a plane back into a slot the user cleared.
+    :param parent: parent widget.
+    """
 
     valueChanged = Signal(dict)
 

@@ -514,6 +514,11 @@ class ShortcutOverlay(QWidget):
 
     Laid out in columns by category rather than one long list, because
     fifteen bindings in one column is a scroll and in three is a glance.
+
+    :param window: the window to cover and to read the bindings from. The
+        overlay is drawn OVER it rather than as a dialog of its own, which is
+        the whole argument above -- so this is not a parent in the ordinary
+        sense but the thing being annotated.
     """
 
     def __init__(self, window: QWidget):

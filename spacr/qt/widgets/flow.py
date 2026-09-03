@@ -22,6 +22,9 @@ class FlowLayout(QLayout):
     Chips have to wrap: ``controls`` ships thirty of them and a horizontal
     box would either clip them or force the settings panel wider than the
     window.
+
+    :param parent: parent widget.
+    :param spacing: pixels between chips, horizontally and vertically.
     """
 
     def __init__(self, parent=None, spacing: int = 4):

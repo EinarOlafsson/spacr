@@ -27,7 +27,12 @@ from .sortable_table import install_sorting, table_item
 
 
 class ExternalMaskInputWidget(QWidget):
-    """Group dropped files and let the user correct every inferred role."""
+    """Group dropped files and let the user correct every inferred role.
+
+    :param value: the groups already saved. ``None`` opens with none, which
+        is the ordinary case: the groups are built by dropping files in.
+    :param parent: parent widget.
+    """
 
     value_changed = Signal()
 
