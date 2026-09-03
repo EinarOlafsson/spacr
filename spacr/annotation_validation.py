@@ -60,6 +60,7 @@ class Screen:
     meta: Dict[str, object] = field(default_factory=dict)
 
     def __len__(self) -> int:
+        """Return the simulated-cell count represented by the feature rows."""
         return int(self.features.shape[0])
 
 
@@ -83,6 +84,7 @@ class Verdict:
     n: int
 
     def summary(self) -> str:
+        """Format coverage, called-cell precision, and all-cell recall."""
         return (f"{self.coverage:.0%} annotated, {self.precision:.0%} of "
                 f"those correct ({self.recall:.0%} of all cells)")
 
