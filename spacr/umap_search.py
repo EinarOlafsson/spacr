@@ -40,6 +40,18 @@ class UmapRecipe:
     map tomorrow. ``columns`` is part of it: a recipe that recorded only the
     hyperparameters would rebuild a different map the moment the column
     selection changed, and the score beside it would then describe neither.
+
+    :ivar n_neighbors: neighbourhood size balancing local detail against
+        global structure in the embedding.
+    :ivar min_dist: minimum separation between embedded points, controlling
+        how tightly local clusters may pack.
+    :ivar n_components: drawable output dimensions, clamped to two or three.
+    :ivar metric: distance function used to compare input feature vectors.
+    :ivar random_state: seed retained so the CPU embedding can be reproduced.
+    :ivar scale: standardize selected features before fitting when true.
+    :ivar columns: exact input feature columns scored by this recipe.
+    :ivar backend: implementation used to build the map, such as CPU UMAP or
+        cuML; different backends are treated as different recipes.
     """
 
     n_neighbors: int = 15
@@ -90,6 +102,11 @@ class SearchRow:
     coordinates with a non-deterministic backend.
 
     :ivar recipe: complete embedding recipe evaluated by this trial.
+    :ivar scores: named quality measurements calculated from this embedding.
+    :ivar embedding: exact coordinates those scores describe, retained so
+        selecting the row never silently refits a different map.
+    :ivar labels: optional cluster assignment for each embedded row.
+    :ivar note: warning or explanatory text that must travel with this trial.
     """
 
     recipe: UmapRecipe
