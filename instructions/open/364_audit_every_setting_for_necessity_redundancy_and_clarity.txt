@@ -553,3 +553,36 @@ SEPARATELY: `docs/setting_consumers.json` was stale at HEAD -- every "where
 is this setting read?" link pointed at line numbers 14 to 36 lines out.
 Confirmed not mine by regenerating at clean HEAD in a worktree. Regenerated
 in 1f39dfaf0, on its own so the churn did not bury the fix.
+
+THREE ORGANELLE SETTINGS EXIST IN THE CODE AND NOWHERE ELSE. Found by
+sweeping `measure.py` and `io.py` for keys the code reads that no factory
+ships -- the generalisation of tonight's `{role}_min_size` bug.
+
+`io.py:1686-1691` reads `organelle_background`, `organelle_signal_to_noise`
+and `remove_background_organelle` as optional overrides of the generic
+values, with an explicit fallback, under the comment "use organelle-specific
+settings when present, otherwise the generic defaults above". No factory
+ships any of the three and no form offers them, so the only way to reach them
+is to hand-edit a settings CSV.
+
+The other three objects have all three keys each. So an organelle is the one
+object whose background subtraction cannot be tuned, while
+`organelle_signal_to_noise` MULTIPLIES a background the user cannot see --
+and 326 makes organelles first-class and arbitrary in number.
+
+NOT DONE, and the reason is the same as the recruitment finding above: the
+keys belong to `spacr/settings.py`, and the fix is only correct if the
+shipped defaults equal what the fallback currently produces, which has to be
+read out of the calling frame rather than guessed. Behaviour-neutral is
+achievable here -- it is a question of confirming the generic value, not of
+choosing a new one.
+
+`measure.py` swept clean after tonight's fix. The sweep is worth keeping as a
+test -- it is the check that would have caught the retirement stopping
+halfway -- but NOT as written: a naive regex over `settings['x']` also
+matches inside docstrings (`io.py:3494` names two keys in prose) and matches
+WRITES (`io.py:7557` assigns `nr_classes`). Both were false positives here.
+It needs to read the AST and count reads only, and to be seeded with the
+metadata/annotation keys (`metadata_rules`, `annotation_columns`,
+`annotation_values`, `metadata_type_by`) which come from a settings family
+outside the per-module factories rather than from nowhere.
