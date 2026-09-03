@@ -20,24 +20,29 @@ MAD_TO_SIGMA = 1.4826
 
 
 def _finite(values) -> np.ndarray:
+    """Flatten numeric values and discard NaN and infinite entries."""
     array = np.asarray(values, dtype=float).ravel()
     return array[np.isfinite(array)]
 
 
 def _std(values) -> float:
+    """Return the sample standard deviation of the finite values."""
     return float(np.std(_finite(values), ddof=1))
 
 
 def _var(values) -> float:
+    """Return the sample variance of the finite values, in squared units."""
     return float(np.var(_finite(values), ddof=1))
 
 
 def _mad(values) -> float:
+    """Estimate normal-distribution sigma from the finite values' MAD."""
     array = _finite(values)
     return float(np.median(np.abs(array - np.median(array))) * MAD_TO_SIGMA)
 
 
 def _iqr(values) -> float:
+    """Return the interquartile range of the finite values."""
     array = _finite(values)
     return float(np.percentile(array, 75) - np.percentile(array, 25))
 
@@ -48,6 +53,7 @@ def _abs_percentile(values) -> float:
 
 
 def _range(values) -> float:
+    """Return the maximum minus minimum of the finite values."""
     array = _finite(values)
     return float(array.max() - array.min())
 

@@ -46,16 +46,19 @@ def _best_p(p_values) -> float:
     return float(finite.min()) if finite.size else float("nan")
 
 def _gene_of(feature: str):
+    """Extract a normalized gene identifier from a bracketed feature."""
     match = _GENE_IN_FEATURE.search(str(feature))
     return match.group(1) if match else None
 
 
 def _is_guide_term(feature: str) -> bool:
+    """Return whether ``feature`` represents an individual guide term."""
     text = str(feature)
     return text.startswith("fraction:grna") or bool(_GUIDE_IN_FEATURE.search(text))
 
 
 def _is_gene_term(feature: str) -> bool:
+    """Return whether ``feature`` is a gene-level fraction term."""
     return str(feature).startswith("gene_fraction:gene")
 
 
