@@ -39,6 +39,7 @@ matplotlib.use("Agg")
 
 from spacr.train_compare import (
     Comparison,
+    Series,
     TrainingRun,
     available_metrics,
     compare_runs,
@@ -50,6 +51,16 @@ from spacr.train_compare import (
     metric_direction,
     plot_curves,
 )
+
+
+def test_series_documents_and_retains_its_fold_count():
+    """The public field that distinguishes a fold mean stays documented."""
+    frame = pd.DataFrame({"epoch": [1.0], "accuracy": [0.75]})
+    series = Series("run", "val", "mean", "mean", "run · val · mean",
+                    frame, n_folds=4)
+
+    assert ":ivar n_folds:" in (Series.__doc__ or "")
+    assert series.n_folds == 4
 
 
 # ---------------------------------------------------------------------------
