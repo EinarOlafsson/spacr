@@ -804,3 +804,59 @@ WHAT IS LEFT IN 350, and it is narrower than what it replaces:
     another route is still measured on one line.
   * THE TEARDOWN CORE DUMP (288 / 345 / 346) is unchanged and still the thing
     that makes a run of this size feel risky.
+
+--------------------------------------------------------------------------------
+2026-09-03: THE SWEEP RUN OVER EVERYTHING. 209 OF 210 CLEAN, AND THE ONE THAT
+IS NOT IS A CONFLICT BETWEEN TWO INSTRUCTIONS
+--------------------------------------------------------------------------------
+
+The committed sweep covers 8 screens of 21 and 3 locales of 9, which is a
+METHOD rather than a proof of "anywhere in the package". So it was run once
+over everything, as a probe rather than as a committed test:
+
+    21 tiled screens x 10 locales, at 200 % font scale
+    209 passed, 1 failed, 23 minutes 47 seconds
+
+THAT IS THE PROOF THIS ITEM WANTED, and it is close to clean. The two fixes
+made earlier today -- `UsageBar`'s fixed column widths and `ApiHelpLabel`'s
+minimum size hint -- account for most of it: they were on every module screen
+in every locale, which is why the 8x3 sample found them.
+
+THE ONE OFFENDER, measured:
+
+    regression, pt, 2x   QPushButton 'Contagem': 144 px wide, wants 151
+
+It is 7 px, and it is not a bug in either place. The button lives in a
+`ColumnAlignedRow` -- instruction 353's download strip, which centres each
+button in its table column "clamped to its width" and reads the header
+without ever writing it, so the user's own column widths stay the only
+source of truth. At 200 % the Portuguese caption is wider than the column it
+must sit over.
+
+SO TWO INSTRUCTIONS DISAGREE AND NEITHER IS WRONG:
+
+    353    the button is aligned over its column, and the alignment IS the
+           meaning -- that is what the strip is for
+    350    no caption is cut off
+
+THREE WAYS OUT, and the choice is the maintainer's:
+
+  (a) THE CAPTION GIVES WAY. Make the clamped buttons `ElidingPushButton`,
+      which elides the PAINTING and leaves `text()` intact -- 348 established
+      that pattern precisely because three pieces of code read a button's
+      text back. Alignment kept, caption shortened, tooltip carries the rest.
+      RECOMMENDED: the column is the meaning and the word is recoverable.
+  (b) THE ALIGNMENT GIVES WAY. Let the button exceed its column. Cheapest,
+      and it undoes what 353 was asked for.
+  (c) THE COLUMN WIDENS. `ColumnAlignedRow` refuses to call `resizeSection`
+      on purpose, so this means overriding the user's own column widths.
+
+NOT DONE TONIGHT, deliberately. It is a design decision between two things
+the maintainer asked for, it is seven pixels in one locale at the largest
+font scale the slider offers, and choosing between them unattended at half
+past four is the trade this file has already been burned by once.
+
+THE PROBE IS NOT COMMITTED. 210 combinations take 24 minutes against the
+committed sweep's 51 in under four, which is the wrong shape for a test that
+runs on every change. The coverage question stays as recorded above; what
+has changed is that the answer is now MEASURED rather than open.
