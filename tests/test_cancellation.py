@@ -20,6 +20,8 @@ from spacr.cancellation import (
 
 def test_token_is_idempotent_and_preserves_first_reason():
     token = CancellationToken()
+    assert "fallback cancellation reason" in (
+        CancellationToken.__init__.__doc__ or "")
     assert not token.cancelled
     assert token.cancel("first reason")
     assert not token.cancel("second reason")
