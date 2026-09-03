@@ -25,6 +25,42 @@ class FigureStyle:
     Plot-specific options, such as an effect-size threshold or a colour-by
     column, belong on the corresponding subclass. Keeping only portable
     values here allows a saved house style to be applied across plot types.
+
+    :param x_label: horizontal-axis label supplied to the renderer; empty
+        permits renderer-specific or default behavior.
+    :param y_label: vertical-axis label supplied to the renderer; empty
+        permits renderer-specific or default behavior.
+    :param title: figure title; empty suppresses the shared title operation.
+    :param x_scale: Matplotlib horizontal scale from :data:`SCALES`.
+    :param y_scale: Matplotlib vertical scale from :data:`SCALES`.
+    :param x_lim: explicit horizontal ``(minimum, maximum)`` limits, or
+        ``None`` for data-derived limits.
+    :param y_lim: explicit vertical ``(minimum, maximum)`` limits, or ``None``.
+    :param invert_x: whether to reverse the horizontal axis after limits apply.
+    :param invert_y: whether to reverse the vertical axis after limits apply.
+    :param font_family: font-family preference available to renderers that
+        support a figure-wide family.
+    :param font_size: base text size available for plot-specific prose.
+    :param title_font_size: title size in points.
+    :param label_font_size: axis-label size in points.
+    :param tick_font_size: tick-label size in points.
+    :param font_weight: shared Matplotlib text weight.
+    :param figure_width: figure-canvas width in inches for live and saved use.
+    :param figure_height: figure-canvas height in inches for live and saved use.
+    :param dpi: dots per inch used for raster output.
+    :param grid: whether the selected grid is visible.
+    :param grid_axis: axes receiving grid lines: ``"x"``, ``"y"``, ``"both"``,
+        or ``"none"``.
+    :param grid_color: Matplotlib-compatible grid-line color.
+    :param grid_width: grid-line width in points.
+    :param hide_top_right_spines: whether to remove the top and right frame
+        lines.
+    :param legend: whether renderers with keyed marks should draw a legend.
+    :param legend_location: Matplotlib legend placement from
+        :data:`SHARED_CHOICES`.
+    :param background_color: named page and axes color; ``"none"`` delegates
+        the background choice to the renderer.
+    :param transparent: whether exported figure backgrounds are transparent.
     """
 
     # ---- axes ---------------------------------------------------------
