@@ -16,6 +16,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 FULLY_DOCUMENTED = (
+    "spacr/attribution_columns.py",
     "spacr/cli_plugins.py",
     "spacr/cli_repro.py",
     "spacr/column_groups.py",
@@ -26,7 +27,12 @@ FULLY_DOCUMENTED = (
     "spacr/intensity_rescale.py",
     "spacr/localisation.py",
     "spacr/mask_io.py",
+    "spacr/normalization.py",
+    "spacr/notebook_export.py",
     "spacr/regression_failure.py",
+    "spacr/regression_layout.py",
+    "spacr/well_scope.py",
+    "spacr/well_spec.py",
 )
 
 

@@ -41,6 +41,12 @@ class AttributionWriteError(RuntimeError):
 
 
 def _columns_of(cursor, table: str) -> set:
+    """Return the column names declared by one SQLite table.
+
+    :param cursor: SQLite cursor used to query table metadata.
+    :param table: Table whose schema is inspected.
+    :returns: Set of names reported by SQLite's ``table_info`` pragma.
+    """
     return {row[1] for row in cursor.execute(f"PRAGMA table_info('{table}')")}
 
 

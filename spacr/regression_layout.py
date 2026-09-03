@@ -26,6 +26,12 @@ DEFAULT_ID_COLUMNS = (
 
 
 def _names(values: Sequence[str] | str | None) -> list[str]:
+    """Normalize optional column names to a list of strings.
+
+    :param values: No names, one name, or a sequence of name-like values.
+    :returns: Empty list for ``None``, a one-item list for a string, or the
+        sequence converted element by element to strings.
+    """
     if values is None:
         return []
     if isinstance(values, str):

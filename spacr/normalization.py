@@ -147,6 +147,13 @@ def normalization_stats(mode: Any, *,
 
 
 def _broadcast(values: Sequence[float], channels: int) -> Tuple[float, ...]:
+    """Convert normalization values to floats and expand a singleton.
+
+    :param values: Per-channel values, or one value shared by all channels.
+    :param channels: Requested channel count for singleton expansion.
+    :returns: Float tuple, with one input repeated to at least one channel;
+        multi-value inputs retain their original length.
+    """
     out = [float(v) for v in values]
     if len(out) == 1:
         return tuple(out * max(1, int(channels)))
