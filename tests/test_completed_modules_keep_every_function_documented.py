@@ -30,6 +30,7 @@ FULLY_DOCUMENTED = (
     "spacr/column_groups.py",
     "spacr/confusion.py",
     "spacr/crop_source.py",
+    "spacr/database_concurrency.py",
     "spacr/database_schema.py",
     "spacr/diameter.py",
     "spacr/example_data.py",

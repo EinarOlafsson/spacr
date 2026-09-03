@@ -6,6 +6,7 @@ database browser rather than mocking SQLite's lock state.
 """
 from __future__ import annotations
 
+from dataclasses import fields
 import json
 import os
 import sqlite3
@@ -26,6 +27,21 @@ from spacr.database_concurrency import (
     transaction,
 )
 from spacr.errors import RUN_STATUS_TABLE, RunLedger
+
+
+@pytest.mark.parametrize(
+    "record",
+    (db_concurrency.DatabaseHealth, db_concurrency.ConcurrencyProbeResult),
+)
+def test_database_audit_records_document_every_reported_field(record):
+    """Every health and stress-probe value is explained in the public API."""
+    documentation = record.__doc__ or ""
+    missing = [
+        item.name
+        for item in fields(record)
+        if f":ivar {item.name}:" not in documentation
+    ]
+    assert not missing, f"{record.__name__}: {missing}"
 
 
 def _create_database(path, *, journal_mode=None):
