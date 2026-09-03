@@ -274,8 +274,14 @@ def test_a_placeholder_from_a_replotted_figure_is_still_forgotten(box_canvas):
     assert stale, "nothing followed the mouse to begin with"
 
     canvas.render_now()
-    with pytest.raises(NotImplementedError):
-        stale[0].remove()
+
+    # THE ARTIST IS STALE, checked by asking the artist rather than by
+    # catching what `remove()` raises. Matplotlib used to raise
+    # NotImplementedError for an artist whose axes had gone; on 3.8 it
+    # detaches the artist (`.axes` becomes None) and removing it is a no-op.
+    # Pinning the exception pinned the library's version, not spaCR's
+    # behaviour, and the test went red on an upgrade that broke nothing.
+    assert stale[0].axes is None, "the redraw did not detach the placeholder"
 
     canvas._clear_ghost()
     assert canvas._ghost == []
