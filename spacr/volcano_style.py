@@ -251,6 +251,7 @@ class VolcanoStyle(FigureStyle):
     # ------------------------------------------------------------------ i/o
 
     def to_dict(self) -> dict:
+        """Return every style field as a recursively copied plain mapping."""
         return asdict(self)
 
     @classmethod
@@ -664,6 +665,15 @@ def _scatter_by_shape(axis, frame, x, y, mask, style, shapes, *, color, size,
 
 
 def _draw_reference_lines(panels, style, effect_cut):
+    """Draw each enabled significance, zero, and symmetric effect rule.
+
+    :param panels: axes that receive identical reference rules.
+    :param style: validated :class:`VolcanoStyle` controlling visibility and
+        line appearance.
+    :param effect_cut: nonzero absolute effect threshold, or ``None`` when no
+        effect rule can be drawn.
+    :returns: ``None``; the axes are modified in place.
+    """
     for axis in panels:
         if style.show_alpha_line and style.line_style != "none":
             level = (-np.log10(max(float(style.alpha), np.finfo(float).tiny))
@@ -784,6 +794,16 @@ def _paint_ink(figure, panels, style, ground) -> None:
 
 
 def _finish_axes(figure, panels, style, mappable, ground=None):
+    """Apply labels, scales, furniture, ink, and eligible layout in place.
+
+    :param figure: matplotlib figure containing the volcano panels.
+    :param panels: one ordinary axis or the two axes of a split volcano.
+    :param style: validated :class:`VolcanoStyle` to render.
+    :param mappable: numeric-colour artist, or ``None`` when no colorbar is
+        available.
+    :param ground: optional resolved page colour.
+    :returns: ``None``.
+    """
     y_label = style.y_label
     if not y_label:
         y_label = (f"-log10({style.y_column})" if style.y_neg_log10
@@ -826,11 +846,11 @@ def _finish_axes(figure, panels, style, mappable, ground=None):
         panels[0].plot([0, 1], [0, 0], transform=panels[0].transAxes, **kwargs)
         panels[1].plot([0, 1], [1, 1], transform=panels[1].transAxes, **kwargs)
 
-    bottom.set_xlabel(style.x_label, fontsize=style.font_size)
+    bottom.set_xlabel(style.x_label, fontsize=style.label_font_size)
     if len(panels) == 2:
-        figure.supylabel(y_label, fontsize=style.font_size)
+        figure.supylabel(y_label, fontsize=style.label_font_size)
     else:
-        bottom.set_ylabel(y_label, fontsize=style.font_size)
+        bottom.set_ylabel(y_label, fontsize=style.label_font_size)
     if style.title:
         panels[0].set_title(style.title, fontsize=style.title_font_size,
                             fontweight="bold")

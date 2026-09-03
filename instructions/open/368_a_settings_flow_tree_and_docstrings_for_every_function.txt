@@ -213,3 +213,40 @@ STILL TO DO: the docstrings (phase 4), and including the page in the doc
 tree once the Sphinx build is next run. The map those links resolve against was fixed
 earlier today -- 59 settings pointed at a function that reads no settings --
 so the ground is now sound.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``mixed_gpu.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The three remaining undocumented callables were small but user-visible in
+their results: ``_readable`` now states its coercion, clamping, precision, and
+largest unit; ``_RandomTerm.n_levels`` names what it counts; and
+``TorchMixedResults.df_resid`` names the exact residual-degrees-of-freedom
+calculation. The module is now in the completed-module registry (and was
+already in the nested-function zero-debt registry), so deleting any function
+docstring makes the focused ratchet fail.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``roi.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The final six gaps now document geometry and rule normalization, aggregate
+ROI counting, filter initialization, missing-field policy, and cumulative
+keep/drop accounting. ``RoiRegionFilter`` also states that its field counter
+tracks distinct raster/cache misses rather than uncovered, empty, or
+waved-through fields. The module is in the completed-module registry, and a
+direct test pins :meth:`RoiSet.__len__` to the number of drawings across all
+field entries.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``volcano_style.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The final three callables now document detached style serialization,
+reference-rule rendering, and the full axis-finishing side effect. The pass
+also found and fixed axis labels ignoring ``label_font_size``; direct render
+and serialization tests pin both behavior contracts. The module is now in
+the completed-module registry.
