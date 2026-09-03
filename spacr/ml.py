@@ -7789,7 +7789,12 @@ def _write_regression_panel_packages(outcome, settings):
         )
 
     configured = settings.get("dependent_variable")
-    phenotypes = [configured] if isinstance(configured, str) else list(configured)
+    if isinstance(configured, str):
+        phenotypes = [configured]
+    elif isinstance(configured, (list, tuple)):
+        phenotypes = list(configured)
+    else:
+        phenotypes = []
     if not phenotypes or any(not isinstance(value, str) or not value.strip()
                              for value in phenotypes):
         raise ValueError(
