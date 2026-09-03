@@ -28,6 +28,14 @@ class Panel:
 
     :ivar key: stable registry key for the panel.
     :ivar title: short display title for the panel.
+    :ivar caption: one-sentence legend stating the statistical comparison,
+        sample size, and significance convention used by the rendered panel.
+    :ivar drawn: whether the requested panel was successfully rendered.
+    :ivar reason: actionable explanation when ``drawn`` is false.
+    :ivar needs: source columns required before the panel can be rendered.
+    :ivar data: rows actually rendered, including any panel-specific filter.
+    :ivar groups: labelled comparison groups, or ``None`` for panels that do
+        not compare groups.
     """
 
     key: str
