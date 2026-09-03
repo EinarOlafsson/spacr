@@ -54,6 +54,16 @@ def comparison():
 
 class TestBothStylesShareOneVocabulary:
 
+    def test_the_shared_style_documents_every_editable_field(self):
+        """Every portable control is explained where subclasses inherit it."""
+        documentation = FigureStyle.__doc__ or ""
+        missing = [
+            item.name
+            for item in dataclasses.fields(FigureStyle)
+            if f":param {item.name}:" not in documentation
+        ]
+        assert not missing, missing
+
     def test_both_are_figure_styles(self):
         assert isinstance(VolcanoStyle(), FigureStyle)
         assert isinstance(ComparisonStyle(), FigureStyle)
