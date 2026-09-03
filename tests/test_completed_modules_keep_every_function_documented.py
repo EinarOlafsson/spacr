@@ -64,6 +64,7 @@ FULLY_DOCUMENTED = (
     "spacr/flowview/layout.py",
     "spacr/flowview/model.py",
     "spacr/flowview/trace.py",
+    "spacr/flowview/theme.py",
     "spacr/intensity_rescale.py",
     "spacr/gpu_reduce.py",
     "spacr/guide_concordance.py",

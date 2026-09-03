@@ -47,6 +47,19 @@ def test_theme_tokens_cover_every_kind_and_non_colour_state_label():
         STATE_LABELS[NodeState.DONE] = "changed"
 
 
+def test_theme_tokens_name_invalid_kinds_and_states():
+    """Invalid enum values fail instead of silently choosing a visual token."""
+    with pytest.raises(ValueError, match="not a valid NodeState"):
+        state_label("waiting")
+    with pytest.raises(ValueError, match="not a valid NodeState"):
+        node_accent("input", "waiting")
+    with pytest.raises(ValueError, match="not a valid NodeKind"):
+        node_accent("database", "running")
+
+    # A failed node is deliberately alarm red even when its role is absent.
+    assert node_accent("database", "failed") == FAILURE
+
+
 def test_layered_layout_is_deterministic_longest_path_and_semantically_pinned():
     nodes = [
         Node("z-output", "Scores", NodeKind.OUTPUT),
