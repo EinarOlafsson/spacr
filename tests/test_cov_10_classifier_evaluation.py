@@ -11,6 +11,7 @@ a refusal the user can act on and a leaked, over-optimistic accuracy.
 """
 from __future__ import annotations
 
+from dataclasses import fields
 import json
 import os
 from pathlib import Path
@@ -40,6 +41,21 @@ from spacr.classifier_evaluation import (
     split_group_values,
     write_evaluation_bundle,
 )
+
+
+@pytest.mark.parametrize(
+    "record",
+    (ce.SplitReport, ce.LeakageReport, ce.FoldLeakageAudit),
+)
+def test_split_and_leakage_records_document_every_reported_field(record):
+    """Every split size and leakage finding is explained in the public API."""
+    documentation = record.__doc__ or ""
+    missing = [
+        item.name
+        for item in fields(record)
+        if f":ivar {item.name}:" not in documentation
+    ]
+    assert not missing, f"{record.__name__}: {missing}"
 
 
 # ---------------------------------------------------------------------------
