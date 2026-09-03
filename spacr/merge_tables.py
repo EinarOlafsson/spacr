@@ -137,6 +137,10 @@ class MergePolicy:
     :param overrides: column -> aggregation, beating the rules. The rules are
         right most of the time, and a default that is right most of the time
         is a wrong answer nobody can find the rest of it.
+    :param consolidate_on_cell: whether many-per-cell child tables restrict
+        output to cells that contributed a child.
+    :param keep_uninfected: preserve cells without pathogens or organelles as
+        the uninfected control population even while consolidating.
     """
 
     primary: str = DEFAULT_PRIMARY
