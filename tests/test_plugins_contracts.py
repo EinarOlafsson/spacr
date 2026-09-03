@@ -15,6 +15,7 @@ there first keeps working, rather than the whole registry failing shut.
 """
 from __future__ import annotations
 
+from dataclasses import fields
 import sys
 import types
 from importlib import metadata
@@ -22,6 +23,18 @@ from importlib import metadata
 import pytest
 
 from spacr import plugins
+
+
+@pytest.mark.parametrize("record", (
+    plugins.SpacrPlugin,
+    plugins.PluginDiagnostic,
+    plugins.ReportContext,
+))
+def test_plugin_records_document_every_generated_constructor_field(record):
+    """The public records explain the manifest, failure, and report payloads."""
+    documented = record.__doc__ or ""
+    for item in fields(record):
+        assert f":ivar {item.name}:" in documented
 
 
 # --------------------------------------------------------------------------
