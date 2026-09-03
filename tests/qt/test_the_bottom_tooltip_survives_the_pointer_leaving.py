@@ -22,6 +22,24 @@ pytest.importorskip("PySide6")
 from PySide6.QtCore import QEvent                              # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _put_the_singleton_back(qapp):
+    """Hide the shared popup after every test in this file.
+
+    `HoverTooltip.instance()` is a SINGLETON, and several tests here drive a
+    hover with the bottom strip switched off -- which is precisely the case
+    that opens the popup. Left showing, it leaks into whatever file runs
+    next: `test_no_information_dots.py` counts visible popups and saw three
+    failures that were this file's fault and looked like its own.
+    """
+    yield
+    from spacr.qt.widgets.hover_tooltip import HoverTooltip
+
+    popup = HoverTooltip.instance()
+    popup.hide()
+    qapp.processEvents()
+
+
 def _screen(qtbot, key="mask"):
     from spacr.qt.screens.app_screen import AppScreen
 
@@ -131,3 +149,78 @@ def test_the_bottom_strip_obeys_its_switch(qtbot, qt_theme_applied,
     scr.eventFilter(widget, QEvent(QEvent.Type.Enter))
 
     assert scr._hint_strip.text() == before
+
+
+def test_the_strip_offers_an_animation_word_only_when_there_is_one(
+        qtbot, qt_theme_applied):
+    """371 asks for the links on BOTH surfaces: "an API link and Annimation
+    link text ... same for the botom tooltips".
+
+    Only when the setting has one. 141 do, and a word that visibly does
+    nothing is worse than no word -- the rule the popup's own footer already
+    follows.
+    """
+    scr = _screen(qtbot)
+
+    scr._write_hint("what it does", "https://example.test/x", animated=True)
+    assert ">Animation<" in scr._hint_strip.text()
+
+    scr._write_hint("what it does", "https://example.test/x", animated=False)
+    assert ">Animation<" not in scr._hint_strip.text()
+    assert ">API<" in scr._hint_strip.text()
+
+
+def test_the_animation_word_is_not_a_url_a_browser_could_open(
+        qtbot, qt_theme_applied):
+    """The strip has `setOpenExternalLinks(True)` so its API link works, and
+    anything resembling a real address would be handed to a browser."""
+    from spacr.qt.screens.app_screen import _HINT_ANIMATION_HREF
+
+    scr = _screen(qtbot)
+    scr._write_hint("x", "https://example.test/x", animated=True)
+
+    assert _HINT_ANIMATION_HREF in scr._hint_strip.text()
+    assert not _HINT_ANIMATION_HREF.startswith(("http", "file", "//"))
+
+
+def test_pressing_the_animation_word_opens_the_box_for_that_setting(
+        qtbot, qt_theme_applied, monkeypatch):
+    """The strip hands off rather than duplicating: it is four lines at the
+    bottom of the window and the popup already has a column sized for the
+    square."""
+    from spacr.qt.screens.app_screen import _HINT_ANIMATION_HREF
+    from spacr.qt.widgets import hover_tooltip
+
+    scr = _screen(qtbot)
+    widget = _a_setting_widget(scr)
+    shown, toggled = [], []
+
+    # PATCHED ON THE CLASS, NOT THE INSTANCE, and that is not a style choice.
+    # `HoverTooltip.instance()` is a process-wide singleton, and
+    # `monkeypatch.setattr(popup, "show_for", ...)` reads the BOUND METHOD
+    # off the class and restores it as an INSTANCE attribute -- which then
+    # shadows the class for the rest of the session. `test_no_information_
+    # dots.py` replaces `HoverTooltip.show_for` on the class and counts the
+    # calls; with an instance attribute in the way its replacement never
+    # ran, and three of its tests failed in a file that had already finished.
+    monkeypatch.setattr(hover_tooltip.HoverTooltip, "show_for",
+                        lambda self, anchor, html, *a, **k: shown.append(anchor))
+    monkeypatch.setattr(hover_tooltip.HoverTooltip, "toggle_animation",
+                        lambda self: toggled.append(True))
+
+    scr._hinted_widget = widget
+    scr._hinted_html = "<b>x</b>"
+    scr._on_hint_link(_HINT_ANIMATION_HREF)
+
+    assert shown == [widget], "the box was not opened for the hovered setting"
+    assert toggled == [True], "the animation was not revealed"
+
+
+def test_an_unknown_link_target_does_nothing(qtbot, qt_theme_applied):
+    """The API link goes through Qt's external handler; only the private
+    scheme is ours, and anything else must be ignored rather than guessed
+    at."""
+    scr = _screen(qtbot)
+    scr._hinted_widget = _a_setting_widget(scr)
+    scr._hinted_html = "<b>x</b>"
+    scr._on_hint_link("https://example.test/somewhere")     # must not raise
