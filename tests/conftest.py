@@ -453,6 +453,58 @@ def _no_provider_stream_outlives_a_test():
         pass
 
 
+#: Sandbox for everything the app keeps under `~/.spacr`. Session-wide and
+#: created once, like the QSettings one above.
+_DOT_SPACR_SANDBOX = Path(
+    tempfile.mkdtemp(prefix="spacr-dot-spacr-")).resolve()
+_atexit.register(_shutil.rmtree, str(_DOT_SPACR_SANDBOX), True)
+
+
+@pytest.fixture(autouse=True)
+def _isolated_dot_spacr_store(monkeypatch):
+    """Keep the run journal and the plate queue out of the real `~/.spacr`.
+
+    THIS IS NOT HYGIENE, IT IS A BUG THAT SHIPPED. Measured on the
+    maintainer's machine 2026-09-03: `~/.spacr/runs` held 11,046 run
+    folders and 7,323 of them were named `__job` or `___job` -- the app_key
+    a test fixture opens a run with, written the same afternoon. So Home's
+    Totals panel read "11,027 runs" to somebody who had done about a dozen,
+    Recent runs listed four `_job` rows that navigate to a module that does
+    not exist, and `~/.spacr/queue.json` held seven queued plates pointing
+    at `/tmp/x`. Every one of those was a test's, and all three were
+    reported as application bugs because from the outside that is exactly
+    what they look like.
+
+    Redirected at the FUNCTION that resolves the path rather than by moving
+    `HOME`, because moving `HOME` for the session moves conda's, matplotlib's
+    and Qt's caches too, and this suite is not the place to find out what
+    that breaks. Both modules call their resolver on every use -- checked --
+    so nothing captures the real path at import time.
+
+    A test that wants its own directory still monkeypatches these itself and
+    wins, because `monkeypatch` is LIFO: `test_home_v2._queue_at` already
+    does exactly that and keeps working.
+    """
+    root = _DOT_SPACR_SANDBOX / "runs"
+    root.mkdir(parents=True, exist_ok=True)
+    try:
+        from spacr import run_journal
+    except Exception:                                            # noqa: BLE001
+        pass
+    else:
+        monkeypatch.setattr(run_journal, "runs_root", lambda: root,
+                            raising=False)
+    try:
+        from spacr.qt import plate_queue
+    except Exception:                                            # noqa: BLE001
+        pass
+    else:
+        monkeypatch.setattr(
+            plate_queue, "_queue_path",
+            lambda: _DOT_SPACR_SANDBOX / "queue.json", raising=False)
+    yield
+
+
 @pytest.fixture(autouse=True)
 def _isolated_qsettings_store(request):
     """Give every test its own QSettings directory, and prove it stayed there.

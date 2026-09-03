@@ -4478,7 +4478,36 @@ class PreferencesDialog:
         # read the interface has to be able to find that one without
         # understanding any of the others.
         form = _page("General", "PreferencesTabGeneral")
+        # THREE TABS WHERE APPEARANCE USED TO BE ONE, split on 2026-09-03:
+        # "in preferences the appearence tab has to much information in it.
+        # please divide the settings in it among the new tabs Appearence,
+        # Theme, Annimation."
+        #
+        # It had grown to seventeen rows -- which is the same complaint that
+        # produced the tabs in the first place, one level down. The split is
+        # by WHAT A SETTING IS ABOUT, on the same principle as the note
+        # above:
+        #
+        #   Appearance  chrome and layout: where a tooltip goes, how a
+        #               setting is laid out, which weight the interface font
+        #               is drawn at. Nothing here has a colour or moves.
+        #   Theme       the theme itself, and how its surfaces render: the
+        #               page's opacity, the field fade, and the six rim
+        #               controls. The rim is the accent light around a
+        #               card, so it belongs with the palette that colours
+        #               it rather than with the ambient animations.
+        #   Animation   anything that moves on its own: the ambient theme
+        #               and its palette, the setting animations, and the
+        #               backdrop behind a settings popup.
+        #
+        # The Theme PICKER moved here out of General with them. A tab called
+        # Theme that does not contain the theme is the kind of thing a
+        # reader looks for twice; Language stays in General, because
+        # somebody who cannot read the interface has to find that one
+        # without understanding any other tab's name.
         appearance = _page("Appearance", "PreferencesTabAppearance")
+        theme_tab = _page("Theme", "PreferencesTabTheme")
+        animation = _page("Animation", "PreferencesTabAnimation")
         performance = _page("Performance", "PreferencesTabPerformance")
         modules = _page("Modules", "PreferencesTabModules")
         figures = _page("Figures", "PreferencesTabFigures")
@@ -4570,7 +4599,7 @@ class PreferencesDialog:
         for i in range(theme_combo.count()):
             if theme_combo.itemData(i) == current:
                 theme_combo.setCurrentIndex(i); break
-        form.addRow(tr("Theme"), theme_combo)
+        theme_tab.addRow(tr("Theme"), theme_combo)
 
         # Animated background — the drifting shapes behind every module
         # page. The first entry is None, and it is an animation choice
@@ -4609,7 +4638,7 @@ class PreferencesDialog:
         for i in range(ambient_theme_combo.count()):
             if ambient_theme_combo.itemData(i) == current_ambient:
                 ambient_theme_combo.setCurrentIndex(i); break
-        appearance.addRow(tr("Animation"), ambient_theme_combo)
+        animation.addRow(tr("Animation"), ambient_theme_combo)
 
         ambient_palette_combo = QComboBox()
         ambient_palette_combo.setObjectName("AmbientPalette")
@@ -4656,7 +4685,7 @@ class PreferencesDialog:
             "Which colours the animation uses. \"spaCR\" is built from "
             "the app's own blue, magenta and green-cyan."
         )
-        appearance.addRow(tr("Animation palette"), ambient_palette_combo)
+        animation.addRow(tr("Animation palette"), ambient_palette_combo)
 
         # Which way the starfield goes. Only meaningful for that one
         # animation, so it is shown only when that animation is chosen
@@ -4677,7 +4706,7 @@ class PreferencesDialog:
             if ambient_dir_combo.itemData(i) == current_dir:
                 ambient_dir_combo.setCurrentIndex(i); break
         dir_label = QLabel(tr("Starfield direction"))
-        appearance.addRow(dir_label, ambient_dir_combo)
+        animation.addRow(dir_label, ambient_dir_combo)
 
         def _sync_direction_row(*_args):
             wanted = ambient_theme_combo.currentData() == "drift"
@@ -4730,7 +4759,13 @@ class PreferencesDialog:
             column.setContentsMargins(0, 0, 0, 0)
             column.addWidget(slider)
             column.addWidget(value)
-            (appearance if target is None else target).addRow(
+            # THE ANIMATION TAB BY DEFAULT. It was `appearance` until the
+            # split on 2026-09-03, and these five are what shape the ambient
+            # animation chosen two rows above them -- detail, blur, speed,
+            # size and density. Leaving them behind would have put five rows
+            # named "Animation ..." on a tab that no longer has the
+            # animation on it, which is the confusion the split was for.
+            (animation if target is None else target).addRow(
                 tr(label_text), _hbox_wrap(column))
             return slider
 
@@ -4805,7 +4840,7 @@ class PreferencesDialog:
             "setting's animation only."
         )
         setting_anim_check.setChecked(get_setting_animations_enabled())
-        appearance.addRow(tr("Setting animations"), setting_anim_check)
+        animation.addRow(tr("Setting animations"), setting_anim_check)
 
         # THE TWO TOOLTIP SURFACES, instruction 371. Two switches rather than
         # one three-way control, because the request is explicit that both on,
@@ -4998,7 +5033,7 @@ class PreferencesDialog:
         opacity_col = QVBoxLayout()
         opacity_col.addWidget(opacity_slider)
         opacity_col.addWidget(opacity_value)
-        appearance.addRow(tr("Page opacity"), _hbox_wrap(opacity_col))
+        theme_tab.addRow(tr("Page opacity"), _hbox_wrap(opacity_col))
 
         # The one surface Page opacity does not reach, and why it sits
         # directly under the slider: this is the exception to the row above.
@@ -5012,7 +5047,7 @@ class PreferencesDialog:
             "opaque fields."
         )
         field_fade_check.setChecked(get_field_fade_enabled())
-        appearance.addRow(tr("Field fade"), field_fade_check)
+        theme_tab.addRow(tr("Field fade"), field_fade_check)
 
         # ---- The travelling rim -------------------------------------
         #
@@ -5041,7 +5076,7 @@ class PreferencesDialog:
         rim_length_row.setContentsMargins(0, 0, 0, 0)
         rim_length_row.addWidget(rim_length_slider, 1)
         rim_length_row.addWidget(rim_length_value)
-        appearance.addRow(tr("Rim length"), _hbox_wrap(rim_length_row))
+        theme_tab.addRow(tr("Rim length"), _hbox_wrap(rim_length_row))
 
         rim_lag_slider = QSlider(Qt.Horizontal)
         rim_lag_slider.setObjectName("RimLag")
@@ -5068,7 +5103,7 @@ class PreferencesDialog:
         rim_lag_row.setContentsMargins(0, 0, 0, 0)
         rim_lag_row.addWidget(rim_lag_slider, 1)
         rim_lag_row.addWidget(rim_lag_value)
-        appearance.addRow(tr("Rim chase"), _hbox_wrap(rim_lag_row))
+        theme_tab.addRow(tr("Rim chase"), _hbox_wrap(rim_lag_row))
 
         rim_align_combo = QComboBox()
         rim_align_combo.setObjectName("RimAlignment")
@@ -5081,7 +5116,7 @@ class PreferencesDialog:
             "Centred puts the middle of the lit run under the pointer; "
             "trailing puts its leading end there and drags the rest of the "
             "light behind.")
-        appearance.addRow(tr("Rim alignment"), rim_align_combo)
+        theme_tab.addRow(tr("Rim alignment"), rim_align_combo)
 
         rim_mode_combo = QComboBox()
         rim_mode_combo.setObjectName("RimMode")
@@ -5095,7 +5130,7 @@ class PreferencesDialog:
             "the hue along the light and turns it over time. Beat keeps the "
             "accent and pulses it. Rainbow and Beat repaint every frame; "
             "Glow only repaints when the light moves.")
-        appearance.addRow(tr("Rim mode"), rim_mode_combo)
+        theme_tab.addRow(tr("Rim mode"), rim_mode_combo)
 
         rim_period_slider = QSlider(Qt.Horizontal)
         rim_period_slider.setObjectName("RimPeriod")
@@ -5120,7 +5155,7 @@ class PreferencesDialog:
         rim_period_row.setContentsMargins(0, 0, 0, 0)
         rim_period_row.addWidget(rim_period_slider, 1)
         rim_period_row.addWidget(rim_period_value)
-        appearance.addRow(tr("Rim cycle"), _hbox_wrap(rim_period_row))
+        theme_tab.addRow(tr("Rim cycle"), _hbox_wrap(rim_period_row))
 
         popup_backdrop_combo = QComboBox()
         popup_backdrop_combo.setObjectName("PopupBackdrop")
@@ -5135,7 +5170,7 @@ class PreferencesDialog:
             "screen of figures is not necessarily what belongs behind a form "
             "you are reading. None keeps the card and the rim and drops only "
             "the movement.")
-        appearance.addRow(tr("Settings backdrop"), popup_backdrop_combo)
+        animation.addRow(tr("Settings backdrop"), popup_backdrop_combo)
 
         # Colour-blind mode
         cb_combo = QComboBox()
@@ -6799,5 +6834,103 @@ def set_popup_backdrop(name: str) -> str:
         value = DEFAULT_POPUP_BACKDROP
     settings = _settings()
     settings.setValue(_KEY_POPUP_BACKDROP, value)
+    settings.sync()
+    return value
+
+
+# ---------------------------------------------------------------------------
+# Home's dashboard watermarks
+# ---------------------------------------------------------------------------
+
+#: When the user last pressed **Clear** on Home's Recent runs, and **Reset**
+#: on Totals, as a UTC ISO-8601 string. Empty means never.
+_KEY_RUNS_CLEARED = "home/runs_cleared_utc"
+_KEY_TOTALS_RESET = "home/totals_reset_utc"
+
+#: The two watermarks, by the name the panels ask for them under.
+DASHBOARD_WATERMARKS = {"runs": _KEY_RUNS_CLEARED,
+                        "totals": _KEY_TOTALS_RESET}
+
+
+def get_dashboard_watermark(which: str) -> str:
+    """When Home's ``which`` panel was last cleared, as a UTC ISO string.
+
+    A WATERMARK, NOT A DELETION, and that is the whole design. **Clear** on
+    Recent runs and **Reset** on Totals were asked for on 2026-09-03 beside
+    the queue's Clear, but the queue holds plates waiting to start while
+    these two read the run journal -- which is the record of what this
+    installation has actually done, is what the Run History screen searches,
+    and is what a run's `manifest.json` is for. Emptying a dashboard panel
+    must not delete that.
+
+    So the panels remember a time instead and show only what happened after
+    it. The journal is untouched, Run History still has everything, and a
+    user who clears by accident loses a view rather than a history.
+
+    :param which: ``runs`` or ``totals``.
+    :returns: the stored ISO string, or ``""`` for never cleared.
+    """
+    key = DASHBOARD_WATERMARKS.get(which)
+    if key is None:
+        return ""
+    return str(_settings().value(key, "") or "").strip()
+
+
+def set_dashboard_watermark(which: str, when: str = "") -> str:
+    """Move ``which``'s watermark to ``when``, or to now when empty.
+
+    :param which: ``runs`` or ``totals``. An unknown name is ignored.
+    :param when: a UTC ISO-8601 string. Empty means "now".
+    :returns: what was stored, or ``""`` when nothing was.
+    """
+    key = DASHBOARD_WATERMARKS.get(which)
+    if key is None:
+        return ""
+    if not when:
+        from datetime import datetime, timezone
+        when = datetime.now(timezone.utc).isoformat()
+    settings = _settings()
+    settings.setValue(key, when)
+    settings.sync()
+    return when
+
+
+def clear_dashboard_watermark(which: str) -> None:
+    """Forget ``which``'s watermark, so its panel shows everything again."""
+    key = DASHBOARD_WATERMARKS.get(which)
+    if key is None:
+        return
+    settings = _settings()
+    settings.remove(key)
+    settings.sync()
+
+
+#: How tall the reader dragged Home's News list, in px at 100 % font scale.
+#: 0 means "never dragged" and the panel uses its own default.
+_KEY_NEWS_HEIGHT = "home/news_height_px"
+
+
+def get_news_height() -> int:
+    """The remembered height of Home's release-notes list, or 0.
+
+    Stored in FONT-SCALE-INDEPENDENT px, so a reader who drags the box tall
+    and then raises the interface zoom gets a box that is still the same
+    size relative to the text in it, rather than one that keeps the pixel
+    count and loses two of its four visible lines.
+    """
+    try:
+        return max(0, int(_settings().value(_KEY_NEWS_HEIGHT, 0) or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def set_news_height(px: int) -> int:
+    """Remember how tall Home's release-notes list was dragged."""
+    try:
+        value = max(0, int(px))
+    except (TypeError, ValueError):
+        return 0
+    settings = _settings()
+    settings.setValue(_KEY_NEWS_HEIGHT, value)
     settings.sync()
     return value

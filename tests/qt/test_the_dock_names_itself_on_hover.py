@@ -164,14 +164,31 @@ def test_the_grey_tray_is_gone_where_there_is_no_picture(name):
 
 @pytest.mark.parametrize("name", ("dark", "light", "space", "cell"))
 def test_the_edge_survives_in_every_theme(name):
-    """The tray goes; the border does not. `dock_colour` argues a navigation
+    """The tray goes; the edge does not. `dock_colour` argues a navigation
     column "has to be a solid edge for the page to end at", and that half of
-    the argument is untouched by 369."""
+    the argument is untouched by 369.
+
+    THE EDGE MOVED ON 2026-09-03 and is no longer a QSS `border-right`. The
+    dock is a rounded translucent slab now, painted by `Sidebar.paintEvent`,
+    and a full-height 1 px rule down its right side cut straight across the
+    two corners it had just rounded. The slab strokes its own hairline all
+    the way round instead, so the edge is stronger than it was -- it is on
+    four sides rather than one -- but it is not in the stylesheet to find.
+
+    Asserted here as "the QSS does not draw one AND the painter does",
+    rather than dropped, because what the argument protects is that the page
+    ends at a line rather than bleeding into the dock.
+    """
     from spacr.qt import theme
+    from spacr.qt.app import Sidebar
 
     qss = theme.stylesheet(name)
     start = qss.index("#Sidebar {")
-    assert "border-right" in qss[start:qss.index("}", start)]
+    block = qss[start:qss.index("}", start)]
+    assert "border-right" not in block, (
+        "a QSS border-right is back, and it will cut the slab's corners")
+    assert Sidebar.PLATE_EDGE_ALPHA > 0, "the slab draws no edge at all"
+    assert Sidebar.PLATE_EDGE_ALPHA_HOVER > Sidebar.PLATE_EDGE_ALPHA
 
 
 def _row_rgb(row):

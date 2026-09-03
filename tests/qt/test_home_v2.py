@@ -1068,43 +1068,64 @@ def test_the_aside_carries_recent_runs_system_and_news(home):
     assert any(h.startswith("NEWS") for h in headers)
 
 
-def test_the_unfinished_aside_panels_say_so(home):
-    """Only provisional News is marked ``(beta)``.
+def test_no_aside_panel_claims_to_be_unfinished(home):
+    """Nothing in the aside is marked ``(beta)`` any more.
 
-    Recent Runs and Totals became complete when every GUI and CLI pipeline
-    began writing an automatic manifest.
+    News carried the mark for as long as its body said "Reserved for
+    featured content": the panel was a slot with nothing in it. It now
+    lists every release with its notes and links, read from
+    ``spacr/resources/release_notes.json``, so the mark came off with the
+    placeholder — and the whole column is finished.
 
-    Lower case on purpose: the header is upper-cased and letter-spaced,
-    so "(BETA)" would read as another word in the heading."""
-    from spacr.qt.widgets.home import BETA_PANEL_TOOLTIP, BETA_SUFFIX, Panel
+    The mark's MACHINERY is still asserted, because the next provisional
+    panel should get it: lower case on purpose, since the header is
+    upper-cased and letter-spaced and "(BETA)" would read as another word
+    in the heading."""
+    from spacr.qt.widgets.home import BETA_SUFFIX, Panel
 
-    marked, plain = {}, {}
-    for panel in home.findChildren(Panel):
-        (marked if panel.is_beta else plain)[panel.header.text()] = panel
-    assert all(h.endswith(BETA_SUFFIX) for h in marked)
-    assert not any(h.endswith(BETA_SUFFIX) for h in plain)
     assert BETA_SUFFIX == " (beta)" and BETA_SUFFIX.islower()
-
-    assert {h.replace(BETA_SUFFIX, "").split(" ·")[0] for h in marked} == {
-        "NEWS"}
-    # MODULE STATE joined the unmarked set with #16j. It is not a panel
-    # of numbers at all — it is the legend for the tile hover colours —
-    # so there is nothing about it that could be provisional.
-    assert set(plain) == {
-        "QUEUED", "SYSTEM", "RECENT RUNS", "TOTALS", "MODULE STATE",
+    headings = {p.header.text(): p for p in home.findChildren(Panel)}
+    marked = {h: p for h, p in headings.items() if p.is_beta}
+    assert not marked, f"these panels still claim to be unfinished: {marked}"
+    assert not any(h.endswith(BETA_SUFFIX) for h in headings)
+    # MODULE STATE is gone from the column (2026-09-03, "you can remove
+    # modual state") and SYSTEM moved to the bottom of it.
+    assert {h.split(" ·")[0] for h in headings} == {
+        "QUEUED", "RECENT RUNS", "NEWS", "TOTALS", "SYSTEM",
     }
-    # The mark explains itself rather than just labelling.
-    for panel in marked.values():
-        assert panel.header.toolTip() == BETA_PANEL_TOOLTIP
 
 
-def test_the_news_surface_is_the_reserved_slot(home):
+def test_the_news_panel_lists_the_bundled_releases(home):
+    """Real notes, not the "reserved" placeholder it used to draw.
+
+    The placeholder is still in the widget tree — it is what a build with
+    no bundled resource shows — but it is hidden whenever there are
+    releases to list, which every shipped build has."""
+    releases = home._news.read_releases()
+    assert releases, ("no bundled release notes: run "
+                      "tools/build_release_notes.py")
+    assert home._news._placeholder.isHidden()
+    labels = [lbl.text() for lbl in home._news.findChildren(QLabel)]
+    newest = releases[0]
+    assert any(newest["name"] in lbl for lbl in labels), (
+        f"the newest release {newest['name']!r} is not drawn")
+    assert any(newest["url"] in lbl for lbl in labels), (
+        "the release title is not a link to its own page")
+
+
+def test_the_news_surface_is_still_the_reserved_slot(home):
+    """``set_reserved_content`` keeps working, and hides the notes.
+
+    The escape hatch predates the feed and outlives it: a caller that drops
+    a widget in gets the surface, and the bundled notes go out of the way
+    rather than being deleted."""
     labels = [lbl.text() for lbl in home.findChildren(QLabel)]
-    assert any("Reserved for featured" in lbl for lbl in labels)
     marker = QLabel("REPLACED")
     home.set_reserved_content(marker)
     assert home._reserved_content is marker
     assert "REPLACED" in [lbl.text() for lbl in home.findChildren(QLabel)]
+    assert home._news.notes_view.isHidden()
+    assert home._news.grip.isHidden()
 
 
 def test_hovering_a_tile_explains_it_in_the_hint_bar(home):
@@ -1449,7 +1470,14 @@ def test_hovering_the_edge_strip_reveals_the_app_list(window, qtbot, qapp):
     assert drawer._open_timer.isActive(), "the dwell timer did not arm"
     qtbot.waitUntil(drawer.is_open, timeout=2000)
     assert drawer.isVisible()
-    names = {b.accessibleName() for b in drawer._panel.findChildren(QPushButton)}
+    # STRIPPED: a folded child's row is built from an indented label, and
+    # its accessible name carries the three leading spaces. Eight modules
+    # that used to have a top-level row as well became child-only when the
+    # dock's top level was cut to Home's tiles (2026-09-03), so an
+    # un-stripped comparison reports them as missing from a drawer that is
+    # in fact showing all of them.
+    names = {b.accessibleName().strip()
+             for b in drawer._panel.findChildren(QPushButton)}
     assert {n for _k, n, *_r in APPS} <= names
 
 

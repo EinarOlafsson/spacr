@@ -115,8 +115,23 @@ def _tiles_by_name(page: HomePage) -> dict:
 
 
 def _nav_buttons_by_name(bar: Sidebar) -> dict:
-    """App navigation buttons keyed by app name (Home excluded)."""
-    return {b.accessibleName(): b for b in bar.findChildren(QPushButton)
+    """App navigation buttons keyed by app name (Home excluded).
+
+    STRIPPED, because a folded child's row is built from an indented label
+    -- three leading spaces, which is what said "this hangs off the row
+    above" before the rows stopped drawing their names -- and its accessible
+    name carries the indent with it.
+
+    That did not matter while every module also had a TOP-LEVEL row to find.
+    It started mattering on 2026-09-03, when the dock's top level was cut to
+    Home's tiles: eight modules that had been drawn twice
+    (`train_compare`, `profiler`, `investigate_hit`, `convert`,
+    `external_masks`, `lineage`, `layer_viewer`, `tabulate`) are now only
+    ever a child row, and the un-stripped lookup reported them as having no
+    sidebar entry at all.
+    """
+    return {b.accessibleName().strip(): b
+            for b in bar.findChildren(QPushButton)
             if b.property("navKey") not in (None, "__home__")}
 
 

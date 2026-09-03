@@ -38,7 +38,9 @@ consistent.
 from __future__ import annotations
 
 import os
+import re
 import warnings
+from html import escape
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
@@ -59,7 +61,8 @@ from PySide6.QtWidgets import (
 
 from ..hidpi import follow_device_ratio, scaled_for
 from ..theme import (
-    SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, font_px, palette_for,
+    SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, font_px,
+    make_transparent, palette_for,
 )
 from .divider import Divider
 
@@ -330,6 +333,13 @@ class Panel(QWidget):
         reads as a mark on the heading rather than part of it.
     """
 
+    #: Which palette colour an action word turns when the pointer is on it.
+    #: `Clear` and `Reset` throw something away and are red; `Refresh` only
+    #: re-reads and is blue. Asked for on 2026-09-03: "a clear button (just
+    #: the text clear which turns red upon hover or click)" and "a refresh
+    #: button (like clear button but blue)".
+    ACTION_INKS = {"danger": "error", "safe": "accent"}
+
     def __init__(self, title: str, parent=None, *, beta: bool = False):
         super().__init__(parent)
         P = active_palette()
@@ -338,6 +348,15 @@ class Panel(QWidget):
         col.setContentsMargins(0, 0, 0, 0)
         col.setSpacing(SPACING["xs"])
 
+        # THE CAPTION IS A ROW, not a label, because the panels carry an
+        # action word on the right of their heading. Kept out of the box
+        # below so the word sits on the page beside the caption rather than
+        # inside the panel's own frame, which is where a reader looks for a
+        # control that acts on the whole panel.
+        head = QWidget()
+        head_row = QHBoxLayout(head)
+        head_row.setContentsMargins(0, 0, 0, 0)
+        head_row.setSpacing(SPACING["sm"])
         self.header = QLabel(title.upper()
                              + (BETA_SUFFIX if self.is_beta else ""))
         self.header.setObjectName("HomePanelHeader")
@@ -348,7 +367,12 @@ class Panel(QWidget):
             f"color: {P['fg_muted']};")
         if self.is_beta:
             self.header.setToolTip(BETA_PANEL_TOOLTIP)
-        col.addWidget(self.header)
+        head_row.addWidget(self.header)
+        head_row.addStretch(1)
+        self._head_row = head_row
+        self._actions: Dict[str, QPushButton] = {}
+        col.addWidget(head)
+        self._head = head
 
         box = QFrame()
         box.setObjectName("HomePanelBox")
@@ -375,13 +399,82 @@ class Panel(QWidget):
         # rule, and six of these stacked down the aside read as one large
         # black column behind every panel — which is exactly what they looked
         # like.
-        from ..theme import make_transparent
         make_transparent(self)
+        # The caption ROW too. Untagged it takes the blanket
+        # `QWidget { background-color: bg }` rule and draws a black strip
+        # above every panel, which is the mistake the note above records
+        # for the wrapper.
+        make_transparent(self._head)
 
     def add(self, widget: QWidget) -> QWidget:
         widget.setStyleSheet("background: transparent;")
         self.body_layout.addWidget(widget)
         return widget
+
+    def add_action(self, text: str, *, kind: str = "danger",
+                   tip: str = "") -> QPushButton:
+        """Put an action WORD on the right of the panel's caption.
+
+        Not a button in the styled sense -- no frame, no fill, no padding
+        that would make it look pressable. It is the word alone, in the
+        muted caption ink, and it takes its colour when the pointer is on
+        it or while it is held down: "just the text clear which turns red
+        upon hover or click" (2026-09-03).
+
+        Rendered through a QPushButton rather than a QLabel because the
+        word is a CONTROL: a button is what Tab reaches, what Space
+        activates, what a screen reader announces as pressable, and what
+        already has a `:pressed` state to hang the click colour on. A
+        clickable QLabel has none of that.
+
+        :param text: the word to draw. Not upper-cased -- the caption
+            beside it is, and matching it would make the word read as a
+            second heading.
+        :param kind: ``danger`` for a word that throws something away, drawn
+            red; ``safe`` for one that only re-reads, drawn in the accent.
+        :param tip: optional hover help. Also becomes the accessible
+            description, because that is what a screen reader reads.
+        :returns: the button, so the caller can connect it.
+        """
+        P = active_palette()
+        ink = P[self.ACTION_INKS.get(kind, "error")]
+        word = QPushButton(text)
+        word.setObjectName("HomePanelAction")
+        word.setCursor(Qt.PointingHandCursor)
+        word.setFlat(True)
+        word.setStyleSheet(
+            "QPushButton#HomePanelAction {"
+            " background: transparent; border: none; padding: 0px;"
+            " font-family: 'Open Sans', sans-serif; font-weight: 600;"
+            f" font-size: {font_px(10)}px; letter-spacing: 1px;"
+            f" color: {P['fg_dim']}; }}"
+            f"QPushButton#HomePanelAction:hover {{ color: {ink}; }}"
+            f"QPushButton#HomePanelAction:pressed {{ color: {ink}; }}"
+            f"QPushButton#HomePanelAction:disabled {{"
+            f" color: {P['fg_dim']}; }}")
+        if tip:
+            word.setToolTip(tip)
+            word.setAccessibleDescription(tip)
+        self._head_row.addWidget(word)
+        self._actions[text.lower()] = word
+        return word
+
+    def action(self, text: str) -> Optional[QPushButton]:
+        """The action word named ``text``, or ``None``. For tests."""
+        return self._actions.get(text.lower())
+
+    def _clear_body(self) -> None:
+        """Take every row out of the panel's box and delete it.
+
+        The same six lines were written out in five panels; they are here
+        because a panel that forgets the `deleteLater` leaks a widget on
+        every Home revisit, and Home is revisited constantly.
+        """
+        while self.body_layout.count():
+            item = self.body_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
 
 
 def _row(label: str, value: str, value_colour: Optional[str] = None,
@@ -688,8 +781,16 @@ class QueuedPanel(Panel):
     #: Rows drawn before the rest collapse into a "+N more" line.
     MAX_ROWS = 4
 
+    #: Emitted after **Clear** has emptied the queue, so anything else
+    #: showing it -- the Queue screen, if it is built -- can re-read.
+    queue_cleared = Signal()
+
     def __init__(self, parent=None):
         super().__init__("Queued", parent)
+        self._clear = self.add_action(
+            "Clear", kind="danger",
+            tip="Empty the plate queue and hide this panel.")
+        self._clear.clicked.connect(self.clear_queue)
         self.refresh()
 
     def queue_items(self) -> List:
@@ -699,13 +800,42 @@ class QueuedPanel(Panel):
         except Exception:
             return []
 
+    def clear_queue(self) -> int:
+        """Drop every item from the plate queue. Returns how many went.
+
+        WRITES, which no other part of this panel does -- the class docstring
+        says the Queue screen owns writes and that was true until **Clear**
+        was asked for on 2026-09-03: "this should also have a clear button
+        (just the text clear which turns red upon hover or click) that clears
+        the text and anything in the quesue."
+
+        Not confirmed, and deliberately. A queue entry is a plate waiting to
+        be processed -- settings and a source path, no results -- so clearing
+        one throws away a few seconds of setting up, not any data. A
+        confirmation on a two-word action that costs that little is a
+        dialog people learn to dismiss without reading.
+
+        Every failure mode ends with the panel telling the truth about what
+        is in the queue, because it re-reads from disk afterwards either way.
+        """
+        removed = 0
+        try:
+            from ..plate_queue import PlateQueue
+            queue = PlateQueue()
+            removed = len(list(queue.items()))
+            queue.clear()
+        except Exception:                                        # noqa: BLE001
+            import logging
+            logging.getLogger(__name__).warning(
+                "could not clear the plate queue", exc_info=True)
+        self.refresh()
+        if removed:
+            self.queue_cleared.emit()
+        return removed
+
     def refresh(self) -> None:
         P = active_palette()
-        while self.body_layout.count():
-            item = self.body_layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
+        self._clear_body()
         items = self.queue_items()
         pending = [i for i in items
                    if str(getattr(i.status, "value", i.status)) in
@@ -735,34 +865,136 @@ class QueuedPanel(Panel):
 
 
 class RecentRunsPanel(Panel):
-    """Last few automatically journalled runs; each row navigates.
+    """Last few journalled runs of a REAL module; each row navigates.
+
+    "Real module" is doing work here. The panel used to list whatever the
+    run journal's newest manifests said, and on 2026-09-03 the maintainer
+    reported it: "these are clickable but do not represent runs. it just
+    brings the user to a _job module." Both halves were true. The journal on
+    that machine held 11,046 run folders of which 7,323 were opened under
+    the app_key ``_job`` or ``job`` -- a test fixture's key, written straight
+    into the user's real `~/.spacr/runs` because nothing sandboxed it (fixed
+    in ``tests/conftest.py``). So most rows named a module that does not
+    exist, and clicking one asked the window to open it.
+
+    The pollution is stopped at the source now, but a filter here is still
+    the right thing: this panel NAVIGATES, so a row it draws is a promise
+    that pressing it goes somewhere. Anything whose key is not a module Home
+    knows about is dropped.
 
     :param limit: how many journalled runs to show.
+    :param known_keys: callable returning the module keys that exist, or a
+        mapping of key to display name (or either, directly). ``None``
+        filters nothing, which is what a standalone panel with no registry
+        to consult has to do.
     :param parent: parent widget.
     """
 
     run_clicked = Signal(str)
+    #: Emitted after **Clear** moved the watermark, so Home can re-read.
+    cleared = Signal()
 
-    def __init__(self, limit: int = 4, parent=None):
+    def __init__(self, limit: int = 4, known_keys=None, parent=None):
         super().__init__("Recent runs", parent)
         self._limit = limit
+        self._known_keys = known_keys
+        self._clear = self.add_action(
+            "Clear", kind="danger",
+            tip="Hide the runs listed here. The run journal and Run "
+                "History keep them.")
+        self._clear.clicked.connect(self.clear_list)
         self.refresh()
+
+    def _registry(self):
+        """Whatever ``known_keys`` resolves to right now, or ``None``."""
+        source = self._known_keys
+        if source is None:
+            return None
+        try:
+            return source() if callable(source) else source
+        except Exception:                                        # noqa: BLE001
+            # Home is mid-construction, or the registry is gone. Filtering
+            # nothing is the safe answer: it is what the panel did before.
+            return None
+
+    def known(self) -> Optional[set]:
+        """The module keys that exist, or ``None`` for "do not filter"."""
+        value = self._registry()
+        return None if value is None else {str(k) for k in value}
+
+    def name_for(self, key: str) -> str:
+        """``key``'s display name when Home knows one, else ``key`` itself.
+
+        A row used to be captioned with the raw app_key, which is what put
+        ``_job`` and ``mask`` on the dashboard in the same typeface as each
+        other. The names are already in Home; the panel just had no way to
+        ask for them.
+        """
+        value = self._registry()
+        if isinstance(value, dict):
+            return str(value.get(key, key) or key)
+        return key
+
+    def clear_list(self) -> None:
+        """Hide every run listed, by moving the watermark to now.
+
+        NOTHING IS DELETED. See
+        :func:`spacr.qt.preferences.get_dashboard_watermark` for why: this
+        panel reads the run journal, and the journal is the record Run
+        History searches and a run's manifest documents.
+        """
+        from ..preferences import set_dashboard_watermark
+
+        set_dashboard_watermark("runs")
+        self.refresh([])
+        self.cleared.emit()
 
     def read(self) -> list:
         """The journal entries this panel would show. **Worker-thread safe.**
 
         Split out of :meth:`refresh` so :class:`HomePage` can call it off the
         GUI thread: it touches no widget, only the run journal.
-        ``recent_runs`` opens and JSON-parses *every* manifest under the runs
-        root before it sorts and truncates — 4 865 of them on this developer's
-        machine, measured at 540 ms — so it is not something the GUI thread
-        should be doing on the way back to Home.
+        ``recent_runs`` opens and JSON-parses every manifest in a bounded
+        window of the newest run folders before it sorts and truncates --
+        measured at 540 ms over 4,865 of them -- so it is not something the
+        GUI thread should be doing on the way back to Home.
+
+        THE FILTERING HAPPENS HERE, not in `refresh`, for two reasons. It is
+        the half that runs off the GUI thread, and it changes how much has to
+        be read: dropping four rows in five after asking for five leaves one,
+        so this asks for a multiple of the limit and truncates afterwards.
         """
         try:
             from spacr.run_journal import recent_runs
-            return recent_runs(limit=self._limit)
-        except Exception:
+            from ..preferences import get_dashboard_watermark
+        except Exception:                                        # noqa: BLE001
             return []
+        try:
+            # A MARGIN, because the filter below can drop most of what comes
+            # back. Bounded rather than unlimited: the whole point of
+            # `limit` in `recent_runs` is that the cost must not grow with
+            # the size of the journal.
+            entries = recent_runs(limit=max(self._limit * 8, 32))
+        except Exception:                                        # noqa: BLE001
+            return []
+        keys = self.known()
+        since = get_dashboard_watermark("runs")
+        kept = []
+        for entry in entries:
+            key = str(entry.get("app_key") or "")
+            if keys is not None and key not in keys:
+                continue
+            if since and str(entry.get("start_utc") or "") <= since:
+                # ISO-8601 UTC strings compare lexicographically in time
+                # order, which is the whole reason the watermark is stored
+                # as one. An entry with NO start time is kept: it is a real
+                # run whose manifest is incomplete, and hiding it would be
+                # guessing that it is old.
+                continue
+            kept.append(entry)
+            if len(kept) >= self._limit:
+                break
+        return kept
 
     def refresh(self, runs: Optional[list] = None) -> None:
         """Redraw the panel.
@@ -773,13 +1005,10 @@ class RecentRunsPanel(Panel):
             not.
         """
         P = active_palette()
-        while self.body_layout.count():
-            item = self.body_layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
+        self._clear_body()
         if runs is None:
             runs = self.read()
+        self._clear.setEnabled(bool(runs))
         if not runs:
             hint = QLabel("No runs yet.")
             hint.setStyleSheet(
@@ -811,7 +1040,7 @@ class RecentRunsPanel(Panel):
         dot.setStyleSheet(
             f"color: {P['success'] if ok else P['error']};"
             f"font-size: {font_px(11)}px; background: transparent;")
-        name = QLabel(key)
+        name = QLabel(self.name_for(key))
         name.setStyleSheet(f"color: {P['fg']}; font-size: {font_px(12)}px;"
                            "background: transparent;")
         when = QLabel(_fmt_elapsed(elapsed))
@@ -837,14 +1066,15 @@ class SystemPanel(Panel):
 
     def __init__(self, parent=None):
         super().__init__("System", parent)
+        # BLUE, not red: it takes nothing away. Asked for on 2026-09-03 --
+        # "should have a refresh button (like clear button but blue)".
+        self._refresh = self.add_action(
+            "Refresh", kind="safe", tip="Re-read GPU, VRAM and disk now.")
+        self._refresh.clicked.connect(self.refresh)
         self.refresh()
 
     def refresh(self) -> None:
-        while self.body_layout.count():
-            item = self.body_layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
+        self._clear_body()
         self.add(_row("GPU", self.gpu_util()))
         self.add(_row("VRAM", self.gpu_vram()))
         self.add(_row("Disk", self.disk_used()))
@@ -925,20 +1155,83 @@ class TotalsPanel(Panel):
     :param parent: parent widget.
     """
 
+    #: Emitted after **Reset** moved the watermark.
+    reset_requested = Signal()
+
     def __init__(self, parent=None):
         super().__init__("Totals", parent)
+        self._reset = self.add_action(
+            "Reset", kind="danger",
+            tip="Start these counts from now. The run journal and Run "
+                "History keep every run.")
+        self._reset.clicked.connect(self.reset_counts)
         self.refresh()
+
+    def reset_counts(self) -> None:
+        """Count from now on, by moving the watermark.
+
+        NOTHING IS DELETED, for the same reason **Clear** on Recent runs
+        deletes nothing — see
+        :func:`spacr.qt.preferences.get_dashboard_watermark`. What these
+        counts are FOR is telling the user how much this installation has
+        done, and a reset that removed the manifests would take Run History
+        and every run's provenance with it.
+        """
+        from ..preferences import set_dashboard_watermark
+
+        set_dashboard_watermark("totals")
+        self.refresh()
+        self.reset_requested.emit()
 
     def read(self) -> dict:
         """The journal totals. **Worker-thread safe** — see
         :meth:`RecentRunsPanel.read`; ``journal_totals`` walks the same
-        thousands of manifests, measured at 247 ms."""
+        thousands of manifests, measured at 247 ms.
+
+        Counted from the **Reset** watermark when one is set, which is the
+        one case this cannot answer out of the cached totals file: that file
+        holds LIFETIME counts, so a windowed count has to walk the runs the
+        window covers. It is bounded by the window, which is the property
+        that makes the feature affordable — somebody who reset yesterday
+        is counting yesterday's runs, not eleven thousand of them.
+        """
         try:
+            from ..preferences import get_dashboard_watermark
+            since = get_dashboard_watermark("totals")
+        except Exception:                                        # noqa: BLE001
+            since = ""
+        try:
+            if since:
+                return self._totals_since(since)
             from spacr.run_journal import journal_totals
             return journal_totals()
         except Exception:
             return {"total_runs": 0, "mask_runs": 0, "measure_runs": 0,
                     "models_recorded": 0}
+
+    @staticmethod
+    def _totals_since(since: str) -> dict:
+        """Counts over the runs that started after ``since``.
+
+        ISO-8601 UTC strings compare lexicographically in time order, and
+        ``recent_runs`` hands them back newest-first, so the walk stops at
+        the first entry at or before the watermark.
+        """
+        from spacr.run_journal import recent_runs
+
+        counts = {"total_runs": 0, "mask_runs": 0, "measure_runs": 0,
+                  "classify_runs": 0, "models_recorded": 0}
+        # `limit=None`, NOT a negative number. `recent_runs` truncates with
+        # `all_entries[:limit]`, so -1 quietly drops the OLDEST entry --
+        # measured: 11,027 runs come back for None and 11,026 for -1.
+        for entry in recent_runs(limit=None):
+            if str(entry.get("start_utc") or "") <= since:
+                break
+            counts["total_runs"] += 1
+            bucket = f"{str(entry.get('app_key') or '')}_runs"
+            if bucket in counts:
+                counts[bucket] += 1
+        return counts
 
     def refresh(self, totals: Optional[dict] = None) -> None:
         """Redraw the panel.
@@ -946,13 +1239,10 @@ class TotalsPanel(Panel):
         :param totals: counts a worker has already read; ``None`` reads them
             on the calling thread.
         """
-        while self.body_layout.count():
-            item = self.body_layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
+        self._clear_body()
         if totals is None:
             totals = self.read()
+        self._reset.setEnabled(bool(totals.get("total_runs", 0)))
         self.add(_row("Runs", str(totals.get("total_runs", 0))))
         self.add(_row("Mask", str(totals.get("mask_runs", 0))))
         self.add(_row("Meas.", str(totals.get("measure_runs", 0))))
@@ -1040,16 +1330,32 @@ class StageLegend(Panel):
 
 
 class NewsPanel(Panel):
-    """What changed in this release — and the slot for it.
+    """Every spaCR release, with links, in a box the reader can resize.
 
-    **There is no release-notes feed in spaCR.** Rather than invent one
-    (a hardcoded list of bullets is a lie the moment it is committed),
-    this panel names the installed version, offers the update check the
-    Help menu already has, and exposes the surface itself through
-    :meth:`HomePage.set_reserved_content` so a real feed can be dropped
-    in without touching layout code. Nothing here contacts the network
-    on its own — the check is a button, so a test and an offline user
-    both get a page that just renders.
+    THE NOTES ARE BUNDLED, not fetched. They come from
+    ``spacr/resources/release_notes.json``, which
+    ``tools/build_release_notes.py`` writes from the GitHub releases before
+    a tag. This panel is on the first screen the application shows, so
+    making its content depend on api.github.com would mean a dashboard that
+    is empty offline, throttled behind a shared NAT, and slower to draw than
+    the window it is in. The notes also belong to the release: what shipped
+    in 1.5.0.4 does not change afterwards.
+
+    Until 2026-09-03 there was no feed at all and this panel said so -- "No
+    release notes bundled with this build" -- which was honest and useless.
+    The maintainer asked for the real thing: "News should contain all the
+    releas information with links. i nkow that there was release information
+    for the current 1.5.0.4 version. this one as well as all of the other
+    ones should be scrollable and the user should be able to controll the
+    height."
+
+    So: every release newest-first, each one's body rendered with its links
+    live, the whole list inside a scroll area, and a grip along the bottom
+    edge that drags the box taller or shorter. The height is remembered
+    between sessions -- a reader who made it tall wants it tall next time.
+
+    The update check stays a BUTTON. It is the one thing here that does
+    touch the network, and it does so only when pressed.
 
     :param version: the build to name in the heading. Empty leaves the
         heading as the translated word alone -- the two are kept separate
@@ -1061,6 +1367,23 @@ class NewsPanel(Panel):
 
     check_requested = Signal()
 
+    #: Height of the scrolling list in px at 100 % font scale: the default,
+    #: and how far the grip may drag it. The floor has to show a heading and
+    #: a line under it or dragging to it looks like a bug; the ceiling is
+    #: about the height of the window's content area, past which the panel
+    #: pushes everything below it off the page.
+    #:
+    #: 100 IS A BUDGET, NOT A TASTE. `test_no_variant_clips_elides_or_
+    #: overflows` measures the shipped layout at 1440x900 and today it fits
+    #: exactly; at 190 the aside needed 989 px of a 900 px canvas, so the
+    #: dashboard would have arrived needing a scrollbar on the smallest
+    #: common laptop. The reader drags it taller when they want to read a
+    #: release, and that height is remembered -- which is the whole point of
+    #: the grip, and why the default does not have to be generous.
+    NOTES_H = 100
+    NOTES_H_MIN = 90
+    NOTES_H_MAX = 720
+
     def __init__(self, version: str = "", parent=None):
         # THE HEADING AND THE VERSION ARE SEPARATE. The catalog is keyed on
         # "News", so composing the release into the caption first leaves the
@@ -1068,34 +1391,308 @@ class NewsPanel(Panel):
         from ..i18n import tr
 
         heading = tr("News")
-        super().__init__(f"{heading} · spaCR {version}" if version
-                         else heading, parent, beta=True)
+        # NOT `beta=True` ANY MORE. The mark meant "this panel is a slot
+        # with nothing in it yet", which was true for as long as the body
+        # said "Reserved for featured content". It now lists every release
+        # with its notes and its links, so the mark would be labelling a
+        # finished panel as unfinished.
+        super().__init__(f"{heading} \u00b7 spaCR {version}" if version
+                         else heading, parent)
         P = active_palette()
         self.content: Optional[QWidget] = None
+        self._releases = self.read_releases()
+
+        self._notes = QScrollArea()
+        self._notes.setObjectName("HomeNewsScroll")
+        self._notes.setWidgetResizable(True)
+        self._notes.setFrameShape(QFrame.NoFrame)
+        self._notes.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._notes.setStyleSheet(
+            "QScrollArea#HomeNewsScroll { background: transparent;"
+            " border: none; }")
+        inner = QWidget()
+        make_transparent(inner)
+        self._notes_column = QVBoxLayout(inner)
+        self._notes_column.setContentsMargins(0, 0, 0, 0)
+        self._notes_column.setSpacing(SPACING["sm"])
+        self._notes.setWidget(inner)
+        self.body_layout.addWidget(self._notes)
+
         self._placeholder = QLabel(
-            "No release notes bundled with this build. "
-            "Reserved for featured content — news and what's new land here.")
+            "No release notes bundled with this build.")
         self._placeholder.setWordWrap(True)
         self._placeholder.setStyleSheet(
             f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
             "font-style: italic; background: transparent;")
-        self.add(self._placeholder)
+        self._notes_column.addWidget(self._placeholder)
+        self._placeholder.setVisible(not self._releases)
+        for entry in self._releases:
+            self._notes_column.addWidget(self._release_block(entry))
+        self._notes_column.addStretch(1)
 
-        check = QPushButton("Check for updates…")
+        self._grip = _HeightGrip(self._notes, self.NOTES_H_MIN,
+                                 self.NOTES_H_MAX)
+        self._grip.height_changed.connect(self._remember_height)
+        self.body_layout.addWidget(self._grip)
+        self._notes.setFixedHeight(self._stored_height())
+
+        check = QPushButton("Check for updates\u2026")
         check.setObjectName("GhostButton")
         check.setCursor(Qt.PointingHandCursor)
         check.clicked.connect(self.check_requested)
         self.add(check)
         self._check = check
 
+    # -- the bundled feed ----------------------------------------------
+    @staticmethod
+    def read_releases() -> list:
+        """The bundled release records, newest first, or ``[]``.
+
+        Degrades to an empty list on ANY failure, and the panel then draws
+        the placeholder it drew before there was a feed. A dashboard must
+        not fail to appear because a resource file is missing from a wheel.
+        """
+        try:
+            import json
+            from importlib.resources import files
+
+            raw = (files("spacr.resources") / "release_notes.json")
+            data = json.loads(raw.read_text(encoding="utf-8"))
+            releases = data.get("releases") or []
+            return [r for r in releases if isinstance(r, dict)]
+        except Exception:                                        # noqa: BLE001
+            return []
+
+    def _release_block(self, entry: dict) -> QWidget:
+        """One release: its name, its date, and its notes with links live."""
+        P = active_palette()
+        block = QWidget()
+        make_transparent(block)
+        column = QVBoxLayout(block)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(2)
+
+        tag = str(entry.get("tag") or "")
+        url = str(entry.get("url") or "")
+        name = str(entry.get("name") or tag or "spaCR")
+        when = str(entry.get("published") or "")
+        # THE TITLE IS THE LINK to the release page, so the whole record is
+        # one click from the panel even when its body carries no URL of its
+        # own -- which is true of four of the seven releases bundled today.
+        title = QLabel(
+            f'<a href="{escape(url, quote=True)}"'
+            f' style="color: {P["accent"]}; text-decoration: none;">'
+            f'{escape(name)}</a>' if url else escape(name))
+        title.setOpenExternalLinks(True)
+        title.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        title.setWordWrap(True)
+        title.setStyleSheet(
+            f"color: {P['fg']}; font-size: {font_px(12)}px;"
+            "font-weight: 600; background: transparent;")
+        column.addWidget(title)
+        if when:
+            stamp = QLabel(when)
+            stamp.setStyleSheet(
+                f"color: {P['fg_dim']}; font-size: {font_px(10)}px;"
+                "background: transparent;")
+            column.addWidget(stamp)
+
+        body = self.render_body(str(entry.get("body") or ""), P["accent"])
+        if body:
+            notes = QLabel(body)
+            notes.setWordWrap(True)
+            notes.setOpenExternalLinks(True)
+            notes.setTextInteractionFlags(Qt.TextBrowserInteraction)
+            notes.setStyleSheet(
+                f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
+                "background: transparent;")
+            column.addWidget(notes)
+        return block
+
+    @staticmethod
+    def render_body(body: str, link_colour: str) -> str:
+        """Turn a release body into the small HTML subset a QLabel draws.
+
+        NOT A MARKDOWN RENDERER, and not trying to be. Release bodies are
+        GitHub-flavoured markdown; what they actually contain is bullet
+        lists, bare URLs and ``**bold**``, and a QLabel understands a
+        handful of tags. So: escape everything first -- a body is text from
+        a web page and must never reach a rich-text widget as markup --
+        then put back the three constructs that are worth having.
+
+        Escaping FIRST is what makes this safe. Linkifying first and
+        escaping after would escape the anchors too and show the reader
+        their own tags; escaping after building the HTML is the mistake that
+        turns a release note into an injection.
+        """
+        text = escape(body or "").strip()
+        if not text:
+            return ""
+        # Bare URLs become anchors. Applied to the ESCAPED text, so the
+        # pattern cannot match inside a tag -- there are none yet.
+        text = re.sub(
+            r"(https?://[^\s<>\"']+?)([.,;:]?)(?=\s|$)",
+            lambda m: (f'<a href="{m.group(1)}" style="color: {link_colour};'
+                       f' text-decoration: none;">{m.group(1)}</a>'
+                       f"{m.group(2)}"),
+            text)
+        text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
+        lines = []
+        for line in text.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("## "):
+                lines.append(f"<b>{stripped[3:]}</b>")
+            elif stripped.startswith(("* ", "- ")):
+                lines.append(f"\u2022 {stripped[2:]}")
+            else:
+                lines.append(stripped)
+        return "<br>".join(lines)
+
+    # -- height ---------------------------------------------------------
+    def _stored_height(self) -> int:
+        """The reader's remembered height, clamped, in device px."""
+        from ..preferences import get_news_height, scaled_px
+
+        wanted = get_news_height() or self.NOTES_H
+        return scaled_px(max(self.NOTES_H_MIN,
+                             min(self.NOTES_H_MAX, int(wanted))))
+
+    def _remember_height(self, px: int) -> None:
+        """Store a dragged height, back in font-scale-independent units."""
+        from ..preferences import scaled_px, set_news_height
+
+        scale = max(1, scaled_px(100)) / 100.0
+        set_news_height(int(round(px / scale)))
+
+    @property
+    def notes_view(self) -> QScrollArea:
+        """The scrolling list of releases. For tests."""
+        return self._notes
+
+    @property
+    def grip(self) -> "_HeightGrip":
+        """The drag handle under the list. For tests."""
+        return self._grip
+
     def set_content(self, widget: QWidget) -> None:
-        """Replace the placeholder with real content."""
+        """Replace the release list with real content.
+
+        The escape hatch :meth:`HomePage.set_reserved_content` exposes. It
+        hides the bundled notes rather than deleting them, so a caller that
+        drops content in has not thrown the feed away.
+        """
         self._placeholder.hide()
+        self._notes.hide()
+        self._grip.hide()
         if self.content is not None:
             self.content.setParent(None)
             self.content.deleteLater()
         self.content = widget
         self.body_layout.insertWidget(0, widget)
+
+
+class _HeightGrip(QWidget):
+    """A thin bar that drags the widget above it taller or shorter.
+
+    Qt has no vertical-resize handle for "this one widget inside a column",
+    and the two things that look like one do not fit. A `QSplitter` needs
+    two panes to divide and this panel has one; `QSizeGrip` resizes the
+    WINDOW. So this is the handle: a few pixels tall, the resize cursor, and
+    a drag that adds the pointer's travel to a fixed height.
+
+    Drawn as three short lines rather than a plain strip because a strip
+    that happens to be draggable is a strip nobody drags. It brightens under
+    the pointer for the same reason.
+
+    :param target: the widget whose fixed height this drags.
+    :param minimum: floor in px at 100 % font scale.
+    :param maximum: ceiling in px at 100 % font scale.
+    """
+
+    #: Emitted with the new height in device px, on release rather than on
+    #: every mouse move: this is what gets written to QSettings.
+    height_changed = Signal(int)
+
+    #: How tall the grip itself is, in px at 100 % font scale.
+    BAR_H = 9
+
+    def __init__(self, target: QWidget, minimum: int, maximum: int,
+                 parent=None):
+        super().__init__(parent)
+        from ..preferences import scaled_px
+
+        self._target = target
+        self._min = scaled_px(minimum)
+        self._max = scaled_px(maximum)
+        self._from_y = None
+        self._from_h = 0
+        self._hovered = False
+        self.setFixedHeight(scaled_px(self.BAR_H))
+        self.setCursor(Qt.SizeVerCursor)
+        self.setToolTip("Drag to resize")
+        self.setAccessibleName("Resize the release notes")
+        make_transparent(self)
+
+    def paintEvent(self, event):                # noqa: N802 - Qt naming
+        """Three short lines, centred, brighter under the pointer."""
+        P = active_palette()
+        painter = QPainter(self)
+        colour = QColor(P["fg"])
+        colour.setAlphaF(0.34 if self._hovered else 0.16)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(colour)
+        width = max(12, self.width() // 6)
+        left = (self.width() - width) // 2
+        mid = self.height() // 2
+        for offset in (-3, 0, 3):
+            painter.drawRect(left, mid + offset, width, 1)
+
+    def enterEvent(self, event):                # noqa: N802 - Qt naming
+        self._hovered = True
+        self.update()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):                # noqa: N802 - Qt naming
+        self._hovered = False
+        self.update()
+        super().leaveEvent(event)
+
+    def mousePressEvent(self, event):           # noqa: N802 - Qt naming
+        """Remember where the drag started, in GLOBAL coordinates.
+
+        Global, because this widget MOVES while the drag is happening -- it
+        sits under the widget being resized, so growing the target by 40 px
+        slides the grip 40 px down and a local y would double every step.
+        """
+        if event.button() != Qt.LeftButton:
+            return super().mousePressEvent(event)
+        self._from_y = event.globalPosition().y()
+        self._from_h = self._target.height()
+        event.accept()
+
+    def mouseMoveEvent(self, event):            # noqa: N802 - Qt naming
+        if self._from_y is None:
+            return super().mouseMoveEvent(event)
+        delta = event.globalPosition().y() - self._from_y
+        self.resize_target(self._from_h + int(delta))
+        event.accept()
+
+    def mouseReleaseEvent(self, event):         # noqa: N802 - Qt naming
+        if self._from_y is None:
+            return super().mouseReleaseEvent(event)
+        self._from_y = None
+        self.height_changed.emit(self._target.height())
+        event.accept()
+
+    def resize_target(self, height: int) -> int:
+        """Set the target's height, clamped. Returns what it became.
+
+        Public because it is the whole behaviour, and a test that drives it
+        directly is testing the clamp rather than Qt's event delivery.
+        """
+        wanted = max(self._min, min(self._max, int(height)))
+        self._target.setFixedHeight(wanted)
+        return wanted
 
 
 # ---------------------------------------------------------------------------
@@ -1961,19 +2558,46 @@ class HomePage(QWidget):
         col.setSpacing(SPACING["md"])
 
         self._queued = QueuedPanel()
-        self._recent = RecentRunsPanel()
-        self._recent.run_clicked.connect(self.tile_clicked)
-        self._system = SystemPanel()
+        self._recent = RecentRunsPanel(known_keys=lambda: self._names)
+        self._recent.run_clicked.connect(self._on_run_clicked)
+        self._recent.cleared.connect(self.refresh)
         self._news = NewsPanel(self._version())
         self._news.check_requested.connect(self.update_check_requested)
         self._totals = TotalsPanel()
+        self._system = SystemPanel()
         self._legend = StageLegend()
 
-        for panel in (self._queued, self._recent, self._system,
-                      self._news, self._totals, self._legend):
+        # THE ORDER IS THE ANSWER TO A QUESTION EACH PANEL ANSWERS, and it
+        # was rearranged on 2026-09-03 at the maintainer's request: "system
+        # is fine but should be at the bottom". What is happening now
+        # (Queued), what just happened (Recent runs), what is new in the
+        # build (News) and how much has been done (Totals) are all about the
+        # work; the machine's GPU and disk are about the machine, and belong
+        # after them.
+        #
+        # `Module state` -- the colour-to-maturity legend -- is NOT in this
+        # column any more: "you can remove modual state". The class stays
+        # and `HomePage.legend` still answers, because the tiles' hover
+        # colours are still drawn from `StageLegend.swatch_colour` and the
+        # tests that keep the swatch and the tile from drifting apart go
+        # through it. It is simply not built into the page.
+        for panel in (self._queued, self._recent, self._news,
+                      self._totals, self._system):
             col.addWidget(panel)
         col.addStretch(1)
         return aside
+
+    def _on_run_clicked(self, key: str) -> None:
+        """Open the module a Recent runs row names, if it still exists.
+
+        The panel already filters to modules Home knows about, so this is
+        the second of two guards rather than the only one. It is here
+        because the filter depends on `known_keys` resolving, and a signal
+        that navigates has to be safe when it does not: a row for a module
+        that is not registered used to ask the window to open `_job`.
+        """
+        if key and key in self._names:
+            self.tile_clicked.emit(key)
 
     @property
     def legend(self) -> "StageLegend":

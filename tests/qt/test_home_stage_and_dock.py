@@ -314,24 +314,36 @@ def test_a_resting_tile_has_no_decorative_rim(qtbot, monkeypatch,
 # 3. The legend
 # ===========================================================================
 
-def test_the_legend_sits_under_the_right_hand_tiles(qtbot, qt_theme_applied):
-    """"a legend under the right side tiles indicating color and module
-    state (alpha, beta, stable)" — the user.
+def test_the_legend_is_no_longer_in_the_aside_column(qtbot,
+                                                     qt_theme_applied):
+    """"you can remove modual state" — the maintainer, 2026-09-03.
 
-    Under: it is the last thing in the aside column, after the panels of
-    numbers, because it explains the tiles rather than reporting on the
-    machine."""
+    It used to be the last thing in the aside, under the panels of numbers,
+    because it explains the tiles rather than reporting on the machine. It
+    is not built into the page any more.
+
+    The legend OBJECT survives, and `HomePage.legend` still answers, which
+    is deliberate rather than left over: the tiles' hover colours are drawn
+    from `StageLegend.swatch_colour`, and the tests below keep the swatch
+    and the tile it stands for from drifting apart. Removing the class
+    would have taken that check with it."""
     page = make_home_page()
     qtbot.addWidget(page)
     legend = page.legend
     assert isinstance(legend, StageLegend)
+    assert legend.parent() is None, (
+        "the legend is still parented into the page")
 
-    aside = legend.parent()
-    order = [aside.layout().itemAt(i).widget()
-             for i in range(aside.layout().count())]
-    widgets = [w for w in order if w is not None]
-    assert widgets[-1] is legend, (
-        f"the legend is not last in the aside: {widgets}")
+    aside = page._news.parent()
+    widgets = [aside.layout().itemAt(i).widget()
+               for i in range(aside.layout().count())]
+    assert legend not in widgets, "the legend is still in the aside"
+    # And SYSTEM is last, which is the other half of the same request:
+    # "system is fine but should be at the bottom".
+    present = [w for w in widgets if w is not None]
+    assert present[-1] is page._system, (
+        "System is not at the bottom of the aside: "
+        f"{[w.header.text() for w in present]}")
 
 
 def test_the_legend_names_every_stage_and_draws_its_colour(qtbot,

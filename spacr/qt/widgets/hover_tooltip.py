@@ -463,13 +463,23 @@ class HoverTooltip(QFrame):
         # what a screen reader has always said, so leaving them to be
         # inferred from the label would be trading a guarantee for a
         # coincidence.
+        #
+        # NO `setToolTip` ON EITHER WORD, reported 2026-09-03: "for some
+        # reason when i hover API links they get a tooltip themeselves upon
+        # hover. remove this." These two words live INSIDE this panel, and
+        # this panel is itself the tooltip -- so hovering one raised a
+        # second, native tooltip on top of the help the reader was already
+        # reading. The strings said nothing the words do not say.
+        #
+        # The `setAccessibleDescription` calls stay. A screen reader reads
+        # those, not the tooltip, so removing the popup costs a sighted
+        # reader nothing and costs a screen-reader user nothing either.
         self._api_link = _LinkWord(API_MARK, "HoverTooltipApiLink",
                                    self._links)
         self._api_link.setAccessibleName("API")
         self._api_link.setAccessibleDescription(
             "Open spaCR API documentation for this setting."
         )
-        self._api_link.setToolTip("API documentation for this setting")
         self._api_link.clicked.connect(self.open_api_documentation)
         self._animation_link = _LinkWord(
             ANIMATION_MARK, "HoverTooltipAnimationLink", self._links)
@@ -477,7 +487,6 @@ class HoverTooltip(QFrame):
         self._animation_link.setAccessibleDescription(
             "Show or hide this setting's animation."
         )
-        self._animation_link.setToolTip("Show or hide this setting's animation")
         self._animation_link.clicked.connect(self.toggle_animation)
         links_row.addWidget(self._api_link)
         links_row.addWidget(self._animation_link)

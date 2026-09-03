@@ -1,21 +1,28 @@
-"""The dock draws icons, magnifies them under the pointer, and no names.
+"""The dock draws icons on translucent plates, and no names.
 
 Instruction 348, parts 2 and 3 -- asked for verbatim on 2026-09-02: "in the
 dock enlarge the icons and add a magnification effect so the dock functions
 like the osx dock and remove the text that can be moved to the category
 tooltip location upon hover."
 
+THE MAGNIFICATION IS GONE, removed on 2026-09-03 at the maintainer's
+request: "remove the icon magnefication effect from the dock and replace the
+black box behind thicons with a translucent box with rounded edges. the
+translucent box should also highlight upon hover." Every icon now rests at
+one size whatever the pointer is doing, and hover is the plate stepping up
+plus the name and the accent ink that 369 added. The five tests that drove
+`Sidebar.magnify_from` were replaced by the five below them, which assert
+what the dock does instead.
+
 Part 1 (Help is a dock heading, and it is last) landed earlier and is covered
 by ``test_the_dock_and_menu_show_the_folded_modules.py``.
 
 MEASURED, one 1440x900 MainWindow with the dark stylesheet applied:
 
-    icon at rest       16 px  ->  26 px
-    icon under pointer 16 px  ->  40 px  (36 one row out, 30 two rows out)
-    row height         38 px  ->  48 px, and it does not move while
-                                  magnifying -- see the note on
-                                  `Sidebar.magnify_from`
+    icon, every row    16 px  ->  26 px, constant
+    row height         38 px  ->  48 px, and it never moves
     dock width        220 px  -> 220 px  (`WIDTH_MIN`, unchanged)
+    plate behind a row  none  ->  +16 lift at rest, +17 more on hover
     rows carrying a painted name  71 -> 0
     rows carrying an accessible name  71 -> 71
 
@@ -59,17 +66,16 @@ def window(qapp, qt_theme_applied):
 def dock(window):
     """The dock, put back to its resting state after each test.
 
-    The teardown is deliberately the only place the magnifier is called
-    from the fixture: run against the version of ``app.py`` that has no
-    magnifier, a fixture that called it in SETUP would turn every test in
-    this file into the same error and hide which of them were already
-    passing before the change.
+    The window is module-scoped, so a test that leaves a row hovered or
+    selected hands that row to the next test. Cleared in teardown rather
+    than in setup so a failure reads as the test that caused it.
     """
     bar = window._sidebar
     yield bar
-    reset = getattr(bar, "magnify_from", None)
-    if reset is not None:
-        reset(None)
+    for row in bar._items:
+        row._hovered = False
+        row.setProperty("selected", None)
+    bar.leaveEvent(QEvent(QEvent.Type.Leave))
 
 
 def _visible(bar):
@@ -98,113 +104,149 @@ def test_a_dock_icon_is_bigger_than_the_bullet_it_used_to_be(dock):
         f"{scaled_px(Sidebar.ICON_PX)} px")
 
 
-def test_the_pointer_magnifies_the_row_under_it_and_its_neighbours(dock):
-    """The OS X curve: biggest under the pointer, smaller either side.
+def test_every_icon_is_the_same_size_whatever_the_pointer_does(dock):
+    """No magnifier. Removed 2026-09-03 -- see this module's docstring.
 
-    Asserted on the sizes rather than on a screenshot, because the sizes are
-    the whole observable effect and a screenshot of a themed icon is a test
-    of the icon.
+    Asserted through the events a real pointer delivers, not by checking
+    that a method is absent: a magnifier could come back as anything, and
+    what was asked for is that moving the pointer over the dock does not
+    resize an icon.
     """
-    from spacr.qt.preferences import scaled_px
-
-    dock.magnify_from(None)
     rows = _visible(dock)
     assert len(rows) >= 5, "need a row with two neighbours on each side"
-    focus = 3
-    dock.magnify_from(rows[focus].y() + rows[focus].height() // 2)
-    sizes = [row.iconSize().width() for row in rows]
+    before = [row.iconSize().width() for row in rows]
 
-    base, peak = scaled_px(Sidebar.ICON_PX), scaled_px(Sidebar.ICON_MAX_PX)
-    assert sizes[focus] == peak, (
-        f"the row under the pointer is {sizes[focus]} px, not {peak}")
-    assert base < sizes[focus - 1] < peak, "the row above did not swell"
-    assert base < sizes[focus + 1] < peak, "the row below did not swell"
-    assert sizes[focus - 2] < sizes[focus - 1], "the falloff is not monotonic"
-    assert sizes[focus + 2] < sizes[focus + 1], "the falloff is not monotonic"
-    far = [s for i, s in enumerate(sizes) if abs(i - focus) > 3
-           and not rows[i].property("isFoldChild")]
-    assert far and set(far) == {base}, (
-        f"rows out of reach of the pointer are not at rest: {sorted(set(far))}")
+    for row in (rows[1], rows[3], rows[-1]):
+        local = QPointF(row.width() / 2, row.height() / 2)
+        globally = QPointF(row.mapToGlobal(QPoint(int(local.x()),
+                                                  int(local.y()))))
+        QApplication.sendEvent(row, QEnterEvent(local, local, globally))
+        QApplication.sendEvent(row, QMouseEvent(
+            QEvent.Type.MouseMove, local, globally,
+            Qt.MouseButton.NoButton, Qt.MouseButton.NoButton,
+            Qt.KeyboardModifier.NoModifier))
+        assert [r.iconSize().width() for r in rows] == before, (
+            f"the pointer over {row.property('navKey')!r} resized an icon")
+        QApplication.sendEvent(row, QEvent(QEvent.Type.Leave))
 
-
-def test_the_swell_falls_away_when_the_pointer_leaves_the_dock(dock):
-    """``magnify_from(None)`` is what the dock's ``leaveEvent`` calls."""
-    rows = _visible(dock)
-    dock.magnify_from(rows[2].y() + rows[2].height() // 2)
-    assert max(row.iconSize().width() for row in rows) > Sidebar.ICON_PX
-
-    dock.magnify_from(None)
-    resting = {row: dock.resting_icon_px(row) for row in rows}
-    left_big = {str(row.property("navKey")): row.iconSize().width()
-                for row in rows if row.iconSize().width() != resting[row]}
-    assert not left_big, f"these rows stayed swollen: {left_big}"
+    hosts = {r.iconSize().width() for r in rows
+             if not r.property("isFoldChild")}
+    children = {r.iconSize().width() for r in rows
+                if r.property("isFoldChild")}
+    assert len(hosts) == 1, f"hosts disagree on icon size: {sorted(hosts)}"
+    assert len(children) <= 1, f"children disagree: {sorted(children)}"
+    if children:
+        assert children < hosts, "a folded child is not drawn smaller"
 
 
-def test_magnifying_never_changes_a_row_height(dock):
-    """A fixed row height is what keeps the dock from chasing the pointer.
+def test_a_row_sits_on_a_translucent_rounded_plate(dock, qapp):
+    """The box asked for on 2026-09-03, measured off the rendered row.
 
-    If a swollen row grew taller it would push every row below it down, so
-    the row under a stationary pointer would stop being the row under the
-    pointer -- and this dock has already been reported flickering once
-    (2026-09-01) for a hover that moved geometry.
+    Three claims, and all three are what the request named. TRANSLUCENT and
+    VISIBLE: the plate is a step off whatever is behind the dock rather
+    than either invisible or an opaque slab. ROUNDED: the row's corner is
+    NOT the plate, because the plate's corner is cut away there. HIGHLIGHTS
+    ON HOVER: the step gets bigger.
+
+    Read off pixels rather than off the stylesheet on purpose. The QSS
+    rule that used to be believed to draw this reaches no dock row at all
+    (see `_DockRow._paint_plate`), and a test that had asserted the QSS
+    text would have passed for the whole time the dock had no plate.
     """
-    rows = _visible(dock)
-    before = [row.height() for row in rows]
-    tops = [row.y() for row in rows]
-    for index in (0, len(rows) // 2, len(rows) - 1):
-        dock.magnify_from(rows[index].y() + rows[index].height() // 2)
-    assert [row.height() for row in rows] == before, "a row changed height"
-    assert [row.y() for row in rows] == tops, "a row moved"
+    row = next(r for r in _visible(dock) if not r.property("isFoldChild"))
+
+    def sample():
+        shot = QPixmap(row.size())
+        shot.fill()
+        row.render(shot)
+        image = shot.toImage()
+        inside = image.pixelColor(row.width() - 10, row.height() // 2)
+        corner = image.pixelColor(0, 0)
+        return inside, corner
+
+    row._hovered = False
+    rest, behind = sample()
+    row._hovered = True
+    hover, hover_corner = sample()
+    row._hovered = False
+
+    def step(a, b):
+        return max(abs(x - y) for x, y in
+                   ((a.red(), b.red()), (a.green(), b.green()),
+                    (a.blue(), b.blue())))
+
+    assert step(rest, behind) >= 8, (
+        f"the resting plate {rest.name()} is invisible against "
+        f"{behind.name()}")
+    assert rest.alpha() == 255 and behind.alpha() == 255, (
+        "sampled a transparent pixel -- the render never happened")
+    assert step(hover, rest) >= 8, (
+        f"hover does not highlight: {rest.name()} -> {hover.name()}")
+    assert behind.name() == hover_corner.name(), (
+        "the corner changed on hover, so the plate is not inset there")
+    assert step(rest, behind) < 200, (
+        f"the resting plate {rest.name()} is opaque, not translucent")
 
 
-def test_a_real_mouse_move_over_a_row_reaches_the_magnifier(dock):
-    """Driven through the event the window manager would deliver.
+def test_the_open_module_is_marked_by_its_plate_and_an_accent_bar(dock):
+    """Selection has to survive a hover, or the dock forgets where you are.
 
-    Everything else in this file calls `magnify_from` directly, which
-    proves the arithmetic and proves nothing about the wiring. This sends
-    the QMouseEvent a pointer actually generates, so it fails if the dock
-    stops installing itself as a filter on its rows, if the rows lose
-    mouse tracking, or if the coordinate mapping into the scrolled row
-    host goes wrong.
+    Before the plate existed, `:checked` was an opaque QSS background that
+    never reached the row -- so the accent bar was the only mark, and it
+    was drawn square against a plate that is now rounded.
     """
-    from spacr.qt.preferences import scaled_px
+    from spacr.qt.theme import active_palette
 
-    dock.magnify_from(None)
-    rows = _visible(dock)
-    row = rows[4]
-    local = QPointF(row.width() / 2, row.height() / 2)
-    QApplication.sendEvent(row, QMouseEvent(
-        QEvent.Type.MouseMove, local,
-        QPointF(row.mapToGlobal(QPoint(int(local.x()), int(local.y())))),
-        Qt.MouseButton.NoButton, Qt.MouseButton.NoButton,
-        Qt.KeyboardModifier.NoModifier))
-    assert row.iconSize().width() == scaled_px(Sidebar.ICON_MAX_PX)
-
-    # And an Enter, which is the event a pointer arriving from off the
-    # dock delivers before it ever moves inside a row.
-    other = rows[1]
-    QApplication.sendEvent(other, QEnterEvent(
-        local, local,
-        QPointF(other.mapToGlobal(QPoint(int(local.x()), int(local.y()))))))
-    assert other.iconSize().width() == scaled_px(Sidebar.ICON_MAX_PX)
-    assert row.iconSize().width() < scaled_px(Sidebar.ICON_MAX_PX)
-
-    # Leaving the dock is the dock's own event, not a row's: a pointer can
-    # leave the last row downwards onto the empty stretch below it, where
-    # no other row will ever be entered.
-    QApplication.sendEvent(dock, QEvent(QEvent.Type.Leave))
-    assert {r.iconSize().width() for r in rows} == {
-        dock.resting_icon_px(r) for r in rows}
+    row = next(r for r in _visible(dock) if not r.property("isFoldChild"))
+    row.setProperty("selected", "true")
+    shot = QPixmap(row.size())
+    shot.fill()
+    row.render(shot)
+    image = shot.toImage()
+    accent = active_palette()["accent"]
+    bar = image.pixelColor(row.PLATE_INSET_PX + 1, row.height() // 2)
+    row.setProperty("selected", None)
+    assert bar.name().lower() == accent.lower(), (
+        f"the selected row's left edge is {bar.name()}, not the accent "
+        f"{accent}")
 
 
-def test_every_row_is_as_tall_as_the_largest_icon_it_can_show(dock):
-    """Otherwise a magnified icon would be clipped by its own row."""
+def test_every_row_is_taller_than_the_icon_it_shows(dock):
+    """The plate needs room around the icon, or it reads as an outline.
+
+    The height comes from ``ICON_MAX_PX``, which was the magnifier's peak
+    size and is now simply the icon box each row reserves.
+    """
     from spacr.qt.preferences import scaled_px
 
     wanted = scaled_px(Sidebar.ICON_MAX_PX + 2 * Sidebar.ROW_PAD_PX)
     heights = {row.height() for row in _visible(dock)}
     assert heights == {wanted}, f"row heights {sorted(heights)}, want {wanted}"
-    assert wanted > scaled_px(Sidebar.ICON_MAX_PX)
+    assert wanted > scaled_px(Sidebar.ICON_PX), (
+        "the row is no taller than its icon, leaving the plate no margin")
+
+
+def test_the_rows_never_move(dock):
+    """A dock row is a target, and a target that moves is a misclick.
+
+    This dock has been reported flickering once (2026-09-01) for a hover
+    that moved geometry, which is why 348 pinned the row height and why
+    the magnifier grew icons about a fixed centre. With the magnifier gone
+    the claim is simpler and stronger: hovering changes no geometry at all.
+    """
+    rows = _visible(dock)
+    tops = [row.y() for row in rows]
+    heights = [row.height() for row in rows]
+    width = dock.width()
+    for index in (0, len(rows) // 2, len(rows) - 1):
+        row = rows[index]
+        local = QPointF(row.width() / 2, row.height() / 2)
+        QApplication.sendEvent(row, QEnterEvent(
+            local, local,
+            QPointF(row.mapToGlobal(QPoint(int(local.x()), int(local.y()))))))
+    assert [row.y() for row in rows] == tops, "a row moved"
+    assert [row.height() for row in rows] == heights, "a row changed height"
+    assert dock.width() == width, "the dock changed width"
 
 
 # ---------------------------------------------------------------------------
