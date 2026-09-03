@@ -62,6 +62,7 @@ FULLY_DOCUMENTED = (
     "spacr/example_data.py",
     "spacr/external_masks.py",
     "spacr/feature_dict.py",
+    "spacr/figure_font.py",
     "spacr/figures/distributions.py",
     "spacr/figures/fast_render.py",
     "spacr/figures/panels.py",
