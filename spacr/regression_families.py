@@ -139,6 +139,10 @@ def family_label(name: str) -> str:
     """The one line a dropdown shows for a family: its kind and its assumption.
 
     :param name: stored regression-family value to label.
+    :returns: the stored value, family-group title, and statistical assumption
+        as one menu label.
+    :raises KeyError: if ``name`` has no registered assumption or family
+        group.
 
     The stored value leads, because that is what a user is looking for and
     what every settings file and results folder is named after.
@@ -157,6 +161,9 @@ def regression_family_choices() -> List[Tuple[str, str]]:
     value is unchanged, so a panel that renders these writes exactly what it
     wrote before and every settings file already on disk still means what it
     meant.
+
+    :returns: ordered ``(stored value, label)`` pairs for every fittable
+        regression family.
     """
     fittable = set(_fittable())
     out: List[Tuple[str, str]] = []

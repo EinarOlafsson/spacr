@@ -9,7 +9,11 @@ from .database_concurrency import inspect_database, run_concurrency_probe
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Build the ``spacr-db-audit`` argument parser."""
+    """Build the ``spacr-db-audit`` argument parser.
+
+    :returns: parser for read-only database checks and disposable concurrency
+        probes.
+    """
     parser = argparse.ArgumentParser(
         prog="spacr-db-audit",
         description=(
@@ -40,7 +44,15 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv=None) -> int:
-    """Inspect/probe SQLite and return zero only when every requested check passes."""
+    """Inspect or probe SQLite and report one combined audit result.
+
+    :param argv: command-line arguments without the program name; ``None``
+        reads the process arguments.
+    :returns: ``0`` when every requested integrity check and probe passes, or
+        ``1`` when any requested operation fails or raises an exception.
+    :raises SystemExit: with status ``2`` for invalid arguments or when neither
+        a database nor ``--probe`` is supplied.
+    """
     args = build_parser().parse_args(argv)
     if not args.database and not args.probe:
         build_parser().error("provide DATABASE, --probe, or both")
