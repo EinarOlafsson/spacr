@@ -618,6 +618,12 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
     :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract` for the
     run/cancel/status protocol, :meth:`set_propagate_callback` to push tuned
     values back into the main settings panel, and a ``build_*_card`` factory.
+
+    :param parent: parent widget.
+    :param threaded: whether the panel's jobs run off the GUI thread. False
+        runs each one inline, emitting the same signals in the same order, so
+        a test can drive the panel synchronously without the behaviour
+        diverging.
     """
 
     preview_ready = Signal(object)   # MotilitySummary, or None on failure

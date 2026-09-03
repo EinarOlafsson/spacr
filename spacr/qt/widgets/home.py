@@ -733,7 +733,11 @@ class QueuedPanel(Panel):
 
 
 class RecentRunsPanel(Panel):
-    """Last few automatically journalled runs; each row navigates."""
+    """Last few automatically journalled runs; each row navigates.
+
+    :param limit: how many journalled runs to show.
+    :param parent: parent widget.
+    """
 
     run_clicked = Signal(str)
 
@@ -1037,6 +1041,13 @@ class NewsPanel(Panel):
     in without touching layout code. Nothing here contacts the network
     on its own — the check is a button, so a test and an offline user
     both get a page that just renders.
+
+    :param version: the build to name in the heading. Empty leaves the
+        heading as the translated word alone -- the two are kept separate
+        because the catalog is keyed on "News", so composing the release into
+        the caption first would leave the only aside panel that names a build
+        in English.
+    :param parent: parent widget.
     """
 
     check_requested = Signal()
