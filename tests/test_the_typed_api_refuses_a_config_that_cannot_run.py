@@ -74,6 +74,8 @@ def test_a_complete_mask_config_produces_settings():
     """The valid case, so the refusals above are visibly the exceptions."""
     from spacr.api import MaskConfig
 
+    for field in ("test_mode", "dry_run"):
+        assert f":ivar {field}:" in (MaskConfig.__doc__ or "")
     settings = MaskConfig(src="/data/plate1", cell_channel=0,
                           pipeline_style="v2").to_settings()
 
@@ -113,6 +115,8 @@ def test_a_measure_config_with_one_plane_is_accepted():
     """One plane is a measurement; the other two may legitimately be absent."""
     from spacr.api import MeasureConfig
 
+    for field in ("save_png", "test_mode", "dry_run", "resume"):
+        assert f":ivar {field}:" in (MeasureConfig.__doc__ or "")
     settings = MeasureConfig(src="/data/plate1", cell_mask_dim=4,
                              nucleus_mask_dim=None,
                              pathogen_mask_dim=None).to_settings()
