@@ -16,11 +16,17 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 FULLY_DOCUMENTED = (
+    "spacr/cli_plugins.py",
     "spacr/cli_repro.py",
+    "spacr/column_groups.py",
+    "spacr/figures/summary.py",
     "spacr/foreign.py",
     "spacr/flowview/_classify_stages.py",
     "spacr/flowview/classify_blueprint.py",
     "spacr/intensity_rescale.py",
+    "spacr/localisation.py",
+    "spacr/mask_io.py",
+    "spacr/regression_failure.py",
 )
 
 

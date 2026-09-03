@@ -26,6 +26,12 @@ from .panels import (control_threshold, effect_column, label_series, p_column,
 
 
 def _fmt(value, digits=3) -> str:
+    """Format a numeric value compactly and preserve non-numeric text.
+
+    :param value: Value to format.
+    :param digits: Significant digits used by general numeric formatting.
+    :returns: Compact numeric text, or ``str(value)`` when conversion fails.
+    """
     try:
         return f"{float(value):.{digits}g}"
     except (TypeError, ValueError):

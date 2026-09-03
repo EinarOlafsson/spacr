@@ -141,6 +141,12 @@ def load_mask(path: PathLike) -> np.ndarray:
 
 
 def _read_one(p: Path) -> np.ndarray:
+    """Read one TIFF or NumPy mask and return it as unsigned 16-bit data.
+
+    :param p: Mask file with a ``.tif``, ``.tiff``, or ``.npy`` suffix.
+    :returns: Mask array cast to ``numpy.uint16`` without changing its shape.
+    :raises ValueError: ``p`` has an unsupported suffix.
+    """
     if p.suffix.lower() in (".tif", ".tiff"):
         import tifffile
         arr = tifffile.imread(str(p))
