@@ -3247,3 +3247,82 @@ built-in-only claim makes the focused API assertion fail.
 
 REVISED COUNT: 121 entries, 52 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+64. FLOWVIEW COLLECTOR SHARED NESTED NODE STATE ACROSS PUBLIC BOUNDARIES
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/flowview/collector.py``. Construction, immediate folds, queued node
+events, and returned snapshots copied only outer dictionaries or retained the
+same ``Node``. A caller could mutate nested parameters after any of those
+operations and silently change the collector's supposedly detached state.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/flowview/collector.py:47-241``. Node
+payloads are recursively copied at every public ownership boundary, while the
+private fold path uses already-owned events to avoid redundant copies. Focused
+tests mutate constructor input, direct-fold input, queued input before drain,
+and a returned snapshot; restoring shallow node copies makes both ownership
+tests fail, while queuing the original event makes the queue case fail alone.
+
+REVISED COUNT: 122 entries, 53 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+65. CONCURRENT FLOWVIEW DRAINS COULD APPLY EVENTS OUT OF FIFO ORDER
+==============================================================================
+
+Found 2026-09-03 in ``spacr/flowview/collector.py``. One consumer removed an
+older event before waiting for the state lock, allowing another consumer to
+remove and fold a newer event first. A delayed start could therefore overwrite
+a later completion and leave the displayed stage running.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/flowview/collector.py:132-160``. A
+drain now owns the state lock before extracting its batch, serializing event
+application without holding the queue lock during folding or blocking
+producers. A deterministic overtaking test ends ``DONE`` with the fixed order;
+restoring extraction-before-state ends ``RUNNING`` and makes the test fail.
+
+REVISED COUNT: 123 entries, 54 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+66. NON-INTEGER QUEUE SIZES COULD DEFEAT FLOWVIEW'S MEMORY BOUND
+==============================================================================
+
+Found 2026-09-03 in ``spacr/flowview/collector.py``. Validation used only
+``<= 0``. NaN and infinity therefore made ``Queue.full`` permanently false,
+turning the documented bounded event stream into an unbounded one; fractional
+capacities and booleans also acquired surprising effective sizes.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/flowview/collector.py:59-78``. The
+capacity must now satisfy Python's integer-index protocol, cannot be boolean,
+and must be positive. Restoring comparison-only validation makes five of the
+seven invalid cases fail, while the ordinary two-event bounded-queue test
+retains the positive behavior.
+
+REVISED COUNT: 124 entries, 55 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+67. FLOWVIEW DRAIN LIMITS ACCEPTED BOOLEANS AND NON-FINITE NUMBERS
+==============================================================================
+
+Found 2026-09-03 in ``spacr/flowview/collector.py``. The annotated integer
+limit was sent through ``min`` and ``max`` without validation. Boolean limits
+were silently treated as zero or one, NaN and infinity behaved as accidental
+special cases, and other invalid values failed inconsistently only when queue
+contents happened to reach ``range``.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/flowview/collector.py:132-160``.
+Non-``None`` limits now require a non-boolean integer index before state or
+queue mutation; negative integers deliberately retain their documented zero
+behavior. Removing validation makes all five invalid-input cases fail, while
+the bounded-queue lifecycle retains ``None``, negative, and positive examples.
+
+REVISED COUNT: 125 entries, 56 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
