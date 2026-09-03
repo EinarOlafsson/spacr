@@ -1485,12 +1485,25 @@ def test_baseline_constructor_documents_every_field():
         candidate for candidate in _public_callables()
         if candidate.symbol == "spacr.baseline.Baseline"
     )
-    documented = (
-        _documented_parameter_names(item.docstring)
-        | frozenset(name.lstrip("*") for name in IVAR_FIELD.findall(
-            item.docstring))
-    )
+    documented = _documented_parameter_names(item.docstring)
     assert item.parameters <= documented
+
+
+@pytest.mark.parametrize("symbol", (
+    "spacr.classify_classes.ClassRule",
+    "spacr.control_names.ControlSpec",
+    "spacr.benchmark.Recommendation",
+    "spacr.portable_paths.RerootReport",
+    "spacr.figures.fast_render.RenderedPanel",
+    "spacr.figures.scene.SceneReport",
+))
+def test_repaired_record_documents_every_constructor_parameter(symbol):
+    """Each repaired generated record remains callable from its API prose."""
+    item = next(
+        candidate for candidate in _public_callables()
+        if candidate.symbol == symbol
+    )
+    assert item.parameters <= _documented_parameter_names(item.docstring)
 
 
 def _required_parameter_omission_inventory(

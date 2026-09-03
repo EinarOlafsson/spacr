@@ -69,7 +69,9 @@ class RemoteExecutionError(RuntimeError):
 class CommandResult:
     """Result returned by the injectable command runner.
 
-    :ivar returncode: process exit status, where zero denotes success.
+    :param returncode: process exit status, where zero denotes success.
+    :param stdout: captured standard-output text.
+    :param stderr: captured standard-error text.
     """
 
     returncode: int
@@ -164,8 +166,30 @@ class ExecutionProfile:
     and ``{external_id}`` placeholders.  They are argument templates, not
     shell scripts.
 
-    :ivar name: human-readable profile name used to select this target.
-    :ivar backend: execution mechanism, one of :data:`BACKENDS`.
+    :param name: human-readable profile name used to select this target.
+    :param backend: execution mechanism, one of :data:`BACKENDS`.
+    :param host: OpenSSH target for SSH and remote Slurm; blank permits a
+        Slurm scheduler running on the local host.
+    :param workdir: absolute execution directory where ``spacr-jobs``
+        artifacts are created.
+    :param local_root: local dataset prefix paired with ``remote_root`` for
+        nested absolute-path rewriting.
+    :param remote_root: equivalent dataset prefix visible to the target host.
+    :param runner: headless executable invoked as ``runner module --settings
+        path`` by SSH and Slurm backends.
+    :param scheduler_options: additional shell-free arguments passed to
+        ``sbatch``.
+    :param submit_command: custom-backend argument template containing
+        ``{settings}`` and printing a job identifier.
+    :param status_command: custom status template containing ``{external_id}``
+        and returning a state spaCR can normalize.
+    :param cancel_command: custom cancellation template containing
+        ``{external_id}``.
+    :param log_command: optional custom template for fetching job output.
+    :param job_id_pattern: optional regular expression extracting a named
+        ``id``, first capture, or full match from submission output.
+    :param poll_seconds: recommended client polling interval, from 2 through
+        3600 seconds.
     """
 
     name: str
@@ -277,10 +301,26 @@ class ExecutionProfile:
 class RemoteJob:
     """Persistent local record of one submitted job.
 
-    :ivar job_id: locally generated stable identifier for the job.
-    :ivar module: resolved spaCR command-line module key to execute.
-    :ivar profile_name: name of the execution profile used for submission.
-    :ivar backend: backend recorded at submission time.
+    :param job_id: locally generated stable identifier for the job.
+    :param module: resolved spaCR command-line module key to execute.
+    :param profile_name: name of the execution profile used for submission.
+    :param backend: backend recorded at submission time.
+    :param status: compact lifecycle state, initially ``"submitting"``.
+    :param external_id: validated process, scheduler, or provider identifier.
+    :param created_utc: ISO-8601 construction timestamp.
+    :param updated_utc: timestamp replaced whenever :class:`JobStore` persists
+        the record.
+    :param settings_path: retained local path of the mapped settings JSON.
+    :param settings_sha256: SHA-256 digest of the exact serialized settings.
+    :param remote_settings_path: uploaded settings path for SSH and Slurm.
+    :param remote_job_dir: target-side directory containing job artifacts.
+    :param log_reference: backend log location or custom-backend marker.
+    :param log_tail: most recently fetched output or availability message.
+    :param exit_code: normalized process exit status, or ``None`` until known.
+    :param error: latest submission, polling, or cancellation failure; cleared
+        after a successful refresh or cancellation.
+    :param profile: submission-time profile snapshot, retained so the job
+        remains operable after profile edits or deletion.
     """
 
     job_id: str
@@ -384,7 +424,12 @@ def _write_json_atomic(path: Path, value: Any) -> None:
 
 
 class ProfileStore:
-    """Atomic persistent store for execution profiles."""
+    """Atomic persistent store for execution profiles.
+
+    :param path: optional profiles JSON path; by default
+        ``state_directory()/profiles.json``. The advisory lock uses a sibling
+        path with ``.lock`` appended.
+    """
 
     def __init__(self, path: Optional[os.PathLike] = None):
         self.path = Path(path) if path is not None else (
@@ -454,7 +499,12 @@ class ProfileStore:
 
 
 class JobStore:
-    """Atomic persistent store for remote job metadata."""
+    """Atomic persistent store for remote job metadata.
+
+    :param path: optional jobs JSON path; by default
+        ``state_directory()/jobs.json``. The advisory lock uses a sibling path
+        with ``.lock`` appended.
+    """
 
     def __init__(self, path: Optional[os.PathLike] = None):
         self.path = Path(path) if path is not None else (
@@ -995,6 +1045,13 @@ class RemoteJobManager:
 
     All methods are synchronous and may perform network I/O.  GUI callers must
     invoke them on a worker thread; the shipped Distributed Jobs screen does.
+
+    :param profile_store: injectable persistent profile store; omitted creates
+        the default :class:`ProfileStore`.
+    :param job_store: injectable persistent job store; omitted creates the
+        default :class:`JobStore`.
+    :param runner: shell-free callable accepting an argument vector, timeout,
+        and optional input and returning :class:`CommandResult`.
     """
 
     def __init__(

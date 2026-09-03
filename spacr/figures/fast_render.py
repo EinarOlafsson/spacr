@@ -56,11 +56,13 @@ class RenderedPanel:
     per run and per machine and a user comparing a figure on screen against a
     figure in a folder has to be able to find out which one they are holding.
 
-    :ivar key: generated-panel key identifying the requested figure.
-    :ivar path: written figure path, or ``None`` when nothing was saved.
-    :ivar renderer: renderer that actually produced the panel.
-    :ivar drawn: whether rendering completed successfully.
-    :ivar reason: explanation for fallback or refusal, empty when unnecessary.
+    :param key: generated-panel key identifying the requested figure.
+    :param path: exported file path, or ``None`` when no file was written.
+    :param renderer: renderer selected for this result, whether it completed
+        or reported a refusal.
+    :param drawn: whether the selected renderer successfully produced the
+        panel; this does not by itself imply that a file was written.
+    :param reason: explanation for fallback or refusal, empty when unnecessary.
     """
 
     key: str
