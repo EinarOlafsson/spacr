@@ -3801,3 +3801,24 @@ reverting ``method`` to ``:ivar:`` makes the exact constructor contract fail.
 
 REVISED COUNT: 148 entries, 79 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+91. BATCH-CORRECTION REPORTS CALLED REQUESTED NO-OPS APPLIED CORRECTIONS
+==============================================================================
+
+Found 2026-09-03 while repairing ``BatchCorrectionReport`` constructor
+documentation in ``spacr/batch_correction.py``. A one-batch operation retains
+the requested method while explicitly doing nothing, but the result described
+that method as actually applied and every feature as corrected. ComBat can
+also short-circuit before expanding any supplied covariate terms.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/batch_correction.py``. All thirteen
+constructor parameters now distinguish requests from applied work, corrected
+from unchanged output, and fitted from skipped ComBat designs. Focused no-op,
+real-offset, covariate, serialization, and row-realignment cases pin the
+contract; reverting ``method`` to ``:ivar:`` makes the exact constructor guard
+fail.
+
+REVISED COUNT: 149 entries, 80 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
