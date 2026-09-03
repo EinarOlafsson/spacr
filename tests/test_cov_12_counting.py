@@ -78,3 +78,28 @@ def test_undo_after_the_markers_were_emptied_is_a_quiet_no_op():
     assert counting.undo() == ('add', 'infected')
     assert counting.counts()['infected'] == 0
     assert counting.undo() is None
+
+
+@pytest.mark.parametrize("size", [0, -1, float("nan"), float("inf"), "wide"])
+def test_a_marker_diameter_must_be_positive_and_finite(size):
+    with pytest.raises(LayerError, match="positive finite"):
+        CountingSession(flat_stack(), size=size)
+
+
+def test_a_negative_shortcut_position_is_refused():
+    counting = CountingSession(flat_stack(), classes=[])
+
+    with pytest.raises(LayerError, match="shortcut_index"):
+        counting.add_class("infected", shortcut_index=-1)
+
+
+def test_two_classes_cannot_share_a_nonblank_shortcut():
+    counting = CountingSession(
+        flat_stack(),
+        classes=[CountClass("infected", shortcut="i")],
+    )
+    distinct = counting.add_class(CountClass("uninfected", shortcut="u"))
+    assert distinct.shortcut == "u"
+
+    with pytest.raises(LayerError, match="shortcut.*already selects"):
+        counting.add_class(CountClass("mitotic", shortcut="i"))
