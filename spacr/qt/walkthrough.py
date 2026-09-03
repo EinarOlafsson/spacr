@@ -263,6 +263,33 @@ def _run_button(screen: QWidget) -> Optional[QWidget]:
 # Showing one
 # ---------------------------------------------------------------------------
 
+def _already_current(window, app_key: str) -> bool:
+    """Whether ``app_key``'s screen is the one the window is already showing.
+
+    ``QStackedWidget.currentChanged`` fires AFTER the screen has been made
+    current, and the automatic walkthrough listens to it -- so navigating
+    unconditionally re-entered ``_on_nav_selected`` for the module already on
+    screen. That second trip ran BEFORE the outer call had installed its
+    readiness watcher, so the outer call then replaced the nested probe.
+
+    FAILS TOWARD NAVIGATING. A window that cannot say what it is showing gets
+    navigated to, which costs one redundant trip; skipping on a bad reading
+    would leave the walkthrough highlighting a screen nobody is looking at,
+    which is the more expensive mistake.
+
+    :param window: the live main window.
+    :param app_key: the module about to be walked through.
+    :returns: True only when the stack says that module is current.
+    """
+    try:
+        current = window._stack.currentWidget()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the current screen; navigating anyway",
+                  exc_info=True)
+        return False
+    return current is not None and getattr(current, "app_key", None) == app_key
+
+
 def show_walkthrough(window: QMainWindow, app_key: str,
                      *, force: bool = True) -> Optional[_TourOverlay]:
     """Run ``app_key``'s walkthrough over ``window``.
@@ -282,7 +309,7 @@ def show_walkthrough(window: QMainWindow, app_key: str,
     screen = None
     try:
         nav = getattr(window, "_on_nav_selected", None)
-        if callable(nav):
+        if callable(nav) and not _already_current(window, app_key):
             nav(app_key)
         screen = window._screens.get(app_key)
     except Exception:
