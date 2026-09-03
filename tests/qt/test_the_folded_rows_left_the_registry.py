@@ -57,11 +57,25 @@ def _folded_by_host():
 
 
 def _live_keys():
-    """Every registered app key, self-registering screens included."""
-    import spacr.qt.screens                     # noqa: F401 - registers rows
-    from spacr.qt.app import APPS
+    """Every key that DRAWS A TILE, self-registering screens included.
 
-    return {row[0] for row in APPS}
+    Through `tiled_apps()`, which is the app's own answer to that question.
+    This read `APPS` directly until 2026-09-02, and the two stopped being
+    the same thing on 2026-08-31 when `TILELESS_APPS` arrived: a folded
+    module keeps its registry row -- it still has a screen, an icon, a
+    section, a key to navigate to and a name `spacr-run` answers for -- and
+    loses only its tile. Reading `APPS` here therefore reported nine
+    correctly folded modules as half-folded, which is the opposite of what
+    these tests are for.
+
+    `app.py` states the distinction where `tiled_apps` is defined: `APPS` is
+    what EXISTS, `tiled_apps()` is what Home DRAWS, and a folded module must
+    still answer yes to the first.
+    """
+    import spacr.qt.screens                     # noqa: F401 - registers rows
+    from spacr.qt.app import tiled_apps
+
+    return {row[0] for row in tiled_apps()}
 
 
 def test_no_key_is_both_a_fold_button_and_a_tile():
