@@ -408,8 +408,8 @@ BASIC_SETTINGS: Tuple[str, ...] = (
     "organelle_channel",
     "organelle_type",
     "organelle_diameter",
-    "organelle_min_size",
-    "organelle_max_size",
+    "organelle_min_area",
+    "organelle_max_area",
     "organelle_mask_within_cells",
     "organelle_remove_border",
 )
