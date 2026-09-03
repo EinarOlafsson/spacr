@@ -863,6 +863,8 @@ class WellSelection:
     :param n_selected: how many were actually taken, after the window and
         after any cap.
     :param note: why ``n_selected`` is not ``n_expected``, or ``''``.
+    :param share: normalized fraction actually used for ``n_expected``;
+        ``None`` means the raw ``fraction`` was used.
     """
 
     well: str
