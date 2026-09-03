@@ -32,6 +32,7 @@ real path to a real file, and the handoff is an optimisation on top of it.
 from __future__ import annotations
 
 import os
+import tempfile
 import weakref
 from typing import Any, Dict, Optional, Tuple
 
@@ -82,6 +83,7 @@ def hold(path: Any, frame: pd.DataFrame) -> str:
     :param path: where the frame was (or will be) written.
     :param frame: the frame the caller already has.
     :returns: the key the offer is filed under.
+    :raises ValueError: if ``frame`` is ``None``.
 
     The caller keeps ownership. Nothing here extends the frame's life, so a
     producer that finishes and drops it withdraws the offer by doing so.
@@ -98,6 +100,7 @@ def held(path: Any) -> Optional[pd.DataFrame]:
     """The frame offered for ``path``, or ``None`` when there is none.
 
     :param path: filesystem path whose in-memory offer is requested.
+    :returns: offered DataFrame, or ``None`` when no live offer matches.
 
     ``None`` is not a failure: it means the reader should read the file, which
     is what it would have done anyway.
@@ -114,6 +117,8 @@ def describe(path: Any) -> str:
     """One line naming what was handed over for ``path``, for a log.
 
     :param path: filesystem path whose in-memory offer is to be described.
+    :returns: one-line shape and handoff description, or ``""`` when no live
+        offer matches.
 
     Empty when nothing was offered, so a caller can print it unconditionally
     and say nothing when there is nothing to say.
@@ -130,6 +135,7 @@ def describe(path: Any) -> str:
 def release(path: Any = None) -> int:
     """Withdraw one offer, or every offer when ``path`` is ``None``.
 
+    :param path: one offered path to withdraw, or ``None`` to withdraw all.
     :returns: how many offers were withdrawn.
 
     Withdrawing is optional -- the references are weak -- but a producer that
@@ -173,6 +179,10 @@ def stage(frame: pd.DataFrame, folder: Any, stem: str, *,
     :param report: called with one line saying what was written and how long
         it took; ``None`` to say nothing.
     :returns: the path written.
+    :raises ValueError: if ``frame`` is ``None``.
+    :raises OSError: if the destination directory or durable artefact cannot
+        be written. Other table-writer errors also propagate after the offer
+        registry and any pre-existing durable artefact are left as they were.
 
     The frame is offered BEFORE the write returns, so a reader that starts
     while the artefact is still being written gets the object rather than a
@@ -190,9 +200,38 @@ def stage(frame: pd.DataFrame, folder: Any, stem: str, *,
     suffix = COLUMNAR_SUFFIX if engine else ".csv"
     path = os.path.join(folder, f"{stem}{suffix}")
 
+    identity = key_for(path)
+    missing_shape = object()
+    previous_frame = _OFFERED.get(identity)
+    previous_shape = _SHAPES.get(identity, missing_shape)
     hold(path, frame)
     started = time.time()
-    tabular.write_table(frame, path)
+    temporary_path = None
+    try:
+        descriptor, temporary_path = tempfile.mkstemp(
+            prefix=f".{stem}.staging-", suffix=suffix, dir=folder)
+        os.close(descriptor)
+        tabular.write_table(frame, temporary_path)
+        os.replace(temporary_path, path)
+        temporary_path = None
+    except BaseException:
+        # A failed stage did not publish the durable half of this contract.
+        # Roll back this offer exactly: a failed replacement must not erase a
+        # producer's pre-existing, successfully published handoff.
+        if temporary_path is not None:
+            try:
+                os.unlink(temporary_path)
+            except OSError:
+                pass
+        if previous_frame is None:
+            _OFFERED.pop(identity, None)
+        else:
+            _OFFERED[identity] = previous_frame
+        if previous_shape is missing_shape:
+            _SHAPES.pop(identity, None)
+        else:
+            _SHAPES[identity] = previous_shape
+        raise
     if report is not None:
         size = os.path.getsize(path) if os.path.exists(path) else 0
         report(f"Wrote {os.path.basename(path)}: {len(frame):,} rows, "

@@ -24,6 +24,8 @@ def autocorrelation(residuals: Sequence[float]) -> float:
     """Durbin-Watson on ``residuals`` in the order given.
 
     :param residuals: ordered residual values to test for serial dependence.
+    :returns: the Durbin-Watson statistic, or ``nan`` with fewer than two
+        finite residuals or a nonpositive sum of squared residuals.
 
     2 is no autocorrelation, 0 is perfect positive, 4 perfect negative.
     Written out rather than imported so this module does not pull
@@ -48,16 +50,27 @@ def position_effect(residuals: Sequence[float],
     :param residuals: residual values whose positional structure is measured.
     :param positions: position level aligned to each residual.
 
-    :returns: ``eta_squared`` -- the share of residual variance between
-        position levels -- with the level count and the worst level's mean.
+    :returns: a mapping containing ``eta_squared`` and ``levels``. With at
+        least three finite observations it also contains ``p_value``; when
+        two or more levels vary, it includes ``omega_squared``,
+        ``worst_level``, and ``worst_departure``, the signed departure of
+        that level's mean from the grand residual mean.
+    :raises ValueError: if ``residuals`` and ``positions`` do not contain
+        exactly one value for each other.
 
     THE NUMBER THAT MATTERS FOR EXCHANGEABILITY. If rows differ from each
     other more than cells within a row do, then shuffling across rows inside
     a plate is shuffling things that are not alike, and the permutation null
     is wider than the truth.
     """
-    values = np.asarray(list(residuals), dtype=float)
-    labels = np.asarray([str(p) for p in positions])
+    residual_values = list(residuals)
+    position_values = list(positions)
+    if len(residual_values) != len(position_values):
+        raise ValueError(
+            "residuals and positions must have the same length; got "
+            f"{len(residual_values)} and {len(position_values)}")
+    values = np.asarray(residual_values, dtype=float)
+    labels = np.asarray([str(p) for p in position_values])
     keep = np.isfinite(values)
     values, labels = values[keep], labels[keep]
     if values.size < 3:
@@ -120,13 +133,33 @@ def block_residual_report(residuals: Sequence[float],
     :param blocks: the block each residual belongs to; the shuffle happens
         inside these.
     :param positions: ``{'rowID': [...], 'columnID': [...]}`` or similar.
+    :returns: pooled sample and block counts, pooled and per-block
+        Durbin-Watson diagnostics, per-block means and standard deviations,
+        and one :func:`position_effect` result per named position column.
+    :raises ValueError: if ``blocks`` or any named position column does not
+        contain exactly one value for each residual.
 
     PER BLOCK AND NOT ONLY POOLED. The shuffle is within-block, so a pooled
     statistic can look healthy while one plate is badly structured -- and
     that one plate is where the false positives come from.
     """
-    values = np.asarray(list(residuals), dtype=float)
-    labels = np.asarray([str(b) for b in blocks])
+    residual_values = list(residuals)
+    block_values = list(blocks)
+    if len(residual_values) != len(block_values):
+        raise ValueError(
+            "residuals and blocks must have the same length; got "
+            f"{len(residual_values)} and {len(block_values)}")
+    position_values = {
+        str(name): list(column) for name, column in (positions or {}).items()
+    }
+    for name, column in position_values.items():
+        if len(column) != len(residual_values):
+            raise ValueError(
+                f"position column {name!r} must have the same length as "
+                f"residuals; got {len(column)} and {len(residual_values)}")
+
+    values = np.asarray(residual_values, dtype=float)
+    labels = np.asarray([str(b) for b in block_values])
     out: Dict[str, Any] = {
         "n": int(values.size),
         "blocks": int(len(set(labels.tolist()))),
@@ -142,8 +175,8 @@ def block_residual_report(residuals: Sequence[float],
             "mean": float(here.mean()) if here.size else float("nan"),
             "sd": float(here.std(ddof=1)) if here.size > 1 else float("nan"),
         }
-    for name, column in (positions or {}).items():
-        out["position"][str(name)] = position_effect(values, column)
+    for name, column in position_values.items():
+        out["position"][name] = position_effect(values, column)
     return out
 
 
