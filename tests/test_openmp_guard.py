@@ -55,6 +55,18 @@ def clamping_platform(monkeypatch):
 
 
 class TestResidentRuntimes:
+    @pytest.mark.parametrize(
+        ("path", "expected"),
+        [
+            ("/usr/lib/libomp.dylib", True),
+            ("/wheel/libgomp-a34b3233.so.1", True),
+            ("/usr/lib/notlibomp.so", False),
+        ],
+    )
+    def test_runtime_names_must_start_with_a_supported_marker(
+            self, path, expected):
+        assert openmp_guard._looks_like_openmp(path) is expected
+
     def test_returns_realpaths_without_duplicates(self, monkeypatch, tmp_path):
         real = tmp_path / "libomp.dylib"
         real.write_bytes(b"")
@@ -125,6 +137,17 @@ class TestResidentRuntimes:
             "_macos_images",
             lambda: (_ for _ in ()).throw(OSError("dyld went away")),
         )
+        assert openmp_guard.resident_openmp_runtimes() == []
+
+    def test_filtering_failure_reports_unknown(self, monkeypatch):
+        monkeypatch.setattr(openmp_guard.sys, "platform", "darwin")
+        monkeypatch.setattr(
+            openmp_guard, "_macos_images",
+            lambda: ["/usr/lib/libomp.dylib"])
+        monkeypatch.setattr(
+            openmp_guard, "_looks_like_openmp",
+            lambda _path: (_ for _ in ()).throw(RuntimeError("bad image")))
+
         assert openmp_guard.resident_openmp_runtimes() == []
 
     def test_reads_the_real_process(self):
@@ -201,6 +224,26 @@ class TestSingleThreadedOpenmp:
         for path in ("/a/libomp.dylib", "/b/libomp.dylib"):
             assert handle(path).value == 10
             assert handle(path).history == [1, 10]
+
+    def test_a_context_instance_can_be_nested_without_losing_outer_state(
+        self, monkeypatch, clamping_platform
+    ):
+        handle = self._fake_runtime(monkeypatch, maxima=10)
+        monkeypatch.setattr(
+            openmp_guard,
+            "resident_openmp_runtimes",
+            lambda: ["/a/libomp.dylib", "/b/libomp.dylib"],
+        )
+        region = openmp_guard.single_threaded_openmp("nested")
+
+        with region as entered:
+            assert entered is region
+            assert handle("/a/libomp.dylib").value == 1
+            with region:
+                assert handle("/a/libomp.dylib").value == 1
+            assert handle("/a/libomp.dylib").value == 1
+
+        assert handle("/a/libomp.dylib").value == 10
 
     def test_works_as_a_decorator(self, monkeypatch, clamping_platform):
         handle = self._fake_runtime(monkeypatch, maxima=8)
@@ -345,16 +388,42 @@ class TestSingleThreadedOpenmp:
         )
         with openmp_guard.single_threaded_openmp("XGBoost"):
             pass
-        first = capsys.readouterr().out
+        captured = capsys.readouterr()
+        first = captured.err
+        assert captured.out == ""
         with openmp_guard.single_threaded_openmp("XGBoost"):
             pass
-        second = capsys.readouterr().out
+        captured = capsys.readouterr()
+        second = captured.err
+        assert captured.out == ""
 
         assert "XGBoost" in first
         assert "/torch/libomp.dylib" in first
         assert "/brew/libomp.dylib" in first
         assert "SPACR_OPENMP_GUARD" in first
         assert second == ""
+
+    def test_a_broken_warning_cannot_prevent_the_clamp(
+        self, monkeypatch, clamping_platform
+    ):
+        handle = self._fake_runtime(monkeypatch, maxima=10)
+        monkeypatch.setattr(
+            openmp_guard,
+            "resident_openmp_runtimes",
+            lambda: ["/a/libomp.dylib", "/b/libomp.dylib"],
+        )
+        monkeypatch.setattr(
+            openmp_guard, "print",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("closed")),
+            raising=False,
+        )
+
+        with openmp_guard.single_threaded_openmp("XGBoost"):
+            assert handle("/a/libomp.dylib").value == 1
+            assert handle("/b/libomp.dylib").value == 1
+
+        assert handle("/a/libomp.dylib").value == 10
+        assert handle("/b/libomp.dylib").value == 10
 
     def test_the_escape_hatch_disables_the_clamp(
         self, monkeypatch, clamping_platform
