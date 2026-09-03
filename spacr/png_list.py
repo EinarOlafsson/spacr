@@ -113,8 +113,12 @@ def crop_rows_from_png_list(db_path, png_df, object_type='cell', verbose=True):
         default is ``'cell'``; supported names are the keys of
         :data:`PNG_LIST_ID_COLUMNS`.
     :param verbose: print the number of unusable rows when ``True``.
-    :returns: a copy of ``png_df`` with ``path_name``, ``object_label`` and
-        ``object_type`` columns, minus the rows that cannot be cut.
+    :returns: a copy of ``png_df`` with ``path_name``, ``object_label``,
+        ``object_type`` and ``object_label_type`` columns, minus the rows
+        that cannot be cut. ``object_type`` is what was ASKED for and is what
+        the crop cutter reads to choose a mask plane; ``object_label_type``
+        is which object's labels were actually available, and the two differ
+        when a png_list written for one crop mode is read for another.
     :raises ValueError: if ``object_type`` is unsupported, or if its ID column
         is absent while multiple other object-ID columns make fallback
         ambiguous.
@@ -165,7 +169,25 @@ def crop_rows_from_png_list(db_path, png_df, object_type='cell', verbose=True):
     else:
         df['path_name'] = None
     df['object_label'] = labels
-    df['object_type'] = effective_object_type
+    # THE OBJECT THE CALLER ASKED FOR, not the column the labels came from.
+    # These are two different questions and answering both with
+    # `effective_object_type` broke the montage: `crops` reads this column
+    # PER ROW to choose the mask plane a crop is cut by
+    # (`_row_get(row, "object_type", ...)`), so a nucleus request whose
+    # png_list carries only `cell_id` came back saying "cell" and was cut
+    # from the cell plane. Choosing an object type then changed nothing on
+    # screen.
+    #
+    # The labels stay whatever column exists -- that is what the fallback
+    # above is for, and it is the honest answer to "which objects" when the
+    # png_list was written for one crop mode. The PLANE is the user's choice.
+    df['object_type'] = object_type
+    # WHERE THE LABELS CAME FROM, recorded rather than folded into the line
+    # above. The two are different questions and one column cannot answer
+    # both: `object_type` is an INSTRUCTION the crop cutter obeys, and this
+    # is PROVENANCE. They differ exactly when a png_list written for one crop
+    # mode is read for another, which is the case worth being able to see.
+    df['object_label_type'] = effective_object_type
 
     usable = df['object_label'].notna() & df['path_name'].notna()
     dropped = int((~usable).sum())

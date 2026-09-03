@@ -50,9 +50,21 @@ def test_a_crop_table_from_another_mode_still_finds_its_object_column(
     )
 
     assert list(out["object_label"]) == [5, 7]
-    assert list(out["object_type"]) == ["nucleus", "nucleus"]
     assert seen == ["nucleus"]
     assert len(out) == 2
+
+    # TWO COLUMNS, BECAUSE THESE ARE TWO QUESTIONS. `object_type` is an
+    # INSTRUCTION: `spacr.crops` reads it per row to choose the mask plane a
+    # crop is cut by, so it has to stay what the caller ASKED for. Reporting
+    # "nucleus" here -- where the labels came from -- meant the cells-behind-
+    # a-dot montage cut every crop from the nucleus plane whatever the user
+    # picked, and choosing an object type changed nothing on screen.
+    #
+    # The provenance this test was written to protect is still recorded, in
+    # `object_label_type`, so "these are nucleus labels being used for a cell
+    # request" remains visible to anything that wants to know.
+    assert list(out["object_type"]) == ["cell", "cell"]
+    assert list(out["object_label_type"]) == ["nucleus", "nucleus"]
 
 
 # ---------------------------------------------------------------------------

@@ -93,8 +93,12 @@ def test_a_frame_with_no_object_column_keeps_no_rows(tmp_path):
     df = pd.DataFrame({"png_path": ["a.png", "b.png"]})
     out = crop_rows_from_png_list(str(tmp_path / "absent.db"), df,
                                   object_type="cell", verbose=False)
+    # `object_label_type` joins them: `object_type` is the INSTRUCTION the
+    # crop cutter obeys, and this records which object's labels were actually
+    # found. They differ when a png_list written for one crop mode is read
+    # for another.
     assert list(out.columns) == ["png_path", "path_name", "object_label",
-                                 "object_type"]
+                                 "object_type", "object_label_type"]
     assert len(out) == 0
 
 
