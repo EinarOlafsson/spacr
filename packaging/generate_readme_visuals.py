@@ -673,53 +673,37 @@ def _hardware_table() -> str:
 
 
 def _model_zoo_rows() -> "list[tuple[str, str, str, str]]":
-    """The published models as ``(key, name, what it segments, limits)``.
+    """The published models as ``(key, architecture, dataset, versus stock)``.
 
-    READ FROM THE CATALOGUE, never restated. ``BUNDLED_REMOTE_MODELS`` in
-    ``spacr/model_zoo.py`` is the only list of what spaCR publishes, and a
+    READ FROM THE SHIPPED LITERAL, never restated. ``BUNDLED_REMOTE_MODELS``
+    in ``spacr/model_zoo.py`` is the only list of what spaCR publishes, and a
     second hand-written copy in the README is a copy that goes stale --
     which is exactly the fault part 1 of instruction 362 spent a day
     removing from the module grid.
 
-    Importing :mod:`spacr.model_zoo` here is cheap: it pulls no torch and
-    no Qt, and makes no network call.
+    THE LITERAL RATHER THAN ``catalogue()``, since 2026-09-02. The three
+    fields this table wants are short, table-shaped restatements written for
+    it -- ``architecture``, ``dataset``, ``versus_stock`` -- and
+    ``ModelEntry`` maps a fixed set of keys, so they would be dropped on the
+    way through. Reading the literal also does what ``catalogue()`` had to
+    be argued into doing: THE GENERATED README MUST NOT DEPEND ON THE
+    MACHINE THAT GENERATED IT, and the literal cannot pick up this
+    checkout's bundled models, a plugin's entries, or a catalogue named by
+    an environment variable. The guards those needed are simply not
+    reachable from here.
 
-    THE GENERATED README MUST NOT DEPEND ON THE MACHINE THAT GENERATED IT,
-    which is why every source of entries beyond the shipped literal is
-    switched off. ``catalogue()`` will otherwise add the models bundled
-    into this checkout's ``resources/models``, any plugin-contributed
-    entries, and a whole JSON catalogue named by an environment variable
-    -- so a developer with a local model installed would silently commit
-    a README advertising a model nobody else can fetch.
+    Importing :mod:`spacr.model_zoo` is cheap: no torch, no Qt, no network.
     """
-    import os
-
-    from spacr.model_zoo import CATALOGUE_ENV_VAR, catalogue
-
-    previous = os.environ.pop(CATALOGUE_ENV_VAR, None)
-    try:
-        entries = catalogue(remote=True, include_bundled=False,
-                            include_plugins=False, catalogue_path=None)
-    finally:
-        if previous is not None:
-            os.environ[CATALOGUE_ENV_VAR] = previous
+    from spacr.model_zoo import BUNDLED_REMOTE_MODELS
 
     rows = []
-    for entry in entries:
-        # BOTH notes, joined. The first is usually the headline number and
-        # the second is the honest limit ("accuracy falls sharply above IoU
-        # 0.8"). Printing only the first would make the table an
-        # advertisement, and a model table that prints only the good number
-        # is the claim instruction 316 exists to prevent.
-        limits = "; ".join(note.strip().rstrip(".")
-                           for note in entry.notes if note.strip())
-        # Capitalised for the table only. The catalogue's own prose is
-        # written to read after "trained on", so one entry starts
-        # "whole-plate and multi-well ..." -- correct in a sentence,
-        # wrong as a cell that stands alone under a heading.
-        trained_on = entry.trained_on.strip().rstrip(".")
-        trained_on = trained_on[:1].upper() + trained_on[1:]
-        rows.append((entry.key, entry.name, trained_on, limits))
+    for entry in BUNDLED_REMOTE_MODELS:
+        rows.append((
+            str(entry.get("key") or entry.get("name") or ""),
+            str(entry.get("architecture") or "").strip().rstrip("."),
+            str(entry.get("dataset") or "").strip().rstrip("."),
+            str(entry.get("versus_stock") or "").strip().rstrip("."),
+        ))
     return rows
 
 
@@ -728,21 +712,28 @@ def _model_zoo_table() -> str:
     rows = _model_zoo_rows()
     if not rows:  # pragma: no cover - the catalogue is never empty
         return ""
+    # THREE COLUMNS, ASKED FOR ON 2026-09-02: "this new table for the model
+    # zoo contains way to much information. just state the model name and
+    # architecture, training dataset (staining + number of images from n
+    # datasets), and performance on hold out data compared to stock model".
+    # The full `trained_on` prose and both `notes` are still published -- on
+    # the Model Zoo screen, and in the scorecard instruction 370 describes.
+    # This table is the index, not the record.
     lines = [
         ".. list-table::",
         "   :header-rows: 1",
-        "   :widths: 26 30 44",
+        "   :widths: 24 34 42",
         "",
-        "   * - Key",
-        "     - Trained on",
-        "     - Measured performance and limits",
+        "   * - Model",
+        "     - Training data",
+        "     - Hold-out against stock",
     ]
-    for key, name, trained_on, limits in rows:
+    for key, architecture, dataset, versus in rows:
         lines.extend([
             f"   * - ``{key}``",
-            f"       ({name})",
-            f"     - {trained_on}",
-            f"     - {limits}",
+            f"       ({architecture})",
+            f"     - {dataset}",
+            f"     - {versus}",
         ])
     return "\n".join(lines)
 
