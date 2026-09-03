@@ -1064,19 +1064,23 @@ def read_measurements(source: Union[str, 'pd.DataFrame'],
 class MaskMapping:
     """One foreign label image and the field it belongs to.
 
-    :ivar source: the mask file on disk.
-    :ivar object_type: ``'cell'`` / ``'nucleus'`` / ``'pathogen'`` /
-        ``'organelle'``.
-    :ivar stem: the ``plate1_A01_3`` stem it will be written under.
-    :ivar plate: plate identifier parsed from the matched field stem.
-    :ivar well: well identifier parsed from the matched field stem.
-    :ivar field: integer field number in the matched field stem.
-    :ivar source_field: field key parsed from the original mask filename.
-    :ivar match: ``'exact'`` when the mask's field key equalled the
-        image's, ``'normalised'`` when it matched only after stripping a
-        mask suffix. Recorded because a normalised match is a guess, and
-        the plan shows it.
-    :ivar labels: positive object labels found in this mask at plan time.
+    :param source: Filesystem path of the foreign label-mask image.
+    :param object_type: Segmented object role from
+        :data:`spacr.crops.MASK_PLANE_ORDER` (cell, nucleus, pathogen, or
+        one of the organelle slots).
+    :param stem: Canonical matched spaCR field stem, such as
+        ``plate1_A01_3``, used for imported per-field artifacts.
+    :param plate: Canonical plate identifier of the matched image field.
+    :param well: Canonical well identifier of the matched image field.
+    :param field: Integer field number of the matched image field.
+    :param source_field: Field token parsed from the original mask filename
+        before matching.
+    :param match: ``"exact"`` when the source field token matched unchanged,
+        or ``"normalised"`` when mask suffix stripping was required. This
+        records filename matching independently of directory-based fallback.
+    :param labels: Sorted positive object labels read from the mask during
+        verified planning; empty when the mask has no positive labels or
+        label verification was disabled.
     """
 
     source: str

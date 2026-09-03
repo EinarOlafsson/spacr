@@ -1538,7 +1538,7 @@ def test_a_mask_tree_shaped_like_the_image_tree_matches_exactly(tmp_path):
                           layout="plate_well")
     assert plan.ok, fg.format_plan(plan)
     field = next(iter(plan.masks.fields.values()))["cell"]
-    assert ":ivar labels:" in (fg.MaskMapping.__doc__ or "")
+    assert ":param labels:" in (fg.MaskMapping.__doc__ or "")
     assert field.labels == (1, 2)
     assert field.match == "exact"
     assert plan.join.rows_matched == 1
