@@ -3701,3 +3701,25 @@ views; restoring the generator-backed sort makes the canonical assertion fail.
 
 REVISED COUNT: 144 entries, 75 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+87. FOREIGN MASK DOCUMENTATION OMITTED LIVE ROLES AND EMPTY-LABEL BEHAVIOR
+==============================================================================
+
+Found 2026-09-03 while repairing ``MaskMapping`` constructor documentation in
+``spacr/foreign.py``. The object-role text named only one organelle even though
+the accepted plane order includes four organelle slots, and ``labels`` claimed
+that labels were always read at plan time even though ``verify_labels=False``
+deliberately leaves the tuple empty. The match description also blurred
+filename-token normalization with the separate unique-field directory fallback.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/foreign.py``. All nine constructor
+parameters now describe the accepted roles, canonical target identity,
+filename-token match state, and both reasons for an empty label tuple. Existing
+exact, normalized, unknown-role, and verification-disabled plans provide
+positive examples; reverting ``source`` to ``:ivar:`` makes the exact
+constructor contract fail.
+
+REVISED COUNT: 145 entries, 76 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
