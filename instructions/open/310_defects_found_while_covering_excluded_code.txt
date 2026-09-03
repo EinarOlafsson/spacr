@@ -3744,3 +3744,25 @@ makes the exact constructor contract fail.
 
 REVISED COUNT: 146 entries, 77 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+89. MEASUREMENT-SCAN DOCUMENTATION HID THREE FITTING BOUNDARIES
+==============================================================================
+
+Found 2026-09-03 while repairing ``ScanResult`` constructor documentation in
+``spacr/measurement_scan.py``. The result did not say that unusable blocking
+columns are removed, retained requested controls can be absent from the data,
+or the across-scan correction operates on each measurement's Simes global-null
+P value rather than directly on every fitted gene term.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/measurement_scan.py``. All ten
+constructor parameters now describe fitted versus skipped measurements,
+post-validation blocking columns, requested versus observed controls, both
+canonical correction stages, and the Li–Ji estimate boundary. Focused tests
+pin dropped genes, correction identities, control baselines, blocking, and the
+all-skipped result; reverting ``rows`` to ``:ivar:`` makes the exact
+constructor contract fail.
+
+REVISED COUNT: 147 entries, 78 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.

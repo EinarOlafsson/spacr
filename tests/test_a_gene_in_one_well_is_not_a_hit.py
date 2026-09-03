@@ -44,7 +44,7 @@ def test_the_scan_result_documents_every_reported_field():
     """Dropped-gene evidence is part of the public result, not a sidecar."""
     missing = [
         field.name for field in fields(ScanResult)
-        if f":ivar {field.name}:" not in (ScanResult.__doc__ or "")
+        if f":param {field.name}:" not in (ScanResult.__doc__ or "")
     ]
     assert not missing, f"undocumented ScanResult fields: {missing}"
 

@@ -132,21 +132,27 @@ class MeasurementEffect:
 class ScanResult:
     """Every measurement the scan looked at, and how it was corrected.
 
-    :ivar rows: successfully scanned measurement results.
-    :ivar skipped: mapping from unscanned measurements to the reason each was
-        skipped.
-    :ivar block_columns: blocking factors retained in the fitted design.
-    :ivar gene_column: frame column containing the gene assignment.
-    :ivar control_genes: gene labels requested as the effect baseline.
-    :ivar within_run_method: multiplicity correction applied across genes
-        within each measurement.
-    :ivar across_scan_method: multiplicity correction applied across scanned
-        measurements.
-    :ivar alpha: significance level used for both correction stages.
-    :ivar effective_n_tests: Li–Ji estimate of the number of independent
-        measurement tests, or ``nan`` when unavailable.
-    :ivar genes_dropped: genes omitted because too few wells represented them,
-        mapped to each gene's observed well count.
+    :param rows: Successfully fitted measurement effects; measurements that
+        could not be fitted are recorded in ``skipped`` instead.
+    :param skipped: Mapping from each unscanned measurement name to its refusal
+        or fitting reason.
+    :param block_columns: Blocking columns actually retained in the fitted
+        design after absent and single-valued candidates were removed.
+    :param gene_column: Input-frame column containing the gene assignment.
+    :param control_genes: Requested control-gene labels recorded as the
+        effect-baseline request; absent labels are retained here even though
+        the design falls back to an observed baseline.
+    :param within_run_method: Canonical multiplicity method applied across gene
+        terms separately within each measurement.
+    :param across_scan_method: Canonical multiplicity method applied across
+        measurements' Simes global-null P values, including
+        ``"bonferroni_effective"`` for the Li–Ji divisor.
+    :param alpha: Significance level used for both within-measurement and
+        across-scan decisions.
+    :param effective_n_tests: Li–Ji estimate computed from successfully scanned
+        measurement columns, or ``nan`` when no estimate is available.
+    :param genes_dropped: Mapping from each non-control gene removed for
+        insufficient well replication to its observed well count.
     """
 
     rows: Tuple[MeasurementEffect, ...]
