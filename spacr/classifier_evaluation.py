@@ -61,7 +61,21 @@ _SPLIT_COLUMNS: Dict[str, Tuple[str, ...]] = {
 
 @dataclass(frozen=True)
 class SplitReport:
-    """Provenance and realised sizes for one train/test split."""
+    """Provenance and realised sizes for one train/test split.
+
+    :ivar group_by: canonical isolation unit used for the split, from objects
+        through fields, wells, and plates.
+    :ivar requested_fraction: held-out object fraction requested by the caller.
+    :ivar cell_fraction: realised share of objects assigned to the test side.
+    :ivar group_fraction: realised share of distinct groups assigned to test.
+    :ivar train_cells: number of object rows used for fitting.
+    :ivar test_cells: number of object rows held out for evaluation.
+    :ivar train_groups: number of distinct groups used for fitting.
+    :ivar test_groups: number of distinct groups held out for evaluation.
+    :ivar total_groups: distinct groups across both sides of the split.
+    :ivar rule: human-readable algorithm and isolation guarantee that produced
+        the realised split.
+    """
 
     group_by: str
     requested_fraction: float
@@ -469,14 +483,19 @@ class LeakageError(ValueError):
 class LeakageReport:
     """Overlap counts and examples for one train/validation boundary.
 
-    :ivar group_by: protected split level (``none``, ``field``, ``well``,
-        or ``plate``).
+    :ivar group_by: protected split level (``cell``, ``field``, ``well``, or
+        ``plate``); the legacy ``none`` spelling is normalized to ``cell``.
     :ivar train_samples: number of training paths.
     :ivar validation_samples: number of validation paths.
     :ivar overlap_counts: overlap count at each identity level.
     :ivar examples: up to ten shared identities per level.
+    :ivar split_name: caller-supplied label for the audited boundary.
     :ivar critical_levels: levels that invalidate the requested split.
     :ivar warnings: non-fatal caveats.
+    :ivar unverifiable_counts: samples lacking a requested identity or content
+        hash, counted by the level that could not be verified.
+    :ivar hash_errors: up to twenty file-specific failures from optional
+        byte-content hashing.
     """
 
     group_by: str
@@ -751,7 +770,28 @@ def audit_split_leakage(
 
 @dataclass
 class FoldLeakageAudit:
-    """Whole-CV proof that each related sample family belongs to one fold."""
+    """Whole-CV proof that each related sample family belongs to one fold.
+
+    :ivar group_by: canonical identity level required to remain within one
+        validation fold.
+    :ivar n_samples: number of source paths whose fold membership was audited.
+    :ivar n_folds: number of train/validation fold pairs inspected.
+    :ivar validation_membership_missing: up to twenty sample indexes that were
+        never held out for validation.
+    :ivar validation_membership_duplicate: up to twenty sample indexes held
+        out in more than one fold.
+    :ivar overlap_counts: identities assigned to multiple validation folds,
+        counted at each exact, content, family, object, and acquisition level.
+    :ivar examples: up to ten conflicting identities per level, annotated with
+        the folds that contain them.
+    :ivar critical_levels: completeness, overlap, identity, or label failures
+        that make :attr:`passed` false.
+    :ivar warnings: non-fatal caveats and explanations accompanying failures.
+    :ivar unverifiable_counts: samples whose requested identity or optional
+        byte-content hash could not be checked, counted by level.
+    :ivar hash_errors: up to twenty file-specific content-hashing failures.
+    :ivar split_name: stable label for this whole-CV audit record.
+    """
 
     group_by: str
     n_samples: int
