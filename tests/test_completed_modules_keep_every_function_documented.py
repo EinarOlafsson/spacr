@@ -112,6 +112,7 @@ FULLY_DOCUMENTED = (
     "spacr/parameter_sweep.py",
     "spacr/permutation_qc.py",
     "spacr/picture_settings.py",
+    "spacr/pipeline_v2.py",
     "spacr/plate_measurements.py",
     "spacr/plate_qc.py",
     "spacr/plot.py",
