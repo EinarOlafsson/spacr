@@ -45,25 +45,31 @@ feeds an unsupervised embedding with no contrast to protect.
 class BatchCorrectionReport:
     """Diagnostics for one correction operation.
 
-    :ivar method: correction method actually applied.
-    :ivar batch_column: metadata column represented by ``batch``.
-    :ivar batches: normalized batch labels seen.
-    :ivar features: corrected feature names.
-    :ivar rows: input row count.
-    :ivar controls: number of rows used as reference controls.
-    :ivar centroid_spread_before: mean across-feature standard deviation of
-        batch centers before correction.
-    :ivar centroid_spread_after: same diagnostic after correction.
-    :ivar covariate_columns: biological covariates protected by ``combat``.
-    :ivar covariate_terms: design-matrix column names those covariates expanded
-        to, so a reader can tell a 3-level factor from a continuous dose.
-    :ivar covariate_spread_before: the same centroid-spread diagnostic computed
-        across *covariate* groups instead of batches, before correction. This
-        is the number that must **survive**: batch spread should fall and this
-        one should not. It is ``None`` when the covariate is continuous or when
-        no covariate was supplied.
-    :ivar covariate_spread_after: same diagnostic after correction.
-    :ivar warnings: explicit fallbacks or limitations.
+    :param method: Normalized correction method requested for the operation; it
+        remains recorded when a one-batch operation becomes a warned no-op.
+    :param batch_column: Human-readable metadata-column name used to identify
+        the supplied batch labels.
+    :param batches: Sorted distinct batch labels after conversion to strings.
+    :param features: Numeric feature-column names returned by the operation,
+        whether corrected or left unchanged by a no-op.
+    :param rows: Number of input feature rows considered.
+    :param controls: Total rows matching the reference controls used by
+        ``control_center``; zero for other methods.
+    :param centroid_spread_before: Mean across-feature standard deviation of
+        batch centroids before correction, or ``None`` when unavailable.
+    :param centroid_spread_after: The same batch-centroid diagnostic after
+        correction or a no-op, or ``None`` when unavailable.
+    :param covariate_columns: Source biological-covariate columns supplied to
+        ComBat.
+    :param covariate_terms: Design-matrix terms expanded from those covariates
+        when ComBat was fitted; empty when no fit was performed.
+    :param covariate_spread_before: Batch-centroid-style spread across
+        categorical covariate groups before correction, or ``None`` for no or
+        continuous covariates.
+    :param covariate_spread_after: The same categorical-covariate spread after
+        correction or a no-op, or ``None`` when unavailable.
+    :param warnings: Explicit no-op, fallback, unchanged-batch,
+        constant-feature, or ComBat limitation messages.
     """
 
     method: str
