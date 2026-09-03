@@ -127,6 +127,17 @@ class Comparison:
     :ivar p_value: unadjusted p-value returned by that test.
     :ivar groups: group labels in the order tested.
     :ivar n: usable observation counts for those groups, in matching order.
+    :ivar unit: independent unit represented by one observation, such as a
+        well, cell, or guide; this prevents reporting row count as replication.
+    :ivar effect_size: estimated magnitude of the group difference on the
+        scale named by ``effect_name``.
+    :ivar effect_name: statistic used for ``effect_size``, such as Cohen's d.
+    :ivar ci: lower and upper confidence bounds for the reported effect, or
+        ``None`` when the selected method cannot provide them.
+    :ivar assumptions: diagnostic checks that selected or qualified this test.
+    :ivar reason: plain-language explanation of why this test was selected.
+    :ivar correction: multiple-testing method applied to obtain ``p_adjusted``.
+    :ivar p_adjusted: corrected p-value, or ``nan`` when no correction applies.
     """
 
     test: str

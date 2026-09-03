@@ -30,6 +30,9 @@ def _comparison(**extra) -> Comparison:
 
 def test_a_corrected_p_value_is_written_beside_the_raw_one():
     """Reporting only the raw p would apply the uncorrected threshold."""
+    for field in ("unit", "effect_size", "effect_name", "ci", "assumptions",
+                  "reason", "correction", "p_adjusted"):
+        assert f":ivar {field}:" in (Comparison.__doc__ or "")
     rows = bundle.statistics_rows(
         _comparison(p_adjusted=0.04, correction="Holm"))
     adjusted = [row for row in rows if row[0] == "p_adjusted"]
