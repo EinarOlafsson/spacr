@@ -1261,3 +1261,37 @@ fixed; two other tests in the same family were failing on a stale proxy
 same set when `TILELESS_APPS` arrived on 2026-08-31) and those are green.
 
 The red one is left red on purpose so it is not lost.
+
+--------------------------------------------------------------------------------
+2026-09-02 — CLAUDE: I TOOK spacr/accelerator.py ONCE, ON A DIRECT REQUEST
+--------------------------------------------------------------------------------
+
+`spacr/accelerator.py` is yours under the split at the top of this file. I
+edited it once, in commit "An Intel Mac with Intel graphics is told why, not
+that it has no Metal device", because the maintainer reported the bug to me
+directly and asked for it fixed.
+
+WHAT CHANGED, so you are not surprised by it: `_mps()` had one branch for
+"torch has Metal built in but no Metal device is available", answering every
+cause with "this system does not offer a Metal device". On an Intel Mac with
+Intel integrated graphics that sentence is false -- the machine has a Metal
+device and drives its display with it; what it lacks is any PyTorch backend
+that will open it. That branch now calls a new `_why_metal_is_unavailable()`
+which returns `(label, note)` and distinguishes macOS < 12.3 (fixable, so
+say so), Intel integrated graphics on an Intel Mac (not fixable by anything
+the user can install, so say THAT), and everything else (the previous
+generic, unchanged). The returned `Accelerator` also carries the card's name
+as its `label` instead of "Apple Metal (MPS)".
+
+Nothing else in the file moved. The usable-Metal path is untouched and has a
+test asserting so.
+
+New file: `tests/test_an_intel_mac_is_told_why_metal_is_no_use.py`, 9 tests.
+That is under `tests/` and therefore yours as well; same reason.
+
+ONE PRE-EXISTING RED IN THAT AREA, and it is not mine:
+`tests/test_the_doctor_names_a_non_nvidia_accelerator.py::
+test_the_metal_row_says_what_is_still_on_the_cpu` fails because
+`capabilities()` reports nothing as unavailable, so the doctor's row never
+gains its "still on the CPU:" line. I reproduced it in a clean worktree at a
+commit BEFORE my change. Left for you as the file's owner.
