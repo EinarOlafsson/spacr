@@ -195,8 +195,26 @@ def test_preprocess_generate_masks_runs_on_mask_demo(
     # scientifically relevant diameter settings at that boundary.
     models = _DeterministicCellposeModel.instances
     assert len(models) == 3
-    assert all(model.gpu is False for model in models)
-    assert all(str(model.device) == "cpu" for model in models)
+    # THE DEVICE THE RESOLVER CHOSE, not a hardcoded False. This asserted
+    # `gpu is False`, which is only true on a machine without one -- it
+    # passed for the developer and failed on any CUDA box, testing the
+    # hardware rather than the pipeline. What is worth pinning is that the
+    # decision comes from `spacr.accelerator` rather than being invented at
+    # the call site.
+    from spacr.accelerator import cellpose_kwargs
+
+    wanted = bool(cellpose_kwargs().get("gpu", False))
+    asked = [bool(model.gpu) for model in models]
+    assert asked == [wanted] * len(models), (
+        f"the pipeline asked for gpu={asked} where the accelerator "
+        f"resolves {wanted}")
+    # The device follows the same resolver, so it agrees with `gpu` rather
+    # than being pinned to "cpu" -- which, like the flag above, only held on
+    # a machine without one.
+    devices = [str(model.device) for model in models]
+    on_cpu = [d == "cpu" for d in devices]
+    assert on_cpu == [not wanted] * len(models), (
+        f"the pipeline segmented on {devices} while asking for gpu={wanted}")
     assert all(model.pretrained_model == "cpsam" for model in models)
     assert [len(model.calls) for model in models] == [1, 1, 1]
     assert [model.calls[0]["n_images"] for model in models] == [1, 1, 1]
