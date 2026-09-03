@@ -246,8 +246,14 @@ def _viewport(screen) -> QRect:
     return QRect(top_left.x(), top_left.y(), view.width(), view.height())
 
 
+#: How much of a category has to be on screen before it is worth measuring.
+#: Enough that the sample is the card's own surface and not a sliver of its
+#: border.
+MEASURABLE_BAND_PX = 80
+
+
 def _inside(view: QRect, rect: QRect) -> bool:
-    """Is ``rect`` scrolled fully into ``view``, vertically?
+    """Is enough of ``rect`` on screen, vertically, to measure?
 
     Vertically only, and the horizontal half is handled by :func:`_clip`
     instead, because a category is as wide as the *content* widget and the
@@ -255,8 +261,27 @@ def _inside(view: QRect, rect: QRect) -> bool:
     Measure, the categories are 624 px across a 408 px viewport. Requiring
     full containment would reject every category on a screen where nothing
     is wrong.
+
+    THE VERTICAL HALF NOW HAS THE SAME PROBLEM, for the same reason. A
+    category taller than the column can never be fully inside it, and
+    Regression opens with one: its Input Tables card is 787 px in an 826 px
+    viewport starting 301 px down, so full containment rejected every
+    category on the screen and the test could measure nothing at all. The
+    card is that tall because it is deliberately opened -- it carries the
+    "Load test data" button, which is unfindable inside a collapsed body.
+
+    So this asks for a measurable BAND rather than the whole card. Callers
+    clip to the viewport before measuring anyway, which is what keeps a card
+    hanging off the bottom from being read half-and-half.
     """
-    return rect.top() >= view.top() and rect.bottom() <= view.bottom()
+    top = max(rect.top(), view.top())
+    bottom = min(rect.bottom(), view.bottom())
+    visible = max(0, bottom - top + 1)
+    # A COLLAPSED CARD IS 34 px TALL, so the band cannot simply be a floor:
+    # most categories on a settings screen are collapsed, and demanding 80 px
+    # of them rejects the whole column. Fully visible is enough, whatever the
+    # height; the band only applies to a card too tall to fit.
+    return visible >= min(rect.height(), MEASURABLE_BAND_PX)
 
 
 def _clip(view: QRect, rect: QRect) -> QRect:

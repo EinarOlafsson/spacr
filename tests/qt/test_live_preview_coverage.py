@@ -538,14 +538,24 @@ class TestSegmentMulti:
         assert fake_cellpose.instances[-1].loaded_model == "cpsam"
 
     @pytest.mark.parametrize("available", [True, False])
-    def test_gpu_flag_follows_torch(self, fake_cellpose, monkeypatch,
-                                    available):
-        """Stubbed both ways so the assertion does not depend on whether the
-        machine running the suite happens to have a GPU."""
-        fake_torch = types.ModuleType("torch")
-        fake_torch.cuda = types.SimpleNamespace(
-            is_available=lambda: available)
-        monkeypatch.setitem(sys.modules, "torch", fake_torch)
+    def test_gpu_flag_follows_the_accelerator(self, fake_cellpose, monkeypatch,
+                                              available):
+        """The device choice is the accelerator's answer, not torch's.
+
+        This used to stub `sys.modules["torch"]` and assert the flag followed
+        `torch.cuda.is_available()`. It does not any more: `spacr.accelerator`
+        owns the decision, because "is there CUDA" is not the whole question
+        -- an Intel Mac reports Metal that spaCR cannot use, and the resolver
+        is where that is known. Stubbing torch therefore tested nothing about
+        the flag, and only reached the accelerator's own fallback.
+
+        Stubbed both ways so the assertion does not depend on whether the
+        machine running the suite happens to have a GPU.
+        """
+        import spacr.accelerator as accelerator
+
+        monkeypatch.setattr(accelerator, "cellpose_kwargs",
+                            lambda: {"gpu": available})
         LP._segment_multi(self._req())
         assert fake_cellpose.instances[-1].kwargs["gpu"] is available
 
