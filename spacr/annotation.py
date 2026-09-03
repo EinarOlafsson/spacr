@@ -124,6 +124,7 @@ def _keyed(frame, source_column: str, wanted: Sequence[Tuple[str, str]]):
 
 @lru_cache(maxsize=1)
 def _metadata():
+    """Return bundled gene metadata keyed by ``gene_nr``, or ``None``."""
     return _keyed(_read("toxoplasma_metadata.csv"), "Gene ID", (
         ("Gene Name or Symbol", "gene_name"),
         ("Product Description", "product_description"),
@@ -161,6 +162,7 @@ def _topology():
 
 @lru_cache(maxsize=1)
 def _phenotype():
+    """Return bundled ``fit_*`` phenotype scores keyed by ``gene_nr``."""
     frame = _read("phenotype.csv")
     if frame is None:
         return None
@@ -170,12 +172,14 @@ def _phenotype():
 
 @lru_cache(maxsize=1)
 def _lopit():
+    """Return bundled TAGM localisation as ``hyperlopit`` by ``gene_nr``."""
     return _keyed(_read("lopit.csv"), "gene_nr",
                   (("tagm_location", "hyperlopit"),))
 
 
 @lru_cache(maxsize=1)
 def _uniprot():
+    """Return bundled UniProt accessions keyed by ``gene_nr``, or ``None``."""
     return _keyed(_read("uniprot.csv"), "gene_nr", (("uniprot", "uniprot"),))
 
 
