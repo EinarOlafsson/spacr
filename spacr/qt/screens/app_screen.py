@@ -1217,6 +1217,31 @@ class _WrappingButtonStrip(FlowLayout):
                      height + margins.top() + margins.bottom())
 
 
+#: The strip's Animation word, as a link target.
+#:
+#: A PRIVATE SCHEME, not a URL: the strip has `setOpenExternalLinks(True)`
+#: so its API link works, and anything that looks like a real address would
+#: be handed to a browser.
+_HINT_ANIMATION_HREF = "spacr:animation"
+
+
+def _setting_has_an_animation(key: str) -> bool:
+    """Whether this setting has an animation to offer. Never raises.
+
+    A missing or unreadable catalogue means "no animation", not a broken
+    screen: the strip is help, and help that can take the form down is
+    worse than help that is absent.
+    """
+    if not key:
+        return False
+    try:
+        from ..setting_animations import animation_for_setting
+
+        return animation_for_setting(str(key)) is not None
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -5310,7 +5335,14 @@ class AppScreen(QWidget):
                         link = api_docs_url(self.app_key, str(key))
                     except Exception:                        # noqa: BLE001
                         link = ""
-                self._write_hint(hint, link, hold=True)
+                # REMEMBERED SO THE LINK HAS SOMETHING TO ACT ON. The strip
+                # outlives the hover by ten seconds (371 part 3), so by the
+                # time an Animation press arrives the pointer is long gone
+                # from the widget the animation belongs to.
+                self._hinted_widget = obj
+                self._hinted_html = html
+                self._write_hint(hint, link, hold=True,
+                                 animated=_setting_has_an_animation(key))
                 shown_at_the_bottom = True
             # ONE PLACE, NOT TWO. Asked for on 2026-09-01: "i dont need the
             # popup box if the tooltip is shown on the bottom of the window".
@@ -6453,6 +6485,9 @@ class AppScreen(QWidget):
         self._sync_hint_strip_height()
         self._hint_strip.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self._hint_strip.setOpenExternalLinks(True)
+        # `linkActivated` still fires for a scheme Qt will not open, which is
+        # what makes the private href above work beside the real API URL.
+        self._hint_strip.linkActivated.connect(self._on_hint_link)
         layout.addWidget(self._hint_strip)
 
         return wrap
@@ -6496,7 +6531,7 @@ class AppScreen(QWidget):
         splitter.splitterMoved.connect(_save)
 
     def _write_hint(self, text: str, url: str = "",
-                    hold: bool = False) -> None:
+                    hold: bool = False, animated: bool = False) -> None:
         """Put ``text`` in the strip, trimmed to the lines the strip has.
 
         ``url`` adds the documentation link on its own line. Suppressing the
@@ -6529,10 +6564,23 @@ class AppScreen(QWidget):
             # "API", not "Open spaCR API documentation". Instruction 371:
             # "which should also just say API". The long form repeated on
             # every setting and the strip has four lines to spend.
+            # "Animation" BESIDE "API", which instruction 371 asks for on
+            # both surfaces: "an API link and Annimation link text ... same
+            # for the botom tooltips". Only when this setting HAS one --
+            # 141 do, and a word that visibly does nothing is worse than no
+            # word, which is the rule the popup's own footer already
+            # follows.
+            #
+            # The href is a private scheme rather than a URL. The strip has
+            # `setOpenExternalLinks(True)` for the API link, and a real
+            # scheme here would hand the animation to a browser.
+            animation_link = (
+                f"&nbsp;&nbsp;<a href=\"{_HINT_ANIMATION_HREF}\">"
+                f"{_escape(_tr('Animation'))}</a>" if animated else "")
             strip.setText(
                 f"{_escape(fitted)}<br>"
                 f"<a href=\"{_escape(str(url), quote=True)}\">"
-                f"{_escape(_tr('API'))}</a>")
+                f"{_escape(_tr('API'))}</a>{animation_link}")
         else:
             strip.setText(fitted)
         # The untrimmed text stays reachable: the tooltip is what a reader who
@@ -6572,6 +6620,31 @@ class AppScreen(QWidget):
         timer.stop()
         if holding:
             timer.start(self.HINT_HOLD_MS)
+
+    def _on_hint_link(self, href: str) -> None:
+        """Open the box for the setting the strip is showing, animation out.
+
+        THE STRIP CANNOT PLAY THE ANIMATION ITSELF and should not try: it is
+        four lines at the bottom of the window, and the popup already has a
+        column sized for the square and the code to decode it once. So the
+        word hands off rather than duplicating, and it does so for the
+        setting the STRIP names -- which, ten seconds after the hover, is no
+        longer the widget under the pointer.
+
+        Deliberately ignores the `Tooltips box` preference. That switch says
+        whether a box appears UNASKED; this is a press.
+        """
+        if href != _HINT_ANIMATION_HREF:
+            return
+        widget = getattr(self, "_hinted_widget", None)
+        html = getattr(self, "_hinted_html", "")
+        if widget is None or not html:
+            return
+        from ..widgets.hover_tooltip import HoverTooltip
+
+        popup = HoverTooltip.instance()
+        popup.show_for(widget, html)
+        popup.toggle_animation()
 
     def _release_the_hint(self) -> None:
         """Put the strip back to its prompt once the hold has run out."""

@@ -209,18 +209,40 @@ race against a clock started by the first row, and the link now says "API".
   writes that prompt, so the strip would restart its own hold forever. There
   is a test for that specific loop.
 
-WHAT IS NOT DONE, and it is a real part of the request: "For the box tooltips
+DONE TOO, LATER THE SAME NIGHT: the strip has its Animation word.
+
+  IT HANDS OFF RATHER THAN DUPLICATING. The strip is four lines at the
+  bottom of the window and has nowhere to put a movie; the popup already has
+  a column sized for the square and the code to decode it once. So pressing
+  the word opens the box for that setting with the animation revealed --
+  which is the third of the options this file left open, and the only one
+  that does not build a second animation view.
+
+  IT ACTS ON THE SETTING THE STRIP NAMES, not the widget under the pointer.
+  Ten seconds after the hover there is no widget under the pointer, which is
+  the whole point of part 3, so the hovered widget and its html are
+  remembered when the strip is written.
+
+  THE WORD APPEARS ONLY WHEN THERE IS AN ANIMATION -- 141 settings have one
+  -- because a word that visibly does nothing is worse than no word, which
+  is the rule the popup's own footer already follows.
+
+  THE PRESS IGNORES THE `Tooltips box` PREFERENCE, deliberately. That switch
+  says whether a box appears UNASKED. This is a press.
+
+  The link target is a private scheme, `spacr:animation`, because the strip
+  carries `setOpenExternalLinks(True)` for the API link and anything
+  resembling a real address would be handed to a browser. There is a test
+  asserting it is not one.
+
+WHAT WAS NOT DONE, and is now: "For the box tooltips
 all settings ... should appear and an API link and Annimation link text ...
 same for the botom tooltips." THE STRIP HAS NO ANIMATION LINK. Only the box
 does, and 141 settings have an animation.
 
-  That is why the box's default matters more than it looks: with the box off,
-  the animations are currently unreachable. Adding an Animation affordance to
-  the strip is the remaining work, and it is not a copy of the box's -- the
-  box reveals the movie beside its text in a column sized for it, and the
-  strip is four lines at the bottom of the window with nowhere to put one.
-  Decide whether pressing it opens the box for that setting, plays inline, or
-  something else, and record the choice here.
+  With the box defaulting off that would have left 141 settings' animations
+  unreachable, which is why it mattered more than it looked. Resolved above:
+  pressing the strip's word opens the box for that one setting.
 
 7 new tests for the hold and the switches; 328 pass across the tooltip
 family.
