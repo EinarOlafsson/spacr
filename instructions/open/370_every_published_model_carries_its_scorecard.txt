@@ -295,6 +295,28 @@ So the chain is complete from a folder of labelled fields to the published
 CSV: manifest -> verify -> score each field -> pool over the set -> table
 rows -> CSV. 36 tests.
 
+THE TOOLTIP RENDERS IT TOO. `scorecard.headline()` returns the three numbers
+that decide a choice, each with its difference from the vanilla model, and
+one line carrying the n; the Model Zoo screen puts that ABOVE the existing
+provenance card rather than instead of it.
+
+  BECAUSE 37 ROWS IN A HOVER IS THE MISTAKE THE TABLE ALREADY MADE.
+  `ModelEntry.describe()` renders `metrics` one line per key -- correct and
+  unreadable at scorecard size, exactly as the model-zoo table was before
+  the maintainer called it "way to much information".
+
+  A MODEL WITH FREE-FORM METRICS IS LEFT EXACTLY AS IT WAS. `headline`
+  returns nothing for a mapping it does not recognise, so a two-line note
+  does not become a truncated table. There is a test.
+
+  THE DIFFERENCE IS SIGNED AND SAYS "vs stock", because "F1 0.867" answers
+  "what is it" and the request is "is it better".
+
+SO THREE OF THE FOUR SURFACES ARE WIRED -- the API page, the zoo screen and
+the tooltip -- and all three render the same numbers because they render the
+same entry. Only Hugging Face is left, and it is the one that needs the data
+rather than the plumbing.
+
 STILL TO DO:
   1. THE LABELLED IMAGES THEMSELVES, which this file calls the real crux: a named,
      versioned, labelled set published beside the models, so a number is

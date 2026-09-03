@@ -50,7 +50,7 @@ from __future__ import annotations
 
 import pathlib
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -875,3 +875,68 @@ def score_model_on_holdout(holdout: HoldoutSet, predict, *,
              for f in holdout.fields]
     return score_holdout(pairs, name=holdout.name, version=holdout.version,
                          **kwargs)
+
+
+#: The numbers a reader choosing between two models actually needs, in the
+#: order they decide it. Everything else is in the table.
+#:
+#: THE TOOLTIP IS THE SURFACE WITH THE LEAST ROOM -- 370 says so -- and a
+#: scorecard is 37 rows. Dumping all of them into a hover is the same mistake
+#: as the model-zoo table before it was cut to three columns: technically
+#: complete and unreadable, which is not a kindness.
+_HEADLINE_ORDER: Tuple[Tuple[str, str], ...] = (
+    ("f1", "F1"),
+    ("dice_per_object", "Dice"),
+    ("ap_mean", "AP 0.5-0.9"),
+    ("boundary_f1_1px", "Boundary F1"),
+    ("auprc", "AUPRC"),
+    ("balanced_accuracy", "Balanced acc"),
+)
+
+
+def headline(metrics: Mapping[str, object], *,
+             baseline: Optional[Mapping[str, object]] = None,
+             limit: int = 3) -> List[str]:
+    """The few lines a tooltip should lead with, and where the rest is.
+
+    :param metrics: a scorecard, or any mapping; unknown keys are ignored.
+    :param baseline: the vanilla model's scorecard, to show the difference.
+    :param limit: how many metric lines to return before the pointer.
+
+    :returns: lines, or ``[]`` when the mapping holds no scorecard at all --
+        an entry with free-form metrics is left exactly as it was, because
+        this must not turn somebody's two-line note into a truncated table.
+    """
+    lines: List[str] = []
+    for key, label in _HEADLINE_ORDER:
+        if key not in metrics:
+            continue
+        try:
+            value = float(metrics[key])                      # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            continue
+        text = f"{label} {value:.3f}"
+        if baseline and key in baseline:
+            try:
+                delta = value - float(baseline[key])         # type: ignore[arg-type]
+                # SIGNED AND EXPLICIT. "F1 0.867" alone answers "what is it";
+                # the request is "is it better", which only the difference
+                # answers.
+                text += f" ({delta:+.3f} vs stock)"
+            except (TypeError, ValueError):
+                pass
+        lines.append(text)
+        if len(lines) >= limit:
+            break
+    if not lines:
+        return []
+
+    # EVERY NUMBER CARRIES ITS N, in the tooltip too.
+    counted = []
+    for key, label in (("n_truth", "objects"), ("n_fields", "fields"),
+                       ("n", "predictions")):
+        if key in metrics:
+            counted.append(f"{metrics[key]} {label}")
+    if counted:
+        lines.append("on " + ", ".join(counted))
+    return lines
