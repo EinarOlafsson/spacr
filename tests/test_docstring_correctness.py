@@ -1568,6 +1568,11 @@ def test_baseline_constructor_documents_every_field():
     "spacr.figures.stats.Assumption",
     "spacr.annotation_validation.Verdict",
     "spacr.confusion.ConfusionCell",
+    "spacr.external_masks.ExternalMaskResult",
+    "spacr.flowview.layout.NodeLayout",
+    "spacr.crops.MigrationResult",
+    "spacr.regex_infer.FieldEvidence",
+    "spacr.attribution.MethodSpec",
 ))
 def test_repaired_record_documents_every_constructor_parameter(symbol):
     """Each repaired generated record remains callable from its API prose."""
@@ -2227,7 +2232,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
 
 
 def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
-    """Freeze the 399 visible fields and four ordinary counterexamples."""
+    """Freeze the 354 visible fields and four ordinary counterexamples."""
     items = list(_public_callables())
     rendered_docs = _documentation_public_docstrings()
     required_ivars = {
@@ -2249,12 +2254,12 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         if by_symbol[symbol].category not in GENERATED_CONSTRUCTOR_CATEGORIES
     }
 
-    assert len(required_ivars) == 75
-    assert sum(map(len, required_ivars.values())) == 385
-    assert len(generated) == 71
-    assert sum(map(len, generated.values())) == 374
+    assert len(required_ivars) == 70
+    assert sum(map(len, required_ivars.values())) == 365
+    assert len(generated) == 66
+    assert sum(map(len, generated.values())) == 354
     assert Counter(by_symbol[symbol].category for symbol in generated) == {
-        "dataclass_constructor": 70,
+        "dataclass_constructor": 65,
         "namedtuple_constructor": 1,
     }
     assert Counter(
@@ -2262,7 +2267,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         for symbol in generated
         for _name in generated[symbol]
     ) == {
-        "dataclass_constructor": 369,
+        "dataclass_constructor": 349,
         "namedtuple_constructor": 5,
     }
     assert len(ordinary) == 4
@@ -2275,7 +2280,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         symbol: _missing_required_parameters(by_symbol[symbol])
         for symbol in generated
     }
-    assert sum(not names for names in remaining.values()) == 71
+    assert sum(not names for names in remaining.values()) == 66
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(

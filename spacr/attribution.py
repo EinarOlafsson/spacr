@@ -1062,15 +1062,17 @@ def _attention_adapter(spec: "MethodSpec", wrapped: ClassScoreModel,
 class MethodSpec:
     """One registered attribution method.
 
-    :ivar name: the key callers pass as ``method=``.
-    :ivar family: ``'cam'``, ``'gradient'``, ``'perturbation'`` or
-        ``'attention'`` — the families fail in different ways, which is why
-        agreement *across* families is worth more than agreement within one.
-    :ivar backend: ``'torchcam'``, ``'captum'`` or ``'spacr'``.
-    :ivar fn: adapter callable that computes this method's attribution.
-    :ivar needs_layer: whether a spatial target layer is required.
-    :ivar smoothed: whether the adapter should wrap itself in SmoothGrad.
-    :ivar description: one line the GUI can show.
+    :param name: registry key callers pass as ``method=``.
+    :param family: method family—``"cam"``, ``"gradient"``,
+        ``"perturbation"``, or ``"attention"``.
+    :param backend: implementation provider—``"torchcam"``, ``"captum"``, or
+        ``"spacr"``.
+    :param fn: adapter callable that computes this method's attribution.
+    :param needs_layer: whether the method requires a spatial target layer.
+    :param smoothed: whether the Captum adapter wraps the base attributor in a
+        SmoothGrad noise tunnel.
+    :param description: concise user-facing explanation suitable for method
+        selectors.
     """
 
     name: str

@@ -131,7 +131,7 @@ def test_a_letter_and_two_digits_are_folded_into_one_well_slot():
     assert len(pieces) == 1
     merged = pieces[0]["slot"]
     for field in ("before", "role", "fixed_tail", "because"):
-        assert f":ivar {field}:" in (type(merged).__doc__ or "")
+        assert f":param {field}:" in (type(merged).__doc__ or "")
     assert merged.role == "wellID"
     assert merged.values == ("A01", "B02")
     assert "read as a well" in merged.because

@@ -75,8 +75,14 @@ def test_transport_validation_rejects_unknown_unpicklable_and_large_values():
     assert is_transport_event(object()) is False
     assert is_transport_event(unpicklable) is False
     assert is_transport_event(large, max_event_bytes=100) is False
-    with pytest.raises(ValueError, match="greater than zero"):
+    with pytest.raises(ValueError, match="positive integer"):
         is_transport_event(_events()[0], max_event_bytes=0)
+
+
+@pytest.mark.parametrize("limit", [float("nan"), float("inf"), 1.5, True])
+def test_transport_validation_requires_a_positive_integer_limit(limit):
+    with pytest.raises(ValueError, match="positive integer"):
+        is_transport_event(_events()[0], max_event_bytes=limit)
 
 
 def test_producer_helper_never_blocks_and_isolates_queue_faults():
@@ -220,10 +226,34 @@ def test_constructor_rejects_invalid_limits(kwargs, message):
         MultiprocessingFeeder(queue.Queue(), _collector(), **kwargs)
 
 
+@pytest.mark.parametrize("poll_interval", [float("nan"), float("inf"),
+                                            float("-inf"), True])
+def test_constructor_rejects_nonfinite_poll_intervals(poll_interval):
+    with pytest.raises(ValueError, match="poll_interval"):
+        MultiprocessingFeeder(
+            queue.Queue(), _collector(), poll_interval=poll_interval)
+
+
+@pytest.mark.parametrize("max_event_bytes", [float("nan"), float("inf"),
+                                              1.5, True])
+def test_constructor_rejects_noninteger_byte_limits(max_event_bytes):
+    with pytest.raises(ValueError, match="max_event_bytes"):
+        MultiprocessingFeeder(
+            queue.Queue(), _collector(), max_event_bytes=max_event_bytes)
+
+
 def test_stop_rejects_negative_timeout():
     feeder = MultiprocessingFeeder(queue.Queue(), _collector())
     with pytest.raises(ValueError, match="cannot be negative"):
         feeder.stop(-1)
+
+
+@pytest.mark.parametrize("timeout", [float("nan"), float("inf"),
+                                     float("-inf"), True])
+def test_stop_rejects_nonfinite_timeouts(timeout):
+    feeder = MultiprocessingFeeder(queue.Queue(), _collector())
+    with pytest.raises(ValueError, match="timeout"):
+        feeder.stop(timeout)
 
 
 def test_importing_feeder_does_not_import_qt_in_a_fresh_process():

@@ -194,12 +194,12 @@ class ExternalMaskPlan:
 class ExternalMaskResult:
     """Files and database produced by :func:`prepare_external_masks`.
 
-    :ivar destination: Root of the generated spaCR project.
-    :ivar merged: Paths of merged image/mask arrays.
-    :ivar db_path: Generated measurements database.
-    :ivar tables: Measurement tables written to the database.
-    :ivar data_dir: Generated annotation-crop directory.
-    :ivar plan: Validated read-only plan used for the import.
+    :param destination: root of the generated spaCR project.
+    :param merged: paths of generated merged image-and-mask arrays.
+    :param db_path: path of the generated measurements database.
+    :param tables: measurement-table names written to that database.
+    :param data_dir: generated annotation-crop directory.
+    :param plan: validated read-only import plan used to produce these outputs.
     """
 
     destination: str

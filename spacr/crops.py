@@ -2180,14 +2180,18 @@ def read_crop_png(path: str, fmt: Optional[int] = None,
 class MigrationResult:
     """What :func:`migrate_crop_folder` did to one folder.
 
-    :ivar folder: the folder.
-    :ivar converted: files whose channel order was rewritten.
-    :ivar skipped: files that needed no rewrite (already converted, or
-        single-channel, where there is no order to fix).
-    :ivar failed: ``(name, reason)`` for files that could not be converted.
-    :ivar already: the folder was already at the target format; nothing done.
-    :ivar dry_run: nothing was written.
-    :ivar mode: ``'rewrite'`` or ``'mark'``.
+    :param folder: crop folder that was examined or migrated.
+    :param converted: filenames whose channel order was or would be rewritten.
+    :param skipped: filenames needing no rewrite, including already-processed
+        or single-channel crops.
+    :param failed: ``(filename, reason)`` pairs for crops that could not be
+        converted.
+    :param already: whether the folder was already in a format requiring no
+        migration.
+    :param dry_run: whether the result describes planned work without writing
+        files.
+    :param mode: ``"rewrite"`` for pixel conversion or ``"mark"`` for
+        recording legacy format without touching pixels.
     """
 
     folder: str

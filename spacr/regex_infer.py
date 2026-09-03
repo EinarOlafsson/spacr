@@ -101,31 +101,14 @@ def hint_for(before: str) -> str:
 class FieldEvidence:
     """Describe the observed values and suggested role of one filename slot.
 
-    :ivar index: token position in the filename family.
-    :ivar values: observed values for this slot, in input order.
-    :ivar numeric: whether every observed value contains only digits.
-    :ivar before: literal filename text immediately preceding this slot.
-    :ivar role: suggested spaCR metadata field, or an empty string when the
+    :param index: token position in the filename family.
+    :param values: observed values for this slot in input order.
+    :param numeric: whether every observed value contains only digits.
+    :param before: literal filename text immediately preceding this slot.
+    :param role: suggested spaCR metadata field, or an empty string when the
         evidence does not support a role.
-    :ivar fixed_tail: constant suffix absorbed into this slot's capture group.
-    :ivar because: human-readable evidence supporting the suggested role.
-
-    Attributes
-    ----------
-    index
-        Token position in the filename family.
-    values
-        Observed values for this slot, in input order.
-    numeric
-        Whether every observed value contains only digits.
-    before
-        Literal text immediately preceding the slot.
-    role
-        Suggested spaCR metadata role, or an empty string when unknown.
-    fixed_tail
-        Constant suffix included inside the slot's capture group.
-    because
-        Evidence supporting the suggested role.
+    :param fixed_tail: constant suffix absorbed into this slot's capture group.
+    :param because: human-readable evidence supporting the suggested role.
     """
 
     index: int
