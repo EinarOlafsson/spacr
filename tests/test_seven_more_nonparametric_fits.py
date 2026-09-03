@@ -119,7 +119,7 @@ def test_only_the_gaussian_process_reports_a_band(bent):
     x, y = bent
     curve = NP.smooth(x, y, method="gaussian_process")
     for name in ("lower", "upper", "note"):
-        assert f":ivar {name}:" in (NP.Curve.__doc__ or "")
+        assert f":param {name}:" in (NP.Curve.__doc__ or "")
     assert curve.has_band
     assert len(curve.lower) == len(curve.upper) == len(curve.x)
     for method in ("lowess", "kernel", "knn"):

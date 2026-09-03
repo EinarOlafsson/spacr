@@ -152,19 +152,19 @@ def is_curated(artifact: Any) -> bool:
 class CurationEdit:
     """One recorded correction.
 
-    :ivar kind: what was done — ``"paint"``, ``"join"``, ``"split"``,
-        ``"delete"``.
-    :ivar target: what it was done to, in the terms of that kind: a label, a
-        track id, a pair of track ids.
-    :ivar when: UTC ISO-8601, from :func:`_now`.
-    :ivar who: the operating-system user, so a shared dataset says which
-        person made a call. Not identity in any security sense — it is the
-        name to ask, not a signature.
-    :ivar n_changed: how much moved (voxels painted, rows re-assigned). The
-        number that makes a stroke that did nothing distinguishable from one
-        that repainted a third of the field.
-    :ivar detail: anything else worth keeping — the brush radius, the frame a
-        split happened at, the labels that were overwritten.
+    :param kind: correction verb, normally ``"paint"``, ``"undo"``,
+        ``"join"``, ``"split"``, or ``"delete"``; the ledger groups and
+        displays this value verbatim.
+    :param target: corrected object in that operation's terms, such as a
+        painted label, track identifier, or pair of track identifiers.
+    :param when: UTC ISO-8601 timestamp; direct construction defaults to
+        :func:`_now`.
+    :param who: operating-system user recorded for human provenance, not a
+        cryptographic identity.
+    :param n_changed: number of voxels painted or rows reassigned; zero records
+        that nothing moved.
+    :param detail: additional operation-specific provenance such as brush
+        radius, split frame, or overwritten labels.
     """
 
     kind: str
