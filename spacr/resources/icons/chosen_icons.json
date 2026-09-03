@@ -127,6 +127,10 @@
     "candidate": "hit_list/hit_list_02.png",
     "sha256": "1904f71837d8215c37a174c4423997568207ffc3009cc0f51e20507eccc9c091"
   },
+  "home": {
+    "candidate": null,
+    "sha256": "226e3167cfb39e07c1765c314cb5e00669110ad49e1930f61e4441eecde3111e"
+  },
   "illumination": {
     "candidate": "illumination/illumination_12.png",
     "sha256": "9d6702b74d3f70f3499d2c799176e85ac6bcf9fb35af762170a812ca93118ec4"
@@ -246,6 +250,10 @@
   "regression": {
     "candidate": "regression/regression_03.png",
     "sha256": "7699b6233fc64e62e48c7937cc2363df5bfcb9f01e0e258c4f3cec7a4cee867d"
+  },
+  "regression_diagnostics": {
+    "candidate": null,
+    "sha256": "fb1499754fec8294ce65ff9a4f9cd169cad5b5d9f16e6ec3ca6fe7959b42f91b"
   },
   "replication": {
     "candidate": "replication/replication_04.png",

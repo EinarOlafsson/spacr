@@ -305,7 +305,19 @@ def _describe(key: str) -> Tuple[str, str, str]:
 
 
 class FoldButton(QPushButton):
-    """One folded module, drawn as its own icon and nothing else."""
+    """One folded module, drawn as its own icon and nothing else.
+
+    :param key: the module this button opens. Also read for the name,
+        description and maturity stage, so it must be a real registry key
+        rather than a caption.
+    :param parent: parent widget.
+    :param checkable: whether the button is a SWITCH rather than a press.
+        True for a fold whose workflow is implemented by settings on the host
+        module -- Timelapse rides on Mask Generation, because tracking
+        extends the segmentation run -- so the button stays active while that
+        workflow is enabled and its callback receives the new state. False,
+        the default, is a plain click that opens a module.
+    """
 
     def __init__(self, key: str, parent: Optional[QWidget] = None,
                  checkable: bool = False) -> None:

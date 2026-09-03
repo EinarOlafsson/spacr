@@ -288,10 +288,17 @@ def test_the_glyph_escape_hatch_is_kept_even_though_it_is_empty():
 #: button, which is why the pair stays written down here rather than being
 #: deleted, but two tiles that cannot be told apart is a Home-page problem
 #: and Home no longer draws them.
+#: Borrowings that were deliberate WHILE THEY LASTED. The test filters this
+#: by what is still registered, so an entry here is history rather than a
+#: requirement -- an app that gains its own artwork simply stops appearing in
+#: `shared`, which is the direction this is all meant to go.
+#:
+#: Map Barcodes / Plate Viewer left on 2026-09-02: `plate_view.png` is
+#: installed, so Plate Viewer draws its own and the override that pointed it
+#: at Map Barcodes was removed with four others.
 DELIBERATE_SHARED_ARTWORK = {
     frozenset({"Mask", "Model Compare"}),
     frozenset({"Annotate", "Annotator Agreement"}),
-    frozenset({"Map Barcodes", "Plate Viewer"}),
     frozenset({"Cellpose Masks", "Train Cellpose"}),
 }
 
@@ -501,10 +508,22 @@ def test_the_1024px_artwork_is_worked_on_downscaled(qapp):
 
 # -- the two aliases that had to move ---------------------------------------
 
-def test_model_compare_no_longer_borrows_the_batch_icon():
-    """cellpose_all is now "a whole batch of frames"; Model Compare is
-    one field segmented twice, which is what mask.png draws."""
-    assert _ICON_OVERRIDES["model_compare"] == "mask.png"
+def test_model_compare_no_longer_borrows_anything():
+    """It has its own artwork now, so there is no borrow left to pin.
+
+    This asserted `_ICON_OVERRIDES["model_compare"] == "mask.png"` -- a
+    borrowing that made sense while `cellpose_all` meant "a whole batch of
+    frames" and Model Compare had no picture of its own. `model_compare.png`
+    is installed, and the override was removed with four others that had also
+    stopped being borrows.
+    """
+    import os
+
+    from spacr.qt import iconset
+
+    assert "model_compare" not in _ICON_OVERRIDES
+    assert os.path.isfile(
+        os.path.join(iconset.RESOURCE_DIR, "model_compare.png"))
     assert "cellpose_all.png" not in _ICON_OVERRIDES.values()
 
 

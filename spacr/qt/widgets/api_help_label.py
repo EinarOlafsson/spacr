@@ -29,6 +29,12 @@ class ApiHelpLabel(QLabel):
     a 1,281 px line -- 73 px, about six
     characters, gone without a mark. English fits, which is why it was
     invisible until a second locale was measured.
+
+    :param text: the blurb to show, and what the label falls back to when no
+        translation is loaded.
+    :param app_key: which module's API page the link opens. Empty means no
+        link at all, which is how a caption outside a module screen is drawn.
+    :param parent: parent widget.
     """
 
     def __init__(self, text: str = "", app_key: str = "",

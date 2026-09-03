@@ -426,6 +426,13 @@ class RunningBanner(QFrame):
     tooltip. That is the whole point: a Pause button that stops the
     thread wherever it happens to be is not a pause, and the honest
     thing to draw is a control that says so.
+
+    :param icon_provider: called with a module key for that module's icon.
+        A callable rather than a dict of icons, so the banner does not build
+        artwork for modules that never run.
+    :param names: module key to the name a human reads, for the banner's
+        text and for :attr:`open_requested`'s meaning.
+    :param parent: parent widget.
     """
 
     open_requested = Signal(str)
