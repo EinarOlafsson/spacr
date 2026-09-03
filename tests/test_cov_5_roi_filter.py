@@ -146,6 +146,16 @@ def test_an_unknown_on_missing_rule_is_refused():
         R.RoiSet(on_missing='skip')
 
 
+def test_roi_set_length_counts_regions_across_fields():
+    """Length counts drawings, not the number of covered field names."""
+    roi_set = R.RoiSet(fields={
+        'plate1_A01_F001': (_rect(), _rect(name='second')),
+        'plate1_A01_F002': (_rect(),),
+    })
+
+    assert len(roi_set) == 3
+
+
 # ---------------------------------------------------------------------------
 # Which ROIs apply to which field
 # ---------------------------------------------------------------------------

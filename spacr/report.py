@@ -527,16 +527,24 @@ class Section:
 class Report:
     """Everything :func:`collect_report` gathered.
 
-    :ivar src: the run folder the report describes.
-    :ivar title: document title.
-    :ivar generated_utc: ISO timestamp of collection.
-    :ivar sections: chapters in reading order, one per :data:`SECTION_KEYS`.
-    :ivar status: ``complete`` / ``partial`` / ``failed`` / ``unknown`` /
-        ``empty``.
-    :ivar status_detail: one line expanding on :attr:`status`.
-    :ivar spacr_version: version of the spaCR that wrote the report.
-    :ivar n_figures_found: figures discovered under ``src``.
-    :ivar n_figures_embedded: figures actually in the file.
+    :param src: resolved run or plate directory described by the report; an
+        unresolvable input path is retained so its failure can be reported.
+    :param title: document title shown by the HTML, text, and PDF renderers.
+    :param generated_utc: timezone-aware ISO timestamp recording when
+        collection completed, or ``""`` on a manually constructed report.
+    :param sections: report chapters in reading order: the core
+        :data:`SECTION_KEYS` sections followed or interleaved with registered
+        plugin contributions.
+    :param status: overall collection verdict: ``"complete"``, ``"partial"``,
+        ``"failed"``, ``"unknown"``, or ``"empty"``.
+    :param status_detail: human-readable sentence expanding the overall
+        :attr:`status`.
+    :param spacr_version: version of spaCR running report collection, or
+        ``"unknown"`` when it cannot be read.
+    :param n_figures_found: number of raster and vector figures discovered
+        during the bounded artifact scan.
+    :param n_figures_embedded: number of raster figures whose bytes were
+        retained for embedding in rendered output.
     """
     src: Path
     title: str = "spaCR report"

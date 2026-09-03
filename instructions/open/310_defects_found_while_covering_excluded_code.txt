@@ -3621,3 +3621,43 @@ raw string makes that test fail, while distinct stored screens still pass.
 
 REVISED COUNT: 140 entries, 71 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+83. REPORT RESULT DOCUMENTATION MISSTATED THREE COLLECTION BOUNDARIES
+==============================================================================
+
+Found 2026-09-03 while repairing constructor documentation in
+``spacr/report.py``. ``Report.sections`` excluded registered plugin chapters,
+``spacr_version`` was called the version that originally wrote the run rather
+than the version collecting the report, and ``n_figures_embedded`` did not
+distinguish retained raster payloads from discovered or listed figures.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/report.py``. All nine constructor
+fields now describe the collection and rendering boundaries actually used by
+the report engine, including unresolved input paths and bounded artifact
+scans. Plugin insertion, partial/empty reports, figure caps, and unknown
+version behavior provide positive examples; reverting ``src`` to ``:ivar:``
+makes the exact constructor contract fail.
+
+REVISED COUNT: 141 entries, 72 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.
+
+
+==============================================================================
+84. VOLCANO AXIS LABELS IGNORED THEIR DEDICATED SIZE
+==============================================================================
+
+Found 2026-09-03 while completing function documentation in
+``spacr/volcano_style.py``. ``FigureStyle.label_font_size`` explicitly owns
+axis-label size, but ``_finish_axes`` rendered both axis labels with the
+general ``font_size``. The colorbar and legend already used the dedicated
+value, so one setting produced inconsistent label sizes within one figure.
+
+VERDICT 2026-09-03: RESOLVED in ``spacr/volcano_style.py``. Ordinary and
+split-axis x/y labels now use ``label_font_size`` while titles and ticks keep
+their own controls. A focused render sets deliberately different general and
+label sizes; restoring ``font_size`` makes the assertion fail.
+
+REVISED COUNT: 142 entries, 73 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.

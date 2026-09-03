@@ -121,6 +121,30 @@ def test_every_axis_option_reaches_the_panel():
         matplotlib.pyplot.close(figure)
 
 
+def test_axis_labels_use_their_own_font_size():
+    """General text size must not override the dedicated axis-label size."""
+    style = VolcanoStyle(font_size=31, label_font_size=17)
+
+    figure, panels = render_volcano(_results(), style)
+    try:
+        axis = panels[0]
+        assert axis.xaxis.label.get_fontsize() == 17
+        assert axis.yaxis.label.get_fontsize() == 17
+    finally:
+        matplotlib.pyplot.close(figure)
+
+
+def test_style_to_dict_returns_detached_plain_data():
+    """Editing serialized annotations must not mutate the active style."""
+    style = VolcanoStyle(annotations={"g001": "hit"})
+
+    values = style.to_dict()
+    values["annotations"]["g001"] = "changed"
+
+    assert values["x_column"] == style.x_column
+    assert style.annotations == {"g001": "hit"}
+
+
 def test_labels_are_skipped_when_the_label_column_is_not_there():
     """A label column that does not exist annotates nothing, quietly.
 

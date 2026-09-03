@@ -137,6 +137,12 @@ def available_memory(device: str = "cpu") -> int:
 
 
 def _readable(total: int) -> str:
+    """Return an integer-coerced byte count in a readable binary unit.
+
+    :param total: byte count to format; negative values are clamped to zero.
+    :returns: one-decimal text in bytes through terabytes. Values beyond the
+        largest supported unit remain expressed in terabytes.
+    """
     size = float(max(0, int(total)))
     for unit in ("B", "KB", "MB", "GB"):
         if size < 1024:
@@ -292,6 +298,7 @@ class _RandomTerm:
 
     @property
     def n_levels(self) -> int:
+        """Return the number of encoded levels in this random term."""
         return len(self.level_names)
 
 
@@ -363,6 +370,7 @@ class TorchMixedResults:
 
     @property
     def df_resid(self) -> int:
+        """Return residual degrees of freedom as observations minus effects."""
         return self.n_obs - self.k_fe
 
     def summary_line(self) -> str:

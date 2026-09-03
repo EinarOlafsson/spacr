@@ -157,6 +157,11 @@ class RegionOfInterest:
     name: str = ''
 
     def __post_init__(self) -> None:
+        """Normalize the fields and reject geometry that cannot enclose area.
+
+        :raises RoiError: if the shape kind is open or unknown, vertices are
+            not a finite ``(M, 2)`` array, or too few vertices are supplied.
+        """
         kind = str(self.kind).strip().lower()
         if kind not in ('polygon', 'rectangle', 'ellipse'):
             raise RoiError(
@@ -262,6 +267,12 @@ class RoiSet:
     on_missing: str = 'error'
 
     def __post_init__(self) -> None:
+        """Copy and validate the region mapping and filtering rules.
+
+        :raises RoiError: if a field contains a non-ROI value, the axes are
+            invalid, or any mode, overlap, object type, or missing-field rule
+            is unsupported.
+        """
         fields: Dict[str, Tuple[RegionOfInterest, ...]] = {}
         for name, rois in dict(self.fields).items():
             entries = tuple(rois)
@@ -323,6 +334,7 @@ class RoiSet:
 
     # -- queries ---------------------------------------------------------
     def __len__(self) -> int:
+        """Return the total number of ROIs assigned across all fields."""
         return sum(len(v) for v in self.fields.values())
 
     def covers(self, file_name: str) -> bool:
@@ -539,6 +551,16 @@ class RoiRegionFilter:
     """
 
     def __init__(self, roi_set: RoiSet, *, on_missing: Optional[str] = None):
+        """Validate the rules and initialize cumulative counters and cache.
+
+        :param roi_set: regions and object-selection rules to apply.
+        :param on_missing: optional missing-field policy overriding
+            :attr:`RoiSet.on_missing`.
+        :raises RoiError: if ``roi_set`` or the override is invalid.
+
+        ``stats['fields']`` counts distinct raster/cache misses; fields that
+        are uncovered, empty, or waved through do not increment it.
+        """
         if not isinstance(roi_set, RoiSet):
             raise RoiError(
                 f"an ROI filter needs a RoiSet, got {type(roi_set).__name__}")
@@ -581,6 +603,13 @@ class RoiRegionFilter:
         return keep
 
     def _missing(self, context, labels: np.ndarray) -> np.ndarray:
+        """Apply the configured policy to a field without an ROI.
+
+        :param context: region context whose filename is used in an error.
+        :param labels: label array defining the decision-vector shape.
+        :returns: an all-true or all-false decision vector.
+        :raises RoiError: when the policy is ``'error'``.
+        """
         if self.on_missing == 'error':
             raise RoiError(
                 f"no ROI covers field {context.file_name!r}. The ROI set names "
@@ -594,6 +623,10 @@ class RoiRegionFilter:
         return keep
 
     def _record(self, keep: np.ndarray) -> None:
+        """Add one boolean decision vector to kept and dropped totals.
+
+        :param keep: boolean vector whose true entries were retained.
+        """
         self.stats['kept'] += int(np.count_nonzero(keep))
         self.stats['dropped'] += int(keep.size - np.count_nonzero(keep))
 
