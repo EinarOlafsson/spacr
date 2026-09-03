@@ -58,7 +58,10 @@ class ScreenAsset:
 
     @property
     def label(self) -> str:
-        """What the picker shows."""
+        """Return the plate-and-content label shown by the data picker.
+
+        :returns: human-readable plate and archive-content label.
+        """
         what = ("measurements.db" if self.kind == "measurements"
                 else "data/ (object crops)")
         return f"Plate {self.plate} — {what}"
@@ -69,6 +72,10 @@ class ScreenAsset:
         Checks what the archive WRITES, not the folder it writes into: every
         piece shares one plate directory, so the directory existing says
         nothing about which pieces are in it.
+
+        :param folder: plate directory under which this asset would unpack.
+        :returns: whether the database file exists, or the crop directory
+            contains at least one PNG, according to this asset's ``kind``.
         """
         from pathlib import Path
 
@@ -106,6 +113,7 @@ def assets_for(kind: Optional[str] = None,
 
     :param kind: ``"measurements"``, ``"crops"``, or ``None`` for both.
     :param plate: a plate number, or ``None`` for all of them.
+    :returns: assets matching both supplied filters, in picker order.
     """
     return [a for a in SCREEN_ASSETS
             if (kind is None or a.kind == kind)
@@ -120,7 +128,10 @@ def published_archives(repo: str = SCREEN_REPO, *, timeout: float = 8.0):
     failed lookup as "nothing is published" would grey out every row and leave
     the user with a picker that offers nothing and explains nothing.
 
+    :param repo: Hugging Face dataset repository to inspect.
     :param timeout: give up rather than hold a dialog open on a slow network.
+    :returns: names of published ``.tar`` archives, or ``None`` when the
+        repository could not be inspected.
     """
     try:
         from huggingface_hub import HfApi
@@ -143,7 +154,11 @@ def published_archives(repo: str = SCREEN_REPO, *, timeout: float = 8.0):
 
 
 def total_size(assets) -> int:
-    """How many bytes a selection will cost."""
+    """Return how many bytes a selection will cost.
+
+    :param assets: iterable of :class:`ScreenAsset` objects.
+    :returns: sum of the assets' published archive sizes in bytes.
+    """
     return sum(int(a.bytes) for a in assets)
 
 
@@ -153,6 +168,10 @@ def human_size(count: int) -> str:
     Decimal units, matching what a download manager and a disk vendor both
     report -- a user comparing this figure with either should not have to
     know which of two conventions each of us picked.
+
+    :param count: byte count to format.
+    :returns: decimal-unit size from bytes through terabytes, with one decimal
+        above the byte unit.
     """
     value = float(count)
     for unit in ("B", "KB", "MB", "GB", "TB"):

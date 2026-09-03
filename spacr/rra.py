@@ -39,6 +39,11 @@ def _beta_cdf(ranks: np.ndarray, k: int) -> np.ndarray:
 
     ``ranks`` is ``(n, k)``, sorted ascending along the last axis. Vectorised
     over rows because the permutation null draws tens of thousands of them.
+
+    :param ranks: sorted normalized guide ranks, one gene per row.
+    :param k: number of guide-rank columns in each row.
+    :returns: beta-order-statistic cumulative probabilities with the same
+        shape as ``ranks``.
     """
     from scipy.stats import beta
 
@@ -47,7 +52,14 @@ def _beta_cdf(ranks: np.ndarray, k: int) -> np.ndarray:
 
 
 def _rho(sorted_ranks: np.ndarray, k: int, alpha: float) -> np.ndarray:
-    """The alpha-RRA statistic for each row of ``sorted_ranks``."""
+    """Return the alpha-RRA statistic for each row of ``sorted_ranks``.
+
+    :param sorted_ranks: ascending normalized guide ranks, one gene per row.
+    :param k: number of guides represented by each row.
+    :param alpha: largest normalized rank eligible for the row minimum.
+    :returns: minimum eligible beta probability for every row; rows with no
+        eligible rank receive ``1.0``.
+    """
     scores = _beta_cdf(sorted_ranks, k)
     # OUTSIDE THE TOP alpha IS NOT CONSIDERED, and 1.0 is how a minimum
     # ignores it: a probability can never exceed 1, so a masked position can
@@ -66,6 +78,13 @@ def _null(k: int, n_guides: int, alpha: float, n_permutations: int,
     is k normalised ranks sampled WITHOUT replacement from the n_guides
     positions -- without, because a gene never targets the same guide twice
     and sampling with replacement would let one very good rank appear k times.
+
+    :param k: number of distinct guides assigned to the simulated gene.
+    :param n_guides: number of ranked guide positions in the library.
+    :param alpha: largest normalized rank eligible for each rho minimum.
+    :param n_permutations: number of null gene assignments to draw.
+    :param rng: NumPy random generator used for reproducible sampling.
+    :returns: one null rho statistic per permutation.
     """
     positions = np.empty((n_permutations, k), dtype=np.int64)
     for row in range(n_permutations):
@@ -166,7 +185,12 @@ def rank_aggregate(scores, groups, *, alpha: float = DEFAULT_ALPHA,
 
 
 def describe(alpha: float = DEFAULT_ALPHA) -> str:
-    """The formula and what is modelled, for the model tab's text box."""
+    """Return the formula and model guidance for the model tab's text box.
+
+    :param alpha: top-rank cutoff to interpolate into the explanation; this
+        formatter does not validate the supplied value.
+    :returns: alpha-RRA formula, interpretation, and CRISPR-screen guidance.
+    """
     return (
         "Robust rank aggregation (MAGeCK alpha-RRA). Guides are ranked "
         "against every other guide in the screen; a gene with k guides "

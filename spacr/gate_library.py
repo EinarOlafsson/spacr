@@ -14,9 +14,9 @@ Qt-free on purpose, like :mod:`spacr.filters`: the library is a directory of
 JSON files, and everything here is testable without a display.
 
 **A name is not a path.** ``save(project, "../../etc/passwd", gates)`` must not
-write outside the project, and a name with a slash in it is a mistake rather
-than a subdirectory. :func:`slugify` is the whole of that rule and every entry
-point goes through it.
+write outside the project. A slash is treated as unsafe punctuation and
+replaced rather than becoming a subdirectory; :func:`slugify` is the whole of
+that rule and every entry point goes through it.
 """
 from __future__ import annotations
 
@@ -45,6 +45,8 @@ def slugify(name: str) -> str:
     """The filename for ``name``, with no way out of the library directory.
 
     :param name: user-facing strategy name to make safe for one filename.
+    :returns: cleaned filename stem; separators and other unsafe punctuation
+        become hyphens and whitespace is collapsed.
     :raises GateLibraryError: a name that is empty once cleaned. Writing it
         would produce ``.json``, an invisible file the list would then show
         with no name.
@@ -61,6 +63,7 @@ def library_dir(project: str) -> str:
     """The library directory for ``project``. Not created.
 
     :param project: project root that owns the saved gate library.
+    :returns: path to the project's gate-library directory.
     """
     return os.path.join(str(project), LIBRARY_DIRNAME)
 
@@ -70,6 +73,8 @@ def path_for(project: str, name: str) -> str:
 
     :param project: project root that owns the saved gate library.
     :param name: display name of the strategy to locate.
+    :returns: safe JSON path inside the project's gate library.
+    :raises GateLibraryError: if ``name`` has no usable characters.
 
     Always inside the library directory: the name is slugified first, so a
     name carrying ``/`` or ``..`` cannot climb out of it.
@@ -81,6 +86,8 @@ def list_strategies(project: str) -> List[str]:
     """Every saved strategy in ``project``, by name, sorted.
 
     :param project: project root whose gate library is listed.
+    :returns: sorted strategy names without their ``.json`` suffixes, or an
+        empty list when the library cannot be read.
 
     An unreadable directory is an empty library rather than an error: a
     dropdown that cannot be filled is not a reason to refuse to open a screen.
@@ -105,8 +112,8 @@ def save(project: str, name: str, payload: Any) -> str:
         holds. Serialised here rather than accepting a pre-made string so a
         caller cannot store something that will not read back.
     :returns: the path written.
-    :raises GateLibraryError: the name is unusable, or the payload will not
-        serialise -- caught here rather than leaving a half-written file.
+    :raises GateLibraryError: the name is unusable, the payload will not
+        serialize, or the library/file cannot be created or written.
     """
     target = path_for(project, name)
     try:
@@ -139,6 +146,7 @@ def load(project: str, name: str) -> Any:
 
     :param project: project root that owns the saved gate library.
     :param name: display name of the strategy to read.
+    :returns: decoded JSON strategy payload.
     :raises GateLibraryError: no such strategy, or the file is not readable
         JSON. Both name the strategy, because "expecting value: line 1" on
         its own tells a user nothing about which one to fix.
@@ -163,6 +171,10 @@ def delete(project: str, name: str) -> bool:
 
     :param project: project root that owns the saved gate library.
     :param name: display name of the strategy to remove.
+    :returns: ``True`` when a file was removed, or ``False`` when it did not
+        exist.
+    :raises GateLibraryError: if the name is unusable or deletion fails for a
+        reason other than absence.
     """
     try:
         os.unlink(path_for(project, name))
@@ -178,6 +190,8 @@ def describe(project: str, name: str) -> Tuple[int, Optional[str]]:
 
     :param project: project root that owns the saved gate library.
     :param name: display name of the strategy to inspect.
+    :returns: ``(gate_count, None)`` for a readable strategy, or ``(0, error)``
+        when it cannot be read or does not resemble a strategy.
 
     What a list needs to show next to a name. A strategy that will not read
     reports its error rather than a count, so a broken file is visible in the
