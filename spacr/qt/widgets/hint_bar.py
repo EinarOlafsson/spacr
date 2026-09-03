@@ -34,7 +34,13 @@ BAR_NAME = "HintBar"
 
 
 class HintBar(QLabel):
-    """The line itself, plus the register of what each widget should say."""
+    """The line itself, plus the register of what each widget should say.
+
+    :param default: what the line says when nothing is hovered. It is
+        restored whenever a widget with no registered hint takes the pointer,
+        so it should read as a prompt rather than as a blank.
+    :param parent: parent widget.
+    """
 
     def __init__(self, default: str = DEFAULT_HINT,
                  parent: Optional[QWidget] = None) -> None:

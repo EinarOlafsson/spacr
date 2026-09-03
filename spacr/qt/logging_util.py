@@ -77,6 +77,8 @@ class QtLogHandler(QObject, logging.Handler):
 
     :ivar record_ready: signal ``(formatted_line, levelno)`` emitted
         once per record.
+
+    :param level: the minimum level to relay, as `logging.Handler` takes it.
     """
 
     def __init__(self, level: int = logging.INFO):

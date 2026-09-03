@@ -214,7 +214,13 @@ class BarcodeRegexDialog(QDialog):
 
 
 class BarcodeRegexWidget(QWidget):
-    """Compact settings-row field with inline validation and a test dialog."""
+    """Compact settings-row field with inline validation and a test dialog.
+
+    :param value: the regular expression already saved. Empty opens the field
+        empty rather than with a suggestion, so a blank setting stays blank
+        until the user or the test dialog fills it.
+    :param parent: parent widget.
+    """
 
     valueChanged = Signal(str)
 

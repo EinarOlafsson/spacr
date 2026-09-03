@@ -559,7 +559,14 @@ class _ClearFiguresLabel(QLabel):
 
 
 class FigureQueue(QWidget):
-    """Scrollable, RAM-bounded gallery of pipeline figures."""
+    """Scrollable, RAM-bounded gallery of pipeline figures.
+
+    :param ram_cap: how many bytes of figures the gallery may hold. Older
+        figures are dropped to stay under it, which is what "RAM-bounded"
+        above means -- a pipeline emitting hundreds of figures must not grow
+        without limit.
+    :param parent: parent widget.
+    """
 
     #: The displayed figure was clicked (not dragged).
     figure_clicked = Signal()

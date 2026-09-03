@@ -231,6 +231,12 @@ class PairedFileTableWidget(QWidget):
     fitted on scores and counts. The database is what makes that plate's
     measurements available downstream, so its absence disables the plate
     there instead of failing the run.
+
+    :param value: the table already saved, one entry per plate. Everything
+        that arrives afterwards RE-PROPOSES the whole table from filename
+        tokens rather than appending, which is what lets databases dropped in
+        the opposite order to the CSVs still land on the right plates.
+    :param parent: parent widget.
     """
 
     value_changed = Signal()
