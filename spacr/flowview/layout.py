@@ -59,16 +59,30 @@ class GraphLayout(Mapping[str, NodeLayout]):
     height: float
 
     def __getitem__(self, node_id: str) -> NodeLayout:
+        """Return the computed geometry for one node identifier.
+
+        :param node_id: identifier to look up in :attr:`nodes`.
+        :returns: stored :class:`NodeLayout` for ``node_id``.
+        :raises KeyError: if ``node_id`` is absent from this layout.
+        """
         return self.nodes[node_id]
 
     def __iter__(self) -> Iterator[str]:
+        """Iterate over node identifiers in their stored mapping order."""
         return iter(self.nodes)
 
     def __len__(self) -> int:
+        """Return the number of nodes with computed geometry."""
         return len(self.nodes)
 
 
 def _node_height(node: Node) -> float:
+    """Compute the rendered card height required by one node.
+
+    :param node: graph node whose metrics and thumbnail determine card content.
+    :returns: height in canvas units, allowing at most three metric rows and
+        an optional thumbnail, but never less than :data:`CARD_MIN_HEIGHT`.
+    """
     metric_height = min(len(node.metrics), 3) * 16.0
     text_height = 72.0 + metric_height
     if node.thumbnail is not None:
@@ -79,6 +93,13 @@ def _node_height(node: Node) -> float:
 def _graph_links(
     graph: RunGraph,
 ) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+    """Build deterministic incoming and outgoing adjacency maps.
+
+    :param graph: run graph whose edges to validate and index.
+    :returns: ``(parents, children)`` maps with duplicate edges removed and
+        each linked identifier list sorted; isolated nodes are absent.
+    :raises ValueError: if either edge endpoint is absent from the graph.
+    """
     parents: dict[str, list[str]] = defaultdict(list)
     children: dict[str, list[str]] = defaultdict(list)
     known = set(graph.nodes)
@@ -99,6 +120,14 @@ def _topological_order(
     parents: Mapping[str, list[str]],
     children: Mapping[str, list[str]],
 ) -> list[str]:
+    """Return a stable topological order for graph node identifiers.
+
+    :param node_ids: complete set of node identifiers to order.
+    :param parents: incoming-neighbour identifiers for each linked node.
+    :param children: outgoing-neighbour identifiers for each linked node.
+    :returns: topological order with lexicographic ties between ready nodes.
+    :raises ValueError: if the links contain a directed cycle.
+    """
     indegree = {node_id: len(parents.get(node_id, ())) for node_id in node_ids}
     ready = [node_id for node_id, degree in indegree.items() if degree == 0]
     heapq.heapify(ready)
@@ -120,6 +149,14 @@ def _assign_layers(
     ordered: list[str],
     parents: Mapping[str, list[str]],
 ) -> dict[str, int]:
+    """Assign deterministic longest-path columns to graph nodes.
+
+    :param graph: graph providing each node's input, process, or output kind.
+    :param ordered: topological order, ensuring parent layers exist first.
+    :param parents: incoming neighbours used to extend longest paths.
+    :returns: node identifiers mapped to zero-based columns; inputs occupy
+        column zero and outputs share the final column.
+    """
     layers: dict[str, int] = {}
     for node_id in ordered:
         node = graph.nodes[node_id]
@@ -151,6 +188,16 @@ def _reorder(
     layers: Mapping[str, int],
     layer_sequence: Iterator[int],
 ) -> None:
+    """Reorder selected layers in place by adjacent-node medians.
+
+    :param layer_nodes: mutable layer-to-node lists to sort.
+    :param neighbours: parent or child identifiers for the sweep direction.
+    :param layers: assigned layer for every node, used to ignore same-layer
+        neighbours.
+    :param layer_sequence: layers to process in sweep order.
+    :returns: ``None``; ``layer_nodes`` is updated in place. Connected nodes
+        sort by adjacent median while isolated nodes retain prior order.
+    """
     positions = {
         node_id: order
         for nodes in layer_nodes.values()

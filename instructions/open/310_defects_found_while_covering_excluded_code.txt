@@ -2749,3 +2749,26 @@ publication is exact, and a mid-publication failure restores the prior set.
 REVISED COUNT after recording these two already-resolved findings and the A14,
 A16 and A58 verdict corrections above: 99 entries, 31 recorded as resolved. This
 is still a prose-derived progress aid rather than an acceptance ledger.
+
+
+==============================================================================
+42. A REMOVAL-ONLY INSTALL PLAN WAS REPORTED AS CHANGING NOTHING
+==============================================================================
+
+Found 2026-09-03 while tracing the constructor fields in ``spacr/updater.py``.
+The uv dry-run parser correctly retained a standalone ``- name==version`` as a
+``PackageChange(name, version, None)``, but ``PackageChange`` classified only
+additions and version moves. Consequently ``DryRun.summary`` described a
+removal-only plan as "change nothing -- it is already satisfied", and
+``install_decision`` did not require a second confirmation even when the
+removed distribution was protected NumPy, PyTorch, pandas, or scikit-learn.
+
+VERDICT 2026-09-03: RESOLVED by ``2a7b927d7``. Removals are now a distinct
+change kind, appear with their installed versions in the pre-install report,
+and protected removals enter the same explicit second-confirmation gate as
+protected version moves. Focused tests cover both the protected and
+unprotected cases; changing the gate back to version moves alone makes the
+protected-removal test fail.
+
+REVISED COUNT: 100 entries, 32 recorded as resolved. This remains the same
+prose-derived progress aid rather than an acceptance ledger described above.

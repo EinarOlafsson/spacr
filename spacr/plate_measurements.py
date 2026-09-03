@@ -181,10 +181,15 @@ class TableMerge:
 class PlateMerge:
     """The merged frame and the Measurements tab's audit information.
 
-    :ivar frame: final anchor-level measurements frame.
-    :ivar anchor: object table whose rows define the output cardinality.
-    :ivar attachments: plate/database rows included in the merge.
-    :ivar tables: per-table read, join, roll-up, and aggregation records.
+    :param frame: final measurements frame, with one row per surviving anchor
+        object.
+    :param anchor: normalized object-table name whose rows define the output
+        cardinality.
+    :param attachments: validated plate/database attachments included in the
+        merge, in input order.
+    :param tables: per-table audit records in merge order, beginning with the
+        anchor and including any child table skipped because it could not be
+        linked.
     """
 
     frame: pd.DataFrame
