@@ -76,14 +76,8 @@ DEFAULT_FOLLOW_POINTER: Final[bool] = True
 #: vary the backdrop around its pace -- it runs it at two to six times that
 #: pace. The comment that used to sit here claimed otherwise.
 #:
-#: LEFT AS THEY ARE. Narrowing them to 0.5/1.5 -- the same half-to-one-and-a-
-#: half ratio the sibling uses -- reads correctly and fails five tests that
-#: pin the two modules to the same numbers, so whether the backdrop should
-#: have bounds of its own is a decision rather than a typo.
-#: `DEFAULT_VARIABLE_SPEED` is False, so nothing is affected until it is
-#: switched on.
-DEFAULT_SPEED_MIN: Final[float] = 2.0
-DEFAULT_SPEED_MAX: Final[float] = 6.0
+DEFAULT_SPEED_MIN: Final[float] = 0.5
+DEFAULT_SPEED_MAX: Final[float] = 1.5
 #: Seconds for one full sweep, slow to fast and back -- the "how gradually"
 #: control. A larger number is a slower change, not a slower fractal.
 DEFAULT_SPEED_PERIOD: Final[float] = 41.0
