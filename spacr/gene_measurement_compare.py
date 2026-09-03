@@ -1141,6 +1141,80 @@ class ComparisonStyle(FigureStyle):
     inherited from :class:`spacr.style_base.FigureStyle`. This class adds only
     comparison-specific choices such as plot kind, group filtering, jitter,
     and count labels.
+
+    Parameters
+    ----------
+    x_label : str
+        Horizontal-axis label; empty leaves the renderer's category labels.
+    y_label : str
+        Vertical-axis label; empty preserves the measurement name.
+    title : str
+        Optional title drawn above the comparison.
+    x_scale : str
+        Matplotlib horizontal scale inherited for house-style portability.
+    y_scale : str
+        Matplotlib vertical scale applied after the values are drawn.
+    x_lim : tuple of float, optional
+        Explicit horizontal limits, or ``None`` for data-derived limits.
+    y_lim : tuple of float, optional
+        Explicit vertical limits, or ``None`` for data-derived limits.
+    invert_x : bool
+        Reverse the horizontal axis after applying limits.
+    invert_y : bool
+        Reverse the vertical axis after applying limits.
+    font_family : str
+        Font-family value retained when styles move between figure types; the
+        current comparison renderer does not apply a family override.
+    font_size : float
+        General text size retained for style portability; comparison text uses
+        the specific title, label, and tick sizes below.
+    title_font_size : float
+        Title size in points.
+    label_font_size : float
+        Axis-label size in points.
+    tick_font_size : float
+        Group and value tick-label size in points.
+    font_weight : str
+        Weight applied to the optional title.
+    figure_width : float
+        Live and saved figure width in inches.
+    figure_height : float
+        Live and saved figure height in inches.
+    dpi : int
+        Resolution in dots per inch for raster exports.
+    grid : bool
+        Whether to show the selected grid lines.
+    grid_axis : str
+        Grid direction: ``"x"``, ``"y"``, ``"both"``, or ``"none"``.
+    grid_color : str
+        Matplotlib-compatible grid-line color.
+    grid_width : float
+        Grid-line width in points.
+    hide_top_right_spines : bool
+        Remove the top and right frame lines when true.
+    legend : bool
+        Retained for cross-style compatibility; comparison plots currently
+        create no legend, so this value has no visual effect here.
+    legend_location : str
+        Retained legend position; unused while comparisons have no legend.
+    background_color : str
+        Matplotlib-compatible page and axes background, or ``"none"``.
+    transparent : bool
+        Export raster/vector backgrounds transparently when supported.
+    kind : str
+        Plot geometry from :data:`PLOTS`: box, jitter, violin, bar, or the
+        default jitter-over-box combination.
+    only : str
+        Draw only one named group; stored statistics continue to describe the
+        complete comparison.
+    rest_color : str
+        Color of the :data:`REST` group; empty uses the house grey.
+    marker_size : float
+        Scatter-marker area in squared typographic points.
+    jitter_width : float
+        Maximum random horizontal displacement on either side of a category.
+    show_counts : bool
+        Append each group's observation count to its tick label.
     """
 
     #: Which of :data:`PLOTS` to draw.
