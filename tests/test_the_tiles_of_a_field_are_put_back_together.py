@@ -19,14 +19,17 @@ The four things that can go wrong, one test each:
 from __future__ import annotations
 
 from pathlib import Path
+import builtins
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
 import tifffile
 
-from spacr.image_stitch import (MIN_CONFIDENCE, Mosaic, arrangement_of,
-                                grid_shape, plan_mosaic, read_stage_positions,
-                                stitch_tiles)
+import spacr.image_stitch as image_stitch
+from spacr.image_stitch import (MIN_CONFIDENCE, Mosaic, Placement,
+                                arrangement_of, grid_shape, plan_mosaic,
+                                read_stage_positions, stitch_tiles)
 
 TILE = 64
 OVERLAP = 16
@@ -311,6 +314,157 @@ def test_a_plain_tiff_has_no_stage_coordinates(tmp_path):
     tifffile.imwrite(str(path), np.zeros((TILE, TILE), np.uint16))
     assert read_stage_positions([path]) is None
     assert read_stage_positions([tmp_path / "missing.tif"]) is None
+
+
+def test_mosaic_descriptions_name_the_evidence_that_placed_the_tiles():
+    placement = (Placement(1, 0, 0, 0, 0),)
+    stage = Mosaic(placement, 8, 8, 1, 1, "row_major", "stage")
+    correlated = Mosaic(placement, 8, 8, 1, 1, "row_major", "correlated",
+                        confidence=0.875, overlap=(2, 3))
+
+    assert "stage coordinates" in stage.describe()
+    assert "overlapping 3x2 px" in correlated.describe()
+    assert "confidence 0.88" in correlated.describe()
+
+
+def test_stage_positions_fall_back_when_tifffile_is_unavailable(monkeypatch):
+    real_import = builtins.__import__
+
+    def unavailable(name, *args, **kwargs):
+        if name == "tifffile":
+            raise ImportError("optional reader is absent")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", unavailable)
+    assert read_stage_positions(["unused.tif"]) is None
+
+
+def test_incomplete_ome_position_metadata_is_not_a_pixel_position():
+    incomplete = SimpleNamespace(
+        ome_metadata=('PositionX="10" PositionY="20" '
+                      'PhysicalSizeX="0.5"'))
+    zero_scale = SimpleNamespace(
+        ome_metadata=('PositionX="10" PositionY="20" '
+                      'PhysicalSizeX="0" PhysicalSizeY="0.5"'))
+    complete = SimpleNamespace(
+        ome_metadata=('PositionX="10" PositionY="20" '
+                      'PhysicalSizeX="0.5" PhysicalSizeY="0.5"'))
+
+    assert image_stitch._position_from(incomplete) is None
+    assert image_stitch._position_from(zero_scale) is None
+    assert image_stitch._position_from(complete) == (40.0, 20.0)
+
+
+def test_too_thin_and_too_small_overlaps_have_zero_confidence():
+    small = np.arange(16, dtype=float).reshape(4, 4)
+    large = np.arange(10_000, dtype=float).reshape(100, 100)
+
+    assert image_stitch._score_overlap(small, small, 3, 0) == 0.0
+    assert image_stitch._score_overlap(large, large, 98, 98) == 0.0
+    assert image_stitch._score_overlap(large, large, 0, 0) == pytest.approx(1.0)
+
+
+def test_overlap_constants_always_make_a_nonempty_search_band():
+    """Pin the premise that makes two old defensive guards unreachable."""
+    minimum = image_stitch.MIN_OVERLAP_FRACTION
+    maximum = image_stitch.MAX_OVERLAP_FRACTION
+    assert 0 <= minimum < maximum < 1
+    for span in range(1, 10_001):
+        low = int(span * (1 - maximum))
+        high = int(span * (1 - minimum))
+        assert 0 <= low <= high < span
+
+
+def test_pair_search_skips_offsets_with_fewer_than_four_lines(monkeypatch):
+    tile = np.arange(64, dtype=float).reshape(4, 16)
+    real_sliding_ncc = image_stitch._sliding_ncc
+    measured = []
+
+    def measure_only_useful_bands(first, second):
+        assert first.shape[0] >= 4
+        assert second.shape[0] >= 4
+        measured.append(first.shape)
+        return real_sliding_ncc(first, second)
+
+    monkeypatch.setattr(image_stitch, "_sliding_ncc", measure_only_useful_bands)
+
+    shift, score = image_stitch._pair_shift(tile, tile, "x")
+
+    assert measured
+    assert len(shift) == 2
+    assert np.isfinite(score)
+
+
+def test_one_unreadable_tile_is_not_a_single_tile_mosaic(tmp_path):
+    unreadable = tmp_path / "not-a-tiff.tif"
+    unreadable.write_bytes(b"broken")
+
+    assert plan_mosaic([unreadable]) is None
+
+
+def test_one_stage_stop_has_no_measurable_spacing():
+    assert image_stitch._spacing([]) == 0
+    assert image_stitch._spacing([17]) == 0
+    assert image_stitch._spacing([7, 17]) == 10
+
+
+def test_every_declared_arrangement_maps_a_grid_once_and_in_bounds():
+    expected = {(row, col) for row in range(3) for col in range(4)}
+    for arrangement in image_stitch.ARRANGEMENTS:
+        actual = {
+            arrangement_of(index, 3, 4, arrangement)
+            for index in range(12)
+        }
+        assert actual == expected
+
+
+def test_private_mosaic_planner_reports_an_unknown_arrangement():
+    tile = np.zeros((8, 8), dtype=np.uint16)
+    with pytest.raises(ValueError, match="unknown arrangement"):
+        image_stitch._mosaic_by_correlation(
+            [tile], [1], 1, 1, "spiral", 8, 8)
+
+
+def test_a_reverse_believed_edge_can_complete_the_grid(monkeypatch):
+    """A tile reachable around one side may recover its missing neighbour."""
+    replies = iter([
+        ((0, 0), 0.0),  # origin -> top-right is not believed
+        ((4, 0), 1.0),  # origin -> bottom-left
+        ((4, 0), 1.0),  # top-right -> bottom-right
+        ((0, 4), 1.0),  # bottom-left -> bottom-right
+    ])
+    monkeypatch.setattr(image_stitch, "_pair_shift",
+                        lambda _first, _second, _axis: next(replies))
+    images = [np.zeros((8, 8), dtype=np.uint16) for _ in range(4)]
+
+    mosaic = image_stitch._mosaic_by_correlation(
+        images, [1, 2, 3, 4], 2, 2, "row_major", 8, 8)
+
+    positions = {p.tile: (p.y, p.x) for p in mosaic.placements}
+    assert positions == {1: (0, 0), 2: (0, 4), 3: (4, 0), 4: (4, 4)}
+
+
+def test_a_disappearing_plan_violates_the_readable_tiles_invariant(
+        tmp_path, monkeypatch):
+    path = tmp_path / "tile.tif"
+    tifffile.imwrite(path, np.zeros((8, 8), dtype=np.uint16))
+    monkeypatch.setattr(image_stitch, "plan_mosaic",
+                        lambda _paths, _tiles=None: None)
+
+    with pytest.raises(AssertionError):
+        stitch_tiles([path])
+
+
+def test_float_tiles_remain_float_without_integer_rounding(tmp_path):
+    path = tmp_path / "float.tif"
+    tile = np.full((8, 8), 0.375, dtype=np.float32)
+    tifffile.imwrite(path, tile)
+
+    stitched, mosaic = stitch_tiles([path])
+
+    assert mosaic.how == "single"
+    assert stitched.dtype == np.float32
+    assert np.array_equal(stitched, tile)
 
 
 # ---------------------------------------------------------------------------

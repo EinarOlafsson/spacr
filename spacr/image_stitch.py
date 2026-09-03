@@ -391,9 +391,6 @@ def _pair_shift(first, second, axis: str) -> Tuple[Tuple[int, int], float]:
     step = max(1, lines // SEARCH_LINES)
     low = int(span * (1 - MAX_OVERLAP_FRACTION))
     high = int(span * (1 - MIN_OVERLAP_FRACTION))
-    if high < low:
-        return (0, 0), 0.0
-
     jitter = min(MAX_JITTER, max(4, int(lines * 0.1)))
     coarse = max(1, jitter // 4)
     best_offset, best_displacement, best_coarse = 0, low, -1.0
@@ -403,8 +400,6 @@ def _pair_shift(first, second, axis: str) -> Tuple[Tuple[int, int], float]:
         if top.shape[0] < 4:
             continue
         band = _sliding_ncc(top[::step], bottom[::step])[low:high + 1]
-        if not band.size:
-            continue
         peak = int(np.argmax(band))
         if band[peak] > best_coarse:
             best_offset, best_displacement = offset, peak + low
@@ -556,10 +551,7 @@ def _mosaic_by_correlation(images, names, rows, cols, arrangement,
     """
     grid: Dict[Tuple[int, int], int] = {}
     for index in range(len(images)):
-        try:
-            grid[arrangement_of(index, rows, cols, arrangement)] = index
-        except ValueError:                               # pragma: no cover
-            continue
+        grid[arrangement_of(index, rows, cols, arrangement)] = index
 
     edges: Dict[Tuple[Tuple[int, int], Tuple[int, int]], Tuple[int, int]] = {}
     scores: List[float] = []
@@ -655,8 +647,10 @@ def stitch_tiles(paths: Sequence, tiles: Optional[Sequence] = None,
         return None, None
     if mosaic is None:
         mosaic = plan_mosaic(paths, tiles)
-    if mosaic is None:                                   # pragma: no cover
-        return None, None
+    # A readable nonempty tile set always receives either a stage-derived,
+    # correlated, or explicitly assumed plan.  Keep that contract loud if a
+    # future planner change breaks it instead of disguising it as read failure.
+    assert mosaic is not None
 
     dtype = images[0].dtype
     total = np.zeros((mosaic.height, mosaic.width), dtype=np.float64)
