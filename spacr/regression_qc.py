@@ -1034,6 +1034,7 @@ def _pearson_base(model, n):
 
 
 def _unavailable(reason, metric="none"):
+    """Describe why residual standardisation cannot be computed."""
     return ResidualStandardisation(available=False, metric=metric,
                                    source="not available", reason=reason)
 
@@ -3458,6 +3459,7 @@ def _diagnostic_p(value):
 
 
 def _score_residuals_vs_fitted(stats):
+    """Judge fitted-value trend relative to the residual standard deviation."""
     trend = _number(stats, "max_abs_trend")
     spread = _number(stats, "resid_sd")
     if trend is None or not spread:
@@ -3477,6 +3479,7 @@ def _score_residuals_vs_fitted(stats):
 
 
 def _score_residual_distribution(stats):
+    """Judge residual normality from its diagnostic p-value and kurtosis."""
     p = _number(stats, "normality_p")
     test = str(stats.get("normality_test", "the normality test"))
     kurtosis = _number(stats, "excess_kurtosis")
@@ -3497,6 +3500,7 @@ def _score_residual_distribution(stats):
 
 
 def _score_scale_location(stats):
+    """Judge variance homogeneity from Brown-Forsythe and rank correlation."""
     levene = _number(stats, "levene_p")
     rho = _number(stats, "spearman_rho")
     level = _diagnostic_p(levene)
@@ -3516,6 +3520,7 @@ def _score_scale_location(stats):
 
 
 def _score_qq(stats):
+    """Judge Q-Q agreement from ordered-residual quantile correlation."""
     correlation = _number(stats, "quantile_correlation")
     slope = _number(stats, "slope")
     level = _band(correlation, 0.99, 0.97, above_is_bad=False)
@@ -3534,6 +3539,7 @@ def _score_qq(stats):
 
 
 def _score_observed_vs_predicted(stats):
+    """Report explanatory power from R-squared without treating it as validity."""
     r2 = _number(stats, "r2")
     if r2 is None:
         return PanelVerdict("unknown", "no R² was computed")
@@ -3552,6 +3558,7 @@ def _score_observed_vs_predicted(stats):
 
 
 def _score_cooks(stats):
+    """Judge whether an observation dominates the fit using Cook's distance."""
     largest = _number(stats, "max_cooks")
     above = _number(stats, "n_above")
     if largest is None:
@@ -3572,6 +3579,7 @@ def _score_cooks(stats):
 
 
 def _score_influence(stats):
+    """Judge whether individual wells carry excessive design leverage."""
     high = _number(stats, "n_high_leverage")
     largest = _number(stats, "max_leverage")
     if largest is None:
@@ -3620,6 +3628,7 @@ def _score_dffits(stats):
 
 
 def _score_vif(stats):
+    """Judge aliased or collinear predictors using variance inflation factors."""
     aliased = _number(stats, "n_aliased")
     if aliased:
         return PanelVerdict(
@@ -3646,6 +3655,7 @@ def _score_vif(stats):
 
 
 def _score_condition_number(stats):
+    """Judge scaled design conditioning against Belsley's conventional bands."""
     scaled = _number(stats, "condition_number")
     if scaled is None:
         return PanelVerdict("unknown", "the design was not conditioned")
@@ -3662,6 +3672,7 @@ def _score_condition_number(stats):
 
 
 def _score_predictor_correlation(stats):
+    """Judge the largest absolute pairwise predictor correlation."""
     largest = _number(stats, "max_abs_offdiagonal")
     if largest is None:
         return PanelVerdict("unknown", "no predictor correlation was computed")
@@ -3680,6 +3691,7 @@ def _score_predictor_correlation(stats):
 
 
 def _score_response_distribution(stats):
+    """Require response variation while leaving family-specific shape unscored."""
     spread = _number(stats, "sd")
     if spread is None:
         return PanelVerdict("unknown", "the response was not summarised")
@@ -3695,6 +3707,7 @@ def _score_response_distribution(stats):
 
 
 def _score_coefficient_forest(stats):
+    """Report whether coefficient effects include uncertainty intervals."""
     if not stats.get("has_intervals", True):
         return PanelVerdict(
             "check", "the effects are shown without their uncertainty",
@@ -3727,6 +3740,7 @@ _HISTOGRAM_LEVELS = {
 
 
 def _score_p_value_histogram(stats):
+    """Interpret the screen's named p-value histogram shape."""
     shape = str(stats.get("verdict") or "")
     level, headline = _HISTOGRAM_LEVELS.get(shape, ("unknown",
                                                     "the shape was not judged"))
@@ -3742,6 +3756,7 @@ def _score_p_value_histogram(stats):
 
 
 def _score_calibration(stats):
+    """Judge probability calibration using expected calibration error."""
     ece = _number(stats, "ece")
     if ece is None:
         return PanelVerdict("unknown", "calibration was not computed")
@@ -3759,6 +3774,7 @@ def _score_calibration(stats):
 
 
 def _score_roc(stats):
+    """Judge in-sample class separation using area under the ROC curve."""
     auc = _number(stats, "auc")
     if auc is None:
         return PanelVerdict("unknown", "no AUC was computed")
@@ -3775,6 +3791,7 @@ def _score_roc(stats):
 
 
 def _score_precision_recall(stats):
+    """Judge average-precision lift relative to outcome prevalence."""
     average = _number(stats, "average_precision")
     prevalence = _number(stats, "prevalence")
     if average is None or prevalence is None:
@@ -3798,6 +3815,7 @@ def _score_precision_recall(stats):
 
 
 def _score_count_fit(stats):
+    """Judge a count model by its distance from unit Pearson dispersion."""
     dispersion = _number(stats, "dispersion")
     if dispersion is None:
         return PanelVerdict("unknown", "dispersion was not computed")
@@ -3815,6 +3833,7 @@ def _score_count_fit(stats):
 
 
 def _score_positional(stats, what):
+    """Judge unmodeled row or column effects with a Kruskal-Wallis test."""
     p = _number(stats, "kruskal_p")
     level = _diagnostic_p(p)
     if level == "unknown":
@@ -3837,6 +3856,7 @@ def _score_positional(stats, what):
 
 
 def _score_cell_count(stats):
+    """Judge association between cell count and absolute residual size."""
     p = _number(stats, "spearman_p")
     rho = _number(stats, "spearman_rho")
     level = _diagnostic_p(p)
@@ -3856,6 +3876,7 @@ def _score_cell_count(stats):
 
 
 def _score_volcano_reference(stats):
+    """Report whether the run's unscored reference volcano was found."""
     state = str(stats.get("state") or "")
     if state == "found":
         return PanelVerdict("unknown", "the run's volcano, for reference",
