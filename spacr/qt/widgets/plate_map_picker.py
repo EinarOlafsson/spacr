@@ -183,7 +183,16 @@ class _Well(QPushButton):
 
 
 class PlateMapPicker(QDialog):
-    """Display a plate map and return its selection as a well specification."""
+    """Display a plate map and return its selection as a well specification.
+
+    :param value: the wells already chosen, as a well specification. Parsed
+        against ``layout``, so wells outside it are dropped rather than
+        silently kept.
+    :param layout: how many wells the plate has -- one of the sizes
+        :data:`spacr.well_spec.LAYOUTS` knows (6, 12, 24, 96, 384, 1536).
+        Defaults to 384.
+    :param parent: parent widget.
+    """
 
     def __init__(self, value: str = "", layout: int = DEFAULT_LAYOUT,
                  parent: Optional[QWidget] = None):
