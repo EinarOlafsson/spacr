@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-340 done / 31 open (91%).
+342 done / 29 open (92%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -110,17 +110,11 @@ OPEN
   364  EVERY SETTING AUDITED: IS IT NEEDED, IS IT A DUPLICATE, IS ITS NAME HONEST
        364_audit_every_setting_for_necessity_redundancy_and_clarity.txt
 
-  366  EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
-       366_equal_gutters_one_module_section_and_thorough_api_pages.txt
-
   367  CLASSES DOCUMENT THEMSELVES BUT NOT THEIR __init__, WHERE THE PARAMETERS ARE
        367_class_init_docstrings_and_the_api_they_should_reach.txt
 
   368  EVERY FUNCTION DOCUMENTED, AND A CLICKABLE TREE OF WHERE EACH SETTING IS USED
        368_a_settings_flow_tree_and_docstrings_for_every_function.txt
-
-  369  THE DOCK: THE spaCR MARK FOR HOME, NAMES IN BLUE ON HOVER, NO GREY TRAY
-       369_the_dock_reads_as_icons_with_names_on_hover.txt
 
   370  EVERY PUBLISHED MODEL CARRIES A SCORECARD: FINETUNED AGAINST VANILLA, ON A
        370_every_published_model_carries_its_scorecard.txt
@@ -477,4 +471,6 @@ DONE
   361  THE README'S LANGUAGE PICKER: A DROPDOWN, AND WHY IT CANNOT STAY ON THE PAGE
   362  THE README FRONT PAGE: ONE MODULE GRID, A MODEL ZOO, AND ONE DOWNLOAD COMMAND
   365  THE LICENCE IS NOT IDENTIFIABLE, AND THE TWO BRANCHES DO NOT AGREE ON IT
+  366  EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
+  369  THE DOCK: THE spaCR MARK FOR HOME, NAMES IN BLUE ON HOVER, NO GREY TRAY
   373  THE CELLPOSE WORKBENCH DREW A DUMBBELL, AND FIVE MODULES WERE BORROWING ART
