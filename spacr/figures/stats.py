@@ -94,6 +94,8 @@ class Assumption:
     :ivar p_value: test p-value, or ``nan`` when it could not be computed.
     :ivar informative: whether the check had enough usable data to interpret.
     :ivar verdict: plain-language conclusion, including inconclusive cases.
+    :ivar passed: whether the assumption holds under this check's own
+        decision rule; callers must not re-derive it from ``p_value``.
     """
 
     name: str
