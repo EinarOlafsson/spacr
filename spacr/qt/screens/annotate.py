@@ -1685,6 +1685,26 @@ class _SettingsDialog(QDialog):
         "outline": "_outline",
     }
 
+    #: Other spellings the same question has been written under.
+    #:
+    #: `img_size` IS NOT A LEGACY FILE FORMAT -- it is what
+    #: `set_annotate_default_settings` writes TODAY. The factory has always
+    #: called it `img_size` (an int) and this screen has always called it
+    #: `image_size` (a width/height pair), so a settings CSV produced from
+    #: spaCR's OWN defaults set every field in this dialog except the crop
+    #: size, silently, and the user saw a form that had mostly filled itself
+    #: in and had no reason to suspect the one row that had not.
+    #:
+    #: Found by instruction 364's Annotate audit. Accepting the other
+    #: spelling here rather than renaming either side: the factory's name is
+    #: in shipped settings files and in every notebook that writes one, and
+    #: this screen's name is in `AnnotateSettings.image_size`, which is a
+    #: tuple and genuinely a different type. `toxo` is accepted the same way
+    #: elsewhere in the package.
+    _ALSO_SPELT = {
+        "image_size": ("img_size",),
+    }
+
     def _apply_example_settings(self, path) -> int:
         """Fill the form from a settings CSV that shipped with a dataset.
 
@@ -1711,6 +1731,9 @@ class _SettingsDialog(QDialog):
         applied = 0
         for key, attribute in self._EXAMPLE_SETTING_WIDGETS.items():
             value = rows.get(key)
+            for spelling in self._ALSO_SPELT.get(key, ()):
+                if value in (None, "", "None"):
+                    value = rows.get(spelling)
             widget = getattr(self, attribute, None)
             if widget is None or value in (None, "", "None"):
                 continue
