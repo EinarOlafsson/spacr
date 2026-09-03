@@ -97,8 +97,11 @@ import os
 import re
 import sqlite3
 from functools import partial
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence, Tuple
 from urllib.parse import quote as _urlquote
+
+if TYPE_CHECKING:
+    from ..widgets.fold_strip import FoldStrip
 
 import pandas as pd
 from PySide6.QtCore import (

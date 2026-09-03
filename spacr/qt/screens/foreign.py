@@ -57,7 +57,10 @@ from __future__ import annotations
 
 import os
 from functools import partial
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence, Tuple
+
+if TYPE_CHECKING:
+    from ..widgets.fold_strip import FoldStrip
 
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal
 from PySide6.QtWidgets import (

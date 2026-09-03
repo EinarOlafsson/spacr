@@ -15,7 +15,7 @@ import threading
 
 from . import timing as _timing
 import traceback
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from PySide6.QtCore import (QEvent, QObject, QPoint, QRect, QSize, Qt,
                             QThread, Signal)

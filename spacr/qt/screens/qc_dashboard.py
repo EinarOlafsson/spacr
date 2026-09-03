@@ -19,7 +19,10 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
+
+if TYPE_CHECKING:
+    from ..widgets.fold_strip import FoldStrip
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
