@@ -489,11 +489,33 @@ def test_sidebar_renders_every_app_under_every_section_heading(home):
     that only exist as subject tabs.
     """
     _theme, _page, bar = home
-    assert set(_nav_buttons_by_name(bar)) == {a[1] for a in APPS}
+    # APPS PLUS THE FOLDED CHILDREN. A module folded onto a host is nested
+    # UNDER it in the dock rather than left off it -- asked for on
+    # 2026-09-02, "nested modules should be nested in the dock" -- and its
+    # row is indented, which is why the names are compared stripped. Before
+    # that, comparing against APPS alone was the whole list.
+    from spacr.qt.app import folded_children
+    from spacr.qt.widgets.fold_strip import fold_label, folded_modules
+
+    catalogue = folded_modules()
+    children = {key for keys in folded_children().values() for key in keys}
+    # NAMED THE WAY THE DOCK NAMES THEM: the catalogue first, `fold_label`
+    # for a host the catalogue does not walk. Deriving the names any other
+    # way makes this a test of the derivation rather than of the dock.
+    expected = {a[1] for a in APPS} | {
+        (catalogue.get(key) or fold_label(key))[0] or key for key in children}
+    assert {name.strip() for name in _nav_buttons_by_name(bar)} == expected
+
+    # PLUS THE DOCK-ONLY HELP HEADING. `SECTION_HELP` is not a real section
+    # -- every Help module is tileless, so on Home it would be a tab with
+    # nothing on it -- but the dock lists modules rather than tiles and gives
+    # them a heading of their own at the bottom. `dock_rows` says so in its
+    # own docstring; this test compares against the dock, so it has to know.
+    from spacr.qt.app import SECTION_HELP
 
     headings = {lbl.text() for lbl in bar.findChildren(QLabel)
                 if lbl.objectName() == "SidebarSection"}
-    assert headings == set(_sections_in_order())
+    assert headings == set(_sections_in_order()) | {SECTION_HELP}
 
 
 def test_sidebar_still_has_a_home_button(home):
