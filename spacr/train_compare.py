@@ -240,26 +240,27 @@ def metric_direction(name: Any) -> Optional[str]:
 class TrainingRun:
     """One training run's curves, settings and complaints.
 
-    :ivar run_id: short human id, unique within a :func:`find_runs` result.
-    :ivar path: the run folder (``dst``) — the folder holding ``train.csv`` /
-        ``validation.csv``, or the folder holding the ``fold_<i>/`` subfolders.
-    :ivar settings: the settings dict recovered from
-        ``<src>/settings/*.csv`` (or a journal ``settings.json``); ``{}`` when
-        none was found, which is recorded in :attr:`notes`.
-    :ivar curves: long-form per-epoch metrics with identity columns
-        ``run_id``, ``split``, ``fold`` and ``epoch``, one row per logged
-        epoch. Empty (with the identity columns present) when the run logged
-        nothing.
-    :ivar folds: fold folder names (``['fold_1', ...]``), empty for a run that
-        used a single train/validation split.
-    :ivar final_metrics: ``{series_label: {...}}`` — per split and fold, the
-        epoch count and **both** the last-epoch and best-epoch value of every
-        metric. See :func:`format_comparison` for why both.
-    :ivar notes: everything wrong with, or worth knowing about, this folder.
-        A run with notes is still comparable.
-    :ivar settings_path: where the settings came from, or ``''``.
-    :ivar manifest: a run-journal ``manifest.json`` when the folder happens to
-        be one; ``{}`` for an ordinary training ``dst``.
+    :param run_id: human-readable run identifier; :func:`find_runs` makes it
+        unique within the returned scan.
+    :param path: training-output directory containing progress CSVs or
+        numbered fold subdirectories.
+    :param settings: settings recovered from run-local ``settings.json`` or
+        ``settings.csv``, or from a matching ancestor ``settings/*.csv``;
+        empty when none is usable.
+    :param curves: long-form per-epoch metrics with ``run_id``, ``split``,
+        ``fold``, and ``epoch`` identity columns; empty with those columns
+        present when no usable curves were logged.
+    :param folds: numerically ordered fold-directory names, empty for a
+        non-cross-validated run.
+    :param final_metrics: per-series summaries containing identity, epoch
+        count and range, last finite observations, and direction-aware best
+        observations when defined.
+    :param notes: non-fatal discovery or data-quality messages; notes do not
+        prevent the run from being compared.
+    :param settings_path: path of the settings snapshot used, or ``""`` when
+        none was found.
+    :param manifest: parsed run-journal manifest mapping, or an empty mapping
+        when absent, unreadable, or not an object.
     """
     run_id: str
     path: Path

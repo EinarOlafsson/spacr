@@ -363,6 +363,12 @@ class PairAgreement:
         return not (self.kappa is None or math.isnan(float(self.kappa)))
 
     def __str__(self) -> str:
+        """Return a readable one-line summary of this annotator pair.
+
+        The line includes both column names, signed three-decimal κ (or
+        ``undefined``), its interpretation, raw agreement, and compared-row
+        count.
+        """
         k = "undefined" if not self.defined else f"{self.kappa:+.3f}"
         return (f"{self.column_a} vs {self.column_b}: κ={k} "
                 f"({self.interpretation}), raw agreement "
@@ -831,6 +837,7 @@ class AgreementReport:
 
     @property
     def n_annotators(self) -> int:
+        """Return the number of annotation columns included in the report."""
         return len(self.columns)
 
     @property
@@ -1142,6 +1149,11 @@ def disagreements(db_path: str, columns: Sequence[str],
 # ---------------------------------------------------------------------------
 
 def _fmt_kappa(value: Any) -> str:
+    """Format κ with a sign and three decimals, or return ``undefined``.
+
+    :param value: value coercible to a float; invalid values and NaN have no
+        reportable κ.
+    """
     try:
         v = float(value)
     except (TypeError, ValueError):
@@ -1150,6 +1162,11 @@ def _fmt_kappa(value: Any) -> str:
 
 
 def _fmt_pct(value: Any) -> str:
+    """Format a fraction as a one-decimal percentage, or return ``n/a``.
+
+    :param value: fraction coercible to a float; invalid values and NaN are
+        unavailable.
+    """
     try:
         v = float(value)
     except (TypeError, ValueError):
