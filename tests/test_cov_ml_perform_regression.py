@@ -1593,6 +1593,134 @@ def _finished_panel_run(tmp_path, analysis_mode):
     return outcome, paths
 
 
+def _panel_settings(dependent_variable="pred", **overrides):
+    """Return the smallest settings mapping that requests panel packaging."""
+    settings = {
+        "regression_panel_manifest": {"figure_id": "Figure_7", "panels": [{}]},
+        "dependent_variable": dependent_variable,
+    }
+    settings.update(overrides)
+    return settings
+
+
+def test_publication_panels_require_a_mapping_outcome_and_results_folder(
+    tmp_path,
+):
+    """Validation names both malformed return shapes before reading a table."""
+    import spacr.ml as ML
+
+    settings = _panel_settings()
+    with pytest.raises(TypeError, match="mapping outcome"):
+        ML._write_regression_panel_packages(object(), settings)
+    assert settings["_regression_stage"] == "writing publication panel packages"
+
+    with pytest.raises(ValueError, match="results folder"):
+        ML._write_regression_panel_packages({}, _panel_settings())
+
+
+def test_publication_panels_name_every_missing_result_file(tmp_path):
+    """An incomplete run is refused before a partial panel package is built."""
+    import spacr.ml as ML
+
+    folder = tmp_path / "incomplete"
+    folder.mkdir()
+    with pytest.raises(FileNotFoundError) as raised:
+        ML._write_regression_panel_packages(
+            {"res_folder": str(folder), "paths": None},
+            _panel_settings(),
+        )
+
+    message = str(raised.value)
+    assert str(folder / "results_grna.csv") in message
+    assert str(folder / "results_gene.csv") in message
+
+
+@pytest.mark.parametrize("dependent_variable", [None, [], ["pred", " "]])
+def test_publication_panels_require_named_phenotypes(
+    tmp_path, dependent_variable,
+):
+    """Missing, empty and partly blank phenotype requests share one clear error."""
+    import spacr.ml as ML
+
+    outcome, _paths = _finished_panel_run(tmp_path, "regression")
+    with pytest.raises(ValueError, match="one or more named"):
+        ML._write_regression_panel_packages(
+            outcome,
+            _panel_settings(dependent_variable),
+        )
+
+
+def test_multi_phenotype_panels_require_an_outcome_column(tmp_path):
+    """Two requested phenotypes cannot be inferred from an unlabelled table."""
+    import spacr.ml as ML
+
+    outcome, _paths = _finished_panel_run(tmp_path, "regression")
+    with pytest.raises(ValueError, match="has no 'outcome' column"):
+        ML._write_regression_panel_packages(
+            outcome,
+            _panel_settings(["first", "second"]),
+        )
+
+
+def test_multi_phenotype_panels_require_rows_for_every_request(tmp_path):
+    """A named but absent phenotype is an error, not an empty publication panel."""
+    import spacr.ml as ML
+
+    outcome, paths = _finished_panel_run(tmp_path, "guide_permutation")
+    for path in paths.values():
+        pd.DataFrame({
+            "outcome": ["present"],
+            "coefficient": [0.25],
+        }).to_csv(path, index=False)
+
+    with pytest.raises(ValueError, match="no rows for phenotype 'missing'"):
+        ML._write_regression_panel_packages(
+            outcome,
+            _panel_settings(["present", "missing"]),
+        )
+
+
+def test_multi_phenotype_panels_use_the_saved_folder_and_default_fdr(
+    tmp_path, monkeypatch,
+):
+    """The settings-folder fallback builds one filtered artifact per level/value."""
+    import spacr.ml as ML
+    import spacr.regression_panels as RP
+
+    folder = tmp_path / "saved-result-folder"
+    folder.mkdir()
+    for level in ("grna", "gene"):
+        pd.DataFrame({
+            "outcome": ["first", "second"],
+            level: [f"first_{level}", f"second_{level}"],
+            "coefficient": [0.25, -0.5],
+        }).to_csv(folder / f"results_{level}.csv", index=False)
+
+    captured = {}
+
+    def fake_builder(manifest, artifacts, destination):
+        captured.update(artifacts)
+        assert manifest["figure_id"] == "Figure_7"
+        assert destination == str(folder / "publication_panels")
+        return "built"
+
+    monkeypatch.setattr(RP, "build_manifest_packages", fake_builder)
+    settings = _panel_settings(
+        [" first ", "second"],
+        _regression_folder=str(folder),
+    )
+
+    assert ML._write_regression_panel_packages({}, settings) == "built"
+    assert settings["_regression_folder"] == str(folder)
+    assert set(captured) == {
+        "first_grna", "second_grna", "first_gene", "second_gene",
+    }
+    for key, artifact in captured.items():
+        assert len(artifact["data"]) == 1, key
+        assert artifact["data"].iloc[0]["outcome"] == artifact["phenotype"]
+        assert artifact["fdr_alpha"] == pytest.approx(0.05)
+
+
 @pytest.mark.parametrize("analysis_mode", ["regression", "guide_permutation"])
 def test_public_regression_builds_panels_after_each_result_path_exists(
     tmp_path, monkeypatch, analysis_mode
