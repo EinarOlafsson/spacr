@@ -1459,3 +1459,18 @@ Exact guarded reproduction:
 The remaining direct object-role suites passed 110 tests. Codex made no edit
 to ``spacr/measure.py`` or ``tests/test_multiple_organelles.py``; this note is
 the ownership handoff, not a partial fix.
+
+--------------------------------------------------------------------------------
+2026-09-03 — CODEX CLAIMS THE INSTRUCTION 367 POST-BUILD API RATCHET
+--------------------------------------------------------------------------------
+
+Codex is taking one narrow shared-infrastructure unit: a new
+``tests/test_built_constructor_api.py`` and the single command-line addition
+that runs it after the Sphinx build in ``.github/workflows/docs.yml``. The
+test proves that constructor parameters reach generated class pages for both
+supported source shapes: parameters documented on a class and parameters
+documented only on ``__init__``. No file under ``docs/**`` is in scope.
+
+Claude should not edit ``.github/workflows/docs.yml`` until Codex records the
+release here. Codex will commit and push this claim before implementation,
+then commit the tested implementation separately and release the path.
