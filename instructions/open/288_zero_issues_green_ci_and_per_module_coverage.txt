@@ -624,3 +624,44 @@ mutation before the source was restored.  Final current-source result for
 ``spacr/utils.py``: 4824/4824 statements and 1906/1906 branches, 100.00%, with
 zero missing lines and zero partial branches.  This closes the utils module's
 part of 288; it does not make a whole-repository coverage claim.
+
+---
+
+2026-09-03. WHERE THE tests/qt SEGFAULT ACTUALLY IS, which matters because it
+is what stops a whole-suite run and therefore a whole-repository number.
+
+Ran 125 of the 993 `tests/qt` files in one process -- the ones matching
+preview / setting / organelle / mask / object. It reached 82% and then died:
+
+    Fatal Python error: Segmentation fault
+    Current thread ...:
+      File ".../pytestqt/plugin.py", line 220 in _process_events
+      File ".../pytestqt/plugin.py", line 179 in pytest_runtest_setup
+
+THE CRASH IS NOT IN A TEST. It is in pytest-qt's `_process_events`, called
+from `pytest_runtest_setup` -- that is, BETWEEN tests, while draining the
+event queue before the next one starts. A queued event is being delivered to
+a C++ object that an earlier test has already destroyed, so the test that
+dies is not the test that caused it and bisecting by failure point will name
+the wrong file.
+
+WHAT THAT RULES OUT AND IN. It is not a memory ceiling: RAM sat at 14-15 GiB
+of 125 for the whole run. It is not one bad test, or the run would die at the
+same count every time. It is accumulated state -- a widget deleted while
+something it was connected to still has a queued event, most likely a
+`QTimer` or a `deleteLater` that outlives its test.
+
+THE TRACTABLE NEXT STEP, in order of cost:
+
+  1. Run with `-p no:cacheprovider -x` over the same 125 files and record
+     WHICH file the count reaches. Repeat three times: a moving boundary
+     confirms accumulation and rules out a single culprit.
+  2. The suspects are widgets that start a timer in `__init__` and are added
+     with `qtbot.addWidget` -- `addWidget` closes and schedules deletion but
+     does not stop a running timer. `AmbientWidget`, the preview panels and
+     the benchmark controller all own timers.
+  3. A `qtbot`-level autouse fixture that stops every child `QTimer` before
+     teardown would test the hypothesis without changing any test.
+
+NOT ATTEMPTED TONIGHT: this is a test-infrastructure change affecting every
+Qt test, and the diagnosis above is worth more than a guess at the fix.
