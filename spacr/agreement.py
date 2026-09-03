@@ -321,25 +321,25 @@ def interpret_kappa(kappa: float) -> str:
 class PairAgreement:
     """Cohen's κ for one pair of annotators, with everything needed to read it.
 
-    :ivar column_a: name of the first annotator column (the confusion-matrix
+    :param column_a: name of the first annotator column (the confusion-matrix
         row axis).
-    :ivar column_b: name of the second annotator column (the confusion-matrix
+    :param column_b: name of the second annotator column (the confusion-matrix
         column axis).
-    :ivar kappa: Cohen's κ, or ``nan`` when it is undefined/degenerate —
+    :param kappa: Cohen's κ, or ``nan`` when it is undefined/degenerate —
         check :attr:`defined` before quoting it.
-    :ivar percent_agreement: raw pₒ, the fraction of compared rows where
+    :param percent_agreement: raw pₒ, the fraction of compared rows where
         the two labels are identical. Always meaningful, even when κ is not.
-    :ivar expected_agreement: pₑ, agreement expected from the marginals alone.
-    :ivar n_compared: rows *both* annotators labelled — κ's denominator.
-    :ivar n_agree: compared rows on which the two annotators agreed.
-    :ivar n_disagree: compared rows on which the two annotators disagreed.
-    :ivar n_abstained: rows exactly one of them labelled. Excluded from κ
+    :param expected_agreement: pₑ, agreement expected from the marginals alone.
+    :param n_compared: rows *both* annotators labelled — κ's denominator.
+    :param n_agree: compared rows on which the two annotators agreed.
+    :param n_disagree: compared rows on which the two annotators disagreed.
+    :param n_abstained: rows exactly one of them labelled. Excluded from κ
         (an abstention is not a disagreement) and reported here instead.
-    :ivar n_neither: rows neither of them has reached yet.
-    :ivar labels: ordered class universe used for the confusion matrix.
-    :ivar confusion: ``a`` labels down the rows, ``b`` across the columns.
-    :ivar note: why κ is ``nan``, or what to watch out for when it is not.
-    :ivar interpretation: convention label that explains the κ magnitude.
+    :param n_neither: rows neither of them has reached yet.
+    :param labels: ordered class universe used for the confusion matrix.
+    :param confusion: ``a`` labels down the rows, ``b`` across the columns.
+    :param note: why κ is ``nan``, or what to watch out for when it is not.
+    :param interpretation: convention label that explains the κ magnitude.
     """
 
     column_a: str
@@ -782,31 +782,31 @@ def load_annotations(db_path: str, columns: Sequence[str],
 class AgreementReport:
     """Everything :func:`agreement_report` worked out, in one object.
 
-    :ivar db_path: path of the source annotation database.
-    :ivar table: source table that holds the annotation columns.
-    :ivar key: column that identifies each annotated row.
-    :ivar columns: annotator columns, in report order.
-    :ivar pairs: one :class:`PairAgreement` per unordered column pair.
-    :ivar overall_kappa: Cohen's κ for two annotators, Fleiss' κ for
+    :param db_path: path of the source annotation database.
+    :param table: source table that holds the annotation columns.
+    :param key: column that identifies each annotated row.
+    :param columns: annotator columns, in report order.
+    :param pairs: one :class:`PairAgreement` per unordered column pair.
+    :param overall_kappa: Cohen's κ for two annotators, Fleiss' κ for
         three or more (computed on rows *every* annotator labelled).
-    :ivar overall_method: name of the κ statistic used for the overall value.
-    :ivar overall_note: interpretive caveat or reason the overall value is
+    :param overall_method: name of the κ statistic used for the overall value.
+    :param overall_note: interpretive caveat or reason the overall value is
         undefined; empty when no caveat applies.
-    :ivar interpretation: Landis–Koch convention label for ``overall_kappa``.
-    :ivar labels: ordered class universe used throughout the report.
-    :ivar per_class: one row per class — its one-vs-rest κ, how often the
+    :param interpretation: Landis–Koch convention label for ``overall_kappa``.
+    :param labels: ordered class universe used throughout the report.
+    :param per_class: one row per class — its one-vs-rest κ, how often the
         annotators were unanimous on it, and its prevalence. This is where
         "we agree on the negatives, we argue about the positives" shows up.
-    :ivar n_rows: total annotation-table rows examined.
-    :ivar n_complete: rows every annotator labelled.
-    :ivar n_partial: rows some but not all labelled — abstentions, not
+    :param n_rows: total annotation-table rows examined.
+    :param n_complete: rows every annotator labelled.
+    :param n_partial: rows some but not all labelled — abstentions, not
         disagreements.
-    :ivar n_unlabelled: rows none of the annotators labelled.
-    :ivar n_disagreements: rows where two annotators who both committed
+    :param n_unlabelled: rows none of the annotators labelled.
+    :param n_disagreements: rows where two annotators who both committed
         chose differently. This is the review queue's length.
-    :ivar percent_agreement: fraction of complete rows with unanimous labels.
-    :ivar convention: named interpretation scale applied to κ values.
-    :ivar warnings: report-level caveats that must be shown to the reader.
+    :param percent_agreement: fraction of complete rows with unanimous labels.
+    :param convention: named interpretation scale applied to κ values.
+    :param warnings: report-level caveats that must be shown to the reader.
     """
 
     db_path: str
