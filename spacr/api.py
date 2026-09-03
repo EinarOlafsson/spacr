@@ -65,10 +65,11 @@ class MaskConfig:
         Advanced settings not represented by typed fields. Keys that repeat a
         typed field are refused so one script cannot contain two answers.
 
-    :ivar test_mode: run a small representative subset and enable diagnostic
-        output before committing compute to the complete plate.
-    :ivar dry_run: validate the source, settings, and planned outputs without
-        loading a model, running segmentation, or writing files.
+    :param test_mode: run Mask on a random subset of up to ``test_images``
+        complete image sets under ``<src>/test`` and enable diagnostic plots
+        before processing the full source.
+    :param dry_run: run Mask preflight and return its reported problems before
+        heavy pipeline imports, model loading, segmentation, or writes.
 
     Examples
     --------
@@ -156,14 +157,18 @@ class MeasureConfig:
     extra:
         Advanced settings not represented by typed fields.
 
-    :ivar save_png: write per-object PNG crops and register their paths for
-        downstream annotation, classification, and image plots.
-    :ivar test_mode: measure a small sample of merged fields with diagnostic
-        plotting enabled before processing the complete dataset.
-    :ivar dry_run: validate the measurement plan and return its problems
-        without loading the measurement pipeline or writing files.
-    :ivar resume: continue an interrupted run after validating completed
-        fields and clearing any partial database rows before retrying them.
+    :param save_png: write per-object crops for the requested ``crop_mode``
+        values and register their paths in ``measurements.db`` for annotation,
+        classification, and image plots; timelapse measurement disables crop
+        writing.
+    :param test_mode: copy a random subset of up to ``test_nr`` merged fields
+        into ``test/merged``, redirect measurement there, and enable verbose
+        diagnostic plots.
+    :param dry_run: run Measure preflight and return its reported problems
+        before heavy imports, worker creation, database writes, or measurement.
+    :param resume: validate an interrupted Measure run, skip fields complete
+        in every owned output, and clear partial rows before retrying
+        incomplete fields.
     """
 
     src: SourceInput

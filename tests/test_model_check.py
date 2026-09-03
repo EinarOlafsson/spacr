@@ -1,5 +1,5 @@
 """Is the chosen model compatible with spaCR and the chosen classes?"""
-import os
+from dataclasses import fields
 
 import pytest
 
@@ -18,8 +18,8 @@ def test_model_report_documents_and_retains_its_diagnostic_fields():
     report = ModelReport(True, "custom.pth", problems=("bad head",),
                          notes=("adapted input",), channels=3, classes=2)
 
-    for name in ("problems", "notes", "channels", "classes"):
-        assert f":ivar {name}:" in (ModelReport.__doc__ or "")
+    for field in fields(ModelReport):
+        assert f":param {field.name}:" in (ModelReport.__doc__ or "")
     assert report.problems == ("bad head",)
     assert report.notes == ("adapted input",)
     assert (report.channels, report.classes) == (3, 2)

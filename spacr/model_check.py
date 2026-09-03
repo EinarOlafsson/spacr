@@ -32,13 +32,17 @@ LOG = logging.getLogger("spacr.model_check")
 class ModelReport:
     """What was found. ``ok`` first, because it is the answer.
 
-    :ivar ok: whether the chosen model is compatible with the requested run.
-    :ivar source: resolved built-in model name or custom model path.
-    :ivar problems: incompatibilities that name the setting needed to fix
-        each one.
-    :ivar notes: useful compatibility facts that do not block the run.
-    :ivar channels: input channel count inferred from the model, when known.
-    :ivar classes: output class count inferred from the model, when known.
+    :param ok: whether the compatibility check found no blocking problem.
+    :param source: display identifier for the checked model: a built-in name,
+        custom-file basename, or ``"no model"``.
+    :param problems: blocking diagnostic messages used by the unsuccessful
+        summary.
+    :param notes: non-blocking compatibility facts retained separately and
+        appended to the summary when ``ok`` is true.
+    :param channels: dataset input-channel count requested by the settings, or
+        ``None`` when it cannot be determined.
+    :param classes: requested class count derived from the class definitions,
+        or ``None`` when it cannot be determined.
     """
 
     ok: bool
@@ -51,6 +55,7 @@ class ModelReport:
     classes: Optional[int] = None
 
     def summary(self) -> str:
+        """Return a one-line verdict followed by its notes or blocking problems."""
         if self.ok:
             head = f"{self.source} looks compatible"
             return "; ".join([head, *self.notes]) if self.notes else head

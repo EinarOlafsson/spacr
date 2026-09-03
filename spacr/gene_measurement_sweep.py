@@ -122,13 +122,23 @@ def measurement_columns(frame: pd.DataFrame) -> List[str]:
 class SweepResult:
     """The grid, and the tidy table a reader actually looks at.
 
-    :ivar table: tidy multiple-testing result table for the sweep grid.
-    :ivar effects: per-measurement effect estimates underlying the table.
-    :ivar n_wells: number of independent wells included in the fit.
-    :ivar n_blocks: number of experimental blocks included in the design.
-    :ivar dropped: identifier columns excluded before fitting.
-    :ivar circularity_known: whether measurement-to-score circularity was
-        actually computed; false prevents a missing join looking clean.
+    :param table: tidy result frame with one row per fitted guide or
+        gene-measurement pair and its effect, significance, support, and
+        control evidence.
+    :param effects: dense blocked association matrix indexed by fitted guide
+        or gene and columned by measurement; these effects are repeated in
+        ``table``.
+    :param n_wells: number of well identities shared by wells and fractions
+        before guide-specific filtering; unlike ``table['n_wells']``, this is
+        screen-wide.
+    :param n_blocks: number of distinct block labels removed from a fitted
+        design, or zero when the sweep returned before fitting.
+    :param dropped: numeric wells columns omitted from the effect grid,
+        including automatically rejected identifier or duplicate columns and
+        explicitly dropped measurements.
+    :param circularity_known: whether at least three joined score values
+        produced a finite measurement-to-score circularity; when false,
+        circularity is NaN and :meth:`survivors` refuses a circularity cutoff.
     """
 
     table: pd.DataFrame
@@ -161,6 +171,7 @@ class SweepResult:
         return out.sort_values("q")
 
     def describe(self) -> str:
+        """Summarize grid size, significance, circularity, and omitted inputs."""
         survived = int((self.table["q"] < 0.05).sum())
         clean = (int(((self.table["q"] < 0.05)
                       & (self.table["circularity"] < 0.15)).sum())
@@ -174,7 +185,7 @@ class SweepResult:
                   " (circularity NOT computed -- the score joined to no "
                   "well, so it must not be read as 'not circular'). ")
         return (head + middle
-                + f"{len(self.dropped):,} identifier column(s) were left out.")
+                + f"{len(self.dropped):,} input column(s) were left out.")
 
 
 def _residualise(matrix: np.ndarray, blocks: np.ndarray) -> np.ndarray:
