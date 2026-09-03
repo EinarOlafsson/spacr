@@ -171,6 +171,7 @@ class ScanResult:
 
     @property
     def n_measurements_scanned(self) -> int:
+        """Return the number of measurements fitted successfully."""
         return len(self.rows)
 
     def surviving(self) -> Tuple[MeasurementEffect, ...]:
@@ -322,6 +323,11 @@ def _measurement_columns(frame, gene_column: str,
 
 
 def _is_numeric(series) -> bool:
+    """Return whether a pandas series has numeric, non-boolean dtype.
+
+    :param series: candidate response column.
+    :returns: ``True`` for numeric dtypes other than Boolean.
+    """
     import pandas as pd
 
     return bool(pd.api.types.is_numeric_dtype(series)
