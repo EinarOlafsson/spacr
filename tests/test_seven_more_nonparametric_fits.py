@@ -117,7 +117,11 @@ def test_a_diagnostic_carries_no_p_value(bent):
 
 def test_only_the_gaussian_process_reports_a_band(bent):
     x, y = bent
-    assert NP.smooth(x, y, method="gaussian_process").has_band
+    curve = NP.smooth(x, y, method="gaussian_process")
+    for name in ("lower", "upper", "note"):
+        assert f":ivar {name}:" in (NP.Curve.__doc__ or "")
+    assert curve.has_band
+    assert len(curve.lower) == len(curve.upper) == len(curve.x)
     for method in ("lowess", "kernel", "knn"):
         assert not NP.smooth(x, y, method=method).has_band
 
@@ -177,6 +181,8 @@ def test_it_names_the_guides_the_two_disagree_about(two_real_guides):
     linear = dict(linear)
     linear["guide7"] = 9.0
     result = NP.agreement(frame, y, linear, moved_by=3)
+    assert ":ivar disagreements:" in (NP.Agreement.__doc__ or "")
+    assert ":ivar note:" in (NP.Agreement.__doc__ or "")
     assert any(g == "guide7" for g, _a, _b in result.disagreements)
     assert "guide7" in result.summary()
 
