@@ -4833,6 +4833,20 @@ class PreferencesDialog:
         tooltips_bottom_check.setChecked(get_tooltips_bottom_enabled())
         appearance.addRow(tr("Tooltips bottom"), tooltips_bottom_check)
 
+        object_grid_check = Toggle(tr("Per-object settings as a table"))
+        object_grid_check.setObjectName("ObjectSettingsGrid")
+        object_grid_check.setToolTip(
+            "78 of Mask's 201 settings are the same twenty-odd questions "
+            "asked once per object type. Set, those rows are replaced by one "
+            "table: a row per question, a column per object. The stored "
+            "settings are identical either way, so a file written with this "
+            "on is the same file written with it off. Takes effect the next "
+            "time a module's form is built."
+        )
+        object_grid_check.setChecked(get_object_grid_enabled())
+        appearance.addRow(tr("Per-object settings as a table"),
+                          object_grid_check)
+
         def _warn_when_both_are_off() -> None:
             """Say what turning both off costs, on the rows themselves.
 
@@ -6139,6 +6153,7 @@ class PreferencesDialog:
             set_tooltips_box_enabled(tooltips_box_check.isChecked())
             set_tooltips_bottom_enabled(
                 tooltips_bottom_check.isChecked())
+            set_object_grid_enabled(object_grid_check.isChecked())
             set_font_scale(scale_slider.value() / 100.0)
             set_dock_mode(dock_combo.currentData())
             set_pane_opacity(opacity_slider.value() / 100.0)
