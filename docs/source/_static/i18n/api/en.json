@@ -42667,6 +42667,14 @@
       "source_sha256": "8c73e3f6d8baacf83c5f5aba3b14f8f08eb7afe83fd7da3b4539318ad5296424",
       "text": "Follow a live theme switch.\n\nOnly Home is rebuilt when the theme changes; every other screen\nis re-styled in place by re-applying the QSS. That is enough for\nanything whose colours come from the stylesheet, and not enough\nfor a backdrop that paints itself — the DNA rain and the ambient\nbackground both capture their flat fill colour and their\nwallpaper at construction. Switching from dark to light left a\nblack rain rectangle on a white page, and switching into Cell\nleft it painting flat black over the micrograph the theme had\njust loaded. The ambient backdrop has exactly the same two\ncaptured values and therefore exactly the same two bugs.\n\nBoth palette events count, and that is the whole reason this\nworks. ``QApplication.setPalette`` — which is what\n:func:`spacr.qt.theme.apply_qpalette` ends in — delivers\n``ApplicationPaletteChange`` **only to top-level widgets** (Qt\n6.11, verified); every child, including every AppScreen inside\nMainWindow's stack, gets ``PaletteChange`` instead. Listening\nfor the application event alone meant this handler fired in the\ntests that synthesised it and never once in the running app.\n\nSaving Preferences goes through the same call, so this is also\nwhere an ambient *preference* change lands on a screen that is\nalready open — including the toggle switching back **on**, which\nhas to build a widget that does not exist yet and so cannot be\ndone by anything walking the live widget tree.\n\nWhat is deliberately *not* re-applied is anything the user\npicked: the rain's trail colour (it has a swatch in its settings\nbar) and the ambient theme + palette (they are Preferences\nentries). Silently resetting a choice the user made is worse\nthan a slightly off-theme one."
     },
+    "spacr.qt.screens.app_screen.AppScreen.choose_source_folder": {
+      "source_blocks_sha256": [
+        "d1c6b04e78f6fb6bf78114832d35580cdd9b1faafd1f6940e65ea7f8e6bde824",
+        "e46385ca3fff51005f4dbf26164e28004f7997f73f520ff40e9690314e09b902"
+      ],
+      "source_sha256": "b8aee455834644902761d5a8278d47be76d8462a74612f8fcab774e32dd4d1fe",
+      "text": "Ask for the run's source folder and put it in the src field.\n\n:returns: the folder chosen, or ``\"\"`` if the dialog was cancelled\n    or the screen has no src field to write to."
+    },
     "spacr.qt.screens.app_screen.AppScreen.choose_the_test_data": {
       "source_blocks_sha256": [
         "02422e00428a224e9681c401f1d4d99c7a9aad36bae461d463bf7c6d6f5001fb",
@@ -72661,6 +72669,16 @@
       ],
       "source_sha256": "bf8f6d20c642086073c73ad4884d6ceff59c49c5bbd08749f024bcb200c5e431",
       "text": "Add a full-width (label-less) widget to the section's form body."
+    },
+    "spacr.qt.widgets.section.Section.eventFilter": {
+      "source_blocks_sha256": [
+        "b64ba82e46f0dd8b62a88eb74649c3b155b3e856d4845d63e061251cd609bf04",
+        "a1fe911c408cbfdcdcd75086730bc0c607e8bd0a2e0e98df11279694d83249c2",
+        "f3efd0f168c29395cb299b53657b248f21ba0932a39bbc67e2d3ba990723c524",
+        "5c2be99ed24660e63449b1124184b45aa0b0d9e4a69f28ae602b46d6d162f866"
+      ],
+      "source_sha256": "0ca9a0a99ecf2eb7b6c1f127ab9036f0befb1453555ae63392c1d5011c6b7266",
+      "text": "Swallow the header's tooltip request; pass everything else on.\n\n:param watched: the object the event is for.\n:param event: the event.\n:returns: True to stop a tooltip from being shown."
     },
     "spacr.qt.widgets.section.Section.header": {
       "source_blocks_sha256": [
