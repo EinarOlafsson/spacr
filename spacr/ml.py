@@ -2983,7 +2983,18 @@ class _AbsorbedDesign:
     """
 
     def __init__(self, endog, exog, exog_names):
-        """Store response, full design, and statsmodels-compatible names."""
+        """Store response, full design, and statsmodels-compatible names.
+
+        :param endog: the response, flattened to one dimension.
+        :param exog: the FULL design, dummy columns included. Not the
+            absorbed one: :mod:`spacr.regression_qc` recovers the design from
+            here, and absorption is how the fit was solved rather than what
+            was fitted.
+        :param exog_names: one name per column of ``exog``, in order.
+            statsmodels' diagnostics index the design by name, so a list that
+            is shorter than the design silently mislabels the columns after
+            the gap rather than raising.
+        """
         self.endog = np.asarray(endog, dtype=float).reshape(-1)
         self.exog = np.asarray(exog, dtype=float)
         self.exog_names = list(exog_names)
@@ -3090,7 +3101,12 @@ class _AbsorbedSummary:
     """``.as_text()`` for :class:`_AbsorbedLeastSquaresResults`."""
 
     def __init__(self, results):
-        """Bind the absorbed-fit results rendered by this summary."""
+        """Bind the absorbed-fit results rendered by this summary.
+
+        :param results: the :class:`_AbsorbedLeastSquaresResults` to render.
+            Held, not copied -- the summary is built on demand by
+            :meth:`_AbsorbedLeastSquaresResults.summary` and read once.
+        """
         self._results = results
 
     def as_text(self):
@@ -3385,7 +3401,11 @@ class _GlumSummary:
     """``.as_text()`` for :class:`_GlumResults`."""
 
     def __init__(self, results):
-        """Bind the glum results rendered by this summary."""
+        """Bind the glum results rendered by this summary.
+
+        :param results: the :class:`_GlumResults` to render. Held, not
+            copied; see :class:`_AbsorbedSummary`.
+        """
         self._results = results
 
     def as_text(self):
