@@ -38,7 +38,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, Mapping, Optional, Tuple
 
-from PySide6.QtCore import QAbstractTableModel, QModelIndex, QSize, Qt, Signal
+from PySide6.QtCore import (QAbstractTableModel, QEvent, QModelIndex, QSize,
+                            Qt, Signal)
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QFrame,
@@ -425,6 +426,14 @@ class ObjectSettingsGrid(QWidget):
         self._table.setSizePolicy(QSizePolicy.Policy.Expanding,
                                   QSizePolicy.Policy.Fixed)
         self._table.clicked.connect(self._cell_clicked)
+        #: Which module's API the tooltips link to. Set by the screen that
+        #: mounts the grid -- the table itself has no way to know, and a
+        #: guess would send the reader to another module's page.
+        self._app_key = ""
+        self._hovered_key = ""
+        self._table.setMouseTracking(True)
+        self._table.viewport().setMouseTracking(True)
+        self._table.viewport().installEventFilter(self)
         self._user_height: Optional[int] = None
         outer.addWidget(self._table)
 
@@ -445,6 +454,83 @@ class ObjectSettingsGrid(QWidget):
         row.addWidget(self._status, 1)
         row.addWidget(self._add)
         outer.addLayout(row)
+
+    # -- the rich tooltips -------------------------------------------------
+
+    def set_app_key(self, app_key: str) -> None:
+        """Say which module's API documentation the tooltips should link to."""
+        self._app_key = str(app_key or "")
+
+    def _key_under(self, pos) -> str:
+        """The settings key of the cell at ``pos``, or ``""``."""
+        index = self._table.indexAt(pos)
+        if not index.isValid():
+            return ""
+        mapper = getattr(self._table.model(), "mapToSource", None)
+        source = mapper(index) if mapper is not None else index
+        if not source.isValid():
+            return ""
+        question = self._model.question_at(source.row())
+        objects = self._model.objects()
+        if not question or source.column() >= len(objects):
+            return ""
+        obj = objects[source.column()]
+        return f"{obj}_{question}" if self._model.asks(question, obj) else ""
+
+    def eventFilter(self, watched, event):               # noqa: N802
+        """Show the same sticky, linked tooltip the form shows.
+
+        THE SAME POPUP, NOT A SECOND ONE. The flat form puts rich help on a
+        widget and lets `HoverTooltip` draw it: a typed body, an API link,
+        and the setting's animation when it has one. A table has no widget
+        per cell, so the anchor is the view and the cell under the pointer
+        decides which setting it is speaking for.
+
+        The native tooltip is swallowed for the same reason the form
+        swallows it -- it disappears the moment the pointer moves toward the
+        API link, and that link is the point.
+        """
+        try:
+            kind = event.type()
+            if kind == QEvent.Type.ToolTip:
+                return True
+            if kind == QEvent.Type.MouseMove:
+                self._offer_tooltip(event.position().toPoint())
+            elif kind == QEvent.Type.Leave:
+                self._hovered_key = ""
+                from .hover_tooltip import HoverTooltip
+                HoverTooltip.instance().start_hide()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the table could not offer its tooltip", exc_info=True)
+        return super().eventFilter(watched, event)
+
+    def _offer_tooltip(self, pos) -> None:
+        """Show help for the cell under ``pos``, if it is a new cell.
+
+        RE-SHOWN ONLY ON A NEW CELL. `show_for` re-anchors and restarts the
+        popup, so calling it on every mouse-move would rebuild the tooltip
+        dozens of times a second and make its links unclickable.
+        """
+        key = self._key_under(pos)
+        if key == self._hovered_key:
+            return
+        self._hovered_key = key
+        from .hover_tooltip import HoverTooltip
+        if not key:
+            HoverTooltip.instance().start_hide()
+            return
+        try:
+            from ..screens.settings_model import format_tooltip, get_tooltips
+            body = str(get_tooltips().get(key) or "")
+            html = format_tooltip(body, self._app_key, key)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not build the tooltip for %s", key, exc_info=True)
+            return
+        # The ANCHOR carries the setting, because that is what the popup
+        # looks up its animation by -- see `_anchor_setting_key`.
+        self._table.setProperty("settingKey", key)
+        self._table.setProperty("settingsAppKey", self._app_key)
+        HoverTooltip.instance().show_for(self._table, html)
 
     # -- the model-zoo buttons ---------------------------------------------
 
