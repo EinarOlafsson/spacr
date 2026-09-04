@@ -6748,6 +6748,13 @@ class _HiddenRowWatcher(QObject):
     hundred live widgets, is the shape of crash that is impossible to read
     afterwards. Parented to the panel instead, so Qt decides when it dies and
     unhooks it from everything it watches on the way out.
+
+    :param model: the widget set to notify. Held as a WEAK reference for the
+        reason above, so every use has to cope with it having gone.
+    :param parent: the panel that owns this watcher -- NOT the model, whose
+        widgets it is installed on. That split is the whole point: Qt
+        decides when the watcher dies, and unhooks it from the widgets on
+        the way out.
     """
 
     def __init__(self, model: "SettingsWidgets",
@@ -7392,7 +7399,15 @@ from ..widgets.flow import FlowHost as _FlowHost, FlowLayout as _FlowLayout
 
 
 class _Chip(QFrame):
-    """One value, rendered as a removable pill."""
+    """One value, rendered as a removable pill.
+
+    :param text: the value shown, and the payload emitted with
+        :attr:`removed` -- so it identifies the chip, not just its label.
+    :param colours: the active palette, PASSED IN rather than read here so a
+        strip of chips is built from one palette lookup instead of one per
+        chip.
+    :param parent: parent widget; ownership only.
+    """
 
     removed = Signal(object)
 
@@ -7442,7 +7457,16 @@ class _Chip(QFrame):
 
 
 class _ChipStrip(QWidget):
-    """A wrapping strip of chips plus the field that adds another one."""
+    """A wrapping strip of chips plus the field that adds another one.
+
+    :param placeholder: the prompt in the field that adds a chip. Its only
+        instruction -- the strip has no other label.
+    :param removable: whether the WHOLE STRIP can be taken away, which is
+        separate from the per-chip close marks: a chip is always removable,
+        this is for a strip that is one of several and may be dropped
+        entirely, and it is what :attr:`emptied` reports against.
+    :param parent: parent widget; ownership only.
+    """
 
     changed = Signal()
     emptied = Signal(object)

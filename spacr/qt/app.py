@@ -107,7 +107,13 @@ def _carry_preview_state(old, fresh) -> None:
 
 
 class _FractalFollowsItsScreen(QObject):
-    """Keeps the spaceout backdrop the same size as the screen behind it."""
+    """Keeps the spaceout backdrop the same size as the screen behind it.
+
+    :param widget: the backdrop to resize.
+    :param screen: the screen whose resizes drive it, and THE QOBJECT PARENT
+        -- so this dies with the screen it follows rather than with the
+        backdrop it moves.
+    """
 
     def __init__(self, widget, screen) -> None:
         super().__init__(screen)
@@ -2054,6 +2060,15 @@ class _ChromeButton(QToolButton):
     """
 
     def __init__(self, parent, painter, colour: str):
+        """Build one window-chrome button around a painted mark.
+
+        :param parent: parent widget; ownership only.
+        :param painter: called with a colour and returning the icon for it.
+            A CALLABLE, not an icon, because the hover state is a second
+            painting of the same glyph -- QSS can colour a background but
+            not the contents of a QIcon.
+        :param colour: what the mark turns on hover and on press.
+        """
         super().__init__(parent)
         self._paint_icon = painter
         self._hover_colour = colour
