@@ -186,7 +186,10 @@ def distinct_values(sources: Iterable[tuple[Path, str]], column: str,
 
 
 class _CheckableValueCombo(QComboBox):
-    """A compact dropdown that keeps multiple checked values."""
+    """A compact dropdown that keeps multiple checked values.
+
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -234,7 +237,10 @@ class _CheckableValueCombo(QComboBox):
 
 
 class _ExclusionRuleRow(QWidget):
-    """One editable ``column is one of values`` rule."""
+    """One editable ``column is one of values`` rule.
+
+    :param parent: parent widget; ownership only.
+    """
 
     column_changed = Signal(str)
     remove_requested = Signal(object)

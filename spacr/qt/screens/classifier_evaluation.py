@@ -127,7 +127,10 @@ APP_INTRO = (
 
 
 class _DropPathEdit(QLineEdit):
-    """A path field that accepts one dropped folder or manifest."""
+    """A path field that accepts one dropped folder or manifest.
+
+    :param parent: parent widget; ownership only.
+    """
 
     path_dropped = Signal(str)
 

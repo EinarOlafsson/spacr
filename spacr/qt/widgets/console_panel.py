@@ -896,7 +896,10 @@ class _Bubble(QFrame):
 # ---------------------------------------------------------------------------
 
 class _ChatInput(QTextEdit):
-    """Multi-line chat input: Enter sends, Shift+Enter inserts a newline."""
+    """Multi-line chat input: Enter sends, Shift+Enter inserts a newline.
+
+    :param parent: parent widget; ownership only.
+    """
 
     submitted = Signal()
 

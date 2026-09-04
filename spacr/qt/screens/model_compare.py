@@ -242,6 +242,14 @@ class _ModelPanel(QGroupBox):
     Only the arguments Cellpose 4 actually reads get a widget. Anything else a
     user wants to try goes in the free-text ``extra`` line, where the report
     will pick it up and tell them whether it does anything.
+
+    :param title: the group box's heading -- which side of the comparison
+        this is.
+    :param parent: parent widget; ownership only.
+    :param diameter: the starting object diameter. A STARTING POINT, not a
+        constraint: the field is editable, and the two panels are seeded
+        with the same value so a comparison begins from one baseline rather
+        than from two defaults that happen to differ.
     """
 
     def __init__(self, title: str, parent: Optional[QWidget] = None,

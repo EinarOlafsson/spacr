@@ -473,7 +473,10 @@ def _pixmap(rgb: np.ndarray) -> QPixmap:
 
 
 class _FieldView(QGraphicsView):
-    """Fit-on-load image canvas with wheel zoom and drag panning."""
+    """Fit-on-load image canvas with wheel zoom and drag panning.
+
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)

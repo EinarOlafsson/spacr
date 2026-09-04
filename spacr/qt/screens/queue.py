@@ -50,6 +50,11 @@ class _QueueRunner(QThread):
 
     Emits :attr:`item_state_changed` on every status transition so
     the table can refresh a single row without a full rebuild.
+
+    :param queue: the plate queue to run. Held, not copied, and read as the
+        run proceeds -- so items may be added to it after the runner starts.
+    :param parent: parent object; ownership only. It does NOT stop the
+        thread: see :meth:`abort`, which is what teardown must call.
     """
 
     item_state_changed = Signal(str)   # item id

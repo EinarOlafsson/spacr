@@ -1290,6 +1290,12 @@ class _AsWritten:
     __slots__ = ("_text",)
 
     def __init__(self, text: str) -> None:
+        """Stand in for a combo box that reports exactly this text.
+
+        :param text: the entry AS WRITTEN in the catalogue, not as shown on
+            screen. That is the whole point: the reader of this interprets
+            the text, and the text on screen is translated.
+        """
         self._text = str(text)
 
     def currentText(self) -> str:

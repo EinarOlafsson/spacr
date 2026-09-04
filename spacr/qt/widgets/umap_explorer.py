@@ -405,6 +405,13 @@ class ImageUmapExplorer(LinkedView, QWidget):
             """
 
             def __init__(self, figure):
+                """Wrap a figure in a canvas that owns its own redraw timer.
+
+                :param figure: the Matplotlib ``Figure`` to draw. The timer
+                    is a child of this canvas, so a queued redraw cannot
+                    outlive the object it would draw on -- which is what
+                    the paragraph above means by owned.
+                """
                 super().__init__(figure)
                 self._spacr_draw_timer = QTimer(self)
                 self._spacr_draw_timer.setSingleShot(True)

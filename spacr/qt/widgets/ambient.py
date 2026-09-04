@@ -5371,7 +5371,13 @@ def _the_spaceout_fractal(host):
 
 
 class _FractalTracksItsHost(QObject):
-    """Keeps the spaceout backdrop the size of what it sits behind."""
+    """Keeps the spaceout backdrop the size of what it sits behind.
+
+    :param widget: the backdrop to resize.
+    :param host: the widget whose resizes drive it, and THE QOBJECT PARENT
+        -- so this dies with the host it follows rather than with the
+        backdrop it moves.
+    """
 
     def __init__(self, widget, host) -> None:
         super().__init__(host)

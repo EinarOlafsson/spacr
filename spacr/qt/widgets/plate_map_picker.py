@@ -94,6 +94,9 @@ class _Header(QLabel):
     every window size and every layout.
 
     Its sheet says nothing about colour, so the theme still paints it.
+
+    :param text: the row letter or column number this header shows.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, text: str, parent=None):

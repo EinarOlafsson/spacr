@@ -59,7 +59,14 @@ from .empty_state import EmptyState
 # ---------------------------------------------------------------------------
 
 class _MessageBubble(QWidget):
-    """Aligned QLabel bubble — right-aligned for ``"user"``, left for other."""
+    """Aligned QLabel bubble — right-aligned for ``"user"``, left for other.
+
+    :param role: ``"user"`` or anything else, which is read as the AI. There
+        is no third alignment, and an unrecognised role is drawn as the AI
+        rather than refused.
+    :param text: the initial message; may be set later instead.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, role: str, text: str = "", parent=None):
         super().__init__(parent)
@@ -428,7 +435,10 @@ class _ProvidersDialog(QDialog):
 # ---------------------------------------------------------------------------
 
 class _ChatInput(QTextEdit):
-    """Multi-line input: Enter sends, Shift+Enter inserts a newline."""
+    """Multi-line input: Enter sends, Shift+Enter inserts a newline.
+
+    :param parent: parent widget; ownership only.
+    """
 
     submitted = Signal()
 
