@@ -315,9 +315,20 @@ class AppTile(QPushButton):
 
     @property
     def name_label(self):
+        """The label showing the module's name.
+
+        Exposed so the text-fits sweep can measure it: a tile that elides
+        its own name is a module the user cannot identify.
+
+        :returns: the label.
+        """
         return self._name_lbl
 
     def is_name_elided(self) -> bool:
+        """Whether the module name is being cut short to fit.
+
+        :returns: True when the label is eliding.
+        """
         return self._name_lbl.is_elided()
 
     # -- geometry ------------------------------------------------------
@@ -327,10 +338,22 @@ class AppTile(QPushButton):
         return max(self._size.height(), natural)
 
     def sizeHint(self) -> QSize:               # noqa: N802
+        """The tile's preferred size, height derived from its width.
+
+        HEIGHT FOLLOWS WIDTH because the tile is icon-over-name in a fixed
+        proportion; asking for a free height would let the grid stretch one
+        tile and not its neighbours.
+
+        :returns: the preferred size.
+        """
         return QSize(self._size.width(),
                      self.heightForWidth(self._size.width()))
 
     def minimumSizeHint(self) -> QSize:        # noqa: N802
+        """The same as :meth:`sizeHint`: a tile does not shrink below its shape.
+
+        :returns: the minimum size.
+        """
         return self.sizeHint()
 
 
@@ -429,6 +452,15 @@ class Panel(QWidget):
         make_transparent(self._head)
 
     def add(self, widget: QWidget) -> QWidget:
+        """Add a widget to the panel body, transparent so the box shows through.
+
+        The border and fill live on the frame around the body, so a child
+        painting its own background would draw a square inside the rounded
+        box rather than sitting in it.
+
+        :param widget: the widget to add.
+        :returns: the same widget, for chaining.
+        """
         widget.setStyleSheet("background: transparent;")
         self.body_layout.addWidget(widget)
         return widget
@@ -781,6 +813,10 @@ class RunningBanner(QFrame):
     # -- introspection for tests ---------------------------------------
     @property
     def pause_button(self) -> QPushButton:
+        """The pause control, exposed so a test can drive it.
+
+        :returns: the button.
+        """
         return self._btn_pause
 
 
@@ -816,6 +852,14 @@ class QueuedPanel(Panel):
         self.refresh()
 
     def queue_items(self) -> List:
+        """Whatever is in the saved plate queue right now.
+
+        Read from disk on each call rather than cached: the queue is written
+        by other screens, and a Home page showing a stale count is worse
+        than one that costs a file read when it is looked at.
+
+        :returns: the queued items, empty when there is no queue.
+        """
         try:
             from ..plate_queue import PlateQueue
             return list(PlateQueue().items())
@@ -855,6 +899,7 @@ class QueuedPanel(Panel):
         return removed
 
     def refresh(self) -> None:
+        """Re-read the queue and redraw the panel."""
         P = active_palette()
         self._clear_body()
         items = self.queue_items()
@@ -1094,6 +1139,7 @@ class SystemPanel(Panel):
         self.refresh()
 
     def refresh(self) -> None:
+        """Re-read GPU, VRAM and disk, and redraw the panel."""
         self._clear_body()
         self.add(_row("GPU", self.gpu_util()))
         self.add(_row("VRAM", self.gpu_vram()))
@@ -1101,6 +1147,14 @@ class SystemPanel(Panel):
 
     @staticmethod
     def gpu_util() -> str:
+        """Current GPU utilisation, as text for display.
+
+        NEVER RAISES. A missing NVML, a machine with no GPU and a driver
+        mismatch are all ordinary here, and none of them is a reason for the
+        Home page to fail to build.
+
+        :returns: the reading, or a dash when it cannot be taken.
+        """
         try:
             nvml = _nvml()
             if nvml is None:
@@ -1112,6 +1166,12 @@ class SystemPanel(Panel):
 
     @staticmethod
     def gpu_vram() -> str:
+        """Current VRAM use, as text for display.
+
+        Never raises, for the same reason as :meth:`gpu_util`.
+
+        :returns: the reading, or a dash when it cannot be taken.
+        """
         try:
             nvml = _nvml()
             if nvml is None:
@@ -1124,6 +1184,10 @@ class SystemPanel(Panel):
 
     @staticmethod
     def disk_used() -> str:
+        """Disk use for the working volume, as text for display.
+
+        :returns: the reading, or a dash when it cannot be taken.
+        """
         try:
             import shutil
             usage = shutil.disk_usage(os.path.expanduser("~"))
@@ -1346,6 +1410,11 @@ class StageLegend(Panel):
         return stage_hover(stage)
 
     def row_for(self, stage: str) -> Optional[QWidget]:
+        """The legend row explaining one maturity stage.
+
+        :param stage: the stage's name.
+        :returns: the row widget, or None when that stage has no row.
+        """
         return self._rows.get(stage)
 
 
@@ -2715,6 +2784,10 @@ class HomePage(QWidget):
 
     # -- events --------------------------------------------------------
     def resizeEvent(self, event):               # noqa: N802
+        """Re-flow the tile grid for the new width.
+
+        :param event: the Qt resize event.
+        """
         super().resizeEvent(event)
         for _holder, grid, tiles, tile_w in self._grids:
             self._fill_grid(grid, tiles,
