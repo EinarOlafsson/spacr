@@ -29,10 +29,20 @@ from spacr.qt.widgets.object_settings_grid import (             # noqa: E402
 
 @pytest.fixture
 def mask_settings():
-    """The real thing: Mask's own defaults, not a fixture written to suit."""
+    """The real thing: Mask's own defaults, not a fixture written to suit.
+
+    WITH ONE ORGANELLE DECLARED. `number_of_organelles` is what decides how
+    many organelle columns the table draws, and the shipped defaults leave
+    every slot unset -- which is a count of zero and correctly no organelle
+    column at all. A fixture that left it there would be testing the
+    no-organelle case in every test that mentions "the first organelle".
+    """
+    from spacr.organelle_types import NUMBER_OF_ORGANELLES
     from spacr.settings import get_timelapse_settings
 
-    return get_timelapse_settings()
+    settings = get_timelapse_settings()
+    settings[NUMBER_OF_ORGANELLES] = 1
+    return settings
 
 
 @pytest.fixture
@@ -283,3 +293,132 @@ class TestTheTableIsExpandableDown:
         """One object name, so the two resize handles cannot drift apart."""
         grid = self._grid(qtbot)
         assert grid._grip.objectName() == "ConsoleSectionResizeHandle"
+
+
+# ---------------------------------------------------------------------------
+# `number_of_organelles` is the source of truth for the columns
+# ---------------------------------------------------------------------------
+
+class TestTheCountDecidesTheColumns:
+    """One place decides how many organelle columns there are, and it is the
+    setting every other reader of these settings already goes by."""
+
+    def _grid_at(self, qtbot, count):
+        from spacr.organelle_types import NUMBER_OF_ORGANELLES
+        from spacr.settings import get_timelapse_settings
+        settings = get_timelapse_settings()
+        settings[NUMBER_OF_ORGANELLES] = count
+        grid = ObjectSettingsGrid()
+        qtbot.addWidget(grid)
+        grid.set_settings(settings)
+        return grid
+
+    def _organelles(self, grid):
+        return [o for o in grid.objects() if o.startswith("organelle")]
+
+    def test_zero_organelles_is_no_organelle_column(self, qtbot,
+                                                    qt_theme_applied):
+        """The settings dict keeps a placeholder for every slot -- that is what
+        makes lowering the count reversible -- so a table built off the keys
+        showed an Organelle 1 column for something the run will not segment.
+        """
+        assert self._organelles(self._grid_at(qtbot, 0)) == []
+
+    @pytest.mark.parametrize("count", [1, 2, 3, 5])
+    def test_the_column_count_is_the_setting(self, qtbot, qt_theme_applied,
+                                             count):
+        assert len(self._organelles(self._grid_at(qtbot, count))) == count
+
+    def test_lowering_the_count_hides_rather_than_deletes(self, qtbot,
+                                                          qt_theme_applied):
+        """A hidden slot's answers survive, or lowering the count would be a
+        destructive edit disguised as a display change."""
+        from spacr.organelle_types import NUMBER_OF_ORGANELLES
+        grid = self._grid_at(qtbot, 2)
+        question = next(q for q in grid.questions()
+                        if grid._model.asks(q, "organelleb"))
+        grid.set_value(question, "organelleb", "17")
+        kept = grid.settings()
+
+        kept[NUMBER_OF_ORGANELLES] = 1
+        grid.set_settings(kept)
+        assert self._organelles(grid) == ["organelle"]
+        assert grid.settings()[f"organelleb_{question}"] == 17
+
+    def test_adding_an_organelle_raises_the_count(self, qtbot,
+                                                  qt_theme_applied):
+        """Otherwise the column is one the rest of the application does not
+        believe in, and vanishes the next time the table is rebuilt."""
+        from spacr.organelle_types import organelle_count
+        grid = self._grid_at(qtbot, 1)
+        assert grid.add_organelle() is True
+        assert organelle_count(grid.settings()) == 2
+        assert len(self._organelles(grid)) == 2
+
+    def test_adding_an_organelle_keeps_unsaved_edits(self, qtbot,
+                                                     qt_theme_applied):
+        """The rebuild reads the settings dict, and what is on screen may not
+        be in it yet. Without folding the edits back first, pressing Add
+        reverts every cell the user has typed into."""
+        grid = self._grid_at(qtbot, 1)
+        question = next(q for q in grid.questions()
+                        if grid._model.asks(q, "cell"))
+        grid.set_value(question, "cell", "23")
+        grid.add_organelle()
+        assert grid.settings()[f"cell_{question}"] == 23
+
+
+# ---------------------------------------------------------------------------
+# "auto" is not what an unset channel means
+# ---------------------------------------------------------------------------
+
+class TestAnUnsetChannelSaysOffNotAuto:
+    """`cell_channel = None` produces no cell masks, no cell table and no cell
+    crops. Drawn as "auto" that reads as a promise to work a channel out,
+    which is the opposite of what it does."""
+
+    def test_an_unset_channel_reads_off(self, grid):
+        from PySide6.QtCore import Qt
+        row = grid.questions().index("channel")
+        col = grid.objects().index("cell")
+        index = grid._model.index(row, col)
+        grid.set_value("channel", "cell", "")
+        assert grid._model.data(index, Qt.DisplayRole) == "off"
+
+    def test_an_unset_diameter_still_reads_auto(self, grid):
+        """Most questions DO mean "work it out" -- a diameter of None is
+        Cellpose estimating it. Only the channel is a switch."""
+        from PySide6.QtCore import Qt
+        question = next(q for q in grid.questions()
+                        if "diameter" in q and grid._model.asks(q, "cell"))
+        row = grid.questions().index(question)
+        col = grid.objects().index("cell")
+        grid.set_value(question, "cell", "")
+        assert grid._model.data(grid._model.index(row, col),
+                                Qt.DisplayRole) == "auto"
+
+    def test_typing_either_word_back_clears_the_cell(self, grid):
+        for word in ("off", "auto", "OFF", ""):
+            grid.set_value("channel", "cell", "2")
+            assert grid.set_value("channel", "cell", word) is True
+            assert grid.settings()["cell_channel"] is None
+
+    def test_every_row_carries_a_tooltip(self, grid):
+        """Asked for: "all the rows need to have tooltips"."""
+        from PySide6.QtCore import Qt
+        missing = [q for i, q in enumerate(grid.questions())
+                   if not str(grid._model.headerData(
+                       i, Qt.Vertical, Qt.ToolTipRole) or "").strip()]
+        assert not missing, f"rows with no tooltip: {missing}"
+
+    def test_a_row_tooltip_says_more_than_the_key(self, grid):
+        """A tooltip that only repeats the key tells a reader nothing they
+        cannot see in the row header already."""
+        from PySide6.QtCore import Qt
+        explained = [
+            q for i, q in enumerate(grid.questions())
+            if len(str(grid._model.headerData(i, Qt.Vertical,
+                                              Qt.ToolTipRole) or "")) > 40
+        ]
+        assert len(explained) >= len(grid.questions()) // 2, (
+            "most rows carry only their key, not what the setting does")

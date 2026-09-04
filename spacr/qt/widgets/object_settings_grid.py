@@ -58,12 +58,50 @@ from ...organelle_types import MAX_ORGANELLES, organelle_role
 from ..theme import SPACING
 from .sortable_table import install_sorting
 
-__all__ = ["AUTO_TEXT", "ObjectSettingsGrid", "ObjectSettingsModel"]
+__all__ = ["AUTO_TEXT", "OFF_TEXT", "ObjectSettingsGrid",
+           "ObjectSettingsModel"]
 
 #: What an unset value reads as. ``None`` means "work it out" for most of
 #: these -- a diameter of None is Cellpose estimating it -- and an empty cell
 #: would read as "nobody has filled this in yet", which is a different claim.
 AUTO_TEXT = "auto"
+
+#: What an unset CHANNEL reads as, and it is not "auto".
+#:
+#: ``cell_channel = None`` does not mean spaCR picks a channel. It means no
+#: cell masks, no cell table and no cell crops are produced -- the object is
+#: not segmented at all. Drawn as "auto" it read as a promise to work
+#: something out, which is the opposite of what it does.
+OFF_TEXT = "off"
+
+#: Questions whose ``None`` means OFF rather than AUTO.
+_OFF_QUESTIONS = frozenset({"channel"})
+
+
+def _unset_text(question: str) -> str:
+    """How an unset value reads for ``question``."""
+    return OFF_TEXT if question in _OFF_QUESTIONS else AUTO_TEXT
+
+
+def _question_help(question: str, obj: str) -> str:
+    """The settings description behind one cell, or "" when there is none.
+
+    READ FROM :data:`spacr.settings.tooltips`, THE ONE THE FLAT FORM USES.
+    A table that wrote its own sentences would be a second set of
+    explanations to keep in step with the first, and the two would disagree
+    first where nobody was looking. ``descriptions`` is a different dict and
+    does not carry these keys -- reading it returned nothing for every row,
+    which is a tooltip that silently says the key back.
+
+    Falls back to another object's answer to the SAME question, because the
+    row is one question and the flat vocabulary spells it once per object:
+    ``cell_channel`` is written up and ``organellec_channel`` is not.
+    """
+    try:
+        from ...settings import tooltips
+    except Exception:                                        # noqa: BLE001
+        return ""
+    return str(tooltips.get(f"{obj}_{question}", "") or "")
 
 
 def _coerce(text: str, like: Any) -> Any:
@@ -82,7 +120,10 @@ def _coerce(text: str, like: Any) -> Any:
         is.
     """
     raw = str(text).strip()
-    if raw == "" or raw.lower() == AUTO_TEXT:
+    # BOTH WORDS CLEAR THE CELL. The table draws an unset value as "auto" for
+    # most questions and "off" for a channel, and whichever word the user is
+    # looking at is the one they will type back.
+    if raw == "" or raw.lower() in (AUTO_TEXT, OFF_TEXT):
         return None
     if isinstance(like, bool):
         return raw.lower() in ("1", "true", "yes", "on")
@@ -194,13 +235,18 @@ class ObjectSettingsModel(QAbstractTableModel):
                         f"value waiting to be filled in.")
             return None
         value = self.value_at(question, obj)
+        unset = _unset_text(question)
         if role == Qt.DisplayRole:
-            return AUTO_TEXT if value is None else str(value)
+            return unset if value is None else str(value)
         if role == Qt.EditRole:
             return "" if value is None else str(value)
         if role == Qt.ToolTipRole:
-            return (f"{obj}_{question}  =  "
-                    f"{AUTO_TEXT if value is None else value!r}")
+            head = f"{obj}_{question}  =  {unset if value is None else value!r}"
+            help_text = _question_help(question, obj)
+            if question in _OFF_QUESTIONS and value is None:
+                head += (f"\n\n{column_label(obj)} is NOT SEGMENTED. "
+                         f"Give it a channel number to turn it on.")
+            return f"{head}\n\n{help_text}" if help_text else head
         return None
 
     def setData(self, index, value, role=Qt.EditRole) -> bool:
@@ -232,10 +278,24 @@ class ObjectSettingsModel(QAbstractTableModel):
             if orientation == Qt.Horizontal:
                 return column_label(self._objects[section])
             return setting_label(self._questions[section])
-        if role == Qt.ToolTipRole and orientation == Qt.Vertical:
-            # THE STORED KEY, because the whole table is one settings file
-            # rearranged and a user has to be able to find the key again.
-            return f"<object>_{self._questions[section]}"
+        if role == Qt.ToolTipRole:
+            if orientation == Qt.Vertical:
+                # THE STORED KEY FIRST, because the whole table is one
+                # settings file rearranged and a user has to be able to find
+                # the key again -- then what the setting actually does, taken
+                # from the same descriptions the flat form shows so the two
+                # cannot drift apart.
+                question = self._questions[section]
+                head = f"<object>_{question}"
+                for obj in self._objects:
+                    help_text = _question_help(question, obj)
+                    if help_text:
+                        return f"{head}\n\n{help_text}"
+                return head
+            obj = self._objects[section]
+            return (f"{column_label(obj)}. Every row below asks this object "
+                    f"the question on the left; a blank cell is a question "
+                    f"it does not ask.")
         return None
 
 
@@ -424,8 +484,46 @@ class ObjectSettingsGrid(QWidget):
         settings file without holding the whole of it hostage.
         """
         self._base = dict(settings or {})
-        self._model.set_table(to_table(self._base))
+        self._model.set_table(self._visible_table())
         self._announce()
+
+    def _visible_table(self) -> Dict[str, Dict[str, Any]]:
+        """The table with the organelle slots the count does not ask for cut.
+
+        `number_of_organelles` IS THE SOURCE OF TRUTH FOR THE COLUMNS. The
+        settings dict keeps a typed placeholder for every slot up to the
+        maximum -- that is what makes lowering the count reversible -- so a
+        table built straight off the keys shows an Organelle 1 column at a
+        count of zero, which is a column for something the run will not
+        segment.
+
+        CUT FROM THE VIEW, NOT FROM THE SETTINGS. `settings()` writes the
+        table back over ``self._base``, so a hidden slot's keys are carried
+        through untouched and raising the count again brings its answers
+        back rather than a row of defaults.
+        """
+        from ...organelle_types import active_organelle_roles
+
+        live = tuple(active_organelle_roles(self._base))
+        keep = set(live)
+        table = {
+            question: {
+                obj: value for obj, value in row.items()
+                if not obj.startswith("organelle") or obj in keep
+            }
+            for question, row in to_table(self._base).items()
+        }
+        # AND THE COUNT CAN ASK FOR MORE THAN THE FILE HOLDS. A settings dict
+        # carries keys for the slots it has been given, which is usually one;
+        # a count of three is then three columns, and two of them have to be
+        # made. Seeded from the slot before, so a second organelle starts
+        # where the first one is.
+        for index, role in enumerate(live):
+            if any(role in row for row in table.values()):
+                continue
+            table = widen(table, role,
+                          like=live[index - 1] if index else None)
+        return table
 
     def settings(self) -> Dict[str, Any]:
         """The whole settings dict, with the table's answers written back."""
@@ -466,13 +564,42 @@ class ObjectSettingsGrid(QWidget):
         :returns: False when there is no slot left, with the reason on screen
             rather than as an exception into a GUI slot.
         """
+        from ...organelle_types import (NUMBER_OF_ORGANELLES,
+                                        organelle_count)
+
         role = self.next_organelle()
         if not role:
             self._status.setText(
                 f"{MAX_ORGANELLES} organelles is the ceiling: the slots are "
                 f"lettered, so the alphabet is what runs out.")
             return False
-        self._model.set_table(widen(self._model.table(), role))
+        # THE COUNT IS RAISED, NOT JUST THE TABLE. `number_of_organelles` is
+        # what every other reader of these settings goes by -- the flat form,
+        # the pipeline, a saved settings file -- so a column added here
+        # without it would be a column the rest of the application does not
+        # believe in, and would vanish the next time the table was rebuilt
+        # from the count.
+        # THE EDITS FIRST. What is on screen may differ from `_base` -- every
+        # cell the user has typed into lives in the model until something
+        # folds it back -- and the rebuild below reads `_base`. Without this
+        # line, adding an organelle silently reverts every unsaved edit and
+        # seeds the new column from the values on disk.
+        self._base = from_table(self._model.table(), self._base)
+        self._base[NUMBER_OF_ORGANELLES] = organelle_count(self._base) + 1
+        # REBUILT FROM THE COUNT, not widened from what is on screen. The
+        # settings dict already carries this slot's keys -- that is why
+        # lowering the count is reversible -- so raising it brings back the
+        # answers the slot had rather than a copy of its neighbour's.
+        table = self._visible_table()
+        if not any(role in row for row in table.values()):
+            # A settings dict that never held this slot at all. Seed it from
+            # the organelle before it, so a second mitochondrion starts where
+            # the first one is rather than at a default nobody chose.
+            previous = [o for o in self._model.objects()
+                        if o.startswith("organelle")]
+            table = widen(table, role, like=previous[-1] if previous else None)
+            self._base = from_table(table, self._base)
+        self._model.set_table(table)
         self._announce()
         self.settings_changed.emit()
         return True
