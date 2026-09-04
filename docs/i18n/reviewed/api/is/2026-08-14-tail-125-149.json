@@ -83,7 +83,9 @@
       "label": "spacr.qt.app.MainWindow.toggle_app_drawer#1",
       "source": "The keyboard and menu path into the reveal, so the panel is not hover-only. Note what the drawer is *for* now that Home's first tab lists every app: it is not Home's app list, it is the app list on **every other screen** — the replacement for the permanent 220 px column. From inside Mask, this is the only pointer-driven way to reach Measure without going Home first.",
       "source_sha256": "e098a2f2f5081eea8bf0134ea60ed5bbdabbd00990715c239415210e1ce6bc11",
-      "translation": "Lyklaborðið og valmyndarleiðin inn í uppljóstrunina, svo spjaldið er ekki aðeins fyrir músarhreyfingar. Taktu eftir hvað skúffan er *fyrir* nú þegar fyrsti flipi Heim listar alla forrit: það er ekki forritalistinn á Heim, það er forritalistinn á **öllum öðrum skjám** — staðgengillinn fyrir varanlegu 220 px dálkinn. Innan Mask er þetta eina leiðin sem byggir á bendipunkti til að komast í Mæla án þess að fara Heim fyrst."
+      "translation": "Lyklaborðið og valmyndarleiðin inn í uppljóstrunina, svo spjaldið er ekki aðeins fyrir músarhreyfingar. Taktu eftir hvað skúffan er *fyrir* nú þegar fyrsti flipi Heim listar alla forrit: það er ekki forritalistinn á Heim, það er forritalistinn á **öllum öðrum skjám** — staðgengillinn fyrir varanlegu 220 px dálkinn. Innan Mask er þetta eina leiðin sem byggir á bendipunkti til að komast í Mæla án þess að fara Heim fyrst.",
+      "retired": true,
+      "retired_reason": "The dock no longer slides. Reveal-on-hover was withdrawn on 2026-09-04, so `toggle_app_drawer` has nothing to open: it now puts keyboard focus on the dock column. The block this review covered is not in the docstring any more. The review is kept with its reviewer, locale and translation -- a review somebody gave is not ours to discard because the sentence it covered changed."
     },
     {
       "context": "Density and resolution share one cost budget in the engines (:data:`spacr.qt.widgets.ambient.WORK_BUDGET`), so asking for the top of both ranges at once gets a trimmed density rather than a stalled frame.",

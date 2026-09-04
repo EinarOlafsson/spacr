@@ -52,9 +52,11 @@ class _Absorbs:
     """
 
     def __getattr__(self, _name):
+        """Any attribute is this same object, so chains keep working."""
         return self
 
     def __call__(self, *args, **kwargs):
+        """Any call returns this same object, so chains keep working."""
         return self
 
     # Chains have to survive whole, not one link at a time. The subclasses
@@ -62,17 +64,25 @@ class _Absorbs:
     # __init__ -- three links -- so returning a plain [] from the first call
     # only moves the AttributeError one step along.
     def __iter__(self):
+        """Iterates as empty -- the callers that iterate a result get nothing."""
         return iter(())
 
     def __len__(self):
+        """Zero. Nothing was drawn, so nothing is there to count."""
         return 0
 
     def __bool__(self):
         # `if self._highlight:` must read as "nothing is drawn", which is
         # true, rather than as a live artist to remove.
+        """False, so ``if self._highlight:`` reads as "nothing is drawn".
+
+        Truthy by default, it would read as a live artist to remove, and the
+        removal is what would raise.
+        """
         return False
 
     def __repr__(self):
+        """Says pyqtgraph is absent, so a debugger shows the reason."""
         return "<pyqtgraph absent>"
 
 
