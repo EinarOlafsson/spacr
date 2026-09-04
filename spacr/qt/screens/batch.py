@@ -558,6 +558,7 @@ class BatchScreen(QWidget):
         box: Dict[str, Any] = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Run the whole plate queue. Off the GUI thread."""
             payload["result"] = bt.run_queue(
                 self._queue,
                 path=self._path or None,

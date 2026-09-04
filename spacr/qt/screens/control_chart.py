@@ -548,6 +548,11 @@ class ControlChartScreen(QWidget):
 
         def fill(box: QComboBox, options: List[str], *, blank: bool,
                  guesses: Tuple[str, ...] = ()) -> None:
+            """Refill one picker, keeping the current choice where it survives.
+
+            Signals are blocked while refilling: repopulating a combo emits as
+            though the user had chosen, and the handlers would refill each other.
+            """
             previous = box.currentText()
             box.blockSignals(True)
             box.clear()

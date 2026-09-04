@@ -511,6 +511,7 @@ class AgreementScreen(QWidget):
         limit = int(self._limit_box.value())
 
         def _job() -> Dict[str, Any]:
+            """Build the agreement report and its disagreements. Off the GUI thread."""
             report = agree.agreement_report(db_path, columns)
             rows = agree.disagreements(db_path, columns, limit=limit)
             return {"report": report, "disagreements": rows}
@@ -789,6 +790,11 @@ class AgreementScreen(QWidget):
         box: Dict[str, Any] = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload.
+
+            The payload is how a value crosses back from the worker: a return would
+            be swallowed by the runner.
+            """
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)

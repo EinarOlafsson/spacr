@@ -2856,12 +2856,14 @@ class DbBrowserScreen(LinkedView, QWidget):
         columns = self._model.visible_columns() or self._all_columns
 
         def _job() -> Dict[str, Any]:
+            """Write the CSV. Off the GUI thread."""
             n = db.export_csv(out_path, table, columns=columns,
                               where=where, params=params)
             return {"exported": n, "path": out_path,
                     "columns": len(columns)}
 
         def _done(result: Dict[str, Any]) -> None:
+            """Say how many rows were exported, and where."""
             self._set_status(
                 f"Exported {result['exported']:,} row"
                 f"{'s' if result['exported'] != 1 else ''} × "

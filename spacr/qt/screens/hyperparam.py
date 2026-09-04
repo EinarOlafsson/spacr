@@ -1485,6 +1485,7 @@ class HyperparamPanel(QWidget):
     def adaptive_parameters(self) -> Tuple[int, int, float, float]:
         """Parse adaptive increments, rounds and convergence threshold."""
         def _number(edit, default, cast, label):
+            """One field as a number, or the default when it is blank."""
             text = self._control_text(edit).strip()
             if not text:
                 return default
@@ -2802,6 +2803,11 @@ def _complete_metrics_when_opened(combo) -> None:
     original = type(combo).showPopup
 
     def show_popup(self):
+        """Fill the metric list the first time the popup opens.
+
+        Deferred because the list comes from umap, and importing it at build
+        time would pay for it on every screen that never opens this combo.
+        """
         try:
             names = umap_metrics()
             chosen = self.currentText()

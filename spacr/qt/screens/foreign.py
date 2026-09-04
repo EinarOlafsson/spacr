@@ -771,6 +771,7 @@ class ForeignScreen(QWidget):
         policy = self.on_conflict()
 
         def _job():
+            """Plan the foreign import. Off the GUI thread."""
             return fgn.plan_import(images, masks, table, um_per_px=scale,
                                    on_conflict=policy)
 
@@ -925,6 +926,7 @@ class ForeignScreen(QWidget):
         emit = self._progress.emit
 
         def _job():
+            """Run the foreign import. Off the GUI thread."""
             return fgn.run_import(plan, dst, progress=emit)
 
         self._progress_bar.setVisible(True)
