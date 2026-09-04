@@ -655,9 +655,19 @@ def _null_threshold(columns: Dict[str, np.ndarray], keys: np.ndarray,
     sampled = {name: values[take] for name, values in columns.items()}
     labels = keys[take]
     best: List[float] = []
+    # A SHUFFLE THAT MEASURED NOTHING IS NOT A SHUFFLE THAT MEASURED ZERO.
+    # `top` used to start at 0.0 and only ever be raised by a finite score, so
+    # a permutation in which every _separation came back NaN -- each candidate
+    # class empty once the finite mask was applied -- contributed a literal
+    # "chance reached zero" to the null distribution. On a sparsely measured
+    # table a sizeable fraction of the null could be those spurious zeros,
+    # which deflates the 95th percentile and makes above_null() list features
+    # that never beat chance. Starting at None and appending only a real
+    # measurement drops such a shuffle instead of scoring it.
+    unmeasured = 0
     for _ in range(spec.n_permutations):
         shuffled = rng.permutation(labels)
-        top = 0.0
+        top: Optional[float] = None
         for values in sampled.values():
             finite = np.isfinite(values)
             here = values[finite]
@@ -666,8 +676,16 @@ def _null_threshold(columns: Dict[str, np.ndarray], keys: np.ndarray,
                 score = _separation(spec.statistic, here[group != level],
                                     here[group == level], spec.bins)
                 if np.isfinite(score):
-                    top = max(top, float(score))
-        best.append(top)
+                    top = float(score) if top is None else max(top, float(score))
+        if top is None:
+            unmeasured += 1
+        else:
+            best.append(top)
+    if unmeasured:
+        # Say what the number cannot say: the null is thinner than asked for.
+        notices.append(
+            f"{unmeasured:,} of {spec.n_permutations:,} null shuffles measured "
+            "no feature and were dropped rather than scored as zero")
     return float(np.quantile(best, 0.95)) if best else None
 
 

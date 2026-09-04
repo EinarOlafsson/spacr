@@ -1661,6 +1661,28 @@ A53. spacr/qt/widgets/refit_dialog.py:192-198 (_refresh), with spacr/refit.py:24
     WHAT: When destination() cannot derive an output folder it returns None, and _refresh then drops the "Writes to ..." line silently. If there are also no notes, the notice falls through to "Nothing to change: re-fitting these settings would repeat the run you are looking at." while the Re-fit button stays ENABLED. Reachable with settings whose count_data is a list with a falsy first entry (e.g. [""]), which refit_settings accepts because the list itself is truthy (refit.py:143) but destination rejects at refit.py:251-254.
     COST: The dialog makes a false statement about the run it is about to start: it says the re-fit would merely repeat the run on screen, when in fact it will start a real fit whose destination the dialog could not work out. The user gets no warning that the output location is underivable, and nothing tells them where to look for the results afterwards.
 
+    VERDICT 2026-09-04: THE DEFECT WAS REAL AND THE WAY IN IS NOT. The fallback
+    said the opposite of the truth, and said it in exactly one situation: a
+    resolved destination always appends a line of its own, so `lines` could
+    only be empty when destination() returned None. The single case where the
+    dialog did not know where output would go was the single case where it
+    promised nothing would happen, with the button still enabled.
+
+    But the entry's own input no longer reaches it. count_data=[""] is now
+    refused by refit_settings, which raises with a better message than the
+    fallback ever gave, and _refresh returns at its except ValueError branch.
+    The other two routes were checked as well: _next_results_folder only
+    computes a name, so destination() still returns a path when `results` is a
+    file and when the source directory is unreadable, and never raises OSError
+    there.
+
+    So the branch is defensive rather than live. It now refuses and says why,
+    and the test reaches it by replacing destination -- deliberately, because
+    leaving it unreachable would leave an uncoverable line, which is what 288
+    exists to remove. Guarded by
+    tests/test_the_refit_dialog_admits_an_unknown_destination.py; the 89
+    existing refit tests still pass.
+
 A54. spacr/qt/widgets/feature_explorer.py:251-253 (rank_now, the `if self._frame is None:` early return)
     WHAT: Unloading the table leaves every other part of the panel stale. set_frame(None) empties the Split-by picker and rank_now() sets the summary to "no table loaded" and returns None, but it never clears self._result, the table rows or the figure. Verified live: after set_frame(frame) then set_frame(None), panel.summary() == 'no table loaded' while panel.table.rowCount() is still 2, panel._figure.get_axes() still holds 2 strips, and panel.result still returns the previous ExplorerResult (so selected_feature() still names a column of the table that was unloaded).
     COST: A user who closes or swaps out the source table sees a ranking table and histograms describing data that is no longer loaded, under a summary saying nothing is loaded. Any caller reading panel.result (the screen's export_ranking, for example) writes out the previous table's ranking as if it were current.
@@ -1714,6 +1736,21 @@ A56. spacr/qt/widgets/trellis_view.py:463-481, TrellisPanelWidget._sync (the two
 A57. spacr/qt/widgets/feature_rank.py:658-670 (_null_threshold)
     WHAT: A permutation in which no feature's separation could be computed is recorded in `best` as 0.0 rather than being dropped. `top` is initialised to 0.0 before the feature loop and only ever raised by a finite score, so a shuffle where every `_separation` returned NaN (each candidate class empty after the finite mask) contributes a literal "chance reached zero" to the null distribution instead of "this shuffle produced no measurement".
     COST: On a table whose columns are sparsely measured, a sizeable fraction of the null distribution can be spurious zeros, which deflates the 95th percentile and makes `ExplorerResult.above_null()` list features that did not actually beat chance. Reported, not fixed, per the task constraints. Severity is low in practice: with several features, at least one is usually computable in every shuffle, so `top` is a real value.
+
+    VERDICT 2026-09-04: CONFIRMED and FIXED. `top` started at 0.0 and was only
+    ever raised by a finite score, so a permutation in which every _separation
+    returned NaN appended a literal "chance reached zero" for a shuffle that
+    had measured nothing. `top` now starts at None and only a real measurement
+    is appended; a shuffle that measured nothing is dropped, and the count of
+    dropped shuffles is added to the notices, because a null computed on fewer
+    permutations than requested is something the number cannot say for itself.
+
+    Guarded by tests/qt/test_an_unmeasurable_shuffle_is_not_a_zero.py, using a
+    column with a single finite value so EVERY shuffle is unmeasurable and the
+    case is deterministic: the honest answer is None, where before the null was
+    all zeros and the threshold came back 0.0 -- a floor that passes every
+    feature through above_null(). Mutation-checked: restoring the old
+    initialisation turns two of its four tests red.
 
 A58. spacr/settings_advisor.py:844-848 (_thresholds), reached from read_the_counts lines 244-256
     WHAT: When every well total is zero (a plate that sequenced to nothing), fractions_from_counts returns a 'fraction' column that is present and numeric but entirely NaN. read_the_counts filters it to empty at line 246, so fraction_median stays None, and _thresholds then explains the missing recommendation with 'the count tables did not yield a fraction column'. The column WAS yielded; every value in it is NaN because the denominator was zero. read_the_counts also adds nothing to 'trouble' for this case, so the reading reports plates/wells/guides with no note at all.
