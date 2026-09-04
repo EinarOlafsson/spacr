@@ -289,6 +289,11 @@ class _ScaledPreview(QLabel):
     PREFERRED_SIDE = 240
 
     def __init__(self, text: str = "", parent: Optional[QWidget] = None):
+        """Build the preview, and follow the screen it is drawn on.
+
+        :param text: the placeholder shown before a pixmap is set.
+        :param parent: parent widget; ownership only.
+        """
         super().__init__(text, parent)
         self._source = QPixmap()
         self.setMinimumSize(self.MINIMUM_SIDE, self.MINIMUM_SIDE)

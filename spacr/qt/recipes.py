@@ -658,6 +658,12 @@ class _RecipeButtonHandler:
     A plain object rather than a lambda so the connection holds a reference
     to something that is not the screen's closure environment; the button
     owns it, and it dies with the button.
+
+    :param screen: the screen whose recipes are opened.
+    :param button: the button this is connected to. Held for its
+        ``window()``, which is what the dialog is parented to -- so the
+        dialog follows the real window even when the screen is reparented.
+        It is ALSO what owns this handler, per the note above.
     """
 
     def __init__(self, screen, button: QToolButton):

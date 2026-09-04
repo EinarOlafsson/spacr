@@ -45,7 +45,13 @@ from .eliding import ElidingLabel
 
 class _TileButton(QPushButton):
     """Button with an animated ``iconPixels`` property so the icon
-    tweens on hover without changing the button's outer geometry."""
+    tweens on hover without changing the button's outer geometry.
+
+    :param base_size: the icon's resting side length in px. The animation
+        returns to it on leave, so it is the size the tile reads as -- the
+        BUTTON's geometry is set by the caller and does not follow it.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, base_size: int, parent=None):
         super().__init__(parent)

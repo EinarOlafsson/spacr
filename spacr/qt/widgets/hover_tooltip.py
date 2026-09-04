@@ -224,6 +224,13 @@ class _LinkWord(QLabel):
     Not an ``<a>``: Qt's rich text underlines anchors, and the two words were
     asked for without one. Colour comes from the popup's own stylesheet (see
     :meth:`HoverTooltip._apply_theme`) so both words re-theme together.
+
+    :param text: the word, drawn as PLAIN text -- see above for why it is
+        not an anchor.
+    :param object_name: the QSS handle this word is styled by. Given per
+        word rather than fixed, because the popup's sheet colours each one
+        differently and there is no other way for it to tell them apart.
+    :param parent: parent widget; ownership only.
     """
 
     clicked = Signal()
@@ -259,6 +266,11 @@ class _AnimationView(QLabel):
     ``border-radius`` rounds only the background the label paints *under* the
     pixmap, and the pixmap is opaque to its own edges — so the square stayed
     square however the sheet was written.
+
+    :param size: the square's side in px. FIXED at construction, both as the
+        widget's size and as the size frames are scaled to, so a later
+        layout change cannot stretch the square into a rectangle.
+    :param parent: parent widget; ownership only.
     """
 
     #: Corner radius of the square, in pixels.

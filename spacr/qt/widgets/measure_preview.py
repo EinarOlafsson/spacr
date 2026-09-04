@@ -345,6 +345,18 @@ def _mapping_to_rgb_list(mapping: Dict[str, Optional[int]]) -> List[int]:
 
 
 class _CropThumb(QLabel):
+    """One crop in the preview grid, with an included/excluded border.
+
+    :param index: this crop's position in the grid, and the payload emitted
+        with :attr:`clicked` -- so it is how the panel knows WHICH thumb was
+        pressed, not merely where it sits.
+    :param included: whether the crop is in the measurement. Drawn as the
+        border colour, accent for in and dim for out; it is the only
+        indication, so a thumb built with the wrong value looks like a
+        correctly excluded one.
+    :param parent: parent widget; ownership only.
+    """
+
     clicked = Signal(int)
 
     def __init__(self, index: int, *, included: bool = True, parent=None):

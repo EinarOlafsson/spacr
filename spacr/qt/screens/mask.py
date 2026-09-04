@@ -93,6 +93,10 @@ class _OfferedPreview(QObject):
     Off is stronger than merely hidden. Switching the fold off unchecks
     the preview's toggle as well as hiding it, so the card cannot stay on
     screen showing tracks for a run that is no longer tracking.
+
+    :param host: the screen offering the preview. Its ``card`` is the
+        QObject parent -- not the host itself, which is what the note above
+        means about not keeping it alive through the switch that owns it.
     """
 
     def __init__(self, host) -> None:

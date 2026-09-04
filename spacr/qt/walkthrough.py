@@ -340,6 +340,10 @@ class _Seen:
     A tiny object rather than a lambda so the overlay's finish callback is a
     bound method — a closure over ``app_key`` would keep whatever else was
     in that frame alive for as long as the overlay lived.
+
+    :param app_key: which module to mark. THE ONLY STATE THIS HOLDS, which
+        is the point -- a closure over it would keep the rest of the frame
+        alive for as long as the overlay.
     """
 
     def __init__(self, app_key: str):
@@ -352,7 +356,13 @@ class _Seen:
 
 class _Highlight:
     """Bound-method adapter from a step's screen-taking highlight to the
-    window-taking one :class:`spacr.qt.first_run.TourStep` expects."""
+    window-taking one :class:`spacr.qt.first_run.TourStep` expects.
+
+    :param fn: the step's highlight, which takes a screen.
+    :param target: the screen to hand it. Bound HERE rather than resolved
+        when called, so the step highlights the screen the tour was built
+        for even if another is on top by the time it runs.
+    """
 
     def __init__(self, fn, target):
         self._fn = fn
