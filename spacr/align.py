@@ -741,7 +741,13 @@ class _TileReader:
     """
 
     def __init__(self, tile: Tile):
-        """Open window-readable sources for every channel belonging to ``tile``."""
+        """Open window-readable sources for every channel belonging to ``tile``.
+
+        :param tile: the tile to read. Its ``channel_paths`` are opened one
+            source per channel, falling back to the single ``path`` when the
+            tile has none -- so a one-channel tile and a merged stack present
+            the same reader, and the caller never branches on which it got.
+        """
         self.tile = tile
         self._sources: List[Any] = []
         self._fields: List[Any] = []
@@ -913,7 +919,14 @@ class _ReaderCache:
     MIN_OPEN = 2
 
     def __init__(self, max_open: int = 8):
-        """Create an LRU reader cache with room for at least one tile pair."""
+        """Create an LRU reader cache with room for at least one tile pair.
+
+        :param max_open: how many tile readers may be open at once. RAISED TO
+            :data:`MIN_OPEN` IF LOWER -- registration holds two readers at
+            once, so a smaller cache evicts one of the pair it is using. See
+            MIN_OPEN for what that looked like: not a refused stitch, but a
+            plate that silently would not register.
+        """
         self.max_open = max(self.MIN_OPEN, int(max_open))
         self._open: "Dict[int, _TileReader]" = {}
         self._order: List[int] = []
@@ -1976,7 +1989,17 @@ class _StreamCanvas:
     """
 
     def __init__(self, path: str, spec: CanvasSpec):
-        """Create an NPY canvas and open its data region for sequential writes."""
+        """Create an NPY canvas and open its data region for sequential writes.
+
+        :param path: where to create the ``.npy``. Opened twice -- once by
+            ``open_memmap`` to lay down the header, then as a plain file
+            handle at the data offset -- so the process never maps a byte of
+            the canvas.
+        :param spec: the canvas geometry and dtype. Its width, channels and
+            itemsize give the row stride that every ``write_band`` seek is
+            computed from, so a spec that does not match the array on disk
+            writes bands to the wrong rows rather than failing.
+        """
         self.path = path
         self.spec = spec
         array = np.lib.format.open_memmap(
@@ -2014,7 +2037,13 @@ class _MemmapCanvas:
     """
 
     def __init__(self, path: str, spec: CanvasSpec):
-        """Create a memory-mapped NPY canvas matching ``spec``."""
+        """Create a memory-mapped NPY canvas matching ``spec``.
+
+        :param path: where to create the ``.npy``.
+        :param spec: the canvas geometry and dtype, passed to
+            ``open_memmap`` -- so unlike :class:`_StreamCanvas` the mapping
+            cannot disagree with the file.
+        """
         self.path = path
         self.spec = spec
         self.array = np.lib.format.open_memmap(

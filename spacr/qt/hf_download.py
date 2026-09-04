@@ -85,6 +85,14 @@ class _HFDownloadWorker(QObject):
     finished = Signal(bool, str, str, str)
 
     def __init__(self, dest_dir: Path):
+        """Prepare the worker.
+
+        :param dest_dir: where the download is written. Read on the worker
+            thread, not in the constructor -- so a caller may hand over a
+            folder that does not exist yet, and a failure to create it is
+            reported through ``finished`` like every other failure rather
+            than raised into the caller's event handler.
+        """
         super().__init__()
         self._dest = Path(dest_dir)
         self._cancel = False
@@ -168,6 +176,13 @@ class _DownloadDialog(QDialog):
     canceled = Signal()
 
     def __init__(self, title: str, parent=None):
+        """Build the progress dialog.
+
+        :param title: the window title -- the only thing distinguishing one
+            of these dialogs from another, since the body is written by
+            whichever worker is driving it.
+        :param parent: parent widget; ownership only.
+        """
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setModal(True)
@@ -373,6 +388,14 @@ class _MeasureExampleWorker(QObject):
     finished = Signal(bool, str, str, str)
 
     def __init__(self, dest_dir: Path):
+        """Prepare the worker.
+
+        :param dest_dir: where the download is written. Read on the worker
+            thread, not in the constructor -- so a caller may hand over a
+            folder that does not exist yet, and a failure to create it is
+            reported through ``finished`` like every other failure rather
+            than raised into the caller's event handler.
+        """
         super().__init__()
         self._dest = Path(dest_dir)
         self._cancel = False
@@ -463,6 +486,14 @@ class _TarExampleWorker(QObject):
         return Path(dest)
 
     def __init__(self, dest_dir: Path):
+        """Prepare the worker.
+
+        :param dest_dir: where the download is written. Read on the worker
+            thread, not in the constructor -- so a caller may hand over a
+            folder that does not exist yet, and a failure to create it is
+            reported through ``finished`` like every other failure rather
+            than raised into the caller's event handler.
+        """
         super().__init__()
         self._dest = Path(dest_dir)
         self._cancel = False
@@ -540,6 +571,17 @@ class _ChosenArchivesWorker(_TarExampleWorker):
     repo = ""
 
     def __init__(self, dest_dir, archives=(), repo: str = ""):
+        """Prepare a worker for the selected archives only.
+
+        :param dest_dir: where the archives are written; see the base worker.
+        :param archives: the pieces to fetch. EMPTY IS REFUSED rather than
+            treated as "all" -- this worker exists so a user can take the
+            2 GB databases without the 30 GB of crops, and a default of
+            everything would silently undo that choice.
+        :param repo: the Hugging Face repo to pull from. Empty keeps the
+            class attribute, which is what every caller uses; it is a
+            parameter so a test can point the same worker at a fixture.
+        """
         super().__init__(dest_dir)
         self._archives = list(archives)
         self.repo = repo or self.repo
