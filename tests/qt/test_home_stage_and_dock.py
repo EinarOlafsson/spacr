@@ -586,20 +586,25 @@ class TestDockModes:
         monkeypatch.setattr(prefs, "get_dock_mode", unreadable)
         assert MainWindow.dock_mode(object()) == "locked"
 
-    def test_auto_keeps_the_sidebar_in_the_drawer(self, qtbot,
-                                                  qt_theme_applied,
-                                                  tmp_settings):
+    def test_a_stored_auto_becomes_a_locked_column(self, qtbot,
+                                                   qt_theme_applied,
+                                                   tmp_settings):
+        """The withdrawn reveal-on-hover mode migrates rather than breaking.
+
+        A settings file written before the reveal was removed still names
+        ``auto``. It must not be refused and must not leave the window with
+        no dock: it reads as ``locked``, which is the column the reveal was
+        an overlay version of.
+        """
         from spacr.qt import preferences as prefs
         prefs.set_dock_mode("auto")
+        assert prefs.get_dock_mode() == "locked"
         win = MainWindow()
         qtbot.addWidget(win)
-        assert win.dock_mode() == "auto"
-        assert win._sidebar.parent() is win._app_drawer
-        assert win._app_drawer.is_enabled()
-        assert not win._dock_slot.isVisible()
+        assert win.dock_mode() == "locked"
+        assert win._sidebar.parent() is win._dock_slot
+        assert not win._app_drawer.is_enabled()
         assert win._act_all_apps.isEnabled()
-        win.toggle_app_drawer()
-        assert win._app_drawer.is_open()
 
     def test_locked_makes_it_a_column_that_never_slides(self, qtbot,
                                                         qt_theme_applied,
@@ -689,27 +694,33 @@ class TestDockModes:
                  for t in win._startup._tabs.widget(0).findChildren(AppTile)}
         assert drawn == {name for _k, name, *_r in tiled_apps()}
 
-    def test_switching_modes_moves_the_same_widget_back_and_forth(
+    def test_switching_modes_keeps_the_same_widget(
             self, qtbot, qt_theme_applied, tmp_settings):
+        """One Sidebar object across every mode, and the drawer stays shut.
+
+        Hiding the dock and showing it again must not build a second
+        sidebar: the rows carry state, and a duplicate would leave the
+        window holding one that nothing updates.
+        """
         from spacr.qt import preferences as prefs
-        prefs.set_dock_mode("auto")
+        prefs.set_dock_mode("locked")
         win = MainWindow()
         qtbot.addWidget(win)
         sidebar = win._sidebar
 
+        win.apply_dock_mode("hidden")
+        assert win._sidebar is sidebar
+        assert not win._dock_slot.isVisible()
+        assert not win._app_drawer.is_enabled()
+
         win.apply_dock_mode("locked")
         assert win._sidebar is sidebar
         assert sidebar.parent() is win._dock_slot
-
-        win.apply_dock_mode("auto")
-        assert win._sidebar is sidebar
-        assert sidebar.parent() is win._app_drawer
-        assert win._app_drawer.is_enabled()
-        assert not win._dock_slot.isVisible()
+        assert not win._app_drawer.is_enabled()
 
         # Idempotent: applying the same mode twice changes nothing.
-        win.apply_dock_mode("auto")
-        assert sidebar.parent() is win._app_drawer
+        win.apply_dock_mode("locked")
+        assert sidebar.parent() is win._dock_slot
 
     def test_a_disarmed_drawer_ignores_the_hot_strip(self, qtbot,
                                                      qt_theme_applied,

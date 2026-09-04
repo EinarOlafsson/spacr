@@ -1474,33 +1474,6 @@ def test_the_app_list_starts_hidden(window):
     assert drawer._panel is window._sidebar
 
 
-def test_hovering_the_edge_strip_reveals_the_app_list(window, qtbot, qapp):
-    drawer = window._app_drawer
-    _hover(drawer._trigger)
-    assert drawer._open_timer.isActive(), "the dwell timer did not arm"
-    qtbot.waitUntil(drawer.is_open, timeout=2000)
-    assert drawer.isVisible()
-    # STRIPPED: a folded child's row is built from an indented label, and
-    # its accessible name carries the three leading spaces. Eight modules
-    # that used to have a top-level row as well became child-only when the
-    # dock's top level was cut to Home's tiles (2026-09-03), so an
-    # un-stripped comparison reports them as missing from a drawer that is
-    # in fact showing all of them.
-    names = {b.accessibleName().strip()
-             for b in drawer._panel.findChildren(QPushButton)}
-    assert {n for _k, n, *_r in APPS} <= names
-
-
-def test_a_pointer_merely_passing_the_edge_does_not_open_it(window, qapp):
-    """The dwell delay is the whole reason a hot edge is usable: a
-    pointer crossing on its way elsewhere must not summon the panel."""
-    drawer = window._app_drawer
-    _hover(drawer._trigger)
-    assert drawer._open_timer.isActive()
-    _hover(drawer._trigger, enter=False)         # left before it fired
-    assert not drawer._open_timer.isActive()
-    qapp.processEvents()
-    assert not drawer.is_open()
 
 
 def test_leaving_the_panel_closes_it_again(window, qtbot):
@@ -1522,30 +1495,30 @@ def test_a_click_inside_the_panel_pins_it_against_the_close_timer(window):
 
 
 def test_the_app_list_is_reachable_without_a_mouse(window, qapp):
-    """A reveal you can only hover is a reveal a keyboard user does not
-    have — every app but the ones on the open tab would be unreachable."""
-    drawer = window._app_drawer
+    """A column reachable only by tabbing through the page is hard to reach.
+
+    The dock no longer slides, so there is nothing to open -- but the menu
+    action and its shortcut still have to put a keyboard user INSIDE it,
+    which is the whole reason the action survived the reveal being removed.
+    """
+    window.apply_dock_mode("locked")
     window.toggle_app_drawer()
     qapp.processEvents()
-    assert drawer.is_open()
-    assert drawer.is_held(), "keyboard open must pin, or focus races the close"
     focused = qapp.focusWidget()
-    assert focused is not None
-    assert drawer._panel.isAncestorOf(focused), (
+    assert focused is not None, "nothing took focus"
+    assert window._sidebar.isAncestorOf(focused), (
         "focus did not land inside the app list")
-    window.toggle_app_drawer()
-    assert not drawer.is_open()
 
 
-def test_escape_closes_the_drawer(window, qapp):
-    from PySide6.QtGui import QKeyEvent
-    drawer = window._app_drawer
+def test_the_dock_action_does_nothing_when_the_dock_is_hidden(window, qapp):
+    """A shortcut must not overrule the preference that turned the dock off."""
+    window.apply_dock_mode("hidden")
+    before = qapp.focusWidget()
     window.toggle_app_drawer()
     qapp.processEvents()
-    assert drawer.is_open()
-    drawer.keyPressEvent(
-        QKeyEvent(QEvent.KeyPress, Qt.Key_Escape, Qt.NoModifier))
-    assert not drawer.is_open()
+    assert qapp.focusWidget() is before
+    assert not window._dock_slot.isVisible()
+
 
 
 def test_choosing_an_app_from_the_drawer_navigates_and_closes_it(

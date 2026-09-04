@@ -537,24 +537,22 @@ def test_the_backdrop_can_be_blanked_without_its_menu_item(win):
     assert backdrop.isHidden() is False
 
 
-def test_the_drawer_shortcuts_do_nothing_when_there_is_no_drawer(win):
-    """Ctrl+Shift+A and a drawer click must not raise on a dockless window.
+def test_the_dock_shortcuts_do_nothing_when_there_is_no_dock(win):
+    """Ctrl+Shift+A and a nav click must not raise on a dockless window.
 
-    The drawer is the only pointer-driven way to reach another module from
-    inside one, so the shortcut that opens it and the click that closes it
-    run on every window -- including one whose drawer could not be built.
+    Both run on every window, including one whose dock could not be built
+    at all -- a headless or half-constructed window still delivers the
+    shortcut, and raising there would take the window down for the sake of
+    a control that has nothing to act on.
     """
-    win._dock_mode = "auto"
-    drawer = _Recorder()
-    win._app_drawer = drawer
+    win._dock_mode = "locked"
+    win._sidebar = None
     win.toggle_app_drawer()
     win._on_drawer_navigated("mask")
-    assert drawer.names() == ["toggle", "close"]
 
-    win._app_drawer = None
+    win._dock_mode = "hidden"
     win.toggle_app_drawer()
     win._on_drawer_navigated("mask")
-    assert drawer.names() == ["toggle", "close"], "no drawer, no calls"
 
 
 def test_a_screensaver_that_will_not_open_is_not_held(win, monkeypatch):

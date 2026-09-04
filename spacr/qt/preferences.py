@@ -76,7 +76,7 @@ Values:
 * ``db_browser_editable``: bool, default ``False``. Permits the
   Database Browser to open a read-write connection at all; see
   :func:`get_db_browser_editable`.
-* ``dock_mode``: ``"auto"`` | ``"locked"`` | ``"hidden"`` (default
+* ``dock_mode``: ``"locked"`` | ``"hidden"`` (default
   ``"locked"``). Whether the left app dock reveals on hover, is pinned
   open as a permanent column, or is not there at all.
 * ``pane_opacity``: int percent, default ``60``. How solid shared surfaces
@@ -3486,18 +3486,36 @@ def scaled_px(base_px: int) -> int:
 #: ``"hidden"``  no strip, no reveal, no column. Apps stay reachable from
 #:               the spaCR menu, Ctrl+1..9 and the command palette — a
 #:               dock you cannot summon must not be a dead end.
-VALID_DOCK_MODES = ("auto", "locked", "hidden")
+VALID_DOCK_MODES = ("locked", "hidden")
 DEFAULT_DOCK_MODE = "locked"
+
+#: Withdrawn: the dock used to slide in over the page when the pointer rested
+#: against the left edge. It overlaid the home screen -- the module tiles sat
+#: underneath it and did not move aside -- and it drew a second container
+#: behind the dock's own panel. A stored ``auto`` reads as ``locked`` rather
+#: than being refused, so an existing settings file keeps working and simply
+#: gets the column it was already half-asking for.
+RETIRED_DOCK_MODES = {"auto": "locked"}
 
 
 def get_dock_mode() -> str:
-    """How the left app dock behaves — one of :data:`VALID_DOCK_MODES`."""
+    """How the left app dock behaves — one of :data:`VALID_DOCK_MODES`.
+
+    A withdrawn mode is MIGRATED rather than rejected; see
+    :data:`RETIRED_DOCK_MODES`.
+    """
     raw = str(_settings().value(_KEY_DOCK_MODE, DEFAULT_DOCK_MODE))
+    raw = RETIRED_DOCK_MODES.get(raw, raw)
     return raw if raw in VALID_DOCK_MODES else DEFAULT_DOCK_MODE
 
 
 def set_dock_mode(mode: str) -> None:
-    """Persist a valid left-navigation dock mode."""
+    """Persist a valid left-navigation dock mode.
+
+    A withdrawn mode is accepted and stored as its replacement, so code that
+    still names one is migrated rather than made to raise.
+    """
+    mode = RETIRED_DOCK_MODES.get(mode, mode)
     if mode not in VALID_DOCK_MODES:
         raise ValueError(f"unknown dock mode {mode!r}. "
                           f"Choose from {VALID_DOCK_MODES}.")
@@ -4962,10 +4980,9 @@ class PreferencesDialog:
         _wrap = _hbox_wrap(scale_row)
         form.addRow(tr("Font scale"), _wrap)
 
-        # The left dock — revealed on hover, pinned open, or gone.
+        # The left dock — a permanent column, or gone.
         dock_combo = QComboBox()
         for label, key in (
-            ("Reveal on hover", "auto"),
             ("Locked open",     "locked"),
             ("Hidden",          "hidden"),
         ):
@@ -4975,12 +4992,11 @@ class PreferencesDialog:
             if dock_combo.itemData(i) == current_dock:
                 dock_combo.setCurrentIndex(i); break
         dock_combo.setToolTip(
-            "Reveal on hover: the app list slides in when you rest the "
-            "pointer against the left edge, and slides out again.\n"
-            "Locked open: it is a permanent column instead — it never "
-            "covers the page, and costs its own width.\n"
-            "Hidden: no edge strip and no column. Apps stay reachable "
-            "from the spaCR menu, Ctrl+1..9 and Ctrl+K."
+            "Locked open: the app list is a permanent column to the left "
+            "of the page. It never covers what you are working on, and "
+            "costs its own width.\n"
+            "Hidden: no column. Apps stay reachable from the spaCR menu, "
+            "Ctrl+1..9 and Ctrl+K."
         )
         form.addRow(tr("App dock"), dock_combo)
 
