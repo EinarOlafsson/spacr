@@ -756,3 +756,76 @@ WHAT IS ACTUALLY OWED, and it is smaller and sharper than "sort 37":
 `test_github_summary_has_reviewed_domain_translations` stays red until both
 are done, and it should: it is asserting that every reviewed block still
 describes text that exists, and for nineteen of them that is not true.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- THE MISSING HEADINGS ARE A LOCALIZER BOUND TO A PREVIOUS README
+--------------------------------------------------------------------------------
+
+The earlier note today said the four band headings "never reach the
+translator" and blamed block extraction. That was the right symptom and the
+wrong mechanism, and the difference matters because it changes the fix.
+
+`translatable_blocks` is CORRECT to withhold them. The module grid sits inside
+`.. spacr-workflow-begin`, which the function deliberately keeps byte-for-byte
+-- its own comment says the block is generated from the live Home registry and
+that sending its rows through a model corrupts the RST delimiters and links.
+The headings are meant to be localized DETERMINISTICALLY afterwards, by
+`tools/readme_i18n.py::localize_workflow_markup`.
+
+That localizer is what is broken, in two ways at once, and both are the same
+root cause: IT IS BOUND TO A README STRUCTURE THAT NO LONGER EXISTS.
+
+  1. THE LABEL SET IS THE OLD VOCABULARY. `WORKFLOW_SECTION_LABELS['sv']` is
+
+         Data, Segmentation models, Results & QC, Explore, Assays, Design
+
+     The current bands are Core, Data, Tools, Assays. So `Core` and `Tools`
+     have no entry at all, and three of the six entries name sections that
+     were removed. Instruction 318 folded the tiles and 330/376 rebuilt the
+     dock; this table was not moved with them.
+
+  2. THE MARKUP FORM IS WRONG. The localizer rewrites `**Bold**` labels:
+
+         re.sub(rf"(?m)^\*\*{re.escape(source)}\*\*$", ...)
+
+     The current README writes the bands as `^`-underlined HEADINGS:
+
+         Core
+         ^^^^
+
+     A bold-label pattern cannot match an underlined heading, so even `Data`
+     and `Assays` -- which DO have entries -- are not rewritten either.
+
+MEASURED, and this is the number that shows it is structure and not wording:
+
+    canonical README.rst                     4 `^`-underlined band headings
+    every one of the nine localized READMEs  0
+
+The block is present in all nine; the four headings inside it are gone from all
+nine. A reader in any language loses the entire grouping the module reference
+is built on -- the structure 318, 330 and 376 exist to give it -- and no test
+sees it, because the only gate here counts ``**`` pairs and a heading that
+vanishes takes its markup with it.
+
+WHAT THE FIX IS, now that the mechanism is named:
+
+  a. Extend `WORKFLOW_SECTION_LABELS` to the CURRENT bands, taking Core, Data,
+     Tools and Assays VERBATIM from `spacr/qt/i18n.py::_ROWS`. This file
+     already records why: they must match what `_ROWS` gives those four words
+     or the Home caption names bands the screen does not show. Retire the three
+     entries naming removed sections rather than leaving them to rot.
+  b. Teach `localize_workflow_markup` the heading form as well as the bold
+     form, and RESIZE THE UNDERLINE for the translated text -- `^^^^` under
+     `Core` must become as wide as `Kärna`/`核心`. `build_documentation_i18n.py`
+     already has `_rst_display_width` for exactly this, and it counts East
+     Asian wide characters as two columns, which a naive `len()` would get
+     wrong for zh_CN, ko and hi.
+  c. Rebuild the nine READMEs and assert 35 headings in each, against the 30
+     they carry today.
+
+THE "Other resources" HEADING IS A SEPARATE, SMALLER CASE and is unchanged
+from the earlier note: it IS a translatable block, it IS being translated, and
+it comes back as `**Sonstige Ressourcen**` -- a bold paragraph where a heading
+was. That is the one the ``**`` gate catches, and it needs the registry entry
+plus the rebuild in one pass, because that gate also requires the reviewed
+target to already be present in the localized file.
