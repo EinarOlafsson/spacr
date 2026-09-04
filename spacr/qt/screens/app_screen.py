@@ -2363,6 +2363,10 @@ class AppScreen(QWidget):
 
             section = Section("Per-object settings", self)
             grid = ObjectSettingsGrid(section)
+            # WHICH MODULE'S API THE TOOLTIPS LINK TO. The table cannot work
+            # this out -- it is a widget, not a screen -- and a guess would
+            # send a reader to another module's page.
+            grid.set_app_key(self.app_key)
             binding = ObjectGridBinding(grid, model, self)
             binding.seed()
             owned = binding.owned_keys()

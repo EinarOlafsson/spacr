@@ -514,3 +514,62 @@ class TestTheModelZooIsPerColumn:
             grid.objects().index("cell"))
         tip = str(grid._model.data(index, Qt.ToolTipRole) or "")
         assert "Click this cell" in tip
+
+
+# ---------------------------------------------------------------------------
+# The tooltips are the form's tooltips
+# ---------------------------------------------------------------------------
+
+class TestTheTooltipsMatchTheForm:
+    """Asked for: the table's help should be structured like the rest of the
+    application's, carry an API reference, and show the setting's animation
+    where the flat form shows one.
+
+    So it goes through the SAME popup rather than a second one. A table has no
+    widget per cell, so the anchor is the view and the cell under the pointer
+    decides which setting it speaks for.
+    """
+
+    def _rect_of(self, grid, question, obj):
+        source = grid._model.index(list(grid.questions()).index(question),
+                                   grid.objects().index(obj))
+        mapper = getattr(grid._table.model(), "mapFromSource", None)
+        index = mapper(source) if mapper else source
+        return grid._table.visualRect(index)
+
+    def test_the_cell_under_the_pointer_names_its_setting(self, grid):
+        grid.resize(900, 500)
+        rect = self._rect_of(grid, "channel", "cell")
+        assert grid._key_under(rect.center()) == "cell_channel"
+
+    def test_the_anchor_carries_the_setting_and_the_module(self, grid):
+        """The popup looks up its ANIMATION by the anchor's settingKey, so an
+        anchor that does not carry one gets help with no animation."""
+        grid.set_app_key("mask")
+        grid.resize(900, 500)
+        grid._offer_tooltip(self._rect_of(grid, "channel", "cell").center())
+        assert grid._table.property("settingKey") == "cell_channel"
+        assert grid._table.property("settingsAppKey") == "mask"
+
+    def test_the_help_carries_an_api_reference(self, grid):
+        from spacr.qt.screens.settings_model import format_tooltip, get_tooltips
+        html = format_tooltip(str(get_tooltips().get("cell_channel") or ""),
+                              "mask", "cell_channel")
+        assert "<a" in html and "href" in html, "no API reference in the help"
+
+    def test_the_native_tooltip_is_swallowed(self, grid):
+        """It disappears the moment the pointer moves toward the API link, and
+        that link is the point."""
+        from PySide6.QtCore import QEvent
+        assert grid.eventFilter(grid._table.viewport(),
+                                QEvent(QEvent.Type.ToolTip)) is True
+
+    def test_a_cell_nobody_asks_offers_no_help(self, grid):
+        """Cytoplasm has no channel; a tooltip there would explain a setting
+        that does not exist for it."""
+        objects = [o for o in grid.objects()
+                   if not grid._model.asks("channel", o)]
+        if not objects:
+            pytest.skip("every object in this settings dict asks for a channel")
+        rect = self._rect_of(grid, "channel", objects[0])
+        assert grid._key_under(rect.center()) == ""
