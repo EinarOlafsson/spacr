@@ -204,7 +204,18 @@ class Dock(QWidget):
         # the ground set in `apply_theme` was being dropped and the
         # translucent panel composited straight onto the window's black base
         # -- the "black box" behind the dock.
-        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+        # THE BLANKET RULE WAS THE BOX. The application sheet carries
+        # `QWidget { background-color: bg }`, so any untagged container paints
+        # an opaque rectangle -- and a plain QWidget holding a rounded panel
+        # is exactly that: a square of `bg` behind rounded corners. Colouring
+        # it (black, grey, the page ground) only changes which colour the
+        # rectangle is; `make_transparent` stops it painting at all.
+        #
+        # `Panel` in `home.py` already does this, and its comment says why in
+        # as many words: six untagged wrappers stacked down the aside "read as
+        # one large black column behind every panel". The dock is one of them.
+        from ..theme import make_transparent
+        make_transparent(self)
         self._icon_for = icon_for
         self._is_visible = is_visible
         self._rows: List[DockRow] = []
@@ -257,6 +268,10 @@ class Dock(QWidget):
         # were simply unreachable. This is structure, not decoration.
         self._scroll = QScrollArea(self)
         self._scroll.setObjectName("SidebarScroll")
+        # A QScrollArea and its VIEWPORT are two widgets and the viewport is
+        # the one that paints; `make_transparent` tags both, and forgetting
+        # the viewport is the documented way to get this wrong.
+        make_transparent(self._scroll)
         self._scroll.setWidgetResizable(True)
         self._scroll.setFrameShape(QFrame.Shape.NoFrame)
         self._scroll.setHorizontalScrollBarPolicy(
@@ -466,27 +481,20 @@ class Dock(QWidget):
         palette = active_palette()
         accent = palette["accent"]
         self.setStyleSheet(
-            # THE COLUMN *IS* THE ROUNDED BOX. There is no separate panel
-            # inside it any more.
+            # THE BOX IS A FRAME INSIDE A TRANSPARENT CONTAINER, which
+            # is `Panel`'s arrangement in `home.py` and the one the request
+            # asks for: "cant you just make that same box widget in place of
+            # the dock". Same three values as `QFrame#HomePanelBox` --
+            # `pane_surface('surface_alt')`, `border_soft`, 8 px -- so the
+            # dock and the Home boxes stay one material.
             #
-            # A translucent panel drawn inside an opaque column is two
-            # rectangles, and the outer one cannot be got rid of: it is the
-            # widget the layout gives the dock, and whatever colour it is
-            # painted -- black, grey, the page ground -- it is still a
-            # rectangle behind a rounded shape. Three attempts at colouring
-            # it are what proved that. So the rounded corners move OUT to
-            # the box that has to exist, and the inner one goes.
-            #
-            # The gap around it comes from the SLOT's layout margins rather
-            # than from margins in here, because a widget's own margins are
-            # inside its background: put them here and the box would still
-            # reach the window edge.
-            "QWidget#Sidebar {"
+            # The container above it paints nothing. That was the whole bug:
+            # a frame cannot round the corners of the widget behind it.
+            "QFrame#DockPanel {"
             f"  background: {pane_surface('surface_alt')};"
             f"  border: 1px solid {palette['border_soft']};"
             f"  border-radius: {PANEL_RADIUS}px;"
             "}"
-            "QFrame#DockPanel { background: transparent; border: none; }"
             "QScrollArea#SidebarScroll, QWidget#SidebarInner {"
             "  background: transparent; border: none;"
             "}"
