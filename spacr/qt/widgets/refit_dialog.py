@@ -191,11 +191,26 @@ class RefitDialog(QDialog):
 
         where = destination(settings)
         lines = list(notes)
-        if where:
-            lines.append(f"Writes to {where}.")
-        self._notice.setText(" ".join(lines) if lines else
-                             "Nothing to change: re-fitting these settings "
-                             "would repeat the run you are looking at.")
+        if where is None:
+            # THE OLD FALLBACK SAID THE OPPOSITE OF THE TRUTH, and said it
+            # only here: "Nothing to change ... would repeat the run you are
+            # looking at" was reachable ONLY when `where` was None, because a
+            # resolved destination always adds a line of its own. So the one
+            # case where the dialog could not work out where the output would
+            # go was the one case where it promised nothing would happen --
+            # with the button still enabled to start a real fit.
+            #
+            # destination() returns None when no count-data path resolves or
+            # the results folder cannot be created, so there is nothing to
+            # describe and nothing safe to start. Refuse, and say why.
+            lines.append(
+                "The output folder cannot be worked out from these settings, "
+                "so the re-fit is not offered. Check the count data path.")
+            self._notice.setText(" ".join(lines))
+            self._ok(False)
+            return
+        lines.append(f"Writes to {where}.")
+        self._notice.setText(" ".join(lines))
         self._ok(True)
 
     def _ok(self, enabled: bool) -> None:
