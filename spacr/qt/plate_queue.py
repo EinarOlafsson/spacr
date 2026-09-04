@@ -137,10 +137,23 @@ class PlateQueue:
     # -- mutations ---------------------------------------------------------
 
     def add(self, item: QueueItem) -> None:
+        """Append a plate and save immediately.
+
+        SAVED ON EVERY CHANGE, not on close: the queue is shared with other
+        screens and read from disk, so an unsaved change is one another
+        screen cannot see.
+
+        :param item: the plate to queue.
+        """
         self._items.append(item)
         self.save()
 
     def remove(self, item_id: str) -> bool:
+        """Drop one plate by id and save.
+
+        :param item_id: the plate's id.
+        :returns: True when it was there to remove.
+        """
         before = len(self._items)
         self._items = [i for i in self._items if i.id != item_id]
         changed = len(self._items) != before
@@ -194,6 +207,7 @@ class PlateQueue:
     # -- persistence -------------------------------------------------------
 
     def save(self) -> None:
+        """Write the queue to disk."""
         try:
             payload = {"items": [self._serialise(i) for i in self._items]}
             self._path.write_text(json.dumps(payload, indent=2))
@@ -201,6 +215,7 @@ class PlateQueue:
             LOG.warning("failed to persist queue: %s", e)
 
     def load(self) -> None:
+        """Read the queue from disk, replacing what is held."""
         if not self._path.exists():
             self._items = []
             return

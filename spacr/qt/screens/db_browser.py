@@ -1125,9 +1125,14 @@ class PreviewModel(QAbstractTableModel):
         return len(new)
 
     def clear(self) -> None:
+        """Drop every row and column."""
         self.set_page([], [], 0)
 
     def all_columns(self) -> List[str]:
+        """Every column the table has, filtered or not.
+
+        :returns: the column names.
+        """
         return list(self._columns)
 
     def rows(self) -> List[tuple]:
@@ -1173,9 +1178,17 @@ class PreviewModel(QAbstractTableModel):
         return True
 
     def visible_columns(self) -> List[str]:
+        """The columns the filter is currently letting through.
+
+        :returns: the visible column names.
+        """
         return [self._columns[i] for i in self._visible]
 
     def column_filter(self) -> str:
+        """The text currently filtering the columns.
+
+        :returns: the filter text.
+        """
         return self._filter
 
     def set_column_filter(self, text: str) -> None:
@@ -1253,6 +1266,14 @@ class PreviewModel(QAbstractTableModel):
         self.endResetModel()
 
     def is_editable(self) -> bool:
+        """Whether this preview allows edits.
+
+        OFF UNLESS CHOSEN. The browser reads a project's real measurements,
+        and an accidental edit there is a silent change to data a run already
+        produced.
+
+        :returns: True when editing is enabled.
+        """
         return self._editable
 
     # -- QAbstractTableModel ------------------------------------------------
@@ -1916,6 +1937,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         return True
 
     def current_table(self) -> str:
+        """Which table the browser is showing.
+
+        :returns: the table's name, or ``""`` when none is open.
+        """
         return self._table
 
     # -- column search -----------------------------------------------------

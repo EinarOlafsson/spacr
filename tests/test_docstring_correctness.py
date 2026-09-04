@@ -1966,7 +1966,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "6002399b75a69f878c8caa063d462e31c5d033046a51eab37f3ab4db75b532ea"
+    ) == "4398fb667a2b4936dcc103076385c9c373c33dec4bfa33eb80276a8386ed2045"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -1978,7 +1978,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # WAS ``LayerStack.add_image``, which has since been documented. The
     # example has to be a callable that is STILL docless, or this assertion
     # stops standing for the class of defect it was written for.
-    assert not by_symbol["spacr.qt.bridge.RunRegistry.register"].docstring
+    # WAS ``RunRegistry.register``, and ``LayerStack.add_image`` before that.
+    # Both have since been documented. The example has to be a callable that
+    # is STILL docless, or this assertion stops standing for the class of
+    # defect it was written for -- so it moves each time 368 reaches it.
+    assert not by_symbol[
+        "spacr.qt.linked_selection.LinkedSelection.clear_filter"].docstring
     assert by_symbol[
         "spacr.qt.bridge.RunRegistry.register"
     ].required_parameters == {"handle"}
@@ -2092,12 +2097,12 @@ def test_no_new_public_callable_lacks_a_docstring():
     # `spacr.qt.dnd_handlers` now documents itself. 368's rule is that the
     # improvement is banked in the commit that earns it, or documenting a
     # hundred callables silently buys room to leave a hundred more.
-    assert len(docless) == 175
+    assert len(docless) == 124
     assert sum(
         item.docless_variant_count for item in _public_callables()
-    ) == 175
+    ) == 124
     assert _sha256_lines(docless) == (
-        "a3f5672006bf5cdca00bd016458da02688e20a24f3c831aae2bbe79f847926fb"
+        "b4f264d00645b99b9322e505c1b55d9314372e8e68080c5b97ac11ba29c01b2e"
     )
 
 
@@ -2258,10 +2263,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,427 -> 9,441. Seven public symbols were added earlier today and
     # seven drop-handler methods stopped being aliases, so they now carry
     # their own entry instead of borrowing one.
-    assert len(docs) == 9_907
+    assert len(docs) == 9_959
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
-    assert len(rendered_documented_callables) == 8_204
+    assert len(rendered_documented_callables) == 8_255
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2477,24 +2482,24 @@ def test_no_new_undocumented_required_public_parameters():
     # job: a documented callable whose required parameters are unexplained
     # still counts here, so the drop-handler docstrings carry `:param:` and
     # `:returns:` fields and the number goes DOWN rather than up.
-    assert len(omissions) == 2_383
-    assert sum(omitted_callables.values()) == 1_720
+    assert len(omissions) == 2_358
+    assert sum(omitted_callables.values()) == 1_698
     assert omitted_callables == {
         "function": 756,
-        "method": 918,
+        "method": 896,
         "constructor": 2,
         "dataclass_constructor": 42,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
         "function": 1_127,
-        "method": 1_111,
+        "method": 1_086,
         "constructor": 3,
         "dataclass_constructor": 130,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "ca0a8810e9528c9bf63d3e6ba1f063d5b3dab817a85f7f16033fda5ed8f36ae7"
+        "fb64df600eb24feaa9653f7a1b1b01c997716858660e6537435c92a6f76b74d0"
     )
 
 

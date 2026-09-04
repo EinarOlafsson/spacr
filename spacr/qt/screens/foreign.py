@@ -230,12 +230,31 @@ class ColumnMapModel(QAbstractTableModel):
     # -- QAbstractTableModel ----------------------------------------------
 
     def rowCount(self, parent=QModelIndex()) -> int:
+        """How many source columns are waiting to be mapped.
+
+        :param parent: unused; the model is flat.
+        :returns: the row count.
+        """
         return 0 if parent.isValid() else len(self._maps)
 
     def columnCount(self, parent=QModelIndex()) -> int:
+        """How many columns the mapping table shows.
+
+        :param parent: unused; the model is flat.
+        :returns: the column count.
+        """
         return 0 if parent.isValid() else len(MAP_COLUMNS)
 
     def flags(self, index):
+        """Which cells the user may edit.
+
+        Only the target column: the source name is what the foreign file
+        actually contains, and editing it would let a user rename their data
+        rather than map it.
+
+        :param index: the cell.
+        :returns: the Qt item flags.
+        """
         base = Qt.ItemIsEnabled | Qt.ItemIsSelectable
         if not index.isValid():
             return base
@@ -244,6 +263,12 @@ class ColumnMapModel(QAbstractTableModel):
         return base
 
     def data(self, index, role=Qt.DisplayRole):
+        """One cell of the mapping table.
+
+        :param index: the cell.
+        :param role: the Qt display role.
+        :returns: the cell's value for that role, or None.
+        """
         if not index.isValid():
             return None
         mapping = self._maps[index.row()]
@@ -257,6 +282,13 @@ class ColumnMapModel(QAbstractTableModel):
         return None
 
     def setData(self, index, value, role=Qt.EditRole) -> bool:
+        """Record which spaCR column a source column maps to.
+
+        :param index: the cell.
+        :param value: what the user chose.
+        :param role: the Qt edit role.
+        :returns: True when the mapping was taken.
+        """
         if not index.isValid() or role != Qt.EditRole:
             return False
         key, _label, editable = MAP_COLUMNS[index.column()]
@@ -274,6 +306,13 @@ class ColumnMapModel(QAbstractTableModel):
         return True
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """One header label.
+
+        :param section: the row or column number.
+        :param orientation: which header.
+        :param role: the Qt display role.
+        :returns: the label, or None.
+        """
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:

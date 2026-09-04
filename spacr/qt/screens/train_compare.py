@@ -824,11 +824,19 @@ class TrainCompareScreen(QWidget):
         self._diff_table.resizeColumnsToContents()
 
     def diff_headers(self) -> List[str]:
+        """The settings-diff table's column headers.
+
+        :returns: the headers, in column order.
+        """
         return [self._diff_table.horizontalHeaderItem(c).text()
                 if self._diff_table.horizontalHeaderItem(c) else ""
                 for c in range(self._diff_table.columnCount())]
 
     def diff_rows(self) -> List[List[str]]:
+        """The settings-diff table as it reads on screen.
+
+        :returns: one row per differing setting.
+        """
         out = []
         for r in range(self._diff_table.rowCount()):
             row = []
@@ -961,9 +969,17 @@ class TrainCompareScreen(QWidget):
         self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
 
     def active_jobs(self) -> int:
+        """How many background jobs this screen is running.
+
+        :returns: the job count.
+        """
         return len(self._jobs)
 
     def is_busy(self) -> bool:
+        """Whether anything is still running.
+
+        :returns: True while work is outstanding.
+        """
         return self._busy
 
     def _on_worker_error_text(self, tb: str) -> None:
@@ -983,6 +999,10 @@ class TrainCompareScreen(QWidget):
             bool(self.selected_run_ids()) and not self._busy)
 
     def closeEvent(self, event):  # noqa: N802 — Qt naming
+        """Stop background work before going away.
+
+        :param event: the Qt close event.
+        """
         for thread, _worker in list(self._jobs):
             try:
                 thread.quit()
