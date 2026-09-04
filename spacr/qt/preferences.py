@@ -6253,6 +6253,12 @@ class PreferencesDialog:
             set_tooltips_bottom_enabled(
                 tooltips_bottom_check.isChecked())
             set_object_grid_enabled(object_grid_check.isChecked())
+            # AND TELL THE SCREENS THAT ARE ALREADY OPEN. The switch used to
+            # be read only while a settings panel was being built, so it did
+            # nothing at all until the module was closed and reopened -- in
+            # both directions, which is what makes a switch look broken
+            # rather than slow.
+            _tell_the_screens_the_object_grid_changed()
             set_font_scale(scale_slider.value() / 100.0)
             set_dock_mode(dock_combo.currentData())
             set_pane_opacity(opacity_slider.value() / 100.0)
@@ -6500,6 +6506,36 @@ def _tell_the_cards_the_rim_changed() -> int:
             except Exception:                                # noqa: BLE001
                 LOG.debug("a card would not reread the rim", exc_info=True)
     return told
+
+
+def _tell_the_screens_the_object_grid_changed() -> int:
+    """Mount or unmount the per-object table on every open module.
+
+    A PREFERENCE THE USER CANNOT SEE TAKE EFFECT is a preference they will
+    set twice. Every screen decides for itself -- a module with too few
+    shared questions still declines the table -- so this only has to ask.
+
+    :returns: how many screens changed.
+    """
+    try:
+        from PySide6.QtWidgets import QApplication
+
+        from .screens.app_screen import AppScreen
+    except Exception:                                        # noqa: BLE001
+        return 0
+    application = QApplication.instance()
+    if application is None:
+        return 0
+    changed = 0
+    for widget in application.allWidgets():
+        if not isinstance(widget, AppScreen):
+            continue
+        try:
+            changed += bool(widget.apply_object_grid_preference())
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("a screen would not retake the grid switch",
+                      exc_info=True)
+    return changed
 
 
 def _hbox_wrap(layout):

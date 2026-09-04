@@ -22,9 +22,14 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from spacr.object_settings_table import to_table                # noqa: E402
-from spacr.qt.widgets.object_settings_grid import (             # noqa: E402
-    AUTO_TEXT, ObjectSettingsGrid)
+from spacr.object_settings_table import to_table  # noqa: E402
+from spacr.organelle_types import NUMBER_OF_ORGANELLES, organelle_role  # noqa: E402
+from spacr.qt.widgets.object_settings_grid import (  # noqa: E402
+    AUTO_TEXT,
+    MAX_ORGANELLES,
+    ObjectSettingsGrid,
+    _kind_of,
+)
 
 
 @pytest.fixture
@@ -76,23 +81,35 @@ def test_the_settings_the_table_does_not_cover_are_carried_through(
             assert out[key] == mask_settings[key]
 
 
-def test_the_table_claims_only_what_every_object_asks(grid, mask_settings):
+def test_the_table_claims_only_what_more_than_one_kind_asks(
+        grid, mask_settings):
     """The table holds the shared questions; the rest stay in the form.
 
-    A table is a claim that its rows and columns are independent, and only 18
-    of the 55 per-object questions are asked by every object. The other 37 --
-    the organelle's own ridge filters, hysteresis and LoG sigmas among them --
-    would be rows of mostly blank cells, and a blank cell reads as a question
-    nobody has answered rather than one that was never asked.
+    A table is a claim that its rows and columns are independent, and a
+    question a single KIND of object asks is not a row -- it is one setting,
+    and it belongs in the form beside that object's others. The organelle's
+    own detection settings are 34 of these: ridge filters, hysteresis, LoG
+    sigmas, which no cell, nucleus or pathogen has, and which would be rows
+    of mostly blank cells.
+
+    KINDS, NOT COLUMNS, and this test was wrong twice before it was right.
+    It first demanded EVERY object ask, which emptied Measure's table
+    completely -- Measure asks `mask_dim` of four of its five objects and
+    `max_size` of three, so requiring all five left nothing. Counting
+    columns instead made the row set depend on the organelle count, since a
+    second organelle is seeded from the first. Counting kinds is stable
+    under both.
     """
-    shown = to_table(mask_settings)
-    objects = set(grid.objects())
+    roles = {_kind_of(obj) for obj in grid.objects()}
     for question, row in grid.table().items():
-        assert set(row) == objects, (
-            f"{question!r} is in the table but only {sorted(row)} ask it")
+        asking = {_kind_of(obj) for obj in row}
+        assert len(asking) > 1, (
+            f"{question!r} is in the table but only {sorted(asking)} asks it")
+    shown = to_table(mask_settings)
     for question, row in shown.items():
-        if set(row) >= objects and question not in grid.questions():
-            raise AssertionError(f"{question!r} is common and was dropped")
+        asking = {_kind_of(obj) for obj in row}
+        if len(asking & roles) > 1 and question not in grid.questions():
+            raise AssertionError(f"{question!r} is shared and was dropped")
 
 
 def test_nothing_the_table_drops_is_lost(grid, mask_settings):
@@ -229,15 +246,25 @@ def test_the_columns_are_numbered_and_never_lettered(grid):
 
 
 def test_the_ceiling_is_said_rather_than_hit_silently(grid):
-    """Twenty-six is the alphabet running out, not a number somebody chose,
-    and a button that stops working without saying why is worse than one
-    that refuses out loud."""
-    while grid.add_organelle():
-        pass
+    """The ceiling is the naming scheme running out, not a number somebody
+    chose, and a button that stops working without saying why is worse than
+    one that refuses out loud.
+
+    SEEDED AT THE CEILING RATHER THAN WALKED TO IT. This used to press Add
+    until it refused, which was fine at 26 slots; 326 raised the ceiling to
+    702 and each Add rebuilds the whole table, so the walk became quadratic
+    and the test stopped finishing at all. The refusal is what is under
+    test, and it does not care how the grid arrived at a full house.
+    """
+    full = {NUMBER_OF_ORGANELLES: MAX_ORGANELLES, "cell_mask_dim": 0}
+    for number in range(1, MAX_ORGANELLES + 1):
+        full[f"{organelle_role(number)}_mask_dim"] = 0
+    grid.set_settings(full)
 
     assert grid.next_organelle() == ""
+    assert grid.add_organelle() is False
     assert "ceiling" in grid.status_text()
-    assert "alphabet" in grid.status_text()
+    assert "lettered" in grid.status_text()
 
 
 def test_the_status_line_counts_what_364_is_about(grid):
@@ -518,6 +545,7 @@ class TestTheModelZooIsPerColumn:
     def test_the_cell_says_it_is_clickable(self, grid):
         """A control that is not drawn has to be findable some other way."""
         from PySide6.QtCore import Qt
+
         from spacr.qt.widgets.object_settings_grid import MODEL_QUESTION
         index = grid._model.index(
             list(grid.questions()).index(MODEL_QUESTION),

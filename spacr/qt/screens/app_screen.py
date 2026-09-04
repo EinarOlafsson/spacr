@@ -2393,11 +2393,22 @@ class AppScreen(QWidget):
             else:
                 layout.addWidget(section)
 
+        # KEPT, so the preference can be turned on after this panel is
+        # built. Without it the only way to mount the grid was to build the
+        # panel, and the switch appeared dead until the module was reopened.
+        # `addStretch` goes in below, so the grid is inserted at the index
+        # the stretch will take rather than appended after it.
+        self._settings_layout = layout
         self._mount_the_object_grid(layout)
         self.refresh_maturity_visibility()
         layout.addStretch(1)
         scroll.setWidget(content)
         return scroll
+
+    #: How many shared questions a module needs before the per-object table
+    #: is offered at all. Below this the flat form is the smaller control;
+    #: see :meth:`_mount_the_object_grid`.
+    MIN_GRID_QUESTIONS = 3
 
     def _mount_the_object_grid(self, layout) -> None:
         """Show the per-object settings as one table, if preferences ask.
@@ -2446,20 +2457,129 @@ class AppScreen(QWidget):
             binding = ObjectGridBinding(grid, model, self)
             binding.seed()
             owned = binding.owned_keys()
-            if not owned:
-                # Nothing repeats per object on this module, so a grid of one
-                # column is a table pretending to be one.
+            # A TABLE HAS TO EARN ITS PLACE. The grid exists to collapse the
+            # repeated SEGMENTATION settings -- twenty-odd questions asked
+            # once per object, which as a flat form is 78 rows. A module with
+            # two shared questions has a four-row form, and replacing four
+            # rows with a table, a header, an Add button and a resize grip is
+            # a heavier control than the thing it replaces.
+            #
+            # Regression is the case that prompted this: it shares
+            # `area_outlier_mads` and `intensity_outlier_mads` between cell
+            # and nucleus, which is genuinely per-object and genuinely not
+            # worth a table. Classify has none at all. Measure has three
+            # questions over four objects and Mask has twenty over three,
+            # which are.
+            if len(grid.questions()) < self.MIN_GRID_QUESTIONS or not owned:
                 section.deleteLater()
                 return
             section.add_prose_row("", grid)
             self._object_grid = grid
             self._object_grid_binding = binding
             model.hide_the_rows_the_grid_speaks_for(owned)
-            layout.addWidget(section)
+            # BEFORE THE TRAILING STRETCH, not after it. On the first build
+            # there is no stretch yet and this is an append; mounted later
+            # from the preference switch there is one, and appending would
+            # put the table below a spring that pushes it off the bottom of
+            # a scrolling panel.
+            layout.insertWidget(self._index_before_the_stretch(layout),
+                                section)
             self._settings_sections.append(section)
             section.set_expanded(True)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not mount the per-object grid", exc_info=True)
+
+    def apply_object_grid_preference(self) -> bool:
+        """Mount or unmount the per-object table to match preferences.
+
+        WHAT THIS FIXES: the switch in Preferences was read once, while the
+        settings panel was being built, so turning it on did nothing to a
+        module already open and turning it off left the table on screen with
+        the rows it speaks for still hidden. The preference is a view of the
+        same settings either way -- nothing downstream knows the grid exists
+        -- so there is no reason it should need the module reopened.
+
+        IDEMPOTENT, and safe on a screen whose panel was never built: both
+        directions check what is actually mounted rather than trusting a
+        flag, so a repeated call is a no-op and the two states cannot drift
+        apart.
+
+        :returns: True if the screen changed, False if it was already right.
+        """
+        try:
+            from ..preferences import get_object_grid_enabled
+
+            wanted = get_object_grid_enabled()
+        except Exception:                                    # noqa: BLE001
+            return False
+        grid = getattr(self, "_object_grid", None)
+        # A grid whose C++ side is gone is not a mounted grid. `deleteLater`
+        # on the section takes the table with it, and the dangling Python
+        # wrapper would otherwise read as "already mounted" forever.
+        try:
+            mounted = grid is not None and grid.parent() is not None
+        except RuntimeError:
+            mounted = False
+        if wanted == mounted:
+            return False
+        if wanted:
+            layout = getattr(self, "_settings_layout", None)
+            if layout is None:
+                return False
+            self._mount_the_object_grid(layout)
+            return getattr(self, "_object_grid", None) is not grid
+        self._unmount_the_object_grid()
+        return True
+
+    @staticmethod
+    def _index_before_the_stretch(layout) -> int:
+        """Where a widget goes to stay above ``layout``'s trailing spring.
+
+        :param layout: the settings column's layout.
+        :returns: the index of the trailing stretch, or the end of the
+            layout when it has not been given one yet.
+        """
+        for index in range(layout.count() - 1, -1, -1):
+            item = layout.itemAt(index)
+            if item is not None and item.spacerItem() is not None:
+                return index
+        return layout.count()
+
+    def _unmount_the_object_grid(self) -> None:
+        """Take the table off the screen and give the flat rows back.
+
+        THE ROWS COME BACK FIRST. They were hidden, not dropped, so all it
+        takes is telling the model the grid speaks for nothing -- but if the
+        section were deleted first and that call then raised, the settings it
+        holds would be on no screen at all: not in a table, and not in a
+        form. Neither the values nor `collect()` are touched either way.
+        """
+        model = getattr(self, "_settings_model", None)
+        unhide = getattr(model, "hide_the_rows_the_grid_speaks_for", None)
+        if callable(unhide):
+            try:
+                unhide(())
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not give the flat rows back", exc_info=True)
+        grid = getattr(self, "_object_grid", None)
+        section = None
+        try:
+            section = grid.parent() if grid is not None else None
+            while section is not None and not hasattr(
+                    section, "add_prose_row"):
+                section = section.parent()
+        except RuntimeError:
+            section = None
+        self._object_grid = None
+        self._object_grid_binding = None
+        if section is None:
+            return
+        try:
+            self._settings_sections.remove(section)
+        except (AttributeError, ValueError):
+            pass
+        section.setParent(None)
+        section.deleteLater()
 
     def _widget_key_index(self) -> dict:
         """``id(widget) -> setting key`` for this panel's settings model.

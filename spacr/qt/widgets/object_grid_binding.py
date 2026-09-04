@@ -28,6 +28,14 @@ from PySide6.QtCore import QObject
 
 from spacr.object_settings_table import to_table
 
+#: The change signals a settings widget might carry, most specific first.
+#:
+#: A `Toggle` is a QCheckBox and has NONE of the combo or text signals, so a
+#: list that stopped at `textChanged` connected nothing at all to the two
+#: per-object switches and they never reached the table.
+_CHANGE_SIGNALS = ("currentTextChanged", "currentIndexChanged", "toggled",
+                   "stateChanged", "textChanged", "value_changed")
+
 
 LOG = logging.getLogger(__name__)
 
@@ -54,7 +62,11 @@ class ObjectGridBinding(QObject):
         # edit. What the guard buys is that the table does not visibly
         # rebuild, and the cell being typed into keeps its focus.
         self._busy = False
+        #: Widgets already connected, so `follow_the_form` can be called
+        #: again after the table widens without doubling every connection.
+        self._followed: set = set()
         self._grid.settings_changed.connect(self._write_back)
+        self._grid.settings_changed.connect(self.follow_the_form)
 
     # -- what the grid speaks for -----------------------------------------
 
@@ -92,6 +104,93 @@ class ObjectGridBinding(QObject):
             self._grid.set_settings(self._panel.collect())
         finally:
             self._busy = False
+        # AFTER THE TABLE EXISTS, not before. `follow_the_form` connects the
+        # widgets behind the cells the grid is SHOWING, and before the first
+        # seed it is showing none.
+        self.follow_the_form()
+
+    def follow_the_form(self) -> int:
+        """Make the form's own fields write INTO the table.
+
+        THE OTHER HALF OF A TWO-WAY BINDING, and the half that was missing:
+        the grid wrote through to the widgets, but nothing told the grid when
+        a widget moved, so a value changed anywhere else -- the flat row for
+        an object the table does not claim, a preset, the Live Preview, a
+        settings file poured in -- left the table showing the old answer.
+
+        WHY NOT JUST RESEED. `seed` rebuilds the whole table, which is 30 ms
+        on Mask and 100 ms once there are ten organelles. On a `textChanged`
+        that is per KEYSTROKE, and it would also take the cursor out of
+        whatever cell was being typed into. One cell is written instead.
+
+        :returns: how many widgets were newly connected.
+        """
+        widgets = getattr(self._panel, "_widgets", None) or {}
+        connected = 0
+        for key in self.owned_keys():
+            widget = widgets.get(key)
+            if widget is None or id(widget) in self._followed:
+                continue
+            for name in _CHANGE_SIGNALS:
+                signal = getattr(widget, name, None)
+                if signal is None:
+                    continue
+                try:
+                    signal.connect(self._form_moved)
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not follow %s", key, exc_info=True)
+                    break
+                self._followed.add(id(widget))
+                connected += 1
+                break
+        return connected
+
+    def _form_moved(self, *_args) -> None:
+        """Copy what the form now holds into the cells that show it.
+
+        Reads the panel once and compares, so a widget that emitted without
+        changing -- which most of them do on focus -- costs a dictionary
+        lookup rather than a table write.
+        """
+        if self._busy:
+            return
+        self._busy = True
+        try:
+            self._show_what_the_panel_holds()
+        finally:
+            self._busy = False
+
+    def _show_what_the_panel_holds(self) -> int:
+        """Write the panel's answers into the cells, one cell at a time.
+
+        :returns: how many cells changed.
+        """
+        try:
+            current = self._panel.collect()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read the panel", exc_info=True)
+            return 0
+        shown = self._grid.settings()
+        moved = 0
+        for key in self.owned_keys():
+            if key not in current:
+                continue
+            if key in shown and _same(shown[key], current[key]):
+                continue
+            # SPLIT BY THE TABLE'S OWN RULE. `cell_mask_dim` divides into
+            # `cell` and `mask_dim`, but `organelleb_min_area` has to divide
+            # at the longest object prefix rather than the first underscore.
+            # Asking `to_table` for a one-key dict gets exactly the split the
+            # grid itself was built with, instead of a second rule beside it
+            # that could disagree.
+            value = current[key]
+            for question, row in to_table({key: value}).items():
+                for obj in row:
+                    if self._grid.set_value(
+                            question, obj,
+                            "" if value is None else str(value)):
+                        moved += 1
+        return moved
 
     def _write_back(self) -> None:
         """Push the grid's edits into the widgets behind them."""

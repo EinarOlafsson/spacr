@@ -13,6 +13,15 @@ from .model import Edge, Node, RunGraph
 from .theme import CANVAS, CARD, TEXT_PRIMARY, TEXT_SECONDARY
 from .trace import get_collector
 
+#: The hairline a divider is drawn as, and what it becomes under the pointer.
+#:
+#: WRITTEN AS `rgba()`, NOT `#RRGGBBAA`. A Qt stylesheet reads an eight-digit
+#: hex as #AARRGGBB, so `#FFFFFF1A` -- white at 10% alpha in CSS -- parsed as
+#: opaque rgb(255, 255, 26) and drew the bright yellow rim reported here on
+#: 2026-09-01. `rgba()` means the same thing in both dialects.
+_SPLIT_LINE = "rgba(255, 255, 255, 0.16)"
+_SPLIT_HOVER = "rgba(95, 168, 199, 0.9)"
+
 QT_INSTALL_COMMAND = "pip install spacr[flowview]"
 QT_MISSING_MESSAGE = (
     "The FlowView live panel requires PySide6. "
@@ -20,7 +29,7 @@ QT_MISSING_MESSAGE = (
 )
 
 try:
-    from PySide6.QtCore import QRectF, Qt, QTimer
+    from PySide6.QtCore import QRectF, QSize, Qt, QTimer
     from PySide6.QtGui import QBrush, QCloseEvent, QColor, QPainter, QWheelEvent
     from PySide6.QtWidgets import (
         QFileDialog,
@@ -181,6 +190,81 @@ else:
                 event.ignore()
 
 
+    class _PanelHeightGrip(QFrame):
+        """Thin drag handle along the panel's lower edge.
+
+        The panel is one row of a scrolling settings column, so without this
+        it gets whatever height the column gives it and puts the graph and
+        the inspector both behind an inner scrollbar inside an outer one.
+        Dragging this sets the height; double-clicking gives it back.
+
+        :param panel: the :class:`FlowViewPanel` this resizes. ALSO ITS
+            QWIDGET PARENT, so the grip is laid out under the panel it drags
+            and cannot outlive it.
+        """
+
+        HEIGHT = 7
+
+        def __init__(self, panel: "FlowViewPanel") -> None:
+            """Build the handle and give it a vertical-resize cursor."""
+            super().__init__(panel)
+            self._panel = panel
+            self._press_y: float | None = None
+            self._start_height = 0
+            self.setCursor(Qt.SizeVerCursor)
+            self.setFixedHeight(self.HEIGHT)
+            # Drawn here rather than by the app theme: FlowView renders
+            # standalone too, and must not need the Qt palette to have a
+            # visible edge.
+            self.setStyleSheet(
+                "QFrame { background: transparent; border: none;"
+                f" border-bottom: 1px solid {_SPLIT_LINE}; }}"
+                "QFrame:hover {"
+                f" border-bottom: 2px solid {_SPLIT_HOVER}; }}")
+            self.setToolTip("Drag to make FlowView taller or shorter. "
+                            "Double-click to fit its contents.")
+
+        def sizeHint(self) -> QSize:                     # noqa: N802
+            """Wide and thin -- the handle is an edge, not a bar."""
+            return QSize(80, self.HEIGHT)
+
+        def mousePressEvent(self, event) -> None:        # noqa: N802
+            """Remember where the drag started, and from what height."""
+            if event.button() == Qt.LeftButton:
+                self._press_y = event.globalPosition().y()
+                self._start_height = self._panel.height()
+                event.accept()
+                return
+            super().mousePressEvent(event)
+
+        def mouseMoveEvent(self, event) -> None:         # noqa: N802
+            """Resize by how far the pointer moved SINCE THE PRESS.
+
+            Measured from the press rather than the last move, so a drag
+            that outruns the redraw lands where the pointer is instead of
+            accumulating rounding.
+            """
+            if self._press_y is not None and event.buttons() & Qt.LeftButton:
+                delta = event.globalPosition().y() - self._press_y
+                self._panel.set_user_height(self._start_height + int(delta))
+                event.accept()
+                return
+            super().mouseMoveEvent(event)
+
+        def mouseReleaseEvent(self, event) -> None:      # noqa: N802
+            """End the drag."""
+            self._press_y = None
+            super().mouseReleaseEvent(event)
+
+        def mouseDoubleClickEvent(self, event) -> None:  # noqa: N802
+            """Give the height back to the content."""
+            if event.button() == Qt.LeftButton:
+                self._panel.reset_user_height()
+                event.accept()
+                return
+            super().mouseDoubleClickEvent(event)
+
+
     class FlowViewPanel(QWidget):
         """With PySide6, ``FlowViewPanel`` renders and inspects live snapshots.
 
@@ -246,6 +330,8 @@ else:
                 " background: transparent; border: none;"
                 " border-radius: 8px; }"
             )
+            #: Pixels the user dragged the panel to, or None for content.
+            self._user_height: int | None = None
             self._collector = collector
             try:
                 self._follow_global_collector = collector is get_collector()
@@ -315,8 +401,28 @@ else:
             splitter.setStretchFactor(0, 3)
             splitter.setStretchFactor(1, 2)
             splitter.setCollapsible(1, False)
+            # THE HANDLE HAS TO BE VISIBLE TO BE FOUND. A QSplitter draws
+            # nothing by default on this style, so the divider between the
+            # graph and the inspector was a 6 px band of nothing -- draggable,
+            # but only by somebody who already knew it was there. It is drawn
+            # as the same hairline the console's resize handle uses, so the
+            # two affordances on this screen do not look like two.
+            splitter.setHandleWidth(_PanelHeightGrip.HEIGHT)
+            splitter.setStyleSheet(
+                "QSplitter::handle:vertical {"
+                f" background: transparent;"
+                f" border-bottom: 1px solid {_SPLIT_LINE}; }}"
+                "QSplitter::handle:vertical:hover {"
+                f" border-bottom: 2px solid {_SPLIT_HOVER}; }}")
             self._splitter = splitter
             outer.addWidget(splitter, 1)
+
+            # AND ONE BELOW THE TEXT BOX. The splitter divides the panel's own
+            # height between graph and inspector; this one changes how much
+            # height the panel has at all, so the pair reads as "the graph
+            # against the text" and "the two of them against the page".
+            self._bottom_grip = _PanelHeightGrip(self)
+            outer.addWidget(self._bottom_grip)
 
             self.export_status = QLabel("")
             self.export_status.setStyleSheet(f"color: {TEXT_SECONDARY};")
@@ -438,6 +544,24 @@ else:
 
         def _show_inspector(self, node: Node) -> None:
             self.inspector.setPlainText(inspector_text(node))
+
+        def set_user_height(self, height: int) -> None:
+            """Hold the panel at ``height`` pixels until it is given back.
+
+            Clamped at the floor the graph and inspector need between them,
+            so a drag that runs off the top cannot squeeze the panel to
+            nothing and leave no edge to drag back.
+            """
+            floor = self.INSPECTOR_MIN_HEIGHT + _PanelHeightGrip.HEIGHT
+            self._user_height = max(int(height), floor)
+            self.setFixedHeight(self._user_height)
+
+        def reset_user_height(self) -> None:
+            """Give the height back to the content and the layout."""
+            self._user_height = None
+            self.setMinimumHeight(0)
+            self.setMaximumHeight(16777215)
+            self.updateGeometry()
 
         def _export_current(self) -> Path | None:
             if self._export_path_provider is None:
