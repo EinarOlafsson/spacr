@@ -580,14 +580,26 @@ class ComparisonReport:
 
     @property
     def n_fields(self) -> int:
+        """How many fields the two models were compared over.
+
+        :returns: the field count.
+        """
         return len(self.comparisons)
 
     @property
     def total_objects_a(self) -> int:
+        """Every object model A found, across all fields.
+
+        :returns: the object count.
+        """
         return sum(c.n_objects_a for c in self.comparisons)
 
     @property
     def total_objects_b(self) -> int:
+        """Every object model B found, across all fields.
+
+        :returns: the object count.
+        """
         return sum(c.n_objects_b for c in self.comparisons)
 
     @property
@@ -614,14 +626,33 @@ class ComparisonReport:
 
     @property
     def mean_matched_fraction(self) -> float:
+        """The mean fraction of A's objects that B also found.
+
+        NAN-SAFE: a field where neither model found anything contributes no
+        fraction rather than a zero, which would drag the mean down for a
+        field that says nothing about either model.
+
+        :returns: the mean, or NaN when no field had objects.
+        """
         return _nanmean([c.iou_matched_fraction for c in self.comparisons])
 
     @property
     def total_splits(self) -> int:
+        """How many of A's objects B broke into several.
+
+        DIRECTIONAL. A split and a merge are the same event seen from the two
+        sides, so the pair only means anything if you know which model is A.
+
+        :returns: the split count.
+        """
         return sum(c.split_events for c in self.comparisons)
 
     @property
     def total_merges(self) -> int:
+        """How many of A's objects B joined together.
+
+        :returns: the merge count.
+        """
         return sum(c.merge_events for c in self.comparisons)
 
     @property
@@ -631,14 +662,30 @@ class ComparisonReport:
 
     @property
     def total_merged_away(self) -> int:
+        """How many of A's objects disappeared into a merge.
+
+        Distinct from the merge COUNT: one merge can swallow several
+        objects, and the number of objects lost is what changes a per-object
+        measurement downstream.
+
+        :returns: the object count.
+        """
         return sum(c.merged_away for c in self.comparisons)
 
     @property
     def total_new_objects_b(self) -> int:
+        """Objects B found that A did not.
+
+        :returns: the object count.
+        """
         return sum(c.new_objects_b for c in self.comparisons)
 
     @property
     def total_missing_objects_a(self) -> int:
+        """Objects A found that B did not.
+
+        :returns: the object count.
+        """
         return sum(c.missing_objects_a for c in self.comparisons)
 
     @property

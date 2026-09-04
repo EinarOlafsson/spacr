@@ -142,6 +142,10 @@ class FeatureExplorerScreen(QWidget):
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
+        """Point the screen at a table to rank.
+
+        :param frame: the rows, or None to clear.
+        """
         self._frame = frame
         self.formulas.set_frame(frame)
         self._push_frame()
@@ -181,6 +185,7 @@ class FeatureExplorerScreen(QWidget):
 
     # -- loading ----------------------------------------------------------
     def choose_table(self) -> None:
+        """Ask which table in the project to rank."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a measurement table", "",
             "Measurements (*.db *.sqlite *.csv *.tsv);;All files (*)")
@@ -236,13 +241,25 @@ class FeatureExplorerScreen(QWidget):
             self.load_path(self._path, table=name)
 
     def active_jobs(self) -> int:
+        """How many background jobs this screen is running.
+
+        :returns: the job count.
+        """
         return self._jobs.active_jobs()
 
     def is_busy(self) -> bool:
+        """Whether anything is still running.
+
+        What the window asks before closing: a ranking exported while its
+        run is still going would be an export of half of it.
+
+        :returns: True while work is outstanding.
+        """
         return self._jobs.is_busy()
 
     # -- export -----------------------------------------------------------
     def choose_export(self) -> None:
+        """Ask where to write the ranking."""
         path, _ = QFileDialog.getSaveFileName(
             self, "Export the ranking", "feature_ranking.csv",
             "CSV (*.csv);;All files (*)")
@@ -275,6 +292,11 @@ class FeatureExplorerScreen(QWidget):
         } for position, score in enumerate(result.scores)])
 
     def export_ranking(self, path: str) -> Optional[str]:
+        """Write the ranking to a file.
+
+        :param path: where to write it.
+        :returns: True when it was written.
+        """
         frame = self.ranking_frame()
         if frame is None:
             self._source.setText("Nothing ranked yet.")
@@ -285,9 +307,17 @@ class FeatureExplorerScreen(QWidget):
 
     @property
     def spec(self) -> ExplorerSpec:
+        """What the screen is currently set to rank.
+
+        :returns: the explorer spec.
+        """
         return self.explorer.spec
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Shut background work down before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         self.explorer.close()
         super().closeEvent(event)

@@ -94,6 +94,10 @@ class ExternalMaskInputWidget(QWidget):
         return sum(len(group.paths) for group in detected)
 
     def set_value(self, value: Any) -> None:
+        """Replace every group from a settings value.
+
+        :param value: the groups, as the settings dict carries them.
+        """
         self._groups = []
         if isinstance(value, (str, bytes)):
             value = [value]
@@ -105,20 +109,50 @@ class ExternalMaskInputWidget(QWidget):
         self._rebuild()
 
     def get_value(self) -> List[dict]:
+        """The groups worth saving, in the shape the settings dict wants.
+
+        IGNORED GROUPS ARE DROPPED. "Ignore" is the user saying these files
+        are not part of the run, so carrying them into the settings would
+        make the next reader wonder what they are for.
+
+        :returns: one dict per kept group.
+        """
         return [group.to_dict() for group in self._groups
                 if group.role != "ignore"]
 
     def groups(self) -> List[InputGroup]:
+        """Every group, ignored ones included.
+
+        :returns: the groups, in display order.
+        """
         return [InputGroup.from_value(group.to_dict())
                 for group in self._groups]
 
     def group_count(self) -> int:
+        """How many groups the files fell into.
+
+        :returns: the group count.
+        """
         return len(self._groups)
 
     def file_count(self) -> int:
+        """How many files were grouped, across all groups.
+
+        :returns: the file count.
+        """
         return sum(len(group.paths) for group in self._groups)
 
     def set_group_role(self, row: int, role: str) -> bool:
+        """Correct one group's inferred role.
+
+        REFUSES AN UNKNOWN ROLE rather than storing it: the role decides how
+        the files are read, and an unrecognised one would fail later, in the
+        run, rather than here where the user can see what they typed.
+
+        :param row: which group.
+        :param role: the role's name.
+        :returns: True when the row and role were both valid.
+        """
         if role not in ROLES or not 0 <= row < len(self._groups):
             return False
         self._groups[row].role = role
@@ -127,6 +161,16 @@ class ExternalMaskInputWidget(QWidget):
         return True
 
     def set_group_object_type(self, row: int, object_type: Any) -> bool:
+        """Correct one group's object type.
+
+        An empty or unassigned value clears the type rather than storing a
+        placeholder string, so the settings say "not chosen" rather than
+        naming an object that does not exist.
+
+        :param row: which group.
+        :param object_type: the object type, or None to clear it.
+        :returns: True when the row was valid.
+        """
         if not 0 <= row < len(self._groups):
             return False
         value = None if object_type in (None, "", "unassigned") else str(object_type)
@@ -138,6 +182,7 @@ class ExternalMaskInputWidget(QWidget):
         return True
 
     def remove_selected(self) -> None:
+        """Drop the selected groups."""
         rows = {index.row() for index in self._table.selectedIndexes()}
         groups = sorted({self._group_of_row(row) for row in rows} - {-1},
                         reverse=True)

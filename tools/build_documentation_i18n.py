@@ -149,42 +149,6 @@ API_VALUE_DOC_ASSIGNMENTS = frozenset({
 # particular, ``spacr.logging_util.LevelSetFilter.filter`` is intentionally
 # absent: its documentation comes from external ``logging.Filter.filter``.
 API_DOC_ALIASES: Mapping[str, str] = {
-    "spacr.layers.ImageLayer.world_extent":
-        "spacr.layers.Layer.world_extent",
-    "spacr.layers.ImageLayer.ndim":
-        "spacr.layers.Layer.ndim",
-    "spacr.layers.ImageLayer.shape":
-        "spacr.layers.Layer.shape",
-    "spacr.layers.LabelsLayer.world_extent":
-        "spacr.layers.Layer.world_extent",
-    "spacr.layers.LabelsLayer.ndim":
-        "spacr.layers.Layer.ndim",
-    "spacr.layers.LabelsLayer.shape":
-        "spacr.layers.Layer.shape",
-    "spacr.layers.PointsLayer.world_extent":
-        "spacr.layers.Layer.world_extent",
-    "spacr.layers.PointsLayer.ndim":
-        "spacr.layers.Layer.ndim",
-    "spacr.layers.ShapesLayer.world_extent":
-        "spacr.layers.Layer.world_extent",
-    "spacr.layers.ShapesLayer.ndim":
-        "spacr.layers.Layer.ndim",
-    "spacr.qt.widgets.gate_spec.PolygonGate.scaled":
-        "spacr.qt.widgets.gate_spec.Gate.scaled",
-    "spacr.qt.widgets.gate_spec.PolygonGate.translated":
-        "spacr.qt.widgets.gate_spec.Gate.translated",
-    "spacr.qt.widgets.gate_spec.PolygonGate.with_handle":
-        "spacr.qt.widgets.gate_spec.Gate.with_handle",
-    "spacr.qt.widgets.gate_spec.RectGate.centre":
-        "spacr.qt.widgets.gate_spec.Gate.centre",
-    "spacr.qt.widgets.gate_spec.RectGate.range_filters":
-        "spacr.qt.widgets.gate_spec.Gate.range_filters",
-    "spacr.qt.widgets.gate_spec.ThresholdGate.centre":
-        "spacr.qt.widgets.gate_spec.Gate.centre",
-    "spacr.qt.widgets.gate_spec.ThresholdGate.range_filters":
-        "spacr.qt.widgets.gate_spec.Gate.range_filters",
-    "spacr.qt.widgets.pca_view.PCAScoresCanvas.render_now":
-        "spacr.qt.widgets.graph_builder.GraphCanvas.render_now",
     "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.on_linked_filter_changed":
         "spacr.qt.linked_selection.LinkedView.on_linked_filter_changed",
 }

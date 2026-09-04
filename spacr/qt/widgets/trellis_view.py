@@ -96,6 +96,10 @@ class TrellisCanvas(GraphCanvas):
     # -- the spec ---------------------------------------------------------
     @property
     def trellis_spec(self) -> TrellisSpec:
+        """The grid this canvas is drawing.
+
+        :returns: the trellis spec.
+        """
         return self._trellis_spec
 
     @property
@@ -123,6 +127,11 @@ class TrellisCanvas(GraphCanvas):
                               immediate=immediate)
 
     def set_channel(self, channel: str, column: Optional[str]) -> None:
+        """Rebind one of the graph's channels and redraw.
+
+        :param channel: the channel's name, such as ``x`` or ``facet_row``.
+        :param column: the column to bind, or None to clear it.
+        """
         self.set_spec(self._spec.with_channel(channel, column))
 
     # -- rendering --------------------------------------------------------
@@ -442,22 +451,40 @@ class TrellisPanelWidget(QWidget):
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Point the panel at a new table.
+
+        :param frame: the rows to plot, or None to clear.
+        """
         self.well.set_frame(frame)
         self.canvas.set_frame(frame)
         self._sync()
 
     @property
     def spec(self) -> TrellisSpec:
+        """The grid the canvas is drawing.
+
+        :returns: the trellis spec.
+        """
         return self.canvas.trellis_spec
 
     def set_spec(self, spec: TrellisSpec) -> None:
+        """Draw a different grid.
+
+        :param spec: the trellis spec.
+        """
         self.canvas.set_trellis_spec(spec)
         self._sync()
 
     def zone(self, channel: str) -> DropZone:
+        """One channel's drop zone, for a caller that needs to drive it.
+
+        :param channel: the channel's name.
+        :returns: the zone widget, or None when there is no such channel.
+        """
         return self._zones[channel]
 
     def clear_channels(self) -> None:
+        """Empty every drop zone, leaving the table loaded."""
         for zone in self._zones.values():
             zone.set_column(None)
 
@@ -512,5 +539,9 @@ class TrellisPanelWidget(QWidget):
             self._building = False
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Close the canvas first, so it can unlink from the shared selection.
+
+        :param event: the Qt close event.
+        """
         self.canvas.close()
         super().closeEvent(event)
