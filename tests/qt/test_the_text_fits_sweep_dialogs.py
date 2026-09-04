@@ -130,7 +130,8 @@ def _build(module_path: str, class_name: str, qtbot):
 @pytest.mark.parametrize("module_path,class_name", DIALOGS,
                          ids=[name for _path, name in DIALOGS])
 def test_no_dialog_caption_is_cut_off(module_path, class_name, locale, scale,
-                                      qtbot, at_font_scale, monkeypatch):
+                                      qtbot, at_font_scale,  # noqa: F811
+                                      monkeypatch):
     """One dialog, in one language, at one font scale."""
     monkeypatch.setenv(I.ENV_LANGUAGE, locale)
     at_font_scale(scale)
@@ -146,7 +147,7 @@ def test_no_dialog_caption_is_cut_off(module_path, class_name, locale, scale,
         f"cut off, {allowed} recorded. {detail}")
 
 
-def test_the_dialog_sweep_can_actually_fail(qtbot, at_font_scale):
+def test_the_dialog_sweep_can_actually_fail(qtbot, at_font_scale):  # noqa: F811
     """The test that keeps this out of 288's set of four.
 
     288 records four tests that passed while exercising nothing. A sweep that
