@@ -248,6 +248,7 @@ class _ConsoleRelay(QObject):
     line = Signal(str)
 
     def __init__(self) -> None:
+        """Connect the line signal so records reach the GUI thread."""
         super().__init__()
         self.line.connect(self._deliver)
         app = QCoreApplication.instance()

@@ -368,11 +368,17 @@ class _ProvidersDialog(QDialog):
         self._gh_status.setTextFormat(Qt.RichText)
 
     def _on_prompt_save(self) -> None:
+        """Store the edited system prompt and say it is now custom."""
         text = self._prompt_edit.toPlainText().strip()
         ai_settings.set_system_prompt(text)
         self._prompt_status.setText(self._prompt_status_text())
 
     def _on_prompt_reset(self) -> None:
+        """Restore the default prompt and show it in the editor.
+
+        The editor is REFILLED rather than cleared, so the reader can see what
+        the default actually says before deciding to keep it.
+        """
         ai_settings.reset_system_prompt()
         self._prompt_edit.setPlainText(ai_settings.get_system_prompt())
         self._prompt_status.setText(self._prompt_status_text())

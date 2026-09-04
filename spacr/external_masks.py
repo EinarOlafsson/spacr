@@ -50,6 +50,7 @@ class _LazyConvert:
     __slots__ = ()
 
     def __getattr__(self, name: str):
+        """Forward to :mod:`spacr.convert`, imported on first use."""
         from . import convert
 
         return getattr(convert, name)

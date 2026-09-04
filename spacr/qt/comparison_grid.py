@@ -89,6 +89,7 @@ class _LinkedCanvas(LayerCanvas):
     """
 
     def _ensure_canvas(self) -> Optional[Canvas]:
+        """The canvas at this widget's size, rebuilt only when the size changed."""
         height = max(1, self.height() - 2)
         width = max(1, self.width() - 2)
         if self._canvas is not None and self._canvas.shape != (height, width):

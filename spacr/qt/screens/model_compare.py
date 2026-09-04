@@ -254,6 +254,7 @@ class _ModelPanel(QGroupBox):
 
     def __init__(self, title: str, parent: Optional[QWidget] = None,
                  diameter: float = 30.0):
+        """Build one side's form, seeded with the shared starting diameter."""
         super().__init__(title, parent)
         self.setObjectName(MODEL_PANEL_NAME)
         form = QFormLayout(self)

@@ -393,6 +393,12 @@ class _JobMixin:
     """
 
     def _init_jobs(self) -> None:
+        """Start with no jobs and not busy.
+
+        Called from the host's own constructor rather than by inheritance, so a
+        screen that forgets it has no job list at all -- which is why every
+        reader below uses ``getattr`` with a default.
+        """
         self._jobs: List[Tuple[Any, Any]] = []
         self._busy = False
 

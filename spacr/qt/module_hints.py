@@ -97,6 +97,7 @@ class _ModuleHints(QObject):
     """
 
     def __init__(self, window):
+        """Take the window as parent and remember it for the hint strip."""
         super().__init__(window)
         self._window = window
 

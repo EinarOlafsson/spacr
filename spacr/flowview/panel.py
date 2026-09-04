@@ -51,6 +51,7 @@ if not QT_AVAILABLE:
         """Placeholder that names the command needed for live rendering."""
 
         def __init__(self, *args: object, **kwargs: object) -> None:
+            """Refuse construction, naming the missing Qt import as the cause."""
             del args, kwargs
             raise ImportError(QT_MISSING_MESSAGE) from _QT_IMPORT_ERROR
 
