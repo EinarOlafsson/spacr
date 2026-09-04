@@ -304,6 +304,19 @@ class _TopicBar(QFrame):
 
     def __init__(self, label: str, parent=None, accent: Optional[str] = None,
                  trailing: Optional[QWidget] = None):
+        """Build one console section heading.
+
+        :param label: the heading text.
+        :param parent: parent widget.
+        :param accent: colour for the heading, or ``None`` for the theme's.
+        :param trailing: an optional widget pinned to the right of the
+            heading, for a count or a control belonging to the section.
+
+        The heading is a CONTROL, not a caption: clicking it brings its
+        section to the top and expands it, so it takes a pointing hand and
+        strong focus. A control only a mouse can reach is one some users
+        cannot reach at all.
+        """
         super().__init__(parent)
         self.setObjectName("ConsoleTopicBar")
         # The heading is a control now (instruction 110): click it to bring
@@ -516,6 +529,19 @@ class _StdoutBlock(QPlainTextEdit):
 
     def __init__(self, text: str = "", error: bool = False, parent=None,
                  text_color: Optional[str] = None):
+        """Build the block one stdout run grows into.
+
+        :param text: the initial contents.
+        :param error: whether this is the error stream. Chooses the object
+            name, so the theme colours it without this class deciding what
+            "error" looks like.
+        :param parent: parent widget.
+        :param text_color: an explicit colour, or ``None`` for the theme's.
+
+        The block is reused for a whole run rather than made per line: a
+        widget per line fragments the console, and :data:`MAX_CHARS` drops
+        text from the HEAD so a long run cannot grow without bound.
+        """
         super().__init__(parent)
         self.setObjectName("ConsoleStdoutBlockError"
                             if error else "ConsoleStdoutBlock")

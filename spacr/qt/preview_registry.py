@@ -171,6 +171,18 @@ class _PreviewHost(QObject):
     """
 
     def __init__(self, screen: QWidget, spec: PreviewSpec, panel, card):
+        """Bind one preview to the screen that shows it.
+
+        :param screen: the module screen the preview belongs to, and this
+            object's Qt parent.
+        :param spec: what the preview is and how to build it.
+        :param panel: the preview widget itself.
+        :param card: the container the panel sits in, shown and hidden by
+            :meth:`on_toggled`.
+
+        Nothing is built here. The panel is PRIMED on first show, so a screen
+        with a preview costs nothing until the user opens it.
+        """
         super().__init__(screen)
         self._screen = screen
         self._spec = spec

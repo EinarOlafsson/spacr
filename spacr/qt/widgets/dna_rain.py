@@ -1329,6 +1329,25 @@ class DnaRainSettingsBar(QWidget):
                  random_color: bool = False,
                  vertical: bool = False,
                  theme: Optional[str] = None):
+        """Build the controls for the DNA-rain backdrop.
+
+        Every parameter is the STARTING value of a control, not a fixed
+        setting: the bar exists to change them, and each has a widget below.
+
+        :param parent: parent widget.
+        :param color: the glyph colour to start on; anything
+            :func:`_as_color` accepts, defaulting to ``DEFAULT_COLOR``.
+        :param speed: fall speed multiplier.
+        :param font_size: glyph size in pixels.
+        :param opacity: glyph opacity, 0 to 1.
+        :param random_color: start with a colour per column rather than one
+            colour, which makes the swatch inactive until it is turned off.
+        :param vertical: lay the bar out as a column instead of a row.
+        :param theme: which theme to style against, or ``None`` for the
+            active one. The bar needs an opaque surface of its own because
+            the rain is painted behind it and the global background rule
+            does not reach a widget carrying its own stylesheet.
+        """
         super().__init__(parent)
         self._color = _as_color(color, QColor(DEFAULT_COLOR))
         self._rain: Optional[DnaRainWidget] = None
