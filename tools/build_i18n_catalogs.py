@@ -888,15 +888,54 @@ _ZH_WEB_SOURCE_ESCAPE_RE = re.compile(
 
 @lru_cache(maxsize=1)
 def _opencc_runtime() -> tuple[str, Path]:
-    """Cache the immutable OpenCC runtime resolution per audit process."""
+    """Cache the immutable OpenCC runtime resolution per audit process.
+
+    THE SYSTEM INSTALL IS STILL TRIED FIRST, so CI resolves exactly what it
+    resolved before: it installs the Debian packages itself and nothing about
+    that path changes.
+
+    A SECOND PLACE IS NOW LOOKED IN, because the first one needs root. This
+    resolver used to demand ``/usr/share/opencc/t2s.json`` and nothing else,
+    which made every mode of this tool -- including ``--audit``, which writes
+    nothing -- refuse to start on any machine without a system-wide OpenCC.
+    That is a hard dependency on being able to run ``apt`` for a tool whose
+    job is to read files, and it blocked the audit on a developer machine on
+    2026-09-03 while the same audit ran fine in CI.
+
+    The ``opencc`` wheel installs into the environment without root and
+    carries both halves: ``clib/share/opencc/t2s.json`` and an extension
+    module that exports the same C entry points this code calls through
+    ctypes -- ``opencc_open``, ``opencc_convert_utf8``,
+    ``opencc_convert_utf8_free`` and ``opencc_close``. Checked with ``nm -D``
+    before relying on it, because a CPython extension exporting a C library's
+    symbols is a property of how the wheel was linked, not a guarantee.
+
+    :returns: the library to load and the ``t2s.json`` to open.
+    :raises RuntimeError: when neither an installed nor a packaged OpenCC is
+        usable, naming both ways to supply one.
+    """
     library_name = ctypes.util.find_library("opencc")
     config_path = Path("/usr/share/opencc/t2s.json")
-    if not library_name or not config_path.is_file():
-        raise RuntimeError(
-            "zh_CN generation requires OpenCC 1.1+ and "
-            "/usr/share/opencc/t2s.json"
-        )
-    return library_name, config_path
+    if library_name and config_path.is_file():
+        return library_name, config_path
+
+    try:
+        import opencc as _opencc_package
+
+        packaged = Path(_opencc_package.__file__).resolve().parent / "clib"
+        libraries = sorted(packaged.glob("opencc_clib*.so"))
+        packaged_config = packaged / "share" / "opencc" / "t2s.json"
+        if libraries and packaged_config.is_file():
+            return str(libraries[0]), packaged_config
+    except Exception:                                        # noqa: BLE001
+        pass
+
+    raise RuntimeError(
+        "zh_CN generation requires OpenCC 1.1+ and its t2s.json. Install it "
+        "system-wide (apt install opencc libopencc-dev, which is what CI "
+        "does) or into this environment (pip install opencc), which needs "
+        "no root."
+    )
 
 
 def _simplify_chinese_prose(value: str) -> str:
