@@ -252,6 +252,10 @@ class FovMovie(QWidget):
         self.show_frame(self._frame)
 
     def frame_count(self) -> int:
+        """How many frames this field has.
+
+        :returns: the frame count, 0 when nothing is loaded.
+        """
         return 0 if self._images is None else int(len(self._images))
 
     # -- rendering -----------------------------------------------------
@@ -342,22 +346,36 @@ class FovMovie(QWidget):
 
     # -- playback ------------------------------------------------------
     def toggle_play(self) -> None:
+        """Play if paused, pause if playing."""
         if self._timer.isActive():
             self.pause()
         else:
             self.play()
 
     def play(self) -> None:
+        """Start playing, unless there is nothing to animate.
+
+        A SINGLE FRAME IS NOT A MOVIE: starting a timer for it would spin
+        the event loop to redraw the same picture.
+        """
         if self.frame_count() < 2:
             return
         self._timer.start()
         self._play.setText("Pause")
 
     def pause(self) -> None:
+        """Stop the timer and put the button back to Play."""
         self._timer.stop()
         self._play.setText("Play")
 
     def set_fps(self, fps: float) -> None:
+        """Set the playback rate.
+
+        Floored at half a frame per second, because the interval is derived
+        by division and a rate of zero is an infinite one.
+
+        :param fps: the wanted frames per second.
+        """
         self._timer.setInterval(int(1000 / max(0.5, float(fps))))
 
     def _advance(self) -> None:
@@ -369,9 +387,14 @@ class FovMovie(QWidget):
 
     # -- the strip -----------------------------------------------------
     def toggle_strip(self) -> None:
+        """Open the filmstrip if closed, close it if open."""
         self.set_strip_open(not self.strip_is_open())
 
     def set_strip_open(self, open_: bool) -> None:
+        """Show or hide the filmstrip under the movie.
+
+        :param open_: True to show it.
+        """
         self._strip.setVisible(bool(open_))
         if open_:
             self._strip.highlight(self._frame)
@@ -520,9 +543,22 @@ class TimelapseMoviePanel(QWidget):
             self.max_fields_changed.emit(self._max_fields)
 
     def max_fields(self) -> int:
+        """How many fields this panel will stack at once.
+
+        A CAP, because each field is its own movie with its own timer, and a
+        plate with hundreds would start hundreds of them.
+
+        :returns: the field cap.
+        """
         return self._max_fields
 
     def movies(self) -> List[FovMovie]:
+        """The field movies currently stacked.
+
+        A LIST COPY, so a caller cannot restack the panel by mutating it.
+
+        :returns: the movies, in display order.
+        """
         return list(self._movies)
 
     # -- controls ------------------------------------------------------
@@ -539,5 +575,9 @@ class TimelapseMoviePanel(QWidget):
         self._play_all.setText("Play all" if playing else "Pause all")
 
     def set_fps(self, fps: float) -> None:
+        """Set the playback rate on every stacked field at once.
+
+        :param fps: the wanted frames per second.
+        """
         for movie in self._movies:
             movie.set_fps(fps)
