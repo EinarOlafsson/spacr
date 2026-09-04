@@ -7818,10 +7818,12 @@ class _AlphabetSelect(QWidget):
 
     # -- internals -------------------------------------------------------
     def _on_toggled(self, _checked: bool) -> None:
+        """Announce that the selection changed."""
         self.changed.emit()
 
     @staticmethod
     def _as_members(value: Any) -> set:
+        """Read a stored value as a set of letters, however it was written."""
         if value is None:
             return set()
         if isinstance(value, str):
@@ -7961,6 +7963,12 @@ class _ListEditor(QWidget):
 
     # -- shape -----------------------------------------------------------
     def _rebuild(self, nested: bool, value) -> None:
+        """Replace every strip, flat or grouped.
+
+        Signals are BLOCKED on each entry before it is torn down:
+        ``editingFinished`` fires while a focused QLineEdit is being destroyed,
+        and that would call ``_commit_entry`` on a half-deleted strip.
+        """
         for strip in list(self._strips):
             # editingFinished fires while a focused QLineEdit is being torn
             # down, which would call _commit_entry on a half-deleted strip.
@@ -7980,6 +7988,7 @@ class _ListEditor(QWidget):
         self._refresh_footer()
 
     def _add_strip(self, values) -> _ChipStrip:
+        """Append one chip strip and wire it back to this editor."""
         strip = _ChipStrip(placeholder=self._placeholder(),
                            removable=self._nested, parent=self)
         strip.emptied.connect(self._drop_strip)
@@ -7989,6 +7998,11 @@ class _ListEditor(QWidget):
         return strip
 
     def _drop_strip(self, strip) -> None:
+        """Remove one group, or fall back to a flat list when it was the last.
+
+        Removing the ONLY group is how a user goes back to an ungrouped list, so
+        it rebuilds flat rather than leaving an editor with nothing in it.
+        """
         if len(self._strips) <= 1:
             # Removing the only group is how you go back to a flat list.
             self._rebuild(False, [])
@@ -8001,6 +8015,7 @@ class _ListEditor(QWidget):
         self._refresh_footer()
 
     def _on_footer(self) -> None:
+        """Add a group when grouped, or a value when flat."""
         if self._nested:
             self._add_strip([])
             return
