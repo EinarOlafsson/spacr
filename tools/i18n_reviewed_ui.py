@@ -50,6 +50,22 @@ def _row(
 REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
     # Scientific display nouns.  These rows deliberately choose the plotting,
     # imaging, tabular-data, and microplate senses rather than everyday ones.
+    # "Source" is the field's label after the 2026-09-04 rename from "Path".
+    # FRENCH IS A REVIEWED IDENTITY: "source" is the ordinary French word for
+    # a source, so the correct translation is byte-identical to the English and
+    # the exact-English gate has to be told so explicitly rather than left to
+    # infer it. The same shape as the `fr: "Figure"` row below.
+    "Source": _row(
+        "Källa",
+        "Quelle",
+        "Fuente",
+        "\u6e90",
+        "Fonte",
+        "\u0938\u094d\u0930\u094b\u0924",
+        "\uc18c\uc2a4",
+        "Uppruni",
+        "Source",
+    ),
     "Figure": _row(
         "Figur",
         "Abbildung",
