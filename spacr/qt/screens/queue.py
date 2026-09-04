@@ -61,6 +61,7 @@ class _QueueRunner(QThread):
     queue_finished     = Signal()
 
     def __init__(self, queue: PlateQueue, parent=None):
+        """Hold the queue and start not stopped."""
         super().__init__(parent)
         self._queue = queue
         self._stop = False

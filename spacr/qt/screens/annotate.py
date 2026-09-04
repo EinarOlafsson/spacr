@@ -2333,6 +2333,7 @@ class _AutoAnnotateDialog(QDialog):
         self.done(_AUTO_ANNOTATE_OPEN_GATE)
 
     def _on_open_umap(self) -> None:
+        """Close with the code that asks the caller to open the UMAP."""
         self.done(_AUTO_ANNOTATE_OPEN_UMAP)
 
 

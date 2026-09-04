@@ -667,6 +667,7 @@ class _RecipeButtonHandler:
     """
 
     def __init__(self, screen, button: QToolButton):
+        """Hold the screen and the button that owns this handler."""
         self._screen = screen
         self._button = button
 

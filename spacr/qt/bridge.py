@@ -111,6 +111,10 @@ class _StreamRedirector(io.TextIOBase):
             self._safe_emit(pending)
 
     def _safe_emit(self, s: str) -> None:
+        """Hand one line to the callback, swallowing anything it raises.
+
+        A print must never fail because something downstream of the console did.
+        """
         try:
             self._on_write(s)
         except Exception:

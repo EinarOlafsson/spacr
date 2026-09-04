@@ -1133,6 +1133,7 @@ class _WellTab(QWidget):
     """
 
     def __init__(self, key: Tuple[str, ...], label: str, parent=None):
+        """Hold the well's key and its label."""
         super().__init__(parent)
         self.key = tuple(key)
         self.label = str(label)

@@ -234,6 +234,7 @@ class _DropScanner(QObject):
         # event synchronously, and this object is an event filter, so it must
         # already be able to answer for itself. (The same race that put the
         # assignment first in ``_DropzoneFilter.__init__``.)
+        """Watch ``screen`` for drops, parenting to it when it is a QObject."""
         self._screen = screen
         parent = screen if isinstance(screen, QObject) else None
         super().__init__(parent)

@@ -160,6 +160,7 @@ class _DropzoneFilter(QObject):
         # QObject parenting can synchronously deliver a ChildAdded event to
         # the target.  Set this first so eventFilter is fully initialized even
         # during super().__init__ (standalone tool screens exposed this race).
+        """Install on ``target`` and route its drops to that widget's handler."""
         self._target = target
         super().__init__(target)   # parent → auto-cleanup
 

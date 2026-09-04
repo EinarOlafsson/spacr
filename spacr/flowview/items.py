@@ -57,6 +57,11 @@ if not QT_AVAILABLE:
         """Placeholder that preserves an actionable optional-dependency error."""
 
         def __init__(self, *args: object, **kwargs: object) -> None:
+            """Refuse construction, naming the missing Qt import as the cause.
+
+            Raising HERE rather than at import keeps a Qt-less environment able to
+            import the module and use everything in it that does not need a widget.
+            """
             del args, kwargs
             raise ImportError(QT_MISSING_MESSAGE) from _QT_IMPORT_ERROR
 

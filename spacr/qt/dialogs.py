@@ -764,6 +764,7 @@ def detach_all_dialogs(app) -> bool:
         # installed, reported success, and silently never fired.
         class _Filter(QObject):
             def __init__(self):
+                """Wrap the detacher this filter applies to every dialog."""
                 super().__init__()
                 self._inner = _DetachEveryDialog()
 

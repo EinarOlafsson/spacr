@@ -156,6 +156,7 @@ class _ShowFilter(QObject):
     """
 
     def __init__(self, on_show, parent=None) -> None:
+        """Hold the callback and take the parent."""
         super().__init__(parent)
         self._on_show = on_show
 

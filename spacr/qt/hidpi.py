@@ -218,6 +218,7 @@ class _RatioWatcher(QObject):
     """
 
     def __init__(self, widget: Any, redraw: Callable[[], None]) -> None:
+        """Record the widget's current ratio, so the first change is detectable."""
         super().__init__(widget)
         self._redraw = redraw
         self._ratio = device_ratio(widget)

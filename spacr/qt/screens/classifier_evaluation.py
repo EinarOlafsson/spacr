@@ -135,6 +135,7 @@ class _DropPathEdit(QLineEdit):
     path_dropped = Signal(str)
 
     def __init__(self, parent=None):
+        """Build the field and let it accept drops."""
         super().__init__(parent)
         self.setAcceptDrops(True)
 

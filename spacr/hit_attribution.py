@@ -231,6 +231,12 @@ class _Mixture:
     @staticmethod
     def _log_density(x: np.ndarray, mean: np.ndarray,
                      variance: np.ndarray) -> np.ndarray:
+        """Log density of a diagonal Gaussian at each row of ``x``.
+
+        In LOGS throughout: the densities underflow to zero in a mixture of any
+        width, and a responsibility computed from zeros is a division by zero
+        rather than a small number.
+        """
         return -0.5 * np.sum(
             np.log(2.0 * np.pi * variance) + ((x - mean) ** 2 / variance),
             axis=1,

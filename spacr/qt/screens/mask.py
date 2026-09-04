@@ -100,6 +100,7 @@ class _OfferedPreview(QObject):
     """
 
     def __init__(self, host) -> None:
+        """Parent to the host's CARD, not the host. See the class note."""
         super().__init__(host.card)
         self._host = host
 

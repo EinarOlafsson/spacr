@@ -219,6 +219,12 @@ class _DownloadDialog(QDialog):
     # -- the QProgressDialog surface the download flow uses -----------------
 
     def _on_cancel(self) -> None:
+        """Mark the download cancelled and tell the worker.
+
+        The flag is set as well as the signal emitted: the worker checks it
+        between chunks, and a signal alone would be missed by a worker that is
+        mid-chunk when the button is pressed.
+        """
         self._cancelled = True
         self.canceled.emit()
 
