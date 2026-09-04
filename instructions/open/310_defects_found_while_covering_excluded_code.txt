@@ -1334,6 +1334,13 @@ A15. spacr/qt/widgets/figure_settings.py:1534 (derive_replot_recipe)
     still at figure_settings.py:1534 and still cannot fire. Dead-guard family;
     deleting it needs the maintainer's standing no-deletion call, like A37.
 
+    VERDICT 2026-09-04 (supersedes the LIVE verdict above): STALE -- the dead
+    guard is gone. figure_settings.py now carries an explicit "NO
+    `nunique() < 1` GUARD" comment in its place, recording that the group
+    column comes only from `_named`, which returns a str and never a missing
+    value, so with two rows guaranteed above the count is 1 or more by
+    construction. Nothing to remove. No action.
+
 A16. spacr/regression_qc.py:2683-2735 `_panel_p_value_histogram` together with `diagnose_p_value_histogram` (line 833: `np.histogram(p, bins=n_bins, range=(0.0, 1.0))`)
     WHAT: Finite p-values outside [0, 1] are silently discarded by the fixed histogram range, and only the non-finite ones are guarded against (`if finite.size == 0: raise PanelUnavailable`). Feeding `coef_df` a `p_value` column of `[3.0, 7.0, 12.0]` gives `n == 0`, `verdict == 'too-few'`, message 'only 0 p-value(s)', `frac_below_0.05 == nan`, an empty histogram and no uniform reference line -- with no complaint anywhere that three values were supplied and all three were thrown away.
     COST: A caller who wires the wrong column into `coef_df` (a test statistic, a -log10 p, a chi2) gets the panel's 'too few coefficients to read a shape' limitation stamped on the report for a screen with thousands of coefficients. The report then states a coefficient count that contradicts the table it was built from, and the reader concludes the model is small rather than that the input is not p-values. The panel's own reason for existing -- catching a mis-specified null -- is silently unavailable.
@@ -1375,6 +1382,21 @@ A17. spacr/qt/mask_engine.py:733-753, magic_wand()
     "already-owned pixels cost nothing against max_pixels" -- so a work bound
     has to be a SECOND budget, and choosing its constant needs a realistic
     mask-size distribution rather than a guess. Left specified.
+
+    VERDICT 2026-09-04 (supersedes the LIVE verdict above): STALE -- bounded,
+    and measured rather than read. mask_engine now carries VISIT_BUDGET_FACTOR
+    and VISIT_BUDGET_FLOOR, a budget on WORK rather than on change, precisely
+    because crossing pixels the mask already owns has to stay free or a second
+    wider-tolerance click would stop at the first owned pixel.
+
+    Re-measured the entry's own pathological case, an erase mis-click on
+    uniform background with max_pixels=50:
+
+        800x800     0.27 s   (this entry measured 4.8 s, unbounded)
+        2048x2048   0.26 s   (this entry measured about half a minute)
+
+    Bounded and now size-independent, which is what a visit budget should
+    look like. No action.
 
 A18. spacr/qt/widgets/measure_preview.py:823-830 (_on_max_sets_changed) together with ImageSetSampler.describe in spacr/qt/widgets/preview_controls.py:855-869
     WHAT: The guard `if self.sample_note():` is meant to stop an empty sample sentence from blanking the status line, but `describe()` never returns an empty string -- with nothing enumerated it returns "showing all 0 image sets". Verified live: a fresh panel with no array loaded, status line set to "2 object(s) . 1 category", then `_on_max_sets_changed(7)` leaves status == "Showing all 0 image sets".
@@ -1491,6 +1513,14 @@ A33. spacr/qt/widgets/setup_slides.py:1686 (_fade_the_greeting_away) vs 1721 (_p
     `_fade_the_greeting_away` dereferences it directly
     (`self._greeting.isVisibleTo(self.card)`, setup_slides.py:1703). Left for
     that lane.
+
+    VERDICT 2026-09-04 (supersedes the LIVE verdict above): STALE -- already
+    fixed, and fixed by this entry. `_fade_the_greeting_away` now fetches both
+    `_greeting` and `card` through getattr and returns when either is absent,
+    matching `_place_the_greeting`; the comment in place names "instruction
+    310 A33" as its reason and records the real window -- a resize arriving
+    while the dialog is still being built, when the card exists and the label
+    does not. The two methods agree. No action.
 
 A34. spacr/macro.py:558-561, Macro.write
     WHAT: The temporary file is opened before the script is rendered: `with open(temporary, "w") as handle: handle.write(self.source())`. If `self.source()` raises (any settings value whose `__str__`/`__repr__` raises, or any rendering failure), the exception propagates out of `write` after the temp file has already been created, and nothing removes it. Reproduced: a one-step Macro whose settings hold an object with a raising `__str__` left `macro.py.2058192.tmp` in the target folder. There is no try/finally and no cleanup anywhere else — `_write_everywhere` only logs the exception.
@@ -3906,3 +3936,33 @@ fail.
 
 REVISED COUNT: 149 entries, 80 recorded as resolved. This remains the same
 prose-derived progress aid rather than an acceptance ledger described above.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- EVERY ENTRY NOW CARRIES A VERDICT, AND NONE IS LIVE
+--------------------------------------------------------------------------------
+
+Six entries had no verdict at all (A51, A53, A54, A55, A56, A57) and three
+carried a LIVE one (A15, A17, A33). All nine were worked today. Two were real
+and are fixed with mutation-checked guards; one was real with a dead way in;
+six were already fixed and are recorded as stale rather than re-derived.
+
+    A51  FIXED     the weight the filter approved is now the weight stored
+    A56  FIXED     a picker that cannot show the spec falls back, not lies
+    A57  FIXED     a shuffle that measured nothing is dropped, not scored 0
+    A53  FIXED     the dialog no longer promises "nothing will happen"
+                   (defensive: the entry's own input is refused earlier now)
+    A54  STALE     rows, figure and result are all cleared
+    A55  STALE     the re-rank emits; the first attempt's DATA was the problem
+    A15  STALE     the dead guard is gone, with a comment in its place
+    A17  STALE     bounded by a visit budget; 4.8 s -> 0.27 s, re-measured
+    A33  STALE     both methods now guard, and the code cites this entry
+
+SIX OF NINE WERE ALREADY DONE, which is the same proportion this instruction
+keeps finding and the reason its own header says the trailing notes are the
+current state. Every one was re-run or re-measured rather than re-read; A55 in
+particular did not reproduce on the first attempt because the test data ranked
+the same column first under both statistics, and a "cannot reproduce" from
+that run would have been wrong.
+
+This file stays OPEN because it is a running list that the coverage sweep
+appends to, not because anything in it is outstanding.
