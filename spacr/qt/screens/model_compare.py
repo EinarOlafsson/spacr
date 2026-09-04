@@ -639,6 +639,7 @@ class ModelCompareScreen(QWidget):
         n_fields = int(self._fields_box.value())
 
         def _job():
+            """Load the comparison fields. Off the GUI thread."""
             names, images = mc.load_fields(source, n_fields=n_fields)
             return source, names, images
 
@@ -714,6 +715,7 @@ class ModelCompareScreen(QWidget):
         segment_fn = self._segment_fn
 
         def _job() -> mc.ComparisonReport:
+            """Run both models over the same fields. Off the GUI thread."""
             return mc.compare_models(images, config_a, config_b,
                                      field_names=names, segment_fn=segment_fn)
 
@@ -938,6 +940,7 @@ class ModelCompareScreen(QWidget):
         box: Dict[str, Any] = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload."""
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)

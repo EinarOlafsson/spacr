@@ -617,6 +617,7 @@ class AlignScreen(QWidget):
                          "strips…")
 
         def _work():
+            """Scan the tiles and build the stitch plan. Off the GUI thread."""
             tiles = align_mod.scan_tiles(
                 src,
                 grid=settings.get('grid'),
@@ -693,6 +694,7 @@ class AlignScreen(QWidget):
         self._set_status("Writing — the canvas is filled one band at a time…")
 
         def _work():
+            """Write the stitched stack. Off the GUI thread."""
             result = align_mod.write_stack(
                 plan, dst,
                 blend=str(settings['blend']),
@@ -754,6 +756,11 @@ class AlignScreen(QWidget):
         box: Dict[str, Any] = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload.
+
+            The payload is how a value crosses back from the worker: a return would
+            be swallowed by the runner.
+            """
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)
