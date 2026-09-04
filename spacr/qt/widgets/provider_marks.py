@@ -174,6 +174,7 @@ def _parse_svg_path(d: str) -> QPainterPath:
     start = QPointF(0, 0)
     last_c = None
     def num():
+        """Read the next number from the path string, advancing the cursor."""
         nonlocal i
         v = float(tokens[i]); i += 1; return v
     while i < len(tokens):
@@ -246,6 +247,7 @@ def _svg_arc(path: QPainterPath, p0: QPointF, p1: QPointF,
     cx = math.cos(phi)*cx1 - math.sin(phi)*cy1 + (p0.x()+p1.x())/2.0
     cy = math.sin(phi)*cx1 + math.cos(phi)*cy1 + (p0.y()+p1.y())/2.0
     def ang(ux, uy, vx, vy):
+        """The signed angle between two vectors, as SVG's arc maths defines it."""
         dot = ux*vx + uy*vy
         n = math.hypot(ux, uy) * math.hypot(vx, vy)
         a = math.acos(max(-1.0, min(1.0, dot/n)))

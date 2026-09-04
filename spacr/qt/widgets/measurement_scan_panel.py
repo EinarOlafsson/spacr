@@ -363,10 +363,17 @@ def merge_across_databases(paths: Sequence[str], tables: Sequence[str], *,
     wanted = list(dict.fromkeys([anchor] + [str(name) for name in tables]))
 
     def _say(stage: str) -> None:
+        """Report the current stage, if anyone is listening."""
         if progress is not None:
             progress(stage, tracker["done"], tracker["total"])
 
     def _stop(where: str) -> None:
+        """Raise if the caller has cancelled, naming where it stopped.
+
+        Checked BETWEEN stages rather than only at the start: a merge across
+        databases runs for minutes, and a cancel that is only noticed at the end
+        is not a cancel.
+        """
         if cancelled is not None and cancelled():
             raise MergeCancelled(
                 f"stopped {where}. Nothing was written and the previous "
@@ -2165,6 +2172,7 @@ def describe_key_overlap(left_name: str, left, right_name: str,
     # when it is a mismatch of ONE CHARACTER in the plate id -- which is the
     # failure instruction 154 D is about, seen from here.
     def _canonical(keys):
+        """Keys with their plate id canonicalised, so two spellings match."""
         return {canonical_plate_id(key.split("_")[0]) + key[len(key.split("_")[0]):]
                 for key in keys}
 

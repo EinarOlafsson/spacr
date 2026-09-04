@@ -782,6 +782,7 @@ def referenced_columns(node: Node) -> Tuple[str, ...]:
     found: Dict[str, None] = {}
 
     def walk(item: Node) -> None:
+        """Collect every column the expression names, depth first."""
         if isinstance(item, Column):
             found.setdefault(item.name, None)
         elif isinstance(item, Unary):
@@ -871,6 +872,7 @@ def evaluate(node: Node, frame: pd.DataFrame) -> Any:
     length = len(frame)
 
     def walk(item: Node) -> Any:
+        """Evaluate one node of the tree, recursing into its children."""
         if isinstance(item, Number):
             return item.value
         if isinstance(item, Column):
@@ -1018,6 +1020,11 @@ class ColumnFormula:
         every value.
         """
         def walk(node: Node) -> bool:
+            """Whether any node needs the whole column rather than one row.
+
+            An aggregate cannot be computed row by row, so this decides whether the
+            formula can stream or has to hold the table.
+            """
             if isinstance(node, Call):
                 if node.func in TABLE_DEPENDENT_FUNCTIONS:
                     return True
