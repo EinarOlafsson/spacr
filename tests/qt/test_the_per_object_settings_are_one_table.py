@@ -444,3 +444,63 @@ class TestAnUnsetChannelSaysOffNotAuto:
         ]
         assert len(explained) >= len(grid.questions()) // 2, (
             "most rows carry only their key, not what the setting does")
+
+
+# ---------------------------------------------------------------------------
+# The model zoo, per object column
+# ---------------------------------------------------------------------------
+
+class TestTheModelZooIsPerColumn:
+    """A cell and a pathogen are not segmented by the same checkpoint, so the
+    button that picks one has to know which column it is in."""
+
+    def test_every_object_column_has_its_own_button(self, grid, qtbot):
+        from spacr.qt.widgets.object_settings_grid import MODEL_QUESTION
+        questions = list(grid.questions())
+        assert MODEL_QUESTION in questions, "no model row to put buttons on"
+        row = questions.index(MODEL_QUESTION)
+        view_model = grid._table.model()
+        for column, obj in enumerate(grid.objects()):
+            index = grid._model.index(row, column)
+            mapper = getattr(view_model, "mapFromSource", None)
+            view_index = mapper(index) if mapper else index
+            assert grid._table.indexWidget(view_index) is not None, (
+                f"{obj} has no model-zoo button")
+
+    def test_the_buttons_follow_the_columns(self, grid, qtbot):
+        """Adding an organelle adds a column, and an index widget belongs to a
+        cell -- so they are placed again rather than once."""
+        from spacr.qt.widgets.object_settings_grid import MODEL_QUESTION
+        grid.add_organelle()
+        row = list(grid.questions()).index(MODEL_QUESTION)
+        view_model = grid._table.model()
+        placed = 0
+        for column in range(len(grid.objects())):
+            index = grid._model.index(row, column)
+            mapper = getattr(view_model, "mapFromSource", None)
+            view_index = mapper(index) if mapper else index
+            placed += grid._table.indexWidget(view_index) is not None
+        assert placed == len(grid.objects())
+
+    def test_a_cancelled_picker_leaves_the_model_alone(self, grid,
+                                                       monkeypatch):
+        """Cancelling is not an instruction to forget the model already set."""
+        from spacr.qt.widgets import object_settings_grid as mod
+        from spacr.qt.widgets.object_settings_grid import MODEL_QUESTION
+        grid.set_value(MODEL_QUESTION, "cell", "cpsam")
+        monkeypatch.setattr(mod, "MODEL_QUESTION", MODEL_QUESTION)
+        import spacr.qt.widgets.model_zoo_picker as zoo
+        monkeypatch.setattr(zoo, "choose_model", lambda *a, **k: None)
+        assert grid.choose_model_for("cell") is False
+        assert grid.settings()["cell_model_name"] == "cpsam"
+
+    def test_a_chosen_model_lands_in_that_object_only(self, grid, monkeypatch):
+        import spacr.qt.widgets.model_zoo_picker as zoo
+        from spacr.qt.widgets.object_settings_grid import MODEL_QUESTION
+        before = grid.settings().get("nucleus_model_name")
+        monkeypatch.setattr(zoo, "choose_model", lambda *a, **k: "/models/x.pt")
+        assert grid.choose_model_for("cell") is True
+        out = grid.settings()
+        assert out["cell_model_name"] == "/models/x.pt"
+        assert out.get("nucleus_model_name") == before, (
+            "picking a model for one object changed another")

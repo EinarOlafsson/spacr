@@ -20,11 +20,16 @@ of what the binding needs.
 """
 from __future__ import annotations
 
+import logging
+
 from typing import Any, Dict, FrozenSet, Mapping, Optional
 
 from PySide6.QtCore import QObject
 
 from spacr.object_settings_table import to_table
+
+
+LOG = logging.getLogger(__name__)
 
 
 class ObjectGridBinding(QObject):
@@ -120,7 +125,33 @@ class ObjectGridBinding(QObject):
                 continue
             if self._panel.set_value_for_key(key, new):
                 changed[key] = new
+        if changed:
+            self._reconsider_which_objects_the_run_has(changed)
         return changed
+
+    def _reconsider_which_objects_the_run_has(self, changed) -> None:
+        """Re-gate the form when a CHANNEL changed, and only then.
+
+        A channel is the switch that says whether the run has an object at
+        all, so typing one into the table has to turn that object's other
+        categories on the way typing it into the form does. Nothing else in
+        the table gates anything, and this is the whole reason for the
+        filter below.
+
+        ONLY ON A CHANNEL, and only once per write rather than per keystroke.
+        The panel's own note is explicit that re-deciding this on every
+        keystroke is what made the Mask module hang; `write_through` runs on
+        a committed cell, so this is one call after an edit is finished
+        rather than one per character.
+        """
+        if not any(str(key).endswith("_channel") for key in changed):
+            return
+        refresh = getattr(self._panel, "refresh_object_visibility", None)
+        if callable(refresh):
+            try:
+                refresh()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not re-gate the form", exc_info=True)
 
 
 def _same(a: Any, b: Any) -> bool:
