@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from .. import path_probe
 from .sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
@@ -660,7 +661,7 @@ class PairedFileTableWidget(QWidget):
         missing = []
         for index, row in enumerate(self.get_value(), start=1):
             database = row.get("database")
-            if database and not os.path.exists(database):
+            if database and not path_probe.exists(database):
                 missing.append((index, row.get("plate") or "", database))
         return missing
 
@@ -696,7 +697,7 @@ class PairedFileTableWidget(QWidget):
     @staticmethod
     def _database_item(value: str) -> QTableWidgetItem:
         item = table_item(str(value))
-        if value and not os.path.exists(str(value)):
+        if value and not path_probe.exists(str(value)):
             # Marked, not discarded: the path may be right and the disk
             # merely not mounted yet, and a silently emptied cell is worse
             # than a red one.
@@ -962,6 +963,7 @@ class FilePathListWidget(QWidget):
         self._hint.setWordWrap(True)
         self._hint.setProperty("role", "hint")
         outer.addWidget(self._hint)
+        self._follow_path_probes()
 
         row = QHBoxLayout()
         row.setSpacing(4)
@@ -1099,7 +1101,7 @@ class FilePathListWidget(QWidget):
         added = 0
         for raw in incoming:
             expanded = os.path.abspath(os.path.expanduser(raw))
-            if os.path.isdir(expanded):
+            if path_probe.isdir(expanded):
                 for member in self._folder_members(expanded):
                     added += int(self._append(member))
             else:
@@ -1133,7 +1135,7 @@ class FilePathListWidget(QWidget):
             return False
         item = QListWidgetItem(self._display_text(resolved))
         item.setData(Qt.UserRole, resolved)
-        if os.path.exists(resolved):
+        if path_probe.exists(resolved):
             item.setToolTip(resolved)
         else:
             # Marked, not dropped: a settings file may legitimately be edited
@@ -1185,11 +1187,37 @@ class FilePathListWidget(QWidget):
             return "Drop one file here, or use Choose file…"
         return "Drop files or folders here, or use Add files…"
 
+    def _follow_path_probes(self) -> None:
+        """Redraw the hint when a background path check finally answers.
+
+        `path_probe` reports an unknown path as PRESENT so the interface
+        never waits on a filesystem -- see its module docstring, and the
+        twenty-second `os.path.exists` that made it necessary. The cost of
+        that optimism is that a genuinely missing path is drawn as present
+        until the probe lands, so this is the half that corrects it.
+
+        Connected with a weak-ish guard rather than a bound method held
+        forever: the signal source is process-wide and outlives any one
+        widget, and a destroyed C++ object behind a live Python wrapper is
+        what turns a redraw into a hard crash.
+        """
+        from .. import path_probe as _probe
+
+        def redraw(_path: str, _answer: bool) -> None:
+            try:
+                self._refresh_hint()
+            except RuntimeError:
+                # The widget has gone; the signal outlived it.
+                pass
+
+        self._path_probe_redraw = redraw
+        _probe.probes.answered.connect(redraw)
+
     def _refresh_hint(self) -> None:
         count = self._list.count()
         missing = sum(
             1 for row in range(count)
-            if not os.path.exists(self._list.item(row).data(Qt.UserRole))
+            if not path_probe.exists(self._list.item(row).data(Qt.UserRole))
         )
         if not count:
             self._hint.setText(self._empty_hint())
@@ -1263,12 +1291,12 @@ class FilePathListWidget(QWidget):
 
     def _start_directory(self) -> str:
         """Reopen where the user last was, or beside the last file added."""
-        if self._last_directory and os.path.isdir(self._last_directory):
+        if self._last_directory and path_probe.isdir(self._last_directory):
             return self._last_directory
         values = self.paths()
         if values:
             parent = os.path.dirname(values[-1])
-            if os.path.isdir(parent):
+            if path_probe.isdir(parent):
                 return parent
         return ""
 
