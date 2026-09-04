@@ -2286,6 +2286,12 @@ class _AutoAnnotateDialog(QDialog):
         self._apply.setEnabled(False)
 
     def _on_preview(self) -> None:
+        """Match rows and show how many, without changing anything.
+
+        The preview is the SAFETY: applying annotates thousands of rows and the
+        undo stack only holds the slots on this page, so Apply stays disabled
+        until this has run.
+        """
         from ..annotate_engine import paths_by_measurements, paths_by_metadata
 
         if not self._settings.db_path:
@@ -2323,6 +2329,7 @@ class _AutoAnnotateDialog(QDialog):
             if self._matched else "Nothing matches.")
 
     def _on_open_gate_editor(self) -> None:
+        """Close with the code that asks the caller to open the Gate Editor."""
         self.done(_AUTO_ANNOTATE_OPEN_GATE)
 
     def _on_open_umap(self) -> None:

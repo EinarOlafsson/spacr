@@ -1098,6 +1098,12 @@ class _ZarrArray:
 
     @classmethod
     def _from_v2(cls, path: Path, meta: Mapping[str, Any]) -> "_ZarrArray":
+        """Read a v2 ``.zarray`` header.
+
+        The declared format is CHECKED rather than assumed: a v3 header in a
+        ``.zarray`` file is a store built by something that disagrees with its
+        own layout, and reading it as v2 would mis-shape every chunk.
+        """
         fmt = meta.get("zarr_format")
         if fmt != 2:
             raise OmeZarrError(
@@ -1152,6 +1158,7 @@ class _ZarrArray:
 
     @classmethod
     def _from_v3(cls, path: Path, meta: Mapping[str, Any]) -> "_ZarrArray":
+        """Read a v3 ``zarr.json`` header, checking the declared format."""
         fmt = meta.get("zarr_format")
         if fmt != 3:
             raise OmeZarrError(
@@ -1202,6 +1209,12 @@ class _ZarrArray:
 
     def _decode(self, raw: bytes, path: Path,
                 decoders: Sequence[Callable[[bytes], bytes]]) -> np.ndarray:
+        """Decode one chunk through its codec chain, then shape it.
+
+        The decoders run in ORDER and the stored shape accounts for a transpose,
+        so a chunk written by a store that permuted its axes is read back the way
+        it was written rather than transposed twice.
+        """
         for decoder in decoders:
             raw = decoder(raw)
         stored = self.chunks if self.transpose is None else tuple(
