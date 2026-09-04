@@ -89,6 +89,7 @@ class _ExplainerBrowser(QTextBrowser):
         refresh: Callable[[Optional[str]], None],
         parent: Optional[QWidget] = None,
     ) -> None:
+        """Hold the screen's rerender weakly and take it as parent."""
         super().__init__(parent)
         self._refresh_explainers = WeakMethod(refresh)
 
@@ -1013,10 +1014,24 @@ class _CaptionsBuiltWhenTheyAreAskedFor(dict):
             build()
 
     def __iter__(self):
+        """Build the deferred rows first, then answer as a normal mapping.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty mapping and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
         self._complete()
         return super().__iter__()
 
     def __len__(self) -> int:
+        """Build the deferred rows first, then answer as a normal mapping.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty mapping and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
         self._complete()
         return super().__len__()
 
@@ -1066,26 +1081,66 @@ class _RowsBuiltWhenTheyAreAskedFor(list):
             build()
 
     def __len__(self) -> int:
+        """Build the deferred rows first, then answer as a normal list.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty list and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
         self._complete()
         return super().__len__()
 
     def __iter__(self):
+        """Build the deferred rows first, then answer as a normal list.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty list and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
         self._complete()
         return super().__iter__()
 
     def __getitem__(self, index):
+        """Build the deferred rows first, then answer as a normal list.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty list and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
         self._complete()
         return super().__getitem__(index)
 
     def __bool__(self) -> bool:
+        """Build the deferred rows first, then answer as a normal list.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty list and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
         self._complete()
         return super().__len__() > 0
 
     def __contains__(self, item) -> bool:
+        """Build the deferred rows first, then answer as a normal list.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty list and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
         self._complete()
         return super().__contains__(item)
 
     def __repr__(self) -> str:
+        """Build the deferred rows, then show them.
+
+        Forces the build like every other access: a repr that showed an empty
+        list in a debugger would be a lie about a container that has contents.
+        """
         self._complete()
         return super().__repr__()
 
