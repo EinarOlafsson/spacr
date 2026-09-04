@@ -1103,6 +1103,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
                 self._timer.start(10)
 
         def stats_text(self) -> str:
+            """The render size, rate and state, for the overlay."""
             width, height = self._render_size
             if self._paused:
                 timing = "paused for a run"
@@ -1131,6 +1132,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             _quit_and_join_thread(self._thread)
 
         def closeEvent(self, event) -> None:
+            """Shut the render thread down before the widget goes."""
             self.shutdown()
             super().closeEvent(event)
 
@@ -1641,6 +1643,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
     #: "changing render scale changes nothing", and the same was true of all
     #: of them. The published defaults are the FALLBACK now, not the answer.
     def _mandel_setting(name, fallback=None):
+        """One Mandelbrot setting, falling back to the published default."""
         from .fractal_mandelbrot import DEFAULTS as _PUBLISHED
 
         try:
@@ -1774,6 +1777,12 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             from .fractal_mandelbrot import DEFAULTS, ReferenceOrbit
 
             def _work():
+                """Compute the reference orbit. Off the GUI thread.
+
+                It is the expensive part of deep zooming -- high-precision iteration of
+                one point that every pixel is then perturbed from -- so it must not run
+                where it would stall the frame it is for.
+                """
                 try:
                     orbit = ReferenceOrbit(
                         max_iter=int(_mandel_setting("max_iterations")),
@@ -1972,6 +1981,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 here = camera.centre
 
                 def _look():
+                    """Plan the next guided step. Off the GUI thread."""
                     try:
                         found = plan_guided_step(
                             orbit, span, budget, strength=strength,
@@ -2032,6 +2042,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             self._refine_thread_running = True
 
             def _work():
+                """Find a better reference point for the current view. Off the GUI thread."""
                 try:
                     offset = best_reference_in_view(
                         orbit, here[0], here[1], span, int(budget))
@@ -2108,10 +2119,16 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             return pointer.x, pointer.y, pointer.pull, pointer.push
 
         def on_resize(self, _event) -> None:
+            """Resize the GL viewport, never to zero.
+
+            A canvas mid-resize reports zero, and a zero viewport is a GL error
+            rather than a small picture.
+            """
             width, height = self.physical_size
             gloo.set_viewport(0, 0, max(1, int(width)), max(1, int(height)))
 
         def on_draw(self, _event) -> None:
+            """Draw one frame, unless the canvas is already torn down."""
             if self._dead:
                 return
             benchmark = time.perf_counter() - self._last_sample >= 2.0
@@ -2190,6 +2207,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             self.stop_timer()
 
         def stats_text(self) -> str:
+            """The render size, rate and state, for the overlay."""
             width, height = self.physical_size
             if self._paused:
                 timing = "paused for a run"
@@ -2211,6 +2229,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
         backend_name: Final[str] = "gpu"
 
         def __init__(self, parent=None) -> None:
+            """Build the GL widget under the heavy-import lock."""
             super().__init__(parent)
             # UNDER THE HEAVY-IMPORT LOCK. Creating a GL context while the
             # preloader is bringing torch (and therefore CUDA) up is exactly
@@ -2279,6 +2298,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
 
 
         def stats_text(self) -> str:
+            """The render size, rate and state, for the overlay."""
             return self._canvas.stats_text()
 
         def shutdown(self) -> None:
@@ -2291,6 +2311,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 pass
 
         def closeEvent(self, event) -> None:
+            """Shut the canvas down before the widget goes."""
             self.shutdown()
             super().closeEvent(event)
 
