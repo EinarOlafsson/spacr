@@ -678,3 +678,81 @@ STATE OF THE FILE AFTER THIS SESSION: 3 failed, 135 passed. The three are the
 `test_documentation_api_catalog_inventory_and_hashes_are_current`, which
 belongs to 306 and moves whenever a public docstring is added -- the other
 session is still adding them under 368.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- THE 37 ARE NOW 19, AND NONE OF THE THREE "RE-BINDABLE" ONES IS
+--------------------------------------------------------------------------------
+
+The 2026-09-03 note records "37 of its 47 keys are no longer in README.rst" and
+instructs that they be sorted into "the text is gone" and "the text moved or
+was lightly edited" before any is touched. Sorted today. Both halves of the
+answer are different from what the file expects.
+
+FIRST, THE NUMBER MOVED ON ITS OWN. Measured against the current README:
+
+    REVIEWED_README_BLOCKS      47 keys
+    still present               28
+    orphaned                    19        (the note says 37)
+
+The README work since 2026-09-03 re-established nine of them without anyone
+tracking it against this file. So the audit was worth running before the work:
+half of what this item was braced for does not exist.
+
+SECOND, AND THE POINT: THE "MOVED OR LIGHTLY EDITED" PILE IS EMPTY.
+
+A difflib pass over the 19 offered three as close matches to a current block,
+at 0.77, 0.67 and 0.63 similarity -- the exact "re-bind rather than retire"
+case the note describes, and the UsageBar record is the precedent for. READING
+the three diffs says every one of them is a RETIREMENT wearing a re-bind's
+clothes, because in each case the ENGLISH CHANGED ITS MEANING:
+
+  1. "...live in one SQLite project, so a number in a result can be traced
+     back to the object it came from."
+     -> "...live in one SQLite project."
+     The English DROPPED the traceability clause. The reviewed translations
+     still carry it. Re-keying would leave nine translations asserting more
+     than the source does.
+
+  2. "Run spaCR as a desktop application or headlessly ... Both drive the same
+     modules, and CUDA is used automatically where a module supports it."
+     -> "Runs as a desktop application or headlessly on a workstation, server
+     or cluster."
+     Same shape: the English dropped a sentence the translations still make.
+
+  3. "Linux is recommended for CUDA workflows; macOS and Windows are also
+     supported."
+     -> "Linux is recommended for the heaviest CUDA and ROCm workflows; macOS
+     and Windows are also supported, and both use their GPUs -- macOS through
+     Metal, which covers Apple Silicon and the AMD cards in Intel Macs, and
+     Windows through CUDA or DirectML."
+     THIS IS THIS FILE'S OWN "THE NINE READMEs STILL SAY CUDA-ONLY" ITEM,
+     arriving through a different door. The reviewed translations are the
+     CUDA-only text. Re-binding them to the new English would certify nine
+     sentences that tell an Intel-Mac owner their card is unsupported -- on a
+     machine measured at 444.5 s against 3.2 s. It is the most dangerous
+     re-bind available and it is the one the similarity score liked best.
+
+SO NOTHING WAS RE-BOUND, and the "repair rather than retire" route this note
+was written to take turns out not to apply to a single one of the nineteen.
+
+AND THE METHOD IS THE FINDING, AGAIN. This file already carries a section on
+three mechanical proxies that do not work, every one dominated by false
+positives. Similarity-to-a-current-block is a fourth. It scores WORD OVERLAP,
+and a sentence that lost its load-bearing clause overlaps its old self almost
+perfectly -- 0.77 for a claim the source no longer makes. The three it liked
+are the three most likely to ship a confident wrong translation.
+
+WHAT IS ACTUALLY OWED, and it is smaller and sharper than "sort 37":
+
+  * 3 blocks need RE-TRANSLATION, not re-keying, because the English changed
+    meaning. One of them (3) is already this file's CUDA-only item, so it is
+    one job and not two.
+  * 16 blocks have no current counterpart at all and are candidate
+    RETIREMENTS. The mechanism exists and the maintainer has approved it twice
+    -- `retired` plus `retired_reason`, in place, as chosen for the eleven
+    README records and the Icelandic API record. What it needs is his yes for
+    these sixteen, which is a decision and not an analysis.
+
+`test_github_summary_has_reviewed_domain_translations` stays red until both
+are done, and it should: it is asserting that every reviewed block still
+describes text that exists, and for nineteen of them that is not true.
