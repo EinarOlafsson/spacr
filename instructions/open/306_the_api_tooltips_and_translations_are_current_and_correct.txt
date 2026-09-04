@@ -2012,3 +2012,51 @@ audited entry by entry, 19 -> 17. `spacr.schema.field_index` is now translated
 in every locale and `spacr.resources.home.versions._generators.common.app_map`
 no longer exists at all. Both were dead weight that would never have failed a
 test. The remaining 17 are each still exercised by at least one locale.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- CORRECTION: THE LAST TWO FAILURES ARE ONE CAUSE, NOT TWO
+--------------------------------------------------------------------------------
+
+The note above called the false-friend failure "an orphaned reviewed record...
+bound to a source string the catalog no longer carries". THAT IS BACKWARDS and
+the correction matters, because it changes the fix from a retirement to an
+addition.
+
+`test_runtime_catalogs_resolve_all_reviewed_false_friend_variants` iterates
+`canonical_sources()` and does `table[key]`. A KeyError there means CANONICAL
+HAS A KEY THE CATALOG LACKS -- the source gained a string, the locales never
+got it. Nothing is orphaned; something is missing.
+
+MEASURED: seven keys are in canonical and absent from all nine catalogs.
+
+    CATEGORY_HELP  'Which intensity channel holds each compartment, and which
+                    one the recruitment is measured on...'
+    UI             "78 of Mask's 201 settings are the same twenty-odd
+                    questions asked once per object type..."
+    UI             'Locked open: the app list is a permanent column...'
+    UI             'Per-object settings as a table'
+    UI             'Drag to resize'
+    UI             'Resize the release notes'
+    UI             'No release notes bundled with this build.'
+
+So BOTH remaining failures have the same cause, and the earlier note's "the two
+gates want opposite things" was only half the picture. The key-set gate refuses
+these strings because `en.py::UI_SOURCES` does not list them; the repair and
+false-friend gates demand them because canonical does. They do not disagree --
+the ENGLISH MANIFEST IS BEHIND CANONICAL, and everything else follows from
+that one fact.
+
+THE SYMMETRIC CHANGE THIS NEEDS, which is why regenerating en.py alone made
+things worse twice:
+
+    en.py::UI_SOURCES gains 6 and loses 5
+        gained: the six UI strings above
+        lost:   five strings canonical no longer has, including
+                'API documentation for this setting' and
+                "Show or hide this setting's animation"
+    every locale catalog gains the same 7 (6 UI + 1 CATEGORY_HELP) and drops
+        the same 5
+
+Do it as one change or the key-set gate fails on whichever half lands first.
+That is not a quirk of these seven; it is how this catalog system is built, and
+it is worth stating plainly for the next person who reaches for --sources-only.
