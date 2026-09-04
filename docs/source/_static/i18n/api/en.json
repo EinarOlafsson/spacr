@@ -25220,12 +25220,45 @@
       "source_sha256": "f1a39d12bfee9e6e062a153efa92db14b0251dcf410ac1714731b0642de44d96",
       "text": "One model over one field set. Only comparable to results on the *same* set.\n\n:param entry: the model that ran.\n:param fieldset: :func:`fieldset_id` of the images — a hash of the pixels,\n    so two runs over the same three fields share it and two runs over\n    different fields never do, whatever the folders were called.\n:param fieldset_label: the same thing for a human.\n:param rows: one :class:`FieldBenchmark` per field, in field order.\n:param seconds: wall-clock seconds the model spent segmenting.\n:param honoured: the parameters that reached the model.\n:param ignored: what was set and Cellpose 4 dropped (``diam_mean`` and\n    friends) — carried so a benchmark cannot silently be a benchmark of\n    settings nothing read.\n:param notes: warnings the reader must see before the numbers.\n:param masks: the label images, when kept, so a GUI can draw them.\n:param images: the source fields, likewise.\n:param object_type: what was segmented."
     },
+    "spacr.model_zoo.BenchmarkResult.fields": {
+      "source_blocks_sha256": [
+        "ce55971c19887a66c0a10b3d83ff63bad5450d78a3277376060cbffc355e24a8",
+        "5ad69ed468d2dc47008e7f5765872b0ebebbf2083af18f3a15ad134ee6b32c60"
+      ],
+      "source_sha256": "ca4e8323fde645411672230655199c957e6fa6e51a3d16caa224517edc95887f",
+      "text": "Every field this model was benchmarked on.\n\n:returns: the field names."
+    },
+    "spacr.model_zoo.BenchmarkResult.mean_objects": {
+      "source_blocks_sha256": [
+        "41676f8d022ba2895546830ed866b35b8978adc18d8e3de37ad24e3a4f4b9302",
+        "645830fbf6da9208c62fe7b1d400e84747da89dcf29ebbfb712d5933be03bcb5",
+        "ee5276d9bc43bd27e4454fd2515a1d1c520ec6627e9fe4073a77f14eb53fdbeb"
+      ],
+      "source_sha256": "769e448a538a635571e03c53f74358bf40376e1275d306dacc5cd742525a0029",
+      "text": "Objects per field.\n\nNaN rather than zero when nothing was benchmarked: no fields is a\ndifferent statement from a model that found nothing.\n\n:returns: the mean, or NaN."
+    },
     "spacr.model_zoo.BenchmarkResult.n_failed": {
       "source_blocks_sha256": [
         "63901ee69e613e38202aa90eb35cde410c9f1fa8a6e4c608405acfac70610bfa"
       ],
       "source_sha256": "63901ee69e613e38202aa90eb35cde410c9f1fa8a6e4c608405acfac70610bfa",
       "text": "Fields :mod:`spacr.seg_qc` scored ``'fail'``."
+    },
+    "spacr.model_zoo.BenchmarkResult.n_fields": {
+      "source_blocks_sha256": [
+        "07375a8fe3e7c5f704234d0ce05310eaa1f6f813b6973ba6d285a4ea23d50a02",
+        "40c9f46ffd5bd14059bf6d465b0aa5c0d5edc09cb087e62efd7ae71737a342c5"
+      ],
+      "source_sha256": "3cb230b3765a49d9532c4e74a340cfdc1d6af442de4c1d748df627f8a3a81a74",
+      "text": "How many fields were benchmarked.\n\n:returns: the field count."
+    },
+    "spacr.model_zoo.BenchmarkResult.n_ok": {
+      "source_blocks_sha256": [
+        "5833ec94eb7b9ddef2d21415dab07619ef49a8e70f5b753f9db39b55e7f1b18f",
+        "bb0691ad9af16f3b69ef7ca9830aa60bd3d607bdaa9d2500d8c3588e5ec99f03"
+      ],
+      "source_sha256": "98a2124bf05791f1580e853f6cc731869b1420a8aec7f2b653984d52c025ded5",
+      "text": "How many fields came back without a quality complaint.\n\n:returns: the count of fields at severity ``ok``."
     },
     "spacr.model_zoo.BenchmarkResult.qc_score": {
       "source_blocks_sha256": [
@@ -25234,6 +25267,22 @@
       ],
       "source_sha256": "7996d18dae05f7e5358bc065894435e09c643cb9c2612a35cd66876e2f6b3d5d",
       "text": "Fraction of fields seg_qc scored ``'ok'``; ``nan`` without QC.\n\nA quality-control verdict on this model's own masks — it says the masks\nare not obviously broken, not that they are right. There is no ground\ntruth in a benchmark (see the module docstring), so this is as close to\na score as the zoo will produce."
+    },
+    "spacr.model_zoo.BenchmarkResult.summary": {
+      "source_blocks_sha256": [
+        "f5c1e0e5accaad854343481af86a5b6845240970a680c010d69df4cbf637da0b",
+        "fa77636866268d234ac31130633b64e735ca22b8cd9fbeca0d63330b5da118db"
+      ],
+      "source_sha256": "65c343759682c0eee14a1cfb44a0cec728792e69f089f5b416a5dcc136af238e",
+      "text": "The model, what it found, over how many fields, and its QC score.\n\n:returns: a one-line summary."
+    },
+    "spacr.model_zoo.BenchmarkResult.total_objects": {
+      "source_blocks_sha256": [
+        "cae787a9fb03f135230020d58a8f30901e7e4911e01a6dea722eaabea91d741b",
+        "2daf7d8360140a0bb0964a753345681d334d3674529cc0cd5fb47a4729ef9be6"
+      ],
+      "source_sha256": "fbdac20569367d6fd75fd4dd988699be8b0fd44afa2ddcee76fc306d4035c555",
+      "text": "Every object the model found, across all fields.\n\n:returns: the object count."
     },
     "spacr.model_zoo.ChecksumMismatch": {
       "source_blocks_sha256": [
@@ -52187,6 +52236,37 @@
       "source_sha256": "c301f15fe4adf619d027683420962b4c76e1c5b5f01875df1d12fa01230e4d37",
       "text": "A table, a filter, computed columns, and a grid of small multiples.\n\n:param link: a private :class:`~spacr.qt.linked_selection.LinkedSelection`\n    for tests. ``None`` joins the process-wide one.\n:param parent: parent widget; ownership only.\n:param threaded: ``False`` runs every table read inline instead of on the\n    job runner's thread. A TEST NEEDS THE RESULT ON THE LINE AFTER THE\n    CALL; a user needs the window to keep painting while a large table\n    loads. The jobs are the same either way -- they still register, still\n    report failure through ``job_failed`` -- so only the waiting differs."
     },
+    "spacr.qt.screens.trellis.TrellisScreen.active_jobs": {
+      "source_blocks_sha256": [
+        "0cfec806f88c5d18054a4dc95895ae2445b627bd119a63609ce0e5a7ba1780cd",
+        "18e7e84f876d53891f1acf9e456d193058cd2e4b6ca9e718b0be970bde44c2aa"
+      ],
+      "source_sha256": "bab767715e8fe1bdbe5795898741a39068267b188e8b3e94ba899f95c49e3ab9",
+      "text": "How many background jobs this screen is running.\n\n:returns: the job count."
+    },
+    "spacr.qt.screens.trellis.TrellisScreen.choose_table": {
+      "source_blocks_sha256": [
+        "42c78c70922d658c6e9940d54c3b34f38d1987213b919701741d6a102df78e82"
+      ],
+      "source_sha256": "42c78c70922d658c6e9940d54c3b34f38d1987213b919701741d6a102df78e82",
+      "text": "Ask which table in the project to plot."
+    },
+    "spacr.qt.screens.trellis.TrellisScreen.closeEvent": {
+      "source_blocks_sha256": [
+        "ac804b45f5e5a068e2b7d9971af2380f4643124426f9f22c61df653f225b1346",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "bf232821ddf4ff77aee7e62aa9f53554c038996a5141db3752a3ebeb742245da",
+      "text": "Let the panel close first, so it can unlink its canvas.\n\n:param event: the Qt close event."
+    },
+    "spacr.qt.screens.trellis.TrellisScreen.is_busy": {
+      "source_blocks_sha256": [
+        "37152f41a8e2c75fc26adff788add4d2ef3013e80e1c38401332baeb66314efe",
+        "7508b79a56134a49faf1704703e9dd12dbee213dccd777acd10d8baca5bd60d5"
+      ],
+      "source_sha256": "35c375fa7e3ce7ffc5a4e120ec64742c69b8d733e23935cc858fb7fde17f60da",
+      "text": "Whether anything is still running.\n\n:returns: True while work is outstanding."
+    },
     "spacr.qt.screens.trellis.TrellisScreen.load_path": {
       "source_blocks_sha256": [
         "d93ee4dfbd458d38d9367505d9b204695aad43b7d5967100b4af57909582dd10",
@@ -52201,6 +52281,22 @@
       ],
       "source_sha256": "8e345d75be70016dbf6b25b01179d0b48d8d1c5f1ec872e105c84aff12fa503c",
       "text": "Plot ``frame``. The one call a host needs."
+    },
+    "spacr.qt.screens.trellis.TrellisScreen.set_spec": {
+      "source_blocks_sha256": [
+        "27294238a0bb500b82b69da4555659976a4a239dcb86baf7dc78e76f41a432ca",
+        "671f6ad31cb336a8301c45cbf86ebb0f55f02cb8dce81a69aa42fd95ed019683"
+      ],
+      "source_sha256": "547de1e837baf46241e3a0d19e647415a6b64b7518e1e50c2c3eecfd10aaa42b",
+      "text": "Draw a different grid.\n\n:param spec: the trellis spec."
+    },
+    "spacr.qt.screens.trellis.TrellisScreen.spec": {
+      "source_blocks_sha256": [
+        "cc9f30e710ab4f5bfaa4fa3484d815b2a2a2019b6ed0e2283a1e498e2cac4e83",
+        "671f6ad31cb336a8301c45cbf86ebb0f55f02cb8dce81a69aa42fd95ed019683"
+      ],
+      "source_sha256": "1cca1272be43611e0f0a5d23a44a7c7598785cd1258ca55a9892fb63379fb5be",
+      "text": "The grid the screen is drawing.\n\n:returns: the trellis spec."
     },
     "spacr.qt.screens.trellis.make_trellis_screen": {
       "source_blocks_sha256": [
@@ -60671,6 +60767,24 @@
       "source_sha256": "9c0576f0800e48fc9122486441d7f2a3f48df4b3aae98ff3ee9725333a2d5384",
       "text": "Pointer left the hot strip before the dwell elapsed."
     },
+    "spacr.qt.widgets.drawer.EdgeDrawer.enterEvent": {
+      "source_blocks_sha256": [
+        "c1f5664f648b4349bcb452aaef70324b70c4b0ec39e96d73b5801d7d7e7e20ab",
+        "15c621fe841327019c3bd53c1a0f60a884924d0d56dcc4b43abe3f383e8a3bf9"
+      ],
+      "source_sha256": "9fc68d039b9ac639a12ea43f0dda8f2d8a5cb3623e56b68167e6a890433d2299",
+      "text": "Open on hover.\n\n:param event: the Qt enter event."
+    },
+    "spacr.qt.widgets.drawer.EdgeDrawer.eventFilter": {
+      "source_blocks_sha256": [
+        "68fba5d73cd0f038cdaecc85db81ae694a65066173fc92ba2323e566d360dd4f",
+        "a1fe911c408cbfdcdcd75086730bc0c607e8bd0a2e0e98df11279694d83249c2",
+        "f3efd0f168c29395cb299b53657b248f21ba0932a39bbc67e2d3ba990723c524",
+        "35ae9a3e190eb544530b096d46b44a16bb33a1f0d404797927edf562febd6c43"
+      ],
+      "source_sha256": "c34a4592502b46b73908fc48474d37aad84563baf9f4c4fee9b16db179549f94",
+      "text": "Watch the host for the events that open and close the drawer.\n\n:param obj: the object the event is for.\n:param event: the event.\n:returns: True to stop the event going further."
+    },
     "spacr.qt.widgets.drawer.EdgeDrawer.hold": {
       "source_blocks_sha256": [
         "8f1c4be0cbb5a831d46add4d91b09a7318580fbcccc0eaec9b14d41fe397382d"
@@ -60692,12 +60806,37 @@
       "source_sha256": "26de339a3c063ecf8270a7bc4ffd5ae9dd2dcb5fd0d275e97ebe10c40c6d8809",
       "text": "True only once the slide has finished."
     },
+    "spacr.qt.widgets.drawer.EdgeDrawer.is_held": {
+      "source_blocks_sha256": [
+        "5a430c080ee7462f752b5e898d5cfeab5188bbdeee8c52646d30bcd840beafe5",
+        "5077fec0e085e3da90147c7fea8bd2df959f7ffff00788d8c3047ed11670cedd",
+        "6ad2d773ec59b84c4a8b56510f4a121e9050e70fd4042cbd156697cf5db3a0cc"
+      ],
+      "source_sha256": "0bf98d947b804471103ff831ec26c279b3192ebf9cf14e704f9b246c1ce5ea25",
+      "text": "Whether the drawer is pinned open.\n\nHELD IS NOT OPEN. A hovered drawer is open and closes when the\npointer leaves; a held one stays until it is released.\n\n:returns: True when pinned."
+    },
     "spacr.qt.widgets.drawer.EdgeDrawer.is_open": {
       "source_blocks_sha256": [
         "1e3881302f9ae17e952ddf14984da167a098899b34462834aa1434d18a0f402f"
       ],
       "source_sha256": "1e3881302f9ae17e952ddf14984da167a098899b34462834aa1434d18a0f402f",
       "text": "True while the panel is on screen, or sliding on."
+    },
+    "spacr.qt.widgets.drawer.EdgeDrawer.keyPressEvent": {
+      "source_blocks_sha256": [
+        "3c2212ee805638d64bd0e3d03c2faaf60b75a26a05aa41ac09b6bf2f497ad62c",
+        "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1"
+      ],
+      "source_sha256": "d34e258c270c68e0b82367c56d05c2c17fe6d7f2ec7d722992334febadf3d25f",
+      "text": "Close on Escape.\n\n:param event: the Qt key event."
+    },
+    "spacr.qt.widgets.drawer.EdgeDrawer.leaveEvent": {
+      "source_blocks_sha256": [
+        "9f0658c607c7d21770c0e887a2b9660558e5bc48f2e95a5b319276a7c9bf960c",
+        "0e97626bfa24e682b9223c9dbae33bc6ae2863d64fd0011469c1024dbcf17c31"
+      ],
+      "source_sha256": "6fc5e49dd5598b9a3cdcb66471453b9bad8753af67b564bd560e23963034218c",
+      "text": "Close on leave, unless the drawer is held open.\n\n:param event: the Qt leave event."
     },
     "spacr.qt.widgets.drawer.EdgeDrawer.open": {
       "source_blocks_sha256": [
@@ -60720,6 +60859,14 @@
       ],
       "source_sha256": "d1a07c0c9b7b58e878bc06a3f72e27ce0fa0d8637e76fb30b58364d6a2d3c568",
       "text": "Re-fit to the host. Called on every host resize."
+    },
+    "spacr.qt.widgets.drawer.EdgeDrawer.relayout_for_open": {
+      "source_blocks_sha256": [
+        "e83e316c25e613cca2f79d789a2ce9de4e52632894bb2194b4e11264368d254e",
+        "f49ded2f5acdce674f55f8e9d249e54504a29806c4f57921735a4661349901e6"
+      ],
+      "source_sha256": "11a89a7464c7e42218b02aeb070aa4482d5bb0996b5e1d185d8ee0ba81b58edd",
+      "text": "Resize to the host's full height and lay the panel out.\n\nCalled on open rather than on construction, because the host can be\nresized while the drawer is closed and a drawer sized to a stale\nheight opens as a stripe down part of the window."
     },
     "spacr.qt.widgets.drawer.EdgeDrawer.schedule_close": {
       "source_blocks_sha256": [
@@ -62743,12 +62890,45 @@
       "source_sha256": "e88d001411e7e1d4a6cebec01abd714c38524ee161d8c98854307075ca7ca9b7",
       "text": "Rank features by how well they separate the classes, and draw the top.\n\n:param parent: parent widget."
     },
+    "spacr.qt.widgets.feature_explorer.FeatureExplorerPanel.closeEvent": {
+      "source_blocks_sha256": [
+        "63282e6ec5b32df25c9824f692cd8ea4981d8c8e209ac29da3b0cde45fff3004",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "bc65a04dcf18a3baf5e1ebc42b984cdff1672eb4b3cb6e9a8cd0f5ee5243fa00",
+      "text": "Stop background work before going away.\n\n:param event: the Qt close event."
+    },
+    "spacr.qt.widgets.feature_explorer.FeatureExplorerPanel.current_spec": {
+      "source_blocks_sha256": [
+        "fce652a92ab050c297839caab8e95f1dd052c9d66dab11548909ffdcae343d9c",
+        "15c013f378904a80c38d1f208a42601fd79895a60d96998b29cb33d92ea53051",
+        "9f50d2ec6dd9895f8c1c9da1ca1787fdeb5bbfce4814e76a48011cde0e0ab566"
+      ],
+      "source_sha256": "c75e5209d639f66401b208cec0c07a205df46bce663e5bb076140a9f5440613b",
+      "text": "The spec as the controls read RIGHT NOW.\n\nDistinct from :attr:`spec`, which is what the last run used: the two\ndiffer while the user is changing the controls, and a panel that\nconflated them would report a ranking against settings it did not\nuse.\n\n:returns: the spec the controls describe."
+    },
     "spacr.qt.widgets.feature_explorer.FeatureExplorerPanel.rank_now": {
       "source_blocks_sha256": [
         "0eb7809b404955afb180c41f0bd70d822a28a443b33702b64600c5c17bbb866e"
       ],
       "source_sha256": "0eb7809b404955afb180c41f0bd70d822a28a443b33702b64600c5c17bbb866e",
       "text": "Re-rank and redraw. Returns the result, or ``None`` on a refusal."
+    },
+    "spacr.qt.widgets.feature_explorer.FeatureExplorerPanel.result": {
+      "source_blocks_sha256": [
+        "2d1222dc068e44d79d879fcb7bcaac0466ebb3397146e0fe46da012a17a694be",
+        "3d72f012d2f3ea1f204483fbed4bb0e90a6d959dc9bb1530726eff8ee85ba3ef"
+      ],
+      "source_sha256": "32395f771396baf48c5bfb90d9d0e2a7153f013b80b06d479fece8bec981c0af",
+      "text": "The last ranking computed, if any.\n\n:returns: the result, or None before a run."
+    },
+    "spacr.qt.widgets.feature_explorer.FeatureExplorerPanel.selected_feature": {
+      "source_blocks_sha256": [
+        "fa5a0dd8e3a41366537801b884004a9749cb208d474e10a238674dcb937d56ed",
+        "9546e013138a29c1a009b2d5438f17a45fa41767c8e766825073da890395bd3d"
+      ],
+      "source_sha256": "feb971ef6e647a7fe762d97ebeb381f30aa51586a4e75682f69c3fd7feb391c6",
+      "text": "Which feature the user has selected, if any.\n\n:returns: the feature name, or ``\"\"``."
     },
     "spacr.qt.widgets.feature_explorer.FeatureExplorerPanel.set_frame": {
       "source_blocks_sha256": [
@@ -62763,6 +62943,22 @@
       ],
       "source_sha256": "67bda123ffa883b0b3be34689abf12d55cdc847f13b326d0b5463296410edfb0",
       "text": "Push a whole spec in — restoring a saved analysis."
+    },
+    "spacr.qt.widgets.feature_explorer.FeatureExplorerPanel.spec": {
+      "source_blocks_sha256": [
+        "e05b940ce3f92e8a152c93be2f71ffc580e38b4f5dd0ba845abb3e62aadadec8",
+        "4801a37438da32d842b8eb4ccb7a4a7fe8a1e20ca7eabf4426073e0ebd08b792"
+      ],
+      "source_sha256": "74e16c443c46aa8c4aebf0c81fe282b3c7889942130d4c9449e703fa3b7fa88e",
+      "text": "What the panel is currently set to rank.\n\n:returns: the explorer spec."
+    },
+    "spacr.qt.widgets.feature_explorer.FeatureExplorerPanel.summary": {
+      "source_blocks_sha256": [
+        "e78c0790d5b1eee9d9866d5cdfef6a0da2d52e3a3b13da72d34944a01f2e9463",
+        "9959a701936cd0cbfbd3d02bc9ebaac9023bea0f53dc9a05139e1c25855713e8"
+      ],
+      "source_sha256": "47ff3aeb664d99a0214513affacd8559d350c4b051ecdc0012ac8a08762210c8",
+      "text": "What was ranked, over how much, and what was skipped.\n\n:returns: a one-line summary, empty before a run."
     },
     "spacr.qt.widgets.feature_rank": {
       "source_blocks_sha256": [
@@ -68769,12 +68965,38 @@
       "source_sha256": "51ae99951cd6698d8fbe4428e00f6284af4cd6f7a114af55c7975fe6418ebc06",
       "text": "The complete panel layout — including the combinations with no rows.\n\nAn empty panel is **drawn empty**, never skipped. \"Plate 3 / row H has no\nsurviving cells\" and \"there is no plate 3 / row H\" are different facts,\nand a grid that closes up the gaps tells the reader the second one when\nthe first is true.\n\n:param hidden_rows: rows excluded because their facet level did not make\n    the :data:`MAX_FACET_LEVELS` cut. Non-zero means the grid is not the\n    whole table, and :attr:`notice` says so."
     },
+    "spacr.qt.widgets.graph_spec.FacetGrid.is_faceted": {
+      "source_blocks_sha256": [
+        "e16faf888f19fdcd64e371c424598b8c0339c250fcffe62c0e60ea36dcc8e5e5",
+        "8c372a487cfc0c234063b0fd96de90f11c3ba0bc496e675cfcbe22b40fea94c6"
+      ],
+      "source_sha256": "df30507c5786c9ed3434801f5841dbba76acbf59d3eb6e99e404947d314b93f2",
+      "text": "Whether this is a grid rather than a single chart.\n\n:returns: True when either axis has levels."
+    },
     "spacr.qt.widgets.graph_spec.FacetGrid.n_panels": {
       "source_blocks_sha256": [
         "98a1fe9f2d7230e907aa8adafa93c173bced768d7b1158df7d7bdde0cdf7ae1a"
       ],
       "source_sha256": "98a1fe9f2d7230e907aa8adafa93c173bced768d7b1158df7d7bdde0cdf7ae1a",
       "text": "Rows × columns — the count *including* empty panels."
+    },
+    "spacr.qt.widgets.graph_spec.FacetGrid.panel": {
+      "source_blocks_sha256": [
+        "26ce189fda46b356488b55ed9938877167d70b08356be56080ca8ceda1f53d15",
+        "e555a0362b9bd7f82c489ceb47eac915357027a587c121e6533e0a55c449d972",
+        "5930cdfdc4d94e7dfb1756efb341c9caf8d125aef4b7fafc53314cf369bb8d25",
+        "79277685a92826cde0920a2ae0fd3e2fd727783b730117cb377c6ebb9bda652e"
+      ],
+      "source_sha256": "feccba857a9ed663608d8918e6eaf8bf7d91211557def2461c46beaf00be60df",
+      "text": "The panel at one grid position.\n\n:param row: the grid row, from 0.\n:param col: the grid column, from 0.\n:returns: the panel."
+    },
+    "spacr.qt.widgets.graph_spec.FacetGrid.shape": {
+      "source_blocks_sha256": [
+        "9897c53f9720a7bc92b94a31f6e8a489a5a604efd3d84a8b871f6cc99d193f7e",
+        "7675bdb026a3bbad7608cd9664eb1e44b1db09b767b6baf419943597f0488c04"
+      ],
+      "source_sha256": "134f8a09e49dc1fefadab3a15f7737fee56f459fd24ed392914b32ffdba2f7ee",
+      "text": "The grid's size as ``(rows, columns)`` of facet levels.\n\n:returns: the row and column counts."
     },
     "spacr.qt.widgets.graph_spec.FacetPanel": {
       "source_blocks_sha256": [
@@ -68797,6 +69019,14 @@
       ],
       "source_sha256": "66e7a14c868af1a12766217e75a14a92708a169d5d7aa2e0b4818945b37ecdb0",
       "text": "No rows. Still drawn — see :class:`FacetGrid`."
+    },
+    "spacr.qt.widgets.graph_spec.FacetPanel.n": {
+      "source_blocks_sha256": [
+        "8dbcee00c5ba8a9fed3231ce116cfc6f0bbe868e13b5bb8fd8201f9ea27ee6d6",
+        "90e8a49ccf3d13a3c302ce245ade25f85e71c917f642a54b9a12d02847470735"
+      ],
+      "source_sha256": "f7cd2a430a2ab93d0b08b1a7063db119734a4dd1ba02175b93c36de848a55550",
+      "text": "How many rows landed in this panel.\n\n:returns: the row count."
     },
     "spacr.qt.widgets.graph_spec.FacetPanel.title": {
       "source_blocks_sha256": [
@@ -68857,6 +69087,15 @@
       "source_sha256": "670e984986aad1af58789d6e8d829c862cee6f3c5da98ae84aeb7c9b6f3aab3a",
       "text": "Rebuild from :meth:`to_dict`.\n\nUnknown keys are ignored and missing keys take their defaults, so a\nspec written by an older (or newer) build still opens. A spec that\nwill not load is a chart the user cannot get back."
     },
+    "spacr.qt.widgets.graph_spec.GraphSpec.from_json": {
+      "source_blocks_sha256": [
+        "ec28179bca05a2121492ac84ec61616ad949929408edcb0dc0a011fdd799b277",
+        "dff13df1a48489a78f9a7a9b139cbf7077f58a7a6a0e9a9ba127673213755b45",
+        "7d49c5db3c3ebc8f90714320310bfef90fe855404119da16b66d453a68f37709"
+      ],
+      "source_sha256": "4af416daf6fc171a657b2438055d07e723eaae2184c5c14fdf282bb668ca67f7",
+      "text": "Rebuild a spec from JSON text.\n\n:param text: the JSON text.\n:returns: the rebuilt spec."
+    },
     "spacr.qt.widgets.graph_spec.GraphSpec.is_empty": {
       "source_blocks_sha256": [
         "cd8c397140f4ceee402e3837df7ba037654bc392cb176f1bbb685ec73d3f35b7"
@@ -68884,6 +69123,14 @@
       ],
       "source_sha256": "9e7c82d4b0155a3fea8cf0597b126ab8a1e524615d68ada4a96002dea3b21218",
       "text": "A plain JSON-able dict. Every field, always — a stable schema beats\na compact one for something later screens read."
+    },
+    "spacr.qt.widgets.graph_spec.GraphSpec.to_json": {
+      "source_blocks_sha256": [
+        "8eb05314582ba634cde80a9372864a8f299e9af2755fbcec9f3c9548f5eb28ac",
+        "dff13df1a48489a78f9a7a9b139cbf7077f58a7a6a0e9a9ba127673213755b45"
+      ],
+      "source_sha256": "6f9824eb74d94f0ac006c83bb5d4e69255826121d242ea3654eb172fd80c95e4",
+      "text": "This spec as JSON text, keys sorted so the file is diffable.\n\n:returns: the JSON text."
     },
     "spacr.qt.widgets.graph_spec.GraphSpec.used_columns": {
       "source_blocks_sha256": [
@@ -68943,6 +69190,15 @@
       ],
       "source_sha256": "7f35bafcb15440d2df8d072b3ae81f1ebe96f97c2f886b3d49d9f13fc1edc592",
       "text": "Level → tick position, so a categorical x lines up across panels."
+    },
+    "spacr.qt.widgets.graph_spec.Scales.y_positions": {
+      "source_blocks_sha256": [
+        "6009ea99bd16bd57615a8477280f436b899c33639c5df6e097148bb6e1d7af7d",
+        "f871daddb966590387d4b8d7c9090bf99bf445b2a9ec0e187e4ac1ff5d90381b",
+        "85b0dd0d788a0ecca853c0e572f1032209e40871492fede79968a011722cd9b0"
+      ],
+      "source_sha256": "e91351a11a5c8c6479d08bcb9e752effbe2acf1cd28beef9f876deef06318a28",
+      "text": "Where each categorical y level sits on the axis.\n\nNone for a continuous y, which is the distinction a renderer needs:\na category is drawn at an integer position it was assigned, a number\nat the position it IS.\n\n:returns: ``{level: position}``, or None when y is continuous."
     },
     "spacr.qt.widgets.graph_spec.SpecError": {
       "source_blocks_sha256": [
@@ -72338,6 +72594,46 @@
       "source_sha256": "a932c824580bcaa3be3e6b50fc5be08a428db446c2f539175304acf1a0f2fddc",
       "text": "Whether ``obj`` asks ``question`` at all.\n\nAbsence is a fact about the object, not a value it has yet to be\ngiven: cytoplasm is derived and has no channel to be found in."
     },
+    "spacr.qt.widgets.object_settings_grid.ObjectSettingsModel.columnCount": {
+      "source_blocks_sha256": [
+        "f783e6bae21183ba867d2b026f2b41066b64e70c5650cdf16966640c9da111c3",
+        "317416ddbeb93f769bf12aa25fd7d81b25189b613fa431bcba5b1886d4727aa2",
+        "011264c6495f4c17d804ba1e9d2b346bb47efaf31a7e2f52e1157f3feef42979"
+      ],
+      "source_sha256": "73817644ee2498a6dcab07bd9cecac47e9f81046559b00d0f9ab8f22afa10be1",
+      "text": "How many objects the table has a column for.\n\n:param parent: unused; the model is flat.\n:returns: the column count."
+    },
+    "spacr.qt.widgets.object_settings_grid.ObjectSettingsModel.data": {
+      "source_blocks_sha256": [
+        "d763e3547f91c443bb248ce4a61600810ad4cb4a2529208426b7d5dddcfcb6fb",
+        "a835f0e2f0ab2c945d413d23413e33bde413e3d9961e8867df286c2422cceccd",
+        "cdd3eb9f6eeccef830b84634831f8e12a3490b429995ccf3774e4ba338f4023a",
+        "346a3f5027ca643404ee82f01f6894e76776943fd47d119bdd95709ef941f96c"
+      ],
+      "source_sha256": "2dca3d79b378979c4820c7809375cb37f7df1f4f9d5efd688fdef1d7d257ee13",
+      "text": "One cell of the table.\n\n:param index: the cell.\n:param role: the Qt display role.\n:returns: the cell's value for that role, or None."
+    },
+    "spacr.qt.widgets.object_settings_grid.ObjectSettingsModel.flags": {
+      "source_blocks_sha256": [
+        "24340d13f10bc227cc79eecae6dc0cdbf75d7ac36159655902354d5e491ba999",
+        "93336fb50892b0abcd96f41cd99e9bdd41924bab13a52c781948f4f57f191409",
+        "a835f0e2f0ab2c945d413d23413e33bde413e3d9961e8867df286c2422cceccd",
+        "b7b72d486ed9fe6c3134f9332efd16a51b65a92cf21ec57dfa461f9dcedc5cfc"
+      ],
+      "source_sha256": "41dbbc7c9e20e48e130e6f0e69698c0fdb4022dc35ef618fd2f79a5ee88840e9",
+      "text": "Which cells are editable.\n\nONLY THE CELLS AN OBJECT ACTUALLY ASKS. A blank cell means that\nobject does not ask that question, and making it editable would\ninvite an answer to a question nobody posed.\n\n:param index: the cell.\n:returns: the Qt item flags."
+    },
+    "spacr.qt.widgets.object_settings_grid.ObjectSettingsModel.headerData": {
+      "source_blocks_sha256": [
+        "e56211be6a49f1737b2d583854078581c768f7834c19674e1b9129f978e77143",
+        "271c508e4cb14bee56cccd616cecb3225655ab322190de195cc1f53163864e14",
+        "094e08febbf10d973e6565b8cdca8ae1a31d89d4150d9baea12ac56d13dfc6a6",
+        "cdd3eb9f6eeccef830b84634831f8e12a3490b429995ccf3774e4ba338f4023a",
+        "427cc66e6e4f78ef4550f487987ac36c2fc33434749c8b2a75a1a81f85e5e1f6"
+      ],
+      "source_sha256": "a66cd1d4c3ab72e32959f760e75ebddbe9e04b4050ee392b09f5cf9127d45c15",
+      "text": "One header label: a question name, or an object name.\n\n:param section: the row or column number.\n:param orientation: which header.\n:param role: the Qt display role.\n:returns: the label, or None."
+    },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsModel.objects": {
       "source_blocks_sha256": [
         "ec8bca37ac78e66fd609d510edb9b0d1c8e7544ef3e4b147624675210875b9ad"
@@ -72351,6 +72647,26 @@
       ],
       "source_sha256": "97d9646b71f8a8e36838d0bb783fd6fca516c5b031a2a597a6c63d8e49c63c88",
       "text": "The settings question one row asks, or ``''``."
+    },
+    "spacr.qt.widgets.object_settings_grid.ObjectSettingsModel.rowCount": {
+      "source_blocks_sha256": [
+        "e50fb6350dd18a61b9a85f7d0626fae0d513d6adad8764a3dc9b2dcd13268d0b",
+        "317416ddbeb93f769bf12aa25fd7d81b25189b613fa431bcba5b1886d4727aa2",
+        "90e8a49ccf3d13a3c302ce245ade25f85e71c917f642a54b9a12d02847470735"
+      ],
+      "source_sha256": "cd5f59151059b6dd60391a649bcef67286e6ac5e0ff2998ad150d1356a4d4005",
+      "text": "How many questions the table asks.\n\n:param parent: unused; the model is flat.\n:returns: the row count."
+    },
+    "spacr.qt.widgets.object_settings_grid.ObjectSettingsModel.setData": {
+      "source_blocks_sha256": [
+        "9720d14b578a39f588ab7386e273b935682b130e0e243c2120c12ae094b0fb05",
+        "a835f0e2f0ab2c945d413d23413e33bde413e3d9961e8867df286c2422cceccd",
+        "7bbe8f5c3895b96ec40eede65b2880d6a4bfd2824c0f2aac099eada5359b8ca1",
+        "5087d38aa9a7abb0d47c41b4f94c96a808ad5dbffe3250346a41539f29dc7cf6",
+        "ec84c52f96384dff622ab272202236873ac5b4d898c1c589f3285cdaef07ecc4"
+      ],
+      "source_sha256": "7d9bb53fa499fa45ee038112385115afd3330dad2a9b8f87c800b7f4b00206fd",
+      "text": "Write one cell back into the settings.\n\n:param index: the cell.\n:param value: what the user typed.\n:param role: the Qt edit role.\n:returns: True when the value was taken."
     },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsModel.set_table": {
       "source_blocks_sha256": [
@@ -73438,6 +73754,21 @@
       "source_sha256": "88d1fbcc65545388f03555cd7e035486581fbe12c7628a9b55f8984b01c60932",
       "text": "One pivot axis: an ordered list of columns, filled by dropping.\n\nA list rather than a single-slot zone, because a pivot axis is a *nest*:\n``plateID`` then ``rowID`` then ``columnID`` is three keys on one axis and\nthe order is the hierarchy. Drop order is that order, which is the only\nrule that needs no explanation at the moment a user drags something.\n\nRemoving is Delete, Backspace or a double-click. There is no drag-out: a\ncolumn dragged from here to another well would have to decide whether it\nwas a move or a copy, and getting that wrong silently loses an axis.\n\n:param axis: which pivot axis this well holds. Must be a key of\n    :data:`AXIS_LABELS`; anything else RAISES here rather than drawing a\n    well nothing can be dropped into.\n:param parent: parent widget."
     },
+    "spacr.qt.widgets.pivot_builder.DropWell.clear": {
+      "source_blocks_sha256": [
+        "4a2c52c22e16e1a1359277da0b8ccdd1d0ce8fb63235c28784c0229bd6d23a06"
+      ],
+      "source_sha256": "4a2c52c22e16e1a1359277da0b8ccdd1d0ce8fb63235c28784c0229bd6d23a06",
+      "text": "Empty the well."
+    },
+    "spacr.qt.widgets.pivot_builder.DropWell.columns": {
+      "source_blocks_sha256": [
+        "cb5b1befe68e85cd14f6898e3bf4d86656b2e8d6a15f3bc13986ecfb3605fa7e",
+        "83569166b54d5a70b2ad20da57997bb56567683fdeb95e18c1af3883de633c21"
+      ],
+      "source_sha256": "069eb64fe342c2878b1e430a7d407940920b0e6890f24531019c8a86e53084e0",
+      "text": "The columns dropped into this well.\n\n:returns: the column names, in drop order."
+    },
     "spacr.qt.widgets.pivot_builder.DropWell.set_columns": {
       "source_blocks_sha256": [
         "e67ba3116f78a7c67c6fc7176e3642fd17ea0f468bfcd29aaba62354d2154f5e"
@@ -73452,6 +73783,14 @@
       ],
       "source_sha256": "f215c042bad41122ad121926d99b2220c8431e0b6d61fa482d881981439a1d12",
       "text": "The well, the three axes, the aggregations and the grid.\n\n:param parent: parent widget."
+    },
+    "spacr.qt.widgets.pivot_builder.PivotPanel.closeEvent": {
+      "source_blocks_sha256": [
+        "63282e6ec5b32df25c9824f692cd8ea4981d8c8e209ac29da3b0cde45fff3004",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "bc65a04dcf18a3baf5e1ebc42b984cdff1672eb4b3cb6e9a8cd0f5ee5243fa00",
+      "text": "Stop background work before going away.\n\n:param event: the Qt close event."
     },
     "spacr.qt.widgets.pivot_builder.PivotPanel.export_csv": {
       "source_blocks_sha256": [
@@ -73473,6 +73812,14 @@
       ],
       "source_sha256": "a71f727e690fb7154d570c89deb7691ca9ed4c72057af70b69fdb63e928c9415",
       "text": "Rebuild the table. Refusals become a message, never a traceback."
+    },
+    "spacr.qt.widgets.pivot_builder.PivotPanel.result": {
+      "source_blocks_sha256": [
+        "e9a6091329c4fea3fe854539b8df40a30033019a77da2067efbd0d68b9618fca",
+        "308ed626cea3ac0dcaceee40e406406ce1889c0d5d2501e584459fd3ac0be02c"
+      ],
+      "source_sha256": "be6bd978aa1949988033355bcb166f696801b93a9e790e413c57aa65f9f8c8bc",
+      "text": "The pivot this panel is showing, if any.\n\n:returns: the result, or None before one has been computed."
     },
     "spacr.qt.widgets.pivot_builder.PivotPanel.set_frame": {
       "source_blocks_sha256": [
@@ -73518,6 +73865,22 @@
       ],
       "source_sha256": "60faa2c9d9b1212a8e7d52a74a26060f575b60db4ff7060b14e925b97c8f74e3",
       "text": "What is actually painted in a body cell — for a test, and for a\ncaller that wants the string rather than the float."
+    },
+    "spacr.qt.widgets.pivot_builder.PivotTable.result": {
+      "source_blocks_sha256": [
+        "8e22f38dff7efad6764b47b34790811939cae1a1be5ce0be1647f5d053197a48",
+        "308ed626cea3ac0dcaceee40e406406ce1889c0d5d2501e584459fd3ac0be02c"
+      ],
+      "source_sha256": "cfbeec08f991028cf12f2308b103f9192ddb4ba8415a89fc570f8bec56344bae",
+      "text": "The pivot being displayed, if any.\n\n:returns: the result, or None before one has been computed."
+    },
+    "spacr.qt.widgets.pivot_builder.PivotTable.set_result": {
+      "source_blocks_sha256": [
+        "2d52953e2cd629858be4b115f9e8e0c75bdfb98ed3ce418e0cbcfca731e0f86e",
+        "32149c7871eb68e6f02191bd7cb5741cbd7a3a37d6d1697087af8939e2b7a2af"
+      ],
+      "source_sha256": "bebae97b0175895cb38c5d484da365e7e6bb44f7c3dddf9432a0c219d36a5c05",
+      "text": "Show a computed pivot.\n\n:param result: the pivot result, or None to clear."
     },
     "spacr.qt.widgets.pivot_builder.PivotTable.truncated_cells": {
       "source_blocks_sha256": [
@@ -78773,6 +79136,22 @@
       "source_sha256": "a870141ab0377a86e2cad9f2741128909e4e44b7e086f6a53c8ac20d90cacbc2",
       "text": "The LOPIT compartments this screen actually has, commonest first.\n\nNOT ALL 27 IN THE REFERENCE TABLE: a tick box that would colour\nnothing is indistinguishable from a broken one. Empty when no column\nof the results names a gene, which is a volcano without compartment\ncolouring rather than an error."
     },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.dragEnterEvent": {
+      "source_blocks_sha256": [
+        "15682889f9535d79414c108d1024ef7e36c296da4c95ee86fbc8b2fcd8277a3e",
+        "15575c6909400eb7899833ac566c381a843a5f11d33fa56c77b246b3a1b7bac9"
+      ],
+      "source_sha256": "62558d0e34b25d9396a77c3995ccc36f9a0ffb1c5a30e0b63eabb2d7b1901fd9",
+      "text": "Accept a drag carrying a table this explorer can plot.\n\n:param event: the Qt drag event."
+    },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.dropEvent": {
+      "source_blocks_sha256": [
+        "fd1305725f64cfcb9c1acd226433f0d34b431da7c322b496f00a64df0327fe09",
+        "8b59f27a976905c11e1560dc4875fc94d66600e8add250f18ccc1b8089d0b6d7"
+      ],
+      "source_sha256": "1117873bda84065c35bfc504dc14d0ca1e2ea010ccf4a2dba25a9f5b7dfbcb53",
+      "text": "Plot the dropped table.\n\n:param event: the Qt drop event."
+    },
     "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.export": {
       "source_blocks_sha256": [
         "147d740f27d8fab5b1c6382f86bab014a5412a7d8da0be42a0d08d9093e09ef0",
@@ -78835,6 +79214,15 @@
       "source_sha256": "e0278c5c2ac9d4873bbd9183a88160fbd0b53f6021482c5e40460bb444bc1df7",
       "text": "Redraw the canvas, and name the settings that could not be used.\n\nA BAD SETTING DOES NOT COST THE READER THE PICTURE. One mistyped\ncolour used to replace the whole volcano with the words \"cannot draw\nthis plot\", which takes away the only thing on screen over a single\nfield and does not say which field. Instead the offending settings\nfall back to the last value that drew, the figure stays up, the name\nof each offending setting goes red and the reasons are printed under\nthe plot.\n\n``screen=True``: this render is being read, so it takes\n:attr:`VolcanoStyle.screen_background`. The export path does not\npass it and therefore keeps the transparent figure default."
     },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.results": {
+      "source_blocks_sha256": [
+        "2c9c3df5917e6804234707c859b07ef0ceb4bb8b9cbc4e081dad3944724bd59f",
+        "35e5cf813a2b67b66435ff892e0d43b3bce41304d294b9430a2a656b12b313fd",
+        "1d74c8dad7c55ff9b40eca0bde79a3f7d48a3fdbb254e12b8644e580984c333c"
+      ],
+      "source_sha256": "c284d6481f8912ca96301589b1171626c8971df5b22a7cf401a6d38174717f99",
+      "text": "The table being plotted.\n\nA COPY, so a caller cannot change what is on screen by editing what\nit was handed.\n\n:returns: the results table."
+    },
     "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.section_for": {
       "source_blocks_sha256": [
         "4bef4ec4bf172ad57e2ffb18aad7863f3e14f05d6b323bd8bc38277dd0e7ca73"
@@ -78855,6 +79243,41 @@
       ],
       "source_sha256": "9d579628d1ce65c8930903fc4c666b0ade855f1c1517587220dc187918548eca",
       "text": "Select a point by row index and show everything known about it."
+    },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.selected_index": {
+      "source_blocks_sha256": [
+        "7b092cc97970340b307a69ad77a7926a3818537d6c1853b97187da34356f74dd",
+        "ac43082cade27db00b12755393876e029433c10a1498f84f0027ede267510c59",
+        "95289fa1bc86b117a3998dfb895b13911381bae6079d95dabe13dd369e71e80a"
+      ],
+      "source_sha256": "cd0f92066c066d0c208c89cce66d8d6669409ed39377bf47a8ea864d9cf5d6de",
+      "text": "Which row the user has clicked, if any.\n\nA POSITION into the plotted frame, not a label -- see\n:meth:`set_results`.\n\n:returns: the row position, or None when nothing is selected."
+    },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.set_results": {
+      "source_blocks_sha256": [
+        "aa0eed5a2e882b10444a3a08ee41e49f3cc0f7408fbd37b28c408e21068b7216",
+        "91cf66a7998a89c46767599e45ab91e68343de240f7bf4cb002081756ddbfeb6",
+        "405160c38e67b39026caf359efc250bcfdabf2a92368d10d47f219db838fc010"
+      ],
+      "source_sha256": "060d4357e7045be5545d47fb8ef43231f979b7007a0deb213d540834e93376be",
+      "text": "Plot a new fitted table, clearing any selection.\n\nTHE INDEX IS RESET. Point picking is by POSITION in the plotted\nframe, so a table carrying its old index would have every click\nresolve to the wrong row.\n\n:param results: the fitted table to plot."
+    },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.set_style": {
+      "source_blocks_sha256": [
+        "cbf61ea8250124fd6754f5d9c8bdded246eb42309a5efeeac5ea6bb9000a5e19",
+        "4a541f8b3b76f0971dba94258a78fd29414a32d33f26e429a7f019d167fca97a",
+        "1cb3f9c34c3752370e402d956ad6faf1890a23358dfc3e67e75d404dc8f35ced"
+      ],
+      "source_sha256": "b5cd65b42d16f488947f7851003ef5d5be85dc79cb57fc9eca9bbea64e385039",
+      "text": "Restyle the plot and push the new values into the controls.\n\nBOTH, so a style set from code leaves the controls agreeing with the\nplot rather than showing what they were last set to by hand.\n\n:param style: the style to apply."
+    },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.style": {
+      "source_blocks_sha256": [
+        "a2bc4b2e817feebd003f8169ed4e1d8b947ead3c7916430538a88b920b32f271",
+        "1885637af52d9e125f45699295ec8cb58b7daa38745f66506ba0212375b7ce01"
+      ],
+      "source_sha256": "e7ffe15da18570cc2f5e7ffe48c52ff93c1dd2de034de3d2b5fa10878c22dc57",
+      "text": "How the volcano is currently drawn.\n\n:returns: the style."
     },
     "spacr.read_background": {
       "source_blocks_sha256": [
