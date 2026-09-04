@@ -452,55 +452,65 @@ class TestAnUnsetChannelSaysOffNotAuto:
 
 class TestTheModelZooIsPerColumn:
     """A cell and a pathogen are not segmented by the same checkpoint, so the
-    button that picks one has to know which column it is in."""
+    control that picks one has to know which column it is in.
 
-    def test_every_object_column_has_its_own_button(self, grid, qtbot):
-        from spacr.qt.widgets.object_settings_grid import MODEL_QUESTION
-        questions = list(grid.questions())
-        assert MODEL_QUESTION in questions, "no model row to put buttons on"
-        row = questions.index(MODEL_QUESTION)
-        view_model = grid._table.model()
-        for column, obj in enumerate(grid.objects()):
-            index = grid._model.index(row, column)
-            mapper = getattr(view_model, "mapFromSource", None)
-            view_index = mapper(index) if mapper else index
-            assert grid._table.indexWidget(view_index) is not None, (
-                f"{obj} has no model-zoo button")
+    THE WHOLE CELL IS THE CONTROL. A button small enough to fit in a table
+    cell has no room for a word, so nothing is drawn and the cell itself is
+    clicked.
+    """
 
-    def test_the_buttons_follow_the_columns(self, grid, qtbot):
-        """Adding an organelle adds a column, and an index widget belongs to a
-        cell -- so they are placed again rather than once."""
+    def _view_index(self, grid, question, obj):
+        source = grid._model.index(list(grid.questions()).index(question),
+                                   grid.objects().index(obj))
+        mapper = getattr(grid._table.model(), "mapFromSource", None)
+        return mapper(source) if mapper else source
+
+    def test_nothing_is_drawn_in_the_cell(self, grid):
         from spacr.qt.widgets.object_settings_grid import MODEL_QUESTION
-        grid.add_organelle()
-        row = list(grid.questions()).index(MODEL_QUESTION)
-        view_model = grid._table.model()
-        placed = 0
-        for column in range(len(grid.objects())):
-            index = grid._model.index(row, column)
-            mapper = getattr(view_model, "mapFromSource", None)
-            view_index = mapper(index) if mapper else index
-            placed += grid._table.indexWidget(view_index) is not None
-        assert placed == len(grid.objects())
+        for obj in grid.objects():
+            index = self._view_index(grid, MODEL_QUESTION, obj)
+            assert grid._table.indexWidget(index) is None, (
+                f"{obj} has a widget in its model cell")
+
+    def test_clicking_a_model_cell_picks_for_that_object(self, grid,
+                                                         monkeypatch):
+        import spacr.qt.widgets.model_zoo_picker as zoo
+        from spacr.qt.widgets.object_settings_grid import MODEL_QUESTION
+        monkeypatch.setattr(zoo, "choose_model", lambda *a, **k: "/m/x.pt")
+        before = grid.settings().get("nucleus_model_name")
+
+        grid._table.clicked.emit(self._view_index(grid, MODEL_QUESTION,
+                                                  "cell"))
+        out = grid.settings()
+        assert out["cell_model_name"] == "/m/x.pt"
+        assert out.get("nucleus_model_name") == before, (
+            "picking a model for one object changed another")
+
+    def test_clicking_any_other_row_opens_nothing(self, grid, monkeypatch):
+        """Only the model row is a control; every other cell is just a cell."""
+        import spacr.qt.widgets.model_zoo_picker as zoo
+        opened = []
+        monkeypatch.setattr(zoo, "choose_model",
+                            lambda *a, **k: opened.append(1) or "/m/x.pt")
+        grid._table.clicked.emit(self._view_index(grid, "channel", "cell"))
+        assert not opened
 
     def test_a_cancelled_picker_leaves_the_model_alone(self, grid,
                                                        monkeypatch):
         """Cancelling is not an instruction to forget the model already set."""
-        from spacr.qt.widgets import object_settings_grid as mod
+        import spacr.qt.widgets.model_zoo_picker as zoo
         from spacr.qt.widgets.object_settings_grid import MODEL_QUESTION
         grid.set_value(MODEL_QUESTION, "cell", "cpsam")
-        monkeypatch.setattr(mod, "MODEL_QUESTION", MODEL_QUESTION)
-        import spacr.qt.widgets.model_zoo_picker as zoo
         monkeypatch.setattr(zoo, "choose_model", lambda *a, **k: None)
         assert grid.choose_model_for("cell") is False
         assert grid.settings()["cell_model_name"] == "cpsam"
 
-    def test_a_chosen_model_lands_in_that_object_only(self, grid, monkeypatch):
-        import spacr.qt.widgets.model_zoo_picker as zoo
+    def test_the_cell_says_it_is_clickable(self, grid):
+        """A control that is not drawn has to be findable some other way."""
+        from PySide6.QtCore import Qt
         from spacr.qt.widgets.object_settings_grid import MODEL_QUESTION
-        before = grid.settings().get("nucleus_model_name")
-        monkeypatch.setattr(zoo, "choose_model", lambda *a, **k: "/models/x.pt")
-        assert grid.choose_model_for("cell") is True
-        out = grid.settings()
-        assert out["cell_model_name"] == "/models/x.pt"
-        assert out.get("nucleus_model_name") == before, (
-            "picking a model for one object changed another")
+        index = grid._model.index(
+            list(grid.questions()).index(MODEL_QUESTION),
+            grid.objects().index("cell"))
+        tip = str(grid._model.data(index, Qt.ToolTipRole) or "")
+        assert "Click this cell" in tip

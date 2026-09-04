@@ -2174,7 +2174,11 @@ class MainWindow(QMainWindow):
         # The dock paints the ground; the slot only holds it. See
         # `Dock.apply_theme` for why the column needs a ground at all.
         slot_col = QVBoxLayout(self._dock_slot)
-        slot_col.setContentsMargins(0, 0, 0, 0)
+        # THE GAP AROUND THE DOCK LIVES HERE. The dock widget is itself the
+        # rounded box, and a widget's own margins are inside its background,
+        # so the space that keeps the box off the window edge has to be put
+        # around it by whatever holds it.
+        slot_col.setContentsMargins(6, 6, 6, 6)
         slot_col.setSpacing(0)
         self._dock_slot.hide()
         row.addWidget(self._dock_slot)

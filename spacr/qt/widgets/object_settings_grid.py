@@ -252,6 +252,9 @@ class ObjectSettingsModel(QAbstractTableModel):
             return "" if value is None else str(value)
         if role == Qt.ToolTipRole:
             head = f"{obj}_{question}  =  {unset if value is None else value!r}"
+            if question == MODEL_QUESTION:
+                head += (f"\n\nClick this cell to choose {column_label(obj)}'s "
+                         f"model from the zoo. Double-click to type a path.")
             help_text = _question_help(question, obj)
             if question in _OFF_QUESTIONS and value is None:
                 head += (f"\n\n{column_label(obj)} is NOT SEGMENTED. "
@@ -307,63 +310,6 @@ class ObjectSettingsModel(QAbstractTableModel):
                     f"the question on the left; a blank cell is a question "
                     f"it does not ask.")
         return None
-
-
-class _ModelCell(QWidget):
-    """One model-name cell: the name, and the button that picks one.
-
-    An INDEX WIDGET rather than a delegate. A delegate's button exists only
-    while the cell is being edited, and a control you have to know to
-    double-click for is one most people never find. This sits in the cell.
-
-    :param grid: the :class:`ObjectSettingsGrid` this belongs to.
-    :param question: the settings question -- ``model_name``.
-    :param obj: which object column this cell is in, and so which object the
-        chosen model is stored for.
-    """
-
-    def __init__(self, grid: "ObjectSettingsGrid", question: str, obj: str):
-        """Build the cell and wire its button to that object's picker."""
-        super().__init__(grid)
-        self._grid = grid
-        self._question = question
-        self._obj = obj
-
-        row = QHBoxLayout(self)
-        row.setContentsMargins(4, 0, 2, 0)
-        row.setSpacing(4)
-        self._label = QLabel(self)
-        self._label.setObjectName("ObjectGridModelName")
-        row.addWidget(self._label, 1)
-
-        self._button = QPushButton("Zoo", self)
-        self._button.setObjectName("ObjectGridModelZoo")
-        self._button.setCursor(Qt.PointingHandCursor)
-        self._button.setToolTip(
-            f"Choose the segmentation model for {column_label(obj)} from the "
-            f"model zoo. Each object column has its own -- a cell and a "
-            f"pathogen are not segmented by the same checkpoint.")
-        self._button.clicked.connect(self._pick)
-        row.addWidget(self._button, 0)
-        self.refresh()
-
-    def refresh(self) -> None:
-        """Show the model currently stored for this object."""
-        value = self._grid._model.value_at(self._question, self._obj)
-        text = str(value) if value not in (None, "") else _unset_text(
-            self._question)
-        # ELIDED FROM THE LEFT: a checkpoint path ends in the name that
-        # identifies it and begins in directories that are the same for all
-        # of them.
-        metrics = self._label.fontMetrics()
-        self._label.setText(metrics.elidedText(
-            text, Qt.ElideLeft, max(40, self._label.width() or 160)))
-        self._label.setToolTip(text)
-
-    def _pick(self) -> None:
-        """Open the zoo for this object, and show what came back."""
-        if self._grid.choose_model_for(self._obj):
-            self.refresh()
 
 
 class _GridHeightGrip(QFrame):
@@ -478,7 +424,7 @@ class ObjectSettingsGrid(QWidget):
         # can be dragged taller or shorter from the grip.
         self._table.setSizePolicy(QSizePolicy.Policy.Expanding,
                                   QSizePolicy.Policy.Fixed)
-        self._model.modelReset.connect(self._place_model_buttons)
+        self._table.clicked.connect(self._cell_clicked)
         self._user_height: Optional[int] = None
         outer.addWidget(self._table)
 
@@ -502,45 +448,31 @@ class ObjectSettingsGrid(QWidget):
 
     # -- the model-zoo buttons ---------------------------------------------
 
-    def _place_model_buttons(self) -> None:
-        """Put a model-zoo button in every cell of the model-name row.
+    def _cell_clicked(self, index) -> None:
+        """Open the model zoo when a model-name cell is clicked.
 
-        ONE PER COLUMN, because a model is per object: a cell and a pathogen
-        are not segmented by the same checkpoint. A single button for the row
-        would have to ask which column it meant, and the answer is already in
-        the cell it sits in.
+        NO BUTTON, AND NOTHING DRAWN. A button small enough to fit in a table
+        cell has no room for a word, so the whole cell is the control: click
+        anywhere in the model row, under the object you mean, and the picker
+        opens for that object.
 
-        Re-placed on every model reset rather than once, because the columns
-        change -- adding an organelle adds one, and lowering the count takes
-        one away -- and an index widget belongs to a cell that may no longer
-        be there.
+        The cell is still editable by double-click, which is how a path that
+        is not in the zoo gets typed.
         """
         try:
-            questions = list(self._model.questions()) if hasattr(
-                self._model, "questions") else list(self.questions())
-            if MODEL_QUESTION not in questions:
+            source = index
+            mapper = getattr(self._table.model(), "mapToSource", None)
+            if mapper is not None:
+                source = mapper(index)
+            if not source.isValid():
                 return
-            row = questions.index(MODEL_QUESTION)
-            for column, obj in enumerate(self._model.objects()):
-                if not self._model.asks(MODEL_QUESTION, obj):
-                    continue
-                index = self._model.index(row, column)
-                # THROUGH THE PROXY. `install_sorting` puts a sort proxy
-                # between the view and this model, and `setIndexWidget` takes
-                # the index the VIEW uses. Handing it a source index places
-                # the widget at whatever cell that row and column happen to
-                # be in the proxy -- usually nowhere, which is why nothing
-                # appeared at all.
-                view_model = self._table.model()
-                mapper = getattr(view_model, "mapFromSource", None)
-                view_index = mapper(index) if mapper is not None else index
-                if not view_index.isValid():
-                    continue
-                self._table.setIndexWidget(
-                    view_index, _ModelCell(self, MODEL_QUESTION, obj))
-            self._table.resizeRowToContents(row)
+            if self._model.question_at(source.row()) != MODEL_QUESTION:
+                return
+            obj = self._model.objects()[source.column()]
+            if self._model.asks(MODEL_QUESTION, obj):
+                self.choose_model_for(obj)
         except Exception:                                    # noqa: BLE001
-            LOG.debug("could not place the model-zoo buttons", exc_info=True)
+            LOG.debug("could not open the model zoo", exc_info=True)
 
     def choose_model_for(self, obj: str) -> bool:
         """Open the model zoo for one object and store what it returns.
