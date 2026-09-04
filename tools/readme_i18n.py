@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 
 WORKFLOW_MODULE_ALT_TEMPLATES = {
     "de": "API für {module} öffnen",
@@ -17,6 +18,8 @@ WORKFLOW_MODULE_ALT_TEMPLATES = {
 
 WORKFLOW_SECTION_LABELS = {
     "de": {
+        "Core": 'Kern',
+        "Tools": 'Werkzeuge',
         "Data": "Daten",
         "Segmentation models": "Segmentierungsmodelle",
         "Results & QC": "Ergebnisse & Qualitätskontrolle",
@@ -25,6 +28,8 @@ WORKFLOW_SECTION_LABELS = {
         "Design": "Versuchsplanung",
     },
     "es": {
+        "Core": 'Principal',
+        "Tools": 'Herramientas',
         "Data": "Datos",
         "Segmentation models": "Modelos de segmentación",
         "Results & QC": "Resultados y control de calidad",
@@ -33,6 +38,8 @@ WORKFLOW_SECTION_LABELS = {
         "Design": "Diseño",
     },
     "fr": {
+        "Core": 'Cœur',
+        "Tools": 'Outils',
         "Data": "Données",
         "Segmentation models": "Modèles de segmentation",
         "Results & QC": "Résultats et contrôle qualité",
@@ -41,14 +48,18 @@ WORKFLOW_SECTION_LABELS = {
         "Design": "Conception",
     },
     "hi": {
+        "Core": 'मुख्य',
+        "Tools": 'उपकरण',
         "Data": "डेटा",
         "Segmentation models": "सेगमेंटेशन मॉडल",
         "Results & QC": "परिणाम और गुणवत्ता नियंत्रण",
         "Explore": "अन्वेषण",
-        "Assays": "परख",
+        "Assays": "एसे",
         "Design": "डिज़ाइन",
     },
     "is": {
+        "Core": 'Kjarni',
+        "Tools": 'Verkfæri',
         "Data": "Gögn",
         "Segmentation models": "Líkön fyrir hlutun",
         "Results & QC": "Niðurstöður og gæðaeftirlit",
@@ -57,14 +68,18 @@ WORKFLOW_SECTION_LABELS = {
         "Design": "Hönnun",
     },
     "ko": {
+        "Core": '핵심',
+        "Tools": '도구',
         "Data": "데이터",
         "Segmentation models": "세그멘테이션 모델",
         "Results & QC": "결과 및 품질 관리",
         "Explore": "탐색",
-        "Assays": "분석",
+        "Assays": "어세이",
         "Design": "설계",
     },
     "pt": {
+        "Core": 'Principal',
+        "Tools": 'Ferramentas',
         "Data": "Dados",
         "Segmentation models": "Modelos de segmentação",
         "Results & QC": "Resultados e controle de qualidade",
@@ -73,6 +88,8 @@ WORKFLOW_SECTION_LABELS = {
         "Design": "Planejamento",
     },
     "sv": {
+        "Core": 'Kärna',
+        "Tools": 'Verktyg',
         "Data": "Data",
         "Segmentation models": "Segmenteringsmodeller",
         "Results & QC": "Resultat och kvalitetskontroll",
@@ -81,6 +98,8 @@ WORKFLOW_SECTION_LABELS = {
         "Design": "Design",
     },
     "zh_CN": {
+        "Core": '核心',
+        "Tools": '工具',
         "Data": "数据",
         "Segmentation models": "分割模型",
         "Results & QC": "结果与质控",
@@ -112,4 +131,41 @@ def localize_workflow_markup(text: str, language: str) -> str:
             lambda _match, value=target: f"**{value}**",
             localized,
         )
+        # THE SAME LABEL ALSO APPEARS AS A SECTION HEADING, and for a while
+        # only the bold form was rewritten. The workflow block writes the
+        # four bands as underlined headings --
+        #
+        #     Core
+        #     ^^^^
+        #
+        # -- so a bold-only pattern matched none of them, and every band
+        # heading was dropped from all nine translated READMEs: the canonical
+        # README carries four and each localized one carried zero. No gate saw
+        # it, because the gate counts ``**`` pairs and a heading that vanishes
+        # takes its markup with it.
+        localized = re.sub(
+            rf"(?m)^{re.escape(source)}\n(?P<rule>[=~^\-'\"`#*+])(?P=rule){{2,}}$",
+            lambda match, value=target: (
+                f"{value}\n"
+                f"{match.group('rule') * _underline_width(value)}"
+            ),
+            localized,
+        )
     return localized
+
+
+def _underline_width(value: str) -> int:
+    """Return the column width an rST underline needs for ``value``.
+
+    NOT ``len``. An underline shorter than its title is a docutils error, and
+    a CJK glyph occupies two terminal columns while counting as one character
+    -- so ``len`` under-measures every Chinese, Japanese and Korean heading
+    and over-measures nothing. Combining marks are the opposite case and take
+    no width of their own, which matters for the Hindi bands.
+    """
+    return sum(
+        0 if unicodedata.combining(character)
+        else 2 if unicodedata.east_asian_width(character) in {"F", "W"}
+        else 1
+        for character in value
+    )
