@@ -859,3 +859,41 @@ restores the language after each catalog test would cover the whole family
 rather than this one pair.
 
 NOT FIXED HERE: the bisect was the recorded next step and this is its result.
+
+
+--------------------------------------------------------------------------------
+2026-09-04 — ONE RED TEST IN THE SEGFAULT LANE WAS NOT ORDER-DEPENDENT AT ALL
+--------------------------------------------------------------------------------
+
+Reproducing the segfault with `-x` stopped the run at 1% on
+`test_the_shutdown_cancel_is_direct`, well before the fault. It fails
+IDENTICALLY on its own, so it is not one of this lane's order-dependent
+failures and it was hiding the thing being looked for.
+
+THE TEST WAS WRONG AND THE SHIPPING CODE WAS RIGHT.
+
+    where = source.index("_stop_before_quitting")
+    assert "Qt.DirectConnection" in source[where:where + 400]
+
+`_stop_before_quitting` appears TWICE in hf_download.py -- once as the `def`
+at 837 and once in the `connect` at 850 -- and `index` finds the first. The
+handler then grew a docstring explaining why it binds the worker and thread
+as default arguments, which pushed the `connect` more than 400 characters
+away. The connection has been `Qt.DirectConnection` throughout.
+
+WORTH NAMING because this lane will produce more of them: a source-shape
+test anchored on a name that appears more than once, with a window measured
+in CHARACTERS, is a test of how long the docstring is. Anchor on the thing
+being asserted about -- here `aboutToQuit.connect(_stop_before_quitting` --
+not on a name that happens to be nearby.
+
+Fixed in 66de2ea88. The segfault reproduction is what remains.
+
+ALSO CHECKED AND NOT CONFIRMED, so it is not credited: the ambient producer
+thread leak recorded in 288_coverage_state_2026-08-31. A probe that built
+five AmbientWidgets, showed each, dropped the Python reference and spun the
+loop twenty times found NO producer threads running at all -- the producer
+does not start under the conditions the probe created, so the probe measured
+nothing rather than measuring zero. The leak may well be real; this did not
+reproduce it, and that note's own warning stands: "NOT YET ESTABLISHED that
+the nine threads CAUSED this."
