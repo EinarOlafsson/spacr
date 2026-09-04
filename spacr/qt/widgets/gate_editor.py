@@ -873,6 +873,11 @@ class GateCanvas(GraphCanvas):
         """The twelve edges of a box, drawn in the volume."""
         frame = self.population()
         def bound(low, high, column):
+            """One axis's limits: the gate's own, or the column's actual range.
+
+            Falls back to the DATA when a side is unset, so a half-open gate still
+            draws as a box rather than running off the axis.
+            """
             if low is not None and high is not None:
                 return float(low), float(high)
             values = pd.to_numeric(frame[column], errors="coerce") \
@@ -1687,6 +1692,7 @@ class GateCanvas(GraphCanvas):
         bounds = {first: (min(x0, x1), max(x0, x1)),
                   second: (min(y0, y1), max(y0, y1))}
         def side(column):
+            """The stored bounds for one column, or ``(None, None)``."""
             return bounds.get(column, (None, None))
         x_low, x_high = side(spec.x)
         y_low, y_high = side(spec.y)
@@ -2130,6 +2136,12 @@ class GateCanvas(GraphCanvas):
             1 if getattr(event, "button", "") == "up" else -1)
         factor = 0.8 ** float(step)
         def zoomed(limits, anchor):
+            """Scale one axis's limits about the anchor the pointer is over.
+
+            Anchored on the POINTER rather than the centre, so the point under the
+            cursor stays put -- which is what makes a scroll feel like zooming in on
+            something rather than the plot sliding away.
+            """
             low, high = limits
             return (anchor + (low - anchor) * factor,
                     anchor + (high - anchor) * factor)
@@ -2657,6 +2669,7 @@ class GateTree(QWidget):
             return
 
         def value(edit):
+            """One threshold field as a number, or ``None`` when blank."""
             text = edit.text().strip()
             if not text:
                 return None
@@ -2742,6 +2755,12 @@ class _ClusterSettingsDialog(QDialog):
         source = settings if settings is not None else fallback
 
         def _setting(name):
+            """One setting from the source, falling back per NAME rather than wholesale.
+
+            A source that carries some settings and not others is the ordinary case,
+            and taking the fallback object entire would discard the ones it did
+            carry.
+            """
             value = getattr(source, name, None)
             return getattr(fallback, name) if value is None else value
 
