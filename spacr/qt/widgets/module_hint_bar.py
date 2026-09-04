@@ -140,15 +140,23 @@ class ModuleHintBar(QLabel):
         :returns: the rich text written, so a test can read it back.
         """
         text = str(summary or "").strip()
-        if stage:
-            text = f"{text} — {stage}" if text else str(stage)
+        mark = str(stage or "").strip()
         self._key = str(key or "")
         # ELIDED TO ONE LINE, because the strip is two lines tall and the
         # second is the links. A module blurb runs to several hundred
         # characters; letting it wrap is what made the strip resize and the
         # page relayout under the pointer. The whole sentence stays in the
         # accessible description below, which is what a screen reader reads.
-        html = escape(self._fit(text))
+        #
+        # THE SUMMARY IS ELIDED, NOT THE STAGE. Appending the word and then
+        # eliding the pair cut the word off every blurb long enough to need
+        # eliding -- which is most of them -- so the one carrier that was
+        # supposed to survive for a colour-blind reader was the one thing
+        # reliably lost. The stage is short and load-bearing; the sentence is
+        # long and already repeated in the accessible description, so the
+        # sentence is what gives way.
+        suffix = f" — {mark}" if mark else ""
+        html = escape(self._fit(text, reserve=suffix) + suffix)
         links = self._links_html(self._key)
         if links:
             html = f"{html}<br>{links}" if html else links
@@ -159,7 +167,7 @@ class ModuleHintBar(QLabel):
         self._hold(True)
         return html
 
-    def _fit(self, text: str) -> str:
+    def _fit(self, text: str, reserve: str = "") -> str:
         """``text`` shortened to the one line the strip has for it.
 
         Measured against the font Qt is actually painting and the width the
@@ -167,13 +175,20 @@ class ModuleHintBar(QLabel):
         at the one this was written on. A strip with no width yet -- asked
         before it is laid out -- gets the text back untouched, because
         eliding to nothing would be worse than a first paint that is long.
+
+        :param reserve: text that will be appended AFTER this returns, whose
+            width is taken out of the room first. Without it the caller
+            elides to the full width and then makes the line longer, which is
+            how the maturity word ended up off the end of the strip.
         """
         from PySide6.QtCore import Qt as _Qt
 
-        room = self.width() - 16
+        metrics = self.fontMetrics()
+        room = self.width() - 16 - (metrics.horizontalAdvance(reserve)
+                                    if reserve else 0)
         if room <= 0:
             return text
-        return self.fontMetrics().elidedText(text, _Qt.ElideRight, room)
+        return metrics.elidedText(text, _Qt.ElideRight, room)
 
     def _links_html(self, key: str) -> str:
         """``API`` and ``Tutorial`` as anchors, whichever of them resolve.
