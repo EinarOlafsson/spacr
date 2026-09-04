@@ -654,7 +654,24 @@ def _make_screen(app_key=None, host=None):
                     self.table.setItem(row, column,
                                        table_item(str(value)))
 
-    return ParameterSweepScreen(host=host)
+    screen = ParameterSweepScreen(host=host)
+    # THE BLACK BOX BEHIND THE SWEEP, reported 2026-09-04: "regression modual
+    # paramiter sweep has black box background which should be transparent".
+    #
+    # Measured, the screen rendered over magenta: the screen came back
+    # `#000000` and so did its `QSplitter`. Both are plain `QWidget`s with no
+    # QSS rule of their own, so both take the blanket
+    # `QWidget { background-color: bg }` -- which is the window colour, not a
+    # surface, so no value of the page-opacity preference could ever reach
+    # them and the panel sat as a slab over the animated backdrop.
+    #
+    # `clear_container_surfaces` tags what is UNDER a root, splitters by
+    # type; the root itself needs `make_transparent`, which is why both are
+    # here. 135 containers were tagged on this screen.
+    from ..theme import clear_container_surfaces, make_transparent
+    make_transparent(screen)
+    clear_container_surfaces(screen)
+    return screen
 
 
 # NO REGISTRY ROW. The sweep is reached as the Regression screen's sweep card
