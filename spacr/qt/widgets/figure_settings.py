@@ -365,6 +365,7 @@ class FigureSettingsDialog(QDialog):
             palette.addItem(name, name)
 
         def apply_palette(*_):
+            """Recolour every series from the chosen palette."""
             name = palette.currentData()
             if not name:
                 return
@@ -391,6 +392,7 @@ class FigureSettingsDialog(QDialog):
         size.setValue(36.0)
 
         def apply_size(value):
+            """Resize every series that has a size to set."""
             for _label, artist in series:
                 if hasattr(artist, "set_sizes"):
                     artist.set_sizes([value])
@@ -406,6 +408,7 @@ class FigureSettingsDialog(QDialog):
         opacity.setValue(1.0)
 
         def apply_opacity(value):
+            """Set the alpha on every series."""
             for _label, artist in series:
                 artist.set_alpha(value)
             self._changed()
@@ -418,6 +421,7 @@ class FigureSettingsDialog(QDialog):
         edge.setValue(0.0)
 
         def apply_edge(value):
+            """Set the edge width on every series that has one."""
             for _label, artist in series:
                 if hasattr(artist, "set_linewidth"):
                     artist.set_linewidth(value)
@@ -597,6 +601,7 @@ class FigureSettingsDialog(QDialog):
         form.addRow(verdict)
 
         def _recompute():
+            """Re-run the test with the current choices and redraw."""
             self._stats_state.update(
                 test=test.currentData(), alpha=float(alpha.value()),
                 correction=correction.currentData() or "fdr_bh",
@@ -633,6 +638,7 @@ class FigureSettingsDialog(QDialog):
         figure = self._figure
 
         def set_face(colour):
+            """Set the figure's own background colour."""
             figure.patch.set_facecolor(colour)
             self._changed()
         form.addRow("Background", _colour_button(
@@ -648,6 +654,7 @@ class FigureSettingsDialog(QDialog):
         height.setValue(figure.get_figheight())
 
         def resize(*_):
+            """Resize the figure to the width and height on screen."""
             figure.set_size_inches(width.value(), height.value())
             self._changed()
         width.valueChanged.connect(resize)
@@ -1936,6 +1943,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
                                for a in axes if a.get_legend() is not None))
 
     def toggle_legend(checked):
+        """Show or hide the legend on every axis."""
         for axis in axes:
             existing = axis.get_legend()
             if existing is not None:
@@ -1982,6 +1990,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     menu.addMenu(appearance)
 
     def _pick_ink(title, apply_to):
+        """Pick a colour and apply it through ``apply_to``."""
         current = "#000000"
         try:
             if axes:
@@ -2199,6 +2208,7 @@ def save_figure_as(parent, figure, path: str = "") -> str:
         background, dpi = "none", 200
 
         def figure_bg_is_transparent(value):
+            """Whether a stored ground value means "no background at all"."""
             return str(value).lower() in ("none", "transparent")
 
     from contextlib import nullcontext
