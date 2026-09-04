@@ -100,6 +100,31 @@ class ModuleHintBar(QLabel):
 
     # -- what it shows ---------------------------------------------------
 
+    def event(self, event):                     # noqa: N802 - Qt naming
+        """Swallow tooltip requests. THIS BAR IS THE TOOLTIP.
+
+        Reported 2026-09-04: "I get a tooltip box when I hover the tooltip
+        bottom in mask". Nothing here asks for one -- the bar sets no tooltip
+        on itself or on anything in it. Qt PROPAGATES an unhandled
+        ``QEvent.ToolTip`` up the parent chain, and
+        :func:`spacr.qt.module_hints.install_module_hints` filters the whole
+        application, so the request walked up from this label to an ancestor
+        carrying ``moduleAppKey`` and that ancestor's popup appeared over the
+        strip that exists to replace popups.
+
+        Accepting the event here stops the walk at the bar. The strip keeps
+        its own behaviour -- it is still written by every hover elsewhere,
+        and its API and tutorial links still work -- but hovering the strip
+        itself now shows nothing, which is what it already looked like it
+        promised.
+        """
+        from PySide6.QtCore import QEvent
+
+        if event.type() == QEvent.Type.ToolTip:
+            event.accept()
+            return True
+        return super().event(event)
+
     @property
     def module_key(self) -> str:
         """The module the strip is currently explaining, or ``""``."""

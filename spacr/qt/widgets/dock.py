@@ -63,6 +63,17 @@ HOME_KEY = "__home__"
 #: than the bullet the dock used to draw, and the same in every state.
 ICON_PX = 20
 
+#: Space between the dock's edge and its rounded panel, in pixels.
+#:
+#: WITHOUT IT THE CORNERS ARE NOT VISIBLE. A rounded rectangle flush against
+#: the window edge has its curve cut off by the edge it is flush with, which
+#: is the same shape as no rounding at all.
+PANEL_INSET = 6
+
+#: The panel's corner radius. HomePanelBox's number, because the request was
+#: for the dock to look like that box and not merely to be rounded.
+PANEL_RADIUS = 8
+
 
 class DockRow(ElidingPushButton):
     """One module: its icon, then its name, both always drawn.
@@ -176,13 +187,32 @@ class Dock(QWidget):
         self._items = self._rows
         self._section_headers = self._headers
 
+        # A ROUNDED PANEL, NOT A BLACK COLUMN, and it is a CHILD frame rather
+        # than the dock's own background for a reason. Instruction 369 took
+        # the dock's container off where there is no picture behind it, and
+        # tests/qt/test_space_theme.py pins `#Sidebar` transparent on the flat
+        # themes to keep it off. Painting the panel here satisfies both: the
+        # container stays transparent and the panel is a widget inside it.
+        #
+        # The look is HomePanelBox's, deliberately -- asked for on 2026-09-04,
+        # "a rectangle with rounded edges like the top box on the Home screen
+        # with the spacr logo and text" -- so the two read as the same
+        # material rather than as two guesses at one.
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setContentsMargins(PANEL_INSET, PANEL_INSET,
+                                 PANEL_INSET, PANEL_INSET)
         outer.setSpacing(0)
+
+        self._panel = QFrame(self)
+        self._panel.setObjectName("DockPanel")
+        outer.addWidget(self._panel)
+        panel_column = QVBoxLayout(self._panel)
+        panel_column.setContentsMargins(0, 0, 0, 0)
+        panel_column.setSpacing(0)
 
         title = QLabel("spaCR")
         title.setObjectName("SidebarTitle")
-        outer.addWidget(title)
+        panel_column.addWidget(title)
 
         # THE ROWS SCROLL AND THE TITLE DOES NOT. Measured at 1440x900 -- the
         # realistic laptop -- a row per module plus a heading per section
@@ -202,7 +232,7 @@ class Dock(QWidget):
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(0)
         self._scroll.setWidget(inner)
-        outer.addWidget(self._scroll, 1)
+        panel_column.addWidget(self._scroll, 1)
 
         current = None
         for key, name, desc, section in rows:
@@ -382,9 +412,32 @@ class Dock(QWidget):
                 row.setIcon(icon)
 
     def apply_theme(self) -> None:
-        """Install the one rule that decides what hover looks like."""
-        accent = active_palette()["accent"]
+        """Paint the rounded panel, and the one rule hover uses.
+
+        THE PANEL IS THE ONLY THING THAT PAINTS. Everything inside it is
+        transparent on purpose: a title or a heading carrying a fill of its
+        own would draw a square corner over the rounded one directly beneath
+        it, which is the exact shape this was asked to stop being.
+
+        The three values come from HomePanelBox rather than being chosen
+        again here -- ``pane_surface('surface_alt')``, ``border_soft`` and an
+        8 px radius -- so the dock and that box stay the same material when
+        either is restyled.
+        """
+        from ..theme import pane_surface
+
+        palette = active_palette()
+        accent = palette["accent"]
         self.setStyleSheet(
+            "QFrame#DockPanel {"
+            f"  background: {pane_surface('surface_alt')};"
+            f"  border: 1px solid {palette['border_soft']};"
+            f"  border-radius: {PANEL_RADIUS}px;"
+            "}"
+            "QScrollArea#SidebarScroll, QWidget#SidebarInner {"
+            "  background: transparent; border: none;"
+            "}"
+            "QLabel#SidebarTitle { background: transparent; }"
             "QPushButton#SidebarItem {"
             "  background: transparent; border: none; text-align: left;"
             "  padding: 6px 10px;"
@@ -392,6 +445,7 @@ class Dock(QWidget):
             f"QPushButton#SidebarItem:hover {{ color: {accent}; }}"
             "QLabel#SidebarSection {"
             "  padding: 10px 10px 4px 10px; font-weight: 600;"
+            "  background: transparent;"
             "}"
             f"QLabel#SidebarSection:hover {{ color: {accent}; }}"
         )
