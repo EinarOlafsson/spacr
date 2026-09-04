@@ -70,7 +70,6 @@ STAGE: Dict[str, str] = {
     "304": "~60% -- metadata in place; needs the Zenodo toggle and the bump",
     "305": "~60% -- startup accepted from an installed wheel; sdist, GPU, matrix, profiles left",
     "306": "API half DONE (9,426 symbols, all ten locales); catalog ratchets 27 of 31 green; 803 exact-English rows measured across nine locales still owed",
-    "310": "a RUNNING LIST with nothing outstanding -- every entry carries a verdict; it stays open as the coverage sweep's append target",
     "315": "~75% -- 3a/3b/3c fixed; 3d now itemised into three named optimisations",
     "316": "the maintainer released the wait 2026-09-04; 32 rows repaired and recorded reviewed; the README block-extraction fix and 19 orphaned reviewed blocks remain",
     "325": "the channel between the two sessions -- open while both are running",

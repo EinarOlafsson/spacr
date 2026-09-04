@@ -3966,3 +3966,28 @@ that run would have been wrong.
 
 This file stays OPEN because it is a running list that the coverage sweep
 appends to, not because anything in it is outstanding.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- CLOSED BY THE MAINTAINER, AGAINST THIS FILE'S OWN LAST LINE
+--------------------------------------------------------------------------------
+
+This file ends by arguing for staying open: "a running list that the coverage
+sweep appends to, not because anything in it is outstanding." Asked whether
+that or the empty backlog should win, the maintainer answered: "Close it; new
+defects get new items."
+
+THAT OVERRIDES THE FILE, and it is recorded that way rather than as agreement.
+The argument for staying open was real -- a single home for defects found in
+passing is worth something -- and it lost to a simpler rule: an item with
+nothing outstanding is not an open item, and 288 and 352 can file their own
+findings.
+
+STATE AT CLOSING, measured rather than asserted: every entry carries a verdict
+and none is live. The last audit found six of nine already done, which is the
+proportion this file kept finding and the reason its own header says the
+trailing notes are the current state rather than the header.
+
+WHERE ITS SUCCESSOR LIVES: 288 for the coverage sweep, 352 for the standing
+"highest reasonable coverage" goal. A defect found in passing still gets fixed
+or filed -- that standing rule is in HANDOFF section 6 and does not depend on
+this file existing.

@@ -6813,3 +6813,63 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+# ============================================================================
+# RETIRED 2026-09-04, ON THE MAINTAINER'S ANSWER TO INSTRUCTION 316.
+#
+# Asked whether the orphaned reviewed blocks should be retired, he answered
+# "Yes, retire the 16." MEASURED against the gate's own criterion -- a block
+# appears once in `translatable_blocks(README.rst)` or once in the normalized
+# text -- the number is 15, not 16, and the difference is recorded rather than
+# rounded: an earlier count used "has no close match in the README", which is a
+# different question and gave 16.
+#
+# RETIRED IN PLACE, NOT DELETED, which is the shape he approved twice before --
+# for the eleven README records and the Icelandic API record. The reviewed
+# wording stays in this file, keyed and readable, and only leaves the ACTIVE
+# registry. `_REVIEWED_README_HEADINGS_ARCHIVE` above is the same pattern for
+# headings, so this is the file's own convention rather than a new one.
+#
+# WHY THEY ARE RETIRED AND NOT RE-BOUND: none of the fifteen has any
+# counterpart in the current README. They describe a module grid, a hardware
+# report, an objects-and-settings section and a licence sentence that the
+# README rework removed outright. A review of text that no longer exists
+# cannot be repaired, only retired.
+#
+# NOT RETIRED, AND DELIBERATELY: the three whose English CHANGED MEANING rather
+# than disappearing. Two dropped a load-bearing clause the translations still
+# assert, and the third is instruction 316's own "the nine READMEs still say
+# CUDA-only" item. Those need RE-TRANSLATION bound to the new English plus a
+# documentation rebuild in the same pass, because this registry's gate also
+# requires the reviewed target to be present in the localized README. Retiring
+# them would throw away nine reviewed sentences that are merely out of date;
+# re-binding them without re-translating would certify nine sentences that tell
+# an Intel-Mac owner their card is unsupported.
+# ============================================================================
+_RETIRED_README_BLOCKS_2026_09_04 = (
+    'For image-based pooled CRISPR screens, spaCR provides the workflow from image segmentation through hit prioritization. For high-content microscopy studies without sequencing-based screens, the segmentation, measurement, annotation and classification modules can be used independently.',
+    'Select a workflow module to open its API page. The grid contains every other application in the same categories and order used on the spaCR home screen.',
+    'spaCR is open source under the `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, the same licence as CellProfiler, napari and Cellpose. Use it for any purpose, including commercially. Releases from 1.5.0.0 through 1.5.0.4 carried the PolyForm Noncommercial License 1.0.0 and versions through 1.4.9.9 carried the MIT License; those releases remain available under the licence that accompanied them.',
+    'Modules available from host screens',
+    "Twenty modules are integrated into related host screens rather than displayed as separate Home tiles. Each opens from its host screen's masthead and uses the active project. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP and Make Masks provide these integrated modules. Their help and API documentation remain available, and modules with pipeline entry points can still run headlessly. The `feature guide <docs/source/features.rst>`_ lists each integrated module and its host.",
+    'Make Masks appears under **Data** and provides manual correction of segmentation masks. Its masthead also provides access to the Cellpose workflows. The canvas has nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw creates one filled label from a free-form closed outline. Divide separates a merged object along a user-defined line while preserving all other object labels.',
+    'Recrop extracts a single-object field from a staged image containing multiple objects. A bounding box around one object writes the corresponding image and mask regions as a new field, schedules that field after the current one and removes the original multi-object field from the curation queue. Recrop changes the active field rather than editing label pixels.',
+    'Running Cellpose-SAM from Make Masks displays two intermediate outputs beside the mask: the **cell-probability map** and the **flow field**. A mask is a threshold on the probability map, and flow-consistency checks can reject objects whose derived flows differ from the predicted field. Inspect these outputs to distinguish low cell probability from inconsistent flow when evaluating an incorrect or incomplete mask.',
+    'Objects and settings',
+    'spaCR supports cell, nucleus and pathogen objects, a cytoplasm derived from their masks, and between zero and twenty-six organelle slots. Each organelle slot has an independent channel, diameter, morphology preset and detection method.',
+    'The settings panel displays controls only when they apply. Organelle slots above the configured count are hidden, an object with no assigned channel is excluded from the run, and morphology-specific controls are shown only for the selected method. The **3D** and **Time** switches define the dimensionality: ``z_stack`` enables volumetric settings, ``timelapse`` enables tracking settings, and four-dimensional settings appear when both are enabled.',
+    'The command prints a report and saves a copy under ``~/.spacr/reports``; the last line identifies the saved path. ``--quick`` omits the longer benchmarks, and ``--out PATH`` selects another output location.',
+    'The report does not open a project or read project data. It records import and numeric-library timing, display scaling, active preferences, main-window and module-screen construction, and animation performance. The report file is the only output it creates.',
+    'It also identifies processor-architecture emulation, such as an x86_64 Python build on Apple Silicon, and the BLAS implementation used by NumPy. Either can substantially affect performance.',
+    'The same project can also design plates, estimate power, correct batch effects, inspect segmentation quality, explore linked plots and crops, export AnnData, resume interrupted work and record the settings behind each result.',
+)
+
+#: Retired reviewed wording, kept for the record. Popped from the active
+#: registry so the gate stops asserting that text which no longer exists must
+#: still be found in the README.
+REVIEWED_README_BLOCKS_ARCHIVE = {
+    source: REVIEWED_README_BLOCKS.pop(source)
+    for source in _RETIRED_README_BLOCKS_2026_09_04
+    if source in REVIEWED_README_BLOCKS
+}
