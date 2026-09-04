@@ -564,3 +564,86 @@ reconciliation should be re-attempted, and `spacr/schema.py` is shared -- take
 the 325 §5 hold first.
 
 `spacr/schema.py` was NOT modified by this step either.
+
+--------------------------------------------------------------------------------
+2026-09-04 — THE RECONCILIATION IS DONE. schema AND organelle_types AGREE.
+--------------------------------------------------------------------------------
+
+    schema.ORGANELLE_ROLES     4  ->  702
+    organelle_types.MAX        702      (unchanged, raised earlier today)
+
+`is_object_type('organellecv')` is now True. Every slot the settings panel
+offers can be written into an object key, so the UNTYPED-FRAME path -- "a
+nucleus labelled 1 and a pathogen labelled 1 in the same field were the same
+key" -- is closed for organelles. That was the whole of what this item had
+left after step 2.
+
+THE VOCABULARY IS STILL CLOSED, which was the constraint most at risk. A
+made-up type is still refused: `mitochondrion`, `organelle1`, `organelle_b`,
+`organellea` and `ORGANELLEZZZZZZZ` all answer False, and there is a test for
+each. An open vocabulary would mean `plate1_r1_c1_f2_x7` parsing as object 7
+of type `x`.
+
+TWO THINGS THAT LOOKED LIKE THE OBVIOUS WAY AND WERE WRONG.
+
+1. IMPORTING THE RULE. The first attempt had schema do
+   `from .organelle_types import organelle_roles`. That is one definition of
+   the lettering instead of two, which is what this file keeps asking for --
+   and it breaks `test_module_imports_with_only_the_stdlib_and_pandas`, which
+   loads schema by path with every `spacr` import BANNED because "everything
+   wants this module, so it must cost nothing to import". That is a real
+   constraint, not a pin, and it is not one to weaken for a three-line
+   convenience.
+
+   So the rule is RESTATED in schema, and the drift risk that creates is
+   answered by a test rather than by care:
+   `test_the_two_statements_of_the_lettering_rule_agree` walks every slot and
+   requires both spellings to match, and asserts the two ceilings are equal.
+   This exact pair had already drifted by 698 entries, so the test is not
+   theoretical.
+
+2. ENUMERATING THE ROLES INTO THE MATCHER. `_OBJECT_TYPE_MATCH` is scanned
+   per object id by `split_object_id`, which runs once per row of a
+   measurement table. Putting 702 roles in it made that ~88x slower, measured
+   before it was written rather than after. The organelle branch is matched
+   ALGORITHMICALLY instead -- longest letter-run first, which gives the same
+   longest-first answer `organelled`+`x` over `organelle`+`dx` -- and is
+   bounded by the LABEL's length rather than the vocabulary's size.
+
+   Measured: 4000 ids in 1.0 ms before, 1.0 ms after, with an 88x larger
+   vocabulary. `is_object_type` moved to a frozenset for the same reason.
+
+FOUR TESTS MOVED, and one of them had demanded it in writing.
+  * `test_the_keyable_roles_are_fewer_than_the_slots_offered` said in its own
+    docstring that it "must be updated deliberately when 326 raises the
+    ceiling". It is now `..._are_exactly_the_slots_offered` and asserts
+    AGREEMENT rather than pinning a gap.
+  * `test_the_roles_at_the_boundaries_behave` reached "the first unkeyable
+    role" by `organelle_role(len(ORGANELLE_ROLES) + 1)`. There is no longer
+    an unkeyable role below the ceiling -- that was the defect -- so it now
+    tests past the CEILING, which is where the edge actually is.
+  * `test_role_registry_has_stable_internal_and_numbered_display_names`
+    pinned the whole four-name tuple. It pins the first four now: what must
+    not move is the spelling of roles that already exist in databases.
+  * `test_measure_offers_the_type_for_every_slot` iterated the whole registry
+    against a four-organelle run. That was only ever correct while the
+    registry held four; it now iterates the slots the run ASKED for, which is
+    the maintainer's own rule.
+
+NO REGRESSIONS. Baselined against HEAD over 34 organelle/schema/object-key
+files before starting: 7 failing, and 7 failing after, the same 7, none
+related. Three new tests added.
+
+I LEFT THE SHARED TREE UNIMPORTABLE FOR ABOUT FORTY SECONDS doing this, and
+the other session hit it. The schema edit was applied as two writes -- the
+references first, the definition second -- and between them `spacr/__init__`
+could not load, which blocks every test run in the tree and produces failures
+that look like they belong to whoever runs next. In a shared tree an edit that
+breaks the import has to be ONE write. Recorded here rather than only in 325
+because it is the kind of thing the next person doing surgery on a central
+file will otherwise repeat.
+
+326 IS COMPLETE. Steps 1-4: the round-trip test (2026-09-01), the count
+following the setting (step 3, 2026-09-02), the carried lettering and the
+raised ceiling (step 2, today), and the vocabulary reconciliation (today).
+The hold on `spacr/schema.py` is released.

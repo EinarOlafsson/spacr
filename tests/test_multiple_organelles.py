@@ -26,11 +26,18 @@ def test_role_registry_has_stable_internal_and_numbered_display_names():
     from spacr.object_roles import (ORGANELLE_ROLES, organelle_label,
                                     setting_label)
 
-    assert ORGANELLE_ROLES == (
+    # THE FIRST FOUR ARE PINNED, NOT THE WHOLE TUPLE. The registry used to
+    # hold exactly these four; it now holds every slot the lettering can mint,
+    # because a role that is not in it cannot be written into an object key.
+    # What must not move is the SPELLING of the ones that already exist, since
+    # every measurement database and settings file contains them.
+    assert ORGANELLE_ROLES[:4] == (
         "organelle", "organelleb", "organellec", "organelled")
-    assert [organelle_label(role) for role in ORGANELLE_ROLES] == [
+    assert [organelle_label(role) for role in ORGANELLE_ROLES[:4]] == [
         "Organelle 1", "Organelle 2", "Organelle 3", "Organelle 4"]
     assert setting_label("organelleb_channel") == "Organelle 2 — Channel"
+    # And the carried ones are named on the same scheme.
+    assert organelle_label("organelleaa") == "Organelle 27"
 
 
 def test_each_slot_gets_an_independent_type_preset_and_mutable_defaults():

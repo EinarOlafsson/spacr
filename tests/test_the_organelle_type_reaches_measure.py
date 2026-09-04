@@ -131,8 +131,15 @@ def test_measure_offers_the_type_for_every_slot():
     """Measure cannot answer the question without being told what it is
     measuring, and the mask module's copy never reaches a measure run."""
     defaults = S.get_measure_crop_settings({"number_of_organelles": 4})
-    from spacr.object_roles import ORGANELLE_ROLES
-    for role in ORGANELLE_ROLES:
+    # THE SLOTS THIS RUN ASKED FOR, not every role the vocabulary can mint.
+    # Iterating the whole registry was only correct while the registry held
+    # exactly four; it now holds every slot, and a four-organelle run carries
+    # four -- which is the maintainer's own rule: "if the user chooses 2
+    # organelles settings for 2 organells".
+    from spacr.organelle_types import active_organelle_roles
+    roles = active_organelle_roles({"number_of_organelles": 4})
+    assert len(roles) == 4, roles
+    for role in roles:
         assert defaults[f"{role}_type"] == S.DEFAULT_ORGANELLE_TYPE
 
 
