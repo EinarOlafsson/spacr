@@ -14,7 +14,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 9_427
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 9_432
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
@@ -3499,10 +3499,24 @@ def test_localized_readmes_preserve_module_names_and_technical_terms():
     expected_modules = [
         "Mask", "Measure", "Annotate", "Classify", "Map Barcodes", "Regression",
     ]
-    protected_terms = {
+    # DERIVED FROM THE CANONICAL README, not asserted against a frozen list.
+    # This set is the vocabulary that must survive translation byte-for-byte;
+    # whether a given term is CURRENTLY in the README is the README's business.
+    # "AnnData" was in this list and stopped being in the document -- the
+    # sentence naming it was removed in the README rewrite -- so every
+    # localized README that faithfully reproduced the new source failed a test
+    # demanding a word the source no longer contains. Intersecting with the
+    # canonical text means a term dropped upstream stops being required
+    # automatically, while a term still present is still protected in all nine.
+    protected_vocabulary = {
         "Cellpose", "SQLite", "FASTQ", "AnnData", "CUDA", "Hugging Face",
         "torchvision",
     }
+    canonical_readme = (ROOT / "README.rst").read_text(encoding="utf-8")
+    protected_terms = {
+        term for term in protected_vocabulary if term in canonical_readme
+    }
+    assert protected_terms, "no protected term is present in the canonical README"
     known_context_errors = {
         "de": {"Fackelvision"},
         "es": {"Anotate", "la antorcha", "el gasoducto", "cara de agarre"},

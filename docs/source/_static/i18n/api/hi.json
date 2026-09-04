@@ -23494,6 +23494,28 @@
         "dee5d02d2cab7f14210dabdd2d9f5d2553a25cc94ade0ffc29c88f31568333cd"
       ]
     },
+    "spacr.flowview.panel.FlowViewPanel.reset_user_height": {
+      "source_blocks_sha256": [
+        "2e956bbb95c8988ba5cb6967369f1f4c4b643bda835e5fda9848542c3db9302c"
+      ],
+      "source_sha256": "2e956bbb95c8988ba5cb6967369f1f4c4b643bda835e5fda9848542c3db9302c",
+      "text": "ऊंचाई को सामग्री और लेआउट में वापस दें।",
+      "translation_source_blocks_sha256": [
+        "2e956bbb95c8988ba5cb6967369f1f4c4b643bda835e5fda9848542c3db9302c"
+      ]
+    },
+    "spacr.flowview.panel.FlowViewPanel.set_user_height": {
+      "source_blocks_sha256": [
+        "3becb67d67df84f419937e4938e4478de1c94cfdac8d786c24ed24d0c57b89cf",
+        "29e1959efbec7c1d8a45ff0779de34d345e18dbb87ddf322feb27c8e3d848c78"
+      ],
+      "source_sha256": "9d343f365b785eee999a3a839914f637eea8f359da79988ffa33ada595686e25",
+      "text": "पैनल को ``height`` पिक्सेल पर रखें जब तक कि इसे वापस नहीं दिया जाता है।\n\nफर्श पर चिपके हुए, ग्राफ और निरीक्षक के बीच की जरूरत है, इसलिए शीर्ष से बाहर चलने वाला एक ट्रैक पैनल को कुछ भी नहीं छू सकता है और पीछे खींचने के लिए कोई किनारा नहीं छोड़ सकता है।",
+      "translation_source_blocks_sha256": [
+        "3becb67d67df84f419937e4938e4478de1c94cfdac8d786c24ed24d0c57b89cf",
+        "29e1959efbec7c1d8a45ff0779de34d345e18dbb87ddf322feb27c8e3d848c78"
+      ]
+    },
     "spacr.flowview.panel.FlowViewPanel.start": {
       "source_blocks_sha256": [
         "f0391746a006341dc8699d8e8ae9b86942a7b8e4190f15f676ad24a20a70c484"
@@ -68194,6 +68216,22 @@
         "98cdeb8f0f74b2fec49e5c6b8e9414afb1a01ab342f3023ff43e793834f94036"
       ]
     },
+    "spacr.qt.screens.app_screen.AppScreen.apply_object_grid_preference": {
+      "source_blocks_sha256": [
+        "27c31dca684fc745d56646837e91ea2f34aa210da4968b243a54de3012890548",
+        "e67cdc07933b94f3c4a3837b4f683e4abed148964efb2cb21076044782bf9ec3",
+        "76eca9267f2d3069951e34a58592e6cd918d3402d8134c34edcb6c163ca2694d",
+        "198d422627c044b5e7ddab68874a5cc9c9253336eb22634ef799242de4990acf"
+      ],
+      "source_sha256": "194f611146231ace6a6870618f0e6f871293c956866361ce29ce6e8cf29412d3",
+      "text": "प्राथमिकताओं के अनुरूप करने के लिए प्रति वस्तु तालिका को माउंट या अनमोल करें।\n\nक्या यह तय करता है: प्राथमिकताओं में स्विच को एक बार पढ़ा गया था, जबकि सेटिंग पैनल का निर्माण किया जा रहा था, इसलिए इसे स्थानांतरित करने के लिए कुछ भी नहीं किया एक मॉड्यूल पहले से ही खुल गया है और इसे बाईं ओर स्थानान्तरित करना एप्लिकेशन दृश्य पर तालिका के साथ पंक्तियां यह अभी भी छिपी हुई है. प्राथमिकता एक ही सेटिंग्स का एक दृश्य है किसी भी तरह से - कुछ भी नीचे की धारा नेटवर्क मौजूद है जानता है - इसलिए कोई कारण नहीं है कि इसे फिर से खुलने की आवश्यकता है।\n\nIDEMPOTENT, और एक स्क्रीनिंग पर सुरक्षित जिसके पैनल को कभी नहीं बनाया गया था: दोनों दिशाएं एक झंडे पर भरोसा करने के बजाय वास्तव में क्या स्थापित किया गया है, इसलिए एक बार-बार कॉल एक नो-ऑप है और दोनों राज्य अलग नहीं हो सकते हैं।\n\n:returns: True यदि स्क्रीनिंग बदल गई है, False यदि यह पहले से ही सही था।",
+      "translation_source_blocks_sha256": [
+        "27c31dca684fc745d56646837e91ea2f34aa210da4968b243a54de3012890548",
+        "d854e24f41b40505824f3ca8f1fdf05b2e9b772e96a66ad46506fb9fefd1843f",
+        "76eca9267f2d3069951e34a58592e6cd918d3402d8134c34edcb6c163ca2694d",
+        "198d422627c044b5e7ddab68874a5cc9c9253336eb22634ef799242de4990acf"
+      ]
+    },
     "spacr.qt.screens.app_screen.AppScreen.apply_settings_dict": {
       "source_blocks_sha256": [
         "ea668f2ec5af454a98c1fff789fafdf60bc4b8889e2687607d82bb828be414d5",
@@ -109049,6 +109087,22 @@
         "4f7eb48c8a373a1fca254dfc8d310f58f978705988ded4dd4244e71755db0915"
       ]
     },
+    "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.follow_the_form": {
+      "source_blocks_sha256": [
+        "9bfa6a7a0d936c23fbbc88a798c3c2bc2fa6d849c5d066464281a0bcac827997",
+        "d818d51cdb102791853f12bdb742b49d8d88b4f582dde89af82e46630413880c",
+        "b07dfa8a5bcf07e09dc29689bd1766692ee784875deb9f6938f02009fe779b11",
+        "90e919f467cb716e2dfa962f3bdaeeff1b3b6288950e0b6f3190cd9e19691288"
+      ],
+      "source_sha256": "6dc38130e184f0d4e26b7921986bfd563186acecc11162296c3a71c5ea72aed7",
+      "text": "फॉर्म के अपने स्वयं के फ़ील्ड लिखें तालिका में प्रवेश करें।\n\nदूसरा आधा दो तरीके से जुड़ा हुआ, और आधा जो गायब था: नेटवर्क ने विजेटों के माध्यम से लिखा, लेकिन जब एक विजेट स्थानांतरित हो गया, तो कुछ भी नहीं बताया, इसलिए एक मूल्य कहीं और बदल गया - एक वस्तु के लिए फ्लैट पंक्ति टेबल का दावा नहीं करता है, एक प्रीसेट, लाइव पूर्वावलोकन, एक सेटिंग फ़ाइल में डाल दिया गया - टेबल को पुराने जवाब दिखाने के लिए छोड़ दिया।\n\n`seed` पूरे तालिका को पुनर्निर्माण करता है, जो मास्क पर 30 ms है और 100 ms जब दस organelles होते हैं. एक `textChanged` पर जो KEYSTROKE के लिए होता है, और यह भी किसी भी कोशिका से क्यूसर निकालता है जो टाइप किया जा रहा था. एक कोल के बजाय लिखा जाता है.\n\n:returns: कितने विजेताओं को नए रूप में कनेक्ट किया गया था।",
+      "translation_source_blocks_sha256": [
+        "9bfa6a7a0d936c23fbbc88a798c3c2bc2fa6d849c5d066464281a0bcac827997",
+        "d818d51cdb102791853f12bdb742b49d8d88b4f582dde89af82e46630413880c",
+        "b07dfa8a5bcf07e09dc29689bd1766692ee784875deb9f6938f02009fe779b11",
+        "90e919f467cb716e2dfa962f3bdaeeff1b3b6288950e0b6f3190cd9e19691288"
+      ]
+    },
     "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.owned_keys": {
       "source_blocks_sha256": [
         "1e0225b5432eeaffa900e5fb4c2af70663f425cc5e62277bd887a698a83bb179",
@@ -109170,13 +109224,15 @@
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle": {
       "source_blocks_sha256": [
         "52a50c34cfca98862fff73db0103a3ff6dfbf97206217c922ae1c015466cfd95",
-        "1dc61c47ea89425e07c16839e1d281d3500e960ff07c9c355911bb5b6a735f65"
+        "615cc6b3acf113fbc58d65c66b99069e885559cac7ce8e185f27c77aada401eb",
+        "e5dfdb4af09ea26cf1abc2e7413d7704c205690f35772fef97b1769529a6e743"
       ],
-      "source_sha256": "c4228ef4e29a4bcc2e8c313c056b286c88c044b58fe063025ac3b75ced32e8af",
-      "text": "अगली organelle स्तंभ की भूमिका लेगी, या ``''``।\n\nखाली जब अक्षर समाप्त हो गया है: स्लॉट नाम लिखे जाते हैं क्योंकि एक वस्तु प्रकार को नीचे स्कोर से अलग वस्तु कुंजी में शामिल किया जाता है, इसलिए बीस-सेक्स वहां है जहां नामकरण योजना समाप्त होती है, न कि जहां कोई रुकने का विकल्प चुनता है।",
+      "source_sha256": "5c80728da32179f26a06f62739ddd6ce1cc6788fec0ee523ae0678654212ac7c",
+      "text": "अगली organelle स्तंभ की भूमिका लेगी, या ``''``।\n\nछत पर खाली. स्लॉट नाम लिखे जाते हैं - एक ऑब्जेक्ट टाइप को एक उप-कोर-विभाजित वस्तु कुंजी में अंतर्निहित किया जाता है, इसलिए एक डिजिटल लेबल के विपरीत दोहरा होगा - और लिखने के लिए कार्रवाई पिछले ``z``, इसलिए छत है जहां दो अक्षर एक के बजाय बाहर निकलते हैं।\n\nशुरुआत से हर स्लॉट चलना अच्छा था जबकि 26 थे; अब 702 हैं, और जो कॉलर जो जोड़ें दबाता है, वह बार-बार एक O(स्लॉट्स) स्कैन को एक O (स्लाट्स वर्ग) में बदल देता है।",
       "translation_source_blocks_sha256": [
         "52a50c34cfca98862fff73db0103a3ff6dfbf97206217c922ae1c015466cfd95",
-        "1dc61c47ea89425e07c16839e1d281d3500e960ff07c9c355911bb5b6a735f65"
+        "615cc6b3acf113fbc58d65c66b99069e885559cac7ce8e185f27c77aada401eb",
+        "e5dfdb4af09ea26cf1abc2e7413d7704c205690f35772fef97b1769529a6e743"
       ]
     },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.objects": {
@@ -111512,6 +111568,22 @@
       "translation_source_blocks_sha256": [
         "6ad8f401508c92d601180654e8b464076daa485426bcf5de194f2cc6a5dfaaeb",
         "9cf44a9d107963a8f3dc986e9feff8caf5cccb0c96bf626c2831754c14e6c653"
+      ]
+    },
+    "spacr.qt.widgets.plate_map_picker.well_side": {
+      "source_blocks_sha256": [
+        "d6d43da95678d4c06711dd4a1f2f732c69316c198b62f1101741c7d6c00d9f0b",
+        "89c82ea8afdf3a585b4219566e49a5b77d3c43cee73fa5a8e06ba0ead96c7482",
+        "16e4532be72641544b4f347c7b28ab6c937f97e3c00ce51b85a5c141f03511c6",
+        "8340c43083b51d1e8cd33f5ae6e10470f20c6f899215205d3ca34689061c8311"
+      ],
+      "source_sha256": "14cffad8b62ced4b5294c2f970894db8fef4da059a4c1af6403d04ecd379cfa5",
+      "text": "एक माइक्रोप्लेट नमूना स्थिति के पक्ष अब, पिक्सेल में, उपयोगकर्ता के फ़ॉन्ट स्केल पर।\n\n`WELL_SIDE` को एक कच्चे पिक्सेल स्थिर के रूप में पढ़ा गया था, इसलिए 200% फ़ॉन्ट स्केल पर, एक दो-डिजिट स्तंभ शीर्षक एक 22 पीएक्स सेल के अंदर 30 पीक्स चौड़ाई चाहता था और 10 से 24 के प्रत्येक कोल में अपनी संख्या को आधा कर दिया गया था - प्रत्येक भाषा में 15 क्लिप किए गए शीर्षक, जो कि `KNOWN_OFFENDERS` PlateMapPicker के खिलाफ रिकॉर्ड किया गया था।\n\n`scaled_px` इस बिल्कुल के लिए घर का तंत्र है: फ़ॉन्ट स्केल दो उपभोक्ताओं के साथ एक प्राथमिकता है, स्टाइल शीट जो फ़ॉर्ट आकार और यह सेट करता है, जिसका आकार Python से पिक्सेल में से किसी भी चीज सेट किया जाता है।\n\nअनुप्रयोग चल रहा है और बाद में बनाए गए प्लेट को नए पैमाने पर रखा जाना चाहिए, क्योंकि कचरा नहीं है, क्योंकि प्राथमिकता बदल सकती है।",
+      "translation_source_blocks_sha256": [
+        "4f0e6752cbccc25153ea203f2b4d5a2c5d451c28b248cd135d87248885671f0f",
+        "89c82ea8afdf3a585b4219566e49a5b77d3c43cee73fa5a8e06ba0ead96c7482",
+        "16e4532be72641544b4f347c7b28ab6c937f97e3c00ce51b85a5c141f03511c6",
+        "8340c43083b51d1e8cd33f5ae6e10470f20c6f899215205d3ca34689061c8311"
       ]
     },
     "spacr.qt.widgets.popup_state": {

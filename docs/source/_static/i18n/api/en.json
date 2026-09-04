@@ -14522,6 +14522,21 @@
       "source_sha256": "c2fe8a025cb59a11a0817f921546b5499310b13b8737f16b009844c5c834de93",
       "text": "Drain events and repaint after a change or whenever ``force=True``.\n\n:param force: repaint even when the collector revision is unchanged.\n:returns: whether the graph was repainted."
     },
+    "spacr.flowview.panel.FlowViewPanel.reset_user_height": {
+      "source_blocks_sha256": [
+        "2e956bbb95c8988ba5cb6967369f1f4c4b643bda835e5fda9848542c3db9302c"
+      ],
+      "source_sha256": "2e956bbb95c8988ba5cb6967369f1f4c4b643bda835e5fda9848542c3db9302c",
+      "text": "Give the height back to the content and the layout."
+    },
+    "spacr.flowview.panel.FlowViewPanel.set_user_height": {
+      "source_blocks_sha256": [
+        "3becb67d67df84f419937e4938e4478de1c94cfdac8d786c24ed24d0c57b89cf",
+        "29e1959efbec7c1d8a45ff0779de34d345e18dbb87ddf322feb27c8e3d848c78"
+      ],
+      "source_sha256": "9d343f365b785eee999a3a839914f637eea8f359da79988ffa33ada595686e25",
+      "text": "Hold the panel at ``height`` pixels until it is given back.\n\nClamped at the floor the graph and inspector need between them,\nso a drag that runs off the top cannot squeeze the panel to\nnothing and leave no edge to drag back."
+    },
     "spacr.flowview.panel.FlowViewPanel.start": {
       "source_blocks_sha256": [
         "f0391746a006341dc8699d8e8ae9b86942a7b8e4190f15f676ad24a20a70c484"
@@ -42604,6 +42619,16 @@
       "source_sha256": "98cdeb8f0f74b2fec49e5c6b8e9414afb1a01ab342f3023ff43e793834f94036",
       "text": "The shared example plate folder, which is where `data/` belongs."
     },
+    "spacr.qt.screens.app_screen.AppScreen.apply_object_grid_preference": {
+      "source_blocks_sha256": [
+        "27c31dca684fc745d56646837e91ea2f34aa210da4968b243a54de3012890548",
+        "e67cdc07933b94f3c4a3837b4f683e4abed148964efb2cb21076044782bf9ec3",
+        "76eca9267f2d3069951e34a58592e6cd918d3402d8134c34edcb6c163ca2694d",
+        "198d422627c044b5e7ddab68874a5cc9c9253336eb22634ef799242de4990acf"
+      ],
+      "source_sha256": "194f611146231ace6a6870618f0e6f871293c956866361ce29ce6e8cf29412d3",
+      "text": "Mount or unmount the per-object table to match preferences.\n\nWHAT THIS FIXES: the switch in Preferences was read once, while the\nsettings panel was being built, so turning it on did nothing to a\nmodule already open and turning it off left the table on screen with\nthe rows it speaks for still hidden. The preference is a view of the\nsame settings either way -- nothing downstream knows the grid exists\n-- so there is no reason it should need the module reopened.\n\nIDEMPOTENT, and safe on a screen whose panel was never built: both\ndirections check what is actually mounted rather than trusting a\nflag, so a repeated call is a no-op and the two states cannot drift\napart.\n\n:returns: True if the screen changed, False if it was already right."
+    },
     "spacr.qt.screens.app_screen.AppScreen.apply_settings_dict": {
       "source_blocks_sha256": [
         "ea668f2ec5af454a98c1fff789fafdf60bc4b8889e2687607d82bb828be414d5",
@@ -69167,6 +69192,16 @@
       "source_sha256": "31d8489405b44ec2f646b0a749516d7b683e550884df44f3048e6cf94108507f",
       "text": "Bind a per-object grid to the settings panel behind it.\n\n:param grid: the :class:`~spacr.qt.widgets.object_settings_grid.\n    ObjectSettingsGrid` to drive.\n:param panel: anything offering ``collect()`` and\n    ``set_value_for_key(key, value)``.\n:param parent: parent object."
     },
+    "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.follow_the_form": {
+      "source_blocks_sha256": [
+        "9bfa6a7a0d936c23fbbc88a798c3c2bc2fa6d849c5d066464281a0bcac827997",
+        "d818d51cdb102791853f12bdb742b49d8d88b4f582dde89af82e46630413880c",
+        "b07dfa8a5bcf07e09dc29689bd1766692ee784875deb9f6938f02009fe779b11",
+        "90e919f467cb716e2dfa962f3bdaeeff1b3b6288950e0b6f3190cd9e19691288"
+      ],
+      "source_sha256": "6dc38130e184f0d4e26b7921986bfd563186acecc11162296c3a71c5ea72aed7",
+      "text": "Make the form's own fields write INTO the table.\n\nTHE OTHER HALF OF A TWO-WAY BINDING, and the half that was missing:\nthe grid wrote through to the widgets, but nothing told the grid when\na widget moved, so a value changed anywhere else -- the flat row for\nan object the table does not claim, a preset, the Live Preview, a\nsettings file poured in -- left the table showing the old answer.\n\nWHY NOT JUST RESEED. `seed` rebuilds the whole table, which is 30 ms\non Mask and 100 ms once there are ten organelles. On a `textChanged`\nthat is per KEYSTROKE, and it would also take the cursor out of\nwhatever cell was being typed into. One cell is written instead.\n\n:returns: how many widgets were newly connected."
+    },
     "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.owned_keys": {
       "source_blocks_sha256": [
         "1e0225b5432eeaffa900e5fb4c2af70663f425cc5e62277bd887a698a83bb179",
@@ -69247,10 +69282,11 @@
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle": {
       "source_blocks_sha256": [
         "52a50c34cfca98862fff73db0103a3ff6dfbf97206217c922ae1c015466cfd95",
-        "1dc61c47ea89425e07c16839e1d281d3500e960ff07c9c355911bb5b6a735f65"
+        "615cc6b3acf113fbc58d65c66b99069e885559cac7ce8e185f27c77aada401eb",
+        "e5dfdb4af09ea26cf1abc2e7413d7704c205690f35772fef97b1769529a6e743"
       ],
-      "source_sha256": "c4228ef4e29a4bcc2e8c313c056b286c88c044b58fe063025ac3b75ced32e8af",
-      "text": "The role the next organelle column would take, or ``''``.\n\nEmpty when the alphabet has run out: slot names are lettered because\nan object type is embedded in underscore-separated object keys, so\ntwenty-six is where the naming scheme ends rather than where somebody\nchose to stop."
+      "source_sha256": "5c80728da32179f26a06f62739ddd6ce1cc6788fec0ee523ae0678654212ac7c",
+      "text": "The role the next organelle column would take, or ``''``.\n\nEmpty at the ceiling. Slot names are lettered -- an object type is\nembedded in an underscore-separated object key, so a digit would be\nambiguous against the object LABEL -- and the lettering CARRIES past\n``z``, so the ceiling is where two letters run out rather than one.\n\nCOUNTS UP FROM THE SLOTS IN USE rather than from one. Walking every\nslot from the start was fine while there were 26; there are now 702,\nand the caller that presses Add repeatedly turned an O(slots) scan\ninto an O(slots squared) one."
     },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.objects": {
       "source_blocks_sha256": [
@@ -70763,6 +70799,16 @@
       ],
       "source_sha256": "d87b7a732e31872056116cc799e6b89da730f315693078d4c27a5094a7ac6da7",
       "text": "The well under a GLOBAL point, or ``None``.\n\nGlobal, because the pointer is over a sibling of the widget that is\nreceiving the events -- the pressed one keeps the grab."
+    },
+    "spacr.qt.widgets.plate_map_picker.well_side": {
+      "source_blocks_sha256": [
+        "d6d43da95678d4c06711dd4a1f2f732c69316c198b62f1101741c7d6c00d9f0b",
+        "89c82ea8afdf3a585b4219566e49a5b77d3c43cee73fa5a8e06ba0ead96c7482",
+        "16e4532be72641544b4f347c7b28ab6c937f97e3c00ce51b85a5c141f03511c6",
+        "8340c43083b51d1e8cd33f5ae6e10470f20c6f899215205d3ca34689061c8311"
+      ],
+      "source_sha256": "14cffad8b62ced4b5294c2f970894db8fef4da059a4c1af6403d04ecd379cfa5",
+      "text": "The side of a well right now, in pixels, at the user's font scale.\n\nTHE GLYPHS GREW AND THE BOX DID NOT. `WELL_SIDE` was read as a raw pixel\nconstant, so at the 200% font scale a two-digit column header wanted 30 px\nof width inside a 22 px cell and every one of columns 10 to 24 had its\nnumber cut in half -- 15 clipped headers in every language, which is what\n`KNOWN_OFFENDERS` recorded against PlateMapPicker.\n\n`scaled_px` is the house mechanism for exactly this: the font scale is one\npreference with two consumers, the stylesheet that sets font sizes and\nthis, which sizes anything set in pixels from Python. A control tuned to\nmatch a text width has to go through it or the two drift apart.\n\nREAD AT CONSTRUCTION, not cached, because the preference can change while\nthe application is running and a plate built afterwards should be pitched\nto the new scale."
     },
     "spacr.qt.widgets.popup_state": {
       "source_blocks_sha256": [
