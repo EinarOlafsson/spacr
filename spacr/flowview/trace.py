@@ -142,7 +142,13 @@ class _StageRuntime:
     """One active invocation of a stage specification."""
 
     def __init__(self, spec: "_StageSpec") -> None:
-        """Bind this invocation to its immutable stage specification."""
+        """Bind this invocation to its immutable stage specification.
+
+        :param spec: the stage's definition -- label, kind and node id.
+            Shared, not copied, and treated as IMMUTABLE: one spec backs
+            every invocation of that stage, so mutating it here would
+            rewrite the trace of the runs already recorded.
+        """
         self._spec = spec
         self.node_id = spec.node_id
 

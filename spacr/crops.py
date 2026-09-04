@@ -544,7 +544,14 @@ class _LabelIndex:
                  "count", "_ysum", "_xsum", "shape")
 
     def __init__(self, mask: np.ndarray):
-        """Build compact per-label geometry from a two-dimensional mask."""
+        """Build compact per-label geometry from a two-dimensional mask.
+
+        :param mask: a 2-D label image. Scanned ONCE, vectorised, and the
+            result cached on the field -- which is the whole point: a grid
+            drawing 100 objects out of one field must not scan the plane
+            100 times. TWO-DIMENSIONAL ONLY: a 3-D array fails on the
+            unpack below rather than being measured plane by plane.
+        """
         self.shape = (int(mask.shape[0]), int(mask.shape[1]))
         ys, xs = np.nonzero(mask)
         if ys.size == 0:
