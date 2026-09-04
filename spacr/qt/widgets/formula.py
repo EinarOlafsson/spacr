@@ -1037,23 +1037,52 @@ class ColumnFormula:
         return walk(self.ast)
 
     def to_dict(self) -> Dict[str, Any]:
+        """This formula as plain data.
+
+        :returns: a JSON-safe dict.
+        """
         return {"name": self.name, "expression": self.expression,
                 "replace": self.replace}
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "ColumnFormula":
+        """Rebuild a formula from plain data.
+
+        UNKNOWN KEYS ARE IGNORED rather than raising, so a saved set from a
+        later version still opens with the parts this one knows.
+
+        :param payload: what :meth:`to_dict` produced.
+        :returns: the rebuilt formula.
+        """
         known = {k: v for k, v in dict(payload).items()
                  if k in {"name", "expression", "replace"}}
         return cls(**known)
 
     def to_json(self) -> str:
+        """This formula as JSON text, keys sorted so the file is diffable.
+
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True)
 
     @classmethod
     def from_json(cls, text: str) -> "ColumnFormula":
+        """Rebuild a formula from JSON text.
+
+        :param text: the JSON text.
+        :returns: the rebuilt formula.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
+        """The formula, marked when it reads the WHOLE table.
+
+        The mark matters: a formula using a table-wide statistic cannot be
+        computed per row, so it behaves differently under filtering and the
+        reader should not have to work that out from the expression.
+
+        :returns: a one-line description.
+        """
         note = " (uses the whole table)" if self.uses_whole_table() else ""
         return f"{self.name} = {self.expression}{note}"
 
@@ -1153,19 +1182,39 @@ class FormulaSet:
         return self
 
     def remove(self, name: str) -> "FormulaSet":
+        """Drop the formula called ``name``. Returns self, so it chains.
+
+        A name that is not there is not an error: removing something already
+        gone is the state the caller wanted.
+
+        :param name: the formula's name.
+        :returns: this set.
+        """
         self.formulas = [f for f in self.formulas if f.name != str(name)]
         return self
 
     def clear(self) -> "FormulaSet":
+        """Drop every formula. Returns self, so it chains.
+
+        :returns: this set, now empty.
+        """
         self.formulas = []
         return self
 
     @property
     def names(self) -> Tuple[str, ...]:
+        """Every formula's name, in evaluation order.
+
+        :returns: the names.
+        """
         return tuple(f.name for f in self.formulas)
 
     @property
     def is_empty(self) -> bool:
+        """Whether this set computes nothing.
+
+        :returns: True when empty.
+        """
         return not self.formulas
 
     def __len__(self) -> int:
@@ -1181,21 +1230,43 @@ class FormulaSet:
         return compute(frame, self.formulas)
 
     def to_dict(self) -> Dict[str, Any]:
+        """The whole set as plain data.
+
+        :returns: a JSON-safe dict holding every formula.
+        """
         return {"formulas": [f.to_dict() for f in self.formulas]}
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "FormulaSet":
+        """Rebuild a set from plain data.
+
+        :param payload: what :meth:`to_dict` produced.
+        :returns: the rebuilt set.
+        """
         rows = dict(payload).get("formulas") or []
         return cls([ColumnFormula.from_dict(row) for row in rows])
 
     def to_json(self) -> str:
+        """The set as JSON text, keys sorted so the file is diffable.
+
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True)
 
     @classmethod
     def from_json(cls, text: str) -> "FormulaSet":
+        """Rebuild a set from JSON text.
+
+        :param text: the JSON text.
+        :returns: the rebuilt set.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
+        """Every formula in evaluation order, or that there are none.
+
+        :returns: a one-line description.
+        """
         if not self.formulas:
             return "no computed columns"
         return " · ".join(f.describe() for f in self.formulas)

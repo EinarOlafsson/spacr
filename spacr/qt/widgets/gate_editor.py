@@ -335,6 +335,10 @@ class GateCanvas(GraphCanvas):
     # -- the tool ---------------------------------------------------------
     @property
     def tool(self) -> str:
+        """Which drawing tool is armed.
+
+        :returns: the tool's name.
+        """
         return self._tool
 
     def set_tool(self, tool: str) -> None:
@@ -351,6 +355,12 @@ class GateCanvas(GraphCanvas):
         return tuple(self._pending)
 
     def clear_pending(self) -> None:
+        """Throw away a part-drawn gate and tell the panel the count is zero.
+
+        The signal matters as much as the clearing: the panel's Finish button
+        is enabled by the vertex count, and clearing without saying so would
+        leave it offering to close a polygon that no longer exists.
+        """
         self._pending = []
         self.polygon_changed.emit(0)
         self.render_now()
@@ -358,6 +368,10 @@ class GateCanvas(GraphCanvas):
     # -- the gates --------------------------------------------------------
     @property
     def gates(self) -> GateSet:
+        """The gates drawn on this canvas.
+
+        :returns: the gate set.
+        """
         return self._gates
 
     def set_gates(self, gates: GateSet, *, active: Optional[str] = None) -> None:
@@ -1825,6 +1839,10 @@ class GateCanvas(GraphCanvas):
         self._draw_gates()
 
     def anchor_axis(self) -> str:
+        """Which world axis a 3-D drag rotates about.
+
+        :returns: the axis name, defaulting to ``z``.
+        """
         return getattr(self, "_anchor_axis", "z")
 
     def set_drag_mode(self, mode: str) -> None:
@@ -1832,6 +1850,10 @@ class GateCanvas(GraphCanvas):
         self._drag_mode = mode if mode in ("spin", "draw") else "spin"
 
     def drag_mode(self) -> str:
+        """What dragging does right now: spin the view, or draw.
+
+        :returns: the mode's name, defaulting to ``spin``.
+        """
         return getattr(self, "_drag_mode", "spin")
 
     def set_volume_shape(self, shape: str) -> None:
@@ -1839,6 +1861,10 @@ class GateCanvas(GraphCanvas):
         self._volume_shape = str(shape or "box")
 
     def volume_shape(self) -> str:
+        """Which solid a 3-D gate is drawn as.
+
+        :returns: the shape's name, defaulting to ``box``.
+        """
         return getattr(self, "_volume_shape", "box")
 
     def anchor_plane(self) -> Optional[Tuple[str, str, str]]:
@@ -2460,6 +2486,15 @@ class GateTree(QWidget):
         outer.addLayout(row)
 
     def set_gates(self, gates: GateSet, frame: Optional[pd.DataFrame]) -> None:
+        """Show a gate hierarchy, counted against a table.
+
+        BOTH ARGUMENTS TOGETHER. The counts and percentages are a property of
+        the gates AND the rows they were applied to, so a tree given new
+        gates against the old frame would show numbers belonging to neither.
+
+        :param gates: the hierarchy to show.
+        :param frame: the rows to count against, or None for no counts.
+        """
         self._gates = gates
         self._frame = frame
         self.refresh()
@@ -2595,10 +2630,18 @@ class GateTree(QWidget):
         return name not in self._disabled
 
     def active_gate(self) -> str:
+        """The name of the selected gate.
+
+        :returns: the gate's name, or ``""`` when nothing is selected.
+        """
         item = self.tree.currentItem()
         return item.data(0, Qt.UserRole) if item is not None else ""
 
     def select(self, name: str) -> None:
+        """Select a gate by name, wherever it sits in the hierarchy.
+
+        :param name: the gate's name.
+        """
         for index in range(self.tree.topLevelItemCount()):
             if self._select_in(self.tree.topLevelItem(index), name):
                 return
@@ -2612,6 +2655,7 @@ class GateTree(QWidget):
                    for i in range(item.childCount()))
 
     def remove_selected(self) -> None:
+        """Delete the selected gate, and everything drawn inside it."""
         name = self.active_gate()
         if not name:
             return
@@ -3142,16 +3186,28 @@ class GateEditorPanel(QWidget):
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Point the panel at a new table.
+
+        :param frame: the rows to gate, or None to clear.
+        """
         self._frame = frame
         self.canvas.set_frame(frame)
         self.tree.set_gates(self._gates, frame)
         self._refresh_status()
 
     def set_spec(self, spec: GraphSpec) -> None:
+        """Draw a different chart under the gates.
+
+        :param spec: the graph spec for the canvas.
+        """
         self.canvas.set_spec(spec)
 
     @property
     def gates(self) -> GateSet:
+        """The gates currently drawn.
+
+        :returns: the gate set.
+        """
         return self._gates
 
     def set_gates(self, gates: GateSet) -> None:
@@ -3434,6 +3490,10 @@ class GateEditorPanel(QWidget):
         return None
 
     def status(self) -> str:
+        """Whatever the status line is telling the user.
+
+        :returns: the status text.
+        """
         return self._status.text()
 
     def volume_shape(self) -> str:
@@ -3489,6 +3549,13 @@ class GateEditorPanel(QWidget):
         button.blockSignals(blocked)
 
     def set_spin_controls_visible(self, visible: bool) -> None:
+        """Show or hide the 3-D plane controls.
+
+        Hidden for a 2-D chart, where an axis picker and a spin toggle are
+        controls for something the view cannot do.
+
+        :param visible: True to show them.
+        """
         self._plane_label.setVisible(visible)
         for button in self._plane_buttons.values():
             button.setVisible(visible)
@@ -3555,5 +3622,9 @@ class GateEditorPanel(QWidget):
         self._status.setText(" · ".join(parts))
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Close the canvas first, so it can unlink from the shared selection.
+
+        :param event: the Qt close event.
+        """
         self.canvas.close()
         super().closeEvent(event)
