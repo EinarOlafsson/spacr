@@ -688,6 +688,7 @@ def run_install_offer(parent, offer, *, confirm=None, inform=None,
 
 def _default_confirm(parent) -> Callable[[str, str], bool]:
     def _confirm(title: str, text: str) -> bool:
+        """Ask a yes/no question in a modal box."""
         answer = QMessageBox.question(
             parent, str(title), str(text),
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -697,6 +698,7 @@ def _default_confirm(parent) -> Callable[[str, str], bool]:
 
 def _default_inform(parent) -> Callable[[str, str], None]:
     def _inform(title: str, text: str) -> None:
+        """Say something in a modal box."""
         QMessageBox.information(parent, str(title), str(text))
     return _inform
 
@@ -719,9 +721,11 @@ def _default_dry_run(parent) -> Callable[[str], Any]:
     from ...updater import DryRun, dry_run_install
 
     def _run(requirement):
+        """Dry-run an install and hand the outcome back."""
         outcome: Dict[str, Any] = {}
 
         def _work():
+            """Do the dry run. Called off the GUI thread."""
             outcome['value'] = dry_run_install(requirement)
 
         worker = threading.Thread(target=_work, daemon=True)
@@ -778,6 +782,7 @@ def explain(anchor, entries, index: int = 0, *, pinned: bool = False,
     panel = AvailabilityPanel.instance()
 
     def _install(offer):
+        """Run one install offer and report what happened."""
         outcome = run_install_offer(parent if parent is not None else anchor,
                                     offer)
         if outcome == "installed" and on_installed is not None:

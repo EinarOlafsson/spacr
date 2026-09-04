@@ -332,7 +332,9 @@ def _install_import_timer() -> None:
         pass
 
     def _timed(original):
+        """Wrap a loader's ``exec_module`` so each import is measured."""
         def exec_module(self, module):
+            """Import the module, recording how long it took."""
             name = getattr(module, "__name__", "?")
             started = time.perf_counter()
             try:
@@ -384,6 +386,11 @@ def watch_the_gui_thread(parent=None):
     state = {"last": _LAST_GUI_BEAT_AT}
 
     def _beat():
+        """Record that the GUI thread is still answering.
+
+        The gap between beats is what a stall is measured as, so this has to be
+        cheap enough that it is never itself the delay.
+        """
         global _LAST_GUI_BEAT_AT
         now = time.perf_counter()
         previous = state["last"]
@@ -529,6 +536,7 @@ def watch_interactive(
             self._settle_queued = False
 
         def eventFilter(self, watched, event):  # noqa: N802 - Qt naming
+            """Note a paint on a watched widget, ignoring every other event."""
             if event.type() != QEvent.Type.Paint:
                 return False
             if watched is self.root:
@@ -546,6 +554,12 @@ def watch_interactive(
             # before forcing another one, or an already-painted control plus
             # the settle timer below could report a false ready state without
             # a post-exec paint ever being observed.
+            """Discard paints that arrived before the loop began.
+
+            A paint delivered by ``show()`` before ``exec()`` is evidence about the
+            widget but not about THIS contract: readiness begins only once the
+            application event loop has actually dispatched a callback.
+            """
             self.root_painted = False
             self.painted_controls.clear()
             try:
