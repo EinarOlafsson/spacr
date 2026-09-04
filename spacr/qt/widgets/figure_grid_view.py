@@ -241,6 +241,7 @@ class _SectionHeader(QFrame):
         return node
 
     def _activate(self) -> None:
+        """Fold or unfold this section, if the view is still there."""
         view = self._view()
         if view is not None:
             view.toggle_section(self)
@@ -378,6 +379,12 @@ class _FigureCell(QFrame):
             self.fit_to(self._fit_width)
 
     def _request_menu(self, point) -> None:
+        """Ask for this cell's context menu, in GLOBAL coordinates.
+
+        The menu is placed by the view, which does not share this cell's
+        coordinate space -- handing it a local point puts the menu in the wrong
+        place on every cell but the first.
+        """
         self.menu_requested.emit(self.index, self.mapToGlobal(point))
 
     def mousePressEvent(self, event):  # noqa: N802 - Qt naming
