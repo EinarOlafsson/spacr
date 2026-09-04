@@ -1,20 +1,18 @@
 """The strip along the bottom that explains the module under the pointer.
 
-Asked for on 2026-09-03: "remove the popup window tooltip on the moduals. the
-tooltip is shown at the botom of the screen. these should also have an API
-link and a tutorial link and the list onw hovered should be shown at the
-botom for 30 seconds. ... the hover over the doc should function the same."
+The strip replaces the popup tooltip on the module tiles, and carries an API
+link and a tutorial link beside the description.
 
-THE HOLD IS THE WHOLE POINT, and it is the same argument instruction 371 made
-for the per-setting strip: a link that appears only while the pointer is on
-the tile is a link that cannot be clicked, because moving toward it removes
-it. So the strip keeps the LAST module hovered for thirty seconds -- long
-enough to notice it, cross the window and press a word.
+THE HOLD IS THE WHOLE POINT, and it is the same argument that shaped the
+per-setting strip: a link that appears only while the pointer is on the tile
+is a link that cannot be clicked, because moving toward it removes it. So the
+strip keeps the LAST module hovered for thirty seconds -- long enough to
+notice it, cross the window and press a word.
 
-Thirty rather than 371's ten because these two links leave the application.
-Ten seconds is a budget for reaching a word; a reader deciding whether to
-open documentation or a lesson in a browser is making a larger decision, and
-the maintainer named the number.
+Thirty seconds rather than the per-setting strip's ten, because these two
+links leave the application. Ten seconds is a budget for reaching a word; a
+reader deciding whether to open documentation or a lesson in a browser is
+making a larger decision.
 
 TWO SURFACES, ONE BAR. Home's tiles and the dock's rows both write here, and
 so does a module screen's own strip when the dock is hovered over it -- see
@@ -103,8 +101,8 @@ class ModuleHintBar(QLabel):
     def event(self, event):                     # noqa: N802 - Qt naming
         """Swallow tooltip requests. THIS BAR IS THE TOOLTIP.
 
-        Reported 2026-09-04: "I get a tooltip box when I hover the tooltip
-        bottom in mask". Nothing here asks for one -- the bar sets no tooltip
+        A popup appearing over this bar is a bug, and not one this bar
+        causes: nothing here asks for one -- the bar sets no tooltip
         on itself or on anything in it. Qt PROPAGATES an unhandled
         ``QEvent.ToolTip`` up the parent chain, and
         :func:`spacr.qt.module_hints.install_module_hints` filters the whole
@@ -180,9 +178,9 @@ class ModuleHintBar(QLabel):
     def _links_html(self, key: str) -> str:
         """``API`` and ``Tutorial`` as anchors, whichever of them resolve.
 
-        Short words on purpose, and the same shortening instruction 371
-        argued for the per-setting strip: "which should also just say API".
-        The long forms repeat on every module and the strip is a few lines.
+        Short words on purpose, the same shortening the per-setting strip
+        uses. The long forms repeat on every module and the strip is only a
+        few lines tall.
 
         A word is drawn only where its target exists. Every registry module
         has a lesson today -- measured, 36 of 36 -- but a new module lands in

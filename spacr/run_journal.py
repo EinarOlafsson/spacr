@@ -1229,7 +1229,7 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
 
     PASS ``None`` FOR "EVERY RUN", never a negative number. The truncation
     at the end is ``all_entries[:limit]``, so ``limit=-1`` reads the whole
-    journal and then hands back all but the OLDEST entry -- measured
+    journal and then hands back all but the OLDEST entry -- observed
     2026-09-03 on an 11,027-run journal, which returned 11,026. A folder with no ``manifest.json`` is skipped
     quietly; one whose manifest cannot be parsed is skipped with a
     logged warning.
