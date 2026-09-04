@@ -335,6 +335,7 @@ class _TourOverlay(QWidget):
 
     def _update_card_position(self) -> None:
         # Bottom-centre
+        """Keep the card bottom-centre as the overlay resizes."""
         w = self.width()
         h = self.height()
         cw = self._card.width()
@@ -360,6 +361,7 @@ class _TourOverlay(QWidget):
 
     # -- lifecycle ----------------------------------------------------
     def _next(self) -> None:
+        """Advance one step, finishing when the last one is past."""
         self._idx += 1
         if self._idx >= len(self._steps):
             self._finish()
@@ -377,9 +379,21 @@ class _TourOverlay(QWidget):
         self.update()
 
     def _skip(self) -> None:
+        """End the tour now. Same finish as reaching the last step.
+
+        Skipping and completing are the SAME outcome deliberately: a tour that
+        reappeared because it was dismissed rather than read is one the user
+        cannot get rid of.
+        """
         self._finish()
 
     def _finish(self) -> None:
+        """Close the overlay and tell the caller it is done.
+
+        A failing callback does not stop the overlay closing: the tour is
+        finished either way, and leaving it on screen because something
+        downstream raised is the worse of the two outcomes.
+        """
         if self._on_finish is not None:
             try:
                 self._on_finish()
