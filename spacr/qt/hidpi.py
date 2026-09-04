@@ -208,6 +208,13 @@ class _RatioWatcher(QObject):
 
     Parented to the widget, so it dies with it and never outlives the
     thing it would redraw.
+
+    :param widget: the widget whose ratio is watched, and the QObject parent
+        -- which is what the note above means.
+    :param redraw: called with no arguments when the ratio actually CHANGES.
+        Not on every DevicePixelRatioChange: the old ratio is remembered and
+        compared, so dragging a window between two identical monitors
+        redraws nothing.
     """
 
     def __init__(self, widget: Any, redraw: Callable[[], None]) -> None:
