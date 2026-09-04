@@ -116,6 +116,7 @@ class _FractalFollowsItsScreen(QObject):
     """
 
     def __init__(self, widget, screen) -> None:
+        """Take the screen as parent and remember the backdrop to resize."""
         super().__init__(screen)
         self._widget = widget
 
@@ -191,6 +192,7 @@ class _UpdateWorker(QThread):
     failed = Signal(str, str)
 
     def __init__(self, operation, fn, parent=None):
+        """Hold the named operation and the callable that performs it."""
         super().__init__(parent)
         self.operation = str(operation)
         self._fn = fn
@@ -708,11 +710,24 @@ class _LiveSections(list):
     """
 
     def __eq__(self, other):
+        """Equal to a tuple as well as to a list.
+
+        `SECTIONS` was a tuple for its whole life and the suite asserts
+        ``SECTIONS == ("Core", ...)``. Changing the container must not change
+        what those assertions MEAN, so a tuple is compared by its contents rather
+        than answering False on the type.
+        """
         if isinstance(other, tuple):
             return list.__eq__(self, list(other))
         return list.__eq__(self, other)
 
     def __ne__(self, other):
+        """The negation of :meth:`__eq__`, preserving ``NotImplemented``.
+
+        Written out because Python does not derive it from ``__eq__`` for a class
+        that defines one, and inheriting list's would compare against the tuple
+        by type and disagree with ``==``.
+        """
         equal = self.__eq__(other)
         return equal if equal is NotImplemented else not equal
 
@@ -2083,6 +2098,12 @@ class _ChromeButton(QToolButton):
         self._show(False)
 
     def _show(self, lit: bool) -> None:
+        """Repaint the mark, lit or resting.
+
+        The icon is REPAINTED rather than recoloured: QSS can colour a background
+        on hover but not the contents of a QIcon, which is why this button paints
+        its glyph instead of shipping one.
+        """
         self.setIcon(self._paint_icon(colour=self._hover_colour)
                      if lit else self._paint_icon())
 

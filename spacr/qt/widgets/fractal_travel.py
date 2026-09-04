@@ -793,6 +793,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
         failed = Signal(str)
 
         def __init__(self) -> None:
+            """Build the engine this thread will shade with."""
             super().__init__()
             self.engine = engine_factory(thread_count)
 
@@ -1626,6 +1627,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
 
     class _Canvas(Canvas):
         def __init__(self) -> None:
+            """Build the GL canvas, hidden until it is placed."""
             super().__init__(keys=None, size=(1200, 760), show=False)
             # THE SAME POINTER THE CPU PATH USES. It samples QCursor rather
             # than receiving events, so it needs nothing from the widget
@@ -1687,6 +1689,11 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             self.native.destroyed.connect(self._on_native_destroyed)
 
         def _update_uniforms(self, elapsed: float) -> None:
+            """Push this frame's camera and time into the shader.
+
+            The size is floored at one pixel: a canvas mid-resize can report zero, and
+            a zero dimension reaches the shader as a division by nothing.
+            """
             width, height = self.physical_size
             width = max(1, int(width))
             height = max(1, int(height))
@@ -2115,6 +2122,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 self._last_sample = time.perf_counter()
 
         def _on_timer(self, _event) -> None:
+            """Advance one frame, unless paused or already torn down."""
             if self._paused or self._dead:
                 return
             # HOLD STILL UNDER A POPUP. A menu or a tooltip composited over
