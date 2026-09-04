@@ -6759,6 +6759,7 @@ class _HiddenRowWatcher(QObject):
 
     def __init__(self, model: "SettingsWidgets",
                  parent: Optional[QWidget] = None) -> None:
+        """Hold the model weakly and take the panel as parent."""
         super().__init__(parent)
         self._model = weakref.ref(model)
 
@@ -6950,6 +6951,7 @@ class _CsvColumnField(QWidget):
         QMessageBox.information(self, "No columns to offer", message)
 
     def _on_edited(self, *_args) -> None:
+        """Announce that the field changed, whatever changed it."""
         self.value_changed.emit()
 
 
@@ -7412,6 +7414,7 @@ class _Chip(QFrame):
     removed = Signal(object)
 
     def __init__(self, text: str, colours: dict, parent=None):
+        """Build the pill: its text and the mark that removes it."""
         super().__init__(parent)
         from ..i18n import tr
         from ..theme import apply_close_mark, font_px
@@ -7473,6 +7476,7 @@ class _ChipStrip(QWidget):
 
     def __init__(self, placeholder: str = "add value…",
                  removable: bool = False, parent=None):
+        """Build the strip, its entry field and (optionally) its own close mark."""
         super().__init__(parent)
         from ..theme import active_palette, apply_close_mark, font_px
         self._colours = active_palette()
@@ -7534,6 +7538,7 @@ class _ChipStrip(QWidget):
             self._add_chip(head)
 
     def _commit_entry(self) -> None:
+        """Turn what is typed into a chip. Blank input adds nothing."""
         text = self._entry.text().strip()
         if not text:
             return
@@ -7541,6 +7546,12 @@ class _ChipStrip(QWidget):
         self._add_chip(text)
 
     def _add_chip(self, text: str, notify: bool = True) -> None:
+        """Add one chip, keeping the entry field last.
+
+        The entry TRAILS the chips rather than sitting at a fixed end, so the
+        place you type is always after the last value -- which is where the next
+        one goes.
+        """
         chip = _Chip(text, self._colours, self._host)
         chip.removed.connect(self._remove_chip)
         # Keep the entry field last so it always trails the chips.
@@ -7554,6 +7565,12 @@ class _ChipStrip(QWidget):
             self.changed.emit()
 
     def _remove_chip(self, chip, notify: bool = True) -> None:
+        """Take one chip out and let the strip reflow.
+
+        ``notify=False`` is for a bulk replace, which would otherwise emit once
+        per chip removed and make every listener do the work N times for one
+        change.
+        """
         if chip in self._chips:
             self._chips.remove(chip)
         self._flow.removeWidget(chip)
@@ -7992,6 +8009,7 @@ class _ListEditor(QWidget):
         self._rebuild(True, [current] if current else [[]])
 
     def _refresh_footer(self) -> None:
+        """Label the add button for what it adds -- a group, or a value."""
         if self._nested:
             self._footer.setText("＋  Add group")
             self._footer.setToolTip(
@@ -8013,6 +8031,7 @@ class _ListEditor(QWidget):
         # eliding -- the point of the placeholder is to say what KIND of
         # value belongs here, and an elided "add a whole numb…" says less
         # than "add number".
+        """A short prompt naming the KIND of value this list takes."""
         if self._element_type is int:
             return "add number"
         if self._element_type is float:
@@ -8049,6 +8068,14 @@ class _ListEditor(QWidget):
 
     @staticmethod
     def _as_sequence(value: Any) -> List[Any]:
+        """Read a stored value as a list, however it was written.
+
+        A list, a Python literal in a string, or a comma-separated line -- the
+        last because that is what someone hand-editing a settings CSV most often
+        means, and refusing it would reject a file that reads perfectly well. A
+        bare ``"None"`` is EMPTY rather than the string "None", which is what a
+        CSV round-trip turns an unset value into.
+        """
         if value is None:
             return []
         if isinstance(value, (list, tuple)):
