@@ -2384,6 +2384,7 @@ class MainWindow(QMainWindow):
             self._consent_timer.setSingleShot(True)
 
             def _finish_installer_onboarding():
+                """Show the installer consent, then start the tour after it closes."""
                 maybe_show_installer_consent(self)
                 # Start after the modal flow closes, so the tour never opens
                 # behind the consent/provider dialogs' nested event loops.
@@ -3460,6 +3461,7 @@ class MainWindow(QMainWindow):
         from .hf_download import download_toxo_mito_demo
 
         def _on_download_done(result, error):
+            """Warn if the demo download failed, else run the chain."""
             if result is None:
                 QMessageBox.warning(self, "Download",
                     f"The download did not complete:\n{error or 'unknown error'}")
@@ -3504,6 +3506,7 @@ class MainWindow(QMainWindow):
         from .settings_pack import settings_from_pack
 
         def _settings_for(app_key: str) -> dict:
+            """The settings one module in the chain should run with."""
             settings, report = settings_from_pack(
                 app_key, settings_path, src=dataset_path)
             if report.dropped or report.renamed or report.malformed:
@@ -3647,6 +3650,7 @@ class MainWindow(QMainWindow):
         col.addSpacing(14)
 
         def _line(html, size, *, muted=False, weight=400, gap=0):
+            """One centred line of the About box, at the given size."""
             label = QLabel(html)
             label.setAlignment(Qt.AlignHCenter)
             label.setTextFormat(Qt.RichText)
@@ -4822,6 +4826,7 @@ class MainWindow(QMainWindow):
         from PySide6.QtCore import QTimer
 
         def again() -> None:
+            """Try the backdrop once more, if the screen is still alive."""
             try:
                 from shiboken6 import isValid
             except Exception:                                # noqa: BLE001
