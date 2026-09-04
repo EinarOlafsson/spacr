@@ -93,6 +93,25 @@ class SetupCard(QWidget):
                  radius: int = 18, arc: Optional[int] = None,
                  lag: Optional[float] = None, align: str = "",
                  mode: str = ""):
+        """Build the card and the accent that travels round its rim.
+
+        :param parent: parent widget.
+        :param radius: the card's corner radius in pixels.
+        :param arc: how long the travelling accent is. ``None`` takes the
+            preference.
+        :param lag: how hard the accent chases the pointer, 0 to 1. ``None``
+            takes the preference.
+        :param align: whether the accent is centred on the pointer or trails
+            behind it. ``""`` takes the preference.
+        :param mode: which look the card wears; ``""`` for the default.
+
+        THE THREE THAT ARE A MATTER OF TASTE -- ``arc``, ``lag`` and
+        ``align`` -- default to the preference store rather than to
+        constants, because how long the run is and how hard it chases are
+        things to look at and decide about. A caller that wants a particular
+        look for a particular card can still say so, which is why they are
+        parameters at all and not read from preferences outright.
+        """
         super().__init__(parent)
         self._mode = str(mode or "").strip().lower()
         #: Radians of the animation cycle, advanced one frame at a time.
