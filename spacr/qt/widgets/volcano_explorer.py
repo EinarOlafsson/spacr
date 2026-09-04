@@ -210,6 +210,11 @@ class _MultiSelect(QListWidget):
     Several at once because "dense granules and rhoptries 1" is ONE question:
     a combo box would make the reader choose which half of their comparison
     to look at.
+
+    :param caption: what the list is for. Shown as the TOOLTIP, not as a
+        heading -- the widget draws no label of its own, so this is the only
+        place the question is written.
+    :param parent: parent widget; ownership only.
     """
 
     changed = Signal()

@@ -147,6 +147,12 @@ class _ShowFilter(QObject):
     A module screen is built once and kept, so ``__init__`` fires exactly
     once while returning to the screen — which is when a run on another tab
     may have produced the thing this strip is about — fires ``Show``.
+
+    :param on_show: called with no arguments on every Show. It CANNOT
+        swallow the event -- :meth:`eventFilter` forwards and returns False
+        whatever happens, and an exception in it is logged rather than
+        raised, so a failing refresh never stops the screen appearing.
+    :param parent: parent object; ownership only.
     """
 
     def __init__(self, on_show, parent=None) -> None:
