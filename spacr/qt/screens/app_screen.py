@@ -404,6 +404,11 @@ def _fit_to_lines(text: str, label, lines: int) -> str:
     metrics = QFontMetrics(label.font())
 
     def wrapped_lines(candidate: str) -> int:
+        """How many lines ``candidate`` wraps to at the measured width.
+
+        Measured against the font Qt is actually painting, so it stays right at
+        any font scale rather than at the one this was written on.
+        """
         rect = metrics.boundingRect(
             0, 0, width, 0, Qt.TextWordWrap, candidate)
         return max(1, round(rect.height() / max(1, metrics.lineSpacing())))
@@ -3645,6 +3650,7 @@ class AppScreen(QWidget):
         read = self._settings_model._read_widget
 
         def value(key, fallback):
+            """One widget's value, or the fallback when there is no such widget."""
             widget = widgets.get(key)
             if widget is None:
                 return fallback
@@ -4241,6 +4247,7 @@ class AppScreen(QWidget):
         anchor = destination.name
 
         def rehome_text(text: str):
+            """Repoint one path string at the folder the example now lives in."""
             stripped = text.strip()
             if not stripped:
                 return text
@@ -4276,6 +4283,12 @@ class AppScreen(QWidget):
             return text
 
         def rehome(value):
+            """Repoint every path in a value, whatever shape it is.
+
+            Recurses through lists and tuples: a settings value may be one path or a
+            list of them, and rehoming only the string case leaves the list pointing
+            at a folder that is not there.
+            """
             if isinstance(value, str):
                 return rehome_text(value)
             if isinstance(value, (list, tuple)):
@@ -4377,6 +4390,7 @@ class AppScreen(QWidget):
         placed: dict = {}
 
         def _done(result, error):
+            """Restore the button whether the load worked or failed."""
             if button is not None:
                 button.setEnabled(True)
                 button.setText(tr(was[1]))
@@ -4464,6 +4478,7 @@ class AppScreen(QWidget):
         placed: dict = {}
 
         def _done(result, error):
+            """Restore the button whether the load worked or failed."""
             if button is not None:
                 button.setEnabled(True)
                 button.setText(tr("Load test data…"))
@@ -4682,6 +4697,7 @@ class AppScreen(QWidget):
         applied: dict = {}
 
         def _done(result, error):
+            """Restore the button whether the load worked or failed."""
             if button is not None:
                 button.setEnabled(True)
                 button.setText(tr("Load test data…"))
