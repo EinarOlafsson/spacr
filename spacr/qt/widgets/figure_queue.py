@@ -449,6 +449,11 @@ def render_pdf_to_image(pdf_path: str, max_px: int = PDF_DISPLAY_MAX_PX,
         def _page_rendered(_page, _size, image, _options, _request_id):
             # Runs on THIS thread (queued from Qt's render thread), so the
             # only Python that ever holds the GIL is this handful of lines.
+            """Take the rendered page. Queued back onto THIS thread.
+
+            Which is why it is a handful of lines: it is the only Python holding the
+            GIL while Qt's render thread is working.
+            """
             box["image"] = image
             loop.quit()
 
@@ -1298,6 +1303,7 @@ class FigureQueue(QWidget):
         end = start + count
 
         def _shift(mapping):
+            """Reindex a mapping after a run is removed, keeping its type."""
             out = type(mapping)()
             for index, value in mapping.items():
                 if start <= index < end:
@@ -1952,6 +1958,13 @@ class FigureQueue(QWidget):
         # object, and returns a QImage because QPixmap is GUI-thread-only.
         def work(_blob=blob, _target=target, _token=token,
                  _idx=self._current, _face=facecolor):
+            """Render one preview off the GUI thread.
+
+            Everything it needs is bound as a DEFAULT ARGUMENT rather than closed
+            over, so a preview that starts while the user is scrolling renders the
+            figure it was asked for rather than whichever one is current when it
+            runs.
+            """
             from matplotlib.backends.backend_agg import FigureCanvasAgg
 
             copy = pickle.loads(_blob)

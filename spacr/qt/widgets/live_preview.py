@@ -994,6 +994,7 @@ def _apply_size_filter(mask: np.ndarray,
         return mask
 
     def _num(key, default):
+        """One size-filter setting as a number, or the default."""
         v = settings.get(key, default)
         try:
             return type(default)(v) if v is not None else default
@@ -2879,6 +2880,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
           * ``self._adjust_cells`` — the cell-only "adjust cells" toggle.
         """
         def _spin(kind, spin_args):
+            """One spin box of the right kind for this setting."""
             if kind == "float":
                 w = QDoubleSpinBox(self)
                 lo, hi, dv = spin_args
@@ -2961,6 +2963,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         # Built here with everything else, hidden, so their values survive an
         # open/close of the dialog the same way the compartment widgets do.
         def _organelle_widget(kind, spin_args):
+            """The control an organelle setting needs, by its kind."""
             if kind == "morphology":
                 widget = QComboBox(self)
                 set_translatable_items(widget, list(ORGANELLE_MORPHOLOGIES))
