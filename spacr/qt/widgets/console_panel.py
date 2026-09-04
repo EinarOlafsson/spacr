@@ -258,6 +258,7 @@ class _CopyGlyphButton(QAbstractButton):
     _OFFSET = 3
 
     def __init__(self, parent=None):
+        """Build the copy mark, drawn rather than shipped as an icon."""
         super().__init__(parent)
         self.setObjectName("ConsoleCopyGlyph")
         self.setCursor(Qt.PointingHandCursor)
@@ -388,6 +389,7 @@ class _TopicBar(QFrame):
         return node
 
     def _activate(self) -> None:
+        """Fold or unfold this section, if the panel is still there."""
         panel = self._panel()
         if panel is not None:
             panel.toggle_section(self)
@@ -446,6 +448,7 @@ class _WorkingDots(QLabel):
     """
 
     def __init__(self, color: str = AI_COLOR_DEFAULT, parent=None):
+        """Build the dots at the AI colour, baked into a stylesheet."""
         super().__init__(parent)
         self.setObjectName("ConsoleWorkingDots")
         self.setProperty("i18nSkipText", True)
@@ -470,6 +473,11 @@ class _WorkingDots(QLabel):
 
     def _render(self) -> None:
         # Fixed-width so the row doesn't jitter as the count changes.
+        """Draw the current dot count, padded to a fixed width.
+
+        Padded so the row does not JITTER as the count cycles: three glyph-slots
+        either way, and the text beside it stays where it is.
+        """
         dots = "●" * (self._n + 1)
         pad = " " * (2 - self._n)   # keep three glyph-slots wide
         self.setText(dots + pad)

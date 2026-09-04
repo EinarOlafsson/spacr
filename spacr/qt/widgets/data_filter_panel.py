@@ -164,6 +164,7 @@ class _ClauseRow(QFrame):
     removed = Signal(str)
 
     def __init__(self, column: str, parent=None):
+        """Build the row's heading, its remove button and its controls."""
         super().__init__(parent)
         self.column = column
         self.setObjectName("FilterClauseRow")
@@ -204,6 +205,12 @@ class _RangeRow(_ClauseRow):
     """
 
     def __init__(self, column: str, series: pd.Series, parent=None):
+        """Build the low/high spinboxes from the column's own range.
+
+        A CONSTANT column would give a spinbox with no travel, so the range is
+        widened rather than left inert -- a control the user cannot move reads as
+        broken, not as "there is nothing to choose".
+        """
         super().__init__(column, parent)
         values = pd.to_numeric(series, errors="coerce")
         lo = float(np.nanmin(values)) if values.notna().any() else 0.0
@@ -269,6 +276,7 @@ class _CategoryRow(_ClauseRow):
     """
 
     def __init__(self, column: str, series: pd.Series, parent=None):
+        """Build one tick per distinct value, all ticked to start."""
         super().__init__(column, parent)
         self._boxes: List[Toggle] = []
         values = sorted({str(v) for v in series.dropna().unique()})

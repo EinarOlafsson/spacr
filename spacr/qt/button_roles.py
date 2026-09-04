@@ -194,11 +194,23 @@ class _SemanticButtonFilter(QObject):
             _repolish(button)
 
     def _after_clicked(self, button: QPushButton) -> None:
+        """Re-settle the button's fill once the click handler has run.
+
+        Deferred to the next event-loop turn on purpose: the handler is what
+        disables or relabels the button, and reading its state before it has run
+        settles against the state the button had a moment ago.
+        """
         QTimer.singleShot(
             0, lambda target=button: self._settle_after_handler(target))
 
     @staticmethod
     def _settle_after_handler(button: QPushButton) -> None:
+        """Repaint one button for the state its handler left it in.
+
+        A DISABLED Run or Stop keeps the solid operation fill: conventionally it
+        means the worker is still starting or stopping, and greying it out would
+        say the action is unavailable rather than in progress.
+        """
         try:
             # Disabled Run/Stop buttons conventionally mean their asynchronous
             # worker is still starting or stopping. Keep the solid operation
