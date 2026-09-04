@@ -19,6 +19,7 @@ stylesheet. See :func:`_locked_square`.
 """
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Optional, Set, Tuple
 
 from PySide6.QtCore import Qt
@@ -33,16 +34,41 @@ from ...well_spec import (DEFAULT_LAYOUT, LAYOUTS, WellSpecError, parse,
 CHOSEN = "#4472C4"
 EMPTY = "rgba(255, 255, 255, 0.06)"
 
-#: The side of a well, in pixels, and of every other cell of the plate -- the
-#: row letters and the column numbers are pitched to the same square. A well
-#: is a SQUARE at every window size: a plate map is a picture of a physical
-#: object, and a well stretched into a rectangle reads as a grid of something
-#: else. Pinning the side is what makes the grid ask for the space it needs
-#: instead of dividing what it is handed.
+#: The side of a well AT 100% FONT SCALE, in pixels, and of every other cell
+#: of the plate -- the row letters and the column numbers are pitched to the
+#: same square. A well is a SQUARE at every window size: a plate map is a
+#: picture of a physical object, and a well stretched into a rectangle reads
+#: as a grid of something else. Pinning the side is what makes the grid ask
+#: for the space it needs instead of dividing what it is handed.
+#:
+#: A BASE, NOT THE ANSWER: call :func:`well_side` for the number to use.
 WELL_SIDE = 22
 
 #: The rim drawn around a well, in pixels per side.
 WELL_RIM = 1
+
+
+def well_side() -> int:
+    """The side of a well right now, in pixels, at the user's font scale.
+
+    THE GLYPHS GREW AND THE BOX DID NOT. `WELL_SIDE` was read as a raw pixel
+    constant, so at the 200% font scale a two-digit column header wanted 30 px
+    of width inside a 22 px cell and every one of columns 10 to 24 had its
+    number cut in half -- 15 clipped headers in every language, which is what
+    `KNOWN_OFFENDERS` recorded against PlateMapPicker.
+
+    `scaled_px` is the house mechanism for exactly this: the font scale is one
+    preference with two consumers, the stylesheet that sets font sizes and
+    this, which sizes anything set in pixels from Python. A control tuned to
+    match a text width has to go through it or the two drift apart.
+
+    READ AT CONSTRUCTION, not cached, because the preference can change while
+    the application is running and a plate built afterwards should be pitched
+    to the new scale.
+    """
+    from ..preferences import scaled_px
+
+    return scaled_px(WELL_SIDE)
 
 
 def _locked_square(rim: int = 0) -> str:
@@ -65,23 +91,43 @@ def _locked_square(rim: int = 0) -> str:
         adds the border, the padding and the margin back on to whatever
         ``min-`` and ``max-`` ask for, so the numbers below are the CONTENT
         box: padding and margin are zeroed here, and the rim is the whole of
-        the rest of the difference from :data:`WELL_SIDE`.
+        the rest of the difference from :func:`well_side`.
     """
-    box = WELL_SIDE - 2 * int(rim)
+    box = well_side() - 2 * int(rim)
     return (f"padding: 0px; margin: 0px; "
             f"min-width: {box}px; max-width: {box}px; "
             f"min-height: {box}px; max-height: {box}px;")
 
 
-#: The two sheets a well ever wears, chosen and not, built once. A 1536-well
-#: plate repaints every one of its wells on every selection change, and the
-#: string does not depend on which well it is going on.
-_WELL_SHEET = {
-    state: (f"QPushButton {{ background: {colour}; "
+@lru_cache(maxsize=8)
+def _well_sheet(chosen: bool, side: int) -> str:
+    """The sheet a well wears, cached by state and by the side it is pitched at.
+
+    CACHED, BECAUSE A PLATE REPAINTS EVERY WELL. A 1536-well plate rebuilds
+    every one of its wells' sheets on every selection change, and the string
+    does not depend on which well it is going on -- which is why this was a
+    module-level dict built once at import.
+
+    BUT NOT BUILT AT IMPORT, because the side follows the font scale now. A
+    dict comprehension at module level bakes whichever scale happened to be
+    active when the module was first imported, and the result was a plate
+    whose HEADERS scaled and whose WELLS did not: 44 px letters over 22 px
+    wells at the 200% scale, with every column number riding clear of the
+    column it names. Keying the cache by `side` keeps the repaint cheap and
+    lets the answer change when the preference does.
+
+    :param chosen: whether the well is selected.
+    :param side: the side to pitch it at, from :func:`well_side`.
+    :returns: the style sheet, as QSS.
+    """
+    colour = CHOSEN if chosen else EMPTY
+    box = side - 2 * WELL_RIM
+    return (f"QPushButton {{ background: {colour}; "
             f"border: {WELL_RIM}px solid rgba(255,255,255,0.18); "
-            f"border-radius: 3px; {_locked_square(WELL_RIM)} }}")
-    for state, colour in ((True, CHOSEN), (False, EMPTY))
-}
+            f"border-radius: 3px; "
+            f"padding: 0px; margin: 0px; "
+            f"min-width: {box}px; max-width: {box}px; "
+            f"min-height: {box}px; max-height: {box}px; }}")
 
 
 class _Header(QLabel):
@@ -105,7 +151,7 @@ class _Header(QLabel):
         self.setAlignment(Qt.AlignCenter)
         # The hint. The floor and the ceiling are in the sheet below, for the
         # reason `_locked_square` gives.
-        self.setFixedSize(WELL_SIDE, WELL_SIDE)
+        self.setFixedSize(well_side(), well_side())
         # `border-width` IS STATED, and only the width. `_locked_square` pins
         # padding, margin and the min/max box, but Qt adds the BORDER back on
         # top of all four -- so an application sheet carrying
@@ -135,7 +181,7 @@ class _Well(QPushButton):
         self.setCheckable(True)
         # The hint only: `_paint` states the floor and the ceiling in the
         # sheet, which is the half of this that survives being polished.
-        self.setFixedSize(WELL_SIDE, WELL_SIDE)
+        self.setFixedSize(well_side(), well_side())
         self.setToolTip(well_label(row, column))
         self._paint()
         self.toggled.connect(lambda *_: self._paint())
@@ -193,7 +239,7 @@ class _Well(QPushButton):
         a repaint that dropped the geometry would hand the well straight back
         to the application sheet's 40 px minimum. See :func:`_locked_square`.
         """
-        self.setStyleSheet(_WELL_SHEET[self.isChecked()])
+        self.setStyleSheet(_well_sheet(self.isChecked(), well_side()))
 
 
 class PlateMapPicker(QDialog):
@@ -299,8 +345,8 @@ class PlateMapPicker(QDialog):
 
         # The corner the labels meet in holds nothing, and is a cell of the
         # plate all the same.
-        self._grid.setColumnMinimumWidth(0, WELL_SIDE)
-        self._grid.setRowMinimumHeight(0, WELL_SIDE)
+        self._grid.setColumnMinimumWidth(0, well_side())
+        self._grid.setRowMinimumHeight(0, well_side())
         # WHERE THE SPARE SPACE GOES: past the last well, into an empty row
         # and column that hold nothing. The holder fills the scroll area, and
         # a grid with nowhere to put the extra width shares it out among the

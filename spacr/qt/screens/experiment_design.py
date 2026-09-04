@@ -44,13 +44,15 @@ from ..widgets.plate_layout import (
     assign_wells, check_design, plate_shape, to_settings_fragment,
     write_design,
 )
-# THE OTHER PLATE'S GEOMETRY, IMPORTED RATHER THAN REPEATED. `WELL_SIDE` is
-# the side both plates are pitched at, `_locked_square` states that side in
+# THE OTHER PLATE'S GEOMETRY, IMPORTED RATHER THAN REPEATED. `well_side` is
+# the side both plates are pitched at -- a FUNCTION, because the side follows
+# the font scale and a constant read at import would freeze it at whatever
+# the scale was when this module loaded -- `_locked_square` states that side in
 # the one language that survives being polished under the application
 # stylesheet, and `_Header` is the row letter and the column number locked to
 # a cell of it. All three were written for the picker and are not specific to
 # it; a second copy here is what let the two plates drift.
-from ..widgets.plate_map_picker import WELL_SIDE, _Header, _locked_square
+from ..widgets.plate_map_picker import _Header, _locked_square, well_side
 from ..widgets.sortable_table import install_sorting, table_item
 from ..app_catalog import declared_app, register_declared
 
@@ -86,7 +88,7 @@ APP_TRANSLATIONS: Tuple[str, ...] = (
 #: its role draws no rim at all.
 #:
 #: ONE TABLE READ TWICE. :func:`_design_qss` draws the border from it and
-#: :func:`_well_sheet` subtracts it from :data:`WELL_SIDE` to reach the
+#: :func:`_well_sheet` subtracts it from :func:`well_side` to reach the
 #: content box the square is stated in -- Qt adds the border back on. Read
 #: apart, the two disagree by the width of a rim and the well changes size
 #: the moment it is selected, shoving every well to the right of it along.
@@ -173,7 +175,7 @@ class _Well(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         # The hint. The floor and the ceiling are in the sheet below, which
         # is the half of this that survives being polished.
-        self.setFixedSize(WELL_SIDE, WELL_SIDE)
+        self.setFixedSize(well_side(), well_side())
         self._rim = None
         self.lock_square()
 
