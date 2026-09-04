@@ -36,9 +36,13 @@ ROOT = Path(__file__).resolve().parents[2]
 # that say where Q and the arrows work.  Retired: "the Annotate and Make Masks
 # screens", which the longer scope replaces -- the arrows drive the field
 # browser too, and the shorter wording had stopped being true.
-COMPACT_CAPTION_COUNT = 205
+# 206 on 2026-09-04, +1/-0.  Admitted: "Import Images", the Import module's own
+# caption, which is distinct from the bare "Import" band name already in
+# _ROWS.  Each locale reuses its established "Import" verb so the two read as
+# one family on the same screen.
+COMPACT_CAPTION_COUNT = 206
 COMPACT_CAPTION_SHA256 = (
-    "1112038e3d318ebdbaf92e34d35da9e8e992443108b385821d4368891324a9d7"
+    "05d6ae72091a96a6b3ac541a7e259135875a54046bf9240bf11ff12aaa3e9573"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -46,15 +50,32 @@ COMPACT_CAPTION_SHA256 = (
 # static caption, setting, category, or module summary must therefore move
 # this reviewed inventory deliberately even when the builder can generate a
 # source hash automatically.
+# MOVED 2026-09-04, and only after the catalogs were verified green: this
+# file's own rule is that a digest nobody has seen pass is decoration.
+#
+# WHAT UNBLOCKED IT is 056e5f1ef, the maintainer's own pass on 2026-09-02 over
+# the captions 316's addendum was holding this pin for.  That addendum forbade
+# moving these numbers while the strings were still untranslated, and the
+# prohibition is spent, not waived -- the strings it named are translated.
+#
+# WHAT THAT PASS DID NOT COVER, so nobody reads a green digest as more than it
+# is: it covered Icelandic, Swedish and German, the three locales the
+# maintainer reads.  The other six are still machine-drafted and technically
+# reviewed.  The README says exactly that, and the coverage is recorded in
+# docs/i18n/REVIEW_SCOPE_2026-09-04.md.
+#
+# The counts follow the catalogs, never the reverse.  UI and MODULE_SUMMARIES
+# are the manifest catching up with canonical; SETTING_LABELS and
+# SETTING_TOOLTIPS each gain the one row the settings work added.
 EXTERNAL_SOURCE_COUNTS = {
-    "SETTING_LABELS": 1018,
-    "SETTING_TOOLTIPS": 1013,
+    "SETTING_LABELS": 1019,
+    "SETTING_TOOLTIPS": 1014,
     "CATEGORY_HELP": 192,
-    "UI": 2695,
-    "MODULE_SUMMARIES": 64,
+    "UI": 2817,
+    "MODULE_SUMMARIES": 66,
 }
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "d875900ed2d3bdf1f6c6d22be276497ab43d5ecb8a9c412b31a83aedf8bd1d8f"
+    "d70acc2fc46495076d7da498362253233d2c435ea41a70386190803da1c7a862"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
