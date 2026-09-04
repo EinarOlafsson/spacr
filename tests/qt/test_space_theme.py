@@ -584,8 +584,14 @@ class TestRuntimeSwitch:
 
         sidebar = Sidebar()
         qtbot.addWidget(sidebar)
+        # ANY ROW CARRYING AN ICON. This used to name `convert`, which stopped
+        # having a dock row when the folded second level was removed on
+        # 2026-09-03 -- and the test is about whether a QIcon is re-inked on a
+        # theme switch, not about which module it belongs to. Naming a
+        # specific module here made this fail with StopIteration, which says
+        # nothing about icons.
         row = next(b for b in sidebar._items
-                   if b.property("navKey") == "convert")
+                   if b.property("navKey") and not b.icon().isNull())
 
         def mean_luminance(button):
             img = button.icon().pixmap(32, 32).toImage()
