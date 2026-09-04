@@ -853,6 +853,7 @@ class FigureSettingsDialog(QDialog):
         auto = QPushButton("Autoscale to data")
 
         def do_autoscale():
+            """Recompute the limits from the data now on the axis."""
             axis.relim()
             axis.autoscale()
             self._changed()
@@ -887,6 +888,13 @@ class FigureSettingsDialog(QDialog):
             # supplied" and then turns the grid ON regardless -- so the
             # unconditional version made the checkbox unable to switch the
             # grid off, which is the opposite of what it says.
+            """Show or hide the grid, passing line properties ONLY when enabling.
+
+            matplotlib warns "First parameter to grid() is false, but line
+            properties are supplied" and then turns the grid ON regardless -- so
+            passing them unconditionally made the checkbox unable to switch the grid
+            off, which is the opposite of what it says.
+            """
             if grid.isChecked():
                 axis.grid(True, axis=grid_axis.currentText(),
                           color=grid_colour["value"],
@@ -913,6 +921,7 @@ class FigureSettingsDialog(QDialog):
             if axis.spines else 1.0)
 
         def set_spines(value):
+            """Set every spine's width, or hide them all at zero."""
             for spine in axis.spines.values():
                 spine.set_linewidth(value)
             self._changed()
@@ -925,6 +934,7 @@ class FigureSettingsDialog(QDialog):
             else False)
 
         def set_top_right(hidden):
+            """Hide or show the top and right spines together."""
             for name in ("top", "right"):
                 if name in axis.spines:
                     axis.spines[name].set_visible(not hidden)
@@ -959,6 +969,7 @@ class FigureSettingsDialog(QDialog):
             legend_frame.setChecked(True)
 
             def apply_legend(*_):
+                """Rebuild the legend from the current choices."""
                 existing = axis.get_legend()
                 if not legend_on.isChecked():
                     if existing is not None:

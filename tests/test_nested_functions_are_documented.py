@@ -126,7 +126,7 @@ FULLY_DOCUMENTED = frozenset({
 #:
 #: A module missing from here must have none.
 BUDGET = {
-    "spacr/qt/widgets/figure_settings.py": 5,
+    "spacr/qt/widgets/figure_settings.py": 0,
     "spacr/qt/widgets/fast_plots.py": 0,
     "spacr/qt/preferences.py": 2,
     "spacr/qt/screens/app_screen.py": 0,
@@ -146,8 +146,8 @@ BUDGET = {
     "spacr/qt/thread_guard.py": 0,
     "spacr/qt/widgets/fractal_travel.py": 2,
     "spacr/measure.py": 0,
-    "spacr/qt/screens/align.py": 3,
-    "spacr/qt/screens/model_compare.py": 3,
+    "spacr/qt/screens/align.py": 0,
+    "spacr/qt/screens/model_compare.py": 0,
     "spacr/qt/screens/parameter_sweep.py": 0,
     "spacr/qt/screens/settings_model.py": 3,
     "spacr/qt/timing.py": 0,
