@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from typing import Optional, Union
 
-from PySide6.QtCore import QSize, Qt, Signal
+from PySide6.QtCore import QEvent, QSize, Qt, Signal
 from PySide6.QtWidgets import (
     QFormLayout,
     QFrame,
@@ -132,6 +132,14 @@ class Section(QFrame):
         self._header.setCheckable(True)
         self._header.setChecked(False)
         self._header.setCursor(Qt.PointingHandCursor)
+        # NO POPUP OVER A CATEGORY. The blurb is already shown in the strip
+        # under the actions row whenever a header is hovered, so Qt's own
+        # tooltip put the same words in a second place -- a tall window that
+        # follows the pointer and covers the settings underneath the one
+        # being read. The TEXT stays on the widget: assistive technology
+        # reads `toolTip()`, and so do the checks that assert a category
+        # explains itself. Only the popup is refused.
+        self._header.installEventFilter(self)
         self._header.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self._header.setMinimumHeight(34)
         self._header.clicked.connect(self._on_toggle)
@@ -443,6 +451,17 @@ class Section(QFrame):
             text = f"{text}   ·   {stage}" if text else f"·   {stage}"
         text = text.replace("&", "&&")
         self._header.setText(text)
+
+    def eventFilter(self, watched, event):                   # noqa: N802
+        """Swallow the header's tooltip request; pass everything else on.
+
+        :param watched: the object the event is for.
+        :param event: the event.
+        :returns: True to stop a tooltip from being shown.
+        """
+        if watched is self._header and event.type() == QEvent.ToolTip:
+            return True
+        return super().eventFilter(watched, event)
 
     def _refresh_tooltip(self) -> None:
         # Stable is the normal case, so preserve existing curated tooltips
