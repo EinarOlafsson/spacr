@@ -223,3 +223,26 @@ still characterised rather than fixed, and 288's gate is still genuinely
 unmet. What is different is that the docs half of that gate is now failing on
 a MEASUREMENT rather than on a crash, and the measurement names its own
 remaining work.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- 314 IS CLOSED, AND THE BEFORE LIST IS ONE SHORTER
+--------------------------------------------------------------------------------
+
+The maintainer closed 314 today: "cloase 314, i never get that problem any
+more!" It is in done/ with a closing note recording what the closure does and
+does not claim -- chiefly that nothing was ever fixed for it, and that the
+2026-09-03 measurement of a 6,252 ms stall stands unretracted and simply no
+longer describes what he meets.
+
+SO THE TENSION ABOVE IS RESOLVED, AND NOT THE WAY EITHER SIDE OF IT EXPECTED.
+Three rounds of this file weighed shipping 1.5.0.5 with 314 open against
+holding the release to finish it. Neither is now needed: the symptom is gone
+from the only machine that ever showed it, so 314 stops being an argument
+about the release date at all.
+
+BEFORE THE UPDATE, as it now stands: 288 (green CI, genuinely unmet), 05 and
+304 (the bump and Zenodo, both maintainer decisions), 316 (translations), and
+01 (code complete, waiting only on publication). 314 is off this list.
+
+WHAT DOES NOT MOVE. Nothing in this note is evidence about 288, which is the
+one gate that was always measured rather than reported.

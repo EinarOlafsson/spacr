@@ -10,7 +10,8 @@ every open row; this file carries the things a generator cannot know.
 
 ## WHERE THINGS ACTUALLY STAND (2026-09-02)
 
-Branch `nightly`. **322 done / 27 open.** The old header said 92/10 and named
+Branch `nightly`. **349 done / 24 open** (2026-09-04; the count is generated
+into `00_INDEX.txt`, so read it there rather than here). The old header said 92/10 and named
 a `codex/tutorial-api-final` checkpoint; both were nine months of work out of
 date and are in section 8 below with the rest of the history.
 
@@ -21,10 +22,17 @@ anything**, and announce there before editing `setup.py`, `spacr/__init__.py`,
 
 WHAT IS RELEASE-BLOCKING, from instruction 331 which splits the list into
 before and after the version bump: **288** (green CI, per-module coverage),
-**314** (the regression hang, diagnosed and not fixed), **05** and **304**
-(the bump and Zenodo, both needing the maintainer), **316** (translations),
-and **01** (Windows self-update, code-complete and waiting only on
-publication).
+**05** and **304** (the bump and Zenodo, both needing the maintainer), **316**
+(translations), and **01** (Windows self-update, code-complete and waiting only
+on publication).
+
+**314 CAME OFF THAT LIST ON 2026-09-04**, closed by the maintainer — "i never
+get that problem any more!" — and NOT by a fix: nothing was ever changed
+against the stall. Its 2026-09-03 measurement of a 6,252 ms event-loop freeze
+opening Regression stands unretracted in `done/314`, along with Home's
+unexplained 2.03 → 4.51 s doubling, which was always a separate regression and
+is still unowned. If a module feels slow again, read that file before
+measuring anything: eleven causes are already eliminated there.
 
 WHAT NEEDS THE MAINTAINER AND NOTHING ELSE — see section 1 — is now short
 enough to list here: the Zenodo toggle, the 1.5.0.5 go-ahead, the measure
