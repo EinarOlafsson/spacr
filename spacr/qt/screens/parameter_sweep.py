@@ -86,6 +86,7 @@ def _make_screen(app_key=None, host=None):
         def __init__(self, host=None):
             # `host` is the main window the registry passes for navigation,
             # not a Qt parent.
+            """Build the sweep screen. ``host`` is the window, not a Qt parent."""
             super().__init__()
             self.host = host
             self._results = None
@@ -330,6 +331,7 @@ def _make_screen(app_key=None, host=None):
             import ast
 
             def parse(text):
+                """Read one comma-separated field as a list of values."""
                 values = []
                 for chunk in str(text).split(","):
                     chunk = chunk.strip()
@@ -392,6 +394,7 @@ def _make_screen(app_key=None, host=None):
                         editor.setText(f"{text}, {editor.text()}")
 
         def base_settings(self):
+            """The settings every trial in the sweep starts from."""
             return {
                 "score_data": self.score_data.get_value(),
                 "count_data": self.count_data.get_value(),
@@ -434,6 +437,7 @@ def _make_screen(app_key=None, host=None):
             )
 
         def estimate(self):
+            """Say how many trials the current space would run, without running them."""
             space = self.space()
             trials = build_trials(
                 space, mode=self.mode.currentText(),
@@ -455,6 +459,7 @@ def _make_screen(app_key=None, host=None):
             return len(trials)
 
         def start(self):
+            """Refuse an incomplete design, else run the sweep off the GUI thread."""
             base = self.base_settings()
             if not base["score_data"] or not base["count_data"]:
                 QMessageBox.warning(self, "Nothing to sweep",
@@ -478,6 +483,7 @@ def _make_screen(app_key=None, host=None):
             self.status.setText("Sweeping…")
 
             def job():
+                """Run the whole sweep. Called on a worker thread."""
                 from ...parameter_sweep import run_sweep_parallel
                 return run_sweep_parallel(
                     base, destination, space, mode=mode,
@@ -489,6 +495,7 @@ def _make_screen(app_key=None, host=None):
             self._runner.submit(job, self._sweep_finished)
 
         def _sweep_finished(self, results):
+            """Show the results and give the controls back."""
             self.progress.setVisible(False)
             self.start_button.setEnabled(True)
             self._results = results
@@ -571,6 +578,7 @@ def _make_screen(app_key=None, host=None):
                 f"re-fitting it to draw them…")
 
             def job():
+                """Re-run one trial from the table. Called on a worker thread."""
                 from ...parameter_sweep import rerun_trial
                 return rerun_trial(base, record)
 
@@ -621,6 +629,13 @@ def _make_screen(app_key=None, host=None):
             # count means little without the size of the design it came from:
             # two trials differing only by a filtration cutoff can fit
             # completely different data.
+            """Put the results in the table, useful columns first.
+
+            A VIEW AND NOT A FILTER: every column is still in the CSV. The order is
+            settings, then what went in, then what came out -- a hit count means
+            little without the size of the design it came from, and two trials
+            differing only by a filtration cutoff can fit completely different data.
+            """
             preferred = [c for c in (
                 "trial_id", "status", "regression_type", "inference",
                 "analysis_unit", "agg_type", "transform",
@@ -715,6 +730,7 @@ def _lazy_sweep_panel(host):
     class LazySweepPanel(QWidget):
 
         def __init__(self):
+            """Stand in for the panel without building it."""
             super().__init__()
             self._panel = None
             layout = QVBoxLayout(self)
@@ -757,6 +773,11 @@ def _lazy_sweep_panel(host):
             return self.panel().apply_settings(settings)
 
         def showEvent(self, event):                      # noqa: N802
+            """Build the real panel the first time the screen is shown.
+
+            That is the whole point of the placeholder: the sweep panel is expensive
+            and a user who never opens this screen never pays for it.
+            """
             self.panel()
             super().showEvent(event)
 

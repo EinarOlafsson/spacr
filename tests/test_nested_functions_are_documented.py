@@ -148,7 +148,7 @@ BUDGET = {
     "spacr/measure.py": 3,
     "spacr/qt/screens/align.py": 3,
     "spacr/qt/screens/model_compare.py": 3,
-    "spacr/qt/screens/parameter_sweep.py": 11,
+    "spacr/qt/screens/parameter_sweep.py": 0,
     "spacr/qt/screens/settings_model.py": 3,
     "spacr/qt/timing.py": 5,
     "spacr/qt/widgets/live_preview.py": 3,
