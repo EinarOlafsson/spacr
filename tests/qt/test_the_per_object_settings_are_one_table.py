@@ -76,13 +76,35 @@ def test_the_settings_the_table_does_not_cover_are_carried_through(
             assert out[key] == mask_settings[key]
 
 
-def test_every_per_object_key_is_on_screen_exactly_once(grid, mask_settings):
-    """78 settings become one table -- and none of them goes missing on the
-    way, which a table of the wrong shape would do silently."""
-    expected = to_table(mask_settings)
-    assert set(grid.questions()) == set(expected)
-    cells = sum(len(row) for row in grid.table().values())
-    assert cells == sum(len(row) for row in expected.values())
+def test_the_table_claims_only_what_every_object_asks(grid, mask_settings):
+    """The table holds the shared questions; the rest stay in the form.
+
+    A table is a claim that its rows and columns are independent, and only 18
+    of the 55 per-object questions are asked by every object. The other 37 --
+    the organelle's own ridge filters, hysteresis and LoG sigmas among them --
+    would be rows of mostly blank cells, and a blank cell reads as a question
+    nobody has answered rather than one that was never asked.
+    """
+    shown = to_table(mask_settings)
+    objects = set(grid.objects())
+    for question, row in grid.table().items():
+        assert set(row) == objects, (
+            f"{question!r} is in the table but only {sorted(row)} ask it")
+    for question, row in shown.items():
+        if set(row) >= objects and question not in grid.questions():
+            raise AssertionError(f"{question!r} is common and was dropped")
+
+
+def test_nothing_the_table_drops_is_lost(grid, mask_settings):
+    """A dropped question stays in the settings dict, so the form still has it.
+
+    The grid claims only the keys it shows. A key it dropped but still claimed
+    would be hidden from the form as well and reachable from nowhere at all,
+    which is worse than either place on its own.
+    """
+    out = grid.settings()
+    missing = [key for key in mask_settings if key not in out]
+    assert not missing, f"the table lost {missing[:5]}"
 
 
 # ---------------------------------------------------------------------------
@@ -92,11 +114,11 @@ def test_every_per_object_key_is_on_screen_exactly_once(grid, mask_settings):
 def test_an_edited_value_keeps_the_type_it_had(grid):
     """A table hands back strings. Writing "12" where 12 was is a settings
     file that has quietly changed meaning."""
-    assert grid.set_value("background", "cell", "42") is True
+    assert grid.set_value("min_area", "cell", "42") is True
 
     out = grid.settings()
-    assert out["cell_background"] == 42
-    assert type(out["cell_background"]) is int
+    assert out["cell_min_area"] == 42
+    assert type(out["cell_min_area"]) is int
 
 
 def test_a_float_setting_does_not_become_an_int(grid):
@@ -113,9 +135,9 @@ def test_clearing_a_cell_restores_auto_rather_than_an_empty_string(grid):
     """`None` means "work it out" -- a diameter of None is Cellpose
     estimating it. An empty string is not the same claim, and is not a
     number the pipeline can use."""
-    grid.set_value("background", "cell", "7")
-    assert grid.set_value("background", "cell", "") is True
-    assert grid.settings()["cell_background"] is None
+    grid.set_value("min_area", "cell", "7")
+    assert grid.set_value("min_area", "cell", "") is True
+    assert grid.settings()["cell_min_area"] is None
 
 
 def test_an_unset_value_reads_as_auto_and_not_as_blank(grid):

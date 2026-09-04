@@ -2171,6 +2171,8 @@ class MainWindow(QMainWindow):
         # it.
         self._dock_slot.setStyleSheet(
             "QWidget#DockSlot { background: transparent; border: none; }")
+        # The dock paints the ground; the slot only holds it. See
+        # `Dock.apply_theme` for why the column needs a ground at all.
         slot_col = QVBoxLayout(self._dock_slot)
         slot_col.setContentsMargins(0, 0, 0, 0)
         slot_col.setSpacing(0)

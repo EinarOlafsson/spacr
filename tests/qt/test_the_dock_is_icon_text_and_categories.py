@@ -278,3 +278,45 @@ def test_the_collapsed_dock_fits_a_900px_laptop(dock, qtbot):
             + sum(r.sizeHint().height() for r in dock.rows()
                   if not r.isHidden()))
     assert tall <= 900, f"the collapsed dock asks for {tall} px of 900"
+
+
+# ---------------------------------------------------------------------------
+# The column has a ground of its own
+# ---------------------------------------------------------------------------
+
+def test_the_dock_column_is_not_a_black_box(qtbot, qt_theme_applied):
+    """The dock's panel is translucent, so it needs something behind it.
+
+    While the dock slid in over the page it composited over whatever it
+    covered. As a column it sits BESIDE the page, in a strip nothing else
+    paints, and a 60% panel over the window's black base is the dark
+    rectangle that was reported. The column carries the page's own ground so
+    the panel has the same thing behind it that it always did.
+    """
+    from PySide6.QtCore import Qt
+    from spacr.qt.theme import active_palette
+    from spacr.qt.widgets.dock import Dock
+
+    dock = Dock([("mask", "Mask", "", "Segment")])
+    qtbot.addWidget(dock)
+
+    # It has to actually PAINT it: a plain QWidget ignores a stylesheet
+    # background unless told to draw one, which is how the ground went
+    # missing in the first place.
+    assert dock.testAttribute(Qt.WidgetAttribute.WA_StyledBackground), (
+        "the column will drop its stylesheet background")
+    assert active_palette()["page"] in dock.styleSheet(), (
+        "the column does not carry the page ground")
+
+
+def test_the_dock_row_escapes_an_ampersand(qtbot, qt_theme_applied):
+    """Qt reads a bare `&` as a mnemonic: "Align & Stitch" drew as
+    "Align _Stitch", the ampersand gone and the S underlined."""
+    from spacr.qt.widgets.dock import DockRow
+
+    row = DockRow("align", "Align & Stitch", "", None)
+    qtbot.addWidget(row)
+    assert "&&" in row.full_text()
+    # The accessible name keeps the real character -- a screen reader must
+    # not say the escape.
+    assert row.accessibleName() == "Align & Stitch"

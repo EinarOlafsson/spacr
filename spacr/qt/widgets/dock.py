@@ -199,6 +199,12 @@ class Dock(QWidget):
                  parent=None):
         super().__init__(parent)
         self.setObjectName("Dock")
+        # WITHOUT THIS THE COLUMN PAINTS NOTHING AT ALL. A plain QWidget
+        # ignores a stylesheet background unless it is told to draw one, so
+        # the ground set in `apply_theme` was being dropped and the
+        # translucent panel composited straight onto the window's black base
+        # -- the "black box" behind the dock.
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         self._icon_for = icon_for
         self._is_visible = is_visible
         self._rows: List[DockRow] = []
@@ -455,14 +461,22 @@ class Dock(QWidget):
         palette = active_palette()
         accent = palette["accent"]
         self.setStyleSheet(
-            # THE CONTAINER PAINTS NOTHING. The application sheet gives
-            # `#Sidebar` a `DOCK_FILL`, which is opaque over the picture
-            # themes; behind a rounded panel that reads as a square black
-            # box around it, which is what "the dock still has a black box
-            # behind it" was. Cleared HERE, on the widget's own sheet, so it
-            # wins over the application one without changing what
-            # `DOCK_FILL` means for anything else.
-            "QWidget#Sidebar { background: transparent; border: none; }"
+            # THE COLUMN CARRIES THE PAGE'S OWN GROUND, and this is what the
+            # "black box" was.
+            #
+            # The panel below is TRANSLUCENT -- `pane_surface` is the page
+            # opacity the user set, 60% by default. While the dock slid in
+            # over the page it composited over whatever it covered and looked
+            # right. As a column it sits beside the page instead, in a strip
+            # nothing else paints, so it composited over the window's own
+            # base -- which is black. A 60% panel over black is the dark
+            # rectangle that was reported, and the panel was doing exactly
+            # what it was asked to.
+            #
+            # `page` rather than `surface`: it is the ground a page sits ON,
+            # so the dock reads as part of the same sheet of paper rather
+            # than as a panel floating on a second one.
+            f"QWidget#Sidebar {{ background: {palette['page']}; border: none; }}"
             "QFrame#DockPanel {"
             f"  background: {pane_surface('surface_alt')};"
             f"  border: 1px solid {palette['border_soft']};"
