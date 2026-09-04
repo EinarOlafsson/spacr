@@ -2202,6 +2202,12 @@ def _reject_a_threshold_that_cannot_mean_what_it_says(settings):
             f"per-coefficient P value the fit reports.")
 
     def _number(key, low, high, *, low_open=True, high_open=True):
+        """Read one setting as a number in range, or raise saying which.
+
+        A bool is REFUSED even though it is an int in Python: ``True`` as a
+        threshold is a value nobody typed on purpose, and accepting it as 1
+        silently changes what the run does.
+        """
         value = settings[key]
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             raise ValueError(f"{key} must be a number; got {value!r}.")
@@ -5810,6 +5816,7 @@ def get_setting_dependencies():
     from .regression_spec import REGRESSION_SETTINGS_USED
 
     def rule(sources, predicate, reason):
+        """One dependency rule: its sources, its predicate and its reason."""
         return {
             'sources': tuple(sources),
             'predicate': predicate,
@@ -5833,10 +5840,17 @@ def get_setting_dependencies():
             return rule(sources, predicate, reason)
 
         def _predicate(settings, context):
+            """True only when BOTH the existing rule and the new one hold."""
             return bool(existing['predicate'](settings, context)) and \
                 bool(predicate(settings, context))
 
         def _reason(settings, context):
+            """The reason from whichever rule is the one failing.
+
+            The EXISTING rule is asked first, so a setting gated by two conditions
+            explains the one that has been true for longer rather than the one added
+            most recently.
+            """
             if not existing['predicate'](settings, context):
                 return existing['reason'](settings, context)
             return reason(settings, context)
@@ -6070,6 +6084,7 @@ def get_setting_dependencies():
     # carry no regression_type, so the predicate reads '' != 'mixed' -> True
     # -> applicable, and their control is never greyed by this.
     def _is_nonparametric(settings):
+        """Whether inference is the nonparametric permutation test."""
         return str(settings.get('inference') or '').lower() == 'nonparametric'
 
     def _level_is_read(settings, _context):
@@ -6079,6 +6094,12 @@ def get_setting_dependencies():
         # control here left the nonparametric side with no way to ask for
         # genes at all, because the key that gated its gene pass has no
         # control of its own.
+        """Whether the level setting is read at all under these settings.
+
+        THE PERMUTATION TEST READS IT. It fits no model, so `regression_type`
+        says nothing about it -- greying the control on the parametric answer
+        left the nonparametric side with no way to ask for genes at all.
+        """
         if _is_nonparametric(settings):
             return True
         if settings.get('random_row_column_effects', False):
@@ -6086,6 +6107,7 @@ def get_setting_dependencies():
         return str(settings.get('regression_type') or '').lower() != 'mixed'
 
     def _level_reason(settings, _context):
+        """Why the level control is greyed, naming the setting responsible."""
         if settings.get('random_row_column_effects', False) and \
                 str(settings.get('regression_type') or '').lower() != 'mixed':
             return (
@@ -6288,6 +6310,7 @@ def get_setting_dependencies():
     from .stream_dataset import METHOD_SETTINGS as _METHOD_SETTINGS
 
     def _streaming(settings) -> bool:
+        """Whether the run reads images from a stream rather than from disk."""
         return _canonical_image_source(
             settings.get('image_source', settings.get('crop_source'))
         ) == 'stream_images'
