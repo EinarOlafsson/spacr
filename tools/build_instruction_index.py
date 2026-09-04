@@ -54,7 +54,6 @@ BLOCKED: Dict[str, str] = {
 #: The two the maintainer has scheduled at the end, in this order.
 LAST: Dict[str, str] = {
     "82": "SECOND TO LAST",
-    "58": "LAST -- ~95%; history clean, GitHub's cached widget is all that is left",
 }
 
 #: How far along something is, where the file's own header does not say.
@@ -66,7 +65,6 @@ STAGE: Dict[str, str] = {
     # its ratchet red). Re-audit before trusting any figure here.
     "01": "100% of the code; blocked on publishing 1.5.0.5",
     "05": "~40% -- mechanism verified at 1.5.0.4; needs one green SHA, then approval",
-    "58": "~95% -- history clean; GitHub's cached widget is all that is left",
     "253": "0% by construction -- closes last",
     "288": "coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; zero open issues",
     "304": "~60% -- metadata in place; needs the Zenodo toggle and the bump",
