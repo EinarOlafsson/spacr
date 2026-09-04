@@ -62,7 +62,9 @@
       "label": "spacr.run_journal.recent_runs#2",
       "source": "Each entry is a dict with keys ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float), and the raw ``manifest`` (dict, best-effort).",
       "source_sha256": "db1a41a9e431850c8324c3d9e40ded89e3c253be7ce94399d2607ff3b4b86568",
-      "translation": "हर dictionary में ``dir`` (Path प्रकार), ``app_key`` (str प्रकार), ``status`` (str प्रकार), ``start_utc`` (ISO वाला str), ``elapsed_s`` (float प्रकार), और उपलब्ध होने पर raw ``manifest`` dictionary होती है।"
+      "translation": "हर dictionary में ``dir`` (Path प्रकार), ``app_key`` (str प्रकार), ``status`` (str प्रकार), ``start_utc`` (ISO वाला str), ``elapsed_s`` (float प्रकार), और उपलब्ध होने पर raw ``manifest`` dictionary होती है।",
+      "retired": "2026-09-03",
+      "retired_reason": "source block reworded after this review; the translation stands for the earlier wording and is no longer compared against the live docstring. Retired rather than deleted per the mechanism recorded at build_documentation_i18n.py:5798 -- a review that was given is not ours to discard because the sentence it covered changed."
     },
     {
       "context": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), handy from a shell.",

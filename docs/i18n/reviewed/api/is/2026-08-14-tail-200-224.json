@@ -56,7 +56,9 @@
       "source_sha256": "5b20ee942f14afc1e76443c7ae90f57c47f22cdc0ce79c2cb42b43ba62486db4",
       "source": "The curated :data:`KNOWN_PROPERTIES` / :data:`META_COLUMNS` key this column resolved through — the *feature*, as opposed to this one instantiation of it. ``None`` for an unrecognised column.",
       "context": "The curated :data:`KNOWN_PROPERTIES` / :data:`META_COLUMNS` structured-data name this column resolved through — the *feature*, as opposed to this one instantiation of it. ``None`` for an unrecognised column.",
-      "translation": "Heimfærða :data:`KNOWN_PROPERTIES` / :data:`META_COLUMNS` uppbyggða gagnanafninu í þessari dálk leyst í gegnum — *eiginleikann*, í stað þessarar einingar hans. ``None`` fyrir óþekkta dálk."
+      "translation": "Heimfærða :data:`KNOWN_PROPERTIES` / :data:`META_COLUMNS` uppbyggða gagnanafninu í þessari dálk leyst í gegnum — *eiginleikann*, í stað þessarar einingar hans. ``None`` fyrir óþekkta dálk.",
+      "retired": "2026-09-03",
+      "retired_reason": "source block reworded after this review; the translation stands for the earlier wording and is no longer compared against the live docstring. Retired rather than deleted per the mechanism recorded at build_documentation_i18n.py:5798 -- a review that was given is not ours to discard because the sentence it covered changed."
     },
     {
       "label": "spacr.qt.screens.outliers#7",
