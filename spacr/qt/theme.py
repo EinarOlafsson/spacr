@@ -1062,6 +1062,7 @@ def _composite(fg: str, bg: str, alpha: int) -> str:
 
 def _relative_luminance(hex_colour: str) -> float:
     def channel(value: int) -> float:
+        """One sRGB channel linearised, per WCAG's own definition."""
         v = value / 255.0
         return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
     r, g, b = (channel(c) for c in _channels(hex_colour, _UNREADABLE))
@@ -1288,11 +1289,13 @@ def _hue_shift(colour: str, hue: float, saturation: float = 1.0) -> str:
     base = _hue_rgb(hue, saturation)
 
     def value(level: int) -> Tuple[int, int, int]:
+        """The base hue at ``level``, darkened toward black."""
         return (int(round(base[0] * level)),
                 int(round(base[1] * level)),
                 int(round(base[2] * level)))
 
     def tint(step: int) -> Tuple[int, int, int]:
+        """The base hue at ``step``, lightened toward white."""
         weight = step / 255.0
         return (int(round(255.0 * (1.0 - weight + weight * base[0]))),
                 int(round(255.0 * (1.0 - weight + weight * base[1]))),
@@ -1768,6 +1771,7 @@ def _scrim_bounds(palette: dict, role: str, colour_role: str,
                  for fg, required in _scrim_rules(colour_role or role))
 
     def over(alpha: float, beneath: Tuple[int, int, int]) -> float:
+        """The luminance of the scrim at ``alpha`` over one background."""
         rest = 1.0 - alpha
         return _rgb_luminance((
             int(round(alpha * base[0] + rest * beneath[0])),
@@ -1783,6 +1787,12 @@ def _scrim_bounds(palette: dict, role: str, colour_role: str,
             break
 
     def shows(step: int) -> bool:
+        """Whether text still meets the contrast floor at this scrim strength.
+
+        Checked against BOTH the lightest and the darkest thing the scrim can
+        sit on, because a picture backdrop is neither -- an alpha that reads
+        against one and not the other is not usable.
+        """
         alpha = step / 1000.0
         lit, dark = over(alpha, under), over(alpha, (0, 0, 0))
         return ((max(lit, dark) + 0.05) / (min(lit, dark) + 0.05)

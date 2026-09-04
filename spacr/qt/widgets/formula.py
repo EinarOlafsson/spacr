@@ -327,6 +327,12 @@ def _elementwise(fn):
     is noise that hides the warnings worth reading.
     """
     def call(*args):
+        """Apply the function across the arrays, warnings suppressed.
+
+        A column of real data contains zeros and negatives, so a log or a divide
+        will legitimately produce inf and nan; the VALUE is what the formula
+        means, and numpy's warning about it is not something a user can act on.
+        """
         with np.errstate(all="ignore"):
             return fn(*args)
     return call
@@ -346,6 +352,12 @@ def _sample_std(values: np.ndarray) -> float:
 
 def _aggregate(fn):
     def call(values):
+        """Reduce the values to one number, ignoring non-finite entries.
+
+        An all-non-finite column gives ``nan`` rather than raising: an empty
+        aggregate is an answer the caller can carry, and an exception here would
+        take down a whole computed column for one bad group.
+        """
         array = np.asarray(values, dtype=float)
         finite = array[np.isfinite(array)]
         if finite.size == 0:

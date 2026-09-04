@@ -489,6 +489,12 @@ def resolve_measurement_spacing(settings, ndim, n_z=1):
     from .zstack import UnknownAnisotropyError
 
     def _positive(name):
+        """One spacing value, refused unless it is a positive number.
+
+        A zero or negative spacing makes every physical measurement wrong by a
+        factor nobody can recover afterwards, so it is refused rather than
+        defaulted.
+        """
         value = cfg.get(name)
         if value is None:
             return None
@@ -4097,6 +4103,7 @@ def measure_crop(settings):
                         reported here at all.
                     """
                     def _on_error(exc):
+                        """Record one worker's failure against the file that caused it."""
                         reported_files.add(job_file)
                         ledger.record_failure(job_file, stage='measure_worker', exc=exc)
                     return _on_error
@@ -4652,6 +4659,12 @@ def generate_object_dataset(
         clauses.append(f"{object_type}_area < ?"); params.append(float(max_area))
 
     def _in(colname, values, prefix):
+        """An ``IN (...)`` clause and its parameters, built safely.
+
+        Placeholders rather than interpolation: the values come from a settings
+        file, and a formatted list is an injection waiting for a filename with a
+        quote in it.
+        """
         vals = [f"{prefix}{int(v)}" if prefix else str(v) for v in values]
         placeholders = ",".join("?" for _ in vals)
         clauses.append(f"{colname} IN ({placeholders})")
