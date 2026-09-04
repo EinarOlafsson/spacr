@@ -620,3 +620,49 @@ WHAT IS LEFT ON THIS ITEM: nothing that is mine. The recruitment finding and
 the organelle preprocessing gap above both need `spacr/settings.py`, which is
 the other session's file, and both are recorded with the measurement that
 found them.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- THE RECRUITMENT FINDING IS ACTED ON, AND ITS BLOCKER IS GONE
+--------------------------------------------------------------------------------
+
+This file closed with "nothing that is mine": the recruitment finding needed
+`spacr/settings.py`, which belonged to the other session under 325. That
+session has been retired and the maintainer confirmed ownership of every lane,
+so the blocker was administrative rather than technical.
+
+RE-MEASURED BEFORE ACTING, because a finding two days old is a claim:
+
+    reads inside analyze_recruitment, its only consumer
+      cell_mask_dim       0        cell_chann_dim       4
+      nucleus_mask_dim    0        nucleus_chann_dim    4
+      pathogen_mask_dim   0        pathogen_chann_dim   4
+
+    references anywhere in spacr/submodules.py: none of the three
+
+Both halves together, which is what this file said it was waiting for: the
+rows come off the form and the keys off
+`get_analyze_recruitment_default_settings`.
+
+THE ONE JUDGEMENT THIS NEEDED, and it is the trap 375 records for the same
+table: NOT `RETIRED_SETTINGS`. Those three keys are declared by three
+factories -- recruitment, `get_measure_crop_settings` and
+`set_default_plot_merge_settings` -- and are read in the latter two, where
+they name a plane of the merged stack. RETIRED_SETTINGS warns against exactly
+this case in its own comment, because naming a key there that `spacr.settings`
+still declares warns a user off a setting that works. The retirement is
+therefore scoped to recruitment and nothing global changed.
+
+THE HEADING FOLLOWED THE ROWS. "Mask & Channel Mapping" over a section with no
+mask rows is the same dishonesty in smaller type, and its blurb promised a
+mask index the module does not use. Renamed to "Channel Mapping", and the
+existing per-app blurb was rewritten rather than a new shared entry added --
+one CHANGED string across nine locales instead of nine new ones, which matters
+while 306 is already carrying 2,646 owed translations.
+
+276 passed, 1 skipped across the recruitment, settings-category and
+retired-key selection. The skip is a missing pypdf and predates this.
+
+WHAT IS LEFT ON 364 NOW: the organelle preprocessing gap recorded above, and
+the remaining smaller modules in this file's own order -- motility 55,
+train_test_model 50, activation 27, identify_masks_finetune 23, plaques 22 and
+the rest. The two core modules the maintainer named first are done.
