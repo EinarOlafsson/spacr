@@ -20,7 +20,7 @@ TOOLS = ROOT / "tools"
 #: API_DOC_ALIASES entries that let 111 of them borrow a base class's text
 #: were retired with them -- so those symbols render their own entry instead
 #: of pointing at someone else's.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 9_705
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 9_751
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

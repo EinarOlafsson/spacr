@@ -317,19 +317,51 @@ class PCASpec:
 
     # -- edits ----------------------------------------------------------
     def with_features(self, features: Sequence[str]) -> "PCASpec":
+        """A copy decomposing a different set of columns.
+
+        A COPY: a spec is a value, so the one a view is showing is never
+        edited underneath it.
+
+        :param features: the columns to decompose.
+        :returns: the new spec.
+        """
         return replace(self, features=tuple(features))
 
     def with_scaling(self, scaling: str) -> "PCASpec":
+        """A copy using a different scaling.
+
+        SCALING IS NOT COSMETIC HERE. PCA maximises variance, so unscaled
+        columns in different units let the largest unit dominate every
+        component -- which is why this is a spec field and not a display
+        option.
+
+        :param scaling: the scaling's name.
+        :returns: the new spec.
+        """
         return replace(self, scaling=scaling)
 
     def with_nan_policy(self, policy: str) -> "PCASpec":
+        """A copy handling missing values differently.
+
+        :param policy: the policy's name.
+        :returns: the new spec.
+        """
         return replace(self, nan_policy=policy)
 
     def with_components(self, n: int) -> "PCASpec":
+        """A copy keeping a different number of components.
+
+        :param n: how many to keep.
+        :returns: the new spec.
+        """
         return replace(self, n_components=n)
 
     # -- serialisation ---------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
+        """This spec as plain data.
+
+        :returns: a JSON-safe dict.
+        """
         return {
             "features": list(self.features),
             "n_components": self.n_components,
@@ -350,10 +382,19 @@ class PCASpec:
         return cls(**known)
 
     def to_json(self) -> str:
+        """This spec as JSON text, keys sorted so the file is diffable.
+
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True)
 
     @classmethod
     def from_json(cls, text: str) -> "PCASpec":
+        """Rebuild a spec from JSON text.
+
+        :param text: the JSON text.
+        :returns: the rebuilt spec.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
@@ -431,14 +472,30 @@ class PCAResult:
 
     @property
     def n_components(self) -> int:
+        """How many components were kept.
+
+        :returns: the component count.
+        """
         return int(self.scores.shape[1])
 
     @property
     def n_features(self) -> int:
+        """How many columns went into the decomposition.
+
+        The columns ACTUALLY used, which can be fewer than the spec asked
+        for: a constant or all-null column contributes no variance and is
+        dropped before fitting.
+
+        :returns: the feature count.
+        """
         return len(self.features)
 
     @property
     def component_names(self) -> Tuple[str, ...]:
+        """The components' display names, in order.
+
+        :returns: one name per component.
+        """
         return tuple(component_name(i) for i in range(self.n_components))
 
     @property
