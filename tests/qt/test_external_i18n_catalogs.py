@@ -29,11 +29,9 @@ API_EXACT_TEXT_ALLOWLIST = {
     # than that and was simply never in a rebuilt catalog before.
     "spacr.qt.widgets.setup_card.SetupCard.mode",
     "spacr.qt.widgets.plate_layout.PlateDesign.shape",
-    "spacr.resources.home.versions._generators.common.app_map",
     "spacr.run_compare.HitList.by_key",
     "spacr.runctx.RunContext.__str__",
     "spacr.runctx.SkipRecord.__str__",
-    "spacr.schema.field_index",
     "spacr.seg_qc.Scorecard.verdict",
     "spacr.updater.PackageChange.describe",
 }
