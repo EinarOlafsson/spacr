@@ -212,3 +212,47 @@ VERIFY AFTER THE PROMOTION, and this is the whole remaining task:
 100 closes this item. Anything less names the file that is still missing, and
 the answer is likely to be a path GitHub did not accept -- it reads these from
 the root, `.github/` or `docs/`, and only from the default branch.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- DONE. HEALTH 42 -> 100.
+--------------------------------------------------------------------------------
+
+The maintainer changed the route: "Hold the release, but put 377's files on
+main now." So route B applies to THESE FIVE FILES ONLY -- the 1.5.0.5 hold
+stands, and 01, 05 and 304 did not move.
+
+Pushed to `main` as `edad380b3`, five files and nothing else. MEASURED
+immediately after:
+
+    GET /repos/EinarOlafsson/spacr/community/profile
+
+    health_percentage     42  ->  100
+    code_of_conduct       MISSING -> present
+    contributing          MISSING -> present
+    pull_request_template MISSING -> present
+    license / readme      present (unchanged)
+
+NO RELEASE WAS TRIGGERED, checked rather than assumed: the most recent
+`release.yml` run is still 2026-08-30. `release.yml` fires on a push to `main`
+only when `setup.py` changes, and none of the five is `setup.py`.
+
+ONE CORRECTION TO THIS FILE'S OWN SUCCESS CRITERION, which said "returns 100,
+and no field under `.files` is null". BOTH CANNOT BE TRUE AT ONCE with issue
+FORMS. `.files.issue_template` reports the legacy single-file
+`.github/ISSUE_TEMPLATE.md` path, and this repository uses the modern
+directory of YAML forms instead -- `bug_report.yml`, `feature_request.yml` and
+`config.yml`, all three confirmed present on `main` through the contents API.
+GitHub's own health calculation counts the directory, which is why the
+percentage is 100 while that one field stays null. The percentage is the
+criterion; the null field is an artefact of an older API shape.
+
+ONE FIX MADE ON THE WAY. `CONTRIBUTING.md` described the instruction ledger
+under `instructions/`, and `tools/promote_to_main.py` strips that folder from
+`main` -- so on the branch a visitor actually lands on, the section pointed at
+a directory that does not exist. It now names the `nightly` branch and says
+why the folder is not published, which is true on both branches.
+
+WHAT STAYS TRUE AFTER THIS CLOSES: the five files exist on `main` ahead of the
+release rather than through it, so the next promotion carries the `nightly`
+copies over the top of identical content. `promote_to_main.py` does not strip
+them and needs no special step.
