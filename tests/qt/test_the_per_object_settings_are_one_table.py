@@ -213,3 +213,73 @@ def test_the_status_line_counts_what_364_is_about(grid):
     each instead of once per object."""
     text = grid.status_text()
     assert "question(s)" in text and "object(s)" in text
+
+
+# ---------------------------------------------------------------------------
+# The table can be made taller
+# ---------------------------------------------------------------------------
+
+class TestTheTableIsExpandableDown:
+    """The per-object table sizes to its rows and can be dragged taller.
+
+    It sits as one row of a scrolling settings form, so without a height of
+    its own it gets whatever the form gives it -- which put twenty-odd
+    questions behind an inner scrollbar inside an outer one.
+    """
+
+    def _grid(self, qtbot):
+        from spacr.qt.widgets.object_settings_grid import ObjectSettingsGrid
+        from spacr.settings import get_measure_crop_settings
+        grid = ObjectSettingsGrid()
+        qtbot.addWidget(grid)
+        grid.set_settings(get_measure_crop_settings({}))
+        return grid
+
+    def test_it_opens_tall_enough_to_show_its_rows(self, qtbot,
+                                                   qt_theme_applied):
+        grid = self._grid(qtbot)
+        assert grid._model.rowCount() > 0, "nothing to size against"
+        assert grid._table.height() >= min(grid.content_height(),
+                                           grid.AUTO_TABLE_H)
+
+    def test_a_short_table_still_has_something_to_grab(self, qtbot,
+                                                       qt_theme_applied):
+        """A table collapsed to its header cannot be dragged bigger."""
+        grid = self._grid(qtbot)
+        grid.set_user_height(1)
+        assert grid._table.height() == grid.MIN_TABLE_H
+
+    def test_a_very_long_table_stops_at_the_cap(self, qtbot,
+                                                qt_theme_applied):
+        """Past the cap the form is one table and the rest stops being findable."""
+        grid = self._grid(qtbot)
+        assert grid._table.height() <= grid.AUTO_TABLE_H
+
+    def test_the_grip_drags_the_table_and_double_click_gives_it_back(
+            self, qtbot, qt_theme_applied):
+        grid = self._grid(qtbot)
+        fitted = grid._table.height()
+        grid.set_user_height(fitted + 120)
+        assert grid._table.height() == fitted + 120
+        grid.reset_user_height()
+        assert grid._table.height() == fitted
+
+    def test_a_dragged_height_survives_a_content_change(self, qtbot,
+                                                        qt_theme_applied):
+        """Adding an organelle must not throw away the height the user set.
+
+        `_announce` re-fits after every content change, and a re-fit that
+        ignored the user's answer would undo the drag the moment the table
+        grew a column.
+        """
+        from spacr.settings import get_measure_crop_settings
+        grid = self._grid(qtbot)
+        grid.set_user_height(333)
+        grid.set_settings(get_measure_crop_settings({}))
+        assert grid._table.height() == 333
+
+    def test_the_grip_is_the_same_affordance_as_the_console_handle(
+            self, qtbot, qt_theme_applied):
+        """One object name, so the two resize handles cannot drift apart."""
+        grid = self._grid(qtbot)
+        assert grid._grip.objectName() == "ConsoleSectionResizeHandle"

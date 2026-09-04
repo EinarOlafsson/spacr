@@ -37,13 +37,15 @@ from __future__ import annotations
 
 from typing import Any, Dict, Mapping, Optional, Tuple
 
-from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal
+from PySide6.QtCore import QAbstractTableModel, QModelIndex, QSize, Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QFrame,
     QHBoxLayout,
     QHeaderView,
     QLabel,
     QPushButton,
+    QSizePolicy,
     QTableView,
     QVBoxLayout,
     QWidget,
@@ -237,6 +239,78 @@ class ObjectSettingsModel(QAbstractTableModel):
         return None
 
 
+class _GridHeightGrip(QFrame):
+    """Thin drag handle along the per-object table's lower edge.
+
+    The table is one row of a scrolling settings form, so without this it
+    gets whatever height the form gives it and puts twenty-odd questions
+    behind an inner scrollbar inside an outer one. Dragging this sets the
+    height; double-clicking gives it back to the content.
+
+    :param grid: the :class:`ObjectSettingsGrid` this resizes. ALSO ITS
+        QWIDGET PARENT, so the grip is laid out under the table it drags and
+        cannot outlive it.
+    """
+
+    HEIGHT = 7
+
+    def __init__(self, grid: "ObjectSettingsGrid"):
+        """Build the handle and give it a vertical-resize cursor."""
+        super().__init__(grid)
+        self._grid = grid
+        self._press_y: Optional[float] = None
+        self._start_height = 0
+        # The console's handle is styled by this name; the two are the same
+        # affordance and should not look like two.
+        self.setObjectName("ConsoleSectionResizeHandle")
+        self.setCursor(Qt.SizeVerCursor)
+        self.setFixedHeight(self.HEIGHT)
+        source = ("Drag to make the table taller or shorter. "
+                  "Double-click to fit its rows.")
+        self.setProperty("_spacr_i18n_tooltip", source)
+        self.setToolTip(source)
+
+    def sizeHint(self) -> QSize:
+        """Wide and thin -- the handle is an edge, not a bar."""
+        return QSize(80, self.HEIGHT)
+
+    def mousePressEvent(self, event) -> None:            # noqa: N802
+        """Remember where the drag started, and from what height."""
+        if event.button() == Qt.LeftButton:
+            self._press_y = event.globalPosition().y()
+            self._start_height = self._grid._table.height()
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event) -> None:             # noqa: N802
+        """Resize the table by how far the pointer has moved since the press.
+
+        Measured from the PRESS rather than the last move, so a drag that
+        outruns the redraw lands where the pointer is instead of accumulating
+        rounding.
+        """
+        if self._press_y is not None and event.buttons() & Qt.LeftButton:
+            delta = event.globalPosition().y() - self._press_y
+            self._grid.set_user_height(self._start_height + int(delta))
+            event.accept()
+            return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event) -> None:          # noqa: N802
+        """End the drag."""
+        self._press_y = None
+        super().mouseReleaseEvent(event)
+
+    def mouseDoubleClickEvent(self, event) -> None:      # noqa: N802
+        """Give the height back to the content."""
+        if event.button() == Qt.LeftButton:
+            self._grid.reset_user_height()
+            event.accept()
+            return
+        super().mouseDoubleClickEvent(event)
+
+
 class ObjectSettingsGrid(QWidget):
     """The per-object settings table, and the button that widens it.
 
@@ -269,7 +343,19 @@ class ObjectSettingsGrid(QWidget):
             QHeaderView.ResizeToContents)
         self._table.verticalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
-        outer.addWidget(self._table, 1)
+        # THE TABLE OWNS ITS HEIGHT, and the grip below changes it. Inside a
+        # settings panel the table is one row of a scrolling form, so it gets
+        # whatever height the form hands it -- which was a QTableView's
+        # default and put twenty-odd questions behind an inner scrollbar
+        # inside an outer one. It now opens tall enough to show its rows and
+        # can be dragged taller or shorter from the grip.
+        self._table.setSizePolicy(QSizePolicy.Policy.Expanding,
+                                  QSizePolicy.Policy.Fixed)
+        self._user_height: Optional[int] = None
+        outer.addWidget(self._table)
+
+        self._grip = _GridHeightGrip(self)
+        outer.addWidget(self._grip)
 
         row = QHBoxLayout()
         row.setSpacing(SPACING["sm"])
@@ -285,6 +371,48 @@ class ObjectSettingsGrid(QWidget):
         row.addWidget(self._status, 1)
         row.addWidget(self._add)
         outer.addLayout(row)
+
+    # -- height ------------------------------------------------------------
+
+    #: Never shorter than this, however few rows there are: a table that
+    #: collapses to its header is one the user cannot grab to make bigger.
+    MIN_TABLE_H = 90
+    #: How tall it opens at most. Past this the form is one long table and
+    #: the settings above and below it stop being findable -- the grip is
+    #: there for anyone who wants more.
+    AUTO_TABLE_H = 420
+
+    def content_height(self) -> int:
+        """The height that would show every row without an inner scrollbar."""
+        header = self._table.horizontalHeader().height()
+        rows = sum(self._table.rowHeight(r)
+                   for r in range(self._model.rowCount()))
+        return header + rows + 2 * self._table.frameWidth()
+
+    def set_user_height(self, height: int) -> None:
+        """Fix the table at ``height`` px, clamped to at least MIN_TABLE_H."""
+        self._user_height = max(self.MIN_TABLE_H, int(height))
+        self._apply_height()
+
+    def reset_user_height(self) -> None:
+        """Forget a dragged height and go back to fitting the rows."""
+        self._user_height = None
+        self._apply_height()
+
+    def _apply_height(self) -> None:
+        """Put the chosen height on the table.
+
+        ``setFixedHeight`` rather than a minimum, because the table sits in a
+        form that would otherwise stretch it: the point of the grip is that
+        the height is the USER's answer, and a layout free to grow it is a
+        layout that overrules them.
+        """
+        if self._user_height is not None:
+            self._table.setFixedHeight(self._user_height)
+            return
+        fit = self.content_height()
+        self._table.setFixedHeight(
+            max(self.MIN_TABLE_H, min(self.AUTO_TABLE_H, fit)))
 
     # -- content -----------------------------------------------------------
 
@@ -350,7 +478,16 @@ class ObjectSettingsGrid(QWidget):
         return True
 
     def _announce(self) -> None:
-        """Say what the table is holding, in the numbers 364 is about."""
+        """Say what the table is holding, and re-fit its height.
+
+        Called after every content change, which is why the height is
+        refreshed here rather than in each of the callers: adding an
+        organelle adds a column and a re-read replaces every row, and a
+        height computed before either is the height of the old table.
+        A height the user dragged is LEFT ALONE -- see
+        :meth:`_apply_height`.
+        """
+        self._apply_height()
         questions = len(self.questions())
         objects = len(self.objects())
         self._status.setText(
