@@ -5233,6 +5233,16 @@ class _CloseMarkResizer(QObject):
     """
 
     def __init__(self, button, body_px: Optional[int] = None):
+        """Keep one close mark's box fixed across font and style changes.
+
+        :param button: the close mark to re-measure; also the QObject
+            parent.
+        :param body_px: the body text size to size against, or ``None`` to
+            read the current one at each change. Pin it only for a mark
+            that must NOT follow the app's Zoom -- everything else wants
+            ``None``, which is what makes a live Zoom change re-fix the box
+            instead of clipping the X.
+        """
         super().__init__(button)
         self._body_px = body_px
 
@@ -5265,6 +5275,15 @@ class _CloseMarkWatcher(QObject):
     """Re-mark a tab bar whenever Qt hands it a new close button."""
 
     def __init__(self, bar, tooltip: Optional[str] = None):
+        """Re-mark a tab bar's close buttons as Qt creates them.
+
+        :param bar: the tab bar to watch; also the QObject parent.
+        :param tooltip: the tooltip put on each close button, or ``None``
+            for none. Applied to every button this watcher marks, INCLUDING
+            ONES CREATED LATER -- which is the reason the watcher exists:
+            Qt makes a new close button per tab, and a tooltip set once at
+            setup covers only the tabs open at the time.
+        """
         super().__init__(bar)
         self._bar = bar
         self._tooltip = tooltip

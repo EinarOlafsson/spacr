@@ -380,6 +380,13 @@ def _drag_class():
         """
 
         def __init__(self, holder):
+            """Move the window when its holder's empty space is dragged.
+
+            :param holder: the widget that owns the empty space, and the
+                QObject parent. NOT the window and not the scroll area:
+                putting the contents in a scroll area moved the empty space
+                to this holder, which is the whole point of the class.
+            """
             super().__init__(holder)
             self._holder = holder
             self._grab = None

@@ -222,6 +222,11 @@ class _DropScanner(QObject):
     for. When the screen is not a QObject at all (a test double, a small
     controller object) the runner simply has no Qt parent and dies with the
     attribute that holds it.
+
+    :param screen: the screen to scan for. Used as the QObject parent ONLY
+        IF IT IS ONE -- a test double or a plain controller gets no Qt
+        parent and dies with the attribute holding it, which is what the
+        paragraph above describes.
     """
 
     def __init__(self, screen) -> None:

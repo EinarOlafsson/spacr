@@ -147,7 +147,14 @@ def install_for(target: QWidget, app_key: str, screen: QWidget = None) -> bool:
 
 class _DropzoneFilter(QObject):
     """Event filter that routes drag/drop events on ``target`` into
-    the :class:`DropHandler` attached to it."""
+    the :class:`DropHandler` attached to it.
+
+    :param target: the widget whose drag and drop events are routed. Also
+        the QObject parent -- and assigned BEFORE ``super().__init__`` for
+        the reason in the constructor: parenting can deliver a ChildAdded
+        synchronously, and this object is an event filter, so it has to be
+        able to answer for itself already.
+    """
 
     def __init__(self, target: QWidget):
         # QObject parenting can synchronously deliver a ChildAdded event to
