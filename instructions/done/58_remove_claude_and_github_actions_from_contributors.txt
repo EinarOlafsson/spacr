@@ -623,3 +623,55 @@ in a published ref to rewrite, and 325 forbids a force-push on nightly. What
 remains of 58 is unchanged and is not ours -- GitHub's cached contributor
 widget, ticket #4711257. If the page still shows Claude while the API does
 not, that is the cache and only GitHub can drop it.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- CLOSED. THE PAGE AGREES WITH THE API, AND THE CACHE HAS REBUILT.
+--------------------------------------------------------------------------------
+
+This file's last open criterion was GitHub's server-owned contributor widget:
+the REST index was clean while the rendered page still listed Claude and
+`github-actions[bot]`, and nothing in this repository could force the cache.
+
+IT CANNOT BE CHECKED FROM HERE, and that is worth recording because the next
+person will try. Both `https://github.com/EinarOlafsson/spacr` and
+`.../graphs/contributors` return the widget's PLACEHOLDER to a fetch -- the
+graph page answers "Crunching the latest data, just for you. Hang tight..." --
+because the contributor list is loaded by a second request the fetch never
+makes. An automated check of that page can report neither presence nor
+absence, and reporting absence from it would be a false clear.
+
+SO IT WAS CHECKED BY THE MAINTAINER, IN A BROWSER, 2026-09-04. Asked what
+`/graphs/contributors` shows him, he answered: ONLY EINAR AND jak18015.
+
+That closes it, and it closes it in agreement with every other measurement
+taken today:
+
+    the rendered page (maintainer, browser)   Einar, jak18015
+    GET /contributors?anon=1                  EinarOlafsson 2961, jak18015 18
+    origin/main, 2979 commits                 0 Claude authors, 0 trailers
+    origin/nightly, 6355 commits              0 Claude authors, 0 trailers
+    all seven tags                            0 Claude authors, 0 trailers
+
+`github-actions[bot]` is gone from both the API and the page as well, which
+covers the 2026-08-12 scope widening.
+
+CONSEQUENCE FOR THE SUPPORT TICKET. #4711257 asked GitHub to rebuild the cache
+and reindex or exclude the immutable pull-request refs. The cache has rebuilt.
+The ticket can be withdrawn, or left to close itself; there is nothing further
+to ask for.
+
+WHAT STAYS TRUE AFTER THIS CLOSES, so it is not lost with the item:
+
+  * `backup/pre-claude-trailer-strip` (e16620487) still holds the 70
+    pre-rewrite trailers. LOCAL ONLY, never pushed, and it is the only
+    remaining proof that the rewrite changed messages and not content. Do not
+    push it. Deleting it is the maintainer's call and he has not made it.
+  * The guard is tracked and running: `tools/hooks/commit-msg`,
+    `core.hooksPath = tools/hooks`, and `tests/test_no_commit_credits_claude.py`
+    in CI for clones that ignore hooks. A third round is not possible by
+    accident.
+  * `origin/stable` and `origin/gh-pages` no longer exist on the remote, so
+    the three `github-actions`-committed docs builds on the old stable branch
+    are unpublished and cannot re-enter the count.
+
+58 was the LAST item in the maintainer's ordering, after 82. Both are now done.

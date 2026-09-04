@@ -85,3 +85,37 @@ HOW IT WILL BE CHECKED
   and is recorded like one.
 * No test added under this item asserts only an absence.
 * The three required workflows green on one pushed nightly SHA.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- ITEM 60 IS RETIRED INTO THIS ONE, AND PROGRESS.md IS GONE
+--------------------------------------------------------------------------------
+
+`instructions/PROGRESS.md` was retired today on the maintainer's decision. It
+was hand-maintained, it had gone stale, and a second ledger disagreeing with
+the folder is the exact failure `tools/build_instruction_index.py` was written
+to prevent. `instructions/00_INDEX.txt` is now the only ledger.
+
+HOW STALE IT WAS, measured before deleting it rather than asserted: its
+"Unfinished" table listed about 34 items, several at 0%, and every one of them
+is closed in `done/`. Six were opened and checked:
+
+    122  regress across screens        PROGRESS said 0%   file says "122 IS CLOSED", 2026-08-20
+    142  force restart                 PROGRESS said 0%   "DONE, A THROUGH C", 21 tests
+    137  drag images in                PROGRESS said 0%   "DONE 2026-08-20", 50 tests
+    126  the theme must not lag        PROGRESS said 0%   fixed at the cause, 8 tests
+    114  parameter search              PROGRESS said 0%   all five points built
+    174  beta transform                PROGRESS said 0%   "DONE. A, B AND C", 20 tests
+
+ITEM 60 WAS A GHOST. PROGRESS.md carried a row -- "60 Every module at 100%
+test coverage -- IN PROGRESS, 42,851 tests" -- for an instruction that HAS NO
+FILE, in `open/` or `done/`, and never did. Its only other trace is
+`instructions/data/60_coverage_baseline.json`. So the number was being carried
+forward in a ledger nobody could act on, for an item nobody could read.
+
+RETIRED INTO 288 AND THIS ITEM, which is where that goal actually lives now:
+288 is the 100%-per-module gate with its own measured state, and 352 is the
+"highest reasonable coverage, then green Actions" goal the maintainer set on
+2026-09-02 as what to pick up when `open/` is otherwise empty. No new file is
+created for 60; a third home for the same goal is how this drifted in the
+first place. The baseline JSON stays where it is -- it is data, and data with
+no owning instruction is still evidence.

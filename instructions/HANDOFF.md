@@ -8,6 +8,13 @@ Read this, then `instructions/00_INDEX.txt`, then the open instruction you are
 taking. The INDEX is generated from the folder and carries a percentage on
 every open row; this file carries the things a generator cannot know.
 
+**THERE IS ONE LEDGER AND IT IS `00_INDEX.txt`.** `instructions/PROGRESS.md`
+was a second, hand-maintained one; it went stale, listed about 34 closed items
+as unfinished, and carried a row for an item 60 that has no file anywhere. It
+was retired on 2026-09-04 at the maintainer's decision — see instruction 352
+for the measurement and for where item 60's goal now lives. Do not start
+another one.
+
 ## WHERE THINGS ACTUALLY STAND (2026-09-02)
 
 Branch `nightly`. **349 done / 24 open** (2026-09-04; the count is generated

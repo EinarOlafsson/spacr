@@ -181,3 +181,34 @@ the maintainer's call. `tools/promote_to_main.py` exists for the general case
 but promotes the whole branch, which is a release-scale act; a five-file
 commit onto `main` is the small version and does not trigger `release.yml`,
 which fires only on a `setup.py` change.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- ROUTE A. THE FILES WAIT FOR THE RELEASE.
+--------------------------------------------------------------------------------
+
+Asked which route, the maintainer chose ROUTE A: the five files stay on
+`nightly` and reach `main` when 1.5.0.5 is promoted. Nothing is pushed to the
+release branch for this item.
+
+SO THIS ITEM STAYS OPEN, AND ITS PERCENTAGE IS HONEST RATHER THAN FLATTERING.
+Every file is written, committed and correct; the measurement it is graded on
+still reads 42, and will until the promotion. That is the state: the work is
+done and the outcome is not, and the two must not be conflated in the record.
+
+    written and committed on nightly        100%
+    visible to GitHub's checklist             0%
+
+WHAT THIS PUTS ON THE RELEASE'S CRITICAL PATH, which is worth knowing when
+1.5.0.5 is planned: `tools/promote_to_main.py` strips `instructions/`,
+`skill/`, `proposals/` and `.claude/` from `main`'s tree and carries
+everything else. The five files are NOT in that strip list, so a normal
+promotion carries them without any special step. Nobody has to remember
+anything.
+
+VERIFY AFTER THE PROMOTION, and this is the whole remaining task:
+
+    gh api repos/EinarOlafsson/spacr/community/profile --jq .health_percentage
+
+100 closes this item. Anything less names the file that is still missing, and
+the answer is likely to be a path GitHub did not accept -- it reads these from
+the root, `.github/` or `docs/`, and only from the default branch.
