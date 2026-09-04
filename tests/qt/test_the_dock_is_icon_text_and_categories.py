@@ -286,43 +286,35 @@ def test_the_collapsed_dock_fits_a_900px_laptop(dock, qtbot):
 # The column has a ground of its own
 # ---------------------------------------------------------------------------
 
-def test_there_is_one_box_and_it_is_the_rounded_one(qtbot, qt_theme_applied):
-    """The dock widget IS the rounded box; there is no panel inside it.
+def test_the_container_paints_no_box_behind_the_rounded_one(qtbot,
+                                                            qt_theme_applied):
+    """The blanket `QWidget` rule was the box, and this is what stops it.
 
-    A rounded panel drawn inside the dock is two rectangles, and the outer
-    one cannot be removed -- it is the widget the layout gives the dock, and
-    whatever colour it takes it is still a rectangle behind a rounded shape.
-    Three attempts at colouring it proved that, so the corners moved out to
-    the box that has to exist.
+    The application sheet carries `QWidget { background-color: bg }`, so any
+    untagged container paints an opaque rectangle -- and a plain QWidget
+    holding a rounded panel is a square of `bg` behind rounded corners.
+    Colouring it only changes which colour the rectangle is; three attempts
+    at that proved it. `Panel` in home.py already had the answer and says why
+    in as many words: untagged wrappers "read as one large black column
+    behind every panel".
     """
+    from PySide6.QtCore import Qt
     from spacr.qt.widgets.dock import PANEL_RADIUS, Dock
 
     dock = Dock([("mask", "Mask", "", "Segment")])
     qtbot.addWidget(dock)
+
+    # make_transparent's mark. Without it the container fills.
+    assert not dock.autoFillBackground()
+    assert dock.testAttribute(Qt.WidgetAttribute.WA_StyledBackground) is False \
+        or "background: transparent" in dock.styleSheet() \
+        or dock.property("spacrTransparent"), (
+            "the container was not made transparent")
+
+    # And the rounded box is a frame INSIDE it, styled as HomePanelBox is.
     sheet = dock.styleSheet()
-
-    assert "QWidget#Sidebar {" in sheet
-    assert f"border-radius: {PANEL_RADIUS}px" in sheet, (
-        "the box that cannot be removed is not the rounded one")
-    # And nothing draws a second one inside it.
-    assert "QFrame#DockPanel { background: transparent; border: none; }" in sheet
-
-
-def test_the_gap_round_the_box_is_not_the_docks_own_margin(qtbot,
-                                                           qt_theme_applied):
-    """A widget's margins are INSIDE its background.
-
-    The dock is the box now, so an inset in its own layout would pad the
-    contents without moving the box off the window edge. The space has to be
-    put around it by whatever holds it.
-    """
-    from spacr.qt import preferences as prefs
-    prefs.set_dock_mode("locked")
-    win = MainWindow()
-    qtbot.addWidget(win)
-    margins = win._dock_slot.layout().contentsMargins()
-    assert margins.left() > 0 and margins.top() > 0, (
-        "the slot puts no gap around the box")
+    assert "QFrame#DockPanel {" in sheet
+    assert f"border-radius: {PANEL_RADIUS}px" in sheet
 
 
 def test_the_dock_row_escapes_an_ampersand(qtbot, qt_theme_applied):

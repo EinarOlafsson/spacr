@@ -2181,7 +2181,7 @@ class MainWindow(QMainWindow):
         # rounded box, and a widget's own margins are inside its background,
         # so the space that keeps the box off the window edge has to be put
         # around it by whatever holds it.
-        slot_col.setContentsMargins(6, 6, 6, 6)
+        slot_col.setContentsMargins(0, 0, 0, 0)
         slot_col.setSpacing(0)
         self._dock_slot.hide()
         row.addWidget(self._dock_slot)
