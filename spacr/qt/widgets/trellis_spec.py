@@ -157,22 +157,62 @@ class TrellisSpec:
     # -- the inner spec, reachable without reaching through --------------
     @property
     def x(self) -> Optional[str]:
+        """Forwarded from the wrapped graph spec.
+
+        The trellis composes a graph rather than subclassing it, so the
+        channel lives on the graph; this is the spelling that saves every
+        caller writing ``spec.graph.x``.
+
+        :returns: the column bound to the x axis, or None.
+        """
         return self.graph.x
 
     @property
     def y(self) -> Optional[str]:
+        """Forwarded from the wrapped graph spec.
+
+        The trellis composes a graph rather than subclassing it, so the
+        channel lives on the graph; this is the spelling that saves every
+        caller writing ``spec.graph.y``.
+
+        :returns: the column bound to the y axis, or None.
+        """
         return self.graph.y
 
     @property
     def colour(self) -> Optional[str]:
+        """Forwarded from the wrapped graph spec.
+
+        The trellis composes a graph rather than subclassing it, so the
+        channel lives on the graph; this is the spelling that saves every
+        caller writing ``spec.graph.colour``.
+
+        :returns: the column bound to colour, or None.
+        """
         return self.graph.colour
 
     @property
     def facet_row(self) -> Optional[str]:
+        """Forwarded from the wrapped graph spec.
+
+        The trellis composes a graph rather than subclassing it, so the
+        channel lives on the graph; this is the spelling that saves every
+        caller writing ``spec.graph.facet_row``.
+
+        :returns: the column bound to the facet rows, or None.
+        """
         return self.graph.facet_row
 
     @property
     def facet_col(self) -> Optional[str]:
+        """Forwarded from the wrapped graph spec.
+
+        The trellis composes a graph rather than subclassing it, so the
+        channel lives on the graph; this is the spelling that saves every
+        caller writing ``spec.graph.facet_col``.
+
+        :returns: the column bound to the facet columns, or None.
+        """
         return self.graph.facet_col
 
     @property
@@ -182,6 +222,10 @@ class TrellisSpec:
 
     @property
     def is_faceted(self) -> bool:
+        """Whether this is a grid at all, rather than one chart.
+
+        :returns: True when either facet channel is bound.
+        """
         return bool(self.graph.facet_row) or bool(self.graph.facet_col)
 
     @property
@@ -191,29 +235,74 @@ class TrellisSpec:
 
     # -- edits ------------------------------------------------------------
     def with_graph(self, graph: GraphSpec) -> "TrellisSpec":
+        """A copy wrapping a different graph spec.
+
+        A COPY: a spec is a value, so the one a view is already drawing from
+        is never edited underneath it.
+
+        :param graph: the replacement graph spec.
+        :returns: the new spec.
+        """
         return replace(self, graph=graph)
 
     def with_channel(self, channel: str, column: Optional[str]) -> "TrellisSpec":
+        """A copy with one of the graph's channels rebound.
+
+        :param channel: the channel's name, such as ``x`` or ``colour``.
+        :param column: the column to bind, or None to clear it.
+        :returns: the new spec.
+        """
         return replace(self, graph=self.graph.with_channel(channel, column))
 
     def with_kind(self, kind: Optional[str]) -> "TrellisSpec":
+        """A copy drawn as a different chart kind.
+
+        :param kind: the chart kind, or None to let the data decide.
+        :returns: the new spec.
+        """
         return replace(self, graph=self.graph.with_kind(kind))
 
     def with_scales(self, scale_x: Optional[str] = None,
                     scale_y: Optional[str] = None) -> "TrellisSpec":
+        """A copy with either axis's scale policy changed.
+
+        An omitted argument KEEPS the current policy rather than clearing
+        it, so changing only the y scale does not silently reset x.
+
+        :param scale_x: the x policy, or None to keep it.
+        :param scale_y: the y policy, or None to keep it.
+        :returns: the new spec.
+        """
         return replace(self, scale_x=scale_x or self.scale_x,
                        scale_y=scale_y or self.scale_y)
 
     def with_wrap(self, wrap: int) -> "TrellisSpec":
+        """A copy wrapping at a different number of columns.
+
+        :param wrap: how many panels per row.
+        :returns: the new spec.
+        """
         return replace(self, wrap=int(wrap))
 
     # -- serialisation ----------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
+        """This spec as plain data, graph included.
+
+        :returns: a JSON-safe dict.
+        """
         return {"graph": self.graph.to_dict(), "scale_x": self.scale_x,
                 "scale_y": self.scale_y, "wrap": self.wrap}
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "TrellisSpec":
+        """Rebuild a spec from plain data.
+
+        UNKNOWN KEYS ARE IGNORED rather than raising, so a spec saved by a
+        later version still opens here with the parts this version knows.
+
+        :param payload: what :meth:`to_dict` produced.
+        :returns: the rebuilt spec.
+        """
         data = dict(payload)
         known = {k: v for k, v in data.items()
                  if k in {"scale_x", "scale_y", "wrap"}}
@@ -221,13 +310,31 @@ class TrellisSpec:
         return cls(**known)
 
     def to_json(self) -> str:
+        """This spec as JSON text, with keys sorted so the file is diffable.
+
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True)
 
     @classmethod
     def from_json(cls, text: str) -> "TrellisSpec":
+        """Rebuild a spec from JSON text.
+
+        :param text: the JSON text.
+        :returns: the rebuilt spec.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self, kinds: Optional[Mapping[str, str]] = None) -> str:
+        """The whole grid in one line: the chart, then anything non-default.
+
+        SAYS ONLY WHAT DIFFERS. A description that always listed the scale
+        policies would bury the chart it is describing under two clauses that
+        are usually "shared".
+
+        :param kinds: display names for chart kinds, when the caller has them.
+        :returns: a one-line description.
+        """
         parts = [self.graph.describe(kinds)]
         if self.scale_x != SCALE_SHARED or self.scale_y != SCALE_SHARED:
             parts.append(f"x scale: {self.scale_x} · y scale: {self.scale_y}")
@@ -294,6 +401,16 @@ class TrellisPanel:
         return self.occupied and 0 < self.n <= LOW_N
 
     def frame(self, source: pd.DataFrame) -> pd.DataFrame:
+        """The rows this panel holds, taken out of ``source``.
+
+        POSITIONAL, NOT LABELLED. `index` holds positions into the frame the
+        trellis was computed over, so this must be given THAT frame -- a
+        reindexed or differently filtered one would select the wrong rows
+        without raising.
+
+        :param source: the frame the trellis was computed over.
+        :returns: just this panel's rows.
+        """
         return source.iloc[self.index]
 
     def title(self) -> str:
@@ -355,12 +472,30 @@ class Trellis:
         return sum(1 for p in self.panels if p.is_empty)
 
     def panel(self, row: int, col: int) -> TrellisPanel:
+        """The panel at one grid position.
+
+        :param row: the grid row, from 0.
+        :param col: the grid column, from 0.
+        :returns: the panel.
+        """
         return self.panels[row * self.shape[1] + col]
 
     def scales_at(self, row: int, col: int) -> Scales:
+        """The axis limits used at one grid position.
+
+        :param row: the grid row, from 0.
+        :param col: the grid column, from 0.
+        :returns: that panel's scales.
+        """
         return self.panel(row, col).scales
 
     def n_at(self, row: int, col: int) -> int:
+        """How many rows landed in one grid position.
+
+        :param row: the grid row, from 0.
+        :param col: the grid column, from 0.
+        :returns: the row count.
+        """
         return self.panel(row, col).n
 
     def n_range(self) -> Optional[Tuple[int, int]]:
@@ -369,6 +504,13 @@ class Trellis:
         return (min(counts), max(counts)) if counts else None
 
     def low_n_panels(self) -> Tuple[TrellisPanel, ...]:
+        """Every panel holding too few rows to read as a distribution.
+
+        What lets a view mark them rather than draw a confident-looking
+        chart of four points beside one of four thousand.
+
+        :returns: the sparse panels.
+        """
         return tuple(p for p in self.panels if p.is_low_n)
 
     # -- the honesty line --------------------------------------------------

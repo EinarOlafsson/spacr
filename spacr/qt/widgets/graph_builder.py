@@ -228,6 +228,13 @@ class ColumnWell(QWidget):
         outer.addWidget(self._count)
 
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Re-list the plottable columns for a new table.
+
+        ``None`` empties the well rather than leaving the previous table's
+        columns on screen, which would offer drags that cannot land.
+
+        :param frame: the table to read columns from, or None.
+        """
         if frame is None:
             self._columns = ()
             self._kinds = {}
@@ -242,6 +249,13 @@ class ColumnWell(QWidget):
         return self._columns
 
     def visible_columns(self) -> List[str]:
+        """The columns the search box is currently letting through.
+
+        Read off the LIST rather than refiltered, so it is what the user can
+        actually see and drag.
+
+        :returns: the visible column names, in list order.
+        """
         return [self._list.item(i).data(Qt.UserRole)
                 for i in range(self._list.count())]
 
@@ -343,6 +357,10 @@ class DropZone(QFrame):
     # -- state ---------------------------------------------------------
     @property
     def column(self) -> Optional[str]:
+        """The column bound to this channel, if any.
+
+        :returns: the column name, or None when the zone is empty.
+        """
         return self._column
 
     def set_column(self, column: Optional[str]) -> None:
@@ -371,6 +389,10 @@ class DropZone(QFrame):
             event.mimeData().hasFormat(COLUMN_MIME)
 
     def dragEnterEvent(self, event):  # noqa: N802 - Qt name
+        """Light up when a droppable column arrives over the zone.
+
+        :param event: the Qt drag event.
+        """
         if self._accepts(event):
             self.setProperty("hovered", True)
             self.style().unpolish(self)
@@ -380,18 +402,30 @@ class DropZone(QFrame):
             event.ignore()
 
     def dragMoveEvent(self, event):  # noqa: N802 - Qt name
+        """Keep accepting while a droppable column stays over the zone.
+
+        :param event: the Qt drag event.
+        """
         if self._accepts(event):
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dragLeaveEvent(self, event):  # noqa: N802 - Qt name
+        """Drop the highlight when the pointer leaves.
+
+        :param event: the Qt drag event.
+        """
         self.setProperty("hovered", False)
         self.style().unpolish(self)
         self.style().polish(self)
         super().dragLeaveEvent(event)
 
     def dropEvent(self, event):  # noqa: N802 - Qt name
+        """Bind the dropped column to this channel.
+
+        :param event: the Qt drop event.
+        """
         if not self._accepts(event):
             event.ignore()
             return
@@ -685,6 +719,10 @@ class GraphCanvas(LinkedView, QWidget):
 
     @property
     def spec(self) -> GraphSpec:
+        """The graph this canvas is drawing.
+
+        :returns: the spec.
+        """
         return self._spec
 
     @property
@@ -708,19 +746,39 @@ class GraphCanvas(LinkedView, QWidget):
             self._debounce.start()
 
     def set_channel(self, channel: str, column: Optional[str]) -> None:
+        """Rebind one channel and redraw.
+
+        :param channel: the channel's name, such as ``x`` or ``colour``.
+        :param column: the column to bind, or None to clear it.
+        """
         self.set_spec(self._spec.with_channel(channel, column))
 
     # -- what the last render produced -----------------------------------
     @property
     def render_data(self) -> Optional[RenderData]:
+        """What the last draw actually plotted, or None before the first.
+
+        The rendered data rather than the source table: a large frame is
+        sampled or binned before it is drawn, and this is what is on screen.
+
+        :returns: the render data, or None.
+        """
         return self._render_data
 
     @property
     def grid(self):
+        """The facet grid the last draw laid out, or None when unfaceted.
+
+        :returns: the grid.
+        """
         return self._grid
 
     @property
     def scales(self):
+        """The axis limits the last draw used.
+
+        :returns: the scales.
+        """
         return self._scales
 
     def panel_axes(self) -> Dict[Tuple[int, int], object]:
@@ -728,6 +786,12 @@ class GraphCanvas(LinkedView, QWidget):
         return dict(self._axes)
 
     def axes_at(self, row: int = 0, col: int = 0):
+        """The matplotlib axes at one facet position.
+
+        :param row: the grid row, from 0.
+        :param col: the grid column, from 0.
+        :returns: the axes, or None when that position was not drawn.
+        """
         return self._axes.get((row, col))
 
     def notice(self) -> str:
@@ -1528,6 +1592,13 @@ class GraphCanvas(LinkedView, QWidget):
 
     # -- teardown ----------------------------------------------------------
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Unlink from the shared selection before going away.
+
+        A LINKED VIEW THAT OUTLIVES ITS WINDOW is a selection broadcast to a
+        widget whose C++ half is gone, which is a crash rather than a leak.
+
+        :param event: the Qt close event.
+        """
         try:
             self.unlink_selection()
         except (RuntimeError, TypeError):
@@ -1649,12 +1720,20 @@ class GraphBuilderPanel(QWidget):
 
     # -- data -----------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Point the whole panel at a new table: the well and the canvas both.
+
+        :param frame: the table to plot, or None to clear.
+        """
         self.well.set_frame(frame)
         self.canvas.set_frame(frame)
         self._sync_zones()
 
     @property
     def spec(self) -> GraphSpec:
+        """The graph the canvas is drawing.
+
+        :returns: the spec.
+        """
         return self.canvas.spec
 
     def set_spec(self, spec: GraphSpec) -> None:
@@ -1663,6 +1742,7 @@ class GraphBuilderPanel(QWidget):
         self._sync_zones()
 
     def clear_channels(self) -> None:
+        """Empty every drop zone, leaving the table loaded."""
         for zone in self._zones.values():
             zone.set_column(None)
 

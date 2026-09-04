@@ -471,6 +471,10 @@ class DnaRainEngine:
 
     @property
     def font_size(self) -> int:
+        """The cell size the columns are laid out on, in pixels.
+
+        :returns: the font size.
+        """
         return self._font_size
 
     @property
@@ -480,6 +484,10 @@ class DnaRainEngine:
 
     @property
     def n_columns(self) -> int:
+        """How many falling strings the simulation holds.
+
+        :returns: the column count.
+        """
         return len(self.columns)
 
     @property
@@ -793,9 +801,20 @@ class DnaRainWidget(QWidget):
         return derive_head_color(self._color, self._bg)
 
     def background_color(self) -> QColor:
+        """The colour painted behind the rain.
+
+        A COPY, so a caller cannot recolour this widget by mutating what it
+        was handed.
+
+        :returns: the background colour.
+        """
         return QColor(self._bg)
 
     def opacity(self) -> float:
+        """How strongly the rain is drawn over its background, 0 to 1.
+
+        :returns: the opacity.
+        """
         return self._opacity
 
     def random_colors(self) -> bool:
@@ -952,6 +971,10 @@ class DnaRainWidget(QWidget):
 
     # -- simulation knobs ----------------------------------------------
     def font_size(self) -> int:
+        """The engine's cell size, in pixels.
+
+        :returns: the font size.
+        """
         return self._engine.font_size
 
     def set_font_size(self, px: int) -> None:
@@ -965,6 +988,10 @@ class DnaRainWidget(QWidget):
         self.update()
 
     def speed(self) -> float:
+        """How fast the columns fall, as a multiplier of the base rate.
+
+        :returns: the speed multiplier.
+        """
         return self._engine.speed_multiplier
 
     def set_speed(self, factor: float) -> None:
@@ -978,10 +1005,24 @@ class DnaRainWidget(QWidget):
         self._timer.setInterval(max(1, 1000 // self._fps))
 
     def fps(self) -> int:
+        """The cap on repaints per second.
+
+        A CAP, NOT A RATE: this is a backdrop, and it must not take frames
+        from whatever the user is actually doing in front of it.
+
+        :returns: the frame cap.
+        """
         return self._fps
 
     @property
     def engine(self) -> DnaRainEngine:
+        """The simulation behind this widget.
+
+        Exposed so a test can step the animation deterministically without a
+        Qt event loop -- the engine is Qt-free and seeded.
+
+        :returns: the engine.
+        """
         return self._engine
 
     # -- run state -----------------------------------------------------
@@ -1016,6 +1057,10 @@ class DnaRainWidget(QWidget):
 
     # -- Qt events -----------------------------------------------------
     def showEvent(self, event):
+        """Start animating, and follow the window this widget belongs to.
+
+        :param event: the Qt show event.
+        """
         super().showEvent(event)
         window = self.window()
         if window is not None and window is not self._watched:
@@ -1027,6 +1072,13 @@ class DnaRainWidget(QWidget):
         self._sync_run_state()
 
     def hideEvent(self, event):
+        """Stop animating.
+
+        A HIDDEN BACKDROP MUST COST NOTHING. Without this the timer keeps
+        firing and the columns keep advancing for a widget nobody can see.
+
+        :param event: the Qt hide event.
+        """
         super().hideEvent(event)
         self.stop()
 
@@ -1049,6 +1101,10 @@ class DnaRainWidget(QWidget):
         self.lower()
 
     def resizeEvent(self, event):
+        """Re-lay the columns for the new size and repaint.
+
+        :param event: the Qt resize event.
+        """
         super().resizeEvent(event)
         self._sync_size()
         self.update()
@@ -1248,6 +1304,10 @@ class DnaRainWidget(QWidget):
         return strip
 
     def paintEvent(self, event):
+        """Draw the current frame.
+
+        :param event: the Qt paint event.
+        """
         self._sync_size()
         painter = QPainter(self)
         engine = self._engine
@@ -1486,15 +1546,36 @@ class DnaRainSettingsBar(QWidget):
 
     # -- state ---------------------------------------------------------
     def color(self) -> QColor:
+        """The colour currently chosen in the bar.
+
+        A COPY, so the caller cannot edit the bar's own colour in place.
+
+        :returns: the chosen colour.
+        """
         return QColor(self._color)
 
     def speed(self) -> float:
+        """The chosen speed multiplier.
+
+        The slider counts in percent because a QSlider is integer-valued;
+        this is the number the rain actually wants.
+
+        :returns: the multiplier.
+        """
         return self._speed.value() / 100.0
 
     def font_size(self) -> int:
+        """The chosen cell size, in pixels.
+
+        :returns: the font size.
+        """
         return self._font.value()
 
     def opacity(self) -> float:
+        """The chosen opacity, 0 to 1.
+
+        :returns: the opacity.
+        """
         return self._opacity.value() / 100.0
 
     def random_color(self) -> bool:
@@ -1529,9 +1610,17 @@ class DnaRainSettingsBar(QWidget):
             self.set_color(chosen)
 
     def set_speed(self, factor: float) -> None:
+        """Move the speed slider to ``factor``.
+
+        :param factor: the multiplier; converted to the slider's percent.
+        """
         self._speed.setValue(int(round(float(factor) * 100)))
 
     def set_font_size(self, px: int) -> None:
+        """Move the font slider, clamped to the range the bar offers.
+
+        :param px: the wanted size in pixels.
+        """
         self._font.setValue(_clamp_int(px, MIN_FONT_PX, MAX_FONT_PX))
 
     def set_random_color(self, on: bool) -> None:
@@ -1546,6 +1635,14 @@ class DnaRainSettingsBar(QWidget):
         self.speed_changed.emit(self.speed())
 
     def set_opacity(self, value: float) -> None:
+        """Move the opacity slider, clamped to the range the bar offers.
+
+        CLAMPED RATHER THAN REFUSED: this is restored from a saved
+        preference, and a value from an older build with a wider range
+        should land at the nearest legal one rather than stop the restore.
+
+        :param value: the wanted opacity, 0 to 1.
+        """
         self._opacity.setValue(
             _clamp_int(round(float(value) * 100), MIN_OPACITY_PCT,
                        MAX_OPACITY_PCT))
