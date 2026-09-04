@@ -82,6 +82,14 @@ class _DownloadWorker(QObject):
     a slow screen build causes, arriving through a dialog instead.
 
     The worker owns nothing Qt-visual. It emits numbers; the dialog draws.
+
+    :param entry: the model-zoo entry to fetch.
+    :param folder: where to install it.
+    :param unverified: skip the checksum requirement. ONLY EVER TRUE FOR AN
+        ENTRY THAT PUBLISHES NO CHECKSUM, and only after the dialog has told
+        the user that spaCR cannot then tell a truncated or substituted file
+        from the real one and they have said to go ahead. It is not a retry
+        knob for a checksum that failed.
     """
 
     progressed = Signal(int, int)      # bytes done, bytes total (0 = unknown)

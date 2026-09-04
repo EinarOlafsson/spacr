@@ -314,6 +314,12 @@ class _EdgeTrigger(QWidget):
     Transparent to paint but *not* to mouse events — it has to receive
     the hover. It never takes focus and never accepts a click, so a
     press near the edge still reaches whatever is underneath.
+
+    :param host: the widget whose left edge is armed; also the QWidget
+        parent, so the strip is positioned in the host's coordinates.
+    :param drawer: the drawer to open. Held SEPARATELY from the host
+        because the drawer is not the host's child -- the strip is the only
+        thing that knows about both.
     """
 
     def __init__(self, host: QWidget, drawer: EdgeDrawer):

@@ -490,6 +490,14 @@ class _Parser:
     One class rather than a pile of closures so the node budget and the depth
     are counters rather than globals, and so a parse cannot leak state into the
     next one.
+
+    :param tokens: the token stream, copied so the caller's sequence is not
+        consumed.
+    :param source: the text those tokens came from. STORED AND NOT READ:
+        kept so an error can quote the offending span, which the parser does
+        not yet do -- it reports by token. Left in place rather than removed
+        because that is the message worth having, and dropping the argument
+        now means threading it back through when someone writes it.
     """
 
     def __init__(self, tokens: Sequence[_Token], source: str):
