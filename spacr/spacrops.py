@@ -25,6 +25,7 @@ class _DiskFeatureStore:
     :param verbose: emit progress messages. Default ``False``.
     """
     def __init__(self, root_dir: str, max_ram_items: int = 256, verbose: bool = False):
+        """Open (creating if needed) the on-disk feature cache."""
         self.root = os.path.abspath(root_dir)
         os.makedirs(self.root, exist_ok=True)
         self.max_ram = int(max_ram_items)
@@ -34,10 +35,18 @@ class _DiskFeatureStore:
 
     @staticmethod
     def _key_for_path(path: str) -> str:
+        """A short, stable cache key for ``path``.
+
+        The ABSOLUTE path is hashed, so the same image reached through a
+        relative path and through its full one is one cache entry rather
+        than two. The key is truncated to 16 hex characters, which is a
+        filename rather than a collision guarantee.
+        """
         h = hashlib.sha1(os.path.abspath(path).encode("utf-8")).hexdigest()
         return h[:16]
 
     def _npz_path(self, path: str) -> str:
+        """Where ``path``'s features are cached on disk."""
         return os.path.join(self.root, f"{self._key_for_path(path)}.npz")
 
     def get(self, path: str) -> Optional[Dict[str, np.ndarray]]:
@@ -242,6 +251,13 @@ class spacrStitcher:
                  t_index: int = 0,
                  squeeze_singleton: bool = True,
                  ):
+        """Configure the feature detector and the match tolerances.
+
+        ``downsample`` is the scale every match runs at; the transforms it
+        produces are expressed at full size, so lowering it costs accuracy rather
+        than changing the output geometry. ``ransac_thresh_px`` is in FULL-SIZE
+        pixels.
+        """
         self.detector = detector.upper()
         self.nfeatures = int(nfeatures)
         self.max_keypoints = None if max_keypoints is None else int(max_keypoints)
@@ -329,12 +345,19 @@ class spacrStitcher:
     # ------------------------- utilities (static) ------------------------
     @staticmethod
     def _ensure_dir(p: str) -> str:
+        """Create ``p`` if needed and return its absolute path."""
         p = os.path.abspath(p)
         os.makedirs(p, exist_ok=True)
         return p
 
     @staticmethod
     def _norm01(x: np.ndarray) -> np.ndarray:
+        """Scale an array into ``[0, 1]`` by its own min and max.
+
+        PER-IMAGE, not per-plate: two tiles normalised this way are no
+        longer on a common intensity scale, which is why it feeds feature
+        detection rather than anything that compares brightness.
+        """
         x = x.astype(np.float32, copy=False)
         mn, mx = float(np.nanmin(x)), float(np.nanmax(x))
         if mx <= mn + 1e-12:
@@ -372,6 +395,11 @@ class spacrStitcher:
 
     @staticmethod
     def _to_uint8(img: np.ndarray) -> np.ndarray:
+        """An 8-bit view of ``img``, stretched to its own min and max.
+
+        A FLAT IMAGE BECOMES ZEROS rather than dividing by nothing, so a
+        blank tile yields no keypoints instead of raising.
+        """
         m, M = float(np.nanmin(img)), float(np.nanmax(img))
         if M <= m + 1e-12:
             return np.zeros_like(img, dtype=np.uint8)
@@ -379,6 +407,7 @@ class spacrStitcher:
 
     @staticmethod
     def _affine_to_3x3(M2x3: np.ndarray) -> np.ndarray:
+        """A 2x3 affine as a 3x3 matrix, so transforms can be composed."""
         A = np.eye(3, dtype=np.float32); A[:2, :3] = M2x3.astype(np.float32)
         return A
 
@@ -502,10 +531,26 @@ class spacrStitcher:
     # --------------------------- Axis helpers ----------------------------
     @staticmethod
     def _is_large_dim(n: int) -> bool:
+        """Whether ``n`` is big enough to be an image axis rather than a stack.
+
+        THE WHOLE AXIS GUESS RESTS ON THIS ONE THRESHOLD: an extent of 128 or
+        more is taken for Y or X, and anything smaller for channels, Z or T.
+        A genuinely tiny field -- under 128 px on a side -- is therefore
+        mis-read, which is the limit of guessing a layout from a shape.
+        """
         return n >= 128
 
     @staticmethod
     def _guess_axes_from_shape(shape: Tuple[int, ...]) -> str:
+        """Guess an axis order such as ``"CYX"`` from an array shape alone.
+
+        A GUESS, AND ONLY USED WHEN ``arr_axes`` IS ``"AUTO"``. The rule is
+        that the two axes passing :meth:`_is_large_dim` are Y and X, and a
+        remaining axis of 8 or fewer is channels rather than Z. A 10-plane
+        Z-stack of one channel and a 10-channel single plane have the same
+        shape and cannot be told apart here -- say ``arr_axes`` when it
+        matters.
+        """
         nd = len(shape)
         if nd == 2:
             return "YX"
@@ -541,6 +586,13 @@ class spacrStitcher:
 
     def _normalize_to_yx(self, arr: np.ndarray, ch: int, axes_hint: Optional[str] = None) -> np.ndarray:
         # Choose base axes
+        """Reduce any TCZYX array to one 2-D ``(Y, X)`` plane of float32.
+
+        Axes come from ``arr_axes`` when it is set, then from ``axes_hint``, and
+        only then from the SHAPE -- see :meth:`_guess_axes_from_shape` for why the
+        last of those can be wrong. ``ch`` selects the channel; Z collapses by
+        maximum projection when ``mip`` is set and by index otherwise.
+        """
         if self.arr_axes and self.arr_axes.upper() != "AUTO":
             axes = "".join(a for a in self.arr_axes.upper() if a in "TCZYX")
         elif axes_hint:
@@ -638,6 +690,12 @@ class spacrStitcher:
         self._meta_re = re.compile(pattern, re.IGNORECASE) if isinstance(pattern, str) else pattern
 
     def _parse_meta(self, path: str) -> Dict[str, Union[str, int, None]]:
+        """Read well, site, channel and magnification out of a FILENAME.
+
+        The regex is the one given to :meth:`set_meta_pattern`, applied to the
+        basename only. EVERY FIELD IS OPTIONAL and a name the pattern does not
+        match yields all-``None`` rather than raising.
+        """
         fn = os.path.basename(path)
         out = {"well": None, "site": None, "chan": None, "mag": None}
         m = self._meta_re.search(fn)
@@ -658,6 +716,12 @@ class spacrStitcher:
 
     # ----------------------- feature extraction/cache --------------------
     def _detect_and_describe(self, I8: np.ndarray):
+        """Keypoints and descriptors for an 8-bit image.
+
+        FEWER THAN FOUR KEYPOINTS IS RETURNED AS EMPTY ARRAYS, not as a short
+        list: four is the minimum an affine fit needs, so a blank or featureless
+        tile fails at the match rather than inside the solver.
+        """
         kp, desc = self._det.detectAndCompute(I8, None)
         if kp is None or desc is None or len(kp) < 4:
             pts = np.zeros((0, 2), np.float32)
@@ -672,6 +736,12 @@ class spacrStitcher:
         return pts, desc
 
     def _compute_features_one(self, path: str, channel_index: int) -> Dict[str, np.ndarray]:
+        """Detect features for one image, at the downsampled size.
+
+        The returned dict carries the DOWNSAMPLED image and points along with the
+        original ``H``/``W``, because every match runs at the small size while the
+        transform it produces has to be expressed at the full one.
+        """
         I = self._read_plane(path, ch=channel_index)
         H, W = I.shape
         s = self.downsample if self.downsample > 0 else 1.0
@@ -782,6 +852,13 @@ class spacrStitcher:
 
     # ---------------------------- matching/RANSAC ------------------------
     def _match(self, fA: Dict[str, np.ndarray], fB: Dict[str, np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
+        """Matched point pairs between two feature dicts.
+
+        Returns two equal-length coordinate arrays, EMPTY when either side has
+        fewer than four keypoints. Hamming distance for ORB's binary descriptors
+        and L2 for the float ones, so the detector the features were built with
+        has to be the one matching them.
+        """
         if fA["pts"].shape[0] < 4 or fB["pts"].shape[0] < 4:
             return np.zeros((0,2), np.float32), np.zeros((0,2), np.float32)
         if self.detector == "ORB":
@@ -1124,6 +1201,11 @@ class spacrStitcher:
     
     @staticmethod
     def _get_channel_count_tif(path: str) -> int:
+        """How many channels a TIFF holds, from its own axis metadata.
+
+        Falls back on the shape when the file declares no axes, which is the same
+        guess :meth:`_guess_axes_from_shape` makes and carries the same risk.
+        """
         with tifffile.TiffFile(path) as tf:
             series = tf.series[0]
             axes = getattr(series, "axes", None)
@@ -1135,6 +1217,11 @@ class spacrStitcher:
         return int(shape[gh.index("C")]) if "C" in gh else 1
     
     def _read_all_channels_cyx(self, path: str) -> np.ndarray:
+        """Every channel of an image as one ``(C, Y, X)`` float32 array.
+
+        Reads the channels ONE AT A TIME rather than loading the file whole, so a
+        many-channel plate costs one plane of memory at a time.
+        """
         nC = self._get_channel_count_tif(path)
         planes = []
         for c in range(nC):
@@ -1170,6 +1257,11 @@ class spacrStitcher:
         return float(s[k])
 
     def _plot_sorted_scores(self, scores: List[float], thr: float, out_png: str):
+        """Write a sorted-score plot with the threshold marked.
+
+        A DIAGNOSTIC, not an input to any decision: the threshold is drawn where
+        the caller set it so a human can see how many pairs it accepts.
+        """
         s = np.array(sorted(scores), dtype=np.float64)
         # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
         # rcParams reach an artist when it is CREATED, so a
@@ -1194,6 +1286,10 @@ class spacrStitcher:
     # ------------------------------ pairing ------------------------------
     @staticmethod
     def _list_tifs(folder: str, recursive: bool, exts: Tuple[str,...]) -> List[str]:
+        """Every image under ``folder`` with one of ``exts``, sorted.
+
+        Sorted so a run is reproducible -- the filesystem's order is not.
+        """
         exts = tuple(e.lower() for e in exts)
         out = []
         if recursive:
@@ -1208,6 +1304,12 @@ class spacrStitcher:
         return out
 
     def _group_by_well(self, paths: List[str]) -> Dict[str, List[str]]:
+        """Bucket paths by the well in their filename.
+
+        Anything the pattern cannot read a well from goes to ``"UNK"`` rather than
+        being dropped, so an unparsed name is stitched as its own group instead of
+        vanishing.
+        """
         buckets: Dict[str, List[str]] = {}
         for p in paths:
             w = self._parse_meta(p).get("well") or "UNK"
@@ -1217,6 +1319,13 @@ class spacrStitcher:
         return buckets
 
     def _pairs_by_site_window(self, files: List[str], max_site_gap: int) -> List[Tuple[str,str]]:
+        """Candidate neighbour pairs, by site number within ``max_site_gap``.
+
+        An assumption about the ACQUISITION ORDER, not about the stage: tiles
+        whose site numbers are close are taken to be near each other. A snake
+        pattern breaks that at the end of every row, which is why the window is a
+        parameter and not a constant.
+        """
         n = len(files)
         site = [self._parse_meta(p).get("site") for p in files]
         idx_by_site = {}
@@ -2462,6 +2571,11 @@ class StitchedMultiAligner:
                  z_index: int = 0,
                  t_index: int = 0,
                  squeeze_singleton: bool = True):
+        """Configure the detector and tolerances for cross-acquisition alignment.
+
+        Same contract as :class:`spacrStitcher`: matching happens at
+        ``downsample`` scale and ``ransac_thresh_px`` is in full-size pixels.
+        """
         self.detector = detector.upper()
         self.nfeatures = int(nfeatures)
         self.max_keypoints = None if max_keypoints is None else int(max_keypoints)
@@ -2502,10 +2616,26 @@ class StitchedMultiAligner:
     # ---------------------- basic IO / axis helpers ----------------------
     @staticmethod
     def _is_large_dim(n: int) -> bool:
+        """Whether ``n`` is big enough to be an image axis rather than a stack.
+
+        THE WHOLE AXIS GUESS RESTS ON THIS ONE THRESHOLD: an extent of 128 or
+        more is taken for Y or X, and anything smaller for channels, Z or T.
+        A genuinely tiny field -- under 128 px on a side -- is therefore
+        mis-read, which is the limit of guessing a layout from a shape.
+        """
         return n >= 128
 
     @staticmethod
     def _guess_axes_from_shape(shape: Tuple[int, ...]) -> str:
+        """Guess an axis order such as ``"CYX"`` from an array shape alone.
+
+        A GUESS, AND ONLY USED WHEN ``arr_axes`` IS ``"AUTO"``. The rule is
+        that the two axes passing :meth:`_is_large_dim` are Y and X, and a
+        remaining axis of 8 or fewer is channels rather than Z. A 10-plane
+        Z-stack of one channel and a 10-channel single plane have the same
+        shape and cannot be told apart here -- say ``arr_axes`` when it
+        matters.
+        """
         nd = len(shape)
         if nd == 2:
             return "YX"
@@ -2536,6 +2666,13 @@ class StitchedMultiAligner:
         return "CZYX" if nd >= 4 else "CYX"
 
     def _normalize_to_yx(self, arr: np.ndarray, ch: int, axes_hint: Optional[str] = None) -> np.ndarray:
+        """Reduce any TCZYX array to one 2-D ``(Y, X)`` plane of float32.
+
+        Axes come from ``arr_axes`` when it is set, then from ``axes_hint``, and
+        only then from the SHAPE -- see :meth:`_guess_axes_from_shape` for why the
+        last of those can be wrong. ``ch`` selects the channel; Z collapses by
+        maximum projection when ``mip`` is set and by index otherwise.
+        """
         if self.arr_axes and self.arr_axes != "AUTO":
             axes = "".join(a for a in self.arr_axes if a in "TCZYX")
         elif axes_hint:
@@ -2590,6 +2727,11 @@ class StitchedMultiAligner:
 
     @staticmethod
     def _to_uint8(img: np.ndarray) -> np.ndarray:
+        """An 8-bit view of ``img``, stretched to its own min and max.
+
+        A FLAT IMAGE BECOMES ZEROS rather than dividing by nothing, so a
+        blank tile yields no keypoints instead of raising.
+        """
         m, M = float(np.nanmin(img)), float(np.nanmax(img))
         if M <= m + 1e-12:
             return np.zeros_like(img, dtype=np.uint8)
@@ -2597,6 +2739,12 @@ class StitchedMultiAligner:
 
     @staticmethod
     def _edge_zncc(a: np.ndarray, b: np.ndarray, mask: Optional[np.ndarray] = None) -> float:
+        """Zero-mean normalised cross-correlation of two images' EDGE energy.
+
+        Gradient energy rather than intensity, so two acquisitions of different
+        brightness or stain still score on the structure they share. ``mask``
+        restricts the comparison to the overlap.
+        """
         a = a.astype(np.float32, copy=False)
         b = b.astype(np.float32, copy=False)
         ea = cv2.Sobel(a, cv2.CV_32F, 1, 0, ksize=3)**2 + cv2.Sobel(a, cv2.CV_32F, 0, 1, ksize=3)**2
@@ -2611,6 +2759,10 @@ class StitchedMultiAligner:
         return float((ea * eb).mean() / den)
 
     def _read_plane(self, path: str, ch: int = 0) -> np.ndarray:
+        """One 2-D ``(Y, X)`` plane from a possibly multi-axis TIFF.
+
+        Prefers the file's own declared axes and falls back on the shape.
+        """
         with tifffile.TiffFile(path) as tf:
             series = tf.series[0]
             axes_hint = getattr(series, "axes", None)
@@ -2629,6 +2781,10 @@ class StitchedMultiAligner:
 
     @staticmethod
     def _get_channel_count_tif(path: str) -> int:
+        """How many channels a TIFF holds, from its own axis metadata.
+
+        Falls back on the shape when the file declares no axes.
+        """
         with tifffile.TiffFile(path) as tf:
             series = tf.series[0]
             axes = getattr(series, "axes", None)
@@ -2640,12 +2796,22 @@ class StitchedMultiAligner:
         return int(shape[gh.index("C")]) if "C" in gh else 1
 
     def _read_all_channels_cyx(self, path: str) -> np.ndarray:
+        """Every channel of an image as one ``(C, Y, X)`` float32 array.
+
+        Reads channels one at a time; see :class:`spacrStitcher` for why.
+        """
         nC = self._get_channel_count_tif(path)
         planes = [self._read_plane(path, ch=c).astype(np.float32, copy=False) for c in range(nC)]
         return np.stack(planes, axis=0)  # (C,H,W)
 
     # --------------------------- feature/matching ------------------------
     def _detect_and_describe(self, I8: np.ndarray):
+        """Keypoints and descriptors for an 8-bit image.
+
+        FEWER THAN FOUR KEYPOINTS IS RETURNED AS EMPTY ARRAYS, not as a short
+        list: four is the minimum an affine fit needs, so a blank or featureless
+        tile fails at the match rather than inside the solver.
+        """
         kp, desc = self._det.detectAndCompute(I8, None)
         if kp is None or desc is None or len(kp) < 4:
             pts = np.zeros((0, 2), np.float32)
@@ -2659,6 +2825,13 @@ class StitchedMultiAligner:
         return pts, desc
 
     def _match(self, fA: Dict[str, np.ndarray], fB: Dict[str, np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
+        """Matched point pairs between two feature dicts.
+
+        Returns two equal-length coordinate arrays, EMPTY when either side has
+        fewer than four keypoints. Hamming distance for ORB's binary descriptors
+        and L2 for the float ones, so the detector the features were built with
+        has to be the one matching them.
+        """
         if fA["pts"].shape[0] < 4 or fB["pts"].shape[0] < 4:
             return np.zeros((0,2), np.float32), np.zeros((0,2), np.float32)
         if self.detector == "ORB":
@@ -2681,6 +2854,12 @@ class StitchedMultiAligner:
 
     @staticmethod
     def _affine_from_pts(ptsA: np.ndarray, ptsB: np.ndarray, ransac_thresh_px: float):
+        """Fit a partial affine from matched points, by RANSAC.
+
+        PARTIAL: rotation, uniform scale and translation, no shear -- the
+        transform a stage makes. Returns ``(None, None, 0.0)`` for fewer than four
+        points rather than raising.
+        """
         if ptsA.shape[0] < 4 or ptsB.shape[0] < 4:
             return None, None, 0.0
         M, inliers = cv2.estimateAffinePartial2D(
@@ -2702,6 +2881,11 @@ class StitchedMultiAligner:
 
     @staticmethod
     def _closest_rotation(A: np.ndarray) -> np.ndarray:
+        """The nearest pure rotation to a 2x2 matrix, by SVD.
+
+        Reflections are excluded: a negative determinant is flipped back, because
+        an image cannot be mirrored by moving a stage.
+        """
         U, _, Vt = np.linalg.svd(A, full_matrices=False)
         R = U @ Vt
         if np.linalg.det(R) < 0:
@@ -3435,18 +3619,50 @@ class FOVAlignAndCropper:
         self.folder_image_scale = float(folder_image_scale) if folder_image_scale and folder_image_scale > 0 else 1.0
 
 
-    # small proxies for IO helpers
-    def _read_plane(self, *a, **k): return self._aligner._read_plane(*a, **k)
-    def _read_all_channels_cyx(self, *a, **k): return self._aligner._read_all_channels_cyx(*a, **k)
-    def _to_uint8(self, *a, **k): return self._aligner._to_uint8(*a, **k)
-    def _detect_and_describe(self, *a, **k): return self._aligner._detect_and_describe(*a, **k)
-    def _match(self, *a, **k): return self._aligner._match(*a, **k)
-    def _affine_from_pts(self, *a, **k): return self._aligner._affine_from_pts(*a, **k)
-    def _closest_rotation(self, *a, **k): return self._aligner._closest_rotation(*a, **k)
-    def _edge_zncc(self, *a, **k): return self._aligner._edge_zncc(*a, **k)
+    # Small proxies for IO helpers.
+    #
+    # DELEGATED RATHER THAN INHERITED OR COPIED. The cropper is not a kind of
+    # aligner -- it holds one -- so the eight helpers it shares with
+    # :class:`StitchedMultiAligner` are forwarded to that instance. One
+    # definition, and changing the aligner's reader changes the cropper's too.
+    def _read_plane(self, *a, **k):
+        """One channel of an image, as the aligner reads it."""
+        return self._aligner._read_plane(*a, **k)
+
+    def _read_all_channels_cyx(self, *a, **k):
+        """Every channel as ``(C, Y, X)``, as the aligner reads it."""
+        return self._aligner._read_all_channels_cyx(*a, **k)
+
+    def _to_uint8(self, *a, **k):
+        """The aligner's 8-bit view of an array, for feature detection."""
+        return self._aligner._to_uint8(*a, **k)
+
+    def _detect_and_describe(self, *a, **k):
+        """Keypoints and descriptors, from the aligner's detector."""
+        return self._aligner._detect_and_describe(*a, **k)
+
+    def _match(self, *a, **k):
+        """Descriptor matches between two images, as the aligner matches."""
+        return self._aligner._match(*a, **k)
+
+    def _affine_from_pts(self, *a, **k):
+        """The aligner's RANSAC affine fit between two point sets."""
+        return self._aligner._affine_from_pts(*a, **k)
+
+    def _closest_rotation(self, *a, **k):
+        """The nearest pure rotation to an affine, as the aligner finds it."""
+        return self._aligner._closest_rotation(*a, **k)
+
+    def _edge_zncc(self, *a, **k):
+        """The aligner's edge-correlation score between two images."""
+        return self._aligner._edge_zncc(*a, **k)
 
     @staticmethod
     def _list_tifs(folder: str, recursive: bool, exts: Tuple[str, ...]) -> List[str]:
+        """Every image under ``folder`` with one of ``exts``, sorted.
+
+        Sorted so a run is reproducible.
+        """
         exts = tuple(e.lower() for e in exts)
         out = []
         if recursive:
@@ -3462,11 +3678,17 @@ class FOVAlignAndCropper:
 
     @staticmethod
     def _affine_to_3x3(M2x3: np.ndarray) -> np.ndarray:
+        """A 2x3 affine as a 3x3 matrix, so transforms can be composed."""
         A = np.eye(3, dtype=np.float32); A[:2, :3] = M2x3.astype(np.float32)
         return A
 
     @staticmethod
     def _invert_affine(M: np.ndarray) -> np.ndarray:
+        """Invert a 2x3 affine.
+
+        The tiny ridge added before inversion keeps a degenerate matrix from
+        raising; it does not make the result meaningful, only finite.
+        """
         A = M[:,:2]
         t = M[:,2:]
         Ai = np.linalg.inv(A + 1e-12*np.eye(2, dtype=np.float32))
