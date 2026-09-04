@@ -221,6 +221,11 @@ class Colormap:
 
     def __init__(self, name: str, colors: Sequence[Any],
                  stops: Optional[Sequence[float]] = None):
+        """Build a colormap from at least two colours.
+
+        Fewer than two is refused: one colour is not a map, and interpolating
+        between a colour and nothing has no answer.
+        """
         cols = np.asarray([to_rgba(c)[:3] for c in colors], dtype=np.float32)
         if len(cols) < 2:
             raise LayerError(
@@ -263,14 +268,22 @@ class Colormap:
         return out
 
     def __repr__(self) -> str:
+        """The map's name and how many stops it has."""
         return f"Colormap({self.name!r}, {len(self._colors)} stops)"
 
     def __eq__(self, other: Any) -> bool:
+        """Equal when the name AND the colours and stops match.
+
+        The name alone is not enough -- two maps can be renamed to the same thing
+        -- and the arrays alone are not either, because the name is what a saved
+        setting refers to.
+        """
         return (isinstance(other, Colormap) and other.name == self.name
                 and np.array_equal(other._colors, self._colors)
                 and np.array_equal(other._stops, self._stops))
 
     def __hash__(self) -> int:
+        """Hash the name and the colours, so equal maps hash alike."""
         return hash((self.name, self._colors.tobytes()))
 
 
@@ -514,6 +527,13 @@ class Spacing:
     units: str = "px"
 
     def __post_init__(self) -> None:
+        """Coerce and validate the voxel size, then freeze it.
+
+        A ZERO OR NON-FINITE SCALE IS REFUSED HERE rather than tolerated. It
+        collapses an axis -- every world coordinate on it resolves to element 0 --
+        and the overlay is then drawn a slice out of register with NO VISIBLE
+        SYMPTOM, which is why this raises rather than clamping.
+        """
         try:
             scale = tuple(float(v) for v in self.scale)
         except (TypeError, ValueError):
@@ -750,6 +770,12 @@ class Canvas:
     units: str = "px"
 
     def __post_init__(self) -> None:
+        """Coerce and validate the canvas geometry, then freeze it.
+
+        Two dimensions exactly, two distinct axes, a positive shape and a non-zero
+        finite step. Each is refused rather than repaired: a canvas whose rows and
+        columns name the same axis has no meaning to fall back to.
+        """
         origin = tuple(float(v) for v in self.origin)
         step = tuple(float(v) for v in self.step)
         shape = tuple(int(v) for v in self.shape)
@@ -1013,6 +1039,7 @@ class OrthoViews:
     DEFAULT_AXES: ClassVar[Tuple[str, str, str]] = ("z", "y", "x")
 
     def __post_init__(self) -> None:
+        """Coerce and validate the axis names, then freeze them."""
         object.__setattr__(self, "point", MappingProxyType(
             {str(k): float(v) for k, v in dict(self.point).items()}))
         object.__setattr__(self, "steps", MappingProxyType(
@@ -1249,6 +1276,7 @@ class CanvasLink:
     """
 
     def __init__(self, canvases: Optional[Mapping[str, Canvas]] = None):
+        """Link a set of named canvases so they can move together."""
         self._canvases: Dict[str, Canvas] = {}
         self._locked: Dict[str, bool] = {}
         self._listeners: List[Callable[[str], None]] = []
@@ -1257,12 +1285,15 @@ class CanvasLink:
 
     # -- the panels ------------------------------------------------------
     def __len__(self) -> int:
+        """How many panels this link holds."""
         return len(self._canvases)
 
     def __contains__(self, key: Any) -> bool:
+        """Whether a panel key is in this link."""
         return str(key) in self._canvases
 
     def __getitem__(self, key: str) -> Canvas:
+        """One panel's canvas, by key."""
         try:
             return self._canvases[str(key)]
         except KeyError:
@@ -1315,6 +1346,12 @@ class CanvasLink:
         return canvas
 
     def _leader(self) -> Optional[Canvas]:
+        """The first FOLLOWING canvas, or ``None`` if none follow.
+
+        The leader is whichever linked panel comes first, not a panel anyone
+        nominated: an unlocked panel has opted out of the link, so it cannot be
+        what the others follow.
+        """
         for key, canvas in self._canvases.items():
             if self._locked.get(key, True):
                 return canvas
@@ -1450,6 +1487,11 @@ class CanvasLink:
         self._emit("")
 
     def _require_key(self, key: Optional[str]) -> str:
+        """Resolve ``key``, or the first panel when it is ``None``.
+
+        Raises rather than returning ``None`` for an empty link -- a move with no
+        panel to move is a caller error, not a no-op.
+        """
         if key is not None:
             self[key]
             return str(key)
@@ -1494,6 +1536,11 @@ class CanvasLink:
         return True
 
     def _emit(self, key: str) -> None:
+        """Tell every listener that one panel moved.
+
+        Iterates a COPY, so a listener that adds or removes another during the
+        call does not change the list being walked.
+        """
         for listener in list(self._listeners):
             listener(key)
 
@@ -1543,6 +1590,7 @@ class FieldKey:
     object_type: Optional[str] = None
 
     def __post_init__(self) -> None:
+        """Coerce the field's parts to strings and freeze them."""
         values = {str(k): v for k, v in dict(self.values).items()}
         needed = list(type(self).columns(timelapse=bool(self.timelapse)))
         missing = [c for c in needed if c not in values]
@@ -1684,6 +1732,7 @@ class Layer:
                  visible: bool = True, opacity: float = 1.0,
                  blending: str = Blending.TRANSLUCENT,
                  metadata: Optional[Mapping[str, Any]] = None):
+        """Set the layer's name, opacity and visibility, validated."""
         self._name = self._check_name(name)
         self._visible = bool(visible)
         self._opacity = self._check_opacity(opacity)
@@ -1700,6 +1749,11 @@ class Layer:
     # -- identity -------------------------------------------------------
     @staticmethod
     def _check_name(name: str) -> str:
+        """A non-blank name, stripped. Blank is refused.
+
+        A layer is addressed by name, so an empty one is a layer nothing can
+        refer to.
+        """
         text = str(name).strip()
         if not text:
             raise LayerError("a layer needs a non-blank name")
@@ -1707,6 +1761,11 @@ class Layer:
 
     @staticmethod
     def _check_opacity(value: float) -> float:
+        """A finite number in range. Anything else is refused.
+
+        Not clamped: a caller passing 5.0 has misunderstood the scale, and
+        silently making it 1.0 hides that.
+        """
         try:
             v = float(value)
         except (TypeError, ValueError):
@@ -1841,9 +1900,18 @@ class Layer:
                 np.asarray(coverage, dtype=np.float32))
 
     def _draw(self, canvas: Canvas) -> Tuple[np.ndarray, np.ndarray]:
+        """Render this layer onto ``canvas``. Subclasses implement it.
+
+        :returns: ``(rgb, alpha)`` at the canvas's shape.
+        """
         raise NotImplementedError
 
     def _blank(self, canvas: Canvas) -> Tuple[np.ndarray, np.ndarray]:
+        """Fully transparent RGB and alpha at the canvas's shape.
+
+        What a layer with nothing to draw returns, so a caller never has to
+        branch on "no output".
+        """
         h, w = canvas.shape
         return (np.zeros((h, w, 3), dtype=np.float32),
                 np.zeros((h, w), dtype=np.float32))
@@ -1878,6 +1946,11 @@ class Layer:
 
     # -- plumbing -------------------------------------------------------
     def _notify(self, detail: str, kind: str = "changed") -> None:
+        """Tell the stack this layer changed, if it is in one.
+
+        Silent when the layer is not in a stack: a layer edited before it is
+        added is not an error, it just has nobody to tell.
+        """
         if self._stack is not None:
             self._stack._emit(LayerEvent(kind=kind, layer=self,
                                          index=self._stack.index(self),
@@ -1890,6 +1963,7 @@ class Layer:
                 f"{self._opacity:.0%}{vis}")
 
     def __repr__(self) -> str:
+        """The layer's class, name and visibility."""
         return f"<{type(self).__name__} {self._name!r} {self.shape}>"
 
 
