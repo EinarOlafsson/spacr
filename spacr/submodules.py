@@ -177,6 +177,12 @@ class CellposeLazyDataset(Dataset):
         randomize: bool = True,
         augment: bool = False,
     ):
+        """Pair the image and label files and fix the augmentation factor.
+
+        Mismatched lengths raise here rather than at the first bad index, so a
+        wrongly paired dataset fails at construction instead of part-way through
+        an epoch.
+        """
         if len(image_files) != len(label_files):
             raise ValueError(
                 "image_files and label_files must have the same length."
@@ -197,16 +203,24 @@ class CellposeLazyDataset(Dataset):
         self._n_augments = 8 if self.augment else 1
 
     def __len__(self):
+        """Files times augmentations -- the dataset presents each variant as its own item."""
         return len(self.image_files) * self._n_augments
 
     @staticmethod
     def _to_grayscale(image: np.ndarray) -> np.ndarray:
+        """Collapse a colour image to one plane by averaging its channels."""
         if image.ndim == 3:
             return image.mean(axis=-1)
         return image
 
     @staticmethod
     def _scale_to_unit_interval(image: np.ndarray) -> np.ndarray:
+        """Scale into ``[0, 1]``, but only if the image is not already there.
+
+        An image whose maximum is at or below 1.0 is left ALONE rather than
+        stretched, so already-normalised data is not rescaled by its own noise
+        floor.
+        """
         image = image.astype(np.float32, copy=False)
         max_value = float(image.max()) if image.size else 0.0
         if max_value > 1.0:
@@ -215,6 +229,13 @@ class CellposeLazyDataset(Dataset):
 
     @staticmethod
     def _apply_augmentation(image: np.ndarray, label: np.ndarray, aug_idx: int):
+        """One of eight dihedral variants of an image and its label.
+
+        Index 0 is the original; 1-3 rotate, 4-5 flip, 6-7 combine. THE LABEL GETS
+        THE SAME TRANSFORM AS THE IMAGE, which is the whole contract -- and the
+        rotations use ``preserve_range`` so label values stay the integers they
+        are rather than being rescaled.
+        """
         if aug_idx == 1:
             return (
                 rotate(image, 90, resize=False, preserve_range=True),
@@ -247,6 +268,11 @@ class CellposeLazyDataset(Dataset):
         return image, label
 
     def __getitem__(self, idx):
+        """Load one item, decoding ``idx`` into a file and an augmentation.
+
+        The file is read HERE rather than at construction, which is what makes the
+        dataset lazy: a plate larger than memory costs one image at a time.
+        """
         base_idx = idx // self._n_augments
         aug_idx = idx % self._n_augments
 

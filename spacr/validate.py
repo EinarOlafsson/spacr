@@ -77,6 +77,11 @@ class Problem:
         return self.severity == ERROR
 
     def __str__(self) -> str:
+        """The problem and its fix, on two lines.
+
+        The setting's name leads when there is one, so a reader scanning a list of
+        problems sees WHICH setting each belongs to before the message.
+        """
         head = f"[{self.setting}] {self.message}" if self.setting else self.message
         return f"{head}\n    fix: {self.fix}"
 

@@ -270,6 +270,11 @@ class LazyFlowViewSection(CollapsibleSection):
         return enable(collector)
 
     def _clear_error(self) -> None:
+        """Remove the error label, if one is showing.
+
+        Clears the attribute BEFORE touching the widget, so a failure while
+        deleting it cannot leave the section pointing at a half-destroyed label.
+        """
         label = self._error_label
         self._error_label = None
         if label is None:
@@ -324,6 +329,11 @@ class LazyFlowViewSection(CollapsibleSection):
         return self._panel
 
     def _flowview_toggled(self, expanded: bool) -> None:
+        """Start the panel when the section opens and stop it when it closes.
+
+        The panel is built on first open, which is what makes the section lazy --
+        FlowView is not paid for by a user who never expands it.
+        """
         if expanded:
             panel = self._ensure_panel()
             if panel is not None and self.isVisible():
