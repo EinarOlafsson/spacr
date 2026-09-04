@@ -3725,6 +3725,59 @@ def _term_translation(source: str, language: str) -> Optional[str]:
     return result if changed else None
 
 
+#: The join used by composed setting labels, e.g. "Organelle 1 — Cp prob".
+_COMPOSITE_SEPARATOR = " \u2014 "
+
+
+def _composite_translation(source: str, language: str) -> Optional[str]:
+    """Translate an ``A — B`` label by translating each side on its own.
+
+    WHY THIS EXISTS. `_exact_translation` matches a whole string and
+    `_term_translation` substitutes single WORDS, so a label built by joining
+    two pieces with an em dash falls between them: the composite has no exact
+    entry, and a multi-word piece like ``Cp prob`` is not one word, so the
+    word pass cannot see it either. What survives is a half-translated label.
+
+    MEASURED on instruction 306, `organelle_CP_prob`:
+
+        en     'Organelle 1 — Cp prob'
+        ko     '소기관 1 — Cp prob'
+        sv     'Organell 1 — Cp prob'
+        de     'Organelle 1 — Cp prob'
+        zh_CN  '细胞器 1 — Cp prob'
+
+    Every language kept the suffix in English, and only Korean had a test
+    asserting it -- so one locale looked like the whole problem. The
+    translation was never missing: ``tr('Cp prob', 'ko')`` already answered.
+    It was never asked for.
+
+    Each side is resolved exactly first and then by term, which is the same
+    order and the same authority `tr` itself uses, so a hand-reviewed exact
+    entry still wins over a word substitution. Returns None unless at least
+    one side actually changed, so a label with nothing to translate is left
+    byte-for-byte alone.
+    """
+    if _COMPOSITE_SEPARATOR not in source:
+        return None
+    parts = source.split(_COMPOSITE_SEPARATOR)
+    if len(parts) != 2:
+        return None
+    rendered = []
+    changed = False
+    for part in parts:
+        stripped = part.strip()
+        if not stripped:
+            return None
+        piece = (_exact_translation(stripped, language)
+                 or _term_translation(stripped, language))
+        if piece is not None and piece != stripped:
+            changed = True
+        rendered.append(piece if piece is not None else stripped)
+    if not changed:
+        return None
+    return _COMPOSITE_SEPARATOR.join(rendered)
+
+
 def tr(text: object, language: Optional[str] = None, **values: object) -> str:
     """Translate one English UI string.
 
@@ -3737,6 +3790,7 @@ def tr(text: object, language: Optional[str] = None, **values: object) -> str:
     translated = source
     if code != DEFAULT_LANGUAGE:
         translated = (_exact_translation(source, code)
+                      or _composite_translation(source, code)
                       or _term_translation(source, code)
                       or source)
     if values:
