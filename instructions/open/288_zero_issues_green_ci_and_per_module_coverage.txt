@@ -698,3 +698,86 @@ AND THE 13 FAILURES ARE REAL AND WERE INVISIBLE. Not because of the segfault
 Every one of them predates tonight. They are listed and being worked through
 separately; several were tests asserting behaviour that a later instruction
 deliberately replaced.
+
+--------------------------------------------------------------------------------
+2026-09-03 -- THE DOCS JOB, WALKED FORWARD THREE GATES, AND WHY THE FOURTH IS
+              NOT TO BE FIRED YET
+--------------------------------------------------------------------------------
+
+`docs` had failed on every push. Three separate defects were in the AUDIT
+rather than in anything it audits, and each hid the next.
+
+  1. A PROTECTED LITERAL, EATEN BY ITS OWN DISAMBIGUATOR. `RUNNING` is a value
+     the API reports and sits in `_PROTECTED_TERMS` beside QUEUED, FAILED,
+     SKIPPED and SUCCESS. The sense transforms run case-insensitively -- they
+     must, "running" being ordinary English almost everywhere it appears -- so
+     the expansion to "executing" destroyed the literal and `_syntax_preserved`
+     refused the document. Guarded on the case, because the case IS the
+     distinction. NOT by masking every protected term: `_CONTEXT_HARD_PROTECT_RE`
+     deliberately leaves product names visible so a phrase can repair grammar
+     around them, and one of the run transforms lists `GUI` among its own
+     alternatives.
+
+  2. A FALSE POSITIVE IN THE CHECKER. Emphasis was counted with a pattern that
+     excludes newlines, so `*present in every table this\nrun writes*` did not
+     count while the same span on one line did. Expanding "run" pulled it onto
+     one line, the count went 1 -> 2, and a document with every literal intact
+     was rejected for having been REFLOWED. Lines inside a paragraph are now
+     joined before counting; a blank line is not, because a paragraph break
+     really does end inline markup. Mutation-tested: dropped emphasis, added
+     emphasis, dropped strong and cross-paragraph asterisks all still fail.
+
+  3. SEVEN STALE REVIEWED RECORDS. Both audits abort on the FIRST, so the total
+     had never been known. Measured: 7 of 4,339 (de 1, hi 2, is 4). The larger
+     numbers a first pass gives are wrong in instructive ways -- 35 name symbols
+     no longer in the public API, which the audit already skips on purpose, and
+     43 were already retired. Retired, not deleted, per the mechanism at
+     build_documentation_i18n.py:5798.
+
+The audit now RUNS TO COMPLETION and reports findings instead of dying with a
+traceback. That is the difference between a broken gate and a working one.
+
+--------------------------------------------------------------------------------
+WHAT IT REPORTS, AND WHY `--sources-only` IS STILL "ONCE, AT THE END"
+--------------------------------------------------------------------------------
+
+199 findings over 67 symbols, every one in `en/`: the English API manifest is
+behind current source. The obvious fix is the regeneration HANDOFF already
+lists as owed, `tools/build_documentation_i18n.py --sources-only`, which needs
+neither OpenCC nor a translation model and writes exactly one file.
+
+IT WAS NOT RUN, and the measurement is the reason:
+
+    stored en.json symbols                        8 943
+    current source symbols                        9 405
+    entries whose text differs                      510
+    in source but MISSING from the manifest         472
+    in the manifest but gone from source             10
+
+8,943 is the same number the last audit recorded, so the manifest has not
+moved while the source grew by 472 symbols. Regenerating it would admit those
+472 to the gate at once, and NONE of them has a translation in any of the nine
+locales -- trading a 199-finding English staleness for a nine-locale deficit
+several times larger, and one that cannot be closed without the model and a
+reviewer. That is the same trap the sibling tool sprang on 2026-09-03, when
+`build_i18n_catalogs.py --sources-only` took its file from 8 failures to 10 for
+precisely this reason, at smaller scale.
+
+The API surface is also still moving, and this session moved it: the dock
+rewrite added `spacr/qt/widgets/dock.py`. HANDOFF's "the API ratchet, once, at
+the end -- it moves while agents run" is the correct sequencing and this
+measurement is the evidence for it. Regenerate when the surface is frozen, and
+budget the nine-locale pass that has to follow it.
+
+--------------------------------------------------------------------------------
+STATE OF THE THREE WORKFLOWS ON nightly
+--------------------------------------------------------------------------------
+
+    compat-matrix   green
+    tests           long; not the blocker examined here
+    docs            red, now on a REPORTED finding rather than a crash
+
+Also fixed toward this item today, and recorded in their own commits: the 21
+F821 undefined names that failed the repo-wide fatal lint gate (`ruff check
+spacr tests --select E9,F63,F7,F82` now passes), and the two i18n tests that
+were asserting opposite things about the README language picker.
