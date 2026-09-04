@@ -1966,7 +1966,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "e625c799eb8ef134ae8efae87b716f0825b723dc3b954a36ee3b0e5b8d197377"
+    ) == "74716184c7f6088d2a6f7e605baf3db85d6d3dc2ad4642f3b9c1075280cb0f0a"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2092,12 +2092,12 @@ def test_no_new_public_callable_lacks_a_docstring():
     # `spacr.qt.dnd_handlers` now documents itself. 368's rule is that the
     # improvement is banked in the commit that earns it, or documenting a
     # hundred callables silently buys room to leave a hundred more.
-    assert len(docless) == 459
+    assert len(docless) == 394
     assert sum(
         item.docless_variant_count for item in _public_callables()
-    ) == 459
+    ) == 394
     assert _sha256_lines(docless) == (
-        "5f768f50393bd45d005c26d2a3264ed7a86123e80acf1f055820823052ba3173"
+        "07a9519e967fd011d2c3378a1a32e7166f36979f2912d798577cf8a6681ae881"
     )
 
 
@@ -2258,10 +2258,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,427 -> 9,441. Seven public symbols were added earlier today and
     # seven drop-handler methods stopped being aliases, so they now carry
     # their own entry instead of borrowing one.
-    assert len(docs) == 9_539
+    assert len(docs) == 9_627
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
-    assert len(rendered_documented_callables) == 7_920
+    assert len(rendered_documented_callables) == 7_985
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2477,24 +2477,24 @@ def test_no_new_undocumented_required_public_parameters():
     # job: a documented callable whose required parameters are unexplained
     # still counts here, so the drop-handler docstrings carry `:param:` and
     # `:returns:` fields and the number goes DOWN rather than up.
-    assert len(omissions) == 2_542
-    assert sum(omitted_callables.values()) == 1_856
+    assert len(omissions) == 2_499
+    assert sum(omitted_callables.values()) == 1_818
     assert omitted_callables == {
         "function": 756,
-        "method": 1_054,
+        "method": 1_016,
         "constructor": 2,
         "dataclass_constructor": 42,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
         "function": 1_127,
-        "method": 1_270,
+        "method": 1_227,
         "constructor": 3,
         "dataclass_constructor": 130,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "4095cf4eec10cf1e93d94a0f9e1cbcad991cd634e4b4d3f294c3973dea8be87c"
+        "15bcd92a9e6cd3559911bce52beb748104fa4912efb25d0d94adfe034139fb62"
     )
 
 
