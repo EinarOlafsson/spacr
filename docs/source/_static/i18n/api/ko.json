@@ -19747,7 +19747,7 @@
         "a4aa71d276ed678552ca7125e4f23876cf1df00986892640182b518272f9a747"
       ],
       "source_sha256": "f00ebbad76aa1e98768f1bf80756a751e594810b681c8428fa1da4d75532b4bd",
-      "text": "게시된 파일을 받는 전화번호를 설치합니다.\n\n:param sink: 출판된 독립적 인 실행 경로에서 ``sink(path, title)``를 호출합니다. :func:`set_sink`와 마찬가지로 위젯에 접촉해서는 안됩니다.\n:returns: 이전에 설치된 싱크, 그래서 호출자가 그것을 다시 넣을 수 있습니다.",
+      "text": "게시된 파일을 받는 호출 가능 객체를 설치합니다.\n\n:param sink: 출판된 독립적 인 실행 경로에서 ``sink(path, title)``를 호출합니다. :func:`set_sink`와 마찬가지로 위젯에 접촉해서는 안됩니다.\n:returns: 이전에 설치된 싱크, 그래서 호출자가 그것을 다시 넣을 수 있습니다.",
       "translation_source_blocks_sha256": [
         "301480d8de224fcc84995bab9f257f57a944b08cc39c076d29c08dae7e690d89",
         "84f39a56882e76aa5cb9f8c2142c0f1b6d08142d1f4a9a71f21641cb3856b354",
@@ -19761,7 +19761,7 @@
         "a4aa71d276ed678552ca7125e4f23876cf1df00986892640182b518272f9a747"
       ],
       "source_sha256": "4ceef944e80445ef1f963ce6dee9a406b14919426bc652c81b468172b784bba0",
-      "text": "게시된 숫자를 수신하는 전화번호를 설치합니다.\n\n:param sink: 호출 ``sink(fig, path)`` 독립적 인 실행 경로에 게시됩니다.그것은 위젯을 만지지 않아야합니다. GUI 옆에 앉아 있는 사람은 A PNG 그리고 그 손은 신호를 넘어섰다.\n:returns: 이전에 설치된 싱크, 그래서 호출자가 그것을 다시 넣을 수 있습니다.",
+      "text": "게시된 숫자를 수신하는 호출 가능 객체를 설치합니다.\n\n:param sink: 호출 ``sink(fig, path)`` 독립적 인 실행 경로에 게시됩니다.그것은 위젯을 만지지 않아야합니다. GUI 옆에 앉아 있는 사람은 A PNG 그리고 그 손은 신호를 넘어섰다.\n:returns: 이전에 설치된 싱크, 그래서 호출자가 그것을 다시 넣을 수 있습니다.",
       "translation_source_blocks_sha256": [
         "9be8c77f65a503b8e4149fbc8b263a172115ede4d956abfbf7d99e8a45a38755",
         "cc0b95423c416634af49258e9574d9c47b4fa5204c9f03324d888837ee9cb946",
@@ -22528,7 +22528,7 @@
         "b1cfa5566819f384af5a9d5d3f3fde1a4c0fff4a7122d4c6f7cad9158d56a425"
       ],
       "source_sha256": "79058f84bc47e1ccb5ab45f6ed25d09e1165aa482e6a0b5869980b833ea3de08",
-      "text": "승인된 클래식 그래프에 대한 실패 고립된 생활주기 이벤트.\n\n핵심 작업 흐름 모듈은 ``sys.modules`` 데이터 선택 경계를 통해서만이 개인 모듈에 도달합니다. 여기에서 상태 기계를 유지하면 CV 및 ML 구현은 장애인 경로에 FlowView을 가져오지 않고 한 시계와 하나의 주게이트 규칙을 제공합니다. 그들의 전화는 개인적으로 남아있다; 모듈 게이트서화는 이 도구가 왜 존재하는지 API 대중에게 그 도우미를 홍보하지 않고 설명합니다.",
+      "text": "승인된 클래식 그래프에 대한 실패 고립된 생활주기 이벤트.\n\n핵심 작업 흐름 모듈은 ``sys.modules`` 데이터 선택 경계를 통해서만이 개인 모듈에 도달합니다. 여기에서 상태 기계를 유지하면 CV 및 ML 구현은 장애인 경로에 FlowView을 가져오지 않고 한 시계와 하나의 주게이트 규칙을 제공합니다. 그들의 호출는 개인적으로 남아있다; 모듈 게이트서화는 이 도구가 왜 존재하는지 API 대중에게 그 도우미를 홍보하지 않고 설명합니다.",
       "translation_source_blocks_sha256": [
         "b21361cdf8a2e2d0975818c4b9eacb0aea78ef0783dc17c0447a23a6bf283502",
         "f09950054a23b35ba85dd27703d05e85f78cf0bdd74479a90934ccef245d36e6"
@@ -23448,7 +23448,7 @@
         "fec507d28ab9f900234e9541b3bbfd5029b278b1c3989466f0ff6de7079302db"
       ],
       "source_sha256": "76a27f2958a64d8ed8a26051cd5564672a4c7bd8d3091547a05245729b29d796",
-      "text": "사용하는 장소는 그때 PySide6 이용할 수 없음\n\n건설 상승 :class:`ImportError` 그와 함께 ``pip install spacr[flowview]`` 수리와 함께 PySide6, ``FlowViewPanel`` 라이브 스냅샷을 제공하고 검사합니다.\n\n:param collector: 이벤트 컬렉터의 스냅샷은 패널 렌더입니다.\n:param parent: 옵션 Qt 부모 위젯.\n:param refresh_interval_ms: 긍정적 타이머 간격, 밀리초, 자동 냉각 사이.\n:param export_path_provider: 수출 목적지로 돌아가거나 ``None``를 취소하는 옵션 전화 반환. 하나 없이 수출은 Qt 파일 대화를 열어줍니다.\n:param auto_start: 초기 강제 렌더링 후 새롭게 타이머를 시작하는지 여부.\n:param embedded: 투명하고 무한한 표면을 사용하고 다른 화면에 삽입하기 위해 패널 제목을 숨기십시오.",
+      "text": "사용하는 장소는 그때 PySide6 이용할 수 없음\n\n건설 상승 :class:`ImportError` 그와 함께 ``pip install spacr[flowview]`` 수리와 함께 PySide6, ``FlowViewPanel`` 라이브 스냅샷을 제공하고 검사합니다.\n\n:param collector: 이벤트 컬렉터의 스냅샷은 패널 렌더입니다.\n:param parent: 옵션 Qt 부모 위젯.\n:param refresh_interval_ms: 긍정적 타이머 간격, 밀리초, 자동 냉각 사이.\n:param export_path_provider: 수출 목적지로 돌아가거나 ``None``를 취소하는 옵션 호출 반환. 하나 없이 수출은 Qt 파일 대화를 열어줍니다.\n:param auto_start: 초기 강제 렌더링 후 새롭게 타이머를 시작하는지 여부.\n:param embedded: 투명하고 무한한 표면을 사용하고 다른 화면에 삽입하기 위해 패널 제목을 숨기십시오.",
       "translation_source_blocks_sha256": [
         "542bb397f8f08e2621a8b2347ed9bb6991de0b20e8f1f7667c2251339fa6d589",
         "000489ea20a1c25d5448e9a7bec300cd3c773936059fef04ff56bb253916c241",
@@ -26433,7 +26433,7 @@
         "335dad36235496c3fdc08c7d912e057a011d94051ff3b8a33e5b52ed432b25ec"
       ],
       "source_sha256": "b5643c6eae319dac89bc27f3052cc843a0f6da9336e72f9ded04903190596a65",
-      "text": "RAPIDS cuML 그것이 도움이되는 곳, 그리고 CPU 구현은 다른 곳마다.\n\n옵션 RAPIDS 지원을 설치하십시오 :\n\n    pip install spacr[rapids]\n\nCPU 경로는 기본으로 유지되고, 테스트되고, cuML이 없을 때마다 대답이 유지되며, 번역가가 잘못되거나, CUDA 장치가 없거나, 호출자가 결정주의를 요구합니다.\n\n왜 외부이며 결코 의존성이 없습니까? ``cuml-cu12`` 선언하기 ``requires_python >= 3.11`` 3.11 및 3.12에 대한 기계 학습 분류 모델만, 그리고 원하는 ``numpy>=2.0`` 그리고 ``scipy>=1.14``. spaCR 약속 3.9에서 3.14까지, 그래서 그것의 핵심은 6 개의 해석자 중 4 명을 떨어 뜨릴 것입니다. 추가로 그것은 아무것도 제한하지 않습니다. setup.py.\n\nWHERE IT 현재 도움이됩니다. cuML은 알고리즘을 구현합니다. spaCR 이미 큰 테이블에 앉아있다 : UMAP, t-SNE, PCA, DBSCAN 그리고 KMeans.이것은 여기에서 제공되는 것입니다.다른 모든 것 spaCR - barcode mapping, 형식 변환, SQLite, 보고서 수집, 그룹화 된 통계 -는 압축, 파일 시스템 및 작은 테이블 작업이며, 그것을 이동합니다. GPU 그것은 전송 시간을 지불하고 아무것도 구입하지 않을 것입니다. GPU 가속은 전송 과잉이 계산에 의해 과장되는 작업 부하에 대 한 예약됩니다.\n\n**결정주의는 진정한 차이이며 발자국이 아닙니다.** CML의 UMAP 똑같은 것 같지 않다. umap- 학습, 그리고 그것의 KMeans 및 DBSCAN 다른 기계에서 재생 된 숫자가 움직일 것입니다. 그래서 가속기는 호출 당 OPT-IN이며, 후방 끝이 실행되는 보고서이며, 재생 가능성을 위해 씨앗을 뿌리는 모든 전화기는 회복 가능성을 유지해야합니다. CPU 길을 걷다",
+      "text": "RAPIDS cuML 그것이 도움이되는 곳, 그리고 CPU 구현은 다른 곳마다.\n\n옵션 RAPIDS 지원을 설치하십시오 :\n\n    pip install spacr[rapids]\n\nCPU 경로는 기본으로 유지되고, 테스트되고, cuML이 없을 때마다 대답이 유지되며, 번역가가 잘못되거나, CUDA 장치가 없거나, 호출자가 결정주의를 요구합니다.\n\n왜 외부이며 결코 의존성이 없습니까? ``cuml-cu12`` 선언하기 ``requires_python >= 3.11`` 3.11 및 3.12에 대한 기계 학습 분류 모델만, 그리고 원하는 ``numpy>=2.0`` 그리고 ``scipy>=1.14``. spaCR 약속 3.9에서 3.14까지, 그래서 그것의 핵심은 6 개의 해석자 중 4 명을 떨어 뜨릴 것입니다. 추가로 그것은 아무것도 제한하지 않습니다. setup.py.\n\nWHERE IT 현재 도움이됩니다. cuML은 알고리즘을 구현합니다. spaCR 이미 큰 테이블에 앉아있다 : UMAP, t-SNE, PCA, DBSCAN 그리고 KMeans.이것은 여기에서 제공되는 것입니다.다른 모든 것 spaCR - barcode mapping, 형식 변환, SQLite, 보고서 수집, 그룹화 된 통계 -는 압축, 파일 시스템 및 작은 테이블 작업이며, 그것을 이동합니다. GPU 그것은 전송 시간을 지불하고 아무것도 구입하지 않을 것입니다. GPU 가속은 전송 과잉이 계산에 의해 과장되는 작업 부하에 대 한 예약됩니다.\n\n**결정주의는 진정한 차이이며 발자국이 아닙니다.** CML의 UMAP 똑같은 것 같지 않다. umap- 학습, 그리고 그것의 KMeans 및 DBSCAN 다른 기계에서 재생 된 숫자가 움직일 것입니다. 그래서 가속기는 호출 당 OPT-IN이며, 후방 끝이 실행되는 보고서이며, 재생 가능성을 위해 씨앗을 뿌리는 모든 호출자는 회복 가능성을 유지해야합니다. CPU 길을 걷다",
       "translation_source_blocks_sha256": [
         "84ab99fd2750f0509f717051a9f335eab8fc883fdc33a062e3ee455ed350914b",
         "510c6dabefdc114c2cdcea108604a1d4bc252e6f0677f18be4d7e6c72315aca2",
@@ -26451,7 +26451,7 @@
         "523426762697ecb2834bce679fdaf28725c020105521dc4e789689c51dea9b83"
       ],
       "source_sha256": "f6348420c368fa2c4a23351f46ef1938907201f3d70c4efcdb20f93fd95a4f98",
-      "text": "GPU 공유 하버 패널이 원하는 것처럼 가속화.\n\n거울 :func:`spacr.regression_backends.availability_entry`, 그래서 패널은 하나의 맵링 모양을 취하고 전화기는 다른 하나를 수입하지 않습니다.\n\n:returns: ``{key, title, reason, url, offer, enabled}``.",
+      "text": "GPU 공유 하버 패널이 원하는 것처럼 가속화.\n\n거울 :func:`spacr.regression_backends.availability_entry`, 그래서 패널은 하나의 맵링 모양을 취하고 호출자는 다른 하나를 수입하지 않습니다.\n\n:returns: ``{key, title, reason, url, offer, enabled}``.",
       "translation_source_blocks_sha256": [
         "21655531b877bc8ade63048bebe88e9eab583cbaf128b6a944fa47e28d7c8ba2",
         "2160af0b90e096f5f139696e1b55e40a905e2e66d0d9d67cd3094427520a9aa5",
@@ -35455,7 +35455,7 @@
         "6b764b296051373faacfd1867118ff0c89f5fd0c8ffafdabe74a6b5ee43b5881"
       ],
       "source_sha256": "c82ce3f478be54c86982fdaf5b34fb070203edd5f024fd5d0a7062877129bb21",
-      "text": "로그인하는 장식기는 논쟁, 반환 가치 및 예외를 호출합니다.\n\n:param func: 을 을 다.\n:returns: INFO-level 트랙 입력을 발행하는 삽입된 전화기.",
+      "text": "로그인하는 장식기는 논쟁, 반환 가치 및 예외를 호출합니다.\n\n:param func: 을 을 다.\n:returns: INFO-level 트랙 입력을 발행하는 삽입된 호출자.",
       "translation_source_blocks_sha256": [
         "3cb967d2aca81aa7b74e684a5fa4e553af4480aee7f7da6e948946a9635e7f24",
         "7e191fca61accd4c49ea12a30b6cc65c4b9c4f37efde77ec0045948e894f308a",
@@ -35984,7 +35984,7 @@
         "ebe8bedad8daa710d02c4c54244439299a747e318d3f70edc5f5a8b38e0ce20e"
       ],
       "source_sha256": "316d16c38781ec5d74f405faaf5073ec3a5542cf6cbca1b51d5da53767f5d6e5",
-      "text": "하나의 기록된 실행 : 무엇을 실행, 무엇에, 어떤 ID 아래.\n\n:param module: 모듈 / 앱 키 - ``\"mask\"``, ``\"measure\"``.\n:param entry_module: 입구점의 수입 경로를 지정합니다.\n:param entry_func: 기능 이름을 쓴다.\n:param settings: 완전히 명확한 설정 키 가치 지도.\n:param defaulted: 모듈의 기본에서 채워진 키.\n:param user_set: 실제로 제공되는 전화기 키.\n:param defaults_source: 어떤 출처가 대답했는지; :func:`module_defaults`을 참조하십시오.\n:param run_id: ID는 로그 라인과 출력에 표시된 처리 세션입니다.\n:param run_ids: 각 처리-세션 ID는 처리 세션 동안, 순서대로 관찰됩니다. 1 개 이상은 작업 흐름이 열려있는 둥근 실행을 의미합니다.\n:param run_id_source: ``\"runctx\"`` ID가 처리 세션의 자신의 로그 기록에서 나왔을 때, ``\"journal\"`` 실행 컨텍스트가 열리지 않았기 때문에 잡지 폴더에서 가져 왔습니다.\n:param settings_hash: :func:`spacr.artifacts.settings_hash` 명시적인 설정 위에 - 벽돌 라인이 운반하는 소화기.\n:param project_root: 프로젝트는 그 단계를 계속했다.\n:param run_dir: 신문 폴더를 쓴다.\n:param status: ``\"success\"``, ``\"failed\"``, ``\"cancelled\"``.\n:param started_utc: 단계가 열렸을 때\n:param finished_utc: 닫히는 때에\n:param elapsed_s: 얼마나 오래 걸렸는지.\n:param outputs: 디스크에 존재하는 출력 위치를 선언합니다.\n:param link: 이 단계가 이전 단계를 어떻게 따르는지 - ``\"ports\"`` :func:`spacr.ports.next_modules` 옆구리를 선언 할 때, ``\"project\"`` 그들이 단순히 프로젝트를 공유 할 때 ``\"\"`` 첫 번째 단계.\n:param coerced: 값이 Python 문자 그대로 아닌 이름을 설정하고 그것의 링 형식으로 제시되었습니다.\n:param spacr_version: 그것을 실행한 버전이었습니다.",
+      "text": "하나의 기록된 실행 : 무엇을 실행, 무엇에, 어떤 ID 아래.\n\n:param module: 모듈 / 앱 키 - ``\"mask\"``, ``\"measure\"``.\n:param entry_module: 입구점의 수입 경로를 지정합니다.\n:param entry_func: 기능 이름을 쓴다.\n:param settings: 완전히 명확한 설정 키 가치 지도.\n:param defaulted: 모듈의 기본에서 채워진 키.\n:param user_set: 실제로 제공되는 호출자 키.\n:param defaults_source: 어떤 출처가 대답했는지; :func:`module_defaults`을 참조하십시오.\n:param run_id: ID는 로그 라인과 출력에 표시된 처리 세션입니다.\n:param run_ids: 각 처리-세션 ID는 처리 세션 동안, 순서대로 관찰됩니다. 1 개 이상은 작업 흐름이 열려있는 둥근 실행을 의미합니다.\n:param run_id_source: ``\"runctx\"`` ID가 처리 세션의 자신의 로그 기록에서 나왔을 때, ``\"journal\"`` 실행 컨텍스트가 열리지 않았기 때문에 잡지 폴더에서 가져 왔습니다.\n:param settings_hash: :func:`spacr.artifacts.settings_hash` 명시적인 설정 위에 - 벽돌 라인이 운반하는 소화기.\n:param project_root: 프로젝트는 그 단계를 계속했다.\n:param run_dir: 신문 폴더를 쓴다.\n:param status: ``\"success\"``, ``\"failed\"``, ``\"cancelled\"``.\n:param started_utc: 단계가 열렸을 때\n:param finished_utc: 닫히는 때에\n:param elapsed_s: 얼마나 오래 걸렸는지.\n:param outputs: 디스크에 존재하는 출력 위치를 선언합니다.\n:param link: 이 단계가 이전 단계를 어떻게 따르는지 - ``\"ports\"`` :func:`spacr.ports.next_modules` 옆구리를 선언 할 때, ``\"project\"`` 그들이 단순히 프로젝트를 공유 할 때 ``\"\"`` 첫 번째 단계.\n:param coerced: 값이 Python 문자 그대로 아닌 이름을 설정하고 그것의 링 형식으로 제시되었습니다.\n:param spacr_version: 그것을 실행한 버전이었습니다.",
       "translation_source_blocks_sha256": [
         "77d6cf0ab6b353b910d69998fde43de1136a61815d93b0d7206897045581d055",
         "41fffba3175155e040fe171d9d227f67051d956677d57979f680669cae00d47d",
@@ -54740,7 +54740,7 @@
         "71788cd688d2683a246c4030119cdf4ffd0b4f1dc1d3f2c9df0c4c218b193aab"
       ],
       "source_sha256": "d6e1d7f1ee6e600a987b6fa13c10998bde2d098a254e21c97bf07d0a576e60ea",
-      "text": "공장은 ``key`` 또는 ``None``에 등록되어 있습니다.\n\n선언된 응용 프로그램은 실제 호출 가능성에 대해 :class:`~spacr.qt.app_catalog.LazyScreenFactory`로 등록되며, 이것이 스탠딩이 끝나는 곳입니다 : 공장에 대한 요청은 응용 시각을 가져오고 모듈 자체 기능을 반환합니다.\n\n그것은 의도적이며, 그것은 모든 아래 흐름에 눈에 띄지 않게 만드는 것입니다. :func:`_call_screen_factory`는 공장의 서명을 읽고 ``app_key``와 ``host``를 통과하는지 여부를 결정하고, 스탠드인 서명은 자신의 것이 아니라 진짜 하나입니다; 등록 된 공장 ``is``를 주장하는 테스트는 모듈의 기능은 또한 포장과 비교 될 것입니다. 여기에서 해결하는 것은 결코 하나를 볼 수 없다는 것을 의미합니다.\n\n해결된 전화기는 :data:`APP_FACTORIES`에서 스탠드 인을 대체하므로 응용 프로그램 전망이 오후마다 열리고 닫힌 경우에도 한 번의 수입이 발생합니다. 모듈이 수입하지 못하는 스탠드는 위치에 남아 있으며 ``None``가 반환됩니다.",
+      "text": "공장은 ``key`` 또는 ``None``에 등록되어 있습니다.\n\n선언된 응용 프로그램은 실제 호출 가능성에 대해 :class:`~spacr.qt.app_catalog.LazyScreenFactory`로 등록되며, 이것이 스탠딩이 끝나는 곳입니다 : 공장에 대한 요청은 응용 시각을 가져오고 모듈 자체 기능을 반환합니다.\n\n그것은 의도적이며, 그것은 모든 아래 흐름에 눈에 띄지 않게 만드는 것입니다. :func:`_call_screen_factory`는 공장의 서명을 읽고 ``app_key``와 ``host``를 통과하는지 여부를 결정하고, 스탠드인 서명은 자신의 것이 아니라 진짜 하나입니다; 등록 된 공장 ``is``를 주장하는 테스트는 모듈의 기능은 또한 포장과 비교 될 것입니다. 여기에서 해결하는 것은 결코 하나를 볼 수 없다는 것을 의미합니다.\n\n해결된 호출자는 :data:`APP_FACTORIES`에서 스탠드 인을 대체하므로 응용 프로그램 전망이 오후마다 열리고 닫힌 경우에도 한 번의 수입이 발생합니다. 모듈이 수입하지 못하는 스탠드는 위치에 남아 있으며 ``None``가 반환됩니다.",
       "translation_source_blocks_sha256": [
         "9c6341a4407935bc0aa3c0517722e25b357d80b2f13f13c5f69e3b65c881dd1c",
         "7ab868251b21c03ad5e996f232327a9db35ab6eda6ddeb2ad23944c7e97f4d4c",
@@ -55524,7 +55524,7 @@
         "c49ad207a8a67b97e8c20106f0a6625693ee003b39f66d2c35e194aab5df3b15"
       ],
       "source_sha256": "845d6a874fd43385ffe0accf6a36fbcfd4052de4433478289ab6d4a4e047b4b0",
-      "text": "반환 ``(thread, worker)`` - 전화기는 노동자의 신호와 ``thread.start()``를 연결합니다.\n\n노동자는 Python 소유하고 ``deleteLater``에 연결되어 있지 않습니다; 그것의 마지막 강력한 참조는 그것을 풀어줍니다. QThread 자체는 ``deleteLater``를 유지하기 때문에 그것은 호출자의 실행 이벤트 루프에 속합니다.\n\n호출자는 ``thread.finished``까지 두 가지에 대한 강력한 참조를 유지해야합니다 : 실행하는 동안 QThread 쓰레기 수집이 과정을 감소시킵니다.\n\n이 작업은 또한 추가되었습니다 :func:`registry` 그것이 실행되는 동안, 그것을 시작하지 않은 표면 ( 홈 응용 프로그램 보기)은 무엇을 보여줄 수 있습니다. spaCR 녹음이 끊어지고, 녹음을 꺼낸다. ``thread.finished`` - 누가 가지고 있는가 *콜러의* 애플리케이션 - 대신 ``worker.finished``, 배경 실행 단위에 발행되고 등록을 취할 것입니다 (주요 GUI 실행 경로 QObject) 그것과 함께.\n\n:param fn: 뒷면 실행 단위에서 ``fn(settings)``로 호출 할 수 있습니다.\n:param settings: 단일 논쟁은 ``fn``에 전달되었습니다.\n:param app_key: ``fn``에 표시된 키를 :func:`resolve_pipeline_entry`로 초과합니다.이 작업은 자신의 이름으로 홈에 표시되기를 원하는 광고 호크 작업에만 필요합니다.\n:param journal: 재생 가능성 기록을 만들 수 있습니다. UI 가정 관리만 읽을 수 없으며 분석 실행이 아닙니다.\n:param capture_figures: Matplotlib 그림 가로채기를 준비합니다. 분석 실행에서는 true로 유지하고, 그림을 만들 수 없는 읽기 전용 UI 작업은 작업의 가져오기 경계를 보존하기 위해 false로 설정합니다.\n:returns: 시작되지 않은 ``(QThread, PipelineWorker)`` 쌍.",
+      "text": "반환 ``(thread, worker)`` - 호출자는 노동자의 신호와 ``thread.start()``를 연결합니다.\n\n노동자는 Python 소유하고 ``deleteLater``에 연결되어 있지 않습니다; 그것의 마지막 강력한 참조는 그것을 풀어줍니다. QThread 자체는 ``deleteLater``를 유지하기 때문에 그것은 호출자의 실행 이벤트 루프에 속합니다.\n\n호출자는 ``thread.finished``까지 두 가지에 대한 강력한 참조를 유지해야합니다 : 실행하는 동안 QThread 쓰레기 수집이 과정을 감소시킵니다.\n\n이 작업은 또한 추가되었습니다 :func:`registry` 그것이 실행되는 동안, 그것을 시작하지 않은 표면 ( 홈 응용 프로그램 보기)은 무엇을 보여줄 수 있습니다. spaCR 녹음이 끊어지고, 녹음을 꺼낸다. ``thread.finished`` - 누가 가지고 있는가 *콜러의* 애플리케이션 - 대신 ``worker.finished``, 배경 실행 단위에 발행되고 등록을 취할 것입니다 (주요 GUI 실행 경로 QObject) 그것과 함께.\n\n:param fn: 뒷면 실행 단위에서 ``fn(settings)``로 호출 할 수 있습니다.\n:param settings: 단일 논쟁은 ``fn``에 전달되었습니다.\n:param app_key: ``fn``에 표시된 키를 :func:`resolve_pipeline_entry`로 초과합니다.이 작업은 자신의 이름으로 홈에 표시되기를 원하는 광고 호크 작업에만 필요합니다.\n:param journal: 재생 가능성 기록을 만들 수 있습니다. UI 가정 관리만 읽을 수 없으며 분석 실행이 아닙니다.\n:param capture_figures: Matplotlib 그림 가로채기를 준비합니다. 분석 실행에서는 true로 유지하고, 그림을 만들 수 없는 읽기 전용 UI 작업은 작업의 가져오기 경계를 보존하기 위해 false로 설정합니다.\n:returns: 시작되지 않은 ``(QThread, PipelineWorker)`` 쌍.",
       "translation_source_blocks_sha256": [
         "26d9057fd78dc7af66e715481e2fc275e3994a114782ca0cbff7e7c96ce2c74c",
         "d685e4a3a3bf2e1d15e722b6db315753180e3eeab72e54dc59ce2c87f507f8ed",
@@ -73757,7 +73757,7 @@
         "135bf5b87d2eb0d0c6474c3ef763b59a92e30d7fc18cad3ef3ca4c6d1bde7f05"
       ],
       "source_sha256": "6c9c09490e809e77c4609c2c2fb15cd0d2499b58cb4ae26348cc056cd3387f5f",
-      "text": "호스트의 현재 모듈 설정으로 반환되는 전화 반환을 기록합니다.\n\n이 패널 또는 그 팝업이 열려있는 동안 주요 설정 양식은 편집 가능합니다. 각 검색 직전에 읽으면 패널이 열린 후에 출처 경로가 떨어지는 것을 방지합니다.\n\n:param provider: 0-argument callback 설정 지도를 반환합니다.",
+      "text": "호스트의 현재 모듈 설정으로 반환되는 호출 반환을 기록합니다.\n\n이 패널 또는 그 팝업이 열려있는 동안 주요 설정 양식은 편집 가능합니다. 각 검색 직전에 읽으면 패널이 열린 후에 출처 경로가 떨어지는 것을 방지합니다.\n\n:param provider: 0-argument callback 설정 지도를 반환합니다.",
       "translation_source_blocks_sha256": [
         "2a026ef2bedeb6a584e298084ad3bdfcf983f759c81c21382bb41dc1521c0887",
         "fec821e0e3e9272cab1bcd357abea4fb040a286046519d8548d24786cd4eb721",
@@ -74684,7 +74684,7 @@
         "abec1c83499cc116c6568fe911e30348b74aa5029cdf019b379668daa8b4d3b9"
       ],
       "source_sha256": "cb704f3f752c90c36b5da15720ccd214fd5f71ad1d95c5b4b9ae9398ad44a2bb",
-      "text": "``frame``. 시험 - 또는 다른 스크리닝 -을 통과하는 시험.\n\n:param frame: 측정 라인은 scatter plot에서 표시됩니다.\n:param keys: 1 개의 개체는 순서대로 식별합니다. :data:`spacr.selection.OBJECT_KEY_COLUMNS`를 착용하고 잊혀지면 프레임에서 유래합니다. 식별자가 없으면 스크립트는 여전히 끌어 들일 수 있지만 클릭은 아무것도 열 수 없으며 아무것도를하지 않는 대신 그렇게 말합니다.\n:param paths: ``{key: crop path}``, 전화기에서 한 번 해결.",
+      "text": "``frame``. 시험 - 또는 다른 스크리닝 -을 통과하는 시험.\n\n:param frame: 측정 라인은 scatter plot에서 표시됩니다.\n:param keys: 1 개의 개체는 순서대로 식별합니다. :data:`spacr.selection.OBJECT_KEY_COLUMNS`를 착용하고 잊혀지면 프레임에서 유래합니다. 식별자가 없으면 스크립트는 여전히 끌어 들일 수 있지만 클릭은 아무것도 열 수 없으며 아무것도를하지 않는 대신 그렇게 말합니다.\n:param paths: ``{key: crop path}``, 호출자에서 한 번 해결.",
       "translation_source_blocks_sha256": [
         "cfb4fe5d5000898da0b992a81e86446c407a5b3e94862fc2d81beefef721dddf",
         "0aa9a33a90eba15f7b6d5cdd4aa1642dfdce6cb5098107dae6fa1a67ef80b479",
@@ -84757,7 +84757,7 @@
         "7b2361284e371782b99b992f90be666e9b39f4c16274b87d87a50b6b7db4822f"
       ],
       "source_sha256": "839ceb440441f0b8fd22faf73dcd808a7255bba662bd5fc231dd764f0ced2f58",
-      "text": "``widget``이 진정으로 페인트되고 작동할 수 있는지 관찰하십시오.\n\n준비는 다음과 같은 모든 것을 필요로합니다, 관찰 대신 결론 :\n\n* Qt 신청 이벤트 루프가 시작된 후에 전화 반환을 제공했습니다.\n* 응용 프로그램 보기의 눈에 띄는 위젯 나무가 페인트 이벤트를 제공했습니다.\n* 적어도 하나의 활성화된, 눈에 띄는, 제로 크기 없는 입력 컨트롤이 그림을 그렸습니다.\n* 또 하나의 이벤트-로프 회전이 그 페인트 이벤트 후에 진행되었습니다.\n\n관찰자는 건설 후에 설치되지만 새 페이지가 그릴 수 있기 전에 제거되며 첫 번째 유효한 상태에서 자신을 제거하고 관찰 된 위젯과 관련이 있으므로 보고서나 실패한 응용 프로그램 전망이 창을 살아있게하지 않습니다. PySide6 타이밍이 명시적으로 허용되는 경우에만 수입됩니다.",
+      "text": "``widget``이 진정으로 페인트되고 작동할 수 있는지 관찰하십시오.\n\n준비는 다음과 같은 모든 것을 필요로합니다, 관찰 대신 결론 :\n\n* Qt 신청 이벤트 루프가 시작된 후에 호출 반환을 제공했습니다.\n* 응용 프로그램 보기의 눈에 띄는 위젯 나무가 페인트 이벤트를 제공했습니다.\n* 적어도 하나의 활성화된, 눈에 띄는, 제로 크기 없는 입력 컨트롤이 그림을 그렸습니다.\n* 또 하나의 이벤트-로프 회전이 그 페인트 이벤트 후에 진행되었습니다.\n\n관찰자는 건설 후에 설치되지만 새 페이지가 그릴 수 있기 전에 제거되며 첫 번째 유효한 상태에서 자신을 제거하고 관찰 된 위젯과 관련이 있으므로 보고서나 실패한 응용 프로그램 전망이 창을 살아있게하지 않습니다. PySide6 타이밍이 명시적으로 허용되는 경우에만 수입됩니다.",
       "translation_source_blocks_sha256": [
         "c4130d40a5b04292a7e8da5270960518f4277d8edd89aa66a199469d708fad79",
         "98d5e4fb018407e99f56319fa11acb630593bfa03d5205f5fba9a18793c6714d",
@@ -98513,7 +98513,7 @@
         "05ac5e3a67684f2ca9fddbc357009e385fa58b0770328f80eb7ff09a4f9152d0"
       ],
       "source_sha256": "a044f671e2a7710cfbd11489b9e1358566e9ca02038c5c9b5266498b8a78793c",
-      "text": "그래픽 스타일 저장 및 메뉴에 로드 작업을 추가합니다.\n\n파라미터\n----------\n메뉴 : PySide6.QtWidgets.QMenu 작업을 수신하는 메뉴. 부모 : PySide6.QtWidgets.QWidget, 파일 대화 및 행동을 위한 선택적 부모. ``None``이면 ``menu``을 사용합니다. on_change : callable, optional 스타일이 충전된 후에 호출된 전화. Callbacks는 ``preview`` 키워드 논쟁을 받아 들일 수 있습니다.",
+      "text": "그래픽 스타일 저장 및 메뉴에 로드 작업을 추가합니다.\n\n파라미터\n----------\n메뉴 : PySide6.QtWidgets.QMenu 작업을 수신하는 메뉴. 부모 : PySide6.QtWidgets.QWidget, 파일 대화 및 행동을 위한 선택적 부모. ``None``이면 ``menu``을 사용합니다. on_change : callable, optional 스타일이 충전된 후에 호출된 호출. Callbacks는 ``preview`` 키워드 논쟁을 받아 들일 수 있습니다.",
       "translation_source_blocks_sha256": [
         "f662b805a8da3fb713caa9d4c6e131541cfad6c8231c0f9b67c2f665763e5fba",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
@@ -99296,7 +99296,7 @@
         "5180815d557ce5b0f4818c1afe0880af255bc84ac14dc02d45ec3bd4a6c2bfd9"
       ],
       "source_sha256": "09c8ae587b7951c38c40a87f0e5449e460bff71c3150d6e47c915a0256d8ca62",
-      "text": "아이콘 버튼의 일련, 모듈 당 하나가 호스트 화면에 삽입됩니다.\n\n다른 하나에 묶여있는 모듈은 홈에 끈이되고 호스트의 마스테 헤드에 버튼이됩니다. 버튼은 모듈의 아이콘입니다 : 그 옆에 텍스트가 없습니다, 모듈 자체의 단일 라인 설명은 도구 타입으로, 그리고 끈에 사용 된 동일한 성숙 색상 - 알파에 대한 녹색 시안, 베타에 대한 마겐타, 안정에 대한 파란색.\n\n그 마지막 부분은 각 사이트에서 평평한 ``QPushButton``이 아닌 여기에서 그것을하는 전체 포인트입니다.  색상은 장식이 아닙니다, 그것은 버튼 뒤에 코드의 성숙이며, :data:`spacr.qt.theme.STAGE_HOVER`에서 :func:`spacr.qt.app.app_stage`로 읽어집니다. - 같은 두 테이블 이 읽을 것입니다.\n\n일반적인 사용, 호스트 스크린에서 ``__init__``::\n\n    from spacr.qt.widgets.fold_strip import FoldStrip\n\n    self.folds = FoldStrip([\n        (\"train_cellpose\", self._open_training),\n        (\"model_zoo\",      self._open_model_zoo),\n    ], parent=self)\n    masthead_layout.addWidget(self.folds)\n\n각 입력은 ``(app_key, callback)``, 또는 ``(app_key, callback, checkable)`` 때 버튼은 눌러 대신 스위치입니다. 키는 모듈이 테이프로 가지고있는 레지스트리 키이며, 이것은 아이콘, 이름 및 단계를 제공하는 것입니다.\n\n확인할 수 있는 폴드는 호스트의 설정에 의해 실행되는 작업 흐름을 제어합니다. 타이멜라프스 설정은 모스크 세대에 설치되기 때문에 추적은 분류 실행을 확장합니다. 그 버튼은 그 범주를 밝히고 해당 작업 움직임 단계를 허용합니다. 모틸리티 평가 대신 측정에서 열리고 기존 마스크를 분석합니다. 검사 할 수 있는 버튼이 활성화 될 때까지 활성으로 남아 있으며, 그 전화 반환은 새로운 상태를 받습니다.",
+      "text": "아이콘 버튼의 일련, 모듈 당 하나가 호스트 화면에 삽입됩니다.\n\n다른 하나에 묶여있는 모듈은 홈에 끈이되고 호스트의 마스테 헤드에 버튼이됩니다. 버튼은 모듈의 아이콘입니다 : 그 옆에 텍스트가 없습니다, 모듈 자체의 단일 라인 설명은 도구 타입으로, 그리고 끈에 사용 된 동일한 성숙 색상 - 알파에 대한 녹색 시안, 베타에 대한 마겐타, 안정에 대한 파란색.\n\n그 마지막 부분은 각 사이트에서 평평한 ``QPushButton``이 아닌 여기에서 그것을하는 전체 포인트입니다.  색상은 장식이 아닙니다, 그것은 버튼 뒤에 코드의 성숙이며, :data:`spacr.qt.theme.STAGE_HOVER`에서 :func:`spacr.qt.app.app_stage`로 읽어집니다. - 같은 두 테이블 이 읽을 것입니다.\n\n일반적인 사용, 호스트 스크린에서 ``__init__``::\n\n    from spacr.qt.widgets.fold_strip import FoldStrip\n\n    self.folds = FoldStrip([\n        (\"train_cellpose\", self._open_training),\n        (\"model_zoo\",      self._open_model_zoo),\n    ], parent=self)\n    masthead_layout.addWidget(self.folds)\n\n각 입력은 ``(app_key, callback)``, 또는 ``(app_key, callback, checkable)`` 때 버튼은 눌러 대신 스위치입니다. 키는 모듈이 테이프로 가지고있는 레지스트리 키이며, 이것은 아이콘, 이름 및 단계를 제공하는 것입니다.\n\n확인할 수 있는 폴드는 호스트의 설정에 의해 실행되는 작업 흐름을 제어합니다. 타이멜라프스 설정은 모스크 세대에 설치되기 때문에 추적은 분류 실행을 확장합니다. 그 버튼은 그 범주를 밝히고 해당 작업 움직임 단계를 허용합니다. 모틸리티 평가 대신 측정에서 열리고 기존 마스크를 분석합니다. 검사 할 수 있는 버튼이 활성화 될 때까지 활성으로 남아 있으며, 그 호출 반환은 새로운 상태를 받습니다.",
       "translation_source_blocks_sha256": [
         "b7bd5486b52b84b53d070a271a58f2c58a6212362ae74a9521ae7caee0885779",
         "7756ec9bf063ed391868688ac69c58c24876b511c2a1f89f89bb9901891a038f",
@@ -99314,7 +99314,7 @@
         "e3fdf0feedb4601d585e3318e7be239dba940ec9808caf06e2ac404ff8a6c908"
       ],
       "source_sha256": "5f813a06f422c6e54f5c7fcd08be8bf5d956e1ea13a674c567740f367aa2ce3c",
-      "text": "하나의 포장 된 모듈, 자신의 아이콘으로 끌려와 다른 아무것도.\n\n:param key: 또한 이름, 설명 및 성숙 단계를 읽으십시오, 그래서 그것은 대신 기록의 진정한 레지스트리 키가되어야합니다.\n:param parent: 부모 위젯\n:param checkable: 버튼이 스위치가 아닌 프레스인지 여부. True 호스트 모듈의 설정에 의해 작업 흐름이 실행되는 폴더 - Timelapse는 마스크 세대에 실행되기 때문에 추적은 분류 실행을 확장합니다. - 그래서 버튼은 그 작업 움직임이 활성화되고 전화 반환이 새로운 상태를 수신하는 동안 활성 상태로 남아 있습니다. False, 기본적으로, 모듈을 열 수있는 평평한 클릭입니다.",
+      "text": "하나의 포장 된 모듈, 자신의 아이콘으로 끌려와 다른 아무것도.\n\n:param key: 또한 이름, 설명 및 성숙 단계를 읽으십시오, 그래서 그것은 대신 기록의 진정한 레지스트리 키가되어야합니다.\n:param parent: 부모 위젯\n:param checkable: 버튼이 스위치가 아닌 프레스인지 여부. True 호스트 모듈의 설정에 의해 작업 흐름이 실행되는 폴더 - Timelapse는 마스크 세대에 실행되기 때문에 추적은 분류 실행을 확장합니다. - 그래서 버튼은 그 작업 움직임이 활성화되고 호출 반환이 새로운 상태를 수신하는 동안 활성 상태로 남아 있습니다. False, 기본적으로, 모듈을 열 수있는 평평한 클릭입니다.",
       "translation_source_blocks_sha256": [
         "c325db91aca16a0c120c7af9e8a013d4a8704e00dbbb2f8996993b6b54319953",
         "20a57066dd458817c8e1937c9d26a98b8d6e8d891e68f9a9ffad3c3dc956c37b",
@@ -102646,7 +102646,7 @@
         "3496e4c01e34ca9d68616076a530b356fc5996a69d13ff5938c08895143102cf"
       ],
       "source_sha256": "990bc01ebb1cafe60412d84b9d99f94968e55f271f8df674c2dd1f22fc39fd4b",
-      "text": "이 데이터 선택 경계를 ``role`` 앙커로 ``(x, y)``로 이동하여 반환합니다.\n\n:param role: :meth:`handles`에서 한 역할을 합니다.\n:param x: 데이터 선택 경계를 따라 새로운 위치 x 측정.\n:param y: 그들의 측정과 함께.\n:returns: 새로운 데이터 선택 경계, 또는 ``self`` 드래그가 모양을 붕괴 할 때 거부 공격이 여기에서 일어납니다 : 이것은 마우스 릴리스를 실행하고, 뒤로 흔들리는 데이터-선택 경계는 명확한 \"that is too small\"이지만 이벤트 매니저에서 추적이 아닙니다.\n:raises GateError: 이 데이터 선택 경계의 역할은 없으며, 이는 사용자가 한 것보다 전화기에서 오류입니다.",
+      "text": "이 데이터 선택 경계를 ``role`` 앙커로 ``(x, y)``로 이동하여 반환합니다.\n\n:param role: :meth:`handles`에서 한 역할을 합니다.\n:param x: 데이터 선택 경계를 따라 새로운 위치 x 측정.\n:param y: 그들의 측정과 함께.\n:returns: 새로운 데이터 선택 경계, 또는 ``self`` 드래그가 모양을 붕괴 할 때 거부 공격이 여기에서 일어납니다 : 이것은 마우스 릴리스를 실행하고, 뒤로 흔들리는 데이터-선택 경계는 명확한 \"that is too small\"이지만 이벤트 매니저에서 추적이 아닙니다.\n:raises GateError: 이 데이터 선택 경계의 역할은 없으며, 이는 사용자가 한 것보다 호출자에서 오류입니다.",
       "translation_source_blocks_sha256": [
         "d490218644b4df108fcad4c26edcef02efaea02164b22077d30bcb438bff812e",
         "486738f6bce979d5c15e035aa2e62c249f72e39921752dddc334714dd1628baa",
@@ -102983,7 +102983,7 @@
         "3496e4c01e34ca9d68616076a530b356fc5996a69d13ff5938c08895143102cf"
       ],
       "source_sha256": "990bc01ebb1cafe60412d84b9d99f94968e55f271f8df674c2dd1f22fc39fd4b",
-      "text": "이 데이터 선택 경계를 ``role`` 앙커로 ``(x, y)``로 이동하여 반환합니다.\n\n:param role: :meth:`handles`에서 한 역할을 합니다.\n:param x: 데이터 선택 경계를 따라 새로운 위치 x 측정.\n:param y: 그들의 측정과 함께.\n:returns: 새로운 데이터 선택 경계, 또는 ``self`` 드래그가 모양을 붕괴 할 때 거부 공격이 여기에서 일어납니다 : 이것은 마우스 릴리스를 실행하고, 뒤로 흔들리는 데이터-선택 경계는 명확한 \"that is too small\"이지만 이벤트 매니저에서 추적이 아닙니다.\n:raises GateError: 이 데이터 선택 경계의 역할은 없으며, 이는 사용자가 한 것보다 전화기에서 오류입니다.",
+      "text": "이 데이터 선택 경계를 ``role`` 앙커로 ``(x, y)``로 이동하여 반환합니다.\n\n:param role: :meth:`handles`에서 한 역할을 합니다.\n:param x: 데이터 선택 경계를 따라 새로운 위치 x 측정.\n:param y: 그들의 측정과 함께.\n:returns: 새로운 데이터 선택 경계, 또는 ``self`` 드래그가 모양을 붕괴 할 때 거부 공격이 여기에서 일어납니다 : 이것은 마우스 릴리스를 실행하고, 뒤로 흔들리는 데이터-선택 경계는 명확한 \"that is too small\"이지만 이벤트 매니저에서 추적이 아닙니다.\n:raises GateError: 이 데이터 선택 경계의 역할은 없으며, 이는 사용자가 한 것보다 호출자에서 오류입니다.",
       "translation_source_blocks_sha256": [
         "d490218644b4df108fcad4c26edcef02efaea02164b22077d30bcb438bff812e",
         "486738f6bce979d5c15e035aa2e62c249f72e39921752dddc334714dd1628baa",
@@ -108370,7 +108370,7 @@
         "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067"
       ],
       "source_sha256": "e9619784463dd4feabd3a390f574ec1ca04d470549015a7976fe5d7573778b1e",
-      "text": ":class:`MetadataTablePanel` 주위에 모달 롤러가 떨어지는 흐름에 대 한.\n\n:param rows: 편집하기 위한 프리뷰 라인\n:param dst: ``filename_map.csv``이 응용 프로그램에 기록되어 있습니다.\n:param on_apply: 옵션 전화 반환은 CSV 서면 경로로 호출됩니다.\n:param parent: 부모 위젯; 소유권만",
+      "text": ":class:`MetadataTablePanel` 주위에 모달 롤러가 떨어지는 흐름에 대 한.\n\n:param rows: 편집하기 위한 프리뷰 라인\n:param dst: ``filename_map.csv``이 응용 프로그램에 기록되어 있습니다.\n:param on_apply: 옵션 호출 반환은 CSV 서면 경로로 호출됩니다.\n:param parent: 부모 위젯; 소유권만",
       "translation_source_blocks_sha256": [
         "492c68049f9a418f689f2a411ab2482057ce2f79ed97e31d924c72ada1e2668b",
         "8b9257a5781c81c34bd4cb65e4bd95c57550b314d15dba1afbbc92d0d27928c7",
@@ -117804,7 +117804,7 @@
         "49e2df421677335ff6dfa1ed545f6eeb1a4ca6e009c31eb1edd86b0d15520482"
       ],
       "source_sha256": "4bcaf64be8c468786f816f3e8adbc9bfb1d522afec46956ec126062542708f3e",
-      "text": "각 이미지 UMAP 설정, STATIC 숫자에 대하여 라이브 편집 가능.\n\n라이브 탐색기에는 응용 프로그램 보기의 숫자에 적용되는 표시 옵션이 있는 설정 창이 있습니다.이 모듈은 애플리케이션 보기의 동등한 숫자를 제공합니다. - 일반적인, 비 라이브 그림은 :class:`spacr.qt.widgets.figure_queue.FigureQueue`에서 처리 세션 잎입니다.::\n\n    \"the non live image UMAP figure settings should have all the image UMAP\n     settings live editable (you should see changes in the graph directly)\"\n\n세트의 비용은 유니폼이 아닙니다, 그리고 그것을 주장하는 것은 패널을 사용 불가능하게 만들 것입니다.\n\n``TIER_STYLE`` 이미 존재하는 예술가에 설정 테이블 - 포인트 크기, 포인트 색상, 오파시티, 출력 폭. 마이크로 초; 아무것도 디스크에서 다시 읽을 필요가 없습니다. ``TIER_REDRAW`` 숫자를 반복해야하지만 **같은 삽입에서** - 이미지를 계산, 이미지 짐, 숫자 크기. 십일조의 두 번째, 왜냐하면 묘목이 다시 읽어, 그래서 이들은 삽출됩니다. ``TIER_RERUN`` 삽축 자체를 변경 - ``n_neighbors``, ``min_dist``, 메트릭, 기능 필터.\n\n레벨은 예술가와 데이터에 관한 사실이며, 정책이 아닙니다, 그래서 그것은 전화기보다는 필드 옆에 살고 있습니다.",
+      "text": "각 이미지 UMAP 설정, STATIC 숫자에 대하여 라이브 편집 가능.\n\n라이브 탐색기에는 응용 프로그램 보기의 숫자에 적용되는 표시 옵션이 있는 설정 창이 있습니다.이 모듈은 애플리케이션 보기의 동등한 숫자를 제공합니다. - 일반적인, 비 라이브 그림은 :class:`spacr.qt.widgets.figure_queue.FigureQueue`에서 처리 세션 잎입니다.::\n\n    \"the non live image UMAP figure settings should have all the image UMAP\n     settings live editable (you should see changes in the graph directly)\"\n\n세트의 비용은 유니폼이 아닙니다, 그리고 그것을 주장하는 것은 패널을 사용 불가능하게 만들 것입니다.\n\n``TIER_STYLE`` 이미 존재하는 예술가에 설정 테이블 - 포인트 크기, 포인트 색상, 오파시티, 출력 폭. 마이크로 초; 아무것도 디스크에서 다시 읽을 필요가 없습니다. ``TIER_REDRAW`` 숫자를 반복해야하지만 **같은 삽입에서** - 이미지를 계산, 이미지 짐, 숫자 크기. 십일조의 두 번째, 왜냐하면 묘목이 다시 읽어, 그래서 이들은 삽출됩니다. ``TIER_RERUN`` 삽축 자체를 변경 - ``n_neighbors``, ``min_dist``, 메트릭, 기능 필터.\n\n레벨은 예술가와 데이터에 관한 사실이며, 정책이 아닙니다, 그래서 그것은 호출자보다는 필드 옆에 살고 있습니다.",
       "translation_source_blocks_sha256": [
         "457e69c96245b55fdbbdd60292d19a02453919646aab895ba67861a46e795490",
         "3d648de83f2800326ad5bc7f1b57ece34a4ca105866aa33edaf9e2a0b1425507",
@@ -120322,7 +120322,7 @@
         "843bc5d1a0cd46cea502f503a1ac9100cd1efe25178fda83f9c2638729ca42a5"
       ],
       "source_sha256": "c8dfc106113e320a849e797f64fc27ec1c7eade395c4a01a74fb247cced0e21a",
-      "text": "하나의 패널의 결과입니다.\n\n:param name: 안정적인 기계 이름 (또한 파일 조각).\n:param title: 쉽게 읽을 수 있는 패널 제목\n:param group: 보고서 섹션: ``'fit'``, ``'influence'``,``'design'``, ``'response'`` 또는 ``'screen'``.\n:param status: ``'written'`` (그림, 아무것도 놓치지 않는), ``'partial'``(그림하지만 언급 한 제한을 가지고 - 예를 들어 신뢰 간격이없는 동기 조각) ``'skipped'`` (계산할 수 없음, ``reason`` 참조) 또는 ``'failed'`` (예기치 않게 상승, 참조 ``reason``).\n:param path: 패널 숫자의 절대 경로, 또는 ``None``.\n:param reason: 왜 패널이 떨어졌는지, 또는 무엇이 그것을 제한했는지.\n:param stats: 전화기와 테스트를 위해 계산된 패널을 숫자로 합니다.\n:param verdict: 무엇이 패널을 닫았는지 - A :class:`PanelVerdict`또는 None 디자인 : 숫자를 보고하고 판단이없는 진단은 판단을 읽는 사람에게 남기지 않으므로 판단은 보고서, 표현 및 그림 자체로 패널과 함께 여행합니다.",
+      "text": "하나의 패널의 결과입니다.\n\n:param name: 안정적인 기계 이름 (또한 파일 조각).\n:param title: 쉽게 읽을 수 있는 패널 제목\n:param group: 보고서 섹션: ``'fit'``, ``'influence'``,``'design'``, ``'response'`` 또는 ``'screen'``.\n:param status: ``'written'`` (그림, 아무것도 놓치지 않는), ``'partial'``(그림하지만 언급 한 제한을 가지고 - 예를 들어 신뢰 간격이없는 동기 조각) ``'skipped'`` (계산할 수 없음, ``reason`` 참조) 또는 ``'failed'`` (예기치 않게 상승, 참조 ``reason``).\n:param path: 패널 숫자의 절대 경로, 또는 ``None``.\n:param reason: 왜 패널이 떨어졌는지, 또는 무엇이 그것을 제한했는지.\n:param stats: 호출자와 테스트를 위해 계산된 패널을 숫자로 합니다.\n:param verdict: 무엇이 패널을 닫았는지 - A :class:`PanelVerdict`또는 None 디자인 : 숫자를 보고하고 판단이없는 진단은 판단을 읽는 사람에게 남기지 않으므로 판단은 보고서, 표현 및 그림 자체로 패널과 함께 여행합니다.",
       "translation_source_blocks_sha256": [
         "6afb8372ead9433e6c884f377fc88ed5d86c06d0bf84ecbf18dd5cf80062031e",
         "983f3c23a8a23111d5207dd9b1e579c05e12678e0aec67e9db3df9903231e5a3",
@@ -131776,7 +131776,7 @@
         "e61220818777105130f0360950572faf27d99e0a3cc19dc45359e11569770136"
       ],
       "source_sha256": "5f4ccdcb1267c1099185f12305f7cfbe9ecf0281709970c9577625abbaa28451",
-      "text": "지도 설정에 대하여 GUI 윈도우를 가져오지 않고도 A GUI.\n\n변환 도우미는 Qt 및 유산 인터페이스가 소비 할 수있는 평평한 키 가치 맵을 반환합니다.이 모듈 중독 빛을 유지하면 호출자가 삽입, 이미지 또는 깊은 학습 라이브러리를 가져오지 않고 설정 메타 데이터를 검사 할 수 있습니다.\n\n``spacr.gui_utils`` 다시 수출 :func:`convert_settings_dict_for_gui` 기존 전화기와의 호환성을 위해.",
+      "text": "지도 설정에 대하여 GUI 윈도우를 가져오지 않고도 A GUI.\n\n변환 도우미는 Qt 및 유산 인터페이스가 소비 할 수있는 평평한 키 가치 맵을 반환합니다.이 모듈 중독 빛을 유지하면 호출자가 삽입, 이미지 또는 깊은 학습 라이브러리를 가져오지 않고 설정 메타 데이터를 검사 할 수 있습니다.\n\n``spacr.gui_utils`` 다시 수출 :func:`convert_settings_dict_for_gui` 기존 호출자와의 호환성을 위해.",
       "translation_source_blocks_sha256": [
         "3d729b5bc348f7dd8ae60c5cc4d777641d4fdd4c07531607b03ffb931d63de68",
         "cda73a57938e55b24f3243fb254080c33841e81189a25fe856e43f9eb17386cb",
@@ -140333,7 +140333,7 @@
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
       "source_sha256": "42a428c5195df3ad2bac4d8267b12b2a0eadd3b339c46ad934712f1695a67468",
-      "text": "분할, 합병 및 마스크 디렉토리에 표시된 물건을 필터.\n\n-> 분할 -> 필터 작업 흐름은 각 마스크 파일에 ``mask_src``를 병렬으로 실행하여 각 매스크를 위로 작성합니다.\n\n:param mask_src: 마스크 파일을 포함하는 디렉토리 .tif, .tiff 또는 .npy 확장.\n:param intensity_img_src: 해당 강도 이미지 디렉토리, 또는 ``None``.\n:param intensity_channel: 이미지 데이터 채널 인덱스는 멀티 이미지 채널 데이터 강도 이미지에서 추출합니다.\n:param perimeter_fraction: 최소 공유-경계 분할은 perimeter 기반 합병을 위한 것입니다.\n:param intensity_merge: 국경 강도 기반 합병을 가능하게 합니다.\n:param intensity_split: 물이 흐르는 물체를 분할할 수 있습니다.\n:param area_multiplier: 분할된 개체는 영역 > 복제기 * 중간으로 나누어집니다.\n:param min_distance: 물에 뿌린 씨앗 사이의 최소 픽셀 거리.\n:param min_object_area: 절대적 최소 영역 아래의 물체는 결코 분열되지 않습니다.\n:param intensity_threshold_method: ``'mean'`` 또는 ``'percentile'`` 경계 비교.\n:param intensity_percentile: 센티일은 ``'percentile'`` 방법이 있는 경우에 사용됩니다.\n:param min_area: 이보다 작은 물체를 제거 (px); 0 장애물.\n:param max_area: 이보다 큰 물체를 제거 (px); 0 장애물.\n:param remove_border_objects: 그림의 경계를 만지는 물체를 떨어 뜨립니다.\n:param min_intensity_percentile: 이 강도 아래의 물체를 떨어 뜨리며, 0이 장애가 있습니다.\n:param max_intensity_percentile: 이 강도 위의 물체를 떨어 뜨리십시오; 100 장애.\n:param n_jobs: 동일한 노동자 계산\n:param progress_callback: 선택적 전화 반환(fov_index, 전체, 기간, op_name).\n:param op_name: 라벨은 진보 callback로 전환했습니다.\n:returns: None.",
+      "text": "분할, 합병 및 마스크 디렉토리에 표시된 물건을 필터.\n\n-> 분할 -> 필터 작업 흐름은 각 마스크 파일에 ``mask_src``를 병렬으로 실행하여 각 매스크를 위로 작성합니다.\n\n:param mask_src: 마스크 파일을 포함하는 디렉토리 .tif, .tiff 또는 .npy 확장.\n:param intensity_img_src: 해당 강도 이미지 디렉토리, 또는 ``None``.\n:param intensity_channel: 이미지 데이터 채널 인덱스는 멀티 이미지 채널 데이터 강도 이미지에서 추출합니다.\n:param perimeter_fraction: 최소 공유-경계 분할은 perimeter 기반 합병을 위한 것입니다.\n:param intensity_merge: 국경 강도 기반 합병을 가능하게 합니다.\n:param intensity_split: 물이 흐르는 물체를 분할할 수 있습니다.\n:param area_multiplier: 분할된 개체는 영역 > 복제기 * 중간으로 나누어집니다.\n:param min_distance: 물에 뿌린 씨앗 사이의 최소 픽셀 거리.\n:param min_object_area: 절대적 최소 영역 아래의 물체는 결코 분열되지 않습니다.\n:param intensity_threshold_method: ``'mean'`` 또는 ``'percentile'`` 경계 비교.\n:param intensity_percentile: 센티일은 ``'percentile'`` 방법이 있는 경우에 사용됩니다.\n:param min_area: 이보다 작은 물체를 제거 (px); 0 장애물.\n:param max_area: 이보다 큰 물체를 제거 (px); 0 장애물.\n:param remove_border_objects: 그림의 경계를 만지는 물체를 떨어 뜨립니다.\n:param min_intensity_percentile: 이 강도 아래의 물체를 떨어 뜨리며, 0이 장애가 있습니다.\n:param max_intensity_percentile: 이 강도 위의 물체를 떨어 뜨리십시오; 100 장애.\n:param n_jobs: 동일한 노동자 계산\n:param progress_callback: 선택적 호출 반환(fov_index, 전체, 기간, op_name).\n:param op_name: 라벨은 진보 callback로 전환했습니다.\n:returns: None.",
       "translation_source_blocks_sha256": [
         "2e0e970315e09fb0418b050ba9277afcc0b8cfa19b07d55fc6b9b990e20f8490",
         "b6716d859169fcca2109e27d93115ec404bb0e80e0e98c266c048137b10bdbe3",
