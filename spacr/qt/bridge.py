@@ -64,6 +64,13 @@ class _StreamRedirector(io.TextIOBase):
     _MAX_BUF_CHARS = 1024
 
     def __init__(self, on_write: Callable[[str], None]):
+        """Buffer writes into lines and hand each one to ``on_write``.
+
+        :param on_write: called with each completed line. CALLED ON WHATEVER
+            THREAD WROTE -- the worker for a print, the pump thread for an
+            idle flush -- so anything touching Qt widgets from here has to
+            get itself onto the GUI thread.
+        """
         super().__init__()
         self._buf = ""
         self._on_write = on_write
@@ -121,6 +128,13 @@ class _ThreadStreamRouter(io.TextIOBase):
     """
 
     def __init__(self, original):
+        """Wrap the real stream and route writes by thread identity.
+
+        :param original: the stream this proxy replaces, kept so a write
+            from a thread with no registered console still reaches the
+            terminal. It is the FALLBACK, not a tee: a write that finds a
+            target goes there instead, not as well.
+        """
         super().__init__()
         self.original = original
         self._targets: Dict[int, List[_StreamRedirector]] = {}
