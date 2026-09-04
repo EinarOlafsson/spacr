@@ -43,6 +43,19 @@ class _FetchWorker(QThread):
     finished_all = Signal(list, str)
 
     def __init__(self, files, destination, max_reads, parent=None):
+        """Fetch a set of SRA files off the GUI thread.
+
+        :param files: the accessions to fetch; copied, because the picker's
+            selection can change while the download runs.
+        :param destination: where they are written.
+        :param max_reads: how many reads to take from each, which is what
+            makes a trial fetch cheap rather than a whole run.
+        :param parent: parent object.
+
+        :meth:`cancel` sets a flag rather than killing the thread, so a
+        cancelled fetch stops between files and leaves the ones already
+        written intact.
+        """
         super().__init__(parent)
         self._files = list(files)
         self._destination = destination
