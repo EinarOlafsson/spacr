@@ -1544,3 +1544,43 @@ WORTH KNOWING FOR ANYONE PLANNING A RELEASE: those files only turn the
 checklist green on the DEFAULT branch, which is `main`. On `nightly` they are
 invisible to GitHub's measurement. 377 records the two routes and neither is
 taken yet.
+
+--------------------------------------------------------------------------------
+2026-09-04 — A `git add -A` SWEPT ANOTHER SESSION'S STAGED WORK. NOTHING LOST.
+--------------------------------------------------------------------------------
+
+The thing section 3 warns about happened, in the direction the warning does
+not describe. Section 3 says commit small and often so a CONFLICT stays small.
+This was not a conflict: commit `12e9f2dc3` ("The dock's black box was the
+missing backdrop") carries, besides its dock work,
+
+    D    instructions/PROGRESS.md
+    R100 instructions/open/58_... -> instructions/done/58_...
+
+both of which were MINE and staged, waiting for their own commit and their own
+message. A `git add -A` in the other session took them.
+
+NOTHING WAS LOST AND NOTHING WAS WRONG ON DISK. What was lost is the REASON:
+two deliberate decisions -- retiring a stale second ledger, and closing the
+LAST item in the maintainer's ordering -- landed inside a commit about a dock
+backdrop, where nobody reading the history will ever find them. `72a17f73b`
+carries the reasons afterwards, which is the repair available, not the outcome
+wanted.
+
+ONE MECHANICAL DETAIL WORTH KNOWING, because it silently changes content:
+`git mv` stages the rename from the INDEX, not the worktree. I had appended
+58's closing note and then run `git mv`, so the swept rename carried the file
+at its PRE-APPEND content and my note stayed behind as an unstaged
+modification. If a sweep takes a rename you staged, check whether it took the
+version you meant.
+
+WHAT WOULD PREVENT IT, and it is already in section 3: explicit paths.
+
+    git add -A                      <- takes whatever anyone else staged
+    git commit -F - -- path/one     <- takes only what you name
+
+Section 3's own example uses a bare `git add -A`. That is the line to change:
+in a shared tree it is not a convenience, it is a way to publish someone
+else's half-finished decision under your commit message. Every commit from
+this session today passed explicit paths, which is why only the two ALREADY
+STAGED items were reachable.
