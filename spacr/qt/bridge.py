@@ -1133,6 +1133,11 @@ class PipelineWorker(QObject):
                         and getattr(fig, "_spacr_emitted", False))
 
             def _mark_emitted(fig):
+                """Record that a figure has been emitted, by id and on the figure.
+
+                The attribute is the cross-route half of the guard and a figure that
+                refuses one still gets its tile -- it just loses that half.
+                """
                 emitted_ids.add(id(fig))
                 try:
                     fig._spacr_emitted = True
@@ -1150,6 +1155,16 @@ class PipelineWorker(QObject):
                 # savefig touches no Qt) — the expensive part — so the GUI
                 # thread only does a cheap file-move + pixmap load and never
                 # hangs while figures stream in.
+                """Emit each new figure once, rendering it HERE on the worker thread.
+
+                Agg's savefig touches no Qt, so the expensive part happens off the GUI
+                thread and the GUI only does a file move and a pixmap load -- which is
+                what stops it hanging while figures stream in.
+
+                Figures marked ``_spacr_live_update`` are re-emitted in place instead,
+                which is how the training monitor refreshes without filling the gallery
+                with one snapshot per epoch.
+                """
                 for fig in _registered_figures():
                     # Holding the baseline objects for the run prevents their
                     # IDs from being reused, so this lookup stays both exact
@@ -1419,6 +1434,7 @@ def _say_what_is_wrong_with_the_settings(app_key, fn):
 
     @functools.wraps(fn)
     def run(settings=None, *args, **kwargs):
+        """Run the entry point, turning a settings problem into a message."""
         if isinstance(settings, dict):
             try:
                 from spacr.validate import (ERROR, coerce_expected_types,
@@ -1465,6 +1481,7 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
     from .verbose_logger import log_call
 
     def _ret(fn):
+        """Tag the entry point with its app key and its settings check."""
         return _tag(app_key, _say_what_is_wrong_with_the_settings(app_key, fn))
 
     try:
