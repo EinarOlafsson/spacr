@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-352 done / 22 open (94%).
+354 done / 20 open (94%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -45,20 +45,16 @@ OPEN
        304_release_1_5_0_5_to_zenodo.txt
 
   306  THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
-       [API half DONE (9,426 symbols, all ten locales); catalog ratchets 27 of 31 green; 803 exact-English rows measured across nine locales still owed]
+       [API half done; catalog ratchets 27 of 31 green; 6 untranslated rows left of 16 (an earlier count of 803 was wrong -- it skipped the gate's own _looks_translatable filter)]
        306_the_api_tooltips_and_translations_are_current_and_correct.txt
 
   316  THE TRANSLATIONS ARE PRESENT, CURRENT, AND IN PLACES WRONG
-       [the maintainer released the wait 2026-09-04; 32 rows repaired and recorded reviewed; the README block-extraction fix and 19 orphaned reviewed blocks remain]
+       [READMEs FIXED -- all nine now match canonical at 35 headings; 32 runtime rows repaired; 15 orphaned blocks retired; 3 blocks need re-translation and ~21 rows say the wrong thing for a microplate well]
        316_the_translations_are_semantically_wrong_in_places.txt
 
   325  TWO SESSIONS, ONE REPO: THE WORKING PROTOCOL
        [the channel between the two sessions -- open while both are running]
        325_two_sessions_one_repo_working_protocol.txt
-
-  326  THE ORGANELLE COUNT MUST BE ARBITRARY
-       [~55% -- settings follow the count (2 means 2); the ceiling of 26 is what remains]
-       326_the_organelle_count_must_be_arbitrary.txt
 
   327  THE BACKDROP CAMERA AND THE POINTER SHOULD FEEL LIKE GRAVITY
        [~95% -- all five parts shipped; only the frame-rate evidence is missing]
@@ -86,9 +82,6 @@ OPEN
 
   364  EVERY SETTING AUDITED: IS IT NEEDED, IS IT A DUPLICATE, IS ITS NAME HONEST
        364_audit_every_setting_for_necessity_redundancy_and_clarity.txt
-
-  367  CLASSES DOCUMENT THEMSELVES BUT NOT THEIR __init__, WHERE THE PARAMETERS ARE
-       367_class_init_docstrings_and_the_api_they_should_reach.txt
 
   368  EVERY FUNCTION DOCUMENTED, AND A CLICKABLE TREE OF WHERE EACH SETTING IS USED
        368_a_settings_flow_tree_and_docstrings_for_every_function.txt
@@ -422,6 +415,7 @@ DONE
   322  REGRESSION MUST SHOW ITS DIAGNOSTICS, WHICH ARE ALREADY WRITTEN
   323  THE README NEEDS A TABLE OF WHAT EACH HARDWARE CONFIGURATION CAN DO
   324  THE SETUP SLIDE'S CAPABILITY LIST BECOMES A TABLE
+  326  THE ORGANELLE COUNT MUST BE ARBITRARY
   328  A SOURCE INSTALL SHOULD NOT COST A GIGABYTE
   329  README, LOGOS, CHROME AND BACKDROP POLISH (2026-09-01)
   330  THE DOCK AND THE MENU BAR SHOULD SHOW THE NESTED STRUCTURE
@@ -453,6 +447,7 @@ DONE
   363  THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
   365  THE LICENCE IS NOT IDENTIFIABLE, AND THE TWO BRANCHES DO NOT AGREE ON IT
   366  EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
+  367  CLASSES DOCUMENT THEMSELVES BUT NOT THEIR __init__, WHERE THE PARAMETERS ARE
   369  THE DOCK: THE spaCR MARK FOR HOME, NAMES IN BLUE ON HOVER, NO GREY TRAY
   371  TWO TOOLTIP SURFACES, EITHER OR BOTH, AND THE BOTTOM ONE STAYS LONG ENOUGH
   373  THE CELLPOSE WORKBENCH DREW A DUMBBELL, AND FIVE MODULES WERE BORROWING ART
