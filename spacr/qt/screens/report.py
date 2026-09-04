@@ -470,6 +470,7 @@ class ReportScreen(QWidget):
         box: Dict[str, Any] = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload."""
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)

@@ -830,6 +830,7 @@ def load(request: MontageRequest) -> MontageLoad:
         head = f"{prefix}_" if prefix else ""
 
         def _design_spelling(name: str) -> str:
+            """The design's own spelling of a name, for display."""
             text = str(name)
             return text[len(head):] if head and text.startswith(head) else text
 

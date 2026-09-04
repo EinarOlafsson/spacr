@@ -1635,6 +1635,12 @@ def fit_dose_response(doses: Sequence[float], responses: Sequence[float],
                 if dof > 0 else float("nan"))
 
     def wald(index: int) -> Tuple[Optional[float], Optional[float]]:
+        """One parameter's Wald interval, or ``None`` when it cannot be formed.
+
+        Returns None rather than an interval when the covariance is unusable:
+        an interval computed from a bad covariance looks like a result and is
+        not one.
+        """
         if not covariance_ok or not np.isfinite(quantile):
             return (None, None)
         error = float(np.sqrt(covariance[index, index]))

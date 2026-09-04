@@ -275,6 +275,7 @@ def derive_head_color(base: QColor, background: QColor) -> QColor:
     gl = background.lightnessF()
 
     def gain(light: float) -> float:
+        """How far a lightness is from both reference lightnesses."""
         return min(abs(light - bl), abs(light - gl))
 
     up = min(1.0, bl + HEAD_LIGHT_STEP)
@@ -1107,6 +1108,7 @@ class DnaRainWidget(QWidget):
         open_run = False
 
         def close():
+            """Close the run being accumulated and emit it."""
             width = (last_col - first_col + 1) * cell + extra
             rects.append(QRect(first_col * cell, top * cell, width,
                                (bottom - top + 1) * cell))

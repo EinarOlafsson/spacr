@@ -165,6 +165,7 @@ def _doc_html(doc: FeatureDoc, entry=None) -> str:
     rows: list[str] = []
 
     def field(name: str, value: object) -> None:
+        """Add one field to the entry, skipping empty values."""
         if value in (None, "", ()):
             return
         rows.append(

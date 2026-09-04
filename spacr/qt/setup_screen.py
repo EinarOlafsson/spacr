@@ -111,6 +111,7 @@ def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
     from . import preferences as prefs
 
     def choices_of(names):
+        """Names paired with their readable spellings, for a picker."""
         return [(n, str(n).replace("_", " ")) for n in names]
 
     out: List[Tuple[str, str, Callable, Callable, Any]] = [
