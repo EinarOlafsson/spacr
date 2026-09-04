@@ -520,6 +520,12 @@ class _ResourceSampler:
         }
 
     def _register_worker(self, stamp: Mapping[str, Any]) -> str:
+        """Give a child process a stable identity, and return it.
+
+        IDENTITY IS PID PLUS CREATE TIME, not the pid. A pid is reused, and on a
+        long run it will be: a sampler keyed on the pid alone attributes a new
+        worker's memory to the one that exited.
+        """
         pid = int(stamp["pid"])
         raw_created = stamp.get("create_time")
         created = float(raw_created) if raw_created is not None else None
@@ -548,6 +554,11 @@ class _ResourceSampler:
         return identity
 
     def _update_summary(self, sample: Mapping[str, Any]) -> None:
+        """Fold one sample into the running totals.
+
+        Kept incrementally rather than recomputed from the samples, so the summary
+        costs the same whether the run lasted a minute or a day.
+        """
         summary = self._summary
         summary["samples_recorded"] += 1
         memory = sample.get("tree_memory_bytes")
@@ -571,6 +582,13 @@ class _ResourceSampler:
 
     def _disappearance_events(
             self, sample: Mapping[str, Any]) -> List[Dict[str, Any]]:
+        """The children that have gone since the last sample.
+
+        A child whose create time was never read is NOT reported as gone when its
+        pid is still present -- that is the same process seen again rather than
+        one that exited and another that started, and reporting it would put a
+        spurious death in the log on every sample.
+        """
         current = {
             str(row["identity"]): dict(row)
             for row in sample.get("processes") or []
@@ -610,6 +628,7 @@ class _ResourceSampler:
         return events
 
     def _sample_once(self, *, force_persist: bool = False) -> Dict[str, Any]:
+        """Take one snapshot of the process tree and record what it shows."""
         with self._state_lock:
             labels = dict(self._labels)
         sample = _process_tree_snapshot(
@@ -640,6 +659,12 @@ class _ResourceSampler:
         return sample
 
     def _record_sampler_error(self, exc: BaseException) -> None:
+        """Log a sampler failure INTO THE SAMPLES rather than raising.
+
+        The sampler runs beside the work, not over it: a failure to measure must
+        not end the run being measured, and a silent failure would leave a gap
+        nobody could tell from an idle period.
+        """
         event = {
             "kind": "sampler_error",
             "utc": _utc_now(),
@@ -650,6 +675,12 @@ class _ResourceSampler:
         self._persist()
 
     def _run(self) -> None:
+        """Sample on an interval until stopped.
+
+        The wait is the interval MINUS the time the sample took, so the cadence
+        holds rather than drifting by the cost of each sample; and it waits on the
+        stop event, so stopping is immediate rather than one interval away.
+        """
         while not self._stop_event.is_set():
             started = time.monotonic()
             try:
@@ -661,6 +692,11 @@ class _ResourceSampler:
                 break
 
     def _start(self) -> "_ResourceSampler":
+        """Begin sampling, unless the mode is off.
+
+        An output path is required rather than defaulted: a performance log with
+        nowhere to go is a run that measured itself and threw the answer away.
+        """
         if self.mode == "off":
             return self
         if self.output is None:
