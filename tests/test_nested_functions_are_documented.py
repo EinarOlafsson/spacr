@@ -144,7 +144,7 @@ BUDGET = {
     "spacr/qt/screens/annotate.py": 4,
     "spacr/qt/screens/db_browser.py": 4,
     "spacr/qt/thread_guard.py": 4,
-    "spacr/qt/widgets/fractal_travel.py": 24,
+    "spacr/qt/widgets/fractal_travel.py": 15,
     "spacr/measure.py": 3,
     "spacr/qt/screens/align.py": 3,
     "spacr/qt/screens/model_compare.py": 3,
