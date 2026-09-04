@@ -220,6 +220,51 @@ class ChainingBar(QFrame):
         #: different digest, and every result would report as stale.
         self._collect_ok = False
         self._last_steps: Tuple[NextStep, ...] = ()
+        #: The worker that resolves the registry. THE REGISTRY LIVES IN THE
+        #: PROJECT ROOT, and the roots are paths the user chose -- which on
+        #: this maintainer's machine includes an `autofs` share whose stat
+        #: did not return for twenty seconds. Doing that inline is what froze
+        #: the application on every module open; see `_refresh`.
+        #:
+        #: `user_visible=False`: nothing here is a run the user started, so
+        #: it must never claim a run banner on Home.
+        from .job_runner import JobRunner
+        self._resolver = JobRunner(self, threaded=True,
+                                   app_key=f"{self.app_key} chaining",
+                                   user_visible=False)
+        #: True while a resolution is in flight. A second refresh arriving
+        #: mid-flight is dropped rather than queued: they all ask the same
+        #: question, and a keystroke-per-job queue would ask it hundreds of
+        #: times.
+        self._resolving = False
+        #: Set when a refresh was dropped for that reason, so exactly one
+        #: catch-up runs when the in-flight one lands.
+        self._resolve_again: Optional[bool] = None
+        # A root skipped because the probe had not answered yet comes back
+        # when it does -- otherwise `search_roots` would drop it for the life
+        # of the screen and the strip would silently stop chaining.
+        from . import path_probe as _probe
+
+        def _root_answered(_path: str, _answer: bool) -> None:
+            try:
+                self.refresh()
+            except RuntimeError:
+                pass            # the strip has gone; the signal outlived it
+
+        self._root_answered = _root_answered
+        _probe.probes.answered.connect(_root_answered)
+        # AND DISCONNECTED WHEN THE STRIP GOES. `probes` is process-wide and
+        # outlives any one screen, so a connection left behind is a signal
+        # delivered to a Python wrapper whose C++ half has been deleted --
+        # which raises out of whatever happened to emit it. `destroyed` fires
+        # while the wrapper is still usable, which is the moment to let go.
+        def _let_go(*_args) -> None:
+            try:
+                _probe.probes.answered.disconnect(_root_answered)
+            except (RuntimeError, TypeError):
+                pass            # already disconnected, or the source is gone
+
+        self.destroyed.connect(_let_go)
 
         column = QVBoxLayout(self)
         column.setContentsMargins(0, 4, 0, 0)
@@ -556,10 +601,19 @@ class ChainingBar(QFrame):
             keys.extend(_ports.upstream_modules(self.app_key))
         except Exception:
             pass
+        from . import path_probe
         for key in keys:
             for candidate in (get_last_source(key),
                               *get_recent_sources(key, limit=4)):
-                if candidate and candidate not in roots:
+                if not candidate or candidate in roots:
+                    continue
+                # BELT AND BRACES, on top of running this off the GUI
+                # thread. `isdir` answers False for a root it has not probed
+                # yet, which is the pessimistic direction and the right one
+                # here: skipping a root costs one refresh, and the probe
+                # signal below brings it back the moment the answer lands.
+                # Stating it costs however long a sleeping mount takes.
+                if path_probe.isdir(candidate):
                     roots.append(candidate)
         return tuple(roots)
 
@@ -579,12 +633,66 @@ class ChainingBar(QFrame):
                           self.app_key)
 
     def _refresh(self, *, finished: bool) -> None:
-        """The body of :meth:`refresh`, without the guard."""
+        """Start a resolution off the GUI thread; paint it when it lands.
+
+        SPLIT IN TWO, and the split is the fix for a frozen application.
+        Everything here is widget and QSettings work -- fast and local. The
+        half that runs in :meth:`_resolve` reads the artifacts REGISTRY, and
+        the registry lives in the project root: `resolve_settings` stats
+        `<root>/artifacts.db` for every candidate root and then opens it with
+        sqlite. The roots come from `search_roots`, which is the list of
+        folders the user last worked in.
+
+        Measured on the maintainer's machine 2026-09-04: one of those roots
+        was an `autofs` mount whose share was asleep, and a single
+        `os.path.isfile` on it had not returned after TWENTY SECONDS. This
+        function is called from `install_chaining` during screen
+        construction, so that was the whole interface, frozen, on every
+        module open -- reported as "opening map barcodes crashes spacr",
+        and it left no traceback because a stalled event loop is not a crash.
+
+        :param finished: a run just finished successfully, so offer the next
+            step as well.
+        """
         self._capture_edits()
         settings = self.current_settings()
+        if self._resolving:
+            # One question, asked once. `finished` is sticky so a completed
+            # run's next-step offer is not lost to a coalesced refresh.
+            self._resolve_again = bool(self._resolve_again) or finished
+            return
         roots = self.search_roots()
-        resolution = _chaining.resolve_settings(
-            self.app_key, settings, roots=roots, pins=self._pins)
+        pins = self._pins
+        app_key = self.app_key
+        collect_ok = self._collect_ok
+        self._resolving = True
+
+        def work():
+            """Off the GUI thread. Touches no widget -- returns data only."""
+            resolution = _chaining.resolve_settings(
+                app_key, settings, roots=roots, pins=pins)
+            notes = _chaining.staleness_notes(
+                app_key, settings if collect_ok else None,
+                root=_ports.project_root(settings, app_key))
+            return resolution, notes
+
+        def done(payload):
+            self._resolving = False
+            again, self._resolve_again = self._resolve_again, None
+            try:
+                if payload is not None:
+                    self._paint(payload[0], payload[1], finished=finished)
+            finally:
+                if again is not None:
+                    self.refresh(finished=bool(again))
+
+        if not self._resolver.submit(work, done):
+            # The runner refused -- shutting down, or already busy. The strip
+            # simply does not update, which is what `refresh` promises.
+            self._resolving = False
+
+    def _paint(self, resolution, notes, *, finished: bool) -> None:
+        """Draw a finished resolution. GUI thread only."""
         self._held = dict(resolution.held)
 
         # Everything the resolution decided — a restored pin as much as a
@@ -610,7 +718,7 @@ class ChainingBar(QFrame):
 
         self._draw_sources(resolution.inputs, resolution.filled)
         self._draw_pins(resolution.moved)
-        self._draw_staleness(resolution.settings)
+        self._draw_staleness(resolution.settings, notes)
         self._draw_next(resolution.settings, finished=finished)
         # ``isHidden`` and not ``isVisible``: a widget whose window has not
         # been shown yet is not *visible*, so asking that question during the
@@ -652,9 +760,15 @@ class ChainingBar(QFrame):
             "not the change.")
         self._pinned_row.show()
 
-    def _draw_staleness(self, settings: Dict[str, Any]) -> None:
-        """Row 3 — what is out of date, why, and what to do."""
-        notes = self._staleness(settings)
+    def _draw_staleness(self, settings: Dict[str, Any], notes=None) -> None:
+        """Row 3 — what is out of date, why, and what to do.
+
+        :param notes: the notes a worker already computed. ``None`` computes
+            them here, which READS THE REGISTRY and therefore blocks -- kept
+            for callers outside the refresh path, and never used by it.
+        """
+        if notes is None:
+            notes = self._staleness(settings)
         if not notes:
             self._stale.hide()
             self._fix.hide()
@@ -730,6 +844,11 @@ class ChainingBar(QFrame):
 
     def _staleness(self, settings: Dict[str, Any]) -> Tuple[StaleNote, ...]:
         """Ask the registry what is out of date around this module.
+
+        BLOCKS: it opens the artifacts registry, which lives under a project
+        root the user chose and may be on a network mount. `_refresh` runs
+        this on a worker and hands the answer to `_draw_staleness`; nothing
+        on the GUI thread should call it directly.
 
         The settings are only handed over for the hash comparison when
         ``collect()`` gave a whole dict.  A partial one hashes differently
