@@ -405,3 +405,50 @@ campaign should check the docstring's existing style before adding to it, and
 should build the docs rather than trusting a source-level count. Four of the
 six defects above were in classes that every source-level measurement in this
 file already counted as DOCUMENTED.
+
+--------------------------------------------------------------------------------
+2026-09-04 — CLOSED. ALL FOUR ACCEPTANCE CHECKS VERIFIED.
+--------------------------------------------------------------------------------
+
+This file's own "HOW IT WILL BE CHECKED", each one measured rather than
+asserted:
+
+  1. "The 8 settings constructors document every key they read."
+     MEASURED: every constructor in the package taking an argument named
+     `settings` documents it -- zero undocumented, checked across both reST
+     `:param settings:` and NumPy `settings :` styles, because the earlier
+     measurements in this file got that wrong twice.
+
+  2. "A built API page for a documented class shows its parameters."
+     VERIFIED ON A REAL BUILD. 518 API pages, and
+     `spacr.qt.mask_engine.MaskHistory` is the worked proof: its page carries
+     the class prose AND the __init__ prose with `capacity` under a rendered
+     Parameters list. `autoapi_python_class_content = 'both'` needed no
+     configuring, exactly as this file predicted.
+
+  3. "A test fails when a PUBLIC class's __init__ takes parameters and
+     documents none -- ratcheted."
+     ALREADY EXISTED, as the 2026-09-03 note says. Re-recorded this session
+     and green.
+
+  4. "No constructor docstring restates a settings tooltip verbatim."
+     MEASURED: zero, across every tooltip longer than 60 characters.
+
+And the count this file actually defines -- is every parameter NAMED in a
+`:param:` field anywhere the API will show -- is 544/544.
+
+THE TWO THINGS WORTH CARRYING OUT OF THIS ITEM, neither of which is the
+count:
+
+  * A `:param:` FIELD ADDED TO A NUMPY-STYLE DOCSTRING IS WORSE THAN NO FIELD.
+    It does not merely fail to render; it takes the surrounding section down
+    with it. Four of the six defects the docs build found were in classes
+    every source-level measurement in this file already counted as DOCUMENTED.
+    Build the docs; do not trust a source-level count.
+
+  * `parent` was a third of the backlog and the file was right that
+    ":param parent: the parent" is worthless. What made the line worth writing
+    was checking first that all 56 hand it straight to the base constructor
+    and never read it -- so the line says "ownership only", which tells a
+    reader nothing was left out. An incomplete list cannot distinguish a
+    boring parameter from a forgotten one.
