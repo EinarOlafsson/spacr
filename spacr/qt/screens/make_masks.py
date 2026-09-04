@@ -426,6 +426,7 @@ class _MaskCanvas(QLabel):
     recrop_requested = Signal(int, int, int, int)
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build an empty canvas: no image, no mask, no stroke in progress."""
         super().__init__(parent)
         self.image: Optional[np.ndarray] = None       # uint16 grayscale
         self.mask: Optional[np.ndarray] = None        # uint8 labels
@@ -582,6 +583,16 @@ class _MaskCanvas(QLabel):
     def _canvas_to_image(self, x: float, y: float) -> Optional[tuple]:
         # NB: QLabel.pixmap() returns a *null* QPixmap (never None) when no
         # pixmap is set, so the emptiness test has to be isNull().
+        """Widget coordinates to IMAGE pixel coordinates, or ``None``.
+
+        ``None`` means the point is outside the drawn pixmap -- in the letterbox
+        either side of it, or before an image is set -- and a caller must not
+        treat that as pixel 0, which is what an unchecked conversion gives.
+
+        Accounts for the centring offset and for the zoom viewport, then clamps:
+        a click on the last row must land on the last row rather than one past it,
+        which is a rounding error away.
+        """
         p = self.pixmap()
         if self.mask is None or p is None or p.isNull():
             return None
@@ -865,6 +876,11 @@ class _MaskCanvas(QLabel):
     # Mouse events
     # ------------------------------------------------------------------
     def _emit_stroke_start(self):
+        """Open a stroke, once. A stroke already open is not reopened.
+
+        The ledger records one edit per stroke, so a second start would split a
+        single drag into two entries.
+        """
         if not self._stroke_in_progress:
             self._stroke_in_progress = True
             self.stroke_started.emit()
@@ -1413,6 +1429,7 @@ class _FlowPane(QLabel):
     """
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build an empty flow pane, centred and with a floor on its size."""
         super().__init__(parent)
         self.setAlignment(Qt.AlignCenter)
         self.setMinimumSize(400, 300)
@@ -1449,6 +1466,11 @@ class _FlowPane(QLabel):
         return self._pixmap is not None
 
     def _rescale(self) -> None:
+        """Redraw the pixmap at the pane's current size.
+
+        A no-op before a pixmap is set, so a resize during construction is
+        harmless.
+        """
         if self._pixmap is None:
             return
         self.setPixmap(scaled_for(self._pixmap, self, self.size()))
