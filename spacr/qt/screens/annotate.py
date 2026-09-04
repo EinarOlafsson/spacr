@@ -893,6 +893,7 @@ class _ZoomOverlay(QWidget):
     dismissed = Signal()
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build an empty overlay, bound to no slot yet."""
         super().__init__(parent)
         self._pixmap: Optional[QPixmap] = None
         self.slot: int = -1
@@ -1217,6 +1218,7 @@ class _SettingsDialog(QDialog):
     """
 
     def __init__(self, settings: AnnotateSettings, parent: Optional[QWidget] = None):
+        """Build the form, detached from the window manager."""
         super().__init__(parent)
         # A modal, transient-for dialog is ATTACHED by GNOME/Mutter: centred
         # on the parent, undraggable, and pulling at it un-maximises the main
@@ -1821,6 +1823,7 @@ class _SettingsDialog(QDialog):
         return applied
 
     def _pick_src(self):
+        """Ask for the experiment source, starting where the field points."""
         d = QFileDialog.getExistingDirectory(self, "Pick experiment source",
                                               self._src_edit.text() or os.getcwd())
         if d:
@@ -1942,6 +1945,7 @@ class _GenerateAnnotationDatabaseDialog(QDialog):
     """
 
     def __init__(self, settings, parent=None):
+        """Build the form for generating an annotation database."""
         super().__init__(parent)
         self.setWindowTitle("Generate annotation database")
         self._settings = settings
@@ -2110,6 +2114,7 @@ class _AutoAnnotateDialog(QDialog):
 
     def __init__(self, settings: AnnotateSettings,
                  parent: Optional[QWidget] = None):
+        """Build the form, with Apply disabled until a preview is taken."""
         super().__init__(parent)
         from ..dialogs import detach_from_window_manager
         detach_from_window_manager(self)
@@ -2234,10 +2239,16 @@ class _AutoAnnotateDialog(QDialog):
     # -- ui ----------------------------------------------------------------
 
     def _load_metadata_columns(self) -> None:
+        """Offer the metadata columns the engine knows about.
+
+        Taken from the engine rather than listed here, so a column added there
+        appears without a second edit.
+        """
         from ..annotate_engine import METADATA_COLUMNS
         self._column.addItems(list(METADATA_COLUMNS))
 
     def _on_source_changed(self, *_args) -> None:
+        """Enable the column and value fields only for a metadata source."""
         metadata = self.source() == "metadata"
         for widget in (self._column, self._values):
             widget.setEnabled(metadata)
@@ -2265,6 +2276,12 @@ class _AutoAnnotateDialog(QDialog):
             self._values.setPlaceholderText(f"{shown}{more}")
 
     def _invalidate_preview(self, *_args) -> None:
+        """Throw the preview away and disable Apply.
+
+        Called whenever anything the preview was computed FROM changes. Applying
+        against a stale preview would annotate rows the user never saw, and
+        annotating thousands of rows is not undoable through the grid.
+        """
         self._matched = []
         self._apply.setEnabled(False)
 
