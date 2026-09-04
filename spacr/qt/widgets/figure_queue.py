@@ -495,6 +495,8 @@ class _ClearFiguresLabel(QLabel):
     The label uses the active theme's error color and a pointing-hand cursor.
     A brief accent flash confirms every click, including when the queue was
     already empty.
+
+    :param parent: parent widget; ownership only.
     """
 
     #: Emitted on a completed click or keyboard activation.

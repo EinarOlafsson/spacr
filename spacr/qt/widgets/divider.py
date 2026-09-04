@@ -9,6 +9,7 @@ class Divider(QFrame):
     """Thin themed separator line, horizontal or vertical.
 
     :param orientation: ``Qt.Horizontal`` (default) or ``Qt.Vertical``.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, orientation: Qt.Orientation = Qt.Horizontal, parent=None):

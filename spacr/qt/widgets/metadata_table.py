@@ -197,6 +197,7 @@ class MetadataTableDialog(QDialog):
     :param rows: preview rows to edit.
     :param dst: where the ``filename_map.csv`` is written on Apply.
     :param on_apply: optional callback invoked with the written CSV path.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, rows: List[Dict[str, Any]], dst: Any,

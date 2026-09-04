@@ -183,6 +183,7 @@ class ChainingBar(QFrame):
         belongs to.
     :param pins: the pin store to use. Defaults to the shared one; tests
         hand in their own so the developer's real pins are never touched.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, screen: QWidget, *, pins=None, parent=None) -> None:

@@ -422,6 +422,7 @@ class ImageScatterScreen(LinkedView, QWidget):
 
     :param threaded: ``False`` loads inline, so a test drives the screen
         without a worker thread and gets the same signals in the same order.
+    :param parent: parent widget; ownership only.
     """
 
     #: A point's crop was shown. Carries the object key.

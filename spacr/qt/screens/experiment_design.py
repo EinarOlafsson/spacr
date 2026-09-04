@@ -324,6 +324,7 @@ class ExperimentDesignScreen(QWidget):
     :param threaded: ``False`` runs the export inline, emitting the same
         signals in the same order, so a test can drive the screen
         synchronously without the behaviour diverging.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, parent: Optional[QWidget] = None, *,

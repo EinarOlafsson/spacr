@@ -17,6 +17,7 @@ class UsageBar(QWidget):
     survives being written as a constant: see :meth:`_size_the_columns`.
 
     :param label: text shown to the left of the bar (e.g. "RAM", "GPU").
+    :param parent: parent widget; ownership only.
     """
 
     #: The 1.0 widths, kept as the ALIGNMENT FLOOR rather than as the answer.

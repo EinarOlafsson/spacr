@@ -85,6 +85,7 @@ class ProjectBrowserScreen(QWidget):
         :class:`~spacr.qt.job_runner.JobRunner` code path, so a test drives
         the real thing synchronously.
     :param roots: folders to search on the first scan.
+    :param parent: parent widget; ownership only.
     """
 
     #: A scan finished; carries how many projects it listed.

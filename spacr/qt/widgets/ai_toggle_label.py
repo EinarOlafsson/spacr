@@ -57,6 +57,7 @@ class AiToggleLabel(QLabel):
     :param text: label text (default ``"AI"`` for back-compat).
     :param tooltip: hover tooltip; falls back to a sensible AI-flavoured
         message when omitted.
+    :param parent: parent widget; ownership only.
     :ivar toggled: emitted with the new on/off state whenever the user
         clicks or :meth:`setChecked` flips the state.
     """

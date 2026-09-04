@@ -160,6 +160,7 @@ class QCDashboardScreen(QWidget):
         the same order, so a test can drive the screen synchronously.
     :param reader: substitute for
         :func:`spacr.qt.widgets.qc_summary.read_dashboard`, for tests.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, parent: Optional[QWidget] = None, *,

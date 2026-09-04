@@ -885,6 +885,8 @@ class _ZoomOverlay(QWidget):
     must not label the crop underneath or dismiss the thing they opened.
     Outside it the overlay folds back, which is the whole way out of the
     gesture along with ``Escape``.
+
+    :param parent: parent widget; ownership only.
     """
 
     #: A click landed off the picture: the caller should fold it back.

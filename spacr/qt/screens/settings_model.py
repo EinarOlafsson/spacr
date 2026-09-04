@@ -6822,6 +6822,7 @@ class _CsvColumnField(QWidget):
             input files after the panel is built, so a list captured at
             construction is always the empty one.
         :param what: what kind of column, for the message.
+        :param parent: parent widget; ownership only.
         """
         super().__init__(parent)
         self._key = str(key or "")
@@ -7028,6 +7029,7 @@ class _RegressionBackendField(QWidget):
         :param regression_type: what the panel currently asks to fit, used to
             decide which entries are choosable. ``'auto'``/``None`` mean the
             family is chosen from the response after the data is read.
+        :param parent: parent widget; ownership only.
         """
         super().__init__(parent)
         from spacr.regression_backends import backend_choices

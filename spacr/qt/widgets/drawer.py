@@ -45,6 +45,7 @@ class EdgeDrawer(QWidget):
     :param host: the widget the drawer overlays. Must outlive the drawer.
     :param panel: the content — typically the app ``Sidebar``.
     :param width: drawn width in px; defaults to the panel's own.
+    :param parent: parent widget; ownership only.
     """
 
     #: Width in px of the invisible strip along the left edge that arms

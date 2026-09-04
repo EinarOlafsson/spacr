@@ -91,6 +91,7 @@ class Tile(QWidget):
     :param icon_size: base icon side length in px; animates on hover.
     :param tile_size: fixed side length of the tile button in px.
     :param caption: caption shown under the tile; defaults to ``text``.
+    :param parent: parent widget; ownership only.
     :ivar clicked: emitted when the tile button is pressed.
     """
 
@@ -156,6 +157,7 @@ class HTile(QPushButton):
     :param description: single-line subtitle (e.g. app tagline).
     :param icon: QIcon rendered on the left.
     :param icon_size: icon side length in px.
+    :param parent: parent widget; ownership only.
     :ivar clicked: emitted when the tile is pressed.
     """
 

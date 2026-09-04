@@ -171,6 +171,7 @@ class Dock(QWidget):
     :param is_visible: optional ``key -> bool`` maturity predicate. Injected
         rather than imported so this module does not depend on
         :mod:`spacr.qt.app`, which is what defines the registry.
+    :param parent: parent widget; ownership only.
     """
 
     nav_selected = Signal(str)           #: a row was clicked

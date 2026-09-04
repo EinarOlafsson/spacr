@@ -581,6 +581,7 @@ class ColumnPickerDialog(QDialog):
         *list* of columns — ``exclude``, ``annotation_columns`` — where one
         name per press meant reopening the dialog, and re-reading the
         schema, once per column the user wanted.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, db_path: Any = "", table: Optional[str] = None,

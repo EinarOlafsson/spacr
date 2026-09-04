@@ -287,6 +287,7 @@ class ControlChartScreen(QWidget):
 
     :param threaded: ``False`` runs the table read and the chart inline, so a
         test drives the screen synchronously without the behaviour diverging.
+    :param parent: parent widget; ownership only.
     """
 
     #: Emitted whenever a chart is refused, with the engine's message. The

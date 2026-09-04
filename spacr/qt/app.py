@@ -1986,6 +1986,8 @@ class Sidebar(Dock):
     under the pointer, a name drawn only while hovered, and a folded second
     level with its own expand state. See the module docstring of
     :mod:`spacr.qt.widgets.dock` for what replaced each one.
+
+    :param parent: parent widget; ownership only.
     """
 
     #: Declared so existing callers may still connect to it. IT NEVER FIRES:

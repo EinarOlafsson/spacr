@@ -154,6 +154,7 @@ class OutliersScreen(QWidget):
     :param threaded: ``False`` runs the table read and the scan inline, in the
         same order and through the same signals, so a test can drive the whole
         screen synchronously without the behaviour diverging.
+    :param parent: parent widget; ownership only.
     """
 
     #: A scan finished. Carries the

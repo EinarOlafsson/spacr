@@ -32,6 +32,7 @@ class RefitDialog(QDialog):
         """
         :param settings: the settings the run on screen used. Read only; the
             new dict is built by :func:`spacr.refit.refit_settings`.
+        :param parent: parent widget; ownership only.
         """
         super().__init__(parent)
         # From the spec, not from ml: importing ml here would pull torch,

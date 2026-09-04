@@ -1044,6 +1044,8 @@ class _ZoomView(QGraphicsView):
 
     Zoom is broadcast to a peer view via :meth:`set_peer` so the mask
     canvas mirrors what the original canvas is doing (and vice versa).
+
+    :param parent: parent widget; ownership only.
     """
 
     hover_pixel = Signal(int, int)   # (x, y) in image coords

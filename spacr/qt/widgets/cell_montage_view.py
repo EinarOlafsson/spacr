@@ -1588,6 +1588,7 @@ class CellMontageView(QWidget):
     :param threaded: ``False`` runs the load inline, emitting the same
         signals in the same order, so a test drives the whole tab without the
         behaviour diverging.
+    :param parent: parent widget; ownership only.
     """
 
     #: Emitted with the number of objects drawn once a load has landed. Zero

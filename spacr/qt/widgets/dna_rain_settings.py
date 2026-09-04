@@ -58,6 +58,7 @@ class DnaRainSettingsPopover(QFrame):
 
     :param bar: the settings bar to show. Owned by the popover once
         handed over — it is reparented into it.
+    :param parent: parent widget; ownership only.
     :ivar closed: emitted whenever the popover stops being visible,
         however that happened, so the button can un-toggle itself.
     """
@@ -208,6 +209,7 @@ class DnaSettingsButton(AiToggleLabel):
     theme switch.
 
     :param bar: the bound settings bar to put in the popover.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, bar: DnaRainSettingsBar,

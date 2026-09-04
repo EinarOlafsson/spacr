@@ -19,6 +19,7 @@ class CollapsibleSection(QWidget):
         description; the panel inside says what it does.
     :param content: the widget to fold. Reparented here.
     :param expanded: whether it starts open.
+    :param parent: parent widget; ownership only.
     """
 
     toggled = Signal(bool)
