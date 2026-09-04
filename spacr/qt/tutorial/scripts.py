@@ -35,6 +35,7 @@ LOG = logging.getLogger("spacr.qt.tutorial")
 
 AVAILABLE_TUTORIALS = [
     "home", "mask", "measure", "crop", "classify", "timelapse",
+    "map_barcodes", "regression",
 ]
 
 
@@ -57,6 +58,10 @@ def build_steps(app_key: str, window) -> List[Step]:
         return _build_classify_steps(window)
     if app_key == "timelapse":
         return _build_timelapse_steps(window)
+    if app_key == "map_barcodes":
+        return _build_map_barcodes_steps(window)
+    if app_key == "regression":
+        return _build_regression_steps(window)
     raise ValueError(f"unknown tutorial: {app_key}. "
                        f"Choose from {AVAILABLE_TUTORIALS}")
 
@@ -549,6 +554,8 @@ def _build_classify_steps(window) -> List[Step]:
     tmp_root = _tutorial_scratch("classify")
     screen_ref: List[Any] = [None]
 
+    classify_ref: List[Any] = [None]
+
     def _capture():
         """Remember the screen this step is about, once it exists.
 
@@ -556,6 +563,16 @@ def _build_classify_steps(window) -> List[Step]:
         up when the script is written -- only when the step runs.
         """
         screen_ref[0] = window._screens.get("annotate")
+
+    def _capture_classify():
+        """Remember Classify's screen, once this script has opened it.
+
+        CAPTURED RATHER THAN LOOKED UP, and the difference is not academic:
+        reading `window._screens` inside the target would resolve as soon as
+        ANY earlier lesson had opened Classify, and the engine's contract is
+        that a deferred target is dead until its own step has run.
+        """
+        classify_ref[0] = window._screens.get("classify_merged")
 
     return [
         Step(
@@ -610,7 +627,8 @@ def _build_classify_steps(window) -> List[Step]:
             "Classify is where the training runs. The settings column carries "
             "the model, the split and the training schedule; the actions row "
             "runs it and the console below reports each epoch.",
-            action=_nav_to(window, "classify_merged"),
+            action=lambda: (_nav_to(window, "classify_merged")(),
+                             _capture_classify()),
             target=(_sidebar_button(window, "classify_merged"), None),
             highlight=_sidebar_button(window, "classify_merged"),
             show_pointer=True,
@@ -625,10 +643,10 @@ def _build_classify_steps(window) -> List[Step]:
             "masthead. Classifier Evaluation judges the trained model, "
             "Explain CV asks which measured features it keyed on, and "
             "Activation Maps shows where in the image it looked.",
-            target=(lambda: _fold_button(window._screens.get(
-                "classify_merged"), "classifier_evaluation"), None),
-            highlight=lambda: _fold_button(window._screens.get(
-                "classify_merged"), "classifier_evaluation"),
+            target=(lambda: _fold_button(classify_ref[0],
+                                         "classifier_evaluation"), None),
+            highlight=lambda: _fold_button(classify_ref[0],
+                                           "classifier_evaluation"),
             show_pointer=True,
             hold_ms=900,
         ),
@@ -637,10 +655,143 @@ def _build_classify_steps(window) -> List[Step]:
             "Explorer ranks measured features before anything is trained. "
             "Both are appended to the reading sequence rather than inserted "
             "into it, because neither is a step in it.",
-            target=(lambda: _fold_button(window._screens.get(
-                "classify_merged"), "train_compare"), None),
-            highlight=lambda: _fold_button(window._screens.get(
-                "classify_merged"), "train_compare"),
+            target=(lambda: _fold_button(classify_ref[0],
+                                         "train_compare"), None),
+            highlight=lambda: _fold_button(classify_ref[0],
+                                           "train_compare"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+    ]
+
+
+
+# ---------------------------------------------------------------------------
+# Map Barcodes tutorial — the one Core module that reads sequencing, not images
+# ---------------------------------------------------------------------------
+# THE ODD ONE OUT, and the tutorial has to say so early. Every other Core
+# module takes microscopy; this one takes FASTQ and produces the table that
+# tells Regression which well got which perturbation. A reader who arrives
+# expecting images needs that said before anything else.
+
+def _build_map_barcodes_steps(window) -> List[Step]:
+    tmp_root = _tutorial_scratch("map_barcodes")
+    screen_ref: List[Any] = [None]
+
+    def _capture():
+        """Remember the screen, once the step before this one has built it."""
+        screen_ref[0] = window._screens.get("map_barcodes")
+
+    return [
+        Step(
+            "Map Barcodes is the one Core module that reads sequencing rather "
+            "than microscopy. It takes the FASTQ from a pooled screen and "
+            "works out which perturbation landed in which well, which is what "
+            "lets a later regression attribute a phenotype to a gene.",
+            action=_nav_to(window, "map_barcodes"),
+            target=(_sidebar_button(window, "map_barcodes"), None),
+            highlight=_sidebar_button(window, "map_barcodes"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        Step(
+            "Load Map Barcodes demo from Help, Demos. It writes a small FASTQ "
+            "and the barcode references that go with it, then points the "
+            "module at them, so the run below is real work on real reads "
+            "rather than a walkthrough of an empty form.",
+            action=lambda: (_load_demo(window, "map_barcodes", tmp_root)(),
+                             _capture()),
+            target=_menu_target(window, "Demos"),
+            highlight=_menu_bar(window),
+            show_pointer=True,
+            hold_ms=1000,
+        ),
+        Step(
+            "Sequencing Input names the reads. Barcode References names the "
+            "three things a read has to be resolved against: the row, the "
+            "column, and the guide library. Read Parsing is where the layout "
+            "of the read itself is described, and it is the setting most "
+            "worth checking before a long run.",
+            target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
+            hold_ms=900,
+        ),
+        Step(
+            "Run counts every read that resolves to a row, a column and a "
+            "guide, and writes one row per well. The console reports reads "
+            "that matched nothing, and that number is the one to look at "
+            "first: a parse that is subtly wrong usually fails cleanly rather "
+            "than producing plausible nonsense.",
+            target=(lambda: _find_button(screen_ref[0], "Run"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Run"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Regression tutorial — the module that consumes what everything else produces
+# ---------------------------------------------------------------------------
+# NO DEMO OF ITS OWN, and that is honest rather than a gap: regression needs a
+# measured screen AND a barcode mapping, so its live data is the OUTPUT of the
+# two tutorials before it. The script says which ones and in what order,
+# rather than pretending a synthetic single-module dataset would teach the
+# thing that matters here.
+
+def _build_regression_steps(window) -> List[Step]:
+    screen_ref: List[Any] = [None]
+
+    def _capture():
+        """Remember the screen, once the step before this one has built it."""
+        screen_ref[0] = window._screens.get("regression")
+
+    return [
+        Step(
+            "Regression is where a screen becomes a result. It takes the "
+            "per-object measurements from Measure and the well-level "
+            "perturbations from Map Barcodes, and asks which perturbations "
+            "moved the phenotype.",
+            action=lambda: (_nav_to(window, "regression")(), _capture()),
+            target=(_sidebar_button(window, "regression"), None),
+            highlight=_sidebar_button(window, "regression"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        Step(
+            "This module has no demo dataset of its own, and that is the "
+            "point rather than an omission: it needs a measured screen and a "
+            "barcode mapping. Run the Measure and Map Barcodes lessons first "
+            "and their outputs are what you drop here.",
+            target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
+            hold_ms=900,
+        ),
+        Step(
+            "Input Tables takes those two outputs. Controls and Filters names "
+            "which wells are the reference the rest are judged against, and "
+            "getting that wrong invalidates everything downstream of it.",
+            target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
+            hold_ms=800,
+        ),
+        Step(
+            "Plate and Batch Correction is not optional on a multi-plate "
+            "screen. A plate effect is indistinguishable from a real one "
+            "unless it is modelled, and a hit list built without it will "
+            "rank whichever plate ran best.",
+            target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
+            hold_ms=800,
+        ),
+        Step(
+            "Model and Inference chooses the estimator; the Permutation Test "
+            "beside it is what turns a coefficient into a claim, by asking "
+            "how often a shuffled label produces an effect this large. Run "
+            "writes the fitted table, and the Prediction Profiler and "
+            "Investigate Hit modules read it from there.",
+            target=(lambda: _find_button(screen_ref[0], "Run"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Run"),
             show_pointer=True,
             hold_ms=900,
         ),

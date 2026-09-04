@@ -102,7 +102,8 @@ def _drive(window, steps, probe, app):
 
 def test_available_tutorials_is_the_exact_dispatch_table():
     assert AVAILABLE_TUTORIALS == ["home", "mask", "measure", "crop",
-                                     "classify", "timelapse"]
+                                     "classify", "timelapse",
+                                     "map_barcodes", "regression"]
     assert len(set(AVAILABLE_TUTORIALS)) == len(AVAILABLE_TUTORIALS)
 
 
@@ -259,7 +260,14 @@ def test_every_script_lands_on_the_screen_it_narrates(app_key, main_window,
                  # about exactly that: a polished lesson teaching a module
                  # boundary the application no longer has.
                  "classify": "classify_merged",
-                 "timelapse": "mask"}[app_key]
+                 "timelapse": "mask",
+                 # 358: Core modules that had no tutorial at all until
+                 # 2026-09-04. Map Barcodes has a demo and runs on it;
+                 # Regression has none by nature -- it consumes Measure's
+                 # and Map Barcodes' outputs -- and the lesson says so
+                 # rather than inventing a single-module dataset.
+                 "map_barcodes": "map_barcodes",
+                 "regression": "regression"}[app_key]
 
     probe = _Probe(main_window, tmp_path)
     steps = build_steps(app_key, main_window)

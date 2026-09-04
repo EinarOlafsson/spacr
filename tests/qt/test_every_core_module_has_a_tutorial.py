@@ -46,8 +46,6 @@ SCRIPTS = (pathlib.Path(__file__).resolve().parents[2]
 #: Core module have a tutorial. Training Runs is both, so it stays here until
 #: it has one of its own.
 UNCOVERED_CORE_MODULES = {
-    "map_barcodes",
-    "regression",
     "train_compare",
     "profiler",
     "investigate_hit",
