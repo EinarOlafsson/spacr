@@ -757,3 +757,97 @@ WHAT REMAINS ON 364 is no longer a sweep: the two proposals above wait on the
 maintainer, the organelle preprocessing gap is recorded above, and the two
 motility renames are parked until that module is touched for another reason.
 The preferences and spaceout half was audited on 2026-09-02.
+
+
+================================================================================
+2026-09-04  THE PER-OBJECT TABLE: THREE DEFECTS, ALL MINE, ALL FROM ONE CHANGE
+================================================================================
+
+The table was asked to show only the settings "common between all objects".
+That was implemented literally, and literally was wrong in three ways that
+took a user report and two tests to find. Recording them together because
+they are one mistake wearing three faces: I picked a rule that was easy to
+state instead of measuring what the rule would select.
+
+FACE ONE -- "ALL" EMPTIED MEASURE COMPLETELY.
+Reported as "in measure there are way more per object settings than are shown
+in the per object settings pannel, e.g. mask dim, max size". Measured:
+
+    measure     mask_dim   cell, nucleus, pathogen, organelle   (not cytoplasm)
+                min_size   cell, nucleus, pathogen, organelle
+                max_size   three of the five
+                min_area   one
+                type       one
+
+Cytoplasm is DERIVED -- it is what is left of a cell once the nucleus and
+pathogen are taken out -- so it does not answer most questions an object
+answers. Requiring all five objects therefore selected NOTHING, and Measure's
+table was empty rather than short. A blank cell already reads as "this object
+does not ask", and the model draws it as not-editable, so a question three
+objects share was always a perfectly good row.
+
+FACE TWO -- "MORE THAN ONE COLUMN" MADE THE ROWS DEPEND ON THE COLUMN COUNT.
+The obvious repair. It is wrong because a new organelle is SEEDED FROM THE
+ONE BEFORE IT, so every question only organelle A asked suddenly has two
+askers and qualifies. Pressing Add went from 20 rows to 54. Caught by
+`test_one_more_organelle_is_one_more_column`, which asserts the question
+count does not move -- a test that existed for a different reason and paid
+for itself here.
+
+THE RULE THAT HOLDS is KINDS, not columns: every organelle counts once
+between them. A question is per-object because DIFFERENT KINDS of object ask
+it, and two organelles are the same kind asked twice. `_kind_of` in
+`object_settings_grid.py`.
+
+FACE THREE -- THE TABLE HAS TO EARN ITS PLACE, and the filter is not what
+decides that. Asked whether per-object settings belong in regression and
+classify. Measured:
+
+    mask/timelapse   20 questions x 3 objects      a table
+    measure           3 questions x 4 objects      a table
+    regression        2 questions x 2 objects      NOT a table
+    classify          0                            NOT a table
+
+Regression shares `area_outlier_mads` and `intensity_outlier_mads` between
+cell and nucleus. That is genuinely per-object and genuinely four cells, and
+replacing a four-row form with a table, a header, an Add button and a resize
+grip is a heavier control than the thing it replaces. `MIN_GRID_QUESTIONS`
+in `app_screen.py` is that threshold.
+
+THE LESSON, which is the same one 306 recorded from the other direction:
+measure what a predicate SELECTS, against the real dictionary, before
+believing the sentence that describes it. "Common to all objects" and
+"shared between objects" sound like the same rule and differ by every
+per-object setting Measure has.
+
+--------------------------------------------------------------------------------
+ALSO FIXED, same day, same area
+--------------------------------------------------------------------------------
+
+THE SWITCH WAS READ ONCE, WHILE THE PANEL WAS BEING BUILT. So turning the
+per-object table on did nothing to a module already open, and turning it off
+left the table on screen with the rows it speaks for still hidden. Reported
+as "if you have per object table off and open a modual then turn it on it
+dosnt go on, same if you have it on". `apply_object_grid_preference` now
+mounts or unmounts on demand and Preferences broadcasts to every open screen.
+The off direction is the one worth guarding: the flat rows are HIDDEN while
+the grid speaks for them, so a table that vanished without releasing them
+would leave those settings in no table and no form.
+
+THE BINDING WAS ONE-WAY. The grid wrote through to the widgets -- that is
+what makes it safe and it was well tested -- but nothing told the grid when a
+widget moved, so a value changed anywhere else (a preset, a settings file, the
+Live Preview, a flat row the table does not claim) left the table showing the
+old answer while `collect()` returned the new one. Two answers to the same
+question is the exact failure the binding exists to prevent. `follow_the_form`
+connects the widgets behind the cells; it writes ONE CELL rather than
+reseeding, because a reseed is 30 ms on Mask and 100 ms at ten organelles and
+would run per keystroke and steal focus from the cell being typed into.
+
+THE CEILING TEST HUNG. 326 raised MAX_ORGANELLES from 26 to 702, and
+`test_the_ceiling_is_said_rather_than_hit_silently` pressed Add until it
+refused -- 702 full table rebuilds. `next_organelle` also rescanned from slot
+1 on every call, which made the walk quadratic. Both fixed: the scan starts
+from the slots in use, and the test seeds at the ceiling instead of walking
+to it. Its docstring was also still claiming twenty-six was the alphabet
+running out, which 326 had made false.

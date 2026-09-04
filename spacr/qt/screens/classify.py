@@ -53,11 +53,19 @@ FLOWVIEW_TOOLTIP = "Fold FlowView away, or open it again"
 
 
 def _flowview_section_qss(palette: dict, _opacity=None) -> str:
-    """Theme-native box around the lazily constructed FlowView renderer."""
+    """Rounded, unfilled box around the lazily constructed FlowView renderer.
+
+    NO FILL. This painted `surface`, which is opaque, so the section read as
+    a black box sitting behind the flow cells and the inspector under them --
+    the panel inside had already been made transparent one layer at a time
+    (the scene brush, the view, the viewport, the inspector) and this was the
+    last opaque layer left. The rim and the radius stay: what was wanted is a
+    box around BOTH the graph and the text under it, not a slab behind them.
+    """
 
     return f"""
 QWidget#{FLOWVIEW_SECTION_NAME} {{
-    background-color: {palette["surface"]};
+    background: transparent;
     border: 1px solid {palette["border_soft"]};
     border-radius: 8px;
 }}

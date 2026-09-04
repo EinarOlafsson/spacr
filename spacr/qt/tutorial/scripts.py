@@ -587,13 +587,17 @@ def _build_classify_steps(window) -> List[Step]:
             highlight=lambda: screen_ref[0],
             hold_ms=500,
         ),
+        # ONE BUTTON NOW, NOT TWO. "Train CV" and "Train XG" were merged
+        # into a single `Train...` with a menu, and this step was not moved
+        # with them -- so its target resolved to None and the tutorial
+        # pointed at nothing. The narration named both old buttons too.
         Step(
-            "Train CV sends the labelled crop project to Classify's Computer "
-            "Vision workflow; Train XG sends its measured features to the "
-            "Machine Learning workflow. Both open in the consolidated "
-            "Classify module.",
-            target=(lambda: _find_button(screen_ref[0], "Train CV"), None),
-            highlight=lambda: _find_button(screen_ref[0], "Train CV"),
+            "Train opens a menu with the two destinations: on the images "
+            "trains a Torch CNN or Transformer on the crops themselves, on "
+            "the measured features trains XGBoost on what Measure recorded. "
+            "Both open in the consolidated Classify module.",
+            target=(lambda: _find_button(screen_ref[0], "Train"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Train"),
             hold_ms=500,
         ),
     ]

@@ -38,8 +38,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, Mapping, Optional, Tuple
 
-from PySide6.QtCore import (QAbstractTableModel, QEvent, QModelIndex, QSize,
-                            Qt, Signal)
+from PySide6.QtCore import QAbstractTableModel, QEvent, QModelIndex, QSize, Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QFrame,
@@ -56,8 +55,7 @@ from PySide6.QtWidgets import (
 LOG = logging.getLogger(__name__)
 
 from ...object_roles import setting_label
-from ...object_settings_table import (OBJECT_ORDER, column_label, from_table,
-                                      to_table, widen)
+from ...object_settings_table import OBJECT_ORDER, column_label, from_table, to_table, widen
 from ...organelle_types import MAX_ORGANELLES, organelle_role
 from ..theme import SPACING
 from .sortable_table import install_sorting
@@ -379,6 +377,18 @@ class _GridHeightGrip(QFrame):
         super().mouseDoubleClickEvent(event)
 
 
+def _kind_of(obj: str) -> str:
+    """The KIND of object ``obj`` is, collapsing every organelle into one.
+
+    `organelle_role_of` answers which SLOT a name is -- ``'organelleb'`` --
+    which is what the settings keys need and the wrong grain for asking
+    whether a question is per-object. Two organelles are one kind of thing
+    asked twice.
+    """
+    from ...organelle_types import organelle_role_of
+    return "organelle" if organelle_role_of(obj) else obj
+
+
 class ObjectSettingsGrid(QWidget):
     """The per-object settings table, and the button that widens it.
 
@@ -659,30 +669,44 @@ class ObjectSettingsGrid(QWidget):
                 continue
             table = widen(table, role,
                           like=live[index - 1] if index else None)
-        return self._only_the_common_questions(table)
+        return self._only_the_shared_questions(table)
 
     @staticmethod
-    def _only_the_common_questions(
+    def _only_the_shared_questions(
             table: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
-        """Drop the questions that only some objects ask.
+        """Drop the questions only ONE object asks.
 
-        A TABLE IS A CLAIM THAT THE ROWS AND COLUMNS ARE INDEPENDENT, and
-        these rows were not. Of 55 questions only 18 are asked by every
-        object; the other 37 are mostly the organelle's own detection
-        settings -- ridge filters, hysteresis, LoG sigmas -- which no cell,
-        nucleus or pathogen has. Drawn as rows they made a grid that was
-        two-thirds blank cells, and a blank cell in a table reads as an
-        unanswered question rather than one that was never asked.
+        A TABLE IS A CLAIM THAT ITS ROWS AND COLUMNS ARE INDEPENDENT, and a
+        question a single object asks is not a row -- it is one setting, and
+        it belongs in the form beside that object's others. The organelle's
+        own detection settings are 37 of these: ridge filters, hysteresis,
+        LoG sigmas, which no cell, nucleus or pathogen has.
 
-        THEY ARE NOT LOST. The grid only claims the keys it shows, so
+        MORE THAN ONE, NOT ALL. This required EVERY object to ask, and that
+        was wrong in a way only a real settings dict shows: Measure asks
+        `mask_dim` of cell, nucleus, pathogen and organelle but not
+        cytoplasm, and `max_size` of three of its five objects -- so
+        requiring all five dropped EVERY per-object setting Measure has and
+        left the table empty. A blank cell already means "this object does
+        not ask", and the model draws it as not-editable, so a question
+        three objects share is a perfectly good row.
+
+        ROLES, NOT COLUMNS. Every organelle counts once between them. The
+        obvious reading -- more than one COLUMN asks -- makes the row set
+        depend on how many organelles there are, because a second organelle
+        is seeded from the first and so doubles every question only an
+        organelle asked. Adding a column would then silently add 34 rows.
+        A question is per-object because DIFFERENT KINDS of object ask it,
+        and two organelles are the same kind asked twice.
+
+        THEY ARE NOT LOST. The grid claims only the keys it shows, so
         everything dropped here stays in the ordinary form under the
         category it belongs to -- which is where a setting only one object
         has belongs, next to the others that object has.
         """
-        objects = {obj for row in table.values() for obj in row}
         return {
             question: row for question, row in table.items()
-            if set(row) == objects
+            if len({_kind_of(obj) for obj in row}) > 1
         }
 
     def settings(self) -> Dict[str, Any]:
@@ -706,13 +730,18 @@ class ObjectSettingsGrid(QWidget):
     def next_organelle(self) -> str:
         """The role the next organelle column would take, or ``''``.
 
-        Empty when the alphabet has run out: slot names are lettered because
-        an object type is embedded in underscore-separated object keys, so
-        twenty-six is where the naming scheme ends rather than where somebody
-        chose to stop.
+        Empty at the ceiling. Slot names are lettered -- an object type is
+        embedded in an underscore-separated object key, so a digit would be
+        ambiguous against the object LABEL -- and the lettering CARRIES past
+        ``z``, so the ceiling is where two letters run out rather than one.
+
+        COUNTS UP FROM THE SLOTS IN USE rather than from one. Walking every
+        slot from the start was fine while there were 26; there are now 702,
+        and the caller that presses Add repeatedly turned an O(slots) scan
+        into an O(slots squared) one.
         """
         used = {obj for obj in self.objects() if obj.startswith("organelle")}
-        for number in range(1, MAX_ORGANELLES + 1):
+        for number in range(len(used) + 1, MAX_ORGANELLES + 1):
             role = organelle_role(number)
             if role not in used:
                 return role
@@ -724,14 +753,14 @@ class ObjectSettingsGrid(QWidget):
         :returns: False when there is no slot left, with the reason on screen
             rather than as an exception into a GUI slot.
         """
-        from ...organelle_types import (NUMBER_OF_ORGANELLES,
-                                        organelle_count)
+        from ...organelle_types import NUMBER_OF_ORGANELLES, organelle_count
 
         role = self.next_organelle()
         if not role:
             self._status.setText(
                 f"{MAX_ORGANELLES} organelles is the ceiling: the slots are "
-                f"lettered, so the alphabet is what runs out.")
+                f"lettered and carry past 'z', so that is where two "
+                f"letters run out.")
             return False
         # THE COUNT IS RAISED, NOT JUST THE TABLE. `number_of_organelles` is
         # what every other reader of these settings goes by -- the flat form,
