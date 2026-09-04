@@ -175,6 +175,11 @@ class _SortableMixin:
     """The comparison. See the module docstring for the contract."""
 
     def _init_sort_key(self, value, key=None) -> None:
+        """Remember the value to sort by, and the row's arrival order.
+
+        The serial is what "natural order" restores to, so it has to be taken
+        when the row is BUILT rather than derived later from anything on screen.
+        """
         global _SERIAL
         _SERIAL += 1
         self._sort_serial = _SERIAL
@@ -191,12 +196,29 @@ class _SortableMixin:
         return self._sort_missing, self._sort_number
 
     def _sort_text(self) -> str:
+        """The text this cell sorts as. Subclasses that show text override it."""
         return ""
 
     def _descending(self) -> bool:
+        """Whether the view is currently ordering downward.
+
+        Read because MISSING VALUES GO LAST IN BOTH DIRECTIONS, which means a
+        missing cell has to compare as the largest when Qt orders by "<" and the
+        smallest when it orders by ">".
+        """
         return False
 
     def __lt__(self, other):
+        """Order two cells: numbers before words, missing values last.
+
+        Returns ``NotImplemented`` for a peer with no text rather than guessing.
+        ``sorted`` believes every answer it is given, so a cell that guessed
+        would produce an order nobody could account for; declining lets Python
+        raise instead.
+
+        While the natural order is being restored this compares by ARRIVAL
+        SERIAL, which is the only record of the order the rows came in.
+        """
         if _RESTORING:
             return getattr(self, "_sort_serial", 0) < getattr(
                 other, "_sort_serial", 0)

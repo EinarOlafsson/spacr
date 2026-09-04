@@ -715,6 +715,13 @@ class _ResourceSampler:
         return self
 
     def _stop(self, reason: str = "stopped") -> Optional[Path]:
+        """Stop sampling and write the final document. Returns its path.
+
+        ``reason`` goes into the document, so a run that failed is
+        distinguishable from one that finished -- the samples look the same
+        either way, and a log that cannot tell them apart is a log nobody can
+        draw a conclusion from.
+        """
         if self.mode == "off":
             return None
         self._stop_event.set()
@@ -740,6 +747,7 @@ class _ResourceSampler:
         return self.output
 
     def _document(self) -> Dict[str, Any]:
+        """The whole performance record, as it stands, under the state lock."""
         with self._state_lock:
             payload: Dict[str, Any] = {
                 "schema_version": _PERFORMANCE_SCHEMA_VERSION,
@@ -767,6 +775,13 @@ class _ResourceSampler:
             return payload
 
     def _persist(self) -> bool:
+        """Write the document ATOMICALLY. Returns whether it landed.
+
+        A failure is remembered on the sampler rather than raised: the write
+        happens on the sampling thread beside the work, and a full disk must not
+        end the run it was measuring. The remembered name goes into the next
+        document, so the gap is explained rather than silent.
+        """
         if self.mode == "off" or self.output is None:
             return False
         with self._persist_lock:
@@ -781,9 +796,11 @@ class _ResourceSampler:
         return True
 
     def __enter__(self) -> "_ResourceSampler":
+        """Start sampling on entry."""
         return self._start()
 
     def __exit__(self, exc_type: Any, exc: Any, traceback: Any) -> None:
+        """Stop on exit, recording whether the block failed."""
         reason = "failed" if exc_type is not None else "completed"
         self._stop(reason)
 
