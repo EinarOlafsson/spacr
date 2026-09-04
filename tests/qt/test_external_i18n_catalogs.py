@@ -570,7 +570,20 @@ def test_runtime_uses_external_static_and_context_keyed_setting_text():
 
     assert tr("Remove selected", "sv") == "Ta bort markerade"
     assert _translated_setting_name("plate", "zh_CN") == "孔板"
-    assert _translated_setting_name("organelle_CP_prob", "ko") == "소기관 1 — CP"
+    # THE REVIEWED TERM, not a bare acronym. `_REVIEWED_UI_TRANSLATIONS`
+    # renders "Cp prob" as "<term> (CP)" in ALL NINE languages -- Swedish
+    # "Cellsannolikhet (CP)", German "Zellwahrscheinlichkeit (CP)", Korean
+    # "세포 확률(CP)" -- so the composed name carries the reviewed term and not
+    # the English acronym alone. This line previously expected "소기관 1 — CP",
+    # which was written while `_translated_setting_name` did not translate the
+    # suffix AT ALL and every locale rendered "Organelle 1 — Cp prob"; the
+    # expectation described the intended repair rather than the reviewed
+    # vocabulary. The suffix is now translated for every language, so the
+    # assertion names what the reviewed catalog actually says.
+    assert (
+        _translated_setting_name("organelle_CP_prob", "ko")
+        == "소기관 1 — 세포 확률(CP)"
+    )
     assert _translated_setting_name("FT", "sv") == "Flödeströskel (FT)"
     key = "cell_diameter"
     source = SETTING_TOOLTIPS[key]
