@@ -461,22 +461,19 @@ class Dock(QWidget):
         palette = active_palette()
         accent = palette["accent"]
         self.setStyleSheet(
-            # THE COLUMN CARRIES THE PAGE'S OWN GROUND, and this is what the
-            # "black box" was.
+            # THE COLUMN PAINTS NOTHING, and the ground it needs comes from
+            # the window instead -- see `MainWindow._ground_the_central_row`.
             #
-            # The panel below is TRANSLUCENT -- `pane_surface` is the page
-            # opacity the user set, 60% by default. While the dock slid in
-            # over the page it composited over whatever it covered and looked
-            # right. As a column it sits beside the page instead, in a strip
-            # nothing else paints, so it composited over the window's own
-            # base -- which is black. A 60% panel over black is the dark
-            # rectangle that was reported, and the panel was doing exactly
-            # what it was asked to.
-            #
-            # `page` rather than `surface`: it is the ground a page sits ON,
-            # so the dock reads as part of the same sheet of paper rather
-            # than as a panel floating on a second one.
-            f"QWidget#Sidebar {{ background: {palette['page']}; border: none; }}"
+            # The panel below is TRANSLUCENT: `pane_surface` is the page
+            # opacity the user set, 60% by default. It has to composite over
+            # something, and while the dock slid in over the page it
+            # composited over whatever it covered. As a column it sits beside
+            # the page, so whatever is behind the column is what it gets --
+            # and giving the COLUMN a fill of its own just makes a rectangle
+            # in a different colour, which is what the grey attempt was. The
+            # ground has to be continuous across the dock and the page, so it
+            # belongs to the widget that holds both.
+            "QWidget#Sidebar { background: transparent; border: none; }"
             "QFrame#DockPanel {"
             f"  background: {pane_surface('surface_alt')};"
             f"  border: 1px solid {palette['border_soft']};"
