@@ -347,3 +347,67 @@ English:  "All apps — hover to reveal (Ctrl+Shift+A)"
   reading pass is owed over the whole UI surface per locale, and if so
   whether it is worth doing for the six locales that have no reviewer to
   confirm the result.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- FOUR ANSWERS, AND A STANDING RULE ABOUT HOW TO ASK
+--------------------------------------------------------------------------------
+
+THE RULE FIRST, because it governs this file. Asked today, verbatim:
+
+    "add this to the general guidelines for this project. if you have a
+     question ask me with the question prompt dont ask in the chat."
+
+Recorded in HANDOFF section 6. It is this item's own premise made general: a
+question buried in a paragraph of report gets skimmed past, and an answer that
+lives only in a chat log is one nobody can act on next week. Every decision
+that is genuinely the maintainer's goes through the structured question tool,
+recommended option first, with what each choice costs.
+
+ANSWERED 2026-09-04, and what each authorises:
+
+  RELEASE / 377 -- "Hold the release, but put 377's files on main now."
+    AUTHORISES a five-file commit of the community health files onto `main`,
+    and nothing else. The 1.5.0.5 hold STANDS: 01, 05 and 304 do not move, and
+    357 guideline 7 still forbids asking the publication questions. Route A in
+    377 is superseded by route B for those five files only. Safe because
+    `release.yml` fires only on a push to `main` that changes `setup.py`.
+
+  316 ORPHANS -- "Yes, retire the 16."
+    AUTHORISES marking the sixteen orphaned REVIEWED_README_BLOCKS entries
+    `retired` with a `retired_reason`, the mechanism approved twice before.
+    Does NOT authorise touching the three that need re-translation, whose
+    English changed meaning -- one of those is 316's own CUDA-only item.
+
+  310 -- "Close it; new defects get new items."
+    AUTHORISES closing 310 against its own file's last line, which argued for
+    staying open as the coverage sweep's append target. The maintainer's call
+    overrides the file. 288 and 352 file their own findings from here.
+
+  FOCUS -- "work on the items that are most important to include in the
+    1.5.0.5 release."
+    DIRECTS effort at the release gates in 331 rather than at breadth: 288
+    (green CI, the one gate that is genuinely unmet and measured), then 316
+    and 306, which are the two release-blocking translation items. It is NOT
+    authorisation to publish anything.
+
+STILL UNANSWERED, and now carried forward rather than lost:
+
+  306-B  the two long compact captions -- translate as written, or revise the
+         English first before nine reviews are paid for?
+  337-B  Regression's `src` label -- keep "Output directory", or apply "always
+         display Path" literally there too? (337 is closed; the question
+         survives it.)
+  375-A  what the trailing number means in a token-less `plate_well_field`
+         name -- field, channel, or slice. NEW today; 375 cannot move without
+         it and the file says guessing puts a wrong answer under a setting
+         nobody can override once `metadata_type` is gone.
+  364-A  two settings whose own descriptions say they do nothing --
+         `map_barcodes.barcodes` / `.grna` and `motility.infection_pca_n_
+         clusters`. Remove, or leave?
+  367-A  may 367 be closed on the maintainer's authority once its three
+         ratchets measure green? The other session says it is done and the
+         file says its check is met; the ratchets disagree because of that
+         session's own docstring churn.
+
+  351-A and 337-A are RETIRED as questions: both their items are closed, and
+  the tracker has zero open issues today.
