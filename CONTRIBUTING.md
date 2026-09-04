@@ -72,10 +72,6 @@ Notes that will save you time:
   before. `git show --stat HEAD` is the check that catches it.
 * Write commit messages that say *why*, not just what. The repository's history
   is used as documentation.
-* **No AI attribution.** Commits carry no `Co-Authored-By` trailer naming an
-  assistant and no "Generated with …" line. This is enforced by
-  `tools/hooks/commit-msg`; enable it with `git config core.hooksPath tools/hooks`,
-  and a CI test checks it regardless of whether your clone honours hooks.
 * If your change fixes something a user reported, say so in the issue too, with
   the commit SHA.
 
