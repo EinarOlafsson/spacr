@@ -531,6 +531,11 @@ class DataManagerScreen(QWidget):
         box = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload.
+
+            The payload is how a value crosses back from the worker: a return would
+            be swallowed by the runner.
+            """
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box, journal=False)

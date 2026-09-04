@@ -3027,6 +3027,7 @@ class AnnotateScreen(QWidget):
         self._btn_test_data.setText(tr("Fetching test data…"))
 
         def _done(result, error):
+            """Restore the button whether the load worked or failed."""
             self._btn_test_data.setEnabled(True)
             self._btn_test_data.setText(was)
             if result is None:

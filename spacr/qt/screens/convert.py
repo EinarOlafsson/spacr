@@ -488,6 +488,7 @@ class ConvertScreen(QWidget):
         plate_naming = self.plate_naming()
 
         def _job():
+            """Scan the source and plan the conversion. Off the GUI thread."""
             sources = cvt.scan(src, layout=layout)
             return cvt.plan(sources, z_handling=z_handling,
                             plate_naming=plate_naming)
@@ -579,6 +580,7 @@ class ConvertScreen(QWidget):
         resume = self.resume_enabled()
 
         def _job():
+            """Run the conversion. Off the GUI thread."""
             return cvt.convert(plan, dst, progress=emit, resume=resume)
 
         self._progress_bar.setVisible(True)

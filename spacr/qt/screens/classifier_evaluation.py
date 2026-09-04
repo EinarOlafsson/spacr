@@ -470,6 +470,7 @@ class ClassifierEvaluationScreen(QWidget):
         self._pending_error = ""
 
         def _work(_settings):
+            """Find the evaluation bundles under a folder. Off the GUI thread."""
             try:
                 self._pending_bundles = find_evaluation_bundles(source)
             except Exception as exc:
@@ -535,6 +536,7 @@ class ClassifierEvaluationScreen(QWidget):
         self._pending_error = ""
 
         def _work(_settings):
+            """Load one evaluation bundle. Off the GUI thread."""
             try:
                 self._pending_bundle = load_evaluation_bundle(manifest)
             except Exception as exc:

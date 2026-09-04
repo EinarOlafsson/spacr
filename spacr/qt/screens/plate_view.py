@@ -951,6 +951,7 @@ class PlateViewScreen(LinkedView, QWidget):
             note = f" · filter ignored ({exc.__class__.__name__})"
 
         def _job():
+            """Recompute the plate summary. Off the GUI thread."""
             source = frame
             filter_note = note
             if narrow is not None:
@@ -1149,6 +1150,11 @@ class PlateViewScreen(LinkedView, QWidget):
         box: Dict[str, Any] = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload.
+
+            The payload is how a value crosses back from the worker: a return would
+            be swallowed by the runner.
+            """
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)

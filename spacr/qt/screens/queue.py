@@ -234,6 +234,7 @@ class QueueScreen(QWidget):
         :meth:`add_item` with that pair.
         """
         def _on_click():
+            """Add the current screen's settings to the queue."""
             try:
                 app_key, settings = callback()
             except Exception as e:
