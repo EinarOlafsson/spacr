@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPlainTextEdit,
+    QSizePolicy,
     QPushButton,
     QToolButton,
     QVBoxLayout,
@@ -127,6 +128,14 @@ class BarcodeRegexDialog(QDialog):
         )
         intro.setTextFormat(Qt.RichText)
         intro.setWordWrap(True)
+        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
+        # Preferred height a parent is free to hand it less than its
+        # heightForWidth. This is the house rule `prerun._label` documents.
+        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
+        # label clipped at 2.0x, because the container above it does not grow
+        # either. See 350; the remaining fix is the dialog's layout, not this.
+        intro.setSizePolicy(QSizePolicy.Preferred,
+                               QSizePolicy.Minimum)
         outer.addWidget(intro)
 
         mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
@@ -157,6 +166,14 @@ class BarcodeRegexDialog(QDialog):
         self._status = QLabel(self)
         self._status.setObjectName("BarcodeRegexStatus")
         self._status.setWordWrap(True)
+        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
+        # Preferred height a parent is free to hand it less than its
+        # heightForWidth. This is the house rule `prerun._label` documents.
+        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
+        # label clipped at 2.0x, because the container above it does not grow
+        # either. See 350; the remaining fix is the dialog's layout, not this.
+        self._status.setSizePolicy(QSizePolicy.Preferred,
+                                      QSizePolicy.Minimum)
         outer.addWidget(self._status)
 
         outer.addWidget(QLabel("Captured values:"))

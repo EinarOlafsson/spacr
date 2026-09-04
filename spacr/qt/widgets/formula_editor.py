@@ -45,7 +45,7 @@ import pandas as pd
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QDialog, QHBoxLayout, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QPushButton, QVBoxLayout, QWidget,
+    QListWidgetItem, QPushButton, QSizePolicy, QVBoxLayout, QWidget,
 )
 
 from ..theme import RADIUS, SPACING, font_px, register_widget_qss
@@ -147,6 +147,14 @@ class FormulaPanel(QWidget):
         self._status = QLabel("", self)
         self._status.setObjectName("FormulaStatus")
         self._status.setWordWrap(True)
+        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
+        # Preferred height a parent is free to hand it less than its
+        # heightForWidth. This is the house rule `prerun._label` documents.
+        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
+        # label clipped at 2.0x, because the container above it does not grow
+        # either. See 350; the remaining fix is the dialog's layout, not this.
+        self._status.setSizePolicy(QSizePolicy.Preferred,
+                                      QSizePolicy.Minimum)
         self._status.setProperty("state", "idle")
         outer.addWidget(self._status)
 
@@ -173,6 +181,14 @@ class FormulaPanel(QWidget):
         self._help = QLabel(self._help_text(), self)
         self._help.setObjectName("FormulaHelp")
         self._help.setWordWrap(True)
+        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
+        # Preferred height a parent is free to hand it less than its
+        # heightForWidth. This is the house rule `prerun._label` documents.
+        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
+        # label clipped at 2.0x, because the container above it does not grow
+        # either. See 350; the remaining fix is the dialog's layout, not this.
+        self._help.setSizePolicy(QSizePolicy.Preferred,
+                                    QSizePolicy.Minimum)
         outer.addWidget(self._help)
 
         self._debounce = QTimer(self)

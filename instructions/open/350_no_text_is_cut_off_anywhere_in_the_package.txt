@@ -919,3 +919,38 @@ dialogs that need fixtures, and the seven locales this sweep does not run.
 The design decision recorded above -- 353's alignment against 350's captions,
 seven pixels in Portuguese at 200% -- is still the maintainer's and is
 untouched.
+
+--------------------------------------------------------------------------------
+2026-09-04 — THE THREE "ONE LABEL EACH" DIALOGS ARE NOT ONE LABEL EACH.
+--------------------------------------------------------------------------------
+
+The note above says InstallerConsentDialog, BarcodeRegexDialog and
+FormulaDialog are "a wrapping prose QLabel whose height does not follow its
+text at 2.0x ... each is one label". I applied the house fix for exactly that
+-- `prerun._label`'s `(Preferred, Minimum)` size policy, which five wrapped
+labels in those three files were missing -- and IT DID NOT FIX THEM.
+
+    FormulaDialog en 2.0x, after the fix:
+        QLabel 'Operators: + - * / // % **, ...': wrapped to 180 px of
+        height in 120
+
+The policy stops a PARENT from handing a label less than its heightForWidth.
+It cannot make a container grow that has no room to give, and that is what is
+happening here: the label asks for 180 and the space above it is 120.
+
+HOW I KNOW, AND THE METHOD IS THE POINT. `KNOWN_OFFENDERS` is compared with
+`<=`, so the suite stayed green after my change and I nearly recorded it as
+fixed. Setting the three dialogs' entries to 0 and re-running is what showed
+six still failing. A `<=` ratchet cannot tell "fixed" from "unchanged" -- only
+tightening it can, and tightening it is therefore part of claiming a fix here,
+not an optional follow-up.
+
+WHAT IS ACTUALLY LEFT for those three: the dialog LAYOUT, not the label. Each
+needs its prose row given a stretch, or the dialog a minimum height derived
+from its content rather than its widgets' defaults. That is per-dialog work
+and bigger than the note above estimated.
+
+The size-policy change is KEPT -- it is the documented house rule and those
+five labels should have had it -- and its comments now say plainly that it is
+necessary and not sufficient, so the next reader does not assume the case is
+closed. The ratchet is unchanged at its recorded values.
