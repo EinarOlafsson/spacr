@@ -3225,7 +3225,7 @@ UI = {
     'Image UMAP…': '图片 UMAP',
     'Image channel indices written to crop R, G and B planes.': '写入裁剪图像 R、G 和 B 平面的图像通道索引。',
     'Image channels measured from the merged array.': '从合并数组中测量的图像通道。',
-    'Image channels to put in the crop, in order. Three make an RGB picture; one makes greyscale.': 'Image channels to put in the crop, in order. Three make an RGB picture; one makes greyscale.',
+    'Image channels to put in the crop, in order. Three make an RGB picture; one makes greyscale.': '要按顺序放入裁剪图像中的图像通道。三个通道生成 RGB 图像；一个通道生成灰度图像。',
     'Image crops': '图片图像裁剪',
     'Image to show underneath (optional)': '图像显示下方(可选)',
     'Image:': '图片:',

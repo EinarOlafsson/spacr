@@ -1955,3 +1955,60 @@ nine catalogs and then REMOVED again: the key set is compared against
 alone turned a passing test red. `en.py` is generated, and this file already
 records that regenerating it with `--sources-only` makes things worse. Those
 two strings need the source regeneration and the locale rows in ONE pass.
+
+--------------------------------------------------------------------------------
+2026-09-04 (final pass) -- EVERY ROW IS TRANSLATED. 29 OF 31 GATES GREEN.
+--------------------------------------------------------------------------------
+
+    tests/qt/test_external_i18n_catalogs.py   7 failed / 24 passed
+                                          ->  2 failed / 29 passed
+
+    untranslated rows, by the gate's own filter:   16 -> 0
+
+ALL SIXTEEN ARE TRANSLATED. Ten were accepted unanimously by three independent
+review lenses; six were revised on the reviewers' own concrete fixes and then
+applied. Two of those revisions were verified against the catalog rather than
+taken on trust: `सीमा बॉक्स` is the established Hindi for a bounding box (4
+occurrences; the proposed `बाउंडिंग-बॉक्स` had 0), and the danda is the
+majority sentence terminator in the Hindi catalog (1,154 against 1,071 ASCII
+periods).
+
+THE API HALF IS ALSO DONE: all ten locales at 9,432, the inventory ratchet
+moved after reading the diff rather than bumping the number, and
+test_documentation_api_catalog_inventory_and_hashes_are_current passes.
+
+`--sources-only` STILL CANNOT BE RUN ON ITS OWN, and this is now measured
+TWICE under different conditions. The earlier note recorded it taking the file
+from 8 failures to 10 and blamed the locales being incomplete. The locales are
+now complete -- zero untranslated rows -- and it still makes things worse:
+
+    before regenerating en.py    2 failed / 29 passed
+    after                        6 failed / 25 passed
+    reverted                     2 failed / 29 passed
+
+So the cause is not locale incompleteness. Regenerating the English manifest
+adds SOURCE keys that no locale carries and that no gate will accept until
+they do, and the two halves must land together or not at all. Reverted.
+
+THE LAST TWO FAILURES, and neither is a missing translation:
+
+  * `..._need_no_incremental_repairs` wants the per-object table's caption and
+    blurb PRESENT in the locales. `..._have_exact_current_source_keys` refuses
+    them unless `en.py::UI_SOURCES` carries them, and it does not. The two
+    gates want opposite things until the English manifest and the nine locales
+    move in ONE change -- which is the same conclusion as the paragraph above,
+    reached from the other direction.
+
+  * `..._resolve_all_reviewed_false_friend_variants` raises KeyError on
+    'Which intensity channel holds each compartment...' -- a reviewed
+    false-friend record bound to a source string the catalog no longer carries.
+    That is an ORPHANED REVIEWED RECORD, the same family as the three cases in
+    316's 2026-09-03 note, and it wants the same treatment: re-bind if the text
+    moved, retire if it is gone.
+
+ALSO TIGHTENED, on the other session's warning that a ratchet which cannot
+distinguish "fixed" from "unchanged" hides work: API_EXACT_TEXT_ALLOWLIST
+audited entry by entry, 19 -> 17. `spacr.schema.field_index` is now translated
+in every locale and `spacr.resources.home.versions._generators.common.app_map`
+no longer exists at all. Both were dead weight that would never have failed a
+test. The remaining 17 are each still exercised by at least one locale.
