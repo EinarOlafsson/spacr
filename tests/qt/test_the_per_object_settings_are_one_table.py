@@ -425,25 +425,35 @@ class TestAnUnsetChannelSaysOffNotAuto:
             assert grid.set_value("channel", "cell", word) is True
             assert grid.settings()["cell_channel"] is None
 
-    def test_every_row_carries_a_tooltip(self, grid):
-        """Asked for: "all the rows need to have tooltips"."""
-        from PySide6.QtCore import Qt
-        missing = [q for i, q in enumerate(grid.questions())
-                   if not str(grid._model.headerData(
-                       i, Qt.Vertical, Qt.ToolTipRole) or "").strip()]
-        assert not missing, f"rows with no tooltip: {missing}"
+    def test_every_cell_carries_the_help(self, grid):
+        """Asked for: "all the rows need to have tooltips".
 
-    def test_a_row_tooltip_says_more_than_the_key(self, grid):
-        """A tooltip that only repeats the key tells a reader nothing they
-        cannot see in the row header already."""
+        On the CELLS, which is where the help ended up: each one carries the
+        typed body, the API link and the setting's animation.
+        """
         from PySide6.QtCore import Qt
-        explained = [
-            q for i, q in enumerate(grid.questions())
-            if len(str(grid._model.headerData(i, Qt.Vertical,
-                                              Qt.ToolTipRole) or "")) > 40
-        ]
-        assert len(explained) >= len(grid.questions()) // 2, (
-            "most rows carry only their key, not what the setting does")
+        thin = []
+        for row, question in enumerate(grid.questions()):
+            for column, obj in enumerate(grid.objects()):
+                if not grid._model.asks(question, obj):
+                    continue
+                tip = str(grid._model.data(grid._model.index(row, column),
+                                           Qt.ToolTipRole) or "")
+                if len(tip) <= 40:
+                    thin.append(f"{obj}_{question}")
+        assert not thin, f"cells with no real help: {thin[:5]}"
+
+    def test_the_row_header_does_not_repeat_the_cells(self, grid):
+        """One explanation, in one place.
+
+        The row header is the name; the cells carry the help. A tooltip on
+        the name as well is the same thing twice, in the place the pointer
+        crosses on its way to the cell it wants.
+        """
+        from PySide6.QtCore import Qt
+        for row in range(len(grid.questions())):
+            assert not grid._model.headerData(row, Qt.Vertical,
+                                              Qt.ToolTipRole)
 
 
 # ---------------------------------------------------------------------------
