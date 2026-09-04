@@ -710,3 +710,50 @@ identify_masks_finetune 23, plaques 22, check_cellpose_models 18,
 train_cellpose 16, plot_data_from_csv 13, apply_cellpose_model 10,
 test_cellpose_model 9, map_barcodes 5, analyze_reads 3. Plus the organelle
 preprocessing gap already recorded above.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- THE REMAINING ELEVEN MODULES SWEPT. THE MODULE PHASE IS COMPLETE.
+--------------------------------------------------------------------------------
+
+The request was "this should be done for all modules, starting with core
+moduals". The core modules were audited on 2026-09-02 and motility earlier
+tonight; this is the rest of the list, swept in one pass for the two questions
+a machine can answer honestly -- is any key never read, and does any tooltip
+admit the setting has no effect.
+
+    train_test_model                42 settings    clean
+    analyze_recruitment             28 settings    clean (after tonight's fix)
+    generate_activation_map         27 settings    clean
+    identify_masks_finetune         23 settings    clean
+    analyze_plaque                  22 settings    clean
+    check_cellpose_models           18 settings    clean
+    train_cellpose                  16 settings    clean
+    plot_data_from_csv              13 settings    clean
+    apply_cellpose_model            10 settings    clean
+    test_cellpose_model              9 settings    clean
+    map_barcodes                     5 settings    the known dead factory
+    analyze_reads                    3 settings    clean
+
+NOTHING NEW WAS FOUND, and that is the result rather than an absence of one.
+Ten of the twelve are clean on both questions. The eleventh, map_barcodes, is
+the dead factory the 2026-09-02 annotate audit already recorded -- checked
+here against that file rather than re-derived, because re-deriving a known
+finding and presenting it as new is how a list grows without moving.
+
+  Re-confirmed only because it is cheap: `get_map_barcodes_default_settings`
+  is defined at settings.py:1975 and called nowhere. Its `barcodes` and `grna`
+  tooltips say so themselves, and the live equivalents `row_csv`,
+  `column_csv` and `grna_csv` carry 59 references each.
+
+SO THE MODULE PHASE OF THIS INSTRUCTION IS DONE. Every settings factory in
+`spacr/settings.py` has now been audited for dead keys, redundant pairs and
+dishonest names. Two defects came out of the whole sweep and both are the same
+shape -- a live setting whose own description says it does nothing:
+
+    map_barcodes   `barcodes`, `grna`      known since 2026-09-02
+    motility       `infection_pca_n_clusters`   found 2026-09-04
+
+WHAT REMAINS ON 364 is no longer a sweep: the two proposals above wait on the
+maintainer, the organelle preprocessing gap is recorded above, and the two
+motility renames are parked until that module is touched for another reason.
+The preferences and spaceout half was audited on 2026-09-02.
