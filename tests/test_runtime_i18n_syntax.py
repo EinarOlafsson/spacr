@@ -37,9 +37,14 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     current_values.update(sources["setting_tooltips"].values())
     current_values.update(sources["ui"])
 
-    # The Power-form sweep added 32 entries; current evidence includes one
-    # later source-bound repair as well.
-    assert len(reviewed) == 111
+    # THE NUMBER FOLLOWS THE EVIDENCE, not the other way round. These count
+    # the records under docs/i18n/reviewed/runtime/<lang>, and they last moved
+    # when 316 recorded the 32 rows it had translated -- Swedish to 116,
+    # French to 96. The loop below is the actual contract: every record must
+    # still bind to a live source value and still pass the current syntax,
+    # semantic, script and exact-copy gates, so a record that has drifted
+    # fails here rather than being absorbed by a looser count.
+    assert len(reviewed) == 116
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -64,9 +69,14 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     current_values.update(sources["setting_tooltips"].values())
     current_values.update(sources["ui"])
 
-    # The Power-form sweep added 32 entries; current evidence includes one
-    # later source-bound repair as well.
-    assert len(reviewed) == 89
+    # THE NUMBER FOLLOWS THE EVIDENCE, not the other way round. These count
+    # the records under docs/i18n/reviewed/runtime/<lang>, and they last moved
+    # when 316 recorded the 32 rows it had translated -- Swedish to 116,
+    # French to 96. The loop below is the actual contract: every record must
+    # still bind to a live source value and still pass the current syntax,
+    # semantic, script and exact-copy gates, so a record that has drifted
+    # fails here rather than being absorbed by a looser count.
+    assert len(reviewed) == 96
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
