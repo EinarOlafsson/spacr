@@ -792,9 +792,11 @@ class PlateViewScreen(LinkedView, QWidget):
         self._frame_key = ("", "", "")
 
         def _job():
+            """Read the table's numeric columns. Off the GUI thread."""
             return pqc.numeric_columns(self._db_path, table)
 
         def _done(columns: List[str]) -> None:
+            """Offer the columns, guarded so refilling does not re-trigger this."""
             self._loading = True
             try:
                 self._value_combo.clear()
@@ -863,9 +865,11 @@ class PlateViewScreen(LinkedView, QWidget):
             return self.recompute()
 
         def _job():
+            """Load the plate frame. Off the GUI thread."""
             return pqc.load_plate_frame(self._db_path, table, value_col)
 
         def _done(frame: pd.DataFrame) -> None:
+            """Keep the frame and draw it, remembering what it was keyed on."""
             self._frame = frame
             self._frame_key = key
             self._refresh_plate_combo(frame)
