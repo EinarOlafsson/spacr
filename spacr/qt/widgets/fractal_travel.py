@@ -1093,6 +1093,11 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             painter.end()
 
         def resizeEvent(self, event) -> None:
+            """Ask for a frame at the new size, unless one is already in flight.
+
+            Guarded so a drag-resize does not queue a render per pixel of travel --
+            the worker would then be shading sizes the window has already left.
+            """
             super().resizeEvent(event)
             if not (self._busy or self._stopped or self._paused):
                 self._timer.start(10)
