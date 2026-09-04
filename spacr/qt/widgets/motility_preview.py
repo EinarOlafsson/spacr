@@ -572,6 +572,15 @@ class _MotilityWorker(QThread):
     finished_result = Signal(object, str)   # (DataFrame or None, error)
 
     def __init__(self, request: MotilityRequest, parent=None):
+        """Prepare the worker.
+
+        :param request: everything the pass needs, READ ON THE WORKER THREAD
+            rather than here -- so it must not be mutated after the worker
+            is started; build a new request instead.
+        :param parent: parent object; ownership only. It does NOT keep the
+            thread alive across a parent's destruction, so the panel still
+            has to wait for the thread itself.
+        """
         super().__init__(parent)
         self._request = request
 
