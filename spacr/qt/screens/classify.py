@@ -22,10 +22,12 @@ import time
 import weakref
 from typing import Callable, Dict, Optional, Tuple
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from ..i18n import tr
-from ..theme import ensure_widget_qss_applied, register_widget_qss
+from ..theme import (ensure_widget_qss_applied, pane_surface,
+                     register_widget_qss)
 from ..widgets.collapsible_section import CollapsibleSection
 from ..widgets.fold_strip import FoldStrip
 from . import activation
@@ -53,19 +55,32 @@ FLOWVIEW_TOOLTIP = "Fold FlowView away, or open it again"
 
 
 def _flowview_section_qss(palette: dict, _opacity=None) -> str:
-    """Rounded, unfilled box around the lazily constructed FlowView renderer.
+    """The rounded box around the lazily constructed FlowView renderer.
 
-    NO FILL. This painted `surface`, which is opaque, so the section read as
-    a black box sitting behind the flow cells and the inspector under them --
-    the panel inside had already been made transparent one layer at a time
-    (the scene brush, the view, the viewport, the inspector) and this was the
-    last opaque layer left. The rim and the radius stay: what was wanted is a
-    box around BOTH the graph and the text under it, not a slab behind them.
+    FILLED, AT THE PAGE OPACITY -- the same box the console wears, which is
+    what was asked for: "transparent boxes with round corners like the rest
+    of the boxes in the module".
+
+    IT WAS OPAQUE, THEN IT WAS NOTHING, AND BOTH ARE WRONG. It first painted
+    `surface` straight from the palette, which is raw hex and therefore fully
+    opaque whatever the page-opacity preference says -- a black slab behind
+    the flow cells and the inspector. Removing the fill did not fix it, it
+    just moved the problem: with every layer transparent (the scene brush,
+    the view, its viewport, the inspector, and this) NOTHING paints, so the
+    panel shows straight through to the black application ground and reads as
+    the same black box.
+
+    `ConsoleBox` in theme.py carries this exact lesson from the same mistake
+    made there: "Making it transparent (tried, reverted) left a rounded
+    outline floating on the opaque container behind it -- the fill is what
+    makes it read as a console." So the fill is the box; `pane_surface` is
+    the accessor that carries the opacity preference into it, and reading
+    `palette` directly is what loses it.
     """
 
     return f"""
 QWidget#{FLOWVIEW_SECTION_NAME} {{
-    background: transparent;
+    background-color: {pane_surface("surface_alt", opacity=_opacity)};
     border: 1px solid {palette["border_soft"]};
     border-radius: 8px;
 }}
@@ -228,6 +243,15 @@ class LazyFlowViewSection(CollapsibleSection):
 
         super().__init__("FlowView", body, expanded=False, parent=parent)
         self.setObjectName(FLOWVIEW_SECTION_NAME)
+        # WITHOUT THIS THE BOX IS NOT DRAWN AT ALL, and that -- not the
+        # colour in it -- is why FlowView read as a black rectangle through
+        # two attempts at recolouring it. `CollapsibleSection` is a QWidget,
+        # and a plain QWidget ignores a stylesheet background, border and
+        # radius unless it is told to style its own background; so the rule
+        # registered for this object name was never painted, and what showed
+        # was the application ground behind it. `ConsolePanel` carries the
+        # same line for the same reason.
+        self.setAttribute(Qt.WA_StyledBackground, True)
         # The section is installed after the screen's first translation pass,
         # so render its chrome immediately while retaining the English source
         # properties the next live-language pass needs.

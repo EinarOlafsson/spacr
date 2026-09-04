@@ -48,25 +48,66 @@ def panel(qtbot):
 # The box
 # ---------------------------------------------------------------------------
 
-def test_the_section_around_it_is_not_filled():
-    """The last opaque layer, and the one that was still a black box.
+def test_the_section_around_it_is_a_filled_box_at_the_page_opacity():
+    """The box is a FILL, not the absence of one.
 
-    Checked as the stylesheet the screen registers rather than by grabbing a
-    pixel, because the colour that WOULD be painted is exactly the question:
-    a screenshot of a panel over a dark theme cannot tell "transparent onto
-    dark" from "painted dark".
+    THIS TEST ASSERTED THE OPPOSITE AND WAS WRONG TWICE OVER. The section
+    first painted `surface` read straight from the palette -- raw hex, so
+    fully opaque whatever the page-opacity preference says -- and read as a
+    black slab. The obvious repair was to remove the fill, and that did not
+    work: with every layer transparent nothing paints at all, so the panel
+    shows through to the black application ground, which looks identical.
+
+    `ConsoleBox` in theme.py carries the same lesson from the same mistake:
+    "Making it transparent (tried, reverted) left a rounded outline floating
+    on the opaque container behind it -- the fill is what makes it read as a
+    console."
+
+    AND IT SPLIT ON A NAME THAT APPEARS TWICE, so `[1]` was the text between
+    the section rule and the FlowViewPanel rule nested under it -- which
+    carries its own `background: transparent` and made the assertion pass
+    whatever the section did. The rule is isolated properly here.
     """
-    from spacr.qt.screens.classify import FLOWVIEW_SECTION_NAME, _flowview_section_qss
+    from spacr.qt.screens.classify import (
+        FLOWVIEW_SECTION_NAME, _flowview_section_qss)
 
     qss = _flowview_section_qss({"surface": "#123456",
-                                 "border_soft": "#654321"})
-    section = qss.split(f"QWidget#{FLOWVIEW_SECTION_NAME}")[1]
+                                 "surface_alt": "#123456",
+                                 "border_soft": "#654321"}, 0.6)
+    opener = f"QWidget#{FLOWVIEW_SECTION_NAME} {{"
+    rule = qss[qss.index(opener) + len(opener):]
+    rule = rule[:rule.index("}")]
 
-    assert "background: transparent" in section
-    assert "#123456" not in section, "the section is still painting a slab"
-    # The box itself survives: a rim, and corners that are not square.
-    assert "#654321" in section
-    assert "border-radius" in section
+    assert "background-color: rgba(" in rule, (
+        f"the box is not filled at the page opacity: {rule!r}")
+    assert "transparent" not in rule
+    # The box itself: a rim, and corners that are not square.
+    assert "#654321" in rule
+    assert "border-radius" in rule
+
+
+def test_the_section_is_told_to_paint_its_own_background(qtbot):
+    """A stylesheet box on a plain QWidget is not drawn without this.
+
+    THE ACTUAL CAUSE of the black rectangle, found only after two attempts
+    at recolouring it. `CollapsibleSection` is a QWidget, and a plain
+    QWidget ignores a stylesheet background, border and radius unless it is
+    told to style its own background -- so the rule registered for this
+    object name was never painted, and what showed was the application
+    ground behind it. Recolouring a rule that is not drawn changes nothing,
+    which is why two different colours produced the same black box.
+    """
+    from PySide6.QtCore import Qt
+
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.screens.classify import LazyFlowViewSection
+
+    screen = AppScreen("classify_merged")
+    qtbot.addWidget(screen)
+    section = LazyFlowViewSection(screen)
+    qtbot.addWidget(section)
+
+    assert section.testAttribute(Qt.WA_StyledBackground) is True
 
 
 def test_nothing_inside_the_panel_paints_over_the_page(panel):
