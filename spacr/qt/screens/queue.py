@@ -249,6 +249,12 @@ class QueueScreen(QWidget):
         self._btn_add.clicked.connect(_on_click)
 
     def add_item(self, app_key: str, settings: dict) -> QueueItem:
+        """Build a queue item from settings and add it.
+
+        :param app_key: which module the item runs.
+        :param settings: the settings that run uses.
+        :returns: the queued item.
+        """
         item = QueueItem.build(app_key, settings)
         self._queue.add(item)
         self._refresh_table()
@@ -256,11 +262,20 @@ class QueueScreen(QWidget):
         return item
 
     def queue(self) -> PlateQueue:
+        """The plate queue this screen shows.
+
+        :returns: the queue.
+        """
         return self._queue
 
     # -- runner control ----------------------------------------------------
 
     def start_runner(self):
+        """Start working through the queue, unless it is already running.
+
+        IDEMPOTENT ON PURPOSE. The button can be pressed twice, and a second
+        runner over one queue would run every item twice.
+        """
         if self._runner is not None and self._runner.isRunning():
             return
         if self._queue.next_queued() is None:
@@ -275,6 +290,11 @@ class QueueScreen(QWidget):
         self._runner.start()
 
     def stop_runner(self):
+        """Ask the runner to stop after the item it is on.
+
+        AFTER, not during: a half-written plate is worse than a queue that
+        takes another minute to come to rest.
+        """
         if self._runner is not None and self._runner.isRunning():
             self._runner.stop()
 

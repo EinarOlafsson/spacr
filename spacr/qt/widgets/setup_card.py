@@ -185,12 +185,21 @@ class SetupCard(QWidget):
 
     # ------------------------------------------------------------------
     def mouseMoveEvent(self, event):            # noqa: N802 - Qt naming
+        """Track the pointer so the rim can chase it.
+
+        :param event: the Qt mouse event.
+        """
         self._follow(event.position())
         super().mouseMoveEvent(event)
 
     def event(self, event):
         # A hover move arrives even when the widget has no mouse grab, which
         # is the ordinary case here.
+        """Handle the events Qt gives no named handler for.
+
+        :param event: the Qt event.
+        :returns: True when handled here.
+        """
         try:
             from PySide6.QtCore import QEvent
 
@@ -213,6 +222,10 @@ class SetupCard(QWidget):
 
     # ------------------------------------------------------------------
     def paintEvent(self, event):                # noqa: N802 - Qt naming
+        """Draw the card and its animated rim.
+
+        :param event: the Qt paint event.
+        """
         try:
             self._paint()
         except Exception:

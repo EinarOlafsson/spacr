@@ -205,9 +205,21 @@ class DiskEntry:
 
     @property
     def percent_used(self) -> float:
+        """How full this volume is.
+
+        Zero for a volume reporting no total, rather than a division error:
+        some network mounts do that, and a resource panel should say nothing
+        rather than fail to draw.
+
+        :returns: the percentage used.
+        """
         return (100.0 * self.used / self.total) if self.total else 0.0
 
     def summary(self) -> str:
+        """This volume's free and total space, in human units.
+
+        :returns: a one-line summary.
+        """
         return (f"{self.path}: {human_bytes(self.free)} free of "
                 f"{human_bytes(self.total)} ({self.percent_used:.0f}% used)")
 
@@ -220,6 +232,14 @@ class DiskReport:
     note: str = ""
 
     def summary(self) -> str:
+        """Every volume, or why there are none to report.
+
+        SAYS WHY WHEN EMPTY. "No project folder is known yet" is a different
+        situation from a disk check that found nothing, and a blank panel
+        cannot tell them apart.
+
+        :returns: a one-line summary.
+        """
         if not self.entries:
             return self.note or "No project folder is known yet."
         lines = [entry.summary() for entry in self.entries]

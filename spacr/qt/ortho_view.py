@@ -148,6 +148,10 @@ class OrthoPanel(QFrame):
         self.update()
 
     def paintEvent(self, event) -> None:
+        """Draw this orthogonal slice.
+
+        :param event: the Qt paint event.
+        """
         super().paintEvent(event)
         painter = QPainter(self)
         try:
@@ -173,6 +177,13 @@ class OrthoPanel(QFrame):
             painter.end()
 
     def mousePressEvent(self, event) -> None:
+        """Move the crosshair to the clicked voxel.
+
+        MOVES ALL THREE PANELS. An orthogonal view is three cuts through one
+        point, so clicking in any of them re-cuts the other two.
+
+        :param event: the Qt mouse event.
+        """
         if event.button() != Qt.LeftButton or self._canvas is None:
             return
         position = event.position()
@@ -489,6 +500,10 @@ class OrthoView(LinkedView, QWidget):
         self._repaint()
 
     def wheelEvent(self, event) -> None:
+        """Step through slices along the axis under the pointer.
+
+        :param event: the Qt wheel event.
+        """
         self._zoom(1.2 if event.angleDelta().y() > 0 else 1 / 1.2)
         event.accept()
 

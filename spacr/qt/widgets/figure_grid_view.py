@@ -623,6 +623,7 @@ class FigureGridView(QScrollArea):
         self._relayout()
 
     def clear(self) -> None:
+        """Drop every figure and release the pixmaps behind them."""
         doomed = []
         live = set(map(id, self._live))
         while self._grid.count():
@@ -970,5 +971,9 @@ class FigureGridView(QScrollArea):
         return (row + 1, 0) if column else (row, 0)
 
     def resizeEvent(self, event):  # noqa: N802 - Qt naming
+        """Re-flow the grid for the new width.
+
+        :param event: the Qt resize event.
+        """
         super().resizeEvent(event)
         self._relayout()
