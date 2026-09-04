@@ -1366,6 +1366,41 @@ def _initial_case(match: re.Match[str], replacement: str) -> str:
     return replacement
 
 
+def _keep_status_literal(match: re.Match[str], expand) -> str:
+    """Leave an ALL-CAPS job-status literal alone; expand ordinary prose.
+
+    ``RUNNING`` is in :data:`_PROTECTED_TERMS` alongside ``QUEUED``,
+    ``FAILED``, ``SKIPPED`` and ``SUCCESS`` because it is a value the API
+    actually reports, not a description of one. The sense transforms run
+    case-insensitively -- they have to, since "running" is ordinary English
+    in almost every docstring that uses it -- so without this guard the
+    expansion to "executing" ate the literal, and ``_syntax_preserved`` then
+    refused the whole document. That is what took the docs workflow down:
+
+        ValueError: API sense context changed a protected literal:
+        "... so a RUNNING item goes too ..." ->
+        "... so an executing item goes too ..."
+
+    The rule is the case, because the case IS the distinction. Lowercase
+    "running" is prose and gets its sense expansion; ``RUNNING`` is the
+    status value and is left exactly as written.
+
+    NOT SOLVED BY PROTECTING EVERY TERM, which was the first idea and would
+    have been wrong: ``_CONTEXT_HARD_PROTECT_RE`` deliberately leaves product
+    names visible so a phrase can repair the grammar around them, and one of
+    the ``run`` transforms lists ``GUI`` among its own alternatives. Masking
+    them would silently stop that transform matching.
+
+    :param match: the sense-transform match.
+    :param expand: callable returning the expansion when it is safe to use.
+    :returns: the original text for a status literal, else the expansion.
+    """
+    if any(word.isupper() and len(word) > 1
+           for word in re.findall(r"[A-Za-z]+", match.group(0))):
+        return match.group(0)
+    return expand()
+
+
 def _first_unprotected_ascii_letter(text: str) -> int | None:
     """Return the first English prose-letter offset outside hard literals."""
     source = str(text)
@@ -1660,7 +1695,8 @@ def _api_translation_source(block: str) -> str:
     if re.search(_COMPUTE_RUN_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
             (r"\blong[- ]running\b", "long-running"),
-            (r"\b(a|an)\s+running\b", lambda m: _initial_case(m, "an executing")),
+            (r"\b(a|an)\s+running\b", lambda m: _keep_status_literal(
+                m, lambda: _initial_case(m, "an executing"))),
             (r"\b(has|have|had)\s+re[- ]run\s+([^,.;:]+?)(?=\s+(?:and|but|so)\b|[,.;:]|$)", r"\1 executed \2 again"),
             (r"\b(had)\s+([^,.;:]+?)\s+re[- ]run\s+([^,.;:]+?)(?=\s+(?:and|but|so)\b|[,.;:]|$)", r"\1 \2 executed again \3"),
             (r"\b(do|does|did)\s+not\s+run\b", r"\1 not execute"),
@@ -1698,7 +1734,8 @@ def _api_translation_source(block: str) -> str:
             (r"\b(pipelines?|workflows?)\s+(?:that\s+)?run\b", r"\1 execute"),
             (r"\b(\d+)\s+runs\b", r"\1 executions"),
             (r"\bruns\s+(?=(?:again|inline|sequentially|successfully|unchanged|on|inside|under|through|against|before|after|when|if|unless|without)\b)", lambda m: _initial_case(m, "executes ")),
-            (r"\brunning\b", lambda m: _initial_case(m, "executing")),
+            (r"\brunning\b", lambda m: _keep_status_literal(
+                m, lambda: _initial_case(m, "executing"))),
             (r"\bper[- ]run\b", "per processing session"),
             (r"\bcross[- ]run\b", "cross-session"),
             (r"\bmulti[- ]run\b", "multi-session"),
