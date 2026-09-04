@@ -502,6 +502,7 @@ class _Parser:
     """
 
     def __init__(self, tokens: Sequence[_Token], source: str):
+        """Start at the first token, with the budgets unspent."""
         self._tokens = list(tokens)
         self._at = 0
         self._source = source
@@ -594,23 +595,32 @@ class _Parser:
             self._depth -= 1
 
     def _or(self) -> Node:
+        """``or``, the loosest binding. Left-associative."""
         node = self._and()
         while self._accept_word("or"):
             node = self._count(Binary("or", node, self._and()))
         return node
 
     def _and(self) -> Node:
+        """``and``, binding tighter than ``or``."""
         node = self._not()
         while self._accept_word("and"):
             node = self._count(Binary("and", node, self._not()))
         return node
 
     def _not(self) -> Node:
+        """``not``, binding tighter than ``and`` and nesting to the right."""
         if self._accept_word("not"):
             return self._count(Unary("not", self._nest(self._not)))
         return self._comparison()
 
     def _comparison(self) -> Node:
+        """One comparison, and only one.
+
+        NOT CHAINED. ``a < b < c`` is Python's rule, not most people's, and a
+        formula that quietly means something other than it looks like is worse
+        than one that is refused.
+        """
         node = self._sum()
         token = self._accept_op(*_COMPARISONS)
         if token is None:
@@ -625,6 +635,7 @@ class _Parser:
         return node
 
     def _sum(self) -> Node:
+        """``+`` and ``-``, left-associative."""
         node = self._product()
         while True:
             token = self._accept_op("+", "-")
@@ -633,6 +644,7 @@ class _Parser:
             node = self._count(Binary(token.text, node, self._product()))
 
     def _product(self) -> Node:
+        """``*``, ``/``, ``//`` and ``%``, binding tighter than ``+``."""
         node = self._unary()
         while True:
             token = self._accept_op("*", "/", "//", "%")
@@ -641,6 +653,7 @@ class _Parser:
             node = self._count(Binary(token.text, node, self._unary()))
 
     def _unary(self) -> Node:
+        """A leading ``+`` or ``-``, nesting to the right."""
         token = self._accept_op("+", "-")
         if token is not None:
             return self._count(Unary(token.text, self._nest(self._unary)))
@@ -657,6 +670,12 @@ class _Parser:
         return self._count(Binary("**", node, self._nest(self._unary)))
 
     def _atom(self) -> Node:
+        """A number, a name, a call, or a parenthesised expression.
+
+        The bottom of the grammar: anything that is not one of those is where the
+        parse stops and the error is raised, with the position of the token that
+        did not fit.
+        """
         token = self._advance()
         if token.kind == _NUMBER:
             return self._count(Number(float(token.text)))
@@ -685,9 +704,19 @@ class _Parser:
             f"unexpected {token.text!r}{self._where(token)}")
 
     def _previous_text(self) -> str:
+        """The text just consumed, for an error that has to quote it.
+
+        Two back rather than one, because the current token has already been
+        advanced past by the time an error is being written.
+        """
         return self._tokens[max(0, self._at - 2)].text
 
     def _call(self, name_token: _Token) -> Node:
+        """A function call, or a refusal that suggests the nearest real name.
+
+        An unknown function is the commonest typo in a formula, and a bare
+        "unknown function" makes the user diff their spelling against a list.
+        """
         name = name_token.text
         if name not in FUNCTIONS:
             close = get_close_matches(name, sorted(FUNCTIONS), n=1, cutoff=0.6)
