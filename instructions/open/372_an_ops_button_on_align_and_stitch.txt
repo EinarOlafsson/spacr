@@ -420,3 +420,74 @@ about the plate.
 
 RECORDED RATHER THAN CHOSEN at two in the morning on a module nobody can
 reach yet, which is also the reason there is no hurry.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- THE MAINTAINER'S ANSWER, AND IT REFUSES THE QUESTION AS ASKED
+--------------------------------------------------------------------------------
+
+Asked whether a well that cannot be stitched is a failure of the run or a fact
+about the plate, he answered, verbatim:
+
+    "it can be a failure of the run or it can be an image that is genuanly
+     not stitchable."
+
+BOTH. The question above was a false binary and the answer is that the two
+cases are DIFFERENT EVENTS THAT LOOK THE SAME AT THE POINT OF FAILURE, which
+is exactly why the current code cannot handle either well: it has one outcome
+for two situations, and whichever outcome is chosen is wrong half the time.
+
+    mosaic=False   silence. A genuinely unstitchable plate looks identical to
+                   a broken run, and both produce nothing.
+    mosaic=True    a crash. A broken run and an acquisition that was never a
+                   mosaic both stop the whole thing three layers down.
+
+SO NEITHER DEFAULT IS THE FIX, and the choice recorded above -- "then True is
+safe" -- is not what to build. WHAT TO BUILD IS A REASON.
+
+THE SHAPE THAT FOLLOWS FROM THE ANSWER
+
+Every well that does not produce a mosaic must carry WHY, and the why decides
+what happens to the run:
+
+  NOT STITCHABLE -- a fact about the plate. There is one tile, or the tiles
+    do not overlap, or the acquisition was never a mosaic. Report it, skip the
+    well, CONTINUE. The run is doing its job; this plate is simply not that
+    kind of plate. It belongs in the run summary as a count with the wells
+    named, not as an error.
+
+  FAILED TO STITCH -- a failure of the run. The tiles are there and should
+    have gone together: a tile is missing from a cycle, a file will not read,
+    the feature match found too few inliers, RANSAC did not converge. Report
+    it AS A FAILURE, name the well and the reason, and do not let the run
+    claim success. Whether it stops or carries on to the other wells is a
+    second question, and the answer is carry on and fail at the end with the
+    list -- one bad well should not cost the other ninety-five.
+
+  The distinction is not always cleanly decidable, and where it is not, SAY
+  SO rather than guessing a category. "3 wells not stitchable, 1 failed, 2
+  undetermined -- see the log" is a true summary; "6 wells skipped" is not.
+
+WHAT THIS UNBLOCKS AND WHAT IT DOES NOT
+
+It unblocks the error-handling design that PART 0's last section was waiting
+on. It does NOT make that the next thing to build.
+
+PART 0'S FIRST JOB STILL COMES FIRST: 3,891 lines that nothing imports, with
+no test reaching the entry points and no user for an unknown length of time.
+Changing the error handling of code whose current behaviour nobody has
+measured would be building on an assumption, and this repository has a
+standing lesson about exactly that. The order is:
+
+  1. Find out what of `spacrops.py` still runs. Drive `ops_preprocess`,
+     `stitch_cycle_wells` and `align_image_to_stitch` on real input and
+     record what happens -- including which of the two cases above each
+     failure actually is, since that classification is now the design.
+  2. Then implement the reason, with `align_image_to_stitch` saying it found
+     no mosaics rather than returning `{}`.
+  3. Then the default, which stops being a coin-flip once a reason exists.
+
+NOTE FOR WHOEVER TAKES STEP 1: `tests/test_cov_r4_spacrops.py::test_the_post_
+stitch_move_never_finds_a_tile_already_at_its_target` is the test that turns
+red under `mosaic=True` with "CSV has no usable rows". Under the design above
+that input is the NOT STITCHABLE case, so the test should end up asserting a
+reported skip rather than either a crash or a silent pass.
