@@ -3024,7 +3024,7 @@ UI = {
     'Feature distributions': '功能分布',
     'Fetch the four-plate example screen and put its count tables and score tables into the two slots below. About 35 MB the first time; cached afterwards, so pressing it again is instant.': '切割四板示例筛选,并将其计算表和分数表放在下面的两个插槽中,大约35MB第一次;随后隐藏,所以再次按下它是即时的。',
     'Fetch the next chunk. Scrolling to the bottom does this automatically.': '点击下一个字符串,滑到底部会自动进行。',
-    'Fetching test data…': '查询测试数据...',
+    'Fetching test data…': '正在获取测试数据...',
     'Fetching…': '刺...',
     'Fewer wells than guides puts a joint guide fit below the information limit. Penalties, priors and groups do not create information. The permutation test is the exception because it tests one guide at a time.': '较少的孔比引导 RNA将一个共同的引导 RNA匹配到信息界限以下。 罚款、优惠和团体不会产生信息。 因为它同时测试一个导游。',
     'Fidelity': '忠诚',

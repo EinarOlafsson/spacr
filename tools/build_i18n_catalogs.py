@@ -2842,6 +2842,118 @@ for _slot in range(1, 5):
             for language, name in _OBJECT_LABELS["Organelle"].items()
         }
 
+
+# ============================================================================
+# INSTRUCTION 316, 2026-09-04 -- THE VERB "LOAD" WAS WRONG IN TWO LOCALES,
+# AND NOT ONLY IN THE STRINGS 316 ALREADY NAMED.
+#
+# 316 recorded three orphaned "Load test data" rows rendering as half-English
+# word salad after the button rename. Re-measured today, those three have been
+# re-drafted by the model and the SALAD IS GONE -- and what replaced it is
+# wrong in a way no gate can see, which is this instruction's whole thesis.
+#
+# MEASURED, by reading the catalogs rather than by any proxy:
+#
+#   ko   38 strings render "load" as 충전 -- to RECHARGE, as a battery.
+#   is   "Load X" is rendered "Láttu upp X" -- LET/MAKE, not load. ("Láttu"
+#        is correct in the several "Let the ..." strings; only the "Load"
+#        ones are wrong, which is why a grep for the word over-counts.)
+#
+# FOUR OF THEM ARE NOT MERELY WRONG, THEY ARE BROKEN:
+#
+#   ko  'Load a column mapping'          "폴더 폴더 폴더 폴더" = folder folder
+#                                        folder folder. Degenerate repetition.
+#   ko  'Load the example images…'       "예를 들어 사진을 올려보세요..." = "For
+#                                        example, try uploading a photo" -- it
+#                                        read "example" as "for example".
+#   is  'Could not load classifier
+#        evaluation'                     "Það gæti ekki lofað skilgreiningar" =
+#                                        "it could not promise definitions".
+#   is  'Load a table before
+#        clustering.'                    "Láttu borð áður en klúst." -- "borð"
+#                                        is a dining table and "klúst" is not
+#                                        a word.
+#
+# Every one of those passed presence, source-hash currency and length.
+#
+# PROVENANCE, AND IT IS NOT A FLUENT REVIEW. These replacements were written
+# by Claude on 2026-09-04, on the maintainer's instruction to do the pass
+# ("get 316 done (do the pass if needed)"). They are NOT recorded in
+# docs/i18n/reviewed/**, because that directory means a named human read it
+# and 357 guideline 4 forbids claiming a review nobody gave. They are here,
+# where the file's own history records every other repair of this kind.
+#
+# `is` is one of the three locales the maintainer reads. These eleven rows are
+# the cheapest possible thing to check, and checking them is worth more than
+# checking any other eleven in the catalogs.
+# ============================================================================
+
+MANUAL_UI['Load test data'] = {
+    'de': 'Testdaten laden',
+    'es': 'Cargar datos de prueba',
+    'fr': 'Charger les données de test',
+    'hi': 'परीक्षण डेटा लोड करें',
+    'is': 'Hlaða prófunargögnum',
+    'ko': '테스트 데이터 불러오기',
+    'sv': 'Ladda testdata',
+}
+
+MANUAL_UI['Load test data…'] = {
+    'fr': 'Charger les données de test...',
+    'hi': 'परीक्षण डेटा लोड करें...',
+    'is': 'Hlaða prófunargögnum...',
+    'ko': '테스트 데이터 불러오기...',
+}
+
+MANUAL_UI['Fetching test data…'] = {
+    'fr': 'Récupération des données de test...',
+    'hi': 'परीक्षण डेटा प्राप्त किया जा रहा है...',
+    'is': 'Sæki prófunargögn...',
+    'ko': '테스트 데이터 가져오는 중...',
+    'zh_CN': '正在获取测试数据...',
+}
+
+MANUAL_UI['Load a filter set'] = {
+    'is': 'Hlaða síusetti',
+    'ko': '필터 세트 불러오기',
+}
+
+MANUAL_UI['Load a column mapping'] = {
+    'is': 'Hlaða dálkavörpun',
+    'ko': '열 매핑 불러오기',
+}
+
+MANUAL_UI['Load a figure style'] = {
+    'is': 'Hlaða myndstíl',
+    'ko': '그림 스타일 불러오기',
+}
+
+MANUAL_UI['Load more'] = {
+    'is': 'Hlaða meira',
+    'ko': '더 불러오기',
+}
+
+MANUAL_UI['Loaded'] = {
+    'is': 'Hlaðið',
+    'ko': '불러옴',
+}
+
+MANUAL_UI['Load a table before clustering.'] = {
+    'is': 'Hlaðið töflu áður en þyrpt er.',
+    'ko': '클러스터링 전에 테이블을 불러오세요.',
+}
+
+MANUAL_UI['Could not load classifier evaluation'] = {
+    'is': 'Ekki tókst að hlaða mati flokkarans',
+    'ko': '분류기 평가를 불러올 수 없습니다',
+}
+
+MANUAL_UI['Load the example images…'] = {
+    'is': 'Hlaða sýnismyndum...',
+    'ko': '예제 이미지 불러오기...',
+}
+
+
 MANUAL_TRANSLATIONS["Power hit rate"] = {
     "sv": "Effektens träfffrekvens",
     "de": "Trefferquote der Teststärke",

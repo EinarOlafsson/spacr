@@ -3362,7 +3362,7 @@ UI = {
     'Load run…': 'Cargar ejecución…',
     'Load style…': 'Cargar estilo…',
     'Load table…': 'Cargar tabla…',
-    'Load test data': 'Datos de ensayo de carga',
+    'Load test data': 'Cargar datos de prueba',
     'Load test data…': 'Cargar datos de prueba...',
     'Load the example images…': 'Cargar las imágenes de ejemplo...',
     'Loaded': 'Cargado',
