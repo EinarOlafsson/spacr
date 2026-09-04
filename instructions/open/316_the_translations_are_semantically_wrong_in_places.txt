@@ -583,3 +583,98 @@ ALSO NOTE: the caption ratchet is at 4 failed where 316's 2026-09-02 note left
 it at 1. The three additional failures are not from this work -- the HEAD
 baseline above already carries them -- and arrived with the per-object table
 and dock strings landing in another session this week.
+
+--------------------------------------------------------------------------------
+2026-09-04 (later still) -- THE NINE READMEs ARE MISSING FIVE HEADINGS, AND THE
+                            CAUSE IS UPSTREAM OF EVERY REGISTRY
+--------------------------------------------------------------------------------
+
+The other session handed back three red tests in `tests/test_documentation_i18n.py`
+as belonging to this lane. One is fixed, one is diagnosed to its root cause and
+deliberately NOT patched, and one is untouched. In order.
+
+1. FIXED -- `test_opencc_audit_probe_fails_closed_when_dependency_is_missing`.
+
+   `_opencc_runtime` gained a second route this week: the system install is
+   tried first, then the `opencc` wheel's bundled `clib`, so the tool stops
+   demanding root to read files. The test patched `ctypes.util.find_library`
+   to None and expected a RuntimeError. It no longer got one, and the resolver
+   was RIGHT -- the wheel was still there. "The dependency is missing" has to
+   mean missing by every route it is looked for on, so the test now also does
+   `monkeypatch.setitem(sys.modules, "opencc", None)`, which makes the import
+   raise and the resolver fail closed as designed. Two tests pass; nothing in
+   the resolver changed.
+
+2. DIAGNOSED, NOT PATCHED -- `test_localized_readme_inline_markup_is_balanced_
+   and_tight`, which counts ``**`` and sees 62 against the canonical 60.
+
+   MEASURED, and the count is the finding: canonical README.rst carries 35
+   headings and EVERY ONE of the nine localized READMEs carries 30. The same
+   five are missing from all nine.
+
+       Core / Tools / Assays   the `^`-level band headings under "spaCR
+                               modules". ABSENT ENTIRELY.
+       Other resources         flattened to a bold paragraph -- German reads
+                               "**Sonstige Ressourcen**" -- so the section
+                               stops being a section. The extra ``**`` pair
+                               is the whole test failure.
+       (the fifth is the second "Data", which is already registered)
+
+   THE FOUR THAT VANISH SILENTLY ARE THE WORSE FAILURE and no test sees them.
+   A reader of any of the nine loses the entire grouping the module reference
+   is built on -- the structure instructions 318, 330 and 376 exist to give
+   it -- while the one that merely changed shape is the one that trips a gate.
+
+   THE FIRST HYPOTHESIS WAS WRONG AND IS RECORDED SO NOBODY REPEATS IT. It
+   looked like a stale `REVIEWED_README_HEADINGS`: 18 of the 35 canonical
+   headings are unregistered, and adding the missing ones looked like the fix.
+   It is not. `translatable_blocks(README.rst)` emits
+
+       'Other resources'  1 block      'Make Masks'  1 block
+       'Core'             0 blocks     'Model zoo'   1 block
+       'Tools'            0 blocks     'Environment' 1 block
+       'Assays'           0 blocks
+
+   THE THREE BAND HEADINGS NEVER REACH THE TRANSLATOR. They are dropped in
+   block extraction, upstream of every registry, so no registry entry can
+   bring them back -- and `test_reviewed_readme_headings_match_the_canonical_
+   source_and_locales` says exactly that by requiring each registered heading
+   to appear once in the block list. Registering them turned that test red,
+   correctly, and the change was reverted.
+
+   REGISTERING "Other resources" ALONE ALSO FAILS, for a different reason
+   worth knowing: the same gate requires the registered translation to be
+   PRESENT IN THE LOCALIZED FILE already. So a registry entry and the
+   documentation rebuild that acts on it MUST LAND IN THE SAME PASS. Adding
+   the entry first turns a passing test red and buys nothing.
+
+   WHAT TO DO, and it is two things in one sitting rather than one:
+     a. fix `translatable_blocks` so `^`-level headings are emitted -- this
+        changes what every README build translates, so measure the block
+        count before and after rather than assuming only three move;
+     b. add the four headings to `REVIEWED_README_HEADINGS` taking the band
+        names VERBATIM from `spacr/qt/i18n.py::_ROWS` (Kärna/Kern/Principal/
+        核心/Principal/मुख्य/핵심/Kjarni/Cœur and so on), because this file
+        already records that they must match `_ROWS` or the Home caption names
+        bands the screen does not show;
+     c. rebuild the nine READMEs and check the heading count is 35 in each.
+
+   A SECOND DEFECT FOUND ON THE WAY, unrelated to headings and unfixed: the
+   German README renders the metric `mAP50-95` as `mAPI50-95`, on a line where
+   the neighbouring `mAP50` is correct. A corrupted protected literal, in one
+   locale, in a metric name. It is the same class as this file's other
+   findings and belongs in the same rebuild.
+
+3. UNTOUCHED -- `test_github_summary_has_reviewed_domain_translations`.
+
+   This is the 37-of-47 orphaned `REVIEWED_README_BLOCKS` already recorded in
+   the 2026-09-03 note above, and its own instruction still stands: sort the
+   37 into "the text is gone" and "the text moved or was lightly edited"
+   BEFORE touching any of them, because retiring a review that could have been
+   re-bound loses it for nothing. Not started.
+
+STATE OF THE FILE AFTER THIS SESSION: 3 failed, 135 passed. The three are the
+37-block audit above, the README markup gate waiting on (2), and
+`test_documentation_api_catalog_inventory_and_hashes_are_current`, which
+belongs to 306 and moves whenever a public docstring is added -- the other
+session is still adding them under 368.

@@ -3086,7 +3086,15 @@ def test_opencc_audit_probe_fails_closed_when_dependency_is_missing(
     import build_i18n_catalogs as builder
 
     builder._opencc_runtime.cache_clear()
+    # BOTH ROUTES, NOT ONE. `_opencc_runtime` tries the system install first
+    # and then the `opencc` wheel's bundled clib, so patching `find_library`
+    # alone leaves the second route open and the resolver correctly succeeds
+    # -- this test then failed asking why nothing was raised. "The dependency
+    # is missing" means missing by every route it is looked for on, so the
+    # import is blocked too: `sys.modules[name] = None` makes `import name`
+    # raise ImportError, which the resolver catches before it gives up.
     monkeypatch.setattr(builder.ctypes.util, "find_library", lambda _name: None)
+    monkeypatch.setitem(sys.modules, "opencc", None)
     with __import__("pytest").raises(RuntimeError, match="requires OpenCC"):
         builder._has_traditional_chinese_prose("简体中文")
     with __import__("pytest").raises(RuntimeError, match="requires OpenCC"):
