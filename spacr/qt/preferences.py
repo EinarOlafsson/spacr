@@ -2455,6 +2455,11 @@ def get_fractal_settings() -> dict:
     settings = _settings()
 
     def _text(key, default, allowed):
+        """One stored string, or the default when it is not an allowed value.
+
+        Falls back rather than raising: a stale preference naming a theme that no
+        longer exists must not stop the settings loading.
+        """
         raw = str(settings.value(key, default))
         return raw if raw in allowed else default
 
@@ -4748,6 +4753,7 @@ class PreferencesDialog:
         animation.addRow(dir_label, ambient_dir_combo)
 
         def _sync_direction_row(*_args):
+            """Show the drift direction only for the theme that travels."""
             wanted = ambient_theme_combo.currentData() == "drift"
             dir_label.setVisible(wanted)
             ambient_dir_combo.setVisible(wanted)
@@ -4775,6 +4781,7 @@ class PreferencesDialog:
 
         def _percent_row(name, label_text, low, high, current, tip,
                          designed=1.0, target=None):
+            """Build one labelled percentage slider and return its parts."""
             slider = QSlider(Qt.Horizontal)
             slider.setObjectName(name)
             slider.setRange(int(round(low * 100)), int(round(high * 100)))
@@ -4789,6 +4796,10 @@ class PreferencesDialog:
             def _update(v):
                 # Say when it is the designed value, because "100%" alone
                 # does not tell a reader that it is the one to come back to.
+                """Show the percentage, saying when it is the designed value.
+
+                "100%" alone does not tell a reader that it is the one to come back to.
+                """
                 value.setText(f"{v}% — as designed" if v == mark
                               else f"{v}%")
 
@@ -4968,6 +4979,7 @@ class PreferencesDialog:
         spinner_value = QLabel()
 
         def _update_spinner_lbl(v):
+            """Show the spinner delay in seconds, or "show immediately" at zero."""
             spinner_value.setText(
                 tr("show immediately") if v == 0 else f"{v / 10:.1f} s")
 
@@ -4992,6 +5004,7 @@ class PreferencesDialog:
         scale_value = QLabel(f"{int(get_font_scale() * 100)}%")
 
         def _update_scale_lbl(v):
+            """Show the font scale as a percentage."""
             scale_value.setText(f"{v}%")
         scale_slider.valueChanged.connect(_update_scale_lbl)
 
@@ -5105,6 +5118,7 @@ class PreferencesDialog:
         rim_length_value = QLabel()
 
         def _rim_length_says(px):
+            """Show the rim length in pixels."""
             rim_length_value.setText(tr("%d px") % int(px))
 
         _rim_length_says(rim_length_slider.value())
@@ -5132,6 +5146,7 @@ class PreferencesDialog:
         rim_lag_value = QLabel()
 
         def _rim_lag_says(percent):
+            """Show the rim chase as a percentage."""
             rim_lag_value.setText(tr("%d%%") % int(percent))
 
         _rim_lag_says(rim_lag_slider.value())
@@ -5965,6 +5980,7 @@ class PreferencesDialog:
         # consent to — and each reports what was actually freed, measured
         # before and after, including when that is nothing.
         def _resource_button(action, label_text, row_label):
+            """Build one labelled action button for the resources row."""
             button = QPushButton(tr(label_text))
             button.setObjectName({
                 "ram": "ClearRamButton", "vram": "ClearVramButton",
@@ -6190,6 +6206,11 @@ class PreferencesDialog:
         def _save():
             # The rim first: every open card rereads these, and doing it
             # before the theme work means one repaint rather than two.
+            """Write every preference this dialog owns, rim first.
+
+            THE RIM GOES FIRST because every open card rereads it: doing it before
+            the theme work means one repaint rather than two.
+            """
             set_rim_length(rim_length_slider.value())
             set_rim_lag(rim_lag_slider.value() / 100.0)
             set_rim_alignment(rim_align_combo.currentData())
