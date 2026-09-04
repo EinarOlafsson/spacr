@@ -127,6 +127,15 @@ class _RejectionHighlighter(QSyntaxHighlighter):
     MARKERS = ("REJECTED at", "  ! ")
 
     def __init__(self, document, colour: str):
+        """Colour the lines that mark a broken assumption.
+
+        :param document: the ``QTextDocument`` to highlight. ALSO THE QOBJECT
+            PARENT, which is what keeps the highlighter alive for exactly as
+            long as the document it formats.
+        :param colour: the foreground for a marked line, as anything
+            ``QColor`` accepts. Resolved once here, so a theme change needs
+            a new highlighter.
+        """
         super().__init__(document)
         self._format = QTextCharFormat()
         self._format.setForeground(QColor(colour))

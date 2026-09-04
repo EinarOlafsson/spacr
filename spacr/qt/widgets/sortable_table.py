@@ -356,7 +356,11 @@ def tree_item(*args, **kwargs) -> SortableTreeItem:
 
 
 class _SortState(QObject):
-    """Per-view bookkeeping: the fill guard and the natural-order restore."""
+    """Per-view bookkeeping: the fill guard and the natural-order restore.
+
+    :param view: the tree this state belongs to, and its QObject parent --
+        so the state cannot outlive the view whose sort order it restores.
+    """
 
     def __init__(self, view):
         super().__init__(view)

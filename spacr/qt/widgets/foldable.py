@@ -29,6 +29,12 @@ class _ClickToFold(QObject):
 
     The heading owns the event filter so Qt retains it for the lifetime of
     the interactive label.
+
+    :param label: the heading to watch. ALSO THE QOBJECT PARENT, which is
+        what the note above means by the heading owning the filter.
+    :param toggle: called on a left-button release over the heading. Takes
+        no arguments and returns nothing: this decides WHEN to fold, never
+        what the folded state should be.
     """
 
     def __init__(self, label: QLabel, toggle: Callable[[], None]):
