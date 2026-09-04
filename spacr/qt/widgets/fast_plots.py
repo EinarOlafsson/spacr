@@ -2446,6 +2446,11 @@ class FastPlot(QWidget):
         original_strings = axis.tickStrings
 
         def tick_values(minVal, maxVal, size):
+            """Tick positions, split around the break when there is one.
+
+            Falls through to the original when no split is set, so an ordinary axis
+            is untouched rather than routed through the split code.
+            """
             if self._split.get("y") is None:
                 return original_values(minVal, maxVal, size)
             low, high = self._split_drawn()
@@ -2460,6 +2465,11 @@ class FastPlot(QWidget):
             return out
 
         def tick_strings(values, scale, spacing):
+            """Tick labels for a split axis, in the ORIGINAL data's values.
+
+            The axis is drawn on a compressed coordinate, so labelling it with the
+            drawn position would put numbers on it that the data never had.
+            """
             if self._split.get("y") is None:
                 return original_strings(values, scale, spacing)
             return [f"{self._to_data(v, 'y'):g}" for v in values]
@@ -3885,6 +3895,7 @@ class FastPlot(QWidget):
         undo = []
 
         def repaint(getter, setter, current):
+            """Swap one chrome colour for its print equivalent, if there is one."""
             replacement = export_colour(current, "chrome", look)
             if replacement is None:
                 return
@@ -4736,6 +4747,7 @@ class FastPlot(QWidget):
         plot = self
 
         def drag(event, axis=None):
+            """Interpret a drag: rubber-band select, or pan with a modifier."""
             modifiers = event.modifiers() if hasattr(event, "modifiers") \
                 else Qt.NoModifier
             wanted = bool(modifiers & (Qt.ControlModifier | Qt.ShiftModifier))
@@ -6390,6 +6402,12 @@ class VolcanoPlot(FastPlot):
         cache: dict = {}
 
         def _brush(step: int):
+            """One step of the ramp as a brush, cached.
+
+            Cached because a scatter asks for a brush PER POINT: building them fresh
+            allocates one QBrush per point per repaint, which is the whole cost of
+            drawing a large scatter.
+            """
             brush = cache.get(step)
             if brush is None:
                 r, g, b, a = (int(c) for c in lookup[step])
