@@ -254,6 +254,10 @@ class GateConsole(QWidget):
 
     # -- state ------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Point the console at a table to gate.
+
+        :param frame: the rows, or None to clear.
+        """
         self._frame = frame
 
     def set_responder(self, responder: Optional[Callable[[str], str]]) -> None:
@@ -266,10 +270,19 @@ class GateConsole(QWidget):
         self._responder = responder
 
     def transcript(self) -> str:
+        """Everything the console has printed.
+
+        :returns: the transcript as plain text.
+        """
         return self.log.toPlainText()
 
     # -- asking -----------------------------------------------------------
     def write(self, line: str, *, prefix: str = "") -> None:
+        """Append one line to the log.
+
+        :param line: the text.
+        :param prefix: an optional marker put in front of it.
+        """
         self.log.append(f"{prefix}{line}" if prefix else line)
 
     def run(self, expression: str) -> str:
@@ -283,6 +296,11 @@ class GateConsole(QWidget):
         return answer
 
     def run_input(self) -> None:
+        """Run whatever is typed, clearing the box only if it was accepted.
+
+        CLEARED ONLY ON SUCCESS, so a refused expression stays where the
+        user can fix it rather than having to be retyped from memory.
+        """
         if self.run(self.input.text()):
             self.input.clear()
 
@@ -306,6 +324,7 @@ class GateConsole(QWidget):
         return answer
 
     def send_chat(self) -> None:
+        """Send the chat box to the assistant, clearing it only if accepted."""
         if self.ask(self.chat.toPlainText()):
             self.chat.clear()
 

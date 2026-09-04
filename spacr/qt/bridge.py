@@ -534,9 +534,21 @@ class RunHandle(QObject):
 
     @property
     def gate(self) -> PauseGate:
+        """The pause gate this run checks between steps.
+
+        :returns: the gate.
+        """
         return self.worker.gate
 
     def elapsed(self) -> float:
+        """How long this run has been going, in seconds.
+
+        Floored at zero: a clock adjusted backwards mid-run would otherwise
+        report a negative age, which reads as a bug in the run rather than in
+        the clock.
+
+        :returns: the elapsed seconds.
+        """
         return max(0.0, time.time() - self.started_at)
 
     def is_running(self) -> bool:
@@ -613,12 +625,21 @@ class RunRegistry(QObject):
         self._handles: List[RunHandle] = []
 
     def register(self, handle: RunHandle) -> RunHandle:
+        """Take ownership of a run and start reporting it.
+
+        :param handle: the run to track.
+        :returns: the same handle, for chaining.
+        """
         self._handles.append(handle)
         handle.changed.connect(self.changed)
         self.changed.emit()
         return handle
 
     def unregister(self, handle: RunHandle) -> None:
+        """Stop tracking a run and hand ownership back to Python.
+
+        :param handle: the run to drop.
+        """
         if handle in self._handles:
             self._handles.remove(handle)
             # Hand ownership back to Python. Left parented, the handle
@@ -632,6 +653,12 @@ class RunRegistry(QObject):
         return list(self._handles)
 
     def is_busy(self) -> bool:
+        """Whether any run is still registered.
+
+        What the window asks before quitting.
+
+        :returns: True while a run is tracked.
+        """
         return bool(self._handles)
 
     def cancel_all(

@@ -34463,12 +34463,29 @@
       "source_sha256": "110477d8b7a34739536fcfdcfae3f8bac39b420c4c7c9fa1db2200bb59f4c44f",
       "text": "One in-flight job: what it is, how far along, and its pause gate.\n\nLives on the GUI thread. ``progress`` is scraped from the worker's\nstdout (see :data:`_PROGRESS_RE`) rather than reported by the\npipeline, because the pipelines have no reporting channel.\n\n:param app_key: which module is running. Falls back to ``\"job\"`` so a\n    handle always has a name to show.\n:param worker: the :class:`PipelineWorker` doing the work. Its\n    ``worker_count`` is read once here rather than on every update.\n:param thread: the thread the worker was moved to. Held so the handle\n    can wait on it, not so it can be restarted.\n:param parent: parent object."
     },
+    "spacr.qt.bridge.RunHandle.elapsed": {
+      "source_blocks_sha256": [
+        "6fc852478248fba85b41cc45b78e8cc6a0108d6cb64ff77a86c2be1e6a343810",
+        "e8be38387d71407fbbc1bbc0f96eae095dcdc8b9fe3f0c978fa7731d6315e20b",
+        "a7804440c6cdad6215f7d5a4b959ec0c31c5779c3c768dd4d95da90154dc82e0"
+      ],
+      "source_sha256": "c3023030dd2687eb4f9f53dbb98c4ff085fd1d2bd636b9817b3d3f8a51872035",
+      "text": "How long this run has been going, in seconds.\n\nFloored at zero: a clock adjusted backwards mid-run would otherwise\nreport a negative age, which reads as a bug in the run rather than in\nthe clock.\n\n:returns: the elapsed seconds."
+    },
     "spacr.qt.bridge.RunHandle.fraction": {
       "source_blocks_sha256": [
         "67a5fa67429645605b8f79f9ce3d79b6e62e5238c944e7234ea352838954806c"
       ],
       "source_sha256": "67a5fa67429645605b8f79f9ce3d79b6e62e5238c944e7234ea352838954806c",
       "text": "Completed fraction in ``0..1``, or ``None`` when unknown."
+    },
+    "spacr.qt.bridge.RunHandle.gate": {
+      "source_blocks_sha256": [
+        "82b775ff6e40f83223a5f3d5f2dcd8b759963ad3cd67cf24dedf9bdd81d7ee65",
+        "ff62052855c4b689694847b38a07b247eb724045e4a642791a52904f85ca3c26"
+      ],
+      "source_sha256": "565abb198fed213519fb2f7773437e929c6de0a9eea410ea25895d22b13d1aac",
+      "text": "The pause gate this run checks between steps.\n\n:returns: the gate."
     },
     "spacr.qt.bridge.RunHandle.is_running": {
       "source_blocks_sha256": [
@@ -34533,6 +34550,32 @@
       ],
       "source_sha256": "f4cdcd2b5837ad4a1f813608021d5aa74faf7045ba62893ed8c9873a3d242626",
       "text": "Drop every handle. For tests — never call this on a live app."
+    },
+    "spacr.qt.bridge.RunRegistry.is_busy": {
+      "source_blocks_sha256": [
+        "1d28ee9d69d2dcdf1775d39707d1204ebc7c084d82d416a343125af4e84b1753",
+        "b43ea922e5fd00053cbb9a7997e876d98a8f4af79fb72137e409aa0889303d1c",
+        "b8ff21be486e8a74ef98a82a4740307e0e433a418a92219cf502ea969af9cd5a"
+      ],
+      "source_sha256": "e822ce6086ea353a251db2fc7107932d3e16f11f5e14e4ae04da46b6e538ad69",
+      "text": "Whether any run is still registered.\n\nWhat the window asks before quitting.\n\n:returns: True while a run is tracked."
+    },
+    "spacr.qt.bridge.RunRegistry.register": {
+      "source_blocks_sha256": [
+        "cd5324019795ba61b1cabde1fb923c76d2133306eb4fda1ddd5e9abf88b243cd",
+        "b82e19c91e21aa746a0f357da73ecfa5c4b5d6171ba2f049d9562f9decbdcec5",
+        "8cd0216a5612d30f41786b7779b141c54c1cfd57481f3b7b4dc6835d7b483012"
+      ],
+      "source_sha256": "60ea6cf2a8d8fbd7521daf9239210593d8e1fd15728756396ff797b9e99f1916",
+      "text": "Take ownership of a run and start reporting it.\n\n:param handle: the run to track.\n:returns: the same handle, for chaining."
+    },
+    "spacr.qt.bridge.RunRegistry.unregister": {
+      "source_blocks_sha256": [
+        "29c4e56d6d141c11bbb9acb5e7d3664e6880aae555b3304f775fba9c9fceb8c7",
+        "d20eb0a07360d14d69c7b6e0d3cdb6c75d4dc479a098ae0bd5741cddcf389a5a"
+      ],
+      "source_sha256": "8b7eaaae3fc520657fa9ca40814299230b22f609c7e870679ae204362a8cb82c",
+      "text": "Stop tracking a run and hand ownership back to Python.\n\n:param handle: the run to drop."
     },
     "spacr.qt.bridge.apply_worker_budget": {
       "source_blocks_sha256": [
@@ -39924,6 +39967,15 @@
       "source_sha256": "0dbd5a980a1cdb81a6aedde8baad4ed9d7179d7f90f4d99e540ff07317ea014d",
       "text": "Ordered list of :class:`QueueItem` objects with atomic on-disk snapshots.\n\nThe queue is thread-agnostic — the Qt screen owns exclusive\naccess. If two callers ever need to touch it concurrently, wrap\neach mutation in a lock at the call site.\n\n:param path: where the snapshot is written. ``None`` uses spaCR's own\n    queue file, which is the ordinary case; a test passes a temporary\n    path so it does not disturb the user's real queue."
     },
+    "spacr.qt.plate_queue.PlateQueue.add": {
+      "source_blocks_sha256": [
+        "2007420d60ecd4010f0b791b2fc28a0eec05efa4dda62f29b80aa06b36bdd9ca",
+        "ecd3c1886cb1c25da2661c1cd1d659c77e4656e49d0c2cd08e2b20ab5db23fd7",
+        "51d51403a60c4bffdb3fa0cbe576b921788f6d5293d8fbdd342cf5085238aa80"
+      ],
+      "source_sha256": "31784366ddb8910ad9fe0be9aa389d709b6db03b2b010f54796196837f5d7ef3",
+      "text": "Append a plate and save immediately.\n\nSAVED ON EVERY CHANGE, not on close: the queue is shared with other\nscreens and read from disk, so an unsaved change is one another\nscreen cannot see.\n\n:param item: the plate to queue."
+    },
     "spacr.qt.plate_queue.PlateQueue.clear": {
       "source_blocks_sha256": [
         "26ee4fb7a372d875a5281a971a1cc2f2a005728ffda35a46eb106b492b9cc764",
@@ -39961,12 +40013,35 @@
       "source_sha256": "a997052020765c2549b5d32021632f7a1439a26c9184ab080f5ca01dde721f7c",
       "text": "Return a shallow copy of the current items list."
     },
+    "spacr.qt.plate_queue.PlateQueue.load": {
+      "source_blocks_sha256": [
+        "014afd532a0fdd143f4b32a3df85a391ae9b0afa5abd99a634d4b834827cb87e"
+      ],
+      "source_sha256": "014afd532a0fdd143f4b32a3df85a391ae9b0afa5abd99a634d4b834827cb87e",
+      "text": "Read the queue from disk, replacing what is held."
+    },
     "spacr.qt.plate_queue.PlateQueue.next_queued": {
       "source_blocks_sha256": [
         "e0339023335092768e9fc482245f155c40c2528b9a63d3bb48195ca72bed893c"
       ],
       "source_sha256": "e0339023335092768e9fc482245f155c40c2528b9a63d3bb48195ca72bed893c",
       "text": "Return the first :attr:`Status.QUEUED` item, or None."
+    },
+    "spacr.qt.plate_queue.PlateQueue.remove": {
+      "source_blocks_sha256": [
+        "e03e21586ac5c166e83302fa4d36890246c791a611876549edb018cd34bc684e",
+        "0734335aa39a4bf4bdeba4000100687981f91bf6c1500f10e42cc04a149d7af0",
+        "cd8adc7076d9556e24d1a11f9b257e6dc1b6de66e4bfe1c8808f7bae54af890a"
+      ],
+      "source_sha256": "69265bff46d5b565846275e318afb192d98ba6a7d92e9ead52384414dd3f7a6f",
+      "text": "Drop one plate by id and save.\n\n:param item_id: the plate's id.\n:returns: True when it was there to remove."
+    },
+    "spacr.qt.plate_queue.PlateQueue.save": {
+      "source_blocks_sha256": [
+        "468798a277b00ad29db25594cb086babd1754efc3742354b1701f6f63d296d8b"
+      ],
+      "source_sha256": "468798a277b00ad29db25594cb086babd1754efc3742354b1701f6f63d296d8b",
+      "text": "Write the queue to disk."
     },
     "spacr.qt.plate_queue.PlateQueue.update": {
       "source_blocks_sha256": [
@@ -44730,6 +44805,14 @@
       "source_sha256": "ec2975138d9b48aae0200aca9fbcb252a4532703168a434cd32cd550cfdba170",
       "text": "Let every in-flight query thread finish before the widget dies.\n\nDestroying a QThread that is still running aborts the process, so\nwe wait (briefly) rather than hope. Jobs that have not started yet\nare dropped — nothing has been spawned for them.\n\nThe shared link outlives this screen, so let go of it too.\n\n:param event: Qt close event forwarded after worker cleanup."
     },
+    "spacr.qt.screens.db_browser.DbBrowserScreen.current_table": {
+      "source_blocks_sha256": [
+        "d5d56d1eb660f1297626b1bb27168eac7242b647aa85aeae1924d9e5ea2a0d29",
+        "ea870f06feea9aa3a5e13f8ae745f6271926b891e480eba2c2c2ce27d8d96a63"
+      ],
+      "source_sha256": "c17bba1bb8d87f6bb4e173e6e5d1c5e281f319ae6df8546eb974142bf424f30c",
+      "text": "Which table the browser is showing.\n\n:returns: the table's name, or ``\"\"`` when none is open."
+    },
     "spacr.qt.screens.db_browser.DbBrowserScreen.database_path": {
       "source_blocks_sha256": [
         "833963af1f18307e1fde646f438aa04ccade5b71aaff282e7bc26edbc1971822"
@@ -45043,6 +45126,14 @@
       "source_sha256": "7442f0b5dfc960574215fa9b45fb5340e4d0ae8e35245e0a6df1b4dfde7b30b4",
       "text": "Holds the rows fetched so far plus the column-visibility mask.\n\nTwo jobs beyond the obvious one:\n\n* **Incremental fetch.** ``canFetchMore``/``fetchMore`` are the Qt\n  way to say \"there is more where that came from\"; the view calls\n  them when the user scrolls to the bottom and the model asks the\n  screen for another chunk. While a chunk is in flight\n  ``canFetchMore`` is False, so a scroll cannot queue ten of them.\n* **Row identity.** Every row carries the key tuple it was fetched\n  with (``rowid``, or the primary key). That is what makes an edit\n  addressable — and its absence is what makes an edit refusable.\n\nChunks are fetched with *every* column, and the column search only\nchanges which of them are mapped into the view. Typing in the search\nbox therefore never re-queries the database — which is what makes it\nusable on a table with 500 feature columns.\n\n:param parent: optional Qt owner responsible for the model's lifetime."
     },
+    "spacr.qt.screens.db_browser.PreviewModel.all_columns": {
+      "source_blocks_sha256": [
+        "731bbe586d4d6c039656f4c8ad1188cd9289caffa3dec61edc3c7eb812eab449",
+        "e2b3e9ae738939406395ac4eb35b64166485c6dfe0b109140bef924c6da1cb39"
+      ],
+      "source_sha256": "7ccef5a6a4d47267a1d5aa1b445d0c3c2c7ed6af0e21ec45b6c3e1db4880cb88",
+      "text": "Every column the table has, filtered or not.\n\n:returns: the column names."
+    },
     "spacr.qt.screens.db_browser.PreviewModel.append_rows": {
       "source_blocks_sha256": [
         "44e8a8ff08bdd5e0d9a970f6123e3fd6974e63bc43d3646a6d6390d162063c66",
@@ -45060,6 +45151,13 @@
       "source_sha256": "0dcc6cf2d59f20396818b90657ff26d864220024cec7b2e4315e320853ad479b",
       "text": "Return whether the root model can request another chunk.\n\n:param parent: Qt parent index; valid child indexes cannot fetch."
     },
+    "spacr.qt.screens.db_browser.PreviewModel.clear": {
+      "source_blocks_sha256": [
+        "9fe59482854c6b91aed1922bca2fac1855bfcf43f3b83e73da9aea86cedde00f"
+      ],
+      "source_sha256": "9fe59482854c6b91aed1922bca2fac1855bfcf43f3b83e73da9aea86cedde00f",
+      "text": "Drop every row and column."
+    },
     "spacr.qt.screens.db_browser.PreviewModel.columnCount": {
       "source_blocks_sha256": [
         "bf0825490db011a8a5fe0566844f374783a4e228541012c22db1ae2b7d2a08e0",
@@ -45067,6 +45165,14 @@
       ],
       "source_sha256": "eda578c7ee92a8596cb4ae1d6284d05bcc8415668f98c0385b7cfc32c6c916b2",
       "text": "Return visible columns for the root model and zero for children.\n\n:param parent: Qt parent index whose child-column count is requested."
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.column_filter": {
+      "source_blocks_sha256": [
+        "ad6e79136c13f7c81905cbc82940592e90e1a86c7dddec0ee68cb8d01507d06f",
+        "96c67eb39d68f3910cebc8ce74024aa5bacd2150c7c8d845eb9384d675293b5e"
+      ],
+      "source_sha256": "a08253cb8899c491cb8b2a60490cfd45894c62420c9c618a00d858ff3f03b67a",
+      "text": "The text currently filtering the columns.\n\n:returns: the filter text."
     },
     "spacr.qt.screens.db_browser.PreviewModel.data": {
       "source_blocks_sha256": [
@@ -45102,6 +45208,15 @@
       ],
       "source_sha256": "b3a0ba46ec4812f41eda8201c1bb94bb61bc922465434afe416fba678a68550a",
       "text": "Return a column name or one-based absolute row number.\n\n:param section: zero-based visible column or row-header section.\n:param orientation: horizontal for names, vertical for row numbers.\n:param role: Qt data role; only :attr:`Qt.DisplayRole` is served."
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.is_editable": {
+      "source_blocks_sha256": [
+        "fb48cc644f9dbe1fd403db7e38b0fc9f3585420cad4de1eea2a64a8918547cbf",
+        "d7f8663f1b0010e4835ec5315ea1439877c7b7339a8f1e25d0517aa310218807",
+        "c4596e539bc7880378615c863f133928c752eab2ec331ba1a1b27860743ed1a1"
+      ],
+      "source_sha256": "07f08cf9b6039d6e8552d49f436f8c4f9eca987544a11368af7a4de1679259f9",
+      "text": "Whether this preview allows edits.\n\nOFF UNLESS CHOSEN. The browser reads a project's real measurements,\nand an accidental edit there is a silent change to data a run already\nproduced.\n\n:returns: True when editing is enabled."
     },
     "spacr.qt.screens.db_browser.PreviewModel.rowCount": {
       "source_blocks_sha256": [
@@ -45218,6 +45333,14 @@
       ],
       "source_sha256": "570ded283d19b0307a592acbbb6e79b8a8d2b14633d1116b18c8e67c4aa7879f",
       "text": "Return the stored, unformatted value at ``row`` / ``column``.\n\n:param row: zero-based model row index.\n:param column: schema column name."
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.visible_columns": {
+      "source_blocks_sha256": [
+        "59257586b8ede3918101c7b5a3750b06a667af95031d38165e4373b1dc38fb88",
+        "0b8d9570cf128ef674e0b50c0946cfd173d05de654adae4bac96efb4940d3994"
+      ],
+      "source_sha256": "6781e845e0d0dd2fa3b8626c4092f286b052581ab2b3d3ddc702ff50c3b3d3f1",
+      "text": "The columns the filter is currently letting through.\n\n:returns: the visible column names."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb": {
       "source_blocks_sha256": [
@@ -45997,6 +46120,46 @@
       "source_sha256": "e5a0a8895a2706459c21744bb03e8a442a74bfa7168741292549f14798d17164",
       "text": "Editable table over a list of :class:`spacr.foreign.ColumnMap`.\n\nA model rather than a QTableWidget because a CellProfiler export has\nseveral hundred columns and building that many QTableWidgetItems\nfreezes the window.\n\nAn edit emits :attr:`mapping_edited` *as well as* ``dataChanged``, and\nthe screen listens to the former. Hanging the live re-resolve off\n``dataChanged`` looks equivalent and is not: re-resolving updates the\nper-row status, updating the status refreshes the tooltips, and\nrefreshing tooltips emits ``dataChanged`` again — one keystroke\nrecursed until the interpreter ran out of stack.\n\n:param parent: parent widget."
     },
+    "spacr.qt.screens.foreign.ColumnMapModel.columnCount": {
+      "source_blocks_sha256": [
+        "21a03fe6f159672745e747e3cdeace0d156ad6c6960b13ff4c9b862a5ecaeb54",
+        "317416ddbeb93f769bf12aa25fd7d81b25189b613fa431bcba5b1886d4727aa2",
+        "011264c6495f4c17d804ba1e9d2b346bb47efaf31a7e2f52e1157f3feef42979"
+      ],
+      "source_sha256": "300e763eb53468523efdb6028d43adc3b0ad5b3f961af4a9bea72e0e7693f5c7",
+      "text": "How many columns the mapping table shows.\n\n:param parent: unused; the model is flat.\n:returns: the column count."
+    },
+    "spacr.qt.screens.foreign.ColumnMapModel.data": {
+      "source_blocks_sha256": [
+        "ecbc742c9764ce20dcf9bcd83a80dc84fde55101967f3e75fc0d222597ace741",
+        "a835f0e2f0ab2c945d413d23413e33bde413e3d9961e8867df286c2422cceccd",
+        "cdd3eb9f6eeccef830b84634831f8e12a3490b429995ccf3774e4ba338f4023a",
+        "346a3f5027ca643404ee82f01f6894e76776943fd47d119bdd95709ef941f96c"
+      ],
+      "source_sha256": "3825fc62f8dc380e6cd880bc5900463afd2fd6aa460d0ac24eb690154e27f692",
+      "text": "One cell of the mapping table.\n\n:param index: the cell.\n:param role: the Qt display role.\n:returns: the cell's value for that role, or None."
+    },
+    "spacr.qt.screens.foreign.ColumnMapModel.flags": {
+      "source_blocks_sha256": [
+        "15311a426f62fa4425c3b8a36bdfddf526ca0b3e3f2e26ce5d9d0b0a7c6fd9e7",
+        "40a915b43f9f8711706d55f13b9beb88bfa86bab2fe5edab4991b3f1e3069963",
+        "a835f0e2f0ab2c945d413d23413e33bde413e3d9961e8867df286c2422cceccd",
+        "b7b72d486ed9fe6c3134f9332efd16a51b65a92cf21ec57dfa461f9dcedc5cfc"
+      ],
+      "source_sha256": "c227e683b265d4fca4990a4130d3fd8bfd00c33a062a24a35dcc73f692f8a0fe",
+      "text": "Which cells the user may edit.\n\nOnly the target column: the source name is what the foreign file\nactually contains, and editing it would let a user rename their data\nrather than map it.\n\n:param index: the cell.\n:returns: the Qt item flags."
+    },
+    "spacr.qt.screens.foreign.ColumnMapModel.headerData": {
+      "source_blocks_sha256": [
+        "af1f93e3c3091964a0a68ad59b89bb5a179c362646eeff144bfc4dca866819ba",
+        "271c508e4cb14bee56cccd616cecb3225655ab322190de195cc1f53163864e14",
+        "094e08febbf10d973e6565b8cdca8ae1a31d89d4150d9baea12ac56d13dfc6a6",
+        "cdd3eb9f6eeccef830b84634831f8e12a3490b429995ccf3774e4ba338f4023a",
+        "427cc66e6e4f78ef4550f487987ac36c2fc33434749c8b2a75a1a81f85e5e1f6"
+      ],
+      "source_sha256": "78819e8f7b3269be988076ddbfa2d82f391c92fd23bd157f3d15faa1c5e42da4",
+      "text": "One header label.\n\n:param section: the row or column number.\n:param orientation: which header.\n:param role: the Qt display role.\n:returns: the label, or None."
+    },
     "spacr.qt.screens.foreign.ColumnMapModel.map_at": {
       "source_blocks_sha256": [
         "be597ca70fe170c0bcd9897ea638aa337cb1f05fa70664a1cf9f3d03377ac4c2"
@@ -46011,12 +46174,32 @@
       "source_sha256": "1ed31856b00a53192d301ea5da889f4168655a355bd202579cfd26d4ed4a54ac",
       "text": "The mapping as it currently stands, including every edit."
     },
+    "spacr.qt.screens.foreign.ColumnMapModel.rowCount": {
+      "source_blocks_sha256": [
+        "ef336fa1e692fde6a2722b185b5650687f1db415909ffdf892169d1ff35d24b1",
+        "317416ddbeb93f769bf12aa25fd7d81b25189b613fa431bcba5b1886d4727aa2",
+        "90e8a49ccf3d13a3c302ce245ade25f85e71c917f642a54b9a12d02847470735"
+      ],
+      "source_sha256": "682a95a15aa37a4a283fb080065bd7f60669e1aaf78c8854fcfce11e603bd54d",
+      "text": "How many source columns are waiting to be mapped.\n\n:param parent: unused; the model is flat.\n:returns: the row count."
+    },
     "spacr.qt.screens.foreign.ColumnMapModel.row_of": {
       "source_blocks_sha256": [
         "668ecd7030408aeaea5b3ce459718376d0a34026dc5ee3cf24355d981e75aef4"
       ],
       "source_sha256": "668ecd7030408aeaea5b3ce459718376d0a34026dc5ee3cf24355d981e75aef4",
       "text": "The row index for a source column name, or -1."
+    },
+    "spacr.qt.screens.foreign.ColumnMapModel.setData": {
+      "source_blocks_sha256": [
+        "68a4046e57060e74ec09aaae59dffa68b3f02313eb64f0ec5658d8d02da8a2ac",
+        "a835f0e2f0ab2c945d413d23413e33bde413e3d9961e8867df286c2422cceccd",
+        "91a7b0e1d1cbf5c9e85f353b49a759527c16aa1757f6337785abd5c97c8e9297",
+        "5087d38aa9a7abb0d47c41b4f94c96a808ad5dbffe3250346a41539f29dc7cf6",
+        "56ce5018a853e62cc82a79169548a038c0480df6a5332ede844530aa648cbaef"
+      ],
+      "source_sha256": "504e02f487bc003711d6cd6cbd3c54ecb58934008a4cb4931db2899504f8c3d0",
+      "text": "Record which spaCR column a source column maps to.\n\n:param index: the cell.\n:param value: what the user chose.\n:param role: the Qt edit role.\n:returns: True when the mapping was taken."
     },
     "spacr.qt.screens.foreign.ColumnMapModel.set_maps": {
       "source_blocks_sha256": [
@@ -47626,6 +47809,14 @@
       "source_sha256": "826817747c373a0a3ca2ef2292157ebff8e346d3ad6d01499a8a7a995f1c1874",
       "text": "A measurement scatter with the crop under the cursor beside it.\n\n:param threaded: ``False`` loads inline, so a test drives the screen\n    without a worker thread and gets the same signals in the same order.\n:param parent: parent widget; ownership only."
     },
+    "spacr.qt.screens.image_scatter.ImageScatterScreen.closeEvent": {
+      "source_blocks_sha256": [
+        "63282e6ec5b32df25c9824f692cd8ea4981d8c8e209ac29da3b0cde45fff3004",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "bc65a04dcf18a3baf5e1ebc42b984cdff1672eb4b3cb6e9a8cd0f5ee5243fa00",
+      "text": "Stop background work before going away.\n\n:param event: the Qt close event."
+    },
     "spacr.qt.screens.image_scatter.ImageScatterScreen.database": {
       "source_blocks_sha256": [
         "1dad9ac9e0465c315d5860880936e6f48e0672b82ca94d516d15e3bca11a9d05"
@@ -47728,6 +47919,39 @@
       "source_sha256": "2c3d4a601f67bb39b202a595e4289d976adba6c2f52acabe5f543981350a827d",
       "text": "Nearest plotted point within :data:`HIT_RADIUS`, or ``-1``.\n\nOne vectorised pass. A spatial index would be faster asymptotically\nand is not worth the invalidation rules: at 200 000 points this is\nwell under a millisecond, and the row cap in\n:func:`load_scatter_frame` keeps it there."
     },
+    "spacr.qt.screens.image_scatter.ScatterCanvas.leaveEvent": {
+      "source_blocks_sha256": [
+        "a78f4c068a4f5cb57cb97b7aeecce01e75830bb81ae25beb2be792ebe43ea724",
+        "8ec7b926f357be6a726068fa00eddb99049c4b16510e31c550eace7c8d174463",
+        "0e97626bfa24e682b9223c9dbae33bc6ae2863d64fd0011469c1024dbcf17c31"
+      ],
+      "source_sha256": "5cc01823e6ec2b082ff134e75f612d0af706fe08cd01d9f02689d0d65d1f7dc0",
+      "text": "Clear the hover when the pointer leaves the canvas.\n\nOTHERWISE THE THUMBNAIL STICKS: the last hovered point stays drawn\nover a canvas the pointer has left, which reads as a selection.\n\n:param event: the Qt leave event."
+    },
+    "spacr.qt.screens.image_scatter.ScatterCanvas.mouseMoveEvent": {
+      "source_blocks_sha256": [
+        "20431cbb97d7ed0f75970aead1aad6bbe7ab1d6cb4dea84c5a2b49e57d81618b",
+        "8759e2fb89737be7c8520d31a68c072db682281123b04cec0e10d3e727a9179f"
+      ],
+      "source_sha256": "ec9728e2293c09f40eb0a6089da9577f50f696b76a2af2fe9649406789c60b14",
+      "text": "Track which point is under the pointer, for the thumbnail.\n\n:param event: the Qt mouse event."
+    },
+    "spacr.qt.screens.image_scatter.ScatterCanvas.mousePressEvent": {
+      "source_blocks_sha256": [
+        "5e79dd8e4745c1d3f869a09ad7acfdac2f406f0d662f149f9a3f5a9b39f0a522",
+        "8759e2fb89737be7c8520d31a68c072db682281123b04cec0e10d3e727a9179f"
+      ],
+      "source_sha256": "900013f29357455c52d223847411ca02317d91f2265e4ea7f2836a05cb94597b",
+      "text": "Select the point under the pointer.\n\n:param event: the Qt mouse event."
+    },
+    "spacr.qt.screens.image_scatter.ScatterCanvas.paintEvent": {
+      "source_blocks_sha256": [
+        "d7c1db87124a3837a4883ded69ad4dbecca54bc0e7bd3fb5fa19403a64a9d417",
+        "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
+      ],
+      "source_sha256": "b9a74863eb1a30e4ff52741b350f006d80cdace5e11778e3e9a9c9fd1b74af33",
+      "text": "Draw the points and the hovered thumbnail.\n\n:param event: the Qt paint event."
+    },
     "spacr.qt.screens.image_scatter.ScatterCanvas.plottable": {
       "source_blocks_sha256": [
         "e3edfaa1b8e8068d5ecd83c3efb98f0a8018ecf37cb67c5ae0b40ce1379b87b8"
@@ -47741,6 +47965,14 @@
       ],
       "source_sha256": "8b823335b00f9cb89670e84e78e667e072952a444787223b5b646223248de87d",
       "text": "Widget coordinates of point ``index``, or ``None`` if not drawn."
+    },
+    "spacr.qt.screens.image_scatter.ScatterCanvas.resizeEvent": {
+      "source_blocks_sha256": [
+        "acd85aa5858319fde26d6e6a51acb9d6a063deddf113f5f45d4533e103c030af",
+        "6bfa4f6c840c4a07e3b6341569e68c463234002e4ba444ce59f4c56d5fa8def0"
+      ],
+      "source_sha256": "ee1f9c98059d5fc654e21f3bc3023fdff7bdd4e4cd54f6059d4ed474c97d0b93",
+      "text": "Re-lay the points for the new size.\n\n:param event: the Qt resize event."
     },
     "spacr.qt.screens.image_scatter.ScatterCanvas.set_points": {
       "source_blocks_sha256": [
@@ -52035,6 +52267,14 @@
       "source_sha256": "b10acb88abcd605ccc4dae1f7dbc8759fdcf07e97bbc509dde5a824d3e4849bb",
       "text": "Compare training runs: overlaid curves plus the bucketed settings diff.\n\n:param threaded: discover and load runs on a worker thread (the default).\n    Tests pass ``False`` for deterministic, synchronous behaviour.\n:param parent: parent widget; ownership only.\n:ivar last_error: text of the most recent failure, ``\"\"`` when the last\n    operation succeeded. Errors are only ever reported here and in the\n    inline status label — never in a modal dialog."
     },
+    "spacr.qt.screens.train_compare.TrainCompareScreen.active_jobs": {
+      "source_blocks_sha256": [
+        "0cfec806f88c5d18054a4dc95895ae2445b627bd119a63609ce0e5a7ba1780cd",
+        "18e7e84f876d53891f1acf9e456d193058cd2e4b6ca9e718b0be970bde44c2aa"
+      ],
+      "source_sha256": "bab767715e8fe1bdbe5795898741a39068267b188e8b3e94ba899f95c49e3ab9",
+      "text": "How many background jobs this screen is running.\n\n:returns: the job count."
+    },
     "spacr.qt.screens.train_compare.TrainCompareScreen.available_metrics": {
       "source_blocks_sha256": [
         "bedba7de79124c3d5985b41e4b0ed278929b31f6eeef69f5317a0c90c4711bbb",
@@ -52043,6 +52283,14 @@
       "source_sha256": "5fa022f4c967c34968951a46dad0a456be5af155cd6aeb2211d5340a33d2f9ca",
       "text": "Which metrics the picker is currently offering.\n\n:returns: the metric names, in picker order."
     },
+    "spacr.qt.screens.train_compare.TrainCompareScreen.closeEvent": {
+      "source_blocks_sha256": [
+        "63282e6ec5b32df25c9824f692cd8ea4981d8c8e209ac29da3b0cde45fff3004",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "bc65a04dcf18a3baf5e1ebc42b984cdff1672eb4b3cb6e9a8cd0f5ee5243fa00",
+      "text": "Stop background work before going away.\n\n:param event: the Qt close event."
+    },
     "spacr.qt.screens.train_compare.TrainCompareScreen.comparison": {
       "source_blocks_sha256": [
         "bfcd4eeb3d9e65d6c3c1ab59a56126d76a240f9db9730bf221b510537b273987",
@@ -52050,6 +52298,22 @@
       ],
       "source_sha256": "a4c17ef1e512f3ec4497ecd67b7e4c5303ab5c50d8f5ea98b594d23514cf7e6a",
       "text": "The last comparison computed, if any.\n\n:returns: the comparison, or None before one has been run."
+    },
+    "spacr.qt.screens.train_compare.TrainCompareScreen.diff_headers": {
+      "source_blocks_sha256": [
+        "980c650b8dabc51d30534758707e37ba14abf3c6a9f47bc93642e46368d77475",
+        "9dda34ce5ff9b229319228a38878882383c0c55f90bee7ddb81de00e3a5e70e7"
+      ],
+      "source_sha256": "dfa332b32a198b1bed1e8911d3e601839f20706488f4e2bcfa34819bb63bbd5f",
+      "text": "The settings-diff table's column headers.\n\n:returns: the headers, in column order."
+    },
+    "spacr.qt.screens.train_compare.TrainCompareScreen.diff_rows": {
+      "source_blocks_sha256": [
+        "b08f77535f0cc6cf400879e2cdd7efec69db00703b76d4d26e24df6841e0f81e",
+        "0d1a8449fcec3f967ac08c2c7ee4687057007d0baaccbf1b49517cbf2794cb73"
+      ],
+      "source_sha256": "672a3f07501d260e63dd025007eb880a9057285093da7dafb227ea1c2c7ca818",
+      "text": "The settings-diff table as it reads on screen.\n\n:returns: one row per differing setting."
     },
     "spacr.qt.screens.train_compare.TrainCompareScreen.figure": {
       "source_blocks_sha256": [
@@ -52073,6 +52337,14 @@
       ],
       "source_sha256": "1fe8f3f0c30f43d7655cbff235cd8b7e16fc64a1bc806fdefb4900ae97698cc2",
       "text": "Name the run behind a series label and report it inline.\n\n:returns: the description shown, or ``''`` when the label is unknown."
+    },
+    "spacr.qt.screens.train_compare.TrainCompareScreen.is_busy": {
+      "source_blocks_sha256": [
+        "37152f41a8e2c75fc26adff788add4d2ef3013e80e1c38401332baeb66314efe",
+        "7508b79a56134a49faf1704703e9dd12dbee213dccd777acd10d8baca5bd60d5"
+      ],
+      "source_sha256": "35c375fa7e3ce7ffc5a4e120ec64742c69b8d733e23935cc858fb7fde17f60da",
+      "text": "Whether anything is still running.\n\n:returns: True while work is outstanding."
     },
     "spacr.qt.screens.train_compare.TrainCompareScreen.overlay": {
       "source_blocks_sha256": [
@@ -57751,6 +58023,14 @@
       "source_sha256": "56676ddbfa9eaf024dd662aaff296fb7b1b5c67a1c14bdd972d9ca144e2ae95c",
       "text": "Edits the ``classes`` setting.\n\n:param value: the current setting -- a dict, or the old list of names.\n:param frame: the table whose columns and values are offered. Without one\n    the widget still edits an existing dictionary but cannot populate new\n    rows, and says so rather than showing an empty column picker as though\n    the table had no columns.\n:param parent: parent widget; ownership only.\n:param basis: ``annotation`` to derive classes from an annotation column,\n    or ``metadata`` to offer plate/row/column/field/well instead. It picks\n    WHICH COLUMNS ARE ON OFFER, not how a rule is stored -- both bases\n    produce the same ``name -> {column, value}`` mapping -- and it can be\n    changed after construction with :meth:`set_basis`."
     },
+    "spacr.qt.widgets.class_editor.ClassEditorWidget.add_random_complement": {
+      "source_blocks_sha256": [
+        "f53744b39668733a28b5b8902b4eec088387b1ee83cfdf7fda6c5c099d66439a",
+        "a051fcd97ddfd9dd68dd8a150956241ad6159462974fad9cc34061db223ec5cb"
+      ],
+      "source_sha256": "830bf086996ee2b5fad0e6a8b45dbe76efc8b6c26c7148d0ff8d44048b68382d",
+      "text": "Add a rule taking a random sample of whatever the others leave.\n\nAT MOST ONE. Two complements would each be defined as \"the rest\",\nwhich is not a partition and cannot both be true."
+    },
     "spacr.qt.widgets.class_editor.ClassEditorWidget.add_typed_class": {
       "source_blocks_sha256": [
         "fd6d691b9f787d0895fd7b809cc6166199062a63b1d45c04e32af9eb1ced4e0e",
@@ -57770,6 +58050,14 @@
       "source_sha256": "9f4a0299932797d7cfc46ce7199860a43f5597b57182c7576e733ce83181adf5",
       "text": "Add a database-backed column picker beside the column field.\n\nThe picker reads available columns from the current run database when\nno table has been loaded into the editor.\n\n:param db_path_getter: callable giving the run folder or database\n    path, called on each press so a path edited later is picked up.\n:param table: database table whose columns should be offered.\n:returns: the button, or ``None`` if it could not be built."
     },
+    "spacr.qt.widgets.class_editor.ClassEditorWidget.get_value": {
+      "source_blocks_sha256": [
+        "e8517ebd4522c4eb066c3b4ac44b379dba8a9723fa62d2edd69422841c3cbd0d",
+        "34a102176ee30c904f816284d432ebfb4689c14dcbe6331de9bc9734c92eb3d4"
+      ],
+      "source_sha256": "afb44b55f08c27aed6f22010751cc97443b7384514390156b39d0dcccec16f7d",
+      "text": "The same as :meth:`value`, under the name the settings form calls.\n\n:returns: one dict per rule."
+    },
     "spacr.qt.widgets.class_editor.ClassEditorWidget.populate_from_column": {
       "source_blocks_sha256": [
         "22b35a66bda4deb9da1bca0d5fe447c5019bfa17fd97278f59cfa1cd16bc7d3b",
@@ -57784,6 +58072,21 @@
       ],
       "source_sha256": "d65269dfcaf08c66b5205bdf1d6c69569934c0522994eb8a181e8e7a59ea66b8",
       "text": "Remove the class a chip's close mark belongs to."
+    },
+    "spacr.qt.widgets.class_editor.ClassEditorWidget.remove_selected": {
+      "source_blocks_sha256": [
+        "3cee8eeb8ce1c011574d9bcff713b2e4a4ea67c844306e680572b372ad9ffaa7"
+      ],
+      "source_sha256": "3cee8eeb8ce1c011574d9bcff713b2e4a4ea67c844306e680572b372ad9ffaa7",
+      "text": "Drop the selected rules."
+    },
+    "spacr.qt.widgets.class_editor.ClassEditorWidget.rules": {
+      "source_blocks_sha256": [
+        "85f5eaacc63ae169e1501b1dea770c9fe5b3bdfb6f1ea75e771f4b4e4e7fa97b",
+        "393036d36b09a6edd57504f1fb5853712a56585745f6043f518009d422adcf1e"
+      ],
+      "source_sha256": "bc8617a0ba5779ed031050590df8cc65d126d9512293ce275f3893a4dd5acf4d",
+      "text": "The rules as objects rather than as dicts.\n\n:returns: the rules, in display order."
     },
     "spacr.qt.widgets.class_editor.ClassEditorWidget.set_basis": {
       "source_blocks_sha256": [
@@ -57807,6 +58110,14 @@
       ],
       "source_sha256": "d02492e6d639dd836cf21e083c3a53ac6413dd19e3e37d2341061cae626ff51b",
       "text": "Show ``value``, whether it is the dict, the old list, or a string.\n\nA settings CSV stores ``repr(value)``, so ``classes`` comes back as\nthe TEXT ``\"['nc', 'pc']\"``. Without the string branch below, that\nmatched neither the Mapping nor the list arm, fell through to an empty\ntable, and reported SUCCESS: ``apply_settings_dict`` returned\n``applied=1`` while ``collect()['classes']`` was ``{}``. The class\nnames were dropped without a word -- and because ``{}`` is a Mapping,\n``classify_classes.normalize_settings`` then skipped its own\nlegacy-translation branch too, so nothing downstream recovered them.\nEvery other list-shaped key survived that round trip; this was the one\nthat decides what gets trained."
+    },
+    "spacr.qt.widgets.class_editor.ClassEditorWidget.value": {
+      "source_blocks_sha256": [
+        "4dac514da01081a3fa077d78f243438e20348a7e4a37f182e9a76bf89204bef6",
+        "34a102176ee30c904f816284d432ebfb4689c14dcbe6331de9bc9734c92eb3d4"
+      ],
+      "source_sha256": "78386cbccdeacef2737d8defa82bb7a4b210c2c389cc40888436f35f38ffac93",
+      "text": "The class rules, keyed by name.\n\n:returns: one dict per rule."
     },
     "spacr.qt.widgets.collapsible_section": {
       "source_blocks_sha256": [
@@ -63684,6 +63995,22 @@
       "source_sha256": "19bc1fb5233dad59b827ff9c355f0816f3de9276eb535e657ed07da39a115345",
       "text": "Drop everything and delete the temp dir."
     },
+    "spacr.qt.widgets.figure_queue.FigureQueue.closeEvent": {
+      "source_blocks_sha256": [
+        "3b0323c5ae1142d83fbd86dffcd591038fa695201826a4b092fee7878bcbce63",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "29106f9a9c5873c7ce9183900fe15abde230a78b11cfe59fbbde447e38ab17b1",
+      "text": "Stop background rendering before going away.\n\n:param event: the Qt close event."
+    },
+    "spacr.qt.widgets.figure_queue.FigureQueue.count": {
+      "source_blocks_sha256": [
+        "a293e855cb886470a2331ee6caaf6b94493a98166ddc6de252f7161cf9009b03",
+        "f01e98a86080d0fa4f93ded444f35c314279458e0c8cf8b37fce5b3b9cdcaa4c"
+      ],
+      "source_sha256": "9a8947192ec67690481a287d0cbec032b1ed3c00a03f0d880bb4fcf9ead0b19a",
+      "text": "How many figures are queued.\n\n:returns: the figure count."
+    },
     "spacr.qt.widgets.figure_queue.FigureQueue.drop_cache_budget_entry": {
       "source_blocks_sha256": [
         "5b3490261f8d4759e9b47bf551cdfb673be8a53de05a701e160f55c740365918"
@@ -63847,6 +64174,15 @@
       "source_sha256": "b0a6aa280f7b9cfe2c67b07498c51a34a0e3e6f684f48f6f04ec425b0e249b50",
       "text": "Right-click menu for a figure, from the view, a thumbnail or a tile.\n\nThe panel had one button offering three controls -- background, text\ncolour, text size -- and no context menu at all, so a figure could not\nbe restyled by clicking on it.\n\n:param position: global screen position at which Qt opens the context\n    menu.\n:param navigate: whether ``idx`` becomes the current figure first. The\n    thumbnail strip wants that; the figure grid does not, because a\n    grid is for comparing figures and jumping to one loses the\n    comparison the user was making."
     },
+    "spacr.qt.widgets.figure_queue.FigureQueue.show_index": {
+      "source_blocks_sha256": [
+        "fa134edfe7773a631e39747bde635c0fe008476d0457d02b16dc82ee2a7a1981",
+        "5316d3e3a2668fce729e6e9855be42a4b40040a5d7833f76f2507dddd4a6b2cd",
+        "d6b9692f4472f15027376b88e6f42ed42c79ed73eeeacc134934bdb4206cb10a"
+      ],
+      "source_sha256": "1c22d48de807f599d03d00b022ee24f000775bbf7319f97dcb1a3d0f0568f296",
+      "text": "Show one figure by position, ignoring an out-of-range index.\n\nIGNORED RATHER THAN CLAMPED: an index past the end usually means the\ncaller is out of step with the queue, and silently showing the last\nfigure would hide that.\n\n:param idx: the figure's position, from 0."
+    },
     "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas": {
       "source_blocks_sha256": [
         "91c212f59b5444a610147d73e9b3234dda62e86771c0fbc4ca936a227ae70c24",
@@ -63854,6 +64190,20 @@
       ],
       "source_sha256": "104ade810baa67ef31f50f277d5f290f2656a267760d9a0d75c9026c9146c261",
       "text": "Show ``fig`` through matplotlib itself. True if the canvas is up.\n\nThis is what makes a figure crisp: the canvas redraws from the Figure\nat the widget's device resolution every time it changes size or zoom,\nso there is never a raster being stretched to fit. It is also what\nmakes it fast -- looking at a figure costs no render at all."
+    },
+    "spacr.qt.widgets.figure_queue.FigureQueue.show_next": {
+      "source_blocks_sha256": [
+        "6d79b2e3451bde1259a5081a4aaed4d60efdb2ed599754fe5ed09b685247bddc"
+      ],
+      "source_sha256": "6d79b2e3451bde1259a5081a4aaed4d60efdb2ed599754fe5ed09b685247bddc",
+      "text": "Show the next figure."
+    },
+    "spacr.qt.widgets.figure_queue.FigureQueue.show_prev": {
+      "source_blocks_sha256": [
+        "5582e93da321c90e36e59c95e0b3c154051d2a61337358c778ff31438fc18191"
+      ],
+      "source_sha256": "5582e93da321c90e36e59c95e0b3c154051d2a61337358c778ff31438fc18191",
+      "text": "Show the previous figure."
     },
     "spacr.qt.widgets.figure_queue.FigureQueue.spilled_count": {
       "source_blocks_sha256": [
@@ -64793,6 +65143,15 @@
       "source_sha256": "07807a99972b1d4341aab31d02171fd31fc3a51f77aed820e31f749711dccf1c",
       "text": "Always. A summary is a run artefact, not a document to edit."
     },
+    "spacr.qt.widgets.folding_summary.FoldingSummaryView.is_section_expanded": {
+      "source_blocks_sha256": [
+        "47e40dc7cd611e668f42857c7e436af68a93e70c9b8da8906544119e345aff11",
+        "fe6c14e9ea9e98479290528349bc6c49595115608ffb7e19810a736fd69d2d12",
+        "2757d4a85473339ca4180a9d286054c766a151016879971ea32d3ff2aeb1698e"
+      ],
+      "source_sha256": "1893eadffca50cce79a0991b561fbc37497f3aa3f273e6539ed1d1570e8f3332",
+      "text": "Whether one section is currently open.\n\n:param title: the section's title.\n:returns: True when expanded."
+    },
     "spacr.qt.widgets.folding_summary.FoldingSummaryView.save_to_file": {
       "source_blocks_sha256": [
         "9d1065b4448f25f583f1c607d77a93bfaf43b055a959c8dfa666ead52b53926d",
@@ -64801,6 +65160,22 @@
       "source_sha256": "44396fb1e9e8dadb02a4c93f5b26753ba8f3cac4c86f60acb6f727a783a142d7",
       "text": "Write the summary out. Returns the path written, or ``\"\"``.\n\nA COPY, NOT A RE-RENDER. The run wrote this text when it was fitted;\nrendering it again here would differ in the statsmodels `Time:`\nheader alone and invite the reader to wonder which is authoritative."
     },
+    "spacr.qt.widgets.folding_summary.FoldingSummaryView.section_titles": {
+      "source_blocks_sha256": [
+        "a4164a83109aaf7c382503aa43fd1bb38640df7cbeeffb6662a311c99393c07c",
+        "cb94bf5de7d5099da996e24b6d53be79a776eb88188dfb36d357dacb2e013d1b"
+      ],
+      "source_sha256": "ee9c983015786ae817ba95bfbfce882739d67b9d0e7e404796172fc231da34d6",
+      "text": "Every section's title, in document order.\n\n:returns: the titles."
+    },
+    "spacr.qt.widgets.folding_summary.FoldingSummaryView.setPlainText": {
+      "source_blocks_sha256": [
+        "c6b654dcfaedf1027e8bddda3d56460e32c84cb121bcaa927971e05bab7e54ed",
+        "377b9d5a835a4da92969ef713d31aa8d6a755b690aa3207539f5d05484e65c13"
+      ],
+      "source_sha256": "96491794b243bd09067ebc5c88db575dd9282afd560da024e7bf718eeab05a37",
+      "text": "Replace the text and rebuild the folded sections from it.\n\n:param text: the summary text."
+    },
     "spacr.qt.widgets.folding_summary.FoldingSummaryView.setReadOnly": {
       "source_blocks_sha256": [
         "f071dbd7c05f6a521a0441ee68d7fe7abde4fef4e415ee18570d39743b344d26",
@@ -64808,6 +65183,24 @@
       ],
       "source_sha256": "79a948ce93b7a5424dd909cdcc1bd5a741569f9c28571648e5b52628840853cc",
       "text": "Accepted and ignored -- see :meth:`isReadOnly`.\n\nKept so this stays a drop-in for the QPlainTextEdit it replaced: a\ncaller that sets what is already true should not have to know which\nwidget it got."
+    },
+    "spacr.qt.widgets.folding_summary.FoldingSummaryView.set_section_expanded": {
+      "source_blocks_sha256": [
+        "4003359ee7082b1724ff06c59023902944231a6198f3806b171b5c0953dd2108",
+        "fe6c14e9ea9e98479290528349bc6c49595115608ffb7e19810a736fd69d2d12",
+        "ee6405e1f787a39600723518c5095e65d637f02798c8ffd324b149c3e6eba6ac"
+      ],
+      "source_sha256": "eacdc9252059dd23c6416de8ee8b145f66aa6cd7147d573637e37ebf619da001",
+      "text": "Open or close one section.\n\n:param title: the section's title.\n:param expanded: True to open it."
+    },
+    "spacr.qt.widgets.folding_summary.FoldingSummaryView.toPlainText": {
+      "source_blocks_sha256": [
+        "b51017d3125e846fb7f921ab3170e515bf44a1549ddccca3a13c354b9ea014c5",
+        "7a7174cedf4c549a045ffc88a3d287de57f3e5efdf400bd2541af41574bc8626",
+        "377b9d5a835a4da92969ef713d31aa8d6a755b690aa3207539f5d05484e65c13"
+      ],
+      "source_sha256": "08befe633a0a0775abe0eb8e8219774b9b0b164c21e31f8c4534aa730056a5e5",
+      "text": "The text as set, whatever is folded away right now.\n\nTHE SOURCE, NOT THE VIEW. Folding is a display state, so a caller\ncopying this out gets the whole summary rather than only the parts\nthat happen to be open.\n\n:returns: the summary text."
     },
     "spacr.qt.widgets.folding_summary.split_rows": {
       "source_blocks_sha256": [
@@ -66108,6 +66501,29 @@
       "source_sha256": "988d30282f4521ece84416eb9f30270e32898b607726b975b40d6a7c695c31b4",
       "text": "Evaluate ``expression`` and record both halves."
     },
+    "spacr.qt.widgets.gate_console.GateConsole.run_input": {
+      "source_blocks_sha256": [
+        "ed8c9f2e504e47164f67b7a0e39212960cc8ae79ccbda8882116d9064969db97",
+        "d7dd4522c3efd8e4447182f750125c3d592c6c234ecfef0d1d8388cb5390c53c"
+      ],
+      "source_sha256": "96d05e1eb55da9b66e3280cbc111474f0adf64af2cfb4f5fdafd378a43661be5",
+      "text": "Run whatever is typed, clearing the box only if it was accepted.\n\nCLEARED ONLY ON SUCCESS, so a refused expression stays where the\nuser can fix it rather than having to be retyped from memory."
+    },
+    "spacr.qt.widgets.gate_console.GateConsole.send_chat": {
+      "source_blocks_sha256": [
+        "d9daf5e0676588315226fb0c438fe2f69f4ca6bc080dfce62b62ad36f43a0b37"
+      ],
+      "source_sha256": "d9daf5e0676588315226fb0c438fe2f69f4ca6bc080dfce62b62ad36f43a0b37",
+      "text": "Send the chat box to the assistant, clearing it only if accepted."
+    },
+    "spacr.qt.widgets.gate_console.GateConsole.set_frame": {
+      "source_blocks_sha256": [
+        "02c2d8d649a22bfd2fbbac41dd5437061842ec97ae91911ce6b927053ed7679a",
+        "70c0d5bff2c8d70a5c473990f14a12de01e2c69a30110b04e9c10aac69086c7e"
+      ],
+      "source_sha256": "e224ffa9a8474c702db0dbf474a97551a226fe05308996387261ec2cf498e3d7",
+      "text": "Point the console at a table to gate.\n\n:param frame: the rows, or None to clear."
+    },
     "spacr.qt.widgets.gate_console.GateConsole.set_responder": {
       "source_blocks_sha256": [
         "4fa4b745d5320bc64b5606d419cb05c9e4ea196e1c779d85c2e25f3937906e0f",
@@ -66115,6 +66531,23 @@
       ],
       "source_sha256": "eef9a1d7816c18d627f216dd3fd1ce10e538416b8207c0757e6632891fef94fa",
       "text": "Give the chat box something to answer with.\n\nWithout one it says it is not configured rather than staying silent:\na chat box that ignores you is worse than one that is honestly\nunavailable."
+    },
+    "spacr.qt.widgets.gate_console.GateConsole.transcript": {
+      "source_blocks_sha256": [
+        "135762c42d7a6cb05d1745e301a6da9f0cec907cddd1f791021ba78d8982f5a5",
+        "33638d9b5ae66d3aa458b3c092cfd0c07430e25ff4bf10cebb248c99bb023109"
+      ],
+      "source_sha256": "bda0a8f841b713fadb773b58c5963fddc7707fc011f43a2f2b6d71f514cc8d10",
+      "text": "Everything the console has printed.\n\n:returns: the transcript as plain text."
+    },
+    "spacr.qt.widgets.gate_console.GateConsole.write": {
+      "source_blocks_sha256": [
+        "a51ae5964f2b3438192ca3739cf23015dedfccc608c7fa38ba2712af058f3be7",
+        "6f800b77f478be236215af026779829ca21fb3049f9edd2fd8b020b452005595",
+        "936e3b17c9842d0e319f5b3b081cfa8320b7ec3e648b35e93027e2884d599d42"
+      ],
+      "source_sha256": "35531869e1799c80ec45b193c5a2f2a247ac183e1472239936ee47b0d6292aee",
+      "text": "Append one line to the log.\n\n:param line: the text.\n:param prefix: an optional marker put in front of it."
     },
     "spacr.qt.widgets.gate_console.evaluate": {
       "source_blocks_sha256": [
