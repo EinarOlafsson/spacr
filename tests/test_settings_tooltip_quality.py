@@ -527,7 +527,21 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
         if key.endswith("_um")
         and not re.search(r"(?i)\bmicromet(?:er|re)s?\b", tips[key])
     )
-    assert len(diameter_or_radius) == 110
+    # DERIVED FROM THE ORGANELLE CEILING, NOT PINNED TO A NUMBER. This was
+    # `== 110` and broke the moment instruction 326 raised MAX_ORGANELLES from
+    # 26 to 702: every slot contributes four unit-bearing settings, so the
+    # count went to 2,814 and a bare integer could only ever be re-pinned by
+    # hand after the fact. The invariant the test exists for -- that a name
+    # encoding a physical unit explains that unit -- passed throughout; only
+    # the census was stale.
+    from spacr.organelle_types import MAX_ORGANELLES
+
+    base_unit_settings = 6          # cell/nucleus/pathogen/seg_qc diameters,
+                                    # bare `diameter`, spatial_neighbor_radius
+    per_organelle_unit_settings = 4
+    assert len(diameter_or_radius) == (
+        base_unit_settings + per_organelle_unit_settings * MAX_ORGANELLES
+    )
     assert not missing, f"unit-bearing tooltips without units: {sorted(missing)}"
 
 
