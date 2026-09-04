@@ -231,6 +231,11 @@ class _DragsTheWindowByTheMenuBar(QObject):
     """
 
     def __init__(self, window):
+        """Let a press on the menu bar's empty space drag the window.
+
+        :param window: the frameless window to move. Also the QObject
+            parent, so the filter dies with what it moves.
+        """
         super().__init__(window)
         self._window = window
 

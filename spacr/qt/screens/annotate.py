@@ -1207,7 +1207,14 @@ def _compute_total(s: AnnotateSettings, filter_active: bool) -> dict:
 
 
 class _SettingsDialog(QDialog):
-    """Modal dialog that edits an :class:`AnnotateSettings` in place."""
+    """Modal dialog that edits an :class:`AnnotateSettings` in place.
+
+    :param settings: the :class:`AnnotateSettings` this edits IN PLACE. The
+        dialog mutates the object it was handed rather than returning a new
+        one, so a caller that wants the old values back on Cancel has to
+        keep its own copy.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, settings: AnnotateSettings, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -1928,6 +1935,10 @@ class _GenerateAnnotationDatabaseDialog(QDialog):
     guessable, so it is written on the form rather than left to the manual:
     the database stores coordinates and nothing else, so it can only ever cut
     a bounding box.
+
+    :param settings: the annotation settings the form is filled from and
+        written back to.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, settings, parent=None):
@@ -2091,6 +2102,10 @@ class _AutoAnnotateDialog(QDialog):
     thousands of rows is not undoable through the grid -- the undo stack only
     holds the slots on this page -- so the preview is the safety, and the
     Apply button stays disabled until one has been taken.
+
+    :param settings: the :class:`AnnotateSettings` the preview and the apply
+        both run against.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, settings: AnnotateSettings,

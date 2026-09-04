@@ -291,6 +291,13 @@ class _ResizeByEdge(QObject):
     """
 
     def __init__(self, window):
+        """Resize a frameless window by dragging its edges.
+
+        :param window: the window to resize. INSTALLS ITSELF on it and turns
+            on mouse tracking, so the caller only has to keep the object
+            alive; it is also the QObject parent, which is how that happens
+            by default.
+        """
         super().__init__(window)
         self._window = window
         window.setMouseTracking(True)
@@ -357,6 +364,12 @@ class _DragByBackground(QObject):
     """
 
     def __init__(self, dialog: QDialog):
+        """Drag a frameless dialog by any part of its background.
+
+        :param dialog: the dialog to move. Installs itself on it and takes
+            it as the QObject parent; see :meth:`eventFilter` for why every
+            later read of it goes through ``getattr``.
+        """
         super().__init__(dialog)
         self._dialog = dialog
         self._grab = None
@@ -543,6 +556,14 @@ class _Backdrop(QObject):
     """
 
     def __init__(self, dialog: QDialog, card: QWidget):
+        """Keep a backdrop sized to the dialog behind its card.
+
+        :param dialog: the dialog to follow; also the QObject parent.
+        :param card: the widget the backdrop is drawn behind. Held
+            separately because it is not the dialog and not a fixed child
+            of it -- the backdrop tracks the dialog's geometry but paints
+            around this one.
+        """
         super().__init__(dialog)
         self._dialog = dialog
         self._card = card
