@@ -666,3 +666,47 @@ WHAT IS LEFT ON 364 NOW: the organelle preprocessing gap recorded above, and
 the remaining smaller modules in this file's own order -- motility 55,
 train_test_model 50, activation 27, identify_masks_finetune 23, plaques 22 and
 the rest. The two core modules the maintainer named first are done.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- MOTILITY AUDITED (55 settings). ONE DEFECT, AND IT IS THE
+              CLASSIFY SHAPE AGAIN
+--------------------------------------------------------------------------------
+
+See instructions/data/364_motility_settings_audit_2026-09-04.txt. PROPOSALS
+only; nothing in the module was changed.
+
+  * NOTHING IS DEAD, and the near-miss is worth recording. Two of the 55 are
+    never referenced in `timelapse.py`, which owns the assay. One of them,
+    `motility_analysis`, is read twice in `spacr/object.py` as the gate that
+    decides whether the assay runs at all -- it reads as dead from the module
+    that consumes it and removing it would have taken away the module's own
+    switch. Checked before proposing, which is the whole method.
+
+  * `infection_pca_n_clusters` IS the defect, and it is classify's finding 0
+    again: not a dead setting but a live one whose own tooltip says it does
+    nothing -- "Not currently honoured: the pca/umap/tsne QC always runs
+    KMeans with exactly two clusters". Verified in the code rather than taken
+    from the tooltip: four KMeans calls, every one hardcoding n_clusters=2,
+    and the key read nowhere. It is offered all the same -- factory, type map
+    and rendered form row.
+
+    It is also, unlike the recruitment keys, declared by ONLY this factory, so
+    it is a genuine candidate for RETIRED_SETTINGS rather than a scoped
+    removal. Recommended end: remove it, because a binary infected/uninfected
+    call has no cluster count to choose.
+
+  * NO REDUNDANT PAIRS, which is worth saying after mask's 78-of-203. The
+    twelve `infection_xgb_*` settings are one classifier's twelve
+    hyperparameters, each read once by the model it configures.
+
+  * TWO NAMES RECORDED AND NOT PROPOSED: `zscore_thresh` names the statistic
+    rather than the decision, and `straightness_filter` removes tracks rather
+    than flagging them. Both are one-line renames with a migration each, not
+    worth a settings-file change on their own; recorded so they ride along if
+    this module is touched.
+
+REMAINING IN THIS FILE'S ORDER: train_test_model 42, activation 27,
+identify_masks_finetune 23, plaques 22, check_cellpose_models 18,
+train_cellpose 16, plot_data_from_csv 13, apply_cellpose_model 10,
+test_cellpose_model 9, map_barcodes 5, analyze_reads 3. Plus the organelle
+preprocessing gap already recorded above.

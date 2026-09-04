@@ -1,0 +1,116 @@
+================================================================================
+364 -- MOTILITY SETTINGS AUDIT, MEASURED 2026-09-04
+PROPOSALS FOR REVIEW. Nothing here has been changed.
+================================================================================
+
+Automated motility assay (get_automated_motility_assay_default_settings)
+55 settings
+
+Same three questions as mask, measure, regression, classify, annotate and map
+barcodes: is it needed, is it a duplicate, is its name honest. Same standard:
+every claim below is either the setting's own tooltip or the line of code that
+reads it.
+
+--------------------------------------------------------------------------------
+FINDING 0 -- NOTHING IS DEAD, AND ONE THING IS WORSE THAN DEAD
+--------------------------------------------------------------------------------
+
+Two of the 55 are never referenced in `spacr/timelapse.py`, which owns
+`automated_motility_assay`. Only one of them is a defect.
+
+  `motility_analysis` IS NOT A DEFECT and is the reason to check before
+  proposing. It reads as dead from timelapse and is read twice in
+  `spacr/object.py` -- lines 1100 and 1471 -- as the gate that decides whether
+  the assay runs after segmentation at all. It appears in this factory so a
+  settings file round-trips, and removing it would take away the switch that
+  starts the module.
+
+  `infection_pca_n_clusters` IS the defect, and it is the shape the classify
+  audit named: not a dead setting but a LIVE ONE WHOSE OWN DESCRIPTION SAYS IT
+  DOES NOTHING. Its tooltip, verbatim:
+
+      "(int) - Intended cluster count for the embedding-based infection call.
+      Not currently honoured: the pca/umap/tsne QC always runs KMeans with
+      exactly two clusters, one mapped to infected and one to uninfected, so
+      changing this has no effect on results. Default 2."
+
+  VERIFIED IN THE CODE, not taken from the tooltip. Every KMeans in the
+  infection QC hardcodes the count:
+
+      timelapse.py:4600   n_clusters=2
+      timelapse.py:4626   n_clusters=2
+      timelapse.py:4673   n_clusters=2
+      timelapse.py:5080   n_clusters=2
+
+  and `infection_pca_n_clusters` is read nowhere in the module. It is
+  nonetheless OFFERED: the factory sets it (settings.py:7173), the type map
+  declares it (settings.py:3761), and the form renders it
+  (settings_model.py:1513) beside `infection_pca_random_state`, which IS read.
+
+PROPOSE: REMOVE IT, or honour it. Two defensible ends and one indefensible
+middle, which is where it sits today.
+
+  (a) REMOVE. The infection call is binary by construction -- one cluster is
+      mapped to infected and one to uninfected -- so a count is not a question
+      this analysis has. RECOMMENDED, and the cheapest to reason about.
+  (b) HONOUR IT. Pass the value into the four KMeans calls and decide what
+      three clusters would MEAN for a binary call. That is a research question,
+      not a settings question.
+  (c) LEAVE IT. A control whose tooltip tells the reader it is ignored teaches
+      that the tooltips cannot be trusted, which is expensive across 55
+      settings and 203 in mask.
+
+  IF REMOVED, the same care as the recruitment keys applies and for the same
+  reason: check whether any other factory declares it before naming it in
+  `RETIRED_SETTINGS`. Measured here -- `infection_pca_n_clusters` is declared
+  ONLY by this factory, so unlike `cell_mask_dim` it is a genuine candidate
+  for that table with a message pointing at the fixed binary call.
+
+--------------------------------------------------------------------------------
+FINDING 1 -- NO REDUNDANT PAIRS, WHICH IS WORTH SAYING
+--------------------------------------------------------------------------------
+
+Mask's finding was 78 of 203 settings being the same twenty questions asked
+once per object type, and classify's was two switches for one question. This
+module has neither. The largest repeated prefix is `motility_*` at three
+settings, and they ask three different questions.
+
+The `infection_xgb_*` family is twelve settings, and they are the twelve
+hyperparameters of one classifier -- n_estimators, max_depth, learning_rate,
+subsample, colsample_bytree, reg_lambda, random_state, n_jobs and four
+decision thresholds. That is a parameter list, not a redundancy: each is read
+once, by the model it configures.
+
+--------------------------------------------------------------------------------
+FINDING 2 -- TWO NAMES THAT DESCRIBE A MECHANISM RATHER THAN A CHOICE
+--------------------------------------------------------------------------------
+
+Not defects, and offered only because this audit's third question is whether a
+name is honest.
+
+  `zscore_thresh`     names the statistic, not the decision. What the user is
+                      choosing is how far from typical a track may drift
+                      before it is dropped. `max_track_zscore` would say the
+                      same thing in the user's terms; the abbreviation
+                      `thresh` is also the only one in the module.
+
+  `straightness_filter` / `straightness_threshold`  read as a pair where one
+                      enables and one sets, which is correct -- but the file's
+                      own tooltip records that `straightness_filter` REMOVES
+                      the flagged tracks entirely rather than flagging them.
+                      `straightness_drop` would carry that.
+
+PROPOSE: NOTHING YET. Both are one-line renames with a RETIRED_SETTINGS entry,
+and neither is worth a settings-file migration on its own. They are recorded
+so that if this module is touched for another reason, they go in the same
+change.
+
+--------------------------------------------------------------------------------
+WHAT THIS AUDIT DID NOT DO
+--------------------------------------------------------------------------------
+
+It did not run the module. Every claim above is a read count or a quoted
+tooltip, which is enough to say a setting is not consulted and not enough to
+say the analysis is right without it. The `infection_pca_n_clusters` proposal
+in particular should be confirmed against one real timelapse run before the
+key is removed, for the same reason 375's step 1 exists.
