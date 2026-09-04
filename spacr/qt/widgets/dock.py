@@ -86,6 +86,20 @@ class DockRow(ElidingPushButton):
     hovered = Signal(str, bool)          #: key, and whether the pointer entered
 
     def __init__(self, key: str, name: str, desc: str = "", parent=None):
+        """Build one module row.
+
+        :param key: the module's registry key. Stamped onto the row three
+            times over -- as ``navKey``, as ``moduleAppKey`` and as the
+            attribute -- because three different readers ask for it: the
+            icon refresh, the bottom hint strip's filter, and this module.
+        :param name: the module's name, drawn beside the icon and set as
+            the accessible name so a screen reader still gets the whole of
+            it when the column elides it.
+        :param desc: the one-line summary. Not drawn here at all: it is
+            stamped as ``moduleSummarySource`` for the strip along the
+            bottom of the window, which is where descriptions go.
+        :param parent: parent widget.
+        """
         super().__init__(name, parent)
         self.key = key
         self.desc = desc

@@ -7703,6 +7703,17 @@ class _AlphabetSelect(QWidget):
 
     def __init__(self, key: str = "", default: Any = None,
                  choices: Tuple[Tuple[Any, str], ...] = (), parent=None):
+        """Build a row of exclusive buttons for a small fixed choice.
+
+        :param key: the setting this edits, used for its tooltip and API
+            link.
+        :param default: the value selected to start with.
+        :param choices: the options, as ``(value, caption)`` pairs. The
+            VALUE is what the settings file carries and the CAPTION is what
+            the user reads, which is why they are a pair rather than one
+            string doing both jobs.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._key = key
         self._choices = tuple(choices)
