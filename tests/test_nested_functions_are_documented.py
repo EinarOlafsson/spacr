@@ -132,7 +132,7 @@ BUDGET = {
     "spacr/qt/screens/app_screen.py": 11,
     "spacr/qt/tutorial/scripts.py": 8,
     "spacr/qt/widgets/gate_editor.py": 8,
-    "spacr/settings.py": 8,
+    "spacr/settings.py": 0,
     "spacr/qt/app.py": 5,
     "spacr/qt/screens/distributed_jobs.py": 6,
     "spacr/qt/screens/plate_view.py": 6,
