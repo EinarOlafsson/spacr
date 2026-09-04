@@ -149,7 +149,14 @@ class DockRow(ElidingPushButton):
 class SectionHeader(QLabel):
     """A category heading. A label rather than a button, because it is
     already styled as a heading and a button would have to be un-styled
-    back into one; the click arrives through :meth:`Dock.eventFilter`."""
+    back into one; the click arrives through :meth:`Dock.eventFilter`.
+
+    :param section: the category name. Shown as the heading AND kept on the
+        ``sectionName`` property, which is how the dock finds the rows a
+        click should fold -- the visible text is translated, the property
+        is not.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, section: str, parent=None):
         super().__init__(section, parent)

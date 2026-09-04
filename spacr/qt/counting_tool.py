@@ -141,6 +141,13 @@ class CountingPanel(QWidget):
         :class:`spacr.counting.CountingSession`.
     :param field: the :class:`~spacr.layers.FieldKey` being counted, carried
         into the export so a count can join the measurement tables.
+    :param parent: parent widget; ownership only.
+    :param session: an already-built
+        :class:`~spacr.counting.CountingSession`. ``None`` builds one from
+        the other arguments, which is the ordinary case; PASSING ONE HANDS THE
+        PANEL A SESSION THAT ALREADY HAS STATE -- a part-finished tally,
+        or one a test wrote directly -- so the panel resumes it instead of
+        starting over.
     """
 
     #: The tally changed. Carries ``{class: count}``.

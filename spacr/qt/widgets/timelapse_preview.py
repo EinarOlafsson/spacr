@@ -165,6 +165,10 @@ class FrameSequence:
     :param n_available: how many frames exist on disk.
     :param indices: the subset of frame indices this sequence exposes, so a
         400-frame movie can be previewed as its first 12 frames.
+    :param label: what to call the sequence in the UI. Empty falls back to
+        ``str(source)``, which for a file list is the list -- fine for one
+        path, unreadable for four hundred, so anything user-facing should
+        pass a name.
     :param cache_size: how many decoded frames to keep in the LRU.
     :ivar read_count: number of decodes actually performed — the instrument
         the tests assert against to prove nothing is read eagerly.
