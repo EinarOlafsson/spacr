@@ -45390,16 +45390,20 @@
       "source_blocks_sha256": [
         "f0dc72799679265fc2425de27204ea77c09190ba075c00cd3f7a3c5d0e49c265",
         "7b0edc4aaeca39b0c6b8499aeb89780f98f8dc9fea43dba789728a1ff7874475",
-        "5b9b5fca6e1aea9bfb4642cc7bec5cc0e82878329e03dd1459f8c7f543853b09",
-        "5e93e9e598294680bb27b1f8d6d2dd509554f6bc9697a07a97e4d0cd035b2b50"
+        "46ef5938fc49247d04731424c55be7166af69ec45557de9d2586c0d4dd62b8cf",
+        "5e93e9e598294680bb27b1f8d6d2dd509554f6bc9697a07a97e4d0cd035b2b50",
+        "98108afbb9a712d0f2b4f1a04686a466a47bf684a01b740c1d3ec6786d64a473",
+        "c2b0230040ab24cd88319e5d5db8f4dd8509412cd601e40bd5d21b6f7f00b6f9"
       ],
-      "source_sha256": "47e643208b387280bdf02b3e9333570bff09fc00325c7ab1eb00960dc092ef12",
-      "text": "Das Schlüsselpräfix im Besitz von slot ``number``, Zählen von einem.\n\n:param number: der Steckplatz, während der Benutzer es zählt -- 1 ist Organelle 1.\n:returns: ``'organelle'`` für Slot 1 und ``'organelle<letter>'`` danach, das ist das Präfix, das jede der Einstellungen dieses Slots trägt.\n:raises ValueError: außerhalb ``1..MAX_ORGANELLES``, wobei die Grenze benannt wird.",
+      "source_sha256": "e906479e54e0c373e0134447b6c8cb50d29693c65c676341f73617a375132c89",
+      "text": "Das Schlüsselpräfix im Besitz von slot ``number``, Zählen von einem.\n\n:param number: der Steckplatz, während der Benutzer es zählt -- 1 ist Organelle 1.\n:returns: ``'organelle'`` für Slot 1, ``'organelle<letter>'`` für slots 2..26 und ein CARRIED-Suffix von 27 nach oben -- ``organelleaa`` weiter. Dies ist das Präfix, das jede der Einstellungen dieses Slots trägt.\n:raises ValueError: außerhalb ``1..MAX_ORGANELLES``, wobei die Grenze benannt wird.\n\nSteckplätze 1..26 SIND BYTE-IDENTICAL zu dem, was sie immer waren, also wie die willkürliche Zählung erreicht wird, ohne etwas zu migrieren: keine Messdatenbank, Einstellungen CSV oder Processing-Session-Journal bewegt sich, weil keiner der Namen, die sie enthalten, Änderungen enthält.\n\n``organellea`` IST NIE MINTED -- slot 1 ist das bloße Wort -- so kann ein Single-Buchstaben-Suffix nie mit dem ersten Buchstaben eines Trägers verwechselt werden, und :data:`_ROLE_MATCH` (längste zuerst) tut den Rest.",
       "translation_source_blocks_sha256": [
         "f0dc72799679265fc2425de27204ea77c09190ba075c00cd3f7a3c5d0e49c265",
         "7b0edc4aaeca39b0c6b8499aeb89780f98f8dc9fea43dba789728a1ff7874475",
-        "5b9b5fca6e1aea9bfb4642cc7bec5cc0e82878329e03dd1459f8c7f543853b09",
-        "5e93e9e598294680bb27b1f8d6d2dd509554f6bc9697a07a97e4d0cd035b2b50"
+        "46ef5938fc49247d04731424c55be7166af69ec45557de9d2586c0d4dd62b8cf",
+        "5e93e9e598294680bb27b1f8d6d2dd509554f6bc9697a07a97e4d0cd035b2b50",
+        "30db55a8f3643958daf7c7c2601c6e80926c6787983c236e959485bd4efa2957",
+        "c2b0230040ab24cd88319e5d5db8f4dd8509412cd601e40bd5d21b6f7f00b6f9"
       ]
     },
     "spacr.organelle_types.organelle_role_of": {
@@ -54448,6 +54452,18 @@
       "text": "Das Rad tut das gleiche, eine Kerbe zu einer Zeit.",
       "translation_source_blocks_sha256": [
         "bc457859590a1727b282656f63f6a91d81a3abeedda1327d992684ab27e8daad"
+      ]
+    },
+    "spacr.qt.app.MainWindow.window_backdrop": {
+      "source_blocks_sha256": [
+        "41c39633f8330a52c7cfdc1837a3d65a59cd9c969bdd1e2d275c83ce1b01cf10",
+        "da74b06fd0a7f6f7bf997b6cea4dfa4c5cb9c8d79bc3779388800a07ea525c88"
+      ],
+      "source_sha256": "2c857cda8e891f7b3ea5646d4bf91264cc50fcd2ce3cd2e44771f3de2eee6dbd",
+      "text": "Die eine Kulisse hinter dem Dock UND der Seite, oder ``None``.\n\nLesen Sie von den Bildschirmen, damit sie nicht eine zweite darauf bauen -- siehe :meth:`_install_screen_backdrop`.",
+      "translation_source_blocks_sha256": [
+        "41c39633f8330a52c7cfdc1837a3d65a59cd9c969bdd1e2d275c83ce1b01cf10",
+        "da74b06fd0a7f6f7bf997b6cea4dfa4c5cb9c8d79bc3779388800a07ea525c88"
       ]
     },
     "spacr.qt.app.Sidebar": {

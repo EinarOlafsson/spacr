@@ -257,17 +257,41 @@ El flujo de trabajo principal comprende seis módulos:
 - **Map Barcodes** asigna las lecturas FASTQ a los pocillos y los gRNA, con controles de calidad de abundancia, colisiones y cobertura.
 - **Regression** estima los efectos de guías, genes, condiciones y controles con familias de modelos adecuadas para respuestas continuas, fraccionarias y de recuento.
 
-El mismo proyecto también puede diseñar placas, estimar la potencia estadística, corregir efectos de lote, inspeccionar la calidad de la segmentación, explorar gráficos e imágenes recortadas vinculados, exportar AnnData, reanudar procesos interrumpidos y registrar los ajustes asociados a cada resultado.
-
 Módulos de spaCR
 ----------------
 
 .. spacr-workflow-begin
 
+Principal
+^^^^^^^^^
+
+Core sequence from microscopy images through segmentation, measurements,
+annotations, classification, barcode mapping and regression.
+
 | |Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
+
+Datos
+^^^^^
+
+Import images and tables into spaCR projects and execute reproducible
+multi-plate workflows.
+
 | |Module_foreign|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|\ |Module_qc_dashboard|
-| |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|\ |Module_analyze_plaques|
-| |Module_recruitment|\ |Module_invasion|\ |Module_replication|
+
+Herramientas
+^^^^^^^^^^^^
+
+Point these at a project: edit masks by hand, stitch tiles, read an
+embedding, draw a gate, build a plot, check quality.
+
+| |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
+
+Ensayos
+^^^^^^^
+
+Quantitative readouts for biological assays.
+
+| |Module_analyze_plaques|\ |Module_recruitment|\ |Module_invasion|\ |Module_replication|
 
 .. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
    :width: 16.0%
@@ -385,9 +409,10 @@ Make Masks
 
 Make Masks appears under **Tools** for manual correction of segmentation masks; its masthead opens the Cellpose workflows. Nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw makes one filled label from a closed outline, Divide separates a merged object along a drawn line, Recrop turns one object in a crowded field into its own field.
 
-Cellpose-SAM se ejecuta aquí mostrar el mapa de probabilidad de celda y el campo de flujo al lado de la máscara. Vea el `guía de características <../../source/features.rst>`_ para cada herramienta.
+Vea el `guía de características <../../source/features.rst>`_ para cada herramienta.
 
-**Otros recursos**
+Otros recursos
+~~~~~~~~~~~~~~~
 
 - `Tutoriales interactivos <https://einarolafsson.github.io/spacr/tutorials/>`_ — 73 flujos de trabajo guiados desde la instalación hasta la investigación de impacto.
 - `Inicio rápido Python API <../../source/python_api.rst>`_ — ejecutar y validar flujos de trabajo desde scripts, cuadernos o un clúster.

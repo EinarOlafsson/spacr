@@ -257,17 +257,41 @@ Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-
 - **Map Barcodes** 将 FASTQ 读段映射到孔位和 gRNA，并提供丰度、碰撞和覆盖度质控。
 - **Regression** 使用适合连续值、比例和计数响应的模型族估计向导 RNA、基因、条件和对照效应。
 
-同一项目还可以设计实验孔板、估算统计功效、校正批次效应、检查分割质量、浏览关联图表和图像裁剪、导出 AnnData、继续中断的工作，并记录生成各项结果时使用的设置。
-
 spaCR 模块
 -------------
 
 .. spacr-workflow-begin
 
+核心
+^^^^
+
+Core sequence from microscopy images through segmentation, measurements,
+annotations, classification, barcode mapping and regression.
+
 | |Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
+
+数据
+^^^^
+
+Import images and tables into spaCR projects and execute reproducible
+multi-plate workflows.
+
 | |Module_foreign|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|\ |Module_qc_dashboard|
-| |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|\ |Module_analyze_plaques|
-| |Module_recruitment|\ |Module_invasion|\ |Module_replication|
+
+工具
+^^^^
+
+Point these at a project: edit masks by hand, stitch tiles, read an
+embedding, draw a gate, build a plot, check quality.
+
+| |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
+
+实验分析
+^^^^^^^^
+
+Quantitative readouts for biological assays.
+
+| |Module_analyze_plaques|\ |Module_recruitment|\ |Module_invasion|\ |Module_replication|
 
 .. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
    :width: 16.0%
@@ -385,9 +409,10 @@ Make Masks
 
 Make Masks appears under **Tools** for manual correction of segmentation masks; its masthead opens the Cellpose workflows. Nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw makes one filled label from a closed outline, Divide separates a merged object along a drawn line, Recrop turns one object in a crowded field into its own field.
 
-Cellpose-SAM runs here show the cell-probability map and the flow field beside the mask. See the `feature guide <../../source/features.rst>`_ for each tool.
+查看每个工具的 `feature guide <../../source/features.rst>`_。
 
-**其他资源**
+其他资源
+~~~~~~~~~~~~~~~
 
 - `互动教程 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 从安装到成功调查的73个导向工作流。
 - `Python API 快速启动 <../../source/python_api.rst>`_ - 从脚本、笔记本或集群运行和验证流程。

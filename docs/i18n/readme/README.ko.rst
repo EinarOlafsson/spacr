@@ -257,17 +257,41 @@ conda-forge 설치
 - **Map Barcodes** FASTQ 리드를 웰과 gRNA에 매핑하고 풍부도, 충돌 및 커버리지 QC를 제공합니다.
 - **Regression** 연속형, 비율형 및 계수형 반응에 적합한 모델 계열로 가이드, 유전자, 조건 및 대조군 효과를 추정합니다.
 
-동일한 프로젝트에서 플레이트 설계, 검정력 추정, 배치 효과 보정, 세그멘테이션 품질 점검, 연결된 플롯과 크롭 탐색, AnnData 내보내기, 중단된 작업 재개 및 각 결과에 사용된 설정 기록도 수행할 수 있습니다.
-
 spaCR 모듈
 -------------
 
 .. spacr-workflow-begin
 
+핵심
+^^^^
+
+Core sequence from microscopy images through segmentation, measurements,
+annotations, classification, barcode mapping and regression.
+
 | |Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
+
+데이터
+^^^^^^
+
+Import images and tables into spaCR projects and execute reproducible
+multi-plate workflows.
+
 | |Module_foreign|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|\ |Module_qc_dashboard|
-| |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|\ |Module_analyze_plaques|
-| |Module_recruitment|\ |Module_invasion|\ |Module_replication|
+
+도구
+^^^^
+
+Point these at a project: edit masks by hand, stitch tiles, read an
+embedding, draw a gate, build a plot, check quality.
+
+| |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
+
+어세이
+^^^^^^
+
+Quantitative readouts for biological assays.
+
+| |Module_analyze_plaques|\ |Module_recruitment|\ |Module_invasion|\ |Module_replication|
 
 .. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
    :width: 16.0%
@@ -385,9 +409,10 @@ Make Masks
 
 Make Masks appears under **Tools** for manual correction of segmentation masks; its masthead opens the Cellpose workflows. Nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw makes one filled label from a closed outline, Divide separates a merged object along a drawn line, Recrop turns one object in a crowded field into its own field.
 
-Cellpose-SAM runs here show the cell-probability map and the flow field beside the mask. See the `가이드 가이드 <../../source/features.rst>`_ for each tool.
+각 도구에 대한 `가이드 가이드 <../../source/features.rst>`_를 참조하십시오.
 
-**다른 자원**
+다른 자원
+~~~~~~~~~~~~~~~
 
 - `인터랙티브 튜토리얼 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 설치에서 히트 조사를 통해 73 개의 지시된 작업 흐름.
 - `Python API 빠른 시작 <../../source/python_api.rst>`_ - 스크립트, 노트북 또는 클러스터에서 튜브를 실행하고 검증합니다.

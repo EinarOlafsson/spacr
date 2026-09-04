@@ -257,17 +257,41 @@ conda-forge से इंस्टॉलेशन
 - **Map Barcodes** FASTQ रीड को वेल और gRNA से मैप करता है तथा प्रचुरता, टकराव और कवरेज का QC प्रदान करता है।
 - **Regression** सतत, भिन्नात्मक और गणना प्रतिक्रियाओं के अनुकूल मॉडल परिवारों से गाइड, जीन, स्थिति और नियंत्रण प्रभावों का अनुमान लगाता है।
 
-उसी प्रोजेक्ट में प्रायोगिक प्लेटें डिज़ाइन की जा सकती हैं, सांख्यिकीय पावर का अनुमान लगाया जा सकता है, बैच प्रभाव सुधारे जा सकते हैं, सेगमेंटेशन गुणवत्ता की जाँच की जा सकती है, परस्पर जुड़े प्लॉट और क्रॉप देखे जा सकते हैं, AnnData निर्यात किया जा सकता है, बाधित काम फिर शुरू किया जा सकता है और प्रत्येक परिणाम के लिए प्रयुक्त सेटिंग्स दर्ज की जा सकती हैं।
-
 spaCR मॉड्यूल
 -------------
 
 .. spacr-workflow-begin
 
+मुख्य
+^^^^
+
+Core sequence from microscopy images through segmentation, measurements,
+annotations, classification, barcode mapping and regression.
+
 | |Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
+
+डेटा
+^^^^
+
+Import images and tables into spaCR projects and execute reproducible
+multi-plate workflows.
+
 | |Module_foreign|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|\ |Module_qc_dashboard|
-| |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|\ |Module_analyze_plaques|
-| |Module_recruitment|\ |Module_invasion|\ |Module_replication|
+
+उपकरण
+^^^^^
+
+Point these at a project: edit masks by hand, stitch tiles, read an
+embedding, draw a gate, build a plot, check quality.
+
+| |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
+
+एसे
+^^^
+
+Quantitative readouts for biological assays.
+
+| |Module_analyze_plaques|\ |Module_recruitment|\ |Module_invasion|\ |Module_replication|
 
 .. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
    :width: 16.0%
@@ -385,9 +409,10 @@ Make Masks
 
 मेक मास्क के तहत दिखाई देता है **Tools** के लिए मैन्युअल को सही करने के लिए सेगमेंटेशन मास्क; इसके मस्टहेड Cellpose कार्यप्रवाहों को खोलता है. नौ टूल: **Brush**, **Erase**, [**Erases object**, (**Wand +**), **Wang −**, "**Draw**, '**Divide**, #**Zoom** और #**Recrop**. ड्राइंग एक भरा लेबल बनाता है एक बंद आउटलाइन से, विभाजित एक मिश्रित वस्तु को एक ड्रॉप लाइन के साथ, एक बहुतायत में एक वस्तु बदलता है अपने स्वयं के फ़ील्ड में.
 
-Cellpose-SAM यहां चलता है सेल संभावना मानचित्र और मास्क के बगल में प्रवाह क्षेत्र दिखाता है. प्रत्येक टूल के लिए `फ़ीड गाइड <../../source/features.rst>`_ देखें.
+प्रत्येक टूल के लिए `फ़ीड गाइड <../../source/features.rst>`_ देखें।
 
-**अन्य संसाधन**
+अन्य संसाधन
+~~~~~~~~~~~~~~~
 
 - `इंटरैक्टिव ट्यूटोरियल <https://einarolafsson.github.io/spacr/tutorials/>`_ — स्थापना से हिट जांच के माध्यम से 73 निर्देशित कार्यप्रवाह।
 - `Python API त्वरित प्रारंभ <../../source/python_api.rst>`_ - स्क्रिप्ट, नोटबुक या एक क्लस्टर से पाइपलाइन चलाएं और वैध करें।

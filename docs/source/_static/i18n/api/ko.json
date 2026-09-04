@@ -45390,16 +45390,20 @@
       "source_blocks_sha256": [
         "f0dc72799679265fc2425de27204ea77c09190ba075c00cd3f7a3c5d0e49c265",
         "7b0edc4aaeca39b0c6b8499aeb89780f98f8dc9fea43dba789728a1ff7874475",
-        "5b9b5fca6e1aea9bfb4642cc7bec5cc0e82878329e03dd1459f8c7f543853b09",
-        "5e93e9e598294680bb27b1f8d6d2dd509554f6bc9697a07a97e4d0cd035b2b50"
+        "46ef5938fc49247d04731424c55be7166af69ec45557de9d2586c0d4dd62b8cf",
+        "5e93e9e598294680bb27b1f8d6d2dd509554f6bc9697a07a97e4d0cd035b2b50",
+        "98108afbb9a712d0f2b4f1a04686a466a47bf684a01b740c1d3ec6786d64a473",
+        "c2b0230040ab24cd88319e5d5db8f4dd8509412cd601e40bd5d21b6f7f00b6f9"
       ],
-      "source_sha256": "47e643208b387280bdf02b3e9333570bff09fc00325c7ab1eb00960dc092ef12",
-      "text": "``number`` 슬롯이 소유하는 키 사전, 하나에서 계산합니다.\n\n:param number: 사용자가 계산하는 슬롯 - 1은 Organelle 1입니다.\n:returns: ``'organelle'`` 슬롯 1 및 ``'organelle<letter>'`` 이후, 이는 그 슬롯의 각 설정이 수행되는 사전입니다.\n:raises ValueError: 밖에서 ``1..MAX_ORGANELLES``, 묶음의 이름을 지정합니다.",
+      "source_sha256": "e906479e54e0c373e0134447b6c8cb50d29693c65c676341f73617a375132c89",
+      "text": "``number`` 슬롯이 소유하는 키 사전, 하나에서 계산합니다.\n\n:param number: 사용자가 계산하는 슬롯 - 1은 Organelle 1입니다.\n:returns: ``'organelle'`` 슬롯 1, ``'organelle<letter>'`` 슬로트 2..26, 그리고 CARRIED suffix에서 27 위 - ``organelleaa`` 위. 이것은 그 슬롯의 각 설정이 수행하는 사전입니다.\n:raises ValueError: 밖에서 ``1..MAX_ORGANELLES``, 묶음의 이름을 지정합니다.\n\nSLOTS 1..26 그들이 항상 있었던 것에 대한 BYTE-IDENTICAL, 즉 자발적인 계산은 아무것도 이주하지 않고 어떻게 달성됩니다 : 측정 데이터베이스, 설정 CSV 또는 처리 세션 저널이 움직이지 않기 때문에 그들이 포함하는 이름 중 어느 것도 변경되지 않습니다.\n\n``organellea`` IS NEVER MINTED -- slot 1 is the bare word -- so a single-letter suffix can never be confused with the first letter of a carried one, and :data:`_ROLE_MATCH` (longest first) does the rest.",
       "translation_source_blocks_sha256": [
         "f0dc72799679265fc2425de27204ea77c09190ba075c00cd3f7a3c5d0e49c265",
         "7b0edc4aaeca39b0c6b8499aeb89780f98f8dc9fea43dba789728a1ff7874475",
-        "5b9b5fca6e1aea9bfb4642cc7bec5cc0e82878329e03dd1459f8c7f543853b09",
-        "5e93e9e598294680bb27b1f8d6d2dd509554f6bc9697a07a97e4d0cd035b2b50"
+        "46ef5938fc49247d04731424c55be7166af69ec45557de9d2586c0d4dd62b8cf",
+        "5e93e9e598294680bb27b1f8d6d2dd509554f6bc9697a07a97e4d0cd035b2b50",
+        "30db55a8f3643958daf7c7c2601c6e80926c6787983c236e959485bd4efa2957",
+        "c2b0230040ab24cd88319e5d5db8f4dd8509412cd601e40bd5d21b6f7f00b6f9"
       ]
     },
     "spacr.organelle_types.organelle_role_of": {
@@ -54448,6 +54452,18 @@
       "text": "자전거는 동일하게, 한 번에 하나의 노치.",
       "translation_source_blocks_sha256": [
         "bc457859590a1727b282656f63f6a91d81a3abeedda1327d992684ab27e8daad"
+      ]
+    },
+    "spacr.qt.app.MainWindow.window_backdrop": {
+      "source_blocks_sha256": [
+        "41c39633f8330a52c7cfdc1837a3d65a59cd9c969bdd1e2d275c83ce1b01cf10",
+        "da74b06fd0a7f6f7bf997b6cea4dfa4c5cb9c8d79bc3779388800a07ea525c88"
+      ],
+      "source_sha256": "2c857cda8e891f7b3ea5646d4bf91264cc50fcd2ce3cd2e44771f3de2eee6dbd",
+      "text": "하나의 뒷면은 도크와 페이지, 또는 ``None`` 뒤에 있습니다.\n\n스크린을 통해 읽으십시오 그래서 그들은 그것 위에 두 번째 하나를 구축하지 않습니다 - :meth:`_install_screen_backdrop`를 참조하십시오.",
+      "translation_source_blocks_sha256": [
+        "41c39633f8330a52c7cfdc1837a3d65a59cd9c969bdd1e2d275c83ce1b01cf10",
+        "da74b06fd0a7f6f7bf997b6cea4dfa4c5cb9c8d79bc3779388800a07ea525c88"
       ]
     },
     "spacr.qt.app.Sidebar": {
