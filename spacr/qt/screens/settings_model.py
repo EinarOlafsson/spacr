@@ -1728,9 +1728,14 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     ),
     "recruitment": (
         ("Data source", ("src",)),
-        ("Mask & Channel Mapping", (
-            "cell_mask_dim", "cell_chann_dim", "nucleus_mask_dim",
-            "nucleus_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim",
+        # THE THREE `*_mask_dim` ROWS ARE GONE, with the factory keys behind
+        # them. Instruction 364: `analyze_recruitment` never read them, so
+        # half this section did nothing while its hint warned that "a wrong
+        # index here measures the wrong compartment without complaining" --
+        # and their tooltips described `measure_crop`, which is where those
+        # keys are actually live.
+        ("Channel Mapping", (
+            "cell_chann_dim", "nucleus_chann_dim", "pathogen_chann_dim",
             "channel_dims", "channel_of_interest",
         )),
         ("Object Filtering", (
@@ -1959,7 +1964,7 @@ _APP_ESSENTIAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
                    "dependent_variable"),
     "activation": ("cam_type", "target_layer"),
     "replication": ("@Vacuole Assignment",),
-    "recruitment": ("@Mask & Channel Mapping",),
+    "recruitment": ("@Channel Mapping",),
     "invasion": ("@Channels & Intensity",),
     "cellpose_masks": ("@Model",),
     "cellpose_all": ("@Model",),
@@ -3656,10 +3661,17 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "failed run.",
     },
     "recruitment": {
-        "MASK & CHANNEL MAPPING":
-            "Which array plane holds each mask and each intensity channel, "
-            "and which one the recruitment is measured on. A wrong index "
-            "here measures the wrong compartment without complaining.",
+        # CHANNELS ONLY, AND THE HEADING SAYS SO NOW. This category used to be
+        # "Mask & Channel Mapping" and to carry three `*_mask_dim` rows that
+        # `analyze_recruitment` never read -- instruction 364 measured zero
+        # reads against four each for their channel twins. The rows and their
+        # factory keys are gone, so both the heading and this blurb stop
+        # promising a mask index the module does not use.
+        "CHANNEL MAPPING":
+            "Which intensity channel holds each compartment, and which one "
+            "the recruitment is measured on. These are indices into the "
+            "merged stack, so a wrong one measures the wrong compartment "
+            "without complaining.",
         "OBJECT FILTERING":
             "The size and intensity windows an object has to fall inside to "
             "count, plus the per-well cell limits. These gates decide which "

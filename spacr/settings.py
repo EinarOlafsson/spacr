@@ -1881,12 +1881,21 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('treatment_plate_metadata',[['r1', 'r2','r3'], ['r4', 'r5','r6']])
     #settings.setdefault('metadata_types',['columnID', 'columnID', 'rowID'])
     settings.setdefault('channel_dims',[0,1,2,3])
+    # NO `*_mask_dim` HERE. Instruction 364 measured it and this closes it:
+    # `analyze_recruitment` is the only consumer of these settings and reads
+    # `cell_mask_dim`, `nucleus_mask_dim` and `pathogen_mask_dim` ZERO times,
+    # against four each for the `*_chann_dim` twins beside them. They are not
+    # referenced anywhere in `spacr/submodules.py` at all.
+    #
+    # NOT ADDED TO `RETIRED_SETTINGS`, and that is the point of scoping this to
+    # recruitment. The same three keys are live in `get_measure_crop_settings`
+    # and `set_default_plot_merge_settings`, where they name a plane of the
+    # merged stack and are read. RETIRED_SETTINGS carries its own warning
+    # against exactly this -- naming a key there that `spacr.settings` still
+    # declares would warn a user off a setting that works.
     settings.setdefault('cell_chann_dim',3)
-    settings.setdefault('cell_mask_dim',4)
     settings.setdefault('nucleus_chann_dim',0)
-    settings.setdefault('nucleus_mask_dim',5)
     settings.setdefault('pathogen_chann_dim',2)
-    settings.setdefault('pathogen_mask_dim',6)
     settings.setdefault('channel_of_interest',2)
     settings.setdefault('plot',True)
     settings.setdefault('plot_nr',3)
