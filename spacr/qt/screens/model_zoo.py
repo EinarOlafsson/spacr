@@ -621,6 +621,7 @@ class ModelZooScreen(QWidget):
             return False
 
         def _job() -> List[zoo.ModelEntry]:
+            """Find every model, catalogue plus local. Off the GUI thread."""
             found = list(zoo.catalogue()) if include_catalogue else []
             have = {e.path for e in found if e.path}
             if target:
@@ -759,6 +760,7 @@ class ModelZooScreen(QWidget):
         tick = self._progress_ticked.emit
 
         def _job() -> zoo.ModelEntry:
+            """Install the chosen model. Off the GUI thread."""
             return zoo.install(entry, dest, require_checksum=require,
                                opener=opener, progress=tick,
                                cancel=lambda: bool(cancel["stop"]))
@@ -857,6 +859,7 @@ class ModelZooScreen(QWidget):
         n_fields = int(self._fields_box.value())
 
         def _job():
+            """Load the benchmark fields. Off the GUI thread."""
             names, images = mc.load_fields(source, n_fields=n_fields)
             return source, names, images
 
@@ -935,6 +938,7 @@ class ModelZooScreen(QWidget):
         say = self._progress_said.emit
 
         def _job() -> zoo.BenchmarkResult:
+            """Benchmark one model against the loaded fields. Off the GUI thread."""
             return zoo.benchmark(
                 entry, images=images, field_names=names, source=folder,
                 segment_fn=segment_fn,
@@ -1125,6 +1129,11 @@ class ModelZooScreen(QWidget):
         box: Dict[str, Any] = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload.
+
+            The payload is how a value crosses back from the worker thread: a
+            return would be swallowed by the runner.
+            """
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)

@@ -141,6 +141,11 @@ def _make_screen(app_key=None, host=None):
             # `host` is the main window, passed by the registry for
             # navigation -- NOT a Qt parent. Handing it to QWidget.__init__
             # raises, because the registry's host is not always a QWidget.
+            """Build the screen. ``host`` is the window, NOT a Qt parent.
+
+            Handing it to ``QWidget.__init__`` raises, because the registry's host is
+            not always a QWidget.
+            """
             super().__init__()
             self.host = host
             layout = QVBoxLayout(self)
@@ -159,6 +164,7 @@ def _make_screen(app_key=None, host=None):
             self.setAcceptDrops(True)
 
         def load(self, path) -> bool:
+            """Load a results folder. Returns whether one was found."""
             table = find_results_table(path)
             if table is None:
                 self._path_label.setText(
@@ -169,16 +175,19 @@ def _make_screen(app_key=None, host=None):
             return True
 
         def _open(self) -> None:
+            """Ask for a results folder and load it."""
             folder = QFileDialog.getExistingDirectory(
                 self, "Choose a regression results folder")
             if folder:
                 self.load(folder)
 
         def dragEnterEvent(self, event):  # noqa: N802 - Qt name
+            """Accept a drag that carries paths."""
             if event.mimeData().hasUrls():
                 event.acceptProposedAction()
 
         def dropEvent(self, event):  # noqa: N802 - Qt name
+            """Load the first dropped folder that holds results."""
             for url in event.mimeData().urls():
                 if url.isLocalFile() and self.load(url.toLocalFile()):
                     break
