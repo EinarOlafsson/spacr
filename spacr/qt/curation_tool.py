@@ -455,6 +455,7 @@ class TrackCurationPanel(QWidget):
     a delete takes whatever is selected. Every one of them is refused with a
     sentence rather than silently declined when it would break the table —
     a button that sometimes does nothing is indistinguishable from a bug.
+
     :param parent: parent widget; ownership only.
     :param session: an already-built
         :class:`~spacr.curation.TrackCuration`. ``None`` builds one from the other

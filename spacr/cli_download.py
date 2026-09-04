@@ -37,7 +37,7 @@ Usage::
     spacr-download all --yes                  # everything, screen included
 
 Exit codes (a job that exits 0 having downloaded nothing is the classic
-footgun, so these are exact):
+footgun, so these are exact)::
 
   0  everything asked for is on disk, or a confirmation was declined
   1  a download failed; the pieces that succeeded are still on disk
