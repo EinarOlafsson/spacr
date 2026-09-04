@@ -475,6 +475,7 @@ class _WorkingDots(QLabel):
         self.setText(dots + pad)
 
     def _tick(self) -> None:
+        """Advance one step through . / .. / ... and redraw."""
         self._n = (self._n + 1) % 3
         self._render()
 
@@ -745,6 +746,7 @@ class _BlockHeightHandle(QFrame):
     HEIGHT = 7
 
     def __init__(self, block: _StdoutBlock):
+        """Build the handle with a vertical-resize cursor and its tooltip."""
         super().__init__(block)
         self._block = block
         self._press_y: Optional[float] = None
@@ -814,6 +816,7 @@ class _Bubble(QFrame):
     _V_PAD = 12     # inner vertical padding
 
     def __init__(self, role: str, text: str = "", parent=None):
+        """Build the bubble, styled by role, sized to its text."""
         super().__init__(parent)
         self.role = role
         self.setObjectName(
@@ -904,6 +907,7 @@ class _ChatInput(QTextEdit):
     submitted = Signal()
 
     def __init__(self, parent=None):
+        """Build the input, floored at one line and capped so it cannot take the pane."""
         super().__init__(parent)
         # The floor stays: one line of text plus the field's own padding. It
         # doubles as the stop the splitter honours when the user drags the
