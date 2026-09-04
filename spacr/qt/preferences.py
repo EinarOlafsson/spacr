@@ -5199,6 +5199,7 @@ class PreferencesDialog:
         rim_period_value = QLabel()
 
         def _rim_period_says(tenths):
+            """Show the rim period in seconds."""
             rim_period_value.setText(tr("%.1f s") % (int(tenths) / 10.0))
 
         _rim_period_says(rim_period_slider.value())
@@ -5528,6 +5529,11 @@ class PreferencesDialog:
         performance.addRow("", mode_note_label)
 
         def _sync_mode_note(*_args):
+            """Say which hardware the selected mode is for.
+
+            A selector whose levels do not name their hardware makes the user guess
+            which one their machine is.
+            """
             key = mode_combo.currentData()
             # EACH LEVEL SAYS WHICH HARDWARE IT IS FOR. A selector whose
             # entries are five adjectives asks the user to guess; the note

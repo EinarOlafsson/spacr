@@ -3709,6 +3709,7 @@ def _term_translation(source: str, language: str) -> Optional[str]:
                    for char in (before, after) if char)
 
     def replace(match: re.Match[str]) -> str:
+        """Replace one matched term, recording that something changed."""
         nonlocal changed
         word = match.group(0)
         if _inside_an_identifier(source, match.start(), match.end()):
@@ -4333,6 +4334,7 @@ def install_dialog_translation(app) -> None:
 
     class _DialogTranslationFilter(QObject):
         def eventFilter(self, watched, event):  # noqa: N802
+            """Retranslate a dialog's tree the first time it is shown."""
             if event.type() == QEvent.Show and isinstance(watched, QDialog):
                 retranslate_widget_tree(watched)
             return False

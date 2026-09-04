@@ -308,6 +308,11 @@ def crop_paths_for_keys(db_path: str, keys) -> Dict[str, str]:
         # Never called with an empty batch: the caller has already refused
         # an empty key list and a bisection of two or more keys cannot
         # produce an empty half.
+        """Resolve one batch of keys, bisecting when some are missing.
+
+        Never called with an empty batch: the caller refuses an empty key list
+        and a bisection of two or more cannot produce an empty half.
+        """
         rows = crops_for_object_keys(db_path, batch)
         if len(rows) == len(batch):
             for key, (path, _annotation) in zip(batch, rows):

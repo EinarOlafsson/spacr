@@ -716,6 +716,7 @@ def _open_metadata_table(rows, dst, screen) -> None:
     unavailable — e.g. in a headless context.
     """
     def _on_apply(csv_path):
+        """Note where the metadata map was written."""
         _log(screen, f"[drop] wrote metadata map → {csv_path}\n")
 
     # ``dst`` arrives as the FOLDER the data lives in, but the dialog hands

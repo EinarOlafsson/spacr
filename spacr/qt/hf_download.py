@@ -661,6 +661,7 @@ def download_chosen_screen_data(parent, dest: Path, archives, repo: str,
     dest.mkdir(parents=True, exist_ok=True)
 
     def _factory(where):
+        """Build the worker for the chosen archives."""
         return _ChosenArchivesWorker(where, archives=archives, repo=repo)
 
     download_toxo_mito_demo(parent, dest, on_done, worker_factory=_factory,
@@ -834,6 +835,11 @@ def download_toxo_mito_demo(parent,
         application = QCoreApplication.instance()
         if application is not None:
             def _stop_before_quitting(_w=worker, _t=thread):
+                """Cancel and join the download before the application exits.
+
+                The worker and thread are bound as default arguments so this still
+                refers to THIS download if another starts before the quit.
+                """
                 try:
                     _w.cancel()
                     _t.quit()

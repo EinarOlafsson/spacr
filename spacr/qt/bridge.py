@@ -1220,6 +1220,12 @@ class PipelineWorker(QObject):
                 # plot_plates(verbose=True) shows it` is a real sequence in
                 # `generate_ml_scores`, and without this the gallery held two
                 # tiles for one file.
+                """Publish one figure, unless it has already been shown.
+
+                A picture that was saved and then plotted is ONE picture: without this
+                the gallery held two tiles for one file, which `generate_ml_scores`
+                produces as an ordinary sequence.
+                """
                 if _already_emitted(fig) and not getattr(
                         fig, "_spacr_live_update", False):
                     return
