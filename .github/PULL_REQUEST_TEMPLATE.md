@@ -5,9 +5,9 @@
 ## How it was verified
 
 <!--
-The command you ran and what it printed. "Tests pass" is not a measurement.
-If this touches something a user clicks, say that you opened the application
-and pressed it — a green Qt suite does not prove a control is reachable.
+The command you ran and what it printed. If this touches something a user
+clicks, say that you opened the application and used it — a green test suite
+does not prove a control is reachable.
 -->
 
 ```
@@ -17,15 +17,7 @@ and pressed it — a green Qt suite does not prove a control is reachable.
 
 - [ ] Targets `nightly`, not `main`
 - [ ] Tests added or updated, and the relevant suite passes locally
-      (`xvfb-run -a python -m pytest tests/qt/` for anything Qt)
-- [ ] No generated file was hand-edited — see the table in
-      [CONTRIBUTING.md](../CONTRIBUTING.md)
-- [ ] If a public module was added, it is in `spacr/__init__.py::_SUBMODULES`
-      and `tools/build_documentation_i18n.py --sources-only` has been run
-- [ ] New user-facing strings go through `tr()` and are not typed into a
-      translation catalog by hand
-- [ ] No AI attribution in commit messages (no `Co-Authored-By` naming an
-      assistant, no "Generated with …" line)
+- [ ] No generated file was hand-edited — see the table in [CONTRIBUTING.md](../CONTRIBUTING.md)
 
 ## Anything deliberately left undone
 
