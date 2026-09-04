@@ -284,29 +284,21 @@ def test_the_collapsed_dock_fits_a_900px_laptop(dock, qtbot):
 # The column has a ground of its own
 # ---------------------------------------------------------------------------
 
-def test_the_dock_column_is_not_a_black_box(qtbot, qt_theme_applied):
-    """The dock's panel is translucent, so it needs something behind it.
+def test_the_dock_column_paints_nothing_of_its_own(qtbot, qt_theme_applied):
+    """The column is transparent; the ground belongs to the window.
 
-    While the dock slid in over the page it composited over whatever it
-    covered. As a column it sits BESIDE the page, in a strip nothing else
-    paints, and a 60% panel over the window's black base is the dark
-    rectangle that was reported. The column carries the page's own ground so
-    the panel has the same thing behind it that it always did.
+    The dock's panel is translucent by design, so it composites over whatever
+    is behind it. Giving the COLUMN a fill of its own only replaces one
+    rectangle with another in a different colour -- which is what a first
+    attempt at this did, and it was reported as "you just made it gray". The
+    ground has to be continuous across the dock and the page, so it lives on
+    the widget that holds both.
     """
-    from PySide6.QtCore import Qt
-    from spacr.qt.theme import active_palette
     from spacr.qt.widgets.dock import Dock
 
     dock = Dock([("mask", "Mask", "", "Segment")])
     qtbot.addWidget(dock)
-
-    # It has to actually PAINT it: a plain QWidget ignores a stylesheet
-    # background unless told to draw one, which is how the ground went
-    # missing in the first place.
-    assert dock.testAttribute(Qt.WidgetAttribute.WA_StyledBackground), (
-        "the column will drop its stylesheet background")
-    assert active_palette()["page"] in dock.styleSheet(), (
-        "the column does not carry the page ground")
+    assert "QWidget#Sidebar { background: transparent" in dock.styleSheet()
 
 
 def test_the_dock_row_escapes_an_ampersand(qtbot, qt_theme_applied):

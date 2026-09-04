@@ -2180,6 +2180,7 @@ class MainWindow(QMainWindow):
         row.addWidget(self._dock_slot)
         row.addWidget(self._stack, 1)
         self.setCentralWidget(central)
+        self._ground_the_central_row()
 
         self._sidebar = Sidebar()
         self._sidebar.nav_selected.connect(self._on_nav_selected)
@@ -3670,6 +3671,35 @@ class MainWindow(QMainWindow):
         PreferencesDialog(self).exec()
         self.refresh_theme()
 
+    def _ground_the_central_row(self) -> None:
+        """Paint the ground the dock and the page BOTH sit on.
+
+        The central widget's own background is black -- Qt's default for a
+        window with no palette of its own -- and the dock's panel is
+        translucent, so as a column beside the page it composited onto that
+        black. That was the reported "black box".
+
+        Giving the COLUMN a fill of its own does not fix it: it replaces a
+        black rectangle with a rectangle in another colour, which is
+        precisely what a first attempt at this did. The ground has to be
+        CONTINUOUS across the dock and the page, so it belongs here -- to the
+        one widget that holds both -- and the dock stays transparent on top
+        of it.
+
+        Never raises: a window opens with or without its ground.
+        """
+        try:
+            from .theme import active_palette
+            central = self.centralWidget()
+            if central is None:
+                return
+            central.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+            central.setStyleSheet(
+                f"QWidget#CentralRow {{ background: "
+                f"{active_palette()['page']}; }}")
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not ground the central row", exc_info=True)
+
     def refresh_theme(self) -> None:
         """Rebuild everything preferences cannot update through QSS alone.
 
@@ -3682,6 +3712,9 @@ class MainWindow(QMainWindow):
         :func:`spacr.qt.preferences.apply_preferences_to_app` so a
         preference change from anywhere reaches the widgets.
         """
+        # The ground is a colour, but it is set in Python rather than in the
+        # application sheet, so a theme change does not reach it on its own.
+        self._ground_the_central_row()
         try:
             self._sidebar.refresh_icons()
             self._sidebar.refresh_visibility()
