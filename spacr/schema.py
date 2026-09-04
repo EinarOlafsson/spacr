@@ -239,8 +239,69 @@ OBJECT_TYPE_KEY = 'object_type'
 #: children are exactly the objects most likely to collide, which is where
 #: object linking is most useful, so four objects opened as three and which
 #: one you got depended on the row order of ``png_list``.
-ORGANELLE_ROLES: Tuple[str, ...] = (
-    'organelle', 'organelleb', 'organellec', 'organelled')
+#: SCHEMA IMPORTS NOTHING FROM spacr, and that is load-bearing: everything
+#: wants this module, so it must cost nothing to import, and
+#: `test_module_imports_with_only_the_stdlib_and_pandas` loads it by path
+#: with every spacr import banned. So the lettering rule is restated here
+#: rather than imported from `organelle_types`.
+#:
+#: TWO STATEMENTS OF ONE RULE IS THE THING THIS FILE'S OWN `KEY_ESCAPES`
+#: COMMENT WARNS ABOUT -- "exactly the kind of pair that drifts apart later"
+#: -- so they are pinned equal by
+#: `test_the_object_key_round_trips_for_every_slot.py`, which walks every
+#: slot and requires the two to agree. That is the trade: a dependency this
+#: module cannot afford, exchanged for a test that fails the moment either
+#: side moves.
+_MAX_ORGANELLES = 702
+
+
+def _organelle_role(number: int) -> str:
+    """Slot ``number``'s key prefix. Mirrors `organelle_types.organelle_role`.
+
+    Slot 1 is the bare word, 2..26 take a single letter, and 27 up carry
+    into two -- ``organelleaa`` onward.
+    """
+    if number == 1:
+        return 'organelle'
+    if number <= 26:
+        return f'organelle{chr(ord("a") + number - 1)}'
+    offset = number - 27
+    length = 2
+    while offset >= 26 ** length:
+        offset -= 26 ** length
+        length += 1
+    letters = []
+    for _ in range(length):
+        offset, remainder = divmod(offset, 26)
+        letters.append(chr(ord('a') + remainder))
+    return 'organelle' + ''.join(reversed(letters))
+
+
+def _organelle_roles(count: int) -> Tuple[str, ...]:
+    """The first ``count`` slots' prefixes, in slot order."""
+    return tuple(_organelle_role(index) for index in range(1, int(count) + 1))
+
+
+#: The bare stem every organelle role starts with.
+_ORGANELLE_STEM = 'organelle'
+
+#: GENERATED FROM THE SAME RULE THAT MINTS THE SETTINGS PREFIX, not written
+#: out here. This tuple used to hold four names by hand while
+#: ``organelle_types.organelle_role`` minted twenty-six, and now 702 -- so
+#: slots five and up produced a valid settings prefix that could NOT be
+#: written into an object key. ``is_object_type`` answered False, the frame
+#: was left untyped, and that is precisely the collision the paragraph above
+#: describes: a nucleus labelled 1 and a pathogen labelled 1 in the same
+#: field being the same key.
+#:
+#: One rule, one place. Two hand-kept lists of the same vocabulary are what
+#: this file's own `KEY_ESCAPES` comment calls "exactly the kind of pair that
+#: drifts apart later", and this pair had already drifted by 698 entries.
+ORGANELLE_ROLES: Tuple[str, ...] = _organelle_roles(_MAX_ORGANELLES)
+#: Membership is asked per object id, so it is a set rather than a scan of
+#: 702 names.
+_ORGANELLE_ROLE_SET = frozenset(ORGANELLE_ROLES)
+
 SEGMENTED_ROLES: Tuple[str, ...] = (
     'cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES)
 DERIVED_ROLES: Tuple[str, ...] = ('cytoplasm',)
@@ -250,12 +311,50 @@ ALL_ROLES: Tuple[str, ...] = SEGMENTED_ROLES + DERIVED_ROLES
 OBJECT_TYPES: Tuple[str, ...] = (
     'cell', 'cytoplasm', 'nucleus', 'pathogen', *ORGANELLE_ROLES)
 
-#: :data:`OBJECT_TYPES`, longest first. The match must be longest-first
-#: because ``'organelle'`` starts with ``'o'``, which is the untyped prefix:
-#: shortest-first would read ``'organelle7'`` as an untyped object labelled
-#: ``'rganelle7'``.
-_OBJECT_TYPE_MATCH: Tuple[str, ...] = tuple(
-    sorted(OBJECT_TYPES, key=len, reverse=True))
+#: The same vocabulary as a set. `is_object_type` is asked once per table
+#: read and once per frame stamped; a tuple scan of 706 names is a linear
+#: search for a question that is a hash lookup.
+_OBJECT_TYPE_SET = frozenset(OBJECT_TYPES)
+
+#: The NON-organelle types, longest first. The match must be longest-first
+#: because ``'cell'`` and ``'cytoplasm'`` share no prefix but the untyped
+#: ``'o'`` is a prefix of ``'organelle'``: shortest-first would read
+#: ``'organelle7'`` as an untyped object labelled ``'rganelle7'``.
+#:
+#: THE ORGANELLE ROLES ARE NOT IN HERE, and that is a performance decision
+#: with a measurement behind it. There are 702 of them; scanning all 706
+#: types per object id made `split_object_id` about 88x slower on the untyped
+#: path, which runs once per row of a measurement table. They are matched
+#: algorithmically instead -- see :func:`_split_organelle_id` -- which is
+#: bounded by the LABEL's length rather than by the vocabulary's size and
+#: gives the same longest-first answer.
+_OBJECT_TYPE_MATCH: Tuple[str, ...] = tuple(sorted(
+    (kind for kind in OBJECT_TYPES if kind not in _ORGANELLE_ROLE_SET),
+    key=len, reverse=True))
+
+
+def _split_organelle_id(text: str, lowered: str):
+    """Split an ``organelle...`` object id, longest role first.
+
+    :returns: ``(role, label)``, or ``None`` when ``text`` does not begin
+        with a real organelle role.
+
+    Tries the longest run of lower-case letters after ``organelle`` and works
+    downward, which is the same answer a longest-first scan of every role
+    would give -- ``organelled`` + ``x`` beats ``organelle`` + ``dx`` -- but
+    costs the length of the label rather than the size of the vocabulary.
+    """
+    if not lowered.startswith(_ORGANELLE_STEM):
+        return None
+    rest = text[len(_ORGANELLE_STEM):]
+    letters = 0
+    while letters < len(rest) and rest[letters].isalpha():
+        letters += 1
+    for cut in range(letters, -1, -1):
+        role = _ORGANELLE_STEM + rest[:cut].lower()
+        if role in _ORGANELLE_ROLE_SET and len(text) > len(role):
+            return (role, text[len(role):])
+    return None
 
 #: What ``prc`` / ``prcf`` / ``prcfo`` are joined on. A plate name containing
 #: this character cannot be round-tripped; :func:`compose_prc` refuses it.
@@ -892,7 +991,7 @@ def is_object_type(object_type: Any) -> bool:
     """
     if object_type is None:
         return False
-    return str(object_type).strip().lower() in OBJECT_TYPES
+    return str(object_type).strip().lower() in _OBJECT_TYPE_SET
 
 
 def split_object_id(token: Any, *, require_prefix: bool = True
@@ -923,6 +1022,9 @@ def split_object_id(token: Any, *, require_prefix: bool = True
     if not text:
         return (None, '')
     lowered = text.lower()
+    organelle = _split_organelle_id(text, lowered)
+    if organelle is not None:
+        return organelle
     for kind in _OBJECT_TYPE_MATCH:
         if lowered.startswith(kind) and len(text) > len(kind):
             return (kind, text[len(kind):])
