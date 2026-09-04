@@ -1990,18 +1990,37 @@ class BenchmarkResult:
 
     @property
     def fields(self) -> List[str]:
+        """Every field this model was benchmarked on.
+
+        :returns: the field names.
+        """
         return [r.field for r in self.rows]
 
     @property
     def n_fields(self) -> int:
+        """How many fields were benchmarked.
+
+        :returns: the field count.
+        """
         return len(self.rows)
 
     @property
     def total_objects(self) -> int:
+        """Every object the model found, across all fields.
+
+        :returns: the object count.
+        """
         return sum(r.n_objects for r in self.rows)
 
     @property
     def mean_objects(self) -> float:
+        """Objects per field.
+
+        NaN rather than zero when nothing was benchmarked: no fields is a
+        different statement from a model that found nothing.
+
+        :returns: the mean, or NaN.
+        """
         return self.total_objects / self.n_fields if self.rows else float("nan")
 
     @property
@@ -2011,6 +2030,10 @@ class BenchmarkResult:
 
     @property
     def n_ok(self) -> int:
+        """How many fields came back without a quality complaint.
+
+        :returns: the count of fields at severity ``ok``.
+        """
         return sum(1 for r in self.rows if r.severity == "ok")
 
     @property
@@ -2029,6 +2052,10 @@ class BenchmarkResult:
 
     @property
     def summary(self) -> str:
+        """The model, what it found, over how many fields, and its QC score.
+
+        :returns: a one-line summary.
+        """
         score = self.qc_score
         return (f"{self.entry.name}: {self.total_objects} "
                 f"{self.object_type}(s) over {self.n_fields} field(s) "

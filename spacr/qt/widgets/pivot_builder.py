@@ -149,6 +149,10 @@ class DropWell(QWidget):
 
     # -- state ------------------------------------------------------------
     def columns(self) -> Tuple[str, ...]:
+        """The columns dropped into this well.
+
+        :returns: the column names, in drop order.
+        """
         return tuple(self._list.item(i).data(Qt.UserRole)
                      for i in range(self._list.count()))
 
@@ -165,6 +169,7 @@ class DropWell(QWidget):
         self.changed.emit()
 
     def clear(self) -> None:
+        """Empty the well."""
         self.set_columns(())
 
     def _add(self, name: str) -> None:
@@ -265,6 +270,10 @@ class PivotTable(QTableWidget):
 
     @property
     def result(self) -> Optional[PivotResult]:
+        """The pivot being displayed, if any.
+
+        :returns: the result, or None before one has been computed.
+        """
         return self._result
 
     @property
@@ -285,6 +294,10 @@ class PivotTable(QTableWidget):
         return result.row_keys or ("rows",)
 
     def set_result(self, result: Optional[PivotResult]) -> None:
+        """Show a computed pivot.
+
+        :param result: the pivot result, or None to clear.
+        """
         self._result = result
         self.clear()
         self._truncated = 0
@@ -526,6 +539,10 @@ class PivotPanel(QWidget):
 
     @property
     def result(self) -> Optional[PivotResult]:
+        """The pivot this panel is showing, if any.
+
+        :returns: the result, or None before one has been computed.
+        """
         return self._result
 
     def spec(self) -> PivotSpec:
@@ -644,6 +661,10 @@ class PivotPanel(QWidget):
         return path
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work before going away.
+
+        :param event: the Qt close event.
+        """
         self._debounce.stop()
         super().closeEvent(event)
 
