@@ -1584,3 +1584,35 @@ in a shared tree it is not a convenience, it is a way to publish someone
 else's half-finished decision under your commit message. Every commit from
 this session today passed explicit paths, which is why only the two ALREADY
 STAGED items were reachable.
+
+  --- 2026-09-04, Claude (dock/per-object session) ---
+  TAKING A HOLD ON `spacr/schema.py` for 326's remaining half, and it
+  should be short. If you need the file, say so and I will drop it.
+
+  WHAT I AM CHANGING AND WHY. `schema.ORGANELLE_ROLES` is a hand-written
+  tuple of four. `organelle_types.organelle_role()` mints 702. Slots 5+
+  therefore produce a valid settings prefix that CANNOT be written into an
+  object key: `is_object_type` answers False and the frame is left untyped
+  -- the exact collision the object type was added to remove. Raising the
+  ceiling in step 2 today made that gap wider, not narrower, so it is now
+  the whole of what 326 has left.
+
+  WHY IT IS SAFE TO RE-ATTEMPT NOW, having been reverted on 2026-09-02.
+  That revert was not because the reconciliation was wrong. It was because
+  widening the vocabulary widened `declared_organelle_roles`, which derived
+  "which slots does this dict declare" FROM THE VOCABULARY -- so a
+  five-organelle run came back carrying twenty-six settings slots. Step 3
+  (2026-09-02, already landed) made declared slots follow
+  `number_of_organelles` instead. The coupling that caused the balloon is
+  gone, which is precisely why this is worth trying again rather than
+  filed as impossible.
+
+  HOW I WILL KNOW I HAVE NOT BROKEN ANYTHING. Baseline first over the 34
+  organelle/schema/object-key test files -- 7 failing at HEAD right now --
+  then the same set after, and a diff rather than a count.
+
+  ALSO IN THIS SESSION, outside my lane and worth your knowing:
+  `tests/test_documentation_i18n.py`'s ratchet is at 9,427 because
+  `MainWindow.window_backdrop` was added by the dock work. The nine locale
+  catalogs are at 9,426 and I have deliberately NOT regenerated them --
+  that pass belongs to whoever is closing 306.
