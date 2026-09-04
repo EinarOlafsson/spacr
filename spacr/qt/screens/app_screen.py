@@ -5480,13 +5480,20 @@ class AppScreen(QWidget):
         )
         subtitle = tr(
             "Drop a folder of images anywhere on this window, or {offer}. "
-            "You can also type a path into the src field below.",
+            "You can also type a path into the Source field below.",
             offer=offer,
         )
         card = EmptyState(
             title=title, subtitle=subtitle,
-            cta_label="Open Demos menu",
-            on_action=lambda: self._open_demos_menu(),
+            # THE BUTTON DOES THE THING THE CARD IS ABOUT. It opened the
+            # Demos menu, which is one way to get data and not the way most
+            # people arrive: somebody who already has images wanted the card
+            # to take them to their images, and instead it offered them a
+            # synthetic dataset. The demo is still offered -- in the sentence
+            # above, which names the one that lands on THIS screen -- and the
+            # button now sets the source folder.
+            cta_label="Choose source data",
+            on_action=lambda: self.choose_source_folder(),
         )
         # Auto-hide once the user sets src -- through whichever signal the
         # control has. A set of databases has no `textChanged`, so without
@@ -5569,6 +5576,35 @@ class AppScreen(QWidget):
         if not s or s in {"path", "/path/to/src", "/path"}:
             return
         panel.load_source_async(s)
+
+    def choose_source_folder(self) -> str:
+        """Ask for the run's source folder and put it in the src field.
+
+        :returns: the folder chosen, or ``""`` if the dialog was cancelled
+            or the screen has no src field to write to.
+        """
+        from PySide6.QtWidgets import QFileDialog, QLineEdit
+
+        widgets = getattr(self._settings_model, "_widgets", None) or {}
+        if "src" not in widgets:
+            return ""
+        chosen = QFileDialog.getExistingDirectory(
+            self, tr("Choose source data"), self._settings_src_path() or "")
+        if not chosen:
+            return ""
+        # THROUGH THE MODEL, not by poking the widget. `src` is a plain line
+        # edit on most screens and a list of plates on Classify, and the
+        # model is what knows the difference -- writing text into the second
+        # one would put a folder where a set of databases goes.
+        setter = getattr(self._settings_model, "set_value_for_key", None)
+        if callable(setter):
+            setter("src", chosen)
+        else:                                                # pragma: no cover
+            widget = widgets.get("src")
+            if isinstance(widget, QLineEdit):
+                widget.setText(chosen)
+        self._refresh_empty_state()
+        return chosen
 
     def _open_demos_menu(self) -> None:
         try:
