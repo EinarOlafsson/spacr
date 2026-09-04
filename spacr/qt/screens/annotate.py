@@ -641,6 +641,14 @@ class _TextReportDialog(QDialog):
     """
 
     def __init__(self, title: str, body: str, parent: Optional[QWidget] = None):
+        """Show a report beside the grid rather than over it.
+
+        :param title: the window title.
+        :param body: the report text.
+        :param parent: parent widget, used for ownership only -- this opens
+            as a WINDOW in its own right so it can be moved and kept open
+            while annotating continues behind it.
+        """
         super().__init__(parent)
         # A window in its own right, not a sheet stuck to the screen: it is
         # read alongside the grid, moved, and kept open while annotating.

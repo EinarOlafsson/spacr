@@ -245,6 +245,18 @@ class _ShowFilter(QObject):
     """
 
     def __init__(self, on_show, parent=None, *, on_hide=None) -> None:
+        """Call back when the watched widget is shown or hidden.
+
+        :param on_show: called each time the widget is shown.
+        :param parent: parent object.
+        :param on_hide: called on hide and on close, or ``None`` to ignore
+            them.
+
+        NEITHER CALLBACK CAN SWALLOW THE EVENT. :meth:`eventFilter` forwards
+        and returns False whatever they do, and an exception in one is logged
+        rather than raised -- a refresh that fails must not stop the widget
+        it was watching from appearing.
+        """
         super().__init__(parent)
         self._on_show = on_show
         self._on_hide = on_hide

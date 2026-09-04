@@ -578,7 +578,18 @@ class _SearchWorker(QThread):
     search_done = Signal(object, str)        # (SearchResult or None, error)
 
     def __init__(self, request: SearchRequest, search_fn=None, parent=None):
-        """Store the request and the (optionally injected) search function."""
+        """Store the request and the (optionally injected) search function.
+
+        :param request: what to search, including the criterion the trials
+            are scored on.
+        :param search_fn: the callable that runs the search, or ``None`` to
+            use the real one. INJECTED SO THE SCREEN CAN BE TESTED without
+            running a search, which is otherwise minutes of work per case.
+        :param parent: parent object.
+
+        Cancellation is a :class:`threading.Event` rather than a flag, so the
+        search can wait on it instead of polling.
+        """
         super().__init__(parent)
         self._request = request
         self._search_fn = search_fn

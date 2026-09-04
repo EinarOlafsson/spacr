@@ -116,6 +116,16 @@ class _Well(QPushButton):
     """One well. Checkable, so its state IS the selection."""
 
     def __init__(self, row: int, column: int, parent=None):
+        """Build one well of the plate.
+
+        :param row: the well's row index, counting from zero.
+        :param column: its column index, counting from zero.
+        :param parent: parent widget.
+
+        The pair is the well's IDENTITY, not just its position: the picker
+        addresses wells by it, and :func:`well_label` turns it into the
+        ``A01`` name shown in the tooltip.
+        """
         super().__init__(parent)
         self.row, self.column = int(row), int(column)
         self.setCheckable(True)

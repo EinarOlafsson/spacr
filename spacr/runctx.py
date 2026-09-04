@@ -460,7 +460,16 @@ class _RunLogHandler(logging.Handler):
     """
 
     def __init__(self, run_id: str, path: str, level: int = logging.NOTSET):
-        """Initialise a lazy JSONL handler for one run, path, and level."""
+        """Initialise a lazy JSONL handler for one run, path, and level.
+
+        :param run_id: the run every record is stamped with, so one file can
+            be read back as belonging to one run.
+        :param path: where the JSONL is written. Its directory is created on
+            the FIRST record rather than here -- a run that logs nothing
+            leaves no empty folder behind.
+        :param level: the usual logging threshold, defaulting to NOTSET so
+            the handler takes whatever its logger allows.
+        """
         super().__init__(level)
         self.run_id = str(run_id)
         self.path = path
