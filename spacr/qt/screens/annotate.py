@@ -1663,6 +1663,7 @@ class _SettingsDialog(QDialog):
             button.setText("Fetching…")
 
         def _done(result, error):
+            """Restore the button whether the load worked or failed."""
             if button is not None:
                 button.setEnabled(True)
                 button.setText("Example…")
@@ -1698,6 +1699,7 @@ class _SettingsDialog(QDialog):
             button.setText("Fetching…")
 
         def _done(result, error):
+            """Restore the button whether the load worked or failed."""
             if button is not None:
                 button.setEnabled(True)
                 button.setText("Example (streaming)")
@@ -2892,6 +2894,12 @@ class AnnotateScreen(QWidget):
         _original_append_error = self._console.append_error
 
         def _append_error_and_offer_the_report(text, *args, **kwargs):
+            """Show the error as before, then offer to file it.
+
+            WRAPS rather than replaces, so the original behaviour is unchanged even
+            if the offer fails -- an error message must still appear when the thing
+            that would report it is broken.
+            """
             try:
                 return _original_append_error(text, *args, **kwargs)
             finally:
