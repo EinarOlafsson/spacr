@@ -600,6 +600,50 @@ def _build_classify_steps(window) -> List[Step]:
             highlight=lambda: _find_button(screen_ref[0], "Train"),
             hold_ms=500,
         ),
+        # AND THEN IT OPENS CLASSIFY. Until 2026-09-04 the tutorial called
+        # "classify" stopped here, at Annotate's Train button, having said
+        # "both open in the consolidated Classify module" and never opened
+        # it. That is the stale module boundary instruction 358 was filed
+        # about: a polished lesson teaching a structure the application no
+        # longer has.
+        Step(
+            "Classify is where the training runs. The settings column carries "
+            "the model, the split and the training schedule; the actions row "
+            "runs it and the console below reports each epoch.",
+            action=_nav_to(window, "classify_merged"),
+            target=(_sidebar_button(window, "classify_merged"), None),
+            highlight=_sidebar_button(window, "classify_merged"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        # FIVE MODULES WERE FOLDED IN HERE, and instruction 358 asks that each
+        # one be named and located rather than left for the reader to find.
+        # The specialist lessons that still explain them accurately are kept
+        # and pointed at rather than re-narrated.
+        Step(
+            "Five modules that used to be their own tiles now live on this "
+            "masthead. Classifier Evaluation judges the trained model, "
+            "Explain CV asks which measured features it keyed on, and "
+            "Activation Maps shows where in the image it looked.",
+            target=(lambda: _fold_button(window._screens.get(
+                "classify_merged"), "classifier_evaluation"), None),
+            highlight=lambda: _fold_button(window._screens.get(
+                "classify_merged"), "classifier_evaluation"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+        Step(
+            "Training Runs compares two runs against each other, and Feature "
+            "Explorer ranks measured features before anything is trained. "
+            "Both are appended to the reading sequence rather than inserted "
+            "into it, because neither is a step in it.",
+            target=(lambda: _fold_button(window._screens.get(
+                "classify_merged"), "train_compare"), None),
+            highlight=lambda: _fold_button(window._screens.get(
+                "classify_merged"), "train_compare"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
     ]
 
 
