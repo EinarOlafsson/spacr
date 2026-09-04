@@ -21,10 +21,12 @@ class _DeferredModule:
     """
 
     def __init__(self, name):
+        """Record the module name without importing it."""
         self.__dict__['_name'] = name
         self.__dict__['_module'] = None
 
     def _load(self):
+        """Import on first use and cache the module."""
         module = self.__dict__['_module']
         if module is None:
             from importlib import import_module
@@ -33,12 +35,24 @@ class _DeferredModule:
         return module
 
     def __getattr__(self, name):
+        """Forward attribute reads, importing the module if needed."""
         return getattr(self._load(), name)
 
     def __setattr__(self, name, value):
+        """Forward attribute writes ONTO THE REAL MODULE, importing it first.
+
+        The proxy keeps its own state in ``__dict__`` directly for this reason: an
+        ordinary assignment here would set an attribute on the imported module,
+        not on the proxy.
+        """
         setattr(self._load(), name, value)
 
     def __repr__(self):
+        """Name the module and say whether it has been imported yet.
+
+        Deliberately does NOT import it -- inspecting a proxy in a debugger must
+        not be the thing that triggers the import it exists to defer.
+        """
         state = (
             'loaded' if self.__dict__['_module'] is not None
             else 'not yet imported'
@@ -276,6 +290,7 @@ class _LazyModule:
     """
 
     def __init__(self, name, block_roots=(), minimum_distribution=None):
+        """Record the module name and its import guards without importing."""
         self.__dict__['_name'] = name
         self.__dict__['_module'] = None
         self.__dict__['_block_roots'] = tuple(block_roots)
@@ -376,12 +391,15 @@ class _LazyModule:
         return module
 
     def __getattr__(self, item):
+        """Forward attribute reads, importing the module if needed."""
         return getattr(self._load(), item)
 
     def __setattr__(self, item, value):
+        """Forward attribute writes onto the real module, importing it first."""
         setattr(self._load(), item, value)
 
     def __dir__(self):
+        """The real module's names, importing it to find them."""
         return dir(self._load())
 
     def __repr__(self):
@@ -4282,11 +4300,22 @@ class TorchModel_v2(nn.Module):
     # Helpers
     # --------------------------------------------------------------------- #
     def _apply_dropout_rate(self, module: nn.Module, p: float):
+        """Set ``p`` on every dropout layer inside ``module``.
+
+        Walks the whole tree, so a backbone with dropout at several depths is set
+        consistently rather than only at its top level.
+        """
         for m in module.modules():
             if isinstance(m, (nn.Dropout, nn.Dropout2d, nn.Dropout3d)):
                 m.p = p
 
     def _init_base_model(self, pretrained: bool) -> nn.Module:
+        """Build the named torchvision backbone.
+
+        An unknown name raises rather than falling back to a default: silently
+        training a different architecture than the one asked for produces a model
+        whose results cannot be compared to anything.
+        """
         fn = models.__dict__.get(self.model_name, None)
         if fn is None:
             raise ValueError(f"Unknown torchvision model: {self.model_name}")
@@ -4301,6 +4330,11 @@ class TorchModel_v2(nn.Module):
 
     def _get_weight_choice(self):
         # Return DEFAULT weights enum if available; else None
+        """The torchvision ``DEFAULT`` weights enum for this model, or ``None``.
+
+        ``None`` means torchvision ships no pretrained weights under that name, in
+        which case the backbone starts from random initialisation.
+        """
         for attr in dir(models):
             if attr.lower() == f"{self.model_name}_weights":
                 return getattr(models, attr).DEFAULT
@@ -4308,6 +4342,11 @@ class TorchModel_v2(nn.Module):
 
     def _remove_head_for_features(self):
         # Remove final classifier so backbone returns features
+        """Replace the classifier head with identity so the backbone returns features.
+
+        ``maxvit_t`` IS EXCLUDED: its classifier holds the pooling the forward
+        pass needs, so replacing it removes more than the head.
+        """
         if hasattr(self.base_model, "fc"):
             self.base_model.fc = nn.Identity()
         elif hasattr(self.base_model, "classifier"):
@@ -4315,6 +4354,12 @@ class TorchModel_v2(nn.Module):
                 self.base_model.classifier = nn.Identity()
 
     def _infer_feature_dim(self) -> int:
+        """The backbone's feature width, measured by running one dummy image.
+
+        MEASURED RATHER THAN TABULATED, so a torchvision version that changes a
+        backbone's width does not silently mismatch the classifier. Costs one
+        224x224 forward pass at construction.
+        """
         self._remove_head_for_features()
         self.base_model.eval()
         with torch.no_grad():
@@ -4325,6 +4370,11 @@ class TorchModel_v2(nn.Module):
         return int(out.size(1))
 
     def _init_spacr_classifier(self, dropout_rate: float):
+        """Attach the linear head, and dropout before it when a rate was given.
+
+        ``dropout_rate=None`` means no dropout layer at all rather than a layer
+        with ``p=0``.
+        """
         self.use_dropout = dropout_rate is not None
         if self.use_dropout:
             self.dropout = nn.Dropout(float(dropout_rate))
@@ -4335,6 +4385,11 @@ class TorchModel_v2(nn.Module):
     # --------------------------------------------------------------------- #
     def _run_backbone(self, x: torch.Tensor) -> torch.Tensor:
         # Wrap for checkpoint (expects a function)
+        """Run the backbone, through gradient checkpointing when enabled.
+
+        Checkpointing recomputes activations in the backward pass instead of
+        storing them: less memory, more compute, and the same output.
+        """
         if self.use_checkpoint:
             return _checkpoint_module(
                 self.base_model, lambda t: self.base_model(t), x)

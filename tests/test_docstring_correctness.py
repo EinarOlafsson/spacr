@@ -1948,10 +1948,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     }
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 83
+    ) == 88
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 83
+    ) == 88
     # RE-RECORDED 2026-09-04. Every figure here moved UP together as the
     # package gained callables; not one of them fell, which is the direction
     # check that was run before these numbers were written.
@@ -1966,7 +1966,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "fa57a0a85996cab840b65a06ad1348e4c0e4306ca4c77506bd0e580abd6296d6"
+    ) == "e320ad7445543f81759fbd97960d32e6e8dfe18edc640a4a5664c3b04763dd02"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2251,7 +2251,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     }
     # The gap between the two is the entries AutoAPI never renders: the
     # configured ignore paths plus the CLI/compatibility entries.
-    assert len(docs) == 9_406
+    assert len(docs) == 9_409
     assert len(rendered_documented_callables) == 7_738
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)

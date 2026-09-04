@@ -961,6 +961,11 @@ class spacrDataLoader(DataLoader):
                     continue
 
     def _pin_memory_batch(self, batch):
+        """Pin a batch's tensors for faster host-to-GPU copies.
+
+        Non-tensor members are passed through untouched, so a batch carrying
+        labels or paths alongside its tensors survives intact.
+        """
         if isinstance(batch, (list, tuple)):
             return [b.pin_memory() if isinstance(b, torch.Tensor) else b for b in batch]
         elif isinstance(batch, torch.Tensor):

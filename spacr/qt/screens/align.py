@@ -101,6 +101,7 @@ class TileLayoutWidget(QWidget):
     tile_clicked = Signal(int)
 
     def __init__(self, parent=None):
+        """Build an empty layout view, sized to expand with its pane."""
         super().__init__(parent)
         self._plan = None
         self.setMinimumHeight(240)
@@ -225,6 +226,7 @@ class AlignScreen(QWidget):
     _job_settled = Signal(bool)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the Align screen with nothing planned or written yet."""
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._plan = None
@@ -255,6 +257,7 @@ class AlignScreen(QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the source and destination rows, the preview and the actions."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -507,6 +510,12 @@ class AlignScreen(QWidget):
         return len(self._jobs)
 
     def _update_controls(self) -> None:
+        """Enable each action only when what it needs is present.
+
+        The single source of truth for button state: Plan needs a source, Write
+        needs a plan, and NOTHING is enabled while a job is in flight -- so a
+        second press cannot start a second run over the same folder.
+        """
         ready = not self._busy
         self._btn_plan.setEnabled(ready and bool(self._src_edit.text().strip()))
         self._btn_write.setEnabled(
@@ -571,6 +580,7 @@ class AlignScreen(QWidget):
     # -- pickers -----------------------------------------------------------
 
     def _pick_source(self) -> None:
+        """Ask for the folder of tiles, starting where the field points."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose the folder of tiles",
             self._src_edit.text() or os.path.expanduser("~"))
@@ -578,6 +588,11 @@ class AlignScreen(QWidget):
             self._src_edit.setText(path)
 
     def _pick_destination(self) -> None:
+        """Ask where to write the stitched stack.
+
+        Falls back to the SOURCE folder when no destination is set yet, because
+        that is nearly always the right neighbourhood to start browsing from.
+        """
         path = QFileDialog.getExistingDirectory(
             self, "Choose where to write the stitched stack",
             self._dst_edit.text() or self._src_edit.text()
@@ -808,10 +823,16 @@ class AlignScreen(QWidget):
             self._retire_job(thread)
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed job and release the controls."""
         self._busy = False
         self._set_status(str(exc) or exc.__class__.__name__, error=True)
 
     def _on_worker_error_text(self, text: str) -> None:
+        """Report a worker's failure, showing only its LAST line.
+
+        A traceback's final line is the message; the frames above it are noise in
+        a status bar, and the full text is already in the log.
+        """
         line = (text or "").strip().splitlines()[-1] if text else "unknown error"
         self._busy = False
         self._set_status(f"Align failed: {line}", error=True)
