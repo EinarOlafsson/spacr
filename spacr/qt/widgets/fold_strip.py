@@ -237,6 +237,12 @@ def _host_declarations(module_name: str):
                 declared[target.id] = value
 
     def _as_string(node):
+        """The string an AST node stands for, or ``None`` if it is not one.
+
+        Handles a literal, a constant in this module, and a constant reached
+        through an imported sibling -- read from the source rather than by
+        importing the module that defines it.
+        """
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             return node.value
         if isinstance(node, ast.Name):

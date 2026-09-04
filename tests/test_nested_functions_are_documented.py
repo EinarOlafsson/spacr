@@ -133,7 +133,7 @@ BUDGET = {
     "spacr/qt/tutorial/scripts.py": 8,
     "spacr/qt/widgets/gate_editor.py": 8,
     "spacr/settings.py": 8,
-    "spacr/qt/app.py": 7,
+    "spacr/qt/app.py": 5,
     "spacr/qt/screens/distributed_jobs.py": 6,
     "spacr/qt/screens/plate_view.py": 6,
     "spacr/qt/screens/model_zoo.py": 5,
@@ -209,12 +209,12 @@ BUDGET = {
     "spacr/qt/widgets/volcano_explorer.py": 1,
     "spacr/validate.py": 1,
     "spacr/qt/command_palette.py": 1,
-    "spacr/qt/dialogs.py": 6,
+    "spacr/qt/dialogs.py": 5,
     "spacr/qt/menus.py": 1,
     "spacr/qt/screens/volcano.py": 5,
     "spacr/qt/widgets/cell_montage_view.py": 1,
     "spacr/qt/widgets/setup_slides.py": 1,
-    "spacr/qt/widgets/umap_explorer.py": 4,
+    "spacr/qt/widgets/umap_explorer.py": 3,
 }
 
 

@@ -1665,6 +1665,13 @@ def _declared_folds(module_name: str):
                 siblings[alias.asname or alias.name] = f"{base}.{alias.name}"
 
     def _as_string(node, _depth=0):
+        """The string an AST node stands for, or ``None`` if it is not one.
+
+        Resolves a literal, a module constant, and another module's constant
+        read the same way rather than by importing it. ``_depth`` bounds
+        that indirection so a constant defined in terms of itself stops
+        instead of recursing.
+        """
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             return node.value
         if isinstance(node, ast.Name):
@@ -5496,6 +5503,14 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # these are cached, so the module snaps open instead of freezing on the
     # first import. Importing modules (no Qt objects) off-thread is safe.
     def _prewarm():
+        """Import the slow settings module off the GUI thread.
+
+        Runs on a daemon thread while the user looks at the home screen, so
+        opening a module finds the import cached instead of paying for it.
+        Importing modules creates no Qt objects and is safe off-thread; a
+        failure is logged and ignored, because a cold import is slow rather
+        than broken.
+        """
         try:
             import importlib
             for mod in ("spacr.settings",):
@@ -5510,6 +5525,12 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # closeEvent: ensure every ConsolePanel drains its AI thread
     # before Qt starts destroying widgets.
     def _drain_ai():
+        """Stop every job runner before Qt starts destroying widgets.
+
+        Connected to ``aboutToQuit``, which fires however the application
+        exits. See the comment below for why this covers every runner and
+        not only the consoles.
+        """
         # EVERY JOB RUNNER, NOT ONLY THE CONSOLES. Qt aborts the process if a
         # running QThread is destroyed, and each runner's own `closeEvent`
         # covers a widget being CLOSED -- not the application quitting with a
