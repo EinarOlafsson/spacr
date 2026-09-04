@@ -728,6 +728,7 @@ def _join_on_destroy(widget, thread) -> None:
     top of the one this prevents.
     """
     def _join(*_args):
+        """Stop and join the render thread when the widget is destroyed."""
         try:
             _quit_and_join_thread(thread)
         except Exception:                                    # noqa: BLE001
@@ -855,6 +856,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
         render_requested = Signal(object)
 
         def __init__(self, parent=None) -> None:
+            """Build the CPU canvas, painting its own background."""
             super().__init__(parent)
             self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, True)
             self.setAutoFillBackground(False)
@@ -944,6 +946,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             return True
 
         def is_paused(self) -> bool:
+            """Whether the animation is currently held."""
             return self._paused
 
         def set_animating(self, on: bool) -> bool:
@@ -964,6 +967,13 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             # fraction of the window's own pixels to shade, so 1.0 is native
             # and anything less trades sharpness for speed -- the direct
             # answer to "how do i get the image sharper".
+            """The pixel size to shade at, from the render scale and the window.
+
+            RENDER SCALE is the fraction of the window's own pixels to shade: 1.0 is
+            native and anything less trades sharpness for speed. It was a setting
+            nobody read, and it is the direct answer to "how do I get the image
+            sharper".
+            """
             try:
                 render_scale = float(_render_scale())
             except Exception:                                # noqa: BLE001
@@ -977,6 +987,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
 
         @Slot()
         def _request_frame(self) -> None:
+            """Ask the worker for the next frame, unless stopped or paused."""
             if self._stopped or self._paused:
                 return
             if self._busy or not self.isVisible():
@@ -1003,6 +1014,17 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             self._sim_time += target_period
 
         def _adapt_resolution(self) -> None:
+            """Trade resolution for frame rate, from the measured render time.
+
+            WAITS FOR TWELVE FRAMES and then only reconsiders every twenty-fourth,
+            so the scale settles instead of oscillating on a single slow frame. The
+            budget is 78% of the period rather than all of it, because Qt's own
+            conversion and the rest of the application have to fit in the remainder.
+
+            Both directions are damped and clamped -- down no further than 0.58, up
+            no further than 1.35 -- so a stall cannot drive the picture to nothing
+            and a fast machine cannot drive it past what the window can show.
+            """
             if self._render_ema is None or self._frames < 12:
                 return
             if self._frames % 24 != 0:
@@ -1020,6 +1042,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
 
         @Slot(object, float)
         def _accept_frame(self, frame, render_seconds: float) -> None:
+            """Take a rendered frame, note how long it took, and repaint."""
             if self._stopped:
                 return
             from PySide6.QtGui import QImage
@@ -1052,6 +1075,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
 
         @Slot(str)
         def _on_failure(self, message: str) -> None:
+            """Record the worker's error and stop treating a frame as pending."""
             self._error = message
             self._busy = False
             self.update()
@@ -1059,6 +1083,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
                 self._timer.start(750)
 
         def paintEvent(self, _event) -> None:
+            """Draw the last frame, or the ground colour before there is one."""
             painter = QPainter(self)
             painter.fillRect(self.rect(), QColor(5, 5, 10))
             if self._image is not None:
