@@ -28007,11 +28007,13 @@
       "source_blocks_sha256": [
         "f0dc72799679265fc2425de27204ea77c09190ba075c00cd3f7a3c5d0e49c265",
         "7b0edc4aaeca39b0c6b8499aeb89780f98f8dc9fea43dba789728a1ff7874475",
-        "5b9b5fca6e1aea9bfb4642cc7bec5cc0e82878329e03dd1459f8c7f543853b09",
-        "5e93e9e598294680bb27b1f8d6d2dd509554f6bc9697a07a97e4d0cd035b2b50"
+        "46ef5938fc49247d04731424c55be7166af69ec45557de9d2586c0d4dd62b8cf",
+        "5e93e9e598294680bb27b1f8d6d2dd509554f6bc9697a07a97e4d0cd035b2b50",
+        "98108afbb9a712d0f2b4f1a04686a466a47bf684a01b740c1d3ec6786d64a473",
+        "c2b0230040ab24cd88319e5d5db8f4dd8509412cd601e40bd5d21b6f7f00b6f9"
       ],
-      "source_sha256": "47e643208b387280bdf02b3e9333570bff09fc00325c7ab1eb00960dc092ef12",
-      "text": "The key prefix owned by slot ``number``, counting from one.\n\n:param number: the slot as the user counts it -- 1 is Organelle 1.\n:returns: ``'organelle'`` for slot 1 and ``'organelle<letter>'`` after\n    it, which is the prefix every one of that slot's settings carries.\n:raises ValueError: outside ``1..MAX_ORGANELLES``, naming the bound."
+      "source_sha256": "e906479e54e0c373e0134447b6c8cb50d29693c65c676341f73617a375132c89",
+      "text": "The key prefix owned by slot ``number``, counting from one.\n\n:param number: the slot as the user counts it -- 1 is Organelle 1.\n:returns: ``'organelle'`` for slot 1, ``'organelle<letter>'`` for slots\n    2..26, and a CARRIED suffix from 27 up -- ``organelleaa`` onward.\n    This is the prefix every one of that slot's settings carries.\n:raises ValueError: outside ``1..MAX_ORGANELLES``, naming the bound.\n\nSLOTS 1..26 ARE BYTE-IDENTICAL to what they have always been, which is\nhow the arbitrary count is reached without migrating anything: no\nmeasurement database, settings CSV or run journal moves, because none of\nthe names they contain change.\n\n``organellea`` IS NEVER MINTED -- slot 1 is the bare word -- so a\nsingle-letter suffix can never be confused with the first letter of a\ncarried one, and :data:`_ROLE_MATCH` (longest first) does the rest."
     },
     "spacr.organelle_types.organelle_role_of": {
       "source_blocks_sha256": [
@@ -33570,6 +33572,14 @@
       ],
       "source_sha256": "bc457859590a1727b282656f63f6a91d81a3abeedda1327d992684ab27e8daad",
       "text": "The wheel does the same, a notch at a time."
+    },
+    "spacr.qt.app.MainWindow.window_backdrop": {
+      "source_blocks_sha256": [
+        "41c39633f8330a52c7cfdc1837a3d65a59cd9c969bdd1e2d275c83ce1b01cf10",
+        "da74b06fd0a7f6f7bf997b6cea4dfa4c5cb9c8d79bc3779388800a07ea525c88"
+      ],
+      "source_sha256": "2c857cda8e891f7b3ea5646d4bf91264cc50fcd2ce3cd2e44771f3de2eee6dbd",
+      "text": "The one backdrop behind the dock AND the page, or ``None``.\n\nRead by the screens so they do not build a second one on top of it --\nsee :meth:`_install_screen_backdrop`."
     },
     "spacr.qt.app.Sidebar": {
       "source_blocks_sha256": [
