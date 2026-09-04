@@ -87,3 +87,53 @@ HOW IT WILL BE CHECKED
   `RETIRED_SETTINGS`.
 * Import's own path answers, on the maintainer's real acquisitions, whatever
   `metadata_type` was being set to answer.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- STEP 1 RUN ON REAL ACQUISITIONS, AND IT SAYS STOP
+--------------------------------------------------------------------------------
+
+Step 1 asks for the replacement to be proven on the maintainer's own data
+rather than on `tests/import_corpus.py`, "because a synthetic corpus is
+written by the same person who writes the parser". Done, on five acquisitions
+from /nas_mnt/carruthers/Einar. Names only were read; nothing on the NAS was
+touched, and the sampled names were recreated as empty files locally so the
+inference ran on the half `metadata_type` actually decides.
+
+    acquisition                  shape                    old cv    infer_layout
+    akt_gsk3_tubulin             plate_well_T..F..C..     150/150   150 placed
+    calnexin_20240615_112503     plate_well_T..F..C..     150/150   150 placed
+    turboID_20240218_131300      plate_well_T..F..C..     149/150   149 placed
+    tsg101_screen                plate_well_T..F..C..     128/150   128 placed
+    mitoscreen                   plate#_E07_18.tif          0/150    43 placed
+
+On the four cellvoyager acquisitions the new Import matches the old regex file
+for file and derives well, field and channel for every name. That half is
+proven.
+
+MITOSCREEN IS THE ONE THAT MATTERS AND IT FAILS. Every name in the sample is
+the same token-less shape -- `plate4_F07_18.tif`, i.e. plate, well, and one
+trailing number -- and:
+
+  * the old cellvoyager regex matches NONE of it, which is precisely why
+    `metadata_type` exists as a setting;
+  * the new Import places 43 of 150, and for those it derives only plate and
+    well. Field and channel come back empty for the entire acquisition.
+
+So Import today answers the acquisitions `metadata_type='cellvoyager'` already
+answered, and does NOT answer the one a user would have to change the setting
+for. Retiring `metadata_type` now would take away the only working path for
+this shape and replace it with a parse that loses the field and the channel --
+exactly what the instruction's own ordering exists to prevent.
+
+STEPS 2 AND 3 ARE NOT STARTED, DELIBERATELY. The file says DO NOT REORDER
+THEM, and step 1's answer is no. What step 1 has changed is that the gate is
+now a measurement rather than an assumption: the work needed before this
+instruction can move is for `infer_layout` to read a trailing-number field on
+a token-less `plate_well_field` name, and to say which trailing number is the
+field and which the channel when there is only one.
+
+NOT ATTEMPTED HERE, because it is a change to the inference that 363 owns and
+it needs the maintainer to say what that trailing number means in this
+acquisition -- field, channel, or slice. The names alone do not decide it, and
+guessing would put a wrong answer under a setting nobody can override once
+`metadata_type` is gone.
