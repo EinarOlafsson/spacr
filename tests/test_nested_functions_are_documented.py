@@ -128,7 +128,7 @@ FULLY_DOCUMENTED = frozenset({
 BUDGET = {
     "spacr/qt/widgets/figure_settings.py": 19,
     "spacr/qt/widgets/fast_plots.py": 14,
-    "spacr/qt/preferences.py": 12,
+    "spacr/qt/preferences.py": 2,
     "spacr/qt/screens/app_screen.py": 11,
     "spacr/qt/tutorial/scripts.py": 8,
     "spacr/qt/widgets/gate_editor.py": 8,
