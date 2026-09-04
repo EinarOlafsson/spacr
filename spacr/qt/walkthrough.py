@@ -347,6 +347,7 @@ class _Seen:
     """
 
     def __init__(self, app_key: str):
+        """Hold the module key and nothing else."""
         self._app_key = app_key
 
     def mark(self) -> None:
@@ -365,10 +366,16 @@ class _Highlight:
     """
 
     def __init__(self, fn, target):
+        """Bind the step's highlight to the screen it was built for."""
         self._fn = fn
         self._target = target
 
     def __call__(self, _window):
+        """Highlight the bound screen, swallowing any failure.
+
+        A decoration that raises would stop the tour, and a tour that cannot get
+        past a step is worse than one that misses a highlight.
+        """
         try:
             return self._fn(self._target)
         except Exception:

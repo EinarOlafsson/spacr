@@ -159,6 +159,11 @@ class _ThreadStreamRouter(io.TextIOBase):
             return bool(self._targets)
 
     def _target(self):
+        """The stream for the calling thread, or the original.
+
+        Reads the TOP of that thread's stack, so nested redirections unwind in
+        the order they were made rather than the last one winning for good.
+        """
         with self._lock:
             stack = self._targets.get(threading.get_ident(), [])
             return stack[-1] if stack else self.original
