@@ -213,6 +213,7 @@ class _Token:
     at: int
 
     def __str__(self) -> str:  # pragma: no cover - debugging aid
+        """``kind:text@position`` -- for reading a token stream in a debugger."""
         return f"{self.kind}:{self.text}@{self.at}"
 
 
@@ -510,29 +511,51 @@ class _Parser:
     # -- token helpers -------------------------------------------------
     @property
     def _current(self) -> _Token:
+        """The token the parser is looking at, without consuming it."""
         return self._tokens[self._at]
 
     def _advance(self) -> _Token:
+        """Consume and return the current token."""
         token = self._tokens[self._at]
         self._at += 1
         return token
 
     def _accept_op(self, *ops: str) -> Optional[_Token]:
+        """Consume the current token if it is one of ``ops``, else ``None``.
+
+        Peek-and-take rather than take-and-regret: a parser that consumed first
+        would have to put the token back, and the position it was at is what
+        every error message quotes.
+        """
         token = self._current
         if token.kind == _OP and token.text in ops:
             return self._advance()
         return None
 
     def _accept_word(self, word: str) -> Optional[_Token]:
+        """Consume the current token if it is the keyword ``word``, else ``None``."""
         token = self._current
         if token.kind == _NAME and token.text == word:
             return self._advance()
         return None
 
     def _where(self, token: _Token) -> str:
+        """`` at position N`` for an error message, counting from ONE.
+
+        Users count from one; the token's own index counts from zero, and a
+        message that says position 0 for the first character reads as a bug in
+        the error rather than in the formula.
+        """
         return f" at position {token.at + 1}"
 
     def _count(self, node: Node) -> Node:
+        """Count one node against the budget, and return it unchanged.
+
+        Threaded through every construction so the budget cannot be bypassed by a
+        production that forgets to check. A formula past the ceiling is REFUSED
+        with the remedy in the message -- build it as several named columns --
+        rather than parsed into something that will be slow to evaluate.
+        """
         self._nodes += 1
         if self._nodes > MAX_NODES:
             raise FormulaError(
@@ -554,6 +577,12 @@ class _Parser:
         return node
 
     def _nest(self, method):
+        """Run ``method`` one level deeper, refusing past the depth ceiling.
+
+        The depth counter is what stops a pathological formula recursing the
+        parser into a stack overflow, which is a crash rather than an error
+        message.
+        """
         self._depth += 1
         if self._depth > MAX_DEPTH:
             raise FormulaError(
