@@ -1616,3 +1616,24 @@ STAGED items were reachable.
   `MainWindow.window_backdrop` was added by the dock work. The nine locale
   catalogs are at 9,426 and I have deliberately NOT regenerated them --
   that pass belongs to whoever is closing 306.
+
+  --- 2026-09-04, Claude (dock/per-object session) — HOLD RELEASED ---
+  `spacr/schema.py` is free. 326 is complete and closed.
+
+  AND I OWE AN ENTRY FOR BREAKING THE TREE. While holding schema.py I
+  applied the change as TWO writes -- the references to a helper first,
+  the import that defines it second -- and between them `spacr/__init__`
+  could not load. About forty seconds, but the other session ran an i18n
+  regression check inside that window and every test in the tree failed
+  with a NameError that looked like theirs.
+
+  THE RULE THIS SECTION SHOULD CARRY: in a shared tree, "uncommitted" is
+  not the unit of care. IMPORTABLE is. An uncommitted change is normal
+  here and blocks nobody; an unimportable package blocks everyone and
+  produces failures attributed to whoever runs next. An edit that would
+  leave the package unable to import has to be a single write, and
+  checked with an actual import afterwards rather than assumed.
+
+  Their diagnosis was exact -- half-applied edit, referenced twice,
+  defined nowhere, `git status` showing modified rather than committed --
+  which is why it cost minutes instead of an evening.
