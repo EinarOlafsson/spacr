@@ -1,9 +1,8 @@
 """The left navigation dock: an icon, a name, and a category heading.
 
-Requested 2026-09-03, after four rounds of fixes to the old one had not
-settled it: "start from scratch and write a simple dock no effects just icon
-and text in categories. Scrap the sub categories, only effect should be hover
-is blue and tooltip at bottom of screen".
+A row is a button with an icon and its name, always both. The only thing the
+pointer changes is the colour, and the explanation goes to the strip along
+the bottom of the window rather than into a popup.
 
 WHAT WAS REMOVED, AND WHY EACH ONE WAS THE BUG. The dock this replaces was
 1,116 lines across ``Sidebar`` and ``_DockRow`` in ``spacr.qt.app``, and

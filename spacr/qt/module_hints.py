@@ -5,12 +5,11 @@ A module description is shown in ONE place -- the hint strip along the
 bottom of the page -- and never as a popup over the grid.
 
 IT USED TO GO TO THE STATUS BAR, the line in the bottom LEFT of the
-window, with a four-second linger. That is what the maintainer reported on
-2026-09-03: "in the bottom of the screen to the left is text that also
-flickers sometimes like its going to what is hovered and something else
-back and forthe." Two writers, not one: this filter put the description
-there on every hover and Qt put the permanent message back four seconds
-later, so the corner alternated. The strip does not alternate -- it holds
+window, with a four-second linger, and it flickered: text that looked as
+though it were going to the hovered module and then to something else and
+back again. Two writers, not one -- this filter put the description there on
+every hover and Qt put the permanent message back four seconds later, so the
+corner alternated. The strip does not alternate -- it holds
 the last module for thirty seconds and is replaced only by the next.
 
 Home already worked this way and the reason is written on ``AppTile``:

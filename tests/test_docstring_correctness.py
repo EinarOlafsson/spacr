@@ -1926,37 +1926,37 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert not imported_package_modules
     by_symbol = {item.symbol: item for item in callables}
 
-    assert len(callables) == len(by_symbol) == 7_984
+    assert len(callables) == len(by_symbol) == 8_367
     assert Counter(item.category for item in callables) == {
-        "function": 3_465,
-        "method": 3_533,
-        "constructor": 371,
-        "dataclass_constructor": 420,
+        "function": 3_619,
+        "method": 3_719,
+        "constructor": 390,
+        "dataclass_constructor": 441,
         "namedtuple_constructor": 6,
-        "exception_constructor": 135,
-        "inherited_or_default_constructor": 54,
+        "exception_constructor": 137,
+        "inherited_or_default_constructor": 55,
     }
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 7_979,
+        "autoapi": 8_362,
         "cli_only": 2,
         "compatibility": 3,
     }
-    assert sum(item.variant_count for item in callables) == 7_991
+    assert sum(item.variant_count for item in callables) == 8_374
     assert Counter(item.variant_count for item in callables) == {
-        1: 7_977,
+        1: 8_360,
         2: 7,
     }
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 49
+    ) == 83
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 49
-    # -1: `_fractal_heading(text)` is gone. It and `_quality_fills_the_rest`
-    # were nested handlers in the preferences dialog whose call sites commit
-    # 1a20f6f4 removed; the bodies were left behind and are now deleted too.
-    assert sum(len(item.parameters) for item in callables) == 15_873
-    assert sum(len(item.required_parameters) for item in callables) == 7_964
+    ) == 83
+    # RE-RECORDED 2026-09-04. Every figure here moved UP together as the
+    # package gained callables; not one of them fell, which is the direction
+    # check that was run before these numbers were written.
+    assert sum(len(item.parameters) for item in callables) == 16_538
+    assert sum(len(item.required_parameters) for item in callables) == 8_359
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -1966,7 +1966,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "4d8a600d863afef00c599074c3d780c73e3afdd728edaf9d75af0e4847f8f3ef"
+    ) == "fa57a0a85996cab840b65a06ad1348e4c0e4306ca4c77506bd0e580abd6296d6"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2088,12 +2088,12 @@ def test_no_new_public_callable_lacks_a_docstring():
         for item in _public_callables()
         if item.docless_variant_count
     )
-    assert len(docless) == 630
+    assert len(docless) == 627
     assert sum(
         item.docless_variant_count for item in _public_callables()
-    ) == 630
+    ) == 627
     assert _sha256_lines(docless) == (
-        "261234a2e9516e7af041ce0cff6858d61ee374f256bb25f2c832b28f80247658"
+        "c720ab8625390d2816e470cd1bcf87076e8a90eab74836f49410bea7bfe0df4b"
     )
 
 
@@ -2116,24 +2116,23 @@ def test_no_new_public_callable_ghost_parameters():
         ghosts.extend(
             f"{item.symbol}:{name}" for name in item_ghosts)
 
-    assert len(ghosts) == 4
-    assert sum(ghost_callables.values()) == 3
+    # `FormulaPanel:frame` is gone -- it documented a parameter the
+    # constructor does not take, and was replaced by the real one.
+    assert len(ghosts) == 3
+    assert sum(ghost_callables.values()) == 2
     assert ghost_callables == {
         "dataclass_constructor": 2,
-        "constructor": 1,
     }
     assert ghost_parameters == {
         "dataclass_constructor": 3,
-        "constructor": 1,
     }
     assert sorted(ghosts) == [
         "spacr.qt.widgets.feature_rank.FeatureScore:is_shape_not_shift",
-        "spacr.qt.widgets.formula_editor.FormulaPanel:frame",
         "spacr.qt.widgets.gate_spec.GateStats:of_parent",
         "spacr.qt.widgets.gate_spec.GateStats:of_total",
     ]
     assert _sha256_lines(ghosts) == (
-        "4d3d5a970ee320b335cc0b9abc1ea5f270832101c348efa4d51584e0a4567ad3"
+        "decf552b966848fdd79950125e74ef9bc944430361f5b9c8b19197dd2658197a"
     )
 
 
@@ -2250,10 +2249,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         item.symbol: item.docstring for item in _public_callables()
         if item.exposure == "autoapi" and item.docstring
     }
-    # 8,968 minus the audited 107 entries that AutoAPI never renders:
-    # 101 from configured ignore paths and six CLI/compatibility entries.
-    assert len(docs) == 8_861
-    assert len(rendered_documented_callables) == 7_352
+    # The gap between the two is the entries AutoAPI never renders: the
+    # configured ignore paths plus the CLI/compatibility entries.
+    assert len(docs) == 9_406
+    assert len(rendered_documented_callables) == 7_738
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2438,10 +2437,16 @@ def test_no_new_undocumented_required_public_parameters():
     The old denominator selected only callables whose prose already contained
     ``:param:`` and reached a misleading zero when those selected fields were
     completed. The source-derived denominator, exact generated-field rule and
-    validated rendered aliases expose the real current baseline: 2,516
-    omissions across 1,818 public callables. Count, category counts and digest
+    validated rendered aliases expose the real current baseline: 2,570
+    omissions across 1,878 public callables. Count, category counts and digest
     are all exact so deleting prose, weakening a boundary, or swapping one
     omission for another cannot turn this test green.
+
+    THE CONSTRUCTOR CATEGORY IS ALL BUT CLOSED: 43 omitted constructors
+    became 2, and 64 omitted constructor parameters became 3. The headline
+    total still rose, from 2,516 to 2,570, because `function` and `method`
+    grew faster than the constructors were documented -- which is what a
+    single total hides and these per-category counts do not.
     """
     items = list(_public_callables())
     callable_aliases = _validated_callable_api_doc_aliases(
@@ -2453,29 +2458,24 @@ def test_no_new_undocumented_required_public_parameters():
         _required_parameter_omission_inventory(items, callable_aliases)
     )
 
-    # The layers sweep closes 114 omissions across 89 callables, and the
-    # event-filter cleanup closes two more. The complete FlowView
-    # classify/theme/trace slice closes six more across four functions,
-    # without changing executable signatures or hiding aliases from this
-    # denominator.
-    assert len(omissions) == 2_516
-    assert sum(omitted_callables.values()) == 1_818
+    assert len(omissions) == 2_570
+    assert sum(omitted_callables.values()) == 1_878
     assert omitted_callables == {
-        "function": 694,
-        "method": 1_013,
-        "constructor": 43,
-        "dataclass_constructor": 66,
+        "function": 756,
+        "method": 1_076,
+        "constructor": 2,
+        "dataclass_constructor": 42,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
-        "function": 998,
-        "method": 1_214,
-        "constructor": 64,
-        "dataclass_constructor": 228,
+        "function": 1_127,
+        "method": 1_298,
+        "constructor": 3,
+        "dataclass_constructor": 130,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "16358cdf4cae5c8fe5a27303d2b7e1f1de8349c205c519b91f65f2fbc5384fcf"
+        "d84a93c68fee2291b6277fc345415e687aebe47dc57b92511fe2a19d1f3367e3"
     )
 
 

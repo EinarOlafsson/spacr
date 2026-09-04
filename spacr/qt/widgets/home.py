@@ -826,10 +826,9 @@ class QueuedPanel(Panel):
         """Drop every item from the plate queue. Returns how many went.
 
         WRITES, which no other part of this panel does -- the class docstring
-        says the Queue screen owns writes and that was true until **Clear**
-        was asked for on 2026-09-03: "this should also have a clear button
-        (just the text clear which turns red upon hover or click) that clears
-        the text and anything in the quesue."
+        says the Queue screen owns writes, and this is the one exception:
+        **Clear** empties the queue from here rather than sending the reader
+        to another screen to do it.
 
         Not confirmed, and deliberately. A queue entry is a plate waiting to
         be processed -- settings and a source path, no results -- so clearing
@@ -890,14 +889,13 @@ class RecentRunsPanel(Panel):
     """Last few journalled runs of a REAL module; each row navigates.
 
     "Real module" is doing work here. The panel used to list whatever the
-    run journal's newest manifests said, and on 2026-09-03 the maintainer
-    reported it: "these are clickable but do not represent runs. it just
-    brings the user to a _job module." Both halves were true. The journal on
-    that machine held 11,046 run folders of which 7,323 were opened under
-    the app_key ``_job`` or ``job`` -- a test fixture's key, written straight
-    into the user's real `~/.spacr/runs` because nothing sandboxed it (fixed
-    in ``tests/conftest.py``). So most rows named a module that does not
-    exist, and clicking one asked the window to open it.
+    run journal's newest manifests said, and those rows were clickable
+    without representing runs -- they opened a ``_job`` module. On one
+    machine the journal held 11,046 run folders of which 7,323 were written
+    under the app_key ``_job`` or ``job``: a test fixture's key, written
+    straight into the real `~/.spacr/runs` because nothing sandboxed it
+    (fixed in ``tests/conftest.py``). So most rows named a module that does
+    not exist, and clicking one asked the window to open it.
 
     The pollution is stopped at the source now, but a filter here is still
     the right thing: this panel NAVIGATES, so a row it draws is a promise
@@ -1363,9 +1361,9 @@ class NewsPanel(Panel):
     the window it is in. The notes also belong to the release: what shipped
     in 1.5.0.4 does not change afterwards.
 
-    Until 2026-09-03 there was no feed at all and this panel said so -- "No
+    There was previously no feed at all and this panel said so -- "No
     release notes bundled with this build" -- which was honest and useless.
-    The maintainer asked for the real thing: "News should contain all the
+    What it shows now is the real thing: "News should contain all the
     releas information with links. i nkow that there was release information
     for the current 1.5.0.4 version. this one as well as all of the other
     ones should be scrollable and the user should be able to controll the

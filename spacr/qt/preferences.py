@@ -6856,8 +6856,8 @@ def get_dashboard_watermark(which: str) -> str:
     """When Home's ``which`` panel was last cleared, as a UTC ISO string.
 
     A WATERMARK, NOT A DELETION, and that is the whole design. **Clear** on
-    Recent runs and **Reset** on Totals were asked for on 2026-09-03 beside
-    the queue's Clear, but the queue holds plates waiting to start while
+    Recent runs and **Reset** on Totals sit beside the queue's Clear, but
+    the queue holds plates waiting to start while
     these two read the run journal -- which is the record of what this
     installation has actually done, is what the Run History screen searches,
     and is what a run's `manifest.json` is for. Emptying a dashboard panel

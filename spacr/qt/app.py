@@ -1418,10 +1418,10 @@ def dock_rows() -> List[Tuple[str, str, str, str]]:
     child under its fold host, or under one of the Help modules, and
     nothing appears twice.
 
-    THIS USED TO RETURN ALL OF :data:`APPS`, and the maintainer reported
-    what that looked like on 2026-09-03: "the moduals that should be in the
-    Help category are not yet and potentially some moduals that should be
-    nested are not. the modules in the dock should mimic the screen module
+    THIS USED TO RETURN ALL OF :data:`APPS`, and the result was a dock that
+    did not match the Home screen: modules belonging to Help sat outside it,
+    and modules that should have been nested under a host were listed flat.
+    The dock is meant to mimic the screen module
     tiles ... everything else is nested and in help dropdown."
 
     Measured before the change: 36 top-level dock rows against 19 Home
@@ -2015,11 +2015,10 @@ class Sidebar(Dock):
     def _dock_icon(key: str):
         """The row's mark. ``app_icon``, NOT ``icon``, for Home.
 
-        Instruction 369 ask 1: Home was the ONE row of forty whose mark
-        differed from what the Home screen draws, because ``icon("home")``
-        answers a Font Awesome house. The bundled mask is cut from the
-        application's own tile, and ``app_icon`` re-inks it for the theme
-        like every other row.
+        Home is the one row whose mark would otherwise differ from what the
+        Home screen draws, because ``icon("home")`` answers a Font Awesome
+        house. The bundled mask is cut from the application's own tile, and
+        ``app_icon`` re-inks it for the theme like every other row.
         """
         if key == "__home__":
             return iconset.app_icon("home")
