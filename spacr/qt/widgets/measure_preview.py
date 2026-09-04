@@ -360,6 +360,7 @@ class _CropThumb(QLabel):
     clicked = Signal(int)
 
     def __init__(self, index: int, *, included: bool = True, parent=None):
+        """Build the thumb, rimmed by whether the crop is included."""
         super().__init__(parent)
         self._index = index
         self.setAlignment(Qt.AlignCenter)

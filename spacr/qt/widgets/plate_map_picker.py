@@ -100,6 +100,7 @@ class _Header(QLabel):
     """
 
     def __init__(self, text: str, parent=None):
+        """Build the header, locked to the same square as a well."""
         super().__init__(text, parent)
         self.setAlignment(Qt.AlignCenter)
         # The hint. The floor and the ceiling are in the sheet below, for the

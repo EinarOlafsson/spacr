@@ -62,6 +62,7 @@ class _ChatInput(QPlainTextEdit):
     submitted = Signal()
 
     def __init__(self, parent=None):
+        """Build the input, sized from the font rather than a fixed number."""
         super().__init__(parent)
         self.setTabChangesFocus(True)
         metrics = self.fontMetrics()

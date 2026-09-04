@@ -180,6 +180,7 @@ class _FlatStyleMixin:
     _flat_selector = "QWidget"
 
     def _apply_flat_style(self) -> None:
+        """Apply the flat sheet for this control's own selector."""
         self.setStyleSheet(_flat_qss(self._flat_selector))
 
     def showEvent(self, event):      # noqa: N802 (Qt naming)

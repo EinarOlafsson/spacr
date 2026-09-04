@@ -97,6 +97,7 @@ class _DownloadWorker(QObject):
     failed = Signal(str)               # the message to show
 
     def __init__(self, entry, folder: str, *, unverified: bool = False):
+        """Hold what to fetch, where to put it, and whether to skip the checksum."""
         super().__init__()
         self._entry = entry
         self._folder = folder

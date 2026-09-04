@@ -385,6 +385,7 @@ class _SortState(QObject):
     """
 
     def __init__(self, view):
+        """Take the view as parent and start with nothing suspended."""
         super().__init__(view)
         self._view = view
         self._suspended = None

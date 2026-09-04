@@ -54,6 +54,7 @@ class _TileButton(QPushButton):
     """
 
     def __init__(self, base_size: int, parent=None):
+        """Build the button with its icon at the resting size."""
         super().__init__(parent)
         self._base_size = int(base_size)
         self._icon_pixels = int(base_size)
@@ -62,9 +63,11 @@ class _TileButton(QPushButton):
         self._anim.setEasingCurve(QEasingCurve.OutCubic)
 
     def _get_icon_pixels(self) -> int:
+        """The animated icon size, in px. Read by the property."""
         return self._icon_pixels
 
     def _set_icon_pixels(self, v: int) -> None:
+        """Set the icon size and apply it. Written by the animation."""
         self._icon_pixels = int(v)
         self.setIconSize(QSize(self._icon_pixels, self._icon_pixels))
 

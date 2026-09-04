@@ -38,6 +38,7 @@ class _ClickToFold(QObject):
     """
 
     def __init__(self, label: QLabel, toggle: Callable[[], None]):
+        """Take the heading as parent and hold the toggle it calls."""
         super().__init__(label)
         self._toggle = toggle
 

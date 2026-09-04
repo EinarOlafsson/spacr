@@ -226,6 +226,7 @@ class _MultiSelect(QListWidget):
     changed = Signal()
 
     def __init__(self, caption: str, parent=None):
+        """Build the tick list, with the caption as its only prompt."""
         super().__init__(parent)
         self.setToolTip(caption)
         self.setSelectionMode(QListWidget.NoSelection)
@@ -234,6 +235,11 @@ class _MultiSelect(QListWidget):
         self.itemChanged.connect(self._item_changed)
 
     def _item_changed(self, _item) -> None:
+        """Announce a tick, unless the list is being filled.
+
+        The guard is what stops a repopulate from emitting once per item and
+        making every listener redo the work N times for one change.
+        """
         if not self._filling:
             self.changed.emit()
 

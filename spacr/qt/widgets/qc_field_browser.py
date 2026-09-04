@@ -479,6 +479,7 @@ class _FieldView(QGraphicsView):
     """
 
     def __init__(self, parent=None) -> None:
+        """Build the view with its own scene, fitted on first load."""
         super().__init__(parent)
         self._scene = QGraphicsScene(self)
         self.setScene(self._scene)

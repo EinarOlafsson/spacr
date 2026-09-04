@@ -403,6 +403,11 @@ class _LazyModule:
         return dir(self._load())
 
     def __repr__(self):
+        """Name the module and say whether it has been imported.
+
+        Does NOT import it: inspecting a lazy proxy in a debugger must not be the
+        thing that triggers the import it exists to defer.
+        """
         loaded = self.__dict__['_module'] is not None
         state = 'loaded' if loaded else 'not yet imported'
         return f"<lazy module {self.__dict__['_name']!r} ({state})>"
