@@ -339,6 +339,7 @@ def _form_scroll_class():
         """
 
         def sizeHint(self):               # noqa: N802 - Qt naming
+            """The inner form's own width, so the dialog opens wide enough to read."""
             inner = self.widget()
             if inner is None:
                 return super().sizeHint()
@@ -347,6 +348,7 @@ def _form_scroll_class():
             return QSize(hint.width() + frame, hint.height() + frame)
 
         def minimumSizeHint(self):        # noqa: N802 - Qt naming
+            """A floor small enough that the dialog can always be shrunk."""
             return QSize(SMALLEST, SMALLEST)
 
     _SCROLL_CLASS = _FormScroll
@@ -395,6 +397,7 @@ def _drag_class():
         def eventFilter(self, watched, event):    # noqa: N802 - Qt naming
             # `getattr`, for `_DragByBackground`'s reason: Qt goes on
             # delivering to a filter whose Python attributes are cleared.
+            """Move the window when its holder's empty space is dragged."""
             holder = getattr(self, "_holder", None)
             if holder is None or watched is not holder:
                 return False
@@ -769,6 +772,7 @@ def detach_all_dialogs(app) -> bool:
                 self._inner = _DetachEveryDialog()
 
             def eventFilter(self, obj, event):    # noqa: N802 - Qt naming
+                """Forward to the detacher this filter wraps."""
                 return self._inner.eventFilter(obj, event)
 
         _DETACHER = _Filter()

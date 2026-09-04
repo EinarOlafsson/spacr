@@ -109,6 +109,7 @@ def ask_for_a_folder(
         from PySide6.QtWidgets import QFileDialog
 
         def chooser(title, start=""):
+            """Open the folder dialog. Injected so the flow can be tested."""
             return QFileDialog.getExistingDirectory(parent, title, start)
 
     while True:
@@ -133,6 +134,11 @@ def a_folder_holding(*suffixes: str) -> Callable[[str], Optional[str]]:
     wanted = tuple(s.lower() for s in suffixes)
 
     def check(path: str) -> Optional[str]:
+        """Say what is wrong with a path, or ``None`` when it will do.
+
+        Returns the COMPLAINT rather than a bool, so the caller can show the
+        reason instead of a bare refusal.
+        """
         if not os.path.isdir(path):
             return f"{path} is not a folder"
         try:
@@ -237,6 +243,7 @@ def ask_for_a_database_column(
         from PySide6.QtWidgets import QFileDialog
 
         def chooser(title, start=""):
+            """Open the database file dialog. Injected for testing."""
             path, _filter = QFileDialog.getOpenFileName(
                 parent, title, start, "Databases (*.db *.sqlite);;All (*)")
             return path
@@ -245,6 +252,7 @@ def ask_for_a_database_column(
         from PySide6.QtWidgets import QInputDialog
 
         def pick(title, prompt, options):
+            """Ask which column, from the ones the database actually has."""
             choice, accepted = QInputDialog.getItem(
                 parent, title, prompt, list(options), 0, False)
             return choice if accepted else None
