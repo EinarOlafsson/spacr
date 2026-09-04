@@ -69,6 +69,7 @@ class _MessageBubble(QWidget):
     """
 
     def __init__(self, role: str, text: str = "", parent=None):
+        """Build the bubble and align it by role."""
         super().__init__(parent)
         self.role = role
         layout = QHBoxLayout(self)
@@ -111,6 +112,7 @@ class _ProvidersDialog(QDialog):
     """
 
     def __init__(self, parent=None):
+        """Build the providers and settings tabs."""
         super().__init__(parent)
         self.setWindowTitle("AI Console — providers & settings")
         self.setMinimumWidth(620)
@@ -140,6 +142,7 @@ class _ProvidersDialog(QDialog):
 
     # -- Providers tab -------------------------------------------------
     def _build_providers_tab(self) -> QWidget:
+        """The page listing each provider and how to sign in to it."""
         page = QWidget()
         col = QVBoxLayout(page)
 
@@ -172,6 +175,7 @@ class _ProvidersDialog(QDialog):
 
     # -- Settings tab --------------------------------------------------
     def _build_settings_tab(self) -> QWidget:
+        """The page for response speed, the system prompt and issue filing."""
         page = QWidget()
         col = QVBoxLayout(page)
         col.setSpacing(SPACING["md"])
@@ -318,14 +322,27 @@ class _ProvidersDialog(QDialog):
 
     # -- Settings handlers --------------------------------------------
     def _on_speed_changed(self, _idx: int) -> None:
+        """Store the chosen speed, ignoring a value the store would reject.
+
+        Guarded rather than trusted: the combo is built from the valid set, so a
+        value outside it means the two have drifted, and writing it would put a
+        setting in the store that nothing can read back.
+        """
         value = self._speed_combo.currentData()
         if value in ai_settings.VALID_SPEEDS:
             ai_settings.set_response_speed(value)
 
     def _on_auto_issue_changed(self, _state: int) -> None:
+        """Store whether a failure may file an issue without asking."""
         ai_settings.set_auto_file_issues(self._auto_issue_chk.isChecked())
 
     def _refresh_github_status(self) -> None:
+        """Say whether issues can be sent directly, and by what.
+
+        NAMES THE SOURCE -- a token, the environment, or the CLI -- because "signed
+        in" alone does not tell a user which credential is about to be used, and
+        that is the thing they change when it is the wrong one.
+        """
         from ..ai import github_auth
         src = github_auth.auth_source()
         labels = {
@@ -361,11 +378,13 @@ class _ProvidersDialog(QDialog):
         self._prompt_status.setText(self._prompt_status_text())
 
     def _prompt_status_text(self) -> str:
+        """Whether the custom system prompt or the default is in force."""
         if ai_settings.is_system_prompt_overridden():
             return tr("Using your custom prompt (overrides default).")
         return tr("Using the default spaCR-aware prompt.")
 
     def _make_provider_row(self, provider: ChatProvider) -> QWidget:
+        """One provider's card: its name, its state and how to sign in."""
         card = QWidget()
         col = QVBoxLayout(card)
         col.setContentsMargins(SPACING["sm"], SPACING["sm"],
@@ -424,6 +443,12 @@ class _ProvidersDialog(QDialog):
         return card
 
     def _copy_to_clipboard(self, text: str) -> None:
+        """Put ``text`` on the clipboard, if there is one.
+
+        A headless or clipboard-less session gets nothing rather than an
+        exception: copying a sign-in command is a convenience, and failing it
+        must not take the dialog down.
+        """
         from PySide6.QtGui import QGuiApplication
         cb = QGuiApplication.clipboard()
         if cb is not None:
@@ -443,6 +468,7 @@ class _ChatInput(QTextEdit):
     submitted = Signal()
 
     def __init__(self, parent=None):
+        """Build the input, bounded so it grows a little and no further."""
         super().__init__(parent)
         self.setMinimumHeight(56)
         self.setMaximumHeight(140)
