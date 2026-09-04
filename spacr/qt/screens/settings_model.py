@@ -5610,6 +5610,7 @@ def regression_model_explainer_html(regression_type: Any,
     parts = [f'<div style="color:{ink["fg"]};">']
 
     def tx(source: str, **values: object) -> str:
+        """Translate one source string into the explainer's language."""
         return _translated_ui_text(source, language, **values)
 
     if _nonparametric_selected(inference, analysis_mode):
@@ -5927,6 +5928,7 @@ def regression_model_explainer(regression_type: Any,
     key = str(regression_type or "auto").strip().lower() or "auto"
 
     def tx(source: str, **values: object) -> str:
+        """Translate one source string into the explainer's language."""
         return _translated_ui_text(source, language, **values)
 
     if _nonparametric_selected(inference, analysis_mode):
@@ -10514,6 +10516,14 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
         # and 13 labels had it. `_unwrap_setting_label` is the existing
         # answer to "what is the real label in there"; it returns the
         # widget unchanged when there is no host to unwrap.
+        """The real label inside a row, unwrapping a host if there is one.
+
+        `Section.add_row` wraps the caption in a `SettingLabelWithInfo` whenever
+        the row is right-aligned against its field -- the form's normal shape --
+        so the layout hands back a plain QWidget and a bare isinstance rejects
+        it. Measured on Mask: 1,541 of 1,657 rows kept their help on the FIELD
+        for this reason alone, and only 13 labels had it.
+        """
         widget = _unwrap_setting_label(widget)
         if not (isinstance(widget, QLabel) and widget.text().strip()):
             return None

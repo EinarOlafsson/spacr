@@ -157,6 +157,7 @@ def panel_canvas_class():
         """
 
         def __init__(self, figure):
+            """Build the canvas non-opaque, so the panel shows through it."""
             super().__init__(figure)
             self.setAttribute(Qt.WA_OpaquePaintEvent, False)
             self.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -450,6 +451,7 @@ class TrainCompareScreen(QWidget):
         self._set_status(f"Scanning {path} …")
 
         def _job():
+            """Find the training runs under a folder. Off the GUI thread."""
             return tc.find_runs(path)
 
         return self._run_job(_job, self._apply_runs)
@@ -850,6 +852,7 @@ class TrainCompareScreen(QWidget):
         box: Dict[str, Any] = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload."""
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)

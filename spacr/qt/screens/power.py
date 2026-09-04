@@ -288,6 +288,7 @@ def run_power_sweep(payload: Dict[str, Any]) -> Dict[str, Any]:
         stopping a sweep between points.
         """
         def _hook(point: Dict[str, Any]) -> Any:
+            """Report one completed point back to the progress bar."""
             done[0] += 1
             if progress is not None:
                 progress(done[0], total, label)
@@ -456,6 +457,7 @@ class PowerCurveView(QWidget):
         span = (x_hi - x_lo) or 1.0
 
         def to_px(x: float, y: float) -> Tuple[float, float]:
+            """Data coordinates to pixels, clamping the vertical to the axis."""
             return (left + width * (x - x_lo) / span,
                     top + height * (1.0 - max(0.0, min(1.0, y))))
 
