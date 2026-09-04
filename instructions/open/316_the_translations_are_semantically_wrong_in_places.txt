@@ -435,3 +435,93 @@ THAT WORKS, TURNED UP THREE MORE ON THE SAME STRING:
 NOTHING HERE IS A FLUENT REVIEW and none of it is recorded as one. 10 catalog
 tests fail before and after this change, identically -- measured in a
 worktree at HEAD, not assumed.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- THE PASS WAS AUTHORISED, AND "LOAD" WAS WRONG IN TWO WHOLE LOCALES
+--------------------------------------------------------------------------------
+
+The maintainer said today: "get 316 done (do the pass if needed)". This file
+had been waiting since 2026-08-31 for HIS single pass; that instruction
+releases the wait, and what follows is the first tranche.
+
+FIRST, THE ROWS THIS FILE WAS WAITING ON HAVE MOVED. Its 2026-09-01 note
+records three orphaned strings rendering as half-English salad -- de "Load
+Test Daten", es "Load Prueba Datos", sv "Load Test Data". MEASURED TODAY:
+that salad is GONE. The model re-drafted them at some point since, and what
+replaced it is wrong in a way no gate can see, which is this file's entire
+thesis arriving again on the same three strings:
+
+    sv   'Load test data'  ->  "Belastningsprovningsdata"
+    es   'Load test data'  ->  "Datos de ensayo de carga"
+    fr   'Load test data'  ->  "Données d'essai de charge"
+
+All three read "Load test" as the compound noun LOAD TESTING -- stress
+testing a system. Fluent, plausible, correctly declined, and about the wrong
+subject entirely. A Swedish user is offered a button labelled "load-testing
+data".
+
+SECOND, AND LARGER: THE VERB ITSELF IS WRONG IN TWO LOCALES, THROUGHOUT.
+Found by reading around the three strings rather than by looking for it:
+
+    ko    38 strings render "load" as 충전 -- to RECHARGE, as a battery.
+    is    "Load X" is rendered "Láttu upp X" -- LET/MAKE, not load.
+
+The Icelandic count is deliberately not given: "Láttu" is CORRECT in the
+several "Let the ..." strings, so a grep for the word over-counts, and this
+file's own section on failed proxies is about exactly that kind of number.
+
+FOUR ARE NOT MERELY WRONG, THEY ARE BROKEN, and every one passed presence,
+source-hash currency and length:
+
+    ko  'Load a column mapping'      "폴더 폴더 폴더 폴더"  = folder folder
+                                     folder folder. Degenerate repetition.
+    ko  'Load the example images…'   "예를 들어 사진을 올려보세요..." = "For example,
+                                     try uploading a photo" -- it read
+                                     "example" as "for example".
+    is  'Could not load classifier
+         evaluation'                 "Það gæti ekki lofað skilgreiningar" =
+                                     "it could not promise definitions".
+    is  'Load a table before
+         clustering.'                "Láttu borð áður en klúst." -- "borð" is
+                                     a dining table; "klúst" is not a word.
+
+REPAIRED: 32 rows across seven locales -- 11 in `is`, 11 in `ko`, 3 in `fr`,
+3 in `hi`, and one each in `de`, `es`, `sv`, `zh_CN`. Written into MANUAL_UI
+in `tools/build_i18n_catalogs.py`, which is the override the generator
+honours, and applied into the shipped catalogs so they are live now rather
+than at the next model run -- the same route 316-B's five repairs took on
+2026-09-03.
+
+    de  'Load test data'   "Prüfdaten laden" -> "Testdaten laden", which is
+        also a CONSISTENCY fix: the ellipsis variant beside it on the same
+        screen already said "Testdaten laden...".
+
+PROVENANCE, AND IT IS NOT A FLUENT REVIEW. Written by Claude on the
+maintainer's instruction. NOT recorded in `docs/i18n/reviewed/**`, because
+that directory means a named human read it, and 357 guideline 4 forbids
+claiming a review nobody gave. This file's standing finding -- that a
+machine-drafted translation passes every gate while being wrong -- applies to
+these rows too, and the honest claim for them is "drafted, not reviewed".
+
+WHAT MAKES THEM WORTH SHIPPING ANYWAY, stated so the decision is on the
+record rather than assumed: the text being replaced is not a plausible
+translation awaiting confirmation, it is "folder folder folder folder". A
+draft that is right about the verb is strictly better than a fluent sentence
+about batteries, and leaving the old rows in place to protect a principle
+would protect nothing.
+
+`is` is one of the three locales the maintainer reads. Those eleven rows are
+the cheapest possible thing for him to check and are worth more than any
+other eleven in the catalogs.
+
+MEASURED, WITH A HEAD BASELINE, because this repository's own first lesson is
+that a number without one means nothing:
+
+    tests/qt/test_external_i18n_catalogs.py
+        clean worktree at HEAD (be10b5146)   7 failed, 24 passed
+        with this change                     7 failed, 24 passed
+
+Identical, and the same seven names. This repair regressed nothing, and it
+fixes none of the seven -- they are 306's reviewed-evidence, false-friend and
+API-symbol blockers, which are a different gate from the one this file is
+about.
