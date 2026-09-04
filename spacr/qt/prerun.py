@@ -897,6 +897,7 @@ class SegQCBanner(_JobMixin, QFrame):
                 settings = {}
 
         def _job(box: Dict[str, Any]) -> None:
+            """Score the segmentation QC. Off the GUI thread."""
             from ..seg_qc import score_digest, thresholds_from_settings
             box["digest"] = score_digest(
                 box["src"], thresholds=thresholds_from_settings(box["settings"]))
@@ -1053,6 +1054,7 @@ class DiameterPanel(_JobMixin, QFrame):
         estimator = self._estimator
 
         def _job(box: Dict[str, Any]) -> None:
+            """Run the estimator. Off the GUI thread."""
             fn = box["estimator"]
             if fn is None:
                 from ..diameter import estimate_diameters as fn  # noqa: N806

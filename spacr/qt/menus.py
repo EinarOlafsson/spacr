@@ -158,6 +158,7 @@ def name_the_macos_application_menu(name: str = APPLICATION_NAME) -> bool:
         encoded = name.encode("utf-8")
 
         def to_nsstring(text: bytes):
+            """Wrap bytes as an NSString for the Objective-C call."""
             return send(nsstring, b"stringWithUTF8String:", text,
                         argtypes=(ctypes.c_char_p,))
 

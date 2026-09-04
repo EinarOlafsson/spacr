@@ -448,6 +448,7 @@ def tabulate_records(
         (len(_render_cell(r, c)) for r in sample), default=len(c)
     )) for c in columns}
     def _row(vals: Sequence[str]) -> str:
+        """One row of the table, padded to the column widths."""
         return "  " + "  ".join(v.ljust(widths[c])
                                   for c, v in zip(columns, vals))
 

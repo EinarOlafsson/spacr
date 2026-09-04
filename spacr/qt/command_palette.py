@@ -119,6 +119,7 @@ class CommandPalette(QDialog):
             apps = []
 
             def app_is_visible(_key):
+                """Fallback that treats every app as visible."""
                 return True
 
         # Apps

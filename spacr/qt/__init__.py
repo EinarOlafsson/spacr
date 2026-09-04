@@ -136,6 +136,7 @@ def _install_quiet_qt_logging() -> None:
         return
 
     def handler(mode, context, message):
+        """Drop Qt's known-noisy messages and pass the rest through."""
         if _QT_NOISE.search(message or ""):
             return
         if _QT_INOTIFY.search(message or ""):

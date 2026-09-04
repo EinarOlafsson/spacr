@@ -163,6 +163,7 @@ def contrast_icon(name: str, theme: Optional[str] = None) -> QIcon:
 def _blend(a: str, b: str, t: float) -> str:
     """Linear blend from colour ``a`` (t=0) to colour ``b`` (t=1)."""
     def ch(c):
+        """One hex colour as its three integer channels."""
         c = c.lstrip("#")
         return [int(c[i:i + 2], 16) for i in (0, 2, 4)]
     ca, cb = ch(a), ch(b)
