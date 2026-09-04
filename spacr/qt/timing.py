@@ -281,6 +281,7 @@ class _ImportTimer:
     """
 
     def __init__(self) -> None:
+        """Start at depth zero -- nothing is being imported yet."""
         self._depth = 0
 
     def find_module(self, fullname, path=None):              # noqa: D102
@@ -515,6 +516,7 @@ def watch_interactive(
 
     class _InteractivePaintProbe(QObject):
         def __init__(self) -> None:
+            """Watch ``widget`` and its controls until the screen settles."""
             super().__init__(widget)
             self.root = widget
             self.report_name = str(name)
@@ -564,6 +566,11 @@ def watch_interactive(
             self._queue_settle()
 
         def _queue_settle(self) -> None:
+            """Ask for one settle check on the next event-loop turn.
+
+            Coalesced: a burst of paints during layout would otherwise queue a check
+            per paint, and the answer is the same for all of them.
+            """
             if self.done or self._settle_queued:
                 return
             self._settle_queued = True
@@ -571,6 +578,13 @@ def watch_interactive(
 
         @staticmethod
         def _usable(control) -> bool:
+            """Whether a control is really there to be pressed.
+
+            Enabled, visible AND non-empty. A widget with a zero size is laid out but
+            not yet given room, and counting it as usable reports a screen ready
+            before anything can be clicked. A deleted control answers False rather
+            than raising.
+            """
             try:
                 size = control.size()
                 return (
@@ -583,6 +597,7 @@ def watch_interactive(
                 return False
 
         def _settle(self) -> None:
+            """Decide whether the screen is interactive yet, and report if so."""
             self._settle_queued = False
             if self.done or _EVENT_LOOP_STARTED_AT is None:
                 return
@@ -651,6 +666,7 @@ def watch_interactive(
                     continue
 
         def _retire(self) -> None:
+            """Stop watching. Idempotent, so a second call costs nothing."""
             if self.done:
                 return
             self.done = True
