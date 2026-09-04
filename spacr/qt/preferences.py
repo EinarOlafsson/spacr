@@ -284,6 +284,11 @@ class _LazyDefaults(dict):
     _loaded = False
 
     def _load(self) -> None:
+        """Fill the defaults once, on first read.
+
+        The flag is set BEFORE the work so a failure part-way through does not
+        leave every subsequent read retrying an import that already failed.
+        """
         if self._loaded:
             return
         # Set FIRST: `_mandelbrot_defaults` cannot recurse into this, but a
@@ -295,6 +300,7 @@ class _LazyDefaults(dict):
             LOG.debug("could not read the fractal defaults", exc_info=True)
 
     def __getitem__(self, key):
+        """Force the load, then read as a normal dict."""
         self._load()
         return dict.__getitem__(self, key)
 
@@ -303,6 +309,12 @@ class _LazyDefaults(dict):
         return dict.get(self, key, default)
 
     def __contains__(self, key) -> bool:
+        """Force the load, then answer as a normal dict.
+
+        Every access point forces it, not just ``__getitem__``: a caller testing
+        ``in`` before reading would otherwise see an empty mapping and conclude
+        the key does not exist.
+        """
         self._load()
         return dict.__contains__(self, key)
 
@@ -604,6 +616,7 @@ class _DefaultsForReadingRealForWriting:
     """
 
     def __init__(self, real: QSettings):
+        """Hold the real store, which is where WRITES still go."""
         self._real = real
 
     def value(self, key, default=None, type=None):
