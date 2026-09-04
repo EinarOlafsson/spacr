@@ -172,12 +172,28 @@ class ProposalModel(QAbstractTableModel):
     # -- QAbstractTableModel ----------------------------------------------
 
     def rowCount(self, parent=QModelIndex()) -> int:
+        """How many proposed rows the plan holds.
+
+        :param parent: unused; the model is flat.
+        :returns: the row count.
+        """
         return 0 if parent.isValid() else len(self._rows)
 
     def columnCount(self, parent=QModelIndex()) -> int:
+        """How many columns the proposal shows.
+
+        :param parent: unused; the model is flat.
+        :returns: the column count.
+        """
         return 0 if parent.isValid() else len(self._header)
 
     def data(self, index, role=Qt.DisplayRole):
+        """One cell of the proposal.
+
+        :param index: the cell.
+        :param role: the Qt display role.
+        :returns: the cell's value for that role, or None.
+        """
         if not index.isValid():
             return None
         if role in (Qt.DisplayRole, Qt.EditRole):
@@ -189,6 +205,13 @@ class ProposalModel(QAbstractTableModel):
         return None
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """One header label.
+
+        :param section: the row or column number.
+        :param orientation: which header.
+        :param role: the Qt display role.
+        :returns: the label, or None.
+        """
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:
@@ -260,18 +283,43 @@ class AnswerModel(QAbstractTableModel):
     # -- QAbstractTableModel ----------------------------------------------
 
     def rowCount(self, parent=QModelIndex()) -> int:
+        """How many unnamed values are waiting for an answer.
+
+        :param parent: unused; the model is flat.
+        :returns: the row count.
+        """
         return 0 if parent.isValid() else len(self._rows)
 
     def columnCount(self, parent=QModelIndex()) -> int:
+        """How many columns the answer table shows.
+
+        :param parent: unused; the model is flat.
+        :returns: the column count.
+        """
         return 0 if parent.isValid() else len(ANSWER_COLUMNS)
 
     def flags(self, index):
+        """Which cells the user may edit.
+
+        Only the answer column: the value being named is what the files
+        actually contain, and letting it be edited would let a user rename
+        the data rather than explain it.
+
+        :param index: the cell.
+        :returns: the Qt item flags.
+        """
         base = Qt.ItemIsEnabled | Qt.ItemIsSelectable
         if index.isValid() and ANSWER_COLUMNS[index.column()][1]:
             return base | Qt.ItemIsEditable
         return base
 
     def data(self, index, role=Qt.DisplayRole):
+        """One cell of the answer table.
+
+        :param index: the cell.
+        :param role: the Qt display role.
+        :returns: the cell's value for that role, or None.
+        """
         if not index.isValid():
             return None
         if role in (Qt.DisplayRole, Qt.EditRole):
@@ -284,6 +332,13 @@ class AnswerModel(QAbstractTableModel):
         return None
 
     def setData(self, index, value, role=Qt.EditRole) -> bool:
+        """Record the user's answer for one value.
+
+        :param index: the cell.
+        :param value: what the user typed.
+        :param role: the Qt edit role.
+        :returns: True when the answer was taken.
+        """
         if not index.isValid() or role != Qt.EditRole:
             return False
         if not ANSWER_COLUMNS[index.column()][1]:
@@ -297,6 +352,13 @@ class AnswerModel(QAbstractTableModel):
         return True
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """One header label.
+
+        :param section: the row or column number.
+        :param orientation: which header.
+        :param role: the Qt display role.
+        :returns: the label, or None.
+        """
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:

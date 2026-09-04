@@ -737,12 +737,20 @@ class PairedFileTableWidget(QWidget):
         return [url.toLocalFile() for url in mime.urls() if url.isLocalFile()]
 
     def dragEnterEvent(self, event):  # noqa: N802 - Qt name
+        """Accept a drag carrying files this table can take.
+
+        :param event: the Qt drag event.
+        """
         if self._dropped(event):
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dragMoveEvent(self, event):  # noqa: N802 - Qt name
+        """Keep accepting while droppable files stay over the table.
+
+        :param event: the Qt drag event.
+        """
         if self._dropped(event):
             event.acceptProposedAction()
         else:
@@ -823,6 +831,14 @@ class PairedFileTableWidget(QWidget):
             self.table.setItem(index, column, item)
 
     def set_value(self, value: Any) -> None:
+        """Replace every row from a settings value.
+
+        SIGNALS BLOCKED while the rows are rebuilt: this is called when a
+        settings file is poured in, and one change signal per cell would
+        re-validate the whole form once per cell.
+
+        :param value: the rows, as the settings dict carries them.
+        """
         self.table.blockSignals(True)
         self.table.setRowCount(0)
         for row in value or []:
@@ -832,6 +848,10 @@ class PairedFileTableWidget(QWidget):
         self._refresh_status()
 
     def get_value(self) -> list[dict]:
+        """Every row, in the shape the settings dict wants.
+
+        :returns: one dict per plate row.
+        """
         rows = []
         for index in range(self.table.rowCount()):
             score = self._cell(index, self.SIDE_COLUMNS["score"])
@@ -1152,6 +1172,11 @@ class FilePathListWidget(QWidget):
         return f"{parent}/{name}" if parent else name
 
     def remove_selected(self) -> None:
+        """Drop the selected paths.
+
+        Removed from the BOTTOM up, so each row index is still valid when it
+        is reached -- deleting top-down shifts everything below it.
+        """
         rows = sorted((self._list.row(item) for item in self._list.selectedItems()),
                       reverse=True)
         for row in rows:
@@ -1161,6 +1186,7 @@ class FilePathListWidget(QWidget):
             self.value_changed.emit()
 
     def clear(self) -> None:
+        """Drop every path, and say so only if there was anything to drop."""
         if self._list.count():
             self._list.clear()
             self._refresh_hint()
@@ -1211,18 +1237,30 @@ class FilePathListWidget(QWidget):
         return [url.toLocalFile() for url in mime.urls() if url.isLocalFile()]
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:  # noqa: N802
+        """Accept a drag carrying file URLs.
+
+        :param event: the Qt drag event.
+        """
         if self._urls(event):
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dragMoveEvent(self, event: QDragMoveEvent) -> None:  # noqa: N802
+        """Keep accepting while file URLs stay over the list.
+
+        :param event: the Qt drag event.
+        """
         if self._urls(event):
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dropEvent(self, event: QDropEvent) -> None:  # noqa: N802
+        """Add the dropped paths, ignoring a drop that carries none.
+
+        :param event: the Qt drop event.
+        """
         paths = self._urls(event)
         if not paths:
             event.ignore()
@@ -1254,6 +1292,10 @@ class FilePathListWidget(QWidget):
         return self.add_paths(paths)
 
     def pick_folder(self) -> int:
+        """Ask for a folder and add it.
+
+        :returns: how many paths were added; 0 when cancelled or duplicate.
+        """
         folder = QFileDialog.getExistingDirectory(
             self, f"{self._title} — choose a folder", self._start_directory())
         if not folder:

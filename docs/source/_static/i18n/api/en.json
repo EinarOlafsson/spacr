@@ -46112,6 +46112,14 @@
       "source_sha256": "9747f9318396d1849ff376ef8809cb66abb5a3a7858826eb3c2a5ea1a9c7a780",
       "text": "A table, two axis pickers, the gating surface, and save/load.\n\n:param parent: parent widget.\n:param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this\n    screen's views join, so a selection made here reaches the others.\n    ``None`` joins the shared one; pass a private one in a test.\n:param threaded: whether the work runs off the GUI thread. False runs it\n    inline, which is what makes a test deterministic."
     },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.active_jobs": {
+      "source_blocks_sha256": [
+        "0cfec806f88c5d18054a4dc95895ae2445b627bd119a63609ce0e5a7ba1780cd",
+        "18e7e84f876d53891f1acf9e456d193058cd2e4b6ca9e718b0be970bde44c2aa"
+      ],
+      "source_sha256": "bab767715e8fe1bdbe5795898741a39068267b188e8b3e94ba899f95c49e3ab9",
+      "text": "How many background jobs this screen is running.\n\n:returns: the job count."
+    },
     "spacr.qt.screens.gate_editor.GateEditorScreen.annotate_from_gates": {
       "source_blocks_sha256": [
         "b42df08a92ec9012ef457c1cb141dedbbc169d84c647ce598c7004caff39666f",
@@ -46160,12 +46168,55 @@
       "source_sha256": "5159a879b06904120ede57d6114a39cc9443cca669d5c485244539d02c03d2fa",
       "text": "Which axis a right-click at ``point`` landed on, or ``None``.\n\n``point`` is in the canvas widget's own coordinates, which is what\nQt hands a custom context menu. Getting from there to the figure\nmeans two conversions and both are easy to get wrong: the matplotlib\ncanvas is a CHILD of the gate canvas rather than the same widget, and\nmatplotlib's display coordinates count upward from the BOTTOM while\nQt counts downward from the top.\n\nReturns ``None`` for a click inside the plotting rectangle, which is\nwhere the plot's own menu belongs."
     },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.choose_load_filters": {
+      "source_blocks_sha256": [
+        "dd7115fc21b06f81968304de28f81dcaf7faf39a1d00a877fcd60e0dd349574a"
+      ],
+      "source_sha256": "dd7115fc21b06f81968304de28f81dcaf7faf39a1d00a877fcd60e0dd349574a",
+      "text": "Ask which saved filters to load."
+    },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.choose_load_gates": {
+      "source_blocks_sha256": [
+        "039f8ac54809fb7a797d44e0fab5c973be415c245133d78b392fbe06118f8e70"
+      ],
+      "source_sha256": "039f8ac54809fb7a797d44e0fab5c973be415c245133d78b392fbe06118f8e70",
+      "text": "Ask which saved gates to load."
+    },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.choose_save_filters": {
+      "source_blocks_sha256": [
+        "7277e8a908406d9f90b1f5ba2d902c25ba2f90fffd8367cba24b41ebcf1e829e"
+      ],
+      "source_sha256": "7277e8a908406d9f90b1f5ba2d902c25ba2f90fffd8367cba24b41ebcf1e829e",
+      "text": "Ask where to save the current filters."
+    },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.choose_save_gates": {
+      "source_blocks_sha256": [
+        "d08efc00477e3135a021fc9543633bf6049d6c9cdec1c519dc6a152f42e1a01d"
+      ],
+      "source_sha256": "d08efc00477e3135a021fc9543633bf6049d6c9cdec1c519dc6a152f42e1a01d",
+      "text": "Ask where to save the current gates."
+    },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.choose_table": {
+      "source_blocks_sha256": [
+        "a7240bd396ace372b5f75d546212b1b093d6f60cc850c98661a88518a0802391"
+      ],
+      "source_sha256": "a7240bd396ace372b5f75d546212b1b093d6f60cc850c98661a88518a0802391",
+      "text": "Ask which table in the project to gate."
+    },
     "spacr.qt.screens.gate_editor.GateEditorScreen.clear_axis_cutoffs": {
       "source_blocks_sha256": [
         "1123f28ea53dfc5eccea13ea29327c7dbf60b9935f3b6ca8cab1b98faf5c130c"
       ],
       "source_sha256": "1123f28ea53dfc5eccea13ea29327c7dbf60b9935f3b6ca8cab1b98faf5c130c",
       "text": "Let ``axis`` follow the data again. Returns whether it was cut."
+    },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.closeEvent": {
+      "source_blocks_sha256": [
+        "ac804b45f5e5a068e2b7d9971af2380f4643124426f9f22c61df653f225b1346",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "bf232821ddf4ff77aee7e62aa9f53554c038996a5141db3752a3ebeb742245da",
+      "text": "Let the panel close first, so it can unlink its canvas.\n\n:param event: the Qt close event."
     },
     "spacr.qt.screens.gate_editor.GateEditorScreen.database_labels": {
       "source_blocks_sha256": [
@@ -46190,6 +46241,15 @@
       ],
       "source_sha256": "4b03c88db2fb20fe2050c9dc58ce4808807d48373af0ce1f99ff3e5338cb69fa",
       "text": "The plot menu as data: ``[(label, enabled, callback, why)]``.\n\nSeparated from the QMenu so the CONTENTS can be tested without a\ndisplay. An offscreen Qt cannot grab for a popup, so a test that\nbuilds a real menu hangs -- which is how this method came to exist.\n\nEvery callback is an EXISTING method. The menu is a second route to\nthe same code, never a second implementation."
+    },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.is_busy": {
+      "source_blocks_sha256": [
+        "37152f41a8e2c75fc26adff788add4d2ef3013e80e1c38401332baeb66314efe",
+        "c2cac2f43f5314723642411713fc80b9ea4db7c792179dc9b49695dc13cc00ca",
+        "7508b79a56134a49faf1704703e9dd12dbee213dccd777acd10d8baca5bd60d5"
+      ],
+      "source_sha256": "d1a4bedc3892ca31e459fac0573bee84b563a95714c8a3f9b45b24c8ee59e34c",
+      "text": "Whether anything is still running.\n\nWhat the window asks before closing: a gate applied to a table that\nis still loading would be applied to half of it.\n\n:returns: True while work is outstanding."
     },
     "spacr.qt.screens.gate_editor.GateEditorScreen.load_filters": {
       "source_blocks_sha256": [
@@ -46300,6 +46360,22 @@
       ],
       "source_sha256": "1a93e23b1b2affb303f70273605852cc597522a17c56d6e6e81775892d8c18ef",
       "text": "Lay ``axis`` out on ``scale``, from the menu or from the window.\n\nThe menu is a second ROUTE to the scale the settings window already\nholds, never a second copy of it: this writes the same field, so the\ntwo cannot come to disagree about how the plot is drawn."
+    },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.set_frame": {
+      "source_blocks_sha256": [
+        "3b61b1c389a0bff701f063dc936e379e61c78f0d4590f4103ec7baa8e62d01e0",
+        "70c0d5bff2c8d70a5c473990f14a12de01e2c69a30110b04e9c10aac69086c7e"
+      ],
+      "source_sha256": "5fc48a0da4d21c406876b6d45885cf5012e0c6563e7d021e7c8fc45453ec54b9",
+      "text": "Point the screen at a table to gate.\n\n:param frame: the rows, or None to clear."
+    },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.settings": {
+      "source_blocks_sha256": [
+        "8a82f5fb80fddcf3746fd3f3e44261f492cb37eada15e9783f7a3e3fe93e0281",
+        "8d6edd40a77bd0602064d85eea75f15ae5b9944a1264d408032a0296a81023cc"
+      ],
+      "source_sha256": "83fb631bc88a6991a356ff51150b8f0f1e3e89a9cc3ae0d78b667833b19ef3ba",
+      "text": "The screen's settings, in the shape a settings file wants.\n\n:returns: the settings dict."
     },
     "spacr.qt.screens.gate_editor.GateEditorScreen.show_aggregation_rules": {
       "source_blocks_sha256": [
@@ -46918,6 +46994,46 @@
       "source_sha256": "673078d2d39628681e933c3d0760b6b51de36f4ddc85caed1deb4de491d87d39",
       "text": "Every row as it stands, answered or not."
     },
+    "spacr.qt.screens.image_import.AnswerModel.columnCount": {
+      "source_blocks_sha256": [
+        "454f3b2ead1c4e82d4b02d40f58e478499a560b490b67dc62fd645d5de6edf5c",
+        "317416ddbeb93f769bf12aa25fd7d81b25189b613fa431bcba5b1886d4727aa2",
+        "011264c6495f4c17d804ba1e9d2b346bb47efaf31a7e2f52e1157f3feef42979"
+      ],
+      "source_sha256": "62ab164bb43f56c05decb8aa4df9a974c4d0ce306cca4eb84b49c2369cd14dc8",
+      "text": "How many columns the answer table shows.\n\n:param parent: unused; the model is flat.\n:returns: the column count."
+    },
+    "spacr.qt.screens.image_import.AnswerModel.data": {
+      "source_blocks_sha256": [
+        "a3d2d641775613cbd038a9c952a1ef9591da442ad1a8c9e03338a048037db452",
+        "a835f0e2f0ab2c945d413d23413e33bde413e3d9961e8867df286c2422cceccd",
+        "cdd3eb9f6eeccef830b84634831f8e12a3490b429995ccf3774e4ba338f4023a",
+        "346a3f5027ca643404ee82f01f6894e76776943fd47d119bdd95709ef941f96c"
+      ],
+      "source_sha256": "3fd19e3aa1bc74788815b9381bb969e22880cb50d31828dc91f4c71f33ed0d98",
+      "text": "One cell of the answer table.\n\n:param index: the cell.\n:param role: the Qt display role.\n:returns: the cell's value for that role, or None."
+    },
+    "spacr.qt.screens.image_import.AnswerModel.flags": {
+      "source_blocks_sha256": [
+        "15311a426f62fa4425c3b8a36bdfddf526ca0b3e3f2e26ce5d9d0b0a7c6fd9e7",
+        "9460b1a127ad706292f644612234c0ebc6f6ff7dfbe3726563f7bb298e80be6d",
+        "a835f0e2f0ab2c945d413d23413e33bde413e3d9961e8867df286c2422cceccd",
+        "b7b72d486ed9fe6c3134f9332efd16a51b65a92cf21ec57dfa461f9dcedc5cfc"
+      ],
+      "source_sha256": "ec8deab7f84c5c3dbabcb4b367dfb18e4dfd3261b2689811d430841d7863957a",
+      "text": "Which cells the user may edit.\n\nOnly the answer column: the value being named is what the files\nactually contain, and letting it be edited would let a user rename\nthe data rather than explain it.\n\n:param index: the cell.\n:returns: the Qt item flags."
+    },
+    "spacr.qt.screens.image_import.AnswerModel.headerData": {
+      "source_blocks_sha256": [
+        "af1f93e3c3091964a0a68ad59b89bb5a179c362646eeff144bfc4dca866819ba",
+        "271c508e4cb14bee56cccd616cecb3225655ab322190de195cc1f53163864e14",
+        "094e08febbf10d973e6565b8cdca8ae1a31d89d4150d9baea12ac56d13dfc6a6",
+        "cdd3eb9f6eeccef830b84634831f8e12a3490b429995ccf3774e4ba338f4023a",
+        "427cc66e6e4f78ef4550f487987ac36c2fc33434749c8b2a75a1a81f85e5e1f6"
+      ],
+      "source_sha256": "78819e8f7b3269be988076ddbfa2d82f391c92fd23bd157f3d15faa1c5e42da4",
+      "text": "One header label.\n\n:param section: the row or column number.\n:param orientation: which header.\n:param role: the Qt display role.\n:returns: the label, or None."
+    },
     "spacr.qt.screens.image_import.AnswerModel.mapping": {
       "source_blocks_sha256": [
         "50f39cf180f659d53939833e5ce1e9a0dbda4088d8412de467749a4abb649aab",
@@ -46925,6 +47041,26 @@
       ],
       "source_sha256": "ad6d295ec296d68a40a1dad0693b69855ad70fc4ef534030057ce247890f80c7",
       "text": "The answers as :meth:`spacr.image_import.ImportPlan.with_mapping`\nwants them, skipping every row still blank or not yet a number.\n\nA HALF-TYPED ANSWER IS NOT AN ANSWER. ``\"1\"`` arrives one keystroke\nafter ``\"\"``, and treating a blank or a stray letter as zero would\nwrite a channel nobody asked for."
+    },
+    "spacr.qt.screens.image_import.AnswerModel.rowCount": {
+      "source_blocks_sha256": [
+        "7f4b256fec63c01f8cbc3de38e0b067c5ca64a91d38059e34df9b8dabccfba57",
+        "317416ddbeb93f769bf12aa25fd7d81b25189b613fa431bcba5b1886d4727aa2",
+        "90e8a49ccf3d13a3c302ce245ade25f85e71c917f642a54b9a12d02847470735"
+      ],
+      "source_sha256": "773f2656f1686090f3c24ec12580a3c99fae3b1313d73bb4c845068f650451cc",
+      "text": "How many unnamed values are waiting for an answer.\n\n:param parent: unused; the model is flat.\n:returns: the row count."
+    },
+    "spacr.qt.screens.image_import.AnswerModel.setData": {
+      "source_blocks_sha256": [
+        "63f092cfd215d51de8373265c13f2defebcb7c118351531f64ec09189a546762",
+        "a835f0e2f0ab2c945d413d23413e33bde413e3d9961e8867df286c2422cceccd",
+        "7bbe8f5c3895b96ec40eede65b2880d6a4bfd2824c0f2aac099eada5359b8ca1",
+        "5087d38aa9a7abb0d47c41b4f94c96a808ad5dbffe3250346a41539f29dc7cf6",
+        "6e36dacd4c1e51880f6435d1b063e12ed6d3e9b263305d9f560b13be239208c7"
+      ],
+      "source_sha256": "e790233171f1465b47598aea5c2db7d8e2344f0ea01e0763870172f67939c0f2",
+      "text": "Record the user's answer for one value.\n\n:param index: the cell.\n:param value: what the user typed.\n:param role: the Qt edit role.\n:returns: True when the answer was taken."
     },
     "spacr.qt.screens.image_import.AnswerModel.set_answer": {
       "source_blocks_sha256": [
@@ -47211,6 +47347,36 @@
       "source_sha256": "20293ac4755137a9090061903bb798d7e7861ca73fa9115b211b45ddb50ee749",
       "text": "Read-only table over :meth:`spacr.image_import.ImportPlan.rows`.\n\nA model rather than a QTableWidget because a plate is tens of thousands\nof files and building that many QTableWidgetItems freezes the window.\n\nIts header and its cells both come from the plan, so this screen and the\ntext table :meth:`spacr.image_import.ImportPlan.table` prints cannot\ndisagree about what was inferred — one is the other with padding.\n\n:param parent: parent widget."
     },
+    "spacr.qt.screens.image_import.ProposalModel.columnCount": {
+      "source_blocks_sha256": [
+        "773a214c7720c74049b14e51574ee62e3c582f347a10533f125c1ce729c45311",
+        "317416ddbeb93f769bf12aa25fd7d81b25189b613fa431bcba5b1886d4727aa2",
+        "011264c6495f4c17d804ba1e9d2b346bb47efaf31a7e2f52e1157f3feef42979"
+      ],
+      "source_sha256": "d734a5ebdc7af01c02a8805ebbf3cc2487db826e059ea9132da1dc1d6fd9c7a5",
+      "text": "How many columns the proposal shows.\n\n:param parent: unused; the model is flat.\n:returns: the column count."
+    },
+    "spacr.qt.screens.image_import.ProposalModel.data": {
+      "source_blocks_sha256": [
+        "a3d7860503226afd3fde6c31e9acfc00ba952fc03e2744f01739f6311563ee91",
+        "a835f0e2f0ab2c945d413d23413e33bde413e3d9961e8867df286c2422cceccd",
+        "cdd3eb9f6eeccef830b84634831f8e12a3490b429995ccf3774e4ba338f4023a",
+        "346a3f5027ca643404ee82f01f6894e76776943fd47d119bdd95709ef941f96c"
+      ],
+      "source_sha256": "15419d903f4fe7eafa3273b174f053c45b9ee170649f8bad5346ecefafed0852",
+      "text": "One cell of the proposal.\n\n:param index: the cell.\n:param role: the Qt display role.\n:returns: the cell's value for that role, or None."
+    },
+    "spacr.qt.screens.image_import.ProposalModel.headerData": {
+      "source_blocks_sha256": [
+        "af1f93e3c3091964a0a68ad59b89bb5a179c362646eeff144bfc4dca866819ba",
+        "271c508e4cb14bee56cccd616cecb3225655ab322190de195cc1f53163864e14",
+        "094e08febbf10d973e6565b8cdca8ae1a31d89d4150d9baea12ac56d13dfc6a6",
+        "cdd3eb9f6eeccef830b84634831f8e12a3490b429995ccf3774e4ba338f4023a",
+        "427cc66e6e4f78ef4550f487987ac36c2fc33434749c8b2a75a1a81f85e5e1f6"
+      ],
+      "source_sha256": "78819e8f7b3269be988076ddbfa2d82f391c92fd23bd157f3d15faa1c5e42da4",
+      "text": "One header label.\n\n:param section: the row or column number.\n:param orientation: which header.\n:param role: the Qt display role.\n:returns: the label, or None."
+    },
     "spacr.qt.screens.image_import.ProposalModel.headers": {
       "source_blocks_sha256": [
         "be0ac99db57f48729f7307d7f2c728e9c75ab12b66b569617e4291ca2f93ca0f"
@@ -47224,6 +47390,15 @@
       ],
       "source_sha256": "52ebf988f587b22489ba14ddfce5ede642b0e98de7f36ae1183c22ebf81d773a",
       "text": "One row's cells, or an empty list when ``index`` is out of range."
+    },
+    "spacr.qt.screens.image_import.ProposalModel.rowCount": {
+      "source_blocks_sha256": [
+        "de08044050d8b35f5675a700cfda311277e2f24ad956bff729b66d3b94e7fd0c",
+        "317416ddbeb93f769bf12aa25fd7d81b25189b613fa431bcba5b1886d4727aa2",
+        "90e8a49ccf3d13a3c302ce245ade25f85e71c917f642a54b9a12d02847470735"
+      ],
+      "source_sha256": "e384c1f1c039fe680976fb1ba541b5ab13ac960bd77c8b2bc6c4aedf75ae3b66",
+      "text": "How many proposed rows the plan holds.\n\n:param parent: unused; the model is flat.\n:returns: the row count."
     },
     "spacr.qt.screens.image_import.ProposalModel.set_plan": {
       "source_blocks_sha256": [
@@ -63654,6 +63829,37 @@
       "source_sha256": "c2f3678fcc21f032118b8290a08abd4d51a1b9b308c37f904273d3cb4c8fe889",
       "text": "Append ``paths``, expanding folders. Returns how many were added.\n\nWhen the setting names ONE file this REPLACES what is there. A second\nchoice is a correction, and a control that appended left the run\nreading a file the user believed they had swapped out."
     },
+    "spacr.qt.widgets.file_list.FilePathListWidget.clear": {
+      "source_blocks_sha256": [
+        "5f7a9672b51d80f32dab5ed2fe1f118040871e3c93ef2285aaad69b369bb754e"
+      ],
+      "source_sha256": "5f7a9672b51d80f32dab5ed2fe1f118040871e3c93ef2285aaad69b369bb754e",
+      "text": "Drop every path, and say so only if there was anything to drop."
+    },
+    "spacr.qt.widgets.file_list.FilePathListWidget.dragEnterEvent": {
+      "source_blocks_sha256": [
+        "ac8811f27f4da8bc8f7627ddfa613298248d2802516ba08ce32ff902aedcb7b9",
+        "15575c6909400eb7899833ac566c381a843a5f11d33fa56c77b246b3a1b7bac9"
+      ],
+      "source_sha256": "db047e24a7c9affd505386940d44b74e5719cf2f432032b09c25f6e7fd9e185c",
+      "text": "Accept a drag carrying file URLs.\n\n:param event: the Qt drag event."
+    },
+    "spacr.qt.widgets.file_list.FilePathListWidget.dragMoveEvent": {
+      "source_blocks_sha256": [
+        "eca0a496a947627d195b8c05597c0d5f6bbc327e093ce5fe3f462919dd19618b",
+        "15575c6909400eb7899833ac566c381a843a5f11d33fa56c77b246b3a1b7bac9"
+      ],
+      "source_sha256": "ddd0c5ba8f33dfd6af4da84c1aca501b1853ebb68b7f5952df33d4b1bc6b5924",
+      "text": "Keep accepting while file URLs stay over the list.\n\n:param event: the Qt drag event."
+    },
+    "spacr.qt.widgets.file_list.FilePathListWidget.dropEvent": {
+      "source_blocks_sha256": [
+        "c3fd6ca7a9f1102a190c5cab23c4f36a45044b35b2a5e7191bde02effb322b27",
+        "8b59f27a976905c11e1560dc4875fc94d66600e8add250f18ccc1b8089d0b6d7"
+      ],
+      "source_sha256": "2b4715351ba5e3c109d427f9adadc9ac8ae408178dff22b960639a357b89d197",
+      "text": "Add the dropped paths, ignoring a drop that carries none.\n\n:param event: the Qt drop event."
+    },
     "spacr.qt.widgets.file_list.FilePathListWidget.get_value": {
       "source_blocks_sha256": [
         "66ab0b7db2d7caaa98595fca722fa350d7993f1a46bf26c97ddc07543e897556",
@@ -63676,6 +63882,22 @@
       ],
       "source_sha256": "8196e1787e4b19e1e334b59004290d34fb3116538a90e1a7c3b8bc86d80b50c1",
       "text": "Open the file dialog and take what is chosen.\n\nMulti-select, except when the setting names one file -- a dialog that\nlets you pick four when three of them will be discarded is a control\nlying about what it does."
+    },
+    "spacr.qt.widgets.file_list.FilePathListWidget.pick_folder": {
+      "source_blocks_sha256": [
+        "5a115bcf544751eb63692f7da7a12a27dfe66567b9920029d89d06542ecc22c8",
+        "44b547670f3f468b573a20abe380efa3f1115f2928c5dedf7a2851878d8ee8ac"
+      ],
+      "source_sha256": "20842e70319e9aa6b88c9ebd8d8119ff33cdd3a90d9d82520097dfec453018ff",
+      "text": "Ask for a folder and add it.\n\n:returns: how many paths were added; 0 when cancelled or duplicate."
+    },
+    "spacr.qt.widgets.file_list.FilePathListWidget.remove_selected": {
+      "source_blocks_sha256": [
+        "48d437c1c966a56acba90a590509f27013fa6dad79c23e5292231adced90a00e",
+        "ffadfd400279e8a2575f549bdfdc0b1af9ae8c9fee5aa9df60e54858cbefdf7c"
+      ],
+      "source_sha256": "56c173a84454a9887178ab7ec91cf65f9eb2e0e45ceafd9e4a6dff643eafb476",
+      "text": "Drop the selected paths.\n\nRemoved from the BOTTOM up, so each row index is still valid when it\nis reached -- deleting top-down shifts everything below it."
     },
     "spacr.qt.widgets.file_list.FilePathListWidget.set_value": {
       "source_blocks_sha256": [
@@ -63726,6 +63948,22 @@
       "source_sha256": "cb3530b5c679609952ecd4107573a2c45599e621bde87b4363e6059745f604ff",
       "text": "Attach a measurements database to one plate row, and say which.\n\n``row`` is the row the user aimed the drop at -- an EXPLICIT\nassignment, which is remembered and survives the re-proposal that the\nnext dropped CSV triggers.\n\nWith no row, the database is offered to the token pairing first, so\n``plate2/measurements/measurements.db`` finds plate 2 wherever that\nrow happens to be. Only when nothing in its path names a plate does\nit fall back to the first row that has no database -- and the\nreturned sentence, also shown under the table, NAMES that row. A\ndatabase attached to row 0 in silence is a plate's measurements\nquietly credited to another plate.\n\nReturns the sentence, so a caller with a console logs the same words\nthe user is reading."
     },
+    "spacr.qt.widgets.file_list.PairedFileTableWidget.dragEnterEvent": {
+      "source_blocks_sha256": [
+        "4fc104ae87148a4cdd96e13edc6fea5b2f0781a9d60e17841177bb4e9ff2817d",
+        "15575c6909400eb7899833ac566c381a843a5f11d33fa56c77b246b3a1b7bac9"
+      ],
+      "source_sha256": "05271ce419f88ee5fdcc3e7c6102cc61201bd2ddcaa1808f4d2a30ae126896a7",
+      "text": "Accept a drag carrying files this table can take.\n\n:param event: the Qt drag event."
+    },
+    "spacr.qt.widgets.file_list.PairedFileTableWidget.dragMoveEvent": {
+      "source_blocks_sha256": [
+        "eccf628271bd431e8cdf2cc0f6a92c8a91f77579b3cac449eec5824ec9a9714e",
+        "15575c6909400eb7899833ac566c381a843a5f11d33fa56c77b246b3a1b7bac9"
+      ],
+      "source_sha256": "6c68a036c0bc5d65864bddaf5284f626052a6782806a49fd21f1229c8f0a2841",
+      "text": "Keep accepting while droppable files stay over the table.\n\n:param event: the Qt drag event."
+    },
     "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent": {
       "source_blocks_sha256": [
         "dfbf6651acc193c1efcc274703be1bae61742eabf12591c7e3813776052e57b1",
@@ -63735,6 +63973,14 @@
       "source_sha256": "afdf0015aa70002ba86c20bcb8e0e1414fa54576c0ed6f1f9df6e879b65f548a",
       "text": "Route each dropped file to the column, and row, it belongs in.\n\nA drop over the score or count column goes there regardless of what\nthe file looks like -- the user aimed it. A drop anywhere else is\nsorted by header, so dropping the whole set at once still fills both\ncolumns correctly.\n\nA DATABASE is decided by its extension and never by aim: a ``.db``\ndropped on the score column is a mis-aim, not a request to fit the\nregression on a sqlite file, and a CSV dropped on the database column\nis likewise still a CSV. What aim adds for a database is the ROW --\ndropping it on a plate's row attaches it to THAT plate, which is the\none thing the token pairing cannot know when the file is called\n``measurements.db`` like everybody else's."
     },
+    "spacr.qt.widgets.file_list.PairedFileTableWidget.get_value": {
+      "source_blocks_sha256": [
+        "c05e69415fb8c1930179df463ad1a96f7a676cf4531dfcd22a075c3f5b4a8841",
+        "22478814997291fbcf10ee22e10cdfb23facf83f7b897e277d33df3b8aaeb12b"
+      ],
+      "source_sha256": "12bcb806c1ddbc8d3fec7b843381f09426ec8610c2656fbe383227aabaa73265",
+      "text": "Every row, in the shape the settings dict wants.\n\n:returns: one dict per plate row."
+    },
     "spacr.qt.widgets.file_list.PairedFileTableWidget.missing_databases": {
       "source_blocks_sha256": [
         "9e256046ab560823a7be22caece6fac0e14eb55970cd2f7d92dbfa09614a6be2",
@@ -63743,6 +63989,15 @@
       ],
       "source_sha256": "c2eae4fda9a63e56e984b9b016f6e4370ba0feaa10cf52ac58d383f6eb7d9ac0",
       "text": "Rows whose database is not on disk: ``(row number, plate, path)``.\n\nRow numbers are 1-based, the way the table numbers them.\n\nChecked as soon as the path is attached and restated in the status\nline, because the alternative is a run that reads its inputs, fits\nnothing for four minutes, and then fails on a path the panel could\nhave flagged the moment the settings were loaded. A settings file is\nroutinely written on one machine and run on another, which is the\ncase that produces this."
+    },
+    "spacr.qt.widgets.file_list.PairedFileTableWidget.set_value": {
+      "source_blocks_sha256": [
+        "6676591ce6d0c1896b9fcad375f68defdd13f7a795df3565eb5844a49ea47adb",
+        "84b3016f56327d446703b27a170977039e9417b815a8844c05208077e1bb36c0",
+        "e0d1c93aabb8fd84409512c88b58751dd182db7eb6ec23713899b014b86f0d74"
+      ],
+      "source_sha256": "b9708cd343d86dc39490beb93364733dedb82a47f330c3d625f2b2a4b5c5755d",
+      "text": "Replace every row from a settings value.\n\nSIGNALS BLOCKED while the rows are rebuilt: this is called when a\nsettings file is poured in, and one change signal per cell would\nre-validate the whole form once per cell.\n\n:param value: the rows, as the settings dict carries them."
     },
     "spacr.qt.widgets.file_list.PairedFileTableWidget.showEvent": {
       "source_blocks_sha256": [
@@ -69955,6 +70210,14 @@
       "source_sha256": "36bbd54a9cbbf4e30279f6cedea9fefef5d3a50eb62573b48d8dbcd471102f84",
       "text": "Tabbed live settings dialog for :class:`MeasurePreviewPanel`.\n\n:param panel: the preview panel this dialog edits. It is also the\n    dialog's PARENT, and the widgets the dialog lays out belong to the\n    panel rather than to it -- the dialog only knows which rows they sit\n    on, which is what lets a morphology change re-gate them."
     },
+    "spacr.qt.widgets.measure_preview.CropSettingsDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "fc0df10cce5b7fd0a2e678c3c677f9ffc6a475cbdeb7ca4446cf80aea339cdbe",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "9e3598188e624ecc51da28a943914bf1ac816e1e94f047b8407604cba63b610f",
+      "text": "Remember the dialog's geometry before it goes.\n\n:param event: the Qt close event."
+    },
     "spacr.qt.widgets.measure_preview.CropSettingsDialog.refresh_organelle_slots": {
       "source_blocks_sha256": [
         "e5c20e6d1e2bc34f46fc0f086fd02b3946cd36f2e87fb2553fd02a0fd4583132",
@@ -69983,12 +70246,52 @@
       "source_sha256": "acb617cebb2a47bd042a2255b6ae57a7c3ef6f33cef5e807a21cecec51fdbf12",
       "text": "Seed the panel from the main Measure settings dict.\n\nThe inverse of :meth:`settings_for_propagation`, and tested as one.\nThis panel had no ``apply_settings`` at all, so the crop preview --\nopened to decide whether a crop size will cut the cell in half, or\nwhich stain lands in which colour -- always answered for its own\ndefaults rather than for the run about to happen.\n\nEvery field is copied independently: a settings file carrying one\nunusable value must not cost the panel every field after it."
     },
+    "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.closeEvent": {
+      "source_blocks_sha256": [
+        "10be2b043a97990060c40a9b237a2cdeacb2de111ea8be6ff340fcfadb22494c",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "f2fdcb0a9bb78135268098f25929e354375d668b13b08ef959f112016c3e48ca",
+      "text": "Stop any preview work before going away.\n\n:param event: the Qt close event."
+    },
+    "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.current_params": {
+      "source_blocks_sha256": [
+        "f693d25717a88697384bab3f3211dcf4986db8fc8a6bf6fc52547081bc9a4f67",
+        "77a2416dd7f35283190822a646b1e008cc7a6b62519d826f04e6ae9924fe8f2e"
+      ],
+      "source_sha256": "0a0e2758be9a5964da4968576b4c1b5285a02c41d87520e8b39bc37ec5e3df23",
+      "text": "The parameters the preview is using right now.\n\n:returns: the parameters as a plain dict."
+    },
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.display_channel": {
       "source_blocks_sha256": [
         "a329a0fd0a461c8df64cb92bd7bf70541ea57e006d82d7816e8015755ffa01f1"
       ],
       "source_sha256": "a329a0fd0a461c8df64cb92bd7bf70541ea57e006d82d7816e8015755ffa01f1",
       "text": "Channel index the crops are rendered from, or ``None`` for all."
+    },
+    "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.dragEnterEvent": {
+      "source_blocks_sha256": [
+        "2ec49d475ad22ecec838c566dfb408e6451118b123e419f562bdb2e56a4cd6d0",
+        "15575c6909400eb7899833ac566c381a843a5f11d33fa56c77b246b3a1b7bac9"
+      ],
+      "source_sha256": "d594933e1f3273052f3e1607f802d0b87b3e9fc28509bbe2f31279f3d25728da",
+      "text": "Accept a drag carrying something this preview can measure.\n\n:param event: the Qt drag event."
+    },
+    "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.dragMoveEvent": {
+      "source_blocks_sha256": [
+        "a9906c8fcc1687d6509e3f45bdab144a7b805b61b7fd9c79a918941fcbbf28be",
+        "15575c6909400eb7899833ac566c381a843a5f11d33fa56c77b246b3a1b7bac9"
+      ],
+      "source_sha256": "a8c9c43449606c3722c556a9c017a5cfbb9d804ef4a4599e6a5015dadbf67e73",
+      "text": "Keep accepting while droppable input stays over the panel.\n\n:param event: the Qt drag event."
+    },
+    "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.dropEvent": {
+      "source_blocks_sha256": [
+        "96ceb9d650b50f4ea32ab0e069a0ddac5ad33b8d7fc207544af7b7d1ec5d7f59",
+        "8b59f27a976905c11e1560dc4875fc94d66600e8add250f18ccc1b8089d0b6d7"
+      ],
+      "source_sha256": "948f5fa7232f10288bd71f87ccd25149d27701bc0db1915d350fc13c97215412",
+      "text": "Take the dropped input and preview it.\n\n:param event: the Qt drop event."
     },
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.load_array": {
       "source_blocks_sha256": [
@@ -70006,6 +70309,20 @@
       ],
       "source_sha256": "238b82ac6e92f277aa46bd073c265421bdb8f122d6d9f9a2f0fb362875755fc2",
       "text": "Read ``path`` on a worker, then install it on the GUI thread.\n\nEvery GUI entry point -- the drop handler, the Choose-array dialog and\nthe FOV dropdown -- comes through here. A 17 MB merged array is not a\ncheap read, and the crop pass that follows it is far worse.\n\n:returns: ``True`` when a job was submitted."
+    },
+    "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.open_crop_settings": {
+      "source_blocks_sha256": [
+        "782ea23f110237e0f62add104405d82195e5765bd25c364984c64a537c334b80"
+      ],
+      "source_sha256": "782ea23f110237e0f62add104405d82195e5765bd25c364984c64a537c334b80",
+      "text": "Open the crop-settings dialog for this preview."
+    },
+    "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.propagate_settings": {
+      "source_blocks_sha256": [
+        "2d18947121a78c20f415caaf61d68c1e0ea5002f1bffd308967350cbf8ff0b3f"
+      ],
+      "source_sha256": "2d18947121a78c20f415caaf61d68c1e0ea5002f1bffd308967350cbf8ff0b3f",
+      "text": "Push the tuned settings to the run, if anything is listening."
     },
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.refresh": {
       "source_blocks_sha256": [
@@ -70038,6 +70355,23 @@
       ],
       "source_sha256": "37bc7d149dd60bcb27acf53e2677bbf723613324a0309e0da79e620c58b609cc",
       "text": "How many organelle slots the crop settings should offer.\n\nThe same rule Mask and the Mask live preview follow: the run declares\n`number_of_organelles`, and every panel shows that many. Without it the\ncrop settings offered a fixed four -- so a one-organelle run had three\nmask-slice and three minimum-area fields for objects it does not have,\nand each of them propagates into the settings the run reads."
+    },
+    "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.set_propagate_callback": {
+      "source_blocks_sha256": [
+        "cb1a934a883016bb6a332c716b39dc9b17c643c7f46c7e720aa321b6ffccd609",
+        "efe3e699013b66d32ac06c7703deed674ab5ec0d2119457ed205ebd8a7fc25fd"
+      ],
+      "source_sha256": "02f6108580c7af7d86c461c3d17128b997474bcf51d429f44304de3cd7da7dbd",
+      "text": "Set what to call when the user pushes these settings to the run.\n\n:param callback: called with the settings dict."
+    },
+    "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.settings_for_propagation": {
+      "source_blocks_sha256": [
+        "e1a757ff396cc601c9876d2f8a597528fd2f374fdb4870ab9c5e7a4aa654dc8d",
+        "7a0058b4acea84dce51e9b4a6bc009fe8e161f71cf9d98adf7d5bbf201b20d17",
+        "8d6edd40a77bd0602064d85eea75f15ae5b9944a1264d408032a0296a81023cc"
+      ],
+      "source_sha256": "386dd476299fae57a7d856cb935675dcc15d6331b9833f95e7c2bb3b0d70aa59",
+      "text": "The settings this preview would hand to the real run.\n\nWhat makes a preview worth doing: the numbers tuned here are the\nnumbers the run uses, rather than something the user must retype.\n\n:returns: the settings dict."
     },
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.shutdown": {
       "source_blocks_sha256": [
@@ -72467,6 +72801,35 @@
       "source_sha256": "f5a348165f558cb049fcee3dec88349d25322945db453b4895c92e192bfc6c49",
       "text": "Which columns go into the decomposition.\n\nA tick list rather than drop zones: PCA takes tens to hundreds of features\nat once, and dragging four hundred columns one at a time is not a gesture\nanybody makes twice. The default ticks every continuous column, which is\nwhat :func:`~spacr.qt.widgets.pca_model.candidate_features` offers and what\na user exploring a new table wants first.\n\n:param parent: parent widget."
     },
+    "spacr.qt.widgets.pca_view.FeaturePicker.available": {
+      "source_blocks_sha256": [
+        "73fb0c947eda88f8270adaa4c8e5bb2374532159f89e72053964efc31f72ea3d",
+        "e0c07af204dd1ec80bcfafad97ac1e04e22ddbef57996f87b875b4d005530f55"
+      ],
+      "source_sha256": "9259e598e221053f75363d80eb3f97a58ed10fc2e6f669e6e147046ef9bf19be",
+      "text": "Every feature the picker is offering.\n\n:returns: the feature names, in list order."
+    },
+    "spacr.qt.widgets.pca_view.FeaturePicker.invert": {
+      "source_blocks_sha256": [
+        "24903ae9251db24a0f5ea98edc6ee200bce677bbddac31645b8701955559a1bf"
+      ],
+      "source_sha256": "24903ae9251db24a0f5ea98edc6ee200bce677bbddac31645b8701955559a1bf",
+      "text": "Tick what was unticked and untick what was ticked."
+    },
+    "spacr.qt.widgets.pca_view.FeaturePicker.select_all": {
+      "source_blocks_sha256": [
+        "287b0a7f18aa6a5cac881794d69126fbae09107e13e83a83633ff3efab3e53f1"
+      ],
+      "source_sha256": "287b0a7f18aa6a5cac881794d69126fbae09107e13e83a83633ff3efab3e53f1",
+      "text": "Tick every offered feature."
+    },
+    "spacr.qt.widgets.pca_view.FeaturePicker.select_none": {
+      "source_blocks_sha256": [
+        "a960e136774a4dc470c0efa61813524dce739717516e394aef0556df79eca274"
+      ],
+      "source_sha256": "a960e136774a4dc470c0efa61813524dce739717516e394aef0556df79eca274",
+      "text": "Untick everything."
+    },
     "spacr.qt.widgets.pca_view.FeaturePicker.selected": {
       "source_blocks_sha256": [
         "2a9219f44b5791b6fccd4d59ec58dcc7ea5bc66c961371254fe09688e04ca52c"
@@ -72480,6 +72843,14 @@
       ],
       "source_sha256": "d891a550965ee0c6e5cdcb8084205fd5f50c83ba1a7610edcc8610ed94d886b9",
       "text": "Offer ``frame``'s continuous columns, all ticked."
+    },
+    "spacr.qt.widgets.pca_view.FeaturePicker.set_selected": {
+      "source_blocks_sha256": [
+        "ab6857cf564a75a9d06eb0900a5fe6ae3818e3af4e154cdeecf7e1ecfd4cef9a",
+        "84e0724f1b11aa94f822894b1b1f041c01a6d0bda99a00782a6df3d7a882bf95"
+      ],
+      "source_sha256": "a393bdbc5c8d56e5f09354a338cf9b489d4b63c1d7ae7f992c27986c6d6405b6",
+      "text": "Tick exactly these features and untick the rest.\n\n:param selected: the feature names to select."
     },
     "spacr.qt.widgets.pca_view.PCAPanel": {
       "source_blocks_sha256": [
@@ -72526,6 +72897,14 @@
       ],
       "source_sha256": "f21cf0bd130438ab2112c926c8cfd07c34e12cd6c6f05210eb892a1b87550cfb",
       "text": "Decompose and redraw. Refusals become a message, never a traceback.\n\nTHE CONTRACT, and how it was resolved. This method returned its\n``PCAResult`` synchronously, and the sklearn fit behind it is **1.63 s\non a 200 000-row x 48-column table** -- measured, and recorded as\n``PCA_STALL_BUDGET_S`` in ``tests/qt/test_gui_responsiveness.py``\nrather than hidden, because that is a 1.63 s frozen window on every\noption change and every filter change.\n\nThe fit now runs on a worker, and this returns ``None`` while it does.\nRather than pretend that is the same thing, the panel takes a\n``threaded`` flag:\n\n* ``threaded=False`` (the default, and what a directly-constructed\n  panel gets) runs the fit inline through :class:`JobRunner`'s\n  unthreaded path and returns the ``PCAResult`` exactly as before.\n* ``threaded=True`` -- what ``PCAScreen`` passes, so the application\n  gets it -- dispatches and returns ``None``. The result arrives at\n  :meth:`_on_computed`, which is where the drawing was already done,\n  and ``computed`` is emitted from there as it always was.\n\nA host that wants the result asynchronously has always had\n``computed``; nothing that listens to it changed. A caller that reads\nthe return value gets the old behaviour by not asking for threading,\nwhich is honest about the fact that a value cannot be returned before\nit has been computed.\n\n:returns: the decomposition, or ``None`` when it was refused or is\n    still running."
+    },
+    "spacr.qt.widgets.pca_view.PCAPanel.result": {
+      "source_blocks_sha256": [
+        "37bcb618befcd2e37cab529fae43dd4c54783832eafd192a145a2d329b89dd0d",
+        "2d5dd2b951be56ec5ba55d40c7ab1f6c5a69034216443dfe8455b2b07be18f09"
+      ],
+      "source_sha256": "bee786cd7a279c60b6ef85db3984eddc149b660bf330432cb24c1025a4bf5394",
+      "text": "The decomposition this panel is showing, if any.\n\n:returns: the PCA result, or None before one has been computed."
     },
     "spacr.qt.widgets.pca_view.PCAPanel.scores_frame": {
       "source_blocks_sha256": [
@@ -72575,12 +72954,19 @@
       "text": "``(kx, ky)`` when both axes carry a component, else ``None``.\n\nRead from the spec, so dragging ``PC3`` onto Y moves the arrows with\nthe points and dragging ``area`` onto Y removes them — a biplot of a\ncomponent against a raw measurement is not a biplot."
     },
     "spacr.qt.widgets.pca_view.PCAScoresCanvas.render_now": {
-      "alias_of": "spacr.qt.widgets.graph_builder.GraphCanvas.render_now",
       "source_blocks_sha256": [
-        "e00aee2c34b1ce249585f7df954050ae3c65867239bd90ab6a10973e249c1154"
+        "0c97ae60069976a5ba566eb14499baf7f0952c382a13acc0752dc4842737334a"
       ],
-      "source_sha256": "e00aee2c34b1ce249585f7df954050ae3c65867239bd90ab6a10973e249c1154",
-      "text": "Rebuild the figure from the current frame, spec, filter and selection."
+      "source_sha256": "0c97ae60069976a5ba566eb14499baf7f0952c382a13acc0752dc4842737334a",
+      "text": "Draw immediately rather than on the next idle turn."
+    },
+    "spacr.qt.widgets.pca_view.PCAScoresCanvas.result": {
+      "source_blocks_sha256": [
+        "01390d53f4704a1a765c79c43eff9ba54de34f1223bc2e5ef0b53fb2c7e6f5ff",
+        "2d5dd2b951be56ec5ba55d40c7ab1f6c5a69034216443dfe8455b2b07be18f09"
+      ],
+      "source_sha256": "b36e029c133e77e3afd25f40356eeb5ba76d14a7ae44d743d13771b8bac1234c",
+      "text": "The decomposition being plotted, if any.\n\n:returns: the PCA result, or None before one has been computed."
     },
     "spacr.qt.widgets.pca_view.PCAScoresCanvas.set_biplot": {
       "source_blocks_sha256": [
@@ -72607,6 +72993,22 @@
       ],
       "source_sha256": "c89827acb6fb10aedb0d2509f03c615114f66cee5a854a31e9e8848be666dc11",
       "text": "Explained variance per component, with the cumulative line over it.\n\nBoth, always. The bars are what people look at for the elbow; the\ncumulative line is what stops \"PC1 and PC2 look big\" from being mistaken\nfor \"PC1 and PC2 are most of it\" when they are 9% and 7%.\n\nClicking a bar emits :attr:`component_picked`, so the scree plot is the\ncontrol that chooses what the scores plot draws rather than a decoration\nbeside it.\n\n:param parent: parent widget."
+    },
+    "spacr.qt.widgets.pca_view.ScreePlot.render_now": {
+      "source_blocks_sha256": [
+        "0c97ae60069976a5ba566eb14499baf7f0952c382a13acc0752dc4842737334a",
+        "fce9649b2f918c9f72e1917d6a36e251e061e5612ee3667fb3459a375e51ff94"
+      ],
+      "source_sha256": "8ab1c436afe343b09222b7c10434311efd352f4dc6ac993597300263c47265d2",
+      "text": "Draw immediately rather than on the next idle turn.\n\nFor a caller that is about to read pixels -- an export, or a test --\nand cannot wait for the event loop to get round to it."
+    },
+    "spacr.qt.widgets.pca_view.ScreePlot.set_result": {
+      "source_blocks_sha256": [
+        "bcc5deb8f51a6c67038a35416db7a6042577055d10886f2a770234069c85d789",
+        "446630db392f7493609d7e6a8b1edb02cbcd1541fe49e6e97c9d84157e0c6b3b"
+      ],
+      "source_sha256": "2237f49862c76e5efadbbf5a47f53f69e239ad33f82eabe7d847dcfbf383d0d5",
+      "text": "Show the variance explained by each component of a decomposition.\n\n:param result: the PCA result, or None to clear."
     },
     "spacr.qt.widgets.pca_view.arrow_scale": {
       "source_blocks_sha256": [
@@ -76463,6 +76865,38 @@
       "source_sha256": "e5d99b43508fabc3c5fb7c8e0c4b2b59a0d2d9e0a61eab4f922ce797b3676a90",
       "text": "One field of view: a movie, and a filmstrip that opens above it.\n\nRenders lazily and caches by ``(frame, objects, tracks)``. Flipping a\ntoggle on a 30-frame field would otherwise re-render every frame twice\n-- once for the movie and once for the strip -- on the GUI thread.\n\n:param title: the caption above the movie. Empty draws none.\n:param parent: parent widget."
     },
+    "spacr.qt.widgets.timelapse_movie.FovMovie.frame_count": {
+      "source_blocks_sha256": [
+        "ef5869adf1e2f6f425ca4852b694d23c2df23776c76022fdde885cd34a6b5f34",
+        "7dbd8c67cd1019aa1e724a4c0ea8be259efca07d4b4df3d28f6605294743f385"
+      ],
+      "source_sha256": "8f38f47c9de97a60298c243db209d2ad38ea8d94d05f318d8e9f9f3d2b8f2804",
+      "text": "How many frames this field has.\n\n:returns: the frame count, 0 when nothing is loaded."
+    },
+    "spacr.qt.widgets.timelapse_movie.FovMovie.pause": {
+      "source_blocks_sha256": [
+        "e95dd315d6b9f8bb8e3d943dc5a19bcc09a903174e6edece18088b33e6b48392"
+      ],
+      "source_sha256": "e95dd315d6b9f8bb8e3d943dc5a19bcc09a903174e6edece18088b33e6b48392",
+      "text": "Stop the timer and put the button back to Play."
+    },
+    "spacr.qt.widgets.timelapse_movie.FovMovie.play": {
+      "source_blocks_sha256": [
+        "8724f1b1c246b023e6b2067dbb8a17a36cf0d6571b170b1de08b99c79df1826c",
+        "6662746bb342833edabe5d5e9a8888b4ef663d5c008360171bd4789595dd4db2"
+      ],
+      "source_sha256": "fc9d26d005b089f1898b9d12143d9f6a46781a509d1542716ecbc29dcde00419",
+      "text": "Start playing, unless there is nothing to animate.\n\nA SINGLE FRAME IS NOT A MOVIE: starting a timer for it would spin\nthe event loop to redraw the same picture."
+    },
+    "spacr.qt.widgets.timelapse_movie.FovMovie.set_fps": {
+      "source_blocks_sha256": [
+        "c61c32e0fcd476a7c880bc4191c9219aab8d790b13d92d2c07e43a3e530482a2",
+        "e3c4341e9dd03c15adca6d8d2af62eeb128aa33fa4feb61fb172165cd344c3a9",
+        "7bd02833f902cdc5715b730c503b1bbd6ed4f68a14b4681b33ba9d68f0d31b12"
+      ],
+      "source_sha256": "88a00dc18f5047d43b41c806988d4a9d5a321b7de6b517dbc1db965c882a8763",
+      "text": "Set the playback rate.\n\nFloored at half a frame per second, because the interval is derived\nby division and a rate of zero is an infinite one.\n\n:param fps: the wanted frames per second."
+    },
     "spacr.qt.widgets.timelapse_movie.FovMovie.set_overlays": {
       "source_blocks_sha256": [
         "c0e1d182b4ff61d4c49d83ea3555b2af1a455384c4915c75966feaede04a59ac"
@@ -76477,6 +76911,14 @@
       ],
       "source_sha256": "070d9d863ba191655cf1a65eb282a7c04e513b493fda57d391253d33045aa481",
       "text": "Bind one field's frames, its per-frame labels and its tracks.\n\n``labels`` is expected to be ALREADY relabelled by track id (see\n``relabel_by_track``). That is what makes a colour mean a track\nrather than a per-frame segmentation index, and it is the caller's\njob because the relabelling is what the tracker produced."
+    },
+    "spacr.qt.widgets.timelapse_movie.FovMovie.set_strip_open": {
+      "source_blocks_sha256": [
+        "ccf4186b3010123f259fef0145daef700b4b5218791d54352cdfec9dd1c8b928",
+        "3cf7a914b3b5c54a05cbbbf5f68b45f9fb1e2c3641f658f16615d55793daa3e7"
+      ],
+      "source_sha256": "55cc6b2b716e35c6bd5e4165500e08ec1eaf0407ead4233cb836b13aad5f0c40",
+      "text": "Show or hide the filmstrip under the movie.\n\n:param open_: True to show it."
     },
     "spacr.qt.widgets.timelapse_movie.FovMovie.show_frame": {
       "source_blocks_sha256": [
@@ -76493,6 +76935,20 @@
       "source_sha256": "634ee7cd574c116d9ab0dd3d3bdc08cfc2867308402a82e39c8727d2aa0d4300",
       "text": "Expanded or not -- a state, not a question about the screen.\n\n`isHidden()` and not `isVisible()`: a widget inside a parent that\nhas not been shown yet reports `isVisible() == False` however it\nwas configured, so the expanded state would read as collapsed for\nevery movie built before its screen is on screen -- and the click\nthat expanded it would appear to do nothing."
     },
+    "spacr.qt.widgets.timelapse_movie.FovMovie.toggle_play": {
+      "source_blocks_sha256": [
+        "a21e4eb312801221410ece0ef048f227ddb39963aec8a1f2a3e642852dd2e644"
+      ],
+      "source_sha256": "a21e4eb312801221410ece0ef048f227ddb39963aec8a1f2a3e642852dd2e644",
+      "text": "Play if paused, pause if playing."
+    },
+    "spacr.qt.widgets.timelapse_movie.FovMovie.toggle_strip": {
+      "source_blocks_sha256": [
+        "f3297f3027e5864485a9a0aba99b904668b4ee383a0278ef8822dd349b401b9c"
+      ],
+      "source_sha256": "f3297f3027e5864485a9a0aba99b904668b4ee383a0278ef8822dd349b401b9c",
+      "text": "Open the filmstrip if closed, close it if open."
+    },
     "spacr.qt.widgets.timelapse_movie.TimelapseMoviePanel": {
       "source_blocks_sha256": [
         "35a347edcc7518342d3b4d1c705728dbc33a1dba46572384fed42a02571f722f",
@@ -76502,6 +76958,24 @@
       "source_sha256": "5a1849cb137ab8fec34c2fbbbaf4000360dcb0c57c2b1c485d190ddd91389139",
       "text": "Several fields stacked, with one set of controls over all of them.\n\nStacked rather than tabbed on purpose: comparing two fields is the\npoint of showing more than one, and a tab hides the thing you are\ncomparing against.\n\n:param parent: parent widget."
     },
+    "spacr.qt.widgets.timelapse_movie.TimelapseMoviePanel.max_fields": {
+      "source_blocks_sha256": [
+        "d73300879205e2610287afac473de0f93f2c15a8e324d8ba2906dc193b9b4d82",
+        "c633c14c5cc70272d07e4902c04c8427e0293af3dc128df68c269c5edd2a33be",
+        "b1c56118eb0fe20864024687ef6470446e226d7142c5d6381b051c925dfb43a0"
+      ],
+      "source_sha256": "0461425699418292295493f74dddfb4aa7cef368340b489a4a0e58408c07ae32",
+      "text": "How many fields this panel will stack at once.\n\nA CAP, because each field is its own movie with its own timer, and a\nplate with hundreds would start hundreds of them.\n\n:returns: the field cap."
+    },
+    "spacr.qt.widgets.timelapse_movie.TimelapseMoviePanel.movies": {
+      "source_blocks_sha256": [
+        "2b8750cb0dc10c0b6674e6b4c446be1f92261b0ce421953c31c824398d67e8ad",
+        "26db2f851afb72414e45990cd660ec2ca669884e40e789d266d59693466b7041",
+        "9ea0b36b7126bebc8047462a46a3e40500c849b7c0784d79c02e3db273fbe350"
+      ],
+      "source_sha256": "84216f63c3860c6e57f1197e18cd8e8624abe749dac11a84525134d086a1c466",
+      "text": "The field movies currently stacked.\n\nA LIST COPY, so a caller cannot restack the panel by mutating it.\n\n:returns: the movies, in display order."
+    },
     "spacr.qt.widgets.timelapse_movie.TimelapseMoviePanel.set_fields": {
       "source_blocks_sha256": [
         "aab706f8bd1c9e280868d2650c309c46d9022af3ac7c3de5b65ff2a7a7f0b166",
@@ -76509,6 +76983,14 @@
       ],
       "source_sha256": "bd8154efb7e474eb58fb7b29c6fc4323efd1285ad377adc9b864150ce1567ba6",
       "text": "Show one movie per entry, up to the user's ceiling.\n\n:param fields: dicts of ``{\"title\", \"images\", \"labels\", \"tracks\",\n    \"channel\"}``. Extra entries are dropped rather than queued --\n    the ceiling is about memory, so holding the surplus would\n    defeat it."
+    },
+    "spacr.qt.widgets.timelapse_movie.TimelapseMoviePanel.set_fps": {
+      "source_blocks_sha256": [
+        "319fe5511a157cf47e35e804594a8f0940b52a953ec23447ed578d361fc9ec29",
+        "7bd02833f902cdc5715b730c503b1bbd6ed4f68a14b4681b33ba9d68f0d31b12"
+      ],
+      "source_sha256": "72ddc658f3d5599ad27e49cfce013d2f4f54d720dc7067fb0f9bb290c8b719fc",
+      "text": "Set the playback rate on every stacked field at once.\n\n:param fps: the wanted frames per second."
     },
     "spacr.qt.widgets.timelapse_movie.TimelapseMoviePanel.set_max_fields": {
       "source_blocks_sha256": [
