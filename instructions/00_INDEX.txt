@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-351 done / 23 open (93%).
+352 done / 22 open (94%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -102,10 +102,6 @@ OPEN
 
   375  RETIRE metadata_type AND consolidate, ONCE IMPORT HAS ACTUALLY REPLACED THEM
        375_retire_metadata_type_and_consolidate_after_migration.txt
-
-  377  EVERY ROW OF GITHUB'S COMMUNITY STANDARDS CHECKLIST IS GREEN
-       [every file written and committed; 0% VISIBLE -- GitHub reads the default branch and route A waits for 1.5.0.5 to carry them]
-       377_the_github_community_standards_checklist_is_green.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -462,3 +458,4 @@ DONE
   373  THE CELLPOSE WORKBENCH DREW A DUMBBELL, AND FIVE MODULES WERE BORROWING ART
   374  THE API HOMEPAGE MUST SHOW THE MODULE STRUCTURE THE REST OF spaCR SHOWS
   376  A SIMPLE DOCK: AN ICON, A NAME, AND A CATEGORY HEADING
+  377  EVERY ROW OF GITHUB'S COMMUNITY STANDARDS CHECKLIST IS GREEN

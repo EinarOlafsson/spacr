@@ -3739,7 +3739,7 @@ def _composite_translation(source: str, language: str) -> Optional[str]:
     entry, and a multi-word piece like ``Cp prob`` is not one word, so the
     word pass cannot see it either. What survives is a half-translated label.
 
-    MEASURED on instruction 306, `organelle_CP_prob`:
+    MEASURED on `organelle_CP_prob`:
 
         en     'Organelle 1 — Cp prob'
         ko     '소기관 1 — Cp prob'

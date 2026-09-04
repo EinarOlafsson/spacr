@@ -80,7 +80,6 @@ STAGE: Dict[str, str] = {
     "339": "0% -- illumination is called from measure and nowhere else",
     "341": "0% -- three tests confirmed still failing on 2026-09-01",
     "372": "unblocked 2026-09-04 -- the maintainer answered the stitch question; PART 0's survivability audit of 3,891 unreached lines still comes first",
-    "377": "every file written and committed; 0% VISIBLE -- GitHub reads the default branch and route A waits for 1.5.0.5 to carry them",
     "350": "~50% -- no proven clipping in 4 screens x 3 locales; three false-positive classes recorded",
     "353": "~60% -- the buttons are at the top; aligning them to their columns is not done",
     "345": "~35% -- the stale stub is fixed, 3 down to 2; the rest are order-dependent",
