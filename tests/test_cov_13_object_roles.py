@@ -36,7 +36,12 @@ def test_organelle_index_names_the_bad_role_and_lists_the_real_ones():
     halves or the fix is a guessing game.
     """
     assert object_roles.organelle_index("organelle") == 1
-    assert object_roles.organelle_index("organelled") == len(ORGANELLE_ROLES)
+    # FOUR, NOT "THE LAST ONE". This read `len(ORGANELLE_ROLES)`, which was
+    # the same number while there were exactly four slots; 326 made the count
+    # arbitrary and the vocabulary now runs to 702, so the assertion said
+    # `organelled` was slot 702. What it is actually about is that the letter
+    # names count from one, and `d` is the fourth letter whatever the ceiling.
+    assert object_roles.organelle_index("organelled") == 4
 
     with pytest.raises(ValueError) as excinfo:
         object_roles.organelle_index("nucleus")

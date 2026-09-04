@@ -112,7 +112,29 @@ EXACT_LABELS = {
     # in `settings_model._label_for`. That one is not an abbreviation, it is
     # a more specific true statement -- regression's `src` is where results
     # are written, not where images are read from.
-    "src": "Path",
+    # SOURCE, NOT PATH, AND THIS IS THE SECOND RENAME. The humaniser
+    # capitalises the key and stops, so the field that asks for the images
+    # read "Src" -- an abbreviation of an abbreviation. It was renamed to
+    # "Path" on 2026-09-01 ("path should always just say path"), and to
+    # "Source" on 2026-09-04, to standardise one word across every surface
+    # that names where a run reads its input. Both are recorded because the
+    # second reverses the first, and a reader who finds only the current
+    # answer cannot tell a decision from an oversight.
+    #
+    # THE KEY STAYS `src`. Every settings CSV in existence uses it, and this
+    # renames the label, not the setting.
+    #
+    # ONLY `src`. The other path-like keys -- `model_path`,
+    # `custom_model_path`, `organelle_unet_model_path` -- name a MODEL, not a
+    # source, and calling them Source would be a lie that reads as a
+    # standard. Measured across all 508 keys in `spacr.settings`: `src` is
+    # the only source among them.
+    #
+    # NOT applied to regression, which overrides this to "Output directory"
+    # in `settings_model._label_for`. That one is not an abbreviation, it is
+    # a more specific true statement -- regression's `src` is where results
+    # are written, not where images are read from.
+    "src": "Source",
     # "Sample" reads as the thing being sampled; it is a CAP on how many
     # crops are drawn. The key stays `sample` -- every settings CSV in
     # existence uses it, and this renames the label, not the setting.

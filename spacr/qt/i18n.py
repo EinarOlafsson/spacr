@@ -2352,6 +2352,7 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Classify demo…": _row("Klassificeringsdemo…", "Klassifizierungs-Demo…", "Demo de clasificación…", "分类演示…", "Demonstração de classificação…", "वर्गीकरण डेमो…", "분류 데모…", "Flokkunarsýnishorn…", "Démo de classification…"),
     "Timelapse demo…": _row("Tidsseriedemo…", "Zeitraffer-Demo…", "Demo de lapso de tiempo…", "延时演示…", "Demonstração de time-lapse…", "टाइमलैप्स डेमो…", "타임랩스 데모…", "Tímaraðarsýnishorn…", "Démo time-lapse…"),
     "Sequencing demo…": _row("Sekvenseringsdemo…", "Sequenzierungs-Demo…", "Demo de secuenciación…", "测序演示…", "Demonstração de sequenciação…", "सीक्वेंसिंग डेमो…", "시퀀싱 데모…", "Raðgreiningarsýnishorn…", "Démo de séquençage…"),
+    "Choose source data": _row("Välj källdata", "Quelldaten wählen", "Elegir datos de origen", "选择源数据", "Escolher dados de origem", "स्रोत डेटा चुनें", "소스 데이터 선택", "Velja upprunagögn", "Choisir les données source"),
     "Open Demos menu": _row("Öppna Demo-menyn", "Demos-Menü öffnen", "Abrir el menú Demostraciones", "打开演示菜单", "Abrir o menu Demonstrações", "डेमो मेनू खोलें", "데모 메뉴 열기", "Opna Sýnishorn-valmynd", "Ouvrir le menu Démonstrations"),
 
     # ---- The settings-count line under every panel -------------------
@@ -2968,16 +2969,16 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         ", {n}자 잘림",
         ", {n} sleppt",
         ", {n} écartés"),
-    "Drop a folder of images anywhere on this window, or {offer}. You can also type a path into the src field below.": _row(
-        "Släpp en mapp med bilder var som helst i det här fönstret, eller {offer}. Du kan också skriva en sökväg i fältet src nedan.",
-        "Legen Sie einen Bildordner irgendwo auf diesem Fenster ab, oder {offer}. Sie können auch einen Pfad in das Feld src unten eingeben.",
-        "Suelte una carpeta de imágenes en cualquier parte de esta ventana, o {offer}. También puede escribir una ruta en el campo src de abajo.",
-        "将图像文件夹拖放到本窗口的任意位置，或{offer}。您也可以在下方的 src 字段中输入路径。",
-        "Solte uma pasta de imagens em qualquer lugar desta janela, ou {offer}. Você também pode digitar um caminho no campo src abaixo.",
-        "छवियों का कोई फ़ोल्डर इस विंडो में कहीं भी छोड़ें, या {offer}। नीचे दिए src फ़ील्ड में पथ भी टाइप कर सकते हैं।",
-        "이미지 폴더를 이 창 아무 곳에나 끌어다 놓거나, {offer}. 아래의 src 필드에 경로를 직접 입력할 수도 있습니다.",
-        "Slepptu möppu með myndum hvar sem er í þessum glugga, eða {offer}. Þú getur líka slegið slóð inn í src-reitinn hér fyrir neðan.",
-        "Déposez un dossier d’images n’importe où sur cette fenêtre, ou {offer}. Vous pouvez aussi saisir un chemin dans le champ src ci-dessous."),
+    "Drop a folder of images anywhere on this window, or {offer}. You can also type a path into the Source field below.": _row(
+        "Släpp en mapp med bilder var som helst i det här fönstret, eller {offer}. Du kan också skriva en sökväg i fältet Källa nedan.",
+        "Legen Sie einen Bildordner irgendwo auf diesem Fenster ab, oder {offer}. Sie können auch einen Pfad in das Feld Quelle unten eingeben.",
+        "Suelte una carpeta de imágenes en cualquier parte de esta ventana, o {offer}. También puede escribir una ruta en el campo Origen de abajo.",
+        "将图像文件夹拖放到本窗口的任意位置，或{offer}。您也可以在下方的来源字段中输入路径。",
+        "Solte uma pasta de imagens em qualquer lugar desta janela, ou {offer}. Você também pode digitar um caminho no campo Origem abaixo.",
+        "छवियों का कोई फ़ोल्डर इस विंडो में कहीं भी छोड़ें, या {offer}। नीचे दिए स्रोत फ़ील्ड में पथ भी टाइप कर सकते हैं।",
+        "이미지 폴더를 이 창 아무 곳에나 끌어다 놓거나, {offer}. 아래의 소스 필드에 경로를 직접 입력할 수도 있습니다.",
+        "Slepptu möppu með myndum hvar sem er í þessum glugga, eða {offer}. Þú getur líka slegið slóð inn í Uppruni-reitinn hér fyrir neðan.",
+        "Déposez un dossier d’images n’importe où sur cette fenêtre, ou {offer}. Vous pouvez aussi saisir un chemin dans le champ Source ci-dessous."),
     "use Demos → {demo} for a synthetic dataset": _row(
         "använd Demon → {demo} för en syntetisk datauppsättning",
         "verwenden Sie Demos → {demo} für einen synthetischen Datensatz",

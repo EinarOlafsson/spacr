@@ -897,3 +897,46 @@ does not start under the conditions the probe created, so the probe measured
 nothing rather than measuring zero. The leak may well be real; this did not
 reproduce it, and that note's own warning stands: "NOT YET ESTABLISHED that
 the nine threads CAUSED this."
+
+
+--------------------------------------------------------------------------------
+2026-09-04 — WHAT A SEGFAULT REPRODUCTION COSTS. MEASURED, AND IT IS THE REASON
+             THE LAST TWO ATTEMPTS WERE INCONCLUSIVE.
+--------------------------------------------------------------------------------
+
+NOT A FIX AND NOT A CLEARANCE. Two full `tests/qt` runs were started under
+`-X faulthandler`, one with the order pinned (`-p no:randomly`) and one with
+it random. NEITHER SEGFAULTED -- and neither finished, and the second fact
+disqualifies the first.
+
+    tests/qt collects           20,364 tests
+    measured rate               ~1.8 tests/sec (88 tests in 50 s)
+    recorded fault position     28% - 34%  =  5,700 - 6,900 tests
+    therefore the fault zone    ~55 - 65 minutes in
+
+    ordered run     58 min, timed out, NO fault   -- reached the near edge
+    random  run     40 min, timed out, NO fault   -- did not reach it
+
+So "it did not segfault" means "it was stopped at or before the place it
+segfaults", which is no evidence at all. Recording the arithmetic because
+both runs LOOK like clean results in a log and are not.
+
+WHAT A REAL ATTEMPT NEEDS: a budget of at least 90 minutes per run, and full
+output captured to a file rather than piped through `tail`. Both runs here
+were piped, so the progress percentage was thrown away and neither run can
+even be placed against the 28-34% figure except by this estimate. That was
+the avoidable mistake.
+
+WHY BISECTION DOES NOT SHORTCUT IT, restated because it is tempting and was
+already tried: the fault position MOVES with the content, and every one of
+the 21 files in a subset that segfaulted ran clean on its own. The condition
+accumulates, so a run that skips the first 30% skips the accumulation that
+causes the fault. There is no cheap prefix.
+
+STILL THE MOST LIKELY SHAPE, from the evidence already in this file rather
+than from this attempt: a lifetime bug, not a leak. Thousands of widgets whose
+`deleteLater` has been posted survive in a half-dead state, and something that
+walks every live widget -- a palette or style event -- eventually touches one
+whose C++ half has gone. That is consistent with the moving position, with no
+single file being responsible, and with the 2026-08-08 teardown fixture having
+made it WORSE in three new ways.
