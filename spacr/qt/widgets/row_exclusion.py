@@ -192,6 +192,12 @@ class _CheckableValueCombo(QComboBox):
     """
 
     def __init__(self, parent=None):
+        """Build the combo: editable for its display line, but read-only.
+
+        The line edit shows the checked values and must not be typed into --
+        the values come from the ticks, and a typed line would be a second,
+        disagreeing source of the same answer.
+        """
         super().__init__(parent)
         self.setEditable(True)
         self.lineEdit().setReadOnly(True)
@@ -200,6 +206,7 @@ class _CheckableValueCombo(QComboBox):
         self.view().pressed.connect(self._toggle_index)
 
     def _toggle_index(self, index) -> None:
+        """Flip one value's tick and refresh the display line."""
         item = self.model().itemFromIndex(index)
         state = item.checkState()
         item.setCheckState(
@@ -232,6 +239,7 @@ class _CheckableValueCombo(QComboBox):
         ]
 
     def _refresh_text(self) -> None:
+        """Show the checked values, comma-separated, on the closed combo."""
         self.lineEdit().setText(
             ", ".join(str(value) for value in self.checked_values()))
 
@@ -246,6 +254,7 @@ class _ExclusionRuleRow(QWidget):
     remove_requested = Signal(object)
 
     def __init__(self, parent=None):
+        """Build one rule: a column, a comparison and its values."""
         super().__init__(parent)
         row = QHBoxLayout(self)
         row.setContentsMargins(0, 0, 0, 0)

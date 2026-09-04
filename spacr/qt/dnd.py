@@ -197,11 +197,19 @@ class _DropzoneFilter(QObject):
 
     # -- handlers ----------------------------------------------------------
     def _on_drag_enter(self, event: QDragEnterEvent) -> None:
+        """Accept a drag that carries local paths, and no other."""
         mime = event.mimeData()
         if _mime_has_local_paths(mime):
             event.acceptProposedAction()
 
     def _on_drop(self, event: QDropEvent) -> None:
+        """Route a drop: settings CSVs to the importer, the rest to the screen.
+
+        THE DROP IS ACCEPTED AS SOON AS THERE IS SOMETHING TO DO WITH IT, not at
+        the end. Accepting only after the routing meant a settings-CSV-only drop
+        -- which IS handled -- was reported back to the operating system as
+        rejected, so the drag animation snapped back while the import ran.
+        """
         paths = _mime_local_paths(event.mimeData())
         if not paths:
             return

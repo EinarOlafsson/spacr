@@ -237,6 +237,7 @@ class _LinkWord(QLabel):
 
     def __init__(self, text: str, object_name: str,
                  parent: Optional[QWidget] = None):
+        """Build the word: plain text, styled by its object name."""
         super().__init__(text, parent)
         self.setObjectName(object_name)
         self.setTextFormat(Qt.PlainText)
@@ -277,6 +278,7 @@ class _AnimationView(QLabel):
     CORNER_RADIUS = 10
 
     def __init__(self, size: int, parent: Optional[QWidget] = None):
+        """Build the square, fixed at ``size`` with no frames yet."""
         super().__init__(parent)
         self.setObjectName("SettingTooltipAnimation")
         self._size = int(size)
@@ -392,12 +394,19 @@ class _AnimationView(QLabel):
     def _schedule(self) -> None:
         # One delay per frame, guaranteed by `read_frames`; a still image has
         # nothing to schedule.
+        """Arm the timer for the current frame's own delay.
+
+        Per-frame rather than one interval for all of them, because a GIF's
+        frames are not evenly spaced. A single still has nothing to schedule and
+        is left alone rather than ticking a timer for one image.
+        """
         if len(self._frames) < 2:
             return
         self._timer.start(
             max(self.MIN_DELAY_MS, int(self._delays[self._index])))
 
     def _advance(self) -> None:
+        """Show the next frame and re-arm. Wraps at the end."""
         if not self._frames:
             return
         self._index = (self._index + 1) % len(self._frames)
