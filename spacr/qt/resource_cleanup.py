@@ -459,6 +459,12 @@ def _collect_budget_entries(owners=None):
                     key_label = key_label[:157] + "..."
 
                 def _drop(dropper=dropper, key=key):
+                    """Drop this entry's cached value. Key bound as a default argument.
+
+                    Bound rather than closed over: closing over the loop variable would give
+                    every entry the LAST key, so one eviction would drop the wrong thing and
+                    report success.
+                    """
                     return bool(dropper(key))
 
                 records.append(_BudgetEntry(
@@ -627,6 +633,11 @@ def sweep_memory_budget(*, now: Optional[float] = None,
     freed = 0.0
 
     def _evict(row: _BudgetEntry) -> bool:
+        """Evict one entry, counting what it freed. Failures are tolerated.
+
+        A cache that refuses to drop is not a reason to abandon the sweep -- the
+        rest of the budget still needs reclaiming.
+        """
         nonlocal freed
         attempted.add(row.token)
         try:
@@ -1060,6 +1071,7 @@ def project_paths() -> List[str]:
     paths: List[str] = []
 
     def _add(value) -> None:
+        """Add one path, ignoring blanks and duplicates."""
         text = str(value or "").strip()
         if not text:
             return

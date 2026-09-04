@@ -57,6 +57,11 @@ def install() -> bool:
         return False
 
     def _report(what: str, why: str) -> None:
+        """Record and log one cross-thread offence, with its stack.
+
+        The stack is trimmed of this function and its caller, so the top frame
+        is the CODE THAT DID IT rather than the guard that noticed.
+        """
         stack = "".join(traceback.format_stack()[:-2])
         _OFFENCES.append(stack)
         LOG.warning(
@@ -100,12 +105,19 @@ def install() -> bool:
         return f"the object lives on {owner!r} and the caller is {current!r}"
 
     def guarded_timer_start(self, *args, **kwargs):
+        """Report a QTimer started off its own thread, then start it.
+
+        REPORTS AND PROCEEDS. The guard is a diagnostic: refusing the start
+        would change behaviour under the guard and hide the bug it exists to
+        find.
+        """
         why = _wrong_thread(self)
         if why:
             _report("QTimer.start", why)
         return real_timer_start(self, *args, **kwargs)
 
     def guarded_object_start(self, *args, **kwargs):
+        """Report a QObject timer started off its own thread, then start it."""
         why = _wrong_thread(self)
         if why:
             _report("QObject.startTimer", why)
@@ -132,6 +144,7 @@ def install() -> bool:
     real_object_init = QObject.__init__
 
     def guarded_object_init(self, *args, **kwargs):
+        """Note a QObject built off the main thread, after building it."""
         result = real_object_init(self, *args, **kwargs)
         try:
             if (threading.current_thread() is not threading.main_thread()
