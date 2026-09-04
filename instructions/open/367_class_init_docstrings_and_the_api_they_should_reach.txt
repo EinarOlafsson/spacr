@@ -350,3 +350,58 @@ not one fell. Docless fell 630 -> 627; ghosts fell 4 -> 3.
 STILL OPEN, and still the whole of what remains: whether the API pages these
 docstrings reach RENDER them. Nothing here has been checked against a built
 page.
+
+---
+
+2026-09-04, later. THE API HALF IS DONE, AND THE BUILD FOUND SIX REAL DEFECTS.
+
+The acceptance check this file asks for -- "a built API page for a documented
+class shows its parameters" -- PASSES, and `autoapi_python_class_content =
+'both'` needed no configuring, exactly as the file predicted. The worked
+proof is `spacr.qt.mask_engine.MaskHistory`: its class page carries the class
+prose AND the `__init__` prose, with `capacity` under a rendered Parameters
+list. 518 API pages built.
+
+  BUILT IN A THROWAWAY VENV, `python -m venv --system-site-packages`, NOT in
+  the spacr environment. pip wanted to DOWNGRADE docutils 0.23 to 0.22.4
+  there to satisfy sphinx. A documentation check is not worth mutating the
+  environment the package is tested in, and the venv reuses torch and PySide6
+  so it costs four small pure-Python packages.
+
+THE BUILD IS THE ONLY THING THAT FINDS THESE. Eight docutils complaints, six
+of them real defects in docstrings that look perfectly fine in the source:
+
+  * `MaskConfig` and `MeasureConfig` -- the PUBLIC api.py config classes --
+    mixed a NumPy `Parameters` block with trailing reST `:param:` fields.
+    Six parameters including save_png, test_mode, dry_run and resume were
+    written in a style the surrounding docstring was not, docutils read them
+    as an unexpected indent, and THE PAGE LOST THEM. This is the defect class
+    this whole item exists to fix, hiding inside a docstring that already
+    looked done.
+  * `TrainingMonitor` and `SetupDialog` had `:param parent:` appended below a
+    NumPy `Attributes` section that already documented it. Napoleon turned
+    that into `.. attribute::` with no argument -- an ERROR, and a duplicate
+    of prose that was already better. Both came from 855177d46, an earlier
+    `parent` sweep; a bulk insert that does not look at the docstring's
+    STYLE will do this every time.
+  * ``AppScreen``s -- a closing backtick followed by an `s` is not a valid
+    inline-markup end.
+  * cli_download's exit-code table needed `::` to be a literal block.
+
+  AND ONE WAS MINE: a field list with no blank line before it renders as part
+  of the paragraph above. A sweep for that pattern across every docstring in
+  the package found exactly one, which is the reassuring answer.
+
+  Rebuilt after: 8 complaints -> 1, and the survivor is not a docstring
+  defect. `ImportResult` is defined in `image_import`, `foreign` AND `omero`,
+  so a bare return annotation is ambiguous. Fixing it means renaming a public
+  class in one of the three, which is not a thing to do for a docs warning.
+
+THE INSTRUCTION'S OWN CHECK IS THEREFORE MET, but the useful lesson is
+narrower than the item: A `:param:` FIELD ADDED TO A DOCSTRING WRITTEN IN
+NUMPY STYLE IS WORSE THAN NO FIELD AT ALL. It does not merely fail to render
+-- it takes the surrounding section down with it. Anyone continuing this
+campaign should check the docstring's existing style before adding to it, and
+should build the docs rather than trusting a source-level count. Four of the
+six defects above were in classes that every source-level measurement in this
+file already counted as DOCUMENTED.
