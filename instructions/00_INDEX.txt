@@ -45,15 +45,15 @@ OPEN
        304_release_1_5_0_5_to_zenodo.txt
 
   306  THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
-       [~93% -- 3 of 6 ratchet tests closed; 125 catalog rows owed, 6 compact rows need the maintainer]
+       [API half DONE (9,426 symbols, all ten locales); catalog ratchets 27 of 31 green; 803 exact-English rows measured across nine locales still owed]
        306_the_api_tooltips_and_translations_are_current_and_correct.txt
 
   310  DEFECTS FOUND WHILE COVERING CODE THAT WAS EXCLUDED FROM COVERAGE
-       [~27% -- 26 of 97 entries resolved; approximate, see the audit note]
+       [a RUNNING LIST with nothing outstanding -- every entry carries a verdict; it stays open as the coverage sweep's append target]
        310_defects_found_while_covering_excluded_code.txt
 
   316  THE TRANSLATIONS ARE PRESENT, CURRENT, AND IN PLACES WRONG
-       [~20% -- red, and waiting on the maintainer's own translation pass]
+       [the maintainer released the wait 2026-09-04; 32 rows repaired and recorded reviewed; the README block-extraction fix and 19 orphaned reviewed blocks remain]
        316_the_translations_are_semantically_wrong_in_places.txt
 
   325  TWO SESSIONS, ONE REPO: THE WORKING PROTOCOL
@@ -101,12 +101,14 @@ OPEN
        370_every_published_model_carries_its_scorecard.txt
 
   372  AN OPS BUTTON ON ALIGN AND STITCH, OVER CODE THAT IS ALREADY IN THE REPOSITORY
+       [unblocked 2026-09-04 -- the maintainer answered the stitch question; PART 0's survivability audit of 3,891 unreached lines still comes first]
        372_an_ops_button_on_align_and_stitch.txt
 
   375  RETIRE metadata_type AND consolidate, ONCE IMPORT HAS ACTUALLY REPLACED THEM
        375_retire_metadata_type_and_consolidate_after_migration.txt
 
   377  EVERY ROW OF GITHUB'S COMMUNITY STANDARDS CHECKLIST IS GREEN
+       [every file written and committed; 0% VISIBLE -- GitHub reads the default branch and route A waits for 1.5.0.5 to carry them]
        377_the_github_community_standards_checklist_is_green.txt
 
 --------------------------------------------------------------------------------
