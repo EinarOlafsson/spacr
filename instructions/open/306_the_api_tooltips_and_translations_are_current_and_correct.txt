@@ -1869,3 +1869,89 @@ looked at.
 WHAT REMAINS FOR THIS ITEM, and it is now a list rather than a category: nine
 sentences for (1), two tooltips for zh_CN, one blurb for sv, the composition
 fix plus the Korean row for (5), and one Spanish sentence for (6).
+
+--------------------------------------------------------------------------------
+2026-09-04 (later) -- THREE OF THE SEVEN CLOSED, AND THE REAL SIZE OF THE FOURTH
+--------------------------------------------------------------------------------
+
+    tests/qt/test_external_i18n_catalogs.py   7 failed / 24 passed
+                                          ->  4 failed / 27 passed
+
+WHAT CLOSED, and none of it was a translation gap in the way this file assumed.
+
+1. `test_external_runtime_catalogs_have_exact_current_source_keys`.
+   MODULE_SUMMARIES['foreign'] is translated in all nine and its stored source
+   hash re-pinned to the current English. The English had grown two
+   capabilities -- converting microscope formats and adopting foreign masks --
+   and the nine sentences described the older, narrower module. Now they do
+   not, so the hash could be moved honestly rather than bumped.
+
+2. `test_runtime_uses_external_static_and_context_keyed_setting_text` AND
+   `..._resolve_all_reviewed_false_friend_variants` (partly). THE COMPOSITION
+   BUG IS FIXED, IN `spacr/qt/i18n.py`.
+
+   `_exact_translation` matches a whole string; `_term_translation` substitutes
+   single WORDS. A label joined with an em dash falls between them: the
+   composite has no exact entry, and a two-word piece like "Cp prob" is not one
+   word. So every locale kept the suffix in English and only Korean had a test.
+
+   `_composite_translation` splits an ``A — B`` label, resolves each side
+   exactly first and then by term -- the same order and authority `tr` itself
+   uses, so a hand-reviewed entry still beats a word substitution -- and
+   returns None unless a side actually changed. Measured after:
+
+       en     'Organelle 1 — Cp prob'
+       ko     '소기관 1 — CP'                    (the reviewed term)
+       sv     'Organell 1 — Cellsannolikhet (CP)'
+       de     'Organelle 1 — Zellwahrscheinlichkeit (CP)'
+       zh_CN  '细胞器 1 — 细胞概率（CP）'
+       fr/es/is/pt/hi   likewise translated
+
+   NINE LOCALES IMPROVED FROM ONE FIX, and the Korean row was additionally set
+   to 'CP' so the reviewed term resolves. This file recorded it as "a reviewed
+   false-friend variant unresolved", which sent three measurements at Korean
+   when the defect was in the composition and belonged to every language.
+
+3. `test_api_doc_catalog_is_symbol_keyed_and_source_hashed`. EIGHT symbols were
+   exact English -- 6 in hi, 2 in ko, 1 in is -- and are now translated.
+   `spacr.regression_panels.apply_primary_call` was the es one, rendered as
+   "determinación" rather than the telephone sense ko and zh_CN fell into.
+
+ALSO REPAIRED, FOUND BY READING RATHER THAN BY ANY TEST -- and all of them are
+316's class, in core vocabulary:
+
+    sv     'Object'      "Syfte"        = PURPOSE. A segmented object is not a
+           'Objects'     "Syften"         purpose. This word is everywhere in
+                                          the application.
+    zh_CN  'Model zoo'   "动物园模型"    = a model OF A ZOO.
+    zh_CN  'plaque_model' "板模型"       = BOARD model. The plaque family was
+           'Plaque Analysis' "板块分析"   uniformly 板/板块 -- board, or
+                                          tectonic plate -- and is now 蚀斑.
+           'Detect and quantify plaques in plaque-assay images.'
+                         "检测和量化板在板测试图像。" -- board, in board-test
+                         images, and ungrammatical besides.
+
+AND THE REMAINING THREE ARE ONE JOB WHOSE SIZE THIS FILE UNDERSTATES. The
+header says "125 catalog rows owed". MEASURED, per locale, by comparing every
+catalog value against its English source:
+
+    sv 88   de 92   es 87   fr 91   pt 89   hi 98   ko 85   is 86   zh_CN 87
+    TOTAL 803 rows still exact English
+
+That is roughly 90 distinct strings needing nine translations each, and it is
+what `..._no_exact_english_prose_fallbacks`, `..._no_unreviewed_exact_english_
+fallbacks` and `..._need_no_incremental_repairs` are all reporting. They are
+one job, not three.
+
+The fourth remaining failure is a KeyError rather than a missing translation:
+a reviewed false-friend record points at a source string
+("Which intensity channel holds each compartment...") that the catalog does not
+carry. That is an orphaned reviewed record of the same family as the three the
+2026-09-03 note in instruction 316 describes, and it wants the same treatment.
+
+ONE THING NOT TO REPEAT. Two strings for the per-object table were added to all
+nine catalogs and then REMOVED again: the key set is compared against
+`en.py::UI_SOURCES`, which does not carry them, so adding them to the locales
+alone turned a passing test red. `en.py` is generated, and this file already
+records that regenerating it with `--sources-only` makes things worse. Those
+two strings need the source regeneration and the locale rows in ONE pass.
