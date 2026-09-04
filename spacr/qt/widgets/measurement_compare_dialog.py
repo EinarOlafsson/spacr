@@ -35,6 +35,18 @@ class _WellChoice(QDialog):
     """
 
     def __init__(self, offered, chosen=None, parent: Optional[QWidget] = None):
+        """Ask which wells take part in the comparison.
+
+        :param offered: every well that could be included.
+        :param chosen: those ticked to start with, or ``None`` for all of
+            them.
+        :param parent: parent widget.
+
+        AN EXCLUDED WELL IS REMOVED FROM BOTH GROUPS. It is not moved into
+        the comparison group, which is the reading this dialog exists to
+        prevent -- the label says so on screen and it is repeated here
+        because the parameter names alone suggest a two-way split.
+        """
         super().__init__(parent)
         self.setWindowTitle("Which wells to include")
         self._boxes = []

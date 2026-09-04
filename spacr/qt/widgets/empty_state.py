@@ -31,6 +31,16 @@ class _WrappedLabel(QLabel):
     correct height and pin the label to that exact size.
     """
     def __init__(self, text: str, wrap_width: int = 560, parent=None):
+        """Build a label whose height is measured, not left to the layout.
+
+        :param text: the sentence to wrap.
+        :param wrap_width: the width to wrap at, and the label's fixed
+            width. THE HEIGHT IS COMPUTED FROM IT rather than requested: a
+            wrapping label that asks the layout for its height gets one
+            answer before the layout runs and another after, which is how an
+            empty state ends up clipped to a single line.
+        :param parent: parent widget.
+        """
         super().__init__(text, parent)
         self._wrap_width = wrap_width
         self.setWordWrap(True)

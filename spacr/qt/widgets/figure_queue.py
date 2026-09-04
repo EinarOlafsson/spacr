@@ -2528,6 +2528,17 @@ class _FigureSettingsDialog(QDialog):
 
     def __init__(self, fig, parent=None, propagate_callback=None,
                  render_callback=None):
+        """Edit one figure's settings.
+
+        :param fig: the figure being restyled.
+        :param parent: parent widget.
+        :param propagate_callback: called to apply these settings to the
+            OTHER figures as well, or ``None`` when there is nothing to
+            propagate to. This is what makes "apply to all" possible without
+            this dialog knowing what all the others are.
+        :param render_callback: called to redraw after a change, or ``None``
+            to leave redrawing to the caller.
+        """
         super().__init__(parent)
         self._fig = fig
         self._propagate_cb = propagate_callback
