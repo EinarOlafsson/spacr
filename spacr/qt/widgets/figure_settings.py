@@ -698,6 +698,7 @@ class FigureSettingsDialog(QDialog):
         all_text.setValue(_current_text_size(figure))
 
         def set_all_text(size):
+            """Set one font size on every piece of text in the figure."""
             for item in _every_text(figure):
                 item.set_fontsize(size)
             # AND REMEMBER IT ON THE FIGURE. Setting the sizes alone was not
@@ -742,10 +743,12 @@ class FigureSettingsDialog(QDialog):
         # there is an option to change the axis color" -- has an answer that
         # is not "change your text as well".
         def set_line_ink(colour):
+            """Recolour every line in the figure."""
             apply_line_colour(figure, colour)
             self._changed()
 
         def set_font_ink(colour):
+            """Recolour every piece of text in the figure."""
             apply_font_colour(figure, colour)
             self._changed()
 
@@ -833,6 +836,11 @@ class FigureSettingsDialog(QDialog):
                 row_layout.addWidget(box)
 
             def apply_limits(*_, s=setter, b=boxes):
+                """Apply one axis's limits, refusing a zero-width range.
+
+                Equal bounds collapse the axis and matplotlib draws nothing, so the
+                value is left alone rather than applied.
+                """
                 lower, upper = b[0].value(), b[1].value()
                 if lower == upper:
                     return  # a zero-width axis throws; wait for the other box
