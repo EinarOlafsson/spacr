@@ -754,6 +754,7 @@ class GateCanvas(GraphCanvas):
             return None
 
         def screen(point):
+            """Project one data point to screen pixels."""
             try:
                 projected = ax.transData.transform(
                     ax.get_proj() is not None and _project(ax, point) or (0, 0))
@@ -781,6 +782,12 @@ class GateCanvas(GraphCanvas):
         inverse = np.linalg.inv(matrix)
 
         def invert(dx, dy):
+            """Turn a screen-pixel delta back into a data delta.
+
+            Uses the INVERSE of the projection taken once outside, so a drag is
+            measured in the units the axis is in rather than in pixels -- the same
+            drag near the origin and far from it means the same change.
+            """
             data = inverse @ np.asarray([dx, dy], dtype=float)
             return float(data[0]), float(data[1])
 
