@@ -739,6 +739,7 @@ class DistributedJobsScreen(QWidget):
         self._set_status(label)
 
         def _work(_settings):
+            """Run the operation on the job runner's thread."""
             try:
                 self._pending_result = operation()
             except Exception as exc:
@@ -815,6 +816,7 @@ class DistributedJobsScreen(QWidget):
         )
 
         def _submit():
+            """Resolve the module and its settings, then submit. Off-thread."""
             from ...cli import resolve_module, resolve_settings
             module = resolve_module(module_name)
             if module is None:
@@ -829,6 +831,7 @@ class DistributedJobsScreen(QWidget):
             return self.manager.submit(module.key, settings, profile_name)
 
         def _done(job: RemoteJob):
+            """Redraw the job list with the new job selected."""
             self._render_jobs(self.manager.jobs.list(), select=job.job_id)
             self._set_status(
                 tr("Submitted {module} as {job}.").format(
@@ -841,6 +844,7 @@ class DistributedJobsScreen(QWidget):
     def refresh(self) -> None:
         """Poll all non-terminal jobs in a worker thread."""
         def _done(jobs):
+            """Redraw the job list and report how many are still active."""
             self._render_jobs(jobs)
             active = sum(
                 job.status in ACTIVE_STATES or job.status == "unknown"
@@ -889,6 +893,11 @@ class DistributedJobsScreen(QWidget):
             return
 
         def _done(updated):
+            """Redraw with the cancelled job still selected.
+
+            Keeping the SELECTION is the point: a list that jumps to the top after a
+            cancel loses the row the user was working with.
+            """
             self._render_jobs(self.manager.jobs.list(), select=updated.job_id)
             self._set_status(
                 tr("Cancellation requested for {job}.").format(
@@ -910,6 +919,7 @@ class DistributedJobsScreen(QWidget):
             return
 
         def _done(text):
+            """Show the fetched log, re-reading the job in case it moved on."""
             updated = self.manager.jobs.get(job.job_id)
             self._render_jobs(self.manager.jobs.list(), select=updated.job_id)
             self._detail.setPlainText(self._job_detail(updated))
