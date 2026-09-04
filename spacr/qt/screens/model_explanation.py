@@ -79,6 +79,7 @@ class _PathRow(QWidget):
     """
 
     def __init__(self, *, folder: bool = False, parent=None):
+        """Build the field and its Browse button."""
         super().__init__(parent)
         self.folder = bool(folder)
         layout = QHBoxLayout(self)
@@ -96,6 +97,7 @@ class _PathRow(QWidget):
         self.edit.setText(str(value or ""))
 
     def _browse(self) -> None:  # pragma: no cover - modal native picker
+        """Ask for a folder or a file, whichever this row is for."""
         if self.folder:
             path = QFileDialog.getExistingDirectory(self, "Choose folder")
         else:

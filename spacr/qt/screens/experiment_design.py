@@ -167,6 +167,7 @@ class _Well(QLabel):
     """
 
     def __init__(self, row: int, column: int, parent=None):
+        """Build one well, centred and locked to a square."""
         super().__init__("", parent)
         self.row, self.column = int(row), int(column)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -202,6 +203,12 @@ class _Well(QLabel):
             style.polish(self)
 
     def _screen(self):
+        """Walk up to the screen that handles well drags, or ``None``.
+
+        Found by CAPABILITY rather than by type -- the first ancestor that has
+        ``begin_well_drag`` -- so the well works under any host that offers the
+        same handle, including a test double.
+        """
         widget = self.parent()
         while widget is not None and not hasattr(widget, "begin_well_drag"):
             widget = widget.parent()

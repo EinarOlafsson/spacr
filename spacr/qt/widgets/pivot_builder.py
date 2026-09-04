@@ -194,6 +194,7 @@ class _AxisList(QListWidget):
     remove_requested = Signal(int)
 
     def __init__(self, parent=None):
+        """Build the list as a drop target that does not drag out."""
         super().__init__(parent)
         self.setAcceptDrops(True)
         self.setDragEnabled(False)
@@ -204,6 +205,7 @@ class _AxisList(QListWidget):
             lambda item: self.remove_requested.emit(self.row(item)))
 
     def _accepts(self, event) -> bool:
+        """Whether a drag carries a column this list can take."""
         return event.mimeData() is not None and \
             event.mimeData().hasFormat(COLUMN_MIME)
 

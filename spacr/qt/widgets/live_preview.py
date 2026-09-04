@@ -1064,6 +1064,7 @@ class _ZoomView(QGraphicsView):
     clicked = Signal()
 
     def __init__(self, parent=None):
+        """Build the view with its own scene and no peer yet."""
         super().__init__(parent)
         self._scene = QGraphicsScene(self)
         self.setScene(self._scene)
@@ -1130,6 +1131,13 @@ class _ZoomView(QGraphicsView):
             self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
 
     def _apply_zoom(self, factor: float, broadcast: bool = False) -> None:
+        """Zoom by ``factor``, optionally taking the twin view with it.
+
+        THE GUARD GOES ON THIS VIEW, NOT THE PEER. The flag makes ``_apply_zoom``
+        a no-op, so setting it on the peer skipped the peer's own zoom and the
+        two canvases never actually tracked each other -- they only appeared to
+        while both were being driven by hand.
+        """
         if self._syncing:
             return
         self.scale(factor, factor)
