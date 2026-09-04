@@ -99,7 +99,12 @@ class DockRow(ElidingPushButton):
             bottom of the window, which is where descriptions go.
         :param parent: parent widget.
         """
-        super().__init__(name, parent)
+        # `&` DOUBLED, OR QT EATS IT. A QPushButton reads a single
+        # ampersand as a mnemonic marker, so "Align & Stitch" draws as
+        # "Align _Stitch" -- the ampersand gone and the S underlined. The
+        # accessible name below keeps the real character, because a screen
+        # reader must not say the escape.
+        super().__init__(name.replace("&", "&&"), parent)
         self.key = key
         self.desc = desc
         # THE LEGACY OBJECT NAME, deliberately: the theme carries eight
@@ -450,6 +455,14 @@ class Dock(QWidget):
         palette = active_palette()
         accent = palette["accent"]
         self.setStyleSheet(
+            # THE CONTAINER PAINTS NOTHING. The application sheet gives
+            # `#Sidebar` a `DOCK_FILL`, which is opaque over the picture
+            # themes; behind a rounded panel that reads as a square black
+            # box around it, which is what "the dock still has a black box
+            # behind it" was. Cleared HERE, on the widget's own sheet, so it
+            # wins over the application one without changing what
+            # `DOCK_FILL` means for anything else.
+            "QWidget#Sidebar { background: transparent; border: none; }"
             "QFrame#DockPanel {"
             f"  background: {pane_surface('surface_alt')};"
             f"  border: 1px solid {palette['border_soft']};"

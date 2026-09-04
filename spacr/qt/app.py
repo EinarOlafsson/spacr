@@ -2166,6 +2166,11 @@ class MainWindow(QMainWindow):
         row.setSpacing(0)
         self._dock_slot = QWidget()
         self._dock_slot.setObjectName("DockSlot")
+        # Paints nothing: the dock's own rounded panel is the only surface
+        # here, and a slot with a fill of its own puts a square back behind
+        # it.
+        self._dock_slot.setStyleSheet(
+            "QWidget#DockSlot { background: transparent; border: none; }")
         slot_col = QVBoxLayout(self._dock_slot)
         slot_col.setContentsMargins(0, 0, 0, 0)
         slot_col.setSpacing(0)
@@ -3995,20 +4000,25 @@ class MainWindow(QMainWindow):
     def apply_dock_mode(self, mode: Optional[str] = None) -> None:
         """Put the app list where the preference says it goes.
 
-        Three modes, one ``Sidebar`` object:
+        Two modes, one ``Sidebar`` object:
 
-        ``auto``    the sidebar lives inside the :class:`EdgeDrawer` and
-                    reveals on dwell against the left edge.
-        ``locked``  the sidebar is re-parented into the window's dock
-                    slot, where it is an ordinary column: it never
-                    animates, never overlays the page, and the hot strip
-                    is switched off so it cannot also slide in on top of
-                    itself.
-        ``hidden``  the drawer is closed, its hot strip hidden, and the
-                    slot stays empty. The "All apps" action is disabled
-                    with a tooltip that says where to turn it back on —
-                    a control that silently does nothing is worse than
-                    one that is greyed out.
+        ``locked``  the sidebar sits in the window's dock slot, where it
+                    is an ordinary column in the layout: it never
+                    animates, and because it is a LAYOUT MEMBER rather
+                    than an overlay the page beside it is narrower by the
+                    dock's width instead of running underneath it.
+        ``hidden``  the slot stays empty. The "All apps" action is
+                    disabled with a tooltip that says where to turn it
+                    back on — a control that silently does nothing is
+                    worse than one that is greyed out.
+
+        THERE IS NO REVEAL-ON-HOVER MODE. It slid the dock in OVER the
+        page, so the home screen's module tiles sat underneath it and did
+        not move aside, and it needed a second container behind the dock's
+        own panel to be legible over whatever it covered. Both were the
+        complaint. The drawer object still exists and is kept closed and
+        disabled, because it also carries the keyboard path that the
+        "All apps" action uses.
 
         Idempotent, and safe to call before the menu exists.
         """
@@ -4020,21 +4030,16 @@ class MainWindow(QMainWindow):
             return
         self._dock_mode = mode
 
+        drawer.close()
+        drawer.set_enabled(False)
         if mode == "locked":
-            drawer.close()
-            drawer.set_enabled(False)
             if sidebar.parent() is not slot:
                 slot.layout().addWidget(sidebar)
             sidebar.setFixedWidth(sidebar.fitting_width())
             sidebar.show()
             slot.show()
         else:
-            if sidebar.parent() is not drawer:
-                drawer.adopt(sidebar)
             slot.hide()
-            drawer.set_enabled(mode == "auto")
-            if mode == "hidden":
-                drawer.close()
 
         action = getattr(self, "_act_all_apps", None)
         if action is not None:
@@ -4120,24 +4125,31 @@ class MainWindow(QMainWindow):
         return answered
 
     def toggle_app_drawer(self) -> None:
-        """Open (and focus) or close the slide-in app list.
+        """Put keyboard focus on the app dock. The menu and Ctrl+Shift+A path.
 
-        The keyboard and menu path into the reveal, so the panel is not
-        hover-only. Note what the drawer is *for* now that Home's first
-        tab lists every app: it is not Home's app list, it is the app
-        list on **every other screen** — the replacement for the
-        permanent 220 px column. From inside Mask, this is the only
-        pointer-driven way to reach Measure without going Home first.
+        THE DOCK NO LONGER SLIDES, so there is nothing to open: it is a
+        permanent column when the preference is ``locked``. What the action
+        still has to do is get a keyboard user INTO it, because a column you
+        can only reach by tabbing through the page is one that is hard to
+        reach at all.
 
-        A no-op when the dock is locked (it is already on screen and not
-        going anywhere) or hidden (the user asked for it not to be
-        there; a shortcut that overrules a preference is a bug).
+        A no-op when the dock is hidden -- the user asked for it not to be
+        there, and a shortcut that overrules a preference is a bug. The
+        action is disabled in that mode anyway, so this is the second half
+        of a belt and braces rather than the only guard.
         """
-        if getattr(self, "_dock_mode", "auto") != "auto":
+        if getattr(self, "_dock_mode", "locked") != "locked":
             return
-        drawer = getattr(self, "_app_drawer", None)
-        if drawer is not None:
-            drawer.toggle()
+        sidebar = getattr(self, "_sidebar", None)
+        if sidebar is None:
+            return
+        try:
+            rows = sidebar.rows()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the dock would not list its rows", exc_info=True)
+            return
+        if rows:
+            rows[0].setFocus(Qt.FocusReason.ShortcutFocusReason)
 
     def resume_after_restart(self) -> str:
         """Reopen the module a Force restart saved. Returns its key, or "".
@@ -4228,15 +4240,13 @@ class MainWindow(QMainWindow):
     def _on_drawer_navigated(self, _key: str) -> None:
         """A row in the drawer was clicked — it has done its job, close it.
 
-        Nothing to close when the dock is locked: it is a column, and a
-        column that vanished every time you used it would be worse than
-        the reveal it replaced.
+        NOTHING TO CLOSE AT ALL NOW. The dock is a column in the layout,
+        and a column that vanished every time you used it would be worse
+        than the reveal it replaced. Kept as the connection point so
+        `nav_selected` still has somewhere to land, and so a future mode
+        that does need closing has one place to do it.
         """
-        if getattr(self, "_dock_mode", "auto") != "auto":
-            return
-        drawer = getattr(self, "_app_drawer", None)
-        if drawer is not None:
-            drawer.close()
+        return
 
     # -- navigation -------------------------------------------------------
     def _install_startup_page(self):
