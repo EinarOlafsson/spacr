@@ -1,0 +1,183 @@
+================================================================================
+EVERY ROW OF GITHUB'S COMMUNITY STANDARDS CHECKLIST IS GREEN
+================================================================================
+
+Status:    OPEN, filed 2026-09-04.
+Owner:     the repository's public-facing community files.
+Requested: 2026-09-04, verbatim -- "add to instructions, i want to fulfuill all
+           of these: Description / README / Code of conduct / Contributing /
+           Writing contributing guidelines / License / Security policy / Set up
+           a security policy / Issue templates / Pull request template.
+           currently Code of conduct / Contributing and / Security policy / Set
+           up a security policy / Issue templates / Pull request template are
+           not green. make them."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+MEASURED 2026-09-04 via `GET /repos/EinarOlafsson/spacr/community/profile`,
+rather than read off the page:
+
+    health_percentage        42
+    description              present
+    readme                   README.rst
+    license                  BSD-3-Clause
+    code_of_conduct          MISSING
+    code_of_conduct_file     MISSING
+    contributing             MISSING
+    issue_template           MISSING
+    pull_request_template    MISSING
+
+The security policy is not a field this endpoint returns; it is checked
+separately and `SECURITY.md` does not exist in the tree either. So five files
+are owed, and the maintainer's list and the API agree on all five.
+
+The repository currently has no `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md` or
+`SECURITY.md` at any of the three locations GitHub accepts (root, `.github/`,
+`docs/`), and `.github/` holds only `workflows/`, `constraints/` and
+`quality-targets.txt`.
+
+--------------------------------------------------------------------------------
+THE THING THAT DECIDES HOW THIS IS DONE
+--------------------------------------------------------------------------------
+
+GITHUB READS COMMUNITY HEALTH FILES FROM THE DEFAULT BRANCH ONLY, AND THE
+DEFAULT BRANCH IS `main`. All development happens on `nightly`, and `main`
+advances only at a release. So writing these five files on `nightly` and
+pushing does NOT turn a single row green; the checklist will keep reporting
+42% until the files exist on `main`.
+
+That is a decision for the maintainer and is recorded rather than assumed:
+
+  ROUTE A -- land them on `nightly` and let the next release carry them to
+    `main`. Nothing extra to approve; the rows stay red until 1.5.0.5 ships,
+    which is itself gated on 288, 05, 304 and 316.
+
+  ROUTE B -- land them on `nightly` AND put the same five files on `main` in
+    their own commit. The rows go green immediately. Pushing to `main` is
+    safe from an accidental release: `release.yml` triggers on a push to
+    `main` ONLY when `setup.py` changes, and none of these files is
+    `setup.py`. It is still a push to the release branch and wants saying
+    out loud before it happens.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The checklist is the first thing a prospective user or reviewer reads about
+whether a scientific tool is maintained. For a package that is cited, that is
+part of the citation's credibility -- and a journal or institution auditing
+the software's provenance reads exactly this page. 42% is a number that
+invites the question.
+
+It also has practical value beyond the badge. The tracker already receives
+AUTO-FILED issues from inside the application, which carry a traceback
+fingerprint and redacted paths. HANDOFF section 6 records the two things
+those reports do that cost time: the title names the CRASH while the body
+reports a DIFFERENT problem the user hit first, and paths arrive as `<PATH>`.
+An issue form can ask for the missing half up front instead.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. `CODE_OF_CONDUCT.md` -- Contributor Covenant 2.1 with a real reporting
+   contact. GitHub only recognises the row when it can match a known text or
+   find the file at one of its three paths.
+
+2. `CONTRIBUTING.md` -- and it must describe THIS repository rather than a
+   generic Python project, or it is decoration. It has to carry: the
+   `nightly` vs `main` branch model; the supported interpreter range
+   (`>=3.9,<3.16,!=3.14.1`); how to run the suite, including `xvfb-run -a`
+   for Qt and why `pytest.ini` deliberately omits `-q`; the commit rules
+   (authored by the maintainer, no AI attribution, enforced by
+   `tools/hooks/commit-msg` via `core.hooksPath`); the instruction ledger
+   under `instructions/`; and the list of GENERATED files that must never be
+   hand-edited.
+
+3. `SECURITY.md` -- supported versions, a private reporting channel, and a
+   scope section that is honest about what spaCR actually does: it opens
+   local SQLite measurement databases, downloads model weights from Hugging
+   Face, can hold a GitHub token for auto-filing, and loads third-party code
+   through the plugin SDK.
+
+4. `.github/ISSUE_TEMPLATE/` -- a bug form, a feature form, and `config.yml`.
+   The bug form asks what the user was DOING first, for the reason above.
+
+5. `.github/PULL_REQUEST_TEMPLATE.md` -- short, and checking the things this
+   repository actually enforces rather than a generic list.
+
+6. Re-measure the community profile and record the number here.
+
+NOTE ON OWNERSHIP: `.github/**` is in instruction 325's "NEITHER owns without
+saying so first" list. Announce in 325 section 5 before editing it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    gh api repos/EinarOlafsson/spacr/community/profile --jq .health_percentage
+
+returns 100, and no field under `.files` is null. Measured against the DEFAULT
+branch, so this cannot pass until route A or B has put the files on `main`.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+  * GitHub's private vulnerability reporting is a REPOSITORY SETTING, not a
+    file, and turning it on is not required for the checklist row. It is the
+    right channel for `SECURITY.md` to name, so it is offered to the
+    maintainer rather than switched on unasked.
+
+--------------------------------------------------------------------------------
+2026-09-04 (same day) — ALL FIVE FILES ARE WRITTEN
+--------------------------------------------------------------------------------
+
+Written on `nightly`, announced in 325 section 5 because `.github/**` is on
+that file's announce-first list. Every path is new; no workflow was opened.
+
+    CODE_OF_CONDUCT.md                        Contributor Covenant 2.1
+    CONTRIBUTING.md                           132 lines
+    SECURITY.md                                81 lines
+    .github/ISSUE_TEMPLATE/bug_report.yml     issue form
+    .github/ISSUE_TEMPLATE/feature_request.yml
+    .github/ISSUE_TEMPLATE/config.yml         three contact links
+    .github/PULL_REQUEST_TEMPLATE.md
+    MANIFEST.in                               +3 includes, so the three policy
+                                              files ship in the sdist too
+
+All three issue-template YAMLs parse. `tests/test_packaging_metadata.py`: 47
+passed, so the MANIFEST edit broke nothing.
+
+WHAT IS IN THEM THAT A TEMPLATE WOULD NOT HAVE, because a generic file here
+would be decoration:
+
+  * CONTRIBUTING carries the things this repository actually enforces and that
+    have actually cost time: the `nightly`/`main` split and that a push to
+    `main` touching `setup.py` publishes to PyPI; verifying which tree an
+    editable install resolves to (HANDOFF 3f); why `pytest.ini` omits `-q`;
+    that headless Qt refuses static modals; the explicit-paths commit rule
+    from HANDOFF 0c; the no-AI-attribution rule and the hook that enforces it;
+    and a TABLE OF GENERATED FILES that must not be hand-edited, which is the
+    single most repeated mistake in this repository's history.
+
+  * SECURITY describes spaCR's real surface rather than a generic threat
+    model -- local SQLite databases carrying paths written elsewhere, model
+    weights downloaded and loaded, the GitHub token the auto-filer can hold,
+    the redaction in auto-filed reports, and the plugin SDK. It also says what
+    is NOT a security report, so an ordinary crash is not routed privately
+    where nobody else can see it.
+
+  * The bug form asks WHAT THE USER WAS DOING as its first required field.
+    That is HANDOFF section 6's finding made structural: an auto-filed issue's
+    title names the crash while its body reports a different problem the user
+    hit first, and #108 is the case that proved it.
+
+STILL RED, AND WHY. `gh api .../community/profile` still reports 42, and will
+until these files are on `main`. That is route A vs route B above and it is
+the maintainer's call. `tools/promote_to_main.py` exists for the general case
+but promotes the whole branch, which is a release-scale act; a five-file
+commit onto `main` is the small version and does not trigger `release.yml`,
+which fires only on a `setup.py` change.

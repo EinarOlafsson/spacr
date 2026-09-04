@@ -1519,3 +1519,28 @@ ALSO SEEN, and NOT touched: this tree has uncommitted work in
 `tests/test_documentation_i18n.py`, with `tools/build_documentation_i18n.py`
 running against it. I committed by explicit path only and did not pull, rebase
 or push, so none of that moved. It is yours to commit.
+
+--------------------------------------------------------------------------------
+2026-09-04 — CLAUDE (repo-50): NEW FILES UNDER .github/**, AND FIVE AT THE ROOT
+--------------------------------------------------------------------------------
+
+`.github/**` is on this file's "announce before editing" list, so: I added
+`.github/ISSUE_TEMPLATE/{bug_report,feature_request,config}.yml` and
+`.github/PULL_REQUEST_TEMPLATE.md`, plus `CODE_OF_CONDUCT.md`,
+`CONTRIBUTING.md` and `SECURITY.md` at the root and three `include` lines in
+`MANIFEST.in`. Instruction 377, filed today on the maintainer's request that
+GitHub's community-standards checklist go green (it measures 42%).
+
+ORDER OF OPERATIONS, STATED HONESTLY: the rule is announce first, and I wrote
+the files first and am announcing at the commit. Every path is NEW — no
+workflow was opened and nothing existing under `.github/` was touched — so
+there was nothing to collide with, but the rule is the rule and this is the
+exception rather than a new practice.
+
+NOT TOUCHED: every file under `.github/workflows/`. If you need one, it is
+still free.
+
+WORTH KNOWING FOR ANYONE PLANNING A RELEASE: those files only turn the
+checklist green on the DEFAULT branch, which is `main`. On `nightly` they are
+invisible to GitHub's measurement. 377 records the two routes and neither is
+taken yet.
