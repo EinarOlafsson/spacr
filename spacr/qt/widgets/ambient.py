@@ -1244,6 +1244,7 @@ class _BufferedEngine(AmbientEngine):
     base_edge = BUFFER_MAX_EDGE
 
     def __init__(self, *args, **kwargs):
+        """Start with no buffer -- the first shade allocates one."""
         self._buffer: Optional[QImage] = None
         super().__init__(*args, **kwargs)
 
@@ -1300,6 +1301,12 @@ class _BufferedEngine(AmbientEngine):
                    / self.buffer_scale(width, height))
 
     def _ensure_buffer(self, width: int, height: int) -> QImage:
+        """The reusable frame buffer, reallocated only when the size changes.
+
+        ONCE ON RESIZE AND NEVER PER FRAME. A buffer allocated each frame is a
+        full-size QImage of garbage per tick at the frame rate, which is the cost
+        this whole class exists to avoid.
+        """
         bw, bh = self.buffer_size(width, height)
         buf = self._buffer
         if buf is None or buf.width() != bw or buf.height() != bh:
@@ -1411,6 +1418,7 @@ class _BufferedEngine(AmbientEngine):
                           Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Shade one frame into ``painter``. Subclasses implement it."""
         raise NotImplementedError
 
 
@@ -4306,6 +4314,7 @@ class _FrameProducer:
 
     def __init__(self, engine: "_BufferedEngine", engine_lock,
                  fps: int, size: Tuple[int, int]):
+        """Prepare the shading thread: engine, lock, beat and size."""
         self._engine = engine
         self._engine_lock = engine_lock
         self._interval = 1.0 / max(1, int(fps))
@@ -4382,6 +4391,14 @@ class _FrameProducer:
 
     # -- the loop ------------------------------------------------------
     def _run(self) -> None:
+        """Shade frames on the beat until stopped.
+
+        Waits on the STOP EVENT rather than sleeping, so stopping returns at once
+        instead of at the end of the beat. A pass that overran its beat gets no
+        wait at all, which is how this degrades under load: it keeps shading as
+        fast as it can rather than falling further behind a schedule it cannot
+        keep.
+        """
         while not self._stop.is_set():
             started = time.monotonic()
             width, height = self.size
@@ -5380,6 +5397,7 @@ class _FractalTracksItsHost(QObject):
     """
 
     def __init__(self, widget, host) -> None:
+        """Take the host as parent and remember the widget to resize."""
         super().__init__(host)
         self._widget = widget
 
