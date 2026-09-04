@@ -283,3 +283,74 @@ summaries, supported-file discovery, role inference, input coercion, canonical
 stems, mask pairing, atomic NumPy writes, and database-table discovery. The
 module already had direct focused behavior coverage for each path and is now
 in the completed-module registry so the documentation cannot regress.
+
+---
+
+2026-09-04. PHASE 4, THE PRIVATE HALF: DONE. THE NUMBERS IN THIS FILE WERE
+STALE BY A LOT.
+
+    module functions   6908/7158   97%
+    methods            6712/9067   74%   (this file says nothing; it was 70.5%
+                                          at the start of this session)
+    nested             656/844     78%   (THIS FILE SAYS 32%)
+
+Nested functions were "today the worst covered at 32%" when this was written.
+They were at 62% before this session touched them and are at 78% now. Anyone
+planning work off the 32% would have been sizing a job four times bigger than
+the one that existed. THE MEASUREMENT IS ONE COMMAND -- run it before
+believing a number in here, including these.
+
+PRIVATE METHODS ON PRIVATE CLASSES ARE AT ZERO. Every one is documented.
+
+WHAT I DELIBERATELY DID NOT DO, and why it is not laziness: the public half.
+Every docstring on a public class -- INCLUDING A DUNDER -- moves the API
+symbol count, which stales `docs/source/_static/i18n/api/*.json` and turns
+306's catalog test red. Three passes were burnt this session discovering that
+(`Colormap.__eq__` gaining a docstring moved the count). The other session is
+closing 306; the public half resumes when they are done.
+
+WHAT THE WRITING IS ACTUALLY FOR, since a coverage percentage does not say it.
+Almost every docstring worth writing here recorded a decision that the code
+could not show:
+
+  * `_adapt_resolution` in fractal_travel.py is nine lines of bare constants
+    -- 0.78, 0.92, 1.65, 0.82, 1.055 -- and every one is a choice. It waits
+    twelve frames and reconsiders every twenty-fourth so the scale settles
+    rather than oscillating; the budget is 78% of the period because Qt's
+    conversion needs the rest; both directions are clamped so a stall cannot
+    drive the picture to nothing.
+  * `_axes_tab.set_colour` binds its artist as a DEFAULT ARGUMENT. Closing
+    over the loop variable gives every callback the last artist -- the classic
+    way a row of per-artist controls all end up editing one of them. It looks
+    like noise until someone tidies it away.
+  * `run._capture_show` renders figures on the WORKER thread because Agg
+    touches no Qt. Moving the render to where the tile is made is the obvious
+    edit and hangs the window.
+  * `_run_job._job` returns through a payload dict because a return value is
+    swallowed by the runner.
+  * `_settle_after_handler` keeps the solid fill on a DISABLED Run button,
+    because disabled conventionally means the worker is starting or stopping,
+    and greying it says "unavailable" instead of "in progress".
+
+THE RATCHET'S SECOND TEST IS THE GOOD HALF, and it is worth saying why:
+`test_the_budget_names_no_module_that_has_improved_past_it` fails when a
+module gets BETTER than its recorded budget. Without it, documenting four
+functions silently buys room to leave four more undocumented later. Fourteen
+budgets were tightened this session, several to zero. Bank the improvement in
+the same commit that earns it.
+
+AND ONE THING THIS CAMPAIGN FOUND THAT IT WAS NOT LOOKING FOR. Three tests
+that had been red long enough to be treated as background -- baselined,
+labelled "pre-existing", stepped over -- were all real defects:
+
+  * the maturity word elided off the hint bar, which is the only carrier for a
+    colour-blind reader (WCAG 1.4.1);
+  * `_contains_suffix` building its iterator above its own `try`, which stopped
+    working when `Path.iterdir` began raising at creation on Python 3.13 --
+    an OSError landing where Qt cannot catch it;
+  * a drop cache keyed on a directory mtime whose granularity is coarser than
+    the event it was meant to notice.
+
+A swept package-wide check for that third-party-version shape found no other
+instance. "Known red" is not the same as "known", and re-reading three of them
+cost less than one docstring batch.
