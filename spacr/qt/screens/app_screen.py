@@ -6729,7 +6729,6 @@ class AppScreen(QWidget):
         # in the shared actions row prevents Timelapse, Motility and Measure
         # from permanently taking half the console merely because their
         # preview card exists.
-        from PySide6.QtWidgets import QMenu, QToolButton
         from ..widgets import AiToggleLabel
 
         # 3D and Time — "to the left of the Live button which sitts to the
@@ -6849,29 +6848,17 @@ class AppScreen(QWidget):
         self._ai_switch.toggled.connect(self._on_ai_switch)
         row.addWidget(self._ai_switch)
 
-        self._ai_menu_btn = QToolButton()
-        # A QToolButton does not inherit the application's QPushButton rules.
-        # Left anonymous, its native dark-theme primitive paints the Window
-        # role -- pure black -- as a square beside the transparent AI label.
-        # Give the provider chevron the dedicated rule in theme.stylesheet;
-        # setting autoRaise is not equivalent (Qt still paints black at rest).
-        self._ai_menu_btn.setObjectName("AiProviderMenuButton")
-        self._ai_menu_btn.setPopupMode(QToolButton.InstantPopup)
-        self._ai_menu_btn.setCursor(Qt.PointingHandCursor)
-        self._ai_menu_btn.setToolTip("Pick provider · Providers…")
-        self._ai_menu_btn.setText("▾")
-        self._ai_menu = QMenu(self._ai_menu_btn)
-        self._ai_menu_btn.setMenu(self._ai_menu)
+        # NO PROVIDER CHEVRON HERE ANY MORE. A "▾" beside the AI switch
+        # opened a provider picker on the actions row of every module, which
+        # put a PREFERENCE -- which assistant do I use -- in the place where
+        # per-run choices are made, and repeated it on each screen. It moved
+        # to Preferences → AI, where the answer is given once.
+        #
         # "AI assistant on at launch" IS WHAT THIS CONTROLS. The preference
         # was written by the setup screen and read by nothing, so a user who
         # turned it on met a grey AI switch on every module and a setting
         # that had done nothing.
-        #
-        # AFTER the menu exists: turning the switch on fires `toggled`,
-        # whose handler picks a provider and refreshes that menu.
         self._apply_ai_default()
-        row.addWidget(self._ai_menu_btn)
-        self._refresh_ai_menu()
 
         layout.addWidget(actions)
 
@@ -7960,51 +7947,35 @@ class AppScreen(QWidget):
             if not self._console._current_provider_name:
                 configured = ai_module.configured_providers()
                 if configured:
-                    self._console.set_ai_provider(configured[0].name)
-                    self._refresh_ai_menu()
+                    self._console.set_ai_provider(
+                        self._wanted_provider() or configured[0].name)
                 else:
                     self._console.append_notice(
-                        "[AI] No vendor CLI installed. Click ▾ next "
-                        "to the AI switch → Providers…\n"
+                        "[AI] No vendor CLI installed. "
+                        "Preferences → AI → Providers…\n"
                     )
                     self._ai_switch.setChecked(False)
 
-    def _refresh_ai_menu(self) -> None:
-        """Rebuild the provider dropdown next to the AI switch."""
+    def _wanted_provider(self):
+        """The provider Preferences asks for, if it is actually installed.
+
+        :returns: the chosen provider's name, or ``""`` to let the console
+            take the first available one.
+        """
         from .. import ai as ai_module
-        self._ai_menu.clear()
-        configured = ai_module.configured_providers()
-        current = self._console._current_provider_name
-        if configured:
-            for p in configured:
-                act = self._ai_menu.addAction(p.label)
-                act.setCheckable(True)
-                act.setChecked(p.name == current)
-                act.triggered.connect(
-                    lambda _c=False, name=p.name: self._on_pick_provider(name)
-                )
-            self._ai_menu.addSeparator()
-        else:
-            source = "(no vendor CLI installed)"
-            unavailable = self._ai_menu.addAction(tr(source))
-            unavailable.setProperty("_spacr_i18n_text", source)
-            unavailable.setEnabled(False)
-            self._ai_menu.addSeparator()
-        source = "Providers…"
-        act_providers = self._ai_menu.addAction(tr(source))
-        act_providers.setProperty("_spacr_i18n_text", source)
-        act_providers.triggered.connect(self._on_open_providers_dialog)
+        from ..preferences import get_preferred_provider
 
-    def _on_pick_provider(self, name: str) -> None:
-        self._console.set_ai_provider(name)
-        self._refresh_ai_menu()
-
-    def _on_open_providers_dialog(self) -> None:
-        from ..widgets.ai_chat_panel import _ProvidersDialog
-        from PySide6.QtWidgets import QDialog
-        dlg = _ProvidersDialog(self)
-        if dlg.exec() == QDialog.Accepted:
-            self._refresh_ai_menu()
+        wanted = get_preferred_provider()
+        if not wanted:
+            return ""
+        # A PREFERENCE IS A WISH, NOT A GUARANTEE. The CLI it names can be
+        # uninstalled between sessions, and honouring the name regardless
+        # would route every question to something that is not there.
+        try:
+            names = {p.name for p in ai_module.configured_providers()}
+        except Exception:                                    # noqa: BLE001
+            return ""
+        return wanted if wanted in names else ""
 
     def _on_explain_error(self):
         if not self._last_error_text:

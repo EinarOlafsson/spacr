@@ -2948,20 +2948,10 @@ class AnnotateScreen(QWidget):
         self._ai_switch.toggled.connect(self._on_ai_switch)
         bottom_row.addWidget(self._ai_switch)
 
-        self._ai_menu_btn = QToolButton(self)
-        # The generic AppScreen builds this same provider chevron. Share its
-        # narrow theme selector so this copy does not fall back to Qt's
-        # native pure-black tool-button plate.
-        self._ai_menu_btn.setObjectName("AiProviderMenuButton")
-        self._ai_menu_btn.setPopupMode(QToolButton.InstantPopup)
-        self._ai_menu_btn.setCursor(Qt.PointingHandCursor)
-        self._ai_menu_btn.setFocusPolicy(Qt.NoFocus)
-        self._ai_menu_btn.setToolTip("Pick provider · Providers…")
-        self._ai_menu_btn.setText("▾")
-        self._ai_menu = QMenu(self._ai_menu_btn)
-        self._ai_menu_btn.setMenu(self._ai_menu)
-        bottom_row.addWidget(self._ai_menu_btn)
-        self._refresh_ai_menu()
+        # NO PROVIDER CHEVRON. The generic AppScreen used to build the same
+        # one; both moved to Preferences → AI, where "which assistant do I
+        # use" is answered once instead of on the actions row of every
+        # module.
         outer.addWidget(bottom)
 
         self._rebuild_grid()
@@ -3217,49 +3207,34 @@ class AnnotateScreen(QWidget):
         if not self._console._current_provider_name:
             configured = ai_module.configured_providers()
             if configured:
-                self._console.set_ai_provider(configured[0].name)
-                self._refresh_ai_menu()
+                self._console.set_ai_provider(
+                    self._wanted_provider() or configured[0].name)
             else:
                 self._console.append_notice(
-                    "[AI] No vendor CLI installed. Click ▾ next to the AI "
-                    "switch → Providers…\n")
+                    "[AI] No vendor CLI installed. "
+                    "Preferences → AI → Providers…\n")
                 self._ai_switch.setChecked(False)
 
-    def _refresh_ai_menu(self) -> None:
-        """Rebuild the provider dropdown beside Annotate's AI button."""
+    def _wanted_provider(self) -> str:
+        """The provider Preferences asks for, if it is actually installed.
+
+        :returns: the chosen provider's name, or ``""`` to let the console
+            take the first available one.
+        """
         from .. import ai as ai_module
-        self._ai_menu.clear()
-        configured = ai_module.configured_providers()
-        current = self._console._current_provider_name
-        if configured:
-            for provider in configured:
-                action = self._ai_menu.addAction(provider.label)
-                action.setCheckable(True)
-                action.setChecked(provider.name == current)
-                action.triggered.connect(
-                    lambda _checked=False, name=provider.name:
-                    self._on_pick_provider(name))
-            self._ai_menu.addSeparator()
-        else:
-            source = "(no vendor CLI installed)"
-            unavailable = self._ai_menu.addAction(tr(source))
-            unavailable.setProperty("_spacr_i18n_text", source)
-            unavailable.setEnabled(False)
-            self._ai_menu.addSeparator()
-        source = "Providers…"
-        action = self._ai_menu.addAction(tr(source))
-        action.setProperty("_spacr_i18n_text", source)
-        action.triggered.connect(self._on_open_providers_dialog)
+        from ..preferences import get_preferred_provider
 
-    def _on_pick_provider(self, name: str) -> None:
-        self._console.set_ai_provider(name)
-        self._refresh_ai_menu()
-
-    def _on_open_providers_dialog(self) -> None:
-        from ..widgets.ai_chat_panel import _ProvidersDialog
-        dialog = _ProvidersDialog(self)
-        if dialog.exec() == QDialog.Accepted:
-            self._refresh_ai_menu()
+        wanted = get_preferred_provider()
+        if not wanted:
+            return ""
+        # A PREFERENCE IS A WISH, NOT A GUARANTEE. The CLI it names can be
+        # uninstalled between sessions, and honouring the name regardless
+        # would route every question to something that is not there.
+        try:
+            names = {p.name for p in ai_module.configured_providers()}
+        except Exception:                                    # noqa: BLE001
+            return ""
+        return wanted if wanted in names else ""
 
     # ------------------------------------------------------------------
     # Key legend

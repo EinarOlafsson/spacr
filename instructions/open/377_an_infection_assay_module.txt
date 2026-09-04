@@ -1,0 +1,122 @@
+================================================================================
+AN INFECTION ASSAY MODULE: INFECTION RATE, AND EVERYTHING ELSE INFECTION MEANS
+================================================================================
+
+Status:    filed 2026-09-04, not started. SURVEYED the same day, and the
+           survey changes the shape of the job -- see PART 0. The candidate
+           measurement list in PART 1 is the part that needs the maintainer.
+Requested: 2026-09-04 -- "We should add an assay module that measures
+           infection rate and everything infection related it can come up
+           with things it could measure"
+Owner:     spacr/submodules.py (where the sibling assays live), spacr/qt/app.py
+           (the Assays section), spacr/settings.py, spacr/cli.py for the
+           headless name, tests.
+
+--------------------------------------------------------------------------------
+PART 0 -- THE ASSAYS SECTION ALREADY HAS FOUR, AND TWO OF THEM OVERLAP THIS
+--------------------------------------------------------------------------------
+
+Before designing anything, what is already shipped:
+
+    analyze_plaques   Plaque Assay        beta    plaque measurements
+    recruitment       Recruitment          -      host protein at the vacuole
+    invasion          Invasion Assay      alpha   attached vs invaded parasites
+    replication       Replication Assay   beta    parasites per vacuole
+
+INVASION AND REPLICATION ARE BOTH INFECTION MEASUREMENTS. Invasion already
+computes an efficiency from two-colour differential staining -- the
+`attached` / `invaded` classes and the thresholding hazards around them are
+worked out in `submodules.py` and carry real notes about how weak staining
+inflates the invaded fraction. Replication already buckets vacuoles by
+parasites-per-vacuole and distributes them per well.
+
+SO THE FIRST QUESTION IS NOT "WHAT CAN WE MEASURE". It is whether an Infection
+module is:
+
+  (a) a FIFTH assay beside those four, measuring the thing neither covers --
+      what fraction of host cells carry any parasite at all; or
+  (b) a PARENT that invasion and replication become views of, since both are
+      infection measured at a different stage; or
+  (c) a REPORT rather than a pipeline -- infection metrics assembled from
+      measurements Measure already writes, with no new image processing.
+
+(c) is the cheapest and may be most of the value. `measure.py` already
+carries `uninfected`, `_exclude_objects(..., uninfected=...)` and the
+per-object masks; `io.py` already computes `pathogen_prcfo_count` per host
+cell. Infection rate is a groupby away from data that already exists. This
+should be measured before anything is built: count how many of the metrics in
+PART 1 are already derivable from a finished Measure run.
+
+THE REQUEST SAYS "it can come up with things it could measure", so the list
+below is offered as a proposal to choose from, NOT as a scope to implement.
+Building all of it would be a worse module than building six of them well.
+
+--------------------------------------------------------------------------------
+PART 1 -- CANDIDATE MEASUREMENTS, GROUPED BY WHAT THEY ANSWER
+--------------------------------------------------------------------------------
+
+HOW MUCH INFECTION IS THERE
+  infection rate             fraction of host cells with >= 1 parasite
+  infection index            mean parasites per host cell, all cells
+  parasites per infected     mean parasites per host cell, infected only
+  multiplicity distribution  the histogram behind those two means, which is
+                             the number that actually distinguishes "a few
+                             heavily infected cells" from "many lightly
+                             infected ones" -- two conditions with the same
+                             infection index and different biology
+  vacuoles per cell          distinct from parasites per cell once replication
+                             has started; replication assay already buckets it
+
+WHERE THE PARASITES ARE
+  intracellular fraction     needs the invasion module's two-colour call, or
+                             a cytoplasm/nucleus containment test
+  perinuclear localisation   distance from vacuole centroid to host nucleus
+  vacuole eccentricity       and its distance to the host cell boundary
+
+WHAT INFECTION DOES TO THE HOST
+  host cell size / shape     infected vs uninfected in the same well, which is
+                             the comparison that controls for well effects
+  host nucleus morphology    area, eccentricity, intensity -- host nuclear
+                             changes are an early infection phenotype
+  host marker intensity      any measured channel, split by infection status
+
+QUALITY AND CONTROLS -- the ones that stop a number being believed too easily
+  uninfected control rate    infection rate in wells that should have none;
+                             a non-zero value here invalidates the plate
+  edge-object exclusion      already implemented for measurement; the infection
+                             denominator has to use the same rule or the rate
+                             is computed against a different cell count than
+                             the numerator
+  per-field variance         infection rate by field within a well, because a
+                             well mean hides a settling gradient
+  cell count per well        a denominator small enough to make the rate noise
+
+--------------------------------------------------------------------------------
+PART 2 -- WHAT MUST BE TRUE BEFORE THIS IS BUILT
+--------------------------------------------------------------------------------
+
+THE DENOMINATOR IS THE WHOLE PROBLEM. Every metric above is a ratio, and
+almost every way of getting one wrong is a denominator that does not match
+its numerator: cells excluded at the image edge, cells excluded for size,
+cells with no nucleus, cells whose parasite was excluded but which still
+count as infected. `merge_tables.py:352` already records one of these -- an
+area summed over two objects while the count says three. Whatever is built
+must state its denominator in the output, per metric, rather than leaving the
+reader to infer it.
+
+IT MUST NOT BE A FIFTH VOCABULARY. 364 found the cost of two tables of the
+same words drifting. `uninfected`, `pathogen_count`, `parasite_count` and
+`pathogen_prcfo_count` already exist across `measure.py`, `io.py` and
+`timelapse.py`; an infection module that invents `infected_flag` beside them
+is how the fifth spelling starts.
+
+AND IT NEEDS A REAL DATASET TO BE BELIEVED. The plaque assay has one on the
+NAS; this needs its equivalent before any threshold in it is defensible.
+
+--------------------------------------------------------------------------------
+NEXT ACTION
+--------------------------------------------------------------------------------
+
+Ask the maintainer (a), (b) or (c) from PART 0, and which of PART 1 they
+actually want. Then measure how much of the chosen list falls out of an
+existing Measure run before writing any new image processing.
