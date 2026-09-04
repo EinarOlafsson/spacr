@@ -104,6 +104,11 @@ class ComparisonPanel(QWidget):
     :param stack: what this panel shows. Each panel has its OWN stack — that
         is the whole point, since they hold different channels, timepoints or
         conditions.
+    :param parent: parent widget; ownership only.
+    :param title: the caption over the panel. Empty falls back to ``key``,
+        which is a name the code chose, not one a reader picked -- fine
+        while the keys are the conditions, worth overriding once they are
+        not.
     """
 
     #: This panel's view moved. Carries ``(key, canvas)``.

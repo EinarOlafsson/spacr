@@ -1173,6 +1173,14 @@ class ColumnPickerButton(QToolButton):
         rather than replacing what is there, and the dialog lets the user
         select any number of columns in one visit instead of one per press.
         ``None`` auto-detects (:func:`field_is_list`).
+    :param parent: parent widget; ownership only.
+    :param text: the button's face. ``SQL`` everywhere today; a parameter
+        because the button is small enough that its label is the only thing
+        distinguishing two of them side by side.
+    :param allow_new: let the dialog accept a name that is not in the table.
+        ``False`` restricts the user to columns that exist, which is right
+        for a field that must match the schema and wrong for one naming a
+        column a later step will create.
     """
 
     #: Emitted once per chosen column name, after the dialog is accepted.

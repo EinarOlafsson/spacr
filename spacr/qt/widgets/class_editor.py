@@ -140,6 +140,12 @@ class ClassEditorWidget(QWidget):
         the widget still edits an existing dictionary but cannot populate new
         rows, and says so rather than showing an empty column picker as though
         the table had no columns.
+    :param parent: parent widget; ownership only.
+    :param basis: ``annotation`` to derive classes from an annotation column,
+        or ``metadata`` to offer plate/row/column/field/well instead. It picks
+        WHICH COLUMNS ARE ON OFFER, not how a rule is stored -- both bases
+        produce the same ``name -> {column, value}`` mapping -- and it can be
+        changed after construction with :meth:`set_basis`.
     """
 
     value_changed = Signal(object)

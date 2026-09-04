@@ -566,6 +566,10 @@ class PCAPanel(QWidget):
         :meth:`recompute`. ``PCAScreen`` passes its own ``threaded`` through,
         so the application gets the threaded panel and a panel built directly
         keeps returning its result from the call.
+    :param parent: parent widget; ownership only.
+    :param source: this view's name on the link, stamped onto everything it
+        publishes so a selection can be attributed and a view does not react
+        to its own brushing. Two panels sharing a link MUST NOT share this.
     """
 
     #: Emitted after every successful decomposition.

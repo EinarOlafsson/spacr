@@ -196,6 +196,12 @@ class OrthoView(LinkedView, QWidget):
         of a series. Adds a ``t`` slider whose changes are announced through
         :attr:`frame_changed` rather than resolved here, because loading the
         next timepoint is the caller's job (and often a background one).
+    :param parent: parent widget; ownership only.
+    :param axes: the volume's axis names, slowest first. Defaults to
+        :data:`~spacr.layers.OrthoViews.DEFAULT_AXES` (``z``, ``y``, ``x``).
+        NAMES, NOT AN ORDER TO APPLY: the array is already in this order, and
+        this is what to CALL each axis, so a volume stored ``t``-first is
+        described here rather than transposed.
     """
 
     #: The crosshair moved. Carries ``{axis: world}``.

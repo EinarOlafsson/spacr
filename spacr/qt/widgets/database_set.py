@@ -87,6 +87,11 @@ class DatabaseSetWidget(QWidget):
         or ``None`` when the "colour by source" box is toggled. Given by a
         settings panel that owns a ``color_by`` field; omitted elsewhere, and
         the box is then not shown.
+    :param parent: parent widget; ownership only.
+    :param title: the caption on the file dialog this opens. ``None`` picks
+        one from ``mode``, so it only needs giving when the dialog is asking
+        for something more specific than "a database" or "a folder" -- the
+        dialog's title is the only prompt it has.
     """
 
     value_changed = Signal()
