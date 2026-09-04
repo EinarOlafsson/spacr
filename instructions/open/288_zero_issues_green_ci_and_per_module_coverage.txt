@@ -813,3 +813,49 @@ chasing it now would abandon the release gates for it. What the next attempt
 should do is bisect the 707 selection rather than read the test: run it with
 `-p no:randomly` against halves of the selection until the smallest set that
 reproduces it is named, then look at what that set leaves behind.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- THE ORDER-DEPENDENT CLIPPING FAILURE IS BISECTED TO ONE FILE
+--------------------------------------------------------------------------------
+
+The note above recorded a caption-clipping test that passes alone and fails
+inside a 707-test selection, and said the next step was to bisect the selection
+rather than read the test. Bisected, in six runs:
+
+    101 files in the selection
+    -> 50   reproduces
+    -> 25   reproduces
+    -> 12   reproduces
+    ->  6   reproduces
+    ->  1   REPRODUCES
+
+    tests/qt/test_external_i18n_catalogs.py
+        POISONS
+    tests/qt/test_the_text_fits_sweep_dialogs.py
+        ::test_no_dialog_caption_is_cut_off[BarcodeRegexDialog-de-2.0]
+
+Confirmed by running each of the final six files alone with the target
+appended: five are clean, that one reproduces on its own. So the whole effect
+is one file pair, not an accumulation across a long suite -- which is a
+DIFFERENT finding from the deceleration this instruction already records, and
+a much cheaper one to fix.
+
+WHY IT IS PLAUSIBLE, and where to look first. `test_external_i18n_catalogs.py`
+imports the catalog modules and exercises the runtime translation layer, so it
+leaves a LANGUAGE selected or a translation cache warm. The clipping sweep then
+measures a German dialog caption at 2.0 font scale. If the caption arrives
+translated when the sweep expects English -- or vice versa -- the measured
+width changes and the test reports clipping that a user would never see.
+
+That is the same class as the retracted 38-phantom-German-clips episode this
+repository already recorded under 350: a clipping measurement is only as good
+as the state it measures in.
+
+WHAT TO DO NEXT, and it is now small: run the two files together with
+`-p no:randomly` and print `current_language()` plus the caption's
+`displayed_text()` at the point of measurement. If the language leaked, the fix
+belongs in whichever of the two does not restore it -- and a fixture that
+restores the language after each catalog test would cover the whole family
+rather than this one pair.
+
+NOT FIXED HERE: the bisect was the recorded next step and this is its result.
