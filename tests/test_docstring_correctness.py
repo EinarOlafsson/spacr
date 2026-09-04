@@ -1926,10 +1926,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert not imported_package_modules
     by_symbol = {item.symbol: item for item in callables}
 
-    assert len(callables) == len(by_symbol) == 8_367
+    assert len(callables) == len(by_symbol) == 8_374
     assert Counter(item.category for item in callables) == {
         "function": 3_619,
-        "method": 3_719,
+        "method": 3_726,
         "constructor": 390,
         "dataclass_constructor": 441,
         "namedtuple_constructor": 6,
@@ -1937,26 +1937,26 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         "inherited_or_default_constructor": 55,
     }
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_362,
+        "autoapi": 8_369,
         "cli_only": 2,
         "compatibility": 3,
     }
-    assert sum(item.variant_count for item in callables) == 8_374
+    assert sum(item.variant_count for item in callables) == 8_381
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_360,
+        1: 8_367,
         2: 7,
     }
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 88
+    ) == 91
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 88
+    ) == 91
     # RE-RECORDED 2026-09-04. Every figure here moved UP together as the
     # package gained callables; not one of them fell, which is the direction
     # check that was run before these numbers were written.
-    assert sum(len(item.parameters) for item in callables) == 16_538
-    assert sum(len(item.required_parameters) for item in callables) == 8_359
+    assert sum(len(item.parameters) for item in callables) == 16_543
+    assert sum(len(item.required_parameters) for item in callables) == 8_364
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -1966,7 +1966,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "e320ad7445543f81759fbd97960d32e6e8dfe18edc640a4a5664c3b04763dd02"
+    ) == "35a3764ccf0ab7f2b76fbb37956b8050832034b042367dcacff09c9d5ee250b4"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2251,8 +2251,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     }
     # The gap between the two is the entries AutoAPI never renders: the
     # configured ignore paths plus the CLI/compatibility entries.
-    assert len(docs) == 9_409
-    assert len(rendered_documented_callables) == 7_738
+    assert len(docs) == 9_427
+    assert len(rendered_documented_callables) == 7_745
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2458,24 +2458,24 @@ def test_no_new_undocumented_required_public_parameters():
         _required_parameter_omission_inventory(items, callable_aliases)
     )
 
-    assert len(omissions) == 2_570
-    assert sum(omitted_callables.values()) == 1_878
+    assert len(omissions) == 2_575
+    assert sum(omitted_callables.values()) == 1_882
     assert omitted_callables == {
         "function": 756,
-        "method": 1_076,
+        "method": 1_080,
         "constructor": 2,
         "dataclass_constructor": 42,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
         "function": 1_127,
-        "method": 1_298,
+        "method": 1_303,
         "constructor": 3,
         "dataclass_constructor": 130,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "d84a93c68fee2291b6277fc345415e687aebe47dc57b92511fe2a19d1f3367e3"
+        "67085f3664ccc4c8441be9c6b5f02ef0fe131d685cc25e5ec7ac544c0cb60942"
     )
 
 
