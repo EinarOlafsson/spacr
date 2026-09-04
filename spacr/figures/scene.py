@@ -301,7 +301,15 @@ class _Look:
     """
 
     def __init__(self, mode=None, dpi: float = 100.0):
-        """Initialize export appearance and its point-to-pixel scale at ``dpi``."""
+        """Initialize export appearance and its point-to-pixel scale at ``dpi``.
+
+        :param mode: which saved appearance to apply; ``None`` takes the
+            saved default from :func:`~spacr.figure_style.saved_figure_appearance`.
+        :param dpi: the FIGURE'S OWN dpi, and so the exchange rate between
+            the points matplotlib carries and the pixels a pyqtgraph scene
+            is drawn in. Wrong here and nothing raises -- every line width,
+            marker and font is simply off by the ratio.
+        """
         from ..figure_style import saved_figure_appearance
 
         self.look = saved_figure_appearance(mode)
@@ -688,7 +696,16 @@ class _FractionPoint:
     """
 
     def __init__(self, x, y):
-        """Store one point's ``x`` and ``y`` axes-fraction coordinates."""
+        """Store one point's ``x`` and ``y`` axes-fraction coordinates.
+
+        :param x: horizontal position as a fraction of the axes, 0 at the
+            left spine and 1 at the right.
+        :param y: vertical position, 0 at the bottom.
+
+        FRACTIONS, NOT DATA VALUES: :meth:`get_transform` returns ``None``
+        so the conversion takes its axes-fraction fallback, which is the
+        whole point of the adapter.
+        """
         self._position = (x, y)
 
     def get_position(self):

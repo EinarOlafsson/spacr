@@ -437,7 +437,13 @@ class _TopicBar(QFrame):
 # ---------------------------------------------------------------------------
 
 class _WorkingDots(QLabel):
-    """Three dots that cycle (. → .. → ...) to show work is in progress."""
+    """Three dots that cycle (. → .. → ...) to show work is in progress.
+
+    :param color: the dots' colour, as a CSS string. Baked into a stylesheet
+        at construction, so a theme change needs a new widget rather than a
+        setter.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, color: str = AI_COLOR_DEFAULT, parent=None):
         super().__init__(parent)
@@ -729,7 +735,12 @@ class _StdoutBlock(QPlainTextEdit):
 
 
 class _BlockHeightHandle(QFrame):
-    """Thin drag handle along a console section's lower edge."""
+    """Thin drag handle along a console section's lower edge.
+
+    :param block: the section this handle resizes. ALSO ITS QWIDGET PARENT,
+        so the handle is laid out inside the block it drags and cannot
+        outlive it; there is no separate ``parent``.
+    """
 
     HEIGHT = 7
 
@@ -790,6 +801,13 @@ class _Bubble(QFrame):
     height from QFontMetrics.boundingRect for that wrap width. The
     frame's height is set to match. Simple, works reliably even
     inside a QScrollArea.
+
+    :param role: ``"user"`` or anything else, which is read as the AI. It
+        picks the object name and so the whole appearance -- there is no
+        third style, and an unrecognised role is drawn as the AI rather
+        than refused.
+    :param text: the initial message; may be set later instead.
+    :param parent: parent widget; ownership only.
     """
 
     _H_PAD = 24     # inner horizontal padding

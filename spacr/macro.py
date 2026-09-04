@@ -623,7 +623,16 @@ class _RunIdCapture(logging.Handler):
     """
 
     def __init__(self, thread_id: int) -> None:
-        """Initialize empty id buckets for the recording thread and others."""
+        """Initialize empty id buckets for the recording thread and others.
+
+        :param thread_id: the recording thread's identity, as
+            :func:`threading.get_ident` gives it. Ids logged from this
+            thread go in ``mine`` and everything else in ``other``, because
+            a second run on another thread is stamping its own id onto its
+            own records at the same time. PASS THE WRONG THREAD and nothing
+            fails -- the capture just fills ``other`` and the recorded run
+            ends up with no id of its own.
+        """
         super().__init__(level=logging.NOTSET)
         self.thread_id = int(thread_id)
         self.mine: List[str] = []
@@ -1016,7 +1025,14 @@ class _Threader:
     """
 
     def __init__(self, projects: Sequence[Tuple[str, str]]) -> None:
-        """Normalize project roots longest-first for unambiguous rewriting."""
+        """Normalize project roots longest-first for unambiguous rewriting.
+
+        :param projects: ``(name, path)`` per project constant, where the
+            name is what a rewritten path becomes (``PROJECT_1``) and the
+            path is the root it stands for. Sorted LONGEST PATH FIRST here,
+            so a project nested inside another is matched before its parent
+            and does not lose its own constant to it.
+        """
         # Longest first, so a nested project does not lose to its parent.
         self.roots = sorted(
             ((os.path.normpath(path), name) for name, path in projects),
