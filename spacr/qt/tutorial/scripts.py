@@ -67,12 +67,14 @@ def build_steps(app_key: str, window) -> List[Step]:
 
 def _go_home(window):
     def _do():
+        """Navigate Home."""
         window._on_nav_selected("__home__")
     return _do
 
 
 def _nav_to(window, app_key: str):
     def _do():
+        """Navigate to the bound module."""
         window._on_nav_selected(app_key)
     return _do
 
@@ -83,6 +85,7 @@ def _load_demo(window, demo_key: str, tmp_root: str):
     from pathlib import Path
 
     def _do():
+        """Make the demo folder and point the screen at it."""
         dst = str(Path(tmp_root) / demo_key)
         Path(dst).mkdir(parents=True, exist_ok=True)
         layout = window._run_demo_generator(demo_key, dst)
@@ -356,6 +359,11 @@ def _build_mask_steps(window) -> List[Step]:
     screen_ref: List[Any] = [None]
 
     def _capture_screen():
+        """Remember the screen this step is about, once it exists.
+
+        The screen is built by the step BEFORE this one, so it cannot be looked
+        up when the script is written -- only when the step runs.
+        """
         screen_ref[0] = window._screens.get("mask")
 
     return [
@@ -423,6 +431,11 @@ def _build_measure_steps(window) -> List[Step]:
     screen_ref: List[Any] = [None]
 
     def _capture():
+        """Remember the screen this step is about, once it exists.
+
+        The screen is built by the step BEFORE this one, so it cannot be looked
+        up when the script is written -- only when the step runs.
+        """
         screen_ref[0] = window._screens.get("measure")
 
     return [
@@ -483,6 +496,11 @@ def _build_crop_steps(window) -> List[Step]:
     screen_ref: List[Any] = [None]
 
     def _capture():
+        """Remember the screen this step is about, once it exists.
+
+        The screen is built by the step BEFORE this one, so it cannot be looked
+        up when the script is written -- only when the step runs.
+        """
         screen_ref[0] = window._screens.get("measure")
 
     return [
@@ -532,6 +550,11 @@ def _build_classify_steps(window) -> List[Step]:
     screen_ref: List[Any] = [None]
 
     def _capture():
+        """Remember the screen this step is about, once it exists.
+
+        The screen is built by the step BEFORE this one, so it cannot be looked
+        up when the script is written -- only when the step runs.
+        """
         screen_ref[0] = window._screens.get("annotate")
 
     return [
@@ -591,6 +614,11 @@ def _build_timelapse_steps(window) -> List[Step]:
     screen_ref: List[Any] = [None]
 
     def _capture():
+        """Remember the screen this step is about, once it exists.
+
+        The screen is built by the step BEFORE this one, so it cannot be looked
+        up when the script is written -- only when the step runs.
+        """
         screen_ref[0] = window._screens.get("mask")
 
     return [
