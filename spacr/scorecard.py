@@ -147,22 +147,42 @@ class Match:
 
     @property
     def true_positives(self) -> int:
+        """Predicted objects that matched a truth object at this threshold.
+
+        :returns: the count.
+        """
         return len(self.pairs)
 
     @property
     def false_positives(self) -> int:
+        """Predicted objects with no truth object to match.
+
+        :returns: the count.
+        """
         return self.n_pred - self.true_positives
 
     @property
     def false_negatives(self) -> int:
+        """Truth objects the model did not find.
+
+        :returns: the count.
+        """
         return self.n_truth - self.true_positives
 
     @property
     def precision(self) -> float:
+        """Of what the model predicted, how much was real.
+
+        :returns: the ratio, or 0 when the model predicted nothing.
+        """
         return _ratio(self.true_positives, self.n_pred)
 
     @property
     def recall(self) -> float:
+        """Of what was really there, how much the model found.
+
+        :returns: the ratio, or 0 when there was nothing to find.
+        """
         return _ratio(self.true_positives, self.n_truth)
 
     @property
@@ -614,6 +634,10 @@ class HoldoutScore:
 
     @property
     def n_fields(self) -> int:
+        """How many labelled fields this score was computed over.
+
+        :returns: the field count.
+        """
         return len(self.per_field)
 
 
@@ -785,6 +809,15 @@ class HoldoutSet:
     root: "pathlib.Path"
 
     def path_to(self, relative: str) -> "pathlib.Path":
+        """Resolve a manifest-relative path against this set's root.
+
+        MANIFEST PATHS ARE RELATIVE ON PURPOSE, so a held-out set can be
+        moved or shared without rewriting it -- which is what makes the
+        versioned name mean the same thing on two machines.
+
+        :param relative: the path as the manifest spells it.
+        :returns: the absolute path.
+        """
         return self.root / relative
 
 

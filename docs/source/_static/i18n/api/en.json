@@ -24814,6 +24814,15 @@
       "source_sha256": "9fa025148834b89933b8c1e6722558e34c91699d2a177eb9c3d2011078e03087",
       "text": "Mean ARI over the fields that have one; ``nan`` when none do."
     },
+    "spacr.model_compare.ComparisonReport.mean_matched_fraction": {
+      "source_blocks_sha256": [
+        "ed46639976df941738c0a8736d3f6887669ca9cfa9caa8164867c21bed05b247",
+        "e8920a76143877ff94543e6480e394e43a27df49964a91b42c49abcf9d71664b",
+        "2a4ea112e72c572a2ce06aa9df686ce19077bf6c66d8ef41df909045f20cafb6"
+      ],
+      "source_sha256": "d0063478815dc2d2aeed13a9470a77004ef34a2b7b4faf6eaab976a071117145",
+      "text": "The mean fraction of A's objects that B also found.\n\nNAN-SAFE: a field where neither model found anything contributes no\nfraction rather than a zero, which would drag the mean down for a\nfield that says nothing about either model.\n\n:returns: the mean, or NaN when no field had objects."
+    },
     "spacr.model_compare.ComparisonReport.mean_matched_iou": {
       "source_blocks_sha256": [
         "856debef1f25789c2989a19175cd84f99e5f1c5f77fa58089b4cb402c0133b36"
@@ -24827,6 +24836,14 @@
       ],
       "source_sha256": "32c7814caa29babc72cad6b0a2e0de4c09c7893daeb03cfc193dcacaf1ec9a95",
       "text": "Fields where neither model found anything — trivial agreement."
+    },
+    "spacr.model_compare.ComparisonReport.n_fields": {
+      "source_blocks_sha256": [
+        "2ba28375a3ef6efc05f7f229d3ce4783dc882599d58a9fc4c93cc306a64065cb",
+        "40c9f46ffd5bd14059bf6d465b0aa5c0d5edc09cb087e62efd7ae71737a342c5"
+      ],
+      "source_sha256": "91230606d3f29174a1c150fd3dd8636bc34a114891866dea78eff1280bbbd31d",
+      "text": "How many fields the two models were compared over.\n\n:returns: the field count."
     },
     "spacr.model_compare.ComparisonReport.object_count_delta": {
       "source_blocks_sha256": [
@@ -24848,6 +24865,64 @@
       ],
       "source_sha256": "ab73335e76b58ce19b357bb1efdb886b15d6d29a7adb5156f1eafcdf73a89c0c",
       "text": "Extra B objects that are pieces of A objects, not new detections."
+    },
+    "spacr.model_compare.ComparisonReport.total_merged_away": {
+      "source_blocks_sha256": [
+        "a7276ffebbdc2089fecc30e28abdd179621f0dd4bb5543e9147f9d514db24411",
+        "a3dc6786ab4fd9c13e56d05e7a3da11ee0ac55d4de1ce57f477b4b81923202b4",
+        "2daf7d8360140a0bb0964a753345681d334d3674529cc0cd5fb47a4729ef9be6"
+      ],
+      "source_sha256": "3e3788cf6763f640b034614c945bf7d7172d844ae9bce032bddfb95d70ad24fd",
+      "text": "How many of A's objects disappeared into a merge.\n\nDistinct from the merge COUNT: one merge can swallow several\nobjects, and the number of objects lost is what changes a per-object\nmeasurement downstream.\n\n:returns: the object count."
+    },
+    "spacr.model_compare.ComparisonReport.total_merges": {
+      "source_blocks_sha256": [
+        "a8d3bc6034f7360e2815c1e021c24209467391a322ee4d13ffedf49765165ad6",
+        "daad88e0011d0df10c4978ccf3af1956e6d03c54c530e74c0ac44ff49a4a5d00"
+      ],
+      "source_sha256": "8706006f6256a01412da5a037c9ed7fbe6c45947dd6912f51a6f52e8fa9727ca",
+      "text": "How many of A's objects B joined together.\n\n:returns: the merge count."
+    },
+    "spacr.model_compare.ComparisonReport.total_missing_objects_a": {
+      "source_blocks_sha256": [
+        "0e98458e77df572e460199e7b7166b80e1c89e3ae460a7a810ebb5b7a7dfb026",
+        "2daf7d8360140a0bb0964a753345681d334d3674529cc0cd5fb47a4729ef9be6"
+      ],
+      "source_sha256": "d4d200c17665a46f7749d6cd78d662ac2abfb6a7b4b4ce21bf0d4fb88cafdcec",
+      "text": "Objects A found that B did not.\n\n:returns: the object count."
+    },
+    "spacr.model_compare.ComparisonReport.total_new_objects_b": {
+      "source_blocks_sha256": [
+        "8f86a92a9ba5bffed5b93aa721960ad83503543c05c2a18a1f7a161f438838ee",
+        "2daf7d8360140a0bb0964a753345681d334d3674529cc0cd5fb47a4729ef9be6"
+      ],
+      "source_sha256": "9773d3f1cd65ddab0a630a4ce9af7a87f8dce4717c15179a61bef55663c946fc",
+      "text": "Objects B found that A did not.\n\n:returns: the object count."
+    },
+    "spacr.model_compare.ComparisonReport.total_objects_a": {
+      "source_blocks_sha256": [
+        "da118326f1de5ff1251e980aab071bfe36a275fb20cfcb24b592e3051f8ffb18",
+        "2daf7d8360140a0bb0964a753345681d334d3674529cc0cd5fb47a4729ef9be6"
+      ],
+      "source_sha256": "3967e0e559a934f16189ba4bc9c8950feda8c1afca1fe017496c3dc122a5a753",
+      "text": "Every object model A found, across all fields.\n\n:returns: the object count."
+    },
+    "spacr.model_compare.ComparisonReport.total_objects_b": {
+      "source_blocks_sha256": [
+        "d58ae0d0c957f2107b6d1101d94a863f0f4929b3582880e4730b99eee5c10949",
+        "2daf7d8360140a0bb0964a753345681d334d3674529cc0cd5fb47a4729ef9be6"
+      ],
+      "source_sha256": "874c7bda7c6c59d7a9f30c5210c32137f923b0eeb2b00c4664f0fd703812caf0",
+      "text": "Every object model B found, across all fields.\n\n:returns: the object count."
+    },
+    "spacr.model_compare.ComparisonReport.total_splits": {
+      "source_blocks_sha256": [
+        "470ac3f1bef1d5151a9ffc10e6221c507df87dda2cbdfe888edc81d99eb844ed",
+        "67eafa7a735afc8690474d7e9986a27d48640e2a29bf6b1ccf88ac56a0a8382d",
+        "8bced28b93414d49067d2180404ce496b6af5c6d8ca44858054613cdb3d091f7"
+      ],
+      "source_sha256": "e1787468d04e6fec18d4896e935f8deac3d4a56e6411b9623f0cd7483954253d",
+      "text": "How many of A's objects B broke into several.\n\nDIRECTIONAL. A split and a merge are the same event seen from the two\nsides, so the pair only means anything if you know which model is A.\n\n:returns: the split count."
     },
     "spacr.model_compare.ModelConfig": {
       "source_blocks_sha256": [
@@ -45754,6 +45829,54 @@
       "source_sha256": "c679f5bfe31c2121b3c896fcd03c4ed0ac896039e02e5148f9acc1bf07df5b34",
       "text": "A table, a filter, computed columns, and a ranking of every feature.\n\n:param parent: parent widget.\n:param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this\n    screen's views join, so a selection made here reaches the others.\n    ``None`` joins the shared one; pass a private one in a test.\n:param threaded: whether the work runs off the GUI thread. False runs it\n    inline, which is what makes a test deterministic."
     },
+    "spacr.qt.screens.feature_explorer.FeatureExplorerScreen.active_jobs": {
+      "source_blocks_sha256": [
+        "0cfec806f88c5d18054a4dc95895ae2445b627bd119a63609ce0e5a7ba1780cd",
+        "18e7e84f876d53891f1acf9e456d193058cd2e4b6ca9e718b0be970bde44c2aa"
+      ],
+      "source_sha256": "bab767715e8fe1bdbe5795898741a39068267b188e8b3e94ba899f95c49e3ab9",
+      "text": "How many background jobs this screen is running.\n\n:returns: the job count."
+    },
+    "spacr.qt.screens.feature_explorer.FeatureExplorerScreen.choose_export": {
+      "source_blocks_sha256": [
+        "7682e9d71edbbe8ddc6e8018b728741b9aad4883796756d608bf9f82d721579a"
+      ],
+      "source_sha256": "7682e9d71edbbe8ddc6e8018b728741b9aad4883796756d608bf9f82d721579a",
+      "text": "Ask where to write the ranking."
+    },
+    "spacr.qt.screens.feature_explorer.FeatureExplorerScreen.choose_table": {
+      "source_blocks_sha256": [
+        "a1258ca6e10500a926b095f76f85c1a67480112ba692d610cdfc5b792b974c21"
+      ],
+      "source_sha256": "a1258ca6e10500a926b095f76f85c1a67480112ba692d610cdfc5b792b974c21",
+      "text": "Ask which table in the project to rank."
+    },
+    "spacr.qt.screens.feature_explorer.FeatureExplorerScreen.closeEvent": {
+      "source_blocks_sha256": [
+        "525de151dd85b17dc0b985fd5f2f93104ac7767295751747ded7e319b273c529",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "418bab9785b7abf27bca0c159f7860d264dca5fb5806cf0c5286ae2f4612d5ba",
+      "text": "Shut background work down before going away.\n\n:param event: the Qt close event."
+    },
+    "spacr.qt.screens.feature_explorer.FeatureExplorerScreen.export_ranking": {
+      "source_blocks_sha256": [
+        "dcccf63ccffcd2f4ae1a1c7cf646b724a2b6e9c4b5a2bd4cb277651a197a433b",
+        "88ba4969e3e835e620bc5ec785fb6d0eabb1b8e04a926ff021414ebce7d70d8b",
+        "1982f647d698a3381f3a7a43052616f5f39a5c237c49073bf53deda251a8da40"
+      ],
+      "source_sha256": "5440bb75b7a5cfff127ddad1225f5e1abafabd09e7c1ffbe9408afdfae739ab7",
+      "text": "Write the ranking to a file.\n\n:param path: where to write it.\n:returns: True when it was written."
+    },
+    "spacr.qt.screens.feature_explorer.FeatureExplorerScreen.is_busy": {
+      "source_blocks_sha256": [
+        "37152f41a8e2c75fc26adff788add4d2ef3013e80e1c38401332baeb66314efe",
+        "49ed37cb9a1f343f6855a03740e6493bda270be4b5371aa85a38651b2142678b",
+        "7508b79a56134a49faf1704703e9dd12dbee213dccd777acd10d8baca5bd60d5"
+      ],
+      "source_sha256": "efb204d564b9cf424693d5f00d30f55b92d9de47f561a94fb81c7c97ae695e5c",
+      "text": "Whether anything is still running.\n\nWhat the window asks before closing: a ranking exported while its\nrun is still going would be an export of half of it.\n\n:returns: True while work is outstanding."
+    },
     "spacr.qt.screens.feature_explorer.FeatureExplorerScreen.load_path": {
       "source_blocks_sha256": [
         "75d2777c4a4cd6743faf2381924bfc19bda6f2c6074312d69c8024df25f6daec"
@@ -45768,6 +45891,22 @@
       ],
       "source_sha256": "9f524842fc34b4d6da80a7fb5ddfb34116665632956107b12593a05414abca42",
       "text": "The ranking as a tidy frame — one row per feature, every statistic.\n\nEvery statistic, not only the one ranked by: a reader who wants to know\nwhether the top feature is a shift or a spread should not have to\nre-run the screen with a different picker."
+    },
+    "spacr.qt.screens.feature_explorer.FeatureExplorerScreen.set_frame": {
+      "source_blocks_sha256": [
+        "21b9a7281022b13c48139a0531b7c0cc0413228dbef6550d081e3d3e2b85769b",
+        "70c0d5bff2c8d70a5c473990f14a12de01e2c69a30110b04e9c10aac69086c7e"
+      ],
+      "source_sha256": "8aa70077a2a844a6a8feb57a647ffa9198db6165e9aeb889fd4452031f5c1726",
+      "text": "Point the screen at a table to rank.\n\n:param frame: the rows, or None to clear."
+    },
+    "spacr.qt.screens.feature_explorer.FeatureExplorerScreen.spec": {
+      "source_blocks_sha256": [
+        "fea441b3fc2e82f0df366f73f82b9bfe1cf9f350d636843ef8acef04470b4033",
+        "4801a37438da32d842b8eb4ccb7a4a7fe8a1e20ca7eabf4426073e0ebd08b792"
+      ],
+      "source_sha256": "537a05e5f9374524e4a5034be37068675ed39ff40f6129f570317a9812fcce3b",
+      "text": "What the screen is currently set to rank.\n\n:returns: the explorer spec."
     },
     "spacr.qt.screens.feature_explorer.make_feature_explorer_screen": {
       "source_blocks_sha256": [
@@ -60793,6 +60932,76 @@
       "source_sha256": "dd0792d691f0b66c92ba8c1de2c5e82a5f2de45a279b1b6b4dd22d4e23a19baa",
       "text": "Detect and append one drag/drop or picker batch."
     },
+    "spacr.qt.widgets.external_mask_inputs.ExternalMaskInputWidget.file_count": {
+      "source_blocks_sha256": [
+        "24d2599344a210695e024cf73ea88fb62b60f4c74df0a5c223acdb607b9556e3",
+        "f2bd42724d35b2f0dcbfe90f5282d9c6543ad800309db6f6d2631e1cc465baa8"
+      ],
+      "source_sha256": "56ed4fea63579699494454d763fe6d8219f79c312a3ca81f2e8b8f5e38018ab6",
+      "text": "How many files were grouped, across all groups.\n\n:returns: the file count."
+    },
+    "spacr.qt.widgets.external_mask_inputs.ExternalMaskInputWidget.get_value": {
+      "source_blocks_sha256": [
+        "5b1f3495de1a37067f980e516c6e1877046d9d3f646b01aa8924b1ded2a646be",
+        "40ac6f29075042fe6e2994e3c49ff2e513cfa8322b59831ac48cf8e77fc50c9d",
+        "175b5070bf3ba61ec0c1850a16b9aefbe42530fb9367c9263d99386d9428c21d"
+      ],
+      "source_sha256": "bfb4ded018f5fe5e6d8f6282cb53a50ca5b62b6991fdcaedbc6f044e60cac9f2",
+      "text": "The groups worth saving, in the shape the settings dict wants.\n\nIGNORED GROUPS ARE DROPPED. \"Ignore\" is the user saying these files\nare not part of the run, so carrying them into the settings would\nmake the next reader wonder what they are for.\n\n:returns: one dict per kept group."
+    },
+    "spacr.qt.widgets.external_mask_inputs.ExternalMaskInputWidget.group_count": {
+      "source_blocks_sha256": [
+        "ae16e988d6cb15d2d507f357d39caa832ada6f9fb41ad35be501e4304b1ce8fd",
+        "9db0bdd8e880050f290991354cebdced1d0aae6a951b450e9d8045c90ec96a59"
+      ],
+      "source_sha256": "6b9ef8f8b59078af14ba849f6ea6791a94c3c069f627eca1f40f9d5476b8f310",
+      "text": "How many groups the files fell into.\n\n:returns: the group count."
+    },
+    "spacr.qt.widgets.external_mask_inputs.ExternalMaskInputWidget.groups": {
+      "source_blocks_sha256": [
+        "bf34d39adf96f01bbd7a65e1ab210dfe8a420a70df14c57fd336db679df9446d",
+        "829b95530d8261b2de97df5f639db30e10eff903a6fa19e099286a433783762c"
+      ],
+      "source_sha256": "dbba588a1e1f2bff3359f84f92da9b3a61b4e0effbf5d7d11415ee0db476691b",
+      "text": "Every group, ignored ones included.\n\n:returns: the groups, in display order."
+    },
+    "spacr.qt.widgets.external_mask_inputs.ExternalMaskInputWidget.remove_selected": {
+      "source_blocks_sha256": [
+        "6062da311e41703c20f745e4e13fe320a26a3c526a97bf1ce3c43474aa5e60c5"
+      ],
+      "source_sha256": "6062da311e41703c20f745e4e13fe320a26a3c526a97bf1ce3c43474aa5e60c5",
+      "text": "Drop the selected groups."
+    },
+    "spacr.qt.widgets.external_mask_inputs.ExternalMaskInputWidget.set_group_object_type": {
+      "source_blocks_sha256": [
+        "54810e85de7d73a8a1d1131ce7e3b1618ac2997424cd920d2b4c2de65364190f",
+        "dbd5f825387ef76982e5cdbaa45f414bd00b937dce05be1896df646bffae7db0",
+        "a1659b1049199933fa71d2e680b145736f9dee14eddd4bce4134875a5509ac86",
+        "00713b4ac65ec816537dedb8f4df72562e7333aaecb969c0c41d8165e23f550d",
+        "7a572f91d47f829d45e8a7593cdd72dd5e23c3ba89ca266a2ece3768e7052175"
+      ],
+      "source_sha256": "7ae5404ca78b047395b0616f5faf183f0a725491de3e2bf1fc6e60e3b54cc228",
+      "text": "Correct one group's object type.\n\nAn empty or unassigned value clears the type rather than storing a\nplaceholder string, so the settings say \"not chosen\" rather than\nnaming an object that does not exist.\n\n:param row: which group.\n:param object_type: the object type, or None to clear it.\n:returns: True when the row was valid."
+    },
+    "spacr.qt.widgets.external_mask_inputs.ExternalMaskInputWidget.set_group_role": {
+      "source_blocks_sha256": [
+        "6a67a4208013479117e7293579a99b13f92f1daa7b130bc8414dcd1f86a1db69",
+        "882fcf9f6f73739b1ce852e936dfcd637d2dc0a2138ee1f16e82c1e314644b52",
+        "a1659b1049199933fa71d2e680b145736f9dee14eddd4bce4134875a5509ac86",
+        "35c8bb44c66bb5bc2555bd985f0ca534d7a80850da651cd18e22db06fba93309",
+        "89d2019b0b94dd9621788627ffe5858cd2191eeeae02e59568fe79d7a366ec2d"
+      ],
+      "source_sha256": "657bd69cf6866233e8ebd0b4ff341c99cd0f8464562ff82aadba602d9b0f3969",
+      "text": "Correct one group's inferred role.\n\nREFUSES AN UNKNOWN ROLE rather than storing it: the role decides how\nthe files are read, and an unrecognised one would fail later, in the\nrun, rather than here where the user can see what they typed.\n\n:param row: which group.\n:param role: the role's name.\n:returns: True when the row and role were both valid."
+    },
+    "spacr.qt.widgets.external_mask_inputs.ExternalMaskInputWidget.set_value": {
+      "source_blocks_sha256": [
+        "dcec46ec9e8a16fe539372a6f8c24c2b02babc219d860f54bc731c7bb8a901f7",
+        "29c789c89ff0399d7bdda3213eccd5e17b06e72bc8d39de0e86110571bc7cdf9"
+      ],
+      "source_sha256": "a2fa5d23357652142226902e8f58f24bc2b9c29beaa16f73f7d9a7ed7a20fea1",
+      "text": "Replace every group from a settings value.\n\n:param value: the groups, as the settings dict carries them."
+    },
     "spacr.qt.widgets.fast_plots": {
       "source_blocks_sha256": [
         "14fdc1cb64e663f7509f045aa5f6ab28ee9f45ead97e3939841ff1eb7e47652e",
@@ -69704,6 +69913,46 @@
       "source_sha256": "aac1a38c5c4d978e9182c0db8d0610b53952acc6eeb8c1a78f8079cdd608ad37",
       "text": "Add every image under ``paths``. Returns how many are held now."
     },
+    "spacr.qt.widgets.import_workbench.ImportWorkbench.ask_for_files": {
+      "source_blocks_sha256": [
+        "5159f6e673bf545641a18b0848767c3e618d1d44d1068789933b83c9e18913f2",
+        "27d7cb08f22c570c97f570879c9ae6c6c84543fbd8feff4ab31395913d7d2439"
+      ],
+      "source_sha256": "aad6f5e88a2ca33c9f07bdd782287fd2536aba357d52ea66e7fdf767e89f4e15",
+      "text": "Ask for images through a file dialog.\n\n:returns: how many files were taken; 0 when cancelled."
+    },
+    "spacr.qt.widgets.import_workbench.ImportWorkbench.dragEnterEvent": {
+      "source_blocks_sha256": [
+        "38dbfcf4f82579f103cdd9d96f83a974bd083d8b1c4ba2e48ce93206effa2e9c",
+        "15575c6909400eb7899833ac566c381a843a5f11d33fa56c77b246b3a1b7bac9"
+      ],
+      "source_sha256": "f57f58348ff8a28091eda0011c37935d455836e77b4ab0a3f801e37900cd65cd",
+      "text": "Accept a drag carrying images.\n\n:param event: the Qt drag event."
+    },
+    "spacr.qt.widgets.import_workbench.ImportWorkbench.dragMoveEvent": {
+      "source_blocks_sha256": [
+        "fd9072392efb279f434d4f4d5010f0f3aeea508bb09060cd61292103dc7b5b74",
+        "15575c6909400eb7899833ac566c381a843a5f11d33fa56c77b246b3a1b7bac9"
+      ],
+      "source_sha256": "4b327d7864718bb4029937213fb6e06bf3f2e815524bc07a1d6545db44f8814d",
+      "text": "Keep accepting while images stay over the workbench.\n\n:param event: the Qt drag event."
+    },
+    "spacr.qt.widgets.import_workbench.ImportWorkbench.dropEvent": {
+      "source_blocks_sha256": [
+        "f40c7880b7197f6180876337691fbbc5de4fd24432e7ee03c7d4334af13bbc39",
+        "8b59f27a976905c11e1560dc4875fc94d66600e8add250f18ccc1b8089d0b6d7"
+      ],
+      "source_sha256": "92718c0c98b0ed9d97df04f10f6002854b294dddc59f95f941ff0dfcbc1fe530",
+      "text": "Take the dropped images and work out their naming pattern.\n\n:param event: the Qt drop event."
+    },
+    "spacr.qt.widgets.import_workbench.ImportWorkbench.files": {
+      "source_blocks_sha256": [
+        "a61214079c69e72dd0659b5a74b93a69896556bce29a499e36db89238e11e323",
+        "b6821ab42167f8a0769ecb5168214fa2cf233382e82ec87f64c785db4eb699ab"
+      ],
+      "source_sha256": "cebdee46daf8d9f941fa0c8f71750f917e3c76334833d3fedf2a4e9585fa1c45",
+      "text": "The files currently loaded.\n\n:returns: the paths, in load order."
+    },
     "spacr.qt.widgets.import_workbench.ImportWorkbench.propose_from_the_names": {
       "source_blocks_sha256": [
         "5b493e64e9c61e7c8dd3758d3bdea1e0db15d69e8fa4df1a796e4bcc34b54b6a"
@@ -69724,6 +69973,23 @@
       ],
       "source_sha256": "fc8e07dbc076866032318386e630e8c4315742ec0c85c8a238518a3eecef575d",
       "text": "``{group: role}`` as the dropdowns currently stand."
+    },
+    "spacr.qt.widgets.import_workbench.ImportWorkbench.set_files": {
+      "source_blocks_sha256": [
+        "798bcef826fd89eedfd6a8d98ae8ab3f6f8bff201119b87c5d1a394b24288d35",
+        "4f6e7d000f7edaccdbd5ce5a3c5c7ac604215de2f7b5a82700963b21a329f762",
+        "86d509bbd465b9e7ad56053b7508885ce1d28bacf35ca13128b1d45b4908c2ad"
+      ],
+      "source_sha256": "852c090df30b0de6df3e9d5f63487d4a4dd0b1d270421d8068ce8c13fec71c2f",
+      "text": "Replace the file set and re-propose a pattern for it.\n\nA REGEX PROPOSED FOR THE OLD SET IS NOT PROPOSED FOR THIS ONE. The\npattern is inferred from what varies across the names, so carrying it\nover would describe a set the user has replaced.\n\n:param paths: the image paths."
+    },
+    "spacr.qt.widgets.import_workbench.ImportWorkbench.the_plan": {
+      "source_blocks_sha256": [
+        "71291def95c9614bd1c3a4aec132d31f37c3812753f3ab81a643bb35e32c1e6c",
+        "c424fe53992f491fc415b9e2abacc57a356965fcde9c72bfd0e581988dbc415e"
+      ],
+      "source_sha256": "dd72d3f7afa720cafa9f26285e10f9745ac6404d700b01585380f1b2768ea604",
+      "text": "The import plan the current pattern and roles produce.\n\n:returns: the plan."
     },
     "spacr.qt.widgets.import_workbench.ImportWorkbenchDialog": {
       "source_blocks_sha256": [
@@ -72849,8 +73115,8 @@
         "ab6857cf564a75a9d06eb0900a5fe6ae3818e3af4e154cdeecf7e1ecfd4cef9a",
         "84e0724f1b11aa94f822894b1b1f041c01a6d0bda99a00782a6df3d7a882bf95"
       ],
-      "source_sha256": "a393bdbc5c8d56e5f09354a338cf9b489d4b63c1d7ae7f992c27986c6d6405b6",
-      "text": "Tick exactly these features and untick the rest.\n\n:param selected: the feature names to select."
+      "source_sha256": "bcd6392dc4264559afa69b6b670309d93aeadaa85e5cc46b1dd46d59eb85826a",
+      "text": "Tick exactly these features and untick the rest.\n\n:param features: the feature names to select."
     },
     "spacr.qt.widgets.pca_view.PCAPanel": {
       "source_blocks_sha256": [
@@ -77890,6 +78156,15 @@
       "source_sha256": "df1fa452ea08f0dbda1802c3b3da96150af967254b8660e909233184aa28fd4d",
       "text": "Rebuild the grid from the frame, the spec, the filter and the\nselection."
     },
+    "spacr.qt.widgets.trellis_view.TrellisCanvas.set_channel": {
+      "source_blocks_sha256": [
+        "9cef76a4368579182c1e172b347bb9bbd084706e2e75db2ce1d6cee00c65fde6",
+        "6ccbe4f6fb4cbab29bdb2b1362c4542acf87d6fcb9dc69ce7dfe7d2f295d74b9",
+        "1ca2dc5f5a7137a65bfafb28ea81abcf156b7f0dab536bbffff83a332a3a495a"
+      ],
+      "source_sha256": "7f8756052cce154aa7a3343da311a4af6338ad84f8e818310e360a6803a46604",
+      "text": "Rebind one of the graph's channels and redraw.\n\n:param channel: the channel's name, such as ``x`` or ``facet_row``.\n:param column: the column to bind, or None to clear it."
+    },
     "spacr.qt.widgets.trellis_view.TrellisCanvas.set_spec": {
       "source_blocks_sha256": [
         "3e45ea585db53f46597182af5ad22f1b9209a949ff405406899f235de8d10439"
@@ -77911,6 +78186,14 @@
       "source_sha256": "a3803e9006fbcb814200d5b647c1024eeabd9c0d39071fa23d1a7a0a29e3b97e",
       "text": "The last computed grid, or ``None`` before the first render."
     },
+    "spacr.qt.widgets.trellis_view.TrellisCanvas.trellis_spec": {
+      "source_blocks_sha256": [
+        "f258047649e4fd6a0ebb3b14298448976b01af13d4e7d931240fd207d98a0cd8",
+        "671f6ad31cb336a8301c45cbf86ebb0f55f02cb8dce81a69aa42fd95ed019683"
+      ],
+      "source_sha256": "a32b65e0d2310e1491c28b32cc57d8f5e68802917d13c330ccbfc651179f99da",
+      "text": "The grid this canvas is drawing.\n\n:returns: the trellis spec."
+    },
     "spacr.qt.widgets.trellis_view.TrellisPanelWidget": {
       "source_blocks_sha256": [
         "1d597f81ca4d8d05642d70ca1498b162471a706075a10d549af347f798829f18",
@@ -77922,6 +78205,54 @@
       ],
       "source_sha256": "91e65671d2303f716adfdd734e4d9d06fae571ba0d39347f03a0bd270b2219c9",
       "text": "The whole surface: a column well, the six zones, the grid's options,\nand the canvas.\n\nThe well and the drop zones are\n:class:`~spacr.qt.widgets.graph_builder.ColumnWell` and\n:class:`~spacr.qt.widgets.graph_builder.DropZone` unchanged, so a column\ndragged here and a column dragged in the Graph Builder are the same\ngesture with the same payload type.\n\n:param parent: parent widget.\n:param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this\n    view joins, so selecting here selects in every other view on it.\n    ``None`` joins the shared one; pass a private one in a test so the\n    selection does not reach the rest of the application.\n:param source: this view's name on that link, stamped onto everything it\n    publishes -- which is how a view knows not to answer its own\n    selection.\n\nThe three are handed straight to the :class:`TrellisCanvas` this builds."
+    },
+    "spacr.qt.widgets.trellis_view.TrellisPanelWidget.clear_channels": {
+      "source_blocks_sha256": [
+        "b6e9d7157a85b139e1df358f383fb9691e8478e35695fbcfe26ce7ba71e09cba"
+      ],
+      "source_sha256": "b6e9d7157a85b139e1df358f383fb9691e8478e35695fbcfe26ce7ba71e09cba",
+      "text": "Empty every drop zone, leaving the table loaded."
+    },
+    "spacr.qt.widgets.trellis_view.TrellisPanelWidget.closeEvent": {
+      "source_blocks_sha256": [
+        "ef7e96aacc7c6131ac5ad8c410f5ceeca6d671c3693a55cabcf32577a5625bfa",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "373bab5b8b1a1d614ae329dfa3faf82200ba1a663e82f477b2abacdec9ec8b9c",
+      "text": "Close the canvas first, so it can unlink from the shared selection.\n\n:param event: the Qt close event."
+    },
+    "spacr.qt.widgets.trellis_view.TrellisPanelWidget.set_frame": {
+      "source_blocks_sha256": [
+        "17aedb9250daf7dc510620fe3c7e3d9c9638c73b2ddc36c55b2311406a0b41f1",
+        "e9d38771ed141cf3a274fc31524ee783b41a01e24a0181d28a9eaf01dabb976b"
+      ],
+      "source_sha256": "b6aaf4b4ea36233f36169282194ef0cff875a64ab6c6cb3aafa180e0cfa8d8fd",
+      "text": "Point the panel at a new table.\n\n:param frame: the rows to plot, or None to clear."
+    },
+    "spacr.qt.widgets.trellis_view.TrellisPanelWidget.set_spec": {
+      "source_blocks_sha256": [
+        "27294238a0bb500b82b69da4555659976a4a239dcb86baf7dc78e76f41a432ca",
+        "671f6ad31cb336a8301c45cbf86ebb0f55f02cb8dce81a69aa42fd95ed019683"
+      ],
+      "source_sha256": "547de1e837baf46241e3a0d19e647415a6b64b7518e1e50c2c3eecfd10aaa42b",
+      "text": "Draw a different grid.\n\n:param spec: the trellis spec."
+    },
+    "spacr.qt.widgets.trellis_view.TrellisPanelWidget.spec": {
+      "source_blocks_sha256": [
+        "b8d759d4016f28df83597dbb8f5d3159290fd0248753f813ef40628d16493e78",
+        "671f6ad31cb336a8301c45cbf86ebb0f55f02cb8dce81a69aa42fd95ed019683"
+      ],
+      "source_sha256": "5928c198901743b24ebf5e77d99c2c3d59be0293429e7a2394c259fb3fe73fde",
+      "text": "The grid the canvas is drawing.\n\n:returns: the trellis spec."
+    },
+    "spacr.qt.widgets.trellis_view.TrellisPanelWidget.zone": {
+      "source_blocks_sha256": [
+        "64c0098c85d920669a35fb64c9e884b7e47c3a4cc47f7870c5aa57d9d6f5ef61",
+        "da403444ec38eecbdf2674c593792068978aff995673487bb3cb758434c59cf8",
+        "d4abab035f82f2491a16bb5e2b4f6a76f4611c442ada8ae1dabed6abcb423122"
+      ],
+      "source_sha256": "5fed1ca4e38fd051d1a1515e21f122fd4599f3e0ca49899b0bb0176a51c9b8bf",
+      "text": "One channel's drop zone, for a caller that needs to drive it.\n\n:param channel: the channel's name.\n:returns: the zone widget, or None when there is no such channel."
     },
     "spacr.qt.widgets.umap_explorer": {
       "source_blocks_sha256": [
@@ -84258,6 +84589,14 @@
       "source_sha256": "ddd69c1989b4f9a40cad38f79286f57ff9d533ad5e67cddb91546b4f87f3e393",
       "text": "One model's result on one named, versioned held-out set.\n\n:param name: the set's name, e.g. ``toxo_pv_holdout``.\n:param version: the set's version. Two numbers are comparable only when\n    this matches, and it is carried into every published row for that\n    reason rather than being assumed from context.\n:param metrics: the pooled scorecard.\n:param per_field: one scorecard per field, in the order they were given."
     },
+    "spacr.scorecard.HoldoutScore.n_fields": {
+      "source_blocks_sha256": [
+        "e5a2d9dc956428ce6b68e9ffd121bc0e328e17c1e5be2258c5016618144c0813",
+        "40c9f46ffd5bd14059bf6d465b0aa5c0d5edc09cb087e62efd7ae71737a342c5"
+      ],
+      "source_sha256": "3a14946f126b95f5a32cb2e98903bb1c9d6058e76b010ec162750aca50f5faad",
+      "text": "How many labelled fields this score was computed over.\n\n:returns: the field count."
+    },
     "spacr.scorecard.HoldoutSet": {
       "source_blocks_sha256": [
         "db5a626b88166e479a6a5ea81c0ce2d63b8c0c6f15bfc521f9c80799dcd6cc2b",
@@ -84268,6 +84607,16 @@
       ],
       "source_sha256": "e8a0ef64f4e27cb5ab087465b488135d1332f750972ea3451c7473d7a59775f2",
       "text": "A named, versioned set of labelled fields, as declared by a manifest.\n\n:param name: stable name, e.g. ``toxo_pv_holdout``.\n:param version: the version two numbers must share to be comparable.\n:param fields: the labelled fields, in manifest order.\n:param root: directory the relative paths resolve against."
+    },
+    "spacr.scorecard.HoldoutSet.path_to": {
+      "source_blocks_sha256": [
+        "3a81ce4ab4c583ec56f98a2c3a0b21bb4030476c849fdd86b39fb034456da98b",
+        "640ff3965dbc3efb2e08a48048edeb00e8f412a2e8fd89904816244075bb6315",
+        "45618d0f40a74ea6b4edbe43b82edc4a32b01f3e0a3d0ca396bf13d2f4d34f80",
+        "9728e099aa631eaa6072b55b8f7d227bc670197819edb5cc930e8654ecfe0d5d"
+      ],
+      "source_sha256": "aeb238fec7cebd834c94550f378e57cee9fdf0f31e3bb5999e56c075772d4357",
+      "text": "Resolve a manifest-relative path against this set's root.\n\nMANIFEST PATHS ARE RELATIVE ON PURPOSE, so a held-out set can be\nmoved or shared without rewriting it -- which is what makes the\nversioned name mean the same thing on two machines.\n\n:param relative: the path as the manifest spells it.\n:returns: the absolute path."
     },
     "spacr.scorecard.Match": {
       "source_blocks_sha256": [
@@ -84295,6 +84644,46 @@
       ],
       "source_sha256": "a24b5db248e1f14f7180ecbafd42ad0006524bf10528be2e5095018fe145ed46",
       "text": "Harmonic mean of precision and recall, 0.0 when both are 0."
+    },
+    "spacr.scorecard.Match.false_negatives": {
+      "source_blocks_sha256": [
+        "0ce0aeb5f9d95380695c39da9691fdb2df6e46472ea38626e1f763b12e9ecdc2",
+        "79d6f2d939db6bda3c58be7ba72eae709c0edca20c57bc9e03acb37c78a63c68"
+      ],
+      "source_sha256": "5b770e66b0f3ebdc03a5adb91f9594cbf00a983fc10280c21dc1c504ee39ea21",
+      "text": "Truth objects the model did not find.\n\n:returns: the count."
+    },
+    "spacr.scorecard.Match.false_positives": {
+      "source_blocks_sha256": [
+        "06818eb6b8d45e0b44c7a9cbbc79378f2b10c443a0b3db9172723d4b98c15d08",
+        "79d6f2d939db6bda3c58be7ba72eae709c0edca20c57bc9e03acb37c78a63c68"
+      ],
+      "source_sha256": "8aefe09d859576d00a71f17cea7d86e87ea415a3c5c9cc9b3558e0e740e4b35e",
+      "text": "Predicted objects with no truth object to match.\n\n:returns: the count."
+    },
+    "spacr.scorecard.Match.precision": {
+      "source_blocks_sha256": [
+        "ecfca8c3f52052357296d236a92763eec058f8dacd98bb567fa5945c75857547",
+        "97747e757d205487b889143fff89a306945ee06054624293e859af4351323df4"
+      ],
+      "source_sha256": "41019f3e6ade1c6b3e6d0380c7f8b594bb16db61e13c1f0c6717a303882e986b",
+      "text": "Of what the model predicted, how much was real.\n\n:returns: the ratio, or 0 when the model predicted nothing."
+    },
+    "spacr.scorecard.Match.recall": {
+      "source_blocks_sha256": [
+        "0b46e3898e87b5fa9ea4877eb607bacafcc49697a5274f0da05a6fcfe6dacee6",
+        "36c8a00106fe9d8c57089f15de27c622a23c7122d06c0547c64a62ce2f02074b"
+      ],
+      "source_sha256": "1dad9507bbbe0c7cdc2d1570c2471e6dec95ad586e7b5aab22f8791d1886c330",
+      "text": "Of what was really there, how much the model found.\n\n:returns: the ratio, or 0 when there was nothing to find."
+    },
+    "spacr.scorecard.Match.true_positives": {
+      "source_blocks_sha256": [
+        "87a1016d46a3de2d515ba3b5ab6adaba506014b60089e560f8a39c5d6316a660",
+        "79d6f2d939db6bda3c58be7ba72eae709c0edca20c57bc9e03acb37c78a63c68"
+      ],
+      "source_sha256": "f3ca95bd1b47b51f69e7a68f210c37e54bf86930009d823a62f2e7243fad1962",
+      "text": "Predicted objects that matched a truth object at this threshold.\n\n:returns: the count."
     },
     "spacr.scorecard.average_precision": {
       "source_blocks_sha256": [
