@@ -251,7 +251,14 @@ def test_every_script_lands_on_the_screen_it_narrates(app_key, main_window,
                  "mask": "mask",
                  "measure": "measure",
                  "crop": "measure",       # crop is a measure output
-                 "classify": "annotate",  # classify starts in annotate
+                 # CLASSIFY NOW ENDS IN CLASSIFY. It starts in Annotate --
+                 # image classification needs reviewed labels first -- but
+                 # until 2026-09-04 it also ENDED there, at Annotate's Train
+                 # button, having said "both open in the consolidated
+                 # Classify module" and never opened it. Instruction 358 is
+                 # about exactly that: a polished lesson teaching a module
+                 # boundary the application no longer has.
+                 "classify": "classify_merged",
                  "timelapse": "mask"}[app_key]
 
     probe = _Probe(main_window, tmp_path)
