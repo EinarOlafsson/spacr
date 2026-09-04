@@ -2278,12 +2278,14 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             return True
 
         def resume(self) -> bool:
+            """Restart the animation. Returns whether it was paused."""
             if not self._canvas._paused:
                 return False
             self._canvas._paused = False
             return True
 
         def is_paused(self) -> bool:
+            """Whether the canvas is currently held."""
             return bool(self._canvas._paused)
 
         def set_animating(self, on: bool) -> bool:

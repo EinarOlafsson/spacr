@@ -1102,6 +1102,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         settings = dict(settings or {})
 
         def _set(fn, key, cast=None):
+            """Apply one setting, skipping keys that are absent or None.
+
+            Absent and None are LEFT ALONE rather than applied as a default: the
+            preview is showing what the run will do, and filling a gap here would
+            show a value the run does not have.
+            """
             if key not in settings or settings[key] is None:
                 return
             try:

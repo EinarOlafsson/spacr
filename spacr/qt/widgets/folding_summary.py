@@ -385,6 +385,7 @@ class FoldingSummaryView(QScrollArea):
             alarm = ""
 
         def _tint(label: str, value: str) -> str:
+            """One cell, coloured only when the row is an alarm."""
             if not alarm:
                 return ""
             line = f"{label} {value}"

@@ -2815,6 +2815,7 @@ class RegressionResultsPanel(QWidget):
         # A verdict column, because "n_guides=1" is a fact and "this hit rests
         # on one guide" is what the reader needs to take from it.
         def verdict(row):
+            """Whether one row's guide support is sufficient to trust."""
             if row["single_guide"]:
                 return "single guide -- gene p IS that guide's p"
             if row["concordance"] < 0.6:

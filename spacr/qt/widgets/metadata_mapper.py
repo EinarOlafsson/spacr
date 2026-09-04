@@ -168,6 +168,7 @@ def resolve_metadata_with_dialog(
         cache_key: Optional[str] = None) -> ResolutionResult:
     """Resolve a frame interactively; cancellation remains an explicit stop."""
     def prompt(request: MetadataRequest) -> MetadataDecision:
+        """Ask the user how to map one metadata column."""
         dialog = MetadataColumnDialog(request, parent)
         if dialog.exec() != QDialog.DialogCode.Accepted:
             raise MetadataResolutionRequired(request.missing, request.available)

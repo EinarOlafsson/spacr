@@ -431,6 +431,7 @@ class SetupCard(QWidget):
     def spaceout(self) -> bool:
         """Return whether spaceout rendering is enabled for this process."""
         def read():
+            """The current spaceout choice from the card's dressing."""
             dressing = self._dressing()
             return bool(dressing[0]()) if dressing else False
 
@@ -738,6 +739,7 @@ class SetupCard(QWidget):
         :returns: Hue-wheel position in ``[0, 1]``.
         """
         def read():
+            """The current spaceout hue from the card's dressing."""
             dressing = self._dressing()
             return float(dressing[1]()) / 360.0 if dressing else 0.0
 

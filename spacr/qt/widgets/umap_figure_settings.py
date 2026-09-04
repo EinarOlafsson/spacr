@@ -256,6 +256,7 @@ def redraw_umap_figure(fig, payload: Dict[str, Any],
                           _style_plot_axes)
 
     def _get(key, fallback):
+        """One figure setting, or the fallback when it is unset."""
         value = values.get(key)
         return fallback if value is None else value
 

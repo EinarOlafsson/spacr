@@ -971,6 +971,7 @@ class GateCanvas(GraphCanvas):
             return
 
         def scaled(event):
+            """Scale one wheel step by the spin box's own speed setting."""
             try:
                 start_x = getattr(axes, "_sx", None)
                 start_y = getattr(axes, "_sy", None)

@@ -384,6 +384,7 @@ class MotilitySummary:
     def summary(self) -> str:
         """One monospace block: counts, then velocities *with their unit*."""
         def _f(v):
+            """Format one number, or "n/a" when it is not finite."""
             return "n/a" if not np.isfinite(v) else f"{v:.3g}"
         return (
             f"{self.n_tracks} tracks · {self.n_used} at or above "

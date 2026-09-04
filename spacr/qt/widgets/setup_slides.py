@@ -1968,6 +1968,7 @@ class SetupSlides(QDialog):
                        for task, ok, detail in capabilities()}
 
             def _answer(prefix):
+                """The first answer whose task starts with ``prefix``."""
                 for task, (ok, detail) in answers.items():
                     if task.startswith(prefix):
                         return ok, detail

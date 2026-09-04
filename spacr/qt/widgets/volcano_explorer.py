@@ -432,6 +432,7 @@ class VolcanoExplorer(QWidget):
         # change one setting that disagree about what it now is would be worse
         # than having only one of them.
         def changed(_name=None, _value=None):
+            """Re-apply the style after any menu entry changes it."""
             self.set_style(self._style)
 
         add_style_entries(menu, self._style, changed,
