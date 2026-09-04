@@ -66,10 +66,23 @@ def test_quitting_cancels_it():
 
 def test_the_shutdown_cancel_is_direct():
     """The worker's event loop is blocked for the whole of run(), so a queued
-    call would be delivered after the shutdown it was meant to survive."""
+    call would be delivered after the shutdown it was meant to survive.
+
+    ANCHORED ON THE `connect`, NOT ON THE NAME. This searched from the FIRST
+    occurrence of `_stop_before_quitting` -- which is the `def`, not the
+    connection -- and read 400 characters forward. The handler then grew a
+    docstring explaining why it binds the worker and thread as default
+    arguments, which pushed the `connect` call past the window, and the test
+    failed on a file whose connection type had never changed. A window
+    measured in characters from a name that appears twice is a test of how
+    long the docstring is.
+    """
     source = _source()
-    where = source.index("_stop_before_quitting")
-    assert "Qt.DirectConnection" in source[where:where + 400]
+    where = source.index("aboutToQuit.connect(_stop_before_quitting")
+    tail = source[where:where + 200]
+
+    assert "Qt.DirectConnection" in tail, (
+        f"the shutdown cancel is not a direct connection: {tail!r}")
 
 
 def test_the_shutdown_wait_is_bounded():
