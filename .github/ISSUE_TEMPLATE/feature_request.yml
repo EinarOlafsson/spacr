@@ -1,0 +1,53 @@
+name: Feature request
+description: Suggest a capability, a setting, or a change to how something works
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Requests are welcome, including small ones about wording, layout or
+        defaults — several of those have turned out to be the most valuable
+        changes in this project.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do that spaCR makes hard?
+      description: |
+        Describe the analysis or the workflow, not only the feature. Knowing
+        the goal often turns up a better answer than the one being asked for.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like it to do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What do you do at the moment instead?
+      description: A workaround, another tool, or a manual step. This says how much the gap costs.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of spaCR?
+      multiple: true
+      options:
+        - Mask generation
+        - Measure
+        - Classify
+        - Regression
+        - Sequencing
+        - Annotate
+        - Image UMAP / Gate editor
+        - Import / Format conversion
+        - Plate viewer
+        - Figures and export
+        - Documentation or tutorials
+        - Translations
+        - Something else

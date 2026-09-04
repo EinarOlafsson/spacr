@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://einarolafsson.github.io/spacr/
+    about: The API reference, module guides and installation instructions.
+  - name: Interactive tutorials
+    url: https://einarolafsson.github.io/spacr/tutorials/
+    about: Walkthroughs of every core module, in nine languages.
+  - name: Report a security vulnerability
+    url: https://github.com/EinarOlafsson/spacr/blob/main/SECURITY.md
+    about: Please report security problems privately, not as a public issue.

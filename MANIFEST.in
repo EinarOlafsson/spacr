@@ -25,6 +25,15 @@ include *.txt
 include *.yaml
 include requirements.txt
 
+# The community files, by name rather than as `include *.md`. A blanket rule
+# would sweep up every scratch note that ever lands at the root; these three
+# are policy documents a user of the sdist has a reason to read, and a
+# security policy that ships only on GitHub is one the person running an
+# offline install cannot find.
+include CODE_OF_CONDUCT.md
+include CONTRIBUTING.md
+include SECURITY.md
+
 # Recursively include specific folders and file types
 #
 # docs/SOURCE only, never `docs` itself. deploy_docs.sh's old workflow copied
