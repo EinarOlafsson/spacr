@@ -157,6 +157,13 @@ class _Well(QLabel):
     facts a selection needs: its coordinate, and a press that reaches the
     screen. Drawing 1,536 checkable buttons to get a click is a heavier
     answer to a lighter question.
+
+    :param row: the well's row index, counting from zero.
+    :param column: its column index.
+    :param parent: parent widget; ownership only.
+
+    The pair is the well's IDENTITY, not merely its position -- the screen
+    addresses wells by it, and it is what a press reports back.
     """
 
     def __init__(self, row: int, column: int, parent=None):

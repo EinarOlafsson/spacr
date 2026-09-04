@@ -75,7 +75,14 @@ EMPTY_STATE_NAME = "EmptyStateBanner"
 
 
 class _ExplainerBrowser(QTextBrowser):
-    """Text browser that asks its screen to rerender after a locale change."""
+    """Text browser that asks its screen to rerender after a locale change.
+
+    :param refresh: the screen's rerender, held as a WEAK method. The
+        browser is a child of the screen, so a strong reference would be a
+        cycle through a QObject; a dead one simply means there is nothing
+        left to rerender.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(
         self,
@@ -1229,6 +1236,14 @@ class _WrappingButtonStrip(FlowLayout):
     """
 
     def __init__(self, spacing: int) -> None:
+        """Build the strip and remember its gap.
+
+        :param spacing: the gap between buttons in px. KEPT SEPARATELY as
+            well as passed down, because ``FlowLayout`` holds its gap
+            privately and never calls ``setSpacing`` -- so ``spacing()``
+            would answer the style's default, and :meth:`sizeHint` needs
+            the real number.
+        """
         super().__init__(None, spacing=spacing)
         # ``FlowLayout`` keeps its gap in a private attribute and never calls
         # ``setSpacing``, so ``QLayout.spacing()`` would answer the style's

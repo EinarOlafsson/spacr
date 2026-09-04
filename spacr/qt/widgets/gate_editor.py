@@ -2707,6 +2707,13 @@ class _ClusterSettingsDialog(QDialog):
     deliberately were discarded, and the two disagreed about the defaults as
     well (0.5 and 20 against 0.30 and 10). `settings` is optional only
     because the dialog is constructible before `apply_settings` has run.
+
+    :param parent: parent widget; ownership only.
+    :param settings: the screen's settings, read for the user's own
+        ``cluster_scale`` and friends. ``None`` falls back to the built-in
+        defaults and is the reason above -- NOT an invitation to omit it:
+        a dialog opened without settings is the bug this paragraph
+        describes, silently discarding values the user set deliberately.
     """
 
     def __init__(self, parent=None, settings=None):

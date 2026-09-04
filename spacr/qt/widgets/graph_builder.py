@@ -265,7 +265,10 @@ class ColumnWell(QWidget):
 
 
 class _DraggableList(QListWidget):
-    """A list whose items leave as :data:`COLUMN_MIME` payloads."""
+    """A list whose items leave as :data:`COLUMN_MIME` payloads.
+
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, parent=None):
         super().__init__(parent)

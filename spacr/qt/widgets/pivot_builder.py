@@ -185,7 +185,10 @@ class DropWell(QWidget):
 
 
 class _AxisList(QListWidget):
-    """The list inside a :class:`DropWell`: takes :data:`COLUMN_MIME`."""
+    """The list inside a :class:`DropWell`: takes :data:`COLUMN_MIME`.
+
+    :param parent: parent widget; ownership only.
+    """
 
     dropped = Signal(str)
     remove_requested = Signal(int)

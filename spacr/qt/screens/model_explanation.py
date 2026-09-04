@@ -70,6 +70,14 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame,
 
 
 class _PathRow(QWidget):
+    """A path field with a Browse button beside it.
+
+    :param folder: browse for a DIRECTORY rather than a file. It picks which
+        dialog the button opens and nothing else -- the field itself accepts
+        whatever is typed either way.
+    :param parent: parent widget; ownership only.
+    """
+
     def __init__(self, *, folder: bool = False, parent=None):
         super().__init__(parent)
         self.folder = bool(folder)
