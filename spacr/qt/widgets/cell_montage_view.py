@@ -1023,6 +1023,20 @@ class _Thumb(QLabel):
 
     def __init__(self, pixmap: QPixmap, tooltip: str, parent=None,
                  size: int = 0, highlight: str = ""):
+        """Build one clickable crop.
+
+        :param pixmap: the crop to draw.
+        :param tooltip: the provenance summary. ALSO THE SIGNAL'S PAYLOAD --
+            ``clicked`` carries this string, which is how the view knows
+            which thumbnail to show the detail for.
+        :param parent: parent widget.
+        :param size: the tile's side in pixels; ``0`` takes
+            :data:`THUMBNAIL_PX`.
+        :param highlight: an annotation label whose colour draws the ring,
+            or ``""`` for none. Resolved through ``label_to_hex`` rather
+            than a fixed blue, because that is the annotation app's own
+            colour and it is theme-aware.
+        """
         super().__init__(parent)
         self._pixmap = pixmap
         self.setToolTip(tooltip)

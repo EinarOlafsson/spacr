@@ -127,6 +127,19 @@ class _OptionalNumbers(QWidget):
 
     def __init__(self, count: int, low: float, high: float, decimals: int,
                  caption: str, parent=None):
+        """Build the tick and its spin boxes.
+
+        :param count: how many numbers this control holds. One for a single
+            limit, two for the ends of a range -- which is what decides
+            whether the spin boxes are captioned "from" and "to".
+        :param low: the smallest value a spin box accepts.
+        :param high: the largest.
+        :param decimals: places shown, and therefore the finest step a
+            reader can express.
+        :param caption: the tooltip text, used alone for a single number and
+            suffixed with "(from)" / "(to)" for a pair.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)

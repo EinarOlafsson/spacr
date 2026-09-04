@@ -3028,7 +3028,30 @@ class _AbsorbedLeastSquaresResults:
     def __init__(self, params, bse, pvalues, resid, fitted, scale,
                  df_model, df_resid, nobs, model, converged, absorbed,
                  rsquared):
-        """Store absorbed-fit estimates and derive their t statistics."""
+        """Store absorbed-fit estimates and derive their t statistics.
+
+        :param params: coefficients that SURVIVED absorption, indexed by
+            column name. The absorbed factors have no row here at all, which
+            is the one way this fit's answer differs from statsmodels'.
+        :param bse: their standard errors.
+        :param pvalues: two-sided p values for those coefficients.
+        :param resid: residuals of the FULL model, not of the demeaned
+            regression. Frisch-Waugh-Lovell makes them the same vector.
+        :param fitted: fitted values of the full model.
+        :param scale: residual variance, charged for every absorbed
+            parameter, which is what makes the standard errors match
+            statsmodels to the last digit rather than to a tolerance.
+        :param df_model: model degrees of freedom, full parameters less the
+            intercept -- including the absorbed ones.
+        :param df_resid: residual degrees of freedom after that charge.
+        :param nobs: number of observations.
+        :param model: the design object carrying the surviving column names.
+        :param converged: whether the solver reported convergence.
+        :param absorbed: the factor names that were absorbed and therefore
+            have no coefficient. :meth:`predict` refuses a new row by naming
+            them, because their levels were never estimated.
+        :param rsquared: R-squared of the full model.
+        """
         self.params = params
         self.bse = bse
         self.pvalues = pvalues
@@ -3284,7 +3307,40 @@ class _GlumResults:
     def __init__(self, params, bse, pvalues, resid, fitted, scale,
                  df_model, df_resid, nobs, model, family, llf,
                  null_deviance, deviance, n_iter, llnull=None):
-        """Store glum estimates in the statsmodels-compatible results shape."""
+        """Store glum estimates in the statsmodels-compatible results shape.
+
+        Every argument is named because this class exists to be READ LIKE A
+        statsmodels RESULT, and a reader who cannot tell which of sixteen
+        positional values is the null deviance cannot check that claim.
+
+        :param params: fitted coefficients, a Series indexed by column name.
+        :param bse: their standard errors, from the canonical-link
+            information matrix described in the class docstring.
+        :param pvalues: two-sided p values for the coefficients.
+        :param resid: response residuals, ``y - mu``.
+        :param fitted: fitted values on the RESPONSE scale, ``mu``.
+        :param scale: the dispersion. One for the fixed-dispersion families
+            and the Pearson estimate for Gaussian, which is the convention
+            :mod:`spacr.regression_qc` reads off ``model.scale``.
+        :param df_model: model degrees of freedom, coefficients less the
+            intercept.
+        :param df_resid: residual degrees of freedom, rows less coefficients.
+        :param nobs: number of observations the fit used.
+        :param model: the design object, carrying the column names and
+            presented as a ``GLM`` class so the QC path resolves it.
+        :param family: the glum family, which supplies ``loglike`` and
+            ``deviance``.
+        :param llf: log-likelihood of the fitted model.
+        :param null_deviance: deviance of the intercept-only model.
+        :param deviance: deviance of the fitted model.
+        :param n_iter: iterations the solver took, 0 when it does not report.
+        :param llnull: log-likelihood of the NULL model, optional.
+            CARRIED RATHER THAN DERIVED. ``fit_quality_note`` falls back to
+            ``null_deviance / -2`` when it is absent, so a backend passing
+            only the deviance prints a different McFadden from statsmodels
+            for the identical fit -- the one thing this class exists not to
+            do. The null model is fitted anyway; this only keeps its answer.
+        """
         self.params = params
         self.bse = bse
         self.pvalues = pvalues

@@ -267,6 +267,22 @@ class _FigureCell(QFrame):
 
     def __init__(self, index: int, pixmap: QPixmap, title: str = "",
                  parent=None, letter: str = "", live_key: str = ""):
+        """Build one tile.
+
+        :param index: position in the pixmap list given to
+            :meth:`FigureGridView.set_figures`, carried by
+            ``figure_activated``. Pass ``-1`` for a live tile, which has no
+            position in that list.
+        :param pixmap: the figure to draw, at its own aspect ratio.
+        :param title: the caption shown with the tile.
+        :param parent: parent widget.
+        :param letter: the panel letter, when the tile is part of a lettered
+            figure.
+        :param live_key: which pyqtgraph panel this tile photographs, or
+            ``""`` for a figure tile. THE IDENTITY OF A LIVE TILE, because
+            its index cannot be -- every live tile carries ``-1`` so none can
+            be mistaken for a figure.
+        """
         super().__init__(parent)
         self.index = index
         self.letter = letter
