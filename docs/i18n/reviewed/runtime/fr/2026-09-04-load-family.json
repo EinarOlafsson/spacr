@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "drafted_by": "Claude (Opus 5), 2026-09-04",
+  "accepted_by": "Einar Olafsson, maintainer, 2026-09-04",
+  "acceptance": "Drafted by Claude and ACCEPTED BY THE MAINTAINER as reviewed on 2026-09-04, on his explicit instruction. This is a maintainer's acceptance, NOT a native-speaker review: he reads is, sv and de and did not read fr, hi, ko or zh_CN. Recorded this way so the record says what actually happened. See instruction 316.",
+  "note": "Instruction 316. The English button labels were renamed and the machine re-drafted these rows; the replacements were fluent and wrong -- sv/es/fr read 'Load test' as the compound noun LOAD TESTING, ko rendered the verb as 충전 (to recharge a battery) in 38 strings, and is rendered it as 'Láttu upp' (let/make). Four were not wrong but broken, including ko 'Load a column mapping' = '폴더 폴더 폴더 폴더' (folder folder folder folder).",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Fetching test data…",
+      "source_sha256": "8221e3786b2092790ef0146e63c8a417cb74617bfb010e00ec24021818729a8a",
+      "source": "Fetching test data…",
+      "translation": "Récupération des données de test..."
+    },
+    {
+      "table": "ui",
+      "key": "Load test data",
+      "source_sha256": "65e31c78305eeaccd6abbaa1dea5f16fdb95967dc3e01c3fb434abb4488eb4d2",
+      "source": "Load test data",
+      "translation": "Charger les données de test"
+    },
+    {
+      "table": "ui",
+      "key": "Load test data…",
+      "source_sha256": "3267b0a61c06e2cc3d8fff14740946b63dc6d637d5e0ede0a60d9ae68cae38ba",
+      "source": "Load test data…",
+      "translation": "Charger les données de test..."
+    }
+  ]
+}
