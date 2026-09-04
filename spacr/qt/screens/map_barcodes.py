@@ -751,6 +751,13 @@ class _StackWatcher(QObject):
     """Gives each host screen its fold strip as the stack reaches it."""
 
     def __init__(self, window) -> None:
+        """Watch a window's stack and install into each screen as it is shown.
+
+        :param window: the main window. Its stack is read at install time,
+            not here, so this works for screens created after the watcher --
+            and it is the QObject PARENT, so a currentChanged arriving during
+            teardown cannot reach a watcher holding a deleted stack.
+        """
         super().__init__(window)
         self._window = window
 

@@ -90,7 +90,12 @@ def module_hint_text(widget: QWidget) -> str:
 
 
 class _ModuleHints(QObject):
-    """Diverts module tooltips into the window's hint strip."""
+    """Diverts module tooltips into the window's hint strip.
+
+    :param window: the main window that owns the hint strip, and the QObject
+        parent. The strip is written THROUGH the window rather than reached
+        directly, so a window without one drops the hint instead of raising.
+    """
 
     def __init__(self, window):
         super().__init__(window)
