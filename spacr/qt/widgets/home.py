@@ -217,6 +217,24 @@ class AppTile(QPushButton):
     def __init__(self, text: str, description: str = "",
                  icon: Optional[QIcon] = None, *, width: int, height: int,
                  icon_px: int = 52, stage: str = "stable", parent=None):
+        """Build one tile: an icon over a module name.
+
+        :param text: the module name drawn on the tile, and what the tile is
+            identified by.
+        :param description: accepted and NOT DRAWN. The tile stopped showing
+            it because it was a third copy of a sentence already on the
+            tooltip and in the hint bar, and three lines of grey under every
+            tile is what forced two tile sizes in the first place. Kept in
+            the signature so callers that pass it still work.
+        :param icon: the module's mark, drawn above the name.
+        :param width: tile width in pixels.
+        :param height: tile height in pixels.
+        :param icon_px: the icon's edge in pixels.
+        :param stage: maturity -- ``"stable"``, ``"beta"`` or ``"alpha"``.
+            Set as a Qt property, so the theme paints the badge and the
+            maturity filter can find the tile without reading its text.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         P = active_palette()
         self._text = text

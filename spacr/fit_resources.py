@@ -464,6 +464,25 @@ class _ResourceSampler:
             sample_limit: int = _DEFAULT_SAMPLE_LIMIT,
             root_pid: Optional[int] = None,
             checkpoint_samples: int = 5) -> None:
+        """Set up the sampler and the bounds that keep it bounded.
+
+        :param output: where the accounting is written, or ``None`` to keep
+            it in memory only.
+        :param mode: the performance mode to sample under; resolved against
+            ``environ`` when not given.
+        :param environ: environment to read the mode from, defaulting to the
+            process's own.
+        :param interval_seconds: seconds between samples, floored at 0.001 so
+            a zero cannot turn the loop into a spin.
+        :param sample_limit: how many samples and events to keep. THIS IS THE
+            BOUND IN "bounded": both deques carry it as ``maxlen``, so a long
+            run drops its oldest samples rather than growing without limit,
+            and the number dropped is counted rather than hidden.
+        :param root_pid: the process whose tree is accounted for, defaulting
+            to this one.
+        :param checkpoint_samples: how many samples between writes to
+            ``output``, floored at one.
+        """
         selection = _select_performance_mode(mode, environ)
         self.mode = selection.mode
         self.output = Path(output) if output is not None else None

@@ -222,7 +222,17 @@ class _StageSpec:
         params: Mapping[str, Any] | None,
         node_id: str | None,
     ) -> None:
-        """Normalize the reusable metadata that describes a traced stage."""
+        """Normalize the reusable metadata that describes a traced stage.
+
+        :param label: the stage's name as the flow view draws it.
+        :param kind: the node kind, as a :class:`NodeKind` or its value.
+        :param consumes: names this stage reads. Kept as a tuple so the same
+            spec can be reused as a decorator and as a context manager
+            without one use mutating the other's list.
+        :param produces: names this stage writes, on the same terms.
+        :param params: parameters recorded against the node, or ``None``.
+        :param node_id: an explicit id, or ``None`` to derive one.
+        """
         self.label = label
         self.kind = NodeKind(kind)
         self.consumes = tuple(consumes)
