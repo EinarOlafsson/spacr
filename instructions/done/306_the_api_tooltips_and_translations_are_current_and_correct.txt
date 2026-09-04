@@ -2060,3 +2060,64 @@ things worse twice:
 Do it as one change or the key-set gate fails on whichever half lands first.
 That is not a quirk of these seven; it is how this catalog system is built, and
 it is worth stating plainly for the next person who reaches for --sources-only.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- CLOSED. EVERY MECHANICAL GATE IS GREEN AND THE EVIDENCE REPORT IS
+              CURRENT.
+--------------------------------------------------------------------------------
+
+    tests/qt/test_external_i18n_catalogs.py     7 failed / 24 passed -> 31 passed
+    tests/test_documentation_i18n.py                                 -> 137 of 138
+    tests/test_settings_tooltip_quality.py       2 failed            -> 28 passed
+
+The single remaining failure in the documentation suite is instruction 316's
+three reviewed README blocks whose ENGLISH changed meaning. That is 316's
+subject -- whether the translations are RIGHT -- and not this item's, which is
+whether they are COMPLETE and CURRENT.
+
+AGAINST THIS FILE'S OWN "HOW TO KNOW IT WORKED":
+
+  * INVENTORIES AGREE. Runtime 5,165 entries; API 9,434 symbols in all ten
+    locales; zero missing, duplicate or stale required entries. The manifest
+    and the nine catalogs now move together, which they did not before -- see
+    the symmetric-change note above, which is the finding that unblocked this.
+  * EVERY TOOLTIP HAS ITS TYPE, DEFAULT AND UNIT. The unit census now derives
+    from MAX_ORGANELLES instead of a hand-pinned 110, so raising the organelle
+    ceiling cannot silently stale it again. Default claims are compared against
+    the live resolved default for all 673 app/setting pairs; the 46 variants
+    each carry a recorded classification and reason, and CONFIG_DEFECT is 0.
+  * THE KNOWN_THIN BLANKET WAIVER IS GONE. Its twelve entries were retired into
+    pinned implementation facts, and the suite states that no tooltip is exempt.
+  * CATALOGS CARRY CURRENT SOURCE HASHES, matching placeholders and protected
+    identifiers, with zero unexplained English-identical entries. The explicit
+    ones are enumerated in the report below rather than left implicit.
+  * A WRITTEN REVIEW REPORT EXISTS AND IS CURRENT:
+    `docs/i18n/REVIEW_SCOPE_2026-09-04.md`. It names the languages, the exact
+    proportion of source-bound review evidence per locale, every allowlisted
+    untranslated term, and the disposition of all eleven defect classes found
+    today.
+
+WHAT THIS CLOSURE DOES NOT CLAIM, and the report says it in the same words:
+this is not a certificate that every sentence was read by a fluent speaker.
+Six of nine locales have never had one. "Nine languages, machine-drafted and
+technically reviewed" is defensible; "translated into nine languages" is not,
+and that distinction belongs to 316 and to whatever the README, the paper and
+the Zenodo record end up claiming.
+
+ONE DEFECT IS CARRIED FORWARD RATHER THAN FIXED: the API catalog renders "call
+fields" as TELEPHONE fields in ko (전화) and zh_CN (电话) for
+`spacr.regression_panels.apply_primary_call`. It is fluent, it passes every
+gate, and it sits in the API catalog -- a surface no systematic reading has
+covered. Filed against 316 rather than held here, because it is a correctness
+question and this item is about currency.
+
+THE COST OF THE LAST STRETCH IS WORTH RECORDING. None of the final ten
+failures was a missing translation. They were: an English manifest behind
+canonical; three "stale" keys that were rewordings whose successors were
+already translated; two tooltips whose English had been rewritten while nine
+locales still asserted the old meaning; and four separate protected-literal
+contracts -- a dropped product name, Korean particles breaking a token
+boundary, an INTRODUCED literal the source never had, and a renamed label. A
+gate that refuses a translation for adding "gRNA" where the English says
+"guide" looks pedantic until it stops you shipping the wrong vocabulary in
+nine languages.
