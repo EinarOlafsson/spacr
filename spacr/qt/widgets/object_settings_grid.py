@@ -523,7 +523,31 @@ class ObjectSettingsGrid(QWidget):
                 continue
             table = widen(table, role,
                           like=live[index - 1] if index else None)
-        return table
+        return self._only_the_common_questions(table)
+
+    @staticmethod
+    def _only_the_common_questions(
+            table: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+        """Drop the questions that only some objects ask.
+
+        A TABLE IS A CLAIM THAT THE ROWS AND COLUMNS ARE INDEPENDENT, and
+        these rows were not. Of 55 questions only 18 are asked by every
+        object; the other 37 are mostly the organelle's own detection
+        settings -- ridge filters, hysteresis, LoG sigmas -- which no cell,
+        nucleus or pathogen has. Drawn as rows they made a grid that was
+        two-thirds blank cells, and a blank cell in a table reads as an
+        unanswered question rather than one that was never asked.
+
+        THEY ARE NOT LOST. The grid only claims the keys it shows, so
+        everything dropped here stays in the ordinary form under the
+        category it belongs to -- which is where a setting only one object
+        has belongs, next to the others that object has.
+        """
+        objects = {obj for row in table.values() for obj in row}
+        return {
+            question: row for question, row in table.items()
+            if set(row) == objects
+        }
 
     def settings(self) -> Dict[str, Any]:
         """The whole settings dict, with the table's answers written back."""

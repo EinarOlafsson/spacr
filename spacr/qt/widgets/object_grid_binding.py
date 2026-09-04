@@ -60,8 +60,13 @@ class ObjectGridBinding(QObject):
         panel hides the settings of an object whose channel names no plane
         and the grid must not claim a key that is no longer there.
         """
+        # READ FROM THE GRID, NOT FROM THE SETTINGS. The grid draws only the
+        # questions every object asks, and only the organelle slots the count
+        # asks for. Claiming a key it does not show would hide that setting
+        # from the form as well, and it would then be reachable from nowhere
+        # at all -- which is worse than either place on its own.
         owned = set()
-        for question, row in to_table(self._panel.collect()).items():
+        for question, row in self._grid.table().items():
             for obj in row:
                 owned.add(f"{obj}_{question}")
         return frozenset(owned)
