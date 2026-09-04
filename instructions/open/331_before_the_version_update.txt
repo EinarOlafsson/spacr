@@ -125,3 +125,101 @@ appeared on 2026-09-01, which pushes the balance further toward shipping
 
 Still a maintainer's call. Engineering's position is unchanged and better
 evidenced.
+
+--------------------------------------------------------------------------------
+2026-09-04 — THE LIST AFTER A LONG SESSION. ONE ITEM CLOSES, ONE GATE MOVES.
+--------------------------------------------------------------------------------
+
+Regenerated again rather than edited in place. Two rows changed materially and
+one leaves the list entirely.
+
+BEFORE THE UPDATE, still
+
+  288  GREEN CI. Still the gate, still unmet, but it moved in a way worth
+       recording because "red" hid three different things.
+
+       The REPO-WIDE FATAL LINT GATE is now green. `ruff check spacr tests
+       --select E9,F63,F7,F82` had 21 F821 undefined names and has none: four
+       bare `label()` calls in mask_engine that bypassed the module's own
+       deferred scipy import, `FoldStrip` and `pd` named only in quoted
+       annotations, and three typing names simply absent.
+
+       The DOCS JOB failed on every push, and all three causes were in the
+       AUDIT rather than in what it audits: a protected status literal eaten
+       by its own case-insensitive disambiguator, an emphasis check that
+       rejected text for having been reflowed, and seven stale reviewed
+       records that both audits abort on the first of. It now RUNS TO
+       COMPLETION and reports findings instead of dying with a traceback,
+       which is the difference between a broken gate and a working one.
+
+       What it reports is the real remaining distance, and it is larger than
+       the old number: the English API manifest was 8,943 symbols against
+       9,405 in source. Ratcheted on the maintainer's instruction, which
+       deliberately opens a translation debt of 205 missing symbols in six
+       locales and 472 in three -- 2,646 in total. A repair pass over them is
+       running as this is written.
+
+       compat-matrix is green. tests is long and is not what these three
+       fixes were about.
+
+  314  THE REGRESSION HANG. The `_already_current` re-entry guard the standing
+       handoff asked to be restored WAS ALREADY IN, at walkthrough.py:266 with
+       both guard tests committed and seven passing. Nothing was rebuilt. The
+       item is otherwise unchanged and the maintainer deferred the remaining
+       measurement on 2026-09-04: it wants a real screen, and every previous
+       round of it found its causes only on real data.
+
+  01 / 05 / 304  UNCHANGED. All three still need the maintainer, and 304 still
+       needs the Zenodo toggle switched on before the release is cut.
+
+  316  TRANSLATIONS. Unchanged as an item. 306's mechanical half moved: one of
+       its eight failing catalog tests was not a translation problem at all
+       but two tests asserting opposite things about the README language
+       picker, which instruction 361 had already decided. The other seven are
+       one blocker wearing seven hats -- four short pieces of prose in
+       Chinese, Korean, Swedish and the nine-locale `foreign` summary -- and
+       306 now records the exact strings rather than "needs a reviewer".
+
+CLOSED, AND OFF BOTH LISTS
+
+  58   CONTRIBUTOR LISTING. origin/nightly carried 70 `Co-Authored-By: Claude`
+       trailers, all added 2026-09-02/03 AFTER the history had been cleaned
+       once; main was clean and stayed clean. Now zero on both, verified four
+       ways: trailers gone, zero files differing from the pre-rewrite backup
+       because a message-only rewrite must not alter a byte of content, 6,304
+       commits before and after, and no Claude author or committer anywhere.
+
+       THE RECURRENCE IS WHAT MATTERED. Instruction 58 recorded a commit-msg
+       guard as installed and there was none in this checkout: `.git/hooks`
+       does not clone, sync or travel, so the sentence described one machine
+       and read like a repository. The guard is now TRACKED in the tree, and
+       behind it a test that fails on a trailer reaching the branch -- because
+       CI runs whatever any developer's .git contains and a hook does not.
+
+       What remains of 58 is GitHub's own cached contributor widget, which is
+       server-owned and covered by support ticket #4711257. Nothing in this
+       repository can force it, so the item is closed on the repository's side.
+
+ALSO MOVED, none of it release-blocking
+
+  310  Every one of its 57 entries now carries a verdict and none is live.
+       Four were real and are fixed with mutation-checked guards; five were
+       already fixed and are recorded as stale rather than re-derived.
+  350  The clipping sweep now covers the dialogs -- 17 of 41, the rest needing
+       fixtures -- and found eight clipped combinations in four dialogs, every
+       one at 200% font scale and none at 100%.
+  375  Step 1 is done and says stop. On the maintainer's own acquisitions the
+       new Import matches the old regex file-for-file on the four cellvoyager
+       ones and places 43 of 150 on mitoscreen, deriving no field and no
+       channel. Steps 2 and 3 stay unstarted, which is what its own ordering
+       demands.
+  115  The macOS form-width report is fixed: the settings QFormLayout named
+       its field-growth policy instead of inheriting the platform's answer.
+
+THE TENSION, UNCHANGED
+----------------------
+Nothing here changes the shape of it. 01 is still the escape hatch, 314 is
+still characterised rather than fixed, and 288's gate is still genuinely
+unmet. What is different is that the docs half of that gate is now failing on
+a MEASUREMENT rather than on a crash, and the measurement names its own
+remaining work.
