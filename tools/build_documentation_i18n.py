@@ -169,194 +169,6 @@ API_DOC_ALIASES: Mapping[str, str] = {
         "spacr.layers.Layer.world_extent",
     "spacr.layers.ShapesLayer.ndim":
         "spacr.layers.Layer.ndim",
-    "spacr.qt.dnd_handlers.AlignDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.AlignDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.AlignDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.AnnotateDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.AnnotateDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.AnnotateDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.BatchDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.BatchDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.BatchDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.BatchDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.ClassifyDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ClassifyDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ClassifyDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.CoefficientsDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.ConvertDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ConvertDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ConvertDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.DataManagerDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.DatabaseDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.DatabaseDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.DatabaseDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.EvaluationBundleDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.EvaluationBundleDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.EvaluationBundleDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.ExternalMasksDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.ExternalMasksDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ExternalMasksDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ExternalMasksDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.ForeignProjectDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.ForeignProjectDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ForeignProjectDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ForeignProjectDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.ImageFieldsDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ImageFieldsDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ImageFieldsDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.LabelMaskDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.LayerStackDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.LayerStackDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.LayoutDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.LayoutDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.LayoutDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.LayoutDropHandler.suggest_alternatives":
-        "spacr.qt.dnd.DropHandler.suggest_alternatives",
-    "spacr.qt.dnd_handlers.LineageDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.MakeMasksDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.MakeMasksDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.MakeMasksDropHandler.suggest_alternatives":
-        "spacr.qt.dnd.DropHandler.suggest_alternatives",
-    "spacr.qt.dnd_handlers.MapBarcodesDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.MapBarcodesDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.MapBarcodesDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.MaskDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.MaskDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.MaskDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.MaskDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.MaskDropHandler.suggest_alternatives":
-        "spacr.qt.dnd.DropHandler.suggest_alternatives",
-    "spacr.qt.dnd_handlers.MeasureDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.MeasureDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.MeasureDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.MeasureDropHandler.suggest_alternatives":
-        "spacr.qt.dnd.DropHandler.suggest_alternatives",
-    "spacr.qt.dnd_handlers.MeasurementsDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.MeasurementsDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.MeasurementsDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.MethodsSourcesDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.MethodsSourcesDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.MethodsSourcesDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ModelZooDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ModelZooDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ModelZooDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.PlateQueueDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.PlateQueueDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.PlateQueueDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.PlateQueueDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.ProjectFolderDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ProjectFolderDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.ProjectRootsDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.ProjectRootsDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.ReportDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ReportDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ReportDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.ResultsDatabaseDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ResultsFolderDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.RunHistoryDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.RunHistoryDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ScatterTableDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.SourceDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.SourceDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.SourceDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.SubmissionSettingsDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.SubmissionSettingsDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.SubmissionSettingsDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.TableDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.TrainingRunsDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.TrainingRunsDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.TrainingRunsDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
     "spacr.qt.widgets.gate_spec.PolygonGate.scaled":
         "spacr.qt.widgets.gate_spec.Gate.scaled",
     "spacr.qt.widgets.gate_spec.PolygonGate.translated":
@@ -6873,3 +6685,68 @@ REVIEWED_README_BLOCKS_ARCHIVE = {
     for source in _RETIRED_README_BLOCKS_2026_09_04
     if source in REVIEWED_README_BLOCKS
 }
+
+
+# ============================================================================
+# RE-KEYED 2026-09-04, INSTRUCTION 316. Three reviewed blocks whose ENGLISH was
+# REWRITTEN rather than removed. Retiring them would have discarded a reviewed
+# sentence that only needed to follow its source; re-binding them without
+# retranslating would have certified nine translations of text the README no
+# longer carries.
+#
+# THE THIRD IS THIS INSTRUCTION'S OWN "THE NINE READMEs STILL SAY CUDA-ONLY"
+# ITEM. The previous wording told a reader CUDA was the only route to a GPU.
+# The new English names Metal for macOS -- covering BOTH Apple Silicon AND the
+# AMD cards in Intel Macs -- and CUDA or DirectML for Windows. On the machine
+# that prompted the finding the difference is 444.5 s against 3.2 s.
+#
+# Drafted by Claude and accepted by the maintainer under the 2026-09-04
+# decision recorded in instruction 316; not a native-speaker review.
+# ============================================================================
+REVIEWED_README_BLOCKS.update({
+    'Images, masks, crops, measurements, annotations, predictions, barcodes and well identifiers live in one SQLite project.': {
+        'sv': 'Bilder, masker, bildutsnitt, mätningar, annoteringar, förutsägelser, streckkoder och brunnsidentifierare ligger i ett och samma SQLite-projekt.',
+        'de': 'Bilder, Masken, Bildausschnitte, Messungen, Anmerkungen, Vorhersagen, Barcodes und Well-Identifikatoren liegen in einem einzigen SQLite-Projekt.',
+        'es': 'Imágenes, máscaras, recortes, mediciones, anotaciones, predicciones, códigos de barras e identificadores de pocillo residen en un único proyecto SQLite.',
+        'zh_CN': '图像、掩膜、裁剪图像块、测量值、标注、预测、条形码和微孔标识符都存放在同一个 SQLite 项目中。',
+        'pt': 'Imagens, máscaras, recortes, medições, anotações, previsões, códigos de barras e identificadores de poço ficam em um único projeto SQLite.',
+        'hi': 'छवियाँ, मास्क, क्रॉप, मापन, एनोटेशन, भविष्यवाणियाँ, बारकोड और वेल पहचानकर्ता एक ही SQLite परियोजना में रहते हैं।',
+        'ko': '이미지, 마스크, 크롭, 측정값, 주석, 예측, 바코드 및 웰 식별자가 하나의 SQLite 프로젝트에 저장됩니다.',
+        'is': 'Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og auðkenni brunna eru geymd í einu SQLite-verkefni.',
+        'fr': 'Les images, masques, vignettes, mesures, annotations, prédictions, codes-barres et identifiants de puits résident dans un seul projet SQLite.',
+    },
+    'Runs as a desktop application or headlessly on a workstation, server or cluster.': {
+        'sv': 'Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster.',
+        'de': 'Läuft als Desktop-Anwendung oder ohne grafische Oberfläche auf einer Workstation, einem Server oder Cluster.',
+        'es': 'Se ejecuta como una aplicación de escritorio o sin interfaz gráfica en una estación de trabajo, servidor o clúster.',
+        'zh_CN': '可作为桌面应用程序运行，也可在工作站、服务器或集群上以无图形界面方式运行。',
+        'pt': 'É executado como um aplicativo de desktop ou sem interface gráfica em uma estação de trabalho, servidor ou cluster.',
+        'hi': 'यह डेस्कटॉप एप्लिकेशन के रूप में, या वर्कस्टेशन, सर्वर या क्लस्टर पर हेडलेस रूप में चलता है।',
+        'ko': '데스크톱 애플리케이션으로 실행되거나 워크스테이션, 서버 또는 클러스터에서 헤드리스로 실행됩니다.',
+        'is': 'Keyrist sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa.',
+        'fr': 'Fonctionne comme une application de bureau ou sans interface graphique sur un poste de travail, un serveur ou un cluster.',
+    },
+    'spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which torchvision excludes. Linux is recommended for the heaviest CUDA and ROCm workflows; macOS and Windows are also supported, and both use their GPUs — macOS through Metal, which covers Apple Silicon and the AMD cards in Intel Macs, and Windows through CUDA or DirectML.': {
+        'sv': 'spaCR stöder Python **3.9 through 3.14**, utom Python 3.14.1, som torchvision utesluter. Linux rekommenderas för de tyngsta CUDA- och ROCm-arbetsflödena; macOS och Windows stöds också, och båda använder sina GPU:er — macOS via Metal, som täcker Apple Silicon och AMD-korten i Intel-Mac-datorer, och Windows via CUDA eller DirectML.',
+        'de': 'spaCR unterstützt Python **3.9 through 3.14**, außer Python 3.14.1, das von torchvision ausgeschlossen wird. Linux wird für die anspruchsvollsten CUDA- und ROCm-Workflows empfohlen; macOS und Windows werden ebenfalls unterstützt und nutzen beide ihre GPUs — macOS über Metal, das Apple Silicon und die AMD-Karten in Intel Macs abdeckt, und Windows über CUDA oder DirectML.',
+        'es': 'spaCR admite Python **3.9 through 3.14**, salvo Python 3.14.1, que torchvision excluye. Se recomienda Linux para los flujos de trabajo CUDA y ROCm más exigentes; macOS y Windows también son compatibles, y ambos usan sus GPU — macOS mediante Metal, que cubre Apple Silicon y las tarjetas AMD de los Mac con Intel, y Windows mediante CUDA o DirectML.',
+        'zh_CN': 'spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvision 不包含该版本。最繁重的 CUDA 和 ROCm 工作流程建议使用 Linux；macOS 和 Windows 也受支持，两者都会使用各自的 GPU — macOS 通过 Metal，它涵盖 Apple Silicon 和 Intel Mac 中的 AMD 显卡，Windows 则通过 CUDA 或 DirectML。',
+        'pt': 'O spaCR oferece suporte ao Python **3.9 through 3.14**, exceto ao Python 3.14.1, que é excluído pelo torchvision. Recomenda-se Linux para os fluxos de trabalho mais pesados com CUDA e ROCm; macOS e Windows também são compatíveis, e ambos utilizam suas GPUs — macOS por meio do Metal, que abrange o Apple Silicon e as placas gráficas AMD dos Macs Intel, e Windows por meio de CUDA ou DirectML.',
+        'hi': 'spaCR, Python **3.9 through 3.14** का समर्थन करता है, Python 3.14.1 को छोड़कर, जिसे torchvision बाहर रखता है। सबसे भारी CUDA और ROCm कार्यप्रवाहों के लिए Linux की अनुशंसा की जाती है; macOS और Windows भी समर्थित हैं, और दोनों अपने GPU का उपयोग करते हैं — macOS, Metal के माध्यम से, जो Apple Silicon और Intel Mac में लगे AMD कार्डों को कवर करता है, और Windows, CUDA या DirectML के माध्यम से।',
+        'ko': 'spaCR는 Python **3.9 through 3.14** 버전을 지원하며, torchvision이 제외하는 Python 3.14.1은 예외입니다. 가장 부하가 큰 CUDA 및 ROCm 워크플로에는 Linux를 권장합니다. macOS와 Windows도 지원되며, 두 플랫폼 모두 GPU를 사용합니다 — macOS는 Apple Silicon과 Intel Mac의 AMD 카드를 모두 포괄하는 Metal을 통해, Windows는 CUDA 또는 DirectML을 통해 GPU를 사용합니다.',
+        'is': 'spaCR styður Python **3.9 til 3.14**, nema Python 3.14.1, sem torchvision útilokar. Mælt er með Linux fyrir þyngstu CUDA- og ROCm-verkflæðin; macOS og Windows eru einnig studd og nýta bæði GPU sín — macOS í gegnum Metal, sem nær yfir Apple Silicon og AMD-kortin í Intel-Mac-tölvum, og Windows í gegnum CUDA eða DirectML.',
+        'fr': "spaCR prend en charge Python **3.9 à 3.14**, à l'exception de Python 3.14.1, que torchvision exclut. Linux est recommandé pour les flux de travail CUDA et ROCm les plus lourds; macOS et Windows sont également pris en charge, et tous deux utilisent leurs GPUs — macOS via Metal, qui couvre Apple Silicon et les cartes AMD des Mac Intel, et Windows via CUDA ou DirectML.",
+    },
+})
+
+_SUPERSEDED_README_BLOCKS_2026_09_04 = (
+    'Images, masks, crops, measurements, annotations, predictions, barcodes and well identifiers live in one SQLite project, so a number in a result can be traced back to the object it came from.',
+    'Run spaCR as a desktop application or headlessly on a workstation, server or cluster. Both drive the same modules, and CUDA is used automatically where a module supports it.',
+    'spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which torchvision excludes. Linux is recommended for CUDA workflows; macOS and Windows are also supported.',
+)
+
+REVIEWED_README_BLOCKS_ARCHIVE.update({
+    source: REVIEWED_README_BLOCKS.pop(source)
+    for source in _SUPERSEDED_README_BLOCKS_2026_09_04
+    if source in REVIEWED_README_BLOCKS
+})
