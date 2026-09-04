@@ -12,7 +12,13 @@ from functools import partial
 
 
 class _DeferredModule:
-    """Small module proxy for dependencies used by one distant code path."""
+    """Small module proxy for dependencies used by one distant code path.
+
+    :param name: dotted module name, imported on FIRST ATTRIBUTE ACCESS and
+        cached from then on. Nothing checks it here, so a name with a typo
+        in it costs nothing until the distant path is finally taken -- which
+        is the trade this proxy exists to make.
+    """
 
     def __init__(self, name):
         self.__dict__['_name'] = name
@@ -262,6 +268,11 @@ class _LazyModule:
 
     :param name: dotted module name to import on first attribute access.
     :param block_roots: import roots refused for the duration of that import.
+    :param minimum_distribution: ``(distribution, version, reason)``, or
+        ``None`` for no check. Guards against an INSTALLED BUT TOO OLD
+        package, not a missing one -- a distribution that cannot be found at
+        all is left to the import below, so the caller gets Python's normal
+        error rather than a version complaint about something absent.
     """
 
     def __init__(self, name, block_roots=(), minimum_distribution=None):

@@ -804,11 +804,19 @@ class _PreviewWorker(QThread):
     flows_ready = Signal(object, int)
 
     def __init__(self, request: PreviewRequest, parent=None, token: int = 0):
-        """:param token: the panel's run token at the moment this worker was
-        started. It rides back out on both result signals so the panel can
-        recognise — and drop — a result produced for an image it has since
-        replaced. Cellpose has no interrupt, so this is what "cancel" means
-        here: the thread runs itself out and its answer lands as a no-op."""
+        """Prepare the worker.
+
+        :param request: the pass to run, READ ON THE WORKER THREAD rather
+            than here -- so it must not be mutated after the worker is
+            started; build a new request instead.
+        :param parent: parent object; ownership only.
+        :param token: the panel's run token at the moment this worker was
+            started. It rides back out on both result signals so the panel
+            can recognise -- and drop -- a result produced for an image it
+            has since replaced. Cellpose has no interrupt, so this is what
+            "cancel" means here: the thread runs itself out and its answer
+            lands as a no-op.
+        """
         super().__init__(parent)
         self._request = request
         self.token = int(token)

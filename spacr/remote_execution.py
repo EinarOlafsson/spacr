@@ -752,6 +752,14 @@ def _normalise_state(text: str) -> tuple[str, Optional[int]]:
 
 
 class _Backend:
+    """Base for the SSH, Slurm and command backends.
+
+    :param runner: how commands are executed. THE ONLY INJECTION POINT the
+        backends have -- every subclass reaches the outside world through
+        it and nowhere else, which is what lets a test drive a real backend
+        against a recorded transcript instead of a host.
+    """
+
     def __init__(self, runner: CommandRunner):
         self.runner = runner
 
