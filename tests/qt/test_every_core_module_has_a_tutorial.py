@@ -45,11 +45,7 @@ SCRIPTS = (pathlib.Path(__file__).resolve().parents[2]
 #: asks that a folded action be NAMED AND LOCATED, and separately that every
 #: Core module have a tutorial. Training Runs is both, so it stays here until
 #: it has one of its own.
-UNCOVERED_CORE_MODULES = {
-    "train_compare",
-    "profiler",
-    "investigate_hit",
-}
+UNCOVERED_CORE_MODULES: set = set()
 
 
 def _core_modules() -> dict:
