@@ -294,18 +294,12 @@ class ObjectSettingsModel(QAbstractTableModel):
             return setting_label(self._questions[section])
         if role == Qt.ToolTipRole:
             if orientation == Qt.Vertical:
-                # THE STORED KEY FIRST, because the whole table is one
-                # settings file rearranged and a user has to be able to find
-                # the key again -- then what the setting actually does, taken
-                # from the same descriptions the flat form shows so the two
-                # cannot drift apart.
-                question = self._questions[section]
-                head = f"<object>_{question}"
-                for obj in self._objects:
-                    help_text = _question_help(question, obj)
-                    if help_text:
-                        return f"{head}\n\n{help_text}"
-                return head
+                # NO TOOLTIP ON THE ROW HEADER. Every cell in the row now
+                # carries the full help -- the typed body, the API link and
+                # the setting's animation -- and a second, plainer tooltip on
+                # the name beside them is the same explanation twice, in the
+                # place the pointer crosses on its way to the cell.
+                return None
             obj = self._objects[section]
             return (f"{column_label(obj)}. Every row below asks this object "
                     f"the question on the left; a blank cell is a question "
