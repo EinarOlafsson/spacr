@@ -563,21 +563,35 @@ class TestDockModes:
     rather than build a second one.
     """
 
-    def test_the_default_is_locked_open(self, tmp_settings):
+    def test_the_default_is_hidden(self, tmp_settings):
+        """A first run does not spend 220 px on navigation nobody asked for.
+
+        Every app in the dock is already reachable from the spaCR menu,
+        Ctrl+1..9 and Ctrl+K, and the "All apps" action says where to turn
+        the column on.
+        """
         from spacr.qt import preferences as prefs
-        assert prefs.DEFAULT_DOCK_MODE == "locked"
-        assert prefs.get_dock_mode() == "locked"
+        assert prefs.DEFAULT_DOCK_MODE == "hidden"
+        assert prefs.get_dock_mode() == "hidden"
 
     def test_an_unknown_mode_falls_back_rather_than_raising(self,
                                                             tmp_settings):
         from spacr.qt import preferences as prefs
         prefs._settings().setValue(prefs._KEY_DOCK_MODE, "sideways")
-        assert prefs.get_dock_mode() == "locked"
+        assert prefs.get_dock_mode() == prefs.DEFAULT_DOCK_MODE
         with pytest.raises(ValueError):
             prefs.set_dock_mode("sideways")
 
-    def test_an_unreadable_preference_also_falls_back_to_locked(
+    def test_an_unreadable_preference_falls_back_to_a_VISIBLE_dock(
             self, monkeypatch):
+        """Not to the default, and the difference is deliberate.
+
+        The default is hidden because a first run has not asked for a column.
+        An unreadable settings file is a different situation: the user's wish
+        cannot be read, and they cannot change the preference either -- so the
+        safe answer is the dock they can see rather than one they would have
+        to find Preferences to restore.
+        """
         from spacr.qt import preferences as prefs
 
         def unreadable():

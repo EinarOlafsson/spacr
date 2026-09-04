@@ -3487,14 +3487,22 @@ def scaled_px(base_px: int) -> int:
 #:               the spaCR menu, Ctrl+1..9 and the command palette — a
 #:               dock you cannot summon must not be a dead end.
 VALID_DOCK_MODES = ("locked", "hidden")
-DEFAULT_DOCK_MODE = "locked"
+
+#: HIDDEN UNTIL ASKED FOR. The dock is a permanent 220 px column, and every
+#: app in it is already reachable from the spaCR menu, Ctrl+1..9 and Ctrl+K --
+#: so a first run spends that width on navigation nobody has asked for yet.
+#: The "All apps" action carries a tooltip saying where to turn it on.
+DEFAULT_DOCK_MODE = "hidden"
 
 #: Withdrawn: the dock used to slide in over the page when the pointer rested
 #: against the left edge. It overlaid the home screen -- the module tiles sat
 #: underneath it and did not move aside -- and it drew a second container
 #: behind the dock's own panel. A stored ``auto`` reads as ``locked`` rather
-#: than being refused, so an existing settings file keeps working and simply
-#: gets the column it was already half-asking for.
+#: than being refused, so an existing settings file keeps working and gets the
+#: column it was already half-asking for.
+#:
+#: NOT the new default. ``auto`` was somebody CHOOSING to have a dock, and the
+#: default changing underneath them is not a reason to take theirs away.
 RETIRED_DOCK_MODES = {"auto": "locked"}
 
 
