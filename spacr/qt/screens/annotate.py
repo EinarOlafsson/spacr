@@ -462,6 +462,17 @@ class _PageLoadWorker(QThread):
     done = Signal(int, object)   # (gen, list[(PIL.Image, annotation)])
 
     def __init__(self, gen: int, paths: list, load_fn, parent=None):
+        """Load one page of crops off the GUI thread.
+
+        :param gen: the page generation this worker belongs to. Carried back
+            with the result so a page the user has already left can be
+            discarded rather than drawn over the one they are looking at.
+        :param paths: the crops to load, in grid order.
+        :param load_fn: the callable that loads one crop. Whether it accepts
+            ``should_stop`` is asked ONCE here rather than per crop, so the
+            answer stays out of the loop.
+        :param parent: parent object.
+        """
         super().__init__(parent)
         self._gen = gen
         self._paths = paths
@@ -550,6 +561,17 @@ class _RetrainWorker(QThread):
 
     def __init__(self, db_path: str, annotation_column: str,
                  options: Dict[str, object], parent=None):
+        """Carry one retraining round's inputs onto a worker thread.
+
+        :param db_path: the annotation database to retrain from.
+        :param annotation_column: which column holds the labels.
+        :param options: keyword arguments passed through to
+            ``active_learning.retrain_round``. COPIED, not referenced: the
+            caller's dict belongs to a widget that may be edited while this
+            runs, and a worker reading it mid-round would train on settings
+            nobody chose.
+        :param parent: parent object.
+        """
         super().__init__(parent)
         self._db_path = db_path
         self._column = annotation_column
@@ -683,6 +705,19 @@ class _Thumbnail(QLabel):
     def __init__(self, slot: int, parent: Optional[QWidget] = None,
                  border_color: Optional[str] = None,
                  ring_color: Optional[str] = None):
+        """Build one grid cell.
+
+        :param slot: this cell's fixed position in the grid, which is how
+            the screen addresses it when a page of crops arrives.
+        :param parent: parent widget.
+        :param border_color: the resting border, or ``None`` to look it up.
+        :param ring_color: the ring drawn on the current cell, or ``None``
+            to look it up.
+
+        BOTH COLOURS ARE PASSED DOWN, not looked up per cell: the screen
+        resolves them once per grid rebuild so the hover path never touches
+        a palette.
+        """
         super().__init__(parent)
         self.slot = slot
         # Colours are resolved by the screen once per grid rebuild and

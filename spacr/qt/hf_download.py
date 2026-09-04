@@ -272,6 +272,19 @@ class _HFDownloadUI(QObject):
     def __init__(self, dlg: QProgressDialog, thread: QThread,
                  worker: "_HFDownloadWorker", parent,
                  on_done: Callable[[Optional[DownloadResult], str], None]):
+        """Hold the four objects one download needs kept alive together.
+
+        :param dlg: the progress dialog this updates and closes.
+        :param thread: the worker's thread. HELD, NOT JUST USED: a QThread
+            that goes out of scope while running takes the download with it.
+        :param worker: the object doing the fetching, held for the same
+            reason.
+        :param parent: the owning widget, also kept as ``_owner`` so the
+            callback can reach the screen that asked for the download.
+        :param on_done: called with the result and a message when the
+            download finishes, whether it succeeded or not -- the result is
+            ``None`` on failure and the message says why.
+        """
         super().__init__(parent)
         self._dlg = dlg
         self._thread = thread

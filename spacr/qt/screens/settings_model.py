@@ -7801,6 +7801,24 @@ class _ListEditor(QWidget):
     def __init__(self, key: str = "", default: Any = None,
                  nested_capable: bool = False, allow_none: bool = False,
                  element_type: Any = None, container: Any = list, parent=None):
+        """Build the editor for one list-valued setting.
+
+        :param key: the setting this edits, used for its tooltip and API
+            link.
+        :param default: the value to start from.
+        :param nested_capable: whether the setting accepts a list OF lists.
+            Only these offer the nesting control; a flat setting given one
+            would produce a value its consumer cannot read.
+        :param allow_none: whether "unset" is a legal answer, distinct from
+            an empty list -- the same third state a spin box cannot express.
+        :param element_type: what each entry is coerced to, or ``None`` to
+            keep the typed text.
+        :param container: ``list`` or ``tuple``, deciding what
+            :meth:`value` returns. ANYTHING ELSE BECOMES ``list`` rather
+            than raising, because a settings file naming an odd container is
+            still a settings file somebody has.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         # font_px is used further down this method. Importing only
         # active_palette here raised NameError out of build_sections(), and
