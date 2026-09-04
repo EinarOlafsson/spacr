@@ -305,7 +305,7 @@ def build_registered_screen(key: str,
     the two must land on the same screen. Asking the window to build it
     is what guarantees that: `_build_screen` is the one place that knows
     which keys have a dedicated screen class, which are catalogue-driven
-    `AppScreen`s, and which come from a plugin.
+    :class:`AppScreen` screens, and which come from a plugin.
 
     The alternative was a table here mapping ten keys to ten classes,
     which is the same knowledge written a second time and free to drift

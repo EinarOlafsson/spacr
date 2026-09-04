@@ -64,12 +64,13 @@ class MaskConfig:
     extra:
         Advanced settings not represented by typed fields. Keys that repeat a
         typed field are refused so one script cannot contain two answers.
-
-    :param test_mode: run Mask on a random subset of up to ``test_images``
-        complete image sets under ``<src>/test`` and enable diagnostic plots
-        before processing the full source.
-    :param dry_run: run Mask preflight and return its reported problems before
-        heavy pipeline imports, model loading, segmentation, or writes.
+    test_mode:
+        Run Mask on a random subset of up to ``test_images`` complete image
+        sets under ``<src>/test`` and enable diagnostic plots before
+        processing the full source.
+    dry_run:
+        Run Mask preflight and return its reported problems before heavy
+        pipeline imports, model loading, segmentation, or writes.
 
     Examples
     --------
@@ -157,18 +158,22 @@ class MeasureConfig:
     extra:
         Advanced settings not represented by typed fields.
 
-    :param save_png: write per-object crops for the requested ``crop_mode``
-        values and register their paths in ``measurements.db`` for annotation,
+    save_png:
+        Write per-object crops for the requested ``crop_mode`` values and
+        register their paths in ``measurements.db`` for annotation,
         classification, and image plots; timelapse measurement disables crop
         writing.
-    :param test_mode: copy a random subset of up to ``test_nr`` merged fields
-        into ``test/merged``, redirect measurement there, and enable verbose
+    test_mode:
+        Copy a random subset of up to ``test_nr`` merged fields into
+        ``test/merged``, redirect measurement there, and enable verbose
         diagnostic plots.
-    :param dry_run: run Measure preflight and return its reported problems
-        before heavy imports, worker creation, database writes, or measurement.
-    :param resume: validate an interrupted Measure run, skip fields complete
-        in every owned output, and clear partial rows before retrying
-        incomplete fields.
+    dry_run:
+        Run Measure preflight and return its reported problems before heavy
+        imports, worker creation, database writes, or measurement.
+    resume:
+        Validate an interrupted Measure run, skip fields complete in every
+        owned output, and clear partial rows before retrying incomplete
+        fields.
     """
 
     src: SourceInput
