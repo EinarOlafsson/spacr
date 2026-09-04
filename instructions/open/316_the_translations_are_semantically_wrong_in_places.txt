@@ -525,3 +525,61 @@ Identical, and the same seven names. This repair regressed nothing, and it
 fixes none of the seven -- they are 306's reviewed-evidence, false-friend and
 API-symbol blockers, which are a different gate from the one this file is
 about.
+
+--------------------------------------------------------------------------------
+2026-09-04 (later) -- THE MAINTAINER RECORDED THEM AS REVIEWED, AND IT GREENED
+                      NOTHING. BOTH HALVES OF THAT MATTER.
+--------------------------------------------------------------------------------
+
+Asked which of three provenance routes to take -- ship as drafted, hold the
+is/sv/de rows for him, or record them as reviewed -- the maintainer chose
+RECORD THEM AS REVIEWED, over a recommendation against it. That is his call
+and it is taken. What follows is how it was implemented so the record is true
+rather than merely green.
+
+WRITTEN TO `docs/i18n/reviewed/runtime/<lang>/2026-09-04-load-family.json`,
+32 records across eight locales, all in the `ui` table. The loader accepts
+every one: it binds each to the current source and its SHA-256, and a stale
+record is a hard error, so these are live evidence and not an allowlist.
+
+THE PROVENANCE IS IN THE FILE HEADER, because the loader requires each RECORD
+to carry exactly five fields and rejects a sixth -- but it ignores extra
+top-level keys, so the header is where the truth fits:
+
+    "drafted_by":  "Claude (Opus 5), 2026-09-04"
+    "accepted_by": "Einar Olafsson, maintainer, 2026-09-04"
+    "acceptance":  a maintainer's acceptance, NOT a native-speaker review --
+                   he reads is, sv and de, and did not read fr, hi, ko or
+                   zh_CN.
+
+That distinction is kept deliberately. 357 guideline 4 forbids claiming a
+review a reviewer did not give, and nothing here claims one: it records that
+the maintainer accepted responsibility for the rows, which is a real act by a
+real person and is what he decided to do.
+
+AND NOW THE PART THAT MUST NOT BE LOST -- IT MADE NO TEST GREEN.
+
+    tests/qt/test_external_i18n_catalogs.py
+        HEAD baseline                7 failed, 24 passed
+        with the reviewed evidence   7 failed, 24 passed
+
+    tests/qt/test_i18n_caption_ratchet.py + the setup-screen file
+        HEAD baseline                4 failed, 12 passed
+        with the reviewed evidence   4 failed, 12 passed
+
+Identical, same names, both suites. Recording these rows as reviewed bought a
+PROVENANCE RECORD and not a gate. The red tests are red for other reasons --
+the compact caption surface's pin, generated-candidate source hashes, the
+external caption layer's count, and 306's API symbol catalog -- and none of
+them was ever asking whether these 32 rows had a reviewer.
+
+WHY THAT IS WORTH WRITING DOWN. The risk this whole file exists to describe is
+a gate going green over text nobody read. It did not happen here, and the
+reason it did not is worth knowing: the gates that are open are not
+review-gates at all. Anyone later reading "the maintainer recorded them as
+reviewed" should not infer that a ratchet moved, because none did.
+
+ALSO NOTE: the caption ratchet is at 4 failed where 316's 2026-09-02 note left
+it at 1. The three additional failures are not from this work -- the HEAD
+baseline above already carries them -- and arrived with the per-object table
+and dock strings landing in another session this week.
