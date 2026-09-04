@@ -364,6 +364,16 @@ looked.
       evidence even when its content is not -- `~<DB>` is a tilde that was
       never expanded.
 
+* **ASK WITH THE QUESTION PROMPT, NEVER IN THE CHAT.** Set 2026-09-04: "if you
+  have a question ask me with the question prompt dont ask in the chat." A
+  question buried in a paragraph of report is a question that gets skimmed
+  past, and this repository's whole intake item (357) exists because answers
+  that live only in a chat log are answers nobody can act on next week. Use the
+  structured question tool, put the recommended option first, and say what each
+  choice costs. This applies to every decision that is genuinely the
+  maintainer's -- a release, a retirement, wording he must approve -- and not
+  to reporting a measurement he did not ask a question about.
+
 * A feature goes into `instructions/open/NN_slug.txt` **before** it is coded,
   quoting the request in a `Requested:` line. Merge overlapping asks into the
   first task; do not file duplicates.
