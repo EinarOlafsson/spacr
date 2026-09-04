@@ -855,3 +855,39 @@ def tmp_settings(tmp_path, monkeypatch):
 
     monkeypatch.setattr(prefs, "_settings", _fake)
     yield path
+
+
+def test_the_dock_column_carries_the_pages_backdrop(qtbot, qt_theme_applied,
+                                                    tmp_path, monkeypatch):
+    """A flat strip beside an animated page reads as a box.
+
+    The backdrop is installed PER SCREEN, inside the stack, and the dock slot
+    is a sibling of the stack -- so the animation never reached behind the
+    dock. That, and not the dock's own paint, is what four attempts at
+    colouring the rectangle were chasing. The column gets its own.
+    """
+    from spacr.qt import preferences as prefs
+
+    if not prefs.get_ambient_enabled():
+        pytest.skip("the backdrop is switched off in this configuration")
+    prefs.set_dock_mode("locked")
+    win = MainWindow()
+    qtbot.addWidget(win)
+    assert win._dock_backdrop is not None, (
+        "the dock column has no backdrop, so it will be flat beside the page")
+    # It belongs to the slot, so it moves and resizes with the column.
+    assert win._dock_backdrop.parent() is win._dock_slot
+
+
+def test_the_dock_backdrop_is_installed_once(qtbot, qt_theme_applied):
+    """Asking twice must not build a second animation for the same strip."""
+    from spacr.qt import preferences as prefs
+
+    if not prefs.get_ambient_enabled():
+        pytest.skip("the backdrop is switched off in this configuration")
+    prefs.set_dock_mode("locked")
+    win = MainWindow()
+    qtbot.addWidget(win)
+    first = win._dock_backdrop
+    win._backdrop_the_dock_column()
+    assert win._dock_backdrop is first

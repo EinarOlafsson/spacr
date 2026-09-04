@@ -2176,6 +2176,9 @@ class MainWindow(QMainWindow):
         # showing the window through it.
         self._dock_slot.setStyleSheet(
             "QWidget#DockSlot { background: transparent; border: none; }")
+        #: The dock column's own backdrop, or ``None``. See
+        #: :meth:`_backdrop_the_dock_column`.
+        self._dock_backdrop = None
         slot_col = QVBoxLayout(self._dock_slot)
         # THE GAP AROUND THE DOCK LIVES HERE. The dock widget is itself the
         # rounded box, and a widget's own margins are inside its background,
@@ -2201,6 +2204,7 @@ class MainWindow(QMainWindow):
         self._app_drawer = EdgeDrawer(self._stack, self._sidebar,
                                       width=self._sidebar.width())
         self.apply_dock_mode()
+        self._backdrop_the_dock_column()
 
         # Register screens lazily — created on first navigation.
         self._screens: dict[str, QWidget] = {}
@@ -4723,6 +4727,53 @@ class MainWindow(QMainWindow):
                 self._retry_screen_backdrop(screen, key)
                 return
             LOG.exception("Could not install the backdrop for %s", key)
+
+    def _backdrop_the_dock_column(self) -> None:
+        """Put the same live backdrop behind the dock that the page has.
+
+        THIS IS WHAT THE "BLACK BOX" ACTUALLY WAS, after four attempts at it
+        that were all about the dock's own paint. The backdrop is installed
+        PER SCREEN, inside the stack; the dock slot is a SIBLING of the
+        stack, so the animation never reached behind it. The dock strip was
+        the window's flat background while the page beside it was animated --
+        and a flat rectangle beside a moving one reads as a box, whatever
+        colour the rectangle is. That is why colouring it never worked.
+
+        Proved rather than guessed: hiding the dock made those same pixels
+        show the animation, because the stack expanded over them.
+
+        So the column gets its own, from the same preferences, and the two
+        are the same material. It is 220 px against a full page, which is
+        what makes a second one affordable.
+
+        Never raises: the dock opens with or without its decoration.
+        """
+        try:
+            from PySide6.QtCore import QTimer
+
+            from .preferences import (get_ambient_enabled, get_ambient_palette,
+                                      get_ambient_theme,
+                                      resolve_effective_theme,
+                                      theme_background_path)
+            slot = getattr(self, "_dock_slot", None)
+            if slot is None or not get_ambient_enabled():
+                return
+            if getattr(self, "_dock_backdrop", None) is not None:
+                return
+            from .widgets.ambient import (_the_heavy_import_lock_is_free,
+                                          install_ambient)
+            if not _the_heavy_import_lock_is_free():
+                # The preloader is importing torch. Same answer the screens
+                # give: come back rather than build a GL context beside it.
+                QTimer.singleShot(400, self._backdrop_the_dock_column)
+                return
+            self._dock_backdrop = install_ambient(
+                slot, None,
+                theme=get_ambient_theme(), palette=get_ambient_palette(),
+                backdrop=theme_background_path(resolve_effective_theme()))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not put a backdrop behind the dock",
+                      exc_info=True)
 
     def _retry_screen_backdrop(self, screen: QWidget, key: str) -> None:
         """Come back for :meth:`_install_screen_backdrop` shortly.
