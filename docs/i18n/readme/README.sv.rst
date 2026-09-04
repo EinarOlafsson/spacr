@@ -59,9 +59,9 @@ spaCR segmenterar och mäter enskilda celler i mikroskopibilder med högt inneh�
 
 Segmenterings-, mät-, annoterings- och klassificeringsmodulerna körs även utan en sekvensarm.
 
-Bilder, masker, bildutsnitt, mätningar, kommentarer, förutsägelser, streckkoder och brunnsidentifierare lever i ett SQLite projekt.
+Bilder, masker, bildutsnitt, mätningar, annoteringar, förutsägelser, streckkoder och brunnsidentifierare ligger i ett och samma SQLite-projekt.
 
-Körs som ett skrivbordsprogram eller huvudlöst på en arbetsstation, server eller kluster.
+Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster.
 
 Hårdvarustöd
 ~~~~~~~~~~~~~~~~
@@ -163,7 +163,7 @@ För PyPI-utgåvan installerar du spaCR med pip i en Conda-miljö. Python 3.12 g
    python -m pip install "spacr[qt]"
    spacr
 
-spaCR stöder Python **3.9 till 3.14**, utom Python 3.14.1, som torchvision utesluter. Linux rekommenderas för de tyngsta CUDA och ROCm arbetsflöden; macOS och Windows stöds också, och båda använder sina GPUs – macOS via metall, som täcker Apple Silicon och AMD-korten i Intel Macs, och Windows genom CUDA eller DirectML.
+spaCR stöder Python **3.9 through 3.14**, utom Python 3.14.1, som torchvision utesluter. Linux rekommenderas för de tyngsta CUDA- och ROCm-arbetsflödena; macOS och Windows stöds också, och båda använder sina GPU:er — macOS via Metal, som täcker Apple Silicon och AMD-korten i Intel-Mac-datorer, och Windows via CUDA eller DirectML.
 
 Utelämna Qt på en server, ett beräkningskluster eller en CI-körare:
 
@@ -423,7 +423,9 @@ Se `funktionsguide <../../source/features.rst>`_ för varje verktyg.
 Språk och översättning
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Gränssnittet stöder tio språk i navigering och inställningar. AI- och LIVE-kontroller, modulbeskrivningar och granskad kontexthjälp översätts också. Byt språk under **spaCR → Inställningar → Språk** utan att starta om. Loggar, sökvägar, databasvärden och mätningar översätts aldrig; vetenskapliga utdata förblir på kanonisk engelska. Se `policyn för kontexthjälp <../../source/localization.rst#contextual-help>`_.
+Gränssnittet stöder tio språk i navigering och inställningar. AI- och LIVE-kontroller, modulbeskrivningar och granskad kontexthjälp översätts också. Byt språk under **spaCR → Inställningar → Språk** utan att starta om. Loggar, sökvägar, databasvärden och mätningar översätts aldrig; vetenskapliga utdata förblir på kanonisk engelska. Se `policyn för kontexthjälp <docs/source/localization.rst#contextual-help>`_.
+
+De nio icke-engelska katalogerna är maskinskrivna och tekniskt granskade i stället för att läsa ända till slutet av en infödd talare av varje språk. De `Översynens tillämpningsområde <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ poster vilka språk har haft ett mänskligt pass, hur mycket av de corpus som täcker, och varje term kvar på engelska genom beslut.
 
 Animerad hjälp för inställningar
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -620,4 +622,4 @@ Olafsson EB, *et al.* En poolad bildbaserad CRISPR screening identifierar EAF1 s
 Tack
 ~~~~~~~~~~~~~~~
 
-spaCR bygger på öppen vetenskaplig programvara, bland annat NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch och Qt. Se `information om översättningsmodellerna <../TRANSLATION_MODELS.md>`_ för modellerna som användes till den flerspråkiga dokumentationen och gränssnittskatalogerna.
+spaCR bygger på öppen vetenskaplig programvara, bland annat NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch och Qt. Se `information om översättningsmodellerna <docs/i18n/TRANSLATION_MODELS.md>`_ för modellerna som användes till den flerspråkiga dokumentationen och gränssnittskatalogerna.
