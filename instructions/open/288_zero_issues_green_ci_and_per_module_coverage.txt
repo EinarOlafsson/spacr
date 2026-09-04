@@ -781,3 +781,35 @@ Also fixed toward this item today, and recorded in their own commits: the 21
 F821 undefined names that failed the repo-wide fatal lint gate (`ruff check
 spacr tests --select E9,F63,F7,F82` now passes), and the two i18n tests that
 were asserting opposite things about the README language picker.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- A DIALOG CLIPPING TEST THAT FAILS ONLY IN COMPANY
+--------------------------------------------------------------------------------
+
+Found by a 707-test i18n sweep run for an unrelated reason, and recorded here
+because suite-level order dependence is this item's territory rather than 350's.
+
+    tests/qt/test_the_text_fits_sweep_dialogs.py
+        ::test_no_dialog_caption_is_cut_off[BarcodeRegexDialog-de-2.0]
+
+    alone                                    PASSES
+    with its own file (61 tests)             PASSES
+    inside `-k "i18n or translat or caption or language"` (707 tests)   FAILS
+
+MEASURED BOTH WAYS rather than inferred, and it is the same shape as
+instructions 345 and 346 -- a test that is green by itself and red in company,
+which means the suite is carrying state between tests. 350's clipping method is
+not in question here: it passes when it is allowed to measure a settled layout.
+
+WHY IT MATTERS TO 288 SPECIFICALLY. This item's own blocker is that `tests/qt`
+has no clean full-suite signal, and its section on the crash records widgets
+outliving their tests. A caption that measures as clipped only when 700 other
+tests have run first is consistent with that: font scale, style or a leaked
+top-level widget surviving into this test's measurement. It is a THIRD symptom
+of the same suspected cause, after the crash and the deceleration.
+
+NOT CHASED HERE, deliberately -- this was found while closing 306/316 work and
+chasing it now would abandon the release gates for it. What the next attempt
+should do is bisect the 707 selection rather than read the test: run it with
+`-p no:randomly` against halves of the selection until the smallest set that
+reproduces it is named, then look at what that set leaves behind.
