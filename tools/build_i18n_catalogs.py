@@ -4299,8 +4299,30 @@ def _syntax_preserved(
             str(text),
         )
 
-    emphasis_source = without_inline_code(source)
-    emphasis_value = without_inline_code(value)
+    def unwrap_paragraph_lines(text: str) -> str:
+        """Join lines inside a paragraph, keeping paragraph breaks.
+
+        EMPHASIS WRAPS, AND COUNTING IT PER LINE MIS-MEASURES IT. The
+        patterns below exclude newlines, so ``*present in every table this``
+        + newline + ``run writes*`` does not count as emphasis while the
+        same span on one line does. Nothing about the markup differs -- only
+        where the text happened to wrap.
+
+        That made this function reject rewrites that merely reflowed a
+        paragraph: expanding "run" to "processing session" pulled a span onto
+        a single line, the count went 1 -> 2, and the API sense pass raised
+        "changed a protected literal" for a document whose literals were all
+        intact. It is also a hazard for real translations, which reflow
+        constantly.
+
+        A blank line is left alone, because a paragraph break genuinely does
+        end inline markup in reStructuredText -- collapsing it would let two
+        unrelated asterisks in different paragraphs pair up.
+        """
+        return re.sub(r"[^\S\n]*\n(?!\s*\n)[^\S\n]*", " ", str(text))
+
+    emphasis_source = unwrap_paragraph_lines(without_inline_code(source))
+    emphasis_value = unwrap_paragraph_lines(without_inline_code(value))
     source_strong = re.findall(
         r"\*\*(?!\s)([^*\n]*?\S)\*\*", emphasis_source
     )
