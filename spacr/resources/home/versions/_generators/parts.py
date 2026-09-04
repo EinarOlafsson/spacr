@@ -306,6 +306,7 @@ class Page(QWidget):
     :param chrome: draw the app's menu strip + status bar, so the space
         a variant actually gets on a 1440x900 laptop is what is rendered.
     :param margins: content margins of the body area.
+    :param spacing: gap between the body column's children, in px.
     """
 
     def __init__(self, ctx: Ctx, *, chrome: bool = True,

@@ -473,7 +473,14 @@ def _canvas_class():
     class OwnedTimerFigureCanvas(FigureCanvasQTAgg):
 
         def __init__(self, figure, *, panel: bool = True):
-            """:param panel: draw the page surface under the figure.
+            """Wrap a figure in a canvas that owns its own redraw timer.
+
+            :param figure: the Matplotlib ``Figure`` to draw. Held by the
+                canvas, which is what "owned" means here -- the timer is a
+                child of the canvas, so the figure and the redraw it
+                schedules are destroyed together and a queued redraw cannot
+                outlive the widget it would paint.
+            :param panel: draw the page surface under the figure.
 
             ``False`` for a canvas that is already sitting ON a panel — the
             scree plot inside the PCA shelf, say. Two surfaces stacked read

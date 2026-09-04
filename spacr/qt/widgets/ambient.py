@@ -4462,6 +4462,11 @@ class AmbientWidget(QWidget):
         :data:`DRIFT_DIRECTIONS`; ``None`` reads Preferences. Meaningless to
         the other themes, and kept anyway so switching away and back does
         not lose it.
+    :param corner_radius: round the backdrop's own corners by this many px;
+        ``0`` leaves it square. CLIPPED, not masked -- a mask region gives
+        stair-stepped corners against the card's anti-aliased rim -- and
+        applied before the base fill so the flat page colour is rounded with
+        the animation rather than showing at the corners behind it.
     """
 
     def __init__(self, parent: Optional[QWidget] = None, *,
