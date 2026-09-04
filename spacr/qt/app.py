@@ -4694,6 +4694,11 @@ class MainWindow(QMainWindow):
             )
             if not get_ambient_enabled():
                 return
+            # ONE BACKDROP FOR THE WINDOW. When the central area carries it,
+            # a per-screen one is a second animation over the first: they run
+            # out of step and the seam between the dock and the page shows.
+            if self.window_backdrop() is not None:
+                return
             # NOT WHILE A HEAVY IMPORT IS RUNNING, and this runs on the GUI
             # thread as a module is being opened -- which is precisely when
             # the preloader is holding the lock. `AppScreen` has taken this
@@ -4728,25 +4733,35 @@ class MainWindow(QMainWindow):
                 return
             LOG.exception("Could not install the backdrop for %s", key)
 
+    def window_backdrop(self):
+        """The one backdrop behind the dock AND the page, or ``None``.
+
+        Read by the screens so they do not build a second one on top of it --
+        see :meth:`_install_screen_backdrop`.
+        """
+        return getattr(self, "_dock_backdrop", None)
+
     def _backdrop_the_dock_column(self) -> None:
-        """Put the same live backdrop behind the dock that the page has.
+        """Put ONE live backdrop behind everything in the central area.
 
-        THIS IS WHAT THE "BLACK BOX" ACTUALLY WAS, after four attempts at it
-        that were all about the dock's own paint. The backdrop is installed
-        PER SCREEN, inside the stack; the dock slot is a SIBLING of the
-        stack, so the animation never reached behind it. The dock strip was
-        the window's flat background while the page beside it was animated --
-        and a flat rectangle beside a moving one reads as a box, whatever
-        colour the rectangle is. That is why colouring it never worked.
+        THE BACKDROP USED TO BE PER SCREEN, inside the stack, and the dock
+        slot is a SIBLING of the stack -- so the animation never reached
+        behind the dock. The strip was the window's flat background while the
+        page beside it was animated, and a flat rectangle beside a moving one
+        reads as a box whatever colour it is. That is why colouring it never
+        worked. Proved rather than guessed: hiding the dock made those same
+        pixels show the animation, because the stack expanded over them.
 
-        Proved rather than guessed: hiding the dock made those same pixels
-        show the animation, because the stack expanded over them.
+        Giving the dock ITS OWN fixed that and introduced the next fault: two
+        animations, one per container, running out of step across a seam.
+        "i want the theme on one container in the background of everything."
 
-        So the column gets its own, from the same preferences, and the two
-        are the same material. It is 220 px against a full page, which is
-        what makes a second one affordable.
+        So there is ONE, on the central widget, behind the dock slot and the
+        stack both. The screens ask :meth:`window_backdrop` and decline to
+        build their own when it exists -- they still clear their page
+        surfaces, which is what lets this one through.
 
-        Never raises: the dock opens with or without its decoration.
+        Never raises: the window opens with or without its decoration.
         """
         try:
             from PySide6.QtCore import QTimer
@@ -4755,8 +4770,8 @@ class MainWindow(QMainWindow):
                                       get_ambient_theme,
                                       resolve_effective_theme,
                                       theme_background_path)
-            slot = getattr(self, "_dock_slot", None)
-            if slot is None or not get_ambient_enabled():
+            host = self.centralWidget()
+            if host is None or not get_ambient_enabled():
                 return
             if getattr(self, "_dock_backdrop", None) is not None:
                 return
@@ -4768,7 +4783,7 @@ class MainWindow(QMainWindow):
                 QTimer.singleShot(400, self._backdrop_the_dock_column)
                 return
             self._dock_backdrop = install_ambient(
-                slot, None,
+                host, None,
                 theme=get_ambient_theme(), palette=get_ambient_palette(),
                 backdrop=theme_background_path(resolve_effective_theme()))
         except Exception:                                    # noqa: BLE001

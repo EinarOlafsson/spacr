@@ -857,8 +857,9 @@ def tmp_settings(tmp_path, monkeypatch):
     yield path
 
 
-def test_the_dock_column_carries_the_pages_backdrop(qtbot, qt_theme_applied,
-                                                    tmp_path, monkeypatch):
+def test_one_backdrop_sits_behind_the_dock_and_the_page(qtbot,
+                                                        qt_theme_applied,
+                                                        tmp_path, monkeypatch):
     """A flat strip beside an animated page reads as a box.
 
     The backdrop is installed PER SCREEN, inside the stack, and the dock slot
@@ -873,10 +874,11 @@ def test_the_dock_column_carries_the_pages_backdrop(qtbot, qt_theme_applied,
     prefs.set_dock_mode("locked")
     win = MainWindow()
     qtbot.addWidget(win)
-    assert win._dock_backdrop is not None, (
-        "the dock column has no backdrop, so it will be flat beside the page")
-    # It belongs to the slot, so it moves and resizes with the column.
-    assert win._dock_backdrop.parent() is win._dock_slot
+    assert win.window_backdrop() is not None, (
+        "nothing is animating behind the central area")
+    # ONE container, holding the dock AND the page. Two -- one per container
+    # -- run out of step and the seam between them shows.
+    assert win.window_backdrop().parent() is win.centralWidget()
 
 
 def test_the_dock_backdrop_is_installed_once(qtbot, qt_theme_applied):

@@ -1673,6 +1673,22 @@ class AppScreen(QWidget):
                                        get_ambient_theme)
             if not get_ambient_enabled():
                 return
+            # ONE BACKDROP FOR THE WINDOW, and it is not this screen's. When
+            # the central area carries one it is already behind this screen
+            # AND behind the dock beside it; building a second here puts two
+            # animations over each other, out of step, with the seam showing
+            # wherever the two containers meet.
+            #
+            # The page surfaces are still cleared, because that is what lets
+            # the window's backdrop through this screen's opaque containers.
+            # Skipping the install and skipping the clear are different
+            # things, and skipping both is a screen with an animation behind
+            # it that nobody can see.
+            window = self.window()
+            shared = getattr(window, "window_backdrop", None)
+            if callable(shared) and shared() is not None:
+                self._clear_page_surfaces()
+                return
             wanted = (get_ambient_theme(), get_ambient_palette())
             if wanted == self._ambient_applied:
                 return
