@@ -164,10 +164,16 @@ class _OptionalNumbers(QWidget):
             spin.valueChanged.connect(lambda _value: self.changed.emit())
 
     def _auto_toggled(self, _on: bool) -> None:
+        """Enable or grey the spinboxes, then announce the change."""
         self._sync_enabled()
         self.changed.emit()
 
     def _sync_enabled(self) -> None:
+        """Grey the spinboxes while automatic is ticked.
+
+        Greyed rather than hidden: the numbers stay visible so a reader can see
+        what automatic is going to override.
+        """
         for spin in self._spins:
             spin.setEnabled(not self._auto.isChecked())
 
