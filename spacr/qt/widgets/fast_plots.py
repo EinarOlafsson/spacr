@@ -725,10 +725,16 @@ def add_style_file_entries(menu, style, on_change=None, *, parent=None,
     added = []
 
     def _say(message: str) -> None:
+        """Report progress through the caller's note, if one was given."""
         if note is not None:
             note(message)
 
     def _ask(mode: str, suggested: str) -> str:
+        """Ask for a path, through the injected picker or a file dialog.
+
+        INJECTED so the menu can be exercised without a modal dialog, which is
+        otherwise the only way to reach these entries in a test.
+        """
         if ask_path is not None:
             return str(ask_path(mode, suggested) or "")
         if mode == "save":
@@ -742,6 +748,7 @@ def add_style_file_entries(menu, style, on_change=None, *, parent=None,
         return str(path or "")
 
     def _save() -> None:
+        """Write the current style to a chosen file."""
         path = _ask("save", f"{kind}_style.json")
         if not path:
             return
@@ -753,6 +760,7 @@ def add_style_file_entries(menu, style, on_change=None, *, parent=None,
         _say(f"Saved this {kind} style to {written}.")
 
     def _load() -> None:
+        """Read a style from a chosen file and apply it."""
         path = _ask("load", f"{kind}_style.json")
         if not path:
             return
@@ -770,6 +778,7 @@ def add_style_file_entries(menu, style, on_change=None, *, parent=None,
              f"That style is identical to this figure's; nothing changed.")
 
     def _make_default() -> None:
+        """Make the current style the one new figures start from."""
         try:
             from ..preferences import set_figure_style_default
 
@@ -781,6 +790,7 @@ def add_style_file_entries(menu, style, on_change=None, *, parent=None,
              f"'Clear the default' puts it back.")
 
     def _clear_default() -> None:
+        """Forget the saved default, so new figures use the built-in one."""
         try:
             from ..preferences import clear_figure_style_default
 
@@ -858,6 +868,7 @@ def _add_style_entry(menu, style, name: str, on_change, choices, labels=None):
     named = dict((labels or {}).get(name) or {})
 
     def _shown(option):
+        """The label for one option: its friendly name, or "automatic" for None."""
         if option in named:
             return str(named[option])
         return "automatic" if option is None else str(option)
@@ -2026,10 +2037,12 @@ class FastPlot(QWidget):
         set_label = plot_item.setLabel
 
         def _add(item, *args, **kwargs):
+            """Add the item AND record it, so the canvas can clear its own drawings."""
             add_item(item, *args, **kwargs)
             self._register_drawn(item)
 
         def _label(axis, text=None, units=None, unitPrefix=None, **kwargs):
+            """Set an axis label and remember it for the style round-trip."""
             self._base_labels[str(axis)] = "" if text is None else str(text)
             set_label(axis, self._axis_label_text(str(axis)), units,
                       unitPrefix, **kwargs)
