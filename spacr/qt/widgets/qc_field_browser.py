@@ -520,6 +520,7 @@ class QCFieldBrowser(QDialog):
     :param run_active: callable returning whether Measure is in flight.  File
         mutation is disabled while it returns True.
     :param threaded: False is a test seam; production image loads are threaded.
+    :param parent: parent widget; ownership only.
     """
 
     quarantineChanged = Signal(str, bool)

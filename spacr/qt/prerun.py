@@ -466,6 +466,7 @@ class SegQCBanner(_JobMixin, QFrame):
     :param screen: the ``AppScreen`` it belongs to.
     :param reader: what to call to read a digest, for tests. Defaults to
         :func:`spacr.seg_qc.read_digest`.
+    :param parent: parent widget; ownership only.
     """
 
     #: Emitted after every refresh, with the verdict. Tests wait on it; the
@@ -937,6 +938,7 @@ class DiameterPanel(_JobMixin, QFrame):
     :param screen: the ``AppScreen`` it belongs to.
     :param estimator: what to call to estimate, for tests. Defaults to
         :func:`spacr.diameter.estimate_diameters`.
+    :param parent: parent widget; ownership only.
     """
 
     #: Emitted after every estimate, with the object types that produced one.

@@ -99,6 +99,7 @@ class RoiPen(CanvasTool, QObject):
 
     :param layer: the :class:`~spacr.layers.ShapesLayer` to draw into.
     :param kind: ``'polygon'``, ``'rectangle'`` or ``'ellipse'``.
+    :param parent: parent object; ownership only.
     """
 
     #: A shape was completed. Carries its index in the layer.
@@ -255,6 +256,7 @@ class RoiPanel(QWidget):
         time drawing starts.
     :param roi_path: where the ROI is written. A worker reads it from there, so
         it has to be a real file; defaults to ``./roi/measure_roi.json``.
+    :param parent: parent widget; ownership only.
     """
 
     #: The ROI was switched on or off for Measure. Carries the new state.

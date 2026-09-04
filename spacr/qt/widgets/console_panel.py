@@ -248,6 +248,8 @@ class _CopyGlyphButton(QAbstractButton):
     An icon file would need a light and a dark variant and would have to be
     kept in step with the theme; two rounded rectangles in the current
     foreground colour follow it for free, at any DPI.
+
+    :param parent: parent widget; ownership only.
     """
 
     #: Side of the front square, in px. The back one is drawn behind it,

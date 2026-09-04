@@ -412,6 +412,8 @@ class _MaskCanvas(QLabel):
     to accept or refuse. What comes back is a mark in :attr:`recrop_boxes`
     saying that region has been cut out, which is the only thing on screen
     that distinguishes a box that was written from one that was not.
+
+    :param parent: parent widget; ownership only.
     """
 
     stroke_started = Signal()      # emitted just before self.mask is mutated
@@ -1406,6 +1408,8 @@ class _FlowPane(QLabel):
     It is deliberately not editable. The mask lives on the canvas next
     door, and a second surface that could also be painted would mean two
     places to look for the same object.
+
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, parent: Optional[QWidget] = None):
@@ -1499,6 +1503,7 @@ class FoldedModulePanel(QWidget):
     :param actions: extra buttons for the button row, each
         ``(label, tooltip, callback)``. This is where a capability the folded
         module lacks and its host has arrives.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, key: str, screen: QWidget, title: str,

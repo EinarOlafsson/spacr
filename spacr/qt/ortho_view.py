@@ -107,6 +107,7 @@ class OrthoPanel(QFrame):
 
     :param name: ``'xy'``, ``'zx'`` or ``'yz'``; used for the caption and
         reported with a click.
+    :param parent: parent widget; ownership only.
     """
 
     #: The user clicked at ``(name, row, column)`` in canvas pixels.

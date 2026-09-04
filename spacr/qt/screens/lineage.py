@@ -78,6 +78,7 @@ class LineageScreen(LinkedView, QWidget):
 
     :param threaded: ``False`` reads inline, so a test drives the screen
         without a worker thread and gets the same calls in the same order.
+    :param parent: parent widget; ownership only.
     """
 
     #: A node was selected. Carries its object key.

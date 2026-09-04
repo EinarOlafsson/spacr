@@ -128,6 +128,7 @@ class AgreementScreen(QWidget):
 
     :param threaded: compute the report on a worker thread (the default).
         Tests pass ``False`` for deterministic, synchronous behaviour.
+    :param parent: parent widget; ownership only.
     :ivar last_error: text of the most recent failure, ``""`` when the
         last operation succeeded. Errors are *only* ever reported here
         and in the inline status label — never in a modal dialog.

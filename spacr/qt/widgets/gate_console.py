@@ -55,6 +55,8 @@ class _ChatInput(QPlainTextEdit):
     """A chat box that is several lines tall and still sends on Enter.
 
     :ivar submitted: emitted when the user presses Enter without Shift.
+
+    :param parent: parent widget; ownership only.
     """
 
     submitted = Signal()

@@ -1625,6 +1625,7 @@ class _HeightGrip(QWidget):
     :param target: the widget whose fixed height this drags.
     :param minimum: floor in px at 100 % font scale.
     :param maximum: ceiling in px at 100 % font scale.
+    :param parent: parent widget; ownership only.
     """
 
     #: Emitted with the new height in device px, on release rather than on
@@ -1742,6 +1743,7 @@ class HomePage(QWidget):
         Becomes each tile's ``stage`` property, which is what the app
         stylesheet turns into its hover colour, and what the legend at
         the foot of the aside is drawn from. Anything missing is stable.
+    :param parent: parent widget; ownership only.
     """
 
     tile_clicked = Signal(str)

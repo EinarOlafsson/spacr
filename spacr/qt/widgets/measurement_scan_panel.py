@@ -1111,6 +1111,7 @@ class DatabaseMergePanel(QWidget):
             the merged frame is written into. Without one the merge still
             happens and simply leaves no artefact -- the panel is used
             headless and in tests where there is nowhere to write.
+        :param parent: parent widget; ownership only.
         """
         import threading
 

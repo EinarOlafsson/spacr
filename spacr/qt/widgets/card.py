@@ -30,6 +30,7 @@ class Card(QFrame):
             can occupy the released space.
         :param fold_key: ``"<module>/<panel>"``; given, the fold survives a
             restart.
+        :param parent: parent widget; ownership only.
         """
         super().__init__(parent)
         self.setObjectName("Card")

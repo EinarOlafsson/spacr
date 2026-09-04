@@ -304,6 +304,7 @@ class ModuleHeader(QWidget):
       as one sentence rather than a sentence and a mark. The link is not
       lost with it -- see :class:`spacr.qt.widgets.ApiHelpLabel`, which
       carries the same help every setting's label carries.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, title: str, description: str = "",
@@ -1288,6 +1289,7 @@ class AppScreen(QWidget):
     figures card, and actions row on the right.
 
     :param app_key: id of the app (see ``APPS`` in ``spacr.qt.app``).
+    :param parent: parent widget; ownership only.
     :ivar error_explain_requested: emitted with ``(traceback, app_key)``
         when the user clicks "Explain error"; MainWindow routes it to
         the AI Console for backward compatibility.

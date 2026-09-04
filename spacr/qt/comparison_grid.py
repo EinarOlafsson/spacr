@@ -176,6 +176,7 @@ class ComparisonGrid(LinkedView, QWidget):
     :param columns: how many panels per row; the default is the squarest grid
         that fits them.
     :param titles: per-panel captions, defaulting to the keys.
+    :param parent: parent widget; ownership only.
     """
 
     #: The shared world window moved. Carries the driving panel's key.
