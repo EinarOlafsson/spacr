@@ -362,6 +362,10 @@ class RowExclusionEditor(QWidget):
         self.set_value(value)
 
     def get_value(self) -> dict[str, list[Any]] | None:
+        """The exclusions, in the shape the settings dict wants.
+
+        :returns: ``{column: [values]}``, or None when nothing is excluded.
+        """
         rules: dict[str, list[Any]] = {}
         for row in self._rows:
             column = row.column.currentText().strip()
@@ -371,6 +375,10 @@ class RowExclusionEditor(QWidget):
         return normalize_row_exclusions(rules) or None
 
     def set_value(self, value) -> None:
+        """Replace the exclusions from a settings value.
+
+        :param value: ``{column: [values]}``, or None to clear.
+        """
         rules = normalize_row_exclusions(value)
         self._clear_rows()
         if rules:

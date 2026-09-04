@@ -4616,6 +4616,7 @@ class FastPlot(QWidget):
         return True
 
     def clear_highlight(self) -> None:
+        """Drop the highlight, leaving the data as it is."""
         self.highlight_key(None)
 
     # ------------------------------------------------------- multi-select
@@ -8009,6 +8010,16 @@ class ResidualPlot(FastPlot):
             self.set_residuals(*self._residual_data)
 
     def set_residuals(self, fitted, residuals, labels: Sequence[str] = ()):
+        """Show a fit's residuals against its fitted values.
+
+        THE PLOT THAT SHOWS A BAD MODEL. A residual cloud with structure in
+        it means the fit is missing something, and that is visible here in a
+        way no single summary number reports.
+
+        :param fitted: the fitted values.
+        :param residuals: the residual for each.
+        :param labels: optional per-point labels.
+        """
         self._residual_data = (fitted, residuals, labels)
         self._reset_scene()
         f, r = _finite(fitted), _finite(residuals)
@@ -8342,6 +8353,13 @@ class ControlSeparation(GroupedPlot):
             self.set_groups(self._groups, keys=self._group_keys)
 
     def group_sizes(self) -> list:
+        """How many FINITE values each control group contributed.
+
+        Not the group's length: a NaN is a well that produced no measurement,
+        and counting it would overstate the evidence behind the separation.
+
+        :returns: one count per group.
+        """
         return [int(np.sum(~np.isnan(_finite(values))))
                 for values in self._groups.values()]
 

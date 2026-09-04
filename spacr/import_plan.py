@@ -80,10 +80,22 @@ class ImportPlan:
 
     @property
     def n_matched(self) -> int:
+        """How many files the naming pattern resolved.
+
+        :returns: the matched count.
+        """
         return len(self.renamed)
 
     @property
     def n_files(self) -> int:
+        """Every file the plan covers, matched or not.
+
+        THE DENOMINATOR. A pattern matching 900 files means nothing until you
+        know whether there were 900 or 9,000, and this is the number that
+        makes the first one readable.
+
+        :returns: the total count.
+        """
         return len(self.renamed) + len(self.unmatched)
 
     def summary(self) -> str:

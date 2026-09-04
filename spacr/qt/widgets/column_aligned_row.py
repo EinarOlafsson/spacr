@@ -129,14 +129,34 @@ class ColumnAlignedRow(QLayout):
         self.invalidate()
 
     def count(self) -> int:
+        """How many items the row holds.
+
+        Part of the QLayout contract: Qt walks a layout through count, itemAt
+        and takeAt, so all three must agree about the same list.
+
+        :returns: the item count.
+        """
         return len(self._items)
 
     def itemAt(self, index):                                  # noqa: N802
+        """The item at ``index``, or None when out of range.
+
+        NONE RATHER THAN RAISING: Qt probes past the end to discover where a
+        layout stops, so an exception here is a crash during ordinary layout.
+
+        :param index: the position.
+        :returns: the item, or None.
+        """
         if 0 <= index < len(self._items):
             return self._items[index][0]
         return None
 
     def takeAt(self, index):                                  # noqa: N802
+        """Remove and return the item at ``index``, or None.
+
+        :param index: the position.
+        :returns: the item, or None when out of range.
+        """
         if 0 <= index < len(self._items):
             return self._items.pop(index)[0]
         return None

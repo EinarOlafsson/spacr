@@ -434,12 +434,22 @@ class UmapEmbeddingView(QWidget):
         self.update()
 
     def reset_view(self) -> None:
+        """Put the camera back to where the embedding was first framed.
+
+        The way out of a spin or a zoom that has lost the cloud: a 3-D view
+        can be rotated until nothing is on screen, and no amount of further
+        dragging necessarily finds it again.
+        """
         self._yaw = 0.22
         self._pitch = -0.16
         self._zoom = 1.0
         self.update()
 
     def mousePressEvent(self, event: QMouseEvent) -> None:  # noqa: N802
+        """Begin a spin drag.
+
+        :param event: the Qt mouse event.
+        """
         if event.button() == Qt.LeftButton and self._coords is not None:
             self._drag_at = event.position()
             event.accept()
@@ -447,6 +457,10 @@ class UmapEmbeddingView(QWidget):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:  # noqa: N802
+        """Spin the embedding by how far the pointer has moved.
+
+        :param event: the Qt mouse event.
+        """
         if self._drag_at is not None and self._coords is not None:
             delta = event.position() - self._drag_at
             self._drag_at = event.position()

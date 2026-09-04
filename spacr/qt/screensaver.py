@@ -98,10 +98,18 @@ class Screensaver(QWidget):
     # them is worth distinguishing.
 
     def keyPressEvent(self, event) -> None:
+        """Dismiss on any key.
+
+        :param event: the Qt key event.
+        """
         event.accept()
         self.close()
 
     def mousePressEvent(self, event) -> None:
+        """Dismiss on any click.
+
+        :param event: the Qt mouse event.
+        """
         event.accept()
         self.close()
 
