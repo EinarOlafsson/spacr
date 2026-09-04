@@ -860,3 +860,62 @@ THE PROBE IS NOT COMMITTED. 210 combinations take 24 minutes against the
 committed sweep's 51 in under four, which is the wrong shape for a test that
 runs on every change. The coverage question stays as recorded above; what
 has changed is that the answer is now MEASURED rather than open.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- THE SWEEP NOW COVERS THE DIALOGS, AND FOUND FOUR
+--------------------------------------------------------------------------------
+
+"Point `wrapped_height` at every screen and dialog, not just this one" was the
+first of the three things this file said remained. The screens were covered;
+the dialogs were not covered at all -- which is where the report that opened
+this instruction actually was, "in annotation the loade test data tooltips do
+not fit in the popup window".
+
+`tests/qt/test_the_text_fits_sweep_dialogs.py` sweeps them with the SAME
+checker, imported rather than rewritten: a second implementation of "does this
+fit" would be a second set of rules to keep in step with these three.
+
+SEVENTEEN OF FORTY-ONE, and the number is in the file so the coverage is
+legible rather than implied. 24 QDialog subclasses require constructor
+arguments -- a frame, a run, a settings dict -- and building those from
+nothing would be testing a fixture rather than the dialog a user sees. They
+are reachable through their screens and belong to whoever writes the fixture.
+
+TWO LOCALES AND TWO SCALES, not more, for the reason this file already
+measured: 210 combinations took 24 minutes against 51 in under four. English
+is the source, German runs materially longer, and the two ends of the slider
+are where the scale axis can fail. 61 tests in 9 seconds.
+
+FOUND: 8 clipped combinations in 4 dialogs, EVERY ONE OF THEM AT 2.0x AND
+NONE AT 1.0x. Thirteen of the seventeen are clean at both ends. That is
+instruction 04's warning landing again -- a check at one font scale proves
+nothing about the others -- and it is the argument for the scale axis rather
+than a caption count.
+
+    PlateMapPicker            en 15   de 15
+    InstallerConsentDialog    en  1   de  2
+    BarcodeRegexDialog        en  1   de  1
+    FormulaDialog             en  1   de  1
+
+RECORDED IN THE RATCHET RATHER THAN FIXED TONIGHT, with both causes named so
+the fix is small rather than a search:
+
+  * PlateMapPicker is `WELL_SIDE = 22` used as a raw pixel constant, so at
+    2.0x a column number needs 30 px in a 22 px cell. The square has to stay
+    -- a plate map is a picture of a physical object -- but its size should
+    follow the font. NOT ONE LINE: `_WELL_SHEET` is a module-level dict built
+    at import from `_locked_square(WELL_RIM)`, so scaling inside it would bake
+    whichever scale was active at import. The sheets have to be rebuilt on a
+    scale change and cached by side, because a 1536-well plate repaints every
+    well on every selection change, which is why they are constants at all.
+
+  * The other three are one wrapping prose QLabel each, whose height does not
+    follow its text at 2.0x -- exactly the `wrapped_height` case this file
+    already built the tool for. German clips twice where English clips once
+    because the consent text is longer.
+
+WHAT REMAINS in 350 is now smaller and different: those four fixes, the 24
+dialogs that need fixtures, and the seven locales this sweep does not run.
+The design decision recorded above -- 353's alignment against 350's captions,
+seven pixels in Portuguese at 200% -- is still the maintainer's and is
+untouched.
