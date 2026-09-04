@@ -1534,8 +1534,24 @@ _IMAGE_SUFFIXES = {
 
 
 def _contains_suffix(folder: Path, suffixes, *, recursive: bool = False) -> bool:
-    iterator = folder.rglob("*") if recursive else folder.iterdir()
+    """Whether ``folder`` holds a file with one of ``suffixes``.
+
+    :param folder: the directory to look in. It may not exist: the walk
+        happens after the drop's ``apply`` has returned, so an unmounted
+        share is the ordinary case rather than the exceptional one.
+    :param suffixes: lower-case extensions to match, ``.tif`` and friends.
+    :param recursive: search the whole tree rather than one level.
+    :returns: ``False`` for anything that cannot be read, including a folder
+        that is not there.
+
+    THE ITERATOR IS BUILT INSIDE THE TRY, and that is not tidiness. On
+    Python 3.13 ``Path.iterdir`` raises at CREATION rather than on the first
+    step -- it used to be a generator -- so building it on the line above the
+    try left the FileNotFoundError uncaught, and it has no Python caller to
+    catch it: it surfaces inside Qt's drop delivery.
+    """
     try:
+        iterator = folder.rglob("*") if recursive else folder.iterdir()
         return any(
             child.is_file()
             and any(child.name.lower().endswith(ext) for ext in suffixes)
@@ -1956,15 +1972,27 @@ def _resolve_for(handler, app_key: str, path: Path):
     the same answer. Resolving four times would list the same directories four
     times while the user is still holding the mouse button down.
 
-    The folder's mtime is part of the key, so the cache lasts exactly as long
-    as the answer does: run Measure and drop the same plate again, and the
-    database that appeared is found rather than remembered as absent.
+    The folder's mtime AND how many entries it holds are both part of the
+    key, so the cache lasts exactly as long as the answer does: run Measure
+    and drop the same plate again, and the database that appeared is found
+    rather than remembered as absent.
+
+    THE COUNT IS THERE BECAUSE THE MTIME IS NOT ENOUGH. A directory's mtime
+    has the filesystem's granularity, not the clock's: creating a file inside
+    one and stat-ing it immediately can return the byte-identical timestamp,
+    measured on this tree. The cache would then answer from before the file
+    existed. One `os.listdir` is a syscall against an already-hot directory
+    and still saves the three resolutions this memo exists to prevent.
     """
     try:
         stamp = os.stat(path).st_mtime_ns
     except OSError:
         stamp = 0
-    key = (app_key, str(path), stamp)
+    try:
+        entries = len(os.listdir(path)) if path.is_dir() else -1
+    except OSError:
+        entries = -1
+    key = (app_key, str(path), stamp, entries)
     cached = getattr(handler, "_last_resolution", None)
     if cached is not None and cached[0] == key:
         return cached[1]
