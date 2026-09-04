@@ -230,6 +230,11 @@ class Dock(QWidget):
         # "a rectangle with rounded edges like the top box on the Home screen
         # with the spacr logo and text" -- so the two read as the same
         # material rather than as two guesses at one.
+        # NO INSET HERE. The dock widget itself is the rounded box now, and
+        # a widget's own margins sit inside its background -- an inset here
+        # would pad the contents without moving the box off the window edge.
+        # The gap around the box is the SLOT's margin; see
+        # `MainWindow._dock_slot`.
         outer = QVBoxLayout(self)
         outer.setContentsMargins(PANEL_INSET, PANEL_INSET,
                                  PANEL_INSET, PANEL_INSET)
@@ -461,24 +466,27 @@ class Dock(QWidget):
         palette = active_palette()
         accent = palette["accent"]
         self.setStyleSheet(
-            # THE COLUMN PAINTS NOTHING, and the ground it needs comes from
-            # the window instead -- see `MainWindow._ground_the_central_row`.
+            # THE COLUMN *IS* THE ROUNDED BOX. There is no separate panel
+            # inside it any more.
             #
-            # The panel below is TRANSLUCENT: `pane_surface` is the page
-            # opacity the user set, 60% by default. It has to composite over
-            # something, and while the dock slid in over the page it
-            # composited over whatever it covered. As a column it sits beside
-            # the page, so whatever is behind the column is what it gets --
-            # and giving the COLUMN a fill of its own just makes a rectangle
-            # in a different colour, which is what the grey attempt was. The
-            # ground has to be continuous across the dock and the page, so it
-            # belongs to the widget that holds both.
-            "QWidget#Sidebar { background: transparent; border: none; }"
-            "QFrame#DockPanel {"
+            # A translucent panel drawn inside an opaque column is two
+            # rectangles, and the outer one cannot be got rid of: it is the
+            # widget the layout gives the dock, and whatever colour it is
+            # painted -- black, grey, the page ground -- it is still a
+            # rectangle behind a rounded shape. Three attempts at colouring
+            # it are what proved that. So the rounded corners move OUT to
+            # the box that has to exist, and the inner one goes.
+            #
+            # The gap around it comes from the SLOT's layout margins rather
+            # than from margins in here, because a widget's own margins are
+            # inside its background: put them here and the box would still
+            # reach the window edge.
+            "QWidget#Sidebar {"
             f"  background: {pane_surface('surface_alt')};"
             f"  border: 1px solid {palette['border_soft']};"
             f"  border-radius: {PANEL_RADIUS}px;"
             "}"
+            "QFrame#DockPanel { background: transparent; border: none; }"
             "QScrollArea#SidebarScroll, QWidget#SidebarInner {"
             "  background: transparent; border: none;"
             "}"
