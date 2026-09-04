@@ -448,13 +448,24 @@ NUMBER_OF_ORGANELLES = "number_of_organelles"
 #: The most slots that can be named, and why there is a limit at all.
 #:
 #: A slot's role name IS the prefix of every key it owns, and the prefixes
-#: are LETTERED: slot 1 is the original ``organelle`` and slots 2 upward take
-#: a letter -- ``organelleb`` through ``organellez``. Digits cannot be used,
+#: are LETTERED: slot 1 is the original ``organelle``, slots 2..26 take a
+#: single letter -- ``organelleb`` through ``organellez`` -- and slots 27 and
+#: up CARRY into two letters, ``organelleaa`` onward. Digits cannot be used,
 #: because object types are embedded directly in underscore-separated object
 #: keys: ``organelle_2`` cannot round-trip through a ``prcfo`` key and
-#: ``organelle2`` is ambiguous with the object LABELLED 2. So the alphabet is
-#: what runs out, and twenty-six is where it does.
-MAX_ORGANELLES = 26
+#: ``organelle2`` is ambiguous with the object LABELLED 2.
+#:
+#: THE CEILING IS NOT THE ALPHABET ANY MORE. It was 26 because the lettering
+#: stopped at ``z``; the carry makes it arbitrary, and this number is now a
+#: bound rather than a limitation. It is kept rather than removed for the
+#: reason :func:`organelle_roles` gives: a settings file asking for more
+#: should be TOLD which of its keys stopped existing rather than silently
+#: clamped.
+#:
+#: 702 is where two letters run out (26 + 26x26). Three letters would give
+#: 18,278 and cost a tuple that size at import for slots nobody has asked
+#: for; raising it is one edit if anyone ever does.
+MAX_ORGANELLES = 702
 
 #: How many slots a settings file that says nothing has.
 #:
@@ -475,18 +486,49 @@ def organelle_role(number: int) -> str:
     """The key prefix owned by slot ``number``, counting from one.
 
     :param number: the slot as the user counts it -- 1 is Organelle 1.
-    :returns: ``'organelle'`` for slot 1 and ``'organelle<letter>'`` after
-        it, which is the prefix every one of that slot's settings carries.
+    :returns: ``'organelle'`` for slot 1, ``'organelle<letter>'`` for slots
+        2..26, and a CARRIED suffix from 27 up -- ``organelleaa`` onward.
+        This is the prefix every one of that slot's settings carries.
     :raises ValueError: outside ``1..MAX_ORGANELLES``, naming the bound.
+
+    SLOTS 1..26 ARE BYTE-IDENTICAL to what they have always been, which is
+    how the arbitrary count is reached without migrating anything: no
+    measurement database, settings CSV or run journal moves, because none of
+    the names they contain change.
+
+    ``organellea`` IS NEVER MINTED -- slot 1 is the bare word -- so a
+    single-letter suffix can never be confused with the first letter of a
+    carried one, and :data:`_ROLE_MATCH` (longest first) does the rest.
     """
     index = int(number)
     if not 1 <= index <= MAX_ORGANELLES:
         raise ValueError(
             f"organelle slot {number!r} is outside 1..{MAX_ORGANELLES}; "
-            "slots are lettered, so the alphabet is what runs out")
+            f"slots are lettered and carry past 'z', so {MAX_ORGANELLES} is "
+            "where two letters run out")
     if index == 1:
         return "organelle"
-    return f"organelle{chr(ord('a') + index - 1)}"
+    if index <= 26:
+        return f"organelle{chr(ord('a') + index - 1)}"
+    return f"organelle{_carried_suffix(index - 27)}"
+
+
+def _carried_suffix(offset: int) -> str:
+    """The ``offset``-th suffix past ``z``: 0 is ``aa``, 676 is ``aaa``.
+
+    Fixed-width base-26 blocks rather than a bijective count, so every
+    suffix of a given length is used before the next length starts and the
+    ordering a reader would guess is the one they get.
+    """
+    length = 2
+    while offset >= 26 ** length:
+        offset -= 26 ** length
+        length += 1
+    letters = []
+    for _ in range(length):
+        offset, remainder = divmod(offset, 26)
+        letters.append(chr(ord("a") + remainder))
+    return "".join(reversed(letters))
 
 
 def organelle_roles(count: int = MAX_ORGANELLES) -> Tuple[str, ...]:
@@ -522,12 +564,23 @@ def organelle_number(role: str) -> int:
     name = str(role)
     if name == "organelle":
         return 1
-    if (name.startswith("organelle") and len(name) == len("organelle") + 1
-            and "b" <= name[-1] <= "z"):
-        return ord(name[-1]) - ord("a") + 1
+    suffix = name[len("organelle"):] if name.startswith("organelle") else ""
+    if suffix and suffix.isalpha() and suffix.islower():
+        if len(suffix) == 1:
+            if "b" <= suffix <= "z":
+                return ord(suffix) - ord("a") + 1
+        else:
+            # The inverse of `_carried_suffix`: earlier lengths are used up
+            # before this one starts, so their totals are added back.
+            offset = 0
+            for length in range(2, len(suffix)):
+                offset += 26 ** length
+            for char in suffix:
+                offset = offset * 26 + (ord(char) - ord("a"))
+            return offset + 27
     raise ValueError(
         f"{role!r} is not an organelle role; expected 'organelle', "
-        "'organelleb', ... through 'organellez'")
+        "'organelleb'..'organellez', then 'organelleaa' onward")
 
 
 def organelle_slot_label(role: str) -> str:
@@ -545,10 +598,23 @@ def organelle_role_of(key: str) -> Optional[str]:
         one.
     """
     text = str(key)
-    for role in _ROLE_MATCH:
-        if text == role or text.startswith(f"{role}_"):
-            return role
-    return None
+    if not text.startswith("organelle"):
+        return None
+    # THE ROLE IS READ OFF THE KEY, not searched for among every role there
+    # could be. Scanning `_ROLE_MATCH` was O(roles x keys), and with the
+    # ceiling raised from 26 to 702 that is a million string comparisons to
+    # answer a question about one settings dict -- 4 ms per call, on a path
+    # the settings form takes repeatedly. A key is `<role>_<question>`, so
+    # the role is the text before the first underscore and `organelle_number`
+    # is what decides whether it is a real one.
+    head, separator, _rest = text.partition("_")
+    if not separator and head != text:
+        return None
+    try:
+        organelle_number(head)
+    except ValueError:
+        return None
+    return head
 
 
 def slot_setting(key: str, role: str) -> str:
@@ -621,18 +687,21 @@ def _count_implied_by_the_slots(settings: Mapping[str, object]) -> int:
     """
     if not settings:
         return 0
+    # ONE PASS OVER THE KEYS, not one pass per role. See
+    # `organelle_role_of` for why: the roles are no longer a short list.
     highest = 0
-    for index, role in enumerate(ALL_ORGANELLE_ROLES[:MAX_ORGANELLES], start=1):
-        prefix = f"{role}_"
-        for key, value in settings.items():
-            if not str(key).startswith(prefix):
-                continue
-            if value is None:
-                continue
-            if isinstance(value, str) and not value.strip():
-                continue
-            highest = max(highest, index)
-            break
+    for key, value in settings.items():
+        if value is None:
+            continue
+        if isinstance(value, str) and not value.strip():
+            continue
+        role = organelle_role_of(key)
+        if role is None:
+            continue
+        try:
+            highest = max(highest, organelle_number(role))
+        except ValueError:            # pragma: no cover - role_of validated it
+            continue
     return min(highest, MAX_ORGANELLES)
 
 

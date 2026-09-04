@@ -42,7 +42,8 @@ def test_every_keyable_organelle_role_round_trips(role):
 def test_the_keyable_roles_are_fewer_than_the_slots_offered():
     """The bound 326 has to reconcile before it can raise anything.
 
-    ``organelle_types.MAX_ORGANELLES`` is 26 and the settings panel offers
+    ``organelle_types.MAX_ORGANELLES`` is 702 -- raised from 26 when the
+    lettering learned to carry past ``z`` -- and the settings panel offers
     that many slots (``PANEL_ORGANELLE_SLOTS``), while ``schema`` keys objects
     by a CLOSED vocabulary holding four organelle roles. Slots 5 and up
     therefore cannot be written into an object key at all: ``is_object_type``
@@ -54,7 +55,7 @@ def test_the_keyable_roles_are_fewer_than_the_slots_offered():
     test must be updated deliberately when 326 raises the ceiling.
     """
     assert len(ORGANELLE_ROLES) == 4, ORGANELLE_ROLES
-    assert MAX_ORGANELLES == 26
+    assert MAX_ORGANELLES == 702
     assert len(ORGANELLE_ROLES) < MAX_ORGANELLES, (
         "the vocabularies now agree; update 326 and this test together")
 

@@ -56,9 +56,16 @@ def test_a_slot_number_and_its_key_prefix_round_trip():
         assert organelle_slot_label(role) == f"Organelle {number}"
 
 
-def test_the_cap_is_the_alphabet_and_it_says_so():
-    """A slot's name IS its key prefix, and the prefixes are lettered."""
-    assert organelle_role(MAX_ORGANELLES) == "organellez"
+def test_the_cap_is_no_longer_the_alphabet_and_it_says_so():
+    """A slot's name IS its key prefix, and the prefixes are lettered.
+
+    The alphabet used to be the ceiling. It is not any more: the lettering
+    CARRIES past ``z``, so the cap is where two letters run out rather than
+    where one does. What has not changed is that the cap SPEAKS -- a
+    settings file asking for more is told which of its keys stopped
+    existing rather than being silently clamped.
+    """
+    assert organelle_role(MAX_ORGANELLES) == "organellezz"
     with pytest.raises(ValueError) as excinfo:
         organelle_role(MAX_ORGANELLES + 1)
     assert str(MAX_ORGANELLES) in str(excinfo.value)
@@ -88,9 +95,15 @@ def test_an_unreadable_number_keeps_the_file_openable():
     assert organelle_count({
         "number_of_organelles": "seven", "organelleb_channel": 2,
     }) == 2
-    # Above the cap it is clamped rather than raised, because the value came
-    # off disk and the alternative is refusing to open the file.
-    assert organelle_count({"number_of_organelles": 99}) == MAX_ORGANELLES
+    # NINETY-NINE IS NOW A REAL ANSWER. It used to clamp to twenty-six,
+    # which is the defect the maintainer named: "if the user chooses 100
+    # organelles settings for 100 organells".
+    assert organelle_count({"number_of_organelles": 99}) == 99
+    assert organelle_count({"number_of_organelles": 100}) == 100
+    # Above the cap it is still clamped rather than raised, because the value
+    # came off disk and the alternative is refusing to open the file.
+    assert organelle_count(
+        {"number_of_organelles": MAX_ORGANELLES + 1}) == MAX_ORGANELLES
 
 
 # ---------------------------------------------------------------------------
