@@ -489,3 +489,78 @@ WHAT B ACTUALLY REQUIRES, so the next session does not re-derive it:
 ORDER: wait for the catalog regeneration to land and be committed, then do B,
 then raise the ceiling. Doing it the other way round means translating strings
 that are about to stop existing.
+
+--------------------------------------------------------------------------------
+2026-09-04 — STEP 2 DONE. THE ALPHABET IS NO LONGER THE CEILING.
+--------------------------------------------------------------------------------
+
+    slot   1  organelle          (unchanged)
+    slot  26  organellez         (unchanged)
+    slot  27  organelleaa        (new: the carry)
+    slot 100  organellecv
+    slot 702  organellezz
+
+    MAX_ORGANELLES  26 -> 702
+
+The maintainer's own number now works: `number_of_organelles: 100` declares a
+hundred slots and `organelle_count` returns 100 instead of clamping to 26.
+
+THE SCHEME IS THE ONE DESIGNED IN THE 2026-09-02 NOTE ABOVE, unchanged --
+keep the letters and carry them. Slots 1..26 are BYTE-IDENTICAL, so the
+"DONT BREAK ANYTHING" constraint is satisfied by construction rather than by
+migration: no measurement database, settings CSV or run journal contains a
+name that moved.
+
+VERIFIED, not assumed:
+  * round-trip exact for every slot 1..702 (`organelle_number(organelle_role(n)) == n`);
+  * all 702 roles distinct;
+  * every role `isalpha()` -- the digit-free and separator-free invariants
+    that `schema.py` depends on are untouched;
+  * `organellea` is never minted, so a single-letter suffix cannot be read as
+    the first letter of a carried one.
+
+TESTS FIRST, as this instruction requires. `tests/test_the_organelle_lettering_
+carries_past_z.py` was written and run BEFORE the change: 10 passed and 6
+failed. The 10 that passed are the "must not move" guarantees -- slot 1 bare,
+2..26 unchanged, `organellea` never minted -- so the safety net was proven to
+be a net before it was relied on.
+
+AND A 130x SPEED-UP THAT THE RAISE MADE NECESSARY. `_count_implied_by_the_slots`
+scanned every role against every settings key: O(roles x keys). At 26 roles
+that was invisible; at 702 it was 4.0 ms per call on a 209-key dict, on a path
+the settings form takes repeatedly. It now reads the role OFF the key -- a key
+is `<role>_<question>`, so the role is the text before the first underscore --
+and `organelle_role_of` does the same. 4.0 ms -> 0.03 ms. This is the "the
+settings form does not slow down at large counts" clause of DONE MEANS, and it
+would have been a real regression rather than a theoretical one.
+
+THREE PINS MOVED, all of them anticipated by this file:
+  * `test_the_cap_is_the_alphabet_and_it_says_so` -> `..._is_no_longer_the_
+    alphabet_...`. What it still guards is that the cap SPEAKS.
+  * `test_an_unreadable_number_keeps_the_file_openable` asserted 99 clamps to
+    26. Ninety-nine is now a real answer; the clamp is asserted above the new
+    cap instead, and 100 is asserted explicitly because it is the maintainer's
+    own example.
+  * `test_the_keyable_roles_are_fewer_than_the_slots_offered` said in its own
+    docstring that it "must be updated deliberately when 326 raises the
+    ceiling". Updated. THE DISAGREEMENT IT GUARDS IS WIDER, NOT GONE: schema
+    still holds four keyable roles against 702 offered slots.
+
+NO REGRESSIONS. Baselined against HEAD over 34 organelle/schema/object-key
+test files: 7 failing before, 7 after, the same 7, none of them related.
+
+WHAT REMAINS -- STEP 2's OTHER HALF, AND IT IS THE ONE WITH THE PRICE.
+`schema.ORGANELLE_ROLES` still holds four. Slots 5+ still cannot be written
+into an object key, so an organelle beyond the fourth is still an UNTYPED
+frame -- the collision the object type was introduced to remove. Raising the
+ceiling has made that gap wider rather than narrower, and it is now the whole
+of what is left.
+
+The 2026-09-02 attempt at it was reverted because widening the vocabulary
+ballooned a five-organelle run to twenty-six settings slots. THAT BLOCKER IS
+GONE: step 3 made `declared_organelle_roles` follow `number_of_organelles`
+rather than the vocabulary, which is exactly the coupling that caused it. The
+reconciliation should be re-attempted, and `spacr/schema.py` is shared -- take
+the 325 §5 hold first.
+
+`spacr/schema.py` was NOT modified by this step either.
