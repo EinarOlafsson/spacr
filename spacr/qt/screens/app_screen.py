@@ -4762,6 +4762,7 @@ class AppScreen(QWidget):
         placed = {}
 
         def done(result, error):
+            """Re-enable the button whether the download worked or failed."""
             if button is not None:
                 button.setEnabled(True)
                 button.setText(tr("Load test data…"))
@@ -4788,6 +4789,7 @@ class AppScreen(QWidget):
             # default is part of its contract with everything already calling
             # it, so the new behaviour is requested rather than imposed.
             def ask(parent, dest, on_done):
+                """Start the demo download with the tar-aware worker."""
                 download_toxo_mito_demo(parent, dest, on_done,
                                         worker_factory=_MaskTarWorker)
         ask(self, str(destination), done)
@@ -6770,6 +6772,7 @@ class AppScreen(QWidget):
             pass
 
         def _save(*_args):
+            """Store this splitter's layout under its key."""
             try:
                 set_split_state(key, splitter.saveState())
             except Exception:                                    # noqa: BLE001
@@ -7935,6 +7938,12 @@ class AppScreen(QWidget):
             # "[issue] auto-file failed"; once the call is asynchronous that
             # `except` can no longer see it, and a report that silently fails
             # to send is worse than one that fails loudly.
+            """Submit the report, returning the failure AS DATA rather than raising.
+
+            The call is asynchronous, so an ``except`` around the caller can no
+            longer see it -- and a report that silently fails to send is worse than
+            one that fails loudly.
+            """
             try:
                 return {"url": submit_report(approved_report)}
             except Exception as exc:      # noqa: BLE001 - reported, not hidden
