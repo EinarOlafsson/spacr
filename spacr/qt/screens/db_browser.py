@@ -2123,6 +2123,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         want_estimate = first and not where
 
         def _job() -> Dict[str, Any]:
+            """Read one chunk of the table. Off the GUI thread."""
             cols, rows, keys = db.chunk(table, where=where, params=params,
                                         limit=limit, after=after,
                                         loaded=loaded, order_by=order_by)
@@ -2180,6 +2181,11 @@ class DbBrowserScreen(LinkedView, QWidget):
         where, params = self._where, self._params
 
         def _job() -> Dict[str, Any]:
+            """Count the matching rows, carrying the token that ordered it.
+
+            The token comes back with the answer so a slow count from a query the
+            user has since changed can be recognised and dropped.
+            """
             return {"token": token, "count": db.count(table, where, params)}
 
         self._run_job(_job, self._apply_count, kind="count", token=token)
