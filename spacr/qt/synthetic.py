@@ -351,6 +351,7 @@ def _synth_field(
     masks: Dict[str, np.ndarray] = {}
 
     def _peak() -> float:
+        """One object's peak intensity, jittered around the nominal."""
         return _PEAK * (0.75 + 0.45 * rng.random())
 
     # --- cell + nucleus: concentric, one per lattice site -----------------

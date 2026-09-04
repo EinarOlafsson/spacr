@@ -234,6 +234,7 @@ class BenchmarkController(QObject):
         checkpoint_ended = timing.elapsed()
 
         def _after_beat() -> None:
+            """Continue once the GUI thread has answered again."""
             latest = timing.last_gui_beat_at()
             if latest is not None and latest <= checkpoint_ended:
                 QTimer.singleShot(SETTLE_MS, _after_beat)
@@ -579,6 +580,7 @@ def maybe_start(app, window) -> Optional[BenchmarkController]:
     from .app import APPS
 
     def _live_keys() -> tuple[str, ...]:
+        """Every registered app key, read when the benchmark runs."""
         return tuple(key for key, _name, _description, _section in APPS)
 
     keys = _live_keys()

@@ -2623,6 +2623,7 @@ class DriftEngine(AmbientEngine):
         self.particles: List[Particle] = []
 
         def roll(i: int) -> Particle:
+            """One particle, on the drift layer its index falls in."""
             layer = i % len(DRIFT_LAYERS)
             _, _, speed = DRIFT_LAYERS[layer]
             return Particle(

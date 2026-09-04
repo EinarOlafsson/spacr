@@ -186,6 +186,7 @@ def install_correction_families(panel) -> bool:
         return False
 
     def set_frame(frame, source: str = "") -> bool:
+        """Narrow the frame to one correction family before setting it."""
         return original(single_correction_family(frame), source=source)
 
     panel.set_frame = set_frame
@@ -273,6 +274,7 @@ def install_publication_figure(panel, opener: Callable[[], object]) -> bool:
         return False
 
     def build_style_menu(*args, **kwargs):
+        """Build the style menu, then add the publication-figure entry."""
         menu = build(*args, **kwargs)
         menu.addSection(PUBLICATION_FIGURE_SECTION)
         entry = menu.addAction(PUBLICATION_FIGURE_LABEL,

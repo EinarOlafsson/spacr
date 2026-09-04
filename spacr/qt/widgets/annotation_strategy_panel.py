@@ -626,6 +626,7 @@ class AnnotationStrategyPanel(QWidget):
             "selection and remain excluded from training.")
 
         def work():
+            """Run the annotation strategy. Off the GUI thread."""
             from ... import regression_annotation as strategies
 
             try:

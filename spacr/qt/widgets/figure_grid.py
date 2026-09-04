@@ -155,6 +155,7 @@ def axis_layout(coordinates: Sequence[Mapping[str, Any]],
         return [], [], [(0, i) for i in range(len(coordinates))]
 
     def distinct(name: str) -> List[Any]:
+        """The distinct values of a column, in first-seen order."""
         seen: List[Any] = []
         for coord in coordinates:
             value = coord.get(name)

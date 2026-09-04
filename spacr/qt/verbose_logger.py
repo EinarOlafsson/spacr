@@ -501,6 +501,11 @@ def log_call(fn: Callable) -> Callable:
     """
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):
+        """Call the function, logging it only when verbose is on.
+
+        The check is INSIDE rather than at decoration time, so switching verbose
+        on mid-session takes effect without rebuilding anything.
+        """
         if not is_verbose():
             return fn(*args, **kwargs)
         label = _label_for(fn, args)

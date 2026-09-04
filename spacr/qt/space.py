@@ -173,6 +173,11 @@ def _bilinear_upsample(src: np.ndarray, width: int, height: int) -> np.ndarray:
         return src
 
     def _axis(n_out: int, n_in: int):
+        """Sample positions and weights for one axis of the upsample.
+
+        A single input sample is handled separately: interpolating between one
+        point and itself is a division by zero.
+        """
         if n_in == 1:
             return (np.zeros(n_out, dtype=np.intp),
                     np.zeros(n_out, dtype=np.intp),

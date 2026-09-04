@@ -54,6 +54,7 @@ def retire_pyqtgraph_menus(owner: Any) -> int:
     owned_widgets: list[Any] = []
 
     def retire(menu) -> None:
+        """Retire one menu, once. Already-seen menus are skipped."""
         if menu is None or id(menu) in menus:
             return
         menus[id(menu)] = menu

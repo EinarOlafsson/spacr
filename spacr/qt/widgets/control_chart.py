@@ -1730,6 +1730,12 @@ def control_chart(frame: pd.DataFrame,
 
     def _finish(centre: float, sigma_within: float, baseline: np.ndarray,
                 excluded: Tuple[str, ...]) -> ControlChartResult:
+        """Assemble the result, flagging a degenerate spread.
+
+        A sigma at or below the tolerance means every point is a violation, so
+        it is reported as DEGENERATE rather than charted -- limits drawn from
+        no spread say nothing about the process.
+        """
         degenerate = sigma_within <= max(abs(centre), 1.0) * SIGMA_TOLERANCE
         if degenerate:
             sigma_at = np.zeros(total)

@@ -178,6 +178,7 @@ def make_foldable(heading: QLabel, body: QWidget, name: str = "",
             LOG.debug("could not read the folded panels", exc_info=True)
 
     def remember(shut: bool) -> None:
+        """Store the fold state, if this section has a key to store it under."""
         if key:
             try:
                 from ..preferences import set_folded_panel

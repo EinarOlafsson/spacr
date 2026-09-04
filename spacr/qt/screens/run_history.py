@@ -320,6 +320,7 @@ class RunHistoryScreen(QWidget):
         self._pending_error = ""
 
         def _load(_settings):
+            """Read the run journal. Off the GUI thread."""
             try:
                 self._pending_result = search_runs()
             except Exception as exc:
