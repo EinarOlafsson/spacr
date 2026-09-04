@@ -2151,6 +2151,11 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 pass
 
         def _on_native_destroyed(self, *_args) -> None:
+            """Mark the canvas dead and stop its timer.
+
+            The native window can go before Python does, and a timer that fires after
+            it draws into an object that is not there.
+            """
             self._dead = True
             self.stop_timer()
 

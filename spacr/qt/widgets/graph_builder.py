@@ -271,6 +271,7 @@ class _DraggableList(QListWidget):
     """
 
     def __init__(self, parent=None):
+        """Build the list as a drag SOURCE that takes no drops."""
         super().__init__(parent)
         self.setDragEnabled(True)
         self.setDragDropMode(QAbstractItemView.DragOnly)

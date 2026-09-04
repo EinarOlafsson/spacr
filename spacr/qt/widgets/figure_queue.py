@@ -503,6 +503,7 @@ class _ClearFiguresLabel(QLabel):
     clicked = Signal()
 
     def __init__(self, parent=None):
+        """Build the word as a focusable control, not a label."""
         super().__init__(tr("Clear figures"), parent)
         self.setObjectName("FigureQueueClear")
         self.setCursor(Qt.PointingHandCursor)

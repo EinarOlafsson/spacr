@@ -571,6 +571,11 @@ class _Backdrop(QObject):
         self._fit()
 
     def _fit(self) -> None:
+        """Resize the backdrop to the dialog, if both are still alive.
+
+        Every read goes through ``getattr``: Qt delivers to a filter whose Python
+        attributes have already been cleared during teardown.
+        """
         try:
             dialog = getattr(self, "_dialog", None)
             card = getattr(self, "_card", None)

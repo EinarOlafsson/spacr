@@ -1639,6 +1639,7 @@ class _HeightGrip(QWidget):
 
     def __init__(self, target: QWidget, minimum: int, maximum: int,
                  parent=None):
+        """Build the grip, bounded so a drag cannot collapse or run away."""
         super().__init__(parent)
         from ..preferences import scaled_px
 

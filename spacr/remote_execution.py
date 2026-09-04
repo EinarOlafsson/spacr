@@ -761,6 +761,7 @@ class _Backend:
     """
 
     def __init__(self, runner: CommandRunner):
+        """Hold the runner every command goes through."""
         self.runner = runner
 
     def submit(
@@ -952,6 +953,7 @@ class _CommandBackend(_Backend):
     def _context(
         profile: ExecutionProfile, job: RemoteJob
     ) -> Dict[str, str]:
+        """The substitution values a user's command template may use."""
         return {
             "job_id": job.job_id,
             "module": job.module,

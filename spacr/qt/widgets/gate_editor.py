@@ -2717,6 +2717,7 @@ class _ClusterSettingsDialog(QDialog):
     """
 
     def __init__(self, parent=None, settings=None):
+        """Build the form, seeded from the screen's settings when given."""
         super().__init__(parent)
         try:
             from ..dialogs import detach_from_window_manager

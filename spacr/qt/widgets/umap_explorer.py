@@ -327,6 +327,11 @@ class _ScaledPreview(QLabel):
         return self._source
 
     def _rescale(self) -> None:
+        """Redraw the pixmap for the current size, or pass it through.
+
+        An unsized widget gets the source untouched rather than scaled to
+        nothing, which is what a first paint before layout would otherwise do.
+        """
         if self._source.isNull() or not self.width() or not self.height():
             super().setPixmap(self._source)
             return
@@ -423,6 +428,11 @@ class ImageUmapExplorer(LinkedView, QWidget):
                     self._spacr_draw_timer.start(0)
 
             def _spacr_draw(self):
+                """Draw once, if a draw is still pending.
+
+                The pending flag is cleared FIRST, so a draw that itself schedules
+                another does not lose it.
+                """
                 if not self._draw_pending:
                     return
                 self._draw_pending = False

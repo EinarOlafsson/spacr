@@ -323,6 +323,7 @@ class _EdgeTrigger(QWidget):
     """
 
     def __init__(self, host: QWidget, drawer: EdgeDrawer):
+        """Install the invisible strip on ``host`` and arm it for ``drawer``."""
         super().__init__(host)
         self.setObjectName("EdgeDrawerTrigger")
         self._drawer = drawer

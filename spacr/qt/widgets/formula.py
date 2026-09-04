@@ -660,6 +660,12 @@ class _Parser:
         return self._power()
 
     def _power(self) -> Node:
+        """``**``, RIGHT-associative, with the exponent parsed as a unary.
+
+        Two rules that a left-associative reading would get wrong: ``2 ** -1``
+        parses because the exponent goes through ``_unary``, and ``-a ** 2`` is
+        ``-(a ** 2)`` -- Python's rule, and every maths textbook's.
+        """
         node = self._atom()
         token = self._accept_op("**")
         if token is None:
