@@ -323,6 +323,12 @@ class ProviderMark(QWidget):
         writes a PREFERENCE and launches nothing, so choosing a provider
         before installing its CLI is an ordinary thing to want, and the
         console says so at the point it would actually be used.
+    :param parent: parent widget; ownership only.
+    :param status: ``READY``, ``SIGNED_OUT`` or ``NOT_INSTALLED``. Empty
+        DERIVES ONE FROM ``available``, which is what every caller written
+        before the third state did; that derivation can only ever produce
+        ready-or-not-installed, so a caller that knows the CLI is present
+        but signed out has to say so here.
     """
 
     # Gating the choice on availability was reported 2026-08-22 -- "for the
@@ -344,7 +350,9 @@ class ProviderMark(QWidget):
     SIGNED_OUT = "signed out"
     NOT_INSTALLED = "not installed"
 
-    #: What the mark says under its name in each state.
+    #: What the mark says under its name in each state. See the
+    #: constructor's ``status`` for why it is not derived from
+    #: ``available``.
     STATUS_TEXT = {
         READY: "",
         SIGNED_OUT: "sign in",

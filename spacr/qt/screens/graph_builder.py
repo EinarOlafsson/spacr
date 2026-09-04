@@ -101,6 +101,12 @@ class GraphBuilderScreen(QWidget):
     :param link: a private :class:`~spacr.qt.linked_selection.LinkedSelection`
         for tests. ``None`` joins the process-wide one, which is the point of
         the screen in normal use.
+    :param parent: parent widget; ownership only.
+    :param threaded: ``False`` runs every table read inline instead of on the
+        job runner's thread. A TEST NEEDS THE RESULT ON THE LINE AFTER THE
+        CALL; a user needs the window to keep painting while a large table
+        loads. The jobs are the same either way -- they still register, still
+        report failure through ``job_failed`` -- so only the waiting differs.
     """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):

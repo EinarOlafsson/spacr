@@ -349,6 +349,10 @@ class Panel(QWidget):
     :param beta: mark the header with :data:`BETA_SUFFIX`. The suffix is
         appended *after* the upper-casing, so it stays lower case and
         reads as a mark on the heading rather than part of it.
+
+    :param title: the caption above the panel. Drawn OUTSIDE the panel's
+        frame, beside any action word, rather than inside it.
+    :param parent: parent widget; ownership only.
     """
 
     #: Which palette colour an action word turns when the pointer is on it.

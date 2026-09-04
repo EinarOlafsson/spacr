@@ -191,6 +191,13 @@ class BrushPanel(QWidget):
     :param layer: the labels layer to edit. Defaults to the first one in the
         canvas's stack, so the ordinary case needs no argument.
     :param artifact: the mask's path, so the ledger is written beside it.
+    :param parent: parent widget; ownership only.
+    :param session: an already-built
+        :class:`~spacr.curation.MaskCuration`. ``None`` builds one from the other
+        arguments, which is the ordinary case; PASSING ONE HANDS THE
+        PANEL A SESSION THAT ALREADY HAS STATE -- a part-finished correction,
+        or one a test wrote directly -- so the panel resumes it instead of
+        starting over.
     """
 
     #: The mask changed. Carries how many elements moved.
@@ -448,6 +455,13 @@ class TrackCurationPanel(QWidget):
     a delete takes whatever is selected. Every one of them is refused with a
     sentence rather than silently declined when it would break the table —
     a button that sometimes does nothing is indistinguishable from a bug.
+    :param parent: parent widget; ownership only.
+    :param session: an already-built
+        :class:`~spacr.curation.TrackCuration`. ``None`` builds one from the other
+        arguments, which is the ordinary case; PASSING ONE HANDS THE
+        PANEL A SESSION THAT ALREADY HAS STATE -- a part-finished curation,
+        or one a test wrote directly -- so the panel resumes it instead of
+        starting over.
     """
 
     #: The table changed. Carries the number of tracks now in it.
