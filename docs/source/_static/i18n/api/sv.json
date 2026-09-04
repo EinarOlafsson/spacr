@@ -68292,6 +68292,18 @@
         "4f03e417c8d50577923fc9130565ea981cd06e5eeceff397343710fb63c6ccc8"
       ]
     },
+    "spacr.qt.screens.app_screen.AppScreen.choose_source_folder": {
+      "source_blocks_sha256": [
+        "d1c6b04e78f6fb6bf78114832d35580cdd9b1faafd1f6940e65ea7f8e6bde824",
+        "e46385ca3fff51005f4dbf26164e28004f7997f73f520ff40e9690314e09b902"
+      ],
+      "source_sha256": "b8aee455834644902761d5a8278d47be76d8462a74612f8fcab774e32dd4d1fe",
+      "text": "Fråga efter bearbetningssessionens källmapp och lägg den i src-fältet.\n\n:returns: den valda katalogen, eller ``\"\"`` om dialogrutan avbröts eller skärmen inte har något src-fält att skriva till.",
+      "translation_source_blocks_sha256": [
+        "dcd475e97ff3a58e6c5c9fb78d056c8d6d69407cbf8ff55492365401fdaf748a",
+        "e46385ca3fff51005f4dbf26164e28004f7997f73f520ff40e9690314e09b902"
+      ]
+    },
     "spacr.qt.screens.app_screen.AppScreen.choose_the_test_data": {
       "source_blocks_sha256": [
         "02422e00428a224e9681c401f1d4d99c7a9aad36bae461d463bf7c6d6f5001fb",
@@ -114508,6 +114520,22 @@
       "text": "Lägg till en full bredd (etikettlös) widget till sektionens form kropp.",
       "translation_source_blocks_sha256": [
         "bf8f6d20c642086073c73ad4884d6ceff59c49c5bbd08749f024bcb200c5e431"
+      ]
+    },
+    "spacr.qt.widgets.section.Section.eventFilter": {
+      "source_blocks_sha256": [
+        "b64ba82e46f0dd8b62a88eb74649c3b155b3e856d4845d63e061251cd609bf04",
+        "a1fe911c408cbfdcdcd75086730bc0c607e8bd0a2e0e98df11279694d83249c2",
+        "f3efd0f168c29395cb299b53657b248f21ba0932a39bbc67e2d3ba990723c524",
+        "5c2be99ed24660e63449b1124184b45aa0b0d9e4a69f28ae602b46d6d162f866"
+      ],
+      "source_sha256": "0ca9a0a99ecf2eb7b6c1f127ab9036f0befb1453555ae63392c1d5011c6b7266",
+      "text": "Svälj sidhuvudets begäran om verktygstips; skicka allt annat på.\n\n:param watched: föremålet händelsen är till för.\n:param event: händelsen.\n:returns: True för att förhindra att en verktygstips visas.",
+      "translation_source_blocks_sha256": [
+        "b64ba82e46f0dd8b62a88eb74649c3b155b3e856d4845d63e061251cd609bf04",
+        "a1fe911c408cbfdcdcd75086730bc0c607e8bd0a2e0e98df11279694d83249c2",
+        "f3efd0f168c29395cb299b53657b248f21ba0932a39bbc67e2d3ba990723c524",
+        "5c2be99ed24660e63449b1124184b45aa0b0d9e4a69f28ae602b46d6d162f866"
       ]
     },
     "spacr.qt.widgets.section.Section.header": {
