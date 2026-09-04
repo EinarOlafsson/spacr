@@ -673,6 +673,7 @@ class RectGate(Gate):
 
     def describe(self) -> str:
         def side(column, low, high):
+            """One axis's bound as words, handling either side being open."""
             if low is None:
                 return f"{column} ≤ {high:g}"
             if high is None:
@@ -723,6 +724,11 @@ class RectGate(Gate):
 
     def centre(self) -> Tuple[Optional[float], Optional[float]]:
         def middle(low, high):
+            """The midpoint of a bound, or ``None`` when either side is open.
+
+            An open side has no midpoint, and inventing one would put a gate's
+            centre somewhere the gate does not reach.
+            """
             if low is None or high is None:
                 return None
             return (float(low) + float(high)) / 2.0
@@ -1147,6 +1153,11 @@ def _convex_hull(points: np.ndarray) -> np.ndarray:
     pts = pts[order]
 
     def _half(sequence):
+        """One monotone half of the hull, by cross product.
+
+        Points that turn the wrong way are popped, which is what leaves only the
+        boundary -- run twice, upper and lower, it gives the whole hull.
+        """
         out: List[np.ndarray] = []
         for point in sequence:
             while len(out) >= 2:
@@ -1240,6 +1251,7 @@ class BoxGate(Gate):
 
     def describe(self) -> str:
         def side(column, low, high):
+            """One axis's bound as words, handling either side being open."""
             if low is None and high is None:
                 return f"any {column}"
             if low is None:
@@ -2525,6 +2537,7 @@ class GateSet:
         out: List[Gate] = []
 
         def walk(parent: Optional[str]) -> None:
+            """Append this gate and everything under it, depth first."""
             for gate in self.children(parent):
                 out.append(gate)
                 walk(gate.name)

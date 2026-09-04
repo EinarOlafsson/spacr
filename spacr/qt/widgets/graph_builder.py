@@ -512,6 +512,12 @@ def _canvas_class():
             super().paintEvent(event)
 
         def draw_idle(self):
+            """Ask for a redraw on the OWNED timer rather than a static one.
+
+            Matplotlib's Qt canvas uses static ``QTimer.singleShot``, whose callback
+            is not owned by the canvas and can run after Qt has deleted it. The
+            timer here is a child of the canvas, so it dies with what it would draw.
+            """
             self._draw_pending = True
             try:
                 if not self._spacr_draw_timer.isActive():
@@ -523,6 +529,11 @@ def _canvas_class():
                 self._draw_pending = False
 
         def _spacr_draw(self):
+            """Draw once, if a draw is still pending.
+
+            The flag is cleared FIRST so a draw that schedules another does not lose
+            it.
+            """
             if not self._draw_pending:
                 return
             self._draw_pending = False
@@ -532,6 +543,7 @@ def _canvas_class():
                 return
 
         def cancel_pending_draw(self):
+            """Drop any queued redraw. Safe on a canvas Qt has already deleted."""
             try:
                 self._spacr_draw_timer.stop()
             except RuntimeError:
