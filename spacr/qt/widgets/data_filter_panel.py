@@ -152,7 +152,13 @@ def _classify_columns_uncached(frame: pd.DataFrame) -> Dict[str, str]:
 
 
 class _ClauseRow(QFrame):
-    """One active clause, with its own controls and a remove button."""
+    """One active clause, with its own controls and a remove button.
+
+    :param column: the column this clause filters. Kept as an attribute and
+        emitted with :attr:`removed`, so it is the clause's IDENTITY in the
+        panel and not just its caption -- one clause per column.
+    :param parent: parent widget; ownership only.
+    """
 
     changed = Signal()
     removed = Signal(str)
@@ -188,7 +194,14 @@ class _ClauseRow(QFrame):
 
 
 class _RangeRow(_ClauseRow):
-    """Low/high bounds for a numeric column."""
+    """Low/high bounds for a numeric column.
+
+    :param column: the column this clause filters.
+    :param series: that column's values, read ONCE to set the spinboxes'
+        range. A snapshot, not a live view: the bounds do not follow a
+        later edit of the frame.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, column: str, series: pd.Series, parent=None):
         super().__init__(column, parent)
@@ -246,7 +259,14 @@ class _RangeRow(_ClauseRow):
 
 
 class _CategoryRow(_ClauseRow):
-    """A tick per distinct value."""
+    """A tick per distinct value.
+
+    :param column: the column this clause filters.
+    :param series: that column's values; its distinct non-null entries
+        become the ticks, sorted as text. Read once, so a value that
+        appears in the frame later gets no box.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, column: str, series: pd.Series, parent=None):
         super().__init__(column, parent)

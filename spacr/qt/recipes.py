@@ -698,6 +698,15 @@ class _RecipeMenuHandler:
     """Bound-method target for the Help-menu entry."""
 
     def __init__(self, window: QMainWindow):
+        """Bind the Help-menu entry to whichever module is on screen.
+
+        :param window: the main window; its stack is read at trigger time
+            rather than here, so one entry serves every module.
+
+        NOT A QOBJECT and so NOT PARENTED: a bound method connected to a
+        signal does not keep its object alive, which is why the caller
+        stashes this handler on the action it connected.
+        """
         self._window = window
 
     def on_triggered(self, _checked: bool = False) -> None:
@@ -761,6 +770,11 @@ class _StackWatcher(QObject):
     """
 
     def __init__(self, window: QMainWindow):
+        """Install the recipe button into each screen as it is shown.
+
+        :param window: the main window whose stack is watched; also the
+            QObject parent.
+        """
         super().__init__(window)
         self._window = window
 

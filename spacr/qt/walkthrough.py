@@ -391,6 +391,13 @@ class _WalkthroughHandler(QObject):
     """Bound-method targets for the menu entries and the screen stack."""
 
     def __init__(self, window: QMainWindow):
+        """Watch a window's stack for the first visit to each module.
+
+        :param window: the main window. ALSO THE QOBJECT PARENT, so the
+            handler cannot outlive the window whose stack it reads -- a
+            ``currentChanged`` arriving after teardown would otherwise reach
+            a handler holding a deleted stack.
+        """
         super().__init__(window)
         self._window = window
 
@@ -419,6 +426,14 @@ class _MenuTrigger(QObject):
     """One module's Help-menu entry."""
 
     def __init__(self, window: QMainWindow, app_key: str):
+        """Bind one Help-menu entry to one module's walkthrough.
+
+        :param window: the main window the walkthrough is shown over; also
+            the QObject parent.
+        :param app_key: which module's walkthrough this entry runs. Fixed at
+            construction, so the entry runs ITS module rather than whatever
+            happens to be on screen when it is chosen.
+        """
         super().__init__(window)
         self._window = window
         self._app_key = app_key
