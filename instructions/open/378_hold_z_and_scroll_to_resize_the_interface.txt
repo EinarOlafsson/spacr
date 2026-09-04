@@ -1,0 +1,112 @@
+================================================================================
+HOLD Z AND SCROLL TO CHANGE THE FONT SIZE LIVE -- IF IT CAN BE MADE FAST
+================================================================================
+
+Status:    filed 2026-09-04, not started. MEASURED the same day, and the
+           measurement is the whole content of this item: the obvious
+           implementation is 587 ms per scroll notch and the fast one needs
+           a stylesheet change first. See PART 1 before designing anything.
+Requested: 2026-09-04 -- "add to instructions if the user scrolls in or out
+           and holds z then they scrole the fontsize live. only if possible
+           to do fast without lag"
+Owner:     spacr/qt/theme.py (the sheet), spacr/qt/preferences.py (the
+           scale), spacr/qt/app.py (the wheel handler), tests/qt.
+
+THE CONDITION IS PART OF THE REQUEST. "only if possible to do fast without
+lag" is not a nicety to trade away -- a font size that stutters while the
+wheel turns is worse than the slider that already works, because the slider
+at least never pretends to be live.
+
+--------------------------------------------------------------------------------
+PART 1 -- WHAT IT COSTS TODAY, MEASURED
+--------------------------------------------------------------------------------
+
+One 1440x900 MainWindow, 847 widgets, dark theme, this machine:
+
+    stylesheet() rebuild                            1.4 ms
+    app.setStyleSheet(...) + re-polish            587.5 ms   <- what Preferences does
+    re-polish the VISIBLE SCREEN only             107   ms
+    QApplication.setFont(...)                      14   ms
+
+A wheel emits roughly twenty notches a second. At 587 ms the interface stops
+being an interface; at 107 ms it runs at nine frames a second, which is what
+the request calls lag. Only the last number is live.
+
+WHY THE FAST ONE DOES NOT WORK YET. `QApplication.setFont` changes the font
+every widget inherits, and it is cheap because it changes no rule and
+re-polishes nothing. But the sheet carries
+
+    49 hardcoded `font-size: <N>px` declarations
+
+and a QSS `font-size` beats an inherited application font. So today
+`setFont` moves the handful of widgets no rule names and leaves everything
+else exactly where it was -- which reads as broken rather than as slow.
+
+--------------------------------------------------------------------------------
+PART 2 -- SO THE JOB IS THE SHEET, NOT THE WHEEL
+--------------------------------------------------------------------------------
+
+The wheel handler is an afternoon. The thing that decides whether this item
+is possible at all is whether those 49 declarations can become relative.
+
+Qt stylesheets accept `em` and `%` for `font-size`, both resolved against
+the widget's inherited font. If the sheet expressed sizes that way, a single
+`QApplication.setFont` would move the whole interface in 14 ms and nothing
+would need re-polishing.
+
+WHAT HAS TO BE CHECKED FIRST, because it decides the answer:
+
+  * Do the 49 sites all express a size relative to the body text, or do some
+    encode a fixed pixel relationship to something that is NOT text -- an
+    icon, a row height, a fixed-width column? `spacr/qt/theme.py` already
+    has `font_px()` and `scaled_px()`; the second exists precisely because
+    "widget sizes set from Python do not grow when the stylesheet's font
+    size grows". Those call sites are the ones that will not follow an
+    inherited font, and they are the real scope of this item.
+  * `scaled_px` reads `get_font_scale()` on every call, and the dock alone
+    asks it once per row per relayout. If the scale changes twenty times a
+    second, every `scaled_px` consumer needs to be told to recompute -- and
+    that is a relayout, which is the 107 ms number again. So a live scale
+    probably has to move ONLY the text and leave `scaled_px` geometry alone
+    until the wheel stops.
+
+That last point is the design decision this item turns on, and it is a
+product one: is "the text grows now, the spacing catches up when you stop
+scrolling" acceptable, or does it look broken? Ask before building it.
+
+--------------------------------------------------------------------------------
+PART 3 -- THE GESTURE, ONCE THE ABOVE IS SETTLED
+--------------------------------------------------------------------------------
+
+  * Z HELD, not a modifier. Ctrl+wheel is the platform convention and is
+    already taken on some screens by canvas zoom (the mask editor, the
+    fractal). A letter key is unusual and deliberate; it was asked for by
+    name.
+  * The handler belongs on the application, not per screen, or it works in
+    some places and not others -- which is the shape of complaint that
+    produced instruction 315's note about application-wide filters being
+    expensive. An application-wide filter that only wakes on Wheel while a
+    key is held is cheap; one that inspects every event is not.
+  * Bounds already exist: `FONT_SCALE_MIN` 0.75 and `FONT_SCALE_MAX` 2.0 in
+    `spacr/qt/preferences.py`. A notch should be a fixed step (5 % reads
+    about right against the slider's own granularity), clamped to those.
+  * PERSIST ON RELEASE, not per notch. `set_font_scale` writes QSettings,
+    and twenty writes a second to a settings file is not free.
+  * It must not fight a scroll area. While Z is held the wheel changes the
+    size and must NOT also scroll the list under the pointer; accept the
+    event.
+
+--------------------------------------------------------------------------------
+PART 4 -- WHEN TO DROP THIS ITEM
+--------------------------------------------------------------------------------
+
+If PART 2 finds that the 49 declarations cannot be made relative without
+breaking the geometry that `scaled_px` pins, then the honest answer is that
+the gesture cannot be live on this architecture, and the item closes with
+that measurement written down rather than with a laggy implementation. The
+request already says so: "only if possible to do fast without lag".
+
+A middle option worth putting to the maintainer before dropping it: Z+wheel
+shows the new size as a number in the hint strip immediately and applies it
+once the wheel stops. That is not live, and it should not be described as
+live, but it is a usable gesture at 587 ms.

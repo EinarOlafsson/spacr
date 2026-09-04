@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-354 done / 20 open (94%).
+354 done / 22 open (94%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -95,6 +95,12 @@ OPEN
 
   375  RETIRE metadata_type AND consolidate, ONCE IMPORT HAS ACTUALLY REPLACED THEM
        375_retire_metadata_type_and_consolidate_after_migration.txt
+
+  377  AN INFECTION ASSAY MODULE: INFECTION RATE, AND EVERYTHING ELSE INFECTION MEANS
+       377_an_infection_assay_module.txt
+
+  378  HOLD Z AND SCROLL TO CHANGE THE FONT SIZE LIVE -- IF IT CAN BE MADE FAST
+       378_hold_z_and_scroll_to_resize_the_interface.txt
 
 --------------------------------------------------------------------------------
 DONE
