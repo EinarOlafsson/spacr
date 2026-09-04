@@ -115,10 +115,14 @@ when their module is imported.
 
 ## The instruction ledger
 
-Work in this repository is tracked in `instructions/`, not only in issues.
-Each item is one file saying what the state is, why it matters, what to do, how
-to know it worked, and what was deliberately *not* done. `instructions/00_INDEX.txt`
-is generated from the folder; `instructions/TEMPLATE.txt` is the shape.
+Work in this repository is tracked in an instruction ledger, not only in
+issues. Each item is one file saying what the state is, why it matters, what to
+do, how to know it worked, and what was deliberately *not* done.
+
+**It lives on the `nightly` branch, under `instructions/`** — it is working
+material rather than product, so it is deliberately not published on `main`.
+`instructions/00_INDEX.txt` is generated from the folder and
+`instructions/TEMPLATE.txt` is the shape.
 
 You do not need to file one to contribute a fix. If you are picking up
 something substantial, reading the relevant item first will usually save you
