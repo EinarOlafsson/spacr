@@ -7,7 +7,9 @@
       "label": "spacr.mixed_gpu.TorchMixedResults#18",
       "source": "backend identifier recorded in logs and run metadata.",
       "source_sha256": "48f9f569faa52d709489e0401bb5b7a1b8cd9583ad7fb52fd7b694c225640991",
-      "translation": "लॉग और रन मेटाडेटा में दर्ज बैकएंड पहचानकर्ता।"
+      "translation": "लॉग और रन मेटाडेटा में दर्ज बैकएंड पहचानकर्ता।",
+      "retired": "2026-09-03",
+      "retired_reason": "source block reworded after this review; the translation stands for the earlier wording and is no longer compared against the live docstring. Retired rather than deleted per the mechanism recorded at build_documentation_i18n.py:5798 -- a review that was given is not ours to discard because the sentence it covered changed."
     },
     {
       "context": "run-results directory in which to write the report.",

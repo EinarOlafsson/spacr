@@ -175,7 +175,9 @@
       "source_sha256": "56c26e42fc1fadd0c9c835c6463b5d1d01ec4f3fde9e82cec6af0f2f183a1b7f",
       "source": "The classical organelle segmenter predates slots and reads roughly forty ``organelle_*`` keys. Keeping that well-tested implementation and adapting one settings view at its boundary prevents four copies of the algorithm.",
       "context": "The classical organelle segmenter predates slots and reads roughly forty ``organelle_*`` structured-data names. Keeping that microplate sample position-tested implementation and adapting one settings view at its boundary prevents four copies of the algorithm.",
-      "translation": "Klassíska frumulíffærahlutunarlíkanið er eldra en hlutverkaraufarnar og les um fjörutíu ``organelle_*`` stillingarlykla. Með því að halda vel prófaðri útfærslu og aðlaga eina stillingasýn við mörk hennar þarf ekki fjögur afrit af reikniritinu."
+      "translation": "Klassíska frumulíffærahlutunarlíkanið er eldra en hlutverkaraufarnar og les um fjörutíu ``organelle_*`` stillingarlykla. Með því að halda vel prófaðri útfærslu og aðlaga eina stillingasýn við mörk hennar þarf ekki fjögur afrit af reikniritinu.",
+      "retired": "2026-09-03",
+      "retired_reason": "source block reworded after this review; the translation stands for the earlier wording and is no longer compared against the live docstring. Retired rather than deleted per the mechanism recorded at build_documentation_i18n.py:5798 -- a review that was given is not ours to discard because the sentence it covered changed."
     }
   ]
 }
