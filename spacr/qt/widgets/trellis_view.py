@@ -487,15 +487,26 @@ class TrellisPanelWidget(QWidget):
             spec = self.canvas.trellis_spec
             for channel, zone in self._zones.items():
                 zone.set_column(spec.graph.column_for(channel))
+            # A CONTROL THAT CANNOT SHOW THE SPEC FALLS BACK, it does not keep
+            # the last thing it happened to be showing. Leaving the previous
+            # value made the picker disagree with the spec, and
+            # `_on_controls_changed` reads the PICKER -- so the next touch of
+            # any control silently rewrote the spec to whatever the shelf was
+            # displaying. Instruction 310 A51..A57, entry A56: a spec restored
+            # from a saved layout with kind "empty" left the picker reading
+            # "Histogram", and moving the Bins box turned the spec into a
+            # histogram without the user choosing one.
+            #
+            # Index 0 is the honest answer in both cases: "Automatic" for the
+            # plot kind, "shared" for a scale. Neither claims a specific kind
+            # the spec did not ask for.
             index = self._kind.findData(spec.graph.kind or "")
-            if index >= 0:
-                self._kind.setCurrentIndex(index)
+            self._kind.setCurrentIndex(index if index >= 0 else 0)
             self._bins.setValue(spec.graph.bins)
             for box, mode in ((self._scale_x, spec.scale_x),
                               (self._scale_y, spec.scale_y)):
                 position = box.findData(mode)
-                if position >= 0:
-                    box.setCurrentIndex(position)
+                box.setCurrentIndex(position if position >= 0 else 0)
             self._wrap.setValue(spec.wrap)
         finally:
             self._building = False

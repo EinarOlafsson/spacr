@@ -309,8 +309,16 @@ def attributable(effect: float, scale: float, prior: float, *,
         return True, 1.0
     sigma = float(scale) if scale and scale > 0 else 1.0
     mine = float(effect)
-    rest = [(float(e), float(w)) for e, w in (others or ())
-            if float(w) > 0.0] or [(0.0, 1.0 - p)]
+    # EACH WEIGHT IS READ ONCE. Converting in the filter and again in the
+    # stored tuple let a weight whose conversion is not pure -- a lazily
+    # fetched count, a mutable proxy, a value re-read from a stream -- pass
+    # the positivity test and then be stored non-positive. The weight the
+    # filter approved would not be the weight used, and the well could be
+    # reported "this guide can never be called" on data that looked positive
+    # when it was checked. Reading once makes the two agree by construction.
+    rest = [pair for pair in
+            ((float(e), float(w)) for e, w in (others or ()))
+            if pair[1] > 0.0] or [(0.0, 1.0 - p)]
     total = sum(w for _, w in rest)
     if total <= 0:
         return False, 0.0

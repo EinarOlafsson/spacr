@@ -1647,6 +1647,15 @@ A51. spacr/guide_attribution.py:283-284, in attributable()
 
     So: fix A51's double conversion; do not "fix" A52.
 
+    VERDICT 2026-09-04: CONFIRMED and FIXED. Each weight is now read once into
+    the tuple and the filter tests that same value, so the weight the filter
+    approved is by construction the weight stored. Guarded by
+    tests/test_a_weight_is_read_once_in_attributable.py, which uses a weight
+    object that converts positive once and zero afterwards -- the smallest
+    thing that can tell reading once from reading twice; a plain float would
+    agree with the mutant. Mutation-checked: restoring the double conversion
+    turns three of its five tests red. A52 is the same line and was NOT
+    touched, per its own entry.
 
 A53. spacr/qt/widgets/refit_dialog.py:192-198 (_refresh), with spacr/refit.py:243-262 (destination)
     WHAT: When destination() cannot derive an output folder it returns None, and _refresh then drops the "Writes to ..." line silently. If there are also no notes, the notice falls through to "Nothing to change: re-fitting these settings would repeat the run you are looking at." while the Re-fit button stays ENABLED. Reachable with settings whose count_data is a list with a falsy first entry (e.g. [""]), which refit_settings accepts because the list itself is truthy (refit.py:143) but destination rejects at refit.py:251-254.
@@ -1656,13 +1665,51 @@ A54. spacr/qt/widgets/feature_explorer.py:251-253 (rank_now, the `if self._frame
     WHAT: Unloading the table leaves every other part of the panel stale. set_frame(None) empties the Split-by picker and rank_now() sets the summary to "no table loaded" and returns None, but it never clears self._result, the table rows or the figure. Verified live: after set_frame(frame) then set_frame(None), panel.summary() == 'no table loaded' while panel.table.rowCount() is still 2, panel._figure.get_axes() still holds 2 strips, and panel.result still returns the previous ExplorerResult (so selected_feature() still names a column of the table that was unloaded).
     COST: A user who closes or swaps out the source table sees a ranking table and histograms describing data that is no longer loaded, under a summary saying nothing is loaded. Any caller reading panel.result (the screen's export_ranking, for example) writes out the previous table's ranking as if it were current.
 
+    VERDICT 2026-09-04: STALE -- already fixed. Reproduced the exact scenario
+    live (set_frame(frame), rank_now(), set_frame(None), rank_now()) and every
+    number this entry reports has changed: table.rowCount() is 0 where the
+    entry saw 2, _figure.get_axes() is empty where it saw 2, result is None
+    and selected_feature() is "". _clear_result at feature_explorer.py:272-279
+    clears the result, the selection, the rows and the figure. No action.
+
 A55. spacr/qt/widgets/feature_explorer.py:294-295 (_fill_table, `if len(result.scores): self.table.selectRow(0)`)
     WHAT: selectRow(0) only emits feature_selected when the current cell actually changes, so a re-rank that keeps the selection on row 0 announces nothing even when a different feature is now on that row. Verified live with columns weak_shift (a=1..4, b=2..5) and shape (KS 0.5): ranking by AUC puts weak_shift at row 0; switching the picker to KS re-ranks so shape is at row 0 and selected_feature() returns 'shape', but feature_selected was emitted zero times during the re-rank.
     COST: Everything wired to feature_selected -- the linked views on FeatureExplorerScreen and anything downstream of the panel signal -- keeps showing the feature from the previous statistic while the table highlights a different one, so the highlighted row and the linked detail disagree until the user clicks another row.
 
+    VERDICT 2026-09-04: STALE -- already fixed. The entry's own reproduction
+    now emits. Built columns where AUC and KS genuinely disagree (weak_shift
+    a=1..4 b=2..5; shape with equal medians and different spread), ranked by
+    AUC -> row 0 weak_shift, switched the picker to KS -> row 0 shape, and
+    feature_selected fired once with 'shape'. _fill_table at :311-314 compares
+    the selected feature against the one held before the refill and emits when
+    they differ, which is the behaviour this entry asked for. No action.
+
+    A FIRST attempt did not reproduce anything because both statistics ranked
+    the same column first -- the test data, not the code, decided the answer.
+    Recorded because a "cannot reproduce" from that run would have been wrong.
+
 A56. spacr/qt/widgets/trellis_view.py:463-481, TrellisPanelWidget._sync (the two `>= 0` guards at lines 471 and 477)
     WHAT: When the incoming spec names a plot kind or a scale mode the picker has no item for, _sync leaves the combo box showing its PREVIOUS value rather than clearing it or falling back to "Automatic". The combo's data then disagrees with the spec, and _on_controls_changed reads the combo, not the spec.
     COST: The controls lie about the spec and then rewrite it. Verified by hand: with the Plot picker on Histogram, pushing TrellisSpec(graph=GraphSpec(x="area", kind=EMPTY, bins=7)) leaves the picker reading "Histogram" while panel.spec.graph.kind == "empty"; touching the Bins spin box next makes panel.spec.graph.kind == "histogram". So a spec restored from a saved layout has its plot kind silently replaced by whatever the shelf happened to be showing, without the user going near the Plot row. The scale pickers have the same shape (a mode the box cannot show is overwritten by the box's stale mode on the next control change). Docstring of _sync says "Make the controls show what the spec actually says", which is exactly what does not happen here.
+
+    VERDICT 2026-09-04: CONFIRMED and FIXED. Reproduced exactly as written:
+    with the picker on Histogram, a spec carrying kind="empty" left the picker
+    reading 'Histogram' while spec.graph.kind was 'empty', and moving the Bins
+    box then made spec.graph.kind 'histogram'. A plot kind the user never chose
+    arriving from a restored layout.
+
+    _sync now falls back to index 0 rather than keeping the last value --
+    'Automatic' for the plot kind, 'shared' for a scale -- so a control that
+    cannot show the spec says so instead of asserting something the spec never
+    said. Guarded by tests/qt/test_the_trellis_controls_do_not_lie_about_the_spec.py
+    and mutation-checked: restoring the `>= 0` guards turns it red.
+
+    THE SCALE HALF OF THIS ENTRY IS NOT REACHABLE. The same guard protected
+    both scale pickers, but TrellisSpec validates the mode in its constructor
+    (trellis_spec.py:146 raises SpecError), so no valid spec can carry a mode
+    the picker lacks. The fallback there is belt-and-braces; the plot kind was
+    the live half, because `kind` does accept values the picker has no item
+    for. Found by trying to write the test and having the constructor refuse.
 
 A57. spacr/qt/widgets/feature_rank.py:658-670 (_null_threshold)
     WHAT: A permutation in which no feature's separation could be computed is recorded in `best` as 0.0 rather than being dropped. `top` is initialised to 0.0 before the feature loop and only ever raised by a finite score, so a shuffle where every `_separation` returned NaN (each candidate class empty after the finite mask) contributes a literal "chance reached zero" to the null distribution instead of "this shuffle produced no measurement".
