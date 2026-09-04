@@ -1036,10 +1036,23 @@ class AmbientEngine:
     # -- state ---------------------------------------------------------
     @property
     def colors(self) -> List[QColor]:
+        """The palette this engine paints with.
+
+        COPIES, so a caller cannot recolour the engine by mutating what it
+        was handed.
+
+        :returns: one QColor per palette entry.
+        """
         return [QColor(c) for c in self._colors]
 
     @property
     def background(self) -> QColor:
+        """The colour behind the shapes.
+
+        A copy, for the same reason as :meth:`colors`.
+
+        :returns: the background colour.
+        """
         return QColor(self._background)
 
     def set_colors(self, colors: Sequence[Union[QColor, str]]) -> None:
@@ -1213,6 +1226,12 @@ class AmbientEngine:
 
     # -- painting ------------------------------------------------------
     def paint(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw this engine's current frame.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
         raise NotImplementedError
 
     def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
@@ -1529,6 +1548,16 @@ class BlobsEngine(_BufferedEngine):
         return self.element_count(BLOB_COUNT, len(self.blobs))
 
     def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """The shapes to draw at the current time, for a widget this size.
+
+        GEOMETRY, NOT PAINTING, so the layout can be computed on a worker
+        thread and tested without a QPainter -- an engine owns no widget and
+        no timer, which is what makes the animation deterministic.
+
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        :returns: one tuple per shape, in draw order.
+        """
         t = self.time
         short = min(width, height)
         out = []
@@ -2479,6 +2508,16 @@ class RippleEngine(_BufferedEngine):
         return self.element_count(RIPPLE_SOURCES, len(self.sources))
 
     def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """The shapes to draw at the current time, for a widget this size.
+
+        GEOMETRY, NOT PAINTING, so the layout can be computed on a worker
+        thread and tested without a QPainter -- an engine owns no widget and
+        no timer, which is what makes the animation deterministic.
+
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        :returns: one tuple per shape, in draw order.
+        """
         t = self.time
         half_diagonal = 0.5 * math.hypot(width, height)
         out = []
@@ -2786,6 +2825,16 @@ class DriftEngine(AmbientEngine):
         return pen
 
     def paint(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw the starfield, refusing a zero-sized widget.
+
+        PAINTS DIRECTLY rather than going through `geometry`, because this is
+        the one theme drawn at full resolution -- dots have to be crisp to
+        read as dots, and rounding them through a shape list would blur them.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
         if width <= 0 or height <= 0:
             return
         painter.setRenderHint(QPainter.Antialiasing,
@@ -2939,6 +2988,16 @@ class BokehEngine(_BufferedEngine):
         return self.element_count(BOKEH_COUNT, len(self.discs))
 
     def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """The shapes to draw at the current time, for a widget this size.
+
+        GEOMETRY, NOT PAINTING, so the layout can be computed on a worker
+        thread and tested without a QPainter -- an engine owns no widget and
+        no timer, which is what makes the animation deterministic.
+
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        :returns: one tuple per shape, in draw order.
+        """
         t = self.time
         short = min(width, height)
         out = []
@@ -3099,6 +3158,16 @@ class CellsEngine(_BufferedEngine):
         return self.element_count(CELL_COUNT, len(self.cells))
 
     def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """The shapes to draw at the current time, for a widget this size.
+
+        GEOMETRY, NOT PAINTING, so the layout can be computed on a worker
+        thread and tested without a QPainter -- an engine owns no widget and
+        no timer, which is what makes the animation deterministic.
+
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        :returns: one tuple per shape, in draw order.
+        """
         t = self.time
         short = min(width, height)
         out = []
@@ -4610,6 +4679,10 @@ class AmbientWidget(QWidget):
         return self._engine
 
     def theme(self) -> str:
+        """Which ambient theme is being painted.
+
+        :returns: the theme's name.
+        """
         return self._theme
 
     def palette_name(self) -> str:
@@ -4803,6 +4876,12 @@ class AmbientWidget(QWidget):
 
     # -- appearance ----------------------------------------------------
     def background_color(self) -> QColor:
+        """The colour painted behind the animation.
+
+        A copy, so a caller cannot recolour this widget in place.
+
+        :returns: the background colour.
+        """
         return QColor(self._background)
 
     def set_background_color(self, color: Union[QColor, str]) -> None:
@@ -4862,6 +4941,13 @@ class AmbientWidget(QWidget):
 
     # -- run state -----------------------------------------------------
     def fps(self) -> int:
+        """The cap on repaints per second.
+
+        A CAP, NOT A RATE. This is a backdrop and must not take frames from
+        whatever the user is doing in front of it.
+
+        :returns: the frame cap.
+        """
         return self._fps
 
     def set_fps(self, fps: int) -> None:
@@ -4991,6 +5077,10 @@ class AmbientWidget(QWidget):
 
     # -- Qt events -----------------------------------------------------
     def showEvent(self, event):
+        """Start animating, and follow the window this widget belongs to.
+
+        :param event: the Qt show event.
+        """
         super().showEvent(event)
         window = self.window()
         if window is not None and window is not self._watched:

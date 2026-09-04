@@ -307,6 +307,10 @@ class LayerCanvas(QFrame):
     # -- model ----------------------------------------------------------
     @property
     def stack(self) -> LayerStack:
+        """The layer stack this canvas paints.
+
+        :returns: the stack.
+        """
         return self._stack
 
     def set_stack(self, stack: LayerStack) -> None:
@@ -415,6 +419,10 @@ class LayerCanvas(QFrame):
 
     # -- painting -------------------------------------------------------
     def paintEvent(self, event) -> None:
+        """Draw every visible layer through the current world window.
+
+        :param event: the Qt paint event.
+        """
         super().paintEvent(event)
         canvas = self._ensure_canvas()
         painter = QPainter(self)
@@ -443,6 +451,14 @@ class LayerCanvas(QFrame):
         return (float(position.y()) - 1.0, float(position.x()) - 1.0)
 
     def wheelEvent(self, event) -> None:
+        """Zoom the world window about the pointer.
+
+        ABOUT THE POINTER, not the centre, so zooming toward something keeps
+        it under the cursor -- which is the only way to navigate a large
+        field without losing the thing you were looking at.
+
+        :param event: the Qt wheel event.
+        """
         canvas = self._ensure_canvas()
         if canvas is None:
             return
@@ -453,6 +469,10 @@ class LayerCanvas(QFrame):
         event.accept()
 
     def mousePressEvent(self, event) -> None:
+        """Begin a pan, or hand the press to the active tool.
+
+        :param event: the Qt mouse event.
+        """
         if event.button() == Qt.MiddleButton or (
                 event.button() == Qt.LeftButton
                 and event.modifiers() & Qt.ShiftModifier):
@@ -472,6 +492,10 @@ class LayerCanvas(QFrame):
         self.picked.emit(*self._stack.pick(canvas, row, column))
 
     def mouseDoubleClickEvent(self, event) -> None:
+        """Hand the double-click to the active tool.
+
+        :param event: the Qt mouse event.
+        """
         canvas = self._ensure_canvas()
         if canvas is None:
             return
@@ -485,6 +509,10 @@ class LayerCanvas(QFrame):
         self.activated.emit(*self._stack.pick(canvas, row, column))
 
     def keyPressEvent(self, event) -> None:
+        """Offer the key to the active tool before the default handling.
+
+        :param event: the Qt key event.
+        """
         if self._tool is not None and self._tool.key(self, event):
             self.update()
             event.accept()
@@ -492,6 +520,10 @@ class LayerCanvas(QFrame):
         super().keyPressEvent(event)
 
     def mouseMoveEvent(self, event) -> None:
+        """Continue a pan, or hand the move to the active tool.
+
+        :param event: the Qt mouse event.
+        """
         canvas = self._ensure_canvas()
         if canvas is None:
             return
@@ -512,6 +544,10 @@ class LayerCanvas(QFrame):
         self.hovered.emit(canvas.world_at(row, column))
 
     def mouseReleaseEvent(self, event) -> None:
+        """End a pan, or hand the release to the active tool.
+
+        :param event: the Qt mouse event.
+        """
         if self._drag is not None:
             self._drag = None
             self.unsetCursor()
@@ -779,6 +815,10 @@ class LayerViewer(LinkedView, QWidget):
     # -- model ------------------------------------------------------------
     @property
     def stack(self) -> LayerStack:
+        """The layer stack this viewer shows.
+
+        :returns: the stack.
+        """
         return self._stack
 
     def _on_layers_changed(self, event: LayerEvent) -> None:
@@ -985,6 +1025,14 @@ class LayerViewer(LinkedView, QWidget):
                     return
 
     def closeEvent(self, event) -> None:
+        """Unlink the selection and unsubscribe from the stack before going.
+
+        BOTH, and both matter: a linked view outliving its window is a
+        broadcast to a dead widget, and a live subscription on the stack is a
+        callback into one. Either is a crash rather than a leak.
+
+        :param event: the Qt close event.
+        """
         self.unlink_selection()
         self._stack.unsubscribe(self._on_layers_changed)
         self.canvas.detach()

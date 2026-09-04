@@ -38380,6 +38380,54 @@
       "source_sha256": "09fd992232b347e57b433b8cf4049012b63a5e4b62d9b32062c291c4b3683112",
       "text": "Stop listening to the model. Call from ``closeEvent``."
     },
+    "spacr.qt.layer_viewer.LayerCanvas.keyPressEvent": {
+      "source_blocks_sha256": [
+        "5a0b4f484aaf7ae5dab15d2e564f136e1e6fe9faededdfe0421a4dc8a25ae459",
+        "0e0ddb207a858dc8efd5b26f690cecdab5d8ffb147f3735d03a572e456c52df1"
+      ],
+      "source_sha256": "607409665b438abf0a0242e64fec78453354b6afc3b08326b52817691b0fcfad",
+      "text": "Offer the key to the active tool before the default handling.\n\n:param event: the Qt key event."
+    },
+    "spacr.qt.layer_viewer.LayerCanvas.mouseDoubleClickEvent": {
+      "source_blocks_sha256": [
+        "e4a25912ee2d294f521de13898919dc7ca3147ccbad818feec3f481c75b7b9b0",
+        "8759e2fb89737be7c8520d31a68c072db682281123b04cec0e10d3e727a9179f"
+      ],
+      "source_sha256": "a967ae957b18f6e50c322113d939437033fcada21ec21566419cf397e8dbfdd7",
+      "text": "Hand the double-click to the active tool.\n\n:param event: the Qt mouse event."
+    },
+    "spacr.qt.layer_viewer.LayerCanvas.mouseMoveEvent": {
+      "source_blocks_sha256": [
+        "70a0b316a1292c94469f683f06e5cfc3460b6f4f28244d8885a7e681f8d850a5",
+        "8759e2fb89737be7c8520d31a68c072db682281123b04cec0e10d3e727a9179f"
+      ],
+      "source_sha256": "e7e276cb2969f9e1892f01c63f096ff1dcbea4862c5c66733e51730b573fa8b9",
+      "text": "Continue a pan, or hand the move to the active tool.\n\n:param event: the Qt mouse event."
+    },
+    "spacr.qt.layer_viewer.LayerCanvas.mousePressEvent": {
+      "source_blocks_sha256": [
+        "1b859d50e09cc955d06d608866f542c1cf02f37e264c1e158da87bad8e046e86",
+        "8759e2fb89737be7c8520d31a68c072db682281123b04cec0e10d3e727a9179f"
+      ],
+      "source_sha256": "1f824d5f7927d70a386c5d383ab233839783109dd699479e1888023745f06d08",
+      "text": "Begin a pan, or hand the press to the active tool.\n\n:param event: the Qt mouse event."
+    },
+    "spacr.qt.layer_viewer.LayerCanvas.mouseReleaseEvent": {
+      "source_blocks_sha256": [
+        "7b18f55cb22685016606fad3e64bed1118af431b931b16270f2a222623f4a3fb",
+        "8759e2fb89737be7c8520d31a68c072db682281123b04cec0e10d3e727a9179f"
+      ],
+      "source_sha256": "dec7e3e7dde2dc51d2115b7ef3392a76e851ca218db11cc1e862e2e86d1d09e0",
+      "text": "End a pan, or hand the release to the active tool.\n\n:param event: the Qt mouse event."
+    },
+    "spacr.qt.layer_viewer.LayerCanvas.paintEvent": {
+      "source_blocks_sha256": [
+        "8b4b8293f3673167bd762b87f5a4e94459c6b2d0e64f05749d37b320d2f9dc66",
+        "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
+      ],
+      "source_sha256": "a56ee4ce986b07ae1424b2400563e8ef5a1b983248318af8b9a095175f6ac030",
+      "text": "Draw every visible layer through the current world window.\n\n:param event: the Qt paint event."
+    },
     "spacr.qt.layer_viewer.LayerCanvas.reset_view": {
       "source_blocks_sha256": [
         "b9c91b153c358d017ef96d20c5d1f6bb2574c283e1d3ce6da492c743e0807a16"
@@ -38417,12 +38465,29 @@
       "source_sha256": "03395fa73c6b39a551193682c7fd0f20e4312287a783f6bdf54191f3f95d6dc6",
       "text": "Attach a tool (or ``None`` to go back to picking); returns the old one.\n\nKeyboard focus is granted only while a tool is attached: a tool\ntypically wants Escape and Backspace, and a canvas that grabbed focus\nthe rest of the time would swallow the arrow keys the surrounding\nscreen uses."
     },
+    "spacr.qt.layer_viewer.LayerCanvas.stack": {
+      "source_blocks_sha256": [
+        "bf8172fd3803590f69bd1977f24780087ef7b635046a9788dbd85e85784cda36",
+        "d71a5c2a7933f2ae5eb9c76077d335f4433515298545b93d53526d72e6f4bf1f"
+      ],
+      "source_sha256": "2a1377089794cb1971657ccd58cb1d0e23a78a9a6f8c69c6f50658b48c94aa8c",
+      "text": "The layer stack this canvas paints.\n\n:returns: the stack."
+    },
     "spacr.qt.layer_viewer.LayerCanvas.tool": {
       "source_blocks_sha256": [
         "d91c136b48591928ee861ea091431719a6694fefd14867eff2af995e2d8ce4f4"
       ],
       "source_sha256": "d91c136b48591928ee861ea091431719a6694fefd14867eff2af995e2d8ce4f4",
       "text": "The :class:`CanvasTool` currently borrowing the mouse, if any."
+    },
+    "spacr.qt.layer_viewer.LayerCanvas.wheelEvent": {
+      "source_blocks_sha256": [
+        "b121988633d6238fb9226cbdbe5ec83cfa7f5042677954b802bd998c02753b6e",
+        "d6d63989a57b05294876ea5737339b8d89e1b0f51198abea115b986ad4ad1a4f",
+        "268b3d9c329ef1a8b5c41e2d168f5ff5884530ba79c74724c2d3d83da1c43c24"
+      ],
+      "source_sha256": "a109ab300314092a8c819f5e5eecc3b53c0af37a6abdb5d12abb3a499f793370",
+      "text": "Zoom the world window about the pointer.\n\nABOUT THE POINTER, not the centre, so zooming toward something keeps\nit under the cursor -- which is the only way to navigate a large\nfield without losing the thing you were looking at.\n\n:param event: the Qt wheel event."
     },
     "spacr.qt.layer_viewer.LayerListWidget": {
       "source_blocks_sha256": [
@@ -38471,12 +38536,29 @@
       "source_sha256": "c12dccf260215f7fac1a7b54e06bf01569805fd1ed9df3a656a5ecb215095d16",
       "text": "Load ``path`` as a labels layer."
     },
+    "spacr.qt.layer_viewer.LayerViewer.closeEvent": {
+      "source_blocks_sha256": [
+        "27f092ec9258dc7806676185590fe1b8652094a3445daf0f5f9d3020caae31f6",
+        "a802ef5adf248f6991956989a0c70bbca6bf1f1df027bbff791b4b48e6badc9b",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "87022fa6b6e4a0c228acd63c82330eb9c9dfad05ec753681ac0cb1a59bb092c7",
+      "text": "Unlink the selection and unsubscribe from the stack before going.\n\nBOTH, and both matter: a linked view outliving its window is a\nbroadcast to a dead widget, and a live subscription on the stack is a\ncallback into one. Either is a crash rather than a leak.\n\n:param event: the Qt close event."
+    },
     "spacr.qt.layer_viewer.LayerViewer.on_linked_selection_changed": {
       "source_blocks_sha256": [
         "9e56c7ffc5766131bc0c11177dedd2db56c29a99228614e7e8068e15b3377b4a"
       ],
       "source_sha256": "9e56c7ffc5766131bc0c11177dedd2db56c29a99228614e7e8068e15b3377b4a",
       "text": "Highlight the object another view selected, when we hold it."
+    },
+    "spacr.qt.layer_viewer.LayerViewer.stack": {
+      "source_blocks_sha256": [
+        "c24c33256f0ce3a490f5b6c6c4a50535cb99972007148b8ea770f0781973b862",
+        "d71a5c2a7933f2ae5eb9c76077d335f4433515298545b93d53526d72e6f4bf1f"
+      ],
+      "source_sha256": "835cd7939c203cfe98e13b5c6ede283f0f2b75a352f6e50fa99573a09f85e98e",
+      "text": "The layer stack this viewer shows.\n\n:returns: the stack."
     },
     "spacr.qt.layer_viewer.make_layer_viewer_screen": {
       "source_blocks_sha256": [
@@ -48526,6 +48608,50 @@
       "source_sha256": "0317522830c55611677ca7fef16e755d07ec16df7d9b877ea405a17a190c3706",
       "text": "Run and render one provenance-bearing surrogate explanation.\n\n:param host: the screen that runs training on this panel's behalf --\n    `host._on_train_requested` is what the \"train\" action reaches.\n    ``None`` is guarded for, so the panel still builds and renders and\n    the action simply does nothing, which is what a test wants.\n:param parent: parent widget."
     },
+    "spacr.qt.screens.model_explanation.ExplainCvPanel.closeEvent": {
+      "source_blocks_sha256": [
+        "8a618163905399add99a781e6e938e9990ba4513fee96622c00ebf4242d8559c",
+        "1401bd1d2cda7bad57f9d2479986ea214b595c3ab4af7101e83d315454999fbb",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "1f0ed7cef0209f3b51d096e7970848c19c1b31ea8a4b024544498ff28452571b",
+      "text": "Shut the job pool down before going away.\n\nA WORKER OUTLIVING ITS PANEL writes results into a widget whose C++\nhalf is gone, which is a crash rather than a leak.\n\n:param event: the Qt close event."
+    },
+    "spacr.qt.screens.model_explanation.ExplainCvPanel.open_activation_maps": {
+      "source_blocks_sha256": [
+        "ed88dd8f1242396852b020f7eb3d117bfc467df0098460618184679611821685"
+      ],
+      "source_sha256": "ed88dd8f1242396852b020f7eb3d117bfc467df0098460618184679611821685",
+      "text": "Hand off to the activation-map module for the current model."
+    },
+    "spacr.qt.screens.model_explanation.ExplainCvPanel.open_held_out_objects": {
+      "source_blocks_sha256": [
+        "08d0ced114a9636117958e4f33e059086cb27c2e64243479ca53f1feae41defc",
+        "5ba73b8cd94653494a85d753bfe423b22d98716d0dca6c7a995d56e3ec24507f"
+      ],
+      "source_sha256": "5442b0f6acfa912bc504bc2fd73bd4ec428ed38c010e0735299b8c3bd1ad57fd",
+      "text": "Show the held-out objects the explanation was scored on.\n\nDoes nothing when there is no result or nothing was held out, which\nis the state before a run rather than a failure."
+    },
+    "spacr.qt.screens.model_explanation.ExplainCvPanel.run": {
+      "source_blocks_sha256": [
+        "f11a8bfdcc7d8ef57e3e0b0a728bcbeca708f9b374d96b4420ab3ea25753a179",
+        "e3618a3865ef95fd5400ab38507bee7688de4fe94df5275c4f1fb737ad56bede"
+      ],
+      "source_sha256": "5de19fa4260bc2f338d9f2de7581bccfbfcb55b65f01995ea8abe6aaefed6549",
+      "text": "Read the form and run the explanation, refusing an incomplete one.\n\nBoth inputs are required, and the refusal is silent-safe: a missing\nfield is the ordinary state before the user has finished filling it\nin, not an error to interrupt them with."
+    },
+    "spacr.qt.screens.model_explanation.ExplainCvPanel.run_analysis": {
+      "source_blocks_sha256": [
+        "5beaa346a85721b47e6e4c4fb865810ac54ace9bc0048d9ad30a2c2c8bdeae7d",
+        "185517367eb59c74123daeb43fe99b78cd1e278059aa10ed4f2f81c1005acd87",
+        "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864",
+        "1b5521de059c1bbe9ac6d46b709ecc0d4bdabff3049f9b3bb937fa208f913f6d",
+        "07129152938ef3bab1b22a0e895220a971f3e9cbe5ad568bf3a1566672ec36ea",
+        "6971fc7d42d3eb1d69c0f5c8e30880aed8d9f4a07ff5d0e2f21b8b634a58b1d1"
+      ],
+      "source_sha256": "9539c3ac202a2db37eb00c64114d7841c992304a4e75c39cc6d829f838ecd999",
+      "text": "Run the surrogate explanation and render it.\n\nSEPARATE FROM :meth:`run` so the analysis can be driven without the\nform -- a test, or another screen handing over inputs it already has.\n\n:param database: the measurements database.\n:param predictions: the model's predictions.\n:param path_column: which column joins predictions to objects.\n:param prediction_column: which column holds the prediction."
+    },
     "spacr.qt.screens.model_explanation.InvestigateHitPanel": {
       "source_blocks_sha256": [
         "e4a83fa3a4b497e72e6db28445c8e202a364f24e50d96506626537337e4539ba",
@@ -48534,6 +48660,78 @@
       ],
       "source_sha256": "c7dd4e717cf41f70f1ecc5fc67dda8800b0d8af09d8123075d2a8e32e2c2db75",
       "text": "Guide-fraction-aware, cross-fitted candidate-cell investigation.\n\n:param host: the screen that runs training on this panel's behalf --\n    `host._on_train_requested` is what the \"train\" action reaches.\n    ``None`` is guarded for, so the panel still builds and renders and\n    the action simply does nothing, which is what a test wants.\n:param parent: parent widget."
+    },
+    "spacr.qt.screens.model_explanation.InvestigateHitPanel.closeEvent": {
+      "source_blocks_sha256": [
+        "8a618163905399add99a781e6e938e9990ba4513fee96622c00ebf4242d8559c",
+        "a0c5368a7fffc6afb72d47dc01ea200ff0754b61b753dae7e5dd5522614f5d70"
+      ],
+      "source_sha256": "02a8f89f6675b17e8228aabb8ce380229b5699ab8479e0bd0e70be01b136161b",
+      "text": "Shut the job pool down before going away.\n\n:param event: the Qt close event."
+    },
+    "spacr.qt.screens.model_explanation.InvestigateHitPanel.configure_hit": {
+      "source_blocks_sha256": [
+        "253e8831f55b830fd4b04b3c0d8ff0de8c0ff1caff081f46b3d564752a8bb54d",
+        "fd779b5405c6318ab9772912c2a26188ca992b9c140944f27dfb62ba907be139",
+        "8a76d5cf6e514518b1134c38f5d3916476eb198fddd8ea3bd4acb1edb5ad0cf2",
+        "cf51d0acb68e9c9660f82bd5956989b1a0146bdb841c79e6f03f4c84c4ac6b47",
+        "b60c37e37dc457766e39a6a11b739884529cdac3f5a38b125a53c372c08163f4",
+        "cbbd246be305fd63350f4730e4f3ef0fe90ac4ca11fddacecc7d1a551652c72f"
+      ],
+      "source_sha256": "13cd42d7475211530e68825a4f245d6034bf98d1dd873b74f7da473f3f4722b6",
+      "text": "Fill the form from a hit the regression screen picked.\n\nThe seam that makes this screen reachable from a result rather than\nonly from a blank form: everything the investigation needs is\nalready known at the point the user clicks a hit.\n\n:param folder: the run folder the hit came from.\n:param gene: the gene the hit names.\n:param effect: its effect size.\n:param guides: the guides supporting it."
+    },
+    "spacr.qt.screens.model_explanation.InvestigateHitPanel.open_candidates": {
+      "source_blocks_sha256": [
+        "3add8bf3b69c4a92f77a7ba76dcf0f6cfde7abc9d4afb8d4d5d443d40d9e7473"
+      ],
+      "source_sha256": "3add8bf3b69c4a92f77a7ba76dcf0f6cfde7abc9d4afb8d4d5d443d40d9e7473",
+      "text": "Show the candidate cells this investigation found."
+    },
+    "spacr.qt.screens.model_explanation.InvestigateHitPanel.open_umap": {
+      "source_blocks_sha256": [
+        "dbb7db35e714c0d1d1b4939062bd04d0ba53d326bcae2d4f9ba3b55a0ab5dcb8"
+      ],
+      "source_sha256": "dbb7db35e714c0d1d1b4939062bd04d0ba53d326bcae2d4f9ba3b55a0ab5dcb8",
+      "text": "Show the candidates in the embedding, when hosted by a screen."
+    },
+    "spacr.qt.screens.model_explanation.InvestigateHitPanel.promote": {
+      "source_blocks_sha256": [
+        "18d8a1485908c3e6489850f30e0b434efe34776255ba568443ac97be253bdd03",
+        "786689f4aa8247951d7f78718acbb58d0b5bfa939c08c9156a318586b3acc7d1"
+      ],
+      "source_sha256": "e7aaa649726d13fea95184c5b871a580e340c6196972642e5e49993df0aac137",
+      "text": "Record this hit as annotated, against the attribution run.\n\nREFUSES WITHOUT AN ANNOTATION. A promotion is a claim about the\nbiology, and one with no note attached says only that somebody\npressed a button."
+    },
+    "spacr.qt.screens.model_explanation.InvestigateHitPanel.run": {
+      "source_blocks_sha256": [
+        "eb8a125b2350a8f7f9e5fc4a295db614aad3d28da5b46b89e980327f82f70401",
+        "2abaa14e7625af02bd5d7e191e13495a14473089b669bfb49b62b8003ee0278d"
+      ],
+      "source_sha256": "2b47dd2bc7c51c13e518891f3500e5c6d265a798a41edc42c686a4830c63e90b",
+      "text": "Read the form and run the investigation.\n\nThe guide and feature lists are comma-separated free text, so blanks\nare dropped rather than passed on as empty names."
+    },
+    "spacr.qt.screens.model_explanation.InvestigateHitPanel.run_analysis": {
+      "source_blocks_sha256": [
+        "002ba4517297f426af665e05bf284fd9e01dadbcd3385f4d5d86e50f8eb16254",
+        "f722baa0bcab32c9c5d3c92b7169f8475493a57afd1c5f0f0bf24c1eab91d9b9",
+        "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864",
+        "1b5521de059c1bbe9ac6d46b709ecc0d4bdabff3049f9b3bb937fa208f913f6d",
+        "fa5cdbc00a4aa3a1630268add8abab0051f60486a850300cc5f248d6a3c4ce80",
+        "17e0aee90c7f2446f82ee8da25743b2c13526640bf32278ae240908f5602d6dd",
+        "d9720e1ae544a6515f0db09cab50fe015d2db3ce960fbf21299d8aaa5250eccf",
+        "984caf8d4404889bd6394b016769160d2f5789c167626a5db4e98dcee60272a0"
+      ],
+      "source_sha256": "a68d0422a4a77d06f75bcc157dca64c066e33282d6326191fa4dd2da646dcfb1",
+      "text": "Run the cross-fitted investigation and render it.\n\nSeparate from :meth:`run` so it can be driven without the form.\n\n:param database: the measurements database.\n:param predictions: the model's predictions.\n:param fractions: the guide-fraction table.\n:param gene: the gene under investigation.\n:param guides: the guides supporting the hit.\n:param score: which score column to investigate."
+    },
+    "spacr.qt.screens.model_explanation.InvestigateHitPanel.undo": {
+      "source_blocks_sha256": [
+        "2ba3635c4fbcb0bc1f5f4ef7401595038842a8f629a5735169f972bbacbc0c7f",
+        "a1b9fa2f4aec6c461975b604e8bf315b0719e4d5b4656d71ca01750a109d4872"
+      ],
+      "source_sha256": "06640aecad4f8ef8d33ed52a72c11f01aed08d39de9b1c90cfc93d3d8581fe83",
+      "text": "Withdraw the last promotion.\n\nDoes nothing when there is none, so the button is safe to press\ntwice."
     },
     "spacr.qt.screens.model_explanation.InvestigateHitScreen": {
       "source_blocks_sha256": [
@@ -48550,6 +48748,14 @@
       ],
       "source_sha256": "521e4f5265873c9fc5f4521ef6908944a5327edc9d2e56373cdd5d947c3e93c6",
       "text": "Accept the normal MainWindow hand-off from Hit List."
+    },
+    "spacr.qt.screens.model_explanation.InvestigateHitScreen.configure_hit": {
+      "source_blocks_sha256": [
+        "35e3a7559fc655767135ca6e322617dec46390084acbdd1c1dfb6cbbaf2a1530",
+        "a8f21e6fbd8a72d23e65436561308dbab6c0f2b48d3f4237eae1aa86db632295"
+      ],
+      "source_sha256": "f3de18f70c449b0244c88fcff82acfde17801e5c9f1dd746171560c2e9d2df94",
+      "text": "Forwarded to the panel this screen wraps.\n\n:param request: the hit's folder, gene, effect and guides."
     },
     "spacr.qt.screens.model_explanation.ModelExplanationScreen": {
       "source_blocks_sha256": [
@@ -54647,6 +54853,24 @@
       "source_sha256": "d1ac688851d77ca3cb1c49628b5590e5cd3cba5eb649e9cce7fffab9b91d6feb",
       "text": "What to multiply every element's peak alpha by, given the density.\n\nAdditive compositing means N overlapping shapes are N times the\nlight, so a density control with no compensation is a *brightness*\ncontrol wearing a misleading name. Measured, on a page at 0.076:\nmean frame lightness went from 0.135 at density 1.0 to 0.288 at 3.0.\nThe backdrop would have become the loudest thing behind a settings\nform — which the alphas in this module were set on a rendered frame\nspecifically to prevent (see :data:`AURORA_ALPHA_DARK`).\n\nSo above 1.0 the field's light is *divided among* more elements\nrather than added to it. Below 1.0 nothing is done: quadrupling the\nalpha of a quarter as many blobs clips to white rather than\ncompensating, and a sparser field being a quieter one is the right\nanswer anyway.\n\nDensity therefore changes the *texture* of the field — how many\nshapes it is made of, and how strongly each one states itself — and\nnot how loud the field is. That is the only reading of the control\nthat leaves the backdrop legible at both ends of its range."
     },
+    "spacr.qt.widgets.ambient.AmbientEngine.background": {
+      "source_blocks_sha256": [
+        "f6552357fcc355d9b7a7c524cd13bbeb29a2fc6c9f154bae2719c64bca9f0832",
+        "7947030157c91ee064b5cb01ecc7684f268a72048e748e0326242be8706fbcc5",
+        "c81897756c8ef80f0a3f4201a8cadddee1255eca80816f8720bc86d430495fe8"
+      ],
+      "source_sha256": "b216e984fb785dd859c0503a90658e9678119edc2c2902692e077c1902f58fa7",
+      "text": "The colour behind the shapes.\n\nA copy, for the same reason as :meth:`colors`.\n\n:returns: the background colour."
+    },
+    "spacr.qt.widgets.ambient.AmbientEngine.colors": {
+      "source_blocks_sha256": [
+        "2ecd4bf4318995024888f04cfebc3c9ad0329777efa7b3d4431ec1ed28024f4d",
+        "92b6cd255cef54ccac15af44f4f3b9a9395f8eab4c2a625001e30f00b79042f5",
+        "30361efae97f05306d613ae707c048a2f5c2431a58473ee3eafd463f04cb05a0"
+      ],
+      "source_sha256": "d7709046141180acf05ac159348b403daae6e4639ad0a1fd476613d5a27c8011",
+      "text": "The palette this engine paints with.\n\nCOPIES, so a caller cannot recolour the engine by mutating what it\nwas handed.\n\n:returns: one QColor per palette entry."
+    },
     "spacr.qt.widgets.ambient.AmbientEngine.effective_density": {
       "source_blocks_sha256": [
         "032a9f8e9b65e81630954e054a7eed9c1618469a908a960f6f4d4619b28307d5",
@@ -54669,6 +54893,16 @@
       ],
       "source_sha256": "9e843cf6674b0f1ab185c8f9306eef01619d2f3313198326d365e9341585cd18",
       "text": "What this engine would draw right now, in pixels.\n\nEvery engine answers this and every engine paints *from* it, so a\ntest can assert on the geometry and know it is asserting on the\nframe. The tuple shape is per engine and documented there."
+    },
+    "spacr.qt.widgets.ambient.AmbientEngine.paint": {
+      "source_blocks_sha256": [
+        "a522e42e0f6ba2da730219376c956370389079a72c6db2328d58990ffe565224",
+        "5946df653be153d72e7a63df57d06e55648fb12e4361e4c5b2cad1204150d0bc",
+        "38e257ec9aa67577e8fafacf2a35d0b17aaeb36d99812a6540e622bd451b3bda",
+        "e716a7525acc16daf77d1dc2261b999815ed2dde904cc2f2aa2a0159a90e5755"
+      ],
+      "source_sha256": "7d3b062b76ede3268cb2d4f5b5dd8b0bb2b3dcdb3faaaf88b8678f11cb4531fb",
+      "text": "Draw this engine's current frame.\n\n:param painter: the painter to draw with.\n:param width: the widget's width in pixels.\n:param height: its height in pixels."
     },
     "spacr.qt.widgets.ambient.AmbientEngine.set_background": {
       "source_blocks_sha256": [
@@ -54789,6 +55023,15 @@
       "source_sha256": "30a3ff327d59a1c1f578dbdf341a03ecbfd09d984eb52ffa6d72f50d090dc2ec",
       "text": "The image painted under the animation, or ``None``."
     },
+    "spacr.qt.widgets.ambient.AmbientWidget.background_color": {
+      "source_blocks_sha256": [
+        "25a30ff41c491322a614bec72ae60078bbbb564e977914656c3199510185d14a",
+        "a0b40a4714d133b0de935faf1aeaa934ac9d845cf90323bd0fa78ba7e1911a61",
+        "c81897756c8ef80f0a3f4201a8cadddee1255eca80816f8720bc86d430495fe8"
+      ],
+      "source_sha256": "912fcc23a352b6a0b4ef172e8b1606ff6a288405d9cf37d68527f73e0b22fb42",
+      "text": "The colour painted behind the animation.\n\nA copy, so a caller cannot recolour this widget in place.\n\n:returns: the background colour."
+    },
     "spacr.qt.widgets.ambient.AmbientWidget.blur": {
       "source_blocks_sha256": [
         "b2dbbbaa361f44f570557741878c509ef72dbd92c6d73d60498003de633ff800"
@@ -54845,6 +55088,15 @@
       ],
       "source_sha256": "a38888733a34cea33ebd4950d0170deecfccf5959391775062f03da2b3798394",
       "text": "Track the parent's geometry and sit below its other children."
+    },
+    "spacr.qt.widgets.ambient.AmbientWidget.fps": {
+      "source_blocks_sha256": [
+        "30e9f3add5a4e3b21c1e05a4344357e69c5c0be68561fad2c599fe8a281fd117",
+        "40ca78e6c7c527849608ff66b6bdb650dee5866969fcb2096ce47daa44cd41a2",
+        "ac925d4bc8b9555cad764bcf5720b25844f08c3fa320b3d2b784b44d7fd8ead7"
+      ],
+      "source_sha256": "ea578fff024c2310bcbe5df8bcda565b93be970ef32793c92cd10b3e0a05a1f3",
+      "text": "The cap on repaints per second.\n\nA CAP, NOT A RATE. This is a backdrop and must not take frames from\nwhatever the user is doing in front of it.\n\n:returns: the frame cap."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.frames_shaded": {
       "source_blocks_sha256": [
@@ -55006,6 +55258,14 @@
       "source_sha256": "ceadc8e5d8254de3366a9a007dd5dec3f49f48e01a13ee13a21c6595374bd9e6",
       "text": "Whether a shading thread is running for this backdrop.\n\nThe CPU guarantee used to be a claim about a timer and is now also a\nclaim about a thread, so it needs something to assert on: a backdrop\nbehind a screen nobody is looking at must not be keeping a core warm."
     },
+    "spacr.qt.widgets.ambient.AmbientWidget.showEvent": {
+      "source_blocks_sha256": [
+        "52522f631b6fe8619e1e06d811cb063b55678b47109553519a3defa06e393509",
+        "cfb5f62d44a9ab0f88142bb225ab68ba3158b01cacc7eddbfdd3f1b2a165013c"
+      ],
+      "source_sha256": "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715",
+      "text": "Start animating, and follow the window this widget belongs to.\n\n:param event: the Qt show event."
+    },
     "spacr.qt.widgets.ambient.AmbientWidget.size_scale": {
       "source_blocks_sha256": [
         "71ec740d3f7319ceecdd8291517d9dc999d0f35261d6be66f958f180e743d41a",
@@ -55036,6 +55296,14 @@
       ],
       "source_sha256": "a7b7a58936f03f2ab59079897c95ec59e5b1afa0d13602a9c5810d1b093bb3d2",
       "text": "Stop ticking and retire the shading thread. Costs exactly nothing\nwhile stopped — no timer, no thread, and no frame held in memory.\n\nDropping the published frame matters because these screens stay\nbuilt: a dozen module screens the user has visited would otherwise\neach keep a slot warm behind a tab nobody is on, which is 2 MiB apiece\nfor the aurora. The next :meth:`start` shades a replacement before it\nstarts the thread, so there is nothing to show for it."
+    },
+    "spacr.qt.widgets.ambient.AmbientWidget.theme": {
+      "source_blocks_sha256": [
+        "6f6f1fac2ab6cb679d9f9587af639e928b7453cadac8987ba5aa89b12aaadf3c",
+        "a59a2cd52f5c713b42b3d9c99b6e15c8386a8b6a7bddce089385ddb638ded9fa"
+      ],
+      "source_sha256": "eb96f162204f738df042742be395761a11dfd43547c6b7701acbf68ce142b74c",
+      "text": "Which ambient theme is being painted.\n\n:returns: the theme's name."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.time": {
       "source_blocks_sha256": [
@@ -55149,6 +55417,17 @@
       "source_sha256": "ca807175787ccc6840513f3f7dd43a1cc6b279e29e450d1675de00d16e3306d8",
       "text": "How many blobs are painted right now."
     },
+    "spacr.qt.widgets.ambient.BlobsEngine.geometry": {
+      "source_blocks_sha256": [
+        "e6e3be60a2ca1cbf6cead77c7aa33cd6e848a96702678e2fcc91c4808a9c8e05",
+        "953a075d2731cf07cf8d8bcce8d9fdf8545f9215a763232ecf176a4e4e21cb87",
+        "38e257ec9aa67577e8fafacf2a35d0b17aaeb36d99812a6540e622bd451b3bda",
+        "e716a7525acc16daf77d1dc2261b999815ed2dde904cc2f2aa2a0159a90e5755",
+        "b79356af3d4279df039197bc452d328e40d6372926ac250e8822baecdfada18c"
+      ],
+      "source_sha256": "712207ee3c0b8b070c3e68ff2a0fb547918a886bf1b9d41f5d4e06f753969ad7",
+      "text": "The shapes to draw at the current time, for a widget this size.\n\nGEOMETRY, NOT PAINTING, so the layout can be computed on a worker\nthread and tested without a QPainter -- an engine owns no widget and\nno timer, which is what makes the animation deterministic.\n\n:param width: the widget's width in pixels.\n:param height: its height in pixels.\n:returns: one tuple per shape, in draw order."
+    },
     "spacr.qt.widgets.ambient.BokehEngine": {
       "source_blocks_sha256": [
         "3a5b352a2eeff2458ed11801e662929a3ae5c7884291d7f4748e30d56ea5bdfe",
@@ -55163,6 +55442,17 @@
       ],
       "source_sha256": "9b8a9cc775990ffacf6cf28ea34bdfc9141ed53ad1f176830aec29b7220a45d7",
       "text": "How many discs are painted right now."
+    },
+    "spacr.qt.widgets.ambient.BokehEngine.geometry": {
+      "source_blocks_sha256": [
+        "e6e3be60a2ca1cbf6cead77c7aa33cd6e848a96702678e2fcc91c4808a9c8e05",
+        "953a075d2731cf07cf8d8bcce8d9fdf8545f9215a763232ecf176a4e4e21cb87",
+        "38e257ec9aa67577e8fafacf2a35d0b17aaeb36d99812a6540e622bd451b3bda",
+        "e716a7525acc16daf77d1dc2261b999815ed2dde904cc2f2aa2a0159a90e5755",
+        "b79356af3d4279df039197bc452d328e40d6372926ac250e8822baecdfada18c"
+      ],
+      "source_sha256": "712207ee3c0b8b070c3e68ff2a0fb547918a886bf1b9d41f5d4e06f753969ad7",
+      "text": "The shapes to draw at the current time, for a widget this size.\n\nGEOMETRY, NOT PAINTING, so the layout can be computed on a worker\nthread and tested without a QPainter -- an engine owns no widget and\nno timer, which is what makes the animation deterministic.\n\n:param width: the widget's width in pixels.\n:param height: its height in pixels.\n:returns: one tuple per shape, in draw order."
     },
     "spacr.qt.widgets.ambient.Cell": {
       "source_blocks_sha256": [
@@ -55185,6 +55475,17 @@
       ],
       "source_sha256": "6d1bffda8454ad5c5e9efa8839316782efa7951cba4d1faebff9cbbc5a529d72",
       "text": "How many cells are painted right now."
+    },
+    "spacr.qt.widgets.ambient.CellsEngine.geometry": {
+      "source_blocks_sha256": [
+        "e6e3be60a2ca1cbf6cead77c7aa33cd6e848a96702678e2fcc91c4808a9c8e05",
+        "953a075d2731cf07cf8d8bcce8d9fdf8545f9215a763232ecf176a4e4e21cb87",
+        "38e257ec9aa67577e8fafacf2a35d0b17aaeb36d99812a6540e622bd451b3bda",
+        "e716a7525acc16daf77d1dc2261b999815ed2dde904cc2f2aa2a0159a90e5755",
+        "b79356af3d4279df039197bc452d328e40d6372926ac250e8822baecdfada18c"
+      ],
+      "source_sha256": "712207ee3c0b8b070c3e68ff2a0fb547918a886bf1b9d41f5d4e06f753969ad7",
+      "text": "The shapes to draw at the current time, for a widget this size.\n\nGEOMETRY, NOT PAINTING, so the layout can be computed on a worker\nthread and tested without a QPainter -- an engine owns no widget and\nno timer, which is what makes the animation deterministic.\n\n:param width: the widget's width in pixels.\n:param height: its height in pixels.\n:returns: one tuple per shape, in draw order."
     },
     "spacr.qt.widgets.ambient.Curtain": {
       "source_blocks_sha256": [
@@ -55247,6 +55548,17 @@
       ],
       "source_sha256": "106fcf7be37a8721c0101403bd95e07cbb71fc0109cb02c6848e2031bf76c471",
       "text": "Diameter of the soft pass around a dot. Equal to the dot itself\nat blur 0, which is how the default frame stays exactly what it\nwas."
+    },
+    "spacr.qt.widgets.ambient.DriftEngine.paint": {
+      "source_blocks_sha256": [
+        "189f4915dde6d7269886c7f1b081d04d12a74021cbd42864b24cbf44a6f4470a",
+        "c9e6719d600b9315b1054221343f73783dab80b4245c5df11b7acccf5a8e09c6",
+        "5946df653be153d72e7a63df57d06e55648fb12e4361e4c5b2cad1204150d0bc",
+        "38e257ec9aa67577e8fafacf2a35d0b17aaeb36d99812a6540e622bd451b3bda",
+        "e716a7525acc16daf77d1dc2261b999815ed2dde904cc2f2aa2a0159a90e5755"
+      ],
+      "source_sha256": "1c493b6aa5e0e181a33ccbf77ea2572c78482f42ae1bb592c7bed555ac458ca2",
+      "text": "Draw the starfield, refusing a zero-sized widget.\n\nPAINTS DIRECTLY rather than going through `geometry`, because this is\nthe one theme drawn at full resolution -- dots have to be crisp to\nread as dots, and rounding them through a shape list would blur them.\n\n:param painter: the painter to draw with.\n:param width: the widget's width in pixels.\n:param height: its height in pixels."
     },
     "spacr.qt.widgets.ambient.DriftEngine.work": {
       "source_blocks_sha256": [
@@ -55446,6 +55758,17 @@
       ],
       "source_sha256": "8cf56b3ae1764d6128dd5704e4071abcf73bfef7bcbc18729a1675a64fee4d92",
       "text": "How many ripple sources are painted right now."
+    },
+    "spacr.qt.widgets.ambient.RippleEngine.geometry": {
+      "source_blocks_sha256": [
+        "e6e3be60a2ca1cbf6cead77c7aa33cd6e848a96702678e2fcc91c4808a9c8e05",
+        "953a075d2731cf07cf8d8bcce8d9fdf8545f9215a763232ecf176a4e4e21cb87",
+        "38e257ec9aa67577e8fafacf2a35d0b17aaeb36d99812a6540e622bd451b3bda",
+        "e716a7525acc16daf77d1dc2261b999815ed2dde904cc2f2aa2a0159a90e5755",
+        "b79356af3d4279df039197bc452d328e40d6372926ac250e8822baecdfada18c"
+      ],
+      "source_sha256": "712207ee3c0b8b070c3e68ff2a0fb547918a886bf1b9d41f5d4e06f753969ad7",
+      "text": "The shapes to draw at the current time, for a widget this size.\n\nGEOMETRY, NOT PAINTING, so the layout can be computed on a worker\nthread and tested without a QPainter -- an engine owns no widget and\nno timer, which is what makes the animation deterministic.\n\n:param width: the widget's width in pixels.\n:param height: its height in pixels.\n:returns: one tuple per shape, in draw order."
     },
     "spacr.qt.widgets.ambient.Source": {
       "source_blocks_sha256": [
@@ -71866,6 +72189,14 @@
       "source_sha256": "b9e27d00ad9b70b60f997c0b1d726eb49fdefea6c5bea2ddfbf3428ac3143500",
       "text": "Everything a reader needs before believing the picture."
     },
+    "spacr.qt.widgets.pca_model.PCAResult.component_names": {
+      "source_blocks_sha256": [
+        "23bd6098398cd56488d9efc50d31872f5f1a283a2f546f46c4b1eac901d98792",
+        "3a7374ca3a578387a1954d7e119bebbc50211662e604f8322ed5be466cd1e2c6"
+      ],
+      "source_sha256": "1d5865ce470aace82f1e603edccefccbb03b274ff6a6768881aacb692bef43b0",
+      "text": "The components' display names, in order.\n\n:returns: one name per component."
+    },
     "spacr.qt.widgets.pca_model.PCAResult.cumulative_ratio": {
       "source_blocks_sha256": [
         "da2b2cfe60e50da6692ec62402e03a21b12ad89ca376cc1518974f293b2c6557"
@@ -71911,6 +72242,23 @@
       ],
       "source_sha256": "727ec39cbc50548d56a2cc320abcb009a94a1370d1d6cc4954fbf84fcbda9c59",
       "text": "One row per feature: its loading and its correlation on each\ncomponent. What \"export the loadings\" writes."
+    },
+    "spacr.qt.widgets.pca_model.PCAResult.n_components": {
+      "source_blocks_sha256": [
+        "562dbc7f035036a958a9165e9cfb6d87f3b701729c1641ba818a041aa6a6e05c",
+        "6af9d98da22ce04e2ddc8f2d8d617f149f733d29ad32da8850c41948c82152e9"
+      ],
+      "source_sha256": "a0715b399a4132f4ea1588dd2136dcc63fccb11d05939bdb2108cc400c2393d0",
+      "text": "How many components were kept.\n\n:returns: the component count."
+    },
+    "spacr.qt.widgets.pca_model.PCAResult.n_features": {
+      "source_blocks_sha256": [
+        "2cc7e8364fe9eaa6a172becc2ec8d911ff27b7dbc04abe83665cda922c5cf0af",
+        "b0a3a7c9ba6cf31cc8d643e8471a4bbc2c7dc591ad98a7df1c9620d077f5f252",
+        "9773a0804b3e91025fb3be99630b260a1218b0b20ba3a3419e44ce23f2c8115d"
+      ],
+      "source_sha256": "9e40b65e28e194a2427eeb38394347b810cfa5b543b48d17e651ede89ab6e01b",
+      "text": "How many columns went into the decomposition.\n\nThe columns ACTUALLY used, which can be fewer than the spec asked\nfor: a constant or all-null column contributes no variance and is\ndropped before fitting.\n\n:returns: the feature count."
     },
     "spacr.qt.widgets.pca_model.PCAResult.plane_features": {
       "source_blocks_sha256": [
@@ -71997,6 +72345,69 @@
       ],
       "source_sha256": "c70cf80a105409f6bffa85450418e4a81e953117a2611b556a6dba07c7d61e3a",
       "text": "Rebuild from :meth:`to_dict`; unknown keys ignored, missing keys\ndefaulted, so an analysis written by another build still opens."
+    },
+    "spacr.qt.widgets.pca_model.PCASpec.from_json": {
+      "source_blocks_sha256": [
+        "ec28179bca05a2121492ac84ec61616ad949929408edcb0dc0a011fdd799b277",
+        "dff13df1a48489a78f9a7a9b139cbf7077f58a7a6a0e9a9ba127673213755b45",
+        "7d49c5db3c3ebc8f90714320310bfef90fe855404119da16b66d453a68f37709"
+      ],
+      "source_sha256": "4af416daf6fc171a657b2438055d07e723eaae2184c5c14fdf282bb668ca67f7",
+      "text": "Rebuild a spec from JSON text.\n\n:param text: the JSON text.\n:returns: the rebuilt spec."
+    },
+    "spacr.qt.widgets.pca_model.PCASpec.to_dict": {
+      "source_blocks_sha256": [
+        "f6f40b525ce485ebc9611974641d1cf8d2fb76538e3f633b1e9378b8917acf57",
+        "1614923e1c226c775bfb8597f75223cade4902f132d656d9bcc419685ade1a0b"
+      ],
+      "source_sha256": "90df9a13803d9131ff2499fecc2cd65aab963000b00203f5fe2e8afad0ceaa63",
+      "text": "This spec as plain data.\n\n:returns: a JSON-safe dict."
+    },
+    "spacr.qt.widgets.pca_model.PCASpec.to_json": {
+      "source_blocks_sha256": [
+        "8eb05314582ba634cde80a9372864a8f299e9af2755fbcec9f3c9548f5eb28ac",
+        "dff13df1a48489a78f9a7a9b139cbf7077f58a7a6a0e9a9ba127673213755b45"
+      ],
+      "source_sha256": "6f9824eb74d94f0ac006c83bb5d4e69255826121d242ea3654eb172fd80c95e4",
+      "text": "This spec as JSON text, keys sorted so the file is diffable.\n\n:returns: the JSON text."
+    },
+    "spacr.qt.widgets.pca_model.PCASpec.with_components": {
+      "source_blocks_sha256": [
+        "b5be41e6ee4ca1c771e44091d3fe1450babb9940ccdf3f68509771db1d590cb8",
+        "b9f2a35fbbeccc6a8d87c68708e83b2f1642af5f522d97ba5677ab1cc008261d",
+        "0f3b5279bb0fb93b3eb177f1b16f5c233dca1ece12f795253567d52ec8b0b03f"
+      ],
+      "source_sha256": "b595a0a435787d0c14b04a9afaaa3625050334399924306dc93bff1f816bdc5a",
+      "text": "A copy keeping a different number of components.\n\n:param n: how many to keep.\n:returns: the new spec."
+    },
+    "spacr.qt.widgets.pca_model.PCASpec.with_features": {
+      "source_blocks_sha256": [
+        "9ba856820f21e44b6765f6171c7da3f9f41da76ed33386a44ded2dd1e589c913",
+        "7ad8d8ad4229a4591025e38ec58f8d4bfc683215f43a2caf54b499defc849554",
+        "eea6f37a39960bde77215c83013ad3adedef994f149a727f81f881af5b5cd7c1",
+        "0f3b5279bb0fb93b3eb177f1b16f5c233dca1ece12f795253567d52ec8b0b03f"
+      ],
+      "source_sha256": "ac498a02903c599dd30d31cfd10e2edcb27f3853896298503d5c203b11abb6ce",
+      "text": "A copy decomposing a different set of columns.\n\nA COPY: a spec is a value, so the one a view is showing is never\nedited underneath it.\n\n:param features: the columns to decompose.\n:returns: the new spec."
+    },
+    "spacr.qt.widgets.pca_model.PCASpec.with_nan_policy": {
+      "source_blocks_sha256": [
+        "21a47437572917bfc22d63ef632ed116beee77a235294129fda6e6742b366942",
+        "011182d997acc4f358ed1fd37fdd118f9e1b5d9e0cac9e75cabde7d21a50926b",
+        "0f3b5279bb0fb93b3eb177f1b16f5c233dca1ece12f795253567d52ec8b0b03f"
+      ],
+      "source_sha256": "4158e6944bfdce03321c76b924faa3369e42414c30db0b9b4dec942e0ad9138a",
+      "text": "A copy handling missing values differently.\n\n:param policy: the policy's name.\n:returns: the new spec."
+    },
+    "spacr.qt.widgets.pca_model.PCASpec.with_scaling": {
+      "source_blocks_sha256": [
+        "d8436174eba3eec49b6122c0d4b626d6d9316e18ca805bb6fe032beef68583c3",
+        "1dd35a51a6d1eab6b730db8db5bdc59ed2b45fbbcda570c33b3fed02fef3336a",
+        "c84a9037056795166fff97ebca8faabe6c03fffa2e6338831c2de644d7298972",
+        "0f3b5279bb0fb93b3eb177f1b16f5c233dca1ece12f795253567d52ec8b0b03f"
+      ],
+      "source_sha256": "23fb3a7146e0ecad49ca2d33e4f87a7d9250f8fa6df044ecdd2dc59375fe08ba",
+      "text": "A copy using a different scaling.\n\nSCALING IS NOT COSMETIC HERE. PCA maximises variance, so unscaled\ncolumns in different units let the largest unit dominate every\ncomponent -- which is why this is a spec field and not a display\noption.\n\n:param scaling: the scaling's name.\n:returns: the new spec."
     },
     "spacr.qt.widgets.pca_model.candidate_features": {
       "source_blocks_sha256": [
