@@ -423,6 +423,7 @@ class ImageUmapExplorer(LinkedView, QWidget):
                 self._spacr_draw_timer.timeout.connect(self._spacr_draw)
 
             def draw_idle(self):
+                """Queue a redraw on the canvas's OWN timer."""
                 self._draw_pending = True
                 if not self._spacr_draw_timer.isActive():
                     self._spacr_draw_timer.start(0)
@@ -444,6 +445,7 @@ class ImageUmapExplorer(LinkedView, QWidget):
                     return
 
             def cancel_pending_draw(self):
+                """Drop any queued redraw."""
                 self._spacr_draw_timer.stop()
                 self._draw_pending = False
 

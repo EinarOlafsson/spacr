@@ -299,6 +299,12 @@ def exact_misiurewicz_center(digits: int = 320):
         raise RuntimeError("the Mandelbrot pattern needs mpmath") from error
 
     def _iterate(c, n):
+        """Iterate the map n times at arbitrary precision.
+
+        `mpmath` rather than float: a Misiurewicz point is found by Newton's
+        method on an orbit that is chaotic by construction, and double precision
+        loses the point long before the iteration converges.
+        """
         z = mp.mpc(0)
         for _ in range(n):
             z = z * z + c

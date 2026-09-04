@@ -790,6 +790,7 @@ class PCAPanel(QWidget):
         self._jobs.cancel()
 
         def _fit():
+            """Fit the decomposition. Off the GUI thread when threaded."""
             try:
                 result = pca(frame, spec)
             except PCAError as exc:

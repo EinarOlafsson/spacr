@@ -642,6 +642,7 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
     notices = []
 
     def axis(column: Optional[str]) -> Tuple[Tuple[Optional[str], ...], int]:
+        """One facet axis's levels and how many there are."""
         if not column:
             return (None,), 0
         levels, cut = _levels(source, column, max_levels)

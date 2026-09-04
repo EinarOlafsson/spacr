@@ -147,6 +147,12 @@ def axis_frame(coords: Any, width: int, height: int, *, yaw: float = 0.0,
     scale = usable * max(0.05, float(zoom)) / max(span, 1e-9)
 
     def projected(points: Sequence[Sequence[float]]) -> np.ndarray:
+        """Project points into the frame, in PIXEL coordinates.
+
+        The vertical is negated because screen y grows downward and the data's
+        does not -- without it the plot is drawn upside down and still looks
+        plausible.
+        """
         values = (np.asarray(points, dtype=float) - centre) @ rotation.T
         result = np.empty((len(values), 2), dtype=float)
         result[:, 0] = values[:, 0] * scale + float(width) / 2.0

@@ -1242,6 +1242,11 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
     problems: List[Problem] = []
 
     def _require_file(key: str, purpose: str, fix: str) -> None:
+        """Refuse a missing or unset path, saying what it was needed FOR.
+
+        Both the purpose and the fix are carried into the message: "not set" on
+        its own tells a user what happened and not what to do about it.
+        """
         value = settings.get(key)
         if value is None or (isinstance(value, str) and not value.strip()):
             problems.append(Problem(

@@ -264,6 +264,7 @@ def _svg_arc(path: QPainterPath, p0: QPointF, p1: QPointF,
         c0, s0 = math.cos(a0), math.sin(a0)
         c1_, s1 = math.cos(a1), math.sin(a1)
         def pt(c_, s_):
+            """One point on the arc, from its cosine and sine."""
             return QPointF(cx + rx*math.cos(phi)*c_ - ry*math.sin(phi)*s_,
                            cy + rx*math.sin(phi)*c_ + ry*math.cos(phi)*s_)
         p_start = pt(c0, s0); p_end = pt(c1_, s1)

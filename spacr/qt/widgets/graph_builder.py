@@ -973,6 +973,7 @@ class GraphCanvas(LinkedView, QWidget):
     def _xy(self, rows: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
         spec, scales = self._spec, self._scales
         def axis(column, levels):
+            """One axis's values and its level order, or empty when unset."""
             if not column or column not in rows.columns:
                 return np.zeros(len(rows))
             if levels:
@@ -1029,6 +1030,7 @@ class GraphCanvas(LinkedView, QWidget):
                           edgecolors=palette["fg"], linewidths=1.4, zorder=5)
 
         def update(new_mask) -> None:
+            """Redraw the points for a new selection mask."""
             if new_mask is None:
                 # The configured opacity, not a literal: this runs on every
                 # selection change, so a hard-coded value here quietly undoes
