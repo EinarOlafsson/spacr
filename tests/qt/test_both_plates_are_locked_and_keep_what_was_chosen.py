@@ -33,9 +33,18 @@ from PySide6.QtWidgets import QApplication
 
 pytestmark = pytest.mark.qt
 
-from spacr.qt.screens.experiment_design import (WELL_SIDE,
-                                                ExperimentDesignScreen)
+# well_side() IS A BASE NOW, NOT THE ANSWER. It was read as a raw pixel
+# constant, so at the 200% font scale a two-digit column header wanted 30 px
+# inside a 22 px cell and columns 10 to 24 had their numbers cut in half.
+# `well_side()` routes it through `scaled_px`, which is the house mechanism
+# for a widget size set from Python. The invariant these tests exist for is
+# unchanged and still checked below: ONE geometry, shared by both plates --
+# it is now one function rather than one integer.
+from spacr.qt.screens.experiment_design import (ExperimentDesignScreen,
+                                                well_side)
 from spacr.qt.widgets.plate_map_picker import PlateMapPicker
+
+from .test_the_text_fits_sweep import at_font_scale  # noqa: F401
 
 #: The two window widths every geometry claim is checked at. The fault this
 #: guards only appears once the layout has spare space to hand out.
@@ -122,7 +131,7 @@ def _oblong(cells) -> dict:
     """Every cell that is not ``WELL_SIDE`` square, with what it measured."""
     return {name: (cell.width(), cell.height())
             for name, cell in cells.items()
-            if (cell.width(), cell.height()) != (WELL_SIDE, WELL_SIDE)}
+            if (cell.width(), cell.height()) != (well_side(), well_side())}
 
 
 # --------------------------------------------------------------------------
@@ -172,9 +181,9 @@ class TestNeitherPlateCanBeUnlocked:
             }
 
         assert strips == {
-            "ExperimentDesignScreen": {"column": {WELL_SIDE},
-                                       "row": {WELL_SIDE}},
-            "PlateMapPicker": {"column": {WELL_SIDE}, "row": {WELL_SIDE}},
+            "ExperimentDesignScreen": {"column": {well_side()},
+                                       "row": {well_side()}},
+            "PlateMapPicker": {"column": {well_side()}, "row": {well_side()}},
         }
 
     @pytest.mark.parametrize("well_count", [6, 96, 384, 1536])
@@ -437,8 +446,8 @@ class TestTheSharedPartsAreOneCopy:
         from spacr.qt.screens import experiment_design
         from spacr.qt.widgets import plate_map_picker
 
-        assert (experiment_design.WELL_SIDE
-                is plate_map_picker.WELL_SIDE)
+        assert (experiment_design.well_side
+                is plate_map_picker.well_side)
 
     def test_one_locked_square(self):
         from spacr.qt.screens import experiment_design
@@ -457,13 +466,13 @@ class TestTheSharedPartsAreOneCopy:
         """The shared statement is what the lock is, so it is read here
         rather than trusted: Qt adds the border, the padding and the margin
         back on to whatever ``min-`` and ``max-`` ask for, so a cell that
-        asked for ``WELL_SIDE`` while drawing a rim would come out wider
+        asked for ``well_side()`` while drawing a rim would come out wider
         than the grid is pitched for by twice that rim."""
         from spacr.qt.widgets.plate_map_picker import _locked_square
 
-        assert f"min-width: {WELL_SIDE}px" in _locked_square(0)
-        assert f"max-height: {WELL_SIDE}px" in _locked_square(0)
-        assert f"min-width: {WELL_SIDE - 4}px" in _locked_square(2)
+        assert f"min-width: {well_side()}px" in _locked_square(0)
+        assert f"max-height: {well_side()}px" in _locked_square(0)
+        assert f"min-width: {well_side() - 4}px" in _locked_square(2)
         assert "padding: 0px" in _locked_square(2)
         assert "margin: 0px" in _locked_square(2)
 
@@ -502,8 +511,8 @@ class TestABorderIsTakenBackOffToo:
         header.show()
         QApplication.processEvents()
         header.ensurePolished()
-        assert header.size().height() == WELL_SIDE
-        assert header.size().width() == WELL_SIDE
+        assert header.size().height() == well_side()
+        assert header.size().width() == well_side()
 
     def test_the_wells_keep_theirs(self, qtbot, hostile_rim):
         """The wells are buttons, so the label rule should never have reached
@@ -515,7 +524,7 @@ class TestABorderIsTakenBackOffToo:
         well.show()
         QApplication.processEvents()
         well.ensurePolished()
-        assert well.size().height() == WELL_SIDE
+        assert well.size().height() == well_side()
 
     def test_a_whole_picker_stays_pitched(self, qtbot, hostile_rim):
         picker = PlateMapPicker()
@@ -528,7 +537,7 @@ class TestABorderIsTakenBackOffToo:
         heads = picker.findChildren(_Header)
         assert heads, "the picker drew no headers to measure"
         sizes = {(h.size().width(), h.size().height()) for h in heads}
-        assert sizes == {(WELL_SIDE, WELL_SIDE)}, sizes
+        assert sizes == {(well_side(), well_side())}, sizes
 
 
 class TestTheTwoPlatesShareOneDefinition:
@@ -548,7 +557,7 @@ class TestTheTwoPlatesShareOneDefinition:
         from spacr.qt.screens import experiment_design
         from spacr.qt.widgets import plate_map_picker
 
-        assert experiment_design.WELL_SIDE is plate_map_picker.WELL_SIDE
+        assert experiment_design.well_side is plate_map_picker.well_side
 
     def test_the_design_map_declares_no_well_side_of_its_own(self):
         import inspect
@@ -558,6 +567,11 @@ class TestTheTwoPlatesShareOneDefinition:
         source = inspect.getsource(experiment_design)
         assert "\nWELL_SIDE =" not in source, (
             "the second plate declared its own again; they drifted once")
+        # AND NOT ITS OWN SCALED ONE EITHER. The side became a function when
+        # it was made to follow the font scale, so a second copy would now
+        # be spelled `def well_side` rather than `WELL_SIDE =`.
+        assert "\ndef well_side" not in source, (
+            "the second plate grew its own well_side; they drifted again")
 
     def test_one_locked_square_helper(self):
         from spacr.qt.screens import experiment_design
@@ -582,3 +596,56 @@ class TestTheTwoPlatesShareOneDefinition:
         sheet = inspect.getsource(experiment_design._well_sheet)
         assert "_locked_square" in sheet
         assert "border-width" in sheet
+
+
+class TestThePlateStaysSquareAtEveryFontScale:
+    """The grid is pitched at one side, and the font scale moves it.
+
+    WHY THIS CLASS EXISTS. Everything above runs at the default font scale,
+    where the side is 22 whichever way it is computed -- so when `well_side`
+    began following the preference, every test above still passed while the
+    plate came apart on screen at 200%: the HEADERS scaled to 44 and the
+    WELLS stayed at 22, because their style sheet was a module-level dict
+    built once at import. Column numbers rode clear of the columns they name.
+
+    That is the same drift the class above guards against, reached by a
+    different road: not two copies of the constant, but one copy read at two
+    different times.
+    """
+
+    def test_the_wells_and_the_headers_agree_at_the_largest_font(
+            self, qtbot, at_font_scale):                     # noqa: F811
+        from PySide6.QtWidgets import QLabel, QPushButton
+
+        from .test_the_text_fits_sweep_dialogs import FONT_SCALE_MAX, _build
+
+        at_font_scale(FONT_SCALE_MAX)
+        plate = _build("spacr.qt.widgets.plate_map_picker",
+                       "PlateMapPicker", qtbot)
+
+        wells = {(w.width(), w.height())
+                 for w in plate.findChildren(QPushButton)
+                 if type(w).__name__ == "_Well"}
+        headers = {(h.width(), h.height())
+                   for h in plate.findChildren(QLabel)
+                   if type(h).__name__ == "_Header"}
+
+        assert len(wells) == 1, f"the wells are not all one size: {wells}"
+        assert wells == headers, (
+            f"wells {wells} and headers {headers} are pitched differently")
+
+    def test_the_side_follows_the_preference(self, at_font_scale):  # noqa: F811
+        """The whole mechanism, in one assertion.
+
+        `WELL_SIDE` is kept as the base rather than deleted, so the number a
+        reader sees in the source is still the 100% one.
+        """
+        from spacr.qt.widgets.plate_map_picker import WELL_SIDE, well_side
+
+        from .test_the_text_fits_sweep_dialogs import FONT_SCALE_MAX
+
+        at_font_scale(1.0)
+        assert well_side() == WELL_SIDE
+
+        at_font_scale(FONT_SCALE_MAX)
+        assert well_side() == round(WELL_SIDE * FONT_SCALE_MAX)

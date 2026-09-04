@@ -36,8 +36,15 @@ from PySide6.QtWidgets import QApplication
 
 pytestmark = pytest.mark.qt
 
-from spacr.qt.screens.experiment_design import (WELL_SIDE,
-                                                ExperimentDesignScreen)
+# well_side() IS A BASE NOW, NOT THE ANSWER. It was read as a raw pixel
+# constant, so at the 200% font scale a two-digit column header wanted 30 px
+# inside a 22 px cell and columns 10 to 24 had their numbers cut in half.
+# `well_side()` routes it through `scaled_px`, which is the house mechanism
+# for a widget size set from Python. The invariant these tests exist for is
+# unchanged and still checked below: ONE geometry, shared by both plates --
+# it is now one function rather than one integer.
+from spacr.qt.screens.experiment_design import (ExperimentDesignScreen,
+                                                well_side)
 from spacr.qt.widgets.plate_layout import (PLATE_FORMATS, ROLE_BLANK,
                                            ROLE_NEGATIVE, ROLE_POSITIVE,
                                            ROLE_TREATMENT, Condition)
@@ -93,7 +100,7 @@ def _row_header(screen, row):
 
 def _oblong(screen) -> dict:
     """Every cell of the plate that is not ``WELL_SIDE`` square."""
-    square = (WELL_SIDE, WELL_SIDE)
+    square = (well_side(), well_side())
     cells = {(well.row, well.column): well
              for well in screen._well_labels}
     rows = max(row for row, _ in cells)
@@ -127,7 +134,7 @@ class TestABlanketRuleCannotUnlockThePlate:
         plate = hostile()
 
         assert (_column_header(plate, 1).height(),
-                _row_header(plate, 1).width()) == (WELL_SIDE, WELL_SIDE)
+                _row_header(plate, 1).width()) == (well_side(), well_side())
 
     def test_a_number_still_sits_over_the_column_it_names(self, hostile):
         plate = hostile(width=WIDE)
@@ -265,7 +272,11 @@ class TestBothPlatesShareOneImplementation:
 
         assert "WELL_SIDE" not in assigned, \
             "the design screen declares a second WELL_SIDE"
-        assert "WELL_SIDE" in imported
+        # IMPORTED AS A FUNCTION. The side follows the font scale now, so a
+        # constant read at import would freeze it at whatever the scale was
+        # when this module loaded -- which is the drift this class guards
+        # against, wearing a different hat.
+        assert "well_side" in imported
 
     def test_the_cells_on_the_plate_are_that_header(self, screen):
         """What the drift looked like: a bare `QLabel` made on the spot,

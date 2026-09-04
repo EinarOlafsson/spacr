@@ -41,7 +41,16 @@ class InstallerConsentDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle(tr("spaCR privacy and optional account setup"))
-        self.setMinimumWidth(640)
+        from .preferences import scaled_px
+
+        # SIZED IN SCALED PIXELS, NOT RAW ONES. A dialog size set from
+        # Python does not grow when the stylesheet's font size does, so at
+        # the 200%% font scale the prose inside this window wrapped to more
+        # height than the window had and the last line was cut off. The
+        # size-policy fix on the label was necessary and not sufficient:
+        # a policy stops a parent handing a label less than it asks for, but
+        # it cannot make a window grow that has no room to give.
+        self.setMinimumWidth(scaled_px(640))
         layout = QVBoxLayout(self)
         explanation = QLabel(tr(
             "Crash reports go to the PUBLIC spaCR GitHub repository. They "

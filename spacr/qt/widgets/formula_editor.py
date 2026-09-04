@@ -437,7 +437,16 @@ class FormulaDialog(QDialog):
         close = QPushButton("Close", self)
         close.clicked.connect(self.accept)
         outer.addWidget(close)
-        self.resize(560, 460)
+        from ..preferences import scaled_px
+
+        # SIZED IN SCALED PIXELS, NOT RAW ONES. A dialog size set from
+        # Python does not grow when the stylesheet's font size does, so at
+        # the 200%% font scale the prose inside this window wrapped to more
+        # height than the window had and the last line was cut off. The
+        # size-policy fix on the label was necessary and not sufficient:
+        # a policy stops a parent handing a label less than it asks for, but
+        # it cannot make a window grow that has no room to give.
+        self.resize(scaled_px(560), scaled_px(460))
         # Hover help belongs on a setting's NAME, not on the field the user
         # is about to type into (instruction 113). One post-pass rather than
         # a convention every hand-built row has to remember.

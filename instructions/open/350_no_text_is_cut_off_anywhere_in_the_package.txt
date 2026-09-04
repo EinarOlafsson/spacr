@@ -954,3 +954,66 @@ The size-policy change is KEPT -- it is the documented house rule and those
 five labels should have had it -- and its comments now say plainly that it is
 necessary and not sufficient, so the next reader does not assume the case is
 closed. The ratchet is unchanged at its recorded values.
+
+
+--------------------------------------------------------------------------------
+2026-09-04 (later) — ALL FOUR DIALOG OFFENDERS ARE FIXED. THE RATCHET IS EMPTY.
+--------------------------------------------------------------------------------
+
+`KNOWN_OFFENDERS` in test_the_text_fits_sweep_dialogs.py is now `{}`. All 17
+dialogs are clean in both languages at both ends of the font slider, and the
+entries were DELETED rather than set to 0, which is this file's own rule.
+
+ONE CAUSE, NOT TWO. The note above said "two causes"; there was one, and
+naming it wrongly is what sent the first attempt at the three dialogs into the
+label instead of the window:
+
+    A SIZE SET FROM PYTHON DOES NOT FOLLOW THE FONT SCALE.
+
+The stylesheet's font sizes are built from the preference, so glyphs grow. A
+`resize`, a `setMinimumSize`, a `setMinimumWidth` or a pinned square written
+in raw pixels does not, so the glyphs outgrow the box. `preferences.scaled_px`
+is the house mechanism for exactly this, and all four fixes were one line
+through it.
+
+    FormulaDialog             self.resize(560, 460)
+    BarcodeRegexDialog        self.setMinimumSize(760, 430)
+    InstallerConsentDialog    self.setMinimumWidth(640)
+    PlateMapPicker            WELL_SIDE = 22
+
+THE LABEL WAS A RED HERRING, and the note above is what made it one. It read
+the three dialogs as "a wrapping prose QLabel whose height does not follow its
+text", so the house size-policy fix was applied to the label -- and did not
+work, because a policy stops a PARENT handing a label less than it asks for
+and cannot make a WINDOW grow that has no room to give. The label asked for
+180 px and the window had 120. Scaling the window cleared all three at once.
+The size-policy change is kept: those five labels should have had it.
+
+PLATEMAPPICKER NEEDED THE SECOND HALF THE NOTE PREDICTED. `well_side()` routes
+the side through `scaled_px`, which fixed the 15 clipped column numbers -- and
+introduced a worse fault that no existing test could see. `_WELL_SHEET` was a
+module-level dict built at import from `_locked_square(WELL_RIM)`, so it baked
+whichever font scale was active when the module first loaded:
+
+    at 200%, before:  headers 44 x 44,  wells 22 x 22
+    at 200%, after:   headers 44 x 44,  wells 44 x 44
+
+Every column number riding clear of the column it names -- the exact drift the
+two "one geometry, shared" test classes exist to prevent, reached by a road
+they did not cover: not two copies of the constant, but ONE copy read at two
+different times. It is now `_well_sheet(chosen, side)` with an `lru_cache`
+keyed by side, which keeps the repaint cheap (a 1536-well plate rebuilds every
+well's sheet on every selection change) and lets the answer change when the
+preference does.
+
+WHY THE PLATE TESTS MISSED IT, which is the transferable part: all 55 of them
+run at the DEFAULT font scale, where the side is 22 whichever way it is
+computed. They passed throughout. `TestThePlateStaysSquareAtEveryFontScale` is
+added to close that: wells and headers must agree at 2.0x, and `well_side()`
+must track the preference. A geometry invariant checked at one scale is not
+checked.
+
+WHAT REMAINS ON 350: the 24 dialogs that still need fixtures, and the seven
+locales this sweep does not run. The maintainer's decision recorded above --
+353's alignment against 350's captions, seven pixels in Portuguese at 200% --
+is still untouched.

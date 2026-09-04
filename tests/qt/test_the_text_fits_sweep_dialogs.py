@@ -66,45 +66,44 @@ SCALES = (1.0, FONT_SCALE_MAX)
 #: What this sweep found the first time it ran, as
 #: ``(dialog, locale, scale) -> how many captions are cut off``.
 #:
-#: A RATCHET, NOT AN EXCUSE, on the same terms as the screen sweep's table: a
-#: recorded count cannot grow, an unlisted combination must have none at all,
-#: and an entry that reaches zero is DELETED rather than left at 0.
+#: EMPTY, AND THAT IS THE POINT. A RATCHET, NOT AN EXCUSE, on the same terms
+#: as the screen sweep's table: a recorded count cannot grow, an unlisted
+#: combination must have none at all, and an entry that reaches zero is
+#: DELETED rather than left at 0. All four entries reached zero on 2026-09-04
+#: and were deleted, so every one of the 17 dialogs is now clean in both
+#: languages at both ends of the font slider.
 #:
-#: EVERY ENTRY IS AT 2.0x AND NONE AT 1.0x, which is the finding rather than a
-#: coincidence: 15 of the 17 dialogs are clean at both ends, and the four
-#: below are clipped only at the largest font the slider offers. That is the
-#: axis instruction 04 warned about -- "the tests measured a font scale no
-#: user has" -- and it is why this sweep runs the two ends rather than one.
+#: WHAT THE FOUR HAD IN COMMON, kept because the next raw pixel constant will
+#: fail the same way: every entry was at 2.0x and none at 1.0x, and every one
+#: was a SIZE SET FROM PYTHON that did not follow the font scale. The
+#: stylesheet's font sizes grow with the preference; a `resize`, a
+#: `setMinimumWidth` or a pinned square written in raw pixels does not, so the
+#: glyphs outgrow the box that holds them. `preferences.scaled_px` is the
+#: house mechanism and all four fixes were the same one line through it.
 #:
-#: TWO CAUSES, BOTH NAMED SO THE FIX IS SMALL RATHER THAN A SEARCH:
-#:
-#:   PlateMapPicker (15 each) -- ``WELL_SIDE = 22`` is a raw pixel constant
-#:   used unscaled, so at 2.0x a column number needs 30 px in a 22 px cell and
-#:   the header row reads as truncated digits. The square must be kept (a
-#:   plate map is a picture of a physical object) but its SIZE should follow
-#:   the font, as every other fixed box in the package does. The fix is not
-#:   one line: ``_WELL_SHEET`` is a module-level dict built at import from
-#:   ``_locked_square(WELL_RIM)``, so scaling inside it would bake whichever
-#:   font scale happened to be active when the module was imported. The sheets
-#:   have to be rebuilt when the scale changes, cached by side -- a 1536-well
-#:   plate repaints every well on every selection change, which is why they
-#:   were made constants in the first place.
+#:   PlateMapPicker (15 each) -- ``WELL_SIDE = 22`` used unscaled, so a
+#:   two-digit column number needed 30 px in a 22 px cell. The square is kept
+#:   (a plate map is a picture of a physical object) and its SIDE now follows
+#:   the font via ``well_side()``. The second half of that fix is the one this
+#:   note predicted: ``_WELL_SHEET`` was a module-level dict built at import,
+#:   which baked whichever scale was active then -- 44 px headers over 22 px
+#:   wells -- so it is now ``_well_sheet(chosen, side)``, cached by side.
 #:
 #:   InstallerConsentDialog, BarcodeRegexDialog, FormulaDialog (1-2 each) --
-#:   a wrapping prose QLabel whose height does not follow its text at 2.0x.
-#:   These are the ``wrapped_height`` case instruction 350 already built the
-#:   tool for; each is one label, and the German consent text is the longest
-#:   so it clips twice where English clips once.
-KNOWN_OFFENDERS: dict = {
-    ("PlateMapPicker", "en", FONT_SCALE_MAX): 15,
-    ("PlateMapPicker", "de", FONT_SCALE_MAX): 15,
-    ("InstallerConsentDialog", "en", FONT_SCALE_MAX): 1,
-    ("InstallerConsentDialog", "de", FONT_SCALE_MAX): 2,
-    ("BarcodeRegexDialog", "en", FONT_SCALE_MAX): 1,
-    ("BarcodeRegexDialog", "de", FONT_SCALE_MAX): 1,
-    ("FormulaDialog", "en", FONT_SCALE_MAX): 1,
-    ("FormulaDialog", "de", FONT_SCALE_MAX): 1,
-}
+#:   read as "a wrapping prose QLabel", and the label was a red herring. The
+#:   house size-policy fix was applied first and did NOT work, because a
+#:   policy stops a parent handing a label less than it asks for and cannot
+#:   make a WINDOW grow that has no room to give. Each dialog's own
+#:   ``resize`` / ``setMinimumSize`` was the raw constant, and scaling it
+#:   cleared all three.
+#:
+#: HOW THAT WAS ESTABLISHED, since the method is what made the difference:
+#: this table is compared with ``<=``, so the suite stayed green after the
+#: label fix and it was nearly recorded as done. Setting the entries to zero
+#: and re-running is what showed six still failing. A ``<=`` ratchet cannot
+#: tell "fixed" from "unchanged" -- only tightening it can, which is why
+#: tightening it is part of claiming a fix here rather than a follow-up.
+KNOWN_OFFENDERS: dict = {}
 
 
 def _build(module_path: str, class_name: str, qtbot):
