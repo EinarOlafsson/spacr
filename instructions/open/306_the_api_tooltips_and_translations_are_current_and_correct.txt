@@ -1785,3 +1785,87 @@ So the mechanical work in this instruction is done, and what remains is four
 short pieces of prose in Chinese, Korean, Swedish and the nine-locale
 `foreign` summary. That is a maintainer/reviewer gate, and it is the one the
 HANDOFF already lists as owed.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- THE API HALF IS SETTLED. THE SEVEN FAILURES, READ RATHER THAN
+              LABELLED, ARE FIVE DEFECTS AND ONE OF THEM IS NOT WHAT THIS FILE
+              SAYS IT IS.
+--------------------------------------------------------------------------------
+
+THE API CATALOG IS NO LONGER THE PROBLEM. The other session stopped adding
+public symbols and the catalogs are stable. Measured per locale rather than
+from any tool's summary:
+
+    de es fr hi is ko pt sv zh_CN en   9,426 symbols, all ten identical
+
+That closes the "API-doc catalog is short of current symbols" half of this
+item's remaining list. `test_documentation_api_catalog_inventory_and_hashes_
+are_current` passes.
+
+THE SEVEN REMAINING FAILURES IN tests/qt/test_external_i18n_catalogs.py WERE
+RE-READ RATHER THAN RE-LABELLED, on the other session's advice after it found
+three real defects behind tests it had written off. Two of the seven are one
+defect seen twice, so there are five:
+
+  1. MODULE_SUMMARIES['foreign'] -- one source hash, exactly as recorded.
+     Current English:
+       "Bring images, masks and measurement tables into a spaCR project --
+        converting microscope formats, mapping source columns, or adopting
+        masks made elsewhere"
+     Nine translations describe the older, narrower thing. Needs nine
+     sentences, then the hash follows.
+
+  2/3. zh_CN carries ENGLISH for `independent_variable_layout` and
+     `plaque_model`. Two tests report it. Both are long, precise tooltips --
+     the layout one explains long/wide/auto and lossless melting; the plaque
+     one warns that changing the checkpoint changes every plaque count.
+
+  4. sv carries ENGLISH for the per-object table's UI blurb, the 2026-09-02
+     Preferences row this file already recorded itself as adding.
+
+  5. ko `organelle_CP_prob`. AND THIS ONE IS NOT WHAT THE FILE SAYS.
+
+     Recorded here as "Korean has a reviewed false-friend variant unresolved:
+     the catalog answers 소기관 1 — Cp prob where the reviewed term is
+     소기관 1 — CP". Measured, it is TWO defects stacked, and the first is not
+     Korean at all:
+
+       _translated_setting_name('organelle_CP_prob', lang)
+         en     'Organelle 1 — Cp prob'
+         ko     '소기관 1 — Cp prob'
+         sv     'Organell 1 — Cp prob'
+         de     'Organelle 1 — Cp prob'
+         zh_CN  '细胞器 1 — Cp prob'
+
+     THE SUFFIX IS UNTRANSLATED IN EVERY LANGUAGE. The composition translates
+     the "Organelle N" half and passes "Cp prob" through untouched -- so
+     Swedish, German and Chinese are wrong in exactly the same way, and only
+     Korean has a test asserting it. The translation is not missing: `tr('Cp
+     prob', 'ko')` already answers '세포 확률(CP)'. It is never asked.
+
+     THE SECOND DEFECT IS THE KOREAN TERM. Even with the composition fixed,
+     Korean would render '소기관 1 — 세포 확률(CP)' and the reviewed term is
+     '소기관 1 — CP'. So the catalog row must become 'CP' as well.
+
+     FIXING ONLY THE COMPOSITION MAKES FOUR LOCALES BETTER AND THIS TEST STILL
+     RED. Fixing only the Korean row makes the test green and leaves sv, de and
+     zh_CN showing English. Both halves, or neither.
+
+  6. `spacr.regression_panels.apply_primary_call` is EXACT ENGLISH IN es ALONE
+     -- "Attach the common BH-plus-positive-gRNA-cut call fields." -- and is
+     not in API_EXACT_TEXT_ALLOWLIST. Eight locales translated it; one did not.
+
+AND ONE MORE, FOUND WHILE READING (6) AND NOT YET FILED ANYWHERE: ko and zh_CN
+translate "call" in that sentence as a TELEPHONE call --
+
+    ko     '... gRNA-컷 전화 필드를 연결합니다'      전화 = telephone
+    zh_CN  '... gRNA-切断电话字段'                   电话 = telephone
+
+It is a statistical call, as in variant calling. Both are fluent, both pass
+every gate, and both are about telephones. That is instruction 316's thesis in
+the API catalog rather than the runtime one, which is a surface 316 has not
+looked at.
+
+WHAT REMAINS FOR THIS ITEM, and it is now a list rather than a category: nine
+sentences for (1), two tooltips for zh_CN, one blurb for sv, the composition
+fix plus the Korean row for (5), and one Spanish sentence for (6).
