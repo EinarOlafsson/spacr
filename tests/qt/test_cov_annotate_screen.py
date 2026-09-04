@@ -1673,44 +1673,21 @@ def test_decoding_one_crop_directly_uses_the_screens_own_settings(screen):
 # The AI provider menu
 # ---------------------------------------------------------------------------
 
-def test_configuring_providers_refreshes_the_menu_that_lists_them(
-        bare_screen, monkeypatch):
-    """A provider installed in the dialog must appear without reopening
-    Annotate."""
-    import spacr.qt.widgets.ai_chat_panel as panel_mod
+def test_annotate_no_longer_owns_a_provider_menu(bare_screen):
+    """WHERE THE TWO PROVIDERS-DIALOG TESTS HERE WENT.
 
-    class _Dialog:
-        def __init__(self, parent=None):
-            pass
+    They opened the install/login dialog from Annotate's own chevron and
+    checked that accepting it refreshed the menu beside the AI button.
+    Annotate built its own copy of a control the generic AppScreen also
+    built, which is how the two drifted apart before; both are gone, and
+    the vendor is chosen once in Preferences → AI.
 
-        def exec(self):
-            return QDialog.Accepted
-
-    monkeypatch.setattr(panel_mod, "_ProvidersDialog", _Dialog)
-    refreshed = []
-    monkeypatch.setattr(bare_screen, "_refresh_ai_menu",
-                        lambda: refreshed.append(1))
-    bare_screen._on_open_providers_dialog()
-    assert refreshed == [1]
-
-
-def test_cancelling_the_providers_dialog_leaves_the_menu_as_it_was(
-        bare_screen, monkeypatch):
-    import spacr.qt.widgets.ai_chat_panel as panel_mod
-
-    class _Dialog:
-        def __init__(self, parent=None):
-            pass
-
-        def exec(self):
-            return QDialog.Rejected
-
-    monkeypatch.setattr(panel_mod, "_ProvidersDialog", _Dialog)
-    refreshed = []
-    monkeypatch.setattr(bare_screen, "_refresh_ai_menu",
-                        lambda: refreshed.append(1))
-    bare_screen._on_open_providers_dialog()
-    assert refreshed == []
+    The AI SWITCH stays. Turning the assistant on for this session is a
+    per-run choice and belongs on the screen; choosing the vendor is not.
+    """
+    assert not hasattr(bare_screen, "_ai_menu_btn")
+    assert not hasattr(bare_screen, "_on_open_providers_dialog")
+    assert bare_screen._ai_switch is not None
 
 
 # ---------------------------------------------------------------------------

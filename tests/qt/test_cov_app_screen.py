@@ -1471,39 +1471,48 @@ class TestErrorRouting:
 
 class TestAiControls:
 
-    def test_menu_without_a_provider_offers_only_the_dialog(self, qtbot,
-                                                            monkeypatch):
-        monkeypatch.setattr("spacr.qt.ai.configured_providers", lambda: [])
-        scr = _make_screen(qtbot, "mask")
-        scr._refresh_ai_menu()
-        acts = scr._ai_menu.actions()
-        labels = [a.text() for a in acts if not a.isSeparator()]
-        assert labels == ["(no vendor CLI installed)", "Providers…"]
-        assert not acts[0].isEnabled()
+    def test_the_preference_chooses_the_provider(self, qtbot, monkeypatch):
+        """WHAT THE TWO MENU TESTS HERE WERE ABOUT, asked of the new place.
 
-    def test_menu_lists_providers_and_marks_the_current_one(self, qtbot,
-                                                            monkeypatch):
+        They drove `_refresh_ai_menu` and read back the chevron's actions:
+        that no provider offered only "Providers…", and that the current one
+        was ticked. The chevron is gone -- choosing a vendor is a preference,
+        not a control on the actions row of every module -- so the same two
+        questions are asked of `_wanted_provider`, which is what the screen
+        now consults when the AI switch goes on.
+        """
+        from spacr.qt import preferences as prefs
+
         providers = [_FakeProvider("claude", "Claude Code"),
                      _FakeProvider("codex", "Codex")]
         monkeypatch.setattr("spacr.qt.ai.configured_providers",
                             lambda: providers)
-        monkeypatch.setattr(
-            "spacr.qt.ai.get_provider",
-            lambda name: next((p for p in providers if p.name == name), None))
         scr = _make_screen(qtbot, "mask")
-        scr._console.set_ai_provider("codex")
-        scr._refresh_ai_menu()
-        acts = [a for a in scr._ai_menu.actions() if not a.isSeparator()]
-        assert [a.text() for a in acts] == ["Claude Code", "Codex",
-                                            "Providers…"]
-        assert acts[0].isChecked() is False
-        assert acts[1].isChecked() is True
+        was = prefs.get_preferred_provider()
+        try:
+            prefs.set_preferred_provider("codex")
+            assert scr._wanted_provider() == "codex"
 
-        # Triggering a provider action selects it and rebuilds the menu.
-        acts[0].trigger()
-        assert scr._console._current_provider_name == "claude"
-        acts2 = [a for a in scr._ai_menu.actions() if not a.isSeparator()]
-        assert acts2[0].isChecked() is True
+            # Nothing chosen: the console takes the first available, which is
+            # what the chevron's default did.
+            prefs.set_preferred_provider("")
+            assert scr._wanted_provider() == ""
+        finally:
+            prefs.set_preferred_provider(was)
+
+    def test_no_provider_installed_means_no_choice_to_honour(self, qtbot,
+                                                             monkeypatch):
+        """The "(no vendor CLI installed)" case, after the menu that said it."""
+        from spacr.qt import preferences as prefs
+
+        monkeypatch.setattr("spacr.qt.ai.configured_providers", lambda: [])
+        scr = _make_screen(qtbot, "mask")
+        was = prefs.get_preferred_provider()
+        try:
+            prefs.set_preferred_provider("claude")
+            assert scr._wanted_provider() == ""
+        finally:
+            prefs.set_preferred_provider(was)
 
     def test_ai_switch_autoselects_the_first_configured_provider(
             self, qtbot, monkeypatch):
@@ -1561,50 +1570,20 @@ class TestAiControls:
         assert scr._console._ai_active is False
         assert scr._console._current_provider_name == "codex"
 
-    def test_providers_dialog_refreshes_the_menu_when_accepted(
-            self, qtbot, monkeypatch):
-        state = {"providers": []}
-        monkeypatch.setattr("spacr.qt.ai.configured_providers",
-                            lambda: list(state["providers"]))
-        monkeypatch.setattr(
-            "spacr.qt.ai.get_provider",
-            lambda name: next((p for p in state["providers"]
-                               if p.name == name), None))
-        scr = _make_screen(qtbot, "mask")
-        assert [a.text() for a in scr._ai_menu.actions()
-                if not a.isSeparator()][0] == "(no vendor CLI installed)"
+    def test_the_providers_dialog_is_reached_from_preferences_now(self):
+        """WHERE THE TWO DIALOG TESTS HERE WENT.
 
-        class _Dlg:
-            def __init__(self, parent=None):
-                pass
+        They opened the install/login dialog from the screen's own chevron
+        and checked that accepting it rebuilt the menu beside the AI switch.
+        There is no chevron and no menu: the dialog is reached from
+        Preferences → AI → Providers…, and accepting it re-lists the combo
+        on that page. The screen is no longer involved, so this only records
+        that the screen no longer claims to be.
+        """
+        from spacr.qt.screens.app_screen import AppScreen
 
-            def exec(self):
-                state["providers"] = [_FakeProvider("gemini", "Gemini")]
-                return QDialog.Accepted
-
-        monkeypatch.setattr(
-            "spacr.qt.widgets.ai_chat_panel._ProvidersDialog", _Dlg)
-        scr._on_open_providers_dialog()
-        assert [a.text() for a in scr._ai_menu.actions()
-                if not a.isSeparator()] == ["Gemini", "Providers…"]
-
-    def test_providers_dialog_rejected_leaves_the_menu_alone(self, qtbot,
-                                                             monkeypatch):
-        monkeypatch.setattr("spacr.qt.ai.configured_providers", lambda: [])
-        scr = _make_screen(qtbot, "mask")
-
-        class _Dlg:
-            def __init__(self, parent=None):
-                pass
-
-            def exec(self):
-                return QDialog.Rejected
-
-        monkeypatch.setattr(
-            "spacr.qt.widgets.ai_chat_panel._ProvidersDialog", _Dlg)
-        before = [a.text() for a in scr._ai_menu.actions()]
-        scr._on_open_providers_dialog()
-        assert [a.text() for a in scr._ai_menu.actions()] == before
+        assert not hasattr(AppScreen, "_on_open_providers_dialog")
+        assert not hasattr(AppScreen, "_refresh_ai_menu")
 
 
 # ---------------------------------------------------------------------------

@@ -4414,29 +4414,6 @@ QPushButton#IconButton:hover {{
     background: {P["surface_alt"]};
     border-radius: {R["sm"]}px;
 }}
-/* Provider picker beside the AI text toggle. It is a QToolButton, so the
-   QPushButton rules above do not reach it. Qt's native dark primitive filled
-   368 of its 525 rendered pixels with pure black: one visible square in the
-   Regression action row. The row supplies the resting surface; only hover and
-   open states need a fill of their own. */
-QToolButton#AiProviderMenuButton {{
-    background: transparent;
-    color: {P["fg_muted"]};
-    border: none;
-    border-radius: {R["sm"]}px;
-    min-width: 20px;
-    min-height: 20px;
-    padding: 2px;
-}}
-QToolButton#AiProviderMenuButton:hover {{
-    background: {P["surface_alt"]};
-    color: {P["fg"]};
-}}
-QToolButton#AiProviderMenuButton:pressed,
-QToolButton#AiProviderMenuButton:open {{
-    background: {P["accent_soft"]};
-    color: {P["accent"]};
-}}
 /* SQL column pickers are QToolButtons, so they do not inherit the normal
    QPushButton treatment.  Keep them visually part of the settings card:
    a dark card-coloured face, a light neutral rim and white text. */

@@ -4556,6 +4556,7 @@ class PreferencesDialog:
         modules = _page("Modules", "PreferencesTabModules")
         figures = _page("Figures", "PreferencesTabFigures")
         logging_form = _page("Logging", "PreferencesTabLogging")
+        ai_form = _page("AI", "PreferencesTabAI")
 
         # Two independent switches per level rather than one severity
         # threshold. A threshold cannot express "record DEBUG but not INFO",
@@ -5309,6 +5310,66 @@ class PreferencesDialog:
         )
         db_edit_check.setChecked(get_db_browser_editable())
         modules.addRow(tr("Database Browser"), db_edit_check)
+
+        # THE PROVIDER PICKER LIVES HERE NOW, not on the actions row of every
+        # module. It was a chevron beside the AI switch on each screen, which
+        # put a preference -- "which assistant do I use" -- in the place where
+        # per-run choices are made, and repeated it on every module. It has
+        # one answer for the whole application, which is what a preference is.
+        #
+        # `get_preferred_provider` already existed and was READ BY NOTHING:
+        # the slot was here the whole time and the chevron wrote to the
+        # console instead, so a provider chosen on one screen was forgotten
+        # by the next.
+        ai_provider_combo = QComboBox()
+        ai_provider_combo.setObjectName("AiProvider")
+        ai_provider_combo.addItem(tr("Automatic (first available)"), "")
+        try:
+            from . import ai as _ai_module
+
+            for _p in _ai_module.configured_providers():
+                ai_provider_combo.addItem(_p.label, _p.name)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not list AI providers", exc_info=True)
+        _wanted = get_preferred_provider()
+        _at = ai_provider_combo.findData(_wanted)
+        ai_provider_combo.setCurrentIndex(_at if _at >= 0 else 0)
+        ai_provider_combo.setToolTip(tr(
+            "Which assistant the AI switch routes through. Automatic picks "
+            "the first vendor CLI that is installed and logged in."
+        ))
+        ai_form.addRow(tr("Provider"), ai_provider_combo)
+
+        ai_providers_btn = QPushButton(tr("Providers…"))
+        ai_providers_btn.setObjectName("AiProvidersButton")
+        ai_providers_btn.setToolTip(tr(
+            "Install a vendor CLI, or sign in to one you have."
+        ))
+
+        def _open_providers():
+            """Open the install/login dialog, then re-list the providers."""
+            from PySide6.QtWidgets import QDialog
+
+            from .widgets.ai_chat_panel import _ProvidersDialog
+
+            if _ProvidersDialog(dlg).exec() != QDialog.Accepted:
+                return
+            chosen = ai_provider_combo.currentData()
+            ai_provider_combo.clear()
+            ai_provider_combo.addItem(
+                tr("Automatic (first available)"), "")
+            try:
+                from . import ai as _ai
+
+                for _q in _ai.configured_providers():
+                    ai_provider_combo.addItem(_q.label, _q.name)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not re-list AI providers", exc_info=True)
+            back = ai_provider_combo.findData(chosen)
+            ai_provider_combo.setCurrentIndex(back if back >= 0 else 0)
+
+        ai_providers_btn.clicked.connect(_open_providers)
+        ai_form.addRow("", ai_providers_btn)
 
         # Module visibility. Both are opt-out: existing users and fresh
         # installs continue to see every feature until they choose a quieter,
@@ -6253,6 +6314,7 @@ class PreferencesDialog:
             set_tooltips_bottom_enabled(
                 tooltips_bottom_check.isChecked())
             set_object_grid_enabled(object_grid_check.isChecked())
+            set_preferred_provider(ai_provider_combo.currentData() or "")
             # AND TELL THE SCREENS THAT ARE ALREADY OPEN. The switch used to
             # be read only while a settings panel was being built, so it did
             # nothing at all until the module was closed and reopened -- in
