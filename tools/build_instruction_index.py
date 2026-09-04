@@ -73,7 +73,6 @@ STAGE: Dict[str, str] = {
     "305": "~60% -- startup accepted from an installed wheel; sdist, GPU, matrix, profiles left",
     "306": "~93% -- 3 of 6 ratchet tests closed; 125 catalog rows owed, 6 compact rows need the maintainer",
     "310": "~27% -- 26 of 97 entries resolved; approximate, see the audit note",
-    "314": "~35% -- diagnosed only; eleven causes eliminated and none is the defect",
     "315": "~75% -- 3a/3b/3c fixed; 3d now itemised into three named optimisations",
     "316": "~20% -- red, and waiting on the maintainer's own translation pass",
     "325": "the channel between the two sessions -- open while both are running",

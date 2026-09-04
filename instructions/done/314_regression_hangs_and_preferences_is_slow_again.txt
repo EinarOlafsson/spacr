@@ -2,7 +2,10 @@
 THE REGRESSION MODULE HANGS, AND PREFERENCES IS SLOW AGAIN
 ================================================================================
 
-Status:    OPEN, filed 2026-08-29. A REGRESSION against a CLOSED instruction.
+Status:    CLOSED 2026-09-04 BY THE MAINTAINER -- the symptom is gone. Filed
+           2026-08-29 as a REGRESSION against a CLOSED instruction; never
+           reproduced on the machine that saw it, and never fixed. The
+           closing note at the end of this file is the current state.
 Owner:     unassigned. Not the coverage lane (288/310) that filed it.
 Requested: 2026-08-29 -- "i tried to import regression modual and the program
            hung twice, triggering the preferences took a verry long time.
@@ -696,3 +699,59 @@ yield at all, and none of them is instrumented. That measurement is the next
 step, and it wants the maintainer's own screen rather than a synthetic one:
 every previous round of this instruction found its real causes only on real
 data.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- CLOSED BY THE MAINTAINER: THE SYMPTOM IS GONE
+--------------------------------------------------------------------------------
+
+Closed on the maintainer's own report, 2026-09-04, in his words:
+
+    "cloase 314, i never get that problem any more!"
+
+That is the same class of evidence this item was OPENED on -- "it took less
+time before" -- and it is the only evidence that can settle it, because the
+report was always about an interactive session on the maintainer's own
+machine and was never once reproduced there by anybody else.
+
+WHAT IS CLOSED: the reported defect. Regression no longer hangs for the
+person who met it, and Preferences no longer takes a very long time.
+
+WHAT IS NOT CLAIMED, written down rather than left implied:
+
+  * NOTHING IN THIS FILE WAS EVER FIXED FOR IT. Eleven causes were
+    eliminated and the stack was taken while it stalled; no change was ever
+    made against the stall itself. Whatever ended the symptom was
+    collateral -- the shiboken hoist, the batched stylesheet (5 restyles per
+    cold launch down to 2), the icon-cache work, or a warm cache on a
+    quieter machine.
+
+  * THE LAST MEASUREMENT STILL SHOWED IT, AND IS ONE DAY OLD. 2026-09-03,
+    clean worktree at HEAD under xvfb: a 6,252 ms event-loop stall opening
+    Regression, 1,110 ms opening Preferences, 14 of 46 measured intervals
+    over the 500 ms ceiling. That number is not retracted and is not
+    re-measured. It simply no longer describes anything the maintainer
+    meets, and the maintainer is who this item was filed for.
+
+  * THE SHIBOKEN LEAD IS APPLIED, and the note above saying "NOT APPLIED
+    HERE" is stale. It is now a module-level `_SHIBOKEN_IS_VALID` at
+    spacr/qt/widgets/feature_dictionary.py:801, guarded by
+    tests/test_the_event_filter_survives_a_dead_wrapper.py. It was worth
+    625 ms -> 33 ms per Regression build, and it is the one measured change
+    that could plausibly have moved the symptom. Nobody re-measured the
+    build after applying it, which is what that note asked for.
+
+WHAT SURVIVES THIS CLOSURE, and belongs to no item:
+
+  * THE STALLS THEMSELVES. tests/qt/test_opening_things_does_not_hang.py
+    watches for STUCK -- 20 s per module, 10 s for Preferences -- so nothing
+    in the suite would fail on a six-second freeze. If this returns, the
+    ratchet will not be what says so; the maintainer will, exactly as he did
+    on 2026-08-29.
+
+  * HOME'S DOUBLING, 2.03 s -> 4.51 s between 284's closing table and
+    2026-09-03, with no stall to explain it. This file always held that it
+    was a separate regression from the stalls. It is still unowned.
+
+Neither is refiled as a new item, because nobody has asked for one. They are
+recorded here so that whoever measures a slow module next finds the numbers
+instead of starting over.

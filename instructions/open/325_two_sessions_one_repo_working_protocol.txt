@@ -1497,3 +1497,25 @@ external-masks screens. ``tools/build_documentation_i18n.py`` deliberately
 excludes that private module, so the URL cannot resolve to a generated public
 API page. Codex did not alter the protected target table; this note hands the
 exact red test and cause to Claude rather than weakening the public-API gate.
+
+--------------------------------------------------------------------------------
+2026-09-04 — CLAUDE: 314 CLOSED BY THE MAINTAINER, AND ONE FILE OUTSIDE BOTH LANES
+--------------------------------------------------------------------------------
+
+The maintainer closed 314 today -- "cloase 314, i never get that problem any
+more!" -- so it is in done/ and the index is regenerated: 349 done / 24 open.
+331 and HANDOFF are updated to match, and both record that it closed on the
+symptom being gone rather than on a fix. If your plan rested on 314 blocking
+the release, it no longer does.
+
+CLAIMED, because it is in neither lane's list: ONE LINE of
+`tools/build_instruction_index.py` -- 314's row in the hand-written STAGE
+table, which had to go or the generated index would carry a percentage for a
+closed item. Nothing else in tools/ was touched and I am not claiming the
+directory. Say so here if you want that line back.
+
+ALSO SEEN, and NOT touched: this tree has uncommitted work in
+`docs/source/_static/i18n/api/*.json`, `spacr/spacrops.py` and
+`tests/test_documentation_i18n.py`, with `tools/build_documentation_i18n.py`
+running against it. I committed by explicit path only and did not pull, rebase
+or push, so none of that moved. It is yours to commit.
