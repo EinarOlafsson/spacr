@@ -556,3 +556,70 @@ trusted. But it protects THIS checkout only, for the reason above. A guard
 that survives a fresh clone has to be tracked -- a hook file in the tree
 plus `core.hooksPath` -- and that is a decision for the maintainer, because
 it changes what every clone of this repository executes.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- RE-AUDITED ON THE MAINTAINER'S SUSPICION THAT main STILL CARRIES IT
+--------------------------------------------------------------------------------
+
+Asked today: "for 58 couln it be that the main branch still has commits with
+claude? please removecheck main and nightly and remove any claude as a
+contributor to any commit."
+
+A fair suspicion -- this file's own evidence was taken on `nightly`, and main
+was only ever asserted to be untouched. So main was audited in its own right,
+and so was everything else the remote publishes. EVERY PUBLISHED REF IS CLEAN
+AND THERE IS NOTHING TO REMOVE.
+
+    ref                     commits   Co-Authored-By:   Claude author/committer
+    ------------------------------------------------------------------------
+    origin/main                2979          0                   0
+    origin/nightly             6355          0                   0
+    tag example-data           2974          0                   0
+    tags v1.3.5 .. v1.5.0.4   674-2680       0                   0
+
+`Co-Authored-By:` is counted ANCHORED to the start of a line -- an unanchored
+grep reports 3 hits on main and 5 on nightly, and every one of them is PROSE
+INSIDE A COMMIT MESSAGE ABOUT THIS INSTRUCTION, e.g. `400e85f19` "Claude shows
+as a GitHub contributor: 38 Co-Authored-By trailers". A sentence naming the
+trailer is not the trailer, and it credits nobody. Same for the 31 messages on
+main and 51 on nightly that mention "claude" at all: they are this cleanup, the
+AI-chat feature, and setup.py's comments about the `claude`/`codex`/`gemini`
+CLIs the app can shell out to. None is attribution.
+
+AND GITHUB ITSELF NOW AGREES. `GET /repos/EinarOlafsson/spacr/contributors`
+with `anon=1`, today:
+
+    EinarOlafsson   2961
+    jak18015          18
+
+Two humans. No Claude, no `github-actions[bot]`. When this file was last
+written the REST index was clean but the rendered widget was not; the index is
+still clean and the API no longer lists the bot either.
+
+THREE THINGS THE AUDIT FOUND THAT THIS FILE DID NOT SAY:
+
+  * `origin/stable` AND `origin/gh-pages` NO LONGER EXIST ON THE REMOTE.
+    `git ls-remote --heads` returns main and nightly only; the local
+    `remotes/origin/stable` and `remotes/origin/gh-pages` are stale tracking
+    refs. That matters because stable is the ONLY place three commits
+    committed by `github-actions <github-actions@github.com>` survive
+    ("Auto-build docs", authored by Einar). They are not published.
+
+  * THE 70 TRAILERS STILL EXIST, LOCALLY, ON `backup/pre-claude-trailer-strip`
+    (e16620487). That is the pre-rewrite safety copy this file records as
+    never pushed, and it is still not pushed. It is the one place in this
+    working copy where `Co-Authored-By: Claude` appears at all. Deleting it
+    would remove the last comparison point for the rewrite, so it stays until
+    the maintainer says otherwise.
+
+  * THE GUARD THIS FILE LEFT AS A DECISION IS BUILT. Its closing section asks
+    for a tracked hook plus `core.hooksPath` rather than a checkout-local one.
+    Both are in place: `tools/hooks/commit-msg` is tracked, `core.hooksPath` is
+    `tools/hooks`, and `tests/test_no_commit_credits_claude.py` runs in CI
+    whether or not a clone honours hooks.
+
+SO NO HISTORY WAS REWRITTEN TODAY, and none should be: there is nothing left
+in a published ref to rewrite, and 325 forbids a force-push on nightly. What
+remains of 58 is unchanged and is not ours -- GitHub's cached contributor
+widget, ticket #4711257. If the page still shows Claude while the API does
+not, that is the cache and only GitHub can drop it.
