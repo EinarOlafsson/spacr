@@ -277,13 +277,36 @@ class Gate:
 
     @property
     def kind(self) -> str:  # overridden
+        """
+        The shape's tag, as it appears in a saved gate set.
+
+        The string a `from_dict` dispatches on, so it is part of the FILE
+        FORMAT and cannot be renamed to read better without migrating every
+        saved set.
+
+        :returns: the shape tag.
+        """
         raise NotImplementedError
 
     @property
     def columns(self) -> Tuple[str, ...]:  # overridden
+        """
+        Which measured columns this gate reads.
+
+        What lets a gate be validated against a table before it is applied,
+        so a set saved on one experiment says which of its columns are
+        missing here rather than raising part-way through a mask.
+
+        :returns: the column names, in axis order.
+        """
         raise NotImplementedError
 
     def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        """Which rows of ``frame`` fall inside this gate.
+
+        :param frame: the measurements to test.
+        :returns: a boolean array, one entry per row.
+        """
         raise NotImplementedError
 
     def range_filters(self) -> Tuple[RangeFilter, ...]:
@@ -323,15 +346,45 @@ class Gate:
             + (", ".join(self.thresholds()) or "no thresholds at all"))
 
     def describe(self) -> str:  # overridden
+        """
+        This gate in one line, for a person reading the hierarchy.
+
+        SAYS THE NUMBERS, not just the shape. "Region on x x y" is true of
+        every polygon ever drawn; what a reader needs is which region.
+
+        :returns: a one-line description.
+        """
         raise NotImplementedError
 
     def to_dict(self) -> Dict[str, Any]:  # overridden
+        """
+        This gate as plain data, for the saved set.
+
+        :returns: a JSON-safe dict carrying `kind`, `name`, `parent` and
+            whatever the shape needs to be rebuilt.
+        """
         raise NotImplementedError
 
     def with_parent(self, parent: Optional[str]) -> "Gate":
+        """A copy of this gate drawn inside ``parent``.
+
+        A COPY, because a gate is a value: mutating one that a set already
+        holds would change a hierarchy without the set knowing.
+
+        :param parent: the enclosing gate's name, or None for a root gate.
+        :returns: the reparented copy.
+        """
         return replace(self, parent=parent)
 
     def rename(self, name: str) -> "Gate":
+        """A copy of this gate under a new name.
+
+        The caller is responsible for the name being unique in its set; a
+        gate does not know what else the set holds.
+
+        :param name: the new name.
+        :returns: the renamed copy.
+        """
         return replace(self, name=name)
 
     # -- editing after the fact --------------------------------------------
@@ -458,10 +511,18 @@ class ThresholdGate(Gate):
 
     @property
     def kind(self) -> str:
+        """The tag a saved threshold gate carries.
+
+        :returns: the shape tag.
+        """
         return THRESHOLD
 
     @property
     def columns(self) -> Tuple[str, ...]:
+        """The one column this gate reads: the column it cuts.
+
+        :returns: the column names, in axis order.
+        """
         return (self.column,)
 
     def mask(self, frame: pd.DataFrame) -> np.ndarray:
@@ -479,9 +540,21 @@ class ThresholdGate(Gate):
         return keep
 
     def range_filters(self) -> Tuple[RangeFilter, ...]:
+        """The cut, as the one range filter a query can push down.
+
+        :returns: a single filter on this gate's column.
+        """
         return (RangeFilter(self.column, low=self.low, high=self.high),)
 
     def describe(self) -> str:
+        """The cut with its bound(s), spelled for whichever side is open.
+
+        An unbounded side is written as a one-sided inequality rather than as
+        a made-up limit, because that is what dragging a threshold to the
+        edge means.
+
+        :returns: a one-line description.
+        """
         if self.low is None:
             return f"{self.column} ≤ {self.high:g}"
         if self.high is None:
@@ -489,6 +562,11 @@ class ThresholdGate(Gate):
         return f"{self.low:g} ≤ {self.column} ≤ {self.high:g}"
 
     def to_dict(self) -> Dict[str, Any]:
+        """This gate as plain data, including every coordinate
+        needed to rebuild the shape.
+
+        :returns: a JSON-safe dict.
+        """
         return {"kind": THRESHOLD, "name": self.name, "parent": self.parent,
                 "column": self.column, "low": self.low, "high": self.high}
 
@@ -518,6 +596,13 @@ class ThresholdGate(Gate):
                        high=_shift_bound(self.high, dx))
 
     def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        """The midpoint of the cut, or ``None`` when it is open-ended.
+
+        REPORTED, NOT INVENTED. An open-ended cut has no middle, and a
+        made-up one would send the first resize somewhere arbitrary.
+
+        :returns: ``(x, y)``, either of which may be None.
+        """
         if self.low is None or self.high is None:
             # Open-ended, so there is no middle. Reported rather than
             # invented: a made-up centre would send the first resize
@@ -643,10 +728,18 @@ class RectGate(Gate):
 
     @property
     def kind(self) -> str:
+        """The tag a saved rect gate carries.
+
+        :returns: the shape tag.
+        """
         return RECTANGLE
 
     @property
     def columns(self) -> Tuple[str, ...]:
+        """The two columns this gate reads: its two axes.
+
+        :returns: the column names, in axis order.
+        """
         return (self.x_column, self.y_column)
 
     def mask(self, frame: pd.DataFrame) -> np.ndarray:
@@ -668,10 +761,21 @@ class RectGate(Gate):
         return keep
 
     def range_filters(self) -> Tuple[RangeFilter, ...]:
+        """The rectangle as two independent range filters, one per axis.
+
+        A rectangle is exactly the shape that survives being pushed into a
+        query, which is why it has this and the curved shapes do not.
+
+        :returns: one filter per axis.
+        """
         return (RangeFilter(self.x_column, low=self.x_low, high=self.x_high),
                 RangeFilter(self.y_column, low=self.y_low, high=self.y_high))
 
     def describe(self) -> str:
+        """The rectangle's extent on each axis.
+
+        :returns: a one-line description.
+        """
         def side(column, low, high):
             """One axis's bound as words, handling either side being open."""
             if low is None:
@@ -683,6 +787,11 @@ class RectGate(Gate):
                 f"{side(self.y_column, self.y_low, self.y_high)}")
 
     def to_dict(self) -> Dict[str, Any]:
+        """This gate as plain data, including every coordinate
+        needed to rebuild the shape.
+
+        :returns: a JSON-safe dict.
+        """
         return {"kind": RECTANGLE, "name": self.name, "parent": self.parent,
                 "x_column": self.x_column, "y_column": self.y_column,
                 "x_low": self.x_low, "x_high": self.x_high,
@@ -723,6 +832,10 @@ class RectGate(Gate):
                        y_high=_shift_bound(self.y_high, dy))
 
     def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        """The rectangle's middle.
+
+        :returns: ``(x, y)``.
+        """
         def middle(low, high):
             """The midpoint of a bound, or ``None`` when either side is open.
 
@@ -876,13 +989,26 @@ class PolygonGate(Gate):
 
     @property
     def kind(self) -> str:
+        """The tag a saved polygon gate carries.
+
+        :returns: the shape tag.
+        """
         return POLYGON
 
     @property
     def columns(self) -> Tuple[str, ...]:
+        """The two columns this gate reads: its two axes.
+
+        :returns: the column names, in axis order.
+        """
         return (self.x_column, self.y_column)
 
     def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        """Which rows fall inside the drawn outline.
+
+        :param frame: the measurements to test.
+        :returns: a boolean array, one entry per row.
+        """
         what = f"gate {self.name!r}"
         x = _numeric(frame, self.x_column, what)
         y = _numeric(frame, self.y_column, what)
@@ -895,15 +1021,30 @@ class PolygonGate(Gate):
         return min(xs), max(xs), min(ys), max(ys)
 
     def describe(self) -> str:
+        """The outline's vertex count and the axes it was drawn on.
+
+        :returns: a one-line description.
+        """
         return (f"{len(self.vertices)}-sided region on {self.x_column} × "
                 f"{self.y_column}")
 
     def to_dict(self) -> Dict[str, Any]:
+        """This gate as plain data, including every coordinate
+        needed to rebuild the shape.
+
+        :returns: a JSON-safe dict.
+        """
         return {"kind": POLYGON, "name": self.name, "parent": self.parent,
                 "x_column": self.x_column, "y_column": self.y_column,
                 "vertices": [list(v) for v in self.vertices]}
 
     def translated(self, dx: float, dy: float) -> "PolygonGate":
+        """A copy with every vertex moved by ``(dx, dy)``.
+
+        :param dx: shift along the x axis.
+        :param dy: shift along the y axis.
+        :returns: the moved copy.
+        """
         return replace(self, vertices=tuple(
             (float(x) + dx, float(y) + dy) for x, y in self.vertices))
 
@@ -921,6 +1062,12 @@ class PolygonGate(Gate):
 
     def scaled(self, factor: float, *,
                about: Optional[Tuple[float, float]] = None) -> "PolygonGate":
+        """A copy grown or shrunk about a point.
+
+        :param factor: multiplier; must be positive.
+        :param about: the anchor, defaulting to the gate's own centre.
+        :returns: the resized copy.
+        """
         _check_factor(factor)
         anchor = about if about is not None else self.centre()
         ax, ay = float(anchor[0]), float(anchor[1])
@@ -935,6 +1082,13 @@ class PolygonGate(Gate):
                      for i, (vx, vy) in enumerate(self.vertices))
 
     def with_handle(self, role: str, x: float, y: float) -> "PolygonGate":
+        """A copy with one vertex moved to ``(x, y)``.
+
+        :param role: which handle, spelled ``vertex:<index>``.
+        :param x: the handle's new x.
+        :param y: the handle's new y.
+        :returns: the edited copy.
+        """
         if not str(role).startswith("vertex:"):
             raise GateError(f"polygon gate has no handle {role!r}")
         try:
@@ -1004,13 +1158,26 @@ class EllipseGate(Gate):
 
     @property
     def kind(self) -> str:
+        """The tag a saved ellipse gate carries.
+
+        :returns: the shape tag.
+        """
         return ELLIPSE
 
     @property
     def columns(self) -> Tuple[str, ...]:
+        """The two columns this gate reads: its two axes.
+
+        :returns: the column names, in axis order.
+        """
         return (self.x_column, self.y_column)
 
     def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        """Which rows fall inside the region.
+
+        :param frame: the measurements to test.
+        :returns: a boolean array, one entry per row.
+        """
         x = _numeric(frame, self.x_column, f"ellipse gate {self.name!r}")
         y = _numeric(frame, self.y_column, f"ellipse gate {self.name!r}")
         # Normalised radius: <= 1 is inside. Written this way rather than as
@@ -1023,21 +1190,40 @@ class EllipseGate(Gate):
         return np.nan_to_num(inside, nan=False).astype(bool)
 
     def describe(self) -> str:
+        """The oval's centre and radii on both axes.
+
+        :returns: a one-line description.
+        """
         return (f"{self.x_column}/{self.y_column} within "
                 f"({self.x_centre:g}±{self.x_radius:g}, "
                 f"{self.y_centre:g}±{self.y_radius:g})")
 
     def to_dict(self) -> Dict[str, Any]:
+        """This gate as plain data, including every coordinate
+        needed to rebuild the shape.
+
+        :returns: a JSON-safe dict.
+        """
         return {"kind": ELLIPSE, "name": self.name, "parent": self.parent,
                 "x_column": self.x_column, "y_column": self.y_column,
                 "x_centre": self.x_centre, "y_centre": self.y_centre,
                 "x_radius": self.x_radius, "y_radius": self.y_radius}
 
     def translated(self, dx: float, dy: float) -> "EllipseGate":
+        """A copy moved by ``(dx, dy)``.
+
+        :param dx: shift along the x axis.
+        :param dy: shift along the y axis.
+        :returns: the moved copy.
+        """
         return replace(self, x_centre=self.x_centre + float(dx),
                        y_centre=self.y_centre + float(dy))
 
     def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        """The region's middle.
+
+        :returns: ``(x, y)``.
+        """
         return self.x_centre, self.y_centre
 
     def handles(self, view: "View") -> Tuple["Handle", ...]:
@@ -1062,6 +1248,13 @@ class EllipseGate(Gate):
         )
 
     def with_handle(self, role: str, x: float, y: float) -> "EllipseGate":
+        """A copy with one or both radii dragged to ``(x, y)``.
+
+        :param role: ``x_radius``, ``y_radius``, or both comma-separated.
+        :param x: the handle's new x.
+        :param y: the handle's new y.
+        :returns: the resized copy.
+        """
         parts = [p for p in str(role).split(",") if p]
         if not parts or any(p not in ("x_radius", "y_radius") for p in parts):
             raise GateError(f"ellipse gate has no handle {role!r}")
@@ -1079,6 +1272,12 @@ class EllipseGate(Gate):
 
     def scaled(self, factor: float, *,
                about: Optional[Tuple[float, float]] = None) -> "EllipseGate":
+        """A copy grown or shrunk about a point.
+
+        :param factor: multiplier; must be positive.
+        :param about: the anchor, defaulting to the gate's own centre.
+        :returns: the resized copy.
+        """
         _check_factor(factor)
         f = float(factor)
         if about is None:
@@ -1218,13 +1417,26 @@ class BoxGate(Gate):
 
     @property
     def kind(self) -> str:
+        """The tag a saved box gate carries.
+
+        :returns: the shape tag.
+        """
         return BOX
 
     @property
     def columns(self) -> Tuple[str, ...]:
+        """The three columns this gate reads: its three axes.
+
+        :returns: the column names, in axis order.
+        """
         return (self.x_column, self.y_column, self.z_column)
 
     def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        """Which rows fall inside the region.
+
+        :param frame: the measurements to test.
+        :returns: a boolean array, one entry per row.
+        """
         what = f"gate {self.name!r}"
         keep = np.ones(len(frame), dtype=bool)
         for column, low, high in (
@@ -1240,6 +1452,13 @@ class BoxGate(Gate):
         return keep
 
     def range_filters(self) -> Tuple[RangeFilter, ...]:
+        """The box as three independent range filters, one per axis.
+
+        A box is the three-dimensional shape that survives being pushed into
+        a query; the curved solids beside it do not.
+
+        :returns: one filter per bounded axis.
+        """
         out = []
         for column, low, high in (
                 (self.x_column, self.x_low, self.x_high),
@@ -1250,6 +1469,10 @@ class BoxGate(Gate):
         return tuple(out)
 
     def describe(self) -> str:
+        """Each of the three axes' bounds, with open sides said as such.
+
+        :returns: a one-line description.
+        """
         def side(column, low, high):
             """One axis's bound as words, handling either side being open."""
             if low is None and high is None:
@@ -1266,6 +1489,11 @@ class BoxGate(Gate):
                 (self.z_column, self.z_low, self.z_high)))
 
     def to_dict(self) -> Dict[str, Any]:
+        """This gate as plain data, including every coordinate
+        needed to rebuild the shape.
+
+        :returns: a JSON-safe dict.
+        """
         return {"kind": BOX, "name": self.name, "parent": self.parent,
                 "x_column": self.x_column, "y_column": self.y_column,
                 "z_column": self.z_column,
@@ -1274,6 +1502,12 @@ class BoxGate(Gate):
                 "z_low": self.z_low, "z_high": self.z_high}
 
     def translated(self, dx: float, dy: float) -> "BoxGate":
+        """A copy moved by ``(dx, dy)``.
+
+        :param dx: shift along the x axis.
+        :param dy: shift along the y axis.
+        :returns: the moved copy.
+        """
         return replace(self,
                        x_low=_shift_bound(self.x_low, dx),
                        x_high=_shift_bound(self.x_high, dx),
@@ -1281,11 +1515,21 @@ class BoxGate(Gate):
                        y_high=_shift_bound(self.y_high, dy))
 
     def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        """The region's middle.
+
+        :returns: ``(x, y)``.
+        """
         return (_midpoint(self.x_low, self.x_high),
                 _midpoint(self.y_low, self.y_high))
 
     def scaled(self, factor: float, *,
                about: Optional[Tuple[float, float]] = None) -> "BoxGate":
+        """A copy grown or shrunk about a point.
+
+        :param factor: multiplier; must be positive.
+        :param about: the anchor, defaulting to the gate's own centre.
+        :returns: the resized copy.
+        """
         _check_factor(factor)
         cx, cy = about if about is not None else self.centre()
         return replace(self,
@@ -1436,13 +1680,26 @@ class CylinderGate(Gate):
 
     @property
     def kind(self) -> str:
+        """The tag a saved cylinder gate carries.
+
+        :returns: the shape tag.
+        """
         return CYLINDER
 
     @property
     def columns(self) -> Tuple[str, ...]:
+        """The three columns this gate reads: its two radial axes and its height axis.
+
+        :returns: the column names, in axis order.
+        """
         return (self.u_column, self.v_column, self.axis_column)
 
     def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        """Which rows fall inside the region.
+
+        :param frame: the measurements to test.
+        :returns: a boolean array, one entry per row.
+        """
         what = f"gate {self.name!r}"
         u = _numeric(frame, self.u_column, what)
         v = _numeric(frame, self.v_column, what)
@@ -1475,6 +1732,10 @@ class CylinderGate(Gate):
                             high=self.axis_high),)
 
     def describe(self) -> str:
+        """The circular base and the height axis's bounds.
+
+        :returns: a one-line description.
+        """
         oval = (f"oval on {self.u_column}/{self.v_column} at "
                 f"({self.u_centre:g}, {self.v_centre:g}) "
                 f"± ({self.u_radius:g}, {self.v_radius:g})")
@@ -1488,6 +1749,11 @@ class CylinderGate(Gate):
                 f"≤ {self.axis_high:g}")
 
     def to_dict(self) -> Dict[str, Any]:
+        """This gate as plain data, including every coordinate
+        needed to rebuild the shape.
+
+        :returns: a JSON-safe dict.
+        """
         return {"kind": CYLINDER, "name": self.name, "parent": self.parent,
                 "u_column": self.u_column, "v_column": self.v_column,
                 "axis_column": self.axis_column,
@@ -1496,14 +1762,30 @@ class CylinderGate(Gate):
                 "axis_low": self.axis_low, "axis_high": self.axis_high}
 
     def translated(self, dx: float, dy: float) -> "CylinderGate":
+        """A copy moved by ``(dx, dy)``.
+
+        :param dx: shift along the x axis.
+        :param dy: shift along the y axis.
+        :returns: the moved copy.
+        """
         return replace(self, u_centre=self.u_centre + float(dx),
                        v_centre=self.v_centre + float(dy))
 
     def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        """The region's middle.
+
+        :returns: ``(x, y)``.
+        """
         return (self.u_centre, self.v_centre)
 
     def scaled(self, factor: float, *,
                about: Optional[Tuple[float, float]] = None) -> "CylinderGate":
+        """A copy grown or shrunk about a point.
+
+        :param factor: multiplier; must be positive.
+        :param about: the anchor, defaulting to the gate's own centre.
+        :returns: the resized copy.
+        """
         _check_factor(factor)
         cu, cv = about if about is not None else self.centre()
         return replace(
@@ -1610,13 +1892,26 @@ class PrismGate(Gate):
 
     @property
     def kind(self) -> str:
+        """The tag a saved prism gate carries.
+
+        :returns: the shape tag.
+        """
         return PRISM
 
     @property
     def columns(self) -> Tuple[str, ...]:
+        """The three columns this gate reads: its base axes and its height axis.
+
+        :returns: the column names, in axis order.
+        """
         return (self.u_column, self.v_column, self.axis_column)
 
     def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        """Which rows fall inside the region.
+
+        :param frame: the measurements to test.
+        :returns: a boolean array, one entry per row.
+        """
         what = f"gate {self.name!r}"
         u = _numeric(frame, self.u_column, what)
         v = _numeric(frame, self.v_column, what)
@@ -1637,6 +1932,10 @@ class PrismGate(Gate):
                             high=self.axis_high),)
 
     def describe(self) -> str:
+        """The base outline and the height axis's bounds.
+
+        :returns: a one-line description.
+        """
         shape = (f"{len(self.vertices)}-sided polygon on "
                  f"{self.u_column}/{self.v_column}")
         if self.axis_low is None and self.axis_high is None:
@@ -1649,6 +1948,11 @@ class PrismGate(Gate):
                 f"≤ {self.axis_high:g}")
 
     def to_dict(self) -> Dict[str, Any]:
+        """This gate as plain data, including every coordinate
+        needed to rebuild the shape.
+
+        :returns: a JSON-safe dict.
+        """
         return {"kind": PRISM, "name": self.name, "parent": self.parent,
                 "u_column": self.u_column, "v_column": self.v_column,
                 "axis_column": self.axis_column,
@@ -1656,15 +1960,31 @@ class PrismGate(Gate):
                 "axis_low": self.axis_low, "axis_high": self.axis_high}
 
     def translated(self, dx: float, dy: float) -> "PrismGate":
+        """A copy moved by ``(dx, dy)``.
+
+        :param dx: shift along the x axis.
+        :param dy: shift along the y axis.
+        :returns: the moved copy.
+        """
         return replace(self, vertices=tuple(
             (u + float(dx), v + float(dy)) for u, v in self.vertices))
 
     def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        """The region's middle.
+
+        :returns: ``(x, y)``.
+        """
         array = np.asarray(self.vertices, dtype=float)
         return (float(array[:, 0].mean()), float(array[:, 1].mean()))
 
     def scaled(self, factor: float, *,
                about: Optional[Tuple[float, float]] = None) -> "PrismGate":
+        """A copy grown or shrunk about a point.
+
+        :param factor: multiplier; must be positive.
+        :param about: the anchor, defaulting to the gate's own centre.
+        :returns: the resized copy.
+        """
         _check_factor(factor)
         cu, cv = about if about is not None else self.centre()
         return replace(self, vertices=tuple(
@@ -1767,6 +2087,10 @@ class CompositeGate(Gate):
 
     @property
     def kind(self) -> str:
+        """The tag a saved composite carries.
+
+        :returns: the shape tag.
+        """
         return COMPOSITE
 
     @property
@@ -1779,6 +2103,16 @@ class CompositeGate(Gate):
         return ()
 
     def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        """Always refuses: a composite names other gates and cannot stand alone.
+
+        IT SAYS WHO TO ASK. Evaluating this needs the gates it combines, and
+        only the set holding them can look them up -- so the refusal names
+        the operands and points at the set rather than returning an empty
+        mask that would read as "nothing matched".
+
+        :param frame: unused; present to satisfy the gate contract.
+        :returns: never; always raises.
+        """
         raise GateError(
             f"composite gate {self.name!r} combines "
             f"{', '.join(self.operands)} and cannot be evaluated on its own; "
@@ -1819,11 +2153,19 @@ class CompositeGate(Gate):
         return out
 
     def describe(self) -> str:
+        """The operands joined by the operation, in words.
+
+        :returns: a one-line description.
+        """
         joiner = {"union": " or ", "intersect": " and ",
                   "subtract": " minus "}[self.operation]
         return joiner.join(self.operands)
 
     def to_dict(self) -> Dict[str, Any]:
+        """This composite as plain data: the operation and the names it joins.
+
+        :returns: a JSON-safe dict.
+        """
         return {"kind": COMPOSITE, "name": self.name, "parent": self.parent,
                 "operation": self.operation, "operands": list(self.operands)}
 
@@ -1834,10 +2176,23 @@ class CompositeGate(Gate):
 
     def scaled(self, factor: float, *,
                about: Optional[Tuple[float, float]] = None) -> "CompositeGate":
+        """Itself, unchanged: a composite has no geometry of its own.
+
+        The factor is still validated, so a caller that passes a nonsense
+        multiplier is told here rather than at the next shape that has one.
+
+        :param factor: multiplier; must be positive.
+        :param about: unused; present to satisfy the gate contract.
+        :returns: this gate.
+        """
         _check_factor(factor)
         return self
 
     def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        """``(None, None)``: there is no geometry to have a middle.
+
+        :returns: a pair of Nones.
+        """
         return (None, None)
 
 
@@ -2345,15 +2700,31 @@ class GateClause:
 
     @property
     def name(self) -> str:
+        """The chain's name, which is the name of its LAST gate.
+
+        A chain is identified by where it ends, because that is the
+        population it selects; the gates above it are how you got there.
+
+        :returns: the deepest gate's name.
+        """
         return self.gates[-1].name
 
     def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        """Rows that survive EVERY gate in the chain.
+
+        :param frame: the measurements to test.
+        :returns: a boolean array, one entry per row.
+        """
         keep = np.ones(len(frame), dtype=bool)
         for gate in self.gates:
             keep &= gate.mask(frame)
         return keep
 
     def describe(self) -> str:
+        """The chain from outermost to innermost, with the final gate spelled out.
+
+        :returns: a one-line description.
+        """
         chain = " ⊂ ".join(g.name for g in reversed(self.gates))
         return f"gate {chain} ({self.gates[-1].describe()})"
 
@@ -2381,13 +2752,30 @@ class GateStats:
 
     @property
     def of_parent(self) -> float:
+        """This gate's survivors as a fraction of the population it was drawn in.
+
+        NaN rather than zero for an empty parent: no cells entered, so the
+        fraction is undefined rather than nothing having survived.
+
+        :returns: the fraction, or NaN.
+        """
         return (self.n_in / self.n_parent) if self.n_parent else float("nan")
 
     @property
     def of_total(self) -> float:
+        """This gate's survivors as a fraction of the whole table.
+
+        NaN rather than zero for an empty table, for the same reason.
+
+        :returns: the fraction, or NaN.
+        """
         return (self.n_in / self.n_total) if self.n_total else float("nan")
 
     def describe(self) -> str:
+        """One indented row of the hierarchy: the count and both fractions.
+
+        :returns: a one-line description, indented to its depth.
+        """
         indent = "    " * self.depth
         parent = ("—" if not self.n_parent
                   else f"{100.0 * self.of_parent:.1f}% of parent")
@@ -2476,10 +2864,24 @@ class GateSet:
         return self
 
     def clear(self) -> "GateSet":
+        """Drop every gate. Returns self, so it chains.
+
+        :returns: this set, now empty.
+        """
         self.gates = []
         return self
 
     def get(self, name: str) -> Gate:
+        """The gate called ``name``.
+
+        The refusal LISTS the names that do exist, because the mistake this
+        catches is a typo or a rename, and both are answered by seeing the
+        real list rather than being told the one you asked for is absent.
+
+        :param name: the gate's name.
+        :returns: the gate.
+        :raises GateError: when no gate has that name.
+        """
         for gate in self.gates:
             if gate.name == str(name):
                 return gate
@@ -2490,10 +2892,18 @@ class GateSet:
     # -- reading -----------------------------------------------------------
     @property
     def names(self) -> Tuple[str, ...]:
+        """Every gate's name, in insertion order.
+
+        :returns: the names.
+        """
         return tuple(g.name for g in self.gates)
 
     @property
     def is_empty(self) -> bool:
+        """Whether this set holds no gates at all.
+
+        :returns: True when empty.
+        """
         return not self.gates
 
     def __len__(self) -> int:
@@ -2527,6 +2937,11 @@ class GateSet:
         return tuple(chain)
 
     def depth(self, name: str) -> int:
+        """How deeply ``name`` is nested; a root gate is 0.
+
+        :param name: the gate's name.
+        :returns: the number of enclosing gates.
+        """
         return len(self.path(name)) - 1
 
     def order(self) -> Tuple[Gate, ...]:
@@ -2636,18 +3051,45 @@ class GateSet:
 
     # -- serialisation -----------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
+        """The whole set as plain data.
+
+        :returns: a JSON-safe dict holding every gate.
+        """
         return {"gates": [g.to_dict() for g in self.gates]}
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "GateSet":
+        """Rebuild a set from plain data.
+
+        :param payload: what :meth:`to_dict` produced.
+        :returns: the rebuilt set.
+        """
         rows = dict(payload).get("gates") or []
         return cls([gate_from_dict(row) for row in rows])
 
     def to_json(self, *, indent: Optional[int] = 2) -> str:
+        """The set as JSON text, with keys sorted so the file is diffable.
+
+        SORTED, deliberately: a gate file that reordered itself between saves
+        would show as changed in version control every time it was written.
+
+        :param indent: passed to :func:`json.dumps`; None for the compact form.
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True, indent=indent)
 
     @classmethod
     def from_json(cls, text: str) -> "GateSet":
+        """Rebuild a set from JSON text.
+
+        A parse failure is reported as "this is not a gate file" rather than
+        as a column and line number, because the usual cause is dropping the
+        wrong file rather than a corrupted one.
+
+        :param text: the JSON text.
+        :returns: the rebuilt set.
+        :raises GateError: when the text is not JSON.
+        """
         try:
             payload = json.loads(text)
         except json.JSONDecodeError as exc:
@@ -2667,6 +3109,10 @@ class GateSet:
             return cls.from_json(handle.read())
 
     def describe(self) -> str:
+        """Every gate in hierarchy order, each with its own description.
+
+        :returns: a one-line description of the whole set.
+        """
         if not self.gates:
             return "no gates"
         return " · ".join(f"{g.name}: {g.describe()}" for g in self.order())
