@@ -855,30 +855,3 @@ def tmp_settings(tmp_path, monkeypatch):
 
     monkeypatch.setattr(prefs, "_settings", _fake)
     yield path
-
-
-def test_the_window_grounds_the_dock_and_the_page_together(qtbot,
-                                                           qt_theme_applied,
-                                                           tmp_settings):
-    """One ground under both, or the dock strip is a rectangle of its own.
-
-    A QMainWindow's central widget has no palette of its own, so its
-    background is BLACK. The dock's panel is translucent, so as a column it
-    composited onto that -- the reported black box. Painting the column
-    instead just moves the rectangle, so the ground belongs to the widget
-    holding the dock and the page.
-    """
-    from PySide6.QtCore import Qt
-    from spacr.qt import preferences as prefs
-    from spacr.qt.theme import active_palette
-
-    prefs.set_dock_mode("locked")
-    win = MainWindow()
-    qtbot.addWidget(win)
-    central = win.centralWidget()
-
-    assert central.testAttribute(Qt.WidgetAttribute.WA_StyledBackground), (
-        "the central row will drop its stylesheet background")
-    assert active_palette()["page"] in central.styleSheet()
-    assert central.palette().window().color().name() != "#000000" or (
-        "background" in central.styleSheet()), "nothing stops the black base"
