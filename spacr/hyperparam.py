@@ -674,7 +674,19 @@ class _UmapCheckpoint:
 
     def __init__(self, path: str, signature: Mapping[str, Any],
                  resume: bool, keep_embeddings: bool) -> None:
-        """Create the checkpoint store and record embedding retention."""
+        """Create the checkpoint store and record embedding retention.
+
+        :param path: where the checkpoint is written.
+        :param signature: what the search is, as a mapping. THE RESUME
+            CONTRACT: a checkpoint is only reloaded when its signature
+            matches, so a search resumed after its parameters changed starts
+            over rather than mixing two searches into one result.
+        :param resume: whether to reload a compatible checkpoint at all.
+        :param keep_embeddings: whether each trial's embedding is kept.
+            Off, only the scores survive -- which is the difference between
+            a checkpoint that can redraw a trial and one that can only say
+            how it scored.
+        """
         self.store = CheckpointStore(
             path, workflow="umap_hyperparameter_search",
             signature=signature, boundary="trial", resume=resume)

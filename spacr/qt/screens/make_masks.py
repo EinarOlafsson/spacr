@@ -360,6 +360,20 @@ class _MaskLoadWorker(QThread):
     """Decode one image/mask pair without blocking Qt's main thread."""
 
     def __init__(self, folder: str, filename: str, token: int, parent=None):
+        """Load one image and its mask off the GUI thread.
+
+        :param folder: the folder holding the pair.
+        :param filename: the image to load; the mask is found beside it.
+        :param token: identifies the request this worker answers. The screen
+            compares it on completion, so a load the user has already
+            navigated away from is discarded rather than drawn over the
+            image now on screen.
+        :param parent: parent object.
+
+        The result and the original exception are both kept as attributes
+        rather than raised, because a thread that raises loses the traceback
+        the screen needs to say what failed.
+        """
         super().__init__(parent)
         self.folder = folder
         self.filename = filename

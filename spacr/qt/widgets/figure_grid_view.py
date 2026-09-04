@@ -173,6 +173,18 @@ class _SectionHeader(QFrame):
     """
 
     def __init__(self, label: str, key, parent=None, expanded: bool = True):
+        """Build one collapsible section heading for the figure grid.
+
+        :param label: the heading text.
+        :param key: what identifies this section to the view, kept as
+            ``section_key`` so expansion state survives a rebuild.
+        :param parent: parent widget.
+        :param expanded: whether the section starts open.
+
+        The heading is a control: it takes a pointing hand and strong focus
+        so it is reachable from the keyboard, and paints no background of
+        its own so the grid shows through.
+        """
         super().__init__(parent)
         self.setObjectName("FigureGridSectionHeader")
         self.section_key = key

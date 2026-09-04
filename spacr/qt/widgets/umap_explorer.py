@@ -109,6 +109,18 @@ class _AnnotationWorker(QThread):
     finished_result = Signal(int, int, str)
 
     def __init__(self, records, values, column, parent=None):
+        """Write one batch of UMAP annotations off the GUI thread.
+
+        :param records: the objects to annotate.
+        :param values: the label for each, positionally.
+        :param column: the annotation column written to.
+        :param parent: parent object.
+
+        Both sequences are COPIED. They come from a selection the user can
+        change while the write runs, and a worker reading the live list
+        would annotate whatever was selected when it got there rather than
+        what was selected when they asked.
+        """
         super().__init__(parent)
         self._records = list(records)
         self._values = list(values)

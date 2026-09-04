@@ -927,7 +927,18 @@ class _Attempt:
 
     def __init__(self, policy: "ErrorPolicy", unit: str, stage: str,
                  number: int, of: int) -> None:
-        """Store one numbered attempt's policy, unit, stage, and total."""
+        """Store one numbered attempt's policy, unit, stage, and total.
+
+        :param policy: the error policy deciding whether a failure here is
+            retried, skipped or fatal.
+        :param unit: what is being processed -- the well, field or file the
+            attempt is for, so a message can name it.
+        :param stage: which stage of the run this attempt belongs to.
+        :param number: this attempt's position, counting from one.
+        :param of: how many attempts are allowed in total. With ``number``
+            it is what :attr:`last` compares, and ``last`` is what decides
+            whether a failure is reported or retried silently.
+        """
         self.policy = policy
         self.unit = unit
         self.stage = stage

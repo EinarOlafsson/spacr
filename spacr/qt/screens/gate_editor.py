@@ -101,6 +101,19 @@ class _AxisCutoffDialog(QDialog):
     """
 
     def __init__(self, title: str, column: str, cutoff, parent=None):
+        """Ask for one axis's drawing limits.
+
+        :param title: the axis's name, used for the window title.
+        :param column: the measurement being limited, named in the
+            explanation so the reader knows which numbers to think in.
+        :param cutoff: the current ``(low, high)``, either end of which may
+            be empty for "let the data decide".
+        :param parent: parent widget.
+
+        CUTOFFS CHANGE THE VIEW ONLY. A gate keeps the objects it already
+        holds, so nothing chosen here removes data -- which is why both ends
+        may be left empty without the dialog refusing.
+        """
         super().__init__(parent)
         self.setWindowTitle(f"{title} cutoffs")
         form = QFormLayout(self)
