@@ -126,7 +126,7 @@ FULLY_DOCUMENTED = frozenset({
 #:
 #: A module missing from here must have none.
 BUDGET = {
-    "spacr/qt/widgets/figure_settings.py": 34,
+    "spacr/qt/widgets/figure_settings.py": 19,
     "spacr/qt/widgets/fast_plots.py": 14,
     "spacr/qt/preferences.py": 12,
     "spacr/qt/screens/app_screen.py": 11,
@@ -144,13 +144,13 @@ BUDGET = {
     "spacr/qt/screens/annotate.py": 4,
     "spacr/qt/screens/db_browser.py": 4,
     "spacr/qt/thread_guard.py": 4,
-    "spacr/qt/widgets/fractal_travel.py": 29,
+    "spacr/qt/widgets/fractal_travel.py": 24,
     "spacr/measure.py": 3,
     "spacr/qt/screens/align.py": 3,
     "spacr/qt/screens/model_compare.py": 3,
     "spacr/qt/screens/parameter_sweep.py": 11,
     "spacr/qt/screens/settings_model.py": 3,
-    "spacr/qt/timing.py": 10,
+    "spacr/qt/timing.py": 5,
     "spacr/qt/widgets/live_preview.py": 3,
     "spacr/qt/widgets/measurement_scan_panel.py": 3,
     "spacr/qt/bridge.py": 5,
@@ -209,12 +209,12 @@ BUDGET = {
     "spacr/qt/widgets/volcano_explorer.py": 1,
     "spacr/validate.py": 1,
     "spacr/qt/command_palette.py": 1,
-    "spacr/qt/dialogs.py": 5,
+    "spacr/qt/dialogs.py": 4,
     "spacr/qt/menus.py": 1,
     "spacr/qt/screens/volcano.py": 5,
     "spacr/qt/widgets/cell_montage_view.py": 1,
     "spacr/qt/widgets/setup_slides.py": 1,
-    "spacr/qt/widgets/umap_explorer.py": 3,
+    "spacr/qt/widgets/umap_explorer.py": 2,
 }
 
 

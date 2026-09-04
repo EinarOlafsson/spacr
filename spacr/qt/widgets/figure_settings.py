@@ -88,6 +88,7 @@ def _colour_button(initial, on_pick: Callable[[str], None]) -> QPushButton:
     state = {"colour": _as_hex(initial)}
 
     def _paint():
+        """Show the current colour on the button, as a swatch and as text."""
         colour = QColor(state["colour"])
         button.setText(state["colour"])
         if colour.isValid():
@@ -98,6 +99,7 @@ def _colour_button(initial, on_pick: Callable[[str], None]) -> QPushButton:
     def _choose():
         # Qt's own dialog, never the platform one -- see
         # :mod:`spacr.qt.widgets.colour_picker`.
+        """Ask for a colour and keep it if the dialog returned one."""
         colour = pick_colour(button, state["colour"])
         if colour.isValid():
             state["colour"] = colour.name()
@@ -993,6 +995,12 @@ class FigureSettingsDialog(QDialog):
             form.addRow(QLabel(f"— {label} —"))
 
             def set_colour(colour, a=artist):
+                """Recolour one artist. The artist is bound as a default argument.
+
+                Bound at definition rather than closed over: a loop variable closed over
+                gives every callback the LAST artist, which is the classic way a row of
+                per-artist controls all end up editing one of them.
+                """
                 try:
                     a.set_color(colour)
                 except Exception:  # artist without colour
@@ -1354,6 +1362,7 @@ def add_graph_style_file_entries(menu, parent=None, *, on_change=None) -> None:
     owner = parent if parent is not None else menu
 
     def _save():
+        """Write the current graph style to a JSON file."""
         path, _filter = QFileDialog.getSaveFileName(
             owner, "Save graph style", "graph_style.json",
             "spaCR graph style (*.json);;All files (*)")
@@ -1361,6 +1370,7 @@ def add_graph_style_file_entries(menu, parent=None, *, on_change=None) -> None:
             save_graph_style(path)
 
     def _load():
+        """Read a graph style back and apply it."""
         path, _filter = QFileDialog.getOpenFileName(
             owner, "Load graph style", "",
             "spaCR graph style (*.json);;All files (*)")
@@ -1666,6 +1676,7 @@ def _add_group_colours(menu, figure, recipe, on_change, parent) -> None:
     menu.addMenu(colours)
 
     def _recolour(group: str) -> None:
+        """Pick a colour for one group and store it on the recipe."""
         current = dict(recipe.get("colors") or {})
         start = str(current.get(group, "#4C72B0"))
         chosen = pick_colour(parent, start, tr("Colour for {group}",
@@ -1709,6 +1720,7 @@ def _add_bundle_save(menu, figure, parent) -> None:
         "figure file answers neither."))
 
     def _save() -> None:
+        """Ask for a folder and write the whole bundle into it."""
         folder = QFileDialog.getExistingDirectory(
             parent, "Save the graph, its data and its statistics")
         if not folder:
@@ -1755,6 +1767,12 @@ def save_figure_bundle(figure, folder: str, name: str = "") -> str:
         # A bundle deliberately contains both formats, but each rendering
         # still uses the shared export path so print colours, embedded fonts,
         # and raster DPI match every other figure the user keeps.
+        """Render one file of the bundle through the SHARED export path.
+
+        Both formats go through `save_figure` rather than each drawing itself, so
+        print colours, embedded fonts and raster DPI match every other figure the
+        user keeps.
+        """
         from ...plot import save_figure
 
         extension = os.path.splitext(path)[1].lower().lstrip(".")
@@ -1905,6 +1923,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
             on_change()
 
     def _apply(func):
+        """Run ``func`` against every axis in the figure."""
         for axis in axes:
             func(axis)
         _notify()
@@ -2619,6 +2638,7 @@ class FigureStylePreferences(QWidget):
             combo.setCurrentIndex(index)
 
             def _set_combo(v, box=combo):
+                """Select the entry whose data is ``v``, if the box has one."""
                 found = box.findData(v)
                 if found >= 0:
                     box.setCurrentIndex(found)
@@ -2629,6 +2649,7 @@ class FigureStylePreferences(QWidget):
                 str(value), lambda chosen: holder.__setitem__("value", chosen))
 
             def _set_colour(v, b=button, h=holder):
+                """Store a colour and repaint the swatch that shows it."""
                 h["value"] = str(v)
                 # THE SWATCH TOO. `_colour_button` paints itself from its own
                 # state, so writing the holder alone would leave the button
@@ -2683,6 +2704,7 @@ class FigureStylePreferences(QWidget):
         layout.addWidget(box)
 
         def _paint_button(colour: str) -> None:
+            """Show the ground colour on the button, as swatch and text."""
             button.setText(str(colour))
             qcolour = QColor(str(colour))
             if qcolour.isValid():
@@ -2691,15 +2713,18 @@ class FigureStylePreferences(QWidget):
                                      f"color: {ink};")
 
         def _sync(*_):
+            """Grey the colour button while transparent is ticked."""
             button.setEnabled(not box.isChecked())
         box.toggled.connect(_sync)
         _sync()
 
         def _get():
+            """The ground: the transparent sentinel, or the chosen colour."""
             return (TRANSPARENT_STYLE_GROUND if box.isChecked()
                     else holder["value"])
 
         def _set(new_value):
+            """Apply a ground, ticking transparent when that is what it means."""
             if _is_transparent_ground(new_value):
                 box.setChecked(True)
             else:
