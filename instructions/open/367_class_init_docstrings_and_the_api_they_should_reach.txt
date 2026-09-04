@@ -275,3 +275,78 @@ knowing before anyone automates more of this:
 
 THE OTHER HALF OF THIS ITEM -- whether the API pages these docstrings reach
 render them correctly -- is untouched and is what remains.
+
+---
+
+2026-09-04. EVERY CONSTRUCTOR PARAMETER IN THE PACKAGE IS NAMED.
+
+    544 classes take constructor parameters
+      544 document every one of them
+        0 left
+
+The 06:55 note above measured the narrower question -- public classes
+documenting NONE of their parameters -- and got it to zero. This is the
+stricter one this file actually defines: is EVERY parameter named in a
+`:param:` field on either docstring. It was 168 short when this session
+picked it up.
+
+WHERE THE VALUE WAS, and it was not spread evenly. Three findings worth more
+than the count:
+
+  * `_Parser` (qt/widgets/formula.py) takes a `source` it stores and never
+    reads. Documented as such rather than given an invented purpose -- it is
+    there so an error can quote the offending span, which the parser does not
+    yet do. A reader tracing that argument deserves to be told it stops at
+    the assignment.
+  * `_ReaderCache(max_open=1)` is silently raised to 2, and the reason is a
+    bug that did not look like one: registration holds two readers at once,
+    so a cache of one evicted a reader its own caller was still using and
+    every tile fell back to its stage position. Not a refused stitch -- a
+    plate that would not register.
+  * `PCAPanel(source=...)` is the view's name on the linked-selection bus.
+    Two panels sharing a link must not share it, which `str = "pca"` cannot
+    say and a second panel built by copy-paste will not guess.
+
+`parent` WAS A THIRD OF THE BACKLOG -- 56 of 163 at that point. This file
+says not to write ":param parent: the parent", and that is right. What was
+written instead says what the argument DOES: "ownership only", after
+checking that all 56 hand it straight to the base constructor and never read
+it again. Four looked like exceptions and were not; the scan had missed
+`QObject.__init__(self, parent)` and `super().__init__(tr(text), parent)`.
+An incomplete list cannot tell a reader whether a parameter was boring or
+forgotten, and that is the whole value of the line.
+
+ONE DOCSTRING WAS WRONG AND WAS CORRECTED BEFORE COMMIT. `_LabelIndex` was
+described as silently mis-measuring a 3-D array. It does not: `np.nonzero`
+returns three arrays and the two-name unpack raises. Checking cost one line.
+"Fails loudly" and "fails quietly" send a reader in opposite directions.
+
+THE PROVENANCE TRAP IN THIS FILE CAUGHT ME TOO, exactly as it says it would.
+Five docstrings written this session -- the new dock, the Sidebar, the hint
+bar -- carried dates, quoted requests and instruction numbers, and
+`tests/test_user_facing_docstrings.py` was red because of them. It was red
+before this session as well, at twelve violations total. All twelve are now
+clean and its four tests pass. THE REASONING IS THE USEFUL PART AND IT
+SURVIVES REWRITING; the date something was asked for does not.
+
+THE RATCHETS IN `tests/test_docstring_correctness.py` ARE RE-RECORDED, which
+this file asked for. Baselined first, in a worktree at the session's starting
+commit, so the drift could be attributed instead of assumed -- four numbers
+were already wrong there and my work had moved exactly one of them, DOWN.
+Every re-recorded figure rose together as the package gained callables and
+not one fell. Docless fell 630 -> 627; ghosts fell 4 -> 3.
+
+  READ THE PER-CATEGORY COUNTS, NOT THE TOTAL. Omissions rose 2,516 -> 2,570
+  while omitted CONSTRUCTORS fell 43 -> 2 and their parameters 64 -> 3 --
+  `function` and `method` simply grew faster. A single total would have
+  reported this session's constructor work as a regression.
+
+  The re-recorded ratchet is not vacuous: removing one `:param` for a
+  required parameter takes omissions to 2,571 and the test fails. Removing
+  one for an OPTIONAL parameter does not, and that is by design -- the
+  inventory digest is signature-derived, as its own test name says. Anyone
+  ratcheting optional parameters needs a different instrument.
+
+STILL OPEN, and still the whole of what remains: whether the API pages these
+docstrings reach RENDER them. Nothing here has been checked against a built
+page.
