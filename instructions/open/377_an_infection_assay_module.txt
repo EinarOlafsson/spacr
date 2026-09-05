@@ -2,9 +2,12 @@
 AN INFECTION ASSAY MODULE: INFECTION RATE, AND EVERYTHING ELSE INFECTION MEANS
 ================================================================================
 
-Status:    filed 2026-09-04, not started. SURVEYED the same day, and the
-           survey changes the shape of the job -- see PART 0. The candidate
-           measurement list in PART 1 is the part that needs the maintainer.
+Status:    filed 2026-09-04, not started. SURVEYED 2026-09-04 (PART 0);
+           DERIVABILITY MEASURED 2026-09-05 (PART 0-A), which is what PART 0
+           said to do "before anything is built". THE ANSWER FAVOURS (c): 13
+           of the 16 candidates fall out of a finished Measure run with no
+           new image processing. The choice between (a), (b) and (c), and
+           which of PART 1 is actually wanted, still needs the maintainer.
 Requested: 2026-09-04 -- "We should add an assay module that measures
            infection rate and everything infection related it can come up
            with things it could measure"
@@ -50,6 +53,74 @@ PART 1 are already derivable from a finished Measure run.
 THE REQUEST SAYS "it can come up with things it could measure", so the list
 below is offered as a proposal to choose from, NOT as a scope to implement.
 Building all of it would be a worse module than building six of them well.
+
+--------------------------------------------------------------------------------
+PART 0-A -- HOW MUCH OF PART 1 ALREADY EXISTS: 13 OF 16
+--------------------------------------------------------------------------------
+
+PART 0 says: "This should be measured before anything is built: count how
+many of the metrics in PART 1 are already derivable from a finished Measure
+run." Counted, by reading what Measure writes rather than by estimating.
+
+WHAT A MEASURE RUN LEAVES BEHIND. Four per-object tables -- `cell`,
+`cytoplasm`, `nucleus`, `pathogen` (`filters.OBJECT_TABLES`) -- each written
+from the FULL label mask by `_morphological_measurements`, so the `cell`
+table holds one row per segmented cell whether or not it is infected. That is
+the denominator, and it already exists.
+
+Each row carries `label`, `area`, `area_filled`, `area_bbox`, `convex_area`,
+`major_axis_length`, `minor_axis_length`, `eccentricity`, `solidity`,
+`extent`, `perimeter`, `euler_number`, `equivalent_diameter_area`,
+`feret_diameter_max`, centroids, per-channel intensity, and the spatial
+columns `nearest_neighbor_distance` and `touching_neighbors`.
+
+AND THE LINK IS ALREADY THERE. `io.py:4883` computes
+`pathogens['pathogen_prcfo_count']` by grouping the pathogen table on its
+host's `prcfo` key -- plate/row/column/field plus `cell_id`. Parasites per
+host cell is not something to be built; it is a column.
+
+    DERIVABLE FROM AN EXISTING RUN                         13
+      infection rate              cell table as denominator, pathogen table
+                                  grouped by cell_id as numerator
+      infection index             the same join, mean instead of fraction
+      parasites per infected      `pathogen_prcfo_count` IS this
+      multiplicity distribution   the histogram of that column
+      perinuclear localisation    vacuole and nucleus centroids are both
+                                  measured; the distance is arithmetic
+      vacuole eccentricity        `eccentricity`, already measured
+      host cell size / shape      cell table, split by the join
+      host nucleus morphology     nucleus table, split by the join
+      host marker intensity       per-channel intensity, split by the join
+      uninfected control rate     infection rate, grouped by well
+      per-field variance          the `prcf` key carries the field
+      cell count per well         a count on the cell table
+      edge-object exclusion       already implemented -- and see the warning
+
+    NEEDS SOMETHING NEW                                     3
+      intracellular fraction      needs the invasion module's two-colour call
+                                  or a containment test; not in Measure
+      vacuoles per cell           needs vacuoles distinguished from parasites,
+                                  which is a segmentation question
+      distance to host boundary   centroids are measured, the boundary is not
+
+SO THE EVIDENCE FAVOURS (c) -- A REPORT, NOT A PIPELINE. Thirteen of sixteen
+are a groupby away, and the three that are not are each a separate piece of
+image processing that belongs to invasion or to segmentation rather than to
+an infection report.
+
+THE DENOMINATOR WARNING IN PART 2 IS REAL AND I CAN NAME THE MECHANISM.
+`io.py:4879` does `pathogens.dropna(subset=['cell_id'])` -- a parasite not
+assigned to a host cell disappears -- and `pathogen_limit` then filters rows
+by `pathogen_prcfo_count`. Neither filter touches the `cell` table. So a
+numerator built from the filtered pathogen table over a denominator built
+from the unfiltered cell table counts different populations, and the ratio is
+wrong in a way that looks entirely plausible. Whatever is built must apply
+the same exclusions to both sides and SAY SO in its output.
+
+WHAT I DID NOT VERIFY: none of this was run against a real measurements.db,
+because this session has none. The columns and the join are read from the
+source. A single real run would confirm the join produces what these names
+say, and should happen before any of it is trusted.
 
 --------------------------------------------------------------------------------
 PART 1 -- CANDIDATE MEASUREMENTS, GROUPED BY WHAT THEY ANSWER
