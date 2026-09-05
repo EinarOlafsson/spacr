@@ -1172,6 +1172,10 @@ class DataManagerScreen(QWidget):
         return row
 
     def closeEvent(self, event):        # noqa: N802 - Qt name
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         redraw = getattr(self, "_path_probe_redraw", None)
         if redraw is not None:
             try:

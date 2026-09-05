@@ -176,6 +176,12 @@ class LiveZoomFilter(QObject):
     # -- the filter ------------------------------------------------------
 
     def eventFilter(self, watched, event):    # noqa: N802 - Qt naming
+        """Watch the widgets this filter is installed on.
+
+        :param watched: the object the event is for.
+        :param event: the event.
+        :returns: True to stop the event going further.
+        """
         kind = event.type()
         if kind == QEvent.KeyPress:
             if self._is_the_key(event) and not event.isAutoRepeat():

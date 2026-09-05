@@ -510,6 +510,10 @@ class ImportWorkbench(QWidget):
         self._scanner.shutdown()
 
     def closeEvent(self, event):                     # noqa: N802 - Qt
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self.shutdown()
         super().closeEvent(event)
 

@@ -410,6 +410,10 @@ class PictureSettingsDialog(QDialog):
                 f"one's label says why.")
 
     def mode(self) -> str:
+        """Which picture mode the user chose.
+
+        :returns: the mode's name.
+        """
         return self._mode
 
     # ------------------------------------------------------------------ tabs

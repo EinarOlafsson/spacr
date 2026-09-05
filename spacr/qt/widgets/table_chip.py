@@ -101,4 +101,8 @@ class TableChip(QWidget):
 
     @property
     def name(self) -> str:
+        """The table this chip stands for.
+
+        :returns: the table's name.
+        """
         return self._name

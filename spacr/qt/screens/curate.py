@@ -217,6 +217,10 @@ class CurateScreen(QWidget):
             self.status.setStyleSheet("")
 
     def closeEvent(self, event) -> None:
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         if self.brush is not None:
             self.brush.stop_painting()
         super().closeEvent(event)

@@ -148,10 +148,17 @@ API_VALUE_DOC_ASSIGNMENTS = frozenset({
 # matching that previously made imported or stdlib members unsafe.  In
 # particular, ``spacr.logging_util.LevelSetFilter.filter`` is intentionally
 # absent: its documentation comes from external ``logging.Filter.filter``.
-API_DOC_ALIASES: Mapping[str, str] = {
-    "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.on_linked_filter_changed":
-        "spacr.qt.linked_selection.LinkedView.on_linked_filter_changed",
-}
+#:
+#: EMPTY SINCE 2026-09-04, and that is the end state rather than a gap. An
+#: alias existed so an UNDOCUMENTED override could borrow its base class's
+#: text. 368's public half documented every public method in the package, so
+#: every one of the 113 entries this held became a lie: the borrowed generic
+#: text would now hide the specific answer the override carries.
+#:
+#: A NEW ENTRY IS A SIGNAL, not routine maintenance. It means a public
+#: override has been added without a docstring, and the fix is the docstring
+#: rather than the alias.
+API_DOC_ALIASES: Mapping[str, str] = {}
 
 # Hashes, rather than symbol names, make the exception as narrow as possible:
 # moving an unrelated English paragraph into one of these symbols cannot make

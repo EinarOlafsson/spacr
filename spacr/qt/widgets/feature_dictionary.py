@@ -858,6 +858,12 @@ class FeatureHelpFilter(QObject):
         # that case from a segfault into a no-op. A C++ object freed without
         # shiboken being told still dereferences, and the fix for that is
         # wherever the object is being freed, not here.
+        """Watch the widgets this filter is installed on.
+
+        :param obj: the object the event is for.
+        :param event: the event.
+        :returns: True to stop the event going further.
+        """
         if not _still_alive(event) or not _still_alive(obj):
             return False
         try:

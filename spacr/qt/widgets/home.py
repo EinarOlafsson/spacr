@@ -2728,6 +2728,12 @@ class HomePage(QWidget):
         return True
 
     def eventFilter(self, obj, event):          # noqa: N802
+        """Watch the widgets this filter is installed on.
+
+        :param obj: the object the event is for.
+        :param event: the event.
+        :returns: True to stop the event going further.
+        """
         if event.type() == QEvent.Enter:
             hint = self._tile_hints.get(obj)
             if hint:
