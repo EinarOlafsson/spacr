@@ -274,6 +274,14 @@ class _CopyGlyphButton(QAbstractButton):
         self._flash.trigger()
 
     def paintEvent(self, _event) -> None:      # noqa: N802 (Qt naming)
+        """Draw the two offset squares that read as one sheet over another.
+
+        The accent colour while the copy flash is active, the dim foreground
+        otherwise, and lighter under the pointer -- so the button says it is
+        hoverable before it is pressed and says it worked after.
+
+        :param _event: the paint event; unused.
+        """
         from PySide6.QtGui import QPainter, QPen
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
@@ -399,12 +407,25 @@ class _TopicBar(QFrame):
         # handlers, so a click on them never reaches here -- which is what
         # keeps "copy this section" from also moving the viewport. Release
         # rather than press, so dragging off cancels.
+        """Raise this section on a click inside the bar.
+
+        On RELEASE rather than press, so dragging off cancels. The copy button
+        and any trailing widget are children with their own handlers, so a click
+        on them never reaches here -- which is what keeps "copy this section"
+        from also moving the viewport.
+
+        :param event: the mouse event.
+        """
         if (event.button() == Qt.LeftButton
                 and self.rect().contains(event.pos())):
             self._activate()
         super().mouseReleaseEvent(event)
 
     def keyPressEvent(self, event):            # noqa: N802 (Qt naming)
+        """Raise this section on Return, Enter or Space.
+
+        :param event: the key event.
+        """
         if event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
             self._activate()
             return
@@ -465,6 +486,11 @@ class _WorkingDots(QLabel):
         self._render()
 
     def set_color(self, color: str) -> None:
+        """Re-ink the working dots.
+
+        :param color: the provider's colour, so the indicator matches the reply
+            it belongs to.
+        """
         self._color = color
         self.setStyleSheet(
             f"QLabel#ConsoleWorkingDots {{ color: {color}; "
@@ -516,6 +542,11 @@ class _WorkingDots(QLabel):
 
     @Slot()
     def stop(self) -> None:
+        """Stop the animation and hide the dots.
+
+        Marshalled onto the GUI thread when called from another: a stream
+        finishes on a worker, and touching a widget from there is undefined.
+        """
         if not self._on_gui_thread():
             from PySide6.QtCore import QMetaObject, Qt
 
@@ -719,6 +750,10 @@ class _StdoutBlock(QPlainTextEdit):
         return QSize(max(120, super().sizeHint().width()), self._size_value)
 
     def resizeEvent(self, event) -> None:
+        """Re-wrap the text and keep the drag handle pinned to the bottom edge.
+
+        :param event: the resize event.
+        """
         super().resizeEvent(event)
         self.document().setTextWidth(max(1, self.viewport().width()))
         handle_height = self._height_handle.sizeHint().height()
@@ -769,9 +804,22 @@ class _BlockHeightHandle(QFrame):
         self.setToolTip(tr(source))
 
     def sizeHint(self) -> QSize:
+        """Return the handle's preferred size.
+
+        :returns: a strip as tall as the handle and nominally 80 wide -- the
+            width comes from the block it spans, not from this hint.
+        """
         return QSize(80, self.HEIGHT)
 
     def mousePressEvent(self, event) -> None:
+        """Begin a drag, recording where it started and how tall the block was.
+
+        Both are needed: the new height is the starting height plus the total
+        movement, so a drag that reverses returns to where it began rather than
+        accumulating.
+
+        :param event: the mouse event.
+        """
         if event.button() == Qt.LeftButton:
             self._press_y = event.globalPosition().y()
             self._start_height = self._block.height()
@@ -780,6 +828,10 @@ class _BlockHeightHandle(QFrame):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event) -> None:
+        """Resize the block to follow the drag.
+
+        :param event: the mouse event.
+        """
         if self._press_y is not None and event.buttons() & Qt.LeftButton:
             delta = event.globalPosition().y() - self._press_y
             self._block.set_user_height(self._start_height + int(delta))
@@ -788,10 +840,21 @@ class _BlockHeightHandle(QFrame):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event) -> None:
+        """End the drag.
+
+        :param event: the mouse event.
+        """
         self._press_y = None
         super().mouseReleaseEvent(event)
 
     def mouseDoubleClickEvent(self, event) -> None:
+        """Return the block to its automatic height.
+
+        A double click is the undo for the drag: without it a block dragged
+        short can only be restored by guessing its original size.
+
+        :param event: the mouse event.
+        """
         if event.button() == Qt.LeftButton:
             self._block.reset_user_height()
             event.accept()
@@ -949,6 +1012,14 @@ class _ChatInput(QTextEdit):
         return super().canInsertFromMimeData(source)
 
     def insertFromMimeData(self, source) -> None:
+        """Paste text, ignoring dropped files.
+
+        A file dropped on the chat box is never read here: the console is a
+        place to type a question, and silently pasting a path -- or worse, a
+        file's contents -- is not what the gesture meant.
+
+        :param source: the mime data being inserted.
+        """
         if source.hasUrls():
             return                       # ignore dropped files; never read them in here
         super().insertFromMimeData(source)
