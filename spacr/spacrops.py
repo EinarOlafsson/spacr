@@ -3299,10 +3299,11 @@ def stitch_cycle_wells(settings):
 
         do_mc = bool(do_multichannel)
 
-        if settings.get("write_mosaic", False):
-            mosaic_out = None
-        else:
-            mosaic_out = mosaic_tif_mc if do_mc else mosaic_tif_sc
+        # THE PATH IS ALWAYS PREPARED; whether a mosaic is BUILT is decided
+        # by `want_mosaic` below. This read the other way round -- asking for
+        # a mosaic set the output path to None -- so `write_mosaic=True` was
+        # the one value guaranteed to produce nothing.
+        mosaic_out = mosaic_tif_mc if do_mc else mosaic_tif_sc
 
         # Instantiate stitcher with your settings
         # NOTE: outdir now points at qc/pairs (so qc is not mixed with tiles)
@@ -3362,7 +3363,13 @@ def stitch_cycle_wells(settings):
             stitch=settings.get("stitch", False),
             score_threshold=settings.get("score_threshold", None),
             meta_regex=meta_re,  # use compiled regex here
-            mosaic=settings.get("mosaic", False),
+            # `write_mosaic` and `mosaic` are synonyms, and either turns it
+            # on. They were separate keys with separate defaults, so the one
+            # a reader would reach for -- `write_mosaic` -- was not the one
+            # `run_folder` consulted, and this function never built the
+            # mosaic its own docstring promises.
+            mosaic=bool(settings.get("write_mosaic", False)
+                        or settings.get("mosaic", False)),
             mosaic_out=mosaic_out,
             mosaic_min_score=mosaic_min_score,
             mosaic_csv_out=mosaic_csv,
@@ -3538,7 +3545,11 @@ def get_preprocess_ops_settings(settings):
     settings.setdefault("z_index", 0)
     settings.setdefault("t_index", 0)
     settings.setdefault("squeeze_singleton", True)
-    settings.setdefault("write_mosaic", False)
+    # TRUE, because `stitch_cycle_wells` documents itself as producing
+    # "single- or multi-channel mosaics" and did not. Safe to change: nothing
+    # in the package imports this module, so there is no caller relying on
+    # the old silence.
+    settings.setdefault("write_mosaic", True)
 
     # --- st.run_folder(...) ---
     settings.setdefault("n_workers", 26)
