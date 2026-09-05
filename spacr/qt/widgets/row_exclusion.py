@@ -321,6 +321,18 @@ class RowExclusionEditor(QWidget):
 
     def __init__(self, value=None, parent=None, *, threaded: bool = True,
                  debounce_ms: int = DEBOUNCE_MS):
+        """Build the row-exclusion editor.
+
+        Two runners, not one: ``cancel`` abandons everything a runner has in
+        flight, and superseding a keystroke's value read must not also abandon
+        the schema read that says which databases the column even lives in.
+
+        :param value: the exclusions to start with.
+        :param parent: parent widget, or ``None``.
+        :param threaded: read on worker threads. Set ``False`` in tests so a
+            read finishes before it returns.
+        :param debounce_ms: how long typing settles before a value read is run.
+        """
         super().__init__(parent)
         from ..job_runner import JobRunner
 
@@ -416,6 +428,15 @@ class RowExclusionEditor(QWidget):
         self.loaded.emit(True)
 
     def _add_row(self, column: str = "", values=()) -> None:
+        """Add one exclusion rule row.
+
+        A column the loaded schema does not offer is added to the picker anyway,
+        so a saved exclusion naming a column this database lacks is shown rather
+        than silently dropped.
+
+        :param column: the column to preselect.
+        :param values: the values to preselect once they load.
+        """
         row = _ExclusionRuleRow(self)
         row.remove_requested.connect(self._remove_row)
         row.column_changed.connect(
@@ -432,6 +453,13 @@ class RowExclusionEditor(QWidget):
         self._refresh_values(row, selected=values)
 
     def _remove_row(self, row) -> None:
+        """Remove one rule row, adding a fresh one if it was the last.
+
+        The editor is never left with no rows: an empty panel offers no way to
+        add the first one back.
+
+        :param row: the row to remove.
+        """
         if row in self._rows:
             self._rows.remove(row)
         self._pending.pop(row, None)
@@ -441,6 +469,7 @@ class RowExclusionEditor(QWidget):
             self._add_row()
 
     def _clear_rows(self) -> None:
+        """Remove every rule row and forget what they were waiting for."""
         for row in self._rows:
             self._pending.pop(row, None)
             row.setParent(None)

@@ -202,6 +202,16 @@ class FlatComboBox(_FlatStyleMixin, QComboBox):
     _flat_selector = "QComboBox"
 
     def __init__(self, parent=None, tooltip: str = ""):
+        """Build a flat combo box whose entries are data, not prose.
+
+        The language pass is kept off the items deliberately: they are file
+        names and channel indices, and letting them be rewritten breaks every
+        lookup that reads ``currentText()`` back -- the trap that silently
+        reverted the live preview's outline colour to its default.
+
+        :param parent: parent widget, or ``None``.
+        :param tooltip: hover text.
+        """
         super().__init__(parent)
         self.setObjectName(FLAT_CONTROL_NAME)
         self.setCursor(Qt.PointingHandCursor)
@@ -228,6 +238,12 @@ class FlatButton(_FlatStyleMixin, QPushButton):
     _flat_selector = "QPushButton"
 
     def __init__(self, text: str = "", parent=None, tooltip: str = ""):
+        """Build a flat button.
+
+        :param text: the label.
+        :param parent: parent widget, or ``None``.
+        :param tooltip: hover text.
+        """
         super().__init__(text, parent)
         self.setObjectName(FLAT_CONTROL_NAME)
         self.setCursor(Qt.PointingHandCursor)
@@ -257,6 +273,15 @@ class FlatSpinBox(_FlatStyleMixin, QSpinBox):
     _flat_selector = "QSpinBox"
 
     def __init__(self, parent=None, tooltip: str = "", value: int = 20):
+        """Build a flat spin box.
+
+        The maximum starts wide open and is clamped once a folder has been
+        enumerated -- until then there is no honest ceiling to impose.
+
+        :param parent: parent widget, or ``None``.
+        :param tooltip: hover text.
+        :param value: starting value.
+        """
         super().__init__(parent)
         self.setObjectName(FLAT_CONTROL_NAME)
         self.setCursor(Qt.PointingHandCursor)
@@ -700,6 +725,12 @@ class ImageSetSampler:
     """
 
     def __init__(self, max_sets: int = DEFAULT_MAX_SETS):
+        """Create the sampler that hands out a bounded slice of a plate.
+
+        :param max_sets: how many image sets to offer at most. The dropdown
+            never lists a whole plate, so the sample is bounded and -- being
+            seeded from the folder -- reproducible.
+        """
         self.max_sets = int(max_sets)
         #: The folder itself — what the seed is drawn from.
         self._directory: Optional[str] = None

@@ -263,6 +263,12 @@ class FeatureDictionaryPanel(QWidget):
 
     def __init__(self, parent: Optional[QWidget] = None,
                  column: Optional[str] = None):
+        """Build the feature dictionary panel.
+
+        :param parent: parent widget, or ``None``.
+        :param column: a measurement to open pinned to; ``None`` opens on the
+            whole dictionary.
+        """
         super().__init__(parent)
         self.setObjectName(OBJECT_NAME)
 
@@ -443,6 +449,14 @@ class FeatureDictionaryPanel(QWidget):
                 "<p><i>No feature matches that search.</i></p>")
 
     def _on_row_changed(self, row: int) -> None:
+        """Show the selected feature, unpinning the asked-about column if it moved.
+
+        The detail pane is pinned to a concrete column only while the selection
+        is still that column's feature -- once the user moves off it, the pane
+        describes the feature in general rather than that one instance of it.
+
+        :param row: the newly selected row; out of range does nothing.
+        """
         if not (0 <= row < len(self._hits)):
             return
         doc = self._hits[row].doc
@@ -458,6 +472,12 @@ class FeatureDictionaryPanel(QWidget):
         self._render(doc, entry)
 
     def _render(self, doc: FeatureDoc, entry=None) -> None:
+        """Render one feature into the detail pane and announce it.
+
+        :param doc: the feature to describe.
+        :param entry: the concrete column it was reached through, when there is
+            one, so the pane can name the object and channel as well.
+        """
         self._doc = doc
         self._detail.setHtml(_doc_html(doc, entry))
         self.feature_selected.emit(doc.key)
@@ -473,6 +493,12 @@ class FeatureDictionaryDialog(QDialog):
 
     def __init__(self, parent: Optional[QWidget] = None,
                  column: Optional[str] = None):
+        """Wrap the dictionary panel in a non-modal window.
+
+        :param parent: parent widget, or ``None``.
+        :param column: the measurement to open on; ``None`` opens on the whole
+            dictionary.
+        """
         super().__init__(parent)
         self.setObjectName("FeatureDictionaryDialog")
         self.setWindowTitle(APP_NAME)
