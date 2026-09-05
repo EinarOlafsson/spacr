@@ -306,6 +306,18 @@ class _ResizeByEdge(QObject):
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
         # `getattr`, for the reason on `_DragByBackground`: Qt delivers to
         # a filter whose Python attributes have already been cleared.
+        """Resize the frameless window when an edge is pressed, and shape the cursor.
+
+        The resize is handed to the compositor rather than implemented here, so
+        it snaps and tiles like any other window. The cursor is set on hover so
+        the edge advertises itself before it is grabbed, and unset on leave so
+        it does not persist over the rest of the screen.
+
+        :param watched: the window.
+        :param event: the event.
+        :returns: ``True`` only for the press that starts a resize; every other
+            event is observed and passed on.
+        """
         window = getattr(self, "_window", None)
         if window is None or watched is not window:
             return False
@@ -382,6 +394,12 @@ class _DragByBackground(QObject):
         # the AttributeError is printed by Qt on every one of them --
         # "Error calling Python override of QObject::eventFilter" -- which
         # is noise nobody can act on in a test log.
+        """Move the frameless dialog when its background is dragged.
+
+        :param watched: the dialog.
+        :param event: the event.
+        :returns: ``True`` only for the press that starts a move.
+        """
         dialog = getattr(self, "_dialog", None)
         if dialog is None or watched is not dialog:
             return False
@@ -596,6 +614,12 @@ class _Backdrop(QObject):
         # AttributeError on every one of them, and Qt printed the whole
         # traceback -- "Error calling Python override of
         # QObject::eventFilter" -- at spaCR startup.
+        """Refit the backdrop when the dialog is resized or shown.
+
+        :param watched: the dialog.
+        :param event: the event.
+        :returns: ``False`` -- both events are observed, never consumed.
+        """
         dialog = getattr(self, "_dialog", None)
         if dialog is None or watched is not dialog:
             return False
@@ -786,6 +810,18 @@ class _GlassInstaller(QObject):
     """Applies :func:`glass` to every dialog the first time it is shown."""
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
+        """Apply the glass treatment to a dialog as it appears.
+
+        POLISH FIRST, SHOW AS THE FALLBACK. Polish arrives before the widget is
+        visible, which is when the window flags can be changed without hiding
+        it -- but not every dialog is polished before its first show, since one
+        built and exec'd in a single expression may not be, so Show catches the
+        rest.
+
+        :param watched: the widget being polished or shown.
+        :param event: the event.
+        :returns: ``False`` -- never consumed.
+        """
         try:
             # POLISH FIRST, SHOW AS THE FALLBACK. Polish arrives before a
             # widget is visible, which is when the window flags can be
