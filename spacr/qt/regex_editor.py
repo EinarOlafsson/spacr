@@ -55,6 +55,14 @@ class RegexEditorDialog(QDialog):
         multichannel: bool = True,
         parent=None,
     ):
+        """Build the filename-regex editor over a sample of filenames.
+
+        :param sample_filenames: names to match against; the first twenty are
+            kept, which is enough to see whether a pattern generalises.
+        :param initial_regex: the pattern to open with; empty runs auto-detect.
+        :param multichannel: validate that a channel group is captured.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle("spaCR — Regex editor")
         self.setMinimumSize(760, 520)
@@ -148,6 +156,14 @@ class RegexEditorDialog(QDialog):
     # -- reactive updates ------------------------------------------------
     def _on_regex_changed(self, text: str) -> None:
         # Match the dropdown to the current text if it matches a preset
+        """Follow the typed pattern with the preset box and the preview.
+
+        The box is set to the matching preset, or to ``(custom)`` when the text
+        is nobody's preset, with signals blocked so setting it does not read as
+        the user picking one.
+
+        :param text: the pattern now in the box.
+        """
         for i in range(self._preset_combo.count()):
             key = self._preset_combo.itemData(i)
             if key is not None and rd.BUILTIN_REGEXES.get(key) == text:
@@ -165,6 +181,11 @@ class RegexEditorDialog(QDialog):
         self._refresh_preview()
 
     def _on_preset_pick(self, _idx: int) -> None:
+        """Put the chosen preset's pattern in the box and re-preview.
+
+        :param _idx: the newly current index; the preset key is read from the
+            box's data, so it is not used.
+        """
         key = self._preset_combo.currentData()
         if key is None:
             return
@@ -175,6 +196,13 @@ class RegexEditorDialog(QDialog):
         self._refresh_preview()
 
     def _on_auto_detect(self) -> None:
+        """Infer a pattern from the sample and say how much of it matched.
+
+        The preview is rebuilt explicitly rather than left to ``textChanged``:
+        ``QLineEdit`` stays silent when the text is unchanged, so a second click
+        on Auto detect used to stack another status line onto a stale preview,
+        and the no-pattern branch left the warnings blank entirely.
+        """
         pattern, label, hits = rd.auto_detect_regex(self._samples)
         if pattern:
             self._regex_input.setText(pattern)
@@ -191,6 +219,12 @@ class RegexEditorDialog(QDialog):
         self._preview.appendPlainText(note)
 
     def _refresh_preview(self) -> None:
+        """Re-run the pattern over the sample and show what it captured.
+
+        Missing required fields are listed as warnings and unmatched filenames
+        are counted with the first one named -- a pattern that matches most of a
+        folder is the case worth seeing, not just a pass or fail.
+        """
         pattern = self._regex_input.text()
         records, missed = rd.apply_regex(self._samples, pattern)
         warnings = rd.validate_records(records, multichannel=self._multi)
@@ -239,6 +273,14 @@ class RegexEditorDialog(QDialog):
         # after it, which can never match. Measured through the real path on
         # eight cellvoyager names: 0 of 8, with no error anywhere and the
         # pattern in the box looking exactly right.
+        """Trim the pattern for ``get_regex`` and accept.
+
+        The box matches whole filenames, so auto-detect's pattern ends with an
+        extension anchor. Saved verbatim into ``custom_regex`` that became
+        ``(...$)..tif`` -- an anchor with characters after it, which can never
+        match -- and it failed silently: 0 of 8 real names, with no error
+        anywhere and the pattern in the box looking exactly right.
+        """
         from ..import_plan import for_get_regex
 
         self.regex = for_get_regex(self._regex_input.text())

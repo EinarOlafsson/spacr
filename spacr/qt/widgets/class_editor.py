@@ -85,6 +85,13 @@ class ClassChip(QWidget):
     removed = Signal(int)
 
     def __init__(self, index: int, rule: "ClassRule", palette, parent=None):
+        """Build one class bubble: its name, its value and a remove mark.
+
+        :param index: the rule's position, carried so removal can name it.
+        :param rule: the class rule this chip stands for.
+        :param palette: the active theme colours.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("ClassChip")
         self._index = int(index)
@@ -129,6 +136,7 @@ class ClassChip(QWidget):
         row.addStretch(1)
 
     def _on_removed(self) -> None:
+        """Announce that this chip's rule should go."""
         self.removed.emit(self._index)
 
 
@@ -153,6 +161,20 @@ class ClassEditorWidget(QWidget):
     def __init__(self, value: Any = None, parent=None, *,
                  frame: Optional[pd.DataFrame] = None,
                  basis: str = "annotation"):
+        """Build the class editor: a column picker, a two-field entry row and chips.
+
+        The column combo is editable because it is filled from a loaded table
+        and there is not always one: with no frame the list came back empty, Add
+        values was disabled, and a non-editable empty combo left no way at all
+        to name a column -- so no class could be added and the module could not
+        be configured.
+
+        :param value: the classes to start with.
+        :param parent: parent widget, or ``None``.
+        :param frame: the loaded table, used to offer columns and their values.
+        :param basis: which columns the picker offers -- ``"annotation"`` or
+            the metadata set.
+        """
         super().__init__(parent)
         self.setObjectName("ClassEditor")
         self._frame = frame
@@ -497,6 +519,12 @@ class ClassEditorWidget(QWidget):
 
     # -- plumbing ----------------------------------------------------------
     def _rebuild(self) -> None:
+        """Redraw the chips and the hidden table from the current rules.
+
+        Only the class name is editable in the table: the value and its column
+        are facts about the loaded table, and letting them be typed over would
+        produce a class that selects nothing with no sign of why.
+        """
         self._rebuild_chips()
         self.table.blockSignals(True)
         self.table.clear()
@@ -516,6 +544,15 @@ class ClassEditorWidget(QWidget):
         self._emit()
 
     def _on_item_changed(self, item: QTreeWidgetItem, column: int) -> None:
+        """Rename a class from an edited table cell.
+
+        An empty name is refused and the old one put back -- a class with no
+        name cannot be trained on or reported, so it fails later rather than
+        here if accepted.
+
+        :param item: the edited row.
+        :param column: which cell changed; only the name column is acted on.
+        """
         if column != 0:
             return
         index = self.table.indexOfTopLevelItem(item)
@@ -557,6 +594,7 @@ class ClassEditorWidget(QWidget):
             self._chips_layout.addWidget(chip)
 
     def _emit(self) -> None:
+        """Announce the current class definitions."""
         self.value_changed.emit(self.value())
 
     def _say(self, message: str) -> None:

@@ -158,6 +158,28 @@ class FigureSettingsDialog(QDialog):
 
     def __init__(self, figure, parent=None, *, on_change: Optional[Callable] = None,
                  propagate_callback: Optional[Callable] = None):
+        """Build the figure settings dialog with a live preview.
+
+        A pickled snapshot of the figure is taken so Cancel has something to go
+        back to: live apply with no way out is a trap -- the user drags a spin
+        box to see what it does and there is no longer an "as it was". The
+        per-figure text-size override is kept separately, because Cancel
+        restores the figure by copying axes out of the snapshot rather than by
+        swapping the object, so that attribute would otherwise survive an undo
+        of everything it applies to.
+
+        The Statistics tab appears only for a figure that compares groups: one
+        offering a t-test on a Q-Q plot would be an invitation to report a
+        number that means nothing. The UMAP tab appears only for a figure
+        carrying the embedding it was drawn from -- without it, "live" would
+        mean re-running the reduction and every point would move.
+
+        :param figure: the matplotlib figure to restyle.
+        :param parent: parent widget, or ``None``.
+        :param on_change: called to redraw; takes ``preview`` when it can.
+        :param propagate_callback: writes the values into the owning module's
+            settings panel. ``None`` disables Propagate and says why.
+        """
         super().__init__(parent)
         self.setWindowTitle("Figure settings")
         self._figure = figure
@@ -483,6 +505,11 @@ class FigureSettingsDialog(QDialog):
 
     @staticmethod
     def _scroll(widget: QWidget) -> QScrollArea:
+        """Wrap a tab page in a scroll area.
+
+        :param widget: the page.
+        :returns: the scroll area holding it.
+        """
         area = QScrollArea()
         area.setWidgetResizable(True)
         area.setWidget(widget)
@@ -501,6 +528,18 @@ class FigureSettingsDialog(QDialog):
         self._redraw.start(self.REDRAW_DELAY_MS)
 
     def _redraw_now(self, preview: bool = True) -> None:
+        """Redraw the figure, never letting renders stack.
+
+        A preview blocks the GUI thread for about 150 ms, and Qt keeps
+        delivering events during it -- spin-box auto-repeat, the wheel, this
+        timer. Without the guard each one lands another render behind the
+        current one, the queue grows faster than it drains, and the window stops
+        responding. A request arriving mid-render only sets a flag, and one
+        final redraw runs afterwards: the thread is always free between renders
+        and the picture still ends up matching the controls.
+
+        :param preview: render at preview quality rather than full.
+        """
         if self._on_change is None:
             return
         # RENDERS MUST NOT STACK.
@@ -631,6 +670,22 @@ class FigureSettingsDialog(QDialog):
         return page
 
     def _figure_tab(self) -> QWidget:
+        """Build the Figure page: size, DPI, background, and the two ink controls.
+
+        The text-size control reaches *every* text object, including the ones a
+        naive sweep misses -- annotations, the suptitle and the legend title --
+        which is what made "shrink all text" leave the largest label on the
+        plot untouched and read as the font getting bigger. The size is
+        remembered on the figure rather than written to the preference, because
+        this dialog restyles one figure in front of the user and the setting for
+        every figure is Preferences.
+
+        Line ink and font ink are two controls rather than one, split by what a
+        mark is rather than by which code draws it, so "dark axes, coloured
+        labels" is expressible.
+
+        :returns: the page widget.
+        """
         from .figure_queue import set_figure_text_size_override
 
         page = QWidget()
@@ -779,6 +834,11 @@ class FigureSettingsDialog(QDialog):
         return page
 
     def _axes_tab(self, axis) -> QWidget:
+        """Build one axes page: its title, labels, scales, limits and ticks.
+
+        :param axis: the axes this page edits.
+        :returns: the page widget.
+        """
         page = QWidget()
         form = QFormLayout(page)
 
@@ -2473,6 +2533,13 @@ class FigureStylePreferences(QWidget):
     """
 
     def __init__(self, general=None, per_graph=None, parent=None):
+        """Build the figure-style preference page.
+
+        :param general: the saved general style values; missing keys fall back
+            to the shipped defaults.
+        :param per_graph: saved per-graph-kind overrides, keyed by kind.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         from ...figure_style import (GENERAL_DEFAULTS, GRAPH_DEFAULTS,
                                      GRAPH_KINDS)

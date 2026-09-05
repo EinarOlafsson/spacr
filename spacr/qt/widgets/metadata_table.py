@@ -54,6 +54,11 @@ class MetadataTablePanel(QWidget):
 
     def __init__(self, rows: Optional[List[Dict[str, Any]]] = None,
                  parent: Optional[QWidget] = None):
+        """Build the metadata review table.
+
+        :param rows: the extracted metadata to show; ``None`` starts empty.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._table = QTableWidget(0, len(ROW_COLUMNS), self)
         install_sorting(self._table)
@@ -97,6 +102,14 @@ class MetadataTablePanel(QWidget):
         self._refresh_summary()
 
     def _append_row(self, r: Dict[str, Any]) -> None:
+        """Add one metadata row.
+
+        Only the columns a user may correct are editable; the rest are shown
+        greyed, because they are derived and typing over one would produce a
+        filename that does not follow from the values beside it.
+
+        :param r: the row's values by column key; missing keys render blank.
+        """
         row = self._table.rowCount()
         self._table.insertRow(row)
         for col, key in enumerate(ROW_COLUMNS):
@@ -115,6 +128,14 @@ class MetadataTablePanel(QWidget):
     # Editing
     # ------------------------------------------------------------------
     def _on_item_changed(self, item: QTableWidgetItem) -> None:
+        """Coerce an edited cell and rebuild the filename it feeds.
+
+        Integer columns are clamped to at least 1, and unparseable input reverts
+        to 1 rather than being left as text a later stage would choke on. The
+        re-entrancy guard is what stops the rewrite from re-triggering this.
+
+        :param item: the edited cell; edits to a read-only column are ignored.
+        """
         if self._guard:
             return
         col = item.column()
@@ -186,6 +207,7 @@ class MetadataTablePanel(QWidget):
         return save_filename_map(Path(dst), mappings)
 
     def _refresh_summary(self) -> None:
+        """Restate what the table now holds, above it."""
         from ..ingest_preview import summarize_rows
         self._summary.setText("Review & edit the extracted metadata — "
                               + summarize_rows(self.rows()))
@@ -203,6 +225,13 @@ class MetadataTableDialog(QDialog):
     def __init__(self, rows: List[Dict[str, Any]], dst: Any,
                  on_apply: Optional[Callable[[Path], None]] = None,
                  parent: Optional[QWidget] = None):
+        """Wrap the metadata table in a modal review dialog.
+
+        :param rows: the extracted metadata to review.
+        :param dst: where ``filename_map.csv`` is written on Apply.
+        :param on_apply: called with the written path once it lands.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle("Review extracted image metadata")
         self.setModal(True)
@@ -240,6 +269,12 @@ class MetadataTableDialog(QDialog):
         return self._written
 
     def _apply(self) -> None:
+        """Write ``filename_map.csv`` and close.
+
+        A failure leaves the written path unset rather than raising, so the
+        caller sees "nothing was written" instead of an exception out of a
+        dialog's button.
+        """
         try:
             self._written = self.panel.write_filename_map(self._dst)
             if self._on_apply is not None:
