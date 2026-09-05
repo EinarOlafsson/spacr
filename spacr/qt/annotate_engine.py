@@ -1014,6 +1014,17 @@ def _tokenise_image_type(text: str) -> List[str]:
 
 
 def _parse_or(tokens):
+    """Parse a sequence of ``and`` terms joined by ``or``.
+
+    The lowest-precedence level of the image filter's grammar, so ``or``
+    binds more loosely than ``and`` -- ``a and b or c`` is ``(a and b) or
+    c``, which is what a reader expects.
+
+    :param tokens: the remaining tokens.
+    :returns: ``(sql, params, rest)`` -- a parameterised fragment, never
+        interpolated text, so a fragment containing a quote cannot become
+        SQL.
+    """
     sql, params, rest = _parse_and(tokens)
     while rest and rest[0].lower() == "or":
         right_sql, right_params, rest = _parse_and(rest[1:])
@@ -1023,6 +1034,11 @@ def _parse_or(tokens):
 
 
 def _parse_and(tokens):
+    """Parse a sequence of terms joined by ``and``.
+
+    :param tokens: the remaining tokens.
+    :returns: ``(sql, params, rest)``.
+    """
     sql, params, rest = _parse_term(tokens)
     while rest and rest[0].lower() == "and":
         right_sql, right_params, rest = _parse_term(rest[1:])
@@ -1032,6 +1048,16 @@ def _parse_and(tokens):
 
 
 def _parse_term(tokens):
+    """Parse one term: a negation, a parenthesised group, or a path fragment.
+
+    :param tokens: the remaining tokens.
+    :returns: ``(sql, params, rest)``; a bare fragment becomes a ``LIKE``
+        against the crop path, bound as a parameter.
+    :raises ValueError: if the filter ends after an operator, if a ``(`` is
+        never closed, or if an operator appears where a fragment was
+        expected -- each named, because "invalid filter" tells the user
+        nothing about which word to change.
+    """
     if not tokens:
         raise ValueError("the image filter ends after an operator")
     head, rest = tokens[0], tokens[1:]
@@ -1106,6 +1132,17 @@ def fetch_page(
 # ---------------------------------------------------------------------------
 
 def _apply_threshold(df, column: str, threshold: float, direction: str):
+    """Narrow a frame to rows past a threshold, if there is one to apply.
+
+    :param df: the frame.
+    :param column: the column to threshold; a missing or unknown one leaves
+        the frame alone rather than raising, so a saved filter naming a
+        column this table lacks does not empty the view.
+    :param threshold: the cut; ``None`` leaves the frame alone.
+    :param direction: ``"higher"`` keeps rows above it, anything else keeps
+        rows below.
+    :returns: the narrowed frame.
+    """
     if column is None or column not in df.columns or threshold is None:
         return df
     if direction == "higher":

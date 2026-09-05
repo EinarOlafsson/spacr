@@ -787,6 +787,14 @@ def is_valid_drift_direction(name) -> bool:
 
 
 def _require_drift_direction(name: str) -> str:
+    """Validate a starfield drift direction.
+
+    :param name: the direction.
+    :returns: it unchanged.
+    :raises ValueError: if it is not one of the known directions, naming
+        them -- a mistyped direction would otherwise drift nowhere and look
+        like the animation had stopped.
+    """
     if name not in DRIFT_DIRECTIONS:
         raise ValueError(
             f"unknown starfield direction {name!r}; expected one of "
@@ -868,6 +876,12 @@ def _mix(a: QColor, b: QColor, t: float) -> QColor:
 
 
 def _with_alpha(color: QColor, alpha: float) -> QColor:
+    """Return a copy of a colour at a given alpha.
+
+    :param color: the colour to copy.
+    :param alpha: the alpha, clamped to ``[0, 1]``.
+    :returns: the new colour; the original is not modified.
+    """
     out = QColor(color)
     out.setAlphaF(max(0.0, min(1.0, float(alpha))))
     return out
@@ -880,10 +894,24 @@ def is_dark_background(color: Union[QColor, str]) -> bool:
 
 
 def _clamp_int(value, low: int, high: int) -> int:
+    """Clamp a value into an integer range.
+
+    :param value: the value.
+    :param low: the lower bound.
+    :param high: the upper bound.
+    :returns: the clamped integer.
+    """
     return max(low, min(high, int(value)))
 
 
 def _clamp(value: float, low: float, high: float) -> float:
+    """Clamp a value into a float range.
+
+    :param value: the value.
+    :param low: the lower bound.
+    :param high: the upper bound.
+    :returns: the clamped float.
+    """
     return max(low, min(high, float(value)))
 
 
@@ -5646,6 +5674,12 @@ class _FractalTracksItsHost(QObject):
         self._widget = widget
 
     def eventFilter(self, watched, event) -> bool:
+        """Resize the backdrop to match the widget it sits behind.
+
+        :param watched: the host being followed.
+        :param event: the event.
+        :returns: ``False`` -- the resize is observed, never consumed.
+        """
         try:
             if event.type() == QEvent.Type.Resize:
                 self._widget.setGeometry(watched.rect())

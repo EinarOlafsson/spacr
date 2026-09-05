@@ -384,11 +384,26 @@ def _help_key(window: QMainWindow) -> None:
 
 
 def _nav(window: QMainWindow, key: str) -> None:
+    """Navigate the window to a module.
+
+    :param window: the main window; one without the navigation slot is
+        tolerated, so a shortcut cannot crash a bare dialog.
+    :param key: the module to open.
+    """
     if hasattr(window, "_on_nav_selected"):
         window._on_nav_selected(key)
 
 
 def _nav_by_index(window: QMainWindow, idx: int) -> None:
+    """Navigate to the nth VISIBLE module, for the number-key shortcuts.
+
+    An index past the end, or one naming a module the user has hidden, does
+    nothing -- a shortcut that jumps somewhere unexpected is worse than one
+    that does not fire.
+
+    :param window: the main window.
+    :param idx: the module's position in the registry.
+    """
     try:
         from .app import APPS, app_is_visible
         if 0 <= idx < len(APPS) and app_is_visible(APPS[idx][0]):
@@ -398,6 +413,11 @@ def _nav_by_index(window: QMainWindow, idx: int) -> None:
 
 
 def _open_palette(window: QMainWindow) -> None:
+    """Open the command palette.
+
+    :param window: the main window. A build without the palette logs and
+        does nothing rather than raising out of a key press.
+    """
     try:
         from .command_palette import CommandPalette
         CommandPalette(window).exec()
@@ -406,6 +426,10 @@ def _open_palette(window: QMainWindow) -> None:
 
 
 def _open_preferences(window: QMainWindow) -> None:
+    """Open the Preferences dialog.
+
+    :param window: the main window.
+    """
     try:
         from .preferences import PreferencesDialog
         PreferencesDialog(window).exec()
