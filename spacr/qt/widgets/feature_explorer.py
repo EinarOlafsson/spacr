@@ -200,10 +200,18 @@ class FeatureExplorerPanel(QWidget):
 
     @property
     def spec(self) -> ExplorerSpec:
+        """What the panel is currently set to rank.
+
+        :returns: the explorer spec.
+        """
         return self._spec
 
     @property
     def result(self) -> Optional[ExplorerResult]:
+        """The last ranking computed, if any.
+
+        :returns: the result, or None before a run.
+        """
         return self._result
 
     def set_spec(self, spec: ExplorerSpec) -> None:
@@ -228,6 +236,15 @@ class FeatureExplorerPanel(QWidget):
         self.rank_now()
 
     def current_spec(self) -> ExplorerSpec:
+        """The spec as the controls read RIGHT NOW.
+
+        Distinct from :attr:`spec`, which is what the last run used: the two
+        differ while the user is changing the controls, and a panel that
+        conflated them would report a ranking against settings it did not
+        use.
+
+        :returns: the spec the controls describe.
+        """
         return ExplorerSpec(
             label=self._label.currentText(),
             features=self._spec.features,
@@ -238,6 +255,10 @@ class FeatureExplorerPanel(QWidget):
             seed=self._spec.seed)
 
     def summary(self) -> str:
+        """What was ranked, over how much, and what was skipped.
+
+        :returns: a one-line summary, empty before a run.
+        """
         return self._summary.text()
 
     # -- ranking ----------------------------------------------------------
@@ -363,10 +384,18 @@ class FeatureExplorerPanel(QWidget):
             self.feature_selected.emit(item.data(Qt.UserRole))
 
     def selected_feature(self) -> str:
+        """Which feature the user has selected, if any.
+
+        :returns: the feature name, or ``""``.
+        """
         item = self.table.item(self.table.currentRow(), 0)
         return item.data(Qt.UserRole) if item is not None else ""
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work before going away.
+
+        :param event: the Qt close event.
+        """
         self._debounce.stop()
         if hasattr(self._canvas, "cancel_pending_draw"):
             self._canvas.cancel_pending_draw()

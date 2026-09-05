@@ -455,6 +455,10 @@ class GateEditorScreen(QWidget):
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
+        """Point the screen at a table to gate.
+
+        :param frame: the rows, or None to clear.
+        """
         self._frame = frame
         self.formulas.set_frame(frame)
         self._push_frame()
@@ -528,6 +532,7 @@ class GateEditorScreen(QWidget):
         # getOpenFileNames, plural: a screen acquired as three plates is three
         # databases, and comparing them used to mean three sessions
         # (instruction 109). One file behaves exactly as it did before.
+        """Ask which table in the project to gate."""
         paths, _ = QFileDialog.getOpenFileNames(
             self, "Open one or more measurement tables", "",
             "Measurements (*.db *.sqlite *.csv *.tsv);;All files (*)")
@@ -1298,6 +1303,10 @@ class GateEditorScreen(QWidget):
             self._reload_working_set()
 
     def settings(self) -> GateEditorSettings:
+        """The screen's settings, in the shape a settings file wants.
+
+        :returns: the settings dict.
+        """
         return self._settings
 
     # -- export -----------------------------------------------------------
@@ -1707,15 +1716,27 @@ class GateEditorScreen(QWidget):
         return merged
 
     def active_jobs(self) -> int:
+        """How many background jobs this screen is running.
+
+        :returns: the job count.
+        """
         return self._jobs.active_jobs()
 
     def is_busy(self) -> bool:
+        """Whether anything is still running.
+
+        What the window asks before closing: a gate applied to a table that
+        is still loading would be applied to half of it.
+
+        :returns: True while work is outstanding.
+        """
         return self._jobs.is_busy()
 
     # -- the strategy -----------------------------------------------------
     # -- filter sets, saved the way gates already are -------------------
 
     def choose_save_filters(self) -> None:
+        """Ask where to save the current filters."""
         path, _ = QFileDialog.getSaveFileName(
             self, "Save the filter set", "filters.json",
             "Filter sets (*.json);;All files (*)")
@@ -1729,6 +1750,7 @@ class GateEditorScreen(QWidget):
         return path
 
     def choose_load_filters(self) -> None:
+        """Ask which saved filters to load."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Load a filter set", "",
             "Filter sets (*.json);;All files (*)")
@@ -1759,6 +1781,7 @@ class GateEditorScreen(QWidget):
         return missing
 
     def choose_save_gates(self) -> None:
+        """Ask where to save the current gates."""
         path, _ = QFileDialog.getSaveFileName(
             self, "Save the gating strategy", "gates.json",
             "Gates (*.json);;All files (*)")
@@ -1772,6 +1795,7 @@ class GateEditorScreen(QWidget):
         return path
 
     def choose_load_gates(self) -> None:
+        """Ask which saved gates to load."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Load a gating strategy", "",
             "Gates (*.json);;All files (*)")
@@ -1796,6 +1820,10 @@ class GateEditorScreen(QWidget):
         return True
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Let the panel close first, so it can unlink its canvas.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         self.gates.close()
         super().closeEvent(event)

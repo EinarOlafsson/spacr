@@ -216,6 +216,10 @@ class FeaturePicker(QWidget):
         self._refilter()
 
     def set_selected(self, features) -> None:
+        """Tick exactly these features and untick the rest.
+
+        :param features: the feature names to select.
+        """
         self._checked = {f for f in features if f in self._all}
         self._refilter()
 
@@ -224,18 +228,25 @@ class FeaturePicker(QWidget):
         return tuple(f for f in self._all if f in self._checked)
 
     def available(self) -> Tuple[str, ...]:
+        """Every feature the picker is offering.
+
+        :returns: the feature names, in list order.
+        """
         return self._all
 
     # -- buttons ---------------------------------------------------------
     def select_all(self) -> None:
+        """Tick every offered feature."""
         self._checked |= set(self._visible())
         self._refilter()
 
     def select_none(self) -> None:
+        """Untick everything."""
         self._checked -= set(self._visible())
         self._refilter()
 
     def invert(self) -> None:
+        """Tick what was unticked and untick what was ticked."""
         for name in self._visible():
             self._checked ^= {name}
         self._refilter()
@@ -316,11 +327,20 @@ class ScreePlot(QWidget):
 
     def set_result(self, result: Optional[PCAResult], *,
                    highlight: Tuple[int, int] = (0, 1)) -> None:
+        """Show the variance explained by each component of a decomposition.
+
+        :param result: the PCA result, or None to clear.
+        """
         self._result = result
         self._highlight = highlight
         self.render_now()
 
     def render_now(self) -> None:
+        """Draw immediately rather than on the next idle turn.
+
+        For a caller that is about to read pixels -- an export, or a test --
+        and cannot wait for the event loop to get round to it.
+        """
         palette = active_palette()
         self._figure.clear()
         # `clear()` restores the rc facecolor and its alpha with it.
@@ -429,6 +449,10 @@ class PCAScoresCanvas(GraphCanvas):
 
     @property
     def result(self) -> Optional[PCAResult]:
+        """The decomposition being plotted, if any.
+
+        :returns: the PCA result, or None before one has been computed.
+        """
         return self._result
 
     def set_biplot(self, on: bool, *, count: Optional[int] = None,
@@ -471,6 +495,7 @@ class PCAScoresCanvas(GraphCanvas):
 
     # -- rendering -------------------------------------------------------
     def render_now(self) -> None:
+        """Draw immediately rather than on the next idle turn."""
         super().render_now()
         self._arrow_scale = 0.0
         try:
@@ -732,6 +757,10 @@ class PCAPanel(QWidget):
 
     @property
     def result(self) -> Optional[PCAResult]:
+        """The decomposition this panel is showing, if any.
+
+        :returns: the PCA result, or None before one has been computed.
+        """
         return self._result
 
     @property

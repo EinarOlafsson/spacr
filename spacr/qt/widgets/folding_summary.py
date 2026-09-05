@@ -217,10 +217,22 @@ class FoldingSummaryView(QScrollArea):
     # ------------------------------------------------ the QPlainTextEdit API
 
     def setPlainText(self, text: str) -> None:      # noqa: N802 - Qt naming
+        """Replace the text and rebuild the folded sections from it.
+
+        :param text: the summary text.
+        """
         self._text = str(text or "")
         self._rebuild()
 
     def toPlainText(self) -> str:                   # noqa: N802 - Qt naming
+        """The text as set, whatever is folded away right now.
+
+        THE SOURCE, NOT THE VIEW. Folding is a display state, so a caller
+        copying this out gets the whole summary rather than only the parts
+        that happen to be open.
+
+        :returns: the summary text.
+        """
         return self._text
 
     def isReadOnly(self) -> bool:                   # noqa: N802 - Qt naming
@@ -291,15 +303,29 @@ class FoldingSummaryView(QScrollArea):
     # ------------------------------------------------------------- folding
 
     def section_titles(self) -> tuple:
+        """Every section's title, in document order.
+
+        :returns: the titles.
+        """
         return tuple(s.title() for s in self._sections)
 
     def is_section_expanded(self, title: str) -> bool:
+        """Whether one section is currently open.
+
+        :param title: the section's title.
+        :returns: True when expanded.
+        """
         for section in self._sections:
             if section.title() == str(title):
                 return section.is_expanded()
         return False
 
     def set_section_expanded(self, title: str, expanded: bool) -> None:
+        """Open or close one section.
+
+        :param title: the section's title.
+        :param expanded: True to open it.
+        """
         for section in self._sections:
             if section.title() == str(title):
                 section.set_expanded(bool(expanded))

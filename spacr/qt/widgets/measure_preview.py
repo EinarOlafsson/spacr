@@ -746,6 +746,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     # -- settings dialog ------------------------------------------------
 
     def open_crop_settings(self) -> None:
+        """Open the crop-settings dialog for this preview."""
         dialog = self._crop_settings_dialog
         if dialog is not None and dialog.isVisible():
             dialog.raise_()
@@ -825,12 +826,24 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         return None
 
     def dragEnterEvent(self, event):  # noqa: N802
+        """Accept a drag carrying something this preview can measure.
+
+        :param event: the Qt drag event.
+        """
         event.acceptProposedAction() if self._dropped_path(event) else event.ignore()
 
     def dragMoveEvent(self, event):  # noqa: N802
+        """Keep accepting while droppable input stays over the panel.
+
+        :param event: the Qt drag event.
+        """
         event.acceptProposedAction() if self._dropped_path(event) else event.ignore()
 
     def dropEvent(self, event):  # noqa: N802
+        """Take the dropped input and preview it.
+
+        :param event: the Qt drop event.
+        """
         path = self._dropped_path(event)
         if path:
             event.acceptProposedAction()
@@ -956,6 +969,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             runner.shutdown()
 
     def closeEvent(self, event):  # noqa: N802
+        """Stop any preview work before going away.
+
+        :param event: the Qt close event.
+        """
         self.shutdown()
         super().closeEvent(event)
 
@@ -1024,6 +1041,13 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         return selected or [self._object_box.currentText()]
 
     def settings_for_propagation(self) -> dict:
+        """The settings this preview would hand to the real run.
+
+        What makes a preview worth doing: the numbers tuned here are the
+        numbers the run uses, rather than something the user must retype.
+
+        :returns: the settings dict.
+        """
         normalize: Any = False
         if self._normalise.isChecked():
             normalize = [float(self._lo_pct.value()), float(self._hi_pct.value())]
@@ -1195,9 +1219,14 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             self._auto_load_from_src(settings["src"])
 
     def set_propagate_callback(self, callback) -> None:
+        """Set what to call when the user pushes these settings to the run.
+
+        :param callback: called with the settings dict.
+        """
         self._propagate_cb = callback
 
     def propagate_settings(self) -> None:
+        """Push the tuned settings to the run, if anything is listening."""
         if self._propagate_cb is None:
             return
         try:
@@ -1459,6 +1488,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             f"{entry.get('category', '')}{selected}")
 
     def current_params(self) -> dict:
+        """The parameters the preview is using right now.
+
+        :returns: the parameters as a plain dict.
+        """
         values = self.settings_for_propagation()
         values["n_crops"] = len(self._crops)
         values["selected"] = sorted(self._selected)
@@ -1634,6 +1667,10 @@ class CropSettingsDialog(QDialog):
 
     def closeEvent(self, event):
         # Keep control values alive on the panel between dialog openings.
+        """Remember the dialog's geometry before it goes.
+
+        :param event: the Qt close event.
+        """
         for widget in self._panel._managed_widgets():
             widget.setParent(self._panel)
             widget.hide()

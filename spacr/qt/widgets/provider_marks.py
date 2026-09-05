@@ -399,11 +399,20 @@ class ProviderMark(QWidget):
         # AVAILABILITY DOES NOT GATE THE CHOICE. It is drawn -- brand colour
         # when the CLI is here, muted ink when it is not -- and said in the
         # tooltip, which is information rather than obstruction.
+        """Open the provider's page.
+
+        :param event: the Qt mouse event.
+        """
         if event.button() == Qt.LeftButton:
             self.chosen.emit(self.code)
         super().mousePressEvent(event)
 
     def event(self, event):
+        """Handle the events Qt does not give a named handler for.
+
+        :param event: the Qt event.
+        :returns: True when handled here.
+        """
         from PySide6.QtCore import QEvent
 
         if event.type() == QEvent.Type.HoverEnter:
@@ -417,9 +426,17 @@ class ProviderMark(QWidget):
     # ----------------------------------------------------------- painting
 
     def sizeHint(self) -> QSize:                # noqa: N802 - Qt naming
+        """The mark's natural size, from the artwork it draws.
+
+        :returns: the preferred size.
+        """
         return QSize(88, 92)
 
     def paintEvent(self, event):                # noqa: N802 - Qt naming
+        """Draw the provider's mark.
+
+        :param event: the Qt paint event.
+        """
         try:
             self._paint()
         except Exception:

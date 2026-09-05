@@ -233,6 +233,16 @@ class ExplainCvPanel(QWidget):
                      path_column: str = "path", prediction_column: str = "pred",
                      model_family: str = "random_forest", split_by: str = "well",
                      output: str = ""):
+        """Run the surrogate explanation and render it.
+
+        SEPARATE FROM :meth:`run` so the analysis can be driven without the
+        form -- a test, or another screen handing over inputs it already has.
+
+        :param database: the measurements database.
+        :param predictions: the model's predictions.
+        :param path_column: which column joins predictions to objects.
+        :param prediction_column: which column holds the prediction.
+        """
         prediction_frame = pd.read_csv(predictions)
         result = explain_classifier(
             database, prediction_frame, path_column=path_column,
@@ -242,6 +252,12 @@ class ExplainCvPanel(QWidget):
         return result, paths
 
     def run(self) -> None:
+        """Read the form and run the explanation, refusing an incomplete one.
+
+        Both inputs are required, and the refusal is silent-safe: a missing
+        field is the ordinary state before the user has finished filling it
+        in, not an error to interrupt them with.
+        """
         database, predictions = self.database.text(), self.predictions.text()
         if not database or not predictions:
             self._failed("Choose a measurements database and predictions CSV.")
@@ -309,6 +325,11 @@ class ExplainCvPanel(QWidget):
         self.status.setText(f"Could not explain model: {message}")
 
     def open_held_out_objects(self) -> None:
+        """Show the held-out objects the explanation was scored on.
+
+        Does nothing when there is no result or nothing was held out, which
+        is the state before a run rather than a failure.
+        """
         if self.result is None or self.result.held_out.empty:
             return
         try:
@@ -318,10 +339,18 @@ class ExplainCvPanel(QWidget):
             self._failed(str(exc))
 
     def open_activation_maps(self) -> None:
+        """Hand off to the activation-map module for the current model."""
         if self.host is not None:
             self.host._on_train_requested("activation_maps", {})
 
     def closeEvent(self, event) -> None:  # noqa: N802
+        """Shut the job pool down before going away.
+
+        A WORKER OUTLIVING ITS PANEL writes results into a widget whose C++
+        half is gone, which is a crash rather than a leak.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         super().closeEvent(event)
 
@@ -415,6 +444,17 @@ class InvestigateHitPanel(QWidget):
                       fdr: float = float("nan"), phenotype: str = "",
                       guide_agreement: float = float("nan"),
                       n_guides: int = 0, well_support: int = 0) -> None:
+        """Fill the form from a hit the regression screen picked.
+
+        The seam that makes this screen reachable from a result rather than
+        only from a blank form: everything the investigation needs is
+        already known at the point the user clicks a hit.
+
+        :param folder: the run folder the hit came from.
+        :param gene: the gene the hit names.
+        :param effect: its effect size.
+        :param guides: the guides supporting it.
+        """
         self.regression_folder.setText(folder)
         self.gene.setText(gene)
         self.guides.setText(", ".join(str(value) for value in guides))
@@ -450,6 +490,17 @@ class InvestigateHitPanel(QWidget):
     def run_analysis(self, *, database: str, predictions: str, fractions: str,
                      gene: str, guides: Sequence[str], score: str,
                      direction: str, features: Sequence[str], folder: str):
+        """Run the cross-fitted investigation and render it.
+
+        Separate from :meth:`run` so it can be driven without the form.
+
+        :param database: the measurements database.
+        :param predictions: the model's predictions.
+        :param fractions: the guide-fraction table.
+        :param gene: the gene under investigation.
+        :param guides: the guides supporting the hit.
+        :param score: which score column to investigate.
+        """
         source_fdr = self.gene.property("source_fdr")
         source_agreement = self.gene.property("source_guide_agreement")
         return investigate_hit({
@@ -477,6 +528,11 @@ class InvestigateHitPanel(QWidget):
         })
 
     def run(self) -> None:
+        """Read the form and run the investigation.
+
+        The guide and feature lists are comma-separated free text, so blanks
+        are dropped rather than passed on as empty names.
+        """
         guides = [value.strip() for value in self.guides.text().split(",") if value.strip()]
         features = [value.strip() for value in self.features.text().split(",") if value.strip()]
         required = [self.database.text(), self.predictions.text(), self.fractions.text(),
@@ -527,6 +583,7 @@ class InvestigateHitPanel(QWidget):
         self.run_button.setEnabled(True); self.status.setText(f"Could not investigate hit: {message}")
 
     def open_candidates(self) -> None:
+        """Show the candidate cells this investigation found."""
         if self.result is None:
             return
         selected = self.result.cells.sort_values("hit_like_probability", ascending=False).head(200)
@@ -540,6 +597,12 @@ class InvestigateHitPanel(QWidget):
             self._failed(str(exc))
 
     def promote(self) -> None:
+        """Record this hit as annotated, against the attribution run.
+
+        REFUSES WITHOUT AN ANNOTATION. A promotion is a claim about the
+        biology, and one with no note attached says only that somebody
+        pressed a button.
+        """
         if not self.attribution_run_id or not self.annotation.text().strip():
             return
         try:
@@ -554,6 +617,11 @@ class InvestigateHitPanel(QWidget):
             f"Promoted calls to {self.annotation.text().strip()!r}; the previous values are retained for Undo.")
 
     def undo(self) -> None:
+        """Withdraw the last promotion.
+
+        Does nothing when there is none, so the button is safe to press
+        twice.
+        """
         if not self.promotion_id:
             return
         try:
@@ -564,6 +632,7 @@ class InvestigateHitPanel(QWidget):
         self.status.setText(f"Restored {count:,} previous annotation values.")
 
     def open_umap(self) -> None:
+        """Show the candidates in the embedding, when hosted by a screen."""
         if self.host is None:
             return
         source = os.path.dirname(self.database.text())
@@ -571,6 +640,10 @@ class InvestigateHitPanel(QWidget):
             "umap", {"src": source, "color_by": self.annotation.text().strip()})
 
     def closeEvent(self, event) -> None:  # noqa: N802
+        """Shut the job pool down before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown(); super().closeEvent(event)
 
 
@@ -631,6 +704,10 @@ class InvestigateHitScreen(QWidget):
         install_for(self, "investigate_hit")
 
     def configure_hit(self, **request) -> None:
+        """Forwarded to the panel this screen wraps.
+
+        :param request: the hit's folder, gene, effect and guides.
+        """
         self.investigate.configure_hit(**request)
 
     def apply_seed(self, seed: Dict[str, Any]) -> None:

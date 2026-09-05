@@ -213,6 +213,12 @@ class EdgeDrawer(QWidget):
         self.opened.emit()
 
     def relayout_for_open(self) -> None:
+        """Resize to the host's full height and lay the panel out.
+
+        Called on open rather than on construction, because the host can be
+        resized while the drawer is closed and a drawer sized to a stale
+        height opens as a stripe down part of the window.
+        """
         h = self._host.height()
         self.resize(self._width, h)
         if self._owns_panel():
@@ -242,6 +248,13 @@ class EdgeDrawer(QWidget):
             self._close_timer.stop()
 
     def is_held(self) -> bool:
+        """Whether the drawer is pinned open.
+
+        HELD IS NOT OPEN. A hovered drawer is open and closes when the
+        pointer leaves; a held one stays until it is released.
+
+        :returns: True when pinned.
+        """
         return self._held
 
     def toggle(self) -> None:
@@ -288,19 +301,37 @@ class EdgeDrawer(QWidget):
 
     # -- events --------------------------------------------------------
     def eventFilter(self, obj, event):
+        """Watch the host for the events that open and close the drawer.
+
+        :param obj: the object the event is for.
+        :param event: the event.
+        :returns: True to stop the event going further.
+        """
         if obj is self._host and event.type() == QEvent.Resize:
             self.relayout()
         return super().eventFilter(obj, event)
 
     def enterEvent(self, event):
+        """Open on hover.
+
+        :param event: the Qt enter event.
+        """
         self._close_timer.stop()
         super().enterEvent(event)
 
     def leaveEvent(self, event):
+        """Close on leave, unless the drawer is held open.
+
+        :param event: the Qt leave event.
+        """
         self.schedule_close()
         super().leaveEvent(event)
 
     def keyPressEvent(self, event):
+        """Close on Escape.
+
+        :param event: the Qt key event.
+        """
         if event.key() == Qt.Key_Escape:
             self.close()
             self._host.setFocus(Qt.OtherFocusReason)

@@ -304,11 +304,19 @@ class ScatterCanvas(QFrame):
         return pixmap
 
     def resizeEvent(self, event) -> None:
+        """Re-lay the points for the new size.
+
+        :param event: the Qt resize event.
+        """
         self._invalidate()
         super().resizeEvent(event)
 
     # -- painting -----------------------------------------------------------
     def paintEvent(self, event) -> None:
+        """Draw the points and the hovered thumbnail.
+
+        :param event: the Qt paint event.
+        """
         super().paintEvent(event)
         painter = QPainter(self)
         try:
@@ -396,14 +404,29 @@ class ScatterCanvas(QFrame):
         self.hover_changed.emit(self._hover)
 
     def mouseMoveEvent(self, event) -> None:
+        """Track which point is under the pointer, for the thumbnail.
+
+        :param event: the Qt mouse event.
+        """
         position = event.position()
         self._set_hover(self.index_at(position.x(), position.y()))
 
     def leaveEvent(self, event) -> None:
+        """Clear the hover when the pointer leaves the canvas.
+
+        OTHERWISE THE THUMBNAIL STICKS: the last hovered point stays drawn
+        over a canvas the pointer has left, which reads as a selection.
+
+        :param event: the Qt leave event.
+        """
         self._set_hover(-1)
         super().leaveEvent(event)
 
     def mousePressEvent(self, event) -> None:
+        """Select the point under the pointer.
+
+        :param event: the Qt mouse event.
+        """
         if event.button() != Qt.LeftButton:
             return
         position = event.position()
@@ -817,6 +840,10 @@ class ImageScatterScreen(LinkedView, QWidget):
         self._replot()
 
     def closeEvent(self, event) -> None:
+        """Stop background work before going away.
+
+        :param event: the Qt close event.
+        """
         self._hover_timer.stop()
         self.unlink_selection()
         self._jobs.cancel()

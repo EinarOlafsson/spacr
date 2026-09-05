@@ -327,6 +327,14 @@ class HardwareProfile:
 
     @staticmethod
     def detect() -> "HardwareProfile":
+        """Read what this machine can offer the renderer.
+
+        FLOORED AT ONE CPU. `os.cpu_count` returns None on some platforms,
+        and a worker pool sized from None is a crash rather than a slow
+        backdrop.
+
+        :returns: the profile.
+        """
         return HardwareProfile(logical_cpus=max(1, os.cpu_count() or 1))
 
 
@@ -678,6 +686,17 @@ class OrbitEngine:
                dream: float, iterations: int, pointer_x: float = 0.0,
                pointer_y: float = 0.0, pull: float = 0.0,
                push: float = 0.0) -> np.ndarray:
+        """Render one frame of the orbit.
+
+        :param width: the frame's width in pixels.
+        :param height: its height in pixels.
+        :param t: the time to render at.
+        :param speed: the travel-speed multiplier.
+        :param dream: how far the orbit wanders.
+        :param iterations: the iteration budget per pixel.
+        :param pointer_x: horizontal pointer influence, 0 for none.
+        :returns: the rendered frame.
+        """
         set_num_threads(self.thread_count)
         self._ensure_size(width, height)
         jitter_x, jitter_y = JITTERS[self.slot]

@@ -829,3 +829,107 @@ it comes back as `**Sonstige Ressourcen**` -- a bold paragraph where a heading
 was. That is the one the ``**`` gate catches, and it needs the registry entry
 plus the rebuild in one pass, because that gate also requires the reviewed
 target to already be present in the localized file.
+
+================================================================================
+ADDENDUM 2026-09-04 — THE READMES ARE DELIVERED, AND EIGHTEEN MORE DEFECTS
+================================================================================
+
+THE README HALF IS DONE. All 44 missing reviewed blocks are in the nine
+localized READMEs (5639daa8d), the band headings are back at 35 each, and the
+README's own claim about what "translated" means now matches what was done.
+`tests/test_documentation_i18n.py` is 137 of 138, the exclusion being the API
+symbol ratchet, which belongs to the other session's docstring work.
+
+WHY IT TOOK A DIFFERENT ROUTE THAN "REBUILD THE READMES", and this is the part
+worth keeping: `--rebuild-readme` CANNOT RUN ON THIS MACHINE. It dies on the
+first block it must translate --
+
+    FileNotFoundError: missing /mnt/firecuda2/.../translation_models/opus/en-sv;
+    download Helsinki-NLP/opus-mt-en-sv before generation
+
+-- because `/mnt/firecuda2` is not mounted. The only model tree present is
+NLLB-200 under /media/carruthers/mnt3. So every reviewed README translation
+recorded since that volume went away had been CORRECT AND INERT: registered
+with all nine locales, matching nothing on disk, delivered to no reader. An
+earlier note in this file blamed an alias `ValueError` for the same symptom;
+that error was real but it stood in front of this one.
+
+Reviewed blocks need no model -- the builder subtracts them from what it hands
+the translator -- so they were applied directly, each stale paragraph located
+by bracketing it between reviewed blocks already present and accepting the
+mapping ONLY where the canonical and localized gaps agree. Round-trip through
+`rebuild_document` is byte-exact on all nine before any write.
+
+RESTORING THE opus-mt MODELS IS A MAINTAINER ACTION and is the only way the
+~70 unreviewed blocks per README ever move again.
+
+--------------------------------------------------------------------------------
+THE FIVE NAMED DEFECTS: FOUR GONE, ONE STILL WRONG
+--------------------------------------------------------------------------------
+
+  is  "1.5 er óþekkt"            GONE
+  is  "Allir notendur"           GONE -- now "Öll forrit", which is right
+  es  "se ciernen para revelar"  GONE -- now "pasa el cursor para revelar"
+  hi  dropped hover instruction  GONE -- now "दिखाने के लिए कर्सर ले जाएँ"
+  zh  left "hover to reveal"     GONE -- now "悬停以显示"
+
+The Icelandic one is only half fixed. The same string now reads
+
+    Öll forrit — hover til að sýna (Ctrl + Shift + A)
+
+with the English verb sitting inside it. Which is how the next eighteen were
+found.
+
+--------------------------------------------------------------------------------
+EIGHTEEN RUNTIME STRINGS STILL CARRY THE ENGLISH WORD "HOVER"
+--------------------------------------------------------------------------------
+
+is 8, de 6, es 2, zh_CN 1, pt 1. sv, hi, ko and fr are clean. Every one of
+them is present, source-hash-current, normal length, and passes every gate this
+repository has -- this file's whole thesis, now with eighteen more examples.
+
+The leaked verb is the SMALLER half. Reading them turns up a false-friend
+family the catalogs have never been checked for:
+
+  run     -> is "rún"          A RUNE. "þessa rún", "Tveir rúnir geta verið
+                               lifandi" -- two runes can be alive.
+  score   -> de "Partitur"     A MUSICAL SCORE. "Die Partitur verwendet, um
+                               Prüfungen zu ordnen."
+  trials  -> de "Prüfungen"    EXAMS, in a sentence about optimizer trials.
+  crop    -> de "Anbau"        CULTIVATION. Also is "vöxtina", growth.
+  cell    -> es "la celda"     A PRISON OR SPREADSHEET CELL, not a biological
+                               one, in the module summary for image_scatter.
+  volcano -> de "Vulkan",      THE GEOLOGICAL FEATURE. A volcano plot is not a
+             pt "vulcão"       volcano; German keeps "Volcano-Plot".
+
+and three Icelandic strings are past false friends into not being Icelandic:
+"Hover hvaða mólum tile og það ljósa upp í litum hversu ferilegt það er", and
+one that leaves a whole English clause standing: "A still, not a live plot:
+opna ferlið til hover, klikka og filtra það."
+
+The full list with table, English source and current target is enumerated by
+the sweep in this instruction's evidence and reproduces in one pass over
+`spacr/qt/i18n_catalogs/*.py` matching `\bhover(ing|s)?\b` in a target value.
+
+NOT DRAFTED HERE, DELIBERATELY. This file's standing rule is that adding
+machine-drafted rows to clear a ratchet adds to the problem it exists to
+record, and that rule does not weaken because the current text is bad. Eight of
+the eighteen are Icelandic and six are German -- two of the three locales the
+maintainer reads -- so they are the cheapest possible input to a second pass,
+and "run -> rune" and "score -> musical score" are the kind of thing a reader
+confirms in seconds and a gate never will.
+
+--------------------------------------------------------------------------------
+WHAT THIS INSTRUCTION IS STILL WAITING ON
+--------------------------------------------------------------------------------
+
+Its own closing criterion is "a native or fluent reader has passed over each
+locale's runtime strings and signed the evidence file for it". That has
+happened for THREE of nine -- Icelandic, Swedish and German, in 056e5f1ef, and
+only over the seven strings that pass covered. Six locales have had no reader
+at all, and the three that have are not signed end to end.
+
+So this cannot be closed by any amount of further mechanical work, and the
+remaining decision is the maintainer's: either a second pass over the eighteen
+above, or an explicit decision to ship 1.5.0.5 with the qualified claim the
+README now carries, leaving this open against a later release.

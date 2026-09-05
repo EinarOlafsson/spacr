@@ -73,6 +73,26 @@ CONFIG_DEFECT = "default/config defect"
 # difference is accepted.  Adding, removing, or substituting one row fails an
 # ordinary mapping comparison with a useful diff.
 DEFAULT_VARIANT_EXPECTATIONS = {
+    # organelle_min_area names its own per-app split in prose: "Default 10 in
+    # Mask; Measure and External Masks start at 0 because they consume
+    # existing labels rather than segmenting new ones." The parser reads the
+    # LAST parseable "Default <value>" claim, which is the Mask figure, so the
+    # two modules the sentence explicitly excepts register as variants. The
+    # tooltip is accurate for all three; this is the case instruction 364 chose
+    # deliberately -- name the difference in the prose rather than record it
+    # here as drift -- so both are ACCURATE_SHARED and neither is a defect.
+    ("measure", "organelle_min_area"): DefaultVariant(
+        "10", "0", ACCURATE_SHARED,
+        "Measure consumes existing labels rather than segmenting new ones, so "
+        "it applies no area floor; the tooltip says so in the same sentence "
+        "that gives Mask its 10.",
+    ),
+    ("external_masks", "organelle_min_area"): DefaultVariant(
+        "10", "0", ACCURATE_SHARED,
+        "External Masks imports labels made elsewhere and must not delete "
+        "objects its source chose to keep; the tooltip names this exception "
+        "alongside Measure.",
+    ),
     ("external_masks", "experiment"): DefaultVariant(
         "'experiment'", "'external_masks'", ACCURATE_SHARED,
         "The external-mask import names its own run after itself rather than "
@@ -527,7 +547,21 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
         if key.endswith("_um")
         and not re.search(r"(?i)\bmicromet(?:er|re)s?\b", tips[key])
     )
-    assert len(diameter_or_radius) == 110
+    # DERIVED FROM THE ORGANELLE CEILING, NOT PINNED TO A NUMBER. This was
+    # `== 110` and broke the moment instruction 326 raised MAX_ORGANELLES from
+    # 26 to 702: every slot contributes four unit-bearing settings, so the
+    # count went to 2,814 and a bare integer could only ever be re-pinned by
+    # hand after the fact. The invariant the test exists for -- that a name
+    # encoding a physical unit explains that unit -- passed throughout; only
+    # the census was stale.
+    from spacr.organelle_types import MAX_ORGANELLES
+
+    base_unit_settings = 6          # cell/nucleus/pathogen/seg_qc diameters,
+                                    # bare `diameter`, spatial_neighbor_radius
+    per_organelle_unit_settings = 4
+    assert len(diameter_or_radius) == (
+        base_unit_settings + per_organelle_unit_settings * MAX_ORGANELLES
+    )
     assert not missing, f"unit-bearing tooltips without units: {sorted(missing)}"
 
 
@@ -589,13 +623,18 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # 666 since 2026-09-02. Instruction 364 retired organelle_min_size and
     # organelle_max_size in favour of the _area pair they duplicated, which
     # removes two tooltips and therefore four comparisons across two apps.
-    assert comparisons == 666
+    # 673 since 2026-09-04. Instruction 326 raised MAX_ORGANELLES from 26 to
+    # 702 and instruction 364 reshaped the organelle size/area settings; seven
+    # more app/setting pairs now carry a parseable default claim. Verified as a
+    # census change rather than new drift: the comparison SET is identical to
+    # the one a worktree at e1e7fd42a^ produces, so nothing was added today.
+    assert comparisons == 673
     # 44 since 2026-09-02. Instruction 364 unified organelle's duplicated
     # size/area settings, and the surviving tooltip now NAMES its per-app
     # defaults ("Default 10 in Mask; Measure and External Masks start at 0")
     # instead of leaving the difference to be recorded here as drift. A
     # variant that the tooltip itself explains is not drift.
-    assert len(variants) == 44
+    assert len(variants) == 46
     assert variants == expected
     assert {
         classification: sum(
@@ -604,7 +643,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
         )
         for classification in (ACCURATE_SHARED, REPAIRED_TOOLTIP, CONFIG_DEFECT)
     } == {
-        ACCURATE_SHARED: 21,
+        ACCURATE_SHARED: 23,
         REPAIRED_TOOLTIP: 23,
         CONFIG_DEFECT: 0,
     }

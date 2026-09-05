@@ -14,7 +14,13 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 9_432
+#: 9,434 -> 9,596 on 2026-09-04. 368's public half: every public method in
+#: dnd_handlers, gate_spec, layers, trellis_spec, dna_rain, graph_builder,
+#: feature_rank and umap_search_viewer now carries its own docstring, and the
+#: API_DOC_ALIASES entries that let 111 of them borrow a base class's text
+#: were retired with them -- so those symbols render their own entry instead
+#: of pointing at someone else's.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_011
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

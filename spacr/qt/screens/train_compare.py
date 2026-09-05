@@ -403,6 +403,10 @@ class TrainCompareScreen(QWidget):
         self._status.setText(text)
 
     def status_text(self) -> str:
+        """Whatever the status line is telling the user.
+
+        :returns: the status text.
+        """
         return self._status.text()
 
     def summary_text(self) -> str:
@@ -524,19 +528,45 @@ class TrainCompareScreen(QWidget):
     # -- introspection helpers (used by tests and by callers) -------------
 
     def root(self) -> str:
+        """The folder being scanned for training runs.
+
+        :returns: the root path, as text.
+        """
         return self._root
 
     def runs(self) -> List[tc.TrainingRun]:
+        """Every run the last scan found.
+
+        A LIST COPY, so a caller cannot reorder this screen's runs by
+        mutating what it was handed.
+
+        :returns: the runs.
+        """
         return list(self._runs)
 
     def run_ids(self) -> List[str]:
+        """The identifiers of every run found.
+
+        :returns: the run ids, in scan order.
+        """
         return [r.run_id for r in self._runs]
 
     def run_rows(self) -> List[str]:
+        """The run list exactly as it reads on screen.
+
+        Read off the WIDGET rather than rebuilt from the runs, so a test
+        checks what the user sees rather than what the data says.
+
+        :returns: one string per visible row.
+        """
         return [self._runs_list.item(i).text()
                 for i in range(self._runs_list.count())]
 
     def available_metrics(self) -> List[str]:
+        """Which metrics the picker is currently offering.
+
+        :returns: the metric names, in picker order.
+        """
         return [self._metric_combo.itemText(i)
                 for i in range(self._metric_combo.count())]
 
@@ -559,10 +589,19 @@ class TrainCompareScreen(QWidget):
         return True
 
     def fold_mode(self) -> str:
+        """How the cross-validation folds are being combined.
+
+        :returns: the mode's value.
+        """
         idx = max(0, self._fold_combo.currentIndex())
         return FOLD_MODE_LABELS[idx][1]
 
     def set_fold_mode(self, mode: str) -> bool:
+        """Choose how folds are combined.
+
+        :param mode: the mode's value.
+        :returns: True when the mode exists and was selected.
+        """
         for i, (_label, value) in enumerate(FOLD_MODE_LABELS):
             if value == mode:
                 self._fold_combo.setCurrentIndex(i)
@@ -571,6 +610,10 @@ class TrainCompareScreen(QWidget):
         return False
 
     def selected_run_ids(self) -> List[str]:
+        """The runs the user has ticked for comparison.
+
+        :returns: the selected run ids.
+        """
         out = []
         for i in range(self._runs_list.count()):
             item = self._runs_list.item(i)
@@ -597,6 +640,10 @@ class TrainCompareScreen(QWidget):
         return True
 
     def comparison(self) -> Optional[tc.Comparison]:
+        """The last comparison computed, if any.
+
+        :returns: the comparison, or None before one has been run.
+        """
         return self._comparison
 
     def figure(self):
@@ -777,11 +824,19 @@ class TrainCompareScreen(QWidget):
         self._diff_table.resizeColumnsToContents()
 
     def diff_headers(self) -> List[str]:
+        """The settings-diff table's column headers.
+
+        :returns: the headers, in column order.
+        """
         return [self._diff_table.horizontalHeaderItem(c).text()
                 if self._diff_table.horizontalHeaderItem(c) else ""
                 for c in range(self._diff_table.columnCount())]
 
     def diff_rows(self) -> List[List[str]]:
+        """The settings-diff table as it reads on screen.
+
+        :returns: one row per differing setting.
+        """
         out = []
         for r in range(self._diff_table.rowCount()):
             row = []
@@ -914,9 +969,17 @@ class TrainCompareScreen(QWidget):
         self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
 
     def active_jobs(self) -> int:
+        """How many background jobs this screen is running.
+
+        :returns: the job count.
+        """
         return len(self._jobs)
 
     def is_busy(self) -> bool:
+        """Whether anything is still running.
+
+        :returns: True while work is outstanding.
+        """
         return self._busy
 
     def _on_worker_error_text(self, tb: str) -> None:
@@ -936,6 +999,10 @@ class TrainCompareScreen(QWidget):
             bool(self.selected_run_ids()) and not self._busy)
 
     def closeEvent(self, event):  # noqa: N802 — Qt naming
+        """Stop background work before going away.
+
+        :param event: the Qt close event.
+        """
         for thread, _worker in list(self._jobs):
             try:
                 thread.quit()
