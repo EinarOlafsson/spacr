@@ -86,10 +86,23 @@ def cell_span(aspect: float) -> int:
     return CELL_SPAN
 
 
-#: How the run headings are drawn, minus the colour. One string, because the
-#: chevron and the label are two widgets that have to read as one heading.
-HEADING_STYLE = ("font-weight: 600; font-size: 11px; letter-spacing: 1px; "
-                 "background: transparent;")
+def heading_style() -> str:
+    """How the run headings are drawn, minus the colour.
+
+    One string, because the chevron and the label are two widgets that
+    have to read as one heading.
+
+    A FUNCTION AND NOT A CONSTANT. A module-level string is built once, at
+    import, and so pinned the size to whatever the scale was when the
+    module first loaded -- which is exactly the bug this is fixing. Asked
+    for at each use, it follows the interface scale.
+
+    :returns: the heading stylesheet, without a colour.
+    """
+    from ..theme import font_px
+
+    return (f"font-weight: 600; font-size: {font_px(11)}px; "
+            "letter-spacing: 1px; background: transparent;")
 
 #: Fallback ink for a heading when the palette will not load -- a bare
 #: process, a headless render. The theme's own accent, so the two agree.
@@ -108,7 +121,7 @@ def _heading_style() -> str:
         colour = active_palette()["accent"]
     except Exception:                                            # noqa: BLE001
         colour = _HEADING_FALLBACK
-    return f"{HEADING_STYLE} color: {colour};"
+    return f"{heading_style()} color: {colour};"
 
 #: How close to the top of the viewport a heading has to sit before the
 #: gesture stops meaning "take me there". The console's tolerance, for the
@@ -330,8 +343,10 @@ class _FigureCell(QFrame):
             # "i asked you to make the all figures pannel publication style
             # (with each panel having an uppercase letter) and be on a grid".
             tag = QLabel(letter.upper())
+            from ..theme import font_px
             tag.setStyleSheet(
-                "font-weight: 700; font-size: 15px; background: transparent;")
+                f"font-weight: 700; font-size: {font_px(15)}px; "
+                "background: transparent;")
             tag.setAlignment(Qt.AlignLeft | Qt.AlignTop)
             layout.addWidget(tag)
 
@@ -351,7 +366,8 @@ class _FigureCell(QFrame):
             caption = QLabel(title)
             caption.setAlignment(Qt.AlignCenter)
             caption.setWordWrap(True)
-            caption.setStyleSheet("color: palette(mid); font-size: 10px;")
+            caption.setStyleSheet(
+                f"color: palette(mid); font-size: {font_px(10)}px;")
             layout.addWidget(caption)
 
     def aspect(self) -> float:

@@ -636,7 +636,9 @@ class FigureSettingsDialog(QDialog):
 
         verdict = QLabel("")
         verdict.setWordWrap(True)
-        verdict.setStyleSheet("color: palette(mid); font-size: 11px;")
+        from ..theme import font_px
+        verdict.setStyleSheet(
+            f"color: palette(mid); font-size: {font_px(11)}px;")
         form.addRow(verdict)
 
         def _recompute():

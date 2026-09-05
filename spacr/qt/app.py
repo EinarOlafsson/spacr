@@ -5083,9 +5083,12 @@ class MainWindow(QMainWindow):
             card.setAlignment(Qt.AlignmentFlag.AlignCenter)
             card.setAttribute(
                 Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
+            from .theme import font_px
+
             card.setStyleSheet(
                 "background: rgba(10,14,24,200); color: rgb(235,240,245); "
-                "padding: 14px 22px; border-radius: 10px; font-size: 15px;")
+                "padding: 14px 22px; border-radius: 10px; "
+                f"font-size: {font_px(15)}px;")
             card.adjustSize()
             card.move(max(0, (self.width() - card.width()) // 2),
                       max(0, (self.height() - card.height()) // 2))
