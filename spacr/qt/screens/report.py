@@ -111,6 +111,12 @@ class ReportScreen(QWidget):
     _job_settled = Signal(bool)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the screen and arm its drop zone.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: scan and generate on a worker thread. Set ``False`` in
+            tests so ``scan`` finishes before it returns.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._src: str = ""
@@ -138,6 +144,7 @@ class ReportScreen(QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the source row, the section list, the output row and the actions."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -277,6 +284,7 @@ class ReportScreen(QWidget):
     # -- pickers -----------------------------------------------------------
 
     def _pick_run_folder(self) -> None:
+        """Ask for a run folder and scan it straight away."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a run folder", self._path_edit.text().strip()
             or os.path.expanduser("~"))
@@ -285,6 +293,11 @@ class ReportScreen(QWidget):
             self.scan()
 
     def _pick_output(self) -> None:
+        """Ask where the report should be written.
+
+        The suggestion is derived from the scanned folder, so the usual answer
+        is already in the box.
+        """
         suggested = self._suggested_output()
         path, _ = QFileDialog.getSaveFileName(
             self, "Write the report to", suggested,
@@ -335,6 +348,15 @@ class ReportScreen(QWidget):
             self._on_scanned)
 
     def _on_scanned(self, report: Any) -> None:
+        """Show what a finished scan found, and suggest where to write it.
+
+        Sections that are not available are counted rather than hidden: a report
+        missing half its sections is a fact about the run, and the number is how
+        the user finds out before generating.
+
+        :param report: the scan result, or anything else -- which is treated as
+            a scan that produced nothing.
+        """
         self._report = report if isinstance(report, rep.Report) else None
         self._render_sections()
         if self._report is None:
@@ -412,6 +434,11 @@ class ReportScreen(QWidget):
             self._on_generated)
 
     def _on_generated(self, paths: Any) -> None:
+        """Report which files were written.
+
+        :param paths: the written files; an empty list is reported as a failure
+            rather than as a silent success.
+        """
         written = [str(p) for p in (paths or [])]
         self._written = written
         if not written:
@@ -541,10 +568,20 @@ class ReportScreen(QWidget):
         return self._busy
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Clear the busy flag and report a failed job.
+
+        :param exc: the exception raised by the worker; its class name is used
+            when it carries no message.
+        """
         self._busy = False
         self._set_status(str(exc) or exc.__class__.__name__, error=True)
 
     def _on_worker_error_text(self, text: str) -> None:
+        """Clear the busy flag and report a worker failure given as text.
+
+        :param text: the worker's error output; only its last line is shown,
+            which for a traceback is the exception itself.
+        """
         line = (text or "").strip().splitlines()[-1] if text else "unknown error"
         self._busy = False
         self._set_status(f"Report failed: {line}", error=True)
@@ -565,6 +602,11 @@ class ReportScreen(QWidget):
         return self._status.text()
 
     def _update_controls(self) -> None:
+        """Enable the actions to match the source and the run state.
+
+        Open is the exception: it needs a written report rather than a source,
+        since it opens what was produced rather than what would be.
+        """
         idle = not self._busy
         has_src = bool(self._path_edit.text().strip())
         self._btn_scan.setEnabled(idle and has_src)

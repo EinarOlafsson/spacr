@@ -155,6 +155,11 @@ class QueueScreen(QWidget):
     queue_size_changed = Signal(int)
 
     def __init__(self, queue: Optional[PlateQueue] = None, parent=None):
+        """Build the queue screen and start its elapsed-time tick.
+
+        :param queue: the queue to show; ``None`` builds an empty one.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._queue = queue if queue is not None else PlateQueue()
         self._runner: Optional[_QueueRunner] = None
@@ -174,6 +179,12 @@ class QueueScreen(QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self):
+        """Lay out the toolbar and the plate table.
+
+        ``Add current plate`` is deliberately left unwired here: the settings it
+        adds belong to whichever app screen is active, so ``MainWindow`` connects
+        it -- see ``wire_add_current``.
+        """
         outer = QVBoxLayout(self)
         outer.setContentsMargins(24, 24, 24, 24)
         outer.setSpacing(12)
@@ -299,6 +310,7 @@ class QueueScreen(QWidget):
             self._runner.stop()
 
     def _on_runner_done(self):
+        """Swap Run back for Stop and redraw the table once the runner stops."""
         self._btn_run.setEnabled(True)
         self._btn_stop.setEnabled(False)
         self._refresh_table()
@@ -327,11 +339,21 @@ class QueueScreen(QWidget):
         super().closeEvent(event)
 
     def _on_item_changed(self, item_id: str):
+        """Redraw the table after one item changed.
+
+        :param item_id: which item changed; the whole table is re-read either
+            way, so it is not used to narrow the redraw.
+        """
         self._refresh_table()
 
     # -- toolbar handlers --------------------------------------------------
 
     def _on_import(self):
+        """Import plates from a CSV and add them to the queue.
+
+        A file that cannot be read is reported in a dialog rather than raised:
+        picking the wrong CSV is a normal mistake, not a crash.
+        """
         path, _ = QFileDialog.getOpenFileName(
             self, "Import plates from CSV", "", "CSV files (*.csv)")
         if not path:
@@ -351,6 +373,7 @@ class QueueScreen(QWidget):
                                   f"Added {len(items)} plate(s) from {path}.")
 
     def _on_clear_finished(self):
+        """Drop every finished plate from the queue."""
         n = self._queue.clear_finished()
         self._refresh_table()
         self.queue_size_changed.emit(len(self._queue))
@@ -360,6 +383,11 @@ class QueueScreen(QWidget):
     # -- table plumbing ----------------------------------------------------
 
     def _refresh_table(self):
+        """Rebuild the plate table, one row per queued item.
+
+        Each row carries its own Remove button, disabled while that plate is
+        running.
+        """
         items = self._queue.items()
         self._table.setRowCount(len(items))
         for row, item in enumerate(items):
@@ -381,6 +409,11 @@ class QueueScreen(QWidget):
     def _refresh_elapsed_only(self):
         # Only touch the elapsed column so we don't churn the whole
         # table (and lose selection state) every second.
+        """Tick the elapsed column of the running plates, and only that column.
+
+        Driven by a one-second timer. Rebuilding the whole table every second
+        would churn it and lose the user's selection with it.
+        """
         items = self._queue.items()
         for row, item in enumerate(items):
             if item.status != Status.RUNNING or row >= self._table.rowCount():
@@ -390,6 +423,13 @@ class QueueScreen(QWidget):
                 self._table.setItem(row, 4, table_item(f"{e:.1f} s"))
 
     def _on_remove(self, item_id: str):
+        """Remove one plate from the queue.
+
+        A running plate is refused with a dialog: removing the row would leave
+        the runner working on an item the queue no longer knows about.
+
+        :param item_id: the plate to remove.
+        """
         item = self._queue.find(item_id)
         if item is not None and item.status == Status.RUNNING:
             QMessageBox.warning(self, "Queue",
@@ -401,6 +441,12 @@ class QueueScreen(QWidget):
 
     @staticmethod
     def _set_status_color(item: QTableWidgetItem, status: Status):
+        """Colour a status cell by its status.
+
+        :param item: the cell to colour.
+        :param status: the item's status; an unrecognised one falls back to
+            black rather than leaving the previous colour in place.
+        """
         colors = {
             Status.QUEUED:  Qt.darkGray,
             Status.RUNNING: Qt.blue,

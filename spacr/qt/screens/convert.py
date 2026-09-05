@@ -145,6 +145,10 @@ class PlanTableModel(QAbstractTableModel):
     """
 
     def __init__(self, parent=None):
+        """Create an empty conversion-plan model.
+
+        :param parent: parent object, or ``None``.
+        """
         super().__init__(parent)
         self._frame: pd.DataFrame = pd.DataFrame(
             columns=[key for key, _label in PREVIEW_COLUMNS])
@@ -233,6 +237,12 @@ class ConvertScreen(QWidget):
     app_key = "convert"
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the screen and arm its drop zone.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: preview and convert on a worker thread. Set ``False``
+            in tests so ``preview`` finishes before it returns.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._plan: Optional[cvt.ConversionPlan] = None
@@ -258,6 +268,7 @@ class ConvertScreen(QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the source row, the options, the destination and the plan table."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -399,6 +410,10 @@ class ConvertScreen(QWidget):
         return self._summary.toPlainText()
 
     def _set_summary(self, text: str) -> None:
+        """Write the summary pane.
+
+        :param text: the summary; ``None`` empties the pane.
+        """
         self._summary.setPlainText(text or "")
 
     # -- configuration -----------------------------------------------------
@@ -427,6 +442,15 @@ class ConvertScreen(QWidget):
         return self._dst_edit.text().strip()
 
     def _set_combo(self, box: QComboBox, value: str, what: str) -> None:
+        """Select a combo entry by its stored value rather than its caption.
+
+        :param box: the combo box to set.
+        :param value: the value to select.
+        :param what: what the value names, used in the error message.
+        :raises ValueError: if no entry carries that value -- silently leaving
+            the box where it was would run the conversion with a setting the
+            caller did not ask for.
+        """
         index = box.findData(value)
         if index < 0:
             raise ValueError(f"Unknown {what}: {value!r}")
@@ -480,11 +504,13 @@ class ConvertScreen(QWidget):
     # -- pickers -----------------------------------------------------------
 
     def _pick_source(self) -> None:
+        """Ask which folder holds the microscope files."""
         path = QFileDialog.getExistingDirectory(self, "Choose source folder")
         if path:
             self.set_source(path)
 
     def _pick_destination(self) -> None:
+        """Ask where the converted TIFFs should be written."""
         path = QFileDialog.getExistingDirectory(self, "Choose destination folder")
         if path:
             self.set_destination(path)
@@ -641,6 +667,11 @@ class ConvertScreen(QWidget):
     # -- controls ----------------------------------------------------------
 
     def _update_controls(self) -> None:
+        """Enable the form and the actions to match the run state and the plan.
+
+        Convert additionally needs a usable plan: the point of the preview is
+        that nothing is written until the mapping is agreed.
+        """
         idle = not self._busy
         has_plan = self._plan is not None and self._plan.ok and len(self._plan) > 0
         for widget in (self._btn_pick_src, self._btn_pick_dst,
@@ -765,11 +796,21 @@ class ConvertScreen(QWidget):
         return self._busy
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Clear the busy state, hide the progress bar and report a failed job.
+
+        :param exc: the exception raised by the worker; its class name is used
+            when it carries no message.
+        """
         self._busy = False
         self._progress_bar.setVisible(False)
         self._set_status(str(exc) or exc.__class__.__name__, error=True)
 
     def _on_worker_error_text(self, text: str) -> None:
+        """Clear the busy state and report a worker failure given as text.
+
+        :param text: the worker's error output; only its last line is shown,
+            which for a traceback is the exception itself.
+        """
         line = (text or "").strip().splitlines()[-1] if text else "unknown error"
         self._busy = False
         self._progress_bar.setVisible(False)
