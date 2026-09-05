@@ -136,6 +136,10 @@ class ProposalModel(QAbstractTableModel):
     """
 
     def __init__(self, parent=None):
+        """Create an empty proposal table model.
+
+        :param parent: parent object, or ``None``.
+        """
         super().__init__(parent)
         self._header: List[str] = []
         self._rows: List[List[str]] = []
@@ -238,6 +242,10 @@ class AnswerModel(QAbstractTableModel):
     answers_edited = Signal()
 
     def __init__(self, parent=None):
+        """Create an empty answer table model.
+
+        :param parent: parent object, or ``None``.
+        """
         super().__init__(parent)
         #: ``(token position, value, answer as typed)``.
         self._rows: List[List[str]] = []
@@ -381,6 +389,15 @@ class ImageImportScreen(QWidget):
     _job_settled = Signal(bool)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the screen and arm its drop zone.
+
+        The drop handler also takes a saved plan, so last week's answers arrive
+        by the same gesture this week's images do.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: run the scan and the import on a worker thread. Set
+            ``False`` in tests so ``scan`` finishes before it returns.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._plan: Optional["imp.ImportPlan"] = None
@@ -411,6 +428,7 @@ class ImageImportScreen(QWidget):
     def _build_ui(self) -> None:
         # ITS OWN REGISTRY KEY -- what `install_folds_on` and the drop
         # handlers dispatch on.
+        """Lay out the source row, the scan options, the proposal, the questions and the report."""
         self.app_key = "import_images"
         # IMPORTED HERE, NOT AT MODULE LEVEL: `app_screen` imports the screen
         # registry, which reaches this module, and a top-level import would
@@ -612,6 +630,10 @@ class ImageImportScreen(QWidget):
         return self._report.toPlainText()
 
     def _set_report(self, text: str) -> None:
+        """Write the report pane.
+
+        :param text: the report; ``None`` empties the pane.
+        """
         self._report.setPlainText(text or "")
 
     # -- configuration -----------------------------------------------------
@@ -714,16 +736,19 @@ class ImageImportScreen(QWidget):
     # -- pickers -----------------------------------------------------------
 
     def _pick_root(self) -> None:
+        """Ask which folder the images are in."""
         path = QFileDialog.getExistingDirectory(self, "Choose your images")
         if path:
             self.set_root(path)
 
     def _pick_destination(self) -> None:
+        """Ask where the imported project should be written."""
         path = QFileDialog.getExistingDirectory(self, "Choose destination")
         if path:
             self.set_destination(path)
 
     def _pick_save_plan(self) -> None:
+        """Ask where to write the import plan and save it."""
         path, _filter = QFileDialog.getSaveFileName(
             self, "Save the import plan", "import_plan.json",
             "JSON (*.json);;All files (*)")
@@ -731,6 +756,7 @@ class ImageImportScreen(QWidget):
             self.save_plan(path)
 
     def _pick_load_plan(self) -> None:
+        """Ask for a saved import plan and load it."""
         path, _filter = QFileDialog.getOpenFileName(
             self, "Load an import plan", "", "JSON (*.json);;All files (*)")
         if path:
@@ -1070,6 +1096,11 @@ class ImageImportScreen(QWidget):
         self._update_controls()
 
     def _update_controls(self) -> None:
+        """Enable the form and the actions to match the run state and the plan.
+
+        Import additionally needs a plan with no problems: the point of the
+        proposal is that nothing is written until the parse is agreed.
+        """
         idle = not self._busy
         for widget in (self._btn_pick_root, self._btn_pick_dst, self._btn_scan,
                        self._root_edit, self._dst_edit, self._plate_edit,
@@ -1193,11 +1224,21 @@ class ImageImportScreen(QWidget):
             self._worker = None
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Clear the busy state, hide the progress bar and report a failed job.
+
+        :param exc: the exception raised by the worker; its class name is used
+            when it carries no message.
+        """
         self._busy = False
         self._progress_bar.setVisible(False)
         self._set_status(str(exc) or exc.__class__.__name__, error=True)
 
     def _on_worker_error_text(self, text: str) -> None:
+        """Clear the busy state and report a worker failure given as text.
+
+        :param text: the worker's error output; only its last line is shown,
+            which for a traceback is the exception itself.
+        """
         line = (text or "").strip().splitlines()[-1] if text else "unknown error"
         self._busy = False
         self._progress_bar.setVisible(False)

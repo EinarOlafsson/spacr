@@ -190,6 +190,10 @@ class ScatterCanvas(QFrame):
     point_clicked = Signal(int)
 
     def __init__(self, parent=None):
+        """Create an empty scatter canvas with mouse tracking on.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName(CANVAS_OBJECT)
         self.setMouseTracking(True)
@@ -249,10 +253,17 @@ class ScatterCanvas(QFrame):
         return self._hover
 
     def __len__(self) -> int:
+        """Return the number of plotted points."""
         return int(len(self._x))
 
     # -- geometry -----------------------------------------------------------
     def _invalidate(self) -> None:
+        """Drop the cached point cloud and the screen coordinates, then repaint.
+
+        Called whenever the data or the axes change: the cloud is rendered once
+        into a pixmap and reused across repaints, so it has to be thrown away
+        rather than drawn over.
+        """
         self._cloud = None
         self._px = np.zeros(0, dtype=float)
         self._py = np.zeros(0, dtype=float)
@@ -397,6 +408,12 @@ class ScatterCanvas(QFrame):
         return best if distance[best] <= HIT_RADIUS else -1
 
     def _set_hover(self, index: int) -> None:
+        """Move the hover to a point and announce it.
+
+        :param index: the point now under the cursor, or ``-1`` for none.
+            Setting the index it already holds does nothing, so a mouse moving
+            within one point does not emit per pixel.
+        """
         if index == self._hover:
             return
         self._hover = int(index)
@@ -452,6 +469,12 @@ class ImageScatterScreen(LinkedView, QWidget):
     crop_shown = Signal(str)
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the screen, join the shared selection and arm its drop zone.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: run reads on a worker thread. Set ``False`` in tests so
+            a load finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("ImageScatterScreen")
         self._jobs = JobRunner(self, threaded=bool(threaded),
@@ -477,6 +500,7 @@ class ImageScatterScreen(LinkedView, QWidget):
 
     # -- construction -------------------------------------------------------
     def _build(self) -> None:
+        """Lay out the source row, the axis pickers, the scatter and the crop preview."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -561,6 +585,7 @@ class ImageScatterScreen(LinkedView, QWidget):
 
     # -- source -------------------------------------------------------------
     def _choose_db(self) -> None:
+        """Ask for a measurements database and open it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a measurements database", self._db.text().strip(),
             "SQLite (*.db *.sqlite);;All files (*)")
@@ -640,6 +665,10 @@ class ImageScatterScreen(LinkedView, QWidget):
                        paths=payload["paths"], note=payload.get("table", ""))
 
     def _on_job_failed(self, message: str) -> None:
+        """Show a failed job on the status line, in the error colour.
+
+        :param message: the failure text from the job runner.
+        """
         self.status.setText(message)
         self.status.setStyleSheet(f"color: {active_palette()['error']};")
 
@@ -749,6 +778,14 @@ class ImageScatterScreen(LinkedView, QWidget):
         self._show_crop(index, self._thumbs.prime(path))
 
     def _show_crop(self, index: int, pixmap: Optional[QPixmap]) -> None:
+        """Show one object's crop beside the scatter.
+
+        :param index: the point the crop belongs to.
+        :param pixmap: the decoded crop, or ``None``/null when there is none --
+            which is said in words rather than left as a blank panel, since a
+            point with no crop and a point still decoding look the same
+            otherwise.
+        """
         key = self.key_at(index)
         if pixmap is not None and not pixmap.isNull():
             self.preview.setPixmap(pixmap)
@@ -762,6 +799,7 @@ class ImageScatterScreen(LinkedView, QWidget):
             self.crop_shown.emit(key)
 
     def _clear_preview(self) -> None:
+        """Return the preview pane to its resting state."""
         self.preview.clear()
         self.preview.setText("Hover a point")
         self.caption.setText("")
@@ -810,6 +848,10 @@ class ImageScatterScreen(LinkedView, QWidget):
             return None
 
     def _open_hovered(self) -> Any:
+        """Open the crop for the point under the cursor.
+
+        :returns: whatever :meth:`open_point` returns.
+        """
         return self.open_point(self.canvas.hovered)
 
     # -- the shared selection ------------------------------------------------
@@ -818,6 +860,15 @@ class ImageScatterScreen(LinkedView, QWidget):
         self._apply_linked_selection(selection)
 
     def _apply_linked_selection(self, selection=None) -> None:
+        """Light up the points named by the shared selection.
+
+        Keys are matched by specificity rather than by equality: a view that
+        states no object type still has to light up for one that does, and the
+        other way round -- see :func:`spacr.selection.match_keys`.
+
+        :param selection: the selection to apply; ``None`` reads the link's
+            current one.
+        """
         selection = selection if selection is not None else self.link.selection
         if selection.keys is None or not self._keys:
             self.canvas.set_selected([])
