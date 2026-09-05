@@ -502,6 +502,10 @@ class AIChatPanel(QWidget):
     """
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the chat panel.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._messages: List[Dict] = []
         # Keep BOTH thread AND worker references — Qt's signal delivery
@@ -520,6 +524,7 @@ class AIChatPanel(QWidget):
 
     # ------------------------------------------------------------------
     def _build_ui(self):
+        """Lay out the transcript over the input row."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
                                   SPACING["md"], SPACING["md"])
@@ -630,10 +635,15 @@ class AIChatPanel(QWidget):
             self._btn_send.setEnabled(False)
 
     def _current_provider(self) -> Optional[ChatProvider]:
+        """The provider this panel will send through.
+
+        :returns: the provider, or None when none is configured.
+        """
         name = self._provider_combo.currentData()
         return ai_module.get_provider(name) if name else None
 
     def _on_open_keys_dialog(self):
+        """Open the dialog that installs or signs in to a provider."""
         dlg = _ProvidersDialog(self)
         if dlg.exec() == QDialog.Accepted:
             self.refresh_provider_combo()
@@ -642,6 +652,13 @@ class AIChatPanel(QWidget):
     # Send / cancel
     # ------------------------------------------------------------------
     def _set_send_mode(self, mode: str):
+        """Switch between sending a question and cancelling a stream.
+
+        ONE BUTTON, TWO MEANINGS, because a stream can take a while and a
+        separate cancel button sits dead for most of the panel's life.
+
+        :param mode: which meaning the button now carries.
+        """
         set_translatable_text(
             self._btn_send,
             "Cancel" if mode == "cancel" else "Send",
@@ -665,6 +682,7 @@ class AIChatPanel(QWidget):
         self._btn_send.style().polish(self._btn_send)
 
     def _send_from_input(self):
+        """Send whatever is typed, and clear the box only if it was accepted."""
         text = self._input.toPlainText().strip()
         if not text:
             return
@@ -679,17 +697,26 @@ class AIChatPanel(QWidget):
         self._start_stream(system=_current_system_prompt())
 
     def _cancel_stream(self):
+        """Stop the answer that is streaming in."""
         if self._worker is not None:
             self._worker.cancel()
             set_translatable_text(self._status, "Cancelling…")
 
     def _append_user(self, text: str):
+        """Put the user's own message in the transcript.
+
+        :param text: what they asked.
+        """
         self._messages.append({"role": "user", "content": text})
         bubble = _MessageBubble("user", text)
         self._chat_layout.insertWidget(self._chat_layout.count() - 1, bubble)
         self._scroll_to_bottom()
 
     def _start_stream(self, system: str):
+        """Ask the provider, streaming the answer in as it arrives.
+
+        :param system: the system prompt to send with it.
+        """
         provider = self._current_provider()
         if provider is None:
             set_translatable_text(self._status, "No provider configured.")
@@ -721,6 +748,10 @@ class AIChatPanel(QWidget):
         thread.start()
 
     def _on_stage_changed(self, stage: str):
+        """Show which stage the answer is at.
+
+        :param stage: the stage's name.
+        """
         provider = self._current_provider()
         label = provider.label if provider else ""
         if stage == "connecting":
@@ -731,6 +762,10 @@ class AIChatPanel(QWidget):
                 self._status, "Streaming from {provider}…", provider=label)
 
     def _on_chunk(self, text: str):
+        """Append one chunk of a streaming answer.
+
+        :param text: the chunk.
+        """
         self._pending_buf.append(text)
         if self._pending_bubble is not None:
             self._pending_bubble.set_text("".join(self._pending_buf))
@@ -740,6 +775,11 @@ class AIChatPanel(QWidget):
         # Retire the (thread, worker) pair — keep BOTH Python refs until
         # the OS thread has actually exited, otherwise Python can drop
         # the last reference while QThread.isRunning() is still True.
+        """Close off the answer, successfully or not.
+
+        :param ok: True when the stream completed.
+        :param final_text: the whole answer, for the transcript.
+        """
         self._prune_retired()
         thread, worker = self._thread, self._worker
         # Reset streaming state so a fast follow-up send works.
@@ -821,6 +861,12 @@ class AIChatPanel(QWidget):
         super().closeEvent(event)
 
     def _scroll_to_bottom(self):
+        """Follow the answer as it streams in.
+
+        ONLY WHEN ALREADY AT THE BOTTOM would be the other choice, and this
+        panel does it unconditionally: the stream is the thing the user just
+        asked for, so following it is what they want.
+        """
         sb = self._chat_scroll.verticalScrollBar()
         sb.setValue(sb.maximum())
 
