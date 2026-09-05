@@ -52,7 +52,7 @@ from PySide6.QtWidgets import (QApplication, QFileDialog, QHBoxLayout,
                                QLabel, QPushButton, QSizePolicy, QSplitter,
                                QTextBrowser, QVBoxLayout, QWidget)
 
-from ..theme import SPACING
+from ..theme import SPACING, font_px
 from .gene_tile import TILE_WIDTH, GeneTilePanel
 
 LOG = logging.getLogger("spacr.qt.gene_panel")
@@ -166,7 +166,8 @@ class GenePanel(QWidget):
         footer.setContentsMargins(0, 0, 0, 0)
         self._status = QLabel("")
         self._status.setWordWrap(True)
-        self._status.setStyleSheet("color: palette(mid); font-size: 10px;")
+        self._status.setStyleSheet(
+            f"color: palette(mid); font-size: {font_px(10)}px;")
         footer.addWidget(self._status, 1)
         #: Writes this gene's full DeepTMHMM record -- every segment's
         #: coordinates -- as its own CSV. It is the one thing on this panel
