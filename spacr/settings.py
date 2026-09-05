@@ -3991,9 +3991,19 @@ expected_types = {
 }
 
 _clone_organelle_registry(expected_types)
+#: The slot prefixes, built ONCE. `str.startswith` takes a tuple and does the
+#: whole comparison in C, which is the entire point of hoisting this: the
+#: comprehension below used to build `f'{role}_'` inside an `any()` over every
+#: role, for every key. MEASURED at import on 2026-09-05: 37,855 keys x 364
+#: roles was 13.7 million generator steps and 26.5 million `startswith` calls,
+#: 4.1 s of the 6.7 s that importing this module cost -- which is most of why
+#: opening a module tripped GNOME's "not responding" dialog. Same answer,
+#: same order; see tests/test_settings_imports_fast.py.
+_ORGANELLE_SLOT_PREFIXES = tuple(
+    f'{role}_' for role in ORGANELLE_SLOT_ROLES[1:])
 DYNAMIC_ORGANELLE_SETTINGS = frozenset(
     key for key in expected_types
-    if any(key.startswith(f'{role}_') for role in ORGANELLE_SLOT_ROLES[1:]))
+    if key.startswith(_ORGANELLE_SLOT_PREFIXES))
 
 #: Settings that are declared -- typed here, tooltipped, offered by a GUI
 #: category -- but that NOTHING in spaCR reads. Setting one is a silent no-op,
@@ -5757,18 +5767,24 @@ def _regroup_advanced(table):
     return {k: v for k, v in out.items() if v or k in family_headings}
 
 
+# Filter ONCE rather than once per role. The predicate does not depend on
+# `_role`, so re-testing it inside the loop re-walked both lists 364 times for
+# an answer that could not change. Same keys, same order.
+_organelle_basic_slots = [key for key in organelle_basic_settings
+                          if key.startswith('organelle_')]
+_organelle_advanced_slots = [key for key in organelle_advanced_settings
+                             if key.startswith('organelle_')]
 for _role in ORGANELLE_SLOT_ROLES[1:]:
     categories['Organelle'].extend(
-        _organelle_slot_key(key, _role) for key in organelle_basic_settings
-        if key.startswith('organelle_'))
+        _organelle_slot_key(key, _role) for key in _organelle_basic_slots)
     categories['Organelle advanced'].extend(
-        _organelle_slot_key(key, _role) for key in organelle_advanced_settings
-        if key.startswith('organelle_'))
+        _organelle_slot_key(key, _role) for key in _organelle_advanced_slots)
     for _suffix in ('channel', 'mask_dim', 'chann_dim'):
         _key = f'{_role}_{_suffix}'
         # Every generated slot key is declared and the base General list owns
         # none of them; the settings contract tests pin both premises.
         categories['General'].append(_key)
+del _organelle_basic_slots, _organelle_advanced_slots
 _regrouped_categories = _regroup_advanced(categories)
 categories.clear()
 categories.update(_regrouped_categories)
