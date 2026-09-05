@@ -372,6 +372,11 @@ class PowerCurveView(QWidget):
     """
 
     def __init__(self, title: str = "", parent: Optional[QWidget] = None):
+        """Create an empty curve view.
+
+        :param title: caption drawn above the curve.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._title = str(title)
         self._points: List[Tuple[float, float]] = []
@@ -527,6 +532,14 @@ class CaveatPanel(QWidget):
     """
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the caveat list, with the harmless ones folded away.
+
+        Caveats that change the reported power are always visible; the rest --
+        departures from spaCRPower that only affect how these numbers compare
+        with the R package's -- sit behind a toggle.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName(CAVEAT_OBJECT)
         layout = QVBoxLayout(self)
@@ -563,6 +576,14 @@ class CaveatPanel(QWidget):
 
     @staticmethod
     def _make_label(caveat, severity: str) -> QLabel:
+        """Build one caveat line.
+
+        :param caveat: the caveat record; its headline becomes the text and its
+            detail the tooltip.
+        :param severity: style key, ``"high"`` for caveats that change the
+            number and ``"note"`` for the rest.
+        :returns: the label, ready to add to a layout.
+        """
         label = QLabel(f"! {caveat.headline}")
         label.setWordWrap(True)
         label.setToolTip(caveat.detail)
@@ -571,6 +592,10 @@ class CaveatPanel(QWidget):
         return label
 
     def _on_toggled(self, checked: bool) -> None:
+        """Show or hide the harmless caveats and relabel the toggle.
+
+        :param checked: the button's new state.
+        """
         self._rest.setVisible(bool(checked))
         self._more.setText("Hide the rest of the caveats" if checked
                            else "Show the rest of the caveats")
@@ -606,6 +631,12 @@ class PowerScreen(QWidget):
 
     def __init__(self, threaded: bool = True,
                  parent: Optional[QWidget] = None):
+        """Build the screen with the design form beside the curves and table.
+
+        :param threaded: run the sweep on a worker thread. Set ``False`` in
+            tests so ``run`` finishes before it returns.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._jobs: List[Tuple[Any, Any]] = []
@@ -657,6 +688,14 @@ class PowerScreen(QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_form(self) -> QWidget:
+        """Build the left column: library, plates, effect, acquisition and run.
+
+        Every simulator parameter the form does not ask for is printed in the
+        held-values note rather than left implicit -- a power analysis defended
+        in a methods section needs every number that went into it.
+
+        :returns: the scrollable form widget.
+        """
         holder = QScrollArea()
         holder.setWidgetResizable(True)
         inner = QWidget()
@@ -828,6 +867,10 @@ class PowerScreen(QWidget):
         return holder
 
     def _build_output(self) -> QWidget:
+        """Build the right column: the answer line, caveats, both curves and the table.
+
+        :returns: the output panel.
+        """
         panel = QWidget()
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -868,6 +911,13 @@ class PowerScreen(QWidget):
 
     @staticmethod
     def _int_box(low: int, high: int, value: int) -> QSpinBox:
+        """Build a bounded integer spin box.
+
+        :param low: minimum accepted value.
+        :param high: maximum accepted value.
+        :param value: starting value.
+        :returns: the spin box.
+        """
         box = QSpinBox()
         box.setRange(int(low), int(high))
         box.setValue(int(value))
@@ -876,6 +926,15 @@ class PowerScreen(QWidget):
     @staticmethod
     def _float_box(low: float, high: float, value: float, *,
                    decimals: int = 2, step: float = 0.1) -> QDoubleSpinBox:
+        """Build a bounded floating-point spin box.
+
+        :param low: minimum accepted value.
+        :param high: maximum accepted value.
+        :param value: starting value.
+        :param decimals: digits shown after the point.
+        :param step: how far one arrow click moves the value.
+        :returns: the spin box.
+        """
         box = QDoubleSpinBox()
         box.setDecimals(int(decimals))
         box.setRange(float(low), float(high))
@@ -973,6 +1032,12 @@ class PowerScreen(QWidget):
 
     @staticmethod
     def _humanise(seconds: float) -> str:
+        """Render a duration as seconds, minutes or hours.
+
+        :param seconds: the duration.
+        :returns: a short string -- seconds below 90, minutes below 90 minutes,
+            hours above that.
+        """
         if seconds < 90:
             return f"{seconds:.0f} s"
         if seconds < 5400:
@@ -1146,6 +1211,15 @@ class PowerScreen(QWidget):
         self._set_status(" ".join(notes) if notes else "Done.")
 
     def _fill_table(self, cells, wells, spec: DesignSpec) -> None:
+        """Fill the sample-size table from both sweeps.
+
+        :param cells: the cells-per-well sweep, or ``None``; each of its rows is
+            listed at the spec's well count.
+        :param wells: the wells sweep, or ``None``; each of its rows is listed at
+            the spec's cells per well.
+        :param spec: the design the sweeps were run around, for the value held
+            fixed in each half.
+        """
         rows: List[Tuple[str, str, Any]] = []
         if cells is not None:
             for _, row in cells.iterrows():
@@ -1278,6 +1352,11 @@ class PowerScreen(QWidget):
                          error=True)
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed sweep on the status line.
+
+        :param exc: the exception raised by the worker; its class name is used
+            when it carries no message.
+        """
         message = str(exc) or exc.__class__.__name__
         self._set_status(f"The sweep failed: {message}", error=True)
 
@@ -1300,6 +1379,12 @@ class PowerScreen(QWidget):
         return self._status.property("spacrError") == "true"
 
     def _update_controls(self) -> None:
+        """Enable Run and Stop to match the current design and run state.
+
+        Run is disabled while a sweep is in flight and while the design fails
+        validation -- in which case the first problem becomes its tooltip, so
+        the reason is reachable from the disabled button itself.
+        """
         problems = self.spec().validate() if hasattr(self, "_genes") else []
         self._btn_run.setEnabled(not self._busy and not problems)
         self._btn_stop.setEnabled(self._busy)

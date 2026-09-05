@@ -895,6 +895,13 @@ class WorkflowStep(QWidget):
 
     def __init__(self, number: int, title: str, parent=None,
                  expanded: bool = True):
+        """One numbered, collapsible step of the scan workflow.
+
+        :param number: the step's position.
+        :param title: its caption.
+        :param parent: parent widget.
+        :param expanded: whether it starts open.
+        """
         super().__init__(parent)
         from PySide6.QtWidgets import QSizePolicy, QToolButton
 
@@ -993,6 +1000,10 @@ class WorkflowStep(QWidget):
         return super().eventFilter(watched, event)
 
     def _apply(self, expanded: bool) -> None:
+        """Show or hide the step's body.
+
+        :param expanded: True to open it.
+        """
         self._fold.setArrowType(Qt.DownArrow if expanded else Qt.RightArrow)
         self._body.setVisible(bool(expanded))
         self.toggled.emit(bool(expanded))
@@ -2150,6 +2161,7 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
                 path_probe.forget(entry.path)
 
     def _fill_table(self) -> None:
+        """Show what the merge would produce, before it is run."""
         entries = self._databases
         self.table.setRowCount(len(entries))
         attached = sum(1 for entry in entries if entry.present)
@@ -2354,6 +2366,7 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
                            keep_uninfected=self.keep_uninfected.isChecked())
 
     def _on_choice(self, *_args) -> None:
+        """Re-plan the merge after a source was ticked or unticked."""
         if self._filling:
             return
         self.describe()
@@ -2903,6 +2916,10 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         self._refresh_steps()
 
     def _on_job_failed(self, message: str) -> None:
+        """Report a failed merge without losing the plan.
+
+        :param message: what went wrong.
+        """
         self._merging = False
         self._set_running(False)
         self.report.setPlainText(
@@ -3035,6 +3052,10 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
                                   else RULES_LABEL)
 
     def _on_rules_changed(self, overrides: dict) -> None:
+        """Re-plan after the per-column aggregations changed.
+
+        :param overrides: the new aggregations.
+        """
         self._overrides = dict(overrides or {})
         self.describe()
 
@@ -3370,9 +3391,11 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
             item.setHidden(bool(needle) and needle not in item.text().lower())
 
     def _on_selection(self) -> None:
+        """Enable the actions for whichever columns are selected."""
         self._refresh_buttons()
 
     def _refresh_buttons(self) -> None:
+        """Enable each action only when it has something to act on."""
         chosen = len(self.selected_columns())
         self.run_button.setEnabled(
             bool(chosen) and not self._running and bool(self._score_path()))
@@ -3603,6 +3626,10 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
         release(self._queue_score)
 
     def _on_job_failed(self, message: str) -> None:
+        """Report a failed regression.
+
+        :param message: what went wrong.
+        """
         self._running = False
         self._refresh_buttons()
         self.progress.setText(f"The queue did not finish: {message}")
@@ -3940,6 +3967,10 @@ class MeasurementScanPanel(QWidget):
             self._restoring = False
 
     def _apply_section_layout(self, layout) -> bool:
+        """Restore the folded state each section was last left in.
+
+        :param layout: the saved layout.
+        """
         folded = set(layout.get("folded") or ())
         for title in self._folders:
             # ONLY the titles that are actually there. A stored layout from a
@@ -4094,6 +4125,10 @@ class MeasurementScanPanel(QWidget):
         # Shown when there is anything to show -- including rows whose
         # database is missing or absent, because "this plate has none" is
         # exactly what a user opening this tab needs to be told.
+        """Re-run the scan when the set of databases changes.
+
+        :param count: how many are now selected.
+        """
         showing = bool(self.databases.databases)
         self._show_section("Attached databases", showing)
         self._show_section("Regression", showing)
@@ -4272,6 +4307,7 @@ class MeasurementScanPanel(QWidget):
         return self._result
 
     def _resort(self) -> None:
+        """Re-order the results by the chosen column."""
         if self._result is None:
             return
         column = self._rank.currentData()
@@ -4286,6 +4322,7 @@ class MeasurementScanPanel(QWidget):
                              key_column="measurement")
 
     def _on_selection(self) -> None:
+        """Show the details of whichever result is selected."""
         key = None
         items = self.table.table.selectedItems()
         if items:
