@@ -991,8 +991,15 @@ class AmbientEngine:
                  direction: str = DEFAULT_DRIFT_DIRECTION):
         """Roll the constants this engine paints from.
 
+        :param colors: the palette to paint with.
+        :param background: the colour behind the shapes.
         :param seed: what makes the animation reproducible.
-        :param theme: the palette's name.
+        :param blur: how soft the shapes are drawn.
+        :param speed: the animation rate multiplier.
+        :param size: the shape scale.
+        :param resolution: the render resolution.
+        :param density: how many shapes there are.
+        :param direction: which way the field drifts.
         """
         self.seed = seed
         self.time = 0.0
@@ -2776,7 +2783,7 @@ class DriftEngine(AmbientEngine):
     def _tint(self, color: QColor) -> QColor:
         """The colour one star is drawn in, by layer depth.
 
-        :param layer: which parallax layer.
+        :param color: the layer's base colour.
         :returns: the colour.
         """
         return QColor(color) if self.dark \

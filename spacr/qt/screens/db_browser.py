@@ -2134,7 +2134,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     def _on_page_size_changed(self, _value: int) -> None:
         """Reload with a different number of rows per page.
 
-        :param size: the new page size.
+        :param _value: the new page size; re-read from the widget.
         """
         self.refresh()
 
@@ -2268,7 +2268,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     def _apply_count(self, result: Dict[str, Any]) -> None:
         """Show a row count that has come back.
 
-        :param count: the number of rows.
+        :param result: the finished count.
         """
         if not result or result.get("token") != self._token:
             return                      # cancelled
@@ -2727,7 +2727,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     def _set_edit_check(self, checked: bool) -> None:
         """Turn editing on or off, and say so.
 
-        :param on: True to allow edits.
+        :param checked: True to allow edits.
         """
         self._suppress_edit_signal = True
         try:
@@ -3195,7 +3195,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     def _on_job_error(self, exc: Exception) -> None:
         """Report a failed background read without closing the browser.
 
-        :param message: what went wrong.
+        :param exc: what went wrong.
         """
         self._set_status(f"Query failed: {exc}", error=True)
 

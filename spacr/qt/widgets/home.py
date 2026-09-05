@@ -387,6 +387,11 @@ class Panel(QWidget):
     ACTION_INKS = {"danger": "error", "safe": "accent"}
 
     def __init__(self, title: str, parent=None, *, beta: bool = False):
+        """Build a captioned box for the right-hand column.
+
+        :param title: the caption.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         P = active_palette()
         self.is_beta = bool(beta)
@@ -587,6 +592,12 @@ class RunningBanner(QFrame):
 
     def __init__(self, icon_provider: Callable[[str], Optional[QIcon]],
                  names: Dict[str, str], parent=None):
+        """Build the banner for one running module.
+
+        :param icon_provider: how to get a module's icon.
+        :param names: display names, keyed by module.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         P = active_palette()
         self.setObjectName("HomeRunningBanner")
@@ -760,6 +771,12 @@ class RunningBanner(QFrame):
         self.show()
 
     def _sync_pause_control(self) -> None:
+        """Make the pause button say what the run is actually doing.
+
+        READ FROM THE RUN, not from the last press: a run can pause itself at
+        a checkpoint, and a button showing what the user last clicked would
+        then be wrong.
+        """
         handle = self._handle
         pausable = bool(handle is not None and handle.supports_pause)
         self._btn_pause.setEnabled(pausable)
@@ -799,6 +816,7 @@ class RunningBanner(QFrame):
 
     # -- actions -------------------------------------------------------
     def _on_open(self) -> None:
+        """Go to the module this banner is about."""
         if self._handle is not None:
             self.open_requested.emit(self._handle.app_key)
 
@@ -845,6 +863,10 @@ class QueuedPanel(Panel):
     queue_cleared = Signal()
 
     def __init__(self, parent=None):
+        """Build the panel and its caption.
+
+        :param parent: parent widget.
+        """
         super().__init__("Queued", parent)
         self._clear = self.add_action(
             "Clear", kind="danger",
@@ -961,6 +983,10 @@ class RecentRunsPanel(Panel):
     cleared = Signal()
 
     def __init__(self, limit: int = 4, known_keys=None, parent=None):
+        """Build the panel and its caption.
+
+        :param parent: parent widget.
+        """
         super().__init__("Recent runs", parent)
         self._limit = limit
         self._known_keys = known_keys
@@ -1087,6 +1113,11 @@ class RecentRunsPanel(Panel):
             self.add(self._run_row(entry))
 
     def _run_row(self, entry: dict) -> QWidget:
+        """One row describing a finished run.
+
+        :param entry: the run to describe.
+        :returns: the row widget.
+        """
         P = active_palette()
         ok = entry.get("status") == "success"
         key = entry.get("app_key", "?")
@@ -1131,6 +1162,10 @@ class SystemPanel(Panel):
     """
 
     def __init__(self, parent=None):
+        """Build the panel and its caption.
+
+        :param parent: parent widget.
+        """
         super().__init__("System", parent)
         # BLUE, not red: it takes nothing away. Asked for on 2026-09-03 --
         # "should have a refresh button (like clear button but blue)".
@@ -1244,6 +1279,10 @@ class TotalsPanel(Panel):
     reset_requested = Signal()
 
     def __init__(self, parent=None):
+        """Build the panel and its caption.
+
+        :param parent: parent widget.
+        """
         super().__init__("Totals", parent)
         self._reset = self.add_action(
             "Reset", kind="danger",
@@ -1356,6 +1395,10 @@ class StageLegend(Panel):
     SWATCH = 12
 
     def __init__(self, parent=None):
+        """Build the panel and its caption.
+
+        :param parent: parent widget.
+        """
         super().__init__("Module state", parent)
         from ..theme import STAGE_LABEL, STAGE_NOTE
         self.header.setToolTip(
@@ -1371,6 +1414,11 @@ class StageLegend(Panel):
 
     def _legend_row(self, stage: str, colour: str, label: str,
                     note: str) -> QWidget:
+        """One row explaining what a maturity colour means.
+
+        :param stage: the stage's name.
+        :returns: the row widget.
+        """
         from ..preferences import scaled_px
         P = active_palette()
         row = QWidget()
@@ -1478,6 +1526,10 @@ class NewsPanel(Panel):
         # THE HEADING AND THE VERSION ARE SEPARATE. The catalog is keyed on
         # "News", so composing the release into the caption first leaves the
         # only aside panel that names a build in English.
+        """Build the panel and its caption.
+
+        :param parent: parent widget.
+        """
         from ..i18n import tr
 
         heading = tr("News")
@@ -1768,6 +1820,10 @@ class HomePage(QWidget):
         bands: Optional[Sequence[Tuple[str, Sequence[str]]]] = None,
         stages: Optional[Dict[str, str]] = None,
     ):
+        """Build Home: the hero, the module tabs and the right-hand column.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._P = active_palette()
         # The run-journal walk behind Recent runs and Totals goes through
@@ -2117,6 +2173,10 @@ class HomePage(QWidget):
 
     # -- pieces --------------------------------------------------------
     def _new_running_banner(self) -> RunningBanner:
+        """Build a banner for a run that has just started.
+
+        :returns: the banner.
+        """
         banner = RunningBanner(self._icon_provider, self._names)
         banner.open_requested.connect(self.tile_clicked)
         self._running_layout.addWidget(banner)
@@ -2124,6 +2184,11 @@ class HomePage(QWidget):
         return banner
 
     def _refresh_run_banners(self) -> None:
+        """Add and remove banners so they match the runs actually going.
+
+        RECONCILED RATHER THAN APPENDED: a run that ends while Home is not
+        visible leaves a banner claiming it is still running otherwise.
+        """
         for banner in self._banners:
             if banner.isVisible():
                 banner.refresh()
@@ -2156,6 +2221,7 @@ class HomePage(QWidget):
         return out
 
     def _build_hero(self) -> QWidget:
+        """Build the masthead over the tiles."""
         P = self._P
         hero = QWidget()
         # Named so `_clear_page_surfaces` can find it and clear the fill off
@@ -2315,6 +2381,7 @@ class HomePage(QWidget):
     # silently dropped its apps into a fallback band.
 
     def _build_home_tab(self) -> QWidget:
+        """Build the first tab: every module, grouped by band."""
         from ..preferences import scaled_px
         page = QWidget()
         col = QVBoxLayout(page)
@@ -2342,6 +2409,12 @@ class HomePage(QWidget):
         return self._scrolled(page)
 
     def _band_header(self, title: str, count: int) -> QWidget:
+        """One band's heading and its one-line description.
+
+        :param title: the band's name.
+        :param count: how many modules it holds.
+        :returns: the header widget.
+        """
         P = self._P
         wrap = QWidget()
         col = QVBoxLayout(wrap)
@@ -2369,6 +2442,12 @@ class HomePage(QWidget):
     # -- tabs 2..6: one category each -----------------------------------
     def _build_category_tab(self, section: str,
                             entries: List[Tuple[str, str, str]]) -> QWidget:
+        """Build one band's own tab.
+
+        :param section: the band to build.
+        :param entries: its modules.
+        :returns: the tab widget.
+        """
         from ..preferences import scaled_px
         P = self._P
         page = QWidget()
@@ -2444,6 +2523,11 @@ class HomePage(QWidget):
 
     # -- shared ---------------------------------------------------------
     def _wire_tile(self, tile, key: str, desc: str):
+        """Connect one tile so pressing it opens its module.
+
+        :param tile: the tile.
+        :param key: the module it opens.
+        """
         self._tile_hints[tile] = (key, desc)
         from ..theme import STAGE_LABEL
         tile.setProperty("moduleAppKey", key)
@@ -2456,6 +2540,11 @@ class HomePage(QWidget):
         return tile
 
     def _scrolled(self, page: QWidget) -> QScrollArea:
+        """Wrap a page in a scroll area.
+
+        :param page: the widget to wrap.
+        :returns: the scroll area.
+        """
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
@@ -2552,6 +2641,7 @@ class HomePage(QWidget):
             return 1.0
 
     def _build_aside(self) -> QWidget:
+        """Build the right-hand column of status panels."""
         from ..preferences import scaled_px
         from ..theme import make_transparent
         aside = QWidget()
@@ -2614,6 +2704,10 @@ class HomePage(QWidget):
 
     @staticmethod
     def _version() -> str:
+        """The version string shown on the masthead.
+
+        :returns: the version.
+        """
         try:
             import spacr
             version = str(getattr(spacr, "__version__", "") or "").strip()

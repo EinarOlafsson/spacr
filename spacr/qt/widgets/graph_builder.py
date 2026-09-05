@@ -327,7 +327,6 @@ class DropZone(QFrame):
         """Build one channel's drop target.
 
         :param channel: the channel this zone binds.
-        :param label: its caption.
         :param parent: parent widget.
         """
         super().__init__(parent)
@@ -1005,7 +1004,7 @@ class GraphCanvas(LinkedView, QWidget):
     def _sizes(self, rows: pd.DataFrame) -> np.ndarray:
         """One marker size per point, from the size channel if bound.
 
-        :param frame: the rows being plotted.
+        :param rows: the rows being plotted.
         :returns: the sizes.
         """
         spec = self._spec
@@ -1076,7 +1075,7 @@ class GraphCanvas(LinkedView, QWidget):
     def _xy(self, rows: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
         """The x and y arrays for the bound channels.
 
-        :param frame: the rows being plotted.
+        :param rows: the rows being plotted.
         :returns: the two arrays.
         """
         spec, scales = self._spec, self._scales
@@ -1117,7 +1116,10 @@ class GraphCanvas(LinkedView, QWidget):
         """Draw the data as a scatter.
 
         :param ax: the axes to draw into.
-        :param data: what to plot.
+        :param rows: the rows to plot.
+        :param mask: which of them survive the filter.
+        :param kind: the chart kind.
+        :param palette: the colours to use.
         """
         spec = self._spec
         x, y = self._xy(rows)
@@ -1205,7 +1207,9 @@ class GraphCanvas(LinkedView, QWidget):
         """Draw the data as a histogram.
 
         :param ax: the axes to draw into.
-        :param data: what to plot.
+        :param rows: the rows to plot.
+        :param mask: which of them survive the filter.
+        :param palette: the colours to use.
         """
         spec, scales = self._spec, self._scales
         column = spec.x or spec.y
@@ -1240,7 +1244,9 @@ class GraphCanvas(LinkedView, QWidget):
         """Draw the data as bars.
 
         :param ax: the axes to draw into.
-        :param data: what to plot.
+        :param rows: the rows to plot.
+        :param mask: which of them survive the filter.
+        :param palette: the colours to use.
         """
         spec, scales = self._spec, self._scales
         column = spec.x or spec.y
@@ -1359,7 +1365,9 @@ class GraphCanvas(LinkedView, QWidget):
         """Draw the data as a distribution.
 
         :param ax: the axes to draw into.
-        :param data: what to plot.
+        :param rows: the rows to plot.
+        :param kind: the chart kind.
+        :param palette: the colours to use.
         """
         spec, scales = self._spec, self._scales
         categorical_on_x = bool(scales.x_levels)
@@ -1409,7 +1417,8 @@ class GraphCanvas(LinkedView, QWidget):
         """Draw the data as a heatmap.
 
         :param ax: the axes to draw into.
-        :param data: what to plot.
+        :param rows: the rows to plot.
+        :param palette: the colours to use.
         """
         spec, scales = self._spec, self._scales
         x_levels = list(scales.x_levels or ())

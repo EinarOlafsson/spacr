@@ -467,8 +467,11 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     ) -> QSpinBox:
         """One labelled spin box, wired to the settings it edits.
 
-        :param args: passed to the spin box.
-        :param kwargs: likewise.
+        :param lo: the lowest value it accepts.
+        :param hi: the highest.
+        :param value: where it starts.
+        :param special: text shown in place of the minimum, if any.
+        :param parent: parent widget.
         :returns: the spin box.
         """
         widget = QSpinBox(parent)
@@ -1305,7 +1308,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     def _phenotype_text(name: str, value: Optional[bool]) -> str:
         """The phenotype label for one crop, for its caption.
 
-        :param row: the object's row.
+        :param name: the phenotype column's name.
+        :param value: the object's value in it.
         :returns: the label text.
         """
         return _phenotype_label(name, value)
@@ -1611,7 +1615,7 @@ class CropSettingsDialog(QDialog):
     def __init__(self, panel: MeasurePreviewPanel):
         """Build the crop-settings dialog over one preview panel.
 
-        :param parent: the panel these settings belong to.
+        :param panel: the preview these settings belong to.
         """
         super().__init__(panel)
         self._panel = panel
