@@ -118,6 +118,13 @@ class ExplainCvPanel(QWidget):
     """
 
     def __init__(self, host=None, parent=None):
+        """Build the explanation panel.
+
+        :param host: the screen that runs training on this panel's behalf;
+            ``None`` is guarded for, so the panel still builds and the action
+            simply does nothing.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.host = host
         self.result = None
@@ -126,6 +133,12 @@ class ExplainCvPanel(QWidget):
         self._build()
 
     def _build(self) -> None:
+        """Lay out the source form, the actions and the result tabs.
+
+        Model families the environment cannot provide are listed but disabled,
+        with the reason as their tooltip -- an absent option teaches nothing
+        about why it is absent.
+        """
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         form = QFormLayout()
@@ -274,6 +287,16 @@ class ExplainCvPanel(QWidget):
         self._jobs.submit(lambda: self.run_analysis(**kwargs), self._loaded)
 
     def _loaded(self, payload) -> None:
+        """Fill the result tabs from a finished explanation.
+
+        Importance is withheld -- shown as an empty table under a renamed tab --
+        when the surrogate did not reach fidelity. Feature importances from a
+        surrogate that does not reproduce the model are about the surrogate, not
+        about the model, and reading them as the model's is the mistake this
+        prevents.
+
+        :param payload: the worker's ``(result, artifact_paths)`` pair.
+        """
         self.result, paths = payload
         self.run_button.setEnabled(True)
         self.summary.setPlainText(self.result.summary())
@@ -321,6 +344,10 @@ class ExplainCvPanel(QWidget):
                 self._distribution_frame["feature"].astype(str) == feature])
 
     def _failed(self, message: str) -> None:
+        """Re-enable the run button and report a failed explanation.
+
+        :param message: the failure text from the job runner.
+        """
         self.run_button.setEnabled(True)
         self.status.setText(f"Could not explain model: {message}")
 
@@ -366,6 +393,13 @@ class InvestigateHitPanel(QWidget):
     """
 
     def __init__(self, host=None, parent=None):
+        """Build the hit-investigation panel.
+
+        :param host: the screen that runs training on this panel's behalf;
+            ``None`` is guarded for, so the panel still builds and the action
+            simply does nothing.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.host = host
         self.result = None
@@ -377,6 +411,11 @@ class InvestigateHitPanel(QWidget):
         self._build()
 
     def _build(self) -> None:
+        """Lay out the source form, the actions and the evidence tabs.
+
+        Every action but Investigate starts disabled: promotion, undo and the
+        crop views are about a result that does not exist yet.
+        """
         outer = QVBoxLayout(self); outer.setContentsMargins(0, 0, 0, 0)
         form = QFormLayout()
         self.database = _PathRow(); self.predictions = _PathRow(); self.fractions = _PathRow()
@@ -470,6 +509,12 @@ class InvestigateHitPanel(QWidget):
         self.gene.setProperty("source_well_support", well_support)
 
     def _refresh_prediction_columns(self) -> None:
+        """Offer the score columns of the chosen prediction file.
+
+        Only the header is read. Path-like columns and ``prcfo`` are dropped --
+        they identify a row rather than score it -- and the previous choice is
+        kept when the new file still has it.
+        """
         path = self.predictions.text()
         if not path or not os.path.isfile(path):
             return
@@ -554,6 +599,16 @@ class InvestigateHitPanel(QWidget):
         self._jobs.submit(lambda: self.run_analysis(**kwargs), self._loaded)
 
     def _loaded(self, payload) -> None:
+        """Fill the evidence tabs from a finished investigation.
+
+        Candidate cells are listed by descending hit-like probability, and only
+        the columns the result actually carries are shown. Promotion becomes
+        available here; comparing in Image UMAP does not, since that needs an
+        embedding this run has not produced.
+
+        :param payload: the worker's payload -- the ``result``, the
+            ``attribution_run_id``, and the embedding and gallery frames.
+        """
         self.result = payload["result"]
         self.investigation = payload
         self.attribution_run_id = payload["attribution_run_id"]
@@ -580,6 +635,10 @@ class InvestigateHitPanel(QWidget):
             "Promotion remains an explicit reversible step.")
 
     def _failed(self, message: str) -> None:
+        """Re-enable the run button and report a failed investigation.
+
+        :param message: the failure text from the job runner.
+        """
         self.run_button.setEnabled(True); self.status.setText(f"Could not investigate hit: {message}")
 
     def open_candidates(self) -> None:
@@ -660,6 +719,11 @@ class ModelExplanationScreen(QWidget):
     """
 
     def __init__(self, host=None, parent=None):
+        """Build the screen around one :class:`ExplainCvPanel`.
+
+        :param host: the screen that runs training on the panel's behalf.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.host = host
         outer = QVBoxLayout(self)
@@ -685,6 +749,11 @@ class InvestigateHitScreen(QWidget):
     """
 
     def __init__(self, host=None, parent=None):
+        """Build the screen around one :class:`InvestigateHitPanel`.
+
+        :param host: the screen that runs training on the panel's behalf.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.host = host
         outer = QVBoxLayout(self)

@@ -363,6 +363,17 @@ class ModelCompareScreen(QWidget):
     job_finished = Signal(bool)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the screen and arm its drop zone.
+
+        The panel stylesheet is applied here rather than relied on from the
+        launch sheet: ``app.py`` imports this module inside the branch that
+        builds the screen, long after that sheet was generated, so the block is
+        not in the sheet that is live and the panels would open bare.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: segment on a worker thread. Set ``False`` in tests so
+            ``compare`` finishes before it returns.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._folder: str = ""
@@ -402,6 +413,7 @@ class ModelCompareScreen(QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the source row, both model panels, the tables and the mask previews."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -512,6 +524,12 @@ class ModelCompareScreen(QWidget):
         outer.addWidget(self._status)
 
     def _build_preview(self, parent: QSplitter, side: str):
+        """Build one side of the side-by-side mask preview.
+
+        :param parent: the splitter the preview is added to.
+        :param side: which model this side shows -- ``"A"`` or ``"B"``.
+        :returns: the ``(canvas, caption)`` pair, so the caller can hold both.
+        """
         holder = QWidget(parent)
         layout = QVBoxLayout(holder)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -574,12 +592,14 @@ class ModelCompareScreen(QWidget):
     # -- source ------------------------------------------------------------
 
     def _pick_folder(self) -> None:
+        """Ask for a folder of fields and load it."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder of fields", self._folder or os.getcwd())
         if path:
             self.set_source(path)
 
     def _on_open_typed_path(self) -> None:
+        """Load whatever path is currently typed in the source box."""
         self.set_source(self._path_edit.text())
 
     def configure(self, model_a: str = "", model_b: str = "",
@@ -726,6 +746,12 @@ class ModelCompareScreen(QWidget):
             _job, self._apply_result, operation="comparison")
 
     def _apply_result(self, report: mc.ComparisonReport) -> None:
+        """Fill every output pane from a finished comparison and select the first field.
+
+        :param report: the comparison; neither model is treated as ground truth,
+            so the summary reports both counts and the ARI between them rather
+            than an accuracy for either.
+        """
         self._report = report
         self._fill_param_table(report)
         self._fill_row_table(report)
@@ -750,6 +776,11 @@ class ModelCompareScreen(QWidget):
     # -- rendering ---------------------------------------------------------
 
     def _clear_results(self) -> None:
+        """Empty every result pane and both previews.
+
+        Called before a new run and after a failure, so one model's masks are
+        never left beside another model's numbers.
+        """
         self._report = None
         self._param_table.setRowCount(0)
         self._row_table.setRowCount(0)
@@ -763,6 +794,10 @@ class ModelCompareScreen(QWidget):
             caption.setText(f"Model {side}")
 
     def _fill_warnings(self, report: mc.ComparisonReport) -> None:
+        """Show the comparison's warnings, or hide the strip when there are none.
+
+        :param report: the comparison to read warnings from.
+        """
         if not report.warnings:
             self._warnings.setText("")
             self._warnings.setVisible(False)
@@ -818,6 +853,10 @@ class ModelCompareScreen(QWidget):
         return _table_rows(self._param_table)
 
     def _fill_row_table(self, report: mc.ComparisonReport) -> None:
+        """Fill the per-field metrics table, one row per field.
+
+        :param report: the comparison to read per-field results from.
+        """
         table = self._row_table
         table.blockSignals(True)
         table.setRowCount(len(report.comparisons))
@@ -1027,6 +1066,14 @@ class ModelCompareScreen(QWidget):
             error=True)
 
     def _on_job_error(self, exc: Exception, operation: str = "job") -> None:
+        """Clear the results and report a failed job.
+
+        :param exc: the exception raised by the worker; its class name is used
+            when it carries no message.
+        :param operation: what was being attempted, used to open the message --
+            a load and a comparison fail differently and the status line has to
+            say which.
+        """
         self._clear_results()
         message = str(exc) or exc.__class__.__name__
         self._set_status(
@@ -1035,6 +1082,11 @@ class ModelCompareScreen(QWidget):
     # -- enablement --------------------------------------------------------
 
     def _update_controls(self) -> None:
+        """Enable the source controls and Compare to match what is loaded.
+
+        Compare needs fields loaded; everything else only needs no job in
+        flight.
+        """
         loaded = bool(self._images)
         self._btn_compare.setEnabled(loaded and not self._busy)
         self._btn_load.setEnabled(not self._busy)

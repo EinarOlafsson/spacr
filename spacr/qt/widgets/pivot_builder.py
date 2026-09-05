@@ -116,6 +116,12 @@ class DropWell(QWidget):
     changed = Signal()
 
     def __init__(self, axis: str, parent=None):
+        """Build one axis well of the pivot shelf.
+
+        :param axis: which axis this well holds -- a key of ``AXIS_LABELS``.
+        :param parent: parent widget, or ``None``.
+        :raises ValueError: if ``axis`` names no pivot axis.
+        """
         super().__init__(parent)
         if axis not in AXIS_LABELS:
             raise ValueError(f"unknown pivot axis {axis!r}")
@@ -173,17 +179,34 @@ class DropWell(QWidget):
         self.set_columns(())
 
     def _add(self, name: str) -> None:
+        """Put one column into the well.
+
+        :param name: the column name; also stored on the item, so the well can
+            be read back without parsing its labels.
+        """
         item = QListWidgetItem(name)
         item.setData(Qt.UserRole, name)
         item.setToolTip(f"{name}\nDelete or double-click to remove it.")
         self._list.addItem(item)
 
     def _on_dropped(self, name: str) -> None:
+        """Accept a dropped column, unless the well already holds it.
+
+        A column twice on one axis would group by itself, so the duplicate is
+        dropped silently rather than reported.
+
+        :param name: the dropped column name.
+        """
         if name and name not in self.columns():
             self._add(name)
             self.changed.emit()
 
     def _on_remove(self, row: int) -> None:
+        """Take one column out of the well.
+
+        :param row: its position; out-of-range rows are ignored, since the list
+            can change between the request and its delivery.
+        """
         if 0 <= row < self._list.count():
             self._list.takeItem(row)
             self.changed.emit()
@@ -255,6 +278,10 @@ class PivotTable(QTableWidget):
     """
 
     def __init__(self, parent=None):
+        """Create an empty pivot table view.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("PivotTable")
         self.setAlternatingRowColors(True)
@@ -288,6 +315,11 @@ class PivotTable(QTableWidget):
         return item.text() if item is not None else ""
 
     def _header_offset_keys(self) -> Tuple[str, ...]:
+        """Return the row-key names that the leading header columns stand for.
+
+        :returns: the result's row keys, ``("rows",)`` when it has none, and
+            an empty tuple when nothing has been computed.
+        """
         result = self._result
         if result is None:
             return ()
@@ -351,6 +383,15 @@ class PivotTable(QTableWidget):
     # -- one cell ---------------------------------------------------------
     @staticmethod
     def _smallest_n(result: PivotResult, row: int, col: int) -> Optional[int]:
+        """Return the smallest object count behind one cell.
+
+        :param result: the computed pivot.
+        :param row: cell row.
+        :param col: cell column.
+        :returns: the smallest ``n`` across the cell's value layers, or ``None``
+            when none of them has one. It is the smallest rather than the mean's
+            own: a cell is only as trustworthy as its thinnest layer.
+        """
         counts = [result.n_at(value, row, col)
                   for value in (result.spec.values or (COUNT_ONLY,))]
         found = [c for c in counts if c is not None]
@@ -380,6 +421,18 @@ class PivotTable(QTableWidget):
 
     @staticmethod
     def _tooltip(result: PivotResult, row: int, col: int) -> str:
+        """Build the hover text for one cell.
+
+        Every layer is listed with its value, and a cell at or below ``LOW_N``
+        says to read it as an anecdote. An empty cell says it is blank rather
+        than zero on purpose -- that combination was not measured, or nothing
+        survived the filter.
+
+        :param result: the computed pivot.
+        :param row: cell row.
+        :param col: cell column.
+        :returns: the tooltip text.
+        """
         where = " · ".join(p for p in (result.row_label(row),
                                        result.col_label(col)) if p) or "all"
         if result.is_empty(row, col):
@@ -410,6 +463,10 @@ class PivotPanel(QWidget):
     plot_requested = Signal(object)
 
     def __init__(self, parent=None):
+        """Build the pivot shelf beside the table.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("PivotPanel")
         self._frame: Optional[pd.DataFrame] = None
@@ -628,11 +685,25 @@ class PivotPanel(QWidget):
         return result
 
     def _on_axis_changed(self, *_args) -> None:
+        """Queue a recompute after an axis or aggregation edit.
+
+        Debounced, so dragging three columns into a well costs one recompute
+        rather than three, and suppressed entirely while the panel is being
+        built from a spec.
+
+        :param _args: whatever the emitting signal passes; ignored, since the
+            whole spec is re-read from the widgets either way.
+        """
         if self._building:
             return
         self._debounce.start()
 
     def _on_plot(self) -> None:
+        """Hand the summary to the Graph Builder, one row per cell.
+
+        An empty table says so rather than emitting nothing, which would read
+        as a broken button.
+        """
         frame = self.long_frame()
         if frame.empty:
             self.notice.setText(
