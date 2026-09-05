@@ -1211,8 +1211,21 @@ class spacrStitcher:
             axes = getattr(series, "axes", None)
             shape = series.shape
         if axes:
-            axes = "".join(a for a in axes.upper() if a in "TCZYX")
-            return int(shape[axes.index("C")]) if "C" in axes else 1
+            kept = "".join(a for a in axes.upper() if a in "TCZYX")
+            if "C" in kept:
+                return int(shape[kept.index("C")])
+            if len(kept) == len(axes):
+                # Every axis was named and none of them is a channel. A ZYX
+                # stack really does have one channel, and guessing from the
+                # shape here would call its z-planes channels.
+                return 1
+            # SOME AXIS WAS NOT RECOGNISED, so the declaration is not evidence
+            # of absence and the shape is the better guess. `tifffile` writes
+            # 'Q' -- unspecified -- for the leading axis of a plain stacked
+            # array, so a genuine (2, Y, X) two-channel tile arrives as 'QYX',
+            # the filter above reduces it to 'YX', and this used to return 1:
+            # a multi-channel mosaic came out with one channel, silently,
+            # because `mosaic_all_channels` plans `range(min(counts))`.
         gh = spacrStitcher._guess_axes_from_shape(shape)
         return int(shape[gh.index("C")]) if "C" in gh else 1
     
@@ -1328,10 +1341,22 @@ class spacrStitcher:
         """
         n = len(files)
         site = [self._parse_meta(p).get("site") for p in files]
-        idx_by_site = {}
+        # EVERY INDEX AT A SITE, not one. A site holds one file PER CHANNEL,
+        # and `idx_by_site[s] = i` kept only the last of them -- so every
+        # candidate partner was a channel-2 file, two tiles of the same
+        # channel were never compared with each other, and the c1/c2 rows in
+        # the pairs CSV were the same comparison written twice.
+        #
+        # It also ORPHANED a tile. With the files ordered
+        # c1_S1, c2_S1, c1_S2, c2_S2, ... the map is {1:1, 2:3, 3:5, 4:7},
+        # so `10X_c1_A1_Site-4.tif` at index 6 had exactly one candidate --
+        # index 5, which fails `j > i` -- and appeared in no pair at all.
+        # No pair means no features, which means no place in the mosaic:
+        # a corner arrived with no channel-1 data and no warning.
+        idx_by_site: Dict[Any, List[int]] = {}
         for i, s in enumerate(site):
             if s is not None:
-                idx_by_site[s] = i
+                idx_by_site.setdefault(s, []).append(i)
         cand = set()
         for i, p in enumerate(files):
             si = site[i]
@@ -1341,9 +1366,9 @@ class spacrStitcher:
                 continue
             for k in range(1, max_site_gap+1):
                 for s_adj in (si + k, si - k):
-                    j = idx_by_site.get(s_adj)
-                    if j is not None and j > i:
-                        cand.add((files[i], files[j]))
+                    for j in idx_by_site.get(s_adj, ()):
+                        if j > i:
+                            cand.add((files[i], files[j]))
         return sorted(list(cand))
 
     # ------------------------------ driver -------------------------------

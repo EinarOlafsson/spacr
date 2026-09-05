@@ -2,9 +2,10 @@
 AN OPS BUTTON ON ALIGN AND STITCH, OVER CODE THAT IS ALREADY IN THE REPOSITORY
 ================================================================================
 
-Status:    PART 0 ANSWERED BY RUNNING IT, 2026-09-05. The front half WORKS;
-           four defects found, two fixed. The back half is still the job.
-           See PART 0-A. Filed 2026-09-02.
+Status:    PART 0 ANSWERED BY RUNNING IT, 2026-09-05. The front half WORKS
+           and all FOUR defects it hid are fixed and pinned by tests. The
+           back half (PART 1) is the remaining job, then the button.
+           Filed 2026-09-02. See PART 0-A.
 Requested: 2026-09-02 -- "for the allign and stitch module id like to add a
            OPS (optical pooled screening button) for analyzing OPS data. i had
            a bunch of code for doing this earlier, i dont know if that module
@@ -96,23 +97,102 @@ WHAT IS BROKEN:
      before this you had to set `mosaic=True` AND leave `write_mosaic=False`,
      which is the opposite of what both names say.
 
-  3. OPEN. `mosaic_allc` writes ONE channel from two. Confirmed with two
-     genuinely different channels, so it is not a content-hashed cache
-     collapsing identical inputs: shape (1, 1314, 1313) with
-     `do_multichannel=True`.
+  3. FIXED. `mosaic_allc` wrote ONE channel from two. `tifffile` records the
+     leading axis of a plainly stacked array as `Q` -- unspecified -- so a
+     genuine (2, Y, X) tile arrives as axes `QYX`.
+     `_get_channel_count_tif` filtered the axes down to `TCZYX`, found no `C`,
+     returned 1, and NEVER REACHED the shape-based guess below it, which gets
+     (2, Y, X) right. The channel plan is `range(min(counts))`, so one
+     mis-counted tile silently flattened the whole mosaic.
+     The fix falls through to the shape guess only when an axis was
+     unrecognised: a file that DOES declare `ZYX` still counts as one channel,
+     because z-planes are not channels. Verified (2,Y,X)->2, (4,Y,X)->4,
+     (Y,X)->1, declared ZYX->1.
 
-  4. OPEN, AND IT LOSES DATA. One tile is silently dropped: 7 of 8 reach the
-     mosaic manifest, and the missing one is `10X_c1_A1_Site-4.tif` -- a
-     corner of the mosaic with no channel-1 data and no warning.
+  4. FIXED, AND IT WAS LOSING DATA. `_pairs_by_site_window` built
+     `idx_by_site[s] = i`, one index per site -- but a site holds one file PER
+     CHANNEL. Ordered c1_S1, c2_S1, c1_S2, c2_S2, ... the map became
+     {1:1, 2:3, 3:5, 4:7}: every candidate partner was a channel-2 file, so
+     two tiles of the SAME channel were never compared and the c1/c2 rows of
+     the pairs CSV were one comparison written twice. It also orphaned
+     `10X_c1_A1_Site-4.tif` outright -- index 6, whose only candidate was
+     index 5, which fails `j > i` -- so it was in no pair, got no features and
+     reached no mosaic: a corner with no channel-1 data and no warning.
+     Keeping every index at a site fixes both. Pairs 12 -> 24, all 24 offsets
+     still exact, manifest 7 -> 8 of 8 tiles, mosaic (1,1314,1313) ->
+     (2,1061,1061) on CYX input.
 
   Defects 3 and 4 are exactly what PART 0 predicted of code that "nothing
-  imports, no test and no user". They are also why the GUI button must not be
-  wired up first: a button over 4 is a button that quietly returns a mosaic
-  with a hole in it.
+  imports, no test and no user" -- and both are the silent kind. A GUI button
+  shipped over them would have returned a one-channel mosaic with a hole in
+  the corner and said nothing.
 
-THE ORDER THIS SHOULD NOW GO IN: fix 3 and 4 against the synthetic plate
-above, which is cheap and has ground truth; then the back half (PART 1); then
-the button. The button is the last step, not the first.
+THE ORDER THIS SHOULD NOW GO IN: the back half (PART 1), then the button. The
+front half is done and pinned by
+`tests/test_the_ops_stitcher_recovers_known_geometry.py`, which builds a plate
+whose geometry it chose so "did it stitch correctly" is a comparison rather
+than an opinion. The button is the last step, not the first.
+
+--------------------------------------------------------------------------------
+PART 0-B -- THE ENTRY-POINT REPORT THE CHECKLIST ASKS FOR
+--------------------------------------------------------------------------------
+
+"A report, written into this file BEFORE any new code, saying which of
+`spacrops.py`'s eight public entry points still run and on what data."
+
+The module exports eight public names, but only four are its own: `as_completed`,
+`figure_style`, `theme_target` and `write_tiff` are re-exports from
+`concurrent.futures` and spaCR's own plotting and IO. The four that are OPS,
+plus the three public classes, are below. THE DATA in every case is a synthetic
+plate: four sites in a 2x2, 640 px tiles with 220 px of overlap, cut from one
+1060 px field of gaussian blobs, two channels, plus a phenotype image per site.
+
+  get_preprocess_ops_settings   RUNS. 63 keys from an empty dict.
+
+  stitch_cycle_wells            RUNS, AND IS CORRECT. Organises the plate,
+                                computes ORB features with a disk cache, scores
+                                24 pairs, writes a pairs CSV and a mosaic.
+                                VERIFIED AGAINST GROUND TRUTH: 24/24 offsets
+                                within 0.3 px of the geometry the plate was
+                                built with. Four defects fixed on the way --
+                                see PART 0-A.
+
+  ops_preprocess                RUNS END TO END. Returns `stitch`, `align` and
+                                `npy_out_root`; produces the mosaic, a pairs
+                                CSV, a mosaic manifest, four `.npy` crops under
+                                `crops_20x/` and an FOV align manifest.
+
+  align_image_to_stitch         RUNS, GEOMETRY NOT VERIFIED. Places each
+                                phenotype FOV on the mosaic and writes a
+                                (2, 640, 640) crop -- plane 0 the FOV, plane 1
+                                the matching mosaic region -- with a manifest
+                                carrying tx, ty, theta, scale, score and
+                                inlier_ratio, and `scale` correctly reflecting
+                                `relative_scale=2.0`.
+                                THE NUMBERS ARE NOT CHECKED AGAINST TRUTH, and
+                                honestly cannot be from this fixture: the
+                                synthetic phenotype tiles are the same pixels
+                                as the genotype tiles rather than a genuine 2x
+                                acquisition, so a scale-2 solve against them
+                                has no right answer to be compared with. It
+                                produces plausible output. Whether it produces
+                                CORRECT output needs either real paired
+                                10x/20x data or a fixture that actually
+                                resamples. That is the next measurement, and it
+                                should happen before the button.
+
+  spacrStitcher                 EXERCISED via the above; its `_pairs_by_site_window`
+                                and `_get_channel_count_tif` both had defects,
+                                now fixed and pinned.
+  FOVAlignAndCropper            EXERCISED via `ops_preprocess`; produced the
+                                four crops and the manifest.
+  StitchedMultiAligner          NOT EXERCISED. Multi-acquisition alignment
+                                needs more than one acquisition and the fixture
+                                has one. Untested, and it should not be wired
+                                to a button until it is.
+
+SO: the front half runs, the stitching is provably correct, the phenotype
+alignment is plausible-but-unverified, and one class has never been run at all.
 
 --------------------------------------------------------------------------------
 PART 1 -- WHAT OPS NEEDS THAT spaCR DOES NOT HAVE
@@ -174,6 +254,106 @@ currently mixes:
   method from its stage name is exactly the kind of thing that produces a
   pipeline that runs and is wrong. The paper is the other half of that
   reading.
+
+--------------------------------------------------------------------------------
+PART 2-A -- WHAT BRIEFLOW'S `sbs` AND `merge` ACTUALLY DO, FROM THE SOURCE
+--------------------------------------------------------------------------------
+
+PART 2 says: "I DID NOT READ THE ALGORITHMS ... Read the source before
+implementing, and record here what it actually does; a plausible
+reconstruction of a method from its stage name is exactly the kind of thing
+that produces a pipeline that runs and is wrong."
+
+Read on 2026-09-05 from a shallow clone of github.com/cheeseman-lab/brieflow.
+LICENCE: MIT (Copyright 2025, Massachusetts Institute of Technology). spaCR is
+BSD-3-Clause. MIT code may be incorporated with its notice retained, so the
+question here is engineering, not permission -- but the attribution is not
+optional and belongs in whatever file borrows.
+
+THE `sbs` STAGE IS ELEVEN RULES, in this order (workflow/rules/sbs.smk):
+
+   1. align_sbs                 rigid alignment, WITHIN a cycle (channel to
+                                channel) and BETWEEN cycles. Both, separately:
+                                `align_within_cycle` and `align_between_cycles`.
+   2. log_filter                Laplacian-of-Gaussian, to sharpen spots.
+   3. compute_standard_deviation  THE READ-LOCATION ESTIMATE, and it is
+                                cleverer than "find bright things": standard
+                                deviation ACROSS CYCLES, then mean across
+                                channels. A spot that is bright in every cycle
+                                is not a read; a spot whose base CHANGES from
+                                cycle to cycle is. With one cycle it falls back
+                                to SD across channels.
+   4. find_peaks                local maxima, each labelled by its difference
+                                to the next-highest neighbouring pixel -- so
+                                the label is a measure of how isolated the peak
+                                is, which is what the later threshold uses.
+                                An alternative path uses Spotiflow, a deep
+                                learning spot detector.
+   5. max_filter                maximum filter in a window, so a peak's
+                                intensity can be read without sub-pixel
+                                registration being perfect.
+   6. apply_ic_field_sbs        illumination correction.
+   7. segment_sbs               cell and nucleus segmentation.
+   8. extract_bases             intensity from the max-filtered stack at every
+                                peak above threshold -> a long DataFrame of
+                                (cycle, channel, intensity) per spot.
+   9. call_reads                CHANNEL CROSS-TALK IS COMPENSATED FIRST, and
+                                this is the step a naive implementation gets
+                                wrong. The four dyes bleed into each other, so
+                                the raw argmax is not the base. Brieflow fits a
+                                linear transform from the data itself -- either
+                                `transform_medians` (median of the maximum
+                                points along each dimension) or
+                                `transform_percentiles` (points above the 95th
+                                percentile in each dimension define new axes) --
+                                applies it, and THEN takes the highest
+                                corrected intensity per cycle. Quality per
+                                cycle comes out alongside.
+  10. call_cells                assign reads to segmented cells, with error
+                                correction AGAINST THE GUIDE LIBRARY: a read is
+                                corrected only when there is a UNIQUE closest
+                                reference barcode within `max_distance`.
+                                Ambiguity is dropped, not guessed. Also handles
+                                multi-barcode protocols, UMIs, count-vs-peak
+                                sorting and recombination detection.
+  11. eval_mapping             QC on the mapping rate.
+
+THE `merge` STAGE MATCHES TWO MAGNIFICATIONS BY GEOMETRY, NOT BY IMAGE:
+
+   * hash_cell_locations       Delaunay-triangulate the cell centroids and hash
+                               the triangles. The shape of a local triangle of
+                               cells is invariant to magnification, rotation
+                               and translation, so it survives the thing that
+                               defeats pixel correlation between a 10x and a
+                               20x acquisition.
+   * merge_triangle_hash       match the two hashed sets to get a coarse
+                               rotation and translation.
+   * merge_sbs_phenotype       fine alignment of one matched (tile, site).
+   * match_cells               MUTUAL nearest neighbour with a distance
+                               threshold, enforcing 1:1. A cell is matched only
+                               when each is the other's nearest, and ambiguous
+                               cells are DROPPED rather than assigned. That is
+                               the right default for a screen: a wrongly
+                               assigned barcode is worse than a missing one.
+   * refine_local_warp         local non-rigid warp for residual within-tile
+                               distortion a single affine cannot capture --
+                               explicitly for the case of two differently
+                               configured microscopes.
+
+WHAT THIS CHANGES ABOUT THE PLAN.
+
+  * spaCR's existing stitching is NOT what `merge` does, and the two must not
+    be confused. `spacrops.align_image_to_stitch` aligns IMAGES by ORB
+    features. `merge` aligns CELL COORDINATE SETS by triangle hashing, because
+    across magnifications the pixels do not correspond but the cells do. For
+    matching phenotype to genotype, brieflow's approach is the sounder one and
+    spaCR does not have it.
+  * Three steps carry most of the correctness risk and none of them is
+    guessable: the SD-across-cycles read estimate (3), the cross-talk
+    compensation (9), and unique-match-only error correction (10). Implement
+    those from the source, not from the stage name.
+  * Steps 6 and 7 are already spaCR: illumination correction exists, and
+    segmentation is Mask. Do not build them twice.
 
 --------------------------------------------------------------------------------
 PART 3 -- THE BUTTON
