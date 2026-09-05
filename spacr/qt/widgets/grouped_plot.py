@@ -293,9 +293,21 @@ class GroupedPlot(FastPlot):
         return groups if len(groups) >= 2 else None
 
     def comparison_unit(self) -> str:
+        """What one point on this plot IS -- a well, a field, an object.
+
+        NAMED RATHER THAN ASSUMED, because it decides what a comparison
+        means: the same data compared per well and per object gives
+        different p-values, and only one of them answers the question asked.
+
+        :returns: the unit's name, ``observation`` when unspecified.
+        """
         return self.spec.unit if self.spec is not None else "observation"
 
     def export_settings(self) -> dict:
+        """The parent's export settings, plus this plot's grouping.
+
+        :returns: the settings dict.
+        """
         out = super().export_settings()
         if self.spec is not None:
             out.update(kind=self.spec.kind, group=self.spec.group,

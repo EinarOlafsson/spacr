@@ -282,6 +282,7 @@ class FormulaPanel(QWidget):
         return True
 
     def remove_selected(self) -> None:
+        """Drop the selected computed columns."""
         item = self._list.currentItem()
         if item is None:
             return
@@ -297,6 +298,7 @@ class FormulaPanel(QWidget):
         self.formulas_changed.emit()
 
     def clear(self) -> None:
+        """Drop every computed column."""
         if self._formulas.is_empty:
             return
         self._formulas.clear()

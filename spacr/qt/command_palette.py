@@ -357,6 +357,10 @@ class CommandPalette(QDialog):
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         # Arrow keys → move selection; everything else falls through
+        """Move through the results, or run the highlighted command.
+
+        :param event: the Qt key event.
+        """
         if event.key() == Qt.Key_Down:
             row = self._list.currentRow()
             for i in range(row + 1, self._list.count()):

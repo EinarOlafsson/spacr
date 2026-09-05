@@ -234,6 +234,11 @@ class GracefulQuitWatcher(QObject):
         self._timer.start()
 
     def stop(self) -> None:
+        """Stop watching for the quit signal.
+
+        IDEMPOTENT: shutdown can be reached by more than one route, and a
+        second stop must not be an error.
+        """
         self._timer.stop()
 
     def _recheck(self) -> None:

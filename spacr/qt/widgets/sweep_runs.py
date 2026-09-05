@@ -450,6 +450,7 @@ class SweepRunsPanel(QWidget):
         return self.set_frame(frame, source=path)
 
     def reload(self) -> bool:
+        """Re-read the sweep's runs from disk."""
         return self.load(self._folder) if self._folder else False
 
     def set_frame(self, frame, source: str = "") -> bool:
@@ -461,6 +462,10 @@ class SweepRunsPanel(QWidget):
         # promoting this to a docstring means bumping the count in the same
         # commit. (It used to say the count file "belongs to another session
         # right now" -- true on 2026-08-17, not a constraint today.)
+        """Point the panel at a table of runs.
+
+        :param frame: the runs, or None to clear.
+        """
         self._sweep_frame = frame if frame is not None and len(frame) else None
         if self._sweep_frame is None and not source:
             source = "The sweep has recorded no trials yet."

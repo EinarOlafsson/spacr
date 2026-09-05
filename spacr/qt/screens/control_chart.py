@@ -276,6 +276,10 @@ class ControlChartCanvas(QWidget):
         self.rendered.emit(result)
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         cancel = getattr(self.canvas, "cancel_pending_draw", None)
         if callable(cancel):
             cancel()
@@ -783,6 +787,10 @@ class ControlChartScreen(QWidget):
         # Abandon in-flight work rather than let it outlive the screen: Qt
         # aborts the process if a running QThread is destroyed, and a worker
         # delivering into a closed widget is a use-after-free.
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         self.canvas.close()
         super().closeEvent(event)

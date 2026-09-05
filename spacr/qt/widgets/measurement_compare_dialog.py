@@ -1040,10 +1040,19 @@ class MeasurementCompareDialog(QDialog):
         return self.panel.comparison()
 
     def save_everything(self, folder: str = "") -> dict:
+        """Forwarded to the panel this dialog wraps.
+
+        :param folder: where to write everything.
+        :returns: whatever the panel returns.
+        """
         return self.panel.save_everything(folder)
 
     @property
     def measurement(self):
+        """Forwarded to the panel this dialog wraps.
+
+        :returns: whatever the panel answers.
+        """
         return self.panel.measurement
 
     @property
