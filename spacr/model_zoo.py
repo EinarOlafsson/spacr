@@ -1340,6 +1340,13 @@ def _refresh_shared_catalogue_in_background(uri: Optional[str],
     _SHARED_CATALOGUE_FETCHING.set()
 
     def run() -> None:
+        """Fetch the catalogue off the GUI thread, and always release the flag.
+
+        The `finally` is the whole point: `_SHARED_CATALOGUE_FETCHING` is what
+        stops a second refresh being started while this one is in flight, so a
+        fetch that raises must still clear it or no later refresh can ever
+        begin.
+        """
         try:
             shared_catalogue(uri, timeout=timeout, force=True, block=True)
         finally:
