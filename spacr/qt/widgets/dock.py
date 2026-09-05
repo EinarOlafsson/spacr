@@ -331,14 +331,59 @@ class Dock(QWidget):
 
     # -- what the pointer does -------------------------------------------
     def _on_row_hovered(self, key: str, entered: bool) -> None:
-        """Name the hovered module so the bottom strip can explain it.
+        """Name the hovered module, and light exactly that one row.
 
-        Only entering is reported. A leave that cleared the bar would empty
-        it the moment the pointer set off toward the links it holds, which
-        is the whole reason that bar keeps its last module.
+        Only ENTERING is reported to the strip. A leave that cleared the bar
+        would empty it the moment the pointer set off toward the links it
+        holds, which is the whole reason that bar keeps its last module.
+
+        THE INK IS NOT `:hover`, and that is a fix rather than a preference.
+        The rows were coloured by a `QPushButton#SidebarItem:hover` rule,
+        which Qt drives from `WA_UnderMouse` -- and that attribute sticks
+        when the widget under the pointer is replaced without the pointer
+        moving, which is exactly what clicking a dock row does: the stack
+        swaps a whole screen in underneath it and no Leave is ever
+        delivered. Reported 2026-09-05, "run compare and run history are
+        always blue in the dock", and both are rows the maintainer had
+        opened. Read off the screen recording: Run History accent-coloured
+        while Database Browser and Report above and below it are white and
+        the pointer is elsewhere entirely.
+
+        So the dock lights the row itself, from one pass over all of them.
+        At most one can be lit, whatever Qt believes about who is under the
+        pointer.
         """
+        self._light_only(key if entered else None)
         if entered:
             self.module_hovered.emit(key)
+
+    def _light_only(self, key) -> None:
+        """Ink the row named by ``key`` and no other. ``None`` clears all.
+
+        Re-polished per row rather than by re-applying the sheet: a
+        stylesheet reset re-polishes every widget in the dock, and this runs
+        on every pointer move across the column.
+        """
+        for row in self._rows:
+            want = (key is not None and row.key == key)
+            if bool(row.property("hovered")) == want:
+                continue
+            row.setProperty("hovered", want)
+            style = row.style()
+            if style is not None:
+                style.unpolish(row)
+                style.polish(row)
+
+    def leaveEvent(self, event):                # noqa: N802 - Qt naming
+        """The pointer left the column: no row is lit.
+
+        The rows' own Leave covers a pointer stepping between them; this
+        covers one that leaves the dock altogether, including straight off
+        the bottom row onto the empty stretch below it, where no other row
+        will ever be entered.
+        """
+        self._light_only(None)
+        super().leaveEvent(event)
 
     def eventFilter(self, watched, event):       # noqa: N802 - Qt naming
         """Light a heading under the pointer, and toggle it on release.
@@ -511,7 +556,11 @@ class Dock(QWidget):
             "  background: transparent; border: none; text-align: left;"
             "  padding: 6px 10px;"
             "}"
-            f"QPushButton#SidebarItem:hover {{ color: {accent}; }}"
+            # `[hovered="true"]`, NOT `:hover`. Qt drives `:hover` from
+            # `WA_UnderMouse`, which sticks when a click swaps the screen out
+            # from under the pointer -- see `_on_row_hovered`. The dock sets
+            # this property itself so at most one row is ever lit.
+            f'QPushButton#SidebarItem[hovered="true"] {{ color: {accent}; }}'
             "QLabel#SidebarSection {"
             "  padding: 10px 10px 4px 10px; font-weight: 600;"
             "  background: transparent;"

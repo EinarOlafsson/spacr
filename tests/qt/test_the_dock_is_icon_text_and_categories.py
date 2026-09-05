@@ -81,10 +81,28 @@ def test_a_row_paints_no_box_of_its_own(dock):
 
 # -- the one effect --------------------------------------------------------
 def test_hovering_a_row_is_the_only_effect_and_it_is_the_accent(dock):
+    """Hover is the accent and nothing else -- but not through `:hover`.
+
+    THE RULE MOVED ON 2026-09-05, and the reason is a defect this test would
+    otherwise pin in place. Qt drives `:hover` from `WA_UnderMouse`, which
+    sticks when the widget under the pointer is replaced without the pointer
+    moving -- which is exactly what clicking a dock row does, since the stack
+    swaps a whole screen in underneath it. Reported as "run compare and run
+    history are always blue in the dock", and both were rows that had been
+    clicked.
+
+    The dock sets a `hovered` property itself now, from one pass over every
+    row, so at most one can be lit whatever Qt believes. See
+    `tests/qt/test_only_one_dock_row_is_ever_lit.py`.
+    """
     from spacr.qt.theme import active_palette
     rule = dock.styleSheet()
     accent = active_palette()["accent"]
-    assert f"QPushButton#SidebarItem:hover {{ color: {accent}; }}" in rule
+    assert f'QPushButton#SidebarItem[hovered="true"] {{ color: {accent}; }}' \
+        in rule
+    assert "QPushButton#SidebarItem:hover" not in rule, (
+        "the `:hover` colour is back, and with it the ink that stuck on "
+        "every row the user had opened")
 
 
 def test_a_row_keeps_the_object_name_the_theme_styles(dock):
