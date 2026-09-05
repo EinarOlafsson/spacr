@@ -25,11 +25,6 @@ builder = importlib.import_module("build_documentation_i18n")
 _NEW_VISIBLE_DIGEST = (
     "22524dd9f041af43ece50e6b9e476536dbdf7f4229ed30de4a919e8aafbd18db"
 )
-_ALIASES_DIGEST = (
-    "f2cd23b5448a0969473eac0cb329a94826f012d1577e2ff887d996d4853d0bcb"
-)
-
-
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
 
@@ -931,15 +926,32 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     )
 
 
-def test_exact_alias_map_and_manifest_records_are_identical():
+def test_the_alias_map_is_empty_and_every_entry_would_be_a_signal():
+    """No alias is the END STATE, and a new one means a missing docstring.
+
+    An alias existed so an UNDOCUMENTED public override could borrow its base
+    class's text. Once every public method in the package carried its own
+    docstring, all 113 entries became lies: the borrowed generic text would
+    hide the specific answer the override actually gives. The map was emptied
+    deliberately, and `API_DOC_ALIASES` says so where it is defined.
+
+    This test asserted `len(aliases) == 113` and a digest of those entries,
+    which pinned the world as it was BEFORE that. It now pins the world as it
+    is, and the structural invariants are kept rather than deleted: they cost
+    nothing on an empty map and they are exactly the checks a future entry
+    would need.
+    """
     docs = builder.public_docstrings()
     aliases = builder.API_DOC_ALIASES
 
-    assert len(aliases) == 113
-    assert _sha256_lines(
-        f"{alias}\0{canonical}" for alias, canonical in aliases.items()
-    ) == _ALIASES_DIGEST
-    assert not (set(aliases) & set(aliases.values()))
+    assert aliases == {}, (
+        "an alias means a public override was added without a docstring. The "
+        "fix is the docstring, not the alias -- see API_DOC_ALIASES."
+    )
+    # Kept for the day someone does add one, and vacuously true until then.
+    assert not (set(aliases) & set(aliases.values())), (
+        "an alias cannot itself be a canonical: the chain would not resolve"
+    )
     assert all(docs[alias] == docs[canonical]
                for alias, canonical in aliases.items())
     assert "spacr.logging_util.LevelSetFilter.filter" not in aliases
@@ -954,15 +966,28 @@ def test_exact_alias_map_and_manifest_records_are_identical():
 
 
 def test_localized_manifest_materializes_alias_translation(tmp_path, monkeypatch):
-    docs = builder.public_docstrings()
+    docs = dict(builder.public_docstrings())
     canonical = "spacr.layers.Layer.ndim"
     alias = "spacr.layers.ImageLayer.ndim"
+    # AN ALIAS IS ONLY VALID WHEN THE TWO TEXTS ARE IDENTICAL -- that is what
+    # an alias MEANS, and `write_language` refuses the pair otherwise. The
+    # test used to get that precondition free, because the registry only ever
+    # held pairs that already satisfied it. Both symbols now carry their own
+    # specific docstring, so the precondition has to be set up here.
+    docs[alias] = docs[canonical]
     translations = {key: f"localized:{index}" for index, key in enumerate(docs)}
     # Alias model output must never win: its record references the one
     # canonical translation and all identical freshness hashes.
     translations[canonical] = "localized canonical body"
     translations[alias] = "incorrect duplicate decode"
     monkeypatch.setattr(builder, "API_DIR", tmp_path)
+    # THE REGISTRY IS INJECTED, because it is empty by design -- see
+    # `test_the_alias_map_is_empty_and_every_entry_would_be_a_signal`. What is
+    # under test here is the MECHANISM that materializes an alias record, and
+    # that mechanism must keep working for the day an alias is legitimately
+    # added. Reading the live registry would make this test pass by doing
+    # nothing at all.
+    monkeypatch.setattr(builder, "API_DOC_ALIASES", {alias: canonical})
 
     builder.write_language(docs, "de", translations)
     payload = json.loads((tmp_path / "de.json").read_text(encoding="utf-8"))
