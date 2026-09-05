@@ -337,10 +337,23 @@ def _deliver_drop(report: Sequence[dict], handler: DropHandler,
 
     ``handler.apply`` IS still called from here, and apply is allowed to
     touch the filesystem: it wires the path into widgets, so it cannot move
-    to a worker wholesale. The handlers that need to read a folder to do
-    that set the source immediately and submit their own scan for the rest
-    (see :mod:`spacr.qt.dnd_handlers`); the accept decision that used to
-    walk the folder before apply was ever reached is what moved here.
+    to a worker wholesale. Most of them do touch it -- ``is_file`` to decide
+    whether to take the parent, ``resolve``, a probe for a sibling database
+    -- and of the nineteen that do, only ``ModelZooDropHandler`` submits a
+    scan of its own. WHAT MAKES THAT SAFE IS NOT THAT THEY DEFER, IT IS THAT
+    THEY ARE SECOND: the path apply stats is the path :func:`_classify_drop`
+    just walked on the worker, so by the time apply runs the ``autofs`` mount
+    is awake and the kernel's dentry cache is warm, and the stat that took
+    twenty seconds cold takes microseconds. The expensive half is the WAKE,
+    and the accept decision that used to trigger it on the GUI thread is what
+    moved off.
+
+    So the rule for a new handler is a narrow one, not a blanket permission:
+    apply may stat what the classification already touched. A handler that
+    reaches somewhere else -- a different share, a tree the scan never
+    visited, a large file read whole -- is back on a cold mount on the GUI
+    thread and belongs on ``_scan_then``, the way the model zoo's recursive
+    walk does.
 
     :param report: what the scan found, in drop order.
     :param handler: the module's policy, for ``apply`` only.
@@ -514,18 +527,53 @@ def _run_delivery(slot) -> None:
         LOG.exception("delivering a drop failed")
 
 
+#: Queues whose :func:`_drain` is running right now, held by identity.
+#:
+#: A DELIVERY OPENS MODAL DIALOGS, AND A MODAL DIALOG RUNS A NESTED QT EVENT
+#: LOOP. :func:`_deliver_drop` reaches ``QMessageBox.information`` for a
+#: rejected drop, ``suggest_alternatives_dialog`` for a near-miss and
+#: ``QMessageBox.warning`` for a settings CSV that would not load; each of
+#: them spins Qt's event loop inside the delivery, and Qt goes on dispatching
+#: queued signals there -- including the ``_on_settled`` of a LATER drop's
+#: scan. That re-enters :func:`_answer_drop` and, unguarded, delivered the
+#: later drop in the MIDDLE of the earlier one: the newer folder was applied
+#: first and the older one's ``handler.apply`` overwrote it on the way out.
+#: The wrong source wins, which is precisely what :data:`_pending_drops`
+#: exists to prevent -- reached through the one door the queue did not watch.
+#:
+#: Identity, not membership: a ``list`` is unhashable, so this cannot be a
+#: set, and two screens' queues can compare equal while being different
+#: queues. GUI thread only, so no lock.
+_draining: List[list] = []
+
+
 def _drain(queue: list) -> None:
-    """Deliver every drop on ``queue`` that is ready, oldest first."""
-    # Take the ready run off the FRONT before delivering any of it. A slot
-    # left on the queue while its own delivery is running would be delivered
-    # a second time by a scan that lands from inside it, and one that raised
-    # would block every later drop on this screen for the life of the
-    # window.
-    ready = []
-    while queue and queue[0].answered:
-        ready.append(queue.pop(0))
-    for pending in ready:
-        _run_delivery(pending)
+    """Deliver every drop on ``queue`` that is ready, oldest first.
+
+    Re-entrant-safe: a nested call (see :data:`_draining`) returns at once
+    and leaves the work to the loop already running, which re-reads the
+    queue after every delivery and so picks up anything answered during one.
+    """
+    if any(active is queue for active in _draining):
+        return
+    _draining.append(queue)
+    try:
+        # POP BEFORE DELIVERING, AND RE-READ AFTER. A slot left on the queue
+        # while its own delivery is running would be delivered a second time
+        # by a scan that lands from inside it, and one that raised would
+        # block every later drop on this screen for the life of the window.
+        # Taking the whole ready run off in one batch would fix that too,
+        # but it would then miss the slots answered DURING the run -- and a
+        # delivery that opens a modal dialog is exactly when a slow scan
+        # lands. `_run_delivery` swallows what a delivery raises, so one bad
+        # drop cannot break the loop.
+        while queue and queue[0].answered:
+            _run_delivery(queue.pop(0))
+    finally:
+        for index, active in enumerate(_draining):
+            if active is queue:
+                del _draining[index]
+                break
 
 
 def _queue_drop(screen, deliver: Callable[[object], None]):

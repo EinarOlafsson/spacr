@@ -417,3 +417,243 @@ def test_the_screen_hands_the_dialog_its_own_threading(screen, tmp_path,
 
     assert screen.confirm_and_prune() is False
     assert seen["threaded"] is False
+
+
+# ---------------------------------------------------------------------------
+# The third defect: the pickers forgot where the user had just been
+# ---------------------------------------------------------------------------
+#
+# Taking the start-directory stat off the GUI thread was right, and the first
+# way it was written quietly changed what the user sees. `path_probe` keys its
+# cache on (path, want_dir), because a path can exist and not be a directory:
+#
+#     path_probe.prime(chosen, True)   ->  writes  (chosen, False) = True
+#     path_probe.isdir(chosen)         ->  reads   (chosen, True)  = MISSING
+#
+# so priming after the dialog answered a question nobody asks, and `isdir`
+# answers False for a path it has not probed. The result was a picker that
+# reopened at HOME having forgotten the folder the previous press landed on --
+# every time for the archive destination, which nothing else on this screen
+# ever probes with `want_dir=True`, and on a race for the project root, which
+# `_update_controls` happens to probe and usually wins.
+#
+# "Just later" is the whole licence this exercise operates under. A remembered
+# location that is silently dropped is not later, it is gone, so these tests
+# hold the picker to what it did before the freeze was fixed -- while still
+# refusing to hand a never-vouched-for path to QFileDialog.
+
+
+@pytest.fixture()
+def picker(monkeypatch):
+    """Record every start directory QFileDialog is opened at.
+
+    :returns: a callable ``picker(returns)`` that makes the dialog hand back
+        ``returns``, and a list ``picker.starts`` of the directories it was
+        opened at, in order.
+    """
+    starts = []
+    answer = {"value": ""}
+
+    def dialog(_parent, _caption, directory, *args, **kwargs):
+        """Stand in for the folder chooser, recording where it opened."""
+        starts.append(directory)
+        return answer["value"]
+
+    monkeypatch.setattr(screen_module.QFileDialog, "getExistingDirectory",
+                        staticmethod(dialog))
+
+    def configure(returns):
+        """Set what the next dialog returns."""
+        answer["value"] = returns
+        return starts
+
+    configure.starts = starts
+    return configure
+
+
+def test_the_destination_picker_reopens_where_the_user_last_left_it(
+        screen, picker, tmp_path):
+    """The regression the probe cache's second key introduced.
+
+    Nothing else on this screen asks ``want_dir`` about the destination, so
+    the pessimistic answer here had nothing to correct it: the picker opened
+    at home on the second press, and on the tenth.
+    """
+    chosen = str(tmp_path / "archive")
+    os.makedirs(chosen)
+    starts = picker(chosen)
+
+    screen.choose_destination()
+    screen.choose_destination()
+
+    assert starts[0] == os.path.expanduser("~"), (
+        "with no destination yet the picker opens at home")
+    assert starts[1] == chosen, (
+        "the picker forgot the folder the user chose one press ago -- "
+        "path_probe.prime records (path, False) and a start directory asks "
+        "(path, True)")
+
+
+def test_the_project_picker_reopens_where_the_user_last_left_it(
+        screen, picker, tmp_path):
+    """The same fault on the root, where a probe race had been hiding it."""
+    chosen = str(tmp_path / "plate")
+    os.makedirs(chosen)
+    starts = picker(chosen)
+
+    screen.choose_project()
+    screen.choose_project()
+
+    assert starts[1] == chosen, "the project picker forgot the last project"
+
+
+def test_a_picker_never_opens_on_a_path_nobody_vouched_for(
+        screen, picker, sleeping_share):
+    """Remembering a picked folder must not become trusting every folder.
+
+    A root restored from a previous session was never handed back by a
+    dialog in THIS screen, so it is still only a hint, and handing it to
+    QFileDialog is handing the freeze to the dialog instead.
+    """
+    picker("")
+    screen._root = SLEEPING
+
+    started = time.monotonic()
+    screen.choose_project()
+    elapsed = time.monotonic() - started
+
+    assert elapsed < 1.0, f"choose_project() took {elapsed:.1f}s"
+    assert picker.starts[0] == os.path.expanduser("~"), (
+        "an unprobed root was handed to QFileDialog, which stats it")
+
+
+def test_a_picked_folder_that_has_since_gone_falls_back_to_home(
+        screen, picker, tmp_path, qtbot):
+    """The optimistic default is a starting position, not a verdict.
+
+    Once the background probe has actually answered, its answer is what
+    ``path_probe`` returns, and a folder that has been deleted since the user
+    picked it must stop being offered as the place to open.
+    """
+    chosen = str(tmp_path / "gone")
+    os.makedirs(chosen)
+    picker(chosen)
+    screen.choose_destination()          # remembers it
+    assert screen._dialog_start(chosen) == chosen
+
+    os.rmdir(chosen)
+    path_probe.forget(chosen)
+
+    qtbot.waitUntil(
+        lambda: screen._dialog_start(chosen) == os.path.expanduser("~"),
+        timeout=10000)
+
+
+def test_remembering_a_folder_costs_no_stat(screen, picker, monkeypatch):
+    """The record is made from what the dialog returned, not by asking again.
+
+    ``QFileDialog`` only hands back a directory it reached, so the stat has
+    already happened; repeating it on the GUI thread is the exact call this
+    screen exists to have removed.
+    """
+    gui_thread = threading.current_thread()
+
+    def forbidden(_path):
+        """Fail loudly rather than slowly, and only where it matters.
+
+        `path_probe`'s own workers stat for a living; the rule this guards
+        is that the GUI thread does not.
+        """
+        if threading.current_thread() is gui_thread:
+            raise AssertionError("the GUI thread stat-ed the chosen folder")
+        return True
+
+    picker(SLEEPING)
+    monkeypatch.setattr(os.path, "isdir", forbidden)
+    monkeypatch.setattr(os.path, "exists", forbidden)
+
+    screen.choose_destination()
+
+    assert screen._dialog_start(SLEEPING) == SLEEPING, (
+        "the folder the dialog just returned was not remembered")
+
+
+def test_the_controls_redraw_only_for_this_screens_own_root(screen):
+    """`probes.answered` is process-wide; this screen has one path in it.
+
+    Every remembered path anywhere in spaCR comes through this signal --
+    `file_list.py` alone probes the lot at start-up -- and `_update_controls`
+    reads exactly one path back out of `path_probe`. Answering for the rest
+    is a full enable pass to reach the conclusion it already had.
+    """
+    calls = []
+    screen._root = "/some/root"
+    screen._update_controls = lambda: calls.append(1)
+
+    screen._path_probe_redraw("/an/unrelated/path", True)
+    assert not calls, (
+        "an answer about somebody else's path re-ran the enable pass")
+
+    screen._path_probe_redraw("/some/root", False)
+    assert calls, "the screen ignored the answer about its own root"
+
+
+# ---------------------------------------------------------------------------
+# The fourth defect: Cancel inherited the freeze the walk had given up
+# ---------------------------------------------------------------------------
+#
+# Moving the walk to a thread gave the dialog a thread to retire, and the
+# house teardown waits three seconds for one. That put a NEW freeze on the
+# way out: press Cancel while the walk is still out and the GUI thread is
+# held for the full budget before the window will close. Smaller than the
+# twenty seconds this exercise started with, and the same defect.
+#
+# The wait could not have worked in any case. `bridge.drain_thread` stops a
+# thread by asking its event loop to quit, and this worker is inside
+# `os.walk`, which has no interruption point; the budget always ran out in
+# full and always ended where it would have ended immediately, with the
+# thread parked. Parking is what makes letting go safe -- the process-wide
+# park list holds the reference Qt would otherwise see dropped on a running
+# QThread -- so the correct wait is no wait.
+
+
+def test_cancelling_a_dialog_does_not_wait_for_the_walk_to_finish(
+        qtbot, qt_theme_applied, tmp_path, held_walk):
+    """Closing must not block on work whose whole point was not to block.
+
+    ``held_walk`` keeps the walk inside ``file_list`` for :data:`SLOW_S`, so
+    a teardown that waits for it cannot return before the test's bound.
+    """
+    dialog = screen_module.ConfirmDeleteDialog(_a_plan(tmp_path))
+    qtbot.addWidget(dialog)
+    assert dialog._runner is not None
+
+    started = time.monotonic()
+    dialog.reject()
+    elapsed = time.monotonic() - started
+
+    held_walk.set()
+    assert elapsed < 1.0, (
+        f"reject() held the GUI thread for {elapsed:.1f}s waiting on a walk "
+        "that cannot be interrupted -- the teardown budget is the new freeze")
+    assert dialog._runner is None, (
+        "the walk's thread outlived the dialog that owns it")
+
+
+def test_a_walk_that_has_already_finished_is_reaped_rather_than_parked(
+        qtbot, qt_theme_applied, tmp_path):
+    """The grace is short, not zero, and this is what it buys.
+
+    A dialog closed after its list arrived has a thread that is already on
+    its way out; giving it a moment retires it normally instead of adding a
+    parked thread to the process for no reason.
+    """
+    dialog = screen_module.ConfirmDeleteDialog(_a_plan(tmp_path))
+    qtbot.addWidget(dialog)
+    qtbot.waitUntil(dialog.acknowledged.isEnabled, timeout=10000)
+
+    runner = dialog._runner
+    dialog.reject()
+
+    assert dialog._runner is None
+    qtbot.waitUntil(lambda: runner.active_jobs() == 0, timeout=10000)

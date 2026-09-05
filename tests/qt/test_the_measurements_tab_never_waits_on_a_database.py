@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+import threading
 import time
 
 import pandas as pd
@@ -51,6 +52,12 @@ SLOW_S = 8.0
 #: pinned is the difference between a bounded wait and a filesystem's, not a
 #: particular number of milliseconds.
 RESPONSIVE_S = 1.0
+
+#: Longer than the panel's read budget, short enough to run in a test. A read
+#: that lands INSIDE the budget is drawn complete and never leaves a
+#: placeholder, so it never reaches the corrected redraw -- which is what the
+#: tests at the foot of this file are about.
+LATE_S = 0.35
 
 
 def _database(directory, plate):
@@ -510,3 +517,136 @@ def test_closing_the_panel_leaves_no_probe_subscription(qtbot, plates):
     # Idempotent: closeEvent can arrive twice.
     panel.close()
     assert path_probe.probes is not None
+
+
+# --------------------------------------------------------------------------- #
+#  The reads have to STOP
+# --------------------------------------------------------------------------- #
+#
+# `_on_read_landed` redraws once per read that lands, and a redraw that
+# retired the answers first would read the databases again, land again, and
+# redraw again. On a local disk that is a panel that never stops opening its
+# own files for as long as the tab is on screen; on the mount this exercise
+# came from it is a parked thread per landing.
+
+
+def _counted(monkeypatch):
+    """Patch the metadata reads to count themselves and then run for real.
+
+    Slower than :data:`spacr.qt.widgets.measurement_scan_panel.READ_BUDGET_S`
+    on purpose: a read that lands inside the budget never draws a
+    placeholder, so it never reaches the redraw this is about.
+
+    :param monkeypatch: the pytest fixture to patch the module with.
+    :returns: a list with one entry per database opened.
+    """
+    from spacr.merge_tables import mergeable_tables as real_tables
+    from spacr.multi_database import describe_merge as real_merge
+    from spacr.qt.widgets import measurement_scan_panel as panel_module
+
+    opened = []
+
+    def counted_tables(path, *args, **kwargs):
+        """`mergeable_tables`, counted and slowed.
+
+        :param path: the database to list.
+        :returns: what the real function returns.
+        """
+        opened.append(("tables", str(path)))
+        time.sleep(LATE_S)
+        return real_tables(path, *args, **kwargs)
+
+    def counted_merge(paths, *args, **kwargs):
+        """`describe_merge`, counted and slowed.
+
+        :param paths: the databases to plan over.
+        :returns: what the real function returns.
+        """
+        opened.append(("plan", tuple(paths)))
+        time.sleep(LATE_S)
+        return real_merge(paths, *args, **kwargs)
+
+    monkeypatch.setattr(panel_module, "mergeable_tables", counted_tables)
+    monkeypatch.setattr(panel_module, "describe_merge", counted_merge)
+    return opened
+
+
+def test_the_reads_stop_once_the_databases_have_answered(qtbot, plates,
+                                                         monkeypatch):
+    """The panel settles. It does not read, redraw, and read again forever."""
+    opened = _counted(monkeypatch)
+
+    panel = _panel(qtbot, _rows(plates))
+
+    counts = []
+    deadline = time.monotonic() + 20.0
+    while time.monotonic() < deadline:
+        qtbot.wait(300)
+        counts.append(len(opened))
+        if len(counts) >= 5 and len(set(counts[-5:])) == 1:
+            break
+
+    assert len(set(counts[-5:])) == 1, (
+        f"the panel is still opening its databases after everything it "
+        f"asked for has landed: {counts}")
+
+
+def test_a_refresh_still_asks_the_databases_again(qtbot, plates, monkeypatch):
+    """The other direction of the same rule.
+
+    A click may not re-read, but `refresh` MUST: a measure run rewrites
+    `measurements.db` at a path this panel already knows, which is exactly
+    why `_prepare_merge` refreshes before it merges. A cache that outlived
+    `refresh` would state the previous run's numbers over the new file.
+    """
+    opened = _counted(monkeypatch)
+
+    panel = _panel(qtbot, _rows(plates))
+    qtbot.waitUntil(lambda: bool(panel.selected_tables()), timeout=20000)
+    qtbot.wait(300)
+
+    settled = len(opened)
+    panel.refresh()
+
+    # `waitUntil` rather than a count: `refresh` starts its reads and returns
+    # inside the budget, which is the property the rest of this file pins.
+    # What is pinned HERE is only that it started them at all.
+    qtbot.waitUntil(lambda: len(opened) > settled, timeout=20000)
+
+
+def test_the_rules_preview_is_read_on_a_worker_thread(qtbot, plates,
+                                                      monkeypatch):
+    """The mechanism, not the clock.
+
+    `read_merged` is the one read in this panel that pulls ROWS rather than
+    metadata, and it ran inside the button's own click handler. A stopwatch
+    can be satisfied by a fast disk; the thread it ran on cannot.
+    """
+    from spacr.multi_database import read_merged as real_read
+    from spacr.qt.widgets import measurement_scan_panel as panel_module
+
+    threads = []
+
+    def watched(paths, *args, **kwargs):
+        """`read_merged`, recording the thread it was called on.
+
+        :param paths: the databases to read.
+        :returns: what the real function returns.
+        """
+        threads.append(threading.current_thread())
+        time.sleep(LATE_S)
+        return real_read(paths, *args, **kwargs)
+
+    monkeypatch.setattr(panel_module, "read_merged", watched)
+
+    panel = _panel(qtbot, _rows(plates))
+    _ready(qtbot, panel)
+    panel.show_aggregation_rules()
+
+    qtbot.waitUntil(lambda: bool(threads), timeout=15000)
+    assert threads[0] is not threading.main_thread(), (
+        "`read_merged` was called on the GUI thread -- the rules button is "
+        "the sibling site, and it is still blocking")
+
+    qtbot.waitUntil(lambda: panel._rules_dialog is not None, timeout=15000)
+    qtbot.addWidget(panel._rules_dialog)

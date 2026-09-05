@@ -135,13 +135,15 @@ class ConfirmDeleteDialog(QDialog):
     plan for a project with millions of crops must not carry millions of
     strings. Doing that in ``__init__`` put a full recursive walk of the
     user's project on the GUI thread, at the one moment they are waiting for
-    a window to appear — and on a share that is asleep the first stat of the
-    walk is the twenty seconds measured on 2026-09-04, not the walk. So the
+    a window to appear — and on a share that is asleep it is the walk's FIRST
+    stat that spends twenty seconds waking the mount, not the walk. So the
     dialog opens with the half that needs nothing from the disk (the totals,
     every candidate, every kept item and its reason) and the file list
     arrives behind it. Nothing is dropped: the user still reads every path
     before anything is deleted, which is why the acknowledgement is held
-    disabled until the list is on screen.
+    disabled until the list is on screen — or, when the walk fails, until
+    :meth:`_on_listing_failed` has said so in the list's place. The one
+    thing that never happens is that box being armed over a placeholder.
 
     :param plan: the plan to confirm.
     :param parent: Qt parent.
@@ -157,6 +159,13 @@ class ConfirmDeleteDialog(QDialog):
     READING = ("  Reading the disk — the list of every file this would "
                "delete is being gathered.\n"
                "  Delete stays locked until it is here.")
+
+    #: How long :meth:`_stop_the_file_list` gives the walk to stop before it
+    #: lets go. Short enough that Cancel never reads as a hang, long enough
+    #: that a walk which has already finished is reaped normally rather than
+    #: parked. It is not a deadline for the walk — nothing can interrupt an
+    #: ``os.walk`` — only for how long this thread is willing to watch it.
+    TEARDOWN_GRACE_MS = 100
 
     def __init__(self, plan: "dm.PrunePlan", parent=None, *,
                  threaded: bool = True) -> None:
@@ -219,13 +228,19 @@ class ConfirmDeleteDialog(QDialog):
         self._start_the_file_list(threaded)
 
     def describe(self) -> str:
-        """The text shown in the dialog: the plan, then every file.
+        """The whole text — the plan, then every file — walked right now.
 
-        WALKS THE PROJECT. :meth:`spacr.data_manager.PrunePlan.file_list`
-        runs ``os.walk`` over every candidate each time it is asked, so this
-        must not be called on the GUI thread — the dialog calls it from a
-        worker, see :meth:`_start_the_file_list`. It stays public because
-        the whole text is what a caller wants to read.
+        WALKS THE PROJECT, AND THE DIALOG NO LONGER CALLS IT.
+        :meth:`spacr.data_manager.PrunePlan.file_list` runs ``os.walk`` over
+        every candidate each time it is asked, which is the twenty seconds
+        this exercise removed, so nothing on the GUI thread may call this.
+        The dialog builds the same string in two pieces instead:
+        :meth:`_heading` at once, then :meth:`_with_the_files` on the walk
+        that :meth:`_start_the_file_list` sent to a worker.
+
+        It stays public, and blocking, because the whole text in one call is
+        what a caller outside Qt wants — a test, or a CLI that has a thread
+        to spare. Read :attr:`listing` for what is actually on screen.
         """
         return self._with_the_files(*self.plan.file_list())
 
@@ -319,12 +334,33 @@ class ConfirmDeleteDialog(QDialog):
         self.acknowledged.setEnabled(True)
 
     def _stop_the_file_list(self) -> None:
-        """Retire the walk's thread. Safe to call more than once."""
+        """Retire the walk's thread. Safe to call more than once.
+
+        WITHOUT WAITING FOR THE WALK, and that is the point. The default
+        :meth:`spacr.qt.job_runner.JobRunner.shutdown` budget is three
+        seconds, and spending it here put a fresh freeze on Cancel: pressing
+        it while the walk was out held the GUI thread for the full three
+        seconds before the dialog would close.
+
+        The wait cannot even succeed. :func:`spacr.qt.bridge.drain_thread`
+        stops a thread by asking its EVENT LOOP to quit, and this worker is
+        not in an event loop — it is inside ``os.walk``, which has no
+        interruption point and will not return until the filesystem answers.
+        So the three seconds always elapsed in full and always ended in the
+        same place: `drain_thread` parking the thread, which is what makes
+        letting go of it safe, and which it does just as well at once.
+
+        Parking is safe here for the reason Qt aborts otherwise — the
+        process-wide park list keeps a strong reference, so nothing drops
+        the last reference to a running QThread. Nor is the dialog being
+        destroyed at this point: ``QDialog.done`` hides it and it stays
+        parented to the screen, so there is no destruction deadline to beat.
+        """
         runner = self._runner
         self._runner = None
         if runner is not None:
             try:
-                runner.shutdown()
+                runner.shutdown(self.TEARDOWN_GRACE_MS)
             except RuntimeError:
                 # The runner's C++ half has gone with the dialog. The
                 # threads are still drained by `job_runner.shutdown_all`
@@ -386,6 +422,13 @@ class DataManagerScreen(QWidget):
         self._plan: Optional[dm.PrunePlan] = None
         self._archive_plan: Optional[dm.ArchivePlan] = None
         self._destination = ""
+        #: Folders a file dialog on this screen has handed back. They are
+        #: the one class of path this screen may believe in without a stat
+        #: of its own -- the dialog reached them to return them -- and
+        #: `_dialog_start` needs that because `path_probe.prime` cannot
+        #: record an `isdir` answer. Bounded by how many times a user
+        #: presses the two Choose buttons.
+        self._picked_dirs: set = set()
         self._jobs: List[Any] = []
         self._pending: Any = ({}, None)
         self._busy = False
@@ -615,26 +658,75 @@ class DataManagerScreen(QWidget):
         """The last prune plan, or None."""
         return self._plan
 
+    def _dialog_start(self, remembered: str) -> str:
+        """Where a folder picker should open, without stat-ing to find out.
+
+        The remembered path is only a convenience, and that convenience is
+        not worth a stat on the GUI thread: ``os.path.isdir`` on a path
+        behind a sleeping ``autofs`` mount can take twenty seconds to
+        return, because the stat is what triggers the automount, and handing
+        that path to :class:`QFileDialog` spends the same twenty seconds
+        inside the dialog instead. So the question goes to
+        :mod:`spacr.qt.path_probe`, which answers from cache and never waits.
+
+        THE DEFAULT IS THE WHOLE DESIGN HERE. ``path_probe`` has to be told
+        what to say while a path is still being probed, and the two wrong
+        answers cost very different amounts:
+
+        * A path nobody has vouched for — a root restored from last session,
+          say — defaults to MISSING, so the picker opens at home. Being
+          wrong costs the user one click; being wrong the other way parks
+          the application on a mount that is asleep.
+        * A path a picker has just handed back defaults to PRESENT, because
+          the dialog only returns directories it reached. Nothing is being
+          taken on trust: the file dialog is the stat, and it already ran.
+
+        The second case is not a refinement, it is the bug this method was
+        extracted to fix. :func:`spacr.qt.path_probe.prime` records the plain
+        "does it exist" answer, under the cache key ``(path, False)``, and
+        the question a start directory asks is ``isdir`` — key
+        ``(path, True)``. So priming did not answer the question that gets
+        asked, and the SECOND press of "Choose destination…" reopened at home
+        having forgotten the folder the first press landed on. ``_root`` hid
+        the same fault behind a race, because :meth:`_update_controls` probes
+        it with ``want_dir=True`` anyway and usually wins; ``_destination``
+        is asked about nowhere else, so it never recovered at all.
+
+        :param remembered: the path last used for this picker, if any.
+        :returns: ``remembered`` when it is safe to open there, else the
+            user's home directory.
+        """
+        if not remembered:
+            return os.path.expanduser("~")
+        # `exists(want_dir=True)`, not `isdir()`, only so the default can be
+        # chosen per path; the question and the cache key are identical.
+        if path_probe.exists(remembered, want_dir=True,
+                             default=remembered in self._picked_dirs):
+            return remembered
+        return os.path.expanduser("~")
+
+    def _remember_picked(self, path: str) -> None:
+        """Record a folder a file dialog just returned, so it can be reopened.
+
+        Two records, because they answer two different questions and
+        ``path_probe`` keys them separately: :func:`spacr.qt.path_probe.prime`
+        for "does it exist", which is what every other widget asks, and
+        :attr:`_picked_dirs` for "is it a directory", which is what
+        :meth:`_dialog_start` asks and which ``prime`` cannot express.
+
+        :param path: the folder the dialog returned.
+        """
+        path_probe.prime(path, True)
+        self._picked_dirs.add(str(path))
+
     def choose_project(self) -> None:
         """Ask for a project folder and scan it."""
-        # The remembered root is only where the dialog should open, and that
-        # convenience is not worth a stat on the GUI thread: measured
-        # 2026-09-04, os.path.isdir on a sleeping /nas_mnt autofs path had not
-        # returned after twenty seconds. path_probe.isdir answers False for a
-        # path it has not probed -- the pessimistic direction, and the right
-        # one here, because opening at home costs the user one click and
-        # opening on a mount that is asleep costs the application.
-        start = (self._root if path_probe.isdir(self._root)
-                 else os.path.expanduser("~"))
         chosen = QFileDialog.getExistingDirectory(
-            self, "Choose a spaCR project", start)
+            self, "Choose a spaCR project", self._dialog_start(self._root))
         if chosen:
             # The dialog has just proved this folder is there, so record it
-            # rather than have the cache learn it again. `prime` answers the
-            # plain "does it exist" question only; the `want_dir` one this
-            # screen asks is still probed in the background, which is why
-            # `_update_controls` answers optimistically until it lands.
-            path_probe.prime(chosen, True)
+            # rather than have the cache learn it again.
+            self._remember_picked(chosen)
             self.set_project(chosen)
 
     def set_project(self, root: str) -> None:
@@ -649,16 +741,14 @@ class DataManagerScreen(QWidget):
 
     def choose_destination(self) -> None:
         """Ask where an archive should go."""
-        # Same reasoning as choose_project: the last destination is a hint
-        # about where to open, never a reason to wait on a filesystem.
-        start = (self._destination if path_probe.isdir(self._destination)
-                 else os.path.expanduser("~"))
+        # Same reasoning as choose_project, and the same two calls: the last
+        # destination is a hint about where to open, never a reason to wait
+        # on a filesystem.
         chosen = QFileDialog.getExistingDirectory(
-            self, "Archive this project into", start)
+            self, "Archive this project into",
+            self._dialog_start(self._destination))
         if chosen:
-            # Same as choose_project: the plain-exists answer, from the
-            # dialog rather than from another stat.
-            path_probe.prime(chosen, True)
+            self._remember_picked(chosen)
             self.set_destination(chosen)
 
     def set_destination(self, path: str) -> None:
@@ -820,13 +910,36 @@ class DataManagerScreen(QWidget):
         slot swallows the RuntimeError raised when the Python wrapper is
         still here and the C++ widget is not. `closeEvent` disconnects it;
         the guard covers the window before that.
+
+        IT IS ALSO PROCESS-WIDE IN THE OTHER SENSE: the signal fires for
+        every path anything in spaCR probes, and `file_list.py` alone probes
+        every remembered path in the application at start-up. The only path
+        `_update_controls` reads through `path_probe` is `self._root`, so an
+        answer about anything else is re-running the enable pass to reach the
+        identical conclusion. Answering only for this screen's own root is
+        not a dropped refresh -- there is nothing in it to drop.
         """
-        def redraw(_path: str, _answer: bool) -> None:
-            """Re-run the enable pass now that a path's state is known."""
+        def redraw(path: str, _answer: bool) -> None:
+            """Re-run the enable pass now that this root's state is known.
+
+            :param path: the path whose probe just answered.
+            :param _answer: what it answered; unused, because
+                `_update_controls` reads it back from the cache along with
+                everything else it depends on.
+            """
+            # `getattr`, not `self._root`, and for the reason spelled out in
+            # `spacr.qt.dnd._DropzoneFilter.eventFilter`: PySide6 CLEARS the
+            # Python wrapper's __dict__ when the C++ widget goes, so a plain
+            # attribute read on a dead screen raises AttributeError rather
+            # than the RuntimeError this guard is named for -- and it raises
+            # it inside the Qt event loop, where no caller can catch it.
             try:
+                if getattr(self, "_root", None) != path:
+                    return
                 self._update_controls()
             except RuntimeError:
-                # The screen has gone; the signal outlived it.
+                # The screen has gone; the signal outlived it. The enable
+                # pass touches widgets, so this is where that lands.
                 pass
 
         # Held on the instance because the connection alone does not keep a

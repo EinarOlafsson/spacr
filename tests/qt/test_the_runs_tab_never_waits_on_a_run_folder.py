@@ -303,3 +303,264 @@ def test_the_delete_itself_leaves_the_gui_thread(panel, monkeypatch, asleep,
     qtbot.wait(50)
     assert time.monotonic() - started < FAST_S, (
         "the event loop was blocked by the removal")
+
+
+# ---------------------------------------------------------------------------
+# the sentences the wait leaves behind
+#
+# Moving the work off the GUI thread means the click can no longer say what
+# happened -- so a placeholder goes up in its place and something else has to
+# take it down. `JobRunner._on_settled` calls `on_done` ONLY for a job that
+# came back cleanly, and a modal the user declines produces no job at all, so
+# "the answer will clear it" is not true of every path. Each test below is one
+# path where nothing was clearing it and the tab's last words were a
+# placeholder for the rest of the session.
+# ---------------------------------------------------------------------------
+
+def test_saying_no_to_the_delete_puts_the_status_line_back(panel, qtbot,
+                                                           tmp_path):
+    """Declining the confirmation used to leave the interface as it was.
+
+    It still must. The walk that composes the confirmation now happens behind
+    "Working out what these runs hold…", and a No means no worker is running,
+    no arrival handler is coming and no `job_failed` will ever fire -- so
+    unless the decline takes its own placeholder down, that sentence is the
+    last thing this tab ever says.
+    """
+    panel._say("Nothing run yet.")
+    records = [{"run": "ols_1", "status": "ok", "folder": _a_run(tmp_path)}]
+    declined = []
+
+    panel.delete_runs_from_disk(
+        records,
+        confirm=lambda message, _folders: (declined.append(message), False)[1])
+
+    qtbot.waitUntil(lambda: bool(declined), timeout=5000)
+    assert "Working out what these runs hold" not in panel._status.text(), (
+        "the placeholder outlived the question it was standing in for")
+    assert panel._source_note == "Nothing run yet.", (
+        "declining the delete lost the sentence the line was already showing")
+
+
+def test_a_finished_delete_is_an_answer_and_not_a_placeholder(panel, qtbot,
+                                                              tmp_path):
+    """"Deleted 1 run folder from disk." is the answer, not a stand-in.
+
+    The delete writes two placeholders in a row and its arrival handler has to
+    retire the second, or the next thing that writes to this line reads the
+    finished sentence as one still waiting to be replaced.
+    """
+    records = [{"run": "ols_1", "status": "ok", "folder": _a_run(tmp_path)}]
+
+    panel.delete_runs_from_disk(records,
+                                confirm=lambda _message, _folders: True)
+    qtbot.waitUntil(lambda: panel._source_note.startswith("Deleted"),
+                    timeout=5000)
+
+    # A LATER, UNRELATED FAILURE MUST NOT TOUCH IT. `job_failed` carries no
+    # job id, so the only thing telling it whether this line is fair game is
+    # whether a placeholder is outstanding -- and none is.
+    panel._on_job_failed("some other job fell over")
+    assert panel._source_note.startswith("Deleted"), (
+        "a finished delete was overwritten by an unrelated job's failure")
+
+
+def test_a_save_that_fails_takes_its_own_placeholder_down(panel, qtbot,
+                                                          monkeypatch,
+                                                          tmp_path):
+    """The bundle write goes to a worker, and a worker can raise.
+
+    `on_done` never runs for a job that threw, so "Saving the state of 1 run…"
+    has to be a placeholder the failure handler can recognise -- written with
+    `_start_waiting`, not with `_say`.
+    """
+    from spacr.qt.widgets import sweep_runs
+
+    def the_share_went_away(_folders):
+        raise OSError("the share went away")
+
+    monkeypatch.setattr(sweep_runs, "save_run_states", the_share_went_away)
+    records = [{"run": "ols_1", "status": "ok", "folder": _a_run(tmp_path)}]
+
+    assert panel._apply_run_menu("save_state", records) is True
+    assert "Saving the state" in panel._status.text(), (
+        "the menu entry said nothing about what it had started")
+
+    qtbot.waitUntil(
+        lambda: "Saving the state" not in panel._source_note, timeout=5000)
+    assert panel._source_note.startswith("That did not finish"), (
+        "the save's placeholder was left standing when the worker raised")
+
+
+def test_a_workspace_probe_answered_after_the_run_finished_is_dropped(
+        panel, qtbot, monkeypatch, asleep, tmp_path):
+    """A bundle appears when the run CLOSES, which is after the right-click.
+
+    Right-clicking a run that is still going submits a `has_workspace` on a
+    folder that has no bundle in it yet. `update_run` drops the cached answer
+    when the run finishes for exactly that reason -- but the probe itself is
+    still out on a slow mount, and if it is allowed to land it writes the same
+    "no" straight back and greys the restore entry for the rest of the
+    session.
+    """
+    from spacr import workspace
+
+    folder = _a_run(tmp_path)
+    monkeypatch.setattr(workspace, "has_workspace", _parked(asleep, False))
+    handle = panel.record_run("ols_1", folder=folder)
+
+    # The right-click while it was still going: optimistic now, probe out.
+    assert panel._workspace_answer(folder) is True
+
+    panel.update_run(handle, status="ok")
+    asleep.set()
+    qtbot.waitUntil(lambda: panel._jobs.pending_jobs() == 0, timeout=8000)
+
+    assert folder not in panel._workspace_answers, (
+        "a probe describing the run as it was before it finished was filed "
+        "as the answer")
+
+    records = [{"run": "ols_1", "status": "ok", "folder": folder}]
+    entries = {action.data(): action
+               for action in panel._build_run_menu(records).actions()
+               if action.data()}
+    assert entries["restore"].isEnabled(), (
+        "the restore entry was greyed by a stale answer about a run that had "
+        "not finished yet")
+
+
+def test_the_second_placeholder_of_a_delete_remembers_the_first_sentence(
+        panel, monkeypatch, asleep, qtbot, tmp_path):
+    """A delete writes two placeholders, and only the first has a sentence.
+
+    "Working out what these runs hold…" then "Deleting…" -- and by the time
+    the second is written the status line is already showing the first, so
+    capturing what it replaced a second time records a placeholder as the
+    thing to go back to. The next decline then restores THAT, and the tab
+    settles on a sentence about work that finished long ago.
+    """
+    monkeypatch.setattr(shutil, "rmtree", _parked(asleep, None))
+    panel._say("Nothing run yet.")
+
+    first = [{"run": "ols_1", "status": "ok", "folder": _a_run(tmp_path)}]
+    panel.delete_runs_from_disk(first,
+                                confirm=lambda _message, _folders: True)
+    qtbot.waitUntil(lambda: panel._source_note == "Deleting…", timeout=5000)
+
+    # A SECOND DELETE, DECLINED, while the first is still unlinking files.
+    second = [{"run": "ols_2", "status": "ok",
+               "folder": _a_run(tmp_path, "ols_2")}]
+    declined = []
+    panel.delete_runs_from_disk(
+        second,
+        confirm=lambda message, _folders: (declined.append(message), False)[1])
+    qtbot.waitUntil(lambda: bool(declined), timeout=5000)
+
+    assert panel._source_note == "Nothing run yet.", (
+        "declining put back a placeholder instead of the sentence the line "
+        f"actually had, and settled on {panel._source_note!r}")
+
+
+def test_a_delete_whose_handler_throws_takes_its_placeholder_down(
+        panel, qtbot, monkeypatch, tmp_path):
+    """The arrival handler is code, and code raises.
+
+    `JobRunner._on_settled` routes an exception from `on_done` to
+    `job_failed` -- the same door a worker's own failure comes through -- so
+    a handler that retires its placeholder BEFORE writing the sentence that
+    replaces it hands `_on_job_failed` a line it can no longer see is
+    outstanding. "Deleting…" then stands for the rest of the session, which
+    is the one thing the placeholder was introduced to prevent.
+    """
+    def the_table_fell_over(self, *_args, **_kwargs):
+        raise RuntimeError("the table fell over")
+
+    monkeypatch.setattr(SweepRunsPanel, "remove_runs", the_table_fell_over)
+    records = [{"run": "ols_1", "status": "ok", "folder": _a_run(tmp_path)}]
+
+    panel.delete_runs_from_disk(records,
+                                confirm=lambda _message, _folders: True)
+    qtbot.waitUntil(lambda: panel._jobs.pending_jobs() == 0, timeout=8000)
+    qtbot.waitUntil(
+        lambda: panel._status.text().startswith("That did not finish"),
+        timeout=5000)
+    assert "Deleting" not in panel._status.text(), (
+        "the delete's placeholder was left on the line by a handler that "
+        "cleared it and then threw")
+
+
+def test_a_save_whose_rebuild_throws_takes_its_placeholder_down(
+        panel, qtbot, monkeypatch, tmp_path):
+    """`_on_states_saved` rebuilds the table, and that is the throw.
+
+    It is the one `_apply_run_menu` names as the reason the save's sentence
+    has to be a placeholder at all, so it is the one the placeholder must
+    actually survive.
+    """
+    def the_table_fell_over(self, *_args, **_kwargs):
+        raise RuntimeError("the table fell over")
+
+    monkeypatch.setattr(SweepRunsPanel, "_rebuild", the_table_fell_over)
+    records = [{"run": "ols_1", "status": "ok", "folder": _a_run(tmp_path)}]
+
+    assert panel._apply_run_menu("save_state", records) is True
+    qtbot.waitUntil(lambda: panel._jobs.pending_jobs() == 0, timeout=8000)
+    qtbot.waitUntil(
+        lambda: panel._status.text().startswith("That did not finish"),
+        timeout=5000)
+    assert "Saving the state" not in panel._status.text(), (
+        "the save's placeholder was left on the line by a handler that "
+        "cleared it and then threw")
+
+
+def test_the_older_workspace_probe_does_not_outrank_the_newer_one(
+        panel, qtbot, monkeypatch, tmp_path):
+    """Two probes for one folder, and the STALE one answers first.
+
+    `update_run` drops the folder so the reply describing the run before it
+    finished cannot be filed -- but the next right-click starts a second
+    probe, and a guard that only asks "is this folder pending" sees the
+    folder pending again and accepts the older answer, discarding the newer
+    probe along with it. The restore entry is then greyed by a fact that
+    stopped being true before the second question was even asked.
+    """
+    import threading
+
+    from spacr import workspace
+
+    folder = _a_run(tmp_path)
+    handle = panel.record_run("ols_1", folder=folder)
+    gates = [threading.Event(), threading.Event()]
+    asked = []
+
+    def probe(_target):
+        turn = len(asked)
+        asked.append(turn)
+        gates[min(turn, 1)].wait(SLOW_S)
+        # The run wrote its bundle between the two questions.
+        return turn != 0
+
+    monkeypatch.setattr(workspace, "has_workspace", probe)
+
+    assert panel._workspace_answer(folder) is True       # the first probe
+    qtbot.waitUntil(lambda: len(asked) == 1, timeout=5000)
+    panel.update_run(handle, status="ok")                # the bundle appears
+    assert panel._workspace_answer(folder) is True       # the second probe
+    qtbot.waitUntil(lambda: len(asked) == 2, timeout=5000)
+
+    gates[0].set()                                       # the stale one lands
+    qtbot.wait(200)
+    assert folder not in panel._workspace_answers, (
+        "the reply from before the run finished was filed as the answer")
+
+    gates[1].set()
+    qtbot.waitUntil(lambda: panel._workspace_answers.get(folder) is True,
+                    timeout=8000)
+
+    records = [{"run": "ols_1", "status": "ok", "folder": folder}]
+    entries = {action.data(): action
+               for action in panel._build_run_menu(records).actions()
+               if action.data()}
+    assert entries["restore"].isEnabled(), (
+        "the restore entry was greyed by an answer the newer probe had "
+        "already corrected")

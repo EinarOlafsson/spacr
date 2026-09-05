@@ -46,10 +46,28 @@ ASLEEP = "/nas_mnt/data/annotate/plate_1"
 
 @pytest.fixture(autouse=True)
 def _fresh_probe_cache():
-    """Each test asks its questions for the first time, as a cold start does."""
-    path_probe.forget()
+    """Each test asks its questions for the first time, as a cold start does.
+
+    BOTH caches, because the screen keeps two and they answer two different
+    questions: `path_probe`'s shared one, for whether a folder is worth
+    naming in a subtitle, and the module's own, for whether a real stat came
+    back and it is therefore safe to open a file dialog in. See the module
+    comment beside `spacr.qt.screens.annotate._vouched_dir`.
+    """
+    from spacr.qt.screens import annotate as annotate_mod
+
+    def clear():
+        path_probe.forget()
+        with annotate_mod._VOUCH_LOCK:
+            annotate_mod._VOUCHED.clear()
+            # `_VOUCHING` is NOT cleared: a check thread parked on one of
+            # this file's deliberately-sleeping paths is still running and
+            # still owns its entry, and dropping it would let the next test
+            # start a second thread on the same path.
+
+    clear()
     yield
-    path_probe.forget()
+    clear()
 
 
 @pytest.fixture
@@ -460,8 +478,7 @@ def test_a_probe_answer_the_stat_never_gave_is_not_good_enough_to_open_in(
     from spacr.qt import prefs
 
     # Short, so the probe gives up inside the test rather than in five
-    # seconds' time. Read at call time by `_stat_with_timeout`, by
-    # `_on_probe_answered` and by `_vouched_dir`, so one patch moves all three.
+    # seconds' time. Read at call time by `_stat_with_timeout`.
     monkeypatch.setattr(path_probe, "PROBE_TIMEOUT_S", 0.2)
 
     asleep = tmp_path / "asleep"
@@ -492,8 +509,10 @@ def test_a_probe_answer_the_stat_never_gave_is_not_good_enough_to_open_in(
     # right, and is not what this test is about.
     screen._on_pick_source()
 
-    # Let the probe give up and cache its optimistic "present", and let the
-    # answer be delivered.
+    # SOMEBODY ELSE fills the shared cache with the invented answer, which is
+    # what `ChainingBar.search_roots` does to this very path. Let the probe
+    # give up, cache its optimistic "present", and be delivered.
+    path_probe.isdir(str(asleep))
     qtbot.waitUntil(
         lambda: path_probe.known(str(asleep), want_dir=True) is True,
         timeout=5000)
@@ -591,3 +610,226 @@ def test_a_folder_another_screen_probed_first_is_still_offered(
     qtbot.waitUntil(
         lambda: "Suggested (last used)" in screen._src_label.text(),
         timeout=5000)
+
+
+# ---------------------------------------------------------------------------
+# The second pass: whose clock was the answer timed against?
+#
+# The first fix asked `path_probe` and then TIMED the `probes.answered`
+# emission, on the theory that an answer that arrived inside `PROBE_TIMEOUT_S`
+# of the question is one a real stat returned. The theory is sound and the
+# implementation could not hold it up, because the question is not this
+# screen's to time: `path_probe`'s cache is keyed on the path alone, and
+# `path_probe.exists` does not re-queue a key that is already in flight. So
+# when another widget had asked about the same folder a moment earlier -- and
+# `spacr.qt.chaining.ChainingBar.search_roots` asks about
+# `prefs.get_last_source("annotate")`, which IS this screen's remembered
+# source -- the emission this screen timed belonged to that probe, started at
+# a moment this module never saw. A stat that never returned was then clocked
+# at whatever was left of somebody else's five seconds and vouched for, and
+# the picker opened in it.
+#
+# The check is made outright now, off the GUI thread, and only what a stat
+# actually returned is kept.
+# ---------------------------------------------------------------------------
+
+def test_another_screens_probe_in_flight_does_not_vouch_for_the_folder(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    """The regression: an answer this screen did not ask for, timed as if.
+
+    `ChainingBar` asks about the remembered source first, which is the
+    ordinary order -- the strip is on the home screen and Annotate is opened
+    from it. While that probe is still parked on the sleeping mount, Annotate
+    asks the same question, gets nothing (the key is in flight, so no second
+    stat is queued), and records the moment it asked. The probe then gives up
+    and emits its INVENTED "present", well inside `PROBE_TIMEOUT_S` of
+    Annotate's question though not of its own, and the folder is vouched for.
+
+    Nothing here has ever had a stat come back. The picker must still refuse.
+    """
+    from PySide6.QtWidgets import QFileDialog
+
+    # Long enough that Annotate's question lands comfortably inside the
+    # window, short enough that the probe gives up during the test.
+    monkeypatch.setattr(path_probe, "PROBE_TIMEOUT_S", 1.0)
+
+    asleep = tmp_path / "never-answers"
+    asleep.mkdir()                      # it IS there; it just cannot say so
+    real_isdir = os.path.isdir
+
+    def isdir(path, *args, **kwargs):
+        if str(path) == str(asleep):
+            time.sleep(SLOW_S)          # outlives the whole test
+            return True
+        return real_isdir(path, *args, **kwargs)
+
+    monkeypatch.setattr(os.path, "isdir", isdir)
+
+    screen = _screen(qtbot)
+
+    # 1. Somebody else asks. The probe is now IN FLIGHT and will not answer.
+    path_probe.isdir(str(asleep))
+
+    # 2. A moment later -- well inside the probe's own timeout -- this screen
+    #    becomes interested in the same folder.
+    qtbot.wait(200)
+    screen._settings.src = str(asleep)
+    assert screen._starting_folder() == os.getcwd(), (
+        "nothing is known about the folder yet, so the picker starts local")
+
+    # 3. The probe gives up and caches the answer it invented.
+    qtbot.waitUntil(
+        lambda: path_probe.known(str(asleep), want_dir=True) is True,
+        timeout=5000)
+    qtbot.wait(100)                     # let the queued emission be delivered
+
+    seen = []
+
+    def fake_dialog(_parent, _caption, directory, *args, **kwargs):
+        seen.append(directory)
+        return ""
+
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", fake_dialog)
+    started = time.monotonic()
+    screen._on_pick_source()
+    elapsed = time.monotonic() - started
+
+    assert elapsed < 1.0, f"opening the source picker took {elapsed:.1f}s"
+    assert seen == [os.getcwd()], (
+        f"the picker was pointed at {seen!r}. No stat for that folder has "
+        "ever come back -- the answer belonged to another widget's probe, "
+        "and timing it against the moment THIS screen got interested reads "
+        "an invented 'present' as a real one")
+
+
+def test_asking_never_stats_on_the_thread_that_asks(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    """Warming the answer is queued work, not done work.
+
+    Every warm-up site -- the settings dialog opening, its source field
+    losing focus, a source being opened, the screen being built -- calls this
+    with a path the user supplied, and every one of them is on the GUI
+    thread.
+    """
+    from spacr.qt.screens import annotate as annotate_mod
+
+    asleep = tmp_path / "warm-up"
+    asleep.mkdir()
+    real_isdir = os.path.isdir
+
+    def isdir(path, *args, **kwargs):
+        if str(path) == str(asleep):
+            time.sleep(SLOW_S)
+            return True
+        return real_isdir(path, *args, **kwargs)
+
+    monkeypatch.setattr(os.path, "isdir", isdir)
+
+    started = time.monotonic()
+    annotate_mod._ask_about_the_folder(str(asleep))
+    annotate_mod._vouch_later(str(asleep))
+    assert annotate_mod._vouched_dir(str(asleep)) is False
+    elapsed = time.monotonic() - started
+
+    assert elapsed < 1.0, (
+        f"asking about a folder took {elapsed:.1f}s on the calling thread -- "
+        "the whole point is that the stat happens somewhere else")
+
+
+def test_a_folder_that_could_not_answer_once_is_offered_again_when_it_can(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    """A slow mount costs the head start for a while, not for the session.
+
+    The first pass recorded one verdict per path and never revisited it, so a
+    folder whose stat had not come back the first time it was asked about was
+    refused for the life of the process -- even once the mount was awake and
+    every stat on it was instant. A stale answer is re-asked instead.
+    """
+    from spacr.qt.screens import annotate as annotate_mod
+
+    folder = tmp_path / "wakes-up"
+    folder.mkdir()
+    real_isdir = os.path.isdir
+    asleep = [True]
+
+    def isdir(path, *args, **kwargs):
+        if str(path) == str(folder) and asleep[0]:
+            time.sleep(SLOW_S)
+            return True
+        return real_isdir(path, *args, **kwargs)
+
+    monkeypatch.setattr(os.path, "isdir", isdir)
+
+    screen = _screen(qtbot)
+    screen._settings.src = str(folder)
+
+    # Asleep: nothing comes back, so nothing is offered.
+    assert screen._starting_folder() == os.getcwd()
+    qtbot.wait(100)
+    assert screen._starting_folder() == os.getcwd()
+
+    # The mount wakes. The stat parked above is still parked, and its entry
+    # in `_VOUCHING` with it, so let go of it the way a finished check would.
+    asleep[0] = False
+    with annotate_mod._VOUCH_LOCK:
+        annotate_mod._VOUCHING.discard(str(folder))
+
+    qtbot.waitUntil(lambda: screen._starting_folder() == str(folder),
+                    timeout=5000)
+
+
+def test_an_answer_older_than_the_ttl_is_not_acted_on(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    """An answer proves the mount was awake then, not that it is awake now.
+
+    An `autofs` share idles back out (the maintainer's at `timeout=600`), and
+    a picker started in a folder that has since dozed off is the original
+    freeze. So the answer expires, and expiring means "ask again", not "say
+    no forever": the re-ask is what puts the head start back.
+    """
+    from spacr.qt.screens import annotate as annotate_mod
+
+    folder = tmp_path / "aged"
+    folder.mkdir()
+
+    annotate_mod._vouch_later(str(folder))
+    qtbot.waitUntil(lambda: annotate_mod._vouched_dir(str(folder)),
+                    timeout=5000)
+
+    # Age the answer past the bound without waiting two minutes for it.
+    with annotate_mod._VOUCH_LOCK:
+        when, answer = annotate_mod._VOUCHED[str(folder)]
+        annotate_mod._VOUCHED[str(folder)] = (
+            when - annotate_mod.VOUCH_TTL_S - 1.0, answer)
+
+    assert annotate_mod._vouched_dir(str(folder)) is False, (
+        "an answer older than VOUCH_TTL_S was acted on")
+    # ...and reading it queued the re-ask that brings it back.
+    qtbot.waitUntil(lambda: annotate_mod._vouched_dir(str(folder)),
+                    timeout=5000)
+
+
+def test_asking_does_not_disturb_what_another_widget_had_cached(
+        qtbot, qt_theme_applied, tmp_path):
+    """This screen's question must not cost anybody else their answer.
+
+    The first pass called `path_probe.forget` to re-ask under its own clock,
+    and `forget` drops BOTH of a path's cached answers -- the `isdir` one it
+    meant and the `exists` one `spacr.qt.widgets.file_list` reads to colour a
+    remembered path. Every Annotate screen built therefore sent some other
+    widget's settled question back to the stat queue.
+    """
+    from spacr.qt.screens import annotate as annotate_mod
+
+    plate = tmp_path / "shared"
+    plate.mkdir()
+
+    # `file_list` asks its question and gets a settled answer.
+    path_probe.exists(str(plate))
+    qtbot.waitUntil(lambda: path_probe.known(str(plate)) is True, timeout=5000)
+
+    annotate_mod._ask_about_the_folder(str(plate))
+
+    assert path_probe.known(str(plate)) is True, (
+        "asking about the folder threw away the `exists` answer another "
+        "widget was relying on")

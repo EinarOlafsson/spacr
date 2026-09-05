@@ -1465,7 +1465,7 @@ class DatabaseMergePanel(QWidget):
     # between a panel that is a moment late and an application that is gone.
 
     @contextmanager
-    def _read_budget(self, *, fresh: bool = True,
+    def _read_budget(self, *, fresh: bool = False,
                      budget: float = READ_BUDGET_S):
         """Give this paint, and every read under it, ONE bounded wait.
 
@@ -1475,15 +1475,18 @@ class DatabaseMergePanel(QWidget):
         times over, which is the freeze again in instalments.
 
         :param fresh: whether this asks the databases AGAIN rather than
-            drawing what has already been asked for. ``True`` for `refresh`
-            alone, and that is the whole guard against re-reading on every
-            click: `describe` is what a checkbox, an anchor change and a
-            tooltip repaint all end in, and a fresh generation there would
-            open every attached database once per keystroke -- hundreds of
-            answers to a question whose answer had not changed. What HAS
-            changed is already in the key: the anchor, the paths and the
-            screens are all part of it, so a genuinely different question is
-            a different read whatever the generation says.
+            drawing what has already been asked for. IT DEFAULTS TO FALSE,
+            and `refresh` is the one caller that passes ``True`` -- that is
+            the whole guard against re-reading on every click. `describe` is
+            what a checkbox, an anchor change and a tooltip repaint all end
+            in, and `_repaint` is what runs once per read that lands, so a
+            fresh generation on either would open every attached database
+            again per keystroke and per landing -- and, because each landing
+            repaint would start reads that land and repaint in their turn,
+            it would never stop. What HAS changed is already in the key: the
+            anchor, the paths and the screens are all part of it, so a
+            genuinely different question is a different read whatever the
+            generation says.
         :param budget: how long the GUI thread may wait. ``0`` for a redraw
             that is CORRECTING an earlier paint: everything such a redraw can
             draw is already filed, so waiting again would only add a stall
@@ -1623,10 +1626,16 @@ class DatabaseMergePanel(QWidget):
         generation and refusing to go backwards is what stops that read, when
         it finally lands, from painting the previous run's numbers over the
         current ones.
+
+        `_reads` is keyed by generation and so cannot be overwritten this
+        way; only `_shown`, which is keyed by the question alone, needs the
+        comparison.
         """
         with self._read_lock:
             self._reads[key] = value
-            self._shown[key[1]] = (key[0], value)
+            seen = self._shown.get(key[1])
+            if seen is None or seen[0] <= key[0]:
+                self._shown[key[1]] = (key[0], value)
 
     def _on_read_landed(self) -> None:
         """Redraw what was drawn provisionally, now the answer is in.
@@ -2646,22 +2655,37 @@ class DatabaseMergePanel(QWidget):
                     "show until a database is attached and a table chosen.")
                 return
             screens = self.screens()
+            table = str(tables[0])
             # A preview, not the merge: enough rows to know each column's
             # type, which is all the rules need.
-            question = ("rules preview", paths, str(tables[0]),
-                        _screen_key(screens))
-            try:
+            question = ("rules preview", paths, table, _screen_key(screens))
+
+            def preview():
+                """Read the preview. WORKER THREAD; touches no widget.
+
+                :returns: what :func:`~spacr.multi_database.read_merged`
+                    returns for the chosen table.
+                """
+                return read_merged(paths, table, screens=screens,
+                                   limit_per_source=PREVIEW_ROWS)
+
+            # The budget is the panel's usual one and NOT a fresh generation:
+            # a click is not a reason to re-open every database, and a local
+            # disk answers inside it, so the dialog still opens on the click
+            # exactly as it always did.
+            with self._read_budget():
                 key = (self._read_generation, question)
-                frame = read_merged(paths, tables[0], screens=screens,
-                                    limit_per_source=PREVIEW_ROWS)
-            except Exception as error:  # noqa: BLE001
-                # The read failed rather than being slow. Put the button back
-                # BEFORE the message box: a modal opened over a button still
-                # saying "reading" leaves it saying that for good.
-                self._wait_for_rules(None)
-                QMessageBox.information(self, "Could not read the tables",
-                                        str(error))
-                return
+                try:
+                    frame = self._read_off_thread(question, preview)
+                except Exception as error:  # noqa: BLE001
+                    # The read failed rather than being slow. Put the button
+                    # back BEFORE the message box: a modal opened over a
+                    # button still saying "reading" leaves it saying that for
+                    # good.
+                    self._wait_for_rules(None)
+                    QMessageBox.information(self, "Could not read the tables",
+                                            str(error))
+                    return
             if frame is READING:
                 self._wait_for_rules(key)
                 return

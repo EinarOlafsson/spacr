@@ -38,7 +38,9 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QMimeData, QPoint, QPointF, QUrl, Qt
+from PySide6.QtCore import (
+    QEventLoop, QMimeData, QPoint, QPointF, QTimer, QUrl, Qt,
+)
 from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
 from PySide6.QtWidgets import QApplication, QWidget
 
@@ -586,3 +588,172 @@ def test_a_classification_that_never_reports_back_is_not_swallowed(
     other.mkdir()
     _drop(screen, [other])
     qtbot.waitUntil(lambda: handler.applied == [other], timeout=10000)
+
+
+# ---------------------------------------------------------------------------
+# The other door into the same wrong-source bug: a nested event loop
+# ---------------------------------------------------------------------------
+#
+# The queue above holds a later drop until every earlier one has been
+# delivered. What it did not watch is that a DELIVERY OPENS MODAL DIALOGS --
+# `QMessageBox.information` for a rejected drop, `suggest_alternatives_dialog`
+# for a near-miss, `QMessageBox.warning` for a settings CSV that would not
+# load -- and every one of those runs a NESTED Qt event loop. Qt goes on
+# dispatching queued signals inside it, including the `_on_settled` of a later
+# drop's scan, so `_answer_drop` re-entered `_drain` and delivered the later
+# drop in the MIDDLE of the earlier one. The newer folder was applied first
+# and the older one's `handler.apply` overwrote it on the way out: the wrong
+# source wins, which is the exact outcome the queue exists to prevent.
+
+
+@pytest.fixture
+def scan_in_flight(monkeypatch):
+    """Report a scan as still out, which is what a real second drop meets.
+
+    `_queue_drop` calls `_forget_abandoned` first, and that writes off every
+    unanswered slot the moment NOTHING is in flight -- correctly, because
+    with no scan running no answer can still be coming. A slot-level test
+    hand-builds its queue and so has no scanner at all, and without this the
+    earlier slot is written off before the later one is even added: the
+    ordering under test would never apply, and the test would pass on the
+    unfixed code for the wrong reason.
+    """
+    monkeypatch.setattr(dnd_mod, "_scan_in_flight", lambda screen: True)
+
+
+def test_a_nested_delivery_does_not_let_a_later_drop_overtake_an_earlier_one(
+        qtbot, scan_in_flight):
+    """A delivery that spins the event loop keeps its place at the head.
+
+    The slot-level statement of it, with no threads and no timing: the first
+    drop's delivery answers the second drop's slot from inside itself, which
+    is what a modal dialog's nested loop does. The second delivery must wait
+    for the first to RETURN, not merely to start.
+    """
+    screen = QWidget()
+    qtbot.addWidget(screen)
+    order = []
+    later = {}
+
+    def deliver_first(report):
+        order.append("first-in")
+        # The modal dialog: the later drop's scan lands inside it.
+        dnd_mod._answer_drop(screen, later["slot"], ["second"])
+        order.append("first-out")
+
+    first = dnd_mod._queue_drop(screen, deliver_first)
+    later["slot"] = dnd_mod._queue_drop(
+        screen, lambda report: order.append("second"))
+    assert first is not None and later["slot"] is not None
+
+    dnd_mod._answer_drop(screen, first, ["first"])
+
+    assert order == ["first-in", "first-out", "second"], (
+        "the later drop was delivered inside the earlier one's delivery -- "
+        "the earlier drop's apply now runs last and overwrites it")
+    assert dnd_mod._draining == [], "the drain guard was not released"
+
+
+def test_a_delivery_that_raises_still_releases_the_queue(qtbot,
+                                                         scan_in_flight):
+    """The guard is released even when a delivery blows up inside it.
+
+    `_run_delivery` swallows what a delivery raises so one bad drop costs
+    only itself; the re-entrancy guard has to be given back on that path too,
+    or the screen's queue is wedged for the life of the window.
+    """
+    screen = QWidget()
+    qtbot.addWidget(screen)
+    order = []
+    later = {}
+
+    def deliver_first(report):
+        order.append("first")
+        dnd_mod._answer_drop(screen, later["slot"], ["second"])
+        raise RuntimeError("the dialog blew up")
+
+    first = dnd_mod._queue_drop(screen, deliver_first)
+    later["slot"] = dnd_mod._queue_drop(
+        screen, lambda report: order.append("second"))
+
+    dnd_mod._answer_drop(screen, first, ["first"])
+
+    assert order == ["first", "second"]
+    assert dnd_mod._draining == []
+    assert dnd_mod._pending_drops.get(screen) == []
+
+
+class _ModalOnApply(DropHandler):
+    """Applies the first drop inside a nested event loop, as a dialog does.
+
+    ``can_accept`` hangs for every path but the first, so the first drop is
+    delivered while the second is still being classified -- and the second's
+    scan then finishes DURING the first's apply, which is the ordering the
+    real bug needed.
+    """
+
+    def __init__(self, first_name: str) -> None:
+        self.gate = _Gate()
+        self._first = first_name
+        self.scanned: list = []
+        self.events: list = []
+
+    def can_accept(self, path):
+        if path.name != self._first:
+            self.gate.wait()
+        self.scanned.append(path.name)
+        return True
+
+    def error_message(self, path):
+        return f"cannot use {path.name}"
+
+    def apply(self, path, screen):
+        self.events.append(("in", path.name))
+        if path.name == self._first:
+            # Let the later scan go, then spin the loop the way an open
+            # QMessageBox does -- and keep spinning well past the moment it
+            # finishes, so its queued `_on_settled` is certainly dispatched
+            # in HERE rather than after we return.
+            self.gate.open()
+            loop = QEventLoop()
+            deadline = time.monotonic() + SLOW_S
+            turns = {"after": 0}
+
+            def tick():
+                if len(self.scanned) == 2:
+                    turns["after"] += 1
+                if turns["after"] > 10 or time.monotonic() > deadline:
+                    loop.quit()
+
+            timer = QTimer()
+            timer.timeout.connect(tick)
+            timer.start(10)
+            loop.exec()
+            timer.stop()
+        self.events.append(("out", path.name))
+
+
+def test_a_scan_landing_inside_a_modal_dialog_waits_its_turn(
+        dropzone, tmp_path, qtbot, msgbox):
+    """End to end, through the real scanner and the real drop events.
+
+    The first drop's apply holds the GUI thread in a nested event loop while
+    the second drop's scan finishes and posts its result. The second drop
+    must still be applied AFTER the first has finished, because in the real
+    application the tail of that first apply is what sets the source.
+    """
+    handler = _ModalOnApply("first")
+    screen = dropzone(handler)
+    first, second = tmp_path / "first", tmp_path / "second"
+    first.mkdir()
+    second.mkdir()
+
+    _drop(screen, [first])
+    _drop(screen, [second])
+
+    qtbot.waitUntil(lambda: len(handler.events) == 4, timeout=15000)
+    assert handler.events == [
+        ("in", "first"), ("out", "first"),
+        ("in", "second"), ("out", "second"),
+    ], "the second drop was applied inside the first one's dialog"
+    assert dnd_mod._draining == []

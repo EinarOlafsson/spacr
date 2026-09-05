@@ -884,6 +884,7 @@ def test_a_metadata_read_that_blows_up_mid_refresh_still_renders_the_list(
 
 def test_a_child_table_that_cannot_be_described_is_named_beside_its_table(
         qtbot, two_plates, monkeypatch):
+    """A child table sqlite refuses is named, rather than silently dropped."""
     from spacr.qt.widgets import measurement_scan_panel as module
 
     widget = module.DatabaseMergePanel(lambda: _rows(two_plates))
@@ -891,11 +892,23 @@ def test_a_child_table_that_cannot_be_described_is_named_beside_its_table(
     real = module.describe_merge
 
     def _explode_for_pathogen(paths, table, **kwargs):
+        """`describe_merge`, refusing one table the way sqlite would.
+
+        :param paths: the databases to plan over.
+        :param table: the table asked for.
+        :returns: the real plan for every table but ``pathogen``.
+        :raises RuntimeError: for ``pathogen``.
+        """
         if table == "pathogen":
             raise RuntimeError("no such table: pathogen")
         return real(paths, table, **kwargs)
 
     monkeypatch.setattr(module, "describe_merge", _explode_for_pathogen)
+    # `refresh` is what READS -- as in the test above. A query like
+    # `plan_text` states what the last read found and does not open the
+    # databases again, because it is reached from every click and a read
+    # there was the freeze this panel was rebuilt around.
+    widget.refresh()
 
     assert "pathogen: could not be read" in widget.plan_text()
 
