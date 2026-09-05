@@ -97,6 +97,11 @@ HEADLESS_ONLY = {
 # side: "missing from APPS" must always come with a reason somebody wrote
 # down, or a genuinely unwired module hides behind the exception.
 FOLDED = {
+    "ops": "a button on the Align & Stitch masthead that opens the optical-"
+           "pooled-screening form as a page beside the tile aligner -- OPS "
+           "IS stitching, over a plate acquired in sequencing cycles, so it "
+           "is reached from the module it belongs to rather than competing "
+           "for a tile of its own (spacr.qt.screens.align)",
     "activation": "a button on the Classify masthead that opens the "
                   "activation-map workbench as a page beside the training "
                   "settings -- an activation map is a view of what a "
@@ -300,20 +305,31 @@ def test_every_folded_module_really_is_folded_and_really_is_reachable():
     A key that is in neither is the failure this whole exercise exists to
     avoid: a module folded out of the GUI and into nothing.
     """
+    import importlib
+
     import spacr.qt.screens                            # noqa: F401
-    from spacr.qt.screens import (annotate, classify, image_umap,
-                                  make_masks, map_barcodes, mask, measure,
-                                  regression)
+    from spacr.qt.screens import make_masks
+    from spacr.qt.widgets.fold_strip import FOLD_HOST_MODULES
 
     live = live_app_keys()
-    # EVERY host, not the three that happened to be written first: a key
-    # folded onto a host missing from this union reads as "folded into
-    # nothing", which is the failure below, reported against the module
-    # rather than against this list.
+    # EVERY host, DERIVED rather than listed. A key folded onto a host
+    # missing from this union reads as "folded into nothing", which is the
+    # failure below -- and it would be reported against the module rather
+    # than against the list that had fallen behind.
+    #
+    # This WAS a hand-written tuple of seven screens, and its own comment
+    # said it should be every host. It was not: Align & Stitch grew a fold
+    # and the tuple did not follow, so a correctly wired module failed here
+    # for a reason that had nothing to do with it. `FOLD_HOST_MODULES` is
+    # the same list the application itself reads, so the two cannot now
+    # disagree.
     hosted = set()
-    for host in (mask, measure, annotate, classify, map_barcodes,
-                 image_umap, regression):
-        hosted |= set(host.FOLDED_APPS)
+    for module_name in FOLD_HOST_MODULES:
+        try:
+            host = importlib.import_module(module_name)
+        except Exception:                              # noqa: BLE001
+            continue
+        hosted |= set(getattr(host, "FOLDED_APPS", ()))
     hosted |= set(make_masks.FOLD_ORDER)
 
     still_registered = sorted(set(FOLDED) & live)

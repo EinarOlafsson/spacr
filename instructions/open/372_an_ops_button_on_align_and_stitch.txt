@@ -2,11 +2,17 @@
 AN OPS BUTTON ON ALIGN AND STITCH, OVER CODE THAT IS ALREADY IN THE REPOSITORY
 ================================================================================
 
-Status:    IN PROGRESS. Front half WORKS, four defects fixed (PART 0-A),
-           entry points reported (PART 0-B), brieflow's sbs/merge read from
-           source (PART 2-A). THE DECODE CHAIN IS NOW BUILT AND VALIDATED --
-           `spacr/ops_sbs.py`, see PART 1-A. What remains: merge (triangle
-           hashing), then the button. Filed 2026-09-02.
+Status:    BUILT, AND UNPROVEN ON REAL DATA. Every checklist item below is
+           met: the front half works (four defects fixed, PART 0-A), the
+           entry points are reported (PART 0-B), brieflow was read from
+           source (PART 2-A), the decode chain and the cross-magnification
+           merge are written and validated against planted truth (PART 1-A),
+           and the OPS button is on Align & Stitch with `spacr-run ops`
+           behind it (PART 3-A).
+
+           WHAT IT HAS NEVER SEEN IS A REAL ACQUISITION. That is the whole of
+           what remains, and it is not a small remainder -- see PART 3-A.
+           Filed 2026-09-02.
 Requested: 2026-09-02 -- "for the allign and stitch module id like to add a
            OPS (optical pooled screening button) for analyzing OPS data. i had
            a bunch of code for doing this earlier, i dont know if that module
@@ -442,6 +448,57 @@ denies -- do not add a seventh.
   from `GUI_MODULE_DEFAULTS` is never checked, and that is how a checkbox
   came to ship the string 'False'. Register this one properly on the way in;
   it is far cheaper than auditing it later.
+
+--------------------------------------------------------------------------------
+PART 3-A -- THE BUTTON IS BUILT. WHAT IT STILL OWES.
+--------------------------------------------------------------------------------
+
+Every item on the checklist below is now met:
+
+  * OPS is a FOLD on Align & Stitch, not a tile. `align.FOLDED_APPS` and
+    `align.FOLD_FALLBACK` declare it; `fold_strip.FOLD_HOST_MODULES` now
+    includes align. Verified: `folded_children()['align'] == ('ops',)`, and
+    'ops' is absent from the tile registry.
+  * The panel builds. Opening it gives an `AppScreen` with all nine OPS
+    categories, each marked ALPHA.
+  * `spacr-run ops` resolves. `--describe ops` prints its 63 settings, both
+    required inputs, what it writes and the alpha caveat; a settings CSV
+    round-trips and `--dry-run` resolves all 63 keys with overrides applied.
+  * Every OPS setting has a type, a category and a tooltip -- six of them by
+    deferring to another module's existing declaration rather than forking it.
+  * The Run button has an entry point, and `validate.APP_FUNCTIONS` has the
+    pre-flight entry.
+
+TWO GATES CAUGHT REAL THINGS ON THE WAY IN, which is the argument for having
+them: `register_defaults` refused to let OPS redeclare `src`, which another
+module already owns; and the app/CLI parity test refused a CLI module that no
+host screen offered. The second was half its own fault -- its host list was a
+hand-written tuple whose comment claimed it was "EVERY host" and was not, so
+it now derives the list from `FOLD_HOST_MODULES` and cannot fall behind again.
+
+WHAT IT OWES, AND THIS IS THE IMPORTANT PART:
+
+  1. NO REAL DATA HAS EVER BEEN THROUGH IT. Every number in this file comes
+     from synthetic fixtures with planted truth. That proves the METHOD is
+     implemented correctly. It does not prove the DEFAULTS suit a real plate:
+     peak spacing, the peak threshold, the unmixing percentile, `downsample`
+     and `max_site_gap` all want fitting against one real acquisition, and
+     until that happens a confident-looking output is not evidence.
+  2. `StitchedMultiAligner` has still never been run (PART 0-B).
+  3. `align_image_to_stitch`'s geometry is still unverified (PART 0-B): the
+     fixture cannot ask the question, because its phenotype tiles are the same
+     pixels as the genotype tiles rather than a genuine 2x acquisition.
+  4. The decode chain is not wired into the button. The button runs
+     `ops_preprocess` -- stitching and phenotype placement. `ops_sbs` and
+     `ops_merge` are libraries with tests and no caller, which is exactly the
+     state `spacrops.py` was in when this instruction was filed, and the
+     lesson from that is on record: code with no caller has no user and grows
+     defects in silence.
+
+THE HONEST SUMMARY: the preprocessing half is reachable and its stitching is
+measured correct; the sequencing half is written, validated on synthetic data
+and unreachable. Item 4 is the next piece of work, item 1 is the gate before
+anyone trusts a result.
 
 --------------------------------------------------------------------------------
 HOW IT WILL BE CHECKED
