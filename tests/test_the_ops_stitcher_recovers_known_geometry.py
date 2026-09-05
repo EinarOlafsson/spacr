@@ -145,3 +145,63 @@ def test_a_mosaic_is_written_without_being_asked_twice(stitched_plate):
     # subpixel offsets the stitch solved for.
     assert abs(height - (TILE + STEP)) <= 8, f"canvas height {height}"
     assert abs(width - (TILE + STEP)) <= 8, f"canvas width {width}"
+
+
+def test_no_tile_is_left_out_of_the_mosaic(stitched_plate):
+    """Every tile must reach the manifest, or the mosaic has a hole.
+
+    ``_pairs_by_site_window`` built ``idx_by_site[s] = i``, keeping ONE index
+    per site -- but a site holds one file per channel. With the files ordered
+    c1_S1, c2_S1, c1_S2, c2_S2, ... the map became {1:1, 2:3, 3:5, 4:7}: every
+    candidate partner was a channel-2 file, two tiles of the same channel were
+    never compared, and the c1/c2 rows of the pairs CSV were one comparison
+    written twice.
+
+    It also orphaned a tile outright. ``10X_c1_A1_Site-4.tif`` at index 6 had
+    a single candidate, index 5, which fails ``j > i`` -- so it appeared in no
+    pair, got no features, and reached no mosaic. A corner arrived with no
+    channel-1 data and no warning, which is the failure mode a GUI button over
+    this code would have shipped.
+    """
+    _result, out_dir = stitched_plate
+    manifest = None
+    for dirpath, _dirs, files in os.walk(out_dir):
+        for name in files:
+            if name.endswith("_mosaic.csv"):
+                manifest = os.path.join(dirpath, name)
+    assert manifest, "no mosaic manifest was written"
+
+    placed = {os.path.basename(row["path"])
+              for row in csv.DictReader(open(manifest, encoding="utf-8"))}
+    expected = {f"10X_c{c}_A1_Site-{s}.tif" for c in (1, 2) for s in SITES}
+    assert placed == expected, f"tiles missing from the mosaic: {expected - placed}"
+
+
+@pytest.mark.parametrize("shape,axes,expected", [
+    ((64, 64), None, 1),              # a plain 2D plane
+    ((2, 64, 64), None, 2),           # a stacked 2-channel tile
+    ((4, 64, 64), None, 4),
+    ((5, 64, 64), "ZYX", 1),          # z-planes are NOT channels
+])
+def test_the_channel_count_survives_an_unnamed_axis(shape, axes, expected,
+                                                    tmp_path):
+    """A stacked tile declares axes ``QYX``, and Q is not nothing.
+
+    ``_get_channel_count_tif`` filtered the declared axes down to ``TCZYX``,
+    found no ``C``, and returned 1 -- without ever reaching the shape-based
+    guess below it, which gets ``(2, Y, X)`` right. `tifffile` writes ``Q``,
+    meaning "unspecified", for the leading axis of a plainly stacked array, so
+    every genuine multi-channel tile written that way counted as one channel.
+    A multi-channel mosaic then came out single-channel, silently, because the
+    channel plan is ``range(min(counts))``.
+
+    The z-stack case is why this cannot simply always guess from the shape: a
+    file that DOES name its axes as ``ZYX`` has one channel, and guessing
+    would call its planes channels instead.
+    """
+    from spacr.spacrops import spacrStitcher
+
+    path = tmp_path / f"tile_{'x'.join(map(str, shape))}_{axes or 'auto'}.tif"
+    kwargs = {"metadata": {"axes": axes}} if axes else {}
+    tifffile.imwrite(str(path), np.zeros(shape, np.uint16), **kwargs)
+    assert spacrStitcher._get_channel_count_tif(str(path)) == expected
