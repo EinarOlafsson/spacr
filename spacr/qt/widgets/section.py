@@ -19,10 +19,12 @@ from typing import Optional, Union
 
 from PySide6.QtCore import QEvent, QSize, Qt, Signal
 from PySide6.QtWidgets import (
+    QApplication,
     QFormLayout,
     QFrame,
     QHBoxLayout,
     QLabel,
+    QScrollArea,
     QSizePolicy,
     QToolButton,
     QVBoxLayout,
@@ -48,6 +50,42 @@ SOURCE_ICON_NAME = "SectionSourceIcon"
 #: more keeps what it asks for. See :meth:`Section._sync_header_minimum` for
 #: what happened while this was the header's flat minimum.
 SECTION_HEADER_MIN_PX = 34
+
+
+#: How many rounds of posted ``LayoutRequest`` to drain before painting.
+#:
+#: Servicing one layout posts the next, so a single pass is never enough.
+#: Four is past the deepest chain measured on the settings panel.
+LAYOUT_FLUSHES = 4
+
+#: Dynamic property reference-counting nested toggles on one scroll area.
+#:
+#: Opening a nested heading opens its ancestors too, so several sections can
+#: be inside their own toggle at once. Only the OUTERMOST one owns the
+#: confinement, or the inner levels would each release it early. Kept on the
+#: scroll area itself rather than in a module dict keyed on ``id()``, which
+#: goes wrong the moment a scroll area is collected and its id reused.
+SETTLING_DEPTH = "spacrSectionSettlingDepth"
+
+
+def scroll_host(widget):
+    """The :class:`QScrollArea` ``widget`` scrolls inside, or ``None``.
+
+    The confinement belongs on the scroll area and not on the section,
+    because it is the SCROLL AREA's own size hint changing -- when its
+    scrollbar arrives -- that carries the relayout past the settings column
+    and into the splitter and the window.
+
+    :param widget: the section being toggled.
+    :returns: the enclosing scroll area, or None when the section is mounted
+        without one (a dialog, a test).
+    """
+    node = widget.parentWidget()
+    while node is not None:
+        if isinstance(node, QScrollArea):
+            return node
+        node = node.parentWidget()
+    return None
 
 
 def module_mark(key: str):
@@ -568,8 +606,96 @@ class Section(QFrame):
         self._header.setToolTip("\n\n".join(parts))
 
     # ------------------------------------------------------------------
+    def _pre_resolve_the_scrollbar(self, scroll) -> None:
+        """Decide the scrollbar BEFORE the body moves, not during.
+
+        Today the bar arrives *during* the open, which narrows the viewport
+        by its own width in the very frame the content jumps hundreds of
+        pixels down. Two perpendicular discontinuities in one frame is what
+        reads as a shudder rather than as a resize -- and the narrower
+        viewport re-elides every label, which is a second full layout pass.
+
+        Resolved up front, the horizontal step happens once, before anything
+        moves vertically, and the labels are elided once at the final width.
+
+        :param scroll: the enclosing scroll area.
+        """
+        content = scroll.widget()
+        if content is None:
+            return
+        if self._expanded:
+            delta = self._body.sizeHint().height()
+        else:
+            delta = -self._body.height()
+        will_scroll = (content.height() + delta) > scroll.viewport().height()
+        scroll.setVerticalScrollBarPolicy(
+            Qt.ScrollBarAlwaysOn if will_scroll else Qt.ScrollBarAlwaysOff)
+
     def _on_toggle(self, checked: bool) -> None:
+        """Open or close the body, in ONE painted frame rather than two.
+
+        WHAT THE USER SEES WITHOUT THIS. Qt services a layout in whatever
+        order the posted events arrive, and here they arrive in two rounds:
+        the section's own chain, and then -- after the first round has
+        already been PAINTED -- a second ``LayoutRequest`` for the scroll
+        area and the splitter. The intermediate result of round one is on
+        screen for about one vsync. That is the flicker, literally: a wrong
+        frame, briefly shown. Reported 2026-09-05 as "the opening of module
+        settings categories has a flicker as well and is not smoothe".
+
+        So updates are held while every posted layout request is drained
+        synchronously, and the window is only asked to paint once the
+        geometry has stopped moving.
+
+        WHERE THE GUARD GOES DECIDES WHETHER IT HELPS. Held on the top-level
+        window, re-enabling calls ``update()`` on the whole 3840x2160 surface
+        and every targeted rectangle Qt worked out is thrown away for one
+        full-window repaint. Held on the scroll area, the forced repaint is
+        the settings column alone and the splitter and backdrop above it are
+        never touched.
+
+        ``setUpdatesEnabled`` is restored in a ``finally``: an exception
+        between the two calls would leave the whole column unable to repaint,
+        which is a frozen panel rather than a cosmetic bug.
+
+        :param checked: whether the header is now open.
+        """
         self._expanded = bool(checked)
-        self._header.setArrowType(Qt.DownArrow if self._expanded else Qt.RightArrow)
-        self._body.setVisible(self._expanded)
-        self.toggled.emit(self._expanded)
+        self._header.setArrowType(
+            Qt.DownArrow if self._expanded else Qt.RightArrow)
+
+        scroll = scroll_host(self)
+        if scroll is None:
+            # A section outside a scroll area -- a dialog, a test. Nothing to
+            # confine, and nothing that could flicker past the section.
+            self._body.setVisible(self._expanded)
+            self.toggled.emit(self._expanded)
+            return
+
+        depth = int(scroll.property(SETTLING_DEPTH) or 0)
+        outermost = depth == 0
+        scroll.setProperty(SETTLING_DEPTH, depth + 1)
+        saved_policy = None
+        try:
+            if outermost:
+                saved_policy = scroll.verticalScrollBarPolicy()
+                self._pre_resolve_the_scrollbar(scroll)
+                scroll.setUpdatesEnabled(False)
+            self._body.setVisible(self._expanded)
+            self.toggled.emit(self._expanded)
+        finally:
+            scroll.setProperty(
+                SETTLING_DEPTH, int(scroll.property(SETTLING_DEPTH) or 1) - 1)
+            if outermost:
+                try:
+                    for _ in range(LAYOUT_FLUSHES):
+                        QApplication.sendPostedEvents(
+                            None, QEvent.LayoutRequest)
+                finally:
+                    # Restored while updates are still off, so putting the
+                    # policy back cannot itself be a visible step. The layout
+                    # has settled by now, so `AsNeeded` reaches the same
+                    # answer the pre-resolution did.
+                    if saved_policy is not None:
+                        scroll.setVerticalScrollBarPolicy(saved_policy)
+                    scroll.setUpdatesEnabled(True)
