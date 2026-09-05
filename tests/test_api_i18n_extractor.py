@@ -813,7 +813,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # and one each for qt.theme.menu_bar_background,
     # fold_strip.FoldButton.set_verdict, the two new fractal modules and
     # run_journal.delete_runs.
-    # +1385 across 2026-09-04 and 2026-09-05, 8,830 -> 10,215. Two events,
+    # +1397 across 2026-09-04 and 2026-09-05, 8,830 -> 10,227. Two events,
     # and neither of them is a module being added:
     #
     #   +1,329 before this session's first commit (measured at 35e3967e3,
@@ -837,7 +837,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # NOTHING WAS RETIRED. Every figure moved up, which is the direction
     # check: this ratchet exists to catch surface appearing without its
     # localized catalog, not to freeze the package.
-    expected = 10_215
+    expected = 10_227
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -855,7 +855,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # ALIASES ARE ZERO NOW, so this equals `expected`. The assertion is kept
     # rather than collapsed: the day an alias is legitimately added, this is
     # what fails separately from the surface count and says so.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_215
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_227
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -921,7 +921,8 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # Enumerated, because a difference nobody can decompose is a difference
     # nobody can check. Measured by running ``public_docstrings`` with the
     # AutoAPI filter neutralised and bucketing what only the unfiltered run
-    # produced:
+    # produced. The inventory moved 10,428 -> 10,440 on the same-day merge
+    # with the other session; the 213 filtered entries did not move:
     #
     #   116  spacr.resources.home.versions._generators
     #    59  spacr.resources.icons.backup_icons._generators
@@ -932,7 +933,7 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     #     1  spacr.qt.run_without_setup
     #   ---
     #   213
-    assert 10_428 - len(docs) == 213
+    assert 10_440 - len(docs) == 213
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
