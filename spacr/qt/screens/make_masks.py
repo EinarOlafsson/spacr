@@ -1530,6 +1530,14 @@ class FoldedModulePanel(QWidget):
 
     def __init__(self, key: str, screen: QWidget, title: str,
                  parent: Optional[QWidget] = None, actions=()):
+        """Wrap one folded module's screen with a title and its actions.
+
+        :param key: the module's registry key.
+        :param screen: the screen to wrap.
+        :param title: the caption over it.
+        :param parent: parent widget.
+        :param actions: extra buttons for the panel's own row.
+        """
         super().__init__(parent)
         self.app_key = key
         self.screen = screen
@@ -1601,6 +1609,10 @@ class NapariBridgeScreen(QWidget):
     corrected = Signal(str)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
+        """Build the bridge's two path rows and its launch button.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("NapariBridge")
         self._viewer: Any = None
@@ -1669,6 +1681,13 @@ class NapariBridgeScreen(QWidget):
 
     # -- the form -----------------------------------------------------------
     def _path_row(self, label: str, edit: QLineEdit, chooser) -> QHBoxLayout:
+        """One labelled path field with a browse button beside it.
+
+        :param label: the caption.
+        :param edit: the field itself.
+        :param chooser: what the browse button runs.
+        :returns: the assembled row.
+        """
         row = QHBoxLayout()
         row.setSpacing(SPACING["sm"])
         caption = QLabel(label, self)
@@ -1681,6 +1700,7 @@ class NapariBridgeScreen(QWidget):
         return row
 
     def _choose_mask(self) -> None:
+        """Ask for a label mask and put it in the field."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a label mask", self._mask_edit.text().strip(),
             _MASK_FILTER)
@@ -1689,6 +1709,7 @@ class NapariBridgeScreen(QWidget):
             self.describe_mask(path)
 
     def _choose_image(self) -> None:
+        """Ask for an image and put it in the field."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open the image underneath",
             self._image_edit.text().strip(), _IMAGE_FILTER)
@@ -1857,6 +1878,10 @@ class MakeMasksScreen(QWidget):
     """
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the editor, its canvas and its tool panel.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._folder: str = ""
         self._image_files: List[str] = []
@@ -1908,6 +1933,7 @@ class MakeMasksScreen(QWidget):
 
     # ------------------------------------------------------------------
     def _build_ui(self):
+        """Lay out the canvas, the tool panel and the navigation row."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                   SPACING["lg"], SPACING["lg"])
@@ -2519,6 +2545,10 @@ class MakeMasksScreen(QWidget):
             splitter.setSizes([total - side, side])
 
     def _build_tools_panel(self) -> QWidget:
+        """Build the tool column: mode, brush, wand and mask operations.
+
+        :returns: the assembled panel.
+        """
         wrap = QWidget()
         col = QVBoxLayout(wrap)
         col.setContentsMargins(0, 0, 0, 0)
@@ -2919,6 +2949,12 @@ class MakeMasksScreen(QWidget):
         return wrap
 
     def _install_shortcuts(self):
+        """Bind the keys that move through fields and undo edits.
+
+        ARROWS AND UNDO ARE THE WHOLE POINT of a curation screen: the work is
+        hundreds of small corrections, and a hand that has to find the mouse
+        between each one does a fraction as many.
+        """
         QShortcut(QKeySequence(Qt.Key_Left), self, self._on_prev)
         QShortcut(QKeySequence(Qt.Key_Right), self, self._on_next)
         QShortcut(QKeySequence("Ctrl+S"), self, self._on_save)
@@ -2940,23 +2976,47 @@ class MakeMasksScreen(QWidget):
     # Mode / brush plumbing
     # ------------------------------------------------------------------
     def _set_mode(self, mode: str):
+        """Switch the canvas between draw, erase and wand.
+
+        :param mode: the mode's name.
+        """
         self._canvas.mode = mode
         for m, btn in self._mode_buttons.items():
             btn.setChecked(m == mode)
 
     def _on_brush_size_changed(self, v: int):
+        """Resize the brush.
+
+        :param v: the new radius in pixels.
+        """
         self._canvas.brush_radius = int(v)
         self._brush_size_label.setText(f"{v} px")
 
     def _on_normalize_changed(self, _v: float):
+        """Re-stretch the displayed intensity range.
+
+        DISPLAY ONLY. The mask is drawn against what the user can see, but the
+        pixels underneath are untouched -- a normalisation that changed the
+        data would make every mask depend on the contrast it was drawn at.
+
+        :param _v: the changed value; both ends are re-read from the widgets.
+        """
         self._canvas.norm_lo = float(self._norm_lo.value())
         self._canvas.norm_hi = float(self._norm_hi.value())
         self._canvas.refresh()
 
     def _on_wand_tolerance_changed(self, v: float):
+        """Set how far the wand will grow in intensity.
+
+        :param v: the tolerance.
+        """
         self._canvas.wand_tolerance = float(v)
 
     def _on_wand_pct_changed(self, v: float):
+        """Set the wand's tolerance as a percentile instead of an absolute.
+
+        :param v: the percentile.
+        """
         self._canvas.wand_tol_pct = float(v)
 
     def _on_wand_relative_changed(self, on: bool):
@@ -2971,27 +3031,58 @@ class MakeMasksScreen(QWidget):
         self._wand_tol.setEnabled(not on)
 
     def _on_wand_max_changed(self, v: int):
+        """Cap how many pixels one wand fill may claim.
+
+        :param v: the pixel cap.
+        """
         self._canvas.wand_max_pixels = int(v)
 
     # Rescue controls. Each writes one canvas attribute; the canvas builds
     # the dict the flood reads in wand_rescue_settings(), so a control is
     # wired by setting the attribute it names and nothing else.
     def _on_wand_salvage_changed(self, on: bool):
+        """Keep or discard a fill that hit the cap.
+
+        :param on: True to keep the truncated fill.
+        """
         self._canvas.wand_salvage_over_cap = bool(on)
 
     def _on_wand_trim_runaway_changed(self, on: bool):
+        """Turn runaway trimming on or off.
+
+        :param on: True to trim.
+        """
         self._canvas.wand_trim_runaway = bool(on)
 
     def _on_wand_runaway_ratio_changed(self, v: float):
+        """Set the growth ratio that counts as a runaway.
+
+        :param v: the ratio.
+        """
         self._canvas.wand_runaway_ratio = float(v)
 
     def _on_wand_runaway_warmup_changed(self, v: int):
+        """Set how many steps run before runaway detection starts.
+
+        A WARMUP IS NEEDED because every fill grows fast at first: judging the
+        ratio from step one would call every fill a runaway.
+
+        :param v: the step count.
+        """
         self._canvas.wand_runaway_warmup = int(v)
 
     def _on_wand_runaway_min_base_changed(self, v: int):
+        """Set the smallest area a runaway judgement will be made against.
+
+        :param v: the pixel count.
+        """
         self._canvas.wand_runaway_min_base = int(v)
 
     def _on_wand_runaway_confirm_changed(self, v: int):
+        """Set how many consecutive steps confirm a runaway.
+
+        :param v: the step count.
+        """
         self._canvas.wand_runaway_confirm = int(v)
 
     def _on_wand_intensity_border_changed(self, on: bool):
@@ -3005,6 +3096,10 @@ class MakeMasksScreen(QWidget):
         self._wand_intensity_steps.setEnabled(bool(on))
 
     def _on_wand_intensity_steps_changed(self, v: int):
+        """Set how many intensity steps the wand grows through.
+
+        :param v: the step count.
+        """
         self._canvas.wand_intensity_steps = int(v)
 
     def _on_wand_gradient_taper_changed(self, on: bool):
@@ -3015,21 +3110,42 @@ class MakeMasksScreen(QWidget):
             w.setEnabled(bool(on))
 
     def _on_wand_gradient_sigma_changed(self, v: float):
+        """Set the blur applied before the gradient is measured.
+
+        :param v: the sigma.
+        """
         self._canvas.wand_gradient_sigma = float(v)
 
     def _on_wand_gradient_margin_changed(self, v: int):
+        """Set how far past the gradient edge the fill may reach.
+
+        :param v: the margin in pixels.
+        """
         self._canvas.wand_gradient_margin = int(v)
 
     def _on_wand_gradient_erode_changed(self, v: int):
+        """Set how much the gradient mask is eroded before use.
+
+        :param v: the erosion in pixels.
+        """
         self._canvas.wand_gradient_erode = int(v)
 
     def _on_zoom_speed_changed(self, v: float):
+        """Set how fast the wheel zooms.
+
+        :param v: the speed multiplier.
+        """
         self._canvas.zoom_speed = float(v)
 
     def _on_reset_zoom(self):
+        """Put the view back to the whole field."""
         self._canvas.reset_zoom()
 
     def _on_zoom_changed(self, zoomed: bool):
+        """Enable the reset button only while the view is zoomed.
+
+        :param zoomed: True when the view is not showing the whole field.
+        """
         self._btn_reset_zoom.setEnabled(zoomed)
         self._status_label.setText("Zoomed — press Esc to reset" if zoomed
                                      else "Zoom reset")
@@ -3068,6 +3184,7 @@ class MakeMasksScreen(QWidget):
         self._refresh_history_buttons()
 
     def _refresh_history_buttons(self):
+        """Enable undo and redo from what the history actually holds."""
         self._btn_undo.setEnabled(self._history.can_undo())
         self._btn_redo.setEnabled(self._history.can_redo())
 
@@ -3164,6 +3281,7 @@ class MakeMasksScreen(QWidget):
         return len(dropped)
 
     def _on_apply_filter(self):
+        """Apply the object filter to the mask on screen."""
         self.apply_object_filter(on_load=False)
 
     def _on_detect_otsu(self):
@@ -3511,6 +3629,7 @@ class MakeMasksScreen(QWidget):
     # Actions
     # ------------------------------------------------------------------
     def _on_pick_folder(self):
+        """Ask for a folder of images and open it."""
         d = QFileDialog.getExistingDirectory(self, "Pick images folder",
                                               self._folder or os.getcwd())
         if not d:
@@ -3518,6 +3637,10 @@ class MakeMasksScreen(QWidget):
         self._open_folder(d)
 
     def _open_folder(self, folder: str):
+        """List the folder's images and load the first.
+
+        :param folder: the folder to open.
+        """
         files = engine.list_images(folder)
         if not files:
             self._warn("No images", f"Found no image files in: {folder}")
@@ -3532,6 +3655,7 @@ class MakeMasksScreen(QWidget):
         self._body_stack.setCurrentWidget(self._body_splitter)
 
     def _load_current(self):
+        """Show the current field and whatever mask it already has."""
         if not self._image_files:
             return
         self._load_token += 1
@@ -3837,6 +3961,7 @@ class MakeMasksScreen(QWidget):
         # Leaving the field retires it if it was cut up, whichever way the
         # user leaves: the parent must not be reachable again as though it
         # were still a field to curate.
+        """Go to the previous field, retiring this one if it was cut up."""
         self.finish_recrop()
         if not self._image_files or self._current_index <= 0:
             return
@@ -3846,6 +3971,7 @@ class MakeMasksScreen(QWidget):
     def _on_next(self):
         # A retirement has already moved the queue onto the first child, so
         # Next has done what Next does and must not step past it.
+        """Go to the next field, retiring this one if it was cut up."""
         if self.finish_recrop():
             return
         if not self._image_files or self._current_index >= len(self._image_files) - 1:
@@ -3854,6 +3980,7 @@ class MakeMasksScreen(QWidget):
         self._load_current()
 
     def _on_save(self):
+        """Write the mask for the field on screen."""
         if not self._image_files or self._canvas.mask is None:
             return
         try:
@@ -3890,20 +4017,25 @@ class MakeMasksScreen(QWidget):
         self._refresh_history_buttons()
 
     def _on_fill_holes(self):
+        """Fill enclosed holes in every object."""
         self._apply_op(engine.fill_holes, "fill_holes")
 
     def _on_relabel(self):
+        """Renumber the objects so the labels are consecutive."""
         self._apply_op(engine.relabel_objects, "relabel")
 
     def _on_invert(self):
+        """Swap object and background."""
         self._apply_op(engine.invert_mask, "invert")
 
     def _on_remove_small(self):
+        """Delete objects below the minimum area."""
         area = int(self._min_area.value())
         self._apply_op(lambda m: engine.remove_small_objects(m, area),
                         "remove_small", min_area=area)
 
     def _on_clear_mask(self):
+        """Throw the whole mask away, after confirming."""
         if self._canvas.mask is None:
             return
         if not self._confirm("Clear mask", "Zero out the current mask?"):
@@ -3922,6 +4054,11 @@ class MakeMasksScreen(QWidget):
         # Brush/erase strokes mutate the mask in place; nothing to record
         # until the stroke ends. History already has the pre-stroke mask
         # from the previous op/load.
+        """Snapshot the mask before a stroke mutates it in place.
+
+        BRUSH STROKES EDIT IN PLACE, so undo has nothing to go back to unless
+        the state is captured at the START of the stroke rather than after it.
+        """
         pass
 
     def _on_stroke_finished(self):
@@ -3943,6 +4080,7 @@ class MakeMasksScreen(QWidget):
 
     # ------------------------------------------------------------------
     def _sync_button_states(self):
+        """Enable each control only when it has something to act on."""
         has_files = bool(self._image_files)
         editable = has_files and not self._loading
         # EVERY tool in the row, read off the row itself rather than

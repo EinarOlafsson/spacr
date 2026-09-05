@@ -498,6 +498,10 @@ class ReadOnlyDb:
     """
 
     def __init__(self, path: str):
+        """Open a database for reading only.
+
+        :param path: the database file.
+        """
         self.path = resolve_db_path(path)
         self.uri = _read_only_uri(self.path)
         #: SQL of the most recent statement — handy in tests + bug reports.
@@ -518,6 +522,14 @@ class ReadOnlyDb:
 
     @contextlib.contextmanager
     def _con(self):
+        """The connection for THIS thread, opened on first use.
+
+        PER-THREAD BECAUSE SQLITE CONNECTIONS ARE NOT SHAREABLE: the browser
+        reads on workers, and one connection handed between them is a crash
+        rather than a slow query.
+
+        :returns: the connection.
+        """
         con = self.connect()
         try:
             yield con
@@ -525,6 +537,12 @@ class ReadOnlyDb:
             con.close()
 
     def _execute(self, con: sqlite3.Connection, sql: str, params: Sequence = ()):
+        """Run one statement on this thread's connection.
+
+        :param sql: the statement.
+        :param params: its parameters.
+        :returns: the cursor.
+        """
         self.last_sql = sql
         return con.execute(sql, tuple(params))
 
@@ -926,6 +944,10 @@ class WritableDb:
     """
 
     def __init__(self, path: str):
+        """Open a database for reading and writing.
+
+        :param path: the database file.
+        """
         self.path = resolve_db_path(path)
         #: SQL of the last statement that ran (or was about to).
         self.last_sql: str = ""
@@ -1072,6 +1094,7 @@ class PreviewModel(QAbstractTableModel):
     """
 
     def __init__(self, parent=None):
+        """Build an empty preview."""
         super().__init__(parent)
         self._columns: List[str] = []
         self._rows: List[tuple] = []
@@ -1204,6 +1227,7 @@ class PreviewModel(QAbstractTableModel):
         self.endResetModel()
 
     def _recompute_visible(self) -> None:
+        """Re-apply the column filter and tell the view what moved."""
         needle = self._filter.strip().lower()
         if not needle:
             self._visible = list(range(len(self._columns)))
@@ -1435,6 +1459,10 @@ class DbBrowserScreen(LinkedView, QWidget):
     _thread_retired = Signal(int)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the browser: the table list, the preview and the controls.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         # ITS OWN REGISTRY KEY. `install_folds_on` dispatches on this, so
         # without it the folds declared at the foot of this module could
@@ -1545,6 +1573,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the table list, the preview grid and the action row."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -1792,6 +1821,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     # -- database selection ------------------------------------------------
 
     def _pick_database(self) -> None:
+        """Ask for a database file and open it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open measurements database", "",
             "SQLite databases (*.db *.sqlite *.sqlite3);;All files (*)")
@@ -1799,11 +1829,13 @@ class DbBrowserScreen(LinkedView, QWidget):
             self.set_database(path)
 
     def _pick_run_folder(self) -> None:
+        """Ask for a run folder and open the database inside it."""
         path = QFileDialog.getExistingDirectory(self, "Choose a run folder", "")
         if path:
             self.set_database(path)
 
     def _on_open_typed_path(self) -> None:
+        """Open whatever path the user typed."""
         self.set_database(self._path_edit.text())
 
     def set_database(self, path: str, explicit: bool = True) -> bool:
@@ -1894,6 +1926,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     # -- table selection ---------------------------------------------------
 
     def _on_table_selected(self, current, _previous=None) -> None:
+        """Load the first page of the selected table."""
         if current is None:
             return
         self.select_table(current.text())
@@ -1983,6 +2016,7 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._view.resizeColumnsToContents()
 
     def _update_column_count(self) -> None:
+        """Say how many columns the filter is letting through."""
         total = len(self._model.all_columns())
         shown = len(self._model.visible_columns())
         if not total:
@@ -2086,6 +2120,11 @@ class DbBrowserScreen(LinkedView, QWidget):
         header.setSortIndicator(-1, Qt.AscendingOrder)
 
     def _reset_load_state(self) -> None:
+        """Forget the current page, count and cursor.
+
+        Called when the TABLE changes: a row count belonging to the previous
+        table would be shown against this one until the new count arrives.
+        """
         self._loaded = 0
         self._last_key = None
         self._exhausted = False
@@ -2093,6 +2132,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._estimate = None
 
     def _on_page_size_changed(self, _value: int) -> None:
+        """Reload with a different number of rows per page.
+
+        :param size: the new page size.
+        """
         self.refresh()
 
     def refresh(self) -> None:
@@ -2137,6 +2180,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         return True
 
     def _fetch_chunk(self, token: int, first: bool) -> None:
+        """Read the next page on a worker."""
         db, table = self._db, self._table
         where, params = self._where, self._params
         limit = self.page_size()
@@ -2202,6 +2246,12 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._start_count(self._token)
 
     def _start_count(self, token: int) -> None:
+        """Count the table's rows on a worker.
+
+        SEPARATE FROM THE PAGE FETCH because a COUNT on a large table is slow
+        and the first page is not: waiting for the count to show any rows
+        would make a fast read feel like a hang.
+        """
         db, table = self._db, self._table
         where, params = self._where, self._params
 
@@ -2216,6 +2266,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._run_job(_job, self._apply_count, kind="count", token=token)
 
     def _apply_count(self, result: Dict[str, Any]) -> None:
+        """Show a row count that has come back.
+
+        :param count: the number of rows.
+        """
         if not result or result.get("token") != self._token:
             return                      # cancelled
         self._exact_count = int(result.get("count", 0))
@@ -2235,6 +2289,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         return "an unknown number of rows (counting…)"
 
     def _update_rows_label(self) -> None:
+        """Say which rows are on screen, and out of how many."""
         if self._db is None or not self._table:
             self._rows_label.setText("")
             return
@@ -2310,6 +2365,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         self.refresh()
 
     def _report_table_status(self) -> None:
+        """Say what the current table is doing: loading, counted, or failed."""
         bits = [f"{self._table}: {self._count_text()}",
                 f"{len(self._model.all_columns())} columns"]
         if self._filter_label:
@@ -2669,6 +2725,10 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._set_edit_check(False)
 
     def _set_edit_check(self, checked: bool) -> None:
+        """Turn editing on or off, and say so.
+
+        :param on: True to allow edits.
+        """
         self._suppress_edit_signal = True
         try:
             self._edit_check.setChecked(bool(checked))
@@ -2851,6 +2911,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     # -- export ------------------------------------------------------------
 
     def _pick_export_path(self) -> None:
+        """Ask where to write the exported table."""
         default = f"{self._table or 'export'}.csv"
         path, _ = QFileDialog.getSaveFileName(
             self, "Export filtered rows to CSV", default,
@@ -2899,6 +2960,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     # -- job plumbing ------------------------------------------------------
 
     def _acquire(self, kind: str) -> None:
+        """Take the database handle for a job, refusing a second one."""
         if kind == "export":
             self._export_busy = True
             return
@@ -2907,6 +2969,7 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._chunk_jobs += 1
 
     def _release(self, kind: str) -> None:
+        """Give the database handle back."""
         if kind == "export":
             self._export_busy = False
             return
@@ -3130,6 +3193,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._set_status(f"Query failed: {line}", error=True)
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed background read without closing the browser.
+
+        :param message: what went wrong.
+        """
         self._set_status(f"Query failed: {exc}", error=True)
 
     def is_busy(self) -> bool:
@@ -3139,6 +3206,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     # -- enablement --------------------------------------------------------
 
     def _update_controls(self) -> None:
+        """Enable each control only when it has something to act on."""
         has_db = self._db is not None
         has_table = has_db and bool(self._table)
         raw = self._raw_toggle.isChecked()
