@@ -822,6 +822,16 @@ class _PreviewWorker(QThread):
         self.token = int(token)
 
     def run(self):
+        """Segment the request and emit the masks, then the flows.
+
+        The segmenter returns masks alone on the stubbed test path and
+        ``(masks, flows)`` in the real one, so both shapes are accepted rather
+        than the test path being made to fake a second value.
+
+        A failure is emitted rather than raised: this runs on a worker thread,
+        where an exception has nobody to catch it, and the panel needs the
+        message to show.
+        """
         try:
             res = _segment_multi(self._request)
             # _segment_multi may return masks only (the stubbed test path) or
@@ -1089,6 +1099,11 @@ class _ZoomView(QGraphicsView):
         self.verticalScrollBar().valueChanged.connect(self._mirror_pan)
 
     def set_pixmap(self, pixmap: QPixmap) -> None:
+        """Show a new image, fitted, and forget any zoom the user had applied.
+
+        :param pixmap: the image to show. The zoom is reset so a new field
+            starts at the whole canvas rather than inside the last one's crop.
+        """
         self._scene.clear()
         self._pixmap_item = self._scene.addPixmap(pixmap)
         self._scene.setSceneRect(QRectF(pixmap.rect()))
@@ -1100,9 +1115,17 @@ class _ZoomView(QGraphicsView):
         self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
 
     def set_peer(self, peer: "_ZoomView") -> None:
+        """Link this view to another, so the two pan and zoom together.
+
+        :param peer: the view to stay in step with.
+        """
         self._peer = peer
 
     def scale_factor(self) -> float:
+        """The view's current zoom.
+
+        :returns: the scale, 1.0 at fit.
+        """
         return self._scale
 
     def reset_zoom(self) -> None:
@@ -1205,6 +1228,13 @@ class _ZoomView(QGraphicsView):
             self.clicked.emit()
 
     def mouseMoveEvent(self, event):
+        """Announce which image pixel the pointer is over.
+
+        The point is mapped into SCENE coordinates, so the reported pixel is the
+        image's own regardless of zoom or pan.
+
+        :param event: the mouse event.
+        """
         if self._pixmap_item is not None:
             scene_pt = self.mapToScene(event.position().toPoint())
             x = int(scene_pt.x())
@@ -1308,6 +1338,11 @@ class _AsWritten:
         self._text = str(text)
 
     def currentText(self) -> str:
+        """The text this stand-in reports.
+
+        Named for ``QComboBox``'s API so it can be read by the same code that
+        reads a real picker, without that code having to know which it has.
+        """
         return self._text
 
 

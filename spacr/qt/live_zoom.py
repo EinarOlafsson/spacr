@@ -153,6 +153,15 @@ class LiveZoomFilter(QObject):
     """
 
     def __init__(self, parent: Optional[QObject] = None) -> None:
+        """Create the filter that scales the interface while the key is held.
+
+        The starting scale and the widgets' original fonts are recorded so the
+        gesture can be undone exactly, including which of them carried a font of
+        their own rather than inheriting one -- restoring an inherited font as
+        an explicit one would pin it against every later theme change.
+
+        :param parent: parent object, or ``None``.
+        """
         super().__init__(parent)
         self._held = False
         #: The scale the gesture started from, and the one on screen now.

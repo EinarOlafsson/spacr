@@ -139,6 +139,12 @@ class RunCompareScreen(QWidget):
     project_loaded = Signal(str)
 
     def __init__(self, parent=None, project: str = ""):
+        """Build the run-comparison screen.
+
+        :param parent: parent widget, or ``None``.
+        :param project: a project folder to list runs from immediately; empty
+            leaves the screen asking for one.
+        """
         super().__init__(parent)
         self._runs: List[RunRef] = []
         self._comparison: Optional[RunComparison] = None

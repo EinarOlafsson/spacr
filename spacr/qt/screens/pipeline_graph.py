@@ -213,6 +213,10 @@ class GraphCanvas(QWidget):
     node_clicked = Signal(str)
 
     def __init__(self, parent=None):
+        """Create the empty pipeline-graph canvas.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._graph: Optional[PipelineGraph] = None
         self._rects: Dict[str, QRect] = {}
@@ -384,6 +388,14 @@ class PipelineGraphScreen(QWidget):
     graph_loaded = Signal(object)
 
     def __init__(self, parent=None, project: str = "", threaded: bool = True):
+        """Build the screen and arm its drop zone.
+
+        :param parent: parent widget, or ``None``.
+        :param project: a project folder to draw immediately; empty leaves the
+            screen asking for one.
+        :param threaded: scan on a worker thread. Set ``False`` in tests so
+            ``load_project`` finishes before it returns.
+        """
         super().__init__(parent)
         self._graph: Optional[PipelineGraph] = None
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)

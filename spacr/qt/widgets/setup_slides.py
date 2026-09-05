@@ -480,6 +480,13 @@ class SetupSlides(QDialog):
     """
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the first-run slide deck.
+
+        Frameless, like the rest of the shell: the card it draws has rounded
+        corners, and a square window frame around them is the seam this avoids.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle("Set spaCR up")
         self.setModal(True)
@@ -2082,6 +2089,15 @@ class SetupSlides(QDialog):
             LOG.debug("could not apply %s live", key, exc_info=True)
 
     def _show_slide(self, index: int, *, fade: bool = False) -> None:
+        """Show one slide, translating its text as it goes.
+
+        The slide table holds the English the catalogue is keyed on, so the
+        translation happens here rather than in the table -- which is what lets
+        a slide re-shown after a language change pick up the new rendering.
+
+        :param index: the slide to show; clamped to the deck.
+        :param fade: cross-fade into it rather than switching.
+        """
         index = max(0, min(int(index), len(SLIDES) - 1))
         self._index = index
         title, blurb, _keys = SLIDES[index]

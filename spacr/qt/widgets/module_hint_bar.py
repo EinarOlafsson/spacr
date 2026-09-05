@@ -58,6 +58,20 @@ class ModuleHintBar(QLabel):
 
     def __init__(self, default: str = DEFAULT_HINT,
                  parent: Optional[QWidget] = None) -> None:
+        """Build the module help strip under the dock.
+
+        The height is fixed, and that is load-bearing rather than tidy: a strip
+        that grows when a long summary wraps relayouts the page under the
+        pointer, and the dock is in that layout -- which is the row moving out
+        from under the pointer and back, delivering an Enter and a Leave each
+        time and leaving a dock row stuck highlighted. Two lines, measured from
+        the font rather than pinned at a number, because a hard number is a
+        promise about text metrics that breaks the moment the scale or the
+        theme's font stack changes.
+
+        :param default: what to show with nothing hovered.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(default, parent)
         self._default = default
         self._key = ""
@@ -264,4 +278,8 @@ class ModuleHintBar(QLabel):
             self._timer.start(self.HOLD_MS)
 
     def _on_link(self, href: str) -> None:
+        """Re-emit a followed link with the module it belongs to.
+
+        :param href: the link that was activated.
+        """
         self.link_followed.emit(self._key, str(href))

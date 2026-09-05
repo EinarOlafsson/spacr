@@ -351,6 +351,11 @@ def _sample_std(values: np.ndarray) -> float:
 
 
 def _aggregate(fn):
+    """Wrap a numpy reduction as a formula aggregate over finite values.
+
+    :param fn: the reduction to apply.
+    :returns: a callable taking the values and returning one float.
+    """
     def call(values):
         """Reduce the values to one number, ignoring non-finite entries.
 
@@ -368,6 +373,13 @@ def _aggregate(fn):
 
 
 def _zscore(values):
+    """Standardise values against their own finite mean and sample SD.
+
+    :param values: the column.
+    :returns: the z-scores; all-``nan`` when fewer than two finite values
+        are present, because a standard deviation over one point is not a
+        spread.
+    """
     array = np.asarray(values, dtype=float)
     finite = array[np.isfinite(array)]
     if finite.size < 2:
@@ -387,6 +399,16 @@ def _rank(values):
 
 
 def _quantile(values, q):
+    """Return one quantile of the finite values.
+
+    :param values: the column.
+    :param q: the fraction; only its first element is read, so a column
+        accidentally passed as the fraction fails on the range check rather
+        than silently using its first row.
+    :returns: the quantile, or ``nan`` when nothing finite is present.
+    :raises FormulaError: if the fraction is outside ``[0, 1]``, with an
+        example of the intended call.
+    """
     array = np.asarray(values, dtype=float)
     finite = array[np.isfinite(array)]
     fraction = float(np.asarray(q, dtype=float).reshape(-1)[0])
@@ -578,6 +600,13 @@ class _Parser:
 
     # -- the grammar ---------------------------------------------------
     def parse(self) -> Node:
+        """Parse the whole expression and require that it ends.
+
+        :returns: the expression's root node.
+        :raises FormulaError: if anything follows a complete expression, naming
+            the position -- and, for a keyword, saying what it joins, since
+            ``area > 1 and`` reads as a typo but ``area > 1 2`` does not.
+        """
         node = self._or()
         if self._current.kind != _END:
             token = self._current
@@ -854,6 +883,13 @@ def _numeric_column(frame: pd.DataFrame, name: str) -> np.ndarray:
 
 
 def _as_array(value: Any, length: int) -> np.ndarray:
+    """Broadcast a scalar result to the column length, leaving arrays alone.
+
+    :param value: a scalar or an array.
+    :param length: the number of rows.
+    :returns: an array of that length; an empty scalar becomes ``nan``
+        rather than raising.
+    """
     array = np.asarray(value)
     if array.ndim == 0:
         return np.full(length, array.item() if array.size else np.nan)
@@ -900,6 +936,18 @@ def evaluate(node: Node, frame: pd.DataFrame) -> Any:
 
 
 def _binary(item: Binary, left: Any, right: Any) -> Any:
+    """Apply one binary operator to two already-evaluated operands.
+
+    Comparisons and arithmetic coerce to float, and the logical operators to
+    bool, so mixing them is decided here rather than by numpy's dtype
+    promotion. ``**`` stays in floats deliberately: a huge exponent then
+    gives ``inf`` rather than a bignum allocation that never returns.
+
+    :param item: the operator node.
+    :param left: the left operand's value.
+    :param right: the right operand's value.
+    :returns: the result, elementwise.
+    """
     op = item.op
     with np.errstate(all="ignore"):
         if op in ("and", "or"):
@@ -932,6 +980,20 @@ def _binary(item: Binary, left: Any, right: Any) -> Any:
 
 
 def _call(item: Call, args: List[Any], length: int) -> Any:
+    """Call one formula function with its evaluated arguments.
+
+    An aggregate's first argument is broadcast to the column length first,
+    so ``mean(3)`` means the mean of a constant column rather than of a
+    scalar.
+
+    :param item: the call node.
+    :param args: the evaluated arguments.
+    :param length: the number of rows.
+    :returns: the function's result.
+    :raises FormulaError: naming the function, for anything the call raises
+        -- the chained traceback is suppressed because the user wrote an
+        expression, not a stack.
+    """
     fn, _low, _high, aggregate = FUNCTIONS[item.func]
     try:
         if aggregate:
@@ -950,6 +1012,15 @@ def _call(item: Call, args: List[Any], length: int) -> Any:
 # ---------------------------------------------------------------------------
 
 def _valid_name(name: str) -> str:
+    """Validate and normalise a computed column's name.
+
+    :param name: the proposed name.
+    :returns: it, stripped.
+    :raises FormulaError: if it is empty, if it is not a bare identifier --
+        anything else would have to be quoted everywhere it is used -- or if
+        it is already a function or keyword in this language, in which case a
+        column of that name could never be referred to.
+    """
     text = str(name).strip()
     if not text:
         raise FormulaError("a computed column needs a name")
@@ -1138,6 +1209,25 @@ class ColumnResult:
 
 
 def _apply_one(frame: pd.DataFrame, formula: ColumnFormula) -> ColumnResult:
+    """Evaluate one formula against a table and describe the result.
+
+    A boolean result is kept boolean; anything else becomes floats, and the
+    non-finite entries are counted -- separating those that came from
+    non-finite INPUTS from those the arithmetic produced, because a column
+    full of ``nan`` because its input was missing is a different problem
+    from one that divided by zero.
+
+    ``area = area * 2`` with ``replace`` on is a rescale and is allowed:
+    computation always starts from a fresh copy of the loaded table, so it
+    reads the measured column and is idempotent however often it is
+    re-applied. ``x = x + 1`` where no ``x`` exists is a genuine circle.
+
+    :param frame: the table to evaluate against.
+    :param formula: the column to compute.
+    :returns: the values with their diagnostics.
+    :raises FormulaError: if the name is taken and ``replace`` is off, or if
+        the formula refers to a column it is itself defining.
+    """
     if formula.name in frame.columns and not formula.replace:
         raise FormulaError(
             f"this table already has a column called {formula.name!r}. Pick "

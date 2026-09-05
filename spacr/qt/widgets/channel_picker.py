@@ -102,6 +102,15 @@ class ChannelPicker(QWidget):
         layout.addStretch(1)
 
     def _on_toggled(self, _checked: bool) -> None:
+        """Keep at least one channel ticked, unless none is allowed.
+
+        Unticking the last one puts it back rather than letting the picture go
+        blank, with signals blocked so the correction neither re-enters nor
+        announces a value the user never chose.
+
+        :param _checked: the box's new state; the whole selection is re-read, so
+            it is not used.
+        """
         if not self._allow_none and not self.value():
             # PUT THE LAST ONE BACK rather than let the picture go blank.
             # Blocked so this correction does not re-enter and does not

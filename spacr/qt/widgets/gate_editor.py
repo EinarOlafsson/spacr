@@ -2937,21 +2937,27 @@ class _ClusterSettingsDialog(QDialog):
         retarget_field_tooltips(self)
 
     def eps(self) -> float:
+        """The neighbour distance, in scaled units while scaling is on."""
         return float(self._eps.value())
 
     def min_samples(self) -> int:
+        """How many neighbours an object needs before it can seed a cluster."""
         return int(self._min_samples.value())
 
     def scale(self) -> bool:
+        """Whether the measurements are standardised before clustering."""
         return bool(self._scale.isChecked())
 
     def walk(self) -> bool:
+        """Whether to search the parameter space rather than use the two numbers."""
         return bool(self._walk.isChecked())
 
     def walk_steps(self) -> int:
+        """How many parameter combinations the walk tries."""
         return int(self._walk_steps.value())
 
     def method(self) -> str:
+        """The clustering method chosen."""
         return self._method
 
 

@@ -1076,6 +1076,15 @@ class _Thumb(QLabel):
         return (self.highlight or resting_border_color()), current_ring_color()
 
     def paintEvent(self, event):            # noqa: N802 - Qt naming
+        """Draw the crop with one ring, recoloured on hover rather than doubled.
+
+        ``current=False`` and the colour swapped instead: a picked cell keeps
+        its blue everywhere the cursor is not, which is the whole of show-all --
+        the point there is to compare the cells carrying the inference against
+        the ones that do not.
+
+        :param event: the paint event.
+        """
         from .tile_chrome import paint_tile
 
         ring, hover = self._colours()
@@ -1096,16 +1105,29 @@ class _Thumb(QLabel):
     # -- the cursor ----------------------------------------------------
 
     def enterEvent(self, event):            # noqa: N802 - Qt naming
+        """Mark the thumbnail hovered and repaint.
+
+        :param event: the enter event.
+        """
         self._hovered = True
         self.update()
         super().enterEvent(event)
 
     def leaveEvent(self, event):            # noqa: N802 - Qt naming
+        """Clear the hover and repaint.
+
+        :param event: the leave event.
+        """
         self._hovered = False
         self.update()
         super().leaveEvent(event)
 
     def mousePressEvent(self, event):       # noqa: N802 - Qt naming
+        """Announce this crop's key on a left click.
+
+        :param event: the mouse event; other buttons fall through to the base
+            class, so a right-click still reaches the context menu.
+        """
         if event.button() == Qt.LeftButton:
             self.clicked.emit(self.toolTip())
         else:

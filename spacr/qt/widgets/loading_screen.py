@@ -145,6 +145,15 @@ class LoadingScreen(QWidget):
     """
 
     def __init__(self, total: int = 0, parent: Optional[QWidget] = None):
+        """Build the splash that covers the window while it is being assembled.
+
+        Opaque by construction: it covers a partly-built window, and any
+        transparency would show the thing it exists to hide.
+
+        :param total: how many steps the progress bar counts to; ``0`` shows no
+            proportion.
+        :param parent: the window to cover; its geometry is adopted.
+        """
         super().__init__(parent)
         self.setObjectName("LoadingScreen")
         self._total = max(0, int(total))
@@ -191,6 +200,11 @@ class LoadingScreen(QWidget):
 
     # -- painting ----------------------------------------------------------
     def _load_logo(self) -> None:
+        """Load the splash logo, tolerating its absence.
+
+        A missing logo must not stop the application starting: the screen still
+        covers the window and still reports progress.
+        """
         try:
             import os
             path = os.path.join(RESOURCE_DIR, LOGO_FILE)

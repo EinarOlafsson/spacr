@@ -215,6 +215,10 @@ class RefitDialog(QDialog):
         self._ok(True)
 
     def _ok(self, enabled: bool) -> None:
+        """Enable or disable the dialog's OK button.
+
+        :param enabled: whether the current answers are enough to refit.
+        """
         box = self.findChild(QDialogButtonBox)
         if box is not None:
             button = box.button(QDialogButtonBox.Ok)

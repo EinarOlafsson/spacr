@@ -57,6 +57,13 @@ class TableChip(QWidget):
     removed = Signal(str)
 
     def __init__(self, name: str, parent=None, *, removable: bool = True):
+        """Build one removable chip naming a table or a source.
+
+        :param name: what the chip stands for; also its label.
+        :param parent: parent widget, or ``None``.
+        :param removable: show the close mark. Set ``False`` for a chip the set
+            cannot go below.
+        """
         super().__init__(parent)
         self.setObjectName("TableChip")
         self._name = name

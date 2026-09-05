@@ -486,6 +486,16 @@ class SweepRunsPanel(QWidget):
     workspace_restore_requested = Signal(dict)
 
     def __init__(self, parent=None, *, threaded: Optional[bool] = None):
+        """Build the panel listing a sweep's previous runs.
+
+        Two runners, because one of them is cancelled: a tab change can ask for
+        the sweep table again while the last read is still out, and cancelling
+        that read must not also abandon whatever else is in flight.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: read on a worker thread; ``None`` follows the process
+            default.
+        """
         super().__init__(parent)
         from ..job_runner import JobRunner
         from .fast_plots import ResultsTable
@@ -2094,6 +2104,15 @@ class SweepRunsPanel(QWidget):
         return True
 
     def _on_selection(self) -> None:
+        """Show the selected run's photograph, without loading it.
+
+        Picking a run is not loading it: this used to load on selection, so
+        arrowing down a list of five runs did five multi-second reads nobody
+        asked for. Loading is a double click.
+
+        The re-select at the end of a rebuild is this panel putting the
+        highlight back rather than the user choosing, and is ignored.
+        """
         self._show_photograph(self.selected_trial())
         if self._rebuilding:
             # The re-select at the end of `_rebuild` is this panel putting

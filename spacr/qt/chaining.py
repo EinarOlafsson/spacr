@@ -194,6 +194,16 @@ class ChainingBar(QFrame):
     """
 
     def __init__(self, screen: QWidget, *, pins=None, parent=None) -> None:
+        """Build the strip that carries settings forward from the previous module.
+
+        What this strip wrote into a widget is remembered per key, which is what
+        separates "the user chose this" from "we put it there".
+
+        :param screen: the module screen the strip sits on.
+        :param pins: the pin store to read and write; ``None`` uses the shared
+            one.
+        :param parent: parent widget; defaults to ``screen``.
+        """
         super().__init__(parent or screen)
         self.setObjectName("ChainingBar")
         self.setFrameShape(QFrame.NoFrame)

@@ -261,6 +261,18 @@ class _DropScanner(QObject):
         # in ``_DropzoneFilter.eventFilter``: Qt keeps delivering events to a
         # filter after PySide6 has emptied its wrapper's __dict__, and an
         # AttributeError raised there has no Python caller to catch it.
+        """Shut the scanner down when the screen it serves closes.
+
+        ``getattr`` rather than a direct attribute read: Qt keeps delivering
+        events to a filter after PySide6 has emptied its wrapper's ``__dict__``,
+        and an ``AttributeError`` raised there has no Python caller to catch it.
+        The cheap event-type test comes first for the same reason it always
+        does -- every event on the screen passes through here.
+
+        :param obj: the object the event is for.
+        :param event: the event.
+        :returns: ``False`` -- the close is observed, never consumed.
+        """
         if (event.type() == QEvent.Close
                 and obj is getattr(self, "_screen", None)):
             self.shutdown()
@@ -296,10 +308,18 @@ class _DropScanner(QObject):
 
     # -- state (used by tests and by anything that wants to wait) ----------
     def is_busy(self) -> bool:
+        """Whether a dropped path is still being scanned.
+
+        :returns: ``True`` while a scan is in flight.
+        """
         runner = getattr(self, "_runner", None)
         return bool(runner is not None and runner.is_busy())
 
     def active_jobs(self) -> int:
+        """How many scans are in flight.
+
+        :returns: the count, and ``0`` before a runner exists.
+        """
         runner = getattr(self, "_runner", None)
         return 0 if runner is None else runner.active_jobs()
 
@@ -1282,6 +1302,14 @@ def _open_regex_editor(filenames: list, initial: str, screen,
 
 
 def _push_regex_to_screen(pattern: Optional[str], screen) -> None:
+    """Write a worked-out filename regex into a screen's settings field.
+
+    :param pattern: the regex; an empty one writes nothing, so a failed
+        inference does not blank a pattern the user already had.
+    :param screen: the screen whose ``custom_regex`` field to set. A screen
+        without one is tolerated: this is a convenience on top of a drop,
+        not the drop itself.
+    """
     if not pattern:
         return
     try:

@@ -140,6 +140,12 @@ class RunHistoryScreen(QWidget):
     history_refreshed = Signal(int)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the run-history screen.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: read the history on a worker thread. Set ``False`` in
+            tests so a refresh finishes before it returns.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self.records: List[Dict[str, Any]] = []

@@ -209,18 +209,39 @@ class _Well(QPushButton):
         return None
 
     def mousePressEvent(self, event):                # noqa: N802 - Qt
+        """Begin a drag-select from this well.
+
+        :param event: the mouse event; its modifiers decide whether the drag
+            adds to the selection or replaces it.
+        """
         picker = self._picker()
         if picker is not None and hasattr(picker, "begin_drag"):
             picker.begin_drag(self.row, self.column, event.modifiers())
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):                 # noqa: N802 - Qt
+        """Extend the drag-select to the well under the pointer.
+
+        Reported in GLOBAL coordinates, because the pointer is usually over a
+        different well by now and this one cannot say which.
+
+        :param event: the mouse event.
+        """
         picker = self._picker()
         if picker is not None and hasattr(picker, "drag_to"):
             picker.drag_to(self.mapToGlobal(event.position().toPoint()))
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):              # noqa: N802 - Qt
+        """End a drag-select, or let a plain click through to the toggle.
+
+        The drag is finished BEFORE the base class runs, which is what emits
+        ``clicked`` and toggles the button: a drag that has already painted the
+        rectangle must not then have its anchor flipped a second time by the
+        click.
+
+        :param event: the mouse event.
+        """
         picker = self._picker()
         # BEFORE `super()`, which is what emits `clicked` and toggles the
         # button: a drag that has already painted the rectangle must not

@@ -108,6 +108,19 @@ def describe_file(path: Any) -> Optional[DatasetDescription]:
 # ---------------------------------------------------------------------------
 
 def _describe_npz(p: Path) -> Optional[DatasetDescription]:
+    """Describe a ``.npz`` archive without reading all of it.
+
+    Only the FIRST array is read for its shape and dtype. The axis order is
+    inferred: a leading axis under 20 beside two over 20 is a field count,
+    because a stack of twenty-odd fields at microscope resolution is far
+    likelier than a twenty-pixel image. Each named key is usually one field,
+    so the key count raises the estimate when there are several.
+
+    :param p: the archive.
+    :returns: the description, or ``None`` when it is empty or unreadable --
+        a format probe reports what it found rather than raising at whoever
+        dropped the file.
+    """
     try:
         import numpy as np
         with np.load(p) as z:
@@ -153,6 +166,14 @@ def _describe_npz(p: Path) -> Optional[DatasetDescription]:
 
 
 def _describe_npy(p: Path) -> Optional[DatasetDescription]:
+    """Describe a ``.npy`` array without loading it.
+
+    Memory-mapped, so a multi-gigabyte stack costs a header read. The same
+    axis-order heuristic as the archive probe.
+
+    :param p: the file.
+    :returns: the description, or ``None`` when it cannot be read.
+    """
     try:
         import numpy as np
         # mmap_mode='r' → don't read the whole array into memory
@@ -220,6 +241,12 @@ def _describe_tif(p: Path) -> Optional[DatasetDescription]:
 
 
 def _describe_lif(p: Path) -> Optional[DatasetDescription]:
+    """Describe a Leica ``.lif`` file through ``readlif``.
+
+    :param p: the file.
+    :returns: the description, or ``None`` when the reader is not installed,
+        the file holds no images, or it cannot be read.
+    """
     try:
         from readlif.reader import LifFile        # type: ignore
         lif = LifFile(str(p))
@@ -245,6 +272,16 @@ def _describe_lif(p: Path) -> Optional[DatasetDescription]:
 
 
 def _describe_nd2(p: Path) -> Optional[DatasetDescription]:
+    """Describe a Nikon ``.nd2`` file through ``nd2reader``.
+
+    Sizes are read by axis letter -- ``v`` fields, ``c`` channels, ``t``
+    time, ``z`` slices -- so an axis the file does not have defaults to one
+    rather than being absent.
+
+    :param p: the file.
+    :returns: the description, or ``None`` when the reader is not installed
+        or the file cannot be read.
+    """
     try:
         from nd2reader import ND2Reader             # type: ignore
         with ND2Reader(str(p)) as nd2:

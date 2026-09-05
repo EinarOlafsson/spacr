@@ -23,7 +23,7 @@ builder = importlib.import_module("build_documentation_i18n")
 # remain represented.  A source/API change requires regenerating and reviewing
 # that report before deliberately updating either digest.
 _NEW_VISIBLE_DIGEST = (
-    "22524dd9f041af43ece50e6b9e476536dbdf7f4229ed30de4a919e8aafbd18db"
+    "936940899ea87eeba7a277f1f27a9e503f92f4b68bd62a0ab9b2906ed5c9cbb2"
 )
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
@@ -142,16 +142,27 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     dunders = _visible_special_members()
     assignments = _visible_assignment_docs()
 
-    # The 80 omissions in the audited pages are precisely the documented
-    # special members and PEP-258/value attributes discovered from source.
-    # 69 since 2026-08-30: `GenePanel.__del__` is documented because it is
-    # the guard that stops Qt aborting the process when a panel is collected
-    # with its warm-up thread still running -- a reader who deletes it needs
-    # to know that, so it carries a docstring and therefore surface. The four
-    # additions are FlowView Node/RunGraph post-init validation and the
-    # ResourceSampler context-manager pair.
-    assert len(dunders) == 69
-    assert len(assignments) == 18
+    # The omissions in the audited pages are precisely the documented special
+    # members and PEP-258/value attributes discovered from source.
+    #
+    # 69 -> 202 on 2026-09-05, when 368's PRIVATE half finished. A dunder is
+    # a private method on a public class by this extractor's reckoning, so
+    # documenting every one of them -- __post_init__ validators, __len__,
+    # __contains__, __iter__, __repr__, __str__, __lt__, __call__, __new__,
+    # __del__ -- moved 133 of them from invisible to rendered surface. That
+    # is the point of the instruction rather than a side effect of it: a
+    # dataclass whose __post_init__ raises is a contract, and a reader meets
+    # it on the API page or not at all.
+    #
+    # 18 -> 16, and this one is a FIX. At 2190f6ac2 the GraphCanvas and
+    # GateCanvas class docstrings sat BELOW `RESCALE_ON_FILTER = True`, so
+    # the PEP-258 rule read the class's own prose as the constant's value
+    # doc -- "The chart itself: a spec in, a faceted figure out" filed under
+    # a boolean about axis rescaling. The docstrings are back at the top of
+    # their classes and the constants carry `#:` comments, so the two bogus
+    # entries are gone. Nothing was undocumented by the change.
+    assert len(dunders) == 202
+    assert len(assignments) == 16
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
@@ -802,7 +813,31 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # and one each for qt.theme.menu_bar_background,
     # fold_strip.FoldButton.set_verdict, the two new fractal modules and
     # run_journal.delete_runs.
-    expected = 8830
+    # +1397 across 2026-09-04 and 2026-09-05, 8,830 -> 10,229. Two events,
+    # and neither of them is a module being added:
+    #
+    #   +1,329 before this session's first commit (measured at 35e3967e3,
+    #          where len(docs) is already 10,159). That is 368's PUBLIC half
+    #          and the doc-gate work that went with it -- every public method
+    #          in the package gained its own docstring, which is also what
+    #          emptied API_DOC_ALIASES from 113 to 0. The ratchet was not
+    #          re-recorded at the time; it is being re-recorded now rather
+    #          than left as a number nobody can account for.
+    #
+    #      +56 in this session: 368's PRIVATE half, finished 2026-09-05.
+    #          Zero undocumented private methods on public classes remain.
+    #          Most of those 795 methods are invisible to AutoAPI and so do
+    #          not appear here; what does appear is the dunders among them --
+    #          __post_init__, __len__, __contains__, __iter__, __repr__,
+    #          __str__, __lt__, __call__, __new__, __del__ -- which this
+    #          extractor counts as public surface. The dunder inventory in
+    #          test_public_docstrings_matches_reviewed_visible_coverage moved
+    #          69 -> 202 in the same change and names the same event.
+    #
+    # NOTHING WAS RETIRED. Every figure moved up, which is the direction
+    # check: this ratchet exists to catch surface appearing without its
+    # localized catalog, not to freeze the package.
+    expected = 10_229
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -817,14 +852,35 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8943
+    # ALIASES ARE ZERO NOW, so this equals `expected`. The assertion is kept
+    # rather than collapsed: the day an alias is legitimately added, this is
+    # what fails separately from the surface count and says so.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_229
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
-    # These are the only substantive audit bodies intentionally unresolved:
-    # one external stdlib inheritance and two source-less Sphinx markers.
-    assert "spacr.logging_util.LevelSetFilter.filter" not in docs
-    assert "spacr.qt.widgets.gate_spec.Gate.columns" not in docs
-    assert "spacr.qt.widgets.gate_spec.Gate.kind" not in docs
+    # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
+    # excluded here because its text came from `logging.Filter.filter`, which
+    # is not spaCR's to document. It now carries its own docstring -- the
+    # gate is membership in an explicit level set rather than the threshold
+    # the base class implements, so borrowing the base class's sentence said
+    # the wrong thing. Pinned as present, with its first line, because "no
+    # longer excluded" is only meaningful if what replaced it is checked.
+    assert docs["spacr.logging_util.LevelSetFilter.filter"].startswith(
+        "Return whether *record* has one of the enabled exact levels."
+    )
+
+    # AND SO ARE THE TWO SPHINX MARKERS. `Gate.kind` and `Gate.columns` were
+    # source-less abstract markers with nothing to render. Both now carry the
+    # contract a subclass has to keep -- `kind` is part of the FILE FORMAT
+    # that `from_dict` dispatches on, and `columns` is what lets a saved gate
+    # be validated against a table before it is applied. There are no
+    # intentionally unresolved audit bodies left.
+    assert docs["spacr.qt.widgets.gate_spec.Gate.kind"].startswith(
+        "The shape's tag, as it appears in a saved gate set."
+    )
+    assert docs["spacr.qt.widgets.gate_spec.Gate.columns"].startswith(
+        "Which measured columns this gate reads."
+    )
 
 
 def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
@@ -839,7 +895,15 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
         "spacr.qt.run_without_setup",
     }
 
-    assert not any(key.startswith("spacr.qt.tutorial") for key in docs)
+    # THE DOT IS LOAD-BEARING. `spacr.qt.tutorial` is the ignored PACKAGE;
+    # `spacr.qt.tutorials` is a different, rendered module beside it -- the
+    # four-function lookup a screen uses to find its lesson. A bare
+    # startswith("spacr.qt.tutorial") catches the sibling by prefix and
+    # reports a rendered public module as a boundary leak.
+    assert not any(
+        key == "spacr.qt.tutorial" or key.startswith("spacr.qt.tutorial.")
+        for key in docs
+    )
     assert not any(
         key.startswith("spacr.resources.home.versions._generators")
         for key in docs
@@ -848,16 +912,28 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     assert not any(key.startswith("spacr._v1_v2_bridge") for key in docs)
     assert "spacr.qt.run_without_setup" not in docs
 
-    # The audited pre-filter inventory is now 9,123, and 180 of those entries
-    # are filtered out rather than the previous 107. The 82 admitted symbols
-    # named above enter both inventories and so do not move this difference.
-    # What moved it is the generated-resource bucket, 85 keys to 158: the
-    # localized runtime catalogs in ``spacr.qt.i18n_catalogs`` are generated,
-    # ignored by AutoAPI, and gained per-language entries as the catalogs grew.
-    # The other four buckets are unchanged -- 16 from the ignored Qt tutorial,
-    # one Qt launcher module, four compatibility bridge entries, and the
-    # CLI-only ``qt.run_without_setup`` function -- so 16 + 158 + 1 + 4 + 1.
-    assert 9_123 - len(docs) == 180
+    # RE-MEASURED 2026-09-05. The audited pre-filter inventory is 10,428 and
+    # 213 of its entries are filtered out. Both halves moved together: 368
+    # documented every private method on a public class, which adds surface
+    # to the pre-filter and the post-filter inventory alike, and the
+    # generated-resource bucket grew again.
+    #
+    # Enumerated, because a difference nobody can decompose is a difference
+    # nobody can check. Measured by running ``public_docstrings`` with the
+    # AutoAPI filter neutralised and bucketing what only the unfiltered run
+    # produced. The inventory moved 10,428 -> 10,442 across the same-day merges
+    # with the other session; the 213 filtered entries did not move:
+    #
+    #   116  spacr.resources.home.versions._generators
+    #    59  spacr.resources.icons.backup_icons._generators
+    #    16  spacr.qt.i18n_catalogs        (generated per-language catalogs)
+    #    16  spacr.qt.tutorial
+    #     4  spacr._v1_v2_bridge
+    #     1  spacr.qt.__main__
+    #     1  spacr.qt.run_without_setup
+    #   ---
+    #   213
+    assert 10_442 - len(docs) == 213
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
@@ -906,7 +982,10 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     docs = builder.public_docstrings()
     assignment_keys = _visible_assignment_docs()
 
-    assert len(assignment_keys) == 18
+    # 16, not 18 -- see the note in
+    # test_public_docstrings_matches_reviewed_visible_coverage. The two that
+    # left were class docstrings misfiled under a constant.
+    assert len(assignment_keys) == 16
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (
@@ -915,9 +994,17 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     assert docs["spacr.anndata_export.ANNDATA_MISSING_MESSAGE"].startswith(
         "Exporting to AnnData (.h5ad) needs the optional `anndata` extra"
     )
-    assert docs[
+    # RESCALE_ON_FILTER IS DELIBERATELY NOT HERE. This used to assert that
+    # the constant's doc began "The chart itself: a spec in, a faceted figure
+    # out" -- which is GraphCanvas's own class docstring, read as the
+    # constant's only because the docstring had been displaced below the
+    # assignment. Asserting it pinned the displacement. The constant is
+    # documented with `#:` comments, which AutoAPI renders and this extractor
+    # deliberately does not collect.
+    assert (
         "spacr.qt.widgets.graph_builder.GraphCanvas.RESCALE_ON_FILTER"
-    ].startswith("The chart itself: a spec in, a faceted figure out")
+        not in assignment_keys
+    )
     assert docs["spacr.workspace.MODES"].startswith(
         "Supported workspace persistence modes"
     )

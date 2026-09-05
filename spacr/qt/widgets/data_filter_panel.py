@@ -191,6 +191,13 @@ class _ClauseRow(QFrame):
         # THE CONTRACT EVERY ROW IS HELD TO. A subclass that forgets it
         # fails loudly here rather than filtering on nothing, which reads
         # as a filter that silently matches everything.
+        """Return the filter clause this row describes.
+
+        :returns: the clause.
+        :raises NotImplementedError: always, on the base row. A subclass that
+            forgets it fails loudly here rather than filtering on nothing, which
+            reads as a filter that silently matches everything.
+        """
         raise NotImplementedError
 
 
@@ -261,6 +268,10 @@ class _RangeRow(_ClauseRow):
                                     self._high.maximum())))
 
     def clause(self) -> RangeFilter:
+        """Return this row's numeric range clause.
+
+        :returns: the low and high bounds as a range filter.
+        """
         return RangeFilter(self.column,
                            low=self._low.value(), high=self._high.value())
 
@@ -303,6 +314,10 @@ class _CategoryRow(_ClauseRow):
             self._outer.addWidget(holder)
 
     def state(self) -> dict:
+        """Return this row's ticked categories, for saving.
+
+        :returns: the row's kind, its column, and which values are ticked.
+        """
         return {"kind": "category", "column": self.column,
                 "chosen": [b.text() for b in self._boxes if b.isChecked()]}
 
@@ -318,6 +333,10 @@ class _CategoryRow(_ClauseRow):
             box.setChecked(box.text() in chosen)
 
     def clause(self) -> CategoryFilter:
+        """Return this row's category clause.
+
+        :returns: the ticked values as a category filter.
+        """
         return CategoryFilter(
             self.column,
             tuple(b.text() for b in self._boxes if b.isChecked()))
