@@ -99,7 +99,14 @@ def test_choosing_load_sets_the_local_source_and_the_load_mode(screen, tmp_path,
     source = screen._choose_the_test_data(chooser=Chose())
 
     assert str(plate) in source, source
-    assert "carruthers" not in source
+    # THE POINT IS THAT IT DID NOT FALL BACK to the packaged example folder
+    # in the developer's home. That was asserted as `"carruthers" not in
+    # source`, which is the maintainer's username -- and pytest's tmp_path on
+    # this machine is `/tmp/pytest-of-carruthers/...`, so the guard fired on
+    # the very path it was meant to accept. Any user whose name appears in
+    # their temp path hits it. Say what is meant instead: the source is under
+    # the test's own directory.
+    assert source.startswith(str(tmp_path)), source
     assert screen._settings.crop_source == "load_images"
 
 

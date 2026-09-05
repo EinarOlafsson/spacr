@@ -2646,6 +2646,10 @@ class AnnotateScreen(QWidget):
     train_requested = Signal(str, dict)
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the annotation grid, its controls and its shortcuts.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         # This module is imported lazily, which normally means minutes after
         # the only stylesheet that would have carried its blocks was built.
@@ -2954,6 +2958,7 @@ class AnnotateScreen(QWidget):
         # Resolved once here rather than imported at module scope, so the
         # grid canvas and the tile chrome agree with the theme the user is
         # actually running (see `tile_palette`).
+        """Lay out the thumbnail grid over the class and navigation rows."""
         PALETTE = tile_palette()
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
@@ -3757,6 +3762,12 @@ class AnnotateScreen(QWidget):
         # Bare arrow keys now drive grid focus (see `handle_key`), so page
         # navigation moved to PageUp/PageDown with Alt+Arrow kept as an
         # alias for anyone with the old muscle memory.
+        """Bind the number keys, the arrows and undo.
+
+        THE KEYBOARD IS THE INTERFACE HERE. Annotation is thousands of
+        one-key decisions, and a hand that has to reach for the mouse between
+        each one does a fraction as many in an hour.
+        """
         QShortcut(QKeySequence(Qt.Key_PageUp), self, self._on_prev)
         QShortcut(QKeySequence(Qt.Key_PageDown), self, self._on_next)
         QShortcut(QKeySequence("Alt+Left"), self, self._on_prev)
@@ -3877,6 +3888,7 @@ class AnnotateScreen(QWidget):
         return os.getcwd()
 
     def _on_pick_source(self):
+        """Ask for a project to annotate."""
         d = QFileDialog.getExistingDirectory(self, "Pick experiment source",
                                              self._starting_folder())
         if not d:
@@ -3884,6 +3896,10 @@ class AnnotateScreen(QWidget):
         self._open_source(d)
 
     def _open_source(self, src: str):
+        """Open a project and load its first page of crops.
+
+        :param src: the project folder.
+        """
         db_path = os.path.join(src, "measurements", "measurements.db")
         if not os.path.isfile(db_path):
             answer = QMessageBox.question(
@@ -3944,6 +3960,7 @@ class AnnotateScreen(QWidget):
         self._load_page()
 
     def _on_open_settings(self):
+        """Open the annotation settings dialog."""
         dlg = _SettingsDialog(self._settings, self)
         self._settings_dialog = dlg
         dlg.destroyed.connect(self._on_settings_dialog_destroyed)
@@ -3975,6 +3992,7 @@ class AnnotateScreen(QWidget):
         self._settings_dialog = None
 
     def _on_next(self):
+        """Go to the next page of crops."""
         self._flush_pending()
         page = self._settings.page_size
         if self._offset + page < max(self._total, 1):
@@ -3982,12 +4000,14 @@ class AnnotateScreen(QWidget):
             self._load_page()
 
     def _on_prev(self):
+        """Go to the previous page."""
         self._flush_pending()
         page = self._settings.page_size
         self._offset = max(0, self._offset - page)
         self._load_page()
 
     def _on_skip(self):
+        """Leave this page unannotated and move on."""
         self._flush_pending()
         offset = self._last_annotated_offset()
         if offset is None:
@@ -4026,6 +4046,11 @@ class AnnotateScreen(QWidget):
         return (last // page) * page
 
     def _on_class_counts(self):
+        """Show how many objects have been given each class so far.
+
+        THE NUMBER THAT SAYS WHEN TO STOP. A classifier needs a balance, not
+        a total, and the count per class is the only thing that shows it.
+        """
         rows = class_counts(self._settings.db_path, self._settings.annotation_column, table=self._settings.png_table)
         if not rows:
             QMessageBox.information(self, "Class counts", "No annotated rows yet.")
@@ -4391,6 +4416,7 @@ class AnnotateScreen(QWidget):
         self.train_requested.emit("ml_analyze", seed)
 
     def _on_clear_column(self):
+        """Clear every annotation in one column, after confirming."""
         col = self._settings.annotation_column
         answer = QMessageBox.question(
             self, "Confirm clear",
@@ -4613,9 +4639,17 @@ class AnnotateScreen(QWidget):
             f"{crops_folder_for(table)}/ beside the database.")
 
     def _on_thumb_left(self, slot: int):
+        """Assign the current class to one crop.
+
+        :param slot: which grid position was clicked.
+        """
         self._toggle_annotation(slot, 1)
 
     def _on_thumb_right(self, slot: int):
+        """Clear one crop's annotation.
+
+        :param slot: which grid position was clicked.
+        """
         self._toggle_annotation(slot, 2)
 
     def _on_thumb_shift(self, slot: int):
@@ -4671,6 +4705,10 @@ class AnnotateScreen(QWidget):
     # Page loading + rendering
     # ------------------------------------------------------------------
     def _filter_active(self) -> bool:
+        """Whether a filter is narrowing what the grid shows.
+
+        :returns: True when filtered.
+        """
         s = self._settings
         return bool(s.measurement and s.threshold and s.threshold_direction)
 
@@ -4743,6 +4781,7 @@ class AnnotateScreen(QWidget):
             then()
 
     def _load_page(self):
+        """Load the current page, on a worker."""
         if self._closing:
             return
         page = self._settings.page_size
@@ -4803,6 +4842,14 @@ class AnnotateScreen(QWidget):
         self._start_page_worker(request)
 
     def _start_page_worker(self, request):
+        """Read one page of crops off the GUI thread.
+
+        OFF THE GUI THREAD BECAUSE THE CROPS COME FROM A DATABASE, and a page
+        read from a sleeping network share would otherwise freeze the window
+        for as long as the share takes to wake.
+
+        :param request: which page to read.
+        """
         gen, paths, crop_src, settings = request
         load_fn = partial(
             _load_thumb_image_worker,
@@ -4833,6 +4880,15 @@ class AnnotateScreen(QWidget):
 
     @Slot(int, object)
     def _on_page_loaded(self, gen: int, loaded):
+        """Show a page that has come back, unless it is stale.
+
+        THE GENERATION IS CHECKED. A user who pages quickly has several reads
+        in flight, and an older one landing last would replace the page they
+        are now looking at.
+
+        :param gen: the generation this read belongs to.
+        :param loaded: the crops it returned.
+        """
         if gen != self._page_gen:
             return   # superseded by a newer load
         page = self._settings.page_size
@@ -5107,6 +5163,12 @@ class AnnotateScreen(QWidget):
         return None
 
     def _push_undo(self, slot: int, path: str, previous: Optional[int]) -> None:
+        """Record one annotation so it can be taken back.
+
+        :param slot: which grid position changed.
+        :param path: the object that was annotated.
+        :param previous: what it was before.
+        """
         self._undo_stack.append((slot, path, previous))
 
     def handle_key(self, key, text: str = "") -> bool:
@@ -5408,6 +5470,12 @@ class AnnotateScreen(QWidget):
 
     # ------------------------------------------------------------------
     def _flush_pending(self):
+        """Write the queued annotations to the database.
+
+        BATCHED RATHER THAN PER CLICK: annotation is fast and the database is
+        not, so a write per keystroke would make the grid stutter under
+        exactly the rhythm it is designed for.
+        """
         if not self._pending_updates or self._worker is None:
             return
         batch = dict(self._pending_updates)
