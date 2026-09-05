@@ -190,6 +190,12 @@ class Comparison:
 
 
 def _clean(values) -> np.ndarray:
+    """Drop the non-finite values from an array.
+
+    :param values: the values.
+    :returns: the finite ones, as float64 -- a test run over ``nan`` returns
+        ``nan`` rather than failing, which is worse than dropping them.
+    """
     array = np.asarray(values, dtype="float64")
     return array[np.isfinite(array)]
 
@@ -429,6 +435,14 @@ def compare(groups: Mapping[str, Sequence], *, unit: str = "observation",
 
 
 def _run(name: str, arrays: Sequence[np.ndarray], *, paired: bool) -> tuple:
+    """Run one named statistical test.
+
+    :param name: the test.
+    :param arrays: the samples.
+    :param paired: whether the samples are paired.
+    :returns: whatever scipy returns for that test -- the statistic and its
+        P value.
+    """
     from scipy import stats
 
     if name == "Student's t":
