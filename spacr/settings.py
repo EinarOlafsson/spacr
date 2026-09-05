@@ -7522,3 +7522,8 @@ def _set_organelle_defaults(settings):
 # LAST IN THE FILE, after every name this module defines, because registering
 # calls back into it.
 from . import illumination as _illumination  # noqa: E402,F401
+# OPS registers here for the same reason illumination does: the tables
+# above must exist first. Its factory is LAZY, so this costs an import
+# of `typing` and nothing else -- `spacrops` reaches OpenCV and SciPy
+# and is not wanted on the path a module screen opens through.
+from . import ops_settings as _ops_settings  # noqa: E402,F401
