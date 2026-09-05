@@ -728,7 +728,8 @@ def _say_how_to_close_it(dialog: QDialog) -> bool:
         hint.setObjectName("Muted")
         hint.setAlignment(Qt.AlignHCenter)
         # SMALL, as asked. It is a reminder, not a control.
-        hint.setStyleSheet("font-size: 10px;")
+        from ..theme import font_px
+        hint.setStyleSheet(f"font-size: {font_px(10)}px;")
         hint.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         layout.addWidget(hint)
         dialog.setProperty(CLOSE_HINT, True)
