@@ -163,6 +163,12 @@ def _find_logo_pixmap() -> Optional[QPixmap]:
 
 
 def _fmt_elapsed(seconds: float) -> str:
+    """Render an elapsed time compactly.
+
+    :param seconds: the duration; negatives read as zero.
+    :returns: seconds, then minutes and seconds, then hours and minutes --
+        each with the smaller unit zero-padded so a column of them lines up.
+    """
     seconds = int(max(0, seconds))
     if seconds < 60:
         return f"{seconds}s"

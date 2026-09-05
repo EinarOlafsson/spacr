@@ -44,6 +44,10 @@ def _module(language: str) -> Optional[ModuleType]:
 
 @lru_cache(maxsize=1)
 def _english() -> ModuleType:
+    """Return the English catalogue -- the identity mapping every key falls back to.
+
+    :returns: the catalogue.
+    """
     return import_module(f"{__name__}.en")
 
 

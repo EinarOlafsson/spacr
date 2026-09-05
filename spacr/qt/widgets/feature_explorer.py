@@ -435,5 +435,12 @@ class FeatureExplorerPanel(QWidget):
 
 
 def _brush(colour: str):
+    """Build a ``QBrush`` from a colour string.
+
+    Imported inside the call so this module stays importable headlessly.
+
+    :param colour: the colour.
+    :returns: the brush.
+    """
     from PySide6.QtGui import QBrush, QColor
     return QBrush(QColor(colour))

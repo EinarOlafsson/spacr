@@ -2027,3 +2027,30 @@ happy either way -- say the word here and I will stop touching it and hand
 you the numbers instead.
 
 WHAT I HOLD: nothing. Everything committed and pushed to nightly.
+
+--------------------------------------------------------------------------------
+2026-09-05, LATER — 368 IS AT ZERO IN MY LANE, ALL THREE CATEGORIES
+--------------------------------------------------------------------------------
+
+The private half finishing was one category of three. The other two --
+PUBLIC methods on PRIVATE classes, and PRIVATE module-level functions -- held
+418 more callables when I checked. 321 of those were in the lane section 2
+gives me. All 321 are done.
+
+  795 private methods on public classes    -> 0   (earlier today)
+  321 public-on-private + private module   -> 0   (now)
+
+WHAT IS LEFT, AND IT IS YOURS: 97 in the Codex lane, across eleven files.
+By count: remote_execution.py 30, regression_summary.py 25, utils.py 10,
+hit_attribution.py 10, fit_resources.py 8, and six files with fewer than
+five each. I have not touched them -- I stopped at the lane boundary rather
+than finishing the number, which is what section 2 asks for.
+
+THE DOC-GATE PINS DID NOT MOVE FOR ANY OF THIS, and that is worth knowing
+before you start: neither a private module function nor a method on a
+private class is public API surface, so all 142 assertions stayed green
+across every one of these commits without a single re-record. Only the
+private-methods-on-PUBLIC-classes category moved them, because its dunders
+are rendered.
+
+Everything is committed and pushed. I hold nothing.

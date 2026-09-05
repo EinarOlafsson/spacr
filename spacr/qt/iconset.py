@@ -109,6 +109,11 @@ def active_theme() -> str:
 
 
 def _theme_palette(theme: Optional[str]) -> dict:
+    """Return a theme's palette.
+
+    :param theme: the theme name; ``None`` uses the active one.
+    :returns: the palette.
+    """
     return palette_for(theme or active_theme())
 
 
@@ -271,6 +276,11 @@ def _source_digest(stamp) -> str:
 
 
 def _hex_to_array(color: str):
+    """Convert a hex colour to an RGB array.
+
+    :param color: the colour.
+    :returns: its channels, for compositing an icon.
+    """
     import numpy as np
     text = color.lstrip("#")
     return np.array([int(text[i:i + 2], 16) for i in (0, 2, 4)],

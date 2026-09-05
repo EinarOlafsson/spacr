@@ -55,6 +55,10 @@ SPEED_MAP: Dict[str, Dict[str, tuple]] = {
 
 
 def _settings() -> QSettings:
+    """Open spaCR's ``QSettings``.
+
+    :returns: the settings store.
+    """
     return QSettings(_SETTINGS_ORG, _SETTINGS_APP)
 
 

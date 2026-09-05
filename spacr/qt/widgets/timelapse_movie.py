@@ -73,6 +73,12 @@ def _live_cache_owners():
 
 
 def _ensure_cache_budget_sweep() -> None:
+    """Arm the shared memory-budget sweep, if the cleanup module is loaded.
+
+    Looked up in ``sys.modules`` rather than imported: this runs at widget
+    construction, and importing the cleanup machinery in order to register
+    with it would pull it in whether or not anything else wanted it.
+    """
     cleanup = sys.modules.get("spacr.qt.resource_cleanup")
     install = getattr(cleanup, "install_budget_sweep", None)
     if callable(install):

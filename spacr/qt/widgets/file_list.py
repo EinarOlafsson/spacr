@@ -39,6 +39,16 @@ LOG = logging.getLogger(__name__)
 
 
 def _pair_tokens(path: str) -> set[str]:
+    """Extract the tokens a filename can be paired on.
+
+    Zero padding in ``plate 007`` is normalised so it pairs with ``plate7``,
+    and words that appear in every file -- ``score``, ``count``, ``results``
+    and the model names -- are dropped, because a token every candidate
+    shares pairs nothing with anything.
+
+    :param path: the file.
+    :returns: its distinguishing tokens, lowercased.
+    """
     stem = os.path.splitext(os.path.basename(os.fspath(path)))[0].casefold()
     stem = re.sub(r"plate[\s_-]*0*(\d+)", r"plate\1", stem)
     generic = {"score", "scores", "count", "counts", "result", "results",

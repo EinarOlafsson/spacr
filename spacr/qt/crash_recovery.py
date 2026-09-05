@@ -51,6 +51,11 @@ def _folder() -> str:
 
 
 def _read_counter() -> int:
+    """Read how many unclean exits have been recorded.
+
+    :returns: the count, and ``0`` for a missing or unreadable file -- a
+        counter that cannot be read is not evidence of a crash.
+    """
     try:
         with open(os.path.join(_folder(), _COUNTER)) as handle:
             return max(0, int(handle.read().strip() or 0))
@@ -59,6 +64,12 @@ def _read_counter() -> int:
 
 
 def _write_counter(value: int) -> None:
+    """Record the unclean-exit count.
+
+    :param value: the new count, floored at zero. A failure is logged and
+        swallowed: this runs during startup and shutdown, where refusing to
+        continue over a bookkeeping file would be worse than losing it.
+    """
     try:
         with open(os.path.join(_folder(), _COUNTER), "w") as handle:
             handle.write(str(max(0, int(value))))

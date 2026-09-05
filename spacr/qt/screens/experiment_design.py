@@ -217,6 +217,11 @@ class _Well(QLabel):
         return widget
 
     def mousePressEvent(self, event):                # noqa: N802 - Qt
+        """Begin a drag-select from this well.
+
+        :param event: the mouse event; its modifiers decide whether the drag
+            adds to the selection or replaces it.
+        """
         screen = self._screen()
         if screen is not None:
             screen.begin_well_drag(self.row, self.column, event.modifiers())
@@ -225,6 +230,13 @@ class _Well(QLabel):
     def mouseMoveEvent(self, event):                 # noqa: N802 - Qt
         # THE PRESSED WIDGET KEEPS THE GRAB, so the well under the pointer
         # has to be found by asking rather than by waiting to be entered.
+        """Extend the drag-select to the well under the pointer.
+
+        Reported in global coordinates, because the pointer is usually over a
+        different well by now and this one cannot say which.
+
+        :param event: the mouse event.
+        """
         screen = self._screen()
         if screen is not None:
             screen.drag_wells_to(
@@ -232,6 +244,14 @@ class _Well(QLabel):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):              # noqa: N802 - Qt
+        """End a drag-select, or let a plain click through to the toggle.
+
+        The drag is finished before the base class runs, which is what emits
+        ``clicked``: a drag that has already painted the rectangle must not then
+        have its anchor flipped a second time.
+
+        :param event: the mouse event.
+        """
         screen = self._screen()
         if screen is not None:
             screen.finish_well_drag()

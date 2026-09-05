@@ -74,6 +74,11 @@ class _WellChoice(QDialog):
         outer.addWidget(buttons)
 
     def chosen(self) -> set:
+        """The wells currently ticked.
+
+        :returns: their names, as a set -- order carries no meaning here and a
+            set makes the membership tests downstream honest.
+        """
         return {b.text() for b in self._boxes if b.isChecked()}
 
 

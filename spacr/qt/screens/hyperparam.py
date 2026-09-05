@@ -701,9 +701,19 @@ class _FixedChoiceCombo(QComboBox):
     """A non-editable dropdown with the former field's tiny testable API."""
 
     def text(self) -> str:
+        """The chosen value.
+
+        Named for ``QLineEdit``'s API so the same code can read this and a text
+        field without knowing which it has.
+        """
         return self.currentText()
 
     def setText(self, text: str) -> None:
+        """Select the entry carrying this value.
+
+        :param text: the value to select; one the combo does not offer leaves it
+            where it was, because a closed alphabet cannot hold an outside value.
+        """
         value = str(text)
         if not value:
             self.setCurrentIndex(-1)

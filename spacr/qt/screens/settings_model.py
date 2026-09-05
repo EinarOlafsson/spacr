@@ -4376,6 +4376,11 @@ def _type_hint(key: str) -> str:
 
 
 def _humanize(key: str) -> str:
+    """Render a setting key as its human label.
+
+    :param key: the setting name.
+    :returns: its label, and ``""`` for an empty key.
+    """
     return setting_label(key) if key else ""
 
 
@@ -4685,6 +4690,13 @@ class _ApiTooltipFilter(QObject):
     def eventFilter(self, watched, event):  # noqa: N802 (Qt naming)
         # Re-render on entry so a Preferences language change cannot leave a
         # sticky popup displaying an earlier language.
+        """Show the API help popup instead of Qt's own tooltip.
+
+        :param watched: the widget being hovered.
+        :param event: the event.
+        :returns: ``True`` for the tooltip request it replaces, ``False``
+            otherwise.
+        """
         if event.type() == QEvent.Enter:
             refresh_api_tooltips(watched)
         html = watched.property("apiTooltipHtml")
@@ -6778,6 +6790,13 @@ class _HiddenRowWatcher(QObject):
         self._model = weakref.ref(model)
 
     def eventFilter(self, obj, event) -> bool:            # noqa: N802
+        """Keep a hidden settings row hidden when something tries to show it.
+
+        :param obj: the row's field widget.
+        :param event: the event.
+        :returns: ``False`` -- the show is observed and corrected, never
+            consumed.
+        """
         if event.type() == QEvent.ShowToParent:
             model = self._model()
             if model is None:

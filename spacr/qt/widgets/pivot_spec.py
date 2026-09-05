@@ -600,6 +600,14 @@ def _require_axis_column(frame: pd.DataFrame, key: str) -> None:
 
 
 def _levels_of(frame: pd.DataFrame, key: str) -> Tuple[str, ...]:
+    """Return a pivot axis column's distinct values, sorted.
+
+    :param frame: the table.
+    :param key: the axis column.
+    :returns: the levels, in the natural order the sort key defines -- so
+        ``well 2`` comes before ``well 10`` rather than after it.
+    :raises PivotError: if the table has no such column.
+    """
     _require_axis_column(frame, key)
     labels = _level_series(frame, key)
     return tuple(sorted({str(v) for v in labels.unique()}, key=_sort_key))
