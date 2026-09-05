@@ -1626,6 +1626,27 @@ class CellMontageView(QWidget):
                  results_provider: Optional[Callable[[], str]] = None,
                  database_provider: Optional[Callable[[], Any]] = None,
                  parent=None, *, threaded: bool = True):
+        """Build the montage tab.
+
+        Every piece of state a control reads is created before any signal is
+        connected: a widget whose controls are live before its state exists is
+        the crash that took the application down at launch, and the rule has its
+        own test file.
+
+        The controls sit in a flow rather than a row, so they wrap before they
+        clip -- the four buttons alone measure over 550 px, and squeezing a
+        required selector down to a few pixels was what met the nominal minimum
+        before.
+
+        :param frame_provider: called for the coefficient table.
+        :param results_provider: called for the run's results path.
+        :param database_provider: called for the measurements database.
+        :param parent: parent widget, or ``None``.
+        :param threaded: run loads on a worker thread. Remembered, so a panel
+            built later runs the way the view was asked to -- an unthreaded view
+            that grew a threaded tab would put a ``QThread`` into a test
+            constructed to have none.
+        """
         super().__init__(parent)
         from ..job_runner import JobRunner
         from .flow import FlowHost, FlowLayout
@@ -2904,6 +2925,12 @@ class CellMontageView(QWidget):
     # ------------------------------------------------------------- internals
 
     def _frame(self):
+        """Reach the coefficient table through the provider.
+
+        :returns: the table, or ``None`` when there is no provider or it raised
+            -- a montage tab must not take the screen down because the table
+            behind it went away.
+        """
         if self._frame_provider is None:
             return None
         try:
@@ -2927,6 +2954,10 @@ class CellMontageView(QWidget):
         return os.path.basename(str(folder).rstrip(os.sep)) or str(folder)
 
     def _results_path(self) -> str:
+        """Reach the run's results path through the provider.
+
+        :returns: the path, or ``""`` when there is no provider or it raised.
+        """
         if self._results_provider is None:
             return ""
         try:
@@ -2936,6 +2967,12 @@ class CellMontageView(QWidget):
             return ""
 
     def _summary(self) -> str:
+        """Describe what the montage shows.
+
+        :returns: one line per plan, or -- with no plans at all -- a statement
+            that the loader returned neither a montage nor a reason, which is a
+            bug in the loader rather than in the run.
+        """
         if not self._plans:
             return ("The montage loader came back with no montage and no "
                     "reason, which is a bug in the loader rather than in the "
@@ -2947,6 +2984,11 @@ class CellMontageView(QWidget):
         return lines[0]
 
     def _set_status(self, text: str) -> None:
+        """Write the status line and remember it.
+
+        :param text: the message; kept so a caller can read back what the tab
+            last said.
+        """
         self._status_text = str(text)
         self._status.setText(self._status_text)
 

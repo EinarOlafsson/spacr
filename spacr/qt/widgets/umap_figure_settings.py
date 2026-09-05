@@ -348,6 +348,16 @@ class UmapFigureSettings(QWidget):
     settings_changed = Signal(dict)
 
     def __init__(self, values: Optional[Dict[str, Any]] = None, parent=None):
+        """Build the Image UMAP settings panel, grouped by when a change applies.
+
+        The three tiers are the point: settings that restyle the points already
+        drawn, settings that redraw the graph from the same embedding so no
+        point moves, and settings that only take effect on the next run.
+
+        :param values: the settings to open with; ``None`` entries fall back to
+            the module defaults.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._editors: Dict[str, QWidget] = {}
         self._timer = QTimer(self)
@@ -433,6 +443,12 @@ class UmapFigureSettings(QWidget):
 
     @staticmethod
     def _defaults() -> Dict[str, Any]:
+        """Read the Image UMAP defaults.
+
+        :returns: the defaults, or an empty mapping when they cannot be read --
+            the panel then seeds from the passed values alone rather than
+            failing to build.
+        """
         from ...settings import set_default_umap_image_settings
         try:
             return set_default_umap_image_settings({})
@@ -441,6 +457,17 @@ class UmapFigureSettings(QWidget):
             return {}
 
     def _editor(self, field: Field, value) -> QWidget:
+        """Build the control for one setting.
+
+        ``row_limit`` and the other nullable fields get a text box rather than a
+        spin box: ``None`` means "every row", and a spin box has no way to say
+        that, so it is typed rather than clamped.
+
+        :param field: the setting's declaration.
+        :param value: its current value; an unparseable one leaves the control
+            at its own default rather than raising.
+        :returns: the control.
+        """
         if field.kind == "bool":
             box = Toggle()
             box.setChecked(bool(value))
@@ -523,6 +550,13 @@ class UmapFigureSettings(QWidget):
     # -- change plumbing ---------------------------------------------------
 
     def _schedule(self, *_args) -> None:
+        """Queue an emit after a control changed.
+
+        Debounced, so dragging a spin box costs one redraw rather than one per
+        step.
+
+        :param _args: whatever the emitting control passes; ignored.
+        """
         self._timer.start()
 
     def flush(self) -> None:
@@ -532,6 +566,12 @@ class UmapFigureSettings(QWidget):
             self._emit_changed()
 
     def _emit_changed(self) -> None:
+        """Announce the settings, unless nothing actually changed.
+
+        Comparing against what was last applied is what stops a debounce that
+        fired on a value the user typed and then undid from redrawing the graph
+        for no change.
+        """
         values = self.values()
         if values == self._applied:
             return

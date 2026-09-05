@@ -70,6 +70,21 @@ class EdgeDrawer(QWidget):
 
     def __init__(self, host: QWidget, panel: QWidget, width: int = 0,
                  parent=None):
+        """Build the sliding drawer and its edge trigger.
+
+        The drawer starts fully off-screen rather than hidden: a hidden widget
+        reports no geometry, and the tutorial overlay needs a rectangle to point
+        at. Whether it is open is tracked as its own flag rather than derived
+        from position -- the slide takes 170 ms, and for those 170 ms a
+        position-derived answer would call an opening drawer closed, which is
+        how a caller ends up racing the animation.
+
+        :param host: the widget the drawer slides over; also where the hot strip
+            lives.
+        :param panel: the contents; re-parented into the drawer.
+        :param width: the drawer's width; ``0`` takes the panel's.
+        :param parent: parent widget; defaults to ``host``.
+        """
         super().__init__(parent or host)
         self.setObjectName("EdgeDrawer")
         self._host = host
@@ -278,6 +293,10 @@ class EdgeDrawer(QWidget):
             target.setFocus(Qt.TabFocusReason)
 
     def _first_focusable(self):
+        """Return the first control in the panel that can take focus.
+
+        :returns: the widget, or ``None`` when nothing in the panel takes focus.
+        """
         for child in self._panel.findChildren(QWidget):
             if child.focusPolicy() != Qt.NoFocus and child.isVisibleTo(
                     self._panel):
@@ -286,16 +305,23 @@ class EdgeDrawer(QWidget):
 
     # -- animation -----------------------------------------------------
     def _animate_to(self, x: int) -> None:
+        """Slide the drawer to a horizontal position.
+
+        :param x: where to end up; any animation already running is stopped, so
+            a reverse mid-slide starts from where it actually is.
+        """
         self._anim.stop()
         self._anim.setStartValue(self.pos())
         self._anim.setEndValue(QPoint(x, 0))
         self._anim.start()
 
     def _on_anim_finished(self) -> None:
+        """Hide the drawer once it has finished sliding shut."""
         if not self._open_state:
             self.hide()
 
     def _close_unless_held(self) -> None:
+        """Close the drawer, unless something is holding it open."""
         if not self._held:
             self.close()
 
