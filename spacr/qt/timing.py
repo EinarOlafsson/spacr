@@ -78,10 +78,19 @@ _IMPORT_TIMER_INSTALLED = False
 
 
 def _now() -> float:
+    """Seconds since the timer started.
+
+    :returns: a monotonic elapsed time, so a clock change cannot make a span
+        negative.
+    """
     return time.perf_counter() - _START
 
 
 def _depth() -> int:
+    """The current nesting depth of timed spans on this thread.
+
+    :returns: the depth, and ``0`` on a thread that has opened none.
+    """
     return getattr(_DEPTH, "value", 0)
 
 
@@ -285,9 +294,32 @@ class _ImportTimer:
         self._depth = 0
 
     def find_module(self, fullname, path=None):              # noqa: D102
+        """Decline the legacy finder protocol.
+
+        :param fullname: the module being imported.
+        :param path: the search path.
+        :returns: ``None`` always -- this timer never imports anything; it only
+            measures the finders that do.
+        """
         return None
 
     def find_spec(self, fullname, path=None, target=None):
+        """Note that an import started, and let the real finders answer.
+
+        Returning ``None`` is the whole design: this measures how long the
+        genuine finders take and how long the module then takes to execute,
+        which the next call in for a submodule nests under. A module already in
+        ``sys.modules`` is not timed, because it is not being imported.
+
+        The importing source line is walked back out of the stack, up to a
+        bounded depth, so a slow import can be attributed to the line that asked
+        for it rather than only named.
+
+        :param fullname: the module being imported.
+        :param path: the search path.
+        :param target: the module being reloaded, if any.
+        :returns: ``None``, always.
+        """
         if fullname in sys.modules:
             return None
         started = time.perf_counter()
@@ -312,6 +344,11 @@ class _ImportTimer:
         return None
 
     def note(self) -> None:
+        """Do nothing.
+
+        Present so a caller can note a boundary without knowing whether timing
+        is switched on.
+        """
         pass
 
 

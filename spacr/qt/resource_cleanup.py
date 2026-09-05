@@ -449,11 +449,33 @@ def _loaded_cache_owners():
 
 
 def _owner_label(owner) -> str:
+    """Name a cache owner for a report.
+
+    :param owner: a module or an object holding a cache.
+    :returns: the module's name, or the object's fully qualified class name
+        -- either way something a reader can find in the source.
+    """
     return str(getattr(owner, "__name__", "")
                or f"{type(owner).__module__}.{type(owner).__name__}")
 
 
 def _collect_budget_entries(owners=None):
+    """Inventory every registered cache, entry by entry.
+
+    An owner that does not implement both halves of the protocol is reported
+    rather than skipped: a cache that can be measured but not dropped is a
+    cache the sweep can never reclaim, and silence about it would look like
+    there was nothing to reclaim.
+
+    The drop callable binds its key as a DEFAULT ARGUMENT rather than
+    closing over the loop variable -- closed over, every entry would carry
+    the LAST key, so one eviction would drop the wrong value and report
+    success.
+
+    :param owners: the owners to inventory; ``None`` uses every loaded one.
+    :returns: ``(entries, errors)`` -- what can be dropped, and what could
+        not be asked.
+    """
     records: List[_BudgetEntry] = []
     errors: List[str] = []
     for owner in tuple(_loaded_cache_owners() if owners is None else owners):
@@ -503,6 +525,16 @@ def _collect_budget_entries(owners=None):
 
 
 def _budget_values(idle_minutes, ceiling_mb):
+    """Resolve the idle timeout and cache ceiling, falling back to the defaults.
+
+    :param idle_minutes: the caller's value, or ``None`` to read the
+        preference.
+    :param ceiling_mb: the caller's value, or ``None`` to read the
+        preference.
+    :returns: both, as non-negative floats. An unreadable preference falls
+        back to the shipped default rather than failing the sweep:
+        housekeeping must not be what takes the application down.
+    """
     from .memory_budget import (
         DEFAULT_CACHE_CEILING_MB,
         DEFAULT_IDLE_MINUTES,
@@ -771,6 +803,15 @@ def _clear_lru_caches() -> List[str]:
 
 
 def _clear_dict_caches() -> List[str]:
+    """Empty the registered plain-dict caches and their use-time maps.
+
+    A module that is not imported is skipped rather than imported to be
+    cleared -- importing something in order to free memory is the opposite
+    of the point.
+
+    :returns: one line per cache cleared, naming it and how many entries it
+        held.
+    """
     import sys
     done: List[str] = []
     for module_name, attribute in _DICT_CACHES:
@@ -1453,6 +1494,10 @@ def summary_text(action: str) -> str:
 # ---------------------------------------------------------------------------
 
 def _mode() -> str:
+    """Return the configured spaCR resource mode.
+
+    :returns: the preference, or ``"balanced"`` when it cannot be read.
+    """
     try:
         from .preferences import get_spacr_mode
         return get_spacr_mode()
@@ -1480,6 +1525,13 @@ def _report(result, prefix: str = "") -> None:
 
 
 def _cleanup(*, aggressive: bool, release_models: bool) -> List[Reclaim]:
+    """Run the reclaim passes and report each one.
+
+    :param aggressive: also clear the CPU-side caches, not only host RAM
+        and VRAM.
+    :param release_models: drop cached model weights as well.
+    :returns: one result per pass.
+    """
     results = [clear_ram(aggressive=aggressive),
                clear_vram(release_models=release_models)]
     if aggressive:
@@ -1581,6 +1633,16 @@ def _on_registry_changed() -> None:
 
 
 def _budget_tick() -> None:
+    """Run one scheduled memory-budget sweep and log what it reclaimed.
+
+    Logged at DEBUG rather than INFO: this is housekeeping the user did not
+    ask for and cannot act on, and it fired on every module open. The line
+    was also unreadable when it did fire -- ``before_mb``/``after_mb`` are
+    HOST RSS while ``vram_freed`` is device memory, so "0.0 -> 0.0 MiB and
+    2.6 GB VRAM released" is two accountings in one sentence, both correct.
+    Kept rather than deleted, because it is what you want when chasing a
+    leak.
+    """
     global _BUDGET_SWEEP_PENDING
     _BUDGET_SWEEP_PENDING = False
     try:

@@ -81,6 +81,18 @@ class _StreamRedirector(io.TextIOBase):
         self._lock = threading.Lock()
 
     def write(self, s: str) -> int:
+        """Buffer written text and emit it a line at a time.
+
+        Emitting happens OUTSIDE the lock, so a slow slot cannot block the
+        thread that is writing. A buffer that grows past the cap without a
+        newline is flushed anyway -- a progress bar that never emits one would
+        otherwise be held until the run ended.
+
+        :param s: the text written; coerced with :func:`str`, because a
+            non-string reaching a redirected stream is a caller's bug and losing
+            the output would hide it.
+        :returns: how many characters were accepted, as a stream must.
+        """
         if not isinstance(s, str):
             s = str(s)
         with self._lock:
@@ -98,6 +110,7 @@ class _StreamRedirector(io.TextIOBase):
         return len(s)
 
     def flush(self) -> None:
+        """Emit whatever is buffered, newline or not."""
         with self._lock:
             pending, self._buf = self._buf, ""
         if pending:
@@ -145,11 +158,23 @@ class _ThreadStreamRouter(io.TextIOBase):
         self._lock = threading.RLock()
 
     def register(self, target: _StreamRedirector) -> None:
+        """Route this thread's writes to a redirector.
+
+        Registered as a STACK per thread, so a nested run restores the outer
+        one's target when it unregisters rather than clearing the route.
+
+        :param target: the redirector to send this thread's output to.
+        """
         ident = threading.get_ident()
         with self._lock:
             self._targets.setdefault(ident, []).append(target)
 
     def unregister(self, target: _StreamRedirector) -> None:
+        """Stop routing this thread's writes to a redirector.
+
+        :param target: the redirector to remove; one already gone is ignored,
+            since teardown order is not this object's to guarantee.
+        """
         ident = threading.get_ident()
         with self._lock:
             stack = self._targets.get(ident, [])
@@ -159,6 +184,10 @@ class _ThreadStreamRouter(io.TextIOBase):
                 self._targets.pop(ident, None)
 
     def has_targets(self) -> bool:
+        """Report whether any thread is currently routed.
+
+        :returns: ``True`` while at least one redirector is registered.
+        """
         with self._lock:
             return bool(self._targets)
 
@@ -173,9 +202,15 @@ class _ThreadStreamRouter(io.TextIOBase):
             return stack[-1] if stack else self.original
 
     def write(self, value: str) -> int:
+        """Write to whichever redirector this thread is routed to.
+
+        :param value: the text.
+        :returns: how many characters were accepted.
+        """
         return self._target().write(value)
 
     def flush(self) -> None:
+        """Flush this thread's redirector, tolerating one that has gone away."""
         try:
             self._target().flush()
         except Exception:
@@ -183,9 +218,19 @@ class _ThreadStreamRouter(io.TextIOBase):
 
     @property
     def encoding(self):
+        """The wrapped stream's encoding, or ``None``.
+
+        Delegated rather than declared: code that inspects a stream's encoding
+        is asking about the real one underneath.
+        """
         return getattr(self.original, "encoding", None)
 
     def isatty(self) -> bool:
+        """Whether the wrapped stream is a terminal.
+
+        :returns: the real stream's answer, and ``False`` for a stream that
+            does not implement it -- a router is never itself a terminal.
+        """
         return bool(getattr(self.original, "isatty", lambda: False)())
 
 
@@ -272,6 +317,14 @@ def _register_matplotlib_show(plt, target: Callable[..., Any]) -> None:
 
 
 def _unregister_matplotlib_show(target: Callable[..., Any]) -> None:
+    """Remove one thread's ``show`` target, restoring the original when the last goes.
+
+    The module-level patch is undone only when no thread is routed any
+    more, and only if it is still this router that is installed -- something
+    else having patched ``show`` in the meantime is not ours to revert.
+
+    :param target: the show callable to unregister.
+    """
     global _MPL_ORIGINAL_SHOW, _MPL_MODULE
     with _MPL_SHOW_LOCK:
         ident = threading.get_ident()

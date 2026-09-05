@@ -98,9 +98,17 @@ class _HFDownloadWorker(QObject):
         self._cancel = False
 
     def cancel(self) -> None:
+        """Ask the download to stop at the next file boundary."""
         self._cancel = True
 
     def run(self) -> None:
+        """Download the demo dataset and its settings, reporting progress.
+
+        Cancellation is checked between files rather than during one, so a stop
+        takes effect within a file instead of leaving a half-written one behind.
+        Failures are reported through ``finished`` rather than raised: this runs
+        on a worker thread, where an exception has nobody to catch it.
+        """
         try:
             self.info.emit("Listing files on Hugging Face…")
             dataset_files = _list_files(DATASET_REPO, DATASET_SUB)
@@ -229,9 +237,19 @@ class _DownloadDialog(QDialog):
         self.canceled.emit()
 
     def wasCanceled(self) -> bool:               # noqa: N802 (Qt naming)
+        """Report whether the user pressed Cancel.
+
+        Named for ``QProgressDialog``'s own API so this can stand in for one.
+
+        :returns: ``True`` once Cancel has been pressed.
+        """
         return self._cancelled
 
     def setLabelText(self, text: str) -> None:   # noqa: N802
+        """Set the caption above the bar.
+
+        :param text: what the download is currently doing.
+        """
         self.spacr_caption.setText(str(text))
 
     def setLabel(self, label) -> None:           # noqa: N802
@@ -247,18 +265,32 @@ class _DownloadDialog(QDialog):
             pass
 
     def setMaximum(self, value: int) -> None:    # noqa: N802
+        """Set how many steps the bar counts to.
+
+        :param value: the total; floored at 1, since a bar whose maximum is zero
+            cannot show a proportion.
+        """
         self._bar.setMaximum(max(1, int(value)))
 
     def setValue(self, value: int) -> None:      # noqa: N802
+        """Advance the bar, closing the dialog when it is full and set to auto-close.
+
+        :param value: steps completed.
+        """
         self._bar.setValue(int(value))
         if self._auto_close and self._bar.maximum() and \
                 int(value) >= self._bar.maximum():
             self.close()
 
     def maximum(self) -> int:
+        """Return the bar's current maximum."""
         return self._bar.maximum()
 
     def setAutoClose(self, on: bool) -> None:    # noqa: N802
+        """Choose whether reaching the maximum closes the dialog.
+
+        :param on: close automatically when full.
+        """
         self._auto_close = bool(on)
 
     def setAutoReset(self, on: bool) -> None:    # noqa: N802
@@ -268,6 +300,7 @@ class _DownloadDialog(QDialog):
         """Accepted for compatibility. This dialog is shown when it is made."""
 
     def reset(self) -> None:
+        """Return the bar to zero."""
         self._bar.reset()
 
 
@@ -335,6 +368,10 @@ class _HFDownloadUI(QObject):
 
     @Slot(str)
     def on_info(self, msg: str) -> None:
+        """Show what the worker is currently doing.
+
+        :param msg: the worker's status line.
+        """
         self._dlg.setLabelText(msg)
 
     @Slot(bool, str, str, str)
@@ -343,6 +380,24 @@ class _HFDownloadUI(QObject):
         # callback may open its own modals (Continue/Stop prompts, etc.),
         # and stacking one modal on top of another confuses Qt into the
         # "app not responding" state on Linux.
+        """Tear the download down and hand the result to the caller.
+
+        The dialog is closed BEFORE the callback runs: the callback may open its
+        own modals, and stacking one modal on another puts Qt into the
+        "application not responding" state on Linux. For the same reason the
+        callback itself is deferred by a zero-millisecond timer, so the close and
+        the pending ``deleteLater`` are processed before any chained dialog
+        appears -- which is the specific fix for the force-quit prompt after a
+        download.
+
+        The retained references on the owner are dropped so the thread and the
+        dialog can be collected once the flow ends.
+
+        :param ok: whether the download succeeded.
+        :param ds: where the dataset landed.
+        :param st: where the settings landed.
+        :param err: the failure text when ``ok`` is ``False``.
+        """
         dlg = self._dlg
         try:
             dlg.setValue(dlg.maximum())
@@ -407,9 +462,16 @@ class _MeasureExampleWorker(QObject):
         self._cancel = False
 
     def cancel(self) -> None:
+        """Ask the download to stop at the next file boundary."""
         self._cancel = True
 
     def run(self) -> None:
+        """Download the Measure example dataset, reporting progress.
+
+        A missing ``huggingface_hub`` is raised as an ``ImportError`` naming the
+        package, and reported through ``finished`` like any other failure --
+        this runs on a worker thread, where raising has nobody to catch it.
+        """
         try:
             self.info.emit("Listing files on Hugging Face…")
             try:
@@ -505,9 +567,17 @@ class _TarExampleWorker(QObject):
         self._cancel = False
 
     def cancel(self) -> None:
+        """Ask the download to stop at the next chunk boundary."""
         self._cancel = True
 
     def run(self) -> None:
+        """Stream one example archive to disk and unpack it.
+
+        Written to a ``.part`` file and renamed on completion, so an interrupted
+        download cannot be mistaken for a finished one. Cancellation is checked
+        between chunks, so a stop -- or an application shutdown -- takes effect
+        within a megabyte rather than at the end of a multi-gigabyte file.
+        """
         try:
             import requests
 
@@ -593,6 +663,12 @@ class _ChosenArchivesWorker(_TarExampleWorker):
         self.repo = repo or self.repo
 
     def run(self) -> None:
+        """Download each selected archive in turn, then make the paths absolute.
+
+        A failing archive stops the run without emitting again: the fetch has
+        already reported its own outcome, and a second message would contradict
+        the first.
+        """
         try:
             if not self._archives:
                 self.finished.emit(False, "", "", "Nothing was selected.")
