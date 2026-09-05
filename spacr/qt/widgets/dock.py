@@ -127,6 +127,12 @@ class DockRow(ElidingPushButton):
         # painted no text and needed one; a screen reader still needs the
         # full name when a long one has been elided down to fit the column.
         self.setAccessibleName(name)
+        # AND THE DESCRIPTION, which this dock stopped setting when it was
+        # rewritten. The summary is drawn nowhere on the row -- it goes to
+        # the strip along the bottom -- so for a screen reader the accessible
+        # description is the ONLY route to it, and without this a row
+        # announced its name and nothing about what the module does.
+        self.setAccessibleDescription(desc)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setSizePolicy(QSizePolicy.Policy.Preferred,
                            QSizePolicy.Policy.Fixed)
@@ -365,7 +371,9 @@ class Dock(QWidget):
         on every pointer move across the column.
         """
         for row in self._rows:
-            want = (key is not None and row.key == key)
+            # Same reason as `refresh_icons`: a row this dock did not build
+            # has no `key`, and it is never the one to light.
+            want = (key is not None and getattr(row, "key", None) == key)
             if bool(row.property("hovered")) == want:
                 continue
             row.setProperty("hovered", want)
@@ -512,7 +520,15 @@ class Dock(QWidget):
             row.setIconSize(QSize(side, side))
             if self._icon_for is None:
                 continue
-            icon = self._icon_for(row.key)
+            # `getattr`, NOT `row.key`. `_rows` is a plain list and callers
+            # append to it: three tests put a bare `ElidingPushButton` in to
+            # check that a row with no nav key is left alone, and a row this
+            # dock did not build has no `key` at all. Asking for one raised
+            # `AttributeError` out of a theme refresh.
+            key = getattr(row, "key", None)
+            if key is None:
+                continue
+            icon = self._icon_for(key)
             if icon is not None:
                 row.setIcon(icon)
 
@@ -579,11 +595,39 @@ class Dock(QWidget):
         result between them. Public because the locked dock re-applies it
         after being re-parented out of the drawer, which had resized it.
         """
+        from PySide6.QtGui import QFontMetrics
+
         from ..preferences import scaled_px
-        widest = max((r.sizeHint().width() for r in self._rows
-                      if not r.isHidden()), default=0)
+
+        # MEASURED FROM THE FULL NAME, not from `sizeHint()`. These rows
+        # ELIDE, so their size hint reports the width of the shortened text
+        # -- ask it how much room it wants and it answers with how much it
+        # has already given up. Measured 2026-09-05: "Cellpose Model
+        # Comparison Workbench" hinted 263 px, the column sized itself to
+        # 275, and the row was still clipped, because 263 was the width of
+        # "Cellpose Model Comparis...".
+        #
+        # The icon is added explicitly for the same reason. The old dock
+        # painted icons and no text, so a width tuned for text alone was
+        # right; this one draws both, and the icon's slot is not in a text
+        # measurement.
+        widest = 0
+        for row in self._rows:
+            if row.isHidden():
+                continue
+            metrics = QFontMetrics(row.font())
+            text = getattr(row, "full_text", lambda: row.text())()
+            widest = max(widest, metrics.horizontalAdvance(str(text)))
+        # THE ALLOWANCE IS MEASURED, not guessed. At 100 % with the longest
+        # shipped-length name ("Cellpose Model Comparison Workbench", 243 px
+        # of text) the overhead between the column's width and the room the
+        # row leaves that text is 58 px: 14 for the panel's border and the
+        # scroll area, 44 for the row's own icon slot and padding. 34 + the
+        # icon came to 54 and left the name four pixels short -- which is a
+        # column that widened for a name and clipped it anyway.
+        room = widest + scaled_px(ICON_PX) + scaled_px(40)
         return max(scaled_px(self.WIDTH_MIN),
-                   min(widest + scaled_px(12), scaled_px(self.WIDTH_MAX)))
+                   min(room, scaled_px(self.WIDTH_MAX)))
 
     def clipped_items(self) -> list:
         """Rows whose name had to be shortened to fit.
