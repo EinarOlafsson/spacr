@@ -716,7 +716,7 @@ class SegQCBanner(_JobMixin, QFrame):
         plate folders, one ``os.stat`` per card, and ``read_digest`` opening
         and parsing the CSVs. All of it is I/O on a path the USER supplied.
 
-        Measured on the maintainer's machine 2026-09-04: ``os.path.exists``
+        Measured on one workstation: ``os.path.exists``
         on a path under ``/nas_mnt`` — an ``autofs`` mount whose share was
         asleep — had not returned after TWENTY SECONDS, because the stat is
         what triggers the automount. This method used to do that work inline,

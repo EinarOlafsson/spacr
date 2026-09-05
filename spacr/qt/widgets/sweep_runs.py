@@ -9,8 +9,8 @@ Runs are recorded when they start and updated when they finish. Saved sweep
 tables can be loaded alongside in-session records; switching rows announces a
 single active run to every dependent view.
 
-NOTHING ON THIS TAB TOUCHES A RUN FOLDER FROM THE GUI THREAD. Measured on
-the maintainer's machine 2026-09-04: one ``os.path.exists`` on a path under
+NOTHING ON THIS TAB TOUCHES A RUN FOLDER FROM THE GUI THREAD. Measured on one
+workstation: one ``os.path.exists`` on a path under
 ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep -- had NOT
 RETURNED AFTER TWENTY SECONDS. Every row here carries a folder the user
 chose, and this panel used to walk, stat, read and delete those folders in
@@ -690,8 +690,8 @@ class SweepRunsPanel(QWidget):
         THE READ IS NOT DONE HERE. This is reached from a tab change
         (`AppScreen._on_results_tab_changed`) with the sweep destination the
         user typed, and both the ``isfile`` and the ``read_csv`` block for as
-        long as that folder takes to answer -- which on the maintainer's
-        ``/nas_mnt`` was twenty seconds of frozen application. The path work
+        long as that folder takes to answer -- which on one ``/nas_mnt`` was
+        twenty seconds of frozen application. The path work
         below is pure string manipulation; everything that touches the disk
         goes to a worker and comes back to :meth:`_table_arrived`.
 

@@ -272,8 +272,8 @@ class ModelZooPicker(QDialog):
         """Fetch the community rows off the GUI thread, then redraw.
 
         WHY THIS EXISTS. :func:`spacr.model_zoo.shared_catalogue` refuses to
-        wait for the network when it is called on the GUI thread -- measured
-        2026-09-05, an unreachable catalogue host froze a module open for
+        wait for the network when it is called on the GUI thread -- measured:
+        an unreachable catalogue host froze a module open for
         32.2 s and produced the desktop's "force quit" dialog. :meth:`refresh`
         therefore comes back with whatever is cached, which on the first
         picker of a session is nothing.

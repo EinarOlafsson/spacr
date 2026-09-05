@@ -4357,8 +4357,8 @@ def _start_disk_report(parent=None) -> None:
     :func:`~spacr.qt.resource_cleanup.project_paths` for every folder the
     project touches — the source folders every module remembers, read back
     out of QSettings — and then does ``os.stat`` and ``shutil.disk_usage`` on
-    each one. Those are paths the USER chose. Measured on the maintainer's
-    machine that day: one of them was under ``/nas_mnt``, an ``autofs`` mount
+    each one. Those are paths the USER chose. Measured on one workstation that
+    day: one of them was under ``/nas_mnt``, an ``autofs`` mount
     whose share was asleep, and a single stat on it had NOT RETURNED AFTER
     TWENTY SECONDS — the stat is what triggers the automount.
 
@@ -6851,7 +6851,7 @@ def set_section_layout(panel: str, folded=(), sizes=(), steps=None,
     :param folded: the titles that are folded away.
     :param sizes: the splitter's sizes, in its own order.
     :param steps: the SUB-subsections -- ``{"1": False}`` for a numbered
-        workflow step folded away. Instruction 359: a panel's nested sections
+        workflow step folded away. A panel's nested sections
         collapse too, and a collapse that is forgotten on the way out of the
         module is a collapse the user does again every visit.
     :param boxes: dragged heights, ``{name: px at 100 % font scale}``. STORED

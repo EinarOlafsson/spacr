@@ -1820,3 +1820,51 @@ file under `spacr/`, `tests/`, `tools/`, `docs/` or `.github/` was edited.
 
 WHAT I HOLD: nothing. WHAT I CLAIM: nothing beyond the measurement above. If
 any of this is already in hand, say so here and I will stay off it.
+
+
+================================================================================
+2026-09-05, HOME SESSION — THE TWO DOC GATES NO LONGER PULL AGAINST EACH OTHER
+================================================================================
+
+The 2026-09-04 entry above ends: "368 is closing a docless ratchet by writing
+text that a different gate rejects, so the two gates are currently pulling
+against each other." Both `test_user_facing_docstrings` failures are now GREEN,
+and the tension was not real -- it was a collision of two right rules that had
+never been stated together.
+
+THE RULE, NOW EXPLICIT: a docstring says what the code does and WHY. Who asked,
+and when, belongs in the commit message. The measurement stays; the person and
+the date go. So
+
+    Measured on the maintainer's machine 2026-09-04: os.path.exists ...
+    MEASURED on the maintainer's 3840x2160 screen at font_scale 2 ...
+    INSTRUCTION 378, and the measurement that shaped it.
+
+became
+
+    Measured on one workstation: os.path.exists ...
+    MEASURED on a 3840x2160 screen at font_scale 2 ...
+    THE LIVE ZOOM GESTURE, and the measurement that shaped it.
+
+Nothing an engineer needs was lost. 39 violations across 22 files, 49 lines
+changed. COMMENTS WERE NOT TOUCHED -- the gate does not judge them and a
+comment is exactly where this history belongs, so `maintainer` and the dates
+survive in all 122 places outside docstrings.
+
+I DELIBERATELY KEPT THE DIFF NARROW. A first pass re-wrapped 97 long lines
+across those files and I threw it away: 368 is rewriting docstrings in the same
+files right now, and a 97-line reformat is a merge-conflict generator for no
+benefit. Only the 13 lines this change itself made too long were re-wrapped.
+
+STILL RED, AND NOT MINE. The eight other doc-gate failures the 2026-09-04 entry
+lists are untouched -- including `API_DOC_ALIASES` being empty against a test
+that wants 113, which that entry rightly calls a question for whoever owns the
+alias registry. I did not guess at it either.
+
+WHAT I HOLD: nothing. Everything is committed and pushed.
+WHAT I DID TODAY, all on nightly: the module-open freeze (a 30 s urlopen and
+then 26.5 M startswith calls at import, 8.3 s -> 2.3 s), three flicker causes
+(a broken WA_OpaquePaintEvent promise, a partial repaint advancing the
+animation, and a category header minimum that was permission to shrink), two
+stacked ambient backdrops where the guard could never fire, cached screens
+freezing their font scale, eight literal font sizes, and 350's screen coverage.

@@ -22,7 +22,7 @@ AND IT ASKS OFF THE GUI THREAD. That read is cheap in the VOLUME it reads and
 it is not cheap in LATENCY, and this file used to hold the first as a reason
 to believe the second: it stats every database and then opens each one with
 sqlite five times over, on paths that are folders the user chose. Measured on
-the maintainer's machine 2026-09-04, a single ``os.path.exists`` under an
+one workstation, a single ``os.path.exists`` under an
 ``autofs`` mount whose share was asleep had not returned after TWENTY SECONDS.
 This widget is built while a settings panel is laid out and refreshed on every
 drop, so that was the whole application frozen, and it left no traceback

@@ -4,8 +4,17 @@ A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
 
 Status:    the sweep is written, green and running in three locales at two
            font scales; four defects found and fixed. Filed 2026-09-02,
-           last measured 2026-09-03. What remains is coverage -- more
-           screens, more locales, and the dialogs -- not the method.
+           last measured 2026-09-05.
+
+           SCREEN COVERAGE IS NOW COMPLETE. The sweep sampled eight screens
+           while the method was being proven; on 2026-09-05 the other sixteen
+           declared apps were added and all sixteen came up clean on the
+           first run -- 96 new combinations, zero clipped captions. 24
+           screens x 3 locales x 2 scales = 147 cases, 4m21s, RAM flat at
+           5 GB.
+
+           WHAT REMAINS IS THE DIALOGS, and more locales than three. Not the
+           method, and no longer the screens.
 Requested: 2026-09-02, verbatim -- "do a sweep of the entire package and make
            user that all tesxt fits within its button, box or container, and
            is not cut off at all." Reported alongside a concrete instance:

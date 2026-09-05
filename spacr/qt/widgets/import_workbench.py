@@ -242,8 +242,8 @@ class ImportWorkbench(QWidget):
         Everything here is a list of strings and a caption; the walk runs on
         this panel's own worker (:func:`_walk`, wrapping
         :func:`images_under`) because it is an `isdir` and a recursive
-        `os.walk` over a path the user chose, which on this maintainer's
-        machine is an `autofs` share that took twenty seconds to answer a
+        `os.walk` over a path the user chose, which on one such workstation is
+        an `autofs` share that took twenty seconds to answer a
         single stat. :meth:`_files_found` takes the answer back on the GUI
         thread.
 

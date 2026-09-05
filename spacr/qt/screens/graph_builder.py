@@ -269,7 +269,7 @@ class GraphBuilderScreen(QWidget):
         200 000-row measurement table on a warm local SSD -- but listing the
         tables was kept inline on the argument that one ``sqlite_master``
         query costs 0.4 ms. That argument holds only for a disk that answers.
-        Measured on the maintainer's machine 2026-09-04, a single ``stat``
+        Measured on one workstation, a single ``stat``
         under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep --
         had not returned after TWENTY SECONDS, and ``sqlite3.connect`` opens
         the file before it can read a byte of ``sqlite_master``. A user
