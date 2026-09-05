@@ -349,8 +349,8 @@ class Dock(QWidget):
         when the widget under the pointer is replaced without the pointer
         moving, which is exactly what clicking a dock row does: the stack
         swaps a whole screen in underneath it and no Leave is ever
-        delivered. Reported 2026-09-05, "run compare and run history are
-        always blue in the dock", and both are rows the maintainer had
+        delivered. Reported: "run compare and run history are
+        always blue in the dock", and both are rows a user had
         opened. Read off the screen recording: Run History accent-coloured
         while Database Browser and Report above and below it are white and
         the pointer is elsewhere entirely.

@@ -536,7 +536,7 @@ class Section(QFrame):
         the card cannot promise its whole rect. The body can.
 
         The seal undoes itself when ``surface`` is translucent at the user's
-        page-opacity setting, which is the case the maintainer asked for on
+        page-opacity setting, which is the case the user asked for on
         the dock and the panels.
         """
         try:
@@ -640,7 +640,7 @@ class Section(QFrame):
         already been PAINTED -- a second ``LayoutRequest`` for the scroll
         area and the splitter. The intermediate result of round one is on
         screen for about one vsync. That is the flicker, literally: a wrong
-        frame, briefly shown. Reported 2026-09-05 as "the opening of module
+        frame, briefly shown. Reported as "the opening of module
         settings categories has a flicker as well and is not smoothe".
 
         So updates are held while every posted layout request is drained

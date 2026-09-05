@@ -1369,7 +1369,7 @@ def shared_catalogue(uri: Optional[str] = None, *,
     NEVER FETCHES ON THE GUI THREAD, and that is not an optimisation. This is
     reached from ``spacr.settings.downloaded_zoo_models`` while a settings
     panel is being built, so it ran inside ``MainWindow._on_nav_selected``
-    with nothing able to paint or answer the compositor. Measured 2026-09-05
+    with nothing able to paint or answer the compositor. Measured
     with the catalogue host non-routable (10.255.255.1, the shape of a down
     VPN or a captive portal -- the connect neither completes nor is refused):
     opening the Mask module took **32.2 s**, all of it a GUI thread stuck in

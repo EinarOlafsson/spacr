@@ -35,8 +35,8 @@ registry on its own, so nothing here has to drive it.
 Two things here take a path the user typed on some *other* screen: the search
 folders :func:`make_project_browser_screen` seeds from the recent-source list,
 and the folder the "Add folder…" dialog starts in. Both used to be settled
-with an ``os.path.isdir`` on the GUI thread. Measured 2026-09-04 on the
-maintainer's machine, one such folder was under an ``autofs`` mount whose
+with an ``os.path.isdir`` on the GUI thread. Measured on one workstation, one
+such folder was under an ``autofs`` mount whose
 share was asleep and a single ``isdir`` on it had not returned after TWENTY
 SECONDS — which is not a slow screen, it is the whole application frozen with
 no traceback, and it was reported as "opening the project browser crashes

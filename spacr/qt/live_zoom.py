@@ -1,6 +1,6 @@
 """Hold Z and turn the wheel to resize the interface's text, live.
 
-INSTRUCTION 378, and the measurement that shaped it.
+THE LIVE ZOOM GESTURE, and the measurement that shaped it.
 
 The request came with a condition -- "only if possible to do fast without
 lag" -- so the first question was what a notch costs. On one 1440x900
@@ -20,7 +20,7 @@ the 49 declarations could be rewritten in ``em`` or ``%`` so that one
 ``setFont`` moved everything. Qt does not implement either for
 ``font-size``: ``QCss`` accepts only ``pt``, ``px`` and the CSS size
 keywords, and silently drops any other unit, so ``font-size: 2em`` leaves
-the widget at the inherited size. Measured 2026-09-05 on this PySide6, and
+the widget at the inherited size. Measured on this PySide6, and
 pinned by ``test_qt_still_has_no_relative_font_size``, which fails the day
 Qt gains the unit and makes the simpler design available.
 
@@ -36,7 +36,7 @@ stay in proportion without this module knowing which is which.
 WHAT IS NOT LIVE, AND WHY THAT WAS ACCEPTED. Every size the font scale pins
 from Python -- row heights, column widths, icon sizes, tile geometry, all of
 :func:`spacr.qt.preferences.scaled_px` -- moves only when the stylesheet is
-rebuilt, and that is the 587 ms number. The maintainer chose, 2026-09-05:
+rebuilt, and that is the 587 ms number. The choice made:
 "Text live, spacing on release." Text follows the wheel; the spacing around
 it catches up in one step when the wheel stops or Z comes up. It is a
 deliberate compromise, not an oversight, and it is why the settle exists.
@@ -233,7 +233,7 @@ class LiveZoomFilter(QObject):
         MAKE MASKS TAKES Z AND WINS THERE. That screen binds a `QShortcut`
         for its Zoom tool, and Qt dispatches shortcuts in `processKeyEvent`
         BEFORE application event filters, so this filter never sees the key
-        press on Make Masks at all. Measured 2026-09-05: armed without that
+        press on Make Masks at all. Measured: armed without that
         shortcut, not armed with it. So it is mutual exclusion rather than
         coexistence, and the gesture is simply unavailable on that one
         screen -- which is the right way round, because Zoom is the tool
@@ -308,8 +308,8 @@ class LiveZoomFilter(QObject):
 
         The whole live half of the gesture is this loop: ~10 ms for the 204
         visible widgets of a MainWindow on this machine, against 1285 ms to
-        set the stylesheet on the same window (measured 2026-09-05,
-        offscreen; the maintainer's numbers on real hardware are 587 ms for
+        set the stylesheet on the same window (measured
+        offscreen; the numbers on real hardware are 587 ms for
         the sheet). See :func:`_scaled_font` for why each widget is sized
         from its baseline rather than from what it is wearing.
         """
@@ -343,8 +343,8 @@ class LiveZoomFilter(QObject):
 
         THE EXPENSIVE HALF, ON PURPOSE. Everything :func:`scaled_px` pins is
         rebuilt here, in one 587 ms step, rather than twenty times a second
-        while the wheel turns -- which is the compromise the maintainer
-        chose over a gesture that stutters. Called when the wheel has been
+        while the wheel turns -- which is the compromise
+        chosen over a gesture that stutters. Called when the wheel has been
         still for :data:`_SETTLE_MS`, when Z comes up, and when the window
         loses focus with Z still down.
 
