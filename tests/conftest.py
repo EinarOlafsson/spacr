@@ -61,7 +61,12 @@ import pytest
 # process that is already thrashing. This leaves a message on stderr saying
 # exactly what happened, so the next reader is not left guessing at an exit
 # code the way this one was.
-_MEMORY_CEILING_GB = float(os.environ.get("SPACR_TEST_MEMORY_GB", "12"))
+#: 6 GB, and the number is about CONCURRENCY rather than about any one run.
+#: A single test file needs two or three; the danger is a dozen pytest
+#: processes at once, which is how 92 GB happened. Twelve of these is 72 GB
+#: on a 125 GB machine, which leaves the desktop alive. Raise it deliberately
+#: for a run that genuinely needs more.
+_MEMORY_CEILING_GB = float(os.environ.get("SPACR_TEST_MEMORY_GB", "6"))
 
 
 def _stop_before_the_machine_does() -> None:
