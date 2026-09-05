@@ -1946,15 +1946,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         1: 8_433,
         2: 7,
     }
-    # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212. Every one of those is a
+    # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220. Every one of those is a
     # constructor that gained an ``__init__`` docstring, so the number is the
     # documentation count and it may only go up; a fall means prose was lost.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 212
+    ) == 220
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 212
+    ) == 220
     # RE-RECORDED 2026-09-04. Every figure here moved UP together as the
     # package gained callables; not one of them fell, which is the direction
     # check that was run before these numbers were written.
@@ -1969,7 +1969,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "421f95a535bf90cc5323a2e645151e1407af7bca2de9dca1cb508cebbc2fef65"
+    ) == "3e4bb54c7787478aa413712b691a875c71a9b1e061c84d247278c04bf1336ae9"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2290,9 +2290,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,427 -> 9,441. Seven public symbols were added earlier today and
     # seven drop-handler methods stopped being aliases, so they now carry
     # their own entry instead of borrowing one.
-    # 10,152 -> 10,172 -> 10,176 (2026-09-05): private methods on public
+    # 10,152 -> 10,172 -> 10,178 (2026-09-05): private methods on public
     # classes that gained a docstring get an entry of their own.
-    assert len(docs) == 10_176
+    assert len(docs) == 10_178
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     assert len(rendered_documented_callables) == 8_435
@@ -2513,28 +2513,30 @@ def test_no_new_undocumented_required_public_parameters():
         _required_parameter_omission_inventory(items, callable_aliases)
     )
 
-    # 2,575 -> 2,572 on 2026-09-04. Writing a docstring is not the whole
+    # 2,575 -> 2,572 on 2026-09-04, 2,284 -> 2,283 on 2026-09-05, when the
+    # last constructor but one gained a documented required parameter (the
+    # `constructor` row fell 2 -> 1 with it). Writing a docstring is not the whole
     # job: a documented callable whose required parameters are unexplained
     # still counts here, so the drop-handler docstrings carry `:param:` and
     # `:returns:` fields and the number goes DOWN rather than up.
-    assert len(omissions) == 2_284
-    assert sum(omitted_callables.values()) == 1_637
+    assert len(omissions) == 2_283
+    assert sum(omitted_callables.values()) == 1_636
     assert omitted_callables == {
         "function": 758,
         "method": 833,
-        "constructor": 2,
+        "constructor": 1,
         "dataclass_constructor": 42,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
         "function": 1_130,
         "method": 1_009,
-        "constructor": 3,
+        "constructor": 2,
         "dataclass_constructor": 130,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "2b688873396c1ab757b204bb1ed123aabba5f06359e648bb9370a3dff9eff66e"
+        "87a827824d4d1866d763af212b6ee3d2650849aaf50be2239d8a57d62e9036f7"
     )
 
 

@@ -2149,6 +2149,18 @@ class SettingsSection(tuple):
     # the four attributes below are what carries the tree.
 
     def __new__(cls, title, own_rows=(), children=()):
+        """Build a section, flattening its children's rows into its own.
+
+        The tuple half is ``(title, rows)`` where ``rows`` is this section's own
+        rows followed by every descendant's, so a consumer that only knows the
+        tuple still sees the whole subtree.
+
+        :param title: the section's caption.
+        :param own_rows: rows belonging to this section itself.
+        :param children: nested sections; each is re-parented onto this
+            section's path.
+        :returns: the new section.
+        """
         children = tuple(children)
         own = list(own_rows)
         rows = list(own)
@@ -8773,6 +8785,15 @@ class SettingsWidgets:
                 if key in self._widgets]
 
     def _label_for(self, key: str) -> str:
+        """Return the caption a setting is shown under on this screen.
+
+        A plugin's own label wins; then the handful of per-module overrides
+        where one key means something narrower than its general name; then the
+        shared label table.
+
+        :param key: the setting name.
+        :returns: the caption to show.
+        """
         try:
             from spacr.plugins import get_app
             plugin_app = get_app(self.app_key)
@@ -8799,6 +8820,22 @@ class SettingsWidgets:
 
     def _widget_for(self, kind: str, options: Any, default: Any,
                     key: str) -> Optional[QWidget]:
+        """Choose the control one setting gets on this screen.
+
+        The order of the checks is load-bearing. Path-list and column-naming
+        keys are matched before the chip-editor and combo routes, because
+        several of them are declared ``list`` or ``str`` and would otherwise
+        fall through to a free-text box -- which is what made a typo
+        indistinguishable from a real column name. Closed alphabets are matched
+        before the chip editor for the same reason.
+
+        :param kind: the declared control kind.
+        :param options: the declared options, for the kinds that have them.
+        :param default: the declared default.
+        :param key: the setting name; several controls are chosen from this
+            alone, since the setting's meaning is narrower than its type.
+        :returns: the control, or ``None`` when the kind has none.
+        """
         parent = self._parent
         # MORE THAN ONE DATABASE (instruction 109). A screen acquired as three
         # plates is three project folders, and `generate_image_umap` has
@@ -9631,9 +9668,20 @@ class SettingsWidgets:
                                        self._on_dependency_source_changed)
 
     def _on_dependency_source_changed(self, *_args) -> None:
+        """Re-evaluate the dependency rules after a source setting changed.
+
+        :param _args: whatever the emitting widget passes; ignored, since every
+            control is re-read either way.
+        """
         self._refresh_setting_dependencies()
 
     def _current_dependency_settings(self) -> Dict[str, Any]:
+        """Read every control into a settings dict for the dependency rules.
+
+        :returns: the declared defaults overlaid with whatever each control now
+            holds; a control that cannot be read or coerced leaves its default
+            in place rather than dropping the key.
+        """
         current = dict(self._defaults)
         for key, widget in self._widgets.items():
             try:
@@ -9763,6 +9811,20 @@ class SettingsWidgets:
         # pouring a settings file in, and a file that sets `cell_channel` has
         # to bring the cell settings back on screen with it. A reason written
         # beside a control on a hidden row is a reason nobody can read.
+        """Re-apply the row visibility and then grey the rows that stay.
+
+        Visibility goes first: this is the hook ``apply_settings_dict`` calls
+        once a settings file has been poured in, and a file that sets
+        ``cell_channel`` has to bring the cell rows back on screen with it -- a
+        reason written beside a control on a hidden row is a reason nobody can
+        read.
+
+        The loaded tables are only scanned when a rule on this panel can
+        actually read them; doing it on every combo change of a panel with no
+        data-dependent rule is a stall for nothing. A rule that raises leaves
+        its control enabled, since refusing a setting because the check broke
+        is worse than allowing one that will be rejected later.
+        """
         self.refresh_object_visibility()
         dependencies = self._rules_for_this_panel()
         if not dependencies:
@@ -10149,6 +10211,7 @@ class SettingsWidgets:
         return
 
     def _reassert_object_visibility(self) -> None:
+        """Run the queued object-visibility pass and clear the queue flag."""
         self._object_rule_pass_queued = False
         self.refresh_object_visibility()
 
@@ -10284,6 +10347,14 @@ class SettingsWidgets:
             return self._defaults.get(key)
 
     def _setting_value_equals(self, key: str, expected: Any) -> bool:
+        """Compare a setting's current value with an expected one.
+
+        :param key: the setting to read.
+        :param expected: what to compare against.
+        :returns: ``True`` when they match under the settings-diff comparison,
+            falling back to ``==`` and finally to ``False`` -- an unreadable
+            setting is not equal to anything.
+        """
         try:
             from ..settings_diff import _values_equal
 
@@ -10393,6 +10464,20 @@ class SettingsWidgets:
                 self._applying_organelle_preset = False
 
     def _read_widget(self, w: QWidget) -> Any:
+        """Read one control's value in the form the settings dict expects.
+
+        A combo's ``userData`` is authoritative, not its caption: every item is
+        added with its option as data, including the Python ``None`` option, so
+        ``currentData()`` returning ``None`` means the chosen option *is*
+        ``None``. Falling back to the caption is what shipped
+        ``strict_errors='None'`` -- a non-empty string, and therefore truthy --
+        turning strict error handling silently on. The caption is still right
+        for an editable combo showing text the user typed, which is detected by
+        the displayed text differing from the current item's.
+
+        :param w: the control to read.
+        :returns: its value, or ``None`` for a control kind this does not know.
+        """
         if isinstance(w, QCheckBox):
             return bool(w.isChecked())
         if isinstance(w, QSpinBox):

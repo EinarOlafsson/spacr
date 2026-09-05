@@ -398,6 +398,12 @@ class RecipeDialog(QDialog):
     """
 
     def __init__(self, screen, parent: Optional[QWidget] = None):
+        """Build the recipe dialog for one module screen.
+
+        :param screen: the module screen whose settings recipes are saved and
+            applied; its ``app_key`` scopes which recipes are listed.
+        :param parent: parent widget; defaults to ``screen``.
+        """
         super().__init__(parent or screen)
         self._screen = screen
         self._app_key = str(getattr(screen, "app_key", "") or "")
@@ -496,6 +502,15 @@ class RecipeDialog(QDialog):
 
     # -- slots --------------------------------------------------------
     def _on_selection_changed(self, _row: int) -> None:
+        """Describe the selected recipe, including anything that will not carry.
+
+        The description states the setting count and date, then any note about
+        the spaCR version it was written under and any settings this module no
+        longer has -- both before the user applies it rather than after.
+
+        :param _row: the newly selected row; the recipe is re-read from the
+            list, so it is not used.
+        """
         recipe = self.selected()
         if recipe is None:
             self._detail.setText("")
@@ -516,6 +531,11 @@ class RecipeDialog(QDialog):
         self._refresh_buttons()
 
     def _on_save(self) -> None:
+        """Ask for a name and save the screen's current settings under it.
+
+        A failure is reported in a dialog rather than raised: a recipe that
+        cannot be written is a normal condition, not a crash.
+        """
         name, ok = QInputDialog.getText(
             self, "Save recipe",
             "Name this recipe — something you would say out loud, "
@@ -531,6 +551,13 @@ class RecipeDialog(QDialog):
         self.reload()
 
     def _on_apply(self) -> None:
+        """Apply the selected recipe to the screen, confirming first if it may not fit.
+
+        A recipe from a different spaCR version, or one naming settings this
+        module no longer has, is applied only after the user says so -- with the
+        reason on screen, so the choice is informed rather than a warning to
+        click through.
+        """
         recipe = self.selected()
         if recipe is None:
             return
@@ -555,6 +582,7 @@ class RecipeDialog(QDialog):
             f"Applied “{recipe.name}” — {applied} settings written.")
 
     def _on_export(self) -> None:
+        """Write the selected recipe to a JSON file for sharing."""
         recipe = self.selected()
         if recipe is None:
             return
@@ -571,6 +599,12 @@ class RecipeDialog(QDialog):
             QMessageBox.warning(self, "Could not write the file", str(exc))
 
     def _on_import(self) -> None:
+        """Load a recipe from a JSON file into this module's collection.
+
+        A recipe belonging to another module is refused: applying it here would
+        write settings this screen does not have. One that names no module is
+        adopted by this one.
+        """
         path, _filter = QFileDialog.getOpenFileName(
             self, "Import recipe", "", "spaCR recipe (*.json);;All files (*)")
         if not path:
@@ -589,6 +623,7 @@ class RecipeDialog(QDialog):
         self.reload()
 
     def _on_delete(self) -> None:
+        """Delete the selected recipe."""
         recipe = self.selected()
         if recipe is None:
             return
@@ -600,6 +635,7 @@ class RecipeDialog(QDialog):
         self.reload()
 
     def _refresh_buttons(self) -> None:
+        """Enable Apply, Export and Delete only while a recipe is selected."""
         has = self.selected() is not None
         for button in (self._btn_apply, self._btn_export, self._btn_delete):
             button.setEnabled(has)
