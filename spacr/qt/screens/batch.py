@@ -119,6 +119,14 @@ class BatchScreen(QWidget):
     _progress_relayed = Signal(object)
     def __init__(self, parent=None, threaded: bool = True,
                  runner: Optional[Callable[[Any, str, str], int]] = None):
+        """Build the screen, arm its drop zone and start the elapsed-time tick.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: run the queue on a worker thread. Set ``False`` in
+            tests so ``run`` finishes before it returns.
+        :param runner: callable invoked per job as ``(job, settings, log_path)``
+            returning an exit code; ``None`` uses the module's own runner.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._runner = runner
@@ -168,6 +176,7 @@ class BatchScreen(QWidget):
     # ------------------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the job editor, the queue toolbar, the run controls and the panes."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -708,10 +717,19 @@ class BatchScreen(QWidget):
             self._worker = None
 
     def _on_run_error(self, exc: BaseException) -> None:
+        """Clear the busy flag and report a failed queue run.
+
+        :param exc: the exception raised by the worker.
+        """
         self._busy = False
         self._set_status(f"The queue runner failed: {exc}", error=True)
 
     def _on_worker_error_text(self, text: str) -> None:
+        """Clear the busy flag and report a worker failure given as text.
+
+        :param text: the worker's error output; only its last line is shown,
+            which for a traceback is the exception itself.
+        """
         line = (text or "").strip().splitlines()[-1] if text else "unknown error"
         self._busy = False
         self._set_status(f"The queue runner failed: {line}", error=True)
@@ -776,6 +794,13 @@ class BatchScreen(QWidget):
         return job.status
 
     def _refresh_table(self) -> None:
+        """Rebuild the queue table from the queue.
+
+        The elapsed-time cells sort on the seconds behind them rather than on
+        the rendered text, or ``"2m"`` would land under ``"9s"``, and each
+        row carries its job id, so a re-sorted table still knows which job the
+        user picked.
+        """
         jobs = self._queue.jobs
         self._table.setRowCount(len(jobs))
         for row, job in enumerate(jobs):
@@ -826,6 +851,12 @@ class BatchScreen(QWidget):
                 self._load_log(job)
 
     def _on_selection_changed(self) -> None:
+        """Load the selected job into the editor and show its log.
+
+        The editor fields are left alone while the queue is running: overwriting
+        what the user is typing because a job finished and the selection moved
+        would lose the edit.
+        """
         job = self.selected_job()
         if job is None:
             return
@@ -873,6 +904,7 @@ class BatchScreen(QWidget):
     # ------------------------------------------------------------------
 
     def _on_add_clicked(self) -> None:
+        """Add a job from the editor fields."""
         self.add_job(
             settings=self._settings_edit.text().strip(),
             label=self._label_edit.text().strip(),
@@ -881,6 +913,7 @@ class BatchScreen(QWidget):
         )
 
     def _pick_settings_file(self) -> None:
+        """Ask for a settings file and put it in the editor."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Choose a settings file", "",
             "Settings (*.csv *.json);;All files (*)")
@@ -888,12 +921,14 @@ class BatchScreen(QWidget):
             self._settings_edit.setText(path)
 
     def _pick_queue_to_load(self) -> None:
+        """Ask for a queue file and load it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a queue", "", "Queue files (*.json);;All files (*)")
         if path:
             self.load_queue_from(path)
 
     def _pick_queue_to_save(self) -> None:
+        """Ask where to write the queue and save it."""
         path, _ = QFileDialog.getSaveFileName(
             self, "Save the queue", self._path or "queue.json",
             "Queue files (*.json);;All files (*)")
@@ -901,6 +936,11 @@ class BatchScreen(QWidget):
             self.save_queue_to(path)
 
     def _show_problems_text(self, text: str) -> None:
+        """Write the validation pane.
+
+        :param text: every problem at once, so the queue can be fixed in one
+            pass rather than one error per attempt.
+        """
         self._problems_view.setPlainText(text)
 
     def _set_status(self, text: str, error: bool = False) -> None:
@@ -917,6 +957,11 @@ class BatchScreen(QWidget):
         return self._status.text()
 
     def _update_controls(self) -> None:
+        """Enable the toolbar and run controls to match the queue and run state.
+
+        Run additionally needs the queue to be free of errors: starting an
+        overnight queue whose first job cannot run is the failure this prevents.
+        """
         has_jobs = bool(self._queue.jobs)
         has_selection = self.selected_job() is not None
         for button in (self._btn_add, self._btn_load):

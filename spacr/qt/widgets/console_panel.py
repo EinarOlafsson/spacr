@@ -1055,6 +1055,13 @@ class ConsolePanel(QWidget):
 
     # ------------------------------------------------------------------
     def _build_ui(self):
+        """Lay out the console box and the chat row as the two halves of a splitter.
+
+        The handle between them trades height: drag it up and the chat grows
+        while the console shrinks by the same amount. Only the console carries a
+        stretch factor, so a taller window grows the scrollback and leaves the
+        chat box at whatever height the user gave it.
+        """
         outer = QVBoxLayout(self)
         # The panel itself is transparent (see theme QSS) — the rounded box is
         # the ConsoleBox frame below, so the AI chat input can sit UNDER it as
@@ -1365,6 +1372,11 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         # Only while following. Raising a section (clicking its heading) is a
         # statement that the user is reading there, and a log that scrolls
         # away from what you are reading cannot be read at all.
+        """Follow the newest line, unless the user has scrolled away.
+
+        Raising a section is a statement that the user is reading there, and a
+        log that scrolls away from what is being read cannot be read at all.
+        """
         if not getattr(self, "_follow_output", True):
             return
         sb = self._scroll.verticalScrollBar()
@@ -1418,6 +1430,12 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             button.setVisible(not self.at_the_end())
 
     def _needs_topic(self, kind: str) -> bool:
+        """Report whether a new banner is needed before writing this kind of entry.
+
+        :param kind: the entry kind about to be written.
+        :returns: ``True`` when it differs from the last one written, so
+            consecutive entries of one kind share a single banner.
+        """
         return self._last_entry_kind != kind
 
     def _on_gui_thread(self) -> bool:
@@ -1557,6 +1575,17 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
     def _append_notice_on_gui_thread(
         self, source: str, values: object = None,
     ) -> None:
+        """Translate a notice and append it, keeping its surrounding whitespace.
+
+        Call sites add line breaks for console layout, but translation keys omit
+        incidental leading and trailing whitespace -- so the framing is stripped
+        off, the core translated, and the framing put back.
+
+        :param source: the untranslated notice, with whatever framing it
+            carries; a blank one is dropped.
+        :param values: substitutions for the translated template; anything that
+            is not a mapping is treated as none.
+        """
         mapping = values if isinstance(values, dict) else {}
         # Call sites may add line breaks for console layout. Translation keys
         # deliberately omit incidental leading/trailing whitespace, so retain
@@ -1753,6 +1782,12 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         QTimer.singleShot(0, lambda: self._scroll_widget_to_top(bar))
 
     def _scroll_widget_to_top(self, bar) -> None:
+        """Scroll the console so a widget sits at the top of the viewport.
+
+        :param bar: the widget to bring to the top -- typically a section
+            heading that was just clicked. A section torn down between the click
+            and the layout is ignored rather than raising.
+        """
         try:
             top = bar.mapTo(self._holder, bar.rect().topLeft()).y()
         except RuntimeError:
@@ -1836,6 +1871,10 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._current_provider_name = provider_name
 
     def _current_provider(self) -> Optional[ChatProvider]:
+        """Resolve the selected AI provider.
+
+        :returns: the provider, or ``None`` when none is selected.
+        """
         if not self._current_provider_name:
             return None
         return ai_module.get_provider(self._current_provider_name)
@@ -1844,6 +1883,12 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
     # Submit — Enter in the input
     # ------------------------------------------------------------------
     def _on_submit(self) -> None:
+        """Send the chat box's contents, to the AI or to the console.
+
+        An empty box does nothing. With AI off the text is written as a local
+        note under its own banner rather than dropped, so a typed thought stays
+        in the transcript beside the run it was about.
+        """
         text = self._input.toPlainText().strip()
         if not text:
             return
@@ -1864,6 +1909,18 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._last_entry_kind = "user"
 
     def _send_to_ai(self, text: str) -> None:
+        """Send one question to the provider and open a reply block for it.
+
+        Console context is attached according to the AI preference and reported
+        on the message it went with, rather than as furniture that goes stale
+        between asks. Asking a question of the user's own also ends the error
+        pairing: whatever comes back answers this, not the crash, so it must not
+        later be filed as an analysis of the crash.
+
+        :param text: the user's question. With no provider configured this says
+            so; with a stream already running it is silently dropped, since the
+            Cancel button lives on the actions row rather than here.
+        """
         provider = self._current_provider()
         if provider is None:
             self.append_notice(
@@ -1984,6 +2041,15 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             self._last_entry_kind = "stdout"
 
     def _start_stream(self, system: str) -> None:
+        """Start the streaming worker for the pending conversation.
+
+        The thread is parented to the panel so its C++ lifetime is tied to the
+        panel rather than to a Python refcount -- an unparented ``QThread`` can
+        be collected between the worker returning and ``finished`` firing, which
+        aborts Qt.
+
+        :param system: system prompt for the request.
+        """
         provider = self._current_provider()
         if provider is None:
             return
@@ -2083,9 +2149,21 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
 
     def _on_stage(self, _stage: str) -> None:
         # Could show a spinner; keeping this quiet for now.
+        """Ignore a stage change from the streaming worker.
+
+        :param _stage: the stage name. Nothing is shown for it yet -- this is
+            where a spinner would go.
+        """
         pass
 
     def _on_chunk(self, chunk: str) -> None:
+        """Append one streamed chunk to the AI reply block.
+
+        The block is recreated if it went away -- the error flow writes through
+        its own path and can clear it mid-stream.
+
+        :param chunk: the text just received.
+        """
         self._ai_buf.append(chunk)
         # Stream into the provider-coloured AI block created in _send_to_ai.
         # Guard in case it was cleared (open_error_flow uses its own path).
@@ -2103,6 +2181,17 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         # thread has fully exited AND Qt's deleteLater has run.
         # Prune already-dead entries on the way in so the list can't
         # grow unbounded across a long session.
+        """Close the reply block and retire the streaming thread.
+
+        The finished ``(thread, worker)`` pair is held in a list rather than
+        dropped, so Python cannot collect the ``QThread`` before its OS thread
+        has exited and Qt's ``deleteLater`` has run; already-dead entries are
+        pruned on the way in so the list cannot grow across a long session.
+
+        :param ok: whether the stream completed.
+        :param final_text: the assembled reply, or the error detail when
+            ``ok`` is ``False``.
+        """
         self._prune_retired()
         # Stop the cycling working dots — the stream is done.
         if self._working_dots is not None:
