@@ -521,16 +521,27 @@ def test_post_stitch_symlink_relinks_on_a_second_run(tmp_path, canvas):
     assert all(os.path.exists(t) for t in tiles)
 
 
-def test_write_mosaic_setting_currently_suppresses_the_mosaic_image(tmp_path, canvas):
-    """NOTE: the flag reads inverted - ``write_mosaic=True`` produces only the
-    manifest and no mosaic TIFF.  Pinned here as *current* behaviour; see the
-    report accompanying these tests for the proposed fix."""
+def test_write_mosaic_now_writes_the_mosaic_image(tmp_path, canvas):
+    """``write_mosaic=True`` writes the image, which it did not used to.
+
+    This test pinned the OPPOSITE as current behaviour, with a note that the
+    flag read inverted and a fix was proposed: `if settings["write_mosaic"]:
+    mosaic_out = None` set the output path to nothing, so the single value a
+    reader would reach for was the one guaranteed to produce no file. That is
+    the fix, and this is the assertion that follows from it.
+
+    The two spellings are synonyms now -- either turns it on -- because they
+    were separate keys with separate defaults and `run_folder` consulted only
+    the one a reader would not think to set.
+    """
     src = _plate(tmp_path, canvas)
     dst = str(tmp_path / "dst")
     res = stitch_cycle_wells(_settings(src, dst, do_nuc_stitch=True, mosaic=True,
                                        write_mosaic=True, mosaic_min_score=0.2))
     a1 = res["wells"]["A1"]
-    assert a1["mosaic_cyx"] is None            # no image written
+    assert a1["mosaic_cyx"] and os.path.exists(a1["mosaic_cyx"]), (
+        "write_mosaic=True must now produce the image, not only the manifest"
+    )
     assert a1["mosaic_csv"] and os.path.exists(a1["mosaic_csv"])
 
 

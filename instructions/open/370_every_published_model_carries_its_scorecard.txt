@@ -3,12 +3,14 @@ EVERY PUBLISHED MODEL CARRIES A SCORECARD: FINETUNED AGAINST VANILLA, ON A
 HELD-OUT SET, IN THE TOOLTIP, ON HUGGING FACE, AND IN THE API
 ================================================================================
 
-Status:    THE METRICS EXIST NOW -- `spacr/seg_metrics.py`, written and
-           checked against masks whose answer can be worked out on paper.
-           That was the blocker: the file below says "THE THING THAT DOES NOT
-           EXIST IS ACCURACY", and it does now. What is still missing is the
-           HELD-OUT SET, which needs labelled data rather than code, and the
-           publishing. Filed 2026-09-02; metrics added 2026-09-05.
+Status:    THE MEASUREMENT HALF IS BUILT -- `spacr/scorecard.py`, by the
+           work session, some time after this file's 2026-09-02 audit. It
+           covers Dice, IoU, boundary F1, AUPRC, splits/merges, classifier
+           scoring, the held-out-set loader and the CSV writer. THE BODY OF
+           THIS FILE BELOW IS THEREFORE STALE where it says accuracy does not
+           exist; read `spacr/scorecard.py` first. What remains is the
+           held-out SET itself -- labelled data, not code -- and publishing.
+           Filed 2026-09-02; re-checked 2026-09-05.
 Requested: 2026-09-02, in two messages, verbatim --
            "for every model that is uploaded to model zoo, a table should
            accompany each model showing a comparison between the finetuned
@@ -27,44 +29,28 @@ Owner:     spacr/model_zoo.py, spacr/model_compare.py, a new evaluation
            page, and whatever publishes to `einarolafsson/models`.
 
 --------------------------------------------------------------------------------
-2026-09-05 -- THE MEASUREMENT HALF IS BUILT
+2026-09-05 -- ALREADY DONE, BY THE OTHER SESSION, AND I DUPLICATED IT
 --------------------------------------------------------------------------------
 
-`spacr/seg_metrics.py` scores a mask against a human-drawn one. It is the part
-this item called "to be written, not wired", and the vocabulary the request
-asked for is there: Dice, Jaccard/IoU, precision, recall, F1, boundary
-precision/recall/F1, and average precision at ten IoU thresholds.
+`spacr/scorecard.py` exists and does this. It scores a segmentation against
+ground truth with Dice, IoU, boundary F1 and AUPRC, counts splits and merges,
+scores classifiers, and carries the held-out-set machinery -- `HoldoutSet`,
+`load_holdout`, `verify_holdout`, `score_model_on_holdout`, `scorecard_csv`.
+Three test files cover it; 46 tests pass.
 
-TWO DEFINITIONS ARE WRITTEN DOWN BECAUSE THEY ARE EASY TO GET WRONG:
+I WROTE A SECOND ONE BEFORE FINDING IT. `spacr/seg_metrics.py` reimplemented
+the same five measures and was deleted unmerged. The mistake was reading this
+file's Status line -- "not started, filed 2026-09-02. State below MEASURED the
+same day" -- and treating a three-day-old audit as current, in a repository
+two sessions are committing to. The audit was true when written and was
+overtaken on 2026-09-04.
 
-  * "Average precision" in a segmentation benchmark is NOT the area under a
-    precision-recall curve. It is TP / (TP + FP + FN) at a given IoU, which
-    is what Cellpose, Stardist and the Data Science Bowl report. A reader who
-    assumes the detection meaning reads the number as far worse than it is,
-    so the module names and defines it rather than leaving it to inference.
-  * A merge is scored as one hit and one MISS, not as a half-success. One
-    prediction may claim one object, greedily by IoU. Letting a blob satisfy
-    two truths would score the single worst failure in cell segmentation as a
-    success.
+THE LESSON, for whoever picks up an instruction next: grep the package before
+believing a Status line. It costs one command. A duplicate module is worse
+than no module -- it splits the vocabulary, and a bug fixed in one is still
+live in the other.
 
-WHY THE SCORECARD REPORTS ALL OF THEM, measured on the two failures that
-matter -- and this is the argument for publishing a table rather than a
-number:
-
-    two cells merged into one blob   dice 1.000  boundary F1 1.000  mAP 0.050
-    outline drawn 2 px too wide      dice 0.820  boundary F1 0.000  mAP 0.400
-
-Each failure is INVISIBLE to some of the metrics and obvious to others. A
-single headline number would have hidden one of them whichever one was
-chosen.
-
-WHAT REMAINS, and the crux of this item is unchanged: THE HELD-OUT SET. A
-number computed on fields chosen at call time is not comparable between two
-models or between two days. That needs a named, versioned, labelled set
-published beside the models, which is data rather than code and needs the
-maintainer. After that: run every zoo model over it, write the CSV, render
-the graph, and put the table in the tooltip and on the API page -- all of
-which are now plumbing, because the number they carry exists.
+Nothing was lost but time: `scorecard.py` is a superset of what I wrote.
 
 --------------------------------------------------------------------------------
 WHAT EXISTS, AND THE ONE THING THAT DOES NOT
