@@ -446,8 +446,8 @@ def _move_field(
     Every step of this is a filesystem call on a path the user chose:
     `quarantine_dir_for` alone is a ``Path.resolve()`` realpath walk over
     every component, and the move that follows adds ``mkdir``, ``stat``,
-    ``link``, an ``fsync``-ed ledger write and an ``unlink``. On the
-    maintainer's sleeping ``/nas_mnt`` autofs share a single one of those had
+    ``link``, an ``fsync``-ed ledger write and an ``unlink``. On a sleeping
+    ``/nas_mnt`` autofs share a single one of those had
     not returned after twenty seconds. It ran on the GUI thread until
     2026-09-04, which made the `path_probe` gate in `_sync_action` worth
     nothing: the poll no longer froze, and then pressing the button it guards
@@ -1089,7 +1089,7 @@ class QCFieldBrowser(QDialog):
 
         Built with string joins rather than :func:`quarantine_dir_for`,
         which resolves the plate folder: ``Path.resolve()`` is a realpath
-        walk over every component, and on the maintainer's ``/nas_mnt``
+        walk over every component, and on one ``/nas_mnt``
         autofs mount one component was enough to park the GUI thread.
 
         Takes its target as an argument rather than reading

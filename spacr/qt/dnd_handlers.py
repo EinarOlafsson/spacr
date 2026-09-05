@@ -685,7 +685,7 @@ def scan_mask_drop(path) -> Dict[str, Any]:
     on the GUI thread inside a single drop: ``can_accept`` asked
     ``is_dir``/``has_images_in``, ``suggest_alternatives`` then walked the
     parent and the children again, and ``apply`` asked ``is_file``/``is_dir``
-    a third time. On the maintainer's sleeping ``/nas_mnt`` share the first of
+    a third time. On a sleeping ``/nas_mnt`` share the first of
     those had not returned after twenty seconds.
 
     :param path: the dropped path to classify.

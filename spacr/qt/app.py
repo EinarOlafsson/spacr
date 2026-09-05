@@ -4954,7 +4954,7 @@ class MainWindow(QMainWindow):
         itself, at the moment it takes the screen -- which is the first moment
         the answer exists.
 
-        MEASURED on the maintainer's 3840x2160 screen at font_scale 2 before
+        MEASURED on a 3840x2160 screen at font_scale 2 before
         this: two visible backdrops on Home (3840x2114 with 3400x2114 laid
         over it) and two on a module screen, each shading and blitting a
         full-size field at 12.5 fps, the lower one covered over 87% of its

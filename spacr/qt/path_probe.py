@@ -3,7 +3,7 @@
 WHY THIS EXISTS. `spacr/qt/widgets/file_list.py` asked `os.path.exists` for
 every remembered path, on the GUI thread, to colour the missing ones red.
 That is free for a local disk and it is not free for a network one: measured
-2026-09-04 on the maintainer's machine, ``os.path.exists`` on a path under
+on one workstation, ``os.path.exists`` on a path under
 ``/nas_mnt`` -- an ``autofs`` mount with ``timeout=600`` -- had not returned
 after TWENTY SECONDS, because the stat is what triggers the automount and the
 share was asleep.

@@ -356,7 +356,7 @@ class QCDashboardScreen(QWidget):
         user typed. `os.path.isdir` was one call, and `_fingerprint` is a
         `find_scorecards` listing plus a stat per artifact.
 
-        Measured on the maintainer's machine 2026-09-04: a single
+        Measured on one workstation: a single
         `os.path.exists` under `/nas_mnt`, an `autofs` mount whose share was
         asleep, had not returned after TWENTY SECONDS -- the stat is what
         triggers the automount. A project folder on that mount is exactly

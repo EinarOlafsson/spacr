@@ -643,7 +643,7 @@ class ChainingBar(QFrame):
         sqlite. The roots come from `search_roots`, which is the list of
         folders the user last worked in.
 
-        Measured on the maintainer's machine 2026-09-04: one of those roots
+        Measured on one workstation: one of those roots
         was an `autofs` mount whose share was asleep, and a single
         `os.path.isfile` on it had not returned after TWENTY SECONDS. This
         function is called from `install_chaining` during screen
