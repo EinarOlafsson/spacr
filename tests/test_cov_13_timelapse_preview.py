@@ -10,6 +10,7 @@ of a slot -- an exception in a Qt slot takes the window, not the preview.
 from __future__ import annotations
 
 import os
+import pathlib
 import types
 
 import numpy as np
@@ -460,6 +461,12 @@ def test_a_plate_whose_siblings_cannot_be_listed_still_loads_the_field(
 
     Listing a plate walks a folder that can be on a mount that has just gone
     away, and losing the drop over it would be the wrong trade.
+
+    And the failure still comes back as a LIST holding the loaded field, not
+    as ``None``. ``None`` means "nobody listed", which sends
+    ``_refresh_source_selectors`` off to list the same folder itself -- on
+    the GUI thread, on the path whose listing has just failed here. If that
+    failure was a sleeping mount, the retry is the twenty-second freeze.
     """
     def refuse(*args, **kwargs):
         raise PermissionError("the plate folder is not readable")
@@ -471,7 +478,9 @@ def test_a_plate_whose_siblings_cannot_be_listed_still_loads_the_field(
                                            list_siblings=True)
 
     assert payload["sequence"] is not None
-    assert "siblings" not in payload or payload["siblings"] is None
+    assert payload["siblings"] == [pathlib.Path(frame_dir)], (
+        "a failed listing must still hand back the field itself, or the GUI "
+        "thread re-lists the folder that just refused")
     assert any("Could not list sequences beside" in record.message
                for record in caplog.records)
 

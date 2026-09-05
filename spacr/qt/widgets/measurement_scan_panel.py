@@ -20,7 +20,10 @@ from __future__ import annotations
 import os
 import logging
 import re
+import threading
+import time
 from collections.abc import Mapping as _Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -46,6 +49,7 @@ from ...plate_measurements import (ambiguous_identifiers,
                                    classify_default_columns,
                                    describe_identifier_refusal)
 from ...schema import PLATE_KEY
+from .. import path_probe
 from .sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
@@ -97,6 +101,89 @@ def ordered_columns(frame) -> list:
 #: panel cannot drift from the module that performs the merge.
 DEFAULT_ANCHOR = DEFAULT_PRIMARY
 
+#: How long a paint waits for the databases before it draws a placeholder and
+#: lets the answer arrive later.
+#:
+#: WHY THERE IS A BUDGET AT ALL. Every fact this panel shows about a plate --
+#: which object tables the file has, which plates are in it, how many anchor
+#: rows -- comes from `sqlite3.connect` on a path the USER supplied. Measured
+#: on the maintainer's machine 2026-09-04, a single `os.path.exists` under
+#: `/nas_mnt` (an `autofs` mount whose share was asleep) had not returned
+#: after TWENTY SECONDS, and step 1 of this tab opens every attached database
+#: the moment the Measurements tab is built. That was the whole interface,
+#: frozen, with no traceback -- see `spacr/qt/path_probe.py` for what it was
+#: reported as.
+#:
+#: A fifth of a second is below what anyone perceives, and it is far more than
+#: a local disk needs: the whole step-1 table of four databases reads in about
+#: a millisecond. So a local project is drawn complete on the first paint, as
+#: it always was, and a sleeping mount costs a fifth of a second instead of
+#: the application.
+READ_BUDGET_S = 0.2
+
+
+class _NotBack:
+    """What a database read that has not landed yet answers with.
+
+    A distinct object rather than ``None`` or ``()``, because every one of
+    these reads has a legitimate EMPTY answer -- a database with no object
+    table, a plan with no dropped columns -- and "nothing" and "not yet"
+    have to draw differently or the panel states a fact it has not read.
+    """
+
+    def __repr__(self) -> str:
+        """``<reading>``, so a stray one in a log says what it is."""
+        return "<reading>"
+
+
+#: The one :class:`_NotBack`. Compared with ``is``.
+READING = _NotBack()
+
+#: What a cell says while the database behind it has not answered yet.
+READING_TEXT = "reading…"
+
+#: The Aggregation rules button, and what it says while the preview it needs
+#: is still being read. Named rather than written twice: the button is put
+#: back from three places and a caption that drifted between them would leave
+#: it stuck saying it was reading.
+RULES_LABEL = "Aggregation rules…"
+RULES_READING_LABEL = "Aggregation rules — reading…"
+
+#: Rows per database in the Aggregation rules preview. Enough to know each
+#: column's type, which is all the rules need, and few enough that the read
+#: is a preview rather than the merge.
+PREVIEW_ROWS = 200
+
+
+class _ReadFailed:
+    """A read that raised, carried back so the GUI thread can re-raise it.
+
+    The formatting below already turns a failed read into "could not be
+    read: <error>" for the user, and it does that by catching the exception
+    where the read was made. Moving the read onto a worker thread must not
+    move that message, so the exception travels with the result and is
+    raised again in the place that knows how to word it.
+    """
+
+    __slots__ = ("error",)
+
+    def __init__(self, error: BaseException) -> None:
+        """:param error: what the read raised, kept to be re-raised."""
+        self.error = error
+
+
+def _screen_key(screens) -> Optional[Tuple[Tuple[str, str], ...]]:
+    """``screens`` as something hashable, for a read cache key.
+
+    :param screens: ``{path: screen}`` as :meth:`DatabaseMergePanel.screens`
+        returns it, or ``None``.
+    :returns: its pairs in path order, or ``None`` when no screen was named.
+    """
+    if not screens:
+        return None
+    return tuple(sorted((str(path), str(screen))
+                        for path, screen in screens.items()))
+
 
 @dataclass(frozen=True)
 class AttachedDatabase:
@@ -129,8 +216,18 @@ class AttachedDatabase:
         Checked here rather than at run time: the design asks that a row
         whose database has gone missing says so BEFORE the run, not four
         minutes into it.
+
+        Asked of :mod:`spacr.qt.path_probe` rather than of ``os.path``, and
+        that is not a style choice. This property is read once per plate row
+        by `_fill_table`, and again by `paths`, `screens` and `describe` --
+        so a project with eight plates on a sleeping `autofs` mount was
+        eight twenty-second stats on the GUI thread before the tab had drawn
+        anything. The probe answers from a cache, reports a path it has not
+        seen as present, and stats it on its own bounded worker;
+        `DatabaseMergePanel._follow_path_probes` is the half that corrects
+        the row when the real answer lands.
         """
-        return self.attached and os.path.exists(str(self.path))
+        return self.attached and path_probe.exists(str(self.path))
 
     @property
     def label(self) -> str:
@@ -770,6 +867,191 @@ def step_header(number: int, title: str, parent=None):
     return label
 
 
+class WorkflowStep(QWidget):
+    """One numbered step of the Measurements workflow: a fold and a body.
+
+    THE THIRD LEVEL OF NESTING ON THIS TAB. Its three panels are splitter
+    children that fold (see :class:`MeasurementScanPanel`), but the numbered
+    steps inside them were bold labels with the step's controls loose in the
+    panel's own column underneath. So "collapse the step I am not on" was not
+    offered at all, and a step could only lose height to its neighbours --
+    never take it back.
+
+    The heading is still the ``WorkflowStep`` ``QLabel`` :func:`step_header`
+    makes, inside the header row rather than replacing it: it is what the
+    stylesheet selects on and what a reader recognises. What is new beside it
+    is a checkable arrow that hides the body, focusable so a keyboard reaches
+    it, with an accessible name that says which step it folds.
+
+    :param number: one-based step number, as the tab counts them.
+    :param title: the step's title, translated by :func:`step_header`.
+    :param parent: parent widget; ownership only.
+    :param expanded: whether it starts open. Steps DO start open: unlike the
+        tab's three panels, a step is a stage of one procedure and hiding all
+        of them would leave a panel that says nothing about what it does.
+    """
+
+    toggled = Signal(bool)
+
+    def __init__(self, number: int, title: str, parent=None,
+                 expanded: bool = True):
+        super().__init__(parent)
+        from PySide6.QtWidgets import QSizePolicy, QToolButton
+
+        from ..i18n import tr
+        from ..preferences import scaled_px
+
+        self._number = int(number)
+        self._title = str(title)
+
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(2)
+
+        header = QHBoxLayout()
+        header.setContentsMargins(0, 0, 0, 0)
+        header.setSpacing(4)
+        self._fold = QToolButton(self)
+        self._fold.setCheckable(True)
+        self._fold.setChecked(bool(expanded))
+        self._fold.setAutoRaise(True)
+        self._fold.setArrowType(Qt.DownArrow if expanded else Qt.RightArrow)
+        self._fold.setFocusPolicy(Qt.StrongFocus)
+        # SAID ALOUD, AND TRANSLATED. "Toggle" on its own tells a screen-reader
+        # user nothing about which of four steps they are on.
+        spoken = f"{self._number}. {tr(self._title)}"
+        self._fold.setAccessibleName(spoken)
+        self._fold.setToolTip(f"Fold step {self._number} away, or open it again")
+        # AN ARROW WITH NO TEXT IS 24 px WHATEVER THE FONT, so at a 200 % font
+        # scale the one control on the row that has to be hit stays half the
+        # size of everything around it.
+        self._fold.setMinimumSize(scaled_px(22), scaled_px(22))
+        self._fold.toggled.connect(self._apply)
+        header.addWidget(self._fold)
+        self.label = step_header(self._number, self._title, self)
+        # THE HEADING IS PART OF THE CONTROL. A 22 px arrow beside a heading
+        # that ignores clicks is the affordance every other folding heading in
+        # the tool does not have -- `Section` and `CollapsibleSection` both put
+        # the whole caption on the button.
+        self.label.setCursor(Qt.PointingHandCursor)
+        self.label.installEventFilter(self)
+        header.addWidget(self.label, 1)
+        column.addLayout(header)
+
+        self._body = QWidget(self)
+        # EXPANDING, so a step that owns the panel's stretch really gets the
+        # height rather than sitting at its hint with a gap underneath.
+        self._body.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.body = QVBoxLayout(self._body)
+        self.body.setContentsMargins(0, 0, 0, 0)
+        self.body.setSpacing(4)
+        column.addWidget(self._body, 1)
+        self._apply(bool(expanded))
+
+    def is_expanded(self) -> bool:
+        """Whether the step's controls are showing.
+
+        READ OFF THE BUTTON, not a flag beside it, for the reason
+        :meth:`CollapsibleSection.is_expanded` gives: a cached copy can
+        disagree with what the user sees.
+        """
+        return self._fold.isChecked()
+
+    def set_expanded(self, expanded: bool) -> None:
+        """Open or fold the step.
+
+        :param expanded: True to show the step's controls.
+        """
+        self._fold.setChecked(bool(expanded))
+
+    def title(self) -> str:
+        """The step's title as written, before translation or numbering."""
+        return self._title
+
+    def number(self) -> int:
+        """Which step this is, one-based."""
+        return self._number
+
+    def fold_button(self):
+        """The collapse control, for tests and for focus handling."""
+        return self._fold
+
+    def eventFilter(self, watched, event):                    # noqa: N802
+        """Fold when the heading beside the arrow is clicked.
+
+        :param watched: the object the event is for.
+        :param event: the event.
+        :returns: True when the click was consumed as a fold.
+        """
+        from PySide6.QtCore import QEvent
+
+        if (watched is self.label
+                and event.type() == QEvent.MouseButtonRelease
+                and event.button() == Qt.LeftButton):
+            self.set_expanded(not self.is_expanded())
+            return True
+        return super().eventFilter(watched, event)
+
+    def _apply(self, expanded: bool) -> None:
+        self._fold.setArrowType(Qt.DownArrow if expanded else Qt.RightArrow)
+        self._body.setVisible(bool(expanded))
+        self.toggled.emit(bool(expanded))
+
+
+def resizable_box(owner, widget, layout, *, key: str, minimum: int,
+                  default: int, maximum: int, name: str):
+    """Give ``widget`` a user-draggable height instead of a hard cap.
+
+    WHAT THIS REPLACES, and why it was wrong twice over. Every tall box on
+    this tab was pinned with ``setMaximumHeight(N)`` at a literal N chosen
+    against a 100 % font. Measured offscreen at a 200 % font scale -- a
+    supported accessibility setting -- each one lost about half its content
+    and could not be dragged back:
+
+    ======================  =========  =========  =========
+    box                     cap        @100 %     @200 %
+    ======================  =========  =========  =========
+    attached databases      170 px     4 rows     3 rows
+    join list                72 px     4 rows     2 rows
+    merge report            190 px     11 lines   5 lines
+    merge evidence          220 px     12 lines   6 lines
+    column picker           180 px     10 rows    5 rows
+    outcomes                120 px     7 lines    3 lines
+    ======================  =========  =========  =========
+
+    So the height now starts at ``default`` SCALED BY THE FONT PREFERENCE --
+    at 200 % the report opens twice as tall and keeps its eleven lines -- and
+    a :class:`~.height_grip.HeightGrip` under it drags it anywhere between
+    ``minimum`` and ``maximum``. Home's release-notes panel has had that
+    handle for a while; this is the same class, moved to
+    :mod:`spacr.qt.widgets.height_grip` rather than written a second time.
+
+    :param owner: the panel the box belongs to. The handle is registered on
+        it under ``key`` so the tab can store and restore the height.
+    :param widget: the box to make resizable. Added to ``layout`` here.
+    :param layout: the column the box and its handle go into.
+    :param key: stable name for the stored height. NOT ``name``: that one is
+        read aloud and will be translated one day, and a stored layout keyed
+        on a translated string is a layout that is lost when the user
+        switches language.
+    :param minimum: floor in px at 100 % font scale.
+    :param default: opening height in px at 100 % font scale.
+    :param maximum: ceiling in px at 100 % font scale.
+    :param name: accessible name for the handle -- which box it resizes.
+    :returns: the :class:`HeightGrip` that was installed.
+    """
+    from ..preferences import scaled_px
+    from .height_grip import HeightGrip
+
+    layout.addWidget(widget)
+    grip = HeightGrip(widget, minimum, maximum, widget.parentWidget(),
+                      name=name)
+    layout.addWidget(grip)
+    grip.resize_target(scaled_px(default))
+    owner.register_box(key, grip)
+    return grip
+
+
 # --------------------------------------------------------------------------- #
 #  STEP 4: PICK A COLUMN AND REGRESS ON IT  (instruction 154 F)
 #
@@ -1053,7 +1335,111 @@ def _fit_outcome(column: str, payload) -> ColumnFit:
                      n_results=n_results)
 
 
-class DatabaseMergePanel(QWidget):
+class WorkflowSteps:
+    """The numbered-step half of a Measurements panel, shared by both of them.
+
+    A MIXIN AND NOT A BASE CLASS: ``DatabaseMergePanel`` and
+    ``ColumnRegressionPanel`` are both ``QWidget`` already, and the thing they
+    share is bookkeeping rather than a widget. ``step_folds_changed`` stays
+    declared on each of them -- a ``Signal`` on a non-``QObject`` mixin is not
+    connectable.
+    """
+
+    def _add_step(self, number: int, layout, *, stretch: int = 0):
+        """Build one numbered step, put it in ``layout``, and remember it.
+
+        :param number: one-based step number; the title comes from
+            :data:`WORKFLOW_STEPS`, so the two cannot drift apart.
+        :param layout: the panel column the step goes into.
+        :param stretch: which step takes the height a folded sibling gives
+            up. Exactly one step per panel gets it -- without that, folding
+            step 1 leaves a blank fixed-height gap where step 1 was, which is
+            a fold that visibly did nothing.
+        :returns: the :class:`WorkflowStep`.
+        """
+        step = WorkflowStep(number, WORKFLOW_STEPS[number - 1][1], self)
+        step.toggled.connect(self._on_step_folded)
+        self.steps[int(number)] = step
+        layout.addWidget(step, stretch)
+        return step
+
+    def _on_step_folded(self, _expanded: bool) -> None:
+        """A step opened or folded: tell whoever is keeping the layout.
+
+        Nothing is stored here. The panel does not own the stored layout --
+        :class:`MeasurementScanPanel` does, keyed on the tab rather than on
+        one of its three panels -- so this only says that something moved.
+        """
+        self.step_folds_changed.emit()
+
+    def step_folds(self) -> dict:
+        """Which steps are open, by number. The half of the layout to store."""
+        return {number: step.is_expanded()
+                for number, step in self.steps.items()}
+
+    def set_step_folds(self, folds) -> None:
+        """Put back what :meth:`step_folds` returned.
+
+        A number this panel does not have is IGNORED rather than an error: a
+        layout stored by a version with five steps must not stop this one
+        from starting.
+        """
+        for number, expanded in dict(folds or {}).items():
+            step = self.steps.get(int(number))
+            if step is not None:
+                step.set_expanded(bool(expanded))
+
+
+    def register_box(self, key: str, grip) -> None:
+        """Record a height handle so its drag can be stored and restored.
+
+        :param key: stable, untranslated name for the box.
+        :param grip: the :class:`~.height_grip.HeightGrip` under it.
+        """
+        boxes = self.__dict__.setdefault("_boxes", {})
+        boxes[str(key)] = grip
+        grip.height_changed.connect(self._on_box_resized)
+
+    def _on_box_resized(self, _height: int) -> None:
+        """A box was dragged. Same relay as a fold: the tab does the storing."""
+        self.step_folds_changed.emit()
+
+    def box_heights(self) -> dict:
+        """The dragged heights, in px AT 100 % FONT SCALE.
+
+        Divided by the scale on the way out and multiplied on the way back in
+        (:meth:`set_box_heights`), so a height chosen at 200 % is the same
+        number of lines when it is restored at 100 %.
+        """
+        from ..preferences import get_font_scale
+
+        scale = max(get_font_scale(), 0.01)
+        return {key: max(1, int(round(grip.target_height() / scale)))
+                for key, grip in self.__dict__.get("_boxes", {}).items()}
+
+    def set_box_heights(self, heights) -> None:
+        """Put back what :meth:`box_heights` returned.
+
+        A key this panel does not have is ignored, for the reason
+        :meth:`set_step_folds` gives.
+        """
+        from ..preferences import scaled_px
+
+        boxes = self.__dict__.get("_boxes", {})
+        for key, height in dict(heights or {}).items():
+            grip = boxes.get(str(key))
+            if grip is not None:
+                grip.resize_target(scaled_px(int(height)))
+
+    def _show_outcomes(self) -> None:
+        """Reveal a box and the handle that resizes it, together."""
+        for widget in (getattr(self, "outcomes_box", None),
+                       getattr(self, "_outcomes_grip", None)):
+            if widget is not None:
+                widget.setVisible(True)
+
+
+class DatabaseMergePanel(WorkflowSteps, QWidget):
     """The databases attached to the input table, and the join offered.
 
     One row per plate of the regression input
@@ -1091,6 +1477,12 @@ class DatabaseMergePanel(QWidget):
     merge_progress = Signal(str, int, int)
     merge_finished = Signal(object)
 
+    #: A numbered step was folded or opened. The tab stores the layout, not
+    #: this panel: the user arranges ONE Measurements tab, and three panels
+    #: each writing their own record would restore in three separate
+    #: writes and could disagree with each other.
+    step_folds_changed = Signal()
+
     #: Internal relay: emitted from the WORKER thread, received on the GUI
     #: thread. Emitting a Signal is the only thing a worker-thread callback
     #: may safely do; the receiver below is a bound method of this GUI-thread
@@ -1098,6 +1490,12 @@ class DatabaseMergePanel(QWidget):
     #: wrong is the exact bug `spacr.qt.job_runner` was written to stop being
     #: re-derived.
     _progress_relayed = Signal(str, int, int)
+
+    #: Internal relay: a database read has landed. Emitted from the reader
+    #: thread for the same reason `_progress_relayed` is, and received on the
+    #: GUI thread by `_on_read_landed`, which redraws whatever was drawn as
+    #: "reading…" while the read was still out.
+    _read_landed = Signal()
 
     #: The list columns, in reading order.
     COLUMNS = ("Plate", "Database", "Screen", "Tables", "Plates in it",
@@ -1132,6 +1530,45 @@ class DatabaseMergePanel(QWidget):
         self._overrides: Dict[str, str] = {}
         self._rules_dialog = None
         self._filling = False
+        #: Guards the three dicts below. They are written by the reader
+        #: threads and read by the GUI thread, and `_shown` in particular is
+        #: a read-compare-write -- see :meth:`_file_read` for the ordering
+        #: it exists to get right.
+        self._read_lock = threading.Lock()
+        #: Answers to the database reads, keyed by ``(generation, question)``.
+        #: A value is the answer, or a :class:`_ReadFailed` carrying what the
+        #: read raised.
+        self._reads: Dict[tuple, Any] = {}
+        #: The reads a worker is still on, and the Event each sets when it
+        #: lands. Keyed the same way, so twenty paints ask one question once
+        #: -- COALESCED, not queued.
+        self._reading: Dict[tuple, Any] = {}
+        #: The last answer to each question as ``(generation, answer)``,
+        #: whatever generation it came from. What a re-read draws from while
+        #: the new answer is out: replacing what the user is looking at with
+        #: "reading…" would be a panel forgetting something it already knows.
+        #: The generation is carried so a read that lands LATE, after a newer
+        #: read of the same question has already landed, cannot put the older
+        #: answer back -- two databases behind one question can answer out of
+        #: order, and the newest answer is the only true one.
+        self._shown: Dict[Any, tuple] = {}
+        #: The ``(generation, question)`` the Aggregation rules dialog is
+        #: waiting on, or ``None``. See :meth:`show_aggregation_rules`.
+        self._rules_wanted: Optional[tuple] = None
+        #: Bumped by every `refresh`, and part of every read key. `refresh`
+        #: promises a RE-READ -- a measure run may have rewritten
+        #: `measurements.db` at a path this panel already knows -- so its
+        #: reads must not be answered from the previous paint's cache.
+        self._read_generation = 0
+        #: When the GUI thread stops waiting for this paint's reads.
+        self._deadline = 0.0
+        self._read_depth = 0
+        #: Whether the last paint drew a placeholder anywhere, and so has
+        #: something to correct when a read lands.
+        self._painted_pending = False
+        #: The count `databases_changed` last carried, so a probe that
+        #: changes nothing does not re-announce it.
+        self._announced: Optional[int] = None
         self._threaded = bool(threaded)
         self._jobs = JobRunner(self, threaded=self._threaded,
                                app_key="merge databases")
@@ -1148,15 +1585,22 @@ class DatabaseMergePanel(QWidget):
         #: every run in the queue is fitted on the same numbers.
         self._artefact = ""
         self._progress_relayed.connect(self._on_progress)
+        self._read_landed.connect(self._on_read_landed)
+
+        from ..preferences import scaled_px
+        from .height_grip import HeightGrip
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
 
-        layout.addWidget(step_header(1, WORKFLOW_STEPS[0][1], self))
+        #: The numbered steps, by number, so a fold or a stored layout can
+        #: reach one without walking the children.
+        self.steps = {}
+        step = self._add_step(1, layout)
         self.heading = QLabel("No measurement database attached yet.")
         self.heading.setWordWrap(True)
-        layout.addWidget(self.heading)
+        step.body.addWidget(self.heading)
 
         self.table = QTableWidget(0, len(self.COLUMNS))
         install_sorting(self.table)
@@ -1167,20 +1611,20 @@ class DatabaseMergePanel(QWidget):
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
-        self.table.setMaximumHeight(170)
-        layout.addWidget(self.table)
+        resizable_box(self, self.table, step.body, key="databases",
+                      minimum=70, default=170, maximum=900,
+                      name="Resize the attached-database table")
 
-        layout.addWidget(step_header(2, WORKFLOW_STEPS[1][1], self))
+        step = self._add_step(2, layout)
         self.tables_state = QLabel("")
         self.tables_state.setWordWrap(True)
-        layout.addWidget(self.tables_state)
+        step.body.addWidget(self.tables_state)
 
         chooser = QHBoxLayout()
         chooser.addWidget(QLabel("join"))
         self.tables_list = QListWidget()
         self.tables_list.setFlow(QListWidget.LeftToRight)
         self.tables_list.setWrapping(True)
-        self.tables_list.setMaximumHeight(72)
         self.tables_list.setSelectionMode(QAbstractItemView.NoSelection)
         self.tables_list.setToolTip(
             "The object tables every attached database has. A table only one "
@@ -1188,7 +1632,17 @@ class DatabaseMergePanel(QWidget):
             "others rather than on this list.")
         self.tables_list.itemChanged.connect(self._on_choice)
         chooser.addWidget(self.tables_list, 1)
-        layout.addLayout(chooser)
+        step.body.addLayout(chooser)
+        # THE HANDLE GOES UNDER THE ROW, not inside it: `chooser` is a
+        # horizontal row, so a grip added to it would be a nine-pixel column
+        # beside the list rather than a border under it. The list is already
+        # placed, so this is the one box built with the handle directly
+        # instead of through `resizable_box`.
+        self._tables_grip = HeightGrip(self.tables_list, 44, 480, self,
+                                       name="Resize the table list")
+        step.body.addWidget(self._tables_grip)
+        self._tables_grip.resize_target(scaled_px(72))
+        self.register_box("tables", self._tables_grip)
 
         controls = QHBoxLayout()
         controls.addWidget(QLabel("onto"))
@@ -1204,7 +1658,7 @@ class DatabaseMergePanel(QWidget):
             f"default {DEFAULT_ANCHOR} — one anchor, one copy of each column")
         self.anchor_note.setWordWrap(True)
         controls.addWidget(self.anchor_note, 1)
-        layout.addLayout(controls)
+        step.body.addLayout(controls)
 
         options = QHBoxLayout()
         self.consolidate = QCheckBox("only cells that have the child object")
@@ -1224,20 +1678,20 @@ class DatabaseMergePanel(QWidget):
         self.keep_uninfected.toggled.connect(self._on_choice)
         options.addWidget(self.keep_uninfected)
         options.addStretch(1)
-        self.rules_button = QPushButton("Aggregation rules…")
+        self.rules_button = QPushButton(RULES_LABEL)
         self.rules_button.setToolTip(
             "How each measurement combines when several children roll up onto "
             "one cell, and a dropdown to change any of it.")
         self.rules_button.clicked.connect(self.show_aggregation_rules)
         options.addWidget(self.rules_button)
-        layout.addLayout(options)
+        step.body.addLayout(options)
 
         # STEP 3 IS ITS OWN STEP, so the button that does it is under the
         # heading that names it rather than at the end of step 2's row.
-        layout.addWidget(step_header(3, WORKFLOW_STEPS[2][1], self))
+        step = self._add_step(3, layout, stretch=1)
         self.merge_state = QLabel("")
         self.merge_state.setWordWrap(True)
-        layout.addWidget(self.merge_state)
+        step.body.addWidget(self.merge_state)
 
         options = QHBoxLayout()
         options.addStretch(1)
@@ -1254,7 +1708,7 @@ class DatabaseMergePanel(QWidget):
         self.cancel_button.setEnabled(False)
         self.cancel_button.clicked.connect(self.cancel_merge)
         options.addWidget(self.cancel_button)
-        layout.addLayout(options)
+        step.body.addLayout(options)
 
         # WHAT STAGE, AND HOW FAR. The plan already prints the row total; this
         # counts against that same number rather than against one invented
@@ -1263,12 +1717,13 @@ class DatabaseMergePanel(QWidget):
         self.progress = QLabel("")
         self.progress.setWordWrap(True)
         self.progress.setVisible(False)
-        layout.addWidget(self.progress)
+        step.body.addWidget(self.progress)
 
         self.report = QPlainTextEdit()
         self.report.setReadOnly(True)
-        self.report.setMaximumHeight(190)
-        layout.addWidget(self.report, 1)
+        resizable_box(self, self.report, step.body, key="report",
+                      minimum=70, default=190, maximum=900,
+                      name="Resize the merge report")
 
         # THE COUNT IS THE SENTENCE; THE LIST IS THE EVIDENCE (154 B). A
         # hundred and seventy column names in a 190-pixel box buried the three
@@ -1284,9 +1739,17 @@ class DatabaseMergePanel(QWidget):
             "the default, what is a text identifier, and what was dropped.")
         self.details = QPlainTextEdit()
         self.details.setReadOnly(True)
-        self.details.setMaximumHeight(220)
+        # A GRIP INSIDE THE FOLD, because the fold is the sub-sub-subsection
+        # and the box inside it is the thing that was 220 px whatever the
+        # font. `add_prose` twice rather than `add_widget`: neither the box
+        # nor its handle is a labelled setting row.
         self.evidence.add_prose(self.details)
-        layout.addWidget(self.evidence)
+        self._details_grip = HeightGrip(self.details, 70, 900, self.evidence,
+                                        name="Resize the column evidence")
+        self.evidence.add_prose(self._details_grip)
+        self._details_grip.resize_target(scaled_px(220))
+        self.register_box("evidence", self._details_grip)
+        step.body.addWidget(self.evidence)
 
         # HOVER HELP GOES ON THE SETTING'S NAME, not on the box you type
         # into. A tooltip on an editable field is unreachable the moment the
@@ -1297,7 +1760,314 @@ class DatabaseMergePanel(QWidget):
 
         retarget_field_tooltips(self)
 
+        self._follow_path_probes()
         self.refresh()
+
+    # -------------------------------------------------- reading the databases
+    #
+    # WHY THIS SECTION EXISTS. Everything step 1 shows comes out of the
+    # attached databases, and every one of those reads -- `mergeable_tables`,
+    # `describe_merge`, `column_kinds` -- opens sqlite on a path the user
+    # chose. `DatabaseMergePanel.__init__` ends in `refresh()`, so opening
+    # the Measurements tab did all of it inline on the GUI thread. On the
+    # maintainer's machine one of those paths was an `autofs` mount whose
+    # share was asleep and a single stat on it had not returned after twenty
+    # seconds; see `READ_BUDGET_S` and `spacr/qt/path_probe.py`.
+    #
+    # The shape here is `spacr/qt/chaining.py`'s -- a GUI half that reads
+    # widgets and a worker half that touches none -- with one difference,
+    # and it is deliberate. `JobRunner` delivers through the event loop, and
+    # this panel's answers are read STRAIGHT BACK by its own callers:
+    # `refresh()` returns the count the host tab enables the rest of the
+    # workflow from, `_prepare_merge` reads `plan_summary()` on the line
+    # after it refreshes. So the GUI thread waits here -- but for a fixed
+    # fifth of a second and never for a filesystem, which is the difference
+    # between a panel that is a moment late and an application that is gone.
+
+    @contextmanager
+    def _read_budget(self, *, fresh: bool = False,
+                     budget: float = READ_BUDGET_S):
+        """Give this paint, and every read under it, ONE bounded wait.
+
+        Nested on purpose: `refresh` draws the plate table, the table
+        chooser and the plan, and each of those reads databases. Budgeting
+        them one at a time would let a single paint spend the budget three
+        times over, which is the freeze again in instalments.
+
+        :param fresh: whether this asks the databases AGAIN rather than
+            drawing what has already been asked for. IT DEFAULTS TO FALSE,
+            and `refresh` is the one caller that passes ``True`` -- that is
+            the whole guard against re-reading on every click. `describe` is
+            what a checkbox, an anchor change and a tooltip repaint all end
+            in, and `_repaint` is what runs once per read that lands, so a
+            fresh generation on either would open every attached database
+            again per keystroke and per landing -- and, because each landing
+            repaint would start reads that land and repaint in their turn,
+            it would never stop. What HAS changed is already in the key: the
+            anchor, the paths and the screens are all part of it, so a
+            genuinely different question is a different read whatever the
+            generation says.
+        :param budget: how long the GUI thread may wait. ``0`` for a redraw
+            that is CORRECTING an earlier paint: everything such a redraw can
+            draw is already filed, so waiting again would only add a stall
+            per landing read -- eight plates, eight stalls -- for nothing.
+        :yields: nothing; the budget lives in ``self._deadline``.
+        """
+        if not self._read_depth:
+            if fresh:
+                self._new_generation()
+            self._deadline = time.monotonic() + float(budget)
+        self._read_depth += 1
+        try:
+            yield
+        finally:
+            self._read_depth -= 1
+
+    def _new_generation(self) -> None:
+        """Retire the last question's answers, so this one reads again.
+
+        WHY NOT SIMPLY KEEP THEM. `refresh` promises a re-read -- a measure
+        run may have rewritten `measurements.db` at a path this panel already
+        knows, which is exactly why `_prepare_merge` refreshes before it
+        merges -- and `describe` is what a click ends in. Answers are kept
+        ONE generation deep, in `_shown`, so a re-read draws what it drew
+        last instead of blanking to "reading…" while it waits.
+        """
+        self._read_generation += 1
+        stale = self._read_generation - 1
+        # Never the one the rules dialog is parked on. That read was asked
+        # for by a CLICK, it opens the dialog when it lands, and dropping it
+        # here would leave the button saying "reading" with nothing left to
+        # answer it.
+        wanted = self._rules_wanted
+        with self._read_lock:
+            for key in [key for key in self._reads
+                        if key[0] < stale and key != wanted]:
+                self._reads.pop(key, None)
+
+    def _read_off_thread(self, question, work):
+        """``work()``'s answer -- from cache, from a worker, or not yet.
+
+        :param question: what is being asked, hashable. Two paints asking
+            the same thing share one worker and one answer.
+        :param work: a zero-argument callable that reads the databases. It
+            runs on a worker thread and MUST NOT touch a widget.
+        :returns: what ``work`` returned; the previous answer to the same
+            question while a re-read is out; or :data:`READING` when there
+            is nothing yet and this paint's budget is spent.
+        :raises Exception: whatever ``work`` raised, re-raised here so the
+            "could not be read" wording stays where it was written.
+        """
+        key = (self._read_generation, question)
+        start = None
+        with self._read_lock:
+            if key in self._reads:
+                return self._unwrap(self._reads[key])
+            waiting = self._reading.get(key)
+            if waiting is None:
+                waiting = start = threading.Event()
+                self._reading[key] = waiting
+        if start is not None:
+            # Outside the lock: starting a thread is not something to hold a
+            # lock the reader threads need across.
+            threading.Thread(target=self._run_read,
+                             args=(key, work, start), daemon=True,
+                             name="spacr-merge-read").start()
+        budget = self._deadline - time.monotonic()
+        if budget > 0:
+            waiting.wait(budget)
+        with self._read_lock:
+            if key in self._reads:
+                return self._unwrap(self._reads[key])
+            seen = self._shown.get(question)
+        # Whatever is drawn now is provisional, so say so: `_on_read_landed`
+        # draws it again for real.
+        self._painted_pending = True
+        if seen is not None:
+            return self._unwrap(seen[1])
+        return READING
+
+    @staticmethod
+    def _unwrap(value):
+        """Return a filed answer, re-raising the read that failed.
+
+        :param value: what was filed -- the answer, or a
+            :class:`_ReadFailed`.
+        :returns: the answer.
+        :raises Exception: the read's own exception.
+        """
+        if isinstance(value, _ReadFailed):
+            raise value.error
+        return value
+
+    def _run_read(self, key, work, waiting) -> None:
+        """Perform one database read. WORKER THREAD; touches no widget.
+
+        :param key: ``(generation, question)``, what the answer is filed
+            under.
+        :param work: the callable to run.
+        :param waiting: set once the answer is filed, so a GUI-thread wait
+            still inside its budget picks the answer up without a redraw.
+
+        The filing is in a ``finally``. A read that ends any other way --
+        the interpreter shutting down under it, a C-level error `work` does
+        not raise as an `Exception` -- must still release the question, or
+        the cell that said "reading…" says it for the life of the panel and
+        no later paint ever asks again.
+        """
+        try:
+            try:
+                value = work()
+            except Exception as error:           # noqa: BLE001 - carried back
+                value = _ReadFailed(error)
+            self._file_read(key, value)
+        finally:
+            with self._read_lock:
+                self._reading.pop(key, None)
+            waiting.set()
+            try:
+                self._read_landed.emit()
+            except RuntimeError:
+                # The panel's C++ half went with its screen while this read
+                # was still parked on a mount that had not woken up.
+                pass
+
+    def _file_read(self, key, value) -> None:
+        """File one answer. WORKER THREAD.
+
+        :param key: ``(generation, question)``.
+        :param value: the answer, or a :class:`_ReadFailed`.
+
+        `_shown` is what a re-read draws from while the new answer is out, so
+        it must hold the NEWEST answer and not merely the last one to land.
+        Two reads of one question overlap whenever `refresh` runs while the
+        first is still out, and the older of the two can easily be the slower
+        -- it is the one that went to the mount that was asleep. Stamping the
+        generation and refusing to go backwards is what stops that read, when
+        it finally lands, from painting the previous run's numbers over the
+        current ones.
+
+        `_reads` is keyed by generation and so cannot be overwritten this
+        way; only `_shown`, which is keyed by the question alone, needs the
+        comparison.
+        """
+        with self._read_lock:
+            self._reads[key] = value
+            seen = self._shown.get(key[1])
+            if seen is None or seen[0] <= key[0]:
+                self._shown[key[1]] = (key[0], value)
+
+    def _on_read_landed(self) -> None:
+        """Redraw what was drawn provisionally, now the answer is in.
+
+        Guarded throughout: this is reached from a signal a reader thread
+        emitted, and the panel's C++ half can have gone between the emit and
+        the queued delivery.
+        """
+        try:
+            wanted = self._rules_wanted
+            if wanted is not None and wanted in self._reads:
+                # A click asked for this one and is still waiting for it.
+                self._wait_for_rules(None)
+                self.show_aggregation_rules()
+            if not self._painted_pending:
+                return
+            self._repaint()
+        except RuntimeError:
+            # The panel is gone; the queued signal outlived it.
+            pass
+
+    def _repaint(self) -> None:
+        """Draw the list, the chooser and the plan from what is known now.
+
+        Not `refresh`: the provider has not changed and the databases must
+        NOT be read again. Everything this draws is already filed, which is
+        what makes the corrected paint free -- and why it is given NO budget:
+        a redraw that waited again would put a fifth of a second of frozen
+        interface between the user and every single read that lands.
+        """
+        with self._read_budget(budget=0.0):
+            self._painted_pending = False
+            self._fill_table()
+            self._offer_tables()
+            self.describe()
+
+    def _settle_paths(self) -> None:
+        """Let the path probes land, for as long as the budget lasts.
+
+        WHY WAIT AT ALL, when `path_probe` exists so that nothing does.
+        Because step 1's job is to say which plate has LOST its database
+        before a run starts, and the probe is optimistic: an unseen path is
+        reported present, so a database that is really gone would be drawn
+        as ready until the answer arrived. A local disk answers in
+        microseconds and the row is right the first time it is drawn; a
+        sleeping mount spends the budget and is put right by
+        `_follow_path_probes` instead.
+        """
+        attached = [entry.path for entry in self._databases if entry.attached]
+        for path in attached:
+            # Asking is what queues the check; the answer is what is waited
+            # for below.
+            path_probe.exists(path)
+        while attached and time.monotonic() < self._deadline:
+            if all(path_probe.known(path) is not None for path in attached):
+                return
+            time.sleep(0.002)
+
+    def _follow_path_probes(self) -> None:
+        """Correct a row when a background path check finally answers.
+
+        `path_probe` reports an unseen path as PRESENT so that no plate row
+        can freeze the interface -- see its module docstring and the
+        twenty-second `os.path.exists` behind it. The cost of that optimism
+        is that a database which really has gone is drawn as ready until the
+        probe lands, so this is the half that puts it right.
+
+        Held in an attribute and guarded rather than connected as a bound
+        method: `probes` is process-wide and outlives this panel, and
+        reaching a destroyed C++ half is a crash rather than an exception.
+        """
+        def corrected(path: str, _answer: bool) -> None:
+            """Redraw when ``path`` is one of ours, ignore every other.
+
+            :param path: the path whose answer just changed.
+            :param _answer: what it changed to; the rows are drawn from
+                `paths()`, which reads the probe's cache itself.
+            """
+            try:
+                if any(entry.path == path for entry in self._databases):
+                    self._recount()
+            except RuntimeError:
+                # The panel has gone; the signal outlived it.
+                pass
+
+        self._probe_redraw = corrected
+        path_probe.probes.answered.connect(corrected)
+
+    def _unfollow_path_probes(self) -> None:
+        """Stop following the probes, before the C++ half goes."""
+        redraw = getattr(self, "_probe_redraw", None)
+        if redraw is None:
+            return
+        self._probe_redraw = None
+        try:
+            path_probe.probes.answered.disconnect(redraw)
+        except (RuntimeError, TypeError):
+            pass
+
+    def _recount(self) -> None:
+        """Redraw after a path changed state, and re-announce the count.
+
+        `databases_changed` carries the number of READABLE databases and the
+        host tab gates the rest of the workflow on it, so a probe that turns
+        a row from ready to missing has to be announced as well as drawn.
+        Only when it actually moved: this fires once per path per probe.
+        """
+        self._repaint()
+        count = len(self.paths())
+        if count != self._announced:
+            self._announced = count
+            self.databases_changed.emit(count)
 
     # ------------------------------------------------------------- the list
 
@@ -1331,27 +2101,53 @@ class DatabaseMergePanel(QWidget):
     def refresh(self) -> int:
         """Re-read the provider and describe what is attached.
 
+        A RE-READ, so the previous paint's answers are not reused: a measure
+        run may have rewritten a database at a path this panel already knows,
+        and `_prepare_merge` refreshes precisely to catch that. It is bounded
+        rather than blocking -- see :meth:`_read_off_thread` -- so a database
+        that has not answered within the budget is drawn as it was, or as
+        "reading…", and put right the moment it does.
+
         :returns: the number of readable databases.
         """
-        rows = None
-        if callable(self._provider):
-            try:
-                rows = self._provider()
-            except Exception as error:  # noqa: BLE001 - report, do not raise
-                self._databases = ()
-                self._fill_table()
-                self.report.setPlainText(
-                    f"Could not read the input table: {error}")
-                self.heading.setText("No measurement database attached.")
-                self.databases_changed.emit(0)
-                return 0
-        self._databases = attached_databases(rows)
-        self._fill_table()
-        self._offer_tables()
-        self.describe()
-        count = len(self.paths())
-        self.databases_changed.emit(count)
-        return count
+        with self._read_budget(fresh=True):
+            rows = None
+            if callable(self._provider):
+                try:
+                    rows = self._provider()
+                except Exception as error:  # noqa: BLE001 - report, not raise
+                    self._databases = ()
+                    self._fill_table()
+                    self.report.setPlainText(
+                        f"Could not read the input table: {error}")
+                    self.heading.setText("No measurement database attached.")
+                    self._announced = 0
+                    self.databases_changed.emit(0)
+                    return 0
+            self._databases = attached_databases(rows)
+            self._forget_paths()
+            self._settle_paths()
+            self._painted_pending = False
+            self._fill_table()
+            self._offer_tables()
+            self.describe()
+            count = len(self.paths())
+            self._announced = count
+            self.databases_changed.emit(count)
+            return count
+
+    def _forget_paths(self) -> None:
+        """Ask the probes again about this panel's own paths.
+
+        `refresh` exists partly to notice that a database has gone since the
+        tab was opened, and the probe cache would otherwise answer with what
+        was true then. Only our own rows are forgotten: that cache is
+        process-wide, so clearing more would make every other widget re-probe
+        paths this panel knows nothing about.
+        """
+        for entry in self._databases:
+            if entry.attached:
+                path_probe.forget(entry.path)
 
     def _fill_table(self) -> None:
         entries = self._databases
@@ -1397,34 +2193,57 @@ class DatabaseMergePanel(QWidget):
         here and another way in the merged frame would leave the user unable to
         connect a row to the database it came from, which is the whole reason
         provenance is carried.
+
+        Both reads go through :meth:`_read_off_thread`. `mergeable_tables`
+        opens every attached database and `describe_merge` opens them all
+        again, once per plate row, on the paint that builds the tab.
         """
         out: Dict[str, Dict[str, str]] = {}
         tables: Dict[str, List[str]] = {}
+        # png_list too -- see `joinable_tables`. This list is what the row
+        # shows as "tables", so leaving it out here made the panel report a
+        # database as not having a table it has.
+        offered = set(OBJECT_TABLES) | {PNG_TABLE}
         for path in self.paths():
             out[path] = {"label": os.path.basename(path), "tables": "",
                          "plates": "", "rows": "", "status": "ready"}
             try:
-                # png_list too -- see `joinable_tables`. This list is what
-                # the row shows as "tables", so leaving it out here made
-                # the panel report a database as not having a table it has.
-                offered = set(OBJECT_TABLES) | {PNG_TABLE}
-                tables[path] = [name for name in mergeable_tables(path)
-                                if name in offered]
+                found = self._read_off_thread(
+                    ("tables", path), lambda p=path: mergeable_tables(p))
             except Exception as error:  # noqa: BLE001 - one bad file, not all
                 tables[path] = []
                 out[path]["status"] = f"could not be read: {error}"
                 continue
+            if found is READING:
+                # The row is still LISTED, with its plate, its file name and
+                # its screen: what this panel must never do is leave a plate
+                # out. Only the three columns that come from inside the file
+                # wait for it.
+                tables[path] = []
+                out[path]["tables"] = READING_TEXT
+                out[path]["plates"] = READING_TEXT
+                out[path]["rows"] = READING_TEXT
+                continue
+            tables[path] = [name for name in found if name in offered]
             out[path]["tables"] = ", ".join(tables[path]) or "no object table"
 
         anchor = self.anchor()
         readable = [path for path in out if anchor in tables.get(path, ())]
         if not readable:
             return out
+        screens = self.screens()
         try:
-            plan = describe_merge(readable, anchor, screens=self.screens())
+            plan = self._read_off_thread(
+                ("plan", tuple(readable), anchor, _screen_key(screens)),
+                lambda: describe_merge(readable, anchor, screens=screens))
         except Exception as error:  # noqa: BLE001 - report, do not raise
             for path in readable:
                 out[path]["status"] = f"could not be read: {error}"
+            return out
+        if plan is READING:
+            for path in readable:
+                out[path]["plates"] = READING_TEXT
+                out[path]["rows"] = READING_TEXT
             return out
         by_plate = {entry.path: entry.plate for entry in self._databases}
         for source in plan.sources:
@@ -1446,13 +2265,25 @@ class DatabaseMergePanel(QWidget):
     # ------------------------------------------------------------ the choice
 
     def _offer_tables(self) -> None:
-        """Fill the table chooser with what every attached database has."""
+        """Fill the table chooser with what every attached database has.
+
+        The intersection is read off the GUI thread like everything else
+        here: `joinable_tables` opens every attached database to take it.
+        """
         paths = self.paths()
         try:
-            names = joinable_tables(paths) if paths else ()
+            names = self._read_off_thread(
+                ("joinable", paths),
+                lambda: joinable_tables(paths)) if paths else ()
         except Exception as error:  # noqa: BLE001 - report, do not raise
             names = ()
             self.report.setPlainText(f"Could not read the databases: {error}")
+        if names is READING:
+            # LEAVE THE CHOOSER ALONE until the databases answer. Clearing it
+            # would drop the user's ticks and put them back a moment later,
+            # and an empty list is a statement -- "no object table is shared
+            # by every database" -- that nothing has been read to support.
+            return
         previous = set(self.selected_tables()) or set(self._tables)
         self._tables = names
 
@@ -1605,9 +2436,14 @@ class DatabaseMergePanel(QWidget):
     def describe(self) -> str:
         """State what the merge WOULD do, before it is done.
 
-        Reads only sqlite metadata and the distinct plate ids, so it is cheap
-        enough to run on every click -- which is the point, because the answer
-        has to arrive before the user commits.
+        Called on every click, and it CANNOT read the databases on every
+        click. What it needs is sqlite metadata and the distinct plate ids,
+        which is a millisecond on a local disk and was the reason the old
+        comment here called it cheap -- but the same read on a share that is
+        asleep did not return at all, and this is reached from a checkbox.
+        So it draws from what `refresh` asked for, waits at most
+        :data:`READ_BUDGET_S` for anything not back yet, and says
+        "reading…" for the rest until :meth:`_on_read_landed` puts it right.
 
         THE COUNT GOES IN THE BOX AND THE NAMES GO BEHIND THE DISCLOSURE
         (154 B). Putting both in the box is what buried the three lines that
@@ -1616,7 +2452,8 @@ class DatabaseMergePanel(QWidget):
         :returns: the whole statement, summary and evidence, as one string --
             what the panel SAYS, wherever it puts it.
         """
-        summary, evidence = self._plan_lines()
+        with self._read_budget():
+            summary, evidence = self._plan_lines()
         self.report.setPlainText("\n".join(summary))
         self.details.setPlainText("\n".join(evidence))
         # EVERY CHANGE REPAINTS THE STEPS. `describe` is what a click, a
@@ -1633,20 +2470,28 @@ class DatabaseMergePanel(QWidget):
         :meth:`plan_summary` in the box and :meth:`plan_evidence` behind the
         disclosure -- the design.
         """
-        summary, evidence = self._plan_lines()
+        with self._read_budget():
+            summary, evidence = self._plan_lines()
         text = "\n".join(summary)
         return text + ("\n\n" + "\n".join(evidence) if evidence else "")
 
     def plan_summary(self) -> str:
         """The pre-merge statement as COUNTS -- what fits in the box."""
-        return "\n".join(self._plan_lines()[0])
+        with self._read_budget():
+            return "\n".join(self._plan_lines()[0])
 
     def plan_evidence(self) -> str:
         """The column names behind :meth:`plan_summary`'s counts."""
-        return "\n".join(self._plan_lines()[1])
+        with self._read_budget():
+            return "\n".join(self._plan_lines()[1])
 
     def _plan_lines(self) -> Tuple[List[str], List[str]]:
-        """``(summary, evidence)``. One pass, so the two cannot disagree."""
+        """``(summary, evidence)``. One pass, so the two cannot disagree.
+
+        Call it inside a :meth:`_read_budget`: every `describe_merge` below
+        opens each attached database, and this is reached from the paint that
+        builds the tab.
+        """
         paths = self.paths()
         if not paths:
             return ([("No database to merge. A plate row with no database is "
@@ -1670,10 +2515,19 @@ class DatabaseMergePanel(QWidget):
             lines.append(
                 f"{len(gone)} plate(s) name a database that is not on disk and "
                 f"are left out: " + ", ".join(gone) + ".")
+        screens = self.screens()
         try:
-            plan = describe_merge(paths, anchor, screens=self.screens())
+            plan = self._read_off_thread(
+                ("plan", tuple(paths), anchor, _screen_key(screens)),
+                lambda: describe_merge(paths, anchor, screens=screens))
         except Exception as error:  # noqa: BLE001 - report, do not raise
             return (lines + [f"Could not read {anchor}: {error}"], evidence)
+        if plan is READING:
+            # The lines above are already true and already said -- the anchor,
+            # and which plates were left out for having no database on disk.
+            # Only what has to be read out of the files waits.
+            return (lines + [f"Reading {anchor} from {len(paths)} "
+                             f"database(s)…"], evidence)
 
         lines.append(f"{len(plan.sources)} database(s), "
                      f"{plan.total_rows:,} {anchor} rows before any join:")
@@ -1729,10 +2583,15 @@ class DatabaseMergePanel(QWidget):
         so text paths are described with text aggregation rather than the
         numeric default.
         """
+        screens = self.screens()
         try:
-            plan = describe_merge(paths, table, screens=self.screens())
+            plan = self._read_off_thread(
+                ("plan", tuple(paths), str(table), _screen_key(screens)),
+                lambda: describe_merge(paths, table, screens=screens))
         except Exception as error:  # noqa: BLE001
             return ([f"  {table}: could not be read: {error}"], [])
+        if plan is READING:
+            return ([f"  {table}: {READING_TEXT}"], [])
         lines: List[str] = []
         evidence: List[str] = []
         if plan.dropped_columns:
@@ -1797,8 +2656,16 @@ class DatabaseMergePanel(QWidget):
         merged: Dict[str, str] = {}
         for path in paths:
             try:
-                found = column_kinds(str(path), str(table))
+                found = self._read_off_thread(
+                    ("kinds", str(path), str(table)),
+                    lambda p=path: column_kinds(str(p), str(table)))
             except Exception:  # noqa: BLE001 - one bad file, not all
+                continue
+            if found is READING:
+                # Left out rather than guessed. A column whose declared type
+                # has not been read yet is not a column this panel can promise
+                # anything about, which is the same rule the disagreement case
+                # below applies -- and the note is redrawn when it lands.
                 continue
             for name, kind in found.items():
                 if merged.setdefault(name, kind) != kind:
@@ -1910,7 +2777,10 @@ class DatabaseMergePanel(QWidget):
             self.report.setPlainText(self.plan_summary())
             self.details.setPlainText(self.plan_evidence())
             return None
-        summary, evidence = self._plan_lines()
+        # Not a fresh generation: `refresh` on the line above has just read
+        # these files, and what it read is what the merge is about to do.
+        with self._read_budget(fresh=False):
+            summary, evidence = self._plan_lines()
         self._plan_shown = "\n".join(summary)
         self.report.setPlainText(self._plan_shown)
         self.details.setPlainText("\n".join(evidence))
@@ -2043,6 +2913,7 @@ class DatabaseMergePanel(QWidget):
         try:
             self._stop.set()
             self._jobs.shutdown()
+            self._unfollow_path_probes()
         finally:
             super().closeEvent(event)
 
@@ -2073,6 +2944,19 @@ class DatabaseMergePanel(QWidget):
         Reuses the Gate Editor's dialog rather than growing a second one: the
         rules are the same rules, and two editors of one decision is how they
         come to disagree.
+
+        THE PREVIEW READ IS OFF THE GUI THREAD, and it is the one the rest of
+        this panel's fix had left behind. Everything else here reads sqlite
+        METADATA; this reads ROWS -- `read_merged` opens every attached
+        database and pulls :data:`PREVIEW_ROWS` rows out of each -- and it ran
+        inside the button's own click handler. On a local disk that is a
+        blink; on the `autofs` mount this whole exercise came from it is the
+        freeze again, on a button rather than on a tab.
+
+        So the click either opens the dialog straight away, as it always did,
+        or says the button is reading and opens it from
+        :meth:`_on_read_landed` when the databases answer. Nothing is lost
+        either way: the dialog the user asked for still arrives.
         """
         from PySide6.QtWidgets import QMessageBox
         from .aggregation_rules import AggregationRulesDialog
@@ -2084,25 +2968,71 @@ class DatabaseMergePanel(QWidget):
                       if not is_one_row_per_cell(name)] or list(
                           self.selected_tables())
             if not paths or not tables:
+                self._wait_for_rules(None)
                 QMessageBox.information(
                     self, "Nothing to show",
                     "The rules are per measurement, so there is nothing to "
                     "show until a database is attached and a table chosen.")
                 return
-            try:
-                # A preview, not the merge: enough rows to know each column's
-                # type, which is all the rules need.
-                frame = read_merged(paths, tables[0], screens=self.screens(),
-                                    limit_per_source=200)
-            except Exception as error:  # noqa: BLE001
-                QMessageBox.information(self, "Could not read the tables",
-                                        str(error))
+            screens = self.screens()
+            table = str(tables[0])
+            # A preview, not the merge: enough rows to know each column's
+            # type, which is all the rules need.
+            question = ("rules preview", paths, table, _screen_key(screens))
+
+            def preview():
+                """Read the preview. WORKER THREAD; touches no widget.
+
+                :returns: what :func:`~spacr.multi_database.read_merged`
+                    returns for the chosen table.
+                """
+                return read_merged(paths, table, screens=screens,
+                                   limit_per_source=PREVIEW_ROWS)
+
+            # The budget is the panel's usual one and NOT a fresh generation:
+            # a click is not a reason to re-open every database, and a local
+            # disk answers inside it, so the dialog still opens on the click
+            # exactly as it always did.
+            with self._read_budget():
+                key = (self._read_generation, question)
+                try:
+                    frame = self._read_off_thread(question, preview)
+                except Exception as error:  # noqa: BLE001
+                    # The read failed rather than being slow. Put the button
+                    # back BEFORE the message box: a modal opened over a
+                    # button still saying "reading" leaves it saying that for
+                    # good.
+                    self._wait_for_rules(None)
+                    QMessageBox.information(self, "Could not read the tables",
+                                            str(error))
+                    return
+            if frame is READING:
+                self._wait_for_rules(key)
                 return
+            self._wait_for_rules(None)
         dialog = AggregationRulesDialog(frame, self,
                                         overrides=self._overrides)
         dialog.rules_changed.connect(self._on_rules_changed)
         dialog.show()
         self._rules_dialog = dialog
+
+    def _wait_for_rules(self, key) -> None:
+        """Say on the button whether the rules are still being read.
+
+        :param key: the ``(generation, question)`` the dialog is waiting for,
+            or ``None`` when it is waiting for nothing.
+
+        The button is disabled while it waits rather than left live and
+        inert. A second click on a button that looks armed and does nothing
+        is the failure this panel already made once with Merge; a button that
+        says what it is doing is the alternative, and it comes back the
+        moment the read lands or fails.
+        """
+        self._rules_wanted = key
+        waiting = key is not None
+        self.rules_button.setEnabled(not waiting)
+        self.rules_button.setText(RULES_READING_LABEL if waiting
+                                  else RULES_LABEL)
 
     def _on_rules_changed(self, overrides: dict) -> None:
         self._overrides = dict(overrides or {})
@@ -2189,7 +3119,7 @@ def describe_key_overlap(left_name: str, left, right_name: str,
             f"{sorted(right_wells)[0]!r} ({len(right_wells):,} wells).")
 
 
-class ColumnRegressionPanel(QWidget):
+class ColumnRegressionPanel(WorkflowSteps, QWidget):
     """Run one regression per selected column of a merged measurement table.
 
     Each column produces an independent run folder and Runs-tab entry. Jobs
@@ -2235,6 +3165,10 @@ class ColumnRegressionPanel(QWidget):
     queue_finished = Signal(int, int)
     queue_progress = Signal(str, int, int)
 
+    #: Step 4 was folded or opened. Declared here as well as on
+    #: `DatabaseMergePanel` because `WorkflowSteps` is not a QObject.
+    step_folds_changed = Signal()
+
     #: Worker-thread relays. The rule is the one `job_runner` exists to stop
     #: being re-derived: a worker may EMIT and nothing else, and the receiver
     #: is a bound method of this GUI-thread object so Qt queues the real work
@@ -2272,10 +3206,14 @@ class ColumnRegressionPanel(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
 
-        layout.addWidget(step_header(4, WORKFLOW_STEPS[3][1], self))
+        #: Step 4 lives in its own panel, so this holds exactly one entry --
+        #: kept as a mapping anyway so the tab can ask both panels the same
+        #: question without knowing how many steps each of them draws.
+        self.steps = {}
+        step = self._add_step(4, layout, stretch=1)
         self.state = QLabel("")
         self.state.setWordWrap(True)
-        layout.addWidget(self.state)
+        step.body.addWidget(self.state)
 
         self.filter = QLineEdit()
         self.filter.setPlaceholderText(
@@ -2285,7 +3223,7 @@ class ColumnRegressionPanel(QWidget):
             "list; it does not change what is selected, so a filter cannot "
             "silently drop a column from the queue.")
         self.filter.textChanged.connect(self._apply_filter)
-        layout.addWidget(self.filter)
+        step.body.addWidget(self.filter)
 
         self.columns_list = QListWidget()
         self.columns_list.setSelectionMode(
@@ -2294,9 +3232,10 @@ class ColumnRegressionPanel(QWidget):
             "The numeric measurements of the merged frame. Pick as many as "
             "you like: EACH ONE BECOMES ITS OWN RUN, with its own folder and "
             "its own row in the Runs tab, so they can be compared there.")
-        self.columns_list.setMaximumHeight(180)
         self.columns_list.itemSelectionChanged.connect(self._on_selection)
-        layout.addWidget(self.columns_list, 1)
+        resizable_box(self, self.columns_list, step.body, key="columns",
+                      minimum=70, default=180, maximum=900,
+                      name="Resize the column list")
 
         row = QHBoxLayout()
         self.run_button = QPushButton("Regress on the selected columns")
@@ -2314,18 +3253,23 @@ class ColumnRegressionPanel(QWidget):
         self.cancel_button.clicked.connect(self.cancel)
         row.addWidget(self.cancel_button)
         row.addStretch(1)
-        layout.addLayout(row)
+        step.body.addLayout(row)
 
         self.progress = QLabel("")
         self.progress.setWordWrap(True)
         self.progress.setVisible(False)
-        layout.addWidget(self.progress)
+        step.body.addWidget(self.progress)
 
         self.outcomes_box = QPlainTextEdit()
         self.outcomes_box.setReadOnly(True)
-        self.outcomes_box.setMaximumHeight(120)
         self.outcomes_box.setVisible(False)
-        layout.addWidget(self.outcomes_box)
+        self._outcomes_grip = resizable_box(
+            self, self.outcomes_box, step.body, key="outcomes", minimum=50,
+            default=120, maximum=700, name="Resize the run outcomes")
+        # THE HANDLE FOLLOWS THE BOX IT RESIZES. A grip under a hidden box is
+        # a border with nothing above it, and the panel shows the outcomes
+        # only once a queue has produced some.
+        self._outcomes_grip.setVisible(False)
 
         from ..screens.settings_model import retarget_field_tooltips
 
@@ -2528,7 +3472,7 @@ class ColumnRegressionPanel(QWidget):
         self._running = True
         self._refresh_buttons()
         self.outcomes_box.setPlainText("")
-        self.outcomes_box.setVisible(True)
+        self._show_outcomes()
         # THE LABEL ONLY, not `_on_queue_progress`. Calling that here put the
         # first column's `fit_started` out TWICE -- once from here and once
         # from the worker's own progress callback -- which is two rows in the
@@ -2625,7 +3569,7 @@ class ColumnRegressionPanel(QWidget):
         self._outcomes.append(outcome)
         lines = [fit.describe() for fit in self._outcomes]
         self.outcomes_box.setPlainText("\n".join(lines))
-        self.outcomes_box.setVisible(True)
+        self._show_outcomes()
         self.fit_finished.emit(str(outcome.column),
                                {"ok": bool(outcome.ok),
                                 "folder": str(outcome.folder),
@@ -2743,6 +3687,12 @@ class MeasurementScanPanel(QWidget):
             database_provider, self, threaded=threaded,
             destination_provider=destination_provider)
         self.databases.databases_changed.connect(self._on_databases_changed)
+        # A NESTED FOLD OR A DRAGGED BORDER IS PART OF THE SAME ARRANGEMENT
+        # as the outer dividers, so it is stored the same way and at the same
+        # moment. The panels relay rather than store: the user arranges ONE
+        # Measurements tab, and three records that can disagree is the bug
+        # that arrangement-per-widget always turns into.
+        self.databases.step_folds_changed.connect(self.remember_section_layout)
         # EVERY SECTION IS A SPLITTER CHILD, so its borders move and it cannot
         # be squeezed into its neighbour. Reported 2026-08-19: "still cant
         # resize the elements in the measurements tabs. now they overlap in
@@ -2786,6 +3736,8 @@ class MeasurementScanPanel(QWidget):
         # the previous merge's columns and every fit reads a file that has
         # been overwritten underneath it.
         self.databases.merged.connect(self._on_merged)
+        self.regression.step_folds_changed.connect(
+            self.remember_section_layout)
         self._add_folding_section(self.regression, "Regression", minimum=110)
         self._show_section("Regression", bool(self.databases.databases))
 
@@ -3005,7 +3957,25 @@ class MeasurementScanPanel(QWidget):
             sizes = sizes + [0]
         if len(sizes) == self._sections.count() and all(s >= 0 for s in sizes):
             self._sections.setSizes(sizes)
+        # THE TWO NESTED LEVELS, restored in the same pass as the outer one.
+        # Numbered steps and box keys are unique across the tab's panels, so
+        # each panel takes the entries it recognises and ignores the rest --
+        # see `set_step_folds`, which is where "ignores the rest" is spelled
+        # out and why it is not an error.
+        steps = layout.get("steps") or {}
+        boxes = layout.get("boxes") or {}
+        for panel in self._step_panels():
+            if steps:
+                panel.set_step_folds(steps)
+            if boxes:
+                panel.set_box_heights(boxes)
         return True
+
+    def _step_panels(self) -> tuple:
+        """The panels on this tab that draw numbered workflow steps."""
+        return tuple(panel for panel in (getattr(self, "databases", None),
+                                         getattr(self, "regression", None))
+                     if isinstance(panel, WorkflowSteps))
 
     def remember_section_layout(self) -> None:
         """Store the folds and divider positions. Called when the tab closes."""
@@ -3016,8 +3986,14 @@ class MeasurementScanPanel(QWidget):
         try:
             folded = [title for title in self._folders
                       if not self.is_section_expanded(title)]
+            steps = {}
+            boxes = {}
+            for panel in self._step_panels():
+                steps.update(panel.step_folds())
+                boxes.update(panel.box_heights())
             set_section_layout(self.LAYOUT_KEY, folded=folded,
-                               sizes=self._sections.sizes())
+                               sizes=self._sections.sizes(),
+                               steps=steps, boxes=boxes)
         except Exception:                                        # noqa: BLE001
             LOG.debug("could not store the section layout", exc_info=True)
 

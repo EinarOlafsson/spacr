@@ -83,6 +83,7 @@ import logging
 import os
 import shutil
 import sys
+import threading
 import time
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
@@ -1079,6 +1080,78 @@ def clear_cpu(*, target_threads: Optional[int] = None) -> Reclaim:
 # Disk
 # ---------------------------------------------------------------------------
 
+def _the_gui_thread_is_asking() -> bool:
+    """Whether this call is running on the thread that paints the window.
+
+    COMPARED WITH ``==``, NOT ``is``: ``QThread.currentThread()`` hands back
+    a fresh Python wrapper around the same underlying thread on every call,
+    so an identity test calls the GUI thread a worker and quietly undoes the
+    protection below. :mod:`spacr.qt.thread_guard` was written the other way
+    round first and documents the same trap.
+
+    False when there is no Qt application at all -- the CLI, and most of the
+    test suite. Nothing is being painted there, so there is no event loop to
+    freeze and the ordinary blocking stat is the correct call.
+    """
+    try:
+        from PySide6.QtCore import QCoreApplication, QThread
+    except Exception:                                          # noqa: BLE001
+        return False
+    app = QCoreApplication.instance()
+    if app is None:
+        return False
+    try:
+        return QThread.currentThread() == app.thread()
+    except Exception:                                          # noqa: BLE001
+        return False
+
+
+def _is_a_folder(path: str) -> bool:
+    """``os.path.isdir(path)``, except where answering would freeze spaCR.
+
+    THE PATHS THIS IS ASKED ABOUT ARE THE USER'S. They are the folders the
+    user last pointed each module at, read back out of QSettings, and one of
+    the maintainer's is under ``/nas_mnt`` -- an ``autofs`` mount with
+    ``timeout=600``. Measured on that machine 2026-09-04: one ``os.path``
+    stat on such a path had NOT RETURNED AFTER TWENTY SECONDS, because the
+    stat is what wakes the automount and the share was asleep. On the GUI
+    thread that is the entire application stopped with no traceback, which
+    is how the freeze was reported: "opening map barcodes crashes spacr".
+
+    OFF the GUI thread this stays the real stat, deliberately. A disk report
+    exists to read the disk; a cached guess is not a reading, and a worker
+    is allowed to wait for a mount to wake up -- that is what workers are
+    for, and :func:`disk_report` is meant to run on one.
+
+    ON the GUI thread nothing may touch a user path at all, so the answer
+    comes from :mod:`spacr.qt.path_probe`'s cache and an unseen folder is
+    reported absent while a bounded background stat runs. It is left out of
+    this report and is in the next one: a table one refresh behind, rather
+    than an application that has stopped. The pessimistic direction is the
+    right one here for the same reason it is in
+    :meth:`spacr.qt.chaining.ChainingBar.search_roots` — skipping a folder
+    costs one refresh, and the probe's answer brings it back.
+
+    NOTHING HERE SUBSCRIBES TO ``path_probe.probes.answered``, deliberately.
+    A widget that gates on the cache must, or its first paint is its last;
+    this module owns no widget and cannot re-open the message box the report
+    is shown in. The recovery is the report itself: the caller that matters
+    runs on a worker, where the branch above stats for real and nothing is
+    ever missing, and a GUI-thread caller gets the folder on the next press
+    of the button, by which time the probe has answered.
+    """
+    if not _the_gui_thread_is_asking():
+        return os.path.isdir(path)
+    try:
+        from . import path_probe
+    except Exception:                                          # noqa: BLE001
+        # No probe available and no licence to stat: say no rather than
+        # freeze. The folder returns to the report as soon as the disk
+        # check runs where it belongs.
+        return False
+    return path_probe.isdir(path)
+
+
 def project_paths() -> List[str]:
     """Folders the current project actually touches, most relevant first.
 
@@ -1086,12 +1159,23 @@ def project_paths() -> List[str]:
     places spaCR writes regardless of where the data lives: the home
     directory (settings, logs, model downloads) and the temp directory.
     Only paths that exist are returned.
+
+    Called on a worker this is exact. Called on the GUI thread it answers
+    from cache for the remembered folders rather than stat-ing them; see
+    :func:`_is_a_folder` for the twenty seconds that bought.
     """
     import tempfile
     paths: List[str] = []
 
-    def _add(value) -> None:
-        """Add one path, ignoring blanks and duplicates."""
+    def _add(value, *, remembered: bool = True) -> None:
+        """Add one path, ignoring blanks and duplicates.
+
+        ``remembered`` is what makes a path dangerous: it means the user
+        chose it and it can therefore be on a sleeping mount. The home and
+        temp directories are not remembered -- spaCR reads them from the
+        environment and every start-up has already stat-ed them -- so they
+        keep the direct check and are never missing from a first report.
+        """
         text = str(value or "").strip()
         if not text:
             return
@@ -1099,7 +1183,9 @@ def project_paths() -> List[str]:
             resolved = os.path.abspath(os.path.expanduser(text))
         except Exception:
             return
-        if os.path.isdir(resolved) and resolved not in paths:
+        found = _is_a_folder(resolved) if remembered else os.path.isdir(
+            resolved)
+        if found and resolved not in paths:
             paths.append(resolved)
 
     try:
@@ -1111,12 +1197,88 @@ def project_paths() -> List[str]:
                 _add(recent)
     except Exception:
         LOG.debug("could not read the recent project folders", exc_info=True)
-    _add(os.path.expanduser("~"))
+    _add(os.path.expanduser("~"), remembered=False)
     try:
-        _add(tempfile.gettempdir())
+        _add(tempfile.gettempdir(), remembered=False)
     except Exception:
         pass
     return paths
+
+
+#: How long the GUI thread may spend on a WHOLE disk reading before it stops
+#: waiting for the folders that have not answered yet.
+#:
+#: A BACKSTOP, NOT THE DESIGN. :func:`disk_report` belongs on a worker and the
+#: caller in spaCR puts it there
+#: (:func:`spacr.qt.preferences._start_disk_report`); this is what happens
+#: when a later caller forgets. A second is already a bad stall — it is a
+#: twentieth of the twenty seconds measured on the sleeping mount, and unlike
+#: those twenty it ends.
+_GUI_DISK_BUDGET_S = 1.0
+
+
+def _read_one_drive(path: str):
+    """Which drive ``path`` is on, and how full it is.
+
+    :param path: the folder to measure.
+    :returns: ``(device_id, usage)``; ``(device_id, None)`` when the folder
+        was there and its free space could not be read; ``None`` when the
+        folder could not be read at all. The three are kept apart because a
+        second folder on a drive already listed is neither a line nor a
+        failure — it is dropped, whichever way its own ``disk_usage`` went.
+    """
+    try:
+        device = os.stat(path).st_dev
+    except OSError:
+        return None
+    try:
+        usage = shutil.disk_usage(path)
+    except OSError:
+        return device, None
+    return device, usage
+
+
+def _readings_within_the_budget(paths: Sequence[str]) -> Dict[str, object]:
+    """Read every folder at once, and stop waiting after the budget.
+
+    THE BOUND IS ON WAITING, NOT ON THE STAT, because a stat cannot be
+    cancelled — the same shape as
+    :func:`spacr.qt.path_probe._stat_with_timeout`. A helper thread that has
+    walked into a sleeping automount stays parked until the kernel lets go
+    of it; this one stops waiting. A parked daemon thread costs a stack. A
+    parked GUI thread costs the application.
+
+    Started together rather than one after another, so that one dozing mount
+    spends the budget ONCE and starves nobody: the local folders answer in
+    microseconds while the wait is happening, and they keep their lines.
+
+    :param paths: the folders to measure. Duplicates are read once.
+    :returns: ``{path: reading}`` in :func:`_read_one_drive`'s terms. A
+        folder that did not answer in time is simply absent, and the caller
+        counts it unreadable — which, in the time it had, it was.
+    """
+    answers: Dict[str, object] = {}
+
+    def measure(path: str) -> None:
+        """Read one folder on this helper thread and record the answer.
+
+        :param path: the folder to measure. Nothing is returned: the answer
+            goes into ``answers``, which the waiting thread reads.
+        """
+        answers[path] = _read_one_drive(path)
+
+    helpers = []
+    for path in dict.fromkeys(str(p) for p in paths):
+        helper = threading.Thread(target=measure, args=(path,), daemon=True,
+                                  name=f"spacr-disk-read:{path[:40]}")
+        helper.start()
+        helpers.append(helper)
+    deadline = time.monotonic() + _GUI_DISK_BUDGET_S
+    for helper in helpers:
+        helper.join(max(0.0, deadline - time.monotonic()))
+    # A copy, so a late answer cannot appear halfway through the report and
+    # give one folder a line the one above it was denied.
+    return dict(answers)
 
 
 def disk_report(paths: Optional[Sequence[str]] = None) -> DiskReport:
@@ -1125,22 +1287,37 @@ def disk_report(paths: Optional[Sequence[str]] = None) -> DiskReport:
     Deduplicated by device id, so a project folder and a home directory on
     the same disk are one line rather than two identical ones — that
     duplication is what makes a disk readout stop being read.
+
+    RUN THIS ON A WORKER. ``os.stat`` and ``shutil.disk_usage`` are the calls
+    that wake a sleeping automount, and no cache can answer them without
+    inventing the numbers, so the Qt caller hands this whole function to a
+    :class:`~spacr.qt.job_runner.JobRunner`
+    (:func:`spacr.qt.preferences._start_disk_report`). There the wait is
+    unbounded on purpose: a worker is allowed to wait for a mount to wake up,
+    and the drive table is complete.
+
+    CALLED ON THE GUI THREAD ANYWAY, it will not freeze it. The whole reading
+    is then bounded by :data:`_GUI_DISK_BUDGET_S`, and a folder that misses
+    the budget is counted in the note exactly like one that could not be read
+    — because within the time the interface had, it could not be. That is a
+    line missing from a report, against an application that has stopped.
     """
     wanted = list(project_paths() if paths is None else paths)
     entries: List[DiskEntry] = []
     seen_devices = set()
     unreadable = 0
+    readings = (_readings_within_the_budget(wanted)
+                if _the_gui_thread_is_asking() else None)
     for path in wanted:
-        try:
-            device = os.stat(path).st_dev
-        except OSError:
+        reading = (_read_one_drive(path) if readings is None
+                   else readings.get(str(path)))
+        if reading is None:
             unreadable += 1
             continue
+        device, usage = reading
         if device in seen_devices:
             continue
-        try:
-            usage = shutil.disk_usage(path)
-        except OSError:
+        if usage is None:
             unreadable += 1
             continue
         seen_devices.add(device)

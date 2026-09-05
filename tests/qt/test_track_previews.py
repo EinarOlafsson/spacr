@@ -1510,8 +1510,22 @@ def test_motility_accepts_a_dropped_plate_folder(qtbot, plate_dir, tmp_path):
     panel.dropEvent(drop)
     assert drop.accepted and panel._groups
 
+    # A KNOWN non-folder is still refused -- but "known" is now the word that
+    # carries the weight. `_dropped_path` answers from `spacr.qt.path_probe`
+    # rather than from `Path.is_dir()`, because a drag delivers
+    # `dragMoveEvent` on the GUI thread once per mouse move and a stat on a
+    # sleeping `autofs` share does not return (measured: twenty seconds --
+    # see tests/qt/test_a_motility_drag_never_stats_the_folder.py). The probe
+    # is optimistic for a path it has not answered for yet, so let it answer
+    # first; the refusal this test is about is unchanged, it just arrives
+    # from cache instead of from a stat on the GUI thread.
+    from spacr.qt import path_probe
     doc = tmp_path / "notes.txt"
     doc.write_text("x")
+    path_probe.exists(str(doc), want_dir=True)
+    qtbot.waitUntil(
+        lambda: path_probe.known(str(doc), want_dir=True) is False,
+        timeout=10000)
     for handler in (panel.dragEnterEvent, panel.dropEvent):
         bad = _Evt(_mime_for(doc))
         handler(bad)

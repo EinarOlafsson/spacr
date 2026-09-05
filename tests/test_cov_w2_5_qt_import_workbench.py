@@ -49,6 +49,27 @@ def _mime(paths):
     return data
 
 
+def _settled(bench):
+    """Let the walk `add_files` started land. Returns how many are held.
+
+    Walking a dropped folder is a path the USER chose, usually on the
+    microscope's share, so it runs on a worker -- doing it on the GUI thread
+    froze the whole application, which is
+    `tests/qt/test_the_import_workbench_never_walks_on_the_gui_thread.py`.
+    These tests care what ends up in the table, not when, so they wait here.
+    """
+    import time
+
+    from PySide6.QtWidgets import QApplication
+
+    deadline = time.monotonic() + 10.0
+    while bench.is_scanning() and time.monotonic() < deadline:
+        QApplication.processEvents()
+        time.sleep(0.005)
+    QApplication.processEvents()
+    return len(bench.files())
+
+
 # ---------------------------------------------------------------------------
 # finding the images
 # ---------------------------------------------------------------------------
@@ -149,7 +170,7 @@ def test_dropping_a_folder_adds_every_image_in_it(qtbot, plate_folder):
 
     made.dropEvent(event)
 
-    assert len(made.files()) == 8
+    assert _settled(made) == 8
     assert event.isAccepted()
     del event, data
 
@@ -158,7 +179,9 @@ def test_a_second_drop_of_the_same_files_adds_nothing(bench, plate_folder):
     """Files already held are not duplicated by a repeated drop."""
     before = bench.files()
 
-    assert bench.add_files([str(plate_folder)]) == len(before)
+    bench.add_files([str(plate_folder)])
+
+    assert _settled(bench) == len(before)
     assert bench.files() == before
 
 
@@ -175,7 +198,9 @@ def test_the_add_button_takes_what_the_dialog_returned(qtbot, plate_folder,
     monkeypatch.setattr(QFileDialog, "getOpenFileNames",
                         staticmethod(lambda *a, **k: (chosen, "")))
 
-    assert made.ask_for_files() == 3
+    made.ask_for_files()
+
+    assert _settled(made) == 3
     assert made.files() == chosen
 
 
@@ -185,7 +210,9 @@ def test_cancelling_the_dialog_adds_nothing(bench, monkeypatch):
     monkeypatch.setattr(QFileDialog, "getOpenFileNames",
                         staticmethod(lambda *a, **k: ([], "")))
 
-    assert bench.ask_for_files() == len(before)
+    bench.ask_for_files()
+
+    assert _settled(bench) == len(before)
     assert bench.files() == before
 
 
@@ -206,6 +233,7 @@ def test_a_later_drop_does_not_overwrite_an_edited_pattern(bench,
     edited = bench.regex.text()
 
     bench.add_files([str(plate_folder / "notes.txt")])
+    _settled(bench)
 
     assert bench.regex.text() == edited
 

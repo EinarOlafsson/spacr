@@ -352,6 +352,21 @@ class LazyFlowViewSection(CollapsibleSection):
             )
             self._body_layout.addWidget(panel, 1)
             self._panel = panel
+            # THE SPLITTER INSIDE IT PAINTS AN OPAQUE BLACK RECTANGLE, which
+            # is the "black background" reported on 2026-09-04. Measured, the
+            # panel rendered over magenta: `FlowViewPanel` itself came back
+            # transparent and its `QSplitter` came back `#000000` -- a
+            # QSplitter is a plain QWidget, so it takes the blanket
+            # `QWidget { background-color: bg }` rule however transparent its
+            # parent is, and the section's own QSS never named it.
+            #
+            # `clear_container_surfaces` is the helper for exactly this and
+            # tags splitters by type. It cannot live in
+            # `spacr/flowview/panel.py`: that module is shared and imports no
+            # Qt theme, so the tagging belongs here, where the panel is
+            # embedded.
+            from ..theme import clear_container_surfaces
+            clear_container_surfaces(panel)
             screen = self._screen_ref()
             if screen is not None:
                 ensure_widget_qss_applied(FLOWVIEW_SECTION_NAME, root=screen)

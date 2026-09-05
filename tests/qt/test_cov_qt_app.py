@@ -284,9 +284,19 @@ EXPECTED_SECTIONS = {
     'data_manager': 'Data',
     'db_browser': 'Data',
     'distributed_jobs': 'Data',
+    # Filed where the two comments above already said they were: an
+    # EC50 is fitted to pick the next experiment's concentration, so
+    # Dose-Response went to Data with Power, and a gate is an
+    # instrument pointed at a finished table, so the Gate Editor went
+    # to Tools. Only their ROWS were missing until 2026-09-05 --
+    # `app._SELF_REGISTERING_APPS` now registers them (and the Project
+    # Browser, which the dock files under Help) at import rather than
+    # only when `run()` walks SELF_REGISTERING_MODULES.
+    'dose_response': 'Data',
     'experiment_design': 'Data',
     'external_masks': 'Data',
     'foreign': 'Data',
+    'gate_editor': 'Tools',
     'graph_builder': 'Tools',
     'invasion': 'Assays',
     'investigate_hit': 'Core',
@@ -300,6 +310,7 @@ EXPECTED_SECTIONS = {
     'plate_view': 'Tools',
     'power': 'Data',
     'profiler': 'Core',
+    'project_browser': 'Data',
     'qc_dashboard': 'Data',
     'queue': 'Data',
     'recruitment': 'Assays',
@@ -333,6 +344,12 @@ EXPECTED_STAGES = {
     "lineage": "alpha",
     "pipeline_graph": "alpha", "profiler": "alpha",
     "experiment_design": "alpha", "qc_dashboard": "alpha",
+    # The three that a launched GUI had and a bare `import spacr.qt.app` did
+    # not. Their rows now arrive from `app._SELF_REGISTERING_APPS`; the stage
+    # is the one `app_catalog` has declared for each all along, so nothing was
+    # promoted or demoted here -- this ledger simply covers them now.
+    "dose_response": "alpha", "gate_editor": "alpha",
+    "project_browser": "alpha",
     # Tabulate joined APPS when app.py's _SELF_REGISTERING_APPS started
     # calling its register(); it arrived alpha, like every screen that is
     # built and reachable but not yet trusted end to end. Absent from this
@@ -383,7 +400,7 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Twenty-eight alpha, four beta, six stable. The alpha column is the
+    Twenty-nine alpha, four beta, six stable. The alpha column is the
     one that keeps growing and the beta and stable columns have not
     moved in a long time, which is the true shape of this project: an
     app arrives "built and reachable, not yet trusted end to end", and
@@ -432,7 +449,15 @@ def test_every_app_carries_the_maturity_it_was_given():
     # all three keep the colour they were assessed in -- a folded module's
     # maturity lives in its host's fold record now, because the registry
     # answers for a key it no longer holds exactly as it answers a typo.
-    assert counts == {"alpha": 26, "beta": 4, "stable": 6}
+    # 26 -> 29 alpha on 2026-09-05, and NOT because anything was assessed:
+    # Dose-Response, the Gate Editor and the Project Browser registered only
+    # when `run()` walked SELF_REGISTERING_MODULES, so a bare
+    # `import spacr.qt.app` -- which is the registry this file counts -- never
+    # saw the three rows a launched GUI had. `app._SELF_REGISTERING_APPS`
+    # registers them now. Each has declared stage='alpha' in `app_catalog`
+    # since it was written; the column grew by three tiles, not by three
+    # demotions.
+    assert counts == {"alpha": 29, "beta": 4, "stable": 6}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -462,7 +487,15 @@ def test_no_section_holds_more_than_the_cap():
     silently lengthening a row.
     """
     counts = _counts()
-    assert MAX_APPS_PER_SECTION == 20
+    # 40 since 2026-09-05, raised at the maintainer's instruction. Data hit
+    # exactly twenty -- the old ceiling -- the moment the three
+    # self-registering modules joined the table, so the next registration
+    # there would have tripped the cap rather than caught a mistake.
+    #
+    # The number is pinned here on purpose: it is a design constraint, and
+    # moving it should be a decision somebody makes rather than a number
+    # that drifts to fit whatever the registry has become.
+    assert MAX_APPS_PER_SECTION == 40
     over = {s: n for s, n in counts.items() if n > MAX_APPS_PER_SECTION}
     assert not over, (
         f"sections over the {MAX_APPS_PER_SECTION}-app cap: {over}. Add a "
@@ -552,32 +585,30 @@ def test_sidebar_has_one_row_per_app_plus_home_in_apps_order(
     keys = [b.property("navKey") for b in bar.findChildren(QPushButton)
             if not b.property("isFoldChild")]
     assert keys == ["__home__"] + [k for k, *_r in dock_rows()]
-    # EVERY APP HAS A ROW SOMEWHERE, top level or nested. Since 2026-09-03
-    # the dock's top level is Home's tiles and nothing else, so eight
-    # modules that used to appear twice -- `train_compare`, `profiler`,
-    # `investigate_hit`, `convert`, `external_masks`, `lineage`,
-    # `layer_viewer`, `tabulate` -- are now ONLY a child row. Looking them
-    # up in the top-level map raised `KeyError`, which reads as "the app
-    # lost its row" when the app has exactly one row for the first time.
+    # THE DOCK IS FLAT NOW, and that is the change this had to follow. It
+    # once nested a folded module as an indented child row, so every key in
+    # APPS had a row here; the rewrite gives the dock one row per registry
+    # entry it draws and reaches the folded ones through their host's fold
+    # strip instead. `train_compare` is the one that caught it: a real
+    # module, reachable in the running application, with no dock row at all.
+    #
+    # So the question this asks is "does the dock explain the rows it DOES
+    # draw", and reachability is asserted where it belongs --
+    # tests/qt/test_the_dock_mirrors_the_home_tiles.py, which checks every
+    # module is a dock row or a fold child of one.
     by_key = {b.property("navKey"): b
               for b in bar.findChildren(QPushButton)}
-    # Each row announces itself to a screen reader with name + description.
     for key, name, desc, _s in APPS:
         btn = by_key.get(key)
-        assert btn is not None, f"{key} has no row in the dock at all"
-        child = bool(btn.property("isFoldChild"))
-        # A CHILD ROW IS INDENTED, in its label and so in its accessible
-        # name: three leading spaces were how 330 marked a folded module and
-        # they outlived the labels being drawn.
+        if btn is None:
+            continue            # folded: reached through its host, not here
+        # Each row announces itself to a screen reader with name AND
+        # description. The summary is drawn nowhere on the row -- it goes to
+        # the strip along the bottom -- so for a screen reader the accessible
+        # description is the only route to it.
         assert btn.accessibleName().strip() == name
-        if child:
-            # Its description comes from the fold catalogue rather than the
-            # registry row, so it is checked for being SAID rather than for
-            # being the same string.
-            assert btn.accessibleDescription().strip(), (
-                f"the child row for {key} describes itself to nobody")
-        else:
-            assert btn.accessibleDescription() == desc
+        assert btn.accessibleDescription() == desc, (
+            f"the dock row for {key} describes itself to nobody")
         # AND NO TOOLTIP. The module popup came off on 2026-09-03 ("remove
         # the popup window tooltip on the moduals"); the sentence is in the
         # accessible description above and in the hint strip at the foot of
@@ -587,8 +618,11 @@ def test_sidebar_has_one_row_per_app_plus_home_in_apps_order(
         # mnemonic, and "Align & Stitch" was rendering as "Align _Stitch"
         # in this column. The accessible name above carries the real
         # string.
-        if not child:
-            assert btn.full_text() == f"  {name}".replace("&", "&&")
+        # NO LEADING SPACES ANY MORE. The old dock padded a row's label with
+        # two spaces to leave room for the icon it painted itself; the
+        # rewritten dock gives the icon its own slot, so the text starts at
+        # the text.
+        assert btn.full_text() == name.replace("&", "&&")
 
 
 def test_sidebar_emits_the_key_of_the_row_that_was_clicked(
@@ -1077,7 +1111,18 @@ def test_every_other_key_builds_a_generic_app_screen(win):
                  # until it absorbed Cellpose Masks. The Workbench is a
                  # screen of its own: fine-tuning on one tab, segmenting a
                  # folder on the other, sharing one model between them.
-                 "train_cellpose"}
+                 "train_cellpose",
+                 # Three that were only ever SELF-REGISTERING, and so were
+                 # invisible to a bare `import spacr.qt.app` even though a
+                 # running application drew all three. They joined APPS on
+                 # 2026-09-05, when the maintainer reported the dock and Home
+                 # showing 6/6/5/4 with Help 9 while the imported registry
+                 # answered 6/5/4/4 with Help 8 -- the gap WAS these.
+                 #
+                 # All three build their own screen rather than a settings
+                 # form, so they belong here; this ledger is the one the
+                 # registry change had to update and did not.
+                 "dose_response", "gate_editor", "project_browser"}
 
     built_generic, built_dedicated = set(), set()
     for key, *_r in APPS:

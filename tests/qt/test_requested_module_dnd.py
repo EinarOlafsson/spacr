@@ -7,6 +7,7 @@ receive an OS drop is caught.
 """
 from __future__ import annotations
 
+import time
 from pathlib import Path
 
 from PySide6.QtCore import QMimeData, QPoint, QPointF, QUrl, Qt
@@ -28,7 +29,33 @@ def _drop(widget: QWidget, paths: list[Path]) -> QDropEvent:
     event = QDropEvent(
         QPointF(4, 4), Qt.CopyAction, mime, Qt.LeftButton, Qt.NoModifier)
     QApplication.sendEvent(widget, event)
+    _settle(widget)
     return event
+
+
+def _settle(widget, timeout_ms=20000):
+    """Let the drop's classification come back before the assertions run.
+
+    Since 2026-09-04 ``_on_drop`` does no filesystem work of its own: it
+    accepts the event and hands the stat/list/read to the screen's drop
+    scanner, because a dragged path can live on a sleeping ``autofs`` mount
+    that took more than twenty seconds to answer one stat and the drop is
+    delivered on the GUI thread. The handler is therefore called one turn of
+    the event loop later than it used to be, which is a turn these tests have
+    to allow. Waits for exactly one delivery -- see the same helper in
+    ``test_dnd_dropzone.py`` for why not for idleness.
+    """
+    scanner = getattr(getattr(widget, "_dnd_screen", None), "_dnd_scanner",
+                      None)
+    runner = getattr(scanner, "_runner", None)
+    if runner is None:                    # ran inline: nothing to wait for
+        return
+    seen = []
+    runner.job_finished.connect(lambda *_: seen.append(True))
+    deadline = time.monotonic() + timeout_ms / 1000.0
+    while not seen and time.monotonic() < deadline:
+        QApplication.processEvents()
+    assert seen, "the drop classification never came back"
 
 
 class _Owner(QWidget):

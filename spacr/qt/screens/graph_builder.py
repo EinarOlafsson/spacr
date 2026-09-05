@@ -27,7 +27,9 @@ from __future__ import annotations
 import logging
 import os
 import sqlite3
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Tuple
+import traceback
+from typing import (TYPE_CHECKING, Callable, Dict, List, NamedTuple,
+                    Optional, Tuple)
 
 import pandas as pd
 
@@ -95,6 +97,53 @@ def read_table(path: str, table: Optional[str] = None,
         return pd.read_sql_query(query, db)
 
 
+def _one_line(exc: BaseException) -> str:
+    """One line naming ``exc``, spelled the way the runner would have.
+
+    A read that fails inside the job is reported by this screen rather than
+    raised out of it (see :class:`_Loaded`), so this has to produce the text
+    ``JobRunner`` used to produce -- otherwise moving the failure onto the
+    generation-guarded path would quietly reword every error the user sees.
+    ``JobRunner._on_worker_error_text`` takes the last non-empty line of the
+    worker's traceback, and the last line of a traceback is exactly what
+    :func:`traceback.format_exception_only` returns.
+    """
+    lines = traceback.format_exception_only(type(exc), exc)
+    for candidate in reversed("".join(lines).strip().splitlines()):
+        if candidate.strip():
+            return candidate.strip()
+    return str(exc) or exc.__class__.__name__
+
+
+class _Loaded(NamedTuple):
+    """Everything one load job brings back. Plain data: no widget, no raise.
+
+    Built on the worker thread and read on the GUI thread, which is why a
+    read that failed travels in :attr:`problem` instead of being raised.
+    An exception out of the job leaves through ``JobRunner.job_failed``, and
+    THAT signal carries no generation: ``JobRunner.cancel`` drops a stale
+    job's *result*, but a stale job's *failure* is still delivered. A
+    database on a sleeping share that gives up twenty seconds after the user
+    gave up on it would otherwise report "could not read <whatever is on
+    screen now>" over a table that loaded perfectly well.
+
+    Carrying the failure here puts it on the same generation-guarded path as
+    the frame, and lets the picker be filled from a job that failed -- which
+    is the difference between "this table would not read, try another" and a
+    screen with no tables on it.
+    """
+
+    #: Every table in the file, in picker order. Empty for a delimited file,
+    #: and empty when listing the tables is itself what failed.
+    names: List[str]
+    #: The table this job read, or ``None`` for a delimited file.
+    chosen: Optional[str]
+    #: The frame, or ``None`` when the read failed.
+    frame: Optional[pd.DataFrame]
+    #: One line fit for the source label, or ``None`` when the read worked.
+    problem: Optional[str]
+
+
 class GraphBuilderScreen(QWidget):
     """Drag columns onto channels; the chart follows.
 
@@ -105,8 +154,10 @@ class GraphBuilderScreen(QWidget):
     :param threaded: ``False`` runs every table read inline instead of on the
         job runner's thread. A TEST NEEDS THE RESULT ON THE LINE AFTER THE
         CALL; a user needs the window to keep painting while a large table
-        loads. The jobs are the same either way -- they still register, still
-        report failure through ``job_failed`` -- so only the waiting differs.
+        loads. The jobs are the same either way -- they still register, and a
+        file that cannot be read still comes back through
+        :meth:`_on_frame_loaded` as a :class:`_Loaded` carrying a ``problem``
+        -- so only the waiting differs.
     """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
@@ -213,59 +264,111 @@ class GraphBuilderScreen(QWidget):
     def load_path(self, path: str, table: Optional[str] = None) -> None:
         """Load a CSV or one table of a SQLite measurement database.
 
-        The read runs on a worker thread. ``SELECT * FROM cell`` into pandas
-        measures 1.5 s for a 200 000-row measurement table on a warm local
-        SSD, and this method used to run it inline: the whole window stopped
-        redrawing for the read. Listing the table names stays inline -- it is
-        one ``sqlite_master`` query, measured at 0.4 ms -- because the picker
-        has to be populated before the read is dispatched, to know which
-        table to read.
+        NOTHING HERE TOUCHES THE FILE. The read has always run on a worker
+        thread -- ``SELECT * FROM cell`` into pandas measures 1.5 s for a
+        200 000-row measurement table on a warm local SSD -- but listing the
+        tables was kept inline on the argument that one ``sqlite_master``
+        query costs 0.4 ms. That argument holds only for a disk that answers.
+        Measured on the maintainer's machine 2026-09-04, a single ``stat``
+        under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep --
+        had not returned after TWENTY SECONDS, and ``sqlite3.connect`` opens
+        the file before it can read a byte of ``sqlite_master``. A user
+        picking a measurements.db off a sleeping share, or dropping a project
+        folder that resolves onto one, froze the whole window with no
+        traceback: a stalled event loop is not a crash.
 
-        Returns as soon as the read is dispatched;
-        :meth:`_on_frame_loaded` finishes on the GUI thread.
+        So the listing goes to the worker with the read, as one job, and the
+        picker is populated by :meth:`_on_frame_loaded` when the answer
+        arrives. A ``path_probe`` pre-flight would not have helped: it answers
+        optimistically from cache, and it is the ``connect`` itself that
+        parks.
+
+        Returns as soon as the job is dispatched; :meth:`_on_frame_loaded`
+        finishes on the GUI thread, whether the file read or not -- a failure
+        comes back as data in the :class:`_Loaded` rather than as an
+        exception, so that it is dropped along with everything else when the
+        load it belongs to has been superseded.
         """
         self._path = path
-        names: List[str] = []
-        if not str(path).lower().endswith((".csv", ".tsv", ".txt")):
-            try:
-                names = table_names(path)
-            except Exception as exc:
-                LOG.info("could not list tables in %s", path, exc_info=True)
-                self._source.setText(f"could not read {os.path.basename(path)}: {exc}")
-                return
-        self._table_picker.blockSignals(True)
-        self._table_picker.clear()
-        self._table_picker.addItems(names)
-        self._table_picker.setVisible(bool(names))
-        if table and table in names:
-            self._table_picker.setCurrentText(table)
-        self._table_picker.blockSignals(False)
-        chosen = table or (self._table_picker.currentText() or None)
         # A second load supersedes the first. Without this, switching table
         # twice in quick succession delivers the frames in whatever order the
         # reads happen to finish, and the picker ends up disagreeing with the
         # panel below it.
         self._jobs.cancel()
+        # The table can only be named here when the caller already knew it --
+        # the picker, or a drop that asked. Otherwise the worker is the first
+        # thing that can find out, so the label says it a moment later.
         self._source.setText(
             f"loading {os.path.basename(path)}"
-            + (f" · {chosen}" if chosen else "") + "…")
-        self._jobs.submit(
-            lambda p=path, t=chosen: (t, read_table(p, t)),
-            self._on_frame_loaded)
+            + (f" · {table}" if table else "") + "…")
+        delimited = str(path).lower().endswith((".csv", ".tsv", ".txt"))
 
-    def _on_frame_loaded(self, payload) -> None:
-        """Hand a worker-read frame to the panel. GUI thread only."""
-        chosen, frame = payload
+        def work(source=path, wanted=table, is_text=delimited) -> _Loaded:
+            """List and read in one job. Worker thread; no widget here.
+
+            The delimited check stays with the listing rather than in front
+            of it: `sqlite_master` has nothing to say about a text file, and
+            asking would report "could not read" for a CSV pandas reads
+            perfectly well.
+
+            The two halves fail separately on purpose. A listing that fails
+            means the file is not a database and there is nothing to offer;
+            a READ that fails, on one table of a database whose other tables
+            listed fine, must still leave the picker populated -- that is how
+            the user reaches the table that does read. Inline, that fell out
+            of the order the old code ran in; here it has to be said.
+            """
+            try:
+                names = [] if is_text else table_names(source)
+            except Exception as exc:                             # noqa: BLE001
+                return _Loaded([], wanted, None, _one_line(exc))
+            chosen = wanted or (names[0] if names else None)
+            try:
+                return _Loaded(names, chosen, read_table(source, chosen), None)
+            except Exception as exc:                             # noqa: BLE001
+                return _Loaded(names, chosen, None, _one_line(exc))
+
+        self._jobs.submit(work, self._on_frame_loaded)
+
+    def _on_frame_loaded(self, loaded: _Loaded) -> None:
+        """Fill the picker and hand the frame to the panel. GUI thread only.
+
+        Reached only for the load that is still current -- ``JobRunner``
+        checks the generation ``cancel`` bumped before it calls this -- which
+        is why the failure branch may safely name ``self._path``.
+        """
+        # Blocked, because `addItems` moves the current index and
+        # `currentTextChanged` is wired to `_on_table_picked` -- unblocked
+        # this populates the picker by starting another load of the table it
+        # has just loaded.
+        self._table_picker.blockSignals(True)
+        self._table_picker.clear()
+        self._table_picker.addItems(loaded.names)
+        self._table_picker.setVisible(bool(loaded.names))
+        if loaded.chosen and loaded.chosen in loaded.names:
+            self._table_picker.setCurrentText(loaded.chosen)
+        self._table_picker.blockSignals(False)
+        if loaded.frame is None:
+            self._on_load_failed(loaded.problem or "unknown error")
+            return
         path = self._path or ""
-        suffix = f" · {chosen}" if chosen else ""
+        suffix = f" · {loaded.chosen}" if loaded.chosen else ""
         self.set_frame(
-            frame,
-            label=f"{os.path.basename(path)}{suffix} · {len(frame):,} rows "
-                  f"× {len(frame.columns)} columns")
+            loaded.frame,
+            label=f"{os.path.basename(path)}{suffix} · "
+                  f"{len(loaded.frame):,} rows "
+                  f"× {len(loaded.frame.columns)} columns")
 
     def _on_load_failed(self, message: str) -> None:
         """Report a failed read inline. Never a modal — a dialog nobody can
-        dismiss is how a headless run hangs."""
+        dismiss is how a headless run hangs.
+
+        Two callers. :meth:`_on_frame_loaded` routes the ordinary case here,
+        having already filled the picker from the same answer. ``job_failed``
+        is the net under everything else: a bug in the delivery above, or an
+        error that escaped the job entirely. Both are about the load that is
+        current, which is what lets this name ``self._path``.
+        """
         path = self._path or ""
         LOG.info("could not read %s: %s", path, message)
         self._source.setText(

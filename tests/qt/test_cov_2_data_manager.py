@@ -66,8 +66,15 @@ def _answering(dialog_result):
     class _Dialog:
         """A confirmation dialog that answers without being shown."""
 
-        def __init__(self, plan, parent=None):
+        def __init__(self, plan, parent=None, *, threaded=True):
+            """Take the real dialog's signature, threading included.
+
+            The real one enumerates the files off the GUI thread and is
+            handed the screen's own ``threaded`` flag, so a stand-in that
+            did not accept it would raise a TypeError instead of answering.
+            """
             self.plan = plan
+            self.threaded = threaded
 
         def exec(self):
             return dialog_result

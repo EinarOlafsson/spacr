@@ -127,6 +127,12 @@ class DockRow(ElidingPushButton):
         # painted no text and needed one; a screen reader still needs the
         # full name when a long one has been elided down to fit the column.
         self.setAccessibleName(name)
+        # AND THE DESCRIPTION, which this dock stopped setting when it was
+        # rewritten. The summary is drawn nowhere on the row -- it goes to
+        # the strip along the bottom -- so for a screen reader the accessible
+        # description is the ONLY route to it, and without this a row
+        # announced its name and nothing about what the module does.
+        self.setAccessibleDescription(desc)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setSizePolicy(QSizePolicy.Policy.Preferred,
                            QSizePolicy.Policy.Fixed)
@@ -331,14 +337,61 @@ class Dock(QWidget):
 
     # -- what the pointer does -------------------------------------------
     def _on_row_hovered(self, key: str, entered: bool) -> None:
-        """Name the hovered module so the bottom strip can explain it.
+        """Name the hovered module, and light exactly that one row.
 
-        Only entering is reported. A leave that cleared the bar would empty
-        it the moment the pointer set off toward the links it holds, which
-        is the whole reason that bar keeps its last module.
+        Only ENTERING is reported to the strip. A leave that cleared the bar
+        would empty it the moment the pointer set off toward the links it
+        holds, which is the whole reason that bar keeps its last module.
+
+        THE INK IS NOT `:hover`, and that is a fix rather than a preference.
+        The rows were coloured by a `QPushButton#SidebarItem:hover` rule,
+        which Qt drives from `WA_UnderMouse` -- and that attribute sticks
+        when the widget under the pointer is replaced without the pointer
+        moving, which is exactly what clicking a dock row does: the stack
+        swaps a whole screen in underneath it and no Leave is ever
+        delivered. Reported 2026-09-05, "run compare and run history are
+        always blue in the dock", and both are rows the maintainer had
+        opened. Read off the screen recording: Run History accent-coloured
+        while Database Browser and Report above and below it are white and
+        the pointer is elsewhere entirely.
+
+        So the dock lights the row itself, from one pass over all of them.
+        At most one can be lit, whatever Qt believes about who is under the
+        pointer.
         """
+        self._light_only(key if entered else None)
         if entered:
             self.module_hovered.emit(key)
+
+    def _light_only(self, key) -> None:
+        """Ink the row named by ``key`` and no other. ``None`` clears all.
+
+        Re-polished per row rather than by re-applying the sheet: a
+        stylesheet reset re-polishes every widget in the dock, and this runs
+        on every pointer move across the column.
+        """
+        for row in self._rows:
+            # Same reason as `refresh_icons`: a row this dock did not build
+            # has no `key`, and it is never the one to light.
+            want = (key is not None and getattr(row, "key", None) == key)
+            if bool(row.property("hovered")) == want:
+                continue
+            row.setProperty("hovered", want)
+            style = row.style()
+            if style is not None:
+                style.unpolish(row)
+                style.polish(row)
+
+    def leaveEvent(self, event):                # noqa: N802 - Qt naming
+        """The pointer left the column: no row is lit.
+
+        The rows' own Leave covers a pointer stepping between them; this
+        covers one that leaves the dock altogether, including straight off
+        the bottom row onto the empty stretch below it, where no other row
+        will ever be entered.
+        """
+        self._light_only(None)
+        super().leaveEvent(event)
 
     def eventFilter(self, watched, event):       # noqa: N802 - Qt naming
         """Light a heading under the pointer, and toggle it on release.
@@ -467,7 +520,15 @@ class Dock(QWidget):
             row.setIconSize(QSize(side, side))
             if self._icon_for is None:
                 continue
-            icon = self._icon_for(row.key)
+            # `getattr`, NOT `row.key`. `_rows` is a plain list and callers
+            # append to it: three tests put a bare `ElidingPushButton` in to
+            # check that a row with no nav key is left alone, and a row this
+            # dock did not build has no `key` at all. Asking for one raised
+            # `AttributeError` out of a theme refresh.
+            key = getattr(row, "key", None)
+            if key is None:
+                continue
+            icon = self._icon_for(key)
             if icon is not None:
                 row.setIcon(icon)
 
@@ -511,7 +572,11 @@ class Dock(QWidget):
             "  background: transparent; border: none; text-align: left;"
             "  padding: 6px 10px;"
             "}"
-            f"QPushButton#SidebarItem:hover {{ color: {accent}; }}"
+            # `[hovered="true"]`, NOT `:hover`. Qt drives `:hover` from
+            # `WA_UnderMouse`, which sticks when a click swaps the screen out
+            # from under the pointer -- see `_on_row_hovered`. The dock sets
+            # this property itself so at most one row is ever lit.
+            f'QPushButton#SidebarItem[hovered="true"] {{ color: {accent}; }}'
             "QLabel#SidebarSection {"
             "  padding: 10px 10px 4px 10px; font-weight: 600;"
             "  background: transparent;"
@@ -530,11 +595,39 @@ class Dock(QWidget):
         result between them. Public because the locked dock re-applies it
         after being re-parented out of the drawer, which had resized it.
         """
+        from PySide6.QtGui import QFontMetrics
+
         from ..preferences import scaled_px
-        widest = max((r.sizeHint().width() for r in self._rows
-                      if not r.isHidden()), default=0)
+
+        # MEASURED FROM THE FULL NAME, not from `sizeHint()`. These rows
+        # ELIDE, so their size hint reports the width of the shortened text
+        # -- ask it how much room it wants and it answers with how much it
+        # has already given up. Measured 2026-09-05: "Cellpose Model
+        # Comparison Workbench" hinted 263 px, the column sized itself to
+        # 275, and the row was still clipped, because 263 was the width of
+        # "Cellpose Model Comparis...".
+        #
+        # The icon is added explicitly for the same reason. The old dock
+        # painted icons and no text, so a width tuned for text alone was
+        # right; this one draws both, and the icon's slot is not in a text
+        # measurement.
+        widest = 0
+        for row in self._rows:
+            if row.isHidden():
+                continue
+            metrics = QFontMetrics(row.font())
+            text = getattr(row, "full_text", lambda: row.text())()
+            widest = max(widest, metrics.horizontalAdvance(str(text)))
+        # THE ALLOWANCE IS MEASURED, not guessed. At 100 % with the longest
+        # shipped-length name ("Cellpose Model Comparison Workbench", 243 px
+        # of text) the overhead between the column's width and the room the
+        # row leaves that text is 58 px: 14 for the panel's border and the
+        # scroll area, 44 for the row's own icon slot and padding. 34 + the
+        # icon came to 54 and left the name four pixels short -- which is a
+        # column that widened for a name and clipped it anyway.
+        room = widest + scaled_px(ICON_PX) + scaled_px(40)
         return max(scaled_px(self.WIDTH_MIN),
-                   min(widest + scaled_px(12), scaled_px(self.WIDTH_MAX)))
+                   min(room, scaled_px(self.WIDTH_MAX)))
 
     def clipped_items(self) -> list:
         """Rows whose name had to be shortened to fit.
