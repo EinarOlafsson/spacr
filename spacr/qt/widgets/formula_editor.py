@@ -84,6 +84,10 @@ class FormulaPanel(QWidget):
     formulas_changed = Signal()
 
     def __init__(self, parent=None):
+        """Build the computed-columns panel.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("FormulaPanel")
         self._frame: Optional[pd.DataFrame] = None
@@ -316,6 +320,11 @@ class FormulaPanel(QWidget):
 
     # -- internals -------------------------------------------------------
     def _current_formula(self) -> Optional[ColumnFormula]:
+        """Build a formula from what is currently typed.
+
+        :returns: the formula, or ``None`` while either the name or the
+            expression is still empty.
+        """
         name = self._name.text().strip()
         expression = self._expression.text().strip()
         if not name or not expression:
@@ -324,6 +333,13 @@ class FormulaPanel(QWidget):
                              replace=self._replace.isChecked())
 
     def _schedule(self) -> None:
+        """Disable Add and queue a validation of what is currently typed.
+
+        Debounced, so typing an expression costs one validation rather than one
+        per keystroke, and Add stays off until the pending check has run -- a
+        button enabled against stale validation is a button that commits a
+        formula nobody checked.
+        """
         self._add.setEnabled(False)
         self._debounce.start()
 
@@ -389,6 +405,12 @@ class FormulaPanel(QWidget):
             self._say(self._apply_error, "error")
 
     def _refresh_list(self) -> None:
+        """Rebuild the formula list in computation order.
+
+        Each row's tooltip is the validator's notice when there is one, and the
+        expression otherwise, so why a column is unavailable is reachable from
+        the row itself.
+        """
         self._list.clear()
         notices = {r.formula.name: r.notice for r in self._results}
         for formula in self._formulas.formulas:
@@ -398,6 +420,11 @@ class FormulaPanel(QWidget):
             self._list.addItem(item)
 
     def _say(self, text: str, state: str) -> None:
+        """Write the status line and repolish it so the state style takes effect.
+
+        :param text: the message.
+        :param state: the style key, which colours the line.
+        """
         self._status.setText(text)
         self._status.setProperty("state", state)
         self._status.style().unpolish(self._status)
@@ -405,6 +432,13 @@ class FormulaPanel(QWidget):
 
     @staticmethod
     def _help_text() -> str:
+        """Return the one-paragraph formula help shown under the list.
+
+        :returns: the operators, the function names, and the two distinctions
+            worth stating -- ``min``/``max`` collapse the whole table while
+            ``minimum``/``maximum`` compare per object, and a name with spaces
+            is backticked.
+        """
         picks = ("log", "sqrt", "abs", "clip", "where", "minimum", "maximum",
                  "zscore", "rank", "mean", "median", "std", "quantile",
                  "count", "min", "max")
@@ -428,6 +462,15 @@ class FormulaDialog(QDialog):
     """
 
     def __init__(self, parent=None, *, panel: Optional[FormulaPanel] = None):
+        """Wrap a formula panel in its own window.
+
+        The window is sized in scaled pixels rather than raw ones: a size set
+        from Python does not grow with the stylesheet's font size, and at the
+        200% scale the prose inside wrapped to more height than the window had.
+
+        :param parent: parent widget, or ``None``.
+        :param panel: an existing panel to show; ``None`` builds one.
+        """
         super().__init__(parent)
         self.setObjectName("FormulaDialog")
         self.setWindowTitle("Computed columns")

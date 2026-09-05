@@ -140,6 +140,16 @@ else:
         ZOOM_STEP = 1.15
 
         def __init__(self, scene: QGraphicsScene, parent: QWidget | None = None) -> None:
+            """Create the graph view, transparent all the way down.
+
+            Three surfaces have to give way for the page to show through: the
+            widget, its viewport's auto-fill, and the background brush. Clearing
+            only the scene's brush left this one painting the near-black rectangle
+            over it.
+
+            :param scene: the scene to show.
+            :param parent: parent widget, or ``None``.
+            """
             super().__init__(scene, parent)
             self._zoom = 1.0
             self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
@@ -298,6 +308,19 @@ else:
             auto_start: bool = True,
             embedded: bool = False,
         ) -> None:
+            """Build the FlowView panel: the graph over the inspector, split.
+
+            :param collector: the run collector this panel draws.
+            :param parent: parent widget, or ``None``.
+            :param refresh_interval_ms: how often the graph is re-read.
+            :param export_path_provider: called for the export path instead of
+                opening a file dialog; ``None`` asks the user.
+            :param auto_start: begin refreshing immediately.
+            :param embedded: drop the title and the panel's own rounded surface,
+                for use inside a section that already draws one.
+            :raises ValueError: if ``refresh_interval_ms`` is not positive -- a
+                zero-interval timer would refresh continuously.
+            """
             if refresh_interval_ms <= 0:
                 raise ValueError("refresh_interval_ms must be greater than zero")
             super().__init__(parent)
@@ -487,6 +510,13 @@ else:
             return True
 
         def _render_graph(self, graph: RunGraph) -> None:
+            """Draw a graph, rebuilding the scene only when its shape changed.
+
+            An unchanged topology and layout are updated in place, so a run that is
+            only advancing does not tear down and rebuild every item each tick.
+
+            :param graph: the run graph to show.
+            """
             layout = layout_graph(graph)
             topology = _topology_key(graph)
             if topology != self._topology or layout != self._layout:
@@ -507,6 +537,16 @@ else:
                 self.inspector.clear()
 
         def _rebuild_scene(self, graph: RunGraph, layout: GraphLayout) -> None:
+            """Rebuild every node and edge item from scratch.
+
+            Edges are added before nodes so a node is drawn over the lines reaching
+            it, and both are added in sorted order so the same graph always produces
+            the same z-order. The selection is carried across by node id, since the
+            items holding it are destroyed here.
+
+            :param graph: the run graph to draw.
+            :param layout: where each node goes.
+            """
             selected_node_id = self._selected_node_id
             self.scene.clear()
             self._node_items.clear()
@@ -530,6 +570,11 @@ else:
                 self._node_items[selected_node_id].setSelected(True)
 
         def _selection_changed(self) -> None:
+            """Follow the scene's selection into the inspector.
+
+            Selecting nothing clears the inspector rather than leaving the last
+            stage's details under an empty graph.
+            """
             selected = [
                 item
                 for item in self.scene.selectedItems()
@@ -543,6 +588,10 @@ else:
                 self.inspector.clear()
 
         def _show_inspector(self, node: Node) -> None:
+            """Write one stage's run details into the inspector.
+
+            :param node: the stage to describe.
+            """
             self.inspector.setPlainText(inspector_text(node))
 
         def set_user_height(self, height: int) -> None:
@@ -564,6 +613,14 @@ else:
             self.updateGeometry()
 
         def _export_current(self) -> Path | None:
+            """Export the current snapshot, asking where to put it if nobody said.
+
+            The format follows the chosen file's suffix, falling back to SVG for
+            anything else -- an unrecognised suffix is a typo, not a request for a
+            format this cannot write.
+
+            :returns: the written path, or ``None`` when the export was cancelled.
+            """
             if self._export_path_provider is None:
                 chosen, _filter = QFileDialog.getSaveFileName(
                     self,

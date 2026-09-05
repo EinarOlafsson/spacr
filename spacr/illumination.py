@@ -880,6 +880,15 @@ class IlluminationCorrector:
 
     def __init__(self, model: IlluminationModel, *, on_missing: str = 'error',
                  verbose: bool = True) -> None:
+        """Arm a corrector over a fitted illumination model.
+
+        :param model: the fitted model to divide fields by.
+        :param on_missing: what to do with a field the model has no profile for
+            -- ``'error'`` fails the field, ``'skip'`` measures it uncorrected
+            and counts it.
+        :param verbose: report the first few clipping events.
+        :raises IlluminationError: if ``on_missing`` is neither of the two.
+        """
         if on_missing not in ('error', 'skip'):
             raise IlluminationError(
                 f"on_missing={on_missing!r}; use 'error' (fail the field) or "
@@ -1347,6 +1356,17 @@ class SegmentationIlluminationSession:
     def __init__(self, prepared: PreparedIllumination, *,
                  provenance_path: str, pipeline_style: str,
                  resume: bool = False) -> None:
+        """Open a segmentation-input correction session and stamp its provenance.
+
+        :param prepared: the validated illumination model and its QC artefacts.
+        :param provenance_path: where the application record is written.
+        :param pipeline_style: which segmentation pipeline this corrects for.
+        :param resume: continue a previous session, reading back which fields it
+            already completed. Without it a fresh record is written stating that
+            no field has yet been corrected -- a new preprocessing run
+            invalidates any earlier completion claim, and saying so explicitly
+            is what stops a half-finished run being read as a finished one.
+        """
         _validate_segmentation_model(prepared)
         pipeline_style = _segmentation_pipeline_style(pipeline_style)
         self.prepared = prepared
@@ -1439,6 +1459,12 @@ class SegmentationIlluminationSession:
 
     def _record(self, completed_fields: Iterable[str],
                 application_state: str) -> Dict[str, Any]:
+        """Build the provenance record for a set of completed fields.
+
+        :param completed_fields: the fields corrected so far.
+        :param application_state: where the session has got to.
+        :returns: the record, ready to serialise.
+        """
         return _segmentation_application_record(
             self.prepared,
             self.provenance_path,
@@ -1448,6 +1474,11 @@ class SegmentationIlluminationSession:
         )
 
     def _load_completed_fields(self) -> None:
+        """Read back which fields a previous session already corrected.
+
+        The record is validated against this session's model and pipeline style,
+        so a resume cannot silently adopt another run's completions.
+        """
         existing, completed = _read_segmentation_application(
             self.prepared, self.provenance_path, self.pipeline_style)
         self._completed_fields = completed
@@ -1455,6 +1486,16 @@ class SegmentationIlluminationSession:
 
     def _write_provenance(self, completed_fields: Iterable[str],
                           application_state: str) -> None:
+        """Write the provenance record atomically.
+
+        Written to a temporary file in the same directory, flushed and fsynced,
+        then renamed over the target -- a crash mid-write must not leave a
+        truncated record that reads as a valid claim about which fields were
+        corrected. The temporary file is removed on any failure.
+
+        :param completed_fields: the fields corrected so far.
+        :param application_state: where the session has got to.
+        """
         parent = os.path.dirname(self.provenance_path)
         os.makedirs(parent, exist_ok=True)
         descriptor, temporary = tempfile.mkstemp(
@@ -1475,6 +1516,13 @@ class SegmentationIlluminationSession:
             raise
 
     def _record_stage(self, state: str) -> None:
+        """Report this stage to the run journal, if a run is open.
+
+        Every failure is swallowed: provenance must not replace a scientific
+        result or the error that would otherwise have been raised.
+
+        :param state: the stage state to record.
+        """
         try:
             from .run_journal import current_run
             run = current_run()

@@ -156,6 +156,14 @@ class AvailabilityPanel(QFrame):
     def __init__(self) -> None:
         # Qt.Tool rather than Qt.ToolTip: a ToolTip window can never take
         # focus, and the keyboard route in `open_for` needs it to.
+        """Build the availability popup.
+
+        A ``Qt.Tool`` window rather than a ``Qt.ToolTip`` one: a tooltip window
+        can never take focus, and the keyboard route into this panel needs it
+        to. The two link words are separate labels so that "Install sits to the
+        right of the API link" is a fact about geometry a test can measure,
+        rather than a claim about a string.
+        """
         super().__init__(None, Qt.Tool | Qt.FramelessWindowHint
                          | Qt.NoDropShadowWindowHint)
         self.setObjectName("AvailabilityPanel")
@@ -230,6 +238,15 @@ class AvailabilityPanel(QFrame):
             self.install_requested.connect(slot)
 
     def _make_link(self, name: str) -> QLabel:
+        """Build one clickable link label.
+
+        ``TextBrowserInteraction`` is the measured route: it includes
+        ``LinksAccessibleByKeyboard``, which is what puts the word in the tab
+        order once the panel has focus, and ``linkActivated`` carries the href.
+
+        :param name: object name, so the theme and the tests can find it.
+        :returns: the label.
+        """
         label = QLabel(self)
         label.setObjectName(name)
         label.setTextFormat(Qt.RichText)
@@ -346,6 +363,13 @@ class AvailabilityPanel(QFrame):
         self._position()
 
     def _render(self) -> None:
+        """Write the current entry: the refusal first, then what would fix it.
+
+        Two sentences saying the same thing are collapsed into one -- the status
+        and the install offer genuinely agree on some entries. While pinned with
+        more than one entry the title also carries a position counter, so it is
+        clear there is something to arrow through.
+        """
         entry = self.current_entry() or {}
         offer = entry.get('offer')
         action = getattr(offer, 'action', 'impossible')
@@ -396,6 +420,13 @@ class AvailabilityPanel(QFrame):
         self.move(point)
 
     def _anchor_global_rect(self) -> Optional[QRect]:
+        """Return the anchor's rectangle in global coordinates.
+
+        :returns: the explicitly set rectangle if there is one, otherwise the
+            anchor widget's; ``None`` when there is no anchor, or when the
+            widget has been destroyed -- in which case the anchor is forgotten
+            rather than raising on the next look.
+        """
         if self._anchor_rect is not None:
             return QRect(self._anchor_rect)
         anchor = self._anchor
@@ -447,6 +478,13 @@ class AvailabilityPanel(QFrame):
         return QCursor.pos()
 
     def _maybe_hide(self) -> None:
+        """Close the panel, unless the pointer is still on its way here.
+
+        A pinned panel never closes on its own. Otherwise the cursor is checked
+        against the panel, the anchor, and the corridor between them: while it
+        is still travelling the timer is re-armed rather than the panel closed,
+        or the Install link could never be reached.
+        """
         if self._pinned:
             return
         if self.underMouse():
@@ -514,12 +552,14 @@ class AvailabilityPanel(QFrame):
         super().keyPressEvent(event)
 
     def _install_filter(self) -> None:
+        """Start watching the application for events, if not already watching."""
         app = QApplication.instance()
         if app is not None and not self._filtering:
             app.installEventFilter(self)
             self._filtering = True
 
     def _remove_filter(self) -> None:
+        """Stop watching the application for events."""
         app = QApplication.instance()
         if app is not None and self._filtering:
             app.removeEventFilter(self)

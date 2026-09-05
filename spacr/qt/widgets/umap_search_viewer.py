@@ -200,6 +200,12 @@ class UmapAppearanceDialog(QDialog):
     applied = Signal(dict)
 
     def __init__(self, appearance: dict, parent: Optional[QWidget] = None):
+        """Build the embedding-appearance dialog.
+
+        :param appearance: the current settings; each control opens on its
+            value and falls back to the view's default when the key is absent.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("UmapAppearanceDialog")
         self.setWindowTitle("Embedding appearance")
@@ -242,6 +248,11 @@ class UmapAppearanceDialog(QDialog):
         }
 
     def _apply(self) -> None:
+        """Announce the current settings without closing the dialog.
+
+        Applying rather than accepting is the point: the embedding is judged by
+        looking at it, so the controls have to stay reachable while it redraws.
+        """
         self.applied.emit(self.values())
 
 
@@ -275,6 +286,10 @@ class UmapEmbeddingView(QWidget):
     """
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Create an empty embedding view.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("UmapEmbeddingView")
         self.setMinimumSize(280, 260)
@@ -579,6 +594,10 @@ class UmapExplorer(QWidget):
     """
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the embedding view with its reset control above it.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -594,6 +613,7 @@ class UmapExplorer(QWidget):
         layout.addWidget(self.view, 1)
 
     def _reset(self) -> None:
+        """Return the embedding to its default rotation and zoom."""
         self.view.reset_view()
 
 
@@ -610,6 +630,11 @@ class UmapGalleryDialog(QDialog):
     trial_chosen = Signal(object)
 
     def __init__(self, trials: Iterable[Any] = (), parent: Optional[QWidget] = None):
+        """Build the gallery of every embedding produced by a search.
+
+        :param trials: the trials to show, newest first is the caller's choice.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("UmapGalleryDialog")
         self.setWindowTitle("All Image UMAPs")
@@ -673,6 +698,11 @@ class UmapGalleryDialog(QDialog):
             "its stored coordinates into the UMAP viewer.")
 
     def _choose(self, item: QListWidgetItem) -> None:
+        """Announce the trial behind a clicked tile.
+
+        :param item: the clicked tile; its stored index is bounds-checked, so a
+            tile left over from an earlier set cannot emit the wrong trial.
+        """
         index = item.data(Qt.UserRole)
         if isinstance(index, int) and 0 <= index < len(self._trials):
             self.trial_chosen.emit(self._trials[index])

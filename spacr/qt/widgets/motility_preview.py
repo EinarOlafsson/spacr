@@ -668,6 +668,20 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
     PREVIEW_SOURCE_HINT = "Load a plate folder first."
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the motility preview panel.
+
+        Two job runners, and the separation is load-bearing twice: the pending
+        work on the main one is what reports "a plate is still being scanned",
+        and a plane-count read is not a plate scan; and the second is marked not
+        user-visible so the Home run banner does not announce a read the user
+        never started.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: run scans and reads on worker threads. Set ``False`` in
+            tests: each job then runs inline, emitting the same signals in the
+            same order, so the panel can be driven synchronously without the
+            behaviour diverging.
+        """
         super().__init__(parent)
         # Scanning a plate lists every file in `merged/` and parses each name:
         # thousands of entries on a 384-well plate, and not GUI-thread work.
@@ -731,6 +745,7 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self):
+        """Lay out the plate pickers, the array layout controls and the plot."""
         root = QVBoxLayout(self)
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
@@ -1355,6 +1370,10 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
     # -- metrics (GUI thread — cheap) --------------------------------------
 
     def _on_metric_changed(self, *_):
+        """Restate the units and recompute, if there is anything to recompute.
+
+        :param _: whatever the emitting signal passes; ignored.
+        """
         self._refresh_unit_label()
         if self._points is not None:
             self.recompute()
@@ -1391,6 +1410,16 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         self.preview_ready.emit(self._summary)
 
     def _render_plot(self, points, tracks, cal: Calibration) -> None:
+        """Draw the motility figure at the plot label's current size.
+
+        A failed render becomes a message in the plot area rather than an
+        exception: the panel is a preview, and losing it should not take the
+        screen with it.
+
+        :param points: the per-object point table.
+        :param tracks: the linked tracks.
+        :param cal: the calibration the velocities are reported in.
+        """
         try:
             rgb = render_motility_figure(
                 points, tracks, cal, int(self._min_len.value()),
@@ -1406,6 +1435,12 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
     # -- misc --------------------------------------------------------------
 
     def _refresh_unit_label(self) -> None:
+        """Say which units velocities are in, or why they are only pixels per frame.
+
+        An unknown calibration is stated as a caveat in the warning colour
+        rather than left blank -- a velocity whose units nobody wrote down is
+        the failure this line exists to prevent.
+        """
         cal = self.calibration()
         if cal.known:
             self._unit_label.setText(
@@ -1613,10 +1648,16 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         self._tracked_plane.setValue(n + offset)
 
     def _on_propagate_toggled(self, on: bool) -> None:
+        """Push the tuned settings into the main panel when the toggle goes on.
+
+        :param on: the toggle's new state; turning it off pushes nothing, since
+            what was already propagated stays propagated.
+        """
         if on:
             self.propagate_settings()
 
     def _pick_folder(self):
+        """Ask for a plate folder and load it off the GUI thread."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a plate folder holding merged/*.npy")
         if path:
