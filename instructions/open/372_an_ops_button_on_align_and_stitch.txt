@@ -234,6 +234,15 @@ brieflow's source (PART 2-A) rather than from its stage names:
     compensate_crosstalk      linear unmixing fitted from the data itself
     call_reads                argmax after unmixing, with a per-read quality
     correct_to_library        unique-closest-match only; ties are DROPPED
+    assign_reads_to_cells     a cell takes the barcode its reads AGREE on
+
+`spacr/ops_merge.py` is the other half -- matching cells across
+magnifications by triangle-hashing their arrangement, since the pixels do not
+correspond between a 10x and a 20x acquisition:
+
+    triangle_descriptors      Delaunay + a scale/rotation-invariant shape
+    align_by_triangles        the transform, by consensus over shape matches
+    match_cells               mutual nearest neighbour, 1:1, ties DROPPED
 
 VALIDATED AGAINST PLANTED TRUTH, which is the only way to know a decoder
 works: an in-situ decoder that is wrong still finds spots, still emits
@@ -269,8 +278,13 @@ WHAT IS NOT DONE, and should not be claimed:
     plate. Peak spacing, the peak threshold and the unmixing percentile all
     want fitting against one real acquisition before anyone trusts a number
     that comes out.
-  * No segmentation step, so reads are not yet assigned to cells. That is
-    step 10 of brieflow's eleven and it needs Mask's output.
+  * THE BUTTON (PART 3). Nothing here is reachable from the GUI or from
+    `spacr-run`, and the ~40 OPS settings still have no category, type or
+    tooltip. That is the remaining work, and it is now the ONLY thing between
+    this and a user.
+
+  * Assignment is written (`assign_reads_to_cells`) but has only ever seen a
+    synthetic label image. It wants Mask's real output before it is trusted.
 
 --------------------------------------------------------------------------------
 PART 2 -- WHAT TO TAKE FROM BRIEFLOW, AND WHAT NOT TO
