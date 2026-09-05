@@ -2,9 +2,10 @@
 AN OPS BUTTON ON ALIGN AND STITCH, OVER CODE THAT IS ALREADY IN THE REPOSITORY
 ================================================================================
 
-Status:    PART 0 ANSWERED BY RUNNING IT, 2026-09-05. The front half WORKS;
-           four defects found, two fixed. The back half is still the job.
-           See PART 0-A. Filed 2026-09-02.
+Status:    PART 0 ANSWERED BY RUNNING IT, 2026-09-05. The front half WORKS
+           and all FOUR defects it hid are fixed and pinned by tests. The
+           back half (PART 1) is the remaining job, then the button.
+           Filed 2026-09-02. See PART 0-A.
 Requested: 2026-09-02 -- "for the allign and stitch module id like to add a
            OPS (optical pooled screening button) for analyzing OPS data. i had
            a bunch of code for doing this earlier, i dont know if that module
@@ -96,23 +97,41 @@ WHAT IS BROKEN:
      before this you had to set `mosaic=True` AND leave `write_mosaic=False`,
      which is the opposite of what both names say.
 
-  3. OPEN. `mosaic_allc` writes ONE channel from two. Confirmed with two
-     genuinely different channels, so it is not a content-hashed cache
-     collapsing identical inputs: shape (1, 1314, 1313) with
-     `do_multichannel=True`.
+  3. FIXED. `mosaic_allc` wrote ONE channel from two. `tifffile` records the
+     leading axis of a plainly stacked array as `Q` -- unspecified -- so a
+     genuine (2, Y, X) tile arrives as axes `QYX`.
+     `_get_channel_count_tif` filtered the axes down to `TCZYX`, found no `C`,
+     returned 1, and NEVER REACHED the shape-based guess below it, which gets
+     (2, Y, X) right. The channel plan is `range(min(counts))`, so one
+     mis-counted tile silently flattened the whole mosaic.
+     The fix falls through to the shape guess only when an axis was
+     unrecognised: a file that DOES declare `ZYX` still counts as one channel,
+     because z-planes are not channels. Verified (2,Y,X)->2, (4,Y,X)->4,
+     (Y,X)->1, declared ZYX->1.
 
-  4. OPEN, AND IT LOSES DATA. One tile is silently dropped: 7 of 8 reach the
-     mosaic manifest, and the missing one is `10X_c1_A1_Site-4.tif` -- a
-     corner of the mosaic with no channel-1 data and no warning.
+  4. FIXED, AND IT WAS LOSING DATA. `_pairs_by_site_window` built
+     `idx_by_site[s] = i`, one index per site -- but a site holds one file PER
+     CHANNEL. Ordered c1_S1, c2_S1, c1_S2, c2_S2, ... the map became
+     {1:1, 2:3, 3:5, 4:7}: every candidate partner was a channel-2 file, so
+     two tiles of the SAME channel were never compared and the c1/c2 rows of
+     the pairs CSV were one comparison written twice. It also orphaned
+     `10X_c1_A1_Site-4.tif` outright -- index 6, whose only candidate was
+     index 5, which fails `j > i` -- so it was in no pair, got no features and
+     reached no mosaic: a corner with no channel-1 data and no warning.
+     Keeping every index at a site fixes both. Pairs 12 -> 24, all 24 offsets
+     still exact, manifest 7 -> 8 of 8 tiles, mosaic (1,1314,1313) ->
+     (2,1061,1061) on CYX input.
 
   Defects 3 and 4 are exactly what PART 0 predicted of code that "nothing
-  imports, no test and no user". They are also why the GUI button must not be
-  wired up first: a button over 4 is a button that quietly returns a mosaic
-  with a hole in it.
+  imports, no test and no user" -- and both are the silent kind. A GUI button
+  shipped over them would have returned a one-channel mosaic with a hole in
+  the corner and said nothing.
 
-THE ORDER THIS SHOULD NOW GO IN: fix 3 and 4 against the synthetic plate
-above, which is cheap and has ground truth; then the back half (PART 1); then
-the button. The button is the last step, not the first.
+THE ORDER THIS SHOULD NOW GO IN: the back half (PART 1), then the button. The
+front half is done and pinned by
+`tests/test_the_ops_stitcher_recovers_known_geometry.py`, which builds a plate
+whose geometry it chose so "did it stitch correctly" is a comparison rather
+than an opinion. The button is the last step, not the first.
 
 --------------------------------------------------------------------------------
 PART 1 -- WHAT OPS NEEDS THAT spaCR DOES NOT HAVE
