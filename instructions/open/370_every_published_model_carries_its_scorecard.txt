@@ -3,7 +3,12 @@ EVERY PUBLISHED MODEL CARRIES A SCORECARD: FINETUNED AGAINST VANILLA, ON A
 HELD-OUT SET, IN THE TOOLTIP, ON HUGGING FACE, AND IN THE API
 ================================================================================
 
-Status:    not started, filed 2026-09-02. State below MEASURED the same day.
+Status:    THE METRICS EXIST NOW -- `spacr/seg_metrics.py`, written and
+           checked against masks whose answer can be worked out on paper.
+           That was the blocker: the file below says "THE THING THAT DOES NOT
+           EXIST IS ACCURACY", and it does now. What is still missing is the
+           HELD-OUT SET, which needs labelled data rather than code, and the
+           publishing. Filed 2026-09-02; metrics added 2026-09-05.
 Requested: 2026-09-02, in two messages, verbatim --
            "for every model that is uploaded to model zoo, a table should
            accompany each model showing a comparison between the finetuned
@@ -20,6 +25,46 @@ Requested: 2026-09-02, in two messages, verbatim --
 Owner:     spacr/model_zoo.py, spacr/model_compare.py, a new evaluation
            module, packaging/generate_readme_visuals.py for the generated API
            page, and whatever publishes to `einarolafsson/models`.
+
+--------------------------------------------------------------------------------
+2026-09-05 -- THE MEASUREMENT HALF IS BUILT
+--------------------------------------------------------------------------------
+
+`spacr/seg_metrics.py` scores a mask against a human-drawn one. It is the part
+this item called "to be written, not wired", and the vocabulary the request
+asked for is there: Dice, Jaccard/IoU, precision, recall, F1, boundary
+precision/recall/F1, and average precision at ten IoU thresholds.
+
+TWO DEFINITIONS ARE WRITTEN DOWN BECAUSE THEY ARE EASY TO GET WRONG:
+
+  * "Average precision" in a segmentation benchmark is NOT the area under a
+    precision-recall curve. It is TP / (TP + FP + FN) at a given IoU, which
+    is what Cellpose, Stardist and the Data Science Bowl report. A reader who
+    assumes the detection meaning reads the number as far worse than it is,
+    so the module names and defines it rather than leaving it to inference.
+  * A merge is scored as one hit and one MISS, not as a half-success. One
+    prediction may claim one object, greedily by IoU. Letting a blob satisfy
+    two truths would score the single worst failure in cell segmentation as a
+    success.
+
+WHY THE SCORECARD REPORTS ALL OF THEM, measured on the two failures that
+matter -- and this is the argument for publishing a table rather than a
+number:
+
+    two cells merged into one blob   dice 1.000  boundary F1 1.000  mAP 0.050
+    outline drawn 2 px too wide      dice 0.820  boundary F1 0.000  mAP 0.400
+
+Each failure is INVISIBLE to some of the metrics and obvious to others. A
+single headline number would have hidden one of them whichever one was
+chosen.
+
+WHAT REMAINS, and the crux of this item is unchanged: THE HELD-OUT SET. A
+number computed on fields chosen at call time is not comparable between two
+models or between two days. That needs a named, versioned, labelled set
+published beside the models, which is data rather than code and needs the
+maintainer. After that: run every zoo model over it, write the CSV, render
+the graph, and put the table in the tooltip and on the API page -- all of
+which are now plumbing, because the number they carry exists.
 
 --------------------------------------------------------------------------------
 WHAT EXISTS, AND THE ONE THING THAT DOES NOT
