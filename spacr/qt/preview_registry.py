@@ -150,6 +150,13 @@ def preview_app_keys() -> Tuple[str, ...]:
 
 
 def _resolve(builder: str) -> Optional[Callable[[Any], Tuple[Any, Any]]]:
+    """Import a preview builder named as ``module:function``.
+
+    :param builder: the dotted module path and function name.
+    :returns: the callable, or ``None`` when the string is malformed or the
+        import fails -- a module whose preview cannot be resolved still
+        opens, without one.
+    """
     module_name, _, func_name = str(builder).partition(":")
     if not module_name or not func_name:
         return None

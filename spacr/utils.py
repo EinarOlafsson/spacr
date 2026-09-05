@@ -517,6 +517,12 @@ def _select_intensity_channel(raw, intensity_channel):
 
 
 def _union_find_root(parent, i):
+    """Find a set's representative, compressing the path as it goes.
+
+    :param parent: the union-find parent array, modified in place.
+    :param i: the element to look up.
+    :returns: its root.
+    """
     while parent[i] != i:
         parent[i] = parent[parent[i]]
         i = parent[i]
@@ -524,6 +530,16 @@ def _union_find_root(parent, i):
 
 
 def _union_find_merge(parent, a, b):
+    """Merge the sets holding two elements.
+
+    The lower index becomes the root, so the representative of a merged set
+    is deterministic -- which is what makes labels reproducible between
+    runs rather than depending on the order objects happened to be visited.
+
+    :param parent: the union-find parent array, modified in place.
+    :param a: one element.
+    :param b: the other.
+    """
     ra = _union_find_root(parent, a)
     rb = _union_find_root(parent, b)
     if ra != rb:
@@ -1998,6 +2014,28 @@ def _gen_rgb_image(image, channels):
     return rgb_image
 
 def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_thickness):
+    """Draw each mask's outline over the RGB image.
+
+    DRAWN ON THE CALLING THREAD, DELIBERATELY. This used to run in a thread
+    pool, which aborted the whole process -- SIGABRT, core dumped, no
+    traceback -- once Qt and Tk had both been initialised in the same
+    session: cv2 and skimage's contour code are not safe to call off the
+    main thread with two GUI toolkits resident, and there is nothing to
+    catch.
+
+    Giving the pool up cost almost nothing. There are at most three mask
+    dimensions and ``find_contours`` holds the GIL throughout, so the
+    threads bought 3-5% -- measured at 1,257 ms serial against 1,222 ms
+    threaded on 3x60 objects at 1024 px, and 17.3 s against 16.5 s on 3x200
+    at 2048 px. A 1.03x speedup is not worth a core dump.
+
+    :param image: the merged array, image channels then mask slices.
+    :param rgb_image: the base to draw over.
+    :param mask_dims: which slices hold the masks to outline.
+    :param outline_colors: one colour per mask dimension, cycled.
+    :param outline_thickness: the outline width, in pixels.
+    :returns: the overlaid image, the outlines, and the input array.
+    """
     outlines = []
     overlayed_image = rgb_image.copy()
 
@@ -2072,6 +2110,17 @@ def _convert_cq1_well_id(well_id):
     return schema.well_id(row + 1, col + 1)
 
 def _get_cellpose_batch_size():
+    """Choose a Cellpose batch size from the GPU's VRAM.
+
+    The bounds form an EXHAUSTIVE ladder. The previous ``> 8 and < 12``
+    style left 8.0, 12.0 and 24.0 GB unmatched, so the batch size was never
+    assigned, the print below raised ``UnboundLocalError``, and a bare
+    ``except`` silently turned that into a batch size of 8 -- a card with 24
+    GB quietly running at the smallest batch.
+
+    :returns: the batch size, and 8 when there is no CUDA device or its
+        memory cannot be inspected.
+    """
     try:
         # Check if CUDA is available
         if torch.cuda.is_available():
@@ -2103,6 +2152,24 @@ def _get_cellpose_batch_size():
 
 def _extract_filename_metadata(filenames, src, regular_expression, metadata_type='cellvoyager'):
     
+    """Group image paths by the metadata their filenames carry.
+
+    Zero padding is undone so ``001`` and ``1`` are one key, through
+    ``_int_or_token``, which KEEPS a token it cannot read rather than
+    substituting ``0`` -- every unreadable well used to collapse onto well
+    ``0``.
+
+    A filename the regex cannot read is reported and skipped rather than
+    raising, so one odd name does not cost the plate.
+
+    :param filenames: the names to parse.
+    :param src: the folder they are in; also the fallback plate name when
+        the pattern has no plate group.
+    :param regular_expression: the compiled pattern.
+    :param metadata_type: the microscope convention; ``'cq1'`` also converts
+        the well id, whose scheme differs from the well name it prints.
+    :returns: ``{(plate, well, field, channel, time, slice): [paths]}``.
+    """
     images_by_key = defaultdict(list)
 
     for filename in filenames:
@@ -3444,6 +3511,16 @@ def _masks_to_masks_stack(masks):
 
 def _get_diam(mag, obj):
 
+    """Return an object type's expected diameter at a magnification.
+
+    :param mag: the objective magnification.
+    :param obj: the object type.
+    :returns: the diameter in pixels.
+    :raises ValueError: naming the supported types, for anything else --
+        this used to fall through to an unbound variable and raise
+        ``UnboundLocalError``, which names an implementation detail rather
+        than the setting the user got wrong.
+    """
     if obj == 'cell':
         diameter = 2 * mag + 80
     elif obj == 'cell_large':
@@ -3464,6 +3541,17 @@ def _get_diam(mag, obj):
     return int(diameter)
 
 def _get_object_settings(object_type, settings):
+    """Assemble one object type's segmentation settings.
+
+    The size bounds are derived from the diameter rather than asked for, so
+    they scale with the magnification. A pre-SAM Cellpose model name left in
+    an old settings file is mapped forward HERE, once, rather than carried
+    into segmentation as if it still selected different weights.
+
+    :param object_type: the object being segmented.
+    :param settings: the run settings.
+    :returns: the settings for that object.
+    """
     object_settings = {}
 
     object_settings['diameter'] = _get_diam(settings['magnification'], obj=object_type)
@@ -3507,6 +3595,13 @@ def _get_object_settings(object_type, settings):
     
 def _pivot_counts_table(db_path):
 
+    """Rewrite the object-count table as one row per file, one column per type.
+
+    Written to ``pivoted_counts`` rather than over the source table, so the
+    long form the pipeline appends to is left intact.
+
+    :param db_path: the measurements database.
+    """
     def _read_table_to_dataframe(db_path, table_name='object_counts'):
         """Return the given SQLite table as a DataFrame."""
         # Connect to the SQLite database
@@ -6763,6 +6858,19 @@ def _object_filter(df, object_type, size_range, intensity_range, mask_chans, mas
 
 def _get_regex(metadata_type, img_format, custom_regex=None):
     
+    """Return the filename pattern for a microscope convention.
+
+    :param metadata_type: the convention -- ``'cellvoyager'``, ``'cq1'``,
+        ``'auto'``, or ``'custom'`` with a pattern of your own.
+    :param img_format: the file extension the pattern should end on;
+        ``None`` means ``tif``.
+    :param custom_regex: the pattern, for ``'custom'``.
+    :returns: the pattern.
+    :raises ValueError: NAMING THE VOCABULARY, for an unrecognised type.
+        Falling through left the variable unbound and raised "cannot access
+        local variable 'regex'" -- an error about an implementation detail
+        rather than about the setting that was wrong.
+    """
     print(f"Image_format: {img_format}")
 
     if img_format == None:
@@ -6790,6 +6898,19 @@ def _get_regex(metadata_type, img_format, custom_regex=None):
 
 def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True):
     
+    """Copy a small sample of the source into a test folder.
+
+    A timelapse is cut to ONE image set rather than the requested number:
+    the point of a test run there is a complete sequence, and ten partial
+    sequences test nothing.
+
+    :param src: the folder to sample from.
+    :param regex: the filename pattern.
+    :param timelapse: treat the source as a timelapse.
+    :param test_images: how many image sets to take.
+    :param random_test: sample at random rather than taking the first.
+    :returns: the test folder.
+    """
     if timelapse:
         test_images = 1  # Use only 1 set for timelapse to ensure full sequence inclusion
     

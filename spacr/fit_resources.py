@@ -119,10 +119,26 @@ def _performance_mode(
 
 
 def _utc_now() -> str:
+    """The current UTC time as an ISO string ending in ``Z``.
+
+    :returns: the timestamp, with the offset written as ``Z`` rather than
+        ``+00:00`` so every reading in a report sorts as plain text.
+    """
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def _process_key(pid: int, created: Optional[float]) -> str:
+    """Build an identity for a process that survives PID reuse.
+
+    The PID alone is not an identity: the operating system reissues it, so a
+    long run can see two different processes under one number. Pairing it
+    with the creation time makes the key unique for the life of the report.
+
+    :param pid: the process id.
+    :param created: its creation time; ``None`` when it could not be read,
+        which is recorded as unknown rather than guessed.
+    :returns: the key.
+    """
     if created is None:
         return f"{int(pid)}:unknown"
     return f"{int(pid)}:{float(created):.6f}"
@@ -195,6 +211,18 @@ def _memory_reading(process: Any, psutil_module: Any) -> Dict[str, Any]:
 
 
 def _cpu_reading(process: Any, psutil_module: Any) -> Tuple[Optional[float], str]:
+    """Read a process's total CPU seconds.
+
+    :param process: the psutil process.
+    :param psutil_module: the psutil module, injected so a test can drive
+        this without one installed.
+    :returns: ``(seconds, error_name)`` -- the seconds, or ``None`` with the
+        exception's class name, so a reading that failed says WHY rather
+        than reading as zero CPU.
+    :raises psutil.NoSuchProcess: and ``ZombieProcess``, deliberately
+        re-raised: a process that has gone is not an unreadable reading, and
+        the caller drops it from the report entirely.
+    """
     try:
         cpu = process.cpu_times()
         return float(cpu.user) + float(cpu.system), ""
@@ -205,6 +233,12 @@ def _cpu_reading(process: Any, psutil_module: Any) -> Tuple[Optional[float], str
 
 
 def _python_thread_names() -> Dict[int, str]:
+    """Map native thread ids to the names Python gave them.
+
+    :returns: the mapping. Only threads Python started have a name; the
+        rest -- a BLAS pool, a CUDA worker -- appear in the report by id
+        alone, which is itself informative.
+    """
     names: Dict[int, str] = {}
     for thread in threading.enumerate():
         native_id = getattr(thread, "native_id", None)
@@ -215,6 +249,17 @@ def _python_thread_names() -> Dict[int, str]:
 
 def _thread_reading(process: Any, psutil_module: Any,
                     names: Optional[Mapping[int, str]] = None) -> Dict[str, Any]:
+    """Read a process's per-thread CPU times.
+
+    :param process: the psutil process.
+    :param psutil_module: the psutil module.
+    :param names: native id to Python thread name, for the threads that
+        have one.
+    :returns: the per-thread rows sorted by id, or a row saying the reading
+        is unavailable and naming why -- which is different from a process
+        with no threads.
+    :raises psutil.NoSuchProcess: and ``ZombieProcess``, re-raised.
+    """
     try:
         figures = process.threads()
     except (psutil_module.NoSuchProcess, psutil_module.ZombieProcess):
@@ -253,6 +298,18 @@ def _label_for_process(
         labels: Mapping[Tuple[int, Optional[float]], Mapping[str, Any]],
         pid: int,
         created: Optional[float]) -> Optional[Dict[str, str]]:
+    """Find the worker label recorded for a process.
+
+    The exact ``(pid, created)`` key is tried first and the pid alone
+    second, so a label registered before the creation time was known still
+    matches.
+
+    :param labels: the registered worker labels.
+    :param pid: the process id.
+    :param created: its creation time.
+    :returns: the label's kind and id, or ``None`` when nothing registered
+        it.
+    """
     label = labels.get((pid, created))
     if label is None:
         label = labels.get((pid, None))
@@ -271,6 +328,19 @@ def _read_process(
         detailed: bool,
         labels: Mapping[Tuple[int, Optional[float]], Mapping[str, Any]],
         psutil_module: Any) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+    """Take one process's full resource reading.
+
+    A process that disappears mid-read is reported as a SKIP with the
+    reason, not as a zero reading: a worker that exited during the sample is
+    a different fact from one using no memory.
+
+    :param process: the psutil process.
+    :param root_pid: the run's root process, for the tree relationship.
+    :param detailed: include the per-thread breakdown.
+    :param labels: the registered worker labels.
+    :param psutil_module: the psutil module.
+    :returns: ``(reading, skip)`` -- exactly one of which is set.
+    """
     pid = int(process.pid)
     try:
         created = float(process.create_time())
@@ -322,6 +392,13 @@ def _read_process(
 
 
 def _tree_measure(measures: Mapping[str, int]) -> Optional[str]:
+    """Name the memory measure a process tree's readings agree on.
+
+    :param measures: how many readings used each measure.
+    :returns: the measure when they all used one, ``"mixed"`` when they
+        did not -- which matters, because summing a USS and an RSS gives a
+        number that is neither -- and ``None`` when there were no readings.
+    """
     used = [name for name, count in measures.items() if count]
     if not used:
         return None

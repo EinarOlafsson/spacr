@@ -433,12 +433,26 @@ class SettingsDiffDialog:
 
 
 def _render(v: Any) -> str:
+    """Render one settings value for the diff table.
+
+    :param v: the value.
+    :returns: its ``repr``, so a string is visibly quoted and cannot be
+        confused with the number or the identifier that prints the same;
+        ``None`` renders as a dash.
+    """
     if v is None:
         return "—"
     return repr(v)
 
 
 def _qcolor(hex_str: str):
+    """Build a ``QColor`` from a hex string.
+
+    Imported inside the call so this module stays usable headlessly.
+
+    :param hex_str: the colour.
+    :returns: the colour object.
+    """
     from PySide6.QtGui import QColor
     return QColor(hex_str)
 

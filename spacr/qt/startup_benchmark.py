@@ -32,6 +32,10 @@ HARD_TIMEOUT_GRACE_S = 1.0
 
 
 def _timeout_seconds() -> float:
+    """How long the startup benchmark waits before giving up.
+
+    :returns: the timeout in seconds.
+    """
     try:
         return max(1.0, min(300.0, float(os.environ.get(
             TIMEOUT_ENV, DEFAULT_TIMEOUT_S))))

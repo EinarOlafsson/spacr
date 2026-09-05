@@ -63,9 +63,17 @@ class _FetchWorker(QThread):
         self._stop = False
 
     def cancel(self) -> None:
+        """Ask the fetch to stop at the next run boundary."""
         self._stop = True
 
     def run(self) -> None:                        # noqa: D102 - Qt entry point
+        """Fetch each chosen run in turn, reporting progress and what stopped it.
+
+        The stop flag is checked between runs AND passed down into each fetch,
+        so cancelling takes effect inside a multi-gigabyte accession rather than
+        only after it. Whatever was written before the stop is still reported --
+        a cancelled download that leaves finished files should say which.
+        """
         written, error = [], ""
         try:
             for one in self._files:

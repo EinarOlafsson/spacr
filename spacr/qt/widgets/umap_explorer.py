@@ -127,6 +127,12 @@ class _AnnotationWorker(QThread):
         self._column = column
 
     def run(self):
+        """Write the UMAP annotations back and report what landed.
+
+        A failure emits zero written and every record skipped, with the reason,
+        rather than raising: this runs on a worker thread, and a partial write
+        the caller cannot see is worse than one it can.
+        """
         try:
             updated, skipped = write_umap_annotations(
                 self._records, self._values, self._column)
@@ -351,6 +357,10 @@ class _ScaledPreview(QLabel):
         super().setPixmap(scaled_for(self._source, self, self.size()))
 
     def resizeEvent(self, event):                      # noqa: N802 - Qt name
+        """Rescale the preview to the new size.
+
+        :param event: the resize event.
+        """
         super().resizeEvent(event)
         self._rescale()
 

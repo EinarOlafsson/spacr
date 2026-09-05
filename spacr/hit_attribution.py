@@ -71,10 +71,23 @@ _IDENTIFIER_HINTS = (
 
 
 def _now() -> str:
+    """The current UTC time, as an ISO string for a provenance record.
+
+    :returns: the timestamp.
+    """
     return datetime.now(timezone.utc).isoformat()
 
 
 def _require_columns(frame: pd.DataFrame, columns: Iterable[str], label: str) -> None:
+    """Check a frame carries the columns something is about to read.
+
+    :param frame: the table.
+    :param columns: the columns needed.
+    :param label: what the table is, used in the error.
+    :raises HitAttributionError: naming the MISSING columns and the first
+        fifteen it does have -- "missing plateID" beside the real column
+        names is usually enough to see that the wrong file was passed.
+    """
     missing = [column for column in columns if column not in frame.columns]
     if missing:
         raise HitAttributionError(
@@ -83,6 +96,18 @@ def _require_columns(frame: pd.DataFrame, columns: Iterable[str], label: str) ->
 
 def _well_columns(cells: pd.DataFrame, fractions: pd.DataFrame,
                   requested: Sequence[str]) -> List[str]:
+    """Find the well key shared by the cells and the guide fractions.
+
+    A PARTIAL key is refused: with ``rowID`` present and ``columnID`` absent
+    the join would collapse every column of a row together and attribute one
+    well's guides to twelve.
+
+    :param cells: the object table.
+    :param fractions: the guide fraction table.
+    :param requested: the preferred key columns.
+    :returns: the columns both tables carry.
+    :raises HitAttributionError: if they share no key, or only half of one.
+    """
     columns = [column for column in requested
                if column in cells.columns and column in fractions.columns]
     if not columns:
@@ -98,6 +123,18 @@ def _well_columns(cells: pd.DataFrame, fractions: pd.DataFrame,
 
 def _object_columns(cells: pd.DataFrame,
                     requested: Sequence[str]) -> List[str]:
+    """Find a stable per-object key in the cells table.
+
+    Uniqueness is CHECKED rather than assumed, with examples in the error:
+    attribution joins on this key, so a duplicate would overwrite one cell's
+    attribution or multiply another's.
+
+    :param cells: the object table.
+    :param requested: the fallback key columns, when there is no ``prcfo``.
+    :returns: the key columns.
+    :raises HitAttributionError: if there is no stable key, or it is not
+        unique.
+    """
     if "prcfo" in cells.columns:
         columns = ["prcfo"]
     else:
@@ -243,6 +280,19 @@ class _Mixture:
         )
 
     def predict(self, values: np.ndarray, fractions: np.ndarray) -> np.ndarray:
+        """Posterior probability that each object belongs to the hit component.
+
+        The guide fraction enters as a logit-transformed PRIOR rather than as a
+        feature, so a well with more of the guide raises the prior on its
+        objects without the morphology having to carry that information. The
+        fraction is clipped away from 0 and 1 first, where the logit diverges,
+        and the final exponent is clipped so an extreme log-odds saturates to 0
+        or 1 instead of overflowing.
+
+        :param values: the per-object score.
+        :param fractions: each object's guide fraction in its well.
+        :returns: the probabilities.
+        """
         x = (values - self.median) / self.scale
         covariate = np.log(
             np.clip(fractions, 1e-3, 1 - 1e-3) /
@@ -255,6 +305,13 @@ class _Mixture:
 
 def _fit_fractional_logistic(covariate: np.ndarray, response: np.ndarray,
                              initial: np.ndarray) -> np.ndarray:
+    """Fit a logistic regression on a fractional response by IRLS.
+
+    :param covariate: the predictor.
+    :param response: the fractional response, in ``[0, 1]``.
+    :param initial: the starting coefficients.
+    :returns: the fitted coefficients.
+    """
     design = np.column_stack([np.ones(len(covariate)), covariate])
     beta = np.asarray(initial, dtype=float).copy()
     for _ in range(40):
@@ -273,6 +330,12 @@ def _fit_fractional_logistic(covariate: np.ndarray, response: np.ndarray,
 
 def _fit_mixture(values: np.ndarray, fractions: np.ndarray,
                  max_iter: int = 150) -> _Mixture:
+    """Fit the two-component mixture that separates hit-like objects.
+
+    :param values: the per-object scores.
+    :param fractions: each object's guide fraction in its well.
+    :returns: the fitted mixture.
+    """
     if not np.any(fractions <= 0) or not np.any(fractions > 0):
         raise HitAttributionError(
             "each training fold needs target-free and target-containing wells")
@@ -602,6 +665,17 @@ def quantify_candidate_enrichment(
 
 def _default_features(frame: pd.DataFrame, score_column: str,
                       include_score: bool) -> List[str]:
+    """Choose the morphology features to attribute on.
+
+    Numeric columns only, with the identifier-like ones dropped by name: a
+    plate number or a row index is numeric and would let the model
+    attribute a hit to a POSITION rather than to a phenotype.
+
+    :param frame: the object table.
+    :param score_column: the score column, kept only if asked for.
+    :param include_score: keep the score among the features.
+    :returns: the feature names.
+    """
     numeric = list(frame.select_dtypes(include=[np.number]).columns)
     features = []
     for column in numeric:
@@ -617,6 +691,13 @@ def _default_features(frame: pd.DataFrame, score_column: str,
 
 
 def _group_series(frame: pd.DataFrame, columns: Sequence[str]) -> pd.Series:
+    """Build a single grouping key from several columns.
+
+    :param frame: the table.
+    :param columns: the columns to join.
+    :returns: one string per row, the values joined -- so a group-by is one
+        comparison rather than a tuple comparison per row.
+    """
     return frame[list(columns)].astype(str).agg("|".join, axis=1)
 
 
@@ -944,6 +1025,16 @@ def quantify_hit_enrichment(wells: pd.DataFrame, *, random_seed: int = 0,
 
 
 def _object_key(row: pd.Series, columns: Sequence[str]) -> str:
+    """Render one object's identity as a stable string.
+
+    JSON with sorted keys, so the same object always produces the same key
+    whatever order the columns arrive in -- which is what lets an
+    attribution written by one run be joined by another.
+
+    :param row: the object's row.
+    :param columns: the key columns.
+    :returns: the key.
+    """
     payload = {column: row[column] for column in columns}
     return json.dumps(payload, sort_keys=True, default=str, separators=(",", ":"))
 

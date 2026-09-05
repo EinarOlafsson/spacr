@@ -1018,6 +1018,12 @@ class PCAPanel(QWidget):
 # ---------------------------------------------------------------------------
 
 def _pca_qss(palette, opacity) -> str:
+    """Build the PCA panel's stylesheet.
+
+    :param palette: the active palette.
+    :param opacity: the page opacity, blended into the panel's surface.
+    :returns: the QSS.
+    """
     from ..theme import block_surface
     surface_alt = block_surface("surface_alt", palette["theme"], opacity)
     return f"""

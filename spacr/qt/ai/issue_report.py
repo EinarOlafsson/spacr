@@ -283,6 +283,13 @@ def _env_lines() -> List[str]:
 
 
 def _optional_version(pkg: str) -> str:
+    """Report an optional package's version for the issue body.
+
+    :param pkg: the distribution name.
+    :returns: its version, or a marker saying it is not installed -- which
+        is itself worth knowing in a bug report, since half of spaCR's
+        failures are a missing extra.
+    """
     try:
         from importlib.metadata import version as _v
         return _v(pkg)

@@ -288,6 +288,13 @@ class Colormap:
 
 
 def _ramp(name: str, colour: Any) -> Colormap:
+    """Build a black-to-colour ramp.
+
+    :param name: the colormap's name.
+    :param colour: the colour the ramp ends on.
+    :returns: the colormap -- black at zero, so an unlabelled pixel is
+        background rather than a dark shade of the channel.
+    """
     return Colormap(name, ["black", colour])
 
 

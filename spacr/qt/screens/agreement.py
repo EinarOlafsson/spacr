@@ -109,6 +109,13 @@ def format_kappa(value: Any) -> str:
 
 
 def _format_pct(value: Any) -> str:
+    """Render a fraction as a percentage.
+
+    :param value: the fraction.
+    :returns: it to one decimal place, or ``"n/a"`` for anything
+        unparseable or NaN -- an agreement that could not be computed is not
+        0%.
+    """
     try:
         v = float(value)
     except (TypeError, ValueError):

@@ -642,6 +642,13 @@ class ModelEntry:
 
 
 def _shorten(text: Any, width: int) -> str:
+    """Truncate text to a width, marking where it was cut.
+
+    :param text: the text.
+    :param width: the maximum length INCLUDING the ellipsis, so a column
+        laid out at this width never overflows.
+    :returns: the text, or its prefix with an ellipsis.
+    """
     text = str(text)
     return text if len(text) <= width else text[:width - 1] + "…"
 
@@ -1225,6 +1232,17 @@ def discover_local(roots: Any = None, max_depth: int = DEFAULT_SCAN_DEPTH,
 
 
 def _under(path: Path, root: Path) -> bool:
+    """Whether a path is inside a root, after resolving both.
+
+    Resolved first, so a symlink or a ``..`` cannot escape the root while
+    appearing to be under it -- this gates where a downloaded checkpoint may
+    be written.
+
+    :param path: the path to test.
+    :param root: the root it must be under.
+    :returns: ``True`` when it is; ``False`` when it is not, and also when
+        either path cannot be resolved.
+    """
     try:
         path.resolve().relative_to(root.resolve())
         return True
@@ -1814,6 +1832,13 @@ def open_uri(uri: str, timeout: int = DEFAULT_TIMEOUT,
 
 
 def _read_chunks(path: Path, chunk_size: int) -> Iterator[bytes]:
+    """Read a file in fixed-size blocks.
+
+    :param path: the file.
+    :param chunk_size: the block size.
+    :returns: an iterator over the blocks -- streamed rather than read
+        whole, because these are multi-gigabyte checkpoints being hashed.
+    """
     with path.open("rb") as handle:
         while True:
             block = handle.read(chunk_size)
@@ -2428,6 +2453,18 @@ def group_by_fieldset(results: Sequence[BenchmarkResult]
 
 
 def _rank_value(result: BenchmarkResult, key: str) -> Tuple:
+    """Build the sort key for one benchmark result.
+
+    ``nan`` sorts LAST rather than first: a model nobody scored is not the
+    best model.
+
+    :param result: the benchmark result.
+    :param key: what to rank by.
+    :returns: the sort key.
+    :raises ValueError: for an unknown key. There is deliberately no
+        accuracy key -- a benchmark here has no ground truth, so a column
+        sorting models by "score" would be inventing one.
+    """
     if key == "qc":
         score = result.qc_score
         # nan sorts last rather than first: a model nobody scored is not the

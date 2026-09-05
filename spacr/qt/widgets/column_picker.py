@@ -1534,6 +1534,20 @@ def _find_layout_with(layout: Optional[QLayout],
 
 def _replace_layout_widget(layout: QLayout, field: QWidget,
                            replacement: QWidget):
+    """Swap one widget for another in a layout, keeping the reading order.
+
+    Python ``QLayout`` subclasses do not expose Qt's protected
+    ``replaceAt``, so ``replaceWidget`` cannot update them. The suffix after
+    the occupied slot is taken out and put back around the replacement --
+    retaining the layout ITEMS rather than the widgets, which preserves both
+    their widgets and their order instead of appending the replacement at
+    the end.
+
+    :param layout: the layout to edit.
+    :param field: the widget to replace.
+    :param replacement: the widget to put there.
+    :returns: the removed layout item, or ``None``.
+    """
     position = layout.indexOf(field)
     old = layout.replaceWidget(field, replacement)
     if old is not None or position < 0:

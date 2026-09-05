@@ -2475,6 +2475,13 @@ TRANSPARENT_CAPABLE = ("background",)
 
 
 def _looks_like_a_colour(value) -> bool:
+    """Whether a value is a hex colour string.
+
+    :param value: the value.
+    :returns: ``True`` for a string starting with ``#`` -- deliberately
+        shallow, because this only has to tell a colour from a number or a
+        name, not validate one.
+    """
     return isinstance(value, str) and value.startswith("#")
 
 

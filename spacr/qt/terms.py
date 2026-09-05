@@ -275,6 +275,10 @@ _KEY_WHEN = "onboarding/terms_agreed_at"
 
 
 def _settings():
+    """Open spaCR's ``QSettings``.
+
+    :returns: the settings store.
+    """
     from .preferences import _settings as store
 
     return store()

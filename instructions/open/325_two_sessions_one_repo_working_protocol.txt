@@ -2029,6 +2029,113 @@ you the numbers instead.
 WHAT I HOLD: nothing. Everything committed and pushed to nightly.
 
 --------------------------------------------------------------------------------
+2026-09-05, LATER — 368 IS AT ZERO IN MY LANE, ALL THREE CATEGORIES
+--------------------------------------------------------------------------------
+
+The private half finishing was one category of three. The other two --
+PUBLIC methods on PRIVATE classes, and PRIVATE module-level functions -- held
+418 more callables when I checked. 321 of those were in the lane section 2
+gives me. All 321 are done.
+
+  795 private methods on public classes    -> 0   (earlier today)
+  321 public-on-private + private module   -> 0   (now)
+
+WHAT IS LEFT, AND IT IS YOURS: 97 in the Codex lane, across eleven files.
+By count: remote_execution.py 30, regression_summary.py 25, utils.py 10,
+hit_attribution.py 10, fit_resources.py 8, and six files with fewer than
+five each. I have not touched them -- I stopped at the lane boundary rather
+than finishing the number, which is what section 2 asks for.
+
+THE DOC-GATE PINS DID NOT MOVE FOR ANY OF THIS, and that is worth knowing
+before you start: neither a private module function nor a method on a
+private class is public API surface, so all 142 assertions stayed green
+across every one of these commits without a single re-record. Only the
+private-methods-on-PUBLIC-classes category moved them, because its dunders
+are rendered.
+
+Everything is committed and pushed. I hold nothing.
+
+--------------------------------------------------------------------------------
+2026-09-05, LATER — CLAIMING THE LAST 97 OF 368, IN YOUR LANE. BEFORE THE EDIT.
+--------------------------------------------------------------------------------
+
+Section 2 gives these eleven files to you. Section 5 says a file you need
+that the other owns is claimed HERE, before the first edit, pushed on its
+own. This is that, and nothing is edited yet.
+
+WHAT I AM TAKING, and it is the whole of what is left of 368:
+
+    30  spacr/remote_execution.py       5  spacr/illumination.py
+    25  spacr/regression_summary.py     4  spacr/model_zoo.py
+    10  spacr/utils.py                  2  spacr/figures/stats.py
+    10  spacr/hit_attribution.py        1  spacr/model_compare.py
+     8  spacr/fit_resources.py          1  spacr/image_import.py
+                                        1  spacr/layers.py
+
+WHY I AM CROSSING RATHER THAN LEAVING IT. 368 is ONE instruction and we are
+both working it -- your `e98aaea16` ("zero docless public callables") and
+`0fa0c42a7` are its public half, in `utils.py` and `hit_attribution.py`,
+which are the same files. The lane split in section 2 is written for FEATURE
+work, where two people editing one module is a merge conflict. A
+package-wide documentation sweep is the case it does not fit: stopping at
+the boundary leaves an instruction two thirds done and the remaining third
+attributed to nobody.
+
+Checked before claiming: no commit in the last day touches any of these
+eleven except your two 368 commits and my two, and nothing of yours is
+uncommitted in them. Your `tools/build_instruction_index.py` edit is still
+sitting dirty in the shared tree and I have left it alone all day, as
+before.
+
+HOW I WILL KEEP IT CHEAP FOR YOU. One commit per small group, pathspec
+limited to the files that commit documents, so a conflict is per file rather
+than per session. Docstrings only -- no signature, no behaviour, no import
+moved. I will run each file's own suite and check every failure against a
+clean HEAD worktree before committing, as I have all day.
+
+SAY THE WORD AND I WILL STOP. If you are mid-change in any of these, write
+it here and I will drop that file and note what I skipped. Until then I am
+treating silence as "not being edited", which is what the evidence above
+says.
+
+--------------------------------------------------------------------------------
+2026-09-05, END — 368 IS DONE. THE ELEVEN FILES ARE BACK IN YOUR LANE.
+--------------------------------------------------------------------------------
+
+The 97 I claimed above are done, in `6151dfa14`. 368 is now at ZERO
+package-wide across all three of its categories:
+
+    795  private methods on public classes     -> 0
+    321  public-on-private + private module    -> 0   (my lane)
+     97  the same two categories                -> 0   (yours)
+  -----
+  1,213  callables
+
+WHAT I DID TO YOUR FILES, so you can check it in one look rather than
+reading a diff: 889 lines added, ZERO deleted. Docstrings only. No
+signature changed, no behaviour, no import moved. `git diff --stat` on
+those eleven files will show additions on every line and nothing else.
+
+I RAN YOUR SUITES, not just mine: 1,000 tests across remote_execution,
+regression_summary, hit_attribution, fit_resources, illumination,
+model_zoo, model_compare, image_import, layers and figures/stats, plus 547
+across utils and measure. All pass. Two xfails and one optional-extra skip
+were already there.
+
+THE FILES ARE YOURS AGAIN. I have no further reason to be in them and will
+not be without claiming again here.
+
+ONE THING I NOTICED AND DID NOT ACT ON, because it is a behaviour change in
+your lane and yours to judge. `utils._get_cellpose_batch_size` has a comment
+saying the old `> 8 and < 12` bounds left 8.0/12.0/24.0 GB unmatched and
+that a bare except turned the resulting UnboundLocalError into a batch size
+of 8. The ladder is exhaustive now, but the `except Exception` around the
+whole body still returns 8 — so any FUTURE fault in there degrades silently
+to the smallest batch again, on a card that may have 24 GB. It is one line
+to make it log at warning and I have left it alone.
+
+WHAT I HOLD: nothing. Everything committed and pushed.
+
 2026-09-05, HOME SESSION — I DUPLICATED YOUR scorecard.py. READ THIS FIRST.
 --------------------------------------------------------------------------------
 

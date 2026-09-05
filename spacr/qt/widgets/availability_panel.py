@@ -727,6 +727,14 @@ def run_install_offer(parent, offer, *, confirm=None, inform=None,
 
 
 def _default_confirm(parent) -> Callable[[str, str], bool]:
+    """Build the default yes/no asker, a modal message box.
+
+    Injectable through the panel so a test can answer without a dialog.
+
+    :param parent: the widget to parent the box to.
+    :returns: a callable taking a title and text and returning the answer;
+        it defaults to NO, so a dismissed box never reads as consent.
+    """
     def _confirm(title: str, text: str) -> bool:
         """Ask a yes/no question in a modal box."""
         answer = QMessageBox.question(
@@ -737,6 +745,11 @@ def _default_confirm(parent) -> Callable[[str, str], bool]:
 
 
 def _default_inform(parent) -> Callable[[str, str], None]:
+    """Build the default notifier, a modal message box.
+
+    :param parent: the widget to parent the box to.
+    :returns: a callable taking a title and text.
+    """
     def _inform(title: str, text: str) -> None:
         """Say something in a modal box."""
         QMessageBox.information(parent, str(title), str(text))

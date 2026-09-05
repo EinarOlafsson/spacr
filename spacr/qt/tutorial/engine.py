@@ -144,6 +144,15 @@ class Narrator:
 
 
 def _wav_duration(path: Path) -> float:
+    """Return a WAV file's duration in seconds.
+
+    Read from the header rather than the file size, so a format with a
+    different sample width or rate still measures correctly -- the subtitles
+    are timed off this.
+
+    :param path: the WAV file.
+    :returns: its duration in seconds.
+    """
     with wave.open(str(path), "rb") as w:
         return w.getnframes() / float(w.getframerate())
 
