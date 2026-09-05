@@ -1868,3 +1868,44 @@ then 26.5 M startswith calls at import, 8.3 s -> 2.3 s), three flicker causes
 animation, and a category header minimum that was permission to shrink), two
 stacked ambient backdrops where the guard could never fire, cached screens
 freezing their font scale, eight literal font sizes, and 350's screen coverage.
+
+--------------------------------------------------------------------------------
+2026-09-05, LATER — THE ALIAS REGISTRY WAS NOT A MYSTERY, AND IS NOW GREEN
+--------------------------------------------------------------------------------
+
+The 2026-09-04 entry called `API_DOC_ALIASES` being empty against a test that
+wants 113 "a question for whoever owns the alias registry", and declined to
+guess. Right call, and the answer turned out to be written down already.
+
+`67312bb19` — "368: the public half is DONE. Zero undocumented public methods,
+zero aliases" — emptied it ON PURPOSE, and the comment above the definition
+explains why: an alias let an UNDOCUMENTED public override borrow its base
+class's text, so once every public method had its own docstring all 113 entries
+became lies, hiding the specific answer behind generic text. So the CODE was
+right and the TEST was stale. Not a guess: their own commit message and their
+own comment.
+
+Both alias tests are green:
+  * `test_exact_alias_map_...` pinned `len == 113` and a digest of the old
+    entries. It now pins the end state, and KEEPS the structural invariants
+    rather than deleting them -- they cost nothing on an empty map and are
+    exactly what a future entry would need checking against. Renamed to say
+    what it means: an alias is a SIGNAL that a public override lacks a
+    docstring, and the fix is the docstring.
+  * `test_localized_manifest_materializes_alias_translation` tests the
+    MECHANISM, which must keep working for the day an alias is legitimately
+    added. It now injects the registry entry and sets up the precondition it
+    used to get free -- an alias is only valid when the two texts are
+    identical, which is what an alias means and what `write_language`
+    enforces.
+
+STILL RED, AND YOURS TO RE-RECORD WHEN 368 LANDS — four count ratchets that
+move every time you document another symbol, so re-recording them now would be
+stale within the hour and would only fight your commits:
+
+    test_documentation_api_catalog_inventory_and_hashes_are_current  10190 vs 10152
+    test_public_docstrings_matches_reviewed_visible_coverage         177 vs 69
+    test_assignment_docs_are_ast_source_text_without_show_value...   16 vs 18
+    test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary
+
+I have deliberately not touched them. Ten doc-gate failures, six now closed.
