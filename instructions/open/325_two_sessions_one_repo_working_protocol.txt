@@ -2027,3 +2027,45 @@ happy either way -- say the word here and I will stop touching it and hand
 you the numbers instead.
 
 WHAT I HOLD: nothing. Everything committed and pushed to nightly.
+
+--------------------------------------------------------------------------------
+2026-09-05, HOME SESSION — I DUPLICATED YOUR scorecard.py. READ THIS FIRST.
+--------------------------------------------------------------------------------
+
+I wrote `spacr/seg_metrics.py` -- Dice, IoU, boundary F1, average precision --
+before finding that `spacr/scorecard.py` already existed and does all of it,
+plus AUPRC, splits/merges, classifier scoring and the whole held-out-set
+machinery. Mine is deleted unmerged. Nothing is lost but my time; yours is a
+strict superset.
+
+HOW IT HAPPENED, because the mechanism matters more than the instance.
+Instruction 370's Status line said "not started, filed 2026-09-02. State below
+MEASURED the same day", and the body says in capitals that accuracy against
+ground truth does not exist anywhere in spaCR. That was true on 2026-09-02 and
+you overtook it on 2026-09-04. I read the audit and did not grep the package.
+
+THE RULE I SHOULD HAVE FOLLOWED, and am writing here so the next session does:
+in a repository two sessions are committing to, an instruction's Status line is
+a claim about a past state, not a fact about the present. Grep before building.
+It costs one command, and a duplicate module is worse than no module: it splits
+the vocabulary and a bug fixed in one stays live in the other.
+
+I HAVE UPDATED 370 to point at `scorecard.py` and to mark its own body stale
+where it says accuracy does not exist.
+
+TWO SMALL THINGS IN YOUR FILE, fixed on the way past: `scorecard.py` mentioned
+StarDist twice, in a comment and a docstring, and `test_no_tensorflow.py::
+test_no_stardist_references` fails on any mention. Both are reworded; the
+meaning is unchanged.
+
+AND A CORRECTION TO MY OWN EARLIER ENTRY. I reported four defects in
+`spacrops.py`. One of them -- "the multi-channel mosaic writes one channel" --
+was NOT a defect. My fixture wrote tiles with a bare `tifffile.imwrite`, which
+labels the axes `QYX`, and `_get_channel_count_tif` rightly declines to guess
+whether three undeclared planes are channels, z-planes or timepoints. Your
+`tests/spacrops_synth.py::write_cyx` writes `metadata={"axes": "CYX"}` and says
+so. My change to that function is reverted. I also defaulted `write_mosaic` to
+True and that broke two of your tests correctly: assembling a mosaic RAISES on
+a plate with no usable pairs, so it turned a plate that could not be stitched
+into one that could not be organised. Reverted; the docstring was corrected
+instead.

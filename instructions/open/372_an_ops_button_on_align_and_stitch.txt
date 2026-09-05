@@ -98,23 +98,41 @@ WHAT IS BROKEN:
   1. FIXED. `write_mosaic` was inverted: `if settings["write_mosaic"]:
      mosaic_out = None`. Asking for a mosaic set the output path to nothing.
 
-  2. FIXED. `mosaic` defaulted to False and is a SEPARATE key from
-     `write_mosaic`, so `stitch_cycle_wells` never built one -- while its own
-     docstring promises "single- or multi-channel mosaics". To get a mosaic
-     before this you had to set `mosaic=True` AND leave `write_mosaic=False`,
-     which is the opposite of what both names say.
+  2. FIXED, THOUGH NOT THE WAY I FIRST DID IT. `mosaic` and `write_mosaic`
+     were separate keys with separate defaults and `run_folder` consulted
+     only the first, so to get a mosaic you had to set `mosaic=True` AND
+     leave `write_mosaic=False` -- the opposite of what both names say. They
+     are synonyms now and either turns it on.
 
-  3. FIXED. `mosaic_allc` wrote ONE channel from two. `tifffile` records the
-     leading axis of a plainly stacked array as `Q` -- unspecified -- so a
-     genuine (2, Y, X) tile arrives as axes `QYX`.
-     `_get_channel_count_tif` filtered the axes down to `TCZYX`, found no `C`,
-     returned 1, and NEVER REACHED the shape-based guess below it, which gets
-     (2, Y, X) right. The channel plan is `range(min(counts))`, so one
-     mis-counted tile silently flattened the whole mosaic.
-     The fix falls through to the shape guess only when an axis was
-     unrecognised: a file that DOES declare `ZYX` still counts as one channel,
-     because z-planes are not channels. Verified (2,Y,X)->2, (4,Y,X)->4,
-     (Y,X)->1, declared ZYX->1.
+     I ALSO DEFAULTED `write_mosaic` TO TRUE, on the grounds that the
+     docstring promised mosaics, AND THAT WAS WRONG. Assembling a mosaic
+     RAISES when the pairs CSV has no usable rows, so it turned a plate that
+     could not be stitched into a plate that could not be organised, and it
+     broke two existing tests that were quite right. Reverted; the docstring
+     was corrected to say the mosaic is opt-in, which is the honest direction
+     for that disagreement to be resolved in.
+
+  3. WITHDRAWN. IT WAS NOT A DEFECT AND THE FIXTURE WAS WRONG.
+
+     I reported that `mosaic_allc` wrote ONE channel from two, and it does --
+     for tiles written with a bare `tifffile.imwrite(path, stack)`, which is
+     what my fixture did. `tifffile` labels such a file `QYX`, meaning the
+     leading axis is UNSPECIFIED, and three planes with no metadata could as
+     easily be three z-planes or three timepoints as three channels.
+     `_get_channel_count_tif` declines to guess, and that is deliberate:
+     guessing turns a z-stack's planes into channels silently.
+
+     The repository's own test suite says so plainly -- `tests/spacrops_synth
+     .py::write_cyx` writes `metadata={"axes": "CYX"}` and
+     `test_read_plane_on_a_metadata_less_stack_returns_the_first_plane` pins
+     a bare stack at one channel. I had not found those tests before filing
+     this, which is the actual lesson.
+
+     My change to the counter is reverted. Multi-channel tiles must declare
+     their axes. THE SECOND TIME IN ONE DAY that a synthetic fixture produced
+     a confident, wrong conclusion here -- the first was reading 128 px
+     downsampled tiles as a broken stitcher. A fixture that does not match how
+     the real data is written tests the fixture.
 
   4. FIXED, AND IT WAS LOSING DATA. `_pairs_by_site_window` built
      `idx_by_site[s] = i`, one index per site -- but a site holds one file PER

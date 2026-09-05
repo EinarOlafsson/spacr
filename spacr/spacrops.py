@@ -1210,22 +1210,20 @@ class spacrStitcher:
             series = tf.series[0]
             axes = getattr(series, "axes", None)
             shape = series.shape
+        # A DECLARED AXIS ORDER IS TAKEN AT ITS WORD, and a file that names
+        # no channel axis has one channel. That is deliberate, not an
+        # oversight: `tifffile` labels a bare 3-D write 'QYX' or 'SYX' --
+        # "unspecified" -- and a stack of three planes with no metadata could
+        # equally be three channels, three z-planes or three timepoints.
+        # Guessing turns a z-stack's planes into channels silently, which is
+        # worse than declining. Multi-channel tiles must say so:
+        # `tifffile.imwrite(path, stack, metadata={"axes": "CYX"})`.
+        #
+        # The shape fallback below applies only when the file declares NO
+        # axes at all, where a guess is the only thing available.
         if axes:
-            kept = "".join(a for a in axes.upper() if a in "TCZYX")
-            if "C" in kept:
-                return int(shape[kept.index("C")])
-            if len(kept) == len(axes):
-                # Every axis was named and none of them is a channel. A ZYX
-                # stack really does have one channel, and guessing from the
-                # shape here would call its z-planes channels.
-                return 1
-            # SOME AXIS WAS NOT RECOGNISED, so the declaration is not evidence
-            # of absence and the shape is the better guess. `tifffile` writes
-            # 'Q' -- unspecified -- for the leading axis of a plain stacked
-            # array, so a genuine (2, Y, X) two-channel tile arrives as 'QYX',
-            # the filter above reduces it to 'YX', and this used to return 1:
-            # a multi-channel mosaic came out with one channel, silently,
-            # because `mosaic_all_channels` plans `range(min(counts))`.
+            axes = "".join(a for a in axes.upper() if a in "TCZYX")
+            return int(shape[axes.index("C")]) if "C" in axes else 1
         gh = spacrStitcher._guess_axes_from_shape(shape)
         return int(shape[gh.index("C")]) if "C" in gh else 1
     
@@ -3100,8 +3098,13 @@ def stitch_cycle_wells(settings):
 
     Groups images by well from filename metadata, optionally moves or
     symlinks them into per-well folders, then runs :class:`spacrStitcher`
-    on each well to produce pairwise CSVs and single- or multi-channel
-    mosaics.
+    on each well to produce pairwise CSVs, and -- when asked -- single- or
+    multi-channel mosaics.
+
+    THE MOSAIC IS OPT-IN. Set ``write_mosaic`` (or its synonym ``mosaic``)
+    to build one. It is off by default because assembling a mosaic raises
+    when too few tiles overlapped to place any, and a plate that cannot be
+    stitched should not become a plate that cannot be organised.
 
     :param settings: dict of preprocess settings; see
         :func:`get_preprocess_ops_settings` for supported keys.
@@ -3570,11 +3573,13 @@ def get_preprocess_ops_settings(settings):
     settings.setdefault("z_index", 0)
     settings.setdefault("t_index", 0)
     settings.setdefault("squeeze_singleton", True)
-    # TRUE, because `stitch_cycle_wells` documents itself as producing
-    # "single- or multi-channel mosaics" and did not. Safe to change: nothing
-    # in the package imports this module, so there is no caller relying on
-    # the old silence.
-    settings.setdefault("write_mosaic", True)
+    # FALSE, and the docstring of `stitch_cycle_wells` was corrected to match
+    # rather than the other way round. Defaulting it True was tried and
+    # reverted: `mosaic_all_channels_from_csv` RAISES when the pairs CSV has
+    # no usable rows, so a plate with too few overlapping tiles would go from
+    # succeeding quietly to failing loudly, for a mosaic nobody asked for.
+    # The flag now WORKS when set, which is the fix that was wanted.
+    settings.setdefault("write_mosaic", False)
 
     # --- st.run_folder(...) ---
     settings.setdefault("n_workers", 26)

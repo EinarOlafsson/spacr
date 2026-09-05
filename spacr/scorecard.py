@@ -53,8 +53,8 @@ from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
-#: The IoU sweep every segmentation paper quotes, and the one Cellpose and
-#: StarDist report against. 0.5 to 0.9 in steps of 0.05.
+#: The IoU sweep every segmentation paper quotes, and the one the Cellpose
+#: paper reports against. 0.5 to 0.9 in steps of 0.05.
 #:
 #: THE SWEEP IS THE POINT. One number at 0.5 says whether the objects were
 #: FOUND; one at 0.9 says whether they were OUTLINED. A model can be good at
@@ -193,7 +193,7 @@ class Match:
 
     @property
     def average_precision(self) -> float:
-        """``TP / (TP + FP + FN)`` -- the Cellpose/StarDist convention.
+        """``TP / (TP + FP + FN)`` -- the segmentation-benchmark convention.
 
         NOT the area under a precision-recall curve, despite the name. The
         segmentation literature uses this quantity and calls it AP, and

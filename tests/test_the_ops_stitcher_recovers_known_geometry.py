@@ -74,6 +74,10 @@ def stitched_plate(tmp_path_factory):
             # two, which would make a one-channel mosaic look like a bug when
             # it was deduplication.
             image = tile if channel == 1 else tile * 0.45 + 800.0
+            # One PLANE per file here, one file per channel, which is the
+            # layout the filename pattern describes. A file holding several
+            # channels must declare `axes="CYX"`; see
+            # `test_a_tile_must_declare_its_channels_to_have_them_counted`.
             tifffile.imwrite(
                 str(src / f"10X_c{channel}_A1_Site-{site}.tif"),
                 image.astype(np.uint16),
@@ -86,6 +90,10 @@ def stitched_plate(tmp_path_factory):
         "verbose": False,
         "downsample": 1.0,
         "nfeatures": 20000,
+        # ASKED FOR EXPLICITLY. The mosaic is opt-in: assembling one raises
+        # when too few tiles overlapped to place any, so a plate that cannot
+        # be stitched must not become a plate that cannot be organised.
+        "write_mosaic": True,
     })
     return result, root / "out"
 
@@ -123,14 +131,19 @@ def test_every_pair_offset_matches_the_geometry_we_built(stitched_plate):
     assert not wrong, "offsets do not match the plate:\n  " + "\n  ".join(wrong)
 
 
-def test_a_mosaic_is_written_without_being_asked_twice(stitched_plate):
-    """``stitch_cycle_wells`` promises mosaics, so it must produce one.
+def test_asking_for_a_mosaic_now_produces_one(stitched_plate):
+    """``write_mosaic=True`` must write the image it names.
 
-    Its docstring says it produces "single- or multi-channel mosaics" and it
-    produced none. Two separate flags -- ``mosaic`` and ``write_mosaic`` --
-    meant opposite things: `write_mosaic=True` set the output path to None,
-    so the one value a reader would reach for was the one guaranteed to write
-    nothing. No flag is passed here, on purpose.
+    Two separate flags -- ``mosaic`` and ``write_mosaic`` -- meant opposite
+    things: `write_mosaic=True` set the output path to None, so the single
+    value a reader would reach for was the one guaranteed to write nothing.
+    They are synonyms now and either turns it on.
+
+    THE DEFAULT IS STILL OFF, and an earlier version of this change made it
+    True on the grounds that the docstring promised mosaics. That was wrong:
+    assembling one RAISES when the pairs CSV has no usable rows, so it turned
+    a plate that could not be stitched into a plate that could not be
+    organised. The docstring was corrected instead.
     """
     _result, out_dir = stitched_plate
     mosaics = [os.path.join(dirpath, name)
@@ -179,29 +192,33 @@ def test_no_tile_is_left_out_of_the_mosaic(stitched_plate):
 
 @pytest.mark.parametrize("shape,axes,expected", [
     ((64, 64), None, 1),              # a plain 2D plane
-    ((2, 64, 64), None, 2),           # a stacked 2-channel tile
-    ((4, 64, 64), None, 4),
+    ((2, 64, 64), None, 1),           # a BARE stack declares nothing: 1
+    ((4, 64, 64), None, 1),
+    ((2, 64, 64), "CYX", 2),          # declared channels are believed
+    ((4, 64, 64), "CYX", 4),
     ((5, 64, 64), "ZYX", 1),          # z-planes are NOT channels
 ])
-def test_the_channel_count_survives_an_unnamed_axis(shape, axes, expected,
-                                                    tmp_path):
-    """A stacked tile declares axes ``QYX``, and Q is not nothing.
+def test_a_tile_must_declare_its_channels_to_have_them_counted(
+        shape, axes, expected, tmp_path):
+    """A bare stack is ONE channel, and that is deliberate.
 
-    ``_get_channel_count_tif`` filtered the declared axes down to ``TCZYX``,
-    found no ``C``, and returned 1 -- without ever reaching the shape-based
-    guess below it, which gets ``(2, Y, X)`` right. `tifffile` writes ``Q``,
-    meaning "unspecified", for the leading axis of a plainly stacked array, so
-    every genuine multi-channel tile written that way counted as one channel.
-    A multi-channel mosaic then came out single-channel, silently, because the
-    channel plan is ``range(min(counts))``.
+    `tifffile` labels a bare 3-D write ``QYX`` or ``SYX`` -- "unspecified" --
+    and a stack of three planes with no metadata could equally be three
+    channels, three z-planes or three timepoints. Guessing turns a z-stack's
+    planes into channels silently, which is worse than declining, so the
+    module takes a declared axis order at its word and treats an undeclared
+    one as single-channel.
 
-    The z-stack case is why this cannot simply always guess from the shape: a
-    file that DOES name its axes as ``ZYX`` has one channel, and guessing
-    would call its planes channels instead.
+    I GOT THIS WRONG FIRST TIME. A fixture here wrote its tiles with a bare
+    `tifffile.imwrite(path, stack)`, saw a one-channel mosaic come out of a
+    "two-channel" plate, and filed it as a defect in the counter. The counter
+    was right and the fixture was malformed. Multi-channel tiles must say so:
+    `tifffile.imwrite(path, stack, metadata={"axes": "CYX"})`.
     """
     from spacr.spacrops import spacrStitcher
 
-    path = tmp_path / f"tile_{'x'.join(map(str, shape))}_{axes or 'auto'}.tif"
+    name = f"tile_{'x'.join(map(str, shape))}_{axes or 'bare'}.tif"
+    path = tmp_path / name
     kwargs = {"metadata": {"axes": axes}} if axes else {}
     tifffile.imwrite(str(path), np.zeros(shape, np.uint16), **kwargs)
     assert spacrStitcher._get_channel_count_tif(str(path)) == expected
