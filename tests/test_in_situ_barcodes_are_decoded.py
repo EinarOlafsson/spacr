@@ -216,3 +216,89 @@ def test_an_ambiguous_read_is_dropped_rather_than_guessed():
     ambiguous = ops_sbs.correct_to_library(["AAAT", "AATA"], library,
                                            max_distance=2)
     assert ambiguous == [None, None]
+
+
+def _label_field():
+    """Four square cells on a background, as an integer label image."""
+    labels = np.zeros((60, 60), np.int32)
+    labels[5:20, 5:20] = 1
+    labels[5:20, 35:50] = 2
+    labels[35:50, 5:20] = 3
+    labels[35:50, 35:50] = 4
+    return labels
+
+
+def test_a_cell_takes_the_barcode_its_reads_agree_on():
+    """Agreement assigns; the counts and fraction are reported honestly."""
+    labels = _label_field()
+    peaks = np.array([[8, 8], [10, 12], [14, 9],       # cell 1: 3 agreeing
+                      [8, 40], [12, 44]])              # cell 2: 2 agreeing
+    barcodes = ["GTAC", "GTAC", "GTAC", "TTTT", "TTTT"]
+    got = ops_sbs.assign_reads_to_cells(peaks, barcodes, labels)
+
+    assert set(got) == {1, 2}
+    assert got[1]["barcode"] == "GTAC"
+    assert got[1]["reads"] == 3 and got[1]["agreeing"] == 3
+    assert got[1]["fraction"] == 1.0
+    assert got[2]["barcode"] == "TTTT"
+
+
+def test_one_read_is_not_evidence():
+    """A single read cannot be checked against anything, so it is refused.
+
+    A lone mis-called base would otherwise hand a cell the wrong perturbation
+    silently, and nothing downstream can detect that it happened.
+    """
+    labels = _label_field()
+    got = ops_sbs.assign_reads_to_cells(np.array([[8, 8]]), ["GTAC"], labels)
+    assert got == {}
+
+    # ...and two agreeing reads ARE evidence, at the default bar.
+    got = ops_sbs.assign_reads_to_cells(np.array([[8, 8], [12, 12]]),
+                                        ["GTAC", "GTAC"], labels)
+    assert got[1]["barcode"] == "GTAC"
+
+
+def test_a_cell_whose_reads_disagree_is_left_unassigned():
+    """Below the agreement threshold the cell gets nothing, not a plurality."""
+    labels = _label_field()
+    peaks = np.array([[8, 8], [10, 10], [12, 12], [14, 14], [16, 16]])
+    # 3 of 5 agree -- a clear plurality, and still only 0.6 exactly.
+    barcodes = ["GTAC", "GTAC", "GTAC", "TTTT", "AAAA"]
+    lenient = ops_sbs.assign_reads_to_cells(peaks, barcodes, labels,
+                                            min_fraction=0.6)
+    assert lenient[1]["barcode"] == "GTAC"
+
+    strict = ops_sbs.assign_reads_to_cells(peaks, barcodes, labels,
+                                           min_fraction=0.8)
+    assert strict == {}, "a plurality was accepted as agreement"
+
+
+def test_an_even_split_is_refused_rather_than_broken_arbitrarily():
+    """Two barcodes with equal support must not be resolved by dict order.
+
+    `max` returns whichever it meets first, so without an explicit tie check
+    a cell split 2-2 would be assigned on insertion order -- which is exactly
+    the silent misassignment the whole step exists to avoid.
+    """
+    labels = _label_field()
+    peaks = np.array([[8, 8], [10, 10], [12, 12], [14, 14]])
+    got = ops_sbs.assign_reads_to_cells(peaks, ["GTAC", "GTAC", "TTTT", "TTTT"],
+                                        labels, min_fraction=0.5)
+    assert got == {}, "an even split was assigned to one of the two"
+
+
+def test_reads_that_land_on_no_cell_are_discarded():
+    """A read segmentation did not place inside anything has an unknown owner.
+
+    It is dropped rather than attached to the nearest cell: "nearest" is a
+    guess, and a guess here is a wrong barcode on a real phenotype.
+    """
+    labels = _label_field()
+    peaks = np.array([[28, 28], [30, 30], [0, 0]])     # all on background
+    assert ops_sbs.assign_reads_to_cells(peaks, ["GTAC"] * 3, labels) == {}
+
+    # Out-of-bounds coordinates must not raise, either.
+    peaks = np.array([[8, 8], [12, 12], [999, 999], [-4, 3]])
+    got = ops_sbs.assign_reads_to_cells(peaks, ["GTAC"] * 4, labels)
+    assert got[1]["reads"] == 2

@@ -275,3 +275,84 @@ def correct_to_library(barcodes: Sequence[str], library: Sequence[str], *,
         out.append(None if (best is None or tied or best_distance > max_distance)
                    else best)
     return out
+
+
+def assign_reads_to_cells(peaks: np.ndarray, barcodes: Sequence[str],
+                          labels: np.ndarray, *,
+                          quality: Optional[np.ndarray] = None,
+                          min_reads: int = 2,
+                          min_fraction: float = 0.6) -> Dict[int, dict]:
+    """Give each segmented cell the barcode its reads agree on.
+
+    A cell contains several spots and they will not all decode identically:
+    an out-of-focus spot, a spot shared with a neighbour, and a genuine second
+    perturbation all look the same at this stage. So a cell is assigned only
+    when its reads AGREE -- ``min_fraction`` of at least ``min_reads`` must
+    carry the same barcode -- and is otherwise left unassigned.
+
+    THE DEFAULTS REFUSE MORE THAN THEY ACCEPT, deliberately. One read is not
+    evidence: it cannot be checked against anything, and a single mis-called
+    base would silently hand a cell the wrong perturbation. A cell with no
+    barcode costs statistical power; a cell with the WRONG barcode moves a
+    real phenotype onto another guide's average and is not recoverable
+    downstream, because nothing later can tell it happened.
+
+    Reads landing on label 0 -- background, between cells -- are discarded
+    rather than attached to the nearest cell. A read that segmentation did not
+    place inside anything is a read whose owner is unknown.
+
+    :param peaks: ``(N, 2)`` ``(y, x)`` read positions.
+    :param barcodes: one called barcode per read.
+    :param labels: the segmentation, as an integer label image where 0 is
+        background.
+    :param quality: optional per-read quality from :func:`call_reads`; when
+        given it is averaged over the reads that agreed.
+    :param min_reads: how many reads a cell needs before it may be assigned.
+    :param min_fraction: what share of them must agree.
+    :returns: ``{label: {"barcode", "reads", "agreeing", "fraction",
+        "quality"}}`` for every cell that met the bar.
+    """
+    label_image = np.asarray(labels)
+    coords = np.asarray(peaks, dtype=np.int64).reshape(-1, 2)
+    height, width = label_image.shape[-2:]
+
+    per_cell: Dict[int, List[int]] = {}
+    for index, (y, x) in enumerate(coords):
+        if not (0 <= y < height and 0 <= x < width):
+            continue
+        cell = int(label_image[y, x])
+        if cell == 0:
+            continue
+        per_cell.setdefault(cell, []).append(index)
+
+    out: Dict[int, dict] = {}
+    for cell, indices in per_cell.items():
+        if len(indices) < min_reads:
+            continue
+        counts: Dict[str, int] = {}
+        for i in indices:
+            counts[barcodes[i]] = counts.get(barcodes[i], 0) + 1
+        best = max(counts, key=counts.get)
+        agreeing = counts[best]
+        fraction = agreeing / len(indices)
+        if fraction < min_fraction:
+            continue
+        # A TIE IS NOT A WINNER. `max` picks one arbitrarily, so a cell whose
+        # reads split evenly between two barcodes would be assigned on
+        # dictionary order -- which is exactly the silent misassignment the
+        # fraction test exists to prevent.
+        if sum(1 for value in counts.values() if value == agreeing) > 1:
+            continue
+        mean_quality = None
+        if quality is not None:
+            agreed = [float(quality[i]) for i in indices
+                      if barcodes[i] == best]
+            mean_quality = float(np.mean(agreed)) if agreed else None
+        out[cell] = {
+            "barcode": best,
+            "reads": len(indices),
+            "agreeing": agreeing,
+            "fraction": float(fraction),
+            "quality": mean_quality,
+        }
+    return out
