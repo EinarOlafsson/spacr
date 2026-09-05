@@ -86,6 +86,18 @@ class PCAScreen(QWidget):
     """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
+        """Build the screen: the PCA panel beside the filter, with a re-filter timer.
+
+        The filter sits upstream of the maths, so the screen listens for it
+        itself rather than leaving the canvas to redraw components computed on
+        rows the filter has since removed.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link, passed to the panel and the filter
+            so both answer to the same selection.
+        :param threaded: run reads and the fit on a worker thread. Set ``False``
+            in tests so a load finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("PCAScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -289,11 +301,21 @@ class PCAScreen(QWidget):
         return self._jobs.is_busy() or self.pca.is_busy()
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 
     # -- filter -----------------------------------------------------------
     def _on_filter_changed(self) -> None:
+        """Queue a re-fit after the shared filter changed.
+
+        Debounced: dragging a filter handle changes it many times, and the fit
+        is over a second on a large table.
+        """
         if self._frame is not None:
             self._refilter.start()
 
@@ -314,16 +336,29 @@ class PCAScreen(QWidget):
 
     # -- results ----------------------------------------------------------
     def _on_computed(self, result) -> None:
+        """Say what was decomposed and how much PC1 explains.
+
+        :param result: the finished decomposition.
+        """
         self._export.setEnabled(True)
         self._source.setText(
             f"{len(result):,} objects × {result.n_features} features · "
             f"PC1 {result.explained_variance_ratio[0]:.1%}")
 
     def _on_failed(self, message: str) -> None:
+        """Report a refused or failed decomposition and disable the export.
+
+        :param message: why it did not run.
+        """
         self._export.setEnabled(False)
         self._source.setText(message)
 
     def _on_rendered(self, _data) -> None:
+        """Enable the Annotate hand-off once something is brushed.
+
+        :param _data: the render payload; the selection is re-read from the
+            canvas, so it is not used.
+        """
         self._to_annotate.setEnabled(self.pca.canvas.selected_count() > 0)
 
     def export_csv(self) -> None:

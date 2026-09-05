@@ -176,6 +176,12 @@ class ModelZooPicker(QDialog):
     model_chosen = Signal(str)
 
     def __init__(self, kinds: Optional[tuple] = None, parent: Optional[QWidget] = None):
+        """Build the model zoo dialog.
+
+        :param kinds: restrict the listing to these model kinds; ``None`` lists
+            everything spaCR knows about.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle("Model zoo")
         self.setMinimumWidth(720)
@@ -363,6 +369,14 @@ class ModelZooPicker(QDialog):
     # -- actions ---------------------------------------------------------
 
     def _selection_changed(self) -> None:
+        """Describe the selected model and enable the action that applies to it.
+
+        An entry publishing no checksum says so *before* the click: the fetch
+        refuses what it cannot verify, so without this the button is enabled,
+        pressing it fails, and the message explains a policy the user had no way
+        to see. Accepting it is still possible -- but as a choice, made
+        knowingly.
+        """
         entry = self.selected_entry()
         local = self._local_path(entry) if entry else None
         self.use_button.setEnabled(bool(local))
@@ -386,6 +400,7 @@ class ModelZooPicker(QDialog):
             self.status.setText(note or "Not downloaded yet.")
 
     def _browse(self) -> None:
+        """Ask where downloaded checkpoints should live, and remember the answer."""
         folder = QFileDialog.getExistingDirectory(
             self, "Where should models be saved?",
             self.folder_edit.text().strip() or DEFAULT_MODEL_DIR)
@@ -499,6 +514,10 @@ class ModelZooPicker(QDialog):
             self.status.setText(outcome)
 
     def _on_download_finished(self, path: str) -> None:
+        """Remember the folder used and report the finished download.
+
+        :param path: where the checkpoint landed.
+        """
         _remember_model_dir(getattr(self, "_folder_for_download", "") or path)
         self._finish_download(f"Downloaded to {path}")
 
@@ -506,11 +525,24 @@ class ModelZooPicker(QDialog):
         # NAMED, not swallowed. fetch refuses an entry whose checksum does not
         # match, and that refusal is the single most important message this
         # dialog can carry: it means the bytes are not the model.
+        """Report a failed download in a dialog as well as on the status line.
+
+        Named rather than swallowed: the fetch refuses an entry whose checksum
+        does not match, and that refusal is the most important message this
+        dialog can carry -- it means the bytes are not the model.
+
+        :param message: the failure text.
+        """
         QMessageBox.warning(self, "Model zoo",
                             f"Could not download:\n{message}")
         self._finish_download(f"Download failed: {message}")
 
     def _accept_selected(self) -> None:
+        """Announce the selected model's local path and close.
+
+        A model that is not on this machine yet does nothing: there is no path
+        to hand back.
+        """
         entry = self.selected_entry()
         local = self._local_path(entry) if entry else None
         if not local:

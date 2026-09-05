@@ -113,6 +113,16 @@ class BarcodeRegexDialog(QDialog):
     """
 
     def __init__(self, initial_regex: str = "", parent=None):
+        """Build the barcode-regex tester.
+
+        Sized in scaled pixels rather than raw ones: a size set from Python does
+        not grow with the stylesheet's font size, and at the 200% scale the
+        prose inside wrapped to more height than the window had.
+
+        :param initial_regex: the pattern to open with; empty uses spaCR's
+            default.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle("spaCR — Barcode regex tester")
         from ..preferences import scaled_px
@@ -211,6 +221,12 @@ class BarcodeRegexDialog(QDialog):
         self._refresh()
 
     def _refresh(self) -> None:
+        """Re-evaluate the pattern against the pasted read and show the captures.
+
+        The status line carries the verdict and is repolished so its style
+        follows it, and the captures pane shows exactly what would be written to
+        the mapping table.
+        """
         result = evaluate_barcode_regex(
             self._regex_input.text(),
             self._sample_input.toPlainText(),
@@ -234,6 +250,11 @@ class BarcodeRegexDialog(QDialog):
         self._buttons.button(QDialogButtonBox.Save).setEnabled(result.valid)
 
     def _save(self) -> None:
+        """Accept the pattern, but only while it is valid.
+
+        An invalid pattern does nothing rather than closing: saving one that
+        cannot compile would fail on the next run instead of here.
+        """
         result = evaluate_barcode_regex(
             self._regex_input.text(),
             self._sample_input.toPlainText(),
@@ -256,6 +277,11 @@ class BarcodeRegexWidget(QWidget):
     valueChanged = Signal(str)
 
     def __init__(self, value: str = "", parent=None):
+        """Build the inline regex field with its verdict mark and Test button.
+
+        :param value: the pattern to start with.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -287,12 +313,20 @@ class BarcodeRegexWidget(QWidget):
         self._on_text_changed(self._line_edit.text())
 
     def _on_text_changed(self, text: str) -> None:
+        """Re-evaluate the typed pattern and update the inline verdict.
+
+        The verdict's full message is the mark's tooltip, so why a pattern is
+        refused is reachable without opening the tester.
+
+        :param text: the pattern now in the field.
+        """
         result = evaluate_barcode_regex(text)
         self._status.setText("✓" if result.valid else "⚠")
         self._status.setToolTip(result.message)
         self.valueChanged.emit(text)
 
     def _open_tester(self) -> None:
+        """Open the full tester on the current pattern and take back what it saves."""
         dialog = BarcodeRegexDialog(self.get_value() or "", parent=self)
         if dialog.exec() == QDialog.Accepted:
             self.set_value(dialog.regex)

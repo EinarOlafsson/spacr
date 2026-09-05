@@ -194,6 +194,15 @@ class SraPicker(QDialog):
         # has no RunFile attached yet, so the estimate reads a None. Set the
         # data first as well: belt and braces, because the order inside a Qt
         # item constructor is not this file's to guarantee.
+        """Fill the run list, everything ticked.
+
+        Signals are blocked while populating: ``setCheckState`` emits
+        ``itemChanged``, which recomputes the estimate -- and it fires while the
+        item being built has no run file attached yet, so the estimate would
+        read a ``None``.
+
+        :param files: the run files to offer.
+        """
         self._list.blockSignals(True)
         try:
             self._list.clear()
@@ -222,10 +231,20 @@ class SraPicker(QDialog):
 
     # -- estimate ------------------------------------------------------
     def _on_whole_toggled(self, on: bool) -> None:
+        """Enable the read limit only when the whole file is not being taken.
+
+        :param on: whether the whole file is wanted.
+        """
         self._reads.setEnabled(not on)
         self._refresh_estimate()
 
     def _refresh_estimate(self) -> None:
+        """Restate how many files and roughly how many bytes are selected.
+
+        With nothing ticked the download button goes off: there is nothing to
+        fetch, and a button that fails on the click teaches less than one that
+        says so first.
+        """
         chosen = self.chosen_files()
         if not chosen:
             self._estimate.setText(tr("Nothing selected."))
@@ -239,6 +258,7 @@ class SraPicker(QDialog):
 
     # -- fetching ------------------------------------------------------
     def _start(self) -> None:
+        """Start fetching the ticked runs."""
         chosen = self.chosen_files()
         if not chosen:
             return
@@ -251,11 +271,25 @@ class SraPicker(QDialog):
         self._worker.start()
 
     def _on_progress(self, run: str, reads: int, byts: int) -> None:
+        """Report how far one run has got.
+
+        :param run: the accession being fetched.
+        :param reads: reads written so far.
+        :param byts: bytes written so far.
+        """
         self._estimate.setText(tr(
             "{run}: {reads} reads ({size})",
             run=run, reads=f"{reads:,}", size=_human(byts)))
 
     def _on_done(self, written, error) -> None:
+        """Record what was written and close, unless the fetch stopped early.
+
+        A failure leaves the dialog open with the reason on screen and the
+        button live, so the fetch can be retried without losing the selection.
+
+        :param written: the files that landed.
+        :param error: why it stopped, or a falsy value on success.
+        """
         self.written = list(written)
         self._progress.setVisible(False)
         self._worker = None

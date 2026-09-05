@@ -37,6 +37,11 @@ class ExternalMaskInputWidget(QWidget):
     value_changed = Signal()
 
     def __init__(self, value: Any = None, parent=None):
+        """Build the external-mask input table.
+
+        :param value: the input groups to start with.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._groups: List[InputGroup] = []
 
@@ -201,6 +206,15 @@ class ExternalMaskInputWidget(QWidget):
         return int(index)
 
     def _rebuild(self) -> None:
+        """Redraw the table, one row per input group.
+
+        Each row's first cell carries the index of the group it was built from:
+        the table sorts, so the third row is not the third group after a header
+        click, and the per-row combo boxes have to write back to the right one.
+
+        The object-type box is enabled only for a group being used as a mask --
+        an intensity image has no object type to name.
+        """
         self._table.setRowCount(len(self._groups))
         for row, group in enumerate(self._groups):
             source = group.root
@@ -249,6 +263,11 @@ class ExternalMaskInputWidget(QWidget):
             self._table.setItem(row, 5, confidence)
 
     def _role_changed(self, row: int, role: str) -> None:
+        """Change what one group is used as, and re-gate its object type.
+
+        :param row: the group's index.
+        :param role: the new role.
+        """
         if 0 <= row < len(self._groups):
             self._groups[row].role = role
             object_box = self._table.cellWidget(row, 3)
@@ -257,12 +276,19 @@ class ExternalMaskInputWidget(QWidget):
             self.value_changed.emit()
 
     def _object_changed(self, row: int, value: Any) -> None:
+        """Change which object a mask group labels.
+
+        :param row: the group's index.
+        :param value: the new object type; anything not in the known set clears
+            it rather than being stored as a name nothing will match.
+        """
         if 0 <= row < len(self._groups):
             self._groups[row].object_type = (
                 str(value) if value in OBJECT_TYPES else None)
             self.value_changed.emit()
 
     def _pick_files(self) -> None:
+        """Ask for image and mask files and add them."""
         paths, _selected = QFileDialog.getOpenFileNames(
             self, "Choose intensity images and label masks", "",
             "Images (*.tif *.tiff *.png *.jpg *.jpeg *.bmp);;All files (*)")
@@ -270,6 +296,7 @@ class ExternalMaskInputWidget(QWidget):
             self.add_paths(paths)
 
     def _pick_folder(self) -> None:
+        """Ask for a folder of images or masks and add it."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder containing images or masks")
         if path:

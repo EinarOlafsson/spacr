@@ -165,6 +165,25 @@ class QCDashboardScreen(QWidget):
 
     def __init__(self, parent: Optional[QWidget] = None, *,
                  src: Any = "", threaded: bool = True, reader=None) -> None:
+        """Build the dashboard and arm its drop zone.
+
+        The registry key is named here rather than inherited: screens that build
+        themselves rather than being the generic ``AppScreen`` had none, and
+        fold installation dispatches on exactly that -- so this screen could
+        declare folds and never be handed them.
+
+        Its job runner is marked not user-visible, because it never runs
+        anything: it reads verdicts already on disk, plus the folder check and
+        the fingerprint, on every visit including the ones where nothing has
+        changed. Visible, each of those would flash "QC - running" on Home for
+        a read the user never started.
+
+        :param parent: parent widget, or ``None``.
+        :param src: project or plate folder to open with.
+        :param threaded: read on a worker thread. Set ``False`` in tests so
+            ``refresh`` finishes before it returns.
+        :param reader: an alternative verdict reader, for tests.
+        """
         super().__init__(parent)
         # ITS OWN REGISTRY KEY. Screens that build themselves rather
         # than being the generic `AppScreen` had no `app_key`, and
@@ -202,6 +221,7 @@ class QCDashboardScreen(QWidget):
     # -- construction -----------------------------------------------------
 
     def _build(self) -> None:
+        """Lay out the source row, the verdict line and the scrolling card column."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
                                  SPACING["md"], SPACING["md"])
@@ -428,6 +448,13 @@ class QCDashboardScreen(QWidget):
     # -- drawing ----------------------------------------------------------
 
     def _draw(self, dashboard: Dashboard) -> None:
+        """Rebuild the verdict line and the cards from a dashboard.
+
+        A missing card also prints how to produce what it is missing, so the
+        dashboard says what to do next rather than only what is absent.
+
+        :param dashboard: the read verdicts.
+        """
         self._verdict.setText(
             f"{dashboard.verdict.upper()} — {dashboard.headline}")
         self._verdict.setProperty("spacrQCVerdictLevel", dashboard.verdict)
@@ -477,6 +504,11 @@ class QCDashboardScreen(QWidget):
         return format_dashboard(self._dashboard)
 
     def _set_status(self, text: str, *, is_error: bool = False) -> None:
+        """Write the status line and repolish it so the error style takes effect.
+
+        :param text: message to show.
+        :param is_error: style the line as an error.
+        """
         self._status.setText(text)
         self._status.setProperty("spacrError", "true" if is_error else "false")
         style = self._status.style()
@@ -491,11 +523,16 @@ class QCDashboardScreen(QWidget):
     # -- events -----------------------------------------------------------
 
     def _on_browse(self) -> None:
+        """Ask for a project folder and read it."""
         folder = QFileDialog.getExistingDirectory(self, "Project folder")
         if folder:
             self.set_source(folder)
 
     def _on_job_failed(self, message: str) -> None:
+        """Report a failed verdict read on the status line.
+
+        :param message: the failure text from the job runner.
+        """
         self._set_status(f"Could not read the verdicts: {message}",
                          is_error=True)
 
