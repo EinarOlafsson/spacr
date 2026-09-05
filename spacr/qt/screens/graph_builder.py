@@ -161,6 +161,19 @@ class GraphBuilderScreen(QWidget):
     """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
+        """Build the screen: the graph builder beside the shared filter.
+
+        The registry key is named here rather than inherited: a screen that
+        builds itself rather than being the generic ``AppScreen`` has none, and
+        fold installation dispatches on exactly that -- so this screen could
+        declare folds and never be handed them.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link, passed to the builder and the
+            filter.
+        :param threaded: read the database on a worker thread. Set ``False`` in
+            tests so a load finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("GraphBuilderScreen")
         # ITS OWN REGISTRY KEY. Screens that build themselves rather
@@ -383,11 +396,21 @@ class GraphBuilderScreen(QWidget):
         return self._jobs.is_busy()
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 
     # -- selection routing ------------------------------------------------
     def _on_rendered(self, _data) -> None:
+        """Enable the Annotate hand-off once something is brushed.
+
+        :param _data: the render payload; the selection is re-read from the
+            canvas, so it is not used.
+        """
         self._to_annotate.setEnabled(self.builder.canvas.selected_count() > 0)
 
     def _open_selection(self) -> None:

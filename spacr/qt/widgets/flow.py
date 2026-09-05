@@ -28,6 +28,11 @@ class FlowLayout(QLayout):
     """
 
     def __init__(self, parent=None, spacing: int = 4):
+        """Create a layout that wraps its items onto new lines.
+
+        :param parent: the widget to lay out, or ``None``.
+        :param spacing: gap between items, horizontally and vertically.
+        """
         super().__init__(parent)
         self._items: List[Any] = []
         self._space = spacing
@@ -84,6 +89,17 @@ class FlowLayout(QLayout):
                             margins.top() + margins.bottom())
 
     def _do_layout(self, rect, test_only: bool) -> int:
+        """Place the items, wrapping when the next one would not fit.
+
+        An item wider than the whole row is placed anyway rather than looped
+        over -- the line-height guard is what stops it wrapping onto an empty
+        line for ever.
+
+        :param rect: the area to lay out in.
+        :param test_only: measure without moving anything, which is how
+            ``heightForWidth`` is answered.
+        :returns: the height the items needed.
+        """
         margins = self.contentsMargins()
         area = rect.adjusted(margins.left(), margins.top(),
                              -margins.right(), -margins.bottom())
@@ -116,6 +132,13 @@ class FlowHost(QWidget):
     """
 
     def __init__(self, parent=None):
+        """Create a widget that reports its height from its width.
+
+        Height-for-width is enabled explicitly: without it a wrapping layout's
+        extra lines are never given room and the last row is clipped.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         policy.setHeightForWidth(True)
