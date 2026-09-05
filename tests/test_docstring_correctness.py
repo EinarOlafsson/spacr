@@ -1946,15 +1946,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         1: 8_433,
         2: 7,
     }
-    # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199. Every one of those is a
+    # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205. Every one of those is a
     # constructor that gained an ``__init__`` docstring, so the number is the
     # documentation count and it may only go up; a fall means prose was lost.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 199
+    ) == 205
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 199
+    ) == 205
     # RE-RECORDED 2026-09-04. Every figure here moved UP together as the
     # package gained callables; not one of them fell, which is the direction
     # check that was run before these numbers were written.
@@ -1969,7 +1969,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "bb6c2eeec679c527f6d61c42cb9c8bcde1040e4d430a96ce7ebb52a398089bd1"
+    ) == "b05b2b94e6e140049a86d2745d907870e1798e6b534fc92e2320fa9b7d6b1fe5"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2290,9 +2290,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,427 -> 9,441. Seven public symbols were added earlier today and
     # seven drop-handler methods stopped being aliases, so they now carry
     # their own entry instead of borrowing one.
-    # 10,152 -> 10,172 -> 10,174 (2026-09-05): private methods on public
+    # 10,152 -> 10,172 -> 10,176 (2026-09-05): private methods on public
     # classes that gained a docstring get an entry of their own.
-    assert len(docs) == 10_174
+    assert len(docs) == 10_176
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     assert len(rendered_documented_callables) == 8_435

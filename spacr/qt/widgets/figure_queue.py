@@ -580,6 +580,12 @@ class FigureQueue(QWidget):
     figure_clicked = Signal()
 
     def __init__(self, ram_cap: int = RAM_CAP, parent=None):
+        """Build the figure queue.
+
+        :param ram_cap: how many bytes of full-resolution pixmaps to keep in
+            memory; older ones are evicted by least-recent use.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._ram_cap = int(ram_cap)
         self._count = 0
@@ -653,6 +659,15 @@ class FigureQueue(QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self):
+        """Lay out the thumbnail strip, the raster view and the live canvas.
+
+        Nothing between the figure and the theme's wallpaper paints a background
+        of its own: this widget, the stack, the canvas host and the thumbnail
+        strip are all made transparent, and a ``QGraphicsView`` needs all three
+        of its surfaces cleared -- the widget, the viewport and the scene's own
+        background brush -- since clearing two of them looks exactly like
+        clearing none.
+        """
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(4)
@@ -1016,9 +1031,21 @@ class FigureQueue(QWidget):
         return menu
 
     def _view_context_menu(self, point) -> None:
+        """Open the figure menu at a right-click on the picture.
+
+        :param point: the click, in view coordinates.
+        """
         self.show_figure_menu(self._view.mapToGlobal(point))
 
     def _list_context_menu(self, point) -> None:
+        """Open the figure menu at a right-click on the thumbnail strip.
+
+        The menu acts on the thumbnail under the cursor rather than on the
+        figure being shown -- the one a user wants to restyle is often not the
+        one on screen.
+
+        :param point: the click, in list coordinates.
+        """
         item = self._list.itemAt(point)
         row = self._list.row(item) if item is not None else self._current
         self.show_figure_menu(self._list.mapToGlobal(point), row)
@@ -1026,6 +1053,10 @@ class FigureQueue(QWidget):
     # -- temp dir ----------------------------------------------------------
 
     def _ensure_tempdir(self) -> Path:
+        """Return the queue's temporary directory, creating it on first use.
+
+        :returns: the directory every figure's PNG is written into.
+        """
         if self._tempdir is None:
             self._tempdir = Path(tempfile.mkdtemp(prefix="spacr_figq_"))
         return self._tempdir
@@ -1505,6 +1536,12 @@ class FigureQueue(QWidget):
 
     @staticmethod
     def _figure_format_is_pdf() -> bool:
+        """Report whether figures are currently rendered as vector pages.
+
+        :returns: ``True`` when the figure-format preference is PDF; ``False``
+            when it is not, and also when the preference cannot be read -- a
+            missing preference must not turn the raster path off.
+        """
         try:
             from ..preferences import get_figure_format
             return get_figure_format() == "pdf"
@@ -2468,10 +2505,20 @@ class FigureQueue(QWidget):
         return None
 
     def _on_row_changed(self, row: int) -> None:
+        """Show the figure whose thumbnail was selected.
+
+        :param row: the newly current row; one already shown, or out of range,
+            does nothing.
+        """
         if 0 <= row < self._count and row != self._current:
             self.show_index(row)
 
     def _refresh_nav(self) -> None:
+        """Update the position label and show the settings button when it applies.
+
+        Figure settings restyle and re-render, so they apply in both raster and
+        vector mode -- the button is shown whenever there is a figure at all.
+        """
         self._pos_label.setText(
             f"{self._current + 1} / {self._count}" if self._count
             else "0 / 0")
@@ -2505,6 +2552,11 @@ class FigureQueue(QWidget):
             LOG.debug("figure render shutdown failed", exc_info=True)
 
     def _delete_tempdir(self) -> None:
+        """Remove the temporary directory and everything in it.
+
+        Errors are swallowed: this runs during teardown, where raising would
+        lose the shutdown rather than save the files.
+        """
         if self._tempdir is not None:
             try:
                 shutil.rmtree(self._tempdir, ignore_errors=True)
@@ -2533,6 +2585,15 @@ class FigureQueue(QWidget):
         # has released the owning widget. The workers follow because they read
         # out of the directory about to be removed, and a live QThread must
         # not be left holding a runner whose last reference is being dropped.
+        """Best-effort cleanup if the widget is collected without being closed.
+
+        The canvas goes first, so its queued idle draw cannot run after Python
+        has released the owning widget; the workers follow, because they read
+        out of the directory about to be removed and a live ``QThread`` must not
+        be left holding a runner whose last reference is being dropped; the
+        temporary directory goes last. Every step is guarded -- the C++ half may
+        already be gone when Qt initiated the destruction.
+        """
         try:
             self._teardown_canvas()
         except Exception:

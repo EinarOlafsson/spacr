@@ -1331,6 +1331,14 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     PREVIEW_SOURCE_HINT = "Load an image first."
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the preview panel and arm it to accept dropped images.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: load images on a worker thread. Loads go through
+            ``JobRunner`` rather than a hand-rolled thread because that is what
+            registers the job with the process-wide run registry, which is the
+            only thing the activity spinner watches.
+        """
         super().__init__(parent)
         self._image: Optional[np.ndarray] = None
         self._image_path: Optional[Path] = None
@@ -1447,6 +1455,14 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self):
+        """Build every parameter widget and lay out the collapsed panel.
+
+        Every control lives here even though only a subset is shown: the Live
+        Settings dialog re-parents them into its own form when it opens and
+        hands them back on close, so their values persist across opens. They are
+        children of the panel throughout, so nothing is collected while
+        re-parented.
+        """
         root = QVBoxLayout(self)
         root.setContentsMargins(8, 8, 8, 8)
 
@@ -3053,6 +3069,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                         pass
 
     def _all_compartment_widgets(self) -> List[QWidget]:
+        """Collect every control the Live Settings dialog manages.
+
+        :returns: the common controls, the cell-adjustment toggle and every
+            per-compartment control, in that order.
+        """
         ws: List[QWidget] = list(self._common_widgets.values())
         ws.append(self._adjust_cells)
         for group in self._compartment_widgets.values():
@@ -3065,6 +3086,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     @staticmethod
     def _widget_value(w):
+        """Read one control's value in the form the settings dict wants.
+
+        :param w: the control.
+        :returns: a ``bool`` for a toggle, a combo box's *value* rather than its
+            caption -- a translated caption would land in the settings dict as
+            the setting itself -- and otherwise the spin box's number.
+        """
         if isinstance(w, Toggle):
             return bool(w.isChecked())
         if isinstance(w, QComboBox):
@@ -3524,6 +3552,14 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._refresh_cycle_controls()
 
     def _build_request(self) -> PreviewRequest:
+        """Assemble a preview request from the current controls.
+
+        One merged settings dict drives both background subtraction and
+        filtering: the settings apply wherever they are set, rather than behind
+        separate pre/post switches.
+
+        :returns: the request to hand the preview worker.
+        """
         obj_types = self._selected_object_types()
         channels = {
             "cell":      self._cell_channel.value(),
@@ -3762,10 +3798,22 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     def _on_settings_closed(self, *_):
         # Refresh canvases in case a visual-only setting changed (e.g.
         # outline colour) while the dialog was open.
+        """Redraw the canvases after the Live Settings dialog closes.
+
+        A visual-only change -- an outline colour, say -- alters nothing the
+        worker computed, so it reaches the picture only through this redraw.
+
+        :param _: whatever the dialog's finished signal passes; unused.
+        """
         self._refresh_canvases()
         self._live_settings_dialog = None
 
     def _pick_file(self):
+        """Ask for a preview image and load it.
+
+        The chosen file may be in a folder the sampler has never enumerated, so
+        this load does enumerate -- off the GUI thread.
+        """
         path, _ = QFileDialog.getOpenFileName(
             self, "Choose preview image", "",
             "Images (*.tif *.tiff *.png *.jpg *.jpeg)",
@@ -3814,6 +3862,15 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         return token >= 0 and token != self._run_token
 
     def _on_worker_done(self, masks, err, token: int = -1):
+        """Install a finished preview, unless a newer run has superseded it.
+
+        The raw masks are cached before filtering, so a filter change can be
+        re-applied without segmenting again.
+
+        :param masks: the worker's masks by compartment.
+        :param err: the failure, or a falsy value on success.
+        :param token: the run token this result carries; a stale one is dropped.
+        """
         if self._stale(token):
             LOG.debug("dropping stale preview result (token %s, now %s)",
                       token, self._run_token)
@@ -3992,6 +4049,16 @@ class LiveSettingsDialog(QDialog):
     """
 
     def __init__(self, panel: "LivePreviewPanel"):
+        """Build the dialog around the panel's own controls.
+
+        The controls are the panel's and are re-parented in here for the
+        lifetime of the dialog, so their values survive it being closed and
+        reopened. The panel is told which dialog is open, so a morphology change
+        can re-gate the rows -- the widgets live on the panel, but it is the
+        dialog that knows which row each sits on.
+
+        :param panel: the live-preview panel whose controls this edits.
+        """
         super().__init__(panel)
         self._panel = panel
         # So a morphology change can re-gate the rows: the widgets live on the
@@ -4160,6 +4227,11 @@ class LiveSettingsDialog(QDialog):
             self._panel.propagate_settings()   # push current values now
 
     def _managed_widgets(self):
+        """List the panel controls this dialog re-parents.
+
+        :returns: the segmentation and normalisation controls followed by every
+            per-compartment one.
+        """
         p = self._panel
         return [p._model_box, p._object_box, p._cell_channel,
                 p._nucleus_channel, p._diameter, p._flow, p._prob,
