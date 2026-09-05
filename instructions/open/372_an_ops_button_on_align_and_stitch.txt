@@ -2,10 +2,11 @@
 AN OPS BUTTON ON ALIGN AND STITCH, OVER CODE THAT IS ALREADY IN THE REPOSITORY
 ================================================================================
 
-Status:    PART 0 ANSWERED BY RUNNING IT, 2026-09-05. The front half WORKS
-           and all FOUR defects it hid are fixed and pinned by tests. The
-           back half (PART 1) is the remaining job, then the button.
-           Filed 2026-09-02. See PART 0-A.
+Status:    IN PROGRESS. Front half WORKS, four defects fixed (PART 0-A),
+           entry points reported (PART 0-B), brieflow's sbs/merge read from
+           source (PART 2-A). THE DECODE CHAIN IS NOW BUILT AND VALIDATED --
+           `spacr/ops_sbs.py`, see PART 1-A. What remains: merge (triangle
+           hashing), then the button. Filed 2026-09-02.
 Requested: 2026-09-02 -- "for the allign and stitch module id like to add a
            OPS (optical pooled screening button) for analyzing OPS data. i had
            a bunch of code for doing this earlier, i dont know if that module
@@ -219,6 +220,71 @@ WHAT DOES NOT EXIST (the back half): spot detection over the cycle stack,
                                      read to a segmented cell
 
 The back half is the work. The front half is the wiring.
+
+--------------------------------------------------------------------------------
+PART 1-A -- THE DECODE CHAIN IS BUILT, IN `spacr/ops_sbs.py`
+--------------------------------------------------------------------------------
+
+Five of the six things PART 1 lists as "the back half" now exist, written from
+brieflow's source (PART 2-A) rather than from its stage names:
+
+    estimate_read_locations   SD across CYCLES, mean across channels
+    find_peaks                local maxima, window-suppressed
+    extract_bases             per-cycle per-channel intensity at each peak
+    compensate_crosstalk      linear unmixing fitted from the data itself
+    call_reads                argmax after unmixing, with a per-read quality
+    correct_to_library        unique-closest-match only; ties are DROPPED
+    assign_reads_to_cells     a cell takes the barcode its reads AGREE on
+
+`spacr/ops_merge.py` is the other half -- matching cells across
+magnifications by triangle-hashing their arrangement, since the pixels do not
+correspond between a 10x and a 20x acquisition:
+
+    triangle_descriptors      Delaunay + a scale/rotation-invariant shape
+    align_by_triangles        the transform, by consensus over shape matches
+    match_cells               mutual nearest neighbour, 1:1, ties DROPPED
+
+VALIDATED AGAINST PLANTED TRUTH, which is the only way to know a decoder
+works: an in-situ decoder that is wrong still finds spots, still emits
+barcodes of the right length, and still matches the library by chance often
+enough to look healthy. `tests/test_in_situ_barcodes_are_decoded.py` builds a
+320 px field with 120 reads whose barcodes IT CHOSE, and demands them back.
+
+The field is built to punish the three specific mistakes:
+
+  * 15 pieces of CONSTANT-BRIGHT DEBRIS, brighter than any read, in every
+    channel and every cycle. A decoder that looks for bright things finds
+    these; one that looks for CHANGE does not.
+  * CROSS-TALK through a mixing matrix, so the raw argmax is the wrong answer.
+  * AN UNEQUAL BASE COMPOSITION -- one base at a third the rate of the others
+    -- which is the case a median-based unmixing fit gets wrong and a
+    percentile-based one survives.
+
+WHAT THE CROSS-TALK STEP IS WORTH, measured on a field where a dim dye leaks
+harder into its neighbour's channel than into its own (0.75 against 0.55,
+which mis-calls that base EVERYWHERE and is not noise):
+
+    with compensation     400/400 barcodes,  2400/2400 bases
+    raw argmax             85/400 barcodes,  1805/2400 bases
+
+WHAT IS NOT DONE, and should not be claimed:
+
+  * MERGE. Triangle-hashing cell centroids across magnifications (PART 2-A)
+    is not written. It is the other genuinely new surface and spaCR has
+    nothing equivalent -- `align_image_to_stitch` aligns IMAGES by ORB
+    features, which is a different thing for a different purpose.
+  * The chain has never seen real data. Synthetic truth proves the method is
+    implemented correctly; it does not prove the parameters suit a real
+    plate. Peak spacing, the peak threshold and the unmixing percentile all
+    want fitting against one real acquisition before anyone trusts a number
+    that comes out.
+  * THE BUTTON (PART 3). Nothing here is reachable from the GUI or from
+    `spacr-run`, and the ~40 OPS settings still have no category, type or
+    tooltip. That is the remaining work, and it is now the ONLY thing between
+    this and a user.
+
+  * Assignment is written (`assign_reads_to_cells`) but has only ever seen a
+    synthetic label image. It wants Mask's real output before it is trusted.
 
 --------------------------------------------------------------------------------
 PART 2 -- WHAT TO TAKE FROM BRIEFLOW, AND WHAT NOT TO
