@@ -78,6 +78,13 @@ def build_steps(app_key: str, window) -> List[Step]:
 # ---------------------------------------------------------------------------
 
 def _go_home(window):
+    """Build an action that navigates Home.
+
+    :param window: the main window.
+    :returns: a callable the director fires when its step runs. A closure
+        rather than a direct call: a step's action must not have happened by
+        the time the script is written.
+    """
     def _do():
         """Navigate Home."""
         window._on_nav_selected("__home__")
@@ -85,6 +92,12 @@ def _go_home(window):
 
 
 def _nav_to(window, app_key: str):
+    """Build an action that navigates to one module.
+
+    :param window: the main window.
+    :param app_key: the module to open.
+    :returns: a callable the director fires when its step runs.
+    """
     def _do():
         """Navigate to the bound module."""
         window._on_nav_selected(app_key)
@@ -135,6 +148,11 @@ def _sidebar_button(window, key: str):
 
 
 def _menu_bar(window):
+    """Return the window's menu bar, for a step that highlights it.
+
+    :param window: the main window.
+    :returns: the menu bar widget.
+    """
     return window.menuBar()
 
 
@@ -294,6 +312,15 @@ def _find_button(screen, label: str):
 # ---------------------------------------------------------------------------
 
 def _build_home_steps(window) -> List[Step]:
+    """Build the Home tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     return [
         Step(
             "Welcome to spaCR — a modern desktop application "
@@ -367,6 +394,20 @@ def _open_demos_menu(window):
 # ---------------------------------------------------------------------------
 
 def _build_mask_steps(window) -> List[Step]:
+    """Build the Mask tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    The screen is captured into a one-element list by an earlier step's
+    action rather than looked up here: it does not exist when the script is
+    written, and reading ``window._screens`` inside a later step's lambda
+    resolves too early.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     tmp_root = _tutorial_scratch("mask")
     screen_ref: List[Any] = [None]
 
@@ -439,6 +480,15 @@ def _build_mask_steps(window) -> List[Step]:
 # ---------------------------------------------------------------------------
 
 def _build_measure_steps(window) -> List[Step]:
+    """Build the Measure tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     tmp_root = _tutorial_scratch("measure")
     screen_ref: List[Any] = [None]
 
@@ -504,6 +554,15 @@ def _build_measure_steps(window) -> List[Step]:
 # ---------------------------------------------------------------------------
 
 def _build_crop_steps(window) -> List[Step]:
+    """Build the Crop tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     tmp_root = _tutorial_scratch("crop")
     screen_ref: List[Any] = [None]
 
@@ -558,6 +617,15 @@ def _build_crop_steps(window) -> List[Step]:
 # ---------------------------------------------------------------------------
 
 def _build_classify_steps(window) -> List[Step]:
+    """Build the Classify tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     tmp_root = _tutorial_scratch("classify")
     screen_ref: List[Any] = [None]
 
@@ -682,6 +750,15 @@ def _build_classify_steps(window) -> List[Step]:
 # expecting images needs that said before anything else.
 
 def _build_map_barcodes_steps(window) -> List[Step]:
+    """Build the Map Barcodes tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     tmp_root = _tutorial_scratch("map_barcodes")
     screen_ref: List[Any] = [None]
 
@@ -747,6 +824,15 @@ def _build_map_barcodes_steps(window) -> List[Step]:
 # thing that matters here.
 
 def _build_regression_steps(window) -> List[Step]:
+    """Build the Regression tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     screen_ref: List[Any] = [None]
 
     def _capture():
@@ -822,6 +908,15 @@ def _build_regression_steps(window) -> List[Step]:
 # lesson explaining what the module does.
 
 def _build_train_compare_steps(window) -> List[Step]:
+    """Build the Train and Compare tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     screen_ref: List[Any] = [None]
 
     def _capture():
@@ -887,6 +982,15 @@ def _build_train_compare_steps(window) -> List[Step]:
 
 
 def _build_profiler_steps(window) -> List[Step]:
+    """Build the Profiler tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     screen_ref: List[Any] = [None]
     host_ref: List[Any] = [None]
 
@@ -947,6 +1051,15 @@ def _build_profiler_steps(window) -> List[Step]:
 
 
 def _build_investigate_hit_steps(window) -> List[Step]:
+    """Build the Investigate Hit tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     screen_ref: List[Any] = [None]
     host_ref: List[Any] = [None]
 
@@ -1029,6 +1142,15 @@ def _build_investigate_hit_steps(window) -> List[Step]:
 # the switch and the categories it just revealed.
 
 def _build_timelapse_steps(window) -> List[Step]:
+    """Build the Timelapse tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     tmp_root = _tutorial_scratch("timelapse")
     screen_ref: List[Any] = [None]
 
@@ -1120,6 +1242,11 @@ def _settings_panel(screen):
 
 
 def _console_panel(screen):
+    """Find a screen's console, for a step that points at it.
+
+    :param screen: the module screen, or ``None`` before it is built.
+    :returns: the console panel, or ``None`` when the screen has none.
+    """
     if screen is None:
         return None
     return getattr(screen, "_console", None)
