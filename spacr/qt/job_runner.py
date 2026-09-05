@@ -121,6 +121,20 @@ class JobRunner(QObject):
     def __init__(self, parent: Optional[QObject] = None, *,
                  threaded: bool = True, app_key: str = "",
                  user_visible: bool = True) -> None:
+        """Create a runner for one widget's background work.
+
+        It registers itself the moment it exists, so a runner cannot be created
+        and then missed by the quit-time drain; the registration is weak, so it
+        holds nothing alive that Qt would otherwise collect.
+
+        :param parent: the owning object, or ``None``.
+        :param threaded: run jobs on a worker thread. ``False`` runs each one
+            inline, emitting the same signals in the same order.
+        :param app_key: how this runner's work is named in the run registry.
+        :param user_visible: whether these jobs count as runs the user started.
+            Set ``False`` for housekeeping, or Home's run banner announces work
+            nobody asked for.
+        """
         super().__init__(parent)
         # REGISTERED THE MOMENT IT EXISTS, so a runner cannot be created and
         # then missed by the quit-time drain. Weak, so this holds nothing
@@ -259,6 +273,12 @@ class JobRunner(QObject):
                 self._jobs.pop(job_id, None)
 
     def _on_worker_error_text(self, text: str) -> None:
+        """Report a worker failure given as raw text.
+
+        :param text: the worker's error output. The last non-blank line is what
+            is shown -- for a traceback that is the exception itself -- and an
+            entirely blank one still reports something rather than nothing.
+        """
         line = ""
         for candidate in reversed(str(text).strip().splitlines()):
             if candidate.strip():
@@ -267,12 +287,22 @@ class JobRunner(QObject):
         self.job_failed.emit(line or "unknown error")
 
     def _fail(self, exc: Exception) -> None:
+        """Log and report a failed job.
+
+        :param exc: the exception raised; its class name is used when it carries
+            no message, so a bare ``KeyError`` still says something.
+        """
         LOG.info("background job failed", exc_info=True)
         self.job_failed.emit(str(exc) or exc.__class__.__name__)
 
     # -- state ------------------------------------------------------------
 
     def _set_busy(self, busy: bool) -> None:
+        """Announce a change in whether work is in flight.
+
+        :param busy: the new state; announced only when it actually changed, so
+            a burst of jobs does not emit per job.
+        """
         busy = bool(busy)
         if busy != self._busy:
             self._busy = busy

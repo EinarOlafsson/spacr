@@ -107,6 +107,19 @@ class SweepPanel(QWidget):
                  counts_provider: Optional[Callable] = None,
                  parent: Optional[QWidget] = None, *, threaded: bool = True,
                  scores_provider: Optional[Callable] = None):
+        """Build the gene-sweep panel.
+
+        :param cells_provider: called for the per-object measurements.
+        :param counts_provider: called for the well or guide counts.
+        :param parent: parent widget, or ``None``.
+        :param threaded: run the sweep on a worker thread. Set ``False`` in
+            tests so ``run`` finishes before it returns.
+        :param scores_provider: called for the per-object scores. Separate from
+            ``cells_provider`` because the merged measurements frame has no
+            prediction column -- it is the measurement tables -- so without this
+            circularity comes out NaN and the panel says so rather than showing
+            zeros.
+        """
         super().__init__(parent)
         from ..job_runner import JobRunner
 
@@ -324,6 +337,15 @@ class SweepPanel(QWidget):
 
     @staticmethod
     def _work(cells, counts, scores=None, level="gene", exclusions=None):
+        """Run the sweep. Off the GUI thread.
+
+        :param cells: the per-object measurements.
+        :param counts: the well or guide counts.
+        :param scores: the per-object scores, or ``None``.
+        :param level: whether to sweep per gene or per guide.
+        :param exclusions: extra keyword arguments passed through to the sweep.
+        :returns: the sweep result.
+        """
         from ...gene_measurement_sweep import sweep
 
         wells, fractions, plates, found = sweep_inputs(cells, counts,
@@ -332,6 +354,13 @@ class SweepPanel(QWidget):
                      level=level, **dict(exclusions or {}))
 
     def _done(self, result) -> None:
+        """Install a finished sweep and enable what it makes possible.
+
+        A sweep that returned nothing says so rather than leaving the buttons
+        armed over an empty result.
+
+        :param result: the sweep result, or ``None``.
+        """
         self.run_button.setEnabled(True)
         self._result = result
         if result is None:
@@ -344,6 +373,10 @@ class SweepPanel(QWidget):
         self.finished.emit(result)
 
     def _failed(self, message: str) -> None:
+        """Re-enable Run and report a failed sweep.
+
+        :param message: the failure text from the job runner.
+        """
         self.run_button.setEnabled(True)
         self.status.setText(f"The sweep did not finish: {message}")
 
@@ -362,6 +395,15 @@ class SweepPanel(QWidget):
                                       max_circularity=bar)
 
     def _refill(self, *_args) -> None:
+        """Fill the results table, capped at the first 2,000 rows.
+
+        Sorting is switched off while rows are inserted: a sorted table
+        re-orders on every write, so the row index the next write uses is no
+        longer the row it just filled. When the cap bites, the status line says
+        so and points at the saved table for the rest.
+
+        :param _args: whatever the emitting control passes; ignored.
+        """
         keep = self.rows()
         self.table.setSortingEnabled(False)
         self.table.setRowCount(0)

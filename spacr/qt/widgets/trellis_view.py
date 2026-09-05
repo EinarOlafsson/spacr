@@ -86,6 +86,17 @@ class TrellisCanvas(GraphCanvas):
     trellis_rendered = Signal(object)
 
     def __init__(self, parent=None, *, link=None, source: str = "trellis"):
+        """Create the trellis canvas with an empty spec.
+
+        The spec is set after the base constructor, which builds the figure and
+        subscribes to the link but does not render -- so nothing reads these
+        before they exist.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link.
+        :param source: this view's name in the link, so its own publications can
+            be told from everyone else's.
+        """
         super().__init__(parent, link=link, source=source)
         # After the base constructor, which builds the figure and subscribes
         # to the link but does not render — so nothing reads these before
@@ -273,6 +284,15 @@ class TrellisCanvas(GraphCanvas):
             ax.set_title(title, color=colour, fontsize=8, pad=3)
 
     def _trellis_notice(self, result: Trellis) -> str:
+        """Compose the line under the trellis.
+
+        It states what was drawn, then anything that limits how it should be
+        read: a table with no object keys cannot publish a brush, an active
+        filter is narrowing it, and how many points are highlighted.
+
+        :param result: the computed trellis.
+        :returns: the notice, parts joined by a middle dot.
+        """
         parts = [result.summary()]
         if not self._keyed:
             parts.append("no object keys in this table — brushing cannot "
@@ -350,6 +370,12 @@ class TrellisPanelWidget(QWidget):
     spec_changed = Signal(object)
 
     def __init__(self, parent=None, *, link=None, source: str = "trellis"):
+        """Build the channel shelf beside the trellis canvas.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link, passed to the canvas.
+        :param source: this view's name in the link.
+        """
         super().__init__(parent)
         self.setObjectName("TrellisPanel")
         self._zones: Dict[str, DropZone] = {}
@@ -490,12 +516,27 @@ class TrellisPanelWidget(QWidget):
 
     # -- wiring -----------------------------------------------------------
     def _on_zone_changed(self, channel: str, column: str) -> None:
+        """Set a channel to a newly dropped column and announce the spec.
+
+        Suppressed while the panel is filling its own zones from a spec, which
+        would otherwise read as the user re-dropping every column.
+
+        :param channel: which channel changed.
+        :param column: the column now in it; ``""`` clears the channel.
+        """
         if self._building:
             return
         self.canvas.set_channel(channel, column or None)
         self.spec_changed.emit(self.canvas.trellis_spec)
 
     def _on_controls_changed(self, *_args) -> None:
+        """Rebuild the spec from the plot controls and announce it.
+
+        Suppressed while the panel is filling its own controls.
+
+        :param _args: whatever the emitting control passes; ignored, since every
+            control is re-read either way.
+        """
         if self._building:
             return
         spec = self.canvas.trellis_spec
