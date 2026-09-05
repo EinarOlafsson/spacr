@@ -635,7 +635,16 @@ class SweepRunsPanel(QWidget):
         #: knows. Filled in off the GUI thread -- see
         #: :meth:`_workspace_answer`.
         self._workspace_answers: "dict[str, bool]" = {}
-        self._workspace_pending: set = set()
+        #: The probe outstanding for each folder, as ``folder -> stamp``. A
+        #: DICT RATHER THAN A SET, because membership alone cannot tell two
+        #: probes for the same folder apart: `update_run`, a save and a
+        #: delete each drop the folder because what they did changed the
+        #: answer, the next right-click asks again, and with a bare set the
+        #: OLDER reply -- the one describing the run before it finished --
+        #: would land first, be accepted as pending, and take the newer
+        #: probe's place with it. The stamp is what discards it.
+        self._workspace_pending: "dict[str, int]" = {}
+        self._workspace_probes = 0
         #: The "Reading …" / "Deleting…" placeholder currently on the status
         #: line, and the sentence it is covering. A placeholder is written
         #: before a job and cleared by its answer; when there is no answer --
@@ -704,8 +713,15 @@ class SweepRunsPanel(QWidget):
         return bool(started) if self._threaded else self._load_answer
 
     def _table_arrived(self, outcome, path: str, folder: str) -> None:
-        """Put the sweep's table on screen. On the GUI thread, from `load`."""
-        self._stop_waiting()
+        """Put the sweep's table on screen. On the GUI thread, from `load`.
+
+        THE PLACEHOLDER IS RETIRED LAST, after the sentence that replaces it
+        has actually been written. `JobRunner._on_settled` routes an
+        exception raised HERE to `job_failed`, and `_on_job_failed` takes a
+        line down only while it can see a placeholder outstanding -- so
+        clearing first and then throwing in the rebuild leaves "Reading …" on
+        the status line with nothing left that would ever replace it.
+        """
         frame, error = outcome if outcome else (None, "")
         if frame is None:
             if error:
@@ -718,12 +734,14 @@ class SweepRunsPanel(QWidget):
                 # used to empty it.
                 self._rebuild(f"No results table at {path} yet.")
             self._load_answer = False
+            self._stop_waiting()
             return
         self._folder = folder
         # The chooser opens here next time, and asking now means the answer
         # is in the cache by then rather than being stat-ed under the click.
         path_probe.isdir(folder)
         self._load_answer = self.set_frame(frame, source=path)
+        self._stop_waiting()
 
     def reload(self) -> bool:
         return self.load(self._folder) if self._folder else False
@@ -796,6 +814,13 @@ class SweepRunsPanel(QWidget):
         folder = str(row.get("folder") or "")
         if folder:
             self._workspace_answers.pop(folder, None)
+            # AND THE PROBE THAT IS STILL OUT IS DROPPED WITH IT. A
+            # right-click while the run was going submitted a `has_workspace`
+            # on a folder with no bundle in it yet; dropping only the cached
+            # answer leaves that probe free to land afterwards and write the
+            # same "no" back, which greys the restore entry for the rest of
+            # the session -- the exact thing the paragraph above is for.
+            self._workspace_pending.pop(folder, None)
         # A RUN THAT FINISHES BECOMES THE LOADED RUN, with no step in
         # between (154 G): "i just ran a regression so that should be loaded
         # automatically". The views were being told nothing had been loaded
@@ -871,9 +896,13 @@ class SweepRunsPanel(QWidget):
         return bool(started) if self._threaded else self._open_answer
 
     def _run_arrived(self, found, folder: str) -> None:
-        """Put the run that was found on the table. On the GUI thread."""
+        """Put the run that was found on the table. On the GUI thread.
+
+        The button is re-enabled FIRST and the placeholder retired LAST: the
+        button is the thing a user cannot work around, and the placeholder is
+        what `_on_job_failed` needs to still see if the rebuild below throws.
+        """
         self._open.setEnabled(True)
-        self._stop_waiting()
         table, settings = found if found else ("", {})
         if not table:
             from .regression_results import RESULT_FILENAMES
@@ -884,6 +913,7 @@ class SweepRunsPanel(QWidget):
                           f"{', '.join(RESULT_FILENAMES)} is in it or under "
                           f"it.")
             self._open_answer = False
+            self._stop_waiting()
             return
         run_folder = os.path.dirname(table)
 
@@ -907,6 +937,7 @@ class SweepRunsPanel(QWidget):
         # the finishing path came to be the only one that did not.
         self._rebuild(f"Loaded the run in {run_folder}.", since=before)
         self._open_answer = True
+        self._stop_waiting()
 
     def _handle_for_folder(self, folder: str):
         """The handle of the recorded row for ``folder``, or ``None``.
@@ -1534,8 +1565,8 @@ class SweepRunsPanel(QWidget):
         """
         folders = [folder for folder, _what in described or []]
         if not folders:
-            self._stop_waiting()
             self._say("Nothing to delete: these runs have no folder on disk.")
+            self._stop_waiting()
             return False
         lines = [f"{folder} — {what}" for folder, what in described]
         message = ("Delete " + ("this run" if len(folders) == 1
@@ -1546,8 +1577,13 @@ class SweepRunsPanel(QWidget):
         if not ask(message, list(folders)):
             # NO IS AN ANSWER, and the line goes back to what it said before
             # the delete was asked for. Saying nothing was already the
-            # behaviour; the placeholder is the only thing that has to be
-            # taken back down, and it was taken down above.
+            # behaviour -- declining the modal left the status line exactly
+            # as it was -- and the placeholder is the one thing that has to
+            # be taken back down. NOTHING ELSE WILL: no worker is running any
+            # more, so no arrival handler and no `job_failed` is coming, and
+            # without this "Working out what these runs hold…" is the last
+            # sentence this tab ever shows.
+            self._abandon_waiting()
             return False
         self._start_waiting("Deleting…")
         return bool(self._jobs.submit(
@@ -1556,7 +1592,17 @@ class SweepRunsPanel(QWidget):
                 self._deletion_finished(outcome, rows)))
 
     def _deletion_finished(self, outcome, records) -> None:
-        """Take the rows off the table and say what went. On the GUI thread."""
+        """Take the rows off the table and say what went. On the GUI thread.
+
+        THE WAIT IS OVER, and saying so is not optional -- but it is said at
+        the END rather than here. A `_waiting_note` left standing tells the
+        next `_on_job_failed` that "Deleted 3 run folders from disk." is a
+        placeholder it may overwrite, and the next `_abandon_waiting` that
+        "Deleting…" is a sentence worth restoring; retiring it BEFORE the
+        real sentence is written costs the other half, because an exception
+        raised in `remove_runs` reaches `job_failed` and finds no placeholder
+        to take down -- leaving "Deleting…" up for the rest of the session.
+        """
         deleted, failed = outcome if outcome else ([], [])
         keep = {folder for folder in failed}
         gone = [record for record in records
@@ -1568,13 +1614,14 @@ class SweepRunsPanel(QWidget):
             # is the moment they are wrong.
             path_probe.forget(folder)
             self._workspace_answers.pop(folder, None)
-            self._workspace_pending.discard(folder)
+            self._workspace_pending.pop(folder, None)
         note = (f"Deleted {len(deleted)} run folder"
                 + ("s" if len(deleted) != 1 else "") + " from disk.")
         if failed:
             note += " Could not delete " + "; ".join(failed) + "."
         self._say(note)
         self._deleted_count = len(deleted)
+        self._stop_waiting()
 
     def _confirm_deletion(self, message: str, folders) -> bool:
         """The modal question. Defaults to No: this one cannot be undone."""
@@ -1611,10 +1658,18 @@ class SweepRunsPanel(QWidget):
         Only threaded: unthreaded the answer is already here by the time this
         would be read, and a placeholder that is overwritten in the same call
         is a line the user never sees.
+
+        THE FIRST PLACEHOLDER IS THE ONE THAT REMEMBERS. A delete writes two
+        in a row -- "Working out what these runs hold…" and then "Deleting…"
+        -- and `_source_note` is the first of them by the time the second is
+        written, so capturing again would make the sentence to go back to a
+        placeholder. What is being restored is what the line said before any
+        of this started.
         """
         if not self._threaded:
             return
-        self._note_before_waiting = self._source_note
+        if not self._waiting_note:
+            self._note_before_waiting = self._source_note
         self._waiting_note = str(note or "")
         self._say(self._waiting_note)
 
@@ -1648,8 +1703,11 @@ class SweepRunsPanel(QWidget):
         NOT GENERATION-GUARDED, deliberately: `job_failed` carries no job id,
         so it cannot be, and everything done here is safe to do twice or for
         a job whose result nobody wanted any more. Enabling an enabled button
-        changes nothing, and the line is only rewritten while a placeholder
-        is actually outstanding -- a stale failure landing after a newer
+        changes nothing -- `load_run_from_disk` is the ONLY caller that
+        disables it, so the button is disabled exactly while a search is out,
+        and a failure from one of the other jobs on this runner finds it
+        enabled already. The line is only rewritten while a placeholder is
+        actually outstanding -- a stale failure landing after a newer
         placeholder went up replaces that one, which is the correct order.
 
         Guarded for ``RuntimeError`` because a worker parked by
@@ -1659,7 +1717,10 @@ class SweepRunsPanel(QWidget):
         try:
             # THE BUTTON FIRST. It is the one thing here that a user cannot
             # work around, and the failure that disabled it is exactly the
-            # case `_run_arrived` does not cover.
+            # case `_run_arrived` does not cover. UNCONDITIONALLY, and that
+            # is the safe direction: narrowing it to "only the search's own
+            # failure" needs an attribution `job_failed` cannot give, and
+            # being wrong the other way leaves the button dead for good.
             self._open.setEnabled(True)
             if self._waiting_note:
                 self._stop_waiting()
@@ -1689,18 +1750,38 @@ class SweepRunsPanel(QWidget):
         if key in self._workspace_answers:
             return self._workspace_answers[key]
         if key not in self._workspace_pending:
-            self._workspace_pending.add(key)
+            self._workspace_probes += 1
+            stamp = self._workspace_probes
+            self._workspace_pending[key] = stamp
             self._jobs.submit(
                 lambda target=key: _has_workspace(target),
-                lambda answer, target=key:
-                    self._remember_workspace(target, answer))
+                lambda answer, target=key, mark=stamp:
+                    self._remember_workspace(target, answer, mark))
         # Unthreaded the job above has already answered, so this reads the
         # truth rather than the optimism.
         return self._workspace_answers.get(key, True)
 
-    def _remember_workspace(self, folder: str, answer) -> None:
-        """File what the worker found out about a run's bundle."""
-        self._workspace_pending.discard(folder)
+    def _remember_workspace(self, folder: str, answer, stamp=None) -> None:
+        """File what the worker found out about a run's bundle.
+
+        THE STAMP IS THE GENERATION GUARD. `update_run`, a save and a delete
+        each drop a folder from `_workspace_pending` precisely because what
+        they did changes the answer, and a reply describing the folder as it
+        was BEFORE that must not be written on top. Membership alone is not
+        enough: the next right-click starts a SECOND probe for the same
+        folder, and on a mount that has since woken it can answer first --
+        so the older reply would arrive to find the folder pending again,
+        write its stale "no", and discard the newer probe along with it.
+        Only the reply whose stamp is the one still outstanding is filed;
+        anything else is dropped, and the next question asks again.
+
+        :param stamp: the counter this probe was submitted under. ``None``
+            never matches an outstanding probe, so a caller that has no
+            stamp cannot overwrite one.
+        """
+        if self._workspace_pending.get(folder) != stamp or stamp is None:
+            return
+        self._workspace_pending.pop(folder, None)
         self._workspace_answers[folder] = bool(answer)
 
     def _build_run_menu(self, records):
@@ -1880,9 +1961,16 @@ class SweepRunsPanel(QWidget):
                 return False
             # THE WRITE GOES TO A WORKER. `save_run_states` stats each folder
             # and then writes a bundle into it, both on paths the user chose.
-            if self._threaded:
-                plural = "" if len(folders) == 1 else "s"
-                self._say(f"Saving the state of {len(folders)} run{plural}…")
+            #
+            # `_start_waiting` RATHER THAN `_say`, because this sentence is a
+            # placeholder and has to be registered as one: `_on_job_failed`
+            # only takes down a line it can see is outstanding, so a save
+            # written with `_say` and then raised on -- `_on_states_saved`
+            # rebuilding the table is the throw that reaches it -- would
+            # leave "Saving the state of 3 runs…" up for good.
+            plural = "" if len(folders) == 1 else "s"
+            self._start_waiting(
+                f"Saving the state of {len(folders)} run{plural}…")
             started = self._jobs.submit(
                 lambda targets=list(folders): save_run_states(targets),
                 self._on_states_saved)
@@ -1920,15 +2008,21 @@ class SweepRunsPanel(QWidget):
         SAVING IS NOT CHOOSING. The loaded mark stays where it was: keeping a
         run for later is not the same as switching to it, and moving the mark
         would drag every view with it.
+
+        THE PLACEHOLDER IS RETIRED LAST, once the sentence that replaces it
+        is on the line. `_rebuild` is the throw the placeholder exists for --
+        it is what `_apply_run_menu` names -- and `_on_job_failed` can only
+        take down a line it can still see is outstanding.
         """
         saved, failures = result if result else ([], [])
         self._saved_state = bool(saved)
         for folder in saved:
             # A save is the moment a cached "no bundle" answer goes stale.
             self._workspace_answers.pop(str(folder), None)
-            self._workspace_pending.discard(str(folder))
+            self._workspace_pending.pop(str(folder), None)
         self._source_note = describe_saved_states(saved, failures)
         self._rebuild(self._source_note)
+        self._stop_waiting()
 
     def eventFilter(self, watched, event):                    # noqa: N802
         """Delete on the selection removes it FROM THE LIST.
