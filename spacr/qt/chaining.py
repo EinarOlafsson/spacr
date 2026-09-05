@@ -246,6 +246,16 @@ class ChainingBar(QFrame):
         from . import path_probe as _probe
 
         def _root_answered(_path: str, _answer: bool) -> None:
+            """Redraw once a probe has an answer for a root.
+
+            Both arguments are ignored: the strip re-reads every root it
+            cares about, so WHICH path answered does not change what has to
+            be done. `RuntimeError` means the strip has been destroyed and
+            the signal outlived it, which is not an error worth raising.
+
+            :param _path: the path that was probed; unused.
+            :param _answer: what the probe found; unused.
+            """
             try:
                 self.refresh()
             except RuntimeError:
@@ -259,6 +269,14 @@ class ChainingBar(QFrame):
         # which raises out of whatever happened to emit it. `destroyed` fires
         # while the wrapper is still usable, which is the moment to let go.
         def _let_go(*_args) -> None:
+            """Drop the probe connection while this wrapper still works.
+
+            Connected to `destroyed` rather than done in a destructor: by the
+            time Python collects the wrapper the C++ object is gone and
+            `disconnect` raises out of whatever happened to emit it.
+
+            :param _args: whatever `destroyed` sends; unused.
+            """
             try:
                 _probe.probes.answered.disconnect(_root_answered)
             except (RuntimeError, TypeError):
@@ -677,6 +695,16 @@ class ChainingBar(QFrame):
             return resolution, notes
 
         def done(payload):
+            """Paint what the worker resolved, back on the GUI thread.
+
+            Clears `_resolving` FIRST, so a request that arrived while this
+            one was in flight -- held in `_resolve_again` -- can start
+            immediately rather than being refused by a flag this callback
+            has not got round to clearing yet.
+
+            :param payload: the worker's ``(resolution, notes)``, or None
+                when it produced nothing to draw.
+            """
             self._resolving = False
             again, self._resolve_again = self._resolve_again, None
             try:

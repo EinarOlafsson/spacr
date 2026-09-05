@@ -652,12 +652,24 @@ def _route_drop(paths: Sequence[Path], handler: DropHandler, screen) -> None:
     multiple = bool(handler.accepts_multiple())
 
     def scan():
+        """Classify the dropped paths, off the GUI thread.
+
+        This is the half that touches the filesystem, and a dropped folder is
+        a path the USER chose -- which on some machines is an `autofs` share
+        that takes twenty seconds to answer its first stat.
+
+        :returns: the classification report `deliver` will act on.
+        """
         return _classify_drop(paths, handler, takes_csv, multiple)
 
     slot = _queue_drop(screen, lambda report: _deliver_drop(
         report, handler, screen))
 
     def deliver(report):
+        """Act on what `scan` found, back on the GUI thread.
+
+        :param report: the classification `scan` produced.
+        """
         if slot is None:
             # Untracked screen: no queue to order it against, and no
             # `_answer_drop` to keep a delivery that raises to itself. It is
