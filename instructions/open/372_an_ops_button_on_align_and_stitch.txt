@@ -134,6 +134,67 @@ whose geometry it chose so "did it stitch correctly" is a comparison rather
 than an opinion. The button is the last step, not the first.
 
 --------------------------------------------------------------------------------
+PART 0-B -- THE ENTRY-POINT REPORT THE CHECKLIST ASKS FOR
+--------------------------------------------------------------------------------
+
+"A report, written into this file BEFORE any new code, saying which of
+`spacrops.py`'s eight public entry points still run and on what data."
+
+The module exports eight public names, but only four are its own: `as_completed`,
+`figure_style`, `theme_target` and `write_tiff` are re-exports from
+`concurrent.futures` and spaCR's own plotting and IO. The four that are OPS,
+plus the three public classes, are below. THE DATA in every case is a synthetic
+plate: four sites in a 2x2, 640 px tiles with 220 px of overlap, cut from one
+1060 px field of gaussian blobs, two channels, plus a phenotype image per site.
+
+  get_preprocess_ops_settings   RUNS. 63 keys from an empty dict.
+
+  stitch_cycle_wells            RUNS, AND IS CORRECT. Organises the plate,
+                                computes ORB features with a disk cache, scores
+                                24 pairs, writes a pairs CSV and a mosaic.
+                                VERIFIED AGAINST GROUND TRUTH: 24/24 offsets
+                                within 0.3 px of the geometry the plate was
+                                built with. Four defects fixed on the way --
+                                see PART 0-A.
+
+  ops_preprocess                RUNS END TO END. Returns `stitch`, `align` and
+                                `npy_out_root`; produces the mosaic, a pairs
+                                CSV, a mosaic manifest, four `.npy` crops under
+                                `crops_20x/` and an FOV align manifest.
+
+  align_image_to_stitch         RUNS, GEOMETRY NOT VERIFIED. Places each
+                                phenotype FOV on the mosaic and writes a
+                                (2, 640, 640) crop -- plane 0 the FOV, plane 1
+                                the matching mosaic region -- with a manifest
+                                carrying tx, ty, theta, scale, score and
+                                inlier_ratio, and `scale` correctly reflecting
+                                `relative_scale=2.0`.
+                                THE NUMBERS ARE NOT CHECKED AGAINST TRUTH, and
+                                honestly cannot be from this fixture: the
+                                synthetic phenotype tiles are the same pixels
+                                as the genotype tiles rather than a genuine 2x
+                                acquisition, so a scale-2 solve against them
+                                has no right answer to be compared with. It
+                                produces plausible output. Whether it produces
+                                CORRECT output needs either real paired
+                                10x/20x data or a fixture that actually
+                                resamples. That is the next measurement, and it
+                                should happen before the button.
+
+  spacrStitcher                 EXERCISED via the above; its `_pairs_by_site_window`
+                                and `_get_channel_count_tif` both had defects,
+                                now fixed and pinned.
+  FOVAlignAndCropper            EXERCISED via `ops_preprocess`; produced the
+                                four crops and the manifest.
+  StitchedMultiAligner          NOT EXERCISED. Multi-acquisition alignment
+                                needs more than one acquisition and the fixture
+                                has one. Untested, and it should not be wired
+                                to a button until it is.
+
+SO: the front half runs, the stitching is provably correct, the phenotype
+alignment is plausible-but-unverified, and one class has never been run at all.
+
+--------------------------------------------------------------------------------
 PART 1 -- WHAT OPS NEEDS THAT spaCR DOES NOT HAVE
 --------------------------------------------------------------------------------
 
