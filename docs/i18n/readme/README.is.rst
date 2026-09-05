@@ -59,9 +59,9 @@ spaCR aðgreinir og mælir stakar frumur í afkastamiklum smásjármyndum, samþ
 
 Segmingu, mæling, notkun og flokksmiðju mótmælur virkar einnig án sekkunararms.
 
-Myndir, maskar, vöru, mælingar, notkun, fyrirspurn, barkód og vel viðurkenningar eru í einum SQLite verkefni.
+Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og auðkenni brunna eru geymd í einu SQLite-verkefni.
 
-Það virkar eins og skrifstofu notkun eða heiðarlega á vinnustaði, serveri eða klústeri.
+Keyrist sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa.
 
 Hardware aðstoð
 ~~~~~~~~~~~~~~~~
@@ -163,7 +163,7 @@ Fyrir útgáfuna á PyPI skaltu setja spaCR upp með pip inni í Conda-umhverfi.
    python -m pip install "spacr[qt]"
    spacr
 
-spaCR styður Python **3.9 til 3.14**, nema Python 3.14.1, sem torchvision útskýrir. Linux er mælt fyrir þyngsta CUDA og ROCm vinnuflöðum; macOS og Windows eru einnig styður, og bæði nota GPUs — macOS með Metal, sem dregur Apple Silicon og AMD kort í Intel Macs, og Windows með CUDA eða DirectML.
+spaCR styður Python **3.9 til 3.14**, nema Python 3.14.1, sem torchvision útilokar. Mælt er með Linux fyrir þyngstu CUDA- og ROCm-verkflæðin; macOS og Windows eru einnig studd og nýta bæði GPU sín — macOS í gegnum Metal, sem nær yfir Apple Silicon og AMD-kortin í Intel-Mac-tölvum, og Windows í gegnum CUDA eða DirectML.
 
 Slepptu Qt á þjóni, reikniklasa eða CI-keyrsluumhverfi:
 
@@ -423,7 +423,9 @@ Sjá `Leikstjóri <../../source/features.rst>`_ fyrir hvert tól.
 Tungumál og þýðingar
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Viðmótið styður tíu tungumál í leiðsögn og stillingum. AI- og LIVE-stýringar, lýsingar á einingum og yfirfarin samhengishjálp eru einnig þýdd. Skiptu um tungumál undir **spaCR → Stillingar → Tungumál** án endurræsingar. Annálar, slóðir, gagnagrunnsgildi og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá `stefnu um samhengishjálp <../../source/localization.rst#contextual-help>`_.
+Viðmótið styður tíu tungumál í leiðsögn og stillingum. AI- og LIVE-stýringar, lýsingar á einingum og yfirfarin samhengishjálp eru einnig þýdd. Skiptu um tungumál undir **spaCR → Stillingar → Tungumál** án endurræsingar. Annálar, slóðir, gagnagrunnsgildi og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá `stefnu um samhengishjálp <docs/source/localization.rst#contextual-help>`_.
+
+Nín ekki Engleska sögu eru stutt og tæknilegt skoðað í stað þess að lesa end til end af einum heimilum tungumálum. `Sjáðu skammt <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ skráir hvaða tungumálar hafa haft mannleg útgang, hversu mikið af líkamanum sem dekkar, og hvert orð eftir á Englesku eftir ákvörðun.
 
 Hreyfimyndaleiðbeiningar fyrir stillingar
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -620,4 +622,4 @@ Olafsson EB, *et al.* A sameiginlegur myndbönd sem er bastir á CRISPR skrefinn
 Þakkir
 ~~~~~~~~~~~~~~~
 
-spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt. Sjá `upplýsingar um þýðingarlíkön <../TRANSLATION_MODELS.md>`_ fyrir líkönin sem voru notuð við gerð fjöltyngdra skjala og viðmótsskráa.
+spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt. Sjá `upplýsingar um þýðingarlíkön <docs/i18n/TRANSLATION_MODELS.md>`_ fyrir líkönin sem voru notuð við gerð fjöltyngdra skjala og viðmótsskráa.

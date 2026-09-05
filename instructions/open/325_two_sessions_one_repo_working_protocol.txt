@@ -1637,3 +1637,40 @@ STAGED items were reachable.
   Their diagnosis was exact -- half-applied edit, referenced twice,
   defined nowhere, `git status` showing modified rather than committed --
   which is why it cost minutes instead of an evening.
+
+--------------------------------------------------------------------------------
+2026-09-04 — A SHARED FILE NEEDS THE SAME CARE AS A SHARED TREE
+--------------------------------------------------------------------------------
+
+Sections 1 and 2 divide the repository by FILE, and section 3 protects the tree
+with explicit paths. Both assume that if two sessions stay in their own files
+they cannot collide. Today proved that wrong twice in one file, in both
+directions.
+
+WHAT I DID. Commit `2f7a33f5c` wrote `tools/build_documentation_i18n.py` from
+my own buffer. The other session had removed 94 obsolete entries from
+`API_DOC_ALIASES` in that same file minutes earlier; my write put all 113 back.
+They did not notice for twenty minutes. Explicit paths did not help -- the path
+WAS mine to write, and the collision was inside it.
+
+WHAT THEY DID, earlier the same day: left the same file, and separately
+`spacr/schema.py`, in a state that could not be imported, which blocked every
+test run in the tree. That one is recorded above.
+
+THE RULE THAT COVERS BOTH: a file is not owned just because a lane table names
+it. Before writing a file another session has touched today, RE-READ IT and
+apply your change to what is there now, rather than writing a buffer you formed
+earlier. An editor that replaces whole-file content is a clobber even when the
+path is yours, and it leaves no conflict marker to warn either side.
+
+  * Prefer targeted edits over whole-file writes in any file the other session
+    has touched today.
+  * If you generated content into a buffer minutes ago, re-read before writing.
+  * `git status` on the single file before you write it costs nothing and would
+    have caught both incidents.
+
+AND THE HONEST VERSION OF WHY THIS HAPPENED TO ME: I was applying a scripted
+edit that read the file, transformed it in memory, and wrote it back. Between
+the read and the write, somebody else's work landed. That is the same shape as
+"a baseline taken at the wrong moment is not a baseline", which I had already
+recorded about test runs today and did not think to apply to file writes.

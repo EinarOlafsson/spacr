@@ -426,6 +426,10 @@ class MeasurementComparePanel(QWidget):
         return self.refresh()
 
     def comparison(self):
+        """The last comparison computed, if any.
+
+        :returns: the comparison, or None before one has been run.
+        """
         return self._comparison
 
     # ------------------------------------------------------- 187 B: contrast
@@ -1021,9 +1025,18 @@ class MeasurementCompareDialog(QDialog):
     # The window forwards what the button and the tests ask of it, rather
     # than reimplementing any of it.
     def refresh(self, *args):
+        """Forwarded to the panel this dialog wraps.
+
+        :param args: passed straight through.
+        :returns: whatever :class:`MeasurementComparePanel` returns.
+        """
         return self.panel.refresh(*args)
 
     def comparison(self):
+        """Forwarded to the panel this dialog wraps.
+
+        :returns: whatever :class:`MeasurementComparePanel` answers.
+        """
         return self.panel.comparison()
 
     def save_everything(self, folder: str = "") -> dict:
@@ -1035,29 +1048,64 @@ class MeasurementCompareDialog(QDialog):
 
     @property
     def level(self):
+        """Forwarded to the panel this dialog wraps.
+
+        :returns: whatever :class:`MeasurementComparePanel` answers.
+        """
         return self.panel.level
 
     @property
     def kind(self):
+        """Forwarded to the panel this dialog wraps.
+
+        :returns: whatever :class:`MeasurementComparePanel` answers.
+        """
         return self.panel.kind
 
     @property
     def report(self):
+        """Forwarded to the panel this dialog wraps.
+
+        :returns: whatever :class:`MeasurementComparePanel` answers.
+        """
         return self.panel.report
 
     @property
     def contrast(self):
+        """Forwarded to the panel this dialog wraps.
+
+        :returns: whatever :class:`MeasurementComparePanel` answers.
+        """
         return self.panel.contrast
 
     @property
     def controls(self):
+        """Forwarded to the panel this dialog wraps.
+
+        :returns: whatever :class:`MeasurementComparePanel` answers.
+        """
         return self.panel.controls
 
     def choose_wells(self, *args):
+        """Forwarded to the panel this dialog wraps.
+
+        :param args: passed straight through.
+        :returns: whatever :class:`MeasurementComparePanel` returns.
+        """
         return self.panel.choose_wells(*args)
 
     def join_the_tables(self, *args):
+        """Forwarded to the panel this dialog wraps.
+
+        :param args: passed straight through.
+        :returns: whatever :class:`MeasurementComparePanel` returns.
+        """
         return self.panel.join_the_tables(*args)
 
     def cancel_the_join(self, *args):
+        """Forwarded to the panel this dialog wraps.
+
+        :param args: passed straight through.
+        :returns: whatever :class:`MeasurementComparePanel` returns.
+        """
         return self.panel.cancel_the_join(*args)

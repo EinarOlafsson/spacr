@@ -235,15 +235,38 @@ class PivotSpec:
 
     # -- edits -----------------------------------------------------------
     def with_rows(self, rows: Sequence[str]) -> "PivotSpec":
+        """A copy with a different set of row groupings.
+
+        A COPY: a spec is a value, so the one a view is already showing is
+        never edited underneath it.
+
+        :param rows: the columns to group down the rows.
+        :returns: the new spec.
+        """
         return replace(self, rows=tuple(rows))
 
     def with_cols(self, cols: Sequence[str]) -> "PivotSpec":
+        """A copy with a different set of column groupings.
+
+        :param cols: the columns to group across the columns.
+        :returns: the new spec.
+        """
         return replace(self, cols=tuple(cols))
 
     def with_values(self, values: Sequence[str]) -> "PivotSpec":
+        """A copy aggregating different columns into the cells.
+
+        :param values: the columns to aggregate.
+        :returns: the new spec.
+        """
         return replace(self, values=tuple(values))
 
     def with_aggs(self, aggs: Sequence[str]) -> "PivotSpec":
+        """A copy using different aggregations.
+
+        :param aggs: the aggregation names, such as ``mean`` or ``median``.
+        :returns: the new spec.
+        """
         return replace(self, aggs=tuple(aggs))
 
     @property
@@ -264,16 +287,36 @@ class PivotSpec:
                      for value in self.values for agg in self.aggs)
 
     def used_columns(self) -> Tuple[str, ...]:
+        """Every column this pivot reads, deduplicated and in order.
+
+        What lets a spec be validated against a table before it is computed,
+        so a pivot saved on one experiment says which columns are missing
+        here rather than failing part-way through the aggregation.
+
+        :returns: the column names.
+        """
         return _clean(tuple(self.rows) + tuple(self.cols) + tuple(self.values))
 
     # -- serialisation ----------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
+        """This spec as plain data.
+
+        :returns: a JSON-safe dict.
+        """
         return {"rows": list(self.rows), "cols": list(self.cols),
                 "values": list(self.values), "aggs": list(self.aggs),
                 "quantile": self.quantile}
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "PivotSpec":
+        """Rebuild a spec from plain data.
+
+        UNKNOWN KEYS ARE IGNORED rather than raising, so a spec saved by a
+        later version still opens with the parts this one knows.
+
+        :param payload: what :meth:`to_dict` produced.
+        :returns: the rebuilt spec.
+        """
         fields = {"rows", "cols", "values", "aggs", "quantile"}
         known = {k: v for k, v in dict(payload).items() if k in fields}
         for key in ("rows", "cols", "values", "aggs"):
@@ -282,13 +325,26 @@ class PivotSpec:
         return cls(**known)
 
     def to_json(self) -> str:
+        """This spec as JSON text, keys sorted so the file is diffable.
+
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True)
 
     @classmethod
     def from_json(cls, text: str) -> "PivotSpec":
+        """Rebuild a spec from JSON text.
+
+        :param text: the JSON text.
+        :returns: the rebuilt spec.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
+        """The pivot in one line: what goes down, across, and into the cells.
+
+        :returns: a one-line description.
+        """
         parts = []
         if self.rows:
             parts.append("rows: " + " / ".join(self.rows))
@@ -337,14 +393,29 @@ class PivotResult:
     # -- shape ------------------------------------------------------------
     @property
     def shape(self) -> Tuple[int, int]:
+        """The table's size as ``(rows, columns)`` of DISPLAYED levels.
+
+        Not the source frame's shape: a pivot's rows are groups, so this is
+        how big the answer is rather than how much went into it.
+
+        :returns: the row and column counts.
+        """
         return len(self.row_levels), len(self.col_levels)
 
     @property
     def n_cells(self) -> int:
+        """How many cells the table has, across all layers.
+
+        :returns: rows times columns.
+        """
         return len(self.row_levels) * len(self.col_levels)
 
     @property
     def layer_keys(self) -> Tuple[Tuple[str, str], ...]:
+        """The ``(value, agg)`` pairs this result holds one array for.
+
+        :returns: the layer keys, in the spec's order.
+        """
         return self.spec.layers
 
     # -- reading a cell ---------------------------------------------------

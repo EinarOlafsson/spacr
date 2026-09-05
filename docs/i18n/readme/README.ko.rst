@@ -59,9 +59,9 @@ spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정�
 
 분류, 측정, 기록 및 분류 모듈은 또한 순서 팔없이 실행됩니다.
 
-이미지, 마스크, 크롭, 측정, 기록, 예측, 바코드 및 잘 식별자는 하나의 SQLite 프로젝트에서 살고 있습니다.
+이미지, 마스크, 크롭, 측정값, 주석, 예측, 바코드 및 웰 식별자가 하나의 SQLite 프로젝트에 저장됩니다.
 
-데스크톱 응용 프로그램으로 실행되거나 워크 스테이션, 서버 또는 클러스터에서 헤드없이 실행됩니다.
+데스크톱 애플리케이션으로 실행되거나 워크스테이션, 서버 또는 클러스터에서 헤드리스로 실행됩니다.
 
 하드웨어 지원
 ~~~~~~~~~~~~~~~~
@@ -148,7 +148,7 @@ Linux에서는 다운로드한 파일에 실행 권한을 부여한 후 실행�
 
 macOS에서는 ``.pkg``\ 를 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**\ 를 선택하세요.
 
-업데이트, 제거, 오프라인 설치 및 문제 해결 지침은 `설치 가이드 <../../source/installer_guide.rst>`_\ 를 참조하십시오.
+업데이트, 제거, 오프라인 설치 및 문제 해결 지침은 `설치 가이드 <docs/source/installer_guide.rst>`_\ 를 참조하십시오.
 
 PyPI 설치
 ~~~~~~~~~~~~~~~~~
@@ -163,7 +163,7 @@ PyPI 릴리스는 Conda 환경 안에서 pip로 spaCR를 설치하세요. Python
    python -m pip install "spacr[qt]"
    spacr
 
-spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which torchvision excludes. Linux is recommended for the heaviest CUDA and ROCm workflows; macOS and Windows are also supported, and both use their GPUs — macOS through Metal, which covers Apple Silicon and the AMD cards in Intel Macs, and Windows through CUDA or DirectML.
+spaCR는 Python **3.9 through 3.14** 버전을 지원하며, torchvision이 제외하는 Python 3.14.1은 예외입니다. 가장 부하가 큰 CUDA 및 ROCm 워크플로에는 Linux를 권장합니다. macOS와 Windows도 지원되며, 두 플랫폼 모두 GPU를 사용합니다 — macOS는 Apple Silicon과 Intel Mac의 AMD 카드를 모두 포괄하는 Metal을 통해, Windows는 CUDA 또는 DirectML을 통해 GPU를 사용합니다.
 
 서버, 클러스터 또는 CI 실행 환경에서는 Qt를 제외합니다:
 
@@ -172,7 +172,7 @@ spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which torchvis
    python -m pip install spacr
    spacr-run --list
 
-선택적 통합 기능은 ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]`` 및 ``spacr[czi,nd2,lif]``\ 과 같이 별도로 설치합니다. 전체 추가 기능 목록과 Python 버전 호환성 표는 `설치 안내서 <../../source/installer_guide.rst>`_\ 를 참조하십시오.
+선택적 통합 기능은 ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]`` 및 ``spacr[czi,nd2,lif]``\ 과 같이 별도로 설치합니다. 전체 추가 기능 목록과 Python 버전 호환성 표는 `설치 안내서 <docs/source/installer_guide.rst>`_\ 를 참조하십시오.
 
 conda-forge 설치
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -423,7 +423,9 @@ Make Masks appears under **Tools** for manual correction of segmentation masks; 
 언어 및 번역
 ~~~~~~~~~~~~~~~~~~~~~~
 
-인터페이스는 탐색 및 환경 설정에서 10개 언어를 지원합니다. AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말도 번역됩니다. 다시 시작하지 않고 **spaCR → 환경 설정 → 언어** 메뉴에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. `상황별 도움말 정책 <../../source/localization.rst#contextual-help>`_ 문서를 참조하세요.
+인터페이스는 탐색 및 환경 설정에서 10개 언어를 지원합니다. AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말도 번역됩니다. 다시 시작하지 않고 **spaCR → 환경 설정 → 언어** 메뉴에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. `상황별 도움말 정책 <docs/source/localization.rst#contextual-help>`_ 문서를 참조하세요.
+
+영어가 아닌 9 개의 카탈로그는 각 언어의 원주민 연설자에 의해 끝까지 읽기보다는 기계적으로 작성되고 기술적으로 검토됩니다. `검토 범위 <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ 기록은 어떤 언어가 인간의 통로를 가지고 있었는지, 얼마나 많은 것을 커버하는지, 그리고 결정에 따라 영어로 남아있는 각 용어입니다.
 
 애니메이션 설정 안내
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -620,4 +622,4 @@ Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. go
 감사의 말
 ~~~~~~~~~~~~~~~
 
-spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다. 다국어 문서와 인터페이스 카탈로그 작성에 사용된 모델은 `번역 모델 표기 <../TRANSLATION_MODELS.md>`_ 문서에서 확인할 수 있습니다.
+spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다. 다국어 문서와 인터페이스 카탈로그 작성에 사용된 모델은 `번역 모델 표기 <docs/i18n/TRANSLATION_MODELS.md>`_ 문서에서 확인할 수 있습니다.

@@ -1183,6 +1183,14 @@ class FigureQueue(QWidget):
             LOG.info("live figure refresh failed: %s", exc)
 
     def show_index(self, idx: int) -> None:
+        """Show one figure by position, ignoring an out-of-range index.
+
+        IGNORED RATHER THAN CLAMPED: an index past the end usually means the
+        caller is out of step with the queue, and silently showing the last
+        figure would hide that.
+
+        :param idx: the figure's position, from 0.
+        """
         if not (0 <= idx < self._count):
             return
         self._current = idx
@@ -1230,10 +1238,12 @@ class FigureQueue(QWidget):
         self._refresh_nav()
 
     def show_prev(self) -> None:
+        """Show the previous figure."""
         if self._current > 0:
             self.show_index(self._current - 1)
 
     def show_next(self) -> None:
+        """Show the next figure."""
         if self._current < self._count - 1:
             self.show_index(self._current + 1)
 
@@ -1420,6 +1430,10 @@ class FigureQueue(QWidget):
         return titles
 
     def count(self) -> int:
+        """How many figures are queued.
+
+        :returns: the figure count.
+        """
         return self._count
 
     def ram_resident(self) -> int:
@@ -2504,6 +2518,10 @@ class FigureQueue(QWidget):
         # Cancel matplotlib's queued idle draw before Qt destroys the canvas.
         # A pending QTimer otherwise calls into the deleted C++ widget during
         # the next event-loop drain.
+        """Stop background rendering before going away.
+
+        :param event: the Qt close event.
+        """
         self._teardown_canvas()
         self._shutdown_jobs()
         self._delete_tempdir()

@@ -194,19 +194,42 @@ class ImportWorkbench(QWidget):
     # ------------------------------------------------------------ A: drops
 
     def dragEnterEvent(self, event):                 # noqa: N802 - Qt
+        """Accept a drag carrying images.
+
+        :param event: the Qt drag event.
+        """
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
 
     def dragMoveEvent(self, event):                  # noqa: N802 - Qt
+        """Keep accepting while images stay over the workbench.
+
+        :param event: the Qt drag event.
+        """
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
 
     def dropEvent(self, event):                      # noqa: N802 - Qt
+        """Take the dropped images and work out their naming pattern.
+
+        :param event: the Qt drop event.
+        """
         paths = [url.toLocalFile() for url in event.mimeData().urls()]
         self.add_files(paths)
         event.acceptProposedAction()
 
     def ask_for_files(self) -> None:
+        """Ask for images through a file dialog.
+
+        RETURNS NOTHING, AND THAT IS THE CHANGE. It used to answer with how
+        many files were taken, which it could only do by walking every
+        dropped folder before returning -- on the GUI thread, which is the
+        freeze this module was rewritten to remove. :meth:`add_files` hands
+        the walk to a worker now, so the count does not exist yet when this
+        returns; it arrives at :meth:`_files_found`.
+
+        A caller that wants the number should watch the table, not this.
+        """
         chosen, _filter = QFileDialog.getOpenFileNames(
             self, "Images to import", "",
             "Images (" + " ".join(f"*{s}" for s in IMAGE_SUFFIXES) + ")")
@@ -295,7 +318,13 @@ class ImportWorkbench(QWidget):
         return self._scanner.is_busy()
 
     def set_files(self, paths: Sequence[str]) -> None:
-        """Replace the held set. ANY WALK STILL RUNNING IS ABANDONED.
+        """Replace the file set and re-propose a pattern for it.
+
+        A REGEX PROPOSED FOR THE OLD SET IS NOT PROPOSED FOR THIS ONE. The
+        pattern is inferred from what varies across the names, so carrying it
+        over would describe a set the user has replaced.
+
+        ANY WALK STILL RUNNING IS ABANDONED.
 
         The Clear button lands here, and a walk of a share that is not
         answering is precisely the one the user gives up on. Without the
@@ -304,6 +333,8 @@ class ImportWorkbench(QWidget):
         so the result is dropped on arrival rather than handed to
         :meth:`_files_found`; the thread is left to retire itself, because
         joining it here would be the freeze this all exists to remove.
+
+        :param paths: the image paths.
         """
         self._scanner.cancel()
         self._scan_trouble = ""
@@ -324,6 +355,10 @@ class ImportWorkbench(QWidget):
         self.refresh()
 
     def files(self) -> List[str]:
+        """The files currently loaded.
+
+        :returns: the paths, in load order.
+        """
         return list(self._files)
 
     # ------------------------------------------------------------ B
@@ -457,6 +492,10 @@ class ImportWorkbench(QWidget):
         self.table.resizeColumnsToContents()
 
     def the_plan(self):
+        """The import plan the current pattern and roles produce.
+
+        :returns: the plan.
+        """
         return self._plan
 
     # ------------------------------------------------------------ shutdown

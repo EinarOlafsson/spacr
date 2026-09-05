@@ -216,12 +216,31 @@ class ObjectSettingsModel(QAbstractTableModel):
     # -- QAbstractTableModel ----------------------------------------------
 
     def rowCount(self, parent=QModelIndex()) -> int:
+        """How many questions the table asks.
+
+        :param parent: unused; the model is flat.
+        :returns: the row count.
+        """
         return 0 if parent.isValid() else len(self._questions)
 
     def columnCount(self, parent=QModelIndex()) -> int:
+        """How many objects the table has a column for.
+
+        :param parent: unused; the model is flat.
+        :returns: the column count.
+        """
         return 0 if parent.isValid() else len(self._objects)
 
     def flags(self, index):
+        """Which cells are editable.
+
+        ONLY THE CELLS AN OBJECT ACTUALLY ASKS. A blank cell means that
+        object does not ask that question, and making it editable would
+        invite an answer to a question nobody posed.
+
+        :param index: the cell.
+        :returns: the Qt item flags.
+        """
         base = Qt.ItemIsEnabled | Qt.ItemIsSelectable
         if not index.isValid():
             return base
@@ -234,6 +253,12 @@ class ObjectSettingsModel(QAbstractTableModel):
         return base | Qt.ItemIsEditable
 
     def data(self, index, role=Qt.DisplayRole):
+        """One cell of the table.
+
+        :param index: the cell.
+        :param role: the Qt display role.
+        :returns: the cell's value for that role, or None.
+        """
         if not index.isValid():
             return None
         question = self.question_at(index.row())
@@ -262,6 +287,13 @@ class ObjectSettingsModel(QAbstractTableModel):
         return None
 
     def setData(self, index, value, role=Qt.EditRole) -> bool:
+        """Write one cell back into the settings.
+
+        :param index: the cell.
+        :param value: what the user typed.
+        :param role: the Qt edit role.
+        :returns: True when the value was taken.
+        """
         if not index.isValid() or role != Qt.EditRole:
             return False
         question = self.question_at(index.row())
@@ -286,6 +318,13 @@ class ObjectSettingsModel(QAbstractTableModel):
         return True
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """One header label: a question name, or an object name.
+
+        :param section: the row or column number.
+        :param orientation: which header.
+        :param role: the Qt display role.
+        :returns: the label, or None.
+        """
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
                 return column_label(self._objects[section])

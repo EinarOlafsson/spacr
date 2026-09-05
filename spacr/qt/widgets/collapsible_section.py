@@ -104,15 +104,37 @@ class CollapsibleSection(QWidget):
     # ------------------------------------------------------------- folding
 
     def is_expanded(self) -> bool:
+        """Whether the body is showing.
+
+        READ OFF THE HEADER, not a flag beside it. The header button IS the
+        state, so a cached copy could disagree with what the user sees.
+
+        :returns: True when open.
+        """
         return self._header.isChecked()
 
     def set_expanded(self, expanded: bool) -> None:
+        """Open or close the section.
+
+        :param expanded: True to show the body.
+        """
         self._header.setChecked(bool(expanded))
 
     def title(self) -> str:
+        """The section's caption, as written rather than as displayed.
+
+        The header uppercases it and may append a maturity badge; this is
+        the string a catalog or a settings file is keyed on.
+
+        :returns: the title.
+        """
         return self._title
 
     def content(self) -> QWidget:
+        """The widget this section wraps.
+
+        :returns: the body widget.
+        """
         return self._content
 
     def set_open_minimum(self, height: int) -> None:

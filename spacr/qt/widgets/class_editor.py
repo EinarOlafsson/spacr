@@ -375,13 +375,25 @@ class ClassEditorWidget(QWidget):
         self._rebuild()
 
     def value(self) -> Dict[str, Dict[str, Any]]:
+        """The class rules, keyed by name.
+
+        :returns: one dict per rule.
+        """
         return {r.name: r.to_dict() for r in self._rules}
 
     #: The settings panel reads every custom widget through this name.
     def get_value(self) -> Dict[str, Dict[str, Any]]:
+        """The same as :meth:`value`, under the name the settings form calls.
+
+        :returns: one dict per rule.
+        """
         return self.value()
 
     def rules(self) -> List[ClassRule]:
+        """The rules as objects rather than as dicts.
+
+        :returns: the rules, in display order.
+        """
         return list(self._rules)
 
     # -- editing -----------------------------------------------------------
@@ -459,6 +471,11 @@ class ClassEditorWidget(QWidget):
             self._rebuild()
 
     def add_random_complement(self) -> None:
+        """Add a rule taking a random sample of whatever the others leave.
+
+        AT MOST ONE. Two complements would each be defined as "the rest",
+        which is not a partition and cannot both be true.
+        """
         if any(r.random_complement for r in self._rules):
             set_translatable_text(
                 self._hint,
@@ -469,6 +486,7 @@ class ClassEditorWidget(QWidget):
         self._rebuild()
 
     def remove_selected(self) -> None:
+        """Drop the selected rules."""
         item = self.table.currentItem()
         if item is None:
             return

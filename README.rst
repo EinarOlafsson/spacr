@@ -478,6 +478,12 @@ without restarting. Logs, paths, database values and measurements are never
 translated; scientific output remains canonical English. See the
 `contextual-help policy <docs/source/localization.rst#contextual-help>`_.
 
+The nine non-English catalogs are machine-drafted and technically reviewed
+rather than read end to end by a native speaker of each language. The
+`review scope <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ records which languages
+have had a human pass, how much of the corpus that covers, and every term left
+in English by decision.
+
 Animated setting guidance
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

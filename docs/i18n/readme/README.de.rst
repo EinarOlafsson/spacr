@@ -59,7 +59,7 @@ spaCR segmentiert und vermisst einzelne Zellen in High-Content-Mikroskopiebilder
 
 Die Segmentierungs-, Mess-, Anmerkungs- und Klassifizierungsmodule laufen auch ohne Sequenzierungsarm.
 
-Bilder, Masken, Bildausschnitte, Messungen, Anmerkungen, Vorhersagen, Barcodes und Brunnenidentifikatoren leben in einem SQLite Projekt.
+Bilder, Masken, Bildausschnitte, Messungen, Anmerkungen, Vorhersagen, Barcodes und Well-Identifikatoren liegen in einem einzigen SQLite-Projekt.
 
 Läuft als Desktop-Anwendung oder ohne grafische Oberfläche auf einer Workstation, einem Server oder Cluster.
 
@@ -163,7 +163,7 @@ Installieren Sie die PyPI-Veröffentlichung von spaCR mit pip in einer Conda-Umg
    python -m pip install "spacr[qt]"
    spacr
 
-spaCR unterstützt Python **3,9 bis 3.14**, außer Python 3.14.1, was torchvision ausschließt. Linux wird für die schwersten CUDA- und ROCm-Workflows empfohlen; macOS und Windows werden ebenfalls unterstützt, und beide verwenden ihre GPUs- macOS über Metal, die Apple Silicon und die AMD-Karten in Intel Macs abdecken, sowie Windows durch CUDA oder DirectML.
+spaCR unterstützt Python **3.9 through 3.14**, außer Python 3.14.1, das von torchvision ausgeschlossen wird. Linux wird für die anspruchsvollsten CUDA- und ROCm-Workflows empfohlen; macOS und Windows werden ebenfalls unterstützt und nutzen beide ihre GPUs — macOS über Metal, das Apple Silicon und die AMD-Karten in Intel Macs abdeckt, und Windows über CUDA oder DirectML.
 
 Lassen Sie Qt auf einem Server, Cluster oder CI-Runner weg:
 
@@ -423,7 +423,9 @@ Sonstige Mittel
 Sprache und Übersetzung
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Die Oberfläche unterstützt zehn Sprachen in der Navigation und den Einstellungen. AI- und LIVE-Steuerelemente, Modulbeschreibungen und geprüfte Kontexthilfe werden ebenfalls übersetzt. Ändern Sie die Sprache unter **spaCR → Einstellungen → Sprache**, ohne neu zu starten. Protokolle, Pfade, Datenbankwerte und Messungen werden nie übersetzt; wissenschaftliche Ausgaben bleiben im kanonischen Englisch. Siehe die `Richtlinie zur Kontexthilfe <../../source/localization.rst#contextual-help>`_.
+Die Oberfläche unterstützt zehn Sprachen in der Navigation und den Einstellungen. AI- und LIVE-Steuerelemente, Modulbeschreibungen und geprüfte Kontexthilfe werden ebenfalls übersetzt. Ändern Sie die Sprache unter **spaCR → Einstellungen → Sprache**, ohne neu zu starten. Protokolle, Pfade, Datenbankwerte und Messungen werden nie übersetzt; wissenschaftliche Ausgaben bleiben im kanonischen Englisch. Siehe die `Richtlinie zur Kontexthilfe <docs/source/localization.rst#contextual-help>`_.
+
+Die neun nicht-englischen Kataloge werden von einem Muttersprachler jeder Sprache maschinengefertigt und technisch überarbeitet, anstatt zu Ende zu lesen. Die `Überprüfungsspielraum <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ zeichnet auf, welche Sprachen einen menschlichen Pass hatten, wie viel von dem Corpus, der umfasst, und jeder Begriff, der auf Englisch durch Entscheidung übrig bleibt.
 
 Animierte Einstellungshilfe
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -620,4 +622,4 @@ Olafsson EB, *et al.* Ein gepoolter Bild-basierter CRISPR Screening identifizier
 Danksagung
 ~~~~~~~~~~~~~~~
 
-spaCR baut auf offener wissenschaftlicher Software auf, darunter NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch und Qt. Die für die mehrsprachige Dokumentation und die Oberflächenkataloge verwendeten Modelle sind in der `Attribution der Übersetzungsmodelle <../TRANSLATION_MODELS.md>`_ aufgeführt.
+spaCR baut auf offener wissenschaftlicher Software auf, darunter NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch und Qt. Die für die mehrsprachige Dokumentation und die Oberflächenkataloge verwendeten Modelle sind in der `Attribution der Übersetzungsmodelle <docs/i18n/TRANSLATION_MODELS.md>`_ aufgeführt.

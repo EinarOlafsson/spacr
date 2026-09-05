@@ -599,6 +599,10 @@ class Spacing:
     # -- queries --------------------------------------------------------
     @property
     def ndim(self) -> int:
+        """How many world axes this spacing describes.
+
+        :returns: the axis count.
+        """
         return len(self.scale)
 
     def axis_index(self, axis: str) -> int:
@@ -893,10 +897,18 @@ class Canvas:
     # -- queries --------------------------------------------------------
     @property
     def height(self) -> int:
+        """The window's height in pixels: rows run along ``axes[0]``.
+
+        :returns: the row count.
+        """
         return self.shape[0]
 
     @property
     def width(self) -> int:
+        """The window's width in pixels: columns run along ``axes[1]``.
+
+        :returns: the column count.
+        """
         return self.shape[1]
 
     def row_world(self) -> np.ndarray:
@@ -1778,10 +1790,22 @@ class Layer:
 
     @property
     def name(self) -> str:
+        """This layer's name, unique within its stack.
+
+        :returns: the name.
+        """
         return self._name
 
     @name.setter
     def name(self, value: str) -> None:
+        """Rename this layer, THROUGH THE STACK when it is in one.
+
+        The stack is what enforces uniqueness, so renaming behind its back
+        would let two layers share a name and make the second unreachable by
+        the only handle anything else has on it.
+
+        :param value: the new name.
+        """
         text = self._check_name(value)
         if text == self._name:
             return
@@ -1793,10 +1817,18 @@ class Layer:
 
     @property
     def visible(self) -> bool:
+        """Whether this layer is drawn.
+
+        :returns: True when visible.
+        """
         return self._visible
 
     @visible.setter
     def visible(self, value: bool) -> None:
+        """Show or hide this layer, notifying only on a real change.
+
+        :param value: True to draw it.
+        """
         value = bool(value)
         if value != self._visible:
             self._visible = value
@@ -1804,10 +1836,23 @@ class Layer:
 
     @property
     def opacity(self) -> float:
+        """How opaque this layer is drawn, from 0 to 1.
+
+        :returns: the opacity.
+        """
         return self._opacity
 
     @opacity.setter
     def opacity(self, value: float) -> None:
+        """Set the opacity, notifying only on a real change.
+
+        NOTIFYING ONLY ON A CHANGE is the point of the guard: an opacity
+        slider emits continuously while it is dragged, and a redraw per emit
+        rather than per change is the difference between a smooth drag and a
+        stuttering one.
+
+        :param value: 0 to 1; validated before it is stored.
+        """
         value = self._check_opacity(value)
         if value != self._opacity:
             self._opacity = value
@@ -1815,10 +1860,18 @@ class Layer:
 
     @property
     def blending(self) -> str:
+        """How this layer's pixels combine with what is under it.
+
+        :returns: the blending mode's name.
+        """
         return self._blending
 
     @blending.setter
     def blending(self, value: str) -> None:
+        """Set the blending mode, notifying only on a real change.
+
+        :param value: the mode's name; validated before it is stored.
+        """
         value = Blending.check(value)
         if value != self._blending:
             self._blending = value
@@ -1826,10 +1879,18 @@ class Layer:
 
     @property
     def spacing(self) -> Spacing:
+        """Where this layer's elements sit in the world.
+
+        :returns: the :class:`Spacing`.
+        """
         return self._spacing
 
     @spacing.setter
     def spacing(self, value: Spacing) -> None:
+        """Move or rescale this layer in the world.
+
+        :param value: the new :class:`Spacing`.
+        """
         if not isinstance(value, Spacing):
             raise LayerError(f"spacing must be a Spacing, got {value!r}")
         if value.ndim != self.ndim:
@@ -1862,6 +1923,14 @@ class Layer:
 
     @property
     def axes(self) -> Tuple[str, ...]:
+        """The world axes this layer's data is indexed by, outermost first.
+
+        NAMED, NOT POSITIONAL, so two layers with different dimensionality
+        can still agree on what "z" means -- which is what lets a 2D mask sit
+        over a 3D stack without either of them guessing.
+
+        :returns: the axis names.
+        """
         return self._spacing.axes
 
     def world_extent(self) -> Dict[str, Tuple[float, float]]:
@@ -2081,22 +2150,45 @@ class ImageLayer(Layer):
     # -- data -----------------------------------------------------------
     @property
     def data(self) -> np.ndarray:
+        """The pixel array, channels included.
+
+        :returns: the array as given; not a copy.
+        """
         return self._data
 
     @property
     def ndim(self) -> int:
+        """How many SPATIAL axes this image has, excluding channels.
+
+        A channel is not a dimension you can navigate, so counting it here
+        would put a slider on the viewer for something that is not a place.
+
+        :returns: the spatial axis count.
+        """
         return len(self._spatial)
 
     @property
     def shape(self) -> Tuple[int, ...]:
+        """The spatial shape, excluding channels.
+
+        :returns: the spatial extent per axis.
+        """
         return self._spatial
 
     @property
     def n_channels(self) -> int:
+        """How many channels this image carries.
+
+        :returns: the channel count.
+        """
         return len(self._planes)
 
     @property
     def channel_names(self) -> Tuple[str, ...]:
+        """What each channel is called, in channel order.
+
+        :returns: one name per channel.
+        """
         return self._channel_names
 
     def channel_data(self, channel: int) -> np.ndarray:
@@ -2108,11 +2200,25 @@ class ImageLayer(Layer):
         return self._planes[int(channel)]
 
     def world_extent(self) -> Dict[str, Tuple[float, float]]:
+        """The world box this layer occupies, per named axis.
+
+        What lets the viewer frame a stack whose layers have different
+        shapes and spacings without any of them knowing about the others.
+
+        :returns: ``{axis: (low, high)}``.
+        """
         return self._spacing.extent(self._spatial)
 
     # -- display --------------------------------------------------------
     @property
     def colormaps(self) -> Tuple[Colormap, ...]:
+        """One colormap per channel, in channel order.
+
+        A TUPLE COPY, so a caller cannot reorder this layer's colormaps by
+        mutating what it was handed.
+
+        :returns: the colormaps.
+        """
         return tuple(self._colormaps)
 
     def set_colormap(self, value: Any, channel: int = 0) -> None:
@@ -2133,6 +2239,14 @@ class ImageLayer(Layer):
 
     @colormap.setter
     def colormap(self, value: Any) -> None:
+        """Set the FIRST channel's colormap.
+
+        The convenience spelling for the single-channel case, which is most
+        of them; :meth:`set_colormap` names the channel when there is more
+        than one.
+
+        :param value: a colormap, or a name to look one up by.
+        """
         self.set_colormap(value, 0)
 
     def contrast_limits(self, channel: int = 0) -> Tuple[float, float]:
@@ -2263,10 +2377,23 @@ class LabelsLayer(Layer):
 
     @property
     def data(self) -> np.ndarray:
+        """The label array: one integer per pixel, 0 for background.
+
+        :returns: the array as given; not a copy.
+        """
         return self._data
 
     @data.setter
     def data(self, value: Any) -> None:
+        """Replace the labels, keeping the same shape.
+
+        SHAPE IS ENFORCED. A labels layer is registered against an image, so
+        accepting a differently shaped array would silently break that
+        correspondence and mislabel every pixel rather than fail.
+
+        :param value: the new label array.
+        :raises LayerError: when the shape differs.
+        """
         array = np.asarray(value)
         if array.shape != self._data.shape:
             raise LayerError(
@@ -2285,18 +2412,39 @@ class LabelsLayer(Layer):
 
     @property
     def ndim(self) -> int:
+        """How many axes the label array has.
+
+        :returns: the axis count.
+        """
         return self._data.ndim
 
     @property
     def shape(self) -> Tuple[int, ...]:
+        """The label array's shape.
+
+        :returns: the extent per axis.
+        """
         return tuple(self._data.shape)
 
     @property
     def field(self) -> Optional[FieldKey]:
+        """Which imaging field these labels belong to, if any.
+
+        :returns: the :class:`FieldKey`, or None when unattached.
+        """
         return self._field
 
     @field.setter
     def field(self, value: Optional[FieldKey]) -> None:
+        """Attach these labels to an imaging field.
+
+        Typed rather than free text, because the field key is what joins a
+        mask back to its measurements and a near-miss string would join to
+        nothing without saying so.
+
+        :param value: the field, or None to detach.
+        :raises LayerError: when ``value`` is not a FieldKey.
+        """
         if value is not None and not isinstance(value, FieldKey):
             raise LayerError(f"field must be a FieldKey, got {value!r}")
         self._field = value
@@ -2309,12 +2457,23 @@ class LabelsLayer(Layer):
 
     @selected_label.setter
     def selected_label(self, value: int) -> None:
+        """Highlight one label, notifying only on a real change.
+
+        :param value: the label's integer id; 0 selects nothing.
+        """
         value = int(value)
         if value != self._selected_label:
             self._selected_label = value
             self._notify("selected_label")
 
     def world_extent(self) -> Dict[str, Tuple[float, float]]:
+        """The world box this layer occupies, per named axis.
+
+        What lets the viewer frame a stack whose layers have different
+        shapes and spacings without any of them knowing about the others.
+
+        :returns: ``{axis: (low, high)}``.
+        """
         return self._spacing.extent(self._data.shape)
 
     def labels(self) -> np.ndarray:
@@ -2548,6 +2707,15 @@ class PointsLayer(Layer):
 
     @data.setter
     def data(self, value: Any) -> None:
+        """Replace the points, keeping the same dimensionality.
+
+        DIMENSIONALITY IS ENFORCED. A points layer sits in a world whose
+        axes are already named, so accepting a differently shaped array
+        would put every point at a coordinate that means something else.
+
+        :param value: an ``(n, ndim)`` array of world coordinates.
+        :raises LayerError: when the dimensionality differs.
+        """
         array = self._as_points(value, self._ndim)
         if array.shape[1] != self._ndim:
             raise LayerError(
@@ -2574,6 +2742,10 @@ class PointsLayer(Layer):
 
     @property
     def ndim(self) -> int:
+        """How many world axes each point is placed on.
+
+        :returns: the axis count.
+        """
         return self._ndim
 
     @property
@@ -2594,19 +2766,35 @@ class PointsLayer(Layer):
 
     @property
     def face_color(self) -> Tuple[float, float, float, float]:
+        """The fill colour every point is drawn with.
+
+        :returns: RGBA, each component 0 to 1.
+        """
         return self._face
 
     @face_color.setter
     def face_color(self, value: Any) -> None:
+        """Set the fill colour, accepting any spelling `to_rgba` understands.
+
+        :param value: a colour name, hex string, or RGB(A) sequence.
+        """
         self._face = to_rgba(value)
         self._notify("face_color")
 
     @property
     def border_color(self) -> Tuple[float, float, float, float]:
+        """The outline colour every point is drawn with.
+
+        :returns: RGBA, each component 0 to 1.
+        """
         return self._border
 
     @border_color.setter
     def border_color(self, value: Any) -> None:
+        """Set the outline colour, accepting any spelling `to_rgba` understands.
+
+        :param value: a colour name, hex string, or RGB(A) sequence.
+        """
         self._border = to_rgba(value)
         self._notify("border_color")
 
@@ -2617,6 +2805,13 @@ class PointsLayer(Layer):
 
     @border_width.setter
     def border_width(self, value: float) -> None:
+        """Set the outline width, clamped at zero.
+
+        CLAMPED RATHER THAN REFUSED: a negative width has no meaning to draw
+        and no meaning to complain about either, so it becomes no outline.
+
+        :param value: the width; negatives become 0.
+        """
         self._border_width = max(0.0, float(value))
         self._notify("border_width")
 
@@ -2669,6 +2864,16 @@ class PointsLayer(Layer):
         self._notify("remove", kind="data")
 
     def world_extent(self) -> Dict[str, Tuple[float, float]]:
+        """The world box these points occupy, INCLUDING their drawn size.
+
+        Half a point's size is added on each side, because a point centred
+        on the edge of the data is still drawn past it -- and a viewer that
+        framed the centres would clip every point on the boundary.
+
+        An empty layer reports a zero box rather than an infinite one.
+
+        :returns: ``{axis: (low, high)}``.
+        """
         world = self.world
         if len(world) == 0:
             return {a: (0.0, 0.0) for a in self._spacing.axes}
@@ -2824,10 +3029,21 @@ class Shape:
 
     @property
     def ndim(self) -> int:
+        """How many world axes this shape's vertices are placed on.
+
+        :returns: the axis count.
+        """
         return int(self.data.shape[1])
 
     @property
     def is_closed(self) -> bool:
+        """Whether the outline joins back to its first vertex.
+
+        A closed shape can be filled and can be asked what is inside it; an
+        open one is a path and can only be drawn.
+
+        :returns: True when closed.
+        """
         return self.kind in self.CLOSED
 
 
@@ -2863,10 +3079,21 @@ class ShapesLayer(Layer):
 
     @property
     def ndim(self) -> int:
+        """How many world axes this layer's shapes are placed on.
+
+        :returns: the axis count.
+        """
         return self._ndim
 
     @property
     def shapes(self) -> Tuple[Shape, ...]:
+        """The shapes this layer holds.
+
+        A TUPLE COPY, so a caller cannot add or reorder the layer's shapes
+        by mutating what it was handed.
+
+        :returns: the shapes, in draw order.
+        """
         return tuple(self._shapes)
 
     def __len__(self) -> int:
@@ -2940,6 +3167,14 @@ class ShapesLayer(Layer):
         return shape
 
     def world_extent(self) -> Dict[str, Tuple[float, float]]:
+        """The world box every shape's vertices fall within.
+
+        An empty layer reports a zero box rather than an infinite one, so a
+        viewer framing the stack is not dragged to infinity by a layer that
+        has nothing in it yet.
+
+        :returns: ``{axis: (low, high)}``.
+        """
         axes = self._spacing.axes
         if not self._shapes:
             return {a: (0.0, 0.0) for a in axes}
@@ -3364,10 +3599,22 @@ class LayerStack:
         return self.append(LabelsLayer(data, **kwargs))  # type: ignore[return-value]
 
     def add_points(self, data: Any = None, **kwargs: Any) -> PointsLayer:
+        """Build a points layer and append it to this stack.
+
+        :param data: an ``(n, ndim)`` array of world coordinates, or None.
+        :param kwargs: passed to :class:`PointsLayer`.
+        :returns: the layer that was added.
+        """
         return self.append(PointsLayer(data, **kwargs))  # type: ignore[return-value]
 
     def add_shapes(self, shapes: Optional[Iterable[Shape]] = None,
                    **kwargs: Any) -> ShapesLayer:
+        """Build a shapes layer and append it to this stack.
+
+        :param shapes: the shapes to start with, or None for an empty layer.
+        :param kwargs: passed to :class:`ShapesLayer`.
+        :returns: the layer that was added.
+        """
         return self.append(ShapesLayer(shapes, **kwargs))  # type: ignore[return-value]
 
     # -- selection ------------------------------------------------------

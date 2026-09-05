@@ -431,8 +431,8 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "使用条款", "Termos de uso", "उपयोग की शर्तें", "이용 약관",
         "Notkunarskilmálar", "Conditions d’utilisation"),
     "Review the terms of use and scroll to the end to enable acceptance. "
-    "Use the license link to read the full BSD 3-Clause License "
-    "1.0.0.": _row(
+    "Use the license link to read the full BSD 3-Clause "
+    "License.": _row(
         "Läs igenom användningsvillkoren och rulla till slutet för att "
         "aktivera godkännandet. Använd licenslänken för att läsa hela "
         "BSD 3-Clause License.",
@@ -724,6 +724,13 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Import": _row(
         "Importera", "Importieren", "Importar", "导入", "Importar",
         "आयात", "가져오기", "Flytja inn", "Importer"),
+    # The Import module's own caption, distinct from the bare "Import" band
+    # name above it. Each locale reuses its established "Import" verb so the
+    # two read as one family on the same screen.
+    "Import Images": _row(
+        "Importera bilder", "Bilder importieren", "Importar imágenes",
+        "导入图像", "Importar imagens", "छवियाँ आयात करें",
+        "이미지 가져오기", "Flytja inn myndir", "Importer des images"),
     "Tools": _row(
         "Verktyg", "Werkzeuge", "Herramientas", "工具", "Ferramentas",
         "उपकरण", "도구", "Verkfæri", "Outils"),

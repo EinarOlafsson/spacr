@@ -161,6 +161,7 @@ class TrellisScreen(QWidget):
         self._push_frame()
 
     def choose_table(self) -> None:
+        """Ask which table in the project to plot."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a measurement table", "",
             "Measurements (*.db *.sqlite *.csv *.tsv);;All files (*)")
@@ -224,22 +225,42 @@ class TrellisScreen(QWidget):
             self.load_path(self._path, table=name)
 
     def active_jobs(self) -> int:
+        """How many background jobs this screen is running.
+
+        :returns: the job count.
+        """
         return self._jobs.active_jobs()
 
     def is_busy(self) -> bool:
+        """Whether anything is still running.
+
+        :returns: True while work is outstanding.
+        """
         return self._jobs.is_busy()
 
     # -- the grid ---------------------------------------------------------
     @property
     def spec(self) -> TrellisSpec:
+        """The grid the screen is drawing.
+
+        :returns: the trellis spec.
+        """
         return self.panel.spec
 
     def set_spec(self, spec: TrellisSpec) -> None:
+        """Draw a different grid.
+
+        :param spec: the trellis spec.
+        """
         self.panel.set_spec(spec)
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
         # Abandon an in-flight read rather than let it outlive the screen:
         # Qt aborts the process if a running QThread is destroyed.
+        """Let the panel close first, so it can unlink its canvas.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         self.panel.close()
         super().closeEvent(event)

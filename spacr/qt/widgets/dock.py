@@ -140,11 +140,19 @@ class DockRow(ElidingPushButton):
         return self._hovered
 
     def enterEvent(self, event):                # noqa: N802 - Qt naming
+        """Light the row as the pointer arrives.
+
+        :param event: the Qt enter event.
+        """
         self._hovered = True
         self.hovered.emit(self.key, True)
         super().enterEvent(event)
 
     def leaveEvent(self, event):                # noqa: N802 - Qt naming
+        """Drop the highlight as the pointer leaves.
+
+        :param event: the Qt leave event.
+        """
         self._hovered = False
         self.hovered.emit(self.key, False)
         super().leaveEvent(event)

@@ -168,12 +168,28 @@ class PlanTableModel(QAbstractTableModel):
         return self._frame
 
     def rowCount(self, parent=QModelIndex()) -> int:
+        """How many files the conversion plan covers.
+
+        :param parent: unused; the model is flat.
+        :returns: the row count.
+        """
         return 0 if parent.isValid() else int(len(self._frame))
 
     def columnCount(self, parent=QModelIndex()) -> int:
+        """How many columns the plan shows.
+
+        :param parent: unused; the model is flat.
+        :returns: the column count.
+        """
         return 0 if parent.isValid() else len(self._columns)
 
     def data(self, index, role=Qt.DisplayRole):
+        """One cell of the plan.
+
+        :param index: the cell.
+        :param role: the Qt display role.
+        :returns: the cell's value for that role, or None.
+        """
         if not index.isValid() or role not in (Qt.DisplayRole, Qt.ToolTipRole):
             return None
         key = self._columns[index.column()][0]
@@ -185,6 +201,13 @@ class PlanTableModel(QAbstractTableModel):
         return "" if value is None else str(value)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """One header label.
+
+        :param section: the row or column number.
+        :param orientation: which header.
+        :param role: the Qt display role.
+        :returns: the label, or None.
+        """
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:

@@ -35,6 +35,8 @@ LOG = logging.getLogger("spacr.qt.tutorial")
 
 AVAILABLE_TUTORIALS = [
     "home", "mask", "measure", "crop", "classify", "timelapse",
+    "map_barcodes", "regression",
+    "train_compare", "profiler", "investigate_hit",
 ]
 
 
@@ -57,6 +59,16 @@ def build_steps(app_key: str, window) -> List[Step]:
         return _build_classify_steps(window)
     if app_key == "timelapse":
         return _build_timelapse_steps(window)
+    if app_key == "map_barcodes":
+        return _build_map_barcodes_steps(window)
+    if app_key == "regression":
+        return _build_regression_steps(window)
+    if app_key == "train_compare":
+        return _build_train_compare_steps(window)
+    if app_key == "profiler":
+        return _build_profiler_steps(window)
+    if app_key == "investigate_hit":
+        return _build_investigate_hit_steps(window)
     raise ValueError(f"unknown tutorial: {app_key}. "
                        f"Choose from {AVAILABLE_TUTORIALS}")
 
@@ -549,6 +561,8 @@ def _build_classify_steps(window) -> List[Step]:
     tmp_root = _tutorial_scratch("classify")
     screen_ref: List[Any] = [None]
 
+    classify_ref: List[Any] = [None]
+
     def _capture():
         """Remember the screen this step is about, once it exists.
 
@@ -556,6 +570,16 @@ def _build_classify_steps(window) -> List[Step]:
         up when the script is written -- only when the step runs.
         """
         screen_ref[0] = window._screens.get("annotate")
+
+    def _capture_classify():
+        """Remember Classify's screen, once this script has opened it.
+
+        CAPTURED RATHER THAN LOOKED UP, and the difference is not academic:
+        reading `window._screens` inside the target would resolve as soon as
+        ANY earlier lesson had opened Classify, and the engine's contract is
+        that a deferred target is dead until its own step has run.
+        """
+        classify_ref[0] = window._screens.get("classify_merged")
 
     return [
         Step(
@@ -599,6 +623,397 @@ def _build_classify_steps(window) -> List[Step]:
             target=(lambda: _find_button(screen_ref[0], "Train"), None),
             highlight=lambda: _find_button(screen_ref[0], "Train"),
             hold_ms=500,
+        ),
+        # AND THEN IT OPENS CLASSIFY. Until 2026-09-04 the tutorial called
+        # "classify" stopped here, at Annotate's Train button, having said
+        # "both open in the consolidated Classify module" and never opened
+        # it. That is the stale module boundary instruction 358 was filed
+        # about: a polished lesson teaching a structure the application no
+        # longer has.
+        Step(
+            "Classify is where the training runs. The settings column carries "
+            "the model, the split and the training schedule; the actions row "
+            "runs it and the console below reports each epoch.",
+            action=lambda: (_nav_to(window, "classify_merged")(),
+                             _capture_classify()),
+            target=(_sidebar_button(window, "classify_merged"), None),
+            highlight=_sidebar_button(window, "classify_merged"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        # FIVE MODULES WERE FOLDED IN HERE, and instruction 358 asks that each
+        # one be named and located rather than left for the reader to find.
+        # The specialist lessons that still explain them accurately are kept
+        # and pointed at rather than re-narrated.
+        Step(
+            "Five modules that used to be their own tiles now live on this "
+            "masthead. Classifier Evaluation judges the trained model, "
+            "Explain CV asks which measured features it keyed on, and "
+            "Activation Maps shows where in the image it looked.",
+            target=(lambda: _fold_button(classify_ref[0],
+                                         "classifier_evaluation"), None),
+            highlight=lambda: _fold_button(classify_ref[0],
+                                           "classifier_evaluation"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+        Step(
+            "Training Runs compares two runs against each other, and Feature "
+            "Explorer ranks measured features before anything is trained. "
+            "Both are appended to the reading sequence rather than inserted "
+            "into it, because neither is a step in it.",
+            target=(lambda: _fold_button(classify_ref[0],
+                                         "train_compare"), None),
+            highlight=lambda: _fold_button(classify_ref[0],
+                                           "train_compare"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+    ]
+
+
+
+# ---------------------------------------------------------------------------
+# Map Barcodes tutorial — the one Core module that reads sequencing, not images
+# ---------------------------------------------------------------------------
+# THE ODD ONE OUT, and the tutorial has to say so early. Every other Core
+# module takes microscopy; this one takes FASTQ and produces the table that
+# tells Regression which well got which perturbation. A reader who arrives
+# expecting images needs that said before anything else.
+
+def _build_map_barcodes_steps(window) -> List[Step]:
+    tmp_root = _tutorial_scratch("map_barcodes")
+    screen_ref: List[Any] = [None]
+
+    def _capture():
+        """Remember the screen, once the step before this one has built it."""
+        screen_ref[0] = window._screens.get("map_barcodes")
+
+    return [
+        Step(
+            "Map Barcodes is the one Core module that reads sequencing rather "
+            "than microscopy. It takes the FASTQ from a pooled screen and "
+            "works out which perturbation landed in which well, which is what "
+            "lets a later regression attribute a phenotype to a gene.",
+            action=_nav_to(window, "map_barcodes"),
+            target=(_sidebar_button(window, "map_barcodes"), None),
+            highlight=_sidebar_button(window, "map_barcodes"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        Step(
+            "Load Map Barcodes demo from Help, Demos. It writes a small FASTQ "
+            "and the barcode references that go with it, then points the "
+            "module at them, so the run below is real work on real reads "
+            "rather than a walkthrough of an empty form.",
+            action=lambda: (_load_demo(window, "map_barcodes", tmp_root)(),
+                             _capture()),
+            target=_menu_target(window, "Demos"),
+            highlight=_menu_bar(window),
+            show_pointer=True,
+            hold_ms=1000,
+        ),
+        Step(
+            "Sequencing Input names the reads. Barcode References names the "
+            "three things a read has to be resolved against: the row, the "
+            "column, and the guide library. Read Parsing is where the layout "
+            "of the read itself is described, and it is the setting most "
+            "worth checking before a long run.",
+            target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
+            hold_ms=900,
+        ),
+        Step(
+            "Run counts every read that resolves to a row, a column and a "
+            "guide, and writes one row per well. The console reports reads "
+            "that matched nothing, and that number is the one to look at "
+            "first: a parse that is subtly wrong usually fails cleanly rather "
+            "than producing plausible nonsense.",
+            target=(lambda: _find_button(screen_ref[0], "Run"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Run"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Regression tutorial — the module that consumes what everything else produces
+# ---------------------------------------------------------------------------
+# NO DEMO OF ITS OWN, and that is honest rather than a gap: regression needs a
+# measured screen AND a barcode mapping, so its live data is the OUTPUT of the
+# two tutorials before it. The script says which ones and in what order,
+# rather than pretending a synthetic single-module dataset would teach the
+# thing that matters here.
+
+def _build_regression_steps(window) -> List[Step]:
+    screen_ref: List[Any] = [None]
+
+    def _capture():
+        """Remember the screen, once the step before this one has built it."""
+        screen_ref[0] = window._screens.get("regression")
+
+    return [
+        Step(
+            "Regression is where a screen becomes a result. It takes the "
+            "per-object measurements from Measure and the well-level "
+            "perturbations from Map Barcodes, and asks which perturbations "
+            "moved the phenotype.",
+            action=lambda: (_nav_to(window, "regression")(), _capture()),
+            target=(_sidebar_button(window, "regression"), None),
+            highlight=_sidebar_button(window, "regression"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        Step(
+            "This module has no demo dataset of its own, and that is the "
+            "point rather than an omission: it needs a measured screen and a "
+            "barcode mapping. Run the Measure and Map Barcodes lessons first "
+            "and their outputs are what you drop here.",
+            target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
+            hold_ms=900,
+        ),
+        Step(
+            "Input Tables takes those two outputs. Controls and Filters names "
+            "which wells are the reference the rest are judged against, and "
+            "getting that wrong invalidates everything downstream of it.",
+            target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
+            hold_ms=800,
+        ),
+        Step(
+            "Plate and Batch Correction is not optional on a multi-plate "
+            "screen. A plate effect is indistinguishable from a real one "
+            "unless it is modelled, and a hit list built without it will "
+            "rank whichever plate ran best.",
+            target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
+            hold_ms=800,
+        ),
+        Step(
+            "Model and Inference chooses the estimator; the Permutation Test "
+            "beside it is what turns a coefficient into a claim, by asking "
+            "how often a shuffled label produces an effect this large. Run "
+            "writes the fitted table, and the Prediction Profiler and "
+            "Investigate Hit modules read it from there.",
+            target=(lambda: _find_button(screen_ref[0], "Run"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Run"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+    ]
+
+
+
+# ---------------------------------------------------------------------------
+# The three downstream readers: Training Runs, Prediction Profiler,
+# Investigate Hit
+# ---------------------------------------------------------------------------
+# NONE OF THEM HAS A DEMO, and none of them should. Each reads an artefact an
+# earlier module WROTE -- a set of training runs, a fitted model, a regression
+# hit -- so a synthetic single-module dataset would teach a workflow nobody
+# has. Each lesson therefore names the module that produces its input, in the
+# same way the Regression lesson does.
+#
+# Two of the three are also reachable from Classify's masthead. Instruction
+# 358 asks that a folded action be named and located rather than narrated
+# twice, so these lessons say where the button is instead of the Classify
+# lesson explaining what the module does.
+
+def _build_train_compare_steps(window) -> List[Step]:
+    screen_ref: List[Any] = [None]
+
+    def _capture():
+        """Remember the screen, once the step before this one has built it."""
+        screen_ref[0] = window._screens.get("train_compare")
+
+    host_ref: List[Any] = [None]
+
+    def _capture_host():
+        """Remember Classify, which is where this module is reached from."""
+        host_ref[0] = window._screens.get("classify_merged")
+
+    return [
+        # NOT IN THE SIDEBAR, and the lesson has to open by saying so. This
+        # module has no sidebar row: it is reached from Classify's masthead,
+        # because comparing runs is something you do while working on a
+        # model rather than a place you navigate to.
+        Step(
+            "Training Runs has no sidebar row. It hangs on Classify's "
+            "masthead, because comparing two runs is something you do while "
+            "working on a model rather than somewhere you go.",
+            action=lambda: (_nav_to(window, "classify_merged")(),
+                             _capture_host()),
+            target=(_sidebar_button(window, "classify_merged"), None),
+            highlight=_sidebar_button(window, "classify_merged"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        Step(
+            "This is the button. It compares finished runs against each "
+            "other: the curves side by side, and a diff of the settings that "
+            "produced them. It answers the question a single run cannot, "
+            "which is whether a change helped.",
+            action=lambda: (_nav_to(window, "train_compare")(), _capture()),
+            target=(lambda: _fold_button(host_ref[0], "train_compare"), None),
+            highlight=lambda: _fold_button(host_ref[0], "train_compare"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+        Step(
+            "Choose folder points it at where your runs were written, and "
+            "Scan finds them. There is no demo here on purpose: the input is "
+            "whatever Classify has already trained, so run the Classify "
+            "lesson first and scan its output folder.",
+            target=(lambda: _find_button(screen_ref[0], "Scan"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Scan"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+        Step(
+            "Tick two runs and Overlay selected puts their curves on one "
+            "axis. The settings diff underneath is the half worth reading "
+            "slowly: two runs usually differ in more places than the one you "
+            "changed, and a curve that improved for a reason you did not "
+            "intend is the commonest way a screen goes wrong quietly.",
+            target=(lambda: _find_button(screen_ref[0], "Overlay selected"),
+                    None),
+            highlight=lambda: _find_button(screen_ref[0], "Overlay selected"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+    ]
+
+
+def _build_profiler_steps(window) -> List[Step]:
+    screen_ref: List[Any] = [None]
+    host_ref: List[Any] = [None]
+
+    def _capture_host():
+        """Remember Regression, which is where this module is reached from."""
+        host_ref[0] = window._screens.get("regression")
+
+    def _capture():
+        """Remember the screen, once the step before this one has built it."""
+        screen_ref[0] = window._screens.get("profiler")
+
+    return [
+        Step(
+            "Prediction Profiler asks how a fitted model's prediction moves "
+            "as one input variable changes, holding the rest still. It is how "
+            "you find out whether a model learned the thing you meant or "
+            "something correlated with it.",
+            action=lambda: (_nav_to(window, "regression")(), _capture_host()),
+            target=(_sidebar_button(window, "regression"), None),
+            highlight=_sidebar_button(window, "regression"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        Step(
+            "It has no sidebar row of its own. It hangs on Regression's "
+            "masthead, with the volcano, the hit list and the write-up, "
+            "because it is something you reach from a result rather than "
+            "somewhere you go first.",
+            action=lambda: (_nav_to(window, "profiler")(), _capture()),
+            target=(lambda: _fold_button(host_ref[0], "profiler"), None),
+            highlight=lambda: _fold_button(host_ref[0], "profiler"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+        Step(
+            "Browse takes a model that has already been fitted, so there is "
+            "no demo dataset: run Regression or Classify first and point this "
+            "at what it wrote.",
+            target=(lambda: _find_button(screen_ref[0], "Browse"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Browse"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+        Step(
+            "The profile sweeps one variable and holds the rest still. Reset "
+            "held values puts those back to where they started, which matters "
+            "because the curve you get depends on where the others are "
+            "pinned. A curve that is flat everywhere means the model is not "
+            "using that variable at all -- a result rather than a failure, "
+            "and usually a more useful one than a curve that rises.",
+            target=(lambda: _find_button(screen_ref[0], "Reset held values"),
+                    None),
+            highlight=lambda: _find_button(screen_ref[0], "Reset held values"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+    ]
+
+
+def _build_investigate_hit_steps(window) -> List[Step]:
+    screen_ref: List[Any] = [None]
+    host_ref: List[Any] = [None]
+
+    def _capture_host():
+        """Remember Regression, which is where this module is reached from."""
+        host_ref[0] = window._screens.get("regression")
+
+    def _capture():
+        """Remember the screen, once the step before this one has built it."""
+        screen_ref[0] = window._screens.get("investigate_hit")
+
+    return [
+        Step(
+            "Investigate Hit takes one gene a regression flagged and asks "
+            "which individual cells carry the evidence for it. A hit is a "
+            "well-level number; this is where it becomes something you can "
+            "look at.",
+            action=lambda: (_nav_to(window, "regression")(), _capture_host()),
+            target=(_sidebar_button(window, "regression"), None),
+            highlight=_sidebar_button(window, "regression"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        Step(
+            "It has no sidebar row of its own. It hangs on Regression's "
+            "masthead, with the volcano, the hit list and the write-up, "
+            "because it is something you reach from a result rather than "
+            "somewhere you go first.",
+            action=lambda: (_nav_to(window, "investigate_hit")(), _capture()),
+            target=(lambda: _fold_button(host_ref[0], "investigate_hit"), None),
+            highlight=lambda: _fold_button(host_ref[0], "investigate_hit"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+        Step(
+            "Browse takes the measurements and the regression output "
+            "together, and the screen records which run the claim came from. "
+            "There is no demo: the input is a hit, so run the Regression "
+            "lesson first and bring one here.",
+            target=(lambda: _find_button(screen_ref[0], "Browse"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Browse"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+        Step(
+            "Investigate hit runs it. The attribution model is cross-fitted "
+            "on purpose: scoring cells with a model fitted on the same cells "
+            "finds the evidence it was trained to find, which is how a hit "
+            "gets confirmed by its own noise.",
+            target=(lambda: _find_button(screen_ref[0], "Investigate hit"),
+                    None),
+            highlight=lambda: _find_button(screen_ref[0], "Investigate hit"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+        Step(
+            "Open candidate crops shows the cells themselves, and Compare in "
+            "Image UMAP puts them among the rest. Promote calls to annotation "
+            "records the claim against the attribution run, so it keeps its "
+            "provenance rather than becoming a note someone has to trust -- "
+            "and Undo promotion withdraws it.",
+            target=(lambda: _find_button(screen_ref[0],
+                                         "Promote calls to annotation"), None),
+            highlight=lambda: _find_button(screen_ref[0],
+                                           "Promote calls to annotation"),
+            show_pointer=True,
+            hold_ms=900,
         ),
     ]
 

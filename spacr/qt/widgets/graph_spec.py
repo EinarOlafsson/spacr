@@ -431,10 +431,19 @@ class GraphSpec:
         return cls(**known)
 
     def to_json(self) -> str:
+        """This spec as JSON text, keys sorted so the file is diffable.
+
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True)
 
     @classmethod
     def from_json(cls, text: str) -> "GraphSpec":
+        """Rebuild a spec from JSON text.
+
+        :param text: the JSON text.
+        :returns: the rebuilt spec.
+        """
         return cls.from_dict(json.loads(text))
 
     # -- for a caption --------------------------------------------------
@@ -564,6 +573,10 @@ class FacetPanel:
 
     @property
     def n(self) -> int:
+        """How many rows landed in this panel.
+
+        :returns: the row count.
+        """
         return int(len(self.index))
 
     @property
@@ -605,6 +618,10 @@ class FacetGrid:
 
     @property
     def shape(self) -> Tuple[int, int]:
+        """The grid's size as ``(rows, columns)`` of facet levels.
+
+        :returns: the row and column counts.
+        """
         return len(self.row_levels), len(self.col_levels)
 
     @property
@@ -614,9 +631,19 @@ class FacetGrid:
 
     @property
     def is_faceted(self) -> bool:
+        """Whether this is a grid rather than a single chart.
+
+        :returns: True when either axis has levels.
+        """
         return bool(self.row_column or self.col_column)
 
     def panel(self, row: int, col: int) -> FacetPanel:
+        """The panel at one grid position.
+
+        :param row: the grid row, from 0.
+        :param col: the grid column, from 0.
+        :returns: the panel.
+        """
         return self.panels[row * len(self.col_levels) + col]
 
 
@@ -783,6 +810,14 @@ class Scales:
         return {level: i for i, level in enumerate(self.x_levels)}
 
     def y_positions(self) -> Optional[Dict[str, int]]:
+        """Where each categorical y level sits on the axis.
+
+        None for a continuous y, which is the distinction a renderer needs:
+        a category is drawn at an integer position it was assigned, a number
+        at the position it IS.
+
+        :returns: ``{level: position}``, or None when y is continuous.
+        """
         if self.y_levels is None:
             return None
         return {level: i for i, level in enumerate(self.y_levels)}

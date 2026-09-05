@@ -85,7 +85,7 @@
         "ebee4687683583794e8c9e973edca24371996c35c536bc84d5913aa223bce733"
       ],
       "source_sha256": "d2d5b91211a90c54623e29f48fe9cadc5ebf32a5fb331f4e8f992f758a2c684a",
-      "text": "一个答案是“这应该发生什么,它被称为什么”。\n\nspaCR 成长在 NVIDIA,所以大约四十五个电话网站请求 ``torch.cuda.is_available()`` 大多数意思是 \"有 A GPU“这些都是不同的问题,在每个机器上都没有 NVIDIA,并将它们混合,这使得一个完美好的卡片阅读为 \"no GPU\":\n\n* ROCm 答案 ``torch.cuda.is_available()`` **True** 想要 ``device=\"cuda\"``. 然后打印的代码 \"CUDA\" 是指不存在的供应商; 打印 \"no NVIDIA GPU\" 的代码是否认一个是。\n* 苹果的金属回应它 **False**,想要 ``device=\"mps\"``. MPS 是 *金属*,不是苹果硅特性. 在 Intel iMac 上,这写在它上运行一个 AMD Radeon Pro 5300 - 测量 16x 在 conv2d 结论和 2.7x 在训练步骤对同一机器的 CPU. ROCm 没有任何 macOS 构建,所以金属是唯一的路径到一个 AMD 卡在 Mac 上。\n\n因此,这个模块分别回答两个问题,而一个比两个更重要的第三个: *该设备无法做什么?*在MPS上重新指定一个发动机是不够的,因为三件事失败而不是衰退,每件事都被测量而不是假设:\n\n* ``float64`` 向上升 ``TypeError`` - 不是一个缓慢的路径,一个艰难的停车场. 想要双重准确的任何东西都必须留在 CPU 上。\n* ``autocast(device_type=\"mps\")`` 升 ``RuntimeError``. 混合精度必须分开,而不仅仅是重新标记。\n* 有些运营商只是缺席(``aten::linalg_qr.out``在他们中间)。 ``PYTORCH_ENABLE_MPS_FALLBACK=1``将从事故中变成一个安静的 CPU 转换,所以这个模块在选择 MPS 时设置它。\n\n发现和使用是报告的分离. 一个设置筛选宣布一个加速器 spaCR 将永远不会发送到比一个说什么更糟,因为用户然后责怪他们的硬件为 CPU 速度. 神经发动机是整个原因,区别在这里存在: 苹果神经引擎,Intel AI Boost 和 Qualcomm Hexagon 都是真实的硅,没有可携带的 torch 设备,所以它们被命名为 FOUND 和从未选择。\n\n一个半安装的ROCm,一个破碎的驱动程序,一个 torch 没有一个背景它广告 - 所有解决到 CPU 一个笔记。",
+      "text": "一个答案是“这应该发生什么,它被称为什么”。\n\nspaCR 成长在 NVIDIA,所以大约四十五个调用点请求 ``torch.cuda.is_available()`` 大多数意思是 \"有 A GPU“这些都是不同的问题,在每个机器上都没有 NVIDIA,并将它们混合,这使得一个完美好的卡片阅读为 \"no GPU\":\n\n* ROCm 答案 ``torch.cuda.is_available()`` **True** 想要 ``device=\"cuda\"``. 然后打印的代码 \"CUDA\" 是指不存在的供应商; 打印 \"no NVIDIA GPU\" 的代码是否认一个是。\n* 苹果的金属回应它 **False**,想要 ``device=\"mps\"``. MPS 是 *金属*,不是苹果硅特性. 在 Intel iMac 上,这写在它上运行一个 AMD Radeon Pro 5300 - 测量 16x 在 conv2d 结论和 2.7x 在训练步骤对同一机器的 CPU. ROCm 没有任何 macOS 构建,所以金属是唯一的路径到一个 AMD 卡在 Mac 上。\n\n因此,这个模块分别回答两个问题,而一个比两个更重要的第三个: *该设备无法做什么?*在MPS上重新指定一个发动机是不够的,因为三件事失败而不是衰退,每件事都被测量而不是假设:\n\n* ``float64`` 向上升 ``TypeError`` - 不是一个缓慢的路径,一个艰难的停车场. 想要双重准确的任何东西都必须留在 CPU 上。\n* ``autocast(device_type=\"mps\")`` 升 ``RuntimeError``. 混合精度必须分开,而不仅仅是重新标记。\n* 有些运营商只是缺席(``aten::linalg_qr.out``在他们中间)。 ``PYTORCH_ENABLE_MPS_FALLBACK=1``将从事故中变成一个安静的 CPU 转换,所以这个模块在选择 MPS 时设置它。\n\n发现和使用是报告的分离. 一个设置筛选宣布一个加速器 spaCR 将永远不会发送到比一个说什么更糟,因为用户然后责怪他们的硬件为 CPU 速度. 神经发动机是整个原因,区别在这里存在: 苹果神经引擎,Intel AI Boost 和 Qualcomm Hexagon 都是真实的硅,没有可携带的 torch 设备,所以它们被命名为 FOUND 和从未选择。\n\n一个半安装的ROCm,一个破碎的驱动程序,一个 torch 没有一个背景它广告 - 所有解决到 CPU 一个笔记。",
       "translation_source_blocks_sha256": [
         "6a0727eb0e4a2017b52999065e6cee0c605bfbd7c02c49476897f6f4b870eef5",
         "60e9e616ee6a8e62d9219652f5b11e5f3a228ed43391ca709654564a44d2a6bb",
@@ -213,7 +213,7 @@
         "4c3579b4fb865a18864e51f71a775a321c707ec77978c6241d35dde7e63f6246"
       ],
       "source_sha256": "be36b28490263dafa1d73f9cae0eed747160d2c560e41269b1044cce14cb8c8c",
-      "text": "所有 ``CellposeModel`` 都需要在此机器的 GPU 上登陆。\n\n必须承认的三个论点,这就是为什么它们在六个电话网站上显示而不是一起制作:\n\n* ``gpu`` -- cellpose 分支在此前它看为 ``device``,所以没有旗帜的设备仍然采取 CPU 路径。\n* ``device`` - 从一个解决,所以 cellpose 和 spaCR 不能不同意相同的机器。\n* ``use_bfloat16`` -- cpsam 按默认负载其重量在 bfloat16 和 Metal 在 torch 2.2 没有 bftoat16,所以默认是 ``TypeError: BFloat16 is not supported on MPS`` 在建设中。\n\n通过 ``device=None`` 的呼叫者 - 让 cellpose 解决它 - 应该从这里取出 ``gpu`` 和 ``use_bfloat16`` 并下载 ``device``。",
+      "text": "所有 ``CellposeModel`` 都需要在此机器的 GPU 上登陆。\n\n必须承认的三个论点,这就是为什么它们在六个调用点上显示而不是一起制作:\n\n* ``gpu`` -- cellpose 分支在此前它看为 ``device``,所以没有旗帜的设备仍然采取 CPU 路径。\n* ``device`` - 从一个解决,所以 cellpose 和 spaCR 不能不同意相同的机器。\n* ``use_bfloat16`` -- cpsam 按默认负载其重量在 bfloat16 和 Metal 在 torch 2.2 没有 bftoat16,所以默认是 ``TypeError: BFloat16 is not supported on MPS`` 在建设中。\n\n通过 ``device=None`` 的呼叫者 - 让 cellpose 解决它 - 应该从这里取出 ``gpu`` 和 ``use_bfloat16`` 并下载 ``device``。",
       "translation_source_blocks_sha256": [
         "e56dc47dab72c547814747d0536afad7208612fcaf0e560166feba83607cbfc1",
         "22cce6a0256a4486d5aedf633158b0d7ed49d09dd4719779936ed384862f9669",
@@ -374,7 +374,7 @@
         "5b4b5bc100e39719a684bdf775af300bd2ae48c62b7e62b6a6f60b45cba2de2d"
       ],
       "source_sha256": "6e1b15cdda220a0a22d97a14c8f193f34fbf40fd7890503bec4eeb0c48905f36",
-      "text": "登记工作列表 - 根据模型不确定性订购未登记的图像区域。\n\n标记是每个筛选上的瓶子标记。 提取的图像区域,该模型已经用0999打电话,当人类标记它时,它不会教导模型任何东西; 提取的图像区域值得一个人的下午是坐在决策边界的区域。 该模块将已编码的 ``measurements.db`` 转换为订购的工作列表,以便信息性提取图像区域首先出现。\n\n公民 API\n----------\n``least_confidence(probs)`` / ``margin(probs)``/ ``entropy(probs)`` 每条不确定性分数. 纯 numpy - 没有 torch,没有数据库. ``disagreement(prob_sets)`` 扩展到一个集合或一组 MC-dropout 通过。 ``rank_by_uncertainty(probs, measure=…)`` 序列指数,最不确定的第一,决定性地连接破裂. ``build_queue(db_path, annotation_column, …)`` 标签工作列表本身,直接从 ``png_list`` 阅读。 ``queue_rows(queue)`` 笔记工作列单作为 ``[(png_path, None), …]`` — 格式的 标记应用程序视图已经页面(参见 :func:`spacr.qt.annotate_engine.fetch_page`)。 ``format_queue_summary(queue)`` 字符列表的形状,类平衡和洞,作为文本。 ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` Raw-head-output → 概率矩阵,两头形状处理。 ``predict_probabilities(model, batches)`` 可选的直播模型桥梁;唯一的功能触摸 torch。\n\n这个模块拒绝错了什么\n---------------------------------------\n**A softmax 不是一个概率.** 这里的一切都被称为不确定性 *score*,从来没有信任。 现代网络是恶劣的定义 - 通常过度信任,而且越深(Guo et al., 2017) - 因此,从头部的 0.87 不是“87 % 肯定”。 得分只用于一件事:将提取的图像区域排序。 这个模块中的任何东西都没有报告一个加密的概率,也不应该任何东西建立在它上。 看:data:`CALIBRATION_NOTE`。\n\n**已注册的提取图像区域从未进入提取工作列表** ``NULL``在提取列表中是阻止标记 - 提取的图像区未被查看。 ``0`` 是一个真正的班级,并且一个重新服务的标记工作列表,它浪费正确的资源,这个模组存在,以储存。 两者以 ``IS NULL`` 区分,从未以虚假性区分。 (同一条约为:mod:`spacr.agreement`)\n\n**两个头形状分别处理.** 机器学习分类模型头发出一个单一的Logit(二进制); 需要一个 sigmoid) 或 C logits (多玻璃; 需要 softmax) — 见 :func:`spacr.deep_spacr.apply_model_to_tar`. 通过 softmax 推一个单端列,产生 1.0 的列,并破坏订单; 通过一个 sigmoid 推 C 登录可以 *invert* 它。 两者都是沉默的失败,产生一个充满愚蠢的自信工作列表,因此在形状和测试上有:func:`probabilities_from_logits`分支,并将两方向转动。\n\n**``margin``和``least_confidence``在两个类上排名相同。** 对于 C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``:一个线性转换,所以相同的顺序和相同联系. 它们不是二次单独的选项在二进制筛选上 - 它们只不同于三个类上,在那里 ``margin`` 看上方 *两个* 类,而 ``least_confidence`` 只看上面的一个和 ``entropy``看整个分布。\n\n**Pure不确定性排名崩溃在一个区域的功能空间** 一个真正的实验室显微板上最不确定的图像区域的100个是常规的100接近副本从两个相同的显微盘样本位置 - 一个双重性,标记了一百次,几乎信息标记它一次。 因此,笔记工作列表按默认方式多样化(在微板样本位置上圆圈),:func:`format_queue_summary` 打印了笔记的工作列表实际上覆盖了多少个微板模型位置。 这些费用在:func:`build_queue`中明确表示。\n\n**不确定性样品向多数级滑动.**在98%负面的筛选上,决策边界大多是负面的,所以标记工作列表也将是。\n\n**定义** 相同的输入,相同的种子,相同的顺序 - 包括连接. 线条按默认的序列指数分裂; ``seed``在种子转换中交换,这仍然可重复。\n\n该模块中的任何东西都不会在模块范围内进口 torch; 排名数学仅为 numpy ,因此 Qt 应用程序视图可以创建工作列表,而无需唤醒多秒进口链。 :func:`predict_probabilities` 进口 torch 轻松,是唯一需要它的输入点。",
+      "text": "登记工作列表 - 根据模型不确定性订购未登记的图像区域。\n\n标记是每个筛选上的瓶子标记。 提取的图像区域,该模型已经用0999调用,当人类标记它时,它不会教导模型任何东西; 提取的图像区域值得一个人的下午是坐在决策边界的区域。 该模块将已编码的 ``measurements.db`` 转换为订购的工作列表,以便信息性提取图像区域首先出现。\n\n公民 API\n----------\n``least_confidence(probs)`` / ``margin(probs)``/ ``entropy(probs)`` 每条不确定性分数. 纯 numpy - 没有 torch,没有数据库. ``disagreement(prob_sets)`` 扩展到一个集合或一组 MC-dropout 通过。 ``rank_by_uncertainty(probs, measure=…)`` 序列指数,最不确定的第一,决定性地连接破裂. ``build_queue(db_path, annotation_column, …)`` 标签工作列表本身,直接从 ``png_list`` 阅读。 ``queue_rows(queue)`` 笔记工作列单作为 ``[(png_path, None), …]`` — 格式的 标记应用程序视图已经页面(参见 :func:`spacr.qt.annotate_engine.fetch_page`)。 ``format_queue_summary(queue)`` 字符列表的形状,类平衡和洞,作为文本。 ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` Raw-head-output → 概率矩阵,两头形状处理。 ``predict_probabilities(model, batches)`` 可选的直播模型桥梁;唯一的功能触摸 torch。\n\n这个模块拒绝错了什么\n---------------------------------------\n**A softmax 不是一个概率.** 这里的一切都被称为不确定性 *score*,从来没有信任。 现代网络是恶劣的定义 - 通常过度信任,而且越深(Guo et al., 2017) - 因此,从头部的 0.87 不是“87 % 肯定”。 得分只用于一件事:将提取的图像区域排序。 这个模块中的任何东西都没有报告一个加密的概率,也不应该任何东西建立在它上。 看:data:`CALIBRATION_NOTE`。\n\n**已注册的提取图像区域从未进入提取工作列表** ``NULL``在提取列表中是阻止标记 - 提取的图像区未被查看。 ``0`` 是一个真正的班级,并且一个重新服务的标记工作列表,它浪费正确的资源,这个模组存在,以储存。 两者以 ``IS NULL`` 区分,从未以虚假性区分。 (同一条约为:mod:`spacr.agreement`)\n\n**两个头形状分别处理.** 机器学习分类模型头发出一个单一的Logit(二进制); 需要一个 sigmoid) 或 C logits (多玻璃; 需要 softmax) — 见 :func:`spacr.deep_spacr.apply_model_to_tar`. 通过 softmax 推一个单端列,产生 1.0 的列,并破坏订单; 通过一个 sigmoid 推 C 登录可以 *invert* 它。 两者都是沉默的失败,产生一个充满愚蠢的自信工作列表,因此在形状和测试上有:func:`probabilities_from_logits`分支,并将两方向转动。\n\n**``margin``和``least_confidence``在两个类上排名相同。** 对于 C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``:一个线性转换,所以相同的顺序和相同联系. 它们不是二次单独的选项在二进制筛选上 - 它们只不同于三个类上,在那里 ``margin`` 看上方 *两个* 类,而 ``least_confidence`` 只看上面的一个和 ``entropy``看整个分布。\n\n**Pure不确定性排名崩溃在一个区域的功能空间** 一个真正的实验室显微板上最不确定的图像区域的100个是常规的100接近副本从两个相同的显微盘样本位置 - 一个双重性,标记了一百次,几乎信息标记它一次。 因此,笔记工作列表按默认方式多样化(在微板样本位置上圆圈),:func:`format_queue_summary` 打印了笔记的工作列表实际上覆盖了多少个微板模型位置。 这些费用在:func:`build_queue`中明确表示。\n\n**不确定性样品向多数级滑动.**在98%负面的筛选上,决策边界大多是负面的,所以标记工作列表也将是。\n\n**定义** 相同的输入,相同的种子,相同的顺序 - 包括连接. 线条按默认的序列指数分裂; ``seed``在种子转换中交换,这仍然可重复。\n\n该模块中的任何东西都不会在模块范围内进口 torch; 排名数学仅为 numpy ,因此 Qt 应用程序视图可以创建工作列表,而无需唤醒多秒进口链。 :func:`predict_probabilities` 进口 torch 轻松,是唯一需要它的输入点。",
       "translation_source_blocks_sha256": [
         "a244e9fdaa1b8d832670c15852594732516889e1dc03b89c20d31ea25ae5a313",
         "a8ef2a6c7a943e846b3fc9bb22eb251d73070966a06ead35ce9c339e812a78ac",
@@ -2680,7 +2680,7 @@
         "16a8ba9917a04bb807df88640c3f84e194ad4f007c310953e398ba5089931217"
       ],
       "source_sha256": "1aa6a2be3819135bc8786f08dad355dc6faf7df7314e7649fa4710b9e717521c",
-      "text": "从一个设置的关键值地图中进行出口. 无图形界面输入点。\n\n``fn(settings)`` 形状 ``spacr-run``, Qt 运行按钮和 :mod:`spacr.validate` 所有发送到,包围在 :func:`export_anndata` - 保持其自己的明确的关键字签名,因为一个函数,其论点是一个关键值地图是一个函数没有人可以从笔记本电脑打电话。\n\n它所阅读的每个键都是一个 :func:`anndata_export_settings` 声明,而 :func:`register_anndata_settings` 给了一个类型和工具提示,所以格式 GUI 引用和这里荣誉的关键是相同的列表。\n\n:param settings: 处理会议设置 ``src`` 是项目根(或数据库);其余的一切都落后于 :func:`anndata_export_settings`。\n:returns: 它是 :class:`ExportResult` ,其 ``describe()`` 是控制台打印的。\n:raises ValueError: 当 ``src`` 空时 - 没有出口和路径在消息中另有命名。\n:raises AnnDataExtraMissing: 但是,如果 ``anndata`` 不安装。",
+      "text": "从一个设置的关键值地图中进行出口. 无图形界面输入点。\n\n``fn(settings)`` 形状 ``spacr-run``, Qt 运行按钮和 :mod:`spacr.validate` 所有发送到,包围在 :func:`export_anndata` - 保持其自己的明确的关键字签名,因为一个函数,其论点是一个关键值地图是一个函数没有人可以从笔记本电脑调用。\n\n它所阅读的每个键都是一个 :func:`anndata_export_settings` 声明,而 :func:`register_anndata_settings` 给了一个类型和工具提示,所以格式 GUI 引用和这里荣誉的关键是相同的列表。\n\n:param settings: 处理会议设置 ``src`` 是项目根(或数据库);其余的一切都落后于 :func:`anndata_export_settings`。\n:returns: 它是 :class:`ExportResult` ,其 ``describe()`` 是控制台打印的。\n:raises ValueError: 当 ``src`` 空时 - 没有出口和路径在消息中另有命名。\n:raises AnnDataExtraMissing: 但是,如果 ``anndata`` 不安装。",
       "translation_source_blocks_sha256": [
         "8affa11442d4ce5fdc11d330fcf9db35458e5dffe4cbd16c116ae872c0673bb9",
         "805eeecfb72a3faab6e0d37b7033e21b3ea233249666734f723819d56b96b8fe",
@@ -4989,7 +4989,7 @@
         "39162686ac99188db9977b92f1e970f8d228822b4fb52d5d04c9672425a45510"
       ],
       "source_sha256": "60930519dfead83ce348cc511517187040fe65cc7b9a59a7b068ddf07cd8b17f",
-      "text": "SmoothGrad:平均 ``base_method`` 超过 ``n_samples`` 噪音副本。\n\n格拉迪特地图是视觉噪音,因为ReLU网络的格拉丁在邻近输入之间急剧波动。 加西输入的平均干扰抑制这种波动为 ``1/sqrt(n)`` 同时保持生存结构的干扰。\n\n对于 captum 支持的方法,这就是 captum 自己的 ``NoiseTunnel``. CAM 家庭和 rollout 不是 captum 属性,因此对于这些人来说,平均值是在适配器的重新运行上进行的 - 相同的定义,适用于地图。\n\n放松使一个地图 *look* 更好,它不会使它更忠实,而一个顺利的地图仍然失败 :func:`randomization_sanity_check` 失败它同样糟糕。\n\n:param model: 培训机械学习分类模型。\n:param image: 一张图像。\n:param base_method: 任何 :data:`ATTRIBUTION_METHODS` 的密钥。\n:param n_samples: 噪音复制的数量平均为 ``1`` 是单个噪音样本, *不* 清洁地图 — 打电话 :func:`attribute` 为此。\n:param sigma: 噪音标准偏差作为输入的动态范围的一部分(SmoothGrad纸 ``stdev_spread``)。\n:param target: 班级解释;在清洁图像上解决一次,所以噪音无法浮动哪个班级被解释样品到样品。\n:param layer: 目标层CAM。\n:param model_type: 错误消息的架构名称。\n:param seed: torch 种子,因此重复呼叫重复。\n:param kw: 转向基准方法。\n:returns: 平均值为 :class:`Attribution`。\n:raises AttributionError: 对于 ``n_samples`` 在 1 下方。",
+      "text": "SmoothGrad:平均 ``base_method`` 超过 ``n_samples`` 噪音副本。\n\n格拉迪特地图是视觉噪音,因为ReLU网络的格拉丁在邻近输入之间急剧波动。 加西输入的平均干扰抑制这种波动为 ``1/sqrt(n)`` 同时保持生存结构的干扰。\n\n对于 captum 支持的方法,这就是 captum 自己的 ``NoiseTunnel``. CAM 家庭和 rollout 不是 captum 属性,因此对于这些人来说,平均值是在适配器的重新运行上进行的 - 相同的定义,适用于地图。\n\n放松使一个地图 *look* 更好,它不会使它更忠实,而一个顺利的地图仍然失败 :func:`randomization_sanity_check` 失败它同样糟糕。\n\n:param model: 培训机械学习分类模型。\n:param image: 一张图像。\n:param base_method: 任何 :data:`ATTRIBUTION_METHODS` 的密钥。\n:param n_samples: 噪音复制的数量平均为 ``1`` 是单个噪音样本, *不* 清洁地图 — 调用 :func:`attribute` 为此。\n:param sigma: 噪音标准偏差作为输入的动态范围的一部分(SmoothGrad纸 ``stdev_spread``)。\n:param target: 班级解释;在清洁图像上解决一次,所以噪音无法浮动哪个班级被解释样品到样品。\n:param layer: 目标层CAM。\n:param model_type: 错误消息的架构名称。\n:param seed: torch 种子,因此重复呼叫重复。\n:param kw: 转向基准方法。\n:returns: 平均值为 :class:`Attribution`。\n:raises AttributionError: 对于 ``n_samples`` 在 1 下方。",
       "translation_source_blocks_sha256": [
         "b00d70d20a14be79d6cfb8455fd7690a28550edbf8ae1748f730798c34966e2c",
         "850e60b1bd03cd62cb9ab55fc585c5d1132f687df896772a5642d07978c14b67",
@@ -10923,7 +10923,7 @@
         "1a66c3f7345bdd5dc4d137867085f1296575f0a6de0ee8133741d904e8424d9e"
       ],
       "source_sha256": "5a4d4fcd97599f79472f568a7417b41c093698c86b7078f219bfb85d4905e7b5",
-      "text": "一个点击的细胞,已经分裂,已经计算。\n\n由 :meth:`build` 构建,以便筛选单一打电话并获得它所吸引的一切 - 两个列表,路径的关键和句子 - 而不是在一个鼠标交易器中组织五个功能。\n\n:param true_class: 被列入的类称为混乱矩阵序列。\n:param predicted_class: 模型类称为混合矩阵列。\n:param threshold: 信任界限分开两个审查工作列表。\n:param rows: 每个物体在这个矩阵细胞中,保留在源表顺序。\n:param high: 以至少 ``threshold`` 的信任序列,首先订购最信任的序列。\n:param low: ``threshold``下的行 - 包括缺乏信任 - 首先命令最不自信。",
+      "text": "一个点击的细胞,已经分裂,已经计算。\n\n由 :meth:`build` 构建,以便筛选单一调用并获得它所吸引的一切 - 两个列表,路径的关键和句子 - 而不是在一个鼠标交易器中组织五个功能。\n\n:param true_class: 被列入的类称为混乱矩阵序列。\n:param predicted_class: 模型类称为混合矩阵列。\n:param threshold: 信任界限分开两个审查工作列表。\n:param rows: 每个物体在这个矩阵细胞中,保留在源表顺序。\n:param high: 以至少 ``threshold`` 的信任序列,首先订购最信任的序列。\n:param low: ``threshold``下的行 - 包括缺乏信任 - 首先命令最不自信。",
       "translation_source_blocks_sha256": [
         "40b47fd3418d6bca5e98a84912cf6151c25ae0cf86ba2df61039c0ffbb8da0ee",
         "bf12ddcc183e3f8569adaf1400a06f4cee679cdef42dff91a64873f4e9b84d4a",
@@ -10989,7 +10989,7 @@
         "1737f544ddd0099e8d619cbe69967dfb8105f0ade65d7014e662d8bd572b90c4"
       ],
       "source_sha256": "bcb88bc5ddd6014d62ad6170e4a0f655a37b834af0c440e4adacd5ba91311c22",
-      "text": "对象键为 ``\"high\"``、 ``\"low\"`` 或 ``\"all\"``,列表顺序。\n\n``\"all\"``是高信任的第一,然后低信任 - 不是桌面命令 - 所以一个打电话打开整个细胞仍然得到对象最有可能被错误地标记在网的前面。",
+      "text": "对象键为 ``\"high\"``、 ``\"low\"`` 或 ``\"all\"``,列表顺序。\n\n``\"all\"``是高信任的第一,然后低信任 - 不是桌面命令 - 所以一个调用打开整个细胞仍然得到对象最有可能被错误地标记在网的前面。",
       "translation_source_blocks_sha256": [
         "2978c3e26c1631e4eaba2c5028a2a6f99bddd97237e3efe68416aec0aa991e6b",
         "1737f544ddd0099e8d619cbe69967dfb8105f0ade65d7014e662d8bd572b90c4"
@@ -15092,7 +15092,7 @@
         "2a26984f78c19e5b18a740e637a2921d4405e448ff5ed79cb8c44728e4a8bf2c"
       ],
       "source_sha256": "0174d17de30929305c8888da5f0d66e210cae8b5b8201672a3a346be36e8c110",
-      "text": "写下修复的表和其列表,返回 CSV 路径。\n\n一个打电话,故意. 一张清理的图表写的没有它的列格是正确的重复性洞这个模块存在关闭,留下第二个写给呼叫器是如何发生。 CSV 和列格仍然序列文件系统写的,而不是一个原子交易;如果一个过程停止在他们之间,该方法退出。\n\n:param path: 哪里是 CSV 走; 失踪的父母目录是创建的. 两个文件是写的,而不是一个 - 领先的土地在 ``<path>.curation.json`` 除此之外,复制 CSV 向前,没有那侧面倒下每个纠正的记录。 :attr:`log` 在此路线上重定位,所以保存的列表名称文件它被保存的,而不是任何会议打开的。 ``path`` 过写了。",
+      "text": "写下修复的表和其列表,返回 CSV 路径。\n\n一个调用,故意. 一张清理的图表写的没有它的列格是正确的重复性洞这个模块存在关闭,留下第二个写给呼叫器是如何发生。 CSV 和列格仍然序列文件系统写的,而不是一个原子交易;如果一个过程停止在他们之间,该方法退出。\n\n:param path: 哪里是 CSV 走; 失踪的父母目录是创建的. 两个文件是写的,而不是一个 - 领先的土地在 ``<path>.curation.json`` 除此之外,复制 CSV 向前,没有那侧面倒下每个纠正的记录。 :attr:`log` 在此路线上重定位,所以保存的列表名称文件它被保存的,而不是任何会议打开的。 ``path`` 过写了。",
       "translation_source_blocks_sha256": [
         "263969d314aa493aa89d49381ffed949ffbd9aaf2e55db249e230c1a20a86471",
         "d8ae6810427eaf2289aa29e16337017624b7b7b0f7a8b2d69ee900c9428ea690",
@@ -18335,7 +18335,7 @@
         "3e6dd257dd5ed1344474c9da26d9c5a63aedf4e10c717b07c4f8d9dd03f7c443"
       ],
       "source_sha256": "b95e6c24fc502ed6a4bdffdf65f117878b15107f4eab9e27669f4502416658f2",
-      "text": "记录 ``item`` 已清洁完成。\n\n:param item: 处理的物品的识别。\n:param stage: 工作流阶段;默认到 ledger 名称。\n:returns: ``self``,所以可以连锁电话。",
+      "text": "记录 ``item`` 已清洁完成。\n\n:param item: 处理的物品的识别。\n:param stage: 工作流阶段;默认到 ledger 名称。\n:returns: ``self``,所以可以连锁调用。",
       "translation_source_blocks_sha256": [
         "0d925c8ac124a9317edb264e212f77fa3d2e7338a3aa6b5fd0fa49bd42d24ba2",
         "d1f4a8f229464b50eac9135e73ed7b8646f996e038934f41db6ffd66f01ca9fe",
@@ -18701,7 +18701,7 @@
         "ff6e56ba4d21304a3416de04a74b07d815309d9ee0804cffe53e0fdd5efbe374"
       ],
       "source_sha256": "a152d179cabec1f4ef9869474d3c89bb77d0bb375fa8682243f03c49163a806a",
-      "text": "Unpack 下载的示例档案在 ``dest`` 中。\n\n用 ``filter=\"data\"``,这是整个原因,这是一个功能,而不是两个线在电话网站上. 一个tar 可以命名 ``../../etc/something`` 或一个绝对的路径,而一个平板 ``extractall`` 会快乐地写在那里 - 因此,无包装下载的内容没有过滤器手谁可以发表到 repo 一写在任何地方用户可以写。\n\nPython 3.12 及后将它建立在内. 老年翻译者获得一个明确的检查,而不是一个沉默的未过滤的包。\n\n:param archive: ``.tar`` 在磁盘上。\n:param dest: 把文件夹放进去。\n:returns: 有多少人写的。",
+      "text": "Unpack 下载的示例档案在 ``dest`` 中。\n\n用 ``filter=\"data\"``,这是整个原因,这是一个功能,而不是两个线在调用点上. 一个tar 可以命名 ``../../etc/something`` 或一个绝对的路径,而一个平板 ``extractall`` 会快乐地写在那里 - 因此,无包装下载的内容没有过滤器手谁可以发表到 repo 一写在任何地方用户可以写。\n\nPython 3.12 及后将它建立在内. 老年翻译者获得一个明确的检查,而不是一个沉默的未过滤的包。\n\n:param archive: ``.tar`` 在磁盘上。\n:param dest: 把文件夹放进去。\n:returns: 有多少人写的。",
       "translation_source_blocks_sha256": [
         "231e35ff566cf1d4ad7ed7922800f846fa066c88d1711c948430c3ef900a4614",
         "75cb5499898544c9401a58cab67aa4d1323e7f32e2af92b617a68832b054382a",
@@ -24979,7 +24979,7 @@
         "2dfa734ded2203ab8414e4519fcbdf7a763d878110d88ebe8ed64dbb51f47b77"
       ],
       "source_sha256": "93cdbcc4bf763d14fbd44b35e76e1d92862867222ffe04b11cc49a971f16626c",
-      "text": "写下持久的副本,并在其路线下提供记忆框架。\n\n:param frame: 把框架放在手上。\n:param folder: 对象的目录;在缺席时创建。\n:param stem: 文件名 无 suffix\n:param columnar: 发动机安装时输入 Parquet ``False`` 强度 CSV,即当文件被打算在扩展表中打开时呼叫者想要的,而不是用 spaCR 重新阅读。\n:param report: 用一行打电话说什么是写的,它花了多少时间; ``None`` 说什么。\n:returns: 路写的。\n:raises ValueError: if ``frame`` is ``None``.\n:raises OSError: 如果目的地目录或可持续的物品无法写作,则其他桌面写作错误也在报价登记后传播,并且任何预先存在的可持续物品都留下来。\n\n框架在写作返回之前提供,因此读者开始时仍然正在写作时会获得对象而不是半写的文件。",
+      "text": "写下持久的副本,并在其路线下提供记忆框架。\n\n:param frame: 把框架放在手上。\n:param folder: 对象的目录;在缺席时创建。\n:param stem: 文件名 无 suffix\n:param columnar: 发动机安装时输入 Parquet ``False`` 强度 CSV,即当文件被打算在扩展表中打开时呼叫者想要的,而不是用 spaCR 重新阅读。\n:param report: 用一行调用说什么是写的,它花了多少时间; ``None`` 说什么。\n:returns: 路写的。\n:raises ValueError: if ``frame`` is ``None``.\n:raises OSError: 如果目的地目录或可持续的物品无法写作,则其他桌面写作错误也在报价登记后传播,并且任何预先存在的可持续物品都留下来。\n\n框架在写作返回之前提供,因此读者开始时仍然正在写作时会获得对象而不是半写的文件。",
       "translation_source_blocks_sha256": [
         "78d64c83d7b0a392b08b295a8b31a8d635d32af38fff73e946621a83169d812f",
         "fe9a0448d52dbcd31f85be508405f546c44e9a671f37e5380f30b195ad24b17a",
@@ -32547,7 +32547,7 @@
         "7a4b65b748c83d23c7b8dbd02e787c76cb4c31391577777bb52f7f59bd2a61d7"
       ],
       "source_sha256": "f3f973a1d48ea5427605a46033763984584831c9b4e4b6eb4180abefc809d2e7",
-      "text": "开始一个新鲜的通过数据,并返回自己。\n\n安全打电话超过一次(``list(iter(dl))``称之为两次):任何在飞行的生产者首先停止,所以流量永远不会翻倍。",
+      "text": "开始一个新鲜的通过数据,并返回自己。\n\n安全调用超过一次(``list(iter(dl))``称之为两次):任何在飞行的生产者首先停止,所以流量永远不会翻倍。",
       "translation_source_blocks_sha256": [
         "af228fbbd8a1d56a30c1390c15e3b4041da9856df7aeaafe8342a5c8893a9970",
         "7a4b65b748c83d23c7b8dbd02e787c76cb4c31391577777bb52f7f59bd2a61d7"
@@ -35333,7 +35333,7 @@
         "16d416692303e5d08d8864e3d35c3e908605b788cedfcb7541211c710b29752f"
       ],
       "source_sha256": "58b23b1281ba7fc1eae20e926acf394cecd9b0b3f1db4e82566e3bec186956c7",
-      "text": "包含 ``key`` 或 ``None`` 的树。\n\n``key``可以命名根或其内部的任何东西:询问一个病原体,这将返回它所居住的*细胞*,因为有用的看法是病原子的细胞周围。 一个只想要子树的通话者在结果上打电话:meth:`LineageNode.find`。\n\n整个森林在每一次呼叫时都被重建和扫描,成本是相同的,无论关键是第一根,还是完全缺席,所以一个搜索结果应该一次打:func:`build_forest`,然后使用:meth:`LineageNode.find`在它得到什么。\n\n:param frames: ``{table name: rows}``,转移到 :func:`build_forest`. 只有 :data:`LINEAGE_TABLES`中的表被阅读,所以任何其他转移都被忽略,并且一个测量没有病原体的跑步寻找无子细胞。\n:param key: 共享对象识别器,与 :attr:`LineageNode.key` 相比,在 ``str()`` 之后。 它是 *not* 与 :attr:`LineageNode.node_id` 相比,因此相同身份的预定表图没有找到任何东西,并返回 ``None``。\n:param root: 它不被检查对孩子的父母列实际上指的是什么:与``root='nucleus'``,一个病原体,其``cell_id``等于一个核标签被粘贴到这个核,而一个细胞结构化数据名称然后找不到什么,因为没有细胞在森林中。\n:param typed: 必须同意 ``key`` 是如何播放的,没有什么检查它。 用 ``typed=False`` 搜索的字符密钥 - 或者用默认搜索的遗产未标记的文件密码 - 返回 ``None``,与 \"no such object\" 相同的答案. 在 ``typed=False`` 中,一个家庭内部的冲突仍然会识别这个家庭,但在不同的家庭中发现的密钥会出现,而不是先选择任何根品种。\n:raises LineageError: 当 ``root`` 缺少 ``frames`` 时,或者当存在的表不能被命名时。 森林是在搜索之前建造的,所以一个``nucleus``表没有其显微镜的视野列,即使想要的结构化数据名称属于病原体。 一个单纯不存在的结构化数据名称是``None``,而不是一个例外。 除此之外,如果 ``key`` 名为多个家庭中的物体,则将其列为例外; 使用编写的结构数据名称来分解它们。",
+      "text": "包含 ``key`` 或 ``None`` 的树。\n\n``key``可以命名根或其内部的任何东西:询问一个病原体,这将返回它所居住的*细胞*,因为有用的看法是病原子的细胞周围。 一个只想要子树的通话者在结果上调用:meth:`LineageNode.find`。\n\n整个森林在每一次呼叫时都被重建和扫描,成本是相同的,无论关键是第一根,还是完全缺席,所以一个搜索结果应该一次打:func:`build_forest`,然后使用:meth:`LineageNode.find`在它得到什么。\n\n:param frames: ``{table name: rows}``,转移到 :func:`build_forest`. 只有 :data:`LINEAGE_TABLES`中的表被阅读,所以任何其他转移都被忽略,并且一个测量没有病原体的跑步寻找无子细胞。\n:param key: 共享对象识别器,与 :attr:`LineageNode.key` 相比,在 ``str()`` 之后。 它是 *not* 与 :attr:`LineageNode.node_id` 相比,因此相同身份的预定表图没有找到任何东西,并返回 ``None``。\n:param root: 它不被检查对孩子的父母列实际上指的是什么:与``root='nucleus'``,一个病原体,其``cell_id``等于一个核标签被粘贴到这个核,而一个细胞结构化数据名称然后找不到什么,因为没有细胞在森林中。\n:param typed: 必须同意 ``key`` 是如何播放的,没有什么检查它。 用 ``typed=False`` 搜索的字符密钥 - 或者用默认搜索的遗产未标记的文件密码 - 返回 ``None``,与 \"no such object\" 相同的答案. 在 ``typed=False`` 中,一个家庭内部的冲突仍然会识别这个家庭,但在不同的家庭中发现的密钥会出现,而不是先选择任何根品种。\n:raises LineageError: 当 ``root`` 缺少 ``frames`` 时,或者当存在的表不能被命名时。 森林是在搜索之前建造的,所以一个``nucleus``表没有其显微镜的视野列,即使想要的结构化数据名称属于病原体。 一个单纯不存在的结构化数据名称是``None``,而不是一个例外。 除此之外,如果 ``key`` 名为多个家庭中的物体,则将其列为例外; 使用编写的结构数据名称来分解它们。",
       "translation_source_blocks_sha256": [
         "f884305635c5ed41188cf209741a1af5b67f3db0bc81cda4bf19a1c9648d4171",
         "8e859989eb3a12fd2b118503439714fc2a386c5af367ca1045e5f6ed38f57a0d",
@@ -35475,7 +35475,7 @@
         "76f79ad2b158b6648e6d3134c12e6bfd12816bb8eea56bb9ed58911fe2b93013"
       ],
       "source_sha256": "696661c3e1c1b67e1562316837aa32fede1cea815e0759e137aa8a04593bd5e5",
-      "text": "包范围 Python `logging` 为 spacr 设置。\n\n每个 spacr 子系统的中央配置 - 核心工作流、 I/O、测量、用途和 Qt GUI 所有字幕,通过相同的旋转文件处理器在 ``~/.spacr/logs/spacr.log``。\n\n选择两种方式:\n\n- 自动 - 启动时, Qt GUI 会呼叫 :func:`setup_logging` ,所以一旦运行 ``spacr-qt`` ,日志文件将被定位为会议寿命。\n- 手册 - 无图形界面写作和笔记本:\n\n  .. code-block:: python\n\n     from spacr.logging_util import setup_logging, get_logger\n     setup_logging()                # once, at program start\n     LOG = get_logger(__name__)     # in every module that logs\n     LOG.info(\"started\")\n\n记录水平可以在 env 中超过 ``SPACR_LOG_LEVEL`` (``DEBUG``, ``INFO``, 和 ``WARNING``, ... ) 。 :func:`enable_debug` 和 和 :func:`disable_debug` 是互动使用的方便条纹。\n\n在 spacr 工作流中大量发送 INFO 记录的第三方库（torch 库、cellpose 库、matplotlib 库、PIL 库、urllib3 库、botocore 库、tensorflow 库、asyncio 库）会被固定到 WARNING 级别，以保持日志有用。如果新依赖开始刷屏，请将其加入 :data:`QUIET_LOGGERS`。\n\n公共 API: setup_logging(重定向 = 信息) log_file=None(一)早点打电话。 get_logger(名称) - 模块编写的登录器。 enable_debug( ) - 克兰克 spacr.* 到 DEBUG. disable_debug( ) - 返回会议级别。 log_dir( ) - 持有日志的文件夹。 log_path( ) - 绝对登录文件路径。",
+      "text": "包范围 Python `logging` 为 spacr 设置。\n\n每个 spacr 子系统的中央配置 - 核心工作流、 I/O、测量、用途和 Qt GUI 所有字幕,通过相同的旋转文件处理器在 ``~/.spacr/logs/spacr.log``。\n\n选择两种方式:\n\n- 自动 - 启动时, Qt GUI 会呼叫 :func:`setup_logging` ,所以一旦运行 ``spacr-qt`` ,日志文件将被定位为会议寿命。\n- 手册 - 无图形界面写作和笔记本:\n\n  .. code-block:: python\n\n     from spacr.logging_util import setup_logging, get_logger\n     setup_logging()                # once, at program start\n     LOG = get_logger(__name__)     # in every module that logs\n     LOG.info(\"started\")\n\n记录水平可以在 env 中超过 ``SPACR_LOG_LEVEL`` (``DEBUG``, ``INFO``, 和 ``WARNING``, ... ) 。 :func:`enable_debug` 和 和 :func:`disable_debug` 是互动使用的方便条纹。\n\n在 spacr 工作流中大量发送 INFO 记录的第三方库（torch 库、cellpose 库、matplotlib 库、PIL 库、urllib3 库、botocore 库、tensorflow 库、asyncio 库）会被固定到 WARNING 级别，以保持日志有用。如果新依赖开始刷屏，请将其加入 :data:`QUIET_LOGGERS`。\n\n公共 API: setup_logging(重定向 = 信息) log_file=None(一)早点调用。 get_logger(名称) - 模块编写的登录器。 enable_debug( ) - 克兰克 spacr.* 到 DEBUG. disable_debug( ) - 返回会议级别。 log_dir( ) - 持有日志的文件夹。 log_path( ) - 绝对登录文件路径。",
       "translation_source_blocks_sha256": [
         "6ac0c12c11bf45421a0fcad7c57e20b1a3b3d0820c8104f552839abacf33629e",
         "e87fddb19faac96c027f538e0906c2bf75a454e0fc1c6b47893f48d6759dd199",
@@ -35836,7 +35836,7 @@
         "7a250b824fa0352b2f90b9b793b225fd02c42aa2dc31de2b1243a7e386959e5f"
       ],
       "source_sha256": "25cc4cc8d922bb669281c10cdf2d15facc85f1c2a97c992045d86ccabc122378",
-      "text": "宏记录器:每行都写下将重复的脚本。\n\n一个 GUI 处理会议用于留下设置后面,没有别的东西. 设置是 *输入*,而不是方法 - 阅读 ``settings.json`` 告诉你什么是按钮,从来没有什么功能消耗它们,在什么顺序,或如何第二个模块发现了第一个做什么。\n\n每个开启日记的处理会议(:func:`spacr.run_journal.open_run` - 一个标记 Qt GUI, Tk GUI 和 CLI 全部发射通过)也发出 ``macro.py``:实际输入,实际设定关键值地图,一个实际的呼叫。\n\n在一个文件中有三个可交付,第三个是为什么发行的脚本是 *也* 一个数据结构:\n\n**A 可重复性记录.** 脚本是方法部分。 其标题包含 spaCR 版本, 处理会话ID和设置Hash, 这些不是装饰:处理会 ID 是每个日志线上打印的 ID :mod:`spacr.runctx` 并在每个输出中打印 :mod:`spacr.artifacts` , 写作的脚本, 记录和所有文件都连接到一个列。 设置哈希为 :func:`spacr.artifacts.settings_hash`,同样的消化器,艺术品行携带。\n\n**从点击到 API** 一个用户已经过度开发了 GUI 打开 ``macro.py`` 并发现他们会写的代码 - 不是一个插槽,不是一个重复的用途,实际的两个线条。\n\n**大多数输入到方法和结果出口商.** 这就是为什么脚本也携带:data:`MACRO`,一个平坦的关键值地图字面持有每个步骤的模块,输入点,处理会议ID,设置,其中哪个设置只是默认,它产生了什么,它花了多少时间。 :func:`read_macro` 阅读它回来 *没有执行脚本* - 它是折叠,不进口 - 因此出口商可以消耗一个宏它没有产生,不信任。\n\n四件事,发行的脚本是小心的\n-----------------------------------------------\n\n*缺陷被写出。* 一个设置的关键值地图,忽略了 ``cell_diameter`` 随之而奔跑 spaCR 缺陷是 **今天**. Pin 版本,而它是可重复的; 没有什么更少的. 因此,模块的默认字段中的每个字段名称都以其值发行,并且 :data:`MACRO` 记录结构化数据名称,用户实际上设置(``user_set``其次,他们被填满了(``defaulted``) - 出口商需要这种区别,脚本不应该失去它。\n\n*A链是一个脚本*掩膜,然后测量,然后分类在同一个项目是一个文件,有三个步骤的依赖顺序,而不是三个文件。 边缘是对 :func:`spacr.ports.next_modules` 确认的,所以脚本中的命令是工作流合同宣布的命令。\n\n*中间路径连接在一起,不重复.* 项目的每一步都变成一个名为恒定的,下面的每条路径都从恒定的:func:`os.path.join`重建。\n\n*这里可能没有任何处理会议* 录制是由 :func:`begin_recording` / :func:`finish_recording` 打破的,其中两者都吞下了一切。 一个不能写的麦克风需要一个日志线。\n\n使用\n-----\n.. code-block:: python\n\n    from spacr.macro import current_macro, read_macro\n\n    macro = current_macro()          # the chain recorded in this process\n    print(macro.source())            # the script\n    meta = read_macro(macro.path)    # the same thing, as data\n\n公民 API\n----------\n``begin_recording``, ``finish_recording`` 霍克 :func:`spacr.run_journal.open_run` 打电话。 其余的一切都是这两者下流的。 ``Macro``, ``MacroStep``, ``current_macro``, ``macros``, ``reset`` 在此过程中记录的链条。 ``render``, ``read_macro``, ``macro_path``, ``macros_dir`` 播放脚本,并阅读一个作为数据。 ``entry_for``, ``module_defaults``, ``explicit_settings`` 分辨率步骤,可自行使用 - 一个模块结构数据名称运行什么功能,它的默认性是什么,以及完全解释的设置关键值地图。",
+      "text": "宏记录器:每行都写下将重复的脚本。\n\n一个 GUI 处理会议用于留下设置后面,没有别的东西. 设置是 *输入*,而不是方法 - 阅读 ``settings.json`` 告诉你什么是按钮,从来没有什么功能消耗它们,在什么顺序,或如何第二个模块发现了第一个做什么。\n\n每个开启日记的处理会议(:func:`spacr.run_journal.open_run` - 一个标记 Qt GUI, Tk GUI 和 CLI 全部发射通过)也发出 ``macro.py``:实际输入,实际设定关键值地图,一个实际的呼叫。\n\n在一个文件中有三个可交付,第三个是为什么发行的脚本是 *也* 一个数据结构:\n\n**A 可重复性记录.** 脚本是方法部分。 其标题包含 spaCR 版本, 处理会话ID和设置Hash, 这些不是装饰:处理会 ID 是每个日志线上打印的 ID :mod:`spacr.runctx` 并在每个输出中打印 :mod:`spacr.artifacts` , 写作的脚本, 记录和所有文件都连接到一个列。 设置哈希为 :func:`spacr.artifacts.settings_hash`,同样的消化器,艺术品行携带。\n\n**从点击到 API** 一个用户已经过度开发了 GUI 打开 ``macro.py`` 并发现他们会写的代码 - 不是一个插槽,不是一个重复的用途,实际的两个线条。\n\n**大多数输入到方法和结果出口商.** 这就是为什么脚本也携带:data:`MACRO`,一个平坦的关键值地图字面持有每个步骤的模块,输入点,处理会议ID,设置,其中哪个设置只是默认,它产生了什么,它花了多少时间。 :func:`read_macro` 阅读它回来 *没有执行脚本* - 它是折叠,不进口 - 因此出口商可以消耗一个宏它没有产生,不信任。\n\n四件事,发行的脚本是小心的\n-----------------------------------------------\n\n*缺陷被写出。* 一个设置的关键值地图,忽略了 ``cell_diameter`` 随之而奔跑 spaCR 缺陷是 **今天**. Pin 版本,而它是可重复的; 没有什么更少的. 因此,模块的默认字段中的每个字段名称都以其值发行,并且 :data:`MACRO` 记录结构化数据名称,用户实际上设置(``user_set``其次,他们被填满了(``defaulted``) - 出口商需要这种区别,脚本不应该失去它。\n\n*A链是一个脚本*掩膜,然后测量,然后分类在同一个项目是一个文件,有三个步骤的依赖顺序,而不是三个文件。 边缘是对 :func:`spacr.ports.next_modules` 确认的,所以脚本中的命令是工作流合同宣布的命令。\n\n*中间路径连接在一起,不重复.* 项目的每一步都变成一个名为恒定的,下面的每条路径都从恒定的:func:`os.path.join`重建。\n\n*这里可能没有任何处理会议* 录制是由 :func:`begin_recording` / :func:`finish_recording` 打破的,其中两者都吞下了一切。 一个不能写的麦克风需要一个日志线。\n\n使用\n-----\n.. code-block:: python\n\n    from spacr.macro import current_macro, read_macro\n\n    macro = current_macro()          # the chain recorded in this process\n    print(macro.source())            # the script\n    meta = read_macro(macro.path)    # the same thing, as data\n\n公民 API\n----------\n``begin_recording``, ``finish_recording`` 霍克 :func:`spacr.run_journal.open_run` 调用。 其余的一切都是这两者下流的。 ``Macro``, ``MacroStep``, ``current_macro``, ``macros``, ``reset`` 在此过程中记录的链条。 ``render``, ``read_macro``, ``macro_path``, ``macros_dir`` 播放脚本,并阅读一个作为数据。 ``entry_for``, ``module_defaults``, ``explicit_settings`` 分辨率步骤,可自行使用 - 一个模块结构数据名称运行什么功能,它的默认性是什么,以及完全解释的设置关键值地图。",
       "translation_source_blocks_sha256": [
         "ddd773060a58a84a046ed832cc91523dcba0abdab852a4efaebdefd6bcd8b958",
         "a28d011d21c6b54cb7c40e847125e93fc7bdd8f5725d7dc67d761cf43aefd7c0",
@@ -36026,7 +36026,7 @@
         "3bbf5bf21f2e3e06f90f28a6631ff7cff6a85eddb4fe6df01101dd06b6308e19"
       ],
       "source_sha256": "3bbf5bf21f2e3e06f90f28a6631ff7cff6a85eddb4fe6df01101dd06b6308e19",
-      "text": "无论这个步骤是否有输入点,脚本可以打电话。",
+      "text": "无论这个步骤是否有输入点,脚本可以调用。",
       "translation_source_blocks_sha256": [
         "3bbf5bf21f2e3e06f90f28a6631ff7cff6a85eddb4fe6df01101dd06b6308e19"
       ]
@@ -41511,7 +41511,7 @@
         "62c19a3a10bd21314cc610f923ea3b058ce7e5eda4d761314a1978a8654d3c5b"
       ],
       "source_sha256": "270f57f3ea457ba5209e3c702a493d9ad62c52cbc0ee1e1560c99290373aa244",
-      "text": "从每个路径阅读 ``table`` 并返回一个框架。\n\n:param paths: 测量数据库。\n:param table: 每个人都能读到一张桌子。\n:param plan: :func:`describe_merge`的计划; 如果被忽略了。 通过 ``screens=`` 到 :func:`describe_merge` 并在此类似,或者计划和阅读不同意哪个筛选是一个数据库。\n:param columns: ``'common'`` 只保留列在每个来源(安全,和滴); ``'union'`` 保留一切,并留下零在一个来源没有它(保留,并改变什么 \"missing\" 意味着)。 ``'common'`` 是默认,因为测量表是宽的,并在 spaCR 版本之间有所不同 - 但一个落的测量是用户来比较的一个测量,因此,该集肯定不是简单的默认(见 ``report`` 和 ``.attrs``)。\n:param on_collision: 一张板 ID 被翻译为 **within 1 筛选** 时该怎么办? ``'refuse'`` 增加 :class:`MergeRefused`; ``'qualify'`` 预定每个碰撞板与其源标签。 故意没有选择将他们放弃。 两个 *不同* 显示器分享一个板 ID 不是冲突,并且没有到达任何分支。\n:param screens: 可选的筛选标签每个数据库 - 一个序列与 ``paths`` 平行,或从路径的地图. 这是两个筛选的推荐答案:标签是写在 :data:`SCREEN_COLUMN`,所以它仍然是一个尺寸你可以阻止,而不是到板 ID,在那里它变成一个线条将被分开。\n:param report: 用一个易于阅读的线条,每件事物的合并成本 - 目前是下降的测量。\n:param limit_per_source: 按数据库进行序列,预览。\n:param progress: 在每个数据库阅读之前和之后,呼叫``progress(stage, done, total)``。 ``stage`` 是指表的名称和数据库的句子; ``done`` 和 ``total`` 是 ROWS,对 ``rows_total`` 计算,所以一个呼叫者阅读多个表可以显示一个字符串在所有。 从任何独立的执行路线上呼叫,所以一个 GUI 呼叫者必须传送它,而不是触摸其中的一个 widget。\n:param cancelled: 在每个数据库之前打电话;一个真实的答案上升为 :class:`MergeCancelled` 并且没有返回任何东西。\n:param rows_done: 序列已经由以前的呼叫计算,对于多桌案例。\n:param rows_total: 名称为 ``progress``。 这个计划本身的总数的缺陷,这对一个桌子来说是正确的,对一个召唤者来说太小,结合了几个 - 因此,一个呼唤者结合了多个,通过了它从他们的所有计划中计算的大总数。\n:returns: 一个带有 :data:`SOURCE_COLUMN` 和 :data:`SCREEN_COLUMN` 的框架,与 ``frame.attrs['dropped_columns']`` 命名未生存的测量。\n:raises MergeRefused: 在 ``on_collision='refuse'`` 或未知的选项下的内屏板碰撞上。\n:raises MergeCancelled: ``cancelled()`` 答案是正确的。",
+      "text": "从每个路径阅读 ``table`` 并返回一个框架。\n\n:param paths: 测量数据库。\n:param table: 每个人都能读到一张桌子。\n:param plan: :func:`describe_merge`的计划; 如果被忽略了。 通过 ``screens=`` 到 :func:`describe_merge` 并在此类似,或者计划和阅读不同意哪个筛选是一个数据库。\n:param columns: ``'common'`` 只保留列在每个来源(安全,和滴); ``'union'`` 保留一切,并留下零在一个来源没有它(保留,并改变什么 \"missing\" 意味着)。 ``'common'`` 是默认,因为测量表是宽的,并在 spaCR 版本之间有所不同 - 但一个落的测量是用户来比较的一个测量,因此,该集肯定不是简单的默认(见 ``report`` 和 ``.attrs``)。\n:param on_collision: 一张板 ID 被翻译为 **within 1 筛选** 时该怎么办? ``'refuse'`` 增加 :class:`MergeRefused`; ``'qualify'`` 预定每个碰撞板与其源标签。 故意没有选择将他们放弃。 两个 *不同* 显示器分享一个板 ID 不是冲突,并且没有到达任何分支。\n:param screens: 可选的筛选标签每个数据库 - 一个序列与 ``paths`` 平行,或从路径的地图. 这是两个筛选的推荐答案:标签是写在 :data:`SCREEN_COLUMN`,所以它仍然是一个尺寸你可以阻止,而不是到板 ID,在那里它变成一个线条将被分开。\n:param report: 用一个易于阅读的线条,每件事物的合并成本 - 目前是下降的测量。\n:param limit_per_source: 按数据库进行序列,预览。\n:param progress: 在每个数据库阅读之前和之后,呼叫``progress(stage, done, total)``。 ``stage`` 是指表的名称和数据库的句子; ``done`` 和 ``total`` 是 ROWS,对 ``rows_total`` 计算,所以一个呼叫者阅读多个表可以显示一个字符串在所有。 从任何独立的执行路线上呼叫,所以一个 GUI 呼叫者必须传送它,而不是触摸其中的一个 widget。\n:param cancelled: 在每个数据库之前调用;一个真实的答案上升为 :class:`MergeCancelled` 并且没有返回任何东西。\n:param rows_done: 序列已经由以前的呼叫计算,对于多桌案例。\n:param rows_total: 名称为 ``progress``。 这个计划本身的总数的缺陷,这对一个桌子来说是正确的,对一个召唤者来说太小,结合了几个 - 因此,一个呼唤者结合了多个,通过了它从他们的所有计划中计算的大总数。\n:returns: 一个带有 :data:`SOURCE_COLUMN` 和 :data:`SCREEN_COLUMN` 的框架,与 ``frame.attrs['dropped_columns']`` 命名未生存的测量。\n:raises MergeRefused: 在 ``on_collision='refuse'`` 或未知的选项下的内屏板碰撞上。\n:raises MergeCancelled: ``cancelled()`` 答案是正确的。",
       "translation_source_blocks_sha256": [
         "d0bcc6cc94823f27c91a0416d4a9c2bbaacc302a0b8c92059799d725260ec879",
         "4c488167955ac54f99d043b7b0aba97a83a8d90cba8c07d8972e821c796cbec2",
@@ -41539,7 +41539,7 @@
         "c88c487a8fb1fd67f992a994ce0e8857c7c234306d3ee0563048ae9a2383893e"
       ],
       "source_sha256": "6f6307579b10f90346e7f5680068b42f66912f6a5b108cb620e0cdac616b44c9",
-      "text": "将 ``decision`` 添加到合并日志中,然后返回已进入的文件。\n\nJSON 行,附加:合并决定是一个事件,并重新编写一个完整的文件添加一个将失去另一个,如果两个筛选决定同时。\n\n永远不会为一个不可写的日志投下 - 一个只阅读的主目录不应该为审计线而下载筛选 - 但会返回 ``\"\"`` 这样一个打电话的人可以说记录没有保存。\n\n:param decision: JSON - 安全合并决定添加。",
+      "text": "将 ``decision`` 添加到合并日志中,然后返回已进入的文件。\n\nJSON 行,附加:合并决定是一个事件,并重新编写一个完整的文件添加一个将失去另一个,如果两个筛选决定同时。\n\n永远不会为一个不可写的日志投下 - 一个只阅读的主目录不应该为审计线而下载筛选 - 但会返回 ``\"\"`` 这样一个调用的人可以说记录没有保存。\n\n:param decision: JSON - 安全合并决定添加。",
       "translation_source_blocks_sha256": [
         "ae1a03f759cb00bedac22476cc2e728384596ce563801d993c55b363d1a1b58f",
         "01835689e363fbef9ae905402ec77dfcd051a8857a2bd562bc74af1a60d433d9",
@@ -41652,7 +41652,7 @@
         "111a7fe7ec138e1199dad96bae17ba3c87845ab2df26050de589590b95c2bcf4"
       ],
       "source_sha256": "3d92c75cd234187bdee45bee9df383560350f4cd89a362c3fb7d324b74440ac3",
-      "text": "最大的 RAW P 值 ``method`` 称为 ``alpha`` 或 ``None``。\n\n该号码让一个持续的接口显示一个隐藏的电话。 对原料P值的火山不能将调整的P放在其y轴上,而不会继承步骤函数BH的累积最低创造 - 但它不需要。 每个修正在一个家庭内的原始P中都是独一无二的,所以它所呼叫的集总是一个更低的集:有``k``等级,以至于每个``p <= p_(k)``的测试都被召唤,而上面的每个测试并不是。 因此,在 ``-log10(p_(k))`` 的一个垂直线将字符串分为正如纠正所做的那样,在一个没有步骤的轴上。\n\n,这才是真正的爱情。\n\n    q_(i) <= 阿尔法如果和只有如果 p_(i)<= * i / n\n\n得到最大的 ``i`` 满足它。 在这里计算从纠正本身的拒绝呼叫而不是从这个公式,所以线不能不同意旁边的颜色,相同的函数响应所有十三种方法而不是一个。\n\n路线不是``alpha``。 绘制它在``-log10(0.05)``是这个错误取代:这是*不纠正*边界,它远远高于修正的一个,而一个读者对它的测量读得太多的筛选,如称。\n\n``None`` 当没有什么被称为,而不是一个失败。 因此,没有``k``和没有线,这样说是发现; 要在``alpha``中绘制一个,则会要求从未达到的边界。\n\n:param p_values: 原始 P 值为 One 多重测试家庭。\n:param method: 任何播放 :func:`canonical_method` 都接受。\n:param alpha: 修正目标的水平。\n:returns: 原料 P 作为浮动,或 ``None`` 的边界。",
+      "text": "最大的 RAW P 值 ``method`` 称为 ``alpha`` 或 ``None``。\n\n该号码让一个持续的接口显示一个隐藏的调用。 对原料P值的火山不能将调整的P放在其y轴上,而不会继承步骤函数BH的累积最低创造 - 但它不需要。 每个修正在一个家庭内的原始P中都是独一无二的,所以它所呼叫的集总是一个更低的集:有``k``等级,以至于每个``p <= p_(k)``的测试都被召唤,而上面的每个测试并不是。 因此,在 ``-log10(p_(k))`` 的一个垂直线将字符串分为正如纠正所做的那样,在一个没有步骤的轴上。\n\n,这才是真正的爱情。\n\n    q_(i) <= 阿尔法如果和只有如果 p_(i)<= * i / n\n\n得到最大的 ``i`` 满足它。 在这里计算从纠正本身的拒绝呼叫而不是从这个公式,所以线不能不同意旁边的颜色,相同的函数响应所有十三种方法而不是一个。\n\n路线不是``alpha``。 绘制它在``-log10(0.05)``是这个错误取代:这是*不纠正*边界,它远远高于修正的一个,而一个读者对它的测量读得太多的筛选,如称。\n\n``None`` 当没有什么被称为,而不是一个失败。 因此,没有``k``和没有线,这样说是发现; 要在``alpha``中绘制一个,则会要求从未达到的边界。\n\n:param p_values: 原始 P 值为 One 多重测试家庭。\n:param method: 任何播放 :func:`canonical_method` 都接受。\n:param alpha: 修正目标的水平。\n:returns: 原料 P 作为浮动,或 ``None`` 的边界。",
       "translation_source_blocks_sha256": [
         "3c54dd692b69cf8fc3c347796ea01ec9f3e38a711a5f251f803510807fd61ae7",
         "491449902afbb36467753f6010d01cf7737d8238ed60e705c07b77d254a4ef53",
@@ -45145,7 +45145,7 @@
         "73d92223d357b5f61d7b5f772146dae04e12b01795e1fc870e82de18ab0cb5c4"
       ],
       "source_sha256": "8dbfb4e88a21ebf562462c2d4e3e98788980300fbca46d7397df7c0f0a5e162a",
-      "text": "在模型按 macOS 时包含双重 OpenMP 运行时间。\n\nTorch, scikit-learn 和 XGBoost 轮子可以将独立的 LLVM OpenMP 运行时间加载到一个过程。 通过其背景执行单位状态可以终止过程,特别是当 ``KMP_DUPLICATE_LIB_OK`` 抑制运行时间的双重启动警卫。\n\n:func:`single_threaded_openmp` 检测地图的运行时间,如果有多个居民,则在适当的独立执行路径上打电话 ``omp_set_num_threads(1)``。 这将使独立执行路径的平行区域进行序列化,而不会对分区和其他工作负载实施全程``OMP_NUM_THREADS=1``限制。 估计 ``n_jobs`` 和 ``nthread`` 论点不是替代品,因为它们不会阻止 OpenMP 运行时间创建一个工作团队。\n\n该模块没有 Qt 依赖性,并且安全用于命令线和集体工作流。",
+      "text": "在模型按 macOS 时包含双重 OpenMP 运行时间。\n\nTorch, scikit-learn 和 XGBoost 轮子可以将独立的 LLVM OpenMP 运行时间加载到一个过程。 通过其背景执行单位状态可以终止过程,特别是当 ``KMP_DUPLICATE_LIB_OK`` 抑制运行时间的双重启动警卫。\n\n:func:`single_threaded_openmp` 检测地图的运行时间,如果有多个居民,则在适当的独立执行路径上调用 ``omp_set_num_threads(1)``。 这将使独立执行路径的平行区域进行序列化,而不会对分区和其他工作负载实施全程``OMP_NUM_THREADS=1``限制。 估计 ``n_jobs`` 和 ``nthread`` 论点不是替代品,因为它们不会阻止 OpenMP 运行时间创建一个工作团队。\n\n该模块没有 Qt 依赖性,并且安全用于命令线和集体工作流。",
       "translation_source_blocks_sha256": [
         "ae0c3d4f7203b68654f6a5db05356bb49de1bb3413238fe7ae3c6dd21677c37f",
         "c7650f20dbd39b818e9093e7ab0d35135b42d56f74a06a1d166dddd86ea3582f",
@@ -47131,7 +47131,7 @@
         "9cb69b2f0f37edcd3fa221d72438f94581302e9bd68f382fe9a1619ae4732977"
       ],
       "source_sha256": "d17bc22e3239bf6c86487dede5cd57069e091d365c4ce6af04be981aa4be551f",
-      "text": "一个合并的测量框从输入表的实验室微板行。\n\n退缩输入表的一个顺序是实验室微板:它的分数 CSV,它的计算 CSV,现在它的测量数据库. 这个模块是这个功能的无图形界面半 - 因为 ``{plate: database path}``,用户点击的表和他们选择的轴,它返回合并框架。\n\n这里没有什么是新的合并逻辑,这就是这一点。 spaCR 已经有四个位置连接到测量表,其中一个(``io._read_and_join_tables``)将每个数字列集成为 ``mean``,这将四个病原体的总面积转化为一个平均区域,而一个 MINIMUM则变成一个最低的平均区域。 第五个是第五个答案。 如:\n\n* :func:`spacr.multi_database.describe_merge` / :func:`~spacr.multi_database.read_merged` 插入数据库 - 一张单一的表,携带 ``source_database`` 和 ``screenID``,拒绝在一个筛选内重复的表标识符;\n* :func:`spacr.merge_tables.roll_up` 将每个儿童表集成到一个字符串上,每个列的一个规则从 :data:`spacr.merge_tables.AGGREGATION_RULES`;\n* :meth:`spacr.merge_tables.MergePolicy.how_for`决定加入按表,因为心脏性不同 - 一个细胞有一个细胞和许多病原体,而一个未感染的细胞仍然是一个细胞。\n\n在此文件中没有 ``sum()`` 或 ``mean()`` 的测量列,并且永远不会有。\n\n为什么两个存在的功能不由Themselves组成\n-----------------------------------------------------------\n``read_merged`` 是 *多个数据库,一个表*. ``merge_tables`` 是 *一个数据库,3 多个表* -- 需要 PATH, 因此,不能交付已经在数据库中粘贴的框架,这项功能需要两者。, 因此,组成是: 在每个数据库中阅读每个选定的表格,然后将孩子们推到地板上。\n\n滚动结构数据名称是负载的细节. 它们是身份列 PLUS ``screenID`` PLus ``source_database`` PLUS 孩子的 anchor 列. 留下 ``screenID`` 和两个应用程序视图,合法共享 ``plate1`` (其中 :func:`~spacr.multi_database.describe_merge` 故意允许) 崩溃在一个父母 - 重新引入,一个层上,正是合并 ``multi_database`` 存在,以防止。\n\n什么电话必须向用户展示\n--------------------------------\n一个沉默地改变了测量如何结合的合并,产生了一个错误的数字,看起来很好。 因此,:class:`PlateMerge`携带了面板必须说的话: anchor 和行数, 各式各样的来源, 测量 ``columns='common'`` 下降, 实验室微板ID在筛选上共享 - 并且每个列落到 :data:`spacr.merge_tables.DEFAULT_AGGREGATION` 因为没有规则匹配它。 这个最后一组是重新编辑的步行 ``AGGREGATION_RULES`` (:func:`default_aggregated_columns`) 而不是列出在任何地方,所以它不能与规则的步骤脱颖而出。",
+      "text": "一个合并的测量框从输入表的实验室微板行。\n\n退缩输入表的一个顺序是实验室微板:它的分数 CSV,它的计算 CSV,现在它的测量数据库. 这个模块是这个功能的无图形界面半 - 因为 ``{plate: database path}``,用户点击的表和他们选择的轴,它返回合并框架。\n\n这里没有什么是新的合并逻辑,这就是这一点。 spaCR 已经有四个位置连接到测量表,其中一个(``io._read_and_join_tables``)将每个数字列集成为 ``mean``,这将四个病原体的总面积转化为一个平均区域,而一个 MINIMUM则变成一个最低的平均区域。 第五个是第五个答案。 如:\n\n* :func:`spacr.multi_database.describe_merge` / :func:`~spacr.multi_database.read_merged` 插入数据库 - 一张单一的表,携带 ``source_database`` 和 ``screenID``,拒绝在一个筛选内重复的表标识符;\n* :func:`spacr.merge_tables.roll_up` 将每个儿童表集成到一个字符串上,每个列的一个规则从 :data:`spacr.merge_tables.AGGREGATION_RULES`;\n* :meth:`spacr.merge_tables.MergePolicy.how_for`决定加入按表,因为心脏性不同 - 一个细胞有一个细胞和许多病原体,而一个未感染的细胞仍然是一个细胞。\n\n在此文件中没有 ``sum()`` 或 ``mean()`` 的测量列,并且永远不会有。\n\n为什么两个存在的功能不由Themselves组成\n-----------------------------------------------------------\n``read_merged`` 是 *多个数据库,一个表*. ``merge_tables`` 是 *一个数据库,3 多个表* -- 需要 PATH, 因此,不能交付已经在数据库中粘贴的框架,这项功能需要两者。, 因此,组成是: 在每个数据库中阅读每个选定的表格,然后将孩子们推到地板上。\n\n滚动结构数据名称是负载的细节. 它们是身份列 PLUS ``screenID`` PLus ``source_database`` PLUS 孩子的 anchor 列. 留下 ``screenID`` 和两个应用程序视图,合法共享 ``plate1`` (其中 :func:`~spacr.multi_database.describe_merge` 故意允许) 崩溃在一个父母 - 重新引入,一个层上,正是合并 ``multi_database`` 存在,以防止。\n\n什么调用必须向用户展示\n--------------------------------\n一个沉默地改变了测量如何结合的合并,产生了一个错误的数字,看起来很好。 因此,:class:`PlateMerge`携带了面板必须说的话: anchor 和行数, 各式各样的来源, 测量 ``columns='common'`` 下降, 实验室微板ID在筛选上共享 - 并且每个列落到 :data:`spacr.merge_tables.DEFAULT_AGGREGATION` 因为没有规则匹配它。 这个最后一组是重新编辑的步行 ``AGGREGATION_RULES`` (:func:`default_aggregated_columns`) 而不是列出在任何地方,所以它不能与规则的步骤脱颖而出。",
       "translation_source_blocks_sha256": [
         "0aea2ce268f578de282f98701e1c97f3c3d95e214d06f9edfdca1ab2b12a3536",
         "0b1b8212e26817997d78f1a461f6df74b8cb45f381f2aab5541e57571b9aeebc",
@@ -50840,7 +50840,7 @@
         "878b2e0b2cbaff51606f992ce8f7b4759dd9ba9241eb97521f039c09658dda1c"
       ],
       "source_sha256": "66989db83600b4db33c02e4795220f0e4e63615a474456b1d7165b83462535ce",
-      "text": "删除图像细胞数量过低的微板样本位置,以便提供信息。\n\n第二件事既不是SpaCRPower,也不是港口。 微板样本位置,微镜发现三个细胞产生一个积极的*分裂*,它只能采取值0, 1/3, 2/3和1;它的二元标准错误约为0.27,这是机器学习分类模型的成功细胞和背景率之间的整个差距三倍。\n\nPoisson 折扣是工作的一部分:三个细胞的微板样本位置有一个小预期的数量,所以它不占合适的 *尺寸* 的主导地位。\n\n滴下它们是分析师手动做的事情,它花费了一些东西:微板样本位置较少,功率较少。\n\n整个微板样本位置去,从来没有单一的 ``(gene, well)`` 序列. 一部分落下的好将留下波的积极总和其细胞总描述不同的基因组,这是一个表,模型的一半有权假设不能存在。\n\n:param screen: 附上筛选表;需要 ``well`` 和 ``imaging_n_cells_per_well`` / ``imaging_n_cells_per_gene_per_well`` 的一个。\n:param min_cells_per_well: 微板样本位置与 **更少** 图像的细胞被删除. ``0`` 禁用过滤器并返回输入不变。\n:param drop: ``False`` 与 ``well_kept`` 标记并删除任何东西,对于一个打电话的人想要看到什么会发生。\n:returns: 一个新的框架包含``well_kept``列,当``drop``时过滤。 ``frame.attrs['n_wells_dropped']``和``['n_wells_before']``记录了成本。\n:raises MalformedPlateError: 如果没有细胞计算列,或者微板样本位置的 ``imaging_n_cells_per_well`` 不在微板模型位置内是稳定的。\n:raises ScreenDesignError: 如果 ``min_cells_per_well`` 是负面的。",
+      "text": "删除图像细胞数量过低的微板样本位置,以便提供信息。\n\n第二件事既不是SpaCRPower,也不是港口。 微板样本位置,微镜发现三个细胞产生一个积极的*分裂*,它只能采取值0, 1/3, 2/3和1;它的二元标准错误约为0.27,这是机器学习分类模型的成功细胞和背景率之间的整个差距三倍。\n\nPoisson 折扣是工作的一部分:三个细胞的微板样本位置有一个小预期的数量,所以它不占合适的 *尺寸* 的主导地位。\n\n滴下它们是分析师手动做的事情,它花费了一些东西:微板样本位置较少,功率较少。\n\n整个微板样本位置去,从来没有单一的 ``(gene, well)`` 序列. 一部分落下的好将留下波的积极总和其细胞总描述不同的基因组,这是一个表,模型的一半有权假设不能存在。\n\n:param screen: 附上筛选表;需要 ``well`` 和 ``imaging_n_cells_per_well`` / ``imaging_n_cells_per_gene_per_well`` 的一个。\n:param min_cells_per_well: 微板样本位置与 **更少** 图像的细胞被删除. ``0`` 禁用过滤器并返回输入不变。\n:param drop: ``False`` 与 ``well_kept`` 标记并删除任何东西,对于一个调用的人想要看到什么会发生。\n:returns: 一个新的框架包含``well_kept``列,当``drop``时过滤。 ``frame.attrs['n_wells_dropped']``和``['n_wells_before']``记录了成本。\n:raises MalformedPlateError: 如果没有细胞计算列,或者微板样本位置的 ``imaging_n_cells_per_well`` 不在微板模型位置内是稳定的。\n:raises ScreenDesignError: 如果 ``min_cells_per_well`` 是负面的。",
       "translation_source_blocks_sha256": [
         "8478b2d354b30d4f35d0d3c54dbd939d143fe6558138d86fd75c3f16a1e4ae2d",
         "5239386ce7c50da1d25d907e633fb22313c78ced3bf23faef74916fb37b64f4c",
@@ -53753,7 +53753,7 @@
         "cd91b72727dfcc0605ff526af08bc18597f9bc39edfe34b1e0dbbf296ac19525"
       ],
       "source_sha256": "80d082bf4d0889d6cc5f84ed44047d2c79fff821c5de8e0be3dfd18e78ff66d7",
-      "text": "走在一个独立的执行路径; 消耗 {png_path: annotation} 行从一个集合数据库,并承诺他们到 DB 在燃烧的交易. 准备一个偶然的工作进程; 打电话 :meth:`start` 以扫描其独立执行路线。\n\n:param db_path: 路径到 SQLite ``measurements.db``。\n:param annotation_column: 在 ``table`` 列中输入。\n:param table: 一个创建的集地在 ``png_list_2`` 和下方,并指向错误的作家将一个用户的标签放在另一个人的行。",
+      "text": "走在一个独立的执行路径; 消耗 {png_path: annotation} 行从一个集合数据库,并承诺他们到 DB 在燃烧的交易. 准备一个偶然的工作进程; 调用 :meth:`start` 以扫描其独立执行路线。\n\n:param db_path: 路径到 SQLite ``measurements.db``。\n:param annotation_column: 在 ``table`` 列中输入。\n:param table: 一个创建的集地在 ``png_list_2`` 和下方,并指向错误的作家将一个用户的标签放在另一个人的行。",
       "translation_source_blocks_sha256": [
         "d6bce1e9bdd1ef4f36c0010437b0dd34eb9738bf184149ad1173724147779fc7",
         "6041bd7d106407a5755215df78c981363e448fea813cf9e244e44a120b29146a",
@@ -54273,7 +54273,7 @@
         "7f583e856fac9ad165729b3c12e898ecace49ae1b37a7bfec5645d4b10b88d8a"
       ],
       "source_sha256": "c0fac981ffe8b3476d5a5139de627715ff8cd4365dca70b156d29857f699715a",
-      "text": "把应用程序列表放在偏好所说的位置。\n\n两个模式,一个 ``Sidebar`` 对象:\n\n``locked``  侧栏坐在窗口的插槽中,在那里它\n            是排序中的常见列:它从来没有动画,因为它是一个排序会员而不是一个超层页面,它是狭窄的底部的宽度而不是运行在它的下方。\n``hidden``  插槽保持空白. \"All apps\" 行动是\n            缺少一个工具提示,告诉你要在哪里旋转它 - 一个控制,静静地做什么都不是更糟糕的,而是一个被嘲笑。\n\n它在页面上滑动了插槽,所以主应用程序视图的模块板坐在它的下面,并且没有移动,它需要一个第二个插槽背后的插槽自己的面板可以读取任何它覆盖的。 两者都是投诉。 插槽对象仍然存在,并保持关闭和关闭,因为它也携带键盘路径, \"All apps\" 行动使用。\n\n无力,在菜单存在之前安全地打电话。",
+      "text": "把应用程序列表放在偏好所说的位置。\n\n两个模式,一个 ``Sidebar`` 对象:\n\n``locked``  侧栏坐在窗口的插槽中,在那里它\n            是排序中的常见列:它从来没有动画,因为它是一个排序会员而不是一个超层页面,它是狭窄的底部的宽度而不是运行在它的下方。\n``hidden``  插槽保持空白. \"All apps\" 行动是\n            缺少一个工具提示,告诉你要在哪里旋转它 - 一个控制,静静地做什么都不是更糟糕的,而是一个被嘲笑。\n\n它在页面上滑动了插槽,所以主应用程序视图的模块板坐在它的下面,并且没有移动,它需要一个第二个插槽背后的插槽自己的面板可以读取任何它覆盖的。 两者都是投诉。 插槽对象仍然存在,并保持关闭和关闭,因为它也携带键盘路径, \"All apps\" 行动使用。\n\n无力,在菜单存在之前安全地调用。",
       "translation_source_blocks_sha256": [
         "bd5cc67a904d16feb630bfa8d450104bc3f003abadaeea7474612ec87a09ae5e",
         "4c33d0db856f8e9ee6dca13495ee479ca9693cfcbd69144120ca3df1e7ba31d7",
@@ -55420,7 +55420,7 @@
         "f4cdcd2b5837ad4a1f813608021d5aa74faf7045ba62893ed8c9873a3d242626"
       ],
       "source_sha256": "f4cdcd2b5837ad4a1f813608021d5aa74faf7045ba62893ed8c9873a3d242626",
-      "text": "每件手套都被扔掉,对于测试,不要在现场应用程序上打电话。",
+      "text": "每件手套都被扔掉,对于测试,不要在现场应用程序上调用。",
       "translation_source_blocks_sha256": [
         "f4cdcd2b5837ad4a1f813608021d5aa74faf7045ba62893ed8c9873a3d242626"
       ]
@@ -55454,7 +55454,7 @@
         "6efe771438cfbbacb3132f4277e2a7fa42360136634a5dc90cf7d1a45809be78"
       ],
       "source_sha256": "827ca380bdf45f600c53e3837f06c634791e1360acbfa4b15166c95788bd1267",
-      "text": "工作流侧取消/休息点. 只在停车安全的地方打电话。\n\n\"Safe\" 意思:没有文件是半写的,没有多表插入是半写的,没有儿童过程仍然工作。\n\n当呼叫线没有数据选择界限(即在 :class:`PipelineWorker` 之外),则工作流代码可以无条件地称之为,并从平板脚本中保持进口。",
+      "text": "工作流侧取消/休息点. 只在停车安全的地方调用。\n\n\"Safe\" 意思:没有文件是半写的,没有多表插入是半写的,没有儿童过程仍然工作。\n\n当呼叫线没有数据选择界限(即在 :class:`PipelineWorker` 之外),则工作流代码可以无条件地称之为,并从平板脚本中保持进口。",
       "translation_source_blocks_sha256": [
         "10dc97cc4646d9b9f2546477c2b7b87c5f4754f0f9737c1752155dd433ab35c9",
         "097a3cfc07b75cf1c57e0279384b1cfca17ef579d66af0674c8d1df20c4fd7ac",
@@ -56160,7 +56160,7 @@
         "db2c361a35ea4bf1773c81d470ccd7d8e541934998698d0b6c4d3c39ef8e07c1"
       ],
       "source_sha256": "db2c361a35ea4bf1773c81d470ccd7d8e541934998698d0b6c4d3c39ef8e07c1",
-      "text": "请从模型中取出,从网的``closeEvent``中打电话。",
+      "text": "请从模型中取出,从网的``closeEvent``中调用。",
       "translation_source_blocks_sha256": [
         "db2c361a35ea4bf1773c81d470ccd7d8e541934998698d0b6c4d3c39ef8e07c1"
       ]
@@ -56416,7 +56416,7 @@
         "e9d6c52eabc298812cf67d031c68035ff5f761c77d81796f8f23eec11e1552b1"
       ],
       "source_sha256": "d449a9e9b46a4c7140d2833a3adde6e788871ece58116ccc3a8aeeade009ddb2",
-      "text": "记录一个发射开始,并计算之前有多少人死亡。\n\n:returns: 连续不干净的输出数量,该发射的先驱包括。\n\n打电话一次,早点,在背景建造之前。",
+      "text": "记录一个发射开始,并计算之前有多少人死亡。\n\n:returns: 连续不干净的输出数量,该发射的先驱包括。\n\n调用一次,早点,在背景建造之前。",
       "translation_source_blocks_sha256": [
         "13a1440e40ae544c1b8beb1dc7a6b1ee3a9b44a3af27f12af80bb7d9b101bffe",
         "4a8839b7596b7fc01ea356769b7d3da3e4b7ca0385f073e73e8637618d19e412",
@@ -56963,7 +56963,7 @@
         "b718f2930b7d01d35a340bbe8065a6ab026ae2ac583fd62d018f0456f9cb9601"
       ],
       "source_sha256": "5a380f5228479397fbeeb6c218d7a1205070d0ee648cd4a08d923984de69c888",
-      "text": "安装应用程序广泛的检测器. 安装时返回 True。\n\nIDEMPOTENT PER APPLICATION:在同一应用程序上打电话两次,留下一个过滤器,并在新应用程序中打电话,重新安装,因为旧过滤机与旧应用程序一起死亡。",
+      "text": "安装应用程序广泛的检测器. 安装时返回 True。\n\nIDEMPOTENT PER APPLICATION:在同一应用程序上调用两次,留下一个过滤器,并在新应用程序中调用,重新安装,因为旧过滤机与旧应用程序一起死亡。",
       "translation_source_blocks_sha256": [
         "2fd60fe27c97d86d04959d2e2b4848ff508e6020686be15654a440d7d69dfc4c",
         "b718f2930b7d01d35a340bbe8065a6ab026ae2ac583fd62d018f0456f9cb9601"
@@ -57125,7 +57125,7 @@
         "ed3921f2ca4e16b4ff83f98821324b92c74086ef7a6547457b774cc6b18b5d1b"
       ],
       "source_sha256": "edf27a8ee4a3c38e896bcd49d26c49a396aba3c6848c00f91c18a8770c83bea6",
-      "text": "AppScreens的拖放系统。\n\n软件设计:\n\n* :class:`DropHandler` — per-module 政策:该应用程序视图接受哪些文件夹/文件,如何修复 \"close-but-not-quite\" 滴,一旦滴被接受,该怎么做。\n* :func:`install_dropzone` - 将 Qt drop 事件处理器连接到任何 widget (通常是 AppScreen 本身) 并将其连接至 :class:`DropHandler`。\n* :func:`suggest_alternatives_dialog` - 显示“你意味着X?”选项,当丢失的文件夹不能作为使用,但一个兄弟 / 儿童文件夹可以。\n\n每个模块的常见行为:\n\n* 将 ``*.csv`` 文件 → 处理为设置 CSV 并将筛选称为 ``apply_settings_dict`` (输入设置,不会过写源文件夹)。\n* 将 → 文件夹推到模块的 ``DropHandler``. 如果它适合好,交易者会打电话为 ``screen._set_src`` (或同等)。 如果它是近错误,用户会得到 \"did you mean\" 对话。\n* 滴多文件 → 交易者被召回一次每文件夹,在操作系统交付它们的顺序。\n\n每个模块的政策在 :mod:`spacr.qt.dnd_handlers` 中生活。",
+      "text": "AppScreens的拖放系统。\n\n软件设计:\n\n* :class:`DropHandler` — per-module 政策:该应用程序视图接受哪些文件夹/文件,如何修复 \"close-but-not-quite\" 滴,一旦滴被接受,该怎么做。\n* :func:`install_dropzone` - 将 Qt drop 事件处理器连接到任何 widget (通常是 AppScreen 本身) 并将其连接至 :class:`DropHandler`。\n* :func:`suggest_alternatives_dialog` - 显示“你意味着X?”选项,当丢失的文件夹不能作为使用,但一个兄弟 / 儿童文件夹可以。\n\n每个模块的常见行为:\n\n* 将 ``*.csv`` 文件 → 处理为设置 CSV 并将筛选称为 ``apply_settings_dict`` (输入设置,不会过写源文件夹)。\n* 将 → 文件夹推到模块的 ``DropHandler``. 如果它适合好,交易者会调用为 ``screen._set_src`` (或同等)。 如果它是近错误,用户会得到 \"did you mean\" 对话。\n* 滴多文件 → 交易者被召回一次每文件夹,在操作系统交付它们的顺序。\n\n每个模块的政策在 :mod:`spacr.qt.dnd_handlers` 中生活。",
       "translation_source_blocks_sha256": [
         "b259859d7435127825e4fab5eaa495dcd21dc74e0cc827de51faf6b446b5fe9f",
         "b5c09d71f57fcee1bb6ad50eee6d73904844954127c0c8d2769f4dc9b19f4947",
@@ -59436,7 +59436,7 @@
         "b39277cd8d5b7ebbc51ffa37e1d43fdc1cfd8c5275d73cc9baa62393d7247144"
       ],
       "source_sha256": "2db34b29d5117bdd6664b8e607d378a352749b719ccf0256aecd7b6c7eb1e206",
-      "text": "收集自行车垃圾在允许的只有在主 GUI 执行路径。\n\n为什么存在,测量。 压力运行在现场预览与``cpsam``生产,于2026-09-01::\n\n    QObject::killTimer: Timers cannot be stopped from another thread\n    QObject::~QObject: Timers cannot be stopped from another thread\n    Segmentation fault (core dumped)\n\n这些两个行,在这个顺序,是正确播放的 ``tests/qt/test_gc_runs_on_the_gui_thread.py`` 没有 spaCR 代码涉及:建立一个 QObject 拥有 *executing* QTimer,将它放入一个引用 CYCLE 以便只有收集器可以释放它,然后从背景执行单位打电话 ``gc.collect()`` 。 收集器运行破坏器 **on 它发生在**上运行的任何独立执行路径,而 Qt 无法阻止一个时间表从那里。\n\n这是整个错误,并且没有什么关于它是特定的预览. CPython 每当一个分配推一代超越其边界 - 因此,支付收集的独立执行路径只是最近分配的独立ち执行道路。 Cellpose 通过分配巨大的背景执行单位,使该工作进程非常有可能是相继承的,因此,破坏一些不相关的 widget 主要的 GUI 执行的路径早已被放弃。\n\n自动收集被关闭并从 QTimer 代替驱动. 这个时间表生活在主要 GUI 执行路径上,所以收集器运行的每个破坏器都在那里运行 - 这是拥有 widgets 的独立执行路线。\n\n``gc.disable()`` 停止只有 *自动* 收集;从背景执行单位的明确 ``gc.collect()`` 仍然收集在该工作者上. 因此,该模块取消了常见原因而不是使失败不可能,而 :func:`spacr.qt.thread_guard` 仍报告它,如果它回复。\n\n记忆不留于生长:下面的点重复CPython的自己的世代政策对相同的边界,因此收集发生在相同频率它会否则,在不同的线条上。",
+      "text": "收集自行车垃圾在允许的只有在主 GUI 执行路径。\n\n为什么存在,测量。 压力运行在现场预览与``cpsam``生产,于2026-09-01::\n\n    QObject::killTimer: Timers cannot be stopped from another thread\n    QObject::~QObject: Timers cannot be stopped from another thread\n    Segmentation fault (core dumped)\n\n这些两个行,在这个顺序,是正确播放的 ``tests/qt/test_gc_runs_on_the_gui_thread.py`` 没有 spaCR 代码涉及:建立一个 QObject 拥有 *executing* QTimer,将它放入一个引用 CYCLE 以便只有收集器可以释放它,然后从背景执行单位调用 ``gc.collect()`` 。 收集器运行破坏器 **on 它发生在**上运行的任何独立执行路径,而 Qt 无法阻止一个时间表从那里。\n\n这是整个错误,并且没有什么关于它是特定的预览. CPython 每当一个分配推一代超越其边界 - 因此,支付收集的独立执行路径只是最近分配的独立ち执行道路。 Cellpose 通过分配巨大的背景执行单位,使该工作进程非常有可能是相继承的,因此,破坏一些不相关的 widget 主要的 GUI 执行的路径早已被放弃。\n\n自动收集被关闭并从 QTimer 代替驱动. 这个时间表生活在主要 GUI 执行路径上,所以收集器运行的每个破坏器都在那里运行 - 这是拥有 widgets 的独立执行路线。\n\n``gc.disable()`` 停止只有 *自动* 收集;从背景执行单位的明确 ``gc.collect()`` 仍然收集在该工作者上. 因此,该模块取消了常见原因而不是使失败不可能,而 :func:`spacr.qt.thread_guard` 仍报告它,如果它回复。\n\n记忆不留于生长:下面的点重复CPython的自己的世代政策对相同的边界,因此收集发生在相同频率它会否则,在不同的线条上。",
       "translation_source_blocks_sha256": [
         "98313fe0290b837771c13eb209dba930a9f7284bfd431efb16a5593e3fd7a5b9",
         "ec50cc5ffde77df3cea7a3bbf66958152c1f7271efab32af296eca09d5b1b29d",
@@ -59454,7 +59454,7 @@
         "da3c9f58b89f38fe2aa1111e920c967096d7d4290148f354965b1f6a34681a78"
       ],
       "source_sha256": "9caaae68102b316e455637521e00817a60de906362892a6f76389ba49138fc8c",
-      "text": "运行最多一代的收藏,CPython自己的政策。\n\n翻译者收集 *n* 时,当该世代的数量超过其边界,最年轻的第一, 收集一代,也清理年轻人。 -- 而不是在每个点数上打电话``gc.collect()``。 -- 这是保持成本相同的,在这个模块存在之前。 一个完整的每秒会走每一个直播 numpy 序列在这个过程中。\n\n:returns: 收集的世代,或者``-1``,当没有任何原因。",
+      "text": "运行最多一代的收藏,CPython自己的政策。\n\n翻译者收集 *n* 时,当该世代的数量超过其边界,最年轻的第一, 收集一代,也清理年轻人。 -- 而不是在每个点数上调用``gc.collect()``。 -- 这是保持成本相同的,在这个模块存在之前。 一个完整的每秒会走每一个直播 numpy 序列在这个过程中。\n\n:returns: 收集的世代,或者``-1``,当没有任何原因。",
       "translation_source_blocks_sha256": [
         "f533161821752649557f7c79658b873cd423b06489ae8c72441d3e8acb75cd0e",
         "b3e47d13fdad75e306770b7af3e103a13cdbeb030e99dca5dea9501964921951",
@@ -60877,7 +60877,7 @@
         "cc500929ff1073b9d8e918da8d0063a5cf364953af3c6df305c3031dc7cef2b9"
       ],
       "source_sha256": "8900aab4c49f810edbeb86f9ed06ca3c33f0576f016c72a7bd909c836b98bdff",
-      "text": "取消,然后等待很短暂,以免 QThread 延长 widget 的使用。\n\n打电话``closeEvent``。 Qt 堕胎过程,如果一个执行 QThread 被摧毁,所以一个有限的等待在这里是离开一个应用程序视图中间负载的价格。 超过预算的独立执行路线以 :func:`spacr.qt.bridge.drain_thread` 停车而不是结束。",
+      "text": "取消,然后等待很短暂,以免 QThread 延长 widget 的使用。\n\n调用``closeEvent``。 Qt 堕胎过程,如果一个执行 QThread 被摧毁,所以一个有限的等待在这里是离开一个应用程序视图中间负载的价格。 超过预算的独立执行路线以 :func:`spacr.qt.bridge.drain_thread` 停车而不是结束。",
       "translation_source_blocks_sha256": [
         "e69445be552243c32a1fe74114eeeacf9e6a92796ef4f2bc666a651b3913885c",
         "16eadabe3d23557a72b1fdbc55be5bc4b1403457b508bb0f5041144a3b5a9f68"
@@ -60905,7 +60905,7 @@
         "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
       ],
       "source_sha256": "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483",
-      "text": "停止每个直播 JobRunner. 返回有多少被要求。\n\n打电话一次出路,在 Qt 开始破坏 widgets. 订单在这里更重要的是完整性:不能停在时间的跑者被停车为 `bridge.drain_thread` 而不是结束,所以这被限制。",
+      "text": "停止每个直播 JobRunner. 返回有多少被要求。\n\n调用一次出路,在 Qt 开始破坏 widgets. 订单在这里更重要的是完整性:不能停在时间的跑者被停车为 `bridge.drain_thread` 而不是结束,所以这被限制。",
       "translation_source_blocks_sha256": [
         "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
         "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
@@ -61150,7 +61150,7 @@
         "09fd992232b347e57b433b8cf4049012b63a5e4b62d9b32062c291c4b3683112"
       ],
       "source_sha256": "09fd992232b347e57b433b8cf4049012b63a5e4b62d9b32062c291c4b3683112",
-      "text": "停止听模型,从 ``closeEvent`` 打电话。",
+      "text": "停止听模型,从 ``closeEvent`` 调用。",
       "translation_source_blocks_sha256": [
         "09fd992232b347e57b433b8cf4049012b63a5e4b62d9b32062c291c4b3683112"
       ]
@@ -61240,7 +61240,7 @@
         "09fd992232b347e57b433b8cf4049012b63a5e4b62d9b32062c291c4b3683112"
       ],
       "source_sha256": "09fd992232b347e57b433b8cf4049012b63a5e4b62d9b32062c291c4b3683112",
-      "text": "停止听模型,从 ``closeEvent`` 打电话。",
+      "text": "停止听模型,从 ``closeEvent`` 调用。",
       "translation_source_blocks_sha256": [
         "09fd992232b347e57b433b8cf4049012b63a5e4b62d9b32062c291c4b3683112"
       ]
@@ -61333,7 +61333,7 @@
         "ffd1f73f645c0d912f27f8375e9c0c346e9152c6bf0178945c7307b44f3a6339"
       ],
       "source_sha256": "ae8ecd40344193b28750021b7b644a8deb8eab3b011b7acbc2279730f064c91c",
-      "text": "将观众放入应用程序登记簿,通过公共标签。\n\n被称为从底部的 :mod:`spacr.qt.app`,这是唯一一个注册可见的地方 - 参见 ``_SELF_REGISTERING_APPS`` 为什么它不能在这个模块的顶部被称。\n\n序列本身 - 结构化数据名称,名称,混合器,部分, \"no headless run\" 句子, API doc 连结和显示名称的九个翻译 - 被宣告为 :mod:`spacr.qt.app_catalog`. :func:`spacr.qt.app.register_app` 分布到四个表格,每个使用需要手动编辑,这个功能的整个工作是指定哪个行。\n\n:returns: 已添加的注册表序列,或 ``None`` 当结构化数据名已注册时 安全打电话两次:该模块可从三条进口路径到达,否则将增加一个复制结构化的数据名称。",
+      "text": "将观众放入应用程序登记簿,通过公共标签。\n\n被称为从底部的 :mod:`spacr.qt.app`,这是唯一一个注册可见的地方 - 参见 ``_SELF_REGISTERING_APPS`` 为什么它不能在这个模块的顶部被称。\n\n序列本身 - 结构化数据名称,名称,混合器,部分, \"no headless run\" 句子, API doc 连结和显示名称的九个翻译 - 被宣告为 :mod:`spacr.qt.app_catalog`. :func:`spacr.qt.app.register_app` 分布到四个表格,每个使用需要手动编辑,这个功能的整个工作是指定哪个行。\n\n:returns: 已添加的注册表序列,或 ``None`` 当结构化数据名已注册时 安全调用两次:该模块可从三条进口路径到达,否则将增加一个复制结构化的数据名称。",
       "translation_source_blocks_sha256": [
         "0bd1128dadc3106bc78b2d06ef4cf4b3728388674878e01039c75f93240f38bb",
         "21d37c5079b02b7a253140656adc18aa6c28e2fd6cbd37b53edda84fb044ae46",
@@ -61708,7 +61708,7 @@
         "d8a18a8cfc5149211035a0f2262c0f0df8fb70d33059da1fb1cd406727b1bb5b"
       ],
       "source_sha256": "d8a18a8cfc5149211035a0f2262c0f0df8fb70d33059da1fb1cd406727b1bb5b",
-      "text": "停止倾听,安全地打电话给从未连接的视图。",
+      "text": "停止倾听,安全地调用给从未连接的视图。",
       "translation_source_blocks_sha256": [
         "d8a18a8cfc5149211035a0f2262c0f0df8fb70d33059da1fb1cd406727b1bb5b"
       ]
@@ -63541,7 +63541,7 @@
         "682ce326d923ef0261229f1fcf9b23c51ec19d4842b0ef1adade6f4dc35456a2"
       ],
       "source_sha256": "adfe18522bf638d79dfa5a6e6745c159d478baff9cb6b3fecbc0355c9540a1e9",
-      "text": "按下存储的偏好到 :mod:`spacr.workspace`. 打电话开始。\n\n没有此,日志在每个会议的第一轮上写下默认模块,无论用户上次选择什么。",
+      "text": "按下存储的偏好到 :mod:`spacr.workspace`. 调用开始。\n\n没有此,日志在每个会议的第一轮上写下默认模块,无论用户上次选择什么。",
       "translation_source_blocks_sha256": [
         "d3c3b27f44c7e63a5723d98813ba5387dbba93c6130e40f12093708e12fb8ce7",
         "682ce326d923ef0261229f1fcf9b23c51ec19d4842b0ef1adade6f4dc35456a2"
@@ -63645,7 +63645,7 @@
         "484b9f4a3782a2b75bd22d52b1b4f6b3fc85ab85bf23d88f35e34c5f6f75aec9"
       ],
       "source_sha256": "e7e5ab26d47f24dcd598de3c3b40230f1551b20fb5e31f7ce3b48edb0145f9f6",
-      "text": "用户控制的页面表面上的不透明度被绘制在。\n\n用户的请求通过 :func:`spacr.qt.theme.pane_alpha`. 一个打电话,所以主页和任何测试问“它会是什么样子”得到相同的号码。",
+      "text": "用户控制的页面表面上的不透明度被绘制在。\n\n用户的请求通过 :func:`spacr.qt.theme.pane_alpha`. 一个调用,所以主页和任何测试问“它会是什么样子”得到相同的号码。",
       "translation_source_blocks_sha256": [
         "a573aeff535abdec6a032f15d2b6854fd557bfc85f2f6bd19f26d04aa2af4776",
         "484b9f4a3782a2b75bd22d52b1b4f6b3fc85ab85bf23d88f35e34c5f6f75aec9"
@@ -65841,7 +65841,7 @@
         "1fb8923bc3892430f3823f180a0e31802a191bc7d022376eeb915a26c79c4923"
       ],
       "source_sha256": "606c7766b7d0b73869c0fc4e0818ba913afa65a23e82201ac70e62308404970c",
-      "text": "将一个提议写入其 ``<object>_diameter`` 字段。\n\n只从行中的按钮中打电话 - 这里没有什么写下一个设置本身,并且一个不使用的估计(NaN,由构建在 :class:`spacr.diameter.DiameterEstimate`)从来没有写出来。\n\n:param object_type: ``'cell'``, ``'nucleus'`` or ``'pathogen'``.\n:returns: True 值到达 widget 时。",
+      "text": "将一个提议写入其 ``<object>_diameter`` 字段。\n\n只从行中的按钮中调用 - 这里没有什么写下一个设置本身,并且一个不使用的估计(NaN,由构建在 :class:`spacr.diameter.DiameterEstimate`)从来没有写出来。\n\n:param object_type: ``'cell'``, ``'nucleus'`` or ``'pathogen'``.\n:returns: True 值到达 widget 时。",
       "translation_source_blocks_sha256": [
         "2074eb3928e0544ac806616d22a29d497a70945d18b037beb9ffe6443a800bac",
         "85aa7cc89b9e05a9aa7d519708a7b0929a570582705a2e1c5fbbccb25fbc6f82",
@@ -66576,7 +66576,7 @@
         "52751594f95cdb833b3935d2bdcd420c6ee68ed645454f79895ee8f43088d0b9"
       ],
       "source_sha256": "6052f5d16bd8d2156a0a030d50dd22149ce786ec7540ecb90ecd21b05ffac6b5",
-      "text": "将每个应用程序注册为 :data:`SELF_REGISTERING_MODULES`。\n\n一个序列,其登记是纯净的数据从 :data:`spacr.qt.app_catalog.DECLARED_APPS` 取出,其模块不进口:登记簿从表中了解结构化数据名称,名称、句子、部分和阶段,应用程序视图的代码 - 与 pandas、 scipy 和 sklearn 背后 - 等到有人打开应用程序。\n\nIdempotent - 每个 ``register()`` 都被写为安全的打电话两次,所以在一个过程中第二次推出(测试套件这样做)不会扔在复制的应用程式键上。\n\n一个模块的故障成本是模块应用程序和别的东西:一个可选的面板永远不会停止 GUI 从开始。\n\n:returns: 已登记的模块名称没有投注,宣布和进口相同. 已在登记簿中被列为注册的声明行 - 呼叫者要求应用程序存在,并这样做。",
+      "text": "将每个应用程序注册为 :data:`SELF_REGISTERING_MODULES`。\n\n一个序列,其登记是纯净的数据从 :data:`spacr.qt.app_catalog.DECLARED_APPS` 取出,其模块不进口:登记簿从表中了解结构化数据名称,名称、句子、部分和阶段,应用程序视图的代码 - 与 pandas、 scipy 和 sklearn 背后 - 等到有人打开应用程序。\n\nIdempotent - 每个 ``register()`` 都被写为安全的调用两次,所以在一个过程中第二次推出(测试套件这样做)不会扔在复制的应用程式键上。\n\n一个模块的故障成本是模块应用程序和别的东西:一个可选的面板永远不会停止 GUI 从开始。\n\n:returns: 已登记的模块名称没有投注,宣布和进口相同. 已在登记簿中被列为注册的声明行 - 呼叫者要求应用程序存在,并这样做。",
       "translation_source_blocks_sha256": [
         "245a35ce557c57436b866fa7dd116349831c65790ce2b9a5c19bbe998b75e958",
         "c1970287140d301a613cc0590b179b4a58ecad1f4cf8e88448bff19353057bdf",
@@ -66760,7 +66760,7 @@
         "32a54f1719cf1defb1d29e4231878356b6606bd073673f9b49f28bf21490ce86"
       ],
       "source_sha256": "a20882bd3e98d93d950d9ce9081688c62ee98f2107220b75bbdeb49dd56584f3",
-      "text": "返回 torch 的保留但未使用 CUDA 区块到驱动程序。\n\n:param release_models: 也跑了:data:`MODEL_RELEASERS`。 在处理会议前立即设置 ``False`` - 查看 :func:`run_pre_run_cleanup` 为何发布一个 spaCR 型号即将重新加载是穿上优化服装的缓慢。\n\n**这不能否认另一个过程的VRAM.** 什么都不能: CUDA 记忆属于分配它的背景,唯一的方式将它回来是杀死这个过程,这个模块不会为任何人做。 它也不会触摸发动机,一个执行工作仍然保持 - ``empty_cache()`` 释放区块,分配器是缓存,永远不会活着,这正是为什么它是安全的打电话,而工作是在飞行中。",
+      "text": "返回 torch 的保留但未使用 CUDA 区块到驱动程序。\n\n:param release_models: 也跑了:data:`MODEL_RELEASERS`。 在处理会议前立即设置 ``False`` - 查看 :func:`run_pre_run_cleanup` 为何发布一个 spaCR 型号即将重新加载是穿上优化服装的缓慢。\n\n**这不能否认另一个过程的VRAM.** 什么都不能: CUDA 记忆属于分配它的背景,唯一的方式将它回来是杀死这个过程,这个模块不会为任何人做。 它也不会触摸发动机,一个执行工作仍然保持 - ``empty_cache()`` 释放区块,分配器是缓存,永远不会活着,这正是为什么它是安全的调用,而工作是在飞行中。",
       "translation_source_blocks_sha256": [
         "6833a0117440b07af645c7b3a7eab7207c2c1f5222209f98ede27506130510d0",
         "8cb6c1d8bf41266605938afcb6fa35b8e8e131ea407f13eb01998f6aa00356bf",
@@ -70551,7 +70551,7 @@
         "026b7d17256fb423d57c73029a351497be25fba9eb0f5027b730bae839c30d42"
       ],
       "source_sha256": "0fc66241e70a5aa70dd98d877cec6b93d0bf4cc5068583a40d3e88bf0eea33a2",
-      "text": "把它扔回阅读单独,安全地打电话,当已经阅读单纯时。\n\n:param quiet: 删除当真实时只阅读状态消息。",
+      "text": "把它扔回阅读单独,安全地调用,当已经阅读单纯时。\n\n:param quiet: 删除当真实时只阅读状态消息。",
       "translation_source_blocks_sha256": [
         "555c95bf970bd7eeacc53b79e77062a47f171f415cb6a59b075c1ea2b08e8856",
         "026b7d17256fb423d57c73029a351497be25fba9eb0f5027b730bae839c30d42"
@@ -72067,7 +72067,7 @@
         "d73e6df6043d2515a12a8cef1d1cce9427e3953aba53e96c7df10b5aaa1e495c"
       ],
       "source_sha256": "9e1cb5aa69a228ea9fde138e1dc1f7272b3a958e3f87daa2a1da7dc176f31ea4",
-      "text": "将剂量回复插入应用程序登记簿。\n\n从 :data:`spacr.qt.SELF_REGISTERING_MODULES` 呼叫, :func:`spacr.qt.run` 执行后 ``spacr.qt.app`` 完全执行,并在 ``MainWindow.__init__`` 之前阅读记录 - 在那里解释的位置。 没有呼叫进口,所以从测试或笔记本电脑中进口这个模块达到:class:`DoseResponseScreen`不会改变整个过程的状态。\n\n序列本身 - 结构化数据名称,名称,混合器,部分, \"no headless run\" 句子, API doc 连结和显示名称的九个翻译 - 被宣告为 :mod:`spacr.qt.app_catalog`. :func:`spacr.qt.app.register_app` 分布到四个表格,每个使用需要手动编辑,这个功能的整个工作是指定哪个行。\n\n``SECTION_DESIGN``,这不是显而易见的答案,是正确的。 \"在显微镜前发生的一切:统计检测敏感性,样品大小,实验室微板配置,控制和复制\",并且它已经持有统计检测敏感性 / 设计。 *其他* 试验前计算一个扫描实验室运行:没有人适合一个 EC50 要欣赏它,它们适合选择实际筛选将使用的浓度,正如它们进行统计检测敏感性计算以选择n。\n\n替代阅读 - 探索,“问数字一个问题你没有计划” - 是最弱的一个。 *因为* 一个集中序列是计划的:剂量是提前选择的,曲线是实验所做的事情。 ``MAX_APPS_PER_SECTION`` 是 13, Explore 站在 12 之前这个集合, Outliers - 这是一个真正开放的问题问一个完成的桌子 - 是属于那里的人。\n\n:returns: ``True`` 如果这个电话是它注册的。",
+      "text": "将剂量回复插入应用程序登记簿。\n\n从 :data:`spacr.qt.SELF_REGISTERING_MODULES` 呼叫, :func:`spacr.qt.run` 执行后 ``spacr.qt.app`` 完全执行,并在 ``MainWindow.__init__`` 之前阅读记录 - 在那里解释的位置。 没有呼叫进口,所以从测试或笔记本电脑中进口这个模块达到:class:`DoseResponseScreen`不会改变整个过程的状态。\n\n序列本身 - 结构化数据名称,名称,混合器,部分, \"no headless run\" 句子, API doc 连结和显示名称的九个翻译 - 被宣告为 :mod:`spacr.qt.app_catalog`. :func:`spacr.qt.app.register_app` 分布到四个表格,每个使用需要手动编辑,这个功能的整个工作是指定哪个行。\n\n``SECTION_DESIGN``,这不是显而易见的答案,是正确的。 \"在显微镜前发生的一切:统计检测敏感性,样品大小,实验室微板配置,控制和复制\",并且它已经持有统计检测敏感性 / 设计。 *其他* 试验前计算一个扫描实验室运行:没有人适合一个 EC50 要欣赏它,它们适合选择实际筛选将使用的浓度,正如它们进行统计检测敏感性计算以选择n。\n\n替代阅读 - 探索,“问数字一个问题你没有计划” - 是最弱的一个。 *因为* 一个集中序列是计划的:剂量是提前选择的,曲线是实验所做的事情。 ``MAX_APPS_PER_SECTION`` 是 13, Explore 站在 12 之前这个集合, Outliers - 这是一个真正开放的问题问一个完成的桌子 - 是属于那里的人。\n\n:returns: ``True`` 如果这个调用是它注册的。",
       "translation_source_blocks_sha256": [
         "65a4dfddd692e4a7476a3ba4d61e68e00ffac6d212bf35488931c7c1663be9f0",
         "a969dd2c8d9cdd497f8a16819c465d7b9294bfc58ff91d52e9890484d6cc7657",
@@ -72346,7 +72346,7 @@
         "d73e6df6043d2515a12a8cef1d1cce9427e3953aba53e96c7df10b5aaa1e495c"
       ],
       "source_sha256": "a70c3ff8723dde5432761cc554f6c426cb4cc1da8f59fb0c3fe37b15d5ba93a9",
-      "text": "将 Feature Explorer 插入应用程序登记簿。\n\n序列本身 - 结构化数据名称,名称,混合器,部分, \"no headless run\" 句子, API doc 连结和显示名称的九个翻译 - 被宣告为 :mod:`spacr.qt.app_catalog`. :func:`spacr.qt.app.register_app` 分布到四个表格,每个使用需要手动编辑,这个功能的整个工作是指定哪个行。\n\n:returns: ``True`` 如果这个电话是它注册的。",
+      "text": "将 Feature Explorer 插入应用程序登记簿。\n\n序列本身 - 结构化数据名称,名称,混合器,部分, \"no headless run\" 句子, API doc 连结和显示名称的九个翻译 - 被宣告为 :mod:`spacr.qt.app_catalog`. :func:`spacr.qt.app.register_app` 分布到四个表格,每个使用需要手动编辑,这个功能的整个工作是指定哪个行。\n\n:returns: ``True`` 如果这个调用是它注册的。",
       "translation_source_blocks_sha256": [
         "e5816eb37325ba2c6d70ecd068c4ed2df6a55dc3a0675b7340d9eb36f4ea22c6",
         "52ccfef15cb86bb0f1a3a997a768f83d94b357e08d1bc5c45071f5653002e1c9",
@@ -73152,7 +73152,7 @@
         "d73e6df6043d2515a12a8cef1d1cce9427e3953aba53e96c7df10b5aaa1e495c"
       ],
       "source_sha256": "641994ba0f9864d468df04234b224b9692079d02d519ff94f522676c838acad9",
-      "text": "将数据选择界限编辑器放入应用程序登记簿。\n\n序列本身 - 结构化数据名称,名称,混合器,部分, \"no headless run\" 句子, API doc 连结和显示名称的九个翻译 - 被宣告为 :mod:`spacr.qt.app_catalog`. :func:`spacr.qt.app.register_app` 分布到四个表格,每个使用需要手动编辑,这个功能的整个工作是指定哪个行。\n\n:returns: ``True`` 如果这个电话是它注册的。",
+      "text": "将数据选择界限编辑器放入应用程序登记簿。\n\n序列本身 - 结构化数据名称,名称,混合器,部分, \"no headless run\" 句子, API doc 连结和显示名称的九个翻译 - 被宣告为 :mod:`spacr.qt.app_catalog`. :func:`spacr.qt.app.register_app` 分布到四个表格,每个使用需要手动编辑,这个功能的整个工作是指定哪个行。\n\n:returns: ``True`` 如果这个调用是它注册的。",
       "translation_source_blocks_sha256": [
         "e0ebbf8de15ab46a0df1c3f3c5bc0e230e535d611ee1e64e9f3e8882f1638af4",
         "52ccfef15cb86bb0f1a3a997a768f83d94b357e08d1bc5c45071f5653002e1c9",
@@ -75055,7 +75055,7 @@
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ],
       "source_sha256": "26354cb098d85fdf75b8b8ac77aa026027441defca24d68fc9d630d01a5467e1",
-      "text": "互动编辑和治疗分区掩膜。\n\nMake Masks 在主应用程序视图上输入 **Tools** 并是手动分区的一半:它纠正一个模型错误的掩膜,一个显微镜的视野同时,其掩膜头打开了产生它们的 Cellpose 工作流。 :class:`MakeMasksScreen` 从 ``<folder>/masks`` 上加载图像和标签掩膜,并将编辑标签保存为 ``uint16`` TIFF 文件。\n\n九个工具,按 :data:`TOOL_MODES` 顺序,因为这个词汇是读者在打开应用程序视图之前需要的:\n\n**Brush**和 **Erase**同时绘画和不绘画活性标签一个像素。 **Erasa对象**在一个点击中删除整个标签. **墙 +**和**墙 −**从点击的像素中生长一个区域,并将其添加到标签或从标签中取出它;宽容与图像的强度范围默认相似,请参见 :func:`spacr.qt.mask_engine.relative_tolerance`。 **Draw**跟踪一个自由形状的输出线,关闭并填写作为一个对象 - 工具一个刷子不是,因为刷子在路径沿着磁盘,所以通过跟踪标签将其放在中间的背景。 **Divide**在合成对象中拖动一条线,并将其分成两条,保持原始标识器在较大的组件上,并给较小的一个新的,每个其他对象都没有触摸; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` 是切割宽度。 **Zoom**直角吸引了视图,并且根本没有更改标签。\n\n**Recrop**是第九个,是唯一改变什么字段是在应用视图上而不是在它上绘制的。 持有多个细胞的步骤提取图像区域不是一个训练例子,并且治疗它作为一个教导一个网络,两个对象是一个图像 - 因此,一个框环绕一个对象写到该区域的图像和掩膜作为一个自己的(:func:`spacr.qt.mask_engine.write_recrop`),在当前的字段后直播,而多对象原始退休到``recropped_originals/``而不是治愈(:func:`spacr.qt.mask_engine.retire_recropped_original`)。 一个侧面比:data:`spacr.qt.mask_engine.RECROP_MIN_SIDE`更短的盒子,或者重复已经过去的:data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`的切割,被拒绝;盒子切割的对象被抛弃,因为一个对象,其边界是鼠标被释放的地方,不是这个对象;而生存的标签是从一个重新编号。\n\n每个显微镜的视野都有一个 :class:`spacr.curation.CurationLog`,从任何现有侧面开始。 :func:`spacr.qt.mask_engine.save_mask` 将标签和列表编写在一起,允许 :func:`spacr.curation.is_curated` 从工作流输出中区分手动纠正的掩膜。\n\n:meth:`MakeMasksScreen.run_cellpose` 适用于工作流的分辨式 Cellpose-SAM 模型到开放式显微镜视野,并显示掩膜、细胞可行性地图和流动显微镜视野。 中间输出支持 :data:`CELLPROB_THRESHOLD` 的评估,如果检测缺乏或不完整。\n\n编辑模式由 :func:`tool_row_entries` 和 :data:`TOOL_MODES` 组成. :meth:`MakeMasksScreen.add_toolbar_action` 将非模式操作插入到相同的工具栏中. 设置面板执行非行为的操作 - 对象填充和重新标签,逆转,大小过滤和 Otsu 检测,与 undo 和 redo 所有 - 旁边的刷, wand 和显示控制,并且可以隐藏返回其宽度到管道。\n\n额外的分区工具从 :data:`FOLD_ORDER` 到 :class:`~spacr.qt.widgets.fold_strip.FoldStrip` 打开。 **显示整个文件夹** 适用于选定的文件夹中的每个图像 Cellpose, 而在清洁页面上的 **Save mask** 会打电话给 :meth:`spacr.curation.MaskCuration.save_mask`. 包装模块保留现有 widgets 在 :class:`FoldedModulePanel` 中。\n\n时间序列跟踪与按摩类作为按摩设置类别集成; 参见 :mod:`spacr.qt.screens.mask`. 动态评估相反属于测量,因为它消耗现有掩膜并写出测量表而不是产生掩膜。",
+      "text": "互动编辑和治疗分区掩膜。\n\nMake Masks 在主应用程序视图上输入 **Tools** 并是手动分区的一半:它纠正一个模型错误的掩膜,一个显微镜的视野同时,其掩膜头打开了产生它们的 Cellpose 工作流。 :class:`MakeMasksScreen` 从 ``<folder>/masks`` 上加载图像和标签掩膜,并将编辑标签保存为 ``uint16`` TIFF 文件。\n\n九个工具,按 :data:`TOOL_MODES` 顺序,因为这个词汇是读者在打开应用程序视图之前需要的:\n\n**Brush**和 **Erase**同时绘画和不绘画活性标签一个像素。 **Erasa对象**在一个点击中删除整个标签. **墙 +**和**墙 −**从点击的像素中生长一个区域,并将其添加到标签或从标签中取出它;宽容与图像的强度范围默认相似,请参见 :func:`spacr.qt.mask_engine.relative_tolerance`。 **Draw**跟踪一个自由形状的输出线,关闭并填写作为一个对象 - 工具一个刷子不是,因为刷子在路径沿着磁盘,所以通过跟踪标签将其放在中间的背景。 **Divide**在合成对象中拖动一条线,并将其分成两条,保持原始标识器在较大的组件上,并给较小的一个新的,每个其他对象都没有触摸; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` 是切割宽度。 **Zoom**直角吸引了视图,并且根本没有更改标签。\n\n**Recrop**是第九个,是唯一改变什么字段是在应用视图上而不是在它上绘制的。 持有多个细胞的步骤提取图像区域不是一个训练例子,并且治疗它作为一个教导一个网络,两个对象是一个图像 - 因此,一个框环绕一个对象写到该区域的图像和掩膜作为一个自己的(:func:`spacr.qt.mask_engine.write_recrop`),在当前的字段后直播,而多对象原始退休到``recropped_originals/``而不是治愈(:func:`spacr.qt.mask_engine.retire_recropped_original`)。 一个侧面比:data:`spacr.qt.mask_engine.RECROP_MIN_SIDE`更短的盒子,或者重复已经过去的:data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`的切割,被拒绝;盒子切割的对象被抛弃,因为一个对象,其边界是鼠标被释放的地方,不是这个对象;而生存的标签是从一个重新编号。\n\n每个显微镜的视野都有一个 :class:`spacr.curation.CurationLog`,从任何现有侧面开始。 :func:`spacr.qt.mask_engine.save_mask` 将标签和列表编写在一起,允许 :func:`spacr.curation.is_curated` 从工作流输出中区分手动纠正的掩膜。\n\n:meth:`MakeMasksScreen.run_cellpose` 适用于工作流的分辨式 Cellpose-SAM 模型到开放式显微镜视野,并显示掩膜、细胞可行性地图和流动显微镜视野。 中间输出支持 :data:`CELLPROB_THRESHOLD` 的评估,如果检测缺乏或不完整。\n\n编辑模式由 :func:`tool_row_entries` 和 :data:`TOOL_MODES` 组成. :meth:`MakeMasksScreen.add_toolbar_action` 将非模式操作插入到相同的工具栏中. 设置面板执行非行为的操作 - 对象填充和重新标签,逆转,大小过滤和 Otsu 检测,与 undo 和 redo 所有 - 旁边的刷, wand 和显示控制,并且可以隐藏返回其宽度到管道。\n\n额外的分区工具从 :data:`FOLD_ORDER` 到 :class:`~spacr.qt.widgets.fold_strip.FoldStrip` 打开。 **显示整个文件夹** 适用于选定的文件夹中的每个图像 Cellpose, 而在清洁页面上的 **Save mask** 会调用给 :meth:`spacr.curation.MaskCuration.save_mask`. 包装模块保留现有 widgets 在 :class:`FoldedModulePanel` 中。\n\n时间序列跟踪与按摩类作为按摩设置类别集成; 参见 :mod:`spacr.qt.screens.mask`. 动态评估相反属于测量,因为它消耗现有掩膜并写出测量表而不是产生掩膜。",
       "translation_source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "a18df94f6eb8e4a48b88160ce80eb6b34464db73f99d3ab4ebaad47f7ce49354",
@@ -75506,7 +75506,7 @@
         "578b870f2c8294483c7d7162d4ca00cf313706f6e7b20310e496459017500714"
       ],
       "source_sha256": "56e8c5212ea3c1ecfc6735f824c4c8366585cb37111a4c700dd7d021980c476d",
-      "text": "返回 True 当没有互动显示器附加到此过程时。\n\n一个模型 ``QMessageBox`` 运行自己的事件路径,只回来一次有人点击一个按钮。 ``offscreen`` / ``minimal`` Qt 平台插件 - CI,一个无图形界面服务器,一个 SSH 没有X的会话 - 没有人可以,所以电话永远不会回来,整个应用程序挂着。 *数据* 而不是通过用户的行为,因此必须下降到状态线。\n\n同步 / 组合 / 转换 / 报告 / plate_view 界面从来没有打开一个模型对话; 他们的 ``_set_status`` 文档指的是此界面的早期挂在。 在这里,但是, \"Clear mask\" 需要一个“是”或“没有”答案. 因此,这个界面只打开对话,当一个人可以回答它。",
+      "text": "返回 True 当没有互动显示器附加到此过程时。\n\n一个模型 ``QMessageBox`` 运行自己的事件路径,只回来一次有人点击一个按钮。 ``offscreen`` / ``minimal`` Qt 平台插件 - CI,一个无图形界面服务器,一个 SSH 没有X的会话 - 没有人可以,所以调用永远不会回来,整个应用程序挂着。 *数据* 而不是通过用户的行为,因此必须下降到状态线。\n\n同步 / 组合 / 转换 / 报告 / plate_view 界面从来没有打开一个模型对话; 他们的 ``_set_status`` 文档指的是此界面的早期挂在。 在这里,但是, \"Clear mask\" 需要一个“是”或“没有”答案. 因此,这个界面只打开对话,当一个人可以回答它。",
       "translation_source_blocks_sha256": [
         "9b44e3a8da3bc32fe6ee0903a37f366072379595f3e6db56149079fba2abdc0b",
         "feebf2bbe5fd03dec128e3df77792441de7c89b98b40d67eff6a5c9a03a3aaf2",
@@ -75730,7 +75730,7 @@
         "6e43f3f9898380ff46fb0b8b984b6529c43345408228ecdd469ea0ccd0a63a92"
       ],
       "source_sha256": "6dfb7bb4d84a9d28c3a03d0463640f80b99b5f65f3ba0b5849bdc6b291316077",
-      "text": "打开一个包装模块,并在激活之间重新使用应用程序视图。\n\n打开器是一种对象,所以直线通过按钮连接控制其寿命. 该模块在主机支持页面时显示为页面,或者作为另一个单独的窗口. 其筛选一次构建并保存,防止双重数据库操作或工作运行器,并保留用户在页面变更时加载状态。\n\n:param screen: 在主机筛选上,按钮坐着。\n:param key: 填写模块的登记密钥。\n:param build: 用主窗口(或 None)打电话,然后返回包装模块的筛选。",
+      "text": "打开一个包装模块,并在激活之间重新使用应用程序视图。\n\n打开器是一种对象,所以直线通过按钮连接控制其寿命. 该模块在主机支持页面时显示为页面,或者作为另一个单独的窗口. 其筛选一次构建并保存,防止双重数据库操作或工作运行器,并保留用户在页面变更时加载状态。\n\n:param screen: 在主机筛选上,按钮坐着。\n:param key: 填写模块的登记密钥。\n:param build: 用主窗口(或 None)调用,然后返回包装模块的筛选。",
       "translation_source_blocks_sha256": [
         "4b705edab8e112fce470d49195e292d7c15d1a99ecd05304fc26a0d4ecf1ab0d",
         "1f407c9c91e09ac75706fd49dee8ba1f0ccd72c3a2f6717e9453afa61b44a9e0",
@@ -76069,7 +76069,7 @@
         "85e14e2c86ad52880e07b654bf7725a9597f858b5c6db52a465bc043dd16c8fb"
       ],
       "source_sha256": "7c4b8cd372f0e6ebeb7b497e82fe833e1ffcc7e7ec6eec6088182f798401c7c5",
-      "text": "移动交换机以匹配刚刚应用的设置关键值地图。\n\n跟踪和测量控制将其值通过常规大小应用,因为它们是这个表格的常规控制。 他们的数据选择界限不是控制 - 交换器是 - 因此一个 Timelapse 设置文件会否则填写每个跟踪按钮并离开跟踪。\n\n在任何筛选上安全打电话:没有类别文件夹的人会返回一个空白的漏洞。\n\n:param screen: 筛选上应用的设置。\n:param settings: 被应用的关键值地图。\n:returns: 插入的结构化数据名称,设置已交换。",
+      "text": "移动交换机以匹配刚刚应用的设置关键值地图。\n\n跟踪和测量控制将其值通过常规大小应用,因为它们是这个表格的常规控制。 他们的数据选择界限不是控制 - 交换器是 - 因此一个 Timelapse 设置文件会否则填写每个跟踪按钮并离开跟踪。\n\n在任何筛选上安全调用:没有类别文件夹的人会返回一个空白的漏洞。\n\n:param screen: 筛选上应用的设置。\n:param settings: 被应用的关键值地图。\n:returns: 插入的结构化数据名称,设置已交换。",
       "translation_source_blocks_sha256": [
         "bb5dae0d2d4ecb2bdacf9a05d2d4bad99bf9a18f83a8fd7943a8edfb7604f01d",
         "8f676e9f9d9b244c3696d7898c1a2b0af9b48fd4fca8545f6ad25f50b11bb007",
@@ -76717,7 +76717,7 @@
         "ecc0219c27afffab5cedabf393eff403f9e5bf430f9ccd49bdcba3445b04beb2"
       ],
       "source_sha256": "ea883273cf5d0f8f4c7ec4b3bfa828b96308bb16e4761ef4a1fdf461e83bf3d4",
-      "text": "创建模型解释筛选,应用程序登记簿。\n\n:param app_key: 被接受和未使用 - 注册表以其注册的密钥打电话给每个工厂,而此筛选只提供一个。\n:param host: 主要窗口,经过导航。\n:returns: 一个新的:class:`ModelExplanationScreen`。",
+      "text": "创建模型解释筛选,应用程序登记簿。\n\n:param app_key: 被接受和未使用 - 注册表以其注册的密钥调用给每个工厂,而此筛选只提供一个。\n:param host: 主要窗口,经过导航。\n:returns: 一个新的:class:`ModelExplanationScreen`。",
       "translation_source_blocks_sha256": [
         "d276a5ae75e78a836da09a05b60450a4c2fcac701cdca6aa6bfdc8bef2cd4244",
         "88fc375fe27875afeb9a787a3ef921537123d324162d1a9b6907990cde94255c",
@@ -76739,7 +76739,7 @@
         "68ab011a51d8c1381541fd95ad6870aa1cf1392f216d7ade6fcdb5cbc873024e"
       ],
       "source_sha256": "7b96cc70ee01c4da5d48f2fc40c20fc34d7b87b92562f6fe908d938d5000dffe",
-      "text": "动物园模型 - 每个模型,这个机器可以分类或分类,在一个列表。\n\n“我有哪些模型,它们从哪里来,它在我的图像上工作吗?”这个问题现在用``find``,记忆和一个完整的实验室显微板运行来回答。\n\n界面布局::\n\n    ┌──────────────────────────────────────────────────────────────────────┐\n    │ /data/screen1                       [Choose folder…] [Scan]          │\n    ├──────────────────────────────────────────────────────────────────────┤\n    │ model            kind      source  v  size    checksum  trained on   │\n    │ toxo_plaque…     cellpose  bundled 1  25 MB   none      /nas_mnt/…   │\n    │ maxvit_t_epoch…  classifier local  1  310 MB  none      /data/…      │\n    │ hela_60x.CP…     cellpose  remote  1  26 MB   published unknown      │\n    ├──────────────────────────────────────────────────────────────────────┤\n    │ hela_60x_confluent.CP_model  [cellpose · remote · v1]                │\n    │   uri        https://…                                               │\n    │   sha256     9f86d0…  (published)                                    │\n    │   trained on unknown                                                 │\n    │   ! this model does not say what it was trained on…                  │\n    ├──────────────────────────────────────────────────────────────────────┤\n    │ Download to [~/.spacr/models    ] [Choose…] [Download] [Cancel]      │\n    │ [====================              ] 12.4 MB / 26.5 MB               │\n    ├──────────────────────────────────────────────────────────────────────┤\n    │ Test on [3] fields from [/data/screen1/plate1/1] [Choose…]  [Test]   │\n    │ field    objects  seg_qc  flags                    ┌───────────────┐ │\n    │ A01_f01  212      ok      -                        │  [ masks ]    │ │\n    │ A01_f02  198      warn    high_border_fraction     └───────────────┘ │\n    └──────────────────────────────────────────────────────────────────────┘\n\n设计笔记:\n\n* **Provenance 是列,而不是工具提示.** “什么是这个训练”是决定一个模型是否适用于你的图像,所以它是在表中和播放的 ``unknown`` 它是未知的 - 一个白细胞被称为 \"no constraints\",这是相反的意思。\n* **下载在主要 GUI 执行路径,原子,可取消。** 比特进入目的地内部的 temp 文件,并仅在查克通(:func:`spacr.model_zoo.fetch`)后重新命名,因此取消离开目的地正如它所说的那样 - 没有半写的文件在一个模型类似的名称上。\n* **``worker.finished`` 通过一个信号传输到一个连接方法** PySide6 提供一个平坦的关闭连接到一个工作进程的信号作为一个 *direct* 电话在背景执行单位,完成处理器在这里填写一个 QPlainTextEdit 和一个 QTableWidget。 构建 QTextDocument 儿童从主要 GUI 执行路径是未定义的行为,因此 ``finished`` 连锁通过 :attr:`ModelZooScreen._job_settled` - 一个 widget-affine 连接方法 - 正如 ``PlateViewScreen`` 所做的那样。\n* **没有任何错误路径的模型对话.** 没有模型的文件夹,检查错误,腐败的检查点,取消下载:所有在线。\n* **Two 选择的模型与模型比较** 各个单独并阅读两个表并不是比较 - A/B 的功效在 :mod:`spacr.model_compare` 是,这是说出声音,没有模型是基础真理。 这个筛选构建了一个配置的 ``ModelCompareScreen`` 并发出它而不是生长一个第二,更弱的比较自己的。\n* **比分从未分为各个字段组。** 结果表属于一个字段组中的一个模型,总结线称字段组,因为在您的三个字段中,一个分数不会说任何人的分数。",
+      "text": "动物园模型 - 每个模型,这个机器可以分类或分类,在一个列表。\n\n“我有哪些模型,它们从哪里来,它在我的图像上工作吗?”这个问题现在用``find``,记忆和一个完整的实验室显微板运行来回答。\n\n界面布局::\n\n    ┌──────────────────────────────────────────────────────────────────────┐\n    │ /data/screen1                       [Choose folder…] [Scan]          │\n    ├──────────────────────────────────────────────────────────────────────┤\n    │ model            kind      source  v  size    checksum  trained on   │\n    │ toxo_plaque…     cellpose  bundled 1  25 MB   none      /nas_mnt/…   │\n    │ maxvit_t_epoch…  classifier local  1  310 MB  none      /data/…      │\n    │ hela_60x.CP…     cellpose  remote  1  26 MB   published unknown      │\n    ├──────────────────────────────────────────────────────────────────────┤\n    │ hela_60x_confluent.CP_model  [cellpose · remote · v1]                │\n    │   uri        https://…                                               │\n    │   sha256     9f86d0…  (published)                                    │\n    │   trained on unknown                                                 │\n    │   ! this model does not say what it was trained on…                  │\n    ├──────────────────────────────────────────────────────────────────────┤\n    │ Download to [~/.spacr/models    ] [Choose…] [Download] [Cancel]      │\n    │ [====================              ] 12.4 MB / 26.5 MB               │\n    ├──────────────────────────────────────────────────────────────────────┤\n    │ Test on [3] fields from [/data/screen1/plate1/1] [Choose…]  [Test]   │\n    │ field    objects  seg_qc  flags                    ┌───────────────┐ │\n    │ A01_f01  212      ok      -                        │  [ masks ]    │ │\n    │ A01_f02  198      warn    high_border_fraction     └───────────────┘ │\n    └──────────────────────────────────────────────────────────────────────┘\n\n设计笔记:\n\n* **Provenance 是列,而不是工具提示.** “什么是这个训练”是决定一个模型是否适用于你的图像,所以它是在表中和播放的 ``unknown`` 它是未知的 - 一个白细胞被称为 \"no constraints\",这是相反的意思。\n* **下载在主要 GUI 执行路径,原子,可取消。** 比特进入目的地内部的 temp 文件,并仅在查克通(:func:`spacr.model_zoo.fetch`)后重新命名,因此取消离开目的地正如它所说的那样 - 没有半写的文件在一个模型类似的名称上。\n* **``worker.finished`` 通过一个信号传输到一个连接方法** PySide6 提供一个平坦的关闭连接到一个工作进程的信号作为一个 *direct* 调用在背景执行单位,完成处理器在这里填写一个 QPlainTextEdit 和一个 QTableWidget。 构建 QTextDocument 儿童从主要 GUI 执行路径是未定义的行为,因此 ``finished`` 连锁通过 :attr:`ModelZooScreen._job_settled` - 一个 widget-affine 连接方法 - 正如 ``PlateViewScreen`` 所做的那样。\n* **没有任何错误路径的模型对话.** 没有模型的文件夹,检查错误,腐败的检查点,取消下载:所有在线。\n* **Two 选择的模型与模型比较** 各个单独并阅读两个表并不是比较 - A/B 的功效在 :mod:`spacr.model_compare` 是,这是说出声音,没有模型是基础真理。 这个筛选构建了一个配置的 ``ModelCompareScreen`` 并发出它而不是生长一个第二,更弱的比较自己的。\n* **比分从未分为各个字段组。** 结果表属于一个字段组中的一个模型,总结线称字段组,因为在您的三个字段中,一个分数不会说任何人的分数。",
       "translation_source_blocks_sha256": [
         "0d3d45df0a2c5004ea4f106d651652d04678817b228ed32e2c2ddabdd3242b45",
         "def14912a3f896572880ec1ad451d244615cffd400a418236552872cc233a5e1",
@@ -78418,7 +78418,7 @@
         "49e3224370d788b406ed971a6bf89915a1021f3cf99911d4d3501cb814f6edb5"
       ],
       "source_sha256": "ba0d4cfa00698b3ef4f938c537b19e9da59716e38690c7044dfa069ef6f8f452",
-      "text": "将 Power / Design 插入应用程序登记簿,通过公共标签。\n\n它声称:data:`spacr.qt.app.SECTION_DESIGN`,被宣布为``SECTION_ORDER``,并且从未有过应用程序 - 它的笔记已经读到“在运行之前计划实验:统计检测敏感性,样品大小,实验室微板配置,控制和复制”,所以注册使该选项卡显示与其所写的描述。\n\n:returns: ``True`` 如果这个呼叫是它注册的。 安全地打电话两次 - 从两个路径进口的模块不应上升。\n\n从 ``app.py`` 的 ``_SELF_REGISTERING_APPS`` 表,在该模块的底部,这是一个点,注册是可见的每个人,发生在 ``import spacr.qt.app`` 而不是仅在启动时。\n\n**有意仅用于 GUI。** 它传入 ``cli_note`` 而不传入 ``entry``，所以 ``spacr-run power`` 会以 :data:`APP_CLI_NOTE` 回答，而不是显示 \"unknown module\"。原因并非扫描不能无界面执行——它可以，提示也给出了调用方式——而是其*输入*不是设置文件。其他每个 ``spacr-run`` 模块都接收 ``src`` 并处理它；该模块接收一项设计，输出则是需要比较各点来阅读的曲线。用 settings.csv 固定曲线上的一个点，会比直接调用 :func:`spacr.power_model.scan_parameters` 更差，而提示恰好会告诉用户直接调用它。",
+      "text": "将 Power / Design 插入应用程序登记簿,通过公共标签。\n\n它声称:data:`spacr.qt.app.SECTION_DESIGN`,被宣布为``SECTION_ORDER``,并且从未有过应用程序 - 它的笔记已经读到“在运行之前计划实验:统计检测敏感性,样品大小,实验室微板配置,控制和复制”,所以注册使该选项卡显示与其所写的描述。\n\n:returns: ``True`` 如果这个呼叫是它注册的。 安全地调用两次 - 从两个路径进口的模块不应上升。\n\n从 ``app.py`` 的 ``_SELF_REGISTERING_APPS`` 表,在该模块的底部,这是一个点,注册是可见的每个人,发生在 ``import spacr.qt.app`` 而不是仅在启动时。\n\n**有意仅用于 GUI。** 它传入 ``cli_note`` 而不传入 ``entry``，所以 ``spacr-run power`` 会以 :data:`APP_CLI_NOTE` 回答，而不是显示 \"unknown module\"。原因并非扫描不能无界面执行——它可以，提示也给出了调用方式——而是其*输入*不是设置文件。其他每个 ``spacr-run`` 模块都接收 ``src`` 并处理它；该模块接收一项设计，输出则是需要比较各点来阅读的曲线。用 settings.csv 固定曲线上的一个点，会比直接调用 :func:`spacr.power_model.scan_parameters` 更差，而提示恰好会告诉用户直接调用它。",
       "translation_source_blocks_sha256": [
         "634a86e982d2d04d338fcc23754997369010f3d6305aee5721a24b89d93c63c0",
         "9ee82ce4bbfd0db863ccd50357178ca3d22380af6f9ae75da808e183582a522b",
@@ -78435,7 +78435,7 @@
         "8e28606fd774fbbf1353372a8b40b7335fd5f62d33db60e073f7424bb95e4b53"
       ],
       "source_sha256": "7d4107672720a99a8cfd5e782226beff09cad8de3b23341ee04924157adcee54",
-      "text": "通过 :func:`spacr.settings.register_defaults` 记录该应用程序的默认。\n\n从 :func:`register` 分开,并在该模块的底部呼叫: ``register_app(defaults_module=...)`` 表示将筛选进口到其设置被要求,并且该进口必须占据相同的过程范围的 ``expected_types``、 ``tooltips`` 和 ``categories`` 表格,无论筛选或测试发生第一次进口它。\n\n:param replace: 重新写下此密钥的现有登记。\n:returns: ``True`` 如果这个电话注册了它, ``False`` 如果它已经存在。",
+      "text": "通过 :func:`spacr.settings.register_defaults` 记录该应用程序的默认。\n\n从 :func:`register` 分开,并在该模块的底部呼叫: ``register_app(defaults_module=...)`` 表示将筛选进口到其设置被要求,并且该进口必须占据相同的过程范围的 ``expected_types``、 ``tooltips`` 和 ``categories`` 表格,无论筛选或测试发生第一次进口它。\n\n:param replace: 重新写下此密钥的现有登记。\n:returns: ``True`` 如果这个调用注册了它, ``False`` 如果它已经存在。",
       "translation_source_blocks_sha256": [
         "dccb67eca2e48ae6bfbc32bc3b3330d403aecdf35c192829db3f7eec161ad2d3",
         "a639acd2a034a4cde7e039e8992a5bafac81a8e7c499e2f37c01228a1e91f1ba",
@@ -80904,7 +80904,7 @@
         "9f11476cdb5b482aa7b98da8a046be1e560d886ca12c14f589bd60326178647b"
       ],
       "source_sha256": "a9428b46b52aff630c54fbb5c6b1e2fdc43d97a592a5f139724a5d5c0a270b80",
-      "text": "将 Tabulate 放入应用程序登记簿,通过公共标签。\n\n上面的线路与登记 - :func:`spacr.qt.app.register_app` 球迷 ``intro``, ``cli_note``、 ``api_module`` 和 ``translations`` 出到使用的四个表中,每一个需要手动编辑。\n\n:returns: ``True`` 如果这个电话是谁注册了它. 安全的打电话两次。\n\n**不打电话给进口**,因为原因``app.py``的``_SELF_REGISTERING_APPS``表文档:在其他地方进行的注册是某些进口商的``APPS``的截图。 将此筛选转换为 **one 序列** 在该表中::\n\n    (\"spacr.qt.screens.tabulate\", \"register\"),\n\n留在这里,因为 ``spacr/qt/app.py`` 属于飞行中的另一个变化,并且由于一个新的 ``APPS`` 序列目前为每个应用程序的存储测试提供了理由,该应用程序视图无法修复。",
+      "text": "将 Tabulate 放入应用程序登记簿,通过公共标签。\n\n上面的线路与登记 - :func:`spacr.qt.app.register_app` 球迷 ``intro``, ``cli_note``、 ``api_module`` 和 ``translations`` 出到使用的四个表中,每一个需要手动编辑。\n\n:returns: ``True`` 如果这个调用是谁注册了它. 安全的调用两次。\n\n**不调用给进口**,因为原因``app.py``的``_SELF_REGISTERING_APPS``表文档:在其他地方进行的注册是某些进口商的``APPS``的截图。 将此筛选转换为 **one 序列** 在该表中::\n\n    (\"spacr.qt.screens.tabulate\", \"register\"),\n\n留在这里,因为 ``spacr/qt/app.py`` 属于飞行中的另一个变化,并且由于一个新的 ``APPS`` 序列目前为每个应用程序的存储测试提供了理由,该应用程序视图无法修复。",
       "translation_source_blocks_sha256": [
         "021248876e2d04ba6155b5afafea796ecf9461475263749c9083ce572bce1525",
         "e57aa57b7cea80bb29ddfb7e8490fc3f52034eb03faa5933817eb715a13214d2",
@@ -81367,7 +81367,7 @@
         "d73e6df6043d2515a12a8cef1d1cce9427e3953aba53e96c7df10b5aaa1e495c"
       ],
       "source_sha256": "3f01bfcede24819b71cdd91084c9d7bf16856f94726bc05fc11dc9b20c75818b",
-      "text": "将小多元插入应用程序登记簿。\n\n从 :data:`spacr.qt.SELF_REGISTERING_MODULES` 呼叫, :func:`spacr.qt.run` 执行后 ``spacr.qt.app`` 完全执行,并在 ``MainWindow.__init__`` 之前阅读记录 - 在那里解释的位置。\n\n序列本身 - 结构化数据名称,名称,混合器,部分, \"no headless run\" 句子, API doc 连结和显示名称的九个翻译 - 被宣告为 :mod:`spacr.qt.app_catalog`. :func:`spacr.qt.app.register_app` 分布到四个表格,每个使用需要手动编辑,这个功能的整个工作是指定哪个行。\n\n:returns: ``True`` 如果这个电话是它注册的。",
+      "text": "将小多元插入应用程序登记簿。\n\n从 :data:`spacr.qt.SELF_REGISTERING_MODULES` 呼叫, :func:`spacr.qt.run` 执行后 ``spacr.qt.app`` 完全执行,并在 ``MainWindow.__init__`` 之前阅读记录 - 在那里解释的位置。\n\n序列本身 - 结构化数据名称,名称,混合器,部分, \"no headless run\" 句子, API doc 连结和显示名称的九个翻译 - 被宣告为 :mod:`spacr.qt.app_catalog`. :func:`spacr.qt.app.register_app` 分布到四个表格,每个使用需要手动编辑,这个功能的整个工作是指定哪个行。\n\n:returns: ``True`` 如果这个调用是它注册的。",
       "translation_source_blocks_sha256": [
         "661931d3aba8f06e27222847f92b6895d5c1252d2f261b6290769c6b2a1d01b2",
         "1bb1fcc688fb11d5bb53432bdaf13f4d38b5f4f0d32062fcfabf327b1f26e479",
@@ -82024,7 +82024,7 @@
         "984510d321ec7de8c9d06f78d9de81055ae02566393de4ed5490a86e9f306a51"
       ],
       "source_sha256": "375c9c915d874e633678d2e5fca95c56988d980f2c29650e8efc6e6a57eb62b2",
-      "text": "跟随 ``window`` 的筛选列,将带添加到每个模块。\n\n从 :func:`spacr.qt.shortcuts.install` 打电话一次。 应用程序视图在第一次导航上是轻松构建的,所以这不能是一个单射击; 它连接到架子,并安装到已经建造的任何东西。\n\n:returns: 观察器,在窗口保持活着,或 ``None``。",
+      "text": "跟随 ``window`` 的筛选列,将带添加到每个模块。\n\n从 :func:`spacr.qt.shortcuts.install` 调用一次。 应用程序视图在第一次导航上是轻松构建的,所以这不能是一个单射击; 它连接到架子,并安装到已经建造的任何东西。\n\n:returns: 观察器,在窗口保持活着,或 ``None``。",
       "translation_source_blocks_sha256": [
         "bf4e0882d494567d39106f5c7b85ac2b2dd9b68319c6c9d2cae937878185dc54",
         "b7f56e52dcae00f89f1fc329d9d17a28cb4527d1d2f1d89690e3c8409d1d8ed3",
@@ -82597,7 +82597,7 @@
         "cdf1489286a9d1937aa9a63f576419c8563c4822fe2c282e749b131b9c7e5576"
       ],
       "source_sha256": "5c6487010a8c4ed3138fc454b4cdf769d5a934369bac21e7191e0fa12dfa5fd5",
-      "text": "下载一个公共域名NASA图像并记录其信用。\n\n**从未在输入时间上打电话,从未从测试中打电话.** 空间主题没有它工作;这是一个严格的更新,用户从偏好中选择。\n\n:param key: 哪个输入为 :data:`NASA_IMAGES` 到 fetch。\n:param timeout: 按时按时在几秒钟内。\n:param opener: 注射点测试 - 可召唤的接收 ``(url, timeout)`` 和返回比特. 缺陷到 ``urllib.request.urlopen``.\n:returns: 信用关键值地图上的成功, ``None`` 在任何失败(离线, 404,不可写的存储)。 通话者必须将 ``None`` 视为“使用程序天空”,而不是作为错误。",
+      "text": "下载一个公共域名NASA图像并记录其信用。\n\n**从未在输入时间上调用,从未从测试中调用.** 空间主题没有它工作;这是一个严格的更新,用户从偏好中选择。\n\n:param key: 哪个输入为 :data:`NASA_IMAGES` 到 fetch。\n:param timeout: 按时按时在几秒钟内。\n:param opener: 注射点测试 - 可召唤的接收 ``(url, timeout)`` 和返回比特. 缺陷到 ``urllib.request.urlopen``.\n:returns: 信用关键值地图上的成功, ``None`` 在任何失败(离线, 404,不可写的存储)。 通话者必须将 ``None`` 视为“使用程序天空”,而不是作为错误。",
       "translation_source_blocks_sha256": [
         "552f524219cf23f01051caa54243b81970b6d01e31f2e4b7599394647e3ac52a",
         "ae0ec1e2058e6705073a825b0b7f175206a4b0af754d5e735c181de590dc1938",
@@ -83913,7 +83913,7 @@
         "405fca7e058980e779c359fd1797353de6907dff83dcb4253acc3c208d44ddf3"
       ],
       "source_sha256": "263b9707edca4df25fbe79bb2a21ad8a94634519f81333053cab1d87b459b353",
-      "text": "表示 ``widgets`` 是页面表面,而不是乘客。\n\n:func:`clear_container_surfaces` 标签每个 ``QAbstractScrollArea`` 按类型,而 ``QAbstractItemView`` 和 ``QPlainTextEdit`` 都是相同的. 因此,发送的 ``QTableView/QTreeView {{ background-color: surface_alt }}`` 规则从未在应用程序中的任何视图上降落: :data:`TRANSPARENT_PROPERTY` 的属性选择器排列一个纯粹的类型选择器,而视图没有画出任何东西。\n\n在一个视图坐在一个选项卡板上,或者在一个正确的卡片中,它是正确的,偶然 - 背后的容器提供表面,视图显示它通过。\n\n它不能缩短到准确的类型. 使它在应用程序中闪烁 **每个** 视图同时,而那些已经坐在一个板上会然后粘贴两个透明的灰色,并阅读约 0.49 - 一个阴影没有位置的页面不平衡的滑板可以产生. 也不能一个类型测试区分: 命中列表 ``QTreeWidget`` 是页面和控制图的 ``QListWidget`` 是一个乘客,之后的双是另一条路圆。\n\n取消**in**而不是取消目的。 今天,应用程序中的每一个视图都被推翻了,所以选择改变什么都没有,除了筛选这样说的地方,并且没有人看到的视图保持了它被写的行为。\n\n两个应用程式观点说这一点,在机制存在之前,通过给观点一个对象名称并注册整个QSS区块为它 — 模型比较的结果表,模型动物园的列表和起源框. 一个 ID 选择器排列透明标签相同的方式. 这是没有区块:一个呼叫,或是发送的表规则或 ``*[spacrSurface=\"true\"]`` 规则提供填充到使用者的页面不透明度. 第二个不是 redundant: 表中没有什么覆盖一个清晰的 ``QListWidget``,否则会落入表格 ``QWidget`` 规则,并绘制WINDOW 颜色,这不是表面。\n\n安全打电话之前或之后,安全打两次:透明标签被清除以及表面标签设置,风格被重新包装,以便可见的 widget 立即改变。\n\n一个 Qt 规则必须付出代价. ``QWidget`` 的 **子类** 完全忽略 QSS 背景,除非 ``WA_StyledBackground`` 设置,这就是为什么 Power 的 Caveat 面板仍然测量背面没有触摸,与相匹配的规则坐在表中. 属性在这里设置为那些,并故意 NOT 为 ``QAbstractScrollArea``: 一个视图已经通过其视图门绘制其背景,而第二个风格填写在它的顶部是两个表面粘贴的错误再次。",
+      "text": "表示 ``widgets`` 是页面表面,而不是乘客。\n\n:func:`clear_container_surfaces` 标签每个 ``QAbstractScrollArea`` 按类型,而 ``QAbstractItemView`` 和 ``QPlainTextEdit`` 都是相同的. 因此,发送的 ``QTableView/QTreeView {{ background-color: surface_alt }}`` 规则从未在应用程序中的任何视图上降落: :data:`TRANSPARENT_PROPERTY` 的属性选择器排列一个纯粹的类型选择器,而视图没有画出任何东西。\n\n在一个视图坐在一个选项卡板上,或者在一个正确的卡片中,它是正确的,偶然 - 背后的容器提供表面,视图显示它通过。\n\n它不能缩短到准确的类型. 使它在应用程序中闪烁 **每个** 视图同时,而那些已经坐在一个板上会然后粘贴两个透明的灰色,并阅读约 0.49 - 一个阴影没有位置的页面不平衡的滑板可以产生. 也不能一个类型测试区分: 命中列表 ``QTreeWidget`` 是页面和控制图的 ``QListWidget`` 是一个乘客,之后的双是另一条路圆。\n\n取消**in**而不是取消目的。 今天,应用程序中的每一个视图都被推翻了,所以选择改变什么都没有,除了筛选这样说的地方,并且没有人看到的视图保持了它被写的行为。\n\n两个应用程式观点说这一点,在机制存在之前,通过给观点一个对象名称并注册整个QSS区块为它 — 模型比较的结果表,模型动物园的列表和起源框. 一个 ID 选择器排列透明标签相同的方式. 这是没有区块:一个呼叫,或是发送的表规则或 ``*[spacrSurface=\"true\"]`` 规则提供填充到使用者的页面不透明度. 第二个不是 redundant: 表中没有什么覆盖一个清晰的 ``QListWidget``,否则会落入表格 ``QWidget`` 规则,并绘制WINDOW 颜色,这不是表面。\n\n安全调用之前或之后,安全打两次:透明标签被清除以及表面标签设置,风格被重新包装,以便可见的 widget 立即改变。\n\n一个 Qt 规则必须付出代价. ``QWidget`` 的 **子类** 完全忽略 QSS 背景,除非 ``WA_StyledBackground`` 设置,这就是为什么 Power 的 Caveat 面板仍然测量背面没有触摸,与相匹配的规则坐在表中. 属性在这里设置为那些,并故意 NOT 为 ``QAbstractScrollArea``: 一个视图已经通过其视图门绘制其背景,而第二个风格填写在它的顶部是两个表面粘贴的错误再次。",
       "translation_source_blocks_sha256": [
         "6ca76cd0a0516b2472eb2acd1c472b16af788552222810663042f9cd84819b5b",
         "6326003b5185f940093b6fbad699818403cc1eb4fd4cb4abd4ce2f2f1ceb24e0",
@@ -84555,7 +84555,7 @@
         "b7f97d6ed8dc5867f36057b443bc9dee4e2378f6beba6a3a3f9b77e035b26cf6"
       ],
       "source_sha256": "4e2eda307774a26d6da8bf27a1083bab8cd4a81457238cc2c16599fd5a51b766",
-      "text": "取出时间输入点,返回是否需要。\n\nIdempotent:打电话两次,第二次打电话就没有什么可做的,而不是挂上插槽,这将使每个日志线翻倍,使插槽更难阅读而不是更容易。",
+      "text": "取出时间输入点,返回是否需要。\n\nIdempotent:调用两次,第二次调用就没有什么可做的,而不是挂上插槽,这将使每个日志线翻倍,使插槽更难阅读而不是更容易。",
       "translation_source_blocks_sha256": [
         "cf904778be0782daa507e7f9db408f12814da9d10d658e5bc3d5f8df94ccb90b",
         "b7f97d6ed8dc5867f36057b443bc9dee4e2378f6beba6a3a3f9b77e035b26cf6"
@@ -84870,7 +84870,7 @@
         "a7da05709eb21e2fd271534d734b5ecbfe154380331d099efcebd4a5543f16fe"
       ],
       "source_sha256": "fcc56c0fef1969807bbc7ecc223a31aa49136791580e063fb006433249051050",
-      "text": "对 Qt GUI 的 Verboze 诊断记录器。\n\n当用户插入 \"Verbose logging\" 偏好时, spaCR 的 Python 登录器被传输到 DEBUG 并将每个登录记录视为任何 ConsolePanel 是活跃的。\n\n交易者是模块级单曲,所以多次 :func:`apply_verbose_logging` 通话(例如,每当偏好对话被保存时)不要拖动交易者或泄漏参考。\n\n软件设计:\n\n* 一个 :class:`_ConsoleForwarder` 交易者添加到根 ``spacr`` 登录器. 其发行() 将格式化线转移到 :class:`_ConsoleRelay`,这将其交付到任何 ConsolePanel 通过 :func:`register_console_target` 注册。\n* 注册是避免保持筛选关闭的弱点,如果目标被垃圾收集,记录会沉默地倒下。\n* 级别和格式在第一次登记时设置一次;只有 ``verbose`` 数据选择边界将随后传输 DEBUG ↔ INFO。\n\n.. warning::\n\n   ``emit()`` 执行在 **任何独立执行路径登录记录** — Python 登录模块呼叫交易者在线。 ConsolePanel 答案 ``append_stdout`` 由 *创建QWidgets* (一个主题栏和一个文本区块),以及 Qt 禁止在任何地方建造QWidget,但主要 GUI 执行路径. 打电话给面板直接从 ``emit()`` 因此,在背景执行单元上建立了 widgets; Qt 印刷 ``QObject::setParent: Cannot set parent, new parent is in a different thread`` 接下来,这个过程被推翻了,它是可重复的。 :meth:`spacr.qt.hf_download._HFDownloadWorker.run`,其例外路从下载独立执行路径内部记录一个警告。\n\n   **GUI - 线路交换** :class:`_ConsoleRelay` 是属于 GUI 线条的 QObject. 其 ``line`` 信号称该交换的一个方法. Qt 接收来自另一个线条发出的信号. 因此,面板仅从其持有线条访问 widgets。",
+      "text": "对 Qt GUI 的 Verboze 诊断记录器。\n\n当用户插入 \"Verbose logging\" 偏好时, spaCR 的 Python 登录器被传输到 DEBUG 并将每个登录记录视为任何 ConsolePanel 是活跃的。\n\n交易者是模块级单曲,所以多次 :func:`apply_verbose_logging` 通话(例如,每当偏好对话被保存时)不要拖动交易者或泄漏参考。\n\n软件设计:\n\n* 一个 :class:`_ConsoleForwarder` 交易者添加到根 ``spacr`` 登录器. 其发行() 将格式化线转移到 :class:`_ConsoleRelay`,这将其交付到任何 ConsolePanel 通过 :func:`register_console_target` 注册。\n* 注册是避免保持筛选关闭的弱点,如果目标被垃圾收集,记录会沉默地倒下。\n* 级别和格式在第一次登记时设置一次;只有 ``verbose`` 数据选择边界将随后传输 DEBUG ↔ INFO。\n\n.. warning::\n\n   ``emit()`` 执行在 **任何独立执行路径登录记录** — Python 登录模块呼叫交易者在线。 ConsolePanel 答案 ``append_stdout`` 由 *创建QWidgets* (一个主题栏和一个文本区块),以及 Qt 禁止在任何地方建造QWidget,但主要 GUI 执行路径. 调用给面板直接从 ``emit()`` 因此,在背景执行单元上建立了 widgets; Qt 印刷 ``QObject::setParent: Cannot set parent, new parent is in a different thread`` 接下来,这个过程被推翻了,它是可重复的。 :meth:`spacr.qt.hf_download._HFDownloadWorker.run`,其例外路从下载独立执行路径内部记录一个警告。\n\n   **GUI - 线路交换** :class:`_ConsoleRelay` 是属于 GUI 线条的 QObject. 其 ``line`` 信号称该交换的一个方法. Qt 接收来自另一个线条发出的信号. 因此,面板仅从其持有线条访问 widgets。",
       "translation_source_blocks_sha256": [
         "47b33ddf266241edaaf303456adce9ee2bbf2e46f7a250dc18483b0cad6e3f68",
         "fc65fb193c1a23ba6754f54209c4d2fdd43b13e24d69fc70b2a80d34c1d4b648",
@@ -84903,7 +84903,7 @@
         "4f63279367e77d4262b2304ae8dfabdb8fa38a1a881181fcf046fa973a86b630"
       ],
       "source_sha256": "931e51d6ad41bc5d933433bf23b9050ff24c8cd2805d7a1d54d13801e0279d8f",
-      "text": "点击每个附加的 spaCR 登录器 + 处理器上的 Flip DEBUG ↔ INFO。\n\n用户通过偏好对话实现这一点. 它是无能为力和廉价的 - 安全地在每个对话保存上打电话. 此外,确保旋转文件处理器附加,因此错误报告总是有磁盘上的轨道,无论字符状态。",
+      "text": "点击每个附加的 spaCR 登录器 + 处理器上的 Flip DEBUG ↔ INFO。\n\n用户通过偏好对话实现这一点. 它是无能为力和廉价的 - 安全地在每个对话保存上调用. 此外,确保旋转文件处理器附加,因此错误报告总是有磁盘上的轨道,无论字符状态。",
       "translation_source_blocks_sha256": [
         "e6becc3fe3feb3313a270f9e4ed3ec55d96aeb328f47501096e2a568bfad22d0",
         "4f63279367e77d4262b2304ae8dfabdb8fa38a1a881181fcf046fa973a86b630"
@@ -85518,7 +85518,7 @@
         "df02756cc2a1de595cfcff1ba8341190e94c049fdbf35d7c31989132ea84550d"
       ],
       "source_sha256": "f038b7808fa83059a00ba507fb9e452141fd32fe67ceb879602d5071ad2d74f6",
-      "text": "立即将 :class:`ActivitySpinner` 放在 *Clear 控制台* 的右侧。\n\nIdempotent:在同一应用程序视图上打电话两次返回已安装的旋转器,而不是添加第二个,所以它安全于 ``showEvent``。\n\n按钮是由属性(``screen._btn_clear``)找到的,然后仅是由文本,因为文本是翻译的 - ``retranslate_widget_tree`` 运行在每个筛选上,当它打开时,用户在非英语地方看到的行 \"Clear console\" 不是在树上。\n\n:param screen: 所有持有按钮的树上的任何 widget - ``AppScreen``本身,或其后裔。\n:returns: 旋转器,或 ``None`` 如果此树没有这样的按钮(注册,数据库浏览器和任何其他非``AppScreen``表面),这不是一个错误。",
+      "text": "立即将 :class:`ActivitySpinner` 放在 *Clear 控制台* 的右侧。\n\nIdempotent:在同一应用程序视图上调用两次返回已安装的旋转器,而不是添加第二个,所以它安全于 ``showEvent``。\n\n按钮是由属性(``screen._btn_clear``)找到的,然后仅是由文本,因为文本是翻译的 - ``retranslate_widget_tree`` 运行在每个筛选上,当它打开时,用户在非英语地方看到的行 \"Clear console\" 不是在树上。\n\n:param screen: 所有持有按钮的树上的任何 widget - ``AppScreen``本身,或其后裔。\n:returns: 旋转器,或 ``None`` 如果此树没有这样的按钮(注册,数据库浏览器和任何其他非``AppScreen``表面),这不是一个错误。",
       "translation_source_blocks_sha256": [
         "2af40621b2c05333e50dc9844ae7d1f6983e90d1c0b2cfedfb1968b765b65585",
         "0f3045021885d2c99a5b08969b809d813bec68d48f9bcc31b2b1b0fa92df3590",
@@ -86641,7 +86641,7 @@
         "34cf18b30c96fa25937126d8a16b3e3fd9406e809936a6d09cdcfa292caf749e"
       ],
       "source_sha256": "1abaace0e6687b8dd93c813751b18dfa89bc5b21a18364c8611be47e6c9cbeb6",
-      "text": "每波,在每个弓的沿线进行评估。\n\n旋转的身体是 :meth:`fold` 和 :meth:`pulse` 以其永恒的碎片为主, ``sin(2*pi*(u - v*t)/lambda + phi)`` 是 ``sin(k*u + (phi - k*v*t))``,和 ``k`` 它是相同的算法;它在这里而不是两个呼叫背后,因为它运行一百二十倍的框架和一个框架。 Python 电话不是免费的。 ``test_aurora_geometry_ is_the_model_it_documents`` 把两种形式结合在一起。",
+      "text": "每波,在每个弓的沿线进行评估。\n\n旋转的身体是 :meth:`fold` 和 :meth:`pulse` 以其永恒的碎片为主, ``sin(2*pi*(u - v*t)/lambda + phi)`` 是 ``sin(k*u + (phi - k*v*t))``,和 ``k`` 它是相同的算法;它在这里而不是两个呼叫背后,因为它运行一百二十倍的框架和一个框架。 Python 调用不是免费的。 ``test_aurora_geometry_ is_the_model_it_documents`` 把两种形式结合在一起。",
       "translation_source_blocks_sha256": [
         "a4edca9635fab59e3927e5fcdfc2772f7ab4217993a1ac8d308e5693d36e89f3",
         "34cf18b30c96fa25937126d8a16b3e3fd9406e809936a6d09cdcfa292caf749e"
@@ -89598,7 +89598,7 @@
         "c97bb025d57a2df525c0ef3fa168e8d1898eb1e46f1c59a7c0bd032c958d745c"
       ],
       "source_sha256": "9f4a0299932797d7cfc46ce7199860a43f5597b57182c7576e733ce83181adf5",
-      "text": "添加一个数据库支持的列点在列字段旁边。\n\n编辑器从当前处理会议数据库中阅读可用的列,当没有表被加载到编辑中时。\n\n:param db_path_getter: 可打电话给处理会议文件夹或数据库路径,每次打电话,以便随后编辑的路径被收集。\n:param table: 数据库表,其列应提供。\n:returns: 按钮,或 ``None`` 如果它不能建立。",
+      "text": "添加一个数据库支持的列点在列字段旁边。\n\n编辑器从当前处理会议数据库中阅读可用的列,当没有表被加载到编辑中时。\n\n:param db_path_getter: 可调用给处理会议文件夹或数据库路径,每次调用,以便随后编辑的路径被收集。\n:param table: 数据库表,其列应提供。\n:returns: 按钮,或 ``None`` 如果它不能建立。",
       "translation_source_blocks_sha256": [
         "e6d7a400eee12745ebecf3a39f61463c43d619c9f790be74bddb220673ba2c9b",
         "da54964483506468e3e6ee8e6641107789fadd16b3fdadf7df163230ef313d6d",
@@ -89715,7 +89715,7 @@
         "fa7e065b80244485b6de60839c65e03247e7123e1ce6b369796d5730f1001f46"
       ],
       "source_sha256": "602b58f72bccb157f405a0800ed28e8941d844b0edac1d57e376e63ba0bf1b9b",
-      "text": "使用 GUI 的单色图标,平台对话关闭。\n\n为什么这个模块存在于所有\n-----------------------------\n``QColorDialog.getColor`` 缺陷到 *平台的* 彩色选择器. 在一个 GNOME 桌面上与 ``xdg-desktop-portal`` 跑步,这不是一个 Qt 威士忌总的来说: Qt 问门户,门户开始(或醒来)通过D-Bus的GTK实施,对话可以缓慢出现。 ``getColor`` 其中六个,没有一个通过。 ``DontUseNativeDialog``.\n\nQt 自己的对话即时打开,在每个平台上看起来相同,并跟随应用程序板 - 这是GTK一个不做,所以选项是一致性胜利以及一个速度。\n\n门户环游之旅 **不能无图形界面复制**标签: Offscreen Qt 从来没有问到门口,所以这个套件中没有测试可以观察到停车场或其缺席。``set_line_style`` 0 000 s 在 1 200 点字符串上) 所以等待是在对话中 - 和 \"门户是等待的\" 这是一个所谓的,可验证的假设,必须在一个真实的显示器上得到确认,而不是这个文件所证明的东西。 ``tests/qt/test_colour_picker.py``,是没有电话网站可以要求平台对话更多。\n\n使用它设置为 ``QColorDialog.getColor``. 这就是整个点:在每个呼叫网站上必须记住的一个选项是第七次被遗忘的选项。",
+      "text": "使用 GUI 的单色图标,平台对话关闭。\n\n为什么这个模块存在于所有\n-----------------------------\n``QColorDialog.getColor`` 缺陷到 *平台的* 彩色选择器. 在一个 GNOME 桌面上与 ``xdg-desktop-portal`` 跑步,这不是一个 Qt 威士忌总的来说: Qt 问门户,门户开始(或醒来)通过D-Bus的GTK实施,对话可以缓慢出现。 ``getColor`` 其中六个,没有一个通过。 ``DontUseNativeDialog``.\n\nQt 自己的对话即时打开,在每个平台上看起来相同,并跟随应用程序板 - 这是GTK一个不做,所以选项是一致性胜利以及一个速度。\n\n门户环游之旅 **不能无图形界面复制**标签: Offscreen Qt 从来没有问到门口,所以这个套件中没有测试可以观察到停车场或其缺席。``set_line_style`` 0 000 s 在 1 200 点字符串上) 所以等待是在对话中 - 和 \"门户是等待的\" 这是一个所谓的,可验证的假设,必须在一个真实的显示器上得到确认,而不是这个文件所证明的东西。 ``tests/qt/test_colour_picker.py``,是没有调用点可以要求平台对话更多。\n\n使用它设置为 ``QColorDialog.getColor``. 这就是整个点:在每个呼叫网站上必须记住的一个选项是第七次被遗忘的选项。",
       "translation_source_blocks_sha256": [
         "923f2fb46f81f327055a78a2f248bb8aaaac1b6114486b36a9c17e3d2f7748dc",
         "b0e8f4de66b1e10bbcf20fc92c4550445bc1609d3873964798be0a3f0a4509eb",
@@ -90948,7 +90948,7 @@
         "bf5658f18ed9c8710fcb868da292e7e2f84581d383a4b506628974ae5b43151e"
       ],
       "source_sha256": "ff48fa4881ad0b253cb4fd9cea4784fc01bbaa656e07f5ac7bd0b06694a9de23",
-      "text": "取消任何活跃流,并阻止,直到其 QThread 已退出。 必须在面板(或其母窗)被摧毁之前打电话 - 否则 Python 将最后提到执行 QThread 和 Qt 堕胎与: `QThread: Destroyed while thread '' is still running` 。\n\n取消路径直接杀死CLI子过程,以便流读者立即解锁;然后我们等待工作进程的运行()返回和流读。 QThread 放弃正常。\n\n有故意没有``QThread.terminate()``落后. 它通常在这里,被描述为最后的路径,它得到了比 \"last resort\" 提到的更频繁: `spacr.qt.ai.worker` queued `worker.finished -> thread.quit` 到 GUI - 相似的 QThread 对象,因此停止独立执行路径的事件坐在这个方法的背后自己的 `wait()` 和等待时间在已经完成的流程上。 结束一个独立执行道路,正在执行 Python 是 `pthread_cancel`:如果它死于保持 GIL 过程停止取得进展,每一个独立的执行路线仍然活着,如果它死亡在 Qt 或 PySide 地板是腐败的,并在某些地方与事故有关。 `bridge.drain_thread` 是一个独立的执行路径,不会停止,保持“永远不会破坏执行 QThread” 规则,而不会以不确定的行为购买。",
+      "text": "取消任何活跃流,并阻止,直到其 QThread 已退出。 必须在面板(或其母窗)被摧毁之前调用 - 否则 Python 将最后提到执行 QThread 和 Qt 堕胎与: `QThread: Destroyed while thread '' is still running` 。\n\n取消路径直接杀死CLI子过程,以便流读者立即解锁;然后我们等待工作进程的运行()返回和流读。 QThread 放弃正常。\n\n有故意没有``QThread.terminate()``落后. 它通常在这里,被描述为最后的路径,它得到了比 \"last resort\" 提到的更频繁: `spacr.qt.ai.worker` queued `worker.finished -> thread.quit` 到 GUI - 相似的 QThread 对象,因此停止独立执行路径的事件坐在这个方法的背后自己的 `wait()` 和等待时间在已经完成的流程上。 结束一个独立执行道路,正在执行 Python 是 `pthread_cancel`:如果它死于保持 GIL 过程停止取得进展,每一个独立的执行路线仍然活着,如果它死亡在 Qt 或 PySide 地板是腐败的,并在某些地方与事故有关。 `bridge.drain_thread` 是一个独立的执行路径,不会停止,保持“永远不会破坏执行 QThread” 规则,而不会以不确定的行为购买。",
       "translation_source_blocks_sha256": [
         "6d60e859bfb4e225728b4a53a6ed53f9f89723aa63a12ad7e7cde05629eb5164",
         "9648d32cad618c845f3198a179135328d8781295b3f95b6d82f4a80aa6669b72",
@@ -91665,7 +91665,7 @@
         "5cc0b8d17123718fd1ca7e1d523a22a6149be3576fbee003affcfbab2387d806"
       ],
       "source_sha256": "21f5da7fdc5207c71902481ed6b214ecf388a8fe4582e282dddaa236bcc64c3c",
-      "text": "面板:打电话:meth:`set_frame`,然后让用户驱动。\n\n发布后发行 :attr:`filter_changed`,对于想要更新计算标签的主机而不订阅共享模型本身。\n\n:param parent: 父母 Widget\n:param link: :class:`~spacr.qt.linked_selection.LinkedSelection` 过滤器输入,所以在这里过滤会缩短每个视图。 ``None`` 加入共享;在测试中通过一个私人。",
+      "text": "面板:调用:meth:`set_frame`,然后让用户驱动。\n\n发布后发行 :attr:`filter_changed`,对于想要更新计算标签的主机而不订阅共享模型本身。\n\n:param parent: 父母 Widget\n:param link: :class:`~spacr.qt.linked_selection.LinkedSelection` 过滤器输入,所以在这里过滤会缩短每个视图。 ``None`` 加入共享;在测试中通过一个私人。",
       "translation_source_blocks_sha256": [
         "2b86d68354f72aad30cc5afa92df6bb539900af0aa72780cfb6afb1fbb79c402",
         "5579c979769172f9af0132fe5ca15924cbc13edae9c2e5167ac0e66e58e08fb6",
@@ -95450,7 +95450,7 @@
         "f761d6d202dca1cc4029497e83d5805b9471ef7b0670665404bbefdeb9a22ae4"
       ],
       "source_sha256": "dc15613360b94142fa301c6b862a348de47125cabfa483267cfba77f9d12556a",
-      "text": "提供效果尺寸切割:它是如何测量和有多宽。\n\n:param options: ``[(label, callback, checked)]`` - 模式。\n:param multiplier: 目前的宽度,显示在自己的输入。\n:param on_multiplier: 用新号码打电话,当它被更改时。\n\n在PLOT上,因为设置面板控制这些灰色在`inference='nonparametric'`下 - 正确,因为转换路径不使用控制喷射切割 - 用户可能无法找到它们。",
+      "text": "提供效果尺寸切割:它是如何测量和有多宽。\n\n:param options: ``[(label, callback, checked)]`` - 模式。\n:param multiplier: 目前的宽度,显示在自己的输入。\n:param on_multiplier: 用新号码调用,当它被更改时。\n\n在PLOT上,因为设置面板控制这些灰色在`inference='nonparametric'`下 - 正确,因为转换路径不使用控制喷射切割 - 用户可能无法找到它们。",
       "translation_source_blocks_sha256": [
         "685c5af62521fc29b1700afda13c03e444d9a2e50fd65452a11286045d2b949b",
         "365667749df1659fc06bd7bfd6f63bd0afbffcb5c9423732b96badbadaf07d65",
@@ -96697,7 +96697,7 @@
         "76b781c2e826b77b7a2a4bb0ad45391835cd6ba0e8f1e0ceeb6b4cf5300aec50"
       ],
       "source_sha256": "93333e5d6c5f5e2a2ce13bdcd54a0a8581a48ae509ace324ea501ec71be85b86",
-      "text": "请求与 QT 的 OWN 对话的颜色. 重新出口,未实施。\n\n实施为 :func:`spacr.qt.widgets.colour_picker.pick_colour`,并且这个模组通过它而不是保留第二个副本。 ``QColorDialog.getColor``默认到PLATFORM的选手,在一个GNOME会议上,请求通过``xdg-desktop-portal``经纪 - 几十秒钟背后缓慢的本地颜色对话。 一位助理,因为每个电话网站上必须记住的一个选项是第七点被遗忘的选项 - 这里有七个:设计的六个数字加上:func:`_ask_style_value`,其数字错过了。\n\n输入函数,因为这个模块在 GUI 开始安装可能没有每个配偶 widget 模块,并且一个颜色 picker 不值得在文件的顶部进口时间依赖。\n\n:returns: :class:`QColor`. 检查 ``isValid()`` - 一个不合格的是用户取消,这是一个答案,而不是一个失败。",
+      "text": "请求与 QT 的 OWN 对话的颜色. 重新出口,未实施。\n\n实施为 :func:`spacr.qt.widgets.colour_picker.pick_colour`,并且这个模组通过它而不是保留第二个副本。 ``QColorDialog.getColor``默认到PLATFORM的选手,在一个GNOME会议上,请求通过``xdg-desktop-portal``经纪 - 几十秒钟背后缓慢的本地颜色对话。 一位助理,因为每个调用点上必须记住的一个选项是第七点被遗忘的选项 - 这里有七个:设计的六个数字加上:func:`_ask_style_value`,其数字错过了。\n\n输入函数,因为这个模块在 GUI 开始安装可能没有每个配偶 widget 模块,并且一个颜色 picker 不值得在文件的顶部进口时间依赖。\n\n:returns: :class:`QColor`. 检查 ``isValid()`` - 一个不合格的是用户取消,这是一个答案,而不是一个失败。",
       "translation_source_blocks_sha256": [
         "1d436079eeb10a98902bafde83df7c55783a27cd0b753956a690c031dd6b6bbd",
         "7bb1aca341753a786134c6518d46ec99d9cdcdcbd434302270ff814cbf6f3ef5",
@@ -105249,7 +105249,7 @@
         "43021b232839841c02180bafa3e04e0cd6e63a878221307a9554ec9592979b61"
       ],
       "source_sha256": "6c73ff569b940212bd290c8f4f2a3a62298039caac64aa81d521d3da2df9cca6",
-      "text": "重新阅读所有可能改变的内容,而家庭在筛选上。\n\n两个处理会议日志板在背景执行单元上进行阅读。 一起,``recent_runs`` + ``journal_totals`` 每个显示器在处理会议根下行走两次 - 774 ms 在机器上有 4 865 记录的行程,测量,并且与日记一起成长 - 这是用来执行每个单一返回到家,这是应用程式中最流行的航行。\n\n面板保留他们已经展示的任何东西,直到工作进程交付;一半一秒的钢计打了一扇冷冻的窗口,在第一次打电话时,他们在任何情况下都展示了他们的空白状态。 JSON 阅读和三个州呼叫)并保持在线。",
+      "text": "重新阅读所有可能改变的内容,而家庭在筛选上。\n\n两个处理会议日志板在背景执行单元上进行阅读。 一起,``recent_runs`` + ``journal_totals`` 每个显示器在处理会议根下行走两次 - 774 ms 在机器上有 4 865 记录的行程,测量,并且与日记一起成长 - 这是用来执行每个单一返回到家,这是应用程式中最流行的航行。\n\n面板保留他们已经展示的任何东西,直到工作进程交付;一半一秒的钢计打了一扇冷冻的窗口,在第一次调用时,他们在任何情况下都展示了他们的空白状态。 JSON 阅读和三个州呼叫)并保持在线。",
       "translation_source_blocks_sha256": [
         "ffff3dd15e396fc06d59153fa806f0dc71fab2792c6ee6cf285da9fc2dc462c6",
         "c8b049b3ede42e4f49af4123da665d5c9ddcbad072b7bf6efa60c071bc307c1f",
@@ -106420,7 +106420,7 @@
         "3b479271e12e0cc22117fa2252305eded1396f53d622330c6f8b38c64b9a8464"
       ],
       "source_sha256": "5ce54176fb99df935d2c5e5cabe824f1c106828a7b14052bfdd70ebe41fd7452",
-      "text": "放弃任何负载在飞行中,不要离开 QThread 背后。\n\n从 :meth:`closeEvent` 呼叫,并安全地直接打电话,当筛选被打破,没有一个。",
+      "text": "放弃任何负载在飞行中,不要离开 QThread 背后。\n\n从 :meth:`closeEvent` 呼叫,并安全地直接调用,当筛选被打破,没有一个。",
       "translation_source_blocks_sha256": [
         "15a4060c1aa5315383b16e3550f038ffa62a6ae4a5a58ec83d70cba6547c2bf7",
         "3b479271e12e0cc22117fa2252305eded1396f53d622330c6f8b38c64b9a8464"
@@ -106944,7 +106944,7 @@
         "88465878f10e441d2fdccfe33e3f75c19d94e4d4dbb11e59ef0b52de9bb07819"
       ],
       "source_sha256": "a47391d5cbbce5fbb5cb1ef8a6d524c541429f7fdac289cb5b43147786ef134c",
-      "text": "标记每个提取的图像区域与其现象类别,以及过滤器是否保持它。\n\n``params`` 是在主要 GUI 执行路径上采取的 widget 值的截图 - 见 :meth:`MeasurePreviewPanel._category_params`. 通过截图而不是阅读 widgets 这使得从工作进程那里安全地打电话。",
+      "text": "标记每个提取的图像区域与其现象类别,以及过滤器是否保持它。\n\n``params`` 是在主要 GUI 执行路径上采取的 widget 值的截图 - 见 :meth:`MeasurePreviewPanel._category_params`. 通过截图而不是阅读 widgets 这使得从工作进程那里安全地调用。",
       "translation_source_blocks_sha256": [
         "5e6f82b2d1f525e6328ba03443d5c7c24e96f66962ffceef50fd4d741a8ef08a",
         "9fb4b9456ea3f8967bc2c1deadd398d0162f778f3001d48d822b40dbf2ab68ab"
@@ -108525,7 +108525,7 @@
         "0ff5ddb1c91fe7d6fcbbb2eb4994f54c428acbf8f69483e7861372b76965c2ff"
       ],
       "source_sha256": "8c1b45ab0a50f6cf04856fa6b299983b7f11fe1ad7dd24225dca2ce6edfb1baa",
-      "text": "打开点击器并返回所选择的路径,或 ``None``。\n\n单电话表格为设置顺序的跟踪按钮::\n\n    path = choose_model(self, kinds=(\"cellpose\",))\n    if path:\n        field.setText(path)\n\n:param parent: Widget 打开对话。\n:param kinds: 仅限于这些模型。\n:returns: 当地档案系统路径,或 ``None`` 取消时。",
+      "text": "打开点击器并返回所选择的路径,或 ``None``。\n\n单调用表格为设置顺序的跟踪按钮::\n\n    path = choose_model(self, kinds=(\"cellpose\",))\n    if path:\n        field.setText(path)\n\n:param parent: Widget 打开对话。\n:param kinds: 仅限于这些模型。\n:returns: 当地档案系统路径,或 ``None`` 取消时。",
       "translation_source_blocks_sha256": [
         "9e575e4f2cdd92bc1aa257f0f7e9e52854c825b83c883b08db60ca3018f91866",
         "cce640e839953f779b30159faa6b9db72f6f8c171047e4b7f8cba9171380eedf",
@@ -109134,7 +109134,7 @@
         "feed77ffbf07f242753aa7b3fbc1ccffaf61a18f2618f825a7810146954ae87a"
       ],
       "source_sha256": "201d8e0ca3d9f80b128e107c299852700f21c91222dc170075ee827456ea4647",
-      "text": "在网格中显示面板的当前答案。\n\n无力,安全地打电话,每当面板上写了其他东西 - 一个设置文件被加载,一个预设置应用,直播预览传播了它的内容。",
+      "text": "在网格中显示面板的当前答案。\n\n无力,安全地调用,每当面板上写了其他东西 - 一个设置文件被加载,一个预设置应用,直播预览传播了它的内容。",
       "translation_source_blocks_sha256": [
         "0103e948287e2a6280f0b274e5c62796bdce25886f8d2dd4031d8bb16a642a96",
         "feed77ffbf07f242753aa7b3fbc1ccffaf61a18f2618f825a7810146954ae87a"
@@ -112698,7 +112698,7 @@
         "21d14a5694064bf7ef3c5946326f80dca08a37de0cdf35e856b268690813d972"
       ],
       "source_sha256": "f8cca64f6bb20ead95d6f7191cfd250ea7454eae8f3a1c21a230d804ee2dc03b",
-      "text": "点击新鲜列表的文件夹中 :class:`FlatSpinBox`。\n\n直径携带总数,所以控制器读为 ``20 of 24576 sets``. 最大值粘贴到总数以便它永远不能读为``50 of 12`` - 存在的顶部的一个字符不是一个真正的字符。\n\n:returns: 打电话者必须将其送回样本,或者一个足够小的文件夹来打电话会离开盒子说12而下载显示50。",
+      "text": "点击新鲜列表的文件夹中 :class:`FlatSpinBox`。\n\n直径携带总数,所以控制器读为 ``20 of 24576 sets``. 最大值粘贴到总数以便它永远不能读为``50 of 12`` - 存在的顶部的一个字符不是一个真正的字符。\n\n:returns: 调用者必须将其送回样本,或者一个足够小的文件夹来调用会离开盒子说12而下载显示50。",
       "translation_source_blocks_sha256": [
         "35f0c1c2aafa386981514e293265442e1d0a0e6068441a97eaaf87ad923024dc",
         "b3e28b43303ffa1a8926811d1680c94208201223bce1959cea98753fcad73cbc",
@@ -114125,7 +114125,7 @@
         "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc"
       ],
       "source_sha256": "e7d358575b514bdfa8f3e07b88a7912db396e8416ce9dfa229fd93798318c432",
-      "text": "通过选择列和值来添加一个或多个 UMAP 序列排除。\n\n数据库在背景执行单元上运行的两个下载背后阅读; 请参见模块为测量原因进行 docstring. 关于 widget 的公共合同没有改变 - :meth:`set_source` 仍然采取来源并返回,它只是不再等待 sqlite 之前。\n\n:param value: 原始规则,在任何形式 :func:`spacr.row_exclusions.normalize_row_exclusions` 接受。\n:param parent: 父母的“Qt”\n:param threaded: ``False`` 运行两个阅读线,在同一顺序,发出相同的信号 - 一个呼叫者必须有价值的瞬间 :meth:`set_source` 回报可以要求它. 关键字仅,并默认,因为发送的电话网站(``SettingsWidgets._widget_for``(通道) ``value`` 和 ``parent`` 还有别的什么。\n:param debounce_ms: 列编辑在阅读之前等多久 ``0`` 在下一个事件旋转时,会读到没有收集。",
+      "text": "通过选择列和值来添加一个或多个 UMAP 序列排除。\n\n数据库在背景执行单元上运行的两个下载背后阅读; 请参见模块为测量原因进行 docstring. 关于 widget 的公共合同没有改变 - :meth:`set_source` 仍然采取来源并返回,它只是不再等待 sqlite 之前。\n\n:param value: 原始规则,在任何形式 :func:`spacr.row_exclusions.normalize_row_exclusions` 接受。\n:param parent: 父母的“Qt”\n:param threaded: ``False`` 运行两个阅读线,在同一顺序,发出相同的信号 - 一个呼叫者必须有价值的瞬间 :meth:`set_source` 回报可以要求它. 关键字仅,并默认,因为发送的调用点(``SettingsWidgets._widget_for``(通道) ``value`` 和 ``parent`` 还有别的什么。\n:param debounce_ms: 列编辑在阅读之前等多久 ``0`` 在下一个事件旋转时,会读到没有收集。",
       "translation_source_blocks_sha256": [
         "d5bfd69cae64697afee305b98d0ce85e11dd454bdd6566f6db248d2b543ed760",
         "cbfe8822e354a2b4ace7e99025c2ed6210110597e145cb27a80c26bc96a36a1f",
@@ -115624,7 +115624,7 @@
         "36e4c5761a64656c47598f3fb1bdaa09d068516d3b79758cc715700e51007f89"
       ],
       "source_sha256": "26fd8c4f91e717504081f2cd037ed9558e8b6abeecabe03219cf40ca47215f4a",
-      "text": "按钮、桌子和图像。\n\n供应商在建造时不读书时被打电话,所以面板现在总是打电话给应用程序视图。\n\n:param cells_provider: 请求细胞桌子吞下。\n:param counts_provider: 请求按微型样品位置计算。\n:param parent: 父母 Widget\n:param threaded: 是否在主 GUI 执行路径上运行, False 运行它在线, 这是一个测试想要的。\n:param scores_provider: 的时候,就会感受到这种刺激。",
+      "text": "按钮、桌子和图像。\n\n供应商在建造时不读书时被调用,所以面板现在总是调用给应用程序视图。\n\n:param cells_provider: 请求细胞桌子吞下。\n:param counts_provider: 请求按微型样品位置计算。\n:param parent: 父母 Widget\n:param threaded: 是否在主 GUI 执行路径上运行, False 运行它在线, 这是一个测试想要的。\n:param scores_provider: 的时候,就会感受到这种刺激。",
       "translation_source_blocks_sha256": [
         "647995f645dee42e0b75610e0678746dbdee810105ba83d616fff684131cb672",
         "cd63b2bf3670e4d78b3f548972cb673203b344a16fd8eea434989fda8733c8bb",
@@ -116386,7 +116386,7 @@
         "049ac9ad31a101831f323902f59b4a93e4a369fb0729c04077dc2e24db59b6c1"
       ],
       "source_sha256": "049ac9ad31a101831f323902f59b4a93e4a369fb0729c04077dc2e24db59b6c1",
-      "text": "更换条线. 便宜打电话: pixmaps 已经完成了。",
+      "text": "更换条线. 便宜调用: pixmaps 已经完成了。",
       "translation_source_blocks_sha256": [
         "049ac9ad31a101831f323902f59b4a93e4a369fb0729c04077dc2e24db59b6c1"
       ]
@@ -120123,7 +120123,7 @@
         "51032660980adc68ffee7568ecae590ba5627265c7634c2e7079982394ff41cc"
       ],
       "source_sha256": "51032660980adc68ffee7568ecae590ba5627265c7634c2e7079982394ff41cc",
-      "text": "加入常见的 BH-plus-积极-gRNA-切断电话字段。",
+      "text": "加入常见的 BH-plus-积极-gRNA-切断调用字段。",
       "translation_source_blocks_sha256": [
         "51032660980adc68ffee7568ecae590ba5627265c7634c2e7079982394ff41cc"
       ]
@@ -124271,7 +124271,7 @@
         "d9ffb2216d69f5ac22a5ff1455d8103f236c9bc53bc0e806120c572e217ea7e8"
       ],
       "source_sha256": "d9ffb2216d69f5ac22a5ff1455d8103f236c9bc53bc0e806120c572e217ea7e8",
-      "text": "只会开头打电话。",
+      "text": "只会开头调用。",
       "translation_source_blocks_sha256": [
         "d9ffb2216d69f5ac22a5ff1455d8103f236c9bc53bc0e806120c572e217ea7e8"
       ]
@@ -125375,7 +125375,7 @@
         "dc4674e9adb0b22ef9bdccd5366404b7e3d91447dae1f53a8ea4986051cf0657"
       ],
       "source_sha256": "e88ea5a6250f13929cd15691443a631cd0aac40eac92f2b146cb4339e41899cd",
-      "text": "重新打印此处理会议 ID 的现有列表,然后返回。\n\n:param ledger: 现有处理会议列表与此背景相关联。\n\n对于一个已经建立自己的列表的电话网站,不应该改变的方式。",
+      "text": "重新打印此处理会议 ID 的现有列表,然后返回。\n\n:param ledger: 现有处理会议列表与此背景相关联。\n\n对于一个已经建立自己的列表的调用点,不应该改变的方式。",
       "translation_source_blocks_sha256": [
         "dbbc219e81429bdfe4085dfa549e6579bf9a5c6613ac359bc2c5e55f51a91ed3",
         "d91b0b9ffbf493485d28e07655d62e67c8a934969c9550e3b9a4d08b84424efb",
@@ -132813,7 +132813,7 @@
         "e811f2063b91019b9379990d89300ebc46f81c6b1edcd72aa2f1c6fd558f27c1"
       ],
       "source_sha256": "5ebff28fccc397b4c6f863fd2c6c888c6bb42cf99bd8f72ef594b68264c91377",
-      "text": "返回 ``channel_axis`` Cellpose 4 接受一个加载图像。\n\n``cellpose.transforms.convert_image`` 什么是 ``CellposeModel.eval`` 打电话给任何人 ``channel_axis`` 已交付 - 指数 ``x.shape[channel_axis]`` 否认一个不...``None`` 轴向上为2D输入。 spaCR 因此,充电器的产品是两者在旧硬编码下是非法的。 ``channel_axis=3``:\n\n* ``(H, W, C)`` -> ``IndexError: tuple index out of range`` (三维数组中没有轴3;  图像数据通道轴为2,即 (``-1``)。\n* ``(H, W)``    -> ``ValueError: 2D image provided, but channel_axis is not None``.\n\n``object.py`` 已经通过 ``channel_axis=-1`` 因为它只有一个手 Cellpose 图像运河 - 最后的条件. 这里的功能也服务灰色图像(``_load_*_images_and_labels`` 滑动一个单一图像数据运河充电到 2-D),所以轴必须按图像选择。\n\n:param stack: :mod:`spacr.io` 加载的一个图像,可以是 ``(H, W)`` 或 image-channel-last ``(H, W, C)``。\n:returns: ``-1`` 为图像通道最后堆栈,``None`` 为二维图像。",
+      "text": "返回 ``channel_axis`` Cellpose 4 接受一个加载图像。\n\n``cellpose.transforms.convert_image`` 什么是 ``CellposeModel.eval`` 调用给任何人 ``channel_axis`` 已交付 - 指数 ``x.shape[channel_axis]`` 否认一个不...``None`` 轴向上为2D输入。 spaCR 因此,充电器的产品是两者在旧硬编码下是非法的。 ``channel_axis=3``:\n\n* ``(H, W, C)`` -> ``IndexError: tuple index out of range`` (三维数组中没有轴3;  图像数据通道轴为2,即 (``-1``)。\n* ``(H, W)``    -> ``ValueError: 2D image provided, but channel_axis is not None``.\n\n``object.py`` 已经通过 ``channel_axis=-1`` 因为它只有一个手 Cellpose 图像运河 - 最后的条件. 这里的功能也服务灰色图像(``_load_*_images_and_labels`` 滑动一个单一图像数据运河充电到 2-D),所以轴必须按图像选择。\n\n:param stack: :mod:`spacr.io` 加载的一个图像,可以是 ``(H, W)`` 或 image-channel-last ``(H, W, C)``。\n:returns: ``-1`` 为图像通道最后堆栈,``None`` 为二维图像。",
       "translation_source_blocks_sha256": [
         "0570af0b7983ddc24d60758664bf86fe4cea4fb9b4bc8ec1c5b4aa9b84a52203",
         "609d72f9dbfed4614849c42818ced5b0a6ac785c71229fc824613ae239be588b",
@@ -133751,7 +133751,7 @@
         "2170fbc93a61ad335c19cefd3e46223e058421f8f953a9d4fa18d81ce48bcf11"
       ],
       "source_sha256": "b0567519dbde23227f76ae60d85553ad0962382e693bc36694ec1fe56c39d370",
-      "text": "从一个对象表中创建一个流媒体选项。\n\n参数\n----------\nframe : pandas.DataFrame 每个测量对象一行. object_array : str, default=\"cell\" 对象类型可选择. test_split : float, default=0.2 分割为测试集。 seed : int, default=0 随机种子控制定义分割分割。\n\n返回\n-------\npandas.DataFrame 对每个对象的频道识别、对象类型、分裂和来源。\n\n升高\n------\nValueError 如果表是空的或没有可用的对象识别器,或者没有人被问及或答案没有帮助。\n\n笔记\n-----\n``ask`` 只有在表中没有对象的名称时才被称为,而不是进口,所以这个模块从未依赖于 Qt。 一个没有人在前面打电话的人不会通过任何,并得到它总是得到的错误,这使得“从来没有急于运行”的结构,而不是一个规则,每个打电话网站都必须记住。 它被称为 ``ask(tried=..., object_array=...)`` 并返回 ``((database, table, column), why)`` - 见 :func:`spacr.qt.ask_for_the_path.ask_for_a_database_column`.",
+      "text": "从一个对象表中创建一个流媒体选项。\n\n参数\n----------\nframe : pandas.DataFrame 每个测量对象一行. object_array : str, default=\"cell\" 对象类型可选择. test_split : float, default=0.2 分割为测试集。 seed : int, default=0 随机种子控制定义分割分割。\n\n返回\n-------\npandas.DataFrame 对每个对象的频道识别、对象类型、分裂和来源。\n\n升高\n------\nValueError 如果表是空的或没有可用的对象识别器,或者没有人被问及或答案没有帮助。\n\n笔记\n-----\n``ask`` 只有在表中没有对象的名称时才被称为,而不是进口,所以这个模块从未依赖于 Qt。 一个没有人在前面调用的人不会通过任何,并得到它总是得到的错误,这使得“从来没有急于运行”的结构,而不是一个规则,每个调用网站都必须记住。 它被称为 ``ask(tried=..., object_array=...)`` 并返回 ``((database, table, column), why)`` - 见 :func:`spacr.qt.ask_for_the_path.ask_for_a_database_column`.",
       "translation_source_blocks_sha256": [
         "bfd96720a7b1af1daa25c19ea6eb5a4569b08fd7491a94ee39259d755b232eac",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
@@ -135550,7 +135550,7 @@
         "02bd6cbf934bec59fe958612b727ec03a8c2044ac6f26d909b90d9d9889aa307"
       ],
       "source_sha256": "6689c4476f4e23d3b7a1d8f2f0fd8b72777fd6642f91972207cbaebf84516e04",
-      "text": "将一个寄生虫表合并到每个主细胞的一个行,并以寄生素数。\n\n被列名所索引的测量作者实际上发出: ``columnID``(不是``column_name``),``timeID``(不是``timeid``和完全不在时间表运行外)和``cell_id`` - 儿童桌的链接到其主机细胞 - 不是``pathogen_cell_id``,没有作家从未产生。 在旧名称下,每个电话都死于``KeyError``。\n\n:param pathogen_df: 每寄生虫测量 DataFrame 与实验室微板/微板样本位置/显微镜视野/时间/细胞识别器。\n:returns: DataFrame 集成到(实验室微板、行、列、显微镜视野、时间、主细胞)与 ``parasite_count`` 列。",
+      "text": "将一个寄生虫表合并到每个主细胞的一个行,并以寄生素数。\n\n被列名所索引的测量作者实际上发出: ``columnID``(不是``column_name``),``timeID``(不是``timeid``和完全不在时间表运行外)和``cell_id`` - 儿童桌的链接到其主机细胞 - 不是``pathogen_cell_id``,没有作家从未产生。 在旧名称下,每个调用都死于``KeyError``。\n\n:param pathogen_df: 每寄生虫测量 DataFrame 与实验室微板/微板样本位置/显微镜视野/时间/细胞识别器。\n:returns: DataFrame 集成到(实验室微板、行、列、显微镜视野、时间、主细胞)与 ``parasite_count`` 列。",
       "translation_source_blocks_sha256": [
         "31be516b4fe393087629aef29967a7f62c6ffd738e48b1f3a66a72c1839bc7c5",
         "b06763ffbf35e7022e9ac5aa2ec0438560d294a955829e7ace6524c64928722c",
@@ -137303,7 +137303,7 @@
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665"
       ],
       "source_sha256": "10393a968f43633a39abfcab30df26c0c92068352ce6d6f7d2992ac9e2b5e9a6",
-      "text": "自动更新器将本地 ``spacr`` 与 PyPI 和夜间分支进行比较。\n\n展示一个小 API Qt GUI 的帮助 → \"Check for updates\" 菜单输入可以打电话。 没有什么会自动运行。 用户总是启动一个检查 + 确认任何升级。\n\n更新者向两个来源说话:\n\n* **PyPI** — ``https://pypi.org/pypi/spacr/json`` 最新版本。\n* **GitHub** - 夜间分支的头部承诺,所以夜间用户看到他们背后有多少承诺。\n\n两个接口使用 ``urllib`` 从 stdlib 避免拖在额外的 HTTP 依赖性. Timeouts 是短的 (3 s) 因此一个慢 / 无线网络不阻止 UI. 错误被吸收并表面为“不能检查” - 从未发生冲突。\n\n公民 API::\n\n    from spacr.updater import check_for_updates, run_pip_upgrade\n\n    info = check_for_updates()   # UpdateInfo\n    if info.upgrade_available:\n        run_pip_upgrade()",
+      "text": "自动更新器将本地 ``spacr`` 与 PyPI 和夜间分支进行比较。\n\n展示一个小 API Qt GUI 的帮助 → \"Check for updates\" 菜单输入可以调用。 没有什么会自动运行。 用户总是启动一个检查 + 确认任何升级。\n\n更新者向两个来源说话:\n\n* **PyPI** — ``https://pypi.org/pypi/spacr/json`` 最新版本。\n* **GitHub** - 夜间分支的头部承诺,所以夜间用户看到他们背后有多少承诺。\n\n两个接口使用 ``urllib`` 从 stdlib 避免拖在额外的 HTTP 依赖性. Timeouts 是短的 (3 s) 因此一个慢 / 无线网络不阻止 UI. 错误被吸收并表面为“不能检查” - 从未发生冲突。\n\n公民 API::\n\n    from spacr.updater import check_for_updates, run_pip_upgrade\n\n    info = check_for_updates()   # UpdateInfo\n    if info.upgrade_available:\n        run_pip_upgrade()",
       "translation_source_blocks_sha256": [
         "07575dfee44a665aa7bf415e56ca1ceb74a39338f49fe84d78b4deb2199057dc",
         "52ac554e1fc2f07eaf51d6a645ac9fefc41edfe8ec2595465622b2ca88075d55",
@@ -138884,7 +138884,7 @@
         "ba89fbe2cd58cb1cc3d4ad9785cbd3b1d6e40e0cb07cd26fe0577cf327cdd45f"
       ],
       "source_sha256": "be63756d872d2c6d557ac78cb1f510d75918a3ae30a4513429ac205b28e06194",
-      "text": "返回二种二进制掩膜的交叉联盟,在零点后恢复到一个常见的形状。\n\n与 :func:`jaccard_index` 不同,当两掩膜空白时,它会返回 ``0`` 而不是 ``nan`` ,这使得在匹配圈内安全地打电话。\n\n:param mask1: 任何非零值计算为前线,因此一个多标签提取的图像区域被视为一个合并的对象 - 如果您想要一个对象IoU,则通过单个对象的掩膜。\n:param mask2: 2-D 序列与 ``mask1`` 相比. 形状可能有所不同; :func:`pad_to_same_shape` 零板在底部和右侧,这假设两个掩膜共享上左的起源。",
+      "text": "返回二种二进制掩膜的交叉联盟,在零点后恢复到一个常见的形状。\n\n与 :func:`jaccard_index` 不同,当两掩膜空白时,它会返回 ``0`` 而不是 ``nan`` ,这使得在匹配圈内安全地调用。\n\n:param mask1: 任何非零值计算为前线,因此一个多标签提取的图像区域被视为一个合并的对象 - 如果您想要一个对象IoU,则通过单个对象的掩膜。\n:param mask2: 2-D 序列与 ``mask1`` 相比. 形状可能有所不同; :func:`pad_to_same_shape` 零板在底部和右侧,这假设两个掩膜共享上左的起源。",
       "translation_source_blocks_sha256": [
         "686f903561865b0a7fbda0d9297fb0a6bf5d8d58d59a0bed26a01eb52a325ea3",
         "fef56f0eabb0287580fae198fb5b3892b5e8d263ec489ffde1aafc33e52d0faa",
@@ -141078,7 +141078,7 @@
         "f8ac89212b71609a08121ed597840163ef21ba05afded88dc0f5340750f6e6f3"
       ],
       "source_sha256": "b0b60f099304c0a0faf150ec1218598bc442674c24d155fbfa120740d64daa69",
-      "text": "将 ``embedding`` (和 ``labels``) 的行列推翻,其标签为 DBSCAN 噪音(``-1``)。\n\n线路被删除,不重新编号,因此原始数据中的位置指标(一个 ``image_paths`` 列表,一个 DataFrame 序列命令)不再与返回的线路相匹配 - 过滤旁边的线条,使用相同的掩膜,或在打电话之前保持身份。\n\n:param embedding: ``(N, D)`` 分区点. 它是由布莱恩掩膜过滤的,所以一个 Python 列表或 DataFrame 不会正确地索引;通过 numpy 序列。\n:param labels: 长度 -``N`` 分布式分布式标签,与 ``embedding``只有 ``-1`` 它被视为噪音,这就是 DBSCAN 条约 - KMeans 标签包含不 ``-1`` 并通过未改变,使这一点成为一个No-op 而不是KMeans的输出错误。",
+      "text": "将 ``embedding`` (和 ``labels``) 的行列推翻,其标签为 DBSCAN 噪音(``-1``)。\n\n线路被删除,不重新编号,因此原始数据中的位置指标(一个 ``image_paths`` 列表,一个 DataFrame 序列命令)不再与返回的线路相匹配 - 过滤旁边的线条,使用相同的掩膜,或在调用之前保持身份。\n\n:param embedding: ``(N, D)`` 分区点. 它是由布莱恩掩膜过滤的,所以一个 Python 列表或 DataFrame 不会正确地索引;通过 numpy 序列。\n:param labels: 长度 -``N`` 分布式分布式标签,与 ``embedding``只有 ``-1`` 它被视为噪音,这就是 DBSCAN 条约 - KMeans 标签包含不 ``-1`` 并通过未改变,使这一点成为一个No-op 而不是KMeans的输出错误。",
       "translation_source_blocks_sha256": [
         "d52947525c9ce5a5a173730b34f03919908651fd1087dab1d39aee4de5ca42e6",
         "d8d953fba44572ad1c6e55f7e5d0797079c72aae014925a7023ed9ee1fe1f2a2",

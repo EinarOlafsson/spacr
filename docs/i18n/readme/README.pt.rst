@@ -59,9 +59,9 @@ O spaCR segmenta e mede células individuais em imagens de microscopia de alto c
 
 Os módulos de segmentação, medição, anotação e classificação também são executados sem um braço de sequenciamento.
 
-Imagens, máscaras, recortes, medições, anotações, previsões, códigos de barras e identificadores de poço vivem em um projeto SQLite.
+Imagens, máscaras, recortes, medições, anotações, previsões, códigos de barras e identificadores de poço ficam em um único projeto SQLite.
 
-Executa como um aplicativo de desktop ou sem interface gráfica em uma estação de trabalho, servidor ou cluster.
+É executado como um aplicativo de desktop ou sem interface gráfica em uma estação de trabalho, servidor ou cluster.
 
 Suporte de hardware
 ~~~~~~~~~~~~~~~~~~~
@@ -163,7 +163,7 @@ Para usar a versão publicada no PyPI, instale o spaCR com pip em um ambiente Co
    python -m pip install "spacr[qt]"
    spacr
 
-spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which torchvision excludes. Linux is recommended for the heaviest CUDA and ROCm workflows; macOS and Windows are also supported, and both use their GPUs — macOS through Metal, which covers Apple Silicon and the AMD cards in Intel Macs, and Windows through CUDA or DirectML.
+O spaCR oferece suporte ao Python **3.9 through 3.14**, exceto ao Python 3.14.1, que é excluído pelo torchvision. Recomenda-se Linux para os fluxos de trabalho mais pesados com CUDA e ROCm; macOS e Windows também são compatíveis, e ambos utilizam suas GPUs — macOS por meio do Metal, que abrange o Apple Silicon e as placas gráficas AMD dos Macs Intel, e Windows por meio de CUDA ou DirectML.
 
 Em um servidor, cluster ou executor de CI, omita o Qt:
 
@@ -423,7 +423,9 @@ Outros recursos
 Idioma e tradução
 ~~~~~~~~~~~~~~~~~~~~~~
 
-A interface oferece dez idiomas na navegação e nas preferências. Os controles AI e LIVE, as descrições dos módulos e a ajuda contextual revisada também são traduzidos. Altere o idioma em **spaCR → Preferências → Idioma** sem reiniciar. Logs, caminhos, valores de banco de dados e medições nunca são traduzidos; a saída científica permanece em inglês canônico. Consulte a `política de ajuda contextual <../../source/localization.rst#contextual-help>`_.
+A interface oferece dez idiomas na navegação e nas preferências. Os controles AI e LIVE, as descrições dos módulos e a ajuda contextual revisada também são traduzidos. Altere o idioma em **spaCR → Preferências → Idioma** sem reiniciar. Logs, caminhos, valores de banco de dados e medições nunca são traduzidos; a saída científica permanece em inglês canônico. Consulte a `política de ajuda contextual <docs/source/localization.rst#contextual-help>`_.
+
+Os nove catálogos não ingleses são elaborados por máquina e tecnicamente revisados em vez de lidos de ponta a ponta por um falante nativo de cada idioma. Os registros `âmbito de revisão <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ que as línguas tiveram um passe humano, quanto do corpus que cobre e cada termo deixado em inglês por decisão.
 
 Guia animado de configurações
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -620,4 +622,4 @@ Olafsson EB, *et al.* Um pooled image-based  CRISPR screen identifica o EAF1 com
 Agradecimentos
 ~~~~~~~~~~~~~~~
 
-O spaCR utiliza software científico aberto, incluindo NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch e Qt. Consulte a `atribuição dos modelos de tradução <../TRANSLATION_MODELS.md>`_ para ver os modelos usados na documentação multilíngue e nos catálogos da interface.
+O spaCR utiliza software científico aberto, incluindo NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch e Qt. Consulte a `atribuição dos modelos de tradução <docs/i18n/TRANSLATION_MODELS.md>`_ para ver os modelos usados na documentação multilíngue e nos catálogos da interface.

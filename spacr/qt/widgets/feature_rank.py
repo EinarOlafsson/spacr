@@ -346,15 +346,37 @@ class ExplorerSpec:
         object.__setattr__(self, "seed", int(self.seed))
 
     def with_statistic(self, statistic: str) -> "ExplorerSpec":
+        """A copy ranked by a different statistic.
+
+        A COPY: a spec is a value, so the one a panel is already showing is
+        never edited underneath it.
+
+        :param statistic: the statistic's name.
+        :returns: the new spec.
+        """
         return replace(self, statistic=statistic)
 
     def with_label(self, label: str) -> "ExplorerSpec":
+        """A copy split by a different label column.
+
+        :param label: the column holding the class of each object.
+        :returns: the new spec.
+        """
         return replace(self, label=label)
 
     def with_features(self, features: Sequence[str]) -> "ExplorerSpec":
+        """A copy ranking a different set of features.
+
+        :param features: the columns to rank; empty means every continuous one.
+        :returns: the new spec.
+        """
         return replace(self, features=tuple(features))
 
     def to_dict(self) -> Dict[str, Any]:
+        """This spec as plain data.
+
+        :returns: a JSON-safe dict.
+        """
         return {"label": self.label, "features": list(self.features),
                 "statistic": self.statistic, "top": self.top,
                 "bins": self.bins, "n_permutations": self.n_permutations,
@@ -362,6 +384,14 @@ class ExplorerSpec:
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "ExplorerSpec":
+        """Rebuild a spec from plain data.
+
+        UNKNOWN KEYS ARE IGNORED rather than raising, so a spec saved by a
+        later version still opens with the parts this one knows.
+
+        :param payload: what :meth:`to_dict` produced.
+        :returns: the rebuilt spec.
+        """
         fields = {"label", "features", "statistic", "top", "bins",
                   "n_permutations", "seed"}
         known = {k: v for k, v in dict(payload).items() if k in fields}
@@ -370,13 +400,26 @@ class ExplorerSpec:
         return cls(**known)
 
     def to_json(self) -> str:
+        """This spec as JSON text, keys sorted so the file is diffable.
+
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True)
 
     @classmethod
     def from_json(cls, text: str) -> "ExplorerSpec":
+        """Rebuild a spec from JSON text.
+
+        :param text: the JSON text.
+        :returns: the rebuilt spec.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
+        """The ranking in one line: what against what, by which statistic.
+
+        :returns: a one-line description.
+        """
         what = (f"{len(self.features)} features" if self.features
                 else "every continuous column")
         return (f"{what} split by {self.label or '(no class column)'}, "
@@ -401,9 +444,21 @@ class ClassSummary:
 
     @property
     def is_low_n(self) -> bool:
+        """Whether this class has too few objects to read as a distribution.
+
+        ZERO IS NOT LOW-N, it is empty: a class with no objects is a
+        different problem from one with four, and marking it "low n" would
+        suggest the number could be trusted a little.
+
+        :returns: True when sparse but not empty.
+        """
         return 0 < self.n <= LOW_N
 
     def describe(self) -> str:
+        """This class's count, median and interquartile range.
+
+        :returns: a one-line description.
+        """
         return (f"{self.level}: n={self.n:,}, median {self.median:.4g} "
                 f"[{self.q25:.4g}, {self.q75:.4g}]")
 
@@ -435,19 +490,44 @@ class FeatureScore:
 
     @property
     def is_shape_not_shift(self) -> bool:
+        """Whether the classes differ in SHAPE rather than in location.
+
+        AUC near 0.5 with a large KS means the two distributions overlap as
+        much as chance would predict while still being different -- so a
+        feature that looks useless by AUC alone is separating on spread or
+        modality. Worth marking, because ranking by AUC would bury it.
+
+        :returns: True when the pattern holds and both statistics are finite.
+        """
         return (np.isfinite(self.auc) and np.isfinite(self.ks)
                 and abs(self.auc - 0.5) <= SHAPE_NOT_SHIFT_AUC
                 and self.ks >= SHAPE_NOT_SHIFT_KS)
 
     @property
     def smallest_class(self) -> int:
+        """The count of the least-populated class this feature was scored on.
+
+        The binding constraint on whether the score means anything: a
+        separation computed against a class of four is four objects' worth
+        of evidence however many the other class has.
+
+        :returns: the smallest class count, or 0 when there are none.
+        """
         return min(self.n_by_class.values()) if self.n_by_class else 0
 
     @property
     def is_low_n(self) -> bool:
+        """Whether the smallest class is too small to trust this score.
+
+        :returns: True when sparse but not empty.
+        """
         return 0 < self.smallest_class <= LOW_N
 
     def describe(self) -> str:
+        """The feature, its score, and whichever statistics are finite.
+
+        :returns: a one-line description.
+        """
         parts = [f"{self.feature}: {self.score:.3f}"]
         if np.isfinite(self.auc):
             parts.append(f"AUC {self.auc:.3f}, higher in {self.higher_in}")
@@ -492,9 +572,19 @@ class ExplorerResult:
         return len(self.scores)
 
     def top(self, count: Optional[int] = None) -> Tuple[FeatureScore, ...]:
+        """The best-scoring features, already ordered.
+
+        :param count: how many to take; None or 0 takes them all.
+        :returns: the top scores.
+        """
         return self.scores[:count] if count else self.scores
 
     def score_for(self, feature: str) -> FeatureScore:
+        """One feature's score.
+
+        :param feature: the column name.
+        :returns: its score.
+        """
         for score in self.scores:
             if score.feature == feature:
                 return score
@@ -515,6 +605,14 @@ class ExplorerResult:
         return tuple(s for s in self.scores if s.score > self.null_threshold)
 
     def summary(self) -> str:
+        """What was ranked, over how much, and what was skipped.
+
+        NAMES THE SKIPPED ONES. A ranking that quietly dropped constant or
+        all-null columns would read as a complete answer over a set of
+        features the user did not choose.
+
+        :returns: a one-line summary.
+        """
         parts = [f"{self.n_considered:,} features over {self.n_rows:,} objects, "
                  f"split by {self.label} into {len(self.classes)} classes"]
         if self.skipped:

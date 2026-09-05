@@ -1509,18 +1509,30 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         return None
 
     def dragEnterEvent(self, event):    # noqa: N802 (Qt naming)
+        """Accept a drag carrying a timelapse folder or one of its frames.
+
+        :param event: the Qt drag event.
+        """
         if self._dropped_path(event) is not None:
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dragMoveEvent(self, event):     # noqa: N802
+        """Keep accepting while a timelapse folder or one of its frames stays over the panel.
+
+        :param event: the Qt drag event.
+        """
         if self._dropped_path(event) is not None:
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dropEvent(self, event):         # noqa: N802
+        """Take the dropped input and preview it.
+
+        :param event: the Qt drop event.
+        """
         p = self._dropped_path(event)
         if p is None:
             event.ignore()

@@ -396,18 +396,44 @@ class VolcanoExplorer(QWidget):
     # ------------------------------------------------------------------ data
 
     def set_results(self, results: pd.DataFrame) -> None:
+        """Plot a new fitted table, clearing any selection.
+
+        THE INDEX IS RESET. Point picking is by POSITION in the plotted
+        frame, so a table carrying its old index would have every click
+        resolve to the wrong row.
+
+        :param results: the fitted table to plot.
+        """
         self._results = results.reset_index(drop=True)
         self._selected_index = None
         self._repopulate_column_menus()
         self.refresh()
 
     def results(self) -> pd.DataFrame:
+        """The table being plotted.
+
+        A COPY, so a caller cannot change what is on screen by editing what
+        it was handed.
+
+        :returns: the results table.
+        """
         return self._results.copy()
 
     def style(self) -> VolcanoStyle:
+        """How the volcano is currently drawn.
+
+        :returns: the style.
+        """
         return self._style
 
     def set_style(self, style: VolcanoStyle) -> None:
+        """Restyle the plot and push the new values into the controls.
+
+        BOTH, so a style set from code leaves the controls agreeing with the
+        plot rather than showing what they were last set to by hand.
+
+        :param style: the style to apply.
+        """
         self._style = style
         self._push_style_to_controls()
         self.refresh()
@@ -1207,6 +1233,13 @@ class VolcanoExplorer(QWidget):
         return detail
 
     def selected_index(self) -> int | None:
+        """Which row the user has clicked, if any.
+
+        A POSITION into the plotted frame, not a label -- see
+        :meth:`set_results`.
+
+        :returns: the row position, or None when nothing is selected.
+        """
         return self._selected_index
 
     # ---------------------------------------------------------------- export
@@ -1306,12 +1339,20 @@ class VolcanoExplorer(QWidget):
         return [url.toLocalFile() for url in mime.urls() if url.isLocalFile()]
 
     def dragEnterEvent(self, event):  # noqa: N802 - Qt name
+        """Accept a drag carrying a table this explorer can plot.
+
+        :param event: the Qt drag event.
+        """
         if self._dropped_paths(event):
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dropEvent(self, event):  # noqa: N802 - Qt name
+        """Plot the dropped table.
+
+        :param event: the Qt drop event.
+        """
         paths = self._dropped_paths(event)
         if not paths:
             event.ignore()
