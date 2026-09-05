@@ -18,6 +18,7 @@ blocking the suite. Since 2026-08-08 that helper also has to put the real
 from __future__ import annotations
 
 import contextlib
+import time
 from pathlib import Path
 
 import pytest
@@ -71,7 +72,37 @@ def _drop(widget, paths, remote=(), enter_paths=None):
     e3 = QDropEvent(QPointF(5, 5), Qt.CopyAction, drop_mime,
                     Qt.LeftButton, Qt.NoModifier)
     QApplication.sendEvent(widget, e3)
+    _settle(widget)
     return e3
+
+
+def _settle(widget, timeout_ms=20000):
+    """Wait for the drop's classification to come back, and no further.
+
+    Since 2026-09-04 ``_on_drop`` does no filesystem work itself: it accepts
+    the event and hands the stat/list/read to the screen's drop scanner,
+    because a path the user dragged can live on a sleeping ``autofs`` mount
+    that takes more than twenty seconds to answer, and the drop event is
+    delivered on the GUI thread. So the handler is called one turn of the
+    event loop later, and every assertion in this file about what a drop DID
+    has to let that turn happen.
+
+    Exactly ONE delivery is waited for -- the classification's. A handler
+    like the mask one submits its own folder scan from inside ``apply``, and
+    waiting for the scanner to fall idle would swallow that too, hiding the
+    very difference the tests here are checking.
+    """
+    scanner = getattr(getattr(widget, "_dnd_screen", None), "_dnd_scanner",
+                      None)
+    runner = getattr(scanner, "_runner", None)
+    if runner is None:                    # ran inline: nothing to wait for
+        return
+    seen = []
+    runner.job_finished.connect(lambda *_: seen.append(True))
+    deadline = time.monotonic() + timeout_ms / 1000.0
+    while not seen and time.monotonic() < deadline:
+        QApplication.processEvents()
+    assert seen, "the drop classification never came back"
 
 
 # Captured at import time, which runs during collection — before the autouse
@@ -419,15 +450,18 @@ def test_accepted_folder_drop_calls_apply_and_accepts_event(zone, tmp_path,
     assert msgbox.calls == []
 
 
-def test_a_real_handler_still_applies_inside_the_drop_event(
+def test_a_real_handler_applies_before_it_has_read_the_folder(
         zone, tmp_path, qtbot, msgbox):
-    """``apply`` became a dispatcher, not an asynchronous call.
+    """``apply`` is a dispatcher, and it runs one turn after the drop.
 
-    The work a mask drop does moved onto a worker thread, but ``_on_drop``
-    still calls ``apply`` — and ``apply`` still finishes — inside the drop
-    event. Everything downstream depends on that: the source field is set
-    before the user's next click, the event is accepted for the right
-    reason, and a handler that raises is still reported by ``_on_drop``.
+    Two separate hops, and the gap between them is the point. Since
+    2026-09-04 the CLASSIFICATION (``can_accept`` and friends, which list
+    the folder) runs on the drop scanner, so ``apply`` is called from that
+    scan's callback rather than inside Qt's delivery of the drop —
+    :func:`_settle` is that one turn. What ``apply`` itself does is a
+    dispatcher: the source field is set immediately, and the folder READ
+    that produces the regex is a second scan still outstanding at that
+    point. A handler that raises is still reported either way.
     """
     from spacr.qt import dnd_handlers as dh
 
@@ -440,7 +474,7 @@ def test_a_real_handler_still_applies_inside_the_drop_event(
     ev = _drop(w, [folder])
 
     assert ev.isAccepted() is True
-    # Synchronously, before the event loop has turned once:
+    # As soon as the classification lands, and not a turn later:
     assert f"[drop] mask src = {folder}" in w._console.text
     # ...and the reading of the folder is still outstanding at that point.
     assert "regex" not in w._console.text

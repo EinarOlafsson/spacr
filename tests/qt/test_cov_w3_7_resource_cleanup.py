@@ -464,8 +464,19 @@ def test_the_cpu_summary_counts_threads_not_bytes():
 # ---------------------------------------------------------------------------
 
 def test_the_project_paths_are_real_directories_only(monkeypatch, tmp_path):
-    """A remembered folder that has since been deleted is not a drive."""
+    """A remembered folder that has since been deleted is not a drive.
+
+    Asked the way the disk report actually asks it: off the GUI thread,
+    where stat-ing a remembered folder is the point rather than a freeze.
+    On the GUI thread ``project_paths`` answers from the probe cache and
+    would leave a folder it has not seen out of this run — which is
+    ``tests/qt/test_the_disk_report_never_stats_on_the_gui_thread.py``,
+    not this. The predicate is stood in for rather than a worker started,
+    because nothing in this file starts a thread.
+    """
     from spacr.qt import app as app_mod
+
+    monkeypatch.setattr(rc, "_the_gui_thread_is_asking", lambda: False)
 
     gone = tmp_path / "deleted"
     here = tmp_path / "kept"

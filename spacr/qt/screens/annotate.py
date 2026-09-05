@@ -51,6 +51,7 @@ from __future__ import annotations
 import inspect
 import logging
 import os
+import time
 from copy import deepcopy
 from collections import deque
 from functools import partial
@@ -129,7 +130,7 @@ from ..annotate_engine import (
 )
 from ..linked_selection import (register_object_opener,
                                 unregister_object_opener)
-from .. import iconset, prefs
+from .. import iconset, path_probe, prefs
 from ..theme import SPACING, palette_for, register_widget_qss
 from ..widgets.column_picker import attach_column_picker
 from ..widgets import Divider, EmptyState
@@ -164,6 +165,119 @@ FOLDED_APPS = ("agreement",)
 #: It is the same shape as the bug in the same commit's other half: one
 #: mapping read by three surfaces, and a host that quietly is not in it.
 HOST_KEY = "annotate"
+
+
+# ---------------------------------------------------------------------------
+# Asking the path probe -- and knowing when its answer means nothing
+# ---------------------------------------------------------------------------
+#
+# `spacr.qt.path_probe.isdir` is the right way to ask "is this folder there?"
+# from the GUI thread: it answers from a cache and does the stat on its own
+# thread. But its answer is deliberately OPTIMISTIC when the stat never came
+# back -- `_stat_with_timeout` stops waiting after `PROBE_TIMEOUT_S` and
+# reports the path as PRESENT. That is right for the question it was written
+# for (drawing a remembered path red because a mount is slow is worse than
+# leaving it black) and it is WRONG for the question this screen asks.
+#
+# This screen asks so it can hand a folder to `QFileDialog`, which stats AND
+# LISTS its starting directory ON THE GUI THREAD. Five seconds after the probe
+# gave up, a folder on a sleeping `autofs` mount is cached as present, the
+# gate opens, and the dialog performs the very stat the gate existed to avoid
+# -- the twenty-second freeze back, five seconds late. A probe gate is only
+# safe in front of something cheap, and a file dialog is not cheap.
+#
+# So the answer is TIMED. One that arrived in less than the probe's own
+# timeout is one a real stat returned; one that took at least that long is the
+# invented one, and is not good enough to point a file dialog at. Nothing here
+# stats, and nothing here blocks: the clock is read, not the filesystem.
+
+#: Paths this module has asked the probe about, and when it asked. Small by
+#: construction -- the open source, the one remembered from last session, and
+#: whatever has been typed into the settings dialog's source field.
+_PROBE_ASKED: Dict[str, float] = {}
+
+#: The verdict once the answer landed: True when it beat the probe's timeout.
+_PROBE_PROMPT: Dict[str, bool] = {}
+
+
+def _on_probe_answered(path: str, _answer: bool) -> None:
+    """Time the probe's answer for a path this module asked about.
+
+    Connected to the process-wide :data:`spacr.qt.path_probe.probes` for the
+    life of the process, which is exactly why it is a module-level function
+    and not a method: there is no widget here to outlive, nothing to
+    disconnect in a ``closeEvent``, and no C++ half that can be deleted out
+    from under a queued emission. Runs on the GUI thread (PySide queues an
+    emission from a probe worker to the signal owner's thread) and touches
+    nothing but two dicts.
+    """
+    text = str(path)
+    started = _PROBE_ASKED.pop(text, None)
+    if started is None:
+        return                      # somebody else's question
+    _PROBE_PROMPT[text] = (
+        (time.monotonic() - started) < path_probe.PROBE_TIMEOUT_S)
+
+
+path_probe.probes.answered.connect(_on_probe_answered)
+
+
+def _probe_isdir(path) -> bool:
+    """:func:`spacr.qt.path_probe.isdir`, asked under this module's clock.
+
+    Use this wherever this module wants the probe's opinion at all;
+    :func:`_vouched_dir` is the stricter reading of the same answer, for the
+    two places that would otherwise hand a user's path to ``QFileDialog``.
+
+    Never stats and never blocks: an unseen path comes back ``False`` with a
+    check queued, and the caller that cares is re-run when it lands.
+    """
+    text = str(path or "").strip()
+    if not text:
+        return False
+    if text not in _PROBE_ASKED and text not in _PROBE_PROMPT:
+        # An answer already in the cache was put there by somebody else's
+        # question -- `ChainingBar.search_roots` probes exactly this screen's
+        # remembered source -- and it may be the invented one, which cannot be
+        # told apart after the fact. Drop it and ask again under our own
+        # clock rather than inherit a verdict that cannot be read. One extra
+        # stat, once per path for the life of the process, on a probe thread.
+        if path_probe.known(text, want_dir=True) is not None:
+            path_probe.forget(text)
+        _PROBE_ASKED[text] = time.monotonic()
+    return path_probe.isdir(text)
+
+
+def _vouched_dir(path) -> bool:
+    """True only for a folder a real stat came back and confirmed.
+
+    The gate in front of every ``QFileDialog`` on this screen. It is
+    deliberately harder to satisfy than :func:`_probe_isdir`: a folder the
+    probe only *assumed* was there, because its stat never returned, is the
+    one case where opening the picker in it reproduces the freeze.
+
+    A folder that cannot be vouched for costs the user the head start and
+    nothing else -- the picker opens at the working directory, which is local
+    by construction, and they can navigate wherever they like from there.
+    """
+    text = str(path or "").strip()
+    if not text:
+        return False
+    if not _probe_isdir(text):
+        return False
+    verdict = _PROBE_PROMPT.get(text)
+    if verdict is None:
+        # The cache holds the answer but `_on_probe_answered` has not been
+        # delivered yet: it is queued to this thread behind whatever is
+        # running now. The question's own age settles it just as well -- an
+        # answer that is in the cache LESS than the probe's timeout after it
+        # was asked cannot be the one the timeout invents, because inventing
+        # it takes the whole timeout.
+        started = _PROBE_ASKED.get(text)
+        verdict = (started is not None
+                   and (time.monotonic() - started)
+                   < path_probe.PROBE_TIMEOUT_S)
+    return bool(verdict)
 
 
 def _build_agreement(host_window) -> QWidget:
@@ -1232,6 +1346,22 @@ class _SettingsDialog(QDialog):
         form = QFormLayout()
 
         self._src_edit = QLineEdit(settings.src)
+        # WARM THE PATH CACHE; do not ask the filesystem from here. `Browse…`
+        # hands its starting folder to `QFileDialog`, which stats AND LISTS
+        # that folder on the GUI thread -- twenty seconds on a sleeping
+        # `autofs` share, measured 2026-09-04 -- so `_pick_src` only offers a
+        # folder a real stat has come back and confirmed. This queues that
+        # check now, off the GUI thread and under this module's own clock, so
+        # the answer is in by the time anybody reaches the button.
+        if settings.src:
+            _probe_isdir(settings.src)
+        # AND AGAIN WHENEVER THE FIELD IS EDITED. `editingFinished` fires on
+        # focus-out, which for a mouse is the PRESS on Browse -- a moment
+        # before its `clicked` -- so a hand-typed local folder is normally
+        # answered in time as well, while a sleeping one is not. That
+        # asymmetry is the whole point: the picker keeps opening where the
+        # user pointed it, except when doing so would freeze the window.
+        self._src_edit.editingFinished.connect(self._probe_the_source_field)
         src_row = QHBoxLayout()
         src_row.setContentsMargins(0, 0, 0, 0)
         src_row.addWidget(self._src_edit, 1)
@@ -1622,6 +1752,18 @@ class _SettingsDialog(QDialog):
         # Eight rows, eight pixels, and this dialog opened eight pixels short
         # of its own content with a scroll bar already showing.
 
+    def _probe_the_source_field(self) -> None:
+        """Queue a background check of whatever the source field now holds.
+
+        Never blocks: :func:`_probe_isdir` answers from a cache and does the
+        stat on its own thread. The answer is deliberately discarded here --
+        it is read by :meth:`_pick_src`, later, through :func:`_vouched_dir`,
+        and this is only what puts it in the cache in time to be read.
+        """
+        text = self._src_edit.text().strip()
+        if text:
+            _probe_isdir(text)
+
     def _picker_db_path(self) -> str:
         """Where the SQL picker looks — the src folder as it reads right now.
 
@@ -1825,11 +1967,40 @@ class _SettingsDialog(QDialog):
         return applied
 
     def _pick_src(self):
-        """Ask for the experiment source, starting where the field points."""
+        """Ask for the experiment source, starting where the field points.
+
+        ...but only when the field points somewhere a real stat has come back
+        and confirmed. This is the same defect as the subtitle stat on the
+        screen that owns this dialog: `QFileDialog.getExistingDirectory` stats
+        and then lists its starting directory ON THE GUI THREAD, and the field
+        routinely holds the folder of the last source opened -- so a user
+        whose plate lives on a sleeping `autofs` mount pressed Browse and got
+        the twenty-second freeze that `spacr.qt.path_probe` exists to prevent.
+
+        :func:`_vouched_dir` rather than the probe's own answer, and the
+        difference matters: the probe reports an unanswered stat as PRESENT
+        after its timeout, so gating on it alone would reopen this exact hole
+        five seconds late. The check is queued when the dialog opens and again
+        when the field is edited (see :meth:`_probe_the_source_field`), so a
+        folder that is really there has almost always answered by the time
+        this runs. One that has not opens the picker at the working directory,
+        which is local by construction; nothing is lost but the head start,
+        and the user can still navigate from there.
+        """
+        start = self._src_edit.text().strip()
+        if not _vouched_dir(start):
+            start = os.getcwd()
         d = QFileDialog.getExistingDirectory(self, "Pick experiment source",
-                                              self._src_edit.text() or os.getcwd())
+                                             start)
         if d:
             self._src_edit.setText(d)
+            # QUEUE the folder's answer now, while the dialog has just listed
+            # it and the mount is demonstrably awake, so the next press of
+            # Browse can start here. It is queued, not had: this returns
+            # immediately and the stat happens on a probe thread.
+            # `path_probe.prime` is not what to call -- it records the
+            # `exists` question, and this one is `isdir`, cached separately.
+            _probe_isdir(d)
 
     def accept(self):  # noqa: D401 - Qt slot
         """Refuse OK when the threshold filter cannot be applied as typed.
@@ -2475,7 +2646,55 @@ class AnnotateScreen(QWidget):
         # registration when this one closes.
         register_object_opener("annotate", self._object_opener)
 
-        if self._suggested_source and os.path.isdir(self._suggested_source):
+        # The remembered source is a path the USER supplied, and this used
+        # to be a bare `os.path.isdir` on it, here, in __init__ -- i.e. on
+        # the GUI thread, with the screen not yet on screen. Measured on the
+        # maintainer's machine 2026-09-04: one stat on a path under
+        # `/nas_mnt` (an autofs mount whose share was asleep) had NOT
+        # RETURNED AFTER TWENTY SECONDS. Opening Annotate after a session
+        # that last worked on the NAS therefore froze the whole application
+        # before it drew anything, with no traceback, because a stalled
+        # event loop is not a crash. The subtitle is a hint; it is not worth
+        # a single millisecond of the interface.
+        #
+        # SUBSCRIBE FIRST, THEN ASK, and not the other way round: the probe
+        # is QUEUED by `_apply_suggested_source`, and a worker that finishes
+        # quickly emits `answered` from its own thread while `__init__` is
+        # still running. A Qt signal emitted with nothing connected to it is
+        # dropped, not buffered, so asking first would lose the only answer
+        # this path is ever given and leave the suggestion missing for the
+        # life of the screen -- the "pessimistic gate with nothing to
+        # recover it" that `path_probe.isdir` always needs a subscriber for.
+        self._follow_path_probes()
+        self._apply_suggested_source()
+
+    # ------------------------------------------------------------------
+    def _apply_suggested_source(self) -> None:
+        """Offer the last-used source in the subtitle, if it is still there.
+
+        :func:`_probe_isdir` answers from a cache and never stats on the
+        calling thread -- see `spacr.qt.path_probe`'s module docstring for the
+        twenty-second `os.path.exists` that made it necessary. An unknown path
+        comes back ABSENT, which is the right way round for this label:
+        leaving the placeholder standing for a moment and then offering the
+        suggestion is a screen that learned something, while offering a folder
+        that turns out to be gone and then retracting it is one that lied.
+        `_follow_path_probes` is the half that supplies the answer.
+
+        The probe's own answer is enough HERE, without the stricter
+        :func:`_vouched_dir` the pickers use: naming a folder in a subtitle
+        costs nothing if the mount is asleep, while opening a file dialog in
+        it freezes the window.
+
+        Split out of ``__init__`` precisely so the probe can re-run this
+        same decision later without duplicating it.
+        """
+        if self._settings.src:
+            # A source has been opened since; `_open_source` owns the
+            # subtitle from that point and a late probe must not stamp a
+            # stale suggestion over the database the user is looking at.
+            return
+        if self._suggested_source and _probe_isdir(self._suggested_source):
             self._src_label.setText(
                 f"Suggested (last used): {self._suggested_source}"
             )
@@ -2484,6 +2703,85 @@ class AnnotateScreen(QWidget):
             # replaced is prose, so the opt-out belongs here rather than on
             # the label itself.
             self._src_label.setProperty("i18nSkipText", True)
+
+    def _follow_path_probes(self) -> None:
+        """Fill the suggestion in when the background stat finally answers.
+
+        The connection is to `path_probe.probes`, which is process-wide and
+        outlives every screen ever built on it, so the slot is a plain
+        closure kept on the instance and withdrawn twice over: in
+        ``closeEvent`` for the ordinary path, and on ``destroyed`` for a
+        screen that is deleted without being closed. It is guarded on
+        RuntimeError besides: a queued emission can land after Qt has
+        deleted the C++ half of a screen whose Python wrapper is still
+        alive, and touching the label then is an abort, not an exception
+        that anything upstream would catch.
+        """
+        def landed(path: str, answer: bool) -> None:
+            """Re-run the suggestion when the probe answers about its path.
+
+            :param path: the path whose answer just changed. Every probe in
+                the process arrives here, so anything but this screen's own
+                remembered source is ignored.
+            :param answer: what the probe now says. Only True is acted on --
+                a folder that is gone leaves the placeholder standing.
+            :returns: nothing; the subtitle is the output.
+            """
+            try:
+                if self._closing:
+                    # `closeEvent` runs nested event loops while it drains
+                    # its workers, so a queued emission can still be
+                    # delivered here after the screen has begun tearing
+                    # itself down. Nothing on a closing screen wants a new
+                    # subtitle.
+                    return
+                if answer and path == self._suggested_source:
+                    self._apply_suggested_source()
+            except RuntimeError:
+                # The screen has gone; the signal outlived it.
+                pass
+
+        self._path_probe_landed = landed
+        signal = path_probe.probes.answered
+        signal.connect(landed)
+
+        # ONE withdrawal, reachable from two places. `closeEvent` is the
+        # ordinary way out, but it is not the only one: a screen can be
+        # destroyed without ever being closed -- the stack deletes it, or a
+        # test drops its last reference -- and a connection left on a
+        # process-wide signal then delivers to a widget whose C++ half is
+        # gone. `destroyed` fires while the wrapper is still usable, which
+        # is the moment to let go; the same pattern
+        # `spacr.qt.chaining.ChainingBar` uses on the same signal.
+        #
+        # `withdrawn` is a plain cell rather than an attribute so that the
+        # second call is a no-op WITHOUT touching a half-destroyed wrapper:
+        # disconnecting an already-disconnected slot is not an exception in
+        # PySide, it is a RuntimeWarning printed from C++ that no `except`
+        # can catch. The closure holds the SIGNAL for the same reason --
+        # this can run during interpreter teardown, when the module globals
+        # it would otherwise reach through have already been cleared.
+        withdrawn: List[bool] = []
+
+        def let_go(*_args) -> None:
+            """Withdraw this screen from the process-wide probe signal.
+
+            :param _args: whatever the caller passes. ``destroyed`` carries
+                the dying QObject and ``closeEvent`` passes nothing, and this
+                reads neither.
+            :returns: nothing. Safe to call twice: the second call is a
+                no-op rather than a disconnect of an absent slot.
+            """
+            if withdrawn:
+                return
+            withdrawn.append(True)
+            try:
+                signal.disconnect(landed)
+            except (RuntimeError, TypeError):
+                pass        # the source is gone
+
+        self._release_path_probe = let_go
+        self.destroyed.connect(let_go)
 
     # ------------------------------------------------------------------
     def _install_folds(self, header, row) -> Optional[FoldStrip]:
@@ -3418,12 +3716,36 @@ class AnnotateScreen(QWidget):
     # ------------------------------------------------------------------
     # Actions
     # ------------------------------------------------------------------
+    def _starting_folder(self) -> str:
+        """Where the source picker opens, decided without stat-ing anything.
+
+        `QFileDialog.getExistingDirectory` stats and then LISTS its starting
+        directory on the GUI thread, so handing it a path on a sleeping
+        `autofs` mount is the same twenty-second freeze as the subtitle stat
+        was, moved to the click that opens the picker.
+
+        BOTH candidates are paths the user supplied -- the source now open
+        and the one remembered from last session -- so both go through
+        :func:`_vouched_dir`, which offers a folder only when a real stat came
+        back and confirmed it. The probe's own answer would not do: it reports
+        an unanswered stat as PRESENT once its timeout is up, which is the
+        freeze back five seconds later. Neither candidate is asked for the
+        first time here: the open source was queued by :meth:`_open_source`
+        when it was opened and the remembered one during construction, so by
+        the time anybody reaches this button the answer is almost always
+        already cached.
+
+        :returns: a folder to open the picker in, falling back to the
+            working directory, which is local by construction.
+        """
+        for candidate in (self._settings.src, self._suggested_source):
+            if _vouched_dir(candidate):
+                return candidate
+        return os.getcwd()
+
     def _on_pick_source(self):
-        starting = (self._settings.src
-                    or self._suggested_source
-                    or os.getcwd())
         d = QFileDialog.getExistingDirectory(self, "Pick experiment source",
-                                              starting)
+                                             self._starting_folder())
         if not d:
             return
         self._open_source(d)
@@ -3444,6 +3766,12 @@ class AnnotateScreen(QWidget):
             self._worker = None
         self._settings.src = src
         self._settings.db_path = db_path
+        # Ask the probe about the folder now, while the mount is awake -- the
+        # picker (or the settings dialog) has just listed it -- so the next
+        # press of "Source…" can start here without `QFileDialog` being the
+        # thing that finds out. It returns immediately; the stat happens on a
+        # probe thread. See `_starting_folder`.
+        _probe_isdir(src)
         ensure_annotation_column(db_path, self._settings.annotation_column,
                                  table=self._settings.png_table)
         self._worker = SaveWorker(db_path, self._settings.annotation_column,
@@ -5021,6 +5349,14 @@ class AnnotateScreen(QWidget):
         # and an unconditional withdrawal would leave the live screen
         # unreachable.
         unregister_object_opener("annotate", self._object_opener)
+        # Same shape of problem, the other process-wide signal: a connection
+        # left on `path_probe.probes` keeps this screen reachable from an
+        # object that outlives it, and the emission would arrive at a
+        # deleted C++ widget.
+        release = getattr(self, "_release_path_probe", None)
+        if release is not None:
+            release()
+            self._path_probe_landed = None
         self._resize_timer.stop()
         self._pending_page_load = None
         self._flush_pending()

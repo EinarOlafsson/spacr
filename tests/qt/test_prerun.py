@@ -154,6 +154,11 @@ def banner(qtbot, registered):
     screen = _screen(qtbot, "measure")
     found = prerun.qc_banner(screen)
     assert found is not None
+    # The read runs inline here, emitting the same signals in the same order,
+    # so these tests can assert on the drawn banner without spinning an event
+    # loop. The real screen reads on a worker -- see tests/qt/
+    # test_the_measure_banner_never_waits_on_a_filesystem.py for why.
+    found._threaded = False
     return found
 
 

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QDialog,
@@ -38,6 +38,12 @@ def images_under(paths: Sequence[str], *, limit: int = 5000) -> List[str]:
     :param limit: stop after this many. A plate is tens of thousands of
         files and the table is a PREVIEW -- the regex is inferred from an
         aligned set, and the set does not have to be all of it.
+
+    NOT FOR THE GUI THREAD. Every path here is one the user chose, which on
+    a microscope rig means the share the images live on: the `isdir` is what
+    wakes an `autofs` mount, and the walk is thousands more stats behind it.
+    Call it from :func:`_walk` on a worker -- :meth:`ImportWorkbench.add_files`
+    is the only caller in this module and that is what it does.
     """
     found: List[str] = []
     for raw in paths or ():
@@ -54,6 +60,28 @@ def images_under(paths: Sequence[str], *, limit: int = 5000) -> List[str]:
             if len(found) >= limit:
                 return found
     return found
+
+
+def _walk(paths: Sequence[str]) -> Tuple[List[str], str]:
+    """Run :func:`images_under`, carrying any failure back as a string.
+
+    ON THE WORKER THREAD, and the failure is RETURNED rather than raised on
+    purpose. ``JobRunner`` hands a result to its ``on_done`` only for a job
+    that succeeded, so a walk that raised would leave the "Working…" caption
+    :meth:`ImportWorkbench.add_files` writes before it on screen for the rest
+    of the session -- the panel would claim to still be looking at a folder
+    it gave up on. Returned, the failure travels the same generation-guarded
+    path as a result, so a walk the user has since abandoned cannot paint
+    over the panel either.
+
+    Looked up through the module global so a test may replace
+    :func:`images_under`, which is how the freeze is reproduced.
+    """
+    try:
+        return images_under(paths), ""
+    except Exception as exc:                                     # noqa: BLE001
+        LOG.info("could not walk what was dropped", exc_info=True)
+        return [], str(exc) or exc.__class__.__name__
 
 
 class ImportWorkbench(QWidget):
@@ -73,7 +101,30 @@ class ImportWorkbench(QWidget):
         self._files: List[str] = [str(f) for f in filenames or ()]
         self._roles: Dict[str, str] = {}
         self._plan = None
+        #: What the last walk could not do, appended to the summary by
+        #: :meth:`refresh`. Empty is the ordinary case.
+        self._scan_trouble = ""
         self.setAcceptDrops(True)
+        #: The worker that walks what was dropped. A DROP IS A PATH THE USER
+        #: CHOSE, and a plate lives on the microscope's share: `images_under`
+        #: stats it and then walks the whole tree. Measured on the
+        #: maintainer's machine 2026-09-04, ONE `os.path.exists` under an
+        #: `autofs` mount whose share was asleep had not returned after twenty
+        #: seconds -- and a walk is thousands of those, on the thread that
+        #: paints. Inline, the drop froze the application with no traceback,
+        #: because a stalled event loop is not a crash; it was reported as
+        #: hover flicker and glimpses of other screens.
+        #:
+        #: `user_visible=False`: the user dropped a folder, they did not
+        #: start a run, so this must never claim a run banner on Home. Safe
+        #: because the runner is ITS OWN and carries nothing but the walk --
+        #: nothing else in this panel leaves the GUI thread, so the flag
+        #: hides no work the user started.
+        from ..job_runner import JobRunner
+        self._scanner = JobRunner(self, threaded=True,
+                                  app_key="import workbench scan",
+                                  user_visible=False)
+        self._scanner.job_failed.connect(self._scan_failed)
 
         outer = QVBoxLayout(self)
 
@@ -155,22 +206,116 @@ class ImportWorkbench(QWidget):
         self.add_files(paths)
         event.acceptProposedAction()
 
-    def ask_for_files(self) -> int:
+    def ask_for_files(self) -> None:
         chosen, _filter = QFileDialog.getOpenFileNames(
             self, "Images to import", "",
             "Images (" + " ".join(f"*{s}" for s in IMAGE_SUFFIXES) + ")")
-        return self.add_files(chosen)
+        self.add_files(chosen)
 
-    def add_files(self, paths: Sequence[str]) -> int:
-        """Add every image under ``paths``. Returns how many are held now."""
-        found = images_under(paths)
+    def add_files(self, paths: Sequence[str]) -> None:
+        """Add every image under ``paths``, once a worker has found them.
+
+        SPLIT IN TWO, and the split is the fix for a frozen application.
+        Everything here is a list of strings and a caption; the walk runs on
+        this panel's own worker (:func:`_walk`, wrapping
+        :func:`images_under`) because it is an `isdir` and a recursive
+        `os.walk` over a path the user chose, which on this maintainer's
+        machine is an `autofs` share that took twenty seconds to answer a
+        single stat. :meth:`_files_found` takes the answer back on the GUI
+        thread.
+
+        Nothing is added by the time this returns, which is the point. Read
+        :meth:`files` from a redraw, not from the line after this one.
+
+        Two drops in a row start two walks rather than one: unlike a
+        refresh, they ask DIFFERENT questions, and coalescing them would
+        lose a plate. Nothing here is shared mutable state -- both answers
+        arrive on the GUI thread and both are kept.
+        """
+        wanted = [str(p) for p in paths or ()]
+        if not wanted:
+            return
+        # SAID BEFORE THE WALK, not after: on a sleeping share the walk is
+        # the part that takes seconds, and a panel that says nothing in the
+        # meantime looks like a drop that was ignored. `refresh` replaces it
+        # with the plan summary the moment there is one -- and `_walk` makes
+        # sure there IS one even when the walk fails.
+        #
+        # THE CATALOGS ALREADY CARRY "Working…" in all nine languages. A
+        # wordier caption invented here would be English-only until someone
+        # noticed, and `tests/qt/test_i18n_caption_ratchet.py` fails on it.
+        self._scan_trouble = ""
+        self.dropped.setText("Working…")
+        if not self._scanner.submit(lambda: _walk(wanted), self._files_found):
+            # `submit` answers False only for a job that ran INLINE -- a
+            # runner built `threaded=False`, which is how some tests drive
+            # this panel -- and whose handler raised. Nothing is coming to
+            # replace the caption above, so put the summary back rather than
+            # leave the panel claiming to be working.
+            self.refresh()
+
+    def _files_found(self, answer: Optional[Any]) -> None:
+        """Take what the walk returned, on the GUI thread.
+
+        Generation-guarded by ``JobRunner``: a walk abandoned by
+        :meth:`set_files` or :meth:`shutdown` never reaches here, so a folder
+        the user cleared cannot reappear twenty seconds later.
+        """
+        found, trouble = answer if answer else ((), "")
+        self._scan_trouble = str(trouble or "")
         seen = set(self._files)
-        self._files.extend(p for p in found if p not in seen)
-        self.set_files(self._files)
-        return len(self._files)
+        # `_show`, NOT `set_files`: `set_files` cancels, and a second drop
+        # landing must not abandon the first drop's walk.
+        self._show(self._files + [p for p in (found or ()) if p not in seen])
+
+    def _scan_failed(self, message: str) -> None:
+        """Repaint from what is held when a walk did not deliver at all.
+
+        :func:`_walk` carries an ordinary failure back through
+        :meth:`_files_found`, so this is the case that cannot reach: the
+        worker itself did not finish. ``JobRunner`` calls ``on_done`` only
+        for a job that succeeded, so without this the "Working…" caption
+        would stay on screen for the rest of the session.
+
+        NOT generation-guarded, because ``job_failed`` carries no job
+        identity. Repainting from :attr:`_files` is the safe response for
+        exactly that reason -- it can only ever show the truth as it now
+        stands, never an abandoned walk's data. ``RuntimeError``: a worker
+        parked by ``shutdown`` outlives this widget's C++ half.
+        """
+        try:
+            LOG.info("a dropped folder was not walked: %s", message)
+            self._scan_trouble = str(message or "")
+            self.refresh()
+        except RuntimeError:
+            pass
+
+    def is_scanning(self) -> bool:
+        """True while a walk started by :meth:`add_files` is still running."""
+        return self._scanner.is_busy()
 
     def set_files(self, paths: Sequence[str]) -> None:
-        self._files = [str(p) for p in paths or ()]
+        """Replace the held set. ANY WALK STILL RUNNING IS ABANDONED.
+
+        The Clear button lands here, and a walk of a share that is not
+        answering is precisely the one the user gives up on. Without the
+        cancel its result arrives half a minute later and quietly refills the
+        table that was just emptied. ``JobRunner.cancel`` bumps a generation,
+        so the result is dropped on arrival rather than handed to
+        :meth:`_files_found`; the thread is left to retire itself, because
+        joining it here would be the freeze this all exists to remove.
+        """
+        self._scanner.cancel()
+        self._scan_trouble = ""
+        self._show([str(p) for p in paths or ()])
+
+    def _show(self, files: List[str]) -> None:
+        """Hold ``files`` and redraw. The half of :meth:`set_files` a walk uses.
+
+        Split off so that a landing walk does not cancel its siblings -- see
+        :meth:`_files_found`.
+        """
+        self._files = files
         # A REGEX PROPOSED FOR THE OLD SET IS NOT PROPOSED FOR THIS ONE, so
         # the first drop offers one and a later drop does not overwrite what
         # the user has since edited.
@@ -267,7 +412,14 @@ class ImportWorkbench(QWidget):
             self._rebuild_roles(groups)
         self._plan = plan(names, self.regex.text(), self.roles(),
                           plate=self._plate_name())
-        self.dropped.setText(self._plan.summary())
+        said = self._plan.summary()
+        if self._scan_trouble:
+            # SAID, NOT SWALLOWED. A walk that failed leaves the table short
+            # by a whole folder, and a summary that counts only what did
+            # arrive reads as if that folder had held nothing.
+            said += (f" · Could not read what you dropped: "
+                     f"{self._scan_trouble}")
+        self.dropped.setText(said)
         self.role_trouble.setText(
             " · ".join(self._plan.trouble) if self._plan.trouble else "")
         self._fill_the_table()
@@ -307,6 +459,21 @@ class ImportWorkbench(QWidget):
     def the_plan(self):
         return self._plan
 
+    # ------------------------------------------------------------ shutdown
+
+    def shutdown(self) -> None:
+        """Abandon any walk in flight, briefly waiting for its thread.
+
+        Qt ABORTS THE PROCESS if a running QThread is destroyed, and a drop
+        on a share that is not answering is exactly the case where the user
+        gives up and closes the window.
+        """
+        self._scanner.shutdown()
+
+    def closeEvent(self, event):                     # noqa: N802 - Qt
+        self.shutdown()
+        super().closeEvent(event)
+
 
 class ImportWorkbenchDialog(QDialog):
     """The workbench in a window, returning the accepted regex.
@@ -332,6 +499,17 @@ class ImportWorkbenchDialog(QDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         outer.addWidget(buttons)
+
+    def done(self, result: int) -> None:              # Qt override
+        """Close, and let no walk outlive the dialog.
+
+        ``done`` rather than ``closeEvent`` because it is the one funnel:
+        Ok, Cancel and the window's close button all arrive here, and a
+        dialog dismissed while the share is still being walked is the
+        ordinary case -- it is why the user gave up on it.
+        """
+        self.workbench.shutdown()
+        super().done(result)
 
     def chosen_regex(self) -> str:
         r"""Return the accepted pattern for ``_get_regex`` custom mode.
