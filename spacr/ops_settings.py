@@ -297,23 +297,46 @@ OPS_DESCRIPTION = (
 )
 
 
-def register() -> None:
-    """Register the OPS defaults, types, categories and help.
+def ops_defaults(settings=None):
+    """The OPS settings, with `spacrops` imported only when they are wanted.
 
-    Idempotent: registering twice is what happens when a module is imported
-    from both the GUI and a headless run, and that must not be an error.
+    A LAZY FACTORY, AND THAT IS THE POINT. `spacr.settings` imports this
+    module so the registration happens at startup, and `spacrops` reaches
+    OpenCV and SciPy -- a third of a second, on the path that a module screen
+    opens through. Registering the FUNCTION rather than calling it keeps that
+    cost until someone actually asks for an OPS default.
 
-    :returns: nothing; it mutates the shared settings tables.
+    :param settings: caller's settings, filled in with the defaults.
+    :returns: the completed settings dict.
     """
-    from . import settings as _settings
     from .spacrops import get_preprocess_ops_settings
 
-    _settings.register_defaults(
+    return get_preprocess_ops_settings(settings if settings is not None else {})
+
+
+def register(replace: bool = False) -> bool:
+    """Register the OPS defaults, types, categories and help.
+
+    Idempotent by default: a module imported from both the GUI and a headless
+    run registers twice, and that must not be an error.
+
+    :param replace: overwrite an existing registration rather than declining.
+    :returns: True when this call did the registering.
+    """
+    from .settings import has_registered_defaults, register_defaults
+
+    if has_registered_defaults("ops") and not replace:
+        return False
+    register_defaults(
         "ops",
-        get_preprocess_ops_settings,
+        ops_defaults,
         replace=True,
         expected_types=OPS_TYPES,
         tooltips=OPS_TOOLTIPS,
         categories=OPS_CATEGORIES,
         description=OPS_DESCRIPTION,
     )
+    return True
+
+
+register()
