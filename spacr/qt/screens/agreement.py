@@ -142,6 +142,12 @@ class AgreementScreen(QWidget):
     _job_settled = Signal(bool)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the screen and arm its drop zone.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: run the agreement computation on a worker thread. Set
+            ``False`` in tests so ``compute`` finishes before it returns.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._db_path: str = ""
@@ -176,6 +182,7 @@ class AgreementScreen(QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the source row, the annotator list, the tables and the review pane."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -365,6 +372,7 @@ class AgreementScreen(QWidget):
     # -- database ----------------------------------------------------------
 
     def _pick_database(self) -> None:
+        """Ask for a measurements database and open whatever is chosen."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open measurements database", "",
             "SQLite databases (*.db *.sqlite *.sqlite3);;All files (*)")
@@ -372,11 +380,17 @@ class AgreementScreen(QWidget):
             self.set_database(path)
 
     def _pick_run_folder(self) -> None:
+        """Ask for a run folder and open the database found inside it."""
         path = QFileDialog.getExistingDirectory(self, "Choose a run folder", "")
         if path:
             self.set_database(path)
 
     def _on_open_typed_path(self) -> None:
+        """Open whatever path is currently typed in the source box.
+
+        Wired to both Return in the box and the Open button, so a typed path
+        behaves the same either way.
+        """
         self.set_database(self._path_edit.text())
 
     def set_database(self, path: str) -> bool:
@@ -519,6 +533,12 @@ class AgreementScreen(QWidget):
         return self._run_job(_job, self._apply_result)
 
     def _apply_result(self, result: Dict[str, Any]) -> None:
+        """Fill every output pane from a finished agreement job.
+
+        :param result: the worker's payload -- ``report`` (an
+            ``AgreementReport``) and ``disagreements`` (the rows the annotators
+            differed on).
+        """
         self._report = result["report"]
         self._disagreements = result["disagreements"]
         self._fill_kappa_table(self._report)
@@ -540,6 +560,11 @@ class AgreementScreen(QWidget):
     # -- result rendering --------------------------------------------------
 
     def _clear_results(self) -> None:
+        """Empty every result pane and forget the last report.
+
+        Called before a new run and after a failure, so a stale κ is never left
+        on screen next to a new database.
+        """
         self._report = None
         self._disagreements = None
         self._kappa_table.setRowCount(0)
@@ -557,6 +582,14 @@ class AgreementScreen(QWidget):
         self._crop_caption.setText("")
 
     def _fill_kappa_table(self, report: agree.AgreementReport) -> None:
+        """Fill the pairwise table, one row per annotator pair.
+
+        A pair's ``note`` -- why its κ is unreliable, when it is -- becomes the
+        tooltip on every cell of that row, so it is reachable from wherever the
+        eye lands.
+
+        :param report: the finished report to read pairs from.
+        """
         table = self._kappa_table
         table.blockSignals(True)
         table.setRowCount(len(report.pairs))
@@ -585,6 +618,10 @@ class AgreementScreen(QWidget):
                 for r in range(self._kappa_table.rowCount())]
 
     def _fill_pair_combo(self, report: agree.AgreementReport) -> None:
+        """Repopulate the confusion-matrix picker and show the first pair.
+
+        :param report: the finished report to read pairs from.
+        """
         self._pair_combo.blockSignals(True)
         self._pair_combo.clear()
         for pair in report.pairs:
@@ -636,6 +673,11 @@ class AgreementScreen(QWidget):
                 for r in range(self._confusion_table.rowCount())]
 
     def _fill_summary(self, report: agree.AgreementReport) -> None:
+        """Write the one-paragraph summary line under the tables.
+
+        :param report: the finished report; its overall κ, note, warnings and
+            convention are stacked into a single rich-text label.
+        """
         bits = [
             f"<b>Overall {report.overall_method}: "
             f"{format_kappa(report.overall_kappa)}</b> "
@@ -653,6 +695,14 @@ class AgreementScreen(QWidget):
         self._summary.setText("<br>".join(bits))
 
     def _fill_review_table(self, rows, report: agree.AgreementReport) -> None:
+        """Fill the disagreement review table and select its first row.
+
+        :param rows: the disagreeing rows, as a ``DataFrame`` holding the report
+            key plus every annotation column.
+        :param report: the finished report, for the key column, the column order
+            and the total disagreement count -- the table may hold fewer rows
+            than that total, and the label says so when it does.
+        """
         table = self._review_table
         columns = [report.key] + list(report.columns)
         table.blockSignals(True)
@@ -878,12 +928,22 @@ class AgreementScreen(QWidget):
         self._set_status(f"Agreement failed: {line}", error=True)
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Clear the results and report a failed agreement run.
+
+        :param exc: the exception raised by the worker.
+        """
         self._clear_results()
         self._set_status(f"Agreement failed: {exc}", error=True)
 
     # -- enablement --------------------------------------------------------
 
     def _update_controls(self) -> None:
+        """Enable the compute button, column list and row limit when they can be used.
+
+        Computing needs a database and at least two ticked columns -- one
+        annotator cannot disagree with anybody -- and nothing is enabled while a
+        run is in flight.
+        """
         has_db = bool(self._db_path)
         enough = len(self.selected_columns()) >= 2
         self._btn_compute.setEnabled(has_db and enough and not self._busy)

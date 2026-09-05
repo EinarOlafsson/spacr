@@ -4825,8 +4825,8 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
     :param data: merged array ``(H, W, C)`` — image channels then mask slices.
     :param mask_dim: slice index of the object-class mask to crop by.
     :param channels: image channel indices to assemble (order = RGB order).
-    :param min_area/max_area: keep objects within this pixel-area range
-        (``0`` = no bound).
+    :param min_area: smallest object area (px) to keep; ``0`` = no lower bound.
+    :param max_area: largest object area (px) to keep; ``0`` = no upper bound.
     :param mask_background: zero pixels outside the object.
     :param normalize: per-channel percentile-normalise each crop.
     :param percentiles: ``(low, high)`` for normalisation.

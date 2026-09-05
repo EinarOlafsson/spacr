@@ -266,6 +266,14 @@ class Gate:
     parent: Optional[str] = None
 
     def __post_init__(self) -> None:
+        """Normalise the name and parent, and reject a gate that parents itself.
+
+        Gates nest: a child gate is evaluated only on the rows its parent already
+        kept. A gate that names itself as parent would need its own result before
+        it could be computed, so it is rejected here rather than looping later.
+
+        :raises GateError: if ``parent`` equals ``name``.
+        """
         object.__setattr__(self, "name", _clean_name(self.name))
         parent = self.parent
         object.__setattr__(self, "parent",
@@ -495,6 +503,15 @@ class ThresholdGate(Gate):
     high: Optional[float] = None
 
     def __post_init__(self) -> None:
+        """Normalise the column and bounds, and reject a cut that cuts nothing.
+
+        ``low`` and ``high`` are swapped into order if they arrive the wrong way
+        round, which is what happens when a line is dragged past its partner.
+
+        :raises GateError: if ``column`` is blank, or if both bounds are ``None``
+            -- an unbounded threshold selects every row, so it is a mis-drag
+            rather than a gate.
+        """
         super().__post_init__()
         if not str(self.column).strip():
             raise GateError(
@@ -703,6 +720,15 @@ class RectGate(Gate):
     y_high: Optional[float] = None
 
     def __post_init__(self) -> None:
+        """Normalise the two columns and the four bounds.
+
+        Each ``low``/``high`` pair is swapped into order, so dragging a corner
+        past its opposite still yields a rectangle.
+
+        :raises GateError: if either column is blank, if both name the same
+            measurement (every point would lie on the diagonal), or if all four
+            bounds are ``None``.
+        """
         super().__post_init__()
         for name in ("x_column", "y_column"):
             if not str(getattr(self, name)).strip():
@@ -952,6 +978,18 @@ class PolygonGate(Gate):
     vertices: Tuple[Tuple[float, float], ...] = ()
 
     def __post_init__(self) -> None:
+        """Normalise the columns and vertices, and reject a polygon with no area.
+
+        A repeated closing vertex is accepted and dropped -- the polygon closes
+        itself, and keeping the duplicate would leave an edge of length zero.
+        The remaining vertices are checked with the shoelace formula: a zero area
+        means they are collinear, which selects nothing and is almost always a
+        slipped click.
+
+        :raises GateError: if either column is blank, if both name the same
+            measurement, if fewer than three vertices remain, or if the vertices
+            enclose no area.
+        """
         super().__post_init__()
         for name in ("x_column", "y_column"):
             if not str(getattr(self, name)).strip():
@@ -1135,6 +1173,12 @@ class EllipseGate(Gate):
     y_radius: float = 0.0
 
     def __post_init__(self) -> None:
+        """Normalise the columns, centre and radii.
+
+        :raises GateError: if either column is blank, if both name the same
+            measurement, or if either radius is zero or negative -- such an
+            ellipse selects nothing.
+        """
         super().__post_init__()
         for name in ("x_column", "y_column"):
             if not str(getattr(self, name)).strip():
@@ -1401,6 +1445,13 @@ class BoxGate(Gate):
     z_high: Optional[float] = None
 
     def __post_init__(self) -> None:
+        """Normalise the three columns and swap any inverted bound pair.
+
+        Unlike the 2-D gates this does not require a bound to be set: a box with
+        open faces is a legitimate slab through the cube.
+
+        :raises GateError: if any of the three columns is blank.
+        """
         super().__post_init__()
         for name in ("x_column", "y_column", "z_column"):
             if not str(getattr(self, name)).strip():
@@ -1657,6 +1708,14 @@ class CylinderGate(Gate):
     axis_high: Optional[float] = None
 
     def __post_init__(self) -> None:
+        """Normalise the plane columns, the axis column, the radii and the extent.
+
+        A negative radius is taken as its absolute value, and the axis bounds are
+        swapped into order.
+
+        :raises GateError: if any column is blank, or if the plane and its axis
+            do not name three different measurements.
+        """
         super().__post_init__()
         for name in ("u_column", "v_column", "axis_column"):
             value = str(getattr(self, name)).strip()
@@ -1866,6 +1925,12 @@ class PrismGate(Gate):
     axis_high: Optional[float] = None
 
     def __post_init__(self) -> None:
+        """Normalise the plane columns, the axis column, the footprint and extent.
+
+        :raises GateError: if any column is blank, if the plane and its axis do
+            not name three different measurements, or if the footprint has fewer
+            than three vertices.
+        """
         super().__post_init__()
         for name in ("u_column", "v_column", "axis_column"):
             value = str(getattr(self, name)).strip()
@@ -2062,6 +2127,14 @@ class CompositeGate(Gate):
     operands: Tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
+        """Normalise the operation and operand names.
+
+        :raises GateError: if the operation is not one of :data:`COMPOSITE_OPS`,
+            if fewer than two operands survive stripping, if the gate lists
+            itself, or if an operand is repeated -- a gate unioned with itself is
+            itself and subtracted from itself is empty, so neither is likely to
+            be what was meant.
+        """
         super().__post_init__()
         operation = str(self.operation).strip().lower()
         if operation not in COMPOSITE_OPS:
@@ -2684,6 +2757,10 @@ class GateClause:
     gates: Tuple[Gate, ...]
 
     def __post_init__(self) -> None:
+        """Freeze the gate names into a tuple.
+
+        :raises GateError: if the clause names no gates.
+        """
         if not self.gates:
             raise GateError("a gate clause needs at least one gate")
         object.__setattr__(self, "gates", tuple(self.gates))
@@ -2800,6 +2877,12 @@ class GateSet:
         # Re-added one at a time through `add`, so a set built from a list —
         # or read back from a file — gets the same parent and cycle checks a
         # set built by clicking does.
+        """Re-add every incoming gate through :meth:`add`.
+
+        A set built from a list -- or read back from a file -- gets the same
+        parent and cycle checks as one built by clicking, rather than trusting
+        that whatever produced the list already validated it.
+        """
         incoming = list(self.gates)
         self.gates = []
         for gate in incoming:
@@ -2907,9 +2990,16 @@ class GateSet:
         return not self.gates
 
     def __len__(self) -> int:
+        """Return the number of gates in the set."""
         return len(self.gates)
 
     def __contains__(self, name: object) -> bool:
+        """Report whether a gate of this name is in the set.
+
+        :param name: gate name; coerced with :func:`str`, so a ``Gate`` does not
+            match -- membership is by name, as everywhere else in the set.
+        :returns: ``True`` if the name is present.
+        """
         return str(name) in self.names
 
     def children(self, name: Optional[str]) -> Tuple[Gate, ...]:
