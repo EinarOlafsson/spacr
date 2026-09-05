@@ -258,6 +258,13 @@ class SortableTableItem(_SortableMixin, QTableWidgetItem):
     """
 
     def __init__(self, value="", key=None):
+        """Create a table cell that sorts on a value rather than on its text.
+
+        :param value: what the cell shows; a missing value renders blank.
+        :param key: an explicit sort key, for a cell whose text does not order
+            the way the value does -- a formatted duration, say. ``None``
+            derives one from ``value``.
+        """
         QTableWidgetItem.__init__(
             self, "" if is_missing(value) else str(value))
         self._init_sort_key(value, key=key)
@@ -284,9 +291,21 @@ class SortableTableItem(_SortableMixin, QTableWidgetItem):
             self._sort_serial = serial
 
     def _sort_text(self) -> str:
+        """Return the text this cell falls back to when it has no numeric key.
+
+        :returns: the cell's text, never ``None``.
+        """
         return self.text() or ""
 
     def _descending(self) -> bool:
+        """Report whether the table is currently sorted descending.
+
+        Used to keep missing values at the bottom in both directions rather
+        than letting them flip to the top on a reverse.
+
+        :returns: ``True`` when the header's indicator says descending;
+            ``False`` for a cell not yet in a table.
+        """
         view = self.tableWidget()
         if view is None:
             return False
@@ -301,12 +320,25 @@ class SortableTreeItem(_SortableMixin, QTreeWidgetItem):
     """
 
     def __init__(self, *args, **kwargs):
+        """Create a tree row that sorts on its values and remembers its insertion order.
+
+        The serial is what restores the original order when sorting is turned
+        off -- a tree has no unsorted model to fall back to.
+
+        :param args: passed through to ``QTreeWidgetItem``.
+        :param kwargs: passed through to ``QTreeWidgetItem``.
+        """
         QTreeWidgetItem.__init__(self, *args, **kwargs)
         global _SERIAL
         _SERIAL += 1
         self._sort_serial = _SERIAL
 
     def _sort_column(self) -> int:
+        """Return the column the tree is sorting on.
+
+        :returns: the sort column, or ``0`` for a row not yet in a tree or a
+            tree with no indicator set.
+        """
         view = self.treeWidget()
         if view is None:
             return 0
@@ -334,15 +366,35 @@ class SortableTreeItem(_SortableMixin, QTreeWidgetItem):
         return missing, number
 
     def _sort_text(self) -> str:
+        """Return the text this row falls back to when it has no numeric key.
+
+        :returns: the sort column's text, never ``None``.
+        """
         return self.text(self._sort_column()) or ""
 
     def _descending(self) -> bool:
+        """Report whether the tree is currently sorted descending.
+
+        :returns: ``True`` when the header's indicator says descending;
+            ``False`` for a row not yet in a tree.
+        """
         view = self.treeWidget()
         if view is None:
             return False
         return view.header().sortIndicatorOrder() == Qt.DescendingOrder
 
     def __lt__(self, other):
+        """Order two rows by value, keeping missing values last in both directions.
+
+        While the original order is being restored this compares insertion
+        serials instead, which is what lets "no sort" mean the order the rows
+        arrived in.
+
+        :param other: the row to compare against; a plain ``QTreeWidgetItem`` is
+            compared on its text, and anything without one is declined so Python
+            can try the reflected comparison.
+        :returns: ``True`` when this row sorts first.
+        """
         if _RESTORING:
             return getattr(self, "_sort_serial", 0) < getattr(
                 other, "_sort_serial", 0)

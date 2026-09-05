@@ -147,6 +147,14 @@ class ControlChartCanvas(QWidget):
     rendered = Signal(object)
 
     def __init__(self, parent=None):
+        """Create an empty control-chart canvas.
+
+        The figure carries no ``facecolor`` and no inline background: the canvas
+        paints the page panel in its own ``paintEvent`` under a transparent
+        figure patch, and either would put the opaque rectangle back.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("ControlChartCanvas")
         self._result: Optional[ControlChartResult] = None
@@ -300,6 +308,12 @@ class ControlChartScreen(QWidget):
     failed = Signal(str)
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the screen: source row, control pickers, chart and violation table.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: read the database on a worker thread. Set ``False`` in
+            tests so ``load_path`` finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("ControlChartScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -607,14 +621,30 @@ class ControlChartScreen(QWidget):
             box.blockSignals(False)
 
     def _selected_levels(self) -> Tuple[str, ...]:
+        """Return the control levels currently ticked.
+
+        :returns: their names, in list order.
+        """
         return tuple(item.text() for item in self._levels.selectedItems())
 
     def _on_control_column(self, _text: str) -> None:
+        """Repopulate the level list for a newly chosen control column and recompute.
+
+        :param _text: the new column; the current text is re-read from the box,
+            so it is not used directly.
+        """
         if self._frame is not None:
             self._refill_levels(self._frame)
         self._on_control_changed()
 
     def _on_control_changed(self, *_args) -> None:
+        """Recompute the chart after a control setting changed.
+
+        Suppressed while the screen is filling its own widgets, so loading a
+        table costs one recompute rather than one per control.
+
+        :param _args: whatever the emitting signal passes; ignored.
+        """
         if not self._loading:
             self.recompute()
 
@@ -678,6 +708,14 @@ class ControlChartScreen(QWidget):
         self._fill_violations(result)
 
     def _fill_violations(self, result: ControlChartResult) -> None:
+        """Fill the violation table, one row per rule that fired.
+
+        Each row names the rule, the plates it fired on, what that rule detects
+        and what it found -- a rule number alone says nothing to a reader who
+        does not already know the Westgard set.
+
+        :param result: the computed chart.
+        """
         self.violations.setRowCount(len(result.violations))
         for row, violation in enumerate(result.violations):
             for column, text in enumerate((
@@ -697,6 +735,10 @@ class ControlChartScreen(QWidget):
         self.failed.emit(message)
 
     def _on_job_failed(self, message: str) -> None:
+        """Log and show a refused or failed chart.
+
+        :param message: the refusal text from the job runner.
+        """
         LOG.info("control chart refused: %s", message)
         self._show_refusal(message)
 
@@ -745,6 +787,10 @@ class ControlChartScreen(QWidget):
             self._on_frame_loaded)
 
     def _on_frame_loaded(self, payload) -> None:
+        """Show a freshly loaded frame, labelled with its file, table and shape.
+
+        :param payload: the worker's ``(table_name, frame)`` pair.
+        """
         chosen, frame = payload
         path = self._path or ""
         suffix = f" · {chosen}" if chosen else ""
@@ -754,6 +800,11 @@ class ControlChartScreen(QWidget):
                   f"× {len(frame.columns)} columns")
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 

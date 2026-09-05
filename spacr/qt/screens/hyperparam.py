@@ -1325,6 +1325,13 @@ class HyperparamPanel(QWidget):
         dialog.show()
 
     def _on_settings_closed(self, *_args) -> None:
+        """Take the settings panel back from the dialog and hide it again.
+
+        The panel is the screen's own widget, lent to the dialog for as long as
+        it is open, so it has to be re-parented rather than rebuilt.
+
+        :param _args: whatever the dialog's finished signal passes; unused.
+        """
         self._settings_panel.setParent(self)
         self._settings_panel.hide()
         self._settings_dialog = None
@@ -1695,6 +1702,10 @@ class HyperparamPanel(QWidget):
         self._set_status("cuML installed. Restart spaCR to use it.")
 
     def _set_status(self, text: str) -> None:
+        """Write the status line, if the panel has built one yet.
+
+        :param text: the message to show.
+        """
         label = getattr(self, "_status", None)
         if label is not None:
             label.setText(str(text))
@@ -2229,6 +2240,13 @@ class HyperparamPanel(QWidget):
         return True
 
     def _select_trial_row(self, trial: Trial) -> None:
+        """Select the table row holding a trial.
+
+        Matched on the trial object itself rather than on its index, so a
+        re-sorted table still selects the right row.
+
+        :param trial: the trial to select; one not in the table is ignored.
+        """
         for row in range(self._table.rowCount()):
             item = self._table.item(row, 0)
             if item is not None and item.data(Qt.UserRole + 2) is trial:
@@ -2260,13 +2278,29 @@ class HyperparamPanel(QWidget):
         return dialog
 
     def _on_gallery_closed(self, *_args) -> None:
+        """Forget the gallery dialog once it closes.
+
+        :param _args: whatever the dialog's finished signal passes; unused.
+        """
         self._gallery_dialog = None
 
     def _on_gallery_trial(self, trial: Trial) -> None:
+        """Show a trial picked in the gallery, and select its row here.
+
+        :param trial: the trial the gallery activated.
+        """
         if self.show_trial(trial):
             self._select_trial_row(trial)
 
     def _update_trial_cluster_cell(self, trial: Trial) -> None:
+        """Write one trial's cluster count into its row.
+
+        Only that cell is touched, so a finished trial does not rebuild the
+        table and lose the selection with it.
+
+        :param trial: the trial whose row to update; a missing count renders as
+            a dash rather than as zero.
+        """
         count = trial.extra_metrics.get("n_clusters")
         for row in range(self._table.rowCount()):
             item = self._table.item(row, 0)
@@ -2451,6 +2485,17 @@ class UmapSearchSettingsDialog(QDialog):
     """
 
     def __init__(self, panel: HyperparamPanel):
+        """Build the settings popup around the panel's own search controls.
+
+        The panel's settings group is re-parented in here, and its embedded Run,
+        Stop and Propagate buttons are hidden: they date from when the panel was
+        the whole window, and leaving them would put two Runs and two
+        Propagates on screen. The dialog carries its own stylesheet rather than
+        touching the application palette.
+
+        :param panel: the hyperparameter panel this edits; its ``app_key``
+            decides the title and whether the UMAP tabs are built.
+        """
         super().__init__(panel)
         self._panel = panel
         self._module_model = None
@@ -2880,6 +2925,15 @@ class WalkAxesDialog(QDialog):
     """
 
     def __init__(self, panel: "HyperparamPanel"):
+        """Build the dialog that chooses which parameters the Walk searches.
+
+        One row per UMAP parameter, each with a switch, a starting value and a
+        resolution -- every one of them changes the structure of the embedding,
+        so a search restricted to ``n_neighbors`` and ``min_dist`` leaves the
+        rest at a default nobody chose.
+
+        :param panel: the hyperparameter panel whose walk axes this edits.
+        """
         super().__init__(panel)
         self._panel = panel
         self.setObjectName("WalkAxesDialog")
