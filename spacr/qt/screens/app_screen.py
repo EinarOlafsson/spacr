@@ -318,6 +318,16 @@ class ModuleHeader(QWidget):
     def __init__(self, title: str, description: str = "",
                  instruction: str = "", *, app_key: Optional[str] = None,
                  parent: Optional[QWidget] = None):
+        """Build the shared module masthead.
+
+        :param title: the module's name, set at display size.
+        :param description: one-line blurb; with an ``app_key`` it becomes the
+            link into that module's API help.
+        :param instruction: what to do first, shown under the title.
+        :param app_key: the module the description links to; without it the
+            blurb is plain text.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("ModuleHeader")
         from ..theme import make_transparent
@@ -1390,6 +1400,21 @@ class AppScreen(QWidget):
     _dna_rain = None
 
     def __init__(self, app_key: str, parent=None):
+        """Build one module page: the settings column beside the runtime panel.
+
+        Ordering matters throughout and is the reason for the length. The live
+        preview watches ``src`` and can only be wired once both panels exist,
+        because the settings panel owns the field and the runtime panel owns the
+        preview. The category hints have the same constraint in reverse. The
+        page-surface sweep runs on every route, not only where a backdrop was
+        installed: with the ambient preference off, skipping it left every
+        layout container carrying the blanket window fill, which is what made
+        the settings half a solid slab.
+
+        :param app_key: which module this page is; it selects the title, the
+            blurb, the settings schema, the drop handler and the backdrop.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.app_key = app_key
         # Qt can deliver show/palette events from nested layout activation
@@ -5560,6 +5585,12 @@ class AppScreen(QWidget):
         src_widget.textChanged.connect(lambda _t: self._live_src_timer.start())
 
     def _maybe_hide_empty_state(self, text: str) -> None:
+        """Hide the empty-state card once the source field names something real.
+
+        :param text: the field's current text. The placeholders it ships with
+            do not count as a source -- hiding the card for ``/path/to/src``
+            would take the instruction away while nothing had been chosen.
+        """
         card = getattr(self, "_empty_state_card", None)
         if card is None:
             return
@@ -5613,6 +5644,11 @@ class AppScreen(QWidget):
         return chosen
 
     def _open_demos_menu(self) -> None:
+        """Drop the window's Demos menu down at the top-left of the window.
+
+        Guarded throughout: a screen built without a menu bar -- a test, or a
+        panel used on its own -- simply does nothing.
+        """
         try:
             mw = self.window()
             if mw is None:
@@ -5817,6 +5853,10 @@ class AppScreen(QWidget):
                   "documentation.")
 
     def _build_runtime_panel(self) -> QWidget:
+        """Build the right-hand column: figures, live preview, console and actions.
+
+        :returns: the panel widget, ready to go into the body splitter.
+        """
         wrap = QWidget()
         self._runtime_wrap = wrap
         layout = QVBoxLayout(wrap)
@@ -7950,6 +7990,14 @@ class AppScreen(QWidget):
             LOG.debug("could not turn the AI switch on", exc_info=True)
 
     def _on_ai_switch(self, on: bool) -> None:
+        """Turn the console's AI on or off, picking a provider if none is set.
+
+        With no vendor CLI installed the switch turns itself back off and says
+        where to configure one, rather than leaving an armed toggle that cannot
+        answer.
+
+        :param on: the switch's new state.
+        """
         self._console.set_ai_active(on)
         if on:
             # Auto-pick first available provider if none selected yet.
@@ -7988,6 +8036,11 @@ class AppScreen(QWidget):
         return wanted if wanted in names else ""
 
     def _on_explain_error(self):
+        """Send the last traceback to the console's error flow.
+
+        The legacy signal is emitted as well, for ``MainWindow``'s older dock
+        path. Nothing happens when no error has been seen.
+        """
         if not self._last_error_text:
             return
         # Route the traceback into our own merged console — no more
@@ -8378,6 +8431,15 @@ class AppScreen(QWidget):
                     pass
 
     def _on_finished(self, ok: bool):
+        """Return the page to its resting state when a run ends.
+
+        The heartbeat is stopped before anything else: one firing after the run
+        would print "still fitting" under "Finished", and the last console
+        line is the one a user reads. The backdrop gets its cores back here too,
+        since this is the single door both a finished and a failed run take.
+
+        :param ok: whether the run succeeded.
+        """
         from ..button_roles import set_button_busy
         # BEFORE ANYTHING ELSE. A heartbeat that fires after the run has
         # finished says "still fitting" underneath "Finished", and the last
@@ -10009,6 +10071,12 @@ class AppScreen(QWidget):
                 "a while. The window is yours again.\n")
 
     def _on_import_settings(self):
+        """Load a settings CSV into the form and report what was applied.
+
+        The dialog's caption and filter are translated here rather than by the
+        application-wide dialog pass: it is built and executed in one
+        expression, so that pass never sees it before it is on screen.
+        """
         from PySide6.QtWidgets import QFileDialog
         # A file dialog is built and executed in one expression, so the
         # application-wide dialog pass in `spacr.qt.i18n` never sees it
@@ -10578,6 +10646,17 @@ class AppScreen(QWidget):
         return applied
 
     def _apply_value(self, widget, val):
+        """Write one loaded value into whichever kind of control holds it.
+
+        A double spin box that also offers ``auto`` is set through the shared
+        helper: ``float("auto")`` raises, and a swallowed failure would leave
+        the control showing 1 -- the one value that cannot mean an unpenalised
+        model.
+
+        :param widget: the control to write into.
+        :param val: the value as read from the settings file; coerced to the
+            control's own type, and left alone when it cannot be.
+        """
         from PySide6.QtWidgets import QCheckBox, QSpinBox, QDoubleSpinBox, QComboBox, QLineEdit
         if isinstance(widget, QCheckBox):
             widget.setChecked(str(val).lower() in ("true", "1", "yes"))
