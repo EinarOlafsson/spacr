@@ -30,7 +30,7 @@ from PySide6.QtWidgets import QLabel, QSizePolicy, QTextBrowser, QVBoxLayout, QW
 
 from ...gene_tile import GeneTile, _translated, gene_tile
 from ..i18n import tr
-from ..theme import SPACING
+from ..theme import SPACING, font_px
 
 LOG = logging.getLogger("spacr.qt.gene_tile")
 
@@ -86,7 +86,8 @@ class GeneTilePanel(QWidget):
 
         self._status = QLabel("")
         self._status.setWordWrap(True)
-        self._status.setStyleSheet("color: palette(mid); font-size: 10px;")
+        self._status.setStyleSheet(
+            f"color: palette(mid); font-size: {font_px(10)}px;")
         layout.addWidget(self._status)
 
         self.clear()

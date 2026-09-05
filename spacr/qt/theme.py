@@ -3938,7 +3938,7 @@ QMenu::separator {{
 #SidebarTitle {{
     color: {P["accent"]};
     font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
-    font-size: 24px;
+    font-size: {font_px(24, font_scale)}px;
     font-weight: 300;                 /* Light */
     letter-spacing: -0.5px;
     padding: {S["lg"]}px {S["md"]}px {S["md"]}px;
