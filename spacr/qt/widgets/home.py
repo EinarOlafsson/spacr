@@ -65,6 +65,7 @@ from ..theme import (
     make_transparent, palette_for,
 )
 from .divider import Divider
+from .height_grip import HeightGrip
 
 #: Hero brand sizes. The mark and wordmark are the first thing on the first
 #: screen, so they are sized to read as a masthead rather than as a row of
@@ -1520,7 +1521,8 @@ class NewsPanel(Panel):
         self._notes_column.addStretch(1)
 
         self._grip = _HeightGrip(self._notes, self.NOTES_H_MIN,
-                                 self.NOTES_H_MAX)
+                                 self.NOTES_H_MAX,
+                                 name="Resize the release notes")
         self._grip.height_changed.connect(self._remember_height)
         self.body_layout.addWidget(self._grip)
         self._notes.setFixedHeight(self._stored_height())
@@ -1680,110 +1682,12 @@ class NewsPanel(Panel):
         self.body_layout.insertWidget(0, widget)
 
 
-class _HeightGrip(QWidget):
-    """A thin bar that drags the widget above it taller or shorter.
-
-    Qt has no vertical-resize handle for "this one widget inside a column",
-    and the two things that look like one do not fit. A `QSplitter` needs
-    two panes to divide and this panel has one; `QSizeGrip` resizes the
-    WINDOW. So this is the handle: a few pixels tall, the resize cursor, and
-    a drag that adds the pointer's travel to a fixed height.
-
-    Drawn as three short lines rather than a plain strip because a strip
-    that happens to be draggable is a strip nobody drags. It brightens under
-    the pointer for the same reason.
-
-    :param target: the widget whose fixed height this drags.
-    :param minimum: floor in px at 100 % font scale.
-    :param maximum: ceiling in px at 100 % font scale.
-    :param parent: parent widget; ownership only.
-    """
-
-    #: Emitted with the new height in device px, on release rather than on
-    #: every mouse move: this is what gets written to QSettings.
-    height_changed = Signal(int)
-
-    #: How tall the grip itself is, in px at 100 % font scale.
-    BAR_H = 9
-
-    def __init__(self, target: QWidget, minimum: int, maximum: int,
-                 parent=None):
-        """Build the grip, bounded so a drag cannot collapse or run away."""
-        super().__init__(parent)
-        from ..preferences import scaled_px
-
-        self._target = target
-        self._min = scaled_px(minimum)
-        self._max = scaled_px(maximum)
-        self._from_y = None
-        self._from_h = 0
-        self._hovered = False
-        self.setFixedHeight(scaled_px(self.BAR_H))
-        self.setCursor(Qt.SizeVerCursor)
-        self.setToolTip("Drag to resize")
-        self.setAccessibleName("Resize the release notes")
-        make_transparent(self)
-
-    def paintEvent(self, event):                # noqa: N802 - Qt naming
-        """Three short lines, centred, brighter under the pointer."""
-        P = active_palette()
-        painter = QPainter(self)
-        colour = QColor(P["fg"])
-        colour.setAlphaF(0.34 if self._hovered else 0.16)
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(colour)
-        width = max(12, self.width() // 6)
-        left = (self.width() - width) // 2
-        mid = self.height() // 2
-        for offset in (-3, 0, 3):
-            painter.drawRect(left, mid + offset, width, 1)
-
-    def enterEvent(self, event):                # noqa: N802 - Qt naming
-        self._hovered = True
-        self.update()
-        super().enterEvent(event)
-
-    def leaveEvent(self, event):                # noqa: N802 - Qt naming
-        self._hovered = False
-        self.update()
-        super().leaveEvent(event)
-
-    def mousePressEvent(self, event):           # noqa: N802 - Qt naming
-        """Remember where the drag started, in GLOBAL coordinates.
-
-        Global, because this widget MOVES while the drag is happening -- it
-        sits under the widget being resized, so growing the target by 40 px
-        slides the grip 40 px down and a local y would double every step.
-        """
-        if event.button() != Qt.LeftButton:
-            return super().mousePressEvent(event)
-        self._from_y = event.globalPosition().y()
-        self._from_h = self._target.height()
-        event.accept()
-
-    def mouseMoveEvent(self, event):            # noqa: N802 - Qt naming
-        if self._from_y is None:
-            return super().mouseMoveEvent(event)
-        delta = event.globalPosition().y() - self._from_y
-        self.resize_target(self._from_h + int(delta))
-        event.accept()
-
-    def mouseReleaseEvent(self, event):         # noqa: N802 - Qt naming
-        if self._from_y is None:
-            return super().mouseReleaseEvent(event)
-        self._from_y = None
-        self.height_changed.emit(self._target.height())
-        event.accept()
-
-    def resize_target(self, height: int) -> int:
-        """Set the target's height, clamped. Returns what it became.
-
-        Public because it is the whole behaviour, and a test that drives it
-        directly is testing the clamp rather than Qt's event delivery.
-        """
-        wanted = max(self._min, min(self._max, int(height)))
-        self._target.setFixedHeight(wanted)
-        return wanted
+#: THE DRAG HANDLE UNDER THE NEWS LIST, and it is no longer Home's own.
+#: It was written here, and instruction 359 needs the same affordance on
+#: every nested container in Regression's Measurements tab -- so it moved to
+#: :mod:`spacr.qt.widgets.height_grip` and this name is kept pointing at it.
+#: A second implementation would be a second set of bugs.
+_HeightGrip = HeightGrip
 
 
 # ---------------------------------------------------------------------------

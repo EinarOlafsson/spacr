@@ -183,3 +183,111 @@ WHAT IS ACTUALLY LEFT is the evidence half of DONE MEANS, not the code:
 So the remaining work is one measurement session on a real display, writing
 two numbers into this file. Do not re-implement any of the five; read the
 commits first.
+
+--------------------------------------------------------------------------------
+2026-09-05 — THE MEASUREMENT SESSION, AND ONE THING THE AUDIT MISSED
+--------------------------------------------------------------------------------
+
+MEASURED ON THE MACHINE THAT REPORTED IT (32 logical CPUs, 19 render
+threads, an RTX 3090 on a 4.6 GLX context), with
+`tools/measure_the_backdrop.py`, which is committed so these numbers can
+be re-run rather than believed.
+
+1. FULLSCREEN AGAINST WINDOWED. THE CAUSE IS THE AREA, AND IT IS THE CPU
+   RENDERER THAT FEELS IT.
+
+   Pixels first. At render scale 1.0 a 2560x1440 fullscreen shades 6.83x
+   a 900x600 backdrop panel, and a 4K one 15.36x. Cost is LINEAR in that,
+   not quadratic in the long edge:
+
+     the CPU orbit fold, median shader time, 19 threads, 33.3 ms budget
+       backdrop panel 900x600      540,000 px    4.77 ms   210 fps
+       windowed 1600x1000        1,600,000 px   14.22 ms    70 fps
+       fullscreen 2560x1440      3,686,400 px   32.41 ms    31 fps
+       fullscreen 3840x2160      8,294,400 px   74.63 ms    13 fps
+
+   And the whole pipeline -- FRAMES ACTUALLY DELIVERED by the real
+   widget over eight seconds, worker thread and QImage conversion and
+   paint included, which is what "choppy" is about:
+
+       backdrop panel 900x600    29.0 fps, 900x600,     5.7 ms a frame
+       fullscreen 2560x1440      23.4 fps, 2560x1440,  37.4 ms a frame
+
+   That is the report: the panel sits at its 30 fps cap and fullscreen
+   cannot reach it, because one frame costs more than the budget.
+
+   AFTER (1) RECONNECTED THE ADAPTIVE LOOP, same run, same machine:
+
+       backdrop panel 900x600    29.2 fps, 900x600,     5.6 ms a frame
+       fullscreen 2560x1440      28.1 fps, 2100x1180,  25.3 ms a frame
+
+   Fullscreen sheds resolution and keeps the frame rate; the backdrop is
+   untouched, which is the trade this file said not to get wrong. NO
+   REGRESSION IN THE BACKDROP: 29.0 -> 29.2 fps is the same number twice.
+
+   THE GPU IS NOT WHERE THE CHOPPINESS WAS, on this machine. Every GPU
+   pattern, drawn into an offscreen framebuffer at fullscreen 2560x1440:
+   orbit_gpu 1.29 ms, cascade 0.69 ms, space 2.44 ms, the shared orbit
+   shader 0.73 ms; the Mandelbrot 2.08 ms at the surface and 5.37 ms
+   twelve decades down. All of them fit a 60 fps budget several times
+   over even at 4K.
+
+   STILL OPEN, and not part of (1): the GPU path has NO adaptive
+   resolution at all. `target_render_size` and the user's `scale` are
+   read only by the CPU widget; the GPU canvas shades native pixels and
+   adapts `_detail` instead -- and for `orbit_gpu` and `space`,
+   `base_detail == detail_floor`, so that loop cannot turn anything down
+   either. On this GPU there is a 12x margin at 1440p and it does not
+   matter. On a weak integrated GPU fullscreen there is nothing to shed.
+   The comment in `_make_gpu_widget` that says "resolution is what gives
+   way instead, through the adaptive render scale" describes the CPU
+   path, not this one.
+
+2. THE SPEED CHANGE STILL TELEPORTED FOUR PATTERNS OUT OF FIVE.
+
+   (2) built `DepthPhase` and gave it to the Mandelbrot's depth. It was
+   never asked anything by the renderers: the CPU widget CONSTRUCTED a
+   DepthPhase in `__init__` and then sent the worker `t = the sim clock,
+   speed = the control`, and the GPU canvas fed the shaders `u_time =
+   elapsed, u_speed = the control`. Every pattern but the Mandelbrot
+   positions itself with `t * speed` -- the cascade's and the flight's
+   depth, the orbit fold's radial phase -- so the picture still moved the
+   whole elapsed time in one frame when the speed changed.
+
+   Measured with the CPU kernels at t=57.3s, as mean absolute change per
+   pixel over a frame, a scroll from speed 1 to 2 against ordinary travel:
+
+       orbit    26.8, where one frame moves  4.97  -- ~1.0s at once
+       cascade  25.2, where one frame moves  3.49  -- ~2s at once
+       space     8.4, where one frame moves  0.14  -- more than 30s
+
+   And with `variable_speed` on, which changes the speed EVERY FRAME:
+   1,066 of 3,000 frames ran BACKWARDS over 100 seconds, the worst single
+   step being 29 frames' worth of travel. The "how gradually" sweep was
+   not a change of pace at all; it was a permanent stutter.
+
+   FIXED by handing the renderers the phase as their clock and a speed of
+   1.0: the rate is in the clock, so a speed change is continuous by
+   construction and applying it twice is impossible. At speed 1 the phase
+   and the wall clock are the same number, so nothing about the default
+   backdrop changes. Measured after, through the real widget's own
+   request stream: the frame a scroll lands on differs from the one
+   before it by 7.47 levels per pixel, against 7.43 for an ordinary frame
+   at the new speed -- indistinguishable, where the same scroll used to
+   arrive as a second of travel.
+
+   `state_at_seconds` was also still handed the wall clock for the drift,
+   rotation and stretch while the depth used the phase, so one camera was
+   moving at two rates; it takes the phase now too.
+
+   Covered by `tests/qt/test_a_speed_change_does_not_teleport_the_camera.py`,
+   which fails in three places with the fix reverted.
+
+STILL OPEN AFTER THIS SESSION
+  * The GPU path cannot shed work (above). It needs the same treatment as
+    the CPU path -- shade into a smaller framebuffer and blit up -- before
+    a machine with a weak GPU is asked to draw this fullscreen.
+  * (3)'s `RegionTour` is built and tested and NOTHING CALLS IT. Nothing
+    in `spacr/` imports it or `fractal_regions.REGIONS`, so the twenty
+    places worth looking at are not on screen and the camera never floats
+    between them. The pieces are there; the wire is not.

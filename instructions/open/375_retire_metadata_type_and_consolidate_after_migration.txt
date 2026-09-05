@@ -137,3 +137,70 @@ it needs the maintainer to say what that trailing number means in this
 acquisition -- field, channel, or slice. The names alone do not decide it, and
 guessing would put a wrong answer under a setting nobody can override once
 `metadata_type` is gone.
+
+--------------------------------------------------------------------------------
+2026-09-05 -- STEP 1 RUN FOR `consolidate` TOO, AND IT ALSO SAYS STOP.
+NOTHING RETIRED. ONE STALE PIECE OF ADVICE FIXED.
+--------------------------------------------------------------------------------
+
+The 2026-09-04 entry ran step 1 for `metadata_type` -- the filename half --
+and recorded a no. It did not run step 1 for `consolidate`: the sampled names
+were recreated FLAT, and `consolidate` is about the folder tree, not the name.
+So the half that decides `consolidate` had never been measured. It has now.
+
+The NAS is not mounted from this session (`/nas_mnt: No such device`), so
+this could not be re-run on the maintainer's acquisitions. Measured instead on
+the two tree shapes `consolidate`'s OWN tooltip names -- "one plate's images
+are split across per-well or per-channel subfolders" -- plus the two shapes
+2026-09-04 cared about, nested one folder deep. Both paths were run over the
+same trees:
+
+  tree                  consolidate + cellvoyager   spacr.image_import
+  per_well              NO MATCH (0/12)             12/12: well, field, chan
+  per_channel           NO MATCH (0/8)              8/8 placed, channel is a
+                                                    stated question, not a guess
+  per_well_cellvoyager  8/8, plate becomes          REFUSES: the well appears
+                        'A01_plate1'                in folder AND filename and
+                                                    both copies read unplaced
+  per_well_mitoscreen   NO MATCH (0/6)              6/6 placed, field/channel
+                                                    empty (as 2026-09-04)
+
+WHAT THAT CHANGES. On the layouts `consolidate` exists for, `consolidate` is
+not a working path at all: it copies the plate and then the cellvoyager regex
+matches nothing it wrote. Import is strictly better on both of them. That is
+the argument FOR retiring it -- and it is not enough, because of row three.
+
+ROW THREE IS THE GATE, and it is the same gate as mitoscreen. A per-well tree
+whose filenames ALREADY carry full cellvoyager metadata is parsed by
+`consolidate` and REFUSED by Import, because the well is named twice -- once
+by the folder, once by the filename -- and `infer_layout` reports both copies
+as unplaced tokens rather than recognising a token that repeats an axis the
+name already gives. `apply_import` refuses a plan with problems, by design.
+So retiring `consolidate` today takes away the one path that shape has.
+
+THE TWO GATES ARE NOW ONE SENTENCE, which is the useful thing this measurement
+produced. Both blockers are the same missing rule in `infer_layout`: it has no
+way to resolve a varying digit slot that carries no marker. Mitoscreen's
+trailing number and this tree's duplicated well are the same failure wearing
+two hats. Whoever picks up 363's inference next fixes both or neither.
+
+RECOUNTED, because 2026-09-02's numbers have moved and only in the wrong
+direction. `metadata_type` is read at 12 sites now, not 7 -- it has since
+spread to `io.py` (2), `qt/prerun.py`, `validate.py` (2) and
+`qt/widgets/live_preview.py` -- and is mentioned in 92 files. `consolidate` is
+still 1 read (`core.py:322`) plus its `setdefault`, in 28 files.
+
+STEPS 2 AND 3 REMAIN NOT STARTED, for both keys, deliberately. `RETIRED_SETTINGS`
+was checked and is honest as it stands: no entry in it is also declared in
+`spacr.settings.expected_types`, and every named replacement is a live
+setting. Adding either key to it today would trip the trap this file records,
+because both are still declared AND still read.
+
+WHAT WAS ACTUALLY CHANGED, and it is the only thing that could be changed
+without reordering the steps: `spacr/validate.py`'s "no image files found in
+src" error advised `consolidate=True` to gather images from subfolders. The
+table above says that advice is wrong -- for the per-well and per-channel
+trees it names, it buys a full second copy of the plate and still parses
+nothing. It now sends a nested tree to Import first and describes
+`consolidate` as the older path with the condition under which it helps.
+Nothing was withdrawn and no settings file changed meaning.

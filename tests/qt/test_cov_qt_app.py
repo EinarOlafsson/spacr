@@ -487,7 +487,15 @@ def test_no_section_holds_more_than_the_cap():
     silently lengthening a row.
     """
     counts = _counts()
-    assert MAX_APPS_PER_SECTION == 20
+    # 40 since 2026-09-05, raised at the maintainer's instruction. Data hit
+    # exactly twenty -- the old ceiling -- the moment the three
+    # self-registering modules joined the table, so the next registration
+    # there would have tripped the cap rather than caught a mistake.
+    #
+    # The number is pinned here on purpose: it is a design constraint, and
+    # moving it should be a decision somebody makes rather than a number
+    # that drifts to fit whatever the registry has become.
+    assert MAX_APPS_PER_SECTION == 40
     over = {s: n for s, n in counts.items() if n > MAX_APPS_PER_SECTION}
     assert not over, (
         f"sections over the {MAX_APPS_PER_SECTION}-app cap: {over}. Add a "

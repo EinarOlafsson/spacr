@@ -145,6 +145,69 @@ HOW TO KNOW IT WORKED
   simulated Retina metrics are necessary for the matrix but not sufficient
   evidence for the originally reported machine.
 
+PROGRESS — PART 1, 2026-09-05
+-----------------------------
+
+Done, in the tree, uncommitted:
+
+* THE MEASUREMENT FIRST. Regression -> Measurements has three nesting levels.
+  The outer one (three panels in a vertical splitter, each folding) was
+  already there from 169/186/187. Underneath it the four numbered workflow
+  steps were bold labels with their controls loose in the panel's column, and
+  every tall box in them was pinned by a literal ``setMaximumHeight``. Built
+  offscreen at 9 pt and again at 18 pt:
+
+      box                     cap       @100 %      @200 %
+      attached databases      170 px    4 rows      3 rows
+      join list                72 px    4 rows      2 rows
+      merge report            190 px    11 lines    5 lines
+      merge evidence          220 px    12 lines    6 lines
+      column picker           180 px    10 rows     5 rows
+      outcomes                120 px    7 lines     3 lines
+
+  Doubling the font halved the content of every nested container on the tab
+  and no drag could get it back, because a maximum height is a maximum. That
+  is the whole of "nested sections become illegible because their containers
+  are too small", and it is why the report came from a font_scale=2 machine.
+
+* ``spacr/qt/widgets/height_grip.py`` — Home's ``_HeightGrip`` moved out of
+  ``home.py`` and made shared, as this file's context asked (reuse, do not
+  invent a second one). ``home._HeightGrip`` is now an alias, so Home is
+  byte-for-byte the same handle it had. What was added on the way: a
+  per-instance accessible name, keyboard resizing (arrows/PageUp/PageDown/
+  Home/End, StrongFocus), bounds held in BASE px and re-scaled through
+  ``scaled_px``, a right-click "Reset height", and a ``changeEvent`` that
+  follows a live font change.
+
+* ``WorkflowStep`` in ``measurement_scan_panel.py`` — the sub-subsection
+  level. Each numbered step is now a fold: a focusable checkable arrow with a
+  translated accessible name, the ``WorkflowStep`` QLabel still beside it and
+  now clickable, and a body that hides. One step per panel carries the
+  stretch, so folding a sibling hands its height over instead of leaving a
+  gap (measured: step 3 goes 474 -> 680 px when step 1 folds).
+
+* ``resizable_box`` — every capped box now opens at ``scaled_px(default)``
+  with a grip under it. Re-measured at 200 %: 8 rows, 4 rows, 11 lines, 13
+  lines, 10 rows, 7 lines — every box at least as legible as at 100 %.
+  ``grep setMaximumHeight`` over the module is empty and a test keeps it so.
+
+* The arrangement persists. ``set_section_layout`` gained ``steps`` and
+  ``boxes``; box heights are stored UNSCALED, so a height dragged at 100 % is
+  the same number of lines when it is restored at 200 %.
+
+* ``tests/qt/test_every_measurements_container_resizes.py`` — 25 tests,
+  including the positive control this file asks for: it rebuilds a box with a
+  hard ``setMaximumHeight`` and asserts it LOSES lines when the font grows.
+  Mutation-checked: dropping ``scaled_px`` from ``resizable_box`` reds four
+  tests, putting a literal cap back reds three.
+
+STILL OPEN: part 2 beyond the field-growth policy already shipped for issue
+115 (the width audit across every module, and the initial settings width
+derived from content hints); the whole of part 3 (the offscreen geometry/DPI/
+locale matrix, the generated policy artifact, wheel/sdist installation of it);
+first-run policy selection; and the real M4 smoke test, which no simulation
+closes.
+
 BOUNDARY
 --------
 
