@@ -305,6 +305,17 @@ class GraphSpec:
     spread: str = "none"
 
     def __post_init__(self) -> None:
+        """Normalise the channels and validate the plot settings.
+
+        ``""`` and ``None`` both mean an empty zone and are normalised to
+        ``None``, which is what lets ``if spec.x:`` be the whole test everywhere
+        else.
+
+        :raises SpecError: if the plot kind is not one this module offers --
+            ``None`` is allowed and means "infer it from the columns dropped";
+            if a role override is neither continuous nor categorical; or if
+            ``bins`` is below 1.
+        """
         for channel in CHANNELS:
             value = getattr(self, channel)
             # "" and None both mean "empty zone"; normalising here is what

@@ -330,6 +330,13 @@ class ExplorerSpec:
     seed: int = 0
 
     def __post_init__(self) -> None:
+        """Normalise the label and features, and validate the ranking settings.
+
+        :raises ExplorerError: if the separation statistic is not one this
+            module offers, or if ``top`` is below 1. ``bins`` is floored at 2
+            and the permutation count at 0 rather than refused -- neither can
+            make a ranking wrong, only less informative.
+        """
         object.__setattr__(self, "label", str(self.label or "").strip())
         object.__setattr__(self, "features",
                            tuple(str(f) for f in self.features if f))
@@ -569,6 +576,7 @@ class ExplorerResult:
     notice: str = ""
 
     def __len__(self) -> int:
+        """Return how many features were ranked."""
         return len(self.scores)
 
     def top(self, count: Optional[int] = None) -> Tuple[FeatureScore, ...]:

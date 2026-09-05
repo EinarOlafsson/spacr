@@ -2066,6 +2066,10 @@ class RegressionResultsPanel(QWidget):
         return ok
 
     def _on_load_job_failed(self, message: str) -> None:
+        """Report a failed load and announce that loading finished unsuccessfully.
+
+        :param message: the failure text from the job runner.
+        """
         self._set_loading(False)
         self.say(f"The run could not be read: {message}")
         self.load_finished.emit(False)
@@ -2946,6 +2950,12 @@ class RegressionResultsPanel(QWidget):
 
     @staticmethod
     def _effect_column(frame) -> str:
+        """Find the column holding the effect size.
+
+        :param frame: the results table.
+        :returns: the first of the known effect column names present, falling
+            back to ``"coefficient"`` so a caller always has a name to use.
+        """
         for name in ("coefficient", "coef", "effect", "estimate"):
             if name in frame.columns:
                 return name
@@ -3618,6 +3628,14 @@ class RegressionResultsPanel(QWidget):
                         f"{chosen.reason}." if chosen.reason else ""))
 
     def _redraw_volcano(self) -> None:
+        """Redraw the volcano, naming what its horizontal axis actually is.
+
+        The permutation path copies its partial correlation into
+        ``coefficient`` so the rest of the screen can read one name, which
+        leaves the axis calling a bounded correlation a coefficient. It is named
+        per redraw rather than at load, because a panel can be handed a
+        different run without being rebuilt.
+        """
         if self._frame is None:
             return
         # WHAT THE HORIZONTAL AXIS IS. The permutation path copies its
