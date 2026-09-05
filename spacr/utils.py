@@ -109,6 +109,18 @@ except Exception:
     # never blocks. spaCR only calls display() from notebook
     # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
+        """Do nothing: IPython is unavailable, so there is nowhere to display to.
+
+        THE FALLBACK IS THE POINT. `IPython.display.display` is imported at
+        module scope, and IPython can be mid-init -- partially imported by
+        another thread -- which makes that import raise. Letting it propagate
+        would make importing this module fail for a reason that has nothing to
+        do with what the module does. spaCR only calls `display` from notebook
+        contexts; the Qt GUI ignores it.
+
+        :param args: whatever the caller would have displayed.
+        :param kwargs: likewise.
+        """
         pass
 from typing import Optional, Any
 from .image_colors import read_image_rgb, write_image_rgb

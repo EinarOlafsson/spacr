@@ -19744,6 +19744,16 @@
       "source_sha256": "e3bec54d69c6ee6ceada544890770564b377d61e6ecceac9735665de87b6cd37",
       "text": "Recursively delete every empty subdirectory under ``folder_path``.\n\n:param folder_path: Root directory to scan.\n:returns: None"
     },
+    "spacr.io.display": {
+      "source_blocks_sha256": [
+        "ba5e64bee48a8b9ea3f57d6804169c205dbdbd2022933a16360ddc9b72b17fee",
+        "240139b2b29d771d5fb9980f6572a4ae5790d8ba1cd28cea5f34b99d8d3d23b3",
+        "16d550a1ecf39e6451a7dbacf1362df1af2069204cd34b0867c6eb99d94ee0eb",
+        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade"
+      ],
+      "source_sha256": "0f4c11dbc95cd5e8222d6691911f7bed6a9d0afd8289b2db34bce42836aad0e8",
+      "text": "Do nothing: IPython is unavailable, so there is nowhere to display to.\n\nTHE FALLBACK IS THE POINT. `IPython.display.display` is imported at\nmodule scope, and IPython can be mid-init -- partially imported by\nanother thread -- which makes that import raise. Letting it propagate\nwould make importing this module fail for a reason that has nothing to\ndo with what the module does. spaCR only calls `display` from notebook\ncontexts; the Qt GUI ignores it.\n\n:param args: whatever the caller would have displayed.\n:param kwargs: likewise."
+    },
     "spacr.io.expected_sampled_fractions": {
       "source_blocks_sha256": [
         "8a15ba371622ddff51e4010caf4fceb338cc2ab6cd55b096473edf6e8aa092a7",
@@ -66551,10 +66561,14 @@
       "source_blocks_sha256": [
         "21fa2af41ca9e56af0b32eb768c0a65f75d68e840fa6ae1278855e71e7588ef3",
         "a25deba2105f22ce6ff2b496432425a8cdc8e94fd6b04574fdfe53ba4558ab54",
-        "fabbbbae3926f42d665dd6d06cfd067b4f465499ed6d9cf92639e07f0f97d06f"
+        "81e89236823d58e819fc38db7b7309f04bdfc379d3b6c981a3b97a563fb78c4b",
+        "2d80b5ab473d0f9cff3a1c85c27541caea8165655d134df849477b4fd3a88dbc",
+        "d60ae82da6b70f94d10696e9427c4d412a3df0738c193f7641862ed767a64462",
+        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "6d2245fcf05e118dae2594ddeb348ea0be897f2f89877de7d64b555d0478cbad"
       ],
-      "source_sha256": "26536cee1adb309cb28edc3c2abfc49929bdb9a4bdb8c354464f9ba7e9952872",
-      "text": "One complete frame, four spatial samples per pixel.\n\nEvery sample is of the SAME instant, so the result is a true\nsupersample rather than a blend across animation times.\n\nWhen Numba is unavailable, the public ``render_into`` name instead\naccepts arbitrary positional and keyword arguments and raises\n``RuntimeError``."
+      "source_sha256": "99b5bc8881fcbbc4109fcd3b14a00d7ad59b9ab770e9b4c87ddd856a95734f02",
+      "text": "One complete frame, four spatial samples per pixel.\n\nEvery sample is of the SAME instant, so the result is a true\nsupersample rather than a blend across animation times.\n\nWhen Numba is unavailable, the public ``render_into`` name instead\naccepts arbitrary positional and keyword arguments and raises\n``RuntimeError``.\nRefuse: the cascade CPU backend needs Numba, which is absent.\n\nRAISES RATHER THAN RETURNING AN EMPTY BUFFER. A blank frame would\nlook like a backdrop that renders nothing, and the reader would go\nlooking for the bug in the shader; the name of the missing dependency\nis the whole answer.\n\n:param _args: whatever the caller would have rendered.\n:param _kwargs: likewise.\n:raises RuntimeError: always."
     },
     "spacr.qt.widgets.fractal_mandelbrot": {
       "source_blocks_sha256": [
@@ -66881,19 +66895,25 @@
       "source_blocks_sha256": [
         "1d3e20670f21b7b95ea01a00d046dfa1051972e29260bcdef890db5d18d0ea9c",
         "395058da1b9704baa5ed8d83d2abb56f6d82a4ba1d5cf8a1f527e4899166fa1f",
-        "ec69102b30c518853239ead6884cbf323d292204963e00d4ee87a5c4600fbf68"
+        "8fb1fed8e28689b9c509739102f66e3bbed9ac6f6fdae808b545aa2239f383d3",
+        "d60ae82da6b70f94d10696e9427c4d412a3df0738c193f7641862ed767a64462",
+        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "6d2245fcf05e118dae2594ddeb348ea0be897f2f89877de7d64b555d0478cbad"
       ],
-      "source_sha256": "e00425402df2471ec6c7d9758eb47ac460b6817396ef0116ea660cd99a4c5577",
-      "text": "A whole frame of the flight.\n\n``nogil`` because this runs on the shading thread and the GUI thread\nhas to keep answering while it does.\n\nWhen Numba is unavailable, the public ``render_space_frame`` name\ninstead accepts arbitrary positional and keyword arguments and raises\n``RuntimeError``."
+      "source_sha256": "d9ba006548bb5d64bd4bce7434eadab9e9c107d4a68eeab1771f97c9570427fe",
+      "text": "A whole frame of the flight.\n\n``nogil`` because this runs on the shading thread and the GUI thread\nhas to keep answering while it does.\n\nWhen Numba is unavailable, the public ``render_space_frame`` name\ninstead accepts arbitrary positional and keyword arguments and raises\n``RuntimeError``.\nRefuse: the CPU space renderer needs Numba, which is absent.\n\n:param _args: whatever the caller would have rendered.\n:param _kwargs: likewise.\n:raises RuntimeError: always."
     },
     "spacr.qt.widgets.fractal_space.sample_space": {
       "source_blocks_sha256": [
         "a217fe9abbec8f89dfd1fcc41919357d699c7ec0f115dd7cacedd2fd78bee25e",
         "d942e187740d9e1f8d40823aef6e717e3cd3b93f66d77b10c3be82008dbdac9b",
-        "a490902e89b69c54862ddf45c645c6960d710fc479427f77c1863604f88b1726"
+        "b3e1fed861320fe165842168cd0465a27d9090e70231c29aa3207bcb5e7cd302",
+        "98c516f6f4a0b8228061a9504691d6b87aac0cc5089aaafa9b77b042ed351620",
+        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "6d2245fcf05e118dae2594ddeb348ea0be897f2f89877de7d64b555d0478cbad"
       ],
-      "source_sha256": "e3120d727fdbd4f60a392a50b2aa35ee8e614c9e915b0fdb3979cc350154eeba",
-      "text": "One pixel of the flight, in scene coordinates.\n\nKept a free function so a test can compare it with the shader and so\nthe frame kernel below stays a loop and nothing else.\n\nWhen Numba is unavailable, the public ``sample_space`` name instead\naccepts arbitrary positional and keyword arguments and raises\n``RuntimeError``."
+      "source_sha256": "6200cfaf380c91b584d08379e4841084ab088f496773e5183e4cf736f6e266eb",
+      "text": "One pixel of the flight, in scene coordinates.\n\nKept a free function so a test can compare it with the shader and so\nthe frame kernel below stays a loop and nothing else.\n\nWhen Numba is unavailable, the public ``sample_space`` name instead\naccepts arbitrary positional and keyword arguments and raises\n``RuntimeError``.\nRefuse: the CPU space renderer needs Numba, which is absent.\n\n:param _args: whatever the caller would have sampled.\n:param _kwargs: likewise.\n:raises RuntimeError: always."
     },
     "spacr.qt.widgets.fractal_travel": {
       "source_blocks_sha256": [
@@ -67188,6 +67208,15 @@
       ],
       "source_sha256": "8ee7e362a99a9e63c43a2675881c4c2baa8dc2515b3b1ef86580cda49e8dc785",
       "text": "Send every running backdrop back to the surface.\n\nCalled when the fractal settings change. A dive that resumed at the\ndepth it had reached would apply the new numbers to a viewport thirty\ndecades down, where a changed starting scale or iteration count has\nnothing recognisable to act on -- so the change looks as though it did\nnothing."
+    },
+    "spacr.qt.widgets.fractal_travel.set_num_threads": {
+      "source_blocks_sha256": [
+        "ba83fcc5b56ba9708a23a3a59a4c2901d06bf491ca20b2b5bd699f18b7a8be48",
+        "424c411204b90d47a3630df5bce24ef0cdba81117ead9d65d22431a3087d934a",
+        "c77793da06f372eeed3d6a1b06d80a5c238cbe70601dd88ec23c3df951120561"
+      ],
+      "source_sha256": "908bbf23bc5cb824631c76ebe1f9a7553ea423b061c53dec87760f2a33c0bb1f",
+      "text": "Do nothing: with no Numba there is no thread pool to size.\n\nA NO-OP RATHER THAN AN ABSENT NAME. The caller sets the thread count\nunconditionally, so leaving this undefined would turn a missing\noptional dependency into an AttributeError at the call site -- far\nfrom the import that actually failed.\n\n:param _n: the thread count, ignored."
     },
     "spacr.qt.widgets.fractal_travel.state_at_seconds": {
       "source_blocks_sha256": [
@@ -91359,6 +91388,16 @@
       "source_sha256": "e194d3dc90416fea56821873e7b3951692b88e0f1b7fe5c742b350630ccb7920",
       "text": "Count unique phenotype annotations per plate/row/column and export to CSV.\n\n:param settings: dict with ``src`` (pointing at a measurements folder or\n    ``measurements.db``) and ``annotation_column`` (the column of interest\n    in the ``png_list`` table).\n:returns: None. Writes ``phenotype_counts.csv`` next to the database."
     },
+    "spacr.submodules.display": {
+      "source_blocks_sha256": [
+        "ba5e64bee48a8b9ea3f57d6804169c205dbdbd2022933a16360ddc9b72b17fee",
+        "240139b2b29d771d5fb9980f6572a4ae5790d8ba1cd28cea5f34b99d8d3d23b3",
+        "16d550a1ecf39e6451a7dbacf1362df1af2069204cd34b0867c6eb99d94ee0eb",
+        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade"
+      ],
+      "source_sha256": "0f4c11dbc95cd5e8222d6691911f7bed6a9d0afd8289b2db34bce42836aad0e8",
+      "text": "Do nothing: IPython is unavailable, so there is nowhere to display to.\n\nTHE FALLBACK IS THE POINT. `IPython.display.display` is imported at\nmodule scope, and IPython can be mid-init -- partially imported by\nanother thread -- which makes that import raise. Letting it propagate\nwould make importing this module fail for a reason that has nothing to\ndo with what the module does. spaCR only calls `display` from notebook\ncontexts; the Qt GUI ignores it.\n\n:param args: whatever the caller would have displayed.\n:param kwargs: likewise."
+    },
     "spacr.submodules.generate_score_heatmap": {
       "source_blocks_sha256": [
         "40e08eb575f9267c0d49cdf8030acfdba2d96c05aa7070aaff9253fce8cdea53",
@@ -94597,6 +94636,16 @@
       ],
       "source_sha256": "d66df0c548ed601b31d6cd9dcc659a4ffab562e8442bae95695bb0784a47c13b",
       "text": "Return the Dice similarity of two masks, treating any nonzero value as foreground.\n\n:param mask1: array binarized with ``> 0``, so negative values are counted as\n    *background* -- a signed difference image will not behave as expected.\n:param mask2: array of the same shape as ``mask1``; like\n    :func:`jaccard_index` there is no padding step, so shapes must already\n    agree. Two empty masks return ``1.0`` here (defined as perfect\n    agreement) rather than ``nan``."
+    },
+    "spacr.utils.display": {
+      "source_blocks_sha256": [
+        "ba5e64bee48a8b9ea3f57d6804169c205dbdbd2022933a16360ddc9b72b17fee",
+        "240139b2b29d771d5fb9980f6572a4ae5790d8ba1cd28cea5f34b99d8d3d23b3",
+        "16d550a1ecf39e6451a7dbacf1362df1af2069204cd34b0867c6eb99d94ee0eb",
+        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade"
+      ],
+      "source_sha256": "0f4c11dbc95cd5e8222d6691911f7bed6a9d0afd8289b2db34bce42836aad0e8",
+      "text": "Do nothing: IPython is unavailable, so there is nowhere to display to.\n\nTHE FALLBACK IS THE POINT. `IPython.display.display` is imported at\nmodule scope, and IPython can be mid-init -- partially imported by\nanother thread -- which makes that import raise. Letting it propagate\nwould make importing this module fail for a reason that has nothing to\ndo with what the module does. spaCR only calls `display` from notebook\ncontexts; the Qt GUI ignores it.\n\n:param args: whatever the caller would have displayed.\n:param kwargs: likewise."
     },
     "spacr.utils.download_models": {
       "source_blocks_sha256": [
