@@ -35,6 +35,80 @@ import numpy as np
 import pandas as pd
 import pytest
 
+# ---------------------------------------------------------------------------
+# The suite is not allowed to take the machine down
+# ---------------------------------------------------------------------------
+#
+# THIS HAS HAPPENED TWICE, on 2026-09-04. The first time VS Code died. The
+# second time the kernel's OOM killer took gnome-shell with it and logged the
+# maintainer out mid-session. A single pytest process had reached 92 GB.
+#
+# Two earlier attempts were the wrong shape:
+#
+#   * a daemon polling /proc/meminfo every three seconds and killing the
+#     largest offender. Its log shows it firing five times -- 92.0, 90.7,
+#     89.1, 75.1, 14.6 GB -- and losing anyway. A process climbing to ninety
+#     gigabytes outruns a three-second poll.
+#   * `tools/run_capped.sh`, a cgroup cap, which works perfectly and which
+#     nothing obliges anyone to use. Every run that skipped it was unguarded.
+#
+# So the limit lives HERE, where it binds however pytest was started -- by a
+# person, by CI, or by an agent that had never heard of the wrapper. A thread
+# watches this process's own RSS and takes the process out at the ceiling.
+#
+# `os._exit` on purpose. A MemoryError raised into arbitrary test code is
+# caught by arbitrary test code; an exception cannot be relied on to end a
+# process that is already thrashing. This leaves a message on stderr saying
+# exactly what happened, so the next reader is not left guessing at an exit
+# code the way this one was.
+_MEMORY_CEILING_GB = float(os.environ.get("SPACR_TEST_MEMORY_GB", "12"))
+
+
+def _stop_before_the_machine_does() -> None:
+    """End this pytest if its own RSS passes the ceiling."""
+    import threading
+
+    if _MEMORY_CEILING_GB <= 0:            # explicitly disabled
+        return
+
+    def watch() -> None:
+        import time
+        page = os.sysconf("SC_PAGE_SIZE")
+        statm = f"/proc/{os.getpid()}/statm"
+        ceiling = _MEMORY_CEILING_GB * 1024 ** 3
+        while True:
+            time.sleep(2.0)
+            try:
+                with open(statm, encoding="ascii") as handle:
+                    rss = int(handle.read().split()[1]) * page
+            except (OSError, IndexError, ValueError):
+                return
+            if rss < ceiling:
+                continue
+            # WRITTEN TO FD 2 DIRECTLY, not through `sys.stderr`. pytest
+            # replaces the stream to capture output, and a message written
+            # into a capture buffer that is never drained -- because the
+            # process is about to end -- is a message nobody reads. Verified:
+            # the first version of this guard exited 3 and left an empty log.
+            message = (
+                f"\n\nspaCR test guard: this pytest reached "
+                f"{rss / 1024 ** 3:.1f} GB, over the "
+                f"{_MEMORY_CEILING_GB:.0f} GB ceiling, and is being ended "
+                f"before it takes the machine with it.\n"
+                f"Raise it deliberately with SPACR_TEST_MEMORY_GB=<n> if a "
+                f"run genuinely needs more.\n\n")
+            try:
+                os.write(2, message.encode("utf-8", "replace"))
+            except OSError:
+                pass
+            os._exit(3)
+
+    threading.Thread(target=watch, daemon=True,
+                     name="spacr-test-memory-guard").start()
+
+
+_stop_before_the_machine_does()
+
 # A pytest process must never be able to mutate the public GitHub tracker.
 #
 # ``PYTEST_CURRENT_TEST`` is phase-local: pytest removes it between tests and
