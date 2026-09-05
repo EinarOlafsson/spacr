@@ -279,6 +279,14 @@ class SummaryField:
     kind: str = ""
 
     def __post_init__(self):
+        """Validate that the field carries exactly one of a value and a reason.
+
+        :raises ValueError: if it has both or neither; if whichever it has is
+            blank -- a blank is the thing this type exists to refuse; if the
+            kind is unknown; or if a non-computed field carries a value without
+            a reason, since the reason is what a reader needs. An absent kind is
+            inferred from which of the two was given.
+        """
         has_value = self.value is not None
         has_reason = self.reason is not None
         if has_value == has_reason:

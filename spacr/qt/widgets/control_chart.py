@@ -663,6 +663,16 @@ class ControlChartSpec:
     reestimate: bool = False
 
     def __post_init__(self) -> None:
+        """Normalise the columns and levels, and validate the chart settings.
+
+        :raises ControlChartError: if the estimator is unknown; if a rule is not
+            a number, or not one of rules 1-8; if the baseline is shorter than
+            the module's minimum -- MR-bar over fewer moving ranges is already
+            an opinion about one or two plates rather than an estimate; or if
+            ``control_column`` and ``control_levels`` are given without each
+            other, which says where to look without saying what for, or the
+            reverse.
+        """
         for name in ("value", "plate"):
             object.__setattr__(self, name, str(getattr(self, name) or ""))
         for name in ("order", "control_column", "baseline_before"):

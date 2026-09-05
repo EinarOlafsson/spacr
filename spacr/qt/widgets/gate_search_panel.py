@@ -39,6 +39,10 @@ class GateSearchPanel(QWidget):
     run_requested = Signal()
 
     def __init__(self, parent=None):
+        """Build the clustering search controls.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("GateSearchPanel")
         self._settings = None
@@ -145,11 +149,25 @@ class GateSearchPanel(QWidget):
         self._refresh_gating()
 
     def _emit(self, **changed) -> None:
+        """Announce the settings that changed.
+
+        Suppressed while the panel is filling its own controls from a settings
+        record, which would otherwise read as the user changing every one.
+
+        :param changed: the fields that moved, emitted as a mapping.
+        """
         if self._loading:
             return
         self.settings_changed.emit(dict(changed))
 
     def _on_walk_toggled(self, on: bool) -> None:
+        """Switch between the two numbers and a walk over them, and re-gate the form.
+
+        The two numbers are the walk's starting point rather than ignored, which
+        is why they are greyed rather than removed.
+
+        :param on: whether the walk is now on.
+        """
         self._emit(cluster_walk=bool(on))
         self._refresh_gating()
 

@@ -583,6 +583,12 @@ class FoldOpener:
 
     def __init__(self, screen: QWidget, key: str,
                  build: Callable[[Optional[QWidget]], QWidget]) -> None:
+        """Record how to build one folded module's page, without building it.
+
+        :param screen: the host screen the page is opened on.
+        :param key: the folded module's registry key.
+        :param build: called with a parent to build the page, on first open.
+        """
         self.screen = screen
         self.key = key
         self._build = build
@@ -860,6 +866,12 @@ class CategoryFold:
 
     def __init__(self, screen: QWidget, key: str,
                  gates: Sequence[str] = ()) -> None:
+        """Record one settings category that folds in and out of the host.
+
+        :param screen: the host screen whose form the category joins.
+        :param key: the fold's key.
+        :param gates: the settings whose values decide whether it applies.
+        """
         self.screen = screen
         self.key = key
         self.gates: Tuple[str, ...] = tuple(gates)
@@ -1009,6 +1021,13 @@ class CategoryFoldSet:
     def __init__(self, screen: QWidget,
                  folds: Dict[str, Sequence[str]],
                  implies: Optional[Dict[str, Sequence[str]]] = None) -> None:
+        """Build the set of category folds this screen offers.
+
+        :param screen: the host screen.
+        :param folds: each fold's key mapped to the settings that gate it; the
+            mapping's order is the order the strip shows them in.
+        :param implies: folds that turning one on also turns on.
+        """
         self.screen = screen
         self.order: Tuple[str, ...] = tuple(folds)
         self.implies = {key: tuple(values)
