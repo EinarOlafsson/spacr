@@ -2295,6 +2295,11 @@ class SetupSlides(QDialog):
         return out
 
     def accept(self) -> None:
+        """Close the slides and record that they have been seen.
+
+        RECORDED, so first-run guidance does not greet a returning user as a
+        new one.
+        """
         from ..setup_screen import apply, current_version, mark_answered
 
         trouble = apply(self.answers())
@@ -2368,6 +2373,10 @@ class SetupSlides(QDialog):
             return None
 
     def resizeEvent(self, event):               # noqa: N802 - Qt naming
+        """Re-lay the slide for the new size.
+
+        :param event: the Qt resize event.
+        """
         super().resizeEvent(event)
         # NO MARGIN. The card used to be inset by 44px inside the ambient
         # backdrop, which put a themed square around a rounded card and made

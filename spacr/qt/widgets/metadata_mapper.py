@@ -128,6 +128,10 @@ class MetadataColumnDialog(QDialog):
             self.save_mapping.setChecked(True)
 
     def decision(self) -> MetadataDecision:
+        """Which source column the user mapped to each metadata field.
+
+        :returns: the decision.
+        """
         mapping = {
             target: selector.currentText().strip()
             for target, selector in self._selectors.items()

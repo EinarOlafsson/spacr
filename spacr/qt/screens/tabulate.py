@@ -199,6 +199,7 @@ class TabulateScreen(QWidget):
             return self._frame
 
     def choose_table(self) -> None:
+        """Ask which table in the project to use."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a measurement table", "",
             "Measurements (*.db *.sqlite *.csv *.tsv);;All files (*)")
@@ -325,6 +326,10 @@ class TabulateScreen(QWidget):
         # screen: Qt aborts the process if a running QThread is
         # destroyed, and a worker that delivers into a closed widget
         # is a use-after-free.
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         try:
             self._link.filter_changed.disconnect(self._on_filter_changed)

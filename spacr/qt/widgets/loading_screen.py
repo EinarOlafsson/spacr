@@ -203,10 +203,18 @@ class LoadingScreen(QWidget):
             self._logo = None
 
     def resizeEvent(self, event) -> None:
+        """Re-centre the message for the new size.
+
+        :param event: the Qt resize event.
+        """
         super().resizeEvent(event)
         self.update()
 
     def paintEvent(self, event) -> None:
+        """Draw the loading state.
+
+        :param event: the Qt paint event.
+        """
         painter = QPainter(self)
         try:
             painter.setRenderHint(QPainter.Antialiasing, True)

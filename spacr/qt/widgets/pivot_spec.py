@@ -447,9 +447,21 @@ class PivotResult:
         return None if not np.isfinite(count) else int(count)
 
     def row_label(self, row: int, sep: str = " · ") -> str:
+        """One row's grouping levels, joined for display.
+
+        :param row: the row's position.
+        :param sep: what to join the levels with.
+        :returns: the label.
+        """
         return sep.join(self.row_levels[row])
 
     def col_label(self, col: int, sep: str = " · ") -> str:
+        """One column's grouping levels, joined for display.
+
+        :param col: the column's position.
+        :param sep: what to join the levels with.
+        :returns: the label.
+        """
         return sep.join(self.col_levels[col])
 
     def low_n_cells(self, threshold: int = LOW_N) -> int:

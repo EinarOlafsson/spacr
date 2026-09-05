@@ -1136,6 +1136,7 @@ class ColumnPickerDialog(QDialog):
     def accept(self) -> None:  # noqa: D102 - Qt override
         # Belt and braces: the button is already disabled in these states,
         # but Enter in the name box would otherwise bypass it.
+        """Take the chosen columns and close."""
         if self._action not in (ACTION_USE, ACTION_CREATE, ACTION_UNCHECKED):
             return
         super().accept()

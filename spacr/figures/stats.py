@@ -163,6 +163,15 @@ class Comparison:
 
     @property
     def marks(self) -> str:
+        """The significance stars for this comparison.
+
+        FROM THE ADJUSTED P WHEN THERE IS ONE. Starring an unadjusted p in a
+        figure that made many comparisons is how a multiple-testing problem
+        becomes a claim; the raw value is used only when no adjustment was
+        made.
+
+        :returns: the stars, or an empty string.
+        """
         return stars(self.p_adjusted if np.isfinite(self.p_adjusted)
                      else self.p_value)
 

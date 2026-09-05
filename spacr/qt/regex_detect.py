@@ -110,6 +110,12 @@ class MetadataRecord:
     groups:   Dict[str, str]
 
     def get(self, name: str, default: str = "") -> str:
+        """One captured group, or ``default`` when the pattern did not capture it.
+
+        :param name: the group's name.
+        :param default: what to return when it is absent.
+        :returns: the captured text.
+        """
         return self.groups.get(name, default)
 
 

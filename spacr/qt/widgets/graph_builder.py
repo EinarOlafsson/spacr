@@ -1747,6 +1747,11 @@ class GraphBuilderPanel(QWidget):
             zone.set_column(None)
 
     def zone(self, channel: str) -> DropZone:
+        """One channel's drop zone, for a caller that needs to drive it.
+
+        :param channel: the channel's name.
+        :returns: the zone widget, or None when there is no such channel.
+        """
         return self._zones[channel]
 
     # -- wiring ----------------------------------------------------------
@@ -1786,6 +1791,10 @@ class GraphBuilderPanel(QWidget):
         self.spec_changed.emit(spec)
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self.canvas.close()
         super().closeEvent(event)
 
