@@ -185,6 +185,15 @@ class _OptionalNumbers(QWidget):
         return numbers[0] if len(numbers) == 1 else numbers
 
     def setValue(self, value) -> None:  # noqa: N802 - matches QSpinBox
+        """Set the numbers, or fall back to automatic.
+
+        A value this control cannot express -- a pair where one number was
+        wanted -- reads as AUTOMATIC rather than as a number nobody typed.
+        Signals are blocked throughout, so seeding the control does not announce
+        a change the user did not make.
+
+        :param value: the number, the sequence of numbers, or ``None``.
+        """
         widgets = [self._auto, *self._spins]
         blocked = [widget.blockSignals(True) for widget in widgets]
         try:
@@ -244,6 +253,11 @@ class _MultiSelect(QListWidget):
             self.changed.emit()
 
     def options(self) -> list:
+        """Every option offered, in list order.
+
+        :returns: the stored values rather than the captions, so a caller reads
+            what the option means and not what it says.
+        """
         return [self.item(row).data(Qt.UserRole) for row in range(self.count())]
 
     def values(self) -> tuple:
@@ -290,6 +304,12 @@ class _ReadOnlyValue(QLabel):
     """
 
     def show_value(self, value) -> None:
+        """Display a value, or the word "none".
+
+        :param value: the value; ``None`` and the empty containers all render as
+            "none", because an empty box reads as a control that failed to
+            load rather than as an answer.
+        """
         text = "none" if value in (None, (), {}, "") else str(value)
         self.setText(text)
 

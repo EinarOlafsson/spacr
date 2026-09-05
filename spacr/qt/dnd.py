@@ -199,6 +199,21 @@ class _DropzoneFilter(QObject):
         # The same shape as `RunHandle.is_running` swallowing "Internal C++
         # object already deleted": the destroyed wrapper IS the answer, not an
         # error condition.
+        """Accept drags and drops on the target, and decline once it is gone.
+
+        ``getattr`` rather than a direct attribute read, and not defensiveness
+        for its own sake: Qt goes on delivering events after the target's C++
+        half is gone and PySide6 clears the wrapper's ``__dict__``, so the
+        direct read raises ``AttributeError`` from INSIDE the Qt event loop --
+        printed once per delivered event, catchable by nobody, because there is
+        no Python caller. A filter whose target is gone has nothing to filter,
+        so declining is both correct and quiet.
+
+        :param obj: the object the event is for.
+        :param event: the event.
+        :returns: ``True`` for the drag and drop events it handles, ``False``
+            otherwise.
+        """
         target = getattr(self, "_target", None)
         if target is None or obj is not target:
             return False
@@ -822,12 +837,24 @@ def _report_drop_problem(screen, path: Path, reason: str, suggestion: str,
 # ---------------------------------------------------------------------------
 
 def _mime_has_local_paths(mime: QMimeData) -> bool:
+    """Whether a drag carries at least one local file.
+
+    :param mime: the drag payload.
+    :returns: ``True`` when a local file is present -- a drag of remote URLs
+        alone is not something spaCR can open.
+    """
     if not mime.hasUrls():
         return False
     return any(u.isLocalFile() for u in mime.urls())
 
 
 def _mime_local_paths(mime: QMimeData) -> List[Path]:
+    """Extract the local file paths from a drag.
+
+    :param mime: the drag payload.
+    :returns: the local paths, in the order dropped; remote URLs are
+        dropped.
+    """
     return [Path(u.toLocalFile()) for u in mime.urls()
             if u.isLocalFile()]
 

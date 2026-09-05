@@ -214,6 +214,16 @@ class _CheckableValueCombo(QComboBox):
         self._refresh_text()
 
     def set_options(self, options, selected=()) -> None:
+        """Offer these values, ticking the ones already chosen.
+
+        A chosen value the new option list does not contain is APPENDED rather
+        than dropped: a saved exclusion naming a value this database no longer
+        has stays visible and ticked, so the user can see what their filter is
+        doing instead of silently losing it.
+
+        :param options: the values to offer.
+        :param selected: the values to tick.
+        """
         selected_text = {str(value) for value in selected}
         all_values = list(options)
         existing = {str(value) for value in all_values}
@@ -231,6 +241,10 @@ class _CheckableValueCombo(QComboBox):
         self._refresh_text()
 
     def checked_values(self) -> list[Any]:
+        """The values currently ticked.
+
+        :returns: the stored values rather than their captions.
+        """
         model = self.model()
         return [
             model.item(row).data(Qt.UserRole)
@@ -281,6 +295,10 @@ class _ExclusionRuleRow(QWidget):
         row.addWidget(remove)
 
     def set_columns(self, columns) -> None:
+        """Offer these columns, keeping whatever this row already names.
+
+        :param columns: the columns to offer.
+        """
         current = self.column.currentText()
         self.column.blockSignals(True)
         self.column.clear()

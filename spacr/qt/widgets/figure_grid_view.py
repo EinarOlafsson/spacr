@@ -262,12 +262,23 @@ class _SectionHeader(QFrame):
     def mouseReleaseEvent(self, event):         # noqa: N802 - Qt naming
         # Release rather than press, so dragging off the bar cancels -- what
         # every other clickable in the app does.
+        """Fold or unfold this run's section on a click inside the bar.
+
+        On RELEASE rather than press, so dragging off cancels -- what every
+        other clickable in the application does.
+
+        :param event: the mouse event.
+        """
         if (event.button() == Qt.LeftButton
                 and self.rect().contains(event.position().toPoint())):
             self._activate()
         super().mouseReleaseEvent(event)
 
     def keyPressEvent(self, event):             # noqa: N802 - Qt naming
+        """Fold or unfold on Return, Enter or Space.
+
+        :param event: the key event.
+        """
         if event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
             self._activate()
             return
@@ -371,6 +382,11 @@ class _FigureCell(QFrame):
             layout.addWidget(caption)
 
     def aspect(self) -> float:
+        """The figure's width-to-height ratio.
+
+        :returns: the ratio, and ``1.0`` for a cell with no picture yet -- a
+            square placeholder rather than a division by zero.
+        """
         if self._pixmap.isNull() or not self._pixmap.height():
             return 1.0
         return self._pixmap.width() / self._pixmap.height()
@@ -406,6 +422,13 @@ class _FigureCell(QFrame):
     def mousePressEvent(self, event):  # noqa: N802 - Qt naming
         # A right-click opens the menu; it must not ALSO open the figure, or
         # every attempt to restyle a tile navigates away from the grid first.
+        """Open the figure on a left click; leave a right click to the menu.
+
+        A right-click must not ALSO open the figure, or every attempt to restyle
+        a tile navigates away from the grid first.
+
+        :param event: the mouse event.
+        """
         if event.button() == Qt.RightButton:
             super().mousePressEvent(event)
             return

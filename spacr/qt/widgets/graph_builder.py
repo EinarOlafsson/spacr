@@ -158,6 +158,11 @@ def sequential_colours() -> Tuple[str, ...]:
 
 
 def _colormap():
+    """Build the sequential colour map graphs are drawn with.
+
+    :returns: the map, from spaCR's own sequential colours rather than a
+        matplotlib default, so a figure matches the application around it.
+    """
     from matplotlib.colors import LinearSegmentedColormap
     return LinearSegmentedColormap.from_list(
         "spacr_graph_seq", list(sequential_colours()))
@@ -298,6 +303,14 @@ class _DraggableList(QListWidget):
         self.setAlternatingRowColors(False)
 
     def mimeData(self, items) -> QMimeData:  # noqa: N802 - Qt name
+        """Build the drag payload for a dragged column.
+
+        A plain-text copy rides alongside the typed payload, so dropping a
+        column into a text field elsewhere pastes its NAME rather than nothing.
+
+        :param items: the dragged items.
+        :returns: the payload; empty when the items carry no column name.
+        """
         payload = QMimeData()
         names = [i.data(Qt.UserRole) for i in items if i.data(Qt.UserRole)]
         if names:
@@ -1915,6 +1928,17 @@ class GraphBuilderPanel(QWidget):
 # ---------------------------------------------------------------------------
 
 def _graph_builder_qss(palette, opacity) -> str:
+    """Build the graph builder's stylesheet.
+
+    The panel and canvas objects are made transparent explicitly: they hold
+    a splitter edge to edge and the canvas paints the page surface itself,
+    so without a rule they take the blanket ``QWidget`` background -- the
+    WINDOW colour, not a surface, which no page-opacity setting can reach.
+
+    :param palette: the active palette.
+    :param opacity: the page opacity, blended into the shelf's surface.
+    :returns: the QSS.
+    """
     from ..theme import block_surface
     surface_alt = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
