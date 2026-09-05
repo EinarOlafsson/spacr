@@ -256,6 +256,106 @@ currently mixes:
   reading.
 
 --------------------------------------------------------------------------------
+PART 2-A -- WHAT BRIEFLOW'S `sbs` AND `merge` ACTUALLY DO, FROM THE SOURCE
+--------------------------------------------------------------------------------
+
+PART 2 says: "I DID NOT READ THE ALGORITHMS ... Read the source before
+implementing, and record here what it actually does; a plausible
+reconstruction of a method from its stage name is exactly the kind of thing
+that produces a pipeline that runs and is wrong."
+
+Read on 2026-09-05 from a shallow clone of github.com/cheeseman-lab/brieflow.
+LICENCE: MIT (Copyright 2025, Massachusetts Institute of Technology). spaCR is
+BSD-3-Clause. MIT code may be incorporated with its notice retained, so the
+question here is engineering, not permission -- but the attribution is not
+optional and belongs in whatever file borrows.
+
+THE `sbs` STAGE IS ELEVEN RULES, in this order (workflow/rules/sbs.smk):
+
+   1. align_sbs                 rigid alignment, WITHIN a cycle (channel to
+                                channel) and BETWEEN cycles. Both, separately:
+                                `align_within_cycle` and `align_between_cycles`.
+   2. log_filter                Laplacian-of-Gaussian, to sharpen spots.
+   3. compute_standard_deviation  THE READ-LOCATION ESTIMATE, and it is
+                                cleverer than "find bright things": standard
+                                deviation ACROSS CYCLES, then mean across
+                                channels. A spot that is bright in every cycle
+                                is not a read; a spot whose base CHANGES from
+                                cycle to cycle is. With one cycle it falls back
+                                to SD across channels.
+   4. find_peaks                local maxima, each labelled by its difference
+                                to the next-highest neighbouring pixel -- so
+                                the label is a measure of how isolated the peak
+                                is, which is what the later threshold uses.
+                                An alternative path uses Spotiflow, a deep
+                                learning spot detector.
+   5. max_filter                maximum filter in a window, so a peak's
+                                intensity can be read without sub-pixel
+                                registration being perfect.
+   6. apply_ic_field_sbs        illumination correction.
+   7. segment_sbs               cell and nucleus segmentation.
+   8. extract_bases             intensity from the max-filtered stack at every
+                                peak above threshold -> a long DataFrame of
+                                (cycle, channel, intensity) per spot.
+   9. call_reads                CHANNEL CROSS-TALK IS COMPENSATED FIRST, and
+                                this is the step a naive implementation gets
+                                wrong. The four dyes bleed into each other, so
+                                the raw argmax is not the base. Brieflow fits a
+                                linear transform from the data itself -- either
+                                `transform_medians` (median of the maximum
+                                points along each dimension) or
+                                `transform_percentiles` (points above the 95th
+                                percentile in each dimension define new axes) --
+                                applies it, and THEN takes the highest
+                                corrected intensity per cycle. Quality per
+                                cycle comes out alongside.
+  10. call_cells                assign reads to segmented cells, with error
+                                correction AGAINST THE GUIDE LIBRARY: a read is
+                                corrected only when there is a UNIQUE closest
+                                reference barcode within `max_distance`.
+                                Ambiguity is dropped, not guessed. Also handles
+                                multi-barcode protocols, UMIs, count-vs-peak
+                                sorting and recombination detection.
+  11. eval_mapping             QC on the mapping rate.
+
+THE `merge` STAGE MATCHES TWO MAGNIFICATIONS BY GEOMETRY, NOT BY IMAGE:
+
+   * hash_cell_locations       Delaunay-triangulate the cell centroids and hash
+                               the triangles. The shape of a local triangle of
+                               cells is invariant to magnification, rotation
+                               and translation, so it survives the thing that
+                               defeats pixel correlation between a 10x and a
+                               20x acquisition.
+   * merge_triangle_hash       match the two hashed sets to get a coarse
+                               rotation and translation.
+   * merge_sbs_phenotype       fine alignment of one matched (tile, site).
+   * match_cells               MUTUAL nearest neighbour with a distance
+                               threshold, enforcing 1:1. A cell is matched only
+                               when each is the other's nearest, and ambiguous
+                               cells are DROPPED rather than assigned. That is
+                               the right default for a screen: a wrongly
+                               assigned barcode is worse than a missing one.
+   * refine_local_warp         local non-rigid warp for residual within-tile
+                               distortion a single affine cannot capture --
+                               explicitly for the case of two differently
+                               configured microscopes.
+
+WHAT THIS CHANGES ABOUT THE PLAN.
+
+  * spaCR's existing stitching is NOT what `merge` does, and the two must not
+    be confused. `spacrops.align_image_to_stitch` aligns IMAGES by ORB
+    features. `merge` aligns CELL COORDINATE SETS by triangle hashing, because
+    across magnifications the pixels do not correspond but the cells do. For
+    matching phenotype to genotype, brieflow's approach is the sounder one and
+    spaCR does not have it.
+  * Three steps carry most of the correctness risk and none of them is
+    guessable: the SD-across-cycles read estimate (3), the cross-talk
+    compensation (9), and unique-match-only error correction (10). Implement
+    those from the source, not from the stage name.
+  * Steps 6 and 7 are already spaCR: illumination correction exists, and
+    segmentation is Mask. Do not build them twice.
+
+--------------------------------------------------------------------------------
 PART 3 -- THE BUTTON
 --------------------------------------------------------------------------------
 
