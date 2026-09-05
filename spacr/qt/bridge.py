@@ -331,6 +331,7 @@ class PauseGate:
     """
 
     def __init__(self) -> None:
+        """Create the gate open, with nothing paused."""
         self._running = threading.Event()
         self._running.set()
         self._paused_since: Optional[float] = None
@@ -502,6 +503,17 @@ class RunHandle(QObject):
 
     def __init__(self, app_key: str, worker: "PipelineWorker",
                  thread: QThread, parent=None):
+        """Wrap one running job for the run registry.
+
+        ``blocks_shutdown`` and ``user_visible`` are read from the worker at
+        construction rather than on demand: :meth:`retire` drops the worker
+        reference, and the answers are still needed after that.
+
+        :param app_key: what the job is called.
+        :param worker: the pipeline worker doing the work.
+        :param thread: the thread it runs on.
+        :param parent: parent object, or ``None``.
+        """
         super().__init__(parent)
         self.app_key = app_key or "job"
         self.worker = worker
@@ -597,6 +609,12 @@ class RunHandle(QObject):
         registry().unregister(self)
 
     def _on_line(self, chunk: str) -> None:
+        """Record the newest output line, and any progress it carries.
+
+        :param chunk: whatever the worker just printed; blank output is ignored,
+            and the line is truncated so one enormous line cannot become the
+            status bar.
+        """
         text = chunk.strip()
         if not text:
             return
@@ -621,6 +639,10 @@ class RunRegistry(QObject):
     changed = Signal()
 
     def __init__(self, parent=None):
+        """Create the empty run registry.
+
+        :param parent: parent object, or ``None``.
+        """
         super().__init__(parent)
         self._handles: List[RunHandle] = []
 

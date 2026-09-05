@@ -25,6 +25,12 @@ class ElidingLabel(QLabel):
 
     def __init__(self, text: str = "", parent=None,
                  mode: Qt.TextElideMode = Qt.ElideRight):
+        """Create a label that shortens its text rather than forcing a width.
+
+        :param text: the full text; kept, so widening restores it.
+        :param parent: parent widget, or ``None``.
+        :param mode: where the ellipsis goes.
+        """
         super().__init__(parent)
         self._full_text = ""
         self._elide_mode = mode
@@ -78,6 +84,10 @@ class ElidingLabel(QLabel):
 
     # -- internals -----------------------------------------------------
     def _available_width(self) -> int:
+        """Return the width left for text after the contents margins.
+
+        :returns: the usable width in pixels.
+        """
         m = self.contentsMargins()
         return self.width() - m.left() - m.right()
 
@@ -120,6 +130,16 @@ class ElidingPushButton(QPushButton):
 
     def __init__(self, text: str = "", parent=None,
                  mode: Qt.TextElideMode = Qt.ElideRight):
+        """Create a button that shortens its label rather than forcing a width.
+
+        The horizontal policy is loosened deliberately: without it the layout
+        treats the size hint as a hard minimum and squeezes the whole sidebar
+        instead of shortening one label.
+
+        :param text: the full text; kept, so widening restores it.
+        :param parent: parent widget, or ``None``.
+        :param mode: where the ellipsis goes.
+        """
         super().__init__(parent)
         self._full_text = ""
         self._elide_mode = mode
@@ -187,6 +207,12 @@ class ElidingPushButton(QPushButton):
 
     # -- internals -----------------------------------------------------
     def _refresh(self) -> None:
+        """Re-elide the label to whatever width the button now has.
+
+        Nothing is elided before the first layout pass: a widget carries a
+        default 100 px until then, and eliding against it would shorten a label
+        that was never actually short of room.
+        """
         fm = QFontMetrics(self.font())
         available = self.available_text_width()
         needed = fm.horizontalAdvance(self._full_text)
