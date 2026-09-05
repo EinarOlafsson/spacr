@@ -345,6 +345,12 @@ class ExperimentDesignScreen(QWidget):
 
     def __init__(self, parent: Optional[QWidget] = None, *,
                  threaded: bool = True) -> None:
+        """Build the screen and seed it with a three-condition starting plate.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: run the export on a worker thread. Set ``False`` in
+            tests so ``export_to`` finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("ExperimentDesignScreen")
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
@@ -367,6 +373,7 @@ class ExperimentDesignScreen(QWidget):
     # -- construction -----------------------------------------------------
 
     def _build(self) -> None:
+        """Lay out the plate form, the condition table, the plate map and the findings."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
                                  SPACING["md"], SPACING["md"])
@@ -511,6 +518,13 @@ class ExperimentDesignScreen(QWidget):
     # -- the design -------------------------------------------------------
 
     def _set_conditions(self, conditions) -> None:
+        """Replace every row of the condition table.
+
+        Signals are blocked for the duration, so filling *n* rows costs one
+        refresh rather than *n*.
+
+        :param conditions: the ``Condition`` records to show, in order.
+        """
         self._table.blockSignals(True)
         self._table.setRowCount(0)
         for condition in conditions:
@@ -518,6 +532,11 @@ class ExperimentDesignScreen(QWidget):
         self._table.blockSignals(False)
 
     def _append_row(self, condition: Condition) -> None:
+        """Add one condition to the bottom of the table.
+
+        :param condition: the record to append; its role becomes a combo box in
+            the third column rather than typed text.
+        """
         row = self._table.rowCount()
         self._table.insertRow(row)
         self._table.setItem(row, 0, table_item(condition.name))
@@ -530,11 +549,17 @@ class ExperimentDesignScreen(QWidget):
         self._table.setCellWidget(row, 2, box)
 
     def _add_row(self) -> None:
+        """Append a placeholder treatment condition and redraw the plate."""
         self._append_row(Condition(f"condition_{self._table.rowCount() + 1}",
                                    3, ROLE_TREATMENT))
         self.refresh()
 
     def _remove_row(self) -> None:
+        """Delete every selected condition and redraw the plate.
+
+        Rows are removed bottom-up so that removing one does not shift the index
+        of another still to be removed.
+        """
         rows = sorted({index.row() for index in
                        self._table.selectedIndexes()}, reverse=True)
         for row in rows:
@@ -581,6 +606,11 @@ class ExperimentDesignScreen(QWidget):
     # -- drawing ----------------------------------------------------------
 
     def _on_changed(self, *_args) -> None:
+        """Redraw the plate after any form or table edit.
+
+        :param _args: whatever the emitting signal passes; ignored, since the
+            whole design is re-read from the widgets either way.
+        """
         self.refresh()
 
     def refresh(self) -> None:
@@ -695,6 +725,18 @@ class ExperimentDesignScreen(QWidget):
         # widgets alone was wiped by typing, not by anything the user did to
         # the selection. Carried across as coordinates, which is the one form
         # of it that survives the widgets being thrown away.
+        """Rebuild the plate map, one square well per position.
+
+        The selection is carried across as coordinates rather than read off the
+        widgets: every well is destroyed and rebuilt on each redraw, and a redraw
+        runs on a single keystroke in the plate name. Coordinates that fall
+        outside a newly chosen smaller format are dropped, so switching 384 down
+        to 96 forgets H13 instead of resurrecting it on the way back.
+
+        :param design: the design to draw -- only its plate format is read here.
+        :param table: the assignment table, or ``None``/empty for a blank plate;
+            wells absent from it are drawn unassigned.
+        """
         chosen = self.selected_wells()
         while self._plate_grid.count():
             item = self._plate_grid.takeAt(0)
@@ -778,6 +820,11 @@ class ExperimentDesignScreen(QWidget):
                 self._well_labels.append(label)
 
     def _draw_findings(self, findings) -> None:
+        """Rebuild the findings strip under the plate.
+
+        :param findings: the design checks to show; each carries a severity that
+            selects its mark and its style.
+        """
         while self._findings_layout.count():
             item = self._findings_layout.takeAt(0)
             widget = item.widget()
@@ -798,6 +845,11 @@ class ExperimentDesignScreen(QWidget):
         return "\n".join(label.text() for label in self._findings_labels)
 
     def _set_status(self, text: str, *, is_error: bool = False) -> None:
+        """Write the status line and repolish it so the error style takes effect.
+
+        :param text: message to show.
+        :param is_error: style the line as an error.
+        """
         self._status.setText(text)
         self._status.setProperty("spacrError", "true" if is_error else "false")
         style = self._status.style()
@@ -812,6 +864,7 @@ class ExperimentDesignScreen(QWidget):
     # -- export -----------------------------------------------------------
 
     def _on_export(self) -> None:
+        """Ask for a folder and write the plate map into it."""
         folder = QFileDialog.getExistingDirectory(
             self, "Write the plate map into")
         if folder:
@@ -833,6 +886,11 @@ class ExperimentDesignScreen(QWidget):
             self._on_exported)
 
     def _on_exported(self, paths) -> None:
+        """Report which files were written, and how the map joins to measurements.
+
+        :param paths: the exported files by kind, as returned by the export job;
+            an empty mapping is ignored rather than reported as a success.
+        """
         if not paths:
             return
         self._set_status(
@@ -841,6 +899,10 @@ class ExperimentDesignScreen(QWidget):
               "measurements table on (plateID, rowID, columnID).")
 
     def _on_job_failed(self, message: str) -> None:
+        """Report a failed export on the status line.
+
+        :param message: the failure text from the job runner.
+        """
         self._set_status(f"Export failed: {message}", is_error=True)
 
     # -- lifecycle --------------------------------------------------------

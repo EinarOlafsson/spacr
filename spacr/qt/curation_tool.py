@@ -104,6 +104,10 @@ class BrushTool(CanvasTool):
     cursor = Qt.CrossCursor
 
     def __init__(self, session: MaskCuration):
+        """Bind the brush to one curation session.
+
+        :param session: the session its edits are recorded in.
+        """
         if not isinstance(session, MaskCuration):
             raise LayerError(
                 f"a brush paints into a MaskCuration, got {session!r}")
@@ -171,6 +175,14 @@ class BrushTool(CanvasTool):
             self.session.end_stroke()
 
     def _dab(self, world: Dict[str, float]) -> int:
+        """Paint one dab at a world coordinate.
+
+        ONE DAB PER MOTION EVENT, not per pixel travelled: a fast drag skips
+        pixels, and interpolating them would make the brush behave differently
+        at different pointer speeds.
+
+        :param world: where the pointer is.
+        """
         try:
             if self._erasing:
                 return self.session.erase(world)
@@ -210,6 +222,14 @@ class BrushPanel(QWidget):
     def __init__(self, canvas: LayerCanvas, parent=None, *,
                  layer: Optional[LabelsLayer] = None, artifact: str = "",
                  session: Optional[MaskCuration] = None):
+        """Build the brush controls over one canvas.
+
+        :param canvas: the canvas being painted.
+        :param parent: parent widget.
+        :param layer: the labels layer being edited.
+        :param artifact: what the edits are written to.
+        :param session: the curation session recording them.
+        """
         super().__init__(parent)
         self.setObjectName("BrushPanel")
         self._canvas = canvas
@@ -234,6 +254,10 @@ class BrushPanel(QWidget):
         self.refresh()
 
     def _first_labels(self) -> Optional[LabelsLayer]:
+        """The first labels layer in the stack, or None.
+
+        :returns: the layer to paint into.
+        """
         for layer in self._canvas.stack:
             if isinstance(layer, LabelsLayer):
                 return layer
@@ -241,6 +265,7 @@ class BrushPanel(QWidget):
 
     # -- construction --------------------------------------------------------
     def _build(self) -> None:
+        """Lay out the paint toggle, the label picker and the radius."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(6)
@@ -343,6 +368,10 @@ class BrushPanel(QWidget):
         self._tool = None
 
     def _on_paint_toggled(self, checked: bool) -> None:
+        """Arm or disarm painting.
+
+        :param checked: True to paint.
+        """
         if checked:
             self.start_painting()
         else:
@@ -352,6 +381,10 @@ class BrushPanel(QWidget):
         # Derived, not stored: the ledger and the badge follow the model, so
         # a paint made through the tool and one made from a script look the
         # same here.
+        """Re-bind to the labels layer after the stack changed.
+
+        :param event: which change it was.
+        """
         if event.kind == "data":
             self.refresh()
 
@@ -361,9 +394,17 @@ class BrushPanel(QWidget):
 
     # -- actions -------------------------------------------------------------
     def _on_label_changed(self, value: int) -> None:
+        """Paint with a different label from now on.
+
+        :param value: the label's integer id.
+        """
         self._session.label = int(value)
 
     def _on_radius_changed(self, value: float) -> None:
+        """Resize the brush.
+
+        :param value: the new radius in pixels.
+        """
         self._session.radius = float(value)
 
     def use_next_label(self) -> int:
@@ -473,6 +514,13 @@ class TrackCurationPanel(QWidget):
     def __init__(self, parent=None, *, tracks: Optional[pd.DataFrame] = None,
                  artifact: str = "",
                  session: Optional[TrackCuration] = None):
+        """Build the track-curation controls.
+
+        :param parent: parent widget.
+        :param tracks: the tracks being curated.
+        :param artifact: what the edits are written to.
+        :param session: the curation session recording them.
+        """
         super().__init__(parent)
         self.setObjectName("TrackCurationPanel")
         self._artifact = str(artifact or "")
@@ -484,6 +532,7 @@ class TrackCurationPanel(QWidget):
 
     # -- construction --------------------------------------------------------
     def _build(self) -> None:
+        """Lay out the track actions and their selection requirements."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(6)
@@ -605,6 +654,15 @@ class TrackCurationPanel(QWidget):
         return self._do(lambda s, ids: s.delete(ids[0]), needs=1)
 
     def _do(self, action, *, needs: int) -> bool:
+        """Run one track action, refusing it without the right selection.
+
+        REFUSED RATHER THAN GUESSED. Merge needs two tracks and split needs
+        one; acting on whatever happens to be selected would silently edit
+        something the user did not choose.
+
+        :param action: the action to run.
+        :param needs: how many tracks it requires.
+        """
         session = self._session
         if session is None:
             self.status.setText("Open a tracks table first.")
@@ -677,6 +735,7 @@ class TrackCurationPanel(QWidget):
         self.tracks_changed.emit(len(session.track_ids))
 
     def _refresh_buttons(self) -> None:
+        """Enable each action only when the selection satisfies it."""
         selected = len(self.selected_tracks())
         self.join_button.setEnabled(selected >= 2)
         self.split_button.setEnabled(selected == 1)
