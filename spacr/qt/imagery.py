@@ -283,6 +283,13 @@ def available_keys() -> Tuple[str, ...]:
 # ---------------------------------------------------------------------------
 
 def _srgb_to_linear_lut() -> np.ndarray:
+    """Build the 256-entry sRGB-to-linear lookup table.
+
+    A table rather than the formula per pixel: the input is 8-bit, so there
+    are only 256 possible answers and computing them once is the whole cost.
+
+    :returns: the table, single-precision.
+    """
     c = np.arange(256, dtype=np.float64) / 255.0
     return np.where(c <= 0.04045, c / 12.92,
                     ((c + 0.055) / 1.055) ** 2.4).astype(np.float32)
@@ -292,6 +299,13 @@ _TO_LINEAR = _srgb_to_linear_lut()
 
 
 def _linear_to_srgb(value: np.ndarray) -> np.ndarray:
+    """Convert linear-light values back to sRGB.
+
+    :param value: linear values; clipped to ``[0, 1]`` first, because a
+        composite can overshoot and the transfer function is only defined on
+        that range.
+    :returns: the sRGB values.
+    """
     value = np.clip(value, 0.0, 1.0)
     return np.where(value <= 0.0031308, value * 12.92,
                     1.055 * np.power(value, 1.0 / 2.4) - 0.055)

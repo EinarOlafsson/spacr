@@ -43,6 +43,13 @@ class _ClickToFold(QObject):
         self._toggle = toggle
 
     def eventFilter(self, watched, event) -> bool:  # noqa: N802 - Qt name
+        """Fold the panel when its heading is clicked.
+
+        :param watched: the heading.
+        :param event: the event.
+        :returns: ``False`` -- observed, never consumed, so the heading still
+            behaves like a label.
+        """
         if event.type() == QEvent.MouseButtonRelease and \
                 getattr(event, "button", lambda: None)() == Qt.LeftButton:
             try:

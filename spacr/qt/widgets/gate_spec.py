@@ -118,6 +118,14 @@ GATE_KINDS: Tuple[str, ...] = (THRESHOLD, RECTANGLE, POLYGON, ELLIPSE,
 
 
 def _clean_name(name: str) -> str:
+    """Validate and strip a gate's name.
+
+    :param name: the proposed name.
+    :returns: it, stripped.
+    :raises GateError: if it is empty. The name is what makes a gate
+        re-appliable and what the hierarchy is read by; an unnamed region is
+        a lasso.
+    """
     text = str(name).strip()
     if not text:
         raise GateError(
@@ -184,6 +192,16 @@ def _check_factor(factor: float) -> None:
 
 
 def _numeric(frame: pd.DataFrame, column: str, what: str) -> np.ndarray:
+    """Read one column of a table as floats, for a gate to test against.
+
+    :param frame: the table.
+    :param column: the column to read.
+    :param what: which gate is asking, named in the error.
+    :returns: the values, with anything unparseable as NaN.
+    :raises GateError: if the table has no such column -- a gate drawn on
+        one dataset only re-applies to a table carrying the same
+        measurements.
+    """
     if column not in frame.columns:
         raise GateError(
             f"{what} names column {column!r}, which this table does not have. "

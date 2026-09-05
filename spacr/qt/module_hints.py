@@ -141,6 +141,17 @@ class _ModuleHints(QObject):
             return False
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
+        """Divert a module's tooltip into the hint bar instead of a popup.
+
+        These blurbs run to several hundred characters, which is fine in a fixed
+        line and wrong in a box covering what the user is reading to choose
+        between.
+
+        :param watched: the widget being hovered.
+        :param event: the event.
+        :returns: ``True`` for the tooltip request it diverts, ``False``
+            otherwise.
+        """
         if event.type() != QEvent.Type.ToolTip:
             return False
         if not isinstance(watched, QWidget):

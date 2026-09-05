@@ -552,6 +552,13 @@ class _ClearFiguresLabel(QLabel):
     def mouseReleaseEvent(self, event):        # noqa: N802 (Qt naming)
         # Release rather than press, so dragging off the label cancels, which
         # is what every other clickable in the app does.
+        """Clear the figures on a click inside the label.
+
+        On release rather than press, so dragging off cancels -- this discards
+        work, and it is the one control here where a mis-click costs something.
+
+        :param event: the mouse event.
+        """
         if (event.button() == Qt.LeftButton
                 and self.rect().contains(event.pos())):
             self.flash()
@@ -559,6 +566,10 @@ class _ClearFiguresLabel(QLabel):
         super().mouseReleaseEvent(event)
 
     def keyPressEvent(self, event):            # noqa: N802 (Qt naming)
+        """Clear the figures on Return, Enter or Space.
+
+        :param event: the key event.
+        """
         if event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
             self.flash()
             self.clicked.emit()

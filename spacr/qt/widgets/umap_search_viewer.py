@@ -40,6 +40,17 @@ CLUSTER_COLORS: Tuple[Tuple[int, int, int], ...] = (
 
 
 def _coordinates(value: Any) -> np.ndarray:
+    """Validate an embedding and pad it to three dimensions.
+
+    A 2-D embedding gains a zero third axis, so the renderer has one code
+    path rather than two.
+
+    :param value: the coordinates.
+    :returns: an ``(n, 3)`` float array.
+    :raises ValueError: if the shape is not ``(n, 2)`` or ``(n, 3)``, if it
+        is empty, or if it holds NaN or infinities -- each of which draws as
+        a blank panel rather than as an error if let through.
+    """
     coords = np.asarray(value, dtype=float)
     if coords.ndim != 2 or coords.shape[1] not in (2, 3):
         raise ValueError("UMAP coordinates must have shape (rows, 2) or (rows, 3).")
@@ -108,6 +119,15 @@ def colors_for_labels(labels: Optional[Sequence[int]], count: int, *,
 
 
 def _rotation(yaw: float, pitch: float) -> np.ndarray:
+    """Build the rotation matrix for a yaw and a pitch.
+
+    Applied pitch-after-yaw, which is what makes dragging feel like turning
+    a held object rather than tumbling it.
+
+    :param yaw: rotation about the vertical axis, in radians.
+    :param pitch: rotation about the horizontal axis, in radians.
+    :returns: the 3x3 matrix.
+    """
     cy, sy = math.cos(yaw), math.sin(yaw)
     cp, sp = math.cos(pitch), math.sin(pitch)
     around_y = np.array(((cy, 0.0, sy), (0.0, 1.0, 0.0),

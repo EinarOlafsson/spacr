@@ -126,6 +126,12 @@ def _stat_with_timeout(path: str, want_dir: bool = False) -> bool:
 
 
 def _ensure_started() -> None:
+    """Start the probe worker threads, once.
+
+    Daemon threads, so a probe still blocked on a sleeping mount cannot hold
+    the application open at exit -- which is the whole reason path checks
+    were moved off the GUI thread in the first place.
+    """
     global _started
     with _lock:
         if _started:

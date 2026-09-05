@@ -14,6 +14,10 @@ _KEY_ANSWERED_VERSION = "onboarding/setup_answered_version"
 
 
 def _settings():
+    """Open spaCR's ``QSettings``.
+
+    :returns: the settings store.
+    """
     from .preferences import _settings as store
 
     return store()

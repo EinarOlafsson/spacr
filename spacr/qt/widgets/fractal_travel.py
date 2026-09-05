@@ -789,6 +789,23 @@ def _join_on_destroy(widget, thread) -> None:
 
 def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
                      hardware: HardwareProfile):
+    """Build the numba-backed CPU fractal backdrop.
+
+    The render thread is created UNPARENTED and joined through a
+    ``destroyed`` handler that closes over the thread only: a ``QThread``
+    whose parent dies while it runs prints "Destroyed while thread is still
+    running" and takes the process with it, and the backdrop is reparented
+    and deleted with its screen, so that is the ordinary path rather than a
+    corner case.
+
+    :param settings: the backdrop settings.
+    :param controls: the live runtime controls the panel drives.
+    :param hardware: the resolved hardware profile, which decides the
+        quality this machine renders at.
+    :returns: the widget.
+    :raises RuntimeError: if numba is not installed -- this backend is
+        compiled, and there is no interpreted fallback worth the frames.
+    """
     if njit is None:
         raise RuntimeError("numba is required for the CPU fractal backend")
 
@@ -1654,6 +1671,15 @@ def _heavy_import_lock():
 
 def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                      hardware: HardwareProfile):
+    """Build the OpenGL fractal backdrop.
+
+    :param settings: the backdrop settings.
+    :param controls: the live runtime controls the panel drives.
+    :param hardware: the resolved hardware profile.
+    :returns: the widget.
+    :raises RuntimeError: if no usable GL context can be created, so the
+        caller can fall back to the CPU backend rather than showing nothing.
+    """
     try:
         from PySide6.QtWidgets import QVBoxLayout, QWidget
         from vispy import app as vispy_app, gloo

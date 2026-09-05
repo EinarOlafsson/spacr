@@ -393,10 +393,18 @@ class _EdgeTrigger(QWidget):
         self.setGeometry(0, 0, EdgeDrawer.TRIGGER_W, host.height())
 
     def enterEvent(self, event):
+        """Arm the drawer's open delay when the pointer reaches the hot strip.
+
+        :param event: the enter event.
+        """
         self._drawer.arm()
         super().enterEvent(event)
 
     def leaveEvent(self, event):
+        """Cancel the pending open when the pointer leaves the hot strip.
+
+        :param event: the leave event.
+        """
         self._drawer.disarm()
         super().leaveEvent(event)
 

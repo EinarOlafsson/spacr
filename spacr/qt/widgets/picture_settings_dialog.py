@@ -129,6 +129,19 @@ def _editor(value: Any, parent: Optional[QWidget] = None,
 
 
 def _value_of(widget: QWidget) -> Any:
+    """Read one settings control's value.
+
+    THE PAIR STAYS A PAIR. Read through ``text()`` like any other unfamiliar
+    editor, a percentile pair would come back as the string ``"2, 98"``,
+    and every settings file already on disk holds a two-element list.
+
+    A combo returns its stored data, falling back to its caption when it
+    carries none -- the data is what the setting means and the caption is
+    only what it says.
+
+    :param widget: the control.
+    :returns: its value, in the form a settings file holds.
+    """
     from .percentile_pair import PercentilePair
 
     if isinstance(widget, PercentilePair):

@@ -408,6 +408,15 @@ def zoom_frames(
 
 
 def _resize(frame: np.ndarray, size: int) -> np.ndarray:
+    """Resize one frame to a square.
+
+    Lanczos rather than a cheaper filter: these frames are magnified, and a
+    nearest-neighbour enlargement of a small frame reads as a bug.
+
+    :param frame: the frame.
+    :param size: the output edge, in pixels.
+    :returns: the resized frame.
+    """
     return np.array(
         Image.fromarray(frame).resize(
             (size, size), Image.Resampling.LANCZOS),

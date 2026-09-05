@@ -141,6 +141,14 @@ class _RejectionHighlighter(QSyntaxHighlighter):
         self._format.setForeground(QColor(colour))
 
     def highlightBlock(self, text: str) -> None:   # noqa: N802 - Qt naming
+        """Colour a whole line that carries a rejection marker.
+
+        THE WHOLE LINE, not the matched word: "REJECTED at 0.05" is the
+        verdict on the sentence it sits in, and colouring three words inside a
+        grey line reads as emphasis rather than as a state.
+
+        :param text: the line.
+        """
         line = str(text)
         if any(marker in line for marker in self.MARKERS):
             # THE WHOLE LINE, not the matched word. "REJECTED at 0.05" is

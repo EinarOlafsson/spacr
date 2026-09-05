@@ -657,6 +657,20 @@ def _labelled(keys: np.ndarray) -> np.ndarray:
 
 def _class_levels(frame: pd.DataFrame, label: str) -> Tuple[np.ndarray,
                                                             Tuple[str, ...]]:
+    """Split a table into class labels and their level names.
+
+    Rows and level names are converted through EXACTLY the same path.
+    Pandas' vectorised datetime ``astype`` omits midnight while
+    ``str(Timestamp)`` includes it, so a date column otherwise fails to
+    match its own advertised levels.
+
+    :param frame: the table.
+    :param label: the column saying which class each row is in.
+    :returns: the per-row labels and the sorted level names.
+    :raises ExplorerError: if the column is absent, if fewer than two
+        classes are present -- there is then nothing to separate -- or if
+        there are more than this screen ranks against.
+    """
     if label not in frame.columns:
         raise ExplorerError(
             f"there is no column called {label!r} to split by; this table has "
@@ -684,6 +698,15 @@ def _class_levels(frame: pd.DataFrame, label: str) -> Tuple[np.ndarray,
 
 def _summaries(values: np.ndarray, keys: np.ndarray,
                levels: Sequence[str]) -> Tuple[ClassSummary, ...]:
+    """Summarise one feature per class.
+
+    :param values: the feature's values.
+    :param keys: each row's class.
+    :param levels: the classes to summarise, in order.
+    :returns: one summary per level; a level with no rows comes back with a
+        count of zero and NaN statistics rather than being omitted, so the
+        table still has a row for it.
+    """
     out = []
     for level in levels:
         picked = values[keys == level]

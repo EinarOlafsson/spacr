@@ -759,6 +759,13 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
 # ---------------------------------------------------------------------------
 
 def _numeric(frame: pd.DataFrame, column: Optional[str]) -> Optional[np.ndarray]:
+    """Read one column as floats, or ``None`` when it is not there.
+
+    :param frame: the table.
+    :param column: the column; empty or absent gives ``None``, which is what
+        lets an unfilled channel be tested with ``if``.
+    :returns: the values, with anything unparseable as NaN.
+    """
     if not column or column not in frame.columns:
         return None
     return pd.to_numeric(frame[column], errors="coerce").to_numpy(dtype=float)
@@ -836,6 +843,15 @@ class Scales:
 
 def _category_levels(frame: pd.DataFrame, column: Optional[str],
                      limit: int = 60) -> Optional[Tuple[str, ...]]:
+    """Return a column's distinct values, sorted and capped.
+
+    :param frame: the table.
+    :param column: the column; empty or absent gives ``None``.
+    :param limit: how many levels to return -- a categorical axis past this
+        is unreadable, and the cap is what stops a free-text column being
+        drawn as ten thousand ticks.
+    :returns: the levels, or ``None``.
+    """
     if not column or column not in frame.columns:
         return None
     found = sorted({str(v) for v in _level_series(frame, column).unique()},

@@ -225,6 +225,16 @@ class _RatioWatcher(QObject):
 
     def eventFilter(self, watched: QObject,                # noqa: N802 - Qt
                     event: QEvent) -> bool:
+        """Redraw when a widget moves to a screen with a different pixel ratio.
+
+        Only an actual CHANGE redraws: the event fires on every reparent, and
+        re-rendering every icon because a widget moved between two screens of
+        the same density is work for nothing.
+
+        :param watched: the widget.
+        :param event: the event.
+        :returns: ``False`` -- observed, never consumed.
+        """
         if event.type() == QEvent.Type.DevicePixelRatioChange:
             ratio = device_ratio(watched)
             if ratio != self._ratio:

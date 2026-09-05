@@ -42,6 +42,10 @@ _HTTP_OPEN = _REAL_HTTP_OPEN
 
 
 def _settings() -> QSettings:
+    """Open spaCR's ``QSettings``.
+
+    :returns: the settings store.
+    """
     return QSettings(_ORG, _APP)
 
 
@@ -72,6 +76,11 @@ def set_stored_token(token: str) -> None:
 
 
 def _env_token() -> str:
+    """Read a GitHub token from the environment.
+
+    :returns: the token, or ``""`` when none is set -- checked before the
+        stored one so a CI run can override what a developer saved.
+    """
     for var in ("GITHUB_TOKEN", "GH_TOKEN"):
         v = os.environ.get(var, "").strip()
         if v:
