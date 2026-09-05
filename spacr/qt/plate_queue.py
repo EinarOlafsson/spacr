@@ -104,6 +104,11 @@ class PlateQueue:
     """
 
     def __init__(self, path: Optional[Path] = None):
+        """Open the queue, loading whatever is already on disk.
+
+        :param path: where the queue is stored; ``None`` uses the default
+            location, so the queue survives a restart.
+        """
         self._path = path or _queue_path()
         self._items: List[QueueItem] = []
         self.load()
@@ -111,9 +116,11 @@ class PlateQueue:
     # -- accessors ---------------------------------------------------------
 
     def __len__(self) -> int:
+        """Return the number of queued items."""
         return len(self._items)
 
     def __iter__(self):
+        """Iterate the queued items in order."""
         return iter(self._items)
 
     def items(self) -> List[QueueItem]:
@@ -235,12 +242,25 @@ class PlateQueue:
 
     @staticmethod
     def _serialise(item: QueueItem) -> Dict[str, Any]:
+        """Convert one item to a JSON-safe dict.
+
+        :param item: the item to convert.
+        :returns: its fields, with the status written as its string value rather
+            than the enum member.
+        """
         d = asdict(item)
         d["status"] = item.status.value
         return d
 
     @staticmethod
     def _deserialise(d: Dict[str, Any]) -> QueueItem:
+        """Rebuild one item from a stored dict.
+
+        :param d: the stored fields. A missing status reads as ``queued`` --
+            a record written before the field existed is a queued plate, not a
+            broken one.
+        :returns: the item.
+        """
         status = Status(d.get("status", "queued"))
         return QueueItem(
             id=str(d["id"]),
