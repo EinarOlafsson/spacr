@@ -2,8 +2,9 @@
 AN OPS BUTTON ON ALIGN AND STITCH, OVER CODE THAT IS ALREADY IN THE REPOSITORY
 ================================================================================
 
-Status:    not started, filed 2026-09-02. MEASURED the same day, and the
-           measurement changes the shape of the job -- see PART 0.
+Status:    PART 0 ANSWERED BY RUNNING IT, 2026-09-05. The front half WORKS;
+           four defects found, two fixed. The back half is still the job.
+           See PART 0-A. Filed 2026-09-02.
 Requested: 2026-09-02 -- "for the allign and stitch module id like to add a
            OPS (optical pooled screening button) for analyzing OPS data. i had
            a bunch of code for doing this earlier, i dont know if that module
@@ -51,6 +52,67 @@ it from the GUI and `spacr-run ops_preprocess` says "unknown module".
   there, and the `#settings.setdefault("meta_regex", ...)` line commented
   out above the live one is the sort of thing that survives in unreached
   code.
+
+--------------------------------------------------------------------------------
+PART 0-A -- IT RUNS, AND THE STITCHING IS EXACT. FOUR DEFECTS IN THE OUTPUT.
+--------------------------------------------------------------------------------
+
+PART 0 said: "the first job is to find out what of it still runs. Do that
+before designing anything". Done, by building a synthetic plate with KNOWN
+geometry and checking what comes back against it.
+
+THE PLATE: one well, four sites in a 2x2 with 288 px of overlap, 800 px tiles
+cut from one 1400 px field of gaussian blobs, two channels. Ground truth is
+therefore exactly 512 px between neighbours. Scripts under the session
+scratchpad as `ops_smoke{2,3,5}.py`.
+
+WHAT WORKS, AND IT IS MOST OF IT:
+
+  * `spacr/spacrops.py` imports clean in 0.28 s. Nothing has rotted.
+  * `get_preprocess_ops_settings({})` returns 63 keys.
+  * `stitch_cycle_wells` runs end to end: organises the plate into per-well
+    folders, computes ORB features with a disk cache, scores every candidate
+    pair, writes a pairs CSV.
+  * THE GEOMETRY IS EXACT. 12 of 12 pair offsets recovered to within 0.3 px
+    (512.2 against a true 512), inlier ratios 0.18 to 0.63.
+  * Mosaic assembly is right when it is reached: canvas 1314x1313 against an
+    expected 1312, and the manifest's affine transforms match ground truth.
+
+  A WARNING FOR WHOEVER TESTS THIS NEXT, because it cost an hour: at the
+  default `downsample=0.5`, 256 px tiles become 128 px and ORB finds nothing
+  -- every pair comes back with an inlier ratio around 0.04 and an offset
+  that is pure noise. That reads exactly like a broken stitcher and is not
+  one. Give it big tiles, or turn the downsampling off, before concluding
+  anything.
+
+WHAT IS BROKEN:
+
+  1. FIXED. `write_mosaic` was inverted: `if settings["write_mosaic"]:
+     mosaic_out = None`. Asking for a mosaic set the output path to nothing.
+
+  2. FIXED. `mosaic` defaulted to False and is a SEPARATE key from
+     `write_mosaic`, so `stitch_cycle_wells` never built one -- while its own
+     docstring promises "single- or multi-channel mosaics". To get a mosaic
+     before this you had to set `mosaic=True` AND leave `write_mosaic=False`,
+     which is the opposite of what both names say.
+
+  3. OPEN. `mosaic_allc` writes ONE channel from two. Confirmed with two
+     genuinely different channels, so it is not a content-hashed cache
+     collapsing identical inputs: shape (1, 1314, 1313) with
+     `do_multichannel=True`.
+
+  4. OPEN, AND IT LOSES DATA. One tile is silently dropped: 7 of 8 reach the
+     mosaic manifest, and the missing one is `10X_c1_A1_Site-4.tif` -- a
+     corner of the mosaic with no channel-1 data and no warning.
+
+  Defects 3 and 4 are exactly what PART 0 predicted of code that "nothing
+  imports, no test and no user". They are also why the GUI button must not be
+  wired up first: a button over 4 is a button that quietly returns a mosaic
+  with a hole in it.
+
+THE ORDER THIS SHOULD NOW GO IN: fix 3 and 4 against the synthetic plate
+above, which is cheap and has ground truth; then the back half (PART 1); then
+the button. The button is the last step, not the first.
 
 --------------------------------------------------------------------------------
 PART 1 -- WHAT OPS NEEDS THAT spaCR DOES NOT HAVE
