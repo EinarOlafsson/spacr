@@ -62,6 +62,17 @@ class BenchmarkController(QObject):
                  measure_preferences: Optional[bool] = None,
                  preferences_factory: Optional[Callable[[], object]] = None,
                  ) -> None:
+        """Drive the benchmark: open each module in turn and time it.
+
+        :param app: the running QApplication.
+        :param window: the main window to drive.
+        :param keys: the modules to open, in order.
+        :param output: where to write the artifact.
+        :param timeout_s: how long one module may take before the run fails.
+        :param live_keys: modules whose readiness is signalled rather than polled.
+        :param measure_preferences: whether to time the Preferences dialog too.
+        :param preferences_factory: how to build that dialog.
+        """
         super().__init__(app)
         self.app = app
         self.window = window
@@ -99,6 +110,14 @@ class BenchmarkController(QObject):
         self._arm_timeout()
 
     def _arm_timeout(self, timeout_s: Optional[float] = None) -> None:
+        """Start the clock that fails the run if a module hangs.
+
+        A HANG MUST NOT BE A HANG. Without this a module that never signals
+        ready leaves the benchmark waiting for ever, which in CI is an hour of
+        a runner rather than a failure anyone can read.
+
+        :param timeout_s: how long to allow.
+        """
         self._disarm_timeout()
         self._timeout_pending = False
         self._attempt_started = time.perf_counter()
@@ -146,6 +165,10 @@ class BenchmarkController(QObject):
             os._exit(124)
 
     def _ready(self, entry: dict) -> None:
+        """Record that one module finished opening.
+
+        :param entry: the module's timing entry.
+        """
         if (self._finished or self._pending is not None
                 or self._timeout_pending):
             return
@@ -186,6 +209,12 @@ class BenchmarkController(QObject):
         return float(latest)
 
     def _settle_ready(self) -> None:
+        """Let the event loop drain before the timing is taken.
+
+        A MODULE IS NOT READY WHEN ITS CONSTRUCTOR RETURNS: deferred work is
+        still queued, and timing it there measures the constructor rather than
+        the wait a user actually sees.
+        """
         if self._pending is None or self._finished:
             return
         entry = self._pending
@@ -246,6 +275,7 @@ class BenchmarkController(QObject):
         QTimer.singleShot(SETTLE_MS, _after_beat)
 
     def _advance(self) -> None:
+        """Move on to the next module."""
         if self._finished:
             return
         if self.phase == "preferences":
@@ -323,6 +353,7 @@ class BenchmarkController(QObject):
         QTimer.singleShot(SETTLE_MS * 2, self._settle_preferences)
 
     def _settle_preferences(self) -> None:
+        """Let the Preferences dialog finish laying out before it is timed."""
         if self._finished or self.phase != "preferences":
             return
         if self._preferences_ready_at is None:
@@ -363,6 +394,7 @@ class BenchmarkController(QObject):
         self._advance_after_watchdog()
 
     def _close_preferences_dialog(self) -> None:
+        """Close the timed Preferences dialog."""
         dialog = self._preferences_dialog
         self._preferences_dialog = None
         self._preferences_ready_at = None
@@ -375,6 +407,7 @@ class BenchmarkController(QObject):
             pass
 
     def _timed_out(self) -> None:
+        """Fail the run, naming the module that did not become ready."""
         if self._finished or self._timeout_pending:
             return
         if self.phase == "home":
@@ -402,6 +435,12 @@ class BenchmarkController(QObject):
         # ``already_stopped`` means the Qt single-shot has fired; its wall
         # timer is independent and must still be cancelled before this method
         # checkpoints or advances.
+        """Record a failure without losing the timings already taken.
+
+        :param detail: what was being done.
+        :param message: what went wrong.
+        :param already_stopped: whether the run had already been halted.
+        """
         del already_stopped
         self._disarm_timeout()
         self._timeout_pending = False
@@ -463,11 +502,24 @@ class BenchmarkController(QObject):
         self._advance_after_watchdog()
 
     def _current_registry_keys(self) -> tuple[str, ...]:
+        """The modules the registry holds right now.
+
+        :returns: the keys.
+        """
         if self._live_keys is None:
             return self.keys
         return tuple(str(key) for key in self._live_keys())
 
     def _violations(self, current_keys: Iterable[str]) -> list[str]:
+        """Modules that appeared or vanished during the run.
+
+        A REGISTRY THAT MOVES INVALIDATES THE COMPARISON: the benchmark times
+        a fixed list, and a module registered halfway through means the
+        numbers describe two different applications.
+
+        :param current_keys: the keys as they are now.
+        :returns: the discrepancies.
+        """
         violations: list[str] = []
         final_keys = tuple(str(key) for key in current_keys)
         if final_keys != self.keys:
@@ -502,6 +554,11 @@ class BenchmarkController(QObject):
         return violations
 
     def _artifact(self, exit_reason: str) -> dict:
+        """Assemble the run's results into the artifact structure.
+
+        :param exit_reason: why the run ended.
+        :returns: the artifact.
+        """
         artifact = timing.snapshot()
         final_keys = self._current_registry_keys()
         measured = [
@@ -545,6 +602,10 @@ class BenchmarkController(QObject):
         return ""
 
     def _write(self, exit_reason: str) -> None:
+        """Write the artifact to disk.
+
+        :param exit_reason: why the run ended.
+        """
         if self._written:
             return
         error = self._persist(exit_reason)
@@ -558,6 +619,10 @@ class BenchmarkController(QObject):
         self._persist("registry sweep in progress")
 
     def _finish(self, reason: str = "registry sweep complete") -> None:
+        """Write the artifact and stop the application.
+
+        :param reason: why the run ended.
+        """
         if self._finished:
             return
         self._finished = True
@@ -568,6 +633,7 @@ class BenchmarkController(QObject):
         self.app.quit()
 
     def _application_quit(self) -> None:
+        """Quit, whether the run succeeded or failed."""
         if not self._written:
             self._write("application quit before registry sweep completed")
 
