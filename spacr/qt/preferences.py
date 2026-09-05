@@ -4664,6 +4664,19 @@ class PreferencesDialog:
     """
 
     def __new__(cls, parent=None):
+        """Build and return the preferences dialog.
+
+        A ``__new__`` returning a plain ``QDialog`` rather than an ``__init__``
+        on a subclass: everything Qt is imported inside the call, so importing
+        this module costs nothing until a dialog is actually asked for.
+
+        The window is detached from the window manager's point of view, so the
+        user can put it where they like -- it is still parented, still modal and
+        still ``exec``s, and only the window TYPE changes.
+
+        :param parent: parent widget, or ``None``.
+        :returns: the dialog, ready to ``exec``.
+        """
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import (
             QCheckBox, QComboBox, QDialog, QDialogButtonBox,

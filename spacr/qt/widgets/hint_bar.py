@@ -44,6 +44,16 @@ class HintBar(QLabel):
 
     def __init__(self, default: str = DEFAULT_HINT,
                  parent: Optional[QWidget] = None) -> None:
+        """Build the help strip that replaces per-control tooltips.
+
+        Bounded to three lines: the strip used to take whatever height the
+        longest help needed, so moving the pointer between two controls whose
+        help differs in length made the whole dialog jump. It elides instead,
+        and the full text is still in the register.
+
+        :param default: what to show with nothing hovered.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(default, parent)
         self._default = default
         self._hints: Dict[QWidget, str] = {}
@@ -104,6 +114,12 @@ class HintBar(QLabel):
         self.setText(self._translated(self._default))
 
     def _translated(self, text: str) -> str:
+        """Translate one hint.
+
+        :param text: the English source.
+        :returns: the translation, or the source unchanged when the catalogue
+            cannot be reached -- English help beats no help.
+        """
         try:
             from ..i18n import tr
         except Exception:

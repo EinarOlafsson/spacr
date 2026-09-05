@@ -177,6 +177,14 @@ class SectionHeader(QLabel):
     """
 
     def __init__(self, section: str, parent=None):
+        """Build one dock section heading.
+
+        The section name is also stored under its legacy property name, which is
+        what the theme styles and what the maturity test looks headers up by.
+
+        :param section: the section's name.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(section, parent)
         self.section = section
         # The legacy name, deliberately: the theme styles `SidebarSection`
@@ -211,6 +219,25 @@ class Dock(QWidget):
                  icon_for: Optional[Callable[[str], object]] = None,
                  is_visible: Optional[Callable[[str], bool]] = None,
                  parent=None):
+        """Build the dock column: section headings with their module rows under them.
+
+        The container is made transparent rather than coloured. The application
+        sheet carries a blanket ``QWidget { background-color: bg }``, so any
+        untagged container paints an opaque rectangle -- and a plain widget
+        holding a rounded panel is exactly that, a square of window colour
+        behind rounded corners. Colouring it only changes which colour the
+        rectangle is.
+
+        The rounded panel is a child frame rather than this widget's own
+        background, which satisfies both constraints at once: the container
+        stays transparent where the theme pins it transparent, and the panel is
+        still drawn.
+
+        :param rows: the module rows to list, in order.
+        :param icon_for: called with a key for that module's icon.
+        :param is_visible: called with a key to decide whether to list it.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("Dock")
         # WITHOUT THIS THE COLUMN PAINTS NOTHING AT ALL. A plain QWidget

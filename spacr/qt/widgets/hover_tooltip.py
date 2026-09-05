@@ -437,6 +437,11 @@ class HoverTooltip(QFrame):
 
     def __init__(self):
         # Popup window with tool-tip semantics but our own paint control.
+        """Build the process-wide hover popup.
+
+        A tool-tip window with our own painting: shown without activating, so it
+        never takes focus from what the pointer is over.
+        """
         super().__init__(
             None,
             Qt.ToolTip | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint,
@@ -984,6 +989,16 @@ class HoverTooltip(QFrame):
             return False
 
     def _maybe_hide(self) -> None:
+        """Hide the popup, unless the pointer is still on it or on its anchor.
+
+        Checking the anchor for ``None`` is not enough. This popup is a
+        process-wide singleton holding a plain reference to a widget it does not
+        own, and the hide is deferred by a timer -- so hovering a settings label
+        and switching module inside the delay destroys the anchor's C++ object
+        while the timer is still pending. The Python wrapper survives, the
+        ``None`` check passes, and the geometry query then raises inside the Qt
+        event loop, where there is nobody to catch it.
+        """
         if self._pointer_is_on_me():
             return
         # `self._anchor is not None` is not enough. The tooltip is a

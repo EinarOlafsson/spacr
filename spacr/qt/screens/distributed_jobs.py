@@ -84,6 +84,12 @@ class ExecutionProfileDialog(QDialog):
         parent=None,
         profile: Optional[ExecutionProfile] = None,
     ):
+        """Build the execution-profile editor.
+
+        :param parent: parent widget, or ``None``.
+        :param profile: the profile to edit; ``None`` starts a new one. Its
+            original name is kept so a rename can be told from a new profile.
+        """
         super().__init__(parent)
         self.setWindowTitle(tr("Execution profile"))
         self.setMinimumWidth(650)
@@ -432,6 +438,18 @@ class DistributedJobsScreen(QWidget):
         threaded: bool = True,
         auto_poll: bool = True,
     ):
+        """Build the screen and arm its drop zone and poll timer.
+
+        A store that cannot be read reports itself on the status line and leaves
+        the screen usable with no jobs listed, rather than failing to build --
+        the profiles half still works and is how the store gets fixed.
+
+        :param parent: parent widget, or ``None``.
+        :param manager: the remote job manager; ``None`` opens the default one.
+        :param threaded: run submissions and polls on a worker thread.
+        :param auto_poll: start the refresh timer. Off in tests, which drive
+            ``refresh`` themselves.
+        """
         super().__init__(parent)
         self.manager = manager or RemoteJobManager()
         self._threaded = bool(threaded)

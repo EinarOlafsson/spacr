@@ -930,6 +930,16 @@ class DataManagerScreen(QWidget):
         # start hands the real question to a worker, which reports a bad root
         # through _on_job_error -- and _follow_path_probes greys them once the
         # answer lands.
+        """Enable the actions for whatever root is set.
+
+        The root is a user-supplied path and this runs on construction, on every
+        tick box and on every job settling -- so it asks the cached probe rather
+        than stat-ing directly. One bare stat on a sleeping autofs share had not
+        returned after twenty seconds, and a stalled event loop is a freeze with
+        no traceback. It is optimistic while the probe is out, because
+        everything these controls start hands the real question to a worker
+        which reports a bad root itself.
+        """
         has_project = bool(self._root) and path_probe.exists(
             self._root, want_dir=True, default=True)
         self.rescan_button.setEnabled(has_project and not self._busy)

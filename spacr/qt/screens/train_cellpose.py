@@ -157,6 +157,14 @@ class CellposeWorkbenchScreen(QWidget):
     remote_submit_requested = Signal(str, dict)
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the Cellpose workbench.
+
+        The registry key is fixed rather than following the open tab: the window
+        keys its screen table and its navigation by it, and a key that moved
+        would make the page answer to one it is not filed under.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         #: The registry key this page was opened under. Fixed, unlike
         #: :meth:`active_app_key` — the window keyed its screen table and

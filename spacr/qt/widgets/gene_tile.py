@@ -64,6 +64,12 @@ class GeneTilePanel(QWidget):
 
     def __init__(self, frame_provider: Optional[Callable[[], object]] = None,
                  parent=None):
+        """Build the gene record panel.
+
+        :param frame_provider: called for the coefficient table the record's
+            numbers come from.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._frame_provider = frame_provider
         self._tile: Optional[GeneTile] = None

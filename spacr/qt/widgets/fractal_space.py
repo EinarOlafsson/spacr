@@ -438,6 +438,12 @@ class SpaceEngine:
     """
 
     def __init__(self, thread_count: int) -> None:
+        """Create the space renderer and cap numba's thread pool to match.
+
+        :param thread_count: worker threads to render with; clamped to at least
+            one. A numba that cannot be configured is tolerated -- the renderer
+            still works, it just shares the default pool.
+        """
         self.thread_count = max(1, int(thread_count))
         try:
             from numba import set_num_threads

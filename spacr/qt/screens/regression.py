@@ -524,6 +524,10 @@ class DiagnosticsOpener:
     key = DIAGNOSTICS_KEY
 
     def __init__(self, screen: QWidget) -> None:
+        """Record the screen the diagnostics page is opened on.
+
+        :param screen: the host screen.
+        """
         self.screen = screen
 
     def _folder(self) -> Optional[str]:
@@ -634,6 +638,11 @@ class HitsOpener:
     key = "hit_list"
 
     def __init__(self, screen: QWidget) -> None:
+        """Record the screen the hit list is opened on, and how to build it.
+
+        :param screen: the host screen; the page itself is built lazily, on
+            first open.
+        """
         self.screen = screen
         self._window = FoldOpener(screen, self.key, self._build_window)
 

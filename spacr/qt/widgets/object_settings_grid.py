@@ -170,6 +170,10 @@ class ObjectSettingsModel(QAbstractTableModel):
     edited = Signal()
 
     def __init__(self, parent=None):
+        """Create the empty per-object settings table model.
+
+        :param parent: parent object, or ``None``.
+        """
         super().__init__(parent)
         self._table: Dict[str, Dict[str, Any]] = {}
         self._questions: Tuple[str, ...] = ()
@@ -438,6 +442,20 @@ class ObjectSettingsGrid(QWidget):
     settings_changed = Signal()
 
     def __init__(self, parent=None):
+        """Build the per-object settings grid.
+
+        Sorting is installed after the model is set, as the contract requires --
+        the view is wrapped in a proxy, so the selection model has to be taken
+        afterwards. Sorting the questions on screen reorders nothing on disk,
+        because the stored answers are read from the model rather than the view.
+
+        The table opens tall enough to show its rows and can be dragged from the
+        grip: inside a settings panel it is one row of a scrolling form, and a
+        plain ``QTableView`` default put twenty-odd questions behind an inner
+        scrollbar inside an outer one.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._base: Dict[str, Any] = {}
         self._model = ObjectSettingsModel(self)

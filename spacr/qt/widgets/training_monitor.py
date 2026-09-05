@@ -44,6 +44,10 @@ class TrainingMonitor(QWidget):
     """
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the panel that follows a training run's losses and metrics.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)

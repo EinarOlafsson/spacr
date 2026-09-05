@@ -455,12 +455,22 @@ class CascadeEngine:
     """
 
     def __init__(self, thread_count: int) -> None:
+        """Create the cascade engine without allocating its buffer yet.
+
+        :param thread_count: worker threads to render with; clamped to at least
+            one.
+        """
         self.thread_count = max(1, int(thread_count))
         self.width = 0
         self.height = 0
         self.output = None
 
     def _ensure_size(self, width: int, height: int) -> None:
+        """Allocate the output buffer for a new frame size.
+
+        :param width: frame width in pixels.
+        :param height: frame height in pixels.
+        """
         if width == self.width and height == self.height and self.output is not None:
             return
         self.width = width

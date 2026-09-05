@@ -164,6 +164,12 @@ class OutliersScreen(QWidget):
     failed = Signal(str)
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the screen: the controls beside the object, well and report tabs.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: read and scan on a worker thread. Set ``False`` in
+            tests so ``scan`` finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("OutliersScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -472,6 +478,11 @@ class OutliersScreen(QWidget):
                   f"× {len(frame.columns)} columns")
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 

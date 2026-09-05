@@ -87,6 +87,15 @@ class ColumnAlignedRow(QLayout):
     def __init__(self, header, parent: Optional[QWidget] = None) -> None:
         # `parent` installs this as the widget's layout, which is why the
         # caller has to have removed the previous one first.
+        """Lay a row out against a header's column widths.
+
+        Passing ``parent`` installs this as that widget's layout, which is why
+        the caller has to have removed the previous one first.
+
+        :param header: the header view whose sections set the column widths;
+            the row follows its resizes, reorders and re-layouts.
+        :param parent: the widget to become the layout of, or ``None``.
+        """
         super().__init__(parent)
         self._items: list[Tuple[QWidgetItem, Optional[int]]] = []
         self._header = header

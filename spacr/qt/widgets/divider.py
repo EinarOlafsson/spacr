@@ -13,6 +13,12 @@ class Divider(QFrame):
     """
 
     def __init__(self, orientation: Qt.Orientation = Qt.Horizontal, parent=None):
+        """Build a one-pixel rule.
+
+        :param orientation: horizontal or vertical; it is fixed to one pixel on
+            the axis it does not span.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("Divider")
         if orientation == Qt.Horizontal:

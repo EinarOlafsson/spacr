@@ -452,6 +452,14 @@ class FigureGridView(QScrollArea):
     live_tile_menu_requested = Signal(str, object)
 
     def __init__(self, parent=None):
+        """Build the scrolling figure grid.
+
+        Horizontal scrolling is off: the grid re-flows to the width it is given,
+        so a horizontal bar would mean the re-flow failed rather than that there
+        is more to see.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)

@@ -51,6 +51,19 @@ class ObjectGridBinding(QObject):
     """
 
     def __init__(self, grid, panel, parent=None):
+        """Bind a per-object grid to the settings panel beside it.
+
+        The re-entrancy guard is what stops the table visibly rebuilding under a
+        cursor that is still in a cell: writing a value into a widget makes that
+        widget emit, and a screen that reseeds the grid on every widget change
+        would rebuild it mid-edit. No value depends on the guard -- the write
+        reads the grid once, before the first widget moves -- so a reseed
+        halfway cannot drop an edit either way.
+
+        :param grid: the object settings grid.
+        :param panel: the settings panel it mirrors.
+        :param parent: parent object, or ``None``.
+        """
         super().__init__(parent)
         self._grid = grid
         self._panel = panel

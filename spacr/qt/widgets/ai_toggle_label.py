@@ -66,6 +66,17 @@ class AiToggleLabel(QLabel):
 
     def __init__(self, parent=None, text: str = "AI",
                      tooltip: str | None = None):
+        """Build the AI toggle label, off.
+
+        The English source text and tooltip are kept as properties, so a runtime
+        language switch translates the original rather than translating a
+        translation, and the toggle's state survives it.
+
+        :param parent: parent widget, or ``None``.
+        :param text: the label; ``"AI"`` by default.
+        :param tooltip: hover text; ``None`` uses the standard explanation of
+            what the toggle does.
+        """
         source_text = str(text)
         source_tooltip = tooltip if tooltip is not None else (
             "Click to toggle AI. When ON (blue), pressing Enter in "
@@ -221,6 +232,22 @@ class AiToggleLabel(QLabel):
         # now, so the label inks white on dark and near-black on light.
         # It used to come from `theme.PALETTE`, which is frozen dark —
         # white "AI" on the light theme's #fafafa page.
+        """Re-ink and re-size the label for the current state, theme and zoom.
+
+        The off colour is resolved from the palette in force right now rather
+        than imported: the frozen dark palette put white "AI" on the light
+        theme's near-white page. The size comes through ``font_px`` because a
+        per-widget stylesheet outranks the application sheet, so a literal size
+        here pinned the label whatever the zoom preference said, and the padding
+        scales with it or the hit target stops matching the glyphs.
+
+        Setting a stylesheet posts a style change back to this widget, so both
+        guards matter: the flag stops the immediate recursion and the comparison
+        stops a storm when nothing about the answer changed. The geometry is
+        invalidated afterwards because the new sheet moves both the size and the
+        padding, and eliding against a stale hint would hide the text the zoom
+        just enlarged.
+        """
         palette = active_palette()
         on_color = palette["button_accent"]
         color = on_color if self._on else palette["fg"]

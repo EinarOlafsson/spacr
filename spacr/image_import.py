@@ -447,6 +447,15 @@ class ImportPlan:
         return merged
 
     def _token_at(self, rel: str, position: int) -> Optional[str]:
+        """Return one token of a file's name, by position.
+
+        :param rel: the file's path relative to the import root; its extension
+            is dropped before tokenising, so the suffix is never a token.
+        :param position: which token to take.
+        :returns: the token, or ``None`` when the name has fewer than that many
+            -- a short name is a name that does not carry the axis, not an
+            error.
+        """
         toks = tokenise(str(Path(rel).with_suffix("")))
         return toks[position][1] if position < len(toks) else None
 

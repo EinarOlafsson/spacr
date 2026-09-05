@@ -115,6 +115,15 @@ class Tile(QWidget):
         caption: str = "",
         parent=None,
     ):
+        """Build a square tile: an icon over its label.
+
+        :param text: the label.
+        :param icon: the picture; ``None`` leaves the tile text-only.
+        :param icon_size: the icon's edge, in pixels.
+        :param tile_size: the tile's edge, in pixels.
+        :param caption: a second line under the label.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._text = text
 
@@ -178,6 +187,14 @@ class HTile(QPushButton):
         icon_size: int = 52,
         parent=None,
     ):
+        """Build a wide tile: an icon beside its label and description.
+
+        :param text: the label.
+        :param description: the sentence beside it.
+        :param icon: the picture; ``None`` leaves the tile text-only.
+        :param icon_size: the icon's edge, in pixels.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._text = text
         # Set before any layout work: Qt can ask for sizeHint() while the

@@ -238,6 +238,12 @@ class SearchFigureGrid(QWidget):
     def __init__(self,
                  parameters: Optional[Sequence[str]] = None,
                  parent: Optional[QWidget] = None):
+        """Build the grid that lays a search's figures out by parameter.
+
+        :param parameters: the parameters the search varied, which become the
+            grid's captions.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("SearchFigureGrid")
         self._parameters: List[str] = list(parameters or [])

@@ -131,10 +131,21 @@ class PercentilePair(QWidget):
     #  the two ends in order
 
     def _on_low(self, value: float) -> None:
+        """Raise the high box's floor to the new low, and announce the window.
+
+        The two boxes bound each other rather than being validated afterwards,
+        so an inverted window cannot be typed in the first place.
+
+        :param value: the new low percentile.
+        """
         self._high.setMinimum(float(value))
         self.changed.emit(self.value())
 
     def _on_high(self, value: float) -> None:
+        """Lower the low box's ceiling to the new high, and announce the window.
+
+        :param value: the new high percentile.
+        """
         self._low.setMaximum(float(value))
         self.changed.emit(self.value())
 
