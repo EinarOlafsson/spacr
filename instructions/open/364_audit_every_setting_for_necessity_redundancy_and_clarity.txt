@@ -2,11 +2,16 @@
 EVERY SETTING AUDITED: IS IT NEEDED, IS IT A DUPLICATE, IS ITS NAME HONEST
 ================================================================================
 
-Status:    MASK AND MEASURE AUDITED AND THE DECISIONS IMPLEMENTED 2026-09-02.
-           The maintainer approved retiring the _size pair, all four renames,
-           and a per-object TABLE for the repeated settings. The table is the
-           only part not yet built. See instructions/data/364_mask_and_measure_settings_
-           audit_2026-09-02.txt for the proposals. Nothing changed yet.
+Status:    OPEN, BUT NOT FOR THE REASON THIS LINE USED TO GIVE. All three
+           things the maintainer approved on 2026-09-02 are BUILT and tested
+           -- the retired _size pair, the four renames, and the per-object
+           table. This header went on claiming the table was unbuilt for two
+           days after the body of this file recorded it landing; corrected
+           2026-09-05, see the last section for the evidence.
+           What keeps 364 open is the tail: the organelle preprocessing gap,
+           two proposals waiting on the maintainer, and the legacy-migration
+           hole the 2026-09-05 check found in the renames. Proposals are in
+           instructions/data/364_mask_and_measure_settings_audit_2026-09-02.txt.
 Requested: 2026-09-02, verbatim -- "look through each moduals settings and
            evaluate if any settings are unnecessary, redundant or are not
            intuitive. then propose to remove settings that are unnecessary,
@@ -851,3 +856,109 @@ refused -- 702 full table rebuilds. `next_organelle` also rescanned from slot
 from the slots in use, and the test seeds at the ceiling instead of walking
 to it. Its docstring was also still claiming twenty-six was the alphabet
 running out, which 326 had made false.
+
+================================================================================
+2026-09-05  "IS THE TABLE BUILT?"  IT IS. THE STATUS HEADER WAS LYING.
+================================================================================
+
+Asked whether to build the per-object table, the maintainer answered "i am
+confused, this is already built!" He is right, and the disagreement was
+entirely inside this file: the header said the table was "the only part not
+yet built" while four sections of the body below it described building it,
+mounting it, and then fixing three defects in it. A status line is the only
+part of an instruction anybody reads before deciding what to do next, and
+this one would have bought a second implementation of a finished feature.
+
+THE HEADER WAS NEVER UPDATED WHEN THE WORK LANDED. Each session appended a
+dated section -- which is the right habit -- and none of them went back to
+the top. So the file grew more accurate and its summary grew more wrong at
+the same time.
+
+WHAT WAS ACTUALLY CHECKED, in the code rather than in this file's own prose,
+because a file that was wrong once is not evidence for itself:
+
+  THE PER-OBJECT TABLE -- BUILT, all four layers.
+    spacr/object_settings_table.py            model: to_table / from_table /
+                                              widen
+    spacr/qt/widgets/object_settings_grid.py  the view, with _kind_of
+    spacr/qt/widgets/object_grid_binding.py   write-through to the widgets
+    spacr/qt/screens/app_screen.py:2413       _mount_the_object_grid, and
+                                              apply_object_grid_preference at
+                                              2492 for the live switch
+    spacr/qt/preferences.py                   "Per-object settings as a
+                                              table", the preference that
+                                              gates it
+
+  THE RETIRED _size PAIR -- DONE. `organelle_min_size` and
+  `organelle_max_size` map to their `_area` counterparts in
+  RETIRED_SETTINGS (spacr/validate.py:1033-1034), with the comment that says
+  why. Neither name is read anywhere in spacr/ any more; the six remaining
+  hits are comments explaining the retirement, plus the animation manifest.
+
+  THE FOUR RENAMES -- DONE in the settings themselves. `_FT`, `_CP_prob`,
+  `_Signal_to_noise` and `_min_object_area` have zero occurrences in
+  spacr/settings.py; the new spellings carry 17, 17, 18 and 21. The surviving
+  bare `FT` is the standalone apply/test-model family this file already
+  recorded as intentional and separate (settings.py:4356 spells that out in
+  the tooltip).
+
+VERIFIED: 96 passed, 1 skipped.
+  QT_QPA_PLATFORM=offscreen tools/run_capped.sh 6G python -m pytest \
+    -p no:randomly -q tests/qt/test_the_per_object_settings_are_one_table.py \
+    tests/qt/test_the_object_grid_can_be_switched_on.py \
+    tests/test_a_retired_setting_says_so.py
+The skip is a settings dict in which every object asks for a channel, so the
+absent-cell case has nothing to assert on.
+
+--------------------------------------------------------------------------------
+AND THE CHECK FOUND ONE THING GENUINELY MISSING: THE RENAMES NEVER GOT THEIR
+MIGRATION
+--------------------------------------------------------------------------------
+
+This file's own TRAPS section says a rename is a removal plus an addition as
+far as every saved settings file is concerned, and that a removed setting
+goes in `RETIRED_SETTINGS` so an old file loads with a message instead of
+silence. The `_size` retirement did that. The four renames did not:
+
+    RETIRED_SETTINGS.get("cell_FT")                -> None
+    RETIRED_SETTINGS.get("cell_CP_prob")           -> None
+    RETIRED_SETTINGS.get("cell_min_object_area")   -> None
+    RETIRED_SETTINGS.get("cell_Signal_to_noise")   -> None
+
+MEASURED, not inferred, by handing all four to the pre-flight check as a
+settings dict. Only ONE of them says anything, and it is the one that says it
+by accident:
+
+    cell_Signal_to_noise   warning -- "did you mean 'cell_signal_to_noise'?"
+    cell_FT                nothing
+    cell_CP_prob           nothing
+    cell_min_object_area   nothing
+
+`cell_Signal_to_noise` is caught by the FUZZY matcher, because the rename was
+only a change of case and the old name lands within matching distance of the
+new one. The other three renames changed the word, so nothing is left within
+distance -- which is precisely the hole RETIRED_SETTINGS' own comment says it
+exists to fill, quoted there as `upscale` / `upscale_factor`.
+
+THE CONSEQUENCE IS THE SILENT ONE. `_translate_legacy_setting_keys`
+(app_screen.py:750) migrates a loaded dict by consulting RETIRED_SETTINGS, so
+a settings file written before b7ae412af has its flow threshold and its
+cellprob threshold dropped on the floor, the module default used instead, and
+nothing said. That is the same failure mode as the live-preview aliases fixed
+on 2026-09-03 -- the suffix substitution walked past the places that spell the
+key differently -- reaching one more place.
+
+NOT FIXED HERE, because this was a bookkeeping pass and the fix is not a
+one-liner. Whoever takes it should know two things first:
+
+  * IT IS A SUFFIX RULE, NOT FOUR ENTRIES. The organelle slots are generated
+    and a run may declare `organellez`, so a literal table migrates the slots
+    it happens to name and misses the rest -- the trap `_surviving_name_of`
+    already solves for the `_size` pair, and the same shape works here.
+    `cell`, `nucleus`, `pathogen` and `cytoplasm` are literal; the organelle
+    slots are not.
+  * `test_a_retired_setting_says_so.py:72` FAILS ANY KEY THAT IS IN BOTH
+    RETIRED_SETTINGS AND `expected_types`. The four old names are gone from
+    expected_types, so they are clear -- but check that again before adding,
+    because the check is what stops a retirement warning a user off a setting
+    that still works.

@@ -18,11 +18,16 @@ The nine doubled keys were ``convert``, ``external_masks``,
 ``profiler``, ``tabulate`` and ``train_compare`` -- each had a top-level row
 AND an indented row under the host it folds into.
 
-THE COUNTS IN THE REQUEST ARE data:6 AND tools:5; the registry's tiles are
-data:5 and tools:4. This file asserts the dock MATCHES HOME rather than
-either set of numbers, which is the property that stops the two drifting
-again: promoting a module to a tile gives it a dock row and folding one takes
-its dock row away, with no list here to update.
+THE COUNTS IN THE REQUEST ARE data:6 AND tools:5, and as of 2026-09-05 the
+registry produces them: `dose_response`, `gate_editor` and `project_browser`
+registered only when `run()` walked `SELF_REGISTERING_MODULES`, so a bare
+`import spacr.qt.app` saw data:5, tools:4 and Help:8 while a launched GUI saw
+the maintainer's numbers. They have rows in `app._SELF_REGISTERING_APPS` now.
+
+This file still asserts the dock MATCHES HOME rather than either set of
+numbers, which is the property that stops the two drifting again: promoting a
+module to a tile gives it a dock row and folding one takes its dock row away,
+with no list here to update.
 """
 from __future__ import annotations
 

@@ -688,10 +688,33 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
                     "Re-run the Mask module: merged/ is written at the end of mask generation and is empty here."))
         elif app in MASK_APPS:
             if inv.raw_files == 0 and inv.stack_files == 0 and inv.merged_files == 0:
+                # A NESTED TREE IS AN IMPORT JOB, AND `consolidate` WAS THE
+                # WRONG ANSWER TO OFFER FIRST. Measured on the two layouts
+                # consolidate's own tooltip names (instruction 375):
+                # consolidate flattens by prefixing the folder names onto the
+                # filename, and `_get_regex('cellvoyager')` then matched NONE
+                # of what it produced -- `A01_img_F001C01.tif`,
+                # `DAPI_plate1_A01_F001.tif` -- so following this advice cost
+                # a second copy of the plate and still found nothing.
+                # `spacr.image_import` reads the folder segments as part of
+                # the name and placed all 12 files of the per-well tree with
+                # well, field and channel.
+                #
+                # consolidate is still named, second, because it is NOT
+                # retired: a per-well tree whose filenames already carry
+                # cellvoyager metadata is the one shape it parses and Import
+                # refuses rather than guesses at.
                 problems.append(Problem(
                     ERROR, "src",
                     f"no image files found in {inv.src} (looked for {', '.join(IMAGE_EXTENSIONS)}).",
-                    "Point src at the folder that holds the raw acquisition images, or set consolidate=True to gather them from subfolders."))
+                    "Point src at the folder that holds the raw acquisition "
+                    "images. If they sit in per-well or per-channel "
+                    "subfolders, run Import on this folder first — it reads "
+                    "the subfolder names as part of the image name and writes "
+                    "a plate the Mask module can read. consolidate=True is "
+                    "the older path and copies the whole plate into "
+                    "src/consolidated, which only helps when the flattened "
+                    "names still match metadata_type."))
             elif inv.raw_files and inv.raw_channels is None:
                 problems.append(Problem(
                     WARNING, "metadata_type",

@@ -2,15 +2,27 @@
 HOLD Z AND SCROLL TO CHANGE THE FONT SIZE LIVE -- IF IT CAN BE MADE FAST
 ================================================================================
 
-Status:    filed 2026-09-04, not started. MEASURED the same day, and the
-           measurement is the whole content of this item: the obvious
-           implementation is 587 ms per scroll notch and the fast one needs
-           a stylesheet change first. See PART 1 before designing anything.
+Status:    BUILT 2026-09-05, in `spacr/qt/live_zoom.py`, and live -- but NOT
+           by the route PART 2 proposed, which was measured and does not
+           exist. Qt has no relative unit for `font-size`, so the stylesheet
+           could not be made to follow one `setFont`; what is live instead is
+           an explicit per-widget font on the visible screen. PART 5 has the
+           design, the numbers and the compromise the maintainer chose.
+
+           The compromise, in one line: TEXT IS LIVE, SPACING IS NOT. Every
+           size `scaled_px` pins -- row heights, column widths, icon sizes,
+           tile geometry -- moves in one step when the wheel stops or Z comes
+           up, not while the wheel turns. Chosen by the maintainer on
+           2026-09-05, in answer to the question PART 2 ends with.
 Requested: 2026-09-04 -- "add to instructions if the user scrolls in or out
            and holds z then they scrole the fontsize live. only if possible
            to do fast without lag"
-Owner:     spacr/qt/theme.py (the sheet), spacr/qt/preferences.py (the
-           scale), spacr/qt/app.py (the wheel handler), tests/qt.
+Owner:     spacr/qt/live_zoom.py (the gesture, added 2026-09-05),
+           spacr/qt/app.py (`launch` installs it),
+           spacr/qt/preferences.py (the scale it reads and writes),
+           tests/qt/test_z_and_the_wheel_resize_the_text.py.
+           spacr/qt/theme.py was NOT touched: the sheet stays in px, for the
+           reason bracketed in PART 2.
 
 THE CONDITION IS PART OF THE REQUEST. "only if possible to do fast without
 lag" is not a nicety to trade away -- a font size that stutters while the
@@ -53,6 +65,16 @@ Qt stylesheets accept `em` and `%` for `font-size`, both resolved against
 the widget's inherited font. If the sheet expressed sizes that way, a single
 `QApplication.setFont` would move the whole interface in 14 ms and nothing
 would need re-polishing.
+
+  [2026-09-05: THIS PARAGRAPH IS WRONG, and it was the first thing checked.
+  Qt's CSS parser takes `pt`, `px` and the size keywords for `font-size` and
+  silently DISCARDS every other unit -- a label under `font-size: 2em` stays
+  at the inherited 13 px, and so does one under `200%`. Measured on this
+  PySide6 and pinned by `test_qt_still_has_no_relative_font_size` in
+  tests/qt/test_z_and_the_wheel_resize_the_text.py, which starts failing the
+  day Qt gains the unit and this simpler design becomes available. The rest
+  of PART 2 stands: the `scaled_px` call sites are the real scope, and the
+  question it ends on is the one that decided the item.]
 
 WHAT HAS TO BE CHECKED FIRST, because it decides the answer:
 
@@ -110,3 +132,75 @@ A middle option worth putting to the maintainer before dropping it: Z+wheel
 shows the new size as a number in the hint strip immediately and applies it
 once the wheel stops. That is not live, and it should not be described as
 live, but it is a usable gesture at 587 ms.
+
+--------------------------------------------------------------------------------
+PART 5 -- WHAT WAS BUILT, 2026-09-05
+--------------------------------------------------------------------------------
+
+`spacr/qt/live_zoom.py`, installed from `launch()` in `spacr/qt/app.py` next
+to the dialog filters. Tests: tests/qt/test_z_and_the_wheel_resize_the_text.py
+(27, all passing).
+
+WHAT IS LIVE, AND WHY IT IS NOT THE SHEET. With `em` gone, the only thing
+that outranks the sheet's `font-size` is a font set on the widget itself --
+the same escape hatch that lets a per-widget stylesheet win. So a gesture
+snapshots the font of every VISIBLE widget once, and each notch re-scales
+each widget from ITS OWN baseline. The role hierarchy survives without the
+module knowing which widget is a title and which is a caption, and a hidden
+stack page -- most of a mature session's widget count -- is not touched at
+all, because nothing there can be seen while the wheel turns.
+
+MEASURED, same machine, same window, offscreen, 2026-09-05:
+
+    the live pass over 204 visible widgets              ~10 ms
+    the layout + repaint that follows it                ~32 ms
+    app.setStyleSheet(...) on the same window          1285 ms
+    apply_preferences_to_app (the whole settle)        1685 ms
+    the filter itself, per event it does not want        1.2 us
+
+This machine is roughly three times slower than the one PART 1 was measured
+on, so the ratio is the number that matters: the live pass is ~30x cheaper
+than the sheet, and the 42 ms it costs end to end is dominated by a repaint
+the sheet pays for as well. Four notches through the real event filter, with
+the real application stylesheet installed: 8.4 ms total, and the scroll area
+under the pointer did not move.
+
+THE COMPROMISE, WRITTEN DOWN AS ONE. Row heights, column widths, icon sizes
+and tile geometry come from `scaled_px`, which only moves when the sheet is
+rebuilt -- so during the gesture the text grows inside spacing sized for the
+old text. The spacing catches up in a single step at the SETTLE: 220 ms after
+the wheel goes quiet, or the moment Z comes up, whichever is first. That is
+also where the QSettings write happens, once, rather than twenty times a
+second. It is a deliberate trade and it is documented as one in the module.
+
+THE GESTURE, AS BUILT:
+  * Z held; the key is never consumed, so the letter still types and Make
+    Masks still gets its own Z (the Zoom tool). Ctrl/Alt/Meta+Z is somebody
+    else's shortcut and does not arm it.
+  * 5 % a notch, the Preferences slider's own granularity, clamped to
+    FONT_SCALE_MIN/MAX and rounded to 4 dp -- `int(scale * 100)` is how the
+    slider reads the value back, and 4 notches down from 1.0 is
+    0.7999999999999998, which truncates to 79 %.
+  * The wheel is always consumed while Z is down, including at the bounds, so
+    the list under the pointer never scrolls mid-gesture.
+  * A pause does not end the hold: the wheel going quiet settles the spacing
+    but leaves the gesture armed, and the next notch starts again from the
+    scale just saved.
+  * Alt-tabbing away settles it, because the KeyRelease is then delivered to
+    another application and never arrives.
+
+REJECTED, WITH THE REASON:
+  * A focused-text-field exemption (do not arm while the user is typing).
+    Written, then removed: a settings form is mostly fields and one always
+    has the focus, so the gesture was dead on exactly the screens it is for.
+    The key is not consumed, so a misfire needs Z held down AND the wheel.
+  * A "Text size 120 %" readout in the status bar. Useful -- the wheel has no
+    detents to count -- but it is one more English sentence, and every
+    user-facing sentence here is a row in ten translation catalogs that a
+    ratchet test audits. Left out rather than regenerate catalogs that other
+    work was editing at the same time. STILL WORTH DOING, with its catalog
+    row, whenever the catalogs are next rebuilt.
+  * A ShortcutSpec on the cheat sheet (`spacr/qt/shortcuts.py`). Same reason:
+    the label, category and scope of every spec are part of the compact
+    caption ratchet. A gesture nobody can guess belongs on that map, so this
+    is the second half of the same follow-up.

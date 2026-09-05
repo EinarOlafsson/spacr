@@ -550,9 +550,17 @@ _PLUGIN_SECTION_MAP = {
 #: violation is a design mistake to fix in this table, not something to
 #: discover at startup.
 #:
-#: Twenty leaves room for established sections to grow while still catching a
-#: registry that has become too dense to scan as one group.
-MAX_APPS_PER_SECTION = 20
+#: Raised to 40 on 2026-09-05 at the maintainer's instruction. Data had
+#: reached exactly twenty -- the previous ceiling -- the moment the three
+#: self-registering modules joined the table, so the next registration in
+#: that section would have tripped the cap rather than caught a real
+#: mistake.
+#:
+#: The number is a smell detector, not a layout constraint: nothing breaks
+#: at any size, and the sections are collapsible, so what it guards against
+#: is a section nobody can scan. Forty keeps that guard while leaving the
+#: room the registry has turned out to need.
+MAX_APPS_PER_SECTION = 40
 
 #: **The** app list — ``(key, name, description, section)`` per app, in
 #: section order. Every consumer in the process reads this one object:
@@ -1315,6 +1323,37 @@ _SELF_REGISTERING_APPS = (
     # registry.
     ("spacr.qt.screens.tabulate", "register"),
     ("spacr.qt.screens.investigate_hit", "register"),
+    # THE THREE THE MAINTAINER COUNTED ON SCREEN AND THIS TABLE DID NOT HAVE.
+    # Asked for 2026-09-05: Home is core:6 data:6 tools:5 assays:4 and the
+    # dock's Help heading is 9. Measured from `import spacr.qt.app` alone it
+    # was 6/5/4/4 and Help 8 -- Data short `dose_response`, Tools short
+    # `gate_editor`, Help short `project_browser`.
+    #
+    # NOT A MATURITY PROBLEM, which was the first guess and is worth writing
+    # down so it is not guessed a second time. All three declare
+    # stage='alpha', `DEFAULT_SHOW_ALPHA` is True, and `app_is_visible`
+    # already answers yes for every one of them. They were simply NOT IN THE
+    # REGISTRY: each declares its row in `app_catalog` and was named only in
+    # `spacr.qt.SELF_REGISTERING_MODULES`, which `run()` walks -- so the three
+    # rows existed in a launched GUI and nowhere else. That is exactly the
+    # sometimes-there row the note at the top of this table is about, and a
+    # line here is the fix that note prescribes.
+    #
+    # No section and no stage moved. `SECTION_TILE_ORDER` has named
+    # `dose_response` in Data and `gate_editor` in Tools since 2026-08-31 and
+    # `_HELP_MODULES` has named `project_browser` since it was written: the
+    # filing was right all along, the registration was late.
+    #
+    # THE OTHER FIVE LAUNCH-ONLY ROWS STAY WHERE THEY ARE. `control_chart`,
+    # `outliers`, `trellis`, `feature_explorer` and `feature_dict` are all in
+    # `TILELESS_APPS`, so not one of them changes a count on either screen --
+    # and `feature_dict` is reachable from neither a tile nor `_HELP_MODULES`,
+    # so registering it here would fail
+    # `test_no_module_falls_out_of_the_dock_altogether` over a door this
+    # change was not asked to find.
+    ("spacr.qt.screens.dose_response", "register"),
+    ("spacr.qt.screens.gate_editor", "register"),
+    ("spacr.qt.screens.project_browser", "register"),
 )
 
 for _module_name, _func_name in _SELF_REGISTERING_APPS:
@@ -2146,7 +2185,25 @@ class MainWindow(QMainWindow):
         )
         self.setPalette(startup_palette)
         self.setAutoFillBackground(True)
-        self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, True)
+        # NOT `WA_OpaquePaintEvent`. That attribute is a PROMISE that the
+        # widget paints every pixel of its own rect, and Qt takes it by
+        # skipping the erase before a repaint. This window does not keep
+        # that promise: applying the application stylesheet clears
+        # `autoFillBackground` again, so by the time the window is shown it
+        # reads `autoFill=False, opaquePaint=True` -- claiming to fill while
+        # filling nothing.
+        #
+        # What Qt then does is leave whatever was already on screen, and
+        # transparent children draw on top of it. That is the defect
+        # reported on 2026-09-05: "in the bottom left corner there is text
+        # that overlaps (new text is pasted over old text)", together with
+        # flicker on the menu bar, the status bar and the version label --
+        # every text surface that sits over the animated backdrop without a
+        # ground of its own.
+        #
+        # The splash still paints: the stylesheet fills the window, and a
+        # styled background is drawn whether or not anything claims to be
+        # opaque. What is removed is only the false promise.
         self.setWindowTitle("spaCR")
         self.setMinimumSize(1200, 720)
         # NO TITLE BAR. Asked for on 2026-08-23: "remove the minus and x bar
@@ -5607,6 +5664,24 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # before the event loop -- which is before any dialog can be opened --
     # and the window they cannot help build arrives 0.4 s sooner.
     install_the_dialog_filters(app)
+
+    # Hold Z, turn the wheel, and the text resizes under the pointer
+    # (instruction 378). Installed beside the dialog filters and for the same
+    # reason: it is application-wide, so it wants to exist before the event
+    # loop but not while the main window is still being built. Two integer
+    # comparisons per event when the key is up -- see `live_zoom`.
+    #
+    # GUARDED, LIKE THE FILTERS ABOVE IT. `install_the_dialog_filters` wraps
+    # each installer precisely so a broken application-wide filter costs its
+    # own feature and not the launch; this one was placed beside them and
+    # given none of that, so an exception here would have taken the whole
+    # application down before the window was shown -- to lose a font
+    # gesture.
+    try:
+        from .live_zoom import install_live_zoom
+        install_live_zoom(app)
+    except Exception:                                        # noqa: BLE001
+        LOG.exception("the live zoom gesture could not be installed")
 
     # Pre-warm the heavy imports that a module screen needs (spacr.gui_utils
     # pulls torch + cv2 ≈ 3-4 s; spacr.settings ≈ 1 s) in a BACKGROUND thread

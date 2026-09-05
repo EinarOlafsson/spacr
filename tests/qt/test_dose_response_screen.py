@@ -327,9 +327,11 @@ def test_importing_the_module_does_not_touch_the_registry():
 
     Importing the screen — which a test, a notebook or another screen may do
     just to reach the class — must not mutate process-wide state. The app
-    reaches ``APPS`` when something *runs*
-    :func:`spacr.qt.register_self_registering_modules`, never as a side effect
-    of an import.
+    reaches ``APPS`` from its `app_catalog` row, driven either by
+    ``app._SELF_REGISTERING_APPS`` when ``spacr.qt.app`` is imported (added
+    2026-09-05, so the Data band counts 6 outside a launched GUI too) or by
+    :func:`spacr.qt.register_self_registering_modules` at launch — never as a
+    side effect of importing THIS module, which is what is measured below.
 
     The obvious form of this test — "in ``APPS`` exactly when it is in
     ``SELF_REGISTERING_MODULES``" — was wrong in a way worth recording,

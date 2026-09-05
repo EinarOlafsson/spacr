@@ -915,6 +915,13 @@ ALPHA_MODULES = {
     # this list with their rows. The sweep's row had already gone and its
     # name had stayed, which is the drift the assertion below now catches
     # in both directions.
+    #
+    # The three that a launched GUI had and `import spacr.qt.app` did not,
+    # until they got rows in `app._SELF_REGISTERING_APPS` on 2026-09-05: the
+    # EC50 fitter and the project table under Data, and the gate editor under
+    # Tools. They declared stage='alpha' in `app_catalog` all along -- this
+    # list was short because the REGISTRY was, not because their stage moved.
+    "dose_response", "project_browser", "gate_editor",
 }
 BETA_MODULES = {
     "make_masks",

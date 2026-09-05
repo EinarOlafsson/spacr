@@ -6819,7 +6819,9 @@ def get_section_layout(panel: str) -> dict:
     Divider sizes and collapsed sections are remembered per category so the
     next session restores the user's working layout.
 
-    :returns: ``{"folded": [title, ...], "sizes": [int, ...]}``, or an empty
+    :returns: ``{"folded": [title, ...], "sizes": [int, ...]}``, plus
+        ``"steps"`` and ``"boxes"`` for a panel whose nested sections fold or
+        whose boxes are draggable -- see :func:`set_section_layout`. An empty
         dict when the panel has never been arranged. EMPTY, not a default
         layout -- the panel's own first-run arrangement is the right one, and
         freezing today's into every user's settings would make improving it
@@ -6840,13 +6842,25 @@ def get_section_layout(panel: str) -> dict:
     return layout if isinstance(layout, dict) else {}
 
 
-def set_section_layout(panel: str, folded=(), sizes=()) -> None:
+def set_section_layout(panel: str, folded=(), sizes=(), steps=None,
+                       boxes=None) -> None:
     """Remember which sections of ``panel`` are folded, and the divider sizes.
 
     :param panel: stable category or panel name under which this layout is
         stored, independently of every other panel's arrangement.
     :param folded: the titles that are folded away.
     :param sizes: the splitter's sizes, in its own order.
+    :param steps: the SUB-subsections -- ``{"1": False}`` for a numbered
+        workflow step folded away. Instruction 359: a panel's nested sections
+        collapse too, and a collapse that is forgotten on the way out of the
+        module is a collapse the user does again every visit.
+    :param boxes: dragged heights, ``{name: px at 100 % font scale}``. STORED
+        UNSCALED on purpose: a user who drags the merge report to eleven
+        lines and then doubles the font wants eleven lines, not half of them,
+        so the number that comes back is re-scaled rather than replayed.
+
+    Both new mappings are written only when they hold something, so a panel
+    that has neither goes on producing exactly the record it always did.
     """
     import json
 
@@ -6857,10 +6871,17 @@ def set_section_layout(panel: str, folded=(), sizes=()) -> None:
         stored = {}
     if not isinstance(stored, dict):
         stored = {}
-    stored[str(panel)] = {
+    record = {
         "folded": [str(title) for title in (folded or ())],
         "sizes": [int(size) for size in (sizes or ())],
     }
+    if steps:
+        record["steps"] = {str(key): bool(value)
+                           for key, value in dict(steps).items()}
+    if boxes:
+        record["boxes"] = {str(key): int(value)
+                           for key, value in dict(boxes).items()}
+    stored[str(panel)] = record
     _settings().setValue(_KEY_SECTION_LAYOUT, json.dumps(stored))
 
 

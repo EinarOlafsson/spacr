@@ -867,6 +867,191 @@ def step_header(number: int, title: str, parent=None):
     return label
 
 
+class WorkflowStep(QWidget):
+    """One numbered step of the Measurements workflow: a fold and a body.
+
+    THE THIRD LEVEL OF NESTING ON THIS TAB. Its three panels are splitter
+    children that fold (see :class:`MeasurementScanPanel`), but the numbered
+    steps inside them were bold labels with the step's controls loose in the
+    panel's own column underneath. So "collapse the step I am not on" was not
+    offered at all, and a step could only lose height to its neighbours --
+    never take it back.
+
+    The heading is still the ``WorkflowStep`` ``QLabel`` :func:`step_header`
+    makes, inside the header row rather than replacing it: it is what the
+    stylesheet selects on and what a reader recognises. What is new beside it
+    is a checkable arrow that hides the body, focusable so a keyboard reaches
+    it, with an accessible name that says which step it folds.
+
+    :param number: one-based step number, as the tab counts them.
+    :param title: the step's title, translated by :func:`step_header`.
+    :param parent: parent widget; ownership only.
+    :param expanded: whether it starts open. Steps DO start open: unlike the
+        tab's three panels, a step is a stage of one procedure and hiding all
+        of them would leave a panel that says nothing about what it does.
+    """
+
+    toggled = Signal(bool)
+
+    def __init__(self, number: int, title: str, parent=None,
+                 expanded: bool = True):
+        super().__init__(parent)
+        from PySide6.QtWidgets import QSizePolicy, QToolButton
+
+        from ..i18n import tr
+        from ..preferences import scaled_px
+
+        self._number = int(number)
+        self._title = str(title)
+
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(2)
+
+        header = QHBoxLayout()
+        header.setContentsMargins(0, 0, 0, 0)
+        header.setSpacing(4)
+        self._fold = QToolButton(self)
+        self._fold.setCheckable(True)
+        self._fold.setChecked(bool(expanded))
+        self._fold.setAutoRaise(True)
+        self._fold.setArrowType(Qt.DownArrow if expanded else Qt.RightArrow)
+        self._fold.setFocusPolicy(Qt.StrongFocus)
+        # SAID ALOUD, AND TRANSLATED. "Toggle" on its own tells a screen-reader
+        # user nothing about which of four steps they are on.
+        spoken = f"{self._number}. {tr(self._title)}"
+        self._fold.setAccessibleName(spoken)
+        self._fold.setToolTip(f"Fold step {self._number} away, or open it again")
+        # AN ARROW WITH NO TEXT IS 24 px WHATEVER THE FONT, so at a 200 % font
+        # scale the one control on the row that has to be hit stays half the
+        # size of everything around it.
+        self._fold.setMinimumSize(scaled_px(22), scaled_px(22))
+        self._fold.toggled.connect(self._apply)
+        header.addWidget(self._fold)
+        self.label = step_header(self._number, self._title, self)
+        # THE HEADING IS PART OF THE CONTROL. A 22 px arrow beside a heading
+        # that ignores clicks is the affordance every other folding heading in
+        # the tool does not have -- `Section` and `CollapsibleSection` both put
+        # the whole caption on the button.
+        self.label.setCursor(Qt.PointingHandCursor)
+        self.label.installEventFilter(self)
+        header.addWidget(self.label, 1)
+        column.addLayout(header)
+
+        self._body = QWidget(self)
+        # EXPANDING, so a step that owns the panel's stretch really gets the
+        # height rather than sitting at its hint with a gap underneath.
+        self._body.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.body = QVBoxLayout(self._body)
+        self.body.setContentsMargins(0, 0, 0, 0)
+        self.body.setSpacing(4)
+        column.addWidget(self._body, 1)
+        self._apply(bool(expanded))
+
+    def is_expanded(self) -> bool:
+        """Whether the step's controls are showing.
+
+        READ OFF THE BUTTON, not a flag beside it, for the reason
+        :meth:`CollapsibleSection.is_expanded` gives: a cached copy can
+        disagree with what the user sees.
+        """
+        return self._fold.isChecked()
+
+    def set_expanded(self, expanded: bool) -> None:
+        """Open or fold the step.
+
+        :param expanded: True to show the step's controls.
+        """
+        self._fold.setChecked(bool(expanded))
+
+    def title(self) -> str:
+        """The step's title as written, before translation or numbering."""
+        return self._title
+
+    def number(self) -> int:
+        """Which step this is, one-based."""
+        return self._number
+
+    def fold_button(self):
+        """The collapse control, for tests and for focus handling."""
+        return self._fold
+
+    def eventFilter(self, watched, event):                    # noqa: N802
+        """Fold when the heading beside the arrow is clicked.
+
+        :param watched: the object the event is for.
+        :param event: the event.
+        :returns: True when the click was consumed as a fold.
+        """
+        from PySide6.QtCore import QEvent
+
+        if (watched is self.label
+                and event.type() == QEvent.MouseButtonRelease
+                and event.button() == Qt.LeftButton):
+            self.set_expanded(not self.is_expanded())
+            return True
+        return super().eventFilter(watched, event)
+
+    def _apply(self, expanded: bool) -> None:
+        self._fold.setArrowType(Qt.DownArrow if expanded else Qt.RightArrow)
+        self._body.setVisible(bool(expanded))
+        self.toggled.emit(bool(expanded))
+
+
+def resizable_box(owner, widget, layout, *, key: str, minimum: int,
+                  default: int, maximum: int, name: str):
+    """Give ``widget`` a user-draggable height instead of a hard cap.
+
+    WHAT THIS REPLACES, and why it was wrong twice over. Every tall box on
+    this tab was pinned with ``setMaximumHeight(N)`` at a literal N chosen
+    against a 100 % font. Measured offscreen at a 200 % font scale -- a
+    supported accessibility setting -- each one lost about half its content
+    and could not be dragged back:
+
+    ======================  =========  =========  =========
+    box                     cap        @100 %     @200 %
+    ======================  =========  =========  =========
+    attached databases      170 px     4 rows     3 rows
+    join list                72 px     4 rows     2 rows
+    merge report            190 px     11 lines   5 lines
+    merge evidence          220 px     12 lines   6 lines
+    column picker           180 px     10 rows    5 rows
+    outcomes                120 px     7 lines    3 lines
+    ======================  =========  =========  =========
+
+    So the height now starts at ``default`` SCALED BY THE FONT PREFERENCE --
+    at 200 % the report opens twice as tall and keeps its eleven lines -- and
+    a :class:`~.height_grip.HeightGrip` under it drags it anywhere between
+    ``minimum`` and ``maximum``. Home's release-notes panel has had that
+    handle for a while; this is the same class, moved to
+    :mod:`spacr.qt.widgets.height_grip` rather than written a second time.
+
+    :param owner: the panel the box belongs to. The handle is registered on
+        it under ``key`` so the tab can store and restore the height.
+    :param widget: the box to make resizable. Added to ``layout`` here.
+    :param layout: the column the box and its handle go into.
+    :param key: stable name for the stored height. NOT ``name``: that one is
+        read aloud and will be translated one day, and a stored layout keyed
+        on a translated string is a layout that is lost when the user
+        switches language.
+    :param minimum: floor in px at 100 % font scale.
+    :param default: opening height in px at 100 % font scale.
+    :param maximum: ceiling in px at 100 % font scale.
+    :param name: accessible name for the handle -- which box it resizes.
+    :returns: the :class:`HeightGrip` that was installed.
+    """
+    from ..preferences import scaled_px
+    from .height_grip import HeightGrip
+
+    layout.addWidget(widget)
+    grip = HeightGrip(widget, minimum, maximum, widget.parentWidget(),
+                      name=name)
+    layout.addWidget(grip)
+    grip.resize_target(scaled_px(default))
+    owner.register_box(key, grip)
+    return grip
+
+
 # --------------------------------------------------------------------------- #
 #  STEP 4: PICK A COLUMN AND REGRESS ON IT  (instruction 154 F)
 #
@@ -1150,7 +1335,111 @@ def _fit_outcome(column: str, payload) -> ColumnFit:
                      n_results=n_results)
 
 
-class DatabaseMergePanel(QWidget):
+class WorkflowSteps:
+    """The numbered-step half of a Measurements panel, shared by both of them.
+
+    A MIXIN AND NOT A BASE CLASS: ``DatabaseMergePanel`` and
+    ``ColumnRegressionPanel`` are both ``QWidget`` already, and the thing they
+    share is bookkeeping rather than a widget. ``step_folds_changed`` stays
+    declared on each of them -- a ``Signal`` on a non-``QObject`` mixin is not
+    connectable.
+    """
+
+    def _add_step(self, number: int, layout, *, stretch: int = 0):
+        """Build one numbered step, put it in ``layout``, and remember it.
+
+        :param number: one-based step number; the title comes from
+            :data:`WORKFLOW_STEPS`, so the two cannot drift apart.
+        :param layout: the panel column the step goes into.
+        :param stretch: which step takes the height a folded sibling gives
+            up. Exactly one step per panel gets it -- without that, folding
+            step 1 leaves a blank fixed-height gap where step 1 was, which is
+            a fold that visibly did nothing.
+        :returns: the :class:`WorkflowStep`.
+        """
+        step = WorkflowStep(number, WORKFLOW_STEPS[number - 1][1], self)
+        step.toggled.connect(self._on_step_folded)
+        self.steps[int(number)] = step
+        layout.addWidget(step, stretch)
+        return step
+
+    def _on_step_folded(self, _expanded: bool) -> None:
+        """A step opened or folded: tell whoever is keeping the layout.
+
+        Nothing is stored here. The panel does not own the stored layout --
+        :class:`MeasurementScanPanel` does, keyed on the tab rather than on
+        one of its three panels -- so this only says that something moved.
+        """
+        self.step_folds_changed.emit()
+
+    def step_folds(self) -> dict:
+        """Which steps are open, by number. The half of the layout to store."""
+        return {number: step.is_expanded()
+                for number, step in self.steps.items()}
+
+    def set_step_folds(self, folds) -> None:
+        """Put back what :meth:`step_folds` returned.
+
+        A number this panel does not have is IGNORED rather than an error: a
+        layout stored by a version with five steps must not stop this one
+        from starting.
+        """
+        for number, expanded in dict(folds or {}).items():
+            step = self.steps.get(int(number))
+            if step is not None:
+                step.set_expanded(bool(expanded))
+
+
+    def register_box(self, key: str, grip) -> None:
+        """Record a height handle so its drag can be stored and restored.
+
+        :param key: stable, untranslated name for the box.
+        :param grip: the :class:`~.height_grip.HeightGrip` under it.
+        """
+        boxes = self.__dict__.setdefault("_boxes", {})
+        boxes[str(key)] = grip
+        grip.height_changed.connect(self._on_box_resized)
+
+    def _on_box_resized(self, _height: int) -> None:
+        """A box was dragged. Same relay as a fold: the tab does the storing."""
+        self.step_folds_changed.emit()
+
+    def box_heights(self) -> dict:
+        """The dragged heights, in px AT 100 % FONT SCALE.
+
+        Divided by the scale on the way out and multiplied on the way back in
+        (:meth:`set_box_heights`), so a height chosen at 200 % is the same
+        number of lines when it is restored at 100 %.
+        """
+        from ..preferences import get_font_scale
+
+        scale = max(get_font_scale(), 0.01)
+        return {key: max(1, int(round(grip.target_height() / scale)))
+                for key, grip in self.__dict__.get("_boxes", {}).items()}
+
+    def set_box_heights(self, heights) -> None:
+        """Put back what :meth:`box_heights` returned.
+
+        A key this panel does not have is ignored, for the reason
+        :meth:`set_step_folds` gives.
+        """
+        from ..preferences import scaled_px
+
+        boxes = self.__dict__.get("_boxes", {})
+        for key, height in dict(heights or {}).items():
+            grip = boxes.get(str(key))
+            if grip is not None:
+                grip.resize_target(scaled_px(int(height)))
+
+    def _show_outcomes(self) -> None:
+        """Reveal a box and the handle that resizes it, together."""
+        for widget in (getattr(self, "outcomes_box", None),
+                       getattr(self, "_outcomes_grip", None)):
+            if widget is not None:
+                widget.setVisible(True)
+
+
+class DatabaseMergePanel(WorkflowSteps, QWidget):
     """The databases attached to the input table, and the join offered.
 
     One row per plate of the regression input
@@ -1187,6 +1476,12 @@ class DatabaseMergePanel(QWidget):
     merged = Signal(object)
     merge_progress = Signal(str, int, int)
     merge_finished = Signal(object)
+
+    #: A numbered step was folded or opened. The tab stores the layout, not
+    #: this panel: the user arranges ONE Measurements tab, and three panels
+    #: each writing their own record would restore in three separate
+    #: writes and could disagree with each other.
+    step_folds_changed = Signal()
 
     #: Internal relay: emitted from the WORKER thread, received on the GUI
     #: thread. Emitting a Signal is the only thing a worker-thread callback
@@ -1292,14 +1587,20 @@ class DatabaseMergePanel(QWidget):
         self._progress_relayed.connect(self._on_progress)
         self._read_landed.connect(self._on_read_landed)
 
+        from ..preferences import scaled_px
+        from .height_grip import HeightGrip
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
 
-        layout.addWidget(step_header(1, WORKFLOW_STEPS[0][1], self))
+        #: The numbered steps, by number, so a fold or a stored layout can
+        #: reach one without walking the children.
+        self.steps = {}
+        step = self._add_step(1, layout)
         self.heading = QLabel("No measurement database attached yet.")
         self.heading.setWordWrap(True)
-        layout.addWidget(self.heading)
+        step.body.addWidget(self.heading)
 
         self.table = QTableWidget(0, len(self.COLUMNS))
         install_sorting(self.table)
@@ -1310,20 +1611,20 @@ class DatabaseMergePanel(QWidget):
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
-        self.table.setMaximumHeight(170)
-        layout.addWidget(self.table)
+        resizable_box(self, self.table, step.body, key="databases",
+                      minimum=70, default=170, maximum=900,
+                      name="Resize the attached-database table")
 
-        layout.addWidget(step_header(2, WORKFLOW_STEPS[1][1], self))
+        step = self._add_step(2, layout)
         self.tables_state = QLabel("")
         self.tables_state.setWordWrap(True)
-        layout.addWidget(self.tables_state)
+        step.body.addWidget(self.tables_state)
 
         chooser = QHBoxLayout()
         chooser.addWidget(QLabel("join"))
         self.tables_list = QListWidget()
         self.tables_list.setFlow(QListWidget.LeftToRight)
         self.tables_list.setWrapping(True)
-        self.tables_list.setMaximumHeight(72)
         self.tables_list.setSelectionMode(QAbstractItemView.NoSelection)
         self.tables_list.setToolTip(
             "The object tables every attached database has. A table only one "
@@ -1331,7 +1632,17 @@ class DatabaseMergePanel(QWidget):
             "others rather than on this list.")
         self.tables_list.itemChanged.connect(self._on_choice)
         chooser.addWidget(self.tables_list, 1)
-        layout.addLayout(chooser)
+        step.body.addLayout(chooser)
+        # THE HANDLE GOES UNDER THE ROW, not inside it: `chooser` is a
+        # horizontal row, so a grip added to it would be a nine-pixel column
+        # beside the list rather than a border under it. The list is already
+        # placed, so this is the one box built with the handle directly
+        # instead of through `resizable_box`.
+        self._tables_grip = HeightGrip(self.tables_list, 44, 480, self,
+                                       name="Resize the table list")
+        step.body.addWidget(self._tables_grip)
+        self._tables_grip.resize_target(scaled_px(72))
+        self.register_box("tables", self._tables_grip)
 
         controls = QHBoxLayout()
         controls.addWidget(QLabel("onto"))
@@ -1347,7 +1658,7 @@ class DatabaseMergePanel(QWidget):
             f"default {DEFAULT_ANCHOR} — one anchor, one copy of each column")
         self.anchor_note.setWordWrap(True)
         controls.addWidget(self.anchor_note, 1)
-        layout.addLayout(controls)
+        step.body.addLayout(controls)
 
         options = QHBoxLayout()
         self.consolidate = QCheckBox("only cells that have the child object")
@@ -1373,14 +1684,14 @@ class DatabaseMergePanel(QWidget):
             "one cell, and a dropdown to change any of it.")
         self.rules_button.clicked.connect(self.show_aggregation_rules)
         options.addWidget(self.rules_button)
-        layout.addLayout(options)
+        step.body.addLayout(options)
 
         # STEP 3 IS ITS OWN STEP, so the button that does it is under the
         # heading that names it rather than at the end of step 2's row.
-        layout.addWidget(step_header(3, WORKFLOW_STEPS[2][1], self))
+        step = self._add_step(3, layout, stretch=1)
         self.merge_state = QLabel("")
         self.merge_state.setWordWrap(True)
-        layout.addWidget(self.merge_state)
+        step.body.addWidget(self.merge_state)
 
         options = QHBoxLayout()
         options.addStretch(1)
@@ -1397,7 +1708,7 @@ class DatabaseMergePanel(QWidget):
         self.cancel_button.setEnabled(False)
         self.cancel_button.clicked.connect(self.cancel_merge)
         options.addWidget(self.cancel_button)
-        layout.addLayout(options)
+        step.body.addLayout(options)
 
         # WHAT STAGE, AND HOW FAR. The plan already prints the row total; this
         # counts against that same number rather than against one invented
@@ -1406,12 +1717,13 @@ class DatabaseMergePanel(QWidget):
         self.progress = QLabel("")
         self.progress.setWordWrap(True)
         self.progress.setVisible(False)
-        layout.addWidget(self.progress)
+        step.body.addWidget(self.progress)
 
         self.report = QPlainTextEdit()
         self.report.setReadOnly(True)
-        self.report.setMaximumHeight(190)
-        layout.addWidget(self.report, 1)
+        resizable_box(self, self.report, step.body, key="report",
+                      minimum=70, default=190, maximum=900,
+                      name="Resize the merge report")
 
         # THE COUNT IS THE SENTENCE; THE LIST IS THE EVIDENCE (154 B). A
         # hundred and seventy column names in a 190-pixel box buried the three
@@ -1427,9 +1739,17 @@ class DatabaseMergePanel(QWidget):
             "the default, what is a text identifier, and what was dropped.")
         self.details = QPlainTextEdit()
         self.details.setReadOnly(True)
-        self.details.setMaximumHeight(220)
+        # A GRIP INSIDE THE FOLD, because the fold is the sub-sub-subsection
+        # and the box inside it is the thing that was 220 px whatever the
+        # font. `add_prose` twice rather than `add_widget`: neither the box
+        # nor its handle is a labelled setting row.
         self.evidence.add_prose(self.details)
-        layout.addWidget(self.evidence)
+        self._details_grip = HeightGrip(self.details, 70, 900, self.evidence,
+                                        name="Resize the column evidence")
+        self.evidence.add_prose(self._details_grip)
+        self._details_grip.resize_target(scaled_px(220))
+        self.register_box("evidence", self._details_grip)
+        step.body.addWidget(self.evidence)
 
         # HOVER HELP GOES ON THE SETTING'S NAME, not on the box you type
         # into. A tooltip on an editable field is unreachable the moment the
@@ -2799,7 +3119,7 @@ def describe_key_overlap(left_name: str, left, right_name: str,
             f"{sorted(right_wells)[0]!r} ({len(right_wells):,} wells).")
 
 
-class ColumnRegressionPanel(QWidget):
+class ColumnRegressionPanel(WorkflowSteps, QWidget):
     """Run one regression per selected column of a merged measurement table.
 
     Each column produces an independent run folder and Runs-tab entry. Jobs
@@ -2845,6 +3165,10 @@ class ColumnRegressionPanel(QWidget):
     queue_finished = Signal(int, int)
     queue_progress = Signal(str, int, int)
 
+    #: Step 4 was folded or opened. Declared here as well as on
+    #: `DatabaseMergePanel` because `WorkflowSteps` is not a QObject.
+    step_folds_changed = Signal()
+
     #: Worker-thread relays. The rule is the one `job_runner` exists to stop
     #: being re-derived: a worker may EMIT and nothing else, and the receiver
     #: is a bound method of this GUI-thread object so Qt queues the real work
@@ -2882,10 +3206,14 @@ class ColumnRegressionPanel(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
 
-        layout.addWidget(step_header(4, WORKFLOW_STEPS[3][1], self))
+        #: Step 4 lives in its own panel, so this holds exactly one entry --
+        #: kept as a mapping anyway so the tab can ask both panels the same
+        #: question without knowing how many steps each of them draws.
+        self.steps = {}
+        step = self._add_step(4, layout, stretch=1)
         self.state = QLabel("")
         self.state.setWordWrap(True)
-        layout.addWidget(self.state)
+        step.body.addWidget(self.state)
 
         self.filter = QLineEdit()
         self.filter.setPlaceholderText(
@@ -2895,7 +3223,7 @@ class ColumnRegressionPanel(QWidget):
             "list; it does not change what is selected, so a filter cannot "
             "silently drop a column from the queue.")
         self.filter.textChanged.connect(self._apply_filter)
-        layout.addWidget(self.filter)
+        step.body.addWidget(self.filter)
 
         self.columns_list = QListWidget()
         self.columns_list.setSelectionMode(
@@ -2904,9 +3232,10 @@ class ColumnRegressionPanel(QWidget):
             "The numeric measurements of the merged frame. Pick as many as "
             "you like: EACH ONE BECOMES ITS OWN RUN, with its own folder and "
             "its own row in the Runs tab, so they can be compared there.")
-        self.columns_list.setMaximumHeight(180)
         self.columns_list.itemSelectionChanged.connect(self._on_selection)
-        layout.addWidget(self.columns_list, 1)
+        resizable_box(self, self.columns_list, step.body, key="columns",
+                      minimum=70, default=180, maximum=900,
+                      name="Resize the column list")
 
         row = QHBoxLayout()
         self.run_button = QPushButton("Regress on the selected columns")
@@ -2924,18 +3253,23 @@ class ColumnRegressionPanel(QWidget):
         self.cancel_button.clicked.connect(self.cancel)
         row.addWidget(self.cancel_button)
         row.addStretch(1)
-        layout.addLayout(row)
+        step.body.addLayout(row)
 
         self.progress = QLabel("")
         self.progress.setWordWrap(True)
         self.progress.setVisible(False)
-        layout.addWidget(self.progress)
+        step.body.addWidget(self.progress)
 
         self.outcomes_box = QPlainTextEdit()
         self.outcomes_box.setReadOnly(True)
-        self.outcomes_box.setMaximumHeight(120)
         self.outcomes_box.setVisible(False)
-        layout.addWidget(self.outcomes_box)
+        self._outcomes_grip = resizable_box(
+            self, self.outcomes_box, step.body, key="outcomes", minimum=50,
+            default=120, maximum=700, name="Resize the run outcomes")
+        # THE HANDLE FOLLOWS THE BOX IT RESIZES. A grip under a hidden box is
+        # a border with nothing above it, and the panel shows the outcomes
+        # only once a queue has produced some.
+        self._outcomes_grip.setVisible(False)
 
         from ..screens.settings_model import retarget_field_tooltips
 
@@ -3138,7 +3472,7 @@ class ColumnRegressionPanel(QWidget):
         self._running = True
         self._refresh_buttons()
         self.outcomes_box.setPlainText("")
-        self.outcomes_box.setVisible(True)
+        self._show_outcomes()
         # THE LABEL ONLY, not `_on_queue_progress`. Calling that here put the
         # first column's `fit_started` out TWICE -- once from here and once
         # from the worker's own progress callback -- which is two rows in the
@@ -3235,7 +3569,7 @@ class ColumnRegressionPanel(QWidget):
         self._outcomes.append(outcome)
         lines = [fit.describe() for fit in self._outcomes]
         self.outcomes_box.setPlainText("\n".join(lines))
-        self.outcomes_box.setVisible(True)
+        self._show_outcomes()
         self.fit_finished.emit(str(outcome.column),
                                {"ok": bool(outcome.ok),
                                 "folder": str(outcome.folder),
@@ -3353,6 +3687,12 @@ class MeasurementScanPanel(QWidget):
             database_provider, self, threaded=threaded,
             destination_provider=destination_provider)
         self.databases.databases_changed.connect(self._on_databases_changed)
+        # A NESTED FOLD OR A DRAGGED BORDER IS PART OF THE SAME ARRANGEMENT
+        # as the outer dividers, so it is stored the same way and at the same
+        # moment. The panels relay rather than store: the user arranges ONE
+        # Measurements tab, and three records that can disagree is the bug
+        # that arrangement-per-widget always turns into.
+        self.databases.step_folds_changed.connect(self.remember_section_layout)
         # EVERY SECTION IS A SPLITTER CHILD, so its borders move and it cannot
         # be squeezed into its neighbour. Reported 2026-08-19: "still cant
         # resize the elements in the measurements tabs. now they overlap in
@@ -3396,6 +3736,8 @@ class MeasurementScanPanel(QWidget):
         # the previous merge's columns and every fit reads a file that has
         # been overwritten underneath it.
         self.databases.merged.connect(self._on_merged)
+        self.regression.step_folds_changed.connect(
+            self.remember_section_layout)
         self._add_folding_section(self.regression, "Regression", minimum=110)
         self._show_section("Regression", bool(self.databases.databases))
 
@@ -3615,7 +3957,25 @@ class MeasurementScanPanel(QWidget):
             sizes = sizes + [0]
         if len(sizes) == self._sections.count() and all(s >= 0 for s in sizes):
             self._sections.setSizes(sizes)
+        # THE TWO NESTED LEVELS, restored in the same pass as the outer one.
+        # Numbered steps and box keys are unique across the tab's panels, so
+        # each panel takes the entries it recognises and ignores the rest --
+        # see `set_step_folds`, which is where "ignores the rest" is spelled
+        # out and why it is not an error.
+        steps = layout.get("steps") or {}
+        boxes = layout.get("boxes") or {}
+        for panel in self._step_panels():
+            if steps:
+                panel.set_step_folds(steps)
+            if boxes:
+                panel.set_box_heights(boxes)
         return True
+
+    def _step_panels(self) -> tuple:
+        """The panels on this tab that draw numbered workflow steps."""
+        return tuple(panel for panel in (getattr(self, "databases", None),
+                                         getattr(self, "regression", None))
+                     if isinstance(panel, WorkflowSteps))
 
     def remember_section_layout(self) -> None:
         """Store the folds and divider positions. Called when the tab closes."""
@@ -3626,8 +3986,14 @@ class MeasurementScanPanel(QWidget):
         try:
             folded = [title for title in self._folders
                       if not self.is_section_expanded(title)]
+            steps = {}
+            boxes = {}
+            for panel in self._step_panels():
+                steps.update(panel.step_folds())
+                boxes.update(panel.box_heights())
             set_section_layout(self.LAYOUT_KEY, folded=folded,
-                               sizes=self._sections.sizes())
+                               sizes=self._sections.sizes(),
+                               steps=steps, boxes=boxes)
         except Exception:                                        # noqa: BLE001
             LOG.debug("could not store the section layout", exc_info=True)
 
