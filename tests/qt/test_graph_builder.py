@@ -878,11 +878,12 @@ def test_the_screen_reads_a_csv_and_a_sqlite_table(qtbot, tmp_path, frame):
 
     screen = GraphBuilderScreen(link=LinkedSelection())
     qtbot.addWidget(screen)
-    # `load_path` dispatches the read to a worker thread and returns —
-    # `SELECT * FROM cell` into pandas is seconds on a real measurement
-    # table, and it used to run on the GUI thread. The table picker is
-    # populated inline (one `sqlite_master` query), so it is already right
-    # here; the frame arrives when the worker delivers it.
+    # `load_path` dispatches to a worker thread and returns — `SELECT * FROM
+    # cell` into pandas is seconds on a real measurement table, and it used
+    # to run on the GUI thread. The table listing goes with it: one
+    # `sqlite_master` query is 0.4 ms on a disk that answers and twenty
+    # seconds on a sleeping mount. The picker and the frame both arrive when
+    # the worker delivers.
     screen.load_path(str(db))
     qtbot.waitUntil(lambda: not screen.is_busy(), timeout=10000)
     assert screen.builder.well.columns()

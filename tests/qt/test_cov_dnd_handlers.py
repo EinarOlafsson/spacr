@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import sqlite3
 import sys
+import threading
 from pathlib import Path
 
 import pytest
@@ -1869,18 +1870,40 @@ def _src_screen(**attrs):
     return screen, src
 
 
-def test_a_dropped_container_file_gets_its_regex_report_one_turn_later(
+def test_a_dropped_container_file_is_opened_on_a_worker_not_here(
         tmp_path, monkeypatch, qtbot):
-    """A single container reads a header, not a tree, so it stays on the GUI
-    thread -- deferred one turn only so the src field paints first."""
-    reported = []
-    monkeypatch.setattr(dh, "_report_regex_on_mask",
-                        lambda path, screen: reported.append(path))
+    """A container drop points ``src`` at once and opens the file elsewhere.
+
+    THE PREMISE THAT WAS WRONG. This branch used to defer itself with
+    ``QTimer.singleShot(0, ...)`` under the note "a single container reads a
+    header, not a tree, so it stays on the GUI thread". A single-shot timer
+    does not leave the GUI thread -- it runs its callback on it one turn
+    later, with the event loop stopped -- and reading a header is a FILE
+    OPEN, which on the maintainer's sleeping ``autofs`` share is the call
+    that had not returned after twenty seconds. So the open moved to the
+    scanner with the folder walk, and only the widget half comes back.
+    """
+    opened = []
+    rendered = []
+
+    def _scan(path):
+        opened.append((path, threading.current_thread()))
+        return {"found": True, "summary": "format=nd2", "rows": [],
+                "error": ""}
+
+    monkeypatch.setattr(dh, "scan_mask_container", _scan)
+    monkeypatch.setattr(dh, "_render_container_report",
+                        lambda path, screen, scan: rendered.append(path))
     container = _touch(tmp_path / "plate.nd2")
     screen, src = _src_screen()
     dh.MaskDropHandler().apply(container, screen)
+
+    # The path is in the field before the file has been touched at all.
     assert src.text() == str(tmp_path)
-    qtbot.waitUntil(lambda: reported == [container], timeout=5000)
+    qtbot.waitUntil(lambda: rendered == [container], timeout=5000)
+    assert [p for p, _ in opened] == [container]
+    assert opened[0][1] is not threading.main_thread(), (
+        "the container header was read on the GUI thread again")
 
 
 def test_a_validated_regex_survives_an_editor_that_will_not_open(monkeypatch):

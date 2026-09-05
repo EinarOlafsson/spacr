@@ -4254,25 +4254,226 @@ def _show_resource_result(action: str, result, parent=None) -> None:
     box.exec()
 
 
+#: The one worker the disk readout uses, for every caller.
+#:
+#: MODULE-SCOPED ON PURPOSE, AND NOT PARENTED TO THE DIALOG. A JobRunner
+#: collected while its QThread is still running ABORTS the process (see
+#: :mod:`spacr.qt.job_runner`), and a runner parented to the Preferences
+#: dialog is held alive by nothing else: closing Preferences during a slow
+#: read releases the dialog, its Python attributes, the runner and finally
+#: the QThread wrapper -- while the stat is still in the kernel. Twenty
+#: seconds on a sleeping automount is exactly the window in which a user
+#: gives up and closes the dialog, so that is the likely case, not the
+#: unlikely one. Held here instead, the runner outlives every dialog and the
+#: report is dropped by :func:`_still_asking` rather than by a crash.
+_DISK_RUNNER = None
+#: Whether :data:`_DISK_RUNNER` was built to use a thread.
+_DISK_RUNNER_THREADED = False
+#: Runners replaced by :func:`_disk_report_runner`, kept forever. See there.
+_RETIRED_DISK_RUNNERS = []
+
+
+def _disk_report_runner():
+    """The worker that reads the disk, made once for the whole module.
+
+    ``user_visible=False``: the run banner on Home is for module runs, and
+    ``spacr/qt/widgets/home.py`` filters on exactly this flag. This runner
+    carries the disk readout and nothing else -- it is not shared with any
+    user-started job that a banner would then hide -- and the readout is a
+    handful of stat calls behind a modal dialog that covers Home anyway. The
+    activity spinner still turns, so something IS visibly running.
+
+    Unthreaded when there is no ``QApplication``, because then there is no
+    event loop to deliver the callback on -- and no GUI thread to protect
+    either, which is the only reason the thread was wanted.
+    """
+    global _DISK_RUNNER, _DISK_RUNNER_THREADED
+    from PySide6.QtWidgets import QApplication
+    from .job_runner import JobRunner
+
+    threaded = QApplication.instance() is not None
+    if _DISK_RUNNER is None or _DISK_RUNNER_THREADED != threaded:
+        if _DISK_RUNNER is not None:
+            # Remade rather than reused when an application has appeared
+            # since: a runner that decided to be inline while there was no
+            # event loop would otherwise keep blocking its caller for the
+            # rest of the process.
+            #
+            # RETIRED, NEVER DROPPED. `cancel` abandons the results but
+            # cannot interrupt a stat already in the kernel, and the old
+            # runner's `_jobs` is the only strong reference to that QThread.
+            # Collecting it here would destroy a running QThread and take
+            # the process with it, so the retired runner is kept for the
+            # life of the module. There is at most one per transition, and
+            # transitions happen when an application appears or goes.
+            try:
+                _DISK_RUNNER.cancel()
+            except RuntimeError:
+                pass
+            _RETIRED_DISK_RUNNERS.append(_DISK_RUNNER)
+        _DISK_RUNNER = JobRunner(None, threaded=threaded,
+                                 app_key="disk report", user_visible=False)
+        _DISK_RUNNER_THREADED = threaded
+    return _DISK_RUNNER
+
+
+def _disk_button(parent=None):
+    """The "Check disk space" button inside ``parent``, if it is there."""
+    if parent is None:
+        return None
+    try:
+        from PySide6.QtWidgets import QPushButton
+        return parent.findChild(QPushButton, "CheckDiskButton")
+    except (AttributeError, RuntimeError):
+        # Not a widget, or its C++ half has already gone.
+        return None
+
+
+def _still_asking(parent) -> bool:
+    """True while ``parent`` is still on screen to be answered.
+
+    A report that lands after the user closed Preferences has no one left to
+    show it to: the question was abandoned, and a message box arriving out
+    of a dialog that is gone is not the answer to anything. ``None`` -- the
+    caller that owns no dialog -- is always answered.
+    """
+    if parent is None:
+        return True
+    try:
+        return bool(parent.isVisible())
+    except RuntimeError:
+        # The C++ half went with the dialog.
+        return False
+    except AttributeError:
+        # Not a widget. Nothing to close, so nothing to drop.
+        return True
+
+
+def _start_disk_report(parent=None) -> None:
+    """Read the disk on a worker thread and report it when it lands.
+
+    WHY THIS IS NOT A PLAIN CALL, which is what it was until 2026-09-04.
+    :func:`spacr.qt.resource_cleanup.disk_report` asks
+    :func:`~spacr.qt.resource_cleanup.project_paths` for every folder the
+    project touches — the source folders every module remembers, read back
+    out of QSettings — and then does ``os.stat`` and ``shutil.disk_usage`` on
+    each one. Those are paths the USER chose. Measured on the maintainer's
+    machine that day: one of them was under ``/nas_mnt``, an ``autofs`` mount
+    whose share was asleep, and a single stat on it had NOT RETURNED AFTER
+    TWENTY SECONDS — the stat is what triggers the automount.
+
+    Run from the button's ``clicked`` slot, that is the whole interface
+    frozen between the confirmation box and the result box, with no traceback
+    to show for it, because a stalled event loop is not a crash.
+
+    :mod:`spacr.qt.path_probe` is the wrong tool here and deliberately not
+    used: it answers a cheap yes/no optimistically from a cache, and a disk
+    readout needs real device ids and real byte counts. Work that must
+    genuinely touch the disk belongs on a worker, not behind a cache.
+
+    ``DiskReport`` and ``DiskEntry`` are frozen dataclasses of plain numbers,
+    so the result crosses the thread boundary safely and the message box is
+    still opened on the GUI thread, by the callback.
+
+    THE FAILURE PATH IS THE CALLBACK PATH. ``JobRunner`` calls ``on_done``
+    only for a job that succeeded, so a worker that raised would leave the
+    button disabled and reading "Reading the disk…" for the rest of the
+    session — the one failure a user cannot recover from, because the button
+    that would retry is the one that is stuck. The read is therefore wrapped
+    so the worker returns its exception instead of raising it, and the
+    callback always runs: it gives the button back first and decides what to
+    show second.
+    """
+    from . import resource_cleanup
+    from .i18n import tr
+
+    button = _disk_button(parent)
+    resting_tip = None
+    if button is not None:
+        try:
+            resting_tip = button.toolTip()
+            button.setEnabled(False)
+            # Instruction 106: disabled and SAYING WHY, never inert. The
+            # button was unpressable while the report ran before this change
+            # too — the application was frozen — so keeping it unpressable
+            # while the worker reads is the same affordance, minus the freeze.
+            button.setToolTip(tr("Reading the disk…"))
+        except RuntimeError:
+            button = None
+
+    def read():
+        """On the worker thread. Returns the report, or the exception.
+
+        Returned rather than raised so the callback below is reached either
+        way; see the failure paragraph above. ``disk_report`` is looked up
+        here, not captured, so a caller that replaces it still gets its own.
+        """
+        try:
+            return resource_cleanup.disk_report()
+        except Exception as exc:  # noqa: BLE001 — returned, not swallowed
+            return exc
+
+    def restore() -> None:
+        """Give the button back. The C++ half may be gone; that is fine."""
+        if button is None:
+            return
+        try:
+            button.setEnabled(True)
+            button.setToolTip(resting_tip or "")
+        except RuntimeError:
+            pass
+
+    def done(report) -> None:
+        """On the GUI thread, with whatever the worker came back with."""
+        restore()
+        if isinstance(report, BaseException):
+            # Same visible outcome as before this moved to a worker, where
+            # the exception left the clicked slot and no box was shown --
+            # but the button is usable again and the reason is in the log.
+            LOG.warning("the disk could not be read", exc_info=report)
+            return
+        if not _still_asking(parent):
+            LOG.debug("the disk report outlived the dialog that asked for it")
+            return
+        try:
+            _show_resource_result("disk", report, parent)
+        except RuntimeError:
+            # The dialog was closed while the disk was being read. There is
+            # nothing left to show the report to.
+            LOG.debug("the disk report outlived its dialog", exc_info=True)
+
+    if not _disk_report_runner().submit(read, done):
+        # Nothing was started, or `done` itself raised. A button left
+        # disabled would be the one failure the user cannot recover from.
+        restore()
+
+
 def run_resource_action(action: str, parent=None):
     """Confirm ``action``, run it, and report the measured result.
 
-    :returns: the :class:`~spacr.qt.resource_cleanup.Reclaim` or
-        :class:`~spacr.qt.resource_cleanup.DiskReport`, or ``None`` when the
-        user declined — in which case **nothing ran**. The confirmation is
-        asked before any work is started, not after, which is the whole
-        point of asking.
+    :returns: the :class:`~spacr.qt.resource_cleanup.Reclaim` for "ram",
+        "vram" and "cpu", or ``None`` when the user declined — in which case
+        **nothing ran**. The confirmation is asked before any work is
+        started, not after, which is the whole point of asking.
+
+        ``None`` for "disk" as well, and that one is not a refusal: the disk
+        readout stats folders the user chose, so it goes to a worker thread
+        (:func:`_start_disk_report`) and its result arrives in the same
+        message box a moment later rather than in this return value. The
+        other three free memory and threads and touch no path, so they stay
+        inline where their before/after measurements are taken.
     """
     from . import resource_cleanup
     if not confirm_resource_action(action, parent):
         return None
-    runner = {
+    if action == "disk":
+        _start_disk_report(parent)
+        return None
+    result = {
         "ram": lambda: resource_cleanup.clear_ram(aggressive=True),
         "vram": resource_cleanup.clear_vram,
         "cpu": resource_cleanup.clear_cpu,
-        "disk": resource_cleanup.disk_report,
-    }[action]
-    result = runner()
+    }[action]()
     _show_resource_result(action, result, parent)
     return result
 
@@ -6618,7 +6819,9 @@ def get_section_layout(panel: str) -> dict:
     Divider sizes and collapsed sections are remembered per category so the
     next session restores the user's working layout.
 
-    :returns: ``{"folded": [title, ...], "sizes": [int, ...]}``, or an empty
+    :returns: ``{"folded": [title, ...], "sizes": [int, ...]}``, plus
+        ``"steps"`` and ``"boxes"`` for a panel whose nested sections fold or
+        whose boxes are draggable -- see :func:`set_section_layout`. An empty
         dict when the panel has never been arranged. EMPTY, not a default
         layout -- the panel's own first-run arrangement is the right one, and
         freezing today's into every user's settings would make improving it
@@ -6639,13 +6842,25 @@ def get_section_layout(panel: str) -> dict:
     return layout if isinstance(layout, dict) else {}
 
 
-def set_section_layout(panel: str, folded=(), sizes=()) -> None:
+def set_section_layout(panel: str, folded=(), sizes=(), steps=None,
+                       boxes=None) -> None:
     """Remember which sections of ``panel`` are folded, and the divider sizes.
 
     :param panel: stable category or panel name under which this layout is
         stored, independently of every other panel's arrangement.
     :param folded: the titles that are folded away.
     :param sizes: the splitter's sizes, in its own order.
+    :param steps: the SUB-subsections -- ``{"1": False}`` for a numbered
+        workflow step folded away. Instruction 359: a panel's nested sections
+        collapse too, and a collapse that is forgotten on the way out of the
+        module is a collapse the user does again every visit.
+    :param boxes: dragged heights, ``{name: px at 100 % font scale}``. STORED
+        UNSCALED on purpose: a user who drags the merge report to eleven
+        lines and then doubles the font wants eleven lines, not half of them,
+        so the number that comes back is re-scaled rather than replayed.
+
+    Both new mappings are written only when they hold something, so a panel
+    that has neither goes on producing exactly the record it always did.
     """
     import json
 
@@ -6656,10 +6871,17 @@ def set_section_layout(panel: str, folded=(), sizes=()) -> None:
         stored = {}
     if not isinstance(stored, dict):
         stored = {}
-    stored[str(panel)] = {
+    record = {
         "folded": [str(title) for title in (folded or ())],
         "sizes": [int(size) for size in (sizes or ())],
     }
+    if steps:
+        record["steps"] = {str(key): bool(value)
+                           for key, value in dict(steps).items()}
+    if boxes:
+        record["boxes"] = {str(key): int(value)
+                           for key, value in dict(boxes).items()}
+    stored[str(panel)] = record
     _settings().setValue(_KEY_SECTION_LAYOUT, json.dumps(stored))
 
 

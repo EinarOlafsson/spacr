@@ -72,6 +72,7 @@ from .preview_contract import (
     preview_cellpose_model, preview_failure_message,
 )
 from .toggle import Toggle
+from .. import path_probe
 from ..job_runner import JobRunner
 
 # Reuse the Mask live preview's rendering + canvas primitives wholesale so
@@ -1072,7 +1073,9 @@ def open_sequence_payload(path, max_frames: int = 12,
         payload even when opening fails.
     :param list_siblings: ``False`` reuses the sampler's cached listing; the
         FOV dropdown hands out a path it has already enumerated.
-    :returns: ``{path, sequence, siblings, error}``.
+    :returns: ``{path, sequence, siblings, error}``. When ``list_siblings``
+        is true ``siblings`` is ALWAYS a list, never ``None``, even if the
+        listing failed -- see the fallback below for why that matters.
     """
     out: Dict[str, Any] = {"path": str(path), "sequence": None,
                            "siblings": None, "error": ""}
@@ -1087,12 +1090,26 @@ def open_sequence_payload(path, max_frames: int = 12,
         LOG.debug("could not warm the first frame of %s", path, exc_info=True)
     out["sequence"] = seq
     if list_siblings:
+        target = Path(os.fspath(path))
         try:
-            target = Path(os.fspath(path))
+            # `seq.kind` already records the layout: `open` builds "files"
+            # from a directory listing and every other kind from a single
+            # file. Reading it back is free, where `target.is_dir()` is one
+            # more stat on a path that has just been opened.
             out["siblings"] = sibling_sources(
-                target, FRAME_SUFFIXES, directories=target.is_dir())
+                target, FRAME_SUFFIXES,
+                directories=(getattr(seq, "kind", "") == "files"))
         except Exception:
             LOG.exception("Could not list sequences beside %s", path)
+            # AND THE FIELD ITSELF IS STILL AN ANSWER. `siblings=None` means
+            # "nobody listed", which sends `_refresh_source_selectors` off to
+            # list the folder ITSELF -- on the GUI thread, on the very path
+            # whose listing has just failed here. If that failure was a
+            # sleeping /nas_mnt share, that retry is the twenty-second
+            # freeze. One entry is the same thing `sibling_sources` returns
+            # when it cannot read the parent, and it keeps the FOV dropdown
+            # honest: it lists what is known to be there.
+            out["siblings"] = [target]
     return out
 
 
@@ -1134,8 +1151,18 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         # cap change can cancel this queue without disturbing a source open.
         self._movie_jobs = JobRunner(
             self, threaded=threaded, app_key="timelapse movie fields")
+        # A worker that raises never reaches its `on_done`, so a "Opening …"
+        # placeholder written before `submit()` would stay on screen for the
+        # life of the panel. This is the other half of `_set_transient_status`.
+        self._jobs.job_failed.connect(self._on_job_failed)
         #: Bumped whenever a newer open supersedes the one in flight.
         self._load_token = 0
+        #: The same, for mask opens. Separate, because loading masks does not
+        #: supersede an image sequence that is still on its way.
+        self._mask_load_token = 0
+        #: The placeholder currently on the status label, or None. Only a
+        #: line this panel wrote and still owns may be replaced by a failure.
+        self._transient_status: Optional[str] = None
         self._sequence: Optional[FrameSequence] = None
         self._mask_sequence: Optional[FrameSequence] = None
         self._masks: Optional[np.ndarray] = None
@@ -1445,7 +1472,39 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             if not url.isLocalFile():
                 continue
             p = Path(url.toLocalFile())
-            if p.is_dir() or p.suffix.lower() in FRAME_SUFFIXES:
+            # The suffix is a pure-string test, so it is free; ask the
+            # filesystem only when it does not already decide. And ask it
+            # through the cache, never with `p.is_dir()`: this runs from
+            # dragEnterEvent/dragMoveEvent/dropEvent on the GUI thread, on a
+            # path the user dragged in, and dragMoveEvent fires on every
+            # mouse-move. Measured 2026-09-04, a stat under /nas_mnt (autofs,
+            # share asleep) had not returned after twenty seconds -- one
+            # hover over the panel with a network folder held would freeze
+            # the whole window with no traceback.
+            #
+            # THE DEFAULT IS THE NAME, because the accept/reject answer is
+            # owed NOW and a probe queued this instant cannot have finished.
+            # `path_probe.isdir` returns the cached answer once there is one
+            # and this guess until then:
+            #
+            #   no extension  -> almost certainly a folder -> accept. This
+            #     is the field of view on the plate share, and accepting it
+            #     wrongly only costs a "Load failed" sentence in
+            #     `self._status`, because the open happens on the JobRunner
+            #     worker inside `load_sequence_async`.
+            #   some other extension -> a file this panel cannot read ->
+            #     refuse, exactly as the old `p.is_dir()` did for
+            #     `notes.txt`. Refusing on the name alone is what keeps the
+            #     "not allowed" drag cursor honest instead of accepting
+            #     every document and reporting the mistake afterwards.
+            #
+            # A folder that really does have a dot in its name is refused
+            # for the first hover only: asking queues the probe, and
+            # `dragMoveEvent` fires again on the next mouse-move, by which
+            # time the cache has the real answer. The drag itself is the
+            # retry, so there is no signal to subscribe to here.
+            if (p.suffix.lower() in FRAME_SUFFIXES
+                    or path_probe.isdir(str(p), default=not p.suffix)):
                 return str(p)
         return None
 
@@ -1489,6 +1548,49 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         runner = getattr(self, "_jobs", None)
         return [] if runner is None else [0] * runner.pending_jobs()
 
+    def _set_transient_status(self, text: str) -> None:
+        """Write a placeholder a worker is expected to replace.
+
+        Remembered as well as shown, so :meth:`_on_job_failed` can tell a
+        line it is allowed to overwrite from one the user has since been
+        given for a different reason.
+        """
+        self._transient_status = text
+        self._status.setText(text)
+
+    def _set_status(self, text: str) -> None:
+        """Write a settled line, retiring whatever placeholder it replaces."""
+        self._transient_status = None
+        self._status.setText(text)
+
+    def _on_job_failed(self, message: str) -> None:
+        """Replace a placeholder whose job died before it could deliver.
+
+        ``JobRunner._on_settled`` runs ``on_done`` only for a job that
+        SUCCEEDED, so without this an open that raised on the worker left
+        "Opening field3…" on screen forever and the panel looked hung
+        rather than broken.
+
+        ``job_failed`` is not generation-guarded -- a superseded job's
+        failure arrives just the same -- so the placeholder itself is the
+        guard: the line is replaced only while it is still the one written
+        before a submit. A failure that arrives after a newer load has
+        already reported something is dropped rather than painted over it.
+        """
+        placeholder = getattr(self, "_transient_status", None)
+        if placeholder is None:
+            return
+        try:
+            if self._status.text() != placeholder:
+                self._transient_status = None
+                return
+            self._transient_status = None
+            self._status.setText(f"Load failed: {message}")
+        except RuntimeError:
+            # The label's C++ half went with the panel while the worker was
+            # still unwinding. Nothing to tell anyone.
+            self._transient_status = None
+
     def load_sequence_async(self, path, *, list_siblings: bool = True) -> bool:
         """Open ``path`` on a worker, then install it on the GUI thread.
 
@@ -1504,7 +1606,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._load_token += 1
         token = self._load_token
         cap = int(self._max_frames.value())
-        self._status.setText(f"Opening {os.path.basename(text)}…")
+        self._set_transient_status(f"Opening {os.path.basename(text)}…")
         self._jobs.submit(
             lambda: open_sequence_payload(text, cap, list_siblings),
             lambda payload, _t=token: self._on_sequence_loaded(_t, payload))
@@ -1515,7 +1617,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         if token != self._load_token or not isinstance(payload, dict):
             return
         if payload.get("error"):
-            self._status.setText(payload["error"])
+            self._set_status(payload["error"])
             return
         seq = payload.get("sequence")
         if seq is None:
@@ -1543,10 +1645,13 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         :meth:`load_sequence_async`.
         """
         self._stop_playback()
+        # This install is authoritative, so anything already on its way is
+        # superseded here rather than allowed to land on top of it later.
+        self._load_token += 1
         payload = open_sequence_payload(
             path, int(self._max_frames.value()), list_siblings=False)
         if payload["error"]:
-            self._status.setText(payload["error"])
+            self._set_status(payload["error"])
             return False
         self._install_sequence(path, payload["sequence"])
         return True
@@ -1569,7 +1674,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._sequence_path = Path(os.fspath(path))
         self._refresh_source_selectors()
         note = self.sample_note()
-        self._status.setText(
+        self._set_status(
             f"Loaded {seq.describe()} — run the preview to segment + link."
             + (f" ({note})" if note else ""))
         self._refresh_canvases()
@@ -1597,6 +1702,34 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             return int(frame.shape[0])
         return int(frame.shape[-1])
 
+    def _loaded_source_is_a_folder(self, source) -> bool:
+        """Whether the loaded field of view is a folder of frames.
+
+        WITHOUT A STAT, and that is the whole point of the method.
+        ``source.is_dir()`` used to be called here and in
+        :meth:`_movie_source_paths`, both on the GUI thread, both on the path
+        the user chose. Under ``/nas_mnt`` -- an ``autofs`` mount with a
+        sleeping share -- one such stat had not returned after TWENTY SECONDS
+        when this was measured on 2026-09-04, and
+        :meth:`_on_max_sets_changed` runs this path on every click of the
+        sets spinner. See :mod:`spacr.qt.path_probe`.
+
+        The answer is already in hand: :meth:`FrameSequence.open` ran on a
+        worker and recorded the layout it found, and ``kind == "files"`` is
+        set from the directory branch and from nowhere else. Only when there
+        is no sequence to ask -- nothing installs a path without one, so this
+        is the belt-and-braces arm -- does it fall back to the probe cache,
+        which answers from the name until a background check replaces it.
+
+        :param source: the loaded sequence's path.
+        :returns: True when the field of view is a directory of frames.
+        """
+        kind = getattr(getattr(self, "_sequence", None), "kind", None)
+        if kind is not None:
+            return kind == "files"
+        text = str(source)
+        return path_probe.isdir(text, default=not Path(text).suffix)
+
     def _refresh_source_selectors(self) -> None:
         """Re-fill the sets and channel dropdowns for the loaded sequence.
 
@@ -1605,10 +1738,20 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         them, and the dropdown lists a bounded random sample rather than all
         of them. The listing is cached per folder, so stepping through fields
         re-lists nothing.
+
+        NOTHING HERE TOUCHES THE DISK ON THE GUI THREAD. The layout question
+        goes to :meth:`_loaded_source_is_a_folder`, which reads it off the
+        opened sequence, and the listing lambda is not called at all on the
+        asynchronous path: ``open_sequence_payload`` lists the siblings on
+        the worker and ``_on_sequence_loaded`` adopts that listing (always --
+        even a failed listing yields the field itself) before this runs, so
+        ``enumerate_paths`` finds its cache key already set. The lambda is
+        reached only by the deliberately synchronous :meth:`load_sequence`,
+        whose contract is that it blocks its caller.
         """
         source = getattr(self, "_sequence_path", None)
         if source is not None:
-            directories = source.is_dir()
+            directories = self._loaded_source_is_a_folder(source)
             self._sampler.enumerate_paths(
                 source.parent,
                 lambda: sibling_sources(source, FRAME_SUFFIXES,
@@ -1683,14 +1826,77 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._sync_channel_spin_from_combo()
         self._refresh_canvases()
 
-    def load_masks(self, path) -> bool:
-        """Use ready-made label images instead of segmenting."""
+    def load_masks_async(self, path) -> bool:
+        """Open ``path`` as a mask sequence on a worker, then install it here.
+
+        THE GUI ENTRY POINT, and the reason it exists is that
+        :meth:`load_masks` opens the sequence inline.
+        ``FrameSequence.open`` on a folder of label images is a stat, a
+        listing and one ``is_file()`` per entry -- hundreds of round trips
+        for a plate -- and the folder comes from the user, which on this
+        maintainer's machine means it can be a sleeping ``/nas_mnt`` share
+        where a single stat had not returned after twenty seconds (measured
+        2026-09-04; see :mod:`spacr.qt.path_probe`). Run from
+        :meth:`_pick_masks` that froze the whole window the moment the file
+        dialog closed.
+
+        The same worker function as the image sequence, so the mask
+        sequence's first frame is warmed off the GUI thread too.
+
+        :returns: ``True`` when a job was submitted.
+        """
+        text = os.fspath(path).strip() if path is not None else ""
+        if not text:
+            return False
         self._stop_playback()
+        self._mask_load_token += 1
+        token = self._mask_load_token
+        cap = int(self._max_frames.value())
+        self._set_transient_status(
+            f"Opening masks from {os.path.basename(text)}…")
+        self._jobs.submit(
+            lambda: open_sequence_payload(text, cap, list_siblings=False),
+            lambda payload, _t=token: self._on_masks_loaded(_t, payload))
+        return True
+
+    def _on_masks_loaded(self, token: int, payload) -> None:
+        """Install an opened mask sequence. Always on the GUI thread.
+
+        Generation-guarded on ``_mask_load_token``: two mask folders picked
+        in quick succession, or one picked and then abandoned, must not let
+        the slower open paint over the newer one.
+        """
+        if token != self._mask_load_token or not isinstance(payload, dict):
+            return
+        if payload.get("error"):
+            self._set_status(f"Mask load failed: {payload['error']}")
+            return
+        seq = payload.get("sequence")
+        if seq is None:
+            return
+        self._install_masks(seq)
+
+    def load_masks(self, path) -> bool:
+        """Synchronously use ready-made label images instead of segmenting.
+
+        For programmatic callers and tests. The GUI uses
+        :meth:`load_masks_async`, because this one opens the folder on the
+        thread that calls it.
+        """
+        self._stop_playback()
+        # A synchronous open supersedes anything the picker started, or the
+        # in-flight job would install its own masks over these on arrival.
+        self._mask_load_token += 1
         try:
             seq = FrameSequence.open(path, max_frames=self._max_frames.value())
         except Exception as e:
-            self._status.setText(f"Mask load failed: {e}")
+            self._set_status(f"Mask load failed: {e}")
             return False
+        self._install_masks(seq)
+        return True
+
+    def _install_masks(self, seq) -> bool:
+        """Adopt an already-opened mask sequence and redraw. GUI thread."""
         self._mask_sequence = seq
         seq._register_cache_budget()
         self._masks = None
@@ -1700,7 +1906,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             self._frame_slider.setMaximum(max(0, len(seq) - 1))
             self._frame_slider.setValue(0)
         self._play_btn.setEnabled(len(seq) > 1)
-        self._status.setText(
+        self._set_status(
             f"Masks: {seq.describe()} — segmentation will be skipped.")
         return True
 
@@ -2094,9 +2300,17 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
 
         ``open_sequence_payload`` obtains that listing with
         :func:`sibling_sources` on its worker and ``_on_sequence_loaded``
-        adopts it into ``ImageSetSampler``.  The fallback is for synchronous
-        programmatic callers, whose existing selector refresh already uses
-        the same helper.
+        adopts it into ``ImageSetSampler`` -- ALWAYS, since a listing that
+        failed still yields the loaded field. So on every path a user can
+        drive, ``self._sampler.sets`` is non-empty by the time this runs and
+        the fallback below is not reached; it remains for the deliberately
+        synchronous :meth:`load_sequence`, and for a caller that has emptied
+        the sampler by hand, both of which accept a blocking listing.
+
+        The layout question, which used to be ``current_path.is_dir()``
+        here, is answered off the opened sequence instead -- it was a stat on
+        the GUI thread for a path the user chose, and it ran BEFORE the
+        listing whose result decides whether it was needed at all.
         """
         current_path = getattr(self, "_sequence_path", None)
         if current_path is None:
@@ -2111,7 +2325,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         if not siblings:
             siblings = [str(path) for path in sibling_sources(
                 current_path, FRAME_SUFFIXES,
-                directories=current_path.is_dir())]
+                directories=self._loaded_source_is_a_folder(current_path))]
         # Preserve sibling_sources' deterministic order, but the field the
         # user chose is unconditionally first.
         return [current] + [path for path in siblings if path != current]
@@ -2397,7 +2611,9 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder of label images")
         if path:
-            self.load_masks(path)
+            # Async, like `_pick_sequence`: the open lists the folder, and
+            # the folder is whatever the user just pointed at.
+            self.load_masks_async(path)
 
     def closeEvent(self, event):
         """Let a running pass finish before the widget is torn down.

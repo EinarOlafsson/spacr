@@ -19,6 +19,15 @@ import pytest
 
 from spacr import model_zoo as mz
 
+# block=True EVERYWHERE BELOW, and it is not decoration. As of 2026-09-05
+# `shared_catalogue` decides for itself whether to wait, and on Qt's GUI
+# thread it does not -- an unreachable catalogue host used to freeze a module
+# open for 32.2 s and raise the desktop's "force quit" dialog. These tests run
+# on the main thread, which IS the GUI thread in any process that has already
+# built a QApplication (a full-suite run, where a Qt test came first). Without
+# the explicit flag they would answer from an empty cache and fail there while
+# passing when run alone, which is the worst kind of test.
+
 
 @pytest.fixture(autouse=True)
 def _no_cache():
@@ -42,7 +51,7 @@ def test_an_unreachable_catalogue_is_empty_rather_than_an_exception():
     still there -- so a fetch failure costs a shorter list and a log line.
     """
     assert mz.shared_catalogue(uri="https://invalid.invalid/x.json",
-                               timeout=1) == ()
+                               timeout=1, block=True) == ()
 
 
 def test_a_corrupt_row_is_dropped_without_taking_the_others(tmp_path):
@@ -56,7 +65,7 @@ def test_a_corrupt_row_is_dropped_without_taking_the_others(tmp_path):
         {"key": "good", "name": "good.CP_model", "kind": "cellpose",
          "uri": "https://example.invalid/good.CP_model", "sha256": "a" * 64},
     ]})
-    entries = mz.shared_catalogue(uri=uri)
+    entries = mz.shared_catalogue(uri=uri, block=True)
     assert [e.key for e in entries] == ["good"]
 
 
@@ -73,7 +82,8 @@ def test_the_shared_catalogue_cannot_redefine_a_shipped_model(tmp_path):
         {"key": shipped.key, "name": shipped.name, "kind": "cellpose",
          "uri": "https://example.invalid/impostor", "sha256": "b" * 64},
     ]})
-    mz.shared_catalogue(uri=uri)          # prime the cache with the impostor
+    # prime the cache with the impostor
+    mz.shared_catalogue(uri=uri, block=True)
 
     entries = mz.catalogue(remote=True)
     matching = [e for e in entries if e.key == shipped.key]
@@ -88,7 +98,7 @@ def test_the_shared_catalogue_adds_a_new_model(tmp_path):
          "kind": "cellpose", "uri": "https://example.invalid/community",
          "sha256": "d" * 64},
     ]})
-    mz.shared_catalogue(uri=uri)
+    mz.shared_catalogue(uri=uri, block=True)
 
     entries = mz.catalogue(include_bundled=False, remote=True,
                            include_plugins=False)
@@ -105,7 +115,7 @@ def test_a_shared_row_without_a_checksum_is_still_unverifiable(tmp_path):
         {"key": "unhashed", "name": "unhashed.CP_model", "kind": "cellpose",
          "uri": "https://example.invalid/unhashed.CP_model"},
     ]})
-    entry = mz.shared_catalogue(uri=uri)[0]
+    entry = mz.shared_catalogue(uri=uri, block=True)[0]
     assert not entry.sha256
     assert any("cannot be verified" in n for n in entry.notes), (
         "an unverifiable entry must say so on the entry itself")
@@ -116,9 +126,9 @@ def test_a_second_call_is_served_from_cache(tmp_path):
     uri = _serve(tmp_path, {"models": [
         {"key": "k", "name": "k.CP_model", "kind": "cellpose",
          "uri": "https://example.invalid/k", "sha256": "c" * 64}]})
-    first = mz.shared_catalogue(uri=uri)
+    first = mz.shared_catalogue(uri=uri, block=True)
     stamp = mz._SHARED_CATALOGUE_CACHE["fetched_at"]
-    second = mz.shared_catalogue(uri=uri)
+    second = mz.shared_catalogue(uri=uri, block=True)
     assert [e.key for e in first] == [e.key for e in second]
     assert mz._SHARED_CATALOGUE_CACHE["fetched_at"] == stamp, "re-fetched"
 

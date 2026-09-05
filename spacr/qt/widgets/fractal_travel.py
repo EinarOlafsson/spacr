@@ -1022,9 +1022,28 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             # the frame was ASKED for.
             pointer = self._pointer.sample(
                 self, controls.pointer_size, controls.pointer_strength)
+            # THE CLOCK CARRIES THE SPEED, and the kernel is handed 1.0.
+            # Every CPU pattern positions the picture with `t * speed` --
+            # the orbit's radial phase, the cascade's depth, the flight's
+            # depth and its object travel -- so a scroll moved the picture
+            # by the whole elapsed time at once. Measured at t=57.3s, a
+            # change from speed 1 to 2 moved the orbit as far as a second
+            # of ordinary travel, the cascade as far as two, and the star
+            # flight further than thirty seconds' worth: 30 to 900 frames
+            # arriving between two frames. That is the reported jump.
+            #
+            # `DepthPhase` integrates instead, so the change is continuous
+            # by construction: the phase is WHERE the picture is, and speed
+            # only changes how fast it leaves. This widget already held a
+            # DepthPhase for that reason and never asked it anything --
+            # only the GPU canvas was wired up.
+            #
+            # Passing the speed on as well would apply it twice.
+            speed = controls.speed_at(self._sim_time)
             self.render_requested.emit({
-                "width": width, "height": height, "t": self._sim_time,
-                "speed": controls.speed_at(self._sim_time),
+                "width": width, "height": height,
+                "t": self._depth_phase.advance(self._sim_time, speed),
+                "speed": 1.0,
                 "dream": controls.dream, "iterations": iterations,
                 "pointer_x": pointer.x, "pointer_y": pointer.y,
                 "pull": pointer.pull if controls.follow_pointer else 0.0,
@@ -1754,7 +1773,13 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             # the trajectory is travelled; it must not change WHERE on the
             # trajectory the camera is. See DepthPhase.
             phase = self._depth_phase.advance(elapsed, speed)
-            state = state_at_seconds(elapsed, speed, controls.dream,
+            # THE PHASE IS THE CLOCK THE PICTURE IS DRAWN AT, not only the
+            # depth. `state_at_seconds` was still handed the wall clock, so
+            # the drift, rotation and stretch ignored the speed control
+            # entirely while the depth obeyed it -- one camera moving at two
+            # rates. At speed 1 the two clocks are the same number, so this
+            # changes nothing about how the backdrop looks by default.
+            state = state_at_seconds(phase, 1.0, controls.dream,
                                      depth_phase=phase)
             pointer_x, pointer_y, pull, push = self._pointer_state()
             # ONLY WHAT THIS SHADER DECLARES. The three patterns share this
@@ -1765,8 +1790,17 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             # second, into the terminal AND the console.
             for name, value in (
                     ("u_resolution", (width, height)),
-                    ("u_time", np.float32(elapsed)),
-                    ("u_speed", np.float32(speed)),
+                    # THE PHASE REACHES THE SHADERS TOO, and the speed they
+                    # are told is 1.0. Every GPU pattern but the Mandelbrot
+                    # computes its position as `u_time * u_speed` -- the
+                    # cascade's and the flight's depth, the orbit fold's
+                    # radial phase -- which is the same teleport the CPU
+                    # kernels had: measured, a scroll from 1 to 2 moved the
+                    # star flight further than thirty seconds of travel.
+                    # The Mandelbrot never reads either, so its dive keeps
+                    # its own integrator.
+                    ("u_time", np.float32(phase)),
+                    ("u_speed", np.float32(1.0)),
                     ("u_dream", np.float32(controls.dream)),
                     ("u_palette_phase", np.float32(state.palette_phase)),
                     ("u_tx", np.float32(state.tx)),

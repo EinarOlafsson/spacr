@@ -55,6 +55,7 @@ from .preview_contract import (
     preview_failure_message,
 )
 from .toggle import Toggle
+from .. import path_probe
 from ..job_runner import JobRunner
 
 from .live_preview import numpy_to_qpixmap
@@ -619,6 +620,32 @@ def scan_plate_payload(path) -> Dict[str, Any]:
     return out
 
 
+def read_plane_count(merged_dir: str, filename: str) -> int:
+    """Planes held by one merged array. No Qt: worker-safe.
+
+    ``np.load(..., mmap_mode="r")`` sounds free and is not. Before it maps
+    anything it OPENS the file and reads the ``.npy`` header, so it is a
+    filesystem round trip on a path the user supplied -- and an open is no
+    cheaper than the stat that started this exercise. Measured on the
+    maintainer's machine 2026-09-04, one stat under ``/nas_mnt`` -- an
+    ``autofs`` mount whose share was asleep -- had not returned after twenty
+    seconds.
+
+    :param merged_dir: the ``merged`` folder holding the array.
+    :param filename: the array's basename inside it.
+    :returns: the plane count, or ``0`` when the array cannot be read. Zero
+        is the same soft failure the two inline ``except`` branches used to
+        give: the spinners keep the values they had and the channel dropdown
+        empties, rather than the panel raising at the user.
+    """
+    try:
+        arr = np.load(os.path.join(merged_dir, filename), mmap_mode="r")
+        return int(min(np.asarray(arr).shape))
+    except Exception:
+        LOG.debug("plane count unavailable for %s", filename, exc_info=True)
+        return 0
+
+
 class MotilityPreviewPanel(LivePreviewContract, QWidget):
     """Interactive motility preview — Motility Assay module.
 
@@ -649,8 +676,33 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         # the behaviour diverging.
         self._jobs = JobRunner(self, threaded=threaded,
                                app_key="motility preview")
+        # A SECOND runner, and the separation is load-bearing twice over.
+        # `_loads_in_flight` reports `self._jobs`' pending work as "a plate is
+        # still being scanned", and a plane-count read is not a plate scan;
+        # and `user_visible=False` keeps `spacr.qt.widgets.home` -- which
+        # filters run banners on exactly that flag -- from flashing
+        # "motility preview - running" for a read the user never started.
+        # Nothing user-started is ever submitted here.
+        self._plane_jobs = JobRunner(self, threaded=threaded,
+                                     app_key="motility plane layout",
+                                     user_visible=False)
+        self._jobs.job_failed.connect(self._on_scan_failed)
+        self._plane_jobs.job_finished.connect(self._on_plane_job_settled)
         #: Bumped whenever a newer scan supersedes the one in flight.
         self._load_token = 0
+        #: Planes held by the selected group's first merged array, read off
+        #: the GUI thread by `read_plane_count`. 0 before the first read
+        #: lands and whenever one failed.
+        self._planes = 0
+        #: One plane-count read in flight at a time with exactly one
+        #: catch-up when it lands -- the `ChainingBar._refresh` pattern, so
+        #: arrowing through the field dropdown asks the question twice
+        #: rather than once per keystroke, and never drops the last answer.
+        self._plane_busy = False
+        self._plane_again = False
+        #: Bumped whenever a newer plane-count read supersedes the one in
+        #: flight, so a late result cannot paint the wrong plate's layout.
+        self._plane_token = 0
         self._points = None          # cached — the expensive half
         self._tracks = None
         self._summary: Optional[MotilitySummary] = None
@@ -876,12 +928,32 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
     # -- drag & drop -------------------------------------------------------
 
     def _dropped_path(self, event) -> Optional[str]:
+        """The first local folder in a drag, decided without touching the disk.
+
+        `dragMoveEvent` re-fires this on EVERY mouse move while a folder is
+        held over the panel, so the old ``Path(...).is_dir()`` here was a
+        stat per pixel of travel on the GUI thread. Measured on the
+        maintainer's machine 2026-09-04: one stat under ``/nas_mnt`` -- an
+        ``autofs`` mount whose share was asleep -- had not returned after
+        twenty seconds. Dragging a folder off a sleeping share froze the
+        whole application before the drop was even released.
+
+        Answered optimistically from the cache instead: a folder nobody has
+        probed yet is ACCEPTED, because the accept/reject decision has to be
+        made now and a probe cannot have finished. Being wrong is cheap --
+        the accept only reaches `load_folder_async`, whose worker turns a
+        non-folder into the "No such folder" message in `self._status`,
+        which is a sentence rather than a freeze.
+        """
         mime = event.mimeData()
         if not mime.hasUrls():
             return None
         for url in mime.urls():
-            if url.isLocalFile() and Path(url.toLocalFile()).is_dir():
-                return url.toLocalFile()
+            if not url.isLocalFile():
+                continue
+            text = url.toLocalFile()
+            if text and path_probe.exists(text, default=True, want_dir=True):
+                return text
         return None
 
     def dragEnterEvent(self, event):    # noqa: N802
@@ -958,11 +1030,46 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
             return
         self._install_plate(payload["merged"], groups)
 
+    def _on_scan_failed(self, message: str) -> None:
+        """Replace the "Scanning..." placeholder when a scan never answers.
+
+        `JobRunner._on_settled` hands a result to `on_done` only when the job
+        SUCCEEDED, so `_on_plate_scanned` -- and with it every status update
+        -- is skipped for one that raised. Without this the placeholder
+        written just before `submit` stays on screen for the rest of the
+        session, telling the user a scan is running that is not.
+
+        Guarded on nothing being left in flight, because `job_failed` carries
+        no job id and so cannot be generation-checked: a failure arriving
+        while a NEWER scan is still running must not overwrite that scan's
+        placeholder with a dead one's message.
+
+        :param message: the worker's one-line reason, shown as-is.
+        """
+        try:
+            if self._jobs.pending_jobs():
+                return
+            status = getattr(self, "_status", None)
+            if status is not None:
+                status.setText(f"Load failed: {message}")
+        except RuntimeError:
+            LOG.debug("status label already deleted", exc_info=True)
+
     def shutdown(self) -> None:
-        """Abandon anything in flight and leave no QThread behind."""
-        runner = getattr(self, "_jobs", None)
-        if runner is not None:
-            runner.shutdown()
+        """Abandon anything in flight and leave no QThread behind.
+
+        BOTH runners -- the plate scan and the plane-count read. Qt aborts
+        the process when a running QThread is destroyed, so a runner left out
+        of here is a crash at teardown rather than a leak.
+        """
+        for name in ("_jobs", "_plane_jobs"):
+            runner = getattr(self, name, None)
+            if runner is None:
+                continue
+            try:
+                runner.shutdown()
+            except RuntimeError:
+                LOG.debug("%s already deleted", name, exc_info=True)
 
     def load_folder(self, path) -> bool:
         """Synchronously open a plate (or ``merged``) folder.
@@ -991,8 +1098,8 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         self._tracks = None
         self._sampler.invalidate()
         self._populate_group_box()
-        self._autodetect_planes()
-        self._refresh_source_selectors()
+        # Off the GUI thread: reading the plane count opens a merged array.
+        self._refresh_plane_layout()
         self._path_label.setText(
             f"{os.path.basename(os.path.dirname(merged.rstrip(os.sep)) or merged)}"
             f"  ·  {len(groups)} group(s)")
@@ -1309,36 +1416,138 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
             self._unit_label.setText(cal.caveat())
             self._unit_label.setStyleSheet("color: #ffcc44;")
 
-    def _autodetect_planes(self) -> None:
-        """Set the mask plane indices from the first array's plane count."""
+    # -- plane layout (read off the GUI thread, applied on it) -------------
+
+    def _selected_group_key(self):
+        """The (plate, well, field) key the field dropdown is showing.
+
+        Widget and dict reads only -- no file is touched.
+
+        :returns: the key, or ``None`` when no plate is loaded. ``_fov_box``
+            and ``_group_box`` are the same combo under two names, so the
+            two callers that used to ask separately now agree by
+            construction.
+        """
         try:
-            key = self._group_box.currentData() or next(iter(self._groups))
-            first = self._groups[key][0]["filename"]
-            arr = np.load(os.path.join(self._merged_dir, first), mmap_mode="r")
-            n_channels = int(self._n_channels.value())
-            planes = int(min(np.asarray(arr).shape))
-            tracked, pathogen = default_plane_layout(planes, n_channels)
-            self._tracked_plane.setValue(tracked)
-            self._pathogen_plane.setValue(
-                pathogen if pathogen is not None else -1)
-        except Exception:
-            LOG.debug("plane autodetect failed", exc_info=True)
+            return self._group_box.currentData() or next(iter(self._groups))
+        except (StopIteration, RuntimeError):
+            return None
+
+    def _refresh_plane_layout(self) -> None:
+        """Read the selected group's plane count OFF the GUI thread, then apply.
+
+        THE SIBLING OF THE DRAG FIX, and the same freeze. `_autodetect_planes`
+        and `_plane_count` each opened the group's first merged array right
+        here with ``np.load(..., mmap_mode="r")`` -- twice per plate load and
+        twice per change of field, on the GUI thread, on a path the user
+        supplied. Worse, one of those calls sat in `_on_plate_scanned`, the
+        callback that installs a freshly scanned plate: the scan itself was
+        already threaded and the step immediately after it was not, so a
+        sleeping ``autofs`` share froze the application at exactly the moment
+        the panel looked like it had finished loading.
+
+        Coalesced the way :meth:`spacr.qt.chaining.ChainingBar._refresh`
+        coalesces: one read in flight, one catch-up flag, so holding an arrow
+        key on the field dropdown asks the question twice rather than once
+        per keystroke -- and the last answer is never the one dropped.
+        """
+        key = self._selected_group_key()
+        metas = (self._groups or {}).get(key) or []
+        merged = self._merged_dir
+        filename = str(metas[0]["filename"]) if metas else ""
+        if not merged or not filename:
+            # No plate, or a group with no files. The old code arrived at the
+            # same answer through `except StopIteration` -- 0 planes.
+            self._apply_plane_layout(0)
+            return
+        if self._plane_busy:
+            self._plane_again = True
+            return
+        self._plane_busy = True
+        self._plane_token += 1
+        token = self._plane_token
+        self._plane_jobs.submit(
+            lambda _dir=merged, _name=filename: read_plane_count(_dir, _name),
+            lambda planes, _t=token: self._on_planes_read(_t, planes))
+
+    def _on_planes_read(self, token: int, planes) -> None:
+        """Adopt a plane count that has landed. GUI thread only.
+
+        :param token: the generation this read belongs to. A read that a
+            newer plate or a newer field has superseded is DROPPED, because
+            applying it would set the spinners from the wrong array.
+        :param planes: whatever :func:`read_plane_count` returned.
+        """
+        if token != self._plane_token:
+            LOG.debug("dropping a superseded motility plane count")
+            return
+        self._apply_plane_layout(int(planes or 0))
+
+    def _apply_plane_layout(self, planes: int) -> None:
+        """Install a known plane count in the spinners and the dropdown.
+
+        :param planes: the count just read, or 0 when it could not be read.
+        """
+        self._planes = int(planes or 0)
+        self._autodetect_planes()
+        self._refresh_source_selectors()
+
+    def _on_plane_job_settled(self, _ok: bool) -> None:
+        """Release the one-in-flight slot, then run the coalesced catch-up.
+
+        Connected to ``job_finished``, which fires for EVERY job -- including
+        one that raised and one whose result was dropped as stale, neither of
+        which reaches :meth:`_on_planes_read`. Clearing the flag anywhere
+        else would let a single failed read wedge the panel's plane layout
+        shut for the rest of the session.
+
+        :param _ok: whether the job succeeded. Not consulted: the flag has to
+            be released either way.
+        """
+        try:
+            if self._plane_jobs.pending_jobs():
+                return
+        except RuntimeError:
+            LOG.debug("plane runner already deleted", exc_info=True)
+            return
+        self._plane_busy = False
+        if self._plane_again:
+            self._plane_again = False
+            self._refresh_plane_layout()
+
+    def _autodetect_planes(self) -> None:
+        """Set the mask plane indices from the CACHED plane count.
+
+        Cheap and GUI-thread-safe: ``self._planes`` was read on a worker by
+        :meth:`_refresh_plane_layout`. A count of 0 means the array could not
+        be read (or has not been read yet) and the spinners keep the values
+        they had -- the same soft failure the inline ``except`` used to give.
+        """
+        planes = int(getattr(self, "_planes", 0))
+        if planes <= 0:
+            return
+        n_channels = int(self._n_channels.value())
+        tracked, pathogen = default_plane_layout(planes, n_channels)
+        self._tracked_plane.setValue(tracked)
+        self._pathogen_plane.setValue(
+            pathogen if pathogen is not None else -1)
 
     # -- FOV / channel selectors -------------------------------------------
 
     def _plane_count(self) -> int:
-        """Planes held by the first merged array of the selected group."""
-        try:
-            key = self._fov_box.currentData() or next(iter(self._groups))
-            first = self._groups[key][0]["filename"]
-            arr = np.load(os.path.join(self._merged_dir, first), mmap_mode="r")
-            return int(min(np.asarray(arr).shape))
-        except Exception:
-            LOG.debug("plane count unavailable", exc_info=True)
-            return 0
+        """Planes held by the first merged array of the selected group.
+
+        From the cache :meth:`_refresh_plane_layout` fills; this opens no
+        file. 0 before the first read lands, and whenever one failed.
+        """
+        return int(getattr(self, "_planes", 0))
 
     def _refresh_source_selectors(self) -> None:
-        """Re-fill the channel dropdown for the selected field of view."""
+        """Re-fill the channel dropdown for the selected field of view.
+
+        Reads nothing: the plane count comes from :meth:`_plane_count`, which
+        is a cached integer. Safe to call from anywhere on the GUI thread.
+        """
         populate_channel_combo(
             self._channel_box, self._plane_count(), include_all=False,
             keep=f"Ch {int(self._tracked_plane.value())}")
@@ -1386,10 +1595,15 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
                 "Field / plane changed — run the preview to read it.")
 
     def _on_group_changed(self, *_):
+        """Drop the cached table and re-read the new field's plane layout.
+
+        The plane read is dispatched, not performed: `_refresh_plane_layout`
+        opens the array on a worker and coalesces, so holding an arrow key on
+        the field dropdown cannot queue one file open per keystroke.
+        """
         self._points = None
         self._tracks = None
-        self._autodetect_planes()
-        self._refresh_source_selectors()
+        self._refresh_plane_layout()
         self._invite_rerun()
 
     def _on_tracked_object_changed(self, name: str) -> None:

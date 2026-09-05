@@ -433,7 +433,7 @@ def test_going_over_the_cap_still_starts_and_no_longer_says_so(
 
     Inverted 2026-08-04. This used to require a "over the 13 cap" warning on
     the registration that crosses the line, and two things had moved under it:
-    the cap is ``MAX_APPS_PER_SECTION`` and is 20 now, and the warning itself
+    the cap is ``MAX_APPS_PER_SECTION`` and is 40 now, and the warning itself
     was removed on purpose (``spacr/qt/app.py:596``) because it fired once per
     app past the cap — a full section produced a stream of identical lines at
     launch — and said nothing the suite does not already assert.

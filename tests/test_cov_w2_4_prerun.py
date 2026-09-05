@@ -328,7 +328,13 @@ class _Finding:
 def banner(qtbot, a_screen):
     def build(src="", reader=None, **kwargs):
         screen = a_screen(widgets={"src": _src_field(src)}, **kwargs)
-        widget = prerun.SegQCBanner(screen, reader=reader)
+        # threaded=False: the read runs inline, emitting the same
+        # signals in the same order, so these tests can assert on the
+        # drawn banner without spinning an event loop. The interface
+        # never builds one this way -- see tests/qt/
+        # test_the_measure_banner_never_waits_on_a_filesystem.py.
+        widget = prerun.SegQCBanner(screen, reader=reader,
+                                    threaded=False)
         qtbot.addWidget(widget)
         return widget
     return build

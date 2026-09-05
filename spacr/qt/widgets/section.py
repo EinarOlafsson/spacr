@@ -41,6 +41,14 @@ SOURCE_ICON_PX = 18
 #: The objectName the mark carries, so a screen (or a test) can find it.
 SOURCE_ICON_NAME = "SectionSourceIcon"
 
+#: Floor for a category header's height, in logical px.
+#:
+#: A FLOOR AND NOT A HEIGHT. It is what a header gets when its own size hint
+#: is smaller than a comfortable pointer target; a header whose font asks for
+#: more keeps what it asks for. See :meth:`Section._sync_header_minimum` for
+#: what happened while this was the header's flat minimum.
+SECTION_HEADER_MIN_PX = 34
+
 
 def module_mark(key: str):
     """Return the specific icon for a folded module, if available.
@@ -141,7 +149,7 @@ class Section(QFrame):
         # explains itself. Only the popup is refused.
         self._header.installEventFilter(self)
         self._header.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self._header.setMinimumHeight(34)
+        self._sync_header_minimum()
         self._header.clicked.connect(self._on_toggle)
         outer.addWidget(self._header)
 
@@ -167,6 +175,7 @@ class Section(QFrame):
         self._form.setVerticalSpacing(SPACING["sm"])
         self._body.setVisible(False)
         outer.addWidget(self._body)
+        self._seal_body()
 
         if expanded:
             self.set_expanded(True)
@@ -455,13 +464,96 @@ class Section(QFrame):
     def eventFilter(self, watched, event):                   # noqa: N802
         """Swallow the header's tooltip request; pass everything else on.
 
+        The header's own minimum is re-taken here on the two events that can
+        change what it needs -- a new font, and a new style -- because both
+        arrive after the button is built. See :meth:`_sync_header_minimum`.
+
         :param watched: the object the event is for.
         :param event: the event.
         :returns: True to stop a tooltip from being shown.
         """
-        if watched is self._header and event.type() == QEvent.ToolTip:
-            return True
+        if watched is self._header:
+            if event.type() == QEvent.ToolTip:
+                return True
+            if event.type() in (QEvent.FontChange, QEvent.StyleChange,
+                                QEvent.Polish):
+                self._sync_header_minimum()
         return super().eventFilter(watched, event)
+
+    def _seal_body(self) -> None:
+        """Let Qt know the body is opaque, when the card really is opaque.
+
+        MEASURED on the mask screen, 3840x2160, font_scale 2, blobs backdrop
+        at 12 fps: the animation reaches 34.3% of the window and 0.0% of a
+        section body -- the card's own fill covers every pixel of it. The
+        body and its sixty-odd fields were repainting 12 times a second
+        anyway, because the card's fill comes from the stylesheet and a QSS
+        background is not something ``QWidgetRepaintManager`` can subtract
+        damage against. See :func:`spacr.qt.theme.seal_surface` for the pair
+        of measurements that establishes that.
+
+        Sealing the BODY rather than the card on purpose: the card's rect
+        includes its ``margin-bottom``, which is the gutter between two
+        categories and is where the backdrop legitimately shows through, so
+        the card cannot promise its whole rect. The body can.
+
+        The seal undoes itself when ``surface`` is translucent at the user's
+        page-opacity setting, which is the case the maintainer asked for on
+        the dock and the panels.
+        """
+        try:
+            from ..theme import seal_surface
+            seal_surface(self._body, role="surface")
+        except Exception:                                    # noqa: BLE001
+            pass
+
+    def changeEvent(self, event):
+        """Re-seal the body when the stylesheet or the palette is swapped.
+
+        A theme change or a move of the page-opacity slider re-renders
+        ``surface``; the seal is a palette brush this widget owns, so nothing
+        else re-computes it. Only ``StyleChange`` is answered -- setting the
+        body's palette posts ``PaletteChange`` back here, and answering that
+        one would be a loop.
+        """
+        super().changeEvent(event)
+        if event.type() == QEvent.StyleChange:
+            self._seal_body()
+
+    def _sync_header_minimum(self) -> None:
+        """Keep the header from being squeezed below the height it needs.
+
+        `QSizePolicy.Fixed` is not the last word on how short a widget may
+        be made: `qSmartMinSize` computes a minimum from the policy and the
+        hints, and then an explicitly set `minimumHeight` REPLACES it,
+        downwards as readily as upwards. So the flat `setMinimumHeight(34)`
+        this used to carry did not raise a floor, it granted the layout
+        permission to shrink the header to 34 px.
+
+        That permission is taken up on every expand. Showing a section body
+        makes the settings column taller than the widget the scroll area has
+        given it -- the scroll area only resizes that widget on the NEXT
+        pass -- so the first pass distributes too little height and shrinks
+        every category header to its stated minimum. MEASURED on the mask
+        screen: at font_scale 1 the headers want 36 px and drop to 34, which
+        is why this went unseen for so long; at font_scale 2 they want 52 and
+        drop to 34, and 11 of the 19 headers on the panel took an 18 px dip
+        and came back one layout pass later. That is 22 of the 175 resize
+        events an expand costs, and a window repaint landing inside the
+        ~2 ms both passes take draws every heading short.
+
+        34 stays as a floor for the opposite case -- a hint smaller than a
+        comfortable pointer target, which is what the constant was for.
+        Re-taken on font and style changes because the hint is the polished
+        button's, and at construction the stylesheet has not been applied.
+        """
+        wanted = max(SECTION_HEADER_MIN_PX,
+                     self._header.sizeHint().height())
+        # Guarded: `setMinimumHeight` invalidates the layout, and this runs
+        # from inside style and font delivery, where an unconditional write
+        # would post a layout request on every polish.
+        if self._header.minimumHeight() != wanted:
+            self._header.setMinimumHeight(wanted)
 
     def _refresh_tooltip(self) -> None:
         # Stable is the normal case, so preserve existing curated tooltips

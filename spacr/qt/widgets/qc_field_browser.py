@@ -3,9 +3,14 @@
 The Measure banner already has every field verdict in its scorecards.  This
 dialog turns those records into a triage loop: one implicated field at a
 time, every object-type verdict together, the merged intensities under
-toggleable mask outlines, and left/right/Q keyboard operation.  Loading and
-render preparation run off the GUI thread; no mask is opened merely because
-the Measure screen itself was shown.
+toggleable mask outlines, and left/right/Q keyboard operation.
+
+Nothing in this dialog touches the filesystem on the GUI thread.  Loading,
+render preparation AND the quarantine move itself all run on workers, and
+the 400 ms button poll answers out of :mod:`spacr.qt.path_probe` rather
+than stat-ing -- see `QCFieldBrowser._file_state` for the freeze that
+bought.  No mask is opened merely because the Measure screen itself was
+shown.
 """
 from __future__ import annotations
 
@@ -35,12 +40,13 @@ from PySide6.QtWidgets import (
 )
 
 from ...qc_quarantine import (
-    is_quarantined,
+    QUARANTINE_DIRNAME,
     quarantine_dir_for,
     quarantine_field,
     resolve_field_path,
     restore_field,
 )
+from .. import path_probe
 from ..i18n import current_language, tr
 from ..job_runner import JobRunner
 
@@ -383,6 +389,108 @@ def load_qc_field(
     )
 
 
+def _load_and_record_state(
+    target: QCFieldTarget,
+    language: str,
+    paths: Tuple[str, str],
+) -> QCFieldImage:
+    """Load one field AND settle its two file states, both on the worker.
+
+    The browser cannot ask the filesystem where a field is: that question ran
+    every 400 ms on the GUI thread and, on a sleeping ``autofs`` mount, one
+    stat took over twenty seconds -- see `QCFieldBrowser._file_state`. This
+    job is already off the GUI thread and is already going to stat the active
+    copy (`resolve_field_path` looks there first), so it answers both
+    questions here and records the answers in `path_probe`.
+
+    Doing it in the loading job rather than in its callback is what keeps the
+    button EXACT rather than merely optimistic: by the time `_on_loaded`
+    paints, the cache holds the truth about both copies, so a field that is
+    in both folders still says so on the first frame, and one whose name is
+    not a stem at all is still reported gone. The `is_symlink` exclusion the
+    old inline check made survives here too; `path_probe` has no lstat
+    variant of its own.
+
+    A raising loader is returned as an error payload rather than allowed to
+    escape, and that is not tidiness. `JobRunner.job_failed` carries no job
+    id and is NOT generation-guarded, so a load abandoned by `cancel()` --
+    the Measure banner re-pointing the dialog with `open_at` mid-load is the
+    real path -- used to paint its own failure over the NEXT field's
+    "Loading…" line. Coming back as a result instead puts the message behind
+    the generation check that already drops stale results.
+    """
+    for path in paths:
+        if not path:
+            continue
+        try:
+            candidate = Path(path)
+            present = candidate.is_file() and not candidate.is_symlink()
+        except (OSError, ValueError):
+            present = False
+        path_probe.prime(path, present)
+    try:
+        return load_qc_field(target, language)
+    except Exception as exc:                                     # noqa: BLE001
+        LOG.info("could not load a QC field", exc_info=True)
+        return QCFieldImage(error=tr("Could not load this field: {error}",
+                                     language=language, error=str(exc)))
+
+
+def _move_field(
+    target: QCFieldTarget,
+    was_quarantined: bool,
+    sink: Dict[str, Any],
+) -> Tuple[bool, str]:
+    """Quarantine or restore one field. Safe on a worker; BLOCKS on disk.
+
+    Every step of this is a filesystem call on a path the user chose:
+    `quarantine_dir_for` alone is a ``Path.resolve()`` realpath walk over
+    every component, and the move that follows adds ``mkdir``, ``stat``,
+    ``link``, an ``fsync``-ed ledger write and an ``unlink``. On the
+    maintainer's sleeping ``/nas_mnt`` autofs share a single one of those had
+    not returned after twenty seconds. It ran on the GUI thread until
+    2026-09-04, which made the `path_probe` gate in `_sync_action` worth
+    nothing: the poll no longer froze, and then pressing the button it guards
+    froze the application anyway.
+
+    :param sink: written with ``outcome`` the instant the move has committed,
+        so `QCFieldBrowser._settle_pending_move` can still report a move that
+        landed while the dialog was being dismissed.
+    :returns: ``(now_quarantined, destination)``.
+    """
+    if was_quarantined:
+        destination = restore_field(
+            quarantine_dir_for(target.merged_dir), target.field)
+        outcome = (False, str(destination))
+    else:
+        destination = quarantine_field(
+            target.merged_dir, target.field, flags=target.audit_flags)
+        outcome = (True, str(destination))
+    sink["outcome"] = outcome
+    return outcome
+
+
+def _render_or_message(
+    payload: QCFieldImage,
+    channel: int,
+    layers: Tuple[str, ...],
+    language: str,
+) -> Tuple[Optional[np.ndarray], str]:
+    """Render one field, returning a failure instead of raising it.
+
+    Same reason as `_load_and_record_state`: a render abandoned by
+    `_render_jobs.cancel()` must not be able to paint "Could not render this
+    field" over the field that replaced it, and `job_failed` is the one
+    completion path `JobRunner` does not generation-guard.
+    """
+    try:
+        return render_qc_field(payload, channel, layers), ""
+    except Exception as exc:                                     # noqa: BLE001
+        LOG.info("could not render a QC field", exc_info=True)
+        return None, tr("Could not render this field: {error}",
+                        language=language, error=str(exc))
+
+
 def _normalise(plane: np.ndarray) -> np.ndarray:
     values = np.asarray(plane)
     finite = values[np.isfinite(values)] if np.issubdtype(
@@ -529,6 +637,20 @@ class QCFieldBrowser(QDialog):
 
     quarantineChanged = Signal(str, bool)
 
+    #: The last answers `path_probe` actually gave for the field on screen,
+    #: used as the DEFAULT for the next question about it. `_recheck_files`
+    #: retires both keys every two seconds so a copy deleted from outside the
+    #: application is still noticed, and between that retirement and the
+    #: replacement probe landing -- up to `path_probe.PROBE_TIMEOUT_S` on the
+    #: slow mount this whole exercise is about -- a fixed optimistic default
+    #: would redraw a quarantined field as active, twice a minute, and let Q
+    #: try to quarantine a file that is not there. Carrying the last answer
+    #: forward makes the re-check invisible until it has something to say.
+    #: Class attributes, so the browser answers correctly before ``__init__``
+    #: has run -- the file-state probe is exercised on a bare instance.
+    _last_active = True
+    _last_quarantined = False
+
     def __init__(
         self,
         targets: Sequence[QCFieldTarget],
@@ -561,6 +683,24 @@ class QCFieldBrowser(QDialog):
             self, threaded=threaded, app_key="segmentation QC rendering",
             user_visible=False)
         self._render_jobs.job_failed.connect(self._on_render_failed)
+        # A THIRD RUNNER, not a share of `_jobs`. The quarantine move used to
+        # run inline on the GUI thread; putting it on the loading runner
+        # instead would have made `_on_load_failed` report a failed rename as
+        # "Could not load this field", and would have let `_show_target`'s
+        # `cancel()` orphan a move mid-flight. `user_visible=True` is left at
+        # its default deliberately: unlike the two above, this runner carries
+        # only work the user asked for by pressing the button, and a move on a
+        # slow share is exactly the kind of activity Home should own up to.
+        self._move_jobs = JobRunner(
+            self, threaded=threaded, app_key="segmentation QC quarantine")
+        self._move_jobs.job_failed.connect(self._on_move_failed)
+        self._move_jobs.busy_changed.connect(self._on_move_busy_changed)
+        #: The move in flight, or None. Holds the target it was started for,
+        #: so a result cannot be applied to whatever field is on screen when
+        #: it lands, and the worker's outcome, so a move that commits while
+        #: the dialog is being dismissed is still announced.
+        self._pending_move: Optional[Dict[str, Any]] = None
+        self._torn_down = False
 
         if initial_field:
             for index, target in enumerate(self._targets):
@@ -667,6 +807,18 @@ class QCFieldBrowser(QDialog):
         self._run_timer.setInterval(400)
         self._run_timer.timeout.connect(self._sync_action)
         self._run_timer.start()
+        path_probe.probes.answered.connect(self._on_probe_answered)
+        # `closeEvent` is NOT a teardown hook for this dialog: it is
+        # `WA_DeleteOnClose`, and Escape goes through `QDialog.done`, which
+        # deletes the widget without ever raising a close event (verified on
+        # Qt 6.10). `finished` is emitted on both paths, while the object is
+        # still alive, which is the only place a move that committed during
+        # the dismissal can still be announced.
+        self.finished.connect(self._on_finished)
+        self._recheck_timer = QTimer(self)
+        self._recheck_timer.setInterval(2000)
+        self._recheck_timer.timeout.connect(self._recheck_files)
+        self._recheck_timer.start()
 
         # Arrow keys belong to field navigation even when a canvas, button or
         # channel picker currently owns focus.  QGraphicsView consumes arrows
@@ -719,12 +871,18 @@ class QCFieldBrowser(QDialog):
         self._channel.clear()
         self._channel.setEnabled(False)
         self._load_status.setText(tr("Loading merged image and masks…"))
+        # A different field knows nothing about the last one's two copies.
+        # Back to the module's own defaults until this field's load, a couple
+        # of lines below, settles them exactly.
+        self._last_active = True
+        self._last_quarantined = False
         self._jobs.cancel()
         self._render_jobs.cancel()
         language = current_language()
         self._jobs.submit(
-            lambda selected=target, code=language: load_qc_field(
-                selected, code),
+            lambda selected=target, code=language,
+            paths=self._field_paths(): _load_and_record_state(
+                selected, code, paths),
             self._on_loaded)
         self._sync_action()
 
@@ -732,8 +890,12 @@ class QCFieldBrowser(QDialog):
         self._sync_navigation()
         self._sync_action()
 
+    def _busy(self) -> bool:
+        """True while a load or a quarantine move owns this field."""
+        return self._jobs.is_busy() or self._move_jobs.is_busy()
+
     def _sync_navigation(self) -> None:
-        busy = self._jobs.is_busy()
+        busy = self._busy()
         self._previous.setEnabled(not busy and self._index > 0)
         self._next.setEnabled(
             not busy and self._index + 1 < len(self._targets))
@@ -836,14 +998,14 @@ class QCFieldBrowser(QDialog):
 
     def previous_field(self) -> None:
         """Move to the previous implicated field, if one exists."""
-        if self._jobs.is_busy() or self._index <= 0:
+        if self._busy() or self._index <= 0:
             return
         self._index -= 1
         self._show_target()
 
     def next_field(self) -> None:
         """Move to the next implicated field, if one exists."""
-        if self._jobs.is_busy() or self._index + 1 >= len(self._targets):
+        if self._busy() or self._index + 1 >= len(self._targets):
             return
         self._index += 1
         self._show_target()
@@ -868,17 +1030,115 @@ class QCFieldBrowser(QDialog):
             LOG.debug("could not read Measure run state", exc_info=True)
             return False
 
+    @staticmethod
+    def _paths_for(target: Optional[QCFieldTarget]) -> Tuple[str, str]:
+        """The active and quarantined ``.npy`` paths, as text only.
+
+        Built with string joins rather than :func:`quarantine_dir_for`,
+        which resolves the plate folder: ``Path.resolve()`` is a realpath
+        walk over every component, and on the maintainer's ``/nas_mnt``
+        autofs mount one component was enough to park the GUI thread.
+
+        Takes its target as an argument rather than reading
+        :attr:`current_target`, because the completion handlers of a move
+        have to address the field the move was STARTED for; the user may
+        have been sent elsewhere by a banner link since.
+        """
+        if target is None:
+            return "", ""
+        merged = os.path.normpath(target.merged_dir)
+        name = f"{target.field}.npy"
+        return (os.path.join(merged, name),
+                os.path.join(os.path.dirname(merged),
+                             QUARANTINE_DIRNAME, name))
+
+    def _field_paths(self) -> Tuple[str, str]:
+        """The two ``.npy`` paths of the field currently on screen."""
+        return self._paths_for(self.current_target)
+
     def _file_state(self) -> Tuple[bool, bool]:
+        """Whether the field is in ``merged``, in quarantine, or both.
+
+        THIS RUNS EVERY 400 ms, from `_sync_action` on the GUI thread, for
+        as long as the dialog is open. It used to be two `Path.is_file()`
+        calls plus `is_quarantined`, and a stat on a sleeping autofs mount
+        was measured at over twenty seconds on 2026-09-04 -- so a browser
+        opened on a NAS plate froze the whole application a couple of
+        times a second, with no traceback, because a stalled event loop is
+        not a crash. `path_probe` answers from its cache and probes in the
+        background; `_on_probe_answered` redraws when the answer lands.
+
+        The starting defaults are chosen the way `file_list.py` chooses
+        them: optimistic for the active copy, which is what this dialog
+        already assumed of a field it was asked to show, and pessimistic for
+        the quarantined one, so an unknown answer can never render the "both
+        copies exist" dead end that disables the button outright.
+
+        They are short-lived: `_load_and_record_state` settles the two keys
+        exactly, on the loading worker, before the image it fetched is
+        painted. Afterwards the default is whatever was last KNOWN about
+        this field -- see :attr:`_last_active` for why a fixed default would
+        make `_recheck_files` flicker the button twice a minute.
+        """
         target = self.current_target
         if target is None:
             return False, False
-        active_path = Path(target.merged_dir, f"{target.field}.npy")
-        active = active_path.is_file() and not active_path.is_symlink()
-        try:
-            quarantined = is_quarantined(target.merged_dir, target.field)
-        except (OSError, ValueError):
-            quarantined = False
+        active_path, quarantined_path = self._paths_for(target)
+        active = path_probe.exists(active_path, default=self._last_active)
+        quarantined = path_probe.exists(
+            quarantined_path, default=self._last_quarantined)
+        self._last_active = active
+        self._last_quarantined = quarantined
         return active, quarantined
+
+    def _recheck_files(self) -> None:
+        """Ask again, slowly, about the two copies nothing here moved.
+
+        `_file_state` used to stat on every 400 ms tick, and that is how the
+        button noticed a copy that vanished from outside the application --
+        a crashed run tidying up, or the user deleting one of two duplicates
+        so that the "resolve duplicates" dead end could clear itself. The
+        probe cache has no expiry, so this is what puts that back: drop both
+        keys and let the background probe answer them again.
+
+        Nothing is dropped while an answer is still outstanding. A probe
+        against a mount that has stopped responding parks a thread for up to
+        `path_probe.PROBE_TIMEOUT_S`, and re-arming faster than they land
+        would queue a new one every tick against a share that is not going
+        to answer any of them.
+        """
+        paths = self._field_paths()
+        if not paths[0] or any(path_probe.known(path) is None
+                               for path in paths):
+            return
+        for path in paths:
+            path_probe.forget(path)
+        self._file_state()  # queues both probes again; the answers repaint
+
+    def _on_probe_answered(self, path: str, _present: bool) -> None:
+        """Repaint the button when a background probe corrects the cache.
+
+        The optimism in `_file_state` has a cost -- a field that is really
+        gone is drawn as present until its probe lands -- and this is the
+        half that pays it back.
+
+        A BOUND METHOD, not a closure, and that is the whole point.
+        `path_probe.probes` is process-wide and outlives every dialog, and
+        this one is `WA_DeleteOnClose`: dismissing it with Escape goes
+        through `QDialog.done`, which deletes the widget WITHOUT calling
+        `closeEvent`, so no teardown hook of ours is guaranteed to run. Qt
+        drops a connection to a bound method of a destroyed QObject by
+        itself; a closure captured in an attribute would instead keep the
+        Python wrapper alive around a dead C++ object and call into it.
+        The guard below is for the emission already in flight when that
+        happens.
+        """
+        try:
+            if path in self._field_paths():
+                self._sync_action()
+        except RuntimeError:
+            # The dialog has gone; the signal outlived it.
+            pass
 
     def _sync_action(self) -> None:
         target = self.current_target
@@ -902,6 +1162,14 @@ class QCFieldBrowser(QDialog):
                 "Measure is running. Stop or finish that run before changing "
                 "which fields it can see."))
             return
+        if self._move_jobs.is_busy():
+            # A move already running owns this field. The button is refused
+            # so the same rename cannot be started twice, and the status line
+            # is left exactly as it was: the move was instantaneous and
+            # silent while it ran on the GUI thread, and it is not this
+            # dialog's job to invent a caption for having stopped freezing.
+            self._quarantine.setEnabled(False)
+            return
         if self._jobs.is_busy():
             self._quarantine.setEnabled(False)
             self._action_status.setText(tr(
@@ -923,42 +1191,125 @@ class QCFieldBrowser(QDialog):
                     "the merged .npy moves."))
 
     def toggle_quarantine(self) -> None:
-        """Quarantine or restore the current field; also bound to Q."""
+        """Quarantine or restore the current field; also bound to Q.
+
+        THE MOVE RUNS ON A WORKER. It did not until 2026-09-04, and that made
+        the whole `path_probe` gate in `_sync_action` pointless: the poll in
+        front of this button stopped freezing and the button itself still
+        did, because `quarantine_dir_for` is a `Path.resolve()` realpath walk
+        and the rename that follows adds a mkdir, a stat, a link, an
+        ``fsync``-ed ledger write and an unlink -- on the plate path the user
+        chose, which is the sleeping ``autofs`` share by assumption. See
+        `_move_field`.
+        """
         target = self.current_target
-        if target is None or self._is_run_active() or self._jobs.is_busy():
+        if (target is None or self._is_run_active() or self._jobs.is_busy()
+                or self._move_jobs.is_busy()):
             self._sync_action()
             return
         active, quarantined = self._file_state()
         if active == quarantined:  # both present or both absent
             self._sync_action()
             return
-        try:
-            if quarantined:
-                destination = restore_field(
-                    quarantine_dir_for(target.merged_dir), target.field)
-                changed = False
-                message = tr("Restored {field} to {path}.",
-                             field=target.field, path=str(destination))
-            else:
-                destination = quarantine_field(
-                    target.merged_dir, target.field,
-                    flags=target.audit_flags)
-                changed = True
-                message = tr(
-                    "Quarantined {field} at {path}. Later Measure runs will "
-                    "skip it.", field=target.field, path=str(destination))
-        except Exception as exc:
-            LOG.exception("could not change field quarantine")
+        sink: Dict[str, Any] = {
+            "target": target, "was_quarantined": quarantined}
+        self._pending_move = sink
+        self._move_jobs.submit(
+            lambda selected=target, was=quarantined, box=sink:
+            _move_field(selected, was, box),
+            lambda _outcome, box=sink: self._apply_move(box))
+        if self._pending_move is sink:
+            # Still in flight -- repaint the button as refused. When the
+            # runner is unthreaded (tests) the handlers above have already
+            # run and already repainted, and syncing again here would erase
+            # the failure notice one of them just wrote.
             self._sync_action()
-            self._action_notice = tr(
-                "Could not change quarantine: {error}", error=str(exc))
-            self._action_status.setText(self._action_notice)
-            return
-        self._action_notice = message
+
+    def _apply_move(self, sink: Dict[str, Any]) -> None:
+        """Record a completed move and reload the field from its new home.
+
+        Runs on the GUI thread, behind `JobRunner`'s generation check.
+        """
+        if self._pending_move is sink:
+            self._pending_move = None
+        target = sink["target"]
+        changed, destination = sink.pop("outcome")
+        # The rename just made the probe cache wrong in both directions, and
+        # the truth is already in hand -- prime rather than forget, or the
+        # two keys answer with the PRE-MOVE state (that is what
+        # `_last_active` carries forward) until a fresh probe lands, and the
+        # button offers to quarantine a file that is already in quarantine.
+        active_path, quarantined_path = self._paths_for(target)
+        path_probe.prime(active_path, not changed)
+        path_probe.prime(quarantined_path, changed)
         self.quarantineChanged.emit(target.field, changed)
+        if target is not self.current_target:
+            # A banner link re-pointed the dialog while the move was in
+            # flight. The move still happened and the listener above still
+            # has to hear about it, but this field's notice belongs to a
+            # field that is no longer on screen.
+            self._sync_action()
+            return
+        self._action_notice = tr(
+            "Quarantined {field} at {path}. Later Measure runs will skip it.",
+            field=target.field, path=destination) if changed else tr(
+            "Restored {field} to {path}.",
+            field=target.field, path=destination)
         # Reload from the new location, both to release stale path text and to
         # prove the reversible move left a readable array.
         self._show_target(preserve_notice=True)
+
+    def _on_move_busy_changed(self, _busy: bool) -> None:
+        self._sync_navigation()
+        self._sync_action()
+
+    def _on_move_failed(self, message: str) -> None:
+        """Report a rename that did not happen, and drop what it assumed.
+
+        `job_failed` is the one completion path `JobRunner` does not
+        generation-guard, so this checks the move it belongs to itself.
+        """
+        sink = self._pending_move
+        self._pending_move = None
+        target = sink["target"] if sink is not None else self.current_target
+        # Nothing is known about either copy after a half-finished move.
+        # Forget rather than prime, and let the background probe settle it;
+        # `_last_active` keeps the button showing the pre-move state in the
+        # meantime, which is the state a failed move should leave.
+        for path in self._paths_for(target):
+            path_probe.forget(path)
+        if target is not self.current_target:
+            self._sync_action()
+            return
+        self._action_notice = tr(
+            "Could not change quarantine: {error}", error=message)
+        self._sync_action()
+        self._action_status.setText(self._action_notice)
+
+    def _settle_pending_move(self) -> None:
+        """Announce a move that committed while the dialog was dismissed.
+
+        `JobRunner.shutdown` cancels before it drains, and a cancelled job's
+        result never reaches `_apply_move`. The rename itself is NOT
+        cancelled -- a stat in progress cannot be interrupted -- so without
+        this a field quarantined a moment before the dialog was closed is
+        moved on disk and the Measure scorecard is never told.
+
+        Best effort by construction: dismissing with Escape never drains
+        anything (`QDialog.done` deletes the dialog outright), so a move
+        still running at that moment is announced by nobody. What is
+        recoverable is a move that had already committed.
+        """
+        sink = self._pending_move
+        self._pending_move = None
+        if sink is None or "outcome" not in sink:
+            return
+        changed, _destination = sink["outcome"]
+        target = sink["target"]
+        active_path, quarantined_path = self._paths_for(target)
+        path_probe.prime(active_path, not changed)
+        path_probe.prime(quarantined_path, changed)
+        self.quarantineChanged.emit(target.field, changed)
 
     def _handle_triage_key(self, key: int) -> bool:
         if key == Qt.Key_Left:
@@ -986,9 +1337,44 @@ class QCFieldBrowser(QDialog):
             return
         super().keyPressEvent(event)
 
+    def _on_finished(self, _result: int) -> None:
+        """Let go of everything process-wide, however the dialog was dismissed.
+
+        `closeEvent` IS NOT A TEARDOWN HOOK HERE, which is the whole reason
+        this exists. The dialog is `WA_DeleteOnClose`, and Escape goes
+        through `QDialog.done`, which deletes the widget without ever raising
+        a close event -- so `closeEvent` runs for a click on the frame and
+        not for the key most people dismiss a dialog with. `finished` is
+        emitted on both paths, while the object is still alive.
+
+        What must not be left behind is the connection to
+        `path_probe.probes`, which is process-wide and outlives every dialog.
+        Qt drops a connection to a bound method of a destroyed QObject on its
+        own, so this is belt and braces rather than the only defence -- but
+        the timers are not, and a 400 ms poll left running against a
+        half-destroyed dialog is a crash rather than a leak.
+
+        Idempotent: `finished` and `closeEvent` both reach it on the click
+        path, and disconnecting twice raises, which is why both are caught.
+        """
+        self._run_timer.stop()
+        self._recheck_timer.stop()
+        try:
+            path_probe.probes.answered.disconnect(self._on_probe_answered)
+        except (RuntimeError, TypeError):
+            pass
+
     def closeEvent(self, event) -> None:  # noqa: N802 - Qt override
         """Retire an in-flight image load before Qt destroys the dialog."""
         self._run_timer.stop()
+        self._recheck_timer.stop()
+        try:
+            path_probe.probes.answered.disconnect(self._on_probe_answered)
+        except (RuntimeError, TypeError):
+            # Escape never reaches this method at all, so the connection is
+            # only ever dropped here as a courtesy; Qt has already done it
+            # by the time the object is really gone.
+            pass
         self._render_jobs.shutdown()
         self._jobs.shutdown()
         super().closeEvent(event)

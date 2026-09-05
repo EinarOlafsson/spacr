@@ -39,6 +39,8 @@ from __future__ import annotations
 
 import logging
 import os
+import threading
+import time
 from itertools import chain, islice
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence
@@ -238,7 +240,16 @@ class _DropScanner(QObject):
         self._screen = screen
         parent = screen if isinstance(screen, QObject) else None
         super().__init__(parent)
-        self._runner = JobRunner(self, app_key="folder scan")
+        # `user_visible=False`: NOTHING THE USER STARTED IN THE HOME SENSE.
+        # A drop is a gesture, not a run, and `home._on_runs_changed` filters
+        # run banners on exactly this flag -- so without it every drop on
+        # every screen flashes a blue "folder scan - running" box across the
+        # top of Home, the same mistake the usage poller and the home journal
+        # walk each made once. It still turns the activity spinner, because a
+        # thread genuinely is running. Nothing else submits to this runner:
+        # `_scan_then` is its only caller and it carries drop scans alone.
+        self._runner = JobRunner(self, app_key="folder scan",
+                                 user_visible=False)
         if parent is not None:
             parent.installEventFilter(self)
 
@@ -313,30 +324,56 @@ def _scanner_for(screen) -> Optional[_DropScanner]:
 
 
 def _scan_then(screen, fn: Callable[[], Any],
-               on_done: Callable[[Any], None]) -> bool:
-    """Scan off the GUI thread; report back on it.
+               on_done: Callable[[Any], None],
+               on_error: Optional[Callable[[BaseException], None]] = None
+               ) -> bool:
+    """Scan off the GUI thread; report back on it, success or failure.
 
     :param fn: the filesystem work. Runs on a worker thread, so it may not
         touch a single widget — it returns plain data instead.
     :param on_done: given ``fn``'s return value, on the GUI thread. This is
         where logging, dialogs and settings widgets belong.
+    :param on_error: given the exception when ``fn`` raises, on the GUI
+        thread. Omit it and a failure is logged and nothing else — which is
+        right only where the caller has written nothing on screen that a
+        failure would leave standing.
     :returns: True when the scan was dispatched to a thread, False when it
         had to run inline (no owner to hold one).
+
+    A FAILING SCAN IS DELIVERED, NOT DROPPED. ``JobRunner._on_settled`` calls
+    its completion handler only for a job that SUCCEEDED, so an exception
+    escaping ``fn`` used to take the whole report with it: the drop had
+    already written "[drop] mask src = …" on the console and then nothing
+    followed it, ever. ``fn`` is therefore wrapped here so the job always
+    succeeds and the outcome — answer or exception — is what travels back;
+    the unwrapping decides which handler runs. The inline fallback takes the
+    same route, so both paths report the same way.
     """
+    def guarded():
+        """Run ``fn`` on the worker, carrying a failure back as data."""
+        try:
+            return (True, fn())
+        except Exception as exc:                                 # noqa: BLE001
+            LOG.debug("folder scan failed", exc_info=True)
+            return (False, exc)
+
+    def landed(outcome) -> None:
+        """Route one finished scan to ``on_done`` or ``on_error``."""
+        ok, value = outcome
+        if ok:
+            on_done(value)
+        elif on_error is not None:
+            on_error(value)
+
     scanner = _scanner_for(screen)
     if scanner is not None:
         try:
-            scanner.submit(fn, on_done)
+            scanner.submit(guarded, landed)
             return True
         except Exception:
             # Qt refused to start a thread. Better a stall than no report.
             LOG.debug("falling back to an inline folder scan", exc_info=True)
-    try:
-        result = fn()
-    except Exception:
-        LOG.debug("folder scan failed", exc_info=True)
-        return False
-    on_done(result)
+    landed(guarded())
     return False
 
 
@@ -359,6 +396,223 @@ def active_scan_jobs(screen) -> int:
     if scanner is None or not _is_alive(scanner):
         return 0
     return scanner.active_jobs()
+
+
+# ---------------------------------------------------------------------------
+# Deciding whether a drop is acceptable, without waiting for a sleeping mount
+# ---------------------------------------------------------------------------
+#
+# ``_scan_then`` above is the right shape whenever there is a callback to
+# report into. ``DropHandler.can_accept`` has none: the boolean has to come
+# back before the drop can be routed anywhere, so there is no "later" to
+# report it in.
+#
+# WHERE THE ACCEPT TESTS ACTUALLY RUN. ``spacr.qt.dnd._route_drop`` hands the
+# whole classification -- ``can_accept``, ``error_message``,
+# ``suggest_alternatives`` -- to a worker through ``_scan_then``, so the
+# ORDINARY path is already off the GUI thread and blocking there is not a
+# freeze, it is what the worker is for. Two paths are not:
+#
+#   * ``_route_drop``'s own fallback. When the screen cannot hold a scanner it
+#     classifies INLINE, on the GUI thread, "better a stall than a drop that
+#     reports nothing".
+#   * ``handler.apply``, which stays on the GUI thread by contract because it
+#     touches widgets -- and which asks these same questions again.
+#
+# So the budget below is real, and it is applied WHERE IT IS NEEDED AND
+# NOWHERE ELSE. Spending it on a worker would be worse than useless: it would
+# answer ``default`` for a share that was going to reply in half a second,
+# turning a correct rejection -- with its message and its "did you mean" list
+# -- into a silent accept. See :func:`_on_gui_thread`.
+
+#: How long a drop decision ON THE GUI THREAD waits for the filesystem before
+#: it stops waiting. A decision taken on a worker has no budget: see
+#: :func:`_decide`.
+#:
+#: Measured 2026-09-04 on the maintainer's machine: a single ``os.path.exists``
+#: on a path under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep
+#: -- had NOT RETURNED AFTER TWENTY SECONDS, because the stat is what triggers
+#: the automount. Dropping a folder from that share froze spaCR with no
+#: traceback, which is how it came in as "opening map barcodes crashes spacr".
+#: This budget is the line between the two cases: a local disk answers a stat
+#: or a top-level listing in well under a millisecond and is therefore decided
+#: exactly as it always was, while a share that is still waking up costs a
+#: quarter of a second and then gets the optimistic answer below -- and the
+#: real one a moment later, from the cache, once the thread it left parked
+#: finally gets its reply.
+DECISION_BUDGET_S = 0.25
+
+#: How long a decision is remembered. Long enough that the ``can_accept`` and
+#: the ``apply`` of one drop gesture ask the filesystem once between them;
+#: short enough that a user who adds the missing images and drops the same
+#: folder again is not told what was true a minute ago.
+DECISION_TTL_S = 5.0
+
+#: How many decisions are kept. A HARD CAP, not a hint. The sweep this
+#: replaced deleted only entries that had already expired, so a burst of live
+#: ones -- a hundred folders dragged in under five seconds -- grew the dict
+#: past the number and nothing brought it back down.
+_DECISION_CAP = 256
+
+_decisions: Dict[tuple, tuple] = {}
+_decision_lock = threading.Lock()
+
+#: Ticks once per question asked. Answers come back out of order -- a stat
+#: parked on a sleeping share can outlive the one that replaced it -- so each
+#: cached answer carries the number of the question it answers and an older
+#: number is never allowed to overwrite a newer one. See :func:`_remember`.
+_decision_seq = 0
+
+
+def _next_decision() -> int:
+    """The number of the next question. Taken before ``work`` starts."""
+    global _decision_seq
+    with _decision_lock:
+        _decision_seq += 1
+        return _decision_seq
+
+
+def _on_gui_thread() -> bool:
+    """True unless this is demonstrably running on a worker thread.
+
+    Answered CONSERVATIVELY, and the asymmetry is deliberate: a process with
+    no ``QCoreApplication`` -- a plain unit test, a headless import -- counts
+    as the GUI thread. Applying the budget where it was not needed costs a
+    quarter of a second; skipping it where it WAS needed is the twenty-second
+    freeze this module exists to prevent.
+    """
+    try:
+        from PySide6.QtCore import QCoreApplication, QThread
+        app = QCoreApplication.instance()
+        if app is None:
+            return True
+        return QThread.currentThread() is app.thread()
+    except Exception:                                            # noqa: BLE001
+        return True
+
+
+def _remember(key: tuple, value: Any, seq: int) -> None:
+    """Cache one real answer, keeping the cache within :data:`_DECISION_CAP`.
+
+    :param seq: the :func:`_next_decision` number this answer belongs to.
+
+    A LATE ANSWER MUST NOT OVERWRITE A NEWER ONE, and on a sleeping share
+    late is the ordinary case. Drop an empty folder: the GUI thread gives up
+    after :data:`DECISION_BUDGET_S` and the stat behind it stays parked. Put
+    the images in, drop the same folder again ten seconds later, and the
+    second question answers "yes, images" and caches it -- and then the first
+    question finally returns "no images" and, unguarded, wrote it over the
+    top. The drop that followed reported an empty folder that was not empty.
+    So an entry is replaced only by a question asked no earlier than the one
+    that produced it.
+
+    Only ANSWERS reach here. The optimistic default :func:`_decide` returns
+    when the budget runs out is a guess, and a guess remembered for five
+    seconds is a guess the next question cannot get behind.
+    """
+    now = time.monotonic()
+    with _decision_lock:
+        previous = _decisions.get(key)
+        if previous is not None and previous[2] > seq:
+            return
+        _decisions[key] = (now + DECISION_TTL_S, value, seq)
+        if len(_decisions) <= _DECISION_CAP:
+            return
+        for stale in [k for k, v in _decisions.items() if v[0] <= now]:
+            del _decisions[stale]
+        # Still over the cap means every entry is live, which the expiry sweep
+        # alone cannot fix. Drop the ones due to expire first.
+        excess = len(_decisions) - _DECISION_CAP
+        if excess > 0:
+            for stale, _ in sorted(_decisions.items(),
+                                   key=lambda kv: kv[1][0])[:excess]:
+                del _decisions[stale]
+
+
+def _decide(key: tuple, work: Callable[[], Any], default: Any) -> Any:
+    """Answer ``work()`` without ever making the GUI thread wait long for it.
+
+    :param key: what is being decided, for the cache -- ``(handler, path)``.
+    :param work: the filesystem half of the decision. It may run on a
+        throwaway thread, so it may not touch a widget; it returns plain data.
+    :param default: what to answer when ``work`` has not finished in
+        :data:`DECISION_BUDGET_S`. Only ever returned on the GUI thread.
+
+    OFF THE GUI THREAD ``work`` simply runs, to completion, and its real
+    answer is what comes back. :func:`spacr.qt.dnd._classify_drop` calls every
+    accept test from a worker, which is the ordinary path for a drop, and a
+    budget there would trade a correct rejection -- the error message, the
+    "did you mean" list -- for a silent accept the moment a share took longer
+    than a quarter of a second to reply. Blocking is what a worker is for.
+
+    ON THE GUI THREAD a stat cannot be cancelled, but our willingness to wait
+    for it can: the thread stays parked until the kernel lets go, and this one
+    stops waiting. That is the same trade
+    :func:`spacr.qt.path_probe._stat_with_timeout` already makes, at a much
+    shorter budget because a person is standing over a dropped folder.
+
+    ``default`` is the OPTIMISTIC answer at every call site -- accept the
+    drop -- for the reason :mod:`spacr.qt.path_probe` gives for reporting an
+    unseen path as present: a drop that is accepted and then reports "no
+    images found in the top level" has told the user something, while a
+    window frozen for twenty seconds has not.
+
+    IT IS RETURNED BUT NEVER REMEMBERED. Caching it would make the guess the
+    answer for the next five seconds, which is exactly the window in which
+    ``apply`` asks the same question -- so the cache holds real answers only,
+    and a caller that gets ``default`` back can tell it is holding a guess
+    and go and find out properly. :meth:`MaskDropHandler.apply` does.
+    """
+    now = time.monotonic()
+    with _decision_lock:
+        hit = _decisions.get(key)
+        if hit is not None and hit[0] > now:
+            return hit[1]
+
+    seq = _next_decision()
+    if not _on_gui_thread():
+        try:
+            answer = work()
+        except Exception:                                        # noqa: BLE001
+            # A path that cannot be read is a rejection, not an answer worth
+            # keeping: the share may be back in a moment.
+            LOG.debug("drop decision %r failed", key, exc_info=True)
+            return default
+        _remember(key, answer, seq)
+        return answer
+
+    done = threading.Event()
+    box: List[Any] = [default]
+
+    def run() -> None:
+        """Ask ``work`` on a throwaway thread and cache what it answers.
+
+        Outlives the wait below whenever the share is asleep, which is why
+        :func:`_remember` refuses an answer older than the one it holds.
+        """
+        try:
+            answer = work()
+        except Exception:
+            # An unreadable path is not an acceptable reason to raise out of
+            # a Qt event filter, so the optimistic answer stands and the drop
+            # is reported on by whatever runs next.
+            LOG.debug("drop decision %r failed", key, exc_info=True)
+        else:
+            box[0] = answer
+            _remember(key, answer, seq)
+        finally:
+            done.set()
+
+    threading.Thread(target=run, daemon=True,
+                     name=f"spacr-drop-decision:{str(key)[:40]}").start()
+    done.wait(DECISION_BUDGET_S)
+    return box[0]
+
+
+def forget_decisions() -> None:
+    """Drop every cached drop decision, so the next one asks again."""
+    with _decision_lock:
+        _decisions.clear()
 
 
 # -- the scans themselves. Worker-thread code: no Qt, no widgets, data out. --
@@ -386,6 +640,128 @@ def scan_mask_folder(path, sample: int = 20) -> Dict[str, Any]:
     # and one .nd2 container is not M images yet.
     total = sum(1 for p in entries if p.suffix.lower() in RASTER_EXTS)
     return {"names": names, "total": total}
+
+
+#: Suffixes a single dropped FILE may carry for the mask module. The suffix
+#: alone does not accept it -- :func:`spacr.qt.multi_format.describe_file`
+#: still has to recognise the contents -- but it is what keeps a dropped
+#: ``.txt`` from costing a file open.
+_MASK_FILE_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".czi",
+                   ".nd2", ".lif", ".npy", ".npz")
+
+
+def _mask_drop_unknown() -> Dict[str, Any]:
+    """What a mask drop is taken to be while the filesystem is still thinking.
+
+    A folder, acceptable, with nothing to suggest instead -- so a share that
+    is slow to wake gets the drop it would have got had it been quick. Built
+    fresh per call because each caller reads it as its own record.
+
+    ``undecided`` IS READ, by :meth:`MaskDropHandler.apply`, and it is the
+    difference between accepting a guess and acting on one. Accepting an
+    unseen path optimistically costs nothing: the folder scan behind the
+    acceptance reports what is really there. ROUTING on it costs plenty --
+    a container file (``.nd2``, ``.lif``, ``.czi``) read as the folder this
+    record claims puts the FILE in ``src`` where its parent belongs, skips
+    the header read that would have set ``metadata_type = auto``, and
+    finishes by printing "no images found in the top level of plate.nd2",
+    which is the failure the whole record exists to keep off the screen. So
+    ``apply`` fills ``src`` from the guess -- the user is owed that
+    immediately -- and sends the branch decision to a worker instead of
+    taking it here.
+    """
+    return {"is_dir": True, "is_file": False, "undecided": True,
+            "accepted": True, "alternatives": []}
+
+
+def scan_mask_drop(path) -> Dict[str, Any]:
+    """Everything a mask drop asks the filesystem about one path. Worker-safe.
+
+    One record, taken once: whether the path is a folder or a file, whether
+    the module can take it, and -- when it cannot -- the nearby folders the
+    "did you mean" dialog offers.
+
+    It is one record because it used to be three separate rounds of stat-ing
+    on the GUI thread inside a single drop: ``can_accept`` asked
+    ``is_dir``/``has_images_in``, ``suggest_alternatives`` then walked the
+    parent and the children again, and ``apply`` asked ``is_file``/``is_dir``
+    a third time. On the maintainer's sleeping ``/nas_mnt`` share the first of
+    those had not returned after twenty seconds.
+
+    :param path: the dropped path to classify.
+    :returns: ``{"is_dir": bool, "is_file": bool, "accepted": bool,
+        "alternatives": [Path, ...]}``.
+    """
+    if isinstance(path, str):
+        path = Path(path)
+    out: Dict[str, Any] = {"is_dir": False, "is_file": False,
+                           "accepted": False, "alternatives": []}
+    try:
+        out["is_dir"] = bool(path.is_dir())
+    except OSError:
+        return out
+    if out["is_dir"]:
+        try:
+            out["accepted"] = bool(has_images_in(path))
+        except OSError:
+            out["accepted"] = False
+        if not out["accepted"]:
+            try:
+                out["alternatives"] = list(find_image_folders_nearby(path))
+            except OSError:
+                pass
+        return out
+    try:
+        out["is_file"] = bool(path.is_file())
+    except OSError:
+        return out
+    if out["is_file"] and str(path.suffix).lower() in _MASK_FILE_EXTS:
+        from .multi_format import describe_file
+        try:
+            out["accepted"] = describe_file(path) is not None
+        except Exception:
+            out["accepted"] = False
+    return out
+
+
+def scan_mask_container(path) -> Dict[str, Any]:
+    """Read a dropped container's header and plan its extraction. Worker-safe.
+
+    The single-file half of a mask drop: ``.nd2`` / ``.czi`` / ``.lif`` /
+    multi-page ``.tif`` / ``.npz``, described once and turned into the rows
+    the metadata table shows. No Qt, no widgets, plain data out.
+
+    It is here rather than inside ``apply`` because describing a container is
+    a FILE OPEN, and the drop that started this exercise was a file open on a
+    sleeping ``autofs`` share that had not returned after twenty seconds. The
+    branch used to defer itself with ``QTimer.singleShot(0, ...)`` under the
+    comment "reads a header, not a tree" -- true about the amount of data and
+    beside the point about the wait, because a single-shot timer runs its
+    callback ON the GUI thread with the event loop stopped. It only moved the
+    freeze one turn later, which is why it was never traced back to here.
+
+    :param path: the dropped container file.
+    :returns: ``{"found": bool, "summary": str, "rows": [...],
+        "error": str}``. ``found`` is False for a file no backend recognises.
+    :raises: whatever :func:`spacr.qt.multi_format.describe_file` raises. A
+        caller on a worker is wrapped by :func:`_scan_then`; the synchronous
+        caller, :func:`_report_regex_on_mask`, has always let it through.
+    """
+    from . import multi_format as mf
+
+    out: Dict[str, Any] = {"found": False, "summary": "", "rows": [],
+                           "error": ""}
+    desc = mf.describe_file(path)
+    if desc is None:
+        return out
+    out["found"] = True
+    out["summary"] = desc.summary()
+    try:
+        from . import ingest_preview as ip
+        out["rows"] = list(ip.plan_container_extraction(desc))
+    except Exception as exc:                                     # noqa: BLE001
+        out["error"] = str(exc) or exc.__class__.__name__
+    return out
 
 
 def scan_folder_structure(path) -> Dict[str, Any]:
@@ -445,6 +821,20 @@ class MaskDropHandler(DropHandler):
         """
         return True
 
+    def _facts(self, path: Path) -> Dict[str, Any]:
+        """What the filesystem says about ``path``. One walk, shared.
+
+        ``can_accept``, ``suggest_alternatives`` and ``apply`` are all asked
+        about the same dropped path within one drop, and this is the single
+        walk between the three. Where the walk happens depends on who is
+        asking: the accept tests run on a worker and get the real answer;
+        ``apply`` runs on the GUI thread and waits no longer than
+        :data:`DECISION_BUDGET_S`, by which time the worker has normally
+        filled the cache anyway. See :func:`_decide`.
+        """
+        return _decide(("mask", str(path)),
+                       lambda: scan_mask_drop(path), _mask_drop_unknown())
+
     def can_accept(self, path: Path) -> bool:
         """A folder with images at the top level, or one readable image file.
 
@@ -452,31 +842,28 @@ class MaskDropHandler(DropHandler):
         whether a `.czi` or `.nd2` can actually be read, because the suffix
         says what a file claims to be and the reader says what it is.
 
+        Answered from `_facts`, which is the ONE walk this drop pays for --
+        the question above is exactly what `scan_mask_drop` already settled.
+
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
         """
-        if path.is_dir():
-            return has_images_in(path)
-        if path.is_file():
-            from .multi_format import describe_file
-            return path.suffix.lower() in (
-                ".tif", ".tiff", ".png", ".jpg", ".jpeg", ".czi",
-                ".nd2", ".lif", ".npy", ".npz",
-            ) and describe_file(path) is not None
-        return False
+        return bool(self._facts(path)["accepted"])
 
     def suggest_alternatives(self, path: Path) -> List[Path]:
         """Nearby folders that DO hold images, for the 'did you mean' prompt.
 
         Only for a folder: a file that is not an image has no near miss worth
-        offering.
+        offering, and `scan_mask_drop` returns none for one.
+
+        Already found by the same scan that rejected the path. Searching the
+        parent and the children for images is a walk of its own, and doing it
+        here meant a rejected drop paid for a second one.
 
         :param path: the dropped file or folder.
         :returns: nearby paths that WOULD be accepted.
         """
-        if path.is_dir():
-            return find_image_folders_nearby(path)
-        return []
+        return list(self._facts(path)["alternatives"])
 
     def error_message(self, path: Path) -> str:
         """Name the formats AND 'at the top level', which is the usual miss:
@@ -498,10 +885,45 @@ class MaskDropHandler(DropHandler):
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.
         """
-        src = path.parent if path.is_file() else path
-        _set_src_on(screen, str(src))
-        _log(screen, f"[drop] mask src = {src}\n")
-        if path.is_dir():
+        facts = self._facts(path)
+        if not facts.get("undecided"):
+            self._apply_facts(path, screen, facts)
+            return
+        # NOTHING IS KNOWN YET -- the budget in :func:`_decide` ran out and
+        # this record is the optimistic guess, not an answer. Fill ``src``
+        # from it, because a person who just let go of a folder is owed the
+        # path appearing in the field, and send the question that actually
+        # matters -- folder or container? -- to a worker. Deciding it here
+        # would read a ``.nd2`` as a folder and print "no images found in the
+        # top level of plate.nd2"; see :func:`_mask_drop_unknown`.
+        _set_src_on(screen, str(path))
+        _log(screen, f"[drop] mask src = {path}\n")
+        _scan_then(
+            screen,
+            lambda: self._facts(path),
+            lambda settled: self._apply_facts(path, screen, settled,
+                                              src_already_set=True),
+            lambda exc: _log(screen, f"[drop] could not read {path}: {exc}\n"),
+        )
+
+    def _apply_facts(self, path: Path, screen, facts: Dict[str, Any],
+                     src_already_set: bool = False) -> None:
+        """Route the drop now that ``path`` is known to be a folder or a file.
+
+        GUI thread only: it sets widgets. Split out of :meth:`apply` so the
+        same routing serves a decision taken there and one that had to be
+        waited for on a worker.
+
+        :param facts: a settled :func:`scan_mask_drop` record.
+        :param src_already_set: ``apply`` filled ``src`` from the guess. It
+            is rewritten only if the settled answer disagrees, so the ordinary
+            case does not log the same line twice.
+        """
+        src = path.parent if facts.get("is_file") else path
+        if not src_already_set or str(src) != str(path):
+            _set_src_on(screen, str(src))
+            _log(screen, f"[drop] mask src = {src}\n")
+        if not facts.get("is_file"):
             # Read the folder on a worker thread and render the report when
             # it comes back.
             #
@@ -511,29 +933,35 @@ class MaskDropHandler(DropHandler):
             # the event loop and then runs everything ON the GUI thread, with
             # the loop stopped — the freeze just started 50 ms later than the
             # drop, which is why it was never traced back to here.
-            _scan_then(screen,
-                       lambda: scan_mask_folder(path),
-                       lambda scan: _render_mask_report(path, screen, scan))
+            _scan_then(
+                screen,
+                lambda: scan_mask_folder(path),
+                lambda scan: _render_mask_report(path, screen, scan),
+                lambda exc: _log(
+                    screen, f"[drop] could not read {path}: {exc}\n"),
+            )
             return
-        # A single container file. Describing it reads a header, not a tree,
-        # and the branch has to set widgets and open a table — so it stays on
-        # the GUI thread, one turn later so the src field paints first.
-        try:
-            from PySide6.QtCore import QTimer
-            QTimer.singleShot(0, lambda: _report_regex_on_mask(path, screen))
-        except Exception:
-            pass
+        # A single container file. Describing it is a FILE OPEN, which is the
+        # call that froze on the sleeping share, so it goes to a worker too
+        # and only the widget half comes back. See :func:`scan_mask_container`.
+        _scan_then(
+            screen,
+            lambda: scan_mask_container(path),
+            lambda scan: _render_container_report(path, screen, scan),
+            lambda exc: _log(screen, f"[drop] could not read {path}: {exc}\n"),
+        )
 
 
 def _report_regex_on_mask(path: Path, screen) -> None:
     """Sample filenames, apply / auto-detect the metadata regex, and
     write a tabular report into the AppScreen's Console.
 
-    Synchronous — it reads the folder inline. :meth:`MaskDropHandler.apply`
-    does **not** call it that way: a drop scans on a worker thread and calls
-    :func:`_render_mask_report` with the result. This entry point is for
-    callers that already know the folder is small (and for tests that want
-    the whole report in one call).
+    Synchronous — it reads the folder, or opens the container, inline.
+    :meth:`MaskDropHandler.apply` does **not** call it that way: a drop
+    scans on a worker thread and calls :func:`_render_mask_report` or
+    :func:`_render_container_report` with the result. This entry point is
+    for callers that already know the path answers quickly (and for tests
+    that want the whole report in one call).
 
     On a good match: prints an aligned column table of up to 10
     randomly-sampled records + a ``✓ All required fields captured``
@@ -550,19 +978,30 @@ def _report_regex_on_mask(path: Path, screen) -> None:
         ``.nd2`` / multi-page tiff / big ``.npy``) — reported via
         :mod:`spacr.qt.multi_format`.
     """
-    from . import multi_format as mf
-
-    # ── Folder path ───────────────────────────────────────────────
+    # ── Folder path ─────────────────────────────────
     if not path.is_file():
         _render_mask_report(path, screen, scan_mask_folder(path))
         return
 
-    _log(screen, "\n")
+    # ── Single-file dataset path ─────────────────────
+    _render_container_report(path, screen, scan_mask_container(path))
 
-    # ── Single-file dataset path ──────────────────────────────────
-    desc = mf.describe_file(path)
-    if desc is None:
-        _log(screen, f"[drop] dropped file {path.name} — unrecognised "
+
+def _render_container_report(path, screen, scan: Dict[str, Any]) -> None:
+    """Report a finished :func:`scan_mask_container`. GUI thread only.
+
+    The widget half of a single-container drop: it sets ``metadata_type``,
+    writes the console lines and opens the editable metadata table. Every
+    filesystem call behind it already happened on the worker that produced
+    ``scan``.
+
+    :param path: the container the user dropped, for the messages.
+    :param scan: a :func:`scan_mask_container` record.
+    """
+    scan = scan or {}
+    _log(screen, "\n")
+    if not scan.get("found"):
+        _log(screen, f"[drop] dropped file {Path(path).name} — unrecognised "
                      f"single-file dataset format.\n")
         return
     # Container formats (nd2/czi/lif/multi-page tiff/npz) are expanded
@@ -571,20 +1010,26 @@ def _report_regex_on_mask(path: Path, screen) -> None:
     # point src at the containing folder.
     _set_screen_setting(screen, "metadata_type", "auto")
     _log(screen,
-         f"[drop] single-file dataset: {desc.summary()}\n"
+         f"[drop] single-file dataset: {scan.get('summary', '')}\n"
          f"       Set metadata_type = 'auto' — spaCR will auto-extract "
          f"every image (channels/z/fields) from this container into the "
          f"canonical filename structure on the first Run, and write a "
          f"filename_map.csv linking each generated file back to it.\n")
     # Preview the planned extraction and let the user edit the
-    # plate/well/field/channel assignment before committing.
+    # plate/well/field/channel assignment before committing. A planner that
+    # failed on the worker is reported in the same words it was reported in
+    # when the planning happened here.
+    failure = scan.get("error") or ""
+    if failure:
+        _log(screen, f"[drop] metadata preview unavailable: {failure}\n")
+        return
     try:
         from . import ingest_preview as ip
-        rows = ip.plan_container_extraction(desc)
+        rows = list(scan.get("rows") or ())
         if rows:
             _log(screen, f"[drop] planned extraction — "
                          f"{ip.summarize_rows(rows)}\n")
-            _open_metadata_table(rows, path.parent, screen)
+            _open_metadata_table(rows, Path(path).parent, screen)
     except Exception as e:
         _log(screen, f"[drop] metadata preview unavailable: {e}\n")
 
@@ -1129,6 +1574,28 @@ class MapBarcodesDropHandler(DropHandler):
 
     _FQ_EXTS = (".fastq", ".fastq.gz", ".fq", ".fq.gz")
 
+    @classmethod
+    def _is_fastq_name(cls, path) -> bool:
+        """Whether the NAME says FASTQ. No filesystem call at all."""
+        name = str(getattr(path, "name", "") or "").lower()
+        return any(name.endswith(x) for x in cls._FQ_EXTS)
+
+    def _holds_fastq(self, path: Path) -> bool:
+        """Worker-safe: does this folder hold a FASTQ at its top level?
+
+        The name is tested before ``is_file`` so a folder of ten thousand
+        images costs one listing rather than ten thousand stats.
+        """
+        try:
+            if not path.is_dir():
+                return False
+            for child in path.iterdir():
+                if self._is_fastq_name(child) and child.is_file():
+                    return True
+        except OSError:
+            return False
+        return False
+
     def can_accept(self, path: Path) -> bool:
         """A FASTQ file, or a folder holding one.
 
@@ -1136,19 +1603,20 @@ class MapBarcodesDropHandler(DropHandler):
         run can hold thousands of files and the question is only whether
         there is one.
 
+        THE NAME IS ASKED BEFORE THE FILESYSTEM. The usual drop here is a
+        ``.fastq.gz``, and its name settles it, so the common case touches
+        the disk not at all. Only a folder has to be listed, and that listing
+        waits at most :data:`DECISION_BUDGET_S` -- dropping a sequencing
+        folder from a sleeping network share is the exact gesture that was
+        reported as "opening map barcodes crashes spacr".
+
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
         """
-        if path.is_file():
-            name = path.name.lower()
-            return any(name.endswith(x) for x in self._FQ_EXTS)
-        if path.is_dir():
-            for child in path.iterdir():
-                if child.is_file() and any(
-                    child.name.lower().endswith(x) for x in self._FQ_EXTS
-                ):
-                    return True
-        return False
+        if self._is_fastq_name(path):
+            return True
+        return bool(_decide(("map_barcodes", str(path)),
+                            lambda: self._holds_fastq(path), True))
 
     def error_message(self, path: Path) -> str:
         """Name both spellings of the extension, since `.gz` is the common one
@@ -1161,18 +1629,21 @@ class MapBarcodesDropHandler(DropHandler):
                 "or a folder that contains one.")
 
     def apply(self, path: Path, screen) -> None:
-        # If a file: point src at the containing folder + fastq at the file
-        """
-        Point `src` at the folder and, for a dropped file, `fastq` at the file.
+        """Point `src` at the folder and, for a dropped file, `fastq` at it.
 
         TWO FIELDS FROM ONE DROP. Dropping the FASTQ itself is the precise
         gesture and fills both; dropping the folder leaves the file unset,
         because which of several reads was meant is not something to guess.
 
+        WHICH OF THE TWO IT IS COMES FROM THE NAME, not from a stat. The
+        `is_file()` that stood here asked the filesystem a question the
+        filename had already answered -- on the GUI thread, immediately after
+        `can_accept` had asked it too.
+
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.
         """
-        if path.is_file():
+        if self._is_fastq_name(path):
             fq_path = str(path)
             src_path = str(path.parent)
         else:
@@ -2460,8 +2931,21 @@ def _resolve_for(handler, app_key: str, path: Path):
     has the filesystem's granularity, not the clock's: creating a file inside
     one and stat-ing it immediately can return the byte-identical timestamp,
     measured on this tree. The cache would then answer from before the file
-    existed. One `os.listdir` is a syscall against an already-hot directory
-    and still saves the three resolutions this memo exists to prevent.
+    existed. The listdir it costs still saves the three resolutions this memo
+    exists to prevent.
+
+    WHERE THE KEY IS CHEAP AND WHERE IT IS NOT. The comment here used to read
+    "one `os.listdir` is a syscall against an already-hot directory", and hot
+    was the local-disk assumption this whole exercise disproved: a stat that
+    triggers an ``autofs`` automount does not return for twenty seconds, and
+    it is the FIRST one that pays. What makes the key cheap is not the
+    directory being hot by nature but its having been woken already --
+    ``can_accept`` runs on the drop scanner's worker thread (see
+    :func:`spacr.qt.dnd._classify_drop`) and reaches this function first, so
+    by the time ``apply`` gets here on the GUI thread the mount is up and the
+    stat and the listing are the microseconds they were always claimed to be.
+    A caller that reaches this function on the GUI thread FIRST, with a path
+    nothing has touched, is still exposed, and no memo can fix that.
     """
     try:
         stamp = os.stat(path).st_mtime_ns

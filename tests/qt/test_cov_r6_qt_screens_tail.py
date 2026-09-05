@@ -343,7 +343,15 @@ class TestReadingATableWithNoObjectKeys:
 # ---------------------------------------------------------------------------
 
 class TestLoadingACsvIntoTheGraphBuilder:
-    """``if not str(path).lower().endswith((".csv", ".tsv", ".txt")):``"""
+    """``names = [] if is_text else table_names(source)``
+
+    The branch used to be taken on the GUI thread and is now taken inside the
+    job, because ``sqlite3.connect`` on a sleeping ``autofs`` mount froze the
+    window for twenty seconds (see
+    ``test_the_graph_builder_never_lists_tables_on_the_gui_thread``). These
+    build the screen with ``threaded=False`` so the job runs inline and the
+    assertions still describe the call rather than a race with a worker.
+    """
 
     def test_a_csv_is_read_without_looking_for_tables(self, qapp, tmp_path,
                                                       monkeypatch):
@@ -362,7 +370,7 @@ class TestLoadingACsvIntoTheGraphBuilder:
         monkeypatch.setattr(gb, "table_names",
                             lambda p: asked.append(p) or ["cell"])
 
-        screen = gb.make_graph_builder_screen()
+        screen = gb.GraphBuilderScreen(threaded=False)
         try:
             screen.load_path(str(path))
 
@@ -381,8 +389,11 @@ class TestLoadingACsvIntoTheGraphBuilder:
         asked = []
         monkeypatch.setattr(gb, "table_names",
                             lambda p: asked.append(p) or ["cell", "nucleus"])
+        monkeypatch.setattr(gb, "read_table",
+                            lambda p, t=None, limit=None: pd.DataFrame(
+                                {"area": [1.0, 2.0]}))
 
-        screen = gb.make_graph_builder_screen()
+        screen = gb.GraphBuilderScreen(threaded=False)
         try:
             screen.load_path(str(tmp_path / "measurements.db"))
 

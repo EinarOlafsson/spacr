@@ -480,8 +480,16 @@ def test_declining_the_confirmation_does_absolutely_nothing(action,
 
 
 @pytest.mark.parametrize("action", rc.ACTIONS)
-def test_accepting_runs_exactly_that_action_and_reports_it(action,
+def test_accepting_runs_exactly_that_action_and_reports_it(action, qtbot,
                                                            monkeypatch):
+    """Each button runs its own action and reports it — and only its own.
+
+    "disk" is the one that arrives rather than returns: it stats folders the
+    user chose, so since 2026-09-04 it runs on a worker and its result comes
+    back through the callback (see
+    `tests/qt/test_the_disk_report_never_blocks_the_dialog.py`). What it
+    reports is unchanged, which is what the wait here is for.
+    """
     from spacr.qt import preferences as prefs
 
     ran = []
@@ -497,6 +505,8 @@ def test_accepting_runs_exactly_that_action_and_reports_it(action,
     prefs.run_resource_action(action)
     expected = {"ram": "clear_ram", "vram": "clear_vram", "cpu": "clear_cpu",
                 "disk": "disk_report"}[action]
+    if action == "disk":
+        qtbot.waitUntil(lambda: shown == [action], timeout=5000)
     assert ran == [expected]
     assert shown == [action]
 

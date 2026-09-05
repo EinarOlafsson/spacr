@@ -990,10 +990,10 @@ def downloaded_zoo_models():
     begin one. The picker is where downloading happens; this is where the
     result of having done it shows up.
 
-    Never raises and never blocks on the network: the zoo is consulted with
-    its own local view, and any failure yields an empty tuple. A dropdown that
-    could not be built because a catalogue was unreachable would be worse than
-    one missing an entry.
+    Never raises and never blocks on the network -- true again as of
+    2026-09-05, and it was not for a while: the ``remote=True`` below reaches
+    the community catalogue, which was fetched synchronously. See the comment
+    on that call for what it cost.
 
     :returns: a tuple of filesystem paths, newest catalogue order.
     """
@@ -1013,8 +1013,16 @@ def downloaded_zoo_models():
         # The remote rows carry the paths anyway, so nothing is lost: what is
         # skipped is the walk looking for models nobody declared.
         out = []
+        # block=False, AND THAT IS THE SAME KIND OF FLAG AS THE ONE ABOVE.
+        # `remote=True` reaches `model_zoo.shared_catalogue`, which fetched
+        # the community catalogue over HTTPS -- here, on the GUI thread,
+        # while a settings panel was being built. Measured 2026-09-05 with
+        # the host non-routable: opening Mask took 32.2 s, and GNOME's
+        # "force quit" dialog is what the user saw. The community rows are
+        # taken from the cache instead; the entries this function keeps are
+        # the ones already on disk anyway.
         for entry in model_zoo.catalogue(remote=True, include_bundled=False,
-                                         include_plugins=False):
+                                         include_plugins=False, block=False):
             if entry.kind != "cellpose":
                 continue
             path = str(getattr(entry, "path", "") or "")
