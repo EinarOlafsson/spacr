@@ -169,6 +169,21 @@ class SettingsSearchBar(QWidget):
     """
 
     def __init__(self, screen: QWidget, parent: Optional[QWidget] = None):
+        """Build the settings search strip above a module's form.
+
+        Fixed height, explicitly: the strip is two rows tall and the scroll area
+        under it wants everything else, so without a policy the two share the
+        pane by stretch factor and the search box lands 800 pixels high on the
+        first layout.
+
+        The key-to-section index is built once from the rendered form, so
+        filtering never has to guess which section a setting ended up in, and
+        which sections the user had open is remembered -- clearing the box puts
+        the form back rather than leaving it splayed.
+
+        :param screen: the module screen whose settings this filters.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName(BAR_NAME)
         # Fixed height, explicitly. The strip is two rows tall and the scroll
@@ -368,12 +383,24 @@ class SettingsSearchBar(QWidget):
 
     # -- wiring -------------------------------------------------------
     def _on_query_changed(self, _text: str) -> None:
+        """Re-apply the filter after the search text changed.
+
+        :param _text: the new text; re-read from the box, so it is not used.
+        """
         self.apply()
 
     def _on_modified_toggled(self, _on: bool) -> None:
+        """Re-apply the filter after the modified-only switch changed.
+
+        :param _on: the switch's new state; re-read, so it is not used.
+        """
         self.apply()
 
     def _on_disclosure_toggled(self, on: bool) -> None:
+        """Switch between essential and all settings, and remember the choice.
+
+        :param on: ``True`` for all settings, ``False`` for the essentials.
+        """
         self._level = ALL if on else ESSENTIALS
         remember_disclosure(self._app_key, self._level)
         self._refresh_disclosure_text()
@@ -485,6 +512,18 @@ class SettingsSearchBar(QWidget):
         # sentence with its numbers as placeholders; a line built out of
         # f-strings first and looked up after matches nothing, and this
         # line sits under every settings panel in the program.
+        """Build the line under the form saying how much of it is showing.
+
+        Composed from translated parts rather than assembled and then looked up:
+        the catalogue is keyed on the sentence with its numbers as placeholders,
+        so an f-string built first matches nothing -- and this line sits under
+        every settings panel in the program.
+
+        :param shown: settings currently visible.
+        :param total: settings this module has.
+        :param essentials: how many are marked essential.
+        :returns: the line, ending in a full stop.
+        """
         if shown == total:
             if self._level == ESSENTIALS and essentials:
                 return tr("Showing all {total} settings.", total=total)
