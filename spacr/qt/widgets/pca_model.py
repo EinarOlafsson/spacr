@@ -289,6 +289,15 @@ class PCASpec:
     structural_missing: float = DEFAULT_STRUCTURAL_MISSING
 
     def __post_init__(self) -> None:
+        """De-duplicate the features and validate the decomposition settings.
+
+        :raises PCAError: if ``scaling`` or ``nan_policy`` is not one this
+            module offers, if ``n_components`` is below 1, or if
+            ``structural_missing`` is not a fraction of rows in ``[0, 1]``. The
+            component count is capped at the module's maximum rather than
+            refused: asking for more components than that is a request for
+            noise, not an error.
+        """
         seen: Dict[str, None] = {}
         for name in self.features or ():
             if name:
@@ -515,6 +524,14 @@ class PCAResult:
 
     # -- reading one component --------------------------------------------
     def _check(self, k: int) -> int:
+        """Bounds-check a component index.
+
+        :param k: the component asked for.
+        :returns: it, as an ``int``.
+        :raises PCAError: if this result has no such component -- naming the
+            ones it does have, because "PC7" against a five-component fit is a
+            question about the fit rather than a bug.
+        """
         if not 0 <= int(k) < self.n_components:
             raise PCAError(
                 f"there is no component {component_name(k)}; this result has "

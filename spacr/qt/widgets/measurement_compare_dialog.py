@@ -120,6 +120,26 @@ class MeasurementComparePanel(QWidget):
                  settings: Optional[Dict[str, Any]] = None,
                  databases: Optional[Any] = None,
                  counts: Optional[Any] = None):
+        """Build the comparison panel: the pickers, the plot and the statistics.
+
+        The join runs off the GUI thread. It reads every object table out of
+        every attached database and joins them onto the crop rows -- measured at
+        3.2 s for one plate's 553 objects, so a four-plate screen of 60,000 is
+        minutes with the window frozen solid, which is what "pressing join the
+        measurements table makes spaCR unresponsive" was.
+
+        The well selection is held as ``None`` for "all of them" rather than as
+        the full list: a well that appears after a re-run should be included,
+        and a stored full list would silently exclude it.
+
+        :param objects: the object rows for the montage and the contrasts.
+        :param groups: selected group names mapped to object-index values.
+        :param parent: parent widget, or ``None``.
+        :param settings: run settings, saved alongside exported results.
+        :param databases: measurement databases available for widening the
+            object table.
+        :param counts: per-well counts, used to resolve control wells.
+        """
         super().__init__(parent)
         self._objects = objects
         self._groups = dict(groups or {})
@@ -846,6 +866,13 @@ class MeasurementComparePanel(QWidget):
             f"gives this graph both sides.")
 
     def _draw(self):
+        """Redraw the plot for the current pickers.
+
+        The class filter narrows what is DRAWN and never what the statistics
+        below describe: a test computed on one of two groups is not a comparison
+        at all, and quietly re-running it on the visible half would report a
+        different question than the one on screen.
+        """
         from .graph_builder import _canvas_class
 
         while self._figure_holder.count():
@@ -1011,6 +1038,19 @@ class MeasurementCompareDialog(QDialog):
                  settings: Optional[Dict[str, Any]] = None,
                  databases: Optional[Any] = None,
                  counts: Optional[Any] = None):
+        """Build the window around one :class:`MeasurementComparePanel`.
+
+        Every argument is handed straight through; the panel documents what each
+        one means.
+
+        :param objects: object rows for the montage and reference contrasts.
+        :param groups: selected group names mapped to object-index values.
+        :param parent: parent widget, or ``None``.
+        :param settings: run settings saved alongside exported results.
+        :param databases: measurement databases available for widening the
+            object table.
+        :param counts: per-well counts, used to resolve control wells.
+        """
         super().__init__(parent)
         self.setWindowTitle("Compare a measurement")
         layout = QVBoxLayout(self)

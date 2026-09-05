@@ -137,6 +137,12 @@ class TrellisSpec:
     wrap: int = 0
 
     def __post_init__(self) -> None:
+        """Coerce the inner graph spec and validate the scales and the wrap.
+
+        :raises SpecError: if either scale mode is not one this module offers,
+            or if ``wrap`` is negative or wider than the maximum -- ``0`` means
+            no wrapping.
+        """
         if not isinstance(self.graph, GraphSpec):
             object.__setattr__(self, "graph",
                                GraphSpec.from_dict(dict(self.graph)))

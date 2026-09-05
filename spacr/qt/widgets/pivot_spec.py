@@ -209,6 +209,17 @@ class PivotSpec:
     quantile: float = 0.75
 
     def __post_init__(self) -> None:
+        """Normalise the axes and validate the aggregations.
+
+        ``n`` is always present and always first: a table where the user could
+        turn it off is a table where a mean over four objects looks like a mean
+        over four thousand.
+
+        :raises PivotError: if a column is on both the row and the column axis
+            -- one column cannot nest inside itself, and every cell off the
+            diagonal would be empty by construction; if an aggregation is
+            unknown; or if ``quantile`` is not a fraction in ``[0, 1]``.
+        """
         for name in ("rows", "cols", "values"):
             object.__setattr__(self, name, _clean(getattr(self, name)))
         clash = set(self.rows) & set(self.cols)

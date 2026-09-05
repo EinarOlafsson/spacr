@@ -336,6 +336,18 @@ class ReferenceOrbit:
 
     def __init__(self, max_iter: int = 2200, digits: int = 320,
                  center=None) -> None:
+        """Iterate the reference orbit at high precision and pack it for the shader.
+
+        Build it off the GUI thread: iterating a few thousand points at 320
+        decimal digits takes seconds, and the backdrop has to keep drawing while
+        it happens.
+
+        :param max_iter: how many points to iterate; clamped to the hard
+            maximum.
+        :param digits: working precision, in decimal digits.
+        :param center: the centre; refined from the Misiurewicz guess when
+            omitted.
+        """
         import mpmath as mp
 
         self.max_iter = max(1, min(int(max_iter), HARD_MAX_ITERATIONS))
@@ -355,6 +367,14 @@ class ReferenceOrbit:
         self._build()
 
     def _build(self) -> None:
+        """Iterate Z and store each point as three float32 words per component.
+
+        Each word is the remainder of the one before it, which is what makes the
+        sum more accurate than any single float: the error of the pair becomes
+        the value of the third. Two words reproduce Z to about 2.2e-16 -- some
+        15.7 decades, which is where the picture turned to mush -- and three
+        reach roughly 2^-72.
+        """
         import mpmath as mp
 
         mp.mp.dps = self.digits
@@ -745,6 +765,13 @@ class SteeringCamera:
     def __init__(self, strength: float = 0.09, interval: float = 0.4,
                  duration: float = 3.8,
                  seconds_per_decade: float = 24.0) -> None:
+        """Create the camera at the origin with no target yet.
+
+        :param strength: how far off centre to look; ``0`` does not steer.
+        :param interval: decades of descent between one target and the next.
+        :param duration: the follow's time constant, in seconds.
+        :param seconds_per_decade: how fast the descent runs.
+        """
         self.configure(strength, interval, duration, seconds_per_decade)
         self.centre = (0.0, 0.0)
         self.target: Optional[tuple] = None

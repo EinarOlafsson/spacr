@@ -88,6 +88,12 @@ class Condition:
     role: str = ROLE_TREATMENT
 
     def __post_init__(self) -> None:
+        """Validate one experimental condition.
+
+        :raises ValueError: if the condition has no name; if it asks for fewer
+            than one replicate -- a condition that gets no well is not in the
+            experiment; or if its role is not one of the known ones.
+        """
         if not str(self.name).strip():
             raise ValueError("a condition needs a name")
         if int(self.replicates) < 1:
@@ -123,6 +129,11 @@ class PlateDesign:
     seed: int = 0
 
     def __post_init__(self) -> None:
+        """Validate the plate format, the layout and the edge policy.
+
+        :raises ValueError: if the plate format is not one spaCR knows, or if
+            the layout or edge policy is not one of the offered values.
+        """
         if int(self.plate_format) not in PLATE_FORMATS:
             raise ValueError(
                 f"plate_format={self.plate_format!r} is not a known plate; "

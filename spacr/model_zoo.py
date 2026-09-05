@@ -557,6 +557,14 @@ class ModelEntry:
     def __post_init__(self):
         # A blank provenance field reads as "no constraints"; it has to say
         # "unknown" out loud instead. object.__setattr__ because frozen.
+        """Fill in the provenance fields and validate the kind.
+
+        A blank ``trained_on`` or ``trained_by`` reads as "no constraints", so
+        it is replaced with an explicit unknown -- the field has to say so out
+        loud rather than by omission.
+
+        :raises ValueError: if ``kind`` is not one of the known model kinds.
+        """
         for attribute in ("trained_on", "trained_by"):
             value = str(getattr(self, attribute) or "").strip()
             object.__setattr__(self, attribute, value or UNKNOWN)
