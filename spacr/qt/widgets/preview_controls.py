@@ -802,6 +802,10 @@ class ImageSetSampler:
 
     @property
     def directory(self) -> Optional[str]:
+        """The folder this sampler draws its images from.
+
+        :returns: the directory path.
+        """
         return self._directory
 
     @property

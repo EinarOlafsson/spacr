@@ -266,6 +266,7 @@ class SraPicker(QDialog):
         self.accept()
 
     def reject(self) -> None:                     # noqa: D102 - Qt override
+        """Cancel the picker, leaving whatever was chosen before untouched."""
         if self._worker is not None:
             self._worker.cancel()
             self._worker.wait(3000)

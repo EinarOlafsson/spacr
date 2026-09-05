@@ -198,6 +198,10 @@ class SetupDialog(QDialog):
             return None
 
     def resizeEvent(self, event):               # noqa: N802 - Qt naming
+        """Re-lay the dialog for the new size.
+
+        :param event: the Qt resize event.
+        """
         super().resizeEvent(event)
         if self._backdrop_view is not None:
             self._backdrop_view.setGeometry(self.rect())

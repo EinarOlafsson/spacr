@@ -1422,6 +1422,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             event.ignore()
 
     def dragMoveEvent(self, event):     # noqa: N802
+        """Keep accepting while droppable input stays over the panel.
+
+        :param event: the Qt drag event.
+        """
         if self._dropped_image_path(event) is not None:
             event.acceptProposedAction()
         else:

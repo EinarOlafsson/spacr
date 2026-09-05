@@ -668,6 +668,10 @@ class SweepRunsPanel(QWidget):
         # when the user closes the screen it belongs to. Both runners are
         # asked to stop and are waited for a bounded time; a job that outlasts
         # the budget is parked rather than killed mid-delete.
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         for runner in (getattr(self, "_load_jobs", None),
                        getattr(self, "_jobs", None)):
             if runner is None:
@@ -744,6 +748,7 @@ class SweepRunsPanel(QWidget):
         self._stop_waiting()
 
     def reload(self) -> bool:
+        """Re-read the sweep's runs from disk."""
         return self.load(self._folder) if self._folder else False
 
     def set_frame(self, frame, source: str = "") -> bool:
@@ -755,6 +760,10 @@ class SweepRunsPanel(QWidget):
         # promoting this to a docstring means bumping the count in the same
         # commit. (It used to say the count file "belongs to another session
         # right now" -- true on 2026-08-17, not a constraint today.)
+        """Point the panel at a table of runs.
+
+        :param frame: the runs, or None to clear.
+        """
         self._sweep_frame = frame if frame is not None and len(frame) else None
         if self._sweep_frame is None and not source:
             source = "The sweep has recorded no trials yet."

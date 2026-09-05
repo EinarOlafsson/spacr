@@ -428,6 +428,16 @@ class _PendingDrop:
     __slots__ = ("deliver", "report", "answered")
 
     def __init__(self, deliver: Callable[[object], None]) -> None:
+        """Hold a drop that has been made but not yet classified.
+
+        `answered` and `report` start empty because the classification runs
+        on a worker: the queue needs an entry the moment the drop is made, so
+        that a LATER drop cannot be delivered ahead of this one, and the
+        entry has nothing in it until the scanner comes back.
+
+        :param deliver: what to run once this drop's turn comes, given its
+            report.
+        """
         self.deliver = deliver
         self.report = None
         self.answered = False

@@ -154,12 +154,52 @@ class TestTheRegressionPanelIsUnchangedByTheWidening:
                    if key in panel._widgets and panel._widgets[key].isEnabled()}
         assert enabled == expected
 
-    def test_a_panel_with_no_gated_setting_greys_nothing(
+    def test_mask_greys_its_one_ruled_setting_and_nothing_else(
             self, qtbot, qt_theme_applied):
-        """Mask shows none of the ruled settings, so the sweep is empty and
-        every control stays live."""
+        """Mask has exactly one gated setting, and the sweep touches only it.
+
+        THIS TEST USED TO ASSERT MASK HAD NONE, and that was true when it was
+        written. `custom_regex` gained a rule -- it is read only when
+        `metadata_type` is 'custom', or 'auto' with a regex supplied -- so the
+        premise went stale rather than the behaviour going wrong.
+
+        Rewritten rather than repointed at some other ruleless panel, because
+        the property worth guarding is not "a panel with no rules greys
+        nothing". It is that the sweep greys THE RULED SETTING AND NOTHING
+        ELSE: a rule that reached past its own key would disable controls a
+        user needs, and would look like the panel had broken.
+        """
         panel = _panel(qtbot, "mask")
-        assert panel._rules_for_this_panel() == {}
+
+        assert set(panel._rules_for_this_panel()) == {"custom_regex"}
+
         panel._refresh_setting_dependencies()
-        assert not [key for key, widget in panel._widgets.items()
-                    if not widget.isEnabled()]
+        greyed = {key for key, widget in panel._widgets.items()
+                  if not widget.isEnabled()}
+
+        # The default convention is 'cellvoyager', which does not read the
+        # regex, so the one ruled setting is off and every other is live.
+        assert panel.collect().get("metadata_type") == "cellvoyager"
+        assert greyed == {"custom_regex"}
+
+    def test_masks_rule_lets_the_regex_back_on_both_conventions_that_read_it(
+            self, qtbot, qt_theme_applied):
+        """'auto' counts, and that is the half a tidy-up would get wrong.
+
+        The obvious reading of the rule is "grey it unless metadata_type is
+        custom". `metadata_type`'s own description says 'auto' renames using
+        `custom_regex` WHEN SUPPLIED, so a user on 'auto' with a regex is
+        relying on documented behaviour. Greying it there would remove that
+        while looking like a cleanup.
+        """
+        panel = _panel(qtbot, "mask")
+
+        for convention in ("custom", "auto"):
+            panel.set_value_for_key("metadata_type", convention)
+            panel._refresh_setting_dependencies()
+            assert panel._widgets["custom_regex"].isEnabled(), (
+                f"the regex is greyed under {convention!r}, which reads it")
+
+        panel.set_value_for_key("metadata_type", "cq1")
+        panel._refresh_setting_dependencies()
+        assert not panel._widgets["custom_regex"].isEnabled()

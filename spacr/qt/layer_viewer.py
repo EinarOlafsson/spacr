@@ -291,6 +291,11 @@ class LayerCanvas(QFrame):
     view_changed = Signal()
 
     def __init__(self, stack: Optional[LayerStack] = None, parent=None):
+        """Build the canvas over one layer stack.
+
+        :param stack: the layers to paint.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("LayerCanvasFrame")
         self.setMinimumSize(240, 180)
@@ -331,6 +336,7 @@ class LayerCanvas(QFrame):
         self._stack.unsubscribe(self._on_layers_changed)
 
     def _on_layers_changed(self, event: LayerEvent) -> None:
+        """Redraw for a stack that has gained, lost or reordered a layer."""
         if event.kind in LayerEvent.REPAINT:
             self.update()
 
@@ -401,6 +407,14 @@ class LayerCanvas(QFrame):
         self.view_changed.emit()
 
     def _ensure_canvas(self) -> Optional[Canvas]:
+        """The world window for the current widget size, built on demand.
+
+        FLOORED AT ONE PIXEL each way. A widget mid-layout can report zero
+        width, and a canvas of zero size is a division by zero rather than an
+        empty picture.
+
+        :returns: the canvas, or None when there is nothing to frame.
+        """
         width = max(1, self.width() - 2)
         height = max(1, self.height() - 2)
         if self._canvas is None:
@@ -579,6 +593,11 @@ class LayerListWidget(QListWidget):
     """
 
     def __init__(self, stack: LayerStack, parent=None):
+        """Build the list over one layer stack.
+
+        :param stack: the layers to list.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("LayerList")
         self.setDragDropMode(QAbstractItemView.InternalMove)
@@ -625,6 +644,7 @@ class LayerListWidget(QListWidget):
         # QListWidgetItem it was called with — using it after the rebuild is
         # a "C++ object already deleted" RuntimeError raised inside a Qt
         # signal, where no `except` in this file can reach it.
+        """Rebuild the rows for a stack that has changed."""
         if self._syncing:
             return
         if event.kind in ("inserted", "removed", "moved", "renamed",
@@ -633,6 +653,15 @@ class LayerListWidget(QListWidget):
 
     # -- list -> model ---------------------------------------------------
     def _layer_for(self, item: QListWidgetItem):
+        """The layer one row stands for, or None if it has since gone.
+
+        LOOKED UP BY NAME rather than held: a row outlives the layer it was
+        built for when the stack changes underneath the list, and a stale
+        reference would be a crash instead of an empty selection.
+
+        :param item: the list row.
+        :returns: the layer, or None.
+        """
         name = item.data(Qt.UserRole)
         try:
             return self._stack[name]
@@ -640,6 +669,10 @@ class LayerListWidget(QListWidget):
             return None
 
     def _on_item_changed(self, item: QListWidgetItem) -> None:
+        """Apply a rename or a visibility tick the user made in the list.
+
+        :param item: the row that changed.
+        """
         if self._syncing:
             return
         layer = self._layer_for(item)
@@ -661,6 +694,7 @@ class LayerListWidget(QListWidget):
             self._syncing = False
 
     def _on_selection_changed(self) -> None:
+        """Tell the stack which layer the list now has selected."""
         if self._syncing:
             return
         item = self.currentItem()
@@ -704,6 +738,11 @@ class LayerViewer(LinkedView, QWidget):
     object_picked = Signal(str)
 
     def __init__(self, stack: Optional[LayerStack] = None, parent=None):
+        """Build the viewer: canvas, layer list and per-layer controls.
+
+        :param stack: the layers to show, or None for an empty one.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("LayerViewer")
         self._stack = stack if stack is not None else LayerStack()
@@ -719,6 +758,7 @@ class LayerViewer(LinkedView, QWidget):
 
     # -- construction ----------------------------------------------------
     def _build(self) -> None:
+        """Lay out the canvas, the list and the control column."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(12, 12, 12, 12)
         outer.setSpacing(8)
@@ -822,6 +862,7 @@ class LayerViewer(LinkedView, QWidget):
         return self._stack
 
     def _on_layers_changed(self, event: LayerEvent) -> None:
+        """Re-sync the controls with whichever layer is selected."""
         if event.kind in ("selected", "inserted", "removed"):
             self._sync_controls()
 
@@ -865,11 +906,19 @@ class LayerViewer(LinkedView, QWidget):
 
     # -- control handlers --------------------------------------------------
     def _on_opacity(self, value: int) -> None:
+        """Set the selected layer's opacity.
+
+        :param value: the slider's position, as a percentage.
+        """
         layer = self._stack.selected
         if layer is not None:
             layer.opacity = value / 100.0
 
     def _on_blending(self, text: str) -> None:
+        """Set how the selected layer combines with what is under it.
+
+        :param text: the blending mode's name.
+        """
         layer = self._stack.selected
         if layer is None or not text:
             return
@@ -879,6 +928,10 @@ class LayerViewer(LinkedView, QWidget):
             LOG.exception("Could not set the blending mode")
 
     def _on_colormap(self, text: str) -> None:
+        """Set the selected image layer's colormap.
+
+        :param text: the colormap's name.
+        """
         layer = self._stack.selected
         if isinstance(layer, ImageLayer) and text:
             try:
@@ -887,16 +940,22 @@ class LayerViewer(LinkedView, QWidget):
                 LOG.exception("Could not set the colormap")
 
     def _reorder(self, move) -> None:
+        """Move the selected layer, doing nothing when none is selected.
+
+        :param move: the stack operation to apply to it.
+        """
         layer = self._stack.selected
         if layer is not None:
             move(layer)
 
     def _on_remove(self) -> None:
+        """Remove the selected layer."""
         layer = self._stack.selected
         if layer is not None:
             self._stack.remove(layer)
 
     def _on_add_image(self) -> None:
+        """Ask for an image and add it as a layer."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Add an image layer", "",
             "Images (*.tif *.tiff *.png *.jpg *.jpeg *.npy);;All files (*)")
@@ -904,6 +963,7 @@ class LayerViewer(LinkedView, QWidget):
             self.add_image_file(path)
 
     def _on_add_mask(self) -> None:
+        """Ask for a label mask and add it as a layer."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Add a label mask layer", "",
             "Masks (*.tif *.tiff *.png *.npy);;All files (*)")
@@ -951,15 +1011,23 @@ class LayerViewer(LinkedView, QWidget):
         return Spacing.isotropic(2, 1.0, units=self._stack.units)
 
     def _on_add_points(self) -> None:
+        """Add an empty points layer to draw into."""
         self._stack.add_points(name="points", ndim=2,
                                spacing=self._default_spacing(), size=12.0)
 
     def _on_add_shapes(self) -> None:
+        """Add an empty shapes layer to draw into."""
         self._stack.add_shapes(name="shapes", ndim=2,
                                spacing=self._default_spacing())
 
     # -- picking ----------------------------------------------------------
     def _on_picked(self, layer, world, value) -> None:
+        """Select the picked layer and describe what is under the pointer.
+
+        :param layer: the layer picked, or None for empty space.
+        :param world: the world coordinate picked.
+        :param value: the value at that coordinate.
+        """
         if layer is not None:
             self._stack.select(layer)
         self.status.setText(self._describe_pick(layer, world, value))
@@ -971,6 +1039,12 @@ class LayerViewer(LinkedView, QWidget):
         self.publish_selection([key])
 
     def _on_activated(self, layer, world, value) -> None:
+        """Act on a double-click: open the object under the pointer.
+
+        :param layer: the layer activated.
+        :param world: the world coordinate.
+        :param value: the value there.
+        """
         key = self._object_key(layer, world, value)
         # Asked rather than caught: with nothing registered to show crops, a
         # double click should do nothing visible, not raise NoObjectOpener out
@@ -984,11 +1058,25 @@ class LayerViewer(LinkedView, QWidget):
 
     @staticmethod
     def _object_key(layer, world, value) -> Optional[str]:
+        """Identify the object under a pick, so it can be looked up elsewhere.
+
+        :param layer: the layer picked.
+        :param world: the world coordinate.
+        :param value: the value there.
+        :returns: the object's key, or None when the pick hit no object.
+        """
         if not isinstance(layer, LabelsLayer) or not value:
             return None
         return layer.object_key_at_world(world)
 
     def _describe_pick(self, layer, world, value) -> str:
+        """One line describing what is under the pointer, for the status bar.
+
+        :param layer: the layer picked, or None.
+        :param world: the world coordinate.
+        :param value: the value there.
+        :returns: the description.
+        """
         position = " · ".join(f"{axis} {coordinate:.6g}"
                               for axis, coordinate in world.items())
         if layer is None:
@@ -1004,6 +1092,10 @@ class LayerViewer(LinkedView, QWidget):
         return f"{position} · {layer.name}"
 
     def _on_hovered(self, world) -> None:
+        """Update the status bar as the pointer moves.
+
+        :param world: the world coordinate under the pointer.
+        """
         if self._stack.selected is None:
             self.status.setText(" · ".join(
                 f"{axis} {coordinate:.6g}"

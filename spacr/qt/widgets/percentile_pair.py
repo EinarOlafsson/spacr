@@ -185,4 +185,11 @@ class PercentilePair(QWidget):
         return f"{low}, {high}"
 
     def setText(self, value: Any) -> None:      # noqa: N802 - Qt naming
+        """Set both percentiles from one settings string.
+
+        Named for QLineEdit's method for the same reason as
+        :meth:`ChannelPicker.setText`.
+
+        :param value: the pair, as the settings dict spells it.
+        """
         self.set_value(value)

@@ -427,6 +427,17 @@ if njit is not None:
 else:
 
     def render_into(*_args, **_kwargs):
+        """Refuse: the cascade CPU backend needs Numba, which is absent.
+
+        RAISES RATHER THAN RETURNING AN EMPTY BUFFER. A blank frame would
+        look like a backdrop that renders nothing, and the reader would go
+        looking for the bug in the shader; the name of the missing dependency
+        is the whole answer.
+
+        :param _args: whatever the caller would have rendered.
+        :param _kwargs: likewise.
+        :raises RuntimeError: always.
+        """
         raise RuntimeError("numba is required for the cascade CPU backend")
 
 

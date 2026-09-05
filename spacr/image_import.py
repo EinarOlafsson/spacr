@@ -415,6 +415,10 @@ class ImportPlan:
 
     @property
     def root(self) -> Path:
+        """The folder every path in this plan is relative to.
+
+        :returns: the root path.
+        """
         return self.layout.root
 
     @property

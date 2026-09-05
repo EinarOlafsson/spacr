@@ -425,6 +425,10 @@ class PowerCurveView(QWidget):
     # -- painting ----------------------------------------------------------
 
     def paintEvent(self, event):  # noqa: N802 - Qt name
+        """Draw the power curve.
+
+        :param event: the Qt paint event.
+        """
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         palette = self._palette

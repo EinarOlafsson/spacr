@@ -1926,37 +1926,37 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert not imported_package_modules
     by_symbol = {item.symbol: item for item in callables}
 
-    assert len(callables) == len(by_symbol) == 8_381
+    assert len(callables) == len(by_symbol) == 8_439
     assert Counter(item.category for item in callables) == {
-        "function": 3_620,
-        "method": 3_732,
-        "constructor": 390,
+        "function": 3_632,
+        "method": 3_774,
+        "constructor": 393,
         "dataclass_constructor": 441,
         "namedtuple_constructor": 6,
         "exception_constructor": 137,
-        "inherited_or_default_constructor": 55,
+        "inherited_or_default_constructor": 56,
     }
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_376,
+        "autoapi": 8_434,
         "cli_only": 2,
         "compatibility": 3,
     }
-    assert sum(item.variant_count for item in callables) == 8_388
+    assert sum(item.variant_count for item in callables) == 8_446
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_374,
+        1: 8_432,
         2: 7,
     }
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 91
+    ) == 92
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 91
+    ) == 92
     # RE-RECORDED 2026-09-04. Every figure here moved UP together as the
     # package gained callables; not one of them fell, which is the direction
     # check that was run before these numbers were written.
-    assert sum(len(item.parameters) for item in callables) == 16_546
-    assert sum(len(item.required_parameters) for item in callables) == 8_367
+    assert sum(len(item.parameters) for item in callables) == 16_619
+    assert sum(len(item.required_parameters) for item in callables) == 8_419
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -1966,7 +1966,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "50379f703b527cd3b9651def233032fed0ef2aea2bb9898173527ff2db892cfb"
+    ) == "08f2227284a5595404d1a6a1faee8967b98e52a0239c08532451cb569db998c2"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -1982,8 +1982,23 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Both have since been documented. The example has to be a callable that
     # is STILL docless, or this assertion stops standing for the class of
     # defect it was written for -- so it moves each time 368 reaches it.
-    assert not by_symbol[
-        "spacr.qt.linked_selection.LinkedSelection.clear_filter"].docstring
+    # THERE IS NO DOCLESS EXAMPLE LEFT, so the assertion inverts.
+    #
+    # This named a callable that was still docless, as a live example of the
+    # defect class the boundary was written for. The example moved four times
+    # -- LayerStack.add_image, RunRegistry.register,
+    # LinkedSelection.clear_filter, fractal_travel.set_num_threads -- each
+    # documented by 368 in turn, and the last of them exhausted the supply.
+    #
+    # An example that cannot exist is a stronger statement than any example,
+    # so it is made directly: every public callable in the package carries a
+    # docstring, and a new docless one fails here by name.
+    docless_now = sorted(
+        item.symbol for item in _public_callables()
+        if item.docless_variant_count
+    )
+    assert docless_now == [], (
+        f"public callables with no docstring: {docless_now}")
     assert by_symbol[
         "spacr.qt.bridge.RunRegistry.register"
     ].required_parameters == {"handle"}
@@ -2054,8 +2069,17 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         "spacr.qt.widgets.fractal_space.render_space_frame",
         "spacr.qt.widgets.fractal_space.sample_space",
     ):
+        # TWO VARIANTS IS THE LOAD-BEARING HALF and still holds: each of
+        # these is defined twice, once compiled by Numba and once as a
+        # fallback in the `except ImportError` branch, and the inventory has
+        # to count VARIANTS rather than symbols or the second definition is
+        # invisible to every gate here.
         assert by_symbol[symbol].variant_count == 2
-        assert by_symbol[symbol].docless_variant_count == 1
+        # WAS 1. The fallback branches were the docless half; 368 documented
+        # them, so both variants now carry text. The pairing is what this
+        # test is about, not the gap, and the gap closing is the good
+        # outcome rather than a reason to move the example.
+        assert by_symbol[symbol].docless_variant_count == 0
 
     # A literal __all__ closes a module; nested functions, properties,
     # private Qt callbacks and non-constructor special methods are not
@@ -2097,12 +2121,12 @@ def test_no_new_public_callable_lacks_a_docstring():
     # `spacr.qt.dnd_handlers` now documents itself. 368's rule is that the
     # improvement is banked in the commit that earns it, or documenting a
     # hundred callables silently buys room to leave a hundred more.
-    assert len(docless) == 75
+    assert len(docless) == 0
     assert sum(
         item.docless_variant_count for item in _public_callables()
-    ) == 75
+    ) == 0
     assert _sha256_lines(docless) == (
-        "a0eceb1694145d0c11db5a083f5420ca8f9c252b1084c0542e5fd7afcbb193ca"
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     )
 
 
@@ -2263,10 +2287,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,427 -> 9,441. Seven public symbols were added earlier today and
     # seven drop-handler methods stopped being aliases, so they now carry
     # their own entry instead of borrowing one.
-    assert len(docs) == 10_011
+    assert len(docs) == 10_152
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
-    assert len(rendered_documented_callables) == 8_304
+    assert len(rendered_documented_callables) == 8_434
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2408,19 +2432,23 @@ def test_callable_api_doc_alias_reduction_is_exact():
     # borrows its base class's text; 94 of them were drop-handler methods
     # that now say what THEY do, so the borrowing is not merely unnecessary,
     # it would hide the specific answer behind the generic one.
-    assert len(declared_aliases) == 1
-    assert len(callable_aliases) == 1
+    assert len(declared_aliases) == 0
+    assert len(callable_aliases) == 0
     # EMPTY NOW. These six were properties whose alias made them borrow
     # `Layer`'s text; documenting `spacr.layers` gave each its own, so both
     # registries hold the same two entries and neither has a symbol the
     # other lacks.
     assert set(declared_aliases) - set(callable_aliases) == set()
+    # EMPTY SETS NOW, because the registry is empty. These said {"method"}
+    # and {"autoapi"}: every alias was a rendered method borrowing a base
+    # class's text. Kept rather than deleted, so that if an alias is ever
+    # added again it is still held to being exactly that.
     assert {
         by_symbol[alias].category for alias in callable_aliases
-    } == {"method"}
+    } <= {"method"}
     assert {
         by_symbol[alias].exposure for alias in callable_aliases
-    } == {"autoapi"}
+    } <= {"autoapi"}
 
     alias_debt = {
         alias: _missing_required_parameters(by_symbol[alias])
@@ -2432,23 +2460,25 @@ def test_callable_api_doc_alias_reduction_is_exact():
         for canonical in set(callable_aliases.values())
         if _missing_required_parameters(by_symbol[canonical])
     }
-    # 90 -> 4 on 2026-09-04. An alias inherits its base class's parameter
-    # documentation as well as its prose, so 86 of these were drop-handler
-    # methods carrying the base's debt rather than any of their own. They
-    # document their own parameters now and the borrowing is gone with them.
-    assert len(alias_debt) == 1
-    assert sum(map(len, alias_debt.values())) == 1
-    assert len(canonical_debt) == 1
-    assert sum(map(len, canonical_debt.values())) == 1
+    # 90 -> 0 over 2026-09-04. An alias inherits its base class's parameter
+    # documentation as well as its prose, so most of these were drop-handler
+    # methods carrying the base's debt rather than any of their own. Every
+    # override documents its own parameters now, and the registry is empty,
+    # so there is no borrowing left to owe anything.
+    assert len(alias_debt) == 0
+    assert sum(map(len, alias_debt.values())) == 0
+    assert len(canonical_debt) == 0
+    assert sum(map(len, canonical_debt.values())) == 0
 
     raw = _required_parameter_omission_inventory(items)
     deduplicated = _required_parameter_omission_inventory(
         items, callable_aliases,
     )
     # The gap IS the alias debt, so it fell with it: 140 -> 7.
-    assert len(raw[0]) - len(deduplicated[0]) == 1
-    assert raw[1] - deduplicated[1] == {"method": 1}
-    assert raw[2] - deduplicated[2] == {"method": 1}
+    # The gap IS the alias debt, and the registry is empty, so there is none.
+    assert len(raw[0]) - len(deduplicated[0]) == 0
+    assert raw[1] - deduplicated[1] == {}
+    assert raw[2] - deduplicated[2] == {}
 
 
 def test_no_new_undocumented_required_public_parameters():
@@ -2482,24 +2512,24 @@ def test_no_new_undocumented_required_public_parameters():
     # job: a documented callable whose required parameters are unexplained
     # still counts here, so the drop-handler docstrings carry `:param:` and
     # `:returns:` fields and the number goes DOWN rather than up.
-    assert len(omissions) == 2_319
-    assert sum(omitted_callables.values()) == 1_667
+    assert len(omissions) == 2_284
+    assert sum(omitted_callables.values()) == 1_637
     assert omitted_callables == {
-        "function": 756,
-        "method": 865,
+        "function": 758,
+        "method": 833,
         "constructor": 2,
         "dataclass_constructor": 42,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
-        "function": 1_127,
-        "method": 1_047,
+        "function": 1_130,
+        "method": 1_009,
         "constructor": 3,
         "dataclass_constructor": 130,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "99eb7554d78f74855b263154527c4df07e993d9fd130167c7e6cf448a83a05a9"
+        "2b688873396c1ab757b204bb1ed123aabba5f06359e648bb9370a3dff9eff66e"
     )
 
 

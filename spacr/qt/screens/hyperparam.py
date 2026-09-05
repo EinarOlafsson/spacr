@@ -2750,6 +2750,7 @@ class UmapSearchSettingsDialog(QDialog):
                 del self._module_model._widgets[key]
 
     def propagate_settings(self) -> None:
+        """Push the tuned settings back to the screen that opened this."""
         callback = self._panel._apply_cb
         if callback is None:
             return
@@ -2779,6 +2780,10 @@ class UmapSearchSettingsDialog(QDialog):
             "Propagated UMAP search and graph settings to the module.")
 
     def closeEvent(self, event):  # noqa: N802
+        """Remember the dialog's geometry before it goes.
+
+        :param event: the Qt close event.
+        """
         self._panel._settings_panel.setParent(self._panel)
         self._panel._settings_panel.hide()
         super().closeEvent(event)

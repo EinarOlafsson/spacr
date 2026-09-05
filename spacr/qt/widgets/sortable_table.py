@@ -614,11 +614,27 @@ class SortableProxyModel(QSortFilterProxyModel):
     """
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """One header label, taken from the source model.
+
+        :param section: the row or column number.
+        :param orientation: which header.
+        :param role: the Qt display role.
+        :returns: the label, or None.
+        """
         if role == Qt.InitialSortOrderRole and orientation == Qt.Horizontal:
             return Qt.DescendingOrder.value
         return super().headerData(section, orientation, role)
 
     def lessThan(self, left, right):
+        """Order two cells, comparing what they MEAN rather than how they read.
+
+        A column of numbers rendered as text sorts 10 before 9 under a string
+        comparison, which is the bug this exists to prevent.
+
+        :param left: the left cell's index.
+        :param right: the right cell's index.
+        :returns: True when left sorts first.
+        """
         source = self.sourceModel()
         left_value = source.data(left, Qt.DisplayRole)
         right_value = source.data(right, Qt.DisplayRole)

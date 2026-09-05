@@ -160,11 +160,21 @@ class LinkedSelection(QObject):
         self.filter_changed.emit()
 
     def clear_filter(self) -> None:
+        """Drop the shared filter, showing every row again.
+
+        BROADCAST, like any other filter change: every linked view is showing
+        a subset because of this filter, so clearing it silently would leave
+        them all filtered by something no longer there.
+        """
         self.set_filter(DataFilter())
 
     # -- selection -----------------------------------------------------
     @property
     def selection(self) -> Selection:
+        """What is currently selected across the linked views.
+
+        :returns: the selection.
+        """
         return self._selection
 
     def set_selection(self, selection: Selection) -> None:

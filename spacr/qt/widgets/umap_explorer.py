@@ -912,6 +912,10 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         return self._point_visible.copy()
 
     def on_linked_filter_changed(self, data_filter: DataFilter) -> None:
+        """Re-draw for a filter another view has just set.
+
+        :param data_filter: the new shared filter.
+        """
         self._recompute_visible_points()
         self._apply_point_alpha()
         self._status.setText(self._payload_status())
@@ -1100,6 +1104,10 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         self.annotation_finished.emit(updated, skipped)
 
     def closeEvent(self, event):
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         try:
             self.unlink_selection()
         except (RuntimeError, TypeError):

@@ -989,6 +989,18 @@ class AmbientEngine:
                  resolution: float = DEFAULT_RESOLUTION,
                  density: float = DEFAULT_DENSITY,
                  direction: str = DEFAULT_DRIFT_DIRECTION):
+        """Roll the constants this engine paints from.
+
+        :param colors: the palette to paint with.
+        :param background: the colour behind the shapes.
+        :param seed: what makes the animation reproducible.
+        :param blur: how soft the shapes are drawn.
+        :param speed: the animation rate multiplier.
+        :param size: the shape scale.
+        :param resolution: the render resolution.
+        :param density: how many shapes there are.
+        :param direction: which way the field drifts.
+        """
         self.seed = seed
         self.time = 0.0
         self.frames = 0
@@ -1029,6 +1041,14 @@ class AmbientEngine:
 
     @staticmethod
     def _coerce_colors(colors: Sequence[Union[QColor, str]]) -> List[QColor]:
+        """Turn whatever the palette gave us into QColors.
+
+        Accepts names, hex and RGB tuples because the palette is written by
+        hand and a colour spelled the wrong way should not stop the backdrop.
+
+        :param colors: the palette entries.
+        :returns: one QColor per entry.
+        """
         out = [QColor(c) for c in colors or ()]
         out = [c for c in out if c.isValid()]
         return out or [QColor("#808080")]
@@ -1511,6 +1531,11 @@ class BlobsEngine(_BufferedEngine):
         # Seed the blobs on a jittered 5x3 grid rather than uniformly at
         # random: with only fourteen of them, uniform sampling reliably
         # leaves one corner empty and clumps three in the middle.
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
         cols, rows = 5, 3
         cells = list(range(cols * rows))
         rng.shuffle(cells)
@@ -1573,6 +1598,12 @@ class BlobsEngine(_BufferedEngine):
         return tuple(out)
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw one frame's field of shapes.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
         peak = (BLOB_ALPHA_DARK if self.dark else BLOB_ALPHA_LIGHT) \
             * self.alpha_scale()
         colors = self.paint_colors
@@ -1940,12 +1971,18 @@ class AuroraEngine(_BufferedEngine):
     base_edge = AURORA_BUFFER_EDGE
 
     def __init__(self, *args, **kwargs):
+        """Roll the aurora's bands and their drift."""
         self._tiles: Dict[Tuple[int, int], QImage] = {}
         self._surges: Dict[int, QImage] = {}
         self._pulse_mask: Optional[QImage] = None
         super().__init__(*args, **kwargs)
 
     def _configure(self, rng: random.Random) -> None:
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
         self.curtains: List[Curtain] = []
         for i in range(_pool_size(AURORA_CURTAINS)):
             # Each extra tier of three sits a little lower than the last, or
@@ -1972,12 +2009,14 @@ class AuroraEngine(_BufferedEngine):
             ))
 
     def _restyle(self) -> None:
+        """Re-roll the colours after a palette change."""
         super()._restyle()
         self._tiles = {}
         self._surges = {}
 
     def _resize(self) -> None:
         # Both caches are keyed on pixel sizes derived from it.
+        """Re-lay the bands for a new widget size."""
         self._tiles = {}
         self._surges = {}
 
@@ -1987,6 +2026,10 @@ class AuroraEngine(_BufferedEngine):
         return self.element_count(AURORA_CURTAINS, len(self.curtains))
 
     def _rate(self, curtain: Curtain) -> float:
+        """How fast the bands drift, given the current speed setting.
+
+        :returns: the drift rate.
+        """
         return AURORA_DEPTHS[curtain.depth % len(AURORA_DEPTHS)][0]
 
     def fold(self, curtain: Curtain, u: float, t: float) -> float:
@@ -2361,6 +2404,12 @@ class AuroraEngine(_BufferedEngine):
             0.5 + 0.5 * math.sin(2 * math.pi * u / wavelength + phase))
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw one frame's field of shapes.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
         peak = (AURORA_ALPHA_DARK if self.dark else AURORA_ALPHA_LIGHT) \
             * self.alpha_scale()
         # The fold is a near-horizontal edge in a buffer that is about to be
@@ -2484,6 +2533,11 @@ class RippleEngine(_BufferedEngine):
         # middle: reusing the same three with a wider jitter puts two
         # sources close enough that their rings arrive together, which
         # reads as one source with a doubled amplitude rather than as two.
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
         anchors = ((0.24, 0.28), (0.76, 0.22), (0.5, 0.82))
         self.sources: List[Source] = []
         for i in range(_pool_size(RIPPLE_SOURCES)):
@@ -2535,6 +2589,12 @@ class RippleEngine(_BufferedEngine):
         return tuple(out)
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw one frame's field of shapes.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
         peak = (RIPPLE_ALPHA_DARK if self.dark else RIPPLE_ALPHA_LIGHT) \
             * self.alpha_scale()
         colors = self.paint_colors
@@ -2655,10 +2715,16 @@ class DriftEngine(AmbientEngine):
     name = "drift"
 
     def __init__(self, *args, **kwargs):
+        """Roll the starfield's three parallax layers."""
         self._pens: Dict[Tuple[int, int, int], QPen] = {}
         super().__init__(*args, **kwargs)
 
     def _configure(self, rng: random.Random) -> None:
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
         self.particles: List[Particle] = []
 
         def roll(i: int) -> Particle:
@@ -2698,19 +2764,28 @@ class DriftEngine(AmbientEngine):
             particle.wander_phase = rng.uniform(0.0, 2 * math.pi)
 
     def _restyle(self) -> None:
+        """Re-roll the star colours after a palette change."""
         super()._restyle()
         self._pens = {}
 
     def _reblur(self) -> None:
+        """Rebuild the blur used on the far layers."""
         self._pens = {}
 
     def _reresolve(self) -> None:
+        """Rebuild the buffers after a resolution change."""
         self._pens = {}
 
     def _resize(self) -> None:
+        """Re-lay the layers for a new widget size."""
         self._pens = {}
 
     def _tint(self, color: QColor) -> QColor:
+        """The colour one star is drawn in, by layer depth.
+
+        :param color: the layer's base colour.
+        :returns: the colour.
+        """
         return QColor(color) if self.dark \
             else _mix(color, QColor(0, 0, 0), DRIFT_DARKEN_ON_LIGHT)
 
@@ -2808,6 +2883,11 @@ class DriftEngine(AmbientEngine):
 
     def _pen(self, color_index: int, layer: int, step: int,
              halo: bool = False) -> QPen:
+        """The pen one star is drawn with.
+
+        :param layer: which parallax layer.
+        :returns: the pen.
+        """
         key = (color_index, layer, step, halo)
         pen = self._pens.get(key)
         if pen is None:
@@ -2951,6 +3031,11 @@ class BokehEngine(_BufferedEngine):
     base_edge = BOKEH_BUFFER_EDGE
 
     def _configure(self, rng: random.Random) -> None:
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
         cols, rows = 4, 3
         cells = list(range(cols * rows))
         rng.shuffle(cells)
@@ -3029,6 +3114,12 @@ class BokehEngine(_BufferedEngine):
         # blob — and an edge in a buffer that is about to be stretched
         # fourfold upscales as a staircase without this. Same trade the
         # aurora makes for its fold, and the same ~0.03 ms.
+        """Draw one frame's field of shapes.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
         painter.setRenderHint(QPainter.Antialiasing, True)
         base = (BOKEH_ALPHA_DARK if self.dark else BOKEH_ALPHA_LIGHT) \
             * self.alpha_scale()
@@ -3128,6 +3219,11 @@ class CellsEngine(_BufferedEngine):
     base_edge = CELL_BUFFER_EDGE
 
     def _configure(self, rng: random.Random) -> None:
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
         cols, rows = 4, 3
         cells = list(range(cols * rows))
         rng.shuffle(cells)
@@ -3183,6 +3279,12 @@ class CellsEngine(_BufferedEngine):
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
         # The membrane is an edge; see BokehEngine._paint_field.
+        """Draw one frame's field of shapes.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
         painter.setRenderHint(QPainter.Antialiasing, True)
         peak = (CELL_ALPHA_DARK if self.dark else CELL_ALPHA_LIGHT) \
             * self.alpha_scale()
@@ -3731,6 +3833,11 @@ class FractalEngine(_BufferedEngine):
         # Independent phases and a direction, so two backdrops built with
         # different seeds are not in lockstep — the same reason every other
         # engine rolls its periods rather than sharing one clock.
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
         self._phase_c = rng.random()
         self._phase_inset = rng.random()
         self._phase_spin = rng.random()
@@ -3996,6 +4103,7 @@ class FractalEngine(_BufferedEngine):
         is what this hook's siblings drop."""
 
     def _reresolve(self) -> None:
+        """Rebuild the buffers after a resolution change."""
         super()._reresolve()
         self._plane = None
         self._plane_size = (0, 0)
@@ -4159,6 +4267,12 @@ class FractalEngine(_BufferedEngine):
 
     def _paint_field(self, painter: QPainter, width: int,
                      height: int) -> None:
+        """Draw one frame's field of shapes.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
         np = _numpy()
         started = time.perf_counter()
         forms = self.geometry(width, height)
@@ -4570,6 +4684,10 @@ class AmbientWidget(QWidget):
                  density: Optional[float] = None,
                  direction: Optional[str] = None,
                  corner_radius: int = 0):
+        """Build the widget and start its engine.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         #: Corner radius the backdrop is clipped to; 0 leaves it square.
         #:
@@ -5061,6 +5179,14 @@ class AmbientWidget(QWidget):
         return 0 if producer is None else producer.frames_shaded
 
     def _should_run(self) -> bool:
+        """Whether the animation is worth advancing right now.
+
+        FALSE WHEN HIDDEN OR OFF-SCREEN. This is a backdrop: it must not take
+        frames from whatever the user is doing in front of it, and a widget
+        nobody can see has nothing to show for the cost.
+
+        :returns: True when the timer should keep firing.
+        """
         if not self._animating or not self.isVisible():
             return False
         window = self.window()
