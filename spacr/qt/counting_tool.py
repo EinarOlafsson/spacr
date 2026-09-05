@@ -97,6 +97,13 @@ class CountingTool(CanvasTool):
     cursor = Qt.CrossCursor
 
     def __init__(self, session: CountingSession):
+        """Arm a tool that counts clicks into a session.
+
+        :param session: where the markers go.
+        :raises LayerError: if ``session`` is not a ``CountingSession`` -- the
+            tool writes class names and per-class tallies, which only that
+            object holds.
+        """
         if not isinstance(session, CountingSession):
             raise LayerError(
                 f"a counting tool counts into a CountingSession, got "
@@ -159,6 +166,16 @@ class CountingPanel(QWidget):
                  classes: Optional[List[Any]] = None,
                  field: Optional[FieldKey] = None,
                  session: Optional[CountingSession] = None):
+        """Build the counting panel over a canvas.
+
+        :param canvas: the canvas clicks are counted on.
+        :param parent: parent widget, or ``None``.
+        :param classes: the classes to count; ignored when ``session`` is given.
+        :param field: which field this count belongs to; ignored when
+            ``session`` is given.
+        :param session: an existing session to continue, rather than starting a
+            new count.
+        """
         super().__init__(parent)
         self.setObjectName("CountingPanel")
         self._canvas = canvas
@@ -172,6 +189,7 @@ class CountingPanel(QWidget):
 
     # -- construction -------------------------------------------------------
     def _build(self) -> None:
+        """Lay out the count toggle, the class list, the tally and the exports."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(6)
@@ -248,6 +266,10 @@ class CountingPanel(QWidget):
         self._tool = None
 
     def _on_count_toggled(self, checked: bool) -> None:
+        """Start or stop counting to match the button.
+
+        :param checked: the button's new state.
+        """
         if checked:
             self.start_counting()
         else:
@@ -256,6 +278,13 @@ class CountingPanel(QWidget):
     def _on_layers_changed(self, event: LayerEvent) -> None:
         # Derived, not stored: a marker removed through the layer list changes
         # the number here too.
+        """Refresh the tally when the markers change.
+
+        The counts are derived from the layer rather than stored, so a marker
+        removed through the layer list changes the number here too.
+
+        :param event: the layer event; only data and membership changes matter.
+        """
         if event.kind in ("data", "inserted", "removed"):
             self.refresh()
 
@@ -289,6 +318,12 @@ class CountingPanel(QWidget):
         return self._export(summary=True)
 
     def _export(self, *, summary: bool) -> Optional[str]:
+        """Ask where to write a count and write it.
+
+        :param summary: write the per-class tally rather than one row per
+            marker.
+        :returns: the written path, or ``None`` when the dialog was cancelled.
+        """
         suggested = os.path.join(
             os.getcwd(), "counts_summary.csv" if summary else "counts.csv")
         path, _ = QFileDialog.getSaveFileName(
@@ -313,6 +348,12 @@ class CountingPanel(QWidget):
         return target
 
     def _on_class_selected(self, row: int) -> None:
+        """Make the selected class the one new clicks are counted into.
+
+        :param row: the newly selected row; ignored while the panel is filling
+            the list itself, which would otherwise change the active class as a
+            side effect of a refresh.
+        """
         if self._syncing or row < 0:
             return
         names = self._session.class_names

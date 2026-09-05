@@ -64,6 +64,15 @@ class FeatureExplorerScreen(QWidget):
     """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
+        """Build the screen: the ranking panel beside the filter and column tabs.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link. Injectable so a test drives a
+            private one rather than the process-wide link every other open view
+            is also listening to.
+        :param threaded: read the database on a worker thread. Set ``False`` in
+            tests so a load finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("FeatureExplorerScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -169,6 +178,13 @@ class FeatureExplorerScreen(QWidget):
         self.explorer.set_frame(self._visible(frame))
 
     def _visible(self, frame: pd.DataFrame) -> pd.DataFrame:
+        """Narrow a frame to the rows the shared filter allows.
+
+        :param frame: the frame to narrow.
+        :returns: the visible rows, or the whole frame when the filter does not
+            apply here -- a filter written against another table should not
+            empty this screen.
+        """
         try:
             return self._link.visible(frame)
         except Exception as exc:
@@ -176,11 +192,13 @@ class FeatureExplorerScreen(QWidget):
             return frame
 
     def _on_filter_changed(self) -> None:
+        """Re-push the computed frame through the new filter."""
         frame = self.formulas.computed_frame()
         if frame is not None:
             self.explorer.set_frame(self._visible(frame))
 
     def _on_formulas_changed(self) -> None:
+        """Recompute the derived columns and push the frame back to the panel."""
         self._push_frame()
 
     # -- loading ----------------------------------------------------------
@@ -222,6 +240,10 @@ class FeatureExplorerScreen(QWidget):
             self._on_frame_loaded)
 
     def _on_frame_loaded(self, payload) -> None:
+        """Show a freshly loaded frame, labelled with its file, table and shape.
+
+        :param payload: the worker's ``(table_name, frame)`` pair.
+        """
         chosen, frame = payload
         path = self._path or ""
         suffix = f" · {chosen}" if chosen else ""
@@ -231,12 +253,21 @@ class FeatureExplorerScreen(QWidget):
                   f"× {len(frame.columns)} columns")
 
     def _on_load_failed(self, message: str) -> None:
+        """Log and show a failed table load.
+
+        :param message: the failure text from the job runner.
+        """
         path = self._path or ""
         LOG.info("could not read %s: %s", path, message)
         self._source.setText(
             f"could not read {os.path.basename(path)}: {message}")
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 

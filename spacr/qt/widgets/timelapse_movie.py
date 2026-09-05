@@ -91,6 +91,14 @@ class FilmStrip(QScrollArea):
     frame_picked = Signal(int)
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Create the horizontal thumbnail strip.
+
+        The viewport paints nothing: the strip is scaffolding that positions
+        thumbnails, and an auto-filled one is one more opaque rectangle over the
+        page.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("TimelapseFilmStrip")
         self.setWidgetResizable(True)
@@ -154,6 +162,11 @@ class FovMovie(QWidget):
     """
 
     def __init__(self, title: str = "", parent: Optional[QWidget] = None):
+        """Create an empty movie view for one field.
+
+        :param title: caption shown above the frames.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("TimelapseFovMovie")
         self.setAutoFillBackground(False)
@@ -308,6 +321,12 @@ class FovMovie(QWidget):
         return existed
 
     def _render_strip(self) -> None:
+        """Rebuild the thumbnail strip and highlight the current frame.
+
+        Frames that cannot be rendered are skipped rather than left as gaps, and
+        an empty movie clears the strip instead of leaving the last field's
+        thumbnails under a new one.
+        """
         if self._images is None or not len(self._images):
             self._strip.set_frames([])
             return
@@ -379,6 +398,12 @@ class FovMovie(QWidget):
         self._timer.setInterval(int(1000 / max(0.5, float(fps))))
 
     def _advance(self) -> None:
+        """Step to the next frame, wrapping at the end.
+
+        A movie with fewer than two frames pauses instead: there is nothing to
+        advance to, and a timer running for a still image costs frames for
+        nothing.
+        """
         total = self.frame_count()
         if total < 2:
             self.pause()
@@ -424,6 +449,10 @@ class TimelapseMoviePanel(QWidget):
     max_fields_changed = Signal(int)
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the panel that shows several fields as synchronised movies.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("TimelapseMoviePanel")
         self.setAutoFillBackground(False)
@@ -563,12 +592,22 @@ class TimelapseMoviePanel(QWidget):
 
     # -- controls ------------------------------------------------------
     def _sync_overlays(self, *_args) -> None:
+        """Apply the overlay switches to every movie at once.
+
+        :param _args: whatever the emitting toggle passes; ignored, since both
+            switches are re-read either way.
+        """
         objects = self._objects_check.isChecked()
         tracks = self._tracks_check.isChecked()
         for movie in self._movies:
             movie.set_overlays(objects=objects, tracks=tracks)
 
     def _toggle_all(self) -> None:
+        """Play or pause every movie together, and relabel the button.
+
+        Any movie playing counts as playing, so one field left running does not
+        turn the button into a Play that pauses.
+        """
         playing = any(m._timer.isActive() for m in self._movies)
         for movie in self._movies:
             movie.pause() if playing else movie.play()
