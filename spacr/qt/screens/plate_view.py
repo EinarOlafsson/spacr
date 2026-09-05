@@ -170,6 +170,10 @@ class PlateGridWidget(QWidget):
     well_clicked = Signal(int, int)
 
     def __init__(self, parent=None):
+        """Create an empty plate grid.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._values: Dict[Tuple[int, int], float] = {}
         self._counts: Dict[Tuple[int, int], int] = {}
@@ -323,6 +327,12 @@ class PlateGridWidget(QWidget):
     # -- painting ----------------------------------------------------------
 
     def _colour(self, value: float) -> QColor:
+        """Map a value onto the current colour scale.
+
+        :param value: the well's aggregated measurement.
+        :returns: its colour, clamped to the ends of the scale; a zero-width
+            range maps everything to the low end rather than dividing by zero.
+        """
         span = self._vmax - self._vmin
         t = 0.0 if span == 0 else (value - self._vmin) / span
         t = min(max(t, 0.0), 1.0)
@@ -427,6 +437,13 @@ class PlateViewScreen(LinkedView, QWidget):
     _job_settled = Signal(bool)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the screen, arm its drop zone and join the shared selection.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: run reads and aggregations on a worker thread. Set
+            ``False`` in tests, which also removes the recompute coalescing
+            timer, so an option change recomputes on the spot.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._db_path: str = ""
@@ -503,6 +520,7 @@ class PlateViewScreen(LinkedView, QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the source row, the pickers, the heatmap and the edge-effect report."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -682,6 +700,12 @@ class PlateViewScreen(LinkedView, QWidget):
         return self._well_label.text()
 
     def _update_controls(self) -> None:
+        """Enable the pickers, Render and Export to match what is loaded.
+
+        Everything but Export needs a database and no job in flight; Export
+        needs a rendered well grid, which is a different condition -- the CSV is
+        of what is drawn, not of what could be drawn.
+        """
         has_db = bool(self._db_path)
         ready = has_db and not self._busy
         self._btn_render.setEnabled(ready and self._value_combo.count() > 0)
@@ -697,6 +721,7 @@ class PlateViewScreen(LinkedView, QWidget):
     # -- database ----------------------------------------------------------
 
     def _pick_database(self) -> None:
+        """Ask for a measurements database and open it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Choose a measurements database", self._path_edit.text() or
             os.path.expanduser("~"), "SQLite databases (*.db);;All files (*)")
@@ -705,6 +730,7 @@ class PlateViewScreen(LinkedView, QWidget):
             self.open_database(path)
 
     def _pick_run_folder(self) -> None:
+        """Ask for a run folder and open the database inside it."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a run folder", self._path_edit.text() or
             os.path.expanduser("~"))
@@ -713,6 +739,7 @@ class PlateViewScreen(LinkedView, QWidget):
             self.open_database(path)
 
     def _on_open_typed_path(self) -> None:
+        """Open whatever path is currently typed in the source box."""
         self.open_database(self._path_edit.text())
 
     def open_database(self, path: str) -> bool:
@@ -791,6 +818,15 @@ class PlateViewScreen(LinkedView, QWidget):
         self._value_combo.setCurrentText(name)
 
     def _on_table_changed(self, *_args) -> None:
+        """Offer the newly chosen table's numeric columns.
+
+        The read runs off the GUI thread, and the refill is flag-guarded so
+        repopulating the measurement box does not re-enter this.
+
+        :param _args: whatever the combo box passes; ignored, since the current
+            text is re-read either way.
+        :returns: the job handle from :meth:`_run_job`.
+        """
         if self._loading or not self._db_path:
             return
         table = self._table_combo.currentText()
@@ -1051,6 +1087,11 @@ class PlateViewScreen(LinkedView, QWidget):
     # -- well readout ------------------------------------------------------
 
     def _on_well_clicked(self, row_index: int, column_index: int) -> None:
+        """Select the well the user clicked in the heatmap.
+
+        :param row_index: 1-based plate row.
+        :param column_index: 1-based plate column.
+        """
         self.select_well(row_index, column_index)
 
     def select_well(self, row_index: int, column_index: int) -> str:
@@ -1091,6 +1132,7 @@ class PlateViewScreen(LinkedView, QWidget):
     # -- export ------------------------------------------------------------
 
     def _pick_export_path(self) -> None:
+        """Ask where to write the well grid CSV, then write it."""
         path, _ = QFileDialog.getSaveFileName(
             self, "Export well grid", os.path.join(
                 os.path.expanduser("~"), "plate_wells.csv"),
@@ -1234,10 +1276,20 @@ class PlateViewScreen(LinkedView, QWidget):
         return self._busy
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Clear the busy flag and report a failed job.
+
+        :param exc: the exception raised by the worker; its class name is used
+            when it carries no message.
+        """
         self._busy = False
         self._set_status(str(exc) or exc.__class__.__name__, error=True)
 
     def _on_worker_error_text(self, text: str) -> None:
+        """Clear the busy flag and report a worker failure given as text.
+
+        :param text: the worker's error output; only its last line is shown,
+            which for a traceback is the exception itself.
+        """
         line = (text or "").strip().splitlines()[-1] if text else "unknown error"
         self._busy = False
         self._set_status(f"Plate view failed: {line}", error=True)

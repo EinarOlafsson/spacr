@@ -1946,15 +1946,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         1: 8_432,
         2: 7,
     }
-    # RE-RECORDED 2026-09-05: 92 -> 171 -> 177. Every one of those is a
+    # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185. Every one of those is a
     # constructor that gained an ``__init__`` docstring, so the number is the
     # documentation count and it may only go up; a fall means prose was lost.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 177
+    ) == 185
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 177
+    ) == 185
     # RE-RECORDED 2026-09-04. Every figure here moved UP together as the
     # package gained callables; not one of them fell, which is the direction
     # check that was run before these numbers were written.
@@ -1969,7 +1969,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "9827deda538c4704a9a63051fae5cd652bfc77fbae928464a52282a216ea4f80"
+    ) == "a072a6d410d6ebec626cf9cf468a97a618f0d0ee3939dde688bf38e25792e62d"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
