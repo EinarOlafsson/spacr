@@ -12,6 +12,9 @@ Status:    BUILT, AND UNPROVEN ON REAL DATA. Every checklist item below is
 
            WHAT IT HAS NEVER SEEN IS A REAL ACQUISITION. That is the whole of
            what remains, and it is not a small remainder -- see PART 3-A.
+           THERE IS NOW DATA FOR IT: plates from the original OPS screen are
+           on the NAS. See PART 4, which is the next piece of work and which
+           carries the memory problem that comes with it.
            Filed 2026-09-02.
 Requested: 2026-09-02 -- "for the allign and stitch module id like to add a
            OPS (optical pooled screening button) for analyzing OPS data. i had
@@ -517,6 +520,107 @@ THE HONEST SUMMARY: the preprocessing half is reachable and its stitching is
 measured correct; the sequencing half is written, validated on synthetic data
 and unreachable. Item 4 is the next piece of work, item 1 is the gate before
 anyone trusts a result.
+
+--------------------------------------------------------------------------------
+PART 4 -- REAL DATA, AND THE MEMORY PROBLEM IT BRINGS
+--------------------------------------------------------------------------------
+
+Requested 2026-09-05: "on the NAS I have downloaded the Original ops screen
+data or at least some plates from it ... use one of these plates to test and
+make sure everything works and to develop a strategy. The strategy will need
+to stitch and align multiple plate wide image stitches in a way that doesn't
+overload memory."
+
+WHERE THE DATA IS. Under `/nas_mnt` -- the exact path is NOT YET RECORDED
+because the share was unreachable when this was written, and it should be
+filled in here the first time somebody reaches it. The mount is
+`169.254.230.146:/volume1/nas` over NFSv3, reached on the DIRECT WIRED link
+`enp7s0`, which was `NO-CARRIER, state DOWN` on 2026-09-05: the machine was on
+wifi and the NAS cable was unplugged or the NAS was off. That is worth knowing
+before anybody concludes the data is missing. spaCR's own remembered paths sit
+under `/nas_mnt/data/`, so that is where to look first.
+
+WHAT THE PLATE IS FOR. PART 3-A lists what has never been tested, and every
+item on it is answered by one real plate:
+
+  1. The DEFAULTS. Peak spacing, the peak threshold, the unmixing percentile,
+     `downsample` and `max_site_gap` were all chosen against synthetic
+     fixtures. They are guesses until a real acquisition says otherwise, and
+     `downsample` in particular is known to break the stitch when the tiles
+     are small.
+  2. `align_image_to_stitch`'s GEOMETRY, which the synthetic fixture cannot
+     ask about because its phenotype tiles are the same pixels as its
+     genotype tiles rather than a genuine higher-magnification acquisition.
+  3. `StitchedMultiAligner`, which has never been run at all: it needs more
+     than one acquisition and the fixture has one.
+  4. Whether the decode chain's assumptions match a real cycle stack -- the
+     channel order, the cycle-to-cycle registration, the spot density.
+
+  START WITH ONE WELL, NOT ONE PLATE. Everything above is answerable from a
+  single well, and a well is the unit the code already works in. A plate is
+  the memory problem below, which is a different question and should not be
+  entangled with "does the method work at all".
+
+--------------------------------------------------------------------------------
+THE MEMORY PROBLEM, WHICH IS THE REAL DESIGN QUESTION
+--------------------------------------------------------------------------------
+
+OPS is not one stitch. It is one stitch PER CYCLE, and the cycles then have to
+be registered to each other, because a spot's base is read by comparing the
+same pixel across cycles. So the working set multiplies by the cycle count,
+and that is what makes this different from Align & Stitch.
+
+  THE ARITHMETIC, as an order of magnitude pending the real plate's numbers:
+  a well of 5x5 fields at 2048x2048 is a 10240x10240 mosaic, 105 Mpx, 210 MB
+  per channel as uint16. Four channels is 840 MB. TWELVE CYCLES IS ABOUT
+  10 GB FOR ONE WELL. A naive implementation that holds the cycle stack to
+  decode it will not run, and it will fail on a machine where the same code
+  handled a single-cycle plate comfortably.
+
+THERE IS ALREADY AN ANSWER IN THE REPOSITORY AND IT SHOULD BE COPIED, NOT
+REINVENTED. `spacr/align.py` solves the same shape of problem and states its
+contract in one line: "This, not the canvas, is the module's memory
+footprint." Its numbers are measured, not asserted --
+
+    a 64 MB band accumulator writes a 10x10 grid of 2048x2048 uint16 tiles
+    (a 695 MB canvas) in 2.0 s at 244 MB peak RSS; a 256 MB budget takes
+    4.7 s at 513 MB.
+
+  BIGGER BUFFERS ARE SLOWER, not merely heavier: the band stops fitting in
+  cache and every tile is re-read anyway. `max_open_tiles=8` bounds how many
+  tiles are memory-mapped at once, because leaving them all mapped makes the
+  resident set the size of the input folder.
+
+  `spacrops.py` has half of this already: `_DiskFeatureStore` keeps an LRU in
+  front of a disk cache (`max_ram_features`), and
+  `build_multichannel_mosaic_from_manifest` writes a CYX BigTIFF through a
+  disk memmap when `tmp_dir` is set. What it does NOT have is align.py's
+  discipline -- a stated, measured ceiling that the canvas size cannot
+  influence.
+
+WHAT A STRATEGY HAS TO ANSWER, and these are the questions rather than the
+answers:
+
+  * DOES THE PLATE-WIDE MOSAIC NEED TO EXIST AT ALL? The manifest already
+    records every tile's transform, and `mosaic_csv_out` without `mosaic_out`
+    is already a supported mode. Decoding needs a WINDOW around each spot,
+    not a whole mosaic, and a window can be cut from the tiles through the
+    transform. If that holds, the largest array ever allocated is one window
+    per cycle and the problem disappears rather than being managed. This
+    should be checked first, because every other option is more work.
+  * IF IT MUST EXIST, IT IS WRITTEN, NOT HELD. BigTIFF through a memmap, one
+    band at a time, with the band -- not the canvas -- as the footprint.
+  * THE CYCLE AXIS IS THE ONE THAT MULTIPLIES. Register cycles pairwise to a
+    reference and store TRANSFORMS, not resampled copies. Twelve resampled
+    plate mosaics is the failure mode to design against.
+  * ONE WELL AT A TIME, ALWAYS. Nothing about OPS needs two wells resident,
+    and a per-well loop is what keeps the ceiling independent of plate size.
+  * SAY WHAT IT WILL COST BEFORE IT RUNS. The measured numbers above exist
+    because somebody measured them; this should carry the same, and a
+    pre-flight that reports the expected peak from the plate's own dimensions
+    is worth more than a ceiling nobody can predict.
+
+NOT TO BE BUILT YET -- recorded on the maintainer's instruction, 2026-09-05.
 
 --------------------------------------------------------------------------------
 HOW IT WILL BE CHECKED
