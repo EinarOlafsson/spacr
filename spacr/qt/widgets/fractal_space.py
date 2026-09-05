@@ -408,9 +408,21 @@ if njit is not None:
 
 else:
     def sample_space(*_args, **_kwargs):
+        """Refuse: the CPU space renderer needs Numba, which is absent.
+
+        :param _args: whatever the caller would have sampled.
+        :param _kwargs: likewise.
+        :raises RuntimeError: always.
+        """
         raise RuntimeError("numba is required for the CPU space renderer")
 
     def render_space_frame(*_args, **_kwargs):
+        """Refuse: the CPU space renderer needs Numba, which is absent.
+
+        :param _args: whatever the caller would have rendered.
+        :param _kwargs: likewise.
+        :raises RuntimeError: always.
+        """
         raise RuntimeError("numba is required for the CPU space renderer")
 
 
