@@ -340,6 +340,11 @@ class _ModelPanel(QGroupBox):
         )
 
     def set_enabled(self, enabled: bool) -> None:
+        """Enable or disable every control on this model's panel.
+
+        :param enabled: whether the panel can be edited -- off while a
+            comparison is running.
+        """
         for widget in (self.model_edit, self.diameter_box, self.flow_box,
                        self.cellprob_box, self.min_size_box,
                        self.normalize_box, self.resample_box, self.extra_edit):

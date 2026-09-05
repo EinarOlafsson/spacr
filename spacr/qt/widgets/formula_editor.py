@@ -500,6 +500,14 @@ class FormulaDialog(QDialog):
 
 
 def _formula_qss(palette, _opacity) -> str:
+    """Build the formula panel's stylesheet.
+
+    :param palette: the active palette.
+    :param _opacity: the page opacity; unused -- this panel sits inside a
+        surface that already carries it, so blending again would darken it
+        twice.
+    :returns: the QSS.
+    """
     return f"""
     QLabel#FormulaTitle {{
         color: {palette['fg']};

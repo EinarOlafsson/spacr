@@ -63,6 +63,12 @@ _SETTINGS_ADVISOR_UI_SOURCES = tuple(dict.fromkeys((
 
 
 def _muted(text: str, parent=None) -> QLabel:
+    """Build a wrapped label in the muted style.
+
+    :param text: the text.
+    :param parent: parent widget, or ``None``.
+    :returns: the label.
+    """
     label = QLabel(text, parent)
     label.setObjectName("Muted")
     label.setWordWrap(True)
@@ -245,6 +251,14 @@ class ProposalPage(QWidget):
 
 
 def _text(value: Any, language: Optional[str] = None) -> str:
+    """Render a settings value as the word a reader expects.
+
+    :param value: the value; ``None`` becomes "none" and a boolean becomes
+        "on"/"off" rather than "True"/"False", because the dialog is
+        describing a switch and not a Python object.
+    :param language: the language to render in.
+    :returns: the text.
+    """
     if value is None:
         return tr("none", language)
     if isinstance(value, bool):

@@ -265,10 +265,20 @@ def assign_wells(design: PlateDesign) -> pd.DataFrame:
 
 
 def _rows_used(block: pd.DataFrame) -> set:
+    """Which plate rows a block of wells occupies.
+
+    :param block: the assignment rows.
+    :returns: the row indices.
+    """
     return set(block["row_index"].tolist())
 
 
 def _columns_used(block: pd.DataFrame) -> set:
+    """Which plate columns a block of wells occupies.
+
+    :param block: the assignment rows.
+    :returns: the column indices.
+    """
     return set(block["column_index"].tolist())
 
 

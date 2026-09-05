@@ -41,6 +41,12 @@ QSS_NAME = "ClassEditor"
 
 
 def _class_editor_qss(palette, opacity=None) -> str:
+    """Build the class editor's stylesheet.
+
+    :param palette: the active palette.
+    :param opacity: the page opacity, blended into the panel's surface.
+    :returns: the QSS.
+    """
     return f"""
     QTreeWidget#ClassTable {{
         background: transparent;

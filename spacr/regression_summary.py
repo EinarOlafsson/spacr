@@ -484,6 +484,14 @@ def _number(value, digits: int = 4) -> Optional[str]:
 
 
 def _setting(settings: Optional[Mapping[str, Any]], key: str, default=None):
+    """Read one setting, treating ``None`` as absent.
+
+    :param settings: the run's settings; anything that is not a mapping
+        reads as absent.
+    :param key: the setting name.
+    :param default: what to return when it is missing or ``None``.
+    :returns: the value.
+    """
     if not isinstance(settings, Mapping):
         return default
     value = settings.get(key, default)
@@ -491,6 +499,13 @@ def _setting(settings: Optional[Mapping[str, Any]], key: str, default=None):
 
 
 def _column(frame, *names) -> Optional[str]:
+    """Return the first of several candidate column names the frame has.
+
+    :param frame: the table; anything that is not a frame gives ``None``.
+    :param names: the candidates, in order of preference -- the summary has
+        to read results written by several versions of the fitter.
+    :returns: the column name, or ``None``.
+    """
     if not isinstance(frame, pd.DataFrame):
         return None
     for name in names:
@@ -500,6 +515,14 @@ def _column(frame, *names) -> Optional[str]:
 
 
 def _floats(frame, column) -> np.ndarray:
+    """Read one column as floats.
+
+    :param frame: the table.
+    :param column: the column; a missing frame or name gives an empty array
+        rather than raising, so a caller can measure a column that is not
+        there.
+    :returns: the values, with anything unparseable as NaN.
+    """
     if not isinstance(frame, pd.DataFrame) or not column:
         return np.array([], dtype=float)
     return pd.to_numeric(frame[column], errors="coerce").to_numpy(dtype=float)
@@ -563,6 +586,13 @@ def _is_nonparametric(settings, coef_df) -> bool:
 
 
 def _penalised_types() -> Tuple[str, ...]:
+    """The regression families with no P value to report.
+
+    :returns: the families read from the shared spec, plus this module's own
+        extras. A spec that cannot be imported falls back to the known three
+        rather than reporting a penalised fit as if it had P values -- the
+        fallback errs towards saying less.
+    """
     try:
         from .regression_spec import NO_P_VALUE_TYPES
     except Exception:                                            # noqa: BLE001
@@ -671,6 +701,24 @@ def _warnings(run: "_Run") -> List[str]:
 
 
 def _fitted_section(run: "_Run") -> List[SummaryField]:
+    """Build the fitted-model section of the run summary.
+
+    Every hyperparameter reported is one the SELECTED family actually
+    reads, driven by the same table that greys the interface's disabled
+    settings -- so a value the fit ignored, such as alpha for OLS, is never
+    presented as fitted.
+
+    The permutation path is called out at each field where the settings
+    still carry a value that had no effect: it fits no model, so the
+    regression_type and hyperparameters in the settings were not read, and a
+    reader comparing them against the numbers would otherwise believe
+    them.
+
+    :param run: the loaded run.
+    :returns: the section's fields, each either a value or the reason there
+        is none -- a field is never simply omitted, because a reader cannot
+        tell an absent line from an unasked question.
+    """
     settings, out = run.settings, []
 
     def add(name, value=None, reason=None, kind=""):
@@ -845,6 +893,18 @@ def _formula(run: "_Run") -> Dict[str, str]:
 
 
 def _design_section(run: "_Run") -> List[SummaryField]:
+    """Build the design section of the run summary.
+
+    What was in the model, what was residualised out, and what was left
+    out entirely -- stated separately, because a term absent from the design
+    and a term absorbed by a fixed effect answer different questions about a
+    coefficient.
+
+    :param run: the loaded run.
+    :returns: the section's fields, each either a value or the reason there
+        is none -- a field is never simply omitted, because a reader cannot
+        tell an absent line from an unasked question.
+    """
     out = []
 
     def add(name, value=None, reason=None, kind=""):
@@ -1030,6 +1090,16 @@ def _no_residual_reason(run: "_Run") -> str:
 
 
 def _fit_quality_section(run: "_Run") -> List[SummaryField]:
+    """Build the fit-quality section of the run summary.
+
+    The numbers that say whether the fit is worth reading at all, before
+    any coefficient is.
+
+    :param run: the loaded run.
+    :returns: the section's fields, each either a value or the reason there
+        is none -- a field is never simply omitted, because a reader cannot
+        tell an absent line from an unasked question.
+    """
     out, metrics = [], run.metrics
 
     def add(name, value=None, reason=None, kind=""):
@@ -1155,6 +1225,14 @@ def _pseudo_r_squared(run: "_Run") -> Dict[str, str]:
 
 
 def _selection_frequency(run: "_Run") -> Dict[str, str]:
+    """Report how stable a penalised fit's selections were.
+
+    :param run: the loaded run.
+    :returns: the median frequency and how many coefficients cleared the
+        threshold, or the reason there is none -- for an unpenalised family
+        that reason names what IS used to rank it, so the absence reads as a
+        difference in method rather than as missing data.
+    """
     column = _column(run.coef_df, "selection_frequency", "selection_freq")
     if column is None:
         if run.penalised:
@@ -1180,6 +1258,12 @@ def _selection_frequency(run: "_Run") -> Dict[str, str]:
 
 
 def _permutation_count(run: "_Run") -> Optional[int]:
+    """How many permutations this run drew.
+
+    :param run: the loaded run.
+    :returns: the count from the results table, falling back to the
+        settings, and ``None`` for a run that drew no null at all.
+    """
     if not run.nonparametric:
         return None
     number = _count(_one_value(run.coef_df, "permutations"))
@@ -1189,6 +1273,13 @@ def _permutation_count(run: "_Run") -> Optional[int]:
 
 
 def _permutations(run: "_Run") -> Dict[str, str]:
+    """Report the permutation count.
+
+    :param run: the loaded run.
+    :returns: the count, or the reason there is none -- a fitted model reads
+        its P values off the estimator's own sampling distribution and draws
+        no null.
+    """
     if not run.nonparametric:
         return {"reason": (
             "no permutation null was drawn: this run fits a model and reads "
@@ -1201,6 +1292,15 @@ def _permutations(run: "_Run") -> Dict[str, str]:
 
 
 def _finest_p(run: "_Run") -> Dict[str, str]:
+    """Report the smallest P value this many permutations can express.
+
+    The floor is ``1/(n+1)``, and it is worth stating plainly: 200,000
+    permutations cannot report ``p < 5e-06`` however strong the effect, so a
+    reader who sees the floor should not read it as the true P value.
+
+    :param run: the loaded run.
+    :returns: the floor, or the reason there is none.
+    """
     if not run.nonparametric:
         return {"reason": (
             "a P value from a fitted model is continuous, so it has no "
@@ -1217,6 +1317,15 @@ def _finest_p(run: "_Run") -> Dict[str, str]:
 
 
 def _n_at_finest_p(run: "_Run") -> Dict[str, str]:
+    """Report how many tests are sitting AT the permutation floor.
+
+    Those tests are CENSORED: their evidence is bounded by the resolution of
+    the null rather than by the data, and separating them needs more
+    permutations rather than a different threshold.
+
+    :param run: the loaded run.
+    :returns: the count, or the reason it cannot be computed.
+    """
     if not run.nonparametric:
         return {"reason": "there is no permutation floor for tests to sit on"}
     number = _permutation_count(run)
@@ -1236,6 +1345,13 @@ def _n_at_finest_p(run: "_Run") -> Dict[str, str]:
 
 
 def _blocking(run: "_Run") -> Dict[str, str]:
+    """Report what the permutation was blocked on.
+
+    :param run: the loaded run.
+    :returns: the block structure, or the reason there is none. Blocking is
+        what makes the null respect the plate: reshuffling across plates
+        would test a hypothesis nobody asked.
+    """
     if run.nonparametric:
         block = _clean(_one_value(run.coef_df, "block_column")) or str(
             _setting(run.settings, "guide_permutation_block", "plateID"))
@@ -1258,6 +1374,16 @@ def _blocking(run: "_Run") -> Dict[str, str]:
 
 
 def _assumptions_section(run: "_Run") -> List[SummaryField]:
+    """Build the assumptions section of the run summary.
+
+    One entry per assumption the fitted family makes, each either checked
+    or explicitly marked as not assumed by this design.
+
+    :param run: the loaded run.
+    :returns: the section's fields, each either a value or the reason there
+        is none -- a field is never simply omitted, because a reader cannot
+        tell an absent line from an unasked question.
+    """
     out = []
 
     def add(name, value=None, reason=None, kind=""):
@@ -1275,11 +1401,28 @@ def _assumptions_section(run: "_Run") -> List[SummaryField]:
 
 
 def _verdict(p_value: float, alpha: float = 0.05) -> str:
+    """Render a test's outcome in words.
+
+    :param p_value: the test's P value.
+    :param alpha: the level to judge at.
+    :returns: whether the null was rejected AT THAT LEVEL, with the level
+        named -- a bare "significant" hides the threshold it depends on.
+    """
     return ("REJECTED at %g" % alpha) if p_value < alpha \
         else "not rejected at %g" % alpha
 
 
 def _equal_variance(run: "_Run") -> Dict[str, str]:
+    """Report the equal-variance check.
+
+    Not assumed at all on the permutation path, where the null is built by
+    reshuffling residuals within plate blocks rather than by trusting a
+    variance model.
+
+    :param run: the loaded run.
+    :returns: the verdict, or the reason the check does not apply -- which
+        is an answer, not a gap.
+    """
     if run.nonparametric:
         return {"kind": NOT_ASSUMED, "reason": (
             "the null is built by permuting residuals within plate blocks, "
@@ -1312,6 +1455,15 @@ def _equal_variance(run: "_Run") -> Dict[str, str]:
 
 
 def _normality(run: "_Run") -> Dict[str, str]:
+    """Report the normality check.
+
+    Reported against the residuals, and only for families that assume
+    them.
+
+    :param run: the loaded run.
+    :returns: the verdict, or the reason the check does not apply -- which
+        is an answer, not a gap.
+    """
     if run.nonparametric:
         return {"kind": NOT_ASSUMED, "reason": (
             "nothing here is normal by assumption: the reference distribution "
@@ -1342,6 +1494,15 @@ def _normality(run: "_Run") -> Dict[str, str]:
 
 
 def _independence(run: "_Run") -> Dict[str, str]:
+    """Report the independence check.
+
+    The assumption plate structure most often breaks, which is why the
+    design section states separately what was blocked or residualised.
+
+    :param run: the loaded run.
+    :returns: the verdict, or the reason the check does not apply -- which
+        is an answer, not a gap.
+    """
     if run.nonparametric:
         return {"kind": NOT_ASSUMED, "reason": (
             "wells are treated as exchangeable only WITHIN a block, which is "
@@ -1368,6 +1529,15 @@ def _independence(run: "_Run") -> Dict[str, str]:
 
 
 def _influence(run: "_Run") -> Dict[str, str]:
+    """Report the influence check.
+
+    Which observations move the fit most -- a coefficient carried by three
+    wells is a different claim from one carried by three hundred.
+
+    :param run: the loaded run.
+    :returns: the verdict, or the reason the check does not apply -- which
+        is an answer, not a gap.
+    """
     if run.nonparametric:
         return {"kind": NOT_ASSUMED, "reason": (
             "no observation has leverage on a coefficient that is never "
@@ -1413,6 +1583,16 @@ def _influence(run: "_Run") -> Dict[str, str]:
 
 
 def _multicollinearity(run: "_Run") -> Dict[str, str]:
+    """Report the multicollinearity check.
+
+    Correlated predictors do not bias the fit but do inflate its standard
+    errors, so a term can look unsupported for a reason that is about the
+    design rather than about the biology.
+
+    :param run: the loaded run.
+    :returns: the verdict, or the reason the check does not apply -- which
+        is an answer, not a gap.
+    """
     if run.nonparametric:
         return {"kind": NOT_ASSUMED, "reason": (
             "the guides are never in one design together, so none of them can "
@@ -1557,6 +1737,16 @@ def _hit_mask(run: "_Run") -> Tuple[Optional[np.ndarray], str]:
 
 
 def _call_section(run: "_Run") -> List[SummaryField]:
+    """Build the call section of the run summary.
+
+    The command and settings that produced this run, so it can be repeated
+    exactly.
+
+    :param run: the loaded run.
+    :returns: the section's fields, each either a value or the reason there
+        is none -- a field is never simply omitted, because a reader cannot
+        tell an absent line from an unasked question.
+    """
     out, frame = [], run.coef_df
 
     def add(name, value=None, reason=None, kind=""):
@@ -1703,6 +1893,12 @@ def _critical_p(run: "_Run", tested) -> Dict[str, str]:
 
 
 def _effect_size_cut(run: "_Run") -> Dict[str, str]:
+    """Return the effect-size threshold this run filtered on.
+
+    :param run: the loaded run.
+    :returns: the cut and where it came from, so a reader can tell a
+        deliberate threshold from a default nobody chose.
+    """
     frame = run.coef_df
     rule = _clean(_one_value(frame, "effect_size_rule"))
     threshold = _one_value(frame, "effect_size_threshold")
@@ -1757,6 +1953,17 @@ _NOT_RECORDED = ("the run printed how many it removed and did not record it, "
 
 
 def _excluded_section(run: "_Run") -> List[SummaryField]:
+    """Build the exclusions section of the run summary.
+
+    Every row the run dropped and why -- the count alone is not enough,
+    because 'excluded 400 wells' is a different result depending on whether
+    they were controls, low-count wells, or an entire plate.
+
+    :param run: the loaded run.
+    :returns: the section's fields, each either a value or the reason there
+        is none -- a field is never simply omitted, because a reader cannot
+        tell an absent line from an unasked question.
+    """
     out, settings = [], run.settings
 
     def add(name, value=None, reason=None, kind=""):
@@ -1925,6 +2132,13 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
 
 
 def _below_effect_size(run: "_Run") -> Dict[str, str]:
+    """Report how many coefficients fell below the effect-size cut.
+
+    :param run: the loaded run.
+    :returns: the count, or the reason there is none. Reported separately
+        from the other exclusions because this one is a CHOICE about what is
+        interesting, not a fact about the data.
+    """
     frame = run.coef_df
     if not isinstance(frame, pd.DataFrame) or not len(frame):
         return {"reason": "there is no coefficient table to count"}
@@ -2138,6 +2352,14 @@ def _verbatim(run: "_Run") -> Tuple[Optional[str], str]:
 
 
 def _wrap(label: str, text: str) -> List[str]:
+    """Lay one labelled field out as wrapped lines.
+
+    :param label: the field's name.
+    :param text: its text.
+    :returns: the lines, the first carrying the label and the rest indented
+        to line up under the text rather than under the label -- which is
+        what keeps a wrapped paragraph readable in a fixed-width report.
+    """
     lead = f"  {label:<{_LABEL_WIDTH}}"
     body = textwrap.wrap(text, width=_WIDTH - len(lead)) or [""]
     lines = [lead + body[0]]

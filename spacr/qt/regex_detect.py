@@ -465,6 +465,12 @@ def tabulate_records(
 
 
 def _render_cell(r: MetadataRecord, col: str) -> str:
+    """Render one cell of the metadata preview.
+
+    :param r: the parsed record.
+    :param col: the column to show.
+    :returns: the value, or a dash for an axis this filename does not carry.
+    """
     if col == "filename":
         return r.filename
     return r.get(col, "—")

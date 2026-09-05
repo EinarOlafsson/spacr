@@ -89,6 +89,19 @@ def _classify(token: str) -> Optional[str]:
     # it is: row Z, row S, row T. A dataset that means a z slice, a site or
     # a timepoint should spell it with a prefix the specific recognisers
     # know.
+    """Name the metadata axis a filename token belongs to.
+
+    ORDER MATTERS. The field, channel and plate recognisers name their axis
+    explicitly and are strictly more specific, so they are checked first --
+    ``F01``, ``C01``, ``ch1`` and ``plate2`` still classify as themselves.
+    What is left over (``Z01``, ``S01``, ``T01``) is genuinely ambiguous
+    from a single token and is read as a WELL, because on a plate that is
+    what it is: row Z, row S, row T. A dataset meaning a z slice, a site or
+    a timepoint should spell it with a prefix the specific recognisers know.
+
+    :param token: one filename token.
+    :returns: the axis name, or ``None`` when nothing recognises it.
+    """
     if _FIELD_RX.match(token):   return "field"
     if _CHANNEL_RX.match(token): return "channel"
     if _PLATE_RX.match(token):   return "plate"

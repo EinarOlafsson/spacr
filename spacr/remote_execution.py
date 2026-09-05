@@ -136,6 +136,17 @@ def state_directory() -> Path:
 
 
 def _safe_text(value: Any, label: str, *, allow_empty: bool = False) -> str:
+    """Validate one field that will be interpolated into a remote command.
+
+    :param value: the field.
+    :param label: its name, used in the error.
+    :param allow_empty: accept an empty value.
+    :returns: the text, stripped.
+    :raises RemoteExecutionError: if it is empty when it must not be, or if
+        it contains a newline or a NUL -- either would let one field become
+        two arguments, or terminate a shell line early, on the far side of
+        the connection.
+    """
     text = str(value or "").strip()
     if not text and not allow_empty:
         raise RemoteExecutionError(f"{label} is required.")
@@ -145,6 +156,17 @@ def _safe_text(value: Any, label: str, *, allow_empty: bool = False) -> str:
 
 
 def _path_text(value: Any, label: str, *, allow_empty: bool = False) -> str:
+    """Validate one field that must be an absolute POSIX path.
+
+    :param value: the path.
+    :param label: its name, used in the error.
+    :param allow_empty: accept an empty value.
+    :returns: the path with any trailing slash removed, except that ``/``
+        stays ``/``.
+    :raises RemoteExecutionError: if it fails the text checks, or if it is
+        relative -- a relative path on the remote resolves against whatever
+        the login shell happens to leave as the working directory.
+    """
     text = _safe_text(value, label, allow_empty=allow_empty)
     if text and not text.startswith("/"):
         raise RemoteExecutionError(f"{label} must be an absolute POSIX path.")
@@ -386,6 +408,16 @@ def _file_lock(path: Path):
 
 
 def _read_json(path: Path, default: Any) -> Any:
+    """Read a JSON store, returning a default when it does not exist.
+
+    :param path: the file.
+    :param default: what to return when the file is absent -- absent is a
+        first run, not a fault.
+    :returns: the parsed value.
+    :raises RemoteExecutionError: if the file exists but cannot be read or
+        parsed, naming the file. A corrupt store is not an empty one, and
+        silently returning the default would lose every recorded job.
+    """
     if not path.exists():
         return default
     try:
@@ -397,6 +429,17 @@ def _read_json(path: Path, default: Any) -> Any:
 
 
 def _write_json_atomic(path: Path, value: Any) -> None:
+    """Write a JSON store atomically.
+
+    Written to a temporary file in the same directory, flushed and fsynced,
+    then renamed over the target -- so a crash mid-write cannot leave a
+    truncated store that parses as a shorter job list. The temporary file is
+    removed on any path out.
+
+    :param path: the file to write.
+    :param value: the value to serialise.
+    :raises RemoteExecutionError: if the write fails, naming the file.
+    """
     temporary = ""
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -565,6 +608,18 @@ class JobStore:
 
 
 def _map_path_string(value: str, local_root: str, remote_root: str) -> str:
+    """Rewrite a local path into its place under the remote root.
+
+    A path outside the local root is returned unchanged: it is not part of
+    the mapped tree, and guessing a remote location for it would send the
+    job somewhere nobody asked for. Paths on different drives raise inside
+    ``commonpath`` and take the same route.
+
+    :param value: the local path.
+    :param local_root: the local tree's root; empty disables mapping.
+    :param remote_root: the corresponding root on the remote.
+    :returns: the mapped path, or the original.
+    """
     if not local_root:
         return value
     expanded = os.path.abspath(os.path.expanduser(value))
@@ -621,6 +676,16 @@ def _split_template(
     *,
     require_program: bool = True,
 ) -> List[str]:
+    """Split a command template into argv, the way a shell would.
+
+    :param command: the template.
+    :param label: its name, used in the errors.
+    :param require_program: reject a template whose first token is an option
+        rather than a program.
+    :returns: the argument vector.
+    :raises RemoteExecutionError: if the template cannot be parsed, is
+        empty, or begins with an option.
+    """
     try:
         argv = shlex.split(command, posix=os.name != "nt")
     except ValueError as exc:
@@ -637,6 +702,19 @@ def _render_template(
     context: Mapping[str, str],
     label: str,
 ) -> List[str]:
+    """Split a command template and substitute its placeholders.
+
+    Substituted PER TOKEN, after splitting: a value containing a space
+    therefore stays one argument rather than becoming two, which is the
+    whole reason the template is split first.
+
+    :param command: the template.
+    :param context: the placeholder values.
+    :param label: the template's name, used in the errors.
+    :returns: the rendered argument vector.
+    :raises RemoteExecutionError: naming the placeholder, if the template
+        uses one the context does not have or its syntax is invalid.
+    """
     argv = _split_template(command, label)
     rendered: List[str] = []
     for token in argv:
@@ -654,18 +732,44 @@ def _render_template(
 
 
 def _remote_argv(profile: ExecutionProfile, argv: Sequence[str]) -> List[str]:
+    """Wrap an argument vector in an ssh invocation, if the profile has a host.
+
+    The vector is joined with shell quoting before being handed to ssh,
+    because ssh concatenates its arguments and re-parses them with the
+    remote shell -- an unquoted path with a space would arrive as two.
+
+    :param profile: the execution profile.
+    :param argv: the command to run.
+    :returns: the vector to execute locally.
+    """
     if not profile.host:
         return list(argv)
     return ["ssh", profile.host, shlex.join([str(item) for item in argv])]
 
 
 def _remote_script(profile: ExecutionProfile, script: str) -> List[str]:
+    """Wrap a shell script in an ssh invocation, if the profile has a host.
+
+    :param profile: the execution profile.
+    :param script: the script text.
+    :returns: the vector to execute locally, with the script quoted as one
+        argument.
+    """
     if not profile.host:
         return ["sh", "-c", script]
     return ["ssh", profile.host, "sh -c " + shlex.quote(script)]
 
 
 def _require_ok(result: CommandResult, operation: str) -> str:
+    """Return a command's output, or raise with the tail of its error.
+
+    :param result: the finished command.
+    :param operation: what was being attempted, used to open the message.
+    :returns: the trimmed stdout.
+    :raises RemoteExecutionError: on a non-zero exit, carrying the LAST 1200
+        characters of stderr -- the useful part of a remote failure is at
+        the end, and the whole of it can be a log file.
+    """
     if result.returncode:
         detail = (result.stderr or result.stdout).strip()
         if len(detail) > 1200:
@@ -680,6 +784,20 @@ def _require_ok(result: CommandResult, operation: str) -> str:
 def _safe_external_id(
     value: str, *, allow_slurm_cluster_suffix: bool = False
 ) -> str:
+    """Validate a job id a scheduler handed back.
+
+    This id is interpolated into later commands -- cancel, poll, log tail --
+    so it is checked against a strict pattern before it is stored. An id
+    beginning with ``-`` is refused separately: it would be read as an
+    option by whatever it is passed to.
+
+    :param value: the scheduler's output.
+    :param allow_slurm_cluster_suffix: accept Slurm's ``id;cluster`` form
+        and validate the cluster name too.
+    :returns: the id alone.
+    :raises RemoteExecutionError: if the id, or the cluster name, is empty
+        or does not match.
+    """
     raw = str(value).strip()
     if allow_slurm_cluster_suffix and ";" in raw:
         external_id, cluster = raw.split(";", 1)
@@ -703,6 +821,13 @@ def _safe_external_id(
 def _remote_paths(
     profile: ExecutionProfile, job: RemoteJob
 ) -> tuple[str, str, str]:
+    """Return the remote job directory, settings path and log path.
+
+    :param profile: the execution profile.
+    :param job: the job.
+    :returns: the three paths, all under a per-job directory so two jobs
+        cannot overwrite each other's settings or log.
+    """
     base = profile.workdir.rstrip("/") or "/"
     job_dir = posixpath.join(base, "spacr-jobs",
                              job.job_id)
@@ -719,6 +844,22 @@ def _upload_settings(
     payload: str,
     runner: CommandRunner,
 ) -> tuple[str, str, str]:
+    """Create the remote job directory and write the settings into it.
+
+    ``umask 077`` first: the settings can carry paths and credentials for
+    the user's own data, and a job directory readable by every account on a
+    shared cluster is not what submitting a job asks for.
+
+    The payload is piped on stdin rather than interpolated into the script,
+    so its content is never parsed by a shell.
+
+    :param profile: the execution profile.
+    :param job: the job being submitted.
+    :param payload: the settings, as text.
+    :param runner: how to execute the command.
+    :returns: the job directory, settings path and log path.
+    :raises RemoteExecutionError: if the upload fails.
+    """
     job_dir, settings_path, log_path = _remote_paths(profile, job)
     script = (
         f"umask 077; mkdir -p -- {shlex.quote(job_dir)} && "
@@ -779,17 +920,45 @@ class _Backend:
     def submit(
         self, profile: ExecutionProfile, job: RemoteJob, payload: str
     ) -> None:
+        """Submit a job.
+
+        :param profile: the execution profile.
+        :param job: the job; updated in place with its external id and paths.
+        :param payload: the settings to upload.
+        :raises NotImplementedError: always -- every backend must define this.
+        """
         raise NotImplementedError
 
     def refresh(self, profile: ExecutionProfile, job: RemoteJob) -> None:
+        """Update a job's status from the remote.
+
+        :param profile: the execution profile.
+        :param job: the job, updated in place.
+        :raises NotImplementedError: always.
+        """
         raise NotImplementedError
 
     def cancel(self, profile: ExecutionProfile, job: RemoteJob) -> None:
+        """Cancel a running job.
+
+        :param profile: the execution profile.
+        :param job: the job, updated in place.
+        :raises NotImplementedError: always.
+        """
         raise NotImplementedError
 
     def logs(
         self, profile: ExecutionProfile, job: RemoteJob, lines: int
     ) -> str:
+        """Return a job's log tail.
+
+        :param profile: the execution profile.
+        :param job: the job.
+        :param lines: how many lines to return.
+        :returns: the cached tail. Overridden by backends that can fetch it
+            live; the base returns what was last recorded, so a caller always
+            gets something rather than an error.
+        """
         return job.log_tail
 
 
@@ -797,6 +966,20 @@ class _SSHBackend(_Backend):
     def submit(
         self, profile: ExecutionProfile, job: RemoteJob, payload: str
     ) -> None:
+        """Start the job on a workstation over ssh, detached, and record its PID.
+
+        The command is backgrounded with its output redirected to the log and
+        stdin closed, so the ssh connection can drop without killing it -- which
+        is the whole point of a remote workstation run. Its exit code is written
+        to a temporary file and RENAMED into place, so a reader can never see a
+        half-written code and take it as the result.
+
+        :param profile: the execution profile.
+        :param job: the job, updated in place.
+        :param payload: the settings to upload.
+        :raises RemoteExecutionError: if the upload or the launch fails, or if
+            what came back is not a plain process id.
+        """
         job_dir, settings_path, log_path = _upload_settings(
             profile, job, payload, self.runner
         )
@@ -829,6 +1012,11 @@ class _SSHBackend(_Backend):
         job.status = "running"
 
     def refresh(self, profile: ExecutionProfile, job: RemoteJob) -> None:
+        """Update the job's status on a workstation over ssh.
+
+        :param profile: the execution profile.
+        :param job: the job to act on; updated in place.
+        """
         exit_path = posixpath.join(job.remote_job_dir, "exit-code")
         script = (
             f"if test -f {shlex.quote(exit_path)}; then "
@@ -843,6 +1031,11 @@ class _SSHBackend(_Backend):
         job.status, job.exit_code = _normalise_state(output)
 
     def cancel(self, profile: ExecutionProfile, job: RemoteJob) -> None:
+        """Kill the job on a workstation over ssh.
+
+        :param profile: the execution profile.
+        :param job: the job to act on; updated in place.
+        """
         result = self.runner(
             _remote_argv(profile, ["kill", "-TERM", job.external_id]),
             timeout=30.0,
@@ -854,6 +1047,14 @@ class _SSHBackend(_Backend):
     def logs(
         self, profile: ExecutionProfile, job: RemoteJob, lines: int
     ) -> str:
+        """Fetch the tail of the job's log over ssh.
+
+        :param profile: the execution profile.
+        :param job: the job.
+        :param lines: how many lines to fetch.
+        :returns: the tail, or the cached one when the fetch fails -- a log that
+            cannot be reached is not a reason to lose the last one seen.
+        """
         result = self.runner(
             _remote_argv(
                 profile,
@@ -870,6 +1071,14 @@ class _SlurmBackend(_Backend):
     def submit(
         self, profile: ExecutionProfile, job: RemoteJob, payload: str
     ) -> None:
+        """Submit the job with ``sbatch`` and record the id it returns.
+
+        :param profile: the execution profile.
+        :param job: the job, updated in place.
+        :param payload: the settings to upload.
+        :raises RemoteExecutionError: if the upload or the submission fails, or
+            if the id Slurm returned does not validate.
+        """
         job_dir, settings_path, log_path = _upload_settings(
             profile, job, payload, self.runner
         )
@@ -904,6 +1113,11 @@ class _SlurmBackend(_Backend):
         job.status = "queued"
 
     def refresh(self, profile: ExecutionProfile, job: RemoteJob) -> None:
+        """Update the job's status from the scheduler on Slurm.
+
+        :param profile: the execution profile.
+        :param job: the job to act on; updated in place.
+        """
         result = self.runner(
             _remote_argv(
                 profile,
@@ -934,6 +1148,11 @@ class _SlurmBackend(_Backend):
                 pass
 
     def cancel(self, profile: ExecutionProfile, job: RemoteJob) -> None:
+        """Cancel the job with ``scancel`` on Slurm.
+
+        :param profile: the execution profile.
+        :param job: the job to act on; updated in place.
+        """
         _require_ok(
             self.runner(
                 _remote_argv(profile, ["scancel", job.external_id]),
@@ -946,6 +1165,13 @@ class _SlurmBackend(_Backend):
     def logs(
         self, profile: ExecutionProfile, job: RemoteJob, lines: int
     ) -> str:
+        """Fetch the tail of the job's log.
+
+        :param profile: the execution profile.
+        :param job: the job.
+        :param lines: how many lines to fetch.
+        :returns: the tail, or the cached one when it cannot be reached.
+        """
         result = self.runner(
             _remote_argv(
                 profile,
@@ -977,6 +1203,14 @@ class _CommandBackend(_Backend):
     def submit(
         self, profile: ExecutionProfile, job: RemoteJob, payload: str
     ) -> None:
+        """Start the job through the profile's own submit template.
+
+        :param profile: the execution profile.
+        :param job: the job, updated in place.
+        :param payload: the settings to upload.
+        :raises RemoteExecutionError: if the template cannot be rendered, the
+            submission fails, or the id it returned does not validate.
+        """
         del payload
         output = _require_ok(
             self.runner(
@@ -1007,6 +1241,11 @@ class _CommandBackend(_Backend):
         job.status = "queued"
 
     def refresh(self, profile: ExecutionProfile, job: RemoteJob) -> None:
+        """Update the job's status through the profile's status template on the configured scheduler.
+
+        :param profile: the execution profile.
+        :param job: the job to act on; updated in place.
+        """
         output = _require_ok(
             self.runner(
                 _render_template(
@@ -1020,6 +1259,11 @@ class _CommandBackend(_Backend):
         job.status, job.exit_code = _normalise_state(output)
 
     def cancel(self, profile: ExecutionProfile, job: RemoteJob) -> None:
+        """Cancel the job through the profile's cancel template on the configured scheduler.
+
+        :param profile: the execution profile.
+        :param job: the job to act on; updated in place.
+        """
         _require_ok(
             self.runner(
                 _render_template(
@@ -1035,6 +1279,13 @@ class _CommandBackend(_Backend):
     def logs(
         self, profile: ExecutionProfile, job: RemoteJob, lines: int
     ) -> str:
+        """Fetch the job's log through the profile's own log template.
+
+        :param profile: the execution profile.
+        :param job: the job.
+        :param lines: how many lines to fetch.
+        :returns: the tail, or the cached one when it cannot be reached.
+        """
         del lines
         if not profile.log_command:
             return (
@@ -1053,6 +1304,14 @@ class _CommandBackend(_Backend):
 
 
 def _backend(profile: ExecutionProfile, runner: CommandRunner) -> _Backend:
+    """Return the backend a profile names.
+
+    :param profile: the execution profile.
+    :param runner: how the backend executes commands.
+    :returns: the backend.
+    :raises RemoteExecutionError: if the profile names one this build does
+        not have.
+    """
     if profile.backend == "ssh":
         return _SSHBackend(runner)
     if profile.backend == "slurm":

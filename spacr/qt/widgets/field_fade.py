@@ -231,6 +231,12 @@ class _FieldFadeFilter(QObject):
     def eventFilter(self, obj, event):  # noqa: N802 - Qt contract
         # First line of a filter that sees every event in the process:
         # one enum compare, then out.
+        """Start the fade when the watched field changes.
+
+        :param obj: the field.
+        :param event: the event.
+        :returns: ``False`` -- observed, never consumed.
+        """
         if event.type() != QEvent.Type.Paint:
             return False
         if not field_fade_enabled() or not fades(obj):

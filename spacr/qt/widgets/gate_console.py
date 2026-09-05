@@ -97,6 +97,12 @@ SAFE_NAMES = ("pd", "np", "len", "abs", "min", "max", "sum", "round",
 
 
 def _console_qss(palette, opacity=None) -> str:
+    """Build the gate console's stylesheet.
+
+    :param palette: the active palette.
+    :param opacity: the page opacity, blended into the console's surface.
+    :returns: the QSS.
+    """
     return f"""
     QTextEdit#GateConsoleLog {{
         background: transparent;

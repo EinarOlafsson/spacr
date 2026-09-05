@@ -133,6 +133,17 @@ def _beta_density(scores: np.ndarray, effect: float,
 
 
 def _density(kind: str, scores, effect, centre, scale) -> np.ndarray:
+    """Evaluate the score density under one of the two supported shapes.
+
+    :param kind: ``"beta"`` for the bounded shape, anything else for the
+        log-normal one -- the default, because an unbounded score is the
+        ordinary case and a bounded one has to be asked for.
+    :param scores: the scores to evaluate at.
+    :param effect: the effect size.
+    :param centre: the distribution's centre.
+    :param scale: its spread.
+    :returns: the density at each score.
+    """
     if str(kind).lower() == "beta":
         return _beta_density(scores, effect, centre, scale)
     return _lognormal_density(scores, effect, centre, scale)

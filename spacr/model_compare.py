@@ -730,6 +730,12 @@ class ComparisonReport:
 
 
 def _threshold_of(comparisons: Sequence[SegComparison]) -> float:
+    """The IoU threshold a set of comparisons was matched at.
+
+    :param comparisons: the per-field comparisons.
+    :returns: the first one's threshold, or the default for an empty set --
+        every comparison in a run shares it, so the first is the run's.
+    """
     return comparisons[0].iou_threshold if comparisons else DEFAULT_IOU_THRESHOLD
 
 

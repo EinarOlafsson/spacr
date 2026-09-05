@@ -630,6 +630,15 @@ def canonical_name(entry: Dict[str, object], *, plate: str = "plate1") -> str:
 
 
 def _plan_as_json(plan: "ImportPlan") -> dict:
+    """Render an import plan as a JSON-safe dict.
+
+    Versioned, so a plan saved by one build can be recognised -- or refused
+    -- by another rather than being read as though its shape had not
+    changed.
+
+    :param plan: the plan.
+    :returns: the dict.
+    """
     return {
         "version": 1,
         "root": str(plan.root),

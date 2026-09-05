@@ -89,10 +89,22 @@ def _rgba(spec: str, fallback: "QColor") -> "QColor":
 
 
 def _role_color(name: str, fallback: str = "#000000") -> "QColor":
+    """Resolve a splash palette role to a colour.
+
+    :param name: the role.
+    :param fallback: the colour to use when the role is unknown -- the
+        splash is shown before the theme is loaded, so it cannot assume one.
+    :returns: the colour.
+    """
     return _rgba(_role(name, fallback), QColor(fallback))
 
 
 def _role_brush(name: str) -> "QColor":
+    """Resolve a splash palette role to a colour, defaulting to white.
+
+    :param name: the role.
+    :returns: the colour.
+    """
     return _role_color(name, "#FFFFFF")
 
 

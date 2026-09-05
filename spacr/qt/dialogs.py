@@ -690,6 +690,22 @@ class _DetachEveryDialog:
     """
 
     def eventFilter(self, obj, event):        # noqa: N802 - Qt naming
+        """Detach every dialog from the window manager, and make it resizable.
+
+        Skipped when the glass installer already did it: that detaches and goes
+        frameless in ONE flags change, and repeating it recreates the native
+        window a second time -- on some window managers what comes back has
+        square opaque corners behind the rounded card.
+
+        The flags may only be rewritten before the window is mapped, but moving
+        the contents into a scroll area is an ordinary layout change and is safe
+        on Show too, which matters for a dialog that builds its form after its
+        first polish and would otherwise never be reached.
+
+        :param obj: the object the event is for.
+        :param event: the event.
+        :returns: ``False`` -- observed, never consumed.
+        """
         try:
             from PySide6.QtCore import QEvent
             from PySide6.QtWidgets import QDialog

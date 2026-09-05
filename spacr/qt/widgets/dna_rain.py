@@ -706,6 +706,13 @@ class DnaRainEngine:
 
 
 def _clamp_int(value, low: int, high: int) -> int:
+    """Clamp a value into an integer range.
+
+    :param value: the value.
+    :param low: the lower bound.
+    :param high: the upper bound.
+    :returns: the clamped integer.
+    """
     return max(low, min(high, int(value)))
 
 
@@ -1752,6 +1759,11 @@ class DnaRainSettingsBar(QWidget):
 
 
 def _muted_label(text: str) -> QLabel:
+    """Build a label in the muted style.
+
+    :param text: the text.
+    :returns: the label.
+    """
     label = QLabel(text)
     label.setObjectName("Muted")
     return label

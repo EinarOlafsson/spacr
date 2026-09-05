@@ -1039,6 +1039,14 @@ _SEGMENTATION_IMMUTABLE_RECORD_KEYS = (
 
 
 def _segmentation_pipeline_style(pipeline_style: str) -> str:
+    """Validate and normalise the segmentation pipeline style.
+
+    :param pipeline_style: the style.
+    :returns: it, lowercased.
+    :raises IlluminationError: if it is neither ``'v1'`` nor ``'v2'`` -- the
+        two write different provenance, so a third value would produce a
+        record nothing can read back.
+    """
     style = str(pipeline_style).strip().lower()
     if style not in {'v1', 'v2'}:
         raise IlluminationError(
@@ -1048,6 +1056,14 @@ def _segmentation_pipeline_style(pipeline_style: str) -> str:
 
 
 def _validate_segmentation_model(prepared: PreparedIllumination) -> None:
+    """Check a prepared illumination model may be applied to segmentation inputs.
+
+    :param prepared: the prepared model and its QC artefacts.
+    :raises IlluminationError: if it was not prepared for this use. The
+        correction is applied to segmentation INPUTS only and never to the
+        persisted intensities, and a model prepared under other terms would
+        silently break that guarantee.
+    """
     try:
         saved_digest = _file_sha256(prepared.model_path)
     except OSError as exc:
@@ -1078,6 +1094,15 @@ def _segmentation_application_record(
         pipeline_style: str, completed_fields: Iterable[str],
         application_state: str,
         ) -> Dict[str, Any]:
+    """Build the provenance record for a segmentation-illumination session.
+
+    :param prepared: the prepared model.
+    :param provenance_path: where the record lives.
+    :param pipeline_style: which segmentation pipeline this corrects for.
+    :param completed_fields: the fields corrected so far.
+    :param application_state: where the session has got to.
+    :returns: the record.
+    """
     model_path = os.path.relpath(
         prepared.model_path, os.path.dirname(provenance_path))
     return {
@@ -1098,6 +1123,19 @@ def _segmentation_application_record(
 def _read_segmentation_application(
         prepared: PreparedIllumination, provenance_path: str,
         pipeline_style: str) -> Tuple[Dict[str, Any], set]:
+    """Read a previous session's record and check it describes this one.
+
+    The immutable keys -- the model hash, the pipeline style, the scope --
+    are compared rather than trusted: resuming against a record written for
+    a DIFFERENT model would report fields as corrected that were corrected
+    by something else.
+
+    :param prepared: the prepared model.
+    :param provenance_path: where the record lives.
+    :param pipeline_style: this session's pipeline style.
+    :returns: the record and the set of fields it says are complete.
+    :raises IlluminationError: if the record describes a different run.
+    """
     existing = _load_segmentation_application(provenance_path)
     wanted = _segmentation_application_record(
         prepared, provenance_path, pipeline_style, (), 'prepared')
@@ -1125,6 +1163,14 @@ def _read_segmentation_application(
 
 def _load_segmentation_application(
         provenance_path: str) -> Dict[str, Any]:
+    """Load a provenance record from disk.
+
+    :param provenance_path: the record file.
+    :returns: the parsed record.
+    :raises IlluminationError: if it is missing or unreadable -- a resume
+        with no record to resume from is a mistake worth stopping for, not a
+        fresh start.
+    """
     try:
         with open(provenance_path, encoding='utf-8') as handle:
             existing = json.load(handle)

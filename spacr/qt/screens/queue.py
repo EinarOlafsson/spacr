@@ -99,6 +99,18 @@ class _QueueRunner(QThread):
         # The database updates stay unguarded on purpose: a queue item that
         # finished must be recorded as finished whether or not anyone is
         # watching, and sqlite does not care that the window closed.
+        """Run each queued plate in turn until the queue empties or is stopped.
+
+        EVERY EMIT GOES THROUGH ``emit_safely``. A queue run outlives the screen
+        that started it -- closing the window mid-run leaves this thread
+        emitting at a destroyed C++ object, which raises out of a ``QThread.run``
+        override, and an exception out of a virtual override ABORTS the process
+        rather than failing the run.
+
+        The database updates stay unguarded on purpose: a queue item that
+        finished must be recorded as finished whether or not anyone is watching,
+        and sqlite does not care that the window closed.
+        """
         from ..bridge import emit_safely, resolve_pipeline_entry
         while not self._stop:
             item = self._queue.next_queued()

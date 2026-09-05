@@ -1051,14 +1051,17 @@ class _CaptionsBuiltWhenTheyAreAskedFor(dict):
         return super().__len__()
 
     def keys(self):
+        """The widgets that have a caption, building any still waiting."""
         self._complete()
         return super().keys()
 
     def items(self):
+        """Every widget and its caption, building any still waiting."""
         self._complete()
         return super().items()
 
     def values(self):
+        """Every caption, building any still waiting."""
         self._complete()
         return super().values()
 

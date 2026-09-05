@@ -12,6 +12,14 @@ from __future__ import annotations
 
 
 def _spacr_context() -> str:
+    """Return the system prompt describing spaCR to the assistant.
+
+    It names the pipeline stages, the database layout and the module APIs
+    deliberately: without them the model answers generic Python questions
+    about a package it has only the name of.
+
+    :returns: the context paragraph.
+    """
     return (
         "You are the in-app assistant for spaCR — a Python package for "
         "spatial phenotype analysis of CRISPR-Cas9 imaging screens. It "

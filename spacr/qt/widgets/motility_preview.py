@@ -587,6 +587,11 @@ class _MotilityWorker(QThread):
         self._request = request
 
     def run(self):
+        """Run one motility pass and emit its result, or the failure text.
+
+        A failure is emitted rather than raised: this runs on a worker thread,
+        where an exception has nobody to catch it.
+        """
         try:
             self.finished_result.emit(run_motility_pass(self._request), "")
         except Exception as e:

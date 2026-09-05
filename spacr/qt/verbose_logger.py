@@ -310,6 +310,18 @@ class _ConsoleForwarder(logging.Handler):
         # this thread is inside a console write is a record *about* that
         # write. Formatting and emitting it would run more spaCR code, which
         # under the function-trace profile hook produces more records still.
+        """Forward one record to the console, unless that would recurse.
+
+        The feedback loop is cut as early as possible: a record emitted while
+        this thread is inside a console write is a record ABOUT that write, and
+        formatting it would run more spaCR code -- which under the function-trace
+        profile hook produces more records still.
+
+        A logging failure never escapes into the application: a broken log line
+        is not worth a crash.
+
+        :param record: the log record.
+        """
         if console_write_in_progress():
             return
         if _console_ref is None or _console_ref() is None:
@@ -348,6 +360,16 @@ class _NotAlreadyShownByTheRootSink(logging.Filter):
     """
 
     def filter(self, record: logging.LogRecord) -> bool:  # noqa: D401
+        """Pass only records the root console sink will not already show.
+
+        Without this, a record above the root sink's level reaches the console
+        twice -- once from each handler -- and the duplicate reads as the
+        pipeline having done something twice.
+
+        :param record: the log record.
+        :returns: ``True`` to let it through; ``True`` also when the root sink
+            cannot be found, because one line is better than none.
+        """
         try:
             from .logging_util import get_signal_handler
             root_sink = get_signal_handler()

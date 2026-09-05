@@ -187,6 +187,14 @@ class _FlatStyleMixin:
         # Preferences can change the theme while this panel is hidden; the
         # widget stylesheet keeps whatever palette it was born with until it
         # is rebuilt, so rebuild it every time the panel comes back.
+        """Rebuild the flat style each time the control comes back on screen.
+
+        Preferences can change the theme while the panel is hidden, and a
+        per-widget stylesheet keeps whatever palette it was born with until it
+        is rebuilt.
+
+        :param event: the show event.
+        """
         self._apply_flat_style()
         super().showEvent(event)
 
