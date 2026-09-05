@@ -2,7 +2,7 @@
 WHAT IS LEFT -- INDEX
 ================================================================================
 
-Regenerated 2026-09-04 by `tools/build_instruction_index.py`, from the files
+Regenerated 2026-09-05 by `tools/build_instruction_index.py`, from the files
 themselves. Do not hand-edit: it went nine days stale last time, and an index
 that disagrees with the folder is worse than none, because it is believed.
 
@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-354 done / 22 open (94%).
+355 done / 22 open (94%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -43,10 +43,6 @@ OPEN
   304  Release 1.5.0.5, archived on Zenodo
        [~60% -- metadata in place; needs the Zenodo toggle and the bump]
        304_release_1_5_0_5_to_zenodo.txt
-
-  306  THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
-       [API half done; catalog ratchets 27 of 31 green; 6 untranslated rows left of 16 (an earlier count of 803 was wrong -- it skipped the gate's own _looks_translatable filter)]
-       306_the_api_tooltips_and_translations_are_current_and_correct.txt
 
   316  THE TRANSLATIONS ARE PRESENT, CURRENT, AND IN PLACES WRONG
        [READMEs FIXED -- all nine now match canonical at 35 headings; 32 runtime rows repaired; 15 orphaned blocks retired; 3 blocks need re-translation and ~21 rows say the wrong thing for a microplate well]
@@ -101,6 +97,9 @@ OPEN
 
   378  HOLD Z AND SCROLL TO CHANGE THE FONT SIZE LIVE -- IF IT CAN BE MADE FAST
        378_hold_z_and_scroll_to_resize_the_interface.txt
+
+  379  A SUGGEST BUTTON THAT LABELS THE REST
+       379_a_suggest_button_that_labels_the_rest.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -404,6 +403,7 @@ DONE
   302  A committed value brings its settings back
   303  The fractal settings need real controls, and real ranges
   305  THE INSTALLED PACKAGE LOADS QUICKLY AND RUNS WITHIN MEASURED RESOURCE BUDGETS
+  306  THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
   307  SEGMENTATION QC -> FIELD BROWSER + QUARANTINE
   308  SETUP.PY DECLARES EVERY DEPENDENCY THE SHIPPED CODE NEEDS, ON EVERY SUPPORTED
   309  SPACR KEEPS ITS SETTINGS IN ONE STORE UNDER ONE NAME, AND MIGRATES THE OLD ONES
