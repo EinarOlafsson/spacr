@@ -235,6 +235,7 @@ class ModelZooPicker(QDialog):
         layout.addWidget(buttons)
 
         self.refresh()
+        self._warm_the_community_catalogue()
 
     # -- data ------------------------------------------------------------
 
@@ -261,13 +262,44 @@ class ModelZooPicker(QDialog):
         notes=(),
     )
 
+    def _warm_the_community_catalogue(self) -> None:
+        """Fetch the community rows off the GUI thread, then redraw.
+
+        WHY THIS EXISTS. :func:`spacr.model_zoo.shared_catalogue` refuses to
+        wait for the network when it is called on the GUI thread -- measured
+        2026-09-05, an unreachable catalogue host froze a module open for
+        32.2 s and produced the desktop's "force quit" dialog. :meth:`refresh`
+        therefore comes back with whatever is cached, which on the first
+        picker of a session is nothing.
+
+        So the fetch happens here instead, on a worker, and the table is
+        rebuilt when it lands. Nothing is lost and nobody waits.
+        """
+        from ... import model_zoo
+
+        if not model_zoo.shared_catalogue_is_stale():
+            return
+        try:
+            from ..job_runner import JobRunner
+        except Exception:                                    # noqa: BLE001
+            return
+        self._catalogue_job = JobRunner(self, app_key="model zoo",
+                                        user_visible=False)
+        self._catalogue_job.submit(
+            lambda: model_zoo.shared_catalogue(block=True),
+            lambda _entries: self.refresh())
+
     def refresh(self) -> None:
-        """Reload the catalogue and redraw the table."""
+        """Reload the catalogue and redraw the table.
+
+        Answers from the shared catalogue's cache rather than the network --
+        see :meth:`_warm_the_community_catalogue`.
+        """
         from ... import model_zoo
 
         try:
             entries = [self.STOCK_MODEL]
-            entries += list(model_zoo.catalogue(remote=True))
+            entries += list(model_zoo.catalogue(remote=True, block=False))
         except Exception as exc:                            # noqa: BLE001
             # A zoo that cannot be listed must not be a dialog that cannot be
             # opened: the user may already have the model and only need to
