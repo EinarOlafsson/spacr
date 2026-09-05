@@ -136,6 +136,14 @@ class ScreenDataPicker(QDialog):
     # -- rows ---------------------------------------------------------------
 
     def _text_for(self, asset: ScreenAsset) -> str:
+        """Compose one asset's row.
+
+        The note says whether it is already downloaded or not published yet --
+        both are reasons the size beside it does not mean what it looks like.
+
+        :param asset: the asset to describe.
+        :returns: the row text.
+        """
         if self._is_missing_upstream(asset):
             note = " — not published yet"
         elif self._is_present(asset):
@@ -159,6 +167,13 @@ class ScreenDataPicker(QDialog):
                 and asset.archive not in self._published)
 
     def _is_present(self, asset: ScreenAsset) -> bool:
+        """Report whether an asset is already in the chosen folder.
+
+        :param asset: the asset to check.
+        :returns: ``False`` with no folder chosen, and ``False`` rather than
+            raising when the check itself fails -- an unreadable folder means
+            "download it", not "lose the dialog".
+        """
         if self._folder is None:
             return False
         try:
@@ -167,6 +182,7 @@ class ScreenDataPicker(QDialog):
             return False
 
     def _items(self):
+        """Return every row of the asset list, in order."""
         return [self._list.item(i) for i in range(self._list.count())]
 
     def _follow_selection(self) -> None:
@@ -194,6 +210,13 @@ class ScreenDataPicker(QDialog):
         self._follow_selection()
 
     def _refresh_total(self, *_args) -> None:
+        """Restate how much the current selection would download.
+
+        Nothing selected disables the button rather than offering a zero-byte
+        download.
+
+        :param _args: whatever the emitting control passes; ignored.
+        """
         chosen = self.chosen()
         if not chosen:
             self._total.setText("Nothing selected.")

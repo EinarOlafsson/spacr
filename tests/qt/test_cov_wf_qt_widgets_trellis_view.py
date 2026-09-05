@@ -43,7 +43,8 @@ pytest.importorskip("matplotlib")
 from spacr.qt.linked_selection import LinkedSelection
 from spacr.qt.theme import active_palette
 from spacr.qt.widgets.graph_spec import CONTINUOUS, EMPTY, HISTOGRAM, SCATTER, GraphSpec
-from spacr.qt.widgets.trellis_spec import SCALE_FREE, SCALE_SHARED, TrellisSpec
+from spacr.qt.widgets.trellis_spec import (SCALE_FREE, SCALE_MODES,
+                                          SCALE_SHARED, TrellisSpec)
 from spacr.qt.widgets.trellis_view import TrellisCanvas, TrellisPanelWidget
 
 #: ``classify_columns`` calls a numeric column with twelve or fewer distinct
@@ -196,17 +197,23 @@ def test_the_blank_slot_of_a_wrapped_grid_is_never_given_a_caption(qtbot):
 # A spec the pickers cannot show
 # ---------------------------------------------------------------------------
 
-def test_a_plot_kind_the_picker_cannot_offer_leaves_the_picker_alone(
+def test_a_plot_kind_the_picker_cannot_offer_falls_back_to_automatic(
         panel, seen):
     """``EMPTY`` is a real kind, and the Plot picker deliberately omits it.
 
     The picker lists "Automatic" plus every :data:`PLOT_KINDS` member except
     ``EMPTY`` — there is nothing to override when nothing has been dropped —
     so a spec pushed in from a saved layout can name a kind the picker has no
-    item for. Selecting index -1 would blank the box: the Plot row of the
-    shelf would go empty, showing neither the spec's kind nor a usable one.
+    item for. Selecting index -1 would blank the box, and KEEPING THE LAST
+    KIND is worse than blank: `_on_controls_changed` reads the PICKER, so a
+    box still reading "Histogram" under a spec that says ``empty`` turns the
+    spec into a histogram the moment any other control is touched. That was
+    the defect instruction 310 A56 reported. "Automatic" is the honest
+    fallback — it claims no kind the spec did not ask for.
+
     The rest of the sync has to happen anyway, which is what the bins and wrap
-    assertions below pin: the guard skips one control, not the method.
+    assertions below pin: the fallback replaces one control's value, it does
+    not abandon the method.
     """
     panel.set_frame(seen)
     panel.zone("x").set_column("area")
@@ -217,8 +224,8 @@ def test_a_plot_kind_the_picker_cannot_offer_leaves_the_picker_alone(
                                wrap=4))
 
     assert panel.spec.graph.kind == EMPTY
-    assert panel._kind.currentIndex() >= 0
-    assert panel._kind.currentData() == HISTOGRAM
+    assert panel._kind.currentIndex() == 0
+    assert panel._kind.currentData() == ""
     assert panel._bins.value() == 7
     assert panel._wrap.value() == 4
 
@@ -231,17 +238,18 @@ def test_a_plot_kind_the_picker_cannot_offer_leaves_the_picker_alone(
     assert panel._bins.value() == 5
 
 
-def test_a_scale_mode_the_picker_cannot_offer_leaves_the_picker_alone(
+def test_a_scale_mode_the_picker_cannot_offer_falls_back_to_the_first(
         panel, seen):
     """A mode from a newer spaCR must not blank this build's scale box.
 
     ``TrellisSpec`` validates its modes, so the only way a picker meets one it
     cannot show is a spec written elsewhere — a saved trellis from a build
-    that offers a mode this one does not. What must not happen then is the
-    X-scale box emptying itself: the shelf would show no scale at all, and the
-    next touch of any control would publish whatever a blank box reports. The
-    box keeps the mode it is showing, and the rest of the sync still runs —
-    the Y box and the bin count below both follow the incoming spec.
+    that offers a mode this one does not. The X-scale box must not empty
+    itself, and it must not keep the mode it happened to be showing either:
+    `_on_controls_changed` reads the PICKER, so a stale box republishes its
+    own value as the spec's the next time any control moves. It falls back to
+    the first entry, and the rest of the sync still runs — the Y box and the
+    bin count below both follow the incoming spec.
     """
     panel._scale_x.setCurrentIndex(panel._scale_x.findData(SCALE_FREE))
     assert panel.spec.scale_x == SCALE_FREE
@@ -253,8 +261,8 @@ def test_a_scale_mode_the_picker_cannot_offer_leaves_the_picker_alone(
     panel.set_spec(future)
 
     assert panel.spec.scale_x == "logarithmic"
-    assert panel._scale_x.currentIndex() >= 0
-    assert panel._scale_x.currentData() == SCALE_FREE
+    assert panel._scale_x.currentIndex() == 0
+    assert panel._scale_x.currentData() == SCALE_MODES[0]
     assert panel._scale_y.currentData() == SCALE_SHARED
     assert panel._bins.value() == 9
 
