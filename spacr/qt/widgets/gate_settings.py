@@ -203,6 +203,13 @@ class GateEditorSettings:
     merge_overrides: Mapping[str, str] = None
 
     def __post_init__(self) -> None:
+        """Normalise the mode and freeze the mutable defaults.
+
+        A settings file written while ``xD`` was a third gate mode is migrated:
+        it meant "project, and give me a Z" -- xD produced three components
+        precisely so the 3D view had one -- so it becomes 3D with the projection
+        turned on.
+        """
         if str(self.gate_mode).strip().lower() == "xd":
             # A settings file written while xD was a third mode. It meant
             # "project, and give me a Z" -- xD produced three components
@@ -264,6 +271,14 @@ class GateSettingsDialog(QDialog):
 
     def __init__(self, settings: GateEditorSettings, parent=None, *,
                  columns: Tuple[str, ...] = ()):
+        """Build the settings dialog over a gate-editor settings record.
+
+        :param settings: the settings to edit; every change is emitted rather
+            than applied on close, so the scatter follows the dialog live.
+        :param parent: parent widget, or ``None``.
+        :param columns: the loaded table's measurements, offered wherever a
+            setting names one.
+        """
         super().__init__(parent)
         self.setWindowTitle("Gate editor settings")
         self.setObjectName("GateSettingsDialog")
@@ -288,6 +303,10 @@ class GateSettingsDialog(QDialog):
 
     # -- the tabs ---------------------------------------------------------
     def _general_tab(self) -> QWidget:
+        """Build the General page: sampling, colours, scales and grid.
+
+        :returns: the page widget.
+        """
         page = QWidget(self)
         form = QFormLayout(page)
 
@@ -403,6 +422,10 @@ class GateSettingsDialog(QDialog):
         return page
 
     def _two_d_tab(self) -> QWidget:
+        """Build the 2D page: the drawing tools, merge keys, wand and clustering.
+
+        :returns: the page widget.
+        """
         page = QWidget(self)
         form = QFormLayout(page)
 
@@ -676,10 +699,19 @@ class GateSettingsDialog(QDialog):
                     widget.setEnabled(name in active)
 
     def _on_reduction_changed(self, value: str) -> None:
+        """Record a new reduction and grey out the methods it makes irrelevant.
+
+        :param value: the newly chosen reduction.
+        """
         self._change(reduction=value)
         self._grey_irrelevant_methods()
 
     def _picked_groups(self) -> Dict[str, Tuple[str, ...]]:
+        """Collect the ticked measurement groups.
+
+        :returns: the chosen names by group kind, each tuple sorted so the same
+            tick set always produces the same record.
+        """
         out: Dict[str, list] = {}
         for (kind, name), box in self._group_boxes.items():
             if box.isChecked():
@@ -687,10 +719,20 @@ class GateSettingsDialog(QDialog):
         return {k: tuple(sorted(v)) for k, v in out.items()}
 
     def _on_group_toggled(self, _checked: bool) -> None:
+        """Record the ticked measurement groups and restate what they select.
+
+        :param _checked: the toggle's new state; unused, since every box is
+            re-read either way.
+        """
         self._change(reduction_groups=self._picked_groups())
         self._refresh_selection_note()
 
     def _on_explicit_changed(self) -> None:
+        """Record the explicitly typed columns and restate what they select.
+
+        Blank entries between commas are dropped, so a trailing comma while
+        typing does not become a column named ``""``.
+        """
         typed = tuple(part.strip() for part in self._explicit.text().split(",")
                       if part.strip())
         self._change(reduction_columns=typed)
@@ -714,6 +756,11 @@ class GateSettingsDialog(QDialog):
                            self._explicit.text().split(",") if part.strip())))
 
     def _three_d_tab(self, columns: Tuple[str, ...]) -> QWidget:
+        """Build the 3D page: the merge policy, the gate mode and the Z axis.
+
+        :param columns: the loaded table's measurements, offered as Z.
+        :returns: the page widget.
+        """
         page = QWidget(self)
         form = QFormLayout(page)
 
@@ -839,6 +886,12 @@ class GateSettingsDialog(QDialog):
         self._change(merge_keys=chosen)
 
     def _change(self, **fields) -> None:
+        """Replace the held settings and announce them.
+
+        :param fields: the fields to change; everything else is carried over.
+            Nothing is emitted while the dialog is filling its own widgets, so
+            building the form does not look like a hundred edits.
+        """
         self._settings = self._settings.replaced(**fields)
         if self._live:
             self.settings_changed.emit(self._settings)
