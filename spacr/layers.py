@@ -3903,7 +3903,7 @@ class LayerStack:
     def _emit(self, event: LayerEvent) -> None:
         """Tell every subscriber the stack has changed.
 
-        :param what: which change it was.
+        :param event: which change it was.
         """
         for listener in list(self._listeners):
             listener(event)

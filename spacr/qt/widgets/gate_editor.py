@@ -263,7 +263,9 @@ class GateCanvas(GraphCanvas):
     def __init__(self, parent=None, *, link=None, source: str = "gate_editor"):
         """Build a gating canvas over one graph spec.
 
-        :param kwargs: passed to :class:`GraphCanvas`.
+        :param parent: parent widget.
+        :param link: the shared selection to join, if any.
+        :param source: the table being gated.
         """
         super().__init__(parent, link=link, source=source)
         self._tool = DEFAULT_TOOL
@@ -3301,7 +3303,7 @@ class GateEditorPanel(QWidget):
     def _on_tool_changed(self, *_args) -> None:
         """Arm a different drawing tool.
 
-        :param tool: the tool's name.
+        :param _args: the signal's payload; the tool is re-read from the buttons.
         """
         tool = self._tool.currentData() or ""
         self.canvas.set_tool(tool)
@@ -3490,7 +3492,6 @@ class GateEditorPanel(QWidget):
     def _ask_name(self) -> str:
         """Ask what to call a gate, defaulting to a free name.
 
-        :param suggestion: the default offered.
         :returns: the chosen name, or ``""`` if cancelled.
         """
         if self._namer is not None:

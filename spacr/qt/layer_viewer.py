@@ -917,7 +917,7 @@ class LayerViewer(LinkedView, QWidget):
     def _on_blending(self, text: str) -> None:
         """Set how the selected layer combines with what is under it.
 
-        :param mode: the blending mode's name.
+        :param text: the blending mode's name.
         """
         layer = self._stack.selected
         if layer is None or not text:
@@ -930,7 +930,7 @@ class LayerViewer(LinkedView, QWidget):
     def _on_colormap(self, text: str) -> None:
         """Set the selected image layer's colormap.
 
-        :param name: the colormap's name.
+        :param text: the colormap's name.
         """
         layer = self._stack.selected
         if isinstance(layer, ImageLayer) and text:
@@ -1094,9 +1094,7 @@ class LayerViewer(LinkedView, QWidget):
     def _on_hovered(self, world) -> None:
         """Update the status bar as the pointer moves.
 
-        :param layer: the layer under the pointer, or None.
-        :param world: the world coordinate.
-        :param value: the value there.
+        :param world: the world coordinate under the pointer.
         """
         if self._stack.selected is None:
             self.status.setText(" · ".join(
