@@ -41,6 +41,13 @@ class AggregationRulesDialog(QDialog):
 
     def __init__(self, frame: pd.DataFrame, parent=None, *,
                  overrides: Optional[Mapping[str, str]] = None):
+        """Build the per-measurement aggregation rules dialog.
+
+        :param frame: the table whose measurements are listed.
+        :param parent: parent widget, or ``None``.
+        :param overrides: rules the user has already changed, applied over the
+            inferred plan.
+        """
         super().__init__(parent)
         self.setWindowTitle("Aggregation rules")
         self.setObjectName("AggregationRulesDialog")
@@ -79,6 +86,12 @@ class AggregationRulesDialog(QDialog):
         outer.addWidget(buttons)
 
     def _fill(self, frame: pd.DataFrame) -> None:
+        """List every measurement with the rule it would roll up by.
+
+        :param frame: the table to infer the plan from; the caller's overrides
+            are applied on top, so a row the user has changed opens on their
+            answer rather than on the inferred one.
+        """
         plan = aggregation_plan(frame, overrides=self._overrides)
         for column, how in sorted(plan.items()):
             item = tree_item([str(column), ""])
@@ -107,6 +120,11 @@ class AggregationRulesDialog(QDialog):
         self.rules_changed.emit(dict(self._overrides))
 
     def _filter(self, text: str) -> None:
+        """Hide the measurements whose names do not contain the filter text.
+
+        :param text: the needle; matched case-insensitively, and an empty one
+            shows everything.
+        """
         needle = str(text).strip().lower()
         for index in range(self.tree.topLevelItemCount()):
             item = self.tree.topLevelItem(index)

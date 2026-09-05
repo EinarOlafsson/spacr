@@ -71,6 +71,17 @@ class DnaRainSettingsPopover(QFrame):
         # destroyed with it and lands on the parent's screen, which is
         # what a per-screen popover wants. It is never laid out inside
         # the parent.
+        """Build the popover holding the DNA rain settings bar.
+
+        Parented but still a window: a ``Qt.Popup`` with a parent is destroyed
+        with it and opens on the parent's screen, which is what a per-screen
+        popover wants. It is never laid out inside the parent. The bar is
+        re-parented by ``addWidget`` rather than by an explicit ``setParent``,
+        which would mark it hidden and leave it blank inside a shown popover.
+
+        :param bar: the settings bar to show.
+        :param parent: the widget the popover belongs to, or ``None``.
+        """
         super().__init__(
             parent,
             Qt.Popup | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint,
@@ -214,6 +225,11 @@ class DnaSettingsButton(AiToggleLabel):
 
     def __init__(self, bar: DnaRainSettingsBar,
                  parent: Optional[QWidget] = None):
+        """Build the button that opens the DNA rain settings.
+
+        :param bar: the settings bar the popover shows.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(
             parent,
             text="DNA",
@@ -242,6 +258,14 @@ class DnaSettingsButton(AiToggleLabel):
         return self._popover.isVisible()
 
     def _on_toggled(self, on: bool) -> None:
+        """Open or close the popover to match the button.
+
+        A click that dismissed the popover also reaches this button, so a
+        just-closed popover stays closed rather than flickering straight back
+        open.
+
+        :param on: the button's new state.
+        """
         if not on:
             self._popover.hide()
             return

@@ -70,6 +70,18 @@ class Folder:
 
     def __init__(self, heading: QLabel, body: QWidget, name: str = "",
                  on_change: Optional[Callable[[bool], None]] = None):
+        """Make one heading fold the panel under it.
+
+        The heading is composed -- an arrow, the panel name, and sometimes an
+        alert -- so asking the catalogue for the finished line asks for a key
+        that cannot exist. The generic language pass is kept off it and the line
+        is rebuilt from its translated parts.
+
+        :param heading: the label that becomes the fold control.
+        :param body: the widget it folds away.
+        :param name: the panel's name; defaults to the heading's own text.
+        :param on_change: called with the new folded state after each toggle.
+        """
         self.heading = heading
         self.body = body
         self.name = name or heading.text().strip()
@@ -147,12 +159,27 @@ class Folder:
         # THE NAME LOOKS CLICKABLE BEFORE IT IS CLICKED. A gesture nobody
         # knows about is not a feature, and the pointer is the only hint a
         # heading can carry without a second widget beside it.
+        """Write the heading's hover text.
+
+        The name has to look clickable before it is clicked: a gesture nobody
+        knows about is not a feature, and the pointer is the only hint a heading
+        can carry without a second widget beside it.
+
+        :param language: the language to write in; ``None`` uses the current
+            one.
+        """
         self.heading.setToolTip(tr(
             "Click to fold {name} away, and click again to bring it back. "
             "The panel above takes the space.",
             language, name=tr(self.name, language)))
 
     def _repaint(self, language: Optional[str] = None) -> None:
+        """Rebuild the heading line from its parts.
+
+        :param language: the language to build in; ``None`` uses the current
+            one. The alert is appended only while the panel is folded away --
+            open, whatever it warns about is on screen already.
+        """
         mark = SHUT_MARK if self._shut else OPEN_MARK
         text = f"{mark} {tr(self.name, language)}"
         if self._shut and self._alert:
