@@ -148,6 +148,12 @@ class DoseResponseScreen(QWidget):
     """
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the screen: the curve canvas beside the fit table and report.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: read and fit on a worker thread. Set ``False`` in tests
+            so ``fit`` finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("DoseResponseScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -416,6 +422,11 @@ class DoseResponseScreen(QWidget):
                   f"× {len(frame.columns)} columns")
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 
@@ -486,6 +497,12 @@ class DoseResponseScreen(QWidget):
             self._draw(None)
 
     def _on_row_selected(self) -> None:
+        """Show the curve for the selected row.
+
+        The row carries the index of the fit it was built from rather than being
+        identified by its position: the table sorts, so the top row is not
+        always the first curve.
+        """
         rows = {index.row() for index in self.table.selectedIndexes()}
         if not rows or self._set is None:
             return

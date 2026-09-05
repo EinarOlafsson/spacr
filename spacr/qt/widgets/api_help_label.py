@@ -39,6 +39,13 @@ class ApiHelpLabel(QLabel):
 
     def __init__(self, text: str = "", app_key: str = "",
                  parent: Optional[QWidget] = None):
+        """Build a label whose hover help links into the module's API docs.
+
+        :param text: the description shown, and the body of the help.
+        :param app_key: the module the help links to; without one the label
+            still shows its description but links nowhere.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(str(text), parent)
         self._description = str(text)
         self._app_key = str(app_key or "")
@@ -171,6 +178,14 @@ class ApiHelpLabel(QLabel):
     # -- internals ---------------------------------------------------------
 
     def _compose_help(self) -> str:
+        """Build the hover help, with the API link when there is one to make.
+
+        With no module key the description is returned as plain escaped text:
+        the shared formatter would fall back to the documentation index, which
+        is a link that answers no question the reader asked.
+
+        :returns: the help as HTML.
+        """
         description = self._description.strip()
         if not self._app_key:
             # Nothing to link to. `format_tooltip` would fall back to the
@@ -195,6 +210,13 @@ class ApiHelpLabel(QLabel):
         return f"{body}<br>{link}" if body else link
 
     def _refresh_help(self) -> None:
+        """Recompose the help and re-arm the hover popup.
+
+        The text is kept on the widget as well as in the popup, because that is
+        what the accessibility tree reads out, and the cursor is set to the
+        what's-this shape -- the affordance the dot used to be, saying there is
+        something here to read before the popup appears.
+        """
         html = self._compose_help()
         self.setProperty("apiTooltipHtml", html)
         # Kept on the widget as well as in the popup: this string is what the
