@@ -1005,6 +1005,12 @@ class ModelCompareScreen(QWidget):
         return len(self._jobs)
 
     def is_busy(self) -> bool:
+        """Whether anything is still running.
+
+        What the window asks before closing.
+
+        :returns: True while work is outstanding.
+        """
         return self._busy
 
     def _on_worker_error_text(self, tb: str) -> None:

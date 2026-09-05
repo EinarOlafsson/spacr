@@ -208,20 +208,39 @@ class HeightGrip(QWidget):
             painter.drawRect(left, mid + offset, width, 1)
 
     def enterEvent(self, event):                # noqa: N802 - Qt naming
+        """Light the grip as the pointer arrives.
+
+        :param event: the Qt enter event.
+        """
         self._hovered = True
         self.update()
         super().enterEvent(event)
 
     def leaveEvent(self, event):                # noqa: N802 - Qt naming
+        """Drop the highlight as the pointer leaves.
+
+        :param event: the Qt leave event.
+        """
         self._hovered = False
         self.update()
         super().leaveEvent(event)
 
     def focusInEvent(self, event):              # noqa: N802 - Qt naming
+        """Redraw when focused, so the grip is visible to keyboard users.
+
+        A DRAG HANDLE NOBODY CAN SEE is a control only a mouse can find. The
+        focus ring is what makes the keyboard route discoverable.
+
+        :param event: the Qt focus event.
+        """
         self.update()
         super().focusInEvent(event)
 
     def focusOutEvent(self, event):             # noqa: N802 - Qt naming
+        """Redraw when focus leaves.
+
+        :param event: the Qt focus event.
+        """
         self.update()
         super().focusOutEvent(event)
 
@@ -240,6 +259,14 @@ class HeightGrip(QWidget):
         event.accept()
 
     def mouseMoveEvent(self, event):            # noqa: N802 - Qt naming
+        """Resize by how far the pointer moved SINCE THE PRESS.
+
+        Measured from the press rather than the last move, so a drag that
+        outruns the redraw lands where the pointer is instead of
+        accumulating rounding.
+
+        :param event: the Qt mouse event.
+        """
         if self._from_y is None:
             return super().mouseMoveEvent(event)
         delta = event.globalPosition().y() - self._from_y
@@ -247,6 +274,10 @@ class HeightGrip(QWidget):
         event.accept()
 
     def mouseReleaseEvent(self, event):         # noqa: N802 - Qt naming
+        """End the drag.
+
+        :param event: the Qt mouse event.
+        """
         if self._from_y is None:
             return super().mouseReleaseEvent(event)
         self._from_y = None

@@ -113,4 +113,10 @@ class AggregationRulesDialog(QDialog):
             item.setHidden(bool(needle) and needle not in item.text(0).lower())
 
     def overrides(self) -> Dict[str, str]:
+        """The per-column aggregations the user chose.
+
+        A COPY, so the dialog's own state cannot be edited through it.
+
+        :returns: ``{column: aggregation}``.
+        """
         return dict(self._overrides)

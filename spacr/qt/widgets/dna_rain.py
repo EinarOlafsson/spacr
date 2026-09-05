@@ -446,6 +446,14 @@ class DnaRainEngine:
                  font_size: int = DEFAULT_FONT_PX,
                  seed: Optional[int] = None,
                  spacr_probability: float = SPACR_SPLICE_PROBABILITY):
+        """Roll the falling columns from the seed.
+
+        :param width: the field's width in pixels.
+        :param height: its height.
+        :param font_size: the cell size the columns are pitched on.
+        :param seed: what makes the animation reproducible.
+        :param spacr_probability: how often a column splices in the word.
+        """
         self._rng = random.Random(seed)
         # Its own stream, offset from the seed so it is neither the same
         # sequence nor correlated with it, and still reproducible.
@@ -566,6 +574,11 @@ class DnaRainEngine:
         return tokens, word_index
 
     def _roll(self, column: Optional[Column], initial: bool) -> Column:
+        """Fill one column with fresh tokens.
+
+        :param column: the column to fill.
+        :param initial: True on the first roll, when columns start mid-fall.
+        """
         rng = self._rng
         length = rng.randint(MIN_STRING_CELLS, self.max_length)
         speed = rng.uniform(MIN_SPEED_CELLS_PER_S, MAX_SPEED_CELLS_PER_S)
@@ -603,9 +616,18 @@ class DnaRainEngine:
         return column
 
     def _spawn(self, initial: bool) -> Column:
+        """Create every column.
+
+        :param initial: True on the first spawn, so the field starts full
+            rather than raining in from the top edge.
+        """
         return self._roll(None, initial)
 
     def _respawn(self, column: Column) -> None:
+        """Send one finished column back to the top with new tokens.
+
+        :param column: the column that fell off the bottom.
+        """
         self._roll(column, initial=False)
         self.respawns += 1
 
@@ -733,6 +755,20 @@ class DnaRainWidget(QWidget):
                  random_colors: bool = False,
                  spacr_probability: float = SPACR_SPLICE_PROBABILITY,
                  theme: Optional[str] = None):
+        """Build the rain widget over its engine.
+
+        :param parent: parent widget.
+        :param seed: what makes the animation reproducible.
+        :param font_size: the cell size.
+        :param fps: the repaint cap.
+        :param color: the column colour.
+        :param background: the colour behind it.
+        :param backdrop: whether it paints as a backdrop.
+        :param opacity: how strongly it is drawn.
+        :param random_colors: whether each column takes its own hue.
+        :param spacr_probability: how often the word is spliced in.
+        :param theme: the palette's name.
+        """
         super().__init__(parent)
         palette = palette_for(theme or _effective_theme())
         self._bg = _as_color(background, QColor(palette["bg"]))
@@ -846,6 +882,11 @@ class DnaRainWidget(QWidget):
         return self._column_color(self._engine.columns[index])
 
     def _column_color(self, column: Column) -> QColor:
+        """The colour one column is drawn in.
+
+        :param column: the column.
+        :returns: its colour.
+        """
         if not self._random_colors:
             return QColor(self._color)
         # Quantised exactly as the pen cache quantises it, so this
@@ -1041,6 +1082,13 @@ class DnaRainWidget(QWidget):
         self._timer.stop()
 
     def _should_run(self) -> bool:
+        """Whether the animation is worth advancing right now.
+
+        FALSE WHEN HIDDEN: this is a backdrop and must not take frames from
+        whatever the user is doing in front of it.
+
+        :returns: True when the timer should keep firing.
+        """
         if not self.isVisible():
             return False
         window = self.window()
@@ -1122,6 +1170,7 @@ class DnaRainWidget(QWidget):
 
     # -- animation -----------------------------------------------------
     def _on_tick(self) -> None:
+        """Advance the columns and repaint."""
         dt = self._clock.restart() / 1000.0
         self.advance_frame(min(MAX_DT, dt) if dt > 0 else 1.0 / self._fps)
 
@@ -1192,6 +1241,7 @@ class DnaRainWidget(QWidget):
 
     # -- painting ------------------------------------------------------
     def _rebuild_font(self) -> None:
+        """Rebuild the font and re-pitch the columns after a size change."""
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         font.setPixelSize(max(MIN_FONT_PX, self._engine.font_size))
         font.setBold(True)
@@ -1583,6 +1633,7 @@ class DnaRainSettingsBar(QWidget):
         return self._random.isChecked()
 
     def _paint_swatch(self) -> None:
+        """Redraw the colour swatch from the chosen colour."""
         self._swatch.setStyleSheet(
             "QPushButton#DnaRainSwatch {"
             f" background: {self._color.name()};"
@@ -1590,6 +1641,7 @@ class DnaRainSettingsBar(QWidget):
             " border-radius: 3px; }")
 
     def _refresh_readouts(self) -> None:
+        """Update the numbers beside each slider."""
         self._speed_value.setText(f"{self.speed():.1f}x")
         self._font_value.setText(f"{self.font_size()} px")
         self._opacity_value.setText(f"{round(self.opacity() * 100)}%")
@@ -1628,9 +1680,17 @@ class DnaRainSettingsBar(QWidget):
         self._random.setChecked(bool(on))
 
     def _on_random(self, on: bool) -> None:
+        """Turn per-column random colours on or off.
+
+        :param on: True for random colours.
+        """
         self.random_color_changed.emit(bool(on))
 
     def _on_speed(self, _value: int) -> None:
+        """Apply the speed slider.
+
+        :param _value: the slider's position; re-read from the widget.
+        """
         self._refresh_readouts()
         self.speed_changed.emit(self.speed())
 
@@ -1648,10 +1708,18 @@ class DnaRainSettingsBar(QWidget):
                        MAX_OPACITY_PCT))
 
     def _on_font(self, value: int) -> None:
+        """Apply the font-size slider.
+
+        :param value: the new size in pixels.
+        """
         self._refresh_readouts()
         self.font_size_changed.emit(int(value))
 
     def _on_opacity(self, _value: int) -> None:
+        """Apply the opacity slider.
+
+        :param _value: the slider's position; re-read from the widget.
+        """
         self._refresh_readouts()
         self.opacity_changed.emit(self.opacity())
 

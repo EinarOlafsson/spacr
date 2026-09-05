@@ -204,3 +204,44 @@ trees it names, it buys a full second copy of the plate and still parses
 nothing. It now sends a nested tree to Import first and describes
 `consolidate` as the older path with the condition under which it helps.
 Nothing was withdrawn and no settings file changed meaning.
+
+
+--------------------------------------------------------------------------------
+2026-09-04 — RE-MEASURED. STEP 1 IS MAINTAINER-GATED AND HAS NOT MOVED.
+--------------------------------------------------------------------------------
+
+STEP 1 CANNOT BE DONE BY A SESSION. It asks for the new Import to be run over
+"the acquisitions the maintainer actually has, including the ones
+`metadata_type` was added for". That is not data in the repository, and the
+step exists precisely because the synthetic corpus is not evidence -- it was
+written by whoever wrote the parser. Steps 2 and 3 are ordered behind it and
+this file says not to reorder them, so nothing here is safe to start.
+
+WHAT IS ACTIONABLE HAS BEEN DONE: the premise re-measured, because a number
+recorded two days ago and acted on next week is how a plan goes wrong.
+
+    metadata_type   read sites  7 -> 13     mentioned in 30 files (unchanged)
+    consolidate     read sites  1 ->  1     mentioned in 31 files (was 30)
+
+THE READ COUNT FOR `metadata_type` NEARLY DOUBLED. That is the opposite
+direction from the one this instruction assumes, and it makes the retirement
+harder rather than easier: whatever added those sites did so while the plan
+of record was to remove the key. Worth understanding before step 3, because
+retiring a key that six more places have started reading since the plan was
+written is a bigger change than the plan costed.
+
+A RELATED TEST WAS RED AND IS NOW GREEN, and it is worth saying it was not a
+375 defect. `test_a_panel_with_no_gated_setting_greys_nothing` asserted Mask
+had no gated settings. `custom_regex` has since gained a dependency rule --
+it is read only when `metadata_type` is 'custom', or 'auto' with a regex
+supplied -- so the test's premise went stale while the behaviour was correct.
+
+Rewritten to assert the property actually worth guarding: the sweep greys THE
+RULED SETTING AND NOTHING ELSE. A second test now pins the 'auto' case, which
+is the half a tidy-up would get wrong -- `metadata_type`'s own description
+says 'auto' renames using `custom_regex` when supplied, so greying the field
+there would remove documented behaviour while looking like a cleanup.
+
+NEXT ACTION IS THE MAINTAINER'S: run Import over the real acquisitions, and
+say what it got right and what it did not. Until then this item is blocked,
+not merely unstarted.

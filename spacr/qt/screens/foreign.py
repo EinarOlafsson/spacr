@@ -185,6 +185,10 @@ class ColumnMapModel(QAbstractTableModel):
     mapping_edited = Signal()
 
     def __init__(self, parent=None):
+        """Build an empty column mapping.
+
+        :param parent: parent object.
+        """
         super().__init__(parent)
         self._maps: List[fgn.ColumnMap] = []
         self._status: Dict[str, str] = {}
@@ -337,6 +341,11 @@ class ForeignScreen(QWidget):
     _progress = Signal(int, int, str)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the importer: images, masks, table and mapping.
+
+        :param parent: parent widget.
+        :param threaded: whether the import runs on a worker.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._plan: Optional[fgn.ImportPlan] = None
@@ -367,6 +376,7 @@ class ForeignScreen(QWidget):
         # on. A screen that builds itself has no `app_key` unless it says
         # so, and without it this screen could declare folds and never be
         # handed them.
+        """Lay out the input rows over the mapping table and the report."""
         self.app_key = "foreign"
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
@@ -557,6 +567,10 @@ class ForeignScreen(QWidget):
         return self._report.toPlainText()
 
     def _set_report(self, text: str) -> None:
+        """Put the import report on screen.
+
+        :param text: the report.
+        """
         self._report.setPlainText(text or "")
 
     # -- configuration -----------------------------------------------------
@@ -610,6 +624,7 @@ class ForeignScreen(QWidget):
                 if name in self._masks}
 
     def _refresh_mask_list(self) -> None:
+        """Rebuild the list of mask sets added so far."""
         self._mask_list.clear()
         for name, folder in self.mask_folders().items():
             item = QListWidgetItem(f"{object_label(name)}  →  {folder}")
@@ -645,10 +660,12 @@ class ForeignScreen(QWidget):
         self._object_box.blockSignals(blocked)
 
     def _add_from_fields(self) -> None:
+        """Add the image and mask currently typed as one pair."""
         self.add_mask_folder(str(self._object_box.currentData()),
                              self._mask_edit.text().strip())
 
     def _remove_selected_mask(self) -> None:
+        """Remove the selected mask set."""
         item = self._mask_list.currentItem()
         if item is None:
             self._set_status("Select a mask folder in the list to remove it.",
@@ -734,16 +751,19 @@ class ForeignScreen(QWidget):
     # -- pickers -----------------------------------------------------------
 
     def _pick_images(self) -> None:
+        """Ask for a folder of images."""
         path = QFileDialog.getExistingDirectory(self, "Choose their images")
         if path:
             self.set_images(path)
 
     def _pick_mask(self) -> None:
+        """Ask for a folder of masks."""
         path = QFileDialog.getExistingDirectory(self, "Choose a mask folder")
         if path:
             self._mask_edit.setText(path)
 
     def _pick_table(self) -> None:
+        """Ask for the measurement table to import."""
         path, _filter = QFileDialog.getOpenFileName(
             self, "Choose their measurement table", "",
             "Tables (*.csv *.tsv *.txt *.xlsx *.xls *.parquet *.db *.sqlite);;"
@@ -752,11 +772,18 @@ class ForeignScreen(QWidget):
             self.set_measurements(path)
 
     def _pick_destination(self) -> None:
+        """Ask where the imported project should be written."""
         path = QFileDialog.getExistingDirectory(self, "Choose destination")
         if path:
             self.set_destination(path)
 
     def _pick_save_mapping(self) -> None:
+        """Ask where to save the column mapping.
+
+        SAVED SEPARATELY because a lab's export format does not change between
+        experiments: the mapping is worked out once and reloaded, rather than
+        re-entered for every import.
+        """
         path, _filter = QFileDialog.getSaveFileName(
             self, "Save the column mapping", fgn.COLUMN_MAP_FILENAME,
             "CSV (*.csv);;All files (*)")
@@ -764,6 +791,7 @@ class ForeignScreen(QWidget):
             self.save_mapping(path)
 
     def _pick_load_mapping(self) -> None:
+        """Ask which saved column mapping to load."""
         path, _filter = QFileDialog.getOpenFileName(
             self, "Load a column mapping", "", "CSV (*.csv);;All files (*)")
         if path:
@@ -1003,6 +1031,7 @@ class ForeignScreen(QWidget):
     # -- controls ----------------------------------------------------------
 
     def _update_controls(self) -> None:
+        """Enable each control only when it has something to act on."""
         idle = not self._busy
         for widget in (self._btn_pick_images, self._btn_pick_mask,
                        self._btn_add_mask, self._btn_remove_mask,
@@ -1134,11 +1163,19 @@ class ForeignScreen(QWidget):
         return self._busy
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed import.
+
+        :param exc: what went wrong.
+        """
         self._busy = False
         self._progress_bar.setVisible(False)
         self._set_status(str(exc) or exc.__class__.__name__, error=True)
 
     def _on_worker_error_text(self, text: str) -> None:
+        """Show a worker's traceback without closing the screen.
+
+        :param text: the traceback.
+        """
         line = (text or "").strip().splitlines()[-1] if text else "unknown error"
         self._busy = False
         self._progress_bar.setVisible(False)

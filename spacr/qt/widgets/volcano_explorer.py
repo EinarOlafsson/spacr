@@ -310,6 +310,12 @@ class VolcanoExplorer(QWidget):
 
     def __init__(self, results: pd.DataFrame | None = None,
                  style: VolcanoStyle | None = None, parent=None):
+        """Build the volcano, its style controls and its detail panel.
+
+        :param results: the fitted table to plot.
+        :param style: how to draw it.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._results = pd.DataFrame() if results is None else results.reset_index(drop=True)
         self._style = style or VolcanoStyle()
@@ -801,6 +807,13 @@ class VolcanoExplorer(QWidget):
     # Each factory stores the caption on the widget so _group can label it
     # without a parallel table that can fall out of step.
     def _combo(self, options, caption: str, *, labels=None) -> QComboBox:
+        """One labelled combo box in the style column.
+
+        :param options: the values it offers.
+        :param caption: its label.
+        :param labels: display names for the options, when they differ.
+        :returns: the combo box.
+        """
         widget = QComboBox(self)
         widget.setProperty("caption", caption)
         widget.setToolTip(caption)
@@ -810,6 +823,11 @@ class VolcanoExplorer(QWidget):
         return widget
 
     def _check(self, caption: str) -> QCheckBox:
+        """One labelled tick box in the style column.
+
+        :param caption: its label.
+        :returns: the tick box.
+        """
         widget = QCheckBox(self)
         widget.setProperty("caption", caption)
         widget.setToolTip(caption)
@@ -817,6 +835,15 @@ class VolcanoExplorer(QWidget):
         return widget
 
     def _spin(self, low, high, step, decimals, caption) -> QDoubleSpinBox:
+        """One labelled float spin box in the style column.
+
+        :param low: the smallest value it accepts.
+        :param high: the largest.
+        :param step: how much one click moves it.
+        :param decimals: how many decimal places it shows.
+        :param caption: its label.
+        :returns: the spin box.
+        """
         widget = QDoubleSpinBox(self)
         widget.setProperty("caption", caption)
         widget.setToolTip(caption)
@@ -827,6 +854,13 @@ class VolcanoExplorer(QWidget):
         return widget
 
     def _int_spin(self, low, high, caption) -> QSpinBox:
+        """One labelled integer spin box in the style column.
+
+        :param low: the smallest value it accepts.
+        :param high: the largest.
+        :param caption: its label.
+        :returns: the spin box.
+        """
         widget = QSpinBox(self)
         widget.setProperty("caption", caption)
         widget.setToolTip(caption)
@@ -835,6 +869,11 @@ class VolcanoExplorer(QWidget):
         return widget
 
     def _line(self, caption: str) -> QLineEdit:
+        """One labelled text field in the style column.
+
+        :param caption: its label.
+        :returns: the field.
+        """
         widget = QLineEdit(self)
         widget.setProperty("caption", caption)
         widget.setToolTip(caption)
@@ -842,6 +881,19 @@ class VolcanoExplorer(QWidget):
         return widget
 
     def _optional(self, count, low, high, decimals, caption):
+        """A spin box that can also mean "not set".
+
+        A SEPARATE CONTROL BECAUSE ZERO IS A VALUE. Several of these settings
+        have a meaningful zero, so the absent state cannot be spelled as one
+        and needs a box of its own to say so.
+
+        :param count: how many spin boxes the row carries.
+        :param low: the smallest value each accepts.
+        :param high: the largest.
+        :param decimals: how many decimal places they show.
+        :param caption: the row's label.
+        :returns: the row's widgets.
+        """
         widget = _OptionalNumbers(count, low, high, decimals, caption, self)
         widget.setProperty("caption", caption)
         widget.setToolTip(caption)
@@ -849,12 +901,22 @@ class VolcanoExplorer(QWidget):
         return widget
 
     def _multi(self, caption: str) -> "_MultiSelect":
+        """One labelled multi-select list in the style column.
+
+        :param caption: its label.
+        :returns: the list.
+        """
         widget = _MultiSelect(caption, self)
         widget.setProperty("caption", caption)
         widget.changed.connect(self._on_control_changed)
         return widget
 
     def _readonly(self, caption: str) -> "_ReadOnlyValue":
+        """One labelled read-only field, for values the plot computes.
+
+        :param caption: its label.
+        :returns: the field.
+        """
         widget = _ReadOnlyValue("none", self)
         widget.setProperty("caption", caption)
         widget.setToolTip(caption)
@@ -862,6 +924,7 @@ class VolcanoExplorer(QWidget):
         return widget
 
     def _build_detail_panel(self) -> QWidget:
+        """Build the panel that describes the selected point."""
         box = QGroupBox("Selected point", self)
         layout = QVBoxLayout(box)
         layout.setContentsMargins(8, 8, 8, 8)
@@ -971,6 +1034,7 @@ class VolcanoExplorer(QWidget):
             self._updating = False
 
     def _pull_style_from_controls(self) -> None:
+        """Read every control back into a style object."""
         for key, widget in self._controls.items():
             if isinstance(widget, _ReadOnlyValue):
                 # Shown, not edited: reading a label back would write its
@@ -993,6 +1057,7 @@ class VolcanoExplorer(QWidget):
                 setattr(self._style, key, text)
 
     def _on_control_changed(self, *_args) -> None:
+        """Restyle and redraw after any control moves."""
         if self._updating:
             return
         self._pull_style_from_controls()
@@ -1123,6 +1188,11 @@ class VolcanoExplorer(QWidget):
         return seen
 
     def _caption_of(self, setting: str) -> str:
+        """The label shown for one style setting.
+
+        :param setting: the setting's name.
+        :returns: its caption.
+        """
         widget = self._controls.get(setting)
         caption = widget.property("caption") if widget is not None else None
         return str(caption or setting or "")
@@ -1167,6 +1237,14 @@ class VolcanoExplorer(QWidget):
         return ((0.0, cut), (cut + pad * 0.5, top + pad))
 
     def _plotted_y(self) -> np.ndarray:
+        """The y values actually drawn, after any transform.
+
+        DISTINCT FROM THE COLUMN. A volcano usually plots -log10(p), so the
+        value under the cursor is not the value in the table, and a readout
+        that confused them would misreport every point.
+
+        :returns: the plotted y array.
+        """
         raw = pd.to_numeric(self._results[self._style.y_column],
                             errors="coerce").to_numpy(float)
         if self._style.y_neg_log10:
@@ -1176,6 +1254,10 @@ class VolcanoExplorer(QWidget):
     # -------------------------------------------------------------- clicking
 
     def _on_click(self, event) -> None:
+        """Select the point under the click and describe it.
+
+        :param event: the matplotlib click event.
+        """
         if event.inaxes is None or self._results.empty:
             return
         index = self.nearest_point(event.xdata, event.ydata, event.inaxes)
@@ -1299,6 +1381,7 @@ class VolcanoExplorer(QWidget):
         return written
 
     def _save_style(self) -> str | None:
+        """Write the current style to a file."""
         path, _selected = QFileDialog.getSaveFileName(
             self, "Save plot style", "volcano_style.json", "JSON (*.json)")
         if not path:
@@ -1306,6 +1389,7 @@ class VolcanoExplorer(QWidget):
         return self._style.save(path)
 
     def _load_style(self) -> str | None:
+        """Read a style from a file and apply it."""
         path, _selected = QFileDialog.getOpenFileName(
             self, "Load plot style", "", "JSON (*.json)")
         if not path:
@@ -1314,6 +1398,7 @@ class VolcanoExplorer(QWidget):
         return path
 
     def _pick_annotation_file(self) -> None:
+        """Ask for a file of points to label on the plot."""
         path, _selected = QFileDialog.getOpenFileName(
             self, "Load an annotation table", "",
             "Tables (*.csv *.tsv *.txt *.xlsx);;All files (*)")
@@ -1333,6 +1418,11 @@ class VolcanoExplorer(QWidget):
 
     @staticmethod
     def _dropped_paths(event) -> list[str]:
+        """The usable paths out of a drop.
+
+        :param event: the Qt drop event.
+        :returns: the paths, empty when the drop carries none.
+        """
         mime = event.mimeData()
         if not mime.hasUrls():
             return []

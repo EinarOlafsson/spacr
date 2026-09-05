@@ -373,6 +373,14 @@ class HitAttributionResult:
     warnings: List[str] = field(default_factory=list)
 
     def summary(self) -> str:
+        """The effect, its bootstrap interval, and what qualifies it.
+
+        THE INTERVAL IS PART OF THE HEADLINE, not a detail underneath it: a
+        prevalence difference quoted without one invites a reader to treat a
+        noisy estimate as a finding.
+
+        :returns: a one-line summary.
+        """
         effect = self.validation.get("prevalence_difference", float("nan"))
         low = self.validation.get("bootstrap_ci_low", float("nan"))
         high = self.validation.get("bootstrap_ci_high", float("nan"))

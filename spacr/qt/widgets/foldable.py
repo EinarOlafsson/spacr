@@ -92,6 +92,10 @@ class Folder:
 
     @property
     def shut(self) -> bool:
+        """Whether the fold is closed.
+
+        :returns: True when shut.
+        """
         return self._shut
 
     def toggle(self) -> bool:
@@ -99,6 +103,11 @@ class Folder:
         return self.set_shut(not self._shut)
 
     def set_shut(self, shut: bool) -> bool:
+        """Open or close the fold, reporting whether anything moved.
+
+        :param shut: True to close it.
+        :returns: True when the state changed.
+        """
         shut = bool(shut)
         if shut == self._shut:
             return shut

@@ -219,6 +219,14 @@ class Attribution:
 
     @property
     def called(self) -> bool:
+        """Whether this cell was assigned a guide at all.
+
+        AMBIGUOUS IS NOT CALLED. A cell whose reads support two guides has no
+        single perturbation, and counting it as called would attribute a
+        phenotype to whichever guide happened to be listed first.
+
+        :returns: True when unambiguously assigned.
+        """
         return not self.ambiguous
 
 

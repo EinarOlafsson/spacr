@@ -309,6 +309,10 @@ class PlateGridWidget(QWidget):
     # -- interaction -------------------------------------------------------
 
     def mousePressEvent(self, event) -> None:  # noqa: N802 (Qt naming)
+        """Select the well under the pointer.
+
+        :param event: the Qt mouse event.
+        """
         well = self.well_at(event.position() if hasattr(event, "position")
                             else event.pos())
         if well is not None:
@@ -325,6 +329,10 @@ class PlateGridWidget(QWidget):
         return self._lut[int(round(t * (len(self._lut) - 1)))]
 
     def paintEvent(self, event) -> None:  # noqa: N802 (Qt naming)
+        """Draw the plate: one cell per well, coloured by its value.
+
+        :param event: the Qt paint event.
+        """
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, False)
         palette = active_palette()

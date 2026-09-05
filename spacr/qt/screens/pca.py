@@ -206,6 +206,7 @@ class PCAScreen(QWidget):
             return self._frame
 
     def choose_table(self) -> None:
+        """Ask which table in the project to use."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a measurement table", "",
             "Measurements (*.db *.sqlite *.csv *.tsv);;All files (*)")
@@ -389,6 +390,10 @@ class PCAScreen(QWidget):
         # reliably reach its `closeEvent`, and the panel's runner is the one
         # holding the long job — leaving it out is exactly the leak this line
         # exists to prevent.
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         self.pca._jobs.shutdown()
         try:

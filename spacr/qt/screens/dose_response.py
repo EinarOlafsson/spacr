@@ -625,6 +625,10 @@ class DoseResponseScreen(QWidget):
     def closeEvent(self, event):  # noqa: N802 - Qt name
         # Abandon an in-flight fit rather than let it outlive the screen: Qt
         # aborts the process if a running QThread is destroyed.
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         cancel = getattr(self.canvas, "cancel_pending_draw", None)
         if cancel is not None:

@@ -661,6 +661,15 @@ class QCFieldBrowser(QDialog):
         threaded: bool = True,
         parent=None,
     ) -> None:
+        """Build the browser over a list of fields to triage.
+
+        :param targets: the fields to review.
+        :param initial_field: which one to open first.
+        :param initial_plate_root: the plate they belong to.
+        :param run_active: whether a run is still writing to them.
+        :param threaded: whether loading and rendering run on workers.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("QCFieldBrowser")
         self.setWindowTitle(tr("Segmentation QC field browser"))
@@ -853,6 +862,11 @@ class QCFieldBrowser(QDialog):
         return target.field if target is not None else ""
 
     def _show_target(self, *, preserve_notice: bool = False) -> None:
+        """Show one field, loading it if it is not already in hand.
+
+        :param preserve_notice: True to keep the current notice on screen,
+            so a message about the LAST action is not wiped by simply moving.
+        """
         target = self.current_target
         if target is None:
             return
@@ -887,6 +901,10 @@ class QCFieldBrowser(QDialog):
         self._sync_action()
 
     def _on_load_busy_changed(self, _busy: bool) -> None:
+        """Enable or disable the controls while a load is running.
+
+        :param _busy: the new state; re-read from the loader.
+        """
         self._sync_navigation()
         self._sync_action()
 
@@ -895,12 +913,17 @@ class QCFieldBrowser(QDialog):
         return self._jobs.is_busy() or self._move_jobs.is_busy()
 
     def _sync_navigation(self) -> None:
+        """Enable next and previous only where there is somewhere to go."""
         busy = self._busy()
         self._previous.setEnabled(not busy and self._index > 0)
         self._next.setEnabled(
             not busy and self._index + 1 < len(self._targets))
 
     def _draw_verdict(self, target: QCFieldTarget) -> None:
+        """Show the QC verdict recorded for one field.
+
+        :param target: the field.
+        """
         lines: List[str] = []
         for verdict in target.verdicts:
             flags = ", ".join(verdict.flags) if verdict.flags else tr("no flags")
@@ -920,6 +943,12 @@ class QCFieldBrowser(QDialog):
             "This field is implicated by the plate-level QC finding."))
 
     def _clear_layers(self) -> None:
+        """Drop the loaded planes and release their arrays.
+
+        RELEASED EXPLICITLY because a field is several full-resolution planes,
+        and holding the previous field's while the next loads doubles the peak
+        for no benefit.
+        """
         self._layer_checks.clear()
         while self._layers.count():
             item = self._layers.takeAt(0)
@@ -928,6 +957,10 @@ class QCFieldBrowser(QDialog):
                 widget.deleteLater()
 
     def _on_loaded(self, payload: QCFieldImage) -> None:
+        """Render a field that has finished loading.
+
+        :param payload: the loaded planes.
+        """
         self._payload = payload
         if payload.error:
             self._load_status.setText(payload.error)
@@ -970,12 +1003,17 @@ class QCFieldBrowser(QDialog):
         self._sync_action()
 
     def _on_load_failed(self, message: str) -> None:
+        """Report a field that could not be read, and move on.
+
+        :param message: what went wrong.
+        """
         self._load_status.setText(tr("Could not load this field: {error}",
                                      error=message))
         self._sync_navigation()
         self._sync_action()
 
     def _render(self, *_args) -> None:
+        """Composite the loaded planes into the displayed image."""
         payload = self._payload
         if payload is None or payload.intensities is None:
             return
@@ -990,9 +1028,17 @@ class QCFieldBrowser(QDialog):
             self._on_rendered)
 
     def _on_rendered(self, rgb: np.ndarray) -> None:
+        """Show a finished composite.
+
+        :param rgb: the rendered image.
+        """
         self._view.set_pixmap(_pixmap(rgb))
 
     def _on_render_failed(self, message: str) -> None:
+        """Report a composite that could not be built.
+
+        :param message: what went wrong.
+        """
         self._load_status.setText(tr(
             "Could not render this field: {error}", error=message))
 
@@ -1024,6 +1070,13 @@ class QCFieldBrowser(QDialog):
         return False
 
     def _is_run_active(self) -> bool:
+        """Whether a run is still writing to these fields.
+
+        TRIAGE MUST NOT MOVE A FILE A RUN IS WRITING, so the destructive
+        actions are gated on this rather than on whether the file exists.
+
+        :returns: True while a run is active.
+        """
         try:
             return bool(self._run_active())
         except Exception:
@@ -1141,6 +1194,7 @@ class QCFieldBrowser(QDialog):
             pass
 
     def _sync_action(self) -> None:
+        """Enable the triage actions only when they are safe to take."""
         target = self.current_target
         if target is None:
             self._quarantine.setEnabled(False)
@@ -1260,6 +1314,10 @@ class QCFieldBrowser(QDialog):
         self._show_target(preserve_notice=True)
 
     def _on_move_busy_changed(self, _busy: bool) -> None:
+        """Enable or disable the controls while a move is running.
+
+        :param _busy: the new state; re-read from the mover.
+        """
         self._sync_navigation()
         self._sync_action()
 
@@ -1312,6 +1370,15 @@ class QCFieldBrowser(QDialog):
         self.quarantineChanged.emit(target.field, changed)
 
     def _handle_triage_key(self, key: int) -> bool:
+        """Apply a one-key triage verdict.
+
+        THE KEYBOARD IS THE INTERFACE: triage is one decision per field over
+        hundreds of fields, and a mouse round-trip per verdict is the
+        difference between a session and an afternoon.
+
+        :param key: the key pressed.
+        :returns: True when the key was a verdict.
+        """
         if key == Qt.Key_Left:
             self.previous_field()
             return True
@@ -1324,6 +1391,12 @@ class QCFieldBrowser(QDialog):
         return False
 
     def eventFilter(self, watched, event) -> bool:  # noqa: N802 - Qt override
+        """Watch the widgets this filter is installed on.
+
+        :param watched: the object the event is for.
+        :param event: the event.
+        :returns: True to stop the event going further.
+        """
         if (event.type() == QEvent.KeyPress
                 and self._handle_triage_key(event.key())):
             event.accept()

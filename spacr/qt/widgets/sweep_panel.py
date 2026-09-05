@@ -565,6 +565,10 @@ class SweepPanel(QWidget):
         return path
 
     def closeEvent(self, event):                         # noqa: N802 - Qt name
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         try:
             self._jobs.shutdown()
         finally:

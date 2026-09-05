@@ -111,6 +111,12 @@ class HintBar(QLabel):
         return tr(text)
 
     def eventFilter(self, obj, event):                  # noqa: N802
+        """Watch the widgets whose hints this bar shows.
+
+        :param obj: the object the event is for.
+        :param event: the event.
+        :returns: True to stop the event going further.
+        """
         kind = event.type()
         if kind == QEvent.Enter:
             sentence = self._hints.get(obj)

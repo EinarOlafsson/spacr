@@ -261,6 +261,12 @@ class GateCanvas(GraphCanvas):
     depth_requested = Signal(str)
 
     def __init__(self, parent=None, *, link=None, source: str = "gate_editor"):
+        """Build a gating canvas over one graph spec.
+
+        :param parent: parent widget.
+        :param link: the shared selection to join, if any.
+        :param source: the table being gated.
+        """
         super().__init__(parent, link=link, source=source)
         self._tool = DEFAULT_TOOL
         #: How near the first vertex a click has to land to close a polygon.
@@ -1269,6 +1275,12 @@ class GateCanvas(GraphCanvas):
 
     # -- the shape that follows the mouse ---------------------------------
     def _clear_ghost(self) -> None:
+        """Remove the shape being drawn.
+
+        EACH REMOVAL IS GUARDED: an artist matplotlib has already disposed of
+        raises on removal, and one stale artist must not leave the rest of
+        the ghost on screen.
+        """
         for artist in self._ghost:
             try:
                 artist.remove()
@@ -1529,6 +1541,11 @@ class GateCanvas(GraphCanvas):
         return True
 
     def _volume_motion(self, event) -> bool:
+        """Track a 3-D gate's drag, if one is in progress.
+
+        :param event: the matplotlib motion event.
+        :returns: True when this consumed the event.
+        """
         if not self._in_volume():
             return False
         if self._volume_drag is not None:
@@ -1571,6 +1588,11 @@ class GateCanvas(GraphCanvas):
         return True
 
     def _volume_release(self, event) -> bool:
+        """Finish a 3-D gate's drag.
+
+        :param event: the matplotlib release event.
+        :returns: True when this consumed the event.
+        """
         if not self._in_volume():
             return False
         if self._depth_drag_from is not None:
@@ -1810,6 +1832,15 @@ class GateCanvas(GraphCanvas):
         return (low, low + span * fraction)
 
     def _finish_volume_depth(self, bounds) -> Optional[Gate]:
+        """Turn a drawn face plus a depth into a solid gate.
+
+        THE DEPTH IS A SECOND GESTURE. A volume cannot be drawn in one drag
+        on a 2-D screen, so the face is swept first and the height asked for
+        afterwards -- which is why this is separate from the release handler.
+
+        :param bounds: the depth extent chosen.
+        :returns: the finished gate, or None if it was abandoned.
+        """
         gate = self._pending_volume_gate
         axis = self._pending_volume_axis
         if gate is None or not axis:
@@ -1972,6 +2003,10 @@ class GateCanvas(GraphCanvas):
             setter(centre - half * factor, centre + half * factor)
 
     def _on_press(self, event) -> None:
+        """Begin drawing a gate, or pass the press to the view.
+
+        :param event: the matplotlib press event.
+        """
         if (self._in_volume() and self.drag_mode() == "draw"
                 and self.volume_shape() == "polygon"):
             placed = self.screen_to_volume(event)
@@ -2207,6 +2242,10 @@ class GateCanvas(GraphCanvas):
         ax.set_ylim(*y_limits)
 
     def _on_motion(self, event) -> None:
+        """Grow the gate being drawn.
+
+        :param event: the matplotlib motion event.
+        """
         if self._volume_motion(event):
             return
         if self._resize is not None or getattr(self, "_move_name", None):
@@ -2221,6 +2260,10 @@ class GateCanvas(GraphCanvas):
         super()._on_motion(event)
 
     def _on_release(self, event) -> None:
+        """Finish the gate and hand it to the panel.
+
+        :param event: the matplotlib release event.
+        """
         if self._volume_release(event):
             return
         if self._resize is not None:
@@ -2295,6 +2338,18 @@ class GateCanvas(GraphCanvas):
 
     def _update_drag_patch(self, patch, x0: float, y0: float,
                            x1: float, y1: float) -> None:
+        """Redraw the in-progress shape for the current drag box.
+
+        AN ELLIPSE IS INSCRIBED IN THE SWEPT BOX, which is what makes the
+        drag mean the same thing for every tool: the user sweeps a rectangle
+        and the tool decides what fits inside it.
+
+        :param patch: the artist being updated.
+        :param x0: the drag's start x.
+        :param y0: its start y.
+        :param x1: its current x.
+        :param y1: its current y.
+        """
         if self._tool == ELLIPSE:
             # Inscribed in the swept box, exactly as EllipseGate.from_drag
             # builds it -- so the preview and the gate are the same shape.
@@ -2407,6 +2462,10 @@ class GateTree(QWidget):
     enabled_changed = Signal(str, bool)
 
     def __init__(self, parent=None):
+        """Build the hierarchy view.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("GateTree")
         self._gates = GateSet()
@@ -2547,6 +2606,7 @@ class GateTree(QWidget):
         return stats, why
 
     def _rebuild(self, current: str) -> None:
+        """Rebuild every row from the gates and their counts."""
         self.tree.clear()
         if self._frame is None:
             return
@@ -2648,6 +2708,12 @@ class GateTree(QWidget):
         self.tree.setCurrentItem(None)
 
     def _select_in(self, item: QTreeWidgetItem, name: str) -> bool:
+        """Find and select a gate under one row, recursing into its children.
+
+        :param item: the row to search under.
+        :param name: the gate's name.
+        :returns: True when it was found and selected.
+        """
         if item.data(0, Qt.UserRole) == name:
             self.tree.setCurrentItem(item)
             return True
@@ -2734,6 +2800,7 @@ class GateTree(QWidget):
         self.gates_changed.emit()
 
     def _on_selection(self, *_args) -> None:
+        """Tell the panel which gate the tree now has selected."""
         self.active_changed.emit(self.active_gate())
 
 
@@ -2921,6 +2988,10 @@ class GateEditorPanel(QWidget):
 
     def __init__(self, parent=None, *, link=None,
                  source: str = "gate_editor"):
+        """Build the gating surface: canvas, tools and hierarchy.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("GateEditorPanel")
         self._gates = GateSet()
@@ -3230,11 +3301,19 @@ class GateEditorPanel(QWidget):
 
     # -- drawing ----------------------------------------------------------
     def _on_tool_changed(self, *_args) -> None:
+        """Arm a different drawing tool.
+
+        :param _args: the signal's payload; the tool is re-read from the buttons.
+        """
         tool = self._tool.currentData() or ""
         self.canvas.set_tool(tool)
         self._refresh_status()
 
     def _on_polygon_changed(self, count: int) -> None:
+        """Enable Finish only once the outline has enough vertices.
+
+        :param count: how many vertices are placed.
+        """
         if count:
             self._status.setText(
                 f"{count} vertex(es) — three or more make a region")
@@ -3390,6 +3469,10 @@ class GateEditorPanel(QWidget):
         self._refresh_status()
 
     def _on_gate_drawn(self, gate: Gate) -> None:
+        """Name a newly drawn gate and add it to the set.
+
+        :param gate: the gate the canvas produced.
+        """
         name = self._ask_name()
         if not name:
             self.canvas.render_now()
@@ -3407,6 +3490,10 @@ class GateEditorPanel(QWidget):
         self.gates_changed.emit()
 
     def _ask_name(self) -> str:
+        """Ask what to call a gate, defaulting to a free name.
+
+        :returns: the chosen name, or ``""`` if cancelled.
+        """
         if self._namer is not None:
             return str(self._namer() or "")
         name, ok = QInputDialog.getText(
@@ -3416,6 +3503,10 @@ class GateEditorPanel(QWidget):
         return name.strip() if ok else ""
 
     def _on_active_changed(self, name: str) -> None:
+        """Redraw for a different active gate.
+
+        :param name: the gate now active.
+        """
         self.canvas.set_gates(self._gates, active=name or None)
         self._refresh_status()
         # Choosing a gate should show you that gate. It is drawn on two named
@@ -3433,6 +3524,7 @@ class GateEditorPanel(QWidget):
                                      columns[1] if len(columns) > 1 else "")
 
     def _on_tree_changed(self) -> None:
+        """Re-apply the gates after the hierarchy was edited."""
         self.canvas.set_gates(self._gates,
                               active=self.tree.active_gate() or None)
         self._refresh_status()
@@ -3520,6 +3612,10 @@ class GateEditorPanel(QWidget):
         # is already checked, but called programmatically -- restoring saved
         # settings, or a test -- it is not, and the control would then show a
         # different plane from the one the canvas is armed on.
+        """Rotate a 3-D view to look down one axis.
+
+        :param axis: the axis to look along.
+        """
         button = getattr(self, "_plane_buttons", {}).get(axis)
         if button is not None and not button.isChecked():
             button.setChecked(True)
@@ -3533,6 +3629,10 @@ class GateEditorPanel(QWidget):
             self._on_drag_mode("draw")
 
     def _on_drag_mode(self, mode: str) -> None:
+        """Switch dragging between spinning the view and drawing.
+
+        :param mode: the mode's name.
+        """
         self.canvas.set_drag_mode(mode)
 
     def set_projection_active(self, on: bool) -> None:
@@ -3603,6 +3703,7 @@ class GateEditorPanel(QWidget):
         self._refresh_status()
 
     def _refresh_status(self) -> None:
+        """Say how many gates there are and what the active one selects."""
         if self._frame is None:
             self._status.setText("no table loaded")
             return

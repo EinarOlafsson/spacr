@@ -7250,6 +7250,10 @@ class AppScreen(QWidget):
     def hideEvent(self, event) -> None:  # noqa: N802 - Qt override
         # Keep this Qt lifecycle hook out of the documented spaCR API: it is
         # only the inverse of the showEvent timer activation above.
+        """Let the screen stop paying for things nobody can see.
+
+        :param event: the Qt hide event.
+        """
         self._usage_generation += 1
         usage_timer = getattr(self, "_usage_timer", None)
         if usage_timer is not None:

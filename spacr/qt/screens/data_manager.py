@@ -169,6 +169,12 @@ class ConfirmDeleteDialog(QDialog):
 
     def __init__(self, plan: "dm.PrunePlan", parent=None, *,
                  threaded: bool = True) -> None:
+        """Ask the user to confirm a deletion, in words they must read.
+
+        :param plan: what is about to be deleted.
+        :param parent: parent widget.
+        :param threaded: whether the deletion runs on a worker.
+        """
         super().__init__(parent)
         self.plan = plan
         self._runner = None
@@ -390,6 +396,13 @@ class ConfirmDeleteDialog(QDialog):
         super().closeEvent(event)
 
     def _on_acknowledged(self, checked: bool) -> None:
+        """Enable the delete button only once the warning is acknowledged.
+
+        DELETION IS NOT UNDOABLE HERE, so the confirmation is a deliberate
+        second action rather than a default-focused OK button.
+
+        :param checked: True when the box is ticked.
+        """
         self.buttons.button(QDialogButtonBox.Ok).setEnabled(bool(checked))
 
 
@@ -414,6 +427,10 @@ class DataManagerScreen(QWidget):
 
     def __init__(self, parent=None, *, project: str = "",
                  threaded: bool = True) -> None:
+        """Build the manager's three tabs and its totals row.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("DataManagerScreen")
         self._threaded = bool(threaded)
@@ -460,6 +477,7 @@ class DataManagerScreen(QWidget):
     # -- construction -----------------------------------------------------
 
     def _build_head(self) -> QHBoxLayout:
+        """Build the project row and the refresh control."""
         head = QHBoxLayout()
         head.setContentsMargins(0, 0, 0, 0)
         head.setSpacing(SPACING["sm"])
@@ -491,6 +509,7 @@ class DataManagerScreen(QWidget):
         return head
 
     def _build_totals(self) -> QFrame:
+        """Build the totals strip over the tabs."""
         frame = QFrame(self)
         frame.setObjectName("DataManagerTotals")
         row = QHBoxLayout(frame)
@@ -517,6 +536,12 @@ class DataManagerScreen(QWidget):
 
     @staticmethod
     def _table(name: str, columns) -> QTableWidget:
+        """One configured results table.
+
+        :param name: the table's name.
+        :param columns: the column headings.
+        :returns: the table widget.
+        """
         table = QTableWidget(0, len(columns))
         install_sorting(table)
         table.setObjectName(name)
@@ -530,6 +555,7 @@ class DataManagerScreen(QWidget):
         return table
 
     def _build_usage_tab(self) -> QWidget:
+        """Build the tab showing what the project is using."""
         page = QWidget(self)
         layout = QVBoxLayout(page)
         layout.setContentsMargins(0, SPACING["sm"], 0, 0)
@@ -546,6 +572,7 @@ class DataManagerScreen(QWidget):
         return page
 
     def _build_prune_tab(self) -> QWidget:
+        """Build the tab that proposes what can be deleted."""
         page = QWidget(self)
         layout = QVBoxLayout(page)
         layout.setContentsMargins(0, SPACING["sm"], 0, 0)
@@ -601,6 +628,7 @@ class DataManagerScreen(QWidget):
         return page
 
     def _build_archive_tab(self) -> QWidget:
+        """Build the tab that proposes what can be archived."""
         page = QWidget(self)
         layout = QVBoxLayout(page)
         layout.setContentsMargins(0, SPACING["sm"], 0, 0)
@@ -760,6 +788,7 @@ class DataManagerScreen(QWidget):
         self._update_controls()
 
     def _clear_tables(self) -> None:
+        """Empty every table, so a stale plan is not read as a current one."""
         for table in (self.usage_table, self.prune_table, self.kept_table,
                       self.archive_table):
             table.setRowCount(0)
@@ -854,19 +883,35 @@ class DataManagerScreen(QWidget):
         self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
 
     def _on_worker_error_text(self, text: str) -> None:
+        """Show a worker's error text without closing the screen.
+
+        :param text: what went wrong.
+        """
         line = (text or "").strip().splitlines()[-1] if text else "unknown error"
         self._note(line, warn=True)
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed background scan.
+
+        :param exc: what went wrong.
+        """
         LOG.info("data manager job failed", exc_info=True)
         self._note(str(exc) or exc.__class__.__name__, warn=True)
 
     def _set_busy(self, busy: bool) -> None:
+        """Disable the controls while a scan or a deletion is running.
+
+        :param busy: True while work is outstanding.
+        """
         self._busy = bool(busy)
         self.progress.setVisible(self._busy)
         self._update_controls()
 
     def _note(self, text: str, *, warn: bool = False) -> None:
+        """Put one line in the status area.
+
+        :param text: the line.
+        """
         self.note_label.setText(text)
         self.note_label.setProperty("warn", "true" if warn else "false")
         style = self.note_label.style()
@@ -993,6 +1038,10 @@ class DataManagerScreen(QWidget):
         return self._run(measure, self._show_usage)
 
     def _show_usage(self, usage: "dm.ProjectUsage") -> None:
+        """Fill the usage tab from a finished scan.
+
+        :param usage: the scan's result.
+        """
         self._usage = usage
         self.total_label.setText(
             f"{dm.human_bytes(usage.total_bytes)} in "
@@ -1046,6 +1095,13 @@ class DataManagerScreen(QWidget):
         return self._run(plan, self._show_plan)
 
     def _show_plan(self, plan: "dm.PrunePlan") -> None:
+        """Fill the prune tab with what a deletion WOULD remove.
+
+        A PLAN BEFORE AN ACTION: the point of this screen is that a user sees
+        the list before anything is deleted, not a progress bar afterwards.
+
+        :param plan: the proposed deletions.
+        """
         self._plan = plan
         self.prune_table.setRowCount(0)
         for candidate in plan.candidates:
@@ -1094,6 +1150,10 @@ class DataManagerScreen(QWidget):
                          self._after_prune)
 
     def _after_prune(self, result: "dm.PruneResult") -> None:
+        """Report what a completed deletion actually removed.
+
+        :param result: what was deleted.
+        """
         self._plan = None
         self.prune_table.setRowCount(0)
         self.freed_label.setText(
@@ -1117,6 +1177,10 @@ class DataManagerScreen(QWidget):
             self._show_archive_plan)
 
     def _show_archive_plan(self, plan: "dm.ArchivePlan") -> None:
+        """Fill the archive tab with what WOULD be archived.
+
+        :param plan: the proposed archive.
+        """
         self._archive_plan = plan
         self.archive_table.setRowCount(0)
         for item in plan.items:
@@ -1149,6 +1213,10 @@ class DataManagerScreen(QWidget):
                          self._after_archive)
 
     def _after_archive(self, result: "dm.ArchiveResult") -> None:
+        """Report what a completed archive actually moved.
+
+        :param result: what was archived.
+        """
         self._archive_plan = None
         self.archive_table.setRowCount(0)
         self._note(f"Moved {dm.human_bytes(result.total_bytes)} to "
@@ -1172,6 +1240,10 @@ class DataManagerScreen(QWidget):
         return row
 
     def closeEvent(self, event):        # noqa: N802 - Qt name
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         redraw = getattr(self, "_path_probe_redraw", None)
         if redraw is not None:
             try:

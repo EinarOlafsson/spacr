@@ -411,6 +411,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     PREVIEW_SOURCE_HINT = "Load a merged array first."
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the preview: its controls, its grid and its drop target.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._data: Optional[np.ndarray] = None
         #: The `src` already auto-loaded from, so a settings change
@@ -461,6 +465,15 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         special: str = "",
         parent=None,
     ) -> QSpinBox:
+        """One labelled spin box, wired to the settings it edits.
+
+        :param lo: the lowest value it accepts.
+        :param hi: the highest.
+        :param value: where it starts.
+        :param special: text shown in place of the minimum, if any.
+        :param parent: parent widget.
+        :returns: the spin box.
+        """
         widget = QSpinBox(parent)
         widget.setRange(lo, hi)
         widget.setValue(value)
@@ -474,6 +487,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         # of the field, so it also became the experiment name of every run
         # left untouched -- a folder called `exp` says nothing six months
         # later. Asked for on 2026-09-01 with the `src` label.
+        """Build the control row: object, crop modes and sizes."""
         self._experiment = QLineEdit("experiment", self)
         self._measurement_channels = QLineEdit("0,1,2,3", self)
         self._object_box = QComboBox(self)
@@ -594,6 +608,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             widget.hide()
 
     def _build_ui(self) -> None:
+        """Lay out the controls over the thumbnail grid."""
         root = QVBoxLayout(self)
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
@@ -686,6 +701,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         root.addWidget(self._grid_scroll, 1)
 
     def _managed_widgets(self) -> List[QWidget]:
+        """Every control this panel owns, for gating and for propagation.
+
+        :returns: the widgets, keyed by setting name.
+        """
         widgets: List[QWidget] = [
             self._experiment, self._measurement_channels, self._object_box,
             *self._mask_dims.values(), self._cytoplasm, self._plot,
@@ -701,6 +720,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         return widgets
 
     def _connect_controls(self) -> None:
+        """Wire each control to the refresh it should trigger."""
         self._object_box.currentTextChanged.connect(self._on_object_changed)
         self._crop_width.valueChanged.connect(self._sync_crop_height)
         self._normalise.toggled.connect(self._refresh_control_gates)
@@ -758,6 +778,11 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         dialog.show()
 
     def _clear_crop_settings_dialog(self, *_args) -> None:
+        """Forget the crop dialog once it has closed.
+
+        HELD ONLY WHILE OPEN, so a second press builds a fresh one rather than
+        re-showing a dialog whose C++ half has gone.
+        """
         self._crop_settings_dialog = None
 
     def set_organelle_count(self, count) -> None:
@@ -781,6 +806,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             dialog.refresh_organelle_slots()
 
     def _refresh_control_gates(self, *_args) -> None:
+        """Enable each control only when the current crop mode reads it."""
         self._lo_pct.setEnabled(self._normalise.isChecked())
         self._hi_pct.setEnabled(self._normalise.isChecked())
         self._normalize_by.setEnabled(self._normalise.isChecked())
@@ -788,32 +814,45 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._buffer.setEnabled(self._use_bbox.isChecked())
 
     def _sync_crop_height(self, value: int) -> None:
+        """Keep the crop height in step with the width when they are locked."""
         if self._lock_aspect.isChecked() and self._crop_height.value() != value:
             self._crop_height.setValue(value)
 
     def _on_object_changed(self, name: str) -> None:
         # A previewed object should also be one of the requested crop outputs.
+        """Re-preview for a different object type."""
         check = self._crop_mode_checks.get(name)
         if check is not None:
             check.setChecked(True)
         self._maybe_propagate()
 
     def _on_setting_changed(self, *_args) -> None:
+        """Re-preview after any control moves."""
         if self._data is not None:
             self.refresh()
         self._maybe_propagate()
 
     def _maybe_propagate(self, *_args) -> None:
+        """Push the tuned settings to the run, if propagation is on."""
         if self._propagate_btn.isChecked():
             self.propagate_settings()
 
     def _on_propagate_toggled(self, on: bool) -> None:
+        """Turn propagation on or off.
+
+        :param on: True to push settings to the run as they change.
+        """
         if on:
             self.propagate_settings()
 
     # -- drag/drop + loading -------------------------------------------
 
     def _dropped_path(self, event) -> Optional[str]:
+        """The usable path out of a drop, or None.
+
+        :param event: the Qt drop event.
+        :returns: the path, or None when the drop carries nothing usable.
+        """
         mime = event.mimeData()
         if not mime.hasUrls():
             return None
@@ -852,6 +891,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             event.ignore()
 
     def _pick_file(self) -> None:
+        """Ask for a file to preview."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Choose a merged .npy array", "", "NumPy arrays (*.npy)")
         if path:
@@ -1034,6 +1074,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     # -- propagation ---------------------------------------------------
 
     def _selected_crop_modes(self) -> List[str]:
+        """Which crop modes are ticked.
+
+        :returns: the mode names.
+        """
         selected = [
             name for name, widget in self._crop_mode_checks.items()
             if widget.isChecked()
@@ -1237,6 +1281,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     # -- crop/category computation ------------------------------------
 
     def _current_mask_dim(self) -> Optional[int]:
+        """Which mask dimension the selected object uses.
+
+        :returns: the dimension index.
+        """
         name = self._object_box.currentText()
         if name == "cytoplasm":
             # Cytoplasm is generated during measurement and has no stable
@@ -1258,6 +1306,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     @staticmethod
     def _phenotype_text(name: str, value: Optional[bool]) -> str:
+        """The phenotype label for one crop, for its caption.
+
+        :param name: the phenotype column's name.
+        :param value: the object's value in it.
+        :returns: the label text.
+        """
         return _phenotype_label(name, value)
 
     def _category_params(self) -> Dict[str, Any]:
@@ -1277,6 +1331,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         }
 
     def _annotate_cell_categories(self) -> None:
+        """Group the crops by phenotype so the grid can head each block."""
         annotate_crops(self._crops, self._data, self._category_params())
 
     def _preview_blocked_reason(self) -> str:
@@ -1389,6 +1444,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     # -- rendering -----------------------------------------------------
 
     def _clear_grid(self) -> None:
+        """Empty the thumbnail grid and release its pixmaps.
+
+        RELEASED EXPLICITLY: a preview can hold hundreds of crops, and
+        leaving them to the garbage collector keeps a plate's worth of image
+        data alive across every re-preview.
+        """
         while self._grid.count():
             item = self._grid.takeAt(0)
             widget = item.widget()
@@ -1396,6 +1457,11 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                 widget.deleteLater()
 
     def _category_header(self, text: str, entries: List[tuple[int, dict]]) -> QLabel:
+        """One heading row for a phenotype block.
+
+        :param text: the heading.
+        :returns: the header widget.
+        """
         included = sum(bool(entry.get("included", True)) for _, entry in entries)
         excluded = len(entries) - included
         suffix = f"  ·  {included} kept"
@@ -1420,6 +1486,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         return label
 
     def _render_grid(self) -> None:
+        """Draw the crops, grouped and headed by phenotype."""
         self._clear_grid()
         if not self._crops:
             return
@@ -1457,6 +1524,11 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             row += (len(entries) + columns - 1) // columns
 
     def _crop_pixmap(self, crop: np.ndarray) -> QPixmap:
+        """One crop as a pixmap, scaled for the grid.
+
+        :param crop: the crop's pixels.
+        :returns: the pixmap.
+        """
         array = np.ascontiguousarray(crop.astype(np.uint8))
         primaries = self.display_primaries()
         if primaries != "rgb" and array.ndim == 3 and array.shape[2] >= 3:
@@ -1474,6 +1546,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         return _rounded_pixmap(pixmap, radius=8)
 
     def _on_thumb_clicked(self, index: int) -> None:
+        """Open the full-size crop behind a thumbnail.
+
+        :param index: which crop was clicked.
+        """
         if not 0 <= index < len(self._crops):
             return
         if index in self._selected:
@@ -1537,6 +1613,10 @@ class CropSettingsDialog(QDialog):
                 LOG.debug("could not gate the %s rows", role, exc_info=True)
 
     def __init__(self, panel: MeasurePreviewPanel):
+        """Build the crop-settings dialog over one preview panel.
+
+        :param panel: the preview these settings belong to.
+        """
         super().__init__(panel)
         self._panel = panel
         self.setWindowTitle("Crop preview settings")

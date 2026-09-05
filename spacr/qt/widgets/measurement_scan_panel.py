@@ -4034,6 +4034,11 @@ class MeasurementScanPanel(QWidget):
         return tuple(self._folders)
 
     def is_section_expanded(self, title: str) -> bool:
+        """Whether one result section is open.
+
+        :param title: the section's title.
+        :returns: True when expanded.
+        """
         section = self._folders.get(str(title))
         return bool(section is not None and section.is_expanded())
 
@@ -4260,6 +4265,10 @@ class MeasurementScanPanel(QWidget):
 
     @property
     def result(self):
+        """The last scan's result, if any.
+
+        :returns: the result, or None before a scan.
+        """
         return self._result
 
     def _resort(self) -> None:

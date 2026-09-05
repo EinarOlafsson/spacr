@@ -51,9 +51,21 @@ def test_ai_button_expands_console_and_explains_missing_provider(
     assert "No vendor CLI installed" in _console_text(screen._console)
 
 
-def test_ai_button_selects_first_provider_and_menu_can_switch(
-        qtbot, monkeypatch):
+def test_ai_button_takes_the_provider_the_preference_names(qtbot, monkeypatch):
+    """The switch honours Preferences, and falls back to the first installed.
+
+    WAS A MENU TEST. Annotate used to carry a "\u25be" beside the AI switch
+    that listed the providers, and this drove it. That menu is gone: which
+    assistant to use is a preference with one answer for the whole
+    application, not a control repeated on every module's actions row, and it
+    did not even persist -- `get_preferred_provider` existed and was read by
+    nothing while the chevron wrote to the console.
+
+    So the question the test asks is the same one, put to the new place: does
+    turning the switch on select the right provider?
+    """
     from spacr.qt import ai as ai_module
+    from spacr.qt import preferences as prefs
     providers = [
         SimpleNamespace(name="codex", label="Codex"),
         SimpleNamespace(name="claude", label="Claude"),
@@ -61,16 +73,26 @@ def test_ai_button_selects_first_provider_and_menu_can_switch(
     monkeypatch.setattr(ai_module, "configured_providers", lambda: providers)
     from spacr.qt.screens.annotate import AnnotateScreen
 
-    screen = AnnotateScreen()
-    qtbot.addWidget(screen)
-    screen._ai_switch.setChecked(True)
-    assert screen._console._current_provider_name == "codex"
+    was = prefs.get_preferred_provider()
+    try:
+        # Nothing chosen: the first installed one, as the menu's default did.
+        prefs.set_preferred_provider("")
+        screen = AnnotateScreen()
+        qtbot.addWidget(screen)
+        screen._ai_switch.setChecked(True)
+        assert screen._console._current_provider_name == "codex"
 
-    claude_action = next(
-        action for action in screen._ai_menu.actions()
-        if action.text() == "Claude")
-    claude_action.trigger()
-    assert screen._console._current_provider_name == "claude"
+        # Chosen in Preferences: that one, which is what the menu used to do
+        # by hand and now survives the module being closed and reopened.
+        prefs.set_preferred_provider("claude")
+        second = AnnotateScreen()
+        qtbot.addWidget(second)
+        second._ai_switch.setChecked(True)
+        assert second._console._current_provider_name == "claude"
+    finally:
+        prefs.set_preferred_provider(was)
+
+    assert not hasattr(screen, "_ai_menu"), "the provider chevron came back"
 
 
 def test_annotate_close_drains_ai_console(qtbot, monkeypatch):

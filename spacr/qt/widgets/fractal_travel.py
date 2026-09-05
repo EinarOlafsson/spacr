@@ -43,6 +43,15 @@ except Exception:                                            # pragma: no cover
     numba_config = None
 
     def set_num_threads(_n: int) -> None:
+        """Do nothing: with no Numba there is no thread pool to size.
+
+        A NO-OP RATHER THAN AN ABSENT NAME. The caller sets the thread count
+        unconditionally, so leaving this undefined would turn a missing
+        optional dependency into an AttributeError at the call site -- far
+        from the import that actually failed.
+
+        :param _n: the thread count, ignored.
+        """
         return None
 
 

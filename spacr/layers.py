@@ -2073,6 +2073,11 @@ class ImageLayer(Layer):
                  channel_names: Optional[Sequence[str]] = None,
                  channel_visible: Optional[Sequence[bool]] = None,
                  **kwargs: Any):
+        """Build an image layer.
+
+        :param data: the pixel array, channels included.
+        :param kwargs: name, spacing, colormaps and the rest of the layer contract.
+        """
         array = np.asarray(data)
         if array.ndim == 0:
             raise LayerError("an image layer needs at least a 1-D array")
@@ -2114,6 +2119,16 @@ class ImageLayer(Layer):
     @staticmethod
     def _resolve_colormaps(spec: Optional[Sequence[Any]],
                            n: int) -> List[Colormap]:
+        """One colormap per channel, whatever the caller supplied.
+
+        A SINGLE CHANNEL GETS GREY, several get the distinguishable defaults:
+        an image with three channels drawn in one colormap is three pictures
+        of the same colour, which is what a naive default produces.
+
+        :param spec: colormaps, names, or None for the defaults.
+        :param n: how many channels there are.
+        :returns: one colormap per channel.
+        """
         if spec is None:
             if n == 1:
                 return [colormap("gray")]
@@ -2128,6 +2143,12 @@ class ImageLayer(Layer):
 
     @staticmethod
     def _resolve_limits(spec: Any, n: int) -> List[Optional[Tuple[float, float]]]:
+        """One contrast range per channel, or None to auto-scale it.
+
+        :param spec: the limits, or None.
+        :param n: how many channels there are.
+        :returns: one range per channel.
+        """
         if spec is None:
             return [None] * n
         pairs = list(spec)
@@ -2321,6 +2342,11 @@ class ImageLayer(Layer):
 
     # -- rendering ------------------------------------------------------
     def _draw(self, canvas: Canvas) -> Tuple[np.ndarray, np.ndarray]:
+        """Paint this layer into the canvas.
+
+        :param canvas: the world window being drawn.
+        :returns: the rendered RGBA array.
+        """
         index, valid = self._sample_index(canvas)
         h, w = canvas.shape
         rgb = np.zeros((h, w, 3), dtype=np.float32)
@@ -2359,6 +2385,11 @@ class LabelsLayer(Layer):
     def __init__(self, data: Any, *, name: str = "labels",
                  field: Optional[FieldKey] = None, seed: int = 0,
                  **kwargs: Any):
+        """Build a labels layer.
+
+        :param data: the label array; 0 is background.
+        :param kwargs: name, spacing, field and the rest of the layer contract.
+        """
         array = np.asarray(data)
         if array.ndim not in (2, 3):
             raise LayerError(
@@ -2610,6 +2641,11 @@ class LabelsLayer(Layer):
 
     # -- rendering ------------------------------------------------------
     def _draw(self, canvas: Canvas) -> Tuple[np.ndarray, np.ndarray]:
+        """Paint this layer into the canvas.
+
+        :param canvas: the world window being drawn.
+        :returns: the rendered RGBA array.
+        """
         index, valid = self._sample_index(canvas)
         values = self._data[index]
         present = valid & (values != 0)
@@ -2654,6 +2690,11 @@ class PointsLayer(Layer):
                  border_width: float = 0.0,
                  properties: Optional[Mapping[str, Any]] = None,
                  **kwargs: Any):
+        """Build a points layer.
+
+        :param data: an ``(n, ndim)`` array of world coordinates, or None.
+        :param kwargs: name, spacing, colours and the rest of the layer contract.
+        """
         array = self._as_points(data, ndim)
         self._ndim = array.shape[1]
         self._data = array
@@ -2678,6 +2719,16 @@ class PointsLayer(Layer):
 
     @staticmethod
     def _as_points(data: Any, ndim: int) -> np.ndarray:
+        """Coerce whatever was given into an ``(n, ndim)`` float array.
+
+        NONE BECOMES AN EMPTY ARRAY OF THE RIGHT WIDTH rather than a zero-
+        column one, so an empty layer still has a dimensionality and can be
+        appended to without deciding it later.
+
+        :param data: the points, or None.
+        :param ndim: how many world axes each point has.
+        :returns: the coordinates.
+        """
         if data is None:
             return np.zeros((0, int(ndim)), dtype=np.float64)
         array = np.asarray(data, dtype=np.float64)
@@ -2692,6 +2743,12 @@ class PointsLayer(Layer):
 
     @staticmethod
     def _as_sizes(size: Any, n: int) -> np.ndarray:
+        """One size per point, broadcasting a scalar.
+
+        :param size: one size for all, or one per point.
+        :param n: how many points there are.
+        :returns: the sizes.
+        """
         if np.isscalar(size):
             return np.full(n, float(size), dtype=np.float64)
         array = np.asarray(size, dtype=np.float64).reshape(-1)
@@ -2898,6 +2955,11 @@ class PointsLayer(Layer):
 
     # -- rendering ------------------------------------------------------
     def _draw(self, canvas: Canvas) -> Tuple[np.ndarray, np.ndarray]:
+        """Paint this layer into the canvas.
+
+        :param canvas: the world window being drawn.
+        :returns: the rendered RGBA array.
+        """
         rgb, coverage = self._blank(canvas)
         if len(self._data) == 0:
             return rgb, coverage
@@ -2991,6 +3053,12 @@ class Shape:
                                         "line", "path")
 
     def __post_init__(self) -> None:
+        """Normalise the kind and refuse one this layer cannot draw.
+
+        REFUSED AT CONSTRUCTION rather than at paint time, because a shape
+        with an unknown kind draws nothing and the reader would look for the
+        fault in the renderer.
+        """
         self.kind = str(self.kind).strip().lower()
         if self.kind not in self.KINDS:
             raise LayerError(
@@ -3068,6 +3136,11 @@ class ShapesLayer(Layer):
 
     def __init__(self, shapes: Optional[Iterable[Shape]] = None, *,
                  name: str = "shapes", ndim: int = 2, **kwargs: Any):
+        """Build a shapes layer.
+
+        :param shapes: the shapes to start with, or None for an empty layer.
+        :param kwargs: name, spacing and the rest of the layer contract.
+        """
         self._shapes: List[Shape] = list(shapes or [])
         dims = {s.ndim for s in self._shapes}
         if len(dims) > 1:
@@ -3097,6 +3170,10 @@ class ShapesLayer(Layer):
         return tuple(self._shapes)
 
     def __len__(self) -> int:
+        """How many shapes this layer holds.
+
+        :returns: the shape count.
+        """
         return len(self._shapes)
 
     def add(self, shape: Shape) -> int:
@@ -3233,6 +3310,16 @@ class ShapesLayer(Layer):
     @staticmethod
     def _inside_ellipse(rows: np.ndarray, cols: np.ndarray,
                         vertices: np.ndarray) -> np.ndarray:
+        """Which of the given pixels fall inside an ellipse.
+
+        The ellipse is given by its bounding vertices, so a rotated one is
+        handled by the same test as an axis-aligned one.
+
+        :param rows: pixel row indices.
+        :param cols: pixel column indices.
+        :param vertices: the ellipse's bounding box.
+        :returns: a boolean mask over the pixels.
+        """
         lo = vertices.min(axis=0)
         hi = vertices.max(axis=0)
         centre = (lo + hi) / 2.0
@@ -3302,6 +3389,11 @@ class ShapesLayer(Layer):
         return out
 
     def _draw(self, canvas: Canvas) -> Tuple[np.ndarray, np.ndarray]:
+        """Paint this layer into the canvas.
+
+        :param canvas: the world window being drawn.
+        :returns: the rendered RGBA array.
+        """
         rgb, coverage = self._blank(canvas)
         rows = canvas.row_world()
         cols = canvas.column_world()
@@ -3364,6 +3456,10 @@ class LayerStack:
 
     def __init__(self, layers: Optional[Iterable[Layer]] = None, *,
                  units: Optional[str] = None):
+        """Build a stack, optionally seeded with layers.
+
+        :param layers: the layers to start with.
+        """
         self._layers: List[Layer] = []
         self._units = None if units is None else str(units)
         self._selected: Optional[Layer] = None
@@ -3373,17 +3469,35 @@ class LayerStack:
 
     # -- sequence -------------------------------------------------------
     def __len__(self) -> int:
+        """How many layers the stack holds.
+
+        :returns: the layer count.
+        """
         return len(self._layers)
 
     def __iter__(self):
+        """Iterate the layers, bottom to top.
+
+        :returns: an iterator over the layers.
+        """
         return iter(self._layers)
 
     def __contains__(self, item: Any) -> bool:
+        """Whether a layer or a layer name is in the stack.
+
+        :param item: a layer, or its name.
+        :returns: True when present.
+        """
         if isinstance(item, Layer):
             return any(l is item for l in self._layers)
         return any(l.name == str(item) for l in self._layers)
 
     def __getitem__(self, key: Any) -> Any:
+        """One layer, by name or by position.
+
+        :param key: the layer's name, or its index.
+        :returns: the layer.
+        """
         if isinstance(key, slice):
             return self._layers[key]
         if isinstance(key, str):
@@ -3441,6 +3555,14 @@ class LayerStack:
         return self._units or "px"
 
     def _check_units(self, layer: Layer) -> None:
+        """Refuse a layer whose world axes disagree with the stack's.
+
+        TWO LAYERS IN DIFFERENT UNITS CANNOT BE OVERLAID, and the failure is
+        silent if it is not caught here: they simply draw in the wrong places
+        relative to each other.
+
+        :param layer: the layer being added.
+        """
         units = layer.spacing.units
         if self._units is None:
             self._units = units
@@ -3454,6 +3576,14 @@ class LayerStack:
 
     # -- mutation -------------------------------------------------------
     def _unique_name(self, name: str, exclude: Optional[Layer] = None) -> str:
+        """A name not already in the stack, suffixing if needed.
+
+        Names are the handle everything else has on a layer, so a duplicate
+        would make the second one unreachable.
+
+        :param name: the wanted name.
+        :returns: a free name.
+        """
         taken = {l.name for l in self._layers if l is not exclude}
         if name not in taken:
             return name
@@ -3771,6 +3901,10 @@ class LayerStack:
         return True
 
     def _emit(self, event: LayerEvent) -> None:
+        """Tell every subscriber the stack has changed.
+
+        :param event: which change it was.
+        """
         for listener in list(self._listeners):
             listener(event)
 

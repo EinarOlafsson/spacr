@@ -860,4 +860,8 @@ class GateSettingsDialog(QDialog):
             self._live = True
 
     def settings(self) -> GateEditorSettings:
+        """The gate settings the user chose.
+
+        :returns: the settings dict.
+        """
         return self._settings
