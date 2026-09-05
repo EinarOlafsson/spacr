@@ -47,6 +47,25 @@ class IssuePreviewDialog(QDialog):
 
     def __init__(self, report: Mapping[str, str], parent=None,
                  console=None, traceback_text: str = ""):
+        """Build the review dialog shown before anything is posted publicly.
+
+        Nothing has been sent when this opens, and the warning at the top says
+        so: a public issue is world-readable, indexed and mirrored, and cannot
+        be reliably unpublished. Path stripping is on by default.
+
+        Diagnose is offered here because this is the moment the user is looking
+        hardest at the error and the last moment before it goes somewhere
+        public -- an explanation may save the report entirely, and makes it
+        better when it does not.
+
+        :param report: the drafted issue -- its ``title``, ``body`` and
+            ``fingerprint``.
+        :param parent: parent widget, or ``None``.
+        :param console: the console that owns the AI conversation; taken from
+            the parent when not given, so the screen opening this need not know
+            about the button.
+        :param traceback_text: the traceback to diagnose.
+        """
         super().__init__(parent)
         self._source_body = str(report.get("body", ""))
         self._fingerprint = str(report.get("fingerprint", ""))
@@ -108,6 +127,13 @@ class IssuePreviewDialog(QDialog):
         self._diagnose_timer.timeout.connect(self._check_for_diagnosis)
 
     def _refresh_body(self, strip: bool) -> None:
+        """Redraw the body with paths stripped or restored.
+
+        The unmodified report is kept, so unticking the switch puts the paths
+        back rather than leaving them stripped for good.
+
+        :param strip: whether to remove file and folder names.
+        """
         self.body_edit.setPlainText(
             strip_report_paths(self._source_body) if strip else self._source_body
         )
@@ -217,6 +243,7 @@ class IssuePreviewDialog(QDialog):
                        tr("spaCR AI did not answer in time."))
 
     def _end_diagnosing(self) -> None:
+        """Stop polling and return the Diagnose button to its resting state."""
         self._diagnose_timer.stop()
         self.diagnose_btn.setEnabled(True)
         self.diagnose_btn.setText(tr("Diagnose"))

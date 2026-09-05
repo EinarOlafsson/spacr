@@ -128,6 +128,12 @@ class GroupedPlot(FastPlot):
 
     def __init__(self, spec: Optional[PlotSpec] = None, parent=None,
                  **kwargs):
+        """Create the grouped plot, optionally drawing a spec straight away.
+
+        :param spec: the plot to draw; ``None`` leaves the plot empty.
+        :param parent: parent widget, or ``None``.
+        :param kwargs: passed through to the base plot.
+        """
         super().__init__(parent=parent, **kwargs)
         self.spec: Optional[PlotSpec] = None
         if spec is not None:
@@ -159,6 +165,20 @@ class GroupedPlot(FastPlot):
         return self.show_spec(replace(self.spec, kind=kind))
 
     def _draw(self) -> int:
+        """Draw the spec and return how many groups were drawn.
+
+        A scatter or line over a numeric grouping column is drawn as two
+        continuous axes instead: forcing it through the grouped mark would put
+        every point at one categorical position -- a jitter under another name,
+        which the graph-type table refuses to offer.
+
+        The group size goes on the axis label, not only in the caption: a
+        three-point group and a three-hundred-point group are the same bar, and
+        the label is the only place a reader meets the difference before reading
+        the sentence underneath.
+
+        :returns: the number of groups drawn; ``0`` when there was nothing.
+        """
         from .fast_plots import colour_for
 
         spec = self.spec
@@ -247,6 +267,12 @@ class GroupedPlot(FastPlot):
         return 1
 
     def _label_axes(self, spec, *, categorical: bool) -> None:
+        """Write the axis labels and the title from the spec.
+
+        :param spec: the plot spec to read labels from.
+        :param categorical: whether the horizontal axis is categorical, which
+            decides what the fallback bottom label is.
+        """
         self.plot.setLabel("left", spec.y_label or spec.value)
         self.plot.setLabel(
             "bottom", spec.x_label or (spec.group if not categorical

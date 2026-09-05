@@ -302,6 +302,11 @@ class ModelConfig:
     extra: Dict[str, Any] = _dc_field(default_factory=dict)
 
     def __post_init__(self):
+        """Give the model a name if the caller did not.
+
+        The checkpoint's file name is used, falling back to the path itself --
+        a comparison report that says "Model A" twice is unreadable.
+        """
         if not self.name:
             self.name = os.path.basename(str(self.model)) or str(self.model)
 
@@ -537,6 +542,7 @@ class SegComparison:
         return self.n_objects_a == 0 and self.n_objects_b == 0
 
     def __str__(self) -> str:
+        """Return the one-line summary: the field, both counts, the delta and the ARI."""
         return (f"{self.field}: A {self.n_objects_a} vs B {self.n_objects_b} "
                 f"objects ({self.object_count_delta:+d}), ARI {self.ari:.3f}")
 

@@ -146,6 +146,15 @@ class Toggle(QCheckBox):
         event.accept()
 
     def _start_anim(self, _state):
+        """Slide the knob to whichever end the new state calls for.
+
+        A toggle that is not on screen jumps rather than animating: there is
+        nothing to see, and an animation running for a hidden widget costs
+        frames for nobody.
+
+        :param _state: the new check state; the switch is re-read, so it is not
+            used.
+        """
         end_x = float(
             self._maximum_knob_x()
             if self.isChecked()
@@ -161,9 +170,18 @@ class Toggle(QCheckBox):
         self._anim.start()
 
     def _get_knob_pos(self) -> float:
+        """Return the knob's current horizontal position.
+
+        :returns: the position in pixels. This is the property the animation
+            drives.
+        """
         return self._knob_pos
 
     def _set_knob_pos(self, v: float) -> None:
+        """Move the knob and repaint.
+
+        :param v: the new horizontal position in pixels.
+        """
         self._knob_pos = float(v)
         self.update()
 

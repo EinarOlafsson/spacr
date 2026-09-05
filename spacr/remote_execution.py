@@ -432,6 +432,12 @@ class ProfileStore:
     """
 
     def __init__(self, path: Optional[os.PathLike] = None):
+        """Open the execution-profile store.
+
+        :param path: where the profiles live; ``None`` uses the state directory.
+            A sibling lock file is derived from it, so two processes writing
+            profiles cannot interleave.
+        """
         self.path = Path(path) if path is not None else (
             state_directory() / "profiles.json"
         )
@@ -507,6 +513,12 @@ class JobStore:
     """
 
     def __init__(self, path: Optional[os.PathLike] = None):
+        """Open the remote-job store.
+
+        :param path: where the jobs live; ``None`` uses the state directory. A
+            sibling lock file is derived from it, so two processes writing jobs
+            cannot interleave.
+        """
         self.path = Path(path) if path is not None else (
             state_directory() / "jobs.json"
         )
@@ -1070,6 +1082,15 @@ class RemoteJobManager:
         job_store: Optional[JobStore] = None,
         runner: CommandRunner = _run_command,
     ):
+        """Create the manager over its two stores and a command runner.
+
+        :param profile_store: where execution profiles are read from; ``None``
+            opens the default store.
+        :param job_store: where submitted jobs are recorded; ``None`` opens the
+            default store.
+        :param runner: how commands are executed. Injectable so a test can drive
+            the manager without running anything.
+        """
         self.profiles = profile_store or ProfileStore()
         self.jobs = job_store or JobStore()
         self.runner = runner
