@@ -184,6 +184,11 @@ class SchemaReader:
     """
 
     def __init__(self, path: str):
+        """Open a read-only schema reader over a measurements database.
+
+        :param path: database or run folder; resolved through spaCR's project
+            layout.
+        """
         self.path = resolve_db_path(path)
         self.uri = _read_only_uri(self.path)
         self.executed: List[str] = []
@@ -198,11 +203,28 @@ class SchemaReader:
     # -- plumbing ----------------------------------------------------------
 
     def _connect(self) -> sqlite3.Connection:
+        """Open a fresh read-only connection.
+
+        :returns: a connection with ``query_only`` set, so nothing reached
+            through this reader can write.
+        """
         con = sqlite3.connect(self.uri, uri=True, timeout=30)
         con.execute("PRAGMA query_only = ON")
         return con
 
     def _fetch(self, sql: str, params: Sequence = ()) -> List[tuple]:
+        """Run one statement and return all its rows.
+
+        The statement is recorded under a lock before it runs, so the snapshot
+        handed to :meth:`ColumnPickerDialog.executed_sql` is never taken
+        mid-append -- a test asserting "opening cost no ``COUNT(*)``" would
+        otherwise be reading a list one element ahead of the statement it is
+        about.
+
+        :param sql: the statement to run.
+        :param params: its bound parameters.
+        :returns: every row, as tuples.
+        """
         with self._log_lock:
             self.executed.append(sql)
         con = self._connect()
@@ -590,6 +612,21 @@ class ColumnPickerDialog(QDialog):
                  reader: Optional[SchemaReader] = None,
                  threaded: bool = False,
                  multi: bool = False):
+        """Build the dialog and read the database's schema into it.
+
+        :param db_path: database or run folder to read.
+        :param table: table to select on opening, if it exists.
+        :param current: column name to start with in the name box.
+        :param parent: parent widget, or ``None``.
+        :param allow_new: let the user name a column that does not exist yet.
+        :param reader: an already-open ``SchemaReader`` to use instead of
+            opening ``db_path``.
+        :param threaded: read the schema on a worker thread. Left ``False``, the
+            read runs inline and the dialog is fully populated by the time the
+            constructor returns, which is the default mode's contract.
+        :param multi: pick several columns rather than one; the tree's selection
+            becomes the answer instead of the name box.
+        """
         super().__init__(parent)
         from ..job_runner import JobRunner
 
@@ -624,6 +661,7 @@ class ColumnPickerDialog(QDialog):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the banner, the table list, the column tree and the name box."""
         outer = QVBoxLayout(self)
         outer.setSpacing(8)
 
@@ -729,6 +767,10 @@ class ColumnPickerDialog(QDialog):
     # -- loading -----------------------------------------------------------
 
     def _set_banner(self, text: str) -> None:
+        """Show a message above the dialog, or hide the banner.
+
+        :param text: the message; an empty string hides the banner.
+        """
         self._banner.setText(text or "")
         self._banner.setVisible(bool(text))
 
@@ -852,6 +894,11 @@ class ColumnPickerDialog(QDialog):
         self._apply_filter(self._filter.text())
 
     def _apply_filter(self, text: str) -> None:
+        """Hide the columns whose names do not contain the filter text.
+
+        :param text: the needle; matched case-insensitively, and an empty one
+            shows everything.
+        """
         needle = str(text or "").strip().lower()
         for i in range(self._column_tree.topLevelItemCount()):
             item = self._column_tree.topLevelItem(i)
@@ -860,17 +907,34 @@ class ColumnPickerDialog(QDialog):
     # -- interaction -------------------------------------------------------
 
     def _on_column_changed(self, current, _previous=None) -> None:
+        """Copy the newly selected column into the name box.
+
+        :param current: the newly current tree item, or ``None``.
+        :param _previous: the item that was current before; unused.
+        """
         self._count_btn.setEnabled(current is not None)
         if current is not None:
             self._name.setText(current.text(0))
 
     def _on_column_activated(self, item, _column: int = 0) -> None:
+        """Take a double-clicked column and accept the dialog if that is enough.
+
+        :param item: the activated tree item, or ``None``.
+        :param _column: the column of the tree that was hit; unused, since the
+            row is what identifies the choice.
+        """
         if item is not None:
             self._name.setText(item.text(0))
             if self._buttons.button(QDialogButtonBox.Ok).isEnabled():
                 self.accept()
 
     def _count_selected(self) -> None:
+        """Count the non-null values in the selected column and show the total.
+
+        Not run when the dialog opens: it reads the whole table. A SQLite error
+        becomes a banner rather than an exception, since a failed count is not a
+        reason to lose the dialog.
+        """
         item = self._column_tree.currentItem()
         table = self.chosen_table()
         if item is None or self._reader is None or not table:
@@ -977,6 +1041,12 @@ class ColumnPickerDialog(QDialog):
         self._sync_ok()
 
     def _sync_ok(self) -> None:
+        """Enable OK for the actions that can be accepted.
+
+        An unchecked action is accepted too: the check is a courtesy, and a
+        dialog that cannot be confirmed because the schema read has not finished
+        would be worse than one that lets an existing name through.
+        """
         ok = self._buttons.button(QDialogButtonBox.Ok)
         ok.setEnabled(self._action in (ACTION_USE, ACTION_CREATE,
                                        ACTION_UNCHECKED))
@@ -1193,6 +1263,19 @@ class ColumnPickerButton(QToolButton):
                  field: Optional[QWidget] = None, parent: Optional[QWidget] = None,
                  text: str = "SQL", allow_new: bool = True,
                  multi: Optional[bool] = None):
+        """Build a button that opens a column picker for a database.
+
+        :param db_path_getter: the database path, or a callable returning one --
+            the path is usually a setting the user is still editing, so it is
+            resolved at click time rather than at construction.
+        :param table: table to preselect in the picker.
+        :param field: the widget the chosen column is written back into.
+        :param parent: parent widget, or ``None``.
+        :param text: the button's label.
+        :param allow_new: let the picker name a column that does not exist yet.
+        :param multi: pick several columns; ``None`` leaves the choice to the
+            picker's own default.
+        """
         super().__init__(parent)
         self._getter = (db_path_getter if callable(db_path_getter)
                         else (lambda v=db_path_getter: v))

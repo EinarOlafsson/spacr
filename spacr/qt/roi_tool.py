@@ -111,6 +111,16 @@ class RoiPen(CanvasTool, QObject):
 
     def __init__(self, layer: ShapesLayer, *, kind: str = "polygon",
                  parent: Optional[QObject] = None):
+        """Arm a pen that draws one closed shape into a shapes layer.
+
+        :param layer: the layer the finished ROI is added to.
+        :param kind: shape to draw -- ``"polygon"``, ``"rectangle"`` or
+            ``"ellipse"``.
+        :param parent: parent object, or ``None``.
+        :raises LayerError: if ``layer`` is not a ``ShapesLayer``, or if ``kind``
+            is not one of the three closed shapes -- an ROI has an inside, so an
+            open path cannot be one.
+        """
         QObject.__init__(self, parent)
         if not isinstance(layer, ShapesLayer):
             raise LayerError(
@@ -228,6 +238,10 @@ class RoiPen(CanvasTool, QObject):
 
     # -- the half-drawn outline --------------------------------------------
     def _refresh_preview(self) -> None:
+        """Redraw the rubber-band path through the vertices placed so far.
+
+        A single vertex draws nothing: there is no line yet to preview.
+        """
         self._drop_preview()
         if len(self._pending) < 2:
             return
@@ -237,6 +251,7 @@ class RoiPen(CanvasTool, QObject):
         self._preview = True
 
     def _drop_preview(self) -> None:
+        """Remove the rubber-band path, if one is on the layer."""
         if not self._preview:
             return
         self._preview = False
@@ -264,6 +279,15 @@ class RoiPanel(QWidget):
 
     def __init__(self, canvas: LayerCanvas, parent=None, *,
                  roi_path: Optional[str] = None):
+        """Build the ROI panel over a canvas.
+
+        :param canvas: the canvas whose shapes layer the ROI is drawn into.
+        :param parent: parent widget, or ``None``.
+        :param roi_path: where the ROI is saved; defaults to
+            ``roi/measure_roi.json`` under the working directory. It is a file
+            because a worker process can only reach the ROI through the file
+            system.
+        """
         super().__init__(parent)
         self.setObjectName("RoiPanel")
         self._canvas = canvas
@@ -277,6 +301,7 @@ class RoiPanel(QWidget):
 
     # -- construction -------------------------------------------------------
     def _build(self) -> None:
+        """Lay out the draw controls, the keep rule, the field scope and the buttons."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(6)
@@ -434,24 +459,43 @@ class RoiPanel(QWidget):
         self._refresh_status()
 
     def _on_draw_toggled(self, checked: bool) -> None:
+        """Start or stop drawing to match the button.
+
+        :param checked: the draw button's new state.
+        """
         if checked:
             self.start_drawing()
         else:
             self.stop_drawing()
 
     def _on_kind_changed(self, text: str) -> None:
+        """Restart the pen on the new shape kind, if one is drawing.
+
+        :param text: the newly chosen shape kind; the pen re-reads it from the
+            combo box, so the value is not used directly.
+        """
         if self._pen is not None:
             self.stop_drawing()
             self.draw_button.setChecked(True)
             self.start_drawing()
 
     def _on_mode_changed(self, text: str) -> None:
+        """Enable the overlap fraction only for the overlap rule.
+
+        :param text: the newly chosen keep rule.
+        """
         self.overlap_spin.setEnabled(text == "overlap")
 
     def _on_roi_finished(self, _index: int) -> None:
+        """Refresh the status line once a shape is closed.
+
+        :param _index: index of the finished shape; the count is re-read from
+            the layer, so it is not used.
+        """
         self._refresh_status()
 
     def _on_choose_path(self) -> None:
+        """Ask where the ROI should be saved and record the choice."""
         path, _ = QFileDialog.getSaveFileName(
             self, "Save the ROI", self._roi_path, "ROI (*.json)")
         if path:
@@ -507,6 +551,12 @@ class RoiPanel(QWidget):
 
     # -- status -------------------------------------------------------------
     def _refresh_status(self) -> None:
+        """Say how many ROIs are drawn and whether the workers can see them.
+
+        While the filter is off the line says so; while it is on it carries the
+        worker-delivery check, warning-styled when the workers could not be
+        reached -- an ROI the workers cannot read is an ROI that will not apply.
+        """
         layer = self.roi_layer(create=False)
         drawn = sum(1 for s in (layer.shapes if layer else ()) if s.is_closed)
         if not self._enabled:
@@ -517,6 +567,11 @@ class RoiPanel(QWidget):
         self._show(f"{drawn} ROI(s) · {message}", warning=not ok)
 
     def _show(self, text: str, *, warning: bool = False) -> None:
+        """Write the status line and repolish it so the warning style takes effect.
+
+        :param text: message to show.
+        :param warning: style the line as a warning.
+        """
         self.status.setObjectName("RoiStatusWarning" if warning
                                   else "RoiStatus")
         self.status.setText(text)
