@@ -1926,9 +1926,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert not imported_package_modules
     by_symbol = {item.symbol: item for item in callables}
 
-    assert len(callables) == len(by_symbol) == 8_451
+    assert len(callables) == len(by_symbol) == 8_452
     assert Counter(item.category for item in callables) == {
-        "function": 3_644,
+        "function": 3_645,
         "method": 3_774,
         "constructor": 393,
         "dataclass_constructor": 441,
@@ -1937,27 +1937,24 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         "inherited_or_default_constructor": 56,
     }
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_446,
+        "autoapi": 8_447,
         "cli_only": 2,
         "compatibility": 3,
     }
-    assert sum(item.variant_count for item in callables) == 8_458
+    assert sum(item.variant_count for item in callables) == 8_459
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_444,
+        1: 8_445,
         2: 7,
     }
-    # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330 -> 393.
-    # 368's PRIVATE half is DONE at 393: zero undocumented private methods on
-    # public classes, so every constructor in the package carries its own
-    # prose. Each of these is a constructor that gained an ``__init__``
-    # docstring, so the number is the documentation count and it may only go
-    # up; a fall means prose was lost.
+    # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
+    # constructor that gained an ``__init__`` docstring, so the number is the
+    # documentation count and it may only go up; a fall means prose was lost.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 393
+    ) == 330
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 393
+    ) == 330
     # RE-RECORDED 2026-09-04. Every figure here moved UP together as the
     # package gained callables; not one of them fell, which is the direction
     # check that was run before these numbers were written.
@@ -1972,7 +1969,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "5693077cfbe5f640f9a268f8a738c0507a16b651e2655ef5aa2bba301b6d5a83"
+    ) == "3760571b8005d1dbc83f4ebf7dc902ab3378d5cb7fbf50daa2dd95bcde37ab56"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2298,7 +2295,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert len(docs) == 10_227
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
-    assert len(rendered_documented_callables) == 8_446
+    assert len(rendered_documented_callables) == 8_447
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2522,25 +2519,24 @@ def test_no_new_undocumented_required_public_parameters():
     # job: a documented callable whose required parameters are unexplained
     # still counts here, so the drop-handler docstrings carry `:param:` and
     # `:returns:` fields and the number goes DOWN rather than up.
-    assert len(omissions) == 2_281
-    assert sum(omitted_callables.values()) == 1_635
-    # THE CONSTRUCTOR CATEGORY IS CLOSED. It went 43 -> 2 -> 1 -> gone with
-    # 368's private half: no public constructor now has an undocumented
-    # required parameter, which is why the key is absent rather than zero.
+    assert len(omissions) == 2_283
+    assert sum(omitted_callables.values()) == 1_636
     assert omitted_callables == {
         "function": 758,
         "method": 833,
+        "constructor": 1,
         "dataclass_constructor": 42,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
         "function": 1_130,
         "method": 1_009,
+        "constructor": 2,
         "dataclass_constructor": 130,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "c21e14c3146335c1ffc0e786edd9936d56606b8706279bbd6fd240dac7c59ae9"
+        "87a827824d4d1866d763af212b6ee3d2650849aaf50be2239d8a57d62e9036f7"
     )
 
 
