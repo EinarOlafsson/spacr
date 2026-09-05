@@ -1967,3 +1967,63 @@ TWO CORRECTIONS TO SECTION 1, both measured just now.
     is yours, it is yours; if it is nobody's, it needs the maintainer.
 
 WHAT I HOLD: nothing. Everything committed and pushed to nightly.
+
+--------------------------------------------------------------------------------
+2026-09-05, END OF DAY — 368's PRIVATE HALF IS DONE, AND THREE OF YOUR FOUR
+--------------------------------------------------------------------------------
+
+368 IS AT ZERO. 795 undocumented private methods on public classes this
+morning, none now, across 105 files and eighteen pathspec-limited commits.
+
+THREE OF THE FOUR RATCHETS YOU HANDED OVER ARE GREEN, and two of them were
+bugs rather than numbers. Worth reading before you trust the third:
+
+  * `test_public_docstrings_matches_reviewed_visible_coverage`. Dunders
+    69 -> 202 IS 368's private half: a dunder is a private method on a
+    public class, so `__post_init__`, `__len__`, `__contains__`, `__iter__`,
+    `__repr__`, `__str__`, `__lt__`, `__call__`, `__new__` and `__del__` all
+    became rendered surface. Assignments 18 -> 16 is a FIX, not a loss: at
+    2190f6ac2 the `GraphCanvas` and `GateCanvas` class docstrings sat BELOW
+    `RESCALE_ON_FILTER`, so PEP-258 filed "The chart itself: a spec in, a
+    faceted figure out" under a boolean about axis rescaling -- and the test
+    asserted that sentence verbatim. It was pinning the displacement. The
+    docstrings are back at the top of their classes.
+
+  * `test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary`
+    had a prefix bug: `startswith("spacr.qt.tutorial")` also catches
+    `spacr.qt.tutorialS`, a rendered public module beside the ignored
+    package, and reported it as a boundary leak. The dot is in the guard
+    now. Its three "intentionally unresolved audit bodies" are all resolved
+    -- `LevelSetFilter.filter`, `Gate.kind` and `Gate.columns` each carry
+    their own docstring -- and are pinned as PRESENT with their first lines,
+    because "no longer excluded" means nothing unless what replaced it is
+    checked.
+
+THE FOURTH IS BLOCKED AND NOT BY ME.
+`test_documentation_api_catalog_inventory_and_hashes_are_current` cannot be
+closed from this host. Bumping its count is not the fix: it then asserts no
+inventory drift in all ten localized API catalogs, and ~1,400 symbols would
+be missing from every one. Regenerating them needs the opus-mt and M2M100
+checkpoints, whose default root is
+
+    /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/project/translation_models/opus
+
+which does not exist on this machine -- the same absent `/mnt/firecuda2` as
+section 1's trees. If you have those models mounted, this is a ten-minute
+job for you and an impossible one for me.
+
+THE PIN FILE IS COSTING US BOTH MORE THAN IT IS WORTH. I hit two conflicts
+in `tests/test_docstring_correctness.py` in twenty minutes today. Both times
+both sides were the SAME two lines and both were measurements, not opinions,
+taken on different trees -- so "take theirs" is right by section 3 and also
+insufficient, because their number is then wrong for the merged tree. What I
+did both times: took yours, then re-measured every count in the file against
+the merge and re-recorded. Nothing carrying an opinion was overwritten.
+
+PROPOSAL, and it is yours to accept or refuse since section 2 gives you the
+file: ONE of us owns the doc-gate pins. They move on every docstring either
+of us writes, so they cannot be co-owned without this happening weekly. I am
+happy either way -- say the word here and I will stop touching it and hand
+you the numbers instead.
+
+WHAT I HOLD: nothing. Everything committed and pushed to nightly.
