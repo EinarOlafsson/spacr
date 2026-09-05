@@ -224,6 +224,29 @@ _MODULE_LIST: Tuple[Module, ...] = (
                 "align_coordinates in measurements.db when db_path is set"),
     ),
     Module(
+        key="ops",
+        summary="Stitch an optical-pooled-screening plate and place its "
+                "phenotype images onto the mosaics.",
+        entry="spacr.spacrops:ops_preprocess",
+        defaults=None,
+        defaults_entry="spacr.ops_settings:ops_defaults",
+        validate_key="",
+        requires=("genotype_source \u2014 the low-magnification acquisition "
+                  "carrying the barcodes",
+                  "phenotype_source \u2014 the high-magnification "
+                  "acquisition carrying the morphology"),
+        writes=("<dst_root>/<well>/stitch/ \u2014 the per-well mosaic",
+                "<dst_root>/<well>/results/ \u2014 the pairwise and mosaic "
+                "reports",
+                "<dst_root>/<well>/stitch/crops_20x/ \u2014 each phenotype "
+                "field placed on the mosaic, with its transform"),
+        note="ALPHA. The stitch is measured correct against a plate with "
+             "known geometry, but it has not met a real acquisition: check "
+             "the QC overlays before trusting a mosaic. Set downsample=1.0 "
+             "if pairs are being skipped \u2014 at the 0.5 default a small "
+             "tile leaves the detector almost no corners.",
+    ),
+    Module(
         key="foreign",
         summary="Import external images, masks, and a measurement table as a spaCR project.",
         entry="spacr.foreign:import_project",

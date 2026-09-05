@@ -1612,6 +1612,12 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "align":
             from spacr.align import align_folder
             return _ret(log_call(align_folder))
+        if app_key == "ops":
+            # Imported HERE and not at module scope: `spacrops` reaches
+            # OpenCV and SciPy, and this function is called while a screen is
+            # being built.
+            from spacr.spacrops import ops_preprocess
+            return _ret(log_call(ops_preprocess))
         if app_key == "convert":
             from spacr.convert import convert_folder
             return _ret(log_call(convert_folder))

@@ -1926,9 +1926,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert not imported_package_modules
     by_symbol = {item.symbol: item for item in callables}
 
-    assert len(callables) == len(by_symbol) == 8_452
+    assert len(callables) == len(by_symbol) == 8_453
     assert Counter(item.category for item in callables) == {
-        "function": 3_645,
+        "function": 3_646,
         "method": 3_774,
         "constructor": 393,
         "dataclass_constructor": 441,
@@ -1937,13 +1937,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         "inherited_or_default_constructor": 56,
     }
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_447,
+        "autoapi": 8_448,
         "cli_only": 2,
         "compatibility": 3,
     }
-    assert sum(item.variant_count for item in callables) == 8_459
+    assert sum(item.variant_count for item in callables) == 8_460
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_445,
+        1: 8_446,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -1958,7 +1958,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # RE-RECORDED 2026-09-04. Every figure here moved UP together as the
     # package gained callables; not one of them fell, which is the direction
     # check that was run before these numbers were written.
-    assert sum(len(item.parameters) for item in callables) == 16_652
+    assert sum(len(item.parameters) for item in callables) == 16_654
     assert sum(len(item.required_parameters) for item in callables) == 8_436
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
@@ -1969,7 +1969,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "3760571b8005d1dbc83f4ebf7dc902ab3378d5cb7fbf50daa2dd95bcde37ab56"
+    ) == "3afae02d546880c76fc8d1e2c4a65b2e0c3e57b3dfb722f8be433a7c7a04aa61"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2292,10 +2292,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # their own entry instead of borrowing one.
     # 10,152 -> 10,172 -> 10,213 (2026-09-05): private methods on public
     # classes that gained a docstring get an entry of their own.
-    assert len(docs) == 10_227
+    assert len(docs) == 10_228
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
-    assert len(rendered_documented_callables) == 8_447
+    assert len(rendered_documented_callables) == 8_448
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

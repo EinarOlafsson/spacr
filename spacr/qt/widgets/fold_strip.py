@@ -106,6 +106,10 @@ FOLD_HOST_MODULES = (
     "spacr.qt.screens.mask",
     "spacr.qt.screens.classify",
     "spacr.qt.screens.annotate",
+    # Align & Stitch grew a fold later than the rest: OPS is stitching, over
+    # a plate acquired in sequencing cycles, so it is reached from the module
+    # it belongs to rather than given a tile of its own.
+    "spacr.qt.screens.align",
 )
 
 
