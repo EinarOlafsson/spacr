@@ -103,6 +103,13 @@ def _stat_with_timeout(path: str, want_dir: bool = False) -> bool:
     result = [True]
 
     def run() -> None:
+        """Ask the filesystem the question that is allowed to block.
+
+        This body is the reason the module exists: it runs on a worker, where
+        an `autofs` mount taking twenty seconds to wake costs nobody a frozen
+        window. `OSError` is an answer of "no", not a failure -- a path that
+        cannot be stat-ed is a path the user cannot use either.
+        """
         try:
             result[0] = (os.path.isdir(path) if want_dir
                          else os.path.exists(path))
