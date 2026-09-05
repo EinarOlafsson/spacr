@@ -2163,6 +2163,23 @@ class _ChromeButton(QToolButton):
         self._show(self.underMouse())
 
 
+def _current_font_scale() -> float:
+    """The interface scale in force, or 1.0 if it cannot be read.
+
+    Defensive because the callers are cache bookkeeping on paths that run
+    during teardown: a scale that cannot be read must not stop a screen being
+    cached, and 1.0 makes the screen look stale exactly once.
+
+    :returns: the persisted interface scale.
+    """
+    try:
+        from .preferences import get_font_scale
+
+        return float(get_font_scale())
+    except Exception:                                        # noqa: BLE001
+        return 1.0
+
+
 class MainWindow(QMainWindow):
     """Top-level window: sidebar + stacked screens + status bar.
 
@@ -2286,6 +2303,18 @@ class MainWindow(QMainWindow):
 
         # Register screens lazily — created on first navigation.
         self._screens: dict[str, QWidget] = {}
+        #: The interface scale each cached screen was BUILT at, by key.
+        #:
+        #: A screen is built once and then cached forever, and everything
+        #: `scaled_px` pins inside it -- icon sizes, row heights, tile
+        #: geometry -- is read at construction and never read again. So a
+        #: screen opened before the scale changed keeps the old sizes for the
+        #: rest of the session while a screen opened after it gets the new
+        #: ones, and the two sit side by side in the stack at different sizes.
+        #: Reported 2026-09-05 as "the modual icons dont track perfectly"; the
+        #: Preferences slider had the same half-updated result long before the
+        #: hold-Z gesture made it obvious. See :meth:`_rebuild_screens_for_scale`.
+        self._screen_scales: dict[str, float] = {}
         #: App keys in the order the user last LOOKED at them, oldest
         #: first. Not the same thing as ``_screens`` order, which is
         #: creation order and never changes when an app is revisited —
@@ -4357,6 +4386,7 @@ class MainWindow(QMainWindow):
         except Exception:
             pass
         self._stack.addWidget(self._startup)
+        self._drop_a_redundant_screen_backdrop(self._startup)
 
     def _show_the_screensaver(self) -> bool:
         """Open the backdrop full screen, with nothing else on it.
@@ -4462,6 +4492,59 @@ class MainWindow(QMainWindow):
             return
         super().wheelEvent(event)
 
+    def _screen_scale_is_stale(self, key: str) -> bool:
+        """Whether ``key``'s cached screen was built at a different scale.
+
+        :param key: the app whose cached screen is in question.
+        :returns: True when the screen would be the wrong size on screen.
+        """
+        built_at = self._screen_scales.get(key)
+        if built_at is None:
+            return False
+        return abs(built_at - _current_font_scale()) > 1e-6
+
+    def _rebuild_for_scale(self, key: str) -> None:
+        """Rebuild ``key``'s screen at the current scale, carrying its values.
+
+        Delegates to :meth:`rebuild_app_screen`, which is the tested path: it
+        builds the replacement BEFORE retiring the old screen, carries the
+        values and the loaded preview across, and declines to destroy a screen
+        whose worker is still running.
+
+        The values come from ``_settings_model.collect()``, which is what
+        :meth:`spacr.qt.screens.app_screen.AppScreen._rebuild_the_form` uses
+        for the same purpose -- NOT from a ``values()`` method. An AppScreen
+        has no such method; the ``values`` found by duck-typing on an earlier
+        draft of this belonged to an unrelated captions dict, so every rebuild
+        silently took the do-nothing branch and the feature never worked.
+
+        A screen with no settings model is not an :class:`AppScreen` --
+        Annotate, Make Masks, the Database Browser. Those hold state a rebuild
+        would silently discard (a loaded image, a scan in progress), so they
+        are left alone and simply recorded at the new scale; the alternative
+        is throwing away the user's work to fix an icon size. They come up
+        correctly the next time the app starts.
+
+        :param key: the app whose screen is to be rebuilt.
+        """
+        screen = self._screens.get(key)
+        if screen is None:
+            return
+        model = getattr(screen, "_settings_model", None)
+        collect = getattr(model, "collect", None)
+        values = None
+        if callable(collect):
+            try:
+                values = dict(collect() or {})
+            except Exception:                                # noqa: BLE001
+                LOG.exception("could not read the %s form before a rescale",
+                              key)
+                values = None
+        if values is None:
+            self._screen_scales[key] = _current_font_scale()
+            return
+        self.rebuild_app_screen(key, values)
+
     def rebuild_app_screen(self, key: str, values=None) -> None:
         """Build ``key``'s screen again, carrying ``values`` across.
 
@@ -4552,7 +4635,9 @@ class MainWindow(QMainWindow):
         _carry_preview_state(old, fresh)
 
         self._screens[key] = fresh
+        self._screen_scales[key] = _current_font_scale()
         self._stack.addWidget(fresh)
+        self._drop_a_redundant_screen_backdrop(fresh)
         self._stack.setCurrentWidget(fresh)
         if old is not None:
             try:
@@ -4613,6 +4698,12 @@ class MainWindow(QMainWindow):
                 budget_s=_timing.HOME_BUDGET_S,
             )
             return
+        if key in self._screens and self._screen_scale_is_stale(key):
+            # Built at a scale that no longer applies. Rebuilding here rather
+            # than at the moment the scale changed keeps the cost on the open
+            # the user is already waiting through, and it goes through the
+            # same path a shape change uses, which carries their values.
+            self._rebuild_for_scale(key)
         if key not in self._screens:
             # SOMETHING ON SCREEN BEFORE THE WORK STARTS. The build cannot
             # move off the GUI thread -- Qt forbids making widgets anywhere
@@ -4635,6 +4726,7 @@ class MainWindow(QMainWindow):
             card = self._show_preparing(key)
             try:
                 self._screens[key] = self._build_screen(key)
+                self._screen_scales[key] = _current_font_scale()
             finally:
                 self._hide_preparing(card)
             # Every screen gets the same page treatment here, because this is
@@ -4653,6 +4745,7 @@ class MainWindow(QMainWindow):
                 # Decoration must never stop a screen from opening.
                 LOG.exception("Could not theme the %s screen", key)
             self._stack.addWidget(self._screens[key])
+            self._drop_a_redundant_screen_backdrop(self._screens[key])
             try:
                 from .i18n import retranslate_widget_tree
                 retranslate_widget_tree(self._screens[key])
@@ -4814,6 +4907,78 @@ class MainWindow(QMainWindow):
                 self._retry_screen_backdrop(screen, key)
                 return
             LOG.exception("Could not install the backdrop for %s", key)
+
+    def _drop_a_redundant_screen_backdrop(self, screen) -> None:
+        """Retire a screen's own backdrop when this window already has one.
+
+        ONE BACKDROP FOR THE WINDOW. That rule is stated twice in this file
+        with its symptom attached, and both screen classes carry a guard for
+        it -- but the guard asks ``self.window()`` from the screen's own
+        ``__init__``, where the screen has no parent and so IS its own window.
+        It therefore asked the SCREEN whether it had a ``window_backdrop``,
+        got None because a screen has no such method, and never once fired.
+        HomePage had no guard at all.
+
+        The check cannot be made where it was: a widget with no parent cannot
+        know which window will take it, and asking the application for any
+        window with a backdrop is a different question with a different answer
+        (it finds another window's). So it is asked HERE instead, by the window
+        itself, at the moment it takes the screen -- which is the first moment
+        the answer exists.
+
+        MEASURED on the maintainer's 3840x2160 screen at font_scale 2 before
+        this: two visible backdrops on Home (3840x2114 with 3400x2114 laid
+        over it) and two on a module screen, each shading and blitting a
+        full-size field at 12.5 fps, the lower one covered over 87% of its
+        area. 950 paints/s and 393 Mpx/s with nobody touching the machine --
+        47 full 4K screens repainted per second for a picture nobody could
+        see. The cost is counted in pixels, so it is four times worse at 4K
+        than at 1080p, which is why this was reported from that machine.
+        Idle GUI-thread CPU fell from ~16% of a core to ~10%.
+
+        :param screen: the screen this window has just taken.
+        """
+        if self.window_backdrop() is None:
+            return
+        own = getattr(screen, "_ambient", None)
+        if own is None:
+            return
+        # RECORDED BEFORE THE WIDGET GOES. `page_fill` returns a flat colour
+        # whenever `_ambient` is None, so a screen that merely lost its own
+        # backdrop would paint that colour straight over the window's
+        # animation -- the black slab, reported three times.
+        screen._uses_window_backdrop = True
+        # RETIRED HERE, NOT BY THE SCREEN. `_discard_ambient` exists on
+        # HomePage alone -- AppScreen has no such method -- so delegating to
+        # it silently did nothing for module screens while still clearing
+        # `_ambient`, which left an orphaned widget animating with no
+        # reference to it. Stopping the timer is the part that matters: an
+        # unparented AmbientWidget awaiting deleteLater still ticks.
+        try:
+            from .widgets.ambient import AmbientWidget
+
+            doomed = [own] + [c for c in list(screen.children())
+                              if isinstance(c, AmbientWidget) and c is not own]
+        except Exception:                                    # noqa: BLE001
+            doomed = [own]
+        for child in doomed:
+            for step in ("set_animating", "setParent", "deleteLater"):
+                try:
+                    if step == "set_animating":
+                        child.set_animating(False)
+                    elif step == "setParent":
+                        child.setParent(None)
+                    else:
+                        child.deleteLater()
+                except Exception:                            # noqa: BLE001
+                    continue
+        screen._ambient = None
+        try:
+            clear = getattr(screen, "_clear_page_surfaces", None)
+            if callable(clear):
+                clear()
+        except Exception:                                    # noqa: BLE001
+            pass
 
     def window_backdrop(self):
         """The one backdrop behind the dock AND the page, or ``None``.

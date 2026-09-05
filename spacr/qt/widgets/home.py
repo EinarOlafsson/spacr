@@ -1890,7 +1890,13 @@ class HomePage(QWidget):
 
         Never raises.
         """
-        if self._ambient is not None:
+        # A backdrop the WINDOW owns counts as "a backdrop is installed".
+        # Without this the guard that declines to build a second one would
+        # leave `_ambient` None, `page_fill` would return the flat page
+        # colour, and the screen would paint that colour straight over the
+        # window's animation -- the black slab, reported three times.
+        if (self._ambient is not None
+                or getattr(self, "_uses_window_backdrop", False)):
             return None
         try:
             from ..preferences import resolve_effective_theme
