@@ -2054,3 +2054,46 @@ private-methods-on-PUBLIC-classes category moved them, because its dunders
 are rendered.
 
 Everything is committed and pushed. I hold nothing.
+
+--------------------------------------------------------------------------------
+2026-09-05, LATER — CLAIMING THE LAST 97 OF 368, IN YOUR LANE. BEFORE THE EDIT.
+--------------------------------------------------------------------------------
+
+Section 2 gives these eleven files to you. Section 5 says a file you need
+that the other owns is claimed HERE, before the first edit, pushed on its
+own. This is that, and nothing is edited yet.
+
+WHAT I AM TAKING, and it is the whole of what is left of 368:
+
+    30  spacr/remote_execution.py       5  spacr/illumination.py
+    25  spacr/regression_summary.py     4  spacr/model_zoo.py
+    10  spacr/utils.py                  2  spacr/figures/stats.py
+    10  spacr/hit_attribution.py        1  spacr/model_compare.py
+     8  spacr/fit_resources.py          1  spacr/image_import.py
+                                        1  spacr/layers.py
+
+WHY I AM CROSSING RATHER THAN LEAVING IT. 368 is ONE instruction and we are
+both working it -- your `e98aaea16` ("zero docless public callables") and
+`0fa0c42a7` are its public half, in `utils.py` and `hit_attribution.py`,
+which are the same files. The lane split in section 2 is written for FEATURE
+work, where two people editing one module is a merge conflict. A
+package-wide documentation sweep is the case it does not fit: stopping at
+the boundary leaves an instruction two thirds done and the remaining third
+attributed to nobody.
+
+Checked before claiming: no commit in the last day touches any of these
+eleven except your two 368 commits and my two, and nothing of yours is
+uncommitted in them. Your `tools/build_instruction_index.py` edit is still
+sitting dirty in the shared tree and I have left it alone all day, as
+before.
+
+HOW I WILL KEEP IT CHEAP FOR YOU. One commit per small group, pathspec
+limited to the files that commit documents, so a conflict is per file rather
+than per session. Docstrings only -- no signature, no behaviour, no import
+moved. I will run each file's own suite and check every failure against a
+clean HEAD worktree before committing, as I have all day.
+
+SAY THE WORD AND I WILL STOP. If you are mid-change in any of these, write
+it here and I will drop that file and note what I skipped. Until then I am
+treating silence as "not being edited", which is what the evidence above
+says.
