@@ -1220,6 +1220,13 @@ class FastPlot(QWidget):
 
     def __init__(self, title: str = "", x_label: str = "", y_label: str = "",
                  parent=None):
+        """Build the plot, its axes and its context menu.
+
+        :param title: the plot's title.
+        :param x_label: the x axis's label.
+        :param y_label: the y axis's label.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         #: False when pyqtgraph is absent. The widget still constructs, still
         #: lays out, and says why it is empty rather than raising.
@@ -2061,6 +2068,11 @@ class FastPlot(QWidget):
             pass
 
     def _forget_pins(self, *_args) -> None:
+        """Drop the pinned axis ranges so the next draw auto-scales.
+
+        Called when the DATA changes: a range pinned for the previous series
+        would frame the new one on limits that have nothing to do with it.
+        """
         self._pinned = {"x": None, "y": None}
 
     # -- what is drawn, and what it says about being logged ------------------
@@ -2592,6 +2604,11 @@ class FastPlot(QWidget):
         return f"{base} ({joined})" if base else joined
 
     def _relabel_axes(self) -> None:
+        """Rewrite both axis labels from their base text and current transform.
+
+        Says what is actually plotted -- a log axis labelled with the raw
+        column name reads as the raw values.
+        """
         for edge, axis in (("bottom", "x"), ("left", "y")):
             base = self._base_labels.get(edge, "")
             split = axis == "y" and self._split.get("y") is not None
@@ -4076,6 +4093,15 @@ class FastPlot(QWidget):
                 and i is not self._highlight]
 
     def _ask_threshold_multiplier(self, current, callback) -> None:
+        """Ask for a threshold multiplier and apply it to the plot.
+
+        A DIALOG RATHER THAN A CONTROL ROW, because these are settings a
+        reader changes once while looking at one figure -- a permanent row of
+        them would cost every plot the space, for a choice most never make.
+
+        :param current: the multiplier now in force.
+        :param callback: called with the new value when one is chosen.
+        """
         from PySide6.QtWidgets import QInputDialog
 
         value, ok = QInputDialog.getDouble(
@@ -4085,6 +4111,12 @@ class FastPlot(QWidget):
             callback(value)
 
     def _ask_point_size(self) -> None:
+        """Ask for a point size and apply it to the plot.
+
+        A DIALOG RATHER THAN A CONTROL ROW, because these are settings a
+        reader changes once while looking at one figure -- a permanent row of
+        them would cost every plot the space, for a choice most never make.
+        """
         from PySide6.QtWidgets import QInputDialog
 
         value, ok = QInputDialog.getDouble(
@@ -4094,6 +4126,12 @@ class FastPlot(QWidget):
                 item.setSize(value)
 
     def _ask_point_colour(self) -> None:
+        """Ask for a point colour and apply it to the plot.
+
+        A DIALOG RATHER THAN A CONTROL ROW, because these are settings a
+        reader changes once while looking at one figure -- a permanent row of
+        them would cost every plot the space, for a choice most never make.
+        """
         colour = pick_colour(self, PALETTE[0], "Point colour")
         if colour.isValid():
             # One brush for everything: this is the deliberate override of a
@@ -4103,6 +4141,12 @@ class FastPlot(QWidget):
                 item.setBrush(brush)
 
     def _ask_opacity(self) -> None:
+        """Ask for a point opacity and apply it to the plot.
+
+        A DIALOG RATHER THAN A CONTROL ROW, because these are settings a
+        reader changes once while looking at one figure -- a permanent row of
+        them would cost every plot the space, for a choice most never make.
+        """
         from PySide6.QtWidgets import QInputDialog
 
         value, ok = QInputDialog.getDouble(
@@ -4112,6 +4156,12 @@ class FastPlot(QWidget):
                 item.setOpacity(value)
 
     def _ask_labels(self) -> None:
+        """Ask for which column labels the points and apply it to the plot.
+
+        A DIALOG RATHER THAN A CONTROL ROW, because these are settings a
+        reader changes once while looking at one figure -- a permanent row of
+        them would cost every plot the space, for a choice most never make.
+        """
         from PySide6.QtWidgets import QInputDialog
 
         current_x = self.plot.getAxis("bottom").labelText
@@ -4126,6 +4176,12 @@ class FastPlot(QWidget):
         self.plot.setLabel("left", y)
 
     def _ask_font_size(self) -> None:
+        """Ask for a label font size and apply it to the plot.
+
+        A DIALOG RATHER THAN A CONTROL ROW, because these are settings a
+        reader changes once while looking at one figure -- a permanent row of
+        them would cost every plot the space, for a choice most never make.
+        """
         from PySide6.QtWidgets import QInputDialog
 
         value, ok = QInputDialog.getInt(
@@ -4134,6 +4190,12 @@ class FastPlot(QWidget):
             self.set_font_size(value)
 
     def _ask_font_colour(self) -> None:
+        """Ask for a label colour and apply it to the plot.
+
+        A DIALOG RATHER THAN A CONTROL ROW, because these are settings a
+        reader changes once while looking at one figure -- a permanent row of
+        them would cost every plot the space, for a choice most never make.
+        """
         colour = pick_colour(self, self._font_colour or self._foreground,
                              "Font colour")
         if colour.isValid():
@@ -4173,6 +4235,12 @@ class FastPlot(QWidget):
         self.set_axis_limits(x=(asked[0], asked[1]), y=(asked[2], asked[3]))
 
     def _ask_aspect_ratio(self) -> None:
+        """Ask for an aspect ratio and apply it to the plot.
+
+        A DIALOG RATHER THAN A CONTROL ROW, because these are settings a
+        reader changes once while looking at one figure -- a permanent row of
+        them would cost every plot the space, for a choice most never make.
+        """
         from PySide6.QtWidgets import QInputDialog
 
         current = self.aspect_ratio()
@@ -4231,6 +4299,12 @@ class FastPlot(QWidget):
             self.set_y_split(low, high)
 
     def _ask_colour_column(self) -> None:
+        """Ask for which column colours the points and apply it to the plot.
+
+        A DIALOG RATHER THAN A CONTROL ROW, because these are settings a
+        reader changes once while looking at one figure -- a permanent row of
+        them would cost every plot the space, for a choice most never make.
+        """
         from PySide6.QtWidgets import QInputDialog
 
         columns = self.numeric_columns()
@@ -4244,6 +4318,12 @@ class FastPlot(QWidget):
         self.colour_by_column(column, name or COLORMAPS[0])
 
     def _ask_shape_column(self) -> None:
+        """Ask for which column shapes the points and apply it to the plot.
+
+        A DIALOG RATHER THAN A CONTROL ROW, because these are settings a
+        reader changes once while looking at one figure -- a permanent row of
+        them would cost every plot the space, for a choice most never make.
+        """
         from PySide6.QtWidgets import QInputDialog
 
         columns = self.shape_columns()
@@ -4253,6 +4333,12 @@ class FastPlot(QWidget):
             self.shape_by_column(column)
 
     def _ask_screen_size(self) -> None:
+        """Ask for an on-screen size and apply it to the plot.
+
+        A DIALOG RATHER THAN A CONTROL ROW, because these are settings a
+        reader changes once while looking at one figure -- a permanent row of
+        them would cost every plot the space, for a choice most never make.
+        """
         from PySide6.QtWidgets import QInputDialog
 
         width, ok = QInputDialog.getInt(
@@ -4268,6 +4354,12 @@ class FastPlot(QWidget):
             self.set_screen_size(width, height)
 
     def _ask_export_size(self) -> None:
+        """Ask for an export size and apply it to the plot.
+
+        A DIALOG RATHER THAN A CONTROL ROW, because these are settings a
+        reader changes once while looking at one figure -- a permanent row of
+        them would cost every plot the space, for a choice most never make.
+        """
         from PySide6.QtWidgets import QInputDialog
 
         width, height = self.export_size()
@@ -4331,6 +4423,10 @@ class FastPlot(QWidget):
             self.plot.plotItem.legend.addItem(marker, label)
 
     def _toggle_legend(self, on: bool) -> None:
+        """Build the legend, or take it away.
+
+        :param on: True to show it.
+        """
         if on:
             self._build_legend()
             return
@@ -4771,6 +4867,12 @@ class FastPlot(QWidget):
         box._spacr_band = True
 
     def _clear_extra_highlights(self) -> None:
+        """Remove every highlight ring this plot has drawn.
+
+        EACH REMOVAL IS GUARDED: a ring whose item pyqtgraph has already
+        disposed of raises on removal, and one stale ring must not stop the
+        rest being cleared.
+        """
         for ring in self._extra_highlights:
             try:
                 self.plot.removeItem(ring)
@@ -5437,6 +5539,15 @@ class FastPlot(QWidget):
             f"{', '.join(name for name, _ in MARK_TYPES)}")
 
     def _on_points_clicked(self, _item, points) -> None:
+        """Select the clicked point and tell whoever is listening.
+
+        TAKES THE FIRST of an overlapping cluster. A click on dense data can
+        land on several points, and asking the user which they meant would
+        interrupt the exploration this plot exists for.
+
+        :param _item: the scatter item; unused.
+        :param points: the points under the click.
+        """
         if not len(points):
             return
         index = points[0].data()
@@ -5891,6 +6002,14 @@ class FastPlot(QWidget):
                       exc_info=True)
 
     def _show_as_kind(self, kind: str) -> None:
+        """Redraw as another chart kind, ignoring a kind this data cannot take.
+
+        SILENT because the kinds are offered by a menu built from what this
+        plot supports; a refusal here means the data changed underneath it,
+        and a dialog about that would interrupt rather than inform.
+
+        :param kind: the chart kind's name.
+        """
         try:
             self.show_as(kind)
         except Exception:                                    # noqa: BLE001
@@ -6216,6 +6335,7 @@ class VolcanoPlot(FastPlot):
     }
 
     def __init__(self, parent=None):
+        """Build the plot and its controls."""
         super().__init__(title="Volcano",
                          x_label=self.EFFECT_LABELS["fitted"],
                          y_label="-log10(p)", parent=parent)
@@ -7300,6 +7420,7 @@ class EffectRankPlot(FastPlot):
     DOWN_INK = DOWN
 
     def __init__(self, parent=None):
+        """Build the plot and its controls."""
         super().__init__(title="Effect rank", x_label="effect size",
                          y_label="", parent=parent)
         #: Every array below is in FRAME ORDER, not drawing order, because
@@ -7540,6 +7661,11 @@ class EffectRankPlot(FastPlot):
         return note
 
     def _detail(self, index: int) -> str:
+        """One point's values, for the hover readout.
+
+        :param index: the point's position in the plotted frame.
+        :returns: the readout text.
+        """
         parts = []
         if index < len(self._effects) and np.isfinite(self._effects[index]):
             value = float(self._effects[index])
@@ -7581,6 +7707,7 @@ class BinnedPlot(FastPlot):
     QUANTITY = "value"
 
     def __init__(self, *args, **kwargs):
+        """Build the plot and its controls."""
         super().__init__(*args, **kwargs)
         self._edges: Optional[np.ndarray] = None
         self._counts: Optional[np.ndarray] = None
@@ -7758,6 +7885,11 @@ class BinnedPlot(FastPlot):
         return self.highlight_bin(index)
 
     def _detail(self, index: int) -> str:
+        """One point's values, for the hover readout.
+
+        :param index: the point's position in the plotted frame.
+        :returns: the readout text.
+        """
         if index < len(self._values) and np.isfinite(self._values[index]):
             return f"{self.QUANTITY} = {self._values[index]:.3g}"
         return ""
@@ -7777,6 +7909,7 @@ class PValueHistogram(BinnedPlot):
     QUANTITY = "p"
 
     def __init__(self, parent=None):
+        """Build the plot and its controls."""
         super().__init__(title="p-value distribution", x_label="p",
                          y_label="count", parent=parent)
 
@@ -7848,6 +7981,7 @@ class EffectDistribution(BinnedPlot):
     MAD_TO_SIGMA = 1.4826
 
     def __init__(self, parent=None):
+        """Build the plot and its controls."""
         super().__init__(title="Effect distribution", x_label="effect size",
                          y_label="coefficients", parent=parent)
 
@@ -7929,6 +8063,7 @@ class QQPlot(FastPlot):
     """
 
     def __init__(self, parent=None):
+        """Build the plot and its controls."""
         super().__init__(title="p-value Q-Q", x_label="expected -log10(p)",
                          y_label="observed -log10(p)", parent=parent)
         self._p: np.ndarray = np.empty(0)
@@ -7982,6 +8117,11 @@ class QQPlot(FastPlot):
         return n
 
     def _detail(self, index: int) -> str:
+        """One point's values, for the hover readout.
+
+        :param index: the point's position in the plotted frame.
+        :returns: the readout text.
+        """
         if index < len(self._p) and np.isfinite(self._p[index]):
             return f"p = {self._p[index]:.3g}"
         return ""
@@ -7998,6 +8138,7 @@ class ResidualPlot(FastPlot):
     """
 
     def __init__(self, parent=None):
+        """Build the plot and its controls."""
         super().__init__(title="Residuals vs fitted", x_label="fitted",
                          y_label="residual", parent=parent)
         self._residual_data = None
@@ -8067,6 +8208,7 @@ class ScaleLocationPlot(FastPlot):
     """
 
     def __init__(self, parent=None):
+        """Build the plot and its controls."""
         super().__init__(title="Scale-location", x_label="fitted",
                          y_label="sqrt(|standardised residual|)",
                          parent=parent)
@@ -8142,6 +8284,7 @@ class InfluencePlot(FastPlot):
     INFLUENTIAL = HIGHLIGHT
 
     def __init__(self, parent=None):
+        """Build the plot and its controls."""
         super().__init__(title="Leverage vs standardised residual",
                          x_label="leverage", y_label="standardised residual",
                          parent=parent)
@@ -8203,6 +8346,11 @@ class InfluencePlot(FastPlot):
         return n
 
     def _detail(self, index: int) -> str:
+        """One point's values, for the hover readout.
+
+        :param index: the point's position in the plotted frame.
+        :returns: the readout text.
+        """
         if index < len(self._cooks) and np.isfinite(self._cooks[index]):
             return f"Cook's D = {self._cooks[index]:.3g}"
         return ""
@@ -8233,6 +8381,7 @@ class GroupedPlot(FastPlot):
     MARK_CENTRE = "mean"
 
     def __init__(self, *args, **kwargs):
+        """Build the plot and its controls."""
         super().__init__(*args, **kwargs)
         self._mark = self.DEFAULT_MARK
         self._offer_marks()
@@ -8336,6 +8485,7 @@ class ControlSeparation(GroupedPlot):
     MARK_WIDTH = 0.35
 
     def __init__(self, parent=None):
+        """Build the plot and its controls."""
         super().__init__(title="Control separation", x_label="",
                          y_label="effect", parent=parent)
         self._effects: np.ndarray = np.empty(0)
@@ -8474,6 +8624,11 @@ class ControlSeparation(GroupedPlot):
         return None
 
     def _detail(self, index: int) -> str:
+        """One point's values, for the hover readout.
+
+        :param index: the point's position in the plotted frame.
+        :returns: the readout text.
+        """
         parts = []
         name = self.group_of(index)
         if name:
@@ -8513,6 +8668,7 @@ class GuideAgreementPlot(GroupedPlot):
     MARK_WIDTH = 0.7
 
     def __init__(self, parent=None):
+        """Build the plot and its controls."""
         super().__init__(title="Guide agreement", x_label="guides per gene",
                          y_label="fraction agreeing in sign", parent=parent)
         self._support = None
@@ -8694,6 +8850,11 @@ class GuideAgreementPlot(GroupedPlot):
         return drawn
 
     def _detail(self, index: int) -> str:
+        """One point's values, for the hover readout.
+
+        :param index: the point's position in the plotted frame.
+        :returns: the readout text.
+        """
         frame = self._support
         if frame is None or not len(frame):
             return ""
@@ -8735,6 +8896,7 @@ class ResultsTable(QWidget):
     keys_selected = Signal(list)
 
     def __init__(self, parent=None):
+        """Build the table and its filter row."""
         super().__init__(parent)
         from PySide6.QtWidgets import (QAbstractItemView, QLineEdit,
                                        QTableWidget)
@@ -8866,6 +9028,7 @@ class ResultsTable(QWidget):
         self._apply_filter()
 
     def _apply_filter(self) -> None:
+        """Show only the rows matching the filter box."""
         text = self._filter.text().strip().lower()
         hits_only = self._only_hits.isChecked()
         # The significance cut needs the frame to find its column in. Without
@@ -8908,6 +9071,7 @@ class ResultsTable(QWidget):
         self._count.setText(note)
 
     def _on_selection(self) -> None:
+        """Tell whoever is listening which row was selected."""
         items = self.table.selectedItems()
         if not items:
             return
