@@ -111,6 +111,13 @@ class CropThumbnails:
 
     def __init__(self, db_path: str = "", *, size: int = DEFAULT_SIZE,
                  capacity: int = DEFAULT_CAPACITY):
+        """Create the thumbnail cache.
+
+        :param db_path: measurements database the crops are read from.
+        :param size: longest edge of a decoded thumbnail, in pixels.
+        :param capacity: how many thumbnails to keep; the least recently used
+            are dropped first.
+        """
         self.db_path = str(db_path or "")
         self.size = max(16, int(size))
         self.capacity = max(1, int(capacity))
@@ -205,6 +212,14 @@ class CropThumbnails:
 
     def _store(self, key: Tuple[Any, ...],
                pixmap: Optional[QPixmap]) -> None:
+        """Put one decoded thumbnail in the cache and evict down to capacity.
+
+        A ``None`` is cached too: a crop that could not be decoded must not be
+        retried on every hover.
+
+        :param key: the cache key.
+        :param pixmap: the decoded thumbnail, or ``None`` for a failed decode.
+        """
         self._cache[key] = pixmap
         self._cache.move_to_end(key)
         self._last_used[key] = time.time()
@@ -259,9 +274,15 @@ class CropThumbnails:
         return self.pixmap(path)
 
     def __len__(self) -> int:
+        """Return how many entries the cache holds."""
         return len(self._cache)
 
     def __contains__(self, path: object) -> bool:
+        """Report whether a crop path is cached.
+
+        :param path: the crop path; coerced with :func:`str`.
+        :returns: ``True`` if it has an entry, including a cached failure.
+        """
         return self._key(str(path)) in self._cache
 
     def clear(self) -> None:
