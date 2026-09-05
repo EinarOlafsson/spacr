@@ -133,6 +133,24 @@ class Section(QFrame):
     toggled = Signal(bool)
 
     def __init__(self, title: str, parent=None, expanded: bool = False):
+        """Build one collapsible settings category.
+
+        The title is kept as written and uppercased only on the way to the
+        button, because the translation catalogue is keyed on the written
+        name -- looking up an already-uppercased caption finds nothing and
+        leaves the header in English. The ``&`` in a name like "Plate Layout &
+        Controls" is escaped for display, since a ``QToolButton`` would
+        otherwise read it as a mnemonic and swallow it.
+
+        The form's field-growth policy is named explicitly rather than left to
+        the platform style: a style answering ``FieldsStayAtSizeHint`` -- valid,
+        and what one reporter's platform chose -- gave a field 108 px in a
+        section that Fusion gives 1,115.
+
+        :param title: the category name, as written.
+        :param parent: parent widget, or ``None``.
+        :param expanded: open the category immediately.
+        """
         super().__init__(parent)
         self.setObjectName("SectionCard")
         self._expanded = False
@@ -469,6 +487,12 @@ class Section(QFrame):
         return self._expanded
 
     def _apply_maturity(self, widget, *, setting: bool = False) -> None:
+        """Stamp the maturity on a widget and repolish it so the style follows.
+
+        :param widget: the widget to stamp; anything else is ignored.
+        :param setting: stamp the per-setting property rather than the
+            category's.
+        """
         if not isinstance(widget, QWidget):
             return
         prop = "settingMaturity" if setting else "maturity"
@@ -478,6 +502,16 @@ class Section(QFrame):
         style.polish(widget)
 
     def _refresh_header_text(self, language: Optional[str] = None) -> None:
+        """Rebuild the header caption from its translated parts.
+
+        The caption is composed -- the category name, plus a badge for beta or
+        alpha -- so the generic language pass would look up the finished line as
+        one key and never find it. That pass is kept off the button and the
+        caption rebuilt here whenever the language changes.
+
+        :param language: the language to build for; ``None`` uses the current
+            one.
+        """
         text = tr(self._title_source, language).upper()
         if self._maturity != "stable":
             stage = tr(STAGE_LABEL[self._maturity], language).upper()
@@ -597,6 +631,12 @@ class Section(QFrame):
         # Stable is the normal case, so preserve existing curated tooltips
         # byte-for-byte. Beta/alpha need the caution text because their colour
         # carries information the old tooltip did not.
+        """Rebuild the header tooltip, adding the caution text off stable.
+
+        Stable is the normal case and keeps its curated tooltip byte for byte;
+        beta and alpha need the note, because their colour carries information
+        the old tooltip did not.
+        """
         note = (
             STAGE_NOTE.get(self._maturity, "")
             if self._maturity != "stable"

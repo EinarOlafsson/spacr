@@ -115,6 +115,13 @@ class ProjectBrowserScreen(QWidget):
     def __init__(self, parent: Optional[QWidget] = None, *,
                  threaded: bool = True,
                  roots: Tuple[str, ...] = ()) -> None:
+        """Build the project browser.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: scan on a worker thread. Set ``False`` in tests so a
+            refresh finishes before it returns.
+        :param roots: folders to scan for projects.
+        """
         super().__init__(parent)
         self.setObjectName("ProjectBrowser")
         self._summaries: Tuple = ()
@@ -334,6 +341,7 @@ class ProjectBrowserScreen(QWidget):
             self.rescan()
 
     def _refresh_root_list(self) -> None:
+        """Rebuild the list of scanned root folders."""
         self._root_list.clear()
         for path in self._roots:
             self._root_list.addItem(QListWidgetItem(path))
@@ -403,6 +411,14 @@ class ProjectBrowserScreen(QWidget):
 
     # -- the table ----------------------------------------------------------
     def _fill_table(self) -> None:
+        """Fill the project table, one row per project found.
+
+        Sorting is switched off while rows are inserted, or the table re-orders
+        on every write and the next row index is no longer the row just filled.
+        Each row carries its project root, so a re-sorted table still selects
+        the project the user clicked rather than whatever is now at that index,
+        and the size column sorts on its byte count rather than on ``"1.2 GB"``.
+        """
         from ...data_manager import human_bytes
 
         # Sorting is switched off while rows are inserted: a sorted table
@@ -454,9 +470,15 @@ class ProjectBrowserScreen(QWidget):
         return None
 
     def _on_selection_changed(self) -> None:
+        """Show the detail for the newly selected project."""
         self.show_detail(self.selected_root())
 
     def _on_double_clicked(self, _item) -> None:
+        """Announce the double-clicked project as the one chosen.
+
+        :param _item: the activated cell; the root is read off the selection, so
+            it is not used.
+        """
         root = self.selected_root()
         if root:
             self.project_chosen.emit(root)

@@ -97,6 +97,13 @@ class TabulateScreen(QWidget):
     """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
+        """Build the screen: the pivot builder beside the shared filter.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link.
+        :param threaded: read the database on a worker thread. Set ``False`` in
+            tests so a load finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("TabulateScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -190,6 +197,12 @@ class TabulateScreen(QWidget):
             label or f"{len(frame):,} rows × {len(frame.columns)} columns")
 
     def _filtered(self) -> Optional[pd.DataFrame]:
+        """Narrow the loaded frame to the rows the shared filter allows.
+
+        :returns: the visible rows, ``None`` when nothing is loaded, and the
+            whole frame when the filter does not apply here -- a filter written
+            against another table should not empty this screen.
+        """
         if self._frame is None:
             return None
         try:
@@ -277,11 +290,21 @@ class TabulateScreen(QWidget):
         return self._jobs.is_busy()
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 
     # -- filter -----------------------------------------------------------
     def _on_filter_changed(self) -> None:
+        """Queue a re-aggregation after the shared filter changed.
+
+        Debounced, so dragging a filter handle re-aggregates once rather than
+        per step.
+        """
         if self._frame is not None:
             self._refilter.start()
 
@@ -297,6 +320,10 @@ class TabulateScreen(QWidget):
 
     # -- results ----------------------------------------------------------
     def _on_computed(self, result) -> None:
+        """Say how many source rows became how large a table.
+
+        :param result: the computed pivot.
+        """
         rows, cols = result.shape
         self._source.setText(
             f"{result.n_source_rows:,} rows → {rows:,} × {cols:,} table")

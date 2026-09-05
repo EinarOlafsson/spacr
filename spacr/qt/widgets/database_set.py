@@ -178,6 +178,32 @@ class DatabaseSetWidget(QWidget):
                  min_items: int = 0,
                  on_colour_by: Optional[Callable[[Optional[str]], None]] = None,
                  threaded: Optional[bool] = None):
+        """Build the multi-database chooser.
+
+        The reads leave the GUI thread deliberately: the summary stats every
+        database and then opens each with sqlite, over paths that are the user's
+        own -- one of them an autofs mount that had not answered a single stat
+        after twenty seconds -- and doing that while a settings panel lays out
+        froze the application. Two runners rather than one, because
+        ``job_finished`` carries a bool and no job identity: a shared runner
+        could not tell whose failure it was being told about, so the restore
+        check failing would clear the summary read's in-flight flag and paint
+        its error over a read still running.
+
+        :param value: the sources to start with.
+        :param parent: parent widget, or ``None``.
+        :param mode: ``"folder"`` for spaCR project folders, anything else for
+            measurement databases.
+        :param table: which table the merge summary is computed over.
+        :param title: the file-dialog caption; defaults by mode.
+        :param min_items: how many sources must remain; chips below this are
+            not removable.
+        :param on_colour_by: called with the source column when the user asks
+            for the map to be coloured by database, and with ``None`` when they
+            stop.
+        :param threaded: run the reads on a worker thread; ``None`` follows the
+            process default.
+        """
         super().__init__(parent)
         self.setObjectName("DatabaseSetWidget")
         self._mode = "folder" if mode == "folder" else "database"
@@ -516,6 +542,15 @@ class DatabaseSetWidget(QWidget):
     # -- internals ---------------------------------------------------------
     @staticmethod
     def _clean(value) -> List[str]:
+        """Normalise a stored value into a list of source paths.
+
+        The settings placeholders for an unchosen ``src`` are dropped rather
+        than kept: rendering ``path`` as a chip would offer to merge a database
+        called "path".
+
+        :param value: ``None``, one path, or an iterable of them.
+        :returns: the paths, de-duplicated and in order.
+        """
         if value is None:
             return []
         if isinstance(value, str):
@@ -549,12 +584,22 @@ class DatabaseSetWidget(QWidget):
                     for p in self._sources]
 
     def _rebuild(self) -> None:
+        """Redraw the chips, re-read the summary and re-gate the colour switch.
+
+        The switch appears only with a callback to answer and more than one
+        source -- colouring by database says nothing about a set of one.
+        """
         self._rebuild_chips()
         self._refresh_summary()
         self.colour_by_source.setVisible(
             self._on_colour_by is not None and len(self._sources) > 1)
 
     def _rebuild_chips(self) -> None:
+        """Rebuild the source chips, keeping the trailing stretch.
+
+        Chips stop being removable at ``min_items``, so the set cannot be
+        emptied below what the module requires.
+        """
         while self._chips.count() > 1:
             item = self._chips.takeAt(0)
             widget = item.widget()
@@ -715,6 +760,13 @@ class DatabaseSetWidget(QWidget):
         return "\n".join(lines)
 
     def _on_colour_toggled(self, on: bool) -> None:
+        """Ask the owning panel to colour by source, or to stop.
+
+        :param on: the switch's new state. A merged embedding whose clusters
+            turn out to be the plates rather than biology is the most important
+            thing a multi-database map can show, and it can only show it when
+            the points are coloured by where they came from.
+        """
         if self._on_colour_by is None:
             return
         from ...multi_database import SOURCE_COLUMN
