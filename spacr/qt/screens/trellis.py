@@ -66,6 +66,13 @@ class TrellisScreen(QWidget):
     """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
+        """Build the screen: the trellis panel beside the filter and column tabs.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link, passed to the panel and the filter.
+        :param threaded: read the database on a worker thread. Set ``False`` in
+            tests so a load finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("TrellisScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -158,6 +165,7 @@ class TrellisScreen(QWidget):
         self.filters.set_frame(frame)
 
     def _on_formulas_changed(self) -> None:
+        """Recompute the derived columns and push the frame back to the panel."""
         self._push_frame()
 
     def choose_table(self) -> None:
@@ -215,12 +223,21 @@ class TrellisScreen(QWidget):
                   f"× {len(frame.columns)} columns")
 
     def _on_load_failed(self, message: str) -> None:
+        """Log and show a failed table load.
+
+        :param message: the failure text from the job runner.
+        """
         path = self._path or ""
         LOG.info("could not read %s: %s", path, message)
         self._source.setText(
             f"could not read {os.path.basename(path)}: {message}")
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 

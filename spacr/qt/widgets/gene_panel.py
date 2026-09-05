@@ -129,6 +129,21 @@ class GenePanel(QWidget):
 
     def __init__(self, frame_provider: Optional[Callable[[], Any]] = None,
                  *, threaded: bool = True, parent=None):
+        """Build the gene panel: the record above what spaCR knows about it.
+
+        The annotation lookup is warmed on a worker, and only once the panel has
+        actually been shown: a panel re-set with the same table on every filter
+        move would otherwise start a thread per redraw for no new genes at all.
+        The thread's lifetime is guarded twice, because Qt aborts the process if
+        a running ``QThread`` is destroyed and a panel can be dropped without
+        ever being closed -- a tab rebuilt, a screen replaced, an interpreter
+        shutting down.
+
+        :param frame_provider: called for the coefficient table the record half
+            reads its numbers from.
+        :param threaded: warm the annotation lookup on a worker thread.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         from ..job_runner import JobRunner
 
@@ -325,6 +340,18 @@ class GenePanel(QWidget):
         self.tile_shown.emit(self.summary.feature or str(key))
 
     def _render_known(self, tile) -> None:
+        """Render what spaCR knows about the resolved gene, or why it knows nothing.
+
+        Every unavailable case says which one it is -- the gene did not resolve,
+        the lookup is still warming, the term carries no gene number, the fact
+        source is not installed -- because they are different problems and only
+        one of them is worth acting on.
+
+        An ambiguous term gets a heading per candidate: three products under one
+        heading would read as one protein with three names.
+
+        :param tile: the resolved gene tile, or ``None`` when nothing resolved.
+        """
         import html as _html
 
         from ... import gene_facts
@@ -402,6 +429,11 @@ class GenePanel(QWidget):
         return ""
 
     def _update_topology_button(self) -> None:
+        """Enable the topology export, or say why it is unavailable.
+
+        It is the one control here that leaves a file behind, so it is the one
+        that has to explain a refusal rather than simply going grey.
+        """
         reason = self.topology_reason()
         self.topology_button.setEnabled(not reason)
         self.topology_button.setToolTip(
@@ -427,6 +459,12 @@ class GenePanel(QWidget):
         return annotation.supplementary(genes, path) is not None
 
     def _ask_to_save_topology(self) -> None:
+        """Ask where to write the DeepTMHMM topology CSV and write it.
+
+        A failure is reported on the status line rather than raised: losing the
+        panel because an export could not be written would be worse than not
+        having the file.
+        """
         genes = "_".join(known.gene for known in self._facts if known.gene)
         path, _filter = QFileDialog.getSaveFileName(
             self, "Save DeepTMHMM topology",

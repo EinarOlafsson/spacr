@@ -75,6 +75,14 @@ class FeatureExplorerPanel(QWidget):
     feature_selected = Signal(str)
 
     def __init__(self, parent=None):
+        """Build the feature ranking table beside its distribution plot.
+
+        Each statistic's blind spot is on the picker's tooltip rather than in a
+        manual: which differences it cannot see is the thing a reader needs
+        before trusting a ranking made with it.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("FeatureExplorerPanel")
         self._frame: Optional[pd.DataFrame] = None
@@ -263,6 +271,12 @@ class FeatureExplorerPanel(QWidget):
 
     # -- ranking ----------------------------------------------------------
     def _schedule(self, *_args) -> None:
+        """Queue a re-rank after a control changed.
+
+        Debounced, so nudging the top-N spinner ranks once rather than per step.
+
+        :param _args: whatever the emitting control passes; ignored.
+        """
         self._debounce.start()
 
     def rank_now(self) -> Optional[ExplorerResult]:
@@ -300,6 +314,18 @@ class FeatureExplorerPanel(QWidget):
         self._canvas.draw_idle()
 
     def _fill_table(self, result: ExplorerResult) -> None:
+        """Fill the ranking table and select its first row.
+
+        Two kinds of row are marked rather than dropped: one whose difference is
+        a change of shape rather than of location, and one scoring at or below
+        the shuffle threshold -- a feature no better than chance is worth
+        seeing, greyed, rather than silently omitted.
+
+        Signals are blocked while filling, and the selection change is announced
+        afterwards only if it actually moved.
+
+        :param result: the computed ranking.
+        """
         previous_feature = self.selected_feature()
         palette = active_palette()
         signals_were_blocked = self.table.blockSignals(True)
@@ -379,6 +405,12 @@ class FeatureExplorerPanel(QWidget):
         self._canvas.draw_idle()
 
     def _on_row_changed(self, row: int, *_args) -> None:
+        """Announce the feature on the newly selected row.
+
+        :param row: the new row.
+        :param _args: the remaining cell-change arguments; unused, since the row
+            is what identifies the feature.
+        """
         item = self.table.item(row, 0)
         if item is not None:
             self.feature_selected.emit(item.data(Qt.UserRole))

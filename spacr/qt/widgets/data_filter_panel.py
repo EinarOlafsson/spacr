@@ -338,6 +338,13 @@ class DataFilterPanel(QWidget):
     filter_changed = Signal()
 
     def __init__(self, parent=None, *, link=None):
+        """Build the shared-filter panel.
+
+        :param parent: parent widget, or ``None``.
+        :param link: the selection link to publish into. Injectable so a test
+            drives a private one rather than the process-wide link every other
+            open view is listening to.
+        """
         super().__init__(parent)
         self.setObjectName("DataFilterPanel")
         # Injectable so a test can drive a private instance rather than the
@@ -449,12 +456,18 @@ class DataFilterPanel(QWidget):
         self._schedule()
 
     def _add_selected(self) -> None:
+        """Add a clause on the column currently in the picker."""
         text = self._picker.currentText()
         if text:
             self.add_column(text)
 
     # -- publishing ----------------------------------------------------
     def _schedule(self) -> None:
+        """Queue a re-filter.
+
+        One debounce is shared across every clause, so a burst of edits over
+        several of them still costs one re-filter.
+        """
         self._debounce.start()
 
     # -- saving a filter set -------------------------------------------
@@ -528,6 +541,11 @@ class DataFilterPanel(QWidget):
         return data_filter
 
     def _publish(self) -> None:
+        """Publish the assembled filter and restate it.
+
+        The summary is written from the filter's own description rather than
+        from the widgets, so what is shown is what was actually published.
+        """
         data_filter = self.current_filter()
         self._summary.setText(data_filter.describe())
         self._link.set_filter(data_filter)

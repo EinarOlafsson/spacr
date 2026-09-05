@@ -190,6 +190,17 @@ class HitListScreen(QWidget):
     def __init__(self, parent=None, folder: str = "",
                  metadata_files: Sequence[str] = (),
                  regression_type: str = "", threaded: bool = True):
+        """Build the hit-list screen and arm its drop zone.
+
+        :param parent: parent widget, or ``None``.
+        :param folder: regression results folder to load immediately; empty
+            leaves the screen asking for one.
+        :param metadata_files: extra metadata tables to join onto the hits.
+        :param regression_type: which fit produced the results, when the caller
+            already knows.
+        :param threaded: read on a worker thread. Set ``False`` in tests so
+            ``load_folder`` finishes before it returns.
+        """
         super().__init__(parent)
         self._all: Optional[HitList] = None
         self._shown: Optional[HitList] = None
@@ -559,13 +570,16 @@ class HitListScreen(QWidget):
     # returns. Driven by stubbing the Qt static, in
     # tests/qt/test_the_modal_slots_do_what_the_dialog_returns.py.
     def _on_export_csv(self) -> None:
+        """Ask where to write the hit list and export it as CSV."""
         self._ask_and_export("csv", "Export hit list", "CSV (*.csv)")
 
     def _on_export_markdown(self) -> None:
+        """Ask where to write the hit list and export it as Markdown."""
         self._ask_and_export("markdown", "Export hit list",
                              "Markdown (*.md)")
 
     def _on_export_html(self) -> None:
+        """Ask where to write the hit list and export it as HTML."""
         self._ask_and_export("html", "Export hit list", "HTML (*.html)")
 
     def _on_investigate_selected(self) -> None:

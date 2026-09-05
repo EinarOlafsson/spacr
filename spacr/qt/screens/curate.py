@@ -49,6 +49,10 @@ class CurateScreen(QWidget):
     mask_opened = Signal(str)
 
     def __init__(self, parent=None):
+        """Build the curation screen and arm its drop zone.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("CurateScreen")
         self._mask_path = ""
@@ -66,6 +70,7 @@ class CurateScreen(QWidget):
 
     # -- construction --------------------------------------------------------
     def _build(self) -> None:
+        """Lay out the mask and track source rows, the viewer and the tool tabs."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -142,6 +147,7 @@ class CurateScreen(QWidget):
 
     # -- the mask ------------------------------------------------------------
     def _choose_mask(self) -> None:
+        """Ask for a label mask and open it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a label mask", self._mask_edit.text().strip(),
             "Masks (*.tif *.tiff *.png *.npy);;All files (*)")
@@ -179,6 +185,7 @@ class CurateScreen(QWidget):
 
     # -- the tracks ----------------------------------------------------------
     def _choose_tracks(self) -> None:
+        """Ask for a tracks table and open it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a tracks table", self._tracks_edit.text().strip(),
             "CSV (*.csv);;All files (*)")
