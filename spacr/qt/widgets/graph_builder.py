@@ -203,6 +203,10 @@ class ColumnWell(QWidget):
     """
 
     def __init__(self, parent=None):
+        """Build the well of draggable columns.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("GraphColumnWell")
         self._columns: Tuple[str, ...] = ()
@@ -260,6 +264,7 @@ class ColumnWell(QWidget):
                 for i in range(self._list.count())]
 
     def _refilter(self) -> None:
+        """Re-list the columns matching the search box."""
         needle = self._search.text().strip().lower()
         self._list.clear()
         for name in self._columns:
@@ -319,6 +324,12 @@ class DropZone(QFrame):
     column_changed = Signal(str, str)
 
     def __init__(self, channel: str, parent=None):
+        """Build one channel's drop target.
+
+        :param channel: the channel this zone binds.
+        :param label: its caption.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         if channel not in CHANNELS:
             raise ValueError(f"unknown channel {channel!r}")
@@ -385,6 +396,11 @@ class DropZone(QFrame):
 
     # -- drag and drop --------------------------------------------------
     def _accepts(self, event) -> bool:
+        """Whether this drag carries a column this zone can take.
+
+        :param event: the Qt drag event.
+        :returns: True when droppable.
+        """
         return event.mimeData() is not None and \
             event.mimeData().hasFormat(COLUMN_MIME)
 
@@ -623,6 +639,10 @@ class GraphCanvas(LinkedView, QWidget):
     rendered = Signal(object)
 
     def __init__(self, parent=None, *, link=None, source: str = "graph_builder"):
+        """Build the canvas and link it to the shared selection.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("GraphCanvas")
         self._frame: Optional[pd.DataFrame] = None
@@ -655,6 +675,7 @@ class GraphCanvas(LinkedView, QWidget):
         self.link_selection(source, link=link)
 
     def _build_ui(self) -> None:
+        """Lay out the figure and its toolbar."""
         from matplotlib.figure import Figure
 
         outer = QVBoxLayout(self)
@@ -878,6 +899,14 @@ class GraphCanvas(LinkedView, QWidget):
         self.rendered.emit(data)
 
     def _render_message(self, text: str) -> None:
+        """Draw a sentence in place of a chart.
+
+        FOR THE STATES A CHART CANNOT SHOW: no columns bound yet, a column
+        that is all null, a filter that left nothing. An empty axes would look
+        like a bug rather than an answer.
+
+        :param text: what to say.
+        """
         palette = active_palette()
         ax = self._figure.add_subplot(111)
         _page_surface_axes(ax, palette)
@@ -939,6 +968,11 @@ class GraphCanvas(LinkedView, QWidget):
         ax.tick_params(colors=palette["fg_muted"], labelsize=8, length=3)
 
     def _series_colour(self, index: int) -> str:
+        """The colour one series is drawn in.
+
+        :param index: the series' position.
+        :returns: the colour.
+        """
         order = categorical_colours()
         return order[index] if index < len(order) else OTHER_COLOUR
 
@@ -969,6 +1003,11 @@ class GraphCanvas(LinkedView, QWidget):
                           linewidths=0.0, alpha=self.POINT_ALPHA)
 
     def _sizes(self, rows: pd.DataFrame) -> np.ndarray:
+        """One marker size per point, from the size channel if bound.
+
+        :param frame: the rows being plotted.
+        :returns: the sizes.
+        """
         spec = self._spec
         base = np.full(len(rows), float(self.POINT_SIZE_BASE))
         limits = getattr(self._scales, "size_limits", None)
@@ -1035,6 +1074,11 @@ class GraphCanvas(LinkedView, QWidget):
         return None
 
     def _xy(self, rows: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+        """The x and y arrays for the bound channels.
+
+        :param frame: the rows being plotted.
+        :returns: the two arrays.
+        """
         spec, scales = self._spec, self._scales
         def axis(column, levels):
             """One axis's values and its level order, or empty when unset."""
@@ -1070,6 +1114,11 @@ class GraphCanvas(LinkedView, QWidget):
         """
 
     def _draw_points(self, ax, rows, mask, kind, palette) -> Callable:
+        """Draw the data as a scatter.
+
+        :param ax: the axes to draw into.
+        :param data: what to plot.
+        """
         spec = self._spec
         x, y = self._xy(rows)
         if kind == LINE:
@@ -1153,6 +1202,11 @@ class GraphCanvas(LinkedView, QWidget):
                   interpolation="nearest")
 
     def _draw_histogram(self, ax, rows, mask, palette) -> None:
+        """Draw the data as a histogram.
+
+        :param ax: the axes to draw into.
+        :param data: what to plot.
+        """
         spec, scales = self._spec, self._scales
         column = spec.x or spec.y
         values = pd.to_numeric(rows[column], errors="coerce").to_numpy(float)
@@ -1183,6 +1237,11 @@ class GraphCanvas(LinkedView, QWidget):
                    label="selected")
 
     def _draw_bar(self, ax, rows, mask, palette) -> None:
+        """Draw the data as bars.
+
+        :param ax: the axes to draw into.
+        :param data: what to plot.
+        """
         spec, scales = self._spec, self._scales
         column = spec.x or spec.y
         levels = list(scales.x_levels or scales.y_levels or ())
@@ -1297,6 +1356,11 @@ class GraphCanvas(LinkedView, QWidget):
                        linewidths=0.0, zorder=3)
 
     def _draw_distribution(self, ax, rows, kind, palette) -> None:
+        """Draw the data as a distribution.
+
+        :param ax: the axes to draw into.
+        :param data: what to plot.
+        """
         spec, scales = self._spec, self._scales
         categorical_on_x = bool(scales.x_levels)
         cat_column = spec.x if categorical_on_x else spec.y
@@ -1342,6 +1406,11 @@ class GraphCanvas(LinkedView, QWidget):
                     line.set_linewidth(0.9)
 
     def _draw_heatmap(self, ax, rows, palette) -> None:
+        """Draw the data as a heatmap.
+
+        :param ax: the axes to draw into.
+        :param data: what to plot.
+        """
         spec, scales = self._spec, self._scales
         x_levels = list(scales.x_levels or ())
         y_levels = list(scales.y_levels or ())
@@ -1453,6 +1522,13 @@ class GraphCanvas(LinkedView, QWidget):
             legend.get_title().set_color(palette["fg_muted"])
 
     def _notice_text(self, data: RenderData, grid) -> str:
+        """The sentence explaining why the chart looks the way it does.
+
+        SAYS WHAT WAS DONE TO THE DATA -- sampled, binned, or clipped -- so a
+        reader does not take a thinned scatter for the whole set.
+
+        :returns: the notice, or ``""`` when nothing was done.
+        """
         parts = [data.notice]
         if grid.notice:
             parts.append(grid.notice)
@@ -1521,12 +1597,20 @@ class GraphCanvas(LinkedView, QWidget):
         return self.publish_selection(picked)
 
     def _on_press(self, event) -> None:
+        """Begin a rubber-band selection.
+
+        :param event: the matplotlib press event.
+        """
         if event.inaxes is None or event.xdata is None:
             return
         self._drag_origin = (event.inaxes, float(event.xdata),
                              float(event.ydata))
 
     def _on_motion(self, event) -> None:
+        """Grow the rubber band.
+
+        :param event: the matplotlib motion event.
+        """
         if self._drag_origin is None or event.inaxes is not self._drag_origin[0]:
             return
         if event.xdata is None or event.ydata is None:
@@ -1545,6 +1629,10 @@ class GraphCanvas(LinkedView, QWidget):
     # wrong thing about what they are about to make.
 
     def _drag_patch_style(self) -> dict:
+        """How the rubber band is drawn.
+
+        :returns: the patch keyword arguments.
+        """
         palette = active_palette()
         return {"facecolor": palette["accent"], "alpha": 0.18,
                 "edgecolor": palette["accent"], "linewidth": 1.0,
@@ -1563,6 +1651,10 @@ class GraphCanvas(LinkedView, QWidget):
                          abs(x1 - x0), abs(y1 - y0))
 
     def _on_release(self, event) -> None:
+        """Finish the selection and broadcast it to the linked views.
+
+        :param event: the matplotlib release event.
+        """
         origin, self._drag_origin = self._drag_origin, None
         if self._drag_patch is not None:
             try:
@@ -1631,6 +1723,10 @@ class GraphBuilderPanel(QWidget):
 
     def __init__(self, parent=None, *, link=None,
                  source: str = "graph_builder"):
+        """Build the well, the drop zones and the canvas.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("GraphBuilderPanel")
         self._zones: Dict[str, DropZone] = {}
@@ -1772,12 +1868,18 @@ class GraphBuilderPanel(QWidget):
             self._building = False
 
     def _on_zone_changed(self, channel: str, column: str) -> None:
+        """Rebind a channel and redraw.
+
+        :param channel: the channel that changed.
+        :param column: the column now bound, or ``""`` to clear it.
+        """
         if self._building:
             return
         self.canvas.set_channel(channel, column or None)
         self.spec_changed.emit(self.canvas.spec)
 
     def _on_controls_changed(self, *_args) -> None:
+        """Redraw after a plot-type or scale control moved."""
         if self._building:
             return
         from dataclasses import replace as _replace
