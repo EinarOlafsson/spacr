@@ -246,6 +246,11 @@ class PairedFileTableWidget(QWidget):
                      "database on a plate row to attach it to that plate.")
 
     def __init__(self, value=None, parent=None):
+        """Build the one-row-per-plate table.
+
+        :param value: the rows already saved.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._scores: list[str] = []
         self._counts: list[str] = []
@@ -550,12 +555,23 @@ class PairedFileTableWidget(QWidget):
         return None
 
     def _anchor_for_row(self, row: int) -> dict:
+        """The path a row's other cells are resolved against.
+
+        :param row: the row's position.
+        :returns: the anchor path, or None when the row has none yet.
+        """
         return {key: self._cell(row, column) or None
                 for key, column in (("plate", 0),
                                     ("score", self.SIDE_COLUMNS["score"]),
                                     ("count", self.SIDE_COLUMNS["count"]))}
 
     def _cell(self, row: int, column: int) -> str:
+        """One cell's text.
+
+        :param row: the row's position.
+        :param column: the column's position.
+        :returns: the text, empty when the cell is blank.
+        """
         item = self.table.item(row, column)
         return item.text().strip() if item else ""
 
@@ -666,6 +682,11 @@ class PairedFileTableWidget(QWidget):
         return missing
 
     def _row_of_database(self, database: str):
+        """Which row already holds this database, if any.
+
+        :param database: the database path.
+        :returns: the row's position, or None.
+        """
         column = self.SIDE_COLUMNS["database"]
         for index in range(self.table.rowCount()):
             if self._cell(index, column) == database:
@@ -673,6 +694,15 @@ class PairedFileTableWidget(QWidget):
         return None
 
     def _first_row_without_database(self, exclude=None):
+        """The first row still waiting for a database.
+
+        SO A DROP FILLS A GAP rather than always appending: a user who dropped
+        scores first and databases second expects the second drop to complete
+        the rows, not to start new ones.
+
+        :param exclude: a row to skip.
+        :returns: the row's position, or None when every row has one.
+        """
         column = self.SIDE_COLUMNS["database"]
         for index in range(self.table.rowCount()):
             if index == exclude:
@@ -696,6 +726,11 @@ class PairedFileTableWidget(QWidget):
 
     @staticmethod
     def _database_item(value: str) -> QTableWidgetItem:
+        """One table cell holding a database path.
+
+        :param value: the path.
+        :returns: the cell.
+        """
         item = table_item(str(value))
         if value and not path_probe.exists(str(value)):
             # Marked, not discarded: the path may be right and the disk
@@ -707,11 +742,22 @@ class PairedFileTableWidget(QWidget):
         return item
 
     def _describe_row(self, row: int, database: str, verb: str) -> str:
+        """One line saying what a row now holds, for the status area.
+
+        :param row: the row's position.
+        :param database: the database it holds.
+        :param verb: what just happened to it.
+        :returns: the description.
+        """
         plate = self._cell(row, 0)
         label = f"{plate} (row {row + 1})" if plate else f"row {row + 1}"
         return f"{os.path.basename(database)} {verb} {label}."
 
     def _refresh_status(self, message: str = "") -> None:
+        """Put one line in the status area.
+
+        :param message: the line.
+        """
         rows = self.get_value()
         parts = [message] if message else []
         attached = [row for row in rows if row.get("database")]
@@ -732,6 +778,11 @@ class PairedFileTableWidget(QWidget):
 
     @staticmethod
     def _dropped(event):
+        """Whether a drag carries files this table can take.
+
+        :param event: the Qt drag event.
+        :returns: True when droppable.
+        """
         mime = event.mimeData()
         if not mime.hasUrls():
             return []
@@ -804,6 +855,10 @@ class PairedFileTableWidget(QWidget):
         event.acceptProposedAction()
 
     def _pick(self, side: str) -> None:
+        """Ask for a file for one side of the current row.
+
+        :param side: which column it fills.
+        """
         if side == "database":
             title, filters = ("Add measurements databases",
                               "Databases (*.db *.sqlite *.sqlite3)")
@@ -817,6 +872,10 @@ class PairedFileTableWidget(QWidget):
         self.add_paths_for_side(paths, side)
 
     def _append_row(self, row: dict) -> None:
+        """Add one row to the table.
+
+        :param row: the row's values.
+        """
         index = self.table.rowCount()
         self.table.insertRow(index)
         values = (row.get("plate") or "", row.get("score") or "",
@@ -865,6 +924,10 @@ class PairedFileTableWidget(QWidget):
         return rows
 
     def _move(self, offset: int) -> None:
+        """Move the selected row up or down.
+
+        :param offset: -1 for up, +1 for down.
+        """
         row = self.table.currentRow()
         target = row + offset
         if row < 0 or not 0 <= target < self.table.rowCount():
@@ -876,6 +939,7 @@ class PairedFileTableWidget(QWidget):
         self.value_changed.emit()
 
     def _remove(self) -> None:
+        """Remove the selected row."""
         rows = sorted({index.row() for index in self.table.selectedIndexes()},
                       reverse=True)
         for row in rows:
@@ -956,6 +1020,15 @@ class FilePathListWidget(QWidget):
         single: bool = False,
         parent=None,
     ):
+        """Build the ordered, de-duplicated path list.
+
+        :param value: the paths already saved.
+        :param kind: what sort of file it accepts.
+        :param title: the caption on its picker.
+        :param allow_folders: whether folders may be added.
+        :param single: whether only one path is allowed.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._kind = kind if kind in FILE_KIND_FILTERS else "any"
         self._title = title
@@ -1082,6 +1155,14 @@ class FilePathListWidget(QWidget):
 
     @classmethod
     def _coerce(cls, value: Any) -> List[str]:
+        """Turn whatever the settings dict held into a list of paths.
+
+        ACCEPTS A BARE STRING as well as a list, because a setting that has
+        only ever held one path is written as one in older settings files.
+
+        :param value: the saved value.
+        :returns: the paths.
+        """
         if value is None:
             return []
         if isinstance(value, (str, bytes, os.PathLike)):
@@ -1209,6 +1290,10 @@ class FilePathListWidget(QWidget):
         self.value_changed.emit()
 
     def _empty_hint(self) -> str:
+        """What to say when no paths have been added.
+
+        :returns: the hint text.
+        """
         if self._single:
             return "Drop one file here, or use Choose file…"
         return "Drop files or folders here, or use Add files…"
@@ -1240,6 +1325,7 @@ class FilePathListWidget(QWidget):
         _probe.probes.answered.connect(redraw)
 
     def _refresh_hint(self) -> None:
+        """Show or hide the empty hint as the list changes."""
         count = self._list.count()
         missing = sum(
             1 for row in range(count)
@@ -1259,6 +1345,11 @@ class FilePathListWidget(QWidget):
 
     @staticmethod
     def _urls(event) -> List[str]:
+        """The local file paths a drag carries.
+
+        :param event: the Qt drag event.
+        :returns: the paths, empty when the drag carries none.
+        """
         mime = event.mimeData()
         if not mime.hasUrls():
             return []

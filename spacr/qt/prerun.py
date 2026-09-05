@@ -515,6 +515,13 @@ class SegQCBanner(_JobMixin, QFrame):
 
     def __init__(self, screen: QWidget, *, reader=None, threaded: bool = True,
                  parent=None) -> None:
+        """Build the segmentation-QC banner for one screen.
+
+        :param screen: the screen this banner reports on.
+        :param reader: how to read the QC scores.
+        :param threaded: whether the read runs on a worker.
+        :param parent: parent widget.
+        """
         super().__init__(parent or screen)
         self.setObjectName(QC_OBJECT_NAME)
         self.setFrameShape(QFrame.NoFrame)
