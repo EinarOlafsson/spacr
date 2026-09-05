@@ -364,6 +364,14 @@ class ProviderMark(QWidget):
 
     def __init__(self, code: str, label: str, available: bool = True,
                  parent: Optional[QWidget] = None, status: str = ""):
+        """Build one provider's status mark.
+
+        :param code: the provider's short code, drawn in the mark.
+        :param label: its display name.
+        :param available: whether its CLI is installed.
+        :param parent: parent widget, or ``None``.
+        :param status: a longer status line, shown on hover.
+        """
         super().__init__(parent)
         self.code = str(code)
         self.label = str(label)
@@ -489,6 +497,7 @@ class ProviderMark(QWidget):
         return ink, halo
 
     def _paint(self) -> None:
+        """Draw the mark: its halo, its disc and its code."""
         from ..theme import active_palette
 
         palette = active_palette()

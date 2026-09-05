@@ -138,6 +138,11 @@ class ExplainNavigator:
     """
 
     def __init__(self, window: Optional[QWidget] = None) -> None:
+        """Record the window the explanation page will be opened on.
+
+        :param window: the host window; the page itself is attached later, once
+            it exists.
+        """
         self.window = window
         #: The page this navigator was built for, once it exists.
         self.page: Optional[QWidget] = None

@@ -193,6 +193,10 @@ class GateConsole(QWidget):
     asked = Signal(str)
 
     def __init__(self, parent=None):
+        """Build the console that answers questions about the gated table.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("GateConsole")
         self._frame: Optional[pd.DataFrame] = None

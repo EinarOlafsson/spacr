@@ -215,6 +215,16 @@ class GracefulQuitWatcher(QObject):
                  describe: Optional[Callable[[], str]] = None,
                  on_force: Optional[Callable[[], None]] = None,
                  interval_ms: int = RECHECK_MS):
+        """Arm the watcher that asks again while something is still running.
+
+        :param parent: the window the question is asked on, or ``None``.
+        :param still_running: called to ask whether the work is still going.
+        :param what: what is running, named in the question.
+        :param describe: called for a longer description of the work.
+        :param on_force: called when the user chooses to quit anyway; defaults
+            to the module's own force-quit.
+        :param interval_ms: how often to ask again.
+        """
         super().__init__(parent)
         self._parent = parent
         self._still_running = still_running

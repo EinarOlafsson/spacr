@@ -189,6 +189,10 @@ class CurveCanvas(QWidget):
     """
 
     def __init__(self, parent=None):
+        """Create the empty profile canvas.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._curve: Optional[Profile] = None
         self._message = "Load a coefficient table to profile a model."
@@ -285,6 +289,19 @@ class ProfilerScreen(QWidget):
     def __init__(self, parent=None, coefficients: str = "",
                  model: Any = None, design: Optional[pd.DataFrame] = None,
                  threaded: bool = True):
+        """Build the screen and arm its drop zone.
+
+        A model can arrive three ways and they are tried in order: an
+        already-fitted model, a coefficients CSV to read one from, or nothing --
+        in which case the screen says which file to choose.
+
+        :param parent: parent widget, or ``None``.
+        :param coefficients: a results CSV to load the model from.
+        :param model: an already-fitted model, which wins over ``coefficients``.
+        :param design: the design matrix the model was fitted on.
+        :param threaded: profile on a worker thread. Set ``False`` in tests so a
+            profile finishes before it returns.
+        """
         super().__init__(parent)
         self._model: Any = None
         self._design: Optional[pd.DataFrame] = design

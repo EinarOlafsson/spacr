@@ -5509,6 +5509,11 @@ class AnnotateScreen(QWidget):
                 n=str(len(batch)), err=f"{type(exc).__name__}: {exc}")
 
     def _refresh_status_label(self):
+        """Say what the save worker is doing, or what stopped it.
+
+        A failure wins over everything else: unsaved counts and a "saving…"
+        note beside an error would read as progress.
+        """
         w = self._worker
         if w is None:
             self._status_label.setText(tr("Ready."))

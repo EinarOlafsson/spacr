@@ -183,6 +183,16 @@ class MethodsExportScreen(QWidget):
     def __init__(self, parent=None, project: str = "", run_dir: str = "",
                  results_folder: str = "", model_path: str = "",
                  threaded: bool = True):
+        """Build the methods-export screen.
+
+        :param parent: parent widget, or ``None``.
+        :param project: the project folder to describe.
+        :param run_dir: the specific run within it.
+        :param results_folder: where the regression results live.
+        :param model_path: the trained model to name in the methods text.
+        :param threaded: gather the digest on a worker thread. Set ``False`` in
+            tests so it finishes before the call returns.
+        """
         super().__init__(parent)
         self._digest: Optional[Dict[str, Any]] = None
         self._draft: Any = None

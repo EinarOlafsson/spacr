@@ -436,6 +436,25 @@ class FoldButton(QPushButton):
 
     def __init__(self, key: str, parent: Optional[QWidget] = None,
                  checkable: bool = False) -> None:
+        """Build one fold button: a module's icon, with its name in the tooltip.
+
+        The icon is resolved through the application's own lookup rather than by
+        filename, because a module that BORROWS another's picture is resolved
+        wrongly by filename alone -- the Cellpose Workbench button drew a
+        dumbbell, since ``train_cellpose.png`` exists and is the training glyph
+        while the override sends that key to the cell outline. Every other
+        borrower had the same fault. With no icon at all the button falls back
+        to the module's initial rather than to an empty square.
+
+        The release stage rides as a Qt property so the stylesheet can select on
+        it, set before the first polish so the first paint is already the right
+        colour, and the name and summary are stored as canonical English so a
+        language switch retranslates rather than translating a translation.
+
+        :param key: the module this button opens.
+        :param parent: parent widget, or ``None``.
+        :param checkable: make it a toggle rather than a one-shot button.
+        """
         super().__init__(parent)
         self.app_key = key
         name, description, stage = _describe(key)
@@ -495,6 +514,13 @@ class FoldButton(QPushButton):
     #: the regression QC palette so the dot on a button and the stamp on
     #: a panel cannot disagree about what "check" looks like.
     def _verdict_ink(self, level: str) -> str:
+        """Return the colour for a QC verdict level.
+
+        :param level: the verdict.
+        :returns: the shared regression-QC ink where it can be read, a matching
+            literal otherwise, and ``""`` for a level with no colour -- the
+            button is not worth losing to an import failure.
+        """
         try:
             from ...regression_qc import _VERDICT_INK
 

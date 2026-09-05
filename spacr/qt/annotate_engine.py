@@ -1550,6 +1550,12 @@ class SaveWorker:
 
     # ------------------------------------------------------------------
     def _run(self) -> None:
+        """Drain the annotation queue into the database until told to stop.
+
+        The database's journal mode is left as it is: enabling WAL blindly is
+        unsafe for projects on NAS and NFS mounts, which is where a shared
+        plate usually lives.
+        """
         conn = None
         cur = None
         try:

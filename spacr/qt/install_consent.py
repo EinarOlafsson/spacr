@@ -39,6 +39,14 @@ class InstallerConsentDialog(QDialog):
     """
 
     def __init__(self, parent=None):
+        """Build the privacy and optional-account dialog.
+
+        Sized in scaled pixels rather than raw ones: a size set from Python does
+        not grow with the stylesheet's font size, and at the 200% scale the
+        prose inside wrapped to more height than the window had.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle(tr("spaCR privacy and optional account setup"))
         from .preferences import scaled_px

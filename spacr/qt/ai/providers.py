@@ -52,6 +52,12 @@ class ChatProvider(ABC):
         # Tracks the currently-running child process so cancel_stream()
         # can actually terminate it — otherwise `for line in proc.stdout`
         # blocks indefinitely and the worker thread never exits.
+        """Create the provider with no child process running.
+
+        The running process is tracked so that cancelling a stream can actually
+        terminate it -- otherwise iterating the child's stdout blocks
+        indefinitely and the worker thread never exits.
+        """
         self._current_proc: Optional[subprocess.Popen] = None
 
     def is_installed(self) -> bool:

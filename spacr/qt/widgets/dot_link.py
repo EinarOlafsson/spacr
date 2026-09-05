@@ -37,6 +37,15 @@ class DotLink(QToolButton):
         accessible_description: str,
         parent=None,
     ):
+        """Build a small coloured dot that acts as a link.
+
+        :param tooltip: hover text.
+        :param colours: the four states, as ``(rest, hover, pressed,
+            disabled)``.
+        :param accessible_description: what the dot is, for assistive
+            technology -- the mark itself says nothing readable.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._colours = colours
         self._dot_diameter = 7.0

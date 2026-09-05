@@ -36,6 +36,16 @@ class Screensaver(QWidget):
         # go full screen on its own, and a Tool window loses focus to the
         # main window the moment it appears -- which would make "any key"
         # reach the wrong place.
+        """Build the screensaver as its own full-screen window.
+
+        A ``Qt.Window`` and deliberately not parented into the layout: a child
+        widget cannot go full screen on its own, and a tool window loses focus
+        to the main window the moment it appears -- which would send "any key"
+        to the wrong place.
+
+        :param parent: the window it was opened from, remembered so it can be
+            returned to; the screensaver is not parented into it.
+        """
         super().__init__(None, Qt.WindowType.Window)
         self._opened_from = parent
         self.setWindowTitle("spaCR")

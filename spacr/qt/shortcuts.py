@@ -522,6 +522,11 @@ class ShortcutOverlay(QWidget):
     """
 
     def __init__(self, window: QWidget):
+        """Build the shortcut cheat sheet as a card over the window.
+
+        :param window: the window it covers; the card is centred in it and
+            scrolls when the map does not fit.
+        """
         from .i18n import tr
 
         super().__init__(window)
@@ -634,6 +639,12 @@ class ShortcutOverlay(QWidget):
         self._reposition()
 
     def _reposition(self) -> None:
+        """Centre the card and size it to its content, within the window.
+
+        The scrollbar's width is added only when the content is actually taller
+        than the space -- reserving it unconditionally would leave a gap beside
+        a map that fits.
+        """
         hint = self._card_content.sizeHint()
         max_width = max(1, self.width() - 24)
         max_height = max(1, self.height() - 24)

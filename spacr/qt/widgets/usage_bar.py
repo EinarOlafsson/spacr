@@ -33,6 +33,15 @@ class UsageBar(QWidget):
     WIDEST_PCT = "100%"
 
     def __init__(self, label: str, parent=None):
+        """Build one labelled resource meter.
+
+        The row itself must paint nothing: the application sheet's blanket
+        background rule would otherwise put an opaque rectangle behind the bar,
+        whatever is behind the page.
+
+        :param label: what is being measured.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("UsageBarRow")
         self.setAttribute(Qt.WA_StyledBackground, True)

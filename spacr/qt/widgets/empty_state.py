@@ -93,6 +93,15 @@ class EmptyState(QWidget):
         on_action: Optional[Callable[[], None]] = None,
         parent: Optional[QWidget] = None,
     ):
+        """Build the placeholder shown where content would be.
+
+        :param title: the headline.
+        :param subtitle: the sentence under it, saying what to do.
+        :param icon: an icon above the text, or ``None``.
+        :param cta_label: the action button's label; empty shows no button.
+        :param on_action: called when that button is pressed.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["xxl"], SPACING["xxl"],
