@@ -1926,9 +1926,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert not imported_package_modules
     by_symbol = {item.symbol: item for item in callables}
 
-    assert len(callables) == len(by_symbol) == 8_440
+    assert len(callables) == len(by_symbol) == 8_441
     assert Counter(item.category for item in callables) == {
-        "function": 3_633,
+        "function": 3_634,
         "method": 3_774,
         "constructor": 393,
         "dataclass_constructor": 441,
@@ -1937,13 +1937,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         "inherited_or_default_constructor": 56,
     }
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_435,
+        "autoapi": 8_436,
         "cli_only": 2,
         "compatibility": 3,
     }
-    assert sum(item.variant_count for item in callables) == 8_447
+    assert sum(item.variant_count for item in callables) == 8_448
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_433,
+        1: 8_434,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264. Every one of those is a
@@ -1969,7 +1969,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "e7c0d8d696472cdfe5b2b6e54f2b1b18e35927102abb40fc21de48770255bc50"
+    ) == "4785f7bf19201987ea3b228ccbe7306eac12a931e4cd774a5ad2e44fb13a4ffd"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2290,12 +2290,12 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,427 -> 9,441. Seven public symbols were added earlier today and
     # seven drop-handler methods stopped being aliases, so they now carry
     # their own entry instead of borrowing one.
-    # 10,152 -> 10,172 -> 10,187 (2026-09-05): private methods on public
+    # 10,152 -> 10,172 -> 10,188 (2026-09-05): private methods on public
     # classes that gained a docstring get an entry of their own.
-    assert len(docs) == 10_187
+    assert len(docs) == 10_188
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
-    assert len(rendered_documented_callables) == 8_435
+    assert len(rendered_documented_callables) == 8_436
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
