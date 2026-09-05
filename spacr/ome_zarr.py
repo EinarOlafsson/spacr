@@ -649,6 +649,14 @@ class Axis:
     translate: float = 0.0
 
     def __post_init__(self) -> None:
+        """Normalise the axis and reject a step that cannot address anything.
+
+        :raises OmeZarrError: if the axis has no name, which NGFF requires; if
+            the scale is zero or non-finite -- a zero step collapses the axis, so
+            every world coordinate on it resolves to element 0 and the image is
+            drawn out of register with nothing to show for it; or if the
+            translation is non-finite.
+        """
         name = str(self.name).strip()
         if not name:
             raise OmeZarrError("an axis needs a name; NGFF requires it")
@@ -932,6 +940,12 @@ class Level:
     compressor: Optional[str] = None
 
     def __post_init__(self) -> None:
+        """Coerce the level's tuples and check every rank against the array's.
+
+        :raises OmeZarrError: if the chunks, the scale, or the translation do
+            not have one entry per array axis. NGFF requires one each, and a
+            mismatch means the transformation cannot be applied at all.
+        """
         object.__setattr__(self, "path", str(self.path))
         object.__setattr__(self, "shape", tuple(int(v) for v in self.shape))
         object.__setattr__(self, "chunks", tuple(int(v) for v in self.chunks))
@@ -1398,6 +1412,12 @@ class OmeZarrImage:
     multiscale: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
+        """Freeze the image's members and check the levels against the axes.
+
+        :raises OmeZarrError: if the multiscales block lists no datasets -- then
+            there is no image here -- or if a level's rank differs from the
+            number of declared axes, which NGFF requires to match.
+        """
         object.__setattr__(self, "path", str(self.path))
         object.__setattr__(self, "axes", tuple(self.axes))
         object.__setattr__(self, "levels", tuple(self.levels))

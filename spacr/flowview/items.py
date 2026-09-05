@@ -112,6 +112,11 @@ else:
         """
 
         def __init__(self, node: Node, box: NodeLayout) -> None:
+            """Create the scene item for one pipeline stage.
+
+            :param node: the stage this item stands for.
+            :param box: where it goes and how big it is.
+            """
             super().__init__()
             self.node = node
             self.box = box
@@ -239,6 +244,16 @@ else:
             *,
             source_running: bool = False,
         ) -> None:
+            """Create the scene item for one edge between stages.
+
+            Drawn behind the nodes and inert to the mouse: an edge is context for
+            the stages, not something to select.
+
+            :param edge: the edge this item stands for.
+            :param source: layout of the stage it leaves.
+            :param target: layout of the stage it enters.
+            :param source_running: draw it as carrying live output.
+            """
             super().__init__()
             self.edge = edge
             self._source_running = bool(source_running)
@@ -248,6 +263,15 @@ else:
 
         @staticmethod
         def _make_path(source: NodeLayout, target: NodeLayout) -> QPainterPath:
+            """Build the curve from one stage's right edge to the next one's left.
+
+            The control points bend by a fraction of the horizontal gap, with a
+            floor, so a short hop still reads as a curve rather than as a kink.
+
+            :param source: layout of the stage the edge leaves.
+            :param target: layout of the stage it enters.
+            :returns: the path.
+            """
             start_x = source.x + source.width
             start_y = source.centre_y
             end_x = target.x

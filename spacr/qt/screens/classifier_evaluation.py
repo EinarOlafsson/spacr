@@ -205,6 +205,16 @@ class ClassifierEvaluationScreen(QWidget):
     evaluation_loaded = Signal(str)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the screen and arm its drop zone.
+
+        The confusion cell under inspection is held, so moving the confidence
+        threshold re-splits that cell rather than making the user click it
+        again.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: scan on a worker thread. Set ``False`` in tests so
+            ``scan`` finishes before it returns.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._busy = False
@@ -803,9 +813,17 @@ class ClassifierEvaluationScreen(QWidget):
             self.show_cell(self._cell.true_class, self._cell.predicted_class)
 
     def _open_high(self) -> Any:
+        """Open the crops in the high-confidence half of the inspected cell.
+
+        :returns: whatever :meth:`open_cell` returns.
+        """
         return self.open_cell("high")
 
     def _open_low(self) -> Any:
+        """Open the crops in the low-confidence half of the inspected cell.
+
+        :returns: whatever :meth:`open_cell` returns.
+        """
         return self.open_cell("low")
 
     def open_cell(self, which: str) -> Any:
