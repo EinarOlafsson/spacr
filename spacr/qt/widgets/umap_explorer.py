@@ -189,6 +189,11 @@ class UmapDisplaySettings(QDialog):
     )
 
     def __init__(self, values: Dict, parent=None):
+        """Build the display-settings dialog.
+
+        :param values: the settings to start from.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setWindowTitle("Image UMAP display settings")
         self._editors: Dict[str, QWidget] = {}
@@ -219,6 +224,14 @@ class UmapDisplaySettings(QDialog):
 
     @staticmethod
     def _editor(kind: str, low, high, value):
+        """One editor of the right kind for a setting.
+
+        :param kind: which control the setting wants.
+        :param low: its smallest value.
+        :param high: its largest.
+        :param value: where it starts.
+        :returns: the editor widget.
+        """
         if kind == "int":
             box = QSpinBox()
             box.setRange(int(low), int(high))
@@ -354,6 +367,10 @@ class ImageUmapExplorer(LinkedView, QWidget):
     annotation_finished = Signal(int, int)
 
     def __init__(self, parent=None):
+        """Build the explorer: the embedding, the gallery and the writers.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._embedding = np.empty((0, 2), dtype=float)
         self._labels = np.empty(0, dtype=int)
@@ -395,6 +412,7 @@ class ImageUmapExplorer(LinkedView, QWidget):
         retarget_field_tooltips(self)
 
     def _build_ui(self):
+        """Lay out the embedding beside the crop gallery."""
         from matplotlib.figure import Figure
         from matplotlib.backends.backend_qtagg import (
             FigureCanvasQTAgg, NavigationToolbar2QT)
@@ -760,6 +778,7 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         return self._point_keys
 
     def _draw_embedding(self) -> None:
+        """Draw every point of the embedding."""
         from matplotlib.widgets import LassoSelector
         from ..theme import active_palette
 
@@ -944,6 +963,12 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
             match_keys(keys, selection.keys))
 
     def _draw_linked_points(self) -> None:
+        """Redraw only the points a linked view has selected.
+
+        SEPARATE FROM THE FULL DRAW because a selection changes often and the
+        embedding does not: redrawing every point on each linked change makes
+        brushing in another view feel like the application has stalled.
+        """
         if self._linked_artist is None:
             return
         points = (self._embedding[self._linked_points]
@@ -981,6 +1006,10 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         self._canvas.draw_idle()
 
     def _on_click(self, event) -> None:
+        """Select the point under the click.
+
+        :param event: the matplotlib click event.
+        """
         if (event.inaxes is not self._axes or event.xdata is None
                 or not len(self._embedding)):
             return
@@ -1021,6 +1050,10 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         self._canvas.draw_idle()
 
     def _on_lasso(self, vertices: Sequence) -> None:
+        """Select every point inside a drawn outline.
+
+        :param vertices: the outline the user drew.
+        """
         from matplotlib.path import Path
 
         inside = Path(vertices).contains_points(self._embedding)
@@ -1028,6 +1061,10 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         self._refresh_selection()
 
     def _select_cluster(self, _index: int) -> None:
+        """Select a whole cluster from the cluster list.
+
+        :param _index: the row clicked; the cluster is re-read from the list.
+        """
         label = self._cluster_box.currentData()
         if label is None:
             return
@@ -1035,6 +1072,7 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         self._refresh_selection()
 
     def _refresh_selection(self) -> None:
+        """Redraw the gallery and the counts for the current selection."""
         points = (self._embedding[self._selected]
                   if len(self._selected) else np.empty((0, 2)))
         self._selection_artist.set_offsets(points)
@@ -1064,6 +1102,7 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
             LOG.info("publishing the UMAP selection failed", exc_info=True)
 
     def _write_selected(self) -> None:
+        """Write the selected points' labels to the database."""
         if not len(self._selected):
             self._status.setText("Draw a lasso or select a cluster first.")
             return
@@ -1072,10 +1111,17 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         self._start_write(records, values, "manual selection")
 
     def _write_clusters(self) -> None:
+        """Write every cluster's label to the database."""
         self._start_write(
             self._records, self._labels.tolist(), "automatic clusters")
 
     def _start_write(self, records, values, label: str) -> None:
+        """Write labels on a worker, so the window stays responsive.
+
+        :param records: the objects to label.
+        :param values: the label for each.
+        :param label: what to call this write in the status area.
+        """
         if self._worker is not None and self._worker.isRunning():
             self._status.setText("An annotation write is already running.")
             return
@@ -1089,11 +1135,29 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         worker.start()
 
     def _set_write_enabled(self, enabled: bool) -> None:
+        """Disable the write buttons while a write is running.
+
+        SO A SECOND WRITE CANNOT START on top of the first: two writers on one
+        SQLite database is a lock error at best, and interleaved labels at
+        worst.
+
+        :param enabled: True to allow writing.
+        """
         self._apply_selected.setEnabled(enabled)
         self._apply_clusters.setEnabled(enabled)
 
     @Slot(int, int, str)
     def _on_write_done(self, updated: int, skipped: int, error: str) -> None:
+        """Report what a finished write actually changed.
+
+        SAYS WHAT IT SKIPPED as well as what it wrote: an object already
+        carrying that label is not an error, but a user who asked for 400 and
+        got 380 needs to know which of the two happened.
+
+        :param updated: how many rows were written.
+        :param skipped: how many already had the label.
+        :param error: what went wrong, if anything.
+        """
         self._worker = None
         self._set_write_enabled(True)
         if error:

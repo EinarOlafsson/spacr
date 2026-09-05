@@ -114,6 +114,11 @@ class OrthoPanel(QFrame):
     clicked = Signal(str, float, float)
 
     def __init__(self, name: str, parent=None):
+        """Build one of the three orthogonal cuts.
+
+        :param name: which cut this is.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("OrthoPanel")
         self.setMinimumSize(80, 60)
@@ -225,6 +230,14 @@ class OrthoView(LinkedView, QWidget):
     def __init__(self, stack: Optional[LayerStack] = None, parent=None, *,
                  width: int = 320, frames: int = 0,
                  axes: Tuple[str, str, str] = OrthoViews.DEFAULT_AXES):
+        """Build the three cuts and the sliders that move them.
+
+        :param stack: the layers to cut through.
+        :param parent: parent widget.
+        :param width: the view's width in pixels.
+        :param frames: how many time points there are.
+        :param axes: the world axes to cut along.
+        """
         super().__init__(parent)
         self.setObjectName("OrthoView")
         self._stack = stack if stack is not None else LayerStack()
@@ -240,6 +253,7 @@ class OrthoView(LinkedView, QWidget):
 
     # -- construction ------------------------------------------------------
     def _build(self) -> None:
+        """Lay out the three panels and their sliders."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(12, 12, 12, 12)
         outer.setSpacing(8)
@@ -344,6 +358,13 @@ class OrthoView(LinkedView, QWidget):
 
     @staticmethod
     def _drain(layout) -> None:
+        """Empty a layout, deleting whatever was in it.
+
+        DELETED RATHER THAN HIDDEN, because the sliders are rebuilt whenever
+        the axes change and hidden ones would accumulate one set per rebuild.
+
+        :param layout: the layout to empty.
+        """
         while layout.count():
             item = layout.takeAt(0)
             widget = item.widget()
@@ -351,6 +372,10 @@ class OrthoView(LinkedView, QWidget):
                 widget.deleteLater()
 
     def _add_slider(self, axis: str) -> None:
+        """Add the slider that moves one axis's cut.
+
+        :param axis: the world axis.
+        """
         low, high, step = self._views.slider(axis)
         row = QHBoxLayout()
         row.setSpacing(6)
@@ -373,6 +398,7 @@ class OrthoView(LinkedView, QWidget):
         self._update_readout(axis)
 
     def _add_frame_slider(self) -> None:
+        """Add the slider that moves through time."""
         row = QHBoxLayout()
         row.setSpacing(6)
         caption = QLabel("t", self)
@@ -387,6 +413,16 @@ class OrthoView(LinkedView, QWidget):
 
     # -- the crosshair -----------------------------------------------------
     def _tick(self, axis: str, world: float) -> int:
+        """The slider position for a world coordinate.
+
+        SLIDERS ARE INTEGER-VALUED and world coordinates are not, so the two
+        have to be converted rather than shared -- and doing it in one place
+        is what keeps the readout and the cut agreeing.
+
+        :param axis: the world axis.
+        :param world: the coordinate.
+        :returns: the slider position.
+        """
         low, high, _step = self._views.slider(axis)
         span = high - low
         if span <= 0:
@@ -394,6 +430,12 @@ class OrthoView(LinkedView, QWidget):
         return int(round((float(world) - low) / span * _TICKS))
 
     def _world(self, axis: str, tick: int) -> float:
+        """The world coordinate for a slider position.
+
+        :param axis: the world axis.
+        :param tick: the slider position.
+        :returns: the coordinate.
+        """
         low, high, _step = self._views.slider(axis)
         return low + (high - low) * (int(tick) / _TICKS)
 
@@ -432,6 +474,10 @@ class OrthoView(LinkedView, QWidget):
         return int(round((self._views.point[axis] - origin) / step))
 
     def _on_slider_moved(self, tick: int) -> None:
+        """Re-cut all three panels for a moved slider.
+
+        :param tick: the slider's new position.
+        """
         if self._syncing or self._views is None:
             return
         axis = self.sender().property("axis")
@@ -452,6 +498,7 @@ class OrthoView(LinkedView, QWidget):
         self.point_changed.emit(dict(self._views.point))
 
     def _sync_sliders(self) -> None:
+        """Put every slider where the current cut point actually is."""
         self._syncing = True
         try:
             for axis, slider in self._sliders.items():
@@ -461,6 +508,10 @@ class OrthoView(LinkedView, QWidget):
             self._syncing = False
 
     def _update_readout(self, axis: str) -> None:
+        """Show one axis's current coordinate in world units.
+
+        :param axis: the world axis.
+        """
         slider = self._sliders.get(axis)
         readout = slider.property("readout") if slider is not None else None
         if readout is None:
@@ -494,6 +545,14 @@ class OrthoView(LinkedView, QWidget):
         self._zoom(1 / 1.25)
 
     def _zoom(self, factor: float) -> None:
+        """Zoom all three panels together.
+
+        TOGETHER, because the three are one object seen three ways: zooming
+        one alone would make the cuts describe different scales of the same
+        place.
+
+        :param factor: the zoom multiplier.
+        """
         if self._views is None:
             return
         self._views = self._views.zoomed(factor)
