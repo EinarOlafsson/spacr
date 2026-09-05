@@ -1,0 +1,104 @@
+================================================================================
+A SUGGEST BUTTON THAT LABELS THE REST
+================================================================================
+
+Status:    OPEN. Not started.
+Requested: 2026-09-05 -- "In annotation app there should be a suggest button.
+           The suggest button should train an xgboost model on your annotated
+           images (if only one class randomly choose the same number of images
+           as is annotated for the other class) if there is class imbalance
+           use the class with fewer. Then either annotate on screen images or
+           all images. With different numbers so the user can throw them away
+           or keep them converting the numbers to the same as annotates"
+Owner:     spacr/qt/screens/annotate.py (the button, the review state),
+           the annotation column named by `settings.annotation_column`.
+
+THE POINT. Annotating is the slow part of every screen the maintainer runs,
+and the first two hundred images already contain most of what separates the
+classes. SUGGEST asks the model trained on those to label the rest, and then
+makes the suggestions cheap to reject -- the reviewing is the feature, not the
+classifier.
+
+--------------------------------------------------------------------------------
+PART 1 -- WHAT THE BUTTON DOES
+--------------------------------------------------------------------------------
+
+1. TRAIN on what the user has already annotated, with XGBoost.
+
+2. BALANCE THE CLASSES BEFORE TRAINING. Two cases, both stated in the request:
+
+   - BOTH CLASSES PRESENT, UNEVEN. Downsample the larger to the size of the
+     smaller. "if there is class imbalance use the class with fewer."
+
+   - ONLY ONE CLASS ANNOTATED. Draw the same number of images at random from
+     the UNANNOTATED pool and train them as the other class. "if only one
+     class randomly choose the same number of images as is annotated for the
+     other class."
+
+     THIS IS A DELIBERATE LIE AND IT MUST BE LABELLED AS ONE IN THE UI. A
+     random draw from unlabelled images is mostly-negative, not negative, so
+     the suggestions that come back are a ranking and not a verdict. Say so
+     where the user can see it before they accept anything in bulk.
+
+3. SCOPE, asked before it runs: THE IMAGES ON SCREEN, or ALL IMAGES.
+
+4. WRITE THE SUGGESTIONS AS DIFFERENT NUMBERS. A suggestion must never be
+   confusable with something the user decided. The annotation column already
+   holds small integers, so suggestions go in as their own values -- e.g. a
+   suggested 1 is written 11, a suggested 2 is written 12 -- and the grid
+   draws them distinctly (a dashed border, a lighter fill; NOT a new colour
+   that reads as a third class).
+
+   Then the two bulk actions the request ends with:
+     KEEP  -- rewrite 11 -> 1 and 12 -> 2, and they become ordinary
+              annotations, indistinguishable from hand-made ones.
+     THROW -- clear them back to NULL.
+   Both must work per-image too, so the user can accept a screen and reject
+   three of it.
+
+--------------------------------------------------------------------------------
+PART 2 -- WHAT MUST NOT HAPPEN
+--------------------------------------------------------------------------------
+
+A SUGGESTION MUST NEVER OVERWRITE A HUMAN ANNOTATION. Not when the model is
+confident, not on re-run, not by a bulk KEEP that swept too wide. The user's
+labels are the ground truth the model was trained on; losing them silently
+would cost hours of work and would not be noticed until a run came out wrong.
+Write suggestions ONLY where the column is NULL.
+
+RE-RUNNING SUGGEST replaces the outstanding suggestions rather than adding to
+them, and never touches accepted ones.
+
+TRAINING MUST NOT BLOCK THE GUI THREAD. See what a thirty-second `urlopen` on
+that thread cost on 2026-09-05 (commit ca5d6c672): GNOME's "force quit" dialog
+is what the user sees. Train in a JobRunner, keep the button disabled with a
+count while it runs, and let it be cancelled.
+
+TOO FEW ANNOTATIONS IS A REFUSAL, NOT A CRASH. Below some floor -- 20 per
+class is a starting guess, to be measured -- the button says what it needs
+instead of training on nothing.
+
+--------------------------------------------------------------------------------
+PART 3 -- OPEN QUESTIONS FOR THE MAINTAINER
+--------------------------------------------------------------------------------
+
+Q1. WHAT ARE THE FEATURES? XGBoost needs a table, not an image. Three options,
+    and the answer decides how much of this is new code:
+      (a) the measurement table spaCR already produces, joined on object id --
+          nothing new to compute, and the model then explains itself in terms
+          the user already reads;
+      (b) embeddings from a pretrained CNN -- stronger on texture the
+          measurements do not capture, but a new dependency in this path;
+      (c) both, concatenated.
+    RECOMMEND (a) FIRST: it is the cheapest to build, and if the measurements
+    cannot separate the classes that is itself worth knowing before adding a
+    network.
+
+Q2. IS THERE A CONFIDENCE FLOOR? Suggest everything, or only above a
+    threshold? A threshold means fewer, better suggestions and more unlabelled
+    images left over. Sort by confidence either way, so the doubtful ones are
+    together rather than scattered.
+
+Q3. DOES THIS EXTEND PAST TWO CLASSES? The request says "the other class",
+    which reads as binary. If the annotation column ever holds three, the
+    suggestion offsets must not collide with real class values.
