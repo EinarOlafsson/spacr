@@ -43,6 +43,11 @@ class SetupDialog(QDialog):
     """
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the first-run setup dialog.
+
+        :param parent: parent widget, or ``None``; also where the backdrop
+            behind the card is taken from.
+        """
         super().__init__(parent)
         self.setWindowTitle("Set spaCR up")
         self.setModal(True)

@@ -183,6 +183,16 @@ def _presence_in(data: np.ndarray, dim: Optional[int],
 
 
 def _phenotype_label(name: str, value: Optional[bool]) -> str:
+    """Render one phenotype as the word a biologist would use.
+
+    ``Nucleus``/``True`` is "Nucleated" rather than "Nucleus: yes" --
+    the reader is scanning crops, not reading a table.
+
+    :param name: the compartment.
+    :param value: whether it is present; ``None`` renders as not applicable,
+        which is different from absent.
+    :returns: the label.
+    """
     if value is None:
         return f"{name} n/a"
     if name == "Nucleus":
@@ -287,6 +297,15 @@ def _rounded_pixmap(pm: QPixmap, radius: int = 8) -> QPixmap:
 
 
 def _parse_channels(text: str) -> List[int]:
+    """Parse a channel list from typed text.
+
+    Semicolons are accepted as separators alongside commas, and anything
+    that is not a plain number is dropped -- so a half-typed entry narrows
+    the preview rather than emptying it.
+
+    :param text: the typed list.
+    :returns: the channel indices, in the order given.
+    """
     out = []
     for part in str(text).replace(";", ",").split(","):
         part = part.strip()
@@ -296,6 +315,12 @@ def _parse_channels(text: str) -> List[int]:
 
 
 def _optional_spin_value(widget: QSpinBox) -> Optional[int]:
+    """Read a spin box whose negative range means "unset".
+
+    :param widget: the spin box.
+    :returns: the value, or ``None`` when it is negative -- which is how a
+        spin box says "no limit" without a second control beside it.
+    """
     value = int(widget.value())
     return None if value < 0 else value
 
@@ -380,6 +405,10 @@ class _CropThumb(QLabel):
         )
 
     def mousePressEvent(self, event):
+        """Announce this crop's index when clicked.
+
+        :param event: the mouse event.
+        """
         self.clicked.emit(self._index)
         super().mousePressEvent(event)
 

@@ -361,6 +361,19 @@ class SettingsDiffDialog:
 
     def __new__(cls, a, b, parent=None, a_label="A", b_label="B"):
         # Lazy build of the Qt dialog when actually invoked in a GUI.
+        """Build and return the settings-diff dialog.
+
+        Qt is imported inside the call so the module can be used headlessly --
+        :func:`diff_settings` is the part a report needs, and it must not drag a
+        GUI toolkit in with it.
+
+        :param a: the settings on the left.
+        :param b: the settings on the right.
+        :param parent: parent widget, or ``None``.
+        :param a_label: caption for the left side.
+        :param b_label: caption for the right side.
+        :returns: the dialog, ready to ``exec``.
+        """
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import (
             QDialog, QDialogButtonBox, QLabel, QTableWidget,

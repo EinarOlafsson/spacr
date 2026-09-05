@@ -82,6 +82,15 @@ class QtLogHandler(QObject, logging.Handler):
     """
 
     def __init__(self, level: int = logging.INFO):
+        """Create a logging handler that re-emits records as a Qt signal.
+
+        The signal lives on a small relay object rather than on the handler
+        itself, and is re-exported here so the existing
+        ``handler.record_ready.connect(...)`` contract is unchanged -- only the
+        ``QObject`` that owns it moved.
+
+        :param level: the minimum level to relay.
+        """
         QObject.__init__(self)
         logging.Handler.__init__(self, level=level)
         self._record_relay = _RecordRelay(self)

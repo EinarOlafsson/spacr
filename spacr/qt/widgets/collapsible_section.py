@@ -31,6 +31,20 @@ class CollapsibleSection(QWidget):
 
     def __init__(self, title: str, content: QWidget, *, expanded: bool = True,
                  parent=None):
+        """Build one foldable section around a content widget.
+
+        The header carries its own style rule: a ``QToolButton`` without one
+        paints the palette's button colour as an opaque block, which was the
+        "black categories". Its resting text is the theme's foreground rather
+        than a dimmed one -- on a panel where at most one section is open, the
+        folded headings are what the reader is scanning, and dimming them says
+        "secondary" about the only thing on screen that is not.
+
+        :param title: the section's heading.
+        :param content: the widget it folds away.
+        :param expanded: open it immediately.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._title = str(title)
         self._content = content
@@ -144,6 +158,14 @@ class CollapsibleSection(QWidget):
             self.setMinimumHeight(self._open_minimum + self.FOLDED_HEIGHT)
 
     def _apply(self, expanded: bool) -> None:
+        """Show or hide the content and set the height bounds to match.
+
+        Folding sets both bounds. A minimum alone leaves the splitter free to
+        hand the folded section back the space it just gave up, which looks like
+        the fold did nothing.
+
+        :param expanded: the new state.
+        """
         self._header.setArrowType(Qt.DownArrow if expanded else Qt.RightArrow)
         self._content.setVisible(bool(expanded))
         if expanded:

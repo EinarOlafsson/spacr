@@ -1061,6 +1061,13 @@ def _composite(fg: str, bg: str, alpha: int) -> str:
 
 
 def _relative_luminance(hex_colour: str) -> float:
+    """Compute a colour's relative luminance, per WCAG.
+
+    :param hex_colour: the colour; an unparseable one is treated as the
+        unreadable sentinel rather than raising, so a contrast check reports
+        a failure instead of crashing the theme.
+    :returns: the luminance in ``[0, 1]``.
+    """
     def channel(value: int) -> float:
         """One sRGB channel linearised, per WCAG's own definition."""
         v = value / 255.0
@@ -1070,6 +1077,13 @@ def _relative_luminance(hex_colour: str) -> float:
 
 
 def _contrast(a: str, b: str) -> float:
+    """Return the WCAG contrast ratio between two colours.
+
+    :param a: one colour.
+    :param b: the other.
+    :returns: the ratio, from 1 (identical) to 21 (black on white). Order
+        does not matter -- the lighter is always the numerator.
+    """
     la, lb = _relative_luminance(a), _relative_luminance(b)
     hi, lo = max(la, lb), min(la, lb)
     return (hi + 0.05) / (lo + 0.05)
@@ -2154,6 +2168,11 @@ def _channels(color: str,
 
 
 def _linear(value: int) -> float:
+    """Linearise one 8-bit sRGB channel.
+
+    :param value: the channel, 0-255.
+    :returns: its linear-light value in ``[0, 1]``.
+    """
     c = value / 255.0
     return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
 
@@ -2339,6 +2358,13 @@ def contrast_failures(theme: str) -> List[str]:
 
 
 def _describe(report: List[dict]) -> List[str]:
+    """Render the failing contrast rules as readable lines.
+
+    :param report: the contrast report.
+    :returns: one line per FAILING rule, naming both colours, the ratio it
+        reached and the ratio it needed -- the passes are omitted because a
+        report of what is fine is a report nobody reads.
+    """
     return [
         f"{r['fg']} ({r['fg_color']}) on {r['bg']} ({r['bg_color']}): "
         f"{r['ratio']:.2f}:1 < {r['required']:.1f}:1"
@@ -2458,6 +2484,12 @@ def page_separation_failures(theme: str) -> List[str]:
 # — a role added there is automatically enforced against the imagery.
 
 def _bare_image_rules() -> Tuple[Tuple[str, float], ...]:
+    """Return the contrast rules that apply straight over the window.
+
+    :returns: ``(foreground, required_ratio)`` for every rule whose surface
+        is the window itself -- the ones a picture theme has to satisfy,
+        since there is no panel between the text and the image.
+    """
     return tuple((fg, required)
                  for fg, surface, required in CONTRAST_RULES
                  if surface == "bg")

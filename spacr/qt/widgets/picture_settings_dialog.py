@@ -190,6 +190,18 @@ class PictureSettingsDialog(QDialog):
     def __init__(self, values: Optional[Dict[str, Any]] = None,
                  mode: str = "png", parent: Optional[QWidget] = None, *,
                  source: Any = None, objects: Any = None):
+        """Build the dialog controlling how object crops are drawn.
+
+        The cap label's help is kept without its cost sentence, so re-stating
+        the cost replaces it rather than stacking another copy on the end.
+
+        :param values: the settings to open with; missing keys fall back to the
+            shipped picture defaults.
+        :param mode: which output the settings are for.
+        :param parent: parent widget, or ``None``.
+        :param source: the data source, used to gate what this mode can offer.
+        :param objects: the object types available, for the per-object controls.
+        """
         super().__init__(parent)
         self.setWindowTitle("Picture settings")
         self._mode = str(mode or "png")

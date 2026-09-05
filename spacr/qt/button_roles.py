@@ -72,6 +72,11 @@ def alive(button) -> bool:
 
 
 def _repolish(button: QPushButton) -> None:
+    """Re-apply the stylesheet to a button after its properties changed.
+
+    :param button: the button; one whose C++ half is gone is ignored rather
+        than raising from inside an event delivery.
+    """
     if not alive(button):
         return
     style = button.style()
@@ -145,6 +150,20 @@ class _SemanticButtonFilter(QObject):
         # A queued event can outlive the C++ widget while a signal connection
         # still retains its Python wrapper.  Every operation below crosses
         # into Qt, so reject that wrapper at the single entry boundary.
+        """Give one button its semantic role, if its C++ half is still there.
+
+        A queued event can outlive the widget while a signal connection still
+        retains the Python wrapper, and every operation below crosses into Qt --
+        so the wrapper is rejected at this single boundary rather than at each
+        call.
+
+        Qt 6.6 can also delete a dialog button re-entrantly while
+        ``parentWidget()`` delivers another construction event. A real
+        ``RuntimeError`` stays visible; a wrapper that became invalid DURING the
+        call has no remaining state to classify, so it is dropped.
+
+        :param button: the button to classify.
+        """
         if not alive(button):
             return
         try:
@@ -226,6 +245,16 @@ class _SemanticButtonFilter(QObject):
             pass
 
     def eventFilter(self, watched, event):  # noqa: N802 (Qt naming)
+        """Re-classify a button as it appears, is re-parented, or changes enabled state.
+
+        Re-enabling also clears a stale busy mark: a button disabled while busy
+        and enabled again by something else would otherwise keep saying it was
+        still working.
+
+        :param watched: the object the event is for.
+        :param event: the event.
+        :returns: ``False`` -- every event is observed and passed on.
+        """
         if isinstance(watched, QPushButton):
             event_type = event.type()
             if event_type in (

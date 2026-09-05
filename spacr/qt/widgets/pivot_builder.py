@@ -238,18 +238,31 @@ class _AxisList(QListWidget):
             event.mimeData().hasFormat(COLUMN_MIME)
 
     def dragEnterEvent(self, event):  # noqa: N802 - Qt name
+        """Accept a dragged column, and refuse anything else.
+
+        :param event: the drag event.
+        """
         if self._accepts(event):
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dragMoveEvent(self, event):  # noqa: N802 - Qt name
+        """Keep accepting while the drag is over this well.
+
+        :param event: the drag event.
+        """
         if self._accepts(event):
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dropEvent(self, event):  # noqa: N802 - Qt name
+        """Announce the dropped column.
+
+        :param event: the drop event; an empty payload is accepted but announces
+            nothing, so a malformed drag does not add a nameless axis.
+        """
         if not self._accepts(event):
             event.ignore()
             return
@@ -259,6 +272,10 @@ class _AxisList(QListWidget):
         event.acceptProposedAction()
 
     def keyPressEvent(self, event):  # noqa: N802 - Qt name
+        """Remove the selected column on Delete or Backspace.
+
+        :param event: the key event.
+        """
         if event.key() in (Qt.Key_Delete, Qt.Key_Backspace):
             row = self.currentRow()
             if row >= 0:
@@ -745,6 +762,13 @@ class PivotPanel(QWidget):
 # ---------------------------------------------------------------------------
 
 def _pivot_qss(palette, opacity) -> str:
+    """Build the pivot shelf's stylesheet.
+
+    :param palette: the active palette.
+    :param opacity: the page opacity, blended into the shelf's surface so it
+        sits over the backdrop like every other panel.
+    :returns: the QSS.
+    """
     from ..theme import block_surface
     surface_alt = block_surface("surface_alt", palette["theme"], opacity)
     return f"""

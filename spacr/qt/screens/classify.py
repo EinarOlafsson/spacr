@@ -229,6 +229,15 @@ class LazyFlowViewSection(CollapsibleSection):
     OPEN_MINIMUM = 420
 
     def __init__(self, screen: QWidget, parent: QWidget | None = None) -> None:
+        """Build the FlowView section's body without building FlowView itself.
+
+        The screen is held weakly: this section outlives nothing, but a strong
+        reference from a lazily-built child back to its screen is how a closed
+        module stays alive.
+
+        :param screen: the screen the section belongs to.
+        :param parent: parent widget for the body, or ``None``.
+        """
         self._screen_ref = weakref.ref(screen)
         self._panel = None
         self._error_label: QLabel | None = None

@@ -44,6 +44,12 @@ _KEY_TOUR_SEEN = "onboarding/first_run_tour_seen"
 
 
 def _settings():
+    """Open spaCR's ``QSettings``.
+
+    Imported inside the call so this module can be read without Qt.
+
+    :returns: the settings store.
+    """
     from PySide6.QtCore import QSettings
     return QSettings(_ORG, _APP)
 
@@ -302,6 +308,16 @@ class _TourOverlay(QWidget):
 
     # -- painting -----------------------------------------------------
     def paintEvent(self, event) -> None:
+        """Dim the window and cut a lit ring around this step's target.
+
+        The dimming is CLEARED inside the ring rather than merely outlined, so
+        the widget being pointed at is seen in its own colours -- a highlight
+        that leaves its subject dimmed points at something the viewer still
+        cannot read. A target that cannot be resolved leaves the dim intact
+        rather than failing: a tour missing one ring is better than no tour.
+
+        :param event: the paint event.
+        """
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
         # Dim overlay
@@ -331,6 +347,10 @@ class _TourOverlay(QWidget):
         p.end()
 
     def resizeEvent(self, event) -> None:
+        """Keep the caption card in place when the overlay resizes.
+
+        :param event: the resize event.
+        """
         self._update_card_position()
 
     def _update_card_position(self) -> None:
@@ -346,11 +366,22 @@ class _TourOverlay(QWidget):
 
     # -- events -------------------------------------------------------
     def eventFilter(self, obj, event):
+        """Follow the window's size, so the overlay always covers it.
+
+        :param obj: the object the event is for.
+        :param event: the event.
+        :returns: whatever the base filter returns -- the resize is observed,
+            never consumed.
+        """
         if obj is self._window and event.type() == QEvent.Resize:
             self.setGeometry(self._window.rect())
         return super().eventFilter(obj, event)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
+        """Take Escape to skip the tour and Return to advance it.
+
+        :param event: the key event.
+        """
         if event.key() == Qt.Key_Escape:
             self._skip()
             return
@@ -417,6 +448,11 @@ def _widget_rect_in_window(widget: QWidget,
 
 
 def _ghost_btn_qss() -> str:
+    """Return the stylesheet for the tour's secondary button.
+
+    :returns: the QSS. Literal colours rather than the theme's, because the
+        first-run tour is shown before a theme has been chosen.
+    """
     return (
         "QPushButton {"
         "  background: transparent;"
@@ -431,6 +467,11 @@ def _ghost_btn_qss() -> str:
 
 
 def _primary_btn_qss() -> str:
+    """Return the stylesheet for the tour's primary button.
+
+    :returns: the QSS. Literal colours, for the same reason as the ghost
+        button.
+    """
     return (
         "QPushButton {"
         "  background: #4A9EFF;"

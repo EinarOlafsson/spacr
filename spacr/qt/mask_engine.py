@@ -973,6 +973,12 @@ class RecropRefused(ValueError):
     """
 
     def __init__(self, reason: str, message: str):
+        """Record why a re-crop was refused.
+
+        :param reason: the machine-readable refusal code, kept so a caller can
+            branch on it rather than parsing the message.
+        :param message: the sentence shown to the user.
+        """
         super().__init__(message)
         self.reason = str(reason)
 

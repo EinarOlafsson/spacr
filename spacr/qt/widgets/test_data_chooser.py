@@ -76,6 +76,15 @@ class TestDataChooser(QDialog):
     DIALOG_WIDTH = 460
 
     def __init__(self, parent=None):
+        """Build the test-data chooser.
+
+        The minimum width is set before the description pane is measured: the
+        measurement asks how tall the longest description is AT A GIVEN WIDTH,
+        and measuring at one width while displaying at another is what left the
+        pane sized for a column it never had.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle(tr("Load test data"))
         self.chosen = ""
@@ -232,6 +241,10 @@ class TestDataChooser(QDialog):
         self._size_the_description_pane()
 
     def _choose(self, key: str) -> None:
+        """Record the chosen dataset and accept the dialog.
+
+        :param key: the dataset the user picked.
+        """
         self.chosen = str(key)
         self.accept()
 

@@ -125,6 +125,13 @@ def _live_cache_owners():
 
 
 def _ensure_cache_budget_sweep() -> None:
+    """Arm the shared memory-budget sweep, if the cleanup module is loaded.
+
+    Looked up in ``sys.modules`` rather than imported: this runs at widget
+    construction, and importing the cleanup machinery in order to register
+    with it would pull it in on every preview whether or not anything else
+    wanted it.
+    """
     cleanup = sys.modules.get("spacr.qt.resource_cleanup")
     install = getattr(cleanup, "install_budget_sweep", None)
     if callable(install):
@@ -813,6 +820,18 @@ def _draw_segment(rgb: np.ndarray, x0, y0, x1, y1, colour) -> None:
 
 
 def _draw_dot(rgb: np.ndarray, x, y, colour, radius: int = 2) -> None:
+    """Paint a small filled square onto an RGB array.
+
+    Clipped to the array, so a track leaving the field draws what is still
+    inside rather than raising.
+
+    :param rgb: the image to draw on, modified in place.
+    :param x: centre column.
+    :param y: centre row.
+    :param colour: the RGB triple to fill with.
+    :param radius: half-width in pixels; at least 1, so a dot is never
+        invisible.
+    """
     h, w = rgb.shape[:2]
     x, y, r = int(x), int(y), max(1, int(radius))
     y0, y1 = max(0, y - r), min(h, y + r + 1)
@@ -900,6 +919,13 @@ def movie_worker_interrupted() -> bool:
 
 
 def _check_movie_cancelled(cancelled: Optional[Callable[[], bool]]) -> None:
+    """Raise if the movie render has been cancelled.
+
+    :param cancelled: called to ask; ``None`` never cancels.
+    :raises MovieFieldCancelled: when it answers ``True``. Raised rather
+        than returned so the unwinding happens wherever the render happens
+        to be, without every step having to check a flag.
+    """
     if cancelled is not None and cancelled():
         raise MovieFieldCancelled("movie field cancelled")
 
@@ -1043,6 +1069,11 @@ class _TimelapseWorker(QThread):
         self._request = request
 
     def run(self):
+        """Run one preview pass and emit its result, or the failure text.
+
+        A failure is emitted rather than raised: this runs on a worker thread,
+        where an exception has nobody to catch it.
+        """
         try:
             self.finished_result.emit(run_preview_pass(self._request), "")
         except Exception as e:

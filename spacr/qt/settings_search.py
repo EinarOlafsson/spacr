@@ -89,6 +89,10 @@ ALL = "all"
 
 
 def _settings():
+    """Open spaCR's ``QSettings``.
+
+    :returns: the settings store.
+    """
     from PySide6.QtCore import QSettings
     return QSettings(_QSETTINGS_ORG, _QSETTINGS_APP)
 
@@ -551,6 +555,12 @@ class SettingsSearchBar(QWidget):
 # outside the section can do by hand.
 
 def _form_of(section: QWidget) -> Optional[QFormLayout]:
+    """Find the form layout a settings section lays its rows out with.
+
+    :param section: the section.
+    :returns: the layout, found by attribute first and by search second, or
+        ``None`` when the section has none.
+    """
     form = getattr(section, "_form", None)
     if isinstance(form, QFormLayout):
         return form
@@ -558,6 +568,16 @@ def _form_of(section: QWidget) -> Optional[QFormLayout]:
 
 
 def _set_row_visible(section: QWidget, field: QWidget, visible: bool) -> None:
+    """Show or hide a settings row, label and all.
+
+    Qt before 6.4 has no ``setRowVisible``; there the field alone is hidden,
+    which leaves an orphaned label -- a far smaller problem than a settings
+    panel that will not draw.
+
+    :param section: the section holding the row.
+    :param field: the row's field widget.
+    :param visible: whether to show it.
+    """
     form = _form_of(section)
     if form is None:
         field.setVisible(visible)
@@ -572,6 +592,13 @@ def _set_row_visible(section: QWidget, field: QWidget, visible: bool) -> None:
 
 
 def _row_is_visible(section: QWidget, field: QWidget) -> bool:
+    """Report whether a settings row is showing.
+
+    :param section: the section holding the row.
+    :param field: the row's field widget.
+    :returns: the row's visibility, falling back to the field's own on a Qt
+        that cannot answer for the row.
+    """
     form = _form_of(section)
     if form is None:
         return field.isVisible()

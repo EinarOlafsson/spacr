@@ -98,6 +98,20 @@ class AnnotationStrategyPanel(QWidget):
                  folder_provider: Optional[Callable[[], str]] = None,
                  parent: Optional[QWidget] = None, *,
                  threaded: bool = True) -> None:
+        """Build the panel that proposes which objects to annotate next.
+
+        Every input arrives through a provider rather than being passed in: the
+        panel is built before the run it describes exists, and asking at use
+        time is what lets it follow a screen whose table has since changed.
+
+        :param objects_provider: called for the object table.
+        :param wells_provider: called for the wells in play.
+        :param score_provider: called for the score column to rank on.
+        :param folder_provider: called for the run folder to write into.
+        :param parent: parent widget, or ``None``.
+        :param threaded: propose on a worker thread. Set ``False`` in tests so
+            a proposal finishes before it returns.
+        """
         super().__init__(parent)
         from ..job_runner import JobRunner
 

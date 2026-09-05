@@ -43,6 +43,11 @@ class Flash:
     """
 
     def __init__(self, widget, duration_ms: int = FLASH_MS):
+        """Arm a one-shot highlight over a widget.
+
+        :param widget: the widget to flash.
+        :param duration_ms: how long the highlight lasts.
+        """
         self._widget = widget
         self._duration = int(duration_ms)
         self._active = False
@@ -68,6 +73,12 @@ class Flash:
         # timeout -- a screen torn down mid-flash is ordinary, not an error.
         # shiboken raises RuntimeError on a deleted C++ object, and there is
         # nothing to repaint by then either way.
+        """Clear the highlight and repaint, if the widget still exists.
+
+        A screen torn down mid-flash is ordinary rather than an error: shiboken
+        raises on a deleted C++ object, and by then there is nothing to repaint
+        either way.
+        """
         self._active = False
         try:
             self._widget.update()

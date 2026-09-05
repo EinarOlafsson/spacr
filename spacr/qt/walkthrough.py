@@ -52,6 +52,12 @@ MENU_TITLE = "Walkthroughs"
 
 
 def _settings():
+    """Open spaCR's ``QSettings``.
+
+    Imported inside the call so this module can be read without Qt.
+
+    :returns: the settings store.
+    """
     from PySide6.QtCore import QSettings
     return QSettings(_ORG, _APP)
 
@@ -134,6 +140,13 @@ def unregister_steps(app_key: str) -> bool:
 
 
 def _module_name(app_key: str) -> str:
+    """Return a module's display name.
+
+    :param app_key: the registry key.
+    :returns: the name the registry gives it, falling back to the key --
+        a walkthrough that says ``map_barcodes`` is worse than one that says
+        nothing, but better than one that fails to build.
+    """
     try:
         from .app import APPS
         for row in APPS:
@@ -145,6 +158,12 @@ def _module_name(app_key: str) -> str:
 
 
 def _sentence(names: List[str]) -> str:
+    """Join names into readable English.
+
+    :param names: the names to join.
+    :returns: ``""``, one name, or a comma list ending in "and" -- so a
+        sentence about three modules reads as prose rather than as a list.
+    """
     if not names:
         return ""
     if len(names) == 1:
@@ -236,6 +255,13 @@ def build_steps(app_key: str) -> List[WalkStep]:
 
 
 def _first_section(screen: QWidget) -> Optional[QWidget]:
+    """Find the settings category a walkthrough should point at.
+
+    :param screen: the module screen.
+    :returns: the first VISIBLE section, falling back to the first of any --
+        pointing at a section the user cannot see would highlight nothing.
+        ``None`` when the screen has no sections.
+    """
     sections = getattr(screen, "_settings_sections", None) or []
     for section in sections:
         if section.isVisible():
@@ -244,10 +270,24 @@ def _first_section(screen: QWidget) -> Optional[QWidget]:
 
 
 def _search_bar(screen: QWidget) -> Optional[QWidget]:
+    """Find a screen's settings search strip.
+
+    :param screen: the module screen.
+    :returns: the strip, or ``None`` when the screen has none.
+    """
     return getattr(screen, "_settings_search", None)
 
 
 def _run_button(screen: QWidget) -> Optional[QWidget]:
+    """Find a screen's Run button.
+
+    The known attribute names are tried first and a search by label second,
+    because screens that build themselves rather than being the generic
+    ``AppScreen`` name the button whatever suited them.
+
+    :param screen: the module screen.
+    :returns: the button, or ``None`` when the screen has none to point at.
+    """
     for attr in ("_btn_run", "_run_btn", "_btn_start"):
         widget = getattr(screen, attr, None)
         if widget is not None:
@@ -383,6 +423,14 @@ class _Highlight:
 
 
 def _bind_highlight(fn, target):
+    """Bind a highlight resolver to its target.
+
+    :param fn: the resolver, or ``None``.
+    :param target: what to resolve against.
+    :returns: the bound highlight, or ``None`` when there is no resolver --
+        so a step without one is a step that highlights nothing rather than
+        one that raises.
+    """
     if fn is None:
         return None
     return _Highlight(fn, target)

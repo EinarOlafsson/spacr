@@ -26,6 +26,12 @@ class InfoLink(DotLink):
         tooltip: str = "Open API reference",
         parent=None,
     ):
+        """Build the teal dot that opens a documentation page.
+
+        :param url: the page to open.
+        :param tooltip: hover text.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(
             tooltip=tooltip,
             colours=("#20B8B0", "#48D8D0", "#118D88", "#6A8F8D"),

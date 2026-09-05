@@ -121,6 +121,15 @@ class _FractalFollowsItsScreen(QObject):
         self._widget = widget
 
     def eventFilter(self, watched, event) -> bool:
+        """Resize the backdrop to match the screen it sits behind.
+
+        Returns ``False`` always: the resize is observed, never consumed, so the
+        screen still lays itself out.
+
+        :param watched: the screen being followed.
+        :param event: the event.
+        :returns: ``False``.
+        """
         if event.type() == QEvent.Type.Resize:
             try:
                 self._widget.setGeometry(watched.rect())
@@ -248,6 +257,18 @@ class _DragsTheWindowByTheMenuBar(QObject):
         self._window = window
 
     def eventFilter(self, watched, event):    # noqa: N802 - Qt naming
+        """Start a system window move when the bare menu strip is pressed.
+
+        The window is frameless, so the menu bar is what you drag it by. A press
+        over an actual MENU is let through -- otherwise opening File would move
+        the window instead. The move is handed to the compositor rather than
+        implemented here, so it snaps and tiles like any other window.
+
+        :param watched: the menu bar.
+        :param event: the event.
+        :returns: ``True`` when the drag was started and the press consumed,
+            ``False`` otherwise.
+        """
         if event.type() != QEvent.Type.MouseButtonPress:
             return False
         if event.button() != Qt.MouseButton.LeftButton:
@@ -2151,18 +2172,37 @@ class _ChromeButton(QToolButton):
                      if lit else self._paint_icon())
 
     def enterEvent(self, event):        # noqa: N802 - Qt naming
+        """Show the mark when the pointer arrives.
+
+        :param event: the enter event.
+        """
         self._show(True)
         super().enterEvent(event)
 
     def leaveEvent(self, event):        # noqa: N802 - Qt naming
+        """Hide the mark when the pointer leaves, unless the button is held down.
+
+        :param event: the leave event.
+        """
         self._show(self.isDown())
         super().leaveEvent(event)
 
     def mousePressEvent(self, event):   # noqa: N802 - Qt naming
+        """Show the mark while the button is held.
+
+        :param event: the mouse event.
+        """
         self._show(True)
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):  # noqa: N802 - Qt naming
+        """Leave the mark shown only if the pointer is still over the button.
+
+        Asked after the base class has handled the release, so ``underMouse``
+        reports where the pointer ended rather than where the press began.
+
+        :param event: the mouse event.
+        """
         super().mouseReleaseEvent(event)
         self._show(self.underMouse())
 

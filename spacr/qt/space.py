@@ -158,6 +158,13 @@ ENV_CACHE_DIR = "SPACR_SPACE_CACHE"
 # ---------------------------------------------------------------------------
 
 def _clampi(value: int, lo: int, hi: int) -> int:
+    """Clamp an integer into a range.
+
+    :param value: the value.
+    :param lo: the lower bound.
+    :param hi: the upper bound.
+    :returns: the clamped integer.
+    """
     return max(lo, min(hi, int(value)))
 
 
@@ -629,6 +636,18 @@ def sun(width: int, height: int, seed: int = DEFAULT_SEED,
 # ---------------------------------------------------------------------------
 
 def _nebula(width: int, height: int, seed: int) -> np.ndarray:
+    """Render the nebula layer of the space backdrop.
+
+    Generated small and upsampled: the noise is smooth by construction, so
+    computing it at full resolution costs frames for detail the blur would
+    remove anyway. The seed is mixed with a constant so the nebula does not
+    correlate with the star field drawn from the same seed.
+
+    :param width: frame width in pixels.
+    :param height: frame height in pixels.
+    :param seed: the frame's random seed.
+    :returns: an RGB float array of the requested size.
+    """
     rng = np.random.default_rng(seed ^ 0xC2B2AE35)
     sw = max(8, width // (SMOOTH_SCALE * 2))
     sh = max(8, height // (SMOOTH_SCALE * 2))
@@ -697,6 +716,12 @@ def _luma(img: np.ndarray) -> np.ndarray:
 
 
 def _tone_stat(mapped: np.ndarray, percentile: Optional[float]) -> float:
+    """Return the statistic the tone curve is anchored on.
+
+    :param mapped: the mapped image.
+    :param percentile: which percentile to take, or ``None`` for the mean.
+    :returns: the statistic.
+    """
     if percentile is None:
         return float(mapped.mean())
     return float(np.percentile(mapped, percentile))
@@ -743,6 +768,16 @@ def tone_exposure(luma: np.ndarray) -> float:
 
 
 def _apply_tone_curve(hdr: np.ndarray, exposure: float) -> np.ndarray:
+    """Map high dynamic range to ``[0, 1]`` with an exposure curve.
+
+    Exponential rather than linear: a linear scale either clips the bright
+    stars or leaves everything else black, and this compresses the top end
+    while keeping the faint structure visible.
+
+    :param hdr: the unbounded image.
+    :param exposure: the exposure multiplier.
+    :returns: the mapped image, clipped and single-precision.
+    """
     out = 1.0 - np.exp(-hdr * exposure)
     np.clip(out, 0.0, 1.0, out=out)
     return out.astype(np.float32, copy=False)
@@ -928,6 +963,13 @@ def legibility(variant: str = DEFAULT_VARIANT, width: int = 0,
 
 
 def _vignette(width: int, height: int) -> np.ndarray:
+    """Build the radial falloff applied to the backdrop.
+
+    :param width: frame width in pixels.
+    :param height: frame height in pixels.
+    :returns: a multiplier field, 1.0 at the centre falling to 0.7 at the
+        corners -- enough to settle the edges without reading as a frame.
+    """
     yy = (np.linspace(-1.0, 1.0, height, dtype=np.float32))[:, None]
     xx = (np.linspace(-1.0, 1.0, width, dtype=np.float32))[None, :]
     r2 = xx * xx + yy * yy

@@ -126,6 +126,13 @@ class QCFieldImage:
 
 
 def _card_root(card: Any, digest: Any) -> str:
+    """Find the project root a scorecard came from.
+
+    :param card: the scorecard; its mask path is two levels below the root.
+    :param digest: the digest it belongs to, used when the card names no
+        path of its own.
+    :returns: an absolute root, or ``""`` when neither knows one.
+    """
     path = str(getattr(card, "path", "") or "")
     if path:
         return os.path.dirname(os.path.dirname(os.path.abspath(path)))
@@ -133,6 +140,14 @@ def _card_root(card: Any, digest: Any) -> str:
 
 
 def _field_plate(field: str) -> str:
+    """Return the plate a field name belongs to.
+
+    :param field: the field name.
+    :returns: the plate, parsed properly where the segmentation-QC parser
+        can read the name, and otherwise everything before the first
+        underscore -- a convention that holds for every name spaCR writes
+        itself.
+    """
     try:
         from ...seg_qc import parse_field_name
 
@@ -142,6 +157,15 @@ def _field_plate(field: str) -> str:
 
 
 def _group_digest(digest: Any) -> Dict[Tuple[str, str], Dict[str, Any]]:
+    """Collect a digest's per-field verdicts, keyed by root and field.
+
+    The ``.npy`` suffix is stripped from field names so a verdict recorded
+    against the mask file and one recorded against the field agree on one
+    key.
+
+    :param digest: the QC digest to read.
+    :returns: ``{(root, field): {...}}`` with each field's verdicts.
+    """
     groups: Dict[Tuple[str, str], Dict[str, Any]] = {}
     for card in list(getattr(digest, "scorecards", ()) or ()):
         root = _card_root(card, digest)
@@ -168,6 +192,17 @@ def _keys_for_finding(
     finding: Any,
     groups: Dict[Tuple[str, str], Dict[str, Any]],
 ) -> List[Tuple[str, str]]:
+    """Find the fields a finding is about.
+
+    A FLAG finding carries exact field names and only those match. A
+    POSITIONAL finding does not: every field matching its plate and object
+    type is part of the pattern and belongs in the browser, including the
+    individually-clean ones -- which is what makes the pattern visible.
+
+    :param finding: the finding to resolve.
+    :param groups: the digest's fields, as :func:`_group_digest` returns.
+    :returns: the matching ``(root, field)`` keys.
+    """
     exact = {str(name)[:-4] if str(name).lower().endswith(".npy")
              else str(name)
              for name in (getattr(finding, "fields", ()) or ())}
@@ -252,15 +287,40 @@ def finding_targets(
 
 
 def _mask_path(folder: str, field: str) -> Path:
+    """Return where a field's mask file lives.
+
+    :param folder: the object-type mask folder.
+    :param field: the field name, without its suffix.
+    :returns: the ``.npy`` path.
+    """
     return Path(folder) / f"{field}.npy"
 
 
 def _display_stride(shape: Sequence[int]) -> int:
+    """Choose a subsampling stride that brings an image under the display cap.
+
+    :param shape: the image's ``(height, width)``.
+    :returns: the stride, never below 1 -- an image already under the cap is
+        shown whole.
+    """
     edge = max(int(shape[0]), int(shape[1]))
     return max(1, int(math.ceil(edge / float(MAX_DISPLAY_EDGE))))
 
 
 def _load_mask(path: Path, stride: int, shape: Tuple[int, int]) -> np.ndarray:
+    """Load a mask, subsampled, and check it against the image it labels.
+
+    Memory-mapped and read without pickle: a mask file is data, and
+    unpickling one would execute whatever it contained.
+
+    :param path: the mask file.
+    :param stride: subsampling stride.
+    :param shape: the image's shape, which the mask must match.
+    :returns: a 2-D label array, copied out of the map.
+    :raises ValueError: if the mask is not 2-D after squeezing a singleton
+        axis, or if its shape does not match the image -- outlines drawn
+        from a mismatched mask would land on the wrong objects.
+    """
     mask = np.load(str(path), mmap_mode="r", allow_pickle=False)
     if mask.ndim == 3 and 1 in mask.shape:
         mask = np.squeeze(mask)
@@ -492,6 +552,16 @@ def _render_or_message(
 
 
 def _normalise(plane: np.ndarray) -> np.ndarray:
+    """Scale one plane to 8-bit over its 2nd-98th percentile.
+
+    The robust range rather than the full one: a single hot pixel otherwise
+    takes the whole scale and the image goes black. A plane with no finite
+    values, or no spread, comes back as zeros rather than as a division by
+    zero.
+
+    :param plane: the plane to scale.
+    :returns: a uint8 array of the same shape.
+    """
     values = np.asarray(plane)
     finite = values[np.isfinite(values)] if np.issubdtype(
         values.dtype, np.floating) else values.reshape(-1)
@@ -509,6 +579,16 @@ def _normalise(plane: np.ndarray) -> np.ndarray:
 
 
 def _base_rgb(intensities: np.ndarray, channel: int) -> np.ndarray:
+    """Build the RGB base a field's outlines are drawn over.
+
+    One chosen channel is drawn grey; with no choice, a single-channel image
+    is grey and a multi-channel one maps its first three channels to R, G
+    and B.
+
+    :param intensities: the field's channels, as ``(H, W, C)``.
+    :param channel: which channel to show, or ``-1`` for the composite.
+    :returns: a uint8 ``(H, W, 3)`` image.
+    """
     if channel >= 0:
         mono = _normalise(intensities[..., channel])
         return np.repeat(mono[..., None], 3, axis=2)
@@ -523,6 +603,15 @@ def _base_rgb(intensities: np.ndarray, channel: int) -> np.ndarray:
 
 
 def _boundary(mask: np.ndarray) -> np.ndarray:
+    """Return the one-pixel outline of every labelled object.
+
+    A pixel is an edge where it is labelled and differs from a neighbour,
+    plus the array's own border -- an object running off the edge of the
+    field is outlined there too rather than appearing open.
+
+    :param mask: the label array.
+    :returns: a boolean array marking the outlines.
+    """
     labels = np.asarray(mask)
     positive = labels > 0
     edge = np.zeros(labels.shape, dtype=bool)
@@ -540,6 +629,15 @@ def _boundary(mask: np.ndarray) -> np.ndarray:
 
 
 def _mask_colour(object_type: str) -> Tuple[int, int, int]:
+    """Pick a stable colour for an object type.
+
+    Known types get their fixed colour and any organelle role shares one. A
+    name spaCR does not know gets a colour derived from the name itself, so
+    a custom role is vivid, distinct, and the same on every run.
+
+    :param object_type: the role to colour.
+    :returns: an RGB triple.
+    """
     if object_type in _MASK_COLOURS:
         return _MASK_COLOURS[object_type]
     if object_type.startswith("organelle"):
@@ -574,6 +672,11 @@ def render_qc_field(
 
 
 def _pixmap(rgb: np.ndarray) -> QPixmap:
+    """Convert an RGB array to a ``QPixmap``.
+
+    :param rgb: a uint8 ``(H, W, 3)`` image.
+    :returns: the pixmap.
+    """
     height, width = rgb.shape[:2]
     image = QImage(
         rgb.data, width, height, int(rgb.strides[0]), QImage.Format_RGB888)
@@ -599,6 +702,10 @@ class _FieldView(QGraphicsView):
         self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
 
     def set_pixmap(self, pixmap: QPixmap) -> None:
+        """Show a new image, fitted, and forget any zoom the user had applied.
+
+        :param pixmap: the composite to show; a null one clears the view.
+        """
         self._scene.clear()
         self._item = self._scene.addPixmap(pixmap)
         self._scene.setSceneRect(QRectF(pixmap.rect()))
@@ -608,16 +715,29 @@ class _FieldView(QGraphicsView):
             self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
 
     def clear_image(self) -> None:
+        """Empty the view."""
         self._scene.clear()
         self._item = None
 
     def wheelEvent(self, event) -> None:  # noqa: N802 - Qt override
+        """Zoom on the wheel, and remember that the user did.
+
+        Once they have zoomed, a resize stops re-fitting -- a view that snapped
+        back to fit every time the splitter moved would undo the inspection the
+        zoom was for.
+
+        :param event: the wheel event.
+        """
         factor = 1.2 if event.angleDelta().y() > 0 else (1.0 / 1.2)
         self.scale(factor, factor)
         self._user_zoomed = True
         event.accept()
 
     def resizeEvent(self, event) -> None:  # noqa: N802 - Qt override
+        """Re-fit the image, unless the user has zoomed.
+
+        :param event: the resize event.
+        """
         super().resizeEvent(event)
         if not self._user_zoomed and self._item is not None:
             self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)

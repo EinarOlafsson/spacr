@@ -23,10 +23,23 @@ _KEY_APPLIED = "installer/consent_applied"
 
 
 def _settings() -> QSettings:
+    """Open spaCR's ``QSettings``.
+
+    :returns: the settings store.
+    """
     return QSettings(_ORG, _APP)
 
 
 def _as_bool(value: Any) -> bool:
+    """Read a stored value as a boolean.
+
+    ``QSettings`` returns strings on some platforms and real booleans on
+    others, so both are accepted -- anything unrecognised is ``False``,
+    which is the safe answer for a consent flag.
+
+    :param value: the stored value.
+    :returns: whether it means yes.
+    """
     if isinstance(value, bool):
         return value
     return str(value).strip().lower() in {"1", "true", "yes", "on"}
@@ -39,6 +52,14 @@ class InstallerConsentDialog(QDialog):
     """
 
     def __init__(self, parent=None):
+        """Build the privacy and optional-account dialog.
+
+        Sized in scaled pixels rather than raw ones: a size set from Python does
+        not grow with the stylesheet's font size, and at the 200% scale the
+        prose inside wrapped to more height than the window had.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle(tr("spaCR privacy and optional account setup"))
         from .preferences import scaled_px
@@ -125,6 +146,10 @@ def apply_choices(choices: Mapping[str, Any]) -> bool:
 
 
 def _open_account_setup(parent) -> None:
+    """Open the AI providers dialog, for the optional account step.
+
+    :param parent: the dialog to parent it to.
+    """
     from .widgets.ai_chat_panel import _ProvidersDialog
 
     _ProvidersDialog(parent).exec()

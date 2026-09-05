@@ -161,6 +161,18 @@ class FoldingSummaryView(QScrollArea):
     """
 
     def __init__(self, parent=None):
+        """Build the scrolling summary view with its copy and save actions.
+
+        The action row is held as one widget rather than as a bare layout, and
+        that is load-bearing: the rebuild empties the body by taking items out
+        and deleting them, and it only finds widgets. A bare layout was taken
+        out and dropped while the buttons inside it stayed children of the body
+        with nothing laying them out -- still visible, still clickable, stuck at
+        their last geometry and painted under everything added afterwards, which
+        is the giant save button reachable only where no text covered it.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWidgetResizable(True)
         self._body = QWidget(self)
@@ -474,6 +486,14 @@ class FoldingSummaryView(QScrollArea):
         return view
 
     def _rebuild(self) -> None:
+        """Rebuild the summary as folded sections, the verdict open.
+
+        Text with no spaCR headings is shown whole: chopping up a statsmodels
+        summary by a guess would be worse than leaving it. A section whose body
+        is rows becomes a table; anything else stays a block, because the
+        statsmodels summary is column-aligned ASCII and re-laying it out would
+        destroy the alignment it carries itself.
+        """
         self._clear()
         preamble, sections = split_sections(self._text)
 

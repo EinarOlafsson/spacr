@@ -429,6 +429,26 @@ def _load_images_and_labels(image_files, label_files, invert=False):
     # Cellpose 4 no longer exposes submodules as attributes of the package
     # root. Import the IO boundary explicitly, and only when this Cellpose
     # dataset helper is used.
+    """Load a Cellpose training set, keeping each name beside its pixels.
+
+    THE NAMES ARE BUILT BESIDE THE PIXELS, one append each. They used to be
+    ``sorted(basename(f) for f in image_files)`` while the arrays were filled
+    in the CALLER's order -- and the caller shuffles before calling here, so
+    ``identify_masks_finetune`` wrote every mask under a DIFFERENT image's
+    filename: a whole plate of segmentations silently attributed to the
+    wrong wells.
+
+    Sorting was only half of it. Each loop skips a file that will not read,
+    which shortens the arrays while a precomputed name list keeps every
+    entry -- so one unreadable file misnamed every mask after it even when
+    the input was already in order.
+
+    :param image_files: image paths.
+    :param label_files: label paths, positionally matched to the images.
+    :param invert: invert each image after loading.
+    :returns: ``(images, labels, image_names, label_names)``, every list in
+        the same order and the names always matching the arrays beside them.
+    """
     from cellpose import io as cellpose_io
     from .utils import invert_image
     
@@ -506,6 +526,33 @@ def _load_images_and_labels(image_files, label_files, invert=False):
 def _load_normalized_images_and_labels(image_files, label_files, channels=None, percentiles=None,  
                                        invert=False, visualize=False, remove_background=False, 
                                        background=0, Signal_to_noise=10, target_height=None, target_width=None):
+    """Load a Cellpose training set, percentile-normalised and optionally resized.
+
+    With no explicit percentiles, the upper one is chosen per channel as the
+    first of 98, 99, 99.9, 99.99 and 99.999 that clears the signal
+    threshold, then averaged across the set -- so a channel whose signal
+    lives in a thin tail is not flattened by a fixed 99th, and a channel
+    that is mostly background does not have its noise stretched to full
+    scale.
+
+    :param image_files: image paths.
+    :param label_files: label paths, or ``None`` for images alone.
+    :param channels: channel indices to keep from a multi-channel image.
+    :param percentiles: an explicit ``[low, high]`` pair; anything that is
+        not a two-element list is ignored in favour of the per-channel
+        search.
+    :param invert: invert each image after loading.
+    :param visualize: plot the before/after of the resize.
+    :param remove_background: zero everything below ``background``.
+    :param background: the background level.
+    :param Signal_to_noise: how far above ``background`` a percentile must
+        sit to count as signal.
+    :param target_height: resize height, or ``None`` to keep the original.
+    :param target_width: resize width, or ``None`` to keep the original.
+    :returns: ``(images, labels, image_names, label_names, orig_dims)``.
+        Labels are resized with nearest-neighbour and no anti-aliasing,
+        because interpolating a label array invents object ids.
+    """
     from cellpose import io as cellpose_io
     from .plot import plot_resize
     from .utils import invert_image
@@ -1398,6 +1445,23 @@ def _generate_time_lists(file_list):
 
 def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
     
+    """Sort a flat folder of images into per-channel stacks from their filenames.
+
+    Zero padding is undone through ``_int_or_token``, which keeps a token
+    holding no integer as itself rather than turning it into ``0`` -- a well
+    called ``0A`` is not well 0.
+
+    Every file is parsed inside a run-ledger item, so a name the regex
+    cannot read is recorded and the rest of the plate still moves; the run
+    reports what it could not place rather than stopping at the first one.
+
+    :param src: the folder to sort.
+    :param regex: the filename pattern, with named groups for the plate,
+        well, field, channel and time.
+    :param timelapse: keep the time component in the output layout.
+    :param metadata_type: the microscope convention; ``'cq1'`` also converts
+        the well id, whose scheme differs from the well name it prints.
+    """
     from .utils import _int_or_token, _convert_cq1_well_id
 
     src_path = src
@@ -4414,6 +4478,15 @@ def _save_progress(dst, train_df, validation_df):
     return
     
 def _copy_missclassified(df):
+    """Copy every misclassified crop into a ``missclassified`` folder beside its source.
+
+    Split into ``pc`` and ``nc`` by what the original path contains, so the
+    two failure directions can be looked at separately -- a model that only
+    ever errs one way is a different problem from one that errs both.
+
+    :param df: predictions carrying ``true_label``, ``predicted_label`` and
+        ``filename``.
+    """
     misclassified = df[df['true_label'] != df['predicted_label']]
     for _, row in misclassified.iterrows():
         original_path = row['filename']
@@ -4429,6 +4502,18 @@ def _copy_missclassified(df):
     return
     
 def _read_db(db_loc, tables):
+    """Read tables out of a measurements database as data frames.
+
+    A ``~`` path is expanded HERE, once, for every reader. A ``src``
+    beginning with ``~`` produced a literal ``~/...`` path that the schema
+    migration resolved against the WORKING DIRECTORY and then refused. It is
+    fixed here rather than in the migration, whose own docstring states
+    non-expansion as a deliberate contract.
+
+    :param db_loc: the database path.
+    :param tables: the table names to read.
+    :returns: one data frame per requested table, in the order asked.
+    """
     import gc
     import os
     import pathlib
@@ -4941,6 +5026,12 @@ def _read_and_merge_data(
     return merged_df, obj_df_ls
 
 def _read_mask(mask_path):
+    """Read a mask file as 16-bit labels.
+
+    :param mask_path: the mask file.
+    :returns: the labels as ``uint16`` -- converted rather than cast, so an
+        8-bit mask keeps its object ids instead of having them rescaled.
+    """
     mask = imageio2.imread(mask_path)
     if mask.dtype != np.uint16:
         mask = img_as_uint(mask)

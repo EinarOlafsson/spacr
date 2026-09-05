@@ -568,6 +568,11 @@ class OrthoView(LinkedView, QWidget):
 
     # -- painting -----------------------------------------------------------
     def _repaint(self) -> None:
+        """Redraw all three panels, with the crosshair where the views put it.
+
+        With no views loaded the panels are cleared rather than left showing the
+        last volume's slices under a new one.
+        """
         if self._views is None:
             for panel in self.panels.values():
                 panel.show_canvas(self._stack, None)
