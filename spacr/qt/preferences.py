@@ -305,6 +305,12 @@ class _LazyDefaults(dict):
         return dict.__getitem__(self, key)
 
     def get(self, key, default=None):
+        """Read one default, loading the table on first use.
+
+        :param key: the setting name.
+        :param default: what to return when it has none.
+        :returns: the default value.
+        """
         self._load()
         return dict.get(self, key, default)
 
@@ -319,10 +325,12 @@ class _LazyDefaults(dict):
         return dict.__contains__(self, key)
 
     def keys(self):
+        """Return the setting names, loading the table on first use."""
         self._load()
         return dict.keys(self)
 
     def items(self):
+        """Return the name/default pairs, loading the table on first use."""
         self._load()
         return dict.items(self)
 
@@ -2008,6 +2016,16 @@ def _migrate_ambient_motion() -> None:
 
 
 def _ambient_multiplier(key: str, index: int) -> float:
+    """Read one ambient-motion multiplier, clamped to its range.
+
+    A hand-edited INI can hold ``nan``, which compares false against every
+    bound and would pass a range check written as two comparisons -- so it
+    is tested for explicitly and falls back to the default.
+
+    :param key: the settings key.
+    :param index: which multiplier, indexing the range table.
+    :returns: the value, within range.
+    """
     _migrate_ambient_motion()
     (low, high), default = _ambient_ranges()[index]
     try:
@@ -2020,6 +2038,13 @@ def _ambient_multiplier(key: str, index: int) -> float:
 
 
 def _set_ambient_multiplier(key: str, index: int, value: float) -> None:
+    """Write one ambient-motion multiplier, clamped to its range.
+
+    :param key: the settings key.
+    :param index: which multiplier, indexing the range table.
+    :param value: the value to store; anything unparseable, or ``nan``,
+        stores the default instead.
+    """
     _migrate_ambient_motion()
     (low, high), default = _ambient_ranges()[index]
     try:
@@ -3110,6 +3135,11 @@ def _visual_snapshot() -> dict:
 
 
 def _stash_visuals() -> None:
+    """Save the current visual settings, so a mode change can restore them.
+
+    Written and synced immediately: the stash exists to survive a crash
+    during the mode switch it is protecting.
+    """
     import json
     settings = _settings()
     settings.setValue(_KEY_MODE_VISUAL_STASH,
@@ -3746,6 +3776,12 @@ def color_blind_categorical_palette() -> list:
 
 
 def _level_names(levels) -> str:
+    """Render a set of logging levels as their names.
+
+    :param levels: the level numbers.
+    :returns: a sorted, comma-separated list -- sorted so the same set
+        always writes the same string, which is what makes it comparable.
+    """
     return ",".join(logging.getLevelName(level) for level in sorted(levels))
 
 
@@ -6815,6 +6851,11 @@ def _tell_the_screens_the_object_grid_changed() -> int:
 
 
 def _hbox_wrap(layout):
+    """Wrap a layout in a widget so it can be placed where a widget is wanted.
+
+    :param layout: the layout to wrap.
+    :returns: the widget owning it.
+    """
     from PySide6.QtWidgets import QWidget
     w = QWidget()
     w.setLayout(layout)
