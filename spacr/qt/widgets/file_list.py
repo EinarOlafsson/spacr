@@ -1315,6 +1315,14 @@ class FilePathListWidget(QWidget):
         from .. import path_probe as _probe
 
         def redraw(_path: str, _answer: bool) -> None:
+            """Refresh the hint once a probe has an answer.
+
+            Both arguments are ignored: the hint is rebuilt from every path
+            it shows, so which one answered does not change the work.
+
+            :param _path: the path that was probed; unused.
+            :param _answer: what the probe found; unused.
+            """
             try:
                 self._refresh_hint()
             except RuntimeError:
