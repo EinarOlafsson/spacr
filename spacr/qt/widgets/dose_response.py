@@ -500,6 +500,14 @@ class DoseResponseSpec:
     max_reversal: float = MAX_REVERSAL
 
     def __post_init__(self) -> None:
+        """Normalise the column names and validate the fit settings.
+
+        :raises DoseResponseError: if ``ci_method`` or ``direction`` is not one
+            this module offers; if ``confidence`` is not strictly between 0 and
+            1 -- it is a coverage probability, so a 95% interval is 0.95 and not
+            95; or if ``max_reversal`` is not a fraction of the response span in
+            ``(0, 1]``.
+        """
         object.__setattr__(self, "concentration", str(self.concentration or ""))
         object.__setattr__(self, "response", str(self.response or ""))
         object.__setattr__(self, "unit", str(self.unit or "").strip())
@@ -836,6 +844,12 @@ class DoseResponseResult:
 
     # -- saying it in words ------------------------------------------------
     def _dose(self, value: Optional[float]) -> str:
+        """Render one dose for the report, with its unit.
+
+        :param value: the dose; ``None`` or non-finite renders as ``"n/a"``,
+            which is what an EC50 the data does not determine looks like.
+        :returns: the formatted dose.
+        """
         if value is None or not np.isfinite(value):
             return "n/a"
         return f"{value:.3g}" + (f" {self.unit}" if self.unit else "")

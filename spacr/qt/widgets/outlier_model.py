@@ -558,6 +558,16 @@ class OutlierSpec:
     seed: int = 0
 
     def __post_init__(self) -> None:
+        """De-duplicate the features and well keys, and validate the detector.
+
+        :raises OutlierError: if the method or transform is not one this module
+            offers; if ``k`` or ``c`` is not positive -- they are how many
+            robust SDs and how many IQRs place the fence; if ``alpha`` is not a
+            per-object false-positive rate in ``(0, 1)``; if
+            ``min_well_objects`` is below 1, since a well with no objects has no
+            median; or if ``support_fraction`` is given and is not in ``(0, 1]``
+            -- ``None`` picks sklearn's maximum-breakdown default.
+        """
         seen: Dict[str, None] = {}
         for name in self.features or ():
             if name:

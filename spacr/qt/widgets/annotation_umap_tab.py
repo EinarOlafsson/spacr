@@ -63,6 +63,10 @@ class PurityScatter(FastPlot):
     """
 
     def __init__(self, parent=None):
+        """Create the embedding scatter, captioned and axis-labelled.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(title="Annotated cells among the controls",
                          x_label="UMAP 1", y_label="UMAP 2", parent=parent)
 
@@ -150,6 +154,19 @@ class AnnotationUmapTab(QWidget):
     MINIMUM_SEPARATION = 0.0
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the tab: the embedding beside the per-guide table.
+
+        ``rank`` is deliberately not offered as a picking method: it takes the
+        top-scoring cells in the well, so its cells landing near the positive
+        controls restates how it chose them rather than testing anything.
+
+        The plot and the table are two views of one result and sit side by side
+        behind a divider the user owns -- the picture says where the cells
+        landed, the table by how much, and reading one against the other is the
+        whole job.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._frame = None
         self._embedding = None
@@ -277,6 +294,30 @@ class AnnotationUmapTab(QWidget):
         return values, "well"
 
     def _score(self, method: str) -> dict:
+        """Tune an embedding on the controls, then score the annotated cells in it.
+
+        The guard that matters is the held-out one. The embedding is tuned on
+        half the control cells and scored on the other half, and a search that
+        separates only the half it was tuned on has found the split rather than
+        the biology -- so a low held-out silhouette refuses to draw any verdict,
+        with the numbers, rather than reporting where the annotated cells landed
+        in a meaningless embedding.
+
+        Control wells are held apart across the split wherever the frame names
+        them: sibling cells on both sides would separate because they came from
+        the same well, and the held-out silhouette would report that as biology.
+        A frame that cannot name a well is split per object, which the result
+        records rather than hides.
+
+        Agreement with the guides' effects is compared against the effects
+        shuffled between guides, because cells land somewhere whatever the
+        annotation says.
+
+        :param method: which picking method chose the annotated cells.
+        :returns: the separation search, the per-guide purity and the effect
+            agreement -- or a dict carrying ``error``/``verdict`` when it
+            refused.
+        """
         import numpy as np
 
         from ...annotation_umap_qc import (

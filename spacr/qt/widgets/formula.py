@@ -989,6 +989,15 @@ class ColumnFormula:
     replace: bool = False
 
     def __post_init__(self) -> None:
+        """Normalise the name and expression, and parse the expression now.
+
+        Parsing at construction is the point: an unparseable formula cannot then
+        be stored, serialised, or reach a redraw -- it fails where the user typed
+        it.
+
+        :raises FormulaError: if the name is not a usable column name, or the
+            expression will not parse.
+        """
         object.__setattr__(self, "name", _valid_name(self.name))
         object.__setattr__(self, "expression", str(self.expression).strip())
         object.__setattr__(self, "replace", bool(self.replace))
@@ -1218,6 +1227,7 @@ class FormulaSet:
         return not self.formulas
 
     def __len__(self) -> int:
+        """Return how many formulas the set holds."""
         return len(self.formulas)
 
     def apply(self, frame: pd.DataFrame) -> Tuple[pd.DataFrame, List[ColumnResult]]:
