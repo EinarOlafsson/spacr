@@ -177,6 +177,15 @@ class FrameSequence:
 
     def __init__(self, kind: str, source, n_available: int,
                  indices: Sequence[int], label: str = "", cache_size: int = 6):
+        """Hold one sequence of frames, read lazily and cached.
+
+        :param kind: what the frames are -- images, masks, or an overlay.
+        :param source: where to read them from.
+        :param n_available: how many frames exist.
+        :param indices: which of them this sequence shows.
+        :param label: the caption for this sequence.
+        :param cache_size: how many decoded frames to keep.
+        """
         self.kind = kind
         self.source = source
         self.n_available = int(n_available)
@@ -268,6 +277,10 @@ class FrameSequence:
     # -- access ------------------------------------------------------------
 
     def __len__(self) -> int:
+        """How many frames this sequence shows.
+
+        :returns: the frame count.
+        """
         return len(self.indices)
 
     @property
@@ -336,6 +349,15 @@ class FrameSequence:
             self._cache_lock.release()
 
     def _read(self, real: int) -> np.ndarray:
+        """Decode one frame, going to the source only on a cache miss.
+
+        CACHED BECAUSE SCRUBBING RE-READS. A user dragging the scrub bar asks
+        for the same frames repeatedly, and decoding each time makes the drag
+        as slow as the disk.
+
+        :param real: the frame's index in the source.
+        :returns: the decoded frame.
+        """
         if self.kind == "files":
             path = self.source[real]
             if path.suffix.lower() == ".npy":
@@ -1137,6 +1159,11 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     PREVIEW_SOURCE_HINT = "Load a sequence first."
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the preview: its canvases, its scrub bar and its controls.
+
+        :param parent: parent widget.
+        :param threaded: whether work runs on a worker.
+        """
         super().__init__(parent)
         # Opening a sequence reads a TIFF header or memory-maps a stack, and
         # then lists every sibling field of view. On a plate that is not GUI
@@ -1217,6 +1244,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self):
+        """Lay out the canvases over the scrub bar and the control row."""
         root = QVBoxLayout(self)
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
@@ -1465,6 +1493,11 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     # -- drag & drop -------------------------------------------------------
 
     def _dropped_path(self, event) -> Optional[str]:
+        """The usable path out of a drop, or None.
+
+        :param event: the Qt drop event.
+        :returns: the path, or None.
+        """
         mime = event.mimeData()
         if not mime.hasUrls():
             return None
@@ -2037,6 +2070,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         )
 
     def _seg_params(self) -> Dict[str, Any]:
+        """The segmentation settings the controls currently describe.
+
+        :returns: the parameters.
+        """
         return {
             "model": self._model_box.currentText(),
             "channel": int(self._channel.value()),
@@ -2048,6 +2085,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         }
 
     def _track_params(self) -> Dict[str, Any]:
+        """The tracking settings the controls currently describe.
+
+        :returns: the parameters.
+        """
         return {
             "mode": self._mode_box.currentText(),
             "displacement": float(self._displacement.value()),
@@ -2098,6 +2139,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         return "" if ok else str(why)
 
     def _start(self, allow_segmentation: bool) -> None:
+        """Run the preview, optionally segmenting first.
+
+        :param allow_segmentation: False to preview existing masks only.
+        """
         blocked = self.preview_blocked_reason()
         if not self.begin_preview():
             # A missing tracking backend is a *result* as well as a refusal:
@@ -2331,12 +2376,24 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         return [current] + [path for path in siblings if path != current]
 
     def _desired_movie_sources(self) -> List[str]:
+        """Which sequences the current settings say should be shown.
+
+        :returns: the sources.
+        """
         movie = getattr(self, "_movie_panel", None)
         if movie is None:
             return []
         return list(self._movie_sources[: max(1, int(movie.max_fields()))])
 
     def _movie_entry_is_current(self, entry: Optional[dict]) -> bool:
+        """Whether a loaded sequence still matches the settings.
+
+        CHECKED BEFORE REUSE, so a movie built under the previous settings is
+        not shown as though it answered the current ones.
+
+        :param entry: the loaded sequence.
+        :returns: True when it is still valid.
+        """
         return bool(
             entry
             and entry.get("_seg_key") == self._movie_seg_key
@@ -2356,6 +2413,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         movie.set_fields(ready)
 
     def _cancel_pending_movie_field(self) -> None:
+        """Abandon a field whose movie is still being built."""
         self._movie_generation += 1
         self._movie_pending_path = None
         self._movie_pending_key = None
@@ -2534,6 +2592,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     # -- rendering ---------------------------------------------------------
 
     def _on_scrub(self, _value: int) -> None:
+        """Show the frame the scrub bar now points at.
+
+        :param _value: the bar's position; re-read from the widget.
+        """
         self._refresh_canvases()
 
     def _toggle_playback(self) -> None:
@@ -2548,11 +2610,13 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._play_btn.setText("Pause")
 
     def _stop_playback(self) -> None:
+        """Stop the playback timer."""
         self._play_timer.stop()
         if hasattr(self, "_play_btn"):
             self._play_btn.setText("Play")
 
     def _update_playback_interval(self, *_args) -> None:
+        """Set the timer from the chosen frame rate."""
         fps = max(1, int(self._play_fps.value()))
         self._play_timer.setInterval(max(1, round(1000 / fps)))
 
@@ -2566,6 +2630,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._frame_slider.setValue(0 if current >= last else current + 1)
 
     def _refresh_canvases(self) -> None:
+        """Redraw every canvas for the current frame."""
         seq = self._sequence
         idx = int(self._frame_slider.value())
         if seq is None:
@@ -2598,16 +2663,22 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     # -- misc --------------------------------------------------------------
 
     def _on_propagate_toggled(self, on: bool) -> None:
+        """Turn settings propagation on or off.
+
+        :param on: True to push settings to the run as they change.
+        """
         if on:
             self.propagate_settings()
 
     def _pick_sequence(self):
+        """Ask for a sequence of frames to preview."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder of frames")
         if path:
             self.load_sequence_async(path)
 
     def _pick_masks(self):
+        """Ask for a set of masks to overlay."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder of label images")
         if path:
