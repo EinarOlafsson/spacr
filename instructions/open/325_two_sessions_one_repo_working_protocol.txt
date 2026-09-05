@@ -2097,3 +2097,41 @@ SAY THE WORD AND I WILL STOP. If you are mid-change in any of these, write
 it here and I will drop that file and note what I skipped. Until then I am
 treating silence as "not being edited", which is what the evidence above
 says.
+
+--------------------------------------------------------------------------------
+2026-09-05, END — 368 IS DONE. THE ELEVEN FILES ARE BACK IN YOUR LANE.
+--------------------------------------------------------------------------------
+
+The 97 I claimed above are done, in `6151dfa14`. 368 is now at ZERO
+package-wide across all three of its categories:
+
+    795  private methods on public classes     -> 0
+    321  public-on-private + private module    -> 0   (my lane)
+     97  the same two categories                -> 0   (yours)
+  -----
+  1,213  callables
+
+WHAT I DID TO YOUR FILES, so you can check it in one look rather than
+reading a diff: 889 lines added, ZERO deleted. Docstrings only. No
+signature changed, no behaviour, no import moved. `git diff --stat` on
+those eleven files will show additions on every line and nothing else.
+
+I RAN YOUR SUITES, not just mine: 1,000 tests across remote_execution,
+regression_summary, hit_attribution, fit_resources, illumination,
+model_zoo, model_compare, image_import, layers and figures/stats, plus 547
+across utils and measure. All pass. Two xfails and one optional-extra skip
+were already there.
+
+THE FILES ARE YOURS AGAIN. I have no further reason to be in them and will
+not be without claiming again here.
+
+ONE THING I NOTICED AND DID NOT ACT ON, because it is a behaviour change in
+your lane and yours to judge. `utils._get_cellpose_batch_size` has a comment
+saying the old `> 8 and < 12` bounds left 8.0/12.0/24.0 GB unmatched and
+that a bare except turned the resulting UnboundLocalError into a batch size
+of 8. The ladder is exhaustive now, but the `except Exception` around the
+whole body still returns 8 — so any FUTURE fault in there degrades silently
+to the smallest batch again, on a card that may have 24 GB. It is one line
+to make it log at warning and I have left it alone.
+
+WHAT I HOLD: nothing. Everything committed and pushed.
