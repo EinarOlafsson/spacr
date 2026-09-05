@@ -166,6 +166,10 @@ class FeaturePicker(QWidget):
     changed = Signal()
 
     def __init__(self, parent=None):
+        """Build the feature list with its search box.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("PCAFeaturePicker")
         self._all: Tuple[str, ...] = ()
@@ -253,10 +257,15 @@ class FeaturePicker(QWidget):
 
     # -- internals -------------------------------------------------------
     def _visible(self) -> List[str]:
+        """The features the search box is letting through.
+
+        :returns: the visible feature names.
+        """
         needle = self._search.text().strip().lower()
         return [n for n in self._all if not needle or needle in n.lower()]
 
     def _refilter(self) -> None:
+        """Re-list the features matching the search box."""
         self._list.blockSignals(True)
         self._list.clear()
         for name in self._visible():
@@ -274,6 +283,10 @@ class FeaturePicker(QWidget):
         self.changed.emit()
 
     def _on_item_changed(self, item: QListWidgetItem) -> None:
+        """Note that a feature was ticked or unticked.
+
+        :param item: the row that changed.
+        """
         name = item.data(Qt.UserRole)
         if item.checkState() == Qt.Checked:
             self._checked.add(name)
@@ -305,6 +318,10 @@ class ScreePlot(QWidget):
     component_picked = Signal(int)
 
     def __init__(self, parent=None):
+        """Build the variance-explained plot.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("PCAScreePlot")
         self._result: Optional[PCAResult] = None
@@ -394,6 +411,10 @@ class ScreePlot(QWidget):
         self._canvas.draw_idle()
 
     def _on_click(self, event) -> None:
+        """Report which component the user clicked.
+
+        :param event: the matplotlib click event.
+        """
         if self._result is None or event.xdata is None:
             return
         index = int(round(float(event.xdata)))
@@ -429,6 +450,12 @@ class PCAScoresCanvas(GraphCanvas):
     def __init__(self, parent=None, *, link=None, source: str = "pca"):
         # Before super().__init__: the base constructor wires a debounce timer
         # to self.render_now, which is this class's override and reads these.
+        """Build the scores plot and link it to the shared selection.
+
+        :param parent: parent widget.
+        :param link: the shared selection to join, if any.
+        :param source: the table being decomposed.
+        """
         self._result: Optional[PCAResult] = None
         self._biplot = True
         self._arrow_count = DEFAULT_ARROWS
@@ -507,6 +534,11 @@ class PCAScoresCanvas(GraphCanvas):
             LOG.debug("could not draw the loading arrows", exc_info=True)
 
     def _draw_arrows(self) -> None:
+        """Draw the loading arrows over the scores.
+
+        THE ARROWS ARE WHAT MAKES A PCA READABLE: the scores say which objects
+        are alike, and only the loadings say what the axes mean.
+        """
         if not self._biplot or not self._arrow_count:
             return
         plane = self.plane()
@@ -605,6 +637,13 @@ class PCAPanel(QWidget):
 
     def __init__(self, parent=None, *, link=None, source: str = "pca",
                  threaded: bool = False):
+        """Build the picker, the scree plot and the scores canvas.
+
+        :param parent: parent widget.
+        :param link: the shared selection to join, if any.
+        :param source: the table to decompose.
+        :param threaded: whether the fit runs on a worker.
+        """
         super().__init__(parent)
         self.setObjectName("PCAPanel")
         self._frame: Optional[pd.DataFrame] = None
@@ -868,6 +907,10 @@ class PCAPanel(QWidget):
         return self._jobs.is_busy()
 
     def _show_failure(self, message: str) -> None:
+        """Report a decomposition that could not be computed.
+
+        :param message: what went wrong.
+        """
         self._result = None
         self._scores = None
         self.scree.set_result(None)
@@ -902,6 +945,7 @@ class PCAPanel(QWidget):
             self._building = False
 
     def _apply_view(self) -> None:
+        """Redraw for the currently chosen pair of components."""
         if self._result is None:
             return
         kx, ky = self._plane()
@@ -917,11 +961,18 @@ class PCAPanel(QWidget):
         self.scree.set_result(self._result, highlight=(kx, ky))
 
     def _on_option_changed(self, *_args) -> None:
+        """Refit after a scaling or component-count option moved."""
         if self._building:
             return
         self.recompute()
 
     def _on_view_changed(self, *_args) -> None:
+        """Redraw after the displayed component pair changed.
+
+        SEPARATE FROM A REFIT: choosing different axes to look along does not
+        change the decomposition, and refitting for it would throw away a
+        result that is still correct.
+        """
         if self._building:
             return
         self._apply_view()
