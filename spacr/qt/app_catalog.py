@@ -79,6 +79,23 @@ class DeclaredApp:
                  intro: str = "", cli_note: str = "", api_module: str = "",
                  entry: str = "", defaults_module: str = "",
                  translations=()):
+        """Record one module's declaration.
+
+        :param module: the Python module that declares it.
+        :param key: the registry key everything else dispatches on.
+        :param name: the short name shown in the dock and on Home.
+        :param desc: the one-line blurb.
+        :param section: which Home section it belongs to.
+        :param factory: builds the screen; usually a :class:`LazyScreenFactory`.
+        :param stage: the release stage, used to gate visibility.
+        :param title: the masthead title, falling back to ``name``.
+        :param intro: the longer blurb shown on the screen itself.
+        :param cli_note: how to reach the same thing from the command line.
+        :param api_module: the module the API help link points at.
+        :param entry: the callable a run enters through.
+        :param defaults_module: where its settings defaults live.
+        :param translations: extra translation catalogues to load with it.
+        """
         self.module = module
         self.key = key
         self.name = name
@@ -95,6 +112,7 @@ class DeclaredApp:
         self.translations = tuple(translations)
 
     def __repr__(self) -> str:
+        """Return the key and the module that declared it."""
         return f"DeclaredApp({self.key!r} from {self.module!r})"
 
     def register_kwargs(self) -> dict:
@@ -131,11 +149,17 @@ class LazyScreenFactory:
     __slots__ = ("module", "attribute", "_resolved")
 
     def __init__(self, module: str, attribute: str):
+        """Record where a screen class lives, without importing it.
+
+        :param module: the module to import on first use.
+        :param attribute: the name to take out of it.
+        """
         self.module = module
         self.attribute = attribute
         self._resolved = None
 
     def __repr__(self) -> str:
+        """Return the target and whether it has been imported yet."""
         state = "resolved" if self._resolved is not None else "not imported"
         return f"<lazy screen factory {self.module}:{self.attribute} ({state})>"
 
@@ -156,6 +180,19 @@ class LazyScreenFactory:
         # `inspect` is imported here rather than at the top of the file: it
         # costs a dozen modules of its own, and this module is read while the
         # splash screen is up to avoid exactly that kind of bill.
+        """Import the screen class if needed and build one.
+
+        Keyword arguments the factory does not accept are dropped rather than
+        raising, so a caller can offer ``threaded=`` or ``link=`` to every
+        screen and let each take what it understands. ``inspect`` is imported
+        here rather than at module scope: it costs a dozen modules of its own,
+        and this module is read while the splash screen is up to avoid exactly
+        that bill.
+
+        :param kwargs: passed to the factory, filtered to what it accepts unless
+            it takes ``**kwargs``.
+        :returns: the constructed screen.
+        """
         import inspect
 
         factory = self.resolve()

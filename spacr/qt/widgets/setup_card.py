@@ -399,6 +399,11 @@ class SetupCard(QWidget):
 
     @staticmethod
     def _stored_mode() -> str:
+        """Return the saved rim mode.
+
+        :returns: the preference, or ``"glow"`` when it cannot be read -- a
+            card with no rim would look broken, so the default is a real mode.
+        """
         try:
             from ..preferences import get_rim_mode
 
@@ -412,6 +417,10 @@ class SetupCard(QWidget):
 
     @staticmethod
     def _stored_period() -> float:
+        """Return the saved rim period in seconds.
+
+        :returns: the preference, or the shipped default when it cannot be read.
+        """
         try:
             from ..preferences import get_rim_period
 
@@ -468,6 +477,10 @@ class SetupCard(QWidget):
 
     @staticmethod
     def _stored_alignment() -> str:
+        """Return the saved rim alignment.
+
+        :returns: the preference, or ``"centre"`` when it cannot be read.
+        """
         try:
             from ..preferences import get_rim_alignment
 
@@ -485,6 +498,7 @@ class SetupCard(QWidget):
         self.update()
 
     def _start(self) -> None:
+        """Start the rim animation, if it is not already running."""
         if not self._timer.isActive():
             self._timer.start()
 
@@ -540,6 +554,12 @@ class SetupCard(QWidget):
         self.update()
 
     def _paint(self) -> None:
+        """Draw the card: its translucent body, then the animated rim.
+
+        The body covers the whole card rather than the inset the rim is stroked
+        on -- inset by a pixel it left a hairline of whatever sits behind along
+        the straight edges, and half again as much at the corners.
+        """
         from ..theme import active_palette
 
         palette = active_palette()

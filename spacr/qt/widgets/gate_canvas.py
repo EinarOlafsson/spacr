@@ -51,6 +51,11 @@ class AxisCutoff:
     high: Optional[float] = None
 
     def __post_init__(self) -> None:
+        """Coerce the bounds to floats and reject an axis with no extent.
+
+        :raises CutoffError: if ``low`` is not below ``high`` -- an axis whose
+            ends meet draws as a blank panel rather than as an error.
+        """
         for name in ("low", "high"):
             value = getattr(self, name)
             if value is None:
@@ -95,15 +100,27 @@ class AxisCutoffs:
     """
 
     def __init__(self, initial: Optional[Dict[str, AxisCutoff]] = None):
+        """Create the cutoff set, optionally seeded.
+
+        :param initial: cutoffs by column; copied, so the caller's mapping is
+            not adopted.
+        """
         self._by_column: Dict[str, AxisCutoff] = dict(initial or {})
 
     def __len__(self) -> int:
+        """Return how many columns carry a cutoff."""
         return len(self._by_column)
 
     def __contains__(self, column: object) -> bool:
+        """Report whether a column carries a cutoff.
+
+        :param column: the column name; coerced with :func:`str`.
+        :returns: ``True`` if it has one.
+        """
         return str(column) in self._by_column
 
     def __iter__(self) -> Iterator[str]:
+        """Iterate the column names that carry a cutoff."""
         return iter(self._by_column)
 
     def columns(self) -> Tuple[str, ...]:

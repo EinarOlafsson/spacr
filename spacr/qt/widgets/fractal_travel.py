@@ -145,6 +145,11 @@ class Pointer:
                  "_last_x", "_last_y", "_dragging")
 
     def __init__(self) -> None:
+        """Create the pointer state the kernels read.
+
+        Drag movement accumulates rather than being sampled: a dropped frame
+        does not lose the movement, it arrives with the next one instead.
+        """
         self.x = 0.0
         self.y = 0.0
         #: How strongly the pattern is drawn toward the pointer, 0..1.
@@ -673,6 +678,11 @@ class OrbitEngine:
     """
 
     def __init__(self, thread_count: int) -> None:
+        """Create the orbit engine without allocating its buffers yet.
+
+        :param thread_count: worker threads to render with; clamped to at
+            least one.
+        """
         self.thread_count = max(1, int(thread_count))
         self.width = 0
         self.height = 0
@@ -682,6 +692,15 @@ class OrbitEngine:
         self.frames = 0
 
     def _ensure_size(self, width: int, height: int) -> None:
+        """Allocate the ring and output buffers for a new frame size.
+
+        Reallocating resets the ring and the frame counter, since the frames
+        already in it are of a different shape and averaging across the change
+        would smear one size into the other.
+
+        :param width: frame width in pixels.
+        :param height: frame height in pixels.
+        """
         if width == self.width and height == self.height and self.ring is not None:
             return
         self.width = width
@@ -756,7 +775,7 @@ def _join_on_destroy(widget, thread) -> None:
     top of the one this prevents.
     """
     def _join(*_args):
-        """Stop and join the render thread when the widget is destroyed."""
+        """Stop and join the render thread. Closes over the thread ONLY."""
         try:
             _quit_and_join_thread(thread)
         except Exception:                                    # noqa: BLE001
@@ -1443,6 +1462,7 @@ class DepthPhase:
     __slots__ = ("value", "_last_t")
 
     def __init__(self) -> None:
+        """Create the depth phase at rest, with no previous timestamp."""
         self.value = 0.0
         self._last_t: Optional[float] = None
 
@@ -1488,6 +1508,13 @@ class RegionTour:
 
     def __init__(self, regions, dwell: float = 18.0,
                  travel: float = 9.0) -> None:
+        """Set up a tour that dwells on each region and travels between them.
+
+        :param regions: the regions to visit, in order.
+        :param dwell: seconds spent on a region; floored just above zero, so a
+            tour cannot be configured to skip its own stops.
+        :param travel: seconds spent moving between them, floored the same way.
+        """
         self.regions = tuple(regions or ())
         self.dwell = max(0.1, float(dwell))
         self.travel = max(0.1, float(travel))

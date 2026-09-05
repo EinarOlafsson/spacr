@@ -2086,6 +2086,10 @@ class Sidebar(Dock):
         return _icon_for_app(key)
 
     def __init__(self, parent=None):
+        """Build the dock with Home above the registered module rows.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__([self.HOME_ROW] + list(dock_rows()),
                          icon_for=self._dock_icon,
                          is_visible=app_is_visible, parent=parent)
@@ -2188,6 +2192,25 @@ class MainWindow(QMainWindow):
     """
 
     def __init__(self, initial_app: Optional[str] = None):
+        """Build the main window: the dock slot, the screen stack and the status bar.
+
+        The window is frameless and the menu bar is what you drag it by. Its
+        first backing store is filled with the splash colour so the compositor
+        cannot expose stale desktop pixels before anything has drawn --
+        deliberately without ``WA_OpaquePaintEvent``, which is a promise to
+        paint every pixel that this window cannot keep once the application
+        stylesheet clears ``autoFillBackground`` again. Claiming it left
+        whatever was already on screen underneath, and transparent children drew
+        on top: overlapping text in the corner, and flicker on every text
+        surface over the animated backdrop.
+
+        The dock slot exists in every dock mode, because a ``QMainWindow``'s
+        central widget cannot be swapped without re-parenting the stack, and
+        re-parenting a stack holding live screens is how locking the dock would
+        cost you the screen you were looking at.
+
+        :param initial_app: the module to open on startup; ``None`` opens Home.
+        """
         super().__init__()
         self._closing = False
         # The compositor may map the native window before a child has drawn.
@@ -2887,6 +2910,11 @@ class MainWindow(QMainWindow):
 
     # -- menu -------------------------------------------------------------
     def _build_menu_bar(self):
+        """Build the application menu bar.
+
+        The native macOS bar is deliberately turned off: it draws no corner
+        widget, which is where this frameless window's window marks live.
+        """
         mb = self.menuBar()
         # NOT THE NATIVE macOS MENU BAR. Qt defaults this to True on darwin,
         # which moves the whole bar up into the system strip -- and that one
@@ -5114,6 +5142,11 @@ class MainWindow(QMainWindow):
             pass
 
     def _build_screen(self, key: str) -> QWidget:
+        """Build one module's screen, timed.
+
+        :param key: the module to build.
+        :returns: the screen widget.
+        """
         with _timing.span("build screen", key):
             return self._build_screen_timed(key)
 
@@ -5323,6 +5356,15 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def _apply_seed_value(w: QWidget, value) -> None:
+        """Write a seed value into whichever kind of control holds it.
+
+        A widget with its own ``set_value`` is asked first, so a compound
+        control decides for itself what a value means. A combo is matched on its
+        stored data or its caption, in that order.
+
+        :param w: the control to write into.
+        :param value: the value to seed it with.
+        """
         from PySide6.QtWidgets import (
             QCheckBox,
             QComboBox,
