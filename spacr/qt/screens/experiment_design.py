@@ -854,6 +854,10 @@ class ExperimentDesignScreen(QWidget):
         return self._jobs.is_busy()
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         super().closeEvent(event)
 

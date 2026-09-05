@@ -448,6 +448,10 @@ class LineageScreen(LinkedView, QWidget):
                 f"tree.")
 
     def closeEvent(self, event) -> None:
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self.unlink_selection()
         self._jobs.cancel()
         super().closeEvent(event)

@@ -668,6 +668,10 @@ class SweepRunsPanel(QWidget):
         # when the user closes the screen it belongs to. Both runners are
         # asked to stop and are waited for a bounded time; a job that outlasts
         # the budget is parked rather than killed mid-delete.
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         for runner in (getattr(self, "_load_jobs", None),
                        getattr(self, "_jobs", None)):
             if runner is None:

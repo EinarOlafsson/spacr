@@ -528,6 +528,14 @@ class FoldButton(QPushButton):
         self.update()
 
     def paintEvent(self, event):        # noqa: N802 - Qt naming
+        """Draw the folded module's icon, and its maturity as a rim colour.
+
+        THE COLOUR CARRIES INFORMATION, so it is drawn rather than left to a
+        stylesheet: alpha and beta modules are marked, and a reader who
+        cannot distinguish the hues still gets the tooltip.
+
+        :param event: the Qt paint event.
+        """
         super().paintEvent(event)
         level = getattr(self, "_verdict", "")
         if not level:

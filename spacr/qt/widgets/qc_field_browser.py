@@ -1324,6 +1324,12 @@ class QCFieldBrowser(QDialog):
         return False
 
     def eventFilter(self, watched, event) -> bool:  # noqa: N802 - Qt override
+        """Watch the widgets this filter is installed on.
+
+        :param watched: the object the event is for.
+        :param event: the event.
+        :returns: True to stop the event going further.
+        """
         if (event.type() == QEvent.KeyPress
                 and self._handle_triage_key(event.key())):
             event.accept()

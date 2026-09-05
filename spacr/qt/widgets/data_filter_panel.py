@@ -427,6 +427,10 @@ class DataFilterPanel(QWidget):
         self._schedule()
 
     def remove_column(self, column: str) -> None:
+        """Drop one column's filter.
+
+        :param column: the column's name.
+        """
         row = self._rows.pop(column, None)
         if row is None:
             return

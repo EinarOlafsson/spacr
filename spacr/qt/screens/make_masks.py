@@ -1835,6 +1835,10 @@ class NapariBridgeScreen(QWidget):
         return self._viewer
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self.close_viewer()
         super().closeEvent(event)
 
