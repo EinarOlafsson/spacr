@@ -39,6 +39,13 @@ a card older than its masks as OUT OF DATE rather than believing it.  Only the
 *Score the masks now* button scores anything, only when pressed, and it does
 it on a worker thread and writes the card so the next open is cheap again.
 
+Neither half of that runs on the GUI thread any more.  The *read* moved onto a
+worker on 2026-09-04, when a single ``os.path.exists`` under a sleeping
+``autofs`` mount was measured not returning for twenty seconds while
+``install_qc_banner`` was doing it inside ``MainWindow._build_screen`` --
+cheap is not the same as free, and only free may run where the frames are
+painted.  See :meth:`SegQCBanner.refresh`.
+
 Installation goes through the seams that already exist rather than through the
 shared screen: :data:`spacr.qt.app.APP_FACTORIES`, consulted by
 ``MainWindow._build_screen``, and :func:`spacr.qt.theme.register_widget_qss`
@@ -390,6 +397,14 @@ class _JobMixin:
     lambda: ``QThread.finished`` crosses a thread boundary, and a closure
     would run with the emitting thread's affinity — which is exactly how a
     handler that touches widgets ends up off the GUI thread.
+
+    ONE SLOT, AND MORE THAN ONE KIND OF WORK WANTS IT. Since the banner's
+    read moved onto a worker, its housekeeping and its *Score the masks now*
+    button compete for this single slot, and ``busy`` refuses the loser.
+    Refusing is only safe where something remembers the refusal:
+    :meth:`SegQCBanner._pending_work` is that something. A host that starts
+    work from more than one place and does not keep such a record has turned
+    a button into a silent no-op.
     """
 
     def _init_jobs(self) -> None:
@@ -407,8 +422,20 @@ class _JobMixin:
         """True while a background job is in flight."""
         return bool(getattr(self, "_busy", False))
 
-    def _start_job(self, fn, box: Dict[str, Any], on_done, app_key: str) -> bool:
-        """Run ``fn(box)`` on a worker thread; call ``on_done(box)`` after."""
+    def _start_job(self, fn, box: Dict[str, Any], on_done, app_key: str, *,
+                   user_visible: bool = True,
+                   capture_figures: bool = True) -> bool:
+        """Run ``fn(box)`` on a worker thread; call ``on_done(box)`` after.
+
+        :param user_visible: False for work the user did not ask for. Such a
+            job still turns the activity spinner but never claims a run
+            banner on Home -- a banner reading "measure - running" every time
+            somebody opens the Measure screen is a lie about what is running.
+        :param capture_figures: False for a read that cannot emit a figure.
+            It is not an optimisation for its own sake: ``make_thread``
+            imports ``matplotlib.pyplot`` on the CALLING thread before the
+            first capturing job, and the caller here is the GUI thread.
+        """
         if self.busy:
             return False
         try:
@@ -420,7 +447,10 @@ class _JobMixin:
             # journal=False: this is read-only UI housekeeping, not an
             # analysis run, and a reproducibility manifest per button press
             # would bury the runs that are.
-            thread, worker = make_thread(fn, box, app_key=app_key, journal=False)
+            thread, worker = make_thread(fn, box, app_key=app_key,
+                                         journal=False,
+                                         user_visible=user_visible,
+                                         capture_figures=capture_figures)
         except Exception:
             LOG.exception("could not build the worker thread")
             return False
@@ -472,6 +502,10 @@ class SegQCBanner(_JobMixin, QFrame):
     :param screen: the ``AppScreen`` it belongs to.
     :param reader: what to call to read a digest, for tests. Defaults to
         :func:`spacr.seg_qc.read_digest`.
+    :param threaded: ``False`` runs the read inline instead of on a worker,
+        emitting the same signals in the same order, so a test can drive the
+        banner synchronously without the behaviour diverging. The interface
+        never builds one that way -- see :meth:`refresh`.
     :param parent: parent widget; ownership only.
     """
 
@@ -479,7 +513,8 @@ class SegQCBanner(_JobMixin, QFrame):
     #: screen ignores it.
     refreshed = Signal(str)
 
-    def __init__(self, screen: QWidget, *, reader=None, parent=None) -> None:
+    def __init__(self, screen: QWidget, *, reader=None, threaded: bool = True,
+                 parent=None) -> None:
         super().__init__(parent or screen)
         self.setObjectName(QC_OBJECT_NAME)
         self.setFrameShape(QFrame.NoFrame)
@@ -488,11 +523,28 @@ class SegQCBanner(_JobMixin, QFrame):
 
         self._screen = screen
         self._reader = reader
+        self._threaded = bool(threaded)
         self._digest = None
         self._expanded = False
         self._cache_key: Optional[Tuple] = None
         self._field_browser = None
         self._field_targets: Tuple[Any, ...] = ()
+        #: Bumped by every request. The read in flight carries the value it
+        #: was issued under in ``_reading_gen``, so an answer to a question
+        #: nobody is asking any more -- the src field cleared, or retyped --
+        #: is dropped instead of painted over the new source.
+        self._refresh_gen = 0
+        self._reading_gen = -1
+        #: True while the READ, rather than the scoring pass, holds the one
+        #: job slot. The two are not interchangeable: a click that arrives
+        #: during a read is worth waiting for, a click during a scoring pass
+        #: is the pass already running.
+        self._reading = False
+        #: Exactly one catch-up each, in the shape of
+        #: ``spacr.qt.chaining.ChainingBar._refresh``'s ``_resolve_again`` --
+        #: see :meth:`_pending_work`.
+        self._refresh_again = False
+        self._score_again = False
 
         column = QVBoxLayout(self)
         column.setContentsMargins(0, 0, 0, 0)
@@ -566,6 +618,17 @@ class SegQCBanner(_JobMixin, QFrame):
             screen.installEventFilter(self._show_filter)
         except Exception:
             LOG.exception("could not watch the Measure screen for show events")
+        # HIDDEN UNTIL THERE IS SOMETHING TO SAY. `install_qc_banner` now
+        # SCHEDULES the first read instead of doing it inline -- that is the
+        # freeze fix -- so for the 450 ms of the debounce the banner would
+        # otherwise sit in the layout visible and empty: a title, two buttons
+        # and no verdict, on every Measure screen build, appearing and
+        # vanishing. Measured against HEAD: with no src, HEAD had it hidden
+        # from the start and the working tree showed it for 1.2 s.
+        #
+        # Every path that has something to draw calls `show()` itself, so
+        # this only removes the flash.
+        self.hide()
         self._wire_src()
 
     # -- wiring -----------------------------------------------------------
@@ -584,6 +647,16 @@ class SegQCBanner(_JobMixin, QFrame):
     def _on_screen_shown(self) -> None:
         self._timer.start()
 
+    def schedule_refresh(self) -> None:
+        """Ask for a refresh a beat from now, on the same debounce as typing.
+
+        What screen construction calls instead of :meth:`refresh`. Even the
+        asynchronous refresh builds a ``QThread``, and there is no reason to
+        pay for one inside ``MainWindow._build_screen``: the banner is
+        advisory, and 450 ms later is soon enough for advice.
+        """
+        self._timer.start()
+
     # -- reading ----------------------------------------------------------
 
     def _read(self, src: Any):
@@ -597,11 +670,19 @@ class SegQCBanner(_JobMixin, QFrame):
     def _fingerprint(self, src: Any) -> Optional[Tuple]:
         """A cheap key that changes exactly when the cards do.
 
-        One ``listdir`` plus one ``stat`` per card — microseconds — so that
-        returning to the screen ten times does not re-parse ten times, while a
-        re-mask that rewrites a card is still picked up on the next visit.
-        Returns None when the fingerprint cannot be taken, which forces a
-        read rather than trusting a stale cache.
+        WORKER THREAD ONLY. It used to be described here as "one listdir plus
+        one stat per card — microseconds", and that was a local-disk
+        assumption: ``find_scorecards`` first calls ``qc_roots``, which
+        ``isdir``s the user's root, lists its plate children and ``isdir``s a
+        ``qc`` folder inside each, all before the ``os.stat`` below. On a
+        sleeping ``autofs`` mount the first of those had not returned after
+        twenty seconds. It is still cheap — it is just not free, and nothing
+        that is not free may run on the GUI thread.
+
+        It exists so that returning to the screen ten times does not re-parse
+        ten times, while a re-mask that rewrites a card is still picked up on
+        the next visit. Returns None when the fingerprint cannot be taken,
+        which forces a read rather than trusting a stale cache.
         """
         try:
             from ..seg_qc import find_scorecards
@@ -618,32 +699,172 @@ class SegQCBanner(_JobMixin, QFrame):
         return tuple(out)
 
     def refresh(self) -> None:
-        """Re-read the verdict and redraw. Cheap; never scores a mask."""
+        """Ask for the verdict and redraw when it lands. Never scores a mask.
+
+        SPLIT IN TWO, and the split is the fix for a frozen application.
+        What stays here is widget state — the ``src`` field, and whether it
+        names anything — and it is free. What moved into :meth:`_refresh_job`
+        is every filesystem call: ``find_scorecards`` walking the user's
+        plate folders, one ``os.stat`` per card, and ``read_digest`` opening
+        and parsing the CSVs. All of it is I/O on a path the USER supplied.
+
+        Measured on the maintainer's machine 2026-09-04: ``os.path.exists``
+        on a path under ``/nas_mnt`` — an ``autofs`` mount whose share was
+        asleep — had not returned after TWENTY SECONDS, because the stat is
+        what triggers the automount. This method used to do that work inline,
+        and ``install_qc_banner`` used to call it inside
+        ``MainWindow._build_screen``, so it was the whole interface frozen on
+        every Measure open. It left no traceback, because a stalled event
+        loop is not a crash; it was reported as "opening map barcodes
+        crashes spacr", plus hover flicker and glimpses of other screens.
+
+        The banner keeps whatever it last drew while a read is in flight.
+        There is deliberately no :mod:`spacr.qt.path_probe` gate in front of
+        the job: the probe answers ``isdir`` optimistically-cheap but the
+        scan has to happen off the GUI thread regardless, so a gate would
+        only add a first-visit blank for no protection this does not give.
+
+        EVERY CALL BUMPS ``_refresh_gen``, the one that finds the field empty
+        included. That is what makes a read cancellable without being
+        interruptible: nothing can stop the worker mid-``stat``, but its
+        answer is checked against the question before it is painted and
+        dropped when the source has moved on. Without it, clearing src hid
+        the banner and the read still in flight put the old plate's verdict
+        straight back on screen under no name at all.
+        """
         src = _src_of(self._screen)
+        self._refresh_gen += 1
+        gen = self._refresh_gen
         if not _has_src(src):
             self._digest = None
             self._cache_key = None
             self.hide()
             self.refreshed.emit("")
             return
+        # Both cache fields are read HERE and compared on the worker. The job
+        # body may not read the banner's state: by the time it runs, the GUI
+        # thread may have changed it.
+        box: Dict[str, Any] = {
+            "src": src,
+            "cache_key": self._cache_key,
+            "cached": self._digest is not None,
+        }
+        if not self._threaded:
+            self._reading_gen = gen
+            try:
+                self._refresh_job(box)
+            except Exception:
+                LOG.exception("could not read the segmentation verdict")
+                box = {}
+            self._on_refreshed(box)
+            return
+        if self.busy:
+            # COALESCED -- neither dropped nor queued. Twenty keystrokes are
+            # twenty requests for one answer: a job each would ask the same
+            # question twenty times, and dropping them loses the last one,
+            # which is the only one that matters. `_pending_work` runs
+            # exactly one catch-up when the slot frees. This is
+            # `ChainingBar._refresh`'s `_resolve_again`, and it replaces a
+            # re-armed debounce that re-asked every 450 ms for as long as a
+            # sleeping mount took to answer.
+            self._refresh_again = True
+            return
+        self._reading = True
+        self._reading_gen = gen
+        # user_visible=False: nobody asked for this, and a job that claims a
+        # run banner would put "measure - running" on Home for a CSV read.
+        if not self._start_job(self._refresh_job, box, self._on_refreshed,
+                               QC_APP, user_visible=False,
+                               capture_figures=False):
+            self._reading = False
+            LOG.debug("no worker available for the segmentation-QC refresh")
+
+    def _refresh_job(self, box: Dict[str, Any]) -> None:
+        """The filesystem half of a refresh. OFF THE GUI THREAD.
+
+        Writes nothing but ``box``, and reads nothing but ``box``, the disk
+        and ``self._reader`` -- which is set once in ``__init__`` and never
+        again. Everything that can change while this runs was copied into
+        ``box`` on the GUI thread before it started, because by the time it
+        runs the GUI thread may have changed any of it.
+        """
+        src = box["src"]
         key = (repr(src), self._fingerprint(src))
-        if self._digest is not None and key == self._cache_key and key[1]:
+        box["key"] = key
+        if not (box["cached"] and key == box["cache_key"] and key[1]):
+            box["digest"] = self._read(src)
+
+    def _on_refreshed(self, box: Dict[str, Any]) -> None:
+        """Draw what the read found. Always on the GUI thread.
+
+        Runs on failure as well as on success -- ``_JobMixin._job_settled``
+        calls it either way, with ``{"error": ...}`` when the worker raised
+        -- so nothing this leaves behind can outlive a read that went wrong.
+        """
+        self._reading = False
+        try:
+            if self._reading_gen != self._refresh_gen:
+                # THE ANSWER TO A QUESTION NOBODY IS ASKING. The src field
+                # has moved on since this read was issued, so painting it
+                # would put the previous source's verdict on screen under
+                # the current source's name -- and after a CLEARED field
+                # would un-hide a banner `refresh` had just hidden. The
+                # catch-up below asks what is actually outstanding.
+                #
+                # `_job_settled` is not generation-guarded and cannot be: it
+                # is shared with the diameter panel. The guard belongs here,
+                # where what was asked is known.
+                return
+            key = box.get("key")
+            if key is None:
+                if box.get("error"):
+                    LOG.error("could not read the segmentation verdict: %s",
+                              box["error"])
+                self._digest = None
+                self.hide()
+                self.refreshed.emit("")
+                return
+            if "digest" not in box:
+                # The cards on disk are the ones already parsed. This is the
+                # whole point of the fingerprint: ten visits, one parse.
+                digest = self._digest
+                if digest is None:
+                    self.refreshed.emit("")
+                    return
+                self.show()
+                self.refreshed.emit(digest.verdict)
+                return
+            self._digest = box["digest"]
+            self._cache_key = key
+            self._draw()
             self.show()
             self.refreshed.emit(self._digest.verdict)
-            return
-        try:
-            digest = self._read(src)
-        except Exception:
-            LOG.exception("could not read the segmentation verdict")
-            self._digest = None
-            self.hide()
-            self.refreshed.emit("")
-            return
-        self._digest = digest
-        self._cache_key = key
-        self._draw()
-        self.show()
-        self.refreshed.emit(digest.verdict)
+        finally:
+            self._pending_work()
+
+    def _pending_work(self) -> None:
+        """Run whatever was asked for while the last job held the slot.
+
+        Exactly one catch-up each, which is the shape
+        ``spacr.qt.chaining.ChainingBar._refresh`` uses: dropping a request
+        loses it, and starting a job per request asks one question hundreds
+        of times.
+
+        A QUEUED CLICK GOES FIRST. It is what a person is sitting there
+        waiting for, and scoring rewrites the very cards a read would have
+        parsed -- so the re-read that follows the scoring pass is the one
+        worth doing, and it is not lost: ``_refresh_again`` stays set and
+        :meth:`_on_scored` drains it. A click that turns out to have nothing
+        to score falls through to the re-read here instead of swallowing it.
+        """
+        if self._score_again:
+            self._score_again = False
+            self._on_score_clicked()
+            if self.busy:
+                return
+        if self._refresh_again:
+            self._refresh_again = False
+            self.refresh()
 
     # -- drawing ----------------------------------------------------------
 
@@ -884,10 +1105,39 @@ class SegQCBanner(_JobMixin, QFrame):
         The only place in this class that opens a mask. It writes the cards
         it produces, so the next time this screen is opened the cheap path
         finds a fresh card and this button is not needed again.
+
+        THE CLICK IS NEVER SWALLOWED. Until the read moved onto a worker,
+        ``busy`` here could only mean "a scoring pass is already running",
+        and refusing was the whole answer. Now the advisory read holds the
+        same single slot -- on every screen open, on every return to the
+        screen, and 450 ms after every keystroke in src -- so a plain
+        refusal turned this button into a silent no-op for exactly as long
+        as the filesystem took to answer, which on the mount that started
+        all this was twenty seconds. The click is remembered instead, and
+        :meth:`_pending_work` runs it the instant the read lets go.
+
+        Waiting is not a compromise: the scoring pass would have had to walk
+        the same sleeping mount, so nothing arrives sooner, and serialising
+        the two keeps a write off the cards the read is parsing.
         """
         src = _src_of(self._screen)
-        if not _has_src(src) or self.busy:
+        if not _has_src(src):
+            # Includes a queued click whose source has since been cleared:
+            # put the button back rather than leave it disabled forever.
+            self._score_again = False
+            self._btn_score.setEnabled(True)
             return
+        if self.busy:
+            if not self._reading:
+                return          # a scoring pass is already running
+            self._score_again = True
+            self._btn_score.setEnabled(False)
+            # The caption the pass itself uses. Scoring is what happens next
+            # and it needs no further input, so a second wording for the
+            # same state would only be a second thing to read.
+            self._title.setText("Segmentation QC — scoring the masks…")
+            return
+        self._score_again = False
         settings: Dict[str, Any] = {}
         model = getattr(self._screen, "_settings_model", None)
         if model is not None:
@@ -910,17 +1160,29 @@ class SegQCBanner(_JobMixin, QFrame):
             self._draw()
 
     def _on_scored(self, box: Dict[str, Any]) -> None:
-        """Show what the scoring pass found. Always on the GUI thread."""
+        """Show what the scoring pass found. Always on the GUI thread.
+
+        Runs on failure too -- ``_JobMixin._job_settled`` calls it with
+        ``{"error": ...}`` -- so the button comes back and the "scoring the
+        masks…" caption is replaced whatever happened.
+        """
         self._btn_score.setEnabled(True)
-        digest = box.get("digest")
-        if digest is None:
-            self._title.setText("Segmentation QC — could not score these masks")
-            return
-        self._digest = digest
-        self._cache_key = None          # the cards on disk have just changed
-        self._draw()
-        self.show()
-        self.refreshed.emit(digest.verdict)
+        try:
+            digest = box.get("digest")
+            if digest is None:
+                self._title.setText(
+                    "Segmentation QC — could not score these masks")
+                return
+            self._digest = digest
+            self._cache_key = None      # the cards on disk have just changed
+            self._draw()
+            self.show()
+            self.refreshed.emit(digest.verdict)
+        finally:
+            # A read asked for while this pass held the slot. It is worth
+            # running even now: `src` may have changed under the scoring
+            # pass, and this is what puts the current source back on screen.
+            self._pending_work()
 
 
 # ---------------------------------------------------------------------------
@@ -1250,11 +1512,13 @@ def _insert_above_actions(screen, widget) -> bool:
     return True
 
 
-def install_qc_banner(screen, *, reader=None) -> Optional[SegQCBanner]:
+def install_qc_banner(screen, *, reader=None,
+                      threaded: bool = True) -> Optional[SegQCBanner]:
     """Put a :class:`SegQCBanner` above ``screen``'s Run row.
 
     :param screen: an ``AppScreen``.
     :param reader: digest reader, for tests.
+    :param threaded: ``False`` to read inline, for tests.
     :returns: the banner, or None when this screen cannot carry one. Never
         raises: a screen that opens without the banner is the old behaviour,
         and that is always better than a screen that does not open.
@@ -1263,13 +1527,17 @@ def install_qc_banner(screen, *, reader=None) -> Optional[SegQCBanner]:
         existing = qc_banner(screen)
         if existing is not None:
             return existing
-        banner = SegQCBanner(screen, reader=reader)
+        banner = SegQCBanner(screen, reader=reader, threaded=threaded)
         if not _insert_above_actions(screen, banner):
             banner.setParent(None)
             banner.deleteLater()
             return None
         screen._seg_qc_banner = banner
-        banner.refresh()
+        # SCHEDULED, NOT CALLED. This runs inside `MainWindow._build_screen`,
+        # which does not yield -- so anything done here is done before the
+        # screen can be painted, and until 2026-09-04 that included statting
+        # the user's src folder. See `SegQCBanner.refresh`.
+        banner.schedule_refresh()
         return banner
     except Exception:
         LOG.exception("could not install the segmentation-QC banner on %s",

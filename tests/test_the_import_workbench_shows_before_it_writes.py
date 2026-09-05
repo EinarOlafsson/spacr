@@ -195,19 +195,42 @@ def panel(qtbot):
     return widget
 
 
+def _dropped(panel, paths):
+    """`add_files`, waited out. Returns how many files are held.
+
+    The walk runs on a worker: a dropped plate folder is a path the USER
+    chose, usually on the microscope's share, and walking it on the GUI
+    thread froze the whole application -- see
+    `tests/qt/test_the_import_workbench_never_walks_on_the_gui_thread.py`.
+    Nothing below cares when the files arrive, only that they all do, so the
+    waiting lives here rather than in every assertion.
+    """
+    import time
+
+    from PySide6.QtWidgets import QApplication
+
+    panel.add_files(paths)
+    deadline = time.monotonic() + 10.0
+    while panel.is_scanning() and time.monotonic() < deadline:
+        QApplication.processEvents()
+        time.sleep(0.005)
+    QApplication.processEvents()
+    return len(panel.files())
+
+
 class TestFilesArriveByDrop:
 
     def test_a_folder_is_walked(self, panel, images):
-        assert panel.add_files([str(images)]) == 8
+        assert _dropped(panel, [str(images)]) == 8
 
     def test_a_file_that_is_not_an_image_is_left_out(self, panel, images):
-        panel.add_files([str(images)])
+        _dropped(panel, [str(images)])
 
         assert all(not f.endswith(".txt") for f in panel.files())
 
     def test_the_same_file_twice_is_once(self, panel, images):
-        panel.add_files([str(images)])
-        panel.add_files([str(images)])
+        _dropped(panel, [str(images)])
+        _dropped(panel, [str(images)])
 
         assert len(panel.files()) == 8
 
@@ -215,7 +238,7 @@ class TestFilesArriveByDrop:
         assert panel.acceptDrops()
 
     def test_clearing_empties_it(self, panel, images):
-        panel.add_files([str(images)])
+        _dropped(panel, [str(images)])
 
         panel.set_files([])
 
@@ -225,26 +248,26 @@ class TestFilesArriveByDrop:
 class TestTheRegexIsProposedAndEditable:
 
     def test_the_first_drop_proposes_one(self, panel, images):
-        panel.add_files([str(images)])
+        _dropped(panel, [str(images)])
 
         assert panel.regex.text().strip()
         assert "matches 8 of 8" in panel.evidence.text()
 
     def test_a_later_drop_does_not_overwrite_an_edited_one(self, panel,
                                                            images, tmp_path):
-        panel.add_files([str(images)])
+        _dropped(panel, [str(images)])
         panel.regex.setText(CELLVOYAGER)
 
         other = tmp_path / "more"
         other.mkdir()
         (other / _names()[0]).write_bytes(b"")
-        panel.add_files([str(other)])
+        _dropped(panel, [str(other)])
 
         assert panel.regex.text() == CELLVOYAGER
 
     def test_editing_it_redraws_without_a_button(self, panel, images):
         """A Test button would imply the answer is stale until pressed."""
-        panel.add_files([str(images)])
+        _dropped(panel, [str(images)])
         panel.regex.setText(CELLVOYAGER)
         before = panel.the_plan().n_matched
 
@@ -258,7 +281,7 @@ class TestTheTableIsThePreview:
 
     @pytest.fixture
     def loaded(self, panel, images):
-        panel.add_files([str(images)])
+        _dropped(panel, [str(images)])
         panel.regex.setText(CELLVOYAGER)
         return panel
 
@@ -269,7 +292,7 @@ class TestTheTableIsThePreview:
     def test_an_unmatched_file_is_a_row_that_says_no_match(self, panel,
                                                             images):
         (images / "stray.tif").write_bytes(b"")
-        panel.add_files([str(images)])
+        _dropped(panel, [str(images)])
         panel.regex.setText(CELLVOYAGER)
 
         texts = [panel.table.item(r, 1).text()
@@ -290,7 +313,7 @@ class TestTheRoleDropdowns:
 
     @pytest.fixture
     def loaded(self, panel, images):
-        panel.add_files([str(images)])
+        _dropped(panel, [str(images)])
         panel.regex.setText(CELLVOYAGER)
         return panel
 

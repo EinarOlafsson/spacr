@@ -175,11 +175,21 @@ class QCDashboardScreen(QWidget):
         # answering a question it always could.
         self.app_key = "qc_dashboard"
         self.setObjectName("QCDashboardScreen")
-        self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
+        # `user_visible=False`: this runner never runs anything. It reads
+        # verdicts that are already on disk, and it now also takes the
+        # folder check and the fingerprint that used to sit inline in
+        # `refresh` -- so it fires on every visit, including the ones
+        # where nothing has changed. Visible, each of those would flash
+        # "QC - running" on Home for a read the user never started.
+        self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY,
+                               user_visible=False)
         self._jobs.job_failed.connect(self._on_job_failed)
         self._reader = reader
         self._dashboard: Optional[Dashboard] = None
         self._cache_key: Any = None
+        #: What the last `refresh` turned out to do, reported back by
+        #: `_on_read` so an inline read still answers exactly.
+        self._read_started = False
         self._card_labels: List[QLabel] = []
         self._build()
         if src:
@@ -291,6 +301,12 @@ class QCDashboardScreen(QWidget):
         re-parse ten times, while a re-mask that rewrites a scorecard is
         picked up on the next visit. ``None`` forces a read rather than
         trusting a cache that could not be verified.
+
+        WORKER-ONLY. Cheap is relative to parsing a plate, not to a Qt
+        repaint: `find_scorecards` lists the qc folder and this stats every
+        file it names, all under a root the user typed. :meth:`refresh`
+        calls it from the submitted job and nowhere else -- see that method
+        for what it cost when it ran inline.
         """
         try:
             from ...seg_qc import find_scorecards
@@ -311,35 +327,90 @@ class QCDashboardScreen(QWidget):
         return tuple(out)
 
     def refresh(self, *, force: bool = False) -> bool:
-        """Re-read the verdicts. Off the GUI thread.
+        """Re-read the verdicts. Off the GUI thread -- all of it, now.
+
+        SPLIT IN TWO, and the split is the fix for a frozen application.
+        Only the parse used to be handed to the runner; the two decisions in
+        front of it -- "is this a folder?" and "has anything changed?" --
+        were taken inline, and both of them touch the disk at a path the
+        user typed. `os.path.isdir` was one call, and `_fingerprint` is a
+        `find_scorecards` listing plus a stat per artifact.
+
+        Measured on the maintainer's machine 2026-09-04: a single
+        `os.path.exists` under `/nas_mnt`, an `autofs` mount whose share was
+        asleep, had not returned after TWENTY SECONDS -- the stat is what
+        triggers the automount. A project folder on that mount is exactly
+        what this screen is for, and the whole interface stopped the moment
+        one was dropped on it, browsed to, or simply refreshed. It left no
+        traceback, because a stalled event loop is not a crash.
+
+        `path_probe` is deliberately NOT used for the folder guard. It
+        answers optimistically, so it could only ever say "go on and read",
+        which the worker then decides properly anyway; a second guard on the
+        GUI thread would add a way for the two answers to disagree and buy
+        nothing. Every message the screen showed still appears -- a moment
+        later, and that is the only difference the user can see.
 
         :param force: read even when the fingerprint says nothing changed.
-        :returns: whether a read was started.
+        :returns: whether a read of the disk was started. Reading inline
+            (``threaded=False``) that is exact, because the worker half has
+            already run and reported by the time this returns. Threaded, it
+            means the job was started: the fingerprint is not taken yet, so
+            "nothing changed" arrives later, on the status line.
         """
         src = self.source()
         if not src:
             self._verdict.setText("No folder set.")
             self._set_status("Pick a project folder to read its verdicts.")
             return False
-        if not os.path.isdir(src):
-            self._verdict.setText("That folder does not exist.")
-            self._set_status(f"{src} is not a folder.", is_error=True)
-            return False
-
-        key = (src, self._fingerprint(src))
-        if not force and self._dashboard is not None and key == self._cache_key \
-                and key[1]:
-            self._draw(self._dashboard)
-            self._set_status("Nothing on disk has changed since the last read.")
-            return False
-        self._cache_key = key
 
         reader = self._reader or read_dashboard
+
+        def work(s=src, r=reader, force=force, previous=self._cache_key,
+                 had_one=self._dashboard is not None):
+            """Off the GUI thread. Touches no widget -- returns a verdict.
+
+            The cache comparison comes with it rather than staying behind:
+            the key it compares IS the walk of the disk, so leaving the
+            comparison on the GUI thread would leave the walk there too.
+            """
+            if not os.path.isdir(s):
+                return ("missing", s, None)
+            key = (s, self._fingerprint(s))
+            if not force and had_one and key == previous and key[1]:
+                return ("unchanged", key, None)
+            return ("read", key, r(s))
+
         self._jobs.cancel()
         self._set_status("Reading...")
-        return self._jobs.submit(lambda s=src, r=reader: r(s), self._on_read)
+        # Assumed started, then corrected by `_on_read` -- which has already
+        # run by the time `submit` returns when the screen reads inline.
+        self._read_started = True
+        started = bool(self._jobs.submit(work, self._on_read))
+        return started and self._read_started
 
-    def _on_read(self, dashboard) -> None:
+    def _on_read(self, result) -> None:
+        """Paint what the worker decided. GUI thread only.
+
+        ``None`` is a read that produced nothing (a cancelled or failed job),
+        and it must leave a screen that is showing real verdicts alone.
+        """
+        if not result:
+            return
+        outcome, payload, dashboard = result
+        if outcome == "missing":
+            self._read_started = False
+            self._verdict.setText("That folder does not exist.")
+            self._set_status(f"{payload} is not a folder.", is_error=True)
+            return
+        self._cache_key = payload
+        if outcome == "unchanged":
+            self._read_started = False
+            if self._dashboard is not None:
+                self._draw(self._dashboard)
+            self._set_status(
+                "Nothing on disk has changed since the last read.")
+            return
         if dashboard is None:
             return
         self._dashboard = dashboard
