@@ -1674,3 +1674,149 @@ edit that read the file, transformed it in memory, and wrote it back. Between
 the read and the write, somebody else's work landed. That is the same shape as
 "a baseline taken at the wrong moment is not a baseline", which I had already
 recorded about test runs today and did not think to apply to file writes.
+
+--------------------------------------------------------------------------------
+2026-09-05 — CLAUDE (workstation VS Code session): CI IS RED IN TWO SEPARATE
+WAYS, AND THE FIRST ONE IS OUR OWN COMMIT CADENCE
+--------------------------------------------------------------------------------
+
+Measured this morning against `origin/nightly` at `801fd5649`, from a DETACHED
+WORKTREE so that nothing in the shared tree moved. I took 288/352's "why is CI
+red" question and nothing else. This entry is this session's only commit; no
+file under `spacr/`, `tests/`, `tools/`, `docs/` or `.github/` was edited.
+
+1. NOTHING HAS GONE GREEN ON `nightly` IN THE LAST 100 RUNS.
+
+   71 cancelled, 25 failed, 4 running, 0 succeeded.
+
+   `tests` is the worst of it: 2 of its last 40 runs reached a conclusion at
+   all. `compat-matrix` reached 3 of 40. Both carry
+
+       cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+   and a `tests` run needs 15–30 minutes, while this branch took commits at
+   09:04, 09:05, 09:10, 09:15, 09:18, 09:25 and 09:29 today. Every push kills
+   the run before it can finish, so the suite that decides 288 has almost no
+   evidence to offer, and the few conclusions it does reach are nine hours
+   apart.
+
+   THIS IS INSTRUCTION 101'S SYMPTOM RETURNING BY A DIFFERENT CAUSE. 101 fixed
+   the configuration. Section 3 of THIS file then asked for a commit after
+   every finished item, and the cadence recreates the outcome 101 closed. Both
+   rules are right and they cannot both hold on one branch. That is a decision
+   rather than a bug: a merge queue, a scheduled run, or `cancel-in-progress:
+   false` on `tests` the way `docs` already has it. I am not taking it.
+
+   `docs` is the only workflow that reliably finishes — because it alone sets
+   `cancel-in-progress: false` — and that is exactly why it is the only one
+   with a diagnosis below. The others are not healthier, they are quieter.
+
+2. THE `docs` JOB HAS ONE ROOT CAUSE AND IT IS ONE LINE.
+
+   Every one of the last 33 conclusive `docs` runs failed, back to
+   2026-09-04 14:32. The newest, `33968123390`, dies in "Audit localization
+   catalogs":
+
+       ValueError: stale reviewed API source
+       'spacr.qt.widgets.gate_spec.PolygonGate.translated#0':
+       docs/i18n/reviewed/api/hi/2026-08-14-tail-030-044.json
+
+   raised at tools/build_documentation_i18n.py:5610, reached through `audit()`
+   at :6130. The Hindi reviewed snapshot of 2026-08-14 no longer matches the
+   docstring it was reviewed against.
+
+   I did NOT check whether the same symbol was the cause a day ago. "Red for a
+   day" and "red for this reason" are two claims and I measured only the
+   second.
+
+   WHOEVER IS RUNNING 368 SHOULD READ THIS BEFORE THE NEXT DOCSTRING COMMIT.
+   The reviewed snapshots are keyed to docstring CONTENT. A campaign that
+   rewrites every docstring in the package invalidates them as it goes, so
+   `docs` will keep going red on a new symbol each time until either the
+   reviewed sources are regenerated or the audit is taught to tolerate a
+   declared churn window. `gate_spec` got its docstrings at 2026-09-04 18:15,
+   which is suggestive and is not proof.
+
+3. THE LAST `tests` RUN THAT REACHED A CONCLUSION CARRIED 232 FAILURES.
+
+   Run `33943590085`, 2026-09-05 04:04Z. Ten of twelve coverage shards failed,
+   both Qt shards failed, "every shipped module at 100%" failed on both its
+   steps, and "Release gate / zero unexpected failures" failed on "Require
+   every blocking job to succeed".
+
+   232 distinct tests across 109 files — 125 under `tests/qt/`, 107 elsewhere.
+   By error type: 221 AssertionError, 23 AttributeError, 6 ValueError, 6
+   KeyError, 6 FileNotFoundError, 4 ImportError, 3 IndexError, 1 TypeError,
+   1 RuntimeError, 1 ArrowNotImplementedError.
+
+   Largest clusters, counting distinct tests:
+
+       19  tests/test_conda_publication_docs.py
+       15  tests/qt/test_chaining_gui.py
+        8  tests/test_deleting_runs_stays_inside_the_journal.py
+        8  tests/qt/test_the_text_fits_sweep.py
+        8  tests/qt/test_page_is_never_black.py
+        6  tests/qt/test_the_backdrop_never_waits_out_a_heavy_import.py
+        5  tests/test_cov_w3_8_file_list.py
+        5  tests/test_api_i18n_extractor.py
+        5  tests/qt/test_the_menu_bar_never_shows_the_window_behind_it.py
+
+   ONE CLUSTER IS INSTRUCTION 350'S BUSINESS. All eight
+   `test_no_caption_is_cut_off` failures are `[<screen>-de-2.0]` — German at
+   scale 2.0, on annotate, classify_merged, experiment_design, foreign,
+   measure, power, qc_dashboard and regression. 350's index row says "no
+   proven clipping in 4 screens x 3 locales". CI disagrees with that
+   measurement.
+
+   BEFORE ANYONE ACTS ON THAT, HANDOFF'S OWN WARNING APPLIES: a sweep that
+   measures before the layout settles reported 38 German problems where there
+   were none. So the honest statement is that two measurements disagree, NOT
+   that eight screens clip. Whoever owns 350 should decide which one is
+   wrong before either number goes in a file.
+
+   THIS RUN IS NINE HOURS AND EIGHTEEN COMMITS OLD. I report it because it is
+   the newest conclusive evidence that EXISTS, not because it is current — and
+   it will stay the newest until a run survives point 1.
+
+4. TEN DOC-GATE TESTS ARE RED AT `801fd5649`, VERIFIED AT THAT COMMIT.
+
+   Detached worktree, 10 failed / 228 passed:
+
+     test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current
+     test_user_facing_docstrings.py::test_public_docstrings_do_not_expose_internal_task_history
+     test_user_facing_docstrings.py::test_internal_docstrings_describe_behavior_not_task_history
+     test_nested_functions_are_documented.py::test_a_finished_module_stays_finished[spacr/model_zoo.py]
+     test_nested_functions_are_documented.py::test_no_module_exceeds_its_budget
+     test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage
+     test_api_i18n_extractor.py::test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary
+     test_api_i18n_extractor.py::test_assignment_docs_are_ast_source_text_without_show_value_artifact
+     test_api_i18n_extractor.py::test_exact_alias_map_and_manifest_records_are_identical
+     test_api_i18n_extractor.py::test_localized_manifest_materializes_alias_translation
+
+   TWO OF THESE MATTER MORE THAN THE OTHER EIGHT.
+
+   `test_exact_alias_map_and_manifest_records_are_identical` asserts
+   `len(API_DOC_ALIASES) == 113` and gets 0. THE MAP IS EMPTY. This file's own
+   2026-09-04 entry records the opposite collision — 94 obsolete entries
+   removed, then all 113 written back from a stale buffer. It is now at zero
+   and the test still wants 113, so at least one of those numbers is not what
+   anybody decided. That is a question for whoever owns the alias registry and
+   I am not guessing at it.
+
+   `test_localized_manifest_materializes_alias_translation` fails with
+   `KeyError: 'alias_of'`: `write_language()` no longer emits the key the
+   manifest test reads. Consistent with the map being empty; not proven to be
+   the same cause.
+
+   THE TWO `test_user_facing_docstrings` FAILURES ARE CONTENT, NOT RATCHETS,
+   and they are 368's own output. Twenty-nine docstrings carry internal task
+   history and SIXTEEN OF THEM ARE PUBLIC — they render on the API pages a
+   user reads. `"maintainer's"` in sixteen places; `INSTRUCTION 378` at
+   qt/live_zoom.py:1; `Instruction 359` at qt/preferences.py:6845; and
+   `Measured 2026-…` dates at model_zoo.py:1352,
+   qt/screens/project_browser.py:1 and qt/widgets/dock.py:339 among others.
+   368 is closing a docless ratchet by writing text that a different gate
+   rejects, so the two gates are currently pulling against each other.
+
+WHAT I HOLD: nothing. WHAT I CLAIM: nothing beyond the measurement above. If
+any of this is already in hand, say so here and I will stay off it.
