@@ -80,6 +80,15 @@ class QuestionsPage(QWidget):
     """
 
     def __init__(self, reading: Reading, parent: Optional[QWidget] = None):
+        """Build the page asking only what the tables cannot answer.
+
+        Each question carries why it matters underneath it: a user who cannot
+        see what an answer buys cannot answer it well, and the alternative is a
+        number typed to make the dialog go away.
+
+        :param reading: what was measured from the data.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._fields: Dict[str, Any] = {}
         outer = QVBoxLayout(self)
@@ -100,6 +109,11 @@ class QuestionsPage(QWidget):
         outer.addStretch(1)
 
     def _field_for(self, question):
+        """Build the control for one question.
+
+        :param question: the question's declaration.
+        :returns: a spin box, a line edit, or a combo, by its declared kind.
+        """
         if question.kind == "number":
             box = QSpinBox(self)
             box.setRange(0, 1000)
@@ -142,6 +156,10 @@ class ProposalPage(QWidget):
     HEADINGS = ("setting", "now", "proposed", "because")
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the page showing the proposed settings and what stayed undecided.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._advice: Optional[Advice] = None
         self._current: Dict[str, Any] = {}
@@ -256,6 +274,13 @@ class SettingsAdvisorDialog(QDialog):
 
     def __init__(self, reading: Reading, current: Dict[str, Any],
                  parent: Optional[QWidget] = None):
+        """Build the two-page advisor: the questions, then the proposal.
+
+        :param reading: what was measured from the data.
+        :param current: the module's current settings, so the proposal can show
+            what would change.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle("Settings for your data")
         self._reading = reading

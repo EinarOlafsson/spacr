@@ -97,6 +97,22 @@ class ImportWorkbench(QWidget):
 
     def __init__(self, filenames: Sequence[str] = (),
                  regex: str = "", parent: Optional[QWidget] = None):
+        """Build the workbench: the files, the pattern, and what it would produce.
+
+        The walk over dropped paths runs on its own worker. A drop is a path the
+        user chose, and a plate lives on the microscope's share: one
+        ``os.path.exists`` under a sleeping autofs mount had not returned after
+        twenty seconds, and a walk is thousands of those. Inline, the drop froze
+        the application with no traceback -- a stalled event loop is not a
+        crash, and it was reported as hover flicker and glimpses of other
+        screens. The runner is marked not user-visible because dropping a folder
+        is not starting a run, and it is safe to do so because that runner
+        carries nothing but the walk.
+
+        :param filenames: files to start with.
+        :param regex: pattern to start with; empty waits for Propose.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._files: List[str] = [str(f) for f in filenames or ()]
         self._roles: Dict[str, str] = {}
@@ -423,6 +439,11 @@ class ImportWorkbench(QWidget):
         self.roles_row.addStretch(1)
 
     def _set_role(self, group: str, role) -> None:
+        """Record what one capture group means and re-derive the plan.
+
+        :param group: the group name.
+        :param role: what it names; empty clears the assignment.
+        """
         self._roles[str(group)] = str(role or "")
         self.refresh()
 
@@ -470,6 +491,12 @@ class ImportWorkbench(QWidget):
         return os.path.basename(os.path.dirname(self._files[0]))
 
     def _fill_the_table(self) -> None:
+        """Fill the before-and-after table, unmatched files last and named.
+
+        Unmatched files are never dropped in silence: "412 of 480 matched"
+        with the other 68 listed is an answer, and 412 files appearing without
+        comment is how half a plate goes missing.
+        """
         plan_ = self._plan
         rows = list(plan_.renamed) if plan_ else []
         missed = list(plan_.unmatched) if plan_ else []
@@ -531,6 +558,12 @@ class ImportWorkbenchDialog(QDialog):
 
     def __init__(self, filenames: Sequence[str] = (), regex: str = "",
                  parent: Optional[QWidget] = None):
+        """Wrap the workbench in a window with OK and Cancel.
+
+        :param filenames: files to start with.
+        :param regex: pattern to start with.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle("Import images — work out the pattern")
         self.resize(1000, 680)
