@@ -225,6 +225,11 @@ class TrainCompareScreen(QWidget):
     job_finished = Signal(bool)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the run list, the curve plot and the settings diff.
+
+        :param parent: parent widget.
+        :param threaded: whether the scan runs on a worker.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._root: str = ""
@@ -255,6 +260,7 @@ class TrainCompareScreen(QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the run list beside the plot, with the diff underneath."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -424,12 +430,14 @@ class TrainCompareScreen(QWidget):
     # -- scanning ----------------------------------------------------------
 
     def _pick_folder(self) -> None:
+        """Ask for the folder the runs were written to."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder to scan for training runs", "")
         if path:
             self.scan(path)
 
     def _on_scan_typed_path(self) -> None:
+        """Scan whatever path the user typed."""
         self.scan(self._path_edit.text().strip())
 
     def scan(self, root: Any) -> bool:
@@ -461,6 +469,10 @@ class TrainCompareScreen(QWidget):
         return self._run_job(_job, self._apply_runs)
 
     def _apply_runs(self, runs: Any) -> None:
+        """Show the runs a finished scan found.
+
+        :param runs: the runs it returned.
+        """
         next_runs = list(runs or [])
         # Clear the old tree's curves before any visible state starts naming
         # the new tree. If Qt rejects the redraw because its canvas has been
@@ -488,6 +500,7 @@ class TrainCompareScreen(QWidget):
         self.runs_discovered.emit(n)
 
     def _fill_runs_list(self) -> None:
+        """Rebuild the run list, keeping whatever was ticked."""
         self._runs_list.blockSignals(True)
         self._runs_list.clear()
         for run in self._runs:
@@ -507,6 +520,13 @@ class TrainCompareScreen(QWidget):
         self._update_controls()
 
     def _fill_metric_combo(self, metrics: Sequence[str]) -> None:
+        """Offer only the metrics the loaded runs actually recorded.
+
+        OFFERING ALL OF THEM would let a user pick one that plots nothing, and
+        an empty axes reads as a broken screen rather than a missing metric.
+
+        :param metrics: the metrics present across the runs.
+        """
         previous = self._metric_combo.currentText()
         self._metric_combo.blockSignals(True)
         self._metric_combo.clear()
@@ -516,6 +536,7 @@ class TrainCompareScreen(QWidget):
         self._metric_combo.blockSignals(False)
 
     def _fill_problems(self) -> None:
+        """List anything wrong with the scanned runs."""
         lines = [f"! {r.run_id}: {n}" for r in self._runs for n in r.notes]
         if lines:
             self._problems.setStyleSheet(
@@ -658,10 +679,12 @@ class TrainCompareScreen(QWidget):
     # -- overlay -----------------------------------------------------------
 
     def _on_metric_changed(self, *_a) -> None:
+        """Redraw the curves for a different metric."""
         if self._comparison is not None:
             self._draw()
 
     def _on_fold_changed(self, *_a) -> None:
+        """Redraw for a different way of combining the folds."""
         if self._comparison is not None:
             self.overlay()
 
@@ -703,6 +726,7 @@ class TrainCompareScreen(QWidget):
         return True
 
     def _clear_plot(self) -> None:
+        """Empty the curve plot."""
         self._figure.clear()
         # `clear()` restores the rc facecolor AND its alpha, so the
         # transparency `PanelCanvas` set has to be re-asserted or the
@@ -755,12 +779,17 @@ class TrainCompareScreen(QWidget):
     # -- diff table --------------------------------------------------------
 
     def _clear_diff(self) -> None:
+        """Empty the settings diff, so a stale one is not read as current."""
         self._diff_table.clear()
         self._diff_table.setRowCount(0)
         self._diff_table.setColumnCount(0)
         self._diff_summary.setText("")
 
     def _fill_diff(self, comparison: tc.Comparison) -> None:
+        """Show which settings differ between the compared runs.
+
+        :param comparison: the finished comparison.
+        """
         diff = comparison.settings_diff
         ids = list(diff.get("run_ids") or [])
         changed = list(diff.get("changed") or [])
@@ -814,6 +843,11 @@ class TrainCompareScreen(QWidget):
 
     def _set_table(self, headers: Sequence[str],
                    rows: Sequence[Sequence[str]]) -> None:
+        """Fill one table with headers and rows.
+
+        :param headers: the column headings.
+        :param rows: the rows.
+        """
         self._diff_table.clear()
         self._diff_table.setColumnCount(len(headers))
         self._diff_table.setHorizontalHeaderLabels(list(headers))
@@ -849,6 +883,10 @@ class TrainCompareScreen(QWidget):
     # -- picking -----------------------------------------------------------
 
     def _on_pick(self, event) -> None:
+        """Report which curve point the user clicked.
+
+        :param event: the matplotlib pick event.
+        """
         artist = getattr(event, "artist", None)
         getter = getattr(artist, "get_label", None)
         label = getter() if callable(getter) else ""
@@ -966,6 +1004,13 @@ class TrainCompareScreen(QWidget):
                 self._retire_job(thread)
 
     def _retire_job(self, thread) -> None:
+        """Forget a finished worker thread.
+
+        HELD UNTIL IT FINISHES and dropped after, because a QThread garbage
+        collected while running takes the process with it.
+
+        :param thread: the thread that finished.
+        """
         self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
 
     def active_jobs(self) -> int:
@@ -983,16 +1028,25 @@ class TrainCompareScreen(QWidget):
         return self._busy
 
     def _on_worker_error_text(self, tb: str) -> None:
+        """Show a worker's traceback without closing the screen.
+
+        :param tb: the traceback text.
+        """
         LOG.error("Training Runs worker failed:\n%s", tb)
         last = [ln for ln in str(tb).strip().splitlines() if ln.strip()]
         self._set_status(last[-1] if last else "Scan failed.", error=True)
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed scan.
+
+        :param exc: what went wrong.
+        """
         LOG.error("Training Runs operation failed: %s: %s",
                   type(exc).__name__, exc)
         self._set_status(f"{type(exc).__name__}: {exc}", error=True)
 
     def _update_controls(self) -> None:
+        """Enable each control only when it has something to act on."""
         has_root = bool(self._path_edit.text().strip())
         self._btn_scan.setEnabled(has_root and not self._busy)
         self._btn_overlay.setEnabled(

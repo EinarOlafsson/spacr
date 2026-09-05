@@ -305,6 +305,11 @@ class ModelZooScreen(QWidget):
     _progress_said = Signal(str)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the zoo: the scan list, the downloads and the benchmark.
+
+        :param parent: parent widget.
+        :param threaded: whether scans and downloads run on workers.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._entries: List[zoo.ModelEntry] = []
@@ -350,6 +355,7 @@ class ModelZooScreen(QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the model list beside the details and the benchmark."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -635,6 +641,10 @@ class ModelZooScreen(QWidget):
         return self._run_job(_job, self._apply_scan)
 
     def _apply_scan(self, entries: List[zoo.ModelEntry]) -> None:
+        """Show the checkpoints a finished scan found.
+
+        :param entries: the models it found.
+        """
         self.set_entries(entries)
         unknown = sum(1 for e in entries if not e.provenance_known)
         self._set_status(
@@ -646,15 +656,18 @@ class ModelZooScreen(QWidget):
                "Every one records what it was trained on."))
 
     def _on_scan_typed(self) -> None:
+        """Scan whatever folder the user typed."""
         self.scan(self._scan_edit.text())
 
     def _pick_scan_folder(self) -> None:
+        """Ask for a folder to scan for checkpoints."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder to scan for models", os.getcwd())
         if path:
             self.scan(path)
 
     def _pick_dest_folder(self) -> None:
+        """Ask where downloaded models should be written."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose where downloaded models go",
             self._dest_edit.text() or DEFAULT_DOWNLOAD_DIR)
@@ -704,6 +717,7 @@ class ModelZooScreen(QWidget):
         self._on_selection_changed()
 
     def _on_selection_changed(self) -> None:
+        """Show the details of the selected model."""
         chosen = self.selected_entries()
         if len(chosen) == 1:
             self._detail.setPlainText(chosen[0].describe())
@@ -771,6 +785,10 @@ class ModelZooScreen(QWidget):
                              on_error=self._on_download_failed)
 
     def _apply_download(self, entry: zoo.ModelEntry) -> None:
+        """Show a model that has finished downloading.
+
+        :param entry: the model that arrived.
+        """
         self._progress.setValue(100)
         # The catalogue row this came from is replaced by the local file, not
         # listed beside it: one model, one row, and the row now points at bytes
@@ -789,6 +807,10 @@ class ModelZooScreen(QWidget):
         self.download_finished.emit(True, entry.path)
 
     def _on_download_failed(self, message: str) -> None:
+        """Report a failed download without losing the list.
+
+        :param message: what went wrong.
+        """
         self._progress.setValue(0)
         self._set_status(message, error=True)
         self.download_finished.emit(False, "")
@@ -821,6 +843,10 @@ class ModelZooScreen(QWidget):
             self._progress.setFormat(zoo._human_bytes(done))
 
     def _on_progress_text(self, message: str) -> None:
+        """Show a download's progress line.
+
+        :param message: the progress text.
+        """
         self._set_status(message)
 
     def download_progress(self) -> int:
@@ -895,15 +921,18 @@ class ModelZooScreen(QWidget):
         return list(self._field_names)
 
     def _on_fields_typed(self) -> None:
+        """Load benchmark fields from whatever path the user typed."""
         self.set_fields_source(self._fields_edit.text())
 
     def _pick_fields_folder(self) -> None:
+        """Ask for a folder of fields to benchmark against."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder of fields", self._fields_folder or os.getcwd())
         if path:
             self.set_fields_source(path)
 
     def _reload_fields(self) -> None:
+        """Re-read the benchmark fields from disk."""
         self._btn_test.setText(f"Test on {self._fields_box.value()} fields")
         if self._fields_folder:
             self.set_fields_source(self._fields_folder)
@@ -949,6 +978,10 @@ class ModelZooScreen(QWidget):
         return self._run_job(_job, self._apply_benchmark)
 
     def _apply_benchmark(self, result: zoo.BenchmarkResult) -> None:
+        """Show a finished benchmark.
+
+        :param result: the benchmark's result.
+        """
         self._result = result
         table = self._bench_table
         table.blockSignals(True)
@@ -1203,6 +1236,10 @@ class ModelZooScreen(QWidget):
         return self._busy
 
     def _report_failure(self, exc: Exception) -> None:
+        """Report a failed scan, download or benchmark.
+
+        :param exc: what went wrong.
+        """
         message = str(exc) or exc.__class__.__name__
         handler = getattr(self, "_error_handler", None)
         self._busy = False
@@ -1241,6 +1278,7 @@ class ModelZooScreen(QWidget):
     # -- enablement --------------------------------------------------------
 
     def _update_controls(self) -> None:
+        """Enable each control only when it has something to act on."""
         chosen = self.selected_entries()
         one = len(chosen) == 1
         busy = self._busy
