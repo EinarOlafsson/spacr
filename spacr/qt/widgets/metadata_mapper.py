@@ -42,6 +42,14 @@ class MetadataColumnDialog(QDialog):
     """
 
     def __init__(self, request: MetadataRequest, parent: Optional[QWidget] = None):
+        """Build the dialog matching a table's columns onto the ones spaCR needs.
+
+        Every missing column is asked for at once, so the run can continue
+        without restarting.
+
+        :param request: what is missing, and the example values to preview from.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         detach_from_window_manager(self)
         self.request = request
@@ -120,6 +128,7 @@ class MetadataColumnDialog(QDialog):
         outer.addWidget(buttons)
 
     def _browse(self) -> None:
+        """Ask where to save the mapping, and tick saving when a path is chosen."""
         path, _ = QFileDialog.getSaveFileName(
             self, "Save metadata mapping", self.save_path.text(),
             "JSON (*.json);;All files (*)")
@@ -154,6 +163,14 @@ class MetadataColumnDialog(QDialog):
         )
 
     def _preview_wells(self, source: str) -> None:
+        """Show how the chosen well column's values would be read.
+
+        Values that will not parse are shown as unrecognised rather than
+        omitted: a column that maps four of its five example wells is exactly
+        the case worth seeing before the run.
+
+        :param source: the column to preview.
+        """
         if self.well_selector.currentIndex() == 0:
             self.well_preview.setText("Choose a well column to preview its mapping")
             return

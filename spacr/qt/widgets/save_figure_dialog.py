@@ -339,6 +339,20 @@ class SaveFigureDialog(QDialog):
     PREVIEW_PX = 760
 
     def __init__(self, figure, parent: Optional[QWidget] = None):
+        """Build the save dialog: the four style choices, the shape and the page.
+
+        Whether the figure is a fast plot is decided once here, because the two
+        kinds are styled and written through different methods and every branch
+        below reads the flag rather than re-sniffing the object.
+
+        The text-scale control is offered only for a matplotlib figure: reducing
+        a wide on-screen figure to a journal column leaves its labels full size
+        and crowding the axes, and a fast plot already owns one font-size
+        setting on its own menu -- a second answer here would contradict it.
+
+        :param figure: the figure to save.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle("Save figure")
         self._source = figure
@@ -598,6 +612,10 @@ class SaveFigureDialog(QDialog):
         self._page_changed()
 
     def _suffix(self) -> str:
+        """Return the chosen file extension.
+
+        :returns: the format's suffix, defaulting to ``"png"``.
+        """
         return str(self.format.currentData() or "png")
 
     def _shape_ratio(self) -> Optional[float]:
@@ -857,6 +875,12 @@ class SaveFigureDialog(QDialog):
         return None
 
     def _clear_holder(self) -> None:
+        """Empty the preview holder, deleting whatever it held.
+
+        The widgets are deleted rather than only unparented: a preview is
+        rebuilt on every change, and orphans would accumulate for the life of
+        the dialog.
+        """
         while self._holder.count():
             item = self._holder.takeAt(0)
             widget = item.widget()

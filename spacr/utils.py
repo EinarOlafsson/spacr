@@ -4147,6 +4147,16 @@ class TorchModel(nn.Module):
         return None
 
     def _init_base_model(self, pretrained: bool) -> nn.Module:
+        """Build the torchvision backbone this model wraps.
+
+        Both weight APIs are supported: the newer ``weights=`` form when
+        torchvision offers a weight enum for this architecture, and the older
+        ``pretrained=`` flag when it does not.
+
+        :param pretrained: load pretrained weights.
+        :returns: the backbone module.
+        :raises ValueError: if torchvision has no model of that name.
+        """
         fn = models.__dict__.get(self.model_name, None)
         if fn is None or not callable(fn):
             raise ValueError(f"Unknown torchvision model: {self.model_name}")
@@ -4160,6 +4170,11 @@ class TorchModel(nn.Module):
             return fn(pretrained=pretrained)
 
     def _apply_dropout_rate(self, module: nn.Module, p: float):
+        """Set one dropout probability on every dropout layer in a module.
+
+        :param module: the subtree to walk.
+        :param p: the probability to set, on 1-, 2- and 3-D dropout alike.
+        """
         for m in module.modules():
             if isinstance(m, (nn.Dropout, nn.Dropout2d, nn.Dropout3d)):
                 m.p = p
@@ -4246,6 +4261,15 @@ class TorchModel(nn.Module):
         return out
 
     def _run_backbone(self, x: torch.Tensor) -> torch.Tensor:
+        """Run the backbone and flatten its output to ``(N, F)``.
+
+        Some backbones return a spatial feature map rather than a vector, so the
+        trailing dimensions are flattened -- the head expects one row per
+        sample either way.
+
+        :param x: the input batch.
+        :returns: the features, two-dimensional.
+        """
         out = self._run_backbone_raw(x)
         # Ensure 2D features (N, F)
         if isinstance(out, torch.Tensor) and out.ndim > 2:
