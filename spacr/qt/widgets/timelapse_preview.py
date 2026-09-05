@@ -1743,7 +1743,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         :meth:`_movie_source_paths`, both on the GUI thread, both on the path
         the user chose. Under ``/nas_mnt`` -- an ``autofs`` mount with a
         sleeping share -- one such stat had not returned after TWENTY SECONDS
-        when this was measured on 2026-09-04, and
+        when this was measured: and
         :meth:`_on_max_sets_changed` runs this path on every click of the
         sets spinner. See :mod:`spacr.qt.path_probe`.
 
@@ -1866,10 +1866,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         :meth:`load_masks` opens the sequence inline.
         ``FrameSequence.open`` on a folder of label images is a stat, a
         listing and one ``is_file()`` per entry -- hundreds of round trips
-        for a plate -- and the folder comes from the user, which on this
-        maintainer's machine means it can be a sleeping ``/nas_mnt`` share
-        where a single stat had not returned after twenty seconds (measured
-        2026-09-04; see :mod:`spacr.qt.path_probe`). Run from
+        for a plate -- and the folder comes from the user, which on one such
+        workstation means it can be a sleeping ``/nas_mnt`` share
+        where a single stat had not returned after twenty seconds (measured;
+        see :mod:`spacr.qt.path_probe`). Run from
         :meth:`_pick_masks` that froze the whole window the moment the file
         dialog closed.
 

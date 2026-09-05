@@ -230,8 +230,8 @@ class _DropzoneFilter(QObject):
         rejected, so the drag animation snapped back while the import ran.
 
         AND NOTHING HERE TOUCHES THE FILESYSTEM. Every path in a drop is a path
-        the USER chose, which on this maintainer's machine includes ``/nas_mnt``
-        shares behind an ``autofs`` mount: measured 2026-09-04, a single stat on
+        the USER chose, which on one such workstation includes ``/nas_mnt``
+        shares behind an ``autofs`` mount, measured: a single stat on
         a sleeping one had not returned after TWENTY SECONDS. This method runs
         inside Qt's delivery of ``QEvent.Drop``, i.e. on the GUI thread, so the
         old body -- ``p.is_file()`` to split the CSVs out, then ``can_accept``

@@ -1111,7 +1111,7 @@ def _is_a_folder(path: str) -> bool:
 
     THE PATHS THIS IS ASKED ABOUT ARE THE USER'S. They are the folders the
     user last pointed each module at, read back out of QSettings, and one of
-    the maintainer's is under ``/nas_mnt`` -- an ``autofs`` mount with
+    one such root is under ``/nas_mnt`` -- an ``autofs`` mount with
     ``timeout=600``. Measured on that machine 2026-09-04: one ``os.path``
     stat on such a path had NOT RETURNED AFTER TWENTY SECONDS, because the
     stat is what wakes the automount and the share was asleep. On the GUI

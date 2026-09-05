@@ -59,11 +59,26 @@ from spacr.qt.preferences import FONT_SCALE_MAX            # noqa: E402
 
 from .test_no_caption_is_clipped import painted_text       # noqa: E402
 
-#: The screens the sweep builds. Chosen to cover the shapes rather than the
-#: count: the settings-form modules, the two screens that are mostly buttons,
-#: and the two that are mostly prose.
+#: The screens the sweep builds.
+#:
+#: It began as eight, "chosen to cover the shapes rather than the count": the
+#: settings-form modules, the two that are mostly buttons, and the two that
+#: are mostly prose. That sampling was the right call while the method was
+#: being proven, and instruction 350 recorded what it left owing -- "What
+#: remains is coverage -- more screens, more locales, and the dialogs".
+#:
+#: EVERY DECLARED APP IS NOW IN IT. The other sixteen were not skipped for a
+#: reason; they had simply never been tried. All sixteen build through
+#: `AppScreen` exactly as the original eight do, and all sixteen came up clean
+#: on the first run -- 96 combinations, zero clipped captions -- so this is a
+#: coverage debt repaid rather than a set of fixes. 24 screens x 3 locales x
+#: 2 scales = 144 cases, measured at 22 s for the new 96.
 SCREENS = ("measure", "regression", "classify_merged", "foreign", "annotate",
-           "qc_dashboard", "power", "experiment_design")
+           "qc_dashboard", "power", "experiment_design",
+           "data_manager", "pipeline_graph", "profiler", "lineage",
+           "layer_viewer", "graph_builder", "run_compare", "tabulate",
+           "investigate_hit", "trellis", "gate_editor", "feature_explorer",
+           "outliers", "dose_response", "control_chart", "project_browser")
 
 #: See the module docstring: source, worst case, and the maintainer's own.
 LOCALES = ("en", "de", "is")

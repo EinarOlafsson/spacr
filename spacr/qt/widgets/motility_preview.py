@@ -626,8 +626,8 @@ def read_plane_count(merged_dir: str, filename: str) -> int:
     ``np.load(..., mmap_mode="r")`` sounds free and is not. Before it maps
     anything it OPENS the file and reads the ``.npy`` header, so it is a
     filesystem round trip on a path the user supplied -- and an open is no
-    cheaper than the stat that started this exercise. Measured on the
-    maintainer's machine 2026-09-04, one stat under ``/nas_mnt`` -- an
+    cheaper than the stat that started this exercise. Measured on one
+    workstation, one stat under ``/nas_mnt`` -- an
     ``autofs`` mount whose share was asleep -- had not returned after twenty
     seconds.
 
@@ -947,8 +947,8 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
 
         `dragMoveEvent` re-fires this on EVERY mouse move while a folder is
         held over the panel, so the old ``Path(...).is_dir()`` here was a
-        stat per pixel of travel on the GUI thread. Measured on the
-        maintainer's machine 2026-09-04: one stat under ``/nas_mnt`` -- an
+        stat per pixel of travel on the GUI thread. Measured on one
+        workstation: one stat under ``/nas_mnt`` -- an
         ``autofs`` mount whose share was asleep -- had not returned after
         twenty seconds. Dragging a folder off a sleeping share froze the
         whole application before the drop was even released.
