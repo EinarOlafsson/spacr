@@ -732,6 +732,22 @@ class _PageLoadWorker(QThread):
             return True
 
     def run(self):
+        """Decode one page of crops and hand them back, if the screen still exists.
+
+        THE EMIT IS INSIDE THE GUARD, AND THAT IS THE WHOLE POINT. ``emit`` and
+        ``isInterruptionRequested`` are calls into this worker's C++ half, and
+        by the time a page finishes decoding the screen may be gone -- Qt
+        destroys the C++ object with its parent while this thread is still in
+        PIL. Both then raise, and raised here, outside any ``try``, the
+        exception escapes a ``QThread.run`` override: PySide6 prints "Error
+        calling Python override of QThread::run()" and the process aborts.
+        Caught in the full suite mid-``Image.resize``.
+
+        Nothing is lost by swallowing it: the only thing that branch does is
+        hand results to a screen that no longer exists. A page abandoned
+        mid-crop returns without emitting for the same reason -- the partial
+        list describes a page the screen has already moved off.
+        """
         try:
             loaded = []
             for row in self._paths:
@@ -805,6 +821,14 @@ class _RetrainWorker(QThread):
         self._options = dict(options)
 
     def run(self):
+        """Run one active-learning round and hand back the result.
+
+        Guarded at both ends for the reason ``_PageLoadWorker.run`` sets out: a
+        signal emitted at a destroyed C++ object raises out of ``run``, and an
+        exception out of a ``QThread.run`` override aborts the process. The
+        failure is surfaced rather than eaten -- a retrain that quietly did
+        nothing is worse than one that says why it could not.
+        """
         try:
             from ... import active_learning as al
             result = al.retrain_round(self._db_path, self._column,
@@ -2488,9 +2512,11 @@ class _AutoAnnotateDialog(QDialog):
     # -- state -------------------------------------------------------------
 
     def source(self) -> str:
+        """The annotation source the user chose."""
         return str(self._source.currentData())
 
     def value(self) -> int:
+        """The value to write for the chosen source."""
         return int(self._value.value())
 
     def matched_paths(self) -> List[str]:

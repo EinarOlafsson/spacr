@@ -543,6 +543,12 @@ def _alive(obj) -> bool:
 
 
 def _header(view):
+    """Find a view's header, whichever kind of view it is.
+
+    :param view: the table or tree.
+    :returns: the header, or ``None`` for a view that has none or whose C++
+        half is gone.
+    """
     if not _alive(view):
         return None
     if isinstance(view, (QTreeView, QTreeWidget)):
@@ -553,6 +559,12 @@ def _header(view):
 
 
 def _column_count(view) -> int:
+    """How many columns a view's model has.
+
+    :param view: the table or tree.
+    :returns: the count, and ``0`` for a view with no model or one whose
+        C++ half is gone.
+    """
     if not _alive(view):
         return 0
     model = view.model()
@@ -649,6 +661,13 @@ def install_sorting(view):
 
 
 def _wrap_in_proxy(view) -> None:
+    """Put a sorting proxy over a view's model, unless one is already there.
+
+    Wrapping twice would sort a sorted view, so an existing proxy is left
+    alone -- which is what makes installing sorting idempotent.
+
+    :param view: the view to wrap.
+    """
     model = view.model()
     if model is None or isinstance(model, QSortFilterProxyModel):
         return

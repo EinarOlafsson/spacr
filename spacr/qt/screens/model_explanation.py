@@ -39,6 +39,13 @@ APP_CLI_NOTE = (
 
 
 def _read_only_item(value: Any) -> QTableWidgetItem:
+    """Build a table cell that cannot be edited.
+
+    :param value: the value; ``None`` and ``NaN`` render blank rather than
+        as the string "nan", and a float is shown to five significant
+        figures so a column of them lines up.
+    :returns: the cell.
+    """
     if value is None or (isinstance(value, float) and pd.isna(value)):
         text = ""
     elif isinstance(value, float):
@@ -52,6 +59,17 @@ def _read_only_item(value: Any) -> QTableWidgetItem:
 
 def _fill_table(table: QTableWidget, frame: pd.DataFrame,
                 *, limit: int = 1000) -> None:
+    """Fill a table from a data frame, capped at a row limit.
+
+    Sorting is switched off while filling: a sorted table re-orders on every
+    write, so the row index the next write uses is no longer the row it just
+    filled. A non-range index is reset into a column first, so a frame keyed
+    by gene does not lose the gene.
+
+    :param table: the table to fill.
+    :param frame: the data.
+    :param limit: how many rows to show.
+    """
     shown = frame.head(limit).copy()
     if not isinstance(shown.index, pd.RangeIndex):
         shown = shown.reset_index()
@@ -91,9 +109,16 @@ class _PathRow(QWidget):
         layout.addWidget(self.button)
 
     def text(self) -> str:
+        """The path currently typed, stripped."""
         return self.edit.text().strip()
 
     def setText(self, value: str) -> None:  # noqa: N802 - QLineEdit parity
+        """Set the path shown.
+
+        Named for ``QLineEdit``'s API so this row can stand in for one.
+
+        :param value: the path; ``None`` clears the field.
+        """
         self.edit.setText(str(value or ""))
 
     def _browse(self) -> None:  # pragma: no cover - modal native picker
