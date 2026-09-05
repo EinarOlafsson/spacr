@@ -160,6 +160,14 @@ class GateEditorScreen(QWidget):
     """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
+        """Build the screen: header, working-set chips, axis pickers, plot and side panels.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link, passed through to the gate panel and
+            the filter panel so both answer to the same selection.
+        :param threaded: run loads and exports on a worker thread. Set ``False``
+            in tests so a load finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("GateEditorScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -476,6 +484,15 @@ class GateEditorScreen(QWidget):
         self._refill_axis_pickers(frame)
 
     def _refill_axis_pickers(self, frame: pd.DataFrame) -> None:
+        """Repopulate X, Y and Z from a frame's plottable columns.
+
+        A pick that still exists in the new frame is kept -- adding a table to
+        the working set must not throw away the axes already chosen. Y and Z
+        offer a blank entry: an empty Y is the one-parameter histogram a
+        threshold gate is drawn on.
+
+        :param frame: the frame whose columns the pickers should offer.
+        """
         columns = list(plottable_columns(frame))
         current_z = self._z.currentText()
         self._z.blockSignals(True)
@@ -497,9 +514,15 @@ class GateEditorScreen(QWidget):
         self._on_axes_changed()
 
     def _on_formulas_changed(self) -> None:
+        """Recompute derived columns and push the frame back to the plot."""
         self._push_frame()
 
     def _on_axes_changed(self, *_args) -> None:
+        """Send the current X and Y to the gate panel.
+
+        :param _args: whatever the emitting signal passes; ignored, since both
+            boxes are re-read either way.
+        """
         self.gates.set_spec(GraphSpec(x=self._x.currentText() or None,
                                       y=self._y.currentText() or None))
 
@@ -524,6 +547,11 @@ class GateEditorScreen(QWidget):
                 box.setCurrentIndex(index)
 
     def _on_gates_changed(self) -> None:
+        """Update the gate count on the source label.
+
+        The previous count is stripped first, so repeated edits replace the
+        suffix rather than stacking more of them.
+        """
         self._source.setText(self._source.text().split(" · gates")[0]
                              + f" · gates: {len(self.gates.gates)}")
 
@@ -717,6 +745,14 @@ class GateEditorScreen(QWidget):
         return read_sampled(path, table, fraction=fraction, limit=cap)
 
     def _on_frame_loaded(self, payload) -> None:
+        """Show a freshly loaded frame and label it with what it actually is.
+
+        A merge of three databases is labelled by the count, not by one file
+        name -- naming one file after a merge would be the screen saying
+        something untrue about the numbers on it.
+
+        :param payload: the worker's ``(table_name, frame)`` pair.
+        """
         chosen, frame = payload
         path = self._path or ""
         suffix = f" · {chosen}" if chosen else ""
@@ -1069,10 +1105,21 @@ class GateEditorScreen(QWidget):
         self._settings_dialog.raise_()
 
     def _set_z_visible(self, visible: bool) -> None:
+        """Show or hide the Z picker and its label.
+
+        Hidden rather than removed in 2D, so the third measurement is remembered
+        across a switch to 2D and back.
+
+        :param visible: whether the Z row should be shown.
+        """
         self._z_label.setVisible(visible)
         self._z.setVisible(visible)
 
     def _on_z_changed(self, column: str) -> None:
+        """Record the chosen Z measurement, and re-draw if the canvas is in 3D.
+
+        :param column: the newly chosen column, or ``""`` for none.
+        """
         self._settings = self._settings.replaced(z_axis=column or "")
         if self._settings.gate_mode == "3D":
             self.gates.canvas.set_mode(self._settings.gate_mode,
@@ -1501,12 +1548,29 @@ class GateEditorScreen(QWidget):
     @staticmethod
     def _write_annotation(path: str, frame, labels, column: str,
                           table: str = ""):
+        """Write gate labels to an annotation column.
+
+        Static so the job runner can call it off the GUI thread without holding
+        a reference to the screen.
+
+        :param path: database to write into.
+        :param frame: the frame the labels line up with.
+        :param labels: the per-row label values.
+        :param column: annotation column to write.
+        :param table: object type the rows belong to; ``""`` leaves it unset.
+        :returns: whatever :func:`spacr.filters.export_annotation` returns.
+        """
         from ...filters import export_annotation
 
         return export_annotation(path, frame, labels, column,
                                  object_type=table or None)
 
     def _on_exported(self, payload) -> None:
+        """Report which gate columns were written and which were refused.
+
+        :param payload: the worker's ``(written, failed)`` pair -- ``written`` as
+            ``(column, n_marked)`` and ``failed`` as ``(name, reason)``.
+        """
         written, failed = payload
         parts = [f"{column} ({marked:,} objects)" for column, marked in written]
         message = ("wrote " + ", ".join(parts)) if parts else "nothing written"
@@ -1516,6 +1580,10 @@ class GateEditorScreen(QWidget):
         self._source.setText(message)
 
     def _on_load_failed(self, message: str) -> None:
+        """Log and show a failed table load.
+
+        :param message: the failure text from the job runner.
+        """
         path = self._path or ""
         LOG.info("could not read %s: %s", path, message)
         self._source.setText(
@@ -1544,6 +1612,12 @@ class GateEditorScreen(QWidget):
         self._reload_working_set()
 
     def _rebuild_chips(self) -> None:
+        """Rebuild the table chips from the working set.
+
+        The trailing stretch is left in place, and the chips are only removable
+        while more than one table is loaded -- removing the last one would leave
+        the screen with nothing to plot.
+        """
         while self._chips.count() > 1:
             item = self._chips.takeAt(0)
             widget = item.widget()
@@ -1690,6 +1764,11 @@ class GateEditorScreen(QWidget):
         return frame
 
     def _merge_policy(self):
+        """Build the merge policy for the current working set.
+
+        :returns: a ``MergePolicy`` whose primary table is the settings' choice,
+            falling back to the first loaded table and then to ``"cell"``.
+        """
         from ...merge_tables import MergePolicy
 
         primary = self._tables[0] if self._tables else "cell"
