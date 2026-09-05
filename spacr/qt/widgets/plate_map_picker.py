@@ -256,6 +256,13 @@ class PlateMapPicker(QDialog):
 
     def __init__(self, value: str = "", layout: int = DEFAULT_LAYOUT,
                  parent: Optional[QWidget] = None):
+        """Build the well picker over a plate layout.
+
+        :param value: the wells to start selected, in the text form the settings
+            field holds.
+        :param layout: the plate format, in wells.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle("Choose wells")
         self._layout_size = int(layout)
@@ -522,6 +529,13 @@ class PlateMapPicker(QDialog):
         self._say()
 
     def _read(self, text) -> Set[Tuple[int, int]]:
+        """Parse a well specification against the current layout.
+
+        :param text: the specification to parse.
+        :returns: the wells it names, and an empty set when it will not parse --
+            a field with a typo in it opens the picker empty rather than
+            refusing to open, because the picker is how that typo gets fixed.
+        """
         try:
             return parse(text, self._layout_size)
         except WellSpecError:
@@ -534,6 +548,12 @@ class PlateMapPicker(QDialog):
         return to_text(self.selection(), self._layout_size)
 
     def _say(self, lost: int = 0) -> None:
+        """Restate the layout and how many wells are chosen.
+
+        :param lost: wells dropped because they are not on this layout, named in
+            the caption so shrinking the plate does not silently discard part of
+            a selection.
+        """
         chosen = len(self.selection())
         rows, columns = shape(self._layout_size)
         note = (f"{self._layout_size}-well plate ({rows} x {columns}) — "

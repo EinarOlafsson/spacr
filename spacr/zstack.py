@@ -557,6 +557,14 @@ class ZStackSpec:
     resample_to_isotropic: bool = False
 
     def __post_init__(self):
+        """Validate the z-stack settings before anything reads a field.
+
+        :raises ZStackError: if the segmentation mode or the projection is not
+            one this build offers; if ``anisotropy`` is not positive -- it is the
+            ratio dz/dxy, so 1.0 is isotropic voxels and 5.0 means the z step is
+            five times the xy pixel; or if ``stitch_threshold`` is not an IoU in
+            ``[0, 1]``.
+        """
         if self.mode not in SEGMENTATION_MODES:
             raise ZStackError(
                 f"z_segmentation_mode={self.mode!r} is not one of "
@@ -1709,6 +1717,12 @@ class AxisOrder:
     source: str = "explicit"
 
     def __post_init__(self):
+        """Reject an axis order that names one array axis twice.
+
+        :raises TStackError: if any two of t, z, y, x and channel share an index.
+            One array axis cannot be two things at once, and the failure it
+            causes downstream names neither of them.
+        """
         axes = [self.t_axis, self.y_axis, self.x_axis]
         if self.z_axis is not None:
             axes.append(self.z_axis)
@@ -2033,6 +2047,20 @@ class TStackSpec:
     project_for_tracking: bool = False
 
     def __post_init__(self):
+        """Validate the timelapse settings, including the z settings it carries.
+
+        The z spec is constructed here rather than on first use, so an
+        impossible z mode, projection or anisotropy is refused when the spec is
+        built rather than after the first field has been read.
+
+        :raises TStackError: if t, z and channel do not name distinct axes; if
+            the tracking backend is not one this build offers; if the link
+            threshold is not an IoU in ``[0, 1]``; if the maximum displacement is
+            given in both pixels and microns -- the same gate in two units, and
+            spaCR will not pick one -- or if a displacement or frame interval is
+            not finite and positive.
+        :raises ZStackError: from the z spec it builds.
+        """
         if self.z_axis is not None and int(self.t_axis) == int(self.z_axis):
             raise TStackError(
                 f"t_axis and z_axis are both {self.t_axis}; one array axis "

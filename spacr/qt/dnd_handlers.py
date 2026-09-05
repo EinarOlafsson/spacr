@@ -2154,6 +2154,16 @@ class InvestigateHitInputsDropHandler(DropHandler):
 
     @staticmethod
     def _looks_like_fractions(path: Path) -> bool:
+        """Guess whether a CSV is a well or guide fraction table.
+
+        Only the header is read. A file is taken as fractions when it names both
+        something guide-like and something fraction-like -- either alone is too
+        common to identify the table.
+
+        :param path: the file to inspect.
+        :returns: ``False`` for anything unreadable, so a drop is declined
+            rather than raising out of a drag.
+        """
         try:
             with path.open("r", encoding="utf-8-sig", errors="replace") as stream:
                 header = stream.readline()
@@ -3039,6 +3049,12 @@ class LayoutDropHandler(DropHandler):
     label: str = ""
 
     def __init__(self, app_key: str = "") -> None:
+        """Create the handler, naming itself if the caller did not.
+
+        :param app_key: the module this handler serves; empty falls back to the
+            handler's label and then to its class name, so a handler always has
+            something to report itself as.
+        """
         self.app_key = app_key or self.label or type(self).__name__
         self._last_resolution = None
 
@@ -3414,6 +3430,21 @@ class LabelMaskDropHandler(LayoutDropHandler):
     suffixes = (".tif", ".tiff", ".png", ".npy")
 
     def _one_mask(self, screen, value: str, target) -> Optional[str]:
+        """Resolve a dropped path to exactly one label mask.
+
+        A file is taken as-is. A folder is searched -- first among the paths the
+        drop itself carried, then by listing the folder -- and if more than one
+        mask is found the user is asked which, rather than one being chosen for
+        them.
+
+        :param screen: the screen to ask on, when asking is needed.
+        :param value: the dropped path.
+        :param target: the drop target, whose paths are preferred over a fresh
+            listing.
+        :returns: the chosen mask path, or ``None`` when the question was
+            dismissed.
+        :raises ValueError: if the folder holds no label mask at all.
+        """
         path = Path(value)
         if path.is_file():
             return str(path)
