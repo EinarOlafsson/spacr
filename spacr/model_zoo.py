@@ -134,6 +134,7 @@ import json
 import logging
 import os
 import re
+import threading
 import time
 from dataclasses import dataclass, replace
 from dataclasses import field as _dc_field
@@ -162,6 +163,7 @@ __all__ = [
     "RETIRED_MODEL_NAMES",
     "REMOTE_CATALOGUE_URI",
     "shared_catalogue",
+    "shared_catalogue_is_stale",
     "publish_model",
     "CLASSIFIER_SUFFIXES",
     "CELLPOSE_SUFFIXES",
@@ -1302,16 +1304,82 @@ def _entry_from_mapping(data: Mapping[str, Any],
 
 _SHARED_CATALOGUE_CACHE: Dict[str, Any] = {"fetched_at": 0.0, "entries": ()}
 
+#: Set while a background refresh is in flight, so a screen that opens twice
+#: in a second starts one fetch rather than two.
+_SHARED_CATALOGUE_FETCHING = threading.Event()
+
+
+def _on_the_qt_gui_thread() -> bool:
+    """Whether this call is running on Qt's GUI thread.
+
+    Answers False for a process with no Qt, for a worker thread, and for
+    anything that goes wrong while asking -- so the only thing this can do
+    is turn a blocking fetch into a background one, never the reverse.
+    """
+    try:
+        from PySide6.QtCore import QCoreApplication, QThread
+    except Exception:                                        # noqa: BLE001
+        return False
+    try:
+        app = QCoreApplication.instance()
+        return app is not None and QThread.currentThread() is app.thread()
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def _refresh_shared_catalogue_in_background(uri: Optional[str],
+                                            timeout: float) -> None:
+    """Fetch the catalogue on a daemon thread, for the cache to serve later.
+
+    Nothing waits on the thread and nothing is redrawn when it lands: the
+    point is only that the NEXT caller answers from a warm cache instead of
+    from the network.
+    """
+    if _SHARED_CATALOGUE_FETCHING.is_set():
+        return
+    _SHARED_CATALOGUE_FETCHING.set()
+
+    def run() -> None:
+        try:
+            shared_catalogue(uri, timeout=timeout, force=True, block=True)
+        finally:
+            _SHARED_CATALOGUE_FETCHING.clear()
+
+    threading.Thread(target=run, daemon=True,
+                     name="spacr-model-catalogue").start()
+
 
 def shared_catalogue(uri: Optional[str] = None, *,
                      timeout: float = DEFAULT_TIMEOUT,
-                     force: bool = False) -> Tuple["ModelEntry", ...]:
+                     force: bool = False,
+                     block: Optional[bool] = None) -> Tuple["ModelEntry", ...]:
     """The community catalogue, fetched from :data:`REMOTE_CATALOGUE_URI`.
 
     :param uri: override the catalogue location.
     :param timeout: seconds to wait for the request.
     :param force: ignore the cache and re-fetch.
+    :param block: whether to wait for the network. ``None`` -- the default,
+        and what an unthinking caller gets -- waits everywhere EXCEPT Qt's
+        GUI thread, where it answers from the cache and refreshes on a daemon
+        thread. ``True`` waits wherever it is called, which only a caller that
+        knows it is on a worker or in a CLI may ask for. ``False`` never
+        waits.
     :returns: the entries, or ``()`` when the catalogue cannot be read.
+
+    NEVER FETCHES ON THE GUI THREAD, and that is not an optimisation. This is
+    reached from ``spacr.settings.downloaded_zoo_models`` while a settings
+    panel is being built, so it ran inside ``MainWindow._on_nav_selected``
+    with nothing able to paint or answer the compositor. Measured 2026-09-05
+    with the catalogue host non-routable (10.255.255.1, the shape of a down
+    VPN or a captive portal -- the connect neither completes nor is refused):
+    opening the Mask module took **32.2 s**, all of it a GUI thread stuck in
+    ``urlopen``. GNOME asks a window whether it is alive after five, so what
+    the user sees is spaCR's "force quit" dialog, which is how this was
+    reported. With the fetch moved off the thread the same open is 2.4 s.
+
+    The cost of not waiting is a first module open whose Cellpose dropdown
+    lists the bundled and local models but not the community ones; the
+    background refresh means the second one has them.
 
     NEVER RAISES, and that is deliberate. This runs when a user opens a module
     that offers a model list, and the list is useful without it: the bundled
@@ -1336,6 +1404,15 @@ def shared_catalogue(uri: Optional[str] = None, *,
     if (not force and float(_SHARED_CATALOGUE_CACHE["fetched_at"]) > 0
             and now - float(_SHARED_CATALOGUE_CACHE["fetched_at"])
             < CATALOGUE_CACHE_SECONDS):
+        return tuple(_SHARED_CATALOGUE_CACHE["entries"])
+
+    # The default is decided here rather than in the signature, because what
+    # it should be depends on WHERE the call is: waiting is right in a CLI
+    # and in a worker, and is the defect this parameter exists for on the
+    # GUI thread.
+    wait = (not _on_the_qt_gui_thread()) if block is None else bool(block)
+    if not wait:
+        _refresh_shared_catalogue_in_background(uri, timeout)
         return tuple(_SHARED_CATALOGUE_CACHE["entries"])
 
     try:
@@ -1371,6 +1448,17 @@ def shared_catalogue(uri: Optional[str] = None, *,
             LOG.warning("skipping a shared catalogue entry: %s", exc)
     _SHARED_CATALOGUE_CACHE.update(fetched_at=now, entries=tuple(entries))
     return tuple(entries)
+
+
+def shared_catalogue_is_stale() -> bool:
+    """Whether :func:`shared_catalogue` would go to the network to answer.
+
+    For a caller that wants to do the waiting somewhere it is allowed to --
+    a worker thread -- rather than get the cached answer and not know it was
+    one.
+    """
+    stamp = float(_SHARED_CATALOGUE_CACHE["fetched_at"])
+    return stamp <= 0 or (time.time() - stamp) >= CATALOGUE_CACHE_SECONDS
 
 
 def publish_model(local_path: Any, repo_id: str, *,
@@ -1494,7 +1582,8 @@ def load_catalogue_file(path: Any) -> List[ModelEntry]:
 
 def catalogue(include_bundled: bool = True, remote: bool = True,
               catalogue_path: Any = None,
-              include_plugins: bool = True) -> List[ModelEntry]:
+              include_plugins: bool = True,
+              block: Optional[bool] = None) -> List[ModelEntry]:
     """Everything the zoo knows about without scanning the user's disks.
 
     That is: the models bundled with the installed package (whatever
@@ -1503,8 +1592,11 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
     configured, the JSON catalogue named by ``catalogue_path`` or the
     :data:`CATALOGUE_ENV_VAR` environment variable.
 
-    Purely local: this reads files and an environment variable and makes no
-    network call, so it works offline and on a machine with no torch.
+    Local apart from one thing, and the exception used to be undocumented:
+    with ``remote`` on, this also asks :func:`shared_catalogue` for the
+    community rows, which is a network call. It works offline either way --
+    that fetch never raises -- and it never blocks Qt's GUI thread, which
+    :func:`shared_catalogue` enforces for itself.
 
     :param include_bundled: list the models in the package resources folder.
     :param remote: list declared remote entries.
@@ -1513,6 +1605,9 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
     :param include_plugins: include entries returned by installed spaCR model
         providers. Provider failures are recorded in plugin diagnostics and do
         not hide built-in entries.
+    :param block: passed to :func:`shared_catalogue`. ``False`` takes the
+        community rows from its cache rather than waiting for the network;
+        ``None`` lets that function decide from the thread it is on.
     :returns: bundled entries first, then remote ones already present locally
         are dropped (a downloaded model is listed once, as the local file).
     """
@@ -1540,7 +1635,7 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
         # property: a shared catalogue is edited by people other than the user
         # running the code, and it must not be able to redefine a model spaCR
         # ships or one the lab pinned in its own file. It can only ADD.
-        for entry in shared_catalogue():
+        for entry in shared_catalogue(block=block):
             if (entry.key, entry.name) not in have:
                 entries.append(entry)
                 have.add((entry.key, entry.name))
