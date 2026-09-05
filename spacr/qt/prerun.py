@@ -652,6 +652,7 @@ class SegQCBanner(_JobMixin, QFrame):
                 LOG.exception("could not follow the src field")
 
     def _on_screen_shown(self) -> None:
+        """Re-read the QC scores when the screen becomes visible."""
         self._timer.start()
 
     def schedule_refresh(self) -> None:
@@ -881,6 +882,7 @@ class SegQCBanner(_JobMixin, QFrame):
         return self._digest
 
     def _draw(self) -> None:
+        """Draw the banner from the scores in hand."""
         digest = self._digest
         if digest is None:
             return
@@ -928,6 +930,7 @@ class SegQCBanner(_JobMixin, QFrame):
             style.polish(widget)
 
     def _clear_findings(self) -> None:
+        """Empty the findings list."""
         while self._findings_layout.count():
             item = self._findings_layout.takeAt(0)
             widget = item.widget()
@@ -936,6 +939,10 @@ class SegQCBanner(_JobMixin, QFrame):
                 widget.deleteLater()
 
     def _draw_findings(self, digest) -> None:
+        """List what the QC pass objected to.
+
+        :param digest: the findings.
+        """
         self._clear_findings()
         findings = list(digest.findings)
         try:
@@ -1075,9 +1082,15 @@ class SegQCBanner(_JobMixin, QFrame):
             LOG.exception("could not open the segmentation-QC field browser")
 
     def _on_field_browser_destroyed(self, *_args) -> None:
+        """Forget the field browser once Qt has destroyed it.
+
+        HELD ONLY WHILE ALIVE: a Python reference to a destroyed widget is a
+        crash the next time anything touches it.
+        """
         self._field_browser = None
 
     def _close_field_browser(self) -> None:
+        """Close the field browser if one is open."""
         browser = getattr(self, "_field_browser", None)
         if browser is None:
             return
@@ -1088,6 +1101,7 @@ class SegQCBanner(_JobMixin, QFrame):
             pass
 
     def _on_toggle_findings(self) -> None:
+        """Show or hide the findings list."""
         self._expanded = not self._expanded
         if self._digest is not None:
             self._draw_findings(self._digest)
@@ -1221,6 +1235,12 @@ class DiameterPanel(_JobMixin, QFrame):
     estimated = Signal(list)
 
     def __init__(self, screen: QWidget, *, estimator=None, parent=None) -> None:
+        """Build the diameter estimator's panel.
+
+        :param screen: the screen this panel advises.
+        :param estimator: how to measure the diameters.
+        :param parent: parent widget.
+        """
         super().__init__(parent or screen)
         self.setObjectName(DIAMETER_OBJECT_NAME)
         self.setFrameShape(QFrame.NoFrame)
@@ -1282,6 +1302,10 @@ class DiameterPanel(_JobMixin, QFrame):
     # -- inputs -----------------------------------------------------------
 
     def _settings(self) -> Dict[str, Any]:
+        """The settings the estimate should be made under.
+
+        :returns: the settings dict.
+        """
         model = getattr(self._screen, "_settings_model", None)
         if model is None:
             return {}
@@ -1304,6 +1328,7 @@ class DiameterPanel(_JobMixin, QFrame):
     # -- measuring --------------------------------------------------------
 
     def _on_measure_clicked(self) -> None:
+        """Measure object diameters on the current source."""
         src = _src_of(self._screen)
         if not _has_src(src):
             self._say("Point src at a plate folder first — there is nothing "
@@ -1372,6 +1397,10 @@ class DiameterPanel(_JobMixin, QFrame):
         self.estimated.emit(usable)
 
     def _say(self, text: str) -> None:
+        """Put one line in the panel's status area.
+
+        :param text: the line.
+        """
         self._status.setText(text)
         self._status.setVisible(bool(text))
 
@@ -1383,6 +1412,7 @@ class DiameterPanel(_JobMixin, QFrame):
         return dict(self._estimates)
 
     def _clear_rows(self) -> None:
+        """Empty the results rows."""
         while self._rows_layout.count():
             item = self._rows_layout.takeAt(0)
             widget = item.widget()
@@ -1391,6 +1421,7 @@ class DiameterPanel(_JobMixin, QFrame):
                 widget.deleteLater()
 
     def _draw_rows(self) -> None:
+        """Show one row per object type with its measured diameter."""
         self._clear_rows()
         order = [o for o in _DIAMETER_OBJECTS if o in self._estimates]
         order += [o for o in self._estimates if o not in order]
@@ -1476,6 +1507,12 @@ class DiameterPanel(_JobMixin, QFrame):
         return False
 
     def _on_use_all_clicked(self) -> None:
+        """Apply every measured diameter to the settings form.
+
+        THE POINT OF MEASURING. A number in a panel the user must retype is a
+        number most people will not use, and the estimate is only worth making
+        if it can be taken in one press.
+        """
         applied = [obj for obj in self._estimates if self.apply(obj)]
         if applied:
             self._say("Set " + ", ".join(
