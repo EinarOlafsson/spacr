@@ -70,14 +70,18 @@
       "source_sha256": "477819970196ec8e766d01b3fd8b4c484e5f91cd05d3afe71d90e4b40701a2e7",
       "source": "Return this gate moved by ``(dx, dy)`` in DATA units.",
       "context": "Return this data-selection boundary moved by ``(dx, dy)`` in DATA units.",
-      "translation": "इस डेटा-चयन सीमा को DATA units में ``(dx, dy)`` से खिसकाकर लौटाएँ।"
+      "translation": "इस डेटा-चयन सीमा को DATA units में ``(dx, dy)`` से खिसकाकर लौटाएँ।",
+      "retired": "2026-09-06",
+      "retired_reason": "source reworded by 368 from \"Return this gate moved by (dx, dy) in DATA units\" to \"A copy with every vertex moved by (dx, dy)\"; the reviewed Hindi describes the earlier sentence"
     },
     {
       "label": "spacr.qt.widgets.gate_spec.PolygonGate.with_handle#5",
       "source_sha256": "3496e4c01e34ca9d68616076a530b356fc5996a69d13ff5938c08895143102cf",
       "source": "a role this gate does not have, which is a bug in the caller rather than something the user did.",
       "context": "a role this data-selection boundary does not have, which is a bug in the caller rather than something the user did.",
-      "translation": "ऐसी भूमिका जो इस डेटा-चयन सीमा में नहीं है; यह उपयोगकर्ता की गलती नहीं, caller की bug है।"
+      "translation": "ऐसी भूमिका जो इस डेटा-चयन सीमा में नहीं है; यह उपयोगकर्ता की गलती नहीं, caller की bug है।",
+      "retired": "2026-09-06",
+      "retired_reason": "block 5 no longer exists: the docstring is 5 blocks after 368 rewrote it, so there is nothing left for this record to be compared against"
     },
     {
       "label": "spacr.qt.widgets.gate_spec.RectGate.translated#0",
