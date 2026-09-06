@@ -2,7 +2,11 @@
 A SUGGEST BUTTON THAT LABELS THE REST
 ================================================================================
 
-Status:    OPEN. Not started.
+Status:    THE ENGINE IS BUILT -- `spacr/suggest.py`, 2026-09-06, answering
+           357's 379-A and 379-B. WHAT REMAINS IS THE BUTTON: nothing in the
+           Annotate screen calls it yet, and the grid does not draw a
+           suggestion differently from an answer. 379-C (more than two
+           classes) is still unanswered and the offsets assume binary.
 Requested: 2026-09-05 -- "In annotation app there should be a suggest button.
            The suggest button should train an xgboost model on your annotated
            images (if only one class randomly choose the same number of images
@@ -55,6 +59,58 @@ PART 1 -- WHAT THE BUTTON DOES
      THROW -- clear them back to NULL.
    Both must work per-image too, so the user can accept a screen and reject
    three of it.
+
+--------------------------------------------------------------------------------
+PART 1-A -- THE ENGINE, AND THE ANSWERS IT WAS BUILT ON
+--------------------------------------------------------------------------------
+
+`spacr/suggest.py`:
+
+    training_table       every crop, its annotation if it has one, and its
+                         measurements, joined on the object id
+    suggest              trains and ranks every unannotated crop
+    write_suggestions    stores them, ONLY where the column is NULL
+    resolve_suggestions  KEEP rewrites 11 -> 1; THROW sets them back to NULL
+
+ANSWERED 2026-09-06 (357):
+  379-A  features come from THE MEASUREMENT TABLE spaCR already computes, not
+         from CNN embeddings. So the model explains itself in the terms the
+         user already reads, and if the morphology cannot separate the
+         classes that is a finding about the experiment rather than a reason
+         to add a network.
+  379-B  NO CONFIDENCE FLOOR. Every unannotated crop gets a suggestion,
+         sorted by confidence, so the reviewer stops where they stop agreeing
+         instead of a threshold deciding for them. The ORDER is what makes
+         review efficient, and a test asserts it.
+
+WHAT PART 2 ASKED FOR, AND WHERE IT IS:
+  * A suggestion is never confusable with a decision -- suggested 1 is stored
+    as 11 (`SUGGESTION_OFFSET`), so a bad run is undone by deleting a value
+    rather than by remembering which rows were touched.
+  * A suggestion NEVER overwrites an annotation -- the update carries
+    `AND <column> IS NULL`, and a test captures every annotated row before
+    and after and demands they are identical.
+  * The one-class case is a DELIBERATE LIE and says so. Negatives drawn from
+    the unannotated pool are mostly-negative, not negative, so
+    `Suggestions.was_one_class` is True and `note` says in words that the
+    result is a ranking rather than a verdict. A test asserts the wording,
+    because that flag is what stops a bulk accept.
+  * Too few annotations is a refusal with a reason, not a crash. The floor is
+    20 per class.
+  * Class balance: the larger class is DOWNSAMPLED rather than weighted, so
+    the model's probability is directly readable as the confidence the sort
+    depends on.
+
+NOT DONE:
+  * THE BUTTON. `suggest.py` is a library with tests and no caller -- the same
+    state `spacrops.py` was in when 372 was filed, and that lesson is on
+    record. Annotate must call it, and the grid must draw a suggested value
+    differently from an answer: a dashed border or a lighter fill, NOT a new
+    colour, which would read as a third class.
+  * Training does not yet run off the GUI thread. It must, and the reason is
+    already written down: a thirty-second block on that thread is what the
+    desktop offers to force-quit.
+  * 379-C is unanswered, and the offset scheme assumes two classes.
 
 --------------------------------------------------------------------------------
 PART 2 -- WHAT MUST NOT HAPPEN
