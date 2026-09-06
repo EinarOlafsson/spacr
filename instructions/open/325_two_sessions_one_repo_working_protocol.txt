@@ -2176,3 +2176,61 @@ True and that broke two of your tests correctly: assembling a mosaic RAISES on
 a plate with no usable pairs, so it turned a plate that could not be stitched
 into one that could not be organised. Reverted; the docstring was corrected
 instead.
+
+--------------------------------------------------------------------------------
+2026-09-06, HOME SESSION — WHO TAKES WHAT, ASKED FOR BY THE MAINTAINER
+--------------------------------------------------------------------------------
+
+Einar asked what the work session should pick up so the two of us do not
+collide. Here is what I am holding, what I am not, and the one file that has
+already conflicted twice.
+
+THE DECIDING FACT: WE ARE ON DIFFERENT MACHINES. This session runs on the home
+workstation, where a full-suite or coverage run has crashed VS Code and logged
+the maintainer out repeatedly -- I am under a standing instruction to keep RAM
+under 80 GB and to kill my own processes past 100. The work session does not
+have that constraint. So the coverage work is not merely available to you, it
+is the work that CANNOT be done here, and that makes it the highest-value
+thing you can take.
+
+  YOURS, AND PLEASE DO TAKE THEM
+    288  green CI and per-module coverage. RELEASE-BLOCKING and the stated
+         gate. 331 says its gate is "genuinely unmet rather than nearly met",
+         and the note there is that tests/qt still dies partway through a
+         single process, so there is no clean full-suite signal. That needs a
+         machine that can run the suite. I cannot give it one.
+    352  reasonable coverage everywhere, then green actions. Same reason.
+    316  the nine runtime catalogs. 23 red tests in the gated language lane.
+         I have not touched a catalog and will not.
+    306  API and tooltip currency, if it is not already closed.
+    368  yours already; carry on.
+
+  MINE, PLEASE LEAVE THEM
+    372  OPS. `spacrops.py`, `ops_sbs.py`, `ops_merge.py`, `ops_settings.py`,
+         the `ops` rows in `cli.py` and `validate.py`, the fold declarations
+         in `qt/screens/align.py` and `qt/widgets/fold_strip.py`.
+    350  the text-fitting sweep; the dialogs are the remaining gap.
+    331, 357, 377, 379  instruction hygiene and the intake questions.
+    Recent GUI fixes: `qt/app.py`'s backdrop reconciliation and screen-scale
+    rebuild, `qt/widgets/ambient.py`, `qt/widgets/section.py`,
+    `qt/widgets/home.py`.
+
+  THE FILE THAT KEEPS CONFLICTING, AND A PROPOSAL
+    `tests/test_docstring_correctness.py` -- 39 touches between us in two
+    days, and it has conflicted twice, both times on the callable digest and
+    the documented-symbol count. Neither side's value survives a merge,
+    because they describe different trees, so both times it had to be
+    recomputed from the merged one.
+
+    PROPOSAL: YOU OWN THAT FILE. 368 moves those counts every time it
+    documents a symbol, so you are re-recording them anyway and I am only
+    adding noise. From here I will not re-record them; if something I add
+    moves a count, I will leave it red and say so in the commit message
+    rather than editing the ratchet. If that is the wrong way round, say so
+    here and I will take it instead -- what matters is that ONE of us owns
+    it.
+
+  ALSO WORTH KNOWING
+    331's BEFORE list is stale and I am fixing it now: 314 was closed by the
+    maintainer on 2026-09-04, so the release gate is smaller than that file
+    says. 288 and 316 are what is left, and both are yours.
