@@ -70,7 +70,7 @@ STAGE: Dict[str, str] = {
     "304": "~60% -- metadata in place; needs the Zenodo toggle and the bump",
     "305": "~60% -- startup accepted from an installed wheel; sdist, GPU, matrix, profiles left",
     "315": "~75% -- 3a/3b/3c fixed; 3d now itemised into three named optimisations",
-    "316": "READMEs delivered in all nine; lane triaged 2026-09-06 -- 26 red: 1,089 catalog rows blocked on OPUS models absent from this machine, 5 are 372's OPS tooltips, the rest are pins and two stale strings",
+    "316": "READMEs delivered in all nine; lane triaged 2026-09-06, 26 red -> 23: 1,089 catalog rows blocked on OPUS models absent from this machine, 5 are 372's OPS tooltips, the rest are pins and two stale strings",
     "325": "the channel between the two sessions -- open while both are running",
     "326": "~55% -- settings follow the count (2 means 2); the ceiling of 26 is what remains",
     "327": "~95% -- all five parts shipped; only the frame-rate evidence is missing",

@@ -1001,3 +1001,45 @@ TWO SMALLER ONES, both real and both needing a translation rather than a pin:
     setting for details and a link to its documentation." and instead returns
     the SOURCE setting's own tooltip. That is a fallback that never fires,
     not a wrong string.
+
+--------------------------------------------------------------------------------
+2026-09-06, LATER — THE PUBLISHED COVERAGE NUMBERS WERE A COMPLETENESS CLAIM
+--------------------------------------------------------------------------------
+
+26 red -> 23. Three of the six in the non-Qt chunk are fixed, and one of them
+was publishing a false claim.
+
+`docs/i18n/COVERAGE.md` SAID THE CATALOGS WERE COMPLETE. Every locale's row
+read 4983/4983 runtime and 8861/8861 API. Regenerated from the live sources it
+reads 5105/5226 and 8966/10230 -- 121 runtime rows and 1,264 API blocks short
+in every one of the nine. The file had simply not been regenerated since the
+tree moved, and its own test (`the published counts may not remain an older
+green snapshot`) had been red for exactly as long. REVIEW_SCOPE_2026-09-04.md
+carried the same claim in prose -- "the catalogs have complete mechanical
+source coverage" -- and now states the gap and why it cannot be closed here.
+
+FOUR REVIEWED API RECORDS HAD COME UNSTUCK from their docstrings, all in
+symbols 368 rewrote. One was NOT stale and would have been thrown away by a
+careless sweep: `spacr.measure.crop_objects_from_array#10` still matches its
+recorded sentence EXACTLY -- the sentence moved to index 11. It is re-bound,
+not retired. The other three are retired with reasons: a German block that
+gained a summary sentence the reviewed text does not cover, a Hindi block
+reworded from "Return this gate moved by (dx, dy) in DATA units" to "A copy
+with every vertex moved by (dx, dy)", and a Hindi record pointing at block 5
+of a docstring that now has five.
+
+THE DATED-REPORT ASSERTION IS LIFTED, which is the durable part.
+`test_written_review_scope_matches_current_source_bound_evidence` pinned 8,861
+docstrings, 113 aliases and nine per-locale counts against a report dated
+2026-08-30. It now DERIVES every number and reads the current report, so the
+tree moving makes it ask for a regeneration instead of asking to have its
+numbers edited. The 08-30 report keeps a test of its own asserting it is
+unedited: history may be superseded, not rewritten.
+
+ONE THING NOT ASSERTED, deliberately. The published API JSON is shorter than
+the live docstrings -- SystemPanel ships 3 blocks where the source now has 5 --
+because generating the missing ones needs the absent OPUS checkpoint. A shape
+assertion there would only restate that blocker. What IS asserted is that every
+block WITH a reviewed translation carries it in the shipped page and that the
+English has not leaked back in; measured before pinning, that is 2 of 2 per
+symbol per locale with zero leaks.

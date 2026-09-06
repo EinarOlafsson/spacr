@@ -103,7 +103,7 @@
       "translation": "在 spacr 工作流中大量发送 INFO 记录的第三方库（torch 库、cellpose 库、matplotlib 库、PIL 库、urllib3 库、botocore 库、tensorflow 库、asyncio 库）会被固定到 WARNING 级别，以保持日志有用。如果新依赖开始刷屏，请将其加入 :data:`QUIET_LOGGERS`。"
     },
     {
-      "label": "spacr.measure.crop_objects_from_array#10",
+      "label": "spacr.measure.crop_objects_from_array#11",
       "source_sha256": "110c7e12285d9ba13532c0d40947d624b517ff911cd3dc77efa60c24e7fd878e",
       "source": "assemble the chosen channels into an HxWx3 uint8 image (1→grey→RGB, 2→padded, 3→RGB, >3→first three); else keep N channels **in the merged array's own dtype**.",
       "context": "assemble the chosen image data channels into an HxWx3 uint8 image (1→grey→RGB, 2→padded, 3→RGB, >3→first three); else keep N image data channels **in the merged array's own dtype**.",
