@@ -148,144 +148,256 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
 #: the reader gets a different explanation depending on which panel they are
 #: looking at, for the same key.
 OPS_TOOLTIPS: Dict[str, str] = {
-    # -- where the data is -------------------------------------------------
-    "dst_root": "Where the organised wells, mosaics and reports are written. "
-                "Empty writes beside the source, which mixes outputs with "
-                "inputs and makes a second run ambiguous.",
-    "genotype_source": "The low-magnification acquisition that carries the "
-                       "barcodes. This is the one that gets stitched.",
-    "phenotype_source": "The high-magnification acquisition that carries the "
-                        "morphology. These images are placed onto the "
-                        "stitched genotype mosaic, not stitched themselves.",
-    "exts": "Which file extensions count as images. Anything else in the "
-            "folder is ignored rather than failing the run.",
-    "recursive": "Search sub-folders as well. Off when a plate's wells are "
-                 "already separated and you want only this level.",
-    "do_organize": "Move each tile into a per-well folder before stitching. "
-                   "OFF LEAVES YOUR FILES WHERE THEY ARE; on, they are moved, "
-                   "so run with Dry run first if the layout matters to you.",
-    "collision": "What to do when a destination filename already exists: "
-                 "rename the incoming file, skip it, or overwrite it.",
-    "on_missing": "What to do when a file named in the plan is not there: "
-                  "stop, or carry on without it.",
-    "meta_regex": "How the well, site, channel and magnification are read "
-                  "OUT OF THE FILENAME. Every tile that does not match is "
-                  "invisible to the run, so a wrong pattern looks like "
-                  "missing data rather than an error.",
-    "well_group": "Which named group in the pattern above holds the well.",
-    "arr_axes": "The axis order inside each file. AUTO reads it from the "
-                "file's own metadata and falls back to guessing from the "
-                "shape, which is right for a plainly stacked array.",
-    "squeeze_singleton": "Drop axes of length one. Off keeps a (1, Y, X) "
-                         "file three-dimensional.",
-    "t_index": "Which timepoint to take from a time series.",
-    "z_index": "Which z-plane to take, when not projecting.",
-    "mip": "Take the maximum across z instead of one plane. Usually right "
-           "for spots, which sit at different depths across a field.",
-    "channel_index": "Which channel the stitcher matches on. Pick the one "
-                     "with the most structure -- usually the nuclear stain; "
-                     "a sparse channel gives it nothing to align.",
-    "channel_indices": "Which channels go into a multi-channel mosaic, in "
-                       "order. Empty uses every channel the tiles share.",
-    # -- finding the overlap ----------------------------------------------
-    "detector": "The feature detector used to find the same landmark in two "
-                "overlapping tiles.",
-    "nfeatures": "How many features to look for per tile. More finds overlap "
-                 "in sparser fields and costs time and memory; below about "
-                 "2000 a sparse field stops matching at all.",
-    "downsample": "Scale tiles down before matching, for speed. THE MOST "
-                  "COMMON CAUSE OF A RUN THAT FINDS NOTHING: at 0.5 a 256 px "
-                  "tile becomes 128 px and the detector has almost no corners "
-                  "left. Use 1.0 if pairs are being skipped.",
-    "max_site_gap": "How far apart two site numbers may be and still be "
-                    "treated as neighbours. Large enough to cover the turn at "
-                    "the end of a snake pattern.",
-    "relative_scale": "How much bigger the phenotype magnification is than "
-                      "the genotype one -- 2.0 for 20x onto 10x. Wrong here "
-                      "and the alignment cannot converge.",
-    # -- stitching advanced ------------------------------------------------
-    "max_keypoints": "Cap on features actually kept per tile after detection, "
-                     "which is what bounds memory on a dense field.",
-    "ransac_thresh_px": "How far a matched feature may sit from where the "
-                        "fitted transform predicts, in pixels, and still "
-                        "count as agreeing with it.",
-    "allow_scale": "Let the fit change size between tiles. Off for a single "
-                   "acquisition, where the magnification cannot differ.",
-    "allow_rotation": "Let the fit rotate. Off for a motorised stage, which "
-                      "does not rotate between fields.",
-    "pair_batch_size": "How many candidate pairs are scored per batch. Only "
-                       "affects memory and progress reporting.",
-    "all_scores": "Keep every scored pair in the report, not only the ones "
-                  "that passed. Useful when a stitch fails and you want to "
-                  "see how close it came.",
-    # -- mosaic -------------------------------------------------------------
-    "stitch": "Run the pairwise stitch. Off scores nothing and only "
-              "organises the plate.",
-    "mosaic": "Assemble the stitched tiles into one image. Same meaning as "
-              "Write mosaic; either switches it on.",
-    "write_mosaic": "Write the assembled mosaic to disk. Off still produces "
-                    "the pairwise report and the manifest, which is enough to "
-                    "assemble it later.",
-    "do_multichannel": "Write one mosaic holding every channel rather than "
-                       "one channel alone.",
-    "blend": "How overlapping tiles are combined where they meet: take the "
-             "brighter pixel, or let the later tile overwrite.",
-    "mosaic_min_score": "The lowest pair score allowed to place a tile in the "
-                        "mosaic. Empty uses the automatic knee of the score "
-                        "distribution, which adapts to the run.",
-    "save_stitched_default": "Also write each stitched PAIR, not only the "
-                             "whole-well mosaic. A lot of files; useful when "
-                             "diagnosing one bad seam.",
-    "mosaic_out": "Explicit path for the mosaic image. Empty puts it beside "
-                  "the well's other outputs.",
-    "mosaic_csv_out": "Explicit path for the manifest listing each tile's "
-                      "position in the mosaic.",
-    "out_tif": "Explicit path for a single-channel output image.",
-    "out_png": "Explicit path for a preview PNG.",
-    "preview_downsample": "How much to shrink the preview PNG. The mosaic "
-                          "itself is unaffected.",
-    # -- alignment ----------------------------------------------------------
-    "do_nuc_stitch": "Segment nuclei and align on those instead of on raw "
-                     "pixels. More robust when the two acquisitions use "
-                     "different stains, because cells correspond even when "
-                     "pixels do not.",
-    "cellpose_model": "Which Cellpose model segments the nuclei used for "
-                      "alignment.",
-    "cellpose_diameter": "Expected nucleus diameter in pixels. Empty lets "
-                         "Cellpose estimate it, which is usually right and "
-                         "occasionally very wrong on a sparse field.",
-    "outline_source": "How the foreground is found when drawing quality-"
-                      "control outlines.",
-    "canny": "Low and high thresholds for edge detection, when outlines come "
-             "from edges.",
-    "blur_sigma": "How much to smooth before finding edges. Higher ignores "
-                  "texture; 0 does not smooth.",
-    "dilate_ksize": "How much to thicken the detected outline. 0 leaves it "
-                    "one pixel wide.",
-    # -- quality control ----------------------------------------------------
-    "save_qc": "Write overlay images showing where each tile was placed. The "
-               "cheapest way to see that a stitch is right.",
-    "outline_alpha": "How opaque the quality-control outlines are drawn.",
-    "line_thickness": "How thick those outlines are drawn.",
-    "n_workers": "How many parallel workers to use. More is faster until the "
-                 "disk becomes the limit.",
-    "n_workers_features": "Workers for feature detection specifically. Empty "
-                          "follows Workers.",
-    "opencv_threads": "Threads OpenCV may use INSIDE each worker. Leave at 1 "
-                      "when running many workers: the two multiply, and "
-                      "oversubscribing a machine makes it slower, not faster.",
-    "max_ram_features": "How many tiles' features to hold in memory before "
-                        "spilling to the cache. Lower on a small machine.",
-    "feature_cache_mode": "Whether computed features are cached on disk, kept "
-                          "in memory, or not cached. Disk pays once and makes "
-                          "a re-run fast.",
-    "feature_cache_dir": "Where that cache lives. Empty puts it beside the "
-                         "outputs.",
-    "stream_csv": "Write each result to the report as it is produced rather "
-                  "than at the end, so a long run can be watched and an "
-                  "interrupted one keeps what it had.",
-    "tmp_dir": "Scratch space for intermediate files. Empty uses the system "
-               "temporary folder, which may be too small for a large plate.",
+    "all_scores":
+        "(bool) - Keep every scored pair in the report, not only the ones "
+        "that passed. Turning it on makes the report larger and lets you see "
+        "how close a failed stitch came; it changes nothing about the mosaic. "
+        "Default False.",
+    "allow_rotation":
+        "(bool) - Let the fit rotate one tile relative to another. Leave it "
+        "off for a motorised stage, which does not rotate between fields; "
+        "turning it on adds a degree of freedom that can absorb a bad match "
+        "into a plausible-looking angle. Default False.",
+    "allow_scale":
+        "(bool) - Let the fit change size between tiles. Off for a single "
+        "acquisition, where the magnification cannot differ; on, a weak match "
+        "can be explained away as a scale change. Default False.",
+    "arr_axes":
+        "(str) - How to read the axis order inside each file. AUTO takes it "
+        "from the file's own metadata and falls back to guessing from the "
+        "shape. Set it explicitly when a stack is being misread as channels "
+        "or z. Default 'AUTO'.",
+    "blend":
+        "(str) - How overlapping tiles are combined where they meet: 'max' "
+        "takes the brighter pixel, 'overwrite' lets the later tile win. 'max' "
+        "hides a seam, 'overwrite' shows you where one is. Default 'max'.",
+    "blur_sigma":
+        "(float) - Gaussian blur, in pixels, applied before edges are found "
+        "for the quality-control outlines. Higher ignores texture and follows "
+        "only the object's shape; 0 does not smooth at all. Affects the drawn "
+        "outline, never the mosaic. Default 0.0.",
+    "canny":
+        "(tuple) - Low and high thresholds, in intensity units, for the edge "
+        "detector that draws quality-control outlines. Lower values find more "
+        "edge and more noise with it. Default (40, 120).",
+    "cellpose_diameter":
+        "(float or None) - Expected nucleus diameter in pixels for the "
+        "segmentation used to align acquisitions. Empty lets Cellpose "
+        "estimate it, which is usually right and occasionally very wrong on a "
+        "sparse field; setting it removes that variance. Default None.",
+    "cellpose_model":
+        "(str) - Which Cellpose model segments the nuclei that the phenotype- "
+        "to-genotype alignment matches on. Changing it changes which objects "
+        "are found, and so which points the alignment is solved from. Default "
+        "'cpsam'.",
+    "channel_index":
+        "(int) - Which channel the stitcher matches on, zero-indexed. Pick "
+        "the one with the most structure, usually the nuclear stain: a sparse "
+        "channel gives the detector nothing to align and every pair is "
+        "skipped. Default 0.",
+    "channel_indices":
+        "(list or None) - Which channels go into a multi-channel mosaic, in "
+        "the order they are written. Empty uses every channel the tiles "
+        "share. Default None.",
+    "collision":
+        "(str) - What to do when a destination filename already exists: "
+        "'rename' the incoming file, 'skip' it, or 'overwrite' it. Overwrite "
+        "destroys the earlier file. Default 'rename'.",
+    "detector":
+        "(str) - Which feature detector finds the same landmark in two "
+        "overlapping tiles. ORB is rotation-invariant and free; changing it "
+        "changes which pairs match and how long scoring takes. Default 'ORB'.",
+    "dilate_ksize":
+        "(int) - How many pixels to thicken the drawn quality-control "
+        "outline. 0 leaves it one pixel wide, which is hard to see on a large "
+        "mosaic. Affects the overlay only. Default 0.",
+    "do_multichannel":
+        "(bool) - Write one mosaic holding every channel instead of a single "
+        "channel. Off gives a smaller file that carries only the channel "
+        "named by channel_index. Default True.",
+    "do_nuc_stitch":
+        "(bool) - Segment nuclei and align on those instead of on raw pixels. "
+        "More robust when the two acquisitions use different stains, because "
+        "cells correspond even when pixel intensities do not; costs a "
+        "segmentation pass. Default True.",
+    "do_organize":
+        "(bool) - Move each tile into a per-well folder before stitching. ON "
+        "MOVES YOUR FILES: run with Dry run first if the current layout "
+        "matters to you. Off leaves them where they are and stitches in "
+        "place. Default True.",
+    "downsample":
+        "(float) - Scale tiles down before matching, for speed. THE MOST "
+        "COMMON CAUSE OF A RUN THAT FINDS NOTHING: at 0.5 a 256 px tile "
+        "becomes 128 px and the detector has almost no corners left, so every "
+        "pair is skipped. Raise it to 1.0 if pairs are being skipped. Default "
+        "0.5.",
+    "dst_root":
+        "(str or None) - Where the organised wells, mosaics and reports are "
+        "written. Empty writes beside the source, which mixes outputs with "
+        "inputs and makes a second run ambiguous about what it is reading. "
+        "Default None.",
+    "exts":
+        "(list) - Which file extensions count as images. Anything else in the "
+        "folder is ignored rather than failing the run. Default ['.tif', "
+        "'.tiff'].",
+    "feature_cache_dir":
+        "(str or None) - Where the computed feature cache is written. Empty "
+        "puts it beside the outputs. Point it at a fast local disk when the "
+        "outputs are on a network share. Default None.",
+    "feature_cache_mode":
+        "(str) - Whether features are cached on 'disk', held in memory, or "
+        "not cached. Disk pays the cost once and makes a re-run fast; memory "
+        "is faster and bounded by max_ram_features. Default 'disk'.",
+    "genotype_source":
+        "(str or None) - The folder holding the low-magnification acquisition "
+        "that carries the barcodes. This is the one that gets stitched into "
+        "per-well mosaics; the phenotype images are placed onto its output. "
+        "Default None.",
+    "line_thickness":
+        "(int) - How many pixels wide the quality-control outlines are drawn. "
+        "Larger is easier to see on a downsampled preview and obscures more "
+        "of the image under it. Default 1.",
+    "max_keypoints":
+        "(int) - Cap on features kept per tile after detection, which is what "
+        "bounds memory on a dense field. Lowering it speeds scoring and can "
+        "drop the match that would have joined two tiles. Default 4000.",
+    "max_ram_features":
+        "(int) - How many tiles' features to hold in memory before spilling "
+        "to the cache, in images. Lower it on a small machine; raising it "
+        "trades memory for fewer disk reads. Default 256.",
+    "max_site_gap":
+        "(int) - How far apart two site numbers may be and still be treated "
+        "as neighbours. Large enough to cover the turn at the end of a snake "
+        "pattern; too small and the tiles at a row end never get compared. "
+        "Default 64.",
+    "meta_regex":
+        "(str) - How the well, site, channel and magnification are read OUT "
+        "OF THE FILENAME. Every tile that does not match is invisible to the "
+        "run, so a wrong pattern looks like missing data rather than an "
+        "error. Default matches '10X_c1_A1_Site-1.tif'.",
+    "mip":
+        "(bool) - Take the maximum across z instead of a single plane. "
+        "Usually right for spots, which sit at different depths across a "
+        "field; off reads the plane named by z_index. Default True.",
+    "mosaic":
+        "(bool) - Assemble the stitched tiles into one image. The same switch "
+        "as write_mosaic; either turns it on. Default False.",
+    "mosaic_csv_out":
+        "(str or None) - Explicit path for the manifest listing each tile's "
+        "position and transform in the mosaic. Empty writes it beside the "
+        "well's other outputs. The manifest is enough to rebuild the mosaic "
+        "later without re-scoring. Default None.",
+    "mosaic_min_score":
+        "(float or None) - The lowest pair score allowed to place a tile in "
+        "the mosaic. Empty uses the automatic knee of the score distribution, "
+        "which adapts to the run; a fixed value is reproducible but can drop "
+        "a whole well on a dim plate. Default None.",
+    "mosaic_out":
+        "(str or None) - Explicit path for the assembled mosaic image. Empty "
+        "writes it beside the well's other outputs under its own name. "
+        "Default None.",
+    "n_workers":
+        "(int) - How many parallel workers to use. More is faster until the "
+        "disk becomes the limit; each worker holds its own tiles, so this "
+        "multiplies memory. Default is the machine's core count.",
+    "n_workers_features":
+        "(int or None) - Workers for feature detection specifically. Empty "
+        "follows n_workers. Lower it when feature extraction is what is "
+        "exhausting memory. Default None.",
+    "nfeatures":
+        "(int) - How many features to look for per tile. More finds overlap "
+        "in sparser fields and costs time and memory; below about 2000 a "
+        "sparse field stops matching at all. Default 8000.",
+    "on_missing":
+        "(str) - What to do when a file named in the plan is not there: "
+        "'error' stops the run, 'skip' carries on without it and leaves a "
+        "hole in the mosaic. Default 'error'.",
+    "opencv_threads":
+        "(int) - Threads OpenCV may use INSIDE each worker. Leave at 1 when "
+        "running many workers: the two multiply, and oversubscribing a "
+        "machine makes it slower rather than faster. Default 1.",
+    "out_png":
+        "(str or None) - Explicit path for the downsampled preview PNG. Empty "
+        "writes it beside the mosaic. The preview is for looking at; the TIFF "
+        "is for measuring. Default None.",
+    "out_tif":
+        "(str or None) - Explicit path for a single-channel output image. "
+        "Empty writes it beside the well's other outputs. Default None.",
+    "outline_alpha":
+        "(float) - How opaque the quality-control outlines are drawn, 0 to 1. "
+        "Lower lets more of the image show through the line. Affects the "
+        "overlay only. Default 1.0.",
+    "outline_source":
+        "(str) - How the foreground is found when drawing quality-control "
+        "outlines: 'otsu' thresholds the intensity, other values use the edge "
+        "detector above. Changes what the overlay traces, never the mosaic. "
+        "Default 'otsu'.",
+    "pair_batch_size":
+        "(int) - How many candidate pairs are scored per batch. Only affects "
+        "peak memory and how often progress is reported; the result is "
+        "identical. Default 8192.",
+    "phenotype_source":
+        "(str or None) - The folder holding the high-magnification "
+        "acquisition that carries the morphology. These images are PLACED "
+        "onto the stitched genotype mosaic, not stitched themselves. Default "
+        "None.",
+    "preview_downsample":
+        "(int) - How much to shrink the preview PNG, as a divisor. The mosaic "
+        "itself is unaffected. Larger is a smaller file that hides fine "
+        "seams. Default 8.",
+    "ransac_thresh_px":
+        "(float) - How far a matched feature may sit, in pixels, from where "
+        "the fitted transform predicts and still count as agreeing with it. "
+        "Larger accepts looser fits and more of them; smaller rejects real "
+        "matches on a distorted field. Default 3.0.",
+    "recursive":
+        "(bool) - Search sub-folders as well as the source folder. Turn it "
+        "off when a plate's wells are already separated and you want only "
+        "this level. Default True.",
+    "relative_scale":
+        "(float) - How much bigger the phenotype magnification is than the "
+        "genotype one -- 2.0 for 20x onto 10x. Wrong here and the alignment "
+        "cannot converge, because it is solving for a scale it has been told "
+        "is different. Default 2.0.",
+    "save_qc":
+        "(bool) - Write overlay images showing where each tile was placed. "
+        "The cheapest way to see that a stitch is right; costs one image per "
+        "well. Default False.",
+    "save_stitched_default":
+        "(bool) - Also write each stitched PAIR, not only the whole-well "
+        "mosaic. A great many files; useful when diagnosing one bad seam and "
+        "wasteful otherwise. Default False.",
+    "squeeze_singleton":
+        "(bool) - Drop axes of length one when reading a file. Off keeps a "
+        "(1, Y, X) file three-dimensional, which matters when downstream code "
+        "counts dimensions. Default True.",
+    "stitch":
+        "(bool) - Run the pairwise stitch. Off scores no pairs and only "
+        "organises the plate into per-well folders, which is what you want "
+        "when the images are already stitched. Default False.",
+    "stream_csv":
+        "(bool) - Write each result to the report as it is produced rather "
+        "than at the end, so a long run can be watched and an interrupted one "
+        "keeps what it had. Off is marginally faster and loses everything on "
+        "a crash. Default True.",
+    "t_index":
+        "(int) - Which timepoint to take from a time series, zero-indexed. "
+        "Only read when the file has a time axis. Default 0.",
+    "tmp_dir":
+        "(str or None) - Scratch space for intermediate files and the "
+        "mosaic's memory map. Empty uses the system temporary folder, which "
+        "may be too small for a large plate. Default None.",
+    "well_group":
+        "(str) - Which named group in meta_regex holds the well identifier. "
+        "Change it when your filenames name the well under a different group; "
+        "getting it wrong groups every tile into one well. Default 'well'.",
+    "write_mosaic":
+        "(bool) - Write the assembled mosaic to disk. Off still produces the "
+        "pairwise report and the manifest, which is enough to assemble it "
+        "later without re-scoring. Default False.",
+    "z_index":
+        "(int) - Which z-plane to take when not projecting, zero-indexed. "
+        "Ignored when mip is on. Default 0.",
 }
 
 #: The blurb the module shows above its settings.

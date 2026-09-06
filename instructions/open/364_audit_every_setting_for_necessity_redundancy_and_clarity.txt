@@ -962,3 +962,41 @@ one-liner. Whoever takes it should know two things first:
     expected_types, so they are clear -- but check that again before adding,
     because the check is what stops a retirement warning a user off a setting
     that still works.
+
+
+--------------------------------------------------------------------------------
+2026-09-06 — THE OPS SETTINGS JOIN THE TABLE, TO THE SAME STANDARD
+--------------------------------------------------------------------------------
+
+The 58 OPS tooltips written on 2026-09-05 were prose without the house shape,
+and five quality gates said so. The work session hit 26 failures across 23
+settings while working its own lane and left them alone; they are rewritten
+here, because they are mine.
+
+THE HOUSE SHAPE IS `(type) - what it does, what changes when you alter it,
+and the default.` Every one of the 600-odd existing tooltips keeps it, and
+`test_every_tooltip_opens_with_its_type` exists so the table reads as one
+voice rather than as however many people wrote it. All 58 now do.
+
+WHAT "SAYS WHAT CHANGES" MEANS IN PRACTICE, since the gate rejects prose that
+only names the setting again:
+
+    before   "Scale tiles down before matching, for speed."
+    after    "... THE MOST COMMON CAUSE OF A RUN THAT FINDS NOTHING: at 0.5 a
+             256 px tile becomes 128 px and the detector has almost no corners
+             left, so every pair is skipped. Raise it to 1.0 if pairs are
+             being skipped. Default 0.5."
+
+TWO PRE-EXISTING FAILURES FIXED ON THE WAY PAST, neither of them OPS:
+
+  * `regression_panel_manifest` was 644 characters against a 600 ceiling.
+    Trimmed to 401 with nothing lost -- it had been explaining its own
+    implementation, naming two internal functions a user cannot call.
+  * The unit-name census asserted `6 + 4 * MAX_ORGANELLES` and found one
+    more. The extra is `cellpose_diameter`, which entered the census the
+    moment the OPS settings gained tooltips: it ends in `_diameter`, so it is
+    a genuine SEVENTH base unit-bearing setting rather than a per-organelle
+    one. Its tooltip does say pixels, so only the arithmetic was stale. Base
+    is now 7, with the reason written beside it.
+
+  tooltip suite   15 failures -> 6, none of the six caused here

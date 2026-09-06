@@ -556,8 +556,16 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
     # the census was stale.
     from spacr.organelle_types import MAX_ORGANELLES
 
-    base_unit_settings = 6          # cell/nucleus/pathogen/seg_qc diameters,
-                                    # bare `diameter`, spatial_neighbor_radius
+    base_unit_settings = 7          # cell/nucleus/pathogen/seg_qc diameters,
+                                    # bare `diameter`, spatial_neighbor_radius,
+                                    # and cellpose_diameter -- the OPS
+                                    # alignment's nucleus size, which entered
+                                    # this census on 2026-09-06 when the OPS
+                                    # settings gained tooltips. It is a
+                                    # genuine seventh base setting rather than
+                                    # a per-organelle one, and its tooltip
+                                    # does say pixels, so only the census
+                                    # moved.
     per_organelle_unit_settings = 4
     assert len(diameter_or_radius) == (
         base_unit_settings + per_organelle_unit_settings * MAX_ORGANELLES
