@@ -38,7 +38,14 @@ REVIEWED_SOURCE_HASHES = {
     "db_browser": "863aea17872fc9936587ae8f447ee4f4f0b4c39a835b6b7b3f3beb100642d0f1",
     "distributed_jobs": "af29f8dde164cdad47acd90526c375baa194dea7d0e52c122d47a856280b18dc",
     "external_masks": "a3a7fb7a1a041e68b61fba5b5a688a82056306b35304d525179b4a8105dab099",
-    "foreign": "df519d7cdc6aa6ca50207f7c1e102816c6510fa7620e48991b599a35134ccfb0",
+    # REBOUND 2026-09-06. The English gained "or adopting masks made
+    # elsewhere" when the import screen landed, and the nine reviewed rows
+    # were rewritten with it -- all nine name that clause -- but this hash
+    # was not. A stale hash here does not show an obsolete translation, it
+    # shows NO reviewed translation: the row falls through to the generated
+    # catalog. So nine current, correct summaries were being suppressed by
+    # the mechanism meant to suppress obsolete ones.
+    "foreign": "9df3c545054e3fadfdf3fa1e193c30fd139ede278791bb8d2c3540687d2697aa",
     "invasion": "d0091f7df6a00aa4f706d6f0f85c9c970f8b926d99a1253379cf86b584d23c78",
     "map_barcodes": "17871b5accd848e33df1ee24fc94265a24fd5b3a55fbc0b42a8189fe9474871f",
     "mask": "82dfbe390074e1a296eaf57ea37efdbb140af0eb47028693d757d9d6f630ef23",

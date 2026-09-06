@@ -123,6 +123,18 @@ class DockRow(ElidingPushButton):
         # here is what makes the dock explain itself through the SAME
         # mechanism as the menus and the tiles, rather than a second one.
         self.setProperty("moduleAppKey", key)
+        # AND THE STYLE, without which the two lines below are English for
+        # ever. `_refresh_module_help` dispatches on this property: "sidebar"
+        # retranslates the accessible name and description on every language
+        # change, and anything else falls through to a branch that sets a
+        # status tip and leaves both alone. This row was in that fallback, so
+        # a screen reader announced every module in English in all nine
+        # languages -- the name and summary set below are correct exactly
+        # once, at construction, in whatever language the app started in.
+        #
+        # It also clears the popup tooltip on each pass, which is what this
+        # row already wants: see "NO POPUP TOOLTIP" below.
+        self.setProperty("moduleTooltipStyle", "sidebar")
         # AN ACCESSIBLE NAME EVEN THOUGH THE TEXT IS VISIBLE. The old row
         # painted no text and needed one; a screen reader still needs the
         # full name when a long one has been elided down to fit the column.
