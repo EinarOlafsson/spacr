@@ -475,3 +475,36 @@ research task.
       A2  Ship the one approach that survived review -- a pixmap cross-fade,
           whose cost does not scale with the 875-widget tree -- behind an
           Animation-tab switch, default off.
+
+--------------------------------------------------------------------------------
+ANSWERS, 2026-09-06
+--------------------------------------------------------------------------------
+
+377-A  ANSWERED: A1 — "(c) A report, not a pipeline".
+       AUTHORISES: building infection metrics as a REPORT assembled from a
+       finished Measure run, with no new image processing. Does NOT authorise
+       a new pipeline, a new segmentation step, or the three metrics PART 0-A
+       found are not derivable (intracellular fraction, vacuoles per cell,
+       distance to host boundary) — those stay with invasion and segmentation.
+
+379-A  ANSWERED: A1 — "The measurement table you already compute".
+       AUTHORISES: features joined from spaCR's own per-object measurements.
+       Does NOT authorise adding a CNN embedding dependency to this path. If
+       the measurements turn out not to separate the classes, that is a
+       finding to report, not a licence to reach for a network.
+
+379-B  ANSWERED: B1 — "Suggest everything, sorted by confidence".
+       AUTHORISES: no confidence floor; every unannotated image gets a
+       suggestion, ordered so the doubtful ones sit together and the reviewer
+       can stop when they stop agreeing.
+
+372-A(ii)  ANSWERED: A1 — "Don't ship it".
+       The expand animation is NOT to be built. The maintainer asked for it on
+       2026-09-05 and withdrew it on 2026-09-06 once the evidence existed:
+       five of six adversarial reviewers measured an animated expand as making
+       the flicker worse, and the judder it was meant to cover was fixed
+       instead — the 18 px header dip and a frame painted before the layout
+       had settled. RECORDED SO IT IS NOT RE-PROPOSED: this was decided on
+       measurement, not on taste.
+
+372-A(i)   NOT ANSWERED — needs the NAS cable, not a decision.
