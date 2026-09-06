@@ -1,316 +1,162 @@
-"""Train on what you have annotated, and propose the rest.
+"""Turn a retrained model's scores into labels you can accept or throw away.
 
 Annotating is the slow part of every screen, and the first two hundred crops
-already contain most of what separates the classes. So a model is trained on
-those and asked to label the remainder -- and then the suggestions are made
-cheap to reject, because THE REVIEWING IS THE FEATURE and the classifier is
-only what makes reviewing possible.
+already contain most of what separates the classes. Annotate can already fit a
+model on those and re-rank the queue by uncertainty -- what it could not do is
+WRITE the model's opinion down as a proposed label that a reviewer accepts or
+rejects in bulk. That is all this module adds.
 
-WHAT IT LEARNS FROM. The measurement table spaCR already computes, joined to
-each crop on its object id. That was chosen over image embeddings for a reason
-worth keeping: the model then explains itself in the same terms the user
-already reads, and if the morphology cannot separate the classes, that is a
-finding about the experiment rather than a reason to reach for a network.
+IT DELEGATES THE MODEL, DELIBERATELY. :func:`spacr.active_learning.retrain_round`
+already fits on every label, scores on a GROUPED held-out split so the number
+is not an artefact of 190 labels coming from one well, and writes per-class
+probabilities into ``png_list``. Re-fitting here would be a second model with
+a second answer, drifting from the one the queue is ranked by -- and a first
+draft of this file did exactly that before the existing one was found. What is
+new is the three rules below, not the classifier.
 
 THREE RULES THAT PROTECT THE ANNOTATIONS
 ========================================
-1. A SUGGESTION IS NEVER CONFUSABLE WITH A DECISION. Suggestions are written
-   as their own values -- a suggested 1 is stored as 11 -- so nothing that
-   reads the annotation column can mistake one for a human's answer, and a
-   run that goes wrong is undone by deleting a value rather than by
-   remembering which rows were touched.
-2. A SUGGESTION NEVER OVERWRITES AN ANNOTATION. Writes go only where the
-   column is NULL. Not when the model is confident, not on a re-run.
-3. ONE CLASS IS A DELIBERATE LIE, AND IT IS LABELLED. If only one class has
-   been annotated, the negatives are drawn at random from the unannotated
-   pool -- which is MOSTLY-negative, not negative. The result is a ranking,
-   not a verdict, and :class:`Suggestions` says so in ``was_one_class`` so the
-   interface can too.
+1. A SUGGESTION IS NEVER CONFUSABLE WITH A DECISION. Suggestions are stored as
+   their own values -- a suggested 1 becomes 11 -- so nothing that reads the
+   annotation column can mistake one for a human's answer, and a run that goes
+   wrong is undone by deleting a value rather than by remembering which rows
+   were touched.
+2. A SUGGESTION NEVER OVERWRITES AN ANNOTATION. Writes carry ``IS NULL``. Not
+   when the model is confident, not on a re-run. A human's labels are the
+   ground truth the model was fitted on; losing one silently would cost hours
+   and would not be noticed until a run came out wrong.
+3. NO CONFIDENCE FLOOR, SO THE ORDER CARRIES THE DOUBT. Every unannotated crop
+   gets a suggestion, sorted most-confident first, and the reviewer stops
+   where they stop agreeing. A threshold would make that decision for them,
+   with a number nobody chose.
 """
 from __future__ import annotations
 
 import sqlite3
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence
 
 import numpy as np
 import pandas as pd
 
-#: What is added to a class value to mark it as a suggestion rather than an
-#: answer. Ten because the annotation column holds small integers, so a
-#: suggested 1 becomes 11 and cannot collide with a real 2 or 3.
+#: Added to a class value to mark it a suggestion rather than an answer. Ten,
+#: because the annotation column holds small integers: a suggested 1 becomes
+#: 11 and cannot collide with a real 2 or 3.
 SUGGESTION_OFFSET = 10
-
-#: Below this many annotations per class, there is nothing to learn from and
-#: the honest answer is to say so rather than to train on noise.
-MIN_PER_CLASS = 20
 
 
 @dataclass
 class Suggestions:
-    """What a suggestion run proposes, and how much to trust it.
+    """What a suggestion run proposes, and how far to trust it.
 
-    :param frame: one row per unannotated crop, with ``suggested`` (the class),
-        ``stored`` (the offset value written to the column) and ``confidence``,
-        SORTED so the doubtful ones sit together at the end.
-    :param was_one_class: True when the negatives were drawn from unannotated
-        crops rather than annotated ones -- see rule 3. A ranking, not a
-        verdict.
-    :param trained_on: how many crops of each class the model saw.
-    :param features: the measurement columns used, in order.
-    :param note: what a reader needs to be told before acting in bulk.
+    :param frame: one row per unannotated crop with ``png_path``,
+        ``suggested``, ``stored`` and ``confidence``, most confident first.
+    :param note: what a reader must be told before accepting in bulk.
+    :param scored: how many crops carried usable scores.
+    :param classes: the class values the scores describe, in column order.
     """
 
     frame: pd.DataFrame
-    was_one_class: bool
-    trained_on: Dict[int, int] = field(default_factory=dict)
-    features: List[str] = field(default_factory=list)
     note: str = ""
+    scored: int = 0
+    classes: List[int] = field(default_factory=list)
 
 
-def _object_id_int(value) -> Optional[int]:
-    """The integer in a ``png_list`` object id: ``'o12'`` -> ``12``.
+def _score_columns(columns: Sequence[str]) -> List[str]:
+    """The per-class probability columns a retrain wrote, in class order.
 
-    ``'omulti'`` and ``'onone'`` -- a crop overlapping several objects or none
-    -- have no single label and come back as None, so they are joined to no
-    measurement and simply do not appear.
-
-    :param value: the stored id.
-    :returns: the integer label, or None.
+    :param columns: the crop table's columns.
+    :returns: the score columns, ordered by their class index.
     """
-    if value is None:
-        return None
-    text = str(value).strip()
-    if text.startswith("o"):
-        text = text[1:]
-    try:
-        return int(float(text))
-    except (TypeError, ValueError):
-        return None
+    from .active_learning import ROUND_PRED_PREFIX
+
+    found = [c for c in columns if c.startswith(ROUND_PRED_PREFIX)]
+
+    def index(name):
+        """The integer suffix of a score column, for ordering."""
+        try:
+            return int(name[len(ROUND_PRED_PREFIX):])
+        except ValueError:
+            return 10 ** 6
+    return sorted(found, key=index)
 
 
-def training_table(db_path: str, annotation_column: str, *,
-                   object_type: str = "cell",
-                   png_table: str = "png_list") -> pd.DataFrame:
-    """Every crop, its annotation if it has one, and its measurements.
+def suggest_from_scores(db_path: str, annotation_column: str, *,
+                        png_table: str = "png_list",
+                        classes: Optional[Sequence[int]] = None
+                        ) -> Suggestions:
+    """Read the last retrain's probabilities and propose a label for each crop.
+
+    Reads rather than re-fits, so the suggestion a reviewer sees and the
+    ranking the queue uses come from ONE model. A second fit here would drift
+    from it and there would be no way to tell which was right.
 
     :param db_path: path to a ``measurements.db``.
     :param annotation_column: the column holding the labels.
-    :param object_type: which measurement table the crop is of.
     :param png_table: the crop table.
-    :returns: one row per crop, with ``png_path``, ``label`` (NaN when
-        unannotated) and every numeric measurement column.
+    :param classes: the class value each score column stands for. Defaults to
+        the values already present in the annotation column, in order, which
+        is what the retrain encoded them from.
+    :returns: a :class:`Suggestions`; its frame is empty when nothing has been
+        scored, and ``note`` says why.
     """
-    from .filters import IDENTITY_ALIASES
+    from .active_learning import as_probabilities
 
-    id_column = f"{object_type}_id"
     with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as db:
-        crops = pd.read_sql_query(f'SELECT * FROM "{png_table}"', db)
-        measured = pd.read_sql_query(f'SELECT * FROM "{object_type}"', db)
-    if crops.empty or measured.empty or id_column not in crops.columns:
-        return pd.DataFrame()
+        try:
+            crops = pd.read_sql_query(f'SELECT * FROM "{png_table}"', db)
+        except Exception:                                    # noqa: BLE001
+            return Suggestions(pd.DataFrame(), note="no crop table")
 
-    crops = crops.copy()
-    crops["object_label"] = crops[id_column].map(_object_id_int)
-    crops = crops.dropna(subset=["object_label"])
-    crops["object_label"] = crops["object_label"].astype(int)
+    if crops.empty:
+        return Suggestions(pd.DataFrame(), note="the crop table is empty")
 
-    def spelling(frame, canonical):
-        """Which spelling ``frame`` uses for an identity column.
+    score_cols = _score_columns(crops.columns)
+    if not score_cols:
+        return Suggestions(
+            pd.DataFrame(),
+            note=("no crop has been scored yet -- press Retrain first, which "
+                  "fits on the labels so far and writes the probabilities "
+                  "this reads"))
 
-        spaCR has written both ``plateID`` and ``plate`` over the years, and
-        a database can carry either. Two tables in the SAME database can also
-        disagree, which is why this is asked per frame rather than once.
+    if annotation_column not in crops.columns:
+        crops[annotation_column] = np.nan
+    labels = pd.to_numeric(crops[annotation_column], errors="coerce")
 
-        :param frame: the table to look in.
-        :param canonical: the canonical column name.
-        :returns: the spelling present, or None when the frame has none.
-        """
-        have = {c.lower(): c for c in frame.columns}
-        for alias in IDENTITY_ALIASES.get(canonical, (canonical,)):
-            if alias.lower() in have:
-                return have[alias.lower()]
-        return None
-
-    keys = []
-    for canonical in ("plateID", "rowID", "columnID", "fieldID"):
-        left, right = spelling(crops, canonical), spelling(measured, canonical)
-        if left and right:
-            crops = crops.rename(columns={left: canonical})
-            measured = measured.rename(columns={right: canonical})
-            keys.append(canonical)
-
-    label_col = "object_label"
-    if label_col not in measured.columns:
-        return pd.DataFrame()
-    measured[label_col] = pd.to_numeric(measured[label_col], errors="coerce")
-
-    merged = crops.merge(measured, how="inner", on=keys + [label_col],
-                         suffixes=("", "_measured"))
-    if annotation_column in merged.columns:
-        merged["label"] = pd.to_numeric(merged[annotation_column],
-                                        errors="coerce")
-    else:
-        merged["label"] = np.nan
-    return merged
-
-
-def _numeric_features(frame: pd.DataFrame, annotation_column: str
-                      ) -> List[str]:
-    """The measurement columns worth learning from.
-
-    Identity columns and the annotation itself are excluded by name: a model
-    given the label as a feature learns nothing, and one given the plate
-    learns the plate.
-
-    :param frame: the joined table.
-    :param annotation_column: the label column to exclude.
-    :returns: usable column names, sorted for a stable feature order.
-    """
-    banned = {"label", annotation_column, "object_label", "plateID", "rowID",
-              "columnID", "fieldID", "timeID", "prcfo", "prcf", "prc"}
-    out = []
-    for column in frame.columns:
-        if column in banned or column.endswith("_id"):
-            continue
-        values = pd.to_numeric(frame[column], errors="coerce")
-        if values.notna().sum() < len(frame) * 0.5:
-            continue                       # more than half missing: not a feature
-        if values.nunique(dropna=True) <= 1:
-            continue                       # constant: carries nothing
-        out.append(column)
-    return sorted(out)
-
-
-def suggest(db_path: str, annotation_column: str, *,
-            object_type: str = "cell", png_table: str = "png_list",
-            min_per_class: int = MIN_PER_CLASS,
-            random_state: int = 0) -> Suggestions:
-    """Train on the annotated crops and rank every unannotated one.
-
-    NO CONFIDENCE FLOOR: every unannotated crop gets a suggestion, sorted by
-    confidence, so the reviewer stops when they stop agreeing rather than
-    having a threshold decide for them.
-
-    :param db_path: path to a ``measurements.db``.
-    :param annotation_column: the column holding the labels.
-    :param object_type: which measurement table the crops are of.
-    :param png_table: the crop table.
-    :param min_per_class: refuse to train below this many examples.
-    :param random_state: seeds the class balancing and the model.
-    :returns: a :class:`Suggestions`. Its frame is empty when there was not
-        enough to learn from, and ``note`` says why.
-    :raises RuntimeError: if xgboost is not installed.
-    """
-    try:
-        from xgboost import XGBClassifier
-    except ImportError as exc:                                # pragma: no cover
-        raise RuntimeError(
-            "Suggest needs xgboost: pip install xgboost"
-        ) from exc
-
-    table = training_table(db_path, annotation_column,
-                           object_type=object_type, png_table=png_table)
-    if table.empty:
-        return Suggestions(pd.DataFrame(), False,
-                           note="no crops could be joined to measurements")
-
-    features = _numeric_features(table, annotation_column)
-    if not features:
-        return Suggestions(pd.DataFrame(), False,
-                           note="no usable measurement columns")
-
-    annotated = table[table["label"].notna()].copy()
-    unannotated = table[table["label"].isna()].copy()
-    if unannotated.empty:
-        return Suggestions(pd.DataFrame(), False, features=features,
-                           note="every crop is already annotated")
-
-    classes = sorted(int(v) for v in annotated["label"].unique())
-    rng = np.random.default_rng(random_state)
-    was_one_class = len(classes) == 1
-
+    if classes is None:
+        # The retrain encoded classes from the sorted annotation values, and
+        # a suggestion offset is not one of them.
+        seen = sorted({int(v) for v in labels.dropna().unique()
+                       if int(v) < SUGGESTION_OFFSET})
+        classes = seen or list(range(len(score_cols)))
+    classes = list(classes)[:len(score_cols)]
     if not classes:
-        return Suggestions(pd.DataFrame(), False, features=features,
+        return Suggestions(pd.DataFrame(),
                            note="nothing has been annotated yet")
 
-    if was_one_class:
-        # THE DELIBERATE LIE, rule 3. Draw as many unannotated crops as there
-        # are annotated ones and train them as the other class. They are
-        # mostly-negative, not negative, so what comes back is a ranking.
-        positive = annotated
-        n = min(len(positive), len(unannotated))
-        drawn = unannotated.sample(n=n, random_state=random_state)
-        negative = drawn.copy()
-        negative["label"] = -1
-        train = pd.concat([positive, negative], ignore_index=True)
-        classes = [-1, classes[0]]
-    else:
-        smallest = min((annotated["label"] == c).sum() for c in classes)
-        if smallest < min_per_class:
-            return Suggestions(
-                pd.DataFrame(), False, features=features,
-                trained_on={c: int((annotated["label"] == c).sum())
-                            for c in classes},
-                note=(f"the smallest class has {smallest} annotations and "
-                      f"{min_per_class} are needed; annotate more first"))
-        # Downsample the larger class rather than weighting it: with the class
-        # sizes equal, the model's own probability is directly readable as
-        # confidence, which is what the sort below depends on.
-        train = pd.concat(
-            [annotated[annotated["label"] == c].sample(
-                n=smallest, random_state=random_state) for c in classes],
-            ignore_index=True)
+    unlabelled = crops[labels.isna()].copy()
+    if unlabelled.empty:
+        return Suggestions(pd.DataFrame(), classes=classes,
+                           note="every crop already carries a value")
 
-    if was_one_class and len(train) < 2 * min_per_class:
-        return Suggestions(
-            pd.DataFrame(), True, features=features,
-            trained_on={int(c): int((train["label"] == c).sum())
-                        for c in classes},
-            note=(f"only {int((train['label'] != -1).sum())} annotations in "
-                  f"one class; {min_per_class} are needed"))
+    raw = unlabelled[score_cols[:len(classes)]].apply(
+        pd.to_numeric, errors="coerce")
+    usable = raw.notna().all(axis=1)
+    unlabelled = unlabelled[usable]
+    if unlabelled.empty:
+        return Suggestions(pd.DataFrame(), classes=classes,
+                           note="no unannotated crop carries a usable score")
 
-    x_train = train[features].apply(pd.to_numeric, errors="coerce").fillna(0.0)
-    codes = {c: i for i, c in enumerate(classes)}
-    y_train = train["label"].astype(int).map(codes)
-
-    model = XGBClassifier(
-        n_estimators=200, max_depth=4, learning_rate=0.1,
-        subsample=0.9, colsample_bytree=0.9,
-        random_state=random_state, eval_metric="logloss",
-        verbosity=0,
-    )
-    model.fit(x_train, y_train)
-
-    x_new = unannotated[features].apply(pd.to_numeric,
-                                        errors="coerce").fillna(0.0)
-    probabilities = model.predict_proba(x_new)
+    probabilities = as_probabilities(raw[usable].to_numpy(dtype=float))
     best = probabilities.argmax(axis=1)
-    inverse = {i: c for c, i in codes.items()}
-
-    out = unannotated.copy()
-    out["suggested"] = [inverse[i] for i in best]
-    out["confidence"] = probabilities.max(axis=1)
-    # The drawn negatives are not a class anybody annotated, so a crop the
-    # model calls -1 is "unlike the annotated ones" and carries no suggestion.
-    out.loc[out["suggested"] == -1, "suggested"] = np.nan
+    out = pd.DataFrame({
+        "png_path": unlabelled["png_path"].to_numpy(),
+        "suggested": [classes[i] for i in best],
+        "confidence": probabilities.max(axis=1),
+    })
     out["stored"] = out["suggested"] + SUGGESTION_OFFSET
-
-    keep = [c for c in ("png_path", "object_label", "suggested", "stored",
-                        "confidence") if c in out.columns]
-    ordered = out[keep].sort_values("confidence", ascending=False,
-                                    ignore_index=True)
-
-    note = ""
-    if was_one_class:
-        note = ("Only one class was annotated, so the negatives were drawn at "
-                "random from unannotated crops. Those are MOSTLY negative, not "
-                "negative, which makes this a ranking rather than a verdict -- "
-                "read down it and stop where you stop agreeing.")
-    return Suggestions(ordered, was_one_class,
-                       trained_on={int(c): int((train["label"] == c).sum())
-                                   for c in classes},
-                       features=features, note=note)
+    out = out.sort_values("confidence", ascending=False, ignore_index=True)
+    return Suggestions(out, scored=len(out), classes=classes)
 
 
 def write_suggestions(db_path: str, annotation_column: str,
@@ -318,14 +164,11 @@ def write_suggestions(db_path: str, annotation_column: str,
                       png_table: str = "png_list") -> int:
     """Store suggestions, and ONLY where nothing has been annotated.
 
-    The ``IS NULL`` in the update is rule 2 and is not an optimisation. A
-    human's annotation is the ground truth the model was trained on; losing
-    one silently would cost hours and would not be noticed until a run came
-    out wrong.
+    The ``IS NULL`` is rule 2 and is not an optimisation.
 
     :param db_path: path to a ``measurements.db``.
     :param annotation_column: the column to write into.
-    :param suggestions: the frame from :func:`suggest`.
+    :param suggestions: the frame from :func:`suggest_from_scores`.
     :param png_table: the crop table.
     :returns: how many rows were written.
     """
@@ -354,14 +197,14 @@ def resolve_suggestions(db_path: str, annotation_column: str, *,
     """Accept suggestions as annotations, or clear them away.
 
     Accepting rewrites the offset value to the real class; rejecting sets it
-    back to NULL. Both act only on SUGGESTION values, so a human annotation
-    caught in the same query is untouched either way.
+    back to NULL. Both act ONLY on suggestion values, so a human annotation
+    caught by the same query is untouched either way.
 
     :param db_path: path to a ``measurements.db``.
     :param annotation_column: the column holding both.
     :param keep: True to accept, False to discard.
     :param png_table: the crop table.
-    :param paths: restrict to these crops; None means all suggestions.
+    :param paths: restrict to these crops; None means every suggestion.
     :returns: how many rows changed.
     """
     column = f'"{annotation_column}"'
@@ -376,9 +219,29 @@ def resolve_suggestions(db_path: str, annotation_column: str, *,
     with sqlite3.connect(db_path) as db:
         if keep:
             sql = (f'UPDATE "{png_table}" SET {column} = {column} - '
-                   f'{SUGGESTION_OFFSET} WHERE {where}')
+                   f"{SUGGESTION_OFFSET} WHERE {where}")
         else:
             sql = f'UPDATE "{png_table}" SET {column} = NULL WHERE {where}'
         cur = db.execute(sql, params)
         db.commit()
         return cur.rowcount
+
+
+def pending_suggestions(db_path: str, annotation_column: str, *,
+                        png_table: str = "png_list") -> int:
+    """How many suggestions are waiting to be accepted or thrown away.
+
+    :param db_path: path to a ``measurements.db``.
+    :param annotation_column: the column holding them.
+    :param png_table: the crop table.
+    :returns: the count, or 0 when the column does not exist.
+    """
+    with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as db:
+        try:
+            row = db.execute(
+                f'SELECT COUNT(*) FROM "{png_table}" '
+                f'WHERE "{annotation_column}" > ?', (SUGGESTION_OFFSET,)
+            ).fetchone()
+        except sqlite3.Error:
+            return 0
+    return int(row[0]) if row else 0

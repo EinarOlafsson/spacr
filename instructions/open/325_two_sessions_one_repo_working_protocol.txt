@@ -2234,3 +2234,30 @@ thing you can take.
     331's BEFORE list is stale and I am fixing it now: 314 was closed by the
     maintainer on 2026-09-04, so the release gate is smaller than that file
     says. 288 and 316 are what is left, and both are yours.
+
+--------------------------------------------------------------------------------
+2026-09-06, HOME SESSION — I NEARLY DUPLICATED active_learning TOO
+--------------------------------------------------------------------------------
+
+Second time in two days, same mechanism, caught earlier this time because I
+had just written the rule down.
+
+Building 379's Suggest engine I wrote feature-building and model-fitting from
+the annotation column -- and `spacr/active_learning.py` already has both.
+`round_features` builds the measurement matrix per crop, for the same stated
+reason I would have given. `retrain_round` fits on every label, scores on a
+GROUPED held-out split so the accuracy is not an artefact of 190 labels from
+one well, and writes per-class probabilities into `png_list`. It is better
+than what I wrote: I was downsampling to balance classes; it holds out by
+well.
+
+`suggest.py` is now a thin layer that READS those probabilities. What is
+genuinely new is only the storage discipline -- a suggested 1 stored as 11, a
+write that carries IS NULL, and bulk keep/throw. An unscored database is told
+to press Retrain rather than being handed a second model's opinion, because
+two models would give the reviewer and the queue different answers with no way
+to tell which was right.
+
+WHAT CAUGHT IT: grepping the package before building, which is the rule from
+the scorecard entry above. It cost one command and saved a duplicate. The rule
+holds; I just have to apply it before writing rather than after.

@@ -66,18 +66,30 @@ PART 1-A -- THE ENGINE, AND THE ANSWERS IT WAS BUILT ON
 
 `spacr/suggest.py`:
 
-    training_table       every crop, its annotation if it has one, and its
-                         measurements, joined on the object id
-    suggest              trains and ranks every unannotated crop
+    suggest_from_scores  READS the last retrain's probabilities and proposes
+                         a class per unannotated crop, most confident first
     write_suggestions    stores them, ONLY where the column is NULL
     resolve_suggestions  KEEP rewrites 11 -> 1; THROW sets them back to NULL
+    pending_suggestions  how many are waiting to be acted on
+
+IT DOES NOT FIT A MODEL, AND THAT IS THE DESIGN. `active_learning.
+retrain_round` already fits on every label, scores on a GROUPED held-out split
+so the number is not an artefact of 190 labels from one well, and writes
+per-class probabilities into `png_list`. A first draft of this module
+re-implemented feature building and fitting before that was found -- the
+SECOND duplication in two days, after `scorecard.py`. Reading the existing
+scores means the suggestion a reviewer sees and the ranking the queue uses
+come from ONE model; a second fit would drift from it with no way to tell
+which was right. An unscored database is told to press Retrain, not given a
+second opinion.
 
 ANSWERED 2026-09-06 (357):
   379-A  features come from THE MEASUREMENT TABLE spaCR already computes, not
-         from CNN embeddings. So the model explains itself in the terms the
-         user already reads, and if the morphology cannot separate the
-         classes that is a finding about the experiment rather than a reason
-         to add a network.
+         from CNN embeddings. That was ALREADY TRUE: `active_learning.
+         round_features` builds exactly that matrix, and its docstring gives
+         the same reason -- "a fresh ranking in seconds, on the machine the
+         annotator is sitting at, without a GPU". The answer confirmed an
+         existing design rather than choosing a new one.
   379-B  NO CONFIDENCE FLOOR. Every unannotated crop gets a suggestion,
          sorted by confidence, so the reviewer stops where they stop agreeing
          instead of a threshold deciding for them. The ORDER is what makes
