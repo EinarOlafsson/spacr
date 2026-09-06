@@ -1074,3 +1074,39 @@ fault (the "Source" row the reviewed layer had fixed and the pin had not
 followed) and four were the repository describing itself out of date -- a
 published coverage claim, a dated report used as a live assertion, and these
 two behavioural expectations.
+
+--------------------------------------------------------------------------------
+2026-09-06 — A SCREEN READER HEARD ENGLISH IN ALL NINE LANGUAGES
+--------------------------------------------------------------------------------
+
+21 red -> 19, and both of these were live defects rather than stale tests.
+
+THE SIDEBAR NEVER RETRANSLATED ITS ACCESSIBLE TEXT. `_refresh_module_help`
+dispatches on the `moduleTooltipStyle` property: "sidebar" and "tile"
+retranslate the accessible name and description on every language change, and
+anything else falls through to a branch that writes a status tip and leaves
+both alone. `DockRow` set `moduleNameSource`, `moduleSummarySource`,
+`moduleAppKey` and `navKey` -- and never set the style. It has never been in
+the dispatch at all.
+
+The row sets its accessible name and description itself, in its constructor,
+correctly, ONCE -- in whatever language the application started in. So for a
+screen reader every module in the dock announced its name and its summary in
+English no matter which of the nine languages was chosen. Nothing on screen
+looked wrong, which is why it lasted: the visible label retranslates through
+the ordinary caption path, and only the announced text was stranded.
+
+One property fixes it, and it also clears the popup tooltip on every pass,
+which is what the row already asks for two comments further down.
+
+THE `foreign` SUMMARY'S REVIEWED HASH WAS STALE, and this failure mode is worth
+naming because it is backwards from how it reads. A stale hash here does NOT
+display an obsolete translation. It displays no reviewed translation at all --
+the row falls through to the generated catalog. So the mechanism built to
+suppress obsolete reviewed prose was suppressing nine CURRENT and correct
+summaries. The English gained "or adopting masks made elsewhere" when the
+import screen landed, the nine reviewed rows were rewritten with it, and only
+the hash was left behind. All nine name that clause; the Korean says it
+outright. Rebound rather than retranslated.
+
+97 dock and module-help tests pass with the property set.
