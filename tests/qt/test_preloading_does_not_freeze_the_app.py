@@ -9,6 +9,7 @@ modules that pull torch, and no amount of yielding breaks up a single
 
 import threading
 import time
+from pathlib import Path
 
 import pytest
 
@@ -24,8 +25,44 @@ def test_it_imports_on_a_worker_thread():
     assert "threading.Thread" in body
 
 
+#: The measurement, run in a FRESH interpreter. It has to be a subprocess and
+#: the reason is the whole point of the test: the thing being measured is the
+#: cost of IMPORTING seven pipeline modules, and an import happens once per
+#: process. Any earlier test that builds a screen has already paid it, so in
+#: the same interpreter `_PipelinePreloader` finds all seven in `sys.modules`,
+#: returns in about 16 ms, and the measurement has nothing to measure.
+_COLD_MEASUREMENT = """
+import json, sys, time
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QEventLoop, QTimer
+
+app = QApplication.instance() or QApplication([])
+from spacr.qt.app import _PipelinePreloader
+
+already = [m for m in _PipelinePreloader._MODULES if m in sys.modules]
+ticks = []
+beat = QTimer()
+beat.setInterval(16)
+beat.timeout.connect(lambda: ticks.append(time.perf_counter()))
+beat.start()
+loop = QEventLoop()
+preloader = _PipelinePreloader(on_done=loop.quit)
+preloader.start()
+QTimer.singleShot(60_000, loop.quit)
+loop.exec()
+beat.stop()
+worst = max((b - a) for a, b in zip(ticks, ticks[1:])) if len(ticks) > 1 else 0.0
+print(json.dumps({
+    "already": already,
+    "ticks": len(ticks),
+    "worst": worst,
+    "finished": bool(preloader.wait(30.0)),
+}))
+"""
+
+
 @pytest.mark.timing
-def test_the_gui_keeps_answering_while_it_preloads(qtbot):
+def test_the_gui_keeps_answering_while_it_preloads():
     """The measurement that justifies the change, as a test.
 
     MARKED `timing` AND EXCLUDED FROM THE PARALLEL SWEEP. It measures how
@@ -37,30 +74,59 @@ def test_the_gui_keeps_answering_while_it_preloads(qtbot):
     Run it on its own: `pytest -m timing`. The bar is loose even then -- 3
     ticks and a 1.4-second freeze, which is what the GUI-thread version gave,
     fail it by a mile.
+
+    IT NOW MEASURES IN A FRESH INTERPRETER, and until 2026-09-06 it did not.
+    In-process it passed alone and failed after anything that imports the
+    pipeline: `tests/qt/test_ambient.py` and `test_ambient_home.py` alone
+    leave all SEVEN preloader modules in `sys.modules`, so `import_module`
+    returns immediately, `on_done` quits the loop after about 16 ms, and the
+    16 ms beat has fired twice.
+
+    THE FAILURE THAT PRODUCED SAID "the GUI answered only 2 times", which
+    reads as a freeze and is the opposite of one -- the two ticks were 16.1 ms
+    apart, exactly on schedule, and the worst gap was never in danger of the
+    one-second bar. A full-suite run therefore reported a GUI freeze whenever
+    this test ran after a screen test, which is every full-suite run. That is
+    a dirty signal for 288's gate, not a responsiveness defect.
+
+    Skipping when the modules are already loaded would have been the cheap
+    repair and the wrong one: the guarantee would then be checked in no CI run
+    at all, because CI is exactly where something else has already imported
+    them.
     """
+    import json
     import os
+    import subprocess
+    import sys
 
     if os.environ.get("PYTEST_XDIST_WORKER"):
         pytest.skip("a timing measurement cannot share the machine")
-    from PySide6.QtCore import QEventLoop, QTimer
 
-    ticks = []
-    beat = QTimer()
-    beat.setInterval(16)
-    beat.timeout.connect(lambda: ticks.append(time.perf_counter()))
-    beat.start()
+    environment = dict(os.environ)
+    environment.setdefault("QT_QPA_PLATFORM", "offscreen")
+    completed = subprocess.run(
+        [sys.executable, "-c", _COLD_MEASUREMENT],
+        capture_output=True, text=True, timeout=180,
+        cwd=str(Path(__file__).resolve().parents[2]), env=environment,
+    )
+    assert completed.returncode == 0, completed.stderr[-2000:]
+    # The child prints one JSON line; Qt and its plugins may print others.
+    measurement = json.loads(
+        next(line for line in reversed(completed.stdout.splitlines())
+             if line.startswith("{"))
+    )
 
-    loop = QEventLoop()
-    preloader = _PipelinePreloader(on_done=loop.quit)
-    preloader.start()
-    QTimer.singleShot(60_000, loop.quit)
-    loop.exec()
-    beat.stop()
-
-    assert preloader.wait(30.0), "the preload never finished"
-    assert len(ticks) > 40, f"the GUI answered only {len(ticks)} times"
-    worst = max((b - a) for a, b in zip(ticks, ticks[1:]))
-    assert worst < 1.0, f"froze for {worst*1000:.0f} ms"
+    # THE MEASUREMENT MUST HAVE BEEN COLD, asserted rather than assumed. If
+    # anything imported the pipeline before the preloader ran, there was no
+    # import burst to stay responsive through and the numbers below mean
+    # nothing -- which is the exact way this test used to mislead.
+    assert measurement["already"] == [], (
+        f"the child was not cold: {measurement['already']}")
+    assert measurement["finished"], "the preload never finished"
+    assert measurement["ticks"] > 40, (
+        f"the GUI answered only {measurement['ticks']} times")
+    assert measurement["worst"] < 1.0, (
+        f"froze for {measurement['worst'] * 1000:.0f} ms")
 
 
 def test_progress_is_reported_on_the_gui_thread(qtbot):

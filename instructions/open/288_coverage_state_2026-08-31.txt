@@ -791,3 +791,56 @@ timeout. The correlation is strong and the mechanism is plausible, but
 the failing test has not been named yet -- pytest -q does not print it
 until the summary, and the run was still going. Name the test, then
 re-run it alone and with the leak present, before crediting the fix.
+
+--------------------------------------------------------------------------------
+2026-09-06 — THE TEST IS NAMED, AND IT IS NOT THE THREAD LEAK
+--------------------------------------------------------------------------------
+
+The 2026-09-01 note ends: "NOT YET ESTABLISHED: that the nine threads CAUSED
+this particular timeout... Name the test, then re-run it alone and with the
+leak present, before crediting the fix." The test is named. The cause is not
+the leak, and the leak hypothesis is neither confirmed nor refuted here.
+
+THE TEST IS `test_the_gui_keeps_answering_while_it_preloads`, the ONLY test in
+tests/qt marked `timing`. Alone: 11 passed in 4.95 s. After six ambient files
+in one process: failed, "the GUI answered only 2 times".
+
+IT IS THE OPPOSITE OF A FREEZE. The two ticks were 16.1 ms apart -- exactly the
+beat's 16 ms interval, perfectly on schedule -- and the one-second `worst` bar
+was never in danger. What failed was `len(ticks) > 40`, a sample-count floor.
+
+THE MECHANISM, measured rather than argued. The test times how often the GUI
+answers DURING the preload's import burst, and an import happens once per
+process. Any earlier test that builds a screen has already paid it. A probe on
+`pytest_runtest_setup` reported SEVEN OF SEVEN preloader modules already in
+`sys.modules` after `test_ambient.py` and `test_ambient_home.py` alone, so
+`importlib.import_module` returns immediately, `on_done` quits the loop after
+about 16 ms, and the beat has fired twice. Nothing was slow; there was nothing
+to be slow.
+
+CONSEQUENCE FOR THIS INSTRUCTION'S GATE: every full-suite run has been
+reporting a GUI freeze that did not happen, because CI is exactly where
+something else has already imported the pipeline. That is a dirty signal, not a
+responsiveness defect, and it is one more thing "red" was hiding.
+
+THE FIX MEASURES IN A FRESH INTERPRETER and asserts the child was actually cold
+before trusting its numbers -- `already == []` -- because a measurement taken
+after the imports are done is exactly how this test misled in the first place.
+Cold it reports 202 ticks and a worst gap of 183.6 ms, which matches the 185 ms
+this file already recorded as the GIL during a C-extension import.
+
+NOT DONE, deliberately: skipping when the modules are already loaded. That is
+the cheap repair and it retires the guarantee while leaving it looking green,
+since CI is precisely the case that would skip.
+
+WHAT IS STILL OPEN. The ambient-thread accumulation from 2026-09-01 stands
+unproven either way. A sampler that counted `/proc/<pid>/task/*/comm` for
+`spacr-ambient-shade` reported zero, and that reading is WORTHLESS: CPython
+here does not propagate `threading.Thread(name=...)` to the OS thread name, so
+a thread explicitly named `spacr-ambient-shade` still shows as `python3`.
+Anyone measuring this next must enumerate `threading.enumerate()` inside the
+process, not read /proc from outside.
+
+  alone, before      11 passed in 4.95 s
+  in combination     1 failed of 431
+  in combination now 431 passed in 147 s
