@@ -1043,3 +1043,34 @@ assertion there would only restate that blocker. What IS asserted is that every
 block WITH a reviewed translation carries it in the shipped page and that the
 English has not leaked back in; measured before pinning, that is 2 of 2 per
 symbol per locale with zero leaks.
+
+--------------------------------------------------------------------------------
+2026-09-06, LATER STILL — TWO RED TESTS WERE DESCRIBING AN OLDER PROGRAM
+--------------------------------------------------------------------------------
+
+23 red -> 21. Neither of these was a translation fault, and both would have
+been "fixed" wrongly by touching a catalog.
+
+THE HINT STRIP NO LONGER EMPTIES WHEN THE POINTER LEAVES. 371 part 3
+(204d34de9) gave it `HINT_HOLD_MS = 10_000`, so the strip HOLDS the last
+setting for ten seconds and its API link stays reachable after the pointer has
+moved on. `test_a_hint_strip_falls_back_to_a_translated_prompt` still asserted
+the prompt was back the instant the pointer left, which was the behaviour of an
+older screen. The language contract it exists for is untouched and is now
+checked in BOTH states -- what is held must be translated, and so must what
+replaces it when the hold expires -- which is more than the original asserted.
+
+THE BUTTON IS CALLED "Load test data…". b110a1dfa renamed it deliberately: a
+user with no data of their own was being offered "the example screen", which
+names a thing in the program rather than the thing they want.
+`test_the_example_button_comes_back_in_the_chosen_language` still asked for
+`tr("Load the example screen…", "sv")`, an English string with no catalog row,
+so it came back untranslated and was compared against the live Swedish caption.
+It read exactly like a missing Swedish translation and was a stale expectation.
+
+WORTH SAYING BECAUSE IT WILL RECUR: a red test in this lane is not evidence of
+a translation defect. Of the five closed today, ONE was a real localization
+fault (the "Source" row the reviewed layer had fixed and the pin had not
+followed) and four were the repository describing itself out of date -- a
+published coverage claim, a dated report used as a live assertion, and these
+two behavioural expectations.

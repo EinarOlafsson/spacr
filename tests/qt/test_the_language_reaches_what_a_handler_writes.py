@@ -81,6 +81,22 @@ def test_a_hint_strip_falls_back_to_a_translated_prompt(swedish):
     QApplication.processEvents()
     QApplication.sendEvent(label, QEvent(QEvent.Type.Leave))
     QApplication.processEvents()
+
+    # THE STRIP NO LONGER EMPTIES ON LEAVE, and this test predated that.
+    # 371 part 3 (204d34de9) made it HOLD the last setting for
+    # `HINT_HOLD_MS`, so the API link it names can still be reached after the
+    # pointer has moved off the row. Asserting the prompt is back the instant
+    # the pointer leaves asserted the behaviour of an older screen.
+    #
+    # The language contract is unchanged and is now checked in BOTH states,
+    # which is more than the original did: what is held must be translated,
+    # and what replaces it when the hold runs out must be translated too.
+    held = swedish._hint_strip.text()
+    assert held and "Hover any setting" not in held
+    assert "Hover a settings category" not in held
+
+    swedish._release_the_hint()
+    QApplication.processEvents()
     assert swedish._hint_strip.text() == swedish._default_hint()
     assert "Hover any setting" not in swedish._hint_strip.text()
 
@@ -114,8 +130,15 @@ def test_the_example_button_comes_back_in_the_chosen_language(qtbot,
     assert seen["while fetching"] == tr(
         "Fetching {count} file(s)…", "sv", count=2)
     assert "Fetching" not in seen["while fetching"]
-    assert button.text() == tr("Load the example screen…", "sv")
-    assert button.text() != "Load the example screen…"
+    # THE BUTTON IS CALLED "Load test data…" and has been since b110a1dfa
+    # renamed it deliberately -- a user with no data of their own was being
+    # offered "the example screen", which names a thing in the program rather
+    # than the thing they want. This test kept asserting the old source, so it
+    # was comparing the live Swedish caption against an English string that
+    # has no catalog row and therefore comes back untranslated. That is a
+    # stale expectation, not a missing translation.
+    assert button.text() == tr("Load test data…", "sv")
+    assert button.text() != "Load test data…"
 
 
 # ---------------------------------------------------------------------------

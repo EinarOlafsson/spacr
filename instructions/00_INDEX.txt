@@ -45,7 +45,7 @@ OPEN
        304_release_1_5_0_5_to_zenodo.txt
 
   316  THE TRANSLATIONS ARE PRESENT, CURRENT, AND IN PLACES WRONG
-       [READMEs delivered in all nine; lane triaged 2026-09-06, 26 red -> 23: 1,089 catalog rows blocked on OPUS models absent from this machine, 5 are 372's OPS tooltips, the rest are pins and two stale strings]
+       [READMEs delivered in all nine; lane triaged 2026-09-06, 26 red -> 21: 1,089 catalog rows blocked on OPUS models absent from this machine, 5 are 372's OPS tooltips, the rest are pins and two stale strings]
        316_the_translations_are_semantically_wrong_in_places.txt
 
   325  TWO SESSIONS, ONE REPO: THE WORKING PROTOCOL
