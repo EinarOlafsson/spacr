@@ -411,3 +411,67 @@ STILL UNANSWERED, and now carried forward rather than lost:
 
   351-A and 337-A are RETIRED as questions: both their items are closed, and
   the tracker has zero open issues today.
+
+
+================================================================================
+QUESTIONS ADDED 2026-09-06 — FOUR ITEMS ARE BLOCKED ONLY ON THESE
+================================================================================
+
+Each of these is the single thing standing between an instruction and being
+finishable. Evidence is given first so the answer can be a word rather than a
+research task.
+
+377-A — WHAT SHAPE IS THE INFECTION MODULE?
+    MEASURED 2026-09-05 (377 PART 0-A): 13 of the 16 candidate metrics fall
+    out of a finished Measure run with no new image processing. The cell table
+    already holds every segmented cell -- infected or not -- and `io.py:4883`
+    already computes parasites-per-host-cell. The three that need new work
+    belong to invasion (intracellular fraction), to segmentation (vacuoles vs
+    parasites) and to a boundary that is not currently measured.
+      A1  (c) A REPORT, not a pipeline -- assembled from Measure's output,
+          no new image processing. RECOMMENDED: it is where the evidence
+          points and where PART 0 already suspected the value was.
+      A2  (a) A FIFTH ASSAY beside invasion, replication, plaque and
+          recruitment, measuring what none of them covers.
+      A3  (b) A PARENT that invasion and replication become views of.
+
+379-A — WHAT DOES THE SUGGEST BUTTON LEARN FROM?
+    XGBoost needs a table, not an image.
+      A1  The MEASUREMENT TABLE spaCR already produces, joined on object id.
+          RECOMMENDED: nothing new to compute, and the model then explains
+          itself in the same terms the user already reads. If the
+          measurements cannot separate the classes, that is worth knowing
+          before adding a network.
+      A2  Embeddings from a pretrained CNN -- stronger on texture the
+          measurements miss, but a new dependency in this path.
+      A3  Both, concatenated.
+
+379-B — IS THERE A CONFIDENCE FLOOR ON SUGGESTIONS?
+      B1  Suggest everything, sorted by confidence, and let the reviewer stop
+          when they stop agreeing. RECOMMENDED: simpler, and the sort already
+          puts the doubtful ones together.
+      B2  Only above a threshold, leaving the rest unlabelled.
+
+379-C — MORE THAN TWO CLASSES?
+      C1  Binary only for now. RECOMMENDED: the request says "the other
+          class", and the suggestion offsets are simpler with two.
+      C2  Must work for three or more, which means the offsets cannot
+          collide with real class values.
+
+372-A — THE OPS PLATE, AND THE ANIMATION
+    Two small ones together.
+    (i) The OPS screen data is on the NAS but the share was unreachable on
+        2026-09-05 and 2026-09-06: `/nas_mnt` is NFS on the DIRECT WIRED link
+        `enp7s0`, and that interface is NO-CARRIER / DOWN -- cable unplugged
+        or NAS powered off. Once it is up, the exact path goes into 372
+        PART 4. No decision needed, just the cable.
+    (ii) THE EXPAND ANIMATION. Five of six adversarial reviewers measured an
+        animated settings-category expand as making the flicker WORSE, and
+        the underlying judder was fixed instead (the header dip, and a frame
+        painted before the layout settled). The maintainer asked for the
+        animation anyway on 2026-09-05, before that evidence existed.
+      A1  DON'T ship it. RECOMMENDED on the evidence: the abruptness it was
+          meant to cover is gone.
+      A2  Ship the one approach that survived review -- a pixmap cross-fade,
+          whose cost does not scale with the 875-widget tree -- behind an
+          Animation-tab switch, default off.

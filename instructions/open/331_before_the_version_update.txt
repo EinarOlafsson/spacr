@@ -10,16 +10,26 @@ Status:    OPEN, filed 2026-09-01. A CHECKLIST, not new work: every item
 BEFORE THE UPDATE
 -----------------
 
-  288  GREEN CI. The stated gate. Qt pragmas are 88 -> 33, the
-       assertion-free ratchet is green, and a crash that stopped seven
-       folded modules opening is fixed. NOT MET: tests/qt still dies
-       partway through a single process, so there is no clean full-suite
-       signal. See 288's own note for what was measured.
+  288  GREEN CI. The stated gate, and the only ENGINEERING item still on
+       this side of the line. Qt pragmas are 88 -> 33, the assertion-free
+       ratchet is green, and a crash that stopped seven folded modules
+       opening is fixed. NOT MET: tests/qt still dies partway through a
+       single process, so there is no clean full-suite signal.
 
-  314  THE REGRESSION HANG. Diagnosed, not fixed. Seven causes measured
-       and rejected; it reproduces only through `spacr.qt.run()`. A hang
-       in a core module is the worst failure shape spaCR has, which is
-       why it is on this side of the line.
+       WHERE IT HAS TO BE DONE, and this is now the practical blocker
+       rather than the diagnosis: the home workstation cannot run the
+       suite. Full-suite and coverage runs there have crashed VS Code and
+       logged the maintainer out repeatedly, so that session works under a
+       hard RAM ceiling and is instructed not to attempt it. Assigned to
+       the work session on 2026-09-06 (see 325) WITH GPU AND RAM GUARDS --
+       that machine is running an AlphaFold screen, 86 spaCR tests are
+       `@pytest.mark.gpu`, and their guard only skips them when the card
+       has 1500 MiB free, which a shared 24 GB card usually does.
+
+  314  THE REGRESSION HANG. CLOSED 2026-09-04 BY THE MAINTAINER -- the
+       symptom is gone. It is struck from this list rather than deleted,
+       because the tension at the bottom of this file was written around
+       it and no longer applies.
 
   01   WINDOWS SELF-UPDATE. CODE COMPLETE and verified 2026-09-01.
        Nothing further is reachable from a checkout.
@@ -40,18 +50,28 @@ AFTER THE UPDATE
   305 load time within resources     319 accelerator polish
   58  contributor listing
 
-THE TENSION WORTH STATING
--------------------------
-1.5.0.5 is itself the escape hatch for the Windows self-update trap in
-01: until it is published, a Windows user cannot take ANY later fix,
-including a fix for 314. So holding the release to finish 314 has a cost
-of its own, and it is not obviously smaller than the cost of shipping
-with 314 open.
+THE TENSION WORTH STATING -- RESOLVED 2026-09-06
+------------------------------------------------
+This section used to weigh holding the release to finish 314 against the
+cost of leaving Windows users unable to take any later fix. 314 WAS
+CLOSED on 2026-09-04, so that trade no longer exists and the argument is
+kept only so the record reads straight.
 
-That is a maintainer's call and not an engineering one. What engineering
-can say is: 01 is ready either way, 314 is characterised well enough for
-someone to finish, and 288's gate is genuinely unmet rather than nearly
-met.
+WHAT IS ACTUALLY LEFT BEFORE THE UPDATE, as of 2026-09-06:
+
+  288  green CI. Engineering, unmet, and assigned to the machine that can
+       run a suite.
+  316  translations. Nine catalogs, 23 red tests. Text work, no GPU,
+       negligible memory -- the safest thing either session can do.
+  05   the bump, and 304 the publication. BOTH HELD BY THE MAINTAINER, who
+       said on 2026-09-06: "don't increment to 1.5.0.5 until I say to".
+       Everything short of the version number can be staged.
+
+  01 is ready either way and has been since 2026-09-01.
+
+So the gate is two items, not four, and neither of them is a design
+question. That is a smaller and more tractable list than this file
+described for five days.
 
 --------------------------------------------------------------------------------
 2026-09-02 — THE LIST AFTER THE AUDIT AND ONE NIGHT'S WORK
