@@ -14,9 +14,15 @@ if str(TOOLS) not in sys.path:
 
 from i18n_reviewed_ui import LANGUAGES, REVIEWED_UI_TRANSLATIONS  # noqa: E402
 
-REVIEWED_UI_SOURCE_COUNT = 86
-REVIEWED_UI_SOURCE_SHA256 = "b79810d3dabc30a5c660909d16f9ca9aaf05006dbbdc0347620dd85eb5747599"
-REVIEWED_UI_CONTENT_SHA256 = "7030fb63e231ebbaeff5248b7074811ad80e53eb781ab64b878e677e004420b1"
+# 86 -> 87 on 2026-09-06, +1/-0: "Source", the empty-state card's label for the
+# data a module reads.  It is here rather than in the generated layer because
+# the generated one had it as a ROAD in Korean (도로), a LANE in French (Voie)
+# and a ROUTE in Icelandic (leiðin) -- all three are "path" in the sense of a
+# way to walk, and none is the sense of a source directory.  The reviewed row
+# is the fix, and the pin moves with it rather than after it.
+REVIEWED_UI_SOURCE_COUNT = 87
+REVIEWED_UI_SOURCE_SHA256 = "d0931a39009b4916bc4a247c1803c92316951318182bbd6b5815cc3094fe25a6"
+REVIEWED_UI_CONTENT_SHA256 = "f24504b25664a03e2328c8eb6cc0d693837ab6cea291b3fb01fc38c42ea51d50"
 
 
 def test_reviewed_ui_vocabulary_is_complete_and_pinned():

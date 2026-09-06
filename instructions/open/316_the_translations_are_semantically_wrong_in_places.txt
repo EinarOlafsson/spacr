@@ -933,3 +933,71 @@ So this cannot be closed by any amount of further mechanical work, and the
 remaining decision is the maintainer's: either a second pass over the eighteen
 above, or an explicit decision to ship 1.5.0.5 with the qualified claim the
 README now carries, leaving this open against a later release.
+
+================================================================================
+ADDENDUM 2026-09-06 — THE RED LANE TRIAGED: 26 TESTS, THREE DIFFERENT CAUSES
+================================================================================
+
+Ran the whole language lane in three chunks under the AlphaFold guard
+(`CUDA_VISIBLE_DEVICES="" SPACR_TEST_MEMORY_GB=4 -p no:cacheprovider -m "not
+gpu"`, no xdist), because the screen on this machine leaves 18 GB free on a
+24 GB card and the suite's own GPU guard only skips below 1500 MiB free -- it
+protects against a FULL card, not a SHARED one.
+
+  chunk 1  non-Qt i18n, 13 files      6 failed, 101 passed
+  chunk 2  Qt i18n, 11 files         11 failed, 169 passed
+  chunk 3  language + docs, 7 files   9 failed, 291 passed
+                                     26 failed, 561 passed
+
+THEY ARE NOT ONE PROBLEM. Sorted by what would actually fix them:
+
+  A. BLOCKED ON MODELS THAT ARE NOT ON THIS MACHINE -- the largest group.
+     `_invalid_catalog_sources` reports 121 per language, 1,089 in total:
+     new UI strings with no catalog row. Generating a row runs the OPUS
+     checkpoint, and /mnt/firecuda2 is not mounted, so every
+     catalog-currency, source-hash and caption-ratchet test in this group
+     stays red until it is.
+
+     THE NLLB CHECKPOINT ON THIS MACHINE IS NOT A SUBSTITUTE, and this is a
+     licensing point rather than a quality one. `build_i18n_catalogs.py` says
+     in its own module docstring that spaCR generates with permissively
+     licensed OPUS/M2M100/MADLAD checkpoints "unlike the research-only NLLB
+     checkpoint used by the separate non-commercial tutorial project". The
+     only model tree present here is that NLLB. Using it would put
+     research-only output into a package that ships. It must not be done.
+
+  B. NOT MINE, AND NOT A TRANSLATION FAULT. Five of the nine chunk-3
+     failures are `tests/test_settings_tooltip_quality.py` complaining about
+     genotype_source, well_group, stitch, mosaic_out, detector,
+     preview_downsample and seventeen more. Every one is defined in
+     `spacr/ops_settings.py` or `spacr/spacrops.py` -- instruction 372, the
+     home session's lane, mid-flight. Left alone deliberately.
+
+  C. STALE TREE-WIDE PINS, which are mine and which 368 moves every time it
+     documents a symbol. `tests/test_i18n_coverage_audit.py` pins 8,861
+     docstrings and 113 API doc aliases, and reads REVIEW_SCOPE_2026-08-30.md.
+     The live tree is 10,230 docstrings and ZERO aliases -- 368 finished the
+     job, so no symbol borrows another's prose any more and the alias
+     registry that needed 113 entries needs none.
+
+     A dated evidence report cannot be a live assertion. REVIEW_SCOPE
+     _2026-08-30.md is a snapshot of a tree that no longer exists, and a test
+     that requires the current tree to match it will be red for ever. The
+     report stays as history; the assertion has to move to the current one.
+
+FIXED HERE, and it is the one thing in this pass that needed nothing external:
+`REVIEWED_UI_SOURCE_COUNT` 86 -> 87 with both digests. The row is "Source",
+the empty-state card's label, which the generated layer had as a ROAD in
+Korean, a LANE in French and a ROUTE in Icelandic -- three ways to walk, where
+the sense wanted is a source directory. The reviewed row fixed that on
+2026-09-04 and the pin had never followed it.
+
+TWO SMALLER ONES, both real and both needing a translation rather than a pin:
+
+  * The example button's English became "Load the example screen…" and the
+    Swedish catalog still answers "Ladda testdata..." -- load TEST DATA, which
+    is a different promise from loading an example screen.
+  * The hint strip is meant to fall back to the translated prompt "Hover any
+    setting for details and a link to its documentation." and instead returns
+    the SOURCE setting's own tooltip. That is a fallback that never fires,
+    not a wrong string.
