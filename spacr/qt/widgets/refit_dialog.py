@@ -49,10 +49,18 @@ class RefitDialog(QDialog):
 
         layout = QVBoxLayout(self)
         current = self._settings.get("regression_type")
-        layout.addWidget(QLabel(
+        # WRAPPED, like `_notice` below it. Without this the sentence is one
+        # line and the dialog is either too wide for its content or clipping
+        # the end of it -- measured at 828 px of room for 875 px of text at
+        # font scale 1, and 1656 for 1752 at scale 2. It is prose, so it
+        # wraps; eliding would lose the half that says the current run is
+        # safe, which is the reassurance it exists to give.
+        intro = QLabel(
             f"The table on screen was fitted with <b>{current or 'auto'}</b>. "
             f"Re-fitting runs the same data through another model; the run "
-            f"you are looking at is not touched."))
+            f"you are looking at is not touched.")
+        intro.setWordWrap(True)
+        layout.addWidget(intro)
 
         form = QFormLayout()
         self._type = QComboBox()

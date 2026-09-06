@@ -1477,7 +1477,9 @@ class _SettingsDialog(QDialog):
         from ..dialogs import detach_from_window_manager
         detach_from_window_manager(self)
         self.setWindowTitle("Annotate — Settings")
-        self.setMinimumWidth(480)
+        from ..preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(480))
         self._settings = settings
 
         form = QFormLayout()
@@ -2434,7 +2436,9 @@ class _AutoAnnotateDialog(QDialog):
         from ..dialogs import detach_from_window_manager
         detach_from_window_manager(self)
         self.setWindowTitle("Annotate — auto-annotate")
-        self.setMinimumWidth(520)
+        from ..preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(520))
         self._settings = settings
         self._matched: List[str] = []
 

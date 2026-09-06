@@ -194,7 +194,9 @@ class _DownloadDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setModal(True)
-        self.setMinimumWidth(520)
+        from .preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(520))
         outer = QVBoxLayout(self)
 
         self._bar = QProgressBar(self)

@@ -63,7 +63,9 @@ class ScreenDataPicker(QDialog):
         """
         super().__init__(parent)
         self.setWindowTitle("Download screen data")
-        self.setMinimumWidth(520)
+        from ..preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(520))
         self._folder = folder
         self._kind = kind
         # One lookup for the whole dialog. None means "could not tell", which

@@ -115,7 +115,9 @@ class _ProvidersDialog(QDialog):
         """Build the providers and settings tabs."""
         super().__init__(parent)
         self.setWindowTitle("AI Console — providers & settings")
-        self.setMinimumWidth(620)
+        from ..preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(620))
         self.setMinimumHeight(560)
         outer = QVBoxLayout(self)
 

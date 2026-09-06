@@ -73,7 +73,9 @@ class CommandPalette(QDialog):
         self.setWindowTitle(tr("spaCR — Command palette"))
         self.setModal(True)
         # Frameless-ish look — big centred dialog on top of the app.
-        self.setMinimumWidth(560)
+        from .preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(560))
         self.setMinimumHeight(420)
 
         outer = QVBoxLayout(self)

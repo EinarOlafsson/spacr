@@ -54,7 +54,9 @@ class MetadataColumnDialog(QDialog):
         detach_from_window_manager(self)
         self.request = request
         self.setWindowTitle("Match metadata columns")
-        self.setMinimumWidth(720)
+        from ..preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(720))
         self._selectors = {}
 
         outer = QVBoxLayout(self)

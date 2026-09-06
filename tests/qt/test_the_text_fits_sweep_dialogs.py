@@ -106,6 +106,62 @@ SCALES = (1.0, FONT_SCALE_MAX)
 KNOWN_OFFENDERS: dict = {}
 
 
+#: Dialogs that take an argument the caller can supply GENUINELY.
+#:
+#: WHY THIS EXISTS, AND WHY IT IS NOT THE FIXTURE THIS FILE REFUSED TO BUILD.
+#: The header above says 24 dialogs "require constructor arguments -- a frame,
+#: a run, a settings dict -- and building those from nothing would be building
+#: a fixture, not the dialog the user sees". That is right for a frame or a
+#: run, which have to be invented. It is NOT right for the six below: a
+#: default ``AnnotateSettings()`` is the object Annotate itself constructs
+#: before it opens the dialog, and a window title is a string. Supplying those
+#: is showing the dialog as the user gets it, not standing in for it.
+#:
+#: THREE OF THE FIVE ARE ANNOTATE'S, which is where 350's original report came
+#: from: "in annotation the loade test data tooltips do not fit in the popup
+#: window". Leaving them unswept left the reported surface uncovered.
+#:
+#: ``GateSettingsDialog`` is deliberately absent: it wants an object with a
+#: ``sample_fraction`` attribute, and handing it a stand-in WOULD be building
+#: a fixture. It belongs with the other 24.
+def _annotate_settings():
+    """The settings object Annotate builds before opening its dialogs."""
+    from spacr.qt.screens.annotate import AnnotateSettings
+
+    return AnnotateSettings()
+
+
+DIALOGS_WITH_ARGUMENTS = [
+    ("spacr.qt.screens.annotate", "_SettingsDialog", _annotate_settings),
+    ("spacr.qt.screens.annotate", "_GenerateAnnotationDatabaseDialog",
+     _annotate_settings),
+    ("spacr.qt.screens.annotate", "_AutoAnnotateDialog", _annotate_settings),
+    ("spacr.qt.widgets.refit_dialog", "RefitDialog", dict),
+    ("spacr.qt.hf_download", "_DownloadDialog", lambda: "Downloading model"),
+]
+
+
+def _build_with(module_path: str, class_name: str, make_argument, qtbot):
+    """Build a dialog that needs one argument, and let its layout settle.
+
+    :param module_path: dotted module holding the dialog.
+    :param class_name: the dialog class.
+    :param make_argument: callable returning the single argument.
+    :param qtbot: pytest-qt's bot.
+    :returns: the shown dialog.
+    """
+    module = importlib.import_module(module_path)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        dialog = getattr(module, class_name)(make_argument())
+    qtbot.addWidget(dialog)
+    dialog.show()
+    qtbot.waitExposed(dialog)
+    for _ in range(4):
+        qtbot.wait(10)
+    return dialog
+
+
 def _build(module_path: str, class_name: str, qtbot):
     module = importlib.import_module(module_path)
     with warnings.catch_warnings():
@@ -170,4 +226,32 @@ def test_the_dialog_sweep_can_actually_fail(qtbot, at_font_scale):  # noqa: F811
     assert _offenders(dialog), (
         "the sweep reported nothing for a caption that cannot fit, so a zero "
         "from it would mean nothing"
+    )
+
+
+@pytest.mark.parametrize("scale", SCALES)
+@pytest.mark.parametrize("locale", LOCALES)
+@pytest.mark.parametrize("module_path,class_name,make_argument",
+                         DIALOGS_WITH_ARGUMENTS,
+                         ids=[name for _p, name, _f in DIALOGS_WITH_ARGUMENTS])
+def test_no_argumented_dialog_caption_is_cut_off(module_path, class_name,
+                                                 make_argument, locale, scale,
+                                                 qtbot, at_font_scale,  # noqa: F811
+                                                 monkeypatch):
+    """The dialogs that take a settings object or a title.
+
+    Same checker, same rules, same locales and scales as the argument-free
+    sweep above -- only the construction differs, and it differs by supplying
+    the value the application itself supplies.
+    """
+    monkeypatch.setenv(I.ENV_LANGUAGE, locale)
+    at_font_scale(scale)
+    dialog = _build_with(module_path, class_name, make_argument, qtbot)
+
+    offenders = _offenders(dialog)
+    allowed = KNOWN_OFFENDERS.get((class_name, locale, scale), 0)
+    detail = "; ".join(offenders[:6]) if offenders else ""
+    assert len(offenders) <= allowed, (
+        f"{class_name} in {locale} at {scale:g}x: {len(offenders)} captions "
+        f"cut off, {allowed} allowed. {detail}"
     )

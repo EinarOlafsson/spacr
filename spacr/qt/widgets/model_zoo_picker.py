@@ -184,7 +184,9 @@ class ModelZooPicker(QDialog):
         """
         super().__init__(parent)
         self.setWindowTitle("Model zoo")
-        self.setMinimumWidth(720)
+        from ..preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(720))
         self._kinds = tuple(kinds) if kinds else None
         self._entries: List = []
         self._chosen_path: Optional[str] = None

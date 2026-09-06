@@ -410,7 +410,9 @@ class RecipeDialog(QDialog):
         self._confirmation_runner: Callable[[QMessageBox], Any] = (
             lambda box: box.exec())
         self.setWindowTitle(f"Settings recipes — {self._app_key or 'module'}")
-        self.setMinimumWidth(520)
+        from .preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(520))
         self.setObjectName("RecipeDialog")
 
         column = QVBoxLayout(self)

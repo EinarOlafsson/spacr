@@ -1091,7 +1091,9 @@ def suggest_alternatives_dialog(
     """
     dlg = QDialog(parent)
     dlg.setWindowTitle("Did you mean…")
-    dlg.setMinimumWidth(520)
+    from .preferences import scaled_px
+    
+    dlg.setMinimumWidth(scaled_px(520))
     layout = QVBoxLayout(dlg)
 
     header = QLabel(
@@ -1143,7 +1145,9 @@ def choose_one_dialog(parent, headline: str, question: str,
     """
     dlg = QDialog(parent)
     dlg.setWindowTitle("Which one?")
-    dlg.setMinimumWidth(520)
+    from .preferences import scaled_px
+    
+    dlg.setMinimumWidth(scaled_px(520))
     layout = QVBoxLayout(dlg)
 
     header = QLabel(f"<b>{headline}</b><br>{question}")

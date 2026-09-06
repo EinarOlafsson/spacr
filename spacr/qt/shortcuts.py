@@ -769,7 +769,9 @@ def show_cheat_sheet(parent) -> None:
 
     dlg = QDialog(parent)
     dlg.setWindowTitle("spaCR — Keyboard shortcuts")
-    dlg.setMinimumWidth(420)
+    from .preferences import scaled_px
+    
+    dlg.setMinimumWidth(scaled_px(420))
     layout = QVBoxLayout(dlg)
 
     # Group by category

@@ -634,7 +634,9 @@ class ColumnPickerDialog(QDialog):
         self.setWindowTitle("Pick database columns" if self._multi
                             else "Pick a database column")
         self.setObjectName("ColumnPickerDialog")
-        self.setMinimumWidth(560)
+        from ..preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(560))
 
         self._allow_new = bool(allow_new)
         self._preferred_table = str(table or "")

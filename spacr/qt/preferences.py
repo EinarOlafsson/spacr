@@ -4732,7 +4732,7 @@ class PreferencesDialog:
         from .dialogs import detach_from_window_manager
         detach_from_window_manager(dlg)
         dlg.setWindowTitle(tr("spaCR — Preferences"))
-        dlg.setMinimumWidth(460)
+        dlg.setMinimumWidth(scaled_px(460))
         outer = QVBoxLayout(dlg)
 
         # One scrollable column had grown to thirty controls, which is a

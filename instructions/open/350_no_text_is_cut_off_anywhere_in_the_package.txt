@@ -13,8 +13,13 @@ Status:    the sweep is written, green and running in three locales at two
            screens x 3 locales x 2 scales = 147 cases, 4m21s, RAM flat at
            5 GB.
 
-           WHAT REMAINS IS THE DIALOGS, and more locales than three. Not the
-           method, and no longer the screens.
+           THE DIALOGS ARE PART-COVERED AND THE SWEEP FOUND REAL DEFECTS.
+           2026-09-06: five dialogs whose one argument can be supplied
+           GENUINELY were added -- three of them Annotate's, which is where
+           the original report came from -- and they turned up two clipping
+           bugs and a whole class behind them. See the 2026-09-06 entry.
+           What remains is the 24 dialogs needing invented fixtures, more
+           locales than three, and the 84 remaining raw geometry constants.
 Requested: 2026-09-02, verbatim -- "do a sweep of the entire package and make
            user that all tesxt fits within its button, box or container, and
            is not cut off at all." Reported alongside a concrete instance:
@@ -1026,3 +1031,47 @@ WHAT REMAINS ON 350: the 24 dialogs that still need fixtures, and the seven
 locales this sweep does not run. The maintainer's decision recorded above --
 353's alignment against 350's captions, seven pixels in Portuguese at 200% --
 is still untouched.
+
+
+--------------------------------------------------------------------------------
+2026-09-06 — THE ARGUMENTED DIALOGS, AND WHAT THEY EXPOSED
+--------------------------------------------------------------------------------
+
+The dialog sweep covered 17 of 47 QDialog subclasses; the rest "require
+constructor arguments -- a frame, a run, a settings dict -- and building those
+from nothing would be building a fixture, not the dialog the user sees".
+
+THAT IS RIGHT FOR A FRAME OR A RUN AND WRONG FOR FIVE OF THEM. A default
+`AnnotateSettings()` is the object Annotate itself constructs before opening
+its dialogs, and a window title is a string. Supplying those shows the dialog
+as the user gets it. Added: `_SettingsDialog`,
+`_GenerateAnnotationDatabaseDialog`, `_AutoAnnotateDialog` (all Annotate's,
+which is where "in annotation the loade test data tooltips do not fit in the
+popup window" came from), `RefitDialog` and `_DownloadDialog`.
+`GateSettingsDialog` is deliberately still out: it wants an object with a
+`sample_fraction` attribute, and inventing one WOULD be a fixture.
+
+SIX FAILURES ON THE FIRST RUN, and they were two real bugs:
+
+  1. `RefitDialog`'s opening sentence did not wrap. 828 px of room for 875 px
+     of text at scale 1; 1656 for 1752 at scale 2. The dialog's own `_notice`
+     label wraps, so this was an oversight rather than a decision. It is
+     prose, so it wraps -- eliding would have lost the half that says the
+     current run is untouched, which is the reassurance it exists to give.
+
+  2. `_AutoAnnotateDialog` clipped a button at scale 2: 194 px of room for
+     202 px of text. THE BUTTON WAS NOT THE BUG. `self.setMinimumWidth(520)`
+     was a raw constant, so the dialog's floor stayed at 520 while everything
+     inside it doubled.
+
+  THE SECOND IS A CLASS, NOT AN INSTANCE. Fourteen dialogs pin their minimum
+  width with a raw number, each one gating everything inside it. All fourteen
+  now go through `scaled_px`. That is the "container does not grow" cause this
+  instruction lists, and it is the one that cannot be found by reading -- it
+  only appears at a scale nobody tests at by default.
+
+STILL OWED: 24 dialogs that need an invented fixture; locales beyond three;
+and 84 more raw geometry constants (`setMinimumWidth`, `setFixedWidth`,
+`setMinimumSize`) elsewhere in the package. The 14 fixed here were chosen
+because a dialog-level minimum squeezes every widget inside it; the rest want
+the same treatment with a measurement behind each one rather than a sweep.
