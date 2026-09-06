@@ -2,12 +2,12 @@
 AN INFECTION ASSAY MODULE: INFECTION RATE, AND EVERYTHING ELSE INFECTION MEANS
 ================================================================================
 
-Status:    filed 2026-09-04, not started. SURVEYED 2026-09-04 (PART 0);
-           DERIVABILITY MEASURED 2026-09-05 (PART 0-A), which is what PART 0
-           said to do "before anything is built". THE ANSWER FAVOURS (c): 13
-           of the 16 candidates fall out of a finished Measure run with no
-           new image processing. The choice between (a), (b) and (c), and
-           which of PART 1 is actually wanted, still needs the maintainer.
+Status:    BUILT AS (c), A REPORT -- `spacr/infection.py`, 2026-09-06.
+           The maintainer answered 357's 377-A that day: "(c) A report, not a
+           pipeline". The three metrics PART 0-A found were NOT derivable are
+           deliberately absent rather than approximated. What it has never
+           seen is a real measurements.db; the fixture is synthetic with
+           chosen answers. Filed 2026-09-04.
 Requested: 2026-09-04 -- "We should add an assay module that measures
            infection rate and everything infection related it can come up
            with things it could measure"
@@ -121,6 +121,51 @@ WHAT I DID NOT VERIFY: none of this was run against a real measurements.db,
 because this session has none. The columns and the join are read from the
 source. A single real run would confirm the join produces what these names
 say, and should happen before any of it is trusted.
+
+--------------------------------------------------------------------------------
+PART 0-B -- BUILT, AND WHAT IT REFUSES TO DO
+--------------------------------------------------------------------------------
+
+`spacr/infection.py`, answering 357's 377-A: "(c) A report, not a pipeline".
+
+    parasites_per_cell         every host cell with its parasite count,
+                               INCLUDING THE ZEROES
+    infection_report           rate, index, parasites-per-infected, and the
+                               three counts behind them
+    multiplicity_distribution  the histogram the means hide
+    host_contrast              one host measurement, infected against
+                               uninfected, within the same well
+
+EVERY ROW CARRIES ITS OWN DENOMINATOR, which is PART 2's requirement and the
+reason this module exists in the shape it does. `infection_rate` is over
+"segmented host cells" and `parasites_per_infected` is over "infected host
+cells"; both the phrase and the count travel with the value, so a reader who
+disagrees with a number can see which half they disagree with.
+
+THE ZEROES ARE THE WHOLE TRICK. The cell-to-parasite relationship is stored on
+the PARASITE, and `measure.get_components` explodes each cell's child list and
+drops the empty ones -- so a cell with no parasites appears nowhere in the
+pathogen table. A report that counts rows there counts INFECTED cells and
+calls the result a cell count, turning a 40 % infection rate into 100 %,
+silently, on every plate. The denominator is taken from the `cell` table,
+which holds every segmented cell. There is a test named for exactly this.
+
+NO FIFTH VOCABULARY. `pathogen_count` is the name already used in `io.py` and
+`merge_tables.py`, and it is reused rather than joined by a synonym.
+
+WHAT IT DOES NOT DO, per the answer's own limits:
+  * No new image processing. The three metrics PART 0-A found were not
+    derivable -- intracellular fraction, vacuoles per cell, distance to the
+    host boundary -- are absent, not approximated. They belong to the invasion
+    module and to segmentation.
+  * No GUI surface and no `spacr-run` name yet. It is a library with tests.
+    Whether it becomes a button, a Report section, or something Measure emits
+    on its way past is a separate decision.
+
+WHAT IT OWES: a real `measurements.db`. The fixture is synthetic, with ten
+cells whose answers -- 0.4, 0.7, 1.75 -- were chosen rather than computed. That
+proves the arithmetic and the denominators; it says nothing about whether the
+column spellings in a real database match. One real run settles it.
 
 --------------------------------------------------------------------------------
 PART 1 -- CANDIDATE MEASUREMENTS, GROUPED BY WHAT THEY ANSWER
