@@ -2261,3 +2261,87 @@ to tell which was right.
 WHAT CAUGHT IT: grepping the package before building, which is the rule from
 the scorecard entry above. It cost one command and saved a duplicate. The rule
 holds; I just have to apply it before writing rather than after.
+
+--------------------------------------------------------------------------------
+2026-09-07, HOME SESSION — WHAT LANDED, AND ONE THING I NEED FROM YOUR LANE
+--------------------------------------------------------------------------------
+
+LANDED ON NIGHTLY TODAY, all in my lane, all green:
+
+  41e7f1f9e  the one-backdrop rule was only half-applied. Two defects, one
+             cause: `_uses_window_backdrop` latched on and was never cleared,
+             and `_backdrop_the_dock_column` could only ever BUILD. Turning
+             the animation off in Preferences left it running until the next
+             launch with every screen still deferring to it, so the setting
+             appeared to do nothing -- and the screens, still deferring,
+             painted the flat `surface` slab. That is the black page reported
+             three times, reintroduced by the fix for it.
+  70376852a  sv, de, es, fr regenerated. THE RATCHET IS NOW 10,241 -- I moved
+             `DOCUMENTATION_API_SYMBOL_COUNT_RATCHET` in that commit, so if
+             you have a local edit to it, take mine.
+  53e79be29  331's PKG item VERIFIED rather than reasoned about. See below.
+  b86a0294a  379's Suggest button, and 3024ddb2d / ae11f0c66 the two traps
+             wiring it opened.
+
+ONE THING I NEED FROM YOUR LANE, AND IT IS THE LAST PIECE OF 379
+  The maintainer asked for this in so many words on 2026-09-05: "if only one
+  class randomly choose the same number of images as is annotated for the
+  other class ... if there is class imbalance use the class with fewer."
+
+  It is not built, because the balancing belongs where the fitting is and the
+  fitting is `active_learning.retrain_round`, which is yours. It reads its
+  labels straight out of the database column; `features=` takes a feature
+  matrix, not labels, so there is no seam to hand it a balanced label vector.
+  Building it in `suggest.py` instead would mean fitting a second model --
+  the exact duplication that module was rewritten to avoid, and which I
+  nearly committed once already (entry above).
+
+  WHAT I AM ASKING FOR, written up in full as 379 PART 1-B:
+
+      retrain_round(..., synthetic_negatives: Optional[int] = None,
+                         balance: str = "none")
+
+    * `balance="downsample"` cuts the larger class to the size of the smaller
+      BEFORE the grouped split. Note this CHANGES the answer rather than just
+      the cost: the default estimators already pass `class_weight="balanced"`.
+      Downsampling is what the maintainer asked for, and it is also what makes
+      the returned probability directly readable as the confidence my
+      suggestion sort depends on.
+    * `synthetic_negatives=n` draws n unannotated crops at random and fits
+      them as the absent class, WITHOUT writing anything to the database.
+    * Both must reach `RoundResult.notes` and the model card. A card that does
+      not say the negatives were invented describes a model that does not
+      exist.
+
+  If you would rather I did it in your file, say so here and I will -- but I
+  would rather ask than cross the line, and 379 has the design either way.
+
+TWO THINGS I FOUND THAT ARE NOT MINE TO FIX BUT YOU SHOULD KNOW
+  * `retrain_round` reads EVERY non-null value in the annotation column as a
+    class label -- `_class_value(11)` is 11. Suggestions are stored as their
+    class plus ten, so ANY fit run with suggestions outstanding trains classes
+    11 and 12 on labels no human made. I guard both buttons in the Annotate
+    screen (Suggest clears first, Retrain asks), but the guard is in the GUI,
+    not in the function, so a script calling `retrain_round` directly on a
+    database that has been through Suggest will still do it. Worth a check
+    inside the function.
+  * `class_counts` groups by the raw stored value and had the same problem.
+    Fixed at the dialog, same caveat: the function still returns 11 and 12.
+
+331's PKG IS VERIFIED NOW, WHICH REMOVES IT FROM YOUR SIDE OF THE GATE
+  The bug was invisible here because this machine has setuptools 69.5.1, and
+  I noticed the same objection applies to the FIX. A throwaway venv on
+  setuptools 84.0.0 builds sdist and wheel, `twine check` passes both, the
+  wheel installs and its eight entry points resolve, and the metadata carries
+  `License-Expression: BSD-3-Clause` with `Requires-Python` PRESENT -- that
+  last one being what the pyproject comment warns can be silently dropped.
+  It does NOT prove the matrix: one interpreter, and `--no-deps`. That is
+  still CI, and CI is still 288.
+
+REGENERATING A CATALOG, SINCE YOU MAY HAVE TO
+  Use NO FLAG. `--repair-api-blocks` ran 58 minutes, loaded OPUS and MADLAD,
+  printed 2,750 lines and changed nothing. And the reason five locales kept
+  dying was never a timeout: `hi`, `ko` and `zh_CN` route to the larger
+  MADLAD model and were OOM-KILLED at `run_capped.sh`'s 8G cap, every time,
+  always at the same place. 24G gets through. Also note `systemd-run --scope`
+  dies with the shell that started it; `--unit=` does not.
