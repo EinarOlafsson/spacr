@@ -59,3 +59,45 @@ Finish 288, consolidate every concurrent lane, and make one nightly SHA green
 first. Then wait for the maintainer's explicit 1.5.0.5 go-ahead. Only after
 that approval may the bump, main update, tag, package publication or Zenodo
 release path run.
+
+--------------------------------------------------------------------------------
+2026-09-07 — EVERY BUILD AND EVERY INSTALL ON main WAS BROKEN
+--------------------------------------------------------------------------------
+
+`compat-matrix` on main failed in EVERY cell: the sdist, the wheel, and
+`pip install spacr` on 3.9, 3.10, 3.11, 3.12, 3.13 and 3.14. One cause:
+
+    configuration error: `project.license` must be string
+    ValueError: invalid pyproject.toml config: `project.license`.
+    ERROR Backend subprocess exited when trying to invoke
+          get_requires_for_build_sdist
+
+`license = { file = "LICENSE" }` is PEP 621's table form, and setuptools >= 77
+rejects it outright under PEP 639. The rejection happens while READING
+pyproject.toml, before any build step runs, which is why nothing downstream
+produced a more specific error and why every cell failed identically. main also
+carried `license-files` beside the table, which is the combination that cannot
+be satisfied at all.
+
+THE FIX IS THE SPDX EXPRESSION: `license = "BSD-3-Clause"` plus
+`license-files = ["LICENSE"]`, and the build-system floor moves 64 -> 77
+because 77 is the first setuptools that accepts the string.
+
+THE `License :: OSI Approved :: BSD License` CLASSIFIER HAD TO GO, and this was
+verified rather than assumed -- putting it back gives
+
+    InvalidConfigError: License classifiers have been superseded by license
+    expressions (see PEP 639). Please remove:
+
+so it is not a tidy-up, it is required. `test_packaging_metadata` asserted that
+classifier was PRESENT; it now asserts no `License ::` classifier survives
+beside the expression, which is the same "a package that claims two licences"
+rule the test was written for, pointing the other way.
+
+VERIFIED LOCALLY against setuptools 83, on the exact entry point CI failed on:
+`get_requires_for_build_sdist` returns cleanly, and the generated metadata says
+`License-Expression: BSD-3-Clause` and `License-File: LICENSE`. 118 packaging,
+installer and launcher tests pass.
+
+NOT YET ON main. This lands on nightly; main carries the same fault and stays
+broken until nightly reaches it.

@@ -1,10 +1,12 @@
 [build-system]
-# setuptools >= 64 is the floor for PEP 621 `[project]` support *including*
-# `dynamic = ["entry-points", "scripts"]`. Older setuptools silently ignores
-# the whole `[project]` table, which would drop `requires-python` from the
-# built metadata rather than fail loudly — so the floor is declared, not
-# assumed.
-requires = ["setuptools>=64", "wheel"]
+# setuptools >= 77 is the floor, and it is a HARD one: it is the first release
+# that accepts PEP 639's `license = "<SPDX>"` string. The previous floor of 64
+# was chosen for PEP 621 `[project]` support including
+# `dynamic = ["entry-points", "scripts"]`; that reason still holds and 77 is
+# strictly above it. Older setuptools silently ignores the whole `[project]`
+# table, which would drop `requires-python` from the built metadata rather
+# than fail loudly — so the floor is declared, not assumed.
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -68,7 +70,14 @@ requires-python = ">=3.9,<3.16,!=3.14.1"
 authors = [
     { name = "Einar Birnir Olafsson", email = "olafsson@med.umich.com" },
 ]
-license = { file = "LICENSE" }
+# A PEP 639 SPDX EXPRESSION, NOT A TABLE. `license = { file = "LICENSE" }` is
+# rejected outright by setuptools >= 77 with "configuration error:
+# `project.license` must be string", and that error is raised while READING
+# pyproject.toml -- so it does not merely mis-label the wheel, it stops the
+# build before it starts. Every job in the compat matrix failed on it: the
+# sdist, the wheel, and `pip install spacr` on all six interpreters.
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 
 # ---------------------------------------------------------------------------
 # Classifiers are a *claim of support*. `Operating System :: OS Independent`
@@ -92,7 +101,6 @@ license = { file = "LICENSE" }
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
     "Operating System :: Microsoft :: Windows",

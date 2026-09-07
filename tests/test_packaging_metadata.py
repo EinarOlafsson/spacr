@@ -280,22 +280,35 @@ def test_the_licence_is_bsd_three_clause_everywhere_it_is_declared():
     different tools -- pip, Zenodo, GitHub's licence detector, CFF
     parsers -- and one left behind is a package that claims two licences.
     """
+    # A PEP 639 SPDX EXPRESSION, checked as a string. It was
+    # `license = { file = "LICENSE" }` until 2026-09-07, and setuptools >= 77
+    # rejects that table outright -- "configuration error: `project.license`
+    # must be string" -- while READING pyproject.toml, so the build stops
+    # before it starts. Every cell of the compat matrix failed on it: the
+    # sdist, the wheel, and `pip install spacr` on all six interpreters.
     data = _toml_loads(_pyproject_text())
     if data is not None:
-        assert data["project"]["license"] == {"file": "LICENSE"}
+        assert data["project"]["license"] == "BSD-3-Clause"
+        assert data["project"]["license-files"] == ["LICENSE"]
     else:
         assert re.search(
-            r'^license\s*=\s*\{\s*file\s*=\s*"LICENSE"\s*\}',
+            r'^license\s*=\s*"BSD-3-Clause"',
+            _pyproject_text(),
+            re.MULTILINE,
+        )
+        assert re.search(
+            r'^license-files\s*=\s*\[\s*"LICENSE"\s*\]',
             _pyproject_text(),
             re.MULTILINE,
         )
 
-    # OSI-APPROVED, AND SAID SO. The old classifier was
-    # `License :: Other/Proprietary License`, which is what kept spaCR out
-    # of channels that filter on the OSI list.
+    # AND NO License:: CLASSIFIER BESIDE IT. PEP 639 deprecates them once a
+    # SPDX expression is declared, and carrying both is the "package that
+    # claims two licences" this test exists to prevent -- the same fault as
+    # the old proprietary classifier, in the other direction.
     classifiers = _classifiers()
-    assert "License :: OSI Approved :: BSD License" in classifiers
-    assert "License :: Other/Proprietary License" not in classifiers
+    assert not [c for c in classifiers if c.startswith("License ::")], (
+        "a License:: classifier alongside the SPDX expression")
 
     license_text = (REPO_ROOT / "LICENSE").read_text(encoding="utf-8")
     assert license_text.startswith("BSD 3-Clause License")
