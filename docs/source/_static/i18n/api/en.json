@@ -19224,6 +19224,62 @@
       "source_sha256": "2133243c490f4ba2f805fe095ae2a0abec0ab40e0e65954d95eaaac7b24d5edd",
       "text": "Return user-facing problems in a regex-group role assignment.\n\n:param roles: named capture groups mapped to their selected import roles.\n\nDuplicate roles and missing required roles are reported before import so\nno captured group is silently ignored."
     },
+    "spacr.infection": {
+      "source_blocks_sha256": [
+        "762c04257d5522947c5379d8294b9056fe89facb104f747be680867a9d87beef",
+        "59bb7c33911e0777a89a2613fb1194e537692839f60c18c2252b522c5cbc975e",
+        "62d9d173016b7981146a3ab2595d8b233eba7ed35e598b4088accbc2515fe7e9",
+        "80d66ef242ea2b20e72ed9cf775fe472d7dbacc85b6e46780cd6c50ae38c3585",
+        "412e6282670675f3273f599e21d4c17d5d321abcc59e64e6283669bae4b44c72",
+        "32bafa56e3a9beb2962bb6708ee1e95e60ff6a369da5a31e6faafcd948f89e3c",
+        "709c5294d91374ae3825a0b93a2b75a8cf82de62dd3b57a23f9a131d5447ff4c"
+      ],
+      "source_sha256": "f549da474c875bccbbceabbe3c8c902220c4d080459d1c05f909537f469a89c2",
+      "text": "Infection metrics, assembled from a finished Measure run.\n\nA REPORT, NOT A PIPELINE, and that was a deliberate choice made after the\nderivability was measured: thirteen of the sixteen candidate infection metrics\nfall out of tables Measure has already written, with no new image processing.\nThe three that do not -- intracellular fraction, vacuoles per cell, distance\nto the host boundary -- belong to the invasion module and to segmentation, and\nare deliberately absent here rather than approximated.\n\nTHE DENOMINATOR IS THE WHOLE PROBLEM, and it is why every number this module\nproduces carries its own denominator beside it. Almost every way of getting an\ninfection metric wrong is a denominator that does not match its numerator:\n\n* The relationship table has NO ROW for a cell with no parasites.\n  ``measure.get_components`` explodes the per-cell child list and drops the\n  empty ones, so counting rows there counts INFECTED cells and calls it the\n  cell count. The denominator has to come from the ``cell`` table, which\n  holds every segmented cell whether or not anything is inside it.\n* ``io.py`` drops pathogens with no ``cell_id`` and can filter rows by\n  ``pathogen_prcfo_count``. Neither touches the cell table. A numerator built\n  from a filtered pathogen table over an unfiltered cell table counts two\n  different populations, and the ratio looks entirely plausible.\n\nSo :func:`infection_report` returns the denominator, and its size, on every\nrow. A reader who disagrees with a number can see immediately which of the two\nhalves they disagree with.\n\nIT DOES NOT INVENT A FIFTH VOCABULARY. ``uninfected``, ``pathogen_count`` and\n``pathogen_prcfo_count`` already exist across ``measure``, ``io`` and\n``timelapse``. This module reuses them and adds no synonym."
+    },
+    "spacr.infection.host_contrast": {
+      "source_blocks_sha256": [
+        "6f190797ef51212c457e8407407bf5f92654dea4aa121a4bb9fae69dfd55cb20",
+        "32aec8ead3b9a9a9cb3bbba13c6b0ec1e3eaae22d110c0c1539dc0ee1c9523fa",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "682e762a56184411036b343ef11c83d7710744b5134ae15539e5384e61450f26",
+        "4fc716794cb02635d7d25119ed5024586d962462dd1a93a1e5eece3732dc2b9e",
+        "c909b868f2ec1fca8c39434e9b6d4f5d8388534e385af4b7b749b21ecb4aaf14"
+      ],
+      "source_sha256": "721a7ad186681b8e66b5e254e77381d76b5e12b05c8f52d4d2ca8a262a5b89ab",
+      "text": "One host measurement, infected against uninfected, IN THE SAME WELL.\n\nThe comparison is made within a well on purpose: comparing an infected\nwell to an uninfected one confounds infection with everything else that\ndiffers between two wells, and the whole reason this is worth computing\nis that both populations sit in the same one.\n\n:param db_path: path to a ``measurements.db``.\n:param columns: the host-cell measurements to contrast, e.g. ``(\"area\",\n    \"eccentricity\")``.\n:param statistic: any name ``DataFrameGroupBy.agg`` accepts.\n:returns: one row per (well, measurement) with the infected and\n    uninfected values and both group sizes."
+    },
+    "spacr.infection.infection_report": {
+      "source_blocks_sha256": [
+        "aacb85d5d65f8116495149db433711a88d970ffb16576578295b9242944b60e7",
+        "cf97f3d38190730d653dd945d87294aa2342396e31127c2e22d2af0998a71c88",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "f9a6c4a6fcb9207b27db406a553e6f2fce7f19ec0a6308634f05aba453c8995b",
+        "b790a62d2260c5db0b0c4e03416f9eaea88c26c4644cb6f4f203afebe1ac0c6a"
+      ],
+      "source_sha256": "93b38e09a38564f280420b1047a2f5c16cc571a55f73c90ad607e75b77ef3107",
+      "text": "Infection metrics per well, each with the denominator it was computed over.\n\nEVERY ROW CARRIES ITS DENOMINATOR because that is where these numbers go\nwrong. ``infection rate`` over \"cells\" and ``parasites per infected`` over\n\"infected cells\" are different populations, and a table that reports only\nthe ratios cannot be checked.\n\n:param db_path: path to a ``measurements.db``.\n:param by_field: group by field as well as well, which is what shows a\n    settling gradient a well mean hides.\n:returns: tidy frame -- identity columns, then ``metric``, ``value``,\n    ``denominator`` and ``n_denominator``. Empty when there is no cell\n    table to count."
+    },
+    "spacr.infection.multiplicity_distribution": {
+      "source_blocks_sha256": [
+        "8c98d10f568d0961d2e45bfee7bbeff564a3eb971e83777f9563645d6a5e4811",
+        "7514ab981debfbddd6ad14e398af51fc1a60b64f8313e5afeb700557a9bd3e5a",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "be5bff538b63c562d3dbc3920617fcdebfb83c99deb19a795e01a6fa1846b4f6"
+      ],
+      "source_sha256": "c2f76537145256d3768f31c89d27b9c9a2960888508fd464ea8d7e095ec275a5",
+      "text": "The histogram behind the means, which is what the means hide.\n\nTwo conditions can share an infection index and differ completely: a few\nheavily infected cells against many lightly infected ones is different\nbiology with the same average. The distribution is the number that\ndistinguishes them, so it is reported rather than summarised.\n\n:param db_path: path to a ``measurements.db``.\n:returns: one row per (well, parasite count) with ``cells`` and the\n    fraction of the well's cells at that count."
+    },
+    "spacr.infection.parasites_per_cell": {
+      "source_blocks_sha256": [
+        "937128c4b444d21aafb1c85059aab0cb8d5e5f77cdecee66aa13b98affb02e5e",
+        "011c314fa4b718e37d6644f25c09a35b607252365ee4f4492221de1eacd04566",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "edc2b4aea10fa96e142ffb32a161b4a31084fdd204cd3a58c5537eb7dbaeca76"
+      ],
+      "source_sha256": "561bb501cc7e2552e9fbb74d226515dd8fa6bb7000fbe01c0228909e5e28a27f",
+      "text": "Every host cell, with how many parasites it contains -- ZERO INCLUDED.\n\nTHE ZEROES ARE THE POINT. The relationship between a cell and its\nparasites is stored on the parasite, so a cell containing none appears\nnowhere in the pathogen table. Any count taken from that table alone is a\ncount of infected cells wearing the name of a cell count.\n\n:param db_path: path to a ``measurements.db``.\n:returns: one row per cell, with the identity columns, ``object_label``\n    and ``pathogen_count``. Empty when there is no cell table."
+    },
     "spacr.install_profile": {
       "source_blocks_sha256": [
         "5a8f874f6cbe2a575f82705f1a68eaa042921d5e1bd3226d108f894b7b44566e",
@@ -89024,11 +89080,11 @@
     },
     "spacr.scorecard.Match.average_precision": {
       "source_blocks_sha256": [
-        "16eb74c92baf85399333e8084760f7da62433135b8ca222eebcac9c073342aa0",
+        "ff80eac77530de37a0593b43ba2a4c2e6331b94baa375650f65360329c244010",
         "4804147d5289e1d1a378f9ddd18a3a9cb0b6913cfcd937516dd612870368a98c"
       ],
-      "source_sha256": "8416ace514aa411bbc29ed7e073e1883a6798b80f9c78631cd4e00eab6175972",
-      "text": "``TP / (TP + FP + FN)`` -- the Cellpose/StarDist convention.\n\nNOT the area under a precision-recall curve, despite the name. The\nsegmentation literature uses this quantity and calls it AP, and\nreporting the other thing under the same label is how two papers'\nnumbers stop being comparable. Named explicitly here for that\nreason."
+      "source_sha256": "059551946011be369b9a077760541b79e4dcb7dfa1155f6aa9652d82b65f0656",
+      "text": "``TP / (TP + FP + FN)`` -- the segmentation-benchmark convention.\n\nNOT the area under a precision-recall curve, despite the name. The\nsegmentation literature uses this quantity and calls it AP, and\nreporting the other thing under the same label is how two papers'\nnumbers stop being comparable. Named explicitly here for that\nreason."
     },
     "spacr.scorecard.Match.f1": {
       "source_blocks_sha256": [
@@ -89313,88 +89369,6 @@
       ],
       "source_sha256": "396ff1d579f27190f3e106f8e8e74a6c90e3d3d2721f854c235e761689e1eab8",
       "text": "Return how many bytes a selection will cost.\n\n:param assets: iterable of :class:`ScreenAsset` objects.\n:returns: sum of the assets' published archive sizes in bytes."
-    },
-    "spacr.seg_metrics": {
-      "source_blocks_sha256": [
-        "9f274011f845b0ab973868c2c16d809baa6707ec943a1ef899b342c2b3d77e51",
-        "c5e52932c6d8b848f45557454a210ed1da8e9ee5b3e41ddbb9f96f27dcd238ce",
-        "d74490d13966c72cc17031d9caceabfb09c64d77cb6b538f0f0680340f45aabc",
-        "1e4c4d3e02616fc05305e2a7d9f9cac8d1d4b0ff2b11a89e057adbfeffbc7dfc"
-      ],
-      "source_sha256": "0f9093bc1844ae1512ef17f047c9e62dceef920049104957744895c289a97251",
-      "text": "Score a segmentation against ground truth.\n\nWHAT THIS ADDS THAT spaCR DID NOT HAVE. `model_compare` puts two models head\nto head and says plainly in its own docstring that \"neither model is ground\ntruth\"; `seg_qc` scores a field with no labels at all, flagging splits, merges\nand implausible diameters. Both are useful and neither is accuracy. Nothing\nhere measured a mask against a HUMAN-DRAWN one, so no model could carry a\nnumber a reader could compare with anybody else's.\n\nTHE OBJECT IS THE UNIT, NOT THE PIXEL, and that distinction decides most of\nthese definitions. A segmentation that finds every cell but leaves each one a\nfew pixels too small scores well; one that merges two touching cells into one\nblob scores badly -- even though the second may have almost the same pixel\noverlap. Pixel Dice cannot tell those apart, which is why the object measures\nbelow matter more for cell segmentation, and why both are reported.\n\nA NOTE ON WHAT \"AVERAGE PRECISION\" MEANS HERE. In segmentation benchmarks it\nis NOT the area under a precision-recall curve. It is TP / (TP + FP + FN) at a\ngiven IoU threshold -- the convention used by the Cellpose and Stardist papers\nand by the Data Science Bowl -- and it is reported averaged over thresholds.\nA reader who assumes the detection meaning will read the number as far worse\nthan it is, so it is named and defined here rather than left to inference."
-    },
-    "spacr.seg_metrics.average_precision": {
-      "source_blocks_sha256": [
-        "7a5a02a94912a1a7f4868de37c3b055492a2007b0ad1fe578dc0ef7d64db3be7",
-        "5579c0703cf174adad0a0c2016bd2c894ae36526722820323e21a731193fc684",
-        "ac69b63ef900a115f8c097b9a4f03871b1d9ec4f7c6f198ba4765b36da5ed6f3",
-        "46cd6988687c966ec2d5b6a0bd3e8d97b39e376cfabdc59ca9d948958b1df59c",
-        "5b5cdc97d7cc6acb14ea61dac2e260ca3f5dbc7ba89be776a5aa16e713d56c97",
-        "a5b6fe1f90701e5f0dae7a9d06e8f7ebdc4e634f9bec5118e9bb5511d61234ee"
-      ],
-      "source_sha256": "9a927f24ace895d68a5d7312f2b23beb255482df126a8efce4c4312f7401b8bc",
-      "text": "The segmentation benchmark score, per threshold and averaged.\n\nNOT the detection AP. Here it is ``TP / (TP + FP + FN)`` at each IoU\nthreshold, which is the definition the Cellpose and Stardist papers and\nthe Data Science Bowl use, and it falls between 0 and 1 with 1 meaning\nevery object found and none invented.\n\n:param truth: labelled ground-truth mask.\n:param predicted: labelled predicted mask.\n:param thresholds: the IoU thresholds to score at.\n:returns: ``{\"ap@0.50\": ..., ..., \"mAP\": ...}``."
-    },
-    "spacr.seg_metrics.boundary_f1": {
-      "source_blocks_sha256": [
-        "622e4b971dfdfc80ebd717aea4c3c81f6604c68912e6ffb158762f4bb7a741c1",
-        "3e4513db2185a13fc18d02e1e33403f3b585b0c262271f22ca555ff1ec6fa68c",
-        "b0c485de3e32f64ff74d772d7ab5ede356af38e1516c6cc769aa5029be8e393d",
-        "bb48a67f234d0deaf97ceca1370029368e97916d2950fda2efcb2ec1ff5aa461",
-        "b1ebca8c5ed2fb2ff0f0cb1e8b62fd15b3b48db474983d04264c0104ac3854c4",
-        "83f41a4f38e851cee8b2eba59b17aa723231633f0e36f9dfaf6d4dcc485da9ce",
-        "9bfc58b4df77381cb76d8a78cb3d24ddfed0a89a9c10c13c0ac5205ea53942f9"
-      ],
-      "source_sha256": "e5095fa4fb69bba9043261ba31be455f849aca6968db2e3517d8c883ddcee7a4",
-      "text": "How well the OUTLINES agree, within a few pixels.\n\nWHY A SEPARATE MEASURE. Dice is dominated by the interior of an object,\nso a model that finds every cell but consistently draws its edge two\npixels out scores almost perfectly -- and every intensity feature\nmeasured from that mask is contaminated by the neighbouring background.\nBoundary F1 is the measure that notices.\n\nThe tolerance exists because a hand-drawn outline is not accurate to the\npixel either, so demanding exact agreement measures the annotator's hand\nrather than the model.\n\n:param truth: labelled or binary ground-truth mask.\n:param predicted: labelled or binary predicted mask.\n:param tolerance: how many pixels away a boundary pixel may be and still\n    count as agreeing.\n:returns: ``{\"boundary_precision\", \"boundary_recall\", \"boundary_f1\"}``."
-    },
-    "spacr.seg_metrics.iou_matrix": {
-      "source_blocks_sha256": [
-        "d191e82a1bf40db9f525f92ca353746bbc1d440e514ec6fb083c56aac7e53e76",
-        "946bd3fe14e9c56ccc3369225dff4244a89a77bdbc8d82cef7bc1ca63ed07fad",
-        "1ef594d51403fe9b553db45b80d3048ec3b5e682c060300e4722c8d80d16f7a2",
-        "a6fc7e2228e2a564b6f4a979980370decc908bb6cb81930dc486fab4b0fd70f3",
-        "1672242cf5e3815b8f958e693dbc942b67851ec77e565bc35656fd64a3cc977d"
-      ],
-      "source_sha256": "8948e9120f9f4c8431a7c4ed12468764d6f64a892f47d1f56e44aa0a0ce02afd",
-      "text": "Intersection over union for every ground-truth/predicted pair.\n\nBuilt from a joint histogram rather than a double loop: for a field with\na few hundred objects the loop is the difference between milliseconds and\na minute, and a metric nobody waits for is a metric nobody runs.\n\n:param truth: labelled ground-truth mask, 0 as background.\n:param predicted: labelled predicted mask, 0 as background.\n:returns: ``(n_truth, n_predicted)`` IoU, rows ordered by\n    :func:`_labels` of ``truth`` and columns by that of ``predicted``."
-    },
-    "spacr.seg_metrics.match_objects": {
-      "source_blocks_sha256": [
-        "f5fec0a2fdb5f83dee56bc6ffb6379144fa97b51fb9e9fb0486b0d6475d0e778",
-        "885586ed0e2c70efcd409dbfe7a71f19399942f99a85d4636b7b05ccb993e50b",
-        "ac69b63ef900a115f8c097b9a4f03871b1d9ec4f7c6f198ba4765b36da5ed6f3",
-        "46cd6988687c966ec2d5b6a0bd3e8d97b39e376cfabdc59ca9d948958b1df59c",
-        "d196768b1c922fb1e1b77cb306b6f3b1a5e56477fd7b1c2e53f2403b3fdbb050",
-        "98e4b65d42efdd0e173ea46a8db0ec5e7ad0b4d6581db6d0b4e72e94e731a86e"
-      ],
-      "source_sha256": "aef1783342a7d4ae03d0c18ff36979c08391e5abf124d79d8b9f90c47f517fe7",
-      "text": "Count true positives, false positives and false negatives.\n\nONE PREDICTION MAY CLAIM ONE OBJECT. The matching is greedy on IoU, so a\npredicted blob covering two real cells matches the better of them and the\nother counts as missed -- which is the answer that reflects what went\nwrong. Letting one prediction satisfy several truths would score a merge\nas a success, and merges are the failure this is most needed to catch.\n\n:param truth: labelled ground-truth mask.\n:param predicted: labelled predicted mask.\n:param threshold: the IoU at which a pair counts as the same object.\n:returns: ``(true_positives, false_positives, false_negatives)``."
-    },
-    "spacr.seg_metrics.pixel_scores": {
-      "source_blocks_sha256": [
-        "d5da8eee2b2ddca9e2537a6091dbbed0504767241a2fb1c6e2f64e80348bc9ca",
-        "e533bd52d058c61545b53416fbcf6b7ba00c858c027fe03fd036a3f4b8df87f2",
-        "bb48a67f234d0deaf97ceca1370029368e97916d2950fda2efcb2ec1ff5aa461",
-        "b1ebca8c5ed2fb2ff0f0cb1e8b62fd15b3b48db474983d04264c0104ac3854c4",
-        "0aa1ac9c40a1e6b9d8127920cca97b01897a3051c2f719c9a818b622c6d945e4"
-      ],
-      "source_sha256": "3bcfc3d39b861e61b64778235ca73a8c3081473a4b64728467ad811b3459fe24",
-      "text": "Foreground-versus-background agreement, ignoring object identity.\n\nReported ALONGSIDE the object measures rather than instead of them: this\nis the number that stays high when two touching cells are merged into one\nblob, and the object scores are the ones that fall. Seeing both is what\ntells a reader WHICH kind of mistake a model makes.\n\n:param truth: labelled or binary ground-truth mask.\n:param predicted: labelled or binary predicted mask.\n:returns: ``{\"dice\", \"jaccard\", \"pixel_precision\", \"pixel_recall\"}``."
-    },
-    "spacr.seg_metrics.scorecard": {
-      "source_blocks_sha256": [
-        "22fe9cb56f18996478d709f31af7bea52c9b6aab759ae0000257f25d0afec8ea",
-        "1b86b0b48236015c99a12d6b0a7c48a0c435bfc1a1209f79945945804067954f",
-        "ac69b63ef900a115f8c097b9a4f03871b1d9ec4f7c6f198ba4765b36da5ed6f3",
-        "46cd6988687c966ec2d5b6a0bd3e8d97b39e376cfabdc59ca9d948958b1df59c",
-        "594f3ec6bff769f4cd4e151c17c30c1129978b9ff7659e46091cdc7a15d94a06",
-        "43cf172983c7fcd9fbe27b537e03dfeef46e27eea13436d10fc4e414bd061ecd",
-        "47ac783b28c98cfe0d2a6925ae755d54e4f53f92ee48c46fdb22042576497076"
-      ],
-      "source_sha256": "2a25786bb8c7a8ca15dd150c8a88f7be8cbdbd5e2f0398569321b86a49688e83",
-      "text": "Every metric for one field, as one flat mapping.\n\nObject counts are included deliberately. A reader looking at a poor score\nwants to know first whether the model found too few objects or too many,\nand a table of ratios cannot answer that.\n\n:param truth: labelled ground-truth mask.\n:param predicted: labelled predicted mask.\n:param thresholds: IoU thresholds for the benchmark score.\n:param boundary_tolerance: pixels of slack for the boundary measure.\n:returns: one mapping of every metric."
     },
     "spacr.seg_qc": {
       "source_blocks_sha256": [
@@ -92756,12 +92730,13 @@
     "spacr.spacrops.stitch_cycle_wells": {
       "source_blocks_sha256": [
         "56d1f86563622756cd7e895f79ad1c85a98a66bd7821e4ffe0887b55bb832d23",
-        "2c1164b4dd8b25fa29b21db6691afcec96311bfd69793f0391c4ff4d73c93c4e",
+        "8f73b339608b45b5e9eeb813a4262071627ec8ad62489fee89931237242271a6",
+        "43e2055f27b37bb3caa915733fa5684575c1b93adb7ae82e1a64fe15a181260e",
         "52899c439e3418283cd3cbd1931f7a2b9195734a27b4b5b0eb43a50d8d950327",
         "a461890ecbdfa56af39153e64f160445b45ac7e286e31241c10123b6ea2bcac5"
       ],
-      "source_sha256": "0faff6778dca585ecf019cf8902759ccbbf198346f83c5debe83b19fe5ff47ac",
-      "text": "Organize a plate of TIFFs into per-well folders and stitch each well.\n\nGroups images by well from filename metadata, optionally moves or\nsymlinks them into per-well folders, then runs :class:`spacrStitcher`\non each well to produce pairwise CSVs and single- or multi-channel\nmosaics.\n\n:param settings: dict of preprocess settings; see\n    :func:`get_preprocess_ops_settings` for supported keys.\n:returns: dict with keys ``organized`` (move/symlink summary) and\n    ``wells`` (per-well output paths)."
+      "source_sha256": "384a6b243901630139ba6a3c7fbbec27a5dd5db1dd71caebf58c6f072ce0584d",
+      "text": "Organize a plate of TIFFs into per-well folders and stitch each well.\n\nGroups images by well from filename metadata, optionally moves or\nsymlinks them into per-well folders, then runs :class:`spacrStitcher`\non each well to produce pairwise CSVs, and -- when asked -- single- or\nmulti-channel mosaics.\n\nTHE MOSAIC IS OPT-IN. Set ``write_mosaic`` (or its synonym ``mosaic``)\nto build one. It is off by default because assembling a mosaic raises\nwhen too few tiles overlapped to place any, and a plate that cannot be\nstitched should not become a plate that cannot be organised.\n\n:param settings: dict of preprocess settings; see\n    :func:`get_preprocess_ops_settings` for supported keys.\n:returns: dict with keys ``organized`` (move/symlink summary) and\n    ``wells`` (per-well output paths)."
     },
     "spacr.sra": {
       "source_blocks_sha256": [
@@ -93486,6 +93461,79 @@
       ],
       "source_sha256": "aa9acbfbccba155d87cf8f8fffaf3b1b77b10eadea91e3834a4798dbd15f72a0",
       "text": "Assign guides sequentially in descending confidence order.\n\n:param features: cell-by-feature matrix used to propagate anchor support.\n:param scores: classification score for every cell, aligned to ``features``.\n:param wells: well identifier for every cell.\n:param fractions: sequencing fractions as ``{well: {guide: fraction}}``.\n:param ranking: ``[(guide, confidence)]`` in descending processing order.\n    The caller defines confidence, for example by combining effect size\n    and statistical significance.\n:param max_guides: maximum number of ranked guides to process.\n:returns: one :class:`SudokuResult` over all cells.\n\nEach round applies :func:`sudoku` to unclaimed cells and removes accepted\nassignments. Processing stops when a round assigns no cells. Because this\ngreedy procedure is order-sensitive, ``claimed_by_round`` is retained in\nthe report; :mod:`spacr.annotation_validation` evaluates sensitivity to\nranking order."
+    },
+    "spacr.suggest": {
+      "source_blocks_sha256": [
+        "747d9e18e591c5cd22b0965d86e996e17cf361087d261566005bd3f1249e85dc",
+        "672b642d94e192f3529a93c76b2b1a2e8d9ed0769f5ad2cfa68381ef57b59834",
+        "94f8dc8e3d6e5cad01dd5e6870a45dbf3dfa64dc462597a08824013d761f2b2b",
+        "4f36e070991f5e32062a33e371889cf0cc6cc686e21c7899977dc1fd047094ce",
+        "fe039a59387a42a63b37f068ae382dec3d1e846b0aee6750befc54e2ac287c64"
+      ],
+      "source_sha256": "dfaae833fa45b7bb20d3f7a76ba958e835b6c849568a1b41e14f20af91d83177",
+      "text": "Turn a retrained model's scores into labels you can accept or throw away.\n\nAnnotating is the slow part of every screen, and the first two hundred crops\nalready contain most of what separates the classes. Annotate can already fit a\nmodel on those and re-rank the queue by uncertainty -- what it could not do is\nWRITE the model's opinion down as a proposed label that a reviewer accepts or\nrejects in bulk. That is all this module adds.\n\nIT DELEGATES THE MODEL, DELIBERATELY. :func:`spacr.active_learning.retrain_round`\nalready fits on every label, scores on a GROUPED held-out split so the number\nis not an artefact of 190 labels coming from one well, and writes per-class\nprobabilities into ``png_list``. Re-fitting here would be a second model with\na second answer, drifting from the one the queue is ranked by -- and a first\ndraft of this file did exactly that before the existing one was found. What is\nnew is the three rules below, not the classifier.\n\nTHREE RULES THAT PROTECT THE ANNOTATIONS\n========================================\n1. A SUGGESTION IS NEVER CONFUSABLE WITH A DECISION. Suggestions are stored as\n   their own values -- a suggested 1 becomes 11 -- so nothing that reads the\n   annotation column can mistake one for a human's answer, and a run that goes\n   wrong is undone by deleting a value rather than by remembering which rows\n   were touched.\n2. A SUGGESTION NEVER OVERWRITES AN ANNOTATION. Writes carry ``IS NULL``. Not\n   when the model is confident, not on a re-run. A human's labels are the\n   ground truth the model was fitted on; losing one silently would cost hours\n   and would not be noticed until a run came out wrong.\n3. NO CONFIDENCE FLOOR, SO THE ORDER CARRIES THE DOUBT. Every unannotated crop\n   gets a suggestion, sorted most-confident first, and the reviewer stops\n   where they stop agreeing. A threshold would make that decision for them,\n   with a number nobody chose."
+    },
+    "spacr.suggest.Suggestions": {
+      "source_blocks_sha256": [
+        "27ed3ddbdcefd88a6afe59404935efa08131001688630fd1819a4cc2bfc96b9d",
+        "fa94fd7044ba394364c5dbdaa35919c5f462c50ee24ed132fe0b71a43aeaa2a1",
+        "ded135844f61b1687ef61eb15e866c6dde8e69d5cb44c125d75d1b29b17feccd",
+        "113e5cf00fa115685e499da6a5e617a436f43726f1e7de8de5151c7046b25ee9",
+        "c8de6c566196a9e44eeca2d6d09994bd7a86e8f847ad8b91ebfb539676844683"
+      ],
+      "source_sha256": "c4ee533ef981b9122f6547eacff6d6e0547a7a3047d55b16aa59d2799f340074",
+      "text": "What a suggestion run proposes, and how far to trust it.\n\n:param frame: one row per unannotated crop with ``png_path``,\n    ``suggested``, ``stored`` and ``confidence``, most confident first.\n:param note: what a reader must be told before accepting in bulk.\n:param scored: how many crops carried usable scores.\n:param classes: the class values the scores describe, in column order."
+    },
+    "spacr.suggest.pending_suggestions": {
+      "source_blocks_sha256": [
+        "2a3a58b97e40b9cb4c6a686b5c643b0d1359626d55b244f9169d35d130a9210a",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "f3c16d342e466eb2088074790d18dba3902da5eaca4024b673a80cd5c2212eb4",
+        "cdda79d5249f93e435aaddda00253a479e9cb845b1748575b5972ca854ac1944",
+        "1cdc228abe38412d8f792f9d913d4ef50567760c66be46ab4776b1363d4b869e"
+      ],
+      "source_sha256": "ae9d148a7b84e8d9755ea0d4dcfb407059f06847116d5007a63dfb4c1bdf35b8",
+      "text": "How many suggestions are waiting to be accepted or thrown away.\n\n:param db_path: path to a ``measurements.db``.\n:param annotation_column: the column holding them.\n:param png_table: the crop table.\n:returns: the count, or 0 when the column does not exist."
+    },
+    "spacr.suggest.resolve_suggestions": {
+      "source_blocks_sha256": [
+        "bec5492df37ca51f091ea67b6ecb1d6f387e232632ac8c2c6a4e64f24c2d99a9",
+        "f350c401a237628147249197b00a7f9f6b29a9f1e4886d8943366ca1a950ebe7",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "b460b2aa4defd3a7692a3181cb3e97705f6a4313427e02cdbc128f8acf0744cd",
+        "e0e3548996fe6355ea5d89475584da4d82b65851672fa486ec856889d949946f",
+        "cdda79d5249f93e435aaddda00253a479e9cb845b1748575b5972ca854ac1944",
+        "769389efcbb056b4d097f214fdb64d6c43a28715ed0edd6a4e0608c5df4eb607",
+        "a924d17037d1d3638193f24233dad6c9f7b5d5ccd66af576dc25449564c99010"
+      ],
+      "source_sha256": "ef6da9216ee2ca2458860374990ac3b705fa5838cbd1bd4c11cb0aee12894c67",
+      "text": "Accept suggestions as annotations, or clear them away.\n\nAccepting rewrites the offset value to the real class; rejecting sets it\nback to NULL. Both act ONLY on suggestion values, so a human annotation\ncaught by the same query is untouched either way.\n\n:param db_path: path to a ``measurements.db``.\n:param annotation_column: the column holding both.\n:param keep: True to accept, False to discard.\n:param png_table: the crop table.\n:param paths: restrict to these crops; None means every suggestion.\n:returns: how many rows changed."
+    },
+    "spacr.suggest.suggest_from_scores": {
+      "source_blocks_sha256": [
+        "264bf9f477fa7875114bf23ed91f1dcfd1bd392622af4f39e8cd0e4b13ab63c2",
+        "ca57b4e755766f4f39c5574a937179114c9ce400c1eb4c2a473664e521980d9e",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "ae6481b9d5437eb31ce783512478cf0899252a880c4bbdcb9029cd262ed810a8",
+        "cdda79d5249f93e435aaddda00253a479e9cb845b1748575b5972ca854ac1944",
+        "680de80eb4908c0585b17f463e72ef4e5956b487d327de76e6415f4df6bb252c",
+        "82986ecf462dfdfd667469595eb6a45fe45d1f0be644eb6a8d98b7d38ba92de9"
+      ],
+      "source_sha256": "ff5471868a97d650a3b6993b594b6d23c544e6c36d07e83c902553f3de7ec0b9",
+      "text": "Read the last retrain's probabilities and propose a label for each crop.\n\nReads rather than re-fits, so the suggestion a reviewer sees and the\nranking the queue uses come from ONE model. A second fit here would drift\nfrom it and there would be no way to tell which was right.\n\n:param db_path: path to a ``measurements.db``.\n:param annotation_column: the column holding the labels.\n:param png_table: the crop table.\n:param classes: the class value each score column stands for. Defaults to\n    the values already present in the annotation column, in order, which\n    is what the retrain encoded them from.\n:returns: a :class:`Suggestions`; its frame is empty when nothing has been\n    scored, and ``note`` says why."
+    },
+    "spacr.suggest.write_suggestions": {
+      "source_blocks_sha256": [
+        "1d93a187a6c1d9b6f5764a6236c2741e18551f451597a8356d0ffbb65014efe2",
+        "fdbc7cb0d68758d5eb29eb99a64fe0ffa36f0fcfa667a086789171fcca24493c",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "8324b84ff0653ed303d6cb78d0eaf116a312f7382baacdf8e79aeeb8943ea051",
+        "7b193d6e79b9bcc0eea68be541ee95ee41eb05a4ebc04b665b77cad6766a9a87",
+        "cdda79d5249f93e435aaddda00253a479e9cb845b1748575b5972ca854ac1944",
+        "e62f17dd879632fe10dc91c661a5479f271a307f3a5e8f0420ce8bd3bcbbfb26"
+      ],
+      "source_sha256": "1963842f3245e74ef1b5830f4d5379162b517b2f126a4cb9c8cf83c331cc810d",
+      "text": "Store suggestions, and ONLY where nothing has been annotated.\n\nThe ``IS NULL`` is rule 2 and is not an optimisation.\n\n:param db_path: path to a ``measurements.db``.\n:param annotation_column: the column to write into.\n:param suggestions: the frame from :func:`suggest_from_scores`.\n:param png_table: the crop table.\n:returns: how many rows were written."
     },
     "spacr.surrogate": {
       "source_blocks_sha256": [
