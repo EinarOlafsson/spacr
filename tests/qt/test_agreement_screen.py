@@ -316,17 +316,26 @@ def test_the_sidebar_no_longer_lists_annotator_agreement(qtbot,
     labels = {b.accessibleName() for b in bar.findChildren(QPushButton)}
     keys = {b.property("navKey") for b in bar.findChildren(QPushButton)}
 
-    # NESTED UNDER ITS HOST, not absent. Asked for on 2026-09-02 -- "nested
-    # modules should be nested in the dock" -- so a folded module now has a
-    # row again, indented under Annotate and hidden until that host is
-    # opened. The fold's point still holds: it is not a SECOND top-level
-    # door beside its host, which is what this test was written to prevent.
+    # NO ROW AT ALL, AND THAT IS THE CURRENT DECISION RATHER THAN A
+    # REGRESSION. This block asserted a nested fold-child row, indented under
+    # Annotate and hidden until the host opened, on the strength of a
+    # 2026-09-02 request -- "nested modules should be nested in the dock".
+    # It was superseded the next day. `f43b5a42e` rewrote the dock from
+    # scratch and quotes the instruction it was written to: "start from
+    # scratch and write a simple dock no effects just icon and text in
+    # categories. SCRAP THE SUB CATEGORIES". `Dock.expand_host` and
+    # `host_is_expanded` are stubs saying so in as many words.
+    #
+    # So a missing row here is the feature. The 33 folded modules are reached
+    # from their host screen's fold strip, which is where the rewrite put
+    # them, and re-adding the row to make this test pass would quietly undo a
+    # decision the maintainer made deliberately.
     row = next((b for b in bar.findChildren(QPushButton)
                 if b.property("navKey") == "agreement"), None)
-    assert row is not None, "the folded module lost its dock row entirely"
-    assert row.property("isFoldChild"), "it is a top-level row again"
-    assert str(row.property("foldParent")) == "annotate"
-    assert row.isHidden(), "a folded row shows only while its host is open"
+    assert row is None, (
+        "a folded module has a dock row again -- the sub-category level was "
+        "scrapped on 2026-09-03 and the fold strip on its host is the way in"
+    )
     assert "Annotate" in labels, "the host it folded into must still be there"
     assert "agreement" in FOLDED_APPS
 
