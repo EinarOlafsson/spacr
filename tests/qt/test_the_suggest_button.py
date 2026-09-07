@@ -492,3 +492,84 @@ def test_nothing_outstanding_asks_nothing(qtbot, qt_theme_applied,
     assert widget._clear_suggestions_before_fitting("Retrain") is True
     assert not asked, "no suggestions outstanding must mean no question"
     _stop(widget)
+
+
+# ---------------------------------------------------------------------------
+# A proposal is not an answer, everywhere that distinction is load-bearing
+# ---------------------------------------------------------------------------
+
+def test_the_keyboard_still_has_somewhere_to_go_after_suggesting(
+        qtbot, qt_theme_applied):
+    """"Suggest for every image" must not empty the review queue it fills.
+
+    Both callers of ``_is_annotated`` walk to the next crop the annotator
+    has not decided. Suggesting for every unanswered crop gives every crop
+    a value -- so counting a proposal as an answer would leave the keyboard
+    flow reporting "end of page" on a page it had just filled with things
+    to look at. The dashed ring says "look at me"; this is what lets Tab
+    get there.
+    """
+    from spacr.qt.screens.annotate import AnnotateScreen
+
+    widget = AnnotateScreen()
+    qtbot.addWidget(widget)
+    widget._page_paths = [("/answered.png", 1),
+                          ("/suggested.png", 1 + SUGGESTION_OFFSET),
+                          ("/blank.png", None)]
+
+    assert widget._is_annotated(0) is True
+    assert widget._is_annotated(1) is False, (
+        "a proposal must not count as a decision")
+    assert widget._is_annotated(2) is False
+    assert widget._next_unannotated(0) == 1, (
+        "the next crop to look at is the suggested one, not the blank one "
+        "past it")
+    _stop(widget)
+
+
+def test_class_counts_does_not_invent_classes_eleven_and_twelve(
+        qtbot, qt_theme_applied, tmp_path: Path, monkeypatch):
+    """The dialog that answers "are my classes balanced" must not be lied to.
+
+    ``class_counts`` groups by the RAW stored value, and a suggestion is its
+    class plus ten -- so a Suggest run would have added two rows for classes
+    nobody made, in the one place the annotator goes to ask whether the
+    labels are balanced enough to train on.
+    """
+    from PySide6.QtWidgets import QMessageBox
+
+    from spacr.qt.screens.annotate import AnnotateScreen
+
+    db = tmp_path / "m.db"
+    con = sqlite3.connect(db)
+    con.execute('CREATE TABLE "png_list" (png_path TEXT PRIMARY KEY, '
+                'annotate INTEGER)')
+    con.executemany(
+        'INSERT INTO "png_list" VALUES (?,?)',
+        [("/a.png", 1), ("/b.png", 1), ("/c.png", 2),
+         ("/d.png", 1 + SUGGESTION_OFFSET), ("/e.png", 1 + SUGGESTION_OFFSET),
+         ("/f.png", 2 + SUGGESTION_OFFSET)])
+    con.commit()
+    con.close()
+
+    widget = AnnotateScreen()
+    qtbot.addWidget(widget)
+    widget._settings.db_path = str(db)
+    widget._settings.annotation_column = "annotate"
+
+    shown = []
+    monkeypatch.setattr(QMessageBox, "information",
+                        lambda parent, title, text, *a, **k: shown.append(text))
+    widget._on_class_counts()
+
+    assert shown, "the dialog must open"
+    text = shown[0]
+    body = text.split("Suggested")[0]
+    assert "   11" not in body and "   12" not in body, (
+        f"suggestions were counted as classes of their own:\n{text}")
+    assert "Suggested, not yet kept or thrown away:" in text, (
+        "the proposals must still be reported, apart from the answers")
+    # Folded back to the class they propose: two suggested 1s, one 2.
+    tail = text.split("Suggested, not yet kept or thrown away:")[1]
+    assert "1" in tail and "2" in tail
+    _stop(widget)

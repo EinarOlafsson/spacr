@@ -4259,9 +4259,28 @@ class AnnotateScreen(QWidget):
         if not rows:
             QMessageBox.information(self, "Class counts", "No annotated rows yet.")
             return
-        lines = ["Class    Count    Color"]
+        # SUGGESTIONS ARE SHOWN SEPARATELY, NOT AS CLASSES 11 AND 12.
+        # `class_counts` groups by the raw stored value, and a suggestion is
+        # its class plus ten -- so a run of Suggest would have added two
+        # rows to this dialog for classes nobody made, in the one place the
+        # annotator comes to ask whether the classes are balanced. They are
+        # folded back to the class they propose and counted apart, because
+        # what makes a fit balanced is the answers, not the proposals.
+        answers = [(cls, cnt) for cls, cnt in rows
+                   if cls < SUGGESTION_OFFSET]
+        proposals: Dict[int, int] = {}
         for cls, cnt in rows:
+            if cls >= SUGGESTION_OFFSET:
+                real = cls - SUGGESTION_OFFSET
+                proposals[real] = proposals.get(real, 0) + cnt
+        lines = ["Class    Count    Color"]
+        for cls, cnt in answers:
             lines.append(f"{cls:>5}  {cnt:>7}    {label_to_hex(cls, dark=on_dark_theme()) or ''}")
+        if proposals:
+            lines.append("")
+            lines.append("Suggested, not yet kept or thrown away:")
+            for cls in sorted(proposals):
+                lines.append(f"{cls:>5}  {proposals[cls]:>7}")
         QMessageBox.information(self, "Class counts", "\n".join(lines))
 
     # ------------------------------------------------------------------
@@ -5458,9 +5477,19 @@ class AnnotateScreen(QWidget):
         return current
 
     def _is_annotated(self, slot: int) -> bool:
-        """True when ``slot`` already carries a non-zero class label."""
+        """True when ``slot`` already carries a non-zero class label.
+
+        A SUGGESTION IS NOT AN ANSWER, and this is where that matters most.
+        Both callers walk to the next crop the annotator has not decided,
+        and "Suggest for every unanswered image" gives every crop a value --
+        so counting proposals as answers would leave the keyboard flow with
+        nowhere to go on a page it had just filled with things to review.
+        The dashed ring says "look at me"; this is what lets Tab get there.
+        """
         value = self._current_value(slot)
-        return value is not None and value != 0
+        if value is None or value == 0:
+            return False
+        return not self._is_suggested_slot(slot)
 
     def _set_annotation(self, slot: int, value: Optional[int]) -> bool:
         """Record ``value`` (or ``None`` to clear) as ``slot``'s label."""
