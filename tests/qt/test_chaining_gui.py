@@ -146,6 +146,44 @@ def run_mask(root: str, **overrides):
         "mask", settings, registry=artifacts.open_registry(root))
 
 
+def settle(bar, *, timeout: float = 15.0) -> None:
+    """Let the strip finish resolving before reading what it decided.
+
+    `ChainingBar.refresh` HAS BEEN ASYNCHRONOUS SINCE fade6350f, which moved
+    the registry read off the GUI thread because it was freezing the window.
+    It sets `_resolving`, hands the work to a worker and returns; the answer
+    arrives later and `_draw_staleness` paints it.
+
+    Every test in this file was written against the blocking version and read
+    the result on the next line. What they saw instead was the state BEFORE
+    the answer: `src` still holding the `'path'` placeholder that
+    `spacr.settings` sets by default, so `ports.project_root` resolved it to
+    `<cwd>/path`, the registry opened there held nothing, and `stale_notes()`
+    was empty. The first assertion in each test -- that nothing is stale yet --
+    then passed for the wrong reason, and only the second one failed. That is
+    why fifteen tests looked like a broken staleness rule and were a missing
+    wait.
+
+    `tests/qt/test_the_chaining_strip_never_blocks.py`, added by that same
+    commit, already waits this way; this file was never brought across.
+
+    :param bar: the chaining strip to wait on.
+    :param timeout: seconds before giving up, so a hung worker fails the test
+        rather than hanging the suite.
+    """
+    from PySide6.QtWidgets import QApplication
+
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        QApplication.processEvents()
+        # `_resolve_again` is the coalesced follow-up: a refresh that arrived
+        # while one was in flight. Waiting only on `_resolving` would return
+        # between the two and read a half-settled strip.
+        if not bar._resolving and not getattr(bar, "_resolve_again", False):
+            return
+    raise AssertionError("the chaining strip never finished resolving")
+
+
 def screen_for(qapp, app_key: str, pins):
     """Build the real module screen with a chaining strip on it."""
     from spacr.qt.screens.app_screen import AppScreen
@@ -153,6 +191,10 @@ def screen_for(qapp, app_key: str, pins):
     screen = AppScreen(app_key=app_key)
     bar = install_chaining(screen, pins=pins)
     assert bar is not None, f"{app_key} did not get a chaining strip"
+    # Installing triggers the first resolve, and that is what seeds `src`
+    # from the upstream run. Returning before it lands hands every caller a
+    # screen still holding the placeholder.
+    settle(bar)
     return screen, bar
 
 
@@ -250,6 +292,7 @@ def test_a_typed_path_is_pinned_and_survives_rebuilding_the_screen(
     field.setText(chosen)
     field.textEdited.emit(chosen)
     bar.refresh()
+    settle(bar)
 
     assert pins.pinned("measure", "src") == chosen
 
@@ -278,6 +321,7 @@ def test_a_moved_upstream_is_offered_and_only_applied_on_request(
     assert masked in bar._pinned.text()
 
     bar._btn_use.click()
+    settle(bar)
 
     assert src_value(screen) == masked
     assert pins.pinned("measure", "src") is None
@@ -293,7 +337,9 @@ def test_a_chained_value_is_not_mistaken_for_a_user_edit(
 
     screen, bar = screen_for(qapp, "measure", pins)
     bar.refresh()
+    settle(bar)
     bar.refresh()
+    settle(bar)
 
     assert src_value(screen) == masked
     assert pins.pins("measure") == {}
@@ -326,6 +372,7 @@ def test_clearing_the_field_hands_the_default_back(
     field.setText("")
     field.textEdited.emit("")
     bar.refresh()
+    settle(bar)
 
     assert pins.pinned("measure", "src") is None
     assert src_value(screen) == masked
@@ -400,6 +447,7 @@ def test_an_upstream_re_run_shows_up_on_the_screen_with_its_cause(
     assert src_value(screen) == root
     _register_measure_run(screen, root)
     bar.refresh()
+    settle(bar)
     assert bar._stale.isHidden()
 
     time.sleep(0.01)
@@ -407,6 +455,7 @@ def test_an_upstream_re_run_shows_up_on_the_screen_with_its_cause(
             np.zeros((6, 6, 3), dtype=np.uint16))
     run_mask(root)
     bar.refresh()
+    settle(bar)
 
     assert not bar._stale.isHidden()
     notes = bar.stale_notes()
@@ -424,6 +473,7 @@ def test_an_upstream_re_run_shows_up_on_the_screen_with_its_cause(
     connection.close()
     _register_measure_run(screen, root)
     bar.refresh()
+    settle(bar)
 
     assert bar.stale_notes() == ()
     assert bar._stale.isHidden()
@@ -438,10 +488,12 @@ def test_changing_a_setting_marks_the_existing_result_stale(
     screen, bar = screen_for(qapp, "measure", pins)
     _register_measure_run(screen, root)
     bar.refresh()
+    settle(bar)
     assert bar._stale.isHidden()
 
     assert screen._settings_model.set_value_for_key("cell_mask_dim", 5)
     bar.refresh()
+    settle(bar)
 
     notes = bar.stale_notes()
     assert notes
@@ -464,6 +516,7 @@ def test_the_strip_hides_itself_when_there_is_nothing_to_say(qapp, tmp_path,
                                                              pins):
     screen, bar = screen_for(qapp, "measure", pins)
     bar.refresh()
+    settle(bar)
     assert bar.isHidden()
 
 
@@ -479,6 +532,7 @@ def test_a_finished_mask_run_offers_measure(qapp, tmp_path, pins,
     screen, bar = screen_for(qapp, "mask", pins)
     screen._settings_model._widgets["src"].setText(root)
     bar._on_run_finished(True)
+    settle(bar)
 
     assert [s.module for s in bar.steps] == list(ports.next_modules("mask"))
     assert not bar._next_row.isHidden()
@@ -506,6 +560,7 @@ def test_an_unready_successor_is_shown_with_its_reason(qapp, tmp_path, pins,
     screen, bar = screen_for(qapp, "measure", pins)
     screen._settings_model._widgets["src"].setText(root)
     bar._on_run_finished(True)
+    settle(bar)
 
     # With a database and no png_list, the merged screen is offered and
     # ENABLED: the feature-based family runs on what is there.
@@ -517,6 +572,7 @@ def test_an_unready_successor_is_shown_with_its_reason(qapp, tmp_path, pins,
 
     os.remove(os.path.join(root, "measurements", "measurements.db"))
     bar._on_run_finished(True)
+    settle(bar)
 
     # ONE CLASSIFY, UNDER THE KEY THE GUI OFFERS. The port graph still
     # declares `classify` and `ml_analyze` for the CLI, and the strip
@@ -542,6 +598,7 @@ def test_a_failed_run_offers_nothing(qapp, tmp_path, pins):
     screen._settings_model._widgets["src"].setText(root)
 
     bar._on_run_finished(False)
+    settle(bar)
 
     assert bar.steps == ()
     assert bar._next_row.isHidden()
@@ -559,6 +616,7 @@ def test_the_run_button_hooks_the_worker_that_finishes(qapp, tmp_path, pins,
     screen._worker = worker
     bar._on_run_clicked()
     worker.finished.emit(True)
+    settle(bar)
 
     assert [s.module for s in bar.steps] == ["measure"]
 
@@ -586,6 +644,7 @@ def test_continue_navigates_and_seeds_without_pinning(qapp, tmp_path, pins,
     monkeypatch.setattr(type(mask_bar), "host_window", lambda self: window)
 
     mask_bar._on_run_finished(True)
+    settle(mask_bar)
     mask_bar._on_continue(mask_bar.steps[0])
 
     assert opened == ["measure"]
