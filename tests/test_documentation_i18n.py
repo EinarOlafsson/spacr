@@ -20,7 +20,14 @@ TOOLS = ROOT / "tools"
 #: API_DOC_ALIASES entries that let 111 of them borrow a base class's text
 #: were retired with them -- so those symbols render their own entry instead
 #: of pointing at someone else's.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_152
+#:
+#: 10,152 -> 10,241 on 2026-09-07. The modules added while the list was
+#: being closed out: `ops_sbs`, `ops_merge`, `ops_settings`, `infection`
+#: and `suggest`, plus `live_zoom`. The public surface is frozen here for
+#: 1.5.0.5 -- every catalog below was regenerated against exactly these
+#: 10,241 symbols, so a change to this number is a change to eleven
+#: files and not to one.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_241
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
