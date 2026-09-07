@@ -3881,6 +3881,13 @@ class MainWindow(QMainWindow):
             self._refresh_app_action_visibility()
         except Exception:
             pass
+        # BEFORE the per-screen loop below, which reads `window_backdrop`
+        # and would otherwise reconcile every screen against the state the
+        # window had a moment ago.
+        try:
+            self._backdrop_the_dock_column()
+        except Exception:
+            pass
         for screen in getattr(self, "_screens", {}).values():
             refresh = getattr(screen, "refresh_maturity_visibility", None)
             if callable(refresh):
@@ -3888,6 +3895,14 @@ class MainWindow(QMainWindow):
                     refresh()
                 except Exception:
                     pass
+            # Preferences is where the window's backdrop is turned on and
+            # off, so it is where a cached screen's record of that backdrop
+            # stops being true. Reconciling here is the only thing that
+            # clears the flag on a screen the user is not looking at.
+            try:
+                self._drop_a_redundant_screen_backdrop(screen)
+            except Exception:
+                pass
         try:
             self.apply_dock_mode()
         except Exception:
@@ -5007,9 +5022,25 @@ class MainWindow(QMainWindow):
         :param screen: the screen this window has just taken.
         """
         if self.window_backdrop() is None:
+            # NOT A BARE RETURN, WHICH IS WHAT IT WAS AND WHAT WAS WRONG.
+            # The flag is a claim about the window as it stands NOW, and it
+            # was only ever set, never cleared. So a screen that had once
+            # shared a window backdrop kept `page_fill` returning None after
+            # the animation was switched off in Preferences, and painted the
+            # flat `bg` slab instead of the page colour -- the black page,
+            # reported three times and caught again by
+            # `tests/qt/test_page_is_never_black.py` at every zoom with
+            # `ambient_enabled=False`.
+            screen._uses_window_backdrop = False
             return
         own = getattr(screen, "_ambient", None)
         if own is None:
+            # The window HAS a backdrop and the screen has none of its own,
+            # which is the state this method exists to produce. Recording it
+            # is what keeps the screen from painting over the window, and it
+            # matters most on the second visit to a cached screen, when the
+            # widget was already retired on the first.
+            screen._uses_window_backdrop = True
             return
         # RECORDED BEFORE THE WIDGET GOES. `page_fill` returns a flat colour
         # whenever `_ambient` is None, so a screen that merely lost its own
@@ -5086,7 +5117,16 @@ class MainWindow(QMainWindow):
                                       resolve_effective_theme,
                                       theme_background_path)
             host = self.centralWidget()
-            if host is None or not get_ambient_enabled():
+            if host is None:
+                return
+            if not get_ambient_enabled():
+                # RETIRED HERE, NOT LEFT RUNNING. This used to be a bare
+                # `return`, so the method only ever built. Switching the
+                # animation off in Preferences calls `refresh_theme`, which
+                # calls this -- and the backdrop went on animating until the
+                # next launch, with every screen still deferring to it. The
+                # setting appeared to do nothing.
+                self._retire_the_dock_backdrop()
                 return
             if getattr(self, "_dock_backdrop", None) is not None:
                 return
@@ -5104,6 +5144,46 @@ class MainWindow(QMainWindow):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not put a backdrop behind the dock",
                       exc_info=True)
+
+    def _retire_the_dock_backdrop(self) -> None:
+        """Stop and drop the window's backdrop, and tell the screens.
+
+        Two things have to happen and the second is the one that bites.
+        Stopping the animation is obvious; clearing every screen's
+        ``_uses_window_backdrop`` is not, and without it the screens keep
+        declining to paint their own page for a backdrop that is gone --
+        the flat ``surface`` slab, which is the black page reported three
+        times.
+
+        Never raises: an unparented ``AmbientWidget`` awaiting
+        ``deleteLater`` still ticks, so ``set_animating(False)`` is tried
+        first and independently of the rest.
+        """
+        doomed = getattr(self, "_dock_backdrop", None)
+        self._dock_backdrop = None
+        if doomed is not None:
+            for step in ("set_animating", "setParent", "deleteLater"):
+                try:
+                    if step == "set_animating":
+                        doomed.set_animating(False)
+                    elif step == "setParent":
+                        doomed.setParent(None)
+                    else:
+                        doomed.deleteLater()
+                except Exception:                            # noqa: BLE001
+                    continue
+        for screen in list(getattr(self, "_screens", {}).values()) + [
+                getattr(self, "_startup", None)]:
+            if screen is None:
+                continue
+            try:
+                screen._uses_window_backdrop = False
+                clear = getattr(screen, "_clear_page_surfaces", None)
+                if callable(clear):
+                    clear()
+                screen.update()
+            except Exception:                                # noqa: BLE001
+                continue
 
     def _retry_screen_backdrop(self, screen: QWidget, key: str) -> None:
         """Come back for :meth:`_install_screen_backdrop` shortly.

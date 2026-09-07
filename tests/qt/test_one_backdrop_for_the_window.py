@@ -94,3 +94,52 @@ def test_a_screen_that_gave_up_its_backdrop_does_not_paint_over_the_window(
     assert screen.page_fill() is None, (
         "the screen would paint a flat page over the window's animation"
     )
+
+
+def test_the_screen_stops_deferring_once_the_window_backdrop_goes(
+        qtbot, qt_theme_applied):
+    """And it must start painting again the moment there is nothing to defer to.
+
+    The test above pins one half of the rule and, on its own, invites the
+    other half to be got wrong -- which is what happened.
+    ``_uses_window_backdrop`` was set and never cleared, so a screen that
+    had once shared the window's animation went on returning None from
+    ``page_fill`` after the animation was switched off in Preferences.
+    With nothing behind it and nothing painted by it, the page fell back
+    to the flat ``surface`` slab: the black page, reported three times and
+    then reintroduced by the fix for it.
+
+    The flag is a claim about the window as it stands NOW, so
+    ``refresh_theme`` -- which is what Preferences calls -- reconciles it
+    on every cached screen, not only on the one in front of the user.
+    """
+    from spacr.qt import preferences as prefs
+    from spacr.qt.app import MainWindow
+    from PySide6.QtWidgets import QApplication
+
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.resize(1200, 800)
+    window.show()
+    qtbot.waitExposed(window)
+
+    if window.window_backdrop() is None:
+        pytest.skip("the ambient backdrop is off in this configuration")
+
+    window._on_nav_selected("mask")
+    qtbot.wait(50)
+    screen = window._screens["mask"]
+    assert screen.page_fill() is None, "precondition: the window is animating"
+
+    prefs.set_ambient_enabled(False)
+    prefs.apply_preferences_to_app(QApplication.instance())
+    window.refresh_theme()
+    qtbot.wait(50)
+
+    assert window.window_backdrop() is None, (
+        "precondition: turning ambient off must retire the window's backdrop")
+    assert getattr(screen, "_uses_window_backdrop", False) is False, (
+        "the screen still claims a window backdrop that is gone")
+    assert screen.page_fill() is not None, (
+        "with no animation behind it the screen must paint the page colour; "
+        "returning None leaves the flat `surface` slab -- the black page")
