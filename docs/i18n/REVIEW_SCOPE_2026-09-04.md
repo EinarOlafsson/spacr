@@ -8,7 +8,7 @@ defect-driven and much smaller than the shipped corpus.
 **Mechanical source coverage is NOT complete, and this report claimed it was
 until 2026-09-06.** The runtime catalogs carry 5,105 of 5,226 entries in every
 locale -- 121 sources missing each, 1,089 in total -- and the API catalogs
-8,966 of 10,230. The missing rows are strings and docstrings added since the
+8,966 of 10,241. The missing rows are strings and docstrings added since the
 last generation; generating them runs an OPUS checkpoint that is not present
 on the machine this was measured from, so the gap is recorded here rather than
 closed. `docs/i18n/COVERAGE.md` carries the same numbers and is regenerated
@@ -28,7 +28,7 @@ Every mechanical gate now passes. `tests/qt/test_external_i18n_catalogs.py` is
 
 Source-bound records under `docs/i18n/reviewed/runtime/<locale>/` and
 `docs/i18n/reviewed/api/<locale>/`, against the LIVE denominators rather than a
-remembered one: 5,226 runtime entries and 10,230 public API docstrings. As before,
+remembered one: 5,226 runtime entries and 10,241 public API docstrings. As before,
 repeated source strings mean this is not a unique-string percentage, and the
 proportion is small by design: the evidence is defect-driven.
 
@@ -36,17 +36,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,226 | Remainder | Reviewed API blocks | Of 10,230 | Remainder |
+| Language | Reviewed runtime records | Of 5,226 | Remainder | Reviewed API blocks | Of 10,241 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 116 | 2.22% | 5,110 | 444 | 4.34% | 9,786 |
-| German | 86 | 1.65% | 5,140 | 396 | 3.87% | 9,834 |
-| Spanish | 93 | 1.78% | 5,133 | 277 | 2.71% | 9,953 |
-| Simplified Chinese | 240 | 4.59% | 4,986 | 476 | 4.65% | 9,754 |
-| Portuguese | 96 | 1.84% | 5,130 | 431 | 4.21% | 9,799 |
-| Hindi | 107 | 2.05% | 5,119 | 399 | 3.90% | 9,831 |
-| Korean | 233 | 4.46% | 4,993 | 427 | 4.17% | 9,803 |
-| Icelandic | 121 | 2.32% | 5,105 | 909 | 8.89% | 9,321 |
-| French | 96 | 1.84% | 5,130 | 430 | 4.20% | 9,800 |
+| Swedish | 116 | 2.22% | 5,110 | 444 | 4.34% | 9,797 |
+| German | 86 | 1.65% | 5,140 | 396 | 3.87% | 9,845 |
+| Spanish | 93 | 1.78% | 5,133 | 277 | 2.70% | 9,964 |
+| Simplified Chinese | 240 | 4.59% | 4,986 | 476 | 4.65% | 9,765 |
+| Portuguese | 96 | 1.84% | 5,130 | 431 | 4.21% | 9,810 |
+| Hindi | 107 | 2.05% | 5,119 | 399 | 3.90% | 9,842 |
+| Korean | 233 | 4.46% | 4,993 | 427 | 4.17% | 9,814 |
+| Icelandic | 121 | 2.32% | 5,105 | 909 | 8.88% | 9,332 |
+| French | 96 | 1.84% | 5,130 | 430 | 4.20% | 9,811 |
 
 ## Who reviewed what, and what that claim means
 

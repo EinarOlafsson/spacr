@@ -1926,24 +1926,28 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert not imported_package_modules
     by_symbol = {item.symbol: item for item in callables}
 
-    assert len(callables) == len(by_symbol) == 8_453
+    # 8,453 -> 8,462 on 2026-09-07, +9/-0, and the tree is FROZEN at that
+    # number by agreement while the localization catalogs regenerate. The
+    # nine are the other session's spacr/infection.py (5 public functions)
+    # and spacr/suggest.py (4): +8 functions and +1 dataclass constructor.
+    assert len(callables) == len(by_symbol) == 8_462
     assert Counter(item.category for item in callables) == {
-        "function": 3_646,
+        "function": 3_654,
         "method": 3_774,
         "constructor": 393,
-        "dataclass_constructor": 441,
+        "dataclass_constructor": 442,
         "namedtuple_constructor": 6,
         "exception_constructor": 137,
         "inherited_or_default_constructor": 56,
     }
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_448,
+        "autoapi": 8_457,
         "cli_only": 2,
         "compatibility": 3,
     }
-    assert sum(item.variant_count for item in callables) == 8_460
+    assert sum(item.variant_count for item in callables) == 8_469
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_446,
+        1: 8_455,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -1955,11 +1959,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
     ) == 393
-    # RE-RECORDED 2026-09-04. Every figure here moved UP together as the
-    # package gained callables; not one of them fell, which is the direction
-    # check that was run before these numbers were written.
-    assert sum(len(item.parameters) for item in callables) == 16_654
-    assert sum(len(item.required_parameters) for item in callables) == 8_436
+    # RE-RECORDED 2026-09-07, and the direction check still holds: every
+    # figure moved UP with the nine new callables and not one fell.
+    # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
+    # constructor-prose sums do NOT move, which is the expected shape --
+    # the nine are functions and a dataclass, so none of them is a
+    # constructor that gained an ``__init__`` docstring.
+    assert sum(len(item.parameters) for item in callables) == 16_681
+    assert sum(len(item.required_parameters) for item in callables) == 8_452
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -1969,7 +1976,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "f69e3e1532503bed2af21b6fac252c95efbb8936881c3f56c0956c43831e89f1"
+    ) == "29aacfd8f740137e66ad22601b2344be81ab95fdf822ae7e0cc5f25756afe508"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2292,10 +2299,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # their own entry instead of borrowing one.
     # 10,152 -> 10,172 -> 10,213 (2026-09-05): private methods on public
     # classes that gained a docstring get an entry of their own.
-    assert len(docs) == 10_230
+    # 10,213 -> 10,230 -> 10,241 (2026-09-07). FROZEN here by agreement:
+    # the other session stopped adding public symbols so the localization
+    # catalogs could be regenerated against a stable surface.
+    assert len(docs) == 10_241
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
-    assert len(rendered_documented_callables) == 8_448
+    assert len(rendered_documented_callables) == 8_457
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

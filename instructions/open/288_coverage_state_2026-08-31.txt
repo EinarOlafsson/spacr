@@ -844,3 +844,51 @@ process, not read /proc from outside.
   alone, before      11 passed in 4.95 s
   in combination     1 failed of 431
   in combination now 431 passed in 147 s
+
+--------------------------------------------------------------------------------
+2026-09-07 — THE CHUNKED tests/qt SWEEP, FIRST SEVEN CHUNKS
+--------------------------------------------------------------------------------
+
+1,028 files in serial chunks of 30, one process each, under the AlphaFold
+guard (`CUDA_VISIBLE_DEVICES=""`, `SPACR_TEST_MEMORY_GB=4`, no xdist), with a
+RAM check before each chunk that stops the sweep below 25 GB headroom. Seven
+chunks: roughly 4,000 tests, three distinct problems.
+
+REAL AND PRE-EXISTING: `tests/qt/test_chaining_gui.py`, FIFTEEN failures. They
+fail with the file run ALONE, so this is not order dependence, and they fail
+identically at 53db89d1c from two days ago -- checked in a detached worktree
+rather than assumed -- so neither current session caused them. The first is
+`test_changing_a_setting_marks_the_existing_result_stale`: after
+`set_value_for_key("cell_mask_dim", 5)` succeeds, `bar.stale_notes()` is empty,
+so a changed setting is not marking the existing result stale. That is a
+user-facing promise this repository makes in the chaining strip.
+
+REAL, PRE-EXISTING, AND NOT THIS SESSION'S:
+`test_the_sidebar_no_longer_lists_annotator_agreement` fails alone -- "the
+folded module lost its dock row entirely". Verified NOT to be the dock
+accessibility fix by swapping in dock.py from before that commit and watching
+it fail the same way. `Sidebar` is in qt/app.py; the other session has taken it.
+
+FLAKY, AND THE HARNESS WAS HIDING IT:
+`test_a_qt_warning_is_rendered_once_not_twice` fails 3 of 6 runs of the same
+three files in the same order -- and 6 of 6 with `-p no:logging`. pytest's own
+logging plugin was MASKING it half the time, which is the opposite of the usual
+story about that plugin. The failure is that one record renders through BOTH
+sinks: `verbose_logger._NotAlreadyShownByTheRootSink` suppresses the verbose
+copy of anything the root sink will show, and it decides by asking whether the
+Qt sink is on the root logger. When it is not, everything renders twice.
+
+  ATTEMPTED AND REVERTED: making `logging_util.setup_logging` re-attach the
+  sink on its early return, instead of trusting the `_INITIALISED` flag. It
+  took the three-file case from 6/6 to 4/6 -- so the detached-sink path is
+  real -- but it made the file FAIL WHEN RUN ALONE, which it does not
+  otherwise do. A change that trades a flake for a certainty is worse than
+  the flake. Reverted; the mechanism is recorded here rather than half-fixed.
+
+A CAUTION ABOUT MY OWN METHOD, since it affects how much these seven chunks are
+worth. I modified the working tree WHILE the sweep was reading it -- swapping
+dock.py to test a hypothesis, and reverting logging_util.py -- and a chunk
+running in that window may have imported a file mid-swap. Every failure above
+was re-verified afterwards in its own process, so the failures are sound; a
+chunk that PASSED during that window is the part I would not lean on. Do not
+edit the tree during a sweep, and do not `git stash` during one either.
