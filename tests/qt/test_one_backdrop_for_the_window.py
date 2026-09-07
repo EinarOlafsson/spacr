@@ -131,15 +131,28 @@ def test_the_screen_stops_deferring_once_the_window_backdrop_goes(
     screen = window._screens["mask"]
     assert screen.page_fill() is None, "precondition: the window is animating"
 
-    prefs.set_ambient_enabled(False)
-    prefs.apply_preferences_to_app(QApplication.instance())
-    window.refresh_theme()
-    qtbot.wait(50)
+    # RESTORED IN `finally`, AND THE FIRST VERSION OF THIS TEST WAS NOT.
+    # `set_ambient_enabled` writes to the REAL QSettings -- the developer's
+    # own, not a tmp_path -- so leaving it False turned the animation off in
+    # the running application and failed twelve preference tests in every
+    # later run. A test that changes a persisted preference owns putting it
+    # back, whatever it asserts in between.
+    was_enabled = prefs.get_ambient_enabled()
+    try:
+        prefs.set_ambient_enabled(False)
+        prefs.apply_preferences_to_app(QApplication.instance())
+        window.refresh_theme()
+        qtbot.wait(50)
 
-    assert window.window_backdrop() is None, (
-        "precondition: turning ambient off must retire the window's backdrop")
-    assert getattr(screen, "_uses_window_backdrop", False) is False, (
-        "the screen still claims a window backdrop that is gone")
-    assert screen.page_fill() is not None, (
-        "with no animation behind it the screen must paint the page colour; "
-        "returning None leaves the flat `surface` slab -- the black page")
+        assert window.window_backdrop() is None, (
+            "precondition: turning ambient off must retire the window's "
+            "backdrop")
+        assert getattr(screen, "_uses_window_backdrop", False) is False, (
+            "the screen still claims a window backdrop that is gone")
+        assert screen.page_fill() is not None, (
+            "with no animation behind it the screen must paint the page "
+            "colour; returning None leaves the flat `surface` slab -- the "
+            "black page")
+    finally:
+        prefs.set_ambient_enabled(was_enabled)
+        prefs.apply_preferences_to_app(QApplication.instance())
