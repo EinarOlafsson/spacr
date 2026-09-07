@@ -27,6 +27,23 @@ pytest.importorskip("PySide6")
 from spacr.suggest import SUGGESTION_OFFSET
 
 
+def _empty_db(tmp_path: Path) -> Path:
+    """A crop table with nothing annotated, which is what the worker needs.
+
+    The worker clears outstanding suggestions before it fits (see
+    `test_a_second_run_does_not_train_on_the_first_run_s_suggestions`), and
+    that is a real UPDATE -- so a test that hands it a path with no database
+    behind it is testing sqlite, not the button.
+    """
+    db = tmp_path / "m.db"
+    con = sqlite3.connect(db)
+    con.execute('CREATE TABLE "png_list" (png_path TEXT PRIMARY KEY, '
+                'annotate INTEGER)')
+    con.commit()
+    con.close()
+    return db
+
+
 def _stop(screen) -> None:
     """Retire a screen's save worker without a full ``close()``.
 
@@ -166,7 +183,8 @@ def test_the_page_scope_narrows_what_is_written_not_what_is_fitted(
     monkeypatch.setattr(sug, "write_suggestions", fake_write)
 
     worker = mod._SuggestWorker(
-        str(tmp_path / "m.db"), "annotate", {"model_type": "gradient_boosting"},
+        str(_empty_db(tmp_path)), "annotate",
+        {"model_type": "gradient_boosting"},
         only_paths=["/a.png", "/c.png"])
     worker.run()
 
@@ -207,7 +225,7 @@ def test_no_scope_writes_every_unanswered_crop(monkeypatch, tmp_path):
         lambda db, col, s, png_table="png_list": written.setdefault(
             "paths", list(s["png_path"])) and 0 or len(s))
 
-    worker = mod._SuggestWorker(str(tmp_path / "m.db"), "annotate", {})
+    worker = mod._SuggestWorker(str(_empty_db(tmp_path)), "annotate", {})
     worker.run()
     assert written["paths"] == ["/a.png", "/b.png"]
 
@@ -330,4 +348,147 @@ def test_suggest_without_a_source_asks_for_one_instead_of_raising(
     widget._settings.db_path = ""
     widget._on_suggest_menu()
     assert asked, "pressing Suggest with no source must say so"
+    _stop(widget)
+
+
+# ---------------------------------------------------------------------------
+# The feedback loop, which is the thing wiring this button could have broken
+# ---------------------------------------------------------------------------
+
+def test_a_second_run_does_not_train_on_the_first_run_s_suggestions(
+        monkeypatch, tmp_path: Path):
+    """The model must never be fitted on its own opinion.
+
+    A suggestion is stored as its class plus ten, and ``retrain_round``
+    reads EVERY non-null value in the column as a class label --
+    ``_class_value(11)`` is 11. So without this, pressing Suggest twice
+    fits the second round on classes 11 and 12, which are labels no human
+    ever made, and the model is learning from itself. It is also 379's
+    stated rule that a re-run REPLACES the outstanding suggestions rather
+    than adding to them, so both answers point the same way.
+
+    Asserted on the real database rather than on a call count: what the fit
+    sees is what is in the column when it runs.
+    """
+    import pandas as pd
+
+    from spacr.qt.screens import annotate as mod
+
+    db = tmp_path / "m.db"
+    con = sqlite3.connect(db)
+    con.execute('CREATE TABLE "png_list" (png_path TEXT PRIMARY KEY, '
+                'annotate INTEGER)')
+    con.executemany(
+        'INSERT INTO "png_list" VALUES (?,?)',
+        [("/human.png", 1), ("/old_sug.png", 1 + SUGGESTION_OFFSET)])
+    con.commit()
+    con.close()
+
+    seen = {}
+
+    def fake_retrain(db_path, column, **options):
+        """Record the column exactly as the fit would read it."""
+        seen["values"] = sorted(
+            v for v in _values(Path(db_path)).values() if v is not None)
+        return object()
+
+    class FakeProposal:
+        """The shape ``suggest_from_scores`` returns."""
+
+        def __init__(self):
+            self.frame = pd.DataFrame(
+                {"png_path": [], "suggested": [], "stored": [],
+                 "confidence": []})
+            self.note = ""
+            self.scored = 0
+            self.classes = [1, 2]
+
+    import spacr.active_learning as al
+    import spacr.suggest as sug
+    monkeypatch.setattr(al, "retrain_round", fake_retrain)
+    monkeypatch.setattr(sug, "suggest_from_scores",
+                        lambda *a, **k: FakeProposal())
+
+    mod._SuggestWorker(str(db), "annotate", {}).run()
+
+    assert seen["values"] == [1], (
+        "the fit saw a suggestion as a class label; the model would be "
+        f"learning from its own output (column held {seen['values']})")
+    assert _values(db)["/human.png"] == 1, (
+        "clearing suggestions before the fit must not touch an annotation")
+
+
+def test_retrain_asks_before_it_throws_a_review_queue_away(
+        qtbot, qt_theme_applied, tmp_path: Path, monkeypatch):
+    """Retrain hits the same trap from the other button, and must ASK.
+
+    Suggest clears silently because replacing outstanding suggestions is
+    its documented behaviour. Retrain says nothing about suggestions, so
+    discarding a review queue on its behalf would be a surprise -- and
+    fitting without discarding would train on classes 11 and 12.
+    """
+    from PySide6.QtWidgets import QMessageBox
+
+    from spacr.qt.screens.annotate import AnnotateScreen
+
+    db = tmp_path / "m.db"
+    con = sqlite3.connect(db)
+    con.execute('CREATE TABLE "png_list" (png_path TEXT PRIMARY KEY, '
+                'annotate INTEGER)')
+    con.executemany('INSERT INTO "png_list" VALUES (?,?)',
+                    [("/a.png", 1 + SUGGESTION_OFFSET), ("/b.png", 1)])
+    con.commit()
+    con.close()
+
+    widget = AnnotateScreen()
+    qtbot.addWidget(widget)
+    widget._settings.db_path = str(db)
+    widget._settings.annotation_column = "annotate"
+
+    asked = []
+    monkeypatch.setattr(
+        QMessageBox, "question",
+        lambda *a, **k: asked.append(a) or QMessageBox.No)
+    assert widget._clear_suggestions_before_fitting("Retrain") is False, (
+        "declining must stop the fit, not proceed without the suggestions")
+    assert asked, "Retrain must ask before discarding a review queue"
+    assert _values(db)["/a.png"] == 1 + SUGGESTION_OFFSET, (
+        "a declined question must leave the suggestions where they were")
+
+    asked.clear()
+    monkeypatch.setattr(
+        QMessageBox, "question",
+        lambda *a, **k: asked.append(a) or QMessageBox.Yes)
+    assert widget._clear_suggestions_before_fitting("Retrain") is True
+    after = _values(db)
+    assert after["/a.png"] is None, "agreeing must clear the suggestions"
+    assert after["/b.png"] == 1, "and must not touch the annotation"
+    _stop(widget)
+
+
+def test_nothing_outstanding_asks_nothing(qtbot, qt_theme_applied,
+                                          tmp_path: Path, monkeypatch):
+    """The common case must not grow a dialog."""
+    from PySide6.QtWidgets import QMessageBox
+
+    from spacr.qt.screens.annotate import AnnotateScreen
+
+    db = tmp_path / "m.db"
+    con = sqlite3.connect(db)
+    con.execute('CREATE TABLE "png_list" (png_path TEXT PRIMARY KEY, '
+                'annotate INTEGER)')
+    con.execute('INSERT INTO "png_list" VALUES (?,?)', ("/a.png", 1))
+    con.commit()
+    con.close()
+
+    widget = AnnotateScreen()
+    qtbot.addWidget(widget)
+    widget._settings.db_path = str(db)
+    widget._settings.annotation_column = "annotate"
+
+    asked = []
+    monkeypatch.setattr(QMessageBox, "question",
+                        lambda *a, **k: asked.append(a) or QMessageBox.Yes)
+    assert widget._clear_suggestions_before_fitting("Retrain") is True
+    assert not asked, "no suggestions outstanding must mean no question"
     _stop(widget)

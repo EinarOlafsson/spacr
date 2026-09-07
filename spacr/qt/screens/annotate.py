@@ -918,8 +918,19 @@ class _SuggestWorker(QThread):
         """
         try:
             from ... import active_learning as al
-            from ...suggest import suggest_from_scores, write_suggestions
+            from ...suggest import (resolve_suggestions, suggest_from_scores,
+                                    write_suggestions)
 
+            # CLEARED BEFORE THE FIT, and this is not housekeeping.
+            # `retrain_round` takes every non-null value in the column as a
+            # class label, and `_class_value(11)` is 11 -- so a second
+            # Suggest run would fit on the FIRST run's output as two extra
+            # classes and feed the model its own opinion. It is also 379's
+            # stated rule ("re-running SUGGEST replaces the outstanding
+            # suggestions rather than adding to them"), so the two answers
+            # agree: nothing a machine proposed is ever trained on.
+            resolve_suggestions(self._db_path, self._column, keep=False,
+                                png_table=self._png_table)
             al.retrain_round(self._db_path, self._column, **self._options)
             proposal = suggest_from_scores(
                 self._db_path, self._column, png_table=self._png_table)
@@ -4419,6 +4430,15 @@ class AnnotateScreen(QWidget):
         if self._retrain_worker is not None:
             self._status_label.setText("A retrain is already running.")
             return
+        # THE SAME TRAP AS THE ONE `_SuggestWorker` CLEARS, reached from the
+        # other button. A suggestion is stored as its class plus ten, and
+        # `retrain_round` reads every non-null value as a class -- so fitting
+        # with suggestions outstanding trains classes 11 and 12 on labels no
+        # human ever made. Suggest clears them silently because replacing
+        # them is its documented behaviour; Retrain must ask, because
+        # throwing away a review queue is not what the button says it does.
+        if not self._clear_suggestions_before_fitting("Retrain"):
+            return
         # The labels the annotator just made are the whole point of the
         # round; a retrain that raced the save worker would fit on the state
         # before them.
@@ -4564,6 +4584,45 @@ class AnnotateScreen(QWidget):
         self._request_note = ""
         self._offset = 0
         self._refresh_total(then=self._load_page)
+
+    def _clear_suggestions_before_fitting(self, what: str) -> bool:
+        """Ask about outstanding suggestions; True to go ahead with the fit.
+
+        :param what: the button's name, for the question.
+        :returns: True when the fit may proceed -- either there was nothing
+            outstanding, or the annotator agreed to clear it.
+        """
+        from ...suggest import pending_suggestions, resolve_suggestions
+
+        if not self._settings.db_path:
+            return True
+        try:
+            waiting = pending_suggestions(
+                self._settings.db_path, self._settings.annotation_column,
+                png_table=self._settings.png_table)
+        except Exception:                                    # noqa: BLE001
+            return True
+        if not waiting:
+            return True
+        answer = QMessageBox.question(
+            self, f"{what} with suggestions outstanding?",
+            f"{waiting:,} suggestions are waiting to be kept or thrown "
+            f"away.\n\nThey are stored as their own values, and a fit reads "
+            f"every value in the column as a class — so training now would "
+            f"learn from labels no human made.\n\nThrow the suggestions "
+            f"away and {what.lower()}?")
+        if answer != QMessageBox.Yes:
+            self._status_label.setText(
+                f"{what} cancelled — keep or throw away the suggestions "
+                f"first, from the Suggest menu.")
+            return False
+        resolve_suggestions(
+            self._settings.db_path, self._settings.annotation_column,
+            keep=False, png_table=self._settings.png_table)
+        self._console.append_notice(
+            "{n} outstanding suggestions thrown away before fitting.\n",
+            n=f"{waiting:,}")
+        return True
 
     # ------------------------------------------------------------------
     # Suggest: the model's opinion, written down where it can be rejected

@@ -140,6 +140,17 @@ DONE 2026-09-07 -- THE BUTTON:
     straight to `label_to_hex` would either fall off the palette or land on
     the colour of a class the model never proposed.
 
+  * NOTHING A MACHINE PROPOSED IS EVER TRAINED ON, and this was nearly the
+    bug that wiring the button introduced. `retrain_round` reads EVERY
+    non-null value in the column as a class label and `_class_value(11)` is
+    11 -- so a second Suggest press would have fitted on the first press's
+    output as classes 11 and 12, the model learning from its own opinion,
+    and the class-count dialog would have grown two classes nobody made.
+    Suggest clears outstanding suggestions BEFORE it fits, which is also
+    this file's own rule that a re-run replaces rather than adds; Retrain
+    reaches the same trap from the other button and ASKS first, because
+    throwing away a review queue is not what that button says it does.
+
   ON XGBOOST, WHICH THE REQUEST NAMED. `_build_round_model` offers logistic
   regression, random forest and `gradient_boosting`, which is sklearn's
   `HistGradientBoostingClassifier` -- the same gradient-boosted-trees method
