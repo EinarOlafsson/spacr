@@ -38,6 +38,37 @@ BEFORE THE UPDATE
        only where setuptools is current. A green build on one machine was
        never evidence about the matrix.
 
+       VERIFIED 2026-09-07, and this is the first time the fix was actually
+       tested rather than reasoned about. The same objection applies to the
+       FIX as to the bug: a build passing on setuptools 69 says nothing. So
+       a throwaway venv was given setuptools 84.0.0 -- seven majors past the
+       77 that rejects the table form -- and asked to build nightly:
+
+         python -m build --no-isolation      sdist AND wheel, both built
+         twine check dist/*                  PASSED, PASSED
+         pip install <wheel>                 installs, 8 entry points resolve
+
+       And the metadata is right, not merely present:
+
+         Metadata-Version: 2.4
+         License-Expression: BSD-3-Clause          <- the PEP 639 form
+         License-File: LICENSE                     <- and the file travels
+         Requires-Python: !=3.14.1,<3.16,>=3.9     <- NOT dropped
+
+       That last line is the one the pyproject comment warns about: raising
+       the floor without the SPDX string would have silently dropped
+       `requires-python` from the built metadata, which is worse than the
+       failure it replaced -- pip would then offer this wheel to 3.8. It is
+       present and exact. `Classifier: License :: OSI Approved :: BSD
+       License` is gone, as PEP 639 requires alongside the expression.
+
+       WHAT THIS DOES AND DOES NOT PROVE. It proves 1.5.0.5 can be BUILT and
+       uploaded, which is what "the release would have failed at its first
+       step" was about, and it proves it on a setuptools newer than any CI
+       cell is likely to have. It does NOT prove the compat matrix green: it
+       ran on one interpreter, not 3.9 through 3.14, and it did not resolve
+       dependencies (`--no-deps`). Those remain CI's job, and CI is 288's.
+
   288  GREEN CI. The stated gate, and the only ENGINEERING item still on
        this side of the line. Qt pragmas are 88 -> 33, the assertion-free
        ratchet is green, and a crash that stopped seven folded modules
