@@ -13,6 +13,32 @@ Splits from: 306, which is about the catalogs being COMPLETE and
            no gate in 306 can measure.
 
 --------------------------------------------------------------------------------
+HOW TO REGENERATE A CATALOG, AND THE FLAG THAT DOES NOT DO IT
+--------------------------------------------------------------------------------
+
+Written down here on 2026-09-07 because getting it wrong cost 58 minutes
+and produced nothing, and nothing in the tool's help said so.
+
+  RIGHT:  python tools/build_documentation_i18n.py --languages de es fr
+          No flag. The default path is the one that computes `pending` --
+          the symbols whose source hash moved since the catalog was last
+          written -- and translates them. About four minutes a locale when
+          most entries are reusable, fifteen to twenty on a cold catalog.
+
+  WRONG:  --repair-api-blocks
+          It ran for 58 minutes, loaded both OPUS and MADLAD, printed 2,750
+          lines of what looked like progress, exited 0 -- AND CHANGED NO
+          FILE. It is a narrower repair pass, not "bring this catalog up to
+          date", and it is silent about the difference.
+
+  AND WRAP IT: the run is long enough that a bare `timeout` will cut it in
+  the middle of a locale, which is what happened to `hi` on 2026-09-07 --
+  three locales written, the fourth 92% done and discarded, because 3,500
+  seconds was set for eight locales that needed nearly three hours. Budget
+  per locale, not per run, and check `wrote <lang>:` lines rather than the
+  exit code: the wrapper exits 0 on a timeout kill.
+
+--------------------------------------------------------------------------------
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
 

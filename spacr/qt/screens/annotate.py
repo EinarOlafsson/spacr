@@ -156,6 +156,12 @@ from .map_barcodes import FoldOpener, restate_fold_button
 
 from ..widgets.test_data_chooser import TestDataChooser  # noqa: F401
 
+#: Imported at module level rather than inside the handler because the tile
+#: chrome reads it on every repaint. `spacr.suggest` pulls in pandas and
+#: numpy and nothing heavier -- both are already imported by the time this
+#: screen exists -- so this costs nothing at launch.
+from ...suggest import SUGGESTION_OFFSET
+
 LOG = logging.getLogger(__name__)
 
 #: Registry keys of the modules folded onto this screen's masthead, in
@@ -850,6 +856,104 @@ class _RetrainWorker(QThread):
             pass
 
 
+class _SuggestWorker(QThread):
+    """Fit a round, then write its opinion down as proposed labels.
+
+    BOTH HALVES OFF THE GUI THREAD, and the first half is why. Fitting is
+    the same work ``_RetrainWorker`` does -- seconds to a minute on a real
+    plate -- and a thirty-second block on the GUI thread is what the desktop
+    offers to force-quit; that happened on 2026-09-05 over a `urlopen` and
+    is not repeating over a model fit. The second half reads the whole crop
+    table into pandas, which is not free either.
+
+    IT FITS RATHER THAN READING A STALE SCORE. The request is "train a model
+    on your annotated images", and the labels made in the last ten minutes
+    are the ones that matter most; suggesting from the round before them
+    would propose labels the annotator has already moved past. Fitting here
+    also keeps ONE model behind both the suggestion and the queue's ranking,
+    because the round it fits is the round that writes the scores
+    :func:`spacr.suggest.suggest_from_scores` then reads.
+
+    Nothing here touches a widget: ``done``/``failed`` are ordinary signals
+    connected to bound methods of the screen, so Qt queues them onto the GUI
+    thread.
+    """
+
+    done = Signal(object)      # (Suggestions, written: int)
+    failed = Signal(str)
+
+    def __init__(self, db_path: str, annotation_column: str,
+                 options: Dict[str, object], *,
+                 png_table: str = "png_list",
+                 only_paths: Optional[Sequence[str]] = None,
+                 parent=None):
+        """Carry one suggestion run's inputs onto a worker thread.
+
+        :param db_path: the annotation database to fit and write in.
+        :param annotation_column: which column holds the labels.
+        :param options: keyword arguments for ``retrain_round``. COPIED for
+            the reason ``_RetrainWorker.__init__`` gives: the caller's dict
+            belongs to a widget that may be edited while this runs.
+        :param png_table: the crop table.
+        :param only_paths: restrict the suggestions written to these crops,
+            which is the "the images on screen" scope. None means every
+            unannotated crop. COPIED, and for the same reason: the screen's
+            page turns while this runs.
+        :param parent: parent object.
+        """
+        super().__init__(parent)
+        self._db_path = db_path
+        self._column = annotation_column
+        self._options = dict(options)
+        self._png_table = png_table
+        self._only = None if only_paths is None else [str(p)
+                                                      for p in only_paths]
+
+    def run(self):
+        """Fit, propose, write, and hand back what was proposed.
+
+        Guarded at both ends for the reason ``_RetrainWorker.run`` sets out:
+        an exception out of a ``QThread.run`` override aborts the process,
+        and a signal emitted at a destroyed C++ object raises out of ``run``.
+        """
+        try:
+            from ... import active_learning as al
+            from ...suggest import suggest_from_scores, write_suggestions
+
+            al.retrain_round(self._db_path, self._column, **self._options)
+            proposal = suggest_from_scores(
+                self._db_path, self._column, png_table=self._png_table)
+            frame = proposal.frame
+            if self._only is not None and not frame.empty:
+                # The SCOPE, applied to the proposal rather than to the fit.
+                # The model is fitted on every label either way -- narrowing
+                # the training set to one page would make a worse model to
+                # save no time at all. What "this page" narrows is which
+                # crops get written, which is the only part the reviewer has
+                # to live with.
+                frame = frame[frame["png_path"].isin(set(self._only))]
+                frame = frame.reset_index(drop=True)
+                proposal.frame = frame
+                proposal.scored = int(len(frame))
+            written = 0
+            if not frame.empty:
+                written = write_suggestions(
+                    self._db_path, self._column, frame,
+                    png_table=self._png_table)
+        except Exception as exc:                      # surfaced, never eaten
+            try:
+                self.failed.emit(f"{type(exc).__name__}: {exc}")
+            except RuntimeError:
+                pass                  # the screen went first; see run() above
+            return
+        try:
+            if self.isInterruptionRequested():
+                return
+            self.done.emit((proposal, written))
+        except RuntimeError:
+            pass
+
+
 def _retire(obj) -> bool:
     """Hand ``obj`` back to Qt for deletion, tolerating one already gone.
 
@@ -985,6 +1089,11 @@ class _Thumbnail(QLabel):
         self._ring_color = ring_color or current_ring_color()
         self._current = False
         self._occupied = False
+        #: A machine's proposal rather than the annotator's answer. Drawn as
+        #: the SAME class colour with a dashed ring, never as a colour of its
+        #: own: a third colour on a two-class screen reads as a third class,
+        #: which is the one thing a suggestion must not look like.
+        self._suggested = False
         self.setAlignment(Qt.AlignCenter)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         # Transparent so the rounded tile sits cleanly on the grid canvas
@@ -1043,6 +1152,25 @@ class _Thumbnail(QLabel):
         self.update()
         return True
 
+    def is_suggested(self) -> bool:
+        """True when this cell's label was proposed, not decided."""
+        return self._suggested
+
+    def set_suggested(self, on: bool) -> bool:
+        """Draw this cell's ring dashed; returns True when it changed.
+
+        Mirrored onto a Qt property as well as the field so a stylesheet and
+        a test can both ask, the way ``set_current`` does -- and so "is this
+        a suggestion" has exactly one answer per tile.
+        """
+        on = bool(on)
+        self.setProperty("suggested", on)
+        if on == self._suggested:
+            return False
+        self._suggested = on
+        self.update()
+        return True
+
     # -- painting ------------------------------------------------------
     def paintEvent(self, event):        # noqa: N802  (Qt naming)
         """Draw the clipped crop, the state ring and (if current) the ring."""
@@ -1068,7 +1196,8 @@ class _Thumbnail(QLabel):
                                    QRectF(pm.rect()))
                 painter.restore()
             self._stroke(painter, self._border_color, BORDER_WIDTH,
-                         HOVER_RING_WIDTH + BORDER_WIDTH / 2.0, w, h)
+                         HOVER_RING_WIDTH + BORDER_WIDTH / 2.0, w, h,
+                         dashed=self._suggested)
             if self._current:
                 self._stroke(painter, self._ring_color, HOVER_RING_WIDTH,
                              HOVER_RING_WIDTH / 2.0, w, h)
@@ -1077,12 +1206,24 @@ class _Thumbnail(QLabel):
 
     @staticmethod
     def _stroke(painter: QPainter, color: str, width: int, inset: float,
-                w: float, h: float) -> None:
-        """Stroke one rounded rect inset by ``inset`` from the widget edge."""
+                w: float, h: float, dashed: bool = False) -> None:
+        """Stroke one rounded rect inset by ``inset`` from the widget edge.
+
+        ``dashed`` marks a suggested label. The COLOUR is unchanged -- the
+        dash pattern is the whole difference -- because a suggested 1 is a
+        proposal about class 1 and must read as one. Giving it its own
+        colour would put a third swatch on a two-class screen and invite the
+        reading that there is a third class.
+        """
         if w - 2 * inset <= 0 or h - 2 * inset <= 0:
             return
         pen = QPen(QColor(color))
         pen.setWidth(width)
+        if dashed:
+            # In units of the pen width, so the dashes keep their proportions
+            # when the interface is zoomed -- see `spacr.qt.live_zoom`.
+            pen.setStyle(Qt.CustomDashLine)
+            pen.setDashPattern([2.0, 2.0])
         painter.setPen(pen)
         radius = max(1.0, TILE_RADIUS - inset)
         painter.drawRoundedRect(
@@ -2700,6 +2841,10 @@ class AnnotateScreen(QWidget):
         # model's ranking put it in front of the annotator.
         self._round_index = 0
         self._retrain_worker: Optional[_RetrainWorker] = None
+        #: The Suggest run, kept separate from the retrain above so
+        #: one can be running while the other is retired. They fit
+        #: the same kind of model and must not be the same slot.
+        self._suggest_worker: Optional[_SuggestWorker] = None
         self._last_round = None            # spacr.active_learning.RoundResult
         self._stop_verdict = None          # spacr.active_learning.StoppingVerdict
         # A routed ObjectRequest currently pinning the grid to a subset, and
@@ -3084,6 +3229,24 @@ class AnnotateScreen(QWidget):
         )
         self._btn_retrain.clicked.connect(self._on_retrain)
         row.addWidget(self._btn_retrain)
+
+        # SUGGEST SITS NEXT TO RETRAIN because it is the same act with a
+        # different destination: Retrain re-ranks the queue with the model,
+        # Suggest writes the model's opinion down where you can accept it.
+        # A menu rather than a dialog for the same reason "Train…" has one --
+        # the choice is between named things with no further settings.
+        self._btn_suggest = QPushButton("Suggest…")
+        self._btn_suggest.setIcon(iconset.icon("classify"))
+        self._btn_suggest.setCursor(Qt.PointingHandCursor)
+        self._btn_suggest.setToolTip(
+            "Fit boosted trees on the labels made so far and write the "
+            "model's proposed label onto every crop you have not answered "
+            "yet — most confident first, dashed rather than solid, and only "
+            "where you have not already decided. Then keep them all, throw "
+            "them all away, or answer the ones it got wrong one at a time."
+        )
+        self._btn_suggest.clicked.connect(self._on_suggest_menu)
+        row.addWidget(self._btn_suggest)
 
         self._btn_curve = QPushButton("Rounds")
         self._btn_curve.setIcon(iconset.icon("chart"))
@@ -4402,6 +4565,227 @@ class AnnotateScreen(QWidget):
         self._offset = 0
         self._refresh_total(then=self._load_page)
 
+    # ------------------------------------------------------------------
+    # Suggest: the model's opinion, written down where it can be rejected
+    # ------------------------------------------------------------------
+    def _on_suggest_menu(self):
+        """Build the Suggest menu and drop it under the button."""
+        menu = self._build_suggest_menu()
+        if menu is None:
+            return
+        menu.exec(self._btn_suggest.mapToGlobal(
+            self._btn_suggest.rect().bottomLeft()))
+
+    def _build_suggest_menu(self):
+        """The Suggest menu, or None when there is no source to suggest for.
+
+        SEPARATE FROM SHOWING IT, so what the menu offers can be asserted
+        without a modal. `QMenu.exec` blocks in C++ and does not come back
+        for a monkeypatch on a Shiboken type; a test that tried hung until
+        its timeout killed it, which is how this seam got found.
+
+        BUILT ON EVERY PRESS rather than once at construction, because the
+        two verdict entries carry a live count and a menu that said "Keep 0
+        suggestions" would be worse than no menu. The count is one COUNT(*)
+        on an indexed integer column, which is cheap enough to pay for on a
+        button press and not cheap enough to pay for on every repaint.
+        """
+        if not self._settings.db_path:
+            QMessageBox.information(
+                self, "Open a source first",
+                "Open an experiment source before suggesting labels.")
+            return None
+        from ...suggest import pending_suggestions
+
+        try:
+            waiting = pending_suggestions(
+                self._settings.db_path, self._settings.annotation_column,
+                png_table=self._settings.png_table)
+        except Exception:                                    # noqa: BLE001
+            waiting = 0
+
+        menu = QMenu(self._btn_suggest)
+        page = menu.addAction(iconset.icon("classify"),
+                              "Suggest for the images on this page")
+        page.setToolTip(
+            "Fit on every label you have made, but write suggestions only "
+            "onto the crops in front of you. The model is the same either "
+            "way — this narrows what you have to review, not what it learns."
+        )
+        page.triggered.connect(lambda: self._start_suggest(this_page=True))
+        every = menu.addAction(iconset.icon("chart"),
+                               "Suggest for every unanswered image")
+        every.setToolTip(
+            "Write a suggestion onto every crop with no answer yet, most "
+            "confident first. Nothing you have already annotated is touched."
+        )
+        every.triggered.connect(lambda: self._start_suggest(this_page=False))
+        if waiting:
+            menu.addSeparator()
+            keep = menu.addAction(f"Keep all {waiting:,} suggestions")
+            keep.setToolTip(
+                "Turn every outstanding suggestion into an ordinary "
+                "annotation, indistinguishable from one you made by hand."
+            )
+            keep.triggered.connect(lambda: self._resolve_suggestions(True))
+            throw = menu.addAction(f"Throw away all {waiting:,} suggestions")
+            throw.setToolTip(
+                "Clear every outstanding suggestion back to unanswered. "
+                "Your own annotations are not touched."
+            )
+            throw.triggered.connect(lambda: self._resolve_suggestions(False))
+        return menu
+
+    def _start_suggest(self, *, this_page: bool) -> None:
+        """Fit a round and write its proposals, off the GUI thread."""
+        if self._suggest_worker is not None:
+            self._status_label.setText("A suggestion run is already going.")
+            return
+        # The labels just made are the ones that most change the model; a run
+        # that raced the save worker would fit on the state before them. Same
+        # flush `_on_retrain` does, and for the same reason.
+        self._flush_pending()
+        if self._worker is not None:
+            self._worker.stop(wait=True)
+            self._worker = SaveWorker(self._settings.db_path,
+                                      self._settings.annotation_column,
+                                      table=self._settings.png_table)
+            self._worker.start()
+
+        only = None
+        if this_page:
+            only = [str(path) for path, _ in self._page_paths]
+            if not only:
+                self._status_label.setText(
+                    "There is nothing on this page to suggest for.")
+                return
+
+        self._btn_suggest.setEnabled(False)
+        self._status_label.setText(
+            "Fitting on the labels so far, then suggesting…")
+        self._console.append_notice(
+            "Suggesting labels from a model fitted on the labels so far…\n")
+        worker = _SuggestWorker(
+            self._settings.db_path, self._settings.annotation_column,
+            {"round_index": self._round_index,
+             # BOOSTED TREES, which is what the request asked for by the name
+             # XGBoost. `_build_round_model` maps this to sklearn's
+             # HistGradientBoostingClassifier -- the same algorithm, already
+             # a dependency, and the one the rest of the round machinery
+             # (grouped split, model card, saved joblib) already understands.
+             "model_type": "gradient_boosting",
+             "measure": self._settings.queue_measure,
+             "diversity": self._settings.queue_diversity,
+             "image_type": self._settings.image_type},
+            png_table=self._settings.png_table,
+            only_paths=only, parent=self)
+        worker.done.connect(self._on_suggest_done)
+        worker.failed.connect(self._on_suggest_failed)
+        worker.finished.connect(self._on_suggest_finished)
+        self._suggest_worker = worker
+        worker.start()
+
+    @Slot(object)
+    def _on_suggest_done(self, payload) -> None:
+        """Suggestions are in the column: say how many, and show them."""
+        proposal, written = payload
+        note = getattr(proposal, "note", "") or ""
+        if not written:
+            message = note or "nothing was left to suggest a label for"
+            self._console.append_notice(
+                "No suggestions written — {why}.\n", why=message)
+            self._status_label.setText(f"No suggestions — {message}.")
+            return
+        self._console.append_notice(
+            "Wrote {n} suggestions, most confident first. They are drawn "
+            "with a dashed ring: answer the ones it got wrong, then keep or "
+            "throw away the rest from the Suggest menu.\n",
+            n=f"{written:,}")
+        self._status_label.setText(
+            f"{written:,} suggestions written — dashed rings are proposals, "
+            f"not answers.")
+        # Re-read the page so the dashed rings appear without a navigation.
+        self._refresh_total(then=self._load_page)
+
+    @Slot(str)
+    def _on_suggest_failed(self, message: str) -> None:
+        """A suggestion run could not fit — say why, and what is missing."""
+        self._console.append_notice(
+            "Suggest failed: {msg}\n", msg=message)
+        self._status_label.setText(f"Suggest failed — {message}")
+        QMessageBox.warning(
+            self, "Suggest failed",
+            f"{message}\n\nNothing was written; your annotations are "
+            f"untouched. The usual causes are too few labels, only one class "
+            f"annotated so far — a classifier needs an example of both — or "
+            f"no measurement tables to build features from.")
+
+    @Slot()
+    def _on_suggest_finished(self) -> None:
+        """Retire the suggestion thread on the GUI thread."""
+        worker = self._suggest_worker
+        self._suggest_worker = None
+        try:
+            self._btn_suggest.setEnabled(True)
+        except RuntimeError:
+            return                    # the screen went first
+        if worker is None:
+            return
+        for signal, slot in ((worker.done, self._on_suggest_done),
+                             (worker.failed, self._on_suggest_failed),
+                             (worker.finished, self._on_suggest_finished)):
+            try:
+                signal.disconnect(slot)
+            except (RuntimeError, TypeError):
+                pass
+        _retire(worker)
+
+    def _resolve_suggestions(self, keep: bool) -> None:
+        """Accept every outstanding suggestion, or clear them all away.
+
+        Confirmed before either, because both are bulk and one of them is a
+        bulk WRITE of labels a machine chose. `resolve_suggestions` acts only
+        on offset values, so a human's annotation caught by the same query is
+        untouched whichever way this goes -- but the annotator should still
+        get to see the number before it happens.
+        """
+        from ...suggest import pending_suggestions, resolve_suggestions
+
+        db_path = self._settings.db_path
+        column = self._settings.annotation_column
+        if not db_path:
+            return
+        waiting = pending_suggestions(db_path, column,
+                                      png_table=self._settings.png_table)
+        if not waiting:
+            self._status_label.setText("There are no suggestions waiting.")
+            return
+        if keep:
+            question = (f"Accept all {waiting:,} suggestions as annotations "
+                        f'in column "{column}"?\n\nThey become ordinary '
+                        f"annotations and can no longer be told apart from "
+                        f"the ones you made by hand.")
+        else:
+            question = (f"Throw away all {waiting:,} suggestions in column "
+                        f'"{column}"?\n\nThose crops go back to unanswered. '
+                        f"Your own annotations are not touched.")
+        if QMessageBox.question(
+                self, "Keep suggestions" if keep else "Throw away suggestions",
+                question) != QMessageBox.Yes:
+            return
+        # The pending writes go first: a suggestion the annotator has just
+        # answered by hand is no longer a suggestion, and resolving before
+        # the save worker had flushed would sweep it up as one.
+        self._flush_pending()
+        changed = resolve_suggestions(
+            db_path, column, keep=keep,
+            png_table=self._settings.png_table)
+        verb = "accepted" if keep else "thrown away"
+        self._console.append_notice(
+            "{n} suggestions {verb}.\n", n=f"{changed:,}", verb=verb)
+        self._status_label.setText(f"{changed:,} suggestions {verb}.")
+        self._refresh_total(then=self._load_page)
+
     def _on_train_cv(self):
         """Save any pending annotations, then hand off to Classify."""
         if not self._settings.src:
@@ -5058,9 +5442,38 @@ class AnnotateScreen(QWidget):
         five of the first six below the readability floor. That is issue #6 --
         reported as a macOS problem, and really a light-theme one, since
         macOS defaults to the light appearance far more often than Linux.
+
+        A SUGGESTION RESOLVES TO ITS OWN CLASS'S COLOUR. Suggestions are
+        stored offset (a suggested 1 is an 11 -- see
+        :data:`spacr.suggest.SUGGESTION_OFFSET`), and handing that raw to
+        ``label_to_hex`` would either fall off the end of the palette or,
+        worse, land on the colour of a class the model never proposed. The
+        offset is removed here; what distinguishes a suggestion is the
+        dashed ring :meth:`_is_suggested_slot` turns on, not the colour.
         """
-        return (label_to_hex(self._current_value(slot), dark=on_dark_theme())
+        return (label_to_hex(self._displayed_class(slot), dark=on_dark_theme())
                 or resting_border_color())
+
+    def _displayed_class(self, slot: int):
+        """``slot``'s class as the palette knows it, suggestion or answer."""
+        value = self._current_value(slot)
+        if value is None:
+            return None
+        try:
+            value = int(value)
+        except (TypeError, ValueError):
+            return value
+        if value > SUGGESTION_OFFSET:
+            return value - SUGGESTION_OFFSET
+        return value
+
+    def _is_suggested_slot(self, slot: int) -> bool:
+        """True when ``slot`` carries a proposal rather than an answer."""
+        value = self._current_value(slot)
+        try:
+            return value is not None and int(value) > SUGGESTION_OFFSET
+        except (TypeError, ValueError):
+            return False
 
     def _repaint_slot(self, slot: int) -> None:
         """Sync one tile's chrome with the model. Cheap: no pixmap work.
@@ -5075,6 +5488,7 @@ class AnnotateScreen(QWidget):
         thumb = self._thumbs[slot]
         thumb.set_occupied(slot < len(self._page_paths))
         thumb.set_border_color(self._border_color_for(slot))
+        thumb.set_suggested(self._is_suggested_slot(slot))
         thumb.set_current(slot == self._focus_slot)
 
     def _toggle_annotation(self, slot: int, new_value: int):
@@ -5630,6 +6044,27 @@ class AnnotateScreen(QWidget):
                 # still-running QThread is the abort being avoided; the park
                 # list owns it from here.
                 _retire(retrain)
+        suggest = self._suggest_worker
+        if suggest is not None:
+            # The same budgeted drain, for the same reason: a Suggest run
+            # fits a model and then WRITES to SQLite, and tearing the widget
+            # down mid-write is the crash the paragraph above is about. It
+            # has strictly more to lose than a retrain, because a half-
+            # written suggestion set is a column the annotator has to clean
+            # up by hand.
+            suggest.requestInterruption()
+            stopped = drain_thread(suggest, timeout_ms=CLOSE_DRAIN_MS)
+            self._suggest_worker = None
+            for signal, slot in ((suggest.done, self._on_suggest_done),
+                                 (suggest.failed, self._on_suggest_failed),
+                                 (suggest.finished,
+                                  self._on_suggest_finished)):
+                try:
+                    signal.disconnect(slot)
+                except (RuntimeError, TypeError):
+                    pass
+            if stopped:
+                _retire(suggest)
         if self._worker:
             self._worker.stop(wait=True)
             self._worker = None

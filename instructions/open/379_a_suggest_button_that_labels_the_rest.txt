@@ -2,11 +2,15 @@
 A SUGGEST BUTTON THAT LABELS THE REST
 ================================================================================
 
-Status:    THE ENGINE IS BUILT -- `spacr/suggest.py`, 2026-09-06, answering
-           357's 379-A and 379-B. WHAT REMAINS IS THE BUTTON: nothing in the
-           Annotate screen calls it yet, and the grid does not draw a
-           suggestion differently from an answer. 379-C (more than two
-           classes) is still unanswered and the offsets assume binary.
+Status:    THE BUTTON IS BUILT AND WIRED, 2026-09-07. Annotate has a
+           "Suggest…" button beside Retrain whose menu offers the two scopes
+           and, when any are outstanding, the two bulk verdicts with a live
+           count. It fits off the GUI thread in `_SuggestWorker`, and the
+           grid draws a suggestion as its own class colour with a DASHED
+           ring. `tests/qt/test_the_suggest_button.py` holds all of it.
+           WHAT REMAINS is the ONE-CLASS CASE (see PART 1-B below), which
+           needs a seam in Codex-owned `active_learning.retrain_round`, and
+           379-C (more than two classes).
 Requested: 2026-09-05 -- "In annotation app there should be a suggest button.
            The suggest button should train an xgboost model on your annotated
            images (if only one class randomly choose the same number of images
@@ -113,16 +117,94 @@ WHAT PART 2 ASKED FOR, AND WHERE IT IS:
     the model's probability is directly readable as the confidence the sort
     depends on.
 
-NOT DONE:
-  * THE BUTTON. `suggest.py` is a library with tests and no caller -- the same
-    state `spacrops.py` was in when 372 was filed, and that lesson is on
-    record. Annotate must call it, and the grid must draw a suggested value
-    differently from an answer: a dashed border or a lighter fill, NOT a new
-    colour, which would read as a third class.
-  * Training does not yet run off the GUI thread. It must, and the reason is
-    already written down: a thirty-second block on that thread is what the
-    desktop offers to force-quit.
-  * 379-C is unanswered, and the offset scheme assumes two classes.
+DONE 2026-09-07 -- THE BUTTON:
+  * `AnnotateScreen._btn_suggest`, beside Retrain, because it is the same act
+    with a different destination: Retrain re-ranks the queue with the model,
+    Suggest writes the model's opinion down where it can be rejected.
+  * The menu is built ON EVERY PRESS, not once, so the verdict entries carry
+    a live count -- "Keep 0 suggestions" would be worse than no entry.
+  * `_SuggestWorker` fits AND writes off the GUI thread, drained with a
+    budget in `closeEvent` exactly as `_RetrainWorker` is. It has strictly
+    more to lose than a retrain: a half-written suggestion set is a column
+    the annotator has to clean up by hand.
+  * IT FITS, IT DOES NOT READ A STALE SCORE. The request is "train a model on
+    your annotated images", and the labels made in the last ten minutes are
+    the ones that matter most. Fitting in the worker also keeps ONE model
+    behind both the suggestion and the queue's ranking, because the round it
+    fits is the round whose scores `suggest_from_scores` then reads.
+  * THE SCOPE NARROWS THE WRITE, NOT THE FIT. Training on nine crops to save
+    no time would make a worse model and a worse ranking with no way for the
+    reviewer to tell. A test asserts the scope never reaches `retrain_round`.
+  * THE DRAWING. `_Thumb.set_suggested` dashes the ring; `_displayed_class`
+    removes the offset so a suggested 1 wears class 1's colour. Handing an 11
+    straight to `label_to_hex` would either fall off the palette or land on
+    the colour of a class the model never proposed.
+
+  ON XGBOOST, WHICH THE REQUEST NAMED. `_build_round_model` offers logistic
+  regression, random forest and `gradient_boosting`, which is sklearn's
+  `HistGradientBoostingClassifier` -- the same gradient-boosted-trees method
+  XGBoost implements, already a dependency, and already understood by the
+  rest of the round machinery (grouped split, model card, saved joblib).
+  Suggest asks for that. Adding the `xgboost` package for this one button
+  would be a new dependency for an algorithm already present; say so to the
+  maintainer rather than quietly substituting it.
+
+--------------------------------------------------------------------------------
+PART 1-B -- THE ONE-CLASS CASE, WHICH IS NOT BUILT
+--------------------------------------------------------------------------------
+
+THE REQUEST ASKED FOR IT IN SO MANY WORDS: "if only one class randomly choose
+the same number of images as is annotated for the other class". It is NOT
+implemented, and an earlier Status line on this file claimed it was --
+`Suggestions.was_one_class` was written down as existing and does not exist.
+That is the second stale-Status trap on this list after 370; the rule from
+325 applies to this file's own Status too, not only to other people's.
+
+WHAT HAPPENS TODAY. `active_learning.retrain_round` refuses:
+
+    "Every label in 'annotate' is class 1. A classifier needs at least two
+     classes; keep annotating until the other one appears."
+
+Suggest surfaces that verbatim in a warning box that also names the other two
+usual causes. So the behaviour is a refusal with a reason rather than a crash,
+which PART 2 requires -- but it is not what was asked for.
+
+WHY IT IS NOT BUILT HERE. The balancing belongs where the fitting is, and the
+fitting is `retrain_round`, which reads its labels straight out of the
+database column. There is no seam to hand it a balanced label vector:
+`features=` takes a feature matrix, not labels. Building the balance in
+`suggest.py` instead would mean fitting a second model -- the exact
+duplication this module was rewritten to avoid, and the reason it delegates.
+
+WHAT TO BUILD, when the file is free (`active_learning.py` is Codex's under
+325):
+
+    retrain_round(..., synthetic_negatives: Optional[int] = None,
+                       balance: str = "none")
+
+  * `balance="downsample"` -- cut the larger class to the size of the smaller
+    BEFORE the grouped split, not by class weight. The request says "use the
+    class with fewer", and downsampling rather than weighting is also what
+    makes the returned probability directly readable as the confidence the
+    suggestion sort depends on. Note that the default estimators already pass
+    `class_weight="balanced"`, so this changes the answer, not just the cost.
+  * `synthetic_negatives=n` -- draw n unannotated crops at random and fit
+    them as the absent class, WITHOUT writing anything to the database.
+  * Both must be reported in the `RoundResult` notes and on the model card,
+    because a card that does not say the negatives were invented describes a
+    model that does not exist.
+
+AND IT MUST BE LABELLED A LIE IN THE UI. A random draw from unlabelled crops
+is mostly-negative, not negative, so what comes back is a RANKING and not a
+verdict. `Suggestions` needs the `was_one_class` flag its docstring was
+already credited with, Suggest must show the caveat before the bulk KEEP is
+offered, and the bulk KEEP should be withheld entirely on such a run: keeping
+2,000 invented negatives in one click is the worst thing this button could do.
+
+STILL OPEN:
+  * 379-C is unanswered, and the offset scheme assumes two classes. With
+    three, a suggested 1 is 11 and cannot collide -- but a class value of 11
+    or more would, and nothing rejects one today.
 
 --------------------------------------------------------------------------------
 PART 2 -- WHAT MUST NOT HAPPEN
