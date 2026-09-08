@@ -61,7 +61,16 @@ def test_conda_and_pypi_are_separate_install_routes(path: Path):
 
     assert text.count(CONDA_COMMAND) == 1
     assert text.count(PIP_COMMAND) == 1
-    assert text.index(CONDA_COMMAND) < text.index(PIP_COMMAND)
+    # PIP FIRST, CONDA SECOND, since the README restructure of 2dfbbe874 on
+    # 2026-09-01 moved the PyPI section above the conda-forge one. This
+    # assertion had the old order and failed on all 32 READMEs -- the English
+    # one and the nine translations, which carry the same structure.
+    #
+    # The ORDER is presentation and the restructure chose it; what this test
+    # is named for is that the two routes stay SEPARATE, which is the pair of
+    # counts above. The ordering is kept only so an accidental reshuffle is
+    # still noticed, and it follows the document rather than leading it.
+    assert text.index(PIP_COMMAND) < text.index(CONDA_COMMAND)
 
 
 @pytest.mark.parametrize("path", LOCALIZED, ids=lambda path: path.name)

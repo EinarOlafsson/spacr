@@ -3563,15 +3563,15 @@ REVIEWED_README_RESOURCE_ALT_TEXT = {
 }
 
 REVIEWED_README_BADGE_ALT_TEXT = {
-    "de": ("Dokumentation", "Interaktive Tutorials", "PyPI-Version", "Python 3.9 bis 3.14", "Testsuite", "Qt-Oberfläche", "GitHub-Quellcode", "GitHub-Issues", "PolyForm-Noncommercial-Lizenz", "Zenodo-DOI", "Neueste Installationsprogramme", "conda-forge-Version", "spaCR"),
-    "es": ("Documentación", "Tutoriales interactivos", "Versión de PyPI", "Python 3.9 a 3.14", "Conjunto de pruebas", "Interfaz Qt", "Código fuente en GitHub", "Incidencias de GitHub", "Licencia PolyForm Noncommercial", "DOI de Zenodo", "Instaladores más recientes", "Versión en conda-forge", "spaCR"),
-    "fr": ("Documentation", "Tutoriels interactifs", "Version PyPI", "Python 3.9 à 3.14", "Suite de tests", "Interface Qt", "Code source GitHub", "Tickets GitHub", "Licence PolyForm Noncommercial", "DOI Zenodo", "Derniers installateurs", "Version conda-forge", "spaCR"),
-    "hi": ("दस्तावेज़", "इंटरैक्टिव ट्यूटोरियल", "PyPI संस्करण", "Python 3.9 से 3.14", "परीक्षण समूह", "Qt इंटरफ़ेस", "GitHub स्रोत", "GitHub समस्याएँ", "PolyForm गैर-व्यावसायिक लाइसेंस", "Zenodo DOI", "नवीनतम इंस्टॉलर", "conda-forge संस्करण", "spaCR"),
-    "is": ("Skjöl", "Gagnvirkt kennsluefni", "PyPI-útgáfa", "Python 3.9 til 3.14", "Prófunarsafn", "Qt-viðmót", "Frumkóði á GitHub", "GitHub-mál", "PolyForm Noncommercial-leyfi", "Zenodo DOI", "Nýjustu uppsetningarforrit", "conda-forge-útgáfa", "spaCR"),
-    "ko": ("문서", "대화형 튜토리얼", "PyPI 버전", "Python 3.9~3.14", "테스트 모음", "Qt 인터페이스", "GitHub 소스 코드", "GitHub 이슈", "PolyForm 비상업용 라이선스", "Zenodo DOI", "최신 설치 프로그램", "conda-forge 버전", "spaCR"),
-    "pt": ("Documentação", "Tutoriais interativos", "Versão no PyPI", "Python 3.9 a 3.14", "Suíte de testes", "Interface Qt", "Código-fonte no GitHub", "Problemas no GitHub", "Licença PolyForm Noncommercial", "DOI do Zenodo", "Instaladores mais recentes", "Versão no conda-forge", "spaCR"),
-    "sv": ("Dokumentation", "Interaktiva handledningar", "PyPI-version", "Python 3.9 till 3.14", "Testsvit", "Qt-gränssnitt", "Källkod på GitHub", "GitHub-ärenden", "PolyForm Noncommercial-licens", "Zenodo-DOI", "Senaste installationsprogrammen", "conda-forge-version", "spaCR"),
-    "zh_CN": ("文档", "交互式教程", "PyPI 版本", "Python 3.9 至 3.14", "测试套件", "Qt 界面", "GitHub 源代码", "GitHub 问题", "PolyForm 非商业许可证", "Zenodo DOI", "最新安装程序", "conda-forge 版本", "spaCR"),
+    "de": ("Dokumentation", "Interaktive Tutorials", "PyPI-Version", "Python 3.9 bis 3.14", "Testsuite", "Qt-Oberfläche", "GitHub-Quellcode", "GitHub-Issues", "BSD-3-Clause-Lizenz", "bioRxiv-Preprint", "Zenodo-DOI", "Neueste Installationsprogramme", "conda-forge-Version", "spaCR"),
+    "es": ("Documentación", "Tutoriales interactivos", "Versión de PyPI", "Python 3.9 a 3.14", "Conjunto de pruebas", "Interfaz Qt", "Código fuente en GitHub", "Incidencias de GitHub", "Licencia BSD 3-Clause", "Preprint en bioRxiv", "DOI de Zenodo", "Instaladores más recientes", "Versión en conda-forge", "spaCR"),
+    "fr": ("Documentation", "Tutoriels interactifs", "Version PyPI", "Python 3.9 à 3.14", "Suite de tests", "Interface Qt", "Code source GitHub", "Tickets GitHub", "Licence BSD 3-Clause", "Prépublication bioRxiv", "DOI Zenodo", "Derniers installateurs", "Version conda-forge", "spaCR"),
+    "hi": ("दस्तावेज़", "इंटरैक्टिव ट्यूटोरियल", "PyPI संस्करण", "Python 3.9 से 3.14", "परीक्षण समूह", "Qt इंटरफ़ेस", "GitHub स्रोत", "GitHub समस्याएँ", "BSD 3-Clause लाइसेंस", "bioRxiv प्रीप्रिंट", "Zenodo DOI", "नवीनतम इंस्टॉलर", "conda-forge संस्करण", "spaCR"),
+    "is": ("Skjöl", "Gagnvirkt kennsluefni", "PyPI-útgáfa", "Python 3.9 til 3.14", "Prófunarsafn", "Qt-viðmót", "Frumkóði á GitHub", "GitHub-mál", "BSD 3-Clause-leyfi", "bioRxiv-forprentun", "Zenodo DOI", "Nýjustu uppsetningarforrit", "conda-forge-útgáfa", "spaCR"),
+    "ko": ("문서", "대화형 튜토리얼", "PyPI 버전", "Python 3.9~3.14", "테스트 모음", "Qt 인터페이스", "GitHub 소스 코드", "GitHub 이슈", "BSD 3-Clause 라이선스", "bioRxiv 프리프린트", "Zenodo DOI", "최신 설치 프로그램", "conda-forge 버전", "spaCR"),
+    "pt": ("Documentação", "Tutoriais interativos", "Versão no PyPI", "Python 3.9 a 3.14", "Suíte de testes", "Interface Qt", "Código-fonte no GitHub", "Problemas no GitHub", "Licença BSD 3-Clause", "Preprint no bioRxiv", "DOI do Zenodo", "Instaladores mais recentes", "Versão no conda-forge", "spaCR"),
+    "sv": ("Dokumentation", "Interaktiva handledningar", "PyPI-version", "Python 3.9 till 3.14", "Testsvit", "Qt-gränssnitt", "Källkod på GitHub", "GitHub-ärenden", "BSD 3-Clause-licens", "bioRxiv-preprint", "Zenodo-DOI", "Senaste installationsprogrammen", "conda-forge-version", "spaCR"),
+    "zh_CN": ("文档", "交互式教程", "PyPI 版本", "Python 3.9 至 3.14", "测试套件", "Qt 界面", "GitHub 源代码", "GitHub 问题", "BSD 3-Clause 许可证", "bioRxiv 预印本", "Zenodo DOI", "最新安装程序", "conda-forge 版本", "spaCR"),
 }
 
 # Workflow tiles keep their canonical module names so visual navigation, GUI

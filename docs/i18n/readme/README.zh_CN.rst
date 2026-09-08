@@ -26,19 +26,19 @@
    :alt: GitHub 问题
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm 非商业许可证
+   :alt: BSD 3-Clause 许可证
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-   :alt: 最新安装程序
+   :alt: bioRxiv 预印本
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
-   :alt: conda-forge 版本
+   :alt: 最新安装程序
 .. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
    :target: https://anaconda.org/conda-forge/spacr
-   :alt: spaCR
+   :alt: conda-forge 版本
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
