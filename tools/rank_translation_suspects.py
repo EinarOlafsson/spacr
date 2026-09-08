@@ -70,6 +70,17 @@ GLOSSARY: dict[str, dict[str, tuple[tuple[str, ...], tuple[str, ...]]]] = {
         "fr": (("supprime", "écarte", "retire"), ("gouttes", "gouttelettes")),
         "pt": (("remove", "descarta"), ("gotas",)),
     },
+    # The OTHER `log`. Where the key is not one of LOG_IS_AN_ACRONYM the
+    # word means logarithm, and *Protokoll* / *registro* is the logbook
+    # sense -- a wrong sense rather than a lost acronym, so it belongs
+    # here and not in PROTECTED_TOKENS.
+    "log": {
+        "de": (("log", "logarithmisch", "logarithmische",
+                "logarithmischen"), ("protokoll", "logbuch")),
+        "es": (("log", "logarítmico", "logarítmica"),
+               ("registro", "diario", "bitácora")),
+        "fr": (("log", "logarithmique"), ("journal", "registre")),
+    },
     "invert": {
         "fr": (("inverse", "inverser"), ("piétiné", "pietine")),
         "zh_CN": (("反转", "反选"), ("点燃",)),
@@ -110,6 +121,49 @@ PROTECTED_TOKENS: dict[str, tuple[str, ...]] = {
     "otsu": (),
 }
 
+#: The four suffixes where ``log`` is Laplacian of Gaussians.
+#:
+#: ONE SPELLING, TWO WORDS, AND ONLY ONE OF THEM IS AN ACRONYM. `log` is
+#: LoG in `organelle_log_max_sigma` and an ordinary logarithm in `log_x`,
+#: `log_y` and `log_data`, which are axis and transform switches on a
+#: plot. Protecting the token everywhere would report a log axis as a
+#: mistranslated filter -- the same shape as the *Protokoll* false
+#: positive one level down, and the reason `log` could not simply join
+#: `dog` in the runtime's CASED_TERMS.
+LOG_IS_AN_ACRONYM = ("log_max_sigma", "log_min_sigma",
+                     "log_num_sigma", "log_threshold")
+
+#: Keys where GLOSSARY term ``log`` means logarithm. Everywhere else the
+#: word means logbook and *Protokoll* is the RIGHT German.
+#:
+#: THE THIRD SENSE, found by running the second one. Adding a `log`
+#: glossary row for the logarithm caught `log_x` -> "Protokoll x"
+#: correctly and then flagged three strings where the English says "the
+#: log prints a warning" and "the curation log" -- records, not
+#: logarithms, and German's *Protokoll* / *Kurationsprotokoll* is exactly
+#: right for them. Prose almost always means the logbook; only these
+#: plot switches mean the function, so the row is scoped to them and not
+#: the other way round.
+LOG_IS_A_LOGARITHM = ("log_x", "log_y", "log_data")
+
+#: ``GLOSSARY term -> the only keys it applies to``. Absent means "every
+#: key", which is true of every term but this one.
+TERM_KEY_SCOPE: dict[str, tuple[str, ...]] = {"log": LOG_IS_A_LOGARITHM}
+
+
+def _token_is_a_term_of_art(token: str, key: str) -> bool:
+    """Whether ``token`` carries its domain sense in this setting name.
+
+    :param token: a key of :data:`PROTECTED_TOKENS`.
+    :param key: the catalog key the string was found under.
+    :returns: ``True`` where the token must survive translation.
+    """
+    if token not in str(key).lower().split("_"):
+        return False
+    if token == "log":
+        return any(str(key).lower().endswith(s) for s in LOG_IS_AN_ACRONYM)
+    return True
+
 
 def _catalog(language: str):
     return importlib.import_module(f"spacr.qt.i18n_catalogs.{language}")
@@ -122,6 +176,22 @@ def _contains_word(haystack: str, needle: str) -> bool:
     separate hit and count the same string twice.
     """
     return re.search(rf"(?i)\b{re.escape(needle)}\b", haystack) is not None
+
+
+def _starts_a_word(haystack: str, needle: str) -> bool:
+    """Whether any word in ``haystack`` BEGINS with ``needle``.
+
+    FOR THE WRONG-COGNATE LIST ONLY, and because German compounds. The
+    logbook sense of `log` reached the catalog three ways -- "Protokoll
+    x", "Protokollieren y", "Protokolldaten" -- and a whole-word match
+    finds one of the three. The other two are the same defect wearing an
+    inflection and a compound.
+
+    Deliberately not used for the approved list: matching a prefix there
+    would accept a word that merely STARTS like the right one, which is
+    how a checker starts passing things it should not.
+    """
+    return re.search(rf"(?i)\b{re.escape(needle)}", haystack) is not None
 
 
 def suspects(language: str):
@@ -145,9 +215,12 @@ def suspects(language: str):
                     continue
                 if not _contains_word(text, term):
                     continue
+                scope = TERM_KEY_SCOPE.get(term)
+                if scope is not None and str(key).lower() not in scope:
+                    continue                 # a different sense of the word
                 approved, wrong = locales[language]
-                hit = next((w for w in wrong if _contains_word(rendered, w)),
-                           None)
+                hit = next((w for w in wrong
+                            if _starts_a_word(rendered, w)), None)
                 if hit is not None:
                     found.append((HIGH, table, key, f"{term} -> {hit}",
                                   rendered[:110]))
@@ -168,14 +241,14 @@ def suspects(language: str):
                 else:
                     found.append((LOW, table, key, term, rendered[:110]))
             for token, wrong in PROTECTED_TOKENS.items():
-                # THE KEY, NOT THE PROSE. "log" is an acronym in
-                # `organelle_log_max_sigma` and an ordinary verb in
-                # "while logging each edit" -- German renders the second
-                # as *Protokoll* correctly, and flagging it would teach a
-                # reader that this list cries wolf. A token is protected
-                # where the SETTING NAME contains it, which is where it
-                # is a term of art.
-                if token not in str(key).lower().split("_"):
+                # THE KEY, NOT THE PROSE, and for `log` not even every
+                # key -- see `_token_is_a_term_of_art`. "log" is an
+                # acronym in `organelle_log_max_sigma`, a logarithm in
+                # `log_x`, and an ordinary verb in "while logging each
+                # edit", which German renders as *Protokoll* correctly.
+                # Only the first is this pass's business; the second is a
+                # GLOSSARY row and the third is nobody's.
+                if not _token_is_a_term_of_art(token, key):
                     continue
                 if not _contains_word(text, token):
                     continue

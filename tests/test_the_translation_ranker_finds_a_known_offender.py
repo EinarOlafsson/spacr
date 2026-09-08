@@ -136,3 +136,57 @@ def test_the_english_word_can_be_the_right_word(ranker):
     assert not any(a.lower() == "organelle" for a in approved_es), (
         "the exception must be per-locale: Spanish is orgánulo, and "
         "'organelle' standing in Spanish prose IS the defect")
+
+
+def test_the_two_senses_of_log_are_told_apart(ranker):
+    """LoG the filter and log the axis share a spelling, not a meaning.
+
+    The other session could not put `log` in the runtime's CASED_TERMS
+    for exactly this reason: a blanket word rule turns a log axis into a
+    filter. So the acronym pass claims the four Laplacian-of-Gaussians
+    suffixes and nothing else.
+    """
+    assert ranker._token_is_a_term_of_art("log", "organelle_log_max_sigma")
+    assert ranker._token_is_a_term_of_art("log", "organelleb_log_threshold")
+    assert not ranker._token_is_a_term_of_art("log", "log_x")
+    assert not ranker._token_is_a_term_of_art("log", "log_data")
+    # dog has one sense, so scoping must not have narrowed it too.
+    assert ranker._token_is_a_term_of_art("dog", "organelle_dog_sigma_high")
+
+
+def test_prose_log_means_logbook_and_protokoll_is_right(ranker):
+    """The third sense, and the one that cost a false positive to find.
+
+    Adding a glossary row for the logarithm immediately flagged three
+    strings where the English says "the log prints a warning" and "the
+    curation log" -- records, not logarithms, where German's *Protokoll*
+    and *Kurationsprotokoll* are exactly right. Prose almost always
+    means the logbook, so the row is scoped to the plot switches.
+    """
+    assert set(ranker.TERM_KEY_SCOPE) == {"log"}, (
+        "a second scoped term appeared; confirm it needs scoping rather "
+        "than that the scope leaked")
+    scope = ranker.TERM_KEY_SCOPE["log"]
+    assert "log_x" in scope and "infection_pca_min_silhouette" not in scope
+    de = [row for row in ranker.suspects("de") if row[2] == "curate"]
+    assert not de, (
+        "MODULE_SUMMARIES.curate is back on the German list; its "
+        "'curation log' is a record and Kurationsprotokoll is correct")
+
+
+def test_a_wrong_cognate_is_caught_inside_a_german_compound(ranker):
+    """One defect, three surface forms, and whole-word finds one.
+
+    Protokoll x / Protokollieren y / Protokolldaten are the same wrong
+    sense inflected and compounded. Prefix matching is used for the
+    WRONG list only -- doing it for the approved list would accept a word
+    that merely starts like the right one.
+    """
+    assert ranker._starts_a_word("Protokolldaten", "protokoll")
+    assert ranker._starts_a_word("Protokollieren y", "protokoll")
+    assert not ranker._starts_a_word("Kurationsprotokoll", "protokoll"), (
+        "prefix matching must still respect word starts, or every German "
+        "compound ENDING in the cognate becomes a false positive")
+    hits = {row[2] for row in ranker.suspects("de")
+            if row[0] == ranker.HIGH and row[2].startswith("log_")}
+    assert hits == {"log_x", "log_y", "log_data"}, hits
