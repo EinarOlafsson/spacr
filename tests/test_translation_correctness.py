@@ -90,6 +90,12 @@ DELIBERATELY_UNTRANSLATED = {
     "Organelle 2": {"de"},
     "Organelle 3": {"de"},
     "Organelle 4": {"de"},
+    # OPTICAL POOLED SCREENING, and the module is named by the acronym. It is
+    # the field's own term and travels untranslated through the in-situ
+    # sequencing literature in every one of these locales, exactly as PCA
+    # does below -- including French, which has no expansion of its own for
+    # it the way it has ACP for PCA.
+    "OPS": {"de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"},
     # The PCA screen keeps the standard scientific acronym in every locale
     # except French, whose established abbreviation is ACP.
     "PCA": {"de", "es", "hi", "is", "ko", "pt", "sv", "zh_CN"},

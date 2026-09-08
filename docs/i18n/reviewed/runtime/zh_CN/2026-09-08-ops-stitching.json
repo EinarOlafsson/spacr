@@ -1,0 +1,195 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "all_scores",
+      "source_sha256": "a1785a57c3401c9a5439f7bfe00ebd49ca172188ce94a0aab7f4f5c2705c996e",
+      "source": "Keep every scored pair in the report, not only the ones that passed. Turning it on makes the report larger and lets you see how close a failed stitch came; it changes nothing about the mosaic. Default False.",
+      "translation": "在报告中保留每一个评分过的图块对，而不仅是通过的那些。开启后报告会变大，并让你看到一次失败的拼接差了多少；它不会改变拼接图。默认 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "allow_rotation",
+      "source_sha256": "74c821358b5433e4e0936971c804bac84bbd6760fd8108ae44efebf06c789ec8",
+      "source": "Let the fit rotate one tile relative to another. Leave it off for a motorised stage, which does not rotate between fields; turning it on adds a degree of freedom that can absorb a bad match into a plausible-looking angle. Default False.",
+      "translation": "允许拟合时让一个图块相对另一个旋转。对电动载物台请保持关闭，因为它在各视野之间不会旋转；开启会增加一个自由度，可能把一次错误的匹配吸收成一个看似合理的角度。默认 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "allow_scale",
+      "source_sha256": "2a13696be01ad767f90386239c68ea5ab4275b6c0268d86cfab2ccfe6f134392",
+      "source": "Let the fit change size between tiles. Off for a single acquisition, where the magnification cannot differ; on, a weak match can be explained away as a scale change. Default False.",
+      "translation": "允许拟合时改变图块之间的大小。单次采集应关闭，因为放大倍数不可能不同；开启后，一次弱匹配可能被解释成尺度变化而被掩盖。默认 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "blend",
+      "source_sha256": "c8784751685b8e7b48b06505204b27226e37297376bef8bfab4952d3fe837c92",
+      "source": "How overlapping tiles are combined where they meet: 'max' takes the brighter pixel, 'overwrite' lets the later tile win. 'max' hides a seam, 'overwrite' shows you where one is. Default 'max'.",
+      "translation": "重叠图块在交接处如何合成：'max' 取较亮的像素，'overwrite' 让后一个图块覆盖。'max' 会隐藏接缝，'overwrite' 则让你看到接缝在哪里。默认 'max'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose_model",
+      "source_sha256": "f83a901bc2bd270722f02ee37a6e8c023e84657ef7593c7e12bf6bb0459c1108",
+      "source": "Which Cellpose model segments the nuclei that the phenotype- to-genotype alignment matches on. Changing it changes which objects are found, and so which points the alignment is solved from. Default 'cpsam'.",
+      "translation": "由哪个 Cellpose 模型分割细胞核，表型到基因型的对齐即以这些细胞核进行匹配。更改它会改变检测到的对象，也就改变了求解对齐所用的点。默认 'cpsam'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "channel_index",
+      "source_sha256": "17d355e56d9ad8ffe2a77b528ecdfab234585c56b480255959f7e34c8d8dd6d0",
+      "source": "Which channel the stitcher matches on, zero-indexed. Pick the one with the most structure, usually the nuclear stain: a sparse channel gives the detector nothing to align and every pair is skipped. Default 0.",
+      "translation": "拼接器用于匹配的通道，从零开始编号。选择结构最丰富的通道，通常是核染色：稀疏的通道无法为检测器提供可对齐的内容，每一对都会被跳过。默认 0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "collision",
+      "source_sha256": "12b1194a5a4ed109a3cb3781cb6d0048f46120d50b9d289d539f8aac2e9d3763",
+      "source": "What to do when a destination filename already exists: 'rename' the incoming file, 'skip' it, or 'overwrite' it. Overwrite destroys the earlier file. Default 'rename'.",
+      "translation": "当目标文件名已存在时如何处理：对传入文件执行 'rename'、'skip' 或 'overwrite'。overwrite 会销毁先前的文件。默认 'rename'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "detector",
+      "source_sha256": "e2561fdcb0daa562e0f6e1db883fa46b0cb74e294610119d942312d068984141",
+      "source": "Which feature detector finds the same landmark in two overlapping tiles. ORB is rotation-invariant and free; changing it changes which pairs match and how long scoring takes. Default 'ORB'.",
+      "translation": "由哪个特征检测器在两个重叠图块中找到同一个地标。ORB 具有旋转不变性且免费；更改它会改变哪些图块对能够匹配以及评分需要多长时间。默认 'ORB'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "do_nuc_stitch",
+      "source_sha256": "cc31b244e54a6aa14c64a18d2e8ea8e96ed8e4d0605c43df9df12cb94081bf58",
+      "source": "Segment nuclei and align on those instead of on raw pixels. More robust when the two acquisitions use different stains, because cells correspond even when pixel intensities do not; costs a segmentation pass. Default True.",
+      "translation": "分割细胞核并以细胞核而非原始像素进行对齐。当两次采集使用不同染色时更稳健，因为即使像素强度不对应，细胞仍然彼此对应；代价是多一遍分割。默认 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "dst_root",
+      "source_sha256": "3fd4968d210bc94321bc0421091348e422f58fa362792ca7dd5aa95db5dc7f59",
+      "source": "Where the organised wells, mosaics and reports are written. Empty writes beside the source, which mixes outputs with inputs and makes a second run ambiguous about what it is reading. Default None.",
+      "translation": "整理好的孔、拼接图和报告写入的位置。留空则写在源数据旁边，这会把输出和输入混在一起，并使第二次运行无法确定它在读取什么。默认 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "feature_cache_mode",
+      "source_sha256": "243c4b623af1f236615ef3a14b39d72c9f465b3c5980f9200768491fa8765857",
+      "source": "Whether features are cached on 'disk', held in memory, or not cached. Disk pays the cost once and makes a re-run fast; memory is faster and bounded by max_ram_features. Default 'disk'.",
+      "translation": "特征是缓存在 'disk' 上、保存在内存中，还是不缓存。磁盘方式只付出一次代价并让重新运行变快；内存方式更快，其上限由 max_ram_features 决定。默认 'disk'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "genotype_source",
+      "source_sha256": "ba05502e478674a32d779fd04ae69318c28a63c2e0781832b3d4af978be53d9b",
+      "source": "The folder holding the low-magnification acquisition that carries the barcodes. This is the one that gets stitched into per-well mosaics; the phenotype images are placed onto its output. Default None.",
+      "translation": "存放携带条形码的低倍率采集数据的文件夹。被拼接成每孔拼接图的正是这一组；表型图像随后被放置到它的输出之上。默认 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "max_keypoints",
+      "source_sha256": "79e9b922bb0745c00078ce7a701bbf282cc259d18bdf5d78756ff3e0c94780b7",
+      "source": "Cap on features kept per tile after detection, which is what bounds memory on a dense field. Lowering it speeds scoring and can drop the match that would have joined two tiles. Default 4000.",
+      "translation": "检测之后每个图块保留的特征数量上限，正是它限制了密集视野下的内存占用。调低会加快评分，也可能丢掉本来能连接两个图块的那次匹配。默认 4000。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mip",
+      "source_sha256": "aa44a5b0894897af0432b05b7b53e9fd583f50f9a324ab6830350a4003f51796",
+      "source": "Take the maximum across z instead of a single plane. Usually right for spots, which sit at different depths across a field; off reads the plane named by z_index. Default True.",
+      "translation": "沿 z 取最大值，而不是取单个平面。对点状信号通常是正确的，因为它们在一个视野内位于不同深度；关闭则读取由 z_index 指定的平面。默认 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mosaic_csv_out",
+      "source_sha256": "35d55c51b5242aeb0106f378f0ee8f53133f247e8068ff4b6fdd5a93eb1b7206",
+      "source": "Explicit path for the manifest listing each tile's position and transform in the mosaic. Empty writes it beside the well's other outputs. The manifest is enough to rebuild the mosaic later without re-scoring. Default None.",
+      "translation": "清单文件的显式路径，该清单列出每个图块在拼接图中的位置和变换。留空则写在该孔的其他输出旁边。仅凭该清单就足以在以后重建拼接图而无需重新评分。默认 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mosaic_out",
+      "source_sha256": "042825ee88cbfccd2f141ec5f8bcf395f8787b6f82cc6c69e9c3afadaccc5c04",
+      "source": "Explicit path for the assembled mosaic image. Empty writes it beside the well's other outputs under its own name. Default None.",
+      "translation": "组装好的拼接图图像的显式路径。留空则以其自身的名称写在该孔的其他输出旁边。默认 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "on_missing",
+      "source_sha256": "ec2dae93153db363b5d124fa9afe0a63e9cce05833b7fdaecaa4927cc85e6c33",
+      "source": "What to do when a file named in the plan is not there: 'error' stops the run, 'skip' carries on without it and leaves a hole in the mosaic. Default 'error'.",
+      "translation": "当计划中指定的文件不存在时如何处理：'error' 会停止运行，'skip' 会跳过它继续运行并在拼接图中留下一个空洞。默认 'error'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "out_png",
+      "source_sha256": "67a18e3460fbca2d362bc7df5fcc2a81b65515a546be3ef9af00d950414a5b13",
+      "source": "Explicit path for the downsampled preview PNG. Empty writes it beside the mosaic. The preview is for looking at; the TIFF is for measuring. Default None.",
+      "translation": "降采样预览 PNG 的显式路径。留空则写在拼接图旁边。预览用于查看；TIFF 用于测量。默认 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "out_tif",
+      "source_sha256": "63fafd9450bf3c2a5c1712d94c0b963276fe31e01d0e8d1fdf71243e26e3962b",
+      "source": "Explicit path for a single-channel output image. Empty writes it beside the well's other outputs. Default None.",
+      "translation": "单通道输出图像的显式路径。留空则写在该孔的其他输出旁边。默认 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "outline_source",
+      "source_sha256": "ed81c19cced4656667ef21f54810820001e47d6b6e09e3a812559f1ade96f4f1",
+      "source": "How the foreground is found when drawing quality-control outlines: 'otsu' thresholds the intensity, other values use the edge detector above. Changes what the overlay traces, never the mosaic. Default 'otsu'.",
+      "translation": "绘制质控轮廓时如何确定前景：'otsu' 对强度做阈值分割，其他取值则使用上面的边缘检测器。它改变叠加层描绘的内容，而绝不改变拼接图。默认 'otsu'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_stitched_default",
+      "source_sha256": "ca7d1734c3b4310986ea3b10a1d03344b94828a94faa8c0a362a03b1b597031c",
+      "source": "Also write each stitched PAIR, not only the whole-well mosaic. A great many files; useful when diagnosing one bad seam and wasteful otherwise. Default False.",
+      "translation": "同时写出每一个拼接好的图块对，而不仅是整孔拼接图。文件数量非常多；在诊断某条糟糕的接缝时有用，其他情况下则是浪费。默认 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "squeeze_singleton",
+      "source_sha256": "28405bdd05d8c8c7682a73cc47706a14b1b3c80a9143fe117a2b209733c879e2",
+      "source": "Drop axes of length one when reading a file. Off keeps a (1, Y, X) file three-dimensional, which matters when downstream code counts dimensions. Default True.",
+      "translation": "读取文件时去掉长度为一的轴。关闭则让 (1, Y, X) 文件保持三维，这在下游代码需要统计维数时很重要。默认 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "stitch",
+      "source_sha256": "9ddcec4e580c117636e1b2d7235954d9b38f719a116b12ca00d6ccce2fb7fa30",
+      "source": "Run the pairwise stitch. Off scores no pairs and only organises the plate into per-well folders, which is what you want when the images are already stitched. Default False.",
+      "translation": "执行成对拼接。关闭则不对任何图块对评分，只把板整理成每孔一个的文件夹，当图像已经拼接好时正需要这样。默认 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "stream_csv",
+      "source_sha256": "8c28c558f06ad945b69d2f76c95feae83ce2e647fe4caaf13462d35def5dcada",
+      "source": "Write each result to the report as it is produced rather than at the end, so a long run can be watched and an interrupted one keeps what it had. Off is marginally faster and loses everything on a crash. Default True.",
+      "translation": "每产生一条结果就立即写入报告，而不是等到最后，这样长时间运行可以被观察，被中断的运行也能保留已有的结果。关闭会略快，但崩溃时会丢失全部内容。默认 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tmp_dir",
+      "source_sha256": "8dd7dcdf9e4360d1182a33e718ee38c6d44f017b010b45ece21a641e99b0b155",
+      "source": "Scratch space for intermediate files and the mosaic's memory map. Empty uses the system temporary folder, which may be too small for a large plate. Default None.",
+      "translation": "中间文件和拼接图内存映射所用的暂存空间。留空则使用系统临时文件夹，对于大板而言它可能太小。默认 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "well_group",
+      "source_sha256": "b42889003f5adb8574954a63b9dba9cd8835283411d6e6a05ccd5b342b529394",
+      "source": "Which named group in meta_regex holds the well identifier. Change it when your filenames name the well under a different group; getting it wrong groups every tile into one well. Default 'well'.",
+      "translation": "meta_regex 中哪个命名分组保存孔标识符。当你的文件名把孔放在另一个分组下时请更改它；设置错误会把所有图块归入同一个孔。默认 'well'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "write_mosaic",
+      "source_sha256": "1c31beb8b462495407e7f33469a2bb1336d2b7412526cb5a202047126908cc4e",
+      "source": "Write the assembled mosaic to disk. Off still produces the pairwise report and the manifest, which is enough to assemble it later without re-scoring. Default False.",
+      "translation": "把组装好的拼接图写入磁盘。关闭仍会产生成对报告和清单，仅凭它们就足以在以后组装而无需重新评分。默认 False。"
+    }
+  ]
+}

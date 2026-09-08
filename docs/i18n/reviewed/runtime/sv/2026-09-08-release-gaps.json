@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "arr_axes",
+      "source_sha256": "71c289e6af7c741f8566946e18d4b63370becae731fd008ae035f25a65c339fe",
+      "source": "Arr axes",
+      "translation": "Arrayaxlar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cellpose_diameter",
+      "source_sha256": "7199e17566c08e45c1549dda7e33dff871b07d5263bafa0ac244be1f2a7a5f3b",
+      "source": "Cellpose diameter",
+      "translation": "Cellpose-diameter"
+    }
+  ]
+}

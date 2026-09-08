@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "meta_regex",
+      "source_sha256": "043506bcf6534114c887b3eff2157455862e7cc88124960c7248f1340a7c5c0f",
+      "source": "How the well, site, channel and magnification are read OUT OF THE FILENAME. Every tile that does not match is invisible to the run, so a wrong pattern looks like missing data rather than an error. Default matches '10X_c1_A1_Site-1.tif'.",
+      "translation": "Como o poço, o site, o canal e a ampliação são lidos A PARTIR DO NOME DO FICHEIRO. Todos os mosaicos que não correspondem ficam invisíveis para a execução, pelo que um padrão errado parece dados em falta e não um erro. Por predefinição corresponde a '10X_c1_A1_Site-1.tif'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "on_missing",
+      "source_sha256": "ec2dae93153db363b5d124fa9afe0a63e9cce05833b7fdaecaa4927cc85e6c33",
+      "source": "What to do when a file named in the plan is not there: 'error' stops the run, 'skip' carries on without it and leaves a hole in the mosaic. Default 'error'.",
+      "translation": "O que fazer quando um ficheiro indicado no plano não existe: 'error' interrompe a execução, 'skip' prossegue sem ele e deixa um buraco no mosaico. Valor predefinido: 'error'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "recursive",
+      "source_sha256": "4fa995189d8fcf8ae41bb59a0a722fffe8ca7a4f111c7cb8694e7717b6363d6d",
+      "source": "Search sub-folders as well as the source folder. Turn it off when a plate's wells are already separated and you want only this level. Default True.",
+      "translation": "Procurar também nas subpastas, além da pasta de origem. Desligue-o quando os poços de uma placa já estiverem separados e quiser apenas este nível. Valor predefinido: True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "regression_panel_manifest",
+      "source_sha256": "a56fd9034478bbde3fbb64babff621b7916c98e4a6146d4e3573293fcb014bb3",
+      "source": "Publication panels built after the regression CSVs are written. None skips them. Supply a mapping, or a path to JSON/YAML, declaring each panel's result source, phenotype, gene/gRNA level and plot kind; the packages land under publication_panels/. Structured rather than a one-line field, so it is set from a script or a saved settings file rather than in the GUI. Default None.",
+      "translation": "Painéis de publicação construídos depois de os CSV de regressão serem escritos. None ignora-os. Forneça um mapeamento, ou um caminho para um ficheiro JSON/YAML, que declare para cada painel a sua fonte de resultados, o fenótipo, o nível de gene/gRNA e o tipo de gráfico; os pacotes são gravados em publication_panels/. É um campo estruturado e não de uma só linha, pelo que é definido a partir de um script ou de um ficheiro de definições guardado, e não na GUI. Valor predefinido: None."
+    }
+  ]
+}
