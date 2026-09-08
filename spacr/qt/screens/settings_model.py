@@ -4121,7 +4121,7 @@ def _mapped_api_target(key: str) -> tuple[str, str]:
 
 #: WHERE A TILE LANDS WHEN SIX TILES SHARE THREE PAGES.
 #:
-#: Instruction 366 part 3 measured the problem: `mask` and `umap` both open
+#: Measured: `mask` and `umap` both open
 #: `spacr.core`, and all four toxoplasma assays -- Analyze Plaques,
 #: Recruitment, Invasion, Replication -- open `spacr.submodules`. A reader
 #: who clicked "Recruitment" BECAUSE THEY DID NOT KNOW WHAT IT DOES arrived

@@ -125,8 +125,7 @@ TEAL = "#009B9B"
 #: the light and dark popup surfaces, which a lighter violet does not.
 PURPLE = "#7C3AED"
 
-#: THE TWO WORDS. Instruction 371, 2026-09-02: "an API link and Annimation
-#: link text (remove the dot)", and again for the bottom strip, "which should
+#: THE TWO WORDS: an API link and an Animation link, with the dot removed, and again for the bottom strip, "which should
 #: also just say API".
 #:
 #: THIS REVERSES A REQUEST MADE EARLIER THE SAME DAY -- "instead of API just
@@ -136,8 +135,7 @@ PURPLE = "#7C3AED"
 #:
 #:   * the words were repeated on every row that had them, so they cost a
 #:     line and carried no information after the first reading;
-#:   * the marks differed in SHAPE as well as colour, because instruction 89
-#:     added a colourblind mode and a teal dot beside a purple square stays
+#:   * the marks differed in SHAPE as well as colour, because a colourblind mode was added and a teal dot beside a purple square stays
 #:     distinguishable when the colours do not.
 #:
 #: THE SECOND REASON IS SATISFIED BY THIS CHANGE RATHER THAN DROPPED BY IT.

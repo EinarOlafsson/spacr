@@ -387,8 +387,7 @@ class Panel(QWidget):
 
     #: Which palette colour an action word turns when the pointer is on it.
     #: `Clear` and `Reset` throw something away and are red; `Refresh` only
-    #: re-reads and is blue. Asked for on 2026-09-03: "a clear button (just
-    #: the text clear which turns red upon hover or click)" and "a refresh
+    #: re-reads and is blue. Specified as a clear button -- the word "clear" alone, turning red on hover or click)" and "a refresh
     #: button (like clear button but blue)".
     ACTION_INKS = {"danger": "error", "safe": "accent"}
 
@@ -1759,7 +1758,7 @@ class NewsPanel(Panel):
 
 
 #: THE DRAG HANDLE UNDER THE NEWS LIST, and it is no longer Home's own.
-#: It was written here, and instruction 359 needs the same affordance on
+#: It was written here, and the nested Regression containers need the same affordance on
 #: every nested container in Regression's Measurements tab -- so it moved to
 #: :mod:`spacr.qt.widgets.height_grip` and this name is kept pointing at it.
 #: A second implementation would be a second set of bugs.

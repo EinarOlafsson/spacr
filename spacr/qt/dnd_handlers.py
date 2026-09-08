@@ -449,7 +449,7 @@ def active_scan_jobs(screen) -> int:
 #: it stops waiting. A decision taken on a worker has no budget: see
 #: :func:`_decide`.
 #:
-#: Measured 2026-09-04 on the maintainer's machine: a single ``os.path.exists``
+#: Measured: a single ``os.path.exists``
 #: on a path under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep
 #: -- had NOT RETURNED AFTER TWENTY SECONDS, because the stat is what triggers
 #: the automount. Dropping a folder from that share froze spaCR with no

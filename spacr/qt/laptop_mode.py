@@ -158,7 +158,7 @@ def describe() -> str:
 #: thing -- true for this run, on this machine, and none of it the user's
 #: opinion.
 #:
-#: Found by instruction 364's Preferences audit.
+#: Found by the Preferences audit.
 _NO_BACKDROP = "SPACR_NO_BACKDROP"
 
 #: Whether the variable above is OURS to clear.

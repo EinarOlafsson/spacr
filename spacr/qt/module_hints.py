@@ -54,8 +54,7 @@ KEY_PROPERTY = "moduleAppKey"
 #: 96 BECAUSE OF A RESIZE. Module descriptions run to 154 characters, and
 #: a status bar whose text demands more width than the window has raises
 #: the window's own minimum width -- so every hover relaid the main window
-#: out and the dock flickered. Reported 2026-09-01: "the dock on linux is
-#: acting up, flickering when mouse is hovered". Nothing writes the status
+#: out and the dock flickered. Reported as the dock flickering on Linux whenever the mouse hovered it. Nothing writes the status
 #: bar on hover any more, so that constraint is historical.
 MAX_HINT_CHARS = 96
 

@@ -1193,8 +1193,7 @@ HOST_KEY = "foreign"
 
 #: The other two ways data gets into a project, folded onto this one.
 #:
-#: Asked for on 2026-08-31: "make one module called import, and have
-#: format converter, import project (use import project as the icon),
+#: Specified as one module called Import, carrying the format converter, import project (use import project as the icon),
 #: external masks". This screen IS Import Project, renamed to Import and
 #: keeping its icon, so the other two arrive as buttons on its masthead
 #: rather than as a third and fourth tile saying the same thing.
@@ -1206,8 +1205,7 @@ HOST_KEY = "foreign"
 #: Import Images joined them on 2026-09-02, first because it is the one a
 #: new user needs first: this screen adopts somebody else's MASKS AND
 #: MEASUREMENTS, and that is the second thing anyone does. Reading a folder
-#: of raw images off a microscope is the first, and instruction 363 is blunt
-#: about what it costs to get wrong -- "a tool that cannot read your data has
+#: of raw images off a microscope is the first, and the cost of getting it wrong is blunt -- "a tool that cannot read your data has
 #: no features".
 FOLDED_APPS: Tuple[str, ...] = ("import_images", "convert", "external_masks")
 

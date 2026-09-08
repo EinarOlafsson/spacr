@@ -5833,8 +5833,7 @@ class AppScreen(QWidget):
         self._hold_the_hint(True, self.MODULE_HINT_HOLD_MS)
         return True
 
-    #: How long a MODULE stays in the strip, in milliseconds. Thirty
-    #: seconds, asked for on 2026-09-03 -- three times the per-setting hold
+    #: How long a MODULE stays in the strip, in milliseconds. Thirty seconds -- three times the per-setting hold
     #: because the API and Tutorial words open a browser, which is a larger
     #: decision than reaching for an animation.
     MODULE_HINT_HOLD_MS = 30_000
@@ -7052,7 +7051,7 @@ class AppScreen(QWidget):
 
     #: How long the strip keeps the LAST hovered setting, in milliseconds.
     #:
-    #: Ten seconds, from instruction 371, and it is not a round number to
+    #: Ten seconds, and it is not a round number to
     #: tune down because it feels long while reading code. It is the budget
     #: for noticing the strip, crossing the window and pressing the link --
     #: the reach the hold exists to make possible. If a measurement ever says

@@ -5140,8 +5140,7 @@ def generate_cellpose_train_test(src, test_split=0.1):
 #:
 #: ``R1``/``R2`` is the Illumina convention. ``1``/``2`` is what ENA and the
 #: SRA publish -- every file downloaded from those archives is
-#: ``<run>_1.fastq.gz`` and ``<run>_2.fastq.gz`` -- and not recognising it was
-#: reported on 2026-09-01 as ``KeyError: 'R1'`` after a successful download of
+#: ``<run>_1.fastq.gz`` and ``<run>_2.fastq.gz`` -- and not recognising it surfaced as ``KeyError: 'R1'`` after a successful download of
 #: the project's own reads.
 _MATE_SPELLINGS = {
     "r1": "R1", "1": "R1", "read1": "R1", "fwd": "R1",

@@ -325,8 +325,7 @@ class PairedFileTableWidget(QWidget):
     RULE_COLUMN = 4
 
     #: The Download buttons that sit above this table, and the column each one
-    #: fills. Instruction 353's second half: "if you can allign each button to
-    #: their respective columns below in the table that would be perfect."
+    #: fills. The second half of the same request: align each button to its respective columns below in the table that would be perfect."
     #:
     #: FOUND BY THE ATTRIBUTE THE SCREEN KEEPS THEM ON, not by what a button
     #: says. `AppScreen.load_the_screen_data` renames a button to "Fetching…"

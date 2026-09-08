@@ -70,8 +70,7 @@ class TestDataChooser(QDialog):
     #: characters, in a window 509 px tall. At this width each route is a
     #: few lines and the whole dialog is under half that.
     #:
-    #: Reported on 2026-09-02: "the loade test data window in annotate
-    #: started out way to tall. make it be as small as possible while still
+    #: Reported as the load-test-data window in Annotate opening far too tall; make it be as small as possible while still
     #: fitting the text".
     DIALOG_WIDTH = 460
 

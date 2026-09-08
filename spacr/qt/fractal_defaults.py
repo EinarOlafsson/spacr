@@ -15,7 +15,7 @@ from typing import Final
 #: it without importing the widget, and therefore without numba.
 #: What spaceout draws unless the user says otherwise.
 #:
-#: THE ORBIT FOLD, asked for on 2026-09-01. It was the Mandelbrot, which
+#: THE ORBIT FOLD. It was the Mandelbrot, which
 #: is the one pattern with no CPU renderer -- so on every machine without
 #: a usable GPU the default was a pattern that could not be drawn, and
 #: `pattern_for_this_machine` quietly substituted this one anyway. Naming
@@ -56,7 +56,7 @@ DEFAULT_BACKEND: Final[str] = "auto"
 #: the setting now says what it costs.
 DEFAULT_SUPERSAMPLING: Final[int] = 1
 DEFAULT_QUALITY: Final[str] = "auto"
-#: Render scale, asked for on 2026-09-01. Half resolution: the backdrop is
+#: Render scale. Half resolution: the backdrop is
 #: behind the interface and a full-resolution one buys sharpness nobody
 #: reads at the cost of frames everybody feels.
 DEFAULT_SCALE: Final[float] = 0.5

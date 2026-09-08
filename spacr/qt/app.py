@@ -787,8 +787,7 @@ SECTIONS = _LiveSections()
 #:
 #: A tile says "start here". These are not things a user sets out to do:
 #: they are things reached for WHILE doing something else, and a tile for
-#: each put them at the same level as Mask and Regression. Instruction 318
-#: has the maintainer's list and which of the two doors each one gets --
+#: each put them at the same level as Mask and Regression. The section list records which of the two doors each one gets --
 #: a button inside the module it belongs to, or an entry in Help.
 #:
 #: THE KEY IS NOT REMOVED, and that distinction is the whole of why this
@@ -1582,7 +1581,7 @@ def home_stages() -> dict:
     return {row[0]: app_stage(row[0]) for row in APPS}
 
 
-#: The tile order, per section, exactly as asked for on 2026-08-31.
+#: The tile order, per section, exactly as specified.
 #:
 #: WRITTEN DOWN BECAUSE REGISTRATION ORDER CANNOT SAY IT. A tile's
 #: position used to be the order its module happened to register in, and
@@ -2380,7 +2379,7 @@ class MainWindow(QMainWindow):
         #: screen opened before the scale changed keeps the old sizes for the
         #: rest of the session while a screen opened after it gets the new
         #: ones, and the two sit side by side in the stack at different sizes.
-        #: Reported 2026-09-05 as "the modual icons dont track perfectly"; the
+        #: Reported as icons that do not track the slider perfectly; the
         #: Preferences slider had the same half-updated result long before the
         #: hold-Z gesture made it obvious. See :meth:`_rebuild_screens_for_scale`.
         self._screen_scales: dict[str, float] = {}
@@ -5071,14 +5070,14 @@ class MainWindow(QMainWindow):
         `QWidget.grab()` (which cannot see the GL-backed widget at all and
         reports black for a working backdrop): at this commit's parent
         `f9fa45319` the home screen is 29.6% chromatic pixels, and at the
-        commit itself 2.5%, with 31.7% pure black. The maintainer's report
+        commit itself 2.5%, with 31.7% pure black. The report
         was "i get a black background when the blobs theme is active", and
         1.5.0.1 -- the last desktop install -- measures 38.9%.
 
         SO THE DEDUP IS OFF UNTIL THE WINDOW'S BACKDROP IS ACTUALLY VISIBLE
         THROUGH THE SCREENS. That is the real fix and it is not this
         function's to make: the containers above it have to stop painting
-        an opaque `bg`, which is instruction 327's and 380's territory.
+        an opaque `bg`, which the window-chrome work owns rather than this.
         Turning the second backdrop back on costs what the docstring above
         measured; showing the user a black window costs the theme. The
         second is worse, and a fix that trades a visible feature for idle

@@ -28,7 +28,7 @@ class UsageBar(QWidget):
 
     #: The widest readout :meth:`set_value` can ever produce. Sizing to the
     #: longest string a control can hold, rather than to the one it happens
-    #: to be showing, is instruction 350's own rule -- and here it also makes
+    #: to be showing, is the rule -- and here it also makes
     #: the width deterministic, since the number on screen is live RAM.
     WIDEST_PCT = "100%"
 

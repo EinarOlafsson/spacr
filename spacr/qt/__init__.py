@@ -53,7 +53,7 @@ _VERSION_FLAGS = frozenset({"-v", "-version", "--version"})
 #: dynamic metaobject with it, so its own signals became silent no-ops and
 #: `findChildren()` by type could not see it. `_LateCaptionTranslator` in
 #: `spacr/qt/screens/app_screen.py` did exactly that; it now defers on the
-#: host instead. See instruction 320 and Part 5 of
+#: host instead. See Part 5 of
 #: `tools/diagnose_pyside_slot_warning.py`, which reproduces both the
 #: breakage and the fix without any spaCR code.
 #:

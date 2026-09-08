@@ -184,7 +184,7 @@ FOLDED_APPS = ("agreement",)
 #: under Annotate in the menu, and no line on the API page, while every other
 #: host's children had all three.
 #:
-#: Found while wiring the nesting into the API homepage (instruction 374).
+#: Found while wiring the nesting into the API homepage.
 #: It is the same shape as the bug in the same commit's other half: one
 #: mapping read by three surfaces, and a host that quietly is not in it.
 HOST_KEY = "annotate"
@@ -2206,7 +2206,7 @@ class _SettingsDialog(QDialog):
     #: size, silently, and the user saw a form that had mostly filled itself
     #: in and had no reason to suspect the one row that had not.
     #:
-    #: Found by instruction 364's Annotate audit. Accepting the other
+    #: Found by the Annotate audit. Accepting the other
     #: spelling here rather than renaming either side: the factory's name is
     #: in shipped settings files and in every notebook that writes one, and
     #: this screen's name is in `AnnotateSettings.image_size`, which is a
@@ -4611,7 +4611,7 @@ class AnnotateScreen(QWidget):
     def _synthetic_negatives_needed(self):
         """How many negatives to invent, or ``None`` when both classes exist.
 
-        The maintainer's rule is "the same number of images as is annotated
+        The rule is "the same number of images as is annotated
         for the other class", so the count is the number of answers already
         made -- read from the column rather than assumed, because the whole
         point is that the user has been labelling one class only.

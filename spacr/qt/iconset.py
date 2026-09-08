@@ -587,8 +587,7 @@ def bundled_icon_paths() -> Tuple[str, ...]:
 #: reaches for it expecting. Neither ``classify`` nor ``classify_ml`` is a
 #: registered key any more, so nothing else is claiming the file.
 #:
-#: ``explain_cv`` is the third of the same shape, and it comes from
-#: instruction 355. Of the 208 buttons that carry an icon at all -- counted
+#: ``explain_cv`` is the third of the same shape, and it is the same again. Of the 208 buttons that carry an icon at all -- counted
 #: by walking every ``QAbstractButton`` in a booted window with all 36
 #: module screens opened -- seven were still falling through to the puzzle
 #: piece, and two of the seven were Explain CV Model: its dock row and its

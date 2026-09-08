@@ -208,8 +208,7 @@ GREETING_POINTS = 30
 #: It sits TWO rows higher than it did, to leave room beneath it for what
 #: the machine can actually run.
 #:
-#: Reported 2026-09-01: "the Hello in spacr start needs to be one or two
-#: rows up so it dosnt overlap with the GPU text". The note grew a
+#: Reported as the greeting on the start screen needing to sit one or two rows up so it does not overlap with the GPU text". The note grew a
 #: capability table on 2026-08-31 and got taller; the greeting had not
 #: moved since, so the two met.
 GREETING_BAND = 0.50
@@ -226,7 +225,7 @@ GPU_NOTE_BAND = 0.78
 #: NOT "AN NVIDIA GPU" ANY MORE, and the old wording was not merely
 #: imprecise -- it was wrong on the machine that reported it. spaCR now
 #: dispatches to CUDA, ROCm, Apple Metal (which drives Apple Silicon AND
-#: AMD cards in Intel Macs) and Intel XPU. See instruction 319.
+#: AMD cards in Intel Macs) and Intel XPU.
 GPU_REQUIREMENT = (
     "spaCR tasks are GPU accelerated and are compatible with NVIDIA, AMD, "
     "Apple, and Intel GPUs. GPU acceleration is orders of magnitude faster "

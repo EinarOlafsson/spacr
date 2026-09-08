@@ -189,7 +189,7 @@ _KEY_AMBIENT_SCALE   = "prefs/ambient_motion_scale"
 AMBIENT_MOTION_SCALE = 2
 _KEY_SPINNER_DELAY   = "prefs/spinner_delay"
 _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
-#: The two tooltip surfaces, instruction 371. INDEPENDENT: both on,
+#: The two tooltip surfaces. INDEPENDENT: both on,
 #: both off, or either alone are all legal, which is why they are two
 #: booleans and not a three-way choice wearing two checkboxes.
 _KEY_TOOLTIPS_BOX = "prefs/tooltips_box"
@@ -3272,7 +3272,7 @@ def set_spinner_delay(seconds: float) -> None:
 #: escape hatch for the reader who never wants to be asked.
 DEFAULT_SETTING_ANIMATIONS = False
 
-#: The two tooltip surfaces, instruction 371, BOTH ON by default.
+#: The two tooltip surfaces, BOTH ON by default.
 #:
 #: The box is today's behaviour -- `spacr.qt.widgets.hover_tooltip` has been
 #: the setting tooltip for some time -- and the bottom strip is the nearest
@@ -3292,7 +3292,7 @@ DEFAULT_SETTING_ANIMATIONS = False
 #: 2026-09-01 the maintainer asked: "i dont need the popup box if the tooltip
 #: is shown on the bottom of the window", and that preference has been wired
 #: in ever since -- the popup appeared only on screens with no strip.
-#: Instruction 371 asks for both surfaces to be CHOOSABLE, which is a request
+#: Both surfaces were asked to be CHOOSABLE, which is a request
 #: for a switch, not a request to reverse the earlier answer. Defaulting the
 #: box on would hand back the popup somebody had explicitly said they did not
 #: want, and they would have to find a checkbox to undo it.

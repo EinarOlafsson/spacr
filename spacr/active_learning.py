@@ -2670,7 +2670,7 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
         different probabilities from the same crops, and
         :func:`spacr.suggest.suggest_from_scores` sorts on those
         probabilities -- so the round records which was in force, in
-        ``notes`` and on the model card. The maintainer asked for the smaller
+        ``notes`` and on the model card. The smaller
         class ("if there is class imbalance use the class with fewer").
     :param synthetic_negatives: how many unannotated crops to draw at random
         and fit as the ABSENT class when only one class has been annotated.
@@ -2978,7 +2978,7 @@ def _absent_binary_class(present: Any) -> Optional[int]:
     request was written for is 1 against 2. Anything else -- class 3, a
     string, a float that is not 1 or 2 -- has no defensible "other class"
     to invent, and guessing one would fit a model against a class the
-    maintainer never named.
+    caller never named.
 
     :param present: the single class that has been annotated.
     :returns: 2 for 1, 1 for 2, and ``None`` for everything else.
@@ -3000,7 +3000,7 @@ def _downsample_to_smallest(index, labels: List[Any], seed: int):
     :returns: ``(index, labels, dropped)`` -- the kept rows, their labels,
         and how many rows were dropped.
 
-    DROPPED RATHER THAN REWEIGHTED, which is the maintainer's instruction
+    DROPPED RATHER THAN REWEIGHTED, which is the instruction
     ("if there is class imbalance use the class with fewer") and also what
     keeps the fitted probability readable as a confidence: a reweighted
     fit's probability is a function of the weights as much as of the crop,
