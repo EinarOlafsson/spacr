@@ -30,12 +30,33 @@ import pytest
 from spacr import accelerator as A
 
 
+def _forget_gpu_name_if_cached() -> None:
+    """Clear `_metal_gpu_name`'s cache, if what is bound there still has one.
+
+    THE GUARD IS THE POINT. Every test here does
+    `monkeypatch.setattr(A, "_metal_gpu_name", lambda: gpu)`, and a plain
+    lambda has no `cache_clear`. At teardown this fixture ran while that patch
+    was STILL IN PLACE -- fixture finalizers do not reliably run after the
+    monkeypatch of a test that requested it later -- so all nine tests in this
+    file ended in `AttributeError: 'function' object has no attribute
+    'cache_clear'`, every one of them AT TEARDOWN, with the test itself
+    passing.
+
+    Asking whether there is a cache to clear is correct whichever order the
+    finalizers run in, and it does not lose the clearing: the setup call on
+    the next test runs after that test's patch is long gone.
+    """
+    clear = getattr(A._metal_gpu_name, "cache_clear", None)
+    if clear is not None:
+        clear()
+
+
 @pytest.fixture(autouse=True)
 def _forget_the_cached_gpu_name():
     """`_metal_gpu_name` is `lru_cache`d over a `system_profiler` call."""
-    A._metal_gpu_name.cache_clear()
+    _forget_gpu_name_if_cached()
     yield
-    A._metal_gpu_name.cache_clear()
+    _forget_gpu_name_if_cached()
 
 
 def _mac(monkeypatch, *, gpu, release="13.5", machine="x86_64"):
