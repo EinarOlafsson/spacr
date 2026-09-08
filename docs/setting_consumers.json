@@ -489,6 +489,111 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "agg_type",
+    "line": 1292,
+    "module": "spacr.settings_advisor",
+    "nested": false,
+    "qualname": "refusals"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "agg_type",
+    "line": 1295,
+    "module": "spacr.settings_advisor",
+    "nested": false,
+    "qualname": "refusals"
+   }
+  ],
+  "all_scores": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "all_scores",
+    "line": 7125,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "all_scores",
+    "line": 3360,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "all_scores",
+    "line": 3544,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "allow_rotation": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "allow_rotation",
+    "line": 7123,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "allow_rotation",
+    "line": 3345,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "allow_rotation",
+    "line": 3542,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "allow_scale": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "allow_scale",
+    "line": 7122,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "allow_scale",
+    "line": 3344,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "allow_scale",
+    "line": 3541,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "alpha": [
@@ -770,6 +875,15 @@
     "form": "get",
     "function_depth": 1,
     "key": "analysis_mode",
+    "line": 359,
+    "module": "spacr.qt.widgets.sweep_runs",
+    "nested": false,
+    "qualname": "_permuted"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "analysis_mode",
     "line": 286,
     "module": "spacr.refit",
     "nested": false,
@@ -828,6 +942,15 @@
     "module": "spacr.settings",
     "nested": true,
     "qualname": "get_setting_dependencies.permutation_is_certain"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "analysis_mode",
+    "line": 1262,
+    "module": "spacr.settings_advisor",
+    "nested": false,
+    "qualname": "refusals"
    }
   ],
   "analysis_unit": [
@@ -929,6 +1052,15 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "analysis_unit",
+    "line": 1263,
+    "module": "spacr.settings_advisor",
+    "nested": false,
+    "qualname": "refusals"
    }
   ],
   "analyze_clusters": [
@@ -1041,6 +1173,105 @@
     "module": "spacr.zstack",
     "nested": false,
     "qualname": "plan_4d_from_settings"
+   }
+  ],
+  "anndata_compression": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "anndata_compression",
+    "line": 1748,
+    "module": "spacr.anndata_export.__init__",
+    "nested": false,
+    "qualname": "anndata_export_settings"
+   }
+  ],
+  "anndata_compute_umap": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "anndata_compute_umap",
+    "line": 1747,
+    "module": "spacr.anndata_export.__init__",
+    "nested": false,
+    "qualname": "anndata_export_settings"
+   }
+  ],
+  "anndata_dtype": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "anndata_dtype",
+    "line": 1745,
+    "module": "spacr.anndata_export.__init__",
+    "nested": false,
+    "qualname": "anndata_export_settings"
+   }
+  ],
+  "anndata_nan_policy": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "anndata_nan_policy",
+    "line": 1744,
+    "module": "spacr.anndata_export.__init__",
+    "nested": false,
+    "qualname": "anndata_export_settings"
+   }
+  ],
+  "anndata_out": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "anndata_out",
+    "line": 1741,
+    "module": "spacr.anndata_export.__init__",
+    "nested": false,
+    "qualname": "anndata_export_settings"
+   }
+  ],
+  "anndata_register_artifact": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "anndata_register_artifact",
+    "line": 1749,
+    "module": "spacr.anndata_export.__init__",
+    "nested": false,
+    "qualname": "anndata_export_settings"
+   }
+  ],
+  "anndata_row_limit": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "anndata_row_limit",
+    "line": 1746,
+    "module": "spacr.anndata_export.__init__",
+    "nested": false,
+    "qualname": "anndata_export_settings"
+   }
+  ],
+  "anndata_single_table": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "anndata_single_table",
+    "line": 1743,
+    "module": "spacr.anndata_export.__init__",
+    "nested": false,
+    "qualname": "anndata_export_settings"
+   }
+  ],
+  "anndata_tables": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "anndata_tables",
+    "line": 1742,
+    "module": "spacr.anndata_export.__init__",
+    "nested": false,
+    "qualname": "anndata_export_settings"
    }
   ],
   "annotated_classes": [
@@ -1301,6 +1532,35 @@
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_required_paths"
+   }
+  ],
+  "arr_axes": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "arr_axes",
+    "line": 7141,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "arr_axes",
+    "line": 3370,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "arr_axes",
+    "line": 3571,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "attribution_baseline": [
@@ -1652,6 +1912,17 @@
     "qualname": "set_default_generate_barecode_mapping"
    }
   ],
+  "barcode_qc": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "barcode_qc",
+    "line": 1012,
+    "module": "spacr.sequencing",
+    "nested": false,
+    "qualname": "_run_barcode_qc"
+   }
+  ],
   "barcodes": [
    {
     "form": "get",
@@ -1820,6 +2091,15 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_perform_regression_default_settings"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "batch_control_column",
+    "line": 1238,
+    "module": "spacr.settings_advisor",
+    "nested": false,
+    "qualname": "refusals"
    }
   ],
   "batch_control_values": [
@@ -1959,6 +2239,24 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "batch_correction",
+    "line": 1224,
+    "module": "spacr.settings_advisor",
+    "nested": false,
+    "qualname": "refusals"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "batch_correction",
+    "line": 1237,
+    "module": "spacr.settings_advisor",
+    "nested": false,
+    "qualname": "refusals"
    }
   ],
   "batch_covariate_column": [
@@ -2087,6 +2385,15 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_perform_regression_default_settings"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "batch_covariate_column",
+    "line": 1227,
+    "module": "spacr.settings_advisor",
+    "nested": false,
+    "qualname": "refusals"
    }
   ],
   "batch_fields": [
@@ -2713,6 +3020,35 @@
     "qualname": "set_default_umap_image_settings"
    }
   ],
+  "blend": [
+   {
+    "form": "subscript",
+    "function_depth": 2,
+    "key": "blend",
+    "line": 728,
+    "module": "spacr.qt.screens.align",
+    "nested": true,
+    "qualname": "AlignScreen.write_stack._work"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "blend",
+    "line": 7164,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_multichannel"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "blend",
+    "line": 3595,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "blue_channel": [
    {
     "form": "get-dynamic",
@@ -2731,6 +3067,15 @@
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "blue_channel",
+    "line": 251,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
    },
    {
     "form": "get-dynamic",
@@ -2839,6 +3184,35 @@
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
+   }
+  ],
+  "blur_sigma": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "blur_sigma",
+    "line": 7130,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "blur_sigma",
+    "line": 3353,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "blur_sigma",
+    "line": 3553,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "bounding_box": [
@@ -3054,6 +3428,35 @@
     "module": "spacr.utils",
     "nested": false,
     "qualname": "activation_correlations_to_database"
+   }
+  ],
+  "canny": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "canny",
+    "line": 7129,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "canny",
+    "line": 3352,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "canny",
+    "line": 3552,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "cell_area_multiplier": [
@@ -3291,6 +3694,15 @@
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cell_channel",
+    "line": 251,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
    },
    {
     "form": "get",
@@ -5053,6 +5465,356 @@
     "qualname": "analyze_class_proportion"
    }
   ],
+  "cellpose_all": [
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_all",
+    "line": 2912,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "preprocess_img_data"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_all",
+    "line": 780,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_all",
+    "line": 793,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_all",
+    "line": 1227,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_all",
+    "line": 1238,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_all",
+    "line": 281,
+    "module": "spacr.object_roles",
+    "nested": false,
+    "qualname": "organelle_settings_view"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_all",
+    "line": 3682,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "_get_cellpose_channels"
+   }
+  ],
+  "cellpose_diameter": [
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 2912,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "preprocess_img_data"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 780,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 793,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 930,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 950,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 1227,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 1238,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 281,
+    "module": "spacr.object_roles",
+    "nested": false,
+    "qualname": "organelle_settings_view"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 704,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "organelle_morphology_now"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 2030,
+    "module": "spacr.qt.widgets.timelapse_preview",
+    "nested": false,
+    "qualname": "TimelapsePreviewPanel.apply_settings"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 3338,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 3351,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 3549,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 3682,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "_get_cellpose_channels"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_diameter",
+    "line": 1855,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "cellpose_masks": [
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_masks",
+    "line": 2912,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "preprocess_img_data"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_masks",
+    "line": 780,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_masks",
+    "line": 793,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_masks",
+    "line": 1227,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_masks",
+    "line": 1238,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_masks",
+    "line": 281,
+    "module": "spacr.object_roles",
+    "nested": false,
+    "qualname": "organelle_settings_view"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_masks",
+    "line": 3682,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "_get_cellpose_channels"
+   }
+  ],
+  "cellpose_model": [
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_model",
+    "line": 2912,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "preprocess_img_data"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_model",
+    "line": 780,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_model",
+    "line": 793,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_model",
+    "line": 1227,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_model",
+    "line": 1238,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_model",
+    "line": 281,
+    "module": "spacr.object_roles",
+    "nested": false,
+    "qualname": "organelle_settings_view"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "cellpose_model",
+    "line": 3350,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "cellpose_model",
+    "line": 3548,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cellpose_model",
+    "line": 3682,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "_get_cellpose_channels"
+   }
+  ],
   "cells": [
    {
     "form": "keyword",
@@ -5295,6 +6057,82 @@
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
+   }
+  ],
+  "channel_index": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "channel_index",
+    "line": 7191,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_general"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "channel_index",
+    "line": 3140,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "channel_index",
+    "line": 3532,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "channel_index",
+    "line": 4169,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "ops_preprocess"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "channel_index",
+    "line": 4173,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "ops_preprocess"
+   }
+  ],
+  "channel_indices": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "channel_indices",
+    "line": 7163,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_multichannel"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "channel_indices",
+    "line": 3379,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "channel_indices",
+    "line": 3594,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "channel_of_interest": [
@@ -6821,6 +7659,64 @@
     "qualname": "set_default_umap_image_settings"
    }
   ],
+  "collision": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "collision",
+    "line": 7184,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_general"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "collision",
+    "line": 3135,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "collision",
+    "line": 3488,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "collision_max_distance": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "collision_max_distance",
+    "line": 1482,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc_defaults"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "collision_max_distance",
+    "line": 1665,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "collision_max_distance",
+    "line": 1721,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
+   }
+  ],
   "color_by": [
    {
     "form": "subscript",
@@ -7504,6 +8400,15 @@
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "count_data",
+    "line": 5272,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "_count_files_of"
    },
    {
     "form": "get",
@@ -9228,6 +10133,15 @@
     "qualname": "AlignScreen.write_stack"
    },
    {
+    "form": "get",
+    "function_depth": 1,
+    "key": "db_path",
+    "line": 1032,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   },
+   {
     "form": "subscript",
     "function_depth": 1,
     "key": "db_path",
@@ -9488,6 +10402,44 @@
     "qualname": "get_perform_regression_default_settings"
    }
   ],
+  "detector": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "detector",
+    "line": 7117,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "detector",
+    "line": 3338,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "detector",
+    "line": 3339,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "detector",
+    "line": 3536,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "dialate_png_ratios": [
    {
     "form": "get",
@@ -9685,6 +10637,35 @@
     "qualname": "set_default_settings_preprocess_generate_masks"
    }
   ],
+  "dilate_ksize": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "dilate_ksize",
+    "line": 7131,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "dilate_ksize",
+    "line": 3354,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "dilate_ksize",
+    "line": 3554,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "distance_gaussian_sigma": [
    {
     "form": "subscript",
@@ -9723,6 +10704,93 @@
     "qualname": "get_measure_crop_settings"
    }
   ],
+  "do_multichannel": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "do_multichannel",
+    "line": 7190,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_general"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "do_multichannel",
+    "line": 3139,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "do_multichannel",
+    "line": 3529,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "do_nuc_stitch": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "do_nuc_stitch",
+    "line": 7189,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_general"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "do_nuc_stitch",
+    "line": 3138,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "do_nuc_stitch",
+    "line": 3528,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "do_organize": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "do_organize",
+    "line": 7188,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_general"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "do_organize",
+    "line": 3137,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "do_organize",
+    "line": 3527,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "dot_size": [
    {
     "form": "subscript",
@@ -9759,6 +10827,35 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_umap_image_settings"
+   }
+  ],
+  "downsample": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "downsample",
+    "line": 7120,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "downsample",
+    "line": 3342,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "downsample",
+    "line": 3539,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "dropout_rate": [
@@ -10044,6 +11141,71 @@
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "dst",
+    "line": 1046,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   }
+  ],
+  "dst_root": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "dst_root",
+    "line": 7179,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_general"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "dst_root",
+    "line": 3124,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "dst_root",
+    "line": 3479,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "dst_root",
+    "line": 4156,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "ops_preprocess"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "dst_root",
+    "line": 4157,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "ops_preprocess"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "dst_root",
+    "line": 4168,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "ops_preprocess"
    }
   ],
   "early_stopping_patience": [
@@ -10814,6 +11976,26 @@
     "qualname": "set_default_umap_image_settings"
    }
   ],
+  "exclude_starved_wells": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "exclude_starved_wells",
+    "line": 1480,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "exclude_starved_wells",
+    "line": 1677,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
+   }
+  ],
   "expected_end": [
    {
     "form": "keyword",
@@ -10982,6 +12164,35 @@
     "qualname": "analyze_invasion"
    }
   ],
+  "exts": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "exts",
+    "line": 7182,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_general"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "exts",
+    "line": 3133,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "exts",
+    "line": 3485,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "fdr_alpha": [
    {
     "form": "get",
@@ -11090,6 +12301,55 @@
     "module": "spacr.trial_metrics",
     "nested": false,
     "qualname": "summarise_trial"
+   }
+  ],
+  "feature_cache_dir": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "feature_cache_dir",
+    "line": 7135,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "feature_cache_dir",
+    "line": 3565,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "feature_cache_mode": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "feature_cache_mode",
+    "line": 7134,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "feature_cache_mode",
+    "line": 3363,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "feature_cache_mode",
+    "line": 3557,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "feature_importance": [
@@ -12211,6 +13471,26 @@
     "qualname": "_check_required_paths"
    }
   ],
+  "genotype_source": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "genotype_source",
+    "line": 3475,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "genotype_source",
+    "line": 4118,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "ops_preprocess"
+   }
+  ],
   "gpu": [
    {
     "form": "get",
@@ -12453,6 +13733,15 @@
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "green_channel",
+    "line": 251,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
    },
    {
     "form": "get-dynamic",
@@ -13416,6 +14705,191 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_perform_regression_default_settings"
+   }
+  ],
+  "hit_bootstrap": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_bootstrap",
+    "line": 284,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_direction": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_direction",
+    "line": 278,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_direction",
+    "line": 1442,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_check_app_specific"
+   }
+  ],
+  "hit_effect": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_effect",
+    "line": 273,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_fdr": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_fdr",
+    "line": 274,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_feature_columns": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_feature_columns",
+    "line": 279,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_gallery_per_stratum": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_gallery_per_stratum",
+    "line": 287,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_guide_agreement": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_guide_agreement",
+    "line": 275,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_include_original_score": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_include_original_score",
+    "line": 280,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_n_guides": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_n_guides",
+    "line": 276,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_permutations": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_permutations",
+    "line": 285,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_pipeline_permutations": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_pipeline_permutations",
+    "line": 286,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_probability_threshold": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_probability_threshold",
+    "line": 281,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_random_seed": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_random_seed",
+    "line": 283,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_split_by": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_split_by",
+    "line": 282,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_store_database": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_store_database",
+    "line": 288,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   }
+  ],
+  "hit_well_support": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "hit_well_support",
+    "line": 277,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
    }
   ],
   "holdout_plate": [
@@ -15295,6 +16769,15 @@
     "form": "get",
     "function_depth": 1,
     "key": "inference",
+    "line": 362,
+    "module": "spacr.qt.widgets.sweep_runs",
+    "nested": false,
+    "qualname": "_permuted"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "inference",
     "line": 94,
     "module": "spacr.run_recommendations",
     "nested": false,
@@ -15425,6 +16908,15 @@
     "module": "spacr.settings",
     "nested": true,
     "qualname": "get_setting_dependencies._is_nonparametric"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "inference",
+    "line": 1277,
+    "module": "spacr.settings_advisor",
+    "nested": false,
+    "qualname": "refusals"
    }
   ],
   "inflation_warn": [
@@ -15696,6 +17188,17 @@
     "module": "spacr.hyperparam",
     "nested": false,
     "qualname": "load_activation_data"
+   }
+  ],
+  "inputs": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "inputs",
+    "line": 1322,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_check_required_paths"
    }
   ],
   "intensity_statistic": [
@@ -16596,6 +18099,15 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
+    "line": 7605,
+    "module": "spacr.qt.screens.app_screen",
+    "nested": false,
+    "qualname": "AppScreen._announce_the_fit"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "level",
     "line": 3109,
     "module": "spacr.qt.widgets.regression_results",
     "nested": false,
@@ -16816,6 +18328,35 @@
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
+   }
+  ],
+  "line_thickness": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "line_thickness",
+    "line": 7132,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "line_thickness",
+    "line": 3355,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "line_thickness",
+    "line": 3555,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "load_path_regex": [
@@ -17525,6 +19066,44 @@
     "qualname": "get_perform_regression_default_settings"
    }
   ],
+  "max_keypoints": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "max_keypoints",
+    "line": 7119,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "max_keypoints",
+    "line": 3338,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "max_keypoints",
+    "line": 3341,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "max_keypoints",
+    "line": 3538,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "max_parasite_area": [
    {
     "form": "get",
@@ -17655,6 +19234,64 @@
     "qualname": "_check_app_specific"
    }
   ],
+  "max_ram_features": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "max_ram_features",
+    "line": 7136,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "max_ram_features",
+    "line": 3365,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "max_ram_features",
+    "line": 3566,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "max_site_gap": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "max_site_gap",
+    "line": 7149,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "max_site_gap",
+    "line": 3389,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "max_site_gap",
+    "line": 3586,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "measurement": [
    {
     "form": "get",
@@ -17713,6 +19350,53 @@
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
+   }
+  ],
+  "meta_regex": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "meta_regex",
+    "line": 7180,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_general"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "meta_regex",
+    "line": 3127,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "meta_regex",
+    "line": 3481,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "meta_regex",
+    "line": 4169,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "ops_preprocess"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "meta_regex",
+    "line": 4172,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "ops_preprocess"
    }
   ],
   "metadata_files": [
@@ -18478,6 +20162,26 @@
     "qualname": "_invasion_well_table"
    }
   ],
+  "min_reads_per_well": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "min_reads_per_well",
+    "line": 1478,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc_defaults"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "min_reads_per_well",
+    "line": 1653,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
+   }
+  ],
   "min_samples": [
    {
     "form": "keyword",
@@ -18570,6 +20274,35 @@
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
+   }
+  ],
+  "mip": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mip",
+    "line": 7142,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mip",
+    "line": 3371,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mip",
+    "line": 3572,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "mix": [
@@ -19418,6 +21151,95 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_analyze_screen"
+   }
+  ],
+  "mosaic": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mosaic",
+    "line": 3400,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mosaic",
+    "line": 3519,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "mosaic_csv_out": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mosaic_csv_out",
+    "line": 7153,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mosaic_csv_out",
+    "line": 3591,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "mosaic_min_score": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mosaic_min_score",
+    "line": 7150,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mosaic_min_score",
+    "line": 3380,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mosaic_min_score",
+    "line": 3587,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "mosaic_out": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mosaic_out",
+    "line": 7152,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mosaic_out",
+    "line": 3590,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "motility_analysis": [
@@ -20412,6 +22234,73 @@
     "qualname": "deep_spacr_defaults"
    }
   ],
+  "n_workers": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "n_workers",
+    "line": 7148,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "n_workers",
+    "line": 3390,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "n_workers",
+    "line": 3585,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "n_workers_features": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "n_workers_features",
+    "line": 7137,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "n_workers_features",
+    "line": 3338,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "n_workers_features",
+    "line": 3366,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "n_workers_features",
+    "line": 3567,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "neg": [
    {
     "form": "keyword",
@@ -20724,6 +22613,35 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "_set_classifier_evaluation_defaults"
+   }
+  ],
+  "nfeatures": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "nfeatures",
+    "line": 7118,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "nfeatures",
+    "line": 3340,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "nfeatures",
+    "line": 3537,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "non_power_of_two_warn": [
@@ -22038,6 +23956,15 @@
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "nucleus_channel",
+    "line": 251,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
    },
    {
     "form": "get",
@@ -23481,6 +25408,142 @@
     "qualname": "set_default_generate_barecode_mapping"
    }
   ],
+  "on_error": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "on_error",
+    "line": 659,
+    "module": "spacr.methods_export",
+    "nested": false,
+    "qualname": "_error_policy"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "on_error",
+    "line": 1247,
+    "module": "spacr.runctx",
+    "nested": false,
+    "qualname": "resolve_error_policy"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "on_error",
+    "line": 1663,
+    "module": "spacr.runctx",
+    "nested": false,
+    "qualname": "_defaults"
+   }
+  ],
+  "on_error_attempts": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "on_error_attempts",
+    "line": 660,
+    "module": "spacr.methods_export",
+    "nested": false,
+    "qualname": "_error_policy"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "on_error_attempts",
+    "line": 1248,
+    "module": "spacr.runctx",
+    "nested": false,
+    "qualname": "resolve_error_policy"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "on_error_attempts",
+    "line": 1664,
+    "module": "spacr.runctx",
+    "nested": false,
+    "qualname": "_defaults"
+   }
+  ],
+  "on_error_backoff": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "on_error_backoff",
+    "line": 1249,
+    "module": "spacr.runctx",
+    "nested": false,
+    "qualname": "resolve_error_policy"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "on_error_backoff",
+    "line": 1665,
+    "module": "spacr.runctx",
+    "nested": false,
+    "qualname": "_defaults"
+   }
+  ],
+  "on_missing": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "on_missing",
+    "line": 7185,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_general"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "on_missing",
+    "line": 3136,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "on_missing",
+    "line": 3489,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "opencv_threads": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "opencv_threads",
+    "line": 7140,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "opencv_threads",
+    "line": 3369,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "opencv_threads",
+    "line": 3570,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "optimizer_type": [
    {
     "form": "keyword",
@@ -23835,6 +25898,15 @@
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelle_channel",
+    "line": 251,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
    },
    {
     "form": "get",
@@ -25967,6 +28039,1891 @@
     "qualname": "organelle_settings_view"
    }
   ],
+  "organelleb_area_multiplier": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organelleb_area_multiplier",
+    "line": 200,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organelleb_cellprob_threshold": [
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_cellprob_threshold",
+    "line": 734,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_cellprob_threshold",
+    "line": 1212,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_cellprob_threshold",
+    "line": 2048,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "_segment_cellpose_sam"
+   }
+  ],
+  "organelleb_channel": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 407,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 606,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 251,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 780,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 782,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 793,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 1227,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 1229,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 1238,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 281,
+    "module": "spacr.object_roles",
+    "nested": false,
+    "qualname": "organelle_settings_view"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 2738,
+    "module": "spacr.qt.widgets.live_preview",
+    "nested": false,
+    "qualname": "LivePreviewPanel.apply_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 2027,
+    "module": "spacr.qt.widgets.timelapse_preview",
+    "nested": false,
+    "qualname": "TimelapsePreviewPanel.apply_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 7390,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "organelle_measurement_caveats"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 3682,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "_get_cellpose_channels"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_channel",
+    "line": 1852,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organelleb_diameter": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_diameter",
+    "line": 930,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_diameter",
+    "line": 950,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_diameter",
+    "line": 704,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "organelle_morphology_now"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_diameter",
+    "line": 2030,
+    "module": "spacr.qt.widgets.timelapse_preview",
+    "nested": false,
+    "qualname": "TimelapsePreviewPanel.apply_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_diameter",
+    "line": 1855,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organelleb_flow_threshold": [
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_flow_threshold",
+    "line": 735,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_flow_threshold",
+    "line": 1214,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_flow_threshold",
+    "line": 2047,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "_segment_cellpose_sam"
+   }
+  ],
+  "organelleb_intensity_merge": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_intensity_merge",
+    "line": 119,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organelleb_intensity_percentile": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organelleb_intensity_percentile",
+    "line": 204,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organelleb_intensity_split": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_intensity_split",
+    "line": 120,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organelleb_intensity_threshold_method": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organelleb_intensity_threshold_method",
+    "line": 203,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_intensity_threshold_method",
+    "line": 1865,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organelleb_mask_dim": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_mask_dim",
+    "line": 2653,
+    "module": "spacr.crops",
+    "nested": false,
+    "qualname": "mask_dims_from_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_mask_dim",
+    "line": 1426,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_morphological_measurements"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_mask_dim",
+    "line": 3205,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_mask_dim",
+    "line": 3258,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_mask_dim",
+    "line": 3381,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_mask_dim",
+    "line": 3440,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_mask_dim",
+    "line": 1383,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_measure_crop_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_mask_dim",
+    "line": 7389,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "organelle_measurement_caveats"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_mask_dim",
+    "line": 1868,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organelleb_max_area": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_max_area",
+    "line": 123,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organelleb_max_intensity_percentile": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_max_intensity_percentile",
+    "line": 126,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organelleb_max_intensity_percentile",
+    "line": 204,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organelleb_method": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_method",
+    "line": 1865,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organelleb_min_area": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_min_area",
+    "line": 3214,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_min_area",
+    "line": 122,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_min_area",
+    "line": 1384,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_measure_crop_settings"
+   }
+  ],
+  "organelleb_min_distance": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organelleb_min_distance",
+    "line": 201,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organelleb_min_intensity_percentile": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_min_intensity_percentile",
+    "line": 125,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organelleb_min_intensity_percentile",
+    "line": 204,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organelleb_min_split_area": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_min_split_area",
+    "line": 121,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organelleb_model_name": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_model_name",
+    "line": 1092,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "_get_object_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_model_name",
+    "line": 3568,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "_get_object_settings"
+   }
+  ],
+  "organelleb_morphology": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_morphology",
+    "line": 693,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "organelle_morphology_now"
+   }
+  ],
+  "organelleb_perimeter_fraction": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_perimeter_fraction",
+    "line": 118,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organelleb_remove_border_objects": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_remove_border_objects",
+    "line": 124,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_remove_border_objects",
+    "line": 1016,
+    "module": "spacr.qt.widgets.live_preview",
+    "nested": false,
+    "qualname": "_apply_size_filter"
+   }
+  ],
+  "organelleb_resample": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_resample",
+    "line": 2049,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "_segment_cellpose_sam"
+   }
+  ],
+  "organelleb_ring_fill_method": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_ring_fill_method",
+    "line": 1865,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organelleb_type": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_type",
+    "line": 700,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "organelle_morphology_now"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_type",
+    "line": 1385,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_measure_crop_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelleb_type",
+    "line": 7393,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "organelle_measurement_caveats"
+   }
+  ],
+  "organellec_area_multiplier": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organellec_area_multiplier",
+    "line": 200,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organellec_cellprob_threshold": [
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organellec_cellprob_threshold",
+    "line": 734,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organellec_cellprob_threshold",
+    "line": 1212,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organellec_cellprob_threshold",
+    "line": 2048,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "_segment_cellpose_sam"
+   }
+  ],
+  "organellec_channel": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 407,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 606,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 251,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 780,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 782,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 793,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 1227,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 1229,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 1238,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 281,
+    "module": "spacr.object_roles",
+    "nested": false,
+    "qualname": "organelle_settings_view"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 2738,
+    "module": "spacr.qt.widgets.live_preview",
+    "nested": false,
+    "qualname": "LivePreviewPanel.apply_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 2027,
+    "module": "spacr.qt.widgets.timelapse_preview",
+    "nested": false,
+    "qualname": "TimelapsePreviewPanel.apply_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 7390,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "organelle_measurement_caveats"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 3682,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "_get_cellpose_channels"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_channel",
+    "line": 1852,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organellec_diameter": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_diameter",
+    "line": 930,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_diameter",
+    "line": 950,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_diameter",
+    "line": 704,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "organelle_morphology_now"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_diameter",
+    "line": 2030,
+    "module": "spacr.qt.widgets.timelapse_preview",
+    "nested": false,
+    "qualname": "TimelapsePreviewPanel.apply_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_diameter",
+    "line": 1855,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organellec_flow_threshold": [
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organellec_flow_threshold",
+    "line": 735,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organellec_flow_threshold",
+    "line": 1214,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organellec_flow_threshold",
+    "line": 2047,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "_segment_cellpose_sam"
+   }
+  ],
+  "organellec_intensity_merge": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_intensity_merge",
+    "line": 119,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organellec_intensity_percentile": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organellec_intensity_percentile",
+    "line": 204,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organellec_intensity_split": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_intensity_split",
+    "line": 120,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organellec_intensity_threshold_method": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organellec_intensity_threshold_method",
+    "line": 203,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_intensity_threshold_method",
+    "line": 1865,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organellec_mask_dim": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_mask_dim",
+    "line": 2653,
+    "module": "spacr.crops",
+    "nested": false,
+    "qualname": "mask_dims_from_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_mask_dim",
+    "line": 1426,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_morphological_measurements"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_mask_dim",
+    "line": 3205,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_mask_dim",
+    "line": 3258,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_mask_dim",
+    "line": 3381,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_mask_dim",
+    "line": 3440,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_mask_dim",
+    "line": 1383,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_measure_crop_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_mask_dim",
+    "line": 7389,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "organelle_measurement_caveats"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_mask_dim",
+    "line": 1868,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organellec_max_area": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_max_area",
+    "line": 123,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organellec_max_intensity_percentile": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_max_intensity_percentile",
+    "line": 126,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organellec_max_intensity_percentile",
+    "line": 204,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organellec_method": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_method",
+    "line": 1865,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organellec_min_area": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_min_area",
+    "line": 3214,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_min_area",
+    "line": 122,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_min_area",
+    "line": 1384,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_measure_crop_settings"
+   }
+  ],
+  "organellec_min_distance": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organellec_min_distance",
+    "line": 201,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organellec_min_intensity_percentile": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_min_intensity_percentile",
+    "line": 125,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organellec_min_intensity_percentile",
+    "line": 204,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organellec_min_split_area": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_min_split_area",
+    "line": 121,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organellec_model_name": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_model_name",
+    "line": 1092,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "_get_object_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_model_name",
+    "line": 3568,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "_get_object_settings"
+   }
+  ],
+  "organellec_morphology": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_morphology",
+    "line": 693,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "organelle_morphology_now"
+   }
+  ],
+  "organellec_perimeter_fraction": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_perimeter_fraction",
+    "line": 118,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organellec_remove_border_objects": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_remove_border_objects",
+    "line": 124,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_remove_border_objects",
+    "line": 1016,
+    "module": "spacr.qt.widgets.live_preview",
+    "nested": false,
+    "qualname": "_apply_size_filter"
+   }
+  ],
+  "organellec_resample": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_resample",
+    "line": 2049,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "_segment_cellpose_sam"
+   }
+  ],
+  "organellec_ring_fill_method": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_ring_fill_method",
+    "line": 1865,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organellec_type": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_type",
+    "line": 700,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "organelle_morphology_now"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_type",
+    "line": 1385,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_measure_crop_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organellec_type",
+    "line": 7393,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "organelle_measurement_caveats"
+   }
+  ],
+  "organelled_area_multiplier": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organelled_area_multiplier",
+    "line": 200,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organelled_cellprob_threshold": [
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelled_cellprob_threshold",
+    "line": 734,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelled_cellprob_threshold",
+    "line": 1212,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelled_cellprob_threshold",
+    "line": 2048,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "_segment_cellpose_sam"
+   }
+  ],
+  "organelled_channel": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 407,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 606,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 251,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 780,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 782,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 793,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 1227,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 1229,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 1238,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 281,
+    "module": "spacr.object_roles",
+    "nested": false,
+    "qualname": "organelle_settings_view"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 2738,
+    "module": "spacr.qt.widgets.live_preview",
+    "nested": false,
+    "qualname": "LivePreviewPanel.apply_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 2027,
+    "module": "spacr.qt.widgets.timelapse_preview",
+    "nested": false,
+    "qualname": "TimelapsePreviewPanel.apply_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 7390,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "organelle_measurement_caveats"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 3682,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "_get_cellpose_channels"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_channel",
+    "line": 1852,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organelled_diameter": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_diameter",
+    "line": 930,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_diameter",
+    "line": 950,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_diameter",
+    "line": 704,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "organelle_morphology_now"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_diameter",
+    "line": 2030,
+    "module": "spacr.qt.widgets.timelapse_preview",
+    "nested": false,
+    "qualname": "TimelapsePreviewPanel.apply_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_diameter",
+    "line": 1855,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organelled_flow_threshold": [
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelled_flow_threshold",
+    "line": 735,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelled_flow_threshold",
+    "line": 1214,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "organelled_flow_threshold",
+    "line": 2047,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "_segment_cellpose_sam"
+   }
+  ],
+  "organelled_intensity_merge": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_intensity_merge",
+    "line": 119,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organelled_intensity_percentile": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organelled_intensity_percentile",
+    "line": 204,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organelled_intensity_split": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_intensity_split",
+    "line": 120,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organelled_intensity_threshold_method": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organelled_intensity_threshold_method",
+    "line": 203,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_intensity_threshold_method",
+    "line": 1865,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organelled_mask_dim": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_mask_dim",
+    "line": 2653,
+    "module": "spacr.crops",
+    "nested": false,
+    "qualname": "mask_dims_from_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_mask_dim",
+    "line": 1426,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_morphological_measurements"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_mask_dim",
+    "line": 3205,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_mask_dim",
+    "line": 3258,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_mask_dim",
+    "line": 3381,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_mask_dim",
+    "line": 3440,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_mask_dim",
+    "line": 1383,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_measure_crop_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_mask_dim",
+    "line": 7389,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "organelle_measurement_caveats"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_mask_dim",
+    "line": 1868,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organelled_max_area": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_max_area",
+    "line": 123,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organelled_max_intensity_percentile": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_max_intensity_percentile",
+    "line": 126,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organelled_max_intensity_percentile",
+    "line": 204,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organelled_method": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_method",
+    "line": 1865,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organelled_min_area": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_min_area",
+    "line": 3214,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_min_area",
+    "line": 122,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_min_area",
+    "line": 1384,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_measure_crop_settings"
+   }
+  ],
+  "organelled_min_distance": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organelled_min_distance",
+    "line": 201,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organelled_min_intensity_percentile": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_min_intensity_percentile",
+    "line": 125,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 2,
+    "key": "organelled_min_intensity_percentile",
+    "line": 204,
+    "module": "spacr.object",
+    "nested": true,
+    "qualname": "merge_split_filter_masks._run_one"
+   }
+  ],
+  "organelled_min_split_area": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_min_split_area",
+    "line": 121,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organelled_model_name": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_model_name",
+    "line": 1092,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "_get_object_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_model_name",
+    "line": 3568,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "_get_object_settings"
+   }
+  ],
+  "organelled_morphology": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_morphology",
+    "line": 693,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "organelle_morphology_now"
+   }
+  ],
+  "organelled_perimeter_fraction": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_perimeter_fraction",
+    "line": 118,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   }
+  ],
+  "organelled_remove_border_objects": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_remove_border_objects",
+    "line": 124,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "merge_split_filter_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_remove_border_objects",
+    "line": 1016,
+    "module": "spacr.qt.widgets.live_preview",
+    "nested": false,
+    "qualname": "_apply_size_filter"
+   }
+  ],
+  "organelled_resample": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_resample",
+    "line": 2049,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "_segment_cellpose_sam"
+   }
+  ],
+  "organelled_ring_fill_method": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_ring_fill_method",
+    "line": 1865,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "organelled_type": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_type",
+    "line": 700,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "organelle_morphology_now"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_type",
+    "line": 1385,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_measure_crop_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelled_type",
+    "line": 7393,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "organelle_measurement_caveats"
+   }
+  ],
+  "out_png": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "out_png",
+    "line": 7168,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_multichannel"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "out_png",
+    "line": 3601,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "out_tif": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "out_tif",
+    "line": 7167,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_multichannel"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "out_tif",
+    "line": 3600,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "outlier_detection": [
    {
     "form": "subscript",
@@ -25996,6 +29953,35 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
+   }
+  ],
+  "outline_alpha": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "outline_alpha",
+    "line": 7133,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "outline_alpha",
+    "line": 3356,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "outline_alpha",
+    "line": 3556,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "outline_color": [
@@ -26065,6 +30051,35 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
+   }
+  ],
+  "outline_source": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "outline_source",
+    "line": 7126,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "outline_source",
+    "line": 3346,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "outline_source",
+    "line": 3545,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "outline_thickness": [
@@ -26163,6 +30178,15 @@
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "outside_channel",
+    "line": 251,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
    },
    {
     "form": "get-dynamic",
@@ -26488,6 +30512,17 @@
     "qualname": "set_default_plot_merge_settings"
    }
   ],
+  "overwrite": [
+   {
+    "form": "subscript",
+    "function_depth": 2,
+    "key": "overwrite",
+    "line": 730,
+    "module": "spacr.qt.screens.align",
+    "nested": true,
+    "qualname": "AlignScreen.write_stack._work"
+   }
+  ],
   "p_threshold_alpha": [
    {
     "form": "get",
@@ -26537,6 +30572,35 @@
     "qualname": "get_perform_regression_default_settings"
    }
   ],
+  "pair_batch_size": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "pair_batch_size",
+    "line": 7138,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "pair_batch_size",
+    "line": 3367,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "pair_batch_size",
+    "line": 3568,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "paired_data": [
    {
     "form": "get",
@@ -26573,6 +30637,15 @@
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "paired_data",
+    "line": 5265,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "_count_files_of"
    },
    {
     "form": "get",
@@ -26694,6 +30767,26 @@
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
+   }
+  ],
+  "path_column": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "path_column",
+    "line": 271,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "path_column",
+    "line": 1034,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
    }
   ],
   "path_string": [
@@ -26940,6 +31033,15 @@
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "pathogen_channel",
+    "line": 251,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
    },
    {
     "form": "get",
@@ -29164,6 +33266,26 @@
     "qualname": "interpret_vision_model"
    }
   ],
+  "phenotype_source": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "phenotype_source",
+    "line": 3474,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "phenotype_source",
+    "line": 4117,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "ops_preprocess"
+   }
+  ],
   "pin_memory": [
    {
     "form": "keyword",
@@ -30260,6 +34382,15 @@
   ],
   "png_dims": [
    {
+    "form": "get",
+    "function_depth": 1,
+    "key": "png_dims",
+    "line": 6070,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "_write_crop_tar"
+   },
+   {
     "form": "subscript",
     "function_depth": 1,
     "key": "png_dims",
@@ -30513,6 +34644,26 @@
     "qualname": "set_default_umap_image_settings"
    }
   ],
+  "position_effect_ratio": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "position_effect_ratio",
+    "line": 1481,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc_defaults"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "position_effect_ratio",
+    "line": 1656,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
+   }
+  ],
   "positive_control": [
    {
     "form": "get",
@@ -30652,6 +34803,28 @@
     "qualname": "get_perform_regression_default_settings"
    }
   ],
+  "prediction_column": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "prediction_column",
+    "line": 1035,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   }
+  ],
+  "predictions_file": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "predictions_file",
+    "line": 1033,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   }
+  ],
   "preprocess": [
    {
     "form": "subscript",
@@ -30690,6 +34863,37 @@
     "qualname": "set_default_settings_preprocess_generate_masks"
    }
   ],
+  "preview_downsample": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "preview_downsample",
+    "line": 7165,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_multichannel"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "preview_downsample",
+    "line": 3596,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "preview_only": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "preview_only",
+    "line": 1311,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_check_required_paths"
+   }
+  ],
   "prune_features": [
    {
     "form": "subscript",
@@ -30708,6 +34912,35 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_analyze_screen"
+   }
+  ],
+  "qc_data": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "qc_data",
+    "line": 1472,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "qc_data",
+    "line": 1673,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "qc_data",
+    "line": 1674,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
    }
   ],
   "qc_plot_max_panels": [
@@ -31046,6 +35279,15 @@
     "form": "get",
     "function_depth": 1,
     "key": "random_seed",
+    "line": 1662,
+    "module": "spacr.runctx",
+    "nested": false,
+    "qualname": "_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "random_seed",
     "line": 1189,
     "module": "spacr.settings",
     "nested": false,
@@ -31146,6 +35388,64 @@
     "qualname": "set_default_settings_preprocess_img_data"
    }
   ],
+  "ransac_thresh_px": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ransac_thresh_px",
+    "line": 7121,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ransac_thresh_px",
+    "line": 3343,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ransac_thresh_px",
+    "line": 3540,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "recursive": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "recursive",
+    "line": 7183,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_general"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "recursive",
+    "line": 3132,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "recursive",
+    "line": 3487,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "red_channel": [
    {
     "form": "get-dynamic",
@@ -31164,6 +35464,15 @@
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "red_channel",
+    "line": 251,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
    },
    {
     "form": "get-dynamic",
@@ -31509,6 +35818,15 @@
     "qualname": "_perform_regression"
    },
    {
+    "form": "get",
+    "function_depth": 1,
+    "key": "regression_backend",
+    "line": 7606,
+    "module": "spacr.qt.screens.app_screen",
+    "nested": false,
+    "qualname": "AppScreen._announce_the_fit"
+   },
+   {
     "form": "subscript",
     "function_depth": 1,
     "key": "regression_backend",
@@ -31761,6 +36079,15 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
+    "line": 7592,
+    "module": "spacr.qt.screens.app_screen",
+    "nested": false,
+    "qualname": "AppScreen._announce_the_fit"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "regression_type",
     "line": 9779,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
@@ -32008,6 +36335,44 @@
     "module": "spacr.settings_advisor",
     "nested": false,
     "qualname": "_stale_against"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "regression_type",
+    "line": 1246,
+    "module": "spacr.settings_advisor",
+    "nested": false,
+    "qualname": "refusals"
+   }
+  ],
+  "relative_scale": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "relative_scale",
+    "line": 3533,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "relative_scale",
+    "line": 4169,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "ops_preprocess"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "relative_scale",
+    "line": 4174,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "ops_preprocess"
    }
   ],
   "remove_background": [
@@ -32531,6 +36896,17 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_umap_image_settings"
+   }
+  ],
+  "results_folder": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "results_folder",
+    "line": 1432,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_check_app_specific"
    }
   ],
   "resume": [
@@ -33953,6 +38329,64 @@
     "qualname": "describe_resources"
    }
   ],
+  "save_qc": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "save_qc",
+    "line": 7127,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "save_qc",
+    "line": 3358,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "save_qc",
+    "line": 3550,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
+  "save_stitched_default": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "save_stitched_default",
+    "line": 7128,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "save_stitched_default",
+    "line": 3359,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "save_stitched_default",
+    "line": 3551,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "save_to_db": [
    {
     "form": "get",
@@ -35029,7 +39463,45 @@
     "qualname": "get_perform_regression_default_settings"
    }
   ],
+  "squeeze_singleton": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "squeeze_singleton",
+    "line": 7145,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "squeeze_singleton",
+    "line": 3374,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "squeeze_singleton",
+    "line": 3575,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "src": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "src",
+    "line": 1740,
+    "module": "spacr.anndata_export.__init__",
+    "nested": false,
+    "qualname": "anndata_export_settings"
+   },
    {
     "form": "get",
     "function_depth": 1,
@@ -36337,6 +40809,15 @@
    },
    {
     "form": "get",
+    "function_depth": 1,
+    "key": "src",
+    "line": 552,
+    "module": "spacr.qt.screens.hyperparam",
+    "nested": false,
+    "qualname": "_search_figure_dir"
+   },
+   {
+    "form": "get",
     "function_depth": 2,
     "key": "src",
     "line": 379,
@@ -37596,6 +42077,55 @@
     "qualname": "_describe_outputs"
    }
   ],
+  "starved_read_fraction": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "starved_read_fraction",
+    "line": 1479,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc_defaults"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "starved_read_fraction",
+    "line": 1654,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
+   }
+  ],
+  "stitch": [
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "stitch",
+    "line": 3382,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "stitch",
+    "line": 3391,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "stitch",
+    "line": 3518,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "stitch_threshold": [
    {
     "form": "get",
@@ -37690,6 +42220,35 @@
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_compute_velocities_and_well_summary"
+   }
+  ],
+  "stream_csv": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "stream_csv",
+    "line": 7139,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "stream_csv",
+    "line": 3368,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "stream_csv",
+    "line": 3569,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "stream_method": [
@@ -37824,6 +42383,174 @@
     "qualname": "get_measure_crop_settings"
    }
   ],
+  "surrogate_correlation_threshold": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "surrogate_correlation_threshold",
+    "line": 1044,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   }
+  ],
+  "surrogate_exclude": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "surrogate_exclude",
+    "line": 1043,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   }
+  ],
+  "surrogate_min_fidelity_improvement": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "surrogate_min_fidelity_improvement",
+    "line": 1045,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   }
+  ],
+  "surrogate_model": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "surrogate_model",
+    "line": 1036,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "surrogate_model",
+    "line": 1414,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_check_app_specific"
+   }
+  ],
+  "surrogate_n_estimators": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "surrogate_n_estimators",
+    "line": 1039,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   }
+  ],
+  "surrogate_n_repeats": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "surrogate_n_repeats",
+    "line": 1040,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   }
+  ],
+  "surrogate_random_seed": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "surrogate_random_seed",
+    "line": 1042,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   }
+  ],
+  "surrogate_shap_max_samples": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "surrogate_shap_max_samples",
+    "line": 1041,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   }
+  ],
+  "surrogate_split_by": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "surrogate_split_by",
+    "line": 1037,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "surrogate_split_by",
+    "line": 1419,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_check_app_specific"
+   }
+  ],
+  "surrogate_test_size": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "surrogate_test_size",
+    "line": 1038,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   }
+  ],
+  "sweep_points": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "sweep_points",
+    "line": 1484,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc_defaults"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "sweep_points",
+    "line": 1694,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
+   }
+  ],
+  "sweep_span": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "sweep_span",
+    "line": 1483,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc_defaults"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "sweep_span",
+    "line": 1693,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
+   }
+  ],
   "t_axis": [
    {
     "form": "get",
@@ -37862,6 +42589,35 @@
     "module": "spacr.zstack",
     "nested": false,
     "qualname": "plan_4d_from_settings"
+   }
+  ],
+  "t_index": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "t_index",
+    "line": 7144,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "t_index",
+    "line": 3373,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "t_index",
+    "line": 3574,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "t_link_threshold": [
@@ -38359,6 +43115,75 @@
     "qualname": "analyze_recruitment"
    }
   ],
+  "target_gene": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "target_gene",
+    "line": 1438,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_check_app_specific"
+   }
+  ],
+  "target_grnas_per_well": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "target_grnas_per_well",
+    "line": 1022,
+    "module": "spacr.sequencing",
+    "nested": false,
+    "qualname": "_run_barcode_qc"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "target_grnas_per_well",
+    "line": 1476,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc_defaults"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "target_grnas_per_well",
+    "line": 1684,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "target_grnas_per_well",
+    "line": 1701,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
+   }
+  ],
+  "target_guides": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "target_guides",
+    "line": 272,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "target_guides",
+    "line": 1438,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_check_app_specific"
+   }
+  ],
   "target_height": [
    {
     "form": "get",
@@ -38637,6 +43462,35 @@
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "train_cellpose"
+   }
+  ],
+  "target_statistic": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "target_statistic",
+    "line": 1477,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc_defaults"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "target_statistic",
+    "line": 1685,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "target_statistic",
+    "line": 1702,
+    "module": "spacr.sequencing_qc",
+    "nested": false,
+    "qualname": "barcode_qc"
    }
   ],
   "target_unique_count": [
@@ -39979,6 +44833,26 @@
     "qualname": "set_default_settings_preprocess_generate_masks"
    }
   ],
+  "tmp_dir": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "tmp_dir",
+    "line": 7166,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_multichannel"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "tmp_dir",
+    "line": 3599,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "tolerance": [
    {
     "form": "subscript",
@@ -40226,6 +45100,15 @@
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "total_channel",
+    "line": 251,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
    },
    {
     "form": "get-dynamic",
@@ -41542,6 +46425,17 @@
     "qualname": "analyze_endodyogeny"
    }
   ],
+  "umap.reduction_method": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "umap.reduction_method",
+    "line": 1865,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
   "umap_canvas_width": [
    {
     "form": "subscript",
@@ -42246,6 +47140,15 @@
     "module": "spacr.deep_spacr",
     "nested": false,
     "qualname": "train_test_model"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "verbose",
+    "line": 289,
+    "module": "spacr.hit_investigation",
+    "nested": false,
+    "qualname": "hit_investigation_default_settings"
    },
    {
     "form": "get",
@@ -43139,6 +48042,15 @@
     "qualname": "analyze_class_proportion"
    },
    {
+    "form": "get",
+    "function_depth": 1,
+    "key": "verbose",
+    "line": 1047,
+    "module": "spacr.surrogate",
+    "nested": false,
+    "qualname": "explain_cv_default_settings"
+   },
+   {
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
@@ -43432,6 +48344,35 @@
     "qualname": "_plaque_scale_for"
    }
   ],
+  "well_group": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "well_group",
+    "line": 7181,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_general"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "well_group",
+    "line": 3131,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "well_group",
+    "line": 3484,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
+   }
+  ],
   "well_pad": [
    {
     "form": "get",
@@ -43490,6 +48431,26 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_train_cellpose_default_settings"
+   }
+  ],
+  "write_mosaic": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "write_mosaic",
+    "line": 3399,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "write_mosaic",
+    "line": 3582,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "write_random_annotation_column": [
@@ -43588,6 +48549,35 @@
     "module": "spacr.zstack",
     "nested": false,
     "qualname": "plan_4d_from_settings"
+   }
+  ],
+  "z_index": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "z_index",
+    "line": 7143,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_stitch"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "z_index",
+    "line": 3372,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "stitch_cycle_wells"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "z_index",
+    "line": 3573,
+    "module": "spacr.spacrops",
+    "nested": false,
+    "qualname": "get_preprocess_ops_settings"
    }
   ],
   "z_projection": [
@@ -43716,11 +48706,11 @@
    }
   ]
  },
- "exact_targets": 523,
- "nested_consumers_only": 0,
- "no_consumer_found": 23,
- "setting_count": 753,
- "target_count": 661,
+ "exact_targets": 668,
+ "nested_consumers_only": 10,
+ "no_consumer_found": 151,
+ "setting_count": 1072,
+ "target_count": 837,
  "targets": {
   "CP_prob": {
    "exact": true,
@@ -43756,6 +48746,21 @@
    "exact": true,
    "module": "spacr.ml",
    "symbol": "resolve_auto_inference"
+  },
+  "all_scores": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "allow_rotation": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "allow_scale": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "alpha": {
    "exact": true,
@@ -43807,6 +48812,11 @@
    "module": "spacr.deep_spacr",
    "symbol": "deep_spacr"
   },
+  "arr_axes": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "attribution_baseline": {
    "exact": true,
    "module": "spacr.hyperparam",
@@ -43841,6 +48851,11 @@
    "exact": true,
    "module": "spacr.sequencing",
    "symbol": "generate_barecode_mapping"
+  },
+  "barcode_qc": {
+   "exact": false,
+   "module": "spacr.sequencing",
+   "symbol": ""
   },
   "batch_column": {
    "exact": true,
@@ -43902,10 +48917,20 @@
    "module": "spacr.core",
    "symbol": "generate_image_umap"
   },
+  "blend": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "get_preprocess_ops_settings"
+  },
   "blue_channel": {
    "exact": true,
    "module": "spacr.core",
    "symbol": "preprocess_generate_masks"
+  },
+  "blur_sigma": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "bounding_box": {
    "exact": true,
@@ -43926,6 +48951,11 @@
    "exact": true,
    "module": "spacr.deep_spacr",
    "symbol": "generate_activation_map"
+  },
+  "canny": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "cell_area_multiplier": {
    "exact": false,
@@ -44082,6 +49112,26 @@
    "module": "spacr.plot",
    "symbol": "plot_data_from_db"
   },
+  "cellpose_all": {
+   "exact": true,
+   "module": "spacr.io",
+   "symbol": "preprocess_img_data"
+  },
+  "cellpose_diameter": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "cellpose_masks": {
+   "exact": true,
+   "module": "spacr.io",
+   "symbol": "preprocess_img_data"
+  },
+  "cellpose_model": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "cells": {
    "exact": true,
    "module": "spacr.core",
@@ -44106,6 +49156,16 @@
    "exact": true,
    "module": "spacr.submodules",
    "symbol": "analyze_recruitment"
+  },
+  "channel_index": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "channel_indices": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "channel_of_interest": {
    "exact": true,
@@ -44176,6 +49236,16 @@
    "exact": true,
    "module": "spacr.core",
    "symbol": "generate_image_umap"
+  },
+  "collision": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "collision_max_distance": {
+   "exact": true,
+   "module": "spacr.sequencing_qc",
+   "symbol": "barcode_qc_defaults"
   },
   "color_by": {
    "exact": true,
@@ -44382,6 +49452,11 @@
    "module": "spacr.ml",
    "symbol": "minimum_cell_simulation"
   },
+  "detector": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "dialate_png_ratios": {
    "exact": true,
    "module": "spacr.crops",
@@ -44397,15 +49472,40 @@
    "module": "spacr.spacr_cellpose",
    "symbol": "identify_masks_finetune"
   },
+  "dilate_ksize": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "distance_gaussian_sigma": {
    "exact": false,
    "module": "spacr.measure",
    "symbol": ""
   },
+  "do_multichannel": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "do_nuc_stitch": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "do_organize": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "dot_size": {
    "exact": true,
    "module": "spacr.core",
    "symbol": "generate_image_umap"
+  },
+  "downsample": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "dropout_rate": {
    "exact": true,
@@ -44421,6 +49521,11 @@
    "exact": true,
    "module": "spacr.annotation_dataset",
    "symbol": "generate_annotation_dataset"
+  },
+  "dst_root": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "early_stopping_patience": {
    "exact": true,
@@ -44482,6 +49587,11 @@
    "module": "spacr.core",
    "symbol": "generate_image_umap"
   },
+  "exclude_starved_wells": {
+   "exact": true,
+   "module": "spacr.sequencing_qc",
+   "symbol": "barcode_qc_defaults"
+  },
   "expected_end": {
    "exact": true,
    "module": "spacr.sequencing",
@@ -44497,10 +49607,25 @@
    "module": "spacr.submodules",
    "symbol": "analyze_invasion"
   },
+  "exts": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "fdr_alpha": {
    "exact": true,
    "module": "spacr.parameter_sweep",
    "symbol": "run_sweep"
+  },
+  "feature_cache_dir": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "get_preprocess_ops_settings"
+  },
+  "feature_cache_mode": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "feature_importance": {
    "exact": true,
@@ -44617,6 +49742,11 @@
    "module": "spacr.deep_spacr",
    "symbol": "deep_spacr"
   },
+  "genotype_source": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "get_preprocess_ops_settings"
+  },
   "gpu": {
    "exact": true,
    "module": "spacr.core",
@@ -44726,6 +49856,86 @@
    "exact": false,
    "module": "spacr.ml",
    "symbol": ""
+  },
+  "hit_bootstrap": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_direction": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_effect": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_fdr": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_feature_columns": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_gallery_per_stratum": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_guide_agreement": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_include_original_score": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_n_guides": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_permutations": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_pipeline_permutations": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_probability_threshold": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_random_seed": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_split_by": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_store_database": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
+  "hit_well_support": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
   },
   "holdout_plate": {
    "exact": true,
@@ -44997,6 +50207,11 @@
    "module": "spacr.deep_spacr",
    "symbol": "apply_model_to_tar"
   },
+  "inputs": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
+  },
   "intensity_statistic": {
    "exact": true,
    "module": "spacr.submodules",
@@ -45097,6 +50312,11 @@
    "module": "spacr.cell_montage",
    "symbol": "select_montage_per_guide"
   },
+  "line_thickness": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "location_column": {
    "exact": true,
    "module": "spacr.hyperparam",
@@ -45162,6 +50382,11 @@
    "module": "spacr.timelapse",
    "symbol": "automated_motility_assay"
   },
+  "max_keypoints": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "max_parasite_area": {
    "exact": true,
    "module": "spacr.submodules",
@@ -45172,6 +50397,16 @@
    "module": "spacr.submodules",
    "symbol": "analyze_replication"
   },
+  "max_ram_features": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "max_site_gap": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "merge_edge_pathogen_cells": {
    "exact": false,
    "module": "spacr.measure",
@@ -45181,6 +50416,11 @@
    "exact": false,
    "module": "spacr.utils",
    "symbol": ""
+  },
+  "meta_regex": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "metadata_files": {
    "exact": false,
@@ -45247,6 +50487,11 @@
    "module": "spacr.submodules",
    "symbol": ""
   },
+  "min_reads_per_well": {
+   "exact": true,
+   "module": "spacr.sequencing_qc",
+   "symbol": "barcode_qc_defaults"
+  },
   "min_samples": {
    "exact": true,
    "module": "spacr.core",
@@ -45256,6 +50501,11 @@
    "exact": true,
    "module": "spacr.submodules",
    "symbol": "analyze_invasion"
+  },
+  "mip": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "mix": {
    "exact": true,
@@ -45301,6 +50551,26 @@
    "exact": true,
    "module": "spacr.classify",
    "symbol": "resolve_ml_model_type"
+  },
+  "mosaic": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "mosaic_csv_out": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "get_preprocess_ops_settings"
+  },
+  "mosaic_min_score": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "mosaic_out": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "get_preprocess_ops_settings"
   },
   "motility_analysis": {
    "exact": true,
@@ -45352,6 +50622,16 @@
    "module": "spacr.deep_spacr",
    "symbol": "deep_spacr"
   },
+  "n_workers": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "n_workers_features": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "neg": {
    "exact": true,
    "module": "spacr.core",
@@ -45366,6 +50646,11 @@
    "exact": false,
    "module": "spacr.deep_spacr",
    "symbol": ""
+  },
+  "nfeatures": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "non_power_of_two_warn": {
    "exact": true,
@@ -45576,6 +50861,31 @@
    "exact": true,
    "module": "spacr.sequencing",
    "symbol": "generate_barecode_mapping"
+  },
+  "on_error": {
+   "exact": true,
+   "module": "spacr.runctx",
+   "symbol": "resolve_error_policy"
+  },
+  "on_error_attempts": {
+   "exact": true,
+   "module": "spacr.runctx",
+   "symbol": "resolve_error_policy"
+  },
+  "on_error_backoff": {
+   "exact": true,
+   "module": "spacr.runctx",
+   "symbol": "resolve_error_policy"
+  },
+  "on_missing": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "opencv_threads": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "optimizer_type": {
    "exact": true,
@@ -45852,10 +51162,355 @@
    "module": "spacr.object_roles",
    "symbol": "organelle_settings_view"
   },
+  "organelleb_area_multiplier": {
+   "exact": false,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelleb_cellprob_threshold": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "generate_cellpose_masks_sam"
+  },
+  "organelleb_channel": {
+   "exact": true,
+   "module": "spacr.core",
+   "symbol": "preprocess_generate_masks"
+  },
+  "organelleb_diameter": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "generate_cellpose_masks_sam"
+  },
+  "organelleb_flow_threshold": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "generate_cellpose_masks_sam"
+  },
+  "organelleb_intensity_merge": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelleb_intensity_percentile": {
+   "exact": false,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelleb_intensity_split": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelleb_intensity_threshold_method": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
+  },
+  "organelleb_mask_dim": {
+   "exact": true,
+   "module": "spacr.crops",
+   "symbol": "mask_dims_from_settings"
+  },
+  "organelleb_max_area": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelleb_max_intensity_percentile": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelleb_method": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
+  },
+  "organelleb_min_area": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelleb_min_distance": {
+   "exact": false,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelleb_min_intensity_percentile": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelleb_min_split_area": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelleb_model_name": {
+   "exact": false,
+   "module": "spacr.utils",
+   "symbol": ""
+  },
+  "organelleb_perimeter_fraction": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelleb_remove_border_objects": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelleb_resample": {
+   "exact": false,
+   "module": "spacr.object",
+   "symbol": ""
+  },
+  "organelleb_ring_fill_method": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
+  },
+  "organellec_area_multiplier": {
+   "exact": false,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organellec_cellprob_threshold": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "generate_cellpose_masks_sam"
+  },
+  "organellec_channel": {
+   "exact": true,
+   "module": "spacr.core",
+   "symbol": "preprocess_generate_masks"
+  },
+  "organellec_diameter": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "generate_cellpose_masks_sam"
+  },
+  "organellec_flow_threshold": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "generate_cellpose_masks_sam"
+  },
+  "organellec_intensity_merge": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organellec_intensity_percentile": {
+   "exact": false,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organellec_intensity_split": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organellec_intensity_threshold_method": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
+  },
+  "organellec_mask_dim": {
+   "exact": true,
+   "module": "spacr.crops",
+   "symbol": "mask_dims_from_settings"
+  },
+  "organellec_max_area": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organellec_max_intensity_percentile": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organellec_method": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
+  },
+  "organellec_min_area": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organellec_min_distance": {
+   "exact": false,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organellec_min_intensity_percentile": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organellec_min_split_area": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organellec_model_name": {
+   "exact": false,
+   "module": "spacr.utils",
+   "symbol": ""
+  },
+  "organellec_perimeter_fraction": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organellec_remove_border_objects": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organellec_resample": {
+   "exact": false,
+   "module": "spacr.object",
+   "symbol": ""
+  },
+  "organellec_ring_fill_method": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
+  },
+  "organelled_area_multiplier": {
+   "exact": false,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelled_cellprob_threshold": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "generate_cellpose_masks_sam"
+  },
+  "organelled_channel": {
+   "exact": true,
+   "module": "spacr.core",
+   "symbol": "preprocess_generate_masks"
+  },
+  "organelled_diameter": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "generate_cellpose_masks_sam"
+  },
+  "organelled_flow_threshold": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "generate_cellpose_masks_sam"
+  },
+  "organelled_intensity_merge": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelled_intensity_percentile": {
+   "exact": false,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelled_intensity_split": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelled_intensity_threshold_method": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
+  },
+  "organelled_mask_dim": {
+   "exact": true,
+   "module": "spacr.crops",
+   "symbol": "mask_dims_from_settings"
+  },
+  "organelled_max_area": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelled_max_intensity_percentile": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelled_method": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
+  },
+  "organelled_min_area": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelled_min_distance": {
+   "exact": false,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelled_min_intensity_percentile": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelled_min_split_area": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelled_model_name": {
+   "exact": false,
+   "module": "spacr.utils",
+   "symbol": ""
+  },
+  "organelled_perimeter_fraction": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelled_remove_border_objects": {
+   "exact": true,
+   "module": "spacr.object",
+   "symbol": "merge_split_filter_masks"
+  },
+  "organelled_resample": {
+   "exact": false,
+   "module": "spacr.object",
+   "symbol": ""
+  },
+  "organelled_ring_fill_method": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
+  },
+  "out_png": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "get_preprocess_ops_settings"
+  },
+  "out_tif": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "get_preprocess_ops_settings"
+  },
   "outlier_detection": {
    "exact": false,
    "module": "spacr.ml",
    "symbol": ""
+  },
+  "outline_alpha": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "outline_color": {
    "exact": true,
@@ -45866,6 +51521,11 @@
    "exact": true,
    "module": "spacr.core",
    "symbol": "preprocess_generate_masks"
+  },
+  "outline_source": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "outline_thickness": {
    "exact": true,
@@ -45912,6 +51572,11 @@
    "module": "spacr.ml",
    "symbol": ""
   },
+  "pair_batch_size": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "paired_data": {
    "exact": true,
    "module": "spacr.ml",
@@ -45926,6 +51591,11 @@
    "exact": true,
    "module": "spacr.submodules",
    "symbol": "analyze_replication"
+  },
+  "path_column": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
   },
   "path_string": {
    "exact": true,
@@ -46112,6 +51782,11 @@
    "module": "spacr.ml",
    "symbol": "interpret_vision_model"
   },
+  "phenotype_source": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "get_preprocess_ops_settings"
+  },
   "pin_memory": {
    "exact": true,
    "module": "spacr.deep_spacr",
@@ -46187,6 +51862,11 @@
    "module": "spacr.core",
    "symbol": "generate_image_umap"
   },
+  "png_dims": {
+   "exact": false,
+   "module": "spacr.io",
+   "symbol": ""
+  },
   "png_size": {
    "exact": true,
    "module": "spacr.annotation_dataset",
@@ -46212,20 +51892,50 @@
    "module": "spacr.core",
    "symbol": "generate_image_umap"
   },
+  "position_effect_ratio": {
+   "exact": true,
+   "module": "spacr.sequencing_qc",
+   "symbol": "barcode_qc_defaults"
+  },
   "positive_control": {
    "exact": true,
    "module": "spacr.hyperparam",
    "symbol": "load_search_data"
+  },
+  "prediction_column": {
+   "exact": true,
+   "module": "spacr.surrogate",
+   "symbol": "explain_cv_default_settings"
+  },
+  "predictions_file": {
+   "exact": true,
+   "module": "spacr.surrogate",
+   "symbol": "explain_cv_default_settings"
   },
   "preprocess": {
    "exact": true,
    "module": "spacr.core",
    "symbol": "preprocess_generate_masks"
   },
+  "preview_downsample": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "get_preprocess_ops_settings"
+  },
+  "preview_only": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
+  },
   "prune_features": {
    "exact": true,
    "module": "spacr.ml",
    "symbol": "generate_ml_scores"
+  },
+  "qc_data": {
+   "exact": true,
+   "module": "spacr.sequencing_qc",
+   "symbol": "barcode_qc_defaults"
   },
   "qc_plot_max_panels": {
    "exact": true,
@@ -46261,6 +51971,16 @@
    "exact": true,
    "module": "spacr.core",
    "symbol": "preprocess_generate_masks"
+  },
+  "ransac_thresh_px": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "recursive": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "red_channel": {
    "exact": true,
@@ -46306,6 +52026,11 @@
    "exact": true,
    "module": "spacr.ml",
    "symbol": "results_folder_kind"
+  },
+  "relative_scale": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "get_preprocess_ops_settings"
   },
   "remove_background": {
    "exact": true,
@@ -46376,6 +52101,11 @@
    "exact": true,
    "module": "spacr.core",
    "symbol": "generate_image_umap"
+  },
+  "results_folder": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
   },
   "resume": {
    "exact": true,
@@ -46456,6 +52186,16 @@
    "exact": true,
    "module": "spacr.measure",
    "symbol": "measure_crop"
+  },
+  "save_qc": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
+  "save_stitched_default": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "schedule": {
    "exact": true,
@@ -46562,10 +52302,25 @@
    "module": "spacr.ml",
    "symbol": ""
   },
+  "squeeze_singleton": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "src": {
    "exact": true,
    "module": "spacr.annotation_dataset",
    "symbol": "generate_annotation_dataset"
+  },
+  "starved_read_fraction": {
+   "exact": true,
+   "module": "spacr.sequencing_qc",
+   "symbol": "barcode_qc_defaults"
+  },
+  "stitch": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "stitch_threshold": {
    "exact": true,
@@ -46582,6 +52337,11 @@
    "module": "spacr.timelapse",
    "symbol": ""
   },
+  "stream_csv": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "stream_method": {
    "exact": false,
    "module": "spacr.validate",
@@ -46597,6 +52357,66 @@
    "module": "spacr.measure",
    "symbol": ""
   },
+  "surrogate_correlation_threshold": {
+   "exact": true,
+   "module": "spacr.surrogate",
+   "symbol": "explain_cv_default_settings"
+  },
+  "surrogate_exclude": {
+   "exact": true,
+   "module": "spacr.surrogate",
+   "symbol": "explain_cv_default_settings"
+  },
+  "surrogate_min_fidelity_improvement": {
+   "exact": true,
+   "module": "spacr.surrogate",
+   "symbol": "explain_cv_default_settings"
+  },
+  "surrogate_model": {
+   "exact": true,
+   "module": "spacr.surrogate",
+   "symbol": "explain_cv_default_settings"
+  },
+  "surrogate_n_estimators": {
+   "exact": true,
+   "module": "spacr.surrogate",
+   "symbol": "explain_cv_default_settings"
+  },
+  "surrogate_n_repeats": {
+   "exact": true,
+   "module": "spacr.surrogate",
+   "symbol": "explain_cv_default_settings"
+  },
+  "surrogate_random_seed": {
+   "exact": true,
+   "module": "spacr.surrogate",
+   "symbol": "explain_cv_default_settings"
+  },
+  "surrogate_shap_max_samples": {
+   "exact": true,
+   "module": "spacr.surrogate",
+   "symbol": "explain_cv_default_settings"
+  },
+  "surrogate_split_by": {
+   "exact": true,
+   "module": "spacr.surrogate",
+   "symbol": "explain_cv_default_settings"
+  },
+  "surrogate_test_size": {
+   "exact": true,
+   "module": "spacr.surrogate",
+   "symbol": "explain_cv_default_settings"
+  },
+  "sweep_points": {
+   "exact": true,
+   "module": "spacr.sequencing_qc",
+   "symbol": "barcode_qc_defaults"
+  },
+  "sweep_span": {
+   "exact": true,
+   "module": "spacr.sequencing_qc",
+   "symbol": "barcode_qc_defaults"
+  },
   "t_axis": {
    "exact": true,
    "module": "spacr.zstack",
@@ -46606,6 +52426,11 @@
    "exact": true,
    "module": "spacr.zstack",
    "symbol": "plan_4d_from_settings"
+  },
+  "t_index": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "t_link_threshold": {
    "exact": true,
@@ -46652,6 +52477,21 @@
    "module": "spacr.submodules",
    "symbol": "analyze_recruitment"
   },
+  "target_gene": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
+  },
+  "target_grnas_per_well": {
+   "exact": true,
+   "module": "spacr.sequencing_qc",
+   "symbol": "barcode_qc_defaults"
+  },
+  "target_guides": {
+   "exact": true,
+   "module": "spacr.hit_investigation",
+   "symbol": "hit_investigation_default_settings"
+  },
   "target_height": {
    "exact": true,
    "module": "spacr.spacr_cellpose",
@@ -46676,6 +52516,11 @@
    "exact": true,
    "module": "spacr.submodules",
    "symbol": "train_cellpose"
+  },
+  "target_statistic": {
+   "exact": true,
+   "module": "spacr.sequencing_qc",
+   "symbol": "barcode_qc_defaults"
   },
   "target_unique_count": {
    "exact": true,
@@ -46782,6 +52627,11 @@
    "module": "spacr.object",
    "symbol": "generate_cellpose_masks_sam"
   },
+  "tmp_dir": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "get_preprocess_ops_settings"
+  },
   "tolerance": {
    "exact": true,
    "module": "spacr.ml",
@@ -46887,6 +52737,11 @@
    "module": "spacr.submodules",
    "symbol": "analyze_endodyogeny"
   },
+  "umap.reduction_method": {
+   "exact": false,
+   "module": "spacr.validate",
+   "symbol": ""
+  },
   "umap_canvas_width": {
    "exact": true,
    "module": "spacr.core",
@@ -46972,6 +52827,11 @@
    "module": "spacr.submodules",
    "symbol": ""
   },
+  "well_group": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
+  },
   "well_pad": {
    "exact": true,
    "module": "spacr.submodules",
@@ -46986,6 +52846,11 @@
    "exact": false,
    "module": "spacr.model_zoo",
    "symbol": ""
+  },
+  "write_mosaic": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "write_random_annotation_column": {
    "exact": true,
@@ -47006,6 +52871,11 @@
    "exact": true,
    "module": "spacr.zstack",
    "symbol": "plan_from_settings"
+  },
+  "z_index": {
+   "exact": true,
+   "module": "spacr.spacrops",
+   "symbol": "stitch_cycle_wells"
   },
   "z_projection": {
    "exact": true,
@@ -47029,30 +52899,158 @@
   }
  },
  "unread_keys": [
+  "activation",
+  "analyze_plaques",
+  "anndata_export",
   "auto_file_issues",
   "baseline",
   "cap",
   "cell_picking",
+  "classify",
   "console_aware",
+  "explain_cv",
+  "external_masks",
   "glm_transform_conflict",
+  "guide_fractions_file",
   "half_widths",
+  "hit_phenotype",
+  "illumination",
+  "investigate_hit",
+  "layout",
+  "map_barcodes",
   "mask",
+  "measure",
+  "ml_analyze",
   "nr_imgs",
-  "path_column",
+  "ops",
+  "organelleb_adaptive_block_size",
+  "organelleb_adaptive_offset",
+  "organelleb_chann_dim",
+  "organelleb_clahe",
+  "organelleb_clahe_clip_limit",
+  "organelleb_dog_sigma_high",
+  "organelleb_dog_sigma_low",
+  "organelleb_fill_holes",
+  "organelleb_hysteresis_high",
+  "organelleb_hysteresis_low",
+  "organelleb_log_max_sigma",
+  "organelleb_log_min_sigma",
+  "organelleb_log_num_sigma",
+  "organelleb_log_threshold",
+  "organelleb_mask_within_cells",
+  "organelleb_morph_radius",
+  "organelleb_network_threshold",
+  "organelleb_remove_border",
+  "organelleb_ridge_filter",
+  "organelleb_ridge_sigmas",
+  "organelleb_ring_min_prominence",
+  "organelleb_ring_sigma_inner",
+  "organelleb_ring_sigma_outer",
+  "organelleb_rolling_ball",
+  "organelleb_rolling_ball_radius",
+  "organelleb_skeletonize",
+  "organelleb_tophat_radius",
+  "organelleb_unet_model_path",
+  "organelleb_unet_threshold",
+  "organelleb_watershed_spots",
+  "organellec_adaptive_block_size",
+  "organellec_adaptive_offset",
+  "organellec_chann_dim",
+  "organellec_clahe",
+  "organellec_clahe_clip_limit",
+  "organellec_dog_sigma_high",
+  "organellec_dog_sigma_low",
+  "organellec_fill_holes",
+  "organellec_hysteresis_high",
+  "organellec_hysteresis_low",
+  "organellec_log_max_sigma",
+  "organellec_log_min_sigma",
+  "organellec_log_num_sigma",
+  "organellec_log_threshold",
+  "organellec_mask_within_cells",
+  "organellec_morph_radius",
+  "organellec_network_threshold",
+  "organellec_remove_border",
+  "organellec_ridge_filter",
+  "organellec_ridge_sigmas",
+  "organellec_ring_min_prominence",
+  "organellec_ring_sigma_inner",
+  "organellec_ring_sigma_outer",
+  "organellec_rolling_ball",
+  "organellec_rolling_ball_radius",
+  "organellec_skeletonize",
+  "organellec_tophat_radius",
+  "organellec_unet_model_path",
+  "organellec_unet_threshold",
+  "organellec_watershed_spots",
+  "organelled_adaptive_block_size",
+  "organelled_adaptive_offset",
+  "organelled_chann_dim",
+  "organelled_clahe",
+  "organelled_clahe_clip_limit",
+  "organelled_dog_sigma_high",
+  "organelled_dog_sigma_low",
+  "organelled_fill_holes",
+  "organelled_hysteresis_high",
+  "organelled_hysteresis_low",
+  "organelled_log_max_sigma",
+  "organelled_log_min_sigma",
+  "organelled_log_num_sigma",
+  "organelled_log_threshold",
+  "organelled_mask_within_cells",
+  "organelled_morph_radius",
+  "organelled_network_threshold",
+  "organelled_remove_border",
+  "organelled_ridge_filter",
+  "organelled_ridge_sigmas",
+  "organelled_ring_min_prominence",
+  "organelled_ring_sigma_inner",
+  "organelled_ring_sigma_outer",
+  "organelled_rolling_ball",
+  "organelled_rolling_ball_radius",
+  "organelled_skeletonize",
+  "organelled_tophat_radius",
+  "organelled_unet_model_path",
+  "organelled_unet_threshold",
+  "organelled_watershed_spots",
   "picking_threshold",
-  "predictions_file",
+  "plate_naming",
+  "power",
+  "power_backend",
+  "power_background_positive_rate",
+  "power_cells_per_well",
+  "power_constructs_per_well",
+  "power_detection_auroc",
+  "power_effect_fold",
+  "power_hit_rate",
+  "power_n_genes",
+  "power_n_grnas_per_gene",
+  "power_n_plates",
+  "power_n_replicates",
+  "power_reads_per_well",
+  "power_score_per",
+  "power_seed",
+  "power_wells_per_plate",
+  "recruitment",
+  "regression",
+  "regression.src",
   "response_speed",
   "resume_search",
   "route_errors_through_ai",
   "show_all_in_well",
   "size",
   "system_prompt",
+  "train_cellpose",
   "um_per_pixel",
+  "umap",
+  "umap.metric",
+  "umap.n_neighbors",
   "umap_cluster_structure_weight",
   "umap_neighborhood_weight",
   "umap_stability_repeats",
-  "umap_stability_weight"
+  "umap_stability_weight",
+  "z_handling"
  ],
- "with_addressable_consumer": 730,
- "with_any_consumer": 730
+ "with_addressable_consumer": 911,
+ "with_any_consumer": 921
 }

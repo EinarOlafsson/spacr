@@ -34,13 +34,44 @@ KEY_TABLES = ("tooltips", "expected_types")
 
 
 def setting_keys() -> set[str]:
-    """The user-facing setting keys, from ``tooltips`` and ``expected_types``."""
-    tree = ast.parse((PKG / "settings.py").read_text(encoding="utf-8"))
+    """The user-facing setting keys.
+
+    ``settings.py``'s ``tooltips`` and ``expected_types``, PLUS the EN i18n
+    catalog's ``SETTING_TOOLTIPS``.
+
+    WHY THE CATALOG IS NEEDED. A module may declare its own settings
+    locally: `hit_investigation_default_settings` builds a `tips` dict
+    inside the function body, so 17 `hit_*` settings appear in the
+    Investigate Hit panel and in no module-scope table. This function
+    scanned only module scope in one file, so it did not know they were
+    settings, so nothing that read them counted as a read, so their API
+    links had no target. They were not rare or obscure -- they are most
+    of one module's panel.
+
+    The catalog is the right second source because it is the list of
+    settings the GUI actually shows: it is generated from the resolved
+    runtime tables, so a setting a user can see is in it by
+    construction, wherever its tooltip was declared.
+    """
     keys: set[str] = set()
+    tree = ast.parse((PKG / "settings.py").read_text(encoding="utf-8"))
     for node in tree.body:
         if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Dict):
             continue
         if not any(getattr(t, "id", "") in KEY_TABLES for t in node.targets):
+            continue
+        keys |= {k.value for k in node.value.keys
+                 if isinstance(k, ast.Constant) and isinstance(k.value, str)}
+    catalog = PKG / "qt" / "i18n_catalogs" / "en.py"
+    try:
+        tree = ast.parse(catalog.read_text(encoding="utf-8"))
+    except OSError:                                          # noqa: BLE001
+        return keys
+    for node in tree.body:
+        if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Dict):
+            continue
+        if not any(getattr(t, "id", "") == "SETTING_TOOLTIPS"
+                   for t in node.targets):
             continue
         keys |= {k.value for k in node.value.keys
                  if isinstance(k, ast.Constant) and isinstance(k.value, str)}
@@ -124,6 +155,14 @@ def _is_settings_mapping(node, aliases=frozenset()) -> bool:
     falls back to the module page, a wrong one sends the reader somewhere
     unrelated and says nothing about it.
     """
+    if isinstance(node, ast.BoolOp):
+        # `settings or {}`, the defensive idiom for a None default, is the
+        # settings mapping whenever either side is. Missing it hid every
+        # read behind `dict(settings or {})` -- 17 `hit_*` settings in
+        # `hit_investigation` alone, each of which then had no anchor for
+        # its API link to aim at. Found by asking why the settings-flow
+        # page had no section for them and grepping for the key.
+        return any(_is_settings_mapping(v, aliases) for v in node.values)
     if isinstance(node, ast.Name):
         return node.id in SETTINGS_NAMES or node.id in aliases
     if isinstance(node, ast.Attribute):
@@ -421,6 +460,14 @@ def _app_api_modules() -> set:
     panel's help already points at.
     """
     try:
+        # THE TABLE IS BUILT LAZILY, so importing settings_model alone
+        # reads it half-filled: 41 of 65 apps, and the 24 missing ones
+        # silently lost their per-module rows. `investigate_hit` was one,
+        # so every setting in that panel fell back to the key-only
+        # answer -- `verbose` in Investigate Hit pointed at
+        # `core.preprocess_generate_masks`. Importing the app list is
+        # what populates it.
+        from spacr.qt import app as _app                     # noqa: F401
         from spacr.qt.screens.settings_model import _APP_API_MODULE
     except Exception:                                        # noqa: BLE001
         return set()

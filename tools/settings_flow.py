@@ -73,6 +73,14 @@ def _module_name(path: Path) -> str:
 
 
 def _is_settings(node, aliases: Set[str]) -> bool:
+    if isinstance(node, ast.BoolOp):
+        # `settings or {}`, the defensive idiom for a None default. The
+        # analyser missed every setting behind one: `configured =
+        # dict(settings or {})` in `hit_investigation` made 17 `hit_*`
+        # settings look read by nothing, and the settings panel offered
+        # their API link no page to land on. Seen through, because the
+        # expression IS the settings mapping whenever either side is.
+        return any(_is_settings(v, aliases) for v in node.values)
     if isinstance(node, ast.Name):
         return node.id in SETTINGS_NAMES or node.id in aliases
     if isinstance(node, ast.Attribute):

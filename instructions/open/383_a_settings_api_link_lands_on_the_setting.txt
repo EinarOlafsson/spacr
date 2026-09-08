@@ -179,3 +179,61 @@ cannot look like a misdirection again.
 STILL OPEN: item 2's second half. The 60 residue links say nothing about why
 they land on a module page. A reader who follows one still cannot tell
 whether they arrived somewhere useless or somewhere incomplete.
+
+--------------------------------------------------------------------------------
+2026-09-08 -- THE RESIDUE WAS NOT UNUSED SETTINGS. IT WAS THREE ANALYSER BUGS.
+--------------------------------------------------------------------------------
+
+The 60 links still landing on a bare module page looked like the honest
+residue: settings nothing reads, so no page mentions them and there is none to
+link to. That reading was wrong, and it was wrong in a way worth recording,
+because the evidence for it was an ABSENCE and an absence is what a broken
+detector produces.
+
+Grepping one of them settled it in a minute:
+
+    hit_bootstrap    spacr/hit_investigation.py:324
+                     n_bootstrap=int(configured["hit_bootstrap"])
+
+Read, plainly, in the app's own module. Three separate faults hid it.
+
+1.  `settings or {}` WAS NOT SEEN THROUGH. Both analysers accept an alias
+    bound by `dict(settings)`, but the defensive idiom is
+    `configured = dict(settings or {})`, and the argument is a BoolOp rather
+    than a Name. Everything read through that alias was invisible. One
+    function, `hit_investigation_default_settings`, gates 17 `hit_*` settings.
+
+2.  THE CONSUMER MAP DID NOT KNOW THEY WERE SETTINGS. `setting_keys()` read
+    `tooltips` and `expected_types` at MODULE scope in `settings.py` only, and
+    `hit_investigation` declares its own `tips` dict inside a function body.
+    A setting the map has never heard of cannot have a read, so no amount of
+    fixing (1) alone would have helped. It now also reads the EN catalog's
+    `SETTING_TOOLTIPS`, which is the list of settings the GUI actually shows
+    -- generated from the resolved runtime tables, so a setting a user can
+    see is in it wherever its tooltip was declared.
+
+3.  `_APP_API_MODULE` IS BUILT LAZILY and the generator read it half-filled.
+    Importing `settings_model` gives 41 of 65 apps; importing `spacr.qt.app`
+    gives all 65. The 24 missing apps silently lost every per-module row, so
+    `verbose` in Investigate Hit pointed at `core.preprocess_generate_masks`.
+    The generator printed "41 app module(s)" the whole time, which is a count
+    that looks like a fact.
+
+    per-module rows   653 over 492 settings, 41 modules   (before)
+                      762 over 598 settings, 56 modules   (after)
+
+MEASURED, ACROSS THE THREE FIXES:
+
+    start of today   551 API anchor    0 flow page   245 module page only
+    after the flow fallback            185                60
+    after these three  571             182                43
+
+WHAT THE REMAINING 43 ARE. Not yet audited one by one. Given that the first
+one checked turned out to be read in plain sight, they should be treated as
+unexplained rather than as settled, and the next person to touch this should
+grep two or three before believing the count.
+
+THE GENERAL POINT, since this instruction has now met it twice. A checker that
+reports NOTHING FOUND is making a claim, and it is the one claim that looks
+identical whether it is true or the checker is broken. Both times here the
+absence was read as a fact about the package.
