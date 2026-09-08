@@ -591,6 +591,19 @@ class ObjectSettingsGrid(QWidget):
         # looks up its animation by -- see `_anchor_setting_key`.
         self._table.setProperty("settingKey", key)
         self._table.setProperty("settingsAppKey", self._app_key)
+        # BESIDE THE TABLE, NOT UNDER IT. The anchor here is the whole
+        # table rather than one widget, so the default placement put the
+        # popup below a control whose height changes with the number of
+        # objects -- a different position for every panel, and sitting on
+        # top of whatever came next. Asked for on the right, centred, and
+        # in one place for the whole table, so the row being described
+        # stays visible next to the help describing it.
+        #
+        # Set on the anchor rather than on the popup because there is one
+        # HoverTooltip for the application: a mode stored on it would be
+        # inherited by every other tooltip until something cleared it.
+        self._table.setProperty(HoverTooltip.PLACEMENT_PROPERTY,
+                                HoverTooltip.PLACE_BESIDE)
         HoverTooltip.instance().show_for(self._table, html)
 
     # -- the model-zoo buttons ---------------------------------------------

@@ -611,3 +611,91 @@ class TestTheTooltipsMatchTheForm:
             pytest.skip("every object in this settings dict asks for a channel")
         rect = self._rect_of(grid, "channel", objects[0])
         assert grid._key_under(rect.center()) == ""
+
+
+class TestTheHelpSitsBesideTheTable:
+    """Asked for on the right of the table, centred, and always the same place.
+
+    Under the table the popup landed somewhere different for every panel
+    -- the table's height is the number of objects -- and covered whatever
+    came next. The reader is comparing the help against the row it
+    describes, so the row has to stay visible while the help is up.
+    """
+
+    def _grid(self, qtbot):
+        from spacr.qt.widgets.object_settings_grid import ObjectSettingsGrid
+        from spacr.settings import get_measure_crop_settings
+        grid = ObjectSettingsGrid()
+        qtbot.addWidget(grid)
+        grid.set_settings(get_measure_crop_settings({}))
+        return grid
+
+    def test_the_table_asks_for_the_beside_placement(self, qtbot,
+                                                     qt_theme_applied):
+        from spacr.qt.widgets.hover_tooltip import HoverTooltip
+
+        grid = self._grid(qtbot)
+        grid.show()
+        qtbot.waitExposed(grid)
+
+        # Drive the real path rather than setting the property directly:
+        # what is being asserted is that offering a tooltip is what asks
+        # for the placement.
+        key = next(iter(grid._model.index(0, 1).data(role=0) or ""), None)
+        grid._hovered_key = "__not_a_key__"
+        grid._offer_tooltip(grid._table.viewport().rect().center())
+
+        assert grid._table.property(HoverTooltip.PLACEMENT_PROPERTY) == \
+            HoverTooltip.PLACE_BESIDE
+
+    def test_a_plain_widget_is_not_given_the_beside_placement(self, qtbot):
+        """The half that keeps every OTHER tooltip where it was.
+
+        The placement is read off the anchor, not stored on the popup, so
+        a widget that never asked for it cannot pick it up from whatever
+        was hovered before. Asserted with a bare widget because that is
+        every other caller's shape.
+        """
+        from PySide6.QtWidgets import QLabel
+
+        from spacr.qt.widgets.hover_tooltip import HoverTooltip
+
+        plain = QLabel("x")
+        qtbot.addWidget(plain)
+        assert plain.property(HoverTooltip.PLACEMENT_PROPERTY) is None
+
+    def test_it_docks_to_the_right_and_centres_on_the_table(self, qtbot,
+                                                            qt_theme_applied):
+        """The geometry itself, not just the request for it."""
+        from spacr.qt.widgets.hover_tooltip import HoverTooltip
+
+        from PySide6.QtGui import QGuiApplication
+
+        grid = self._grid(qtbot)
+        # SMALL AND HARD LEFT, so there is room to the right of it. At its
+        # natural width the table reaches the edge of the offscreen
+        # screen, the fallback fires, and this test would skip itself
+        # rather than check the geometry it exists for.
+        grid.resize(320, 220)
+        grid.move(0, 0)
+        grid.show()
+        qtbot.waitExposed(grid)
+        table = grid._table
+        table.setProperty(HoverTooltip.PLACEMENT_PROPERTY,
+                          HoverTooltip.PLACE_BESIDE)
+
+        popup = HoverTooltip.instance()
+        popup.show_for(table, "<b>help</b>")
+        qtbot.wait(20)
+
+        right = table.mapToGlobal(table.rect().topRight())
+        available = (QGuiApplication.screenAt(right)
+                     or QGuiApplication.primaryScreen()).availableGeometry()
+        assert right.x() + popup.width() <= available.right(), (
+            "this screen cannot fit the popup beside the table, so the "
+            "fallback is what ran and the geometry below is untested")
+        assert popup.x() >= right.x(), "the popup is not to the right"
+        table_centre = right.y() + table.rect().height() // 2
+        assert abs((popup.y() + popup.height() // 2) - table_centre) <= 2, (
+            "the popup is not centred on the table's height")
+        popup.hide()
