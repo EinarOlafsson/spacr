@@ -30,16 +30,52 @@ ROOT = Path(__file__).resolve().parents[1]
 #: be added here deliberately and its runtime cost argued for.
 GUARDED = (
     ("spacr.qt.widgets.class_editor", "pandas"),
+    # spacr.curation, added 2026-09-08. Home imports `CurationLog`, so a
+    # module-scope `import pandas` here put pandas into the process before
+    # Home had painted -- the packaged smoke test names pandas as one of
+    # the operation-only imports the first screen must not cross. The
+    # module already defers the real import to `_pandas()` on first use;
+    # the guard exists so the annotations can still say `pd.DataFrame`
+    # without undoing that. The runtime cost being bought is a first
+    # paint that does not wait on pandas, which is the largest single
+    # import on that path.
+    ("spacr.curation", "pandas"),
 )
 DEFERRED_WITHOUT_GUARD = (
     ("spacr.classify_classes", "pandas"),
     ("spacr.feature_dict", "pandas"),
 )
+
+#: Guards that hide a RELATIVE import of a sibling module, used only in an
+#: annotation. Enumerated separately because they are a different claim
+#: and the checks below cannot make the usual one about them.
+#:
+#: `_names` reduces a dotted import to its first segment, which for
+#: ``from ..widgets.fold_strip import FoldStrip`` is "widgets" -- not a
+#: top-level package, never in `sys.modules` under that name, so the
+#: fresh-interpreter test would pass without asking anything. Rather than
+#: enumerate them at a spelling that makes a real check vacuous, they are
+#: held to what IS true of them: the guard exists, the set is closed, and
+#: a new one has to be added deliberately.
+#:
+#: All four name `FoldStrip` for a return annotation
+#: (``Optional["FoldStrip"]``); the strip itself is built by
+#: `install_fold_strip`, imported inside the function that uses it. So
+#: the guard buys a screen import that does not pull the widget layer in
+#: for the sake of a type name.
+TYPE_ONLY_RELATIVE = (
+    ("spacr.qt.screens.db_browser", "widgets.fold_strip"),
+    ("spacr.qt.screens.foreign", "widgets.fold_strip"),
+    ("spacr.qt.screens.graph_builder", "widgets.fold_strip"),
+    ("spacr.qt.screens.qc_dashboard", "widgets.fold_strip"),
+)
+
 LAZY = DEFERRED_WITHOUT_GUARD + GUARDED
 
 
 def _sources():
-    return {name: (ROOT / (name.replace(".", "/") + ".py")) for name, _ in LAZY}
+    return {name: (ROOT / (name.replace(".", "/") + ".py"))
+            for name, _ in LAZY + TYPE_ONLY_RELATIVE}
 
 
 def test_the_enumeration_is_the_whole_set():
@@ -55,7 +91,7 @@ def test_the_enumeration_is_the_whole_set():
             found.add(
                 str(path.relative_to(ROOT)).replace("/", ".")[: -len(".py")])
 
-    assert found == {name for name, _ in GUARDED}, (
+    assert found == {name for name, _ in GUARDED + TYPE_ONLY_RELATIVE}, (
         "the set of TYPE_CHECKING guards changed; add the new one to "
         "GUARDED with the import it hides, and say why that import is "
         "worth deferring")
@@ -217,3 +253,35 @@ def test_this_file_is_about_lines_that_cannot_run():
     source = inspect.getsource(sys.modules[__name__])
 
     assert "cannot contribute behavior" in source
+
+
+@pytest.mark.parametrize("module,hidden", TYPE_ONLY_RELATIVE)
+def test_the_relative_type_only_import_stays_inside_its_guard(module, hidden):
+    """The claim these four CAN be held to, made rather than assumed.
+
+    They are out of the fresh-interpreter check above for a reason given
+    at the enumeration, and an entry that is only exempt is an allowlist.
+    So the two things that are true of them are asserted: the import is
+    in the guarded block, and it is not also at module level -- which is
+    the way this regresses, by someone adding the import at the top to
+    silence a linter and leaving the guard below as decoration.
+    """
+    tree = ast.parse(_sources()[module].read_text(encoding="utf-8"))
+
+    def dotted(node):
+        return node.module if isinstance(node, ast.ImportFrom) and node.module \
+            else ""
+
+    guarded, unguarded = [], []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.If) and _is_type_checking(node.test):
+            guarded.extend(dotted(inner) for inner in ast.walk(node)
+                           if isinstance(inner, ast.ImportFrom))
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom):
+            unguarded.append(dotted(node))
+
+    assert hidden in guarded, f"{module} no longer defers {hidden}"
+    assert hidden not in unguarded, (
+        f"{module} imports {hidden} at module level as well, so the guard "
+        f"below it is decoration and the cost is paid anyway")
