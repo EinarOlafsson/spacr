@@ -2412,3 +2412,51 @@ Both backdrop fakes lacked the `window_backdrop`/`window()` the one-per-window
 guard now asks about, so every arc below the guard asserted the behaviour of a
 window that had already been served. Not a global, but the same reading -- the
 test was answering a question the code had stopped asking.
+
+--------------------------------------------------------------------------------
+2026-09-08, HOME SESSION — A CLEAN tests/qt SWEEP, AND ONE ORDER-DEPENDENT
+              PAIR I DIAGNOSED BUT DID NOT FIX
+--------------------------------------------------------------------------------
+
+A chunked tests/qt sweep here (26 chunks of 40, plain background process --
+NOT systemd, see the correction above) came back:
+
+    before tonight's fixes    19,756 passed   86 failed   420 errors
+    after                     0 errors in the chunks re-run so far
+
+419 of the 420 errors were ONE function-local import (54d9b2812), and the
+collateral was large: seven files with no defect of their own went green when
+it was hoisted.
+
+THE PAIR I AM HANDING OVER, because it is a routing decision in shared
+logging code and I am not making one at five in the morning:
+
+    tests/qt/test_a_qt_warning_reaches_the_console_once.py
+      ::test_a_qt_warning_is_rendered_once_not_twice
+    tests/qt/test_a_small_machine_gets_a_smaller_backdrop.py
+      ::test_applying_it_reports_what_it_actually_wrote
+
+BOTH PASS ALONE. Bisected to a two-file reproduction:
+
+    pytest tests/qt/test_app_screen.py \
+           tests/qt/test_a_qt_warning_reaches_the_console_once.py
+
+`test_app_screen.py` only builds an `AppScreen`. That constructor registers a
+console target and calls `verbose_logger._ensure_handler()`, and from then on
+one Qt warning is rendered TWICE -- once through `logging_util`'s signal
+handler ("root") and once through the verbose forwarder ("verbose"). The test
+collects from both sinks deliberately and asserts one line, which is what its
+name says.
+
+  SO THIS MAY NOT BE A TEST-ISOLATION BUG AT ALL. If the double render is what
+  the application does once a console exists, then in a running spaCR every Qt
+  warning appears twice in the console -- and the test is right rather than
+  fragile. That is the thing to establish first, and it decides the fix:
+  either the sinks stop overlapping, or the test stops counting both.
+
+  WHAT I DID NOT DO, deliberately: change the routing between
+  `spacr/qt/verbose_logger.py` and `spacr/logging_util.py`. Both are shared,
+  the fan-out is intentional ("Every ConsolePanel subscribes to the same
+  shared signal handler, so log records fanned out across screens all see
+  them"), and picking one owner for Qt warnings is a decision rather than a
+  repair.
