@@ -38,7 +38,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, Mapping, Optional, Tuple
 
-from PySide6.QtCore import QAbstractTableModel, QEvent, QModelIndex, QSize, Qt, Signal
+from PySide6.QtCore import (QAbstractTableModel, QEvent, QModelIndex, QSize,
+                            Qt, QTimer, Signal)
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QFrame,
@@ -480,7 +481,19 @@ class ObjectSettingsGrid(QWidget):
         # reserved at a constant height so a hover does not reflow the form
         # around it -- a help area that resized would push the table under
         # the pointer as the text arrived.
-        self._help = QLabel("", self)
+        from .hover_tooltip import (ANIMATION_MARK, API_MARK, PURPLE, TEAL,
+                                    _AnimationView, _LinkWord)
+
+        self._help_band = QWidget(self)
+        band = QHBoxLayout(self._help_band)
+        band.setContentsMargins(0, 0, 0, 0)
+        band.setSpacing(SPACING["sm"])
+
+        column = QVBoxLayout()
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(2)
+
+        self._help = QLabel("", self._help_band)
         # `SubtitleSmall` is the per-setting hint strip's own object name,
         # borrowed rather than invented: this band says the same kind of
         # thing in the same voice, and a new name would be a new themed
@@ -492,12 +505,66 @@ class ObjectSettingsGrid(QWidget):
         self._help.setStyleSheet("background: transparent;")
         self._help.setWordWrap(True)
         self._help.setTextFormat(Qt.TextFormat.RichText)
-        self._help.setOpenExternalLinks(True)
         self._help.setAlignment(Qt.AlignmentFlag.AlignLeft
                                 | Qt.AlignmentFlag.AlignTop)
         self._help.setSizePolicy(QSizePolicy.Policy.Expanding,
                                  QSizePolicy.Policy.Fixed)
-        outer.addWidget(self._help)
+        column.addWidget(self._help)
+
+        # THE SAME TWO WORDS THE POPUP DRAWS, and the same widgets: `API` in
+        # teal, `Animation` in purple, borrowed from `hover_tooltip` rather
+        # than restyled here. A second implementation of the footer is a
+        # second thing to re-theme, and the request was for a link that
+        # looks EXACTLY like the one on every other setting -- which is a
+        # thing that can only be guaranteed by using it.
+        self._help_links = QWidget(self._help_band)
+        links = QHBoxLayout(self._help_links)
+        links.setContentsMargins(0, 0, 0, 0)
+        links.setSpacing(SPACING["sm"])
+        self._help_api = _LinkWord(API_MARK, "HoverTooltipApiLink",
+                                   self._help_links)
+        self._help_api.setAccessibleName("API")
+        self._help_api.setAccessibleDescription(
+            "Open spaCR API documentation for this setting.")
+        self._help_api.clicked.connect(self._open_help_api)
+        self._help_anim = _LinkWord(ANIMATION_MARK,
+                                    "HoverTooltipAnimationLink",
+                                    self._help_links)
+        self._help_anim.setAccessibleName("Animation")
+        self._help_anim.setAccessibleDescription(
+            "Show or hide this setting's animation.")
+        self._help_anim.clicked.connect(self._toggle_help_animation)
+        links.addWidget(self._help_api)
+        links.addWidget(self._help_anim)
+        links.addStretch(1)
+        # The popup styles these two from its own sheet; the band is not a
+        # popup, so it carries the same two rules itself.
+        self._help_links.setStyleSheet(
+            f"QLabel#HoverTooltipApiLink {{ color: {TEAL};"
+            f" text-decoration: none; }}"
+            f"QLabel#HoverTooltipAnimationLink {{ color: {PURPLE};"
+            f" text-decoration: none; }}")
+        column.addWidget(self._help_links)
+        column.addStretch(1)
+        band.addLayout(column, 1)
+
+        # SMALLER THAN THE POPUP'S 220px SQUARE. The band is reserved
+        # permanently above the table, so its height is space the settings
+        # never get back -- and it may not grow when an animation arrives,
+        # or the table moves out from under the pointer that asked for it.
+        self._help_animation = _AnimationView(self.HELP_ANIMATION_PX,
+                                              self._help_band)
+        self._help_animation.hide()
+        band.addWidget(self._help_animation, 0,
+                       Qt.AlignmentFlag.AlignTop)
+        outer.addWidget(self._help_band)
+
+        #: The animation offered for the hovered setting, and whether the
+        #: reader has asked to see it. Local to the band: pressing
+        #: **Animation** names ONE setting, exactly as the popup's does.
+        self._help_offered_animation = None
+        self._help_animation_shown = False
+        self._help_api_url = ""
 
         self._table = QTableView(self)
         self._table.setModel(self._model)
@@ -550,6 +617,20 @@ class ObjectSettingsGrid(QWidget):
         row.addWidget(self._add)
         outer.addLayout(row)
 
+        #: Fires once the pointer has rested on a cell long enough.
+        self._help_show_timer = QTimer(self)
+        self._help_show_timer.setSingleShot(True)
+        self._help_show_timer.timeout.connect(self._show_pending_help)
+        self._help_pending = ""
+        #: Fires after the pointer has left, unless it came back.
+        self._help_hide_timer = QTimer(self)
+        self._help_hide_timer.setSingleShot(True)
+        self._help_hide_timer.timeout.connect(lambda: self._write_help(""))
+        # ENTERING THE BAND CANCELS THE HIDE, which is what makes the API
+        # link reachable at all: the pointer leaves the table to get to it,
+        # and leaving the table is what started the countdown.
+        self._help_band.installEventFilter(self)
+
         self._sync_help_height()
         self._write_help("")
         # THE BAND IS RE-RESERVED THROUGH `eventFilter`, not a `changeEvent`
@@ -577,6 +658,31 @@ class ObjectSettingsGrid(QWidget):
     #: the second is the mistake worth making.
     HELP_LINES = 5
 
+    #: Side of the animation square in the band, in pixels.
+    #:
+    #: The popup uses 220. This is space reserved ABOVE the table for the
+    #: life of the panel, and the band may not grow when an animation
+    #: arrives -- growing would push the table down under the pointer that
+    #: asked for it. So the square is sized to what the band can afford
+    #: rather than the band to the square.
+    HELP_ANIMATION_PX = 132
+
+    #: How long the pointer must rest on a cell before help appears, in ms.
+    #:
+    #: Not instant, asked for on 2026-09-08. Dragging the pointer across a
+    #: row of twenty cells used to rewrite the band twenty times, which
+    #: reads as flicker rather than as help.
+    HELP_SHOW_DELAY_MS = 350
+
+    #: How long the last help stays after the pointer leaves, in ms.
+    #:
+    #: The band carries an API link and an Animation word, and a reader
+    #: has to be able to reach them. Clearing on `Leave` put the words
+    #: under a pointer that was travelling towards them and then took them
+    #: away. The popup solves the same problem the same way; this is its
+    #: HIDE_DELAY_MS.
+    HELP_HIDE_DELAY_MS = 700
+
     def _sync_help_height(self) -> None:
         """Reserve :data:`HELP_LINES` using the font Qt is actually painting.
 
@@ -586,8 +692,12 @@ class ObjectSettingsGrid(QWidget):
         wrong number of lines.
         """
         self._help.ensurePolished()
-        self._help.setFixedHeight(
-            self._help.fontMetrics().lineSpacing() * self.HELP_LINES)
+        lines = self._help.fontMetrics().lineSpacing() * self.HELP_LINES
+        self._help.setFixedHeight(lines)
+        # The BAND, not just the prose: the square sits beside the text and
+        # is taller than it, so reserving only the text's height would let
+        # the band grow the moment an animation arrived.
+        self._help_band.setFixedHeight(max(lines, self.HELP_ANIMATION_PX))
 
     def set_app_key(self, app_key: str) -> None:
         """Say which module's API documentation the tooltips should link to."""
@@ -628,13 +738,22 @@ class ObjectSettingsGrid(QWidget):
                 if kind == QEvent.Type.FontChange:
                     self._sync_help_height()
                 return super().eventFilter(watched, event)
+            if watched is self._help_band:
+                if kind == QEvent.Type.Enter:
+                    self._help_hide_timer.stop()
+                elif kind == QEvent.Type.Leave:
+                    self._help_hide_timer.start(self.HELP_HIDE_DELAY_MS)
+                return super().eventFilter(watched, event)
             if kind == QEvent.Type.ToolTip:
                 return True
             if kind == QEvent.Type.MouseMove:
                 self._offer_tooltip(event.position().toPoint())
             elif kind == QEvent.Type.Leave:
                 self._hovered_key = ""
-                self._write_help("")
+                self._help_show_timer.stop()
+                # LINGER, do not clear. The reader may be on their way to
+                # the API link, and the way to it leaves the table.
+                self._help_hide_timer.start(self.HELP_HIDE_DELAY_MS)
         except Exception:                                    # noqa: BLE001
             LOG.debug("the table could not offer its tooltip", exc_info=True)
         return super().eventFilter(watched, event)
@@ -650,8 +769,22 @@ class ObjectSettingsGrid(QWidget):
         if key == self._hovered_key:
             return
         self._hovered_key = key
+        self._help_hide_timer.stop()
         if not key:
-            self._write_help("")
+            # Off a cell but still inside the table: let the last help
+            # stand for a moment rather than blanking between rows.
+            self._help_show_timer.stop()
+            self._help_hide_timer.start(self.HELP_HIDE_DELAY_MS)
+            return
+        # AFTER A REST, NOT ON ARRIVAL. Dragging across a row of twenty
+        # cells rewrote the band twenty times, which reads as flicker.
+        self._help_pending = key
+        self._help_show_timer.start(self.HELP_SHOW_DELAY_MS)
+
+    def _show_pending_help(self) -> None:
+        """Write the help for the cell the pointer settled on."""
+        key = self._help_pending
+        if not key:
             return
         try:
             from ..screens.settings_model import format_tooltip, get_tooltips
@@ -660,9 +793,47 @@ class ObjectSettingsGrid(QWidget):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not build the tooltip for %s", key, exc_info=True)
             return
-        self._write_help(html)
+        self._write_help(html, key=key)
 
-    def _write_help(self, html: str) -> None:
+    def _open_help_api(self) -> None:
+        """Open the documentation page the band's **API** word points at."""
+        if not self._help_api_url:
+            return
+        try:
+            from PySide6.QtGui import QDesktopServices
+            from PySide6.QtCore import QUrl
+            QDesktopServices.openUrl(QUrl(self._help_api_url))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not open %s", self._help_api_url, exc_info=True)
+
+    def _toggle_help_animation(self) -> None:
+        """Show or fold away the square beside the text.
+
+        Names ONE setting, like the popup's word: moving to another cell
+        falls back to the preference rather than carrying the reveal.
+        """
+        self._help_animation_shown = not self._help_animation_shown
+        self._apply_help_animation()
+
+    def _apply_help_animation(self) -> None:
+        """Draw, pause or drop the square for the offered animation."""
+        animation = self._help_offered_animation
+        showing = False
+        if animation is not None and self._help_animation_shown:
+            showing = bool(self._help_animation.load(animation))
+        else:
+            self._help_animation.clear_animation()
+        self._help_animation.setVisible(showing)
+        # Offered but folded -> the word is the invitation. Showing -> it
+        # folds away again. Undecodable -> no word, because a word that
+        # visibly does nothing is worse than no word.
+        self._help_anim.setVisible(
+            animation is not None and (showing or not self._help_animation_shown))
+        self._help_links.setVisible(
+            self._help_api.isVisibleTo(self._help_links)
+            or self._help_anim.isVisibleTo(self._help_links))
+
+    def _write_help(self, html: str, key: str = "") -> None:
         """Put ``html`` in the band above the table, or the resting prompt.
 
         The API link is kept. `format_tooltip` ends the body with an anchor
@@ -680,12 +851,37 @@ class ObjectSettingsGrid(QWidget):
         languages.
         """
         from ..i18n import tr
+        from .hover_tooltip import split_api_link
 
         text = str(html or "").strip()
         if not text:
             text = tr("Hover any setting for details and a link to its "
                       "documentation.")
-        self._help.setText(text)
+            body, url = text, ""
+        else:
+            # THE ANCHOR BECOMES THE WORD. `format_tooltip` ends the body
+            # with "Open spaCR API documentation" as a full anchor; every
+            # other surface in spaCR renders that destination as the teal
+            # **API** word instead, and this one was showing the sentence.
+            body, url = split_api_link(text)
+        self._help.setText(body)
+        self._help_api_url = url
+        self._help_api.setVisible(bool(url))
+
+        # The animation belongs to the SETTING, so it is resolved from the
+        # key rather than from the prose, and it is folded away by default
+        # exactly as the popup's is -- the word is the invitation.
+        animation = None
+        if key:
+            try:
+                from ...setting_animations import animation_for_setting
+                animation = animation_for_setting(key)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("no animation lookup for %s", key, exc_info=True)
+        if animation is not self._help_offered_animation:
+            self._help_animation_shown = False
+        self._help_offered_animation = animation
+        self._apply_help_animation()
 
     # -- the model-zoo buttons ---------------------------------------------
 

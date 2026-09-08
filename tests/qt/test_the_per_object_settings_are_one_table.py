@@ -600,12 +600,21 @@ class TestTheTooltipsMatchTheForm:
         grid.resize(900, 500)
         grid._hovered_key = ""
         grid._offer_tooltip(self._rect_of(grid, "channel", "cell").center())
+        # The band waits for a rest before it writes; drive the delay.
+        grid._help_show_timer.stop()
+        grid._show_pending_help()
 
         assert grid._hovered_key == "cell_channel"
-        expected = format_tooltip(
+        # The BODY, not the whole formatted string: the band lifts the
+        # trailing documentation anchor out of the prose and into the teal
+        # **API** word, exactly as every other surface does.
+        from spacr.qt.widgets.hover_tooltip import split_api_link
+
+        expected, url = split_api_link(format_tooltip(
             str(get_tooltips().get("cell_channel") or ""), "mask",
-            "cell_channel")
+            "cell_channel"))
         assert grid._help.text() == expected
+        assert grid._help_api_url == url
 
     def test_the_help_carries_an_api_reference(self, grid):
         from spacr.qt.screens.settings_model import format_tooltip, get_tooltips
@@ -640,11 +649,15 @@ class TestTheHelpSitsAboveTheTable:
     Beside the table it holds one position, but "the table" is the whole
     container, wider than the columns, and aiming at the columns' right
     edge would walk the help further right with every organelle added.
+
+    It carries the same two words every other setting's help carries:
+    **API** in teal and **Animation** in purple, using the popup's own
+    widgets rather than a second implementation of the footer.
     """
 
     def _shown(self, grid, qtbot):
         grid.set_app_key("mask")
-        grid.resize(900, 520)
+        grid.resize(900, 620)
         grid.show()
         qtbot.waitExposed(grid)
         return grid
@@ -664,72 +677,182 @@ class TestTheHelpSitsAboveTheTable:
         index = mapper(source) if mapper else source
         return grid._table.visualRect(index).center()
 
+    def _hover(self, grid, question, obj):
+        """Hover a cell and let the show delay elapse.
+
+        The delay is driven rather than waited on: `_offer_tooltip` arms a
+        timer and the test would otherwise sleep for it.
+        """
+        grid._hovered_key = ""
+        grid._offer_tooltip(self._point_on(grid, question, obj))
+        assert grid._help_show_timer.isActive(), "the show delay did not arm"
+        grid._help_show_timer.stop()
+        grid._show_pending_help()
+
     def test_the_band_is_above_the_table(self, grid, qtbot):
         self._shown(grid, qtbot)
         layout = grid.layout()
         order = [layout.itemAt(i).widget() for i in range(layout.count())]
-        assert order.index(grid._help) < order.index(grid._table), (
+        assert order.index(grid._help_band) < order.index(grid._table), (
             "the help band is not above the table")
-        assert grid._help.y() + grid._help.height() <= grid._table.y()
+        assert grid._help_band.y() + grid._help_band.height() <= grid._table.y()
 
     def test_it_rests_on_a_sentence_rather_than_going_blank(self, grid):
         """An empty band says nothing about what it is for."""
         assert grid._help.text().strip(), "the band is blank at rest"
 
+    def test_help_waits_for_a_rest_rather_than_arriving_instantly(
+            self, grid, qtbot):
+        """Asked for on 2026-09-08: a short hover, not an instant one.
+
+        Dragging across a row of twenty cells rewrote the band twenty
+        times, which reads as flicker rather than as help.
+        """
+        self._shown(grid, qtbot)
+        resting = grid._help.text()
+
+        grid._hovered_key = ""
+        grid._offer_tooltip(self._point_on(grid, "channel", "cell"))
+
+        assert grid._help_show_timer.isActive()
+        assert grid._help.text() == resting, (
+            "the help arrived before the pointer had rested")
+        assert grid._help_show_timer.interval() == grid.HELP_SHOW_DELAY_MS
+
     def test_hovering_a_cell_writes_that_setting_into_the_band(
             self, grid, qtbot):
         self._shown(grid, qtbot)
         resting = grid._help.text()
-        grid._hovered_key = ""
-        grid._offer_tooltip(self._point_on(grid, "channel", "cell"))
+        self._hover(grid, "channel", "cell")
 
         assert grid._hovered_key == "cell_channel"
-        assert grid._help.text() != resting, (
-            "hovering a cell did not change the band")
+        assert grid._help.text() != resting
         assert grid._help.text().strip()
 
-    def test_leaving_the_table_puts_the_sentence_back(self, grid, qtbot):
-        """Not blank: the rest state is the same before and after."""
+    def test_the_api_word_is_the_link_and_the_sentence_is_not(
+            self, grid, qtbot):
+        """`API` in teal, exactly as every other setting's help draws it.
+
+        `format_tooltip` ends the body with a full "Open spaCR API
+        documentation" anchor. Every other surface lifts that destination
+        into the teal word; the band was showing the sentence.
+        """
+        from spacr.qt.widgets.hover_tooltip import API_MARK, TEAL
+
         self._shown(grid, qtbot)
-        resting = grid._help.text()
+        self._hover(grid, "channel", "cell")
 
-        grid._hovered_key = ""
-        grid._offer_tooltip(self._point_on(grid, "channel", "cell"))
-        assert grid._help.text() != resting, "the hover did not take"
-        grid._write_help("")
+        assert grid._help_api.isVisible(), "no API word"
+        assert grid._help_api.text() == API_MARK
+        assert TEAL.lower() in grid._help_links.styleSheet().lower()
+        assert grid._help_api_url.startswith("http")
+        assert "Open spaCR API documentation" not in grid._help.text(), (
+            "the anchor is still in the prose as well as in the word")
+        assert "<a" not in grid._help.text()
 
-        assert grid._help.text() == resting
+    def test_the_last_help_lingers_so_the_link_can_be_reached(
+            self, grid, qtbot):
+        """Leaving the table must not take the API word with it.
+
+        The pointer has to leave the table to reach the word, and leaving
+        the table is what used to clear the band.
+        """
+        from PySide6.QtCore import QEvent
+
+        self._shown(grid, qtbot)
+        self._hover(grid, "channel", "cell")
+        shown = grid._help.text()
+
+        grid.eventFilter(grid._table.viewport(), QEvent(QEvent.Type.Leave))
+
+        assert grid._help.text() == shown, "the help was cleared on leave"
+        assert grid._help_hide_timer.isActive()
+        assert grid._help_hide_timer.interval() == grid.HELP_HIDE_DELAY_MS
+
+    def test_entering_the_band_cancels_the_hide(self, grid, qtbot):
+        """Otherwise the words vanish from under the pointer reaching them."""
+        from PySide6.QtCore import QEvent
+
+        self._shown(grid, qtbot)
+        self._hover(grid, "channel", "cell")
+        grid.eventFilter(grid._table.viewport(), QEvent(QEvent.Type.Leave))
+        assert grid._help_hide_timer.isActive()
+
+        grid.eventFilter(grid._help_band, QEvent(QEvent.Type.Enter))
+
+        assert not grid._help_hide_timer.isActive(), (
+            "the countdown survived the pointer arriving on the band")
+
+    def test_an_animation_is_offered_beside_the_text_not_under_it(
+            self, grid, qtbot):
+        """A setting with an animation gets the purple word and a square.
+
+        Folded away by default, like the popup's: the word is the
+        invitation. The square sits to the RIGHT of the prose, which is
+        what "beside" means and what the fixed band height reserves room
+        for.
+        """
+        from spacr.setting_animations import animation_for_setting
+
+        self._shown(grid, qtbot)
+        question, obj = next(
+            ((q, o) for q in grid.questions() for o in grid.objects()
+             if grid._model.asks(q, o)
+             and animation_for_setting(f"{o}_{q}") is not None),
+            (None, None))
+        if question is None:
+            pytest.skip("no per-object setting in this panel has an animation")
+
+        self._hover(grid, question, obj)
+
+        assert grid._help_offered_animation is not None
+        assert grid._help_anim.isVisible(), "no Animation word was offered"
+        assert not grid._help_animation.isVisible(), (
+            "the square was shown without being asked for")
+
+        grid._toggle_help_animation()
+        assert grid._help_animation.isVisible(), "the word did not reveal it"
+        assert grid._help_animation.x() > grid._help.x(), (
+            "the animation is not to the right of the text")
+
+    def test_a_setting_with_no_animation_offers_no_word(self, grid, qtbot):
+        """A word that visibly does nothing is worse than no word."""
+        from spacr.setting_animations import animation_for_setting
+
+        self._shown(grid, qtbot)
+        question, obj = next(
+            ((q, o) for q in grid.questions() for o in grid.objects()
+             if grid._model.asks(q, o)
+             and animation_for_setting(f"{o}_{q}") is None),
+            (None, None))
+        if question is None:
+            pytest.skip("every per-object setting has an animation")
+
+        self._hover(grid, question, obj)
+
+        assert grid._help_offered_animation is None
+        assert not grid._help_anim.isVisible()
+        assert not grid._help_animation.isVisible()
 
     def test_the_band_does_not_resize_when_help_arrives(self, grid, qtbot):
-        """A band that grew would push the table under the pointer.
-
-        Which is the failure the fixed band exists to prevent: the cell
-        being hovered would move out from under the cursor as its own
-        help arrived.
-        """
+        """A band that grew would push the table under the pointer."""
         self._shown(grid, qtbot)
-        before = grid._help.height()
-        grid._write_help("<b>A very long explanation</b> " + ("word " * 200))
+        before = grid._help_band.height()
+        self._hover(grid, "channel", "cell")
         qtbot.wait(10)
 
-        assert grid._help.height() == before
-        assert grid._table.y() >= before
+        assert grid._help_band.height() == before
+        assert grid._help_band.height() >= grid.HELP_ANIMATION_PX, (
+            "the band cannot fit the square it is meant to reserve room for")
 
     def test_no_popup_is_shown_for_a_table_cell(self, grid, qtbot):
-        """The band replaced the popup; it did not join it.
-
-        Two surfaces answering one hover is what the second placement
-        attempt would have left, and the popup is the one that covers the
-        row.
-        """
+        """The band replaced the popup; it did not join it."""
         from spacr.qt.widgets.hover_tooltip import HoverTooltip
 
         self._shown(grid, qtbot)
         popup = HoverTooltip.instance()
         popup.hide()
-
-        grid._hovered_key = ""
-        grid._offer_tooltip(self._point_on(grid, "channel", "cell"))
+        self._hover(grid, "channel", "cell")
         qtbot.wait(10)
 
         assert not popup.isVisible(), "a popup answered a table hover as well"
