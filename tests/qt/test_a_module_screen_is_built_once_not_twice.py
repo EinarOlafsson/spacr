@@ -360,9 +360,29 @@ class TestTheTranslationMemoAnswersTheSameThingTheCatalogsDo:
         assert len(set(names.values())) == len(self.KEYS), names
 
     def test_the_evaluation_and_umap_doc_keys_still_route(self):
-        """Hoisting the two literal sets must not change where a key lands."""
-        assert "/classifier_evaluation/" in sm.api_docs_url(
-            "classify", "nested_cv_inner_folds")
+        """Hoisting the two literal sets must not change where a key lands.
+
+        THAT IS STILL THE SUBJECT. What changed is where one of them is
+        SUPPOSED to land: instruction 383 sends a setting that has a
+        settings-flow section to an ANCHOR naming the setting, and leaves
+        the rest on their module page. `nested_cv_inner_folds` has a flow
+        section, so it moved; `n_trials` and `batch_size_x` do not, so they
+        did not.
+
+        The move is the fix rather than a regression. 245 of 796 setting
+        links pointed at a correct module page with NO anchor to aim at,
+        because the only consumer is private and AutoAPI publishes nothing
+        for a private symbol -- which is the "page with no mention of
+        magnefication" the maintainer reported. Asserting the old
+        destination here would demand that defect back.
+        """
+        assert "#setting-flow-nested_cv_inner_folds" in sm.api_docs_url(
+            "classify", "nested_cv_inner_folds"), (
+            "a setting with a flow section must land on the anchor that "
+            "names it, not on a module page")
+        # UNCHANGED, and asserted together with the moved one so this test
+        # still says what the hoisting must not disturb: a setting with no
+        # flow section keeps its module page.
         assert "/hyperparam/" in sm.api_docs_url("umap", "n_trials")
         assert "/batch_correction/" in sm.api_docs_url("mask", "batch_size_x")
 

@@ -103,6 +103,22 @@ def organelle_label(role: str) -> str:
 #: not confused in settings forms.
 EXACT_LABELS = {
     "controls": "Control gRNA/Gene",
+    # THE THIRD SENSE OF "log", and the reason these are spelled out rather
+    # than left to the humaniser. `dog` and the Laplacian-of-Gaussian `log_*`
+    # suffixes are handled in CASED_TERMS and CASED_PHRASES below; these three
+    # are the ORDINARY logarithm, and "Log x" is ambiguous in English before
+    # any translator sees it. Every machine translator read the logbook:
+    # German "Protokoll x" and "Protokollieren y", Spanish "Registro x",
+    # French "Journal x", and Chinese rendered `log_x` as "彩票X" -- lottery.
+    #
+    # Saying "logarithmic" removes the ambiguity at the source instead of
+    # correcting nine locales separately, which is the same fix as `dog` and
+    # for the same reason: the translators were not wrong about the word they
+    # were given. It is also more accurate English -- all three are log10 or
+    # log(x + 1e-6), not "log" in any other sense.
+    "log_x": "Logarithmic x",
+    "log_y": "Logarithmic y",
+    "log_data": "Log-transform features",
     # "Src" is an abbreviation of an abbreviation: the humaniser capitalises
     # the key and stops there, so the field that asks for the images read
     # "Src". Asked for on 2026-09-01 -- "path should always just say path".

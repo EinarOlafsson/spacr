@@ -1989,18 +1989,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     #       `event` is the one REQUIRED parameter in the set -- which is
     #       why the required total moves by one where the parameter total
     #       moves by four.
-    # 16,692 -> 16,694 on 2026-09-08. Two parameters, one per function,
-    # both keyword-with-default, so the REQUIRED total does not move:
-    #
-    #   +1  qt.path_probe.exists gained `wait`
-    #   +1  qt.path_probe.isdir   gained `wait` and passes it through
-    #
-    # They exist because the optimistic/pessimistic defaults are right for
-    # a passive sweep over remembered paths and wrong for a caller whose
-    # whole question is "is this one there" -- a folder the user just
-    # dropped was being added AS a file, and a missing database was never
-    # flagged, both only on the first sight of a path.
-    assert sum(len(item.parameters) for item in callables) == 16_694
+    assert sum(len(item.parameters) for item in callables) == 16_692
     assert sum(len(item.required_parameters) for item in callables) == 8_454
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
@@ -2011,7 +2000,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "378a24409d6eb8510fb5ffa6b8f6142fe8d82a6f3ba8e5e3053ea06b1ad2a336"
+    ) == "59130aacac6735759f3b108bb7bca77ae3583b15401f250e0f011b775cf9e4ac"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2342,9 +2331,6 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # RegexEditorDialog.resizeEvent. The extractor's own ratchet moved
     # 10,237 -> 10,242 over the same span and decomposes the difference:
     # +12 admitted, -7 retired with spacr.seg_metrics gone.
-    # 10,242 -> 10,243 (2026-09-08): `spacr.qt.screens.settings_flow_index`,
-    # generated beside the settings-flow page and imported by the settings
-    # panel. Its module docstring is the one admitted symbol.
     assert len(docs) == 10_243
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.

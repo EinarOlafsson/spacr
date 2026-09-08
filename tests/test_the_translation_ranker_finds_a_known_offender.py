@@ -187,6 +187,22 @@ def test_a_wrong_cognate_is_caught_inside_a_german_compound(ranker):
     assert not ranker._starts_a_word("Kurationsprotokoll", "protokoll"), (
         "prefix matching must still respect word starts, or every German "
         "compound ENDING in the cognate becomes a false positive")
-    hits = {row[2] for row in ranker.suspects("de")
-            if row[0] == ranker.HIGH and row[2].startswith("log_")}
-    assert hits == {"log_x", "log_y", "log_data"}, hits
+
+    # SYNTHETIC, NOT THE LIVE CATALOG, and this test is the argument for
+    # why. It used to end by asserting that German's `log_x`, `log_y` and
+    # `log_data` were on the live HIGH list -- and they were, until the
+    # defect was fixed at the English source on 2026-09-08: "Log x" is
+    # ambiguous before any translator sees it, so the labels now read
+    # "Logarithmic x", "Logarithmic y" and "Log-transform features" and no
+    # locale reaches for the logbook.
+    #
+    # That is the check going quiet BECAUSE IT WORKED, which is the one
+    # thing this file exists to prevent. A guard whose evidence is a live
+    # defect stops guarding the moment somebody fixes it, and then reads as
+    # green forever. So the contract is asserted against strings written
+    # here: three surface forms of one wrong sense, which whole-word
+    # matching would find one of.
+    forms = ("Protokoll x", "Protokollieren y", "Protokolldaten")
+    assert all(ranker._starts_a_word(form, "protokoll") for form in forms), (
+        "prefix matching no longer finds the inflected and compounded forms "
+        "of one wrong sense; whole-word matching finds only the first")
