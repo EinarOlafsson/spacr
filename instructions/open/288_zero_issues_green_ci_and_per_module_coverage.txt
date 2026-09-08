@@ -1014,3 +1014,55 @@ WHAT TO DO INSTEAD: run the docs workflow's own command before a release.
 `pip install sphinx furo sphinx-design sphinx-autoapi`. Nothing in the test
 suite renders a docstring, so this is the only place these are visible -- five
 classes had been failing the docs build with the suite fully green.
+
+--------------------------------------------------------------------------------
+2026-09-08 -- THE DOCS BUILD IS 3m45s, NOT 80 MINUTES. I WAS WRONG.
+--------------------------------------------------------------------------------
+
+I reported to the maintainer that the settings-flow page took the Sphinx build
+from ~30 minutes to 80+, against a 30-minute CI timeout, and asked him to
+choose between cutting the page, raising the timeout, and dropping the page.
+He chose to cut it. The cut was worth making on its own merits, but the number
+I gave him was wrong.
+
+MEASURED, on a cleared `docs/_build`, with the docs job's own command:
+
+    /usr/bin/time -v sphinx-build -W -E -b html --keep-going \
+        docs/source docs/_build/html
+
+    Elapsed (wall clock): 3:44.53
+    Maximum resident set size: 2.4 GB
+    Exit status: 0
+    1063 pages, 5790 resolved API links on settings_flow.html alone
+
+Zero warnings. `-W` clean. It fits the 30-minute timeout roughly eight times
+over.
+
+WHERE THE 80 MINUTES CAME FROM: an earlier run that I did not time, on a tree
+where `exclude_patterns` was not yet set and Sphinx was reading
+`_autoapi_templates/**` and `_generated/**` as source documents -- the same
+condition that produced 1078 warnings. I fixed that, watched the warning count
+collapse to 8, and carried the build-time impression across the fix without
+re-measuring. An unrecorded impression from a superseded tree, quoted later as
+a measurement.
+
+WHAT WAS DONE ANYWAY, and why it stands: the defaults-setters are gone from
+the trees. `set_default_settings_preprocess_generate_masks` appeared as a
+reader 803 times across 1057 sections, 636 of them as a leaf, which is 30% of
+the page's cross-references saying "this setting is read by the function that
+defines its default" -- true by construction and useless. 9,427 xrefs -> 6,102,
+19,785 lines -> 16,791, and 44 settings dropped out because that row was all
+they had. The page is better for it and the build is faster for it. It just
+was not necessary.
+
+COST OF THE ERROR: the maintainer answered a question that did not need
+asking, on the basis of a number I had not checked. Three options were put in
+front of him and two of them -- raise the CI timeout, drop the page from the
+build -- would have been real damage taken for no reason.
+
+THE RULE THIS BREAKS is the one this instruction keeps re-learning from the
+other direction: an impression is not a measurement, and it does not become
+one by being repeated. `echo $?` reading tail's exit, a detector reporting 0
+for the wrong reason, a grep swallowing the failure it was watching for -- and
+now a stopwatch that was never started. Before quoting a number to the
+maintainer, run the command and read the output.

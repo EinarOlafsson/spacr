@@ -175,3 +175,63 @@ def test_the_page_says_what_it_could_not_follow(data, flow):
     page = flow.rst_for(data)
     assert "[UNRESOLVED]" in page
     assert "cannot follow" in page, "the page never explains the marker"
+
+
+def test_the_defaults_setter_is_not_drawn_as_a_reader(flow):
+    """A function that supplies the default is not a place the value GOES.
+
+    Every setting has a defaults-setter by construction -- that is what
+    makes it a setting -- so drawing it as a reader adds a row to every
+    section and answers a question nobody asked. It was 30% of the
+    published page: `set_default_settings_preprocess_generate_masks`
+    appeared 803 times across 1057 sections, 636 of those as a leaf,
+    burying the function that actually acts on the value.
+    """
+    assert flow._supplies_the_default(
+        "spacr.settings.set_default_settings_preprocess_generate_masks")
+    assert flow._supplies_the_default("spacr.settings.deep_spacr_defaults")
+    assert flow._supplies_the_default(
+        "spacr.settings.get_perform_regression_default_settings")
+    assert flow._supplies_the_default("spacr.settings.set_default_classify")
+    # The functions that DO act on a value must survive, including ones
+    # whose names merely contain the word.
+    assert not flow._supplies_the_default("spacr.core.preprocess_generate_masks")
+    assert not flow._supplies_the_default("spacr.object.generate_cellpose_masks")
+    assert not flow._supplies_the_default("spacr.io._read_and_merge_data")
+
+
+def test_the_page_stays_inside_the_docs_job_timeout(flow, data):
+    """A ratchet on cross-references, because the build clock is the cost.
+
+    The docs job has 30 minutes. Every ``:py:func:`` on this page is an
+    xref Sphinx resolves against the whole AutoAPI inventory, and the
+    first published version carried 9,427 of them -- which took the build
+    from 30 minutes to over 80 and could not go green at any seed.
+
+    The number, not the line count, is what to watch: dropping the
+    defaults-setters cut lines by 15% and xrefs by 35%. If this ceiling
+    is raised, raise it against a MEASURED build rather than a guess,
+    because nothing else in the suite renders a page.
+    """
+    rst = flow.rst_for(data)
+    xrefs = rst.count(":py:func:")
+    assert xrefs <= 6500, (
+        f"{xrefs} cross-references on the settings-flow page, up from the "
+        "6,102 that were measured against the docs job. This is the "
+        "build-time ratchet; confirm a real sphinx-build before raising it")
+
+
+def test_a_setting_read_only_by_its_defaults_setter_is_dropped(flow, data):
+    """Nothing to draw is a reason not to draw a section.
+
+    44 settings are read only by the function that defines their default.
+    With that row gone they have no flow at all, and an empty section
+    with a heading reads as "we looked and there is nothing here" when
+    the truth is that the question does not apply.
+    """
+    rst = flow.rst_for(data)
+    drawn = rst.count(".. _setting-flow-")
+    assert drawn < len(data["reads"]), (
+        "every setting still gets a section, so the defaults-only ones "
+        "are being drawn empty rather than dropped")
+    assert f"{drawn} settings, of {len(data['reads'])} read anywhere." in rst

@@ -34,6 +34,7 @@ import ast
 import json
 from collections import defaultdict
 from pathlib import Path
+from functools import lru_cache
 from typing import Dict, List, Optional, Set, Tuple
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -206,6 +207,64 @@ def analyse() -> dict:
     }
 
 
+@lru_cache(maxsize=1)
+def _tooltips() -> Dict[str, str]:
+    """``spacr.settings.tooltips``, read with `ast` rather than imported.
+
+    IMPORTING IT WOULD HAVE BEEN ONE LINE and it broke the tool's central
+    promise: everything here is pure `ast`, so a broken import cannot
+    quietly empty the trees, and the docs build needs no torch, no Qt and
+    no GPU. `spacr.settings` pulls all three. The suite has a test on
+    that invariant and it is the test that caught this.
+
+    A literal dict at module scope is exactly what `ast.literal_eval`
+    exists for, so the cost of keeping the promise is a dozen lines.
+    Entries whose value is not a plain string -- an f-string, a
+    concatenation, a name -- are skipped rather than guessed at.
+    """
+    out: Dict[str, str] = {}
+    # CATALOG FIRST, SETTINGS.PY SECOND, so settings.py wins ties.
+    # `spacr.settings.tooltips` is post-processed at import: the organelle
+    # entries are cloned across the four slots and some gain a trailing
+    # "Read by ..." sentence. The literal in the file has neither, so a
+    # read of it alone dropped 150 lines of help text off the page --
+    # measured by diffing the page against the version that imported.
+    # The EN i18n catalog holds the RESOLVED strings, clones and all,
+    # which is what the GUI hovers -- but it drops the "(float) - " type
+    # prefix that the literal carries and a reader wants. So the catalog
+    # supplies the entries settings.py has no literal for, and the
+    # literal wins wherever both have one.
+    for path, name in ((ROOT / "spacr" / "qt" / "i18n_catalogs" / "en.py",
+                        "SETTING_TOOLTIPS"),
+                       (ROOT / "spacr" / "settings.py", "tooltips")):
+        out.update(_literal_dict(path, name))
+    return out
+
+
+def _literal_dict(path: Path, name: str) -> Dict[str, str]:
+    """One module-scope ``name = {...}`` of plain strings, read with `ast`.
+
+    Entries whose key or value is not a string constant -- an f-string, a
+    concatenation, a name -- are skipped rather than guessed at.
+    """
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except (OSError, SyntaxError):                           # noqa: BLE001
+        return {}
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        if not any(getattr(t, "id", None) == name for t in node.targets):
+            continue
+        if not isinstance(node.value, ast.Dict):
+            continue
+        return {k.value: v.value
+                for k, v in zip(node.value.keys, node.value.values)
+                if isinstance(k, ast.Constant) and isinstance(k.value, str)
+                and isinstance(v, ast.Constant) and isinstance(v.value, str)}
+    return {}
+
+
 def _tooltip_for(key: str) -> str:
     """The setting's own help text, as one RST paragraph.
 
@@ -217,11 +276,7 @@ def _tooltip_for(key: str) -> str:
     the tree is still worth drawing, and an empty paragraph would put a
     blank line under the heading and say nothing.
     """
-    try:
-        from spacr.settings import tooltips
-    except Exception:                                        # noqa: BLE001
-        return ""
-    text = str(tooltips.get(key) or "").strip()
+    text = str(_tooltips().get(key) or "").strip()
     if not text:
         return ""
     # ESCAPED, BECAUSE A TOOLTIP IS PROSE AND RST IS NOT. The tooltips
@@ -254,7 +309,8 @@ def tree_for(data: dict, key: str, *, depth: int = 6) -> str:
     graph would be a call-graph dump, and the point is to answer "where does
     this setting go", not "what calls what".
     """
-    readers = {hit["function"] for hit in data["reads"].get(key, [])}
+    readers = {hit["function"] for hit in data["reads"].get(key, [])
+               if not _supplies_the_default(hit["function"])}
     if not readers:
         return f"{key}: read nowhere that static analysis can see"
 
@@ -311,6 +367,31 @@ def tree_for(data: dict, key: str, *, depth: int = 6) -> str:
 
 #: What `tree_for` appends to a node that reads the setting.
 READS_MARK = "  <-- reads it"
+
+#: Function names that supply a setting's default rather than act on it.
+_DEFAULT_SUPPLIER = re.compile(
+    r"^spacr\.settings\.(?:set_default_|set_.*_defaults$|get_.*_default_settings$)"
+    r"|^spacr\.settings\..*_defaults$")
+
+
+def _supplies_the_default(qualname: str) -> bool:
+    """Whether this function hands the setting its default value.
+
+    NOT A FLOW WORTH DRAWING, and it was 30% of the page. Every setting
+    has a defaults-setter by construction -- that is what makes it a
+    setting -- so `set_default_settings_preprocess_generate_masks`
+    appeared as a reader 803 times across 1057 sections, 636 of them as
+    a leaf. "This setting is read by the function that defines its
+    default" tells a reader nothing they did not know from the setting
+    existing, while costing a third of the cross-references Sphinx has
+    to resolve.
+
+    Dropping it is what the page is FOR rather than a concession to the
+    build clock: the question a reader arrives with is which function
+    acts on the value, and the defaults table was burying that answer
+    under itself.
+    """
+    return bool(_DEFAULT_SUPPLIER.match(qualname))
 
 
 def _link(qualname: str) -> str:
@@ -394,7 +475,8 @@ def rst_for(data: dict, keys: Optional[List[str]] = None) -> str:
             else:
                 lines.append(f"| {pad}{_link(text)}")
         lines.append("")
-        readers = sorted({h["function"] for h in reads[key]})
+        readers = sorted({h["function"] for h in reads[key]
+                          if not _supplies_the_default(h["function"])})
         lines.append("Read by " + ", ".join(_link(r) for r in readers) + ".")
         lines.append("")
     lines.insert(2, f"{drawn} settings, of {len(reads)} read anywhere.")
