@@ -375,6 +375,40 @@ def _settled(q):
     return lambda: not q.is_busy() and q.active_jobs() == 0
 
 
+
+def _qtpdf_is_loadable() -> bool:
+    """Whether ``PySide6.QtPdf`` can actually be imported on this machine.
+
+    NOT "is PySide6 installed". QtPdf is part of PySide6 and is still
+    unloadable here: it links a Brotli decoder, and an anaconda/system ABI
+    clash makes the import raise
+
+        ImportError: /lib/x86_64-linux-gnu/libbrotlidec.so.1:
+        undefined symbol: BrotliSharedDictionaryDestroyInstance
+
+    THE PRODUCT IS FINE AND THAT IS WHY THIS SKIPS RATHER THAN FAILS.
+    `render_pdf_to_image` returns None when QtPdf will not import, so the
+    PDF preview simply does not render and nothing else is affected --
+    which is the right behaviour for an optional Qt module. The seven
+    tests below assert what a WORKING renderer does, and on a machine
+    with none they were reporting a spaCR defect that is not there.
+
+    The fifth machine-specific test failure found this week; see 325.
+    """
+    try:
+        import PySide6.QtPdf  # noqa: F401
+    except Exception:                                        # noqa: BLE001
+        return False
+    return True
+
+
+needs_qtpdf = pytest.mark.skipif(
+    not _qtpdf_is_loadable(),
+    reason="PySide6.QtPdf will not import on this machine; the PDF preview "
+           "degrades to no render and these assert a working one")
+
+
+@needs_qtpdf
 class TestPdfRenderIsOffTheGuiThread:
 
     def test_adding_a_pdf_figure_does_not_freeze_the_gui_thread(
@@ -629,6 +663,8 @@ class TestPdfRenderIsOffTheGuiThread:
         assert runner.active_jobs() >= 0     # the runner survived the widget
 
 
+
+@needs_qtpdf
 class TestRenderPdfToImageIsWorkerSafe:
     """``render_pdf_to_image`` is the callable the worker thread runs."""
 
