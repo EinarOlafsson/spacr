@@ -5629,7 +5629,16 @@ PER_OBJECT_PREPROCESSING = 'Image preprocessing (per object)'
 #: see one of them would split a decision in half.
 _ADVANCED_FAMILIES = (
     (PER_OBJECT_PREPROCESSING, (
-        "background", "Signal_to_noise",
+        # `signal_to_noise`, lower-case, since b7ae412af renamed
+        # <object>_Signal_to_noise to <object>_signal_to_noise. The suffix
+        # here kept the old capitalisation and so matched nothing, which
+        # took the signal-to-noise anchor out of this family for cell,
+        # nucleus and pathogen -- the panel showed each of them a
+        # background floor and a remove-background switch and nothing
+        # else, while the docstring of the test that covers it still said
+        # three. Nothing errored: a family that matches no key just has
+        # one fewer row.
+        "background", "signal_to_noise",
         # What organelle can already do to its channel before anything is
         # segmented, and cell / nucleus / pathogen cannot. Grouping does not
         # hide the gap -- each object's sub-heading shows exactly the keys
