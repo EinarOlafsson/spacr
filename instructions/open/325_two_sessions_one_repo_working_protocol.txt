@@ -2362,3 +2362,53 @@ REGENERATING A CATALOG, SINCE YOU MAY HAVE TO
   MADLAD model and were OOM-KILLED at `run_capped.sh`'s 8G cap, every time,
   always at the same place. 24G gets through. Also note `systemd-run --scope`
   dies with the shell that started it; `--unit=` does not.
+
+--------------------------------------------------------------------------------
+2026-09-07, WORK SESSION — A TEST THAT CHANGES A GLOBAL OWNS PUTTING IT BACK
+--------------------------------------------------------------------------------
+
+Three instances in three days, from both sessions, and the third is what made
+the shape obvious enough to write down.
+
+    QSettings         a test called `prefs.set_ambient_enabled(False)` and
+                      never restored it.
+    _INITIALISED      `logging_util.setup_logging` returned early on a flag
+                      that no longer described the world; my attempt to make
+                      it re-verify traded a flake for a certainty and was
+                      reverted.
+    propagate         `cli.setup_logging` sets `LOG.propagate = False` and
+                      installs its own stdout handler -- correct for a batch
+                      run -- and `test_setup_logging_replaces_its_handler`
+                      made that change on behalf of the entire session.
+
+WHY IT IS EXPENSIVE IS NOT THE BUG. It is WHERE THE COST LANDS. None of these
+broke the test that made the change; all three broke a DIFFERENT file, later,
+which is why each read as an unrelated flake and got bisected rather than
+recognised. The propagate one reported an empty `caplog.text` for a message
+the code emits correctly and prints to stderr -- the product was right and the
+harness had been blinded by a test that had already finished.
+
+AND IT REACHES THE DEVELOPER'S OWN INSTALL. The QSettings one turned the
+maintainer's ambient animation OFF in the installed application; he reported
+it as a product defect and an hour went into bisecting the wrong thing. A
+test's process-global write does not stop at the process when the store is on
+disk.
+
+THE RULE, and it is cheap to follow:
+
+  * A test that changes process-global state -- QSettings, environment,
+    logging configuration, a module-level flag, sys.modules, a registry --
+    restores it in a `finally` or a fixture, even when the change looks
+    harmless and especially when it is CORRECT for production.
+  * "Correct for production" is what disguises all three of these. Nobody
+    doubts a CLI should not print twice, or that `setup_logging` should be
+    idempotent. The fault is the SCOPE of the decision, not the decision.
+  * When a test fails for a reason that has nothing to do with its subject,
+    look for a global before looking for a cause. Passing alone and failing in
+    a suite is the signature.
+
+RELATED, and the same family one level up: a fake that predates a new seam.
+Both backdrop fakes lacked the `window_backdrop`/`window()` the one-per-window
+guard now asks about, so every arc below the guard asserted the behaviour of a
+window that had already been served. Not a global, but the same reading -- the
+test was answering a question the code had stopped asking.
