@@ -2520,6 +2520,21 @@ THE SECOND ORDER-DEPENDENT PAIR, handed over rather than fixed:
       reading the patch. `pytest_runtest_setup` is the honest place to stand:
       it is after the previous test's teardown has completed. Anyone
       measuring test leakage should hook SETUP, not teardown.
+
+      WHY THIS ONE IS WORSE THAN AN ORDINARY WRONG ANSWER, and worth the
+      space: a probe on teardown does not fail sometimes. It reports a leak
+      on EVERY correctly-restored test, because every correctly-restored
+      test still has its patch in place at that moment. It is a
+      false-positive generator aimed precisely at the class of bug both
+      sessions have spent the week hunting -- so its output looks like the
+      thing you are already looking for, arrives in volume, and is entirely
+      spurious. An instrument that agrees with your hypothesis on every
+      sample is not evidence, and the cost of believing it is a day.
+
+      THE TEST FOR ANY LEAK PROBE, then: run it against a file you are
+      confident is clean. If it still reports a leak, the probe is the bug.
+      That control costs one run and is the only thing that separates this
+      from a real finding.
     * NOT the `_WIDGET_QSS` one-way shrink that
       `_widget_qss_registrars_loaded` exists to prevent, which was the
       obvious suspect because the conftest documents it as THE black-box
