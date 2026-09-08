@@ -159,7 +159,28 @@ def _restore_font_scale(deferred_deletions_flushed):
         except Exception:
             pass
         if app.styleSheet() != original_stylesheet:
-            _PENDING_STYLESHEET = original_stylesheet
+            # NEVER QUEUE AN EMPTY SHEET FOR RESTORE. This restores whatever
+            # was there when the test STARTED, and if that was "" it blanks
+            # the application for everything after it -- then the next test
+            # snapshots "" as well, so the emptiness is self-perpetuating.
+            # A one-way ratchet to nothing, which is the same shape
+            # `_widget_qss_registrars_loaded` exists to stop one level up.
+            #
+            # `qt_theme_applied` is SESSION-scoped and applies the sheet once,
+            # so once it is blanked nothing puts it back and later files test
+            # an unstyled app: "0.0% unpainted and 47.1% is the window colour"
+            # is what that looks like from `test_settings_column_never_black`.
+            #
+            # An empty snapshot is never a state worth restoring, so the
+            # session baseline is restored instead of the hole.
+            if original_stylesheet:
+                _PENDING_STYLESHEET = original_stylesheet
+            else:
+                try:
+                    from spacr.qt.theme import stylesheet as _canonical
+                    _PENDING_STYLESHEET = _canonical()
+                except Exception:                            # noqa: BLE001
+                    _PENDING_STYLESHEET = None
 
 
 @pytest.fixture(autouse=True)
