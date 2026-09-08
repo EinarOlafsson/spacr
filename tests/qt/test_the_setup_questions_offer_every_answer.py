@@ -29,12 +29,25 @@ def _by_key():
     return {q[0]: q for q in questions()}
 
 
-def test_spacr_mode_offers_all_three():
+def test_spacr_mode_offers_every_performance_level():
+    """FIVE LEVELS, NOT THREE POSTURES, AND THE SCREEN IS RIGHT.
+
+    This asserted `SPACR_MODES` -- the three-value resource posture -- and
+    the screen deliberately stopped offering it. `setup_screen` sets the
+    reason out at length: Laptop and Workstation were settable in
+    Preferences and could not be chosen on the screen whose whole job is
+    choosing this once, and `spacr_mode_for_level` folds five levels onto
+    three postures, so writing through `set_spacr_mode` cannot express
+    either end of the scale.
+
+    Keeping the old assertion would have meant taking two answers away
+    from the user to make a test pass. The inventory is the LEVELS.
+    """
     question = _by_key()["spacr_mode"]
     offered = [value for value, _caption in question[4]]
 
-    assert sorted(offered) == sorted(prefs.SPACR_MODES)
-    assert len(offered) == 3
+    assert sorted(offered) == sorted(prefs.PERFORMANCE_LEVELS), (
+        f"the setup screen offers {sorted(offered)}, not every level")
 
 
 def test_spacr_mode_is_captioned_the_way_preferences_captions_it():
@@ -46,21 +59,27 @@ def test_spacr_mode_is_captioned_the_way_preferences_captions_it():
     assert captions["balanced"] == prefs.MODE_LABELS["balanced"]
 
 
-def test_every_mode_can_actually_be_stored():
-    """An offered value the setter rejects is worse than one not offered."""
-    before = prefs.get_spacr_mode()
+def test_every_offered_level_can_actually_be_stored():
+    """An option that raises when chosen is worse than one that is absent.
+
+    `set_spacr_mode` REJECTS two of the five -- "unknown spaCR mode
+    'laptop'" -- which is why the screen writes through
+    `set_performance_level`, the setter that accepts a level and updates
+    the posture behind it. Driven through the setter the screen actually
+    uses, so this cannot pass while the screen raises.
+    """
+    before = prefs.get_performance_level()
+    setter = _by_key()["spacr_mode"][3]
     try:
         for value, _caption in _by_key()["spacr_mode"][4]:
-            prefs.set_spacr_mode(value)
-            assert prefs.get_spacr_mode() == value
+            setter(value)
+            assert prefs.get_performance_level() == value
     finally:
-        prefs.set_spacr_mode(before)
+        prefs.set_performance_level(before)
 
 
-#: Questions whose answers come from a named inventory in `preferences`,
-#: and the attribute that holds it. A question here must offer all of it.
 INVENTORIES = {
-    "spacr_mode": "SPACR_MODES",
+    "spacr_mode": "PERFORMANCE_LEVELS",
     "colour_blind": "VALID_CB_MODES",
     "issue_prompt": "ISSUE_PROMPT_MODES",
 }

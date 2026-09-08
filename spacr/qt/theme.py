@@ -3683,10 +3683,23 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     ELEVATED = css_color(
         base["surface_alt"], panel_alpha(theme, "elevated", surface_opacity))
     #: The menu bar, and everything drawn onto it: its items, and the
-    #: window chrome in its corner. Slightly translucent so the bar does
-    #: not read as a separate slab, but nowhere near transparent -- see
-    #: the QMenuBar rules for what fully-transparent cost on macOS.
-    BAR_BG = css_color(base["surface"], 0.94)
+    #: window chrome in its corner.
+    #:
+    #: READ FROM :data:`MENU_BAR_ALPHA`, NOT WRITTEN AGAIN HERE. This was a
+    #: second hand-written `0.94`, and it silently outranked the constant:
+    #: `MENU_BAR_ALPHA` was set to 1.0 when the maintainer looked at 0.94 on
+    #: a real screen and said "remove the transparency for the bar and it
+    #: will be perfect", `menu_bar_background()` returned `#0d0e10`
+    #: correctly, and the generated stylesheet went on emitting
+    #: `rgba(13, 14, 16, 0.940)` because this line never asked.
+    #:
+    #: The bar is the frameless window's title bar, so what shows through it
+    #: is the animated backdrop moving under the only two words on it.
+    #: `test_the_menu_bar_never_shows_the_window_behind_it` says in its own
+    #: docstring that deriving the colour "is what stops the corner chrome
+    #: and the bar drifting apart"; they had drifted anyway, because the
+    #: derivation had a copy.
+    BAR_BG = css_color(base["surface"], MENU_BAR_ALPHA)
     over_image = theme in IMAGE_THEMES
     # Tiles take page opacity on every theme. Over an image they always did;
     # on the flat themes they were `transparent`, which looked identical to

@@ -63,23 +63,59 @@ def test_no_module_sits_loose_in_the_menu(window):
     assert loose == []
 
 
+#: The pipeline, in the order a run goes through it. Core may hold more
+#: than this -- it currently also holds Training Runs, Prediction Profiler
+#: and Investigate Hit -- but these six come first and in this order,
+#: because the order IS the pipeline and a user reads the category top to
+#: bottom to find out what to do next.
+PIPELINE = ("Mask", "Measure", "Annotate", "Classify", "Map Barcodes",
+            "Regression")
+
+
 def test_core_lists_the_pipeline_in_order(window):
+    """The six come first, in order. What follows them is not pinned here.
+
+    This asserted Core was EXACTLY the six, and three modules have since
+    joined the category, so it failed for a registry decision rather than
+    for a navigation defect. Pinning exact membership makes every
+    registration a test failure; pinning the PREFIX keeps the property the
+    docstring is about -- Core reads as the pipeline, in pipeline order --
+    without re-litigating the category every time it grows.
+    """
     core = [a.menu() for a in _spacr_menu(window).actions()
             if a.menu() and a.menu().title() == SECTION_CORE][0]
+    titles = [a.text() for a in core.actions()]
 
-    assert [a.text() for a in core.actions()] == [
-        "Mask", "Measure", "Annotate", "Classify", "Map Barcodes",
-        "Regression"]
+    assert titles[:len(PIPELINE)] == list(PIPELINE), (
+        f"Core no longer opens with the pipeline in order: {titles}")
+
+
+def _module_keys(menu):
+    """Every ``moduleAppKey`` under ``menu``, however deeply nested.
+
+    RECURSIVE, AND IT HAS TO BE. A host with folded children is itself a
+    submenu whose first entry is the host -- "Mask" opens onto Mask,
+    a separator, then Timelapse -- so the key for Mask is two levels down,
+    not one. A one-level walk reported that `mask` was "in no submenu"
+    while Mask was on screen and clickable, which is the test being a
+    level short rather than the menu having lost anything.
+    """
+    found = set()
+    for action in menu.actions():
+        key = action.property("moduleAppKey")
+        if key:
+            found.add(key)
+        sub = action.menu()
+        if sub is not None:
+            found |= _module_keys(sub)
+    return found
 
 
 def test_every_module_is_still_reachable(window):
     """Grouping may not lose one."""
     from spacr.qt.app import app_is_visible
 
-    in_menus = {a.property("moduleAppKey")
-                for entry in _spacr_menu(window).actions()
-                if entry.menu() is not None
-                for a in entry.menu().actions()}
+    in_menus = _module_keys(_spacr_menu(window))
 
     for key, _name, _desc, _section in APPS:
         if app_is_visible(key):
@@ -108,24 +144,36 @@ def test_only_core_starts_open(sidebar):
 
 
 def test_a_closed_section_hides_its_modules(sidebar):
+    """Hidden, not merely marked.
+
+    Both of these asserted a ``sectionClosed`` property that the dock
+    rewrite of 2026-09-03 stopped setting -- it hides the row instead, in
+    `Dock.refresh_visibility`. Asserting visibility is both what the
+    docstring at the top of this file promises ("they should all be
+    collapsed unless pressed") and the thing a user can see; a property
+    nothing reads could be set correctly on a row that was still on screen.
+    """
+    sidebar.refresh_visibility()
     closed = [s for s in sidebar._section_rows if s != SECTION_CORE][0]
 
-    assert all(b.property("sectionClosed")
-               for b in sidebar._section_rows[closed])
-    assert not any(b.property("sectionClosed")
-                   for b in sidebar._section_rows[SECTION_CORE])
+    assert not any(b.isVisibleTo(sidebar)
+                   for b in sidebar._section_rows[closed]), closed
+    assert all(b.isVisibleTo(sidebar)
+               for b in sidebar._section_rows[SECTION_CORE])
 
 
 def test_clicking_a_header_opens_and_closes_it(sidebar):
+    """And the click is what moves them, in both directions."""
+    sidebar.refresh_visibility()
     closed = [s for s in sidebar._section_rows if s != SECTION_CORE][0]
 
     assert sidebar.toggle_section(closed) is True
-    assert not any(b.property("sectionClosed")
-                   for b in sidebar._section_rows[closed])
+    assert all(b.isVisibleTo(sidebar)
+               for b in sidebar._section_rows[closed])
 
     assert sidebar.toggle_section(closed) is False
-    assert all(b.property("sectionClosed")
-               for b in sidebar._section_rows[closed])
+    assert not any(b.isVisibleTo(sidebar)
+                   for b in sidebar._section_rows[closed])
 
 
 def test_the_header_says_it_is_open(sidebar):

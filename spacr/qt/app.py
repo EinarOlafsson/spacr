@@ -2720,19 +2720,35 @@ class MainWindow(QMainWindow):
         #
         # The hover state is unaffected: it is a repaint of the GLYPH in
         # the hover colour, never a plate behind it.
-        corner.setStyleSheet("""
-            QWidget#WindowChrome {
-                background: transparent;
+        # PAINTS THE BAR'S COLOUR, NOT `transparent`, AND THE REPORT IS WHY.
+        # The reasoning above -- that `transparent` is safe INSIDE a bar that
+        # paints its own surface -- is what the macOS report disproved, and it
+        # named these exact widgets: "there are black boxes behind the
+        # minimize, fullscreen and close icons in the top right ... the black
+        # boxes appear only after hovering the mouse over the icon". A hover
+        # repaint on that platform clears to the window first, and the
+        # window's palette Window role is the splash colour, `#000000`.
+        #
+        # It costs nothing to be sure: this is the SAME colour the bar
+        # paints, read from the same function, so there is nothing to see
+        # either way -- and `menu_bar_background` rather than a literal, so
+        # the corner cannot drift from the bar the way BAR_BG drifted from
+        # `MENU_BAR_ALPHA`.
+        from .theme import menu_bar_background
+
+        corner.setStyleSheet(f"""
+            QWidget#WindowChrome {{
+                background: {menu_bar_background()};
                 border: none;
-            }
+            }}
             QWidget#WindowChrome QToolButton,
             QWidget#WindowChrome QToolButton:hover,
             QWidget#WindowChrome QToolButton:pressed,
             QWidget#WindowChrome QToolButton:checked,
-            QWidget#WindowChrome QToolButton:disabled {
-                background: transparent;
+            QWidget#WindowChrome QToolButton:disabled {{
+                background: {menu_bar_background()};
                 border: none;
-            }
+            }}
         """)
 
         self.menuBar().setCornerWidget(corner, Qt.Corner.TopRightCorner)

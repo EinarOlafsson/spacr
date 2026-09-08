@@ -103,11 +103,20 @@ def test_the_bar_colour_is_the_surface_colour_at_that_alpha(theme):
     and reads the same function, so there is one colour rather than two
     that have to be kept equal.
     """
-    red, green, blue = (int(part) for part in
-                        re.findall(r"\d+", menu_bar_background(theme))[:3])
+    # PARSED FROM EITHER SPELLING. `css_color` returns plain hex at alpha
+    # 1.0 and `rgba(...)` below it, and this read the digits out of the
+    # string -- so the moment the bar went solid, "#0d0e10" parsed as
+    # (0, 0, 10) and "#ffffff" as nothing at all. The assertion is about the
+    # colour being DERIVED from the palette, and it has to survive the
+    # derivation returning the form it is entitled to return.
+    colour = menu_bar_background(theme)
+    if colour.startswith("rgba("):
+        rgb = tuple(int(part) for part in re.findall(r"\d+", colour)[:3])
+    else:
+        hexed = colour.lstrip("#")
+        rgb = tuple(int(hexed[i:i + 2], 16) for i in (0, 2, 4))
     surface = palette_for(theme)["surface"].lstrip("#")
-    assert (red, green, blue) == tuple(
-        int(surface[i:i + 2], 16) for i in (0, 2, 4))
+    assert rgb == tuple(int(surface[i:i + 2], 16) for i in (0, 2, 4))
 
 
 def test_the_window_chrome_paints_the_same_colour_as_the_bar(qtbot,
