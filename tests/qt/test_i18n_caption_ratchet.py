@@ -79,15 +79,22 @@ COMPACT_CAPTION_SHA256 = (
 # nine locales were regenerated against this manifest in 6aa5a73aa before
 # these numbers were touched, which is the order this file's own rule asks
 # for: catalogs first, ratchet second, never the reverse.
+#
+# UI IS 2,837 AND NOT 2,838, which is one fewer than the regeneration
+# reported and is not a discrepancy: giving "OPS" an exact `_ROWS` row
+# moved it OUT of the generated layer. The two layers are disjoint by
+# contract -- a caption belongs to the reviewed compact one or the
+# generated one, never both -- so admitting a row here necessarily takes
+# one off there.
 EXTERNAL_SOURCE_COUNTS = {
     "SETTING_LABELS": 1077,
     "SETTING_TOOLTIPS": 1072,
     "CATEGORY_HELP": 192,
-    "UI": 2838,
+    "UI": 2837,
     "MODULE_SUMMARIES": 67,
 }
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "1aca415d4b028f868072c3f197518637ddf9b13095ef6bbccae9c903aa9ebd7f"
+    "ec6796c11848799778b632a5bab3558216fd01ecc64445f473cc0299c22a25a8"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
