@@ -22,6 +22,22 @@ from spacr.qt.screens.app_screen import AppScreen
 
 reanchor = AppScreen.reanchor_example_paths
 
+#: THE REPORTED PATH, UNDER A ROOT THAT CANNOT EXIST.
+#:
+#: The value from the 2026-09-01 report is `/home/carruthers/datasets/plate1`,
+#: and using it literally makes this file pass everywhere EXCEPT the machine
+#: the report came from. `reanchor_example_paths` keeps any path that already
+#: resolves locally -- `if Path(stripped).exists(): return text` -- which is
+#: correct, because a path that exists here is not foreign. On the
+#: maintainer's own workstation that tree DOES exist, so five tests asserted
+#: a re-homing that must not happen and failed for being right.
+#:
+#: This file predicted it: "this test machine really has a /home/carruthers
+#: tree; pick a different foreign path for the fixture". This is that. The
+#: reported shape is kept intact under a root nothing can create, so the test
+#: means the same thing on every machine instead of most of them.
+FOREIGN = "/nonexistent-spacr-example-root/home/carruthers/datasets/plate1"
+
 
 @pytest.fixture
 def plate(tmp_path):
@@ -32,20 +48,20 @@ def plate(tmp_path):
 
 def test_the_reported_path_is_rehomed(plate):
     """The exact value from the user's machine."""
-    out = reanchor({"src": "/home/carruthers/datasets/plate1"}, plate)
+    out = reanchor({"src": FOREIGN}, plate)
     assert out["src"] == str(plate)
 
 
 def test_a_subfolder_keeps_its_tail(plate):
     """``/merged`` is the whole reason a blunt substitution is wrong."""
-    out = reanchor({"src": "/home/carruthers/datasets/plate1/merged"}, plate)
+    out = reanchor({"src": f"{FOREIGN}/merged"}, plate)
     assert out["src"] == str(plate / "merged")
     assert Path(out["src"]).is_dir(), "the re-homed path must actually exist"
 
 
 def test_a_deep_path_keeps_every_component(plate):
     out = reanchor(
-        {"db_path": "/home/carruthers/datasets/plate1/measurements/measurements.db"},
+        {"db_path": f"{FOREIGN}/measurements/measurements.db"},
         plate)
     assert out["db_path"] == str(plate / "measurements" / "measurements.db")
 
@@ -74,9 +90,9 @@ def test_an_absolute_path_with_no_shared_anchor_is_not_guessed(plate):
 
 
 def test_the_input_mapping_is_not_modified(plate):
-    given = {"src": "/home/carruthers/datasets/plate1"}
+    given = {"src": FOREIGN}
     reanchor(given, plate)
-    assert given["src"] == "/home/carruthers/datasets/plate1"
+    assert given["src"] == FOREIGN
 
 
 def test_without_the_fix_the_foreign_path_would_be_applied(plate):
@@ -85,7 +101,7 @@ def test_without_the_fix_the_foreign_path_would_be_applied(plate):
     If the CSV were already local this whole guard would be asserting against
     nothing, so the untreated value is checked to be the reported defect.
     """
-    raw = "/home/carruthers/datasets/plate1/merged"
+    raw = f"{FOREIGN}/merged"
     assert not Path(raw).exists(), (
         "this test machine really has a /home/carruthers tree; "
         "pick a different foreign path for the fixture")
@@ -105,21 +121,21 @@ def test_a_list_valued_source_is_rehomed(plate):
     Python list, and Classify's loader never writes a local path of its own --
     so a skipped list left the publisher's path as the panel's only truth.
     """
-    out = reanchor({"src": ["/home/carruthers/datasets/plate1"]}, plate)
+    out = reanchor({"src": [FOREIGN]}, plate)
     assert out["src"] == [str(plate)]
 
 
 def test_a_tuple_of_paths_is_rehomed_and_stays_a_tuple(plate):
     """Regression's count_data/score_data/paired_data are container-valued."""
-    given = ("/home/carruthers/datasets/plate1/a.csv",
-             "/home/carruthers/datasets/plate1/b.csv")
+    given = (f"{FOREIGN}/a.csv",
+             f"{FOREIGN}/b.csv")
     out = reanchor({"paired_data": given}, plate)
     assert out["paired_data"] == (str(plate / "a.csv"), str(plate / "b.csv"))
     assert isinstance(out["paired_data"], tuple)
 
 
 def test_nested_containers_are_walked(plate):
-    out = reanchor({"src": [["/home/carruthers/datasets/plate1/x"]]}, plate)
+    out = reanchor({"src": [[f"{FOREIGN}/x"]]}, plate)
     assert out["src"] == [[str(plate / "x")]]
 
 
