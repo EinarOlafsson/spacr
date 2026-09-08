@@ -940,3 +940,37 @@ walks every live widget -- a palette or style event -- eventually touches one
 whose C++ half has gone. That is consistent with the moving position, with no
 single file being responsible, and with the 2026-08-08 teardown fixture having
 made it WORSE in three new ways.
+
+--------------------------------------------------------------------------------
+2026-09-08 -- THE BISECTED POISONING NO LONGER REPRODUCES
+--------------------------------------------------------------------------------
+
+The 2026-09-04 note above bisected an order-dependent clipping failure to one
+file pair and left it unfixed, with a specific next step: run the two together
+and print `current_language()` at the point of measurement.
+
+RE-MEASURED TODAY, and the step is not needed, because the pair is clean:
+
+    pytest tests/qt/test_external_i18n_catalogs.py \
+           "tests/qt/test_the_text_fits_sweep_dialogs.py::\
+test_no_dialog_caption_is_cut_off[BarcodeRegexDialog-de-2.0]" \
+           -p no:randomly
+
+    test_no_dialog_caption_is_cut_off[BarcodeRegexDialog-de-2.0]  PASSED
+
+Confirmed by name in a verbose run, not inferred from a summary count. The
+only failure in that selection is
+`test_api_doc_catalog_is_symbol_keyed_and_source_hashed`, which is the
+known catalog-rebuild item and unrelated to the caption.
+
+WHAT THIS DOES AND DOES NOT SAY. It does not say the leak was found and
+fixed -- nobody chased it. The i18n work between then and now moved a good
+deal of state around the catalogs, and any of it could have removed the
+condition. What it does say is that the recorded next step would now be run
+against a green pair, so the note is retired rather than carried: leaving
+"NOT FIXED HERE" standing would send the next reader after something that
+does not happen.
+
+RECORDED BECAUSE THE OPPOSITE MISTAKE IS EASY. A stale open finding costs a
+session; a closed one that quietly came back costs a release. If the caption
+test reports clipping again, this pair is the first thing to re-run.
