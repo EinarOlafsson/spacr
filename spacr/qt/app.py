@@ -4970,11 +4970,25 @@ class MainWindow(QMainWindow):
             )
             if not get_ambient_enabled():
                 return
-            # ONE BACKDROP FOR THE WINDOW. When the central area carries it,
-            # a per-screen one is a second animation over the first: they run
-            # out of step and the seam between the dock and the page shows.
-            if self.window_backdrop() is not None:
-                return
+            # THE INSTALL-SIDE HALF OF THE DEDUP, AND IT IS OFF WITH THE
+            # OTHER HALF. This declined to build a screen's own backdrop
+            # whenever the window had one, on the "one backdrop for the
+            # window" reasoning that `_drop_a_redundant_screen_backdrop`
+            # states at length -- and that whole argument is suspended,
+            # because the window's backdrop is NOT visible through the
+            # screens above it and the result was a black page. See
+            # instruction 381, and `ded192cc4` which turned off the retire
+            # side on 2026-09-07.
+            #
+            # LEAVING THIS ONE ON WOULD HAVE BEEN THE WORST OF BOTH: screens
+            # that never build a backdrop, deferring to a window backdrop
+            # nobody can see. `AppScreen` is unaffected either way -- it
+            # returns before this and installs its own -- so what this guard
+            # actually governed was the plain screens, which are the ones
+            # with no second chance.
+            #
+            # Both halves go back on together, with the pixel measurement
+            # 381 asks for.
             # NOT WHILE A HEAVY IMPORT IS RUNNING, and this runs on the GUI
             # thread as a module is being opened -- which is precisely when
             # the preloader is holding the lock. `AppScreen` has taken this
