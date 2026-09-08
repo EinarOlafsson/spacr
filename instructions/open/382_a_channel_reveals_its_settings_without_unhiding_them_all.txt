@@ -1,0 +1,129 @@
+================================================================================
+A CHANNEL REVEALS ITS OBJECT'S SETTINGS, AND "ALL SETTINGS" STILL DOES NOT
+================================================================================
+
+Status:    not started
+Requested: 2026-09-08 — found while clearing 288. Not a new request: it is
+           the seam between two requests already made.
+Owner:     unassigned. Not a release blocker; the workaround is real.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Two instructions, each answered correctly on its own, that cannot both hold
+the way they are currently implemented.
+
+356, in the maintainer's words: "when a number is added to any of the object
+channel settings, or number of organels, the entire module reloads . i would
+like the presense of integers in these settings to toggle visability of their
+corresponding settings categories without reloading the entire module".
+Answered by `AppScreen._show_the_objects_the_run_has`, which calls
+`refresh_object_visibility` in place instead of rebuilding — 455 ms and a
+different screen object became 18 ms and the same one.
+
+The later report: "it was in the mask modual that i saw the object settings
+eaven when object channels were all none". Answered in
+`SettingsWidgets.__init__` (spacr/qt/screens/settings_model.py, the
+`self._skip_keys = ...` line) by adding
+`_keys_of_objects_the_run_has_no_channel_for` to `_skip_keys`, so an unset
+object's rows are never BUILT.
+
+The second answer removes the first one's subject. A row that does not exist
+cannot be toggled, so on Mask with no nucleus channel:
+
+  * 20 `nucleus_*` settings exist in the defaults, 1 is built
+    (`nucleus_channel` — the switch always stays);
+  * committing a channel calls `refresh_object_visibility`, which finds
+    nothing to reveal;
+  * the settings arrive only on the next module open.
+
+Which is 356's original complaint, reached by a different road.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+`DEFAULT_OBJECT_GRID` is False, so the flat form is what most users see, and
+on the flat form the object a user has just declared has no settings. The
+workaround — reopen the module — is exactly the reload 356 asked to be rid
+of, and nothing on screen says that is what is needed.
+
+With the object grid switched on the conflict is invisible: the grid carries
+all twenty settings against a Nucleus column from the moment Mask opens, so a
+maintainer testing with the grid on will not see this.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+The fix is NOT to choose one instruction over the other. Both are right; what
+is missing is that hidden rows do not stay hidden by every route.
+
+1. Drop `_keys_of_objects_the_run_has_no_channel_for` from the `_skip_keys`
+   union in `SettingsWidgets.__init__`. Keep `_organelle_keys_beyond` — 356
+   separates `number_of_organelles` out itself and accepts a rebuild for it,
+   because those rows have to be spawned.
+
+   This alone satisfies 356 completely, and was measured doing so: 20 nucleus
+   rows built with 1 shown, 19 revealed on the commit, `win._screens["mask"]`
+   unchanged, hidden again when the channel is cleared. Cold first open of
+   Mask went 1661 ms -> 1765 ms and the cached open was unchanged at ~133 ms,
+   so the deferred-caption path (`_lay_out_one_waiting_row`) already absorbs
+   the extra rows.
+
+2. THEN FIX WHAT THAT REOPENS, which is the whole reason step 1 cannot be
+   committed on its own. With the rows present, the settings-search strip at
+   "All settings" shows every row it indexed, including the hidden ones —
+   `test_the_object_rows_stay_off_the_form` fails 5 tests on
+   `setting_row_is_visible("nucleus_diameter") is True`. That file's own
+   header says the rows "watch themselves, so any route that puts one back is
+   answered by another pass"; `_HiddenRowWatcher` in settings_model.py is that
+   watcher, and it does not answer this route. Make it, or run the object
+   rule after the search level is applied.
+
+   The level is remembered per module, which is why the maintainer saw it
+   every time from the first press onwards and a bare test screen never did.
+
+3. Remove the `xfail` from
+   `tests/qt/test_the_count_controls_the_categories.py::
+   test_a_committed_channel_brings_its_settings_back`. It is `strict=True`,
+   so it fails the moment the fix lands and cannot be forgotten.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    QT_QPA_PLATFORM=offscreen python -m pytest \
+      tests/qt/test_the_count_controls_the_categories.py \
+      tests/qt/test_the_object_rows_stay_off_the_form.py \
+      tests/qt/test_a_channel_number_reveals_rather_than_reloads.py \
+      -q -p no:randomly
+
+All three files green with no xfail: 28 passed. Today it is 27 passed and
+1 xfailed, and step 1 without step 2 gives 5 failures in the middle file.
+
+By hand, with the object grid OFF: open Mask, type 1 into Nucleus channel,
+press Tab. The Nucleus settings appear without the module reloading. Press
+"All settings", then reopen Mask — no object settings for an object whose
+channel is empty.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+* NOT FIXED BY REBUILDING on a committed channel. Tried first: route the
+  switch to `_rebuild_the_form` when the object has no rows. It works and it
+  is wrong — it is precisely the module reload 356 asked to be removed, and
+  it fails all four tests in
+  `test_a_channel_number_reveals_rather_than_reloads`.
+
+* NOT FIXED BY REPOINTING THE TEST AT THE GRID. The grid does answer it, but
+  only for users who have switched it on, and the default is off. That would
+  have made the suite green over a defect the default configuration still
+  has.
+
+* NOT DONE ON RELEASE DAY. Step 1 is a five-line change with a measured
+  result; step 2 is an unbounded change to how hidden rows defend themselves,
+  in the most-used module, and the release is being cut. The xfail records
+  the defect where the next person will meet it.
