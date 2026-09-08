@@ -55,7 +55,11 @@ GLOSSARY: dict[str, dict[str, tuple[tuple[str, ...], tuple[str, ...]]]] = {
         "es": (("orgánulo", "orgánulos"), ("orgángel", "orgángeles",
                                            "orgánicas", "orgálelas")),
         "fr": (("organite", "organites"), ()),
-        "de": (("Organell", "Organellen"), ()),
+        # "Organelle" IS German, alongside "Organell". Without it here the
+        # tool reported 269 German suspects for this row and every one of
+        # them read correctly -- the largest locale, at the top of the
+        # list, which is where a false positive costs the most.
+        "de": (("Organell", "Organelle", "Organellen"), ()),
         "sv": (("organell", "organeller"), ()),
         "pt": (("organelo", "organelos", "organela", "organelas"), ()),
     },
@@ -77,7 +81,34 @@ GLOSSARY: dict[str, dict[str, tuple[tuple[str, ...], tuple[str, ...]]]] = {
 #: Tables worth ranking: the ones a user reads while deciding something.
 TABLES = ("SETTING_TOOLTIPS", "SETTING_LABELS", "MODULE_SUMMARIES")
 
-HIGH, MEDIUM, LOW = "wrong-cognate", "left-in-english", "no-known-target"
+HIGH, ACRONYM, MEDIUM, LOW = ("wrong-cognate", "translated-acronym",
+                              "left-in-english", "no-known-target")
+
+#: Tokens that must survive translation unchanged, and what the model
+#: reaches for when it does not recognise them as tokens.
+#:
+#: A DIFFERENT FAULT FROM THE GLOSSARY ABOVE, and it wants its own table.
+#: `GLOSSARY` catches "the model chose the wrong sense of an English
+#: word". This catches "the model did not know a domain ACRONYM was an
+#: acronym at all" -- German rendered ``dog`` as *Hund* and ``log`` as
+#: *Protokoll*, so `organelle_dog_sigma_high` reads "Hundesigma hoch" and
+#: `organelle_log_max_sigma` reads "Protokoll max sigma". DoG is
+#: Difference of Gaussians and LoG is Laplacian of Gaussians, and every
+#: organelle slot carries both, so neither is one string.
+#:
+#: Found by the other session reading this tool's LOW-severity output for
+#: German, where it had flagged nothing: the acronyms were invisible to
+#: the glossary because no wrong cognate had been recorded for them. They
+#: are a severity of their own rather than glossary rows because the test
+#: is "did this token change", which needs no per-locale target.
+PROTECTED_TOKENS: dict[str, tuple[str, ...]] = {
+    "dog": ("hund", "hunde", "chien", "perro", "cane", "cão"),
+    "log": ("protokoll", "logbuch", "journal", "registro", "diario"),
+    "mip": (),
+    "sam": (),
+    "clahe": (),
+    "otsu": (),
+}
 
 
 def _catalog(language: str):
@@ -123,11 +154,83 @@ def suspects(language: str):
                 elif any(_contains_word(rendered, a) for a in approved):
                     continue                 # rendered correctly
                 elif _contains_word(rendered, term):
+                    # THE ENGLISH WORD IS SOMETIMES THE RIGHT WORD.
+                    # "Organelle" IS the German for organelle, and the
+                    # `organelle` row produced 269 German suspects of
+                    # which every one read correctly -- a false positive
+                    # at the top of the largest locale, which is where it
+                    # does the most damage. A term that is its own
+                    # approved target in this language cannot be
+                    # "left in English".
+                    if any(a.lower() == term.lower() for a in approved):
+                        continue
                     found.append((MEDIUM, table, key, term, rendered[:110]))
                 else:
                     found.append((LOW, table, key, term, rendered[:110]))
-    order = {HIGH: 0, MEDIUM: 1, LOW: 2}
+            for token, wrong in PROTECTED_TOKENS.items():
+                # THE KEY, NOT THE PROSE. "log" is an acronym in
+                # `organelle_log_max_sigma` and an ordinary verb in
+                # "while logging each edit" -- German renders the second
+                # as *Protokoll* correctly, and flagging it would teach a
+                # reader that this list cries wolf. A token is protected
+                # where the SETTING NAME contains it, which is where it
+                # is a term of art.
+                if token not in str(key).lower().split("_"):
+                    continue
+                if not _contains_word(text, token):
+                    continue
+                if _contains_word(rendered, token):
+                    continue                 # survived, which is the ask
+                seen = next((w for w in wrong
+                             if _contains_word(rendered, w)), None)
+                found.append((ACRONYM, table, key,
+                              f"{token} -> {seen or 'gone'}",
+                              rendered[:110]))
+    order = {HIGH: 0, ACRONYM: 1, MEDIUM: 2, LOW: 3}
     return sorted(found, key=lambda row: (order[row[0]], row[1], row[2]))
+
+
+def renderings(language: str, term: str) -> dict:
+    """How many distinct approved forms of ``term`` this locale uses.
+
+    ONE TERM, NAMED FIVE WAYS, is a reading problem no other check we
+    have can see. The Spanish catalog renders `organelle` as orgánulo,
+    organelas, organela, orgánicos and organole across one panel -- every
+    one of them arguably a translation, and a reader meeting all five
+    cannot tell whether they are the same object.
+
+    Counts only what the glossary already knows to be an approved target,
+    so it makes no judgement about which spelling is right. Deciding that
+    is a reader's job; this says there is a decision to make.
+
+    WHAT IT DOES NOT YET CATCH, said plainly so nobody reads more into
+    the output than is there: the five Spanish forms above are not all
+    approved targets -- organelas, organela, orgánicos and organole are
+    wrong, not variants -- so this counts one form and reports no spread.
+    What it currently surfaces is INFLECTION: singular against plural,
+    which is grammar rather than inconsistency. Catching the real thing
+    needs a notion of "any rendering of this term", which is the hard
+    half and is not attempted here.
+
+    :param language: catalog language code.
+    :param term: a key of :data:`GLOSSARY`.
+    :returns: ``{approved form: how many records use it}``.
+    """
+    english = _catalog("en")
+    translated = _catalog(language)
+    approved = GLOSSARY.get(term, {}).get(language, ((), ()))[0]
+    counts = {}
+    for table in TABLES:
+        source = getattr(english, table, {}) or {}
+        target = getattr(translated, table, {}) or {}
+        for key, text in source.items():
+            rendered = target.get(key)
+            if not rendered or not _contains_word(text, term):
+                continue
+            for form in approved:
+                if _contains_word(rendered, form):
+                    counts[form] = counts.get(form, 0) + 1
+    return counts
 
 
 def main() -> int:
@@ -146,6 +249,17 @@ def main() -> int:
         for severity, table, key, term, snippet in rows[:args.limit]:
             print(f"  [{severity:15s}] {table}.{key}  ({term})")
             print(f"      {snippet}")
+    print("\n=== how many ways each term is rendered")
+    for language in languages:
+        for term in sorted(GLOSSARY):
+            if language not in GLOSSARY[term]:
+                continue
+            counts = renderings(language, term)
+            if len(counts) > 1:
+                spread = ", ".join(f"{form} x{n}"
+                                   for form, n in sorted(counts.items(),
+                                                         key=lambda kv: -kv[1]))
+                print(f"  {language}/{term}: {len(counts)} forms -- {spread}")
     print(f"\n{total} wrong-cognate hit(s) across {len(languages)} locale(s). "
           f"This RANKS; it does not judge. A fluent reader decides.")
     return 0

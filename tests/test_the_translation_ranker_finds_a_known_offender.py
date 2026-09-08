@@ -92,3 +92,47 @@ def test_every_glossary_row_has_something_to_say(ranker):
              for locale, (approved, _wrong) in locales.items()
              if not approved]
     assert empty == [], f"glossary rows that cannot rank anything: {empty}"
+
+
+def test_it_recognises_a_translated_acronym(ranker):
+    """DoG is Difference of Gaussians; German read it as the animal.
+
+    A different fault from the glossary's: not "the wrong sense of an
+    English word" but "the model did not know this was a token at all".
+    Found by the other session reading this tool's LOW-severity German
+    output, where the glossary had flagged nothing.
+    """
+    wrong = ranker.PROTECTED_TOKENS["dog"]
+    assert any(w in "organelle 1 — hundesigma hoch" for w in wrong), (
+        "the ranker no longer recognises Hund as a translation of the DoG "
+        "acronym, which is the observed failure it was built from")
+    assert "log" in ranker.PROTECTED_TOKENS
+
+
+def test_an_acronym_is_only_protected_inside_a_setting_name(ranker):
+    """"log" is a term of art in a key and an ordinary verb in prose.
+
+    `MODULE_SUMMARIES.curate` says "while logging each edit", and German
+    renders that as *Protokoll* correctly. Flagging it would teach a
+    reader that this list cries wolf, so the token is protected where the
+    KEY contains it and nowhere else.
+    """
+    assert "log" in "organelle_log_max_sigma".lower().split("_")
+    assert "log" not in "curate".lower().split("_")
+
+
+def test_the_english_word_can_be_the_right_word(ranker):
+    """"Organelle" IS German, and 269 correct strings were being flagged.
+
+    A term that is its own approved target in a language cannot be
+    "left in English" in that language. This was the false positive at
+    the top of the largest locale, which is where one does most damage.
+    """
+    approved, _wrong = ranker.GLOSSARY["organelle"]["de"]
+    assert any(a.lower() == "organelle" for a in approved), (
+        "German's approved list no longer contains the English spelling, "
+        "so every correct German string is a suspect again")
+    approved_es, _ = ranker.GLOSSARY["organelle"]["es"]
+    assert not any(a.lower() == "organelle" for a in approved_es), (
+        "the exception must be per-locale: Spanish is orgánulo, and "
+        "'organelle' standing in Spanish prose IS the defect")
