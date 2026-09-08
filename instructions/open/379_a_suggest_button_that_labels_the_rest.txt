@@ -2,6 +2,16 @@
 A SUGGEST BUTTON THAT LABELS THE REST
 ================================================================================
 
+Status:    COMPLETE except 379-C, 2026-09-07. The button is built and
+           wired, and the one-class case PART 1-B said was missing is now
+           built too -- `retrain_round` gained `balance` and
+           `synthetic_negatives` (the work session handed me the seam in
+           their file), Suggest asks for both, and a run with invented
+           negatives says so in the console, on the model card and by
+           WITHHOLDING the bulk KEEP. What is left is 379-C alone.
+
+           PREVIOUS STATUS FOLLOWS.
+
 Status:    THE BUTTON IS BUILT AND WIRED, 2026-09-07. Annotate has a
            "Suggest…" button beside Retrain whose menu offers the two scopes
            and, when any are outstanding, the two bulk verdicts with a live
@@ -161,8 +171,33 @@ DONE 2026-09-07 -- THE BUTTON:
   maintainer rather than quietly substituting it.
 
 --------------------------------------------------------------------------------
-PART 1-B -- THE ONE-CLASS CASE, WHICH IS NOT BUILT
+PART 1-B -- THE ONE-CLASS CASE. BUILT 2026-09-07 (374e57a44)
 --------------------------------------------------------------------------------
+
+BUILT AS SPECIFIED BELOW, so the design notes that follow are the record of
+what was decided rather than a plan. The signature is the one this part asked
+for:
+
+    retrain_round(..., balance="none"|"downsample",
+                       synthetic_negatives=None|int)
+
+  * `balance="downsample"` cuts every class to the smallest BEFORE the
+    grouped split, and both branches write a note saying which was in force
+    -- because the default estimators already pass `class_weight="balanced"`
+    and "balanced" alone describes two different models. The card carries
+    `balance`, `synthetic_negatives` and `class_weight_balanced` together.
+  * `synthetic_negatives=n` draws n unannotated crops at random and fits them
+    as the absent class, writing NOTHING to the database. A test captures the
+    annotation column before and after.
+  * Suggest reads the count from the column, EXCLUDING suggestions: sizing
+    the lie by the size of the last machine run would be circular.
+  * The lie is declared at every layer -- round notes, model card, console
+    message -- and the bulk KEEP is WITHHELD from the menu on such a run,
+    not greyed out. Rejecting in bulk stays, because throwing a ranking away
+    costs nothing.
+  * Binary only. Class 3 has no defensible "other class" and refuses by name.
+
+WHAT WAS WRITTEN HERE BEFORE IT WAS BUILT:
 
 THE REQUEST ASKED FOR IT IN SO MANY WORDS: "if only one class randomly choose
 the same number of images as is annotated for the other class". It is NOT
