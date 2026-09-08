@@ -28,7 +28,15 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import pandas as pd
-from PySide6.QtCore import Qt, Signal
+# QEvent AT MODULE SCOPE, NOT INSIDE THE CALLBACK. A function-local
+# import in an event handler is not lazy loading: this module is a
+# QWidget module and cannot load without QtCore, so the import bought
+# nothing but a sys.modules lookup on every event -- and it put an
+# EXCEPTION SITE on a path with no way to report one. The same shape in
+# `ModuleHintBar.event` produced 419 errors in one sweep when a test
+# stubbed PySide6.QtCore out of sys.modules and teardown then delivered
+# a paint event.
+from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView, QCheckBox, QComboBox, QSplitter, QHBoxLayout, QHeaderView, QLabel,
     QLineEdit, QListWidget, QListWidgetItem, QPlainTextEdit, QPushButton,
@@ -990,7 +998,6 @@ class WorkflowStep(QWidget):
         :param event: the event.
         :returns: True when the click was consumed as a fold.
         """
-        from PySide6.QtCore import QEvent
 
         if (watched is self.label
                 and event.type() == QEvent.MouseButtonRelease

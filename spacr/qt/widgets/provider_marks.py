@@ -30,7 +30,15 @@ import math
 import re
 from typing import Dict, Optional, Tuple
 
-from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
+# QEvent AT MODULE SCOPE, NOT INSIDE THE CALLBACK. A function-local
+# import in an event handler is not lazy loading: this module is a
+# QWidget module and cannot load without QtCore, so the import bought
+# nothing but a sys.modules lookup on every event -- and it put an
+# EXCEPTION SITE on a path with no way to report one. The same shape in
+# `ModuleHintBar.event` produced 419 errors in one sweep when a test
+# stubbed PySide6.QtCore out of sys.modules and teardown then delivered
+# a paint event.
+from PySide6.QtCore import QEvent, QPointF, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import (QColor, QPainter, QPainterPath,
                            QTransform)
 from PySide6.QtWidgets import QSizePolicy, QWidget
@@ -421,7 +429,6 @@ class ProviderMark(QWidget):
         :param event: the Qt event.
         :returns: True when handled here.
         """
-        from PySide6.QtCore import QEvent
 
         if event.type() == QEvent.Type.HoverEnter:
             self._hovered = True
