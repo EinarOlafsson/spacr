@@ -26,7 +26,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from ..i18n import tr
-from ..theme import (ensure_widget_qss_applied, pane_surface,
+from ..theme import (block_surface, ensure_widget_qss_applied,
                      register_widget_qss)
 from ..widgets.collapsible_section import CollapsibleSection
 from ..widgets.fold_strip import FoldStrip
@@ -73,14 +73,24 @@ def _flowview_section_qss(palette: dict, _opacity=None) -> str:
     `ConsoleBox` in theme.py carries this exact lesson from the same mistake
     made there: "Making it transparent (tried, reverted) left a rounded
     outline floating on the opaque container behind it -- the fill is what
-    makes it read as a console." So the fill is the box; `pane_surface` is
-    the accessor that carries the opacity preference into it, and reading
-    `palette` directly is what loses it.
+    makes it read as a console." So the fill is the box; the accessor is what
+    carries the opacity into it, and reading `palette` directly is what loses
+    it.
+
+    IT USES `block_surface`, NOT `pane_surface`, and the difference is the
+    whole of a fault this file used to have. Both take an `opacity`, and both
+    treat `None` differently: `pane_surface`'s `None` means "nobody told me,
+    go and look", so it reads the live page-opacity preference. Inside a
+    REGISTERED BLOCK that is wrong, because `None` is already an answer --
+    `stylesheet(theme)` with no `surface_opacity` is asking for the theme's
+    DESIGNED scrim. Calling the looking-up one made this sheet a function of
+    a QSettings value rather than of its arguments, so it emitted
+    `rgba(22, 23, 25, 0.600)` for a caller that asked for neither.
     """
 
     return f"""
 QWidget#{FLOWVIEW_SECTION_NAME} {{
-    background-color: {pane_surface("surface_alt", opacity=_opacity)};
+    background-color: {block_surface("surface_alt", opacity=_opacity)};
     border: 1px solid {palette["border_soft"]};
     border-radius: 8px;
 }}
