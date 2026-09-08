@@ -2651,3 +2651,52 @@ are the same class of defect -- "orgÃ¡ngel" (angel), "orgÃ¡ngeles" (Los
 Angeles) where "orgánulo" belongs -- and are recorded in 316 rather than
 fixed, because nothing fails on them. Neither of us should read a green
 translation gate as "the translations are right".
+
+--------------------------------------------------------------------------------
+2026-09-08 — REBUILD THE API CATALOGS ONCE, AT THE SHIP BOUNDARY, NOT PER CHANGE
+--------------------------------------------------------------------------------
+
+AGREED BY BOTH SESSIONS, with the work session's condition attached and met.
+
+THE MEASUREMENT THAT SETTLED IT. `--repair-api-blocks` only writes WHOLE
+LOCALES, so the cost of a rebuild is a function of the number of LOCALES and
+not of the number of changed symbols. Measured today: ten text-changed
+docstrings cost one nine-locale rebuild, and then ONE text-changed docstring
+-- `training_monitor.TrainingMonitor`, from removing an `Attributes` section
+that `class_content='both'` was concatenating into `__init__` -- cost a second
+identical one. Every rebuild before the last is speculative work.
+
+THE RULE. The API catalogs are allowed to be STALE during ordinary work. The
+work session changes public docstrings freely and does not need to announce
+them. The home session rebuilds ONCE, last, immediately before the version is
+cut, and that rebuild is a named line in 331 rather than a thing either of us
+remembers.
+
+THE CONDITION, which is the work session's and is the reason the rule is safe:
+
+    "a known-red test that is allowed to stay red is exactly the artefact
+    that keeps looking like it is doing its job"
+
+So the rule is void unless 331 carries the rebuild as a checklist line, and
+unless the test says why it is red in its own output. Both are now true:
+331 has the step with the per-locale command and the GPU-OOM caveat, and
+`test_documentation_api_catalog_inventory_and_hashes_are_current` is xfailed
+with a reason naming 325 and 331. A reader who hits it learns where to look
+instead of asking one of us.
+
+WHAT REPLACED THE OLD HANDSHAKE. Earlier the same day the home session asked
+for a heads-up before any public docstring change, and the work session
+agreed and stopped. That was the wrong trade: it made one lane wait on the
+other to buy a rebuild that was going to be thrown away. This rule costs
+nobody any waiting.
+
+AND A NOTE ON DURATIONS, because it is the fifth instrument failure of the
+day and the only one with no instrument to blame. The work session quoted an
+80-minute Sphinx build for hours; measured with the docs job's own command it
+is 3m45s, and the bad figure was an untimed impression from a superseded tree
+where `exclude_patterns` was unset. It cost the maintainer a decision he did
+not need to make. The home session's "about forty minutes" for the catalog
+rebuild is the same class of claim -- taken from the first one watched, never
+re-timed after the work moved to the GPU, and repeated all afternoon. Neither
+number belongs in a release plan. Time the rebuild once, with
+`/usr/bin/time -v`, and record it in 331.

@@ -10,6 +10,42 @@ Status:    OPEN, filed 2026-09-01. A CHECKLIST, not new work: every item
 BEFORE THE UPDATE
 -----------------
 
+  I18N  REBUILD THE NINE API CATALOGS, THEN RE-RUN
+        `tests/test_documentation_i18n.py::
+        test_documentation_api_catalog_inventory_and_hashes_are_current`.
+        Added 2026-09-08, and it is a NAMED STEP on purpose.
+
+            python tools/build_documentation_i18n.py \
+                --repair-api-blocks --device cuda --languages <one locale>
+
+        one locale per process -- the translation model accumulates GPU
+        memory across locales and a single nine-locale process dies of a
+        CUDA OOM partway -- then `--sources-only` for the English manifest.
+
+        WHY IT IS HERE RATHER THAN DONE CONTINUOUSLY. The repair path only
+        writes WHOLE LOCALES, so one changed docstring costs exactly what
+        ten cost: a full nine-locale rebuild. Every rebuild before the last
+        one is therefore speculative, and between 2026-09-08's rebuilds a
+        single symbol changed twice and cost two of them. Both sessions
+        agreed to rebuild ONCE, last, at the ship boundary, and to let the
+        catalogs be stale until then -- see 325.
+
+        THE RULE ONLY HOLDS IF THIS LINE EXISTS, which is the work
+        session's condition for agreeing to it and is worth restating
+        rather than assuming: "a known-red test that is allowed to stay red
+        is exactly the artefact that keeps looking like it is doing its
+        job". Without a checklist line, "rebuild at the boundary" quietly
+        becomes "this test is red forever". The test is xfailed with a
+        reason naming this step, so a reader who hits it is told where to
+        look instead of asking.
+
+        DURATION IS NOT RECORDED HERE ON PURPOSE. Both sessions spent the
+        day quoting unmeasured durations at each other -- an 80-minute
+        Sphinx build that is 3m45s, and my own "about forty minutes" for
+        this rebuild, carried from the first one I watched and never
+        re-timed after the work moved to the GPU. Time the next one and
+        write the number in; do not inherit mine.
+
   PKG  THE BUILD ITSELF, and it was never on this list. Added 2026-09-07.
        Every cell of the compat matrix on `main` failed -- sdist, wheel, and
        `pip install spacr` on 3.9 through 3.14 -- with
