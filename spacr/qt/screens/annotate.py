@@ -4259,28 +4259,29 @@ class AnnotateScreen(QWidget):
         if not rows:
             QMessageBox.information(self, "Class counts", "No annotated rows yet.")
             return
-        # SUGGESTIONS ARE SHOWN SEPARATELY, NOT AS CLASSES 11 AND 12.
-        # `class_counts` groups by the raw stored value, and a suggestion is
-        # its class plus ten -- so a run of Suggest would have added two
-        # rows to this dialog for classes nobody made, in the one place the
-        # annotator comes to ask whether the classes are balanced. They are
-        # folded back to the class they propose and counted apart, because
-        # what makes a fit balanced is the answers, not the proposals.
-        answers = [(cls, cnt) for cls, cnt in rows
-                   if cls < SUGGESTION_OFFSET]
-        proposals: Dict[int, int] = {}
-        for cls, cnt in rows:
-            if cls >= SUGGESTION_OFFSET:
-                real = cls - SUGGESTION_OFFSET
-                proposals[real] = proposals.get(real, 0) + cnt
+        # `class_counts` EXCLUDES SUGGESTIONS AT THE SOURCE since 560a34a6b,
+        # so these rows are answers and nothing here has to sort them out.
+        # This screen briefly folded the offset values back itself, which was
+        # right while the query returned them and is dead code now.
         lines = ["Class    Count    Color"]
-        for cls, cnt in answers:
+        for cls, cnt in rows:
             lines.append(f"{cls:>5}  {cnt:>7}    {label_to_hex(cls, dark=on_dark_theme()) or ''}")
-        if proposals:
+        # STILL REPORTED, because leaving them out entirely answers the
+        # question "are my classes balanced" with a number that quietly
+        # ignores a few thousand rows in the same column. Counted apart from
+        # the classes, which is the distinction that matters.
+        try:
+            from ...suggest import pending_suggestions
+
+            waiting = pending_suggestions(
+                self._settings.db_path, self._settings.annotation_column,
+                png_table=self._settings.png_table)
+        except Exception:                                    # noqa: BLE001
+            waiting = 0
+        if waiting:
             lines.append("")
-            lines.append("Suggested, not yet kept or thrown away:")
-            for cls in sorted(proposals):
-                lines.append(f"{cls:>5}  {proposals[cls]:>7}")
+            lines.append(f"{waiting:,} suggested, not yet kept or thrown "
+                         f"away — not counted above.")
         QMessageBox.information(self, "Class counts", "\n".join(lines))
 
     # ------------------------------------------------------------------
@@ -4449,15 +4450,12 @@ class AnnotateScreen(QWidget):
         if self._retrain_worker is not None:
             self._status_label.setText("A retrain is already running.")
             return
-        # THE SAME TRAP AS THE ONE `_SuggestWorker` CLEARS, reached from the
-        # other button. A suggestion is stored as its class plus ten, and
-        # `retrain_round` reads every non-null value as a class -- so fitting
-        # with suggestions outstanding trains classes 11 and 12 on labels no
-        # human ever made. Suggest clears them silently because replacing
-        # them is its documented behaviour; Retrain must ask, because
-        # throwing away a review queue is not what the button says it does.
-        if not self._clear_suggestions_before_fitting("Retrain"):
-            return
+        # NO LONGER ASKS ABOUT OUTSTANDING SUGGESTIONS, and the reason is
+        # that the trap moved. `retrain_round` filtered them out at the
+        # source in 560a34a6b, so a fit with suggestions outstanding is
+        # simply correct now -- and a dialog offering to throw a review
+        # queue away before a Retrain is a destructive prompt with nothing
+        # behind it. The guard was right while the fit was wrong.
         # The labels the annotator just made are the whole point of the
         # round; a retrain that raced the save worker would fit on the state
         # before them.
@@ -4603,45 +4601,6 @@ class AnnotateScreen(QWidget):
         self._request_note = ""
         self._offset = 0
         self._refresh_total(then=self._load_page)
-
-    def _clear_suggestions_before_fitting(self, what: str) -> bool:
-        """Ask about outstanding suggestions; True to go ahead with the fit.
-
-        :param what: the button's name, for the question.
-        :returns: True when the fit may proceed -- either there was nothing
-            outstanding, or the annotator agreed to clear it.
-        """
-        from ...suggest import pending_suggestions, resolve_suggestions
-
-        if not self._settings.db_path:
-            return True
-        try:
-            waiting = pending_suggestions(
-                self._settings.db_path, self._settings.annotation_column,
-                png_table=self._settings.png_table)
-        except Exception:                                    # noqa: BLE001
-            return True
-        if not waiting:
-            return True
-        answer = QMessageBox.question(
-            self, f"{what} with suggestions outstanding?",
-            f"{waiting:,} suggestions are waiting to be kept or thrown "
-            f"away.\n\nThey are stored as their own values, and a fit reads "
-            f"every value in the column as a class — so training now would "
-            f"learn from labels no human made.\n\nThrow the suggestions "
-            f"away and {what.lower()}?")
-        if answer != QMessageBox.Yes:
-            self._status_label.setText(
-                f"{what} cancelled — keep or throw away the suggestions "
-                f"first, from the Suggest menu.")
-            return False
-        resolve_suggestions(
-            self._settings.db_path, self._settings.annotation_column,
-            keep=False, png_table=self._settings.png_table)
-        self._console.append_notice(
-            "{n} outstanding suggestions thrown away before fitting.\n",
-            n=f"{waiting:,}")
-        return True
 
     # ------------------------------------------------------------------
     # Suggest: the model's opinion, written down where it can be rejected

@@ -418,14 +418,38 @@ def test_a_second_run_does_not_train_on_the_first_run_s_suggestions(
         "clearing suggestions before the fit must not touch an annotation")
 
 
-def test_retrain_asks_before_it_throws_a_review_queue_away(
-        qtbot, qt_theme_applied, tmp_path: Path, monkeypatch):
-    """Retrain hits the same trap from the other button, and must ASK.
+def test_a_fit_is_safe_with_suggestions_outstanding(tmp_path: Path):
+    """The guard moved into the fit, so the screen stops asking.
 
-    Suggest clears silently because replacing outstanding suggestions is
-    its documented behaviour. Retrain says nothing about suggestions, so
-    discarding a review queue on its behalf would be a surprise -- and
-    fitting without discarding would train on classes 11 and 12.
+    Annotate briefly asked, before a Retrain, whether to throw outstanding
+    suggestions away -- because `retrain_round` read every non-null value
+    in the column as a class label and would have fitted 11 and 12 as
+    classes no human made. `560a34a6b` filtered them where the labels are
+    read, so the fit is correct on its own and a dialog offering to
+    discard a review queue is a destructive prompt with nothing behind it.
+
+    Asserted against the function rather than the screen, because that is
+    where the property now lives: a column holding both must train on the
+    answers only.
+    """
+    from spacr.active_learning import _is_suggestion
+
+    assert _is_suggestion(1 + SUGGESTION_OFFSET) is True
+    assert _is_suggestion(2 + SUGGESTION_OFFSET) is True
+    assert _is_suggestion(1) is False
+    assert _is_suggestion(2) is False
+    assert _is_suggestion(None) is False
+
+
+def test_class_counts_reports_suggestions_apart_from_the_classes(
+        qtbot, qt_theme_applied, tmp_path: Path, monkeypatch):
+    """Excluded from the counts, but not silently dropped from the dialog.
+
+    `class_counts` filters suggestions out at the source now, which is
+    right -- they are not classes. Saying nothing at all about them would
+    answer "are my classes balanced" with a number that quietly ignores a
+    few thousand rows sitting in the same column, so they are reported
+    separately and labelled as not counted.
     """
     from PySide6.QtWidgets import QMessageBox
 
@@ -435,8 +459,11 @@ def test_retrain_asks_before_it_throws_a_review_queue_away(
     con = sqlite3.connect(db)
     con.execute('CREATE TABLE "png_list" (png_path TEXT PRIMARY KEY, '
                 'annotate INTEGER)')
-    con.executemany('INSERT INTO "png_list" VALUES (?,?)',
-                    [("/a.png", 1 + SUGGESTION_OFFSET), ("/b.png", 1)])
+    con.executemany(
+        'INSERT INTO "png_list" VALUES (?,?)',
+        [("/a.png", 1), ("/b.png", 2),
+         ("/c.png", 1 + SUGGESTION_OFFSET),
+         ("/d.png", 1 + SUGGESTION_OFFSET)])
     con.commit()
     con.close()
 
@@ -445,52 +472,16 @@ def test_retrain_asks_before_it_throws_a_review_queue_away(
     widget._settings.db_path = str(db)
     widget._settings.annotation_column = "annotate"
 
-    asked = []
-    monkeypatch.setattr(
-        QMessageBox, "question",
-        lambda *a, **k: asked.append(a) or QMessageBox.No)
-    assert widget._clear_suggestions_before_fitting("Retrain") is False, (
-        "declining must stop the fit, not proceed without the suggestions")
-    assert asked, "Retrain must ask before discarding a review queue"
-    assert _values(db)["/a.png"] == 1 + SUGGESTION_OFFSET, (
-        "a declined question must leave the suggestions where they were")
+    shown = []
+    monkeypatch.setattr(QMessageBox, "information",
+                        lambda parent, title, text, *a, **k: shown.append(text))
+    widget._on_class_counts()
 
-    asked.clear()
-    monkeypatch.setattr(
-        QMessageBox, "question",
-        lambda *a, **k: asked.append(a) or QMessageBox.Yes)
-    assert widget._clear_suggestions_before_fitting("Retrain") is True
-    after = _values(db)
-    assert after["/a.png"] is None, "agreeing must clear the suggestions"
-    assert after["/b.png"] == 1, "and must not touch the annotation"
-    _stop(widget)
-
-
-def test_nothing_outstanding_asks_nothing(qtbot, qt_theme_applied,
-                                          tmp_path: Path, monkeypatch):
-    """The common case must not grow a dialog."""
-    from PySide6.QtWidgets import QMessageBox
-
-    from spacr.qt.screens.annotate import AnnotateScreen
-
-    db = tmp_path / "m.db"
-    con = sqlite3.connect(db)
-    con.execute('CREATE TABLE "png_list" (png_path TEXT PRIMARY KEY, '
-                'annotate INTEGER)')
-    con.execute('INSERT INTO "png_list" VALUES (?,?)', ("/a.png", 1))
-    con.commit()
-    con.close()
-
-    widget = AnnotateScreen()
-    qtbot.addWidget(widget)
-    widget._settings.db_path = str(db)
-    widget._settings.annotation_column = "annotate"
-
-    asked = []
-    monkeypatch.setattr(QMessageBox, "question",
-                        lambda *a, **k: asked.append(a) or QMessageBox.Yes)
-    assert widget._clear_suggestions_before_fitting("Retrain") is True
-    assert not asked, "no suggestions outstanding must mean no question"
+    assert shown, "the dialog must open"
+    text = shown[0]
+    assert "2 suggested" in text, (
+        f"the dialog does not report the outstanding suggestions:\n{text}")
+    assert "not counted above" in text
     _stop(widget)
 
 
@@ -564,12 +555,7 @@ def test_class_counts_does_not_invent_classes_eleven_and_twelve(
 
     assert shown, "the dialog must open"
     text = shown[0]
-    body = text.split("Suggested")[0]
+    body = text.split("suggested")[0]
     assert "   11" not in body and "   12" not in body, (
         f"suggestions were counted as classes of their own:\n{text}")
-    assert "Suggested, not yet kept or thrown away:" in text, (
-        "the proposals must still be reported, apart from the answers")
-    # Folded back to the class they propose: two suggested 1s, one 2.
-    tail = text.split("Suggested, not yet kept or thrown away:")[1]
-    assert "1" in tail and "2" in tail
     _stop(widget)
