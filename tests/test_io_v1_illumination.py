@@ -504,13 +504,22 @@ def test_known_vignette_reaches_cellpose_and_recovers_the_dim_corner(
         def __init__(self, **kwargs):
             self.pretrained_model = kwargs.get("pretrained_model")
 
-        def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
-            # channel_axis is NAMED rather than swallowed, and its default
-            # is the MISSING sentinel rather than None: None is a LEGAL
-            # value meaning "auto-detect", so defaulting to it makes "the
-            # caller omitted it" and "the caller passed it" the same state,
-            # and the mock silently accepts the channel_axis=3 that broke
-            # every real run. check_cellpose_eval_call is what reads it.
+        # THE WHOLE SIGNATURE, and no **kwargs. A double that accepts
+        # everything cannot fail when spaCR passes an argument cellpose
+        # has removed -- it swallows it and the suite reports green
+        # against a call the real library would reject. channel_axis is
+        # the one sanctioned deviation: MISSING_CHANNEL_AXIS rather than
+        # None, because None is a legal value meaning auto-detect and so
+        # cannot say "the caller omitted it". The list is
+        # CELLPOSE_EVAL_PARAMETERS in tests/cellpose_api_contract.py.
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=None,
+                 compute_masks=True, progress=None):
             check_cellpose_eval_call(x, channel_axis)
             masks = []
             flows = []
