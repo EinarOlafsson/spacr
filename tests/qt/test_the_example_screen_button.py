@@ -151,4 +151,7 @@ class TestItFailsOutLoud:
         screen.load_the_example_screen(download=False)
 
         assert screen._example_data_button.isEnabled()
-        assert screen._example_data_button.text() == "Load the example screen…"
+        # RENAMED BY b110a1dfa to "Load test data…". A user with no data of
+        # their own was being offered "the example screen", which names a
+        # thing in the program rather than the thing they want.
+        assert screen._example_data_button.text() == "Load test data…"

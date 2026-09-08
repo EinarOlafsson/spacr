@@ -86,7 +86,14 @@ class TestItDoesNotDriftApart:
 
     def test_the_step_is_the_well_plus_the_spacing(self, screen):
         """Not the well plus whatever the layout had left over."""
-        from spacr.qt.screens.experiment_design import WELL_SIDE
+        # THE SIDE MOVED TO THE PICKER, AND THROUGH ITS ACCESSOR. In
+        # `plate_map_picker`, `WELL_SIDE` is the unscaled BASE; reading it raw
+        # is the defect that module records -- "THE GLYPHS GREW AND THE BOX
+        # DID NOT" -- because the font scale applies to the glyph and not to a
+        # hard-coded box. `well_side()` is the value the well actually has.
+        from spacr.qt.widgets.plate_map_picker import well_side
+
+        WELL_SIDE = well_side()
 
         dx, dy = _step(screen)
         assert dx == WELL_SIDE + screen._plate_grid.horizontalSpacing()
