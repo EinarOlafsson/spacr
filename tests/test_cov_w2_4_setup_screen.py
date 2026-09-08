@@ -147,7 +147,13 @@ def test_one_refused_answer_does_not_lose_the_others(monkeypatch):
     def refuse(_value):
         raise ValueError("not a mode")
 
-    monkeypatch.setattr(prefs, "set_spacr_mode", refuse)
+    # `set_performance_level`, NOT `set_spacr_mode`. The screen changed
+    # setters deliberately and says why in its own comment: spacr_mode folds
+    # five levels onto three postures, so writing through it cannot express
+    # either end of the scale. Patching the old name left the real setter in
+    # place, so `apply` raised the REAL validation error and the assertion
+    # compared it against the stub's message.
+    monkeypatch.setattr(prefs, "set_performance_level", refuse)
 
     trouble = setup_screen.apply({"spacr_mode": "nonsense",
                                   "hash_inputs": True})

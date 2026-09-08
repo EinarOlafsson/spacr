@@ -89,6 +89,17 @@ def stub_mahotas(monkeypatch):
     package.features = features
     monkeypatch.setitem(sys.modules, "mahotas", package)
     monkeypatch.setitem(sys.modules, "mahotas.features", features)
+    # AND CLEAR THE MEMO, or the stub is never consulted. The fixture above
+    # protects LATER tests from a True leaking out; it restores the cache to
+    # whatever it was on entry, which on a box without Mahotas is the False
+    # some earlier test already probed. `_zernike_is_available` short-
+    # circuits on that, so `zernike=None` resolves to False and the frames
+    # come back with no `zernike_*` columns however good the stub is.
+    #
+    # Order-dependent, and therefore intermittent: it passes when this file
+    # runs before anything that probes and fails when it runs after, which
+    # pytest-randomly decides afresh every run.
+    monkeypatch.setattr(measure, "_ZERNIKE_AVAILABLE", None)
     zernike_moments.calls = calls
     return zernike_moments
 

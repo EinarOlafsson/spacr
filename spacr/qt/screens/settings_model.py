@@ -4309,6 +4309,15 @@ def api_docs_url(
     if plugin_app is not None and plugin_app.docs_url:
         return plugin_app.docs_url
     anchor = ""
+    # A HAND-WRITTEN TARGET IS A DECISION, and the flow fallback below must
+    # not quietly overrule it. Each of these three was checked by a person:
+    # a batch-correction setting lands on the module that IMPLEMENTS the
+    # correction rather than on whichever app displays it. Those modules
+    # have no per-setting anchor, so without this flag the fallback saw
+    # "module, no anchor" and sent all seven batch settings to the flow
+    # page -- which `test_defaults_and_gui_categories_expose_batch
+    # _correction` caught within the hour.
+    chosen_by_hand = True
     if key.startswith("batch_") and key not in _BATCH_PREFIX_STRANGERS:
         module = "batch_correction"
     elif key in _EVALUATION_DOC_KEYS:
@@ -4316,6 +4325,7 @@ def api_docs_url(
     elif app_key == "umap" and key in _UMAP_SEARCH_DOC_KEYS:
         module = "hyperparam"
     else:
+        chosen_by_hand = False
         # Instruction 336. Before this, every row fell through to the SCREEN's
         # module, so a setting read twelve calls down still linked to the entry
         # point the reader was already looking at. The generated map says where
@@ -4329,7 +4339,8 @@ def api_docs_url(
         # THE TILE'S OWN LINK. Six tiles share three module pages; this sends
         # each to the entry point that answers for it. See `_APP_API_ANCHOR`.
         anchor = _module_level_anchor(app_key, module or "")
-    if module and not anchor and key and _has_a_flow_section(key):
+    if (module and not anchor and key and not chosen_by_hand
+            and _has_a_flow_section(key)):
         # A MODULE PAGE THAT MAY NOT MENTION THE SETTING. Instruction 383:
         # "i tested the API link for Magnefication and got a page with no
         # mention of magnefication". It was not a wrong module -- utils IS

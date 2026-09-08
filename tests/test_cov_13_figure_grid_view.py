@@ -60,7 +60,7 @@ def test_a_heading_still_gets_ink_when_the_palette_will_not_load(monkeypatch):
     style = fgv._heading_style()
 
     assert fgv._HEADING_FALLBACK in style
-    assert style.startswith(fgv.HEADING_STYLE)
+    assert style.startswith(fgv.heading_style())
 
 
 def test_a_heading_uses_the_live_accent_when_the_palette_is_there(qapp):

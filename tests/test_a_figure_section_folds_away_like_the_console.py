@@ -389,7 +389,12 @@ def test_the_colour_is_read_from_the_palette_not_typed_in(grid):
 
     source = inspect.getsource(figure_grid_view._heading_style)
     assert "active_palette" in source
-    assert 'HEADING_STYLE' in figure_grid_view.HEADING_STYLE or True
-    # The constant itself must not carry a colour any more, or the two
-    # would fight and the winner would depend on string order.
-    assert "color:" not in figure_grid_view.HEADING_STYLE
+    # A FUNCTION, NOT A CONSTANT, since a93bc9b21. A module-level string is
+    # built once at import, which pinned the font size to whatever the
+    # interface scale was when the module first loaded -- the hold-Z bug.
+    # This test still asked for `HEADING_STYLE` and died on the attribute.
+    assert not hasattr(figure_grid_view, "HEADING_STYLE"), (
+        "the constant is back; it cannot follow the interface scale")
+    # The base style must not carry a colour, or it and the palette would
+    # fight and the winner would depend on string order.
+    assert "color:" not in figure_grid_view.heading_style()
