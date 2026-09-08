@@ -384,3 +384,42 @@ BEFORE THE UPDATE, as it now stands: 288 (green CI, genuinely unmet), 05 and
 
 WHAT DOES NOT MOVE. Nothing in this note is evidence about 288, which is the
 one gate that was always measured rather than reported.
+
+--------------------------------------------------------------------------------
+2026-09-08 -- THE GENERATED ARTEFACTS, AND THE COMMAND THAT REGENERATES EACH
+--------------------------------------------------------------------------------
+
+Four generated files can go stale independently of the code they describe, and
+every one of them cost somebody a red test today. A test that only says "this
+drifted" is not enough: the reader still has to work out which command puts it
+right, and that is where the afternoon goes.
+
+BEFORE THE UPDATE, run these in this order and commit what they change:
+
+    tools/build_setting_consumer_map.py      spacr/qt/screens/setting_api_targets.py
+    tools/settings_flow.py --rst             docs/source/_generated/settings_flow.rst
+                                             spacr/qt/screens/settings_flow_index.py
+    tools/build_documentation_i18n.py        docs/source/_static/i18n/api/*.json
+    tools/build_instruction_index.py         instructions/00_INDEX.txt
+
+`settings_flow.py --rst` writes TWO files and they must be written together.
+The index is a frozenset of the keys the page drew a section for, counted from
+the page in the same run, and 185 of the settings panel's API links now aim at
+those anchors. An index that names a section the page does not carry sends the
+reader to a fragment the browser ignores in silence -- 383's item 3, which was
+closed for the API links and could be reintroduced here by regenerating one of
+the pair alone. Nothing else in the tree calls `rst_for`, so the only way to
+break it is by hand.
+
+`settings_flow_index.py` is in the PACKAGE rather than in docs/, because the
+settings panel imports it at runtime. It ships in the wheel; the RST does not.
+
+THE CONSUMER MAP AND THE FLOW PAGE READ THE SAME ANALYSIS but are written by
+different programs, so a package change that moves a setting's reader can leave
+them disagreeing. Neither has a test that compares them to each other. Running
+both, in the order above, is what keeps that from mattering.
+
+WHY THIS IS A CHECKLIST LINE AND NOT A TEST. Suggested by the other session
+against the pattern that has worked all day: a named command in the before-list
+tells the reader what to do, where a test tells them only that something is
+wrong. Both exist for the catalogs and it is the checklist line that gets used.
