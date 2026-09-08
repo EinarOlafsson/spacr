@@ -35,8 +35,12 @@ PANELS: Tuple[Tuple[str, str, str], ...] = (
 # an ERROR, not a warning -- "1 argument(s) required, 0 supplied" -- and
 # `sphinx-build -W` fails on it.
 #
-# The closing paragraph is what ends the section. `parent` is documented on
-# ``__init__``, which is where it is taken, rather than a second time here.
+# A CLOSING PARAGRAPH IS NOT ENOUGH -- that was tried and the ERROR
+# survived it. The two docstrings have to agree on a STYLE: Napoleon reads
+# the concatenation as one docstring, and a Sphinx `:param:` field arriving
+# after a NumPy ``Attributes`` run is what it cannot place. ``__init__``
+# below is NumPy-sectioned for that reason, so the merged text is two
+# well-formed sections rather than one section and a field list.
 class TrainingMonitor(QWidget):
     """Display training metrics as incrementally updated curves.
 
@@ -56,7 +60,10 @@ class TrainingMonitor(QWidget):
     def __init__(self, parent: Optional[QWidget] = None):
         """Build the panel that follows a training run's losses and metrics.
 
-        :param parent: parent widget, or ``None``.
+        Parameters
+        ----------
+        parent : QWidget, optional
+            Parent widget, or ``None``.
         """
         super().__init__(parent)
         layout = QVBoxLayout(self)

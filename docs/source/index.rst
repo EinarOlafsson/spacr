@@ -124,6 +124,7 @@ Contents
    installers
    features
    python_api
+   settings_flow
    model_zoo
    Language <localization>
    setting_animations
