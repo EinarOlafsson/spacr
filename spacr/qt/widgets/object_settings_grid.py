@@ -552,6 +552,15 @@ class ObjectSettingsGrid(QWidget):
 
         self._sync_help_height()
         self._write_help("")
+        # THE BAND IS RE-RESERVED THROUGH `eventFilter`, not a `changeEvent`
+        # override. The font scale is a preference the user can move while a
+        # panel is open, and a band sized once at construction would keep the
+        # old height and clip its last lines -- but a new public override is
+        # a new symbol in the API surface, which is mirrored symbol-for-symbol
+        # into nine locales' catalogs and cannot be translated from here.
+        # This class already has an `eventFilter`; filtering itself costs no
+        # new surface.
+        self.installEventFilter(self)
 
     # -- the help band -----------------------------------------------------
 
@@ -579,22 +588,6 @@ class ObjectSettingsGrid(QWidget):
         self._help.ensurePolished()
         self._help.setFixedHeight(
             self._help.fontMetrics().lineSpacing() * self.HELP_LINES)
-
-    def changeEvent(self, event):                            # noqa: N802
-        """Re-reserve the band when the painted font changes.
-
-        :param event: the Qt change event.
-
-        The font scale is a preference the user can move while a panel is
-        open, and a band sized once at construction would keep the old
-        height and clip its third line.
-        """
-        try:
-            if event.type() == QEvent.Type.FontChange:
-                self._sync_help_height()
-        except Exception:                                    # noqa: BLE001
-            LOG.debug("the help band could not be resized", exc_info=True)
-        return super().changeEvent(event)
 
     def set_app_key(self, app_key: str) -> None:
         """Say which module's API documentation the tooltips should link to."""
@@ -631,6 +624,10 @@ class ObjectSettingsGrid(QWidget):
         """
         try:
             kind = event.type()
+            if watched is self:
+                if kind == QEvent.Type.FontChange:
+                    self._sync_help_height()
+                return super().eventFilter(watched, event)
             if kind == QEvent.Type.ToolTip:
                 return True
             if kind == QEvent.Type.MouseMove:

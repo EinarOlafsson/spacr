@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-355 done / 25 open (93%).
+355 done / 26 open (93%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -109,6 +109,9 @@ OPEN
 
   382  A CHANNEL REVEALS ITS OBJECT'S SETTINGS, AND "ALL SETTINGS" STILL DOES NOT
        382_a_channel_reveals_its_settings_without_unhiding_them_all.txt
+
+  383  A SETTING'S API LINK LANDS ON THAT SETTING, IN THE MODULE THE USER IS IN
+       383_a_settings_api_link_lands_on_the_setting.txt
 
 --------------------------------------------------------------------------------
 DONE
