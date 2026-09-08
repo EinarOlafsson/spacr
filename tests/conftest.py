@@ -575,6 +575,15 @@ def _isolated_dot_spacr_store(monkeypatch):
     except Exception:                                            # noqa: BLE001
         pass
     else:
+        # The real resolver is kept reachable under a name of its own.
+        # Replacing the module attribute is what makes the sandbox work,
+        # and it also makes the three lines of `runs_root` itself
+        # unreachable from any test -- including the one whose whole
+        # subject is that a first-ever launch CREATES the directory rather
+        # than assuming it. A stash is more honest than that test undoing
+        # the sandbox wholesale.
+        monkeypatch.setattr(run_journal, "unsandboxed_runs_root",
+                            run_journal.runs_root, raising=False)
         monkeypatch.setattr(run_journal, "runs_root", lambda: root,
                             raising=False)
     try:

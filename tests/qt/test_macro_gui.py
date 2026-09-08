@@ -67,6 +67,12 @@ def demo_defaults(settings=None):
 DEMO_KEY = "macro_gui_demo"
 
 
+def _made(path):
+    """Create ``path`` and return it, matching `runs_root`'s own contract."""
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 @pytest.fixture
 def gui_demo(tmp_path, monkeypatch):
     """A registered pipeline app whose entry point is a real, cheap function.
@@ -85,6 +91,21 @@ def gui_demo(tmp_path, monkeypatch):
     home.mkdir()
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.setenv("USERPROFILE", str(home))
+    # AND THE RESOLVER, because setting HOME is not what moves the journal.
+    # The root conftest's `_isolated_dot_spacr_store` deliberately redirects
+    # `run_journal.runs_root` itself rather than moving HOME -- moving HOME
+    # for the session moves conda's, matplotlib's and Qt's caches with it --
+    # so a fixture that only sets the variable writes its runs into the
+    # shared sandbox and then looks for them under its own tmp_path. That
+    # is the whole of this file's three failures: the run really did
+    # execute, the journal really was written, and `newest_run_dir` was
+    # reading an empty directory somewhere else. Patching the resolver here
+    # wins because monkeypatch is LIFO, which is the mechanism that
+    # fixture's docstring points at.
+    from spacr import run_journal
+    monkeypatch.setattr(run_journal, "runs_root",
+                        lambda: _made(home / ".spacr" / "runs"),
+                        raising=False)
     monkeypatch.setenv(macro.MACRO_DIR_ENV, str(tmp_path / "macros"))
     monkeypatch.setenv("SPACR_LOG_DIR", str(tmp_path / "logs"))
 
