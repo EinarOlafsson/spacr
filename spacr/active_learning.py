@@ -3047,9 +3047,44 @@ def _build_round_model(model_type: str, seed: int, n_classes: int):
     if name in ("gradient_boosting", "hist_gradient_boosting", "gb"):
         from sklearn.ensemble import HistGradientBoostingClassifier
         return HistGradientBoostingClassifier(random_state=seed)
+    if name in ("xgboost", "xgb"):
+        # OFFERED, NOT DEFAULTED, and it is an OPTIONAL dependency.
+        #
+        # The Suggest request named XGBoost, and `gradient_boosting` above
+        # is sklearn's implementation of the same gradient-boosted-trees
+        # method -- already installed, already understood by the round
+        # machinery. The maintainer asked for both: this one for anyone who
+        # wants XGBoost's own implementation or its hyperparameters, that
+        # one so the path still runs on a machine that has not installed a
+        # second boosting library.
+        #
+        # THE REFUSAL NAMES THE ALTERNATIVE, because "no module named
+        # xgboost" from inside a retrain round tells a user nothing about
+        # what to do next, and the honest answer is that they already have
+        # a gradient booster.
+        try:
+            from xgboost import XGBClassifier
+        except ImportError as exc:
+            raise ValueError(
+                "model_type 'xgboost' needs the xgboost package, which "
+                "spaCR does not install: `pip install xgboost`. The same "
+                "algorithm is available now as "
+                "model_type='gradient_boosting', which is scikit-learn's "
+                "HistGradientBoostingClassifier and needs nothing extra."
+            ) from exc
+        return XGBClassifier(
+            random_state=seed,
+            # The round encodes classes to 0..n-1 before fitting, so the
+            # objective follows the class count rather than being guessed.
+            objective=("binary:logistic" if n_classes <= 2
+                       else "multi:softprob"),
+            eval_metric="logloss",
+            # NOT `use_label_encoder`, which xgboost removed; passing it
+            # warns on 1.x and raises on 2.x.
+        )
     raise ValueError(
         f"Unknown model_type {model_type!r}; use 'logistic_regression', "
-        f"'random_forest' or 'gradient_boosting'.")
+        f"'random_forest', 'gradient_boosting' or 'xgboost'.")
 
 
 def _predict_proba(model: Any, x: np.ndarray, n_classes: int) -> np.ndarray:

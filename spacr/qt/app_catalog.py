@@ -326,7 +326,7 @@ DECLARED_APPS = (
             "Evaluate how a fitted model's prediction changes across one "
             'input variable'
         ),
-        section='Core',
+        section='Tools',
         factory='make_profiler_screen',
         stage='alpha',
         title='Prediction Profiler',
@@ -654,7 +654,7 @@ DECLARED_APPS = (
             'Link a regression hit to cross-fitted candidate cells and '
             'well-level quantitative evidence'
         ),
-        section='Core',
+        section='Tools',
         factory='_make_screen',
         stage='alpha',
         title='Investigate Hit',

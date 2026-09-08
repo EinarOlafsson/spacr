@@ -6838,6 +6838,37 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('rescale', False)
     settings.setdefault('resample', False)
     settings.setdefault('fill_in', True)
+    # THE SEVEN THIS MODULE READS AND DID NOT DECLARE, added 2026-09-08.
+    #
+    # `analyze_plaques` hands its dict to
+    # `spacr.spacr_cellpose.identify_masks_finetune`, which reads 24 keys.
+    # Seven were declared by neither this factory nor `analyze_plaques`,
+    # and `settings['normalize']` is read unconditionally inside the
+    # per-batch loop -- so `masks=True`, THE DEFAULT, raised
+    # `KeyError: 'normalize'` on the first image. The module could not run
+    # from its own settings.
+    #
+    # Nothing caught it because the only test driving `analyze_plaques`
+    # passes `masks=False`, which skips the mask step: the covered path was
+    # the one the user does not take.
+    #
+    # THE VALUES ARE `get_identify_masks_finetune_default_settings`'s,
+    # unchanged -- that factory feeds the same function and is where this
+    # contract is already written down. Declared here rather than injected
+    # in `analyze_plaques` because the settings panel is built from this
+    # factory, and `normalize`, `percentiles`, `invert` and
+    # `remove_background` all change results: they should be visible and
+    # editable, not hidden defaults.
+    settings.setdefault('normalize', True)
+    settings.setdefault('channels', [0, 0])
+    settings.setdefault('percentiles', None)
+    settings.setdefault('invert', False)
+    settings.setdefault('grayscale', True)
+    settings.setdefault('remove_background', False)
+    # Only read on the branch where `custom_model` is None, which
+    # `analyze_plaques` never takes -- declared so the contract is complete
+    # rather than complete by luck.
+    settings.setdefault('model_name', 'cpsam')
     return settings
 
 def set_graph_importance_defaults(settings):
