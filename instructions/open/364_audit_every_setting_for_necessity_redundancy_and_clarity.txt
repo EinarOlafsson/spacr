@@ -1044,3 +1044,55 @@ WHAT IS LEFT ON 364 AFTER THIS: the organelle preprocessing gap, and
 train_test_model (50), activation (27), identify_masks_finetune (23) and the
 rest of this file's own order. `identify_masks_finetune`'s own settings are
 now worth auditing FIRST of those, given what its caller turned up.
+
+--------------------------------------------------------------------------------
+2026-09-08 — GENERALISING THE PLAQUE FINDING, AND WHY THE RESULT IS NOT FILED
+--------------------------------------------------------------------------------
+
+The plaque finding was "can this module run from its own declared settings",
+answered by hand. That question applies to every module, so it was worth
+trying to ask it mechanically: parse each entry point and the functions it
+hands `settings` to, collect every `settings['key']` LOAD, subtract the keys
+the entry itself assigns, and subtract what `resolve_default_settings`
+declares.
+
+  THE HARNESS IS NOT TRUSTWORTHY YET AND ITS OUTPUT IS THEREFORE NOT A LIST
+  OF DEFECTS. It fails its own control case: `analyze_plaques`, the module
+  the question came from and whose seven missing keys are verified by hand
+  and by control flow, does NOT appear in its output. The callee resolution
+  still does not reach `identify_masks_finetune` through the function-local
+  `from .spacr_cellpose import ...`.
+
+  A tool that cannot reproduce the finding it was built from cannot be used
+  to find new ones. Same rule that retired the "333 of 333 tiles placed"
+  stitch result in 372 PART 6-A: a number that looks like success while the
+  control says otherwise is not a result.
+
+WHAT IT DID PRINT, recorded as CANDIDATES FOR A HUMAN TO CHECK and explicitly
+not as findings. Three rounds of correction were needed to get even this far
+-- `inspect.cleandoc` on source rather than `textwrap.dedent`, counting
+`ast.Store` subscripts as reads, and a wrong factory-function name that made
+everything come back clean -- so treat each of these as "worth ten minutes",
+nothing more:
+
+    classify        extract_channels
+    endodyogeny     20 keys, including cell_types, um_per_px, treatments
+    mask            timelapse
+    simulation      max_workers
+    train_cellpose  src
+    train_only      24 keys, including epochs, learning_rate, batch_size
+    umap            col_to_compare, mix, neg, pos
+
+  `train_only` and `endodyogeny` are the two worth looking at first, on
+  volume alone: a module reading two dozen keys its factory does not declare
+  is either delegating to something with its own settings contract -- which
+  is fine and is probably what both are doing -- or is the plaque bug again.
+  Deciding which needs someone to read them, which is the part a parser
+  cannot do.
+
+  `mask`'s `timelapse` is the cheapest to check and the most alarming if
+  real: mask is the first module in the pipeline.
+
+THE PLAQUE FINDING ITSELF IS UNAFFECTED and stands on its own evidence:
+`resolve_default_settings('analyze_plaques')` returns 22 keys, none of them
+the seven, checked again today.
