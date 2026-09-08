@@ -2511,3 +2511,39 @@ THE SECOND ORDER-DEPENDENT PAIR, handed over rather than fixed:
   mutation is reverted correctly and something DERIVED from it is cached. The
   question to ask is not "did I restore it" but "did anything read it while it
   was wrong, and keep the answer".
+
+--------------------------------------------------------------------------------
+2026-09-08 — AND A SECOND CLAUSE: DERIVED STATE OUTLIVES THE PATCH THAT MADE IT
+--------------------------------------------------------------------------------
+
+The rule above says a test that changes a global owns putting it back. The home
+session found the case it does NOT cover, and the remedy is different enough
+that it belongs beside rather than inside it.
+
+    tests/qt/test_scrim_solver.py + test_settings_column_never_black.py
+    -> 24 failures, each file green alone
+
+`test_scrim_solver` only uses `monkeypatch`, and pytest reverts every one of
+those correctly. The mutation WAS put back. What was not put back is whatever
+READ it while it was wrong and kept the answer -- a stylesheet computed under
+a fake theme, a memoised palette, a cached layout.
+
+  FIRST CLAUSE   did I restore what I changed?          remedy: a `finally`
+  SECOND CLAUSE  did anything read it while it was      remedy: recompute or
+                 wrong, and keep what it derived?               invalidate
+
+A perfectly disciplined monkeypatch satisfies the first and can still fail the
+second, which is why five clean instances of the first rule did not prevent
+this one.
+
+NOT REPRODUCIBLE ON THE WORK MACHINE, and that is recorded rather than
+resolved: 61 passed at HEAD, at 05647692e^ and at fe50ff096. It is the sixth
+machine-specific divergence this week, after the licence table (invisible under
+old setuptools), the force-quit symptom (invisible offscreen), the ambient leak
+(invisible until written to a real QSettings), the foreign path (visible ONLY
+on the machine that has the data), and PySide6.QtPdf (unimportable on the home
+box, fine here). Work machine: PySide6/Qt 6.11.1, Python 3.13.14, pytest 9.1.1.
+
+THE STANDING LESSON, which is now earned six times over: a green result from
+one machine is evidence about that machine. Neither session should close an
+item on the other's inability to reproduce it, in either direction.
