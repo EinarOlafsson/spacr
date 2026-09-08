@@ -1155,3 +1155,62 @@ the hash was left behind. All nine name that clause; the Korean says it
 outright. Rebound rather than retranslated.
 
 97 dock and module-help tests pass with the property set.
+
+--------------------------------------------------------------------------------
+2026-09-08 — CLOSED, EXCEPT FOR 384. WHAT WAS ACTUALLY WRONG.
+--------------------------------------------------------------------------------
+
+All nine RUNTIME catalogs build EXIT=0 with no QA-gate complaints, for the
+first time. The API catalogs are current. 956 i18n tests pass. The one thing
+left is the API prose backlog, split into 384 with its measurement.
+
+WHAT WAS FIXED, 130 reviewed records and three English corrections:
+
+  runtime records   es 22, sv 2, pt 12, zh_CN 27, hi 17, ko 23, is 29, fr 6
+  API blocks        12, across all nine locales
+  English fixes     `dog`, the four LoG suffixes, and the three logarithm
+                    labels -- 149 label instances in one change
+
+THE FINDING THAT MATTERS MORE THAN THE COUNT. This instruction was filed on
+the belief that the catalogs were complete and not correct. That was right,
+and it understated the problem in a way worth recording precisely:
+
+    A CATALOG GATE CAN ONLY SEE A TRANSLATION THAT IS EXACTLY ITS ENGLISH
+    SOURCE. A fluent sentence with one wrong word in it reads as done.
+
+`FeaturePicker.invert` -- "Tick what was unticked and untick what was
+ticked" -- was mistranslated in SEVEN locales. French rendered "unticked" as
+*piétiné*, trampled. Chinese as 点燃, ignited. Swedish and Icelandic came
+back half-English. The gate caught TWO of the nine: German and Korean, the
+two left as literal English. The five worst were invisible.
+
+Eleven Spanish organelle tooltips said *orgÃ¡ngel* (angel) and
+*orgÃ¡ngeles* (Los Angeles) where *orgánulo* belongs, and also rendered
+"Drops organelle objects" as "Gotas orgánulos" -- droplets. Nothing failed.
+
+THE THREE SENSES OF ONE ENGLISH WORD, which is the transferable lesson:
+
+    dog          the animal        -> DoG, Difference of Gaussians
+    log_*_sigma  the logbook       -> LoG, Laplacian of Gaussians
+    log_x        the logbook       -> the ordinary logarithm
+
+The translators were not wrong about the words they were given. The words
+were wrong. `setting_label` derives labels from keys, so it handed the model
+"Dog sigma high" and the model did the obvious thing -- Hundesigma in
+German, 강아지 (puppy) in Korean, 狗 in Chinese, Chien in French. Fixing the
+ENGLISH fixed 149 label instances across nine locales at once, and made the
+English more accurate. Prefer that to writing 149 records whenever the
+source is the ambiguity.
+
+HOW THE INVISIBLE ONES WERE FOUND: not by a gate.
+`tools/rank_translation_suspects.py`, written by the work session from four
+defects the home session found by READING Spanish, then extended with an
+acronym severity and a per-locale approved-target exception. It ranks; it
+does not judge, and it should never be promoted to a gate. It found 18 more
+in Portuguese and French that reading would not have reached before the
+release. The ranker now reports ZERO wrong-cognate hits in all nine locales.
+
+WHAT REMAINS TRUE, and belongs in any claim spaCR makes: the nine
+non-English catalogs are machine-drafted and technically reviewed. Six of
+nine locales have never had a fluent reader. The README's qualified wording
+is what makes the claim honest, and 384 is the measured size of the gap.
