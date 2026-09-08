@@ -974,3 +974,43 @@ does not happen.
 RECORDED BECAUSE THE OPPOSITE MISTAKE IS EASY. A stale open finding costs a
 session; a closed one that quietly came back costs a release. If the caption
 test reports clipping again, this pair is the first thing to re-run.
+
+--------------------------------------------------------------------------------
+2026-09-08 -- A GUARD FOR THE SPHINX BREAK WAS WRITTEN AND THEN DELETED
+--------------------------------------------------------------------------------
+
+`sphinx-build -W` was failing on six warnings-as-errors, four of them one
+cause: a public class docstring that ENDS on a Napoleon section, concatenated
+with its `__init__` docstring by `class_content='both'`, so the section
+swallows __init__'s opening prose. Fixed in five classes.
+
+THE OBVIOUS NEXT MOVE WAS A TEST, and it does not work. The rule needs to know
+whether a Napoleon section was terminated by a closing paragraph, and after
+`ast.get_docstring` dedents, a NumPy parameter NAME sits at column 0 exactly
+like a paragraph does:
+
+    Parameters
+    ----------
+    parent : QWidget, optional        <- column 0, and not a paragraph
+        Parent widget.
+
+The first draft used "an unindented line after the section body means the
+section ended" and reported 0 at-risk classes across the package -- for the
+wrong reason. Every class with a section has an unindented parameter name, so
+every one looked terminated. A self-test asserting the detector could find a
+KNOWN offender is what caught it; without that the file would have been
+committed green and believed.
+
+WHY IT WAS DELETED RATHER THAN REPAIRED. Getting it right means implementing
+Napoleon's section grammar, or importing Napoleon -- and sphinx is installed
+only in the docs job, not in the test lanes, so a test that imports it fails
+everywhere it would run. The honest guard for this class of fault is the docs
+job itself, which already runs `sphinx-build -W` on every push. A weaker local
+copy of a check that already exists would be the "artefact still looks like it
+is doing its job" defect this instruction keeps meeting, written deliberately.
+
+WHAT TO DO INSTEAD: run the docs workflow's own command before a release.
+`sphinx-build -W -E -b html --keep-going docs/source docs/_build/html`, with
+`pip install sphinx furo sphinx-design sphinx-autoapi`. Nothing in the test
+suite renders a docstring, so this is the only place these are visible -- five
+classes had been failing the docs build with the suite fully green.
