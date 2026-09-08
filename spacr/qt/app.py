@@ -5035,12 +5035,21 @@ class MainWindow(QMainWindow):
             return
         own = getattr(screen, "_ambient", None)
         if own is None:
-            # The window HAS a backdrop and the screen has none of its own,
-            # which is the state this method exists to produce. Recording it
-            # is what keeps the screen from painting over the window, and it
-            # matters most on the second visit to a cached screen, when the
-            # widget was already retired on the first.
-            screen._uses_window_backdrop = True
+            # LEFT ALONE, DELIBERATELY, AND IT WAS BRIEFLY NOT.
+            #
+            # For one day this branch set `_uses_window_backdrop = True` on
+            # the reasoning that a screen with no backdrop of its own must
+            # be deferring to the window's. That is false for the screen
+            # this matters most on: HomePage never builds one, so it had
+            # never deferred to anything -- it painted its page colour as
+            # the FLOOR beneath the window's animation. Setting the flag
+            # took that floor away, `page_fill` returned None, the page
+            # painted nothing, and `bg` showed through: a pure black home
+            # screen with the blobs theme on, reported within hours.
+            #
+            # The flag means "this screen gave its backdrop up", which only
+            # the code below can know. A screen that never had one is not
+            # in that state and must keep painting its page.
             return
         # RECORDED BEFORE THE WIDGET GOES. `page_fill` returns a flat colour
         # whenever `_ambient` is None, so a screen that merely lost its own
