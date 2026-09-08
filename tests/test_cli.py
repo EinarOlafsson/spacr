@@ -1117,10 +1117,34 @@ def test_noshow_survives_a_matplotlib_that_raises(monkeypatch):
 
 
 def test_setup_logging_replaces_its_handler():
-    """Called twice, the CLI logger keeps exactly one handler, not two."""
-    cli.setup_logging(False)
-    cli.setup_logging(True)
-    assert len(cli.LOG.handlers) == 1
+    """Called twice, the CLI logger keeps exactly one handler, not two.
+
+    AND PUTS THE LOGGER BACK, which it did not until 2026-09-07.
+    `cli.setup_logging` is right to set `propagate = False` and install its
+    own stdout handler -- a batch run must not print every line twice -- but
+    that is a PROCESS-GLOBAL, PERMANENT change, and this test made it on
+    behalf of the whole session.
+
+    What it cost was invisible here and showed up elsewhere: with propagation
+    off, `caplog` attaches at the root and never sees a `spacr.cli` record
+    again, so `test_cov_8_cli_registry` reported an empty `caplog.text` for a
+    message the code emits correctly and prints to stderr. That file passes
+    alone and failed in a full run, which is the signature of exactly this.
+
+    Same shape as the QSettings value another session left switched off: a
+    global mutated for one assertion and never restored.
+    """
+    before_handlers = list(cli.LOG.handlers)
+    before_propagate = cli.LOG.propagate
+    before_level = cli.LOG.level
+    try:
+        cli.setup_logging(False)
+        cli.setup_logging(True)
+        assert len(cli.LOG.handlers) == 1
+    finally:
+        cli.LOG.handlers[:] = before_handlers
+        cli.LOG.propagate = before_propagate
+        cli.LOG.setLevel(before_level)
 
 
 def test_run_with_an_unknown_module_exits_2(capsys, fake_settings):
