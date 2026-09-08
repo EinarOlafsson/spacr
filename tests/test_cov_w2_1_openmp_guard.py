@@ -10,6 +10,10 @@ from __future__ import annotations
 
 import ctypes
 
+import types
+
+import os
+
 import pytest
 
 from spacr import openmp_guard
@@ -90,7 +94,24 @@ def test_a_path_that_cannot_be_resolved_is_still_reported(monkeypatch,
     def _no_realpath(path):
         raise OSError("too many levels of symbolic links")
 
-    monkeypatch.setattr(openmp_guard.os.path, "realpath", _no_realpath)
+    # PATCHED FOR THIS MODULE ONLY, not for the process. `openmp_guard.os` IS
+    # the `os` module, so `setattr(openmp_guard.os.path, "realpath", ...)`
+    # broke `os.path.realpath` for EVERYTHING -- including `Path.resolve()`,
+    # which conftest's QSettings sandbox calls at teardown to check that no
+    # settings file escaped. Resolution raised there, every probe path was
+    # read as outside the sandbox, and this test ended in
+    # "QSettings escaped the test sandbox" naming files that were sitting
+    # inside it.
+    #
+    # A stand-in namespace keeps the blast radius to the module under test.
+    # It carries `basename` and `environ` unchanged because openmp_guard uses
+    # exactly those three names and nothing else.
+    stub_os = types.SimpleNamespace(
+        environ=os.environ,
+        path=types.SimpleNamespace(realpath=_no_realpath,
+                                   basename=os.path.basename),
+    )
+    monkeypatch.setattr(openmp_guard, "os", stub_os)
 
     assert openmp_guard.resident_openmp_runtimes() == [str(lib)]
 
@@ -123,4 +144,9 @@ def test_a_runtime_that_will_not_restore_does_not_end_the_run(monkeypatch):
         assert handle.set_to == [1, 1]
 
     assert handle.set_to == [1, 1, 8, 8]
-    assert region._restore == []
+    # `_restore` BECAME `_restore_stack` when the region learned to nest:
+    # each `__enter__` pushes its own restore list and each `__exit__`
+    # pops one, so a nested region cannot put back the outer region's
+    # limits. What this line has always checked is that leaving the
+    # region leaves nothing owed, and an empty stack is that.
+    assert region._restore_stack == []
