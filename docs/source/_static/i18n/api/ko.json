@@ -1043,14 +1043,14 @@
         "1b486d3a4c910476ccd6019484ffc518ebe0c16b68898be826065ce8b85567d3",
         "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
         "488476fef8c32f48d6da972c88ba2407d781f33f82b2eff7a0293fdde8b8b1bc",
-        "9db3ba2cc5ac44be6719a0c69f68d26ff8e5dcb4d62386a50612ec32a7f69257",
+        "f0cab7016b82f135f00ecccf6e689b8aaeea59a898f0b4c8f9d35528b2902863",
         "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
         "0f8b5449207ede67d8d635d7a2dc25814749568a5920ad12cfe2bafb5f11a3a2",
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
         "e81a972375dcdcd1792d841ea9b300320ea0c6d907ebed3bc6823d61e0dcfde6"
       ],
-      "source_sha256": "f923cc22aa03f043e61f6fe3e96b877d0b7dff37da8530e120bb7d19783fef7f",
-      "text": "지금까지 라벨에 모델을 맞추고, 추출 된 모든 이미지 지역을 점수하고, 구멍을 닫습니다.\n\n이것은 적극적인 학습의 절반이 사라졌습니다 : 메모 작업 목록은 메모가없는 메모는 활성 학습이 아닙니다 - 그것은 똑똑한 순서로 일반적인 메모이며, 순서가 처음 몇 십 개의 라벨 후에 멈추고 있기 때문에 그것은 여전히 그들 중 하나를 보지 못한 모델을 반영합니다.\n\n한 번의 호출은 루프가 필요로하는 다섯 가지를 만듭니다 :\n\n1. 각 레이블에 모델을 ``annotation_column``로 맞추고; 2. **grouped** held-out 분할에 점수, 그래서 숫자는 하나의 마이크로 플레이트 샘플 위치에서 온 190 라벨의 유물이 아닙니다; 3. 클래스 당 확률을 ``png_list``으로 :data:`ROUND_PRED_PREFIX` 열로 다시 작성합니다., :func:`build_queue`이 ``pred``보다 더 오래된 것을 선호한다. — 그래서 다음 작업 목록은 진정으로 다시 배열됩니다; 4. 라운드를 기록하고 :func:`learning_curve` 다른 포인트를 제공합니다; 5. 지금까지 곡선에 :class:`StoppingVerdict`을 반환합니다.\n\n:param db_path: 길을 ``measurements.db``로 이동합니다.\n:param annotation_column: 라벨을 붙잡는 열.\n:param features: 특징 매트릭스는 추출-사진-구역 구조 데이터 이름에 의해 인덱스됩니다.그것은 :func:`round_features`로 측정 테이블에서 읽을 수 없습니다.\n:param model_type: ``'logistic_regression'`` (기본 - 그것은 20 라벨에서 행동하는 것입니다), ``'random_forest'`` 또는 ``'gradient_boosting'``.\n:param group_by: ``'well'`` (기본), ``'plate'``, ``'field'`` 또는 ``'none'``. 무언가를 공유하기를 거부합니다. 정확하게 일치하고 낮은 경우에; 다른 모든 것이 오류를 생성하는 방법에 알려지지 않은 ``diversity=`` :func:`build_queue`. 전략이 ``'none'``, 또는 추출 이미지-지역 테이블이 필요로하는 열 중 하나가 없을 때, 분할은 분열 된 우연한 하나이며 ``split_rule``는 ``NOT grouped``라고 말합니다. - 그것은 결코 그룹화를 주장하지 않습니다.\n:param holdout: 부분이 꺼져 나온다.\n:param seed: 그것은 분열과 적합성을 재생할 수 있게 만듭니다.\n:param min_labels: 이 많은 라벨 아래에 맞는 것을 거부합니다.\n:param round_index: 라운드 번호를 초과하십시오; :func:`next_round`로 지정됩니다.\n:param table: 사진 - 지역 테이블\n:param key: extracted-image-region 식별자 열.\n:param image_type: 추출-사진-구역 키에 필터를 삽입합니다.\n:param write_scores: 새로운 확률을 데이터베이스에 다시 입력합니다.\n:param save_model: joblib-dump 데이터베이스 옆에 붙어있는 모델.\n:param model_dir: 어디에 넣을 수 있습니까; ``<db dir>/active_learning``로 지정됩니다.\n:param write_card: 저장된 모델 옆에 모델 카드를 작성합니다.\n:param label_window: 그것은 :func:`should_stop`로 옮겨졌습니다.\n:param min_gain: 그것은 :func:`should_stop`로 옮겨졌습니다.\n:param measure: 라운드와 함께 기록, 다음 작업 목록을 위해.\n:param diversity: 마찬가지로\n:param balance: ``'none'`` (기본)는 추정치 자체의 ``class_weight='balanced'``에 불균형을 남기고; ``'downsample'``는 각 클래스를 그룹 분할 전에 가장 작은 크기로 줄입니다.\n\n    두 가지가 동일한 반응이 아닙니다.중량과 낮은 샘플링은 같은 추출 된 이미지 영역에서 다른 확률을 생성하고, :func:`spacr.suggest.suggest_from_scores` 그 확률에 대한 종류 - 그래서 ``notes`` 및 모델 카드에 유효한 라운드 기록.\n:param synthetic_negatives: 녹음되지 않은 얼마나 많은 추출 된 이미지 영역은 ABSENT 클래스로 우연히 인쇄하고 적합한 경우 단 하나의 클래스가 기록되었는지. ``None`` (기본) 대신, 이전과 같이 거부합니다.\n\n    이것은 의도적 인 것이고, 라운드는 그렇게 말합니다. 우연한 점수는 대부분 부정적이지 않으므로 반환되는 것은 판결이 아닌 순위입니다. 숫자는 모델 카드에 도달합니다, 왜냐하면 부정적인 것을 말하지 않는 카드는 존재하지 않는 모델을 설명하기 때문입니다. 바이너리 클래스 1 및 2에만 정의 - :func:`_absent_binary_class`을 참조하십시오.\n:returns: a :class:`RoundResult`.\n:raises ValueError: 아래 ``min_labels`` 라벨, 2 개 이상의 클래스가 기록되어있다 - 아무것도 자신감 보이는 순위를 생성하는 모델과 함께 서류 할 것이 없습니다 - 또는 인식되지 않은 ``group_by``을 위해.",
+      "source_sha256": "3a97f6d9a84d0f7a82607a3cd59877cf92c18f791befbb7b0b5f4625877f41cd",
+      "text": "지금까지 라벨에 모델을 맞추고, 추출 된 모든 이미지 지역을 점수하고, 구멍을 닫습니다.\n\n이것은 적극적인 학습의 절반이 사라졌습니다 : 메모 작업 목록은 메모가없는 메모는 활성 학습이 아닙니다 - 그것은 똑똑한 순서로 일반적인 메모이며, 순서가 처음 몇 십 개의 라벨 후에 멈추고 있기 때문에 그것은 여전히 그들 중 하나를 보지 못한 모델을 반영합니다.\n\n한 번의 호출은 루프가 필요로하는 다섯 가지를 만듭니다 :\n\n1. 각 레이블에 모델을 ``annotation_column``로 맞추고; 2. **grouped** held-out 분할에 점수, 그래서 숫자는 하나의 마이크로 플레이트 샘플 위치에서 온 190 라벨의 유물이 아닙니다; 3. 클래스 당 확률을 ``png_list``으로 :data:`ROUND_PRED_PREFIX` 열로 다시 작성합니다., :func:`build_queue`이 ``pred``보다 더 오래된 것을 선호한다. — 그래서 다음 작업 목록은 진정으로 다시 배열됩니다; 4. 라운드를 기록하고 :func:`learning_curve` 다른 포인트를 제공합니다; 5. 지금까지 곡선에 :class:`StoppingVerdict`을 반환합니다.\n\n:param db_path: 길을 ``measurements.db``로 이동합니다.\n:param annotation_column: 라벨을 붙잡는 열.\n:param features: 특징 매트릭스는 추출-사진-구역 구조 데이터 이름에 의해 인덱스됩니다.그것은 :func:`round_features`로 측정 테이블에서 읽을 수 없습니다.\n:param model_type: ``'logistic_regression'`` (기본 - 그것은 20 라벨에서 행동하는 것입니다), ``'random_forest'`` 또는 ``'gradient_boosting'``.\n:param group_by: ``'well'`` (기본), ``'plate'``, ``'field'`` 또는 ``'none'``. 무언가를 공유하기를 거부합니다. 정확하게 일치하고 낮은 경우에; 다른 모든 것이 오류를 생성하는 방법에 알려지지 않은 ``diversity=`` :func:`build_queue`. 전략이 ``'none'``, 또는 추출 이미지-지역 테이블이 필요로하는 열 중 하나가 없을 때, 분할은 분열 된 우연한 하나이며 ``split_rule``는 ``NOT grouped``라고 말합니다. - 그것은 결코 그룹화를 주장하지 않습니다.\n:param holdout: 부분이 꺼져 나온다.\n:param seed: 그것은 분열과 적합성을 재생할 수 있게 만듭니다.\n:param min_labels: 이 많은 라벨 아래에 맞는 것을 거부합니다.\n:param round_index: 라운드 번호를 초과하십시오; :func:`next_round`로 지정됩니다.\n:param table: 사진 - 지역 테이블\n:param key: extracted-image-region 식별자 열.\n:param image_type: 추출-사진-구역 키에 필터를 삽입합니다.\n:param write_scores: 새로운 확률을 데이터베이스에 다시 입력합니다.\n:param save_model: joblib-dump 데이터베이스 옆에 붙어있는 모델.\n:param model_dir: 어디에 넣을 수 있습니까; ``<db dir>/active_learning``로 지정됩니다.\n:param write_card: 저장된 모델 옆에 모델 카드를 작성합니다.\n:param label_window: 그것은 :func:`should_stop`로 옮겨졌습니다.\n:param min_gain: 그것은 :func:`should_stop`로 옮겨졌습니다.\n:param measure: 라운드와 함께 기록, 다음 작업 목록을 위해.\n:param diversity: 마찬가지로\n:param balance: ``'none'`` (기본)는 추정치 자체의 ``class_weight='balanced'``에 불균형을 남기고; ``'downsample'``는 각 클래스를 그룹 분할 전에 가장 작은 크기로 줄입니다.\n\n    두 가지가 동일한 반응이 아닙니다.중량과 낮은 샘플링은 같은 추출 된 이미지 지역에서 다른 확률을 생성하고, 그 확률에 :func:`spacr.suggest.suggest_from_scores`의 종류 - 그래서 ``notes`` 및 모델 카드에 유효한 라운드 레코드.\n:param synthetic_negatives: 녹음되지 않은 얼마나 많은 추출 된 이미지 영역은 ABSENT 클래스로 우연히 인쇄하고 적합한 경우 단 하나의 클래스가 기록되었는지. ``None`` (기본) 대신, 이전과 같이 거부합니다.\n\n    이것은 의도적 인 것이고, 라운드는 그렇게 말합니다. 우연한 점수는 대부분 부정적이지 않으므로 반환되는 것은 판결이 아닌 순위입니다. 숫자는 모델 카드에 도달합니다, 왜냐하면 부정적인 것을 말하지 않는 카드는 존재하지 않는 모델을 설명하기 때문입니다. 바이너리 클래스 1 및 2에만 정의 - :func:`_absent_binary_class`을 참조하십시오.\n:returns: a :class:`RoundResult`.\n:raises ValueError: 아래 ``min_labels`` 라벨, 2 개 이상의 클래스가 기록되어있다 - 아무것도 자신감 보이는 순위를 생성하는 모델과 함께 서류 할 것이 없습니다 - 또는 인식되지 않은 ``group_by``을 위해.",
       "translation_source_blocks_sha256": [
         "b2a3ba921b9d8bf08c16c64d1bc45625e7bc6b999909a2c75bf37f2e1d219b80",
         "4e96a66d46325f4c2f511e1c787fec6d53c107d94419b064f5bb1bfde826c272",
@@ -1077,7 +1077,7 @@
         "561bbabe94f92f0fd13c642bba42c7706d0afe3dba480401ddbca9da9594547e",
         "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
         "488476fef8c32f48d6da972c88ba2407d781f33f82b2eff7a0293fdde8b8b1bc",
-        "c29b4c0c8896b077c0aed896cc806f8bfcb7a0a9e87eb736548e893886491c7f",
+        "b3964325a7a20131a1b88df9ea427ce6cf73ac3cfdab990999773efb6384c357",
         "aee6367562bd54f5e354c69d7eea54e68edf239c60d93c17dafc41c6e961e986",
         "0f8b5449207ede67d8d635d7a2dc25814749568a5920ad12cfe2bafb5f11a3a2",
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
@@ -65996,7 +65996,7 @@
         "66c34eee0d9f2711879c10d2717b8a26f00f8b45d872c760469b9e2ff26b96c6",
         "a8a980aaf03b1cf84f489d604474620191f3ffd1d5807aa92ab442aa3f016934",
         "1d145be082334dffcc813ea3a3f641a69f8a91abefb9b955f578596422ab82a1",
-        "2462f39e3e62c1f67222cfc248e62e9468f0a4c4347a6bb4020f76b9f8a647e5",
+        "8c0ffabb9533d0ceeda8b279c8bea0ceb461a19081b578103ce479b2cd3cae20",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
         "5cc0279aece897e1cc3c9d2441a8760656b5a35c8da09522ab236b23413869e8",
         "94d770f7a15f32d64f58aa875eea8f3e8516892b17dd17cb5595ded8f0a7761b",
@@ -66020,14 +66020,14 @@
         "8af42943d1d1af2aba07a4cfc2782231682f5301394f99a0967fcfed571f4c35",
         "fb04228cdb186b5d2a893ae59213e5a81e4b9832ca2bcd52336771c187e56217"
       ],
-      "source_sha256": "96cb618773dc242938f45122abb838d390341179167b9f459752b3579b78139c",
-      "text": "사용자에 맞는 선호도 - 언어, 테마, 글꼴 규모 및 접근성.\n\n지속적인 설정은 :class:`PySide6.QtCore.QSettings`에 의해 지원되므로 응용 프로그램 재시작을 생존합니다.새 버튼은 작은 API (``get_theme()`` / ``set_theme(...)`` 등) 덕분에 사용자를 변경하지 않고 기존 버튼 옆에 슬롯 할 수 있습니다.\n\n윈도우 :\n\n* :func:`apply_preferences_to_app` - 스타트업에서 한 번, 설정 변경을 할 때마다 다시 호출; 현재 테마 + 글꼴 스케일을 가진 스타일리스트를 다시 적용합니다.\n* :class:`PreferencesDialog` - Ctrl+로 열리는 모탈 설정 대화 (:mod:`spacr.qt.shortcuts` 참조).\n\n공공 API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_space_variant, set_space_variant,\n        get_cell_variant, set_cell_variant,\n        get_space_seed, set_space_seed,\n        space_background_path, cell_background_path,\n        theme_background_path,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_font_scale, set_font_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\n가치 :\n\n* ``theme``: ``\"dark\"`` ``\"light\"`` ``\"cell\"`` ``\"glass\"`` ``\"system\"`` (기본 ``\"system\"``). ``\"system\"``는 운영 체제 색상 계획을 따릅니다. ``\"cell\"``는 fluorescence 이미지를 사용하고 ``\"glass\"``는 내장 된 빛 필드 위에 중립 층 재료를 사용합니다.\n* ``space_seed``: int; 결정적 유산 우주 배경을 위해 유지.\n* ``font_scale``: 플로트, 1.0 = 100 % (기본). [0.75, 2.0]로 묶여 있습니다.\n* ``figure_save_mode``: ``\"print\"````\"screen\"`` ``\"transparent\"`` (기본 ``\"print\"``). 저장된 숫자에 사용되는 페이지와 그림 요소 색상을 제어합니다. ``SPACR_FIGURE_SAVE_MODE``는 프로세스 로컬 오버리드로 남아 있습니다; :func:`spacr.figure_style.figure_save_mode`를 참조하십시오.\n* ``color_blind_mode``: ``\"off\"````\"deuteranopia\"`` ``\"protanopia\"`` ``\"tritanopia\"`` (기본 ``\"off\"``). matplotlib 파란색 / 붉은 녹색 팔레트를 감각 유니폼 + 색상 눈먼 안전한 대안으로 변환 (연속을위한 viridis, 분류를위한 Okabe-Ito).\n* ``performance_logging``: ``\"off\"`` ``\"summary\"`` ``\"detailed\"`` (기본 ``\"summary\"``). 레코드 프로세스 나무 자원 사용은 구두 호출 추적에 관계없이; 참조 :func:`get_performance_logging` 및 :mod:`spacr.resource_log`.\n* ``db_browser_editable`` : 볼, 초기 값 ``False``. 데이터베이스 브라우저가 읽기 글쓰기 연결을 열 수 있습니다. 세부 사항 : :func:`get_db_browser_editable`\n* ``dock_mode``: ``\"locked\"`` ``\"hidden\"`` (기본 ``\"locked\"``). 왼쪽 애플리케이션 도크가 호버에 나타나든, 영구 열로 열려 있든, 아니면 전혀 없든.\n* ``pane_opacity``: int 퍼센트, 초기 값 ``60``. 공유 표면의 견고함을 제어하거나 유리에 물질 강도를 제어합니다. 페인트 시간 :func:`spacr.qt.theme.pane_alpha_floor`에서 낮은 경계를 설정합니다.\n* ``field_fade``: bool, 기본 ``True``. 입력 필드의 컨테이너 및 출력 램프는 왼쪽에 단단한에서 오른쪽에 완전히 투명합니다. **필드는 ``pane_opacity``**에서 제외되며 이것이 진행 중인 동안 :func:`get_field_fade_enabled` 및 :mod:`spacr.qt.widgets.field_fade`를 참조하십시오.\n* ``show_alpha`` / ``show_beta``: bool, 둘 다 기본 ``True``. 그 성숙에서 모듈과 설정이 표시되는지 확인합니다.\n* ``ambient_enabled``: bool, 초기 값 ``True``. 모듈 화면이 애니메이션 배경을 그리는지 여부를 제어합니다. 그것을 해제하는 것은 첫 번째 클래스 선택입니다; 세부 사항 : :func:`get_ambient_enabled`. 사용자 얼굴 제어는 애니마션 목록의 ``None`` 입력 대신 다른 스위치입니다 : 하나의 라인, 하나의 의미.\n* ``spacr_mode``: ``\"extra_performance\"`` | ``\"performance\"`` | ``\"balanced\"`` (이상적인 ``\"balanced\"``얼마나 열심히 spaCR 기계의 길에서 벗어나려고 시도한다 - 그것은 자신의 캐시를 해방 할 때, 그리고 그것이 시각 설정을 초과하는지 여부. :func:`set_spacr_mode` 그리고 :mod:`spacr.qt.resource_cleanup`청소가 허용되는 것을 소유하고 있는 것(spaCR 자신의 기억, 그리고 다른 아무것도 - 다른 프로세스, 결코).\n* ``ambient_theme`` / ``ambient_palette``: 어떤 애니메이션, 그리고 어떤 색상. ``ambient_theme`` 또한 :data:`spacr.qt.widgets.ambient.NO_ANIMATION`을 유지 — :func:`get_ambient_animation`로 읽으십시오, ``\"none\"``에 대답 할 수 있습니다, 또는 :func:`get_ambient_theme`로, 그 대답은 항상 뭔가 색칠 할 수있다. :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`과 :func:`spacr.qt.widgets.ambient.palettes_for`에 대한 검증; 패일은 *에 주제*, 그래서 :func:`get_ambient_palette`를 참조 두 키가 서로 일관되어있는 방법.\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` / ``ambient_density``: 플로트, 모든 기본 ``1.0``, 모든 *다중기* 선택한 애니메이션이 이미 무엇을하고 있는지 - 얼마나 빠르게 움직이는지, 얼마나 큰 요소가 있는지, 그것이 얼마나 많은 세부 사항으로 끌려가는지, 그리고 몇 가지 요소를 가지고 있는지. 1.0은 각 테마에서 전송 된 애니메이션입니다, 정확히, 그래서 사용자가 결코 그들을 만지지 않는 것은 변화를 볼 수 없습니다. 글을 읽고 글을 쓰면 엔진이 선언한다 (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` 및 친구).\n* ``ambient_blur``: 플로트, 기본 ``0.0`` - 완성된 이미지가 8 픽셀의 단위로 얼마나 부드러워졌는지. 이미지 세부 사항은 ``ambient_resolution``에 의해 별도로 제어됩니다. 유산 블루 스케일 아래에 저장된 값은 읽을 때 한 번 :func:`_migrate_ambient_motion`로 번역됩니다.\n* ``ambient_drift_direction``: ``\"up\"````\"down\"`` ``\"random\"`` (기본 ``\"up\"``). 스타필드 애니메이션이 여행하는 방법은 무엇입니까? 3 개의 애니 메뉴에 입력하는 대신 선호; 왜 :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`를 참조하십시오.\n* ``spinner_delay``: 흐르는 초, 기본 ``2.0``. 활동 스핀이 나타나기 전에 얼마나 오래 배경 작업을 수행해야 하는지 - :func:`get_spinner_delay`를 참조하십시오.\n* ``setting_animations`` : bool, 기본 ``False`` 설정 도구 팁이 자동으로 애니메이션을 재생하는지 여부. 끄지 않을 때, hover는 사용자가 그 도구 팁의 발자국에서 **Animation**을 활성화 할 때까지 단순히 텍스트로 남아 있습니다. 참조 :func:`get_setting_animations_enabled`\n* ``language``: :mod:`spacr.qt.i18n`에서 묶여있는 언어 코드 중 하나; 기본적으로 영어로 입력하고 지속적인 값이 불가능한 경우 안전하게 반환됩니다.",
+      "source_sha256": "78a2fade7f4d92133c36fb0cb8168d5551dc140ebab73bacc8d7b47255cb370d",
+      "text": "사용자에 맞는 선호도 - 언어, 테마, 글꼴 규모 및 접근성.\n\n지속적인 설정은 :class:`PySide6.QtCore.QSettings`에 의해 지원되므로 응용 프로그램 재시작을 생존합니다.새 버튼은 작은 API (``get_theme()`` / ``set_theme(...)`` 등) 덕분에 사용자를 변경하지 않고 기존 버튼 옆에 슬롯 할 수 있습니다.\n\n윈도우 :\n\n* :func:`apply_preferences_to_app` - 스타트업에서 한 번, 설정 변경을 할 때마다 다시 전화; 현재 테마 + 글꼴 스케일을 가진 스타일리스트를 다시 적용합니다.\n* :class:`PreferencesDialog` - Ctrl+P로 열려 있는 모탈 설정 대화 (:mod:`spacr.qt.shortcuts` 참조).\n\n공공 API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_space_variant, set_space_variant,\n        get_cell_variant, set_cell_variant,\n        get_space_seed, set_space_seed,\n        space_background_path, cell_background_path,\n        theme_background_path,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_font_scale, set_font_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\n가치 :\n\n* ``theme``: ``\"dark\"`` ``\"light\"`` ``\"cell\"`` ``\"glass\"`` ``\"system\"`` (기본 ``\"system\"``). ``\"system\"``는 운영 체제 색상 계획을 따릅니다. ``\"cell\"``는 fluorescence 이미지를 사용하고 ``\"glass\"``는 내장 된 빛 필드 위에 중립 층 재료를 사용합니다.\n* ``space_seed``: int; 결정적 유산 우주 배경을 위해 유지.\n* ``font_scale``: 플로트, 1.0 = 100 % (기본). [0.75, 2.0]로 묶여 있습니다.\n* ``figure_save_mode``: ``\"print\"````\"screen\"`` ``\"transparent\"`` (기본 ``\"print\"``). 저장된 숫자에 사용되는 페이지와 그림 요소 색상을 제어합니다. ``SPACR_FIGURE_SAVE_MODE``는 프로세스 로컬 오버리드로 남아 있습니다; :func:`spacr.figure_style.figure_save_mode`를 참조하십시오.\n* ``color_blind_mode``: ``\"off\"````\"deuteranopia\"`` ``\"protanopia\"`` ``\"tritanopia\"`` (기본 ``\"off\"``). matplotlib 파란색 / 붉은 녹색 팔레트를 감각 유니폼 + 색상 눈먼 안전한 대안으로 변환 (연속을위한 viridis, 분류를위한 Okabe-Ito).\n* ``performance_logging``: ``\"off\"`` ``\"summary\"`` ``\"detailed\"`` (기본 ``\"summary\"``). 레코드 프로세스 나무 자원 사용은 구두 전화 추적에 관계없이; 참조 :func:`get_performance_logging` 및 :mod:`spacr.resource_log`.\n* ``db_browser_editable`` : 볼, 초기 값 ``False``. 데이터베이스 브라우저가 읽기 글쓰기 연결을 열 수 있습니다. 세부 사항 : :func:`get_db_browser_editable`\n* ``dock_mode``: ``\"locked\"`` ``\"hidden\"`` (기본 ``\"locked\"``). 왼쪽 애플리케이션 도크가 호버에 나타나든, 영구 열로 열려 있든, 아니면 전혀 없든.\n* ``pane_opacity``: int 퍼센트, 초기 값 ``60``. 공유 표면의 견고함을 제어하거나 유리에 물질 강도를 제어합니다. 페인트 시간 :func:`spacr.qt.theme.pane_alpha_floor`에서 낮은 경계를 설정합니다.\n* ``field_fade``: bool, 기본 ``True``. 입력 필드의 컨테이너 및 출력 램프는 왼쪽에 단단한에서 오른쪽에 완전히 투명합니다. **필드는 ``pane_opacity``**에서 제외되며 이것이 진행 중인 동안 :func:`get_field_fade_enabled` 및 :mod:`spacr.qt.widgets.field_fade`를 참조하십시오.\n* ``show_alpha`` / ``show_beta``: bool, 둘 다 기본 ``True``. 그 성숙에서 모듈과 설정이 표시되는지 확인합니다.\n* ``ambient_enabled``: bool, 초기 값 ``True``. 모듈 화면이 애니메이션 배경을 그리는지 여부를 제어합니다. 그것을 해제하는 것은 첫 번째 클래스 선택입니다; 세부 사항 : :func:`get_ambient_enabled`. 사용자 얼굴 제어는 애니마션 목록의 ``None`` 입력 대신 다른 스위치입니다 : 하나의 라인, 하나의 의미.\n* ``spacr_mode``: ``\"extra_performance\"`` | ``\"performance\"`` | ``\"balanced\"`` (이상적인 ``\"balanced\"``얼마나 열심히 spaCR 기계의 길에서 벗어나려고 시도한다 - 그것은 자신의 캐시를 해방 할 때, 그리고 그것이 시각 설정을 초과하는지 여부. :func:`set_spacr_mode` 그리고 :mod:`spacr.qt.resource_cleanup`청소가 허용되는 것을 소유하고 있는 것(spaCR 자신의 기억, 그리고 다른 아무것도 - 다른 프로세스, 결코).\n* ``ambient_theme`` / ``ambient_palette``: 어떤 애니메이션, 그리고 어떤 색상. ``ambient_theme`` 또한 :data:`spacr.qt.widgets.ambient.NO_ANIMATION`을 유지 — :func:`get_ambient_animation`로 읽으십시오, ``\"none\"``에 대답 할 수 있습니다, 또는 :func:`get_ambient_theme`로, 그 대답은 항상 뭔가 색칠 할 수있다. :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`과 :func:`spacr.qt.widgets.ambient.palettes_for`에 대한 검증; 패일은 *에 주제*, 그래서 :func:`get_ambient_palette`를 참조 두 키가 서로 일관되어있는 방법.\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` / ``ambient_density``: 플로트, 모든 기본 ``1.0``, 모든 *다중기* 선택한 애니메이션이 이미 무엇을하고 있는지 - 얼마나 빠르게 움직이는지, 얼마나 큰 요소가 있는지, 그것이 얼마나 많은 세부 사항으로 끌려가는지, 그리고 몇 가지 요소를 가지고 있는지. 1.0은 각 테마에서 전송 된 애니메이션입니다, 정확히, 그래서 사용자가 결코 그들을 만지지 않는 것은 변화를 볼 수 없습니다. 글을 읽고 글을 쓰면 엔진이 선언한다 (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` 및 친구).\n* ``ambient_blur``: 플로트, 기본 ``0.0`` - 완성된 이미지가 8 픽셀의 단위로 얼마나 부드러워졌는지. 이미지 세부 사항은 ``ambient_resolution``에 의해 별도로 제어됩니다. 유산 블루 스케일 아래에 저장된 값은 읽을 때 한 번 :func:`_migrate_ambient_motion`로 번역됩니다.\n* ``ambient_drift_direction``: ``\"up\"````\"down\"`` ``\"random\"`` (기본 ``\"up\"``). 스타필드 애니메이션이 여행하는 방법은 무엇입니까? 3 개의 애니 메뉴에 입력하는 대신 선호; 왜 :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`를 참조하십시오.\n* ``spinner_delay``: 흐르는 초, 기본 ``2.0``. 활동 스핀이 나타나기 전에 얼마나 오래 배경 작업을 수행해야 하는지 - :func:`get_spinner_delay`를 참조하십시오.\n* ``setting_animations`` : bool, 기본 ``False`` 설정 도구 팁이 자동으로 애니메이션을 재생하는지 여부. 끄지 않을 때, hover는 사용자가 그 도구 팁의 발자국에서 **Animation**을 활성화 할 때까지 단순히 텍스트로 남아 있습니다. 참조 :func:`get_setting_animations_enabled`\n* ``language``: :mod:`spacr.qt.i18n`에서 묶여있는 언어 코드 중 하나; 기본적으로 영어로 입력하고 지속적인 값이 불가능한 경우 안전하게 반환됩니다.",
       "translation_source_blocks_sha256": [
         "5b0b335614a237516d384603427cf70317d840b19cdfb21798991377604d621b",
         "66c34eee0d9f2711879c10d2717b8a26f00f8b45d872c760469b9e2ff26b96c6",
         "a8a980aaf03b1cf84f489d604474620191f3ffd1d5807aa92ab442aa3f016934",
         "1d145be082334dffcc813ea3a3f641a69f8a91abefb9b955f578596422ab82a1",
-        "2462f39e3e62c1f67222cfc248e62e9468f0a4c4347a6bb4020f76b9f8a647e5",
+        "8c0ffabb9533d0ceeda8b279c8bea0ceb461a19081b578103ce479b2cd3cae20",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
         "5cc0279aece897e1cc3c9d2441a8760656b5a35c8da09522ab236b23413869e8",
         "94d770f7a15f32d64f58aa875eea8f3e8516892b17dd17cb5595ded8f0a7761b",
@@ -66057,17 +66057,17 @@
         "6c3e97961f7e505570487f48cbfc3def3efecd520a4f9b804958c04cea3c1e48",
         "1c3a722aeac26ef176660c1a6dd135973d49fba708c09dbfa0c17116481ffa42",
         "a905ab8169a6d7b9b4a69b4a326b620d5e24d9f73db0e0d218e80a1ec316e2d5",
-        "6721ce71d231a02d69997d6919532e677ccb57982fa3e32381a062503464735a",
+        "96a390f4f220f55455b27df9c0bdcb161791f03e1b6e7ca376c64a5d3d0f4d90",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ],
-      "source_sha256": "f4c6c589ce9fb58f2acdd2f3f4ff12da68b7f50330765df21e36562d67c6a129",
-      "text": "Wrapper는 Modal Preferences 대화에 대한 수요를 구축합니다.\n\n이 모듈은 QtWidgets에서 끌리지 않고 헤드없이 가져올 수 있도록 공장 (실제 클래스 하위 클래스는 아닙니다). 실제 :class:`QDialog`은 ``PreferencesDialog(parent)``로 반환됩니다.\n\nA ``__new__`` 라인으로 돌아가기 ``QDialog`` 대신 하나의 ``__init__`` 하위 클래스 : 모든 것 Qt 이 모듈을 수입하는 것은 실제로 대화가 요청 될 때까지 아무것도 비용이 들지 않습니다.\n\n창은 창 관리자의 관점에서 분리되어 사용자가 원하는 곳에 넣을 수 있습니다 - 그것은 여전히 고향, 여전히 모다 및 여전히 ``exec``s, 그리고 단지 창 유형 변경.\n\n:param parent: 부모 위젯 또는 ``None``\n:returns: 대화는 ``exec``로 준비되어 있습니다.",
+      "source_sha256": "0a2e47a3e536e5e27932999c25110663e8727b1db5085aafc2b84531a8aaf297",
+      "text": "Wrapper는 Modal Preferences 대화에 대한 수요를 구축합니다.\n\n이 모듈은 QtWidgets에서 끌리지 않고 헤드없이 가져올 수 있도록 공장 (실제 클래스 하위 클래스는 아닙니다). 실제 :class:`QDialog`은 ``PreferencesDialog(parent)``로 반환됩니다.\n\nA ``__new__`` 라인으로 돌아가기 ``QDialog`` 대신 하나의 ``__init__`` 하위 클래스 : 모든 것 Qt 이 모듈을 수입하는 것은 실제로 대화가 요청 될 때까지 아무것도 비용이 들지 않습니다.\n\n창은 창 관리자의 관점에서 분리되어 사용자가 원하는 곳에 넣을 수 있습니다 - 그것은 여전히 고향, 여전히 모다 및 여전히 ``exec``를 호출하고, 단지 창 유형 변경.\n\n:param parent: 부모 위젯 또는 ``None``\n:returns: 대화는 ``exec``로 준비되어 있습니다.",
       "translation_source_blocks_sha256": [
         "6c3e97961f7e505570487f48cbfc3def3efecd520a4f9b804958c04cea3c1e48",
         "1c3a722aeac26ef176660c1a6dd135973d49fba708c09dbfa0c17116481ffa42",
         "a905ab8169a6d7b9b4a69b4a326b620d5e24d9f73db0e0d218e80a1ec316e2d5",
-        "6721ce71d231a02d69997d6919532e677ccb57982fa3e32381a062503464735a",
+        "96a390f4f220f55455b27df9c0bdcb161791f03e1b6e7ca376c64a5d3d0f4d90",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ]
@@ -66076,16 +66076,16 @@
       "source_blocks_sha256": [
         "a1716e834508931def2a409b696992f2f209b52947093bdd71b984eb305ae004",
         "a905ab8169a6d7b9b4a69b4a326b620d5e24d9f73db0e0d218e80a1ec316e2d5",
-        "6721ce71d231a02d69997d6919532e677ccb57982fa3e32381a062503464735a",
+        "96a390f4f220f55455b27df9c0bdcb161791f03e1b6e7ca376c64a5d3d0f4d90",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ],
-      "source_sha256": "75ebe20a5a2d65b004852553eecc6274623fbcbf93aa05b3128006c5441b0457",
-      "text": "선호도 대화를 구축하고 반환합니다.\n\nA ``__new__`` 라인으로 돌아가기 ``QDialog`` 대신 하나의 ``__init__`` 하위 클래스 : 모든 것 Qt 이 모듈을 수입하는 것은 실제로 대화가 요청 될 때까지 아무것도 비용이 들지 않습니다.\n\n창은 창 관리자의 관점에서 분리되어 사용자가 원하는 곳에 넣을 수 있습니다 - 그것은 여전히 고향, 여전히 모다 및 여전히 ``exec``s, 그리고 단지 창 유형 변경.\n\n:param parent: 부모 위젯 또는 ``None``\n:returns: 대화는 ``exec``로 준비되어 있습니다.",
+      "source_sha256": "16fd27aac848a406a339df6932ac702400d0b641355631c118d324187498c974",
+      "text": "선호도 대화를 구축하고 반환합니다.\n\nA ``__new__`` 라인으로 돌아가기 ``QDialog`` 대신 하나의 ``__init__`` 하위 클래스 : 모든 것 Qt 이 모듈을 수입하는 것은 실제로 대화가 요청 될 때까지 아무것도 비용이 들지 않습니다.\n\n창은 창 관리자의 관점에서 분리되어 사용자가 원하는 곳에 넣을 수 있습니다 - 그것은 여전히 고향, 여전히 모다 및 여전히 ``exec``를 호출하고, 단지 창 유형 변경.\n\n:param parent: 부모 위젯 또는 ``None``\n:returns: 대화는 ``exec``로 준비되어 있습니다.",
       "translation_source_blocks_sha256": [
         "a1716e834508931def2a409b696992f2f209b52947093bdd71b984eb305ae004",
         "a905ab8169a6d7b9b4a69b4a326b620d5e24d9f73db0e0d218e80a1ec316e2d5",
-        "6721ce71d231a02d69997d6919532e677ccb57982fa3e32381a062503464735a",
+        "96a390f4f220f55455b27df9c0bdcb161791f03e1b6e7ca376c64a5d3d0f4d90",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ]
@@ -87067,8 +87067,8 @@
         "4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce"
       ],
-      "source_sha256": "94813481bdb61571397ebd413785ef2a011ac4fd74f5b9b8bba8c3dde84f02bd",
-      "text": "spaCR Qt GUI 를 위한 키보드 우선 단축키입니다.\n\n메인 창에서 전역 :class:`QShortcut` 바인딩을 등록하여 전체 앱을 마우스 없이 사용할 수 있습니다:\n\n    Ctrl+H        홈으로 이동\n    Ctrl+1..9     사이드바에서 N번째 앱으로 전환\n    Ctrl+K        명령 팔레트 열기\n    F1  / ?       단축키 치트 시트 표시\n    Ctrl+,        환경설정 열기\n    Ctrl+/        AI 콘솔 열기\n    Ctrl+End      최신 콘솔 줄로 이동 F11           전체 애플리케이션 보기 전환 Esc           열린 대화 상자 / 팝업 닫기\n\n:func:`install`는 ``MainWindow.__init__``에서 한 번 호출됩니다. 모든 바인딩은 :data:`SHORTCUTS`에 문서화되어 있어 치트 시트 대화 상자가 실제로 연결된 내용과 동기화됩니다.",
+      "source_sha256": "69dd903a0901e2f7be6385182c0d0f03a27af9fe7e358476c4b9dd4521ce0e33",
+      "text": "spaCR Qt GUI 를 위한 키보드 우선 단축키입니다.\n\n메인 창에서 전역 :class:`QShortcut` 바인딩을 등록하여 전체 앱을 마우스 없이 사용할 수 있습니다:\n\n    Ctrl+H        홈으로 이동\n    Ctrl+1..9     사이드바에서 N번째 앱으로 전환\n    Ctrl+K        명령 팔레트 열기\n    F1  / ?       단축키 치트 시트 표시\n    Ctrl+P        환경설정 열기\n    Ctrl+/        AI 콘솔 열기\n    Ctrl+End      최신 콘솔 줄로 이동 F11           전체 애플리케이션 보기 전환 Esc           열린 대화 상자 / 팝업 닫기\n\n:func:`install`는 ``MainWindow.__init__``에서 한 번 호출됩니다. 모든 바인딩은 :data:`SHORTCUTS`에 문서화되어 있어 치트 시트 대화 상자가 실제로 연결된 내용과 동기화됩니다.",
       "translation_source_blocks_sha256": [
         "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
         "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
@@ -105159,9 +105159,7 @@
     "spacr.qt.widgets.figure_settings.FigureSettingsDialog": {
       "source_blocks_sha256": [
         "7e8a49eeac12cfc7fb4a41aa7472670066bb58fca1386c233d5991f66bc21da8",
-        "7a4f1e3f5c4555c6d2150241032ca9c0e084792a09d7e216919f6cf3c41a649b",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "15584adb4992054055ece3c5736e5fc5caea65c159cc5a77d05bd60de9c60cbb",
+        "44335159cabd57379f07a758f2871fc163c62c8630f66dbcf2ca78143470e8e9",
         "10c0815faf0f05c836769a4756a2acb9efa44752e1dfda9173c01e4a6b973c14",
         "a8ea1e56fdd0819d22b07e56d0de8203ef0beaff7fa151afe73f296715bbbbe7",
         "52f8460fbc36a9a6241840d81b18e54acfcac8bc656df4cf10878d9e65bd6741",
@@ -105169,13 +105167,11 @@
         "e62c753d0334d95a0edfb877bf41ed784131c4f03b5a29f2696afcc8408fbf9b",
         "c610336af3a34db3c458ff6dc8e224e4d484299033be06ecc82791270ea8fcdc"
       ],
-      "source_sha256": "f2936255dfb728da41a75edce83933308bff7234033a057dcb9c37f525bf1dfc",
-      "text": "라이브 숫자의 지원되는 외관 설정을 편집합니다.\n\n컨트롤은 숫자의 현재 좌석, 예술가, 전설 및 옵션 spaCR 메타 데이터에서 생성됩니다.변화는 짧은 출시 후 예상됩니다; 대화를 거부하면 개방 상태를 복원 할 수있을 때.\n\n파라미터\n----------\n그림 : matplotlib.figure.Figure 그림을 편집합니다. 부모 : PySide6.QtWidgets.QWidget, 선택적 부모 위젯. on_change : callable, optional 편집 후에 호출 Callback. Callbacks는 ``preview`` 키워드 논쟁을 받아 들일 수 있습니다. propagate_callback : callable, optional 사용자가 ``Propagate settings``를 선택할 때 현재 이미지 UMAP 설정을받는 Callback .\n\n그림의 픽셀 스크립트가 촬영되므로 취소는 다시 가야 할 무언가를 가지고 있습니다 : 라이브 애플리케이션은 밖으로 나갈 방법이 없습니다 - 사용자는 그것이 무엇을하고 있는지 확인하기 위해 스핀 상자를 끌어 내고 더 이상 \"as it was\"가 없습니다. 텍스트 크기 초록은 별도로 유지되기 때문에 취소가 개체를 복사하는 대신 촬영에서 좌석을 복사함으로써 그림을 복원합니다.\n\n통계 탭은 그룹을 비교하는 숫자에만 나타납니다: Q-Q 플랫폼에 t 테스트를 제공하는 사람은 아무것도 의미하지 않는 숫자를 보고하도록 초대합니다. UMAP 탭에는 그것이 끌려온 삽입을 가져온 숫자가 나타나는데 - 그렇지 않으면 \"live\"은 감소를 다시 실행하고 각 포인트가 움직일 것이라는 것을 의미합니다.\n\n:param figure: matplotlib 숫자를 재설정합니다.\n:param parent: 부모 위젯 또는 ``None``\n:param on_change: 다시 녹음하도록 호출; 할 수있을 때 ``preview``를 가져옵니다.\n:param propagate_callback: 값을 소유 모듈의 설정 패널에 입력합니다. ``None`` Propagate를 방해하고 왜 하는지 알려줍니다.",
+      "source_sha256": "82717ccf340d914e78889a9386998d2bb7183b62d8c8c64376d422d2bcb88839",
+      "text": "라이브 숫자의 지원되는 외관 설정을 편집합니다.\n\n컨트롤은 숫자의 현재 좌석, 아티스트, 전설 및 선택적 spaCR 메타데이터에서 생성됩니다. 변경 사항은 짧은 데뷔 후 예상됩니다; 거부 대화는 캡처 될 수있을 때 개방 상태를 복원합니다.\n\n그림의 픽셀 스크립트가 촬영되므로 취소는 다시 가야 할 무언가를 가지고 있습니다 : 라이브 애플리케이션은 밖으로 나갈 방법이 없습니다 - 사용자는 그것이 무엇을하고 있는지 확인하기 위해 스핀 상자를 끌어 내고 더 이상 \"as it was\"가 없습니다. 텍스트 크기 초록은 별도로 유지되기 때문에 취소가 개체를 복사하는 대신 촬영에서 좌석을 복사함으로써 그림을 복원합니다.\n\n통계 탭은 그룹을 비교하는 숫자에만 나타납니다: Q-Q 플랫폼에 t 테스트를 제공하는 사람은 아무것도 의미하지 않는 숫자를 보고하도록 초대합니다. UMAP 탭에는 그것이 끌려온 삽입을 가져온 숫자가 나타나는데 - 그렇지 않으면 \"live\"은 감소를 다시 실행하고 각 포인트가 움직일 것이라는 것을 의미합니다.\n\n:param figure: matplotlib 숫자를 재설정합니다.\n:param parent: 부모 위젯 또는 ``None``\n:param on_change: 다시 녹음하도록 호출; 할 수있을 때 ``preview``를 가져옵니다.\n:param propagate_callback: 값을 소유 모듈의 설정 패널에 입력합니다. ``None`` Propagate를 방해하고 왜 하는지 알려줍니다.",
       "translation_source_blocks_sha256": [
         "7e8a49eeac12cfc7fb4a41aa7472670066bb58fca1386c233d5991f66bc21da8",
-        "7a4f1e3f5c4555c6d2150241032ca9c0e084792a09d7e216919f6cf3c41a649b",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "15584adb4992054055ece3c5736e5fc5caea65c159cc5a77d05bd60de9c60cbb",
+        "44335159cabd57379f07a758f2871fc163c62c8630f66dbcf2ca78143470e8e9",
         "10c0815faf0f05c836769a4756a2acb9efa44752e1dfda9173c01e4a6b973c14",
         "a8ea1e56fdd0819d22b07e56d0de8203ef0beaff7fa151afe73f296715bbbbe7",
         "52f8460fbc36a9a6241840d81b18e54acfcac8bc656df4cf10878d9e65bd6741",
@@ -105245,20 +105241,16 @@
     "spacr.qt.widgets.figure_settings.FigureStylePreferences": {
       "source_blocks_sha256": [
         "41bb7537159091296f33d50a899af6cdd95180c6224b2fd4050431bbf56b12c8",
-        "f35ee6bff301b489566817acaf45998da26aab1b2d6b462cacd7056c468b7a5d",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "bf14f021b6093dca6ed1dc2eeebfabbe3476e63907e87c8d960125a9ba77ed9a",
+        "8d7069a2c3a650f45834c4c681a915cfe96004c6d0c210331bff9f853e4bca68",
         "6ae025c8413b8e2583934b3939b07c84979ff47e8edc44d12d62f3b92d22c525",
         "373d31fb3b42598b6f1ff026c9c1a012b3967c06a2add00bb8d20815b7c38bef",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "818cf89af1a4cf6018ad7b569cd54477739466fc6a0adce71d3cf079353a8bd4",
-      "text": "일반 및 그래픽 특정 숫자 스타일 선호도를 편집합니다.\n\n각 그래픽 유형은 그것이 필요로하는 설정을 초과 할 수 있으며, 패널은 완전히 해결 된 스타일이 아닌 패키지 기본에서 차이를 저장합니다.\n\n파라미터\n----------\ngeneral : mapping, optional 저장된 일반적인 스타일 오브리드. per_graph : mapping of str to mapping, optional 스토리지된 스타일 오버리드는 그래픽 타입으로 키를 합니다. 부모 : PySide6.QtWidgets.QWidget, 선택적 부모 위젯.\n\n:param general: 저장된 일반 스타일 값; 구조화된 데이터 이름이 부족하면 배송된 기본 값으로 돌아갑니다.\n:param per_graph: 구원받은 백성들에 대하여, 그들은 그들로 하여금 그들을 섬기게 하였습니다.\n:param parent: 부모 위젯 또는 ``None``",
+      "source_sha256": "a2a019c2c00cf3e906885a83bdda06bcda21382baf0b9d9881c656faa3d2158c",
+      "text": "일반 및 그래픽 특정 숫자 스타일 선호도를 편집합니다.\n\n일반 설정은 각 숫자에 적용됩니다. 각 그래픽 유형은 그가 필요로하는 설정만 초과 할 수 있으며 패널은 완전히 해결 된 스타일이 아닌 패키지 기본 설정에서 차이를 저장합니다.\n\n:param general: 저장된 일반 스타일 값; 구조화된 데이터 이름이 부족하면 배송된 기본 값으로 돌아갑니다.\n:param per_graph: 구원받은 백성들에 대하여, 그들은 그들로 하여금 그들을 섬기게 하였습니다.\n:param parent: 부모 위젯 또는 ``None``",
       "translation_source_blocks_sha256": [
         "41bb7537159091296f33d50a899af6cdd95180c6224b2fd4050431bbf56b12c8",
-        "f35ee6bff301b489566817acaf45998da26aab1b2d6b462cacd7056c468b7a5d",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "bf14f021b6093dca6ed1dc2eeebfabbe3476e63907e87c8d960125a9ba77ed9a",
+        "8d7069a2c3a650f45834c4c681a915cfe96004c6d0c210331bff9f853e4bca68",
         "e74ff6070bd0698da4264848508e417387661c9504d5e54dbebb27b0a07c593e",
         "373d31fb3b42598b6f1ff026c9c1a012b3967c06a2add00bb8d20815b7c38bef",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
@@ -117480,9 +117472,7 @@
     },
     "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel": {
       "source_blocks_sha256": [
-        "d7cc8e4ca58c57408d9a3ef3479665bf55a25f7fba8d6d120b495bac92cc3926",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "d059a87ae5b6ad8fd21f59672470f75f2984f9e07646ee1038dd41d1996bf2ea",
+        "43931543a8fff5327cd6b2d31adda5e3fe197bcef28f0038a84ca857c32cd7b9",
         "94e261f6206c0a3aa86a0f673289a861b7a84cae2b83be7500b2a53958761499",
         "a7ee24a2df5687f3742bb0efa3d2f5aaf0202f734e2e857711fe38f4f5dbf301",
         "5df9b858bbbde495e1aee1c0b4e5bbfdec68de5693d767181306a61a15d4d154",
@@ -117492,12 +117482,10 @@
         "920c18d762b8df1b8ef9e3f5b652977e6820cc3f84c160b11a5700bf19ff8494",
         "48b17e25276a2d94e909b462d5a094c965adb453e19386ad3c5d9600018a5ef3"
       ],
-      "source_sha256": "1750bec3e664f7b47278037c1b4020766bcb31b015200862d6afbc8ea1dad42f",
-      "text": "선택된 세포 그룹과 참조 사이의 측정을 비교합니다.\n\n파라미터\n----------\nobjects : pandas.DataFrame 모팅 및 참조 대조에 사용할 수 있는 객체 라인. groups : dict of str 순서 선택된 그룹 이름은 객체-인덱스 값으로 맵을 삽입합니다. 부모 : QWidget, 선택적 부모 비게이트. settings : dict, optional 처리 세션 설정은 수출 된 비교 결과로 저장됩니다. databases : sequence 경로와 유사한, 선택적인 측정 데이터베이스는 객체 테이블을 확장 할 수 있습니다. counts : pandas.DataFrame, optional 각 마이크로 플레이트 샘플 위치 계산은 컨트롤 마이클 샘프 위치를 해결하는 데 사용됩니다.\n\n합류는 주요 GUI 실행 경로를 벗어난다. 그것은 모든 첨부 된 데이터베이스에서 각 개체 테이블을 읽고 추출 된 이미지 지역 라인에 그들을 연결합니다 - 실험실 마이크로 플레이트의 553 개의 개체에 대해 3.2 s에서 측정, 그래서 60,000의 4 실험실 마이크로 플레이트 응용 프로그램 전망은 냉동 창으로 단단한 분입니다. 그것은 무엇입니까 \"평가 테이블에 합류하는 압박은 spaCR 무책임하게 만듭니다\"였습니다.\n\n마이크로 플레이트 샘플 위치 선택은 \"all of them\" 대신 전체 목록으로 ``None``로 유지됩니다 : 다시 실행 후에 나타나는 마이크를 샘폴 위치가 포함되어야하며 저장된 전체 목록은 조용히 그것을 배제 할 것입니다.\n\n:param objects: 개체는 조립 및 대조에 대한 라인입니다.\n:param groups: 선택된 그룹 이름은 객체-인덱스 값으로 지도됩니다.\n:param parent: 부모 위젯 또는 ``None``\n:param settings: 처리 세션 설정, 수출 된 결과와 함께 저장.\n:param databases: 측정 데이터베이스는 개체 테이블을 확장하기 위해 사용할 수 있습니다.\n:param counts: per-microplate 샘플 위치를 계산, 컨트롤 마이크로 플레이트 표본 위치를 해결하는 데 사용됩니다.",
+      "source_sha256": "af4f6309b50cf3c7380898008c2309e54fa57cc789a4d3a1c655f7d2c8fbbd62",
+      "text": "선택한 세포 그룹과 참조 사이의 측정을 비교하십시오. 비교 패널을 구축하십시오 : 픽터, 스크립트 및 통계.\n\n합류는 주요 GUI 실행 경로를 벗어난다. 그것은 모든 첨부 된 데이터베이스에서 각 개체 테이블을 읽고 추출 된 이미지 지역 라인에 그들을 연결합니다 - 실험실 마이크로 플레이트의 553 개의 개체에 대해 3.2 s에서 측정, 그래서 60,000의 4 실험실 마이크로 플레이트 응용 프로그램 전망은 냉동 창으로 단단한 분입니다. 그것은 무엇입니까 \"평가 테이블에 합류하는 압박은 spaCR 무책임하게 만듭니다\"였습니다.\n\n마이크로 플레이트 샘플 위치 선택은 \"all of them\" 대신 전체 목록으로 ``None``로 유지됩니다 : 다시 실행 후에 나타나는 마이크를 샘폴 위치가 포함되어야하며 저장된 전체 목록은 조용히 그것을 배제 할 것입니다.\n\n:param objects: 개체는 조립 및 대조에 대한 라인입니다.\n:param groups: 선택된 그룹 이름은 객체-인덱스 값으로 지도됩니다.\n:param parent: 부모 위젯 또는 ``None``\n:param settings: 처리 세션 설정, 수출 된 결과와 함께 저장.\n:param databases: 측정 데이터베이스는 개체 테이블을 확장하기 위해 사용할 수 있습니다.\n:param counts: per-microplate 샘플 위치를 계산, 컨트롤 마이크로 플레이트 표본 위치를 해결하는 데 사용됩니다.",
       "translation_source_blocks_sha256": [
-        "d7cc8e4ca58c57408d9a3ef3479665bf55a25f7fba8d6d120b495bac92cc3926",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "e9de40294cc154e09157143ceb5cdcd67e50810bf327b3451ad92aec673abdb0",
+        "43931543a8fff5327cd6b2d31adda5e3fe197bcef28f0038a84ca857c32cd7b9",
         "c6a1a14377b97c45676a77a1655a368f6387b65c63802321b9e58622c893255b",
         "1c71bb9983b5e504d1def60e36d1af58faba062fce22044b40b1912feda2ad1e",
         "5df9b858bbbde495e1aee1c0b4e5bbfdec68de5693d767181306a61a15d4d154",
@@ -127052,17 +127040,13 @@
     },
     "spacr.qt.widgets.setup_dialog.SetupDialog": {
       "source_blocks_sha256": [
-        "3b365edb144d478da47b25449eab8283d480f12041ab08b7774580646724d209",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "47596111bf39c734a9f1b900aa197f3955fd4fc84a95ecd79bd5b1b03ed74b16",
+        "83347981d1f0276f144fc36d4f9c6a6e3fad9717af3bfe32a872d1c6cfacd1b1",
         "cecaf6bf04b80c19b315a043de01e5d3387c17933c49b00e018800d48f35d9c6"
       ],
-      "source_sha256": "1a4f11aac2dc43651b26785ea216897e1009e54d4f2781c3d54e19c1c19f61f8",
-      "text": "선택적 인 첫 운전 선호도를 수집합니다.\n\n파라미터\n----------\n부모 : QWidget, 선택적 부모 창. 사용할 수있을 때, 장식 배경으로 빛나는 스냅샷이 사용됩니다. 첫 실행 설정 대화를 구축합니다.\n\n:param parent: 부모 위젯, 또는 ``None``; 또한 카드 뒤의 배경이 가져온 곳.",
+      "source_sha256": "4fdfc636fb572427d09f2354deb55791ea55d7a96459e50808d28dae3e64ade2",
+      "text": "선택적인 첫 번째 실행 선호도를 수집합니다. 첫째 실행 설정 대화를 구축합니다.\n\n:param parent: 부모 위젯, 또는 ``None``; 또한 카드 뒤의 배경이 가져온 곳.",
       "translation_source_blocks_sha256": [
-        "3b365edb144d478da47b25449eab8283d480f12041ab08b7774580646724d209",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "47596111bf39c734a9f1b900aa197f3955fd4fc84a95ecd79bd5b1b03ed74b16",
+        "83347981d1f0276f144fc36d4f9c6a6e3fad9717af3bfe32a872d1c6cfacd1b1",
         "cecaf6bf04b80c19b315a043de01e5d3387c17933c49b00e018800d48f35d9c6"
       ]
     },
@@ -129547,20 +129531,18 @@
     "spacr.qt.widgets.training_monitor.TrainingMonitor": {
       "source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "67a392c8ef7548198738b23c0392e070cdc6f80cbbc4fc13fdac2dfc4ff38aed",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
-        "d22fac0f746217e07eaefe3040e9f6380bfaeed41bf83faabe5c26d385d7d818",
+        "bdb8f27e1154acbb52011998b6000e6a830ac9d4cd65d8b37407534022aaea89",
+        "8f7896e8e315b7d227f1933cdc37facde58ad95f7a05ad99c1ed204188e189c2",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "5e4b0623c360448c5e4858886277b51c241d2580db930dbe7fce07444d623350",
-      "text": "훈련 메트릭을 점진적으로 업데이트 된 곡선으로 표시합니다.\n\n파라미터\n----------\n부모 : QWidget, 선택적 부모 위젯.\n\n속성들\n----------\nplots : dict of str to pyqtgraph.PlotWidget ``\"loss\"``, ``\"accuracy\"``, 및 ``\"per_class\"``로 키를 가진 플로트 위젯. curves : dict of str에서 pyqtgraph.PlotDataItem 메트릭 이름으로 키를 둔 지속적인 플로이트 항목. 각 항목은 메트리크가 처음 나타나고 나중에 다시 사용되면 생성됩니다.\n\n:param parent: 부모 위젯 또는 ``None``",
+      "source_sha256": "1d8912d7bac758bdc0de09ded3577b817e5142c5c365ed641d6625b1b63c82d6",
+      "text": "훈련 메트릭을 점진적으로 업데이트 된 곡선으로 표시합니다.\n\n속성들\n----------\nplots : dict of str to pyqtgraph.PlotWidget ``\"loss\"``, ``\"accuracy\"``, 및 ``\"per_class\"``로 키를 가진 플로트 위젯. curves : dict of str에서 pyqtgraph.PlotDataItem 메트릭 이름으로 키를 둔 지속적인 플러트 항목. 각 항목은 메트리크가 처음 나타나고 나중에 다시 사용되면 생성됩니다.\n\n둘 다 시대가 도착했을 때 인구화됩니다; 또한 대체되지 않으므로 한 번 복용 한 참조는 패널의 수명에 유효합니다.\n\n:param parent: 부모 위젯 또는 ``None``",
       "translation_source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "67a392c8ef7548198738b23c0392e070cdc6f80cbbc4fc13fdac2dfc4ff38aed",
         "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
-        "fe423e9ecc237e415509b77004955248eb2bd47d60ac49814559d2155a93c0e0",
+        "bdb8f27e1154acbb52011998b6000e6a830ac9d4cd65d8b37407534022aaea89",
+        "d52612b07867c01218113a3635df6d9fb354eb9183661ff9e36479853feb4a2d",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ]
     },
