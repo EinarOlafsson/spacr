@@ -777,6 +777,20 @@ _NAME_TO_GLYPH = {
     # to the shared puzzle piece on both the dock row and the fold button.
     "import_images":   "fa5s.images",
     "map_barcodes":    "fa5s.barcode",
+    # A FIELD OF DOTS, NOT A BARCODE, and the distinction is the module.
+    # `map_barcodes` reads a barcode out of sequencing reads and draws one;
+    # OPS reads its code off the IMAGE, as a pattern of spots whose colour
+    # is one base per imaging cycle -- eleven cycles on the reference plate.
+    # Braille is the honest picture of that: a code carried by where the
+    # dots are rather than by a stripe, and it cannot be confused at 16 px
+    # with the barcode beside it on the same fold strip.
+    #
+    # Not `layer-group`, which is Classify's and says "stacked" without
+    # saying what is stacked. Not `border-all`, which is Align & Stitch's
+    # one registered canvas -- OPS is that canvas ELEVEN TIMES OVER, and a
+    # glyph that says "mosaic" would be the neighbour's story, not this
+    # module's.
+    "ops":             "fa5s.braille",
     "ai_console":      "fa5s.robot",
     # Stacked platters: the app is about what a project weighs on disk and
     # what of it can safely go. Without an entry here a new key falls back

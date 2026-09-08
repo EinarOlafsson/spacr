@@ -173,12 +173,25 @@ def test_a_feature_with_one_measured_object_leaves_the_null_at_zero():
     the best score of each shuffle. A feature that is missing on all but one
     object contributes nothing to that: whichever class the shuffle deals to
     the single remaining row, the other group is empty and the separation is
-    NaN. Those shuffles must contribute ``0.0`` to the null distribution
-    rather than a NaN, because ``np.quantile`` propagates NaN and the
-    threshold would come back NaN -- at which point ``score > threshold`` is
+    NaN. Those shuffles must not reach ``np.quantile`` as NaN, because it
+    propagates and the threshold would come back NaN -- at which point ``score > threshold`` is
     False for *every* feature in the table and the "beats the null" list is
     silently empty. A feature with real values in both classes must still
     push the same null above zero.
+
+    THE ANSWER IS NOW ``None``, NOT ``0.0``, AND IT CLOSES BOTH WORRIES.
+    This asserted 0.0, which was the first fix for the NaN and carried a
+    fault of its own: a shuffle that MEASURED NOTHING is not a shuffle
+    that measured zero, and on a sparsely measured table those spurious
+    zeros are a sizeable fraction of the null -- deflating the 95th
+    percentile until `above_null` lists features that never beat chance.
+    `_null_threshold` drops such a shuffle instead of scoring it, and
+    returns None when every shuffle was dropped.
+
+    None is not NaN, so the hazard this test was written for is still
+    shut: `above_null` returns the WHOLE ranking on None and `summary()`
+    says the null was not run -- "not run is not the same as passed".
+    Nothing is silently empty, and nothing is silently zero.
     """
     keys = np.array(["ctrl", "ctrl", "ctrl", "trt", "trt", "trt"],
                     dtype=object)
@@ -190,8 +203,9 @@ def test_a_feature_with_one_measured_object_leaves_the_null_at_zero():
     lonely = {"cell_area": np.array([1.0, nan, nan, nan, nan, nan])}
     threshold = FR._null_threshold(lonely, keys, levels, spec, notices)
 
-    assert threshold == 0.0
-    assert notices == []
+    assert threshold is None
+    assert notices and "measured no feature" in notices[0], (
+        "dropping every shuffle must be SAID, not just returned as None")
 
     measured = {"cell_area": np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0])}
     real = FR._null_threshold(measured, keys, levels, spec, [])
@@ -320,7 +334,10 @@ def test_a_column_measured_only_on_unlabelled_rows_does_not_poison_the_null():
                         seed=11)
 
     orphan = {"orphan_stain": frame["orphan_stain"].to_numpy(float)}
-    assert FR._null_threshold(orphan, keys, levels, spec, []) == 0.0
+    # None rather than 0.0: a column measured only on unlabelled rows
+    # contributes no measurement to any shuffle, and scoring that as
+    # zero is exactly what would poison the null this test is named for.
+    assert FR._null_threshold(orphan, keys, levels, spec, []) is None
 
     both = {name: frame[name].to_numpy(float)
             for name in ("orphan_stain", "cell_area")}
