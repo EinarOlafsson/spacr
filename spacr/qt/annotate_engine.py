@@ -1424,10 +1424,17 @@ def class_counts(db_path: str, annotation_column: str, *,
         connect_database(db_path, readonly=True, timeout=30)
     ) as conn:
         cur = conn.cursor()
+        # SUGGESTIONS ARE NOT CLASSES. They live in this column offset by
+        # `suggest.SUGGESTION_OFFSET`, so counting raw values reports 11 and
+        # 12 beside the real 1 and 2 and tells a reader they have classes
+        # they have never labelled.
+        from ..suggest import SUGGESTION_OFFSET
+
         cur.execute(
             f'SELECT "{col}" AS cls, COUNT(*) '
-            f'FROM "{table}" WHERE "{col}" IS NOT NULL '
-            f'GROUP BY "{col}" ORDER BY 1'
+            f'FROM "{table}" WHERE "{col}" IS NOT NULL AND "{col}" < ? '
+            f'GROUP BY "{col}" ORDER BY 1',
+            (SUGGESTION_OFFSET,),
         )
         return [(int(r[0]), int(r[1])) for r in cur.fetchall() if r[0] is not None]
 

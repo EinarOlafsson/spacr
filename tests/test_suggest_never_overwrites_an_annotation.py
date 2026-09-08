@@ -180,3 +180,50 @@ def test_an_unscored_database_says_to_retrain_rather_than_guessing(tmp_path):
     result = suggest.suggest_from_scores(db_path, "test")
     assert result.frame.empty
     assert "Retrain" in result.note
+
+
+# ---------------------------------------------------------------------------
+# A suggestion is not a label, wherever the labels are read
+# ---------------------------------------------------------------------------
+
+def test_a_suggestion_is_never_read_back_as_a_class():
+    """The offset marks a guess; nothing may fit it as an answer.
+
+    `write_suggestions` stores a proposal in the SAME column as the answers,
+    offset by `SUGGESTION_OFFSET` so the two cannot collide -- a suggested 1
+    becomes 11. Anything that reads that column with a bare `IS NOT NULL`
+    therefore sees classes 11 and 12 and treats them as labels a person
+    wrote.
+
+    THE COST IS NOT A WRONG COUNT. `retrain_round` would FIT them: a model
+    trained on its own previous output, and a model card that does not say
+    so, because from the fitter's side those rows are indistinguishable from
+    human work. Guarding it in the GUI is not enough -- a script calling
+    `retrain_round` directly was never guarded -- so the rule lives where the
+    labels are read.
+    """
+    from spacr.active_learning import _is_suggestion
+
+    assert not _is_suggestion(1)
+    assert not _is_suggestion(2.0)          # 2.0 and 2 are one class
+    assert not _is_suggestion(None)
+    assert _is_suggestion(suggest.SUGGESTION_OFFSET + 1)
+    assert _is_suggestion(suggest.SUGGESTION_OFFSET + 2)
+
+
+def test_class_counts_reports_only_what_a_person_labelled(tmp_path):
+    """The dialog's census may not invent classes out of the machine's guesses."""
+    from spacr.qt.annotate_engine import class_counts
+
+    db_path, _ = _db(tmp_path)
+    result = suggest.suggest_from_scores(db_path, "test")
+    assert suggest.write_suggestions(db_path, "test", result.frame) > 0
+
+    with sqlite3.connect(db_path) as db:
+        stored = {r[0] for r in db.execute(
+            "SELECT test FROM png_list WHERE test IS NOT NULL")}
+    assert any(v > suggest.SUGGESTION_OFFSET for v in stored), (
+        "the fixture must actually contain suggestions or this proves nothing")
+
+    counted = {value for value, _n in class_counts(db_path, "test")}
+    assert counted == {1, 2}, counted

@@ -2708,7 +2708,18 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     crops = crops.loc[shared]
     matrix = features.loc[shared]
 
-    labelled_mask = crops[annotation_column].notna()
+    # HUMAN ANSWERS ONLY, NOT THE MACHINE'S OWN GUESSES. `spacr.suggest`
+    # marks a proposal by adding `SUGGESTION_OFFSET` to the class it
+    # proposes, so a suggested 1 is stored as 11 in this very column. A bare
+    # `notna()` reads those as classes 11 and 12 and fits them as if a person
+    # had written them -- a model trained on its own previous output, whose
+    # card would not say so. The GUI guards both buttons; anything calling
+    # this function directly was not guarded at all, which is why the filter
+    # belongs HERE and not at each caller.
+    labelled_mask = (
+        crops[annotation_column].notna()
+        & ~crops[annotation_column].map(_is_suggestion)
+    )
     n_labels = int(labelled_mask.sum())
     if n_labels < int(min_labels):
         raise ValueError(
@@ -2817,6 +2828,26 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                        card_path=card_path, verdict=verdict, notes=notes,
                        classes=[str(v) for v in class_values],
                        model_type=model_type)
+
+
+def _is_suggestion(value: Any) -> bool:
+    """Whether a stored annotation is a SUGGESTION rather than a human answer.
+
+    :func:`spacr.suggest.write_suggestions` records a proposal in the same
+    column as the answers, offset by :data:`spacr.suggest.SUGGESTION_OFFSET`
+    so the two cannot collide: a suggested 1 is stored as 11. Anything at or
+    above the offset is therefore the model's own previous output.
+
+    Imported inside the call because `spacr.suggest` imports this module for
+    its estimator, and the dependency is one-way by design.
+
+    :param value: a raw value from the annotation column.
+    :returns: whether it is a suggestion and must not be fitted as a label.
+    """
+    from .suggest import SUGGESTION_OFFSET
+
+    normalised = _class_value(value)
+    return isinstance(normalised, int) and normalised >= SUGGESTION_OFFSET
 
 
 def _class_value(value: Any) -> Any:
