@@ -1199,3 +1199,115 @@ for the step, and note the trap found on 2026-09-07: `systemd-run --scope`
 reports an OOM kill as a CLEAN EXIT, so a capped job that dies looks like it
 finished. Check the output, not the exit code, and prefer `--unit=` which is
 detached and survives the shell that launched it.
+
+
+================================================================================
+PART 6 -- THE FIRST REAL RUN, MEASURED 2026-09-07/08
+================================================================================
+
+PART 5's step 1 ("stitch to a transform table, never to an array") was run on
+`screenA/20200202_6W-LaC024A`, well A1, cycle c1: 333 tiles, 6.8 GB of input,
+manifest-only mode (`mosaic=True, mosaic_out=None, mosaic_csv_out=...`) under
+`tools/run_capped.sh 24G`.
+
+--------------------------------------------------------------------------------
+THE GOOD NEWS, AND IT IS THE ONE PART 5 MOST NEEDED
+--------------------------------------------------------------------------------
+
+    25 tiles    peak RSS 2.0 GB      33 s
+   333 tiles    peak RSS 2.5 GB     409 s   (6:50)
+
+PEAK MEMORY DOES NOT SCALE WITH TILE COUNT. Thirteen times the input cost 25 %
+more memory, because the feature store streams and the canvas is never
+allocated. That is the whole premise of PART 5's window design, and it holds on
+real data at the real size: one well of SBS is 6.8 GB on disk and 2.5 GB in
+RAM. The 24 GB cap was never approached.
+
+  SO THE STRATEGY IS RIGHT AND THE ARITHMETIC IN PART 5 STANDS. What follows
+  is about the stitch being WRONG, not about it being too big.
+
+--------------------------------------------------------------------------------
+THE STITCH DOES NOT WORK ON THIS DATA, AND THE REASON IS MEASURED
+--------------------------------------------------------------------------------
+
+    993 pairs scored     median score 0.0002     max 0.0985
+    26 of 333 tiles placed in the manifest
+
+The scores are noise. `spacrStitcher` matches ORB features and solves with
+RANSAC, and on 10X SBS DAPI it finds essentially nothing -- so only a small
+connected component got placed and 307 tiles were dropped.
+
+PHASE CORRELATION FINDS THE GEOMETRY INSTANTLY ON THE SAME PIXELS. Registering
+Site-0's DAPI plane against its neighbours:
+
+    Site-0 vs Site-1     shift (-213,   +9)    peak/mean 45.8
+    Site-0 vs Site-11    shift   (-9, -212)    peak/mean 38.3
+    Site-0 vs anything else                    peak/mean ~10, shift (0,0)
+
+45.8 against a background of 10 is not a marginal call. The tiles overlap by
+213 px -- 14 % of 1480 -- exactly as a tiled acquisition should, and an FFT
+cross-correlation over one channel resolves it in milliseconds.
+
+  RECOMMENDATION: register these tiles by PHASE CORRELATION ON DAPI, not by
+  feature matching. It is the right tool for a translation-only, same-
+  modality, same-magnification neighbour pair, which is what every SBS
+  adjacency is. Keep the feature path for the cross-magnification phenotype
+  alignment (PART 5 step 4), where scale and rotation genuinely have to be
+  solved and DAPI is the only shared channel.
+
+--------------------------------------------------------------------------------
+AND `max_site_gap=3` CANNOT SEE HALF THE NEIGHBOURS
+--------------------------------------------------------------------------------
+
+THE GRID IS A RASTER OF WIDTH 11. Site-0's two true neighbours are Site-1
+(below) and Site-11 (across) -- so on this plate the adjacency set is
+``{i-11, i-1, i+1, i+11}``, and `max_site_gap=3` pairs only ``i±1, i±2, i±3``.
+
+Every horizontal neighbour is invisible to the pairing step. Even with a
+working matcher the well could only ever have been stitched into vertical
+strips, because the pairs that would join the strips are never proposed.
+
+  PART 4 SAID THESE DEFAULTS WERE GUESSES AGAINST SYNTHETIC FIXTURES AND THIS
+  IS THE FIRST ONE A REAL PLATE HAS ANSWERED. The fix is not a bigger number:
+  raising `max_site_gap` to 11 would propose 22 candidates per tile to find 4.
+  The row width should be DETECTED -- it falls straight out of the first
+  column of successful registrations -- or read from the acquisition, and the
+  adjacency built from it.
+
+--------------------------------------------------------------------------------
+THE QC OVERLAYS COST MORE THAN THE DATA
+--------------------------------------------------------------------------------
+
+One well, one cycle wrote 994 QC PNGs totalling 3.2 GB -- half again the
+6.8 GB of input, for a single 11th of a single well of a six-well plate.
+
+`qc_pairs_threshold=1000` exists to gate exactly this, and 993 pairs came in
+SEVEN UNDER IT. At 11 cycles x 6 wells that is on the order of 200 GB of QC
+images for one acquisition, produced by default, from a threshold that
+happened not to trip.
+
+  A threshold that close to the real number is not a safeguard. QC output
+  should be off unless asked for, or capped by TOTAL BYTES rather than by pair
+  count.
+
+--------------------------------------------------------------------------------
+WHAT THIS CHANGES ABOUT PART 5's ORDER
+--------------------------------------------------------------------------------
+
+PART 5 step 1 is DONE as an experiment and its memory claim is verified. It is
+not done as a capability: the transform table it produced is wrong, because
+the matcher and the adjacency are both wrong for this data.
+
+  NEXT, and in this order:
+  1. Replace the SBS adjacency with a detected raster, and the SBS matcher
+     with phase correlation on DAPI. Re-run this exact well and require 333
+     of 333 tiles placed, with a residual consistent with the 213 px overlap.
+  2. THEN PART 5 step 2 (cycle-to-cycle on DAPI) -- which is the same
+     phase-correlation machinery over the cycle axis, so step 1 builds it.
+  3. Then the window, which nothing measured tonight has cast any doubt on.
+
+  AND NOTE WHAT WAS ALREADY THERE: `previews/` under this acquisition holds
+  overlay PNGs from an earlier run of this same code, so the four defects
+  above have been reachable for some time and were never surfaced -- the
+  stitcher does not fail, it silently places 26 tiles and reports success.
+  A run that drops 92 % of its input should say so.
