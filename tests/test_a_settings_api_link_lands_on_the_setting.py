@@ -168,7 +168,8 @@ def test_the_link_prefers_the_asking_apps_own_module(pairs, flow):
     from spacr.qt.screens.settings_model import (_APP_API_MODULE,
                                                  _BATCH_PREFIX_STRANGERS,
                                                  _EVALUATION_DOC_KEYS,
-                                                 _UMAP_SEARCH_DOC_KEYS)
+                                                 _UMAP_SEARCH_DOC_KEYS,
+                                                 _mapped_api_target)
 
     # THE HAND-WRITTEN EXCEPTIONS ARE REASONED, and this rule does not
     # overrule them. A batch-correction setting lands on the module that
@@ -204,9 +205,18 @@ def test_the_link_prefers_the_asking_apps_own_module(pairs, flow):
         if not any(fn.rsplit(".", 1)[0] == own_module
                    for fn in readers[key]):
             continue
-        landed = url.split("/api/spacr/", 1)[-1].split("/index.html")[0]
-        if landed.replace("/", ".") != own_module[len("spacr."):]:
-            misdirected.append(f"{app}/{key} -> {landed}")
+        # THE MODULE CHOICE, NOT THE FINAL URL. A setting with no
+        # publishable anchor now presents as a link to the settings-flow
+        # page instead of the top of a 4,000-line module -- see
+        # `test_an_anchorless_link_goes_to_the_page_that_names_the
+        # _setting`. That changes how the answer is shown, not which
+        # module was chosen, and this rule is about the choice. Asserting
+        # on the URL made a presentation change look like a regression.
+        # `_mapped_api_target` names the module the way the URL does --
+        # "core", not "spacr.core" -- so compare in that form.
+        landed = str(_mapped_api_target(key, app)[0]).replace("/", ".")
+        if landed != own_module[len("spacr."):]:
+            misdirected.append(f"{app}/{key} -> {landed or 'nothing'}")
     assert not misdirected, (
         "the asking app's own module reads these settings, and the link "
         "goes somewhere else:\n  " + "\n  ".join(sorted(misdirected)[:20]))
@@ -227,3 +237,83 @@ def test_the_check_would_have_caught_the_reported_defect(flow):
     assert any(fn.startswith("spacr.annotation_dataset.") for fn in readers), (
         "`src` is no longer read in spacr.annotation_dataset, so the "
         "wrong answer it used to give is no longer reachable")
+
+
+def test_an_anchorless_link_goes_to_the_page_that_names_the_setting():
+    """The `magnification` report, and 185 links like it.
+
+    "i tested the API link for Magnefication and got a page with no
+    mention of magnefication" was not a wrong module -- `utils` IS where
+    it is read -- but the only consumer is private, so AutoAPI publishes
+    no anchor and the reader lands at the top of 4,000 lines. 245 of 796
+    links were in that position.
+
+    The settings-flow page names the setting, carries its help text and
+    lists every function that reads it, so it answers what the reader
+    pressed API to ask. This asserts the fallback fires for the reported
+    setting and NOT for one that has a real API anchor, because a
+    fallback that fires everywhere would bury the precise links under
+    the general page.
+    """
+    from spacr.qt.screens.settings_model import api_docs_url
+
+    landed = api_docs_url("mask", "magnification")
+    assert landed.endswith("settings_flow.html#setting-flow-magnification"), (
+        landed)
+    # `src` in Mask has a real consumer and must keep pointing at it.
+    src = api_docs_url("mask", "src")
+    assert "settings_flow.html" not in src, src
+    assert src.endswith("#spacr.core.preprocess_generate_masks"), src
+
+
+def test_the_flow_index_agrees_with_the_page_it_was_written_from():
+    """An anchor the page does not carry is worse than no anchor.
+
+    The browser ignores an unknown fragment in silence and the reader
+    believes they are looking at the right place -- which is exactly the
+    defect item 3 of this instruction closed for the API links. The
+    index and the page are written by one program in one run, and this
+    is what holds them to it.
+    """
+    import re
+    from pathlib import Path
+
+    from spacr.qt.screens.settings_flow_index import (
+        SETTINGS_WITH_A_FLOW_SECTION)
+
+    page = (Path(__file__).resolve().parents[1] / "docs" / "source" /
+            "_generated" / "settings_flow.rst")
+    if not page.exists():                     # docs artefact, not shipped
+        pytest.skip("settings_flow.rst not generated in this checkout")
+    drawn = set(re.findall(r"^\.\. _setting-flow-(.+):$",
+                           page.read_text(encoding="utf-8"), re.M))
+    assert SETTINGS_WITH_A_FLOW_SECTION == drawn, (
+        "the generated index and the generated page disagree; re-run "
+        "tools/settings_flow.py --rst, which writes both")
+
+
+def test_the_fallback_is_silent_when_the_index_is_missing():
+    """A checkout that never ran the generator still draws its panel.
+
+    The index is a generated file. Importing it eagerly would make a
+    missing artefact a crash in the settings panel, which trades a
+    better link for a worse failure.
+    """
+    import builtins
+
+    from spacr.qt.screens import settings_model
+
+    real_import = builtins.__import__
+
+    def refuse(name, *args, **kwargs):
+        if "settings_flow_index" in name:
+            raise ImportError("generated file absent")
+        return real_import(name, *args, **kwargs)
+
+    builtins.__import__ = refuse
+    try:
+        assert settings_model._has_a_flow_section("magnification") is False
+        assert "settings_flow.html" not in settings_model.api_docs_url(
+            "mask", "magnification")
+    finally:
+        builtins.__import__ = real_import

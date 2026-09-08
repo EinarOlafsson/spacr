@@ -124,3 +124,58 @@ most-shared setting in the package it has been pointing at an unrelated
 module in forty-one panels. A reader who follows it twice and finds the
 wrong page both times stops following it, which costs the whole documentation
 surface rather than these two settings.
+
+--------------------------------------------------------------------------------
+2026-09-08 -- ITEMS 1, 2 AND 4 DONE. THE TWO REPORTED SETTINGS BOTH LAND.
+--------------------------------------------------------------------------------
+
+    api_docs_url("mask", "src")
+      -> .../api/spacr/core/index.html#spacr.core.preprocess_generate_masks
+    api_docs_url("mask", "magnification")
+      -> .../settings_flow.html#setting-flow-magnification
+
+ITEM 1, the per-app target. `_mapped_api_target(key, app_key)` now takes the
+asking app and consults a per-module column in the generated consumer map
+before the key-only row. `src` in Mask stops pointing at the annotation
+dataset generator, which was the report.
+
+ITEM 2, the anchorless landing. 245 of 796 links pointed at a module page
+with no anchor -- correct module, nothing to aim at, because the only
+consumer is private and AutoAPI publishes no page for one. The reader lands
+at the top of 4,000 lines, which is what "a page with no mention of
+magnefication" was.
+
+    before   551 API anchor    0 flow page   245 module page only
+    after    551 API anchor  185 flow page    60 module page only
+
+The settings-flow page from 368 already names every setting, carries its help
+text and lists every function that reads it -- including the private ones, as
+plain text, each public one linked on to its own API page. So it answers the
+question the reader pressed API to ask, and the module page is one click
+further on rather than lost. A setting with a real API anchor is untouched:
+a fallback that fired everywhere would bury 551 precise links under one
+general page.
+
+The remaining 60 have no flow section either, because nothing static analysis
+can see reads them. They are the honest residue: there is no page that
+mentions them, so there is none to link to.
+
+ITEM 4, the landing test. `test_an_anchorless_link_goes_to_the_setting`
+asserts the fallback fires for `magnification` and does NOT fire for `src`.
+Two more hold the mechanism together: the generated index must equal the set
+of sections actually written into the page -- an anchor the page does not
+carry is silently ignored by the browser, which is item 3's defect arriving
+by a different route -- and a checkout that never ran the generator must lose
+the better link rather than fail to draw the panel.
+
+ONE TEST HAD TO CHANGE AND THE REASON IS WORTH RECORDING.
+`test_the_link_prefers_the_asking_apps_own_module` asserted on the URL, so
+moving anchorless links to the flow page read as 185 regressions. The rule it
+means is about which MODULE was chosen, and the flow fallback does not change
+that -- it changes how the answer is shown when the chosen module has no
+anchor. It now asserts on `_mapped_api_target`, so a presentation change
+cannot look like a misdirection again.
+
+STILL OPEN: item 2's second half. The 60 residue links say nothing about why
+they land on a module page. A reader who follows one still cannot tell
+whether they arrived somewhere useless or somewhere incomplete.

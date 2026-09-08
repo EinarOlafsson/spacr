@@ -41,6 +41,14 @@ ROOT = Path(__file__).resolve().parent.parent
 PACKAGE = ROOT / "spacr"
 OUTPUT = ROOT / "docs" / "settings_flow.json"
 RST_OUTPUT = ROOT / "docs" / "source" / "_generated" / "settings_flow.rst"
+#: The keys the page has a section for, as a module the GUI can import.
+#:
+#: The RST is a docs artefact and is not in the wheel, but the settings
+#: panel needs to know which settings the page can answer for before it
+#: offers a link to it. A generated frozenset is the smallest thing that
+#: carries that across.
+INDEX_OUTPUT = (ROOT / "spacr" / "qt" / "screens"
+                / "settings_flow_index.py")
 
 #: Names a settings mapping is plausibly bound to. The same rule the
 #: consumer-map generator uses, and for the same reason: without it, every
@@ -368,6 +376,11 @@ def tree_for(data: dict, key: str, *, depth: int = 6) -> str:
 #: What `tree_for` appends to a node that reads the setting.
 READS_MARK = "  <-- reads it"
 
+#: The RST label that opens each setting's section, and the anchor the
+#: GUI links to. One constant, because the page and the index are
+#: written in the same run and must agree.
+SECTION_MARK = ".. _setting-flow-"
+
 #: Function names that supply a setting's default rather than act on it.
 _DEFAULT_SUPPLIER = re.compile(
     r"^spacr\.settings\.(?:set_default_|set_.*_defaults$|get_.*_default_settings$)"
@@ -444,7 +457,7 @@ def rst_for(data: dict, keys: Optional[List[str]] = None) -> str:
         if not body:
             continue
         drawn += 1
-        lines += [f".. _setting-flow-{key}:", "", key, "-" * len(key), ""]
+        lines += [f"{SECTION_MARK}{key}:", "", key, "-" * len(key), ""]
         # WHAT THE SETTING IS, before where it goes. Asked for on
         # 2026-09-08: "when they click the setting itself they should get
         # the tool tip text". The tree says which functions carry the
@@ -506,9 +519,43 @@ def main() -> int:
     print(f"written: {args.out.relative_to(ROOT)}")
     if args.rst:
         RST_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-        RST_OUTPUT.write_text(rst_for(data), encoding="utf-8")
-        print(f"written: {RST_OUTPUT.relative_to(ROOT)}")
+        rst = rst_for(data)
+        RST_OUTPUT.write_text(rst, encoding="utf-8")
+        print(f"written: {RST_OUTPUT.relative_to(ROOT)} "
+              f"({rst.count(SECTION_MARK)} sections, "
+              f"{rst.count(':py:func:')} cross-references)")
+        INDEX_OUTPUT.write_text(_index_module(rst), encoding="utf-8")
+        print(f"written: {INDEX_OUTPUT.relative_to(ROOT)}")
     return 0
+
+
+def _index_module(rst: str) -> str:
+    """The generated module listing every key the page has a section for.
+
+    COUNTED FROM THE PAGE, not from the analysis, so the two cannot
+    disagree. A key here that the page has no section for would send a
+    reader to an anchor that does not exist -- the exact defect
+    instruction 383 item 3 closed for the API links, and it would be
+    careless to reintroduce it one file over.
+    """
+    keys = sorted(re.findall(rf"^{re.escape(SECTION_MARK)}(.+):$", rst,
+                             re.M))
+    body = "\n".join(f"    {k!r}," for k in keys)
+    return (
+        '''"""Settings the flow page has a section for. Generated -- do not edit.
+
+Written by ``tools/settings_flow.py --rst``, counted from the page it
+writes in the same run.
+
+The settings panel offers a link here for a setting whose API target is a
+module page with no anchor to aim at -- 245 of 796 links, where the
+reader lands on a 4,000-line module that may not mention the setting at
+all. The flow page names it, shows its help text and lists every function
+that reads it, including the private ones an API page cannot address.
+"""
+
+SETTINGS_WITH_A_FLOW_SECTION = frozenset({
+''' + body + "\n})\n")
 
 
 if __name__ == "__main__":

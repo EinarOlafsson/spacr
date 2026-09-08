@@ -4016,6 +4016,30 @@ def get_tooltips() -> Dict[str, str]:
 
 DOCS_API_BASE = "https://einarolafsson.github.io/spacr/api"
 
+#: The published docs root. `DOCS_API_BASE` is the AutoAPI subtree of it;
+#: the settings-flow page sits beside that subtree, not inside it.
+DOCS_SITE_BASE = "https://einarolafsson.github.io/spacr"
+
+#: The anchor prefix `tools/settings_flow.py` writes for each section.
+#: Kept as one constant because the page and this link must agree, and
+#: they are written by different programs.
+FLOW_ANCHOR = "setting-flow-"
+
+
+def _has_a_flow_section(key: str) -> bool:
+    """Whether the settings-flow page can answer for this setting.
+
+    Imported lazily and forgivingly: the index is generated, and a
+    checkout that has not run the generator should lose the better link
+    rather than fail to draw the panel.
+    """
+    try:
+        from spacr.qt.screens.settings_flow_index import (
+            SETTINGS_WITH_A_FLOW_SECTION)
+    except Exception:                                        # noqa: BLE001
+        return False
+    return key in SETTINGS_WITH_A_FLOW_SECTION
+
 _APP_API_MODULE = {
     # Registered without a mapping, so their help had no API page to link to.
     # The Volcano Explorer redraws a finished regression's coefficient table
@@ -4305,7 +4329,21 @@ def api_docs_url(
         # THE TILE'S OWN LINK. Six tiles share three module pages; this sends
         # each to the entry point that answers for it. See `_APP_API_ANCHOR`.
         anchor = _module_level_anchor(app_key, module or "")
-    if module:
+    if module and not anchor and key and _has_a_flow_section(key):
+        # A MODULE PAGE THAT MAY NOT MENTION THE SETTING. Instruction 383:
+        # "i tested the API link for Magnefication and got a page with no
+        # mention of magnefication". It was not a wrong module -- utils IS
+        # where magnification is read -- but the only consumer is private,
+        # so there is no anchor to aim at and the reader lands at the top
+        # of 4,000 lines. 245 of 796 links are in that position.
+        #
+        # The flow page names the setting, carries its help text and lists
+        # every function that reads it, private ones included, each linked
+        # on to its own API page. So it answers the question the reader
+        # pressed API to ask, and the module page is one click further on
+        # rather than lost.
+        url = f"{DOCS_SITE_BASE}/settings_flow.html#{FLOW_ANCHOR}{key}"
+    elif module:
         url = f"{DOCS_API_BASE}/spacr/{module}/index.html"
         if anchor:
             url = f"{url}#{anchor}"
