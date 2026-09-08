@@ -1,0 +1,101 @@
+================================================================================
+ONE BACKDROP, AND THE PANELS ABOVE IT LET IT THROUGH
+================================================================================
+
+Status:    OPEN, filed 2026-09-07. AFTER THE RELEASE, at the maintainer's
+           instruction: "file the backdrop thing somwhere in instructions for
+           later and ill get to it after the next relese."
+Owner:     spacr/qt/app.py (`_drop_a_redundant_screen_backdrop`),
+           spacr/qt/widgets/home.py, spacr/qt/screens/app_screen.py,
+           spacr/qt/theme.py (the QSS that makes containers opaque).
+Costs, until it is done: idle GUI-thread CPU ~16% of a core instead of
+           ~10%, and four times worse at 4K than at 1080p, because the cost
+           is counted in pixels.
+
+--------------------------------------------------------------------------------
+WHAT HAPPENED, BECAUSE THE MISTAKE IS THE USEFUL PART
+--------------------------------------------------------------------------------
+
+Commit 7508d8dfb (2026-09-05) removed a second animated backdrop. Every
+number in it was real:
+
+    two full-size fields shaded and blitted at 12.5 fps
+    950 paints/s, 393 Mpx/s with nobody touching the machine
+    the lower layer covered over 87% of its area
+    idle GUI-thread CPU ~16% of a core -> ~10%
+
+And the conclusion drawn from those numbers was wrong. The commit message
+said the lower layer was "a picture nobody could see". THE 13 % THAT WAS NOT
+COVERED IS THE THEME. Retiring the screen's own backdrop leaves the window's,
+which sits behind the stack -- and HomePage's plain `QWidget` containers paint
+`bg` over it. On the dark theme `bg` is `#000000`.
+
+The maintainer's report, two days later: "i get a black background when the
+blobs theme is active ... what did you break?"
+
+MEASURED FROM X, which is the only way this can be measured:
+
+    1.5.0.1, the last desktop install    38.9 % chromatic, no pure black
+    f9fa45319, the parent commit         29.6 % chromatic, no pure black
+    7508d8dfb, the commit                 2.5 % chromatic, 31.7 % pure black
+    with the dedup off (ded192cc4)       25.2 % chromatic, no pure black
+
+  DO NOT MEASURE THIS WITH `QWidget.grab()`. It does not capture the
+  GL-backed `AmbientWidget`, so it renders a WORKING backdrop as black. An
+  A/B across two trees came out byte-identical for an hour because of it, and
+  that hour was spent concluding the bug was not there. Use
+  `QScreen.grabWindow`, which reads composited pixels from the X server.
+
+  AND `test_home_shows_exactly_one_backdrop` PASSED THROUGHOUT. Counting
+  widgets cannot see that the widget being counted is covered up. A test that
+  asserts a structural property will not notice the product going black.
+
+--------------------------------------------------------------------------------
+WHAT TO ACTUALLY BUILD
+--------------------------------------------------------------------------------
+
+The dedup is right and the way it was landed was wrong. One backdrop IS
+enough -- but only once the things above it stop painting an opaque
+background. So:
+
+1. FIND WHAT IS OPAQUE. Sampled at the black pixels and asked
+   `MainWindow.childAt` who owned them, the answer was plain `QWidget`
+   containers:
+
+       860  QWidget < QWidget < QWidget
+       708  QWidget < HomePage < QStackedWidget
+       232  QWidget < QWidget < QScrollArea
+       108  QTabWidget < QWidget < HomePage
+
+   Generic containers, not spaCR classes -- which points at an
+   application-wide QSS rule giving `QWidget` a background, rather than at
+   any one widget. Confirm that before changing anything.
+
+2. MAKE THEM TRANSPARENT WITHOUT MAKING EVERYTHING TRANSPARENT. The panels
+   are supposed to be translucent-over-the-animation, and `pane_opacity`
+   (default 60) already expresses that. What must not happen is a blanket
+   `background: transparent` that takes the panels with it -- the cards have
+   to keep reading as cards.
+
+3. THEN TURN THE DEDUP BACK ON, in `_drop_a_redundant_screen_backdrop`,
+   which currently returns immediately with the reasoning written at the top
+   of it.
+
+4. AND GATE IT ON A PIXEL MEASUREMENT, not on a widget count. The assertion
+   that would have caught this is "the home screen is more than N% chromatic
+   with an animated theme on", taken from `QScreen.grabWindow`. Both
+   assertions in `tests/qt/test_one_backdrop_for_the_window.py` were replaced
+   with a weaker "there is a visible backdrop at all" precisely because the
+   strong one is only safe next to a visibility measurement. Restore the
+   exact-one assertion together with that measurement, not before it.
+
+--------------------------------------------------------------------------------
+THE TRANSFERABLE RULE
+--------------------------------------------------------------------------------
+
+A PERFORMANCE FIX THAT REMOVES SOMETHING VISIBLE MUST BE MEASURED ON SCREEN
+BEFORE IT SHIPS. CPU went down, the test stayed green, and the product went
+black. Instruction 380's sweep will produce more changes of exactly this
+shape, and this is the one to read first.
+
+Related: 327 (the backdrop camera), 380 (the performance sweep).
