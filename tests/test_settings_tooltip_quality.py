@@ -148,6 +148,16 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "False", "True", REPAIRED_TOOLTIP,
         "The classifier produces diagnostics on its initial run.",
     ),
+    ("analyze_plaques", "channels"): DefaultVariant(
+        "[0,1,2,3]", "[0, 0]", REPAIRED_TOOLTIP,
+        "The Plaque assay's `channels` is not this list at all: it is "
+        "Cellpose's own two-entry pair, cytoplasm channel then nucleus "
+        "channel, and [0,0] means one grayscale image with no nucleus "
+        "channel. Same key, different contract, and the tooltip said "
+        "nothing about it -- so a user reading it would have taken [0,0] "
+        "for a truncated version of [0,1,2,3] rather than a different "
+        "convention. The tooltip now names it.",
+    ),
     ("external_masks", "channels"): DefaultVariant(
         "[0,1,2,3]", "[]", REPAIRED_TOOLTIP,
         "An empty importer list deliberately means all detected channels.",
@@ -298,6 +308,10 @@ REPAIRED_TOOLTIP_FACTS = {
     ),
     ("classify_merged", "plot"): (
         "Merged Classifier and Recruitment both start with plotting enabled",
+    ),
+    ("analyze_plaques", "channels"): (
+        "The Plaque assay starts with [0,0]",
+        "the two entries are the cytoplasm and nucleus channel",
     ),
     ("external_masks", "channels"): (
         "External Masks starts with []",
@@ -636,13 +650,22 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # more app/setting pairs now carry a parseable default claim. Verified as a
     # census change rather than new drift: the comparison SET is identical to
     # the one a worktree at e1e7fd42a^ produces, so nothing was added today.
-    assert comparisons == 673
+    #
+    # 680 since 2026-09-08, +7/-0, and all seven are the same app: the
+    # Plaque assay now resolves `channels`, `grayscale`, `invert`,
+    # `model_name`, `normalize`, `percentiles` and `remove_background`,
+    # each of whose tooltips already carried a parseable "Default ..."
+    # claim. Diffed against the census a worktree at the previous pin
+    # produces rather than inferred from the total: nothing left the set,
+    # so no claim stopped being compared while a new one arrived to hide
+    # it -- which is the substitution a bare count cannot see.
+    assert comparisons == 680
     # 44 since 2026-09-02. Instruction 364 unified organelle's duplicated
     # size/area settings, and the surviving tooltip now NAMES its per-app
     # defaults ("Default 10 in Mask; Measure and External Masks start at 0")
     # instead of leaving the difference to be recorded here as drift. A
     # variant that the tooltip itself explains is not drift.
-    assert len(variants) == 46
+    assert len(variants) == 47
     assert variants == expected
     assert {
         classification: sum(
@@ -652,7 +675,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
         for classification in (ACCURATE_SHARED, REPAIRED_TOOLTIP, CONFIG_DEFECT)
     } == {
         ACCURATE_SHARED: 23,
-        REPAIRED_TOOLTIP: 23,
+        REPAIRED_TOOLTIP: 24,
         CONFIG_DEFECT: 0,
     }
     assert all(
@@ -663,7 +686,18 @@ def test_real_default_claims_have_no_unrecorded_drift():
 
 def test_repaired_tooltips_state_each_module_value_and_behavior():
     """Every class-B repair names both its live value and its consequence."""
+    # APPS IS IMPORTED FOR ITS SIDE EFFECT, not for its value. Several
+    # screens register their defaults lazily -- `investigate_hit` among
+    # them -- so `resolve_default_settings` answers without `score_column`
+    # in a process where nothing has pulled the registry in yet. Running
+    # this file whole hid that behind whichever earlier test did the
+    # pulling; running this test alone raised KeyError from the loop
+    # below. An assertion that only holds when a neighbour ran first is
+    # not an assertion about the package.
+    from spacr.qt.app import APPS
     from spacr.qt.screens.settings_model import resolve_default_settings
+
+    assert APPS, "the app registry is empty, so no defaults can resolve"
 
     repaired = {
         pair for pair, variant in DEFAULT_VARIANT_EXPECTATIONS.items()
@@ -671,7 +705,12 @@ def test_repaired_tooltips_state_each_module_value_and_behavior():
     }
     # 25 since 2026-09-02: the six organelleb/c/d min_size entries went with
     # the fixed slot floor removed by instruction 326.
-    assert len(REPAIRED_TOOLTIP_FACTS) == 23
+    # 24 since 2026-09-08: the Plaque assay's `channels`. It is the one row
+    # here where the shared key carries a different CONTRACT rather than a
+    # different value -- Cellpose's cytoplasm/nucleus pair, not spaCR's
+    # list of kept channels -- so the prose fragments below check the
+    # tooltip says which of the two a reader is looking at.
+    assert len(REPAIRED_TOOLTIP_FACTS) == 24
     assert set(REPAIRED_TOOLTIP_FACTS) == repaired
 
     defaults_by_app = {}

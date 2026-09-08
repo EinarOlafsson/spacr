@@ -178,6 +178,26 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     it add two modules, while the shared column-aligned row and per-object
     settings grid add two more.  A coverage artifact missing any of those
     four describes an older product and cannot satisfy the current gate.
+
+    545 since 2026-09-08, +13/-0 -- nothing has been retired from the
+    package since the figure above, which is the direction this ratchet
+    checks.  Named, because a denominator nobody can decompose is one
+    nobody can check:
+
+      spacr/infection.py, spacr/suggest.py, spacr/scorecard.py -- the
+      infection metrics, the annotation suggestion store and the run
+      scorecard;
+      spacr/ops_settings.py, spacr/ops_sbs.py, spacr/ops_merge.py -- the
+      optical-pooled-screening settings, sequencing-by-synthesis and
+      merge halves;
+      spacr/qt/path_probe.py, spacr/qt/live_zoom.py,
+      spacr/qt/tutorials.py -- the non-blocking filesystem probe, the
+      zoom view and the per-screen lesson lookup;
+      spacr/qt/widgets/dock.py, height_grip.py, module_hint_bar.py,
+      object_grid_binding.py -- the app dock, the drag-to-resize grip,
+      the bottom hint strip and the object-grid binding.
+
+    All thirteen are installed Python and every one needs a coverage row.
     """
     shipped = set(ratchet.discover_shipped_python_files(ROOT))
     every_spacr_python = {
@@ -185,7 +205,7 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
         for path in (ROOT / "spacr").rglob("*.py")
     }
 
-    assert len(shipped) == 532
+    assert len(shipped) == 545
     assert every_spacr_python - shipped == RESOURCE_GENERATORS
     assert not RESOURCE_GENERATORS & shipped
 
