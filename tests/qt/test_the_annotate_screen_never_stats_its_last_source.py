@@ -341,8 +341,22 @@ def test_opening_a_source_teaches_the_probe_so_the_picker_can_go_back(
 
     screen._open_source(str(src))
 
+    # WAITED ON THE WRONG CACHE. `path_probe` and `annotate._VOUCHED` are
+    # two different stores answering two different questions -- the module
+    # comment on `_vouched_dir` is about exactly why they cannot share an
+    # answer -- and `_starting_folder` reads the second. This waited on the
+    # first, so it was really waiting for one background stat and asserting
+    # on another: usually the vouch landed first and the test passed, and
+    # under a different test order it had not. Reproduced at
+    # `--randomly-seed=11` and `=3`, green on 29, 47 and 5, with nothing
+    # changing in the package.
+    #
+    # Both are waited on now. The probe answer is still the subject of the
+    # surrounding file, and the vouch is what the assertion below reads.
     qtbot.waitUntil(
         lambda: probe.known(str(src), want_dir=True) is True, timeout=5000)
+    qtbot.waitUntil(
+        lambda: screen._starting_folder() == str(src), timeout=5000)
     assert screen._starting_folder() == str(src)
 
 
