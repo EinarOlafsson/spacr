@@ -173,7 +173,24 @@ class TestTheHelpTextExplainsTheLevels:
         level to be kind to their machine cannot change a result."""
         blurb = self._blurb()
 
-        assert "science is identical at every level" in blurb
+        # THE PROMISE, NOT ONE PHRASING OF IT. This pinned the literal
+        # "science is identical at every level"; the caption was reworded to
+        # "The same spaCR code runs at every level, and the reproducibility
+        # hash records what each run used", which says it and adds where to
+        # check. The rewrite was almost certainly the 300-character limit
+        # the test above enforces.
+        #
+        # Asserted as two halves so a comma cannot break it, but still
+        # literally enough to fail if the sameness claim is dropped -- which
+        # is the thing that must survive, because a reader choosing a level
+        # to be kind to their laptop must not have to wonder whether it
+        # changes a result.
+        assert "every level" in blurb, blurb
+        assert any(claim in blurb for claim in
+                   ("science is identical", "same spaCR code runs",
+                    "same code runs", "results are identical")), (
+            f"the caption no longer promises that the level cannot change a "
+            f"result:\n{blurb}")
 
     def test_it_no_longer_describes_three(self):
         blurb = self._blurb()

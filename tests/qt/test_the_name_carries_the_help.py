@@ -42,6 +42,16 @@ def _survey(screen):
                 if isinstance(field, QAbstractButton) and \
                         (field.text() or "").strip():
                     continue
+                # A RESIZE HANDLE IS NOT A SETTING. The merge panel drops a
+                # HeightGrip into a field slot with no name beside it, and
+                # its tip -- "Drag to resize, or focus it and use the arrow
+                # keys" -- is the whole affordance: a grip whose only
+                # instruction lives on a label the row does not have is a
+                # grip nobody can work out. Recognised by the signal rather
+                # than the class name so a rename does not silently reopen
+                # the hole.
+                if hasattr(type(field), "height_changed"):
+                    continue
                 on_field.append(field.property("settingKey")
                                 or type(field).__name__)
             elif label is not None and (

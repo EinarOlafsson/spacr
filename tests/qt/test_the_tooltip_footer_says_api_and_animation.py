@@ -53,15 +53,30 @@ def test_a_screen_reader_still_hears_the_words(tip):
     assert tip._animation_link.accessibleDescription()
 
 
-def test_a_pointer_can_still_ask_what_the_control_does(tip):
-    """The tooltip outlived the mark it was explaining, and should.
+def test_neither_word_raises_a_tooltip_of_its_own(tip):
+    """REVERSED 2026-09-03 on the maintainer's report, and now guarded.
 
-    It existed because a bare dot is a rebus. With words drawn it is no
-    longer load-bearing, but "API" alone does not say WHICH page it opens,
-    and the tooltip does.
+    This asserted that both words carried a tooltip, on the reasoning that
+    "API" alone does not say WHICH page it opens. True, but it missed where
+    the words live: INSIDE the popup, which is itself the tooltip. Hovering
+    one raised a second, native tooltip on top of the help already being
+    read -- "for some reason when i hover API links they get a tooltip
+    themeselves upon hover. remove this."
+
+    So the assertion is inverted rather than deleted, because the thing that
+    needs guarding now is the removal: a later pass reaching for "the link
+    should explain itself" would put the nested popup straight back. What
+    the tooltip said is not lost -- it is in the accessible descriptions,
+    which `test_a_screen_reader_still_hears_the_words` above pins, and which
+    a screen reader reads instead of the tooltip.
     """
-    assert "API" in tip._api_link.toolTip()
-    assert "animation" in tip._animation_link.toolTip().lower()
+    assert not (tip._api_link.toolTip() or "").strip()
+    assert not (tip._animation_link.toolTip() or "").strip()
+
+    # The explanation survived the move: still says which page, still says
+    # what the toggle does.
+    assert "API" in tip._api_link.accessibleDescription()
+    assert "animation" in tip._animation_link.accessibleDescription().lower()
 
 
 def test_the_two_are_told_apart_without_colour(tip):
