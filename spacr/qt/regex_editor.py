@@ -26,10 +26,61 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QLabel,
-    QLineEdit, QPlainTextEdit, QPushButton, QVBoxLayout, QWidget,
+    QLineEdit, QPlainTextEdit, QPushButton, QSizePolicy, QVBoxLayout,
+    QWidget,
 )
 
 from . import regex_detect as rd
+
+
+def _let_it_have_its_height(label: QLabel) -> QLabel:
+    """Stop a layout squeezing a word-wrapped label below its own text.
+
+    TWO THINGS ARE NEEDED AND EITHER ALONE IS NOT ENOUGH, which is the trap
+    this function exists to close:
+
+    * ``(Preferred, Minimum)`` -- the house rule ``prerun._label`` writes
+      down. With Qt's default ``Preferred`` height a parent may hand the
+      label less than its ``heightForWidth`` and the last lines are
+      silently clipped.
+    * ``policy.setHeightForWidth(True)`` -- without it a layout never ASKS
+      for the height at this width, so the policy above is applied to a
+      single-line hint. Setting only the first left this dialog's intro
+      still wrapping to 54 px inside 36.
+
+    :param label: a word-wrapped label.
+    :returns: the same label, for use inline.
+    """
+    policy = label.sizePolicy()
+    policy.setHorizontalPolicy(QSizePolicy.Preferred)
+    policy.setVerticalPolicy(QSizePolicy.Minimum)
+    policy.setHeightForWidth(True)
+    label.setSizePolicy(policy)
+    return label
+
+
+def _fit_wrapped_height(label: QLabel) -> None:
+    """Pin ``label``'s minimum height to the height its text actually needs.
+
+    THE THIRD THING, and the policy above is still not enough without it.
+    A layout holding an EXPANDING widget -- here the preview pane -- will
+    take height from a `Minimum` neighbour to satisfy it, and
+    `heightForWidth` only tells the layout what the label would like. A
+    minimum is the only thing it cannot take back.
+
+    Called from ``resizeEvent`` because the answer depends on the width the
+    label actually got, which is not known when it is built. Same pattern
+    as ``console_panel``'s wrapped label.
+
+    :param label: a word-wrapped label already through
+        :func:`_let_it_have_its_height`.
+    """
+    width = label.width()
+    if width <= 0:
+        return
+    needed = label.heightForWidth(width)
+    if needed > 0 and label.minimumHeight() != needed:
+        label.setMinimumHeight(needed)
 
 LOG = logging.getLogger("spacr.qt.regex_editor")
 
@@ -65,7 +116,12 @@ class RegexEditorDialog(QDialog):
         """
         super().__init__(parent)
         self.setWindowTitle("spaCR — Regex editor")
-        self.setMinimumSize(760, 520)
+        # SCALED. 760x520 was measured at font scale 1.0; the prose inside
+        # it is not, so at 2x the dialog stayed the same size while every
+        # line in it doubled.
+        from .preferences import scaled_px
+
+        self.setMinimumSize(scaled_px(760), scaled_px(520))
         self.regex: str = ""
         self._samples = list(sample_filenames)[:20]
         self._multi = multichannel
@@ -81,6 +137,15 @@ class RegexEditorDialog(QDialog):
         )
         intro.setTextFormat(Qt.RichText)
         intro.setWordWrap(True)
+        # (Preferred, Minimum), WHICH IS THE HOUSE RULE `prerun._label`
+        # writes down: with Qt's default Preferred height a parent is free
+        # to hand a word-wrapped label LESS than its heightForWidth, and the
+        # last lines are silently clipped. Measured before this: this label
+        # wrapped to 54 px and was given 36 at font scale 1.0, and to 180 px
+        # in 88 at 2.0 -- so the sentence naming `chanID`, which is the one
+        # thing the dialog exists to explain, was the part cut off.
+        _let_it_have_its_height(intro)
+        self._intro = intro
         outer.addWidget(intro)
 
         # ─── Regex input row ────────────────────────────────────────
@@ -131,6 +196,11 @@ class RegexEditorDialog(QDialog):
         self._warnings_lbl = QLabel("")
         self._warnings_lbl.setTextFormat(Qt.RichText)
         self._warnings_lbl.setWordWrap(True)
+        # The same rule, and it matters more here: this label holds the
+        # warnings that say WHY a regex will not work, and it grows with
+        # however many there are. Clipped, it shows the first and hides the
+        # rest.
+        _let_it_have_its_height(self._warnings_lbl)
         outer.addWidget(self._warnings_lbl)
 
         outer.addWidget(QLabel("Preview:"))
@@ -179,6 +249,19 @@ class RegexEditorDialog(QDialog):
             )
             self._preset_combo.blockSignals(False)
         self._refresh_preview()
+
+    def resizeEvent(self, event):        # noqa: N802  (Qt naming)
+        """Re-fit the wrapped labels to the width they have just been given.
+
+        Both labels grow when the dialog narrows, and a label that is only
+        allowed its one-line hint is the clipping this dialog was found
+        with: the intro wrapped to 54 px inside 36, and the sentence naming
+        `chanID` -- the one thing the dialog exists to explain -- was the
+        part cut off.
+        """
+        super().resizeEvent(event)
+        for label in (self._intro, self._warnings_lbl):
+            _fit_wrapped_height(label)
 
     def _on_preset_pick(self, _idx: int) -> None:
         """Put the chosen preset's pattern in the box and re-preview.

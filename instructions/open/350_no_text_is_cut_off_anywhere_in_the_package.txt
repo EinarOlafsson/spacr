@@ -18,8 +18,10 @@ Status:    the sweep is written, green and running in three locales at two
            GENUINELY were added -- three of them Annotate's, which is where
            the original report came from -- and they turned up two clipping
            bugs and a whole class behind them. See the 2026-09-06 entry.
-           What remains is the 24 dialogs needing invented fixtures, more
-           locales than three, and the 84 remaining raw geometry constants.
+           2026-09-07: SIX MORE DIALOGS, and they found two real defects
+           plus a fault in the instrument. The remainder is 18 dialogs
+           needing invented fixtures, more locales than three, and the
+           remaining raw geometry constants.
 Requested: 2026-09-02, verbatim -- "do a sweep of the entire package and make
            user that all tesxt fits within its button, box or container, and
            is not cut off at all." Reported alongside a concrete instance:
@@ -1075,3 +1077,60 @@ and 84 more raw geometry constants (`setMinimumWidth`, `setFixedWidth`,
 `setMinimumSize`) elsewhere in the package. The 14 fixed here were chosen
 because a dialog-level minimum squeezes every widget inside it; the rest want
 the same treatment with a measurement behind each one rather than a sweep.
+
+
+--------------------------------------------------------------------------------
+2026-09-07 — SIX MORE DIALOGS, TWO DEFECTS, AND A FIFTH FALSE POSITIVE
+--------------------------------------------------------------------------------
+
+SIX OF THE TWENTY-FOUR DID NOT NEED AN INVENTED FIXTURE. The 2026-09-06 entry
+drew the line at arguments that can be supplied GENUINELY, and re-reading the
+remaining constructors against that line moved six across it: they take
+strings, a directory path, lists of filenames and well names, a report
+mapping, and one `AxisCutoff` -- which is a two-field dataclass out of
+`gate_canvas` and the same object the gate editor itself passes.
+
+    _TextReportDialog        (title, body)
+    _AxisCutoffDialog        (title, column, AxisCutoff)
+    SraPicker                (destination)
+    RegexEditorDialog        (sample_filenames)
+    _WellChoice              (offered)
+    IssuePreviewDialog       (report mapping)
+
+The values are REALISTIC rather than minimal, because the defect being looked
+for is text that does not fit: a one-character body proves nothing about a
+dialog whose job is showing prose.
+
+TWO REAL DEFECTS, both the "fixed size a longer translation or scale
+overflows" category:
+
+  * `SraPicker.DIALOG_WIDTH = 520` is a width measured at font scale 1.0 and
+    never scaled. At 2x, "Reads from each file:" needed 253 px in 177, and the
+    German estimate line needed 522 in 511. Now `scaled_px`.
+  * `RegexEditorDialog`'s two word-wrapped labels were squeezed below their
+    own text. THREE THINGS WERE NEEDED and each alone was insufficient, which
+    is worth carrying because the next wrapped label will need all three:
+      1. `(Preferred, Minimum)` -- the house rule `prerun._label` documents;
+      2. `policy.setHeightForWidth(True)` -- without it the layout never ASKS
+         for the height at that width, so (1) is applied to a one-line hint;
+      3. a real `setMinimumHeight` from `resizeEvent` -- a layout holding an
+         EXPANDING neighbour (here the preview pane) takes height back from a
+         `Minimum` one, and only a minimum stops it.
+    Its `setMinimumSize(760, 520)` was also unscaled.
+
+AND A FIFTH FALSE-POSITIVE CLASS, WHICH IS THE MORE USEFUL FINDING. The
+checker measured wrapped labels with `QFontMetrics`, which lays out the string
+it is handed as PLAIN text -- and a rich-text label's string is its markup.
+`<span style='color:gray;'>` was measured as thirty visible characters.
+`RegexEditorDialog`'s intro was reported as needing 54 px inside 36 while Qt's
+own `heightForWidth` said 34 and the label had 34: the label was right and the
+instrument was wrong.
+
+Rich text is now measured with `QTextDocument` at the label's own width and
+font, with `setDocumentMargin(0)` because QLabel uses none.
+
+  AND THE FIX HAD TO BE NARROWED ONCE, which is the transferable part.
+  Routing anything `Qt.mightBeRichText` accepted through `QTextDocument`
+  reported EIGHTY false offences: that predicate answers True for any prose
+  containing an angle bracket. Only an explicit `Qt.RichText` textFormat --
+  a decision the widget's author made -- selects the rich measurement now.

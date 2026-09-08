@@ -100,6 +100,8 @@ class SraPicker(QDialog):
     #: box and its two labels -- and wrapped both the blurb and the run names
     #: into a column narrower than either reads well in. A run accession and
     #: its size on one line is what this list is for.
+    #: MEASURED AT FONT SCALE 1.0 and passed through `scaled_px` below, so
+    #: it grows with the text it has to hold.
     DIALOG_WIDTH = 520
 
     def __init__(self, destination, parent=None, *, files=None):
@@ -112,7 +114,14 @@ class SraPicker(QDialog):
         """
         super().__init__(parent)
         self.setWindowTitle(tr("Load test data"))
-        self.setMinimumWidth(self.DIALOG_WIDTH)
+        # SCALED, NOT RAW. 520 is a width measured at font scale 1.0, and the
+        # text inside it is not: at 2x the label "Reads from each file:"
+        # needs 253 px and had 177, and the German estimate line needed 522
+        # in 511. A pixel constant that does not follow the font is a
+        # constant that is only right for one user.
+        from ..preferences import scaled_px
+
+        self.setMinimumWidth(scaled_px(self.DIALOG_WIDTH))
         self._destination = destination
         self._worker = None
         self.written: list[str] = []

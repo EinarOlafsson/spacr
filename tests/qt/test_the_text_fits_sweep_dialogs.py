@@ -30,6 +30,7 @@ can still fail.
 from __future__ import annotations
 
 import importlib
+import tempfile
 import warnings
 
 import pytest
@@ -131,6 +132,28 @@ def _annotate_settings():
     return AnnotateSettings()
 
 
+#: SIX MORE ON 2026-09-07, by the same rule and not a looser one.
+#:
+#: The criterion above is that the argument can be supplied GENUINELY -- a
+#: window title is a string, and `AnnotateSettings()` is the object Annotate
+#: itself builds. These six take strings, paths, lists of filenames, well
+#: names, a report mapping and one `AxisCutoff`, which is a two-field
+#: dataclass out of `gate_canvas` and the same object the gate editor passes.
+#: None of them is a stand-in for something that has to be invented.
+#:
+#: The values are REALISTIC rather than minimal, because the defect being
+#: looked for is text that does not fit: `_TextReportDialog` gets a report
+#: shaped like the one Class counts produces, `RegexEditorDialog` gets
+#: spaCR-shaped filenames, and `IssuePreviewDialog` gets a title long enough
+#: to be worth eliding. A one-character body proves nothing about a dialog
+#: whose job is showing prose.
+def _axis_cutoff():
+    """The cutoff object the gate editor hands its axis dialog."""
+    from spacr.qt.widgets.gate_canvas import AxisCutoff
+
+    return AxisCutoff(12.0, 980.0)
+
+
 DIALOGS_WITH_ARGUMENTS = [
     ("spacr.qt.screens.annotate", "_SettingsDialog", _annotate_settings),
     ("spacr.qt.screens.annotate", "_GenerateAnnotationDatabaseDialog",
@@ -138,6 +161,28 @@ DIALOGS_WITH_ARGUMENTS = [
     ("spacr.qt.screens.annotate", "_AutoAnnotateDialog", _annotate_settings),
     ("spacr.qt.widgets.refit_dialog", "RefitDialog", dict),
     ("spacr.qt.hf_download", "_DownloadDialog", lambda: "Downloading model"),
+]
+
+#: Dialogs taking more than one genuinely-suppliable argument.
+DIALOGS_WITH_ARGUMENTS_MULTI = [
+    ("spacr.qt.screens.annotate", "_TextReportDialog",
+     lambda: ("Class counts",
+              "Class    Count    Color\n"
+              "    1      812    #4A9EFF\n"
+              "    2      754    #3fb950\n")),
+    ("spacr.qt.screens.gate_editor", "_AxisCutoffDialog",
+     lambda: ("Cell area", "cell_area", _axis_cutoff())),
+    ("spacr.qt.widgets.sra_picker", "SraPicker",
+     lambda: (tempfile.gettempdir(),)),
+    ("spacr.qt.regex_editor", "RegexEditorDialog",
+     lambda: (["plate1_A01_f01_DAPI.tif", "plate1_A01_f01_GFP.tif",
+               "plate1_A01_f02_DAPI.tif", "plate1_B12_f09_Cy5.tif"],)),
+    ("spacr.qt.widgets.measurement_compare_dialog", "_WellChoice",
+     lambda: (["A01", "A02", "A03", "B01", "B02", "B03"],)),
+    ("spacr.qt.ai.issue_preview", "IssuePreviewDialog",
+     lambda: ({"title": "Mask fails on 16-bit input from a Nikon ND2",
+               "body": "Steps to reproduce, the settings used, and the "
+                       "traceback as it appeared in the console."},)),
 ]
 
 
@@ -153,7 +198,13 @@ def _build_with(module_path: str, class_name: str, make_argument, qtbot):
     module = importlib.import_module(module_path)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        dialog = getattr(module, class_name)(make_argument())
+        supplied = make_argument()
+        # A TUPLE IS THE ARGUMENT LIST, anything else is the single argument.
+        # Six dialogs added on 2026-09-07 take two or three, and wrapping the
+        # one-argument cases in tuples would have meant editing five working
+        # entries to add six new ones.
+        args = supplied if isinstance(supplied, tuple) else (supplied,)
+        dialog = getattr(module, class_name)(*args)
     qtbot.addWidget(dialog)
     dialog.show()
     qtbot.waitExposed(dialog)
@@ -243,6 +294,37 @@ def test_no_argumented_dialog_caption_is_cut_off(module_path, class_name,
     Same checker, same rules, same locales and scales as the argument-free
     sweep above -- only the construction differs, and it differs by supplying
     the value the application itself supplies.
+    """
+    monkeypatch.setenv(I.ENV_LANGUAGE, locale)
+    at_font_scale(scale)
+    dialog = _build_with(module_path, class_name, make_argument, qtbot)
+
+    offenders = _offenders(dialog)
+    allowed = KNOWN_OFFENDERS.get((class_name, locale, scale), 0)
+    detail = "; ".join(offenders[:6]) if offenders else ""
+    assert len(offenders) <= allowed, (
+        f"{class_name} in {locale} at {scale:g}x: {len(offenders)} captions "
+        f"cut off, {allowed} allowed. {detail}"
+    )
+
+
+@pytest.mark.parametrize("scale", SCALES)
+@pytest.mark.parametrize("locale", LOCALES)
+@pytest.mark.parametrize("module_path,class_name,make_argument",
+                         DIALOGS_WITH_ARGUMENTS_MULTI,
+                         ids=[name for _p, name, _f
+                              in DIALOGS_WITH_ARGUMENTS_MULTI])
+def test_no_multi_argument_dialog_caption_is_cut_off(
+        module_path, class_name, make_argument, locale, scale,
+        qtbot, at_font_scale, monkeypatch):  # noqa: F811
+    """The six added on 2026-09-07, by the same rule as the five above.
+
+    Six more of the twenty-four turned out not to need an invented fixture
+    at all: they take strings, a path, lists of filenames and well names, a
+    report mapping, and one `AxisCutoff` -- which is the same two-field
+    object the gate editor passes them. Supplying those is showing the
+    dialog as the user gets it, which is the line this file has drawn from
+    the start.
     """
     monkeypatch.setenv(I.ENV_LANGUAGE, locale)
     at_font_scale(scale)

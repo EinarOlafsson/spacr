@@ -101,6 +101,50 @@ SCALES = (1.0, FONT_SCALE_MAX)
 LAID_OUT_PX = 8
 
 
+
+def _is_rich(widget, text: str) -> bool:
+    """Whether this label paints ``text`` as markup rather than as characters.
+
+    ``Qt.AutoText`` is the default and guesses, using
+    ``Qt.mightBeRichText`` -- so the honest question is the same one Qt
+    asks, not what the author declared.
+
+    :param widget: the label.
+    :param text: what it is painting.
+    :returns: True when the string will be laid out as rich text.
+    """
+    # ONLY WHEN THE LABEL SAYS SO, not when Qt merely suspects it.
+    # `Qt.mightBeRichText` answers True for a great deal of ordinary prose
+    # -- any string with an angle bracket or an entity -- and routing plain
+    # captions through `QTextDocument` reported eighty false offences the
+    # first time this was tried. An explicit `RichText` is a decision the
+    # widget's author made; AutoText is not.
+    return widget.textFormat() == Qt.RichText and "<" in text
+
+
+def _rich_text_height(widget, text: str) -> int:
+    """The height rich ``text`` needs at ``widget``'s width.
+
+    Laid out with :class:`QTextDocument` under the widget's own font and
+    width, which is how ``QLabel`` lays it out too -- so the number this
+    returns is the number the label is working to.
+
+    :param widget: the label.
+    :param text: its markup.
+    :returns: the height in pixels, rounded up.
+    """
+    from PySide6.QtGui import QTextDocument
+
+    doc = QTextDocument()
+    doc.setDefaultFont(widget.font())
+    # QLabel lays rich text out with no document margin; the default 4 px
+    # would add eight to every measurement and report a label as one line
+    # short of its own text.
+    doc.setDocumentMargin(0)
+    doc.setHtml(text)
+    doc.setTextWidth(max(widget.width(), 1))
+    return int(doc.size().height() + 0.5)
+
 def _fits(widget) -> str:
     """``""`` when the widget's text fits, else why it does not.
 
@@ -128,9 +172,22 @@ def _fits(widget) -> str:
     if isinstance(widget, QLabel) and widget.wordWrap():
         # RULE 2. A wrapped label is as wide as it was given; the question is
         # whether the wrapped text fits the HEIGHT it was given.
-        needed = metrics.boundingRect(
-            QRect(0, 0, max(widget.width(), 1), 0),
-            int(Qt.TextWordWrap | Qt.AlignTop | Qt.AlignLeft), text).height()
+        #
+        # RULE 5, AND IT IS A FIFTH FALSE-POSITIVE CLASS. `QFontMetrics`
+        # measures the string it is handed as PLAIN text, and a rich-text
+        # label's string is its markup: measuring
+        # `<span style='color:gray;'>` counts thirty characters nobody sees.
+        # `RegexEditorDialog`'s intro was reported as needing 54 px inside 36
+        # while Qt's own `heightForWidth` said 34 and it had 34 -- the label
+        # was correct and the instrument was wrong. Rich text is measured
+        # with `QTextDocument`, which lays it out the way the label does.
+        if _is_rich(widget, text):
+            needed = _rich_text_height(widget, text)
+        else:
+            needed = metrics.boundingRect(
+                QRect(0, 0, max(widget.width(), 1), 0),
+                int(Qt.TextWordWrap | Qt.AlignTop | Qt.AlignLeft),
+                text).height()
         if widget.height() + 1 < needed:
             return (f"wrapped to {needed} px of height in {widget.height()}")
         return ""
