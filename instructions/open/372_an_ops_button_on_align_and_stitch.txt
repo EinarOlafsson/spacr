@@ -1418,3 +1418,70 @@ an hour reading it is worth more than another prototype.
 
   None of that depends on the adjacency being solved, and all of it survives
   whatever the reference implementation says the layout is.
+
+
+--------------------------------------------------------------------------------
+PART 6-C -- THE LAYOUT, READ FROM THE REFERENCE AND THEN MEASURED
+--------------------------------------------------------------------------------
+
+PART 6-B said to stop guessing and read `ops/plates.py`. Doing so answers the
+model, and one more measurement answers this plate.
+
+WHAT THE REFERENCE SAYS. `plate_coordinate(well, tile, well_spacing,
+grid_spacing, grid_shape, snake_remap)` places tile t on a plain ROW-MAJOR
+raster:
+
+    delta = 1280            microns between tiles at '10X'
+    i += delta * (tile // width)
+    j += delta * (tile %  width)
+
+and `remap_snake(site, grid_shape)` exists because Micro-Manager's HCS plugin
+writes sites in SNAKE order -- it reverses every other row to get back to row
+order. So the layout has exactly two unknowns, the width and whether the index
+is snaked, and `delta = 1280 microns` at 10X against a measured pitch of 1267
+px puts the scale at ~1.01 px/micron with a 213 px overlap. The numbers agree.
+
+WHAT THIS PLATE ACTUALLY IS. Neighbour offsets measured at seven sites spread
+through well A1 (peak >= 20, (0,0) rejected):
+
+    site   0: +1V  +11H
+    site  40: -1V  +1V   +4H
+    site 100: -11H -1V   +1V
+    site 160: -9H  -1V
+    site 220: -4H  -1V   +1V
+    site 280: -13H -1V   +1V
+    site 320: -5H  -1V   +1V
+
+  +/-1 IS ALWAYS VERTICAL. The index runs DOWN a column, not across a row.
+  THE HORIZONTAL OFFSET VARIES: +11, +4, -11, -9, -4, -13, -5.
+
+That is a snake down columns of DIFFERENT HEIGHTS, which is exactly what a
+round well gives: each column holds as many fields as fit inside the circle at
+that x, so the offset to the next column is that column's height and it
+changes as you cross the well.
+
+  SO BOTH PROTOTYPES FAILED FOR ONE REASON. v1 assumed a constant horizontal
+  offset; v2 assumed a run ends where the +/-1 link fails. Neither is true: the
+  offset varies by column, and at a snake TURN the consecutive pair i, i+1 is
+  physically adjacent HORIZONTALLY rather than vertically -- so v2 merged
+  columns across turns, which is where its runs of 34 and 42 came from.
+
+  AND SITE 160 HAS NO `+1` AT ALL, so the +/-1 chain is broken in places too:
+  the snake does not always land the next index against the last one.
+
+WHAT TO BUILD, and it is now a small algorithm rather than a guess:
+  1. Register every (i, i+1) and KEEP THE DIRECTION. A V link continues a
+     column; an H link is a turn and is still a real edge.
+  2. Columns are the maximal runs of V links. Their heights are the data, not
+     a parameter.
+  3. Join columns by their heights: the horizontal neighbour of the top of
+     column c is the top of column c+1, which is at index offset = height(c).
+     Verify by registration rather than trusting it.
+  4. Fill the few breaks (site 160's missing +1) from the column geometry
+     once steps 1-3 have placed their neighbours.
+
+  AND CHECK IT AGAINST `plate_coordinate` RATHER THAN AGAINST A COUNT. With
+  the column heights known, the reference gives the expected micron position
+  of every tile; the residual against the measured positions is the honest
+  score. PART 6-A's warning stands -- a placement count is not a measure of a
+  stitch.
