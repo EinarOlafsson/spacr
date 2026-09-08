@@ -97,6 +97,32 @@ HEADLESS_ONLY = {
 # side: "missing from APPS" must always come with a reason somebody wrote
 # down, or a genuinely unwired module hides behind the exception.
 FOLDED = {
+    # SIX FOLDED BY THE DOCK REWRITE, recorded here on 2026-09-08. f43b5a42e
+    # scrapped the sub-category dock ("SCRAP THE SUB CATEGORIES"), and
+    # eafec5441 gave each of these a `spacr-run` answer naming where it went
+    # rather than "unknown module". They left `cli.INTERACTIVE_ONLY` and
+    # stopped being tiles, which is exactly the state this set exists to
+    # record: not a ghost, folded.
+    #
+    # Five are views with no batch equivalent and name the callable that does
+    # the same work headlessly; `import_images` names both its host screen and
+    # `spacr.image_import.apply_import`, which is what that screen drives.
+    "control_chart": "a view folded off the dock; headless, call "
+                     "spacr.qt.widgets.control_chart.control_chart "
+                     "(spacr.cli.INTERACTIVE_ONLY names the same route)",
+    "feature_explorer": "a view folded off the dock; headless, call "
+                        "spacr.qt.widgets.feature_rank.rank_features",
+    "import_images": "folded into the foreign-format importer; open 'foreign' "
+                     "in the GUI, or call spacr.image_import.apply_import, "
+                     "which is what that screen drives",
+    "outliers": "a view folded off the dock; headless, call "
+                "spacr.qt.widgets.outlier_model.detect_outliers",
+    "regression_diagnostics": "folded into Regression, which writes the "
+                              "diagnostics as part of its own run; "
+                              "'spacr-run regression' produces them beside "
+                              "its output",
+    "trellis": "a view folded off the dock; headless, call "
+               "spacr.qt.widgets.trellis_spec.trellis",
     "ops": "a button on the Align & Stitch masthead that opens the optical-"
            "pooled-screening form as a page beside the tile aligner -- OPS "
            "IS stitching, over a plate acquired in sequencing cycles, so it "
