@@ -286,8 +286,19 @@ def test_the_visible_count_went_down_and_this_is_the_number():
     assert len(categories["Organelle"]) == 1 + 3 * MAX_ORGANELLES
     # summarize_organelles_by is shared, while every detection knob is cloned
     # once per slot.
-    assert len(categories["Organelle advanced"]) == \
-        31 + 30 * (MAX_ORGANELLES - 1)
+    #
+    # WRITTEN AS 1 + 31 * MAX, not 31 + 30 * (MAX - 1). The old form said
+    # the first slot has 31 keys and every later one has 30, which was a
+    # way of writing "30 cloned knobs plus the one shared key" that only
+    # worked while the knob count happened to be one less than the first
+    # slot's total. There are 31 cloned knobs now, and the old form was
+    # 702 short without naming which of its two numbers had moved.
+    # Measured: 702 roles of exactly 31 keys each, plus
+    # summarize_organelles_by, which belongs to no slot.
+    advanced = categories["Organelle advanced"]
+    shared = [key for key in advanced if organelle_role_of(key) in (None, "")]
+    assert shared == ["summarize_organelles_by"]
+    assert len(advanced) == len(shared) + 31 * MAX_ORGANELLES
     # Still 53 + organelle_type, just spread across five headings now.
     total = sum(len(categories[c]) for c in ORGANELLE_HOME_HEADINGS)
     assert total >= 54

@@ -168,11 +168,27 @@ def test_the_effect_grid_is_guides_by_measurements(screen):
 
 
 def test_it_says_what_it_did(screen):
+    """The summary names the shape it worked on and what it left out.
+
+    "identifier column(s)" until 488d6f4e0 on 2026-09-03, which widened
+    the wording to "input column(s)" -- the dropped set is not only
+    identifiers, and calling it that told a user their measurement column
+    had been kept when it had not.
+
+    The counts are asserted alongside the phrases, because a sentence
+    that names the right categories with the wrong numbers is the failure
+    this summary exists to prevent.
+    """
     wells, fractions, plates = screen
 
-    text = sweep(wells, fractions, blocks=plates).describe()
+    result = sweep(wells, fractions, blocks=plates)
+    text = result.describe()
 
-    assert "measurement(s)" in text and "identifier column(s)" in text
+    assert "measurement(s)" in text and "input column(s)" in text
+    assert f"{len(result.effects.index):,} gene/guide(s)" in text
+    assert f"{len(result.effects.columns):,} measurement(s)" in text
+    assert f"{result.n_wells:,} wells" in text
+    assert f"{len(result.dropped):,} input column(s)" in text
 
 
 # ------------------------------------------------------------- the picture

@@ -209,9 +209,27 @@ def test_a_polarised_channel_offsets_its_intensity_centre():
 # the setting
 # ---------------------------------------------------------------------------
 
-def test_it_is_off_by_default():
-    """It is real time on a 3-D field, so nobody pays for it unasked."""
+def test_it_is_on_by_default():
+    """ON since 2026-09-02, and the reversal was the point of 53a40ebce.
+
+    This used to assert OFF, on the reasoning that the distances cost
+    real time on a 3-D field so nobody should pay for them unasked. The
+    maintainer's own measure settings have them on, and instruction 337
+    shipped those defaults: a distance nobody computed is a distance
+    nobody can go back and get without re-running the measurement, which
+    is a larger cost than the one being avoided.
+
+    Still asserted rather than deleted, because the value is what
+    changes: the pair below is what makes this a statement about the
+    default and not about the key existing.
+    """
     from spacr.settings import get_measure_crop_settings
 
     settings = get_measure_crop_settings({})
-    assert settings["object_distances"] is False
+    assert settings["object_distances"] is True
+    # The two that RIDE ON it are on with it. Each tooltip says it is
+    # ignored while object_distances is off, so leaving these two False
+    # under a True parent would ship a default whose own documentation
+    # says it does nothing.
+    assert settings["object_distance_maxima"] is True
+    assert settings["object_distance_intensity"] is True
