@@ -73,12 +73,19 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
 
     # THE NUMBER FOLLOWS THE EVIDENCE, not the other way round. These count
     # the records under docs/i18n/reviewed/runtime/<lang>, and they last moved
-    # when 316 recorded the 32 rows it had translated -- Swedish to 116,
-    # French to 96. The loop below is the actual contract: every record must
-    # still bind to a live source value and still pass the current syntax,
-    # semantic, script and exact-copy gates, so a record that has drifted
-    # fails here rather than being absorbed by a looser count.
-    assert len(reviewed) == 96
+    # on 2026-09-08 for the release: French 96 -> 97, the single row
+    # (`meta_regex`) the build's own QA gate still reported as exact English.
+    #
+    # ITS FIRST DRAFT WAS REJECTED, and for the right reason: "si bien que"
+    # put the ADVERB sense of "well" into a caption whose subject is the plate
+    # well, which is precisely what `scientific-well-as-adverb` exists to
+    # catch. Rephrased to "de sorte que".
+    #
+    # The loop below is the actual contract: every record must still bind to a
+    # live source value and still pass the current syntax, semantic, script
+    # and exact-copy gates, so a record that has drifted fails here rather
+    # than being absorbed by a looser count.
+    assert len(reviewed) == 97
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

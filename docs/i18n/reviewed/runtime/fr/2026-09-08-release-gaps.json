@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "meta_regex",
+      "source_sha256": "043506bcf6534114c887b3eff2157455862e7cc88124960c7248f1340a7c5c0f",
+      "source": "How the well, site, channel and magnification are read OUT OF THE FILENAME. Every tile that does not match is invisible to the run, so a wrong pattern looks like missing data rather than an error. Default matches '10X_c1_A1_Site-1.tif'.",
+      "translation": "Comment le puits, le site, le canal et le grossissement sont lus À PARTIR DU NOM DE FICHIER. Toute tuile qui ne correspond pas est invisible pour l'exécution, de sorte qu'un motif erroné ressemble à des données manquantes plutôt qu'à une erreur. Par défaut, correspond à '10X_c1_A1_Site-1.tif'."
+    }
+  ]
+}

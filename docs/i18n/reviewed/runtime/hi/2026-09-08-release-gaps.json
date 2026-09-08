@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "leakage_hash_content",
+      "source_sha256": "c98e92189abbf4fea96db57f65d90ae69073808698457e64a8ffa7d9c0fce293",
+      "source": "SHA-256 hash classifier images during leakage audits so an identical crop copied or renamed across train/test or CV boundaries is still detected. Reads files in 1 MiB chunks and never decodes pixels. Default True. API: spacr.classifier_evaluation.audit_cv_folds.",
+      "translation": "रिसाव ऑडिट के दौरान क्लासिफायर छवियों का SHA-256 हैश निकालें, ताकि train/test या CV सीमाओं के आर-पार कॉपी या नाम बदलकर रखी गई एक ही क्रॉप भी पकड़ी जा सके। फ़ाइलों को 1 MiB खंडों में पढ़ता है और पिक्सेल कभी डिकोड नहीं करता। डिफ़ॉल्ट True. API: spacr.classifier_evaluation.audit_cv_folds."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mip",
+      "source_sha256": "aa44a5b0894897af0432b05b7b53e9fd583f50f9a324ab6830350a4003f51796",
+      "source": "Take the maximum across z instead of a single plane. Usually right for spots, which sit at different depths across a field; off reads the plane named by z_index. Default True.",
+      "translation": "एकल तल के बजाय z के आर-पार अधिकतम मान लें। धब्बों (spots) के लिए यह प्रायः सही होता है, क्योंकि वे एक ही क्षेत्र में अलग-अलग गहराइयों पर होते हैं; बंद होने पर z_index द्वारा नामित तल पढ़ा जाता है। डिफ़ॉल्ट True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "path_column",
+      "source_sha256": "1569815132162a1f0d8469b2c6477e1d65e8abed82ab91c63d2eadf1a48e5300",
+      "source": "Column in a prediction CSV containing crop paths for a one-to-one object join. Change it only when the exporter used another name. Default path.",
+      "translation": "पूर्वानुमान CSV का वह स्तंभ जिसमें एक-से-एक ऑब्जेक्ट जोड़ के लिए क्रॉप पथ होते हैं। इसे केवल तभी बदलें जब निर्यातक ने कोई दूसरा नाम इस्तेमाल किया हो। डिफ़ॉल्ट path."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "z_handling",
+      "source_sha256": "3ed5e52586513e70542edb8e1d62320663bd1b40bc2b5d301a900cb8288360cb",
+      "source": "How multiple Z planes become a 2-D Measure input. 'max' takes a maximum-intensity projection and 'first' keeps only the first plane; inputs that still contain separate planes are rejected. Default 'max'.",
+      "translation": "अनेक Z तल किस तरह द्वि-आयामी Measure इनपुट बनते हैं। 'max' अधिकतम-तीव्रता प्रक्षेपण लेता है और 'first' केवल पहला तल रखता है; ऐसे इनपुट जिनमें अब भी अलग-अलग तल हों, अस्वीकार कर दिए जाते हैं। डिफ़ॉल्ट 'max'."
+    }
+  ]
+}
