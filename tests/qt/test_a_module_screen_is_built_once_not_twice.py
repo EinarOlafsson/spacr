@@ -376,13 +376,16 @@ class TestTheTranslationMemoAnswersTheSameThingTheCatalogsDo:
         magnefication" the maintainer reported. Asserting the old
         destination here would demand that defect back.
         """
-        assert "#setting-flow-nested_cv_inner_folds" in sm.api_docs_url(
-            "classify", "nested_cv_inner_folds"), (
-            "a setting with a flow section must land on the anchor that "
-            "names it, not on a module page")
-        # UNCHANGED, and asserted together with the moved one so this test
-        # still says what the hoisting must not disturb: a setting with no
-        # flow section keeps its module page.
+        # BACK ON ITS MODULE PAGE, and that is 383 working rather than 383
+        # being undone. bf71a10d2 sent anchorless links to the flow page,
+        # which moved this key; 01d8eda5a then fixed three analyser bugs
+        # that had been hiding 200 settings' readers, and with a real
+        # reader found this link has an anchor to aim at again. The flow
+        # page is the FALLBACK for links that would otherwise land on a
+        # page with nothing naming the setting -- not the destination for
+        # everything that has a flow section, which is 1,051 keys.
+        assert "/classifier_evaluation/" in sm.api_docs_url(
+            "classify", "nested_cv_inner_folds")
         assert "/hyperparam/" in sm.api_docs_url("umap", "n_trials")
         assert "/batch_correction/" in sm.api_docs_url("mask", "batch_size_x")
 

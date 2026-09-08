@@ -1989,7 +1989,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     #       `event` is the one REQUIRED parameter in the set -- which is
     #       why the required total moves by one where the parameter total
     #       moves by four.
-    assert sum(len(item.parameters) for item in callables) == 16_692
+    assert sum(len(item.parameters) for item in callables) == 16_694
     assert sum(len(item.required_parameters) for item in callables) == 8_454
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
@@ -2000,7 +2000,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "59130aacac6735759f3b108bb7bca77ae3583b15401f250e0f011b775cf9e4ac"
+    ) == "378a24409d6eb8510fb5ffa6b8f6142fe8d82a6f3ba8e5e3053ea06b1ad2a336"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
