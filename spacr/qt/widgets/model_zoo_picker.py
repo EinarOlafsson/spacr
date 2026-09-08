@@ -244,6 +244,12 @@ class ModelZooPicker(QDialog):
 
         self.refresh()
         self._warm_the_community_catalogue()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). The folder field carried
+        # its own tooltip, which is precisely the shape this post-pass
+        # exists to move.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- data ------------------------------------------------------------
 

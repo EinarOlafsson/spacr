@@ -180,7 +180,14 @@ def test_file_list_keeps_a_missing_path_and_flags_it(qtbot):
     widget = _tracked(qtbot, FilePathListWidget(kind="csv"))
     widget.add_paths(["/no/such/file.csv"])
     assert len(widget.get_value()) == 1
-    assert "not found" in widget._hint.text()
+    # THE ANSWER ARRIVES, IT DOES NOT ARRIVE FIRST. Since 3b00d7b76 the
+    # widget never stats on the GUI thread: an unseen path is assumed
+    # present, checked on a worker, and the hint is rebuilt from
+    # `probes.answered`. So the honest assertion is that the flag appears,
+    # not that it is there before the filesystem has been asked -- the
+    # alternative is the twenty-second freeze on a sleeping NAS mount that
+    # change was written to remove.
+    qtbot.waitUntil(lambda: "not found" in widget._hint.text(), timeout=3000)
 
 
 def test_file_list_accepts_a_real_drop(qtbot, csv_folder):
