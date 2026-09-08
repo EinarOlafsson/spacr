@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_max_intensity_percentile",
+      "source_sha256": "d2725e920ca6cc49cade14b7b32fe0910e15e7a46dc39792707aada33f03bfba",
+      "source": "Drops organelle objects whose mean intensity exceeds this percentile of all organelle mean intensities in the same field, so it removes roughly the brightest (100 minus value) percent. Range 0-100; 100 or None disables it (None is read as the default 100, it does not error). Applied by the shared Qt live-preview filter - the batch organelle mask pipeline does not run this filter. Default 100. Use it to reject saturated dust and imaging artefacts.",
+      "translation": "Descarta os objetos de organela cuja intensidade média excede este percentil de todas as intensidades médias de organela no mesmo campo, pelo que remove aproximadamente os (100 menos o valor) por cento mais brilhantes. Intervalo 0-100; 100 ou None desativa-o (None é lido como o valor predefinido 100, não gera erro). É aplicado pelo filtro partilhado de pré-visualização em direto do Qt: a cadeia por lotes de máscaras de organela não executa este filtro. Valor predefinido: 100. Use-o para rejeitar poeira saturada e artefactos de aquisição."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_min_intensity_percentile",
+      "source_sha256": "9b0e1e1d31154d5152b35cb97548829314879b0da90425bef2a97dea6035922c",
+      "source": "Drops organelles whose mean intensity falls below this percentile of all organelle mean intensities in the same field. It is relative, not absolute, so it always removes roughly this share of the dimmest objects even in a clean image. Range 0-100, 0 disables. Default 0. Use it to cull background-level detections.",
+      "translation": "Descarta as organelas cuja intensidade média fica abaixo deste percentil de todas as intensidades médias de organela no mesmo campo. É relativo e não absoluto, por isso remove sempre aproximadamente esta fração dos objetos mais ténues, mesmo numa imagem limpa. Intervalo 0-100, 0 desativa-o. Valor predefinido: 0. Use-o para eliminar deteções ao nível do fundo."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_max_intensity_percentile",
+      "source_sha256": "7330187fc19ed73b96cd4222b229f73902bdff39db63c03612356b35c89d126e",
+      "source": "Drops organelle 2 objects whose mean intensity exceeds this percentile of all organelle 2 mean intensities in the same field, so it removes roughly the brightest (100 minus value) percent. Range 0-100; 100 or None disables it (None is read as the default 100, it does not error). Applied by the shared Qt live-preview filter - the batch organelle 2 mask pipeline does not run this filter. Default 100. Use it to reject saturated dust and imaging artefacts.",
+      "translation": "Descarta os objetos de organela 2 cuja intensidade média excede este percentil de todas as intensidades médias de organela 2 no mesmo campo, pelo que remove aproximadamente os (100 menos o valor) por cento mais brilhantes. Intervalo 0-100; 100 ou None desativa-o (None é lido como o valor predefinido 100, não gera erro). É aplicado pelo filtro partilhado de pré-visualização em direto do Qt: a cadeia por lotes de máscaras de organela 2 não executa este filtro. Valor predefinido: 100. Use-o para rejeitar poeira saturada e artefactos de aquisição."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_min_intensity_percentile",
+      "source_sha256": "96412db8a2126733d4ec6798567d691a5e1c90954617df6d88bfcbee2c07206b",
+      "source": "Drops organelles whose mean intensity falls below this percentile of all organelle 2 mean intensities in the same field. It is relative, not absolute, so it always removes roughly this share of the dimmest objects even in a clean image. Range 0-100, 0 disables. Default 0. Use it to cull background-level detections.",
+      "translation": "Descarta as organelas cuja intensidade média fica abaixo deste percentil de todas as intensidades médias de organela 2 no mesmo campo. É relativo e não absoluto, por isso remove sempre aproximadamente esta fração dos objetos mais ténues, mesmo numa imagem limpa. Intervalo 0-100, 0 desativa-o. Valor predefinido: 0. Use-o para eliminar deteções ao nível do fundo."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_max_intensity_percentile",
+      "source_sha256": "41ab12f98460a66172346c3bce7d611b3d77ca7599443df0b31f2a299a08be2a",
+      "source": "Drops organelle 3 objects whose mean intensity exceeds this percentile of all organelle 3 mean intensities in the same field, so it removes roughly the brightest (100 minus value) percent. Range 0-100; 100 or None disables it (None is read as the default 100, it does not error). Applied by the shared Qt live-preview filter - the batch organelle 3 mask pipeline does not run this filter. Default 100. Use it to reject saturated dust and imaging artefacts.",
+      "translation": "Descarta os objetos de organela 3 cuja intensidade média excede este percentil de todas as intensidades médias de organela 3 no mesmo campo, pelo que remove aproximadamente os (100 menos o valor) por cento mais brilhantes. Intervalo 0-100; 100 ou None desativa-o (None é lido como o valor predefinido 100, não gera erro). É aplicado pelo filtro partilhado de pré-visualização em direto do Qt: a cadeia por lotes de máscaras de organela 3 não executa este filtro. Valor predefinido: 100. Use-o para rejeitar poeira saturada e artefactos de aquisição."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_min_intensity_percentile",
+      "source_sha256": "c413aea6893171a513db7de6edb6766a842b8a321febfb4c18204456a868f9d4",
+      "source": "Drops organelles whose mean intensity falls below this percentile of all organelle 3 mean intensities in the same field. It is relative, not absolute, so it always removes roughly this share of the dimmest objects even in a clean image. Range 0-100, 0 disables. Default 0. Use it to cull background-level detections.",
+      "translation": "Descarta as organelas cuja intensidade média fica abaixo deste percentil de todas as intensidades médias de organela 3 no mesmo campo. É relativo e não absoluto, por isso remove sempre aproximadamente esta fração dos objetos mais ténues, mesmo numa imagem limpa. Intervalo 0-100, 0 desativa-o. Valor predefinido: 0. Use-o para eliminar deteções ao nível do fundo."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_max_intensity_percentile",
+      "source_sha256": "15d7e3800f75ec20975c088e483146d708cda4ca7ec147865d8e58f7c11452d8",
+      "source": "Drops organelle 4 objects whose mean intensity exceeds this percentile of all organelle 4 mean intensities in the same field, so it removes roughly the brightest (100 minus value) percent. Range 0-100; 100 or None disables it (None is read as the default 100, it does not error). Applied by the shared Qt live-preview filter - the batch organelle 4 mask pipeline does not run this filter. Default 100. Use it to reject saturated dust and imaging artefacts.",
+      "translation": "Descarta os objetos de organela 4 cuja intensidade média excede este percentil de todas as intensidades médias de organela 4 no mesmo campo, pelo que remove aproximadamente os (100 menos o valor) por cento mais brilhantes. Intervalo 0-100; 100 ou None desativa-o (None é lido como o valor predefinido 100, não gera erro). É aplicado pelo filtro partilhado de pré-visualização em direto do Qt: a cadeia por lotes de máscaras de organela 4 não executa este filtro. Valor predefinido: 100. Use-o para rejeitar poeira saturada e artefactos de aquisição."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_min_intensity_percentile",
+      "source_sha256": "e85d6f0046f6fca5367199bd81edb09aa2347d60df64df14b88ccefb11b97208",
+      "source": "Drops organelles whose mean intensity falls below this percentile of all organelle 4 mean intensities in the same field. It is relative, not absolute, so it always removes roughly this share of the dimmest objects even in a clean image. Range 0-100, 0 disables. Default 0. Use it to cull background-level detections.",
+      "translation": "Descarta as organelas cuja intensidade média fica abaixo deste percentil de todas as intensidades médias de organela 4 no mesmo campo. É relativo e não absoluto, por isso remove sempre aproximadamente esta fração dos objetos mais ténues, mesmo numa imagem limpa. Intervalo 0-100, 0 desativa-o. Valor predefinido: 0. Use-o para eliminar deteções ao nível do fundo."
+    }
+  ]
+}
