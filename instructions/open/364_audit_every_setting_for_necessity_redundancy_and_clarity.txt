@@ -1000,3 +1000,47 @@ TWO PRE-EXISTING FAILURES FIXED ON THE WAY PAST, neither of them OPS:
     is now 7, with the reason written beside it.
 
   tooltip suite   15 failures -> 6, none of the six caused here
+
+
+--------------------------------------------------------------------------------
+2026-09-08 -- PLAQUES AUDITED (22 settings). ONE OF THEM IS NOT AN AUDIT
+              FINDING AT ALL
+--------------------------------------------------------------------------------
+
+See instructions/data/364_plaque_settings_audit_2026-09-08.txt. PROPOSALS
+only; nothing in the module was changed.
+
+  FINDING 0 IS A BUG, NOT A SETTINGS OPINION, and it is why plaques jumped the
+  queue ahead of train_test_model (50) and activation (27). `analyze_plaques`
+  cannot run from its own declared settings: `identify_masks_finetune` reads
+  seven keys that neither `get_analyze_plaque_settings` declares nor
+  `analyze_plaques` adds, and one of them -- `normalize` -- is read
+  unconditionally inside the per-batch loop at `spacr_cellpose.py:237`. With
+  `masks=True`, which is the DEFAULT, the module raises `KeyError:
+  'normalize'` on the first image.
+
+  THE FUNCTION HAS THE SAME BUG WRITTEN IN ITS OWN COMMENT three lines above
+  that loop -- "there is no settings['dst'] key, so the old settings['dst']
+  raised KeyError on this no-images path". One instance was found and fixed in
+  place; seven more were left, and fixing one instance of a class is what made
+  the rest look handled.
+
+  AND THE ONLY TEST THAT DRIVES `analyze_plaques` PASSES `masks=False`, which
+  is the branch that skips the whole mask step. The covered path is the one
+  the user does not take. Whatever fix is chosen, that test should be repeated
+  with `masks=True`.
+
+  NOT DRIVEN TO THE TRACEBACK, and the audit says so rather than implying it:
+  reaching the KeyError needs a real Cellpose checkpoint, which this did not
+  download. What was executed reaches model loading, which is strictly before
+  the loop, so the claim rests on control flow rather than on a stack trace.
+
+  The rest is ordinary audit material: `Signal_to_noise` and `CP_prob` are the
+  two names that do not match the house style, four of the 22 settings are
+  inert unless `well_detection` is on, and `resize` is implied by the two
+  target-size settings beside it.
+
+WHAT IS LEFT ON 364 AFTER THIS: the organelle preprocessing gap, and
+train_test_model (50), activation (27), identify_masks_finetune (23) and the
+rest of this file's own order. `identify_masks_finetune`'s own settings are
+now worth auditing FIRST of those, given what its caller turned up.
