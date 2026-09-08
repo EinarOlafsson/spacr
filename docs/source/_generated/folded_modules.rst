@@ -15,6 +15,7 @@ that covers all of them.
 Opened from a host's masthead
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+* **Align & Stitch** opens `OPS <https://einarolafsson.github.io/spacr/api/spacr/spacrops/index.html>`_
 * **Annotate** opens `Annotator Agreement <https://einarolafsson.github.io/spacr/api/spacr/agreement/index.html>`_
 * **Classify** opens `Activation <https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html>`_, `Classifier Evaluation <https://einarolafsson.github.io/spacr/api/spacr/classifier_evaluation/index.html>`_, `Explain CV Model <https://einarolafsson.github.io/spacr/api/spacr/surrogate/index.html>`_, `Feature Explorer <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/feature_explorer/index.html>`_, `Training Runs <https://einarolafsson.github.io/spacr/api/spacr/train_compare/index.html>`_
 * **Database Browser** opens `Lineage <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/lineage/index.html>`_, `Tabulate <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html>`_

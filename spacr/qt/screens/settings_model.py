@@ -4003,6 +4003,13 @@ _APP_API_MODULE = {
     "curate": "qt/screens/curate",
     "parameter_sweep": "parameter_sweep",
     "align": "align",
+    # OPS folds onto Align & Stitch and was never given a row, so the
+    # fold reference on the API homepage listed it as bare text and its
+    # settings' help pointed at the generated index. Its entry point is
+    # `spacr.spacrops.ops_preprocess` -- the same module `bridge` imports
+    # to run it -- and `spacrops` is a public module with a page of its
+    # own, so there was a page the whole time and nothing addressing it.
+    "ops": "spacrops",
     "convert": "convert",
     "foreign": "foreign",
     "queue": "qt/plate_queue",
