@@ -61,9 +61,28 @@ def test_no_setting_is_without_help(declared):
 
 
 def test_no_setting_is_uncategorised(declared):
-    """A setting in no category does not appear in the panel at all."""
+    """A setting in no category does not appear in the panel at all.
+
+    ASKED OF THE WHOLE MAP, not of OPS_CATEGORIES alone, and only here.
+    Five of these settings -- `src`, `plate`, `dry_run`, `score_threshold`,
+    `verbose` -- are shared with the rest of spaCR and keep their existing
+    homes under Paths, Plate Layout & Controls, Advanced and Evaluation
+    Reports. Repeating them under an OPS heading is not a display
+    preference: Tk renders each copy and Qt drops all but the first, so a
+    setting in two categories is either duplicated or invisible depending
+    on which toolkit is drawing.
+
+    The widening is local to this test. The fixture's `categorised` is
+    OPS's own groups, which is what `test_nothing_is_declared_that_does_
+    not_exist` reads in the other direction -- widening it there would
+    hand that test every setting in the package.
+    """
+    from spacr.settings import categories as all_categories
+
     keys, _ops, categorised = declared
-    missing = sorted(keys - categorised)
+    everywhere = categorised | {k for keys_ in all_categories.values()
+                                for k in keys_}
+    missing = sorted(keys - everywhere)
     assert not missing, f"in no category, so invisible in the GUI: {missing}"
 
 

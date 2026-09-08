@@ -2704,6 +2704,57 @@ def categories_for_app(
 # ``app_screen`` re-exports this as ``SECTION_HINTS`` for the tests and
 # integrations that already read it by that name.
 CATEGORY_TOOLTIPS: Dict[str, str] = {
+    # -- optical pooled screening, folded onto Align & Stitch --------------
+    # Nine headings, and each needs an entry here or the panel draws the
+    # generic fallback: a heading whose tooltip says nothing about the
+    # settings under it is worse than no tooltip, because the reader has
+    # already spent the hover.
+    "OPS INPUT":
+        "Where the two acquisitions are read from and how they are laid "
+        "out on disk: the genotype folder, the phenotype folder, which "
+        "file extensions count, and what to do when a name collides or a "
+        "file is missing. Set these first; every other OPS group assumes "
+        "they are right.",
+    "OPS NAMING":
+        "How a filename is read back into well, site, channel and plane. "
+        "The regex and the axis letters are what turn a microscope's "
+        "naming scheme into coordinates, so a mosaic that comes out "
+        "scrambled is almost always wrong here rather than in stitching.",
+    "OPS STITCHING":
+        "Finding the overlap between neighbouring tiles: which feature "
+        "detector runs, how many features it looks for, and how far apart "
+        "two sites may be and still be treated as neighbours. Downsampling "
+        "trades registration accuracy for speed.",
+    "OPS STITCHING ADVANCED":
+        "The registration's own tolerances -- how many keypoints to keep, "
+        "how far a match may sit from the model before RANSAC rejects it, "
+        "and whether scale and rotation are allowed to vary at all. Leave "
+        "these alone unless a plate is failing to register.",
+    "OPS MOSAIC":
+        "Whether the stitched mosaic is built and written, whether every "
+        "channel is carried into it, and how confident a pair must be "
+        "before it is placed. This is the group that decides what actually "
+        "lands on disk.",
+    "OPS MOSAIC ADVANCED":
+        "Where the mosaic and its per-tile score table are written, in "
+        "which formats, and how far the preview is downsampled. Paths "
+        "only: nothing here changes the mosaic itself.",
+    "OPS ALIGNMENT":
+        "Placing the high-magnification phenotype images onto the "
+        "low-magnification genotype mosaic. The nucleus segmentation and "
+        "the outline it produces are what the two acquisitions are matched "
+        "on, so the model and diameter here decide whether they meet.",
+    "OPS QUALITY CONTROL":
+        "The figures the run leaves behind so a placement can be checked "
+        "afterwards, and how heavily the outlines are drawn on them. "
+        "Costs disk and a little time; it is what turns a bad alignment "
+        "from a mystery into a picture.",
+    "OPS PERFORMANCE":
+        "How much of the machine the run may use: worker counts for the "
+        "stitch and the feature pass, an OpenCV thread cap, a memory "
+        "ceiling for cached features, and where the cache and temporary "
+        "files live. Nothing here changes the result, only what it costs.",
+
     # -- shared headings from spacr.settings.categories --------------------
     "PATHS":
         "Where the module reads its images or tables from, plus any lookup "

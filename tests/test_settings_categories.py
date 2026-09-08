@@ -263,6 +263,33 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # ---- optical pooled screening, folded onto Align & Stitch ----------
+    # All 57 arrive together from `spacr.ops_settings.OPS_CATEGORIES` and
+    # are declared as one block rather than reasoned about one at a time:
+    # they are a whole module's settings, not a regrouping of existing
+    # ones, and every one of them is new to the map.
+    #
+    # `src`, `plate`, `dry_run`, `score_threshold` and `verbose` are NOT
+    # here, and that is the point of the list. OPS shares those five with
+    # the rest of spaCR and they keep their existing homes; listing a
+    # setting under two headings is not a display preference, because Tk
+    # renders each copy and Qt drops all but the first.
+    "all_scores", "allow_rotation", "allow_scale", "arr_axes", "blend",
+    "blur_sigma", "canny", "cellpose_diameter", "cellpose_model",
+    "channel_index", "channel_indices", "collision", "detector",
+    "dilate_ksize", "do_multichannel", "do_nuc_stitch", "do_organize",
+    "downsample", "dst_root", "exts", "feature_cache_dir",
+    "feature_cache_mode", "genotype_source", "line_thickness",
+    "max_keypoints", "max_ram_features", "max_site_gap", "meta_regex",
+    "mip", "mosaic", "mosaic_csv_out", "mosaic_min_score", "mosaic_out",
+    "n_workers", "n_workers_features", "nfeatures", "on_missing",
+    "opencv_threads", "out_png", "out_tif", "outline_alpha",
+    "outline_source", "pair_batch_size", "phenotype_source",
+    "preview_downsample", "ransac_thresh_px", "recursive",
+    "relative_scale", "save_qc", "save_stitched_default",
+    "squeeze_singleton", "stitch", "stream_csv", "t_index", "tmp_dir",
+    "well_group", "write_mosaic", "z_index",
+
     # ---- the plaque assay's models and its physical ruler --------------
     # `plaque_model` selects the segmenter, so it sits with `custom_model`
     # under Cellpose. The rest are filed under Plate Layout & Controls

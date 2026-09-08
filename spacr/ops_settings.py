@@ -100,11 +100,18 @@ OPS_TYPES: Dict[str, object] = {
 }
 
 #: Which panel section each setting appears under.
+#:
+#: A SETTING BELONGS TO EXACTLY ONE CATEGORY. `src`, `plate`, `dry_run`,
+#: `score_threshold` and `verbose` are shared with the rest of spaCR and are
+#: already filed under Paths, Plate Layout & Controls, Advanced, Evaluation
+#: Reports and Advanced respectively, so they are NOT repeated here. Listing
+#: one twice is not a display preference: Tk renders each copy separately and
+#: Qt drops all but the first, so the second copy is either a duplicate
+#: control or an invisible one depending on which toolkit is drawing.
 OPS_CATEGORIES: Dict[str, List[str]] = {
     "OPS input": [
-        "src", "dst_root", "genotype_source", "phenotype_source", "plate",
+        "dst_root", "genotype_source", "phenotype_source",
         "exts", "recursive", "do_organize", "collision", "on_missing",
-        "dry_run",
     ],
     "OPS naming": [
         "meta_regex", "well_group", "arr_axes", "squeeze_singleton",
@@ -112,7 +119,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "OPS stitching": [
         "detector", "nfeatures", "downsample", "max_site_gap",
-        "score_threshold", "relative_scale",
+        "relative_scale",
     ],
     "OPS stitching advanced": [
         "max_keypoints", "ransac_thresh_px", "allow_scale", "allow_rotation",
@@ -131,7 +138,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "outline_source", "canny", "blur_sigma", "dilate_ksize",
     ],
     "OPS quality control": [
-        "save_qc", "outline_alpha", "line_thickness", "verbose",
+        "save_qc", "outline_alpha", "line_thickness",
     ],
     "OPS performance": [
         "n_workers", "n_workers_features", "opencv_threads",

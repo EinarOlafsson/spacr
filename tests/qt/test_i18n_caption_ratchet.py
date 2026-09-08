@@ -105,7 +105,12 @@ COMPACT_CAPTION_SHA256 = (
 EXTERNAL_SOURCE_COUNTS = {
     "SETTING_LABELS": 1077,
     "SETTING_TOOLTIPS": 1072,
-    "CATEGORY_HELP": 192,
+    # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
+    # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
+    # entry or its panel drew the generic fallback -- a heading whose
+    # tooltip says nothing about the settings under it, which costs the
+    # reader the hover and tells them nothing.
+    "CATEGORY_HELP": 201,
     "UI": 2838,
     "MODULE_SUMMARIES": 67,
 }
@@ -116,8 +121,11 @@ EXTERNAL_SOURCE_COUNTS = {
 # Moved again on 2026-09-08 with no count change: the shortcuts help row is
 # keyed by its English source, and that source now says Ctrl+P where it said
 # Ctrl+comma. Same row, new identity.
+#
+# Moved again on 2026-09-08 with the CATEGORY_HELP count above: nine new
+# section headings are nine new record identities.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "1aaf6b41e96a7c6a4691aea14778a7767509877134aa8be25f3d84ce61a86803"
+    "bb1cc291cf12e63c98e04b577817d6e665da725855afa8965cfa20dff58b94c3"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
