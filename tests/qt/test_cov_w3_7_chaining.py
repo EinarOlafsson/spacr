@@ -27,6 +27,31 @@ from spacr import chaining as core_chaining
 from spacr import ports as core_ports
 from spacr.chaining import ChainedInput, HeldPin, NextStep
 from spacr.qt import chaining as qt_chaining
+
+def _settle(bar, *, timeout: float = 15.0) -> None:
+    """Let the strip finish resolving before reading what it decided.
+
+    `ChainingBar.refresh` has been ASYNCHRONOUS since fade6350f, which moved
+    the registry read off the GUI thread to fix a freeze: it sets
+    `_resolving`, hands the work to a worker, and returns. A test that reads
+    on the next line sees the state BEFORE the answer -- an empty field, an
+    empty tuple -- which looks like the seam never fired.
+
+    `_resolve_again` is the coalesced follow-up, a refresh that arrived while
+    one was in flight; waiting only on `_resolving` can return between the two
+    and read a half-settled strip.
+    """
+    from PySide6.QtWidgets import QApplication
+    import time as _time
+
+    deadline = _time.monotonic() + timeout
+    while _time.monotonic() < deadline:
+        QApplication.processEvents()
+        if not getattr(bar, "_resolving", False) and not getattr(
+                bar, "_resolve_again", False):
+            return
+    raise AssertionError("the chaining strip never finished resolving")
+
 from spacr.qt.chaining import ChainingBar
 
 
@@ -643,6 +668,16 @@ def test_a_module_with_no_upstream_still_searches_its_own_folder(bar,
     monkeypatch.setattr(prefs, "get_last_source",
                         lambda key: "/plate/last" if key == "measure" else "")
     monkeypatch.setattr(prefs, "get_recent_sources", lambda key, limit=4: [])
+    # THE PROBE ANSWERS False FOR A ROOT IT HAS NOT SEEN, which `search_roots`
+    # relies on deliberately -- "the pessimistic direction and the right one",
+    # because offering a start folder that turns out not to exist opens the
+    # dialog at the filesystem root. On a cold cache that means this returns
+    # () for a path that is perfectly good, so the answer is seeded rather
+    # than raced against the background probe.
+    from spacr.qt import path_probe
+
+    path_probe.prime("/plate/last", True)
+    path_probe.prime("/plate/last", True, want_dir=True)
     assert bar.search_roots() == ("/plate/last",)
 
 
@@ -658,6 +693,7 @@ def test_a_refresh_that_throws_is_logged_and_the_screen_survives(bar,
                             RuntimeError("registry is corrupt")))
     with caplog.at_level(logging.ERROR, logger="spacr.qt.chaining"):
         bar.refresh()
+        _settle(bar)
     assert "could not refresh the chaining strip for measure" in caplog.text
 
 

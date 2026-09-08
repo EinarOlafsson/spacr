@@ -26,6 +26,31 @@ from spacr import chaining as core_chaining
 from spacr.chaining import ChainedInput, HeldPin, NextStep, Resolution
 from spacr.qt.chaining import ChainingBar
 
+def _settle(bar, *, timeout: float = 15.0) -> None:
+    """Let the strip finish resolving before reading what it decided.
+
+    `ChainingBar.refresh` has been ASYNCHRONOUS since fade6350f, which moved
+    the registry read off the GUI thread to fix a freeze: it sets
+    `_resolving`, hands the work to a worker, and returns. A test that reads
+    on the next line sees the state BEFORE the answer -- an empty field, an
+    empty tuple -- which looks like the seam never fired.
+
+    `_resolve_again` is the coalesced follow-up, a refresh that arrived while
+    one was in flight; waiting only on `_resolving` can return between the two
+    and read a half-settled strip.
+    """
+    from PySide6.QtWidgets import QApplication
+    import time as _time
+
+    deadline = _time.monotonic() + timeout
+    while _time.monotonic() < deadline:
+        QApplication.processEvents()
+        if not getattr(bar, "_resolving", False) and not getattr(
+                bar, "_resolve_again", False):
+            return
+    raise AssertionError("the chaining strip never finished resolving")
+
+
 
 @pytest.fixture(autouse=True)
 def _own_pins(monkeypatch, tmp_path):
@@ -228,12 +253,14 @@ def test_a_chained_path_is_recorded_even_when_no_field_can_be_filled(
                   apply=lambda values: field.setText(values["src"]))
     assert filled._bound_settings() == ("src",)
     filled.refresh()
+    _settle(filled)
     assert field.text() == "/plate/from-the-registry"
 
     blank = QLineEdit("")
     qtbot.addWidget(blank)
     unwritable = _bar(qtbot, pins, model=_Model({"src": blank}))
     unwritable.refresh()
+    _settle(unwritable)
     assert blank.text() == "", "there was no seam, so nothing was written"
     assert unwritable._offered == {"src": "/plate/from-the-registry"}
     assert unwritable._seen == {"src": "/plate/from-the-registry"}
