@@ -349,12 +349,19 @@ class _FigureCell(QFrame):
         self.setStyleSheet("_FigureCell { background: transparent; }")
         self.setAttribute(Qt.WA_TranslucentBackground, True)
 
+        # IMPORTED HERE, NOT INSIDE `if letter:`. It was, and the caption
+        # block below uses it too -- so a panel with a title and NO letter
+        # raised UnboundLocalError and took the grid down with it. A letter
+        # is optional and a caption is optional, which makes the pairing
+        # "captioned but unlettered" an ordinary panel rather than an edge
+        # case.
+        from ..theme import font_px
+
         if letter:
             # UPPER-CASE PANEL LETTER, top left, bold -- asked for by name:
             # "i asked you to make the all figures pannel publication style
             # (with each panel having an uppercase letter) and be on a grid".
             tag = QLabel(letter.upper())
-            from ..theme import font_px
             tag.setStyleSheet(
                 f"font-weight: 700; font-size: {font_px(15)}px; "
                 "background: transparent;")
