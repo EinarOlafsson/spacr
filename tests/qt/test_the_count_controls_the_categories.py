@@ -64,10 +64,24 @@ def test_no_category_is_empty(mask):
 
 
 def test_raising_the_count_builds_the_slots(mask):
-    """A control that was never built cannot be revealed, so it must grow."""
+    """A control that was never built cannot be revealed, so it must grow.
+
+    RELATIVE TO WHAT IS ALREADY BUILT, not the literal 3 this asked for
+    until 2026-09-08. `mask` is module-scoped and growing never shrinks,
+    so `test_growing_never_shrinks` -- which takes the same panel to five
+    -- left this one asserting that a request for three yields three when
+    five slots already existed. pytest-randomly orders the file, so the
+    suite passed or failed on the seed: green on the seeds where this ran
+    first, red on 2 and 7 among others, with no change to the package
+    between them.
+
+    The property is unchanged and is the one the docstring states: ask
+    for more than is built and the panel builds up to it.
+    """
     model = mask._settings_model
-    assert model.grow_to_fit_the_organelle_count(3) == 3
-    assert model._slots_built_for == 3
+    target = max(3, model._slots_built_for + 1)
+    assert model.grow_to_fit_the_organelle_count(target) == target
+    assert model._slots_built_for == target
 
 
 def test_growing_never_shrinks(mask):

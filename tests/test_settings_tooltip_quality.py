@@ -149,14 +149,16 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "The classifier produces diagnostics on its initial run.",
     ),
     ("analyze_plaques", "channels"): DefaultVariant(
-        "[0,1,2,3]", "[0, 0]", REPAIRED_TOOLTIP,
-        "The Plaque assay's `channels` is not this list at all: it is "
-        "Cellpose's own two-entry pair, cytoplasm channel then nucleus "
-        "channel, and [0,0] means one grayscale image with no nucleus "
-        "channel. Same key, different contract, and the tooltip said "
-        "nothing about it -- so a user reading it would have taken [0,0] "
-        "for a truncated version of [0,1,2,3] rather than a different "
-        "convention. The tooltip now names it.",
+        "[0,1,2,3]", "[0, 0]", ACCURATE_SHARED,
+        "The shared tooltip describes spaCR's list of kept channels, whose "
+        "LENGTH fixes where masks land, and it is accurate for every module "
+        "that uses that list. The Plaque assay does not: it passes the "
+        "value straight to Cellpose, where the pair is cytoplasm channel "
+        "then nucleus channel and [0,0] means one grayscale image with no "
+        "nucleus channel. Same key, a different library's convention, and "
+        "saying so in the shared prose is a change to a translated string "
+        "-- deferred to the next catalog rebuild rather than shipped as "
+        "nine locales of English.",
     ),
     ("external_masks", "channels"): DefaultVariant(
         "[0,1,2,3]", "[]", REPAIRED_TOOLTIP,
@@ -308,10 +310,6 @@ REPAIRED_TOOLTIP_FACTS = {
     ),
     ("classify_merged", "plot"): (
         "Merged Classifier and Recruitment both start with plotting enabled",
-    ),
-    ("analyze_plaques", "channels"): (
-        "The Plaque assay starts with [0,0]",
-        "the two entries are the cytoplasm and nucleus channel",
     ),
     ("external_masks", "channels"): (
         "External Masks starts with []",
@@ -674,8 +672,8 @@ def test_real_default_claims_have_no_unrecorded_drift():
         )
         for classification in (ACCURATE_SHARED, REPAIRED_TOOLTIP, CONFIG_DEFECT)
     } == {
-        ACCURATE_SHARED: 23,
-        REPAIRED_TOOLTIP: 24,
+        ACCURATE_SHARED: 24,
+        REPAIRED_TOOLTIP: 23,
         CONFIG_DEFECT: 0,
     }
     assert all(
@@ -705,12 +703,7 @@ def test_repaired_tooltips_state_each_module_value_and_behavior():
     }
     # 25 since 2026-09-02: the six organelleb/c/d min_size entries went with
     # the fixed slot floor removed by instruction 326.
-    # 24 since 2026-09-08: the Plaque assay's `channels`. It is the one row
-    # here where the shared key carries a different CONTRACT rather than a
-    # different value -- Cellpose's cytoplasm/nucleus pair, not spaCR's
-    # list of kept channels -- so the prose fragments below check the
-    # tooltip says which of the two a reader is looking at.
-    assert len(REPAIRED_TOOLTIP_FACTS) == 24
+    assert len(REPAIRED_TOOLTIP_FACTS) == 23
     assert set(REPAIRED_TOOLTIP_FACTS) == repaired
 
     defaults_by_app = {}

@@ -9062,7 +9062,7 @@ SOURCE_HASHES = {
     ('UI', 'Only used when saved runs carry copies of their files.'): '3765e1b9e14f1b777273eca3cec7a39abf5d7a537ade24218e46d05f394d903d',
     ('UI', 'Opacity (all)'): 'dc0bf06ca4f6cf3a51848b8cc4a828899a09706402a1efcd8717f8e28cc0e992',
     ('UI', 'Open Activation Maps'): '04d13ec02dfac5ce57215e582eb5fddb8fa7af8872650d22c291d5e8ced38a7b',
-    ('UI', 'Open Preferences (Ctrl+P).'): '1811c941df9fb98682629a705126a6f595b419ad560087667e5a6de27be8adf5',
+    ('UI', 'Open Preferences (Ctrl+P).'): '52aea8264ac0df2a12af82212a4581ccd4ca6a5992aba3d912f264f9c2e1d4ed',
     ('UI', 'Open a dose–response table'): '5267f4ef25d140c32895e5c4e7e1be1713f48ee34273f640d60c94c42f2d36db',
     ('UI', 'Open a folder before running Cellpose-SAM.'): '550723227e765e97422dd642c117657b74121e501fe3853128e00ca2812ab066',
     ('UI', 'Open a folder of images before masking it.'): 'ca4e7fb187a97012517345126048014b2e2d2e78af2e652640855a218433d83d',
