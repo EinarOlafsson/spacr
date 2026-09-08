@@ -2,7 +2,9 @@
 A SETTING'S API LINK LANDS ON THAT SETTING, IN THE MODULE THE USER IS IN
 ================================================================================
 
-Status:    not started
+Status:    ITEMS 1, 2 AND 4 DONE 2026-09-08. Item 3 closed earlier the same
+           day. What is left is the 43 links that still land on a bare
+           module page, unaudited -- see the closing note.
 Requested: 2026-09-08 — "The API links for settings are not good enough. i
            just tried sourse in mask and got a 404 error, then i tested the
            API link for Magnefication and got a page with no mention of
