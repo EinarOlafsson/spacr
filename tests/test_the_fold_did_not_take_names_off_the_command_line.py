@@ -47,15 +47,26 @@ def test_the_name_is_not_reported_as_unknown(key):
 
 
 @pytest.mark.parametrize("key,host", sorted(FOLDED_OFF_THE_CLI.items()))
-def test_the_message_says_where_the_thing_went(key, host):
-    """Naming the host is the whole value of the message.
+def test_the_message_gives_the_user_somewhere_to_go(key, host):
+    """"It is gone" leaves the user with nothing to do next.
 
-    "It is gone" leaves the user with nothing to do next. "It folded into
-    the QC Dashboard" is a place to look.
+    TWO ANSWERS COUNT, and the first version of this test only accepted
+    the second. Four of the six still have a catalog row whose `cli_note`
+    names the HEADLESS CALLABLE that does the same work -- "call
+    spacr.qt.widgets.outlier_model.detect_outliers()" -- which is a better
+    answer than naming the GUI host, because it is something the user can
+    put in the script they were already writing. The other two have no row
+    left and name the host instead.
+
+    So what is asserted is the property both satisfy: the message hands
+    over a specific destination, not a shrug.
     """
     message = cli._unknown_module_message(key)
-    assert host in message, (
-        f"the message for '{key}' does not name its host '{host}':\n{message}")
+    names_host = host in message
+    names_callable = "spacr." in message and "(" in message
+    assert names_host or names_callable, (
+        f"the message for '{key}' names neither a host nor a headless "
+        f"callable, so it does not say what to do instead:\n{message}")
 
 
 def test_every_named_host_still_exists():

@@ -682,34 +682,40 @@ _register_plugin_modules()
 # thing simply cannot run without a person looking at a screen.
 INTERACTIVE_ONLY: Dict[str, str] = {
     # ------------------------------------------------------------------
-    # THE SIX THE FOLD TOOK OFF THE COMMAND LINE, restored here as
-    # explanations rather than as runnable names. Added 2026-09-07.
+    # THE SIX THE FOLD TOOK OFF THE COMMAND LINE, added 2026-09-07.
     #
-    # None of these ever had a row in `_MODULE_LIST`. They reached
-    # `spacr-run` because they were rows in the GUI's app table and
-    # `_register_plugin_modules` takes its names from there -- so when
-    # `571b6e77c` and `00f166a7f` folded them into host screens, the only
-    # name they answered to on the command line went with them, and
-    # `spacr-run outliers` began saying "unknown module 'outliers'".
+    # None had a row in `_MODULE_LIST`. They answered to `spacr-run` because
+    # `_absorb_registered_gui_only` pulls `cli_note=` out of the Qt registry
+    # -- and that pull only happens in a process that has imported
+    # `spacr.qt.app`, which a headless `spacr-run` deliberately does not.
+    # `571b6e77c` and `00f166a7f` then folded them into host screens. So
+    # `spacr-run outliers` answers "unknown module 'outliers'", which tells
+    # the user they mistyped a name that was removed.
     #
-    # That is a breaking change to a documented entry point: a script that
-    # called one of these after upgrading gets an error that reads like a
-    # typo. It is not a typo, and the message should not imply it is.
-    # Where the view moved to a host screen the host is named; where there
-    # is a real headless callable it is named instead.
-    "outliers": "The outlier view folded into the QC Dashboard. In the GUI "
-                "open 'qc_dashboard'; headless, the same numbers come from "
-                "spacr.plate_qc on measurements.db.",
-    "control_chart": "Control charts folded into the QC Dashboard. In the "
-                     "GUI open 'qc_dashboard'; headless, call "
-                     "spacr.plate_qc from Python.",
-    "trellis": "The trellis view folded into Graph Builder. In the GUI open "
-               "'graph_builder' — it is a plotting surface with no batch "
-               "equivalent, because what it produces is a figure you choose "
-               "interactively.",
-    "feature_explorer": "Feature Explorer folded into Classify. In the GUI "
-                        "open 'classify_merged'; it is an interactive "
-                        "ranking of features and has no headless form.",
+    # WRITTEN HERE, not absorbed -- the same decision as `curate`,
+    # `image_scatter` and `pca` above, and for the same reason. FOUR OF THEM
+    # STILL HAVE A CATALOG ROW, and the text below is that row's `cli_note`
+    # COPIED VERBATIM: `INTERACTIVE_ONLY.setdefault` means a hand-written
+    # entry outranks the registry, so a paraphrase here would silently
+    # replace the sentence the screen declares. That duplication is guarded
+    # -- `test_the_gui_only_sentence_reaches_spacr_run` fails the moment the
+    # two drift, which is how the first version of this block was caught.
+    "outliers": "For headless use, call "
+                "spacr.qt.widgets.outlier_model.detect_outliers() to compute "
+                "the same object flags, well scores, and report.",
+    "control_chart": "For headless use, call "
+                     "spacr.qt.widgets.control_chart.control_chart(frame, "
+                     "spec) to return the same limits, violations, and "
+                     "report text.",
+    "trellis": "For headless use, call "
+               "spacr.qt.widgets.trellis_spec.trellis() to compute the panel "
+               "layout, scales, and per-panel sample sizes.",
+    "feature_explorer": "For headless use, call "
+                        "spacr.qt.widgets.feature_rank.rank_features(frame, "
+                        "spec) to return the same feature-level statistics "
+                        "and ranking.",
+    # The other two have NO catalog row left to copy from, so these are
+    # written rather than mirrored, and name where the thing went.
     "import_images": "Image import folded into the foreign-format importer. "
                      "In the GUI open 'foreign'; headless, call "
                      "spacr.image_import.apply_import, which is what that "
