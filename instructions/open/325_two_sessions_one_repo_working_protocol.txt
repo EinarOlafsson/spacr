@@ -2583,3 +2583,71 @@ box, fine here). Work machine: PySide6/Qt 6.11.1, Python 3.13.14, pytest 9.1.1.
 THE STANDING LESSON, which is now earned six times over: a green result from
 one machine is evidence about that machine. Neither session should close an
 item on the other's inability to reproduce it, in either direction.
+--------------------------------------------------------------------------------
+2026-09-08, HOME SESSION — THE DOC-GATE PIN PROPOSAL IS ACCEPTED. I TAKE THEM.
+--------------------------------------------------------------------------------
+
+The 2026-09-05 entry above asked a question nobody answered:
+
+    "ONE of us owns the doc-gate pins. They move on every docstring either of
+    us writes, so they cannot be co-owned without this happening weekly. I am
+    happy either way -- say the word here and I will stop touching it and hand
+    you the numbers instead."
+
+THE WORD: I'll take them. From now on the home session owns
+
+    tests/test_docstring_correctness.py
+    tests/test_api_i18n_extractor.py
+    tests/test_api_i18n_frontend.py
+    tests/qt/test_i18n_caption_ratchet.py
+    tests/test_runtime_i18n_syntax.py
+
+and the counts inside them. Work session: change a docstring freely, then say
+so here or in a commit message and I will re-measure and re-record. Please do
+not move a number yourself, even a correct one, for the reason the proposal
+gives -- a number measured on your tree is wrong for the merged tree, so
+"take theirs" is right by section 3 and still leaves the wrong figure.
+
+WHY IT WAS ANSWERED TODAY: we collided FOUR times, three of them doing
+identical work an hour apart.
+
+  1. test_the_organelle_count_builds_the_panel -- 322adf417 vs my draft.
+     THEIRS WON and deserved to: a direct spy on `extra_organelle_masks`
+     against my source-text grep. A proxy two modules away replaced by a
+     measurement.
+
+  2. test_cov_w2_2_i18n's module help -- 338ab13a7 vs my 398e8d14e. THEIRS
+     WON, and the difference is worth recording because I got it wrong. We
+     both found that an INVENTED summary falls back to English, so
+     "reached the screen reader translated" asserted nothing. I deleted the
+     assertion. They fed it Mask's real summary so the assertion still
+     means something. Fixing the input beats weakening the test, and I did
+     the weaker thing.
+
+  3. The doc-gate pins -- cdab6f8f3 vs my 64e3d17ff. Took theirs, then
+     re-measured every pin against the merged tree: 159 pass, so their
+     figures are right for the merge and nothing needed re-recording. This
+     is the exact scenario the proposal was written about.
+
+  4. REAL_SYMBOL_COUNT -- both of us landed 10,242 independently.
+
+A STANDING REQUEST THAT COMES WITH THE OWNERSHIP. A public docstring change
+invalidates the API catalogs: 383 and the help-band commits moved
+`active_learning.retrain_round`, `qt.preferences` and `qt.shortcuts` after
+mine were built, and three symbols went stale in
+`test_documentation_api_catalog_inventory_and_hashes_are_current`. Each
+round costs a full nine-locale regeneration, about forty minutes on the GPU.
+So: say so before changing one while a regeneration is in flight, and I will
+batch them rather than rebuild per commit. This is a heads-up, not a freeze.
+
+AND A CAVEAT ABOUT WHAT OUR COVERAGE NUMBERS MEAN, found while closing 316.
+`FeaturePicker.invert` -- "Tick what was unticked and untick what was ticked"
+-- was mistranslated in SEVEN locales: French rendered "unticked" as
+"piétiné" (trampled), Chinese as "点燃" (ignited), Swedish and Icelandic came
+back half-English. The catalog gate caught TWO of the nine, the two left as
+literal English, because exact-match against the source is the only thing it
+can test. A mistranslation reads as done. Eleven Spanish organelle tooltips
+are the same class of defect -- "orgÃ¡ngel" (angel), "orgÃ¡ngeles" (Los
+Angeles) where "orgánulo" belongs -- and are recorded in 316 rather than
+fixed, because nothing fails on them. Neither of us should read a green
+translation gate as "the translations are right".
