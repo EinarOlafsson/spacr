@@ -5020,7 +5020,34 @@ class MainWindow(QMainWindow):
         Idle GUI-thread CPU fell from ~16% of a core to ~10%.
 
         :param screen: the screen this window has just taken.
+
+        DISABLED 2026-09-07, AND THE MEASUREMENT ABOVE IS WHY IT LOOKED
+        RIGHT. Everything in it is true and it still made the product worse:
+        the two backdrops WERE both being shaded and blitted, and the lower
+        one WAS 87% covered -- but the 13% that was not covered is the
+        theme. Retiring the screen's own backdrop left the window's, which
+        sits behind the stack, and HomePage's plain `QWidget` containers
+        paint `bg` over it. On the dark theme `bg` is `#000000`.
+
+        MEASURED THE SAME WAY BOTH TIMES, from X rather than from
+        `QWidget.grab()` (which cannot see the GL-backed widget at all and
+        reports black for a working backdrop): at this commit's parent
+        `f9fa45319` the home screen is 29.6% chromatic pixels, and at the
+        commit itself 2.5%, with 31.7% pure black. The maintainer's report
+        was "i get a black background when the blobs theme is active", and
+        1.5.0.1 -- the last desktop install -- measures 38.9%.
+
+        SO THE DEDUP IS OFF UNTIL THE WINDOW'S BACKDROP IS ACTUALLY VISIBLE
+        THROUGH THE SCREENS. That is the real fix and it is not this
+        function's to make: the containers above it have to stop painting
+        an opaque `bg`, which is instruction 327's and 380's territory.
+        Turning the second backdrop back on costs what the docstring above
+        measured; showing the user a black window costs the theme. The
+        second is worse, and a fix that trades a visible feature for idle
+        CPU should have been measured on screen before it shipped.
         """
+        return
+        # -- unreachable until the paragraph above is resolved --------------
         if self.window_backdrop() is None:
             # NOT A BARE RETURN, WHICH IS WHAT IT WAS AND WHAT WAS WRONG.
             # The flag is a claim about the window as it stands NOW, and it
