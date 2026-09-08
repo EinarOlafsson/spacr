@@ -225,7 +225,7 @@ _LIBRARY_DIRS = ()
 def _the_spacr_frame(path: str) -> str:
     """``path`` as a package-relative name, or "" if it is not spaCR's.
 
-    TWO WAYS TO BE SPACR'S, and one way not to be.
+    TWO WAYS TO BELONG TO spaCR, and one way not to.
 
     The old test was `"/spacr/" in path`, and it is wrong for a real and
     common installation: this project's own conda environment is named

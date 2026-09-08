@@ -655,8 +655,12 @@ def _make_screen(app_key=None, host=None):
                                        table_item(str(value)))
 
     screen = ParameterSweepScreen(host=host)
-    # THE BLACK BOX BEHIND THE SWEEP, reported 2026-09-04: "regression modual
-    # paramiter sweep has black box background which should be transparent".
+    # THE BLACK BOX BEHIND THE SWEEP, reported 2026-09-04: the regression
+    # module's parameter sweep had a black box background where it should
+    # have been transparent. (Paraphrased rather than quoted: the report
+    # misspelt "parameter", and the suite keeps that spelling out of the
+    # package so the back-compat alias stays the only place it appears --
+    # which is why this comment cannot name the test that does it either.)
     #
     # Measured, the screen rendered over magenta: the screen came back
     # `#000000` and so did its `QSplitter`. Both are plain `QWidget`s with no

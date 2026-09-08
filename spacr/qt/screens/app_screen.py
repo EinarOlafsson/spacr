@@ -8113,7 +8113,7 @@ class AppScreen(QWidget):
         from ..ai.issue_report import build_report, submit_report
         from ..preferences import get_share_diagnostic_logs
 
-        # SPACR AI'S OWN ANALYSIS RIDES ALONG when the AI is switched on and
+        # THE AI'S OWN ANALYSIS RIDES ALONG when spaCR AI is switched on and
         # has already answered THIS error -- which, in the flow that files
         # these reports, it usually has, because the console offers to explain
         # a crash the moment it happens. Empty when the AI is off, when it has

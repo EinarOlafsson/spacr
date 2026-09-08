@@ -789,9 +789,14 @@ def _stitch_fields(plan: "ImportPlan", entries: Dict[str, Dict[str, object]],
                                 f"one field, so it was not written")
             continue
         try:
-            import tifffile
+            # `write_tiff`, not `tifffile.imwrite`: a stitched mosaic can
+            # have three or four planes in its leading dimension, and
+            # tifffile guesses RGB for exactly that shape. The helper
+            # declares minisblack/contig so an intensity stack is not
+            # written as a colour image.
+            from .tiff_io import write_tiff
 
-            tifffile.imwrite(str(destination / name), array)
+            write_tiff(str(destination / name), array)
         except Exception as exc:                         # noqa: BLE001
             for _tile, rel in members:
                 skipped[rel] = f"could not write the stitched {name}: {exc}"

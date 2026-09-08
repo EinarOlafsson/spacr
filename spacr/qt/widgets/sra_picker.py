@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...sra import estimated_bytes, fetch_reads, runs_for
+from ..bridge import emit_safely
 from ..i18n import tr
 
 #: Reads per file when the dialog opens. Enough to exercise barcode mapping
@@ -88,7 +89,13 @@ class _FetchWorker(QThread):
             error = "cancelled"
         except Exception as exc:                  # noqa: BLE001
             error = str(exc)
-        self.finished_all.emit(written, error)
+        # `emit_safely`, because this is the LAST line of a QThread::run
+        # override. A fetch can outlive the dialog that started it -- that
+        # is most of why it is on a thread -- and emitting into a
+        # destroyed receiver raises RuntimeError, which leaving `run`
+        # turns into an abort of the whole application rather than a
+        # traceback. The progress emit above is already inside the try.
+        emit_safely(self.finished_all, written, error)
 
 
 class SraPicker(QDialog):

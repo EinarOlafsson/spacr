@@ -33,6 +33,7 @@ WORKER_MODULES = (
     "spacr/qt/screens/make_masks.py",
     "spacr/qt/screens/queue.py",
     "spacr/qt/screens/annotate.py",
+    "spacr/qt/widgets/sra_picker.py",
 )
 
 #: Calls that reach the worker's own C++ half and so can raise once it is
