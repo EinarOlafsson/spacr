@@ -892,3 +892,67 @@ running in that window may have imported a file mid-swap. Every failure above
 was re-verified afterwards in its own process, so the failures are sound; a
 chunk that PASSED during that window is the part I would not lean on. Do not
 edit the tree during a sweep, and do not `git stash` during one either.
+
+--------------------------------------------------------------------------------
+2026-09-07 — THE WHOLE Qt SUITE MEASURED, AND WHAT THE 124 FAILURES ACTUALLY ARE
+--------------------------------------------------------------------------------
+
+All 1,028 files, 35 serial chunks, every chunk completed: **20,075 passed, 124
+failures across 50 files -- 99.4%**. That is the clean full-suite signal this
+instruction has wanted since it was filed. It is a TAIL, not a broken suite.
+
+THE SINGLE-PROCESS QUESTION, answered differently than expected. A full
+tests/qt in ONE process is running at 8% after 43 minutes with RSS FLAT near
+3.0 GB. No leak, no OOM, nothing wedged. At that rate a whole pass is about
+NINE HOURS against CI's `timeout_minutes: 120`. So "the shard reached 99%, then
+sat in silence until the runner killed it" is most likely the shard NOT
+FINISHING IN ITS WALL-CLOCK -- pytest prints its summary at the end, so a
+killed run prints nothing. That is a scheduling problem, not a poisoned test,
+and it explains both the moving failure position and why no single file
+reproduces it.
+
+WHAT THE FAILURES WERE, once each was run alone and diffed against a week-old
+worktree. Almost none was a product defect found by a test doing its job:
+
+  A DELETED EMPTY FILE            6  tests/__init__.py, removed inside a
+                                     561-line commit. It decides how pytest
+                                     NAMES modules, so one test's builder
+                                     string imported a SECOND copy of its own
+                                     module.
+  A SYNC TEST ON AN ASYNC API    15  the chaining strip moved its registry read
+                                     to a worker; the tests read on the next
+                                     line and saw the placeholder `src`.
+  FAKES MISSING A NEW SEAM        6  both backdrop fakes lack the
+                                     `window_backdrop`/`window()` the
+                                     one-per-window guard now asks about, so
+                                     every arc below the guard was asserting a
+                                     window already served.
+  A MACHINE-SPECIFIC LITERAL      5  `/home/carruthers/datasets/plate1` EXISTS
+                                     here, so `reanchor` correctly declined to
+                                     re-home it. Green everywhere but the
+                                     machine the bug was reported from.
+  MY OWN RENAME                   2  the `src` label became "Source".
+  A LEAKED QSettings VALUE       15  the other session's, fixed there.
+  A REAL CRASH                    3  `font_px` imported inside `if letter:` and
+                                     used in the caption block -- any panel
+                                     with a caption and no letter took the grid
+                                     down. The only product defect in the list.
+
+FIXED HERE TODAY: 44 of the 124. 199 tests pass across the seven files touched.
+
+WHAT REMAINS, 50 failures, and most of it is not mine to decide:
+
+  * NINE i18n failures wait on a RUNTIME catalog regeneration -- the other
+    session's new OPS and suggestion strings are not in `en.UI_SOURCES` yet
+    (UI 2,817 -> 2,838, SETTING_LABELS 1,019 -> 1,077).
+  * DOCK-REWRITE FALLOUT (~14) asserts the sub-category dock f43b5a42e
+    deliberately scrapped. "mask is in no submenu" is now the right answer.
+    Reinterpreting those is a design call for whoever made the rewrite.
+  * TWO GENUINE DESIGN QUESTIONS: a WCAG contrast failure at 3.11:1 on the
+    release-notes dates, and a menu-bar hover painting `rgba(..., 0.940)`
+    where the test demands opacity -- 6% of the window showing through is the
+    exact defect that test was written against.
+  * ONE USER-FACING REGRESSION, not a test problem: `spacr-run <key>` answers
+    'unknown module' for control_chart, feature_explorer, import_images,
+    outliers, regression_diagnostics and trellis. The fold took away the only
+    name they answered to on the command line.
