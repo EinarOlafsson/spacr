@@ -834,10 +834,35 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #          test_public_docstrings_matches_reviewed_visible_coverage moved
     #          69 -> 202 in the same change and names the same event.
     #
-    # NOTHING WAS RETIRED. Every figure moved up, which is the direction
-    # check: this ratchet exists to catch surface appearing without its
-    # localized catalog, not to freeze the package.
-    expected = 10_237
+    # NOTHING HAD BEEN RETIRED up to this point. Every figure had moved up,
+    # which is the direction check: this ratchet exists to catch surface
+    # appearing without its localized catalog, not to freeze the package.
+    #
+    #  10,237 -> 10,242 on 2026-09-08, and it is the first move that is NOT
+    #          a straight addition: +12 admitted, -7 retired, net +5. A net
+    #          figure hides a retirement behind an addition, so both halves
+    #          are named.
+    #
+    #          ADMITTED (12):
+    #            spacr.infection and its four functions -- host_contrast,
+    #            infection_report, multiplicity_distribution,
+    #            parasites_per_cell.
+    #            spacr.suggest and its five -- Suggestions,
+    #            pending_suggestions, resolve_suggestions,
+    #            suggest_from_scores, write_suggestions.
+    #            spacr.qt.regex_editor.RegexEditorDialog.resizeEvent.
+    #
+    #          RETIRED (7):
+    #            spacr.seg_metrics and its six -- average_precision,
+    #            boundary_f1, iou_matrix, match_objects, pixel_scores,
+    #            scorecard. The segmentation-metrics work this ratchet was
+    #            last re-recorded for (6ba40e149) is gone from the public
+    #            surface again.
+    #
+    #          The catalogs are already in step: the checked-in symbol
+    #          manifest holds exactly these 10,242 keys, so the surface and
+    #          its localization agree and only the pin was stale.
+    expected = 10_242
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -855,7 +880,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # ALIASES ARE ZERO NOW, so this equals `expected`. The assertion is kept
     # rather than collapsed: the day an alias is legitimately added, this is
     # what fails separately from the surface count and says so.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_237
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_242
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -912,6 +937,13 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     assert not any(key.startswith("spacr._v1_v2_bridge") for key in docs)
     assert "spacr.qt.run_without_setup" not in docs
 
+    # RE-MEASURED 2026-09-08, the same way: 10,450 -> 10,455 pre-filter
+    # against 10,237 -> 10,242 post-filter, so both halves moved by the same
+    # net +5 and the 213 filtered entries did not move at all -- every
+    # bucket below still reports the count printed beside it. That is the
+    # check worth having: the surface change was in rendered modules, and
+    # nothing crossed the AutoAPI boundary in either direction.
+    #
     # RE-MEASURED 2026-09-05. The audited pre-filter inventory is 10,428 and
     # 213 of its entries are filtered out. Both halves moved together: 368
     # documented every private method on a public class, which adds surface
@@ -933,7 +965,7 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     #     1  spacr.qt.run_without_setup
     #   ---
     #   213
-    assert 10_450 - len(docs) == 213
+    assert 10_455 - len(docs) == 213
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

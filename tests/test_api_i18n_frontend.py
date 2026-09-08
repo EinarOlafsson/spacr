@@ -26,7 +26,17 @@ ENGLISH_CATALOG = (
 )
 REAL_CATALOG_ROOT = ENGLISH_CATALOG.parent
 REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
-REAL_SYMBOL_COUNT = 8_861
+#: Symbols in the shipped English API catalog, which every locale must
+#: match exactly. 8,861 until 2026-09-08; the gap to 10,242 is not one
+#: change but every public-docstring addition since the number was last
+#: touched -- chiefly 368, which gave every public method in the package
+#: its own docstring. It was a bare number with no sentence beside it,
+#: which is how it came to be a year of growth behind while the catalog
+#: it describes was regenerated repeatedly. The surface count and its
+#: accounting live in tests/test_api_i18n_extractor.py; this one exists
+#: to assert the BROWSER renders all of them, so it tracks the catalog
+#: file rather than the extractor.
+REAL_SYMBOL_COUNT = 10_242
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
@@ -494,7 +504,7 @@ setTimeout(() => {
 
 
 def test_every_complete_real_catalog_renders_through_the_browser_selector():
-    """Render the complete 8,861-symbol union for every real locale."""
+    """Render the complete 10,242-symbol union for every real locale."""
     assert CHROME, (
         "Chrome/Chromium is required for the exhaustive API-catalog gate; "
         "this required-CI assertion must not be skipped"
