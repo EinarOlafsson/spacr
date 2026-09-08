@@ -295,6 +295,29 @@ def main() -> int:
     for key, t in sorted(out["targets"].items()):
         lines.append(f'    {key!r}: ({t["module"]!r}, {t["symbol"]!r}, {t["exact"]!r}),')
     lines.append("}")
+    wanted = _app_api_modules()
+    by_module = resolve_targets_by_module(out["consumers"], wanted)
+    lines += [
+        "",
+        "#: ``key -> {module: (symbol, exact)}``, for the modules an app's",
+        "#: help actually links to.",
+        "#:",
+        "#: Consulted FIRST, by app. The table above answers \"where is this",
+        "#: setting read\" with one module for the whole package; this one",
+        "#: answers it for the panel the reader is looking at, which is a",
+        "#: different question and the one they are asking. A setting the",
+        "#: app's own module does not read falls through to the single",
+        "#: answer above, which is what it had before.",
+        "SETTING_API_TARGETS_BY_MODULE = {",
+    ]
+    for key, rows in sorted(by_module.items()):
+        inner = ", ".join(f"{m!r}: ({s!r}, {e!r})"
+                          for m, (s, e) in sorted(rows.items()))
+        lines.append(f"    {key!r}: {{{inner}}},")
+    lines.append("}")
+    print(f"  per-module rows              "
+          f"{sum(len(v) for v in by_module.values())} over "
+          f"{len(by_module)} setting(s), {len(wanted)} app module(s)")
     gen = ROOT / "spacr" / "qt" / "screens" / "setting_api_targets.py"
     gen.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"written: {gen.relative_to(ROOT)}")
@@ -345,6 +368,67 @@ def _rank(hit: dict) -> tuple:
     private = hit["qualname"].rsplit(".", 1)[-1].startswith("_")
     return (hit["nested"], private, form_rank, hit["function_depth"],
             hit["module"], hit["line"])
+
+
+def _app_api_modules() -> set:
+    """Modules that some app's help links to, from the live GUI table.
+
+    The per-module table below is restricted to these. Every module that
+    reads a setting would be 2,699 rows answering a question nobody asks:
+    the only module worth preferring for a given panel is the one that
+    panel's help already points at.
+    """
+    try:
+        from spacr.qt.screens.settings_model import _APP_API_MODULE
+    except Exception:                                        # noqa: BLE001
+        return set()
+    # NORMALISED. That table stores a DOC PATH -- "core", "qt/screens/pca" --
+    # because it is used to build a URL, and the consumer hits carry an
+    # import path, "spacr.core". Comparing them raw matches nothing, which
+    # is a table of zero rows that still generates and still imports.
+    return {"spacr." + str(m).replace("/", ".")
+            for m in _APP_API_MODULE.values() if m}
+
+
+def resolve_targets_by_module(consumers: dict, wanted: set) -> dict:
+    """Best target per setting WITHIN each app module that reads it.
+
+    THE MAP ABOVE IS KEYED ON THE SETTING ALONE, which is the defect this
+    exists for. `src` is shown in 41 panels and had one destination for
+    all of them -- `annotation_dataset`, correct for at most one. The
+    function that picks it is not told which app is asking, and no better
+    ranking can fix that.
+
+    So the same ranking runs again, once per module, and the caller
+    prefers the row for the app it is drawing. A setting that module does
+    not read has no row and falls through to the single answer.
+    """
+    by_module = {}
+    for key, hits in consumers.items():
+        usable = [h for h in hits
+                  if h["module"] in wanted
+                  and not h["module"].startswith(DISPLAY_ONLY_PREFIXES)
+                  and not _is_unrendered_module(h["module"])]
+        if not usable:
+            continue
+        grouped = {}
+        for hit in usable:
+            grouped.setdefault(hit["module"], []).append(hit)
+        rows = {}
+        for module, module_hits in grouped.items():
+            best = sorted(module_hits, key=_rank)[0]
+            leaf = best["qualname"].rsplit(".", 1)[-1]
+            if best["nested"]:
+                outer = best["qualname"].split(".")[0]
+                symbol = "" if outer.startswith("_") else outer
+                rows[module] = (symbol, False)
+            elif leaf.startswith("_"):
+                rows[module] = ("", False)
+            else:
+                rows[module] = (best["qualname"], True)
+        if rows:
+            by_module[key] = rows
+    return by_module
 
 
 def resolve_targets(consumers: dict) -> dict:

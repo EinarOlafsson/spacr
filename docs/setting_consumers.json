@@ -1153,7 +1153,7 @@
     "form": "keyword",
     "function_depth": 2,
     "key": "alpha",
-    "line": 646,
+    "line": 639,
     "module": "spacr.qt.widgets.figure_settings",
     "nested": true,
     "qualname": "FigureSettingsDialog._statistics_tab._recompute"
@@ -1423,7 +1423,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "alpha",
-    "line": 67,
+    "line": 77,
     "module": "spacr.qt.widgets.training_monitor",
     "nested": false,
     "qualname": "TrainingMonitor.__init__"
@@ -3357,7 +3357,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "background",
-    "line": 930,
+    "line": 920,
     "module": "spacr.qt.widgets.measurement_compare_dialog",
     "nested": false,
     "qualname": "MeasurementComparePanel._live_plot"
@@ -12196,7 +12196,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "controls",
-    "line": 798,
+    "line": 788,
     "module": "spacr.qt.widgets.measurement_compare_dialog",
     "nested": false,
     "qualname": "MeasurementComparePanel.refresh"
@@ -23946,7 +23946,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "level",
-    "line": 798,
+    "line": 788,
     "module": "spacr.qt.widgets.measurement_compare_dialog",
     "nested": false,
     "qualname": "MeasurementComparePanel.refresh"
@@ -27987,7 +27987,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "mode",
-    "line": 8877,
+    "line": 8928,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "SettingsWidgets._widget_for"
@@ -41688,7 +41688,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "plate",
-    "line": 622,
+    "line": 630,
     "module": "spacr.image_import",
     "nested": false,
     "qualname": "canonical_name"
@@ -41697,7 +41697,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "plate",
-    "line": 769,
+    "line": 777,
     "module": "spacr.image_import",
     "nested": false,
     "qualname": "_stitch_fields"
@@ -41706,7 +41706,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "plate",
-    "line": 905,
+    "line": 913,
     "module": "spacr.image_import",
     "nested": false,
     "qualname": "apply_import"
@@ -45154,7 +45154,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 8955,
+    "line": 9006,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "SettingsWidgets._widget_for"
@@ -46872,7 +46872,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "sample",
-    "line": 601,
+    "line": 609,
     "module": "spacr.image_import",
     "nested": false,
     "qualname": "plan_import"
@@ -47371,7 +47371,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "save",
-    "line": 1679,
+    "line": 1672,
     "module": "spacr.qt.widgets.figure_settings",
     "nested": false,
     "qualname": "_replot"
@@ -56698,7 +56698,7 @@
     "form": "keyword",
     "function_depth": 2,
     "key": "test",
-    "line": 646,
+    "line": 639,
     "module": "spacr.qt.widgets.figure_settings",
     "nested": true,
     "qualname": "FigureSettingsDialog._statistics_tab._recompute"
