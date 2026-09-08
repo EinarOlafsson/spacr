@@ -557,12 +557,16 @@ class ObjectSettingsGrid(QWidget):
 
     #: Lines reserved above the table for a setting's help.
     #:
-    #: THREE, and fixed. The band has to be tall enough for the longest
-    #: help a cell can show without the label growing when it arrives:
-    #: growing would push the table down under the pointer mid-hover and
-    #: move the cell out from under it, which is the failure the fixed
-    #: band exists to prevent in the first place.
-    HELP_LINES = 3
+    #: FIVE, and fixed. Three was the first value and it was not enough:
+    #: a setting's help is a paragraph, and the longer ones were being cut
+    #: off. The band has to be tall enough for the longest help a cell can
+    #: show WITHOUT the label growing when it arrives -- growing would push
+    #: the table down under the pointer mid-hover and move the cell out
+    #: from under it, which is the failure the fixed band exists to
+    #: prevent in the first place. So the cost of being too short is text
+    #: nobody can read, and the cost of being too tall is a little space:
+    #: the second is the mistake worth making.
+    HELP_LINES = 5
 
     def _sync_help_height(self) -> None:
         """Reserve :data:`HELP_LINES` using the font Qt is actually painting.
