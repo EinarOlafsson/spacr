@@ -331,7 +331,22 @@ def test_a_failure_that_lands_after_the_panel_is_gone_is_not_an_exception(
     panel.deleteLater()
     QApplication.processEvents()
 
+    reported = []
+    runner.job_failed.connect(reported.append)
+
     runner._on_worker_error_text("too late")                # must not raise
+
+    # IT STILL REPORTS. The handler's job is to emit `job_failed` with the
+    # last non-blank line, and the hazard is that the emission is
+    # delivered to slots on a panel that has been shut down and marked for
+    # deletion. Surviving by declining to emit would pass a bare "did not
+    # raise" and would lose the failure instead of the crash.
+    assert reported == ["too late"]
+
+    # And again, because a slot that survived once by tearing down its own
+    # connections would leave the next parked worker to crash.
+    runner._on_worker_error_text("later still")
+    assert reported == ["too late", "later still"]
 
 
 def test_clearing_the_panel_is_not_undone_by_a_walk_that_lands_later(

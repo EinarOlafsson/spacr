@@ -84,7 +84,19 @@ def test_registering_twice_is_not_an_error(declared):
     """A module imported from both the GUI and a headless run registers twice."""
     _keys, ops_settings, _cat = declared
     ops_settings.register()
+    after_one = {k: set(v) for k, v in ops_settings.OPS_CATEGORIES.items()}
     ops_settings.register()
+
+    # IDEMPOTENT, not merely tolerant. Registering twice without raising
+    # would still be a defect if the second pass appended a duplicate copy
+    # of every key: the categories are read as a set of claims about which
+    # group owns a setting, and a doubled entry is what turns that into a
+    # collision report.
+    assert {k: set(v) for k, v in ops_settings.OPS_CATEGORIES.items()} == \
+        after_one
+    for group, keys in ops_settings.OPS_CATEGORIES.items():
+        assert len(keys) == len(set(keys)), (
+            f"registering twice duplicated keys in {group}")
 
 
 def test_the_registration_reaches_the_shared_tables(declared):

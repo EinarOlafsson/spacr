@@ -99,7 +99,13 @@ def test_both_modules_settings_are_rewritten(unpacked):
 
 def test_a_missing_database_is_not_an_error(tmp_path):
     """A cancelled download leaves a folder with no database in it."""
-    make_the_example_paths_absolute(tmp_path)
+    # It returns how many values it rewrote, and there is nothing to
+    # rewrite: no database, no settings file. Zero is the whole contract --
+    # "did not raise" would equally describe a rewrite that walked out of
+    # the folder and edited something else.
+    assert make_the_example_paths_absolute(tmp_path) == 0
+    assert list(tmp_path.iterdir()) == [], (
+        "a folder with no database should be left exactly as it was found")
 
 
 def test_it_reports_how_much_it_changed(unpacked):

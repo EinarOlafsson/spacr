@@ -99,7 +99,14 @@ def test_an_already_unpacked_field_is_left_alone(tmp_path):
 
 def test_a_missing_merged_folder_is_not_an_error(tmp_path):
     """A cancelled download leaves no `merged/`; unpacking must not raise."""
-    _MeasureExampleWorker(tmp_path)._expand_arrays(tmp_path / "merged")
+    merged = tmp_path / "merged"
+    _MeasureExampleWorker(tmp_path)._expand_arrays(merged)
+
+    # A folder that is not there must stay not there. Creating an empty
+    # `merged/` would be worse than raising: the next step reads it as a
+    # download that succeeded and produced no fields.
+    assert not merged.exists(), "unpacking invented the folder it was given"
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_an_archive_without_the_expected_key_still_loads(tmp_path):

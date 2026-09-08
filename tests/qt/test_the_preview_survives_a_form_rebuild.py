@@ -109,8 +109,18 @@ def test_a_screen_without_a_preview_is_not_an_error():
     through this rebuild."""
     from spacr.qt.app import _carry_preview_state
 
-    _carry_preview_state(_Screen(None), _Screen(None))
-    _carry_preview_state(None, _Screen(_Panel()))
+    fresh = _Screen(None)
+    _carry_preview_state(_Screen(None), fresh)
+    assert fresh._live_preview is None, (
+        "a screen with no preview was given one by the rebuild")
+
+    # And a missing OLD screen is the same non-event from the other side:
+    # the replacement must be handed back untouched, not half-populated
+    # from a source that does not exist.
+    survivor = _Screen(_Panel())
+    before = survivor._live_preview._image
+    _carry_preview_state(None, survivor)
+    assert survivor._live_preview._image is before
 
 
 def test_a_panel_that_raises_does_not_take_the_rebuild_down():
@@ -123,8 +133,17 @@ def test_a_panel_that_raises_does_not_take_the_rebuild_down():
             raise RuntimeError("boom")
 
     old = _Screen(_Panel())
-    old._live_preview._image = np.zeros((2, 2), dtype=np.uint8)
-    _carry_preview_state(old, _Screen(Exploding()))
+    image = np.zeros((2, 2), dtype=np.uint8)
+    old._live_preview._image = image
+    fresh = _Screen(Exploding())
+
+    _carry_preview_state(old, fresh)
+
+    # THE IMAGE STILL CROSSED. Best-effort has to mean the work done
+    # before the failure is kept, not that the whole carry is abandoned --
+    # otherwise the user loses the re-load this function exists to save
+    # them AND gets no error explaining why.
+    assert fresh._live_preview._image is image
 
 
 def test_the_rebuild_actually_calls_the_carry():

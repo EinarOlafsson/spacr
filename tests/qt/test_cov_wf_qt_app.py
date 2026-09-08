@@ -545,14 +545,30 @@ def test_the_dock_shortcuts_do_nothing_when_there_is_no_dock(win):
     shortcut, and raising there would take the window down for the sake of
     a control that has nothing to act on.
     """
+    before = win._stack.currentWidget()
+
     win._dock_mode = "locked"
     win._sidebar = None
     win.toggle_app_drawer()
     win._on_drawer_navigated("mask")
 
+    # NOTHING MOVED. `toggle_app_drawer` exists to put keyboard focus in
+    # the dock, and with no dock there is nowhere to put it -- so the test
+    # of "did nothing" is that focus and the visible screen are where they
+    # were, not merely that no exception escaped.
+    assert win.focusWidget() is None
+    assert win._stack.currentWidget() is before
+    assert win._sidebar is None, "a dockless window grew a dock"
+
     win._dock_mode = "hidden"
     win.toggle_app_drawer()
     win._on_drawer_navigated("mask")
+
+    # `hidden` is the user's stated preference and a shortcut must not
+    # overrule it, so the mode has to survive the call unchanged.
+    assert win._dock_mode == "hidden"
+    assert win.focusWidget() is None
+    assert win._stack.currentWidget() is before
 
 
 def test_a_screensaver_that_will_not_open_is_not_held(win, monkeypatch):

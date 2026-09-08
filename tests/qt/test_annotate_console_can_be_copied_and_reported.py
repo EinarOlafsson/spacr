@@ -38,7 +38,21 @@ def test_copy_survives_a_console_that_cannot_copy(screen, monkeypatch):
     """A failure to copy must not take the annotation session with it."""
     monkeypatch.setattr(screen._console, "copy_all",
                         lambda: (_ for _ in ()).throw(RuntimeError("nope")))
+    notices = []
+    monkeypatch.setattr(screen._console, "append_notice",
+                        lambda text, **fields: notices.append((text, fields)))
+
     screen._on_copy_console()          # must not raise
+
+    # SURVIVING IS NOT ENOUGH. A clipboard write is silent, so a copy that
+    # failed and said nothing is indistinguishable from one that worked --
+    # which is the whole reason this handler reports at all. Assert it
+    # reported, and that it carried the cause rather than a bare apology.
+    assert len(notices) == 1, f"the failure was swallowed: {notices}"
+    text, fields = notices[0]
+    assert "Could not copy" in text
+    assert "nope" in str(fields.get("detail")), (
+        f"the notice does not name what went wrong: {fields}")
 
 
 def test_the_issue_button_is_hidden_until_something_goes_wrong(screen):

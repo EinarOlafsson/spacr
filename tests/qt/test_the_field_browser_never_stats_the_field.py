@@ -279,6 +279,16 @@ def test_a_dismissed_dialog_cannot_be_called_into_by_a_late_probe(
     path_probe.probes.answered.emit(
         os.path.join(target.merged_dir, "plate1_A01_1.npy"), True)
 
+    # Still gone, and still not resurrected. A crash here would take the
+    # process, so the assertion cannot be "no exception" -- it is that the
+    # dialog Qt destroyed stayed destroyed while the process-wide signal
+    # went on emitting, and that the signal is still usable afterwards for
+    # whoever else is listening.
+    assert not isValid(browser)
+    path_probe.probes.answered.emit(
+        os.path.join(target.merged_dir, "plate1_A01_2.npy"), False)
+    assert not isValid(browser)
+
 
 def test_the_slot_survives_a_widget_that_died_mid_emission(qtbot, tmp_path):
     """The other half of the same hazard: an emission already in flight.
@@ -299,3 +309,11 @@ def test_the_slot_survives_a_widget_that_died_mid_emission(qtbot, tmp_path):
     active, _quarantined = browser._field_paths()
 
     browser._on_probe_answered(active, False)
+
+    # SWALLOWED, AND ONLY THERE. The point is not that nothing was raised
+    # but that the slot absorbed a dead-wrapper RuntimeError and left the
+    # browser working, so the same call has to keep behaving afterwards --
+    # a slot that survived by disconnecting itself would pass a bare
+    # "did not raise" and be useless.
+    assert browser._field_paths()[0] == active
+    browser._on_probe_answered(active, True)

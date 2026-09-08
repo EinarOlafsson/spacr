@@ -220,7 +220,27 @@ def test_an_unknown_link_target_does_nothing(qtbot, qt_theme_applied):
     """The API link goes through Qt's external handler; only the private
     scheme is ours, and anything else must be ignored rather than guessed
     at."""
+    from spacr.qt.widgets.hover_tooltip import HoverTooltip
+
     scr = _screen(qtbot)
-    scr._hinted_widget = _a_setting_widget(scr)
+    widget = _a_setting_widget(scr)
+    scr._hinted_widget = widget
     scr._hinted_html = "<b>x</b>"
-    scr._on_hint_link("https://example.test/somewhere")     # must not raise
+
+    shown = []
+    monkeypatch = pytest.MonkeyPatch()
+    monkeypatch.setattr(HoverTooltip, "show_for",
+                        lambda self, w, html: shown.append((w, html)))
+    try:
+        scr._on_hint_link("https://example.test/somewhere")  # must not raise
+    finally:
+        monkeypatch.undo()
+
+    # IGNORED, NOT GUESSED AT. The hint state is fully armed here -- a
+    # widget and its html are both set -- so the only thing standing
+    # between an unknown href and a popup is the scheme check. "Did not
+    # raise" would be just as true of a handler that opened the box for
+    # every link it was handed.
+    assert shown == [], f"an unknown href opened the animation box: {shown}"
+    assert scr._hinted_widget is widget
+    assert scr._hinted_html == "<b>x</b>" 

@@ -200,6 +200,14 @@ def test_the_router_is_silent_on_a_page_that_cannot_show_help(window):
     window._stack.setCurrentWidget(blank)
     try:
         window._show_module_hint("mask")        # must not raise
+        # Silent means silent: the router must not BUILD a strip on a page
+        # that has none. "It did not raise" would also be true of a router
+        # that quietly grew a second help bar on every screen it could not
+        # find one on, which is the failure worth naming here.
+        assert blank.children() == [], (
+            "the router put something on a page that cannot show help")
+        assert window._stack.currentWidget() is blank, (
+            "the router navigated away from the page it could not help")
     finally:
         window._stack.removeWidget(blank)
         blank.deleteLater()

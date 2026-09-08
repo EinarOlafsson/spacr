@@ -305,6 +305,13 @@ def test_run_v2_does_not_prepare_when_illumination_is_off(
         illumination_settings={"illumination_correction": False},
     )
 
+    # The monkeypatch above turns "prepared anyway" into a failure, so what
+    # is left to assert is that the run HAPPENED -- a run_v2 that returned
+    # early without segmenting anything would also never call prepare, and
+    # would pass this test while testing nothing.
+    assert _CaptureModel.received, (
+        "nothing was segmented, so 'it did not prepare' says nothing")
+
 
 def test_run_v2_real_session_finishes_exact_fields_and_keeps_raw_intensity(
         tmp_path, capture_cellpose):

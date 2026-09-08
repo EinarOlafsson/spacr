@@ -348,6 +348,12 @@ def test_adding_a_root_asks_the_probe_about_it(
     widget.add_root(root, scan=False)
     qtbot.waitUntil(
         lambda: path_probe.known(root, want_dir=True) is True, timeout=5000)
+
+    # The question was asked AND answered yes. `forget` above put the root
+    # back to unknown, so a cached answer cannot be what is being read
+    # here; without the ask, the pessimistic gate would refuse a root the
+    # user added this session for the rest of the session.
+    assert path_probe.known(root, want_dir=True) is True
     widget.close()
 
 

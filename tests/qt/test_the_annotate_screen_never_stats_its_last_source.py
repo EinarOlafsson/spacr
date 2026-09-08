@@ -611,6 +611,14 @@ def test_a_folder_another_screen_probed_first_is_still_offered(
         lambda: "Suggested (last used)" in screen._src_label.text(),
         timeout=5000)
 
+    # Stated as postconditions rather than left to the waits. A waitUntil
+    # that stops passing becomes a timeout at a line that reads like setup,
+    # and the thing being protected -- the remembered folder survives the
+    # re-ask instead of falling back to the working directory -- is worth
+    # naming where a reader will find it.
+    assert screen._starting_folder() == str(plate)
+    assert "Suggested (last used)" in screen._src_label.text()
+
 
 # ---------------------------------------------------------------------------
 # The second pass: whose clock was the answer timed against?

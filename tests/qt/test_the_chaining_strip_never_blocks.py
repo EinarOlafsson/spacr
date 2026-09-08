@@ -172,5 +172,17 @@ def test_the_strip_still_paints_once_the_worker_lands(qtbot, qt_theme_applied):
     bar._screen = _Screen()
     bar.app_key = "map_barcodes"
 
+    painted = []
+    original = bar._paint
+    bar._paint = lambda *a, **k: (painted.append((a, k)), original(*a, **k))[1]
+
     bar.refresh()
     qtbot.waitUntil(lambda: bar._resolving is False, timeout=15000)
+
+    # THE ANSWER ARRIVED, not merely the flag. `_resolving` clears on both
+    # paths -- payload and no payload -- so watching it alone would pass
+    # for a worker that finished by giving up. The strip repaints only
+    # when a resolution came back, so that is what is asserted.
+    assert painted, "the worker landed without repainting the strip"
+    assert bar._resolve_again is None, (
+        "a catch-up refresh is still queued, so this one did not finish")

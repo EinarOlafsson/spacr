@@ -612,6 +612,9 @@ def test_a_refresh_still_asks_the_databases_again(qtbot, plates, monkeypatch):
     # inside the budget, which is the property the rest of this file pins.
     # What is pinned HERE is only that it started them at all.
     qtbot.waitUntil(lambda: len(opened) > settled, timeout=20000)
+    assert len(opened) > settled, (
+        "refresh returned without re-opening a single database, so a measure "
+        "run's new numbers would never reach the panel")
 
 
 def test_the_rules_preview_is_read_on_a_worker_thread(qtbot, plates,
