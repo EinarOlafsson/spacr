@@ -956,3 +956,45 @@ WHAT REMAINS, 50 failures, and most of it is not mine to decide:
     'unknown module' for control_chart, feature_explorer, import_images,
     outliers, regression_diagnostics and trellis. The fold took away the only
     name they answered to on the command line.
+
+--------------------------------------------------------------------------------
+2026-09-08 — ONE OF THE REMAINING FAILURES IS A 175x MEMORY REGRESSION
+--------------------------------------------------------------------------------
+
+`test_the_panel_is_widened_without_widening_the_object_key_vocabulary` asserts
+`len(schema.ORGANELLE_ROLES) == 4` and now sees 702. It is NOT a stale pin. Its
+docstring says what it guards: "sizes per-field allocations in the measure
+loop, and widening it to twenty-six roles costs about 180 MB per field".
+
+MEASURED AT THE CURRENT VOCABULARY:
+
+    1024x1024 uint16    702 roles = 1.47 GB per field   (8.4 MB at four)
+    2048x2048 uint16    702 roles = 5.89 GB per field
+    1024x1024 int32     702 roles = 2.94 GB per field
+
+`measure.py:3203` allocates `np.zeros_like(data[..., 0])` for EVERY role whose
+`_mask_dim` is unset, so the cost is a function of the VOCABULARY rather than
+of the experiment. The 698 unconfigured arrays are then copied into
+`extra_organelle_masks`, passed into `_measure_crop_core`, iterated at 1424 --
+and skipped there, because that loop acts only when `_mask_dim is not None`.
+Allocated, copied, passed, iterated, never read.
+
+326 raised the vocabulary deliberately and for a good reason: an organelle past
+the fourth produced an UNTYPED frame, which is the key collision the object
+type exists to prevent. That is not in question. The cost landed in a different
+file from the one 326 was working in, and its own message shows the author WAS
+watching for this class of cost -- `split_object_id` was measured at 88x and
+rewritten. This site was missed rather than accepted.
+
+LEFT RED DELIBERATELY, and it is the one failure in the remaining set that must
+not be made green: bumping the pin to 702 would accept a 175x regression and
+report it as done. Handed to the session holding 326's context; the fix looks
+like building the dict from CONFIGURED roles only and leaning on the consumer's
+existing guard, across all four allocation sites (3203, 3265, 3315, 3330).
+
+THE WIDER POINT FOR THIS INSTRUCTION: 124 failures triaged, and almost all were
+tests describing a program that had moved. This is the counter-example, and it
+is why "make the suite green" is the wrong statement of the goal. A pin whose
+docstring explains what it protects is evidence, and the number in it being
+stale -- "twenty-six roles", written before the change -- is exactly what makes
+it look skippable.
