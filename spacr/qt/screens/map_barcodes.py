@@ -67,6 +67,41 @@ FOLD_WINDOW_SIZE = (1180, 760)
 #: asserted to agree for every key that has one, so the two cannot drift
 #: apart while both exist.
 FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
+    # THE THREE REGRESSION FOLDS THAT HAD NO FALLBACK, added 2026-09-08.
+    #
+    # `regression.FOLDED_APPS` named six keys and this table answered for
+    # three of them. The other three still have standalone registry rows, so
+    # `restate_fold_button` finds their name and description there and the
+    # buttons read correctly TODAY -- which is exactly why the gap was
+    # invisible. The day those rows are dropped, as the fold intends, three
+    # buttons on Regression go mute.
+    #
+    # `test_the_fold_fallback_is_in_the_table_that_is_actually_read` is the
+    # assertion that caught it, and its own docstring says why this table
+    # and no other: `install_folds` restates through
+    # `map_barcodes.restate_fold_button`, which looks here and nowhere else.
+    # THE TEXT IS THE REGISTRY'S, CHARACTER FOR CHARACTER, and the first
+    # version of these three was not: a trailing full stop and a `beta`
+    # where the row says `alpha` were both caught by
+    # `test_the_fold_fallback_agrees_with_whatever_still_knows`. A fallback
+    # that paraphrases is a second source of truth, and it drifts silently
+    # the moment the row it stands in for is edited -- which is precisely
+    # the day this table starts being read.
+    "investigate_hit": (
+        "Investigate Hit",
+        "Link a regression hit to cross-fitted candidate cells and "
+        "well-level quantitative evidence",
+        "alpha"),
+    "profiler": (
+        "Prediction Profiler",
+        "Evaluate how a fitted model's prediction changes across one input "
+        "variable",
+        "alpha"),
+    "regression_diagnostics": (
+        "Diagnostics",
+        "Show the diagnostic panels the last regression run wrote beside "
+        "its results",
+        "alpha"),
     "barcode_qc": (
         "Barcode QC",
         "Assess mapping depth, coverage, collisions and positional effects, "
