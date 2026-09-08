@@ -111,7 +111,16 @@ def _load(db: sqlite3.Connection, table: str,
         select = ", ".join(f'"{c}"' for c in keep)
     else:
         select = "*"
-    return pd.read_sql_query(f'SELECT {select} FROM "{table}"', db)
+    # THROUGH THE FUNNEL. `read_query` is the canonical reader for a
+    # connection that is already open -- which is what this helper is
+    # handed, because its callers read several tables off one
+    # connection and reopening per table would change the transaction
+    # each read sees. `report=None` because an absent-or-odd column
+    # here is a fact about the run, not something to print into a
+    # report the caller is assembling.
+    from .tabular import _read_query
+    return _read_query(db, f'SELECT {select} FROM "{table}"',
+                      report=None)
 
 
 def parasites_per_cell(db_path: str) -> pd.DataFrame:

@@ -67,7 +67,26 @@ RAW_CALL = re.compile(r"pd\.read_csv\(|pd\.read_sql\w*\(|\.to_csv\(|\.to_sql\(")
 #: outputs now use the shared writer. Other additions made the intervening
 #: tree count 254, so converting the two raw writes lowers the measured
 #: ceiling by one relative to the prior committed ratchet.
-CEILING = 252
+#: 252 -> 246 on 2026-09-08, and the drop is mostly a correction rather
+#: than work. `EXPECTED_HOMES` below has named tabular.py as the place
+#: raw calls are SUPPOSED to live since this file was written, and
+#: `_counts` never consulted it -- so the ratchet counted the funnel's
+#: own reads alongside the bypasses it exists to find. Adding a
+#: canonical entry point to the funnel pushed the number UP, which is
+#: exactly backwards.
+#:
+#: `_read_query` is that entry point, and it is why this surfaced.
+#: `read_table` and `read_database` both take a PATH; a caller holding
+#: an open connection and reading several tables off it had no canonical
+#: reader at all, and spacr/infection.py and spacr/suggest.py had each
+#: reached for `pandas.read_sql_query` directly. Both go through the
+#: funnel now.
+#:
+#: So 246 is the count OUTSIDE the funnel, which is the number this
+#: ratchet was always describing. The seven inside it are excluded by
+#: name rather than by a lower ceiling, so the next legitimate reader
+#: added to tabular.py does not read as a regression.
+CEILING = 246
 
 #: Files allowed to hold raw calls without argument, and why.
 EXPECTED_HOMES = {
@@ -81,10 +100,17 @@ def _spacr_root() -> pathlib.Path:
     return pathlib.Path(__file__).resolve().parent.parent / "spacr"
 
 
-def _counts() -> collections.Counter:
+def _counts(include_homes: bool = False) -> collections.Counter:
+    """Raw calls per file. The funnel's own are left out by default.
+
+    :param include_homes: count EXPECTED_HOMES too, which the test below
+        uses to assert the funnel still holds the calls it is supposed to.
+    """
     counts: collections.Counter = collections.Counter()
     for path in sorted(_spacr_root().rglob("*.py")):
         if "i18n_catalogs" in str(path):
+            continue
+        if not include_homes and path.name in EXPECTED_HOMES:
             continue
         found = len(RAW_CALL.findall(path.read_text(encoding="utf-8")))
         if found:
@@ -124,7 +150,10 @@ def test_the_ceiling_is_not_left_far_above_the_truth():
 
 
 def test_the_funnel_is_where_the_raw_calls_belong():
-    counts = _counts()
+    # `include_homes`, because the ratchet's own count now EXCLUDES the
+    # funnel -- and this is the test that keeps that exclusion honest. An
+    # exemption for a file holding no raw calls describes nothing.
+    counts = _counts(include_homes=True)
     assert counts.get("tabular.py", 0) > 0, (
         "spacr/tabular.py holds no raw tabular call, which means it is not "
         "the funnel any more and something else is")

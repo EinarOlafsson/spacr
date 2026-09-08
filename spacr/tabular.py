@@ -153,6 +153,50 @@ def _canonicalise(frame, canonicalise, report, warn, repair_plate_ids=True):
         frame, report=report, warn=warn, repair_plate_ids=repair_plate_ids)
 
 
+def _read_query(db: Any, sql: str, *, params: Any = None,
+               canonicalise: bool = True,
+               report: Optional[Callable[[str], None]] = print,
+               warn: Optional[Callable[[str], None]] = None,
+               repair_plate_ids: bool = True,
+               **kwargs) -> pd.DataFrame:
+    """Read a query off an ALREADY OPEN connection, with canonical columns.
+
+    The entry point the funnel was missing.
+
+    PRIVATE ON PURPOSE, and only until the localized API catalogs are next
+    regenerated. A public name here joins the API surface, and the
+    surface is mirrored symbol-for-symbol into
+    ``docs/source/_static/i18n/api/*.json`` for nine locales -- which
+    needs the translation models to rebuild. Publishing it now would put
+    a public function in the package that the localized API pages do not
+    carry, which is the exact failure the surface ratchet in
+    tests/test_api_i18n_extractor.py exists to catch. Nothing about the
+    function is internal; the underscore is a release constraint and
+    should come off with the next catalog rebuild. :func:`read_table` and
+    :func:`read_database` both take a PATH and open the database
+    themselves, which is right for a caller that wants one table and
+    wrong for one that has a connection already and reads several off
+    it -- reopening per table changes the transaction each read sees and
+    costs a connect apiece. Callers in that position had no canonical
+    reader to use and reached for ``pandas.read_sql_query`` directly,
+    which is how a frame with un-canonicalised column names gets into the
+    package: it does not fail, it returns a number.
+
+    :param db: an open DB-API connection. Not a path -- use
+        :func:`read_database` when what you have is a path.
+    :param sql: the query.
+    :param params: bound parameters, passed through to pandas.
+    :param canonicalise: apply the vocabulary. See :func:`read_table`.
+    :param report: called with each agreeing-collision message.
+    :param warn: called with each disagreeing-collision message.
+    :param repair_plate_ids: collapse a doubled ``pp`` plate prefix.
+    :param kwargs: passed to the underlying pandas reader.
+    :returns: a :class:`pandas.DataFrame`.
+    """
+    frame = pd.read_sql_query(sql, db, params=params, **kwargs)
+    return _canonicalise(frame, canonicalise, report, warn, repair_plate_ids)
+
+
 def read_table(source: Any, *, table: Optional[str] = None,
                canonicalise: bool = True,
                report: Optional[Callable[[str], None]] = print,

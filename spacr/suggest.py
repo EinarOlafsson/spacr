@@ -104,7 +104,9 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
 
     with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as db:
         try:
-            crops = pd.read_sql_query(f'SELECT * FROM "{png_table}"', db)
+            from .tabular import _read_query
+            crops = _read_query(db, f'SELECT * FROM "{png_table}"',
+                               report=None)
         except Exception:                                    # noqa: BLE001
             return Suggestions(pd.DataFrame(), note="no crop table")
 
