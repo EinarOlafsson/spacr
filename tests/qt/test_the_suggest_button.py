@@ -708,3 +708,44 @@ def test_a_ranking_run_does_not_offer_to_accept_in_bulk(qtbot,
     assert any("one class was annotated" in text for text in labels), (
         "the reason the accept is missing must be on screen, not implied")
     _stop(widget)
+
+
+def test_a_class_that_would_collide_with_the_offset_is_refused(tmp_path: Path):
+    """379-C's collision, refused by name rather than written and forgotten.
+
+    The offset assumes real class values stay below it. With a class 11 in
+    play, a suggested 1 and an answered 11 are the SAME integer -- so a
+    bulk KEEP would quietly rewrite somebody's 11 into a 1, and nothing
+    downstream could tell it had happened.
+
+    Whether the scheme should extend past two classes is still the
+    maintainer's decision. This asserts only that the ambiguous case
+    cannot be written, which is true whichever way that decision goes.
+    """
+    import pandas as pd
+
+    from spacr.suggest import write_suggestions
+
+    db = tmp_path / "m.db"
+    con = sqlite3.connect(db)
+    con.execute('CREATE TABLE "png_list" (png_path TEXT PRIMARY KEY, '
+                'annotate INTEGER)')
+    con.execute('INSERT INTO "png_list" VALUES (?,?)', ("/a.png", None))
+    con.commit()
+    con.close()
+
+    frame = pd.DataFrame({
+        "png_path": ["/a.png"],
+        "suggested": [11],
+        "stored": [11 + SUGGESTION_OFFSET],
+        "confidence": [0.9],
+    })
+    with pytest.raises(ValueError, match="collide with the suggestion offset"):
+        write_suggestions(str(db), "annotate", frame)
+
+    con = sqlite3.connect(db)
+    value = con.execute(
+        'SELECT annotate FROM "png_list" WHERE png_path = "/a.png"'
+    ).fetchone()[0]
+    con.close()
+    assert value is None, "a refused write must write nothing"

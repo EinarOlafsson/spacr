@@ -174,6 +174,25 @@ def write_suggestions(db_path: str, annotation_column: str,
     """
     if suggestions.empty or "png_path" not in suggestions.columns:
         return 0
+    # 379-C, MADE SAFE WITHOUT ANSWERING IT. Whether this scheme should
+    # extend past two classes is the maintainer's decision and is still
+    # open; what is NOT open is that it must never silently collide. The
+    # offset assumes real class values stay below it, and with a class 11 a
+    # suggested 1 and an answered 11 are the same integer -- so a bulk KEEP
+    # would rewrite somebody's class 11 to a 1 and nothing would ever say
+    # so. Refused by name rather than guarded downstream, because by the
+    # time the value is in the column the two are indistinguishable.
+    if "suggested" in suggestions.columns:
+        collides = sorted({int(v) for v in suggestions["suggested"]
+                           if pd.notna(v) and int(v) >= SUGGESTION_OFFSET})
+        if collides:
+            raise ValueError(
+                f"class {collides[0]} cannot be suggested: values at or "
+                f"above {SUGGESTION_OFFSET} collide with the suggestion "
+                f"offset, so a suggested 1 and an answered "
+                f"{SUGGESTION_OFFSET + 1} would be the same number. See "
+                f"379-C -- extending the scheme past two classes is an open "
+                f"decision, and this is the collision it has to avoid.")
     rows = [(int(s), str(p)) for s, p in
             zip(suggestions["stored"], suggestions["png_path"])
             if pd.notna(s)]
