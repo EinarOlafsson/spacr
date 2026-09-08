@@ -385,7 +385,14 @@ def test_brush_drag_paints_a_connected_line(canvas):
     assert (row[10:51] > 0).all(), f"gap in stroke: {np.where(row[10:51] == 0)}"
     assert row[5] == 0 and row[60] == 0
     # Exactly one connected component.
-    _, n = engine.label(canvas.mask > 0)
+    # `_ndimage()` RATHER THAN A MODULE-LEVEL `label`. mask_engine is on
+    # the startup path -- `app.folded_children()` imports every fold host to
+    # read its FOLDED_APPS, and make_masks imports this one -- so a
+    # module-scope `from scipy.ndimage import label` put scipy into the
+    # process before Home had painted, which the packaged smoke test
+    # forbids. scipy is fetched on first use now, and the name this test
+    # reached for went with the import.
+    _, n = engine._ndimage().label(canvas.mask > 0)
     assert n == 1
 
 

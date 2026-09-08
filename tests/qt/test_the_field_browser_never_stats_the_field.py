@@ -160,7 +160,19 @@ def test_the_button_corrects_itself_once_the_probe_lands(qtbot, tmp_path):
     qtbot.addWidget(browser)
     browser._run_timer.stop()
 
+    # A COLD START IS BOTH HALVES. `path_probe.forget()` empties the shared
+    # cache; it does not reach into this widget, which REMEMBERS its last
+    # answer on purpose -- `path_probe.exists(..., default=self._last_active)`
+    # is what stops the button flickering between polls while a probe is
+    # outstanding. Constructing the browser on `gone_plate` already probed
+    # it and remembered False, so forgetting the cache alone leaves the
+    # widget answering from that memory and the button correctly disabled.
+    #
+    # Resetting both is what "unprobed" actually means here, and the class
+    # defaults are the values a fresh browser starts from.
     path_probe.forget()
+    browser._last_active = True
+    browser._last_quarantined = False
     browser._sync_action()
     assert browser._quarantine.isEnabled(), (
         "an unprobed field should be offered, not pre-emptively refused")

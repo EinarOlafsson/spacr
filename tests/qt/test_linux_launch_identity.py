@@ -34,7 +34,16 @@ def test_main_window_and_loading_cover_are_opaque(qapp, monkeypatch):
     monkeypatch.setattr(app_module.MainWindow, "_install_loading_screen",
                         lambda self: None)
     window = app_module.MainWindow()
-    assert window.testAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent)
+    # `autoFillBackground` ALONE, NOT `WA_OpaquePaintEvent`. That attribute
+    # is a PROMISE that the widget paints every pixel of its own rect, and
+    # `MainWindow` does not keep it: applying the stylesheet clears
+    # `autoFillBackground` again, so by the time the window is shown it read
+    # `autoFill=False, opaquePaint=True` -- claiming to fill while filling
+    # nothing. Qt then skips the backdrop repaint it would otherwise have
+    # done, which is what produced the overlapping text in the bottom-left
+    # corner and the flicker on the top bar (2fbf1de11).
+    #
+    # So the opacity being asserted is the one actually kept.
     assert window.autoFillBackground()
 
     cover = LoadingScreen(parent=window)
