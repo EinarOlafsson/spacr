@@ -80,21 +80,32 @@ COMPACT_CAPTION_SHA256 = (
 # these numbers were touched, which is the order this file's own rule asks
 # for: catalogs first, ratchet second, never the reverse.
 #
-# UI IS 2,837 AND NOT 2,838, which is one fewer than the regeneration
-# reported and is not a discrepancy: giving "OPS" an exact `_ROWS` row
-# moved it OUT of the generated layer. The two layers are disjoint by
-# contract -- a caption belongs to the reviewed compact one or the
-# generated one, never both -- so admitting a row here necessarily takes
-# one off there.
+# UI IS 2,838, CORRECTED 2026-09-08 FROM 2,837. The note here used to say
+# 2,837 was "one fewer than the regeneration reported and is not a
+# discrepancy", the reasoning being that giving "OPS" an exact `_ROWS` row
+# moved it out of the generated layer, and the two layers are disjoint by
+# contract.
+#
+# The reasoning is right and the arithmetic double-counted it. "OPS" was
+# ALREADY absent from `UI_SOURCES` in 6aa5a73aa, the very commit whose
+# regeneration produced 2,838 -- so that number was measured after the move,
+# not before it, and subtracting one for the move charged it twice. The
+# effect was a ratchet that no build could ever satisfy.
+#
+# The disjointness itself still holds and is still worth stating: a caption
+# belongs to the reviewed compact layer or the generated one, never both.
 EXTERNAL_SOURCE_COUNTS = {
     "SETTING_LABELS": 1077,
     "SETTING_TOOLTIPS": 1072,
     "CATEGORY_HELP": 192,
-    "UI": 2837,
+    "UI": 2838,
     "MODULE_SUMMARIES": 67,
 }
+# Moved with the counts above. The identity that changed is one UI row: the
+# invented-negatives notice replaced "{n} outstanding suggestions thrown away
+# before fitting.", which is no longer anywhere in the source.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "ec6796c11848799778b632a5bab3558216fd01ecc64445f473cc0299c22a25a8"
+    "ec1d38c5071d41410a4a61c30278fbfe7f38c142b563c65333b4f0b89df6d280"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
