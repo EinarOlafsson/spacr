@@ -138,14 +138,24 @@ def test_mask_demo_settings_can_be_reloaded_by_spacr(tmp_path: Path):
 
 
 def test_mask_demo_spells_signal_to_noise_the_way_spacr_reads_it(tmp_path: Path):
-    """`cell_signal_to_noise` is not a spaCR setting; `cell_signal_to_noise` is.
+    """`cell_Signal_to_noise` is not a spaCR setting; `cell_signal_to_noise` is.
 
-    The lowercase spelling was accepted, ignored and the default silently used
-    in its place — the exact failure mode spacr.validate exists to stop.
+    THE TWO SPELLINGS SWAPPED PLACES AND THIS TEST DID NOT. It was written
+    when the capital-S form was the real key and the lowercase one was
+    accepted, ignored, and the default silently used in its place -- the
+    failure mode `spacr.validate` exists to stop. `b7ae412af` renamed four
+    families to lower_snake_case, which made the lowercase spelling correct
+    and left this asserting the opposite.
+
+    It had also become impossible to pass: both assertions and the docstring
+    named the SAME string, so it demanded a key be absent and then read it.
+    A capitalisation sweep flattened the distinction the test was entirely
+    about, which is a hazard worth naming -- a rename that normalises case
+    silently destroys any test whose subject IS the case.
     """
     from spacr.validate import _known_setting_keys
     settings = syn.demo_settings("mask", str(tmp_path))
-    assert "cell_signal_to_noise" not in settings
+    assert "cell_Signal_to_noise" not in settings
     assert settings["cell_signal_to_noise"] == 10
     known = _known_setting_keys()
     assert set(settings) <= known | {"src"}, (

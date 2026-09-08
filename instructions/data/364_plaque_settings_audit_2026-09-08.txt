@@ -99,8 +99,19 @@ see FINDING 3.
 FINDING 2 -- TWO NAMES THAT DO NOT MATCH THE HOUSE STYLE
 --------------------------------------------------------------------------------
 
-  `Signal_to_noise` is the only setting in this module -- and one of very few
-  in spaCR -- that is not lower_snake_case. It is read as
+  `Signal_to_noise` is the only setting in this module -- and, since
+  `b7ae412af` renamed four families, one of the LAST in spaCR -- that is not
+  lower_snake_case. The prefixed forms are already `cell_signal_to_noise`
+  and friends; plaques kept the capital, so this is now an inconsistency
+  with the rest of the package rather than a house-wide oddity.
+
+  AND THE CAPITAL HAS ALREADY COST SOMETHING. `tests/qt/test_synthetic.py
+  ::test_mask_demo_spells_signal_to_noise_the_way_spacr_reads_it` existed
+  precisely to stop the two spellings being confused, and a capitalisation
+  sweep flattened both of them to the same string -- leaving a test that
+  demanded a key be absent and then read it, which cannot pass. Fixed
+  2026-09-08. A rename that normalises case silently destroys any test whose
+  subject IS the case. It is read as
   `settings.get('Signal_to_noise', 10)` in `io.py:1745` and 1769. PROPOSE
   `signal_to_noise`, with the old spelling accepted through the usual
   migration, because a settings file in the wild carries the capital.
