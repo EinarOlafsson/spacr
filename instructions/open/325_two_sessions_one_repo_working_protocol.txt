@@ -2512,6 +2512,27 @@ THE SECOND ORDER-DEPENDENT PAIR, handed over rather than fixed:
   question to ask is not "did I restore it" but "did anything read it while it
   was wrong, and keep the answer".
 
+  MEASURED 2026-09-08, and it killed two hypotheses including my own:
+
+    * MY FIRST PROBE WAS THE BUG. Hooked on `pytest_runtest_teardown`, it
+      reported "the scrim file leaves the persisted theme as `cell`". It does
+      not. That hook runs BEFORE monkeypatch's finalizer, so the probe was
+      reading the patch. `pytest_runtest_setup` is the honest place to stand:
+      it is after the previous test's teardown has completed. Anyone
+      measuring test leakage should hook SETUP, not teardown.
+    * NOT the `_WIDGET_QSS` one-way shrink that
+      `_widget_qss_registrars_loaded` exists to prevent, which was the
+      obvious suspect because the conftest documents it as THE black-box
+      mechanism. Watched across both files, the registry goes 4 -> 42 and
+      stays at 42, and the built stylesheet length never moves.
+
+  WHAT IS REAL: the QApplication stylesheet ends at ZERO BYTES and `style`
+  bounces `fusion -> "" -> fusion`. `test_scrim_solver` itself restores what
+  it sets, and `qt_theme_applied` only ever applies -- it has no teardown --
+  so something between those tests is putting back an EMPTY snapshot. That
+  is the same one-way pattern as the QSS registry, one level up. The fixture
+  doing it is not found; the work session has the conftest context.
+
 --------------------------------------------------------------------------------
 2026-09-08 — AND A SECOND CLAUSE: DERIVED STATE OUTLIVES THE PATCH THAT MADE IT
 --------------------------------------------------------------------------------
