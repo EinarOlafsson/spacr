@@ -129,7 +129,17 @@ def test_the_same_controls_serve_every_pattern():
     for name in ("speed", "steering", "quality", "scale", "supersampling",
                  "pointer_gravity"):
         assert name in values, name
-    assert len(PATTERNS) == 4
+    # 4 -> 5 on 2026-09-08: `mandelbrot`. This number is a REVIEW GATE, not
+    # the contract -- the contract is the six controls above, and it is
+    # checked against `get_fractal_settings()` which knows nothing about
+    # patterns. Moving it means somebody looked at the new pattern and
+    # confirmed the questions did not change with it.
+    #
+    # Confirmed here: all six controls resolve, and no setting key is named
+    # after any pattern, so there is no per-pattern control to have grown.
+    # Mandelbrot is GPU-only (`GPU_ONLY_PATTERNS`), which changes where it can
+    # RUN and not which questions it answers.
+    assert len(PATTERNS) == 5
 
 
 def test_the_camera_follows_continuously_rather_than_moving_in_steps():

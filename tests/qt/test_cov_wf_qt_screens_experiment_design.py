@@ -58,8 +58,15 @@ def test_a_well_with_no_style_keeps_its_square_instead_of_crashing(screen):
     from spacr.qt.screens.experiment_design import (
         MARK_RIM,
         OUTLINE_RIM,
-        WELL_SIDE,
     )
+    # THE SIDE COMES FROM THE PICKER, AND THROUGH ITS ACCESSOR. The plate map
+    # moved to `plate_map_picker`, and there `WELL_SIDE` is the unscaled BASE
+    # -- reading it raw is the defect that module's own docstring records:
+    # "THE GLYPHS GREW AND THE BOX DID NOT", because the font scale applies to
+    # the glyph and not to a hard-coded box. `well_side()` is the scaled
+    # value, so the assertion below asks for the size the well actually has at
+    # whatever scale the test is running under.
+    from spacr.qt.widgets.plate_map_picker import well_side
 
     well = next(label for label in screen._well_labels
                 if (label.row, label.column) == (3, 4))
@@ -73,7 +80,7 @@ def test_a_well_with_no_style_keeps_its_square_instead_of_crashing(screen):
     well.lock_square()
     assert well._rim == OUTLINE_RIM
     assert well.styleSheet() == sheet_before
-    assert well.size() == QSize(WELL_SIDE, WELL_SIDE)
+    assert well.size() == QSize(well_side(), well_side())
 
     # The odd half: the style is gone. Same outcome, no exception.
     well.style = lambda: None
@@ -83,7 +90,7 @@ def test_a_well_with_no_style_keeps_its_square_instead_of_crashing(screen):
         del well.style
     assert well._rim == OUTLINE_RIM
     assert well.styleSheet() == sheet_before
-    assert well.size() == QSize(WELL_SIDE, WELL_SIDE)
+    assert well.size() == QSize(well_side(), well_side())
 
     # And the widget is still live afterwards: choosing it thickens the rim
     # from an outline to a mark and re-states the sheet at the new width.
@@ -92,7 +99,7 @@ def test_a_well_with_no_style_keeps_its_square_instead_of_crashing(screen):
     assert well._rim == MARK_RIM
     assert well.styleSheet() != sheet_before
     assert f"border-width: {MARK_RIM}px" in well.styleSheet()
-    assert well.size() == QSize(WELL_SIDE, WELL_SIDE)
+    assert well.size() == QSize(well_side(), well_side())
 
 
 def test_the_status_line_still_reports_when_there_is_no_style(screen):
