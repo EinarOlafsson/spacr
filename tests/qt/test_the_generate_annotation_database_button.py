@@ -126,11 +126,23 @@ def test_the_button_exists_on_the_screen():
     assert "self._btn_generate.clicked.connect(" in source
 
 
-def test_a_second_table_is_reported_as_not_yet_openable():
-    """This screen reads png_list and only png_list. Silently showing the OLD
-    set while a new one sits unopened would look like the generator had done
-    nothing."""
+def test_a_second_table_is_opened_rather_than_reported():
+    """THE LIMITATION THIS GUARDED WAS REMOVED, so the guard follows it.
+
+    It asserted that the screen WARNED about a shortcoming: reading
+    `png_list` and only `png_list`, a second generated set landed under a
+    name the screen could not show, and the warning existed so a user shown
+    the old set would not conclude the generator had failed.
+
+    Every engine reader takes the table now, so the screen simply opens what
+    it just wrote and the caveat was deleted with the defect. Asserting the
+    caveat string here would demand the warning back without the problem it
+    warned about -- so what is pinned instead is the fix: the written table
+    becomes the one on screen, the view is reloaded onto it, and the message
+    says so.
+    """
     source = Path(
         __import__("spacr.qt.screens.annotate", fromlist=["x"]).__file__
     ).read_text(encoding="utf-8")
-    assert "This screen currently opens" in source
+    assert "self._settings.png_table = table" in source
+    assert "and opened it" in source
