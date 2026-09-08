@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "label": "spacr.regression_panels.apply_primary_call#0",
+      "source_sha256": "51032660980adc68ffee7568ecae590ba5627265c7634c2e7079982394ff41cc",
+      "source": "Attach the common BH-plus-positive-gRNA-cut call fields.",
+      "context": "Attach the common BH-plus-positive-gRNA-cut call fields.",
+      "translation": "Adjunta los campos de llamada comunes del corte BH-más-gRNA-positivo."
+    }
+  ]
+}
