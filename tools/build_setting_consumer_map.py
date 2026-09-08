@@ -310,6 +310,23 @@ def main() -> int:
 DISPLAY_ONLY_PREFIXES = ("spacr.qt.", "spacr.settings")
 
 
+def _is_unrendered_module(module: str) -> bool:
+    """Whether AutoAPI publishes no page for ``module``.
+
+    A module whose own name begins with an underscore is private and is
+    not rendered, so a link into it is a 404 rather than a page with no
+    anchor -- which is a worse failure than the private-FUNCTION case
+    handled in `_rank`, where the module page still exists and the
+    resolver can honestly drop to it.
+
+    `spacr._v1_v2_bridge` is the one that made this necessary. It really
+    does read `channels`, so it ranked first on the evidence and four
+    modules' tooltips pointed their API word at a page that is not
+    published.
+    """
+    return any(part.startswith("_") for part in module.split(".")[1:])
+
+
 def _rank(hit: dict) -> tuple:
     """Order candidate consumers best-first.
 
@@ -335,7 +352,8 @@ def resolve_targets(consumers: dict) -> dict:
     targets = {}
     for key, hits in consumers.items():
         usable = [h for h in hits
-                  if not h["module"].startswith(DISPLAY_ONLY_PREFIXES)]
+                  if not h["module"].startswith(DISPLAY_ONLY_PREFIXES)
+                  and not _is_unrendered_module(h["module"])]
         if not usable:
             continue
         best = sorted(usable, key=_rank)[0]
