@@ -4248,6 +4248,23 @@ def _module_level_anchor(app_key: str, module: str) -> str:
     return anchor if anchor.startswith(expected) else ""
 
 
+#: Settings that begin "batch_" and have nothing to do with batch-effect
+#: correction.
+#:
+#: The rule below sends every `batch_*` setting to `spacr.batch_correction`,
+#: which is right for the six that module reads and wrong for these two:
+#: `batch_fields` is how many fields the mask pipeline processes at once and
+#: `batch_size` is a machine-learning batch size. A reader pressing API on
+#: either was told to read about removing batch EFFECTS, which is a
+#: different subject that happens to share a word.
+#:
+#: A deny-list rather than an allow-list, deliberately: a new
+#: batch-correction setting should be picked up by the prefix without
+#: anybody remembering to add it, and a new stranger is the rarer case and
+#: the one worth stating.
+_BATCH_PREFIX_STRANGERS = frozenset({"batch_fields", "batch_size"})
+
+
 def api_docs_url(
     app_key: str,
     key: str = "",
@@ -4268,7 +4285,7 @@ def api_docs_url(
     if plugin_app is not None and plugin_app.docs_url:
         return plugin_app.docs_url
     anchor = ""
-    if key.startswith("batch_"):
+    if key.startswith("batch_") and key not in _BATCH_PREFIX_STRANGERS:
         module = "batch_correction"
     elif key in _EVALUATION_DOC_KEYS:
         module = "classifier_evaluation"

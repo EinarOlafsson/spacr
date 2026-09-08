@@ -67,7 +67,13 @@ extensions = [
 ]
 
 suppress_warnings = ['misc.section', 'toc.not_included']
-exclude_patterns = ['_autoapi_templates/**']
+# `_generated/**` holds INCLUDE FRAGMENTS, not documents. Without this
+# Sphinx parses each one twice -- once as a page in its own right and once
+# where it is included -- which for settings_flow.rst means 1,058 duplicate
+# `setting-flow-*` labels, every one of them a warning that `-W` makes
+# fatal, and 18,000 lines resolved twice for a build that is already the
+# slowest job in CI.
+exclude_patterns = ['_autoapi_templates/**', '_generated/**']
 default_role = 'py:obj'
 
 intersphinx_mapping = {

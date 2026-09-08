@@ -58,7 +58,7 @@ Read by :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :p
 Signal_to_noise
 ---------------
 
-(int) - Background multiplier used as the Cellpose normalization threshold (background * Signal_to_noise). Per channel, spaCR selects the first of the 98th, 99th, 99.9th, 99.99th and 99.999th percentiles above it and rescales to that value. Higher values reduce clipping and make output dimmer; lower values reveal faint signal but can saturate bright objects. If no percentile qualifies, the range collapses to the 2nd percentile, indicating that this value is too high. Ignored when percentiles is set. Default 10 (5 in check_cellpose_models).
+(int) - Background multiplier used as the Cellpose normalization threshold (background \* Signal_to_noise). Per channel, spaCR selects the first of the 98th, 99th, 99.9th, 99.99th and 99.999th percentiles above it and rescales to that value. Higher values reduce clipping and make output dimmer; lower values reveal faint signal but can saturate bright objects. If no percentile qualifies, the range collapses to the 2nd percentile, indicating that this value is too high. Ignored when percentiles is set. Default 10 (5 in check_cellpose_models).
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -1265,7 +1265,7 @@ Read by :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`, :py:fu
 calculate_correlation
 ---------------------
 
-(bool) - For every pair of measured channels and every object mask, compute a per-object Pearson correlation and the three Manders coefficients (manders_m1, manders_m2, manders_overlap_coefficient), stored as <object>_channel_i_channel_j_* columns. Needs at least two channels. Turn it off to cut measurement time and database size when colocalisation is not part of the phenotype. Default True.
+(bool) - For every pair of measured channels and every object mask, compute a per-object Pearson correlation and the three Manders coefficients (manders_m1, manders_m2, manders_overlap_coefficient), stored as <object>_channel_i_channel_j_\* columns. Needs at least two channels. Turn it off to cut measurement time and database size when colocalisation is not part of the phenotype. Default True.
 
 | ``_measure_crop_core``
 |     ``_intensity_measurements`` **-- reads it**
@@ -1635,7 +1635,7 @@ Read by :py:func:`~spacr.deep_spacr.annotate_filter_vision`.
 cell_mask_dim
 -------------
 
-(int) - Position along the last axis of each merged/*.npy array where the cell label mask sits. Merged arrays are ordered [image channels..., cell, nucleus, pathogen, organelle], so the default 4 assumes the four channels 0-3 were kept; keep fewer channels and every mask dim shifts down. None makes measure_crop skip all cell measurements and cell crops. Default 4.
+(int) - Position along the last axis of each merged/\*.npy array where the cell label mask sits. Merged arrays are ordered [image channels..., cell, nucleus, pathogen, organelle], so the default 4 assumes the four channels 0-3 were kept; keep fewer channels and every mask dim shifts down. None makes measure_crop skip all cell measurements and cell crops. Default 4.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -2243,7 +2243,7 @@ Read by :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame`.
 cells
 -----
 
-(list) - Names of the host cell lines on the plate, e.g. ['HeLa']. Each name is written to the host_cells column and becomes part of the combined condition label used for grouping in plots and statistics. With cell_loc set the names are mapped well by well; with cell_loc None only the first name is used, applied to every row. No default is set: no set_default_* function fills this key and its readers index settings['cells'] directly, so it must be present - use None to skip host-cell annotation.
+(list) - Names of the host cell lines on the plate, e.g. ['HeLa']. Each name is written to the host_cells column and becomes part of the combined condition label used for grouping in plots and statistics. With cell_loc set the names are mapped well by well; with cell_loc None only the first name is used, applied to every row. No default is set: no set_default_\* function fills this key and its readers index settings['cells'] directly, so it must be present - use None to skip host-cell annotation.
 
 | :py:func:`~spacr.core.generate_screen_graphs` **-- reads it**
 | :py:func:`~spacr.deep_spacr.annotate_filter_vision` **-- reads it**
@@ -2385,7 +2385,7 @@ Read by :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.plot.plot_data
 channels
 --------
 
-(list of int) - Zero-indexed image channels kept in merged/*.npy and measured by measure_crop; each entry produces its own <object>_channel_<n>_* intensity columns. The list length fixes where masks land, so cell/nucleus/pathogen_mask_dim must shift if you change it. Preprocessing silently resets it to range(n) when it does not match the number of channel folders found. Default [0,1,2,3]. External Masks starts with []; there an empty list means every detected intensity channel, not no channels.
+(list of int) - Zero-indexed image channels kept in merged/\*.npy and measured by measure_crop; each entry produces its own <object>_channel_<n>_\* intensity columns. The list length fixes where masks land, so cell/nucleus/pathogen_mask_dim must shift if you change it. Preprocessing silently resets it to range(n) when it does not match the number of channel folders found. Default [0,1,2,3]. External Masks starts with []; there an empty list means every detected intensity channel, not no channels.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
@@ -3228,7 +3228,7 @@ Read by :py:func:`~spacr.crop_source.crops_from_merged`, :py:func:`~spacr.crop_s
 crop_source
 -----------
 
-(str) - Select where image crops come from. Viewers use 'png' (LOAD IMAGES) for exported crops in data/ or 'merged' (STREAM IMAGES) to cut from merged/*.npy using the measurements database. These viewer modes correspond to training's 'load_images' and 'stream_images' sources. spaCR reports any fallback, and controls that do not apply to the selected source are disabled. Default 'png' in viewers and 'load_images' in training. Image UMAP starts at 'auto', preferring exported PNGs when available and otherwise streaming from merged arrays.
+(str) - Select where image crops come from. Viewers use 'png' (LOAD IMAGES) for exported crops in data/ or 'merged' (STREAM IMAGES) to cut from merged/\*.npy using the measurements database. These viewer modes correspond to training's 'load_images' and 'stream_images' sources. spaCR reports any fallback, and controls that do not apply to the selected source are disabled. Default 'png' in viewers and 'load_images' in training. Image UMAP starts at 'auto', preferring exported PNGs when available and otherwise streaming from merged arrays.
 
 | :py:func:`~spacr.core.generate_image_umap`
 |     :py:func:`~spacr.io.open_crop_source` **-- reads it**
@@ -4353,7 +4353,7 @@ Read by ``_choose_model``.
 dialate_png_ratios
 ------------------
 
-(list of float) - Dilation amount as a fraction of object size: the mask is grown by ratio * sqrt(object area) pixels of binary dilation, so 0.2 expands a cell by roughly 20% of its diameter and pulls in surrounding background. Only used when dialate_pngs is True. A single value applies to every crop_mode entry; pass a list only when the modes need different ratios. Default [0.2].
+(list of float) - Dilation amount as a fraction of object size: the mask is grown by ratio \* sqrt(object area) pixels of binary dilation, so 0.2 expands a cell by roughly 20% of its diameter and pulls in surrounding background. Only used when dialate_pngs is True. A single value applies to every crop_mode entry; pass a list only when the modes need different ratios. Default [0.2].
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -5250,7 +5250,7 @@ Read by ``_captum_attribute``.
 fields
 ------
 
-(list | str | None) - Fields to process, enabling selected fields to be reprocessed without repeating the complete plate. None, the default, -- processes every field found. A list or a comma-separated string of field ids in any spelling spaCR accepts ('f3', 3, 'F003'), or a glob such as 'f1*'. The run writes only the fields named, into the same folders, so a re-run replaces those and leaves the rest.
+(list | str | None) - Fields to process, enabling selected fields to be reprocessed without repeating the complete plate. None, the default, -- processes every field found. A list or a comma-separated string of field ids in any spelling spaCR accepts ('f3', 3, 'F003'), or a glob such as 'f1\*'. The run writes only the fields named, into the same folders, so a re-run replaces those and leaves the rest.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -5403,7 +5403,7 @@ Read by :py:func:`~spacr.settings.default_settings_analyze_percent_positive`, :p
 filter_by
 ---------
 
-(str or None) - Restricts the feature matrix before dimensionality reduction: only columns matching this channel are kept and the other channel_1-channel_4 columns are dropped. Accepts 'channel_0'-'channel_3', an int, a list of channel numbers, or 'morphology' to keep only shape features (area, eccentricity, Zernike moments, ...). None, 'None', 'all', and '*' disable filtering. Default 'channel_0'.
+(str or None) - Restricts the feature matrix before dimensionality reduction: only columns matching this channel are kept and the other channel_1-channel_4 columns are dropped. Accepts 'channel_0'-'channel_3', an int, a list of channel numbers, or 'morphology' to keep only shape features (area, eccentricity, Zernike moments, ...). None, 'None', 'all', and '\*' disable filtering. Default 'channel_0'.
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 |     :py:func:`~spacr.settings.set_default_umap_image_settings` **-- reads it**
@@ -6864,7 +6864,7 @@ Read by :py:func:`~spacr.settings.get_automated_motility_assay_default_settings`
 infection_intensity_qc
 ----------------------
 
-(bool) - Master switch for infection re-calling. While False the mask-based label (cell contains at least one pathogen) is used unchanged and every other infection_* setting is inert; True runs the method chosen by infection_intensity_strategy. A pathogen_channel must also be set. No default is applied anywhere, so it behaves as False until you set it.
+(bool) - Master switch for infection re-calling. While False the mask-based label (cell contains at least one pathogen) is used unchanged and every other infection_\* setting is inert; True runs the method chosen by infection_intensity_strategy. A pathogen_channel must also be set. No default is applied anywhere, so it behaves as False until you set it.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -8488,7 +8488,7 @@ Read by :py:func:`~spacr.plot.plot_data_from_csv`, :py:func:`~spacr.sequencing.g
 logit_adjust_tau
 ----------------
 
-(float) - Strength of the Menon-et-al. logit adjustment: tau * log(class prior) is added to the logits during training, pulling decisions toward rare classes. Only used when loss_type resolves to logit_adjust_ce, which 'auto' picks when the smallest class is under 10% of the data. Higher tau corrects harder; 0 disables. Default 1.0.
+(float) - Strength of the Menon-et-al. logit adjustment: tau \* log(class prior) is added to the logits during training, pulling decisions toward rare classes. Only used when loss_type resolves to logit_adjust_ce, which 'auto' picks when the smallest class is under 10% of the data. Higher tau corrects harder; 0 disables. Default 1.0.
 
 | ``_fit_one`` **-- reads it**
 | :py:func:`~spacr.deep_spacr.deep_spacr`
@@ -8580,7 +8580,7 @@ Read by :py:func:`~spacr.deep_spacr.annotate_filter_vision`.
 magnification
 -------------
 
-(int) - Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. Explicit cell_diameter, nucleus_diameter or pathogen_diameter override it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.
+(int) - Objective magnification, used only to derive expected object sizes: pixel diameter is 2\*mag+80 for cells, 0.75\*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2\*10. Explicit cell_diameter, nucleus_diameter or pathogen_diameter override it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -9761,7 +9761,7 @@ Read by :py:func:`~spacr.settings.set_default_stitch`, :py:func:`~spacr.spacrops
 motility_analysis
 -----------------
 
-(bool) - Run the automated motility assay after segmentation: it rebuilds per-object measurements from merged/*.npy, cleans tracks, computes per-track velocity and straightness, applies the infection QC, and writes motility_plots plus a well-level summary table. It only fires when timelapse is also True, and it is what reveals the Motility setting categories. Default False.
+(bool) - Run the automated motility assay after segmentation: it rebuilds per-object measurements from merged/\*.npy, cleans tracks, computes per-track velocity and straightness, applies the infection QC, and writes motility_plots plus a well-level summary table. It only fires when timelapse is also True, and it is what reveals the Motility setting categories. Default False.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -10921,7 +10921,7 @@ Read by ``_run_one``, :py:func:`~spacr.object.merge_split_filter_masks`, :py:fun
 nucleus_mask_dim
 ----------------
 
-(int) - Position along the last axis of each merged/*.npy array where the nucleus label mask sits, one plane after the cell mask. With the default four image channels (0-3) that is 5; keep a different number of channels and it shifts by the same amount. None makes measure_crop skip nucleus measurements and cell-to-nucleus linking. Default 5.
+(int) - Position along the last axis of each merged/\*.npy array where the nucleus label mask sits, one plane after the cell mask. With the default four image channels (0-3) that is 5; keep a different number of channels and it shifts by the same amount. None makes measure_crop skip nucleus measurements and cell-to-nucleus linking. Default 5.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -11427,7 +11427,7 @@ Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simu
 number_of_organelles
 --------------------
 
-(int) - How many organelle slots this run has, from 0 to 26. Each slot is an independent object with its own channel, its own type preset and its own copy of every detection setting, named organelle_*, organelleb_*, organellec_* and so on; raising the number generates another slot's settings and lowering it hides the slots above the new number without deleting them. A hidden slot keeps its values, is still written to the settings file, and comes back exactly as it was when the number is raised again, so a smaller number can be tried without losing work. Default 0.
+(int) - How many organelle slots this run has, from 0 to 26. Each slot is an independent object with its own channel, its own type preset and its own copy of every detection setting, named organelle_\*, organelleb_\*, organellec_\* and so on; raising the number generates another slot's settings and lowering it hides the slots above the new number without deleting them. A hidden slot keeps its values, is still written to the settings file, and comes back exactly as it was when the number is raised again, so a smaller number can be tried without losing work. Default 0.
 
 | :py:func:`~spacr.qt.widgets.measure_preview.apply_settings` **-- reads it**
 
@@ -11447,7 +11447,7 @@ Read by :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops`.
 object_array
 ------------
 
-(str) - On-demand crops: which object the crops are cut around - 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. Its mask plane in merged/*.npy is what defines each object's extent. Default 'cell'.
+(str) - On-demand crops: which object the crops are cut around - 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. Its mask plane in merged/\*.npy is what defines each object's extent. Default 'cell'.
 
 | :py:func:`~spacr.annotation_dataset.generate_annotation_dataset` **-- reads it**
 |     :py:func:`~spacr.annotation_dataset.filter_selection` **-- reads it**
@@ -12152,7 +12152,7 @@ Read by ``_segment_ring``, ``_spots_dog``, ``_spots_log``, ``_organelle_diagnost
 organelle_mask_dim
 ------------------
 
-(int) - Position along the last axis of each merged/*.npy array where the organelle label mask sits. Masks follow the image channels in the order cell, nucleus, pathogen, organelle, so with four channels and all three other masks present it is 7. Leave it unset/None and organelles are not measured at all. No default is applied.
+(int) - Position along the last axis of each merged/\*.npy array where the organelle label mask sits. Masks follow the image channels in the order cell, nucleus, pathogen, organelle, so with four channels and all three other masks present it is 7. Leave it unset/None and organelles are not measured at all. No default is applied.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -12815,7 +12815,7 @@ Read by ``_segment_unet``.
 organelle_watershed_spots
 -------------------------
 
-(bool) - Split touching spots instead of labelling each connected blob once. Under otsu/adaptive it runs a distance-transform watershed with seeds at least 5 px apart; under log/dog it grows a watershed from each blob centre instead of stamping a disk whose radius comes from that blob's own sigma (round(sigma*sqrt(2)), minimum 1 px). Turn it off when single spots are being fragmented. Default True.
+(bool) - Split touching spots instead of labelling each connected blob once. Under otsu/adaptive it runs a distance-transform watershed with seeds at least 5 px apart; under log/dog it grows a watershed from each blob centre instead of stamping a disk whose radius comes from that blob's own sigma (round(sigma\*sqrt(2)), minimum 1 px). Turn it off when single spots are being fragmented. Default True.
 
 | ``_segment_single_image``
 |     ``_segment_spots`` **-- reads it**
@@ -13034,7 +13034,7 @@ Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.settings.se
 outside_channel
 ---------------
 
-(int) - Zero-indexed channel of the pre-permeabilisation antibody, which labels parasites remaining outside the host cell. Classification thresholds this channel, so an incorrect index changes the assay readout to the signal measured in another channel without raising an error. This is an image-channel index, not measure.py's <object>_channel_<n>_outside_* columns, which quantify the ring outside an object's mask. Default 1.
+(int) - Zero-indexed channel of the pre-permeabilisation antibody, which labels parasites remaining outside the host cell. Classification thresholds this channel, so an incorrect index changes the assay readout to the signal measured in another channel without raising an error. This is an image-channel index, not measure.py's <object>_channel_<n>_outside_\* columns, which quantify the ring outside an object's mask. Default 1.
 
 | :py:func:`~spacr.settings.set_analyze_invasion_defaults` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_invasion` **-- reads it**
@@ -13611,7 +13611,7 @@ Read by :py:func:`~spacr.deep_spacr.annotate_filter_vision`.
 pathogen_mask_dim
 -----------------
 
-(int) - Position along the last axis of each merged/*.npy array where the pathogen label mask sits, one plane after the nucleus mask. With the default four image channels (0-3) that is 6; shift it if you keep a different number of channels. None makes measure_crop skip pathogen measurements, so infection status cannot be scored. Default 6.
+(int) - Position along the last axis of each merged/\*.npy array where the pathogen label mask sits, one plane after the nucleus mask. With the default four image channels (0-3) that is 6; shift it if you keep a different number of channels. None makes measure_crop skip pathogen measurements, so infection status cannot be scored. Default 6.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -14212,7 +14212,7 @@ Read by ``_pen_of``.
 percentiles
 -----------
 
-(list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. Default None in the Cellpose steps.
+(list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background \* Signal_to_noise. Default None in the Cellpose steps.
 
 | :py:func:`~spacr.plot.plot_region` **-- reads it**
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
@@ -15732,7 +15732,7 @@ Read by ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.train_test_model`
 reuse_existing_measurements
 ---------------------------
 
-(bool) - If measurements.db already holds the table named by db_table_name, load it instead of re-extracting regionprops from merged/*.npy. Saves most of the runtime when re-running only the infection QC or the plots, but it also skips track smoothing, so changes to max_displacement or zscore_thresh only take effect with this set to False. Default True.
+(bool) - If measurements.db already holds the table named by db_table_name, load it instead of re-extracting regionprops from merged/\*.npy. Saves most of the runtime when re-running only the infection QC or the plots, but it also skips track smoothing, so changes to max_displacement or zscore_thresh only take effect with this set to False. Default True.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -17350,7 +17350,7 @@ Read by ``_captum_attribute``.
 summarize_organelles_by
 -----------------------
 
-(str, list or None) - Parent compartments to roll every enabled organelle slot into. Accepts 'cell', 'nucleus', 'pathogen' and 'cytoplasm'; each writes one <parent>_organelle_summary row per parent with a separate organelle_summary_<slot>_* column family. Raw per-organelle tables are always written when their mask dim is enabled. Default 'cell'; None disables only these rollups.
+(str, list or None) - Parent compartments to roll every enabled organelle slot into. Accepts 'cell', 'nucleus', 'pathogen' and 'cytoplasm'; each writes one <parent>_organelle_summary row per parent with a separate organelle_summary_<slot>_\* column family. Raw per-organelle tables are always written when their mask dim is enabled. Default 'cell'; None disables only these rollups.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -18569,7 +18569,7 @@ Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.s
 tracked_object
 --------------
 
-(str) - Which object's feature block ({object}_* columns) the XGBoost infection classifier trains on: 'cell', 'nucleus' or 'pathogen'; anything else falls back to 'cell'. It does not change what is tracked - track geometry and velocity always come from the cell centroids. Default 'cell'.
+(str) - Which object's feature block ({object}_\* columns) the XGBoost infection classifier trains on: 'cell', 'nucleus' or 'pathogen'; anything else falls back to 'cell'. It does not change what is tracked - track geometry and velocity always come from the cell centroids. Default 'cell'.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -19319,7 +19319,7 @@ Read by :py:func:`~spacr.settings.set_default_umap_image_settings`.
 voxel_size_xy_um
 ----------------
 
-(float or None) - Width of one pixel in micrometres in the image plane, assumed square. Used with voxel_size_z_um to derive anisotropy and to turn voxel counts into physical volumes and surface areas. Note this is a different setting from um_per_pixel, which only sizes the scale bar drawn on figures and never reaches a measurement. This one does reach measurements, but only on a 3-D run: a 2-D run never applies it, because doing so would turn every *_area from px2 into um2 under an unchanged column name. Default None.
+(float or None) - Width of one pixel in micrometres in the image plane, assumed square. Used with voxel_size_z_um to derive anisotropy and to turn voxel counts into physical volumes and surface areas. Note this is a different setting from um_per_pixel, which only sizes the scale bar drawn on figures and never reaches a measurement. This one does reach measurements, but only on a 3-D run: a 2-D run never applies it, because doing so would turn every \*_area from px2 into um2 under an unchanged column name. Default None.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`

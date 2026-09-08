@@ -29,6 +29,7 @@ Run it::
 from __future__ import annotations
 
 import argparse
+import re
 import ast
 import json
 from collections import defaultdict
@@ -223,9 +224,21 @@ def _tooltip_for(key: str) -> str:
     text = str(tooltips.get(key) or "").strip()
     if not text:
         return ""
-    # The tooltips carry ``literals`` already; what they must not carry
-    # into RST is a stray backslash or a leading role-like token.
-    return " ".join(text.split())
+    # ESCAPED, BECAUSE A TOOLTIP IS PROSE AND RST IS NOT. The tooltips
+    # carry ``literals`` deliberately and those must survive, but a lone
+    # `*` opens emphasis that never closes and a trailing `_` reads as a
+    # reference to a target that does not exist -- both are warnings, and
+    # `-W` makes them fatal. So the literals are lifted out, the rest is
+    # escaped, and they are put back.
+    text = " ".join(text.split())
+    parts = re.split(r"(``[^`]*``)", text)
+    for i, part in enumerate(parts):
+        if part.startswith("``"):
+            continue
+        part = part.replace("*", r"\*")
+        part = re.sub(r"(\w)_(?=\s|$)", r"\1\\_", part)
+        parts[i] = part
+    return "".join(parts)
 
 
 def tree_for(data: dict, key: str, *, depth: int = 6) -> str:

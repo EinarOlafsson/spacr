@@ -88,6 +88,29 @@ def _settings_alias(value) -> bool:
     return False
 
 
+def _settings_key_of(node, aliases=frozenset()):
+    """The settings key ``node`` evaluates to, or None.
+
+    Recognises the two spellings a value can have when a caller passes a
+    setting on: ``settings['key']`` and ``settings.get('key')``. Anything
+    else -- a literal, a computed expression, another variable -- is not a
+    setting being handed along and is not evidence of one.
+    """
+    if isinstance(node, ast.Subscript) and _is_settings_mapping(
+            node.value, aliases):
+        if isinstance(node.slice, ast.Constant) and isinstance(
+                node.slice.value, str):
+            return node.slice.value
+        return None
+    if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+            and node.func.attr in ("get", "setdefault")
+            and node.args and _is_settings_mapping(node.func.value, aliases)):
+        first = node.args[0]
+        if isinstance(first, ast.Constant) and isinstance(first.value, str):
+            return first.value
+    return None
+
+
 def _is_settings_mapping(node, aliases=frozenset()) -> bool:
     """Whether ``node`` plausibly evaluates to the settings mapping.
 
@@ -218,8 +241,27 @@ class Reads(ast.NodeVisitor):
             elif isinstance(a, ast.JoinedStr):
                 self._record_dynamic(a, node, "get")
         for kw in node.keywords:
-            if kw.arg:
-                self._record(kw.arg, node, "keyword")
+            # A KEYWORD IS ONLY EVIDENCE IF ITS VALUE CAME FROM SETTINGS.
+            #
+            # This used to record every `f(x=...)` as a read of the setting
+            # `x`, whatever the value was. It was the largest form in the
+            # map -- 2,757 of 6,956 hits, 40% -- and most of it said
+            # nothing: `test_cellpose_model` calls something with
+            # `diameter=30`, a hardcoded literal, and that was recorded as
+            # a read of the `diameter` setting, so the API link for
+            # `diameter` in the Plaque assay pointed at it. Worse,
+            # `flow_threshold=settings['FT']` was recorded as a read of
+            # `flow_threshold` when the value read is `FT`.
+            #
+            # What the pass-along relationship actually looks like is
+            # `f(x=settings['x'])` or `f(x=settings.get('x'))`: the value
+            # is the setting. That is what is recorded now, and it is
+            # recorded for the key the VALUE names, not the parameter.
+            if not kw.arg:
+                continue
+            passed = _settings_key_of(kw.value, self.aliases)
+            if passed is not None:
+                self._record(passed, node, "keyword")
         self.generic_visit(node)
 
 
