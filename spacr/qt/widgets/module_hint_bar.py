@@ -25,7 +25,7 @@ from __future__ import annotations
 from html import escape
 from typing import Optional
 
-from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtWidgets import QLabel, QWidget
 
 #: What the strip says when nothing has been hovered yet.
@@ -130,8 +130,21 @@ class ModuleHintBar(QLabel):
         itself now shows nothing, which is what it already looked like it
         promised.
         """
-        from PySide6.QtCore import QEvent
-
+        # `QEvent` COMES FROM THE MODULE IMPORT, NOT FROM HERE, and the
+        # reason is not tidiness. `event()` runs for EVERY event this widget
+        # receives, so a function-local import was a `sys.modules` lookup per
+        # event on a hot path -- and, worse, a place the widget could RAISE.
+        #
+        # A test that sets `sys.modules["PySide6.QtCore"] = None` to stand in
+        # for "no Qt here" made this import throw
+        # `ModuleNotFoundError: import of PySide6.QtCore halted` from inside
+        # a paint event during pytest-qt's teardown `processEvents()`. That
+        # error then repeated for every remaining test in the process: ONE
+        # lazy import produced 419 teardown errors in a single sweep chunk.
+        #
+        # There was never anything to defer. Line 28 imports QtCore at module
+        # scope already -- this class is a QWidget and the module cannot load
+        # without it.
         if event.type() == QEvent.Type.ToolTip:
             event.accept()
             return True
