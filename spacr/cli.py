@@ -681,6 +681,46 @@ _register_plugin_modules()
 # the error message is kinder than "unknown module": the user did not typo, the
 # thing simply cannot run without a person looking at a screen.
 INTERACTIVE_ONLY: Dict[str, str] = {
+    # ------------------------------------------------------------------
+    # THE SIX THE FOLD TOOK OFF THE COMMAND LINE, restored here as
+    # explanations rather than as runnable names. Added 2026-09-07.
+    #
+    # None of these ever had a row in `_MODULE_LIST`. They reached
+    # `spacr-run` because they were rows in the GUI's app table and
+    # `_register_plugin_modules` takes its names from there -- so when
+    # `571b6e77c` and `00f166a7f` folded them into host screens, the only
+    # name they answered to on the command line went with them, and
+    # `spacr-run outliers` began saying "unknown module 'outliers'".
+    #
+    # That is a breaking change to a documented entry point: a script that
+    # called one of these after upgrading gets an error that reads like a
+    # typo. It is not a typo, and the message should not imply it is.
+    # Where the view moved to a host screen the host is named; where there
+    # is a real headless callable it is named instead.
+    "outliers": "The outlier view folded into the QC Dashboard. In the GUI "
+                "open 'qc_dashboard'; headless, the same numbers come from "
+                "spacr.plate_qc on measurements.db.",
+    "control_chart": "Control charts folded into the QC Dashboard. In the "
+                     "GUI open 'qc_dashboard'; headless, call "
+                     "spacr.plate_qc from Python.",
+    "trellis": "The trellis view folded into Graph Builder. In the GUI open "
+               "'graph_builder' — it is a plotting surface with no batch "
+               "equivalent, because what it produces is a figure you choose "
+               "interactively.",
+    "feature_explorer": "Feature Explorer folded into Classify. In the GUI "
+                        "open 'classify_merged'; it is an interactive "
+                        "ranking of features and has no headless form.",
+    "import_images": "Image import folded into the foreign-format importer. "
+                     "In the GUI open 'foreign'; headless, call "
+                     "spacr.image_import.apply_import, which is what that "
+                     "screen drives.",
+    "regression_diagnostics": "Regression diagnostics folded into "
+                              "Regression, which writes them as part of its "
+                              "own run. In the GUI open 'regression'; "
+                              "headless, run 'spacr-run regression' — the "
+                              "diagnostics are written beside its output — "
+                              "or call spacr.regression_diagnostics "
+                              "directly.",
     "annotate": "Annotate paints labels onto a grid of single-object images by hand; "
                 "run it in the GUI (spacr-qt) — there is no batch equivalent.",
     "make_masks": "Make Masks is a manual mask editor; run it in the GUI (spacr-qt).",
