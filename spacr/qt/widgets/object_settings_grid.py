@@ -465,6 +465,40 @@ class ObjectSettingsGrid(QWidget):
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(SPACING["sm"])
 
+        # THE HELP GOES ABOVE THE TABLE, in a band that does not move.
+        #
+        # A popup was tried twice and neither placement works over a table.
+        # Under the pointer it covers the row being read, which is the one
+        # thing the reader is comparing the help against, and it jumps with
+        # every cell. Beside the table it is in one place, but "the table"
+        # is the whole container -- wider than the columns -- and aiming at
+        # the columns' right edge would move the help further right with
+        # every organelle added.
+        #
+        # A fixed band solves both: one position for the life of the panel,
+        # never over the data, and it cannot drift as the table grows. It is
+        # reserved at a constant height so a hover does not reflow the form
+        # around it -- a help area that resized would push the table under
+        # the pointer as the text arrived.
+        self._help = QLabel("", self)
+        # `SubtitleSmall` is the per-setting hint strip's own object name,
+        # borrowed rather than invented: this band says the same kind of
+        # thing in the same voice, and a new name would be a new themed
+        # surface to keep in step with it.
+        self._help.setObjectName("SubtitleSmall")
+        # A caption over the backdrop, not a surface. Named widgets keep
+        # their fill under the blanket `QWidget { background-color: bg }`
+        # rule, which would draw a panel-coloured slab above the table.
+        self._help.setStyleSheet("background: transparent;")
+        self._help.setWordWrap(True)
+        self._help.setTextFormat(Qt.TextFormat.RichText)
+        self._help.setOpenExternalLinks(True)
+        self._help.setAlignment(Qt.AlignmentFlag.AlignLeft
+                                | Qt.AlignmentFlag.AlignTop)
+        self._help.setSizePolicy(QSizePolicy.Policy.Expanding,
+                                 QSizePolicy.Policy.Fixed)
+        outer.addWidget(self._help)
+
         self._table = QTableView(self)
         self._table.setModel(self._model)
         # AFTER setModel, as the contract requires: a QTableView is wrapped in
@@ -516,7 +550,47 @@ class ObjectSettingsGrid(QWidget):
         row.addWidget(self._add)
         outer.addLayout(row)
 
-    # -- the rich tooltips -------------------------------------------------
+        self._sync_help_height()
+        self._write_help("")
+
+    # -- the help band -----------------------------------------------------
+
+    #: Lines reserved above the table for a setting's help.
+    #:
+    #: THREE, and fixed. The band has to be tall enough for the longest
+    #: help a cell can show without the label growing when it arrives:
+    #: growing would push the table down under the pointer mid-hover and
+    #: move the cell out from under it, which is the failure the fixed
+    #: band exists to prevent in the first place.
+    HELP_LINES = 3
+
+    def _sync_help_height(self) -> None:
+        """Reserve :data:`HELP_LINES` using the font Qt is actually painting.
+
+        Measured from the polished widget rather than from the theme's
+        point size, because a stylesheet or the platform can change what is
+        painted and a height computed from the wrong font reserves the
+        wrong number of lines.
+        """
+        self._help.ensurePolished()
+        self._help.setFixedHeight(
+            self._help.fontMetrics().lineSpacing() * self.HELP_LINES)
+
+    def changeEvent(self, event):                            # noqa: N802
+        """Re-reserve the band when the painted font changes.
+
+        :param event: the Qt change event.
+
+        The font scale is a preference the user can move while a panel is
+        open, and a band sized once at construction would keep the old
+        height and clip its third line.
+        """
+        try:
+            if event.type() == QEvent.Type.FontChange:
+                self._sync_help_height()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the help band could not be resized", exc_info=True)
+        return super().changeEvent(event)
 
     def set_app_key(self, app_key: str) -> None:
         """Say which module's API documentation the tooltips should link to."""
@@ -559,8 +633,7 @@ class ObjectSettingsGrid(QWidget):
                 self._offer_tooltip(event.position().toPoint())
             elif kind == QEvent.Type.Leave:
                 self._hovered_key = ""
-                from .hover_tooltip import HoverTooltip
-                HoverTooltip.instance().start_hide()
+                self._write_help("")
         except Exception:                                    # noqa: BLE001
             LOG.debug("the table could not offer its tooltip", exc_info=True)
         return super().eventFilter(watched, event)
@@ -576,9 +649,8 @@ class ObjectSettingsGrid(QWidget):
         if key == self._hovered_key:
             return
         self._hovered_key = key
-        from .hover_tooltip import HoverTooltip
         if not key:
-            HoverTooltip.instance().start_hide()
+            self._write_help("")
             return
         try:
             from ..screens.settings_model import format_tooltip, get_tooltips
@@ -587,24 +659,32 @@ class ObjectSettingsGrid(QWidget):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not build the tooltip for %s", key, exc_info=True)
             return
-        # The ANCHOR carries the setting, because that is what the popup
-        # looks up its animation by -- see `_anchor_setting_key`.
-        self._table.setProperty("settingKey", key)
-        self._table.setProperty("settingsAppKey", self._app_key)
-        # BESIDE THE TABLE, NOT UNDER IT. The anchor here is the whole
-        # table rather than one widget, so the default placement put the
-        # popup below a control whose height changes with the number of
-        # objects -- a different position for every panel, and sitting on
-        # top of whatever came next. Asked for on the right, centred, and
-        # in one place for the whole table, so the row being described
-        # stays visible next to the help describing it.
-        #
-        # Set on the anchor rather than on the popup because there is one
-        # HoverTooltip for the application: a mode stored on it would be
-        # inherited by every other tooltip until something cleared it.
-        self._table.setProperty(HoverTooltip.PLACEMENT_PROPERTY,
-                                HoverTooltip.PLACE_BESIDE)
-        HoverTooltip.instance().show_for(self._table, html)
+        self._write_help(html)
+
+    def _write_help(self, html: str) -> None:
+        """Put ``html`` in the band above the table, or the resting prompt.
+
+        The API link is kept. `format_tooltip` ends the body with an anchor
+        to the setting's documentation page, and the popup used to lift that
+        out into its own **API** word; here the band is a rich-text label
+        with external links enabled, so the anchor works where it already
+        is and there is nothing to lift.
+
+        The band does not go blank between cells. Moving the pointer across
+        a row would otherwise flicker it empty and back, and an empty band
+        is also what a reader sees before touching anything -- so the rest
+        state is a sentence saying what the band is for. That sentence is
+        the one the bottom-of-window strip already uses, reused rather than
+        written again: a new one would be a new user-facing string in ten
+        languages.
+        """
+        from ..i18n import tr
+
+        text = str(html or "").strip()
+        if not text:
+            text = tr("Hover any setting for details and a link to its "
+                      "documentation.")
+        self._help.setText(text)
 
     # -- the model-zoo buttons ---------------------------------------------
 

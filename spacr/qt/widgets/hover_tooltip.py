@@ -903,60 +903,8 @@ class HoverTooltip(QFrame):
     # ------------------------------------------------------------------
     # Placement
     # ------------------------------------------------------------------
-    #: Anchor property that asks for the popup beside the anchor instead of
-    #: under it, vertically centred on it.
-    #:
-    #: OPT-IN, and read from the ANCHOR rather than set on the popup: there
-    #: is one `HoverTooltip` for the whole application, so a mode stored on
-    #: it would be a mode every other tooltip inherited until something
-    #: cleared it. A property on the widget being described travels with
-    #: that widget and cannot leak.
-    PLACEMENT_PROPERTY = "tooltipPlacement"
-    PLACE_BESIDE = "right"
-
-    def _position_beside(self, anchor: QWidget) -> bool:
-        """Dock the popup to the right of ``anchor``, centred on its height.
-
-        For the per-object settings table, where the anchor is the whole
-        table and the cell under the pointer is what changes. Docked under
-        the table the popup sat in a different place for every table height
-        and covered whatever was below it; beside it, the popup is in one
-        place for the whole table and the table stays readable while it is
-        up -- which is the point, since the reader is comparing the help
-        against the row it describes.
-
-        :returns: whether it fitted. The caller falls back to the normal
-            placement when it did not, because a popup pushed half off the
-            screen to honour a preference is worse than one below the
-            anchor.
-        """
-        try:
-            top_right = anchor.mapToGlobal(anchor.rect().topRight())
-            height = anchor.rect().height()
-        except (AttributeError, RuntimeError):
-            return False
-        screen = QGuiApplication.screenAt(top_right) \
-            or QGuiApplication.primaryScreen()
-        if screen is None:
-            return False
-        geo = screen.availableGeometry()
-        x = top_right.x() + 8
-        if x + self.width() > geo.right():
-            return False
-        y = top_right.y() + (height - self.height()) // 2
-        y = min(max(geo.top(), y), geo.bottom() - self.height())
-        self.move(x, y)
-        return True
-
     def _position_under(self, anchor: Optional[QWidget]) -> None:
         """Dock the popup just below ``anchor``, clamped to its screen."""
-        if anchor is not None:
-            try:
-                placement = anchor.property(self.PLACEMENT_PROPERTY)
-            except (AttributeError, RuntimeError):
-                placement = None
-            if placement == self.PLACE_BESIDE and self._position_beside(anchor):
-                return
         try:
             below_left = anchor.mapToGlobal(anchor.rect().bottomLeft())
         except (AttributeError, RuntimeError):

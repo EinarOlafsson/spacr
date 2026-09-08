@@ -580,14 +580,32 @@ class TestTheTooltipsMatchTheForm:
         rect = self._rect_of(grid, "channel", "cell")
         assert grid._key_under(rect.center()) == "cell_channel"
 
-    def test_the_anchor_carries_the_setting_and_the_module(self, grid):
-        """The popup looks up its ANIMATION by the anchor's settingKey, so an
-        anchor that does not carry one gets help with no animation."""
+    def test_the_hovered_cell_is_the_setting_the_band_explains(self, grid):
+        """THE CELL DECIDES, which is the whole of the table's help contract.
+
+        This asserted the `settingKey` and `settingsAppKey` properties on
+        the view until the popup was replaced by the band above the table.
+        Those properties existed so the POPUP could look its animation up
+        from its anchor; with no popup they are state nobody reads, and
+        asserting them would pin a mechanism rather than a behaviour.
+
+        What has to be true either way is that hovering a particular cell
+        puts THAT setting's help on screen -- checked against the text the
+        formatter produces for it, so a band showing the wrong cell's help
+        fails here.
+        """
+        from spacr.qt.screens.settings_model import format_tooltip, get_tooltips
+
         grid.set_app_key("mask")
         grid.resize(900, 500)
+        grid._hovered_key = ""
         grid._offer_tooltip(self._rect_of(grid, "channel", "cell").center())
-        assert grid._table.property("settingKey") == "cell_channel"
-        assert grid._table.property("settingsAppKey") == "mask"
+
+        assert grid._hovered_key == "cell_channel"
+        expected = format_tooltip(
+            str(get_tooltips().get("cell_channel") or ""), "mask",
+            "cell_channel")
+        assert grid._help.text() == expected
 
     def test_the_help_carries_an_api_reference(self, grid):
         from spacr.qt.screens.settings_model import format_tooltip, get_tooltips
@@ -613,89 +631,105 @@ class TestTheTooltipsMatchTheForm:
         assert grid._key_under(rect.center()) == ""
 
 
-class TestTheHelpSitsBesideTheTable:
-    """Asked for on the right of the table, centred, and always the same place.
+class TestTheHelpSitsAboveTheTable:
+    """A band at the top of the container, not a popup.
 
-    Under the table the popup landed somewhere different for every panel
-    -- the table's height is the number of objects -- and covered whatever
-    came next. The reader is comparing the help against the row it
-    describes, so the row has to stay visible while the help is up.
+    A popup was tried in both placements and neither works over a table.
+    Under the pointer it covers the row being read -- the one thing the
+    reader is comparing the help against -- and it jumps with every cell.
+    Beside the table it holds one position, but "the table" is the whole
+    container, wider than the columns, and aiming at the columns' right
+    edge would walk the help further right with every organelle added.
     """
 
-    def _grid(self, qtbot):
-        from spacr.qt.widgets.object_settings_grid import ObjectSettingsGrid
-        from spacr.settings import get_measure_crop_settings
-        grid = ObjectSettingsGrid()
-        qtbot.addWidget(grid)
-        grid.set_settings(get_measure_crop_settings({}))
+    def _shown(self, grid, qtbot):
+        grid.set_app_key("mask")
+        grid.resize(900, 520)
+        grid.show()
+        qtbot.waitExposed(grid)
         return grid
 
-    def test_the_table_asks_for_the_beside_placement(self, qtbot,
-                                                     qt_theme_applied):
-        from spacr.qt.widgets.hover_tooltip import HoverTooltip
+    def _point_on(self, grid, question, obj):
+        """The centre of one named cell.
 
-        grid = self._grid(qtbot)
-        grid.show()
-        qtbot.waitExposed(grid)
-
-        # Drive the real path rather than setting the property directly:
-        # what is being asserted is that offering a tooltip is what asks
-        # for the placement.
-        key = next(iter(grid._model.index(0, 1).data(role=0) or ""), None)
-        grid._hovered_key = "__not_a_key__"
-        grid._offer_tooltip(grid._table.viewport().rect().center())
-
-        assert grid._table.property(HoverTooltip.PLACEMENT_PROPERTY) == \
-            HoverTooltip.PLACE_BESIDE
-
-    def test_a_plain_widget_is_not_given_the_beside_placement(self, qtbot):
-        """The half that keeps every OTHER tooltip where it was.
-
-        The placement is read off the anchor, not stored on the popup, so
-        a widget that never asked for it cannot pick it up from whatever
-        was hovered before. Asserted with a bare widget because that is
-        every other caller's shape.
+        NOT the viewport's centre, which is where this pointed until a
+        render check showed the centre landing on no cell at all: the
+        band stayed at its resting sentence and the test passed anyway,
+        because "the text changed" was compared against a value that had
+        not changed either.
         """
-        from PySide6.QtWidgets import QLabel
+        source = grid._model.index(list(grid.questions()).index(question),
+                                   grid.objects().index(obj))
+        mapper = getattr(grid._table.model(), "mapFromSource", None)
+        index = mapper(source) if mapper else source
+        return grid._table.visualRect(index).center()
 
+    def test_the_band_is_above_the_table(self, grid, qtbot):
+        self._shown(grid, qtbot)
+        layout = grid.layout()
+        order = [layout.itemAt(i).widget() for i in range(layout.count())]
+        assert order.index(grid._help) < order.index(grid._table), (
+            "the help band is not above the table")
+        assert grid._help.y() + grid._help.height() <= grid._table.y()
+
+    def test_it_rests_on_a_sentence_rather_than_going_blank(self, grid):
+        """An empty band says nothing about what it is for."""
+        assert grid._help.text().strip(), "the band is blank at rest"
+
+    def test_hovering_a_cell_writes_that_setting_into_the_band(
+            self, grid, qtbot):
+        self._shown(grid, qtbot)
+        resting = grid._help.text()
+        grid._hovered_key = ""
+        grid._offer_tooltip(self._point_on(grid, "channel", "cell"))
+
+        assert grid._hovered_key == "cell_channel"
+        assert grid._help.text() != resting, (
+            "hovering a cell did not change the band")
+        assert grid._help.text().strip()
+
+    def test_leaving_the_table_puts_the_sentence_back(self, grid, qtbot):
+        """Not blank: the rest state is the same before and after."""
+        self._shown(grid, qtbot)
+        resting = grid._help.text()
+
+        grid._hovered_key = ""
+        grid._offer_tooltip(self._point_on(grid, "channel", "cell"))
+        assert grid._help.text() != resting, "the hover did not take"
+        grid._write_help("")
+
+        assert grid._help.text() == resting
+
+    def test_the_band_does_not_resize_when_help_arrives(self, grid, qtbot):
+        """A band that grew would push the table under the pointer.
+
+        Which is the failure the fixed band exists to prevent: the cell
+        being hovered would move out from under the cursor as its own
+        help arrived.
+        """
+        self._shown(grid, qtbot)
+        before = grid._help.height()
+        grid._write_help("<b>A very long explanation</b> " + ("word " * 200))
+        qtbot.wait(10)
+
+        assert grid._help.height() == before
+        assert grid._table.y() >= before
+
+    def test_no_popup_is_shown_for_a_table_cell(self, grid, qtbot):
+        """The band replaced the popup; it did not join it.
+
+        Two surfaces answering one hover is what the second placement
+        attempt would have left, and the popup is the one that covers the
+        row.
+        """
         from spacr.qt.widgets.hover_tooltip import HoverTooltip
 
-        plain = QLabel("x")
-        qtbot.addWidget(plain)
-        assert plain.property(HoverTooltip.PLACEMENT_PROPERTY) is None
-
-    def test_it_docks_to_the_right_and_centres_on_the_table(self, qtbot,
-                                                            qt_theme_applied):
-        """The geometry itself, not just the request for it."""
-        from spacr.qt.widgets.hover_tooltip import HoverTooltip
-
-        from PySide6.QtGui import QGuiApplication
-
-        grid = self._grid(qtbot)
-        # SMALL AND HARD LEFT, so there is room to the right of it. At its
-        # natural width the table reaches the edge of the offscreen
-        # screen, the fallback fires, and this test would skip itself
-        # rather than check the geometry it exists for.
-        grid.resize(320, 220)
-        grid.move(0, 0)
-        grid.show()
-        qtbot.waitExposed(grid)
-        table = grid._table
-        table.setProperty(HoverTooltip.PLACEMENT_PROPERTY,
-                          HoverTooltip.PLACE_BESIDE)
-
+        self._shown(grid, qtbot)
         popup = HoverTooltip.instance()
-        popup.show_for(table, "<b>help</b>")
-        qtbot.wait(20)
-
-        right = table.mapToGlobal(table.rect().topRight())
-        available = (QGuiApplication.screenAt(right)
-                     or QGuiApplication.primaryScreen()).availableGeometry()
-        assert right.x() + popup.width() <= available.right(), (
-            "this screen cannot fit the popup beside the table, so the "
-            "fallback is what ran and the geometry below is untested")
-        assert popup.x() >= right.x(), "the popup is not to the right"
-        table_centre = right.y() + table.rect().height() // 2
-        assert abs((popup.y() + popup.height() // 2) - table_centre) <= 2, (
-            "the popup is not centred on the table's height")
         popup.hide()
+
+        grid._hovered_key = ""
+        grid._offer_tooltip(self._point_on(grid, "channel", "cell"))
+        qtbot.wait(10)
+
+        assert not popup.isVisible(), "a popup answered a table hover as well"
