@@ -174,6 +174,14 @@ def test_two_organelle_measurement_is_separate_joinable_and_wide(
         "channels": [0, 1],
         "cell_mask_dim": 2,
         "nucleus_mask_dim": 3,
+        # THE ZEROS ARE LOAD-BEARING. ab656821b adopted the maintainer's own
+        # 40x screening defaults -- cell 8000 px2, nucleus 2000, pathogen 500
+        # -- and the objects drawn in this file are a few hundred pixels at
+        # most, so the real defaults correctly erase every one of them and the
+        # measurement has nothing to write. Named here rather than left to a
+        # permissive default, which is what made these tests depend on a value
+        # they never stated.
+        "cell_min_size": 0, "nucleus_min_size": 0, "pathogen_min_size": 0,
         "pathogen_mask_dim": None,
         "organelle_mask_dim": 5,
         "organelleb_mask_dim": 6,
@@ -247,6 +255,14 @@ def test_enabled_but_empty_slot_writes_zero_parent_summary(tmp_path,
     settings = get_measure_crop_settings({
         "src": str(merged), "channels": [0, 1],
         "cell_mask_dim": 2, "nucleus_mask_dim": 3,
+        # THE ZEROS ARE LOAD-BEARING. ab656821b adopted the maintainer's own
+        # 40x screening defaults -- cell 8000 px2, nucleus 2000, pathogen 500
+        # -- and the objects drawn in this file are a few hundred pixels at
+        # most, so the real defaults correctly erase every one of them and the
+        # measurement has nothing to write. Named here rather than left to a
+        # permissive default, which is what made these tests depend on a value
+        # they never stated.
+        "cell_min_size": 0, "nucleus_min_size": 0, "pathogen_min_size": 0,
         "pathogen_mask_dim": None, "organelle_mask_dim": None,
         "organelleb_mask_dim": 6, "cytoplasm": False,
         "save_measurements": True, "save_png": False,
