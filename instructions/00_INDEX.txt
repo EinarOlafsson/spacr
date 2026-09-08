@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-355 done / 22 open (94%).
+355 done / 23 open (93%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -100,6 +100,9 @@ OPEN
 
   379  A SUGGEST BUTTON THAT LABELS THE REST
        379_a_suggest_button_that_labels_the_rest.txt
+
+  380  A PERFORMANCE SWEEP: STARTUP, THEMES, MODULES, WIDGETS AND SETTINGS
+       380_a_performance_sweep_for_smoothness_and_speed.txt
 
 --------------------------------------------------------------------------------
 DONE

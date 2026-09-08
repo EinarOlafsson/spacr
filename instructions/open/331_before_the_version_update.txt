@@ -98,8 +98,19 @@ BEFORE THE UPDATE
        Both require maintainer confirmation: publishing is public and
        irreversible.
 
-  316  TRANSLATIONS. 23 red tests in the gated language lane. Wrong UI
-       text ships to nine languages and is hard to walk back.
+  316  TRANSLATIONS -- STRUCK FROM THIS LIST 2026-09-07 BY THE MAINTAINER.
+       Put to Einar by the work session and ruled on directly: ship on the
+       qualified claim the README already carries -- the nine non-English
+       catalogs are machine-drafted and technically reviewed, not read end
+       to end by a native speaker. An English fallback is readable and a
+       wrong translation is not, so a translation defect is not worth
+       holding a release that Windows users need in order to update at all.
+
+       This resolves a contradiction this file carried for six days: 331
+       listed 316 as gating while 316's OWN header said it was
+       "RELEASE-BLOCKING for any claim that spaCR is translated, though NOT
+       for the release itself". 316's header was right. It stays open
+       against a later release.
 
 AFTER THE UPDATE
 ----------------
@@ -116,7 +127,55 @@ cost of leaving Windows users unable to take any later fix. 314 WAS
 CLOSED on 2026-09-04, so that trade no longer exists and the argument is
 kept only so the record reads straight.
 
-WHAT IS ACTUALLY LEFT BEFORE THE UPDATE, as of 2026-09-06:
+WHAT IS ACTUALLY LEFT BEFORE THE UPDATE -- REVISED 2026-09-07
+------------------------------------------------------------
+
+  288  GREEN CI. THE ONLY ENGINEERING ITEM LEFT, and the work session has
+       narrowed what it means. CHUNKED, IT IS NOT REPRODUCIBLE: 35 serial
+       chunks of 30 files, every chunk completed, 20,075 passed and 124
+       failed across 50 files, 99.4% -- no OOM, no segfault, nothing
+       wedged. So "dies partway through a single process" was never a
+       property of the suite, only of running it as one process. The
+       single-process run of 2026-09-07 was at 3.01 GB RSS by 7% against
+       the 4 GB `SPACR_TEST_MEMORY_GB` watchdog, which if the trend holds
+       means the death is THE WATCHDOG -- not a test, not a leak, and not
+       anything a CI shard would hit. If confirmed, the fix is CI's shard
+       count and this item is far closer to done than this file has said.
+
+       AND FIFTEEN OF THOSE 124 FAILURES WERE ALREADY FIXED before anyone
+       triaged them: they were reading the `ambient_enabled=false` that a
+       test of mine leaked into the REAL QSettings, plus the latched
+       black-page flag. Re-running the six affected files after 498606c38
+       and 41e7f1f9e took 33 failures to 18. The transferable rule is now
+       first in the work session's plan rather than a footnote: CHECK THE
+       PERSISTED VALUE BEFORE THE CODE.
+
+  379  ADDED TO THIS SIDE by Einar on 2026-09-07: the 11/12 bug.
+       `retrain_round` reads every non-null value in the annotation column
+       as a class label, so any fit run with suggestions outstanding trains
+       classes no human labelled and the model card does not say so. The
+       Annotate screen guards both its buttons, but a script calling
+       `retrain_round` directly is still exposed, so it is being fixed at
+       the source -- filtering where the labels are read -- by the work
+       session, which owns that file.
+
+  05   the bump, and 304 the publication. BOTH HELD BY THE MAINTAINER.
+
+  PKG  CLOSED FROM BOTH DIRECTIONS on 2026-09-07 -- see the entry at the
+       top of this file. A local build on setuptools 84.0.0 AND the full
+       compat matrix green on all six blocking interpreters (3.9 to 3.14)
+       for sdist, wheel and `pip install spacr` from wheels only. The one
+       red cell is 3.15, `continue-on-error: true` by design until PySide6
+       admits that interpreter.
+
+SO THE GATE IS FOUR THINGS: 288, the 11/12 fix, and the maintainer's two
+held items. None of them is a design question.
+
+--------------------------------------------------------------------------------
+THE 2026-09-06 LIST, KEPT SO THE RECORD READS STRAIGHT
+--------------------------------------------------------------------------------
+
+WHAT WAS THOUGHT TO BE LEFT BEFORE THE UPDATE, as of 2026-09-06:
 
   288  green CI. Engineering, unmet, and assigned to the machine that can
        run a suite.

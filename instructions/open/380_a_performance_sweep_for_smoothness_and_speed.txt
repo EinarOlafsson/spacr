@@ -1,0 +1,144 @@
+================================================================================
+A PERFORMANCE SWEEP: STARTUP, THEMES, MODULES, WIDGETS AND SETTINGS
+================================================================================
+
+Status:    OPEN, filed 2026-09-07. Not started.
+Requested: 2026-09-07, verbatim -- "do an in depth performance sweep to check
+           and fix any performance defects in starting spacr, running the
+           themes, or starting the moduals and handelling the widgets and
+           settings in the moduals and on the home screen. this should all be
+           optimized for smoothness and speed (on all platforms) while not
+           comproon functionallity."
+Owner:     spacr/qt/** -- startup, theme, screens, widgets, settings panels.
+
+THE LAST CLAUSE IS THE CONSTRAINT, NOT A PLEASANTRY. "while not compromising
+functionality" rules out the cheap wins: dropping the backdrop, lowering the
+frame rate, lazy-loading a panel so it appears blank, eliding text that then
+cannot be read. A change that makes spaCR faster by making it do less is not
+an answer to this item unless the maintainer agrees the thing removed was not
+wanted.
+
+--------------------------------------------------------------------------------
+WHY THIS IS FILED SEPARATELY, AND WHAT IT IS NOT
+--------------------------------------------------------------------------------
+
+Performance work has been done here in pieces, always reactively, and each
+piece was found by the maintainer noticing something rather than by anyone
+looking. That is the pattern this item exists to break.
+
+  315  THE FORCE-QUIT DIALOG. "Force quit window still appears at each
+       modular start." Root-caused 2026-09-05: two comprehensions in
+       `settings.py` rebuilt constants inside inner loops (1932 ms -> 484 ms),
+       plus a 30-second `urlopen` on the GUI thread. The desktop offering to
+       kill spaCR is the most severe symptom this class of defect has, and it
+       was shipped for weeks.
+  378  HOLD Z AND SCROLL. Measured `app.setStyleSheet` + re-polish at 587.5 ms
+       on 847 widgets, against 107 ms for the visible screen alone. That
+       number was measured because one feature needed it, and it describes
+       every theme change spaCR makes, not just that one.
+  305  LOAD TIME WITHIN RESOURCES. Filed, deferred to after the version bump.
+  327  THE BACKDROP CAMERA. "the fullscreen mode fractal is super choppy while
+       the normal background one is super smoothe."
+  The one-backdrop fix, 2026-09-05: TWO full-size animated fields were being
+       shaded and blitted per frame on a 4K screen -- 950 paints/s, 393 Mpx/s,
+       idle GUI-thread CPU at ~16% of a core, for a picture nobody could see.
+
+SO THIS ITEM IS THE SWEEP, not another instance. Its output is a MEASUREMENT
+HARNESS plus the defects that harness finds, in that order. An audit that only
+records "this felt slow" produces a list nobody can act on, and the four
+entries above show the causes are unrelated to each other.
+
+--------------------------------------------------------------------------------
+WHAT TO MEASURE, AND THE FIVE AREAS THE REQUEST NAMES
+--------------------------------------------------------------------------------
+
+1. STARTING SPACR. Cold import to first painted frame, broken down: which
+   imports, which registry builds, which file reads. `spacr-doctor` and the
+   preloader already exist and should be read before anything new is written.
+   THE TARGET IS THE SLOWEST STEP NAMED, not a total -- a 3-second startup
+   with one 2.4-second step is a different problem from thirty 100 ms steps.
+
+2. RUNNING THE THEMES. Frames per second and paint cost per theme, at 1080p
+   AND at 4K, because the cost is counted in pixels and 327 was reported from
+   a 3840x2160 machine. Include the fullscreen screensaver path, which 327
+   says is choppy where the windowed one is smooth -- that gap is a defect
+   with a cause, not a fact of life.
+
+3. STARTING A MODULE. Registry lookup to first painted settings panel, per
+   module, since 315 showed one module's settings build can dominate. Every
+   declared app, not a sample: the four that were sampled in 350's sweep all
+   passed and the sixteen added later found nothing, but that was luck rather
+   than method.
+
+4. HANDLING THE WIDGETS AND SETTINGS. The interactions, which is where
+   "smoothness" is actually judged: expanding a section, typing in a field,
+   scrolling a long settings column, dragging a splitter, hovering the grid.
+   Measure INPUT LATENCY and DROPPED FRAMES, not wall-clock -- a 200 ms
+   hitch on a keystroke is felt, and a 200 ms total spread over ten frames
+   is not.
+
+5. THE HOME SCREEN. Named separately by the maintainer, and it is the one
+   surface every user sees before anything else.
+
+--------------------------------------------------------------------------------
+"ON ALL PLATFORMS", WHICH IS THE HARD PART OF THIS ITEM
+--------------------------------------------------------------------------------
+
+The maintainer said all platforms and it cannot be waved through, because
+this project has already shipped two defects that were invisible on the
+machine they were written on:
+
+  * the packaging failure (331/PKG) reproduced only where setuptools was >= 77,
+    and the home workstation has 69.5.1 -- so a green build there was never
+    evidence about anything;
+  * the label-contrast failures in issue #6 were reported as a macOS problem
+    and were really a light-theme one, because macOS defaults to the light
+    appearance far more often than Linux does.
+
+A PROFILE FROM ONE MACHINE IS A FACT ABOUT THAT MACHINE. So the harness has
+to run in CI on all three platforms and record numbers, even if the fixing is
+done locally. Scale matters too: font scale, screen resolution and HiDPI all
+multiply paint cost, and 04 already records that the tests measured a font
+scale no user has.
+
+--------------------------------------------------------------------------------
+HOW TO DO IT
+--------------------------------------------------------------------------------
+
+1. WRITE THE HARNESS FIRST, and prove it catches a defect that is already
+   known before trusting it on anything else -- 350 did exactly this against
+   the Annotate instance and it is why that sweep is believable. The
+   one-backdrop regression is the ideal calibration case: a harness that
+   cannot see 950 paints/s for an invisible layer is not measuring paint.
+
+2. RECORD A BASELINE and commit it, so later work can be shown to have moved
+   the number rather than asserted to have.
+
+3. FIX BY CAUSE, NOT BY SYMPTOM, and record which cause each fix addressed.
+   The four known instances had four unrelated causes -- work in an inner
+   loop, a blocking call on the GUI thread, a whole-application re-polish,
+   and a duplicated layer -- and a list organised by symptom would have
+   grouped none of them correctly.
+
+4. RATCHET WHAT IS FIXED. A performance defect with no test comes back; 315
+   came back three times. Prefer a ceiling assertion ("first paint under
+   N ms", "no more than one animated layer") over a benchmark that fails on
+   a loaded machine.
+
+--------------------------------------------------------------------------------
+WATCH
+--------------------------------------------------------------------------------
+
+* MEASURE ON THE MACHINE THAT CANNOT COPE, not the one that can. The
+  maintainer's report that started 315 was "It's like my computer has an
+  unusually low tolerance for applications loading." That is the environment
+  to optimise for.
+* DO NOT MEASURE WITH `QWidget.grab()`. It does not capture the GL-backed
+  AmbientWidget, so a grab-based check reports a black window and cannot tell
+  a working backdrop from a broken one. Found the hard way on 2026-09-07,
+  after an A/B across two commits came out byte-identical for that reason.
+* RAM IS PART OF PERFORMANCE HERE. This machine has been taken down twice by
+  spaCR's own test suite; a "faster" change that raises peak RSS is not
+  obviously a win.
+* THE FIRST RUN AFTER AN INSTALL IS THE ONE USERS JUDGE. Warm-cache numbers
+  flatter every result in this file.

@@ -2,7 +2,13 @@
 AN OPS BUTTON ON ALIGN AND STITCH, OVER CODE THAT IS ALREADY IN THE REPOSITORY
 ================================================================================
 
-Status:    BUILT, AND UNPROVEN ON REAL DATA. Every checklist item below is
+Status:    BUILT, AND UNPROVEN ON REAL DATA. THE DATA IS NOW HERE AND
+           MEASURED -- see PART 5, filed 2026-09-07, which replaces PART 4's
+           order-of-magnitude guess with the real acquisition's numbers and
+           carries the maintainer's design for the memory problem. The guess
+           was low by roughly eight times.
+
+           ORIGINAL STATUS FOLLOWS. Every checklist item below is
            met: the front half works (four defects fixed, PART 0-A), the
            entry points are reported (PART 0-B), brieflow was read from
            source (PART 2-A), the decode chain and the cross-magnification
@@ -978,3 +984,218 @@ stitch_move_never_finds_a_tile_already_at_its_target` is the test that turns
 red under `mosaic=True` with "CSV has no usable rows". Under the design above
 that input is the NOT STITCHABLE case, so the test should end up asserting a
 reported skip rather than either a crash or a silent pass.
+
+
+================================================================================
+PART 5 -- THE REAL PLATE, MEASURED 2026-09-07, AND THE STRATEGY IT FORCES
+================================================================================
+
+Requested 2026-09-07, verbatim: "the nass was off. i turned it back on and here
+is the ops test data: /nas_mnt/data/ops/ ... the se screenes are huge with one
+plate imaged 13 times, this all needs to be stitched, wut the entire image cant
+be held in memory. so there needs to be a smart way to stitch -> save
+coordinates --> move the window --> repeat. or something like this so that each
+imaging round is alligned to the dapi of each round then a window can be passed
+over the 13 or more dimentions saving measurements, single cell images and so
+on. so i want you to use the data i have provided as the test and make sure it
+works and dosnt overload the ram. if this could be GPU accelerated that would
+be even better as it would be so much faster."
+
+Also supplied, and both are to be read before designing:
+    https://github.com/cheeseman-lab/brieflow          (the modern approach)
+    https://github.com/lukebfunk/OpticalPooledScreens  (the original paper's)
+
+Both are ALREADY ON THE NAS, unpacked, next to the data:
+    /nas_mnt/data/ops/OpticalPooledScreens/     with paper/, ops/, scripts/
+    /nas_mnt/data/ops/OpticalPooledScreens_1/   plus phenotype/, sequencing/,
+                                                and S-BIAD394 (the BioImage
+                                                Archive accession)
+So the original implementation can be read from source rather than from the
+paper, which is what PART 2-A did for brieflow. Do that first: this part
+records what the DATA is, not what the reference implementations do.
+
+--------------------------------------------------------------------------------
+WHAT IS ACTUALLY THERE
+--------------------------------------------------------------------------------
+
+    /nas_mnt/data/ops/OpticalPooledScreens_data/
+        screenA/     20200202_6W-LaC024A .. E     five acquisitions
+        test_sample/ 20200202_6W-LaC024A         one, for iterating
+
+  12 TB in the tree. Mount is NFSv3 over the DIRECT WIRED link `enp7s0`,
+  which is UP as of 2026-09-07; PART 4's note about NO-CARRIER is resolved.
+
+  MEASURED, not inferred -- read off the files themselves:
+
+    SBS (sequencing), per acquisition
+      cycles              11          c1 .. c11
+      channels            5           DAPI-CY3-A594-CY5-CY7
+      tile                1480 x 1480 uint16, CYX, one 5-page TIFF
+      tile on disk        21.9 MB
+      sites per well      333         Site-0 .. Site-332
+      wells               6           A1 A2 A3 B1 B2 B3  (a 6-well plate)
+      magnification       10X
+      files per cycle     1998        = 6 wells x 333 sites
+
+    PHENOTYPE, per acquisition
+      channels            4           DAPI-GFP-A594-AF750
+      tile                2960 x 2960 uint16
+      tile on disk        70.1 MB
+      sites per well      1281        Site-0 .. Site-1280
+      wells               6           the same six
+      magnification       20X
+
+  THE MAGNIFICATION RELATIONSHIP, WHICH IS THE ONE PART 4 SAID THE SYNTHETIC
+  FIXTURE COULD NOT ASK ABOUT. 20X against 10X is half the field linearly,
+  and 2960 is exactly twice 1480 -- so a phenotype tile covers a QUARTER of
+  the area of an SBS tile at FOUR TIMES the linear pixel density. The site
+  counts confirm it independently: 333 x 4 = 1332, against 1281 observed,
+  the shortfall being the well's round edge. `align_image_to_stitch` has to
+  carry a 4x scale, not a small refinement, and that is a real test of its
+  geometry rather than a nudge.
+
+--------------------------------------------------------------------------------
+THE ARITHMETIC, WHICH IS WHY PART 4'S ESTIMATE HAS TO BE THROWN AWAY
+--------------------------------------------------------------------------------
+
+PART 4 guessed "about 10 GB for one well" from 5x5 fields. The real well is
+333 fields, and the guess is low by roughly eight times:
+
+    ONE WELL, ONE SBS CYCLE
+      333 x 1480 x 1480 x 5ch x 2 B                        7.3 GB
+      as a stitched mosaic, ~19x19 fields ~ 28,000 x 28,000 px
+        one channel                                        1.6 GB
+        five channels                                      7.9 GB
+
+    ONE WELL, ALL 11 SBS CYCLES                           ~80 GB
+    ONE WELL, PHENOTYPE  1281 x 2960 x 2960 x 4ch x 2 B   ~90 GB
+    ONE WELL, EVERYTHING                                 ~170 GB
+    ONE PLATE (6 wells)                                    ~1 TB
+
+  THE MACHINE HAS 125 GB. So a single well's SBS stack does not fit, let
+  alone the plate, and the maintainer's standing rule is to stay well under
+  80 GB and kill anything past 100. THE PLATE-WIDE MOSAIC MUST NOT EXIST AS
+  AN ARRAY. That is no longer a design preference; it is arithmetic.
+
+  AND NOTE WHAT THIS DOES TO PART 4'S FIRST QUESTION. PART 4 asked whether
+  the plate-wide mosaic needs to exist at all, and said to check that first
+  because every other option is more work. THE MAINTAINER HAS NOW ANSWERED
+  IT, in the request above: stitch, SAVE COORDINATES, move a window, repeat.
+  So the answer is no, and the remaining work is to build the window rather
+  than to evaluate the alternative.
+
+--------------------------------------------------------------------------------
+THE STRATEGY, IN THE ORDER IT HAS TO BE BUILT
+--------------------------------------------------------------------------------
+
+1. STITCH TO A TRANSFORM TABLE, NEVER TO AN ARRAY. One pass per well per
+   cycle produces, for every tile, its position in the well's frame. Nothing
+   larger than a tile is ever allocated. `spacrops.py` already supports this
+   shape -- `mosaic_csv_out` without `mosaic_out` -- and `spacr/align.py`
+   already states the discipline in one line: "This, not the canvas, is the
+   module's memory footprint."
+
+   The output is a well-level manifest: tile path, cycle, channel count,
+   affine to the well frame, and the overlap it was solved from.
+
+2. REGISTER CYCLES TO ONE REFERENCE, AND STORE TRANSFORMS. Every cycle has
+   its own DAPI channel -- channel 0 of the same 5-channel tile -- which is
+   what the maintainer's "alligned to the dapi of each round" names. Solve
+   cycle-to-cycle on DAPI alone, at reduced resolution, and COMPOSE the
+   result with the tile transforms from step 1.
+
+   ELEVEN RESAMPLED WELL MOSAICS IS THE FAILURE MODE TO DESIGN AGAINST. The
+   registration output is 11 affines, not 11 arrays.
+
+3. THE WINDOW IS THE UNIT OF WORK, AND IT IS THE WHOLE POINT. Choose a
+   window in the well frame -- a tile-sized region is the natural choice,
+   since it is what the transforms are expressed against. For that window
+   only, and for each of the 11 cycles plus phenotype, cut the pixels out of
+   whichever tiles the window overlaps, through the composed transform.
+
+   PEAK MEMORY IS THEN one window x (11 cycles x 5 channels + 4 phenotype
+   channels) x 2 bytes, plus the tiles currently mapped. At 1480 x 1480 that
+   is about 260 MB, INDEPENDENT OF WELL SIZE AND PLATE SIZE. That is the
+   number this part exists to make true, and it should be MEASURED and
+   written here the way align.py's numbers were, not asserted.
+
+   Bound the open tiles as align.py does (`max_open_tiles=8`): leaving them
+   all memory-mapped makes the resident set the size of the input folder,
+   and the input folder is 12 TB.
+
+4. EVERYTHING COMES OUT OF THE WINDOW. Segmentation, base calling across the
+   cycle axis, per-cell measurements, and the single-cell crops the
+   maintainer asked for -- all computed while the window is resident, and
+   written before it is dropped. A cell straddling a window edge is the one
+   real complication: either overlap the windows by a cell diameter and
+   deduplicate on centroid, or defer edge cells to a second pass. Decide it
+   deliberately and write down which.
+
+5. ONE WELL AT A TIME, ALWAYS. Nothing about OPS needs two wells resident,
+   and a per-well loop is what keeps the ceiling independent of plate size.
+
+6. SAY WHAT IT WILL COST BEFORE IT RUNS. A pre-flight that reads the plate's
+   own dimensions and reports the expected peak, so the user is told rather
+   than discovering it when the machine dies.
+
+--------------------------------------------------------------------------------
+GPU, WHICH THE MAINTAINER ASKED FOR AND WHICH THIS SHAPE SUITS
+--------------------------------------------------------------------------------
+
+"if this could be GPU accelerated that would be even better as it would be so
+much faster."
+
+  THE HARDWARE HERE: one RTX 3090, 24 GB, and torch.cuda is available. cupy
+  is NOT installed. Torch is already a spaCR dependency, so a torch-based
+  path adds nothing to the install; cupy would.
+
+  WHY THE WINDOW DESIGN IS THE RIGHT SHAPE FOR IT: a 260 MB working set fits
+  a 24 GB card ninety times over, so the window can live on the GPU for its
+  whole life -- registration refinement, warping, peak finding, unmixing and
+  base calling -- with one host-to-device copy per window and one back. A
+  design that needed the well mosaic resident could not use this card at all.
+
+  WHAT TO PUT ON IT, in the order the profile will justify:
+    * the per-window affine warp (11 x 5 resamples per window: pure texture
+      sampling, which is what the hardware is for);
+    * peak finding and the unmixing matrix multiply;
+    * cellpose segmentation, which already has a GPU path in spaCR.
+  AND WHAT NOT TO: the stitch solve in step 1 is feature matching on tile
+  pairs, latency-bound and small; leave it on the CPU until measured.
+
+  IT MUST STAY OPTIONAL. The maintainer runs an AlphaFold screen on a shared
+  card, so the GPU path must degrade to CPU rather than fail, and must never
+  assume the card is free. spaCR's existing accelerator resolver is the seam.
+
+--------------------------------------------------------------------------------
+HOW TO TEST IT, AND THE ORDER
+--------------------------------------------------------------------------------
+
+USE `test_sample/20200202_6W-LaC024A`, NOT `screenA`. It is one acquisition
+rather than five, which is the difference between iterating and waiting.
+
+  1. ONE WELL, ONE CYCLE. Stitch A1 c1 to a transform table. Assert nothing
+     larger than a tile was allocated -- measure RSS, do not trust the code.
+  2. ONE WELL, ALL CYCLES, DAPI ONLY. Register c1..c11 on DAPI and store the
+     affines. This is where PART 3-A's untested assumptions about cycle-to-
+     cycle registration meet a real acquisition.
+  3. ONE WINDOW, ALL CYCLES. Cut one window through the composed transforms
+     and confirm the pixels line up across cycles by eye AND by a DAPI
+     cross-correlation. THIS IS THE GO/NO-GO for the whole strategy.
+  4. THE PHENOTYPE AT 4x. Align the 20X phenotype to the 10X SBS frame and
+     confirm the scale is carried. `StitchedMultiAligner` has never run at
+     all; this is its first real input.
+  5. ONLY THEN the decode chain, the measurements and the crops.
+
+AND THE DEFAULTS ARE STILL GUESSES until this runs. Peak spacing, the peak
+threshold, the unmixing percentile, `downsample` and `max_site_gap` were all
+chosen against synthetic fixtures. `downsample` in particular is known to
+break the stitch when tiles are small, and these tiles are 1480 px.
+
+RAM DISCIPLINE WHILE DOING THIS, which is not optional on this machine: the
+maintainer has said repeatedly to stay well under 80 GB and to kill anything
+past 100. Run every experiment under `tools/run_capped.sh` with a cap chosen
+for the step, and note the trap found on 2026-09-07: `systemd-run --scope`
+reports an OOM kill as a CLEAN EXIT, so a capped job that dies looks like it
+finished. Check the output, not the exit code, and prefer `--unit=` which is
+detached and survives the shell that launched it.

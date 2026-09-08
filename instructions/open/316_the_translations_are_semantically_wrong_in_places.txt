@@ -5,6 +5,25 @@ THE TRANSLATIONS ARE PRESENT, CURRENT, AND IN PLACES WRONG
 Status:    OPEN, filed 2026-08-31. RELEASE-BLOCKING for any claim that
            spaCR is translated, though NOT for the release itself -- an
            English fallback is readable and a wrong translation is not.
+
+           CONFIRMED BY THE MAINTAINER 2026-09-07, and 331 has been
+           corrected to match: ship on the qualified claim the README
+           already carries -- the nine non-English catalogs are
+           machine-drafted and technically reviewed, not read end to end by
+           a native speaker. 331 had listed this item as gating for six
+           days while this header said it did not. This header was right.
+
+           THE CATALOGS ARE NOW COMPLETE AND NOT CORRECT, which is the
+           distinction this instruction was filed to name. All nine reached
+           the frozen 10,241-symbol inventory on 2026-09-07 (70376852a,
+           90c9ece0f), so they are FULL. They are not TRANSLATED: on zh_CN
+           alone the builder's own gates report 175 prose blocks still
+           exact English outside the allowlist, 247 retaining copied
+           English sequences, 251 lacking target script and 88 failing the
+           contextual-source gate. The build exits 1 because of them. A
+           catalog that is full and a catalog that is translated are
+           different things, and every gate 306 drove to a fixed point
+           measures the first.
 Owner:     the nine runtime catalogs.
 Requested: not asked for; found on 2026-08-31 while enumerating 306's
            caption review.
