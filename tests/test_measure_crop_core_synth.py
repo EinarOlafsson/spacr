@@ -380,3 +380,58 @@ def test_get_object_counts(tmp_path):
     row = df[df["count_type"] == "cell"].iloc[0]
     assert row["total_object_count"] == 12
     assert row["avg_object_count_per_file_name"] == 6
+
+
+def test_the_measure_loop_allocates_per_experiment_not_per_vocabulary(
+        tmp_path, synth_masks_multi, rng, monkeypatch):
+    """One mask array per CONFIGURED organelle slot, not one per role.
+
+    326 widened `ORGANELLE_ROLES` from four to 702 to close the untyped
+    organelle collision. The measure loop allocated a full-size zero array
+    for EVERY role whether or not it was configured, so the per-field
+    allocation became a function of the vocabulary:
+
+        1024x1024 uint16   702 roles = 1.47 GB per field
+        2048x2048 uint16   702 roles = 5.89 GB per field
+        1024x1024 int32    702 roles = 2.94 GB per field
+
+    against 8.4 MB when there were four. A 175x regression paid by every
+    run whether or not it measures a single organelle, and the 698
+    unconfigured arrays were allocated, copied into a second dict, passed
+    down, iterated and never meaningfully read.
+
+    THE PIN THIS REPLACES ASSERTED `len(ORGANELLE_ROLES) == 4`, and it was
+    right to fail rather than be bumped to 702 -- that would have accepted
+    the regression and reported it as done. But it guarded the wrong thing:
+    the vocabulary is allowed to be large, and what must stay small is the
+    ALLOCATION. This asserts that directly, so 326 can widen the names
+    without buying the memory.
+    """
+    import spacr.measure as M
+    from spacr.object_roles import ORGANELLE_ROLES
+
+    assert len(ORGANELLE_ROLES) > 100, (
+        "this test is only meaningful while the vocabulary is wide; if it "
+        "has shrunk again, the regression it guards cannot happen")
+
+    seen = {}
+    real = M._morphological_measurements
+
+    def spy(*args, **kwargs):
+        seen["extra"] = dict(kwargs.get("extra_organelle_masks") or {})
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(M, "_morphological_measurements", spy)
+
+    data = _build_merged_stack(synth_masks_multi, rng)
+    merged, name = _write_stack(tmp_path, data)
+    settings = _settings_for(merged, save_arrays=False, save_png=False)
+    M._measure_crop_core(0, [], name, settings)
+
+    assert "extra" in seen, "the measurement never ran"
+    configured = [role for role in ORGANELLE_ROLES[1:]
+                  if settings.get(f"{role}_mask_dim") is not None]
+    assert set(seen["extra"]) == set(configured), (
+        f"{len(seen['extra'])} organelle masks were carried for "
+        f"{len(configured)} configured slots; the allocation is following "
+        f"the vocabulary again")

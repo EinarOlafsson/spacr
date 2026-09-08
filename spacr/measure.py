@@ -3214,12 +3214,36 @@ def _measure_crop_core(index, time_ls, file, settings):
                 minimum = settings.get(f'{organelle_role}_min_area')
                 if minimum:
                     current_mask = _filter_object(current_mask, minimum)
-            else:
+            elif organelle_role == 'organelle':
+                # THE PRIMARY SLOT KEEPS ITS ZEROS FALLBACK, because
+                # `organelle_mask` below is read unconditionally and the
+                # measurement path expects an array there whether or not a
+                # dimension was configured.
                 current_mask = np.zeros_like(data[..., 0])
+            else:
+                # AN UNCONFIGURED SLOT ALLOCATES NOTHING, and this is the
+                # whole of the fix. Every role used to get a full-size zero
+                # array, so the allocation was a function of the VOCABULARY
+                # rather than of the experiment. 326 widened
+                # `ORGANELLE_ROLES` from four to 702 to close the untyped
+                # organelle collision, and that turned 8.4 MB per field into
+                # 1.47 GB at 1024x1024 uint16 -- 5.89 GB at 2048x2048, 2.94
+                # GB at int32. A 175x regression in the measure loop, paid
+                # by every run whether or not it uses a single organelle.
+                #
+                # Nothing downstream loses anything. Both consumers of these
+                # dicts iterate them and act only when
+                # `settings[f'{role}_mask_dim'] is not None` -- see
+                # `_measure_crop_core` at the `organelle_masks.update(...)`
+                # lines -- so the arrays being dropped here are exactly the
+                # ones that were allocated, copied, passed down, iterated
+                # and never read.
+                continue
             organelle_masks[organelle_role] = current_mask
         organelle_mask = organelle_masks['organelle']
         extra_organelle_masks = {
-            role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]}
+            role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]
+            if role in organelle_masks}
 
         # Create cytoplasm mask
         if settings['cytoplasm']:
@@ -3269,7 +3293,8 @@ def _measure_crop_core(index, time_ls, file, settings):
             # change; removing the FIRST is a silent one.
         organelle_mask = organelle_masks['organelle']
         extra_organelle_masks = {
-            role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]}
+            role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]
+            if role in organelle_masks}
 
         # REGION-FILTER EXTENSION POINT. Registered filters are handed the
         # label ids of each object type (and, only if they ask, the centroids)
@@ -3316,10 +3341,12 @@ def _measure_crop_core(index, time_ls, file, settings):
             nucleus_mask = _region_masks['nucleus']
             pathogen_mask = _region_masks['pathogen']
             organelle_masks = {
-                role: _region_masks[role] for role in ORGANELLE_ROLES}
+                role: _region_masks[role] for role in ORGANELLE_ROLES
+                if role in _region_masks}
             organelle_mask = organelle_masks['organelle']
             extra_organelle_masks = {
-                role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]}
+                role: organelle_masks[role]
+                for role in ORGANELLE_ROLES[1:] if role in organelle_masks}
             cytoplasm_mask = _region_masks['cytoplasm']
 
         if settings['cell_mask_dim'] is not None and settings['nucleus_mask_dim'] is not None and settings['pathogen_mask_dim'] is not None:
@@ -3333,7 +3360,7 @@ def _measure_crop_core(index, time_ls, file, settings):
             organelle_mask = organelle_masks['organelle']
             extra_organelle_masks = {
                 role: organelle_masks[role]
-                for role in ORGANELLE_ROLES[1:]}
+                for role in ORGANELLE_ROLES[1:] if role in organelle_masks}
             data[..., settings['cell_mask_dim']] = cell_mask.astype(data_type)
 
         if settings['nucleus_mask_dim'] is not None:
@@ -3364,9 +3391,28 @@ def _measure_crop_core(index, time_ls, file, settings):
 
 
         if settings['save_measurements']:
+            # NAMED FOR WHAT WAS PASSED, NOT FOR THE WHOLE VOCABULARY.
+            # These names are zipped POSITIONALLY against the measurement
+            # lists below, and those lists carry one entry per mask that
+            # went in -- `_morphological_measurements` appends an empty
+            # frame for an unconfigured role rather than skipping it, which
+            # is what kept the old pairing aligned.
+            #
+            # So `*ORGANELLE_ROLES` was only ever correct because
+            # `organelle_masks` held EVERY role, configured or not, which is
+            # the 1.47 GB-per-field allocation this function no longer
+            # makes. With only the configured slots passed, a 705-name list
+            # zipped against a shorter result list silently truncates -- and
+            # `zip` drops from the END, so 'cytoplasm' was the entry lost
+            # and its morphology was looked up under an organelle's name.
+            #
+            # Deriving the order from `extra_organelle_masks` keeps the two
+            # in step by construction. `_measure_crop_core` builds its dict
+            # as {'organelle': ...} then updates with the extras, so this is
+            # that same order.
             role_order = [
-                'cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES,
-                'cytoplasm']
+                'cell', 'nucleus', 'pathogen',
+                'organelle', *extra_organelle_masks, 'cytoplasm']
             morphology = dict(zip(
                 role_order,
                 _morphological_measurements(
