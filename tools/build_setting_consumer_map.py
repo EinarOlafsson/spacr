@@ -361,8 +361,20 @@ def resolve_targets(consumers: dict) -> dict:
             # A closure has no importable name. Aim at the ancestor that does
             # and let the map say the read is deeper, rather than inventing an
             # address Sphinx will never publish (instruction 336, route 2).
+            #
+            # UNLESS THE ANCESTOR IS PRIVATE TOO. The branch below already
+            # drops the anchor for a private consumer, and this one did not
+            # ask -- so a closure inside `_morphological_measurements` was
+            # given an anchor to `_morphological_measurements`, which AutoAPI
+            # does not publish. That is the failure the branch below exists to
+            # avoid, arrived at by the other route: the browser ignores the
+            # fragment silently and the reader lands at the top of the module
+            # believing they were taken to a heading. It cost four links --
+            # `object_distance_maxima` and `object_distance_intensity`, each
+            # in Measure and in External Masks.
             outer = best["qualname"].split(".")[0]
-            targets[key] = {"module": best["module"], "symbol": outer,
+            targets[key] = {"module": best["module"],
+                            "symbol": "" if outer.startswith("_") else outer,
                             "exact": False}
         elif best["qualname"].rsplit(".", 1)[-1].startswith("_"):
             # Read by a private function. The module page is honest; an anchor

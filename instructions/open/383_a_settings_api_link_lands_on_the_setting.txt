@@ -102,6 +102,15 @@ WHAT GOOD LOOKS LIKE
     symbol is worse than no fragment: the browser silently ignores it and
     the reader believes they are looking at the right place.
 
+    DONE 2026-09-08, and it was a one-line asymmetry. `resolve_targets` has
+    two branches that can name a symbol. The private-consumer branch already
+    dropped the anchor and says why; the CLOSURE branch aimed at the
+    enclosing function without asking whether that function is public, so a
+    closure inside `_morphological_measurements` was given an anchor to
+    `_morphological_measurements`. Same failure, arrived at by the other
+    route. The closure branch now drops the symbol when the ancestor is
+    private, and the measured count of dead anchors is 0.
+
 4.  A test that asserts LANDING, not resolving -- for a sample of settings,
     the target page or anchor actually mentions the setting.
 

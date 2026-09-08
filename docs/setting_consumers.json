@@ -10013,7 +10013,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "classes",
-    "line": 139,
+    "line": 141,
     "module": "spacr.suggest",
     "nested": false,
     "qualname": "suggest_from_scores"
@@ -10022,7 +10022,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "classes",
-    "line": 147,
+    "line": 149,
     "module": "spacr.suggest",
     "nested": false,
     "qualname": "suggest_from_scores"
@@ -10031,7 +10031,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "classes",
-    "line": 159,
+    "line": 161,
     "module": "spacr.suggest",
     "nested": false,
     "qualname": "suggest_from_scores"
@@ -27987,7 +27987,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "mode",
-    "line": 8870,
+    "line": 8877,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "SettingsWidgets._widget_for"
@@ -45154,7 +45154,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 8948,
+    "line": 8955,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "SettingsWidgets._widget_for"
@@ -65966,12 +65966,12 @@
   "object_distance_intensity": {
    "exact": false,
    "module": "spacr.measure",
-   "symbol": "_morphological_measurements"
+   "symbol": ""
   },
   "object_distance_maxima": {
    "exact": false,
    "module": "spacr.measure",
-   "symbol": "_morphological_measurements"
+   "symbol": ""
   },
   "object_distances": {
    "exact": false,
