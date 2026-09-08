@@ -1570,7 +1570,11 @@ class NewsPanel(Panel):
             "No release notes bundled with this build.")
         self._placeholder.setWordWrap(True)
         self._placeholder.setStyleSheet(
-            f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
+            # `fg_muted`, for the same reason as the date stamps below: this
+            # is the panel telling the reader there is nothing to show, not
+            # a disabled control. `fg_dim` reads 3.66:1 dark and 3.11:1
+            # light against a 4.5:1 floor.
+            f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
             "font-style: italic; background: transparent;")
         self._notes_column.addWidget(self._placeholder)
         self._placeholder.setVisible(not self._releases)
@@ -1642,7 +1646,21 @@ class NewsPanel(Panel):
         if when:
             stamp = QLabel(when)
             stamp.setStyleSheet(
-                f"color: {P['fg_dim']}; font-size: {font_px(10)}px;"
+                # `fg_muted`, NOT `fg_dim`. A release-note date is real
+                # content that happens to be secondary -- it is not
+                # disabled and it is not a hint, which is what `fg_dim` is
+                # for. Chosen as the wrong ROLE rather than the wrong
+                # colour, and it showed up as a contrast failure:
+                # `fg_dim` reads 3.66:1 on the dark card and 3.11:1 on the
+                # light one, against the 4.5:1 floor
+                # `test_theme_blind_widgets` holds. `fg_muted` is the
+                # secondary-text role and clears it in both.
+                #
+                # Fixing the role rather than lightening `fg_dim` keeps
+                # disabled text receding everywhere else -- that colour has
+                # 73 call sites, and making it louder to satisfy one panel
+                # would change screens nobody complained about.
+                f"color: {P['fg_muted']}; font-size: {font_px(10)}px;"
                 "background: transparent;")
             column.addWidget(stamp)
 
