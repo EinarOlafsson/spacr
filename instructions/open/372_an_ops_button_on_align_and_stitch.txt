@@ -1485,3 +1485,33 @@ WHAT TO BUILD, and it is now a small algorithm rather than a guess:
   of every tile; the residual against the measured positions is the honest
   score. PART 6-A's warning stands -- a placement count is not a measure of a
   stitch.
+
+
+  V3 WAS TRIED AND IS ALSO WRONG, recorded so the fourth attempt does not
+  repeat it. Implementing steps 1-3 above gives:
+
+      chain: 308 of 332 consecutive pairs register (301 V, 7 H)
+      columns: 32, heights 5, 9, 13, 15, 17, 17, 2, 17, 1, 18, 21, 21, ...
+      column joins found: 10 of 32
+      tiles placed: 27 of 333
+
+  THE CHAIN IS NEARLY COMPLETE -- 308 of 332 -- AND THAT IS THE POINT. The
+  24 breaks are not column turns; only 7 links are H, so the snake turns 7
+  times, not 31. "Column = maximal run of V" therefore splits at every BREAK
+  as well as at every turn, which manufactures columns of height 1 and 2 and
+  makes `member + height(c)` a meaningless join offset.
+
+  SO BOTTOM-UP GRAPH RECONSTRUCTION HAS NOW FAILED THREE WAYS, and the common
+  cause is that each version infers the grid from the very links that are
+  missing. THE NEXT ATTEMPT SHOULD GO TOP-DOWN INSTEAD: hypothesise a grid
+  from `plate_coordinate` -- width, height, snake or not -- PREDICT every
+  tile's position, and score the hypothesis by how many predicted neighbour
+  pairs actually register. A few dozen hypotheses, each scored on a sample,
+  and the best one places all 333 by construction rather than by traversal.
+  That also uses the reference implementation as it was meant to be used: as
+  the model, not as documentation.
+
+  THREE PROTOTYPES, THREE HOURS, AND THE MEASUREMENTS ARE THE YIELD. They are
+  listed at the end of PART 6-B and none of them depends on the adjacency
+  being solved. The adjacency is the open problem; the memory ceiling, the
+  matcher, the wrapping and the (0,0) rejection are settled.
