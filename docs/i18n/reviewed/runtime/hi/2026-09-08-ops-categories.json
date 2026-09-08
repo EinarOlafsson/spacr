@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "categories",
+      "key": "How a filename is read back into well, site, channel and plane. The regex and the axis letters are what turn a microscope's naming scheme into coordinates, so a mosaic that comes out scrambled is almost always wrong here rather than in stitching.",
+      "source_sha256": "d405badbebc5c2ee32f3f95fad75c805ea3f09de0498c87b0221e441f95ff35c",
+      "source": "How a filename is read back into well, site, channel and plane. The regex and the axis letters are what turn a microscope's naming scheme into coordinates, so a mosaic that comes out scrambled is almost always wrong here rather than in stitching.",
+      "translation": "किसी फ़ाइल नाम को वापस वेल, साइट, चैनल और तल में कैसे पढ़ा जाता है। रेगेक्स और अक्ष अक्षर ही वे चीज़ें हैं जो किसी माइक्रोस्कोप की नामकरण योजना को निर्देशांकों में बदलती हैं, इसलिए यदि मोज़ेक गड़बड़ निकले तो गड़बड़ी लगभग हमेशा यहीं होती है, स्टिचिंग में नहीं।"
+    },
+    {
+      "table": "categories",
+      "key": "How much of the machine the run may use: worker counts for the stitch and the feature pass, an OpenCV thread cap, a memory ceiling for cached features, and where the cache and temporary files live. Nothing here changes the result, only what it costs.",
+      "source_sha256": "74cc9cbd214605845dedba50e168dc38c3a52aa27f0395a29ca1bca92abf98ee",
+      "source": "How much of the machine the run may use: worker counts for the stitch and the feature pass, an OpenCV thread cap, a memory ceiling for cached features, and where the cache and temporary files live. Nothing here changes the result, only what it costs.",
+      "translation": "यह रन मशीन का कितना हिस्सा इस्तेमाल कर सकता है: स्टिच और फ़ीचर पास के लिए वर्कर संख्याएँ, एक OpenCV थ्रेड सीमा, कैश की गई विशेषताओं के लिए मेमोरी की अधिकतम सीमा, और कैश तथा अस्थायी फ़ाइलें कहाँ रहती हैं।"
+    }
+  ]
+}

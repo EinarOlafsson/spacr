@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "categories",
+      "key": "How a filename is read back into well, site, channel and plane. The regex and the axis letters are what turn a microscope's naming scheme into coordinates, so a mosaic that comes out scrambled is almost always wrong here rather than in stitching.",
+      "source_sha256": "d405badbebc5c2ee32f3f95fad75c805ea3f09de0498c87b0221e441f95ff35c",
+      "source": "How a filename is read back into well, site, channel and plane. The regex and the axis letters are what turn a microscope's naming scheme into coordinates, so a mosaic that comes out scrambled is almost always wrong here rather than in stitching.",
+      "translation": "파일 이름을 웰, 사이트, 채널, 평면으로 다시 읽어 들이는 방식입니다. 현미경의 명명 규칙을 좌표로 바꾸는 것은 정규식과 축 문자이므로, 모자이크가 뒤죽박죽으로 나오면 원인은 스티칭이 아니라 거의 언제나 여기에 있습니다."
+    },
+    {
+      "table": "categories",
+      "key": "How much of the machine the run may use: worker counts for the stitch and the feature pass, an OpenCV thread cap, a memory ceiling for cached features, and where the cache and temporary files live. Nothing here changes the result, only what it costs.",
+      "source_sha256": "74cc9cbd214605845dedba50e168dc38c3a52aa27f0395a29ca1bca92abf98ee",
+      "source": "How much of the machine the run may use: worker counts for the stitch and the feature pass, an OpenCV thread cap, a memory ceiling for cached features, and where the cache and temporary files live. Nothing here changes the result, only what it costs.",
+      "translation": "이 실행이 사용할 수 있는 머신 자원의 양입니다: 스티치와 특징 추출 단계의 워커 프로세스 수, OpenCV 스레드 상한, 캐시된 특징을 위한 메모리 한도, 그리고 캐시와 임시 파일이 놓이는 위치입니다."
+    }
+  ]
+}

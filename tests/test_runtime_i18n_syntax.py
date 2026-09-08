@@ -81,11 +81,20 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # well, which is precisely what `scientific-well-as-adverb` exists to
     # catch. Rephrased to "de sorte que".
     #
+    # 97 -> 99 later the same day, +5/-3. The five are the cellprob-threshold
+    # tooltips the work session's ranker found reading "gouttes" -- droplets
+    # -- where the English says the threshold DROPS faint organelles. They
+    # replace three records rather than adding five, because all four
+    # `organelle*_cellprob_threshold` tooltips share a byte-identical English
+    # source across the slots and the store keys by SOURCE: four slot-numbered
+    # translations of one string is a contradiction, and it is rejected as
+    # one. They now share a single target.
+    #
     # The loop below is the actual contract: every record must still bind to a
     # live source value and still pass the current syntax, semantic, script
     # and exact-copy gates, so a record that has drifted fails here rather
     # than being absorbed by a looser count.
-    assert len(reviewed) == 97
+    assert len(reviewed) == 99
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
