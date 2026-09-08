@@ -134,7 +134,15 @@ def test_measure_offers_the_same_slots_the_masks_were_made_with():
         {"src": "/tmp/s", "number_of_organelles": 5})
     for role in organelle_roles(5)[1:]:
         assert f"{role}_mask_dim" in settings
-        assert f"{role}_min_size" in settings
+        # `_min_area`, not `_min_size`. b7ae412af retired the organelle
+        # `_size` pair: it duplicated `_area` and the two were read by
+        # DIFFERENT code, so tuning the preview and pressing run applied a
+        # different filter with nothing saying so. organelle is the one
+        # kind whose `_size` names are gone; cell, nucleus and pathogen
+        # still declare theirs.
+        assert f"{role}_min_area" in settings
+        assert f"{role}_min_size" not in settings, (
+            f"{role}_min_size is retired and must not come back")
         assert f"{role}_type" in settings
     assert f"{organelle_role(6)}_mask_dim" not in settings
 

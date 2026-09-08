@@ -25,7 +25,18 @@ def _masks_block():
     marker = "mask_src = os.path.join(src, 'masks')"
     assert marker in source, "the mask source is built differently now"
     start = source.index(marker)
-    return source[start:start + 1500]
+    # TO THE END, not a fixed number of characters. This used to take the
+    # 1,500 after the marker, which held both the makedirs and the first
+    # generator call when it was written; the block has since grown and
+    # the generator moved past 2,500, so the window silently stopped
+    # containing the thing the ordering assertions compare against and
+    # `.index` raised "substring not found" from a helper. A slice that
+    # can fall short of its subject is a slice that will.
+    block = source[start:]
+    assert "generate_cellpose_masks_sam" in block, (
+        "the first mask generator is no longer called after mask_src is "
+        "built, so the ordering below compares nothing")
+    return block
 
 
 def test_the_masks_folder_is_created_before_it_is_used():

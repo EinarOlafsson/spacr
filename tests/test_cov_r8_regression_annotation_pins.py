@@ -23,10 +23,28 @@ class TestTheAuditSplit:
         balanced accuracy over one cell is either 0 or 1. Saying so is
         the difference between a strategy that cannot run and one that
         ran and reported nonsense.
+
+        THE GUARD MOVED OUT OF ``prepare``, and this test moved with it
+        rather than being deleted. ``prepare`` used to carry
+        ``if labelled.size < 4``; it was removed once both routes into
+        ``known`` were shown to guarantee four already, and the module
+        says so where the guard used to be. So the refusal is still
+        asserted -- it is simply asserted where it now lives, and a
+        deleted guard with no replacement would still fail here.
         """
-        source = inspect.getsource(A.prepare)
-        assert "if labelled.size < 4:" in source
-        assert "too few to hold any of them aside and still measure" in source
+        module = inspect.getsource(A)
+        assert "NO `labelled.size < 4` GUARD" in inspect.getsource(A.prepare), (
+            "prepare neither guards the count nor records why it need not; "
+            "one of the two has to be true")
+
+        # The score route: `known` is drawn from `pool`, and `pool` is
+        # refused below four with the count in the message.
+        assert "if pool.size < 4:" in module
+        assert "is too few to define a top-scoring set." in module
+
+        # The annotation route: labels are only supplied at four or more,
+        # and it falls through to the score route otherwise.
+        assert "int(known.sum()) >= 4" in module
 
         for size in (0, 1, 2, 3):
             known = np.zeros(20, dtype=bool)
@@ -41,9 +59,15 @@ class TestTheAuditSplit:
         source = inspect.getsource(A.prepare)
         assert "labelled = np.flatnonzero(np.asarray(known, dtype=bool))" \
             in source
+        # It is computed BEFORE the split and the split is given it, which
+        # is the whole claim. The ordering used to be pinned against the
+        # `labelled.size < 4` guard that no longer exists; pinning it
+        # against the splitter is what the docstring was always about.
         assert source.index(
             "labelled = np.flatnonzero(np.asarray(known, dtype=bool))") < \
-            source.index("if labelled.size < 4:")
+            source.index("grouped_split(")
+        assert "groups[labelled], labels[labelled]," in source, (
+            "the split is no longer restricted to the labelled rows")
 
 
 class TestASeedModelThatWasNotFitted:

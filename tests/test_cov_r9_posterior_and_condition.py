@@ -123,7 +123,23 @@ class TestTheConditionRatio:
         assert svd < ratio, (
             "_ratio is now defined before the SVD it consumes, so its "
             "empty-input arm may be reachable")
-        assert "if sv.size == 0:" in source[ratio:ratio + 200]
+
+        # THERE IS NO EMPTY-INPUT ARM ANY MORE, and that is the stronger
+        # form of the same claim rather than a weaker one. `_ratio` used
+        # to open with `if sv.size == 0:`; the branch could not be
+        # entered through the function, so it was dead code standing in
+        # for a precondition. The precondition is now stated -- "non-empty
+        # descending singular-value array" -- and the body indexes sv[0]
+        # and sv[-1] directly, which is what makes an empty vector an
+        # IndexError here rather than a silently invented answer.
+        body = source[ratio:ratio + 900]
+        assert "non-empty descending singular-value array" in body, (
+            "_ratio no longer states that it requires a non-empty vector, "
+            "and no longer guards against one either")
+        assert "sv.size == 0" not in body, (
+            "the dead empty-input arm is back; the ordering asserted above "
+            "is what makes it unreachable")
+        assert "float(sv[0])" in body and "sv[-1]" in body
 
     def test_an_all_zero_column_is_scaled_by_one_rather_than_dropped(self):
         """The comment above the guard is the substance: a zero column

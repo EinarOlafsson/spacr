@@ -52,7 +52,14 @@ def test_cell_ft_is_the_declared_value_not_the_inline_fallback():
     """The one fallback that changes segmentation output."""
     declared = S.set_default_settings_preprocess_generate_masks(
         {"src": "/tmp/does-not-matter"})["cell_flow_threshold"]
-    assert declared == 1.0, (
+    # 1.0 until 2026-09-02, when ab656821b shipped the maintainer's own
+    # published defaults and raised it to 100 with its tooltip -- "accepts
+    # every candidate", which is what a flow_threshold above the usable
+    # 0-3 range means. The point of this test is unchanged and is not the
+    # number: whatever is DECLARED is what the v2 branch has to read, and
+    # an inline fallback of 0.4 sitting under a declared 100 is a bigger
+    # gap than it was under a declared 1.0.
+    assert declared == 100, (
         "the declared cell_flow_threshold moved; this test pins the value the v2 branch "
         "must now agree with")
 

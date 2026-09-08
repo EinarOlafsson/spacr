@@ -218,22 +218,37 @@ class TestThreePreviewGuards:
             "an empty note no longer capitalises to nothing, so the guard "
             "protects against something else")
 
-    def test_a_refit_with_no_destination_says_what_it_would_change(self):
-        """THE PIN, for ``if where`` in refit_dialog.
+    def test_a_refit_with_no_destination_is_refused_rather_than_offered(self):
+        """THE PIN, for the ``where is None`` arm in refit_dialog.
 
-        ``destination`` answers None when the settings name no usable
-        count table, and the notice then carries the CHANGES alone --
-        which is still the thing the dialog is for. Appending
-        "Writes to None." would be worse than saying nothing about
-        where.
+        ``destination`` answers None when no count-data path resolves or
+        the results folder cannot be created. This USED to fall through
+        and show the changes alone, on the reasoning that "Writes to
+        None." is worse than saying nothing about where -- and it was,
+        but the alternative was worse still: the notice a user saw in
+        that arm claimed the re-fit would repeat the run they were
+        looking at, with the button live to start a real one. So the arm
+        now refuses, disables OK, and says which path to check.
+
+        The half that has not changed is the one this test is named for:
+        "Writes to None." is never appended, because the None case
+        returns before the line that appends it.
         """
         pytest.importorskip("PySide6")
         from spacr.qt.widgets import refit_dialog as R
 
         source = inspect.getsource(R)
         assert "where = destination(settings)" in source
-        assert "if where:" in source
+        assert "if where is None:" in source
         assert 'lines.append(f"Writes to {where}.")' in source
-        assert "Nothing to change: re-fitting these settings" in source, (
-            "the empty-notice text is gone; a refit that changes nothing "
-            "must say so rather than showing a blank notice")
+
+        # The refusal comes BEFORE the "Writes to" line, which is what
+        # keeps None out of it, and it disables the button on the way.
+        refusal = source.index("The output folder cannot be worked out")
+        writes = source.index('lines.append(f"Writes to {where}.")')
+        assert refusal < writes
+        assert "so the re-fit is not offered. Check the count data path." \
+            in source
+        assert source.index("self._ok(False)", refusal) < writes, (
+            "the no-destination arm leaves OK enabled, so a re-fit the "
+            "dialog cannot describe can still be started")
