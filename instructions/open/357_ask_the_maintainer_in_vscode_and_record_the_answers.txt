@@ -508,3 +508,64 @@ ANSWERS, 2026-09-06
        measurement, not on taste.
 
 372-A(i)   NOT ANSWERED — needs the NAS cable, not a decision.
+
+--------------------------------------------------------------------------------
+OPEN, RAISED 2026-09-07 OVERNIGHT — THREE DECISIONS, NONE URGENT
+--------------------------------------------------------------------------------
+
+None of these blocks the release. They are recorded because each was found
+while doing something else, and each is a product decision rather than a
+defect: acting on any of them without asking would be choosing on the
+maintainer's behalf.
+
+357-Q1  IS `Core` STILL THE PIPELINE?
+        Core now holds nine modules, not six:
+
+            Mask, Measure, Annotate, Classify, Map Barcodes, Regression
+            + Training Runs, Prediction Profiler, Investigate Hit
+
+        The last three read as results/analysis rather than as steps of a
+        run, and all three ALSO appear as folded children (Training Runs and
+        Feature Explorer under Classify; Investigate Hit and Prediction
+        Profiler under Regression) -- so they are on Home twice, once as a
+        Core tile and once inside a host.
+
+        WHY IT MATTERS BEYOND TIDINESS: Core is the category the dock opens
+        by default and the one a new user reads first, and the order IS the
+        pipeline. It also pushed variant 01 of the Home layout study past
+        1440x900 (see 288 and the ledger in test_home_variants).
+
+        WHAT WAS DONE MEANWHILE: nothing. `test_core_lists_the_pipeline_in_
+        order` no longer pins Core's exact membership -- it asserts the
+        pipeline six come FIRST and in order -- so the category can hold
+        more without failing a test, and re-categorising later costs
+        nothing. The duplication is untouched.
+
+        OPTIONS: (a) leave it; (b) move the three out of Core, keeping them
+        as folded children only; (c) keep them in Core and remove them from
+        the folds.
+
+357-Q2  XGBOOST, OR THE GRADIENT BOOSTING ALREADY INSTALLED?
+        The Suggest request named XGBoost. `_build_round_model` offers
+        logistic regression, random forest and `gradient_boosting`, which is
+        sklearn's `HistGradientBoostingClassifier` -- the same
+        gradient-boosted-trees method, already a dependency, and already
+        understood by the round machinery (grouped split, model card, saved
+        joblib). Suggest asks for that.
+
+        The question is whether the actual `xgboost` package is wanted. It
+        would be a new dependency for an algorithm already present, and this
+        path is explicitly the one that must run "on the machine the
+        annotator is sitting at, without a GPU". Recommend NO unless there is
+        a reason beyond the name.
+
+357-Q3  DOES THE SUGGESTION SCHEME EXTEND PAST TWO CLASSES? (= 379-C)
+        Still open, and now SAFE while it stays open: `write_suggestions`
+        refuses any class value at or above `SUGGESTION_OFFSET` (10), because
+        a suggested 1 and an answered 11 are the same integer and a bulk KEEP
+        would rewrite one as the other with nothing able to tell. So a third
+        class works today as long as it is below 10.
+
+        The decision only becomes urgent if a screen ever needs ten or more
+        classes, at which point the offset has to become a separate column
+        rather than a bigger number.
