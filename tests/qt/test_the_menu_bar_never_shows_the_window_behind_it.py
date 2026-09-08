@@ -119,15 +119,31 @@ def test_the_bar_colour_is_the_surface_colour_at_that_alpha(theme):
     assert rgb == tuple(int(surface[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def test_the_window_chrome_paints_the_same_colour_as_the_bar(qtbot,
-                                                             qt_theme_applied,
-                                                             tmp_path,
-                                                             monkeypatch):
-    """The corner marks sit ON the bar, so they must paint ITS colour.
+def test_the_window_chrome_does_not_copy_the_bar_colour(qtbot,
+                                                        qt_theme_applied,
+                                                        tmp_path,
+                                                        monkeypatch):
+    """SUPERSEDED, AND THIS FILE IS WHAT MADE THE MISTAKE LOOK RIGHT.
 
-    Driven through a real window rather than by reading app.py, because
-    the failure being prevented is the corner keeping a colour of its own
-    after the bar's changed -- which a source grep would not notice.
+    This demanded the corner marks paint the bar's colour, on the strength
+    of the macOS report at the top of this file. The maintainer overrode
+    that on 2026-09-01 -- "the x square and minus in the top right dont
+    always have the same background as the container, please remove or
+    make transparent their background color if possible" -- and
+    `test_the_window_buttons_show_the_bar_through.py` was written for the
+    new answer.
+
+    THE REASON IS BETTER THAN THE ONE IT REPLACED. Painting the bar's
+    colour into the corner is a SNAPSHOT: the bar repaints for a theme
+    change, a palette change, and on macOS for a translucency the copied
+    value never had, and each of those leaves three plates in the old
+    colour. Matching by copying is the bug. Showing through cannot drift.
+
+    Kept as its own assertion rather than deleted, because on 2026-09-07 I
+    read the old version of this test, found the code disagreeing with it,
+    and changed the code -- which reintroduced the defect the 2026-09-01
+    report was about. An assertion that has been overruled should say so
+    where the next reader will look, not quietly vanish.
     """
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     from spacr.qt import app as app_mod
@@ -136,6 +152,9 @@ def test_the_window_chrome_paints_the_same_colour_as_the_bar(qtbot,
     qtbot.addWidget(window)
     chrome = window._window_buttons
     sheet = chrome.styleSheet()
-    assert "transparent" not in sheet, (
-        "the window chrome paints nothing, which is the black box")
-    assert menu_bar_background() in sheet
+    assert "transparent" in sheet, (
+        "the corner marks must show the bar through rather than paint a "
+        "plate of their own")
+    assert menu_bar_background() not in sheet, (
+        "the bar's colour is copied into the corner again; it is a "
+        "snapshot and it drifts the moment the bar repaints")

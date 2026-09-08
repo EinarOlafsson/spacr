@@ -2720,35 +2720,37 @@ class MainWindow(QMainWindow):
         #
         # The hover state is unaffected: it is a repaint of the GLYPH in
         # the hover colour, never a plate behind it.
-        # PAINTS THE BAR'S COLOUR, NOT `transparent`, AND THE REPORT IS WHY.
-        # The reasoning above -- that `transparent` is safe INSIDE a bar that
-        # paints its own surface -- is what the macOS report disproved, and it
-        # named these exact widgets: "there are black boxes behind the
-        # minimize, fullscreen and close icons in the top right ... the black
-        # boxes appear only after hovering the mouse over the icon". A hover
-        # repaint on that platform clears to the window first, and the
-        # window's palette Window role is the splash colour, `#000000`.
+        # TRANSPARENT, AND IT STAYS TRANSPARENT. On 2026-09-07 this was
+        # changed to paint `menu_bar_background()` on the strength of the
+        # macOS black-box report, and that was WRONG: the maintainer
+        # superseded that fix on 2026-09-01 with "the x square and minus in
+        # the top right dont always have the same background as the
+        # container, please remove or make transparent their background
+        # color if possible".
         #
-        # It costs nothing to be sure: this is the SAME colour the bar
-        # paints, read from the same function, so there is nothing to see
-        # either way -- and `menu_bar_background` rather than a literal, so
-        # the corner cannot drift from the bar the way BAR_BG drifted from
-        # `MENU_BAR_ALPHA`.
-        from .theme import menu_bar_background
-
-        corner.setStyleSheet(f"""
-            QWidget#WindowChrome {{
-                background: {menu_bar_background()};
+        # AND THE REASON IS BETTER THAN THE ONE I OVERRODE IT WITH. Painting
+        # the bar's colour here is a SNAPSHOT: the bar repaints for a theme
+        # change, a palette change, and on macOS for a translucency the
+        # copied value never had, and each of those leaves three plates in
+        # the old colour. Matching by copying is the bug. Showing through
+        # cannot drift, because there is nothing to keep in step.
+        #
+        # See `tests/qt/test_the_window_buttons_show_the_bar_through.py`,
+        # whose `test_the_bar_colour_is_no_longer_copied_into_the_corner`
+        # exists to stop exactly the change I made.
+        corner.setStyleSheet("""
+            QWidget#WindowChrome {
+                background: transparent;
                 border: none;
-            }}
+            }
             QWidget#WindowChrome QToolButton,
             QWidget#WindowChrome QToolButton:hover,
             QWidget#WindowChrome QToolButton:pressed,
             QWidget#WindowChrome QToolButton:checked,
-            QWidget#WindowChrome QToolButton:disabled {{
-                background: {menu_bar_background()};
+            QWidget#WindowChrome QToolButton:disabled {
+                background: transparent;
                 border: none;
-            }}
+            }
         """)
 
         self.menuBar().setCornerWidget(corner, Qt.Corner.TopRightCorner)
