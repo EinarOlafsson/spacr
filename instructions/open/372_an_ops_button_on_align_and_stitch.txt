@@ -1370,3 +1370,51 @@ every row.
   one peaks -- a position-driven search rather than an index-driven one. That
   also removes `max_site_gap` entirely, which PART 6 showed is unsound for
   this acquisition anyway.
+
+
+--------------------------------------------------------------------------------
+PART 6-B -- A SECOND PROTOTYPE, WORSE THAN THE FIRST, AND THE REDIRECT
+--------------------------------------------------------------------------------
+
+PART 6-A ended with "search by POSITION rather than by index". The attempt at
+that was to segment the serpentine structurally: register i against i+1 all
+the way down, treat a strong match as "same run" and a weak one as "the path
+turned", then join each run to the next.
+
+    v1 (index offsets, windowed)   181 of 333 placed
+    v2 (runs, then joins)           78 of 333 placed
+
+WORSE, AND THE OUTPUT SAYS WHY. The runs come out 25 of them, with lengths
+5, 9, 13, 15, 34, 2, 18, 18, 42, 5, 13, 9 ... A serpentine over columns of 11
+would give runs of about 11. Lengths of 34 and 42 mean consecutive indices go
+on registering strongly across what should be a turn, and a length of 2 means
+they stop where they should not.
+
+  SO THE PREMISE IS WRONG: the site index is not a simple serpentine over this
+  well, and every attempt so far has been an assumption about the acquisition
+  path dressed up as an algorithm. v1 assumed a fixed raster; v2 assumed a
+  serpentine that segments on failure. Both are guesses.
+
+STOP GUESSING AND READ THE ACQUISITION. PART 5 already said to read the two
+reference implementations first and they are unpacked ON THE NAS beside the
+data:
+
+    /nas_mnt/data/ops/OpticalPooledScreens/ops/      the original paper's
+    /nas_mnt/data/ops/OpticalPooledScreens_1/        plus phenotype/, sequencing/
+
+`ops/` knows how site indices map to stage positions for exactly this plate,
+because this IS that plate -- `20200202_6W-LaC024A` is from that screen. Half
+an hour reading it is worth more than another prototype.
+
+  AND THE MEASUREMENTS THAT DO HOLD, which is what these two runs were
+  actually worth:
+    * peak RSS 750 MB for a full well, independent of tile count;
+    * phase correlation resolves a true neighbour at 38-46:1 against a
+      background of 10, in milliseconds, where ORB returns 0.0002;
+    * the shifts are wrapped and must be unwrapped;
+    * a (0,0) match is the no-overlap signature and must be rejected;
+    * a placement COUNT is not a measure of a stitch -- v1's first run placed
+      333 of 333 and was entirely wrong.
+
+  None of that depends on the adjacency being solved, and all of it survives
+  whatever the reference implementation says the layout is.
