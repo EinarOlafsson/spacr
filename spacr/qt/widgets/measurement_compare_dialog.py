@@ -95,24 +95,14 @@ _SPEC_KINDS = {
 }
 
 
+# THE ARGUMENTS ARE DOCUMENTED ON `__init__`, ONCE. They were listed here
+# too, as a NumPy ``Parameters`` section, and AutoAPI runs with
+# ``class_content='both'``: the class docstring and ``__init__``'s are
+# concatenated before Napoleon sees them, the section became a field list,
+# and ``__init__``'s opening prose then ended it mid-way -- "Field list
+# ends without a blank line", which `sphinx-build -W` makes fatal.
 class MeasurementComparePanel(QWidget):
-    """Compare measurements between selected cell groups and a reference.
-
-    Parameters
-    ----------
-    objects : pandas.DataFrame
-        Object rows available to the montage and reference contrasts.
-    groups : dict of str to sequence
-        Selected group names mapped to object-index values.
-    parent : QWidget, optional
-        Parent widget.
-    settings : dict, optional
-        Run settings saved with exported comparison results.
-    databases : sequence of path-like, optional
-        Measurement databases available for widening the object table.
-    counts : pandas.DataFrame, optional
-        Per-well counts used to resolve control wells.
-    """
+    """Compare measurements between selected cell groups and a reference."""
 
     #: What the join control says when no join is running, and while one is.
     #: One button carries both, because a join that has started is a job to

@@ -25,13 +25,20 @@ PANELS: Tuple[Tuple[str, str, str], ...] = (
 )
 
 
+# THE DOCSTRING MAY NOT END ON A NAPOLEON SECTION. AutoAPI runs with
+# ``class_content='both'``, so this docstring and ``__init__``'s are
+# concatenated before Napoleon sees them. An ``Attributes`` section becomes a
+# run of ``.. attribute::`` directives, and ``__init__``'s opening line then
+# arrived inside that run: Sphinx emitted `.. attribute:: Build the panel
+# that follows a training run's losses and metrics.` and then a bare
+# `.. attribute::` whose only content was `:type: param parent: ...`. That is
+# an ERROR, not a warning -- "1 argument(s) required, 0 supplied" -- and
+# `sphinx-build -W` fails on it.
+#
+# The closing paragraph is what ends the section. `parent` is documented on
+# ``__init__``, which is where it is taken, rather than a second time here.
 class TrainingMonitor(QWidget):
     """Display training metrics as incrementally updated curves.
-
-    Parameters
-    ----------
-    parent : QWidget, optional
-        Parent widget.
 
     Attributes
     ----------
@@ -41,6 +48,9 @@ class TrainingMonitor(QWidget):
     curves : dict of str to pyqtgraph.PlotDataItem
         Persistent plot items keyed by metric name. Each item is created when
         its metric first appears and reused for subsequent epochs.
+
+    Both are populated as epochs arrive; neither is replaced, so a reference
+    taken once stays valid for the life of the panel.
     """
 
     def __init__(self, parent: Optional[QWidget] = None):

@@ -1932,18 +1932,26 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # and spacr/suggest.py (4): +8 functions and +1 dataclass constructor.
     # 8,462 -> 8,463 on 2026-09-08, +1/-0: RegexEditorDialog.resizeEvent,
     # which is why `method` moves and no other category does.
-    assert len(callables) == len(by_symbol) == 8_463
+    # 8,463 -> 8,465 the same day, +2/-0, and both are one export:
+    # `spacr.image_import.ImportResult` joined `__all__` beside the sibling
+    # types that were already there. `apply_import` RETURNS it, and being
+    # unexported it was undocumented -- so Sphinx could not resolve the bare
+    # `ImportResult` in that signature against its own module and matched
+    # `spacr.foreign` and `spacr.omero` instead. The two callables are the
+    # dataclass constructor and its `summary`, which is why
+    # `dataclass_constructor` and `method` each move by one.
+    assert len(callables) == len(by_symbol) == 8_465
     assert Counter(item.category for item in callables) == {
         "function": 3_654,
-        "method": 3_775,
+        "method": 3_776,
         "constructor": 393,
-        "dataclass_constructor": 442,
+        "dataclass_constructor": 443,
         "namedtuple_constructor": 6,
         "exception_constructor": 137,
         "inherited_or_default_constructor": 56,
     }
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_458,
+        "autoapi": 8_460,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -1951,9 +1959,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # one new callable has one signature, like almost every other. The
     # seven two-variant entries are unchanged, which is the part worth
     # asserting -- a new overload pair would be a different event.
-    assert sum(item.variant_count for item in callables) == 8_470
+    assert sum(item.variant_count for item in callables) == 8_472
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_456,
+        1: 8_458,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -1981,8 +1989,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     #       `event` is the one REQUIRED parameter in the set -- which is
     #       why the required total moves by one where the parameter total
     #       moves by four.
-    assert sum(len(item.parameters) for item in callables) == 16_685
-    assert sum(len(item.required_parameters) for item in callables) == 8_453
+    assert sum(len(item.parameters) for item in callables) == 16_692
+    assert sum(len(item.required_parameters) for item in callables) == 8_454
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -1992,7 +2000,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "aa7ca4ad9973540358c1f04fee24ec0310cc6d5f33dd2dd565e54c98bee4bc2b"
+    ) == "59130aacac6735759f3b108bb7bca77ae3583b15401f250e0f011b775cf9e4ac"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2329,7 +2337,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
     # figure in this test: RegexEditorDialog.resizeEvent is both a public
     # callable and a rendered documented one.
-    assert len(rendered_documented_callables) == 8_458
+    assert len(rendered_documented_callables) == 8_460
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

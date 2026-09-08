@@ -32,15 +32,14 @@ GROUPS: List[tuple] = [
 BLUR = 18.0
 
 
+# THE ARGUMENTS ARE DOCUMENTED ON `__init__`, ONCE. They were listed here
+# too, as a NumPy ``Parameters`` section, and AutoAPI runs with
+# ``class_content='both'``: the class docstring and ``__init__``'s are
+# concatenated before Napoleon sees them, the section became a field list,
+# and ``__init__``'s opening prose then ended it mid-way -- "Field list
+# ends without a blank line", which `sphinx-build -W` makes fatal.
 class SetupDialog(QDialog):
-    """Collect optional first-run preferences.
-
-    Parameters
-    ----------
-    parent : QWidget, optional
-        Parent window. When available, a blurred snapshot is used as a
-        decorative background.
-    """
+    """Collect optional first-run preferences."""
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Build the first-run setup dialog.

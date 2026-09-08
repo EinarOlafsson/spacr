@@ -4745,7 +4745,7 @@ class PreferencesDialog:
 
         The window is detached from the window manager's point of view, so the
         user can put it where they like -- it is still parented, still modal and
-        still ``exec``s, and only the window TYPE changes.
+        still calls ``exec``, and only the window TYPE changes.
 
         :param parent: parent widget, or ``None``.
         :returns: the dialog, ready to ``exec``.

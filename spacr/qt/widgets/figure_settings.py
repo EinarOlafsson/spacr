@@ -132,25 +132,18 @@ def _series_of(axis):
     return series
 
 
+# THE ARGUMENTS ARE DOCUMENTED ON `__init__`, ONCE. They were listed here
+# too, as a NumPy ``Parameters`` section, and AutoAPI runs with
+# ``class_content='both'``: the class docstring and ``__init__``'s are
+# concatenated before Napoleon sees them, the section became a field list,
+# and ``__init__``'s opening prose then ended it mid-way -- "Field list
+# ends without a blank line", which `sphinx-build -W` makes fatal.
 class FigureSettingsDialog(QDialog):
     """Edit the supported appearance settings of a live figure.
 
     Controls are created from the figure's current axes, artists, legends, and
     optional spaCR metadata. Changes are previewed after a short debounce;
     rejecting the dialog restores the opening state when it could be captured.
-
-    Parameters
-    ----------
-    figure : matplotlib.figure.Figure
-        Figure to edit.
-    parent : PySide6.QtWidgets.QWidget, optional
-        Parent widget.
-    on_change : callable, optional
-        Callback invoked after an edit. Callbacks may accept a ``preview``
-        keyword argument.
-    propagate_callback : callable, optional
-        Callback that receives the current Image UMAP settings when the user
-        selects ``Propagate settings``.
     """
 
     #: Debounce interval in milliseconds between an edit and its preview.
@@ -2524,21 +2517,18 @@ def style_setting_label(name: str) -> str:
         str(name), str(name).replace("_", " ").strip().capitalize())
 
 
+# THE ARGUMENTS ARE DOCUMENTED ON `__init__`, ONCE. They were listed here
+# too, as a NumPy ``Parameters`` section, and AutoAPI runs with
+# ``class_content='both'``: the class docstring and ``__init__``'s are
+# concatenated before Napoleon sees them, the section became a field list,
+# and ``__init__``'s opening prose then ended it mid-way -- "Field list
+# ends without a blank line", which `sphinx-build -W` makes fatal.
 class FigureStylePreferences(QWidget):
     """Edit general and graph-specific figure-style preferences.
 
     General settings apply to every figure. Each graph type can override only
     the settings it needs, and the panel stores differences from package
     defaults rather than a fully resolved style.
-
-    Parameters
-    ----------
-    general : mapping, optional
-        Stored general style overrides.
-    per_graph : mapping of str to mapping, optional
-        Stored style overrides keyed by graph type.
-    parent : PySide6.QtWidgets.QWidget, optional
-        Parent widget.
     """
 
     def __init__(self, general=None, per_graph=None, parent=None):

@@ -48,6 +48,14 @@ __all__ = [
     "ImportPlan",
     "InsideFile",
     "InferredLayout",
+    # `apply_import` RETURNS THIS and it was the one sibling type left out.
+    # Undocumented, Sphinx could not resolve the bare `ImportResult` in that
+    # function's signature against this module and searched every other one
+    # instead, finding `spacr.foreign.ImportResult` and
+    # `spacr.omero.ImportResult` -- "more than one target found", which
+    # `sphinx-build -W` makes fatal. A reader following the return type
+    # would have landed on a different importer's result object.
+    "ImportResult",
     "TokenSlot",
     "apply_import",
     "canonical_name",
