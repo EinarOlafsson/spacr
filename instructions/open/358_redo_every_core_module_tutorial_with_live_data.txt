@@ -97,3 +97,43 @@ BOUNDARY
 This item records and later executes the tutorial rebuild. It does not weaken
 the explicit hold on 1.5.0.5, move tutorials onto the pre-update list, or
 authorise edits in the tutorial media tree by a second concurrent session.
+
+--------------------------------------------------------------------------------
+2026-09-08 -- WHY test_tutorial_release_audit CANNOT BE CLOSED AS A CODE FIX
+--------------------------------------------------------------------------------
+
+`test_every_module_and_fold_has_exactly_one_current_tutorial_route` is red and
+will stay red until this instruction runs. Recorded here because from the
+failure alone it reads like a missing dictionary entry, and it is not.
+
+THREE ROUTES HAVE NO LESSON: `ops`, `regression_diagnostics`, `import_images`.
+The assertion is an equality -- every registered module and every folded host
+has exactly one lesson -- so a subset will not do and the three cannot simply
+be excused.
+
+WHAT ONE LESSON ACTUALLY COSTS, measured from the catalog:
+
+  * `docs/source/_extra/tutorials/catalog/` holds fourteen files:
+    `lessons_en` plus lessons in es, fr, hi, it, ja, pt-BR, zh-CN, and
+    captions in da, de, is, ko, nb, sv.
+  * `test_every_translated_tutorial_catalog_has_the_english_structure`
+    requires every one of them to carry the same lesson ids, numbers,
+    routes and SCENE COUNT as English. A lesson added to English alone
+    fails that test instead of the one above it -- the count of red tests
+    does not fall, it moves.
+  * each scene carries `narration`, a `visual` key, `hold_after`, and
+    `speech_text` with IPA for the reader -- see
+    `test_every_spoken_pypi_is_the_single_word_pypie`, which pins a
+    pronunciation across every narration language.
+  * `voice_catalog.js` sits beside them; the README describes 73 lessons
+    with 50 voices across eight languages.
+
+So three lessons is roughly forty translated scene sets and their audio, not
+three JSON objects. It needs the same checkpoints the API catalogs need and it
+needs them for narration rather than tooltips.
+
+FOR THE RELEASE CONVERSATION: this is not a gate anybody can close in an
+afternoon, and it should be counted with 358 rather than with 288's failure
+list. Writing the three lessons in English only would make the suite LOOK one
+test better while breaking a different one and shipping a tutorial library
+that is complete in one language and short in thirteen.
