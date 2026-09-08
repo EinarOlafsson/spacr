@@ -1019,3 +1019,94 @@ is why "make the suite green" is the wrong statement of the goal. A pin whose
 docstring explains what it protects is evidence, and the number in it being
 stale -- "twenty-six roles", written before the change -- is exactly what makes
 it look skippable.
+
+
+2026-09-08, WORK SESSION: 255 -> 8, and the eight left are not this session's
+-------------------------------------------------------------------------
+
+The baseline was 255 broken tests -- 124 Qt, 117 non-Qt, 14 errors -- across 75
+files. It is 8 now. Six are OPS work owned by the other session, one needs the
+OPUS checkpoints that live on that machine's disk, and one is the 111-commit
+trailer rewrite the maintainer deferred past 1.5.0.5.
+
+WHAT THE TRIAGE ACTUALLY SHOWED. The 124-failure note above says almost all
+were tests describing a program that had moved, and that held for the rest of
+the tree too. But "the program moved" is not one thing, and the useful split
+turned out to be:
+
+  A REVERSAL SOMEBODY DECIDED. object_distances defaults ON; cell_min_size,
+  nucleus_min_size and pathogen_min_size took the 40x screening minima;
+  cell_flow_threshold went 1.0 -> 100. Every one is in a commit that argues
+  for it. The tests asserted the old value and were right to fail.
+
+  A RENAME NOBODY FINISHED. b7ae412af renamed four setting families by suffix
+  substitution and retired organelle's duplicate `_size` pair. Six artefacts
+  did not come with it: the animation generator, the shipped manifest, the
+  62 audit record, two test files -- and `_ADVANCED_FAMILIES`, which is the
+  one that was a PRODUCT defect rather than a stale test. It still matched
+  the suffix "Signal_to_noise", so the signal-to-noise anchor had been absent
+  from the Mask panel's per-object group for six days. Nothing errored. A
+  family that matches no key simply has one fewer row.
+
+  A DEFECT THAT WAS FIXED, leaving a test asserting its consequence.
+  `attributable` reads each competitor weight once now, so the refusal the
+  test drove is unreachable; `regression_annotation.prepare` dropped a guard
+  that could not fire and says so where it stood; `_ratio` dropped an
+  empty-input arm for a stated precondition. Re-pointing those at the
+  property that closed the hole is the fix. Asserting an unreachable refusal
+  asserts nothing.
+
+  A COUNTER NOBODY COULD DECOMPOSE. 10,237 -> 10,242 public symbols hid
+  +12/-7 with a whole module (spacr.seg_metrics) retired behind an addition,
+  under a comment that said "NOTHING WAS RETIRED". The organelle-advanced
+  formula `31 + 30 * (MAX - 1)` was a way of writing "30 knobs plus one
+  shared key" that only held while the knob count was one less than the
+  first slot's total. Every count re-pinned here was measured against a
+  worktree at the commit that set it and the difference enumerated.
+
+SIX PRODUCT DEFECTS CAME OUT OF IT, which is the argument for doing this
+rather than raising ceilings:
+
+  * sra_picker's _FetchWorker ended run() with a bare emit. An exception out
+    of a QThread::run override ABORTS the application, and the file was not
+    in WORKER_MODULES at all, so nothing had ever checked it.
+  * `_ADVANCED_FAMILIES` above.
+  * Ctrl+H and Ctrl+, each had two holders -- a menu QAction and a QShortcut
+    -- so Qt fired neither and both keys were dead while the menu advertised
+    them.
+  * image_import wrote stitched mosaics with raw tifffile.imwrite, which
+    guesses RGB for the 3-or-4-plane leading array a mosaic has.
+  * The Plaque assay's `channels` tooltip described a different setting:
+    spaCR's kept-channel list, where the value is Cellpose's cytoplasm /
+    nucleus pair and [0,0] means grayscale with no nucleus channel.
+  * Four tooltips aimed their API link at spacr._v1_v2_bridge, which AutoAPI
+    does not publish. The generated consumer map ranked it first because it
+    genuinely reads the setting; it had no notion of whether the module has
+    a page.
+
+AND TWO RATCHETS THAT WERE NOT MEASURING WHAT THEY SAID. EXPECTED_HOMES has
+named tabular.py as where raw calls belong since that file was written and
+`_counts` never consulted it, so the funnel's own reads were counted with the
+bypasses it hunts -- adding a canonical entry point pushed the number UP.
+`_masks_block` took a fixed 1,500 characters after its marker and the block
+outgrew it, so an ordering assertion raised "substring not found" from inside
+a helper.
+
+THE THREE THINGS THAT COUNTERFEIT A DEAD SHORTCUT, recorded because two of
+them cost real time here: a second holder (Qt fires neither), the first-run
+tour overlay taking focus, and the first key press after `show` being lost
+while the window becomes active. The third of those had me tell the maintainer
+Ctrl+H was unusable on Linux, which was wrong.
+
+STILL OPEN, AND WHY:
+  * test_settings_categories (3), test_more_helpers_8 (1),
+    test_the_api_homepage_shows_the_module_structure (2),
+    test_tutorial_release_audit (1) -- OPS, the other session's.
+  * test_external_i18n_catalogs (1) and
+    test_i18n_coverage_audit::test_written_review_scope... (1) -- both need
+    an OPUS checkpoint that is not on this machine. The second is a REVIEWED
+    Swedish sentence overwritten by raw model output on
+    home.SystemPanel; the rebuild has to re-apply the reviewed overlay.
+  * test_no_commit_credits_claude (1) -- 111 commits, all from the other
+    session's lane, which has no commit-msg hook. Maintainer's decision:
+    install the hook now, rewrite after 1.5.0.5.
