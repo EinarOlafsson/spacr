@@ -26,10 +26,12 @@ from spacr.guide_attribution import attributable, posterior_multivariate
 class _WeightReadTwice:
     """A weight whose float value changes between reads.
 
-    ``attributable`` calls ``float(w)`` once to test the weight and again to
-    store it, so a weight that is not a plain number -- a lazily fetched
-    count, a mutable cell, a proxy over a stream -- can pass the test and be
-    stored as something else entirely. This stands in for that caller.
+    ``attributable`` USED TO call ``float(w)`` once to test the weight and
+    again to store it, so a weight that is not a plain number -- a lazily
+    fetched count, a mutable cell, a proxy over a stream -- could pass the
+    test and be stored as something else entirely. This stands in for that
+    caller, and now proves the second read is gone rather than that the
+    consequence is caught.
     """
 
     def __init__(self, first: float, then: float) -> None:
@@ -46,26 +48,38 @@ class _WeightReadTwice:
 # attributable: the competing weights must add up to something positive
 # ---------------------------------------------------------------------------
 
-def test_a_competitor_weight_that_changes_between_reads_is_refused():
-    """A non-positive total must not become a division, it must become "no".
+def test_a_competitor_weight_is_read_exactly_once():
+    """The weight the filter approves is the weight that gets used.
 
-    The line after the guard is ``w * (1 - p) / total``. If a weight sneaks
-    past the ``> 0`` filter and the total comes out at or below zero, that
-    division produces infinities and the preflight would report a guide as
-    reachable with a ceiling computed from them. The honest answer for a well
-    whose competition does not add up is "this guide cannot be called".
+    THIS TEST HAS CHANGED SIDES, and the reason is written in
+    `attributable` where the fix is. It used to assert the CONSEQUENCE: a
+    weight read twice could pass the ``> 0`` filter, be stored
+    non-positive, drive the total to zero, and the refusal was what kept
+    ``w * (1 - p) / total`` from producing infinities the preflight would
+    then report a ceiling from.
+
+    The second read is gone. Each pair is converted once, in the
+    generator the filter consumes, so the value tested and the value
+    stored are the same object by construction rather than by agreement.
+    That makes the old refusal unreachable through this door, and
+    asserting an unreachable refusal is asserting nothing -- so what is
+    asserted is the property that closed it.
     """
     unstable = _WeightReadTwice(1.0, -2.0)
-    refused = attributable(1.0, 1.0, 0.5, others=[(0.0, unstable)])
+    answer = attributable(1.0, 1.0, 0.5, others=[(0.0, unstable)])
 
-    assert refused == (False, 0.0)
-    assert unstable.reads == 2                 # read for the test, and again
+    assert unstable.reads == 1, (
+        "the weight was read more than once, so the value the filter "
+        "approved is not necessarily the value used")
+    # Read once, it is 1.0 -- positive -- so the well is answerable, and
+    # the -2.0 the old code would have stored is never seen.
+    assert answer[0] is True
+    assert 0.5 < answer[1] <= 1.0
 
-    # The same call with a weight that means what it says IS answerable, so
-    # the refusal above is the guard and not a function that never says yes.
-    allowed = attributable(1.0, 1.0, 0.5, others=[(0.0, 1.0)])
-    assert allowed[0] is True
-    assert 0.5 < allowed[1] <= 1.0
+    # The same call with a plain number agrees, which is what says the
+    # answer above came from the weight and not from ignoring it.
+    plain = attributable(1.0, 1.0, 0.5, others=[(0.0, 1.0)])
+    assert plain == answer
 
 
 def test_competitors_with_no_weight_leave_one_flat_rival_behind():

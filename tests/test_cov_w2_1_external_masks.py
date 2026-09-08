@@ -406,7 +406,16 @@ def test_a_conversion_that_dropped_a_file_is_refused(tmp_path, monkeypatch):
     images, cells = _one_field(tmp_path)
     settings = _settings(tmp_path, images, cells)
     plan = em.plan_external_masks(settings)
-    real_convert = em.cv.convert
+
+    # PATCHED ON `spacr.convert`, NOT ON `em.cv`. `em.cv` is a
+    # `_LazyConvert` proxy that forwards attribute access to the module
+    # so this file's startup path does not pull pandas, and it carries
+    # `__slots__ = ()` -- so setting an attribute on it raises
+    # AttributeError rather than installing a stand-in. Patching the
+    # module the proxy forwards to is the same interception one link
+    # further along, and it is where the real function lives.
+    from spacr import convert as real_convert_module
+    real_convert = real_convert_module.convert
 
     def _lossy_convert(image_plan, destination, **kwargs):
         conversion = real_convert(image_plan, destination, **kwargs)
@@ -414,7 +423,7 @@ def test_a_conversion_that_dropped_a_file_is_refused(tmp_path, monkeypatch):
         conversion.existing[:] = []
         return conversion
 
-    monkeypatch.setattr(em.cv, "convert", _lossy_convert)
+    monkeypatch.setattr(real_convert_module, "convert", _lossy_convert)
 
     with pytest.raises(ConfigurationError,
                        match="converted intensity image is missing"):

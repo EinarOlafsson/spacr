@@ -326,13 +326,26 @@ def test_every_supported_model_type_fits_and_reports_the_same_shape(
 
 
 def test_an_unknown_model_type_is_named_back_with_the_real_ones(project):
-    """A typo must not fall through to a default nobody asked for."""
+    """A typo must not fall through to a default nobody asked for.
+
+    THE TYPO USED TO BE "xgboost", which stopped being one: it is an
+    offered model_type now, an optional dependency that refuses with
+    installation instructions rather than a list of alternatives. So the
+    test asked a supported name to fail, and got a fit. The name here has
+    to be one the dispatch really does not know, and the assertion below
+    that `xgboost` is OFFERED is what keeps this from drifting back --
+    a future rename would fail here instead of quietly turning this test
+    into a fit again.
+    """
     with pytest.raises(ValueError) as excinfo:
-        al.retrain_round(project["db"], "annotate", model_type="xgboost",
+        al.retrain_round(project["db"], "annotate", model_type="xgbost",
                          save_model=False)
     message = str(excinfo.value)
-    assert "'xgboost'" in message
+    assert "'xgbost'" in message
     assert "logistic_regression" in message and "random_forest" in message
+    assert "xgboost" in message, (
+        "the refusal no longer offers xgboost, so a user who typed it "
+        "correctly is not told it exists")
 
 
 def test_a_round_fits_classes_that_were_annotated_as_text(tmp_path):
