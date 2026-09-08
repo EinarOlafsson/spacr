@@ -853,15 +853,33 @@ def test_the_slots_offered_follow_the_organelles_in_use(screen, tmp_path):
 
 
 def test_the_offer_stops_where_the_mask_planes_do(screen, tmp_path):
-    """A fifth slot would be a class the merged array has no plane for, so
-    it is not offered -- the cap is the backend's, not a number typed here."""
+    """One more slot would be a class the merged array has no plane for, so
+    it is not offered -- the cap is the backend's, not a number typed here.
+
+    THE LAST LINE USED TO SAY 99, WHICH WAS A STAND-IN FOR "MORE THAN THE
+    CAP". It was written when there were four organelle slots, and the
+    docstring still said "a fifth slot". 326's arbitrary organelle count
+    took `OBJECT_CHOICES` to 702 of them, so 99 filled is now well UNDER
+    the cap and `organelle_slots_offered` correctly answers 100 -- one
+    more than are in use, which is this function's whole documented
+    contract. The test was asserting the cap against a number that had
+    stopped saturating it.
+
+    Saturating it by construction instead, so the assertion keeps meaning
+    what it meant when the cap was four and does not need editing the next
+    time it moves.
+    """
     capacity = sum(1 for role in OBJECT_CHOICES if role.startswith("organelle"))
     for role in OBJECT_CHOICES:
         if role.startswith("organelle"):
             screen.add_mask_folder(role, str(tmp_path))
     assert len([t for t in _offered(screen) if t.startswith("Organelle")]) \
         == capacity
-    assert organelle_slots_offered(["organelle"] * 99) == capacity
+    assert organelle_slots_offered(["organelle"] * capacity) == capacity
+    # And BELOW the cap it is still one more than are in use, which is the
+    # other half of the contract and the half 99 used to be testing by
+    # accident.
+    assert organelle_slots_offered(["organelle"] * 3) == 4
 
 
 def test_the_added_list_names_the_slot_rather_than_the_key(screen, tmp_path):
@@ -874,6 +892,20 @@ def test_the_added_list_names_the_slot_rather_than_the_key(screen, tmp_path):
 
 
 def test_an_unknown_class_is_refused_in_the_names_it_offered(screen, tmp_path):
-    assert screen.add_mask_folder("organellez", str(tmp_path)) is False
+    """`organellez` IS a class now, so the refusal needs a name that is not.
+
+    326 generates 702 organelle roles -- `organelle`, `organelleb` ...
+    `organellezz` -- and `organellez` is one of them. This test was
+    refusing a name the product had since learned, so it failed by being
+    right about a world that had moved.
+
+    The replacement carries a digit, which the suffix scheme cannot
+    produce, and the test asserts that rather than trusting it: a name
+    that quietly became real is exactly how this broke the first time.
+    """
+    unknown = "organelle9"
+    assert unknown not in OBJECT_CHOICES, (
+        "the scheme has learned this name too; pick one it cannot generate")
+    assert screen.add_mask_folder(unknown, str(tmp_path)) is False
     assert "Organelle 1" in screen.status_text()
     assert "organelleb" not in screen.status_text()
