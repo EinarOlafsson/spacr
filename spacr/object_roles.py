@@ -180,6 +180,30 @@ CASED_TERMS = {
     "png": "PNG",
     "qc": "QC",
     "id": "ID",
+    # DIFFERENCE OF GAUSSIANS, and the only reason it is spelled out here is
+    # that the machine translators read the lower-case word as the animal.
+    # "Organelle 1 — Dog sigma high" became "Hundesigma hoch" in German,
+    # "Chien sigma haut" in French, "강아지 Sigma" (puppy) in Korean and "狗
+    # Sigma" in Chinese, in the label of a blob-detector parameter. `dog`
+    # appears in exactly two suffixes in the whole vocabulary,
+    # `dog_sigma_high` and `dog_sigma_low`, so there is no ambiguity to
+    # weigh -- it is always skimage's `blob_dog`.
+    "dog": "DoG",
+}
+
+#: Phrases that must be recased TOGETHER, because the word alone is
+#: ambiguous. `log` is Laplacian of Gaussians in the blob-detector settings
+#: and an ordinary logarithm in `log_x`, `log_y` and `log_data`, so it cannot
+#: go in :data:`CASED_TERMS` -- a blanket rule would turn a log axis into a
+#: filter. Same defect as `dog` above and found the same way: the label read
+#: "Log max sigma", and the translators read it as a logbook. German
+#: "Protokoll max sigma", Swedish "Logg max sigma", and Chinese rendered
+#: `log_x` as "彩票X" -- lottery.
+CASED_PHRASES = {
+    "log max sigma": "LoG max sigma",
+    "log min sigma": "LoG min sigma",
+    "log num sigma": "LoG num sigma",
+    "log threshold": "LoG threshold",
 }
 
 
@@ -189,8 +213,18 @@ def _recase(text: str) -> str:
     :param text: Human-readable text whose established terms need recasing.
     :returns: The text with :data:`CASED_TERMS` spellings restored.
     """
+    text = str(text)
+    # PHRASES FIRST. A phrase rule exists because its word is ambiguous on
+    # its own, so applying the word rules first would settle the ambiguity
+    # the wrong way and leave nothing for the phrase rule to match.
+    lowered = text.lower()
+    for phrase, cased in CASED_PHRASES.items():
+        if phrase in lowered:
+            start = lowered.index(phrase)
+            text = text[:start] + cased + text[start + len(phrase):]
+            lowered = text.lower()
     return " ".join(CASED_TERMS.get(word.lower(), word)
-                    for word in str(text).split(" "))
+                    for word in text.split(" "))
 
 
 def _split_id_suffix(key: str) -> str:
