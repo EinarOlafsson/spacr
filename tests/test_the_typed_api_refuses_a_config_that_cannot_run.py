@@ -7,6 +7,8 @@ which is where the same mistakes used to surface.
 """
 from __future__ import annotations
 
+import re
+
 import dataclasses
 from pathlib import Path
 
@@ -70,12 +72,34 @@ def test_a_pipeline_style_that_is_not_v1_or_v2_is_refused(style):
                    pipeline_style=style).to_settings()
 
 
+def _documents(doc, field):
+    """Whether ``field`` has its own entry in a NumPy-style Parameters block.
+
+    Written against the RENDERED shape rather than one markup spelling.
+    These assertions used to look for ``:param <field>:``; 4c3543971
+    restructured the public API docstrings into NumPy sections, so the
+    fields were still documented and the check was looking for a syntax
+    the file had stopped using. A name may share its line with others --
+    ``cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim:`` is one entry
+    for three -- which is why this matches a name within the heading
+    rather than a whole line.
+    """
+    block = re.search(r"(?ms)^Parameters\n-+\n(.*)", doc or "")
+    if block is None:
+        return False
+    return any(
+        field in [name.strip() for name in line[:-1].split(",")]
+        for line in block.group(1).splitlines()
+        if line.endswith(":") and not line.startswith((" ", "\t"))
+    )
+
+
 def test_a_complete_mask_config_produces_settings():
     """The valid case, so the refusals above are visibly the exceptions."""
     from spacr.api import MaskConfig
 
     for field in ("test_mode", "dry_run"):
-        assert f":param {field}:" in (MaskConfig.__doc__ or "")
+        assert _documents(MaskConfig.__doc__, field), field
     settings = MaskConfig(src="/data/plate1", cell_channel=0,
                           pipeline_style="v2").to_settings()
 
@@ -116,7 +140,7 @@ def test_a_measure_config_with_one_plane_is_accepted():
     from spacr.api import MeasureConfig
 
     for field in ("save_png", "test_mode", "dry_run", "resume"):
-        assert f":param {field}:" in (MeasureConfig.__doc__ or "")
+        assert _documents(MeasureConfig.__doc__, field), field
     settings = MeasureConfig(src="/data/plate1", cell_mask_dim=4,
                              nucleus_mask_dim=None,
                              pathogen_mask_dim=None).to_settings()

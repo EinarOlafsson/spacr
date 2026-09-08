@@ -27,6 +27,10 @@ Both have a test here that fails against the old code.
 """
 from __future__ import annotations
 
+import pathlib
+
+from spacr import run_journal as rj
+
 import csv
 import errno
 import io
@@ -508,6 +512,16 @@ def test_the_journal_scan_keeps_exactly_the_runs_whose_src_is_this_folder(
     runs = home / ".spacr" / "runs"
     runs.mkdir(parents=True)
     monkeypatch.setenv("HOME", str(home))
+    # AND THE RESOLVER, because setting HOME is not what moves the journal.
+    # `_isolated_dot_spacr_store` in the root conftest redirects
+    # `run_journal.runs_root` itself -- moving HOME for the session would
+    # move conda's, matplotlib's and Qt's caches too -- so a test that sets
+    # only the variable writes its runs here and has the scan read the
+    # shared sandbox instead. Restoring the REAL resolver under a patched
+    # `Path.home` is what puts the two back in the same place, and keeps
+    # this test exercising `runs_root`'s own logic rather than a lambda.
+    monkeypatch.setattr(pathlib.Path, "home", staticmethod(lambda: home))
+    monkeypatch.setattr(rj, "runs_root", rj.unsandboxed_runs_root)
 
     src = tmp_path / "plate"
     _write_db(src, stamps=[_stamp()])
@@ -543,6 +557,13 @@ def test_a_journal_that_cannot_be_read_is_a_note_not_a_crash(
     not_a_home = tmp_path / "home_is_a_file"
     not_a_home.write_text("x")
     monkeypatch.setenv("HOME", str(not_a_home))
+    # The real resolver against a home that is a FILE, which is the whole
+    # subject: `runs_root` mkdirs, mkdir raises NotADirectoryError, and the
+    # report has to answer with a note instead of a traceback. Against the
+    # conftest's sandbox lambda the journal reads perfectly well and there
+    # is nothing to survive. See the sibling test above.
+    monkeypatch.setattr(pathlib.Path, "home", staticmethod(lambda: not_a_home))
+    monkeypatch.setattr(rj, "runs_root", rj.unsandboxed_runs_root)
 
     src = tmp_path / "plate"
     _write_db(src, stamps=[_stamp()])
