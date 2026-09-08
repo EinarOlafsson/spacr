@@ -2338,6 +2338,23 @@ TWO THINGS I FOUND THAT ARE NOT MINE TO FIX BUT YOU SHOULD KNOW
   It does NOT prove the matrix: one interpreter, and `--no-deps`. That is
   still CI, and CI is still 288.
 
+A CORRECTION TO MY OWN ADVICE, 2026-09-07 LATER THE SAME NIGHT.
+  I said "`systemd-run --scope` dies with the shell that started it;
+  `--unit=` does not", and recommended `--unit=`. True, and NOT the whole
+  rule: `--unit=` is a transient SERVICE and runs outside the caller's
+  session, and Qt aborts under it at QApplication creation every time --
+  26 of 26 chunks of a tests/qt sweep died identically at
+  `pytestqt/plugin.py:76 in qapp`, with HOME, XDG_RUNTIME_DIR and DISPLAY
+  all present.
+
+  `--scope` works. That is what `tools/run_capped.sh` uses, and what its
+  own docstring already advertises for tests/qt; verified tonight.
+
+  SO: `--unit=` for long HEADLESS jobs that must outlive the shell (the
+  i18n builds, where it was the right call and rescued three dead runs).
+  `--scope`, i.e. `run_capped.sh`, for anything that builds a
+  QApplication. A plain background process works for Qt as well.
+
 REGENERATING A CATALOG, SINCE YOU MAY HAVE TO
   Use NO FLAG. `--repair-api-blocks` ran 58 minutes, loaded OPUS and MADLAD,
   printed 2,750 lines and changed nothing. And the reason five locales kept
