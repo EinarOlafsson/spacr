@@ -239,6 +239,8 @@ Befehle für die Kommandozeile
    spacr-run validate --module MODULE \
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
+   spacr-download --list                      # what example data exists
+   spacr-download measure annotate            # fetch example sets by name
 
 Setzen Sie bei der Fehlerbehebung ``SPACR_LOG_LEVEL=DEBUG``. Rotierende Protokolle werden in ``~/.spacr/logs/spacr.log`` geschrieben.
 
@@ -603,7 +605,7 @@ Lizenz
 
 spaCR is released under the `BSD 3-Clause-Lizenz <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
 
-Wenn spaCR zu veröffentlichten Arbeiten beigetragen hat, wird ein Zitat geschätzt und ist keine Bedingung der Lizenz — siehe `Citing spaCR`_ unten.
+Wenn spaCR zu veröffentlichten Arbeiten beigetragen hat, wird ein Zitat geschätzt und ist keine Bedingung der Lizenz — siehe `spaCR zitieren`_ unten.
 
 Tutorials
 ~~~~~~~~~

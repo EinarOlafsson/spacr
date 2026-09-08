@@ -239,6 +239,8 @@ Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-
    spacr-run validate --module MODULE \
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
+   spacr-download --list                      # what example data exists
+   spacr-download measure annotate            # fetch example sets by name
 
 排查问题时，请设置 ``SPACR_LOG_LEVEL=DEBUG``。轮转日志写入 ``~/.spacr/logs/spacr.log``。
 
@@ -603,7 +605,7 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 spaCR is released under the `BSD 3 条款许可证 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
 
-如果 spaCR 有助于发表作品,则引用被评估,并且不符合许可的条件,请参见下面的 `Citing spaCR`_。
+如果 spaCR 有助于发表作品,则引用被评估,并且不符合许可的条件,请参见下面的 `引用 spaCR`_。
 
 教程
 ~~~~~~~~~

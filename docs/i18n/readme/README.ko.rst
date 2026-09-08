@@ -239,6 +239,8 @@ conda-forge 설치
    spacr-run validate --module MODULE \
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
+   spacr-download --list                      # what example data exists
+   spacr-download measure annotate            # fetch example sets by name
 
 문제를 해결할 때 ``SPACR_LOG_LEVEL=DEBUG``\ 로 설정하세요. 순환 로그는 ``~/.spacr/logs/spacr.log``\ 에 기록됩니다.
 
@@ -603,7 +605,7 @@ Qt 없으며, 클러스터, 서버 및 CI를 위한 디스플레이가 없습니
 
 spaCR is released under the `BSD 3 클래스 라이센스 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
 
-If spaCR contributed to published work, a citation is appreciated and is not a condition of the licence — see `Citing spaCR`_ below.
+If spaCR contributed to published work, a citation is appreciated and is not a condition of the licence — see `spaCR 인용`_ below.
 
 튜토리얼
 ~~~~~~~~~

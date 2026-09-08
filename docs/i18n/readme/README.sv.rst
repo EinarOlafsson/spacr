@@ -239,6 +239,8 @@ Kommandoradskommandon
    spacr-run validate --module MODULE \
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
+   spacr-download --list                      # what example data exists
+   spacr-download measure annotate            # fetch example sets by name
 
 Ange ``SPACR_LOG_LEVEL=DEBUG`` vid felsökning. Roterande loggar skrivs till ``~/.spacr/logs/spacr.log``.
 
@@ -603,7 +605,7 @@ Licens
 
 spaCR frisätts under `BSD 3-Clause-licens <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
 
-Om spaCR bidrog till publicerade verk uppskattas en hänvisning och är inte ett villkor för licensen – se `Citing spaCR`_ nedan.
+Om spaCR bidrog till publicerade verk uppskattas en hänvisning och är inte ett villkor för licensen – se `Citera spaCR`_ nedan.
 
 Handledningar
 ~~~~~~~~~~~~~

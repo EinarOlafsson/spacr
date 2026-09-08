@@ -239,6 +239,8 @@ Points d’entrée en ligne de commande
    spacr-run validate --module MODULE \
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
+   spacr-download --list                      # what example data exists
+   spacr-download measure annotate            # fetch example sets by name
 
 Définissez ``SPACR_LOG_LEVEL=DEBUG`` lors du dépannage. Les journaux avec rotation sont écrits dans ``~/.spacr/logs/spacr.log``.
 
@@ -603,7 +605,7 @@ Licence
 
 spaCR est libéré sous le `Licence BSD 3-Clause <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
 
-Si spaCR a contribué à des travaux publiés, une citation est appréciée et n'est pas une condition de la licence — voir `Citing spaCR`_ ci-dessous.
+Si spaCR a contribué à des travaux publiés, une citation est appréciée et n'est pas une condition de la licence — voir `Citer spaCR`_ ci-dessous.
 
 Tutoriels
 ~~~~~~~~~

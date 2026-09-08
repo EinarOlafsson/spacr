@@ -239,6 +239,8 @@ Skipanalínuskipanir
    spacr-run validate --module MODULE \
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
+   spacr-download --list                      # what example data exists
+   spacr-download measure annotate            # fetch example sets by name
 
 Stilltu ``SPACR_LOG_LEVEL=DEBUG`` við bilanagreiningu. Annálaskrár með skráaveltu eru skrifaðar í ``~/.spacr/logs/spacr.log``.
 
@@ -603,7 +605,7 @@ Leyfi
 
 spaCR er frelsað undir `BSD 3-Klausur leyfi <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
 
-Ef spaCR hjálpaði að útgáfa verk, er nefndur verðmæt og er ekki skilyrði fyrir leyfi — sjá `Citing spaCR`_ hér neðan.
+Ef spaCR hjálpaði að útgáfa verk, er nefndur verðmæt og er ekki skilyrði fyrir leyfi — sjá `Tilvísun í spaCR`_ hér neðan.
 
 Kennsluefni
 ~~~~~~~~~~~

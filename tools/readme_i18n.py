@@ -169,3 +169,52 @@ def _underline_width(value: str) -> int:
         else 1
         for character in value
     )
+
+
+_HEADING = re.compile(
+    r"(?m)^(?P<title>\S[^\n]*)\n(?P<rule>[=~^\-'\"`#*+])(?P=rule){2,}[ \t]*$"
+)
+_INTERNAL_REFERENCE = re.compile(r"`(?P<name>[^`<>\n]+?)`_")
+
+
+def localize_internal_references(source: str, localized: str) -> str:
+    """Point rST section references at the translated heading they name.
+
+    ```Citing spaCR`_`` is an *implicit* reference: docutils resolves it
+    against the section title spelt the same way. Translation rewrites the
+    title and leaves the reference alone -- inline markup is protected from
+    the model -- so all nine READMEs referred to a heading that no longer
+    existed and docutils raised ``Unknown target name: "citing spacr"``.
+    GitHub renders an unresolved reference as its own text, so the "see
+    below" in the licence paragraph quietly stopped being a link in every
+    language except English, and the page still looked finished.
+
+    Headings are matched by POSITION, not by text: the localized document
+    is the same document, so the *n*-th heading is the translation of the
+    *n*-th English one. Matching by text cannot work here -- the whole
+    point is that the text changed. If the two disagree on how many
+    headings they have the pass returns the input untouched, because a
+    mis-aligned rename would point the reference at the wrong section,
+    which is worse than leaving it broken where a gate can see it.
+    """
+    source_titles = [
+        match.group("title").strip() for match in _HEADING.finditer(source)
+    ]
+    localized_titles = [
+        match.group("title").strip() for match in _HEADING.finditer(localized)
+    ]
+    if len(source_titles) != len(localized_titles):
+        return localized
+    renames = {
+        english: translated
+        for english, translated in zip(source_titles, localized_titles)
+        if english != translated
+    }
+    if not renames:
+        return localized
+
+    def replace(match: re.Match[str]) -> str:
+        name = match.group("name").strip()
+        return f"`{renames.get(name, match.group('name'))}`_"
+
+    return _INTERNAL_REFERENCE.sub(replace, localized)

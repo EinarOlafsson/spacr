@@ -239,6 +239,8 @@ conda-forge से इंस्टॉलेशन
    spacr-run validate --module MODULE \
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
+   spacr-download --list                      # what example data exists
+   spacr-download measure annotate            # fetch example sets by name
 
 समस्या निवारण के समय ``SPACR_LOG_LEVEL=DEBUG`` सेट करें। रोटेटिंग लॉग ``~/.spacr/logs/spacr.log`` में लिखे जाते हैं।
 
@@ -603,7 +605,7 @@ spaCR प्रशिक्षित मॉडलों का एक कैट�
 
 spaCR is released under the `BSD 3 क्लास लाइसेंस <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
 
-यदि spaCR प्रकाशित कार्य में योगदान देता है, तो एक उद्धरण का मूल्यांकन किया जाता है और लाइसेंस की शर्त नहीं है - नीचे `Citing spaCR`_ देखें।
+यदि spaCR प्रकाशित कार्य में योगदान देता है, तो एक उद्धरण का मूल्यांकन किया जाता है और लाइसेंस की शर्त नहीं है - नीचे `spaCR का संदर्भ`_ देखें।
 
 ट्यूटोरियल
 ~~~~~~~~~

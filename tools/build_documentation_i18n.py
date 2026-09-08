@@ -64,6 +64,7 @@ from build_i18n_catalogs import (
 )
 from readme_i18n import (
     WORKFLOW_MODULE_ALT_TEMPLATES,
+    localize_internal_references,
     localize_workflow_markup,
 )
 
@@ -6522,6 +6523,12 @@ def main() -> int:
             )
             localized_readme = _localize_workflow_alt_text(
                 localized_readme, language,
+            )
+            # AFTER the band headings are localized, not before: the
+            # workflow pass renames four of them, and a reference has to
+            # be aimed at the heading as it finally reads.
+            localized_readme = localize_internal_references(
+                readme, localized_readme,
             )
             for source_text, target_text in (
                 REVIEWED_README_LANGUAGE_OVERRIDES.get(language, {}).items()

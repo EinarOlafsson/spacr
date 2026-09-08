@@ -267,6 +267,8 @@ Command-line entry points
    spacr-run validate --module MODULE \
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
+   spacr-download --list                      # what example data exists
+   spacr-download measure annotate            # fetch example sets by name
 
 Set ``SPACR_LOG_LEVEL=DEBUG`` when troubleshooting. Rotating logs are written
 to ``~/.spacr/logs/spacr.log``.
