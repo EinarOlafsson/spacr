@@ -229,6 +229,20 @@ class _FakeAppScreen:
     def _heavy_lock_is_free(self):
         return True
 
+    def window(self):
+        """Stand in for the top-level window, carrying no shared backdrop.
+
+        `_install_ambient` asks the WINDOW whether it already has one and
+        returns early if so, because two animations over each other run out
+        of step. Returning self keeps the fake in one object; the method
+        below is what that check reads.
+        """
+        return self
+
+    def window_backdrop(self):
+        """No window-level backdrop, so the per-screen path is reached."""
+        return None
+
     def _clear_page_surfaces(self):
         self.cleared += 1
 
@@ -664,6 +678,19 @@ class _FakeWindow:
 
     def _retry_screen_backdrop(self, screen, key):
         self.retries.append(key)
+
+    def window_backdrop(self):
+        """No window-level backdrop, so the per-screen path is reached.
+
+        `_install_screen_backdrop` returns EARLY when the window already
+        carries one -- "One backdrop behind everything, not one per
+        container", because two animations over each other run out of step
+        and the seam shows. That guard is correct and arrived after these
+        tests were written; without this method the fake never got past it,
+        so every arc below asserted the behaviour of a window that had
+        already been served.
+        """
+        return None
 
 
 class TestTheScreensThatBuildTheirOwn:
