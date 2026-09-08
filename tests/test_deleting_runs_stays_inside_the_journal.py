@@ -26,7 +26,24 @@ def journal(tmp_path, monkeypatch):
     (home / ".spacr" / "runs").mkdir(parents=True)
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.setattr("pathlib.Path.home", classmethod(lambda cls: home))
-    root = runs_root()
+    # AND THE RESOLVER ITSELF, which is the seam that actually decides.
+    #
+    # `conftest._isolated_dot_spacr_store` is autouse and redirects
+    # `run_journal.runs_root` to a session sandbox -- deliberately at the
+    # FUNCTION rather than through HOME, because moving HOME for the session
+    # moves conda's, matplotlib's and Qt's caches too. Patching `Path.home`
+    # therefore no longer reaches it: this fixture built its runs under
+    # tmp_path while `delete_runs` asked the sandbox where the root was, and
+    # refused every folder as "outside" it.
+    #
+    # That conftest docstring says a test wanting its own directory
+    # monkeypatches these itself and wins, LIFO. This is that, at the same
+    # seam rather than one layer under it.
+    import spacr.run_journal as _rj
+
+    monkeypatch.setattr(_rj, "runs_root",
+                        lambda: home / ".spacr" / "runs")
+    root = _rj.runs_root()
     made = []
     for name in ("run_a", "run_b", "run_c"):
         folder = root / name
