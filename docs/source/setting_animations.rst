@@ -214,7 +214,7 @@ Organelle — Minimum object area
    :alt: Organelle — Minimum object area setting animation
    :width: 300px
 
-**Settings:** ``organelle_min_area``, ``organelle_min_area``
+**Settings:** ``organelle_min_area``
 
 .. _setting-animation-organelle-max-area:
 
@@ -225,7 +225,7 @@ Organelle — Maximum object area
    :alt: Organelle — Maximum object area setting animation
    :width: 300px
 
-**Settings:** ``organelle_max_area``, ``organelle_max_area``
+**Settings:** ``organelle_max_area``
 
 .. _setting-animation-organelle-min-intensity-percentile:
 
@@ -420,7 +420,7 @@ Fill holes in masks
 Segmentation
 ------------
 
-.. _setting-animation-cell-CP-prob:
+.. _setting-animation-cell-cellprob-threshold:
 
 Cell probability threshold
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -431,7 +431,7 @@ Cell probability threshold
 
 **Settings:** ``cell_cellprob_threshold``
 
-.. _setting-animation-cell-FT:
+.. _setting-animation-cell-flow-threshold:
 
 Cell flow threshold
 ~~~~~~~~~~~~~~~~~~~
@@ -453,7 +453,7 @@ Cell diameter
 
 **Settings:** ``cell_diameter``
 
-.. _setting-animation-nucleus-CP-prob:
+.. _setting-animation-nucleus-cellprob-threshold:
 
 Nucleus probability threshold
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -464,7 +464,7 @@ Nucleus probability threshold
 
 **Settings:** ``nucleus_cellprob_threshold``
 
-.. _setting-animation-nucleus-FT:
+.. _setting-animation-nucleus-flow-threshold:
 
 Nucleus flow threshold
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -486,7 +486,7 @@ Nucleus diameter
 
 **Settings:** ``nucleus_diameter``
 
-.. _setting-animation-pathogen-CP-prob:
+.. _setting-animation-pathogen-cellprob-threshold:
 
 Pathogen probability threshold
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -497,7 +497,7 @@ Pathogen probability threshold
 
 **Settings:** ``pathogen_cellprob_threshold``
 
-.. _setting-animation-pathogen-FT:
+.. _setting-animation-pathogen-flow-threshold:
 
 Pathogen flow threshold
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -530,7 +530,7 @@ Organelle diameter
 
 **Settings:** ``organelle_diameter``
 
-.. _setting-animation-organelle-CP-prob:
+.. _setting-animation-organelle-cellprob-threshold:
 
 Organelle probability threshold
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -541,7 +541,7 @@ Organelle probability threshold
 
 **Settings:** ``organelle_cellprob_threshold``
 
-.. _setting-animation-organelle-FT:
+.. _setting-animation-organelle-flow-threshold:
 
 Organelle flow threshold
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -566,7 +566,7 @@ Cell background subtraction
 
 **Settings:** ``remove_background_cell``, ``cell_background``
 
-.. _setting-animation-cell-Signal-to-noise:
+.. _setting-animation-cell-signal-to-noise:
 
 Cell signal-to-noise
 ~~~~~~~~~~~~~~~~~~~~
@@ -588,7 +588,7 @@ Nucleus background subtraction
 
 **Settings:** ``remove_background_nucleus``, ``nucleus_background``
 
-.. _setting-animation-nucleus-Signal-to-noise:
+.. _setting-animation-nucleus-signal-to-noise:
 
 Nucleus signal-to-noise
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -610,7 +610,7 @@ Pathogen background subtraction
 
 **Settings:** ``remove_background_pathogen``, ``pathogen_background``
 
-.. _setting-animation-pathogen-Signal-to-noise:
+.. _setting-animation-pathogen-signal-to-noise:
 
 Pathogen signal-to-noise
 ~~~~~~~~~~~~~~~~~~~~~~~~

@@ -30,7 +30,14 @@ def test_registry_has_complete_unique_exact_key_mapping():
     # that were RETIRED that day (all_to_mip, pick_slice and the four
     # remove_border_* spellings); each animation still carries the
     # live key it illustrates, so no animation lost its mapping.
-    assert len(by_setting) == 137
+    #
+    # 137 until 2026-09-08, for the same reason twice more:
+    # `organelle_min_size` and `organelle_max_size` are the only two
+    # `*_size` filter names in `validate.RETIRED_SETTINGS` -- cell,
+    # nucleus and pathogen still declare theirs -- and the two organelle
+    # animations were mapping help to keys no run can carry. Both still
+    # carry `organelle_min_area` / `organelle_max_area`.
+    assert len(by_setting) == 135
     assert len({animation.slug for animation in animations}) == 94
     assert animation_for_setting("merge_edge_pathogen_cells").slug == (
         "merge_edge_pathogen_cells"
@@ -43,7 +50,7 @@ def test_registry_has_complete_unique_exact_key_mapping():
 def test_every_asset_is_square_animated_and_matches_manifest_hash():
     summary = validate_setting_animation_assets(check_hashes=True)
     assert summary["animations"] == 94
-    assert summary["setting_keys"] == 137
+    assert summary["setting_keys"] == 135
     assert summary["bytes"] > 0
 
     for animation in setting_animations():
@@ -63,7 +70,10 @@ def test_mapped_keys_are_real_settings_or_explicit_align_controls():
     from spacr.settings import descriptions, expected_types, tooltips
 
     known = set(expected_types) | set(descriptions) | set(tooltips)
-    custom_align_controls = {"overlap", "blend"}
+    # `blend` was here until it was declared in `spacr.settings` with a
+    # type and a tooltip; see CUSTOM_ALIGN_CONTROLS in
+    # tests/test_setting_animations_page_is_generated.py.
+    custom_align_controls = {"overlap"}
     assert set(animations_by_setting()) - known == custom_align_controls
 
 

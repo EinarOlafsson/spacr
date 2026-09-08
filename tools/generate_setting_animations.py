@@ -1907,8 +1907,22 @@ def _specs() -> List[Spec]:
             "border": (
                 "organelle_remove_border_objects", "organelle_remove_border",
             ),
-            "minimum": ("organelle_min_area", "organelle_min_area"),
-            "maximum": ("organelle_max_area", "organelle_max_area"),
+            # ORGANELLE HAS NO LIVE `_size` ALIAS, and this is the one kind
+            # that does not. cell, nucleus and pathogen still declare
+            # `*_min_size` as a real setting, so their pair is a pair.
+            # `organelle_min_size` and `organelle_max_size` are the only two
+            # names in `validate.RETIRED_SETTINGS` here, retired because
+            # organelle carried a `_size` pair and an `_area` pair meaning the
+            # same thing that were read by DIFFERENT code -- the batch mask
+            # writer took `_size`, the shared filter behind the live preview
+            # took `_area` -- so tuning the preview and pressing run applied a
+            # different filter with nothing saying so. Naming the retired key
+            # here would map help to a key no run can carry. This used to say
+            # the canonical name TWICE, which is not "no alias" but a
+            # duplicate: it put `organelle_min_area` in the entry's settings
+            # list two times over.
+            "minimum": ("organelle_min_area",),
+            "maximum": ("organelle_max_area",),
             "dim": ("organelle_min_intensity_percentile",),
             "bright": ("organelle_max_intensity_percentile",),
         },

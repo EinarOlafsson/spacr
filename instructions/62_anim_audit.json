@@ -15,7 +15,8 @@
     "The pixel metric is a floor, never a verdict. It is blind in both directions: cytoplasm scores 13.5%, 13th highest of 94, and shows nothing of its setting, while crop_mode scores 1.8% and is one of the clearest in the set.",
     "The four border animations are measured, not judged by eye, with spacr.setting_animations.measure_border_object_removal: it reads the well edge off the DRAWN rule rather than the generator's own touches flag, and compares two frames at the same zoom rather than frame 0, which is zoomed out. All four report crossing=2 interior=0.",
     "Two sessions audited this concurrently on 2026-08-18. This record is the union of both: an animation is WEAK if either pass found it weak.",
-    "2026-08-20: the eight WEAK animations were fixed rather than left recorded. Five were faint-at-tooltip-size and were redrawn heavier; three (use_bounding_box, organelle_diameter, organelle_skeletonize) were showing the wrong thing and were rebuilt around what the code actually does. Every one was re-watched as a contact sheet after regeneration, and the visible_change figures here are re-measured off the shipped GIF."
+    "2026-08-20: the eight WEAK animations were fixed rather than left recorded. Five were faint-at-tooltip-size and were redrawn heavier; three (use_bounding_box, organelle_diameter, organelle_skeletonize) were showing the wrong thing and were rebuilt around what the code actually does. Every one was re-watched as a contact sheet after regeneration, and the visible_change figures here are re-measured off the shipped GIF.",
+    "2026-09-08: eleven slugs were renamed in 0d384115b -- the four *_CP_prob to *_cellprob_threshold, the four *_FT to *_flow_threshold and the three *_Signal_to_noise to *_signal_to_noise. git records all eleven as R100, byte-identical, so the artefact each verdict was watched against on 2026-08-20 is the same file under a new name and the judgement carries with its evidence. Nothing here was re-judged; an animation whose PIXELS changed would have to be re-watched. The same commit b7ae412af renamed <object>_min_object_area to <object>_min_split_area across the four intensity-split animations and retired organelle_min_size / organelle_max_size, which the two organelle area entries had listed beside their live key; those settings lists are migrated here by the same reasoning."
   ],
   "animations": [
     {
@@ -129,40 +130,40 @@
       "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
     },
     {
-      "slug": "cell_FT",
+      "slug": "cell_flow_threshold",
       "scene": "flow",
       "settings": [
-        "cell_FT"
+        "cell_flow_threshold"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0316,
       "note": "FIXED 2026-08-20. The subject was already right -- a poorly-fitting doubled mask beside a clean one is discarded -- and the DIRECTION was backwards by implication, which is worse than a faint animation. flow_threshold is counter-intuitive (LOWERING it discards more masks) while every animation in this set runs off -> on, so the frame where the ragged mask vanishes was also the frame a viewer reads as 'the setting went up'. Nothing in the drawing said which way the value moved, so the viewer supplied the only reading available and it was the wrong one. A track below the masks now EMPTIES as the discard happens -- measured: the fill reaches x=274 at action 0 and x=169 at action 1 -- so the value and the consequence move in the same direction instead of opposite ones."
     },
     {
-      "slug": "nucleus_FT",
+      "slug": "nucleus_flow_threshold",
       "scene": "flow",
       "settings": [
-        "nucleus_FT"
+        "nucleus_flow_threshold"
       ],
       "verdict": "GOOD",
       "visible_change": 0.037,
       "note": "FIXED 2026-08-20. The subject was already right -- a poorly-fitting doubled mask beside a clean one is discarded -- and the DIRECTION was backwards by implication, which is worse than a faint animation. flow_threshold is counter-intuitive (LOWERING it discards more masks) while every animation in this set runs off -> on, so the frame where the ragged mask vanishes was also the frame a viewer reads as 'the setting went up'. Nothing in the drawing said which way the value moved, so the viewer supplied the only reading available and it was the wrong one. A track below the masks now EMPTIES as the discard happens -- measured: the fill reaches x=274 at action 0 and x=169 at action 1 -- so the value and the consequence move in the same direction instead of opposite ones."
     },
     {
-      "slug": "organelle_FT",
+      "slug": "organelle_flow_threshold",
       "scene": "flow",
       "settings": [
-        "organelle_FT"
+        "organelle_flow_threshold"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0342,
       "note": "FIXED 2026-08-20. The subject was already right -- a poorly-fitting doubled mask beside a clean one is discarded -- and the DIRECTION was backwards by implication, which is worse than a faint animation. flow_threshold is counter-intuitive (LOWERING it discards more masks) while every animation in this set runs off -> on, so the frame where the ragged mask vanishes was also the frame a viewer reads as 'the setting went up'. Nothing in the drawing said which way the value moved, so the viewer supplied the only reading available and it was the wrong one. A track below the masks now EMPTIES as the discard happens -- measured: the fill reaches x=274 at action 0 and x=169 at action 1 -- so the value and the consequence move in the same direction instead of opposite ones."
     },
     {
-      "slug": "pathogen_FT",
+      "slug": "pathogen_flow_threshold",
       "scene": "flow",
       "settings": [
-        "pathogen_FT"
+        "pathogen_flow_threshold"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0611,
@@ -189,30 +190,30 @@
       "note": "FIXED 2026-08-20. Three changes, each about the same thing -- a split is only a split if you can see the gap. (1) THE HALVES MOVE APART instead of appearing where they will end up: they start at the original's centre and separate as the action runs, which is what a watershed DOES. (2) THEY END 100 px APART rather than 60, so two 32-wide glyphs have clear ground between them. (3) THE CROSSFADE RAMPS OVERLAP -- out over 0..0.6, in over 0.4..1.0 -- because a clean hand-off at 0.5 left a frame with NOTHING on it (measured: left 0, centre 0, right 0), and a blank frame reads as a broken animation rather than an unclear one. Plus the watershed LINE is drawn: a watershed is a boundary, and drawing it is the difference between 'two things now' and 'here is where one became two'. Measured on the regenerated GIF: 18 frames, none near-blank, and 4 separate ink groups in the final frame where the mush was one."
     },
     {
-      "slug": "cell_Signal_to_noise",
+      "slug": "cell_signal_to_noise",
       "scene": "signal",
       "settings": [
-        "cell_Signal_to_noise"
+        "cell_signal_to_noise"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0496,
       "note": "FIXED 2026-08-20. The subject was right -- a brightness ramp across five objects responding to the setting -- and the animation BRIGHTENED while raising Signal_to_noise raises the normalisation ceiling and makes things DIMMER. Same class as the flow thresholds and filed the same milder way: a picture that moves the wrong way is not undirected, it is directed wrongly, and a viewer will read it. The ramp dims now, and THE DIMMEST LOSES MOST -- each object's fall is scaled by its own base, so the faintest fades toward nothing while the brightest merely dulls, which is what raising the ceiling does to a field. The same track the flow thresholds use sits below, FILLING rather than emptying, because here the value goes up as the picture goes down. Measured on the regenerated GIF: 18 frames, brightest at index 0 (3002 bright pixels) and dimmest at index 11 (2563) -- and that is with the gauge ADDING ink as it fills."
     },
     {
-      "slug": "nucleus_Signal_to_noise",
+      "slug": "nucleus_signal_to_noise",
       "scene": "signal",
       "settings": [
-        "nucleus_Signal_to_noise"
+        "nucleus_signal_to_noise"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0563,
       "note": "FIXED 2026-08-20. The subject was right -- a brightness ramp across five objects responding to the setting -- and the animation BRIGHTENED while raising Signal_to_noise raises the normalisation ceiling and makes things DIMMER. Same class as the flow thresholds and filed the same milder way: a picture that moves the wrong way is not undirected, it is directed wrongly, and a viewer will read it. The ramp dims now, and THE DIMMEST LOSES MOST -- each object's fall is scaled by its own base, so the faintest fades toward nothing while the brightest merely dulls, which is what raising the ceiling does to a field. The same track the flow thresholds use sits below, FILLING rather than emptying, because here the value goes up as the picture goes down. Measured on the regenerated GIF: 18 frames, brightest at index 0 (3002 bright pixels) and dimmest at index 11 (2563) -- and that is with the gauge ADDING ink as it fills."
     },
     {
-      "slug": "pathogen_Signal_to_noise",
+      "slug": "pathogen_signal_to_noise",
       "scene": "signal",
       "settings": [
-        "pathogen_Signal_to_noise"
+        "pathogen_signal_to_noise"
       ],
       "verdict": "GOOD",
       "visible_change": 0.1121,
@@ -225,7 +226,7 @@
         "cell_intensity_split",
         "cell_area_multiplier",
         "cell_min_distance",
-        "cell_min_object_area"
+        "cell_min_split_area"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0504,
@@ -238,7 +239,7 @@
         "nucleus_intensity_split",
         "nucleus_area_multiplier",
         "nucleus_min_distance",
-        "nucleus_min_object_area"
+        "nucleus_min_split_area"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0376,
@@ -251,7 +252,7 @@
         "organelle_intensity_split",
         "organelle_area_multiplier",
         "organelle_min_distance",
-        "organelle_min_object_area"
+        "organelle_min_split_area"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0788,
@@ -264,7 +265,7 @@
         "pathogen_intensity_split",
         "pathogen_area_multiplier",
         "pathogen_min_distance",
-        "pathogen_min_object_area"
+        "pathogen_min_split_area"
       ],
       "verdict": "GOOD",
       "visible_change": 0.1097,
@@ -551,8 +552,7 @@
       "slug": "organelle_max_area",
       "scene": "filter",
       "settings": [
-        "organelle_max_area",
-        "organelle_max_size"
+        "organelle_max_area"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0585,
@@ -562,8 +562,7 @@
       "slug": "organelle_min_area",
       "scene": "filter",
       "settings": [
-        "organelle_min_area",
-        "organelle_min_size"
+        "organelle_min_area"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0353,
@@ -754,40 +753,40 @@
       "note": "The cell, nucleus and pathogen outlines all thicken together while nothing else moves, so the only variable on screen is the one the setting names."
     },
     {
-      "slug": "cell_CP_prob",
+      "slug": "cell_cellprob_threshold",
       "scene": "probability",
       "settings": [
-        "cell_CP_prob"
+        "cell_cellprob_threshold"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0331,
       "note": "Dim objects fall below the probability threshold and go; the confident ones stay."
     },
     {
-      "slug": "nucleus_CP_prob",
+      "slug": "nucleus_cellprob_threshold",
       "scene": "probability",
       "settings": [
-        "nucleus_CP_prob"
+        "nucleus_cellprob_threshold"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0361,
       "note": "Dim objects fall below the probability threshold and go; the confident ones stay."
     },
     {
-      "slug": "organelle_CP_prob",
+      "slug": "organelle_cellprob_threshold",
       "scene": "probability",
       "settings": [
-        "organelle_CP_prob"
+        "organelle_cellprob_threshold"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0524,
       "note": "Dim objects fall below the probability threshold and go; the confident ones stay."
     },
     {
-      "slug": "pathogen_CP_prob",
+      "slug": "pathogen_cellprob_threshold",
       "scene": "probability",
       "settings": [
-        "pathogen_CP_prob"
+        "pathogen_cellprob_threshold"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0842,

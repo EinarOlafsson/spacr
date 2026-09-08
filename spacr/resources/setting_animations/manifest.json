@@ -333,8 +333,7 @@
       },
       "scene": "filter",
       "settings": [
-        "organelle_min_area",
-        "organelle_min_size"
+        "organelle_min_area"
       ],
       "slug": "organelle_min_area",
       "title": "Organelle \u2014 Minimum object area",
@@ -354,8 +353,7 @@
       },
       "scene": "filter",
       "settings": [
-        "organelle_max_area",
-        "organelle_max_size"
+        "organelle_max_area"
       ],
       "slug": "organelle_max_area",
       "title": "Organelle \u2014 Maximum object area",

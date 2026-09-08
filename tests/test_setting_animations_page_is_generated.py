@@ -48,11 +48,18 @@ PAGE = ROOT / "docs" / "source" / "setting_animations.rst"
 MANIFEST = ROOT / "spacr" / "resources" / "setting_animations" / "manifest.json"
 GIFS = ROOT / "spacr" / "resources" / "setting_animations" / "gifs"
 
-# The two keys in the gallery that are deliberately not spaCR settings: the
-# alignment controls of the image-registration screen, which own their own
-# widgets. tests/test_setting_animations.py pins the same pair for the
-# runtime registry.
-CUSTOM_ALIGN_CONTROLS = {"overlap", "blend"}
+# The key in the gallery that is deliberately not a spaCR setting: an
+# alignment control of the image-registration screen, which owns its own
+# widget. tests/test_setting_animations.py pins the same set for the runtime
+# registry.
+#
+# It was a PAIR until `blend` graduated. The motility-assay work declared
+# `blend` in `spacr.settings` with a type and a tooltip -- "how overlapping
+# tiles are combined where they meet" -- which is the same tile-seam control
+# the animation documents, now a real setting a run can carry. A key that has
+# become live must leave this set, or the exception goes on excusing a key
+# that no longer needs excusing and stops describing anything.
+CUSTOM_ALIGN_CONTROLS = {"overlap"}
 
 FIX_IT = (
     "The page is generated. Edit tools/generate_setting_animations.py, then "
@@ -121,7 +128,10 @@ def test_no_animation_documents_a_setting_the_shipped_manifest_does_not_carry():
         "a full regeneration would rewrite these manifest entries: "
         f"{disagreeing}"
     )
-    assert sum(len(keys) for keys in specs.values()) == 137
+    # 135 since 2026-09-08: the two retired organelle `*_size` spellings
+    # left the specs. tests/test_setting_animations.py carries the same
+    # count twice more and says why.
+    assert sum(len(keys) for keys in specs.values()) == 135
 
 
 def test_the_gallery_names_only_settings_spacr_actually_has():
