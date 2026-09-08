@@ -8,7 +8,7 @@ the whole app is usable without a mouse:
     Ctrl+1..9     Switch to the Nth app in the sidebar
     Ctrl+K        Open the command palette
     F1  / ?       Show the shortcuts cheat sheet
-    Ctrl+,        Open Preferences
+    Ctrl+P        Open Preferences
     Ctrl+/        Open the AI Console
     Ctrl+End      Jump to the newest console line
     F11           Toggle full screen
@@ -22,10 +22,10 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from PySide6.QtCore import QEvent, Qt
-from PySide6.QtGui import QColor, QKeySequence, QPainter, QShortcut
+from PySide6.QtGui import QAction, QColor, QKeySequence, QPainter, QShortcut
 from PySide6.QtWidgets import (
     QDialog,
     QGridLayout,
@@ -75,7 +75,7 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+8",       "Switch to 8th app",      "Navigation"),
     ShortcutSpec("Ctrl+9",       "Switch to 9th app",      "Navigation"),
     ShortcutSpec("Ctrl+K",       "Open command palette",   "Navigation"),
-    ShortcutSpec("Ctrl+,",       "Open preferences",       "Navigation"),
+    ShortcutSpec("Ctrl+P",       "Open preferences",       "Navigation"),
     ShortcutSpec("Ctrl+Shift+A", "Show the full app list", "Navigation"),
     ShortcutSpec("F11",          "Toggle full screen",     "Navigation"),
     ShortcutSpec("Ctrl+/",       "Toggle AI Console",      "Actions"),
@@ -162,6 +162,15 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
 #: ``install()``'s count.
 BOUND_ELSEWHERE = frozenset({
     "Ctrl+Shift+A", "Ctrl+B", "Ctrl+T", "Ctrl+R", "Ctrl+Shift+F", "F11",
+    # Ctrl+H and Ctrl+P joined on 2026-09-08. The spaCR menu builds Home
+    # and Preferences as QActions carrying these sequences so the menu can
+    # print the accelerator beside the item -- which BINDS them -- and
+    # `install` bound a QShortcut for each on the same window as well. Qt
+    # answers a key with two holders by firing neither and logging
+    # "QAction::event: Ambiguous shortcut overload", so both keys were
+    # dead. They stay in SHORTCUTS because the cheat sheet must still
+    # teach them; they leave `installed()` because the action owns them.
+    "Ctrl+H", "Ctrl+P",
 })
 
 
@@ -235,9 +244,10 @@ def install(window: QMainWindow) -> None:
 
     Idempotent — safe to call from within reload paths.
     """
-    _bind(window, "Ctrl+H", lambda: _nav(window, "__home__"))
+    # Ctrl+H and Ctrl+P are NOT bound here: the spaCR menu's Home and
+    # Preferences actions already carry them, and a second holder makes
+    # the key ambiguous. See BOUND_ELSEWHERE.
     _bind(window, "Ctrl+K", lambda: _open_palette(window))
-    _bind(window, "Ctrl+,", lambda: _open_preferences(window))
     _bind(window, "Ctrl+/", lambda: _toggle_ai(window))
     # THE WINDOW OWNS Ctrl+End, and the consoles stand down. Binding it here
     # as well as on every console panel would make it AMBIGUOUS, which in Qt
@@ -251,7 +261,14 @@ def install(window: QMainWindow) -> None:
     # ambiguously instead of cleanly. Answering it anyway means the jump
     # still happens, and the handler stands that console down on its way
     # past, so the next press is clean.
-    end.activatedAmbiguously.connect(lambda: _jump_to_the_newest_line(window))
+    #
+    # `_bind` returns None when a menu QAction already holds the key, which
+    # no menu currently does for Ctrl+End -- but the guard is here rather
+    # than in a comment, because the failure it would cause is this line
+    # raising during window construction.
+    if end is not None:
+        end.activatedAmbiguously.connect(
+            lambda: _jump_to_the_newest_line(window))
     _watch_the_stack_for_consoles(window)
     _bind(window, "Ctrl+F", lambda: _focus_settings_search(window))
     _bind(window, "Ctrl+Shift+R", lambda: _open_recipes(window))
@@ -325,7 +342,8 @@ def _install_window_hooks(window: QMainWindow) -> None:
         LOG.debug("Could not pin the menu roles", exc_info=True)
 
 
-def _bind(window: QMainWindow, keys: str, cb: Callable[[], None]) -> QShortcut:
+def _bind(window: QMainWindow, keys: str,
+          cb: Callable[[], None]) -> Optional[QShortcut]:
     """Wire ``keys`` on ``window`` and hand the binding back to the caller.
 
     ONCE PER KEY, which is what makes :func:`install` idempotent in the only
@@ -345,6 +363,28 @@ def _bind(window: QMainWindow, keys: str, cb: Callable[[], None]) -> QShortcut:
             QShortcut, options=Qt.FindDirectChildrenOnly):
         if existing.key() == sequence:
             return existing
+    # A QAction HOLDS A SHORTCUT TOO, and the loop above cannot see one.
+    # The menu bar builds "Home" and "Preferences..." as QActions carrying
+    # Ctrl+H and Ctrl+P so the menu can print the accelerator beside the
+    # item; binding a QShortcut for the same sequence here gave each key a
+    # second holder, and Qt answers a key with two holders by firing
+    # NEITHER -- it logs "QAction::event: Ambiguous shortcut overload" and
+    # the key does nothing. Reported 2026-09-08 for both keys, which is
+    # exactly the pair the menu also declares.
+    #
+    # The action wins: it is the one the user can see, and a menu item
+    # printing an accelerator that does not work is worse than no
+    # accelerator. Nothing is returned because there is no QShortcut to
+    # hand back -- callers that connect `ambiguousActivation` are guarding
+    # against this very case and have nothing left to guard.
+    # `findChildren`, not `window.actions()`: a menu item is a child of its
+    # QMenu, so the window's own action list does not contain it. The menu
+    # bar is built before `install` runs, which is what makes this reachable
+    # -- BOUND_ELSEWHERE is the declarative half that does not depend on
+    # that order.
+    for action in window.findChildren(QAction):
+        if not action.shortcut().isEmpty() and action.shortcut() == sequence:
+            return None
     sc = QShortcut(sequence, window)
     # One spaCR window owns one set of bindings.  ApplicationShortcut makes
     # every still-live window's copy eligible, including a window waiting on

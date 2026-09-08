@@ -108,12 +108,17 @@ class TestPreferencesMenuEntry:
         labels = _menu_labels(mw, "spaCR")
         assert any("Preferences" in lbl for lbl in labels)
 
-    def test_preferences_action_has_ctrl_comma_shortcut(self, mw):
+    def test_preferences_action_has_ctrl_p_shortcut(self, mw):
+        """Ctrl+P, asked for on 2026-09-08 in place of Ctrl+comma.
+
+        The old key needed the "sometimes normalises to Ctrl+" allowance
+        below, because a trailing comma is not a character Qt round-trips
+        through a key sequence cleanly. Ctrl+P has no such problem.
+        """
         actions = _menu_actions(mw, "spaCR")
         for text, shortcut in actions:
             if "Preferences" in text:
-                # Ctrl+, sometimes normalises to "Ctrl+" on Qt
-                assert shortcut in ("Ctrl+,", "Ctrl+")
+                assert shortcut == "Ctrl+P"
                 return
         pytest.fail("no Preferences action found")
 

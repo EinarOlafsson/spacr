@@ -6709,7 +6709,7 @@ class AppScreen(QWidget):
         self._btn_preferences.setIconSize(
             QSize(scaled_px(18), scaled_px(18)))
         self._btn_preferences.setCursor(Qt.PointingHandCursor)
-        self._btn_preferences.setToolTip("Open Preferences (Ctrl+,).")
+        self._btn_preferences.setToolTip("Open Preferences (Ctrl+P).")
         self._btn_preferences.setAccessibleName("Preferences")
         self._btn_preferences.clicked.connect(self._open_preferences_dialog)
 

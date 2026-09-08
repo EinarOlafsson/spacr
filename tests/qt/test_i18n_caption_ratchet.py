@@ -44,9 +44,17 @@ ROOT = Path(__file__).resolve().parents[2]
 # identical in all nine locales, which IS its translation -- optical pooled
 # screening is named by its acronym in the literature these locales publish
 # in, and there is no local expansion the way French has ACP for PCA.
+# Still 207 on 2026-09-08, +0/-0: no caption was added or removed, one was
+# REWORDED. Preferences moved from Ctrl+comma to Ctrl+P after both it and
+# Ctrl+H were reported firing nothing -- the menu action and
+# `shortcuts.install` each held the key, and Qt answers two holders by
+# firing neither -- so the shortcuts help line now names Ctrl+P. The
+# substitution is the key's NAME, made identically in all nine locales,
+# because a key name is not prose: "Ctrl+P" is what the user's keyboard
+# says in every language.
 COMPACT_CAPTION_COUNT = 207
 COMPACT_CAPTION_SHA256 = (
-    "28207aaa4117aba9ab2ab27f69d61b9a39582e2675b2b09c79f67f65d9c6987d"
+    "d569d24e05c3cd0dbd124aed2d78f5e724e96371e0eba97fe1cb53f593b037bf"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -104,8 +112,12 @@ EXTERNAL_SOURCE_COUNTS = {
 # Moved with the counts above. The identity that changed is one UI row: the
 # invented-negatives notice replaced "{n} outstanding suggestions thrown away
 # before fitting.", which is no longer anywhere in the source.
+#
+# Moved again on 2026-09-08 with no count change: the shortcuts help row is
+# keyed by its English source, and that source now says Ctrl+P where it said
+# Ctrl+comma. Same row, new identity.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "ec1d38c5071d41410a4a61c30278fbfe7f38c142b563c65333b4f0b89df6d280"
+    "1aaf6b41e96a7c6a4691aea14778a7767509877134aa8be25f3d84ce61a86803"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

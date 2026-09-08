@@ -12,7 +12,7 @@ Wire-up:
   whenever a setting changes; reapplies the stylesheet with the
   current theme + font scale.
 * :class:`PreferencesDialog` — the modal Settings dialog opened by
-  Ctrl+, (see :mod:`spacr.qt.shortcuts`).
+  Ctrl+P (see :mod:`spacr.qt.shortcuts`).
 
 Public API::
 
