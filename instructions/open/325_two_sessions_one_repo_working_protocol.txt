@@ -2460,3 +2460,54 @@ name says.
   shared signal handler, so log records fanned out across screens all see
   them"), and picking one owner for Qt warnings is a decision rather than a
   repair.
+
+--------------------------------------------------------------------------------
+2026-09-08, HOME SESSION — THE CLEAN SWEEP NUMBER, AND A SECOND PAIR HANDED OVER
+--------------------------------------------------------------------------------
+
+Re-swept tests/qt after the night's fixes:
+
+    before   19,756 passed   86 failed   420 errors
+    after    17,947 passed   71 failed     0 ERRORS   55 skipped
+
+  READ THE TOTALS WITH THIS CAVEAT: two chunks hit the 1500 s timeout and one
+  DUMPED CORE, so about 1,800 tests went uncounted in the second run. The
+  pass count fell for that reason, not because anything regressed.
+
+  THE CORE DUMP WAS A REAL PRODUCT BUG and is fixed (52f3642b6): a SEGFAULT in
+  `settings_model._sibling_label_for`, reached from `retarget_field_tooltips`
+  <- `app_screen._translate` <- `_on_arrival`. It walks layout items and a
+  layout can hand back an item whose widget is deleted on the C++ side;
+  reading through that wrapper does not raise, it takes the process. On SCREEN
+  ARRIVAL, so it costs the application rather than a tooltip. Guarded with the
+  `shiboken6.isValid` check `live_zoom._alive` already makes.
+
+THE SECOND ORDER-DEPENDENT PAIR, handed over rather than fixed:
+
+    pytest tests/qt/test_scrim_solver.py \
+           tests/qt/test_settings_column_never_black.py
+
+  -> 24 failed. Each file passes alone. Bisected to exactly those two.
+
+  The victim's message is "0.0% of the settings column is unpainted and 47.1%
+  is the window colour", i.e. the page is painting `bg` instead of the page
+  colour -- the black-box family again.
+
+  WHAT MAKES IT INTERESTING: `test_scrim_solver.py` only uses `monkeypatch`
+  (on `get_ambient_enabled`, `resolve_effective_theme`,
+  `theme_background_path`), and pytest reverts those. So the leak is NOT the
+  patch -- it is STATE COMPUTED WHILE THE PATCH WAS ACTIVE AND KEPT
+  AFTERWARDS. A QApplication-level stylesheet applied under the fake theme is
+  the obvious candidate and I did not confirm it; `theme.py`'s two
+  `lru_cache`s are NOT it -- both are pure functions of their arguments.
+
+  WHY I STOPPED HERE rather than pushing on: this is the sixth global-state
+  leak this week and the subtlest, and I had already made two errors tonight
+  from confident reading of code I had not measured. Handing over a
+  reproduction I trust beats a fix I do not.
+
+  IT ALSO EXTENDS THE RULE WE HAVE BOTH BEEN WRITING DOWN. "A test that
+  changes process-global state owns putting it back" is not enough when the
+  mutation is reverted correctly and something DERIVED from it is cached. The
+  question to ask is not "did I restore it" but "did anything read it while it
+  was wrong, and keep the answer".
