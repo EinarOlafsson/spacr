@@ -10573,6 +10573,29 @@ def _owning_layout(root: QLayout, field: QWidget):
     return None, -1
 
 
+
+def _widget_is_alive(widget) -> bool:
+    """Whether ``widget``'s C++ half still exists.
+
+    The same check `spacr.qt.live_zoom._alive` makes, and for the same
+    reason one layer down: a Python wrapper outlives the object it wraps,
+    and reading through it is undefined rather than an exception.
+
+    :param widget: any Qt object, or None.
+    :returns: True when it is safe to touch.
+    """
+    if widget is None:
+        return False
+    try:
+        from shiboken6 import isValid
+        return bool(isValid(widget))
+    except Exception:                                        # noqa: BLE001
+        try:
+            widget.objectName()
+            return True
+        except RuntimeError:
+            return False
+
 def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
     """The QLabel a LAYOUT says names this field.
 
@@ -10628,15 +10651,37 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
         it. Measured on Mask: 1,541 of 1,657 rows kept their help on the FIELD
         for this reason alone, and only 13 labels had it.
         """
+        # ALIVE FIRST. This walks layout items, and a layout can hand back an
+        # item whose widget has been deleted on the C++ side -- a row that
+        # rebuilt itself, a screen torn down while a queued `_on_arrival` was
+        # still pending. Touching that wrapper is a dangling pointer, and it
+        # does not raise: a full tests/qt sweep on 2026-09-08 SEGFAULTED here,
+        # taking the whole process with it, in
+        # `retarget_field_tooltips` <- `app_screen._translate` <-
+        # `_on_arrival`. A crash on screen arrival is the worst failure mode
+        # this form has, because it takes the application rather than the
+        # tooltip.
+        if widget is None or not _widget_is_alive(widget):
+            return None
         widget = _unwrap_setting_label(widget)
-        if not (isinstance(widget, QLabel) and widget.text().strip()):
+        if widget is None or not _widget_is_alive(widget):
+            return None
+        try:
+            if not (isinstance(widget, QLabel) and widget.text().strip()):
+                return None
+        except RuntimeError:
+            # Deleted between the check above and this line, which is a real
+            # ordering on a queued slot.
             return None
         # A label with a pointing hand is this repository's convention for
         # "this text is clickable" -- AiToggleLabel, _ClearFiguresLabel, the
         # console's copy glyph. Such a label is a CONTROL sharing the row,
         # not the name of the editor beside it, and its own tooltip explains
         # itself rather than its neighbour.
-        if widget.cursor().shape() == Qt.PointingHandCursor:
+        try:
+            if widget.cursor().shape() == Qt.PointingHandCursor:
+                return None
+        except RuntimeError:
             return None
         return widget
 
