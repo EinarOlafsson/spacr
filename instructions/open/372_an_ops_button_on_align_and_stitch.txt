@@ -1311,3 +1311,62 @@ the matcher and the adjacency are both wrong for this data.
   above have been reachable for some time and were never surfaced -- the
   stitcher does not fail, it silently places 26 tiles and reports success.
   A run that drops 92 % of its input should say so.
+
+
+--------------------------------------------------------------------------------
+PART 6-A -- THE PHASE-CORRELATION PROTOTYPE, AND THREE THINGS IT SETTLED
+--------------------------------------------------------------------------------
+
+Written as a scratch prototype, NOT integrated -- the point was to find out
+whether the geometry comes out when the matcher is right, before changing
+anything in `spacrops.py`. Same well, A1 c1, 333 tiles.
+
+    peak RSS      750 MB      (the ORB path: 2.5 GB)
+    elapsed       406 s       (the ORB path: 409 s)
+    tiles placed  181 of 333  (the ORB path: 26 of 333)
+
+The footprint is an LRU of 64 DAPI planes, so it is the cache and not the
+well: 8.4 MB a plane as float32, and nothing else of any size is held.
+
+1. THE ROW WIDTH IS DETECTABLE, NOT A CONSTANT TO GUESS. Registering the seed
+   tile against a range of successors finds the across-neighbour at +11 with a
+   peak of 38.3 against a background near 10. So the adjacency can be measured
+   from the data in one pass instead of being configured.
+
+2. THE SHIFTS COME BACK WRAPPED, AND LEFT WRAPPED THEY REBUILD THE WELL AT A
+   SIXTH OF ITS SIZE. Phase correlation returns the displacement MODULO the
+   tile, so a pair one pitch apart reads as the residual: -213 for tiles that
+   are really 1480-213 = 1267 px apart. The first run placed 333 of 333 and
+   produced a canvas of 5,323 x 2,543 px, which looked like success and was
+   not. Unwrapped, the accepted shifts collapse onto exactly three clusters --
+   (+1267, 0), (-1267, 0), (0, +1267) -- and the canvas becomes 26,838 x
+   15,531, which is the right order for ~21 rows of ~12.
+
+3. A (0,0) MATCH IS THE NO-OVERLAP SIGNATURE AND MUST BE REJECTED. 141 of the
+   504 accepted edges sat at zero displacement: two tiles sharing nothing
+   correlate best at no shift at all, and they pass a peak-ratio threshold
+   while doing it. Kept, they stack tiles on each other -- which is what
+   produced the too-small canvas above, and what made "333 of 333 placed" a
+   worse result than 181.
+
+  THE LESSON WORTH CARRYING: this prototype reported 333 of 333 tiles placed
+  while being completely wrong, and reported 181 of 333 while being right
+  about every tile it placed. A placement count is not a measure of a stitch.
+  The canvas dimensions and the shift histogram are; both should be printed by
+  whatever ships.
+
+WHAT IS STILL WRONG, AND IT IS THE NEXT THING TO BUILD. 152 tiles are in
+components disconnected from the seed, and the across-edges are
+under-detected -- 301 vertical against 62 horizontal. The cause is the one
+PART 6 already named: the well is ROUND, so a serpentine raster over it has
+rows of different lengths and the across-neighbour is not at a fixed index
+offset. Widening the offset window (width-3 .. width+3) is what took placement
+from 27 to 181; it cannot get to 333 because no fixed window is right for
+every row.
+
+  THE FIX IS TO STOP SEARCHING BY INDEX. Once a tile is placed its neighbours'
+  POSITIONS are known to within a pitch, so the candidate for each empty
+  neighbour slot is the unplaced tile whose registration against the placed
+  one peaks -- a position-driven search rather than an index-driven one. That
+  also removes `max_site_gap` entirely, which PART 6 showed is unsound for
+  this acquisition anyway.
