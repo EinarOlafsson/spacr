@@ -1043,11 +1043,15 @@
         "7c6f9fca9f9583e2ff939b304cd38acbb0130fb7ed9eb579ba317e5986503925",
         "1b486d3a4c910476ccd6019484ffc518ebe0c16b68898be826065ce8b85567d3",
         "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "488476fef8c32f48d6da972c88ba2407d781f33f82b2eff7a0293fdde8b8b1bc",
+        "9db3ba2cc5ac44be6719a0c69f68d26ff8e5dcb4d62386a50612ec32a7f69257",
+        "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
+        "0f8b5449207ede67d8d635d7a2dc25814749568a5920ad12cfe2bafb5f11a3a2",
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
         "e81a972375dcdcd1792d841ea9b300320ea0c6d907ebed3bc6823d61e0dcfde6"
       ],
-      "source_sha256": "3a694e4315c2e2d3195f6fe53230297e22039c7b6bcff1afee6c2f0cb2241045",
-      "text": "到目前为止标签上的模型,分数每个提取的图像区域,关闭圆圈。\n\n这是活跃学习的一半已经缺失了:笔记工作列表将信息提取的图像区域放在笔记器前面,然后什么都没有发生。 没有退休的笔记不是活跃的学习 - 这是一个普通的标记在一个聪明的顺序,而顺序在第一几十个标签后停下来,因为它仍然反映了一个模型,没有看到任何一个。\n\n一个呼叫,做所有五件事,路需要:\n\n1. 适合每个标签的模型在 ``annotation_column``; 2. 点数它在一个 **组** 保持分裂,所以数字不是来自一个微板样本位置的 190 个标志的对象; 3. 写回每个类的概率为 ``png_list`` 作为 :data:`ROUND_PRED_PREFIX` 列,而 :func:`build_queue` 更喜欢旧的 ``pred`` - 因此下一个工作列表是真正重新排序; 4. 记录圆,给 :func:`learning_curve` 另一个点; 5. 返回 :class:`StoppingVerdict` 为曲线到目前为止。\n\n:param db_path: 路径为 ``measurements.db``。\n:param annotation_column: 标签的列。\n:param features: 属性矩阵由提取图像区域结构数据名称索引. 错过,它从测量表中以 :func:`round_features` 阅读。\n:param model_type: ``'logistic_regression'``(默认情况下,它是20个标签的行为者),``'random_forest'``或``'gradient_boosting'``。\n:param group_by: ``'well'``(默认), ``'plate'``, ``'field'`` 或 ``'none'``. 所持的分裂拒绝共享. 正确相匹配,在较低的情况下; 其他任何东西都会产生错误, 一个未知的 ``diversity=`` 在 :func:`build_queue`. 当策略是 ``'none'``, 或提取的图像区域表没有所需要的列, 分裂是分裂的随机一个和 ``split_rule`` 说 ``NOT grouped`` - 它从来没有声称一个组合它没有完成。\n:param holdout: 分裂被排除。\n:param seed: 使分裂和合适可重复。\n:param min_labels: 拒绝在这些许多标签下匹配。\n:param round_index: 超越圆数;默认为 :func:`next_round`。\n:param table: 提取图像区域表。\n:param key: 提取图像区域识别列。\n:param image_type: 在提取图像区域密钥上插入过滤器。\n:param write_scores: 将新概率重新输入到数据库中。\n:param save_model: joblib-dump 附加模型在数据库旁边。\n:param model_dir: 要在哪里放置;默认为 ``<db dir>/active_learning``。\n:param write_card: 写一个模型卡,除了保存的模型。\n:param label_window: 转到 :func:`should_stop`。\n:param min_gain: 转到 :func:`should_stop`。\n:param measure: 记录与圆,为下列工作列表。\n:param diversity: 同样。\n:returns: a :class:`RoundResult`.\n:raises ValueError: 以下是 ``min_labels`` 标签,有不到两个类的标记 - 没有什么可写的模型将产生一个自信看起来排名从任何东西 - 或一个未认可的 ``group_by``。",
+      "source_sha256": "f923cc22aa03f043e61f6fe3e96b877d0b7dff37da8530e120bb7d19783fef7f",
+      "text": "到目前为止标签上的模型,分数每个提取的图像区域,关闭圆圈。\n\n这是活跃学习的一半已经缺失了:笔记工作列表将信息提取的图像区域放在笔记器前面,然后什么都没有发生。 没有退休的笔记不是活跃的学习 - 这是一个普通的标记在一个聪明的顺序,而顺序在第一几十个标签后停下来,因为它仍然反映了一个模型,没有看到任何一个。\n\n一个呼叫做所有需要的五件事:\n\n1. 适合每个标签的模型在 ``annotation_column``; 2. 点数它在一个 **组** 保持分裂,所以数字不是来自一个微板样本位置的 190 个标志的对象; 3. 写回每个类的概率为 ``png_list`` 作为 :data:`ROUND_PRED_PREFIX` 列,而 :func:`build_queue` 更喜欢旧的 ``pred`` - 因此下一个工作列表是真正重新排序; 4. 记录圆,给 :func:`learning_curve` 另一个点; 5. 返回 :class:`StoppingVerdict` 为曲线到目前为止。\n\n:param db_path: 路径为 ``measurements.db``。\n:param annotation_column: 包含标签的列。\n:param features: 属性矩阵由提取图像区域结构数据名称索引. 错过,它从测量表中以 :func:`round_features` 阅读。\n:param model_type: ``'logistic_regression'``(默认情况下,它是以20个标签行事的), ``'random_forest'``或 ``'gradient_boosting'``。\n:param group_by: ``'well'``(默认), ``'plate'``, ``'field'`` 或 ``'none'``. 所持的分裂拒绝共享. 正确相匹配,在较低的情况下; 其他任何东西都会产生错误, 一个未知的 ``diversity=`` 在 :func:`build_queue`. 当策略是 ``'none'``, 或提取的图像区域表没有所需要的列, 分裂是分裂的随机一个和 ``split_rule`` 说 ``NOT grouped`` - 它从来没有声称一个组合它没有完成。\n:param holdout: 被解除的分裂。\n:param seed: 使分裂和合适可再生。\n:param min_labels: 拒绝在这些许多标签下匹配。\n:param round_index: 超越圆数;默认为 :func:`next_round`。\n:param table: 提取图像区域表。\n:param key: 提取图像区域识别列。\n:param image_type: 在提取图像区域密钥上插入过滤器。\n:param write_scores: 将新的概率重新输入到数据库中。\n:param save_model: joblib-dump 配置模型在数据库旁边。\n:param model_dir: 在哪里放置它;默认为 ``<db dir>/active_learning``。\n:param write_card: 写一个模型卡旁边的保存模型。\n:param label_window: 转到 :func:`should_stop`。\n:param min_gain: 转到 :func:`should_stop`。\n:param measure: 记录与圆,为下列工作列表。\n:param diversity: 同样。\n:param balance: ``'none'``(默认)将不平衡留给估计器本身的 ``class_weight='balanced'``; ``'downsample'``将每个类分为最小的尺寸。\n\n    重量和下调产生不同概率从相同的图像区域,和 :func:`spacr.suggest.suggest_from_scores` 类在这些概率 - 因此,圆记录是有效的,在 ``notes`` 和模型卡。\n:param synthetic_negatives: 有多少未注册的提取图像区域可以随机地绘制,并以 ABSENT 等级相匹配,当只有一个类被注册时。 ``None`` (默认) 拒绝相反,就像以前一样。\n\n    THIS IS A DELIBERATE LIE AND THE ROUND SAYS SO. A random draw from the unannotated pool is mostly-negative, not negative, so what comes back is a ranking rather than a verdict; the count reaches the model card, because a card that does not say the negatives were invented describes a model that does not exist. Defined for the binary classes 1 and 2 only -- see :func:`_absent_binary_class`.\n:returns: a :class:`RoundResult`.\n:raises ValueError: 下面是 ``min_labels`` 标签,有不到两类的标记 - 没有什么可写的模型,将产生一个令人信服的排名从任何东西 - 或一个未认可的 ``group_by``。",
       "translation_source_blocks_sha256": [
         "b2a3ba921b9d8bf08c16c64d1bc45625e7bc6b999909a2c75bf37f2e1d219b80",
         "4e96a66d46325f4c2f511e1c787fec6d53c107d94419b064f5bb1bfde826c272",
@@ -1073,6 +1077,10 @@
         "7c6f9fca9f9583e2ff939b304cd38acbb0130fb7ed9eb579ba317e5986503925",
         "561bbabe94f92f0fd13c642bba42c7706d0afe3dba480401ddbca9da9594547e",
         "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "488476fef8c32f48d6da972c88ba2407d781f33f82b2eff7a0293fdde8b8b1bc",
+        "c29b4c0c8896b077c0aed896cc806f8bfcb7a0a9e87eb736548e893886491c7f",
+        "aee6367562bd54f5e354c69d7eea54e68edf239c60d93c17dafc41c6e961e986",
+        "0f8b5449207ede67d8d635d7a2dc25814749568a5920ad12cfe2bafb5f11a3a2",
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
         "e81a972375dcdcd1792d841ea9b300320ea0c6d907ebed3bc6823d61e0dcfde6"
       ]
@@ -65708,13 +65716,19 @@
     "spacr.qt.path_probe.prime": {
       "source_blocks_sha256": [
         "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d"
+        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
+        "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
+        "7aded6c6ee1f2321915da6f48bf90ff8254ebfb506275428c4311a4277db17f5"
       ],
-      "source_sha256": "4864f729b7f378e1d7f9a5409516f8ddcb378fa69ec3df903178d511243a041a",
-      "text": "记录一个答案,谁已经有,没有调查。\n\n文件对话只是告诉我们一个路径存在;再次要求文件系统将是一个事实的第二个状态,已经在手中。",
+      "source_sha256": "fd14c66138269bacbad8aa9b76c186e1d31040f475bbcc2464555d46171e52fc",
+      "text": "记录一个答案,谁已经有,没有调查。\n\n文件对话只是告诉我们一个路径存在;再次要求文件系统将是一个事实的第二个状态,已经在手中。\n\n:param path: 答案的路程即将到来。\n:param answer: 既已被告知是真实的。\n:param want_dir: record it against :func:`isdir` rather than :func:`exists`. The two are cached separately -- a path can exist and not be a directory -- so a caller who knows both must say so twice. Without this there was no way to state the directory half at all, and `isdir` kept answering with its `False` default until a background probe caught up.",
       "translation_source_blocks_sha256": [
         "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d"
+        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
+        "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
+        "7aded6c6ee1f2321915da6f48bf90ff8254ebfb506275428c4311a4277db17f5"
       ]
     },
     "spacr.qt.plate_queue": {
@@ -69261,6 +69275,18 @@
         "37a63183da5d8a8846a684b170da8254e2d910ec63f8db61c4f011c3049561ef",
         "8de1f3b9a617ba1b7e14931b728df9428c2b55fd2fb8f346b64cb6857e40375f",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ]
+    },
+    "spacr.qt.regex_editor.RegexEditorDialog.resizeEvent": {
+      "source_blocks_sha256": [
+        "22f23301e260323bcd285268fb1c0b92835087d9b663d0a78904c8cecfec97ea",
+        "f932f0bdcac53fee263389a622a545fd7a84c7ffece20a645b518c75b505ec1d"
+      ],
+      "source_sha256": "a2ade4882eef10261a9c246d7656f062393957db862b8c109d4aa7efc1c863bf",
+      "text": "重定义包装的标签到他们刚刚给予的宽度。\n\n两个标签在对话缩小时成长,并且只允许一行标签的标签是这个对话被发现的剪辑:内面包含 54 个字符的插入 36 ,并且名为 `chanID` 的句子 - 对话存在的解释 - 是部分切断。",
+      "translation_source_blocks_sha256": [
+        "22f23301e260323bcd285268fb1c0b92835087d9b663d0a78904c8cecfec97ea",
+        "f932f0bdcac53fee263389a622a545fd7a84c7ffece20a645b518c75b505ec1d"
       ]
     },
     "spacr.qt.register_self_registering_modules": {

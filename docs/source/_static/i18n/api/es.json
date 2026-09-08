@@ -1042,11 +1042,15 @@
         "7c6f9fca9f9583e2ff939b304cd38acbb0130fb7ed9eb579ba317e5986503925",
         "1b486d3a4c910476ccd6019484ffc518ebe0c16b68898be826065ce8b85567d3",
         "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "488476fef8c32f48d6da972c88ba2407d781f33f82b2eff7a0293fdde8b8b1bc",
+        "9db3ba2cc5ac44be6719a0c69f68d26ff8e5dcb4d62386a50612ec32a7f69257",
+        "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
+        "0f8b5449207ede67d8d635d7a2dc25814749568a5920ad12cfe2bafb5f11a3a2",
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
         "e81a972375dcdcd1792d841ea9b300320ea0c6d907ebed3bc6823d61e0dcfde6"
       ],
-      "source_sha256": "3a694e4315c2e2d3195f6fe53230297e22039c7b6bcff1afee6c2f0cb2241045",
-      "text": "Ajustar un modelo en las etiquetas hasta ahora, anotar cada región de imagen extraída, cerrar el bucle.\n\nEsta es la mitad del aprendizaje activo que ha faltado: la lista de trabajos de anotación puso las regiones de imagen extraída informativamente delante del anotador, y luego nada sucedió. Anotar sin readiestramiento no es aprendizaje activo — es anoción ordinaria en un orden inteligente, y el orden va rancio después de las primeras docenas de etiquetas porque todavía refleja un modelo que no ha visto ninguno de ellos.\n\nUna llamada hace las cinco cosas que el bucle necesita:\n\n1. Ajusta un modelo en cada etiqueta en ``annotation_column``; 2. lo anota en una división de **grouped**, por lo que el número no es un artefacto de 190 etiquetas provenientes de una posición de muestra de microplaca; 3. escribe probabilidades por clase de nuevo en ``png_list`` como columnas :data:`ROUND_PRED_PREFIX`, que :func:`build_queue` prefiere sobre el ``pred`` más antiguo — por lo tanto la siguiente lista de trabajo es genuinamente recalificada; 4. registra la ronda, dando :func:`learning_curve` otro punto; 5. devuelve el :class:`StoppingVerdict` para la curva hasta ahora.\n\n:param db_path: ruta a ``measurements.db``.\n:param annotation_column: la columna que contiene las etiquetas.\n:param features: matriz de características indexada por el nombre de datos estructurados de la región-imagen extraída. Omitida, se lee en las tablas de medición con :func:`round_features`.\n:param model_type: ``'logistic_regression'`` (por defecto — es el que se comporta a 20 etiquetas), ``'random_forest'`` o ``'gradient_boosting'``.\n:param group_by: ``'well'`` (predeterminado), ``'plate'``, ``'field'`` o ``'none'``. Lo que la división de retención se niega a compartir. Coincidió exactamente y en minúsculas; cualquier otra cosa produce un error, la forma en que un ``diversity=`` desconocido hace en :func:`build_queue`. Cuando la estrategia es ``'none'``, o la tabla extraída-imagen-región no tiene ninguna de las columnas que necesita, la división es una aleatoria estratificada y ``split_rule`` dice ``NOT grouped`` — nunca reclama una agrupación que no realizó.\n:param holdout: fracción aguantada.\n:param seed: hace que la división y el ajuste reproducible.\n:param min_labels: no caben debajo de estas muchas etiquetas.\n:param round_index: sobreescribe el número de ronda; por defecto :func:`next_round`.\n:param table: tabla de la región de imagen extraída.\n:param key: columna de identificador de región-imagen extraída.\n:param image_type: Filtro de subcadenas en la clave región-imagen extraída.\n:param write_scores: Escriba las nuevas probabilidades de nuevo en la base de datos.\n:param save_model: joblib-dump el modelo instalado junto a la base de datos.\n:param model_dir: donde ponerlo; por defecto a ``<db dir>/active_learning``.\n:param write_card: escribir una tarjeta de modelo junto al modelo guardado.\n:param label_window: pasado a :func:`should_stop`.\n:param min_gain: pasado a :func:`should_stop`.\n:param measure: grabado con la ronda, para la lista de trabajo que sigue.\n:param diversity: Del mismo modo.\n:returns: a :class:`RoundResult`.\n:raises ValueError: a continuación ``min_labels`` etiquetas, con menos de dos clases anotadas — tampoco es algo para escribir con un modelo que producirá un ranking de aspecto seguro de la nada — o para un ``group_by`` no reconocido.",
+      "source_sha256": "f923cc22aa03f043e61f6fe3e96b877d0b7dff37da8530e120bb7d19783fef7f",
+      "text": "Ajustar un modelo en las etiquetas hasta ahora, anotar cada región de imagen extraída, cerrar el bucle.\n\nEsta es la mitad del aprendizaje activo que ha faltado: la lista de trabajos de anotación puso las regiones de imagen extraída informativamente delante del anotador, y luego nada sucedió. Anotar sin readiestramiento no es aprendizaje activo — es anoción ordinaria en un orden inteligente, y el orden va rancio después de las primeras docenas de etiquetas porque todavía refleja un modelo que no ha visto ninguno de ellos.\n\nUna llamada hace las cinco cosas que el bucle necesita:\n\n1. fits a model on every label in ``annotation_column``; 2. scores it on a **grouped** held-out split, so the number is not an artefact of 190 labels coming from one microplate sample position; 3. writes per-class probabilities back into ``png_list`` as :data:`ROUND_PRED_PREFIX` columns, which :func:`build_queue` prefers over the older ``pred`` — so the next work list is genuinely re-ranked; 4. records the round, giving :func:`learning_curve` another point; 5. returns the :class:`StoppingVerdict` for the curve so far.\n\n:param db_path: ruta a ``measurements.db``.\n:param annotation_column: la columna que contiene las etiquetas.\n:param features: matriz de características indexada por el nombre de datos estructurados de la región-imagen extraída. Omitida, se lee en las tablas de medición con :func:`round_features`.\n:param model_type: ``'logistic_regression'`` (por defecto — es el que se comporta a 20 etiquetas), ``'random_forest'`` o ``'gradient_boosting'``.\n:param group_by: ``'well'`` (default), ``'plate'``, ``'field'`` or ``'none'``. What the held-out split refuses to share. Matched exactly and in lower case; anything else produces an error, the way an unknown ``diversity=`` does in :func:`build_queue`. When the strategy is ``'none'``, or the extracted-image-region table has none of the columns it needs, the split is a stratified random one and ``split_rule`` says ``NOT grouped`` — it never claims a grouping it did not perform.\n:param holdout: fracción aguantada.\n:param seed: hace que la división y el ajuste reproducible.\n:param min_labels: se niegan a encajar por debajo de estas muchas etiquetas.\n:param round_index: sobreescribe el número de ronda; por defecto a :func:`next_round`.\n:param table: tabla de la región de imagen extraída.\n:param key: columna de identificador de región-imagen extraída.\n:param image_type: filtro de subcadenas en la clave región-imagen extraída.\n:param write_scores: Escriba las nuevas probabilidades de nuevo en la base de datos.\n:param save_model: joblib-dump el modelo instalado junto a la base de datos.\n:param model_dir: donde ponerlo; por defecto a ``<db dir>/active_learning``.\n:param write_card: escribir una tarjeta de modelo junto al modelo guardado.\n:param label_window: pasado a :func:`should_stop`.\n:param min_gain: pasado a :func:`should_stop`.\n:param measure: grabado con la ronda, para la lista de trabajo que sigue.\n:param diversity: Del mismo modo.\n:param balance: ``'none'`` (por defecto) deja el desequilibrio al propio estimador ``class_weight='balanced'``; ``'downsample'`` corta cada clase al tamaño de la más pequeña ANTES de la división agrupada.\n\n    Las dos no son la misma respuesta. La reponderación y la toma de muestras producen diferentes probabilidades de las mismas regiones de imagen extraídas, y :func:`spacr.suggest.suggest_from_scores` clasifica en esas probabilidades -- por lo que los registros redondos que estaban en vigor, en ``notes`` y en la tarjeta modelo. El encargado pidió la clase más pequeña (\"si hay desequilibrio de clase use la clase con menos\").\n:param synthetic_negatives: cuántas regiones de imagen extraídas sin anotar para dibujar al azar y encajar como la clase ausente cuando sólo una clase ha sido anotada. ``None`` (predeterminado) se niega en su lugar, como antes.\n\n    ESTO ES UNA LÍNEA DELIBERTA Y LA RUEDA DICE SÍ. Un sorteo aleatorio del grupo no anotado es mayormente negativo, no negativo, por lo que lo que vuelve es un ranking en lugar de un veredicto; el conteo llega a la tarjeta modelo, porque una carta que no dice que se inventaron los negativos describe un modelo que no existe. Definido para las clases binarias 1 y 2 solamente -- véase :func:`_absent_binary_class`.\n:returns: a :class:`RoundResult`.\n:raises ValueError: debajo de las etiquetas ``min_labels``, con menos de dos clases anotadas — tampoco es algo para escribir con un modelo que producirá una clasificación de aspecto seguro de la nada — o para un ``group_by`` no reconocido.",
       "translation_source_blocks_sha256": [
         "b2a3ba921b9d8bf08c16c64d1bc45625e7bc6b999909a2c75bf37f2e1d219b80",
         "4e96a66d46325f4c2f511e1c787fec6d53c107d94419b064f5bb1bfde826c272",
@@ -1072,6 +1076,10 @@
         "7c6f9fca9f9583e2ff939b304cd38acbb0130fb7ed9eb579ba317e5986503925",
         "561bbabe94f92f0fd13c642bba42c7706d0afe3dba480401ddbca9da9594547e",
         "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "488476fef8c32f48d6da972c88ba2407d781f33f82b2eff7a0293fdde8b8b1bc",
+        "c29b4c0c8896b077c0aed896cc806f8bfcb7a0a9e87eb736548e893886491c7f",
+        "aee6367562bd54f5e354c69d7eea54e68edf239c60d93c17dafc41c6e961e986",
+        "0f8b5449207ede67d8d635d7a2dc25814749568a5920ad12cfe2bafb5f11a3a2",
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
         "e81a972375dcdcd1792d841ea9b300320ea0c6d907ebed3bc6823d61e0dcfde6"
       ]
@@ -65707,13 +65715,19 @@
     "spacr.qt.path_probe.prime": {
       "source_blocks_sha256": [
         "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d"
+        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
+        "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
+        "7aded6c6ee1f2321915da6f48bf90ff8254ebfb506275428c4311a4277db17f5"
       ],
-      "source_sha256": "4864f729b7f378e1d7f9a5409516f8ddcb378fa69ec3df903178d511243a041a",
-      "text": "Graba una respuesta que alguien ya tiene, sin una sonda.\n\nEl diálogo de archivos nos acaba de decir que existe una ruta; preguntar al sistema de archivos de nuevo sería un segundo stat para un hecho ya en mano.",
+      "source_sha256": "fd14c66138269bacbad8aa9b76c186e1d31040f475bbcc2464555d46171e52fc",
+      "text": "Graba una respuesta que alguien ya tiene, sin una sonda.\n\nEl diálogo de archivos nos acaba de decir que existe una ruta; preguntar al sistema de archivos de nuevo sería un segundo stat para un hecho ya en mano.\n\n:param path: el camino de la respuesta se trata.\n:param answer: lo que ya se sabe que es cierto de ello.\n:param want_dir: record it against :func:`isdir` rather than :func:`exists`. The two are cached separately -- a path can exist and not be a directory -- so a caller who knows both must say so twice. Without this there was no way to state the directory half at all, and `isdir` kept answering with its `False` default until a background probe caught up.",
       "translation_source_blocks_sha256": [
         "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d"
+        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
+        "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
+        "7aded6c6ee1f2321915da6f48bf90ff8254ebfb506275428c4311a4277db17f5"
       ]
     },
     "spacr.qt.plate_queue": {
@@ -69260,6 +69274,18 @@
         "37a63183da5d8a8846a684b170da8254e2d910ec63f8db61c4f011c3049561ef",
         "8de1f3b9a617ba1b7e14931b728df9428c2b55fd2fb8f346b64cb6857e40375f",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ]
+    },
+    "spacr.qt.regex_editor.RegexEditorDialog.resizeEvent": {
+      "source_blocks_sha256": [
+        "22f23301e260323bcd285268fb1c0b92835087d9b663d0a78904c8cecfec97ea",
+        "f932f0bdcac53fee263389a622a545fd7a84c7ffece20a645b518c75b505ec1d"
+      ],
+      "source_sha256": "a2ade4882eef10261a9c246d7656f062393957db862b8c109d4aa7efc1c863bf",
+      "text": "Volver a ajustar las etiquetas envueltas a la anchura que acaban de ser dadas.\n\nAmbas etiquetas crecen cuando el diálogo se estrecha, y una etiqueta que sólo se permite su pista de una línea es el recorte de este diálogo se encontró con: la introducción envuelta a 54 px dentro de 36, y la frase nombrando `chanID` -- la única cosa que el diálogo existe para explicar -- fue la parte cortada.",
+      "translation_source_blocks_sha256": [
+        "22f23301e260323bcd285268fb1c0b92835087d9b663d0a78904c8cecfec97ea",
+        "f932f0bdcac53fee263389a622a545fd7a84c7ffece20a645b518c75b505ec1d"
       ]
     },
     "spacr.qt.register_self_registering_modules": {

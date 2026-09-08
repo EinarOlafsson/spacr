@@ -1042,11 +1042,15 @@
         "7c6f9fca9f9583e2ff939b304cd38acbb0130fb7ed9eb579ba317e5986503925",
         "1b486d3a4c910476ccd6019484ffc518ebe0c16b68898be826065ce8b85567d3",
         "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "488476fef8c32f48d6da972c88ba2407d781f33f82b2eff7a0293fdde8b8b1bc",
+        "9db3ba2cc5ac44be6719a0c69f68d26ff8e5dcb4d62386a50612ec32a7f69257",
+        "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
+        "0f8b5449207ede67d8d635d7a2dc25814749568a5920ad12cfe2bafb5f11a3a2",
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
         "e81a972375dcdcd1792d841ea9b300320ea0c6d907ebed3bc6823d61e0dcfde6"
       ],
-      "source_sha256": "3a694e4315c2e2d3195f6fe53230297e22039c7b6bcff1afee6c2f0cb2241045",
-      "text": "Fixez un modèle sur les étiquettes jusqu'à présent, marquez chaque région d'image extraite, fermez la boucle.\n\nC'est la moitié de l'apprentissage actif qui a manqué: la liste de travail d'annotation a mis les régions d'image extraites informatives devant l'annotateur, et puis rien ne s'est passé. Annoter sans recyclage n'est pas un apprentissage actif — c'est une annotation ordinaire dans un ordre astucieux, et l'ordre s'éteint après les premières douzaines d'étiquettes parce qu'il reflète encore un modèle qui n'en a vu aucun.\n\nUn appel fait les cinq choses dont la boucle a besoin :\n\n1. s'adapte à un modèle sur chaque étiquette dans ``annotation_column``; 2. le score sur un **groupé** scindé, de sorte que le nombre n'est pas un artefact de 190 étiquettes provenant d'une position d'échantillon de microplaques; 3. écrit les probabilités par classe en ``png_list`` comme colonnes :data:`ROUND_PRED_PREFIX`, qui :func:`build_queue` préfère sur l'ancienne ``pred`` — donc la liste de travail suivante est vraiment reclassée; 4. enregistre le tour, donnant :func:`learning_curve` un autre point; 5. retourne le :class:`StoppingVerdict` pour la courbe jusqu'à présent.\n\n:param db_path: chemin ``measurements.db``.\n:param annotation_column: la colonne contenant les étiquettes.\n:param features: caractéristique matricielle indexée par le nom de données structurées de la région-image extraite. Obtenu, il est lu à partir des tables de mesure avec :func:`round_features`.\n:param model_type: ``'logistic_regression'`` (par défaut — c'est celui qui se comporte à 20 étiquettes), ``'random_forest'`` ou ``'gradient_boosting'``.\n:param group_by: ``'well'`` (par défaut), ``'plate'``, ``'field'`` ou ``'none'``. Ce que la scission en attente refuse de partager. Correspondant exactement et en minuscules cas; tout autre produit une erreur, comme un ``diversity=`` inconnu le fait dans :func:`build_queue`. Lorsque la stratégie est ``'none'``, ou que la table image-région extraite n'a aucune des colonnes dont elle a besoin, la scinsion est une scison aléatoire stratifiée et ``split_rule`` dit ``NOT grouped`` — elle ne prétend jamais qu'un groupe qu'elle n'avait pas exécuté.\n:param holdout: fraction retenue.\n:param seed: rend la scission et l'ajustement reproductible.\n:param min_labels: refuser de s'adapter sous ces nombreuses étiquettes.\n:param round_index: remplacer le nombre de tours; par défaut :func:`next_round`.\n:param table: tableau image-région extraite.\n:param key: colonne identifiant l'image-région extraite.\n:param image_type: filtre sous-chaîne sur la touche image-région extraite.\n:param write_scores: écrire les nouvelles probabilités dans la base de données.\n:param save_model: Joblib-dump le modèle adapté à côté de la base de données.\n:param model_dir: où le mettre; par défaut ``<db dir>/active_learning``.\n:param write_card: écrire une carte modèle à côté du modèle enregistré.\n:param label_window: passé à :func:`should_stop`.\n:param min_gain: passé à :func:`should_stop`.\n:param measure: enregistré avec le tour, pour la liste de travail qui suit.\n:param diversity: De même.\n:returns: a :class:`RoundResult`.\n:raises ValueError: sous les étiquettes ``min_labels``, avec moins de deux classes annotées — ni quelque chose à papierr avec un modèle qui produira un classement confiant hors de rien — ni pour un ``group_by`` non reconnu.",
+      "source_sha256": "f923cc22aa03f043e61f6fe3e96b877d0b7dff37da8530e120bb7d19783fef7f",
+      "text": "Fixez un modèle sur les étiquettes jusqu'à présent, marquez chaque région d'image extraite, fermez la boucle.\n\nC'est la moitié de l'apprentissage actif qui a manqué: la liste de travail d'annotation a mis les régions d'image extraites informatives devant l'annotateur, et puis rien ne s'est passé. Annoter sans recyclage n'est pas un apprentissage actif — c'est une annotation ordinaire dans un ordre astucieux, et l'ordre s'éteint après les premières douzaines d'étiquettes parce qu'il reflète encore un modèle qui n'en a vu aucun.\n\nUn appel fait les cinq choses dont la boucle a besoin :\n\n1. s'adapte à un modèle sur chaque étiquette dans ``annotation_column``; 2. le score sur un **groupé** scindé, de sorte que le nombre n'est pas un artefact de 190 étiquettes provenant d'une position d'échantillon de microplaques; 3. écrit les probabilités par classe en ``png_list`` comme colonnes :data:`ROUND_PRED_PREFIX`, qui :func:`build_queue` préfère sur l'ancienne ``pred`` — donc la liste de travail suivante est vraiment reclassée; 4. enregistre le tour, donnant :func:`learning_curve` un autre point; 5. retourne le :class:`StoppingVerdict` pour la courbe jusqu'à présent.\n\n:param db_path: chemin ``measurements.db``.\n:param annotation_column: la colonne contenant les étiquettes.\n:param features: caractéristique matricielle indexée par le nom de données structurées de la région-image extraite. Obtenu, il est lu à partir des tables de mesure avec :func:`round_features`.\n:param model_type: ``'logistic_regression'`` (par défaut — c'est celui qui se comporte à 20 étiquettes), ``'random_forest'`` ou ``'gradient_boosting'``.\n:param group_by: ``'well'`` (par défaut), ``'plate'``, ``'field'`` ou ``'none'``. Ce que la scission en attente refuse de partager. Correspondant exactement et en minuscules cas; tout autre produit une erreur, comme un ``diversity=`` inconnu le fait dans :func:`build_queue`. Lorsque la stratégie est ``'none'``, ou que la table image-région extraite n'a aucune des colonnes dont elle a besoin, la scinsion est une scison aléatoire stratifiée et ``split_rule`` dit ``NOT grouped`` — elle ne prétend jamais qu'un groupe qu'elle n'avait pas exécuté.\n:param holdout: fraction retenue.\n:param seed: rend la scission et l'ajustement reproductible.\n:param min_labels: refuser de s'adapter en dessous de ces nombreuses étiquettes.\n:param round_index: remplacer le nombre rond; par défaut :func:`next_round`.\n:param table: tableau image-région extraite.\n:param key: colonne identifiant l'image-région extraite.\n:param image_type: filtre sous-chaîne sur la touche image-région extraite.\n:param write_scores: écrire les nouvelles probabilités dans la base de données.\n:param save_model: Joblib-dump le modèle adapté à côté de la base de données.\n:param model_dir: où le mettre; par défaut ``<db dir>/active_learning``.\n:param write_card: écrire une carte modèle à côté du modèle enregistré.\n:param label_window: passé à :func:`should_stop`.\n:param min_gain: passé à :func:`should_stop`.\n:param measure: enregistré avec le tour, pour la liste de travail qui suit.\n:param diversity: De même.\n:param balance: ``'none'`` (par défaut) laisse le déséquilibre au propre ``class_weight='balanced'`` de l'estimateur; ``'downsample'`` coupe chaque classe à la taille de la plus petite AVANT la fraction groupée.\n\n    LA DEUX N'EST PAS LA MEME RÉPONSE. La repondération et l'échantillonnage en aval produisent des probabilités différentes des mêmes régions d'image extraites, et des sortes :func:`spacr.suggest.suggest_from_scores` sur ces probabilités -- de sorte que les enregistrements ronds qui étaient en vigueur, dans ``notes`` et sur la carte modèle. Le responsable a demandé la classe plus petite (\"s'il y a déséquilibre de classe utilisent la classe avec moins\").\n:param synthetic_negatives: how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.\n\n    Un tirage au sort de la réserve non annotée est principalement négatif, pas négatif, donc ce qui revient est un classement plutôt qu'un verdict; le compte atteint la carte modèle, parce qu'une carte qui ne dit pas que les négatifs ont été inventés décrit un modèle qui n'existe pas. Défini pour les classes binaires 1 et 2 seulement -- voir :func:`_absent_binary_class`.\n:returns: a :class:`RoundResult`.\n:raises ValueError: sous les étiquettes ``min_labels``, avec moins de deux classes annotées — ni quelque chose à papierr avec un modèle qui produira un classement confiant hors de rien — ou pour un ``group_by`` non reconnu.",
       "translation_source_blocks_sha256": [
         "b2a3ba921b9d8bf08c16c64d1bc45625e7bc6b999909a2c75bf37f2e1d219b80",
         "4e96a66d46325f4c2f511e1c787fec6d53c107d94419b064f5bb1bfde826c272",
@@ -1072,6 +1076,10 @@
         "7c6f9fca9f9583e2ff939b304cd38acbb0130fb7ed9eb579ba317e5986503925",
         "561bbabe94f92f0fd13c642bba42c7706d0afe3dba480401ddbca9da9594547e",
         "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "488476fef8c32f48d6da972c88ba2407d781f33f82b2eff7a0293fdde8b8b1bc",
+        "c29b4c0c8896b077c0aed896cc806f8bfcb7a0a9e87eb736548e893886491c7f",
+        "aee6367562bd54f5e354c69d7eea54e68edf239c60d93c17dafc41c6e961e986",
+        "0f8b5449207ede67d8d635d7a2dc25814749568a5920ad12cfe2bafb5f11a3a2",
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
         "e81a972375dcdcd1792d841ea9b300320ea0c6d907ebed3bc6823d61e0dcfde6"
       ]
@@ -65707,13 +65715,19 @@
     "spacr.qt.path_probe.prime": {
       "source_blocks_sha256": [
         "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d"
+        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
+        "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
+        "7aded6c6ee1f2321915da6f48bf90ff8254ebfb506275428c4311a4277db17f5"
       ],
-      "source_sha256": "4864f729b7f378e1d7f9a5409516f8ddcb378fa69ec3df903178d511243a041a",
-      "text": "Enregistrez une réponse que quelqu'un a déjà, sans sonde.\n\nLa boîte de dialogue de fichier vient de nous dire qu'un chemin existe; demander à nouveau au système de fichiers serait une seconde statistique pour un fait déjà en main.",
+      "source_sha256": "fd14c66138269bacbad8aa9b76c186e1d31040f475bbcc2464555d46171e52fc",
+      "text": "Enregistrez une réponse que quelqu'un a déjà, sans sonde.\n\nLa boîte de dialogue de fichier vient de nous dire qu'un chemin existe; demander à nouveau au système de fichiers serait une seconde statistique pour un fait déjà en main.\n\n:param path: le chemin sur lequel se trouve la réponse.\n:param answer: ce qui est déjà connu pour être vrai de lui.\n:param want_dir: Enregistrez-le contre :func:`isdir` plutôt que :func:`exists`. Les deux sont mis en cache séparément -- un chemin peut exister et ne pas être un répertoire -- donc un appelant qui sait que les deux doivent le dire deux fois. Sans cela, il n'y avait aucun moyen d'indiquer la moitié du répertoire, et `isdir` a continué à répondre avec sa valeur par défaut `False` jusqu'à ce qu'une sonde d'arrière-plan soit prise en compte.",
       "translation_source_blocks_sha256": [
         "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d"
+        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
+        "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
+        "7aded6c6ee1f2321915da6f48bf90ff8254ebfb506275428c4311a4277db17f5"
       ]
     },
     "spacr.qt.plate_queue": {
@@ -69260,6 +69274,18 @@
         "37a63183da5d8a8846a684b170da8254e2d910ec63f8db61c4f011c3049561ef",
         "8de1f3b9a617ba1b7e14931b728df9428c2b55fd2fb8f346b64cb6857e40375f",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ]
+    },
+    "spacr.qt.regex_editor.RegexEditorDialog.resizeEvent": {
+      "source_blocks_sha256": [
+        "22f23301e260323bcd285268fb1c0b92835087d9b663d0a78904c8cecfec97ea",
+        "f932f0bdcac53fee263389a622a545fd7a84c7ffece20a645b518c75b505ec1d"
+      ],
+      "source_sha256": "a2ade4882eef10261a9c246d7656f062393957db862b8c109d4aa7efc1c863bf",
+      "text": "Rajuster les étiquettes emballées à la largeur qu'elles viennent d'être données.\n\nLes deux étiquettes grandissent lorsque la boîte de dialogue se rétrécit, et une étiquette qui n'est permise que son indice d'une ligne est le clipping de cette boîte de données a été trouvé avec : l'intro enveloppé à 54 px à l'intérieur de 36, et le nom de phrase `chanID` -- la seule chose que le dialogue existe pour expliquer -- était la partie coupée.",
+      "translation_source_blocks_sha256": [
+        "22f23301e260323bcd285268fb1c0b92835087d9b663d0a78904c8cecfec97ea",
+        "f932f0bdcac53fee263389a622a545fd7a84c7ffece20a645b518c75b505ec1d"
       ]
     },
     "spacr.qt.register_self_registering_modules": {

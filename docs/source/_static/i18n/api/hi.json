@@ -1042,11 +1042,15 @@
         "7c6f9fca9f9583e2ff939b304cd38acbb0130fb7ed9eb579ba317e5986503925",
         "1b486d3a4c910476ccd6019484ffc518ebe0c16b68898be826065ce8b85567d3",
         "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "488476fef8c32f48d6da972c88ba2407d781f33f82b2eff7a0293fdde8b8b1bc",
+        "9db3ba2cc5ac44be6719a0c69f68d26ff8e5dcb4d62386a50612ec32a7f69257",
+        "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
+        "0f8b5449207ede67d8d635d7a2dc25814749568a5920ad12cfe2bafb5f11a3a2",
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
         "e81a972375dcdcd1792d841ea9b300320ea0c6d907ebed3bc6823d61e0dcfde6"
       ],
-      "source_sha256": "3a694e4315c2e2d3195f6fe53230297e22039c7b6bcff1afee6c2f0cb2241045",
-      "text": "अब तक लेबल पर एक मॉडल फिट करें, प्रत्येक निकाले गए छवि क्षेत्र को स्कोर करें, रस्सी को बंद करें।\n\nयह सक्रिय सीखने का आधा हिस्सा है जो गायब हो गया है: नोटिस कार्य सूची ने नोटिसर के सामने निकाले गए सूचनात्मक छवि क्षेत्रों को रखा है, और फिर कुछ भी नहीं हुआ. रेटिंग के बिना नोटिस करना सक्रिय नहीं है - यह एक बुद्धिमान क्रम में सामान्य नोटिस है और आदेश पहले कुछ दर्जन लेबलों के बाद बंद हो जाता है क्योंकि यह अभी भी एक मॉडल को प्रतिबिंबित करता है जिसने उनमें से किसी को नहीं देखा है।\n\nएक कॉल सभी पांच चीजों को करता है जो रॉक की जरूरत है:\n\n1. ``annotation_column`` में प्रत्येक लेबल पर एक मॉडल फिट करता है; 2. इसे **समूहित** के साथ विभाजित किया जाता है, इसलिए संख्या एक माइक्रोप्लेट नमूना स्थिति से 190 लेबल का एक आर्टफैक्ट नहीं है; 3. ``png_list`` के रूप में :data:`ROUND_PRED_PREFIX` स्तंभों में प्रति वर्ग संभावनाओं को लिखता है, जो :func:`build_queue` पुराने ``pred`` से अधिक पसंद करता है - इसलिए अगली कार्य सूची वास्तव में फिर से रैंक की जाती है; 4. सर्कल को रिकॉर्ड करता है, :func:`learning_curve` को एक और बिंदु देता है; 5. अब तक कोर के लिए :class:`StoppingVerdict` को वापस करता है।\n\n:param db_path: रास्ता ``measurements.db`` के लिए है।\n:param annotation_column: लेबल रखने वाले स्तंभ।\n:param features: फ़ंक्शन मैट्रिक्स निकाले गए-चित्र-क्षेत्र संरचित-डेटा नाम द्वारा इंडेक्स किया जाता है. अप्रत्याशित, यह :func:`round_features` के साथ माप तालिकाओं से पढ़ा जाता है।\n:param model_type: ``'logistic_regression'`` (आधारित रूप से - यह 20 लेबल पर व्यवहार करने वाला है), ``'random_forest'`` या ``'gradient_boosting'``।\n:param group_by: ``'well'`` (डिफ़ॉल्ट), ``'plate'``, ``'field'`` या ``'none'``. क्या धार-आउट विभाजन साझा करने से इनकार करता है. सटीक रूप से फिट और निचले मामले में; किसी भी अन्य चीज में एक त्रुटि उत्पन्न होती है, जिस तरह से एक अज्ञात ``diversity=`` :func:`build_queue` में होता है. जब रणनीति ``'none'`` है, या निकाले गए-चित्र-क्षेत्र तालिका में आवश्यक स्तंभों में से कोई नहीं है, तो विभाजन एक रेटेड यादृच्छिक है और ``split_rule`` कहता है ``NOT grouped`` — यह कभी भी एक समूह का दावा नहीं करता है कि यह काम नहीं करता था.\n:param holdout: फ्रैक्शन जारी है।\n:param seed: यह विभाजन और फिट को पुनरावृत्ति के लिए बनाता है।\n:param min_labels: इन कई लेबलों के नीचे फिट करने से इनकार करें।\n:param round_index: रूट संख्या को ऊपर की ओर ले जाएं; डिफ़ॉल्ट :func:`next_round` है।\n:param table: इमेज-इमेज क्षेत्र तालिका।\n:param key: extracted-image-region पहचान स्तंभ।\n:param image_type: फ़िल्टर को निकाले गए-चित्र-क्षेत्र कुंजी पर संलग्न करें।\n:param write_scores: नए संभावनाओं को डेटाबेस में वापस लिखें।\n:param save_model: joblib-dump डेटाबेस के बगल में फिट मॉडल।\n:param model_dir: जहां इसे रखना है; डिफ़ॉल्ट ``<db dir>/active_learning`` के लिए।\n:param write_card: एक मॉडल कार्ड को बचाए गए मॉडल के बगल में लिखें।\n:param label_window: यह :func:`should_stop` के लिए स्थानांतरित किया गया है।\n:param min_gain: यह :func:`should_stop` के लिए स्थानांतरित किया गया है।\n:param measure: रिकॉर्ड के साथ, कार्य सूची के लिए जो निम्नलिखित है।\n:param diversity: इसी तरह।\n:returns: a :class:`RoundResult`.\n:raises ValueError: नीचे ``min_labels`` लेबल, दो से कम वर्गों के साथ नोट किया गया है - न ही एक मॉडल के साथ कुछ भी नहीं है जो कुछ भी से एक आत्मविश्वास-उत्पत्ति रैंकिंग का उत्पादन करेगा - या एक अज्ञात ``group_by`` के लिए।",
+      "source_sha256": "f923cc22aa03f043e61f6fe3e96b877d0b7dff37da8530e120bb7d19783fef7f",
+      "text": "अब तक लेबल पर एक मॉडल फिट करें, प्रत्येक निकाले गए छवि क्षेत्र को स्कोर करें, रस्सी को बंद करें।\n\nयह सक्रिय सीखने का आधा हिस्सा है जो गायब हो गया है: नोटिस कार्य सूची ने नोटिसर के सामने निकाले गए सूचनात्मक छवि क्षेत्रों को रखा है, और फिर कुछ भी नहीं हुआ. रेटिंग के बिना नोटिस करना सक्रिय नहीं है - यह एक बुद्धिमान क्रम में सामान्य नोटिस है और आदेश पहले कुछ दर्जन लेबलों के बाद बंद हो जाता है क्योंकि यह अभी भी एक मॉडल को प्रतिबिंबित करता है जिसने उनमें से किसी को नहीं देखा है।\n\nएक कॉल सभी पांच चीजों को करता है जिसे लूप की आवश्यकता होती है:\n\n1. ``annotation_column`` में प्रत्येक लेबल पर एक मॉडल फिट करता है; 2. इसे **समूहित** के साथ विभाजित किया जाता है, इसलिए संख्या एक माइक्रोप्लेट नमूना स्थिति से 190 लेबल का एक आर्टफैक्ट नहीं है; 3. ``png_list`` के रूप में :data:`ROUND_PRED_PREFIX` स्तंभों में प्रति वर्ग संभावनाओं को लिखता है, जो :func:`build_queue` पुराने ``pred`` से अधिक पसंद करता है - इसलिए अगली कार्य सूची वास्तव में फिर से रैंक की जाती है; 4. सर्कल को रिकॉर्ड करता है, :func:`learning_curve` को एक और बिंदु देता है; 5. अब तक कोर के लिए :class:`StoppingVerdict` को वापस करता है।\n\n:param db_path: रास्ता ``measurements.db`` के लिए है।\n:param annotation_column: स्तंभ जो लेबल रखता है।\n:param features: फ़ंक्शन मैट्रिक्स निकाले गए-चित्र-क्षेत्र संरचित-डेटा नाम द्वारा इंडेक्स किया जाता है. अप्रत्याशित, यह :func:`round_features` के साथ माप तालिकाओं से पढ़ा जाता है।\n:param model_type: ``'logistic_regression'`` (डिफ़ॉल्ट - यह 20 लेबल पर व्यवहार करने वाला है), ``'random_forest'`` या ``'gradient_boosting'``।\n:param group_by: ``'well'`` (डिफ़ॉल्ट), ``'plate'``, ``'field'`` या ``'none'``. क्या धार-आउट विभाजन साझा करने से इनकार करता है. सटीक रूप से फिट और निचले मामले में; किसी भी अन्य चीज में एक त्रुटि उत्पन्न होती है, जिस तरह से एक अज्ञात ``diversity=`` :func:`build_queue` में होता है. जब रणनीति ``'none'`` है, या निकाले गए-चित्र-क्षेत्र तालिका में आवश्यक स्तंभों में से कोई नहीं है, तो विभाजन एक रेटेड यादृच्छिक है और ``split_rule`` कहता है ``NOT grouped`` — यह कभी भी एक समूह का दावा नहीं करता है कि यह काम नहीं करता था.\n:param holdout: फ्रैक्शन जारी है।\n:param seed: यह विभाजन और फिट को पुनरावृत्ति करने में सक्षम बनाता है।\n:param min_labels: इन कई लेबलों के नीचे फिट करने से इनकार करें।\n:param round_index: चक्र संख्या से अधिक है; डिफ़ॉल्ट :func:`next_round` है।\n:param table: इमेज-इमेज क्षेत्र तालिका।\n:param key: extracted-image-region पहचान स्तंभ।\n:param image_type: फ़िल्टर को निकाले गए-चित्र-क्षेत्र कुंजी पर संलग्न करें।\n:param write_scores: नए संभावनाओं को डेटाबेस में वापस लिखें।\n:param save_model: joblib-dump डेटाबेस के बगल में फिट मॉडल।\n:param model_dir: जहां इसे डालना है; डिफ़ॉल्ट ``<db dir>/active_learning`` के लिए।\n:param write_card: बचाए गए मॉडल के बगल में एक मॉडल कार्ड लिखें।\n:param label_window: इसे :func:`should_stop` में स्थानांतरित किया गया है।\n:param min_gain: इसे :func:`should_stop` में स्थानांतरित किया गया है।\n:param measure: रिकॉर्ड के साथ, कार्य सूची के लिए जो निम्नलिखित है।\n:param diversity: इसी तरह।\n:param balance: ``'none'`` (डिफ़ॉल्ट) अनुमानक के स्वयं के ``class_weight='balanced'`` पर असंतुलन छोड़ देता है; ``'downsample'`` प्रत्येक वर्ग को समूह विभाजन से पहले सबसे छोटे के आकार में कटौती करता है।\n\n    दो समान नहीं हैं. वजन बढ़ाने और कम करने से एक ही निकाले गए छवि क्षेत्रों से अलग-अलग संभावनाएं उत्पन्न होती हैं, और उन संभावनाओं पर :func:`spacr.suggest.suggest_from_scores` श्रेणियाँ होती हैं - इसलिए, ``notes`` में और मॉडल कार्ड पर लागू होने वाले गोल रिकॉर्ड. रखरखावकर्ता ने छोटे वर्ग के लिए पूछा (\"यदि वर्ग असंतुलन होता है तो कम वर्ग का उपयोग करें\").\n:param synthetic_negatives: कितने अननोट किए गए छवि क्षेत्रों को यादृच्छिक रूप से खींचने के लिए और ABSENT वर्ग के रूप में फिट होने के लिए जब केवल एक वर्ग को नोट किया गया है. ``None`` (डिफ़ॉल्ट) इसके बजाय, पहले की तरह अस्वीकार करता है.\n\n    THIS IS A DELIBERATE LIE AND THE ROUND SAYS SO. A random draw from the unannotated pool is mostly-negative, not negative, so what comes back is a ranking rather than a verdict; the count reaches the model card, because a card that does not say the negatives were invented describes a model that does not exist. Defined for the binary classes 1 and 2 only -- see :func:`_absent_binary_class`.\n:returns: a :class:`RoundResult`.\n:raises ValueError: नीचे ``min_labels`` लेबल, दो से कम श्रेणियों के साथ नोट किया गया है - न ही एक मॉडल के साथ पेपर करने के लिए कुछ भी नहीं है जो कुछ भी से एक आत्मविश्वास-देखने वाले रैंकिंग का उत्पादन करेगा - या एक अज्ञात ``group_by`` के लिए।",
       "translation_source_blocks_sha256": [
         "b2a3ba921b9d8bf08c16c64d1bc45625e7bc6b999909a2c75bf37f2e1d219b80",
         "4e96a66d46325f4c2f511e1c787fec6d53c107d94419b064f5bb1bfde826c272",
@@ -1072,6 +1076,10 @@
         "7c6f9fca9f9583e2ff939b304cd38acbb0130fb7ed9eb579ba317e5986503925",
         "561bbabe94f92f0fd13c642bba42c7706d0afe3dba480401ddbca9da9594547e",
         "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "488476fef8c32f48d6da972c88ba2407d781f33f82b2eff7a0293fdde8b8b1bc",
+        "c29b4c0c8896b077c0aed896cc806f8bfcb7a0a9e87eb736548e893886491c7f",
+        "aee6367562bd54f5e354c69d7eea54e68edf239c60d93c17dafc41c6e961e986",
+        "0f8b5449207ede67d8d635d7a2dc25814749568a5920ad12cfe2bafb5f11a3a2",
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
         "e81a972375dcdcd1792d841ea9b300320ea0c6d907ebed3bc6823d61e0dcfde6"
       ]
@@ -65707,13 +65715,19 @@
     "spacr.qt.path_probe.prime": {
       "source_blocks_sha256": [
         "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d"
+        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
+        "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
+        "7aded6c6ee1f2321915da6f48bf90ff8254ebfb506275428c4311a4277db17f5"
       ],
-      "source_sha256": "4864f729b7f378e1d7f9a5409516f8ddcb378fa69ec3df903178d511243a041a",
-      "text": "एक जवाब रिकॉर्ड किसी के पास पहले से ही है, कोई जांच के बिना।\n\nफ़ाइल वार्तालाप ने बस हमें बताया है कि एक मार्ग मौजूद है; फ़ाइलिंग सिस्टम को फिर से पूछना पहले से ही हाथ में एक तथ्य के लिए एक दूसरा स्टेट होगा।",
+      "source_sha256": "fd14c66138269bacbad8aa9b76c186e1d31040f475bbcc2464555d46171e52fc",
+      "text": "एक जवाब रिकॉर्ड किसी के पास पहले से ही है, कोई जांच के बिना।\n\nफ़ाइल वार्तालाप ने बस हमें बताया है कि एक मार्ग मौजूद है; फ़ाइलिंग सिस्टम को फिर से पूछना पहले से ही हाथ में एक तथ्य के लिए एक दूसरा स्टेट होगा।\n\n:param path: जिस रास्ते से जवाब मिलता है।\n:param answer: जो पहले से ही सच होने के लिए जाना जाता है।\n:param want_dir: record it against :func:`isdir` rather than :func:`exists`. The two are cached separately -- a path can exist and not be a directory -- so a caller who knows both must say so twice. Without this there was no way to state the directory half at all, and `isdir` kept answering with its `False` default until a background probe caught up.",
       "translation_source_blocks_sha256": [
         "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d"
+        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
+        "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
+        "7aded6c6ee1f2321915da6f48bf90ff8254ebfb506275428c4311a4277db17f5"
       ]
     },
     "spacr.qt.plate_queue": {
@@ -69260,6 +69274,18 @@
         "37a63183da5d8a8846a684b170da8254e2d910ec63f8db61c4f011c3049561ef",
         "8de1f3b9a617ba1b7e14931b728df9428c2b55fd2fb8f346b64cb6857e40375f",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ]
+    },
+    "spacr.qt.regex_editor.RegexEditorDialog.resizeEvent": {
+      "source_blocks_sha256": [
+        "22f23301e260323bcd285268fb1c0b92835087d9b663d0a78904c8cecfec97ea",
+        "f932f0bdcac53fee263389a622a545fd7a84c7ffece20a645b518c75b505ec1d"
+      ],
+      "source_sha256": "a2ade4882eef10261a9c246d7656f062393957db862b8c109d4aa7efc1c863bf",
+      "text": "वे लपेटे हुए लेबल को उन चौड़ाई के लिए फिर से फिट करें जिन्हें वे अभी दिए गए हैं।\n\nदोनों लेबल बढ़ते हैं जब बातचीत संकीर्ण हो जाती है, और एक लेबल जो केवल इसकी एक-लाइन संकेत की अनुमति दी जाती है वह है कि इस संवाद को क्लिप करने के साथ पाया गया था: इनटोर में 54 पीएक्स 36 के अंदर लपेटा गया था, और वाक्यांश नामक `chanID` - एक बात बात बातचीति समझाने के लिए मौजूद है - भाग काट दिया गया था।",
+      "translation_source_blocks_sha256": [
+        "22f23301e260323bcd285268fb1c0b92835087d9b663d0a78904c8cecfec97ea",
+        "f932f0bdcac53fee263389a622a545fd7a84c7ffece20a645b518c75b505ec1d"
       ]
     },
     "spacr.qt.register_self_registering_modules": {

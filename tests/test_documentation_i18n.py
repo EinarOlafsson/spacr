@@ -23,11 +23,18 @@ TOOLS = ROOT / "tools"
 #:
 #: 10,152 -> 10,241 on 2026-09-07. The modules added while the list was
 #: being closed out: `ops_sbs`, `ops_merge`, `ops_settings`, `infection`
-#: and `suggest`, plus `live_zoom`. The public surface is frozen here for
-#: 1.5.0.5 -- every catalog below was regenerated against exactly these
-#: 10,241 symbols, so a change to this number is a change to eleven
-#: files and not to one.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_241
+#: and `suggest`, plus `live_zoom`.
+#:
+#: 10,241 -> 10,242 on 2026-09-08, and the single symbol is worth naming
+#: because of what it cost: `RegexEditorDialog.resizeEvent`, added by
+#: 350's clipping fix. ONE public method moved the inventory, which
+#: staled all nine API catalogs and turned
+#: `test_api_doc_catalog_is_symbol_keyed_and_source_hashed` red -- so a
+#: fix in `spacr/qt/regex_editor.py` is a change to eleven files. That is
+#: the cost this ratchet exists to make visible rather than to prevent:
+#: overriding a Qt event handler is a normal thing to do and it is not
+#: free.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_242
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
