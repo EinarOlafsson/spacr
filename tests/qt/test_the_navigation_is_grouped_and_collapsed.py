@@ -108,24 +108,24 @@ def test_only_core_starts_open(sidebar):
 
 
 def test_a_closed_section_hides_its_modules(sidebar):
-    closed = [s for s in sidebar._section_items if s != SECTION_CORE][0]
+    closed = [s for s in sidebar._section_rows if s != SECTION_CORE][0]
 
     assert all(b.property("sectionClosed")
-               for b in sidebar._section_items[closed])
+               for b in sidebar._section_rows[closed])
     assert not any(b.property("sectionClosed")
-                   for b in sidebar._section_items[SECTION_CORE])
+                   for b in sidebar._section_rows[SECTION_CORE])
 
 
 def test_clicking_a_header_opens_and_closes_it(sidebar):
-    closed = [s for s in sidebar._section_items if s != SECTION_CORE][0]
+    closed = [s for s in sidebar._section_rows if s != SECTION_CORE][0]
 
     assert sidebar.toggle_section(closed) is True
     assert not any(b.property("sectionClosed")
-                   for b in sidebar._section_items[closed])
+                   for b in sidebar._section_rows[closed])
 
     assert sidebar.toggle_section(closed) is False
     assert all(b.property("sectionClosed")
-               for b in sidebar._section_items[closed])
+               for b in sidebar._section_rows[closed])
 
 
 def test_the_header_says_it_is_open(sidebar):
