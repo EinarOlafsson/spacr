@@ -729,3 +729,57 @@ def test_replication_preflight_rejects_invalid_scoring_settings(key, value):
     settings[key] = value
     problems = validate_settings(settings, "replication")
     assert any(p.setting == key and p.is_error for p in problems)
+
+
+def test_every_screen_that_declares_folded_apps_is_a_known_host():
+    """`FOLD_HOST_MODULES` is hand-written, and has fallen behind TWICE.
+
+    First Align & Stitch, whose fold arrived after the tuple was written;
+    the fix then was to make callers read this tuple instead of their own
+    local copies, which was right and left the tuple itself unguarded. Then
+    Graph Builder, QC Dashboard and Database Browser, whose folds --
+    plate_view, trellis, layer_viewer, control_chart, outliers, lineage and
+    tabulate -- were offered by hosts that nothing was looking at.
+    `test_every_folded_module_really_is_folded_and_really_is_reachable`
+    reported the symptom, three modules the GUI could not open, and pointed
+    at the folds rather than at the list, because the list is not something
+    it can see.
+
+    So the list is derived HERE and compared, rather than derived in
+    `fold_strip` and used. That walk runs while the menu bar and the dock
+    are being built, and it goes to some length to read module source rather
+    than import it, precisely to keep work off the path Home paints on;
+    globbing the screens package at startup to save a line of maintenance
+    would give that back.
+
+    READ, NOT IMPORTED, for the same reason it is in the application: a test
+    that imports every screen pulls pandas and scipy in behind them.
+    """
+    import importlib.util
+    import re
+    from pathlib import Path
+
+    from spacr.qt.widgets.fold_strip import FOLD_HOST_MODULES
+
+    # The PACKAGE's directory, found without importing it -- `find_spec` reads
+    # the package's metadata and stops, where `import spacr.qt.screens` would
+    # execute every screen's module body.
+    spec = importlib.util.find_spec("spacr.qt.screens")
+    screens = Path(next(iter(spec.submodule_search_locations)))
+    declaring = {
+        f"spacr.qt.screens.{path.stem}"
+        for path in sorted(screens.glob("*.py"))
+        if re.search(r"^FOLDED_APPS\b", path.read_text(encoding="utf-8"),
+                     re.MULTILINE)
+    }
+
+    missing = sorted(declaring - set(FOLD_HOST_MODULES))
+    assert not missing, (
+        "these screens declare FOLDED_APPS but are not in FOLD_HOST_MODULES, "
+        "so the folds they offer are reachable from no host: "
+        f"{missing}")
+
+    # NOT THE OTHER DIRECTION. `make_masks` is in the tuple and declares no
+    # FOLDED_APPS -- it builds its strip from a local table -- and listing a
+    # host that turns out to offer nothing costs one source read, while
+    # omitting one costs a module the user cannot open.

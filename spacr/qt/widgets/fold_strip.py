@@ -94,10 +94,7 @@ FOLD_HOST_MODULES = (
     "spacr.qt.screens.make_masks",
     # Import is here for a reason the others are not: Import Images never
     # had a registry row, so this tuple is the ONLY route to its name, its
-    # sentence and its maturity. The three other late hosts -- Graph
-    # Builder, QC Dashboard, Database Browser -- fold modules that kept
-    # their rows, so the registry still answers for them and adding them
-    # here would change which host their folds are attributed to.
+    # sentence and its maturity.
     "spacr.qt.screens.foreign",
     "spacr.qt.screens.map_barcodes",
     "spacr.qt.screens.image_umap",
@@ -110,6 +107,32 @@ FOLD_HOST_MODULES = (
     # a plate acquired in sequencing cycles, so it is reached from the module
     # it belongs to rather than given a tile of its own.
     "spacr.qt.screens.align",
+    # THE THREE LATE HOSTS, ADDED 2026-09-08. They were deliberately left out
+    # on the reasoning that they "fold modules that kept their rows, so the
+    # registry still answers for them and adding them here would change which
+    # host their folds are attributed to". The registry does still answer --
+    # but it answers what a KEY SAYS, not WHO HOSTS IT, and only this walk
+    # builds the second answer. So their folds were reachable from no host at
+    # all: `test_every_folded_module_really_is_folded_and_really_is_reachable`
+    # named control_chart, outliers and trellis, and they were offered by
+    # hosts nothing was looking at.
+    #
+    # The attribution worry does not arise for these keys. `found` is
+    # first-host-wins, so it only matters when two hosts declare the same key,
+    # and none of plate_view, trellis, layer_viewer, control_chart, outliers,
+    # lineage or tabulate is declared anywhere else.
+    #
+    # THIS TUPLE HAS NOW FALLEN BEHIND TWICE -- Align & Stitch above, these
+    # three here -- so the drift is caught in the parity suite rather than
+    # left for the next reader:
+    # `test_every_screen_that_declares_folded_apps_is_a_known_host` derives
+    # the set from the source and fails when they disagree. It is a test and
+    # not a runtime glob on purpose: this walk runs while the menu bar and
+    # dock are built, and the comment above is about keeping work off that
+    # path.
+    "spacr.qt.screens.graph_builder",
+    "spacr.qt.screens.qc_dashboard",
+    "spacr.qt.screens.db_browser",
 )
 
 
