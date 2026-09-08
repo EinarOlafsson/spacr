@@ -982,15 +982,36 @@ Allocated, copied, passed, iterated, never read.
 326 raised the vocabulary deliberately and for a good reason: an organelle past
 the fourth produced an UNTYPED frame, which is the key collision the object
 type exists to prevent. That is not in question. The cost landed in a different
-file from the one 326 was working in, and its own message shows the author WAS
+file from the one 326 was working in, and its own message shows its author WAS
 watching for this class of cost -- `split_object_id` was measured at 88x and
 rewritten. This site was missed rather than accepted.
 
-LEFT RED DELIBERATELY, and it is the one failure in the remaining set that must
-not be made green: bumping the pin to 702 would accept a 175x regression and
-report it as done. Handed to the session holding 326's context; the fix looks
-like building the dict from CONFIGURED roles only and leaning on the consumer's
-existing guard, across all four allocation sites (3203, 3265, 3315, 3330).
+ATTRIBUTION CORRECTED 2026-09-08: an earlier version of this note handed the
+defect to "the session holding 326's context" and implied the current home
+session wrote it. It did not. `aadc162d9` is dated 2026-09-04, before that
+session began. It took the fix because `measure.py` is its lane under 325, not
+because it had 326's context, and it had never seen the failing test. Recorded
+because routing work on a false premise is how the wrong person ends up
+holding an instruction.
+
+LEFT RED DELIBERATELY at the time, and it was the one failure in the remaining
+set that must not have been made green: bumping the pin to 702 would have
+accepted a 175x regression and reported it as done.
+
+FIXED IN 42417ea28, and there was a FIFTH coupling the four allocation sites
+did not show. `role_order = ['cell','nucleus','pathogen', *ORGANELLE_ROLES,
+'cytoplasm']` is zipped POSITIONALLY against the measurement lists, and
+`_morphological_measurements` appends an empty frame for an unconfigured role
+rather than skipping it. So that 705-name list lined up ONLY because every
+role was always passed. Cutting the dict to the configured slots shortens the
+results, `zip` truncates from the END, and 'cytoplasm' is what is lost -- its
+morphology then read under an organelle's name. It surfaced as
+`KeyError: 'cytoplasm'` in 25 tests. `role_order` is now derived from
+`extra_organelle_masks` so the two stay in step by construction.
+
+That is the shape this file keeps meeting: the positional zip was correct only
+as a SIDE EFFECT of the defect being fixed. Same family as the clamp that
+never fired and the isinstance that was not a liveness test.
 
 THE WIDER POINT FOR THIS INSTRUCTION: 124 failures triaged, and almost all were
 tests describing a program that had moved. This is the counter-example, and it
