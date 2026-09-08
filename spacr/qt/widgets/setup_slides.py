@@ -1881,12 +1881,31 @@ class SetupSlides(QDialog):
         floor = card.height() - margin
         back = getattr(self, "_back", None)
         if back is not None and back.parent() is not None:
+            placed = False
             try:
                 top_of_buttons = back.mapTo(card, back.rect().topLeft()).y()
                 if top_of_buttons > 0:
                     floor = min(floor, top_of_buttons - 12)
+                    placed = True
             except (AttributeError, RuntimeError):
                 pass
+            if not placed:
+                # THE BUTTON IS NOT LAID OUT YET, AND THAT IS THE COMMON
+                # CASE RATHER THAN THE EDGE ONE. Every caller of this
+                # method runs during slide setup, before the nav row has a
+                # geometry, so `mapTo` answers 0 and the clamp above was
+                # SKIPPED -- leaving the floor at the card's own edge and
+                # the note 18 px over Back at 900x640. The clamp read as
+                # protection and was inert exactly when it was needed.
+                #
+                # A sizeHint is available before layout, so the floor can
+                # be computed without waiting for one.
+                try:
+                    reserved = back.sizeHint().height()
+                except (AttributeError, RuntimeError):
+                    reserved = 0
+                if reserved > 0:
+                    floor = min(floor, card.height() - margin - reserved - 12)
         top = max(0, min(top, floor - height))
         note.setGeometry(margin, top, width, height)
         note.raise_()
@@ -1927,6 +1946,18 @@ class SetupSlides(QDialog):
             html.append(f'<div>{hint}</div>')
         html.extend(self._what_this_machine_can_do())
         self._gpu_note.setText("".join(html))
+        # RE-PLACED, BECAUSE THE TEXT JUST CHANGED ITS HEIGHT. The note is
+        # laid out by `_place_the_gpu_note`, which clamps it off the nav row
+        # using the height it has AT THAT MOMENT. This runs afterwards and
+        # makes it taller -- 94 px of prose became 125 with the capability
+        # table -- and the clamp had already been applied to the old height,
+        # so the note's BOTTOM grew back down over the Back button by 18 px.
+        # The clamp was doing its job on a number that then changed.
+        #
+        # Measured at 900x640: placed at y=487 for a floor of 581 and a
+        # height of 94; the final geometry is 125 tall, bottom 612, against
+        # a button top of 593.
+        self._place_the_gpu_note()
 
     @staticmethod
     def _cellpose_label() -> str:

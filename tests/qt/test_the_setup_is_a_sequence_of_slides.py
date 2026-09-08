@@ -149,8 +149,25 @@ class TestOneQuestionPerSlide:
         """Paging without a total is navigation without a map.
 
         Seven since the terms of use became a slide.
+
+        NOT ON SLIDE ONE, and that is deliberate. This asserted "1 of 7"
+        on the first slide, and `_show_slide` now leaves the counter empty
+        there: slide one carries the greeting AND the capability table,
+        and "1 of 7" was landing on top of the GPU note. A counter that
+        overlaps the thing it sits under is worse than no counter on the
+        one slide where the answer is obvious anyway -- there is no Back
+        button to wonder about.
+
+        So the property is that the map appears as soon as there is
+        anywhere to have come from.
         """
-        assert "1 of 7" in slides._where.text()
+        assert slides._where.text() == "", (
+            "slide one has no room for a counter under the greeting and the "
+            "capability table")
+        # The first Next holds the greeting on screen for GREETING_MS, so
+        # the file's own helper is what actually reaches slide two.
+        assert _past_the_greeting(slides) == 1
+        assert "2 of 7" in slides._where.text()
 
     def test_the_last_button_starts_spacr(self, slides):
         """Walked to the end, the button offers to start rather than to page.
