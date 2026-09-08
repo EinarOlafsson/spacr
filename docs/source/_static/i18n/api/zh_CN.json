@@ -129532,19 +129532,19 @@
     "spacr.qt.widgets.training_monitor.TrainingMonitor": {
       "source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
-        "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
-        "bdb8f27e1154acbb52011998b6000e6a830ac9d4cd65d8b37407534022aaea89",
-        "8f7896e8e315b7d227f1933cdc37facde58ad95f7a05ad99c1ed204188e189c2",
-        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+        "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
+        "e3f3f390ab1f96947adf3cad4893a98e4483dc41953cb8dcf5eb06302f134b1f",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ],
-      "source_sha256": "1d8912d7bac758bdc0de09ded3577b817e5142c5c365ed641d6625b1b63c82d6",
-      "text": "显示训练尺寸作为不断更新曲线。\n\n属性\n----------\nplots : dict of str 到 pyqtgraph.PlotWidget 按 ``\"loss\"``, ``\"accuracy\"``, 和 ``\"per_class\"`` 密集的插件. curves : dict of str 至 pyqtgraph.PlotDataItem 连续插件元件按 metric 名称密集. 每一个元件在其 metrics 首次出现并重新使用后期时创建。\n\n两者都是随着时代的到来而人口化;也没有被取代,所以一旦采取的参考仍然有效的面板的寿命. 构建面板,跟踪训练处理会议的损失和测量。\n\n:param parent: 父母 widget 或 ``None``。",
+      "source_sha256": "1c228d24da84e177fd58c3ff7b1c7e2efec7361d05c39c4980029a294d4728c4",
+      "text": "显示训练尺寸作为不断更新曲线。\n\n``plots`` 持有 1 :class:`pyqtgraph.PlotWidget` 每板,键为 ``\"loss\"``, ``\"accuracy\"`` 和 ``\"per_class\"``. ``curves`` 保有 :class:`pyqtgraph.PlotDataItem` 为每个尺寸,创建当该尺寸首次出现并重新使用为每个后期。\n\n两者都被人口化,随着时代的到来,也没有被取代,所以一旦采取的参考仍然有效的面板的寿命. 构建面板,跟踪训练处理会议的损失和测量。\n\n参数\n----------\n父母: QWidget,可选 父母 widget,或 ``None``。",
       "translation_source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
-        "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
-        "bdb8f27e1154acbb52011998b6000e6a830ac9d4cd65d8b37407534022aaea89",
-        "d52612b07867c01218113a3635df6d9fb354eb9183661ff9e36479853feb4a2d",
-        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+        "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
+        "df579f2716f60aef02e80b214224cad0eecc8a579a03425d4186eae4d762c923",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ]
     },
     "spacr.qt.widgets.training_monitor.TrainingMonitor.append": {

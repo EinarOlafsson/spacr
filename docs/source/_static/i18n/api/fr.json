@@ -129531,19 +129531,19 @@
     "spacr.qt.widgets.training_monitor.TrainingMonitor": {
       "source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
-        "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
-        "bdb8f27e1154acbb52011998b6000e6a830ac9d4cd65d8b37407534022aaea89",
-        "8f7896e8e315b7d227f1933cdc37facde58ad95f7a05ad99c1ed204188e189c2",
-        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+        "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
+        "e3f3f390ab1f96947adf3cad4893a98e4483dc41953cb8dcf5eb06302f134b1f",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ],
-      "source_sha256": "1d8912d7bac758bdc0de09ded3577b817e5142c5c365ed641d6625b1b63c82d6",
-      "text": "Afficher les paramètres de formation comme des courbes progressivement mises à jour.\n\nAttributs\n----------\nLes widgets plots : dict of str à pyqtgraph.PlotWidget Plot sont codés par ``\"loss\"``, ``\"accuracy\"`` et ``\"per_class\"``. curves : dict of str à pyqtgraph.PlotDataItem Éléments de tracé persistants inscrits par nom métrique. Chaque élément est créé lorsque son métrique apparaît pour la première fois et est réutilisé pour les époques suivantes.\n\nLes deux sont peuplés à mesure que les époques arrivent; ni l'un ni l 'autre n'est remplacé, de sorte qu'une référence prise une fois reste valable pour la vie du panneau.\n\n:param parent: widget parent, ou ``None``.",
+      "source_sha256": "1c228d24da84e177fd58c3ff7b1c7e2efec7361d05c39c4980029a294d4728c4",
+      "text": "Afficher les paramètres de formation comme des courbes progressivement mises à jour.\n\n``plots`` détient un :class:`pyqtgraph.PlotWidget` par panneau, avec la touche ``\"loss\"``, ``\"accuracy\"`` et ``\"per_class\"``. ``curves`` détient le :class:`pyqtgraph.PlotDataItem` pour chaque métrique, créée lorsque cette métrique apparaît et réutilisée pour chaque époque après elle.\n\nLes deux sont peuplés à mesure que les époques arrivent et ni l'un n'est remplacé, de sorte qu'une référence prise une fois reste valable pour la vie du panneau. Construisez le panneau qui suit les pertes et les mesures d'une session de traitement de formation.\n\nParamètres\n----------\nparent : QWidget, widget parent optionnel ou ``None``.",
       "translation_source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
-        "4b0ed88f7d99420fb3ba2c68e20992280f6dcac4afaf32da17bee89c656c2ccf",
-        "bdb8f27e1154acbb52011998b6000e6a830ac9d4cd65d8b37407534022aaea89",
-        "d52612b07867c01218113a3635df6d9fb354eb9183661ff9e36479853feb4a2d",
-        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+        "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
+        "df579f2716f60aef02e80b214224cad0eecc8a579a03425d4186eae4d762c923",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ]
     },
     "spacr.qt.widgets.training_monitor.TrainingMonitor.append": {
