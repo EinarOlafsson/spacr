@@ -490,28 +490,57 @@ def test_a_retranslate_hook_that_raises_does_not_stop_the_pass(qapp):
 
 
 def test_a_module_entry_rebuilds_its_help_semantically(qapp):
-    """Module help is a sentence, not a bag of words to translate one by one."""
-    source = _a_catalogued_source()
+    """Module help is a sentence, not a bag of words to translate one by one.
+
+    AND IT IS NOT A TOOLTIP. Both halves of this asserted on
+    ``toolTip()`` until the popup was removed from module entries on
+    2026-09-03 -- the sentence MOVED rather than disappearing, to the
+    accessible description a screen reader reads and to the strip along
+    the bottom of the window, which can carry the API and Tutorial links
+    a native tooltip cannot, because a tooltip vanishes the moment the
+    pointer travels toward them.
+
+    The empty tooltip is asserted rather than tolerated: the language
+    refresh runs at startup and used to put the popup back on every
+    module, which is why they were still appearing after they had been
+    removed.
+
+    MASK'S OWN SUMMARY, not an invented sentence. `module_summary` falls
+    back to the English it was handed when the source is not in the
+    catalog, which is correct -- and it means a made-up sentence would
+    make the translation assertion pass on that fallback.
+    """
+    from spacr.qt.i18n_catalogs import en as en_catalog
+    real_summary = en_catalog.MODULE_SUMMARIES["mask"]
 
     sidebar = QLabel()
     sidebar.setProperty("moduleAppKey", "mask")
     sidebar.setProperty("moduleNameSource", "Mask")
-    sidebar.setProperty("moduleSummarySource", "Segment cells and nuclei.")
+    sidebar.setProperty("moduleSummarySource", real_summary)
     sidebar.setProperty("moduleTooltipStyle", "sidebar")
     retranslate_widget_tree(sidebar, "sv")
-    assert " — " in sidebar.toolTip()
-    assert sidebar.accessibleName()
-    assert sidebar.accessibleDescription()
 
+    assert sidebar.toolTip() == "", (
+        "the language refresh put a popup back on a module entry")
+    assert sidebar.accessibleName() == tr("Mask", "sv")
+    summary = sidebar.accessibleDescription()
+    assert summary and summary != real_summary, (
+        "the summary reached the screen reader untranslated")
+
+    # The tile is the other style, and it is where the dash lives: the
+    # stage and the summary are read as one sentence there.
     tile = QLabel()
     tile.setProperty("moduleAppKey", "mask")
     tile.setProperty("moduleNameSource", "Mask")
-    tile.setProperty("moduleSummarySource", "Segment cells and nuclei.")
+    tile.setProperty("moduleSummarySource", real_summary)
+    tile.setProperty("moduleStageSource", "Segmentation")
     tile.setProperty("moduleTooltipStyle", "tile")
-    tile.setProperty("moduleStageSource", source)
     retranslate_widget_tree(tile, "sv")
-    assert "(" in tile.toolTip() and ")" in tile.toolTip()
-    assert tile.accessibleDescription()
+
+    assert tile.toolTip() == ""
+    assert " — " in tile.accessibleDescription()
+    assert tile.accessibleDescription().endswith(summary), (
+        "the tile and the sidebar disagree about the summary")
 
 
 def test_an_action_module_entry_uses_its_status_tip(qapp):
