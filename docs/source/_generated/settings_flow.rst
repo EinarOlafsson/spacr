@@ -1265,7 +1265,7 @@ Read by :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`, :py:fu
 calculate_correlation
 ---------------------
 
-(bool) - For every pair of measured channels and every object mask, compute a per-object Pearson correlation and the three Manders coefficients (manders_m1, manders_m2, manders_overlap_coefficient), stored as <object>_channel_i_channel_j_\* columns. Needs at least two channels. Turn it off to cut measurement time and database size when colocalisation is not part of the phenotype. Default True.
+(bool) - For every pair of measured channels and every object mask, compute a per-object Pearson correlation and the three Manders coefficients (manders_m1, manders_m2, manders_overlap_coefficient), stored as <object>_channel_i_channel_j\_\* columns. Needs at least two channels. Turn it off to cut measurement time and database size when colocalisation is not part of the phenotype. Default True.
 
 | ``_measure_crop_core``
 |     ``_intensity_measurements`` **-- reads it**
@@ -2243,7 +2243,7 @@ Read by :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame`.
 cells
 -----
 
-(list) - Names of the host cell lines on the plate, e.g. ['HeLa']. Each name is written to the host_cells column and becomes part of the combined condition label used for grouping in plots and statistics. With cell_loc set the names are mapped well by well; with cell_loc None only the first name is used, applied to every row. No default is set: no set_default_\* function fills this key and its readers index settings['cells'] directly, so it must be present - use None to skip host-cell annotation.
+(list) - Names of the host cell lines on the plate, e.g. ['HeLa']. Each name is written to the host_cells column and becomes part of the combined condition label used for grouping in plots and statistics. With cell_loc set the names are mapped well by well; with cell_loc None only the first name is used, applied to every row. No default is set: no set_default\_\* function fills this key and its readers index settings['cells'] directly, so it must be present - use None to skip host-cell annotation.
 
 | :py:func:`~spacr.core.generate_screen_graphs` **-- reads it**
 | :py:func:`~spacr.deep_spacr.annotate_filter_vision` **-- reads it**
@@ -2385,7 +2385,7 @@ Read by :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.plot.plot_data
 channels
 --------
 
-(list of int) - Zero-indexed image channels kept in merged/\*.npy and measured by measure_crop; each entry produces its own <object>_channel_<n>_\* intensity columns. The list length fixes where masks land, so cell/nucleus/pathogen_mask_dim must shift if you change it. Preprocessing silently resets it to range(n) when it does not match the number of channel folders found. Default [0,1,2,3]. External Masks starts with []; there an empty list means every detected intensity channel, not no channels.
+(list of int) - Zero-indexed image channels kept in merged/\*.npy and measured by measure_crop; each entry produces its own <object>_channel\_<n>_\* intensity columns. The list length fixes where masks land, so cell/nucleus/pathogen_mask_dim must shift if you change it. Preprocessing silently resets it to range(n) when it does not match the number of channel folders found. Default [0,1,2,3]. External Masks starts with []; there an empty list means every detected intensity channel, not no channels.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
@@ -5313,7 +5313,7 @@ Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.prepro
 file_metadata
 -------------
 
-(str, list, or None) - Substring filter applied to png_path when retrieving crops from the database. Only paths containing the supplied string are included; a list matches any entry rather than requiring all entries. Use this setting to restrict a dataset to one plate, well, or object type, for example 'plate1_' or 'cell_png'. None includes every crop. Default None.
+(str, list, or None) - Substring filter applied to png_path when retrieving crops from the database. Only paths containing the supplied string are included; a list matches any entry rather than requiring all entries. Use this setting to restrict a dataset to one plate, well, or object type, for example 'plate1\_' or 'cell_png'. None includes every crop. Default None.
 
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_dataset` **-- reads it**
@@ -6290,7 +6290,7 @@ Read by :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.settings.deep_
 homogeneity
 -----------
 
-(bool) - Compute grey-level co-occurrence-matrix homogeneity for every object in every channel, adding one homogeneity_distance_<d> column per entry in homogeneity_distances. Homogeneity is high for smooth, evenly filled objects and low for punctate or grainy ones, so keep it on for texture phenotypes; disabling it noticeably speeds up measurement. Default True.
+(bool) - Compute grey-level co-occurrence-matrix homogeneity for every object in every channel, adding one homogeneity_distance\_<d> column per entry in homogeneity_distances. Homogeneity is high for smooth, evenly filled objects and low for punctate or grainy ones, so keep it on for texture phenotypes; disabling it noticeably speeds up measurement. Default True.
 
 | ``_measure_crop_core``
 |     ``_intensity_measurements`` **-- reads it**
@@ -6306,7 +6306,7 @@ Read by ``_intensity_measurements``, :py:func:`~spacr.settings.get_measure_crop_
 homogeneity_distances
 ---------------------
 
-(list) - Pixel offsets used to build each object's grey-level co-occurrence matrix; every entry adds one homogeneity_distance_<d> feature per channel. Small offsets capture fine-grained texture, large ones capture coarse structure, and offsets larger than the object itself carry no signal. More entries means more features and slower measurement. Default [8, 16, 32].
+(list) - Pixel offsets used to build each object's grey-level co-occurrence matrix; every entry adds one homogeneity_distance\_<d> feature per channel. Small offsets capture fine-grained texture, large ones capture coarse structure, and offsets larger than the object itself carry no signal. More entries means more features and slower measurement. Default [8, 16, 32].
 
 | ``_measure_crop_core``
 |     ``_intensity_measurements`` **-- reads it**
@@ -6864,7 +6864,7 @@ Read by :py:func:`~spacr.settings.get_automated_motility_assay_default_settings`
 infection_intensity_qc
 ----------------------
 
-(bool) - Master switch for infection re-calling. While False the mask-based label (cell contains at least one pathogen) is used unchanged and every other infection_\* setting is inert; True runs the method chosen by infection_intensity_strategy. A pathogen_channel must also be set. No default is applied anywhere, so it behaves as False until you set it.
+(bool) - Master switch for infection re-calling. While False the mask-based label (cell contains at least one pathogen) is used unchanged and every other infection\_\* setting is inert; True runs the method chosen by infection_intensity_strategy. A pathogen_channel must also be set. No default is applied anywhere, so it behaves as False until you set it.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -11427,7 +11427,7 @@ Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simu
 number_of_organelles
 --------------------
 
-(int) - How many organelle slots this run has, from 0 to 26. Each slot is an independent object with its own channel, its own type preset and its own copy of every detection setting, named organelle_\*, organelleb_\*, organellec_\* and so on; raising the number generates another slot's settings and lowering it hides the slots above the new number without deleting them. A hidden slot keeps its values, is still written to the settings file, and comes back exactly as it was when the number is raised again, so a smaller number can be tried without losing work. Default 0.
+(int) - How many organelle slots this run has, from 0 to 26. Each slot is an independent object with its own channel, its own type preset and its own copy of every detection setting, named organelle\_\*, organelleb\_\*, organellec\_\* and so on; raising the number generates another slot's settings and lowering it hides the slots above the new number without deleting them. A hidden slot keeps its values, is still written to the settings file, and comes back exactly as it was when the number is raised again, so a smaller number can be tried without losing work. Default 0.
 
 | :py:func:`~spacr.qt.widgets.measure_preview.apply_settings` **-- reads it**
 
@@ -13034,7 +13034,7 @@ Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.settings.se
 outside_channel
 ---------------
 
-(int) - Zero-indexed channel of the pre-permeabilisation antibody, which labels parasites remaining outside the host cell. Classification thresholds this channel, so an incorrect index changes the assay readout to the signal measured in another channel without raising an error. This is an image-channel index, not measure.py's <object>_channel_<n>_outside_\* columns, which quantify the ring outside an object's mask. Default 1.
+(int) - Zero-indexed channel of the pre-permeabilisation antibody, which labels parasites remaining outside the host cell. Classification thresholds this channel, so an incorrect index changes the assay readout to the signal measured in another channel without raising an error. This is an image-channel index, not measure.py's <object>_channel\_<n>_outside\_\* columns, which quantify the ring outside an object's mask. Default 1.
 
 | :py:func:`~spacr.settings.set_analyze_invasion_defaults` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_invasion` **-- reads it**
@@ -15006,7 +15006,7 @@ Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
 radial_dist
 -----------
 
-(bool) - Measure how each channel's intensity varies with distance from the nucleus, pathogen and organelle boundaries inside each cell, binned into 6 shells and saved as <object>_rad_dist_channel_<c>_bin_0-5. Keep it on to quantify recruitment or intensity gradients toward an object; turn it off to shrink the feature table and speed up measurement. Default True.
+(bool) - Measure how each channel's intensity varies with distance from the nucleus, pathogen and organelle boundaries inside each cell, binned into 6 shells and saved as <object>_rad_dist_channel\_<c>_bin_0-5. Keep it on to quantify recruitment or intensity gradients toward an object; turn it off to shrink the feature table and speed up measurement. Default True.
 
 | ``_measure_crop_core``
 |     ``_intensity_measurements`` **-- reads it**
@@ -16317,7 +16317,7 @@ Read by :py:func:`~spacr.settings.set_analyze_invasion_defaults`, :py:func:`~spa
 seg_qc
 ------
 
-(str) - Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.
+(str) - Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc\_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -17350,7 +17350,7 @@ Read by ``_captum_attribute``.
 summarize_organelles_by
 -----------------------
 
-(str, list or None) - Parent compartments to roll every enabled organelle slot into. Accepts 'cell', 'nucleus', 'pathogen' and 'cytoplasm'; each writes one <parent>_organelle_summary row per parent with a separate organelle_summary_<slot>_\* column family. Raw per-organelle tables are always written when their mask dim is enabled. Default 'cell'; None disables only these rollups.
+(str, list or None) - Parent compartments to roll every enabled organelle slot into. Accepts 'cell', 'nucleus', 'pathogen' and 'cytoplasm'; each writes one <parent>_organelle_summary row per parent with a separate organelle_summary\_<slot>_\* column family. Raw per-organelle tables are always written when their mask dim is enabled. Default 'cell'; None disables only these rollups.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`

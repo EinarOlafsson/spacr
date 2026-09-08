@@ -25,36 +25,32 @@ PANELS: Tuple[Tuple[str, str, str], ...] = (
 )
 
 
-# THE DOCSTRING MAY NOT END ON A NAPOLEON SECTION. AutoAPI runs with
-# ``class_content='both'``, so this docstring and ``__init__``'s are
-# concatenated before Napoleon sees them. An ``Attributes`` section becomes a
-# run of ``.. attribute::`` directives, and ``__init__``'s opening line then
-# arrived inside that run: Sphinx emitted `.. attribute:: Build the panel
-# that follows a training run's losses and metrics.` and then a bare
-# `.. attribute::` whose only content was `:type: param parent: ...`. That is
-# an ERROR, not a warning -- "1 argument(s) required, 0 supplied" -- and
-# `sphinx-build -W` fails on it.
+# NO ``Attributes`` SECTION, AND THAT IS THE FIX RATHER THAN A STYLE
+# CHOICE. AutoAPI runs with ``class_content='both'``, so this docstring
+# and ``__init__``'s are concatenated before Napoleon sees them, and a
+# trailing ``Attributes`` section swallows whatever follows it: Sphinx
+# emitted `.. attribute:: Build the panel that follows a training run's
+# losses and metrics.` and then bare `.. attribute::` directives carrying
+# `:type: param parent: ...`. That is an ERROR -- "1 argument(s)
+# required, 0 supplied" -- and `sphinx-build -W` fails the docs job on it.
 #
-# A CLOSING PARAGRAPH IS NOT ENOUGH -- that was tried and the ERROR
-# survived it. The two docstrings have to agree on a STYLE: Napoleon reads
-# the concatenation as one docstring, and a Sphinx `:param:` field arriving
-# after a NumPy ``Attributes`` run is what it cannot place. ``__init__``
-# below is NumPy-sectioned for that reason, so the merged text is two
-# well-formed sections rather than one section and a field list.
+# TWO WEAKER FIXES WERE TRIED AND MEASURED, both on the real build:
+# a closing paragraph after the section (the ERROR survived), and making
+# ``__init__`` NumPy-sectioned so the two agreed on a style (it became
+# TWO errors). The section itself is the problem, so the two attributes
+# are prose. They are still documented; they are simply not a Napoleon
+# section in a class whose docstring is about to have another one glued
+# to it.
 class TrainingMonitor(QWidget):
     """Display training metrics as incrementally updated curves.
 
-    Attributes
-    ----------
-    plots : dict of str to pyqtgraph.PlotWidget
-        Plot widgets keyed by ``"loss"``, ``"accuracy"``, and
-        ``"per_class"``.
-    curves : dict of str to pyqtgraph.PlotDataItem
-        Persistent plot items keyed by metric name. Each item is created when
-        its metric first appears and reused for subsequent epochs.
+    ``plots`` holds one :class:`pyqtgraph.PlotWidget` per panel, keyed
+    ``"loss"``, ``"accuracy"`` and ``"per_class"``. ``curves`` holds the
+    :class:`pyqtgraph.PlotDataItem` for each metric, created when that
+    metric first appears and reused for every epoch after it.
 
-    Both are populated as epochs arrive; neither is replaced, so a reference
-    taken once stays valid for the life of the panel.
+    Both are populated as epochs arrive and neither is replaced, so a
+    reference taken once stays valid for the life of the panel.
     """
 
     def __init__(self, parent: Optional[QWidget] = None):

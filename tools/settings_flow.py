@@ -236,7 +236,13 @@ def _tooltip_for(key: str) -> str:
         if part.startswith("``"):
             continue
         part = part.replace("*", r"\*")
-        part = re.sub(r"(\w)_(?=\s|$)", r"\1\\_", part)
+        # ANY trailing underscore, not just one before whitespace. RST reads
+        # `set_default_` as a reference to a target named "set_default", and
+        # the tooltips are full of `set_default_*` and `organelle_`. The
+        # first draft escaped `_` only before whitespace or end of string,
+        # so `set_default_\*` -- with the star already escaped -- still
+        # opened a reference and the build reported six unknown targets.
+        part = re.sub(r"(?<=\w)_(?!\w)", r"\\_", part)
         parts[i] = part
     return "".join(parts)
 
