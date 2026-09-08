@@ -893,6 +893,13 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "PCA": _row(
         "PCA", "PCA", "PCA", "PCA", "PCA", "PCA", "PCA", "PCA",
         "ACP"),
+    # IDENTICAL IN ALL NINE, and that is the translation rather than a gap.
+    # OPS is optical pooled screening, a method named by its acronym in the
+    # literature every one of these locales publishes in; there is no local
+    # expansion for it the way French has ACP for PCA. Translating it would
+    # invent a term a reader could not look up.
+    "OPS": _row(
+        "OPS", "OPS", "OPS", "OPS", "OPS", "OPS", "OPS", "OPS", "OPS"),
     "Volcano Explorer": _row(
         "Utforska vulkandiagram", "Vulkanplot-Explorer",
         "Explorador de gráficos volcán", "火山图浏览器",

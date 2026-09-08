@@ -40,9 +40,13 @@ ROOT = Path(__file__).resolve().parents[2]
 # caption, which is distinct from the bare "Import" band name already in
 # _ROWS.  Each locale reuses its established "Import" verb so the two read as
 # one family on the same screen.
-COMPACT_CAPTION_COUNT = 206
+# 206 -> 207 on 2026-09-07, +1/-0: "OPS", the fold label on Align. It is
+# identical in all nine locales, which IS its translation -- optical pooled
+# screening is named by its acronym in the literature these locales publish
+# in, and there is no local expansion the way French has ACP for PCA.
+COMPACT_CAPTION_COUNT = 207
 COMPACT_CAPTION_SHA256 = (
-    "05d6ae72091a96a6b3ac541a7e259135875a54046bf9240bf11ff12aaa3e9573"
+    "28207aaa4117aba9ab2ab27f69d61b9a39582e2675b2b09c79f67f65d9c6987d"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -67,15 +71,23 @@ COMPACT_CAPTION_SHA256 = (
 # The counts follow the catalogs, never the reverse.  UI and MODULE_SUMMARIES
 # are the manifest catching up with canonical; SETTING_LABELS and
 # SETTING_TOOLTIPS each gain the one row the settings work added.
+# MOVED 2026-09-07, and every one of these is the OPS and suggestion work
+# arriving in the manifest rather than anything drifting. SETTING_LABELS
+# 1,019 -> 1,077 and SETTING_TOOLTIPS 1,014 -> 1,072 are the stitch, mosaic,
+# outline and feature-cache settings; UI 2,817 -> 2,838 is the Suggest button
+# and its notices; MODULE_SUMMARIES 66 -> 67 is the OPS module itself. The
+# nine locales were regenerated against this manifest in 6aa5a73aa before
+# these numbers were touched, which is the order this file's own rule asks
+# for: catalogs first, ratchet second, never the reverse.
 EXTERNAL_SOURCE_COUNTS = {
-    "SETTING_LABELS": 1019,
-    "SETTING_TOOLTIPS": 1014,
+    "SETTING_LABELS": 1077,
+    "SETTING_TOOLTIPS": 1072,
     "CATEGORY_HELP": 192,
-    "UI": 2817,
-    "MODULE_SUMMARIES": 66,
+    "UI": 2838,
+    "MODULE_SUMMARIES": 67,
 }
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "d70acc2fc46495076d7da498362253233d2c435ea41a70386190803da1c7a862"
+    "1aca415d4b028f868072c3f197518637ddf9b13095ef6bbccae9c903aa9ebd7f"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
