@@ -4034,6 +4034,17 @@ def _load_and_concatenate_arrays(
     folder_paths = [os.path.join(src+'/stack')]
     mask_roles = []
 
+    # THE MASK FOLDERS THAT EXIST, LISTED ONCE. The check below runs per
+    # role, and 326 took `ORGANELLE_ROLES` from four to 702 -- so the
+    # `os.path.exists` it used to do became 700-odd stat calls against one
+    # directory on every merge, to answer a question one listing answers for
+    # all of them. Missing directory is the ordinary case for a run that
+    # segmented nothing, and is an empty set rather than an error.
+    try:
+        _mask_stacks = set(os.listdir(os.path.join(src, 'masks')))
+    except OSError:
+        _mask_stacks = set()
+
     def add_mask_folder(role, enabled):
         """Queue one object's mask stack, if this run has that object.
 
@@ -4047,7 +4058,7 @@ def _load_and_concatenate_arrays(
         :param enabled: that object's channel dimension, or None.
         """
         folder = os.path.join(src, 'masks', f'{role}_mask_stack')
-        if enabled is not None or os.path.exists(folder):
+        if enabled is not None or f'{role}_mask_stack' in _mask_stacks:
             folder_paths.append(folder)
             mask_roles.append(role)
 

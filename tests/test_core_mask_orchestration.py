@@ -281,21 +281,18 @@ def test_merge_receives_every_channel_index_positionally(run_dir, stubs):
     assert args[3] == 0      # nucleus
     assert args[4] == 2      # pathogen
     assert args[5] == 3      # organelle
-    assert kwargs == {
-        "organelle_chann_dims": {
-            "organelleb": None, "organellec": None, "organelled": None},
-        "resume": True,
-    }
+    # EMPTY, NOT THREE NULLS. This named the four-slot vocabulary that
+    # existed when it was written; 326 took it to 702, and core.py now sends
+    # the slots the run configured rather than every slot that can be named.
+    # This run configures none of them.
+    assert kwargs == {"organelle_chann_dims": {}, "resume": True}
 
 
 def test_merge_resume_defaults_to_false(run_dir, stubs):
     from spacr.core import preprocess_generate_masks
     preprocess_generate_masks(_mask_settings(run_dir))
     assert stubs["concat"].calls[0][1] == {
-        "organelle_chann_dims": {
-            "organelleb": None, "organellec": None, "organelled": None},
-        "resume": False,
-    }
+        "organelle_chann_dims": {}, "resume": False}
 
 
 def test_secondary_organelle_slots_are_segmented_and_merged(run_dir, stubs):
@@ -309,8 +306,11 @@ def test_secondary_organelle_slots_are_segmented_and_merged(run_dir, stubs):
 
     assert [call[0][2] for call in stubs["organelle"].calls] == [
         "organelle", "organelleb"]
+    # The configured slot, and only it -- which is also the whole point:
+    # `organelleb` is here because this run asked for it, and the 700 it did
+    # not ask for are absent rather than present-and-null.
     assert stubs["concat"].calls[0][1]["organelle_chann_dims"] == {
-        "organelleb": 2, "organellec": None, "organelled": None}
+        "organelleb": 2}
 
 
 def test_pivot_runs_only_when_a_measurements_folder_exists(run_dir, stubs):

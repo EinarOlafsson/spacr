@@ -584,9 +584,27 @@ def preprocess_generate_masks(settings):
                             settings.get('nucleus_channel'),
                             settings.get('pathogen_channel'),
                             settings.get('organelle_channel'),
+                            # THE SLOTS THIS RUN CONFIGURED, not every slot
+                            # that can be named. 326 widened
+                            # `ORGANELLE_ROLES` from four to 702, so this
+                            # comprehension built a 701-entry dict of which
+                            # all but a handful were None, on every mask run
+                            # -- the same per-VOCABULARY shape 42417ea28
+                            # fixed one file over in the measure loop.
+                            #
+                            # Nothing downstream loses anything:
+                            # `_load_and_concatenate_arrays` reads this with
+                            # `extra_dims.get(role)` inside its own loop over
+                            # the same roles, so an absent key and a key
+                            # holding None are already the same answer. What
+                            # changes is what lands in the settings record
+                            # and the run manifest, where 701 nulls buried
+                            # the slots a run actually used.
                             organelle_chann_dims={
-                                role: settings.get(f'{role}_channel')
-                                for role in ORGANELLE_ROLES[1:]},
+                                role: dim
+                                for role in ORGANELLE_ROLES[1:]
+                                if (dim := settings.get(
+                                    f'{role}_channel')) is not None},
                             resume=settings.get('resume', False)
                         )
 
