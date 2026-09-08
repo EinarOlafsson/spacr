@@ -252,7 +252,27 @@ def test_the_panel_is_widened_without_widening_the_object_key_vocabulary():
     from spacr.qt.screens.settings_model import PANEL_ORGANELLE_SLOTS
 
     assert PANEL_ORGANELLE_SLOTS == MAX_ORGANELLES
-    assert len(schema.ORGANELLE_ROLES) == 4
+    # 4 -> 702, AND THE GUARD MOVED WITH IT rather than being dropped.
+    #
+    # This asserted 4 because the vocabulary sized the measure loop's
+    # per-field allocation: at 702 roles that was 1.47 GB per field at
+    # 1024x1024, against 8.4 MB at four, because `measure.py` allocated a zero
+    # array for every role whose `_mask_dim` was unset. That is fixed in
+    # 42417ea28 -- the loop now builds from CONFIGURED slots, and the
+    # allocation is a function of the experiment rather than of the names.
+    #
+    # So the number here is no longer load-bearing and pinning it would only
+    # forbid 326 from widening the vocabulary, which it widened for a real
+    # reason: an organelle past the fourth produced an UNTYPED frame, the key
+    # collision the object type exists to prevent.
+    #
+    # WHAT REPLACES IT is
+    # `test_measure_crop_core_synth::test_the_measure_loop_allocates_per_
+    # experiment_not_per_vocabulary`, which spies on `extra_organelle_masks`
+    # and requires it to hold exactly the configured slots -- and asserts the
+    # vocabulary is still wide, so it cannot pass by the roles shrinking back.
+    # The cost is guarded where the cost is, not by a proxy two modules away.
+    assert len(schema.ORGANELLE_ROLES) == MAX_ORGANELLES
 
 
 # ---------------------------------------------------------------------------
