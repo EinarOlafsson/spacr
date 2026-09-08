@@ -202,15 +202,24 @@ def forget(path=None) -> None:
             _cache.pop((text, True), None)
 
 
-def prime(path, answer: bool) -> None:
+def prime(path, answer: bool, *, want_dir: bool = False) -> None:
     """Record an answer somebody already has, without a probe.
 
     The file dialog has just told us a path exists; asking the filesystem
     again would be a second stat for a fact already in hand.
+
+    :param path: the path the answer is about.
+    :param answer: what is already known to be true of it.
+    :param want_dir: record it against :func:`isdir` rather than
+        :func:`exists`. The two are cached separately -- a path can exist and
+        not be a directory -- so a caller who knows both must say so twice.
+        Without this there was no way to state the directory half at all, and
+        `isdir` kept answering with its `False` default until a background
+        probe caught up.
     """
     text = str(path or "")
     if text:
-        key = (text, False)
+        key = (text, bool(want_dir))
         with _lock:
             _cache[key] = bool(answer)
             _pending.discard(key)

@@ -21,6 +21,40 @@ pytest.importorskip("PySide6")
 from PySide6.QtWidgets import QFileDialog  # noqa: E402
 
 from spacr.qt.widgets import file_list as fl  # noqa: E402
+from spacr.qt import path_probe  # noqa: E402
+
+
+def _known(*paths) -> None:
+    """Seed the path cache so a cold probe does not answer with its default.
+
+    `file_list` stopped calling `os.path.exists` directly in 3b00d7b76, which
+    moved every filesystem question behind `path_probe` so the interface can
+    never be made to wait on an autofs mount that has stopped answering. The
+    probe returns a CACHED answer or a documented default while a background
+    check runs -- `isdir` defaults to False.
+
+    These tests build real directories and then ask immediately, so the cache
+    is cold and `isdir` says False: the dialog gets no start folder and the
+    assertion sees ''. That is the probe behaving exactly as documented, not
+    the widget forgetting where the file was. `prime` exists for this and
+    makes the test deterministic rather than racing a worker thread.
+    """
+    for path in paths:
+        path_probe.prime(str(path), True)
+        path_probe.prime(str(path), True, want_dir=True)
+
+
+def _gone(*paths) -> None:
+    """Seed the path cache with an absence.
+
+    `path_probe.exists` defaults to True while unknown -- optimism is the
+    right way round for a widget that must not blank a user's list because a
+    mount was slow -- so a cold cache reports a vanished file as present and
+    the "not found" hint never appears.
+    """
+    for path in paths:
+        path_probe.prime(str(path), False)
+        path_probe.prime(str(path), False, want_dir=True)
 
 pytestmark = pytest.mark.qt
 
@@ -295,10 +329,13 @@ def test_the_file_dialog_reopens_beside_the_last_file_unless_that_folder_is_gone
     monkeypatch.setattr(QFileDialog, "getOpenFileNames", _record)
 
     widget.set_value([str(listed)])
+    _known(listed.parent)
     assert widget.pick_files() == 0
     assert starts == [str(tmp_path)]
 
-    widget.set_value([str(tmp_path / "vanished" / "plate1_scores.csv")])
+    vanished = tmp_path / "vanished" / "plate1_scores.csv"
+    _gone(vanished, vanished.parent)
+    widget.set_value([str(vanished)])
     assert widget.pick_files() == 0
     assert starts == [str(tmp_path), ""]
     assert widget._hint.text() == "1 file selected — 1 not found (shown in red)"
@@ -321,6 +358,7 @@ def test_a_remembered_folder_wins_over_the_listed_file(qtbot, monkeypatch,
     listed.write_text("gene,score\na,1\n", encoding="utf-8")
     widget = _listing(qtbot)
     widget.set_value([str(listed)])
+    _known(listed.parent, elsewhere)
 
     starts = []
 
@@ -363,5 +401,6 @@ def test_an_empty_list_opens_the_dialog_with_no_start_directory(qtbot,
     listed = tmp_path / "plate1_scores.csv"
     listed.write_text("gene,score\na,1\n", encoding="utf-8")
     widget.set_value([str(listed)])
+    _known(listed.parent)
     assert widget.pick_files() == 0
     assert starts == ["", str(tmp_path)]
