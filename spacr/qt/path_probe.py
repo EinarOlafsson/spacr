@@ -142,8 +142,8 @@ def _ensure_started() -> None:
                          name=f"spacr-path-probe-{index}").start()
 
 
-def exists(path, *, default: bool = True,
-           want_dir: bool = False) -> bool:
+def exists(path, *, default: bool = True, want_dir: bool = False,
+           wait: bool = False) -> bool:
     """Whether ``path`` is there, answered from cache and never blocking.
 
     :param path: the path to ask about. Anything falsy is ``False``.
@@ -152,11 +152,22 @@ def exists(path, *, default: bool = True,
         way round here.
     :param want_dir: ask ``isdir`` rather than ``exists``. Cached
         separately, because a path can exist and not be a directory.
+    :param wait: bound the wait by :data:`PROBE_TIMEOUT_S` instead of
+        answering ``default`` immediately, and cache what comes back. For
+        callers whose whole question is "is this one missing" -- see
+        :func:`isdir` for why the optimistic default is wrong for them.
     :returns: the cached answer, or ``default`` with a check queued.
     """
     text = str(path or "")
     if not text:
         return False
+    if wait:
+        known_answer = known(text, want_dir=want_dir)
+        if known_answer is not None:
+            return known_answer
+        answer = _stat_with_timeout(text, want_dir=want_dir)
+        prime(text, answer, want_dir=want_dir)
+        return answer
     key = (text, bool(want_dir))
     with _lock:
         if key in _cache:
@@ -169,15 +180,31 @@ def exists(path, *, default: bool = True,
     return default
 
 
-def isdir(path, *, default: bool = False) -> bool:
-    """Whether ``path`` is a directory, answered from cache, never blocking.
+def isdir(path, *, default: bool = False, wait: bool = False) -> bool:
+    """Whether ``path`` is a directory, answered from cache.
 
     ``default`` is False here and True in :func:`exists`, and the asymmetry
     is deliberate: the callers of this one are choosing a folder to OPEN a
     dialog in, and opening it somewhere that turns out not to exist is worse
     than opening it at the default location.
+
+    :param wait: bound the wait by :data:`PROBE_TIMEOUT_S` instead of
+        answering ``default`` immediately, and cache what comes back.
+
+    WHY `wait` EXISTS, and why it is not the default. The freeze this module
+    was written for came from statting REMEMBERED paths -- a passive pass
+    over everything a settings file mentions, on the GUI thread, to colour
+    the missing ones red. Nobody asked for it and nobody was waiting on it,
+    so answering from cache and checking later is strictly better.
+
+    Expanding a folder the user has just dropped or chosen is the opposite
+    situation. They performed an action and are waiting for its result, and
+    the unknown-path default turns "add this folder's files" into "add this
+    folder AS a file" -- silently, and only the first time a path is seen,
+    which is why it survived review. The wait is still bounded, so a sleeping
+    autofs mount costs a fraction of a second rather than twenty.
     """
-    return exists(path, default=default, want_dir=True)
+    return exists(path, default=default, want_dir=True, wait=wait)
 
 
 def known(path, *, want_dir: bool = False) -> Optional[bool]:

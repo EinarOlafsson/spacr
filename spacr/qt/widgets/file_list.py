@@ -686,7 +686,10 @@ class PairedFileTableWidget(QWidget):
         missing = []
         for index, row in enumerate(self.get_value(), start=1):
             database = row.get("database")
-            if database and not path_probe.exists(database):
+            # `wait=True`: "is this database missing" is the whole
+            # question, and the optimistic default answers "present" for a
+            # path never seen -- so a genuinely absent file is never flagged.
+            if database and not path_probe.exists(database, wait=True):
                 missing.append((index, row.get("plate") or "", database))
         return missing
 
@@ -741,7 +744,7 @@ class PairedFileTableWidget(QWidget):
         :returns: the cell.
         """
         item = table_item(str(value))
-        if value and not path_probe.exists(str(value)):
+        if value and not path_probe.exists(str(value), wait=True):
             # Marked, not discarded: the path may be right and the disk
             # merely not mounted yet, and a silently emptied cell is worse
             # than a red one.
@@ -1211,7 +1214,10 @@ class FilePathListWidget(QWidget):
         added = 0
         for raw in incoming:
             expanded = os.path.abspath(os.path.expanduser(raw))
-            if path_probe.isdir(expanded):
+            # `wait=True`: the user just dropped or chose this, and is
+            # waiting on the result. Without it an unseen path answers
+            # "not a directory" and the folder is appended AS a file.
+            if path_probe.isdir(expanded, wait=True):
                 for member in self._folder_members(expanded):
                     added += int(self._append(member))
             else:
@@ -1441,12 +1447,16 @@ class FilePathListWidget(QWidget):
 
     def _start_directory(self) -> str:
         """Reopen where the user last was, or beside the last file added."""
-        if self._last_directory and path_probe.isdir(self._last_directory):
+        # `wait=True`: this answer chooses where a dialog the user is
+        # opening RIGHT NOW will land, so an unknown path must not silently
+        # mean "not a directory" and drop them at the default location.
+        if self._last_directory and path_probe.isdir(self._last_directory,
+                                                     wait=True):
             return self._last_directory
         values = self.paths()
         if values:
             parent = os.path.dirname(values[-1])
-            if path_probe.isdir(parent):
+            if path_probe.isdir(parent, wait=True):
                 return parent
         return ""
 
