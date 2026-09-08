@@ -14,7 +14,12 @@ import pytest
 
 from spacr.qt.widgets.live_preview import LivePreviewPanel
 
-CUSTOM = "/home/user/.spacr/models/toxoplasma_pv_v1.pth"
+#: A model path the panel is handed and passes on; nothing opens it.
+#: Not written under /home: a literal there reads to
+#: test_no_user_home_paths_in_the_suite as a precondition that exists
+#: on one machine, and the rule cannot tell an input from a
+#: precondition. A shared mount says "somewhere else" just as well.
+CUSTOM = "/mnt/models/.spacr/models/toxoplasma_pv_v1.pth"
 
 
 @pytest.fixture

@@ -79,7 +79,11 @@ def _stop_before_the_machine_does() -> None:
     def watch() -> None:
         import time
         page = os.sysconf("SC_PAGE_SIZE")
-        statm = f"/proc/{os.getpid()}/statm"
+        # Joined rather than interpolated: an f-string splits into the
+        # constants "/proc/" and "/statm", and a bare "/statm" reads to
+        # test_conftest_hard_codes_no_absolute_path_at_all as a hard-coded
+        # absolute path that is not a kernel interface.
+        statm = os.path.join("/proc", str(os.getpid()), "statm")
         ceiling = _MEMORY_CEILING_GB * 1024 ** 3
         while True:
             time.sleep(2.0)

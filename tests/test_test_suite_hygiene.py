@@ -888,13 +888,23 @@ def test_conftest_hard_codes_no_absolute_path_at_all():
     assert {_rel(p) for p in conftests} >= {"conftest.py", "qt/conftest.py"}, (
         "the suite's known conftests are no longer being found; the glob in "
         "_conftests() has stopped matching")
+    # KERNEL INTERFACES ARE NOT MACHINE PATHS. The defect this test is
+    # written for is a path that exists on one developer's computer, which
+    # makes the suite green everywhere else while running nothing. `/proc`
+    # is the opposite of that: it is the same on every Linux kernel, it is
+    # not a location anybody chose, and there is no tmp_path or fixture
+    # that could stand in for it. The memory watchdog in tests/conftest.py
+    # reads /proc/<pid>/statm because that is where a process's resident
+    # size is, and rewriting it as `Path("/proc") / str(getpid())` would
+    # hide the same string from this check rather than remove it.
+    allowed_prefixes = ("/tmp", "/proc", "/sys", "/dev/null")
     offenders = []
     for path in conftests:
         for node in _string_constants(_parse(path)):
             for line in node.value.splitlines():
                 text = line.strip()
                 if text.startswith("/") and len(text) > 1 \
-                        and not text.startswith("/tmp"):
+                        and not text.startswith(allowed_prefixes):
                     offenders.append((_rel(path), node.lineno, text[:70]))
     assert not offenders, (
         f"conftest(s) hard-code absolute path(s): {offenders}. Build "

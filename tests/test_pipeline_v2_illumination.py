@@ -8,6 +8,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 from spacr import pipeline_v2 as PV
 
 
@@ -17,7 +18,14 @@ class _CaptureModel:
     def __init__(self, *args, **kwargs):
         self.pretrained_model = None
 
-    def eval(self, images, **kwargs):
+    def eval(self, images, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        # channel_axis is NAMED rather than swallowed, and its default
+        # is the MISSING sentinel rather than None: None is a LEGAL
+        # value meaning "auto-detect", so defaulting to it makes "the
+        # caller omitted it" and "the caller passed it" the same state,
+        # and the mock silently accepts the channel_axis=3 that broke
+        # every real run. check_cellpose_eval_call is what reads it.
+        check_cellpose_eval_call(images, channel_axis)
         type(self).received = [np.asarray(image).copy() for image in images]
         masks = []
         for image in images:
@@ -31,7 +39,8 @@ class _ThresholdModel:
     def __init__(self, *args, **kwargs):
         self.pretrained_model = None
 
-    def eval(self, images, **kwargs):
+    def eval(self, images, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        check_cellpose_eval_call(images, channel_axis)
         from scipy import ndimage
 
         masks = []

@@ -7,6 +7,8 @@ from pathlib import Path
 
 import numpy as np
 
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
+
 
 class _Session:
     """Record correction/completion order and alter one spatial corner."""
@@ -502,7 +504,14 @@ def test_known_vignette_reaches_cellpose_and_recovers_the_dim_corner(
         def __init__(self, **kwargs):
             self.pretrained_model = kwargs.get("pretrained_model")
 
-        def eval(self, x, **kwargs):
+        def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            # channel_axis is NAMED rather than swallowed, and its default
+            # is the MISSING sentinel rather than None: None is a LEGAL
+            # value meaning "auto-detect", so defaulting to it makes "the
+            # caller omitted it" and "the caller passed it" the same state,
+            # and the mock silently accepts the channel_axis=3 that broke
+            # every real run. check_cellpose_eval_call is what reads it.
+            check_cellpose_eval_call(x, channel_axis)
             masks = []
             flows = []
             for image in x:

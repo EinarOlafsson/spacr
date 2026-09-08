@@ -82,7 +82,7 @@ def put_in_place():
 
 @pytest.mark.parametrize("shipped", [
     "<src>",                              # the reported value
-    "/home/carruthers/datasets/plate1",   # a real path from another machine
+    "/mnt/scope-nas/datasets/plate1",     # a real path from another machine
     "",                                   # an empty cell
 ])
 def test_the_downloaded_folder_wins_the_src_field(put_in_place, tmp_path,
