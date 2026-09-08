@@ -444,16 +444,37 @@ def _current_user() -> str:
 
 
 def _inside_allowed_root(path) -> bool:
+    """Whether ``path`` is under a directory the sandbox permits.
+
+    AN UNRESOLVABLE PATH IS NOT EVIDENCE OF ESCAPE, and treating it as
+    such is what made three tests in tests/test_doctor.py error at
+    teardown while doing nothing wrong. Each of them patches
+    ``Path.resolve`` to raise -- that IS their subject, the doctor giving
+    up on a path it cannot resolve -- and `resolve` is a method on the
+    class, so the patch is process-global while it stands. This function
+    then could not resolve the sandbox's own file, returned False, and
+    the fixture reported a leak whose "escaped" paths were plainly inside
+    the sandbox.
+
+    So the raw path is checked as well as the resolved one. `resolve` is
+    still tried first and still matters -- it is what catches a symlinked
+    temporary directory on macOS and Windows, which is why it is here --
+    but a path that is already literally under an allowed root needs no
+    resolving to be judged safe.
+    """
+    candidates = []
     try:
-        resolved = Path(path).resolve()
-    except Exception:
-        return False
-    for root in _QSETTINGS_ALLOWED_ROOTS:
-        try:
-            resolved.relative_to(root)
-            return True
-        except ValueError:
-            continue
+        candidates.append(Path(path).resolve())
+    except Exception:                                        # noqa: BLE001
+        pass
+    candidates.append(Path(path))
+    for candidate in candidates:
+        for root in _QSETTINGS_ALLOWED_ROOTS:
+            try:
+                candidate.relative_to(root)
+                return True
+            except ValueError:
+                continue
     return False
 
 
