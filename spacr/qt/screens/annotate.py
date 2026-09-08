@@ -2856,6 +2856,12 @@ class AnnotateScreen(QWidget):
         #: one can be running while the other is retired. They fit
         #: the same kind of model and must not be the same slot.
         self._suggest_worker: Optional[_SuggestWorker] = None
+        #: True when the outstanding suggestions came from a fit whose
+        #: negatives were INVENTED -- see `_synthetic_negatives_needed`.
+        #: Such a run is a RANKING and not a verdict, so the bulk KEEP is
+        #: withheld: accepting two thousand mostly-negative guesses in one
+        #: click is the worst thing this button could do.
+        self._suggestions_are_a_ranking = False
         self._last_round = None            # spacr.active_learning.RoundResult
         self._stop_verdict = None          # spacr.active_learning.StoppingVerdict
         # A routed ObjectRequest currently pinning the grid to a subset, and
@@ -4602,6 +4608,31 @@ class AnnotateScreen(QWidget):
         self._offset = 0
         self._refresh_total(then=self._load_page)
 
+    def _synthetic_negatives_needed(self):
+        """How many negatives to invent, or ``None`` when both classes exist.
+
+        The maintainer's rule is "the same number of images as is annotated
+        for the other class", so the count is the number of answers already
+        made -- read from the column rather than assumed, because the whole
+        point is that the user has been labelling one class only.
+
+        Returns ``None`` whenever two or more classes are present, which is
+        the ordinary case and the one that needs no lie told about it.
+        """
+        from ..annotate_engine import class_counts
+
+        try:
+            rows = class_counts(self._settings.db_path,
+                                self._settings.annotation_column,
+                                table=self._settings.png_table)
+        except Exception:                                    # noqa: BLE001
+            return None
+        answers = [(cls, count) for cls, count in rows
+                   if cls < SUGGESTION_OFFSET]
+        if len(answers) != 1:
+            return None
+        return int(answers[0][1])
+
     # ------------------------------------------------------------------
     # Suggest: the model's opinion, written down where it can be rejected
     # ------------------------------------------------------------------
@@ -4659,12 +4690,23 @@ class AnnotateScreen(QWidget):
         every.triggered.connect(lambda: self._start_suggest(this_page=False))
         if waiting:
             menu.addSeparator()
-            keep = menu.addAction(f"Keep all {waiting:,} suggestions")
-            keep.setToolTip(
-                "Turn every outstanding suggestion into an ordinary "
-                "annotation, indistinguishable from one you made by hand."
-            )
-            keep.triggered.connect(lambda: self._resolve_suggestions(True))
+            if self._suggestions_are_a_ranking:
+                # WITHHELD, NOT DISABLED-WITH-A-TOOLTIP. There is no safe
+                # bulk accept for a model whose negatives were invented, and
+                # a greyed-out control invites the user to find out how to
+                # enable it. Rejecting in bulk stays: throwing away a
+                # ranking costs nothing.
+                caveat = menu.addAction(
+                    "Only one class was annotated — review these one by one")
+                caveat.setEnabled(False)
+            else:
+                keep = menu.addAction(f"Keep all {waiting:,} suggestions")
+                keep.setToolTip(
+                    "Turn every outstanding suggestion into an ordinary "
+                    "annotation, indistinguishable from one you made by hand."
+                )
+                keep.triggered.connect(
+                    lambda: self._resolve_suggestions(True))
             throw = menu.addAction(f"Throw away all {waiting:,} suggestions")
             throw.setToolTip(
                 "Clear every outstanding suggestion back to unanswered. "
@@ -4689,6 +4731,12 @@ class AnnotateScreen(QWidget):
                                       table=self._settings.png_table)
             self._worker.start()
 
+        # THE ONE-CLASS CASE, asked for in so many words: "if only one class
+        # randomly choose the same number of images as is annotated for the
+        # other class". The count is how many the user has actually made, so
+        # it is read here rather than guessed in the worker.
+        synthetic = self._synthetic_negatives_needed()
+
         only = None
         if this_page:
             only = [str(path) for path, _ in self._page_paths]
@@ -4697,6 +4745,7 @@ class AnnotateScreen(QWidget):
                     "There is nothing on this page to suggest for.")
                 return
 
+        self._suggestions_are_a_ranking = bool(synthetic)
         self._btn_suggest.setEnabled(False)
         self._status_label.setText(
             "Fitting on the labels so far, then suggesting…")
@@ -4711,9 +4760,15 @@ class AnnotateScreen(QWidget):
              # a dependency, and the one the rest of the round machinery
              # (grouped split, model card, saved joblib) already understands.
              "model_type": "gradient_boosting",
+             # THE MAINTAINER'S TWO RULES, now that `retrain_round` can
+             # express them (2026-09-07). "if there is class imbalance use
+             # the class with fewer" is `balance="downsample"`; the
+             # one-class case is handled below, where the count is known.
+             "balance": "downsample",
              "measure": self._settings.queue_measure,
              "diversity": self._settings.queue_diversity,
-             "image_type": self._settings.image_type},
+             "image_type": self._settings.image_type,
+             "synthetic_negatives": synthetic},
             png_table=self._settings.png_table,
             only_paths=only, parent=self)
         worker.done.connect(self._on_suggest_done)
@@ -4738,6 +4793,17 @@ class AnnotateScreen(QWidget):
             "with a dashed ring: answer the ones it got wrong, then keep or "
             "throw away the rest from the Suggest menu.\n",
             n=f"{written:,}")
+        if self._suggestions_are_a_ranking:
+            # IN WORDS, BEFORE ANYTHING CAN BE ACCEPTED IN BULK. Only one
+            # class had been annotated, so the negatives this model learned
+            # from were drawn at random from the unlabelled pool: they are
+            # mostly-negative, not negative. What came back is an ORDER to
+            # review in, not a set of answers.
+            self._console.append_notice(
+                "These came from a model with INVENTED negatives — only one "
+                "class was annotated, so the other was drawn at random from "
+                "unlabelled crops. Treat this as a ranking to review, not as "
+                "answers: accepting them in bulk is not offered.\n")
         self._status_label.setText(
             f"{written:,} suggestions written — dashed rings are proposals, "
             f"not answers.")
@@ -4817,6 +4883,9 @@ class AnnotateScreen(QWidget):
         changed = resolve_suggestions(
             db_path, column, keep=keep,
             png_table=self._settings.png_table)
+        if not keep:
+            # The ranking is gone, so the caveat that went with it is too.
+            self._suggestions_are_a_ranking = False
         verb = "accepted" if keep else "thrown away"
         self._console.append_notice(
             "{n} suggestions {verb}.\n", n=f"{changed:,}", verb=verb)

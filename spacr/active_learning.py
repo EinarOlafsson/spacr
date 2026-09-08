@@ -2609,7 +2609,9 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                   label_window: int = 50,
                   min_gain: float = 0.003,
                   measure: Any = DEFAULT_MEASURE,
-                  diversity: Any = "well") -> RoundResult:
+                  diversity: Any = "well",
+                  balance: str = "none",
+                  synthetic_negatives: Optional[int] = None) -> RoundResult:
     """Fit a model on the labels so far, score every crop, close the loop.
 
     This is the half of active learning that has been missing: the queue put
@@ -2660,6 +2662,26 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     :param min_gain: passed to :func:`should_stop`.
     :param measure: recorded with the round, for the queue that follows.
     :param diversity: likewise.
+    :param balance: ``'none'`` (default) leaves imbalance to the estimator's
+        own ``class_weight='balanced'``; ``'downsample'`` cuts every class to
+        the size of the smallest BEFORE the grouped split.
+
+        THE TWO ARE NOT THE SAME ANSWER. Reweighting and downsampling produce
+        different probabilities from the same crops, and
+        :func:`spacr.suggest.suggest_from_scores` sorts on those
+        probabilities -- so the round records which was in force, in
+        ``notes`` and on the model card. The maintainer asked for the smaller
+        class ("if there is class imbalance use the class with fewer").
+    :param synthetic_negatives: how many unannotated crops to draw at random
+        and fit as the ABSENT class when only one class has been annotated.
+        ``None`` (default) refuses instead, as before.
+
+        THIS IS A DELIBERATE LIE AND THE ROUND SAYS SO. A random draw from
+        the unannotated pool is mostly-negative, not negative, so what comes
+        back is a ranking rather than a verdict; the count reaches the model
+        card, because a card that does not say the negatives were invented
+        describes a model that does not exist. Defined for the binary classes
+        1 and 2 only -- see :func:`_absent_binary_class`.
     :returns: a :class:`RoundResult`.
     :raises ValueError: below ``min_labels`` labels, with fewer than two
         classes annotated — neither is something to paper over with a model
@@ -2727,22 +2749,93 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
             f"{int(min_labels)}). A model fitted on fewer will still emit a "
             f"confident-looking ranking, and it will be noise.")
 
-    raw_labels = crops.loc[labelled_mask, annotation_column].to_numpy()
+    # INDEX-BASED FROM HERE, not mask-based, because `synthetic_negatives`
+    # ADDS rows that carry no label in the column and `balance` DROPS rows
+    # that do. A boolean mask over `crops` can express neither.
+    train_index = crops.index[labelled_mask.to_numpy()]
+    raw_labels = list(crops.loc[train_index, annotation_column].to_numpy())
     class_values = sorted({_class_value(v) for v in raw_labels})
+
+    synthetic_index: List[Any] = []
+    if len(class_values) == 1 and synthetic_negatives:
+        # THE DELIBERATE LIE, ASKED FOR IN SO MANY WORDS: "if only one class
+        # randomly choose the same number of images as is annotated for the
+        # other class". A random draw from the unannotated pool is
+        # MOSTLY-negative, not negative, so what comes back is a RANKING and
+        # not a verdict -- and every caller is told so, in `notes` and on the
+        # model card, because a card that does not say the negatives were
+        # invented describes a model that does not exist.
+        present = class_values[0]
+        absent = _absent_binary_class(present)
+        if absent is None:
+            raise ValueError(
+                f"Only class {present!r} is annotated in "
+                f"{annotation_column!r}, and synthetic negatives are defined "
+                f"for the binary classes 1 and 2 only. Annotate an example "
+                f"of the other class instead.")
+        pool = [i for i in crops.index[crops[annotation_column].isna()]
+                if i in matrix.index]
+        if len(pool) < int(synthetic_negatives):
+            raise ValueError(
+                f"Asked for {int(synthetic_negatives)} synthetic negatives "
+                f"and only {len(pool)} unannotated crops carry features. "
+                f"Annotate less, or ask for fewer.")
+        drawn = np.random.default_rng(int(seed)).choice(
+            np.asarray(pool, dtype=object), size=int(synthetic_negatives),
+            replace=False)
+        synthetic_index = list(drawn)
+        train_index = train_index.append(pd.Index(synthetic_index))
+        raw_labels = raw_labels + [absent] * len(synthetic_index)
+        class_values = sorted({_class_value(v) for v in raw_labels})
+        notes.append(
+            f"{len(synthetic_index)} negatives were INVENTED: drawn at "
+            f"random from the unannotated pool and fitted as class "
+            f"{absent}, because only class {present} had been annotated. "
+            f"They are mostly-negative, not negative, so this round is a "
+            f"RANKING and not a verdict.")
+
     if len(class_values) < 2:
         raise ValueError(
             f"Every label in {annotation_column!r} is class "
             f"{class_values[0] if class_values else 'none'}. A classifier "
             f"needs at least two classes; keep annotating until the other "
             f"one appears.")
+
+    if str(balance).lower() == "downsample":
+        # DOWNSAMPLED, NOT WEIGHTED, AND THAT CHANGES THE ANSWER RATHER THAN
+        # THE COST. The default estimators already pass
+        # `class_weight="balanced"`, so "balanced" alone describes two
+        # different models -- which is why `notes` and the card say WHICH.
+        # The maintainer asked for the smaller class ("use the class with
+        # fewer"), and downsampling is also what leaves the returned
+        # probability directly readable as the confidence a suggestion sort
+        # depends on: a reweighted fit's probability is not.
+        train_index, raw_labels, dropped = _downsample_to_smallest(
+            train_index, raw_labels, int(seed))
+        if dropped:
+            notes.append(
+                f"balance=downsample: {dropped} rows of the larger class "
+                f"were dropped so both classes are the size of the smaller. "
+                f"The estimator's own `class_weight='balanced'` is therefore "
+                f"acting on an already-even set.")
+        else:
+            notes.append(
+                "balance=downsample: the classes were already even, so "
+                "nothing was dropped.")
+    else:
+        notes.append(
+            "balance=none: class imbalance is handled by the estimator's "
+            "`class_weight='balanced'`, which reweights rather than drops.")
+
+    n_labels = len(raw_labels)
     class_index = {value: i for i, value in enumerate(class_values)}
     y = np.array([class_index[_class_value(v)] for v in raw_labels], dtype=int)
 
-    train_matrix = matrix.loc[labelled_mask.to_numpy()]
+    train_matrix = matrix.loc[train_index]
     x = np.nan_to_num(train_matrix.to_numpy(dtype=float), nan=0.0,
                       posinf=0.0, neginf=0.0)
 
-    labelled_crops = crops.loc[labelled_mask]
+    labelled_crops = crops.loc[train_index]
     # Keep sklearn/scipy off the import-only queue-ranking path. Recent SciPy
     # probes optional array backends while importing sklearn; that path must
     # not run merely to rank an existing score column (and breaks a legitimate
@@ -2804,6 +2897,9 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                 model_path, report, split_rule, round_index,
                 annotation_column, db_path, class_values, matrix.columns,
                 model_type, n_labels, n_new, notes,
+                {"balance": str(balance),
+                 "synthetic_negatives": len(synthetic_index),
+                 "class_weight_balanced": _model_reweights(model_type)},
                 table=table, key=key, image_type=image_type)
 
     per_class = {str(name): float(acc) for name, acc in
@@ -2857,6 +2953,76 @@ def _class_value(value: Any) -> Any:
     if isinstance(value, (int, np.integer)):
         return int(value)
     return value
+
+
+def _model_reweights(model_type: str) -> bool:
+    """Whether this estimator applies ``class_weight="balanced"`` itself.
+
+    The card records it beside ``balance`` because the two compose: a
+    downsampled set fitted by a reweighting estimator is a third thing
+    again, and "balanced" on its own does not say which of the three was
+    run.
+
+    :param model_type: the estimator name `_build_round_model` resolves.
+    :returns: True when the built estimator reweights its classes.
+    """
+    name = str(model_type).lower().replace("-", "_")
+    return name in ("logistic_regression", "logistic", "lr",
+                    "random_forest", "rf")
+
+
+def _absent_binary_class(present: Any) -> Optional[int]:
+    """The other of the two binary annotation classes, or ``None``.
+
+    spaCR's annotation column holds small integers and the binary case the
+    request was written for is 1 against 2. Anything else -- class 3, a
+    string, a float that is not 1 or 2 -- has no defensible "other class"
+    to invent, and guessing one would fit a model against a class the
+    maintainer never named.
+
+    :param present: the single class that has been annotated.
+    :returns: 2 for 1, 1 for 2, and ``None`` for everything else.
+    """
+    value = _class_value(present)
+    if value == 1:
+        return 2
+    if value == 2:
+        return 1
+    return None
+
+
+def _downsample_to_smallest(index, labels: List[Any], seed: int):
+    """Cut every class to the size of the smallest, deterministically.
+
+    :param index: the training rows, aligned with ``labels``.
+    :param labels: one raw class value per row.
+    :param seed: seeds the draw, so a round is reproducible.
+    :returns: ``(index, labels, dropped)`` -- the kept rows, their labels,
+        and how many rows were dropped.
+
+    DROPPED RATHER THAN REWEIGHTED, which is the maintainer's instruction
+    ("if there is class imbalance use the class with fewer") and also what
+    keeps the fitted probability readable as a confidence: a reweighted
+    fit's probability is a function of the weights as much as of the crop,
+    and `spacr.suggest` sorts on it.
+    """
+    by_class: Dict[Any, List[int]] = {}
+    for position, value in enumerate(labels):
+        by_class.setdefault(_class_value(value), []).append(position)
+    if len(by_class) < 2:
+        return index, labels, 0
+    smallest = min(len(rows) for rows in by_class.values())
+    rng = np.random.default_rng(int(seed))
+    keep: List[int] = []
+    for value in sorted(by_class, key=str):
+        rows = by_class[value]
+        if len(rows) > smallest:
+            rows = list(rng.choice(np.asarray(rows), size=smallest,
+                                   replace=False))
+        keep.extend(int(r) for r in rows)
+    keep.sort()
+    dropped = len(labels) - len(keep)
+    return index[keep], [labels[i] for i in keep], dropped
 
 
 def _build_round_model(model_type: str, seed: int, n_classes: int):
@@ -2936,7 +3102,8 @@ def _write_round_card(model_path: str, report: Dict[str, Any],
                       annotation_column: str, db_path: str,
                       class_values: Sequence[Any], feature_columns: Any,
                       model_type: str, n_labels: int, n_new: int,
-                      notes: List[str], table: str = PNG_TABLE,
+                      notes: List[str], balancing: Dict[str, Any],
+                      table: str = PNG_TABLE,
                       key: str = PNG_KEY,
                       image_type: Optional[str] = None) -> str:
     """Write the model card for one round's model. Never fatal.
@@ -2972,6 +3139,17 @@ def _write_round_card(model_path: str, report: Dict[str, Any],
                     k: coverage_meta.get(k) for k in
                     ("by_class", "by_plate", "by_well", "by_round",
                      "concentration", "wells_annotated", "plates_annotated")},
+                # WHICH BALANCING, NOT MERELY THAT THERE WAS SOME. The
+                # default estimators already pass `class_weight="balanced"`,
+                # so a card saying "balanced" without saying how describes
+                # two different models -- a reweighted fit and a downsampled
+                # one do not have the same probabilities, and
+                # `spacr.suggest` sorts on those probabilities.
+                #
+                # `synthetic_negatives` is the more serious of the two: a
+                # card that does not say the negatives were invented
+                # describes a model that does not exist.
+                "balancing": dict(balancing),
             },
         )
         return card_path

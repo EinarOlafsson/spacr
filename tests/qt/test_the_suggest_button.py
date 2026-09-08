@@ -559,3 +559,152 @@ def test_class_counts_does_not_invent_classes_eleven_and_twelve(
     assert "   11" not in body and "   12" not in body, (
         f"suggestions were counted as classes of their own:\n{text}")
     _stop(widget)
+
+
+# ---------------------------------------------------------------------------
+# The one-class case, which is what the request actually asked for
+# ---------------------------------------------------------------------------
+
+def test_one_annotated_class_asks_for_that_many_invented_negatives(
+        qtbot, qt_theme_applied, tmp_path: Path):
+    """"the same number of images as is annotated for the other class".
+
+    The count is READ, not assumed, because the whole premise is that the
+    annotator has been labelling one class only and nobody knows how far
+    they got. Suggestions in the column are excluded from it -- they are
+    not answers, and inventing one negative per machine guess would size
+    the lie by the size of the last run.
+    """
+    from spacr.qt.screens.annotate import AnnotateScreen
+
+    db = tmp_path / "m.db"
+    con = sqlite3.connect(db)
+    con.execute('CREATE TABLE "png_list" (png_path TEXT PRIMARY KEY, '
+                'annotate INTEGER)')
+    rows = [(f"/a{i}.png", 1) for i in range(7)]
+    rows += [(f"/s{i}.png", 1 + SUGGESTION_OFFSET) for i in range(4)]
+    rows += [(f"/n{i}.png", None) for i in range(20)]
+    con.executemany('INSERT INTO "png_list" VALUES (?,?)', rows)
+    con.commit()
+    con.close()
+
+    widget = AnnotateScreen()
+    qtbot.addWidget(widget)
+    widget._settings.db_path = str(db)
+    widget._settings.annotation_column = "annotate"
+
+    assert widget._synthetic_negatives_needed() == 7, (
+        "seven answers means seven invented negatives, and the four "
+        "suggestions must not be counted as answers")
+    _stop(widget)
+
+
+def test_two_annotated_classes_invent_nothing(qtbot, qt_theme_applied,
+                                              tmp_path: Path):
+    """The ordinary case needs no lie told about it."""
+    from spacr.qt.screens.annotate import AnnotateScreen
+
+    db = tmp_path / "m.db"
+    con = sqlite3.connect(db)
+    con.execute('CREATE TABLE "png_list" (png_path TEXT PRIMARY KEY, '
+                'annotate INTEGER)')
+    con.executemany('INSERT INTO "png_list" VALUES (?,?)',
+                    [("/a.png", 1), ("/b.png", 2), ("/c.png", None)])
+    con.commit()
+    con.close()
+
+    widget = AnnotateScreen()
+    qtbot.addWidget(widget)
+    widget._settings.db_path = str(db)
+    widget._settings.annotation_column = "annotate"
+
+    assert widget._synthetic_negatives_needed() is None
+    _stop(widget)
+
+
+def test_the_fit_is_asked_to_downsample_and_to_invent(monkeypatch, tmp_path):
+    """Both rules reach `retrain_round`, which is the only place they work.
+
+    Asserted on the options the worker passes rather than on the outcome,
+    because the outcome is `retrain_round`'s and is tested where it lives
+    (`test_a_round_can_balance_and_invent_its_negatives`). What this file
+    owns is that the button ASKS.
+    """
+    import pandas as pd
+
+    from spacr.qt.screens import annotate as mod
+
+    seen = {}
+
+    class FakeProposal:
+        """The shape ``suggest_from_scores`` returns."""
+
+        def __init__(self):
+            self.frame = pd.DataFrame(
+                {"png_path": [], "suggested": [], "stored": [],
+                 "confidence": []})
+            self.note = ""
+            self.scored = 0
+            self.classes = [1, 2]
+
+    import spacr.active_learning as al
+    import spacr.suggest as sug
+    monkeypatch.setattr(al, "retrain_round",
+                        lambda db, col, **opts: seen.update(opts) or object())
+    monkeypatch.setattr(sug, "suggest_from_scores",
+                        lambda *a, **k: FakeProposal())
+
+    mod._SuggestWorker(
+        str(_empty_db(tmp_path)), "annotate",
+        {"balance": "downsample", "synthetic_negatives": 42}).run()
+
+    assert seen.get("balance") == "downsample"
+    assert seen.get("synthetic_negatives") == 42
+
+
+def test_a_ranking_run_does_not_offer_to_accept_in_bulk(qtbot,
+                                                        qt_theme_applied,
+                                                        tmp_path: Path):
+    """The worst thing this button could do, and it is not offered.
+
+    When only one class was annotated the negatives were drawn at random
+    from unlabelled crops -- mostly-negative, not negative -- so the model
+    produces an ORDER to review in, not answers. Accepting two thousand of
+    those in one click would write a machine's guesses into the column as
+    though a person had made them, and nothing downstream could tell.
+
+    WITHHELD RATHER THAN DISABLED: a greyed-out "Keep all" invites the user
+    to work out how to enable it. Rejecting in bulk stays available,
+    because throwing a ranking away costs nothing.
+    """
+    from spacr.qt.screens.annotate import AnnotateScreen
+
+    db = tmp_path / "m.db"
+    con = sqlite3.connect(db)
+    con.execute('CREATE TABLE "png_list" (png_path TEXT PRIMARY KEY, '
+                'annotate INTEGER)')
+    con.executemany('INSERT INTO "png_list" VALUES (?,?)',
+                    [("/a.png", 1 + SUGGESTION_OFFSET),
+                     ("/b.png", 1 + SUGGESTION_OFFSET)])
+    con.commit()
+    con.close()
+
+    widget = AnnotateScreen()
+    qtbot.addWidget(widget)
+    widget._settings.db_path = str(db)
+    widget._settings.annotation_column = "annotate"
+
+    widget._suggestions_are_a_ranking = False
+    labels = [a.text() for a in widget._build_suggest_menu().actions()]
+    assert any("Keep all 2" in text for text in labels), labels
+
+    widget._suggestions_are_a_ranking = True
+    actions = widget._build_suggest_menu().actions()
+    labels = [a.text() for a in actions]
+    assert not any("Keep all" in text for text in labels), (
+        f"a ranking run offered a bulk accept: {labels}")
+    assert any("Throw away all 2" in text for text in labels), (
+        "rejecting in bulk must stay: throwing a ranking away costs nothing")
+    assert any("one class was annotated" in text for text in labels), (
+        "the reason the accept is missing must be on screen, not implied")
+    _stop(widget)
