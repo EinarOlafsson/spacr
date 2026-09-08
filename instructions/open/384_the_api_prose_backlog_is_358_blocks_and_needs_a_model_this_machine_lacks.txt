@@ -1,0 +1,138 @@
+================================================================================
+THE API PROSE BACKLOG: 358 BLOCKS, AND IT NEEDS A MODEL THIS MACHINE LACKS
+================================================================================
+SCOPE: this is the DOCS JOB'S SECOND FAILING STEP ONLY. The first --
+`sphinx-build -W` -- was CLOSED on 2026-09-08 by the work session: six
+content errors to zero, and the build measured at 3m45s rather than the
+80 minutes previously quoted. If you are here because "the docs job is
+red", do not re-diagnose the Sphinx half. It is done.
+
+Status:    OPEN, filed 2026-09-08. NOT release-blocking, and 316's own
+           header says why: an English fallback is readable and a wrong
+           translation is not. The maintainer confirmed on 2026-09-07 that
+           1.5.0.5 ships on the qualified claim the README already carries
+           -- machine-drafted and technically reviewed, not read end to end
+           by a native speaker.
+Owner:     unassigned. Home session measured it; nobody can close it here.
+Splits from: 316, which is now closed for everything except this.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+`python tools/build_documentation_i18n.py --audit` exits 1. Measured
+2026-09-08 from the per-locale repair logs of the final rebuild, which carry
+the same audit output the standalone flag produces:
+
+    API prose blocks remaining EXACTLY English, per locale
+
+        is  119        de   28        sv  23
+        hi   64        ko   27        pt  21
+        fr   32        zh_CN 29       es  15
+                                     ----
+                                      358
+
+    Of those, 120 are in the three locales whose gate ALSO reports "lack
+    target script" -- zh_CN 29, hi 64, ko 27 -- which is the same rows
+    counted a second way: a block that is still English necessarily has no
+    Han, Devanagari or Hangul in it. They are not an additional 120.
+
+    A second, overlapping class: 28 blocks "retain reviewed contextual
+    false friends" (es 11, pt 17) and between 6 and 48 per locale "failed
+    the contextual-source translation gate". These overlap the 358 rather
+    than adding to it.
+
+EVERYTHING ELSE IN 316 IS CLOSED. All nine RUNTIME catalogs build EXIT=0
+with no QA-gate complaints. The ranker reports zero wrong-cognate hits in
+all nine. 956 i18n tests pass.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A reader of the localized API pages meets English prose in 358 places. That
+is not a defect a user can be hurt by -- English is readable, and the pages
+say what they say -- which is exactly why it is filed rather than fixed in a
+release window.
+
+What it costs is the CLAIM. "spaCR's API documentation is available in nine
+languages" is true of the pages and not of 358 of their paragraphs. The
+README's qualified wording is what makes that honest today.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+NOT hand-translation. 358 blocks of technical prose across nine languages is
+not work a session should attempt, and doing it badly is worse than leaving
+English: a fluent wrong sentence reads as done, which is the whole lesson of
+2026-09-08 below.
+
+1. GET A BETTER CHECKPOINT. The repair path reports these as `unresolved`
+   because the model on this machine cannot produce a target that passes the
+   gates -- syntax, semantics, target script, degeneracy. The gates are not
+   too strict; the samples are bad. One from the French run, verbatim:
+
+       source     'the spec.'
+       candidate  '- Jag vet inte vad jag ska göra.'   ("I don't know what
+                                                        I should do")
+
+   An OPUS checkpoint is named in 316's history as the missing piece. Until
+   one is present, reruns cost 85 minutes and resolve nothing.
+
+2. THEN RERUN, per 331's checklist line: one locale per process, because the
+   model accumulates GPU memory and a nine-locale process dies of a CUDA
+   OOM partway.
+
+3. RE-MEASURE, do not assume the 358 fell. Read the per-locale logs.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    python tools/build_documentation_i18n.py --audit ; echo "EXIT=$?"
+
+EXIT=0. Today it is 1. Capture the exit code into a file rather than reading
+it off a pipe -- both sessions were bitten on 2026-09-08 by a wrapper
+reporting 0 while the process under it had failed.
+
+NOTE: the standalone `--audit` flag stalled at 0% CPU for ten minutes twice
+on this machine and produced nothing. The same audit runs fine at the end of
+`--repair-api-blocks`, and that is where these numbers came from. Worth
+diagnosing before trusting the flag.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+* NOT hand-translated. See above.
+
+* NOT gated in CI. No automatic check can decide whether a fluent sentence
+  means the right thing. `tools/rank_translation_suspects.py` RANKS
+  candidates for a fluent reader and deliberately does not judge; promoting
+  it to a gate would be a false promise.
+
+* THE GATES WERE NOT LOOSENED to make this pass. They are the only reason
+  the 358 are visible at all.
+
+--------------------------------------------------------------------------------
+WHAT 2026-09-08 PROVED ABOUT THESE NUMBERS
+--------------------------------------------------------------------------------
+
+A catalog gate can only test that a translation is not EXACTLY its English
+source. It cannot see a fluent sentence with one wrong word in it. On the
+same day, in strings that all passed every gate:
+
+    fr   "unticked"        -> "piétiné"        (trampled)
+    zh   "unticked"        -> "点燃"            (ignited)
+    es   "Drops X objects" -> "Gotas X"        (droplets)
+    pt   the same defect, eight tooltips
+    ko   "Dog sigma"       -> "강아지 Sigma"     (puppy)
+    zh   "Log x"           -> "彩票X"           (lottery)
+    es   "orgánulo"        -> "orgÃ¡ngeles"    (Los Angeles)
+
+`FeaturePicker.invert` was mistranslated in SEVEN locales and the gate
+caught TWO -- the two left as literal English. So 358 is a floor on what is
+wrong, not a measure of it. Whoever picks this up should read the number as
+"at least 358", and should not report a smaller one as progress without a
+fluent reader having looked.
