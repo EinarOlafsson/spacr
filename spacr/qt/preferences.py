@@ -4624,6 +4624,30 @@ PREFERENCE_TIPS = {
 }
 
 
+def _widget_is_alive(widget) -> bool:
+    """Whether ``widget``'s C++ half still exists.
+
+    The same check :func:`spacr.qt.screens.settings_model._widget_is_alive`
+    and ``live_zoom._alive`` make, for the same reason: a Python wrapper
+    outlives the object it wraps, and reading through it is undefined rather
+    than an exception.
+
+    :param widget: any Qt object, or None.
+    :returns: whether it is safe to touch.
+    """
+    if widget is None:
+        return False
+    try:
+        from shiboken6 import isValid
+        return bool(isValid(widget))
+    except Exception:                                        # noqa: BLE001
+        try:
+            widget.objectName()
+            return True
+        except RuntimeError:
+            return False
+
+
 def explain_every_row(dialog) -> int:
     """Put a tooltip on every Preferences LABEL. Returns how many it set.
 
@@ -4650,6 +4674,19 @@ def explain_every_row(dialog) -> int:
                 continue
             label = label_item.widget()
             field = field_item.widget()
+            # ALIVE ON THE C++ SIDE, checked before anything is read through
+            # it. `isinstance` does NOT establish that: a Python wrapper keeps
+            # its type after Qt has deleted the object it wraps, so the check
+            # below passes and `label.text()` then reads freed memory. That is
+            # not an exception, it is a segfault, and this walk runs while a
+            # dialog is being rebuilt -- exactly when a row's widgets are being
+            # replaced underneath it.
+            #
+            # The same shape took the whole process in
+            # `settings_model._sibling_label_for` (52f3642b6). Found here by
+            # sweeping for it rather than by meeting it.
+            if not _widget_is_alive(label) or not _widget_is_alive(field):
+                continue
             if not isinstance(label, QLabel) or field is None:
                 continue
             text = (label.text() or "").replace("&", "").strip()
