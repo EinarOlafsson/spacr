@@ -24,7 +24,7 @@
       "translation": "**2. 统计量。** 对于每个引导序列"
     },
     {
-      "context": "Three things this does that a naive shuffle does not. The nuisance fit is added back before re-projecting, so the reference distribution is \"no guide effect GIVEN Z\" rather than \"no structure at all\". The denominator is recomputed per permutation, because ``M P_b y~`` does not preserve norm and a fixed one would let the null drift with the shuffle. And the shuffle is confined to a block, because permuting across plates would let a plate effect leak into the null and inflate significance.",
+      "context": "Three things this does that a naive shuffle does not. The nuisance fit is added back before re-projecting, so the reference distribution is \"no guide effect given z\" rather than \"no structure at all\". The denominator is recomputed per permutation, because ``M P_b y~`` does not preserve norm and a fixed one would let the null drift with the shuffle. And the shuffle is confined to a block, because permuting across plates would let a plate effect leak into the null and inflate significance.",
       "label": "spacr.guide_permutation.guide_freedman_lane_test#9",
       "source": "Three things this does that a naive shuffle does not. The nuisance fit is added back before re-projecting, so the reference distribution is \"no guide effect GIVEN Z\" rather than \"no structure at all\". The denominator is recomputed per permutation, because ``M P_b y~`` does not preserve norm and a fixed one would let the null drift with the shuffle. And the shuffle is confined to a block, because permuting across plates would let a plate effect leak into the null and inflate significance.",
       "source_sha256": "6903e7c7913f168a181dabd3c6ad0593154906c69ee95327277ac7c1174172c3",

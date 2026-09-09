@@ -10,7 +10,7 @@
       "translation": "Indica se um menu ou uma dica de ferramenta está atualmente visível na tela da aplicação."
     },
     {
-      "context": "WHY THIS EXISTS. Opening the spaCR menu cost a burst of ~105 widget repaints over the live GL backdrop -- 68 QLabel, 25 QWidget, 12 AppTile -- and a tooltip did the same. That burst is the compositor re-composing a popup over a native GL child, and it is what the user sees as the dock and the header flickering.",
+      "context": "Why this exists. Opening the spaCR menu cost a burst of ~105 widget repaints over the live GL backdrop -- 68 QLabel, 25 QWidget, 12 AppTile -- and a tooltip did the same. That burst is the compositor re-composing a popup over a native GL child, and it is what the user sees as the dock and the header flickering.",
       "label": "spacr.qt.widgets.popup_state#1",
       "source": "WHY THIS EXISTS. Opening the spaCR menu cost a burst of ~105 widget repaints over the live GL backdrop -- 68 QLabel, 25 QWidget, 12 AppTile -- and a tooltip did the same. That burst is the compositor re-composing a popup over a native GL child, and it is what the user sees as the dock and the header flickering.",
       "source_sha256": "5fe23c20441b098d778740e67821caa9a8d77b03350c3d8f8953ca2a6c1365a6",
@@ -24,7 +24,7 @@
       "translation": "O plano de fundo não pode impedir a composição da janela pop-up, mas pode deixar de ser um alvo em movimento enquanto isso acontece. Manter a animação parada durante o tempo em que uma janela pop-up está aberta reduz o menu de 238 widgets repintados para 5 e uma dica de ferramenta de 90 para 0."
     },
     {
-      "context": "WHY IT IS A POLL AND NOT AN EVENT FILTER. The obvious implementation is an application-wide event filter watching for Show and Hide on popup windows. That was written, measured, and thrown away: it ran Python for every event in the application -- 13,646 calls per second while a module opens -- and it cost 130 ms on the very main GUI execution path block that opening a module had just been fixed to shorten (1380-1424 ms became 1473-1606).",
+      "context": "Why it is a poll and not an event filter. The obvious implementation is an application-wide event filter watching for Show and Hide on popup windows. That was written, measured, and thrown away: it ran Python for every event in the application -- 13,646 calls per second while a module opens -- and it cost 130 ms on the very main GUI execution path block that opening a module had just been fixed to shorten (1380-1424 ms became 1473-1606).",
       "label": "spacr.qt.widgets.popup_state#3",
       "source": "WHY IT IS A POLL AND NOT AN EVENT FILTER. The obvious implementation is an application-wide event filter watching for Show and Hide on popup windows. That was written, measured, and thrown away: it ran Python for every event in the application -- 13,646 calls per second while a module opens -- and it cost 130 ms on the very GUI-thread block that opening a module had just been fixed to shorten (1380-1424 ms became 1473-1606).",
       "source_sha256": "5da3e96d16169321115839efb91d93aac5b7b5ed689ead16976ca0470573c6e6",

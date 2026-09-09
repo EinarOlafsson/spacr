@@ -27,7 +27,7 @@
       "label": "spacr.crop_source.matches_path#1",
       "source_sha256": "2a17902227be8ed8baf403dcdea6906b8e5db09cb601e4a9d3e514dfa3ea8e46",
       "source": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the crop is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus crop, whatever format\" or \"every TIFF, whatever object\".",
-      "context": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the extracted image region is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus extracted image region, whatever format\" or \"every TIFF, whatever object\".",
+      "context": "Two independent tests, which is the whole point of splitting them: which object the extracted image region is of (a substring of its path, e.g. ``cell_png``) and what format it is in (its extension). One setting could never express \"every nucleus extracted image region, whatever format\" or \"every TIFF, whatever object\".",
       "translation": "두 가지 독립된 검사를 분리하는 것이 핵심입니다. 추출 이미지 영역이 어떤 객체인지(경로의 하위 문자열, 예: ``cell_png``)와 어떤 형식인지(확장자)를 각각 검사합니다. 하나의 설정으로는 \"형식과 관계없이 모든 핵 추출 이미지 영역\" 또는 \"객체와 관계없이 모든 TIFF 파일\"을 표현할 수 없습니다."
     },
     {

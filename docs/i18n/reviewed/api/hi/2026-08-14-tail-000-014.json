@@ -6,7 +6,7 @@
       "label": "spacr.active_learning.disagreement#2",
       "source_sha256": "2d3af9636b1828d7cf821d1ae9ba93a72dbb15189efe87b7cfc0bd60a38c0775",
       "source": "sequence of M score arrays, each ``(N,)`` or ``(N, C)`` over the SAME N crops in the same order (a 3-D ``(M, N, C)`` array works too). Each member is coerced with :func:`as_probabilities`.",
-      "context": "sequence of M score arrays, each ``(N,)`` or ``(N, C)`` over the SAME N extracted image regions in the same order (a 3-D ``(M, N, C)`` array works too). Each member is coerced with :func:`as_probabilities`.",
+      "context": "sequence of M score arrays, each ``(N,)`` or ``(N, C)`` over the same n extracted image regions in the same order (a 3-D ``(M, N, C)`` array works too). Each member is coerced with :func:`as_probabilities`.",
       "translation": "M स्कोर सरणियों का क्रम; प्रत्येक सरणी समान क्रम में उन्हीं N निकाले गए छवि क्षेत्रों के लिए ``(N,)`` या ``(N, C)`` आकार की है (3-D ``(M, N, C)`` सरणी भी मान्य है)। प्रत्येक सदस्य को :func:`as_probabilities` द्वारा रूपांतरित किया जाता है।"
     },
     {

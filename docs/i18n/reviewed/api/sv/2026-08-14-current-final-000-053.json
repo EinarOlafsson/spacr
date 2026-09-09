@@ -190,7 +190,7 @@
       "label": "spacr.crop_source.matches_path#1",
       "source_sha256": "2a17902227be8ed8baf403dcdea6906b8e5db09cb601e4a9d3e514dfa3ea8e46",
       "source": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the crop is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus crop, whatever format\" or \"every TIFF, whatever object\".",
-      "context": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the extracted image region is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus extracted image region, whatever format\" or \"every TIFF, whatever object\".",
+      "context": "Two independent tests, which is the whole point of splitting them: which object the extracted image region is of (a substring of its path, e.g. ``cell_png``) and what format it is in (its extension). One setting could never express \"every nucleus extracted image region, whatever format\" or \"every TIFF, whatever object\".",
       "translation": "Två oberoende tester, vilket är hela poängen med att dela upp dem: VILKET OBJEKT den extraherade bildregionen tillhör (en delsträng av dess sökväg, till exempel ``cell_png``) och VILKET FORMAT den är i (dess filändelse). En inställning skulle aldrig kunna uttrycka \"varje kärna extraherade bildregion, oavsett format\" eller \"var TIFF, vilket objekt\"."
     },
     {

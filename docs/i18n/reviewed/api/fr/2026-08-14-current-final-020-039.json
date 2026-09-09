@@ -114,7 +114,7 @@
       "translation": "True pendant que le chemin d’exécution d’écriture se trouve dans une validation."
     },
     {
-      "context": "THE COLOURS DEPEND ON THE THEME, because contrast does. The original palette was tuned against a dark tile and measured 3.5-12.0 against #1e1e1e -- all comfortable. Against a light tile (#f5f5f5) the SAME colours measure 1.28-4.34, with five of the first six below the 3.0 readability floor:",
+      "context": "The colours depend on the theme, because contrast does. The original palette was tuned against a dark tile and measured 3.5-12.0 against #1e1e1e -- all comfortable. Against a light tile (#f5f5f5) the SAME colours measure 1.28-4.34, with five of the first six below the 3.0 readability floor:",
       "label": "spacr.qt.annotate_engine.label_to_hex#2",
       "source": "THE COLOURS DEPEND ON THE THEME, because contrast does. The original palette was tuned against a dark tile and measured 3.5-12.0 against #1e1e1e -- all comfortable. Against a light tile (#f5f5f5) the SAME colours measure 1.28-4.34, with five of the first six below the 3.0 readability floor:",
       "source_sha256": "abbc52b1a4ed6bcd15a5bba378875409c02774a0574807b3d9a6d515c7e66db2",

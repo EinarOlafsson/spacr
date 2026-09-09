@@ -48,7 +48,7 @@
       "label": "spacr.active_learning.disagreement#2",
       "source_sha256": "2d3af9636b1828d7cf821d1ae9ba93a72dbb15189efe87b7cfc0bd60a38c0775",
       "source": "sequence of M score arrays, each ``(N,)`` or ``(N, C)`` over the SAME N crops in the same order (a 3-D ``(M, N, C)`` array works too). Each member is coerced with :func:`as_probabilities`.",
-      "context": "sequence of M score arrays, each ``(N,)`` or ``(N, C)`` over the SAME N extracted image regions in the same order (a 3-D ``(M, N, C)`` array works too). Each member is coerced with :func:`as_probabilities`.",
+      "context": "sequence of M score arrays, each ``(N,)`` or ``(N, C)`` over the same n extracted image regions in the same order (a 3-D ``(M, N, C)`` array works too). Each member is coerced with :func:`as_probabilities`.",
       "translation": "동일한 순서의 동일한 N개 추출 이미지 영역에 대해, 각각 ``(N,)`` 또는 ``(N, C)``인 M개 점수 배열의 시퀀스입니다(3차원 ``(M, N, C)`` 배열도 가능). 각 구성원은 :func:`as_probabilities`로 변환됩니다."
     },
     {

@@ -163,7 +163,7 @@
       "translation": "**0.4 ist vollständig implementiert** — in diesem Format liegen praktisch alle realen Daten vor, und es verwendet zarr-format 2. 0.5 (zarr-format 3, Metadaten unter dem Schlüssel ``ome`` in ``zarr.json``) wird *toleriert*: Seine Metadaten werden vollständig analysiert, und seine Chunks werden für die Codec-Ketten dekodiert, die die Standardbibliothek verarbeiten kann (``bytes``/``transpose``/``gzip``/``crc32c``). Alles andere durchläuft dieselbe Ablehnung durch :func:`require_codec` wie bei v2. ``.zgroup`` / ``.zarray`` / ``zarr.json`` und das Feld ``zarr_format`` werden gelesen statt vorausgesetzt; ein nicht unterstütztes ``zarr_format`` wird anhand seiner Nummer abgelehnt."
     },
     {
-      "context": "the `organelle_morphology` this maps to, or None when SIZE DECIDES -- see :attr:`size_split`.",
+      "context": "the `organelle_morphology` this maps to, or None when size decides -- see :attr:`size_split`.",
       "label": "spacr.organelle_types.OrganelleType#3",
       "source": "the `organelle_morphology` this maps to, or None when SIZE DECIDES -- see :attr:`size_split`.",
       "source_sha256": "6fd6a451e926e96610b29c37170f7cbf8aedf87698db96991acf6e1da308f968",

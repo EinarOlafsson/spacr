@@ -12,7 +12,7 @@
     {
       "label": "spacr.qt.widgets.popup_state#1",
       "source": "WHY THIS EXISTS. Opening the spaCR menu cost a burst of ~105 widget repaints over the live GL backdrop -- 68 QLabel, 25 QWidget, 12 AppTile -- and a tooltip did the same. That burst is the compositor re-composing a popup over a native GL child, and it is what the user sees as the dock and the header flickering.",
-      "context": "WHY THIS EXISTS. Opening the spaCR menu cost a burst of ~105 widget repaints over the live GL backdrop -- 68 QLabel, 25 QWidget, 12 AppTile -- and a tooltip did the same. That burst is the compositor re-composing a popup over a native GL child, and it is what the user sees as the dock and the header flickering.",
+      "context": "Why this exists. Opening the spaCR menu cost a burst of ~105 widget repaints over the live GL backdrop -- 68 QLabel, 25 QWidget, 12 AppTile -- and a tooltip did the same. That burst is the compositor re-composing a popup over a native GL child, and it is what the user sees as the dock and the header flickering.",
       "source_sha256": "5fe23c20441b098d778740e67821caa9a8d77b03350c3d8f8953ca2a6c1365a6",
       "translation": "이 기능이 필요한 이유. spaCR 메뉴를 열면 실시간 GL 배경 위에서 약 105개의 위젯(QLabel 68개, QWidget 25개, AppTile 12개)이 한꺼번에 다시 그려졌으며, 도구 설명도 같은 현상을 일으켰습니다. 이 재그리기 폭증은 합성기가 네이티브 GL 자식 위에 팝업을 다시 합성하면서 발생하며, 사용자는 이를 도크와 헤더의 깜박임으로 보게 됩니다."
     },
@@ -26,7 +26,7 @@
     {
       "label": "spacr.qt.widgets.popup_state#3",
       "source": "WHY IT IS A POLL AND NOT AN EVENT FILTER. The obvious implementation is an application-wide event filter watching for Show and Hide on popup windows. That was written, measured, and thrown away: it ran Python for every event in the application -- 13,646 calls per second while a module opens -- and it cost 130 ms on the very GUI-thread block that opening a module had just been fixed to shorten (1380-1424 ms became 1473-1606).",
-      "context": "WHY IT IS A POLL AND NOT AN EVENT FILTER. The obvious implementation is an application-wide event filter watching for Show and Hide on popup windows. That was written, measured, and thrown away: it ran Python for every event in the application -- 13,646 calls per second while a module opens -- and it cost 130 ms on the very main GUI execution path block that opening a module had just been fixed to shorten (1380-1424 ms became 1473-1606).",
+      "context": "Why it is a poll and not an event filter. The obvious implementation is an application-wide event filter watching for Show and Hide on popup windows. That was written, measured, and thrown away: it ran Python for every event in the application -- 13,646 calls per second while a module opens -- and it cost 130 ms on the very main GUI execution path block that opening a module had just been fixed to shorten (1380-1424 ms became 1473-1606).",
       "source_sha256": "5da3e96d16169321115839efb91d93aac5b7b5ed689ead16976ca0470573c6e6",
       "translation": "이벤트 필터가 아니라 폴링을 사용하는 이유. 가장 명백한 구현 방법은 팝업 창의 Show 및 Hide 이벤트를 감시하는 애플리케이션 전역 이벤트 필터입니다. 이 방법은 구현하고 측정한 뒤 폐기했습니다. 모듈이 열리는 동안 애플리케이션의 모든 이벤트마다 Python 코드를 실행하여 초당 13,646회 호출되었고, 모듈을 열 때 발생하는 GUI 주 스레드의 병목 구간을 막 단축했는데도 그 구간에 130 ms 를 더했습니다(1380-1424 ms였던 시간이 1473-1606 ms가 됨)."
     },

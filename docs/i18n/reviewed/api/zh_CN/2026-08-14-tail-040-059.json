@@ -13,7 +13,7 @@
       "label": "spacr.measure.save_and_add_image_to_grid#8",
       "source_sha256": "75d1b74664b8f056395fdae46210573f773328cb66588b311775c8d685283dd6",
       "source": "Crops are still ``uint16``, so these are 16-bit PNGs and no intensity is discarded at write time. The narrowing to 8 bit happens once, on read, in :func:`spacr.crops.narrow_to_uint8`, which always takes the HIGH BYTE (``// 256``) — replacing PIL's two incompatible rules (high byte for an RGB PNG, a *clip* at 255 for a single-channel one, which returned solid white for any crop brighter than that).",
-      "context": "Extracted image regions are still ``uint16``, so these are 16-bit PNGs and no intensity is discarded at write time. The narrowing to 8 bit happens once, on read, in :func:`spacr.crops.narrow_to_uint8`, which always takes the HIGH BYTE (``// 256``) — replacing PIL's two incompatible rules (high byte for an RGB PNG, a *clip* at 255 for a single-image data channel one, which returned solid white for any extracted image region brighter than that).",
+      "context": "Extracted image regions are still ``uint16``, so these are 16-bit PNGs and no intensity is discarded at write time. The narrowing to 8 bit happens once, on read, in :func:`spacr.crops.narrow_to_uint8`, which always takes the high byte (``// 256``) — replacing PIL's two incompatible rules (high byte for an RGB PNG, a *clip* at 255 for a single-image data channel one, which returned solid white for any extracted image region brighter than that).",
       "translation": "提取图像区域仍为 ``uint16``，所以这些文件是 16 位 PNG，写入时不会丢弃任何强度信息。缩窄到 8 位只在读取时进行一次，位置在 :func:`spacr.crops.narrow_to_uint8`；它始终取高字节（``// 256``）。这替代了 PIL 两种互不一致的规则：RGB PNG 取高字节，而单图像数据通道图像会在 255 处*截断*，使亮度超过该值的提取区域变成纯白。"
     },
     {

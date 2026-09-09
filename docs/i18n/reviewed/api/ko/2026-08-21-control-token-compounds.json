@@ -23,7 +23,7 @@
       "translation": "가져올 항목이 없거나 청크 요청이 이미 진행 중이면 False 값을 반환합니다. 한 번의 스크롤로 청크 열 개가 대기열에 추가되어서는 안 됩니다."
     },
     {
-      "context": "WHAT THIS IS AND IS NOT. It reads the sgRNA count CSVs and nothing else, so it is the design AS THE INPUT FILES HOLD IT: before the merge with the score data, before ``fraction_threshold`` and before the microplate sample position filters. That is deliberate -- it is the number to compare the run's own post-cleaning counts against, and comparing them is how a filter that did something unexpected becomes visible. Every caller says which it is.",
+      "context": "What this is and is not. It reads the sgRNA count CSVs and nothing else, so it is the design as the input files hold it: before the merge with the score data, before ``fraction_threshold`` and before the microplate sample position filters. That is deliberate -- it is the number to compare the run's own post-cleaning counts against, and comparing them is how a filter that did something unexpected becomes visible. Every caller says which it is.",
       "label": "spacr.qt.screens.settings_model.regression_design_scan#2",
       "source": "WHAT THIS IS AND IS NOT. It reads the sgRNA count CSVs and nothing else, so it is the design AS THE INPUT FILES HOLD IT: before the merge with the score data, before ``fraction_threshold`` and before the well filters. That is deliberate -- it is the number to compare the run's own post-cleaning counts against, and comparing them is how a filter that did something unexpected becomes visible. Every caller says which it is.",
       "source_sha256": "7f0642598e55885e75f67b054146674dcc9640f62113a7a9763b66385d3897c8",

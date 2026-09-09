@@ -552,7 +552,7 @@
       "label": "spacr.ml.regression_levels#1",
       "source_sha256": "35e27a88334a307cc6e74d5c1137cd964b46c973ffc159e0edc2026fe3fe8b1e",
       "source": "THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
-      "context": "THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
+      "context": "This is the two-fit entry point, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
       "translation": "ESTE É O PONTO DE ENTRADA PARA DOIS AJUSTES, e ele existe porque o único delineamento que o spaCR costumava ajustar não pode ser ajustado de modo algum. ``gene_fraction`` é a SUM das frações de gRNA do gene, portanto"
     },
     {
@@ -573,7 +573,7 @@
       "label": "spacr.ml.regression_levels#4",
       "source_sha256": "7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a",
       "source": "Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same wells, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
-      "context": "Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same microplate sample positions, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
+      "context": "Two fits, two tables, two corrections. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same microplate sample positions, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
       "translation": "Dois ajustes, duas tabelas, DUAS CORREÇÕES. Cada ajuste constitui sua própria família de testes múltiplos e é corrigido internamente. Agrupá-los seria duplamente errado: eles não são independentes -- mesmos poços, e o regressor do gene É a soma dos regressores dos guias -- e duplicar o tamanho da família reduz o poder sem oferecer proteção. :func:`perform_regression` aplica a correção por nível e grava ``results_grna.csv`` e ``results_gene.csv``."
     },
     {
@@ -678,7 +678,7 @@
       "label": "spacr.ml.results_folder_kind#2",
       "source_sha256": "e1f650f69fe5b9dcac25308be0248c082de61d0cbbc10e8e0135609a2fccf5b8",
       "source": "PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every run that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
-      "context": "PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every processing session that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
+      "context": "PUBLIC, and the only copy. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every processing session that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
       "translation": "PÚBLICO E CÓPIA ÚNICA. Um teste que voltou a derivar esta regra ficou desatualizado quando ela mudou e relatou 39 CSVs ausentes, embora todas as execuções que os gravaram estivessem corretas. Essa é a falha que o auxiliar `results_dir` em tests/test_cov_ml_perform_regression.py já fora escrito para evitar. Uma suíte que aponta para o arquivo errado é pior que uma silenciosa."
     },
     {

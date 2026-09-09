@@ -9,7 +9,7 @@
       "translation": "Corrigir ACROSS as comparações é a parte que uma tabela de estatísticas escrita à mão sempre esquece: seis testes pareados a 0,05 representam uma chance de 26% de pelo menos um falso positivo, e os valores p individuais não dão nenhuma pista disso."
     },
     {
-      "context": "MAGeCK-style robust rank aggregation: guides ranked by their marginal effect, aggregated to the gene BY RANK with a permutation P value, via :mod:`spacr.rra`. It forms no joint fit, so the collinearity and the p >> n width that constrain every backend above do not reach it",
+      "context": "MAGeCK-style robust rank aggregation: guides ranked by their marginal effect, aggregated to the gene by rank with a permutation P value, via :mod:`spacr.rra`. It forms no joint fit, so the collinearity and the p >> n width that constrain every backend above do not reach it",
       "label": "spacr.ml.regression_model#18",
       "source": "MAGeCK-style robust rank aggregation: guides ranked by their marginal effect, aggregated to the gene BY RANK with a permutation P value, via :mod:`spacr.rra`. It forms no joint fit, so the collinearity and the p >> n width that constrain every backend above do not reach it",
       "source_sha256": "38bc40498635149c0d29711520c5a33f7bb696f55a876e803d860fc54082c887",

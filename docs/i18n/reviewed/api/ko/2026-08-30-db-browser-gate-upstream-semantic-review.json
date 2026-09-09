@@ -544,7 +544,7 @@
     {
       "label": "spacr.ml.regression_levels#1",
       "source": "THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
-      "context": "THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
+      "context": "This is the two-fit entry point, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
       "source_sha256": "35e27a88334a307cc6e74d5c1137cd964b46c973ffc159e0edc2026fe3fe8b1e",
       "translation": "이 함수는 두 번의 적합을 수행하는 진입점입니다. spaCR 에서 사용하던 단일 설계는 전혀 적합할 수 없기 때문에 존재합니다. ``gene_fraction``은 SUM, 즉 해당 유전자의 gRNA 분율 합계이므로"
     },
@@ -565,7 +565,7 @@
     {
       "label": "spacr.ml.regression_levels#4",
       "source": "Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same wells, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
-      "context": "Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same microplate sample positions, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
+      "context": "Two fits, two tables, two corrections. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same microplate sample positions, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
       "source_sha256": "7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a",
       "translation": "두 번의 적합, 두 개의 테이블, 두 번의 보정. 각 적합은 자체적인 다중 검정 패밀리이며, 그 안에서 보정이 이루어진다. 이를 합치는 것은 두 번 잘못된 것이다: 독립적이지 않다 -- 동일한 마이크로플레이트 샘플 위치를 공유하며, 유전자 회귀자는 가이드 회귀자의 합이다 -- 패밀리 크기를 두 배로 늘리는 것은 보호 효과 없이 검정력을 잃게 된다. :func:`perform_regression`는 각 수준별로 보정을 적용하고 ``results_grna.csv`` 및 ``results_gene.csv``를 작성한다."
     },
@@ -670,7 +670,7 @@
     {
       "label": "spacr.ml.results_folder_kind#2",
       "source": "PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every run that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
-      "context": "PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every processing session that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
+      "context": "PUBLIC, and the only copy. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every processing session that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
       "source_sha256": "e1f650f69fe5b9dcac25308be0248c082de61d0cbbc10e8e0135609a2fccf5b8",
       "translation": "공개된 유일한 구현입니다. 이 규칙을 다시 유도한 테스트는 규칙이 바뀌자 오래된 상태가 되어, 파일을 기록한 모든 처리 세션이 정상인데도 CSVs 39개가 없다고 보고했습니다. 바로 이 실패를 한 번 막기 위해 `results_dir` 도우미가 tests/test_cov_ml_perform_regression.py 에 이미 작성되었습니다. 잘못된 파일을 가리키는 테스트 모음은 침묵하는 테스트 모음보다 더 나쁩니다."
     },
