@@ -1,0 +1,23 @@
+{
+  "id": "06_api", "number": 6, "slug": "api",
+  "title": "Python API and current headless workflows",
+  "series": 1, "app_key": null, "section": "spaCR",
+  "description": "Discover the installed batch routes, distinguish interactive tools from Python functions, and inspect a real example's dry run without claiming an analysis was executed.",
+  "objectives": [
+    "Confirm the package version in the active Python environment.",
+    "Discover current command keys and the functions they actually call.",
+    "Distinguish an interactive workflow, a Python function and a batch command.",
+    "Read a dry run's settings, exit status and limitations before unattended work."
+  ],
+  "prerequisite": "Complete an installation lesson first. For the demonstrated preflight, use the downloaded paired data and saved settings from the Regression lesson; replace this machine's paths with your own. No analysis or report is generated in this recording.",
+  "scenes": [
+    {"visual": "01_version", "focus": [200, 100, 1900, 650], "narration": "In the environment where you installed spaCR, import the package and print its version. This real terminal reports version one point five point zero point four. Confirm your own version before following commands, because an older environment can expose different functions and settings.", "related_lessons": ["02_conda_install", "03_pip_install", "04_platform_installers"], "hold_after": 0.7},
+    {"visual": "02_list", "focus": [200, 100, 2800, 1900], "narration": "Run spacr-run with the list option. Its batch section prints exact command keys and Python entry points, including mask, measure and classify_merged. Home screen names and nested buttons are not automatically batch commands. Use the installed list rather than guessing a key from a tutorial title.", "hold_after": 0.7},
+    {"visual": "03_describe", "focus": [200, 100, 2250, 900], "narration": "Describe regression to see the function perform_regression in spacr.ml, its defaults provider and its input requirements. This connects the command to the actual analysis function. The saved paired-data settings used here come from the linked Regression example, not an invented measurements folder.", "related_lessons": ["13_regression"], "hold_after": 0.7},
+    {"visual": "04_gui_only", "focus": [200, 100, 2800, 700], "narration": "Annotate is an interactive workflow. Calling spacr-run annotate really returns exit status two and explains that there is no batch equivalent. Use Annotate in the desktop application to label crops. This expected refusal is not evidence that the installation is broken.", "related_lessons": ["09_annotate"], "hold_after": 0.7},
+    {"visual": "05_report_api", "focus": [200, 100, 2800, 700], "narration": "Other capabilities have a Python API without a matching batch key. Here we import build_report from spacr.report and inspect its real signature. We do not call it or generate a report. Check the function's documentation and arguments instead of assuming that spacr-run report exists.", "hold_after": 0.7},
+    {"visual": "06_dry_run", "focus": [200, 1320, 3440, 680], "narration": "Pass regression the saved settings file and add the dry-run option. The real command resolves settings and runs its preflight checks, then explicitly says perform_regression was not called. Read the exit status and messages; this recording did not start another regression or write its analysis outputs.", "related_lessons": ["13_regression"], "hold_after": 0.7},
+    {"visual": "06_dry_run", "focus": [200, 1320, 3440, 680], "narration": "A clean preflight is not proof that the full analysis or its science will succeed. This build's generic plan mentions a measurements database even though our regression uses paired tables. Inspect the module's actual inputs, and test a bounded run before relying on unattended execution.", "hold_after": 0.7},
+    {"visual": "03_describe", "focus": [200, 100, 2250, 900], "narration": "Remove dry-run only when you intend to execute the analysis. Keep the exact settings, input identifiers, package version and console log with its outputs. Follow the linked module lesson for a demonstrated run and inspect the function's current API reference when writing Python scripts.", "related_lessons": ["13_regression", "15_image_umap"], "hold_after": 0.7}
+  ]
+}
