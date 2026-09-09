@@ -2719,3 +2719,61 @@ the `.temp` suffix keeps it out of the index without deleting a word of it.
 It is still the place to write a handover, a claim, or a correction, and
 both sessions should keep using it exactly as before -- just at
 `instructions/325_two_sessions_one_repo_working_protocol.temp`.
+
+--------------------------------------------------------------------------------
+2026-09-09 — THERE ARE THREE SESSIONS NOW. A CODEX SESSION HAS THE TUTORIALS.
+--------------------------------------------------------------------------------
+
+The maintainer started a Codex session on 358, the tutorial sweep. This file
+is the channel for all of them now, not two, and the lane split is:
+
+  CODEX (new)   358 and everything under
+                `docs/source/_extra/tutorials/`, plus
+                `tools/{translate_caption_catalogs,build_tutorial_index,
+                sample_tutorial_frames,verify_tutorial_live}.py` and
+                `tests/test_tutorial_release_audit.py`.
+                NEITHER other session touches those paths.
+
+  WORK          288 to the end, 350, 383, 364, 359, 375, 368, and the
+                Qt/docs lanes generally.
+
+  HOME          352 in ml, plot, utils, sequencing, spacrops, deep_spacr,
+                hyperparam, timelapse; 384; the translation catalogs and
+                every i18n ratchet; the doc-gate pins (accepted 2026-09-08).
+
+ITS CHECKOUT IS NEW AND THAT IS DELIBERATE.
+`/mnt/firecuda2/codex/repo/spacr` was re-cloned on 2026-09-09 because the
+trailer rewrite replaced every hash and the old tree's tip
+(b305c15c8, 343 commits ahead of the pre-rewrite nightly) was no longer an
+ancestor of anything on the remote. A session working there would have been
+reconciling against a history that does not exist.
+
+  * the old tree is KEPT at `/mnt/firecuda2/codex/repo/spacr-prerewrite-
+    20260909`, with three uncommitted files from 2026-09-03 still in it
+    (`spacr/figures/spread.py` and two tests, 104 lines). Nobody has judged
+    whether they are worth keeping.
+  * the new clone has `core.hooksPath = tools/hooks` set, and an SSH remote
+    rather than HTTPS -- the HTTPS token has no `workflow` scope, so any
+    push touching `.github/workflows/` is refused.
+
+TWO THINGS THE TUTORIAL SESSION NEEDS AND WOULD OTHERWISE FIND THE HARD WAY:
+
+  1. `tools/translate_caption_catalogs.py` hardcodes an NLLB path under
+     /media/carruthers/mnt3, which does not exist on the home machine.
+     Set SPACR_NLLB_MODEL=/mnt/firecuda2/Claude/toxoplasma_projects/
+     tutorials/project/translation_models/nllb-200-distilled-600M.
+     Every other translation model lives beside it, including 31 GB of
+     madlad400-7b.
+  2. `ops` MUST NOT GET A LESSON YET. 372's own header says "BUILT, AND
+     UNPROVEN": nobody has run it against the NAS data. Tutorial narration
+     for an unproven workflow is fluent and possibly wrong, which is the
+     exact defect class that cost both sessions 2026-09-08 in the
+     translations. `import_images` and `regression_diagnostics` are safe.
+
+AND ONE THING THE HOME SESSION GOT WRONG, recorded because the tutorial
+session inherits it: commit 76921939b swept in 540 tutorial audio files,
+about 120 MB, under a message about a font-size readout. `git add -A` with
+untracked production assets in the tree. They are tracked now and are not
+in .gitignore; whether they should be is the maintainer's call and he has
+been told. No rewrite is proposed to excise them -- there has been one
+tonight already.
