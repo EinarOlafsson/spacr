@@ -173,3 +173,77 @@ NOT OPTIMISED HERE. The obvious fix -- hoist the per-pattern Counter, or
 short-circuit once a contract is known broken -- touches the gate that every
 translation decision goes through, and it is not the sort of change to make
 in a release window on a tool whose only symptom is that it is slow.
+
+--------------------------------------------------------------------------------
+2026-09-08, NIGHT — THE TITLE OF THIS FILE IS WRONG. NO MODEL IS MISSING.
+--------------------------------------------------------------------------------
+
+I wrote "it needs a model this machine lacks" by repeating 316's history
+instead of checking it. Checked now. Every model the builders name is on
+this machine, at the `--model-root` default
+`/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/project/
+translation_models`:
+
+    opus/{en-sv,en-de,en-es,en-fr,en-pt,en-hi,en-is,en-ko,en-zh}   3.2 G
+    m2m100_418M                                                    3.7 G
+    madlad400-3b-mt                                                 11 G
+    madlad400-7b-mt                                                 31 G
+    nllb-200-distilled-600M                                        2.4 G   (unused)
+
+A LOOK AT ~/.cache/huggingface IS NOT A LOOK AT THE MODELS. That cache holds
+metadata-only stubs for several of these -- 12 K directories with no weights
+-- and I nearly filed a second wrong conclusion from it. The builders load
+from `--model-root` with `local_files_only=True` and never consult the hub
+cache. A test script of mine that used hub IDs instead started re-downloading
+31 GB that was already on disk.
+
+WHAT IS ACTUALLY REJECTING THE TRANSLATIONS. MADLAD is already tried: the
+repair logs show it running and being turned down. Of 72 rejections recorded
+across the nine locales,
+
+    52   caller_gate
+    11   semantic
+     7   protected_syntax
+     2   degenerate
+
+and `caller_gate` does not mean "bad translation". It is set only for a
+candidate that passed EVERY shared gate -- syntax, semantics, target script,
+degeneracy -- and then failed the caller's extra contract. The comment at the
+definition is explicit that it is reported "only for an otherwise viable
+candidate so a structural or semantic failure cannot be mislabeled as
+caller-only".
+
+The caller here is `api_repair_candidate_valid`, and its contract is the
+thing to understand before touching any of this: one translation must be
+valid for the contextual form AND for EVERY canonical source that shares that
+context. Several symbols can carry the same English block with slightly
+different canonical text, and a candidate that suits one and not the others
+is refused. That is the wall the 359 are behind.
+
+MEASURED, on eight Icelandic blocks m2m100_418M could not translate:
+madlad400-7b clears 6 of 8. But that was scored against
+`_reviewed_api_block_valid`, the gate for HUMAN-REVIEWED evidence, not
+against the generation contract above -- so it is not a 75% fix, and quoting
+it as one would be the same error as the title of this file.
+
+THE PATH THAT LOOKS OPEN AND IS NOT. Generate with madlad-7b, score against
+the reviewed gate, write the survivors into `docs/i18n/reviewed/api/` as
+reviewed records. It would work mechanically and it is forbidden: 357's
+guideline 4 forbids claiming a review nobody gave, and
+`reviewed_api_block_translations` calls its own inputs "evidence, not
+catalogs". Model output filed as review is a lie that would be believed by
+every later reader and by the coverage report.
+
+SO THE REAL BLOCKER IS REVIEW CAPACITY, NOT A CHECKPOINT. Two honest routes:
+
+  1. A fluent reader per locale, working the ranked list. This is what 316
+     has always said the nine catalogs lack.
+  2. Relax `api_repair_candidate_valid` so a block shared across canonical
+     forms is translated per canonical rather than once. That is a real
+     design change to the generation contract, it would raise the accepted
+     rate, and it must not be done in a release window by an agent that
+     found it at two in the morning.
+
+RENAME THIS FILE when either is taken up. The current name asserts something
+false, and a file that is wrong in its own title is worse than one nobody
+has opened.
