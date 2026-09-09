@@ -2560,3 +2560,79 @@ acquisition is not reachable from the work machine.
 NEXT: A3 (PART 12 measured it on the SBS channels; it wants the same
 treatment -- a module and its tests), then the least-squares solve of the
 edge graph, then Phase B.
+
+
+--------------------------------------------------------------------------------
+PART 13-B -- THE GPU, AS THE INSTRUCTION ACTUALLY OUTLINES IT. 2026-09-09.
+--------------------------------------------------------------------------------
+
+"372 outlines more use og the GPU!" -- the maintainer, when offered a
+smaller answer. It does, and the smaller answer was wrong: a switch that
+only reaches the Cellpose outline is a switch over one optional step of a
+preprocessing run.
+
+WHAT THE INSTRUCTION NAMES, in its own order: the per-window affine warp;
+peak finding and the unmixing matrix multiply; cellpose, which already has
+a path; and, for the merge, ORB detect with Hamming descriptor matching
+(rated "excellent") and mutual-nearest-neighbour cell matching ("good").
+
+STRIP THE NAMES AWAY AND THAT IS THREE PRIMITIVES. A windowed maximum, a
+matrix multiply, a nearest-neighbour search. `spacr/ops_accel.py` is those
+three and nothing else, so ONE place knows about devices and the modules
+that use them go on reading as the science they are.
+
+    torch -> cupy -> numpy, the order the maintainer chose. Every function
+    takes and returns NumPy, so no caller learns which backend ran. Both
+    paths run the same fixture and must agree, and torch is asked for BY
+    NAME in those tests so they run on a machine with no card -- CI is
+    exactly where an unrun path drifts.
+
+WIRED, NOT MERELY OFFERED, because a primitive with no caller is the state
+`spacrops` was in when this instruction was filed:
+
+    ops_sbs.find_peaks            the max-pool. The most expensive step in
+                                  the decode chain on a well-sized field.
+    ops_sbs.compensate_crosstalk  a 4x4 matrix against every spot of every
+                                  cycle -- a large multiply by a tiny
+                                  operand, the shape a card suits.
+    ops_merge.match_cells         two searches, one in each direction.
+
+TWO DECISIONS INSIDE THAT ARE WORTH THE WORDS:
+
+  * THE SEARCH IS CHUNKED AT 4,096 ROWS. A well can carry a hundred
+    thousand nuclei, and the distance matrix between two such sets is
+    40 GB in float32 -- more than the card and more than the host. PART 5's
+    argument about the mosaic applies unchanged: the ceiling must not
+    depend on how much data there is.
+  * `match_cells` RE-MEASURES ITS THRESHOLD IN FULL PRECISION. The search
+    returns float32 distances, a card's native width, so a pair sitting
+    exactly on the threshold would be kept or dropped according to which
+    backend ran. That decision is which phenotype carries which barcode,
+    and it must not depend on the hardware.
+
+AND THE PART THAT WAS MISSING ENTIRELY: `ops_gpu`, default True, declared
+with a type, a category and a tooltip. OPS shipped 63 settings and not one
+of them said anything about hardware. It is `ops_gpu` and not `gpu`
+because Image UMAP already owns `gpu` with a different meaning -- the same
+collision `register_defaults` refuses `src` to prevent, avoided before it
+happened rather than after.
+
+  AND THE RESOLVED DEVICE IS NO LONGER DISCARDED.
+  `accelerator.cellpose_kwargs()` produces `gpu`, `device` and
+  `use_bfloat16` TOGETHER because they have to agree -- cellpose branches
+  on `gpu` before it looks at `device` -- and this call site popped the
+  device, so cellpose picked its own default. On a machine with two cards
+  that is the wrong card.
+
+WHAT IS NOT ACCELERATED, AND WHY. The per-window affine warp and the
+peak-finding-on-a-window, because Phase B has not been built yet and there
+is nothing to accelerate. The stitch solve stays on the CPU on the
+instruction's own advice -- "feature matching on tile pairs, latency-bound
+and small; leave it on the CPU until measured" -- and A2 replaced feature
+matching with an FFT anyway, which `ops_register` already puts on the card
+through the same seam.
+
+STILL UNMEASURED: none of this has been TIMED against the CPU on a real
+well. The correctness is asserted both ways; the speedup is claimed by the
+instruction and not yet by a measurement. The first real run should print
+both, and this note should be replaced by the numbers.
