@@ -88,3 +88,73 @@ No cause is asserted here. The three ruled out above were ruled out by
 reading the callers; the remainder was not measured, and filing a guess as a
 finding is how the next session spends an afternoon on a mechanism that is
 not there.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- exec() IS RULED OUT, AND SO IS EVERY AMBIENT ANIMATION
+--------------------------------------------------------------------------------
+
+Measured rather than reasoned about, on the offscreen platform. The headline
+is a NEGATIVE result and it removes most of the search space.
+
+THE NESTED EVENT LOOP DOES NOT STARVE THE BACKDROP. This is the thing the
+file above said was "worth ruling out properly rather than assuming", and it
+is now ruled out. Paints counted over 0.5 s with an ambient backdrop running
+behind a modal `PreferencesDialog`:
+
+    outer loop, no dialog          7 paints
+    inside a nested QEventLoop     6 paints
+
+`QDialog.exec()` itself could not be called -- the suite refuses it headless,
+correctly, because a modal has nobody to answer it -- so the nested loop was
+entered directly with `QEventLoop.exec()`, which is the same mechanism
+`exec()` runs. Timer events reach the widget through it.
+
+NOR DOES ANY ANIMATION FREEZE. All six were built behind a shown modal
+dialog and their paints counted over 0.4 s:
+
+    blobs   BlobsEngine    base 6   with dialog 6
+    aurora  AuroraEngine   base 6   with dialog 5
+    ripple  RippleEngine   base 6   with dialog 5
+    drift   DriftEngine    base 6   with dialog 5
+    bokeh   BokehEngine    base 6   with dialog 5
+    cells   CellsEngine    base 6   with dialog 5
+
+AND THE WIDGET'S OWN GATES ARE NOT TRIPPED. With the dialog up:
+`_timer.isActive()` is True, `_should_run()` is True, `isVisible()` is True.
+The main window IS deactivated -- `win.isActiveWindow()` goes False -- but
+nothing in `ambient.py`, `fractal_travel.py`, `fractal_cascade.py` or
+`fractal_space.py` reads `isActiveWindow` or `ApplicationStateChange`, so
+there is no gate for that to trip.
+
+ONE CORRECTION TO THIS FILE'S OWN LEAD. The frame gate at
+`fractal_travel.py:1107` cannot freeze anything: it RESCHEDULES --
+`self._timer.start(50)` -- so a widget failing that test still advances at
+20 fps. The line above it, `if self._stopped or self._paused: return`, is
+the one with no reschedule, and `pause()` has no caller outside
+`fractal_travel` and `timelapse_movie`. Line 188 is pointer sampling, not a
+frame gate.
+
+WHAT IS LEFT, in the order worth trying:
+
+1.  A REAL DISPLAY. Offscreen has no compositor, so a window fully covered
+    by a dialog still receives paint events here and would not on X11 or
+    Wayland. If the freeze is "the covered region stops repainting", this
+    harness cannot see it and no amount of measuring here will find it.
+    Someone with a display should check whether the UNCOVERED part of the
+    backdrop keeps moving while Preferences is up -- if it does, that is the
+    whole answer and the report is about the covered part.
+
+2.  THE SPACEOUT BACKDROP, which is a different widget. `fractal_travel` is
+    not one of the six ambient animations -- the choices are none, blobs,
+    aurora, ripple, drift, bokeh, cells -- so if the user meant the
+    full-screen fractal, none of the measurements above apply to it.
+    Worth asking which backdrop was on screen.
+
+3.  `apply_ambient_preferences` (preferences.py:2190) rebuilds every
+    AmbientWidget's theme, palette, blur, speed, size, resolution, density
+    and direction. It runs on SAVE. If Preferences applies live on each
+    control change, a rebuild per keystroke would read as a stall rather
+    than a freeze. Its own comment already records one bug of this family --
+    an `isVisible()` test that latched `_animating = False` onto every
+    background tab the moment Preferences was saved, so those screens never
+    animated again for the rest of the session.
