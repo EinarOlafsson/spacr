@@ -322,3 +322,99 @@ route. They stay at the top of their module page, correctly.
 WHAT IS LEFT is 43 pairs whose setting has no flow section because nothing
 static analysis can see reads them, plus these 15. The first number moves
 only if the analyser learns to see more; the second does not move at all.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE 43 WERE AUDITED. AT LEAST 32 OF THEM ARE READ IN PLAIN SIGHT,
+BY TWO BLIND SPOTS, AND THE SECOND ONE CANNOT BE FIXED THE WAY THE FIRST CAN.
+--------------------------------------------------------------------------------
+
+The closing note above said the 43 "have no flow section because nothing
+static analysis can see reads them ... That is the honest floor unless the
+analyser learns to see more", and warned that they were unexplained rather
+than settled. The warning was right. The floor is not 43.
+
+    58   pairs landing on a bare module page
+    15   curated -- batch, evaluation, umap search. Unchanged, correct,
+         and not reopened.
+    43   the residue, one pair each, 43 distinct settings
+    --
+    20   read through an ALIAS the analyser does not recognise
+    12   read through a key that is never a literal
+    11   not explained yet
+
+So 32 of the 43 are read, in the app's own code, by a `.get()` or a subscript
+a person can see at a glance. This is the THIRD time this instruction has read
+an absence as a fact about the package.
+
+BLIND SPOT A -- AN ALIAS BOUND BY A HELPER, 20 settings.
+
+`_alias_targets` (tools/settings_flow.py:91) accepts four bindings:
+`x = settings`, `x = settings.copy()`, `x = dict(settings)` and
+`x = deepcopy(settings)`, and since fault 1 it sees through `settings or {}`
+inside them. It does NOT accept a settings mapping RETURNED BY A HELPER, and
+three helpers account for every one of the 20:
+
+    power_default_settings          spacr/qt/screens/power.py:1528
+        filled = power_default_settings(settings)
+        -> all 15 power_* settings, read as filled["power_n_genes"] etc
+           at power.py:1530-1544
+
+    default_settings                spacr/convert.py:2165
+        resolved = default_settings(settings)
+        -> layout, plate_naming, z_handling; same shape again at
+           foreign.py:3584 and external_masks.py:551
+
+    hit_investigation_default_settings   spacr/hit_investigation.py:298
+        configured = hit_investigation_default_settings(settings)
+        -> guide_fractions_file, hit_phenotype
+
+THE THIRD ONE IS THE INTERESTING ONE, because hit_investigation.py binds
+`configured` TWICE. Line 266 is `dict(settings or {})`, which fault 1 taught
+the analyser to see, and that is why 17 hit_* settings came back. Line 298 is
+the helper, which it still cannot see, and that is why exactly two did not.
+The same file, the same alias name, one visible binding and one invisible one
+-- which is why fixing fault 1 looked complete and was not.
+
+BLIND SPOT B -- THE KEY IS NEVER A LITERAL, 12 settings, and this one is
+different in kind.
+
+    spacr/seg_qc.py:282
+        SETTING_KEYS: Dict[str, str] = {
+            f"seg_qc_{name}": name for name in QC_DEFAULTS
+        }
+
+    spacr/seg_qc.py:387
+        for key, name in SETTING_KEYS.items():
+            number = _as_number((settings or {}).get(key))
+
+The eleven `seg_qc_*` setting names DO NOT EXIST as string literals anywhere
+in the package. They are synthesised by an f-string inside a dict
+comprehension over `QC_DEFAULTS`, and then read in a loop through a variable.
+The twelfth, `seg_qc` itself, is a literal but is bound to a constant --
+`MODE_SETTING = "seg_qc"` at :287, read as
+`(settings or {}).get(MODE_SETTING, "report")` at :406 -- so it is not a
+literal AT THE CALL SITE either.
+
+NO AMOUNT OF ALIAS TRACKING FINDS THESE. Blind spot A is a missing case in a
+list of four and can be closed by adding a fifth. B is a category the current
+design cannot express: a pass that looks for a setting name at a subscript or
+a `.get()` will never see a name that is computed. Closing B needs either
+constant folding over module-level tables, or a declaration the module makes
+about itself. Recorded as a limit with a shape, not as a bug with a fix.
+
+THE 11 NOT EXPLAINED YET, listed so the next person starts where I stopped:
+
+    denoise            load_path_regex     mask_array
+    mixed_control_wells  negative_control_wells  positive_control_wells
+    normalization      normalization_scope normalize_plots
+    save_to_db         visualize
+
+`visualize` is in that list because MY OWN grep put it in the read group and
+it was wrong: the only match is a COMMENT at spacr/core.py:1024, which reads
+`# 'cell', not settings['visualize']`. Caught by checking the six non-power
+hits by hand rather than trusting the count -- the same discipline this
+instruction keeps having to relearn, applied to my own detector this time.
+The other ten are unverified in both directions.
+
+NOTHING HAS BEEN CHANGED. This is the measurement the claim in 325 promised
+before any behaviour moved.
