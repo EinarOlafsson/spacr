@@ -3104,3 +3104,15 @@ The earlier entry's local dd105101e became 8418328b0 after rebase; that is the
 pushed script/capture commit. OPS still needs a validated end-to-end workflow,
 not only tile-layout evidence. Instruction 358's publication hold remains
 honored: no Hugging Face upload or live-media replacement has been performed.
+
+CODEX, 2026-09-09 — BOUNDED TUTORIAL GPU SYNTHESIS, NO APP WORK.
+The actual device has 24 GiB and had about 1.5 GiB allocated, including the
+other session's Qt tests. I moved ONLY the unfinished Diagnostics English
+voices to one CUDA process, capped with torch.cuda.set_per_process_memory_
+fraction(0.10), two CPU threads, and the existing 110 GiB host-memory guard.
+The former CPU writer was stopped through its guard and fully exited first;
+the 11 finished voice tracks are excluded explicitly from the CUDA job.
+Three remaining voices took about 30 seconds instead of roughly six minutes.
+Measured total GPU use is about 2.7 GiB and host RAM about 23 GiB. I will use
+one capped GPU synthesis process at a time for the remaining tutorial audio.
+No coverage suite or application inference is running in the Codex tree.
