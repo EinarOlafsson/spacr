@@ -36,17 +36,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,255 | Remainder | Reviewed API blocks | Of 10,243 | Remainder |
+| Language | Reviewed runtime records | Of 5,257 | Remainder | Reviewed API blocks | Of 10,243 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 118 | 2.25% | 5,137 | 445 | 4.34% | 9,798 |
-| German | 86 | 1.64% | 5,169 | 397 | 3.88% | 9,846 |
-| Spanish | 114 | 2.17% | 5,141 | 279 | 2.72% | 9,964 |
-| Simplified Chinese | 267 | 5.08% | 4,988 | 477 | 4.66% | 9,766 |
-| Portuguese | 108 | 2.06% | 5,147 | 432 | 4.22% | 9,811 |
-| Hindi | 124 | 2.36% | 5,131 | 400 | 3.91% | 9,843 |
-| Korean | 256 | 4.87% | 4,999 | 429 | 4.19% | 9,814 |
-| Icelandic | 150 | 2.85% | 5,105 | 911 | 8.89% | 9,332 |
-| French | 99 | 1.88% | 5,156 | 431 | 4.21% | 9,812 |
+| Swedish | 118 | 2.24% | 5,139 | 445 | 4.34% | 9,798 |
+| German | 86 | 1.64% | 5,171 | 397 | 3.88% | 9,846 |
+| Spanish | 114 | 2.17% | 5,143 | 279 | 2.72% | 9,964 |
+| Simplified Chinese | 267 | 5.08% | 4,990 | 477 | 4.66% | 9,766 |
+| Portuguese | 108 | 2.05% | 5,149 | 432 | 4.22% | 9,811 |
+| Hindi | 124 | 2.36% | 5,133 | 400 | 3.91% | 9,843 |
+| Korean | 256 | 4.87% | 5,001 | 429 | 4.19% | 9,814 |
+| Icelandic | 150 | 2.85% | 5,107 | 911 | 8.89% | 9,332 |
+| French | 99 | 1.88% | 5,158 | 431 | 4.21% | 9,812 |
 
 ## Who reviewed what, and what that claim means
 
