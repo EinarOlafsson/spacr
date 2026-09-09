@@ -93,6 +93,12 @@ OPS_TYPES: Dict[str, object] = {
     "n_workers": int,
     "n_workers_features": (int, type(None)),
     "opencv_threads": int,
+    # `ops_gpu` and not `gpu`: `gpu` is already declared by Image UMAP,
+    # where it means "use the RAPIDS cuML reducer". Two modules
+    # disagreeing about what one key means is the bug
+    # `register_defaults` refuses `src` to prevent, and a prefix costs
+    # nothing.
+    "ops_gpu": bool,
     "max_ram_features": int,
     "feature_cache_mode": str,
     "feature_cache_dir": (str, type(None)),
@@ -141,6 +147,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "save_qc", "outline_alpha", "line_thickness",
     ],
     "OPS performance": [
+        "ops_gpu",
         "n_workers", "n_workers_features", "opencv_threads",
         "max_ram_features", "feature_cache_mode", "feature_cache_dir",
         "stream_csv", "tmp_dir",
@@ -319,6 +326,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str) - What to do when a file named in the plan is not there: "
         "'error' stops the run, 'skip' carries on without it and leaves a "
         "hole in the mosaic. Default 'error'.",
+    "ops_gpu":
+        "(bool) - Let this run use the graphics card where spaCR finds a "
+        "usable one: the tile registration's FFTs and the Cellpose outlines "
+        "both have a GPU path, and both fall back to the CPU on their own if "
+        "the card refuses. Turn it OFF when the card is busy with another "
+        "job -- a shared GPU is the common case, and an out-of-memory in the "
+        "middle of a plate costs more than the time the GPU saves. "
+        "Default True.",
     "opencv_threads":
         "(int) - Threads OpenCV may use INSIDE each worker. Leave at 1 when "
         "running many workers: the two multiply, and oversubscribing a "

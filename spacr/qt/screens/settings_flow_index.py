@@ -658,6 +658,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'on_error_backoff',
     'on_missing',
     'opencv_threads',
+    'ops_gpu',
     'optimizer_type',
     'order',
     'organelle_adaptive_block_size',

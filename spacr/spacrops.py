@@ -250,6 +250,8 @@ class spacrStitcher:
                  z_index: int = 0,
                  t_index: int = 0,
                  squeeze_singleton: bool = True,
+                 # hardware
+                 ops_gpu: bool = True,
                  ):
         """Configure the feature detector and the match tolerances.
 
@@ -266,6 +268,13 @@ class spacrStitcher:
         self.allow_scale = bool(allow_scale)
         self.allow_rotation = bool(allow_rotation)
     
+        # WHETHER THIS RUN MAY TAKE THE CARD. Not "is there one" --
+        # `spacr.accelerator` answers that -- but whether this run is
+        # allowed to, which is a different question on a machine whose GPU
+        # is running somebody else's screen. False keeps every step on the
+        # CPU even where a device resolves.
+        self.ops_gpu = bool(ops_gpu)
+
         self.outline_source = outline_source.lower()
         self.cellpose_model = cellpose_model
         self.cellpose_diameter = (None if cellpose_diameter is None
@@ -445,13 +454,24 @@ class spacrStitcher:
         from .utils import _resolve_cellpose_pretrained
 
         pretrained = _resolve_cellpose_pretrained(self.cellpose_model)
-        try:
-            from .accelerator import cellpose_kwargs
-
-            kwargs = cellpose_kwargs()
-            kwargs.pop("device", None)
-        except Exception:
+        if not getattr(self, "ops_gpu", True):
+            # ASKED FOR THE CPU, SO TAKE THE CPU. The card may exist and be
+            # busy with an AlphaFold screen; "there is a GPU" and "this run
+            # may use it" are different questions.
             kwargs = {"gpu": False}
+        else:
+            try:
+                from .accelerator import cellpose_kwargs
+
+                kwargs = cellpose_kwargs()
+            except Exception:
+                kwargs = {"gpu": False}
+        # THE DEVICE IS NOT POPPED ANY MORE. `cellpose_kwargs` produces
+        # `gpu`, `device` and `use_bfloat16` TOGETHER because they have to
+        # agree -- cellpose branches on `gpu` before it looks at `device`,
+        # and dropping the resolved device left this call site picking
+        # cellpose's default rather than the one the resolver chose. On a
+        # machine with two cards that is the wrong card.
         # No model_type= / diam_mean=: Cellpose 4 logs "not used in v4.0.1+"
         # and drops both.
         self._cp_model = cp_models.CellposeModel(pretrained_model=pretrained, **kwargs)
@@ -3686,6 +3706,7 @@ def stitch_cycle_wells(settings):
             z_index=int(settings.get("z_index", 0)),
             t_index=int(settings.get("t_index", 0)),
             squeeze_singleton=bool(settings.get("squeeze_singleton", True)),
+            ops_gpu=bool(settings.get("ops_gpu", True)),
         )
 
         # Run per-well; enable mosaic here (single- or multi-channel)
@@ -3803,6 +3824,13 @@ def get_preprocess_ops_settings(settings):
     settings.setdefault("on_missing", "error")   # {'error','skip'}
     settings.setdefault("dry_run", False)
     settings.setdefault("verbose", True)
+
+    # HARDWARE. Named `ops_gpu` and not `gpu` on purpose: `gpu` is already
+    # declared by Image UMAP, where it means "use the RAPIDS cuML backend",
+    # and two modules disagreeing about what a shared key means is the bug
+    # `register_defaults` refuses `src` to prevent. Same reasoning, applied
+    # before the collision rather than after it.
+    settings.setdefault("ops_gpu", True)
 
     # THE TWO SWITCHES THE PIPELINE'S OWN PURPOSE DEPENDS ON, and they were
     # not here. `stitch_cycle_wells` reads both with a `False` fallback

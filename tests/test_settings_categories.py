@@ -291,6 +291,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "max_keypoints", "max_ram_features", "max_site_gap", "meta_regex",
     "mip", "mosaic", "mosaic_csv_out", "mosaic_min_score", "mosaic_out",
     "n_workers", "n_workers_features", "nfeatures", "on_missing",
+    # `ops_gpu` arrived after the other 57, on 2026-09-09: OPS shipped with
+    # no hardware control at all, and both its GPU-capable steps -- the tile
+    # registration's FFTs and the Cellpose outlines -- were deciding for
+    # themselves. It is `ops_gpu` and not `gpu` because Image UMAP already
+    # owns `gpu` with a different meaning.
+    "ops_gpu",
     "opencv_threads", "out_png", "out_tif", "outline_alpha",
     "outline_source", "pair_batch_size", "phenotype_source",
     "preview_downsample", "ransac_thresh_px", "recursive",
