@@ -227,7 +227,7 @@ def main() -> int:
         help_menu.hide()
     if args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
-                    'external_masks': 'foreign',
+                    'external_masks': 'foreign', 'model_zoo': 'make_masks',
                     'regression_diagnostics': 'regression'}.get(args.module, args.module)
         window._on_nav_selected(host_key)
         deadline = time.monotonic() + 60
@@ -286,6 +286,10 @@ def main() -> int:
             from capture_external_masks import record_external_masks
             record_external_masks(app, window, screen, stage, captures, capture,
                                   settle, write_json, args.timeout)
+        if args.module == 'model_zoo':
+            from capture_model_zoo import record_model_zoo
+            record_model_zoo(app, window, screen, stage, captures, capture,
+                             settle, write_json, args.timeout)
         if args.download:
             def visible_test_data_buttons():
                 return [w for w in screen.findChildren(QAbstractButton)

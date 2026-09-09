@@ -144,6 +144,83 @@ def test_two_argument_api_and_record_order(example):
                                    expected_shape=(4, 4), expected_labels=(2, 3))["accepted"]
 
 
+def test_explicit_false_accepts_absent_cytoplasm_table(example):
+    assert example["settings"]["cytoplasm"] is False
+    evidence = verify(example)
+    assert evidence["accepted"] is True
+    assert evidence["cytoplasm_table_present"] is False
+
+
+@pytest.mark.parametrize("rows", [0, 5])
+def test_explicit_false_rejects_any_cytoplasm_table(example, rows):
+    with sqlite3.connect(example["db"]) as connection:
+        connection.execute("CREATE TABLE cytoplasm AS SELECT * FROM cell LIMIT ?", (rows,))
+        assert connection.execute("SELECT count(*) FROM cytoplasm").fetchone()[0] == rows
+    with pytest.raises(ValueError, match="Unexpected cytoplasm table.*cytoplasm=False"):
+        verify(example)
+
+
+def add_cell_equivalent_cytoplasm(example):
+    example["settings"]["cytoplasm"] = True
+    with sqlite3.connect(example["db"]) as connection:
+        connection.execute("CREATE TABLE cytoplasm AS SELECT file_name,plateID,rowID,columnID,"
+                           "fieldID,object_label,cell_area AS cytoplasm_area,"
+                           "cell_channel_0_mean_intensity AS cytoplasm_channel_0_mean_intensity FROM cell")
+
+
+def test_explicit_true_accepts_source_verified_cell_equivalent_cytoplasm(example):
+    add_cell_equivalent_cytoplasm(example)
+    evidence = verify(example)
+    assert evidence["accepted"] is True
+    assert evidence["cytoplasm_table_present"] is True
+    assert evidence["cytoplasm_rows_verified"] == evidence["cell_rows"] == 5
+    assert evidence["cytoplasm_matches_cell"] is True
+    assert evidence["max_cytoplasm_mean_absolute_error"] == 0.0
+    assert "do not identify a distinct" in evidence["cytoplasm_note"]
+    json.dumps(evidence, allow_nan=False)
+
+
+def test_explicit_true_rejects_missing_cytoplasm_table(example):
+    example["settings"]["cytoplasm"] = True
+    with pytest.raises(ValueError, match="Missing cytoplasm table.*cytoplasm=True"):
+        verify(example)
+
+
+@pytest.mark.parametrize("statement", [
+    "DELETE FROM cytoplasm WHERE _rowid_=1",
+    "INSERT INTO cytoplasm SELECT * FROM cytoplasm WHERE _rowid_=1",
+    "UPDATE cytoplasm SET object_label=1 WHERE file_name='plate1_A01_1'",
+])
+def test_explicit_true_rejects_cytoplasm_row_loss_extra_or_duplicate(example, statement):
+    add_cell_equivalent_cytoplasm(example)
+    sql(example, statement)
+    with pytest.raises(ValueError, match="exactly|identity"):
+        verify(example)
+
+
+@pytest.mark.parametrize("column,value", [
+    ("file_name", "plate1_A01_2"), ("plateID", "acquired"), ("rowID", "r5"),
+    ("columnID", "c2"), ("fieldID", "f2"), ("object_label", 2),
+    ("object_label", 1.5), ("object_label", 0), ("object_label", None),
+    ("cytoplasm_area", 3), ("cytoplasm_area", 2.1), ("cytoplasm_area", None),
+    ("cytoplasm_channel_0_mean_intensity", 10),
+    ("cytoplasm_channel_0_mean_intensity", float("inf")),
+    ("cytoplasm_channel_0_mean_intensity", float("nan")),
+])
+def test_explicit_true_rejects_cytoplasm_identity_area_or_mean(example, column, value):
+    add_cell_equivalent_cytoplasm(example)
+    sql(example, f'UPDATE cytoplasm SET "{column}"=? WHERE _rowid_=1', (value,))
+    with pytest.raises(ValueError, match="identity|integral|area|intensity"):
+        verify(example)
+
+
+def test_explicit_true_requires_exact_cell_cytoplasm_equality(example):
+    add_cell_equivalent_cytoplasm(example)
+    sql(example, "UPDATE cytoplasm SET cytoplasm_channel_0_mean_intensity=? WHERE _rowid_=1", (15.0 + 1e-10,))
+    with pytest.raises(ValueError, match="exactly equal cell"):
+        verify(example)
+
+
 def test_production_defaults_reject_tiny_fixture(example):
     with pytest.raises(ValueError, match="Recorded shape/object counts"):
         verify_external_project(example["root"], example["records"])
@@ -270,7 +347,8 @@ def test_reject_wrong_layout(example, layout):
 
 @pytest.mark.parametrize("key,value", [
     ("channels", [1]), ("png_dims", [1]), ("normalize", True), ("cell_min_size", 3),
-    ("cell_max_size", 5000), ("cytoplasm", True), ("uninfected", False),
+    ("cell_max_size", 5000), ("cytoplasm", "False"), ("cytoplasm", 0), ("cytoplasm", None),
+    ("uninfected", False),
     ("merge_edge_pathogen_cells", True), ("n_jobs", 2), ("crop_mode", ["nucleus"]),
     ("save_png", False), ("save_measurements", False), ("timelapse", True),
     ("z_handling", "max"), ("plate_naming", "original"), ("layout", "well"),

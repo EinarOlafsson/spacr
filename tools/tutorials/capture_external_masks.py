@@ -297,7 +297,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         'channels': [0], 'png_dims': [0],
         'png_channel_mapping': {'r': 0, 'g': 0, 'b': 0},
         'normalize': False, 'cell_min_size': 0, 'cell_max_size': None,
-        'cytoplasm': False, 'timelapse': False, 'resume': False,
+        'cytoplasm': True, 'timelapse': False, 'resume': False,
         'uninfected': True, 'merge_edge_pathogen_cells': False,
         'n_jobs': 1, 'plot': True, 'save_measurements': True,
         'save_png': True, 'crop_mode': ['cell'], 'png_size': [224, 224],
@@ -413,8 +413,97 @@ def record_external_masks(app, window, screen, stage, captures, capture,
             raise RuntimeError(f'{name} failed: ' + '; '.join(acceptance['reasons']))
         return outcome, lines, count
 
-    # Expand only the application's existing splitters for readable output.
-    screen._runtime_splitter.setSizes([250, 1400])
+    # Share the real console-navigation controls between the genuinely
+    # non-writing preview and the later, explicitly post-write result tour.
+    readable_tour = {'figures': [], 'console_markers': []}
+    usage = screen._usage_card
+    if usage.folder is None:
+        raise RuntimeError('The actual System card has no native fold control')
+    if not usage.folder.shut:
+        click(usage.title_label)
+    if not usage.folder.shut or usage.body.isVisible():
+        raise RuntimeError('The actual System header did not collapse its body')
+    runtime = screen._runtime_splitter
+    figure_slot = runtime.indexOf(screen._figures_card)
+    console_slot = runtime.indexOf(screen._console_wrap)
+    if runtime.count() != 2 or {figure_slot, console_slot} != {0, 1}:
+        raise RuntimeError('The actual External Masks figure/console splitter changed')
+    console = screen._console
+
+    def console_fold(shut):
+        if screen._console_folder.shut != shut:
+            click(screen._console_header)
+        if screen._console_folder.shut != shut:
+            raise RuntimeError('The actual Console heading did not change its fold state')
+
+    def runtime_space(for_figures):
+        # These are the same native divider positions a user can drag to.
+        # Figures has no fold button in this build; do not manufacture one
+        # or change its minimum height just to obtain a larger screenshot.
+        available = max(sum(runtime.sizes()), runtime.height())
+        sizes = [0, 0]
+        sizes[figure_slot] = available if for_figures else 1
+        sizes[console_slot] = screen._console_header.sizeHint().height() if for_figures else available
+        runtime.setSizes(sizes)
+        settle(0.5)
+
+    def readable_console():
+        console_fold(False)
+        runtime_space(False)
+        console.set_split_sizes(1400, 80)
+        settle(0.5)
+        if not console.isVisible() or console._scroll.viewport().height() < 360:
+            capture('readability_error_console')
+            raise RuntimeError('The actual console viewport remains too short for the readable tour')
+
+    def show_console_marker(marker, frame, *, require_unwritten=False):
+        if require_unwritten and destination.exists():
+            raise RuntimeError('The non-writing preview frame requires a nonexistent destination')
+        readable_console()
+        candidates = [(block, text) for block, _, text in console._pipeline_console_blocks()
+                      if marker in text]
+        if not candidates:
+            raise RuntimeError(f'The actual pipeline console has no summary marker: {marker}')
+        block, before_text = candidates[-1]
+        if not block.isVisible():
+            raise RuntimeError('The actual pipeline summary block is folded or hidden')
+        # Find in the existing Qt document rather than counting Python
+        # characters (Qt uses UTF-16 cursor offsets). Use the last matching
+        # occurrence so each frame shows the most recent actual operation.
+        found = block.document().find(marker, 0)
+        selected = None
+        while not found.isNull():
+            selected = found
+            found = block.document().find(marker, found)
+        if selected is None:
+            raise RuntimeError('The rendered console document lost its summary marker')
+        block.setFocus()
+        block.setTextCursor(selected)
+        block.centerCursor()
+        settle(0.2)
+        target = block.viewport().mapTo(console._holder, block.cursorRect().center())
+        scrollbar = console._scroll.verticalScrollBar()
+        scrollbar.setValue(max(0, min(scrollbar.maximum(),
+                                     target.y() - console._scroll.viewport().height() // 3)))
+        settle(0.4)
+        if not block.viewport().visibleRegion().contains(block.cursorRect().center()):
+            capture('readability_error_summary')
+            raise RuntimeError('The actual summary marker did not scroll into view')
+        if block.toPlainText() != before_text:
+            raise RuntimeError('Navigating the actual console changed its text')
+        capture(frame)
+        if require_unwritten and destination.exists():
+            raise RuntimeError('The destination appeared while recording the non-writing preview')
+        readable_tour['console_markers'].append({
+            'marker': marker, 'frame': frame, 'runtime_sizes': runtime.sizes(),
+            'console_chat_sizes': console.split_sizes(),
+            'visible_height': console._scroll.viewport().height(),
+            'document_text_unchanged': True, 'destination_exists': destination.exists(),
+            'nonwriting_frame': require_unwritten,
+        })
+        write_json(captures / 'readable_tour.json', readable_tour)
+
+    readable_console()
     preview_outcome, preview_lines, preview_figures = run_job('06_preview', False)
     preview_text = ''.join(preview_lines)
     required_plan = (
@@ -430,12 +519,14 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     if model.collect() != preview_settings:
         raise RuntimeError('The non-writing preview changed the settings')
     unchanged()
+    show_console_marker('External masks → Measure project (preview; nothing written)',
+                        '07_preview_plan_no_project_written', require_unwritten=True)
     write_json(captures / 'preview_evidence.json', {
         'destination_exists': False, 'fields': 2, 'intensity_mappings': 2,
         'intensity_channels': 1, 'cell_mask_pairs': 2, 'merged_mask_plane': 1,
         'source_inputs_unchanged': True, 'worker': preview_outcome,
+        'readable_plan_frame': '07_preview_plan_no_project_written',
     })
-    capture('07_preview_plan_no_project_written')
 
     set_setting('preview_only', False, '08_preview_only_disabled')
     settings = model.collect()
@@ -455,7 +546,8 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     figures = []
     width = sum(screen._body_splitter.sizes())
     screen._body_splitter.setSizes([width // 4, width - width // 4])
-    screen._runtime_splitter.setSizes([1250, 400])
+    console_fold(True)
+    runtime_space(True)
     for index, pixmap in enumerate(queue.all_pixmaps()):
         path = captures / f'external_figure_{index:02d}.png'
         if not pixmap.save(str(path), 'PNG'):
@@ -463,11 +555,24 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         figures.append({'image': path.name, 'sha256': _digest(path)})
         queue.show_index(index)
         settle(0.5)
+        canvas_area = queue._stack.visibleRegion().boundingRect()
+        if canvas_area.height() < 500:
+            capture('readability_error_figure')
+            raise RuntimeError('The actual figure viewport remains too short for the readable tour')
+        readable_tour['figures'].append({
+            'index': index, 'visible_width': canvas_area.width(),
+            'visible_height': canvas_area.height(), 'runtime_sizes': runtime.sizes(),
+            'system_folded': usage.folder.shut, 'console_folded': screen._console_folder.shut,
+        })
         capture(f'10_external_figure_{index:02d}')
     write_json(captures / 'batch_figures.json', figures)
-    screen._runtime_splitter.setSizes([250, 1400])
-    console_end()
-    capture('11_external_measurement_summary')
+    show_console_marker('External masks → Measure project (preview; nothing written)',
+                        '11a_external_input_plan')
+    show_console_marker('Prepared 2 field(s) in ' + str(destination),
+                        '11_external_measurement_summary')
+    if model.collect() != settings:
+        raise RuntimeError('The readable result tour changed the retained settings')
+    write_json(captures / 'readable_tour.json', readable_tour)
     evidence = verify_external_project(destination, records, settings=settings)
     write_json(captures / 'output_evidence.json', evidence)
     if evidence.get('accepted') is not True:

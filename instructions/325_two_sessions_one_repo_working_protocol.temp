@@ -3514,3 +3514,34 @@ audio bytes. Shared master: 422.4 s, 12,672 frames, 3840x2160/30, silent,
 SHA 821dc7739fa3f6cd428ccabc9e04334bf36a40153ad9b75cef7f6d1520a223fa.
 Total technical matrices: fourteen masters / 700 tracks / 196 browser checks.
 Native-speaker, human-listening and publication remain unsigned. No release.
+
+CODEX — FIFTEENTH STAGED MATRIX: CONVERTER; EXTERNAL MASKS CHECKPOINT.
+Converter 35 now has all 50 decoded/fingerprint-checked and rehashed voice
+tracks, 14 passing browser/language checks against those final audio bytes,
+and one silent 307.666667-second 3840x2160/30 master (9230 frames).
+SHA 4b122a528a72208904de14f37c46483fffbb88558a27a2852ac71e82245543b8.
+Totals: fifteen staged masters / 750 tracks / 210 browser checks. Fourteen
+catalogs agree on 75 lessons / 637 scenes; 60 unselected lessons unchanged.
+Native-speaker and human-listening review remain unsigned; no publication.
+
+External Masks' first real run verified all 103 cells (44+59), every output
+pixel, full identities, raw channel0 means and PNG references. The capture
+is held, not staged: explicit cytoplasm=False was overridden by Measure's
+documented cell-mask/min-size legacy rule (measure.py:3944-3949), producing
+103 cytoplasm rows identical to cell rows. The final capture will explicitly
+enable cytoplasm and explain that with no interior masks this is a duplicate
+compartment, not an independent cytoplasmic measurement. The strengthened
+tutorial verifier checks both True/False profiles; 119 focused tests pass,
+with actual guard mutations proven RED and restored. Plot is genuinely on:
+the six figures are real; save_settings deliberately writes plot=False only
+in the replay CSV, not the running configuration. No application edit.
+
+Train Cellpose 19's retained generator names plane6 cell masks, but original
+recorded settings identify cell/nucleus/pathogen planes as 4/5/6. All pixels
+of three checked retained training masks match plane6, not4 or5. This does
+not certify the other three pairs or their biology, and the current generic
+nine-scene narration is distinguished from the older explicit-cell override.
+Old assets preserved; evidence committed, no unverified training promoted.
+Model Zoo 22's old encoded master is actually blank while meaningful older
+keyframes survive. A current genuine three-field benchmark recorder is next;
+its existing acquired crops are reused training examples, not held-out data.

@@ -63,7 +63,7 @@ def _settings(settings):
         return
     required = {
         "channels": [0], "png_dims": [0], "normalize": False,
-        "cell_min_size": 0, "cytoplasm": False, "uninfected": True,
+        "cell_min_size": 0, "uninfected": True,
         "merge_edge_pathogen_cells": False, "n_jobs": 1,
         "save_measurements": True, "save_png": True, "crop_mode": ["cell"],
         "layout": "flat", "z_handling": "first", "plate_naming": "index",
@@ -75,6 +75,8 @@ def _settings(settings):
     for key, expected in required.items():
         _require(key in settings and settings[key] == expected,
                  f"Unsupported setting {key}: expected {expected!r}, got {settings.get(key)!r}")
+    _require(type(settings.get("cytoplasm")) is bool,
+             "Unsupported setting cytoplasm: expected an explicit boolean False or True")
     for key in ("cell_max_size",):
         _require(settings.get(key) is None, f"Unsupported restrictive setting {key}")
     for key in ("timelapse", "dry_run", "test_mode", "overwrite"):
@@ -90,6 +92,28 @@ def _rows(connection, table, columns, limit):
         f'SELECT {names} FROM "{table}" LIMIT ?', (limit + 1,))]
 
 
+def _measurement_evidence(rows, expected, role):
+    """Compare a compartment with independently source-derived object values."""
+    _require(len(rows) == len(expected), f"Expected exactly {len(expected)} measured {role} rows")
+    actual, max_error = {}, 0.0
+    for row in rows:
+        key = tuple(row[name] for name in ("file_name", "plateID", "rowID", "columnID", "fieldID"))
+        key += (_integer(row["object_label"], f"{role} object_label"),)
+        _require(key not in actual, f"Duplicate measured {role} identity: {key}")
+        _require(key in expected, f"Unexpected measured {role} identity: {key}")
+        area, mean = expected[key]
+        actual_area = _integer(row[f"{role}_area"], f"{role} area")
+        _require(actual_area == area, f"{role} area mismatch: {key}")
+        actual_mean = row[f"{role}_channel_0_mean_intensity"]
+        _require(isinstance(actual_mean, (int, float)) and math.isfinite(actual_mean)
+                 and math.isclose(actual_mean, mean, rel_tol=1e-12, abs_tol=1e-9),
+                 f"{role} mean intensity mismatch: {key}")
+        actual[key] = (actual_area, actual_mean)
+        max_error = max(max_error, abs(actual_mean - mean))
+    _require(set(actual) == set(expected), f"Measured {role} keyset mismatch")
+    return actual, max_error
+
+
 def verify_external_project(destination, records, settings=None, *,
                             expected_shape=(1994, 1994), expected_labels=(44, 59)):
     """Return JSON-safe accepted evidence, or raise ValueError on a mismatch.
@@ -100,6 +124,12 @@ def verify_external_project(destination, records, settings=None, *,
     All files are read-only; the SQLite connection uses ``mode=ro`` and
     ``query_only``. PNGs are checked for readability and exact object linkage,
     NOT claimed to preserve raw intensities (display crops may be rescaled).
+    When settings explicitly disable cytoplasm, even an empty cytoplasm table
+    rejects that profile: correct cell measurements alone do not prove the
+    requested compartment settings reached the measurement consumer.
+    Explicit True requires source-verified cytoplasm rows identical to cell
+    rows: this cell-only mask layout has no interior masks to subtract, so it
+    does not identify a distinct cytoplasmic compartment.
     """
     try:
         return _verify(destination, records, settings, expected_shape, expected_labels)
@@ -226,32 +256,33 @@ def _verify(destination, records, settings, expected_shape, expected_labels):
     db_path = _file(root / "measurements" / "measurements.db", root)
     count = sum(counts)
     connection = sqlite3.connect(db_path.as_uri() + "?mode=ro", uri=True)
+    cytoplasm = None
     try:
         connection.execute("PRAGMA query_only=ON")
         connection.row_factory = sqlite3.Row
+        tables = {row[0] for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        if settings is not None and settings.get("cytoplasm") is False:
+            _require("cytoplasm" not in tables,
+                     "Unexpected cytoplasm table: configured cytoplasm=False was not honored")
         cells = _rows(connection, "cell", ["file_name", "plateID", "rowID", "columnID",
                       "fieldID", "object_label", "cell_area", "cell_channel_0_mean_intensity"], count)
+        if settings is not None and settings.get("cytoplasm") is True:
+            _require("cytoplasm" in tables,
+                     "Missing cytoplasm table: configured cytoplasm=True was not honored")
+            cytoplasm = _rows(connection, "cytoplasm", ["file_name", "plateID", "rowID",
+                              "columnID", "fieldID", "object_label", "cytoplasm_area",
+                              "cytoplasm_channel_0_mean_intensity"], count)
         pngs = _rows(connection, "png_list", ["png_path", "file_name", "plateID", "rowID",
                      "columnID", "fieldID", "prcfo", "cell_id"], count)
     finally:
         connection.close()
-    _require(len(cells) == count, f"Expected exactly {count} measured cell rows")
-    actual_keys, max_error = set(), 0.0
-    for row in cells:
-        key = tuple(row[name] for name in ("file_name", "plateID", "rowID", "columnID", "fieldID"))
-        key += (_integer(row["object_label"], "Cell object_label"),)
-        _require(key not in actual_keys, f"Duplicate measured cell identity: {key}")
-        actual_keys.add(key)
-        _require(key in expected_cells, f"Unexpected measured cell identity: {key}")
-        area, mean = expected_cells[key]
-        _require(_integer(row["cell_area"], "Cell area") == area,
-                 f"Cell area mismatch: {key}")
-        actual_mean = row["cell_channel_0_mean_intensity"]
-        _require(isinstance(actual_mean, (int, float)) and math.isfinite(actual_mean)
-                 and math.isclose(actual_mean, mean, rel_tol=1e-12, abs_tol=1e-9),
-                 f"Cell mean intensity mismatch: {key}")
-        max_error = max(max_error, abs(actual_mean - mean))
-    _require(actual_keys == set(expected_cells), "Measured cell keyset mismatch")
+    actual_cells, max_error = _measurement_evidence(cells, expected_cells, "cell")
+    cytoplasm_error = None
+    if cytoplasm is not None:
+        actual_cytoplasm, cytoplasm_error = _measurement_evidence(cytoplasm, expected_cells, "cytoplasm")
+        _require(actual_cytoplasm == actual_cells,
+                 "Cytoplasm values must exactly equal cell values for this cell-only mask layout")
     _require(len(pngs) == count, f"Expected exactly {count} PNG links")
     png_keys, png_paths = set(), set()
     for row in pngs:
@@ -279,8 +310,15 @@ def _verify(destination, records, settings, expected_shape, expected_labels):
                      f"{kind}: recorded source changed during verification")
     return {"accepted": True, "reason": "Exact source, pixel, full cell identity and measurement checks passed",
             "fields": fields, "field_count": 2, "cell_rows": count, "png_rows": count,
-            "cell_keys": [list(key) for key in sorted(actual_keys)],
+            "cell_keys": [list(key) for key in sorted(actual_cells)],
             "all_output_pixels_equal": True, "all_sources_unchanged": True,
+            "cytoplasm_table_present": "cytoplasm" in tables,
+            "cytoplasm_rows_verified": len(cytoplasm) if cytoplasm is not None else 0,
+            "cytoplasm_matches_cell": True if cytoplasm is not None else None,
+            "max_cytoplasm_mean_absolute_error": cytoplasm_error,
+            "cytoplasm_note": ("Cell-only masks have no interior masks to subtract; these cytoplasm rows "
+                               "duplicate cell and do not identify a distinct cytoplasmic compartment"
+                               if cytoplasm is not None else "No cytoplasm measurements verified"),
             "max_cell_mean_absolute_error": max_error, "area_units": "pixels",
             "mean_intensity_units": "unscaled source uint16 counts",
             "layout": layout, "identities_are_demonstration_coordinates": True,
