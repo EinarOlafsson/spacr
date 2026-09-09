@@ -87,6 +87,8 @@ def main():
     args = parser.parse_args()
     english = read(DEFAULT_STAGE / 'catalog/lessons_en.json')
     lesson = next(item for item in english['lessons'] if item['id'] == args.lesson)
+    from build_navigation import build
+    navigation = build(english)
     for item in english['lessons']:
         item['poster'] = f"{item['id']}/poster.jpg"
         item['silent'] = f"{item['id']}/video/{item['id']}_silent.mp4"
@@ -114,6 +116,9 @@ def main():
             catalog_js = 'window.SPACR_LESSON_CATALOG = ' + json.dumps(english, ensure_ascii=False) + ';'
             context.route('**/web/lesson_catalog.js*', lambda route: route.fulfill(
                 body=catalog_js, content_type='application/javascript'))
+            navigation_js = 'window.SPACR_TUTORIAL_NAVIGATION = ' + json.dumps(navigation, ensure_ascii=False) + ';'
+            context.route('**/web/module_navigation.js*', lambda route: route.fulfill(
+                body=navigation_js, content_type='application/javascript'))
             context.route('**/web/catalog/lessons_en.json*', lambda route: route.fulfill(
                 json=english))
             if args.language != 'en':
@@ -131,6 +136,14 @@ def main():
             page.on('pageerror', lambda error: errors.append(str(error)))
             page.goto(base + '/web/#lesson=' + args.lesson, wait_until='domcontentloaded')
             page.wait_for_function('document.querySelectorAll(".chapter-button").length === ' + str(len(lesson['scenes'])), timeout=60000)
+            evidence['navigation_contains_staged_lesson'] = args.lesson in navigation['preserved_lesson_ids']
+            assert evidence['navigation_contains_staged_lesson']
+            assert page.locator(f'#curriculum [data-lesson="{args.lesson}"]').count() == 1
+            if lesson.get('host_app_key'):
+                assert page.locator('#lesson-content').get_attribute('data-app-key') == lesson['host_app_key']
+                assert page.locator(f'#curriculum [data-host="{lesson["host_app_key"]}"] [data-lesson="{args.lesson}"]').count() == 1
+                host = next(item for item in english['lessons'] if item.get('app_key') == lesson['host_app_key'])
+                assert host['title'] in page.locator('#lesson-route').inner_text()
             page.wait_for_function('elements.video.readyState >= 2 && elements.audio.readyState >= 2', timeout=60000)
             page.select_option('#language-select', args.language)
             page.wait_for_function('(voice) => [...elements.voice.options].some(o => o.value === voice)',
