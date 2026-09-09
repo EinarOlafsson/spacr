@@ -857,7 +857,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "analysis_mode",
-    "line": 7514,
+    "line": 7542,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -3135,7 +3135,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "blue_channel",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -3171,7 +3171,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "blue_channel",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -3415,7 +3415,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cam_type",
-    "line": 1362,
+    "line": 1374,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "activation_maps_to_database"
@@ -3424,7 +3424,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cam_type",
-    "line": 1400,
+    "line": 1412,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "activation_correlations_to_database"
@@ -3816,7 +3816,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -3897,7 +3897,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -4880,7 +4880,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_model_name",
-    "line": 3568,
+    "line": 3580,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -5515,7 +5515,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_all",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -5524,7 +5524,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_all",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -5598,7 +5598,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -5652,7 +5652,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -5717,7 +5717,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_masks",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -5726,7 +5726,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_masks",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -5782,7 +5782,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_model",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -5809,7 +5809,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_model",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -7058,7 +7058,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 10614,
+    "line": 10642,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -7067,7 +7067,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 10625,
+    "line": 10653,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -7134,7 +7134,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classifier_family",
-    "line": 143,
+    "line": 152,
     "module": "spacr.flowview._classify_stages",
     "nested": false,
     "qualname": "_fresh_collector"
@@ -8396,7 +8396,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 10909,
+    "line": 10937,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -8405,7 +8405,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 5272,
+    "line": 5283,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -10042,7 +10042,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dataset",
-    "line": 1354,
+    "line": 1366,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "activation_maps_to_database"
@@ -10051,7 +10051,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dataset",
-    "line": 1392,
+    "line": 1404,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "activation_correlations_to_database"
@@ -10145,7 +10145,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "db_path",
-    "line": 10597,
+    "line": 10609,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "add_column_to_database"
@@ -13801,7 +13801,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "green_channel",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -13837,7 +13837,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "green_channel",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -13924,7 +13924,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "grna_statistic",
-    "line": 7549,
+    "line": 7577,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -14444,7 +14444,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutation_block",
-    "line": 7550,
+    "line": 7578,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -14511,7 +14511,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutations",
-    "line": 7532,
+    "line": 7560,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -16760,7 +16760,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "inference",
-    "line": 7513,
+    "line": 7541,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -18034,7 +18034,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "learning_rate",
-    "line": 8044,
+    "line": 8056,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -18090,7 +18090,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 7548,
+    "line": 7576,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -18099,7 +18099,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 7605,
+    "line": 7633,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -18821,7 +18821,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "magnification",
-    "line": 3557,
+    "line": 3569,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -19346,7 +19346,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "merge_pathogens",
-    "line": 3586,
+    "line": 3598,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -21379,7 +21379,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "multiple_testing_method",
-    "line": 9780,
+    "line": 9808,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -22060,7 +22060,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 8051,
+    "line": 8063,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -22170,7 +22170,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 8066,
+    "line": 8078,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -22179,7 +22179,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 8082,
+    "line": 8094,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -22188,7 +22188,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 8083,
+    "line": 8095,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -23073,7 +23073,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 8183,
+    "line": 8211,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -24096,7 +24096,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -24177,7 +24177,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -25005,7 +25005,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_model_name",
-    "line": 3568,
+    "line": 3580,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -25686,7 +25686,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_adaptive_block_size",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25742,7 +25742,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_adaptive_offset",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25762,7 +25762,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_area_multiplier",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25827,7 +25827,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_cellprob_threshold",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25838,7 +25838,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_chann_dim",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26020,7 +26020,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26029,7 +26029,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26065,7 +26065,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -26094,7 +26094,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_clahe",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26114,7 +26114,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_clahe_clip_limit",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26179,7 +26179,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26244,7 +26244,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_dog_sigma_high",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26253,7 +26253,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_dog_sigma_high",
-    "line": 1091,
+    "line": 1103,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -26262,7 +26262,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_dog_sigma_high",
-    "line": 1093,
+    "line": 1105,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -26282,7 +26282,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_dog_sigma_low",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26291,7 +26291,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_dog_sigma_low",
-    "line": 1091,
+    "line": 1103,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -26300,7 +26300,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_dog_sigma_low",
-    "line": 1092,
+    "line": 1104,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -26320,7 +26320,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_fill_holes",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26376,7 +26376,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_flow_threshold",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26396,7 +26396,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_hysteresis_high",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26405,7 +26405,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_hysteresis_high",
-    "line": 1120,
+    "line": 1132,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -26425,7 +26425,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_hysteresis_low",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26434,7 +26434,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_hysteresis_low",
-    "line": 1119,
+    "line": 1131,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -26454,7 +26454,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_intensity_merge",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26483,7 +26483,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_intensity_percentile",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26512,7 +26512,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_intensity_split",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26541,7 +26541,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_intensity_threshold_method",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26597,7 +26597,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_log_max_sigma",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26606,7 +26606,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_log_max_sigma",
-    "line": 1075,
+    "line": 1087,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -26615,7 +26615,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_log_max_sigma",
-    "line": 1077,
+    "line": 1089,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -26653,7 +26653,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_log_min_sigma",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26662,7 +26662,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_log_min_sigma",
-    "line": 1075,
+    "line": 1087,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -26671,7 +26671,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_log_min_sigma",
-    "line": 1076,
+    "line": 1088,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -26709,7 +26709,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_log_num_sigma",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26718,7 +26718,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_log_num_sigma",
-    "line": 1075,
+    "line": 1087,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -26727,7 +26727,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_log_num_sigma",
-    "line": 1078,
+    "line": 1090,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -26774,7 +26774,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_log_threshold",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26783,22 +26783,13 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_log_threshold",
-    "line": 1075,
+    "line": 1087,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
    },
    {
     "form": "get",
-    "function_depth": 1,
-    "key": "organelle_log_threshold",
-    "line": 1079,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "_organelle_diagnostic"
-   },
-   {
-    "form": "keyword",
     "function_depth": 1,
     "key": "organelle_log_threshold",
     "line": 1091,
@@ -26807,10 +26798,19 @@
     "qualname": "_organelle_diagnostic"
    },
    {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "organelle_log_threshold",
+    "line": 1103,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "_organelle_diagnostic"
+   },
+   {
     "form": "get",
     "function_depth": 1,
     "key": "organelle_log_threshold",
-    "line": 1094,
+    "line": 1106,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -26875,7 +26875,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26931,7 +26931,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_within_cells",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26978,7 +26978,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_max_area",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27007,7 +27007,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_max_intensity_percentile",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27045,7 +27045,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_method",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27200,7 +27200,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_min_area",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27238,7 +27238,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_min_distance",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27276,7 +27276,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_min_intensity_percentile",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27305,7 +27305,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_min_split_area",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27343,7 +27343,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_model_name",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27361,7 +27361,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_model_name",
-    "line": 3568,
+    "line": 3580,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -27399,7 +27399,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_morph_radius",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27408,7 +27408,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_morph_radius",
-    "line": 1139,
+    "line": 1151,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -27437,7 +27437,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_morphology",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27475,7 +27475,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_network_threshold",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27495,7 +27495,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_perimeter_fraction",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27542,7 +27542,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_remove_border",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27562,7 +27562,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_remove_border_objects",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27627,7 +27627,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_resample",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27647,7 +27647,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ridge_filter",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27656,7 +27656,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_ridge_filter",
-    "line": 1113,
+    "line": 1125,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -27676,7 +27676,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ridge_sigmas",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27685,7 +27685,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_ridge_sigmas",
-    "line": 1112,
+    "line": 1124,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -27705,7 +27705,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ring_fill_method",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27734,7 +27734,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ring_min_prominence",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27754,7 +27754,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ring_sigma_inner",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27763,7 +27763,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_ring_sigma_inner",
-    "line": 1144,
+    "line": 1156,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -27783,7 +27783,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ring_sigma_outer",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27792,7 +27792,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_ring_sigma_outer",
-    "line": 1145,
+    "line": 1157,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -27812,7 +27812,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_rolling_ball",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27832,7 +27832,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_rolling_ball_radius",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27879,7 +27879,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_skeletonize",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27899,7 +27899,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_tophat_radius",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27908,7 +27908,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_tophat_radius",
-    "line": 1106,
+    "line": 1118,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_organelle_diagnostic"
@@ -27928,7 +27928,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_type",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27993,7 +27993,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_unet_model_path",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -28013,7 +28013,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_unet_threshold",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -28033,7 +28033,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_watershed_spots",
-    "line": 314,
+    "line": 330,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -28165,7 +28165,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_channel",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -28201,7 +28201,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_channel",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -28555,7 +28555,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_model_name",
-    "line": 3568,
+    "line": 3580,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -28780,7 +28780,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_channel",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -28816,7 +28816,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_channel",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -29170,7 +29170,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_model_name",
-    "line": 3568,
+    "line": 3580,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -29395,7 +29395,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_channel",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -29431,7 +29431,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_channel",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -29785,7 +29785,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_model_name",
-    "line": 3568,
+    "line": 3580,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -30246,7 +30246,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -30318,7 +30318,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -30633,7 +30633,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 10904,
+    "line": 10932,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -30642,7 +30642,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5265,
+    "line": 5276,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -31155,7 +31155,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -31245,7 +31245,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -32428,7 +32428,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_model_name",
-    "line": 3568,
+    "line": 3580,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -34160,7 +34160,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 1780,
+    "line": 1792,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "save_settings"
@@ -35532,7 +35532,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "red_channel",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -35568,7 +35568,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "red_channel",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -35821,7 +35821,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_backend",
-    "line": 7606,
+    "line": 7634,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -36079,7 +36079,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 7592,
+    "line": 7620,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -36088,7 +36088,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 9779,
+    "line": 9807,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -40775,7 +40775,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7376,
+    "line": 7404,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -40784,7 +40784,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7396,
+    "line": 7424,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -40793,7 +40793,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 8822,
+    "line": 8850,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._measurements_destination"
@@ -40802,7 +40802,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9881,
+    "line": 9909,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._load_regression_results"
@@ -41819,7 +41819,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1770,
+    "line": 1782,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "save_settings"
@@ -41828,7 +41828,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1771,
+    "line": 1783,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "save_settings"
@@ -41837,7 +41837,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1774,
+    "line": 1786,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "save_settings"
@@ -41846,7 +41846,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8856,
+    "line": 8868,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -41855,7 +41855,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8860,
+    "line": 8872,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -41864,7 +41864,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8861,
+    "line": 8873,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -41873,7 +41873,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8866,
+    "line": 8878,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -41882,7 +41882,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8870,
+    "line": 8882,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -41891,7 +41891,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8875,
+    "line": 8887,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -41900,7 +41900,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8881,
+    "line": 8893,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -41909,7 +41909,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8883,
+    "line": 8895,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -41918,118 +41918,10 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8886,
+    "line": 8898,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10939,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10940,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10941,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10942,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10943,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10944,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10945,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10946,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10947,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10948,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10949,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10950,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
    },
    {
     "form": "subscript",
@@ -42053,6 +41945,87 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
+    "line": 10953,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10954,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10955,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10956,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10957,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10958,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10959,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10960,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10961,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
     "line": 10962,
     "module": "spacr.utils",
     "nested": false,
@@ -42063,6 +42036,33 @@
     "function_depth": 1,
     "key": "src",
     "line": 10963,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10964,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10974,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10975,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -43886,7 +43886,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_mode",
-    "line": 1777,
+    "line": 1789,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "save_settings"
@@ -43895,7 +43895,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_mode",
-    "line": 8855,
+    "line": 8867,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -43933,7 +43933,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_nr",
-    "line": 8862,
+    "line": 8874,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -43942,7 +43942,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_nr",
-    "line": 8867,
+    "line": 8879,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -43951,7 +43951,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_nr",
-    "line": 8869,
+    "line": 8881,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -43960,7 +43960,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_nr",
-    "line": 8871,
+    "line": 8883,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -44500,7 +44500,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 1307,
+    "line": 1319,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "filepaths_to_database"
@@ -44509,7 +44509,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 1307,
+    "line": 1319,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "filepaths_to_database"
@@ -44518,7 +44518,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 1311,
+    "line": 1323,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "filepaths_to_database"
@@ -45168,7 +45168,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 315,
+    "line": 331,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -45231,7 +45231,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 3682,
+    "line": 3694,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -46573,7 +46573,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "use_bounding_box",
-    "line": 8194,
+    "line": 8222,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -48054,7 +48054,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 3591,
+    "line": 3603,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
