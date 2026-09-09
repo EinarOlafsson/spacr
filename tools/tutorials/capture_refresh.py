@@ -40,7 +40,7 @@ def main() -> int:
     parser.add_argument('--platform', choices=('offscreen', 'xcb'), default='offscreen')
     parser.add_argument('--run', action='store_true', help='Record a bounded Plot-enabled real pipeline run')
     parser.add_argument('--ai-controls', action='store_true', help='Show the AI toggle and an UNSENT example question')
-    parser.add_argument('--settings-tour', action='store_true', help='Show bounded Regression choices and actual result tabs')
+    parser.add_argument('--settings-tour', action='store_true', help='Show bounded Regression or Classify choices through real settings searches')
     parser.add_argument('--annotation-tour', action='store_true', help='Record actual crop labelling and view changes in a new example column')
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
@@ -50,8 +50,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.preview_variants and not args.preview:
         parser.error('--preview-variants requires --preview')
-    if args.settings_tour and (args.module != 'regression' or not args.run):
-        parser.error('--settings-tour requires --module regression --run')
+    if args.settings_tour and (args.module not in {'regression', 'classify_merged'} or not args.run):
+        parser.error('--settings-tour requires --module regression/classify_merged --run')
     if args.annotation_tour and args.module != 'annotate':
         parser.error('--annotation-tour requires --module annotate')
     if args.capture_name and (Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}):
@@ -576,7 +576,22 @@ def main() -> int:
                        'nucleus_diameter': 30, 'pathogen_diameter': 15},
                        'measure': {'test_mode': True, 'test_nr': 1, 'n_jobs': 1,
                                    'plot': True, 'save_measurements': True, 'save_png': True,
-                                   'normalize': False}}
+                                   'normalize': False},
+                       'classify_merged': {
+                           'classifier_family': 'cv', 'dataset_mode': 'annotation',
+                           'classes': {
+                               'infected_1': {'column': 'infected', 'value': 1},
+                               'infected_2': {'column': 'infected', 'value': 2}},
+                           'model_type': 'resnet18', 'epochs': 1, 'batch_size': 8,
+                           'image_size': 128, 'n_jobs': 2, 'init_weights': False,
+                           'tensorboard': False, 'augment': False,
+                           'gradient_accumulation': False, 'train': True, 'test': True,
+                           'generate_training_dataset': True,
+                           'apply_model_to_dataset': False, 'generate_full_dataset': False,
+                           'plot': True, 'cv_group_by': 'well', 'random_seed': 42,
+                           'evaluation_fail_on_leakage': True,
+                           'leakage_audit_train_test': True,
+                           'leakage_hash_content': True, 'leakage_require_identity': True}}
             if args.module == 'regression':
                 run_parent = stage / 'regression_runs'
                 run_parent.mkdir(parents=True, exist_ok=True)
@@ -671,7 +686,7 @@ def main() -> int:
             queue.show_index(queue.count() - 1)
             settle()
             capture('24_batch_figure')
-            if args.settings_tour:
+            if args.settings_tour and args.module == 'regression':
                 from capture_settings import record_results
                 record_results(screen, captures, capture, settle, write_json)
         if args.annotation_tour:

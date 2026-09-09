@@ -17,8 +17,18 @@ def record_settings(screen, captures, capture, settle, write_json):
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest
 
-    if screen.app_key != 'regression':
-        raise ValueError('Only the measured Regression tour is configured')
+    keys_by_module = {
+        'regression': ('paired_data', 'inference', 'level', 'analysis_unit',
+                       'guide_min_wells', 'guide_permutations',
+                       'guide_permutation_seed', 'regression_backend',
+                       'annotation_source'),
+        'classify_merged': ('classifier_family', 'dataset_mode', 'classes',
+                            'image_source', 'model_type', 'epochs', 'batch_size',
+                            'image_size', 'n_jobs', 'init_weights', 'cv_group_by',
+                            'test', 'plot', 'apply_model_to_dataset'),
+    }
+    if screen.app_key not in keys_by_module:
+        raise ValueError('No measured settings tour is configured for this module')
     before = screen._settings_model.collect()
     splitter = screen._body_splitter
     sizes = splitter.sizes()
@@ -32,10 +42,7 @@ def record_settings(screen, captures, capture, settle, write_json):
         QTest.mouseClick(bar._disclosure, Qt.LeftButton)
     observations = []
     try:
-        for key in ('paired_data', 'inference', 'level', 'analysis_unit',
-                    'guide_min_wells', 'guide_permutations',
-                    'guide_permutation_seed', 'regression_backend',
-                    'annotation_source'):
+        for key in keys_by_module[screen.app_key]:
             bar._input.setFocus()
             QTest.keyClick(bar._input, Qt.Key_A, Qt.ControlModifier)
             QTest.keyClicks(bar._input, key)
