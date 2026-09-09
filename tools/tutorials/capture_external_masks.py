@@ -29,7 +29,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import (
         QAbstractButton, QComboBox, QDialogButtonBox, QFileDialog, QLineEdit,
-        QMessageBox, QSpinBox,
+        QMenu, QMessageBox, QSpinBox,
     )
     from spacr.qt.screens.app_screen import AppScreen
     from spacr.qt.widgets.channel_mapping import ChannelMappingWidget
@@ -541,13 +541,169 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     if model.collect() != settings:
         raise RuntimeError('The actual run changed the retained UI settings')
     write_json(captures / 'settings_after_run.json', model.collect())
+    # Persist the independent project proof before any optional GUI tour.
+    # A later readability failure still holds publication, but must not
+    # erase evidence that this particular, authentic run produced good data.
+    evidence = verify_external_project(destination, records, settings=settings)
+    write_json(captures / 'output_evidence.json', evidence)
+    if evidence.get('accepted') is not True:
+        raise RuntimeError('The independent External Masks output verifier did not accept the project')
+    unchanged()
 
     queue = screen._figure_queue
+    if queue.count() != 6:
+        raise RuntimeError('Expected all six actual External Masks pipeline figures')
     figures = []
     width = sum(screen._body_splitter.sizes())
     screen._body_splitter.setSizes([width // 4, width - width // 4])
     console_fold(True)
     runtime_space(True)
+
+    def readable_figure(index):
+        # Selecting a different figure replaces its live canvas and changes
+        # Qt's size hints. Reposition the real divider AFTER that replacement,
+        # then require two settled observations, not the transient first size.
+        attempts = []
+        stable = 0
+        for attempt in range(6):
+            console_fold(True)
+            runtime_space(True)
+            area = queue._stack.visibleRegion().boundingRect()
+            attempts.append({'attempt': attempt, 'width': area.width(),
+                             'height': area.height(), 'runtime_sizes': runtime.sizes()})
+            stable = stable + 1 if area.height() >= 500 else 0
+            if stable >= 2:
+                return {'viewer': 'pipeline_figure_queue',
+                        'visible_width': area.width(), 'visible_height': area.height(),
+                        'layout_attempts': attempts}
+            if attempt == 2 and not stable:
+                # A genuine fold/unfold lets the parent layout renegotiate
+                # its space too; no widget minimum or size policy is changed.
+                console_fold(False)
+                runtime_space(False)
+                console_fold(True)
+        write_json(captures / f'figure_{index:02d}_layout.json', attempts)
+        return None
+
+    def export_preview(index, frame):
+        # The queue has no pop-out viewer. Its actual right-click menu does
+        # have a resizable, detached export preview. Use it only when the
+        # embedded viewport cannot be made readable; never press Save or
+        # present this as the ordinary pipeline viewport.
+        import numpy as np
+        from PySide6.QtGui import QContextMenuEvent
+        from spacr.qt.widgets.save_figure_dialog import SaveFigureDialog
+
+        canvas = queue._canvas
+        if canvas is None or not canvas.isVisible():
+            raise RuntimeError('A readable live figure is required for the native export preview')
+        source_figure = canvas.figure
+        errors, selected = [], []
+
+        def choose_preview():
+            menu = app.activePopupWidget()
+            try:
+                if not isinstance(menu, QMenu):
+                    raise RuntimeError('The real figure context menu did not open')
+                actions = [action for action in menu.actions()
+                           if action.text().replace('&', '') == 'Save figure with a preview…'
+                           and action.isEnabled() and action.isVisible()]
+                if len(actions) != 1:
+                    raise RuntimeError('The actual figure menu has no unique export-preview action')
+                capture(f'10_external_figure_{index:02d}_preview_menu')
+                QTest.mouseClick(menu, Qt.LeftButton,
+                                 pos=menu.actionGeometry(actions[0]).center())
+                selected.append(True)
+            except Exception as exc:
+                errors.append(str(exc))
+                if isinstance(menu, QMenu):
+                    menu.close()
+
+        QTimer.singleShot(300, choose_preview)
+        point = canvas.rect().center()
+        QTest.mouseMove(canvas, point)
+        # QtTest mouse presses do not consistently synthesize the platform's
+        # separate context-menu event. Deliver that genuine Qt input event to
+        # the visible canvas; its installed policy opens the actual menu.
+        app.sendEvent(canvas, QContextMenuEvent(
+            QContextMenuEvent.Mouse, point, canvas.mapToGlobal(point)))
+        settle(0.5)
+        if errors or not selected:
+            raise RuntimeError('; '.join(errors) or 'The native export preview was not selected')
+        dialogs = [widget for widget in app.topLevelWidgets()
+                   if isinstance(widget, SaveFigureDialog) and widget.isVisible()
+                   and widget._source is source_figure]
+        if len(dialogs) != 1:
+            raise RuntimeError('The native export preview did not open for this exact figure')
+        dialog = dialogs[0]
+        save_clicks, cancellations = [], []
+        dialog._save.clicked.connect(lambda *_: save_clicks.append(True))
+        dialog.rejected.connect(lambda: cancellations.append(True))
+        try:
+            # Resizing an ordinary top-level dialog is a native window action,
+            # unlike changing the embedded widget's minimum or size policy.
+            physical = dialog.screen().availableGeometry()
+            workbench = window.geometry()
+            # The offscreen platform can advertise an 800-pixel monitor
+            # while the genuine recording window is 3840 x 2160. Keep this
+            # native top-level dialog inside that captured window, not the
+            # platform's unrelated, smaller default screen rectangle.
+            if not workbench.isValid() or workbench.width() <= 100 or workbench.height() <= 100:
+                raise RuntimeError('The actual recording window has no usable geometry')
+            available = workbench
+            if physical.width() >= workbench.width() and physical.height() >= workbench.height():
+                overlap = workbench.intersected(physical)
+                if overlap == workbench:
+                    available = overlap
+            dialog.resize(available.width() - 100, available.height() - 100)
+            dialog.move(available.x() + 50, available.y() + 50)
+            settle(1)
+            if not workbench.contains(dialog.geometry()):
+                raise RuntimeError('The native export preview extends outside the captured workbench')
+            preview = dialog.preview()
+            if preview is None or preview is source_figure or dialog._canvas is None:
+                raise RuntimeError('The native dialog did not render a detached figure preview')
+            if len(preview.axes) != len(source_figure.axes):
+                raise RuntimeError('The native export preview changed the number of figure panels')
+            images_checked = 0
+            for original_axes, preview_axes in zip(source_figure.axes, preview.axes):
+                if len(original_axes.images) != len(preview_axes.images):
+                    raise RuntimeError('The export preview changed the plotted image count')
+                for original_image, preview_image in zip(original_axes.images, preview_axes.images):
+                    original_array = original_image.get_array()
+                    preview_array = preview_image.get_array()
+                    if (original_array.dtype != preview_array.dtype
+                            or not np.array_equal(np.ma.getdata(original_array),
+                                                  np.ma.getdata(preview_array), equal_nan=True)
+                            or not np.array_equal(np.ma.getmask(original_array),
+                                                  np.ma.getmask(preview_array))):
+                        raise RuntimeError('The export preview changed an actual plotted image array')
+                    images_checked += 1
+            area = dialog._canvas.visibleRegion().boundingRect()
+            if not images_checked or area.height() < 500:
+                capture('readability_error_figure')
+                raise RuntimeError('The native export-preview canvas is empty or too short')
+            capture(frame + '_export_preview')
+            result = {'viewer': 'native_export_preview_cancelled_without_saving',
+                      'frame': frame + '_export_preview',
+                      'visible_width': area.width(), 'visible_height': area.height(),
+                      'workbench_geometry': [workbench.x(), workbench.y(),
+                                             workbench.width(), workbench.height()],
+                      'physical_available_geometry': [physical.x(), physical.y(),
+                                                      physical.width(), physical.height()],
+                      'plotted_image_arrays_exact': images_checked,
+                      'source_figure_is_live_queue_figure': True, 'export_written': False}
+        finally:
+            box = dialog.findChild(QDialogButtonBox)
+            if box is None or box.button(QDialogButtonBox.Cancel) is None:
+                raise RuntimeError('The native export preview has no Cancel control')
+            click(box.button(QDialogButtonBox.Cancel))
+        if dialog.isVisible() or save_clicks or not cancellations:
+            raise RuntimeError('The native export preview was not cancelled without pressing Save')
+        result['save_button_clicked'] = False
+        result['cancel_signal_observed'] = True
+        return result
+
     for index, pixmap in enumerate(queue.all_pixmaps()):
         path = captures / f'external_figure_{index:02d}.png'
         if not pixmap.save(str(path), 'PNG'):
@@ -555,16 +711,19 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         figures.append({'image': path.name, 'sha256': _digest(path)})
         queue.show_index(index)
         settle(0.5)
-        canvas_area = queue._stack.visibleRegion().boundingRect()
-        if canvas_area.height() < 500:
-            capture('readability_error_figure')
-            raise RuntimeError('The actual figure viewport remains too short for the readable tour')
+        view = readable_figure(index)
+        frame = f'10_external_figure_{index:02d}'
+        if view is None:
+            capture(frame + '_embedded_before_preview')
+            view = export_preview(index, frame)
+        else:
+            capture(frame)
+            view['frame'] = frame
         readable_tour['figures'].append({
-            'index': index, 'visible_width': canvas_area.width(),
-            'visible_height': canvas_area.height(), 'runtime_sizes': runtime.sizes(),
+            'index': index, **view, 'runtime_sizes': runtime.sizes(),
             'system_folded': usage.folder.shut, 'console_folded': screen._console_folder.shut,
         })
-        capture(f'10_external_figure_{index:02d}')
+        write_json(captures / 'readable_tour.json', readable_tour)
     write_json(captures / 'batch_figures.json', figures)
     show_console_marker('External masks → Measure project (preview; nothing written)',
                         '11a_external_input_plan')
@@ -573,10 +732,6 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     if model.collect() != settings:
         raise RuntimeError('The readable result tour changed the retained settings')
     write_json(captures / 'readable_tour.json', readable_tour)
-    evidence = verify_external_project(destination, records, settings=settings)
-    write_json(captures / 'output_evidence.json', evidence)
-    if evidence.get('accepted') is not True:
-        raise RuntimeError('The independent External Masks output verifier did not accept the project')
     unchanged()
     settle(2)
     blocks = [text for _, _, text in screen._console._pipeline_console_blocks()]

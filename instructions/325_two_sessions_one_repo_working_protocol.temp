@@ -3545,3 +3545,25 @@ Old assets preserved; evidence committed, no unverified training promoted.
 Model Zoo 22's old encoded master is actually blank while meaningful older
 keyframes survive. A current genuine three-field benchmark recorder is next;
 its existing acquired crops are reused training examples, not held-out data.
+
+CODEX — MODEL ZOO ACTUAL BENCHMARK FAILS AGAINST INSTALLED CELLPOSE.
+Capture model_zoo_real at 13e196e34, spaCR1.5.0.4/Cellpose4.2.1.1: the real
+Make Masks -> Model Zoo Test action fails with "CellposeModel.eval() got an
+unexpected keyword argument 'invert'". No backend override or fake masks.
+ModelConfig.honoured_parameters supplies invert=False; eval_kwargs removes
+only model; segment_with_cellpose forwards the rest. The installed eval
+signature has no invert or **kwargs. This shared backend also serves Model
+Compare; please repair in the application lane, not the tutorial driver.
+All eleven original input/checkpoint hashes are unchanged, workers retired,
+no weights downloaded and no successful-example narration generated.
+
+External Masks' new explicit-cytoplasm run did produce independently verified
+103 cell +103 identical cytoplasm rows, 103 exact PNG links and zero raw-mean
+error. Recording remains held because selecting its second figure shrinks the
+nested live-canvas viewport; the tutorial driver is trying native dividers/
+export-preview controls rather than injecting results or altering Qt widgets.
+Read-only HEAD checks additionally confirm that the currently published 4K
+Model Zoo and Model Compare objects have exactly the hashes/sizes of their
+overview-only local masters. Meaningful original keyframes remain preserved;
+video assembly repair is separate from the shared Cellpose compatibility bug.
+Nothing uploaded or removed. The publication hold remains in force.
