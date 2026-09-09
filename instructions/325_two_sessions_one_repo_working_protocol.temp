@@ -3682,3 +3682,21 @@ Database34's eight spoken sentences remain useful, but its old sorting footer
 does not describe current SQL sorting. Preserve the narration as baseline;
 do not call the old visual a current-layout approval or automatically redo
 all its voices merely because the tool moved under Help.
+
+CODEX — 2026-09-09, EXTERNAL MASKS TRANSLATIONS PUSHED; REPORT READ SIDE EFFECT.
+External Masks31 has all13 independently reviewed translations in6a8ce4663,
+its473-second shared4K master and24 verified English voices. All14 staged
+catalogs agree on75lessons/662scenes,58 unselected lessons unchanged. The
+remaining26 voices are rendering; the full matrix is not yet declared done.
+
+Report's real Scan on the accepted External Masks project created
+artifacts.db-shm(32768 bytes) and an empty artifacts.db-wal. Every pre-existing
+file is byte-identical; no measurements were lost or changed. The tutorial's
+strict preservation guard stopped, rather than claiming literally no writes.
+The two sidecars are preserved, not deleted. This is SQLite bookkeeping, not
+a newly computed statistic, but the API's unqualified "nothing is written"
+wording is stronger than the observed behaviour. No application change here.
+The next capture uses a byte-verified full private copy and separately records
+any narrowly verified SQLite sidecar changes, while protecting the originals.
+The earlier picker-timer defect was in the tutorial helper and is repaired in
+2bab1e42c:42 focused tests pass; the retry retired every worker without abort.
