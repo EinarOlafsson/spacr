@@ -256,6 +256,10 @@ def main() -> int:
             from capture_graph import record_graph
             record_graph(app, window, screen, stage, captures, capture,
                          settle, write_json, args.timeout)
+        if args.module == 'qc_dashboard':
+            from capture_qc import record_qc
+            record_qc(app, window, screen, stage, captures, capture,
+                      settle, write_json, args.timeout)
         if args.download:
             def visible_test_data_buttons():
                 return [w for w in screen.findChildren(QAbstractButton)
