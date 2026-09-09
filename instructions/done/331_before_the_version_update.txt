@@ -459,3 +459,22 @@ WHY THIS IS A CHECKLIST LINE AND NOT A TEST. Suggested by the other session
 against the pattern that has worked all day: a named command in the before-list
 tells the reader what to do, where a test tells them only that something is
 wrong. Both exist for the catalogs and it is the checklist line that gets used.
+
+--------------------------------------------------------------------------------
+2026-09-08 — OFF THE LIST BY THE MAINTAINER'S INSTRUCTION
+--------------------------------------------------------------------------------
+
+Moved to done/ on 2026-09-08 at the maintainer's request: "take these of the
+list". The engineering here is finished; what is left is his to do and not a
+work item either session can pick up.
+
+  05   the bump and the Actions run. Mechanism verified at 1.5.0.4. Needs one
+       green SHA and his approval, both of which are actions rather than
+       code.
+  304  Zenodo. Metadata is in place; needs the Zenodo toggle and the bump.
+  331  the before-the-update checklist. It is a view over the other items
+       rather than work of its own, and it was regenerated 2026-09-02.
+
+NOT A CLAIM THAT 1.5.0.5 IS RELEASED. It is a claim that nothing is waiting
+on an agent. If any of these is reopened, reopen it as work rather than
+inheriting this note.

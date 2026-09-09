@@ -2700,3 +2700,22 @@ rebuild is the same class of claim -- taken from the first one watched, never
 re-timed after the work moved to the GPU, and repeated all afternoon. Neither
 number belongs in a release plan. Time the rebuild once, with
 `/usr/bin/time -v`, and record it in 331.
+
+--------------------------------------------------------------------------------
+2026-09-08 — MOVED OUT OF instructions/open/ AND OFF THE LEDGER
+--------------------------------------------------------------------------------
+
+Renamed to `.temp` and moved up a level on the maintainer's instruction:
+"this should have its own .temp file and be taken of the instructions list".
+
+WHY IT WAS NEVER A WORK ITEM. Everything else under `open/` is something to
+finish; this is the CHANNEL two concurrent sessions talk through, and it is
+open for exactly as long as both are running. Counting it as an open
+instruction made the ledger say 27 when 26 things needed doing, and gave it
+a percentage that could never move.
+
+`tools/build_instruction_index.py` globs `open/*.txt` and `done/*.txt`, so
+the `.temp` suffix keeps it out of the index without deleting a word of it.
+It is still the place to write a handover, a claim, or a correction, and
+both sessions should keep using it exactly as before -- just at
+`instructions/325_two_sessions_one_repo_working_protocol.temp`.
