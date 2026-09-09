@@ -1,0 +1,19 @@
+{
+  "lesson": "06_api", "language": "sv",
+  "english_sha256": "a8d7ca434cf8ec58ef00d69f6a114834d862bd4a58941fbf73ea4467d7acaba3",
+  "review": {"kind": "Editorial caption translation checked against English and actual terminal commands", "native_speaker_signoff": false, "corrections": ["Preserve exact command identifiers and expected refusal status.", "Do not equate a clean preflight with executed or scientifically validated analysis."]},
+  "title": "Python-API och aktuella arbetsflöden utan grafiskt gränssnitt",
+  "description": "Hitta installerade batchkommandon, skilj interaktiva verktyg från Python-funktioner och granska en provkörning med ett verkligt exempel utan att påstå att analysen har utförts.",
+  "objectives": ["Bekräfta paketversionen i den aktiva Python-miljön.", "Hitta aktuella kommandonycklar och de funktioner som faktiskt anropas.", "Skilj mellan ett interaktivt arbetsflöde, en Python-funktion och ett batchkommando.", "Läs provkörningens inställningar, avslutningskod och begränsningar före obevakad körning."],
+  "prerequisite": "Slutför först en installationslektion. Använd nedladdade parade data och sparade inställningar från Regression-lektionen för förkontrollen som visas; ersätt den här datorns sökvägar med dina egna. Ingen analys eller rapport skapas i inspelningen.",
+  "scenes": [
+    "Importera paketet och skriv ut versionen i den miljö där du installerade spaCR. Den här verkliga terminalen visar version ett punkt fem punkt noll punkt fyra. Kontrollera din egen version innan du följer kommandona, eftersom en äldre miljö kan erbjuda andra funktioner och inställningar.",
+    "Kör spacr-run med alternativet list. Batchavsnittet visar exakta kommandonycklar och Python-ingångspunkter, bland annat mask, measure och classify_merged. Namn på Home-skärmen och nästlade knappar är inte automatiskt batchkommandon. Använd den installerade listan i stället för att gissa en nyckel från en lektions titel.",
+    "Använd describe med regression för att se funktionen perform_regression i spacr.ml, funktionen som levererar standardvärdena och kraven på indata. Det kopplar kommandot till den faktiska analysfunktionen. De sparade inställningarna för parade data kommer från det länkade Regression-exemplet, inte från en påhittad mätmapp.",
+    "Annotate är ett interaktivt arbetsflöde. Anropet spacr-run annotate returnerar faktiskt avslutningskod två och förklarar att någon batchmotsvarighet inte finns. Använd Annotate i skrivbordsprogrammet för att märka bildutsnitt. Den här förväntade avvisningen är inte bevis för att installationen är trasig.",
+    "Andra funktioner har ett Python-API utan motsvarande batchnyckel. Här importerar vi build_report från spacr.report och granskar den verkliga funktionssignaturen. Vi anropar den inte och skapar ingen rapport. Läs funktionens dokumentation och argument i stället för att anta att spacr-run report finns.",
+    "Ge regression den sparade inställningsfilen och lägg till dry-run. Det verkliga kommandot fastställer inställningarna och kör förkontrollerna, och säger sedan uttryckligen att perform_regression inte anropades. Läs avslutningskoden och meddelandena; inspelningen startade ingen ytterligare regression och skrev inga analysresultat.",
+    "En förkontroll utan fel bevisar varken att hela analysen lyckas eller att den är vetenskapligt giltig. Den här versionens generella plan nämner en mätdatabas, trots att vår regression använder parade tabeller. Granska modulens faktiska indata och testa en avgränsad körning innan du förlitar dig på obevakad bearbetning.",
+    "Ta bara bort dry-run när du avser att utföra analysen. Spara exakta inställningar, indataidentifierare, paketversion och konsollogg tillsammans med resultaten. Följ den länkade modullektionen för en demonstrerad körning och läs funktionens aktuella API-referens när du skriver Python-skript."
+  ]
+}
