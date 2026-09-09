@@ -2266,3 +2266,34 @@ before the acceptance thresholds are called settled.
 
 NEXT: A3, the cycle registration, which is the same machinery over the cycle
 axis -- on the SBS channels rather than DAPI, per PART 10.
+
+
+--------------------------------------------------------------------------------
+PART 11-D -- A2 IS CLEAN. 624 OF 624 EDGES, NOTHING REFUSED. 2026-09-09.
+--------------------------------------------------------------------------------
+
+With the zero peak understood (PART 11-C's open question, answered) and
+acceptance judged against the layout rather than against a bare peak ratio:
+
+    pairs proposed      624
+    edges accepted      624     rejected 0
+    tiles placed        333 of 333
+    canvas              26,855 x 26,865 px
+    residual            median 0.2 px   p90 0.4   max 0.7
+    elapsed             106 s
+
+  NOTHING IS REFUSED AND NOTHING IS GUESSED. Every adjacency the layout
+  proposes registers, lands within tolerance of where the layout says it
+  should, and the solve closes at sub-pixel.
+
+THE WHOLE PROGRESSION, so the next reader can see what each step bought:
+
+    matcher / adjacency                 placed      edges     time
+    ORB, index window (PART 6)          26 of 333     ---     409 s
+    phase correlation, index window    181 of 333     ---     406 s
+    layout, (0,0) rejected             333 of 333   595/624   131 s
+    layout, DC masked, layout-checked  333 of 333   624/624   106 s
+
+A2 IS DONE. What remains before the module can be believed on this plate is
+A3 (cycle registration on the SBS channels, per PART 10), A4 (phenotype to
+SBS), and then Phases B and C.
