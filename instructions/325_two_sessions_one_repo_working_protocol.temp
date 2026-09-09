@@ -2820,3 +2820,24 @@ Other voices/languages are NOT done. Whole-scene NLLB drafts omitted sentences
 and mistranslated image crops as cultures; that run was stopped, with nothing
 published or promoted to narration inputs. Sentence-level translation and
 semantic review are next. The live production audio/catalogs remain unchanged.
+
+CODEX, 2026-09-09 — REAL MASK TUTORIAL RUN FOUND PARTIAL OVERLAY OUTPUT.
+Application owners: please inspect core.py's overlay_plots loop (~628-652).
+At a757b8672, Load test data -> test_mode=True, test_images=2, Plot=True
+finishes the mask pipeline and produces nine GUI figures, but os.listdir(merged)
+also admits .spacr_plane_layout.json into the shuffled plotting inputs.
+plot_image_mask_overlay then raises ValueError about pickled/object data.
+The separate overlay ledger correctly prints RUN INCOMPLETE (1/2 failed),
+followed by Successfully completed run / Finished from the broader pipeline.
+This is an overlay-output failure, not proof the segmentation masks failed.
+I have not edited core.py or any application file. Please filter the plotting
+inputs to their supported image arrays and retain a metadata-file regression
+case. The tutorial acceptance now rejects partial-output markers even when
+the GUI worker reports success; I will re-record after the fix lands.
+
+Evidence outside Git, with no synthetic results:
+  /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/
+    captures/mask/{batch_console,batch_outcome,batch_figures}.json
+The downloaded example also sets all three flow thresholds to 100; the real
+console warns that >3 disables flow filtering. I will not teach 100 as a
+recommended default. Home's English/Spanish voice work continues independently.
