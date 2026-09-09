@@ -1,0 +1,41 @@
+{
+  "lesson": "31_external_masks",
+  "language": "zh-CN",
+  "english_sha256": "80368d2ffb0cfc6144db8a2d37d49e7ea160356888ef007a74c71b76bd7d4e08",
+  "review": {"kind": "Editorial translation checked against English and the actual captured workflow", "native_speaker_signoff": false},
+  "title": "External Masks：测量现有细胞标签，无需重新分割",
+  "description": "复用真实显微图像和现有细胞标签，检查分配结果，在不写入项目数据的情况下预览，并验证新测量的 spaCR 项目，同时区分显示用裁剪图、与细胞重复的细胞质区域和独立的生物学证据。",
+  "objectives": [
+    "在 Import 中找到 External Masks，检查实际的 Image 和 Cell 掩膜分配。",
+    "保留源数据的来源记录，并区分原始数组、TIFF 和合并数组中的平面索引。",
+    "先进行不写入数据的预览，再在独立项目中计算测量值和细胞裁剪图。",
+    "解释全部六幅图并验证每个细胞的原始数值，不据此宣称分割准确或识别出了独立的细胞质区室。"
+  ],
+  "prerequisite": "复用此前从 Measure 下载的显微图像示例中为 Import Project 准备的两对图像与细胞掩膜 TIFF。fov01_C1.tif 和 fov02_C1.tif 保留原始强度平面1；fov01_cell_mask.tif 和 fov02_cell_mask.tif 保留细胞标签平面4。其原始数组为 plate1_E01_1_1 和 plate1_L02_9_1，分别包含44个和59个标签。1994×1994像素的图像是真实采集数据，但其中性的文件名和新分配的 A01 视野不保留原始孔位。现有标签不是经过认证的真实标注。本课不导入测量 CSV，也不对像素的物理尺寸校准作出声明。External Masks 没有单独的示例下载控件，请复用保留的输入。本课不使用画面中的 AI 控件。",
+  "scenes": [
+    "在 Home 的 Data 类别中打开 Import，再打开其中的 External Masks 工具。此工作流测量的是提供的分割标签，不会重新分割图像。父级 Import Project 表单接收现有测量表，而 External Masks 调用 Measure 计算新的特征。",
+    "复用从下载的显微图像示例中为 Import Project 准备的两对真实图像与细胞掩膜。每个视野均为边长1994像素的正方形。中性文件名 fov01 和 fov02 是演示名称，不是原始采集孔位。",
+    "对图像文件夹使用 Add folder…，再对细胞掩膜文件夹执行同样操作。表中有两个分组、四个 TIFF。检查 Use as：强度文件应为 Image，标签应为 Mask，且 Mask type 设为 Cell。Confidence 描述的是检测到的分配结果的可信程度，而不是分割准确率。",
+    "将图像组的 Use as 改为 Ignore。这会将该组从提交运行的设置中排除，但不会删除文件。必需的强度图像组被忽略时，不要运行。",
+    "继续之前恢复为 Image。原来的图像和 Cell 掩膜分配现已恢复，两个源分组都已包含在内。在配置目标位置或开始预览之前，检查这些可编辑的角色分配。",
+    "将 Dst 设为与源文件分开的新项目文件夹。Layout 使用 flat，Z handling 使用 first，Plate naming 使用 index，并关闭 Recursive 和 Overwrite。每个输入只有一个二维强度平面。分配的坐标将是 plate1、A01、视野1和2，并非恢复出的原始孔位。",
+    "Channels 使用0，保持 Normalize 关闭。TIFF 唯一的强度平面的数组索引为0，但其像素提取自原始七平面数组的索引1。提供的细胞标签来自原始索引4，将放入合并数组的平面1。不要混淆这些不同的索引语境。",
+    "本次录制启用了 Measure cytoplasm，但只提供了 Cell 掩膜。没有可供减去的细胞核或其他内部掩膜。因此，派生的细胞质与细胞区域重复，并不是独立识别出的细胞质区室。阅读后面的图和表时，仍须记住这一限制。",
+    "在 Object Crops 下启用 Save PNG，在 Crop mode 中选择 cell，并将 PNG size 设为224×224。PNG dims 和 PNG channel mapping 的三个条目均使用0。Cell min size 为0，Keep uninfected cells 开启；这些选择会保留本例提供的标签。",
+    "N jobs 使用1，关闭 Resume、Dry run 和 Test mode。启用 Plot 和 Save measurements。本例限定了计算范围，禁用了相关性、空间、径向、同质性和对象距离计算。请针对自己的分析检查这些选择；这些设置不是经过验证的生物学实验方案。",
+    "启用 Preview only，按下此工具的 Run 按钮。实际计划报告两个强度映射、两个准备就绪的视野、一个强度通道和细胞掩膜。记录的完整控制台输出还确认了合并平面1上的两对掩膜。此时目标位置尚不存在：预览没有写入任何项目数据。",
+    "关闭 Preview only，在不改变已检查分配结果的情况下再次按 Run。External Masks 写出转换后的图像、堆栈、细胞掩膜和双平面合并数组，然后运行常规 Measure 流程。不会导入测量 CSV，原始源文件也保持不变。",
+    "本次运行生成六幅图。对于前五幅，通过图上实际的右键菜单 Save figure with a preview…，查看更大的原生预览。这是导出对话框，不是嵌入式查看器。我们每次都按 Cancel，不保存任何导出的图。",
+    "首先显示的是包含59个细胞的示例，分配为视野2。此图并排展示强度图像与提供的细胞标签。颜色用于区分标签区域，并不测量置信度，也不能证明每条边界在生物学上都正确。",
+    "下一幅图显示 C. 0、含59个对象的 C. 1，以及含59个对象的 C. 2。这里分别代表强度、细胞和派生的细胞质。标签颜色不同，并不意味着后两者是独立区室：由于没有提供内部掩膜，它们的几何区域完全相同。",
+    "第三幅图是同一视野中59个对象的细胞拼图，并不是一组新的细胞。可用它检查提取出的视图。显示颜色和裁剪图缩放并非原始测量值；定量证据保留在源强度数组和数据库中。",
+    "第四幅图展示另一个采集视野的强度图像与提供的标签。这是包含44个细胞的示例，分配为视野1。图的顺序不等于视野编号。两个视野合计包含103个可区分的细胞标签。",
+    "第五幅图对包含44个细胞的视野再次展示强度、细胞和派生细胞质。这里的两个掩膜面板仍描述相同的细胞区域，并不是对不同区室进行的两次独立测量。按 Cancel 关闭最后一个导出预览；实际的六幅图队列仍然可用。",
+    "第六幅图是在常规嵌入式 Figures 查看器中显示的44对象拼图。两个视野的项目数据中共有103个可读取的细胞 PNG，每个对象均有准确的数据库链接。我们不宣称这些显示用裁剪图保留了原始强度像素。之后可以在 Annotate 中检查 data 文件夹。",
+    "为了检查已完成运行的控制台，打开 Preferences，将 Font scale 从200%降至125%，然后按 Save。通过 Import Project 和 External Masks 标签页返回。这是应用原生的显示调整，不会重新运行测量或编辑记录的结果。",
+    "第一次缩小后，控制台空间仍然不足，因此将 Font scale 设为100%，按 Save，再次通过标签页返回。我们验证测量设置、完整控制台历史以及全部六幅图的图像和顺序均保持不变。没有发送任何 AI 请求。",
+    "阅读已完成操作的摘要，而不只是先前的预览。摘要报告已准备两个视野，并列出 measurements.db 中的表：cell、cytoplasm、intensity_rescale、png_list、run_status、settings 和 settings_history。标注用裁剪图位于 data 下。后面的控制台检查发生在写入之后，不是另一次不写入数据的预览。",
+    "独立检查确认每个输出强度像素和标签像素均与保留的输入一致，全部103个细胞的标识、像素面积和原始平均强度也与这些标签对应的值一致。本次运行的平均强度误差为0。103行细胞质数据与细胞数值完全重复。这验证的是数据处理，而不是分割真实标注或生物学有效性。",
+    "在 Python 中，spacr.external_masks.plan_external_masks 返回 ExternalMaskPlan，不进行写入。run_external_masks 接收该计划，并在测量后返回 ExternalMaskResult。preview_only 为 true 时，prepare_external_masks 返回计划，否则返回结果。将源清单、conversion_map.csv 和项目一同保管，以免把分配的坐标误认为原始采集元数据。"
+  ]
+}
