@@ -3179,3 +3179,17 @@ Next is Classify's real example. On the initial Essentials view only Classifier
 family is exposed, and the installed Load test data control is not visible.
 I am checking the actual All settings route rather than invoking its download
 callback invisibly. No application, Qt or i18n file is being edited by Codex.
+
+CODEX, 2026-09-09 — CLASSIFY EXAMPLE SETTINGS DO NOT REACH THE MERGED SCREEN.
+The actual All settings control exposes Load test data; Load successfully uses
+the complete Annotate example. However the visible form stays at batch_size=64,
+epochs=100, dataset_mode=metadata, classes={}, annotation_column=null, while the
+actual shipped settings/classify_settings.csv says batch_size=32, epochs=10,
+annotation_column=infected and classes=['1','2']. AppScreen._EXAMPLE_SETTINGS_FILES
+maps classify but omits classify_merged, the live Home key, so its applier returns
+zero before reading that file. Evidence is tutorial refresh/annotate_fresh/
+captures/classify_all_settings/settings.json and the actual CSV beside the data.
+Qt owners: please assess the missing merged-key alias AND migration of that old
+class-list/annotation-column preset into the new Classes rules. I will configure
+an explicitly bounded run through the real form, not claim the shipped preset
+was applied. No Qt or classifier source edit by Codex.
