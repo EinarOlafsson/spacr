@@ -1,0 +1,21 @@
+{
+  "lesson": "74_import_images", "language": "zh-CN",
+  "english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
+  "review": {"kind": "Editorial translation checked against English and the recorded operation", "native_speaker_signoff": false, "corrections": ["Use microscopy well, field and channel terms and preserve the explicit prepared-copy limitation.", "Keep file-sampling, linking, tile and saved-plan limitations intact."]},
+  "title": "Import Images：导入前先检查方案",
+  "description": "在Import中打开Import Images，写入文件前检查一小组真实显微图像，并保存可复用的方案。本示例明确区分无法识别的原始命名与经过准备的副本。",
+  "objectives": ["在Import中找到Import Images，并将其与导入已有测量数据和掩膜的流程区分开。", "写入项目前检查图像身份，以及文件名中尚未解析的部分。", "选择复制或链接，保存并重新加载方案，最后验证导入结果。"],
+  "prerequisite": "先下载Mask的真实示例数据。录像使用E01/F001和L01/F009两个视野的副本，每个视野有4个C通道。准备好的副本只省略紧接Z之前的A字段，原始文件不变。这是经过核对的特定示例，并非让您随意删除不认识的文件名元数据。",
+  "scenes": [
+    "从Home的Data类别打开Import，然后选择Import Images。这个嵌套工具用于准备原始图像文件。Import Project、Format Converter和External Masks是相关但不同的流程，各有专门教程。",
+    "这8张图像来自Mask提供下载的真实显微数据：两个孔各取一个视野，每个视野包含4个通道。我们使用单独复制的文件，不修改下载得到的原始文件。",
+    "Scan发现原始文件名中有一个尚未解析的采集字段。Import仍然禁用，没有写入任何文件。不要猜测通道映射：两个不同通道共用这个采集值，把它当成通道会弄错图像身份。",
+    "在这个已核对的例子中，准备好的副本只省略冗余的采集字段，保留孔、视野和通道名称。Scan现在显示8行、两个孔、两个视野编号和4个通道。这不代表原始命名格式已经被接受。",
+    "导入前逐项对照方案与文件名。Read inside each file除检查名称外，还读取文件内部的轴元数据。Sample限制检查的文件数量；请确认方案包含您要导入的图像。根据采集记录解决问题，不要猜测。",
+    "在输入文件夹之外选择目标位置，并设置孔板名称。这里关闭Link instead of copy，建立独立副本组成的项目。链接可以节省磁盘空间，但要求原始文件一直能在当前路径访问。",
+    "这些示例文件不是拼接图块。对于分块采集，请仔细阅读Tiles选项：拼接会还原视野，分别保留图块会改变一个视野的含义，而跳过则会丢弃这些图像。测量前检查报告和未经验证的拼接边缘。",
+    "Save plan把数据来源和您的映射答案写入JSON文件，并不备份图像。请与采集记录一起保存。Python的图像导入API也可以读取同一方案。",
+    "Load plan会重新读取来源文件夹，并复用保存的答案。导入前仍须检查新方案：保存过方案，并不能保证变更后的采集数据仍然正确。这里恢复了同样8张已核对图像的对应关系。",
+    "点击Import并阅读摘要。本次运行写入8份独立图像副本，没有跳过文件，内容与来源一致。随后在Mask中选择这个项目，在分割前检查实时预览。仅导入文件不会生成掩膜或测量数据。"
+  ]
+}

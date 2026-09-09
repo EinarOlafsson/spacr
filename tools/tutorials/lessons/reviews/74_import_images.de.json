@@ -1,0 +1,21 @@
+{
+  "lesson": "74_import_images", "language": "de",
+  "english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
+  "review": {"kind": "Editorial caption translation checked against English and recorded operations", "native_speaker_signoff": false, "corrections": ["Preserve prepared-copy disclosure and all acquisition, sampling, link and tile limitations."]},
+  "title": "Import Images: den Plan vor dem Import prüfen",
+  "description": "Öffnen Sie Import Images innerhalb von Import, prüfen Sie einen kleinen echten Mikroskopiedatensatz vor dem Schreiben und speichern Sie einen wiederverwendbaren Plan. Das Beispiel unterscheidet nicht unterstützte Originalnamen von vorbereiteten Kopien.",
+  "objectives": ["Import Images in Import finden und vom Import vorhandener Messwerte und Masken unterscheiden.", "Bildidentitäten und ungeklärte Namensbestandteile vor dem Schreiben prüfen.", "Kopien oder Verknüpfungen wählen, einen Plan speichern und laden und den Import überprüfen."],
+  "prerequisite": "Laden Sie zuerst das echte Mask-Beispiel herunter. Die Aufnahme verwendet Kopien der Bildfelder E01/F001 und L01/F009 mit jeweils vier C-Kanälen. Nur der A-Bestandteil direkt vor Z wird in den vorbereiteten Kopien weggelassen; die Originale bleiben unverändert. Das ist ein geprüftes Einzelbeispiel, keine allgemeine Aufforderung zum Löschen unbekannter Metadaten.",
+  "scenes": [
+    "Öffnen Sie Import in der Kategorie Data von Home und wählen Sie Import Images. Dieses untergeordnete Werkzeug bereitet rohe Bilddateien vor. Import Project, Format Converter und External Masks sind verwandte Abläufe mit eigenen Tutorials.",
+    "Die acht Bilder sind echte Mikroskopiedaten aus dem herunterladbaren Mask-Beispiel: je ein Bildfeld aus zwei Wells mit vier Kanälen pro Bildfeld. Wir arbeiten mit separaten Kopien und lassen die heruntergeladenen Originale unverändert.",
+    "Scan zeigt einen ungeklärten Aufnahmebestandteil in den Originalnamen. Import bleibt deaktiviert und nichts wird geschrieben. Raten Sie keine Kanalzuordnung: Zwei verschiedene Kanäle teilen diesen Aufnahmewert; eine solche Zuordnung würde ihre Identität verfälschen.",
+    "Für dieses geprüfte Beispiel lassen die vorbereiteten Kopien nur den redundanten Aufnahmebestandteil weg. Well-, Bildfeld- und Kanalnamen bleiben erhalten. Scan zeigt nun acht Zeilen, zwei Wells, zwei Bildfeldnummern und vier Kanäle. Das bedeutet nicht, dass die Originalnamen akzeptiert wurden.",
+    "Vergleichen Sie den Vorschlag vor dem Import mit den Dateinamen. Read inside each file prüft zusätzlich die eingebetteten Achsenmetadaten. Sample begrenzt die untersuchten Dateien; prüfen Sie, ob der Vorschlag die gewünschten Bilder umfasst. Klären Sie Fragen anhand der Aufnahmeprotokolle statt durch Vermutungen.",
+    "Wählen Sie ein Ziel außerhalb des Eingabeordners und setzen Sie den Plattennamen. Für ein unabhängiges Projekt schalten wir Link instead of copy aus. Verknüpfungen sparen Speicherplatz, benötigen aber dauerhaft erreichbare Originale an ihren bisherigen Speicherorten.",
+    "Diese Beispieldateien sind keine Mosaikkacheln. Lesen Sie bei gekachelten Aufnahmen die Auswahl Tiles genau: Zusammenfügen rekonstruiert Bildfelder, getrennte Kacheln verändern die Bedeutung eines Bildfelds und Überspringen verliert diese Bilder. Prüfen Sie Bericht und unbestätigte Übergänge vor der Messung.",
+    "Save plan schreibt Quelle und Zuordnungsantworten in eine JSON-Datei, nicht in eine Sicherung der Bilder. Bewahren Sie sie mit dem Aufnahmeprotokoll auf. Derselbe Plan lässt sich über die Python-API für den Bildimport lesen.",
+    "Load plan liest den Quellordner erneut und verwendet die gespeicherten Antworten wieder. Prüfen Sie den neuen Vorschlag vor dem Import: Ein gespeicherter Plan garantiert nicht, dass eine veränderte Aufnahme korrekt ist. Hier werden dieselben acht geprüften Bildidentitäten wiederhergestellt.",
+    "Drücken Sie Import und lesen Sie die Zusammenfassung. Dieser Lauf schrieb acht unabhängige Bildkopien ohne ausgelassene Dateien; ihr Inhalt entspricht den Quellen. Wählen Sie das Projekt anschließend in Mask und prüfen Sie die Live-Vorschau vor der Segmentierung. Der Import allein erzeugt weder Masken noch Messwerte."
+  ]
+}

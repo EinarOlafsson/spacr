@@ -1,0 +1,21 @@
+{
+  "lesson": "74_import_images", "language": "sv",
+  "english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
+  "review": {"kind": "Editorial caption translation checked against English and recorded operations", "native_speaker_signoff": false, "corrections": ["Preserve the prepared-copy limitation and correct well, image-field and channel terminology.", "Retain every scan, link, tile and saved-plan caveat."]},
+  "title": "Import Images: granska planen före import",
+  "description": "Öppna Import Images i Import, granska ett litet urval verkliga mikroskopibilder innan filer skrivs och spara en återanvändbar plan. Exemplet skiljer ursprungliga namn som inte stöds från förberedda kopior.",
+  "objectives": ["Hitta Import Images i Import och skilja det från import av befintliga mätningar och masker.", "Kontrollera bildidentiteter och oklara namndelar innan projektet skrivs.", "Välja kopior eller länkar, spara och läsa in en plan samt kontrollera importen."],
+  "prerequisite": "Ladda först ned det verkliga Mask-exemplet. Inspelningen använder kopior av bildfälten E01/F001 och L01/F009, med fyra C-kanaler vardera. De förberedda kopiorna utelämnar bara A-delen direkt före Z; originalen ändras inte. Detta är ett särskilt kontrollerat exempel, inte en allmän uppmaning att ta bort okända metadata.",
+  "scenes": [
+    "Öppna Import från kategorin Data på Home och välj Import Images. Det här underverktyget förbereder råa bildfiler. Import Project, Format Converter och External Masks är närliggande arbetsflöden med egna handledningar.",
+    "Våra åtta bilder är verkliga mikroskopidata från Masks nedladdningsbara exempel: ett bildfält från var och en av två brunnar med fyra kanaler per fält. Vi arbetar på separata kopior och lämnar de nedladdade originalen orörda.",
+    "Scan visar en oklar bildtagningsdel i originalnamnen. Import förblir avstängt och inget skrivs. Gissa inte en kanalkoppling: Två olika kanaler delar detta bildtagningsvärde, så den kopplingen skulle förvanska deras identiteter.",
+    "I det här kontrollerade exemplet utelämnar de förberedda kopiorna bara den överflödiga bildtagningsdelen. Brunns-, bildfälts- och kanalnamnen bevaras. Scan visar nu åtta rader, två brunnar, två bildfältsnummer och fyra kanaler. Det betyder inte att originalnamnen accepterades.",
+    "Jämför förslaget med filnamnen före import. Read inside each file kontrollerar även inbäddade axelmetadata. Sample begränsar vilka filer som undersöks; kontrollera att förslaget innehåller bilderna du vill importera. Besvara frågor utifrån bildtagningsloggen, inte genom att gissa.",
+    "Välj ett mål utanför indatamappen och ange plattans namn. Vi stänger av Link instead of copy för att skapa ett fristående projekt. Länkar sparar diskutrymme, men originalen måste förbli åtkomliga på sina nuvarande platser.",
+    "De här exempelfilerna är inte mosaikdelar. Läs Tiles noga vid mosaiktagning: Sammanfogning återskapar bildfält, separata delar ändrar vad ett bildfält betyder och överhoppning förlorar dessa bilder. Granska rapporten och obekräftade skarvar innan du mäter.",
+    "Save plan skriver källan och dina kopplingssvar till en JSON-fil, inte en säkerhetskopia av bilderna. Spara den tillsammans med bildtagningsanteckningarna. Samma plan kan läsas via Pythons API för bildimport.",
+    "Load plan läser källmappen på nytt och återanvänder de sparade svaren. Granska det nya förslaget före import; en sparad plan garanterar inte att en ändrad bildtagning är korrekt. Här återställs samma åtta kontrollerade bildidentiteter.",
+    "Tryck på Import och läs sammanfattningen. Körningen skrev åtta fristående bildkopior utan att hoppa över filer; innehållet matchar källorna. Välj sedan projektet i Mask och granska liveförhandsvisningen före segmentering. Enbart import skapar varken masker eller mätningar."
+  ]
+}
