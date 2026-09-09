@@ -657,7 +657,18 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # produces rather than inferred from the total: nothing left the set,
     # so no claim stopped being compared while a new one arrived to hide
     # it -- which is the substitution a bare count cannot see.
-    assert comparisons == 680
+    #
+    # 679 since 2026-09-09, -1/+0, and the one is `gradient_accumulation` in
+    # Classify. Instruction 364 retired it into `gradient_accumulation_steps`
+    # -- `steps = 1` already says "do not accumulate" -- and 9d31a984f dropped
+    # the three `setdefault` calls that put it in a resolved panel, so no app
+    # resolves it and nothing compares its claim. Its `expected_types` row
+    # went with it today: leaving it behind declared the key live and
+    # withdrawn at once, which is what `test_no_retired_name_is_also_a_live_
+    # setting` refuses. The pair that left is NAMED rather than inferred from
+    # the total, so a claim that quietly stopped being compared could not
+    # hide behind a new one arriving.
+    assert comparisons == 679
     # 44 since 2026-09-02. Instruction 364 unified organelle's duplicated
     # size/area settings, and the surviving tooltip now NAMES its per-app
     # defaults ("Default 10 in Mask; Measure and External Masks start at 0")

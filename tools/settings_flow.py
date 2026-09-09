@@ -88,30 +88,356 @@ def _is_settings(node, aliases: Set[str]) -> bool:
     return False
 
 
-def _alias_targets(fn: ast.AST) -> Set[str]:
-    """Local names bound to the settings mapping inside ``fn``."""
+def _is_settings_value(node, aliases: Set[str]) -> bool:
+    """Whether an EXPRESSION evaluates to the settings mapping.
+
+    :func:`_is_settings` answers for a name; this answers for the four
+    wrappers a caller writes around one -- ``settings.copy()``,
+    ``dict(settings)``, ``deepcopy(settings)`` and ``settings or {}`` --
+    so the same rule serves every reader instead of being spelled out at
+    each of them.
+
+    :param node: the expression.
+    :param aliases: local names already known to be the settings mapping.
+    :returns: True when the expression is the settings mapping.
+    """
+    if _is_settings(node, aliases):
+        return True
+    if isinstance(node, ast.Call):
+        f = node.func
+        if isinstance(f, ast.Attribute) and f.attr in ("copy", "deepcopy"):
+            return _is_settings(f.value, aliases)
+        if isinstance(f, ast.Name) and f.id in ("dict", "deepcopy"):
+            return any(_is_settings(a, aliases) for a in node.args)
+    return False
+
+
+def _filled_from_settings(fn: ast.AST) -> Set[str]:
+    """Local names a settings mapping was poured into.
+
+    THE SHAPE EVERY `spacr.settings` FACTORY HAS::
+
+        resolved = {'layout': 'auto', 'z_handling': Z_KEEP, ...}
+        resolved.update(dict(settings or {}))
+        return resolved
+
+    `resolved` is bound to a dict LITERAL, so no binding rule sees it, and
+    the reads one line below -- and in the three screens that call
+    `convert.default_settings` -- came back empty for `layout`,
+    `plate_naming` and `z_handling`. The update is what makes it the
+    settings mapping, and the update is a statement of its own.
+
+    :param fn: the function to read.
+    :returns: the local names filled from the settings mapping.
+    """
+    found: Set[str] = set()
+    for node in ast.walk(fn):
+        if not isinstance(node, ast.Call):
+            continue
+        f = node.func
+        if not (isinstance(f, ast.Attribute) and f.attr == "update"):
+            continue
+        if not isinstance(f.value, ast.Name):
+            continue
+        if any(_is_settings_value(a, set()) for a in node.args):
+            found.add(f.value.id)
+    return found
+
+
+def _alias_targets(fn: ast.AST,
+                   helpers: "Set[str] | frozenset" = frozenset()) -> Set[str]:
+    """Local names bound to the settings mapping inside ``fn``.
+
+    Five binding forms, and the fifth is not a spelling of the first four.
+    ``x = settings``, ``x = settings.copy()``, ``x = dict(settings)`` and
+    ``x = deepcopy(settings)`` all say the mapping is right there in the
+    expression. ``x = power_default_settings(settings)`` does not: the
+    mapping is what the CALLEE returns, and nothing in this statement says
+    so. That is why 20 settings -- all 15 `power_*`, `layout`,
+    `plate_naming`, `z_handling`, `guide_fractions_file` and
+    `hit_phenotype` -- read as consumed by nothing while being read in
+    plain sight one line below the call.
+
+    ``helpers`` is what closes it: the local names, in this module, of
+    functions that RETURN the settings mapping. It is computed by
+    :func:`_settings_helpers` from the package rather than listed here,
+    because a hand-written list of three helpers would go stale the day a
+    fourth was written and would fail in exactly this silent way.
+
+    :param fn: the function to read.
+    :param helpers: local names that return a settings mapping.
+    :returns: the local names bound to the settings mapping.
+    """
     found: Set[str] = set()
     for node in ast.walk(fn):
         value = getattr(node, "value", None)
         if not isinstance(node, (ast.Assign, ast.AnnAssign)) or value is None:
             continue
-        ok = (isinstance(value, ast.Name) and value.id in SETTINGS_NAMES)
-        if isinstance(value, ast.Call):
+        ok = _is_settings_value(value, set())
+        if isinstance(value, ast.Call) and not ok:
             f = value.func
-            if isinstance(f, ast.Attribute) and f.attr in ("copy", "deepcopy"):
-                ok = _is_settings(f.value, set())
-            elif isinstance(f, ast.Name) and f.id in ("dict", "deepcopy"):
-                ok = any(_is_settings(a, set()) for a in value.args)
+            if _names_a_helper(f, helpers):
+                # HANDED THE MAPPING, AND HANDING ONE BACK. Both halves are
+                # required: a helper called on something else returns
+                # something else, and a call that takes the settings but
+                # returns a bool -- `check_settings` -- is not a binding.
+                ok = _takes_settings(value)
         if not ok:
             continue
         targets = node.targets if isinstance(node, ast.Assign) else [node.target]
         found |= {t.id for t in targets if isinstance(t, ast.Name)}
+    return found | _filled_from_settings(fn)
+
+
+def _names_a_helper(func: ast.AST, helpers) -> bool:
+    """Whether ``func`` names one of ``helpers``.
+
+    Both call spellings, because both are used: `default_settings(...)`
+    where the module imported the name, and `convert.default_settings(...)`
+    where it imported the module. The attribute form is matched on the
+    bare name, which is the same set -- a helper's name is what makes it
+    findable either way.
+
+    :param func: the ``func`` of a call node.
+    :param helpers: the local helper names.
+    :returns: True when the call is to a settings-returning helper.
+    """
+    if isinstance(func, ast.Name):
+        return func.id in helpers
+    if isinstance(func, ast.Attribute):
+        return func.attr in helpers
+    return False
+
+
+def _takes_settings(call: ast.Call) -> bool:
+    """Whether ``call`` is handed the settings mapping, by any argument."""
+    if any(_is_settings(a, set()) for a in call.args):
+        return True
+    return any(k.value is not None and _is_settings(k.value, set())
+               for k in call.keywords)
+
+
+def _returns_settings(fn: ast.AST) -> bool:
+    """Whether ``fn`` hands its caller back a settings mapping.
+
+    Asked of the RETURN STATEMENTS, not of the name: `default_settings`,
+    `power_default_settings` and `hit_investigation_default_settings` all
+    happen to end in the same word, and a rule built on that would accept
+    `check_settings`, which returns a bool, and miss the next helper that
+    is spelled differently.
+
+    :param fn: the function to read.
+    :returns: True when some return hands back the settings mapping.
+    """
+    params = {a.arg for a in fn.args.args + fn.args.kwonlyargs}
+    aliases = _alias_targets(fn) | (params & SETTINGS_NAMES)
+    for node in ast.walk(fn):
+        if isinstance(node, ast.Return) and node.value is not None:
+            if _is_settings(node.value, aliases):
+                return True
+    return False
+
+
+def _settings_helpers(modules: Dict[str, ast.Module]) -> Set[str]:
+    """``module.function`` for every function that returns the settings.
+
+    Read from the package once, before the analysis proper, because a
+    module can be handed a helper defined in another module -- `convert`
+    defines `default_settings` and three screens call it.
+
+    :param modules: the parsed package.
+    :returns: qualified names of the settings-returning helpers.
+    """
+    found: Set[str] = set()
+    for module, tree in modules.items():
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            if _returns_settings(node):
+                found.add(f"{module}.{node.name}")
     return found
 
 
-def _keys_from(node, aliases: Set[str]) -> List[Tuple[str, str]]:
+def _module_tables(tree: ast.Module) -> Dict[str, Set[str]]:
+    """``name -> the string keys`` of each module-level table of names.
+
+    THE KEY IS NEVER A LITERAL AT THE CALL SITE, and this is where it is
+    one instead. `spacr.seg_qc` writes::
+
+        QC_DEFAULTS = {"min_objects": 5, "tiny_fraction": 0.30, ...}
+        SETTING_KEYS = {f"seg_qc_{name}": name for name in QC_DEFAULTS}
+        MODE_SETTING = "seg_qc"
+
+    and then reads `(settings or {}).get(key)` through a loop over
+    `SETTING_KEYS.items()`. The eleven `seg_qc_*` names do not appear as
+    string literals ANYWHERE in the package -- they are synthesised here --
+    so a pass that looks for a name at a subscript finds none of them, and
+    all twelve settings read as consumed by nobody.
+
+    Three shapes are folded, all at module scope and all of plain strings:
+    a dict literal, a tuple/list/set literal, and a dict comprehension over
+    an already-folded table whose key is an f-string of constants and the
+    loop variable. Anything else is left alone rather than guessed at --
+    this is constant folding, not evaluation.
+
+    :param tree: the parsed module.
+    :returns: ``{table name: its string keys}``.
+    """
+    tables: Dict[str, Set[str]] = {}
+
+    def strings(node) -> Set[str]:
+        if isinstance(node, ast.Dict):
+            return {k.value for k in node.keys
+                    if isinstance(k, ast.Constant)
+                    and isinstance(k.value, str)}
+        if isinstance(node, (ast.Tuple, ast.List, ast.Set)):
+            return {e.value for e in node.elts
+                    if isinstance(e, ast.Constant)
+                    and isinstance(e.value, str)}
+        return set()
+
+    def folded(node) -> Set[str]:
+        """A dict comprehension `{f"pre_{v}": ... for v in TABLE}`."""
+        if not isinstance(node, ast.DictComp) or len(node.generators) != 1:
+            return set()
+        gen = node.generators[0]
+        if gen.ifs or not isinstance(gen.target, ast.Name):
+            return set()
+        source = gen.iter
+        if isinstance(source, ast.Attribute) and source.attr in ("keys",):
+            source = source.value
+        if isinstance(source, ast.Call):
+            source = source.func
+            if isinstance(source, ast.Attribute):
+                source = source.value
+        if not isinstance(source, ast.Name) or source.id not in tables:
+            return set()
+        if not isinstance(node.key, ast.JoinedStr):
+            return set()
+        parts: List[str] = []
+        for piece in node.key.values:
+            if isinstance(piece, ast.Constant) and isinstance(piece.value, str):
+                parts.append(piece.value)
+            elif (isinstance(piece, ast.FormattedValue)
+                  and isinstance(piece.value, ast.Name)
+                  and piece.value.id == gen.target.id):
+                parts.append("\0")
+            else:
+                return set()
+        template = "".join(parts)
+        if template.count("\0") != 1:
+            return set()
+        head, _, tail = template.partition("\0")
+        return {f"{head}{name}{tail}" for name in tables[source.id]}
+
+    for node in tree.body:
+        if isinstance(node, ast.AnnAssign):
+            targets, value = [node.target], node.value
+        elif isinstance(node, ast.Assign):
+            targets, value = node.targets, node.value
+        else:
+            continue
+        if value is None:
+            continue
+        keys = strings(value) or folded(value)
+        if not keys:
+            continue
+        for target in targets:
+            if isinstance(target, ast.Name):
+                tables[target.id] = keys
+    return tables
+
+
+def _module_constants(tree: ast.Module) -> Dict[str, str]:
+    """``name -> value`` for each module-level plain string constant."""
+    out: Dict[str, str] = {}
+    for node in tree.body:
+        if isinstance(node, ast.AnnAssign):
+            targets, value = [node.target], node.value
+        elif isinstance(node, ast.Assign):
+            targets, value = node.targets, node.value
+        else:
+            continue
+        if not isinstance(value, ast.Constant) or not isinstance(value.value,
+                                                                 str):
+            continue
+        for target in targets:
+            if isinstance(target, ast.Name):
+                out[target.id] = value.value
+    return out
+
+
+def _keyed_names(fn: ast.AST, tables: Dict[str, Set[str]],
+                 constants: Dict[str, str]) -> Dict[str, Set[str]]:
+    """``local name -> the setting names it can hold`` inside ``fn``.
+
+    Two ways a variable comes to hold a setting name without being one:
+    it is the loop target over a folded table, or it is a module-level
+    string constant -- `MODE_SETTING = "seg_qc"`, read as
+    `(settings or {}).get(MODE_SETTING, "report")`, which is a literal
+    everywhere except at the call site.
+
+    :param fn: the function to read.
+    :param tables: the module's folded tables.
+    :param constants: the module's plain string constants.
+    :returns: ``{name: the keys it stands for}``.
+    """
+    keyed: Dict[str, Set[str]] = {name: {value}
+                                  for name, value in constants.items()}
+    for node in ast.walk(fn):
+        if not isinstance(node, (ast.For, ast.AsyncFor)):
+            continue
+        source = node.iter
+        if isinstance(source, ast.Call) and isinstance(source.func,
+                                                       ast.Attribute):
+            if source.func.attr not in ("items", "keys"):
+                continue
+            source = source.func.value
+        if not isinstance(source, ast.Name) or source.id not in tables:
+            continue
+        keys = tables[source.id]
+        target = node.target
+        # `for key in TABLE` and `for key, value in TABLE.items()`: the
+        # KEY is the first name either way, and the value is not one.
+        if isinstance(target, ast.Name):
+            keyed[target.id] = keys
+        elif isinstance(target, ast.Tuple) and target.elts:
+            first = target.elts[0]
+            if isinstance(first, ast.Name):
+                keyed[first.id] = keys
+    return keyed
+
+
+def _keys_from(node, aliases: Set[str],
+               keyed: "Dict[str, Set[str]] | None" = None
+               ) -> List[Tuple[str, str]]:
     """``(key, form)`` pairs a subscript or ``.get`` call reads."""
     out: List[Tuple[str, str]] = []
+    keyed = keyed or {}
+
+    def named(node, form: str) -> bool:
+        """A key held in a variable: a folded table's key, or a constant.
+
+        FILTERED AGAINST THE SETTINGS THE GUI DECLARES, and only here. A
+        literal at a subscript is self-evidently the key that was written;
+        a name is not, and `SETTINGS_NAMES` is deliberately generous about
+        what counts as a settings mapping -- `kwargs`, `config`, `opts`.
+        Without the filter, `kwargs[TITLE]` in the app catalogue recorded
+        `title`, `intro` and `entry` as settings read by a function, which
+        is eleven wrong sections on a page whose whole purpose is to say
+        where a setting is read. The tooltip table is the list of settings
+        a user can see, which is exactly the claim being made.
+        """
+        if not isinstance(node, ast.Name) or node.id not in keyed:
+            return False
+        known = _tooltips()
+        found = [key for key in sorted(keyed[node.id]) if key in known]
+        # DYNAMIC, and marked so. The name is known; the READ still went
+        # through a variable, which is what the suffix has always meant
+        # here and what the API-link check reads it as.
+        for key in found:
+            out.append((key, form + "-dynamic"))
+        return bool(found)
 
     def expand(joined: ast.JoinedStr, form: str) -> None:
         parts = [v.value for v in joined.values
@@ -129,6 +455,8 @@ def _keys_from(node, aliases: Set[str]) -> List[Tuple[str, str]]:
             out.append((node.slice.value, "subscript"))
         elif isinstance(node.slice, ast.JoinedStr):
             expand(node.slice, "subscript")
+        else:
+            named(node.slice, "subscript")
     if isinstance(node, ast.Call):
         f = node.func
         if (isinstance(f, ast.Attribute) and f.attr in ("get", "setdefault")
@@ -138,6 +466,8 @@ def _keys_from(node, aliases: Set[str]) -> List[Tuple[str, str]]:
                 out.append((a.value, "get"))
             elif isinstance(a, ast.JoinedStr):
                 expand(a, "get")
+            else:
+                named(a, "get")
     return out
 
 
@@ -160,6 +490,11 @@ def analyse() -> dict:
                                  ast.ClassDef)):
                 defined.add(f"{name}.{node.name}")
 
+    # BEFORE THE ANALYSIS PROPER: which functions hand a settings mapping
+    # back to their caller. `_alias_targets` needs the answer for modules
+    # it has not walked yet.
+    helper_functions = _settings_helpers(modules)
+
     reads: Dict[str, List[dict]] = defaultdict(list)
     edges: List[dict] = []
     receivers: Set[str] = set()
@@ -181,6 +516,17 @@ def analyse() -> dict:
                                  ast.ClassDef)):
                 imports.setdefault(node.name, f"{module}.{node.name}")
 
+        # The module-level tables of setting names, and the constants a
+        # read may go through. See `_module_tables`.
+        tables = _module_tables(tree)
+        constants = _module_constants(tree)
+
+        # The helpers THIS module can reach, by the name it reaches them
+        # under. Built from the same import table the call graph uses, so
+        # a helper renamed on import is still recognised.
+        local_helpers = {name for name, qual in imports.items()
+                         if qual in helper_functions}
+
         for fn in ast.walk(tree):
             if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
@@ -189,9 +535,11 @@ def analyse() -> dict:
             takes = bool(params & SETTINGS_NAMES)
             if takes:
                 receivers.add(qual)
-            aliases = _alias_targets(fn) | (params & SETTINGS_NAMES)
+            aliases = (_alias_targets(fn, local_helpers)
+                       | (params & SETTINGS_NAMES))
+            keyed = _keyed_names(fn, tables, constants)
             for node in ast.walk(fn):
-                for key, form in _keys_from(node, aliases):
+                for key, form in _keys_from(node, aliases, keyed):
                     reads[key].append({"function": qual, "form": form,
                                        "line": node.lineno})
                 if not isinstance(node, ast.Call):

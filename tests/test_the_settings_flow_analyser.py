@@ -212,13 +212,37 @@ def test_the_page_stays_inside_the_docs_job_timeout(flow, data):
     defaults-setters cut lines by 15% and xrefs by 35%. If this ceiling
     is raised, raise it against a MEASURED build rather than a guess,
     because nothing else in the suite renders a page.
+
+    RAISED TO 7,500 ON 2026-09-09, AGAINST THREE MEASURED BUILDS. The
+    rule above was followed rather than the number nudged: instruction
+    383 taught both settings analysers two more binding forms and a
+    constant fold, which took the page from 6,301 cross-references to
+    7,000, and each state was built with `sphinx -E -b html` on the same
+    machine, back to back, nothing else changed:
+
+        6,301 xrefs   4:15.20 wall   2,397,992 KB peak   0 warnings
+        6,541 xrefs   4:16.34 wall   2,413,244 KB peak   0 warnings
+        7,000 xrefs   4:16.19 wall   2,420,284 KB peak   0 warnings
+
+    SEVEN HUNDRED MORE CROSS-REFERENCES COST ABOUT ONE SECOND. Whatever
+    took the first published version from 30 minutes to over 80, it does
+    not scale from these numbers, so the ceiling is raised to 7,500 --
+    500 of headroom, the same margin the 6,500 carried -- rather than
+    removed. It is still the only thing standing between this page and a
+    docs job that cannot finish, and the next raise wants its own three
+    lines above.
+
+    The builds also came back with ZERO warnings, which is the second
+    thing this page can break: the docs job runs `-W`, so an xref the
+    inventory cannot resolve fails it as surely as a timeout.
     """
     rst = flow.rst_for(data)
     xrefs = rst.count(":py:func:")
-    assert xrefs <= 6500, (
+    assert xrefs <= 7500, (
         f"{xrefs} cross-references on the settings-flow page, up from the "
-        "6,102 that were measured against the docs job. This is the "
-        "build-time ratchet; confirm a real sphinx-build before raising it")
+        "7,000 measured against a real sphinx-build on 2026-09-09. This is "
+        "the build-time ratchet; confirm a real sphinx-build before raising "
+        "it, and record the wall clock in the docstring above")
 
 
 def test_a_setting_read_only_by_its_defaults_setter_is_dropped(flow, data):

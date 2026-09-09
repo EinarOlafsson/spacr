@@ -2534,7 +2534,11 @@ def categories_for_app(
                 "epochs", "optimizer_type", "learning_rate", "schedule",
                 "amsgrad", "loss_type", "class_balance", "label_smoothing",
                 "focal_gamma", "focal_alpha", "logit_adjust_tau",
-                "batch_size", "mixed_precision", "gradient_accumulation",
+                # `gradient_accumulation` was here and is retired: the step
+                # count alone says whether to accumulate, and `steps = 1` IS
+                # the off position. A category naming a key with no type and
+                # no default draws nothing and hides the retirement.
+                "batch_size", "mixed_precision",
                 "gradient_accumulation_steps", "early_stopping_patience"],
 
             "Evaluation & Results": [

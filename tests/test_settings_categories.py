@@ -169,6 +169,14 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: legitimately dropping out of the category map is distinguishable from one
 #: that fell out by accident -- which is the whole point of this file.
 KEYS_RETIRED = frozenset({
+    # FOLDED into `gradient_accumulation_steps` on 2026-09-09, instruction
+    # 364. The boolean sat beside the step count and could contradict it:
+    # `gradient_accumulation: false` with the default four steps says two
+    # things at once, and `steps = 1` already IS the off position.
+    # `spacr.settings._fold_gradient_accumulation` migrates a stored
+    # `false` to one step, and `validate.RETIRED_SETTINGS` tells an old
+    # settings CSV what replaced it.
+    "gradient_accumulation",
     # MERGED into `min_cell_count` on 2026-08-23, at the maintainer's
     # instruction ("Merge the names, and fix whatever breaks, never mind
     # old runs"). The two were one idea under two names that differ by

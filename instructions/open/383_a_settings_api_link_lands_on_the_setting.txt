@@ -418,3 +418,160 @@ The other ten are unverified in both directions.
 
 NOTHING HAS BEEN CHANGED. This is the measurement the claim in 325 promised
 before any behaviour moved.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- BLIND SPOT A IS CLOSED. 58 -> 38, AND 589 -> 603 ANCHORS.
+--------------------------------------------------------------------------------
+
+    before   589 API anchor  149 flow page  58 module page only
+    after    603 API anchor  159 flow page  38 module page only
+
+The audit above named 20 settings that are read in plain sight through a
+mapping a HELPER returned, and predicted that a fifth binding form would
+close them. It does, and a sixth was needed with it -- the audit had the
+right diagnosis for `power_*`, `guide_fractions_file` and `hit_phenotype`
+and the wrong mechanism for `layout`, `plate_naming` and `z_handling`.
+
+THE FIFTH FORM -- A HELPER'S RETURN VALUE.
+
+    filled = power_default_settings(settings)
+    filled["power_n_genes"]
+
+Nothing in the first line says `filled` is the settings mapping; the fact
+lives in the callee. Both analysers now make one pass over the package
+first, collecting the functions that RETURN a settings mapping, and accept
+a call to one of them that was HANDED the mapping. Both halves are
+required: `check_settings(settings)` takes it and returns a bool.
+
+ASKED OF THE RETURN STATEMENTS, NOT OF THE NAME. `default_settings`,
+`power_default_settings` and `hit_investigation_default_settings` share a
+word, and a rule built on that word accepts `check_settings` and misses
+the next factory that is spelled differently.
+
+THE SIXTH FORM -- THE MAPPING POURED INTO A LOCAL. This is what the audit
+missed, and it is why `convert.default_settings` was not fixed by the
+fifth form alone:
+
+    resolved: Dict[str, Any] = {'layout': 'auto', 'z_handling': Z_KEEP, ...}
+    resolved.update(dict(settings or {}))
+    return resolved
+
+`resolved` is bound to a dict LITERAL. No binding rule can see it -- and
+the consumer map deliberately REFUSES dict literals, because
+`paths: dict[str, Path] = {}` must not become an alias. The update is what
+makes it the settings mapping, and the update is a statement of its own.
+With it, `default_settings` also becomes a settings-returning helper, so
+the two forms compose: `resolved = default_settings(settings)` in three
+screens then reads `layout`, `plate_naming` and `z_handling`.
+
+MEASURED, BOTH ANALYSERS, AND NOTHING WAS LOST:
+
+    settings_flow      1,094 -> 1,135 keys read   (+41, 0 lost)
+    consumer map         921 ->   941 with a consumer, 837 -> 843 targets
+                                     (+21 gained, 1 lost: `gradient_accumulation`,
+                                      retired today by 364, so the artefact was
+                                      stale rather than the pass wrong)
+
+The 41 are the 20 the audit predicted plus 21 in `align.align_folder`,
+`foreign.import_project` and `convert.convert_folder`, which use the sixth
+form directly. Every one of the 21 was checked against the source: all are
+`resolved.get('...')` on a factory-filled mapping.
+
+TEACHING ONE ANALYSER AND NOT THE OTHER IS A TEST FAILURE, which is the
+system working. `test_the_link_prefers_the_asking_apps_own_module` compares
+what the FLOW pass sees against what the CONSUMER MAP chose, so the flow
+fix alone put 13 pairs -- `external_masks/layout`, `investigate_hit/
+hit_phenotype` and so on -- in the state where one pass said "your own
+module reads this" and the other still said "nothing does". Both passes
+carry both forms now, written separately against each tool's own
+predicates rather than shared, so the two analyses stay independent.
+
+WHAT WAS LEFT AFTER A WAS 38 PAIRS OVER 34 SETTINGS. Then B was closed too.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- BLIND SPOT B IS CLOSED AS WELL. 38 -> 23, AND 603 -> 622 ANCHORS.
+--------------------------------------------------------------------------------
+
+    before   603 API anchor  159 flow page  38 module page only
+    after    622 API anchor  155 flow page  23 module page only
+
+The audit called B "a category the current design cannot express" and named
+the two ways out: constant folding over module-level tables, or a
+declaration the module makes about itself. THE FIRST ONE WORKS, and it is
+smaller than it sounded -- three literal shapes and one comprehension.
+
+WHAT IS FOLDED, at module scope and of plain strings only:
+
+    QC_DEFAULTS = {"min_objects": 5, "tiny_fraction": 0.30, ...}   dict
+    MODES = ("off", "report", "flag", "stop")                      tuple
+    SETTING_KEYS = {f"seg_qc_{name}": name for name in QC_DEFAULTS} comp
+    MODE_SETTING = "seg_qc"                                        constant
+
+The comprehension is only folded when its iterable is an ALREADY-FOLDED
+table and its key is an f-string of constants around the loop variable --
+one substitution, nothing else. This is constant folding, not evaluation:
+anything that does not match is left alone rather than guessed at.
+
+WHAT IS THEN SEEN. A key held in a variable, two ways:
+
+    for key, name in SETTING_KEYS.items():        # loop over a folded table
+        number = _as_number((settings or {}).get(key))
+    raw = (settings or {}).get(MODE_SETTING, "report")   # module constant
+
+Both are recorded with the `-dynamic` suffix the f-string expansion already
+uses, because the name is known but the READ went through a variable, and
+the API-link check already reads that suffix as "not a literal I saw".
+
+THE FILTER THAT MAKES IT SAFE, and the first attempt needed it. Without one,
+`kwargs[TITLE]` in the app catalogue recorded `title`, `intro`, `entry`,
+`source`, `toxo` and six more as settings read by a function -- eleven wrong
+sections on a page whose entire purpose is to say where a setting is read.
+`SETTINGS_NAMES` is deliberately generous about what counts as a settings
+mapping (`kwargs`, `config`, `opts`), which is right for a literal key and
+wrong for a name. So a COMPUTED key is only accepted when it names a setting
+the GUI declares: the flow pass filters against the tooltip table, and the
+consumer map against its own `setting_keys()`, which it already had. A
+literal at a subscript is still taken at face value -- it is self-evidently
+the key that was written.
+
+MEASURED. 41 keys gained in the flow pass, 0 lost -- identical to blind spot
+A's diff, because the seg_qc keys already appeared there through their
+defaults-setter and what changed is that they now have a REAL reader
+(`spacr.seg_qc.thresholds_from_settings`), which is what the page draws and
+what the defaults-setter rule drops. The consumer map gained no new settings
+and 17 resolved targets (843 -> 860, 679 -> 698 exact): the twelve seg_qc
+keys and the three control-block keys now resolve to the function that reads
+them instead of an ancestor page.
+
+    negative_control_wells   spacr.well_spec.control_block_wells:64
+        for key in CONTROL_BLOCK_SETTINGS:
+            raw = (settings or {}).get(key)
+
+which is the same shape as seg_qc's, in a module nobody had connected to it.
+
+WHAT IS LEFT IS 23 PAIRS OVER 19 SETTINGS:
+
+  * 15 are the curated evaluation and batch keys, recorded above as a real
+    limit rather than a gap. They do not move.
+  * the rest -- `denoise`, `load_path_regex`, `mask_array`,
+    `normalization`, `normalization_scope`, `normalize_plots`,
+    `save_to_db`, `visualize`, `random_seed` -- are still unaudited in both
+    directions, and `visualize` is known to be a false member: its only
+    match is a COMMENT.
+
+THE BUILD-TIME RATCHET WAS RAISED, WITH A MEASUREMENT AND NOT A NUDGE. The
+page went 6,301 -> 7,000 cross-references across these two changes, past the
+6,500 ceiling `test_the_page_stays_inside_the_docs_job_timeout` holds. That
+test says to raise it against a MEASURED build, so three builds were run
+back to back on one machine, `sphinx -E -b html`, nothing else changed:
+
+    6,301 xrefs   4:15.20 wall   2,397,992 KB peak   0 warnings
+    6,541 xrefs   4:16.34 wall   2,413,244 KB peak   0 warnings
+    7,000 xrefs   4:16.19 wall   2,420,284 KB peak   0 warnings
+
+Seven hundred more cross-references cost about one second. Whatever took the
+first published version from 30 minutes to over 80, it does not scale from
+these numbers. The ceiling is now 7,500 -- the same 500 of headroom the old
+one carried -- and the measurement is in the test's docstring rather than in
+this file only. Zero warnings matters as much as the clock: the docs job
+runs `-W`, so an unresolvable xref fails it as surely as a timeout does.

@@ -3482,7 +3482,11 @@ expected_types = {
     "init_weights": bool,
     "amsgrad": bool,
     "use_checkpoint": bool,
-    "gradient_accumulation": bool,
+    # `gradient_accumulation` IS NOT HERE ANY MORE. It was retired into
+    # `gradient_accumulation_steps` -- `steps = 1` already says "do not
+    # accumulate" -- and `spacr.validate.RETIRED_SETTINGS` names it, so
+    # leaving the type row behind declared it live and withdrawn at once.
+    # `_fold_gradient_accumulation` still honours a stored `false`.
     "mixed_precision": bool,
     "gradient_accumulation_steps": int,
     "intermedeate_save": (bool, list, tuple, type(None)),
@@ -5350,7 +5354,7 @@ categories = {
     "Computer Vision Model": ["model_type", "model_name", "init_weights", "normalization", "normalization_scope"],
 
     # HOW IT IS FITTED: the optimisation and the loss.
-    "Computer Vision Training": ["train", "test", "epochs", "learning_rate", "optimizer_type", "schedule", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "amsgrad", "mixed_precision", "gradient_accumulation", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "intermedeate_save", "tensorboard", "random_seed",
+    "Computer Vision Training": ["train", "test", "epochs", "learning_rate", "optimizer_type", "schedule", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "amsgrad", "mixed_precision", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "intermedeate_save", "tensorboard", "random_seed",
         # CV-ONLY by `classify.FAMILY_SETTINGS` (instruction 233).
         "n_top_examples"],
 
