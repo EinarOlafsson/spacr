@@ -109,14 +109,43 @@ def test_every_pair_is_offered_once_with_its_axis(layout):
     """Registering a pair twice asks the same question twice."""
     pairs = layout.pairs()
     assert len(pairs) == len(set((a, b) for a, b, _axis in pairs))
-    for a, b, axis in pairs:
-        assert a < b
+    for _a, _b, axis in pairs:
         assert axis in ("vertical", "horizontal")
     # Every adjacency, counted from the other end: each site's neighbours
     # summed is twice the number of undirected edges.
     directed = sum(len(layout.neighbours(site))
                    for site in range(layout.site_count))
     assert directed == 2 * len(pairs)
+
+
+def test_a_pair_is_ordered_by_geometry_and_not_by_site_index(layout):
+    """The one that does not fail loudly, and it cost half a well.
+
+    A caller cropping an overlap band has to know which tile is which:
+    `register_edge` takes the BOTTOM of the first and the TOP of the
+    second. Ordering pairs by site index looks identical and is wrong on
+    every odd column, because the raster snakes -- in a bottom-to-top
+    column the tile ABOVE carries the higher index. The symptom was 10 of
+    32 edges accepted on a toy well, at a residual of 0.00 px, because
+    each surviving component still solved perfectly.
+    """
+    for a, b, axis in layout.pairs():
+        (ca, ra), (cb, rb) = layout.position(a), layout.position(b)
+        if axis == "vertical":
+            assert (cb, rb) == (ca, ra + 1), (
+                f"the second tile of vertical pair {a}-{b} is not below the "
+                "first")
+        else:
+            assert (cb, rb) == (ca + 1, ra), (
+                f"the second tile of horizontal pair {a}-{b} is not to the "
+                "right of the first")
+
+    # And the case that makes it non-obvious: somewhere in the well the
+    # geometric second carries the LOWER index.
+    reversed_pairs = [(a, b) for a, b, _axis in layout.pairs() if b < a]
+    assert reversed_pairs, (
+        "no pair has its geometric order against its index order, so this "
+        "well cannot demonstrate the bug and the test proves nothing")
 
 
 def test_the_candidate_count_is_four_per_tile_not_a_window(layout):

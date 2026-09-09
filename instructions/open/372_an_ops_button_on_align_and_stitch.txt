@@ -2636,3 +2636,67 @@ STILL UNMEASURED: none of this has been TIMED against the CPU on a real
 well. The correctness is asserted both ways; the speedup is claimed by the
 instruction and not yet by a measurement. The first real run should print
 both, and this note should be replaced by the numbers.
+
+
+--------------------------------------------------------------------------------
+PART 13-C -- A2 IS A DRIVER NOW, AND IT PRINTS THREE NUMBERS. 2026-09-09.
+--------------------------------------------------------------------------------
+
+`spacr/ops_stitch.py`: `stitch_well(read_tile, layout, overlap=, tolerance=)`
+runs layout -> register -> solve over one well and returns a `StitchedWell`.
+The four verbs are now four modules -- ops_layout, ops_register, ops_solve
+(the other session's), ops_stitch -- and the button will call the last one.
+
+IT REPORTS THE COUNT, THE RESIDUAL AND THE CANVAS ON ONE LINE, which is the
+whole reason it is a module and not three calls at a call site. PART 11-C's
+first end-to-end run reported 333 of 333 placed at a median residual of
+0.2 px into a canvas of 35,374 x 35,367, and it was wrong by one pitch per
+column in both axes. A UNIFORM ERROR IS INVISIBLE TO A RESIDUAL: every edge
+still agreed with every other edge. Only the canvas noticed, and only
+because 21 columns of a known pitch has an arithmetic answer to check
+against -- so `StitchedWell.expected_canvas` computes that answer and
+`canvas_agrees()` compares them.
+
+    THE FAILURE IS NOW A TEST. `test_a_uniform_error_is_invisible_to_the_
+    residual` shifts every edge of a direction by one pitch and asserts
+    that the count and the residual are UNCHANGED while the canvas
+    disagrees. A test that only checked the good case would have passed on
+    the wrong run too, which is exactly what happened.
+
+AND WRITING IT FOUND A REAL BUG IN A1, IN THE PLACE I HAD WARNED THE OTHER
+SESSION ABOUT AN HOUR EARLIER. `WellLayout.pairs()` returned
+`(lower site, higher site)`, and `register_edge` crops the BOTTOM of the
+first tile against the TOP of the second -- so the pair order has to be
+GEOMETRIC. It is not the same thing: the raster snakes, so in a
+bottom-to-top column the tile ABOVE carries the higher index. Half the
+edges of a toy well were being cropped from the wrong ends.
+
+  IT REPORTED ITSELF AS A RESIDUAL OF 0.00 PX. Ten of thirty-two edges
+  accepted, twenty-one of twenty-one tiles "placed", and every surviving
+  component solving perfectly because each was pinned separately. The
+  canvas was the only thing that said otherwise -- 456 x 344 against the
+  layout's 568 x 568 -- which is the same lesson twice in one evening from
+  two different directions.
+
+  `pairs()` now walks DOWN and RIGHT only, which makes each pair appear
+  once AND puts the tiles in geometric order in the same step, and
+  `test_a_pair_is_ordered_by_geometry_and_not_by_site_index` asserts the
+  relationship on every pair of the real well -- plus that at least one
+  pair has its geometric order against its index order, so the well can
+  actually demonstrate the bug.
+
+WHAT THE DRIVER DOES WITH A FAILURE. An unreadable tile costs its pairs and
+not the well, and those pairs are RECORDED AS REFUSED rather than dropped:
+"624 of 624 edges" must not mean two different things depending on whether
+a file could be opened. A 3-D tile is refused outright with the reason --
+the geometry is solved on ONE channel and PART 10 says which.
+
+MEASURED ON A 21-FIELD TOY WELL at the acquisition's own 14 % overlap:
+21 of 21 placed, 22 of 32 edges, residual median 0.17 px max 1.00 px,
+canvas 1,708 x 1,708 against the layout's 1,708 x 1,708. The refused edges
+are the fixture's, not the method's -- 384 px tiles with sparse synthetic
+blobs give a thin overlap band -- and the real well ran 624 of 624.
+
+NEXT: the driver has never seen the real plate. It wants running on well A1
+c1 against PART 11-D's numbers, which is the check that this module and
+that script agree.

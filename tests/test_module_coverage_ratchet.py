@@ -218,7 +218,13 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # primitives (windowed maximum, matrix multiply, nearest neighbour)
     # that carry Phase E's CuPy -> torch -> NumPy indirection. All three
     # ship in the wheel and every one has its own tests.
-    assert len(shipped) == 549
+    # 549 -> 551 on 2026-09-09: `spacr/ops_solve.py` (the least-squares
+    # solve from pairwise displacements to absolute tile positions) and
+    # `spacr/ops_stitch.py` (the driver that runs layout -> register ->
+    # solve over one well and reports the count, the residual AND the
+    # canvas together, because the first two look perfect on a uniformly
+    # wrong stitch).
+    assert len(shipped) == 551
     assert every_spacr_python - shipped == RESOURCE_GENERATORS
     assert not RESOURCE_GENERATORS & shipped
 

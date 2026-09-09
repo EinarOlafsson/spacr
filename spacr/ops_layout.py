@@ -196,7 +196,7 @@ class WellLayout:
         return found
 
     def pairs(self) -> List[Tuple[int, int, str]]:
-        """Every adjacent pair once, as ``(lower site, higher site, axis)``.
+        """Every adjacent pair once, as ``(first, second, axis)``.
 
         ONCE, not twice: registering a pair in both directions doubles the
         work and asks the same question. The axis is "vertical" or
@@ -204,15 +204,30 @@ class WellLayout:
         continues a column and a horizontal one crosses a snake turn --
         and because the two carry different expected shifts.
 
-        :returns: the pairs, in site order.
+        ORDERED BY GEOMETRY, NOT BY SITE INDEX, and this is the one that
+        will not fail loudly. The SECOND tile is always the one BELOW for
+        a vertical pair and the one to the RIGHT for a horizontal one,
+        because that is what a caller cropping an overlap band has to
+        assume -- `register_edge` takes the bottom of the first and the
+        top of the second. Ordering by index instead looks identical and
+        is wrong on every odd column: the raster snakes, so in a
+        bottom-to-top column the tile ABOVE carries the higher index. It
+        cost half the edges of a toy well and reported itself as a
+        residual of 0.00 px, because each surviving component still
+        solved perfectly.
+
+        :returns: the pairs, ordered by their first site.
         """
         index = _index(self)[1]
         seen: List[Tuple[int, int, str]] = []
         for place, site in index.items():
             column, row = place
-            for name, (dcol, drow) in DIRECTIONS.items():
+            # DOWN AND RIGHT ONLY, which is what makes each pair appear
+            # once AND puts the tiles in geometric order at the same time.
+            for name in ("down", "right"):
+                dcol, drow = DIRECTIONS[name]
                 other = index.get((column + dcol, row + drow))
-                if other is None or other < site:
+                if other is None:
                     continue
                 axis = "vertical" if dcol == 0 else "horizontal"
                 seen.append((site, other, axis))
