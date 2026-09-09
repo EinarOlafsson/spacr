@@ -44,7 +44,7 @@
       "translation": "As fórmulas existentes são **mantidas** e reaplicadas. Isso é o oposto do que o Filtro de Dados Local faz com suas cláusulas, propositalmente: uma cláusula de filtro que nomeia uma coluna ausente é reduzida em menos do que afirma e é perigosa de manter, enquanto uma fórmula que nomeia uma coluna ausente falha, diz qual coluna e é exatamente o que o usuário deseja de volta quando recarregar a mesma tabela."
     },
     {
-      "context": "IT executes OFF THE main GUI execution path, and the reason is today's crash rather than politeness: a regression built Qt widgets on its own worker and the process segfaulted somewhere else entirely. So the worker here touches NO widget and returns plain data, and the figure is rendered by matplotlib's Agg canvas which has no Qt object to own.",
+      "context": "It executes off the main GUI execution path, and the reason is today's crash rather than politeness: a regression built Qt widgets on its own worker and the process segfaulted somewhere else entirely. So the worker here touches NO widget and returns plain data, and the figure is rendered by matplotlib's Agg canvas which has no Qt object to own.",
       "label": "spacr.qt.widgets.sweep_panel#2",
       "source": "IT RUNS OFF THE GUI THREAD, and the reason is today's crash rather than politeness: a regression built Qt widgets on its own worker and the process segfaulted somewhere else entirely. So the worker here touches NO widget and returns plain data, and the figure is rendered by matplotlib's Agg canvas which has no Qt object to own.",
       "source_sha256": "8578c3c9996db12e7ea48d42bafc119422204daf7dca222286afe3883952ebdc",

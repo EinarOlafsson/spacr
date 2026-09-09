@@ -1749,9 +1749,9 @@ def _api_translation_source(block: str) -> str:
     if re.search(_IMAGE_TILE_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
             (r"\bmosaics\b", lambda m: _initial_case(
-                m, "assembled image grids")),
+                m, "stitched image grids")),
             (r"\bmosaic\b", lambda m: _initial_case(
-                m, "assembled image grid")),
+                m, "stitched image grid")),
             (r"\btiles\b", lambda m: _initial_case(
                 m, "microscope image fields")),
             (r"\btile\b", lambda m: _initial_case(
@@ -1979,12 +1979,12 @@ def _api_translation_source(block: str) -> str:
     def rewrite(fragment: str) -> str:
         return _replace_alternatives_once(fragment, transforms)
 
-    contextual = source
-    if transforms:
-        contextual = _rewrite_unprotected_prose(source, rewrite)
-    # AFTER the sense transforms, so a term they rewrite is rewritten in the
-    # case the docstring wrote it in, and BEFORE the initial-case restore,
-    # which puts the block's opening capital back.
+    # BEFORE the sense transforms, not after. A shouted clause is ordinary
+    # prose in capitals, and a sense rule that meets it there produces
+    # "THE Stitched image grid IS OPT-IN" -- the replacement's own initial
+    # case dropped into the middle of a shouted line. Lowering first lets
+    # every later rule see a normal sentence, and the initial-case restore
+    # at the end puts the block's opening capital back.
     # THE LOWERING IS AN OPTIMISATION, NOT A CONTRACT, so it is offered and
     # withdrawn rather than asserted. A shouted run can hold a literal the
     # protection view does not recognise in capitals -- `TORCH` where the
@@ -1993,10 +1993,12 @@ def _api_translation_source(block: str) -> str:
     # the plain one is the fallback; a block that cannot take it keeps its
     # capitals, which leaves a block not yet translated rather than a build
     # that will not run.
-    shouted = _rewrite_unprotected_prose(
-        contextual, _lower_shouted_emphasis)
-    for candidate in ((shouted, contextual) if shouted != contextual
-                      else (contextual,)):
+    lowered = _rewrite_unprotected_prose(source, _lower_shouted_emphasis)
+    plain = (_rewrite_unprotected_prose(source, rewrite) if transforms
+             else source)
+    shouted = (_rewrite_unprotected_prose(lowered, rewrite) if transforms
+               else lowered)
+    for candidate in ((shouted, plain) if shouted != plain else (plain,)):
         if candidate == source:
             return source
         cased = _preserve_initial_prose_case(source, candidate)
@@ -2004,7 +2006,7 @@ def _api_translation_source(block: str) -> str:
             return cased
     raise ValueError(
         "API sense context changed a protected literal: "
-        f"{source!r} -> {contextual!r}"
+        f"{source!r} -> {plain!r}"
     )
 
 # Shorter English model inputs for prose that OPUS repeatedly decoded only in

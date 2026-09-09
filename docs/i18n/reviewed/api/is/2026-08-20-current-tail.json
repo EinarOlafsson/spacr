@@ -249,7 +249,7 @@
       "translation": "AÐMIÐURINN SEM ÁKVÆÐUR HVOR Á AÐ HROPA. Dálkur þar sem ekkert leystist og ekkert var til er LEIÐ SEM ER EKKI Á ÞESSARI VÉL -- forritasýn með PNG útdregnum myndsvæðum og engin ``merged/`` möppu hefur 60.816 óstaðhæfanleg ``path_name`` gildi og er fullkomlega heilbrigð. Dálkur þar sem flestar leiðir leystust og nokkrar ekki er aðgerðatilvikið að hluta til."
     },
     {
-      "context": "Where the screening experiment takes its inputs ONE ROW PER Laboratory microplate -- today only Regression, through the ``paired_data`` table -- the database is attached to a laboratory microplate row instead of setting ``src``. That is not an app-structured-data name special case: it follows the shape of the screening experiment, so any panel that grows a per-laboratory microplate input table gets it without a registry edit.",
+      "context": "Where the screening experiment takes its inputs one row per laboratory microplate -- today only Regression, through the ``paired_data`` table -- the database is attached to a laboratory microplate row instead of setting ``src``. That is not an app-structured-data name special case: it follows the shape of the screening experiment, so any panel that grows a per-laboratory microplate input table gets it without a registry edit.",
       "label": "spacr.qt.dnd_handlers.MeasurementsDropHandler#1",
       "source": "Where the screen takes its inputs ONE ROW PER PLATE -- today only Regression, through the ``paired_data`` table -- the database is attached to a plate row instead of setting ``src``. That is not an app-key special case: it follows the shape of the screen, so any panel that grows a per-plate input table gets it without a registry edit.",
       "source_sha256": "45acbb5f3ed867c3a1f54ae95d9e1df1b66d223ceee128d28aee2ea26b7ffb50",
@@ -417,7 +417,7 @@
       "translation": "Þannig að þetta gerir vettvanginn frekar en búnaðinn, í gegnum sama pyqtgraph útflytjandi :meth:`export` skrifar skrár með. Vettvangurinn hefur enga skoðun á því hversu stór búnaðurinn á forritaskoðun er: 520x390 og 236 aðskildir litir frá búnaðinum sem grípur autt."
     },
     {
-      "context": "THE Structured-data name is the gene-level term, not the gene id. A gene appears in the coefficient table as ``gene_fraction:gene[244480]``, and that is what the volcano, the table and the gene tile all join on. Handing this plot the bare ``244480`` would make a second structured-data name space that nothing else can resolve, so the caller passes the term and clicking a gene here selects exactly the row clicking its dot on the volcano would.",
+      "context": "The structured-data name is the gene-level term, not the gene id. A gene appears in the coefficient table as ``gene_fraction:gene[244480]``, and that is what the volcano, the table and the gene tile all join on. Handing this plot the bare ``244480`` would make a second structured-data name space that nothing else can resolve, so the caller passes the term and clicking a gene here selects exactly the row clicking its dot on the volcano would.",
       "label": "spacr.qt.widgets.fast_plots.GuideAgreementPlot.set_support#3",
       "source": "THE KEY IS THE GENE-LEVEL TERM, NOT THE GENE ID. A gene appears in the coefficient table as ``gene_fraction:gene[244480]``, and that is what the volcano, the table and the gene tile all join on. Handing this plot the bare ``244480`` would make a second key space that nothing else can resolve, so the caller passes the term and clicking a gene here selects exactly the row clicking its dot on the volcano would.",
       "source_sha256": "a370e64f6d0865476d361cbde6bdca79f99a24804f7090814cf041ccede2b558",
@@ -480,7 +480,7 @@
       "translation": "Óþekkt stillingarnöfn eru varðveitt vegna samhæfni við skrár búnar til með öðrum spaCR útgáfum."
     },
     {
-      "context": "A row is ONE Laboratory microplate: its score CSV, its count CSV, and the measurements database that laboratory microplate's per-object tables live in. All three columns are filled by addition -- every arrival re-proposes the whole table from filename tokens -- so databases dropped in the opposite order to the CSVs still land on the right laboratory microplates. That is the rule, and the third column obeys it rather than keeping a list of its own.",
+      "context": "A row is one laboratory microplate: its score CSV, its count CSV, and the measurements database that laboratory microplate's per-object tables live in. All three columns are filled by addition -- every arrival re-proposes the whole table from filename tokens -- so databases dropped in the opposite order to the CSVs still land on the right laboratory microplates. That is the rule, and the third column obeys it rather than keeping a list of its own.",
       "label": "spacr.qt.widgets.file_list.PairedFileTableWidget#1",
       "source": "A row is ONE PLATE: its score CSV, its count CSV, and the measurements database that plate's per-object tables live in. All three columns are filled BY ADDITION -- every arrival re-proposes the whole table from filename tokens -- so databases dropped in the opposite order to the CSVs still land on the right plates. That is the rule, and the third column obeys it rather than keeping a list of its own.",
       "source_sha256": "1a8b42f2d2e4503ac7041aae0a24c3711ded0586f5a5f3e344f2c151672304da",

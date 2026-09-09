@@ -34,7 +34,7 @@
       "label": "spacr.spacrops.FOVAlignAndCropper.run#1",
       "source_sha256": "732fa1ca8b379780605ef0edc12ee68b4ffe0f3ea94b206e63aa8ccf173605c3",
       "source": "Uses the nuclei channel for alignment and writes one ``.npy`` per FOV containing the FOV channels plus mosaic channels warped into the FOV frame.",
-      "context": "Uses the nuclei channel for alignment and writes one ``.npy`` per FOV (microscope field of view) containing the FOV (microscope field of view) channels plus assembled image grid channels warped into the FOV (microscope field of view) frame.",
+      "context": "Uses the nuclei channel for alignment and writes one ``.npy`` per FOV (microscope field of view) containing the FOV (microscope field of view) channels plus stitched image grid channels warped into the FOV (microscope field of view) frame.",
       "translation": "使用细胞核通道进行对齐，并为每个 FOV（显微镜视野）写出一个 ``.npy``；其中包含该 FOV（显微镜视野）的各通道，以及变换到该 FOV（显微镜视野）坐标框架的马赛克通道。"
     },
     {

@@ -48,7 +48,7 @@
       "label": "spacr.qt.dnd_handlers.MeasurementsDropHandler#1",
       "source_sha256": "45acbb5f3ed867c3a1f54ae95d9e1df1b66d223ceee128d28aee2ea26b7ffb50",
       "source": "Where the screen takes its inputs ONE ROW PER PLATE -- today only Regression, through the ``paired_data`` table -- the database is attached to a plate row instead of setting ``src``. That is not an app-key special case: it follows the shape of the screen, so any panel that grows a per-plate input table gets it without a registry edit.",
-      "context": "Where the screening experiment takes its inputs ONE ROW PER Laboratory microplate -- today only Regression, through the ``paired_data`` table -- the database is attached to a laboratory microplate row instead of setting ``src``. That is not an app-structured-data name special case: it follows the shape of the screening experiment, so any panel that grows a per-laboratory microplate input table gets it without a registry edit.",
+      "context": "Where the screening experiment takes its inputs one row per laboratory microplate -- today only Regression, through the ``paired_data`` table -- the database is attached to a laboratory microplate row instead of setting ``src``. That is not an app-structured-data name special case: it follows the shape of the screening experiment, so any panel that grows a per-laboratory microplate input table gets it without a registry edit.",
       "translation": "如果筛选实验将其输入设为每实验室微孔板一行（目前仅通过 ``paired_data`` 表进行回归），则数据库将附加到实验室微孔板行而不是设置 ``src``。这不是应用程序结构化数据名称的特殊情况：它遵循筛选实验的形状，因此任何生成每个实验室微孔板输入表的面板都无需进行注册表编辑即可获得它。"
     }
   ]
