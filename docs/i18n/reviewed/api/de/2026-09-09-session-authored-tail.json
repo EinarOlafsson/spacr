@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "label": "spacr.active_learning.retrain_round#26",
+      "source_sha256": "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
+      "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
+      "context": "how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
+      "translation": "wie viele nicht annotierte Bildausschnitte zufällig gezogen und als die Klasse ABWESEND angepasst werden, wenn nur eine Klasse annotiert wurde. ``None`` (Vorgabe) verweigert das stattdessen, wie bisher."
+    },
+    {
+      "label": "spacr.hit_attribution.HitInvestigationResult#6",
+      "source_sha256": "6b2b57b3bbb762f63df68d82bfc814cb8b9f4b8730e289f969ff71f813b096d5",
+      "source": "morphology-feature columns used by the cross-fitted classifier.",
+      "context": "morphology-feature columns used by the cross-fitted machine-learning classification model.",
+      "translation": "Spalten mit Morphologiemerkmalen, die das kreuzweise angepasste Klassifikationsmodell verwendet."
+    },
+    {
+      "label": "spacr.macro.Recording#3",
+      "source_sha256": "b09e873d1dddabd0a3e532dd91e88e9a111f18802a1c5bdbb7c5353da7c3cdce",
+      "source": "run-journal directory copied to the recorded step and used to recover a fallback run id when no log record exposes one.",
+      "context": "run-journal directory copied to the recorded step and used to recover a fallback run id when no log record exposes one.",
+      "translation": "run-journal-Verzeichnis, das in den aufgezeichneten Schritt kopiert wurde und dazu dient, eine Ersatz-Laufkennung zu ermitteln, wenn kein Protokolleintrag eine offenlegt."
+    },
+    {
+      "label": "spacr.measurement_scan.MeasurementEffect#10",
+      "source_sha256": "cc2e277f9082c53b00e4414c5f06d78ab66457bb38ba22d9f89f852c296fbfce",
+      "source": "Simes global-null P value combining this measurement's raw gene-term P values for the across-scan family.",
+      "context": "Simes global-null P value combining this measurement's raw gene-term P values for the across-scan family.",
+      "translation": "Simes-P-Wert der globalen Nullhypothese, der die rohen P-Werte der Genterme dieser Messung für die scan-übergreifende Familie zusammenfasst."
+    },
+    {
+      "label": "spacr.object_settings_table.to_table#2",
+      "source_sha256": "163ebcb0b75d65ff3cc00c35f08c2c8b8bda0b52ee2ba0b33e18bd93a375e4a3",
+      "source": "A question a given object does not ask is ABSENT from its row rather than present as ``None``. ``cytoplasm`` has no channel, no diameter and no detection method because it is derived rather than found in a channel, and a blank cell says that where a ``None`` would read as \"not set yet\".",
+      "context": "A question a given object does not ask is ABSENT from its row rather than present as ``None``. ``cytoplasm`` has no channel, no diameter and no detection method because it is derived rather than found in a channel, and a blank cell says that where a ``None`` would read as \"not set yet\".",
+      "translation": "Eine Frage, die ein bestimmtes Objekt nicht stellt, FEHLT in seiner Zeile, statt als ``None`` darin zu stehen. ``cytoplasm`` hat keinen Kanal, keinen Durchmesser und keine Erkennungsmethode, weil es abgeleitet und nicht in einem Kanal gefunden wird, und eine leere Zelle sagt genau das, wo ein ``None`` als \"not set yet\" gelesen würde."
+    },
+    {
+      "label": "spacr.ops_merge#7",
+      "source_sha256": "d4d8a6e566cdeff215297df74696c06d34071afbfa08304a3f72e4af3d9deb34",
+      "source": "Follows brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose `merge` stage was read for the approach.",
+      "context": "Follows brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose `merge` stage was read for the approach.",
+      "translation": "Folgt brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), dessen `merge`-Stufe für das Vorgehen gelesen wurde."
+    },
+    {
+      "label": "spacr.ops_sbs#9",
+      "source_sha256": "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916",
+      "source": "The method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose source was read for the three points above rather than reconstructed from its stage names.",
+      "context": "The method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose source was read for the three points above rather than reconstructed from its stage names.",
+      "translation": "Das Verfahren hier folgt brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), dessen Quelltext für die drei Punkte oben gelesen und nicht aus den Namen seiner Stufen rekonstruiert wurde."
+    },
+    {
+      "label": "spacr.plate_qc.EdgeEffectReport#14",
+      "source_sha256": "4321bd078e9bb54e7579e8eaecfdcd7796a108c1189d932f0029a98e1d180fa7",
+      "source": "two-sided Mann-Whitney U p-value comparing outer-ring and interior wells, or ``None`` when the comparison is unavailable.",
+      "context": "two-sided Mann-Whitney U p-value comparing outer-ring and interior microplate sample positions, or ``None`` when the comparison is unavailable.",
+      "translation": "zweiseitiger p-Wert des Mann-Whitney-U-Tests, der den äußeren Ring mit den inneren Vertiefungen vergleicht, oder ``None``, wenn der Vergleich nicht möglich ist."
+    },
+    {
+      "label": "spacr.plate_qc.RingStats#7",
+      "source_sha256": "16003b161e364809542aa5577cc1cb41480707881f43abc26cc0b40565b216c1",
+      "source": "two-sided Mann-Whitney U p-value comparing this ring with the selected core, or ``None`` when the comparison is unavailable.",
+      "context": "two-sided Mann-Whitney U p-value comparing this ring with the selected core, or ``None`` when the comparison is unavailable.",
+      "translation": "zweiseitiger p-Wert des Mann-Whitney-U-Tests, der diesen Ring mit dem gewählten Kern vergleicht, oder ``None``, wenn der Vergleich nicht möglich ist."
+    },
+    {
+      "label": "spacr.plugins.SpacrPlugin#7",
+      "source_sha256": "e71c7b0df9fa0a9c8f3b2e5ed36caad1490b087994744b169bf2a4cb927ae333",
+      "source": "locale-to-message mappings that translate the plugin's own visible strings.",
+      "context": "locale-to-message mappings that translate the plugin's own visible strings.",
+      "translation": "Zuordnungen von Gebietsschema zu Meldung, die die eigenen sichtbaren Zeichenketten des Plugins übersetzen."
+    },
+    {
+      "label": "spacr.qt.live_zoom#6",
+      "source_sha256": "91a0ce25b3fe4f4ced20e7460e007c33c24ff8916b35d4251fc7251e816023f8",
+      "source": "WHAT IS LIVE INSTEAD. An explicit ``QWidget.setFont`` *does* beat the application sheet's ``font-size`` -- it is the same escape hatch that lets a per-widget sheet win -- and it costs one font assignment and one relayout rather than a global unpolish/repolish. So a notch snapshots each visible widget's font once, then re-scales every widget from that snapshot by the ratio the wheel has travelled. The role hierarchy survives because each widget is scaled from its own baseline: a 22 px title and a 13 px caption stay in proportion without this module knowing which is which.",
+      "context": "What is live instead. An explicit ``QWidget.setFont`` *does* beat the application sheet's ``font-size`` -- it is the same escape hatch that lets a per-widget sheet win -- and it costs one font assignment and one relayout rather than a global unpolish/repolish. So a notch snapshots each visible widget's font once, then re-scales every widget from that snapshot by the ratio the wheel has travelled. The role hierarchy survives because each widget is scaled from its own baseline: a 22 px title and a 13 px caption stay in proportion without this module knowing which is which.",
+      "translation": "Was stattdessen live ist. Ein ausdrückliches ``QWidget.setFont`` *schlägt* die ``font-size`` des Anwendungs-Stylesheets sehr wohl -- es ist derselbe Notausgang, der einem Stylesheet pro Widget den Vorrang gibt -- und es kostet eine Schriftzuweisung und ein Neu-Layout statt eines globalen unpolish/repolish. Eine Raste hält daher die Schrift jedes sichtbaren Widgets einmal fest und skaliert dann jedes Widget von dieser Momentaufnahme aus mit dem Verhältnis, um das das Rad gedreht wurde. Die Rollenhierarchie überlebt, weil jedes Widget von seiner eigenen Ausgangsgröße aus skaliert wird: ein Titel mit 22 px und eine Beschriftung mit 13 px bleiben im Verhältnis, ohne dass dieses Modul wissen müsste, welches welches ist."
+    },
+    {
+      "label": "spacr.qt.plate_queue.PlateQueue.clear#2",
+      "source_sha256": "f57b287dc66dcbd3a04b3ef723ef6891558e847ea50e1169cc8fb68fd5378ad5",
+      "source": "Only reachable from **Clear** on Home's Queued panel, where the queue being wrong is what the user is trying to fix. A caller that wants to leave a live run alone wants :meth:`clear_finished`.",
+      "context": "Only reachable from **Clear** on Home's Queued panel, where the work list being wrong is what the user is trying to fix. A caller that wants to leave a live run alone wants :meth:`clear_finished`.",
+      "translation": "Nur über **Clear** in der Warteschlangen-Anzeige auf Home erreichbar, wo eine falsche Arbeitsliste genau das ist, was die Nutzerin oder der Nutzer beheben will. Wer einen laufenden Lauf in Ruhe lassen möchte, will :meth:`clear_finished`."
+    },
+    {
+      "label": "spacr.qt.preferences.get_dashboard_watermark#1",
+      "source_sha256": "73e1e9eda5b2629dd0c710d85c8176b4550146a0cab1233b4b2086d46514760c",
+      "source": "A WATERMARK, NOT A DELETION, and that is the whole design. **Clear** on Recent runs and **Reset** on Totals sit beside the queue's Clear, but the queue holds plates waiting to start while these two read the run journal -- which is the record of what this installation has actually done, is what the Run History screen searches, and is what a run's `manifest.json` is for. Emptying a dashboard panel must not delete that.",
+      "context": "A watermark, not a deletion, and that is the whole design. **Clear** on Recent runs and **Reset** on Totals sit beside the software job list's Clear, but the software job list holds plates waiting to start while these two read the run journal -- which is the record of what this installation has actually done, is what the Run History screen searches, and is what a run's `manifest.json` is for. Emptying a dashboard panel must not delete that.",
+      "translation": "Ein Wasserzeichen, keine Löschung, und darin besteht der ganze Entwurf. **Clear** bei Letzte Läufe und **Reset** bei Summen stehen neben dem Clear der Auftragsliste, doch die Auftragsliste enthält Platten, die auf den Start warten, während diese beiden das Laufjournal lesen -- das die Aufzeichnung dessen ist, was diese Installation tatsächlich getan hat, das der Bildschirm Laufverlauf durchsucht und wofür die `manifest.json` eines Laufs da ist. Das Leeren einer Übersichtsanzeige darf das nicht löschen."
+    },
+    {
+      "label": "spacr.qt.screens.align.AlignScreen#3",
+      "source_sha256": "e04f3e9206142e6d1eacf9a5b667241dd05be668d81f882d019dc71a7ac474bd",
+      "source": "text of the most recent failure, ``\"\"`` when the last operation succeeded. Errors are *only* reported here and in the inline status label, never in a modal dialog.",
+      "context": "text of the most recent failure, ``\"\"`` when the last operation succeeded. Errors are *only* reported here and in the inline status label, never in a modal dialog.",
+      "translation": "Text des jüngsten Fehlschlags, ``\"\"``, wenn der letzte Vorgang gelungen ist. Fehler werden *nur* hier und im Statustext daneben gemeldet, niemals in einem modalen Dialog."
+    },
+    {
+      "label": "spacr.qt.screens.batch.BatchScreen#4",
+      "source_sha256": "a1e3be80f50e0b46c22c7310f2824e029e402c3cc4ae99ad224d6d839e73e59d",
+      "source": "text of the most recent failure, ``\"\"`` when the last operation succeeded. Errors are *only* ever reported here and in the inline panes — never in a modal dialog.",
+      "context": "text of the most recent failure, ``\"\"`` when the last operation succeeded. Errors are *only* ever reported here and in the inline panes — never in a modal dialog.",
+      "translation": "Text des jüngsten Fehlschlags, ``\"\"``, wenn der letzte Vorgang gelungen ist. Fehler werden *ausschließlich* hier und in den eingebetteten Bereichen gemeldet — niemals in einem modalen Dialog."
+    },
+    {
+      "label": "spacr.qt.screens.data_manager.ConfirmDeleteDialog.done#1",
+      "source_sha256": "171b741a27ac5f8c79dcff36d6d1c6a873682b0cc8917f85c19aa8918cf85d7e",
+      "source": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if a running ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
+      "context": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if an executing ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
+      "translation": "Sowohl Löschen als auch Abbrechen laufen hier durch, und KEINES von beiden sendet ein Close-Ereignis — ``QDialog.done`` blendet das Widget aus —, weshalb hier und nicht in ``closeEvent`` der Abbau eines modalen Dialogs zu stehen hat. Qt bricht den Prozess sofort ab, wenn ein laufender ``QThread`` mit seinem Besitzer zerstört wird, und der Durchlauf kann noch unterwegs sein, wenn abgebrochen wird."
+    },
+    {
+      "label": "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.itemAt#1",
+      "source_sha256": "34754c6b4d444eea5f861073fe3d4411844e01844a5b5046100d2b691d2b977d",
+      "source": "NONE RATHER THAN RAISING: Qt probes past the end to discover where a layout stops, so an exception here is a crash during ordinary layout.",
+      "context": "NONE RATHER THAN throwing: Qt probes past the end to discover where a layout stops, so an exception here is a crash during ordinary layout.",
+      "translation": "NONE STATT EINER AUSNAHME: Qt tastet über das Ende hinaus, um herauszufinden, wo ein Layout aufhört, weshalb eine Ausnahme an dieser Stelle ein Absturz beim ganz gewöhnlichen Layouten wäre."
+    },
+    {
+      "label": "spacr.qt.widgets.flash.Flash#4",
+      "source_sha256": "97577b5c2bdfdff6e5549cb0daa592a1daa4542b676ae9316c86f7b90b1c1381",
+      "source": "Arm a one-shot highlight over a widget.",
+      "context": "Arm a one-shot highlight over a widget.",
+      "translation": "Bereitet eine einmalige Hervorhebung über einem Widget vor."
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.MotilityPreviewPanel#5",
+      "source_sha256": "ad798692c75a931f7d9712a54c9059b4c60de253e1296721a2c1868083db9fb1",
+      "source": "Two job runners, and the separation is load-bearing twice: the pending work on the main one is what reports \"a plate is still being scanned\", and a plane-count read is not a plate scan; and the second is marked not user-visible so the Home run banner does not announce a read the user never started.",
+      "context": "Two job runners, and the separation is load-bearing twice: the pending work on the main one is what reports \"a plate is still being scanned\", and an image layer-count read is not a plate scan; and the second is marked not user-visible so the Home run banner does not announce a read the user never started.",
+      "translation": "Zwei Auftragsausführer, und die Trennung trägt in zweierlei Hinsicht: Die ausstehende Arbeit im ersten ist das, was \"a plate is still being scanned\" meldet, und das Auslesen der Ebenenanzahl ist kein Plattendurchlauf; und der zweite ist als nicht sichtbar markiert, damit das Laufbanner auf Home kein Auslesen ankündigt, das nie gestartet wurde."
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_settings#1",
+      "source_sha256": "f9b84851fc164eaeb2d91d44e75aabedfd097d2f9ccae56845eab2e8c5b90aa2",
+      "source": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own keys, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
+      "context": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own structured-data names, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
+      "translation": "Der Rest wird BEHALTEN, nicht verworfen: :meth:`settings` gibt ihn unverändert neben den eigenen Schlüsseln der Tabelle zurück, sodass dieses Widget eine Ecke einer Einstellungsdatei bearbeiten kann, ohne die ganze Datei festzuhalten."
+    },
+    {
+      "label": "spacr.qt.widgets.section.Section#5",
+      "source_sha256": "29ab42780880f20d46f88ba28225877563bf273ab16a319acdc506789de673d2",
+      "source": "The title is kept as written and uppercased only on the way to the button, because the translation catalogue is keyed on the written name -- looking up an already-uppercased caption finds nothing and leaves the header in English. The ``&`` in a name like \"Plate Layout & Controls\" is escaped for display, since a ``QToolButton`` would otherwise read it as a mnemonic and swallow it.",
+      "context": "The title is kept as written and uppercased only on the way to the button, because the translation catalogue is keyed on the written name -- looking up an already-uppercased caption finds nothing and leaves the header in English. The ``&`` in a name like \"Laboratory microplate Layout & Controls\" is escaped for display, since a ``QToolButton`` would otherwise read it as a mnemonic and swallow it.",
+      "translation": "Der Titel bleibt so, wie er geschrieben wurde, und wird erst auf dem Weg zur Schaltfläche in Großbuchstaben gesetzt, weil der Übersetzungskatalog nach dem geschriebenen Namen aufgeschlüsselt ist: Das Nachschlagen einer bereits großgeschriebenen Beschriftung findet nichts und lässt die Überschrift auf Englisch stehen. Das ``&`` in einem Namen wie \"Laboratory microplate Layout & Controls\" wird für die Anzeige maskiert, da ein ``QToolButton`` es sonst als Zugriffstaste läse und verschluckte."
+    },
+    {
+      "label": "spacr.resume#16",
+      "source_sha256": "c7dbe80819c119b7845aa8fde3124a0e7d2b2f20052ddb74541a0ada8b9cdc79",
+      "source": "The module is deliberately **stdlib-only** — ``os``/``sqlite3``/``ast`` and nothing else at import time. It is consulted at the very top of ``measure_crop``, long before any model is loaded, and must never be the thing that drags torch or cellpose into a process.",
+      "context": "The module is deliberately **stdlib-only** — ``os``/``sqlite3``/``ast`` and nothing else at import time. It is consulted at the very top of ``measure_crop``, long before any model is loaded, and must never be the thing that drags torch or cellpose into a process.",
+      "translation": "Das Modul ist bewusst **nur auf die Standardbibliothek** angewiesen — ``os``/``sqlite3``/``ast`` und beim Import sonst nichts. Es wird ganz oben in ``measure_crop`` befragt, lange bevor irgendein Modell geladen wird, und darf niemals dasjenige sein, das torch oder cellpose in einen Prozess zieht."
+    },
+    {
+      "label": "spacr.surrogate.SurrogateResult#12",
+      "source_sha256": "136f084f3168ff8c20d342ea762457c72d108bdf31e2a3bfee6daa31d11ae463",
+      "source": "effective estimator constructor options after defaults and caller overrides are combined.",
+      "context": "effective estimator constructor options after defaults and caller overrides are combined.",
+      "translation": "die tatsächlichen Konstruktoroptionen des Schätzers, nachdem Vorgaben und Überschreibungen der aufrufenden Seite zusammengeführt wurden."
+    },
+    {
+      "label": "spacr.train_compare.TrainingRun#3",
+      "source_sha256": "cf6f54837f4b7740b7728a619d640b06d780b5677f0fc67043eba4c82d553b12",
+      "source": "settings recovered from run-local ``settings.json`` or ``settings.csv``, or from a matching ancestor ``settings/*.csv``; empty when none is usable.",
+      "context": "settings recovered from run-local ``settings.json`` or ``settings.csv``, or from a matching ancestor ``settings/*.csv``; empty when none is usable.",
+      "translation": "Einstellungen, die aus der lauf-eigenen ``settings.json`` oder ``settings.csv`` oder aus einer passenden übergeordneten ``settings/*.csv`` wiederhergestellt wurden; leer, wenn keine davon brauchbar ist."
+    },
+    {
+      "label": "spacr.train_compare.TrainingRun#9",
+      "source_sha256": "3186785b00cdb3d155852b0c2121e5cd1f4675c042c1ebe996497b83e63844f5",
+      "source": "parsed run-journal manifest mapping, or an empty mapping when absent, unreadable, or not an object.",
+      "context": "parsed run-journal manifest mapping, or an empty mapping when absent, unreadable, or not an object.",
+      "translation": "geparste Zuordnung des run-journal-Manifests, oder eine leere Zuordnung, wenn es fehlt, nicht lesbar oder kein Objekt ist."
+    }
+  ]
+}
