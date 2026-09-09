@@ -266,6 +266,10 @@ def main() -> int:
             loading_frame = '02_cached_load' if already_cached else '02_download'
             QTimer.singleShot(800, lambda: capture(loading_frame))
             choice = {}
+            if args.module == 'map_barcodes':
+                from capture_sequencing import schedule_picker
+                sequence_choice = schedule_picker(app, captures, capture, settle,
+                                                  write_json, args.timeout)
             if args.module in {'annotate', 'classify_merged'}:
                 def choose_test_data():
                     from spacr.qt.widgets.test_data_chooser import TestDataChooser
@@ -293,6 +297,9 @@ def main() -> int:
                         dialog.reject()
                 QTimer.singleShot(1200, choose_test_data)
             QTest.mouseClick(button, Qt.LeftButton)
+            if args.module == 'map_barcodes' and (
+                    sequence_choice.get('error') or not sequence_choice.get('paired_read_identities_match')):
+                raise RuntimeError(f'The archive example was not verified: {sequence_choice}')
             if args.module in {'annotate', 'classify_merged'}:
                 write_json(captures / 'test_data_choice.json', choice)
                 if choice.get('error') or choice.get('selected_route') != args.test_data_route:
@@ -718,6 +725,19 @@ def main() -> int:
             if not final_acceptance['accepted']:
                 raise RuntimeError('The completed result tour exposed an error: '
                                    + '; '.join(final_acceptance['reasons']))
+            if args.module == 'classify_merged':
+                from capture_classify import inspect_database_split
+                generated = [line.partition('Generated Train set: ')[2]
+                             for block in blocks for line in block.splitlines()
+                             if line.startswith('Generated Train set: ')]
+                if len(generated) != 1:
+                    raise RuntimeError('Cannot identify the actual generated classifier dataset')
+                source = Path(settings['src'][0])
+                proof = inspect_database_split(source / 'measurements/measurements.db',
+                                               Path(generated[0]).parent)
+                write_json(captures / 'scientific_acceptance.json', proof)
+                if not proof['accepted']:
+                    raise RuntimeError(proof['reason'])
     write_json(captures / 'provenance.json', {'commit': inventory['commit'],
                'version': inventory['version'], 'module': args.module,
                'download_requested': args.download, 'dataset_cache': str(stage / 'example_data'),

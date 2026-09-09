@@ -41,6 +41,7 @@ def project(tmp_path):
 
 def test_stages_only_selected_lesson_with_measured_tile_geometry(project):
     root, capture, lesson, changed, retained = project
+    stage.write(capture / 'scientific_acceptance.json', {'accepted': True})
     stage.stage_lesson(lesson, 'home', root)
     result = stage.read(root / 'catalog/lessons_en.json')
     assert result['lessons'] == [changed, retained]
@@ -71,7 +72,7 @@ def test_check_only_still_rejects_changed_lesson_identity(project):
 
 @pytest.mark.parametrize('defect', ['failed_capture', 'changed_image', 'missing_link',
                                    'missing_control', 'changed_number', 'bad_focus',
-                                   'partial_pipeline'])
+                                   'partial_pipeline', 'failed_scientific_check'])
 def test_rejects_invalid_evidence_before_writing_any_catalog(project, defect):
     root, capture, lesson, changed, retained = project
     before = (root / 'catalog/lessons_en.json').read_bytes()
@@ -79,6 +80,8 @@ def test_rejects_invalid_evidence_before_writing_any_catalog(project, defect):
         stage.write(capture / 'provenance.json', {'completed_capture': False})
     elif defect == 'partial_pipeline':
         stage.write(capture / 'batch_acceptance.json', {'accepted': False})
+    elif defect == 'failed_scientific_check':
+        stage.write(capture / 'scientific_acceptance.json', {'accepted': False})
     elif defect == 'changed_image':
         Image.new('RGB', (3840, 2160), 'red').save(capture / 'home.png')
     elif defect == 'missing_link':

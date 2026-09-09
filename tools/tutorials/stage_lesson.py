@@ -53,6 +53,9 @@ def stage_lesson(lesson_path, capture_module, stage, *, check_only=False):
     if (capture / 'batch_acceptance.json').exists():
         if not read(capture / 'batch_acceptance.json').get('accepted'):
             raise ValueError('Cannot stage a successful-example lesson from partial pipeline output')
+    if (capture / 'scientific_acceptance.json').exists():
+        if not read(capture / 'scientific_acceptance.json').get('accepted'):
+            raise ValueError('Cannot stage an example that failed its real-data scientific checks')
     frames = read(capture / 'frames.json')
     destination = stage / 'production' / lesson['id']
     scenes = []

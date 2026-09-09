@@ -1,0 +1,15 @@
+{
+  "lesson": "41_classify",
+  "status": "Real training completed; narration and media HELD for incorrect well identity",
+  "capture": "refresh_2026-09-09/annotate_fresh/captures/classify_column_values",
+  "application_commit": "afc116fc227efe772757bab470bee8834f7553ed",
+  "app_source_modified": false,
+  "download": "Actual Load test data -> Load, 2341 PNG crops and png_list rows",
+  "configuration": {"classifier_family": "cv", "dataset_mode": "annotation", "classes": {"infected_1": {"column": "infected", "value": 1}, "infected_2": {"column": "infected", "value": 2}}, "model_type": "resnet18", "epochs": 1, "batch_size": 8, "image_size": 128, "n_jobs": 2, "init_weights": false, "cv_group_by": "well", "random_seed": 42, "plot": true, "train": true, "test": true, "apply_model_to_dataset": false},
+  "software_completion": {"worker_ok": true, "worker_errors": [], "figures": 1, "train_test_leakage_audit_reported": "PASS", "train_validation_leakage_audit_reported": "PASS"},
+  "independent_scientific_check": {"accepted": false, "method": "Match direct train/<class> and test/<class> PNG basenames to unique png_list rows, using actual plateID/rowID/columnID", "train_crops": 2102, "test_crops": 234, "actual_train_wells": 4, "actual_test_wells": 3, "overlapping_actual_wells": [["plate1", "r12", "c1"], ["plate1", "r12", "c2"], ["plate1", "r5", "c2"]], "parser_group_count_reported_as_wells": 51, "misclassification_review_copies_excluded": 19},
+  "other_app_followups": ["Merged screen omits the shipped Classify example-settings mapping", "Custom Classes names label_1/label_2 disagree with generated infected_1/infected_2 folders"],
+  "safety": "No leakage checks disabled, no labels changed to obtain performance, no misleading narration synthesized, no app files edited",
+  "guard_verification": "Positive and negative database-lineage tests pass; negative observed red when accepted was forced True. Staging refuses explicit failed scientific acceptance.",
+  "published": false
+}
