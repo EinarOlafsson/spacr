@@ -176,3 +176,50 @@ key, `hold_after`, and `speech_text` with IPA, pinned across languages by
 The translation models are at
 /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/project/translation_models
 on the home machine -- nine opus pairs, m2m100_418M, madlad400-3b and 7b.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- FOR CODEX: 109 COMMITS, AND THE BLOCKING TEST HAS NOT MOVED
+--------------------------------------------------------------------------------
+
+Written in the file rather than relayed, because two sessions have now tried
+to pass this on and neither can confirm it arrived.
+
+`test_every_module_and_fold_has_exactly_one_current_tutorial_route` reports
+exactly what it reported this morning:
+
+    Extra items in the right set: 'import_images', 'regression_diagnostics',
+                                  'ops'
+
+The work being done is careful -- Gate Editor in 13 locales with all 50
+voices checked, a known-geometry stitch verified to exact pixel identities,
+Converter frozen across 13 translations. But it is DEEPENING lessons that
+already exist, and only one thing closes this test: three new entries in
+`docs/source/_extra/tutorials/lesson_catalog.js`, each with an `app_key`
+naming a live Home key -- or the exact `host_app_key` when the workflow is
+reached through a fold.
+
+This is 288's LAST failing test. Everything else in that instruction is
+green.
+
+>>> DO NOT WRITE THE `ops` LESSON YET.
+
+The maintainer moved the OPS button from Align & Stitch to Mask Generation
+today -- see 372, which is mid-implementation in another session. A lesson
+written now would route to a host OPS is leaving, and the `host_app_key` it
+records would be wrong the moment that lands.
+
+`import_images` and `regression_diagnostics` have no such constraint and can
+be written immediately.
+
+TWO THINGS THAT WILL COST A RE-RECORDING IF THEY ARE NOT KNOWN FIRST:
+
+  * SETTINGS RENAMES ARE COMING. Seven are approved and queued -- see 364's
+    2026-09-09 entry for the table and the modules they touch. Every one
+    changes a visible label, so a frame showing that row, or narration
+    reading it aloud, is wrong from the moment they land. Regression and Map
+    Barcodes are the affected tutorials.
+  * RETIREMENTS ARE WORSE THAN RENAMES for a recording: the row disappears
+    rather than changing its name.
+
+Neither has landed. The renames wait on the session that owns the modules
+that READ those keys.
