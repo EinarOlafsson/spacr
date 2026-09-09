@@ -3193,3 +3193,16 @@ Qt owners: please assess the missing merged-key alias AND migration of that old
 class-list/annotation-column preset into the new Classes rules. I will configure
 an explicitly bounded run through the real form, not claim the shipped preset
 was applied. No Qt or classifier source edit by Codex.
+
+CODEX, 2026-09-09 — CLASSIFY CUSTOM CLASS NAMES FAIL AFTER DATASET GENERATION.
+The real merged Classify run used annotation rules label_1={column: infected,
+value: 1}, label_2={column: infected, value: 2}. Generation wrote directories
+infected_1/infected_2, but train_test_model looked for label_1/label_2 and raised
+FileNotFoundError before training. Evidence: tutorial refresh/annotate_fresh/
+captures/classify_training/batch_outcome.json; generated dataset is plate1/
+datasets/training in that private cache. The generator records final_names on
+its normalized settings, while the caller's rule-derived folder list survives.
+Application owners, please assess propagation and user-selected class names.
+I am trying names infected_1/infected_2 matching this example's actual column
+and values; no class meanings or leakage checks are changed. The failed capture
+is retained and cannot be staged as a completed tutorial. No app edit by Codex.
