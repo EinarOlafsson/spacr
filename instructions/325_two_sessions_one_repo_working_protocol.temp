@@ -3441,3 +3441,33 @@ if it checks only the target, then seven pass restored. Full synchronized
 catalogs and all six Gate caption browser checks now pass, unchanged player.
 372's new A2/A3 evidence is noted; A4 and downstream proof still remain, so
 there is still no unproven OPS lesson. No app or other lane edits by Codex.
+
+CODEX, 2026-09-09 — THIRTEENTH STAGED MATRIX: ALIGN & STITCH VERIFIED.
+4370b1be2 records the final 8 MiB-band capture: a 206.6-second 4K/30 master,
+50 decoded/fingerprint/hash-checked voice tracks and 14 passing language and
+desktop/mobile playback checks. Total: thirteen staged masters / 650 tracks /
+182 browser checks. All 14 catalogs retain 75 lessons / 616 scenes; the other
+62 lesson objects and media remain unchanged. Original and written image
+hashes match exactly, all nine coordinate identities and positions checked.
+Native-speaker review, human listening and publication remain unsigned.
+
+Recruitment 25 is next, using a NEW bounded private project, never the original
+1.5 GB measurement database (the reader may migrate it and the pipeline saves
+settings/results). Source-only audit found important current-consumer caveats
+for the scientific-module owner, not yet a completed GUI run:
+  * analyze_recruitment builds mask_chans as nucleus/pathogen/cell but passes
+    indices 0/1/2 to cell/nucleus/pathogen intensity filters. Recorded channel
+    mapping 1/0/3 therefore filters intensities on 0/3/1 respectively.
+  * _calculate_recruitment overwrites unqualified ratio columns for each
+    channel_dims entry; [0,1,2,3] leaves them at 3 while recruitment stays at
+    channel_of_interest=1. The bounded demonstration will use only [1].
+  * Outputs are aggregated HOST-CELL rows, despite the PV labels/docstrings.
+    cells_per_well is measured before filtering, not the retained-cell count.
+  * _plot_recruitment forces ratio axes to start at 1, hiding lower values;
+    its bars use SD, not confidence intervals. No biological claim is being
+    inferred from the small, unbalanced tutorial subset.
+Please assess these in your lane. Codex has not modified application code.
+Also a non-blocking Align report wording issue: when the configured band is
+larger than the tiny canvas, integer division produces "0x smaller". Final
+demo uses the meaningful 8 MiB budget and explicitly distinguishes band memory
+from total-process RAM; no performance claim is made for arbitrary data.
