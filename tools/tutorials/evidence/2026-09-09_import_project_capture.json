@@ -1,0 +1,39 @@
+{
+  "lesson": "36_import",
+  "status": "Real-data capture and English lesson accepted; multilingual production in progress",
+  "application_commit": "8ba3c6b2a678e97b97fc93d255cf19945822bad7",
+  "package_version": "1.5.0.4",
+  "capture_directory": "refresh_2026-09-09/captures/foreign_release_v2",
+  "canonical_english_sha256": "8f584353448403fe7ae7b043ea0b34938bf2ea0698159097f70bff6f161ed3f2",
+  "english_scenes": 16,
+  "inputs": {
+    "source": "Measure's genuine downloaded seven-plane uint16 example",
+    "fields": ["plate1_E01_1_1", "plate1_L02_9_1"],
+    "intensity_plane": 1, "cell_label_plane": 4,
+    "measurement_source": "Pixel counts and raw intensity means recomputed from these exact image/label pairs; not the independently versioned annotation database",
+    "physical_calibration": null,
+    "neutral_names": ["fov01_C1.tif", "fov02_C1.tif"],
+    "original_acquisition_wells_not_inferred_from_neutral_names": true
+  },
+  "actual_actions": ["Three header-fold locations", "Real image, mask and table pickers", "Add Cell masks", "Preview without writing", "Safe foreign-prefixed inferred proposal", "F2 target edit to reserved cell_area", "Actual refusal of the edited conflict", "Rename policy resolves conflict", "103/103 object joins", "Explicit reviewed target", "Save mapping", "Unsaved target change", "Load mapping restores the saved target", "Import", "Actual scrolling to final report lines"],
+  "outputs": {
+    "fields": 2, "channels": 1, "mask_classes": 1,
+    "images": 2, "masks": 2, "merged_arrays": 2,
+    "distinct_objects": 103, "rows_per_object_table": 103,
+    "tables_with_rows": ["cell", "foreign_cell"],
+    "reported_206_rows_count_both_tables_not_unique_objects": true,
+    "per_object_area_and_mean_values_checked_by_source_image_and_label": true,
+    "converted_and_merged_intensities_and_label_pixels_preserved": true,
+    "all_original_inputs_unchanged": true,
+    "spacr_measurements_recomputed_by_import": false,
+    "assigned_well_A01_is_not_original_acquisition_metadata": true
+  },
+  "folds": ["import_images", "convert", "external_masks"],
+  "retained_specialist_lessons": ["35_converter", "31_external_masks"],
+  "refreshed_specialist_lesson": "74_import_images",
+  "tests": "tools/tutorials/tests/test_foreign_inputs.py: 9 passed",
+  "mutation_checks_observed_red": ["Blank-label guard removed", "Image/label shape guard removed", "Seven-plane layout guard removed", "Per-object assignment guard disabled", "Object-identity guard disabled"],
+  "recording_process": "One private 4K Xvfb GUI; 110 GiB host-memory guard; two CPU threads; six-minute hard timeout",
+  "app_source_modified": false,
+  "published": false
+}

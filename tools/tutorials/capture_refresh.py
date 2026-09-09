@@ -248,6 +248,10 @@ def main() -> int:
             from capture_diagnostics import record_diagnostics
             record_diagnostics(window, screen, stage, args.diagnostics_from,
                                captures, capture, settle, write_json)
+        if args.module == 'foreign':
+            from capture_foreign import record_foreign
+            record_foreign(app, window, screen, stage, captures, capture,
+                           settle, write_json, args.timeout)
         if args.download:
             def visible_test_data_buttons():
                 return [w for w in screen.findChildren(QAbstractButton)
