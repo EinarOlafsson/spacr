@@ -223,7 +223,28 @@ def main() -> int:
                     'external_masks': 'foreign', 'model_zoo': 'make_masks',
                     'train_compare': 'classify_merged',
                     'regression_diagnostics': 'regression'}.get(args.module, args.module)
-        window._on_nav_selected(host_key)
+        if args.module == 'report':
+            # Report no longer has a Home tile. Record the actual Help menu
+            # entry, rather than calling the navigation slot off camera.
+            help_actions = [action for action in window.menuBar().actions()
+                            if action.text().replace('&', '') == 'Help']
+            if len(help_actions) != 1 or help_actions[0].menu() is None:
+                raise RuntimeError('The current application has no unique Help menu')
+            menu = help_actions[0].menu()
+            choices = [action for action in menu.actions()
+                       if action.text().replace('&', '') == 'Report']
+            if len(choices) != 1 or not choices[0].isEnabled():
+                raise RuntimeError('The current Help menu has no usable Report action')
+            QTest.mouseClick(window.menuBar(), Qt.LeftButton,
+                             pos=window.menuBar().actionGeometry(help_actions[0]).center())
+            settle(0.3)
+            if not menu.isVisible():
+                raise RuntimeError('The actual Help menu did not open')
+            capture('00a_help_report_menu')
+            QTest.mouseClick(menu, Qt.LeftButton,
+                             pos=menu.actionGeometry(choices[0]).center())
+        else:
+            window._on_nav_selected(host_key)
         deadline = time.monotonic() + 60
         while window._screens.get(host_key) is None:
             if time.monotonic() > deadline:
@@ -288,6 +309,10 @@ def main() -> int:
             from capture_training_runs import record_training_runs
             record_training_runs(app, window, screen, stage, captures, capture,
                                  settle, write_json, args.timeout)
+        if args.module == 'report':
+            from capture_report import record_report
+            record_report(app, window, screen, stage, captures, capture,
+                          settle, write_json, args.timeout)
         if args.download:
             def visible_test_data_buttons():
                 return [w for w in screen.findChildren(QAbstractButton)

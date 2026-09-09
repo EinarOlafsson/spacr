@@ -88,7 +88,7 @@
   ],
   "original_media": {
     "root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/production/29_report",
-    "scenes_json_sha256": "aaae57aacd41e369912ad83b9919c70e0c0ceee0be20a65db1448c46867267b05",
+    "scenes_json_sha256": "aaae57aacd41e369912ad83b9919c70e0c60dc22a1d5264c6c86e635cec37dab",
     "source_manifest_sha256": "af0342314bf97305f5fe6f6f1ecc6fa5007935bdc3ed4423de7201698a152c21",
     "source_manifest_generated_utc": "2026-08-05T08:16:46.567293+00:00",
     "historical_source_path_recorded_only": "/media/carruthers/mnt3/claude/toxoplasma_projects/test_datasets/spacr/tutorials/test",
