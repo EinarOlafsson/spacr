@@ -267,9 +267,24 @@ def follow_device_ratio(widget: Any,
     Returns the watcher (for tests to drive) or ``None`` if the widget
     cannot take an event filter.
     """
+    # ASKED BEFORE BUILT, not caught after. `_RatioWatcher` is a QObject
+    # parented to `widget`, so constructing one with something that is not a
+    # QObject fails INSIDE PySide6's C++ layer -- and the exception unwinds
+    # leaving a half-built native object whose teardown is not safe. Catching
+    # it looked sufficient and was not: under `coverage run` the tracing
+    # perturbs that teardown enough to turn it into a segmentation fault,
+    # reproducible two times out of two, and never once without coverage.
+    #
+    # That is a crash in a measurement, not in the product, and it is exactly
+    # the kind that gets written off as "the coverage tool is flaky". The
+    # object it needs is one that was never constructed.
+    if not isinstance(widget, QObject):
+        return None
     try:
         watcher = _RatioWatcher(widget, redraw)
         widget.installEventFilter(watcher)
     except Exception:                                    # noqa: BLE001
+        # Still caught: a real QWidget can refuse an event filter after its
+        # C++ half is gone, which `isinstance` cannot see.
         return None
     return watcher

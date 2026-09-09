@@ -1923,13 +1923,26 @@ class FigureQueue(QWidget):
             except Exception:
                 pass
         for widget in (toolbar, canvas):
-            if widget is not None:
-                try:
-                    self._canvas_layout.removeWidget(widget)
-                    widget.setParent(None)
-                    widget.deleteLater()
-                except Exception:
-                    pass
+            # ASKED BEFORE HANDED OVER. `removeWidget`, `setParent` and
+            # `deleteLater` are C++ calls, and passing something that is not
+            # a QWidget fails inside PySide6's binding layer rather than in
+            # Python. The `except` below looked sufficient and is not: under
+            # `coverage run` the tracing perturbs that failure into a
+            # SEGMENTATION FAULT, reproducible every time and never once
+            # without coverage.
+            #
+            # It reads as a flaky coverage tool and is not: it is a real
+            # object handed to a real C++ API that cannot take it. A canvas
+            # that has lost its C++ half still passes this check, which is
+            # why the try/except stays.
+            if widget is None or not isinstance(widget, QWidget):
+                continue
+            try:
+                self._canvas_layout.removeWidget(widget)
+                widget.setParent(None)
+                widget.deleteLater()
+            except Exception:
+                pass
         self._canvas = None
         self._canvas_toolbar = None
 
