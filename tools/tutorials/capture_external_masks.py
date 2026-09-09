@@ -7,6 +7,7 @@ controls; no measurement CSV or fabricated result is supplied to the app.
 """
 from __future__ import annotations
 
+from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
@@ -22,14 +23,36 @@ def _digest(path):
     return digest.hexdigest()
 
 
+def check_retained_console_state(before, after):
+    """Reject lost or altered results after a native Preferences refresh.
+
+    The recorder supplies ordered QImages for figures; tests can use tiny
+    immutable values. Equality must cover the actual content, not only its
+    length, and the check must not repair or repopulate any UI state.
+    """
+    for state in (before, after):
+        if state['figure_count'] != 6 or len(state['figures']) != 6:
+            raise RuntimeError('The native preference change must retain all six figures')
+        if not state['console_blocks'] or not any(
+                block['text'] for block in state['console_blocks']):
+            raise RuntimeError('The native preference change must retain actual console text')
+    if before['settings'] != after['settings']:
+        raise RuntimeError('The native preference change altered measurement settings')
+    if before['console_blocks'] != after['console_blocks']:
+        raise RuntimeError('The native preference change altered the console history')
+    if before['figures'] != after['figures']:
+        raise RuntimeError('The native preference change altered the ordered figure images')
+
+
 def record_external_masks(app, window, screen, stage, captures, capture,
                           settle, write_json, timeout):
     """Preview without writing, then run and independently verify the project."""
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import (
-        QAbstractButton, QComboBox, QDialogButtonBox, QFileDialog, QLineEdit,
-        QMenu, QMessageBox, QSpinBox,
+        QAbstractButton, QComboBox, QDialog, QDialogButtonBox, QFileDialog,
+        QLineEdit, QMenu, QMessageBox, QScrollArea, QSlider, QSpinBox,
+        QTabWidget,
     )
     from spacr.qt.screens.app_screen import AppScreen
     from spacr.qt.widgets.channel_mapping import ChannelMappingWidget
@@ -415,7 +438,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
 
     # Share the real console-navigation controls between the genuinely
     # non-writing preview and the later, explicitly post-write result tour.
-    readable_tour = {'figures': [], 'console_markers': []}
+    readable_tour = {'figures': [], 'console_markers': [], 'font_scale_changes': []}
     usage = screen._usage_card
     if usage.folder is None:
         raise RuntimeError('The actual System card has no native fold control')
@@ -447,16 +470,202 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         runtime.setSizes(sizes)
         settle(0.5)
 
-    def readable_console():
-        console_fold(False)
-        runtime_space(False)
-        console.set_split_sizes(1400, 80)
+    def retained_console_state():
+        pixmaps = screen._figure_queue.all_pixmaps()
+        if any(pixmap is None or pixmap.isNull() for pixmap in pixmaps):
+            raise RuntimeError('The actual figure queue contains an unreadable image')
+        return {
+            'settings': deepcopy(screen._settings_model.collect()),
+            'figure_count': screen._figure_queue.count(),
+            'figures': [pixmap.toImage() for pixmap in pixmaps],
+            'console_blocks': [{'kind': kind, 'text': text} for _, kind, text
+                               in screen._console._pipeline_console_blocks()],
+        }
+
+    def smaller_console_preference(percent):
+        # Tooltips box / Tooltips bottom only gate hover text. Their fixed
+        # footer widgets remain in the layout, so neither switch frees space.
+        # Use the existing, visibly recorded Preferences control instead.
+        # capture_refresh isolates preferences to this module's stage/config.
+        nonlocal screen, model, usage, runtime, figure_slot, console_slot, console, queue
+        from spacr.qt.preferences import get_font_scale
+
+        original_percent = int(round(get_font_scale() * 100))
+        if percent not in (100, 125) or percent >= original_percent:
+            raise RuntimeError('The final console needs a bounded, smaller native font scale')
+        before = retained_console_state()
+        check_retained_console_state(before, before)
+        errors, accepted = [], []
+        opened = []
+        frame = f'11_console_preferences_font_scale_{percent}'
+
+        def configure_preferences():
+            dialog = app.activeModalWidget()
+            try:
+                if not isinstance(dialog, QDialog):
+                    raise RuntimeError('The actual Preferences dialog did not open')
+                tabs = dialog.findChild(QTabWidget, 'PreferencesTabs')
+                slider = dialog.findChild(QSlider, 'FontScale')
+                if tabs is None or slider is None:
+                    raise RuntimeError('The actual Preferences dialog has no Font scale control')
+                opened.append(dialog)
+                dialog.accepted.connect(lambda: accepted.append(True))
+                dialog.finished.connect(lambda *_: watchdog.stop())
+                workbench = window.geometry()
+                dialog.resize(min(1800, workbench.width() - 100),
+                              min(1600, workbench.height() - 100))
+                dialog.move(workbench.x() + (workbench.width() - dialog.geometry().width()) // 2,
+                            workbench.y() + (workbench.height() - dialog.geometry().height()) // 2)
+                pages = [index for index in range(tabs.count())
+                         if tabs.widget(index).isAncestorOf(slider)]
+                if len(pages) != 1 or not isinstance(tabs.widget(pages[0]), QScrollArea):
+                    raise RuntimeError('The native Font scale page is not uniquely reachable')
+                QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
+                                 pos=tabs.tabBar().tabRect(pages[0]).center())
+                tabs.widget(pages[0]).ensureWidgetVisible(slider)
+                settle(0.3)
+                if (not slider.isVisible() or not slider.isEnabled()
+                        or not slider.visibleRegion().contains(slider.rect().center())
+                        or not workbench.contains(dialog.geometry())
+                        or slider.value() != original_percent
+                        or slider.singleStep() != 5
+                        or not slider.minimum() <= percent <= slider.maximum()
+                        or (percent - slider.minimum()) % slider.singleStep()):
+                    raise RuntimeError('The actual Font scale control is not usable as expected')
+                slider.setFocus()
+                QTest.keyClick(slider, Qt.Key_Home)
+                for _ in range((percent - slider.minimum()) // slider.singleStep()):
+                    QTest.keyClick(slider, Qt.Key_Right)
+                settle(0.3)
+                if slider.value() != percent:
+                    raise RuntimeError('The native Font scale slider did not reach the shown value')
+                capture(frame)
+                box = dialog.findChild(QDialogButtonBox)
+                save = box.button(QDialogButtonBox.Save) if box is not None else None
+                if save is None:
+                    raise RuntimeError('The actual Preferences dialog has no Save control')
+                click(save)
+            except Exception as exc:
+                errors.append(str(exc))
+                if isinstance(dialog, QDialog):
+                    dialog.reject()
+
+        def cancel_stalled_preferences():
+            errors.append('The native Preferences dialog did not finish within 20 seconds')
+            dialog = app.activeModalWidget()
+            if isinstance(dialog, QDialog):
+                dialog.reject()
+            for own_dialog in opened:
+                if own_dialog is not dialog and own_dialog.isVisible():
+                    own_dialog.reject()
+
+        handler = QTimer()
+        handler.setSingleShot(True)
+        handler.timeout.connect(configure_preferences)
+        watchdog = QTimer()
+        watchdog.setSingleShot(True)
+        watchdog.timeout.connect(cancel_stalled_preferences)
+        try:
+            handler.start(300)
+            watchdog.start(20_000)
+            # This button opens the app's real modal dialog. The handler runs
+            # in that dialog's event loop; no new dialog or widget is injected.
+            click(screen._btn_preferences)
+        finally:
+            handler.stop()
+            watchdog.stop()
+        if errors or not accepted:
+            raise RuntimeError('; '.join(errors) or 'The native Font scale was not saved')
+        settle(1)
+        children = [child for child in window.findChildren(AppScreen)
+                    if child.app_key == 'external_masks' and child.isVisible()]
+        if len(children) != 1:
+            raise RuntimeError('Preferences did not retain the visible External Masks screen')
+        # The existing footer heights follow the painted font in showEvent,
+        # not in the palette-change handler. Leave and return through the
+        # real host tabs so the app itself recalculates those heights.
+        screen = children[0]
+        parent = screen.parentWidget()
+        pages = None
+        while parent is not None:
+            if isinstance(parent, QTabWidget) and parent.indexOf(screen) >= 0:
+                pages = parent
+                break
+            parent = parent.parentWidget()
+        if pages is None or pages.count() < 2 or pages.indexOf(screen) == 0:
+            raise RuntimeError('The existing Import / External Masks tabs are not available')
+        external_index = pages.indexOf(screen)
+        QTest.mouseClick(pages.tabBar(), Qt.LeftButton,
+                         pos=pages.tabBar().tabRect(0).center())
+        settle(0.3)
+        if pages.currentIndex() != 0 or screen.isVisible():
+            raise RuntimeError('The actual Import Project tab did not become visible')
+        QTest.mouseClick(pages.tabBar(), Qt.LeftButton,
+                         pos=pages.tabBar().tabRect(external_index).center())
         settle(0.5)
+        children = [child for child in window.findChildren(AppScreen)
+                    if child.app_key == 'external_masks' and child.isVisible()]
+        if len(children) != 1:
+            raise RuntimeError('The actual External Masks tab did not retain its results screen')
+        # Save may rebuild UI objects: no reference cached before the modal
+        # refresh may be used for the subsequent results/console tour.
+        screen = children[0]
+        model = screen._settings_model
+        usage = screen._usage_card
+        runtime = screen._runtime_splitter
+        figure_slot = runtime.indexOf(screen._figures_card)
+        console_slot = runtime.indexOf(screen._console_wrap)
+        console = screen._console
+        queue = screen._figure_queue
+        if runtime.count() != 2 or {figure_slot, console_slot} != {0, 1}:
+            raise RuntimeError('Preferences changed the native results splitter structure')
+        check_retained_console_state(before, retained_console_state())
+        if int(round(get_font_scale() * 100)) != percent:
+            raise RuntimeError('The native Preferences Save did not retain the selected font scale')
+        if usage.folder is None:
+            raise RuntimeError('Preferences lost the native System fold control')
+        if not usage.folder.shut:
+            click(usage.title_label)
+        if not usage.folder.shut or usage.body.isVisible():
+            raise RuntimeError('The native System card did not remain collapsed')
+        width = sum(screen._body_splitter.sizes())
+        screen._body_splitter.setSizes([width // 4, width - width // 4])
+        readable_tour['font_scale_changes'].append({
+            'frame': frame, 'from_percent': original_percent, 'to_percent': percent,
+            'control': 'Preferences / Font scale', 'actual_save_clicked': True,
+            'native_host_tab_return_refreshes_footer_heights': True,
+            'screen_reacquired': True, 'measurement_settings_unchanged': True,
+            'complete_ordered_console_history_unchanged': True,
+            'six_ordered_figure_images_unchanged': True,
+            'preferences_scope': 'private External Masks recording configuration',
+        })
+        write_json(captures / 'readable_tour.json', readable_tour)
+
+    def readable_console():
+        def position():
+            console_fold(False)
+            runtime_space(False)
+            console.set_split_sizes(1400, 80)
+            settle(0.5)
+
+        position()
+        if console.isVisible() and console._scroll.viewport().height() < 360:
+            # Preview is already readable with no figures and must stay a
+            # genuinely non-writing operation. Only the completed six-figure
+            # tour may use this shown, reversible preference adjustment.
+            if screen._figure_queue.count() == 6:
+                from spacr.qt.preferences import get_font_scale
+                for percent in (125, 100):
+                    if percent < int(round(get_font_scale() * 100)):
+                        smaller_console_preference(percent)
+                        position()
+                        if console._scroll.viewport().height() >= 360:
+                            break
         if not console.isVisible() or console._scroll.viewport().height() < 360:
             capture('readability_error_console')
             raise RuntimeError('The actual console viewport remains too short for the readable tour')
 
-    def show_console_marker(marker, frame, *, require_unwritten=False):
+    def show_console_marker(marker, frame, *, require_unwritten=False, also_visible=()):
         if require_unwritten and destination.exists():
             raise RuntimeError('The non-writing preview frame requires a nonexistent destination')
         readable_console()
@@ -489,6 +698,19 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         if not block.viewport().visibleRegion().contains(block.cursorRect().center()):
             capture('readability_error_summary')
             raise RuntimeError('The actual summary marker did not scroll into view')
+        # Geometry alone is not readable evidence: require normal-sized text
+        # and the actual named summary/table list inside the clipped viewport.
+        if block.font().pointSizeF() < 9 or block.fontMetrics().height() < 12:
+            raise RuntimeError('The actual console summary font is too small to read')
+        for text in (marker, *also_visible):
+            cursor = block.document().find(text, selected.selectionStart())
+            if cursor.isNull():
+                raise RuntimeError(f'The actual console lacks the required visible text: {text}')
+            for position in (cursor.selectionStart(), cursor.selectionEnd()):
+                cursor.setPosition(position)
+                if not block.viewport().visibleRegion().contains(block.cursorRect(cursor).center()):
+                    capture('readability_error_summary')
+                    raise RuntimeError('The actual console summary/table text is clipped')
         if block.toPlainText() != before_text:
             raise RuntimeError('Navigating the actual console changed its text')
         capture(frame)
@@ -500,6 +722,9 @@ def record_external_masks(app, window, screen, stage, captures, capture,
             'visible_height': console._scroll.viewport().height(),
             'document_text_unchanged': True, 'destination_exists': destination.exists(),
             'nonwriting_frame': require_unwritten,
+            'font_point_size': block.font().pointSizeF(),
+            'font_line_height': block.fontMetrics().height(),
+            'additional_visible_text': list(also_visible),
         })
         write_json(captures / 'readable_tour.json', readable_tour)
 
@@ -728,7 +953,9 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     show_console_marker('External masks → Measure project (preview; nothing written)',
                         '11a_external_input_plan')
     show_console_marker('Prepared 2 field(s) in ' + str(destination),
-                        '11_external_measurement_summary')
+                        '11_external_measurement_summary', also_visible=(
+                            'measurements.db tables: cell, cytoplasm, intensity_rescale, '
+                            'png_list, run_status, settings, settings_history',))
     if model.collect() != settings:
         raise RuntimeError('The readable result tour changed the retained settings')
     write_json(captures / 'readable_tour.json', readable_tour)
