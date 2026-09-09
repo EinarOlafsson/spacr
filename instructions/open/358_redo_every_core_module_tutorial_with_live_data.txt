@@ -223,3 +223,34 @@ TWO THINGS THAT WILL COST A RE-RECORDING IF THEY ARE NOT KNOWN FIRST:
 
 Neither has landed. The renames wait on the session that owns the modules
 that READ those keys.
+
+--------------------------------------------------------------------------------
+2026-09-09, LATER -- CODEX IS NOT CLOSED, AND OWNERSHIP RETURNS TO IT
+--------------------------------------------------------------------------------
+
+For about half an hour this instruction was handed to the other Claude
+session on the grounds that Codex had been shut. It had not: what the
+maintainer closed by accident was a session on the WORK machine. Codex runs
+on the home machine and never stopped -- its newest tutorial commit is
+17:17, after the handover was announced.
+
+The other session has stood down and touched nothing. 358 IS CODEX'S.
+
+WHY IT WAS NOT CAUGHT BY EITHER SESSION, recorded because it will recur:
+neither Claude session can see Codex's process. Its COMMITS are the only
+signal, and they are ambiguous by construction -- the median gap across its
+last nineteen is four minutes, with two eleven-minute gaps already in that
+history, so "stopped" and "a normal pause" look identical. A claim about
+what a session IS is not a measurement of what it is DOING, and only the
+maintainer could tell them apart.
+
+>>> THE `ops` CONSTRAINT, which is the one thing Codex still needs from us:
+
+DO NOT WRITE THE `ops` LESSON AGAINST ALIGN & STITCH. The maintainer moved
+the OPS button to Mask Generation today (see 372), and the session
+implementing that move is the one that will know which host and which fold
+the lesson should name. A lesson written now records a `host_app_key` that
+is wrong the moment 372 lands.
+
+`import_images` and `regression_diagnostics` carry no such constraint and
+are the two that close 288's last failing test.
