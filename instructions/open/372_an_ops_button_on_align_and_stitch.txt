@@ -2060,3 +2060,110 @@ its start. THE PRE-FLIGHT SHOULD REFUSE THEM BY NAME.
   argues it does not -- c1's five-channel stack against c2..c11's four
   separate per-channel files is two different acquisition configurations,
   not one configuration with files missing.
+
+
+--------------------------------------------------------------------------------
+PART 11 -- THE ADJACENCY AS TWO OR THREE NUMBERS, NOT A SEARCH. 2026-09-09.
+--------------------------------------------------------------------------------
+
+A HYPOTHESIS TO TEST, LABELLED AS ONE. PART 6-B's lesson was that every
+attempt so far has been "an assumption about the acquisition path dressed up
+as an algorithm", so this is written as the next thing to MEASURE rather than
+as the design.
+
+WHAT THE REFERENCE SAYS, READ TODAY. `ops/plates.py:remap_snake(site,
+grid_shape)` builds `np.arange(rows*cols).reshape(rows, cols)`, reverses
+every other row, and indexes it flat. IT ASSUMES A FULL RECTANGLE. This well
+has 333 sites, and 333 factors only as 1x333, 3x111 or 9x37 -- none of which
+is a plausible field layout. So the acquisition is NOT a full rectangle, and
+`remap_snake` cannot describe it as it stands.
+
+WHAT THAT LEAVES, AND IT FITS EVERY MEASUREMENT IN PART 6-C. A round well
+visited by a snake: for each column the stage visits the grid rows that fall
+INSIDE THE CIRCLE, then moves to the next column and comes back up. That
+gives exactly what was measured -- +/-1 is always vertical, and the offset to
+the horizontal neighbour varies (+11, +4, -11, -9, -4, -13, -5) because it is
+the height of the column being crossed.
+
+  SO THE LAYOUT IS NOT 333 UNKNOWNS. It is a circle: a centre, a radius and
+  a pitch, in grid units. The column heights follow from those, the site
+  index of the first tile in column c is the sum of the heights before it,
+  and every adjacency falls out. Two or three numbers, fitted, instead of a
+  neighbour search over 333 tiles.
+
+  THE FIT IS CHEAP AND IT IS ALREADY HALF DONE. The column heights must sum
+  to 333, and PART 6-C's seven measured horizontal offsets are seven
+  constraints on them. Solve for the circle that reproduces those offsets,
+  then PREDICT the offsets at sites nobody measured and check them by
+  registration. A prediction that survives sites it was not fitted on is a
+  layout; one that does not is another guess, and it will have cost an hour
+  rather than a night.
+
+  AND IT DEGRADES HONESTLY. If the fit fails, the fallback is the
+  position-driven search PART 6-A already argued for -- once a tile is
+  placed, its neighbours' positions are known to within a pitch. The fit is
+  worth trying FIRST because it is O(1) registrations rather than O(N), not
+  because the search is wrong.
+
+WHAT NOT TO DO: raise `max_site_gap`. `spacr/spacrops.py:1332`
+`_pairs_by_site_window` proposes pairs by site-index distance, and the
+default is now 64 (`spacrops.py:3586`), which proposes 128 candidates per
+tile to find four. PART 6 showed the index window is unsound for this
+acquisition at 3; at 64 it is merely expensive as well.
+
+
+--------------------------------------------------------------------------------
+PART 11-A -- THE LAYOUT IS SOLVED. 21 COLUMNS, AND THE HEIGHTS. 2026-09-09.
+--------------------------------------------------------------------------------
+
+PART 11 proposed fitting a circle instead of searching for neighbours. Done,
+in under a minute of arithmetic and no image I/O at all:
+
+    columns   21, snaked DOWN (even columns top to bottom)
+    circle    radius 10.25 grid units, centre at column 10, row -10
+    heights   5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21,
+              19, 19, 17, 17, 15, 13, 9, 5        SUM = 333
+
+IT REPRODUCES ALL SEVEN OF PART 6-C's MEASURED OFFSETS. +11, +4, -11, -9,
+-4, -13, -5 at sites 0, 40, 100, 160, 220, 280 and 320. Seven of seven.
+
+AND THE FIRST MODEL GOT 3 OF 7, WHICH IS THE PART WORTH KEEPING. The error
+was indexing each column's rows from its own top. In a round well every
+column starts at a different row, so "the tile at row 3 of column c" and
+"the tile at row 3 of column c+1" are not side by side. THE NEIGHBOUR IS AT
+THE SAME ABSOLUTE GRID ROW. Fixing that alone took the fit from 3 to 7, and
+it is the same class of mistake as the wrapped shifts in PART 6-A: a
+coordinate measured against the wrong origin.
+
+INDEPENDENT CORROBORATION, from a measurement made before this model existed.
+PART 6-B's failed run-segmentation reported run lengths of 5, 9, 13, 15, 34,
+2, 18, 18, 42, 5, 13, 9. Against the fitted heights:
+
+    5, 9, 13, 15   match exactly
+    34             = 17 + 17, two columns whose turn the +/-1 link crossed
+    42             = 21 + 21, the same again in the middle of the well
+
+So the run lengths that made no sense as a serpentine are exactly these
+heights, with adjacent equal-height columns merging where registration
+carried across the turn. PART 6-B's data was right; only its model was wrong.
+
+  WHAT IS STILL OWED, AND PART 11 ASKED FOR IT BEFORE THE FIT EXISTED: the
+  seven offsets are seven constraints and the search had four free
+  parameters, so this is a good fit rather than a proof. PREDICT THE OFFSETS
+  AT SITES NOBODY MEASURED and confirm them by registration -- sites 20, 60,
+  140, 200, 260 and 300 will do. A model that survives sites it was not
+  fitted on is a layout.
+
+WHAT THIS CHANGES:
+
+  * `max_site_gap` goes away entirely rather than being tuned. Every tile's
+    four neighbours are now computable in closed form from its site index.
+  * Candidate pairs drop from 128 per tile (the current default of 64, both
+    directions) to 4. The 993 scored pairs of PART 6 become about 640 REAL
+    adjacencies with no false candidates at all.
+  * The QC-image explosion of PART 6 disappears with them -- 994 overlays
+    were written because 993 pairs were scored, and most were never
+    neighbours.
+  * A2 can be implemented directly: build the adjacency from the layout,
+    register each pair by phase correlation on DAPI, unwrap, reject (0,0),
+    and solve the graph. There is no search step left in it.

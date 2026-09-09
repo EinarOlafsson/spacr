@@ -23,12 +23,19 @@ def a_clean_counter():
     saved_depth = gil_priority._DEPTH
     saved_restore = gil_priority._RESTORE
     saved_interval = sys.getswitchinterval()
+    # THE REAL SETTER, BOUND BEFORE ANY TEST CAN REPLACE IT. Two tests below
+    # inject the interpreter's refusal by monkeypatching
+    # ``sys.setswitchinterval`` to raise, and a fixture's teardown runs
+    # BEFORE monkeypatch undoes its patches -- so restoring through the name
+    # calls the refusal and turns a passing test into a teardown ERROR that
+    # names the injected message rather than anything real.
+    set_interval = sys.setswitchinterval
     gil_priority._DEPTH = 0
     gil_priority._RESTORE = None
     yield
     gil_priority._DEPTH = saved_depth
     gil_priority._RESTORE = saved_restore
-    sys.setswitchinterval(saved_interval)
+    set_interval(saved_interval)
 
 
 def test_a_claim_lowers_the_interval_and_a_release_puts_it_back():

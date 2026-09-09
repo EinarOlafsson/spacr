@@ -5104,6 +5104,31 @@ _PT_COPIED_CONTENT_BIGRAMS = frozenset({
 })
 
 
+# A bare URL is provenance, not prose -- the same argument `_ORCID_RE` is
+# written on. It is NOT in the shared `_PROTECT_RE`, because runtime captions
+# do not carry citations, and the API docstrings do: an attribution line like
+# ``github.com/cheeseman-lab/brieflow, MIT, Copyright 2025`` contributed
+# `cheeseman`, `lab` and `brieflow` to the lexical comparison as though they
+# were English words, and joined them into a copied run that no correct
+# translation could avoid. Scoped to the two API lexical gates below rather
+# than added to `_PROTECT_RE`, which would move every runtime catalog hash
+# for a problem runtime prose does not have.
+_API_URL_RE = re.compile(
+    r"(?:(?:https?|ftp)://|www\.)\S+"
+    r"|(?<![\w.])[A-Za-z0-9][\w-]*(?:\.[\w-]+)+/\S*"
+)
+
+
+def _api_lexical_words(text: str) -> list[str]:
+    """Words that count as prose when comparing an API block to its source.
+
+    Protected spans and bare URLs are removed first: what remains is the
+    text a translator is answerable for.
+    """
+    stripped = _API_URL_RE.sub(" ", str(text))
+    return re.findall(r"[^\W\d_]+", _PROTECT_RE.sub(" ", stripped).casefold())
+
+
 def _copied_english_phrases(
     source: str, value: str, language: str, *, minimum_words: int = 2,
 ) -> tuple[str, ...]:
@@ -5111,21 +5136,22 @@ def _copied_english_phrases(
     if language not in MODEL_SPECS:
         return ()
 
-    def lexical_words(text: str) -> list[str]:
-        return re.findall(
-            r"[^\W\d_]+",
-            _PROTECT_RE.sub(" ", str(text)).casefold(),
-        )
-
-    source_words = lexical_words(source)
-    value_words = lexical_words(value)
+    source_words = _api_lexical_words(source)
+    value_words = _api_lexical_words(value)
     copied: list[str] = []
     for match in SequenceMatcher(
         None, source_words, value_words, autojunk=False,
     ).get_matching_blocks():
         if match.size < minimum_words:
             continue
-        phrase = " ".join(source_words[match.a:match.a + match.size])
+        run = source_words[match.a:match.a + match.size]
+        # NOTATION IS NOT PROSE. `t, z, y, x` is an axis list and `a b c d`
+        # is a slot enumeration; a run made only of single characters says
+        # nothing about whether the sentence around it was translated, and
+        # a translation that renamed those letters would be wrong.
+        if all(len(word) == 1 for word in run):
+            continue
+        phrase = " ".join(run)
         if (
             phrase in API_SHARED_PHRASE_ALLOWLIST
             or phrase in API_SHARED_PHRASE_ALLOWLIST_BY_LANGUAGE.get(
@@ -5161,8 +5187,10 @@ def _copied_english_phrases(
 def _has_english_residue(source: str, value: str, language: str) -> bool:
     if language not in _LATIN_TARGET_LANGUAGES:
         return False
-    source_prose = _PROTECT_RE.sub(" ", str(source)).casefold()
-    value_prose = _PROTECT_RE.sub(" ", str(value)).casefold()
+    source_prose = _PROTECT_RE.sub(
+        " ", _API_URL_RE.sub(" ", str(source))).casefold()
+    value_prose = _PROTECT_RE.sub(
+        " ", _API_URL_RE.sub(" ", str(value))).casefold()
     # Match complete Unicode words.  ASCII-only tokenization split Portuguese
     # ``notícia`` at ``í`` and falsely reported the prefix ``not`` as retained
     # English prose (with analogous risks in every accented Latin language).
@@ -6359,14 +6387,40 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                 r"<docs/i18n/readme/README.\1.rst>",
                 contract_readme,
             )
+            # AND THE LANGUAGE INDEX, which the regex above cannot reach
+            # because it is Markdown rather than RST. 361 turned the picker
+            # into a dropdown pointing at that index, and the reverse
+            # rewrite was not told: every localized README then read as a
+            # link the English source does not have, which is what made
+            # "RST link targets changed" fire for all nine locales at once.
+            contract_readme = contract_readme.replace(
+                "<README.md>", "<docs/i18n/readme/README.md>"
+            )
             syntax_contract(
                 readme_source,
                 contract_readme,
                 f"{language}/README",
                 readme_protected_pattern,
             )
-            if "../../../README.rst" not in readme:
-                failures.append(f"{language}: English README link is broken")
+            # THE WAY BACK TO ENGLISH, AS 361 LEFT IT. This gate used to
+            # require the localized README to name ../../../README.rst
+            # directly. 361 replaced the row of per-language links with a
+            # dropdown, so a localized README now names the language INDEX
+            # and the index names English -- the way back is two hops, not
+            # one, and the gate was checking for a link the design had
+            # deliberately removed. It checks the hop that exists, and that
+            # the index still completes it, because a picker that leads
+            # nowhere is the failure this was written to catch.
+            index_path = README_DIR / "README.md"
+            index = (index_path.read_text(encoding="utf-8")
+                     if index_path.is_file() else "")
+            if "<README.md>" not in readme:
+                failures.append(
+                    f"{language}: the language picker link is broken")
+            elif "../../../README.rst" not in index:
+                failures.append(
+                    f"{language}: the language index no longer reaches the "
+                    "English README")
     if failures:
         print("\n".join(failures[:200]), file=sys.stderr)
         return 1

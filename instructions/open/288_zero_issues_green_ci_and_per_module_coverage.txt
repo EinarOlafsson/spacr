@@ -1119,3 +1119,96 @@ connections on the five-second default, the settings-flow fallback overruling
 a curated API target, three apps whose section had drifted across five
 declarations, and Ctrl+H reading as unbound because the test looked only at
 QShortcut.
+
+
+--------------------------------------------------------------------------------
+THE DOCS JOB, MEASURED END TO END. 2026-09-09.
+--------------------------------------------------------------------------------
+
+`docs` is the only workflow on nightly that concludes at all -- it alone sets
+`cancel-in-progress: false`, while `tests` and `compat-matrix` cancel on push
+and so are killed by the next commit. It has failed every conclusive run
+since 2026-09-04. This is what it fails on, measured rather than read off the
+job summary, which shows only the first five labels of each class.
+
+WHAT WAS FIXED TODAY, AND IT WAS NOT A BROKEN ARTIFACT.
+
+  18 of the failures -- two per locale, all nine -- were a STALE GATE left by
+  361. That instruction turned the README language picker into a dropdown
+  pointing at the language index, which removed the direct `<README.rst>`
+  link from the front page. Two things were never told:
+
+    * the reverse rewrite that reconstructs the English contract maps
+      `<README.NN.rst>` by regex and cannot see `<README.md>`, so every
+      localized README read as carrying a link the English source does not
+      have -- "RST link targets changed", nine times;
+    * the backlink gate still required `../../../README.rst` in each
+      localized README, a link 361 had deliberately removed.
+
+  Both now follow the design: the picker names the index, the index names
+  English, and the gate checks that hop AND that the index still completes
+  it. A picker that leads nowhere is the failure it was written to catch.
+  The audit went from 57 failure lines to 39.
+
+WHAT REMAINS IS 405 API BLOCKS THAT HOLD ENGLISH.
+
+    is 126   hi 67   fr 44   sv 34   de 34   ko 31   zh_CN 29   pt 25   es 15
+
+  The audit reports these under six different headings -- exact English,
+  lacks target script, copied English sequences, ordinary English words,
+  contextual-source gate, reviewed false friends -- and they are LARGELY THE
+  SAME BLOCKS counted six ways. `is` reports 120 exact-English, 120 copied
+  sequences and 113 English words; that is one population, not three. Do not
+  add the columns.
+
+  276 distinct copied runs, and the top ones are WHOLE SENTENCES:
+
+     9  "follows brieflow (Cheeseman lab ... whose `merge` stage was read
+        for the approach"
+     8  "if any two of t, z, y, x and channel share an index. One array axis
+        cannot be two things at once..."
+     7  the organelle-lettering paragraph
+
+  A 25-word run matching end to end is not a translation with residue in
+  it. It is the English block, still in the catalog.
+
+AND `--repair-api-blocks` DOES NOT CLEAR THEM. Run on es, the smallest:
+
+    reused=36956  generated=15  unresolved=15  decoded=15
+
+  Every candidate was generated and every one was rejected, all with reason
+  `caller_gate` -- the API validator refusing an otherwise viable candidate.
+  Tracing three of them to the sub-gate that fires:
+
+    'cheeseman lab brieflow mit copyright'   FALSE POSITIVE. A licence
+        attribution. Bare URLs are not in `_PROTECT_RE`, so
+        `github.com/cheeseman-lab/brieflow` contributes its path segments
+        as English words and joins them into a run.
+
+    't z y x'                                FALSE POSITIVE. Axis letters.
+        Single-letter tokens carry no lexical identity in any language and
+        must not be compared as prose.
+
+    'kept'                                   TRUE POSITIVE. The model left
+        an emphasised English word untranslated. The gate is right.
+
+  SO THE GATE IS NOT UNIFORMLY WRONG AND THE CATALOGS ARE NOT UNIFORMLY
+  STALE. Both are true at once, which is why one pass of either kind has
+  not moved the number.
+
+  NEXT, AND IN THIS ORDER:
+  1. Two structural protections -- bare URLs, and single-letter tokens --
+     scoped to the API path. Then re-run the es repair and count how many
+     of the 15 clear. That number decides whether the rest is a handful of
+     rules or hundreds of retranslations, and it is one 15-block run rather
+     than a guess.
+  2. Only then the large locales, one process per locale (the model
+     accumulates GPU memory across locales in one process; that was the
+     cause of two CUDA OOMs on 2026-09-08).
+  3. A `workflow_dispatch` docs run for a verdict, since a pushed run
+     cannot be trusted to finish.
+
+  AND NOTE WHAT THE JOB SUMMARY COSTS: it prints five labels per class and
+  hides the rest, so the visible failure looked like 162 contextual-gate
+  blocks when it is 405 blocks under six headings. The first hour of this
+  went on the wrong number.

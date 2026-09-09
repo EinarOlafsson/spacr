@@ -929,7 +929,8 @@ class CategoryFold:
         layout = content.layout() if content is not None else None
         if host_model is None or layout is None:
             return False
-        from .settings_model import SettingsWidgets
+        from .settings_model import (SettingsWidgets,
+                                     keys_hidden_by_their_object)
 
         # ONLY WHAT THIS FOLD ADDS. The loop below keeps a row exactly when
         # the host does not already hold its key, so building the rest was
@@ -940,6 +941,27 @@ class CategoryFold:
         model = SettingsWidgets(self.key, parent=content, skip_keys=already)
         built = model.build_sections()
         held = set(getattr(host_model, "_widgets", {}))
+        # AND NOT WHAT THIS RUN HAS NO OBJECT FOR. The host builds every
+        # object's rows and hides the ones whose channel is unset, so a
+        # fold that mounted them would put the host's own hidden category
+        # on the form a second time -- the timelapse fold mounted a second
+        # PATHOGEN SEGMENTATION card on mask for the one pathogen setting
+        # mask's registry spells differently. Judged against the HOST's
+        # channels, because it is the host's run these rows would join.
+        # THE HOST'S KEYS GO IN WITH THE FOLD'S. The rule gates a role only
+        # when that role's switch is on the same panel, so that it never
+        # hides a row whose switch lives on a screen the user cannot reach.
+        # Here the switch IS reachable -- it is on the host, one card up --
+        # and the panel these rows would join is the union of the two.
+        try:
+            run_hides = set(keys_hidden_by_their_object(
+                set(model._widgets) | held,
+                host_model._object_visibility_settings()))
+            run_hides &= set(model._widgets)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not tell which of %s the run has an object for",
+                      self.key, exc_info=True)
+            run_hides = set()
         by_widget = _widget_keys(model)
         mounted_keys: list = []
         for source in built:
@@ -947,6 +969,7 @@ class CategoryFold:
             rows = source.rows if hasattr(source, "rows") else source[1]
             own = [(label, widget) for label, widget in rows
                    if by_widget.get(id(widget)) not in held
+                   and by_widget.get(id(widget)) not in run_hides
                    and by_widget.get(id(widget)) is not None]
             if not own:
                 continue
@@ -975,6 +998,22 @@ class CategoryFold:
             if name in self.gates:
                 continue
             host_model._defaults.setdefault(name, value)
+        # AND SO DO THE ROWS THE RUN HAS NO OBJECT FOR. They get no control
+        # -- the host already shows that object's category -- but the
+        # module's pipeline still reads them by name, so their value rides
+        # along exactly as a setting with no control does.
+        if run_hides:
+            try:
+                values = model.collect()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not read %s's unmounted values", self.key,
+                          exc_info=True)
+                values = {}
+            for name in run_hides:
+                if name in self.gates or name in held:
+                    continue
+                if name in values:
+                    host_model._defaults.setdefault(name, values[name])
         self.set_active(False)
         return True
 
