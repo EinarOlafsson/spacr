@@ -50,7 +50,8 @@ def prepare_fields(stage):
     return folder, evidence
 
 
-def record_editor(app, window, screen, stage, captures, capture, settle, write_json, timeout):
+def record_editor(app, window, screen, stage, captures, capture, settle, write_json, timeout,
+                  *, detect=False):
     import numpy as np
     import tifffile
     from scipy.ndimage import distance_transform_edt
@@ -200,6 +201,58 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     steps.append({'action': 'divide', 'before': original_count, 'after': divided_count})
     undo()
 
+    def expose(widget):
+        if not screen._btn_settings.isChecked():
+            QTest.mouseClick(screen._btn_settings, Qt.LeftButton)
+        for scroll in screen.findChildren(QScrollArea):
+            if scroll.isAncestorOf(widget):
+                scroll.ensureWidgetVisible(widget)
+        settle()
+        if not widget.isVisible() or not window.screen().geometry().contains(
+                widget.mapToGlobal(widget.rect().center())):
+            raise RuntimeError('The requested editor control is outside the recording surface')
+
+    def number(widget, value):
+        expose(widget)
+        widget.setFocus()
+        QTest.keyClick(widget, Qt.Key_A, Qt.ControlModifier)
+        QTest.keyClicks(widget, str(value))
+        QTest.keyClick(widget, Qt.Key_Tab)
+        settle()
+        if widget.value() != value:
+            raise RuntimeError('The visible editor setting did not take the requested value')
+
+    def display_digest():
+        # Keep the QImage alive while reading its owned pixel buffer.
+        image = canvas.pixmap().toImage().copy()
+        return hashlib.sha256(image.bits().tobytes()).hexdigest()
+
+    expose(screen._norm_lo)
+    before_display = display_digest()
+    old_lower = screen._norm_lo.value()
+    number(screen._norm_lo, 10)
+    if display_digest() == before_display or not np.array_equal(canvas.mask, original) or not np.array_equal(canvas.image, pixels):
+        raise RuntimeError('Display contrast must change the rendering but not labels or raw intensities')
+    capture('08b_contrast_only')
+    number(screen._norm_lo, old_lower)
+    if display_digest() != before_display:
+        raise RuntimeError('Restoring contrast did not restore the original display')
+    threshold = int(np.median(counts[1:][counts[1:] > 0])) + 1
+    number(screen._filter_min_area, threshold)
+    expose(screen._btn_filter)
+    QTest.mouseClick(screen._btn_filter, Qt.LeftButton)
+    settle()
+    filtered_count = int(np.count_nonzero(np.unique(canvas.mask)))
+    if not 0 < filtered_count < original_count:
+        raise RuntimeError('The measured area threshold did not remove some real objects')
+    capture('08c_filter_edits_labels')
+    steps.append({'action': 'area_filter', 'minimum_area': threshold,
+                  'before': original_count, 'after': filtered_count,
+                  'model_rerun': False})
+    undo()
+    number(screen._filter_min_area, 0)
+    capture('08d_filter_undone_bounds_disabled')
+
     for key in FOLD_ORDER:
         button = screen._folds.button_for(key)
         if button is None or not button.isVisible():
@@ -209,12 +262,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         capture('09_fold_' + key)
 
     # Scroll the actual settings panel; no hidden control is operated.
-    if not screen._btn_settings.isChecked():
-        QTest.mouseClick(screen._btn_settings, Qt.LeftButton)
-    for scroll in screen.findChildren(QScrollArea):
-        if scroll.isAncestorOf(screen._cp_model):
-            scroll.ensureWidgetVisible(screen._cp_model)
-    settle()
+    expose(screen._cp_diameter)
     capture('10_model_controls_not_run')
     QTest.mouseClick(screen._btn_save, Qt.LeftButton)
     settle()
@@ -254,6 +302,41 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     capture('13_child_and_recovery_archive')
     recrop['parent_recovery_path'] = str(archive)
 
+    inference = None
+    if detect:
+        expose(screen._cp_diameter)
+        capture('14_cellpose_settings')
+        initial_child_mask = canvas.mask.copy()
+        QTest.mouseClick(screen._btn_cellpose, Qt.LeftButton)
+        settle()
+        if not screen._prob_pane.has_image() or not screen._flow_pane.has_image():
+            raise RuntimeError('Real Cellpose inference did not produce its two intermediate views')
+        if np.array_equal(canvas.mask, initial_child_mask):
+            raise RuntimeError('Cellpose did not change the example mask; do not claim a new detection')
+        inferred_objects = int(np.count_nonzero(np.unique(canvas.mask)))
+        if inferred_objects == 0:
+            raise RuntimeError('Cellpose did not produce a usable example detection')
+        capture('15_cellpose_detected')
+        for index, name in [(screen._tab_prob, '16_cell_probability'),
+                            (screen._tab_flow, '17_flows'), (0, '18_mask_again')]:
+            tabs = screen._view_tabs
+            QTest.mouseClick(tabs.tabBar(), Qt.LeftButton, pos=tabs.tabBar().tabRect(index).center())
+            settle()
+            capture(name)
+        inference = {'model': screen._cp_model.currentData(),
+                     'objects': inferred_objects, 'status': screen._status_label.text(),
+                     'input_shape': list(child_image.shape),
+                     'cell_probability': screen._cp_cellprob.value(),
+                     'flow_threshold': screen._cp_flow.value(),
+                     'diameter': screen._cp_diameter.value(),
+                     'normalize': screen._cp_normalize.isChecked(),
+                     'mode': screen._combine_mode.currentData()}
+        QTest.mouseClick(screen._btn_undo, Qt.LeftButton)
+        settle()
+        if not np.array_equal(canvas.mask, initial_child_mask):
+            raise RuntimeError('Undo did not restore the pre-inference child labels')
+        capture('19_detection_undone')
+
     if not np.array_equal(canvas.image, child_image):
         raise RuntimeError('Editing masks changed source image pixels')
     if any(digest(Path(row['source'])) != row['source_sha256'] or
@@ -265,5 +348,6 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         'accepted': True, 'input_folder': str(folder), 'initial_objects': original_count,
         'steps': steps, 'reversible_label_edits_undone_before_recrop': True,
         'saved_original_foreground_unchanged': True, 'original_images_unchanged': True,
-        'folded_routes_shown': list(FOLD_ORDER), 'model_inference_requested': False,
+        'folded_routes_shown': list(FOLD_ORDER), 'model_inference_requested': detect,
+        'model_inference': inference,
         'recrop_recorded': True, 'recrop': recrop})

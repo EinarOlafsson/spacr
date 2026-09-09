@@ -43,6 +43,7 @@ def main() -> int:
     parser.add_argument('--settings-tour', action='store_true', help='Show bounded Regression or Classify choices through real settings searches')
     parser.add_argument('--annotation-tour', action='store_true', help='Record actual crop labelling and view changes in a new example column')
     parser.add_argument('--mask-editor-tour', action='store_true', help='Record actual reversible mask-editing gestures on private real-data copies')
+    parser.add_argument('--editor-detect', action='store_true', help='Also run actual Cellpose once on the small recropped example')
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
@@ -57,6 +58,8 @@ def main() -> int:
         parser.error('--annotation-tour requires --module annotate')
     if args.mask_editor_tour and args.module != 'make_masks':
         parser.error('--mask-editor-tour requires --module make_masks')
+    if args.editor_detect and not args.mask_editor_tour:
+        parser.error('--editor-detect requires --mask-editor-tour')
     if args.capture_name and (Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}):
         parser.error('--capture-name must be one directory name')
     if args.module == 'regression_diagnostics' and args.diagnostics_from is None:
@@ -236,7 +239,7 @@ def main() -> int:
         if args.mask_editor_tour:
             from capture_make_masks import record_editor
             record_editor(app, window, screen, stage, captures, capture,
-                          settle, write_json, args.timeout)
+                          settle, write_json, args.timeout, detect=args.editor_detect)
         if args.module == 'import_images':
             from capture_image_import import record_import
             screen = record_import(app, window, screen, stage, captures,
