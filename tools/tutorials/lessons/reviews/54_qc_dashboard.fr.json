@@ -1,5 +1,5 @@
 {
-  "lesson": "54_qc_dashboard", "language": "fr", "english_sha256": "f1ce6519be57cc6f29dd53f1f006797b2d64360ff2eceaa3c94cbea93bc85dda",
+  "lesson": "54_qc_dashboard", "language": "fr", "english_sha256": "6d392cd91316120b850599122e922009dda2919f8085ccbc9908a473d69f377d",
   "review": {"kind": "Editorial translation checked against English and actual read-only QC results", "native_speaker_signoff": false},
   "title": "QC : lire les preuves, pas seulement le résumé",
   "description": "Lisez de vrais rapports téléchargés et calculés, distinguez contrôles manquants, avertissements et échecs, et trouvez les trois outils imbriqués de QC.",
