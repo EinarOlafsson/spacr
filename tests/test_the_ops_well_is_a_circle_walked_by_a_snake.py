@@ -84,3 +84,85 @@ def test_the_pairs_are_the_real_adjacencies_and_no_others():
 def test_a_count_no_circle_holds_yields_nothing_rather_than_a_guess():
     assert spacrStitcher._candidate_layouts(7) == [] or all(
         len(layout) == 7 for layout in spacrStitcher._candidate_layouts(7))
+
+
+# --------------------------------------------------------------------------
+# From displacements to positions.
+# --------------------------------------------------------------------------
+
+PITCH = 1267.0
+TILE = 1480.0
+
+
+def test_a_wrapped_shift_is_put_back_on_the_number_line():
+    """PART 6-A placed 333 of 333 tiles and was entirely wrong.
+
+    Phase correlation returns the displacement modulo the tile, so a pair one
+    pitch apart reads as the residual: -213 where the truth is 1267. Left
+    wrapped, the well rebuilds at a sixth of its size and reports success.
+    """
+    assert spacrStitcher._unwrap_shift(-213.0, PITCH, TILE) == pytest.approx(
+        1267.0)
+    assert spacrStitcher._unwrap_shift(1267.0, PITCH, TILE) == pytest.approx(
+        1267.0)
+    # And the other direction, which is the same wrap seen from the far tile.
+    assert spacrStitcher._unwrap_shift(213.0, -PITCH, TILE) == pytest.approx(
+        -1267.0)
+    # A pair that really has not moved stays where it is.
+    assert spacrStitcher._unwrap_shift(0.0, 0.0, TILE) == pytest.approx(0.0)
+
+
+def test_the_positions_come_out_of_every_edge_at_once():
+    """A square of four tiles, solved from its four displacements."""
+    edges = {
+        (0, 1): (PITCH, 0.0),
+        (0, 2): (0.0, PITCH),
+        (1, 3): (0.0, PITCH),
+        (2, 3): (PITCH, 0.0),
+    }
+    placed = spacrStitcher._solve_placements(edges, [0, 1, 2, 3])
+    assert placed[0] == pytest.approx((0.0, 0.0))
+    assert placed[1] == pytest.approx((PITCH, 0.0))
+    assert placed[2] == pytest.approx((0.0, PITCH))
+    assert placed[3] == pytest.approx((PITCH, PITCH))
+
+
+def test_a_disagreeing_edge_is_spread_rather_than_believed():
+    """The reason for a solve instead of a walk.
+
+    The diagonal path to tile 3 says one thing and the other says another.
+    A walk from the seed would hand tile 3 whichever answer it happened to
+    reach first; the solve splits the difference, so no tile carries the
+    whole of another edge's error.
+    """
+    edges = {
+        (0, 1): (PITCH, 0.0),
+        (0, 2): (0.0, PITCH),
+        (1, 3): (0.0, PITCH),
+        (2, 3): (PITCH + 40.0, 0.0),
+    }
+    placed = spacrStitcher._solve_placements(edges, [0, 1, 2, 3])
+    assert placed[0] == pytest.approx((0.0, 0.0))
+    # Neither 1267 nor 1307, and strictly between them.
+    assert PITCH < placed[3][0] < PITCH + 40.0
+
+
+def test_a_well_that_registers_in_two_pieces_still_returns_both():
+    """A component with no pin of its own makes the solve singular.
+
+    Failing there would throw away the half of the well that DID register,
+    which is the opposite of what a stitch that drops tiles should do.
+    """
+    edges = {(0, 1): (PITCH, 0.0), (2, 3): (0.0, PITCH)}
+    placed = spacrStitcher._solve_placements(edges, [0, 1, 2, 3])
+    assert set(placed) == {0, 1, 2, 3}
+    assert placed[0] == pytest.approx((0.0, 0.0))
+    assert placed[1] == pytest.approx((PITCH, 0.0))
+    assert placed[2] == pytest.approx((0.0, 0.0))
+    assert placed[3] == pytest.approx((0.0, PITCH))
+
+
+def test_a_site_nothing_registered_against_is_still_placed():
+    placed = spacrStitcher._solve_placements({(0, 1): (PITCH, 0.0)}, [0, 1, 9])
+    assert set(placed) == {0, 1, 9}
+    assert placed[9] == pytest.approx((0.0, 0.0))

@@ -1496,6 +1496,88 @@ class spacrStitcher:
                     pairs.add((min(index, other), max(index, other)))
         return sorted(pairs)
 
+    # ------------------- from displacements to positions ------------------
+
+    @staticmethod
+    def _unwrap_shift(shift: float, expected: float, period: float) -> float:
+        """Put a phase-correlation displacement back on the real number line.
+
+        PHASE CORRELATION RETURNS THE DISPLACEMENT MODULO THE TILE, and left
+        wrapped it rebuilds the well at a sixth of its size: instruction 372
+        PART 6-A placed 333 of 333 tiles into a 5,323 x 2,543 canvas, which
+        looked like success and was not, because a pair one pitch apart reads
+        as the residual -- -213 for tiles that are really 1,267 px apart.
+
+        :param shift: the displacement as the correlation reported it.
+        :param expected: roughly where this pair should sit, from the layout.
+        :param period: the tile size the correlation wrapped against.
+        :returns: the representative of ``shift`` closest to ``expected``.
+        """
+        if period <= 0:
+            return float(shift)
+        return float(shift + period * round((expected - shift) / period))
+
+    @staticmethod
+    def _solve_placements(edges: Dict[Tuple[int, int], Tuple[float, float]],
+                          sites: List[int],
+                          ) -> Dict[int, Tuple[float, float]]:
+        """Absolute tile positions from the pairwise displacements.
+
+        A LEAST-SQUARES SOLVE, NOT A WALK. Chaining placements from a seed
+        gives every tile the accumulated error of whatever path reached it,
+        and on a round well the paths are long; solving all the edges at once
+        spreads the residual instead and gives one answer no matter which
+        tile is called the origin.
+
+        The origin is pinned to the lowest-numbered site of each connected
+        component, so a well that registers in two pieces still returns both
+        rather than failing -- the caller can see the components in the
+        result and say so.
+
+        :param edges: ``(a, b) -> (dy, dx)``, b's position minus a's.
+        :param sites: every site to place, including any with no edge.
+        :returns: ``site -> (y, x)`` in pixels, one component pinned at the
+            origin and the others pinned at their own lowest site.
+        """
+        import numpy as _np
+
+        order = {site: index for index, site in enumerate(sorted(sites))}
+        count = len(order)
+        if not count:
+            return {}
+        # Components first, so each gets exactly one pin. Without that the
+        # normal equations are singular for every component after the first.
+        parent = list(range(count))
+
+        def find(node: int) -> int:
+            while parent[node] != node:
+                parent[node] = parent[parent[node]]
+                node = parent[node]
+            return node
+
+        for (left, right) in edges:
+            if left in order and right in order:
+                a, b = find(order[left]), find(order[right])
+                if a != b:
+                    parent[a] = b
+        pins = {}
+        for site, index in sorted(order.items()):
+            root = find(index)
+            pins.setdefault(root, index)
+
+        rows = len(edges) + len(pins)
+        design = _np.zeros((rows, count), dtype=_np.float64)
+        target = _np.zeros((rows, 2), dtype=_np.float64)
+        for row, ((left, right), (dy, dx)) in enumerate(edges.items()):
+            design[row, order[left]] = -1.0
+            design[row, order[right]] = 1.0
+            target[row] = (dy, dx)
+        for offset, index in enumerate(sorted(pins.values())):
+            design[len(edges) + offset, index] = 1.0
+        solution, *_ = _np.linalg.lstsq(design, target, rcond=None)
+        return {site: (float(solution[index, 0]), float(solution[index, 1]))
+                for site, index in order.items()}
+
     def _pairs_by_site_window(self, files: List[str], max_site_gap: int) -> List[Tuple[str,str]]:
         """Candidate neighbour pairs, by site number within ``max_site_gap``.
 
