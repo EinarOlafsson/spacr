@@ -166,3 +166,69 @@ def test_a_site_nothing_registered_against_is_still_placed():
     placed = spacrStitcher._solve_placements({(0, 1): (PITCH, 0.0)}, [0, 1, 9])
     assert set(placed) == {0, 1, 9}
     assert placed[9] == pytest.approx((0.0, 0.0))
+
+
+# --------------------------------------------------------------------------
+# Reading a correlation surface.
+# --------------------------------------------------------------------------
+
+def _surface(peaks, size=64):
+    """A correlation surface with a spike at each ``(dy, dx): height``."""
+    import numpy as np
+
+    surface = np.full((size, size), 0.01, dtype=float)
+    for (dy, dx), height in peaks.items():
+        surface[dy % size, dx % size] = height
+    return surface
+
+
+def test_the_zero_peak_is_the_optics_and_the_next_one_is_the_specimen():
+    """28 of 624 true adjacencies on well A1 peaked at (0,0).
+
+    Every tile comes through the same objective, so every tile carries the
+    same vignetting; where the shared tissue is thin, that common structure
+    wins at zero shift with a ratio up to 85 -- against 9 to 15 for pairs
+    that genuinely do not touch. All 28 resolved to the expected pitch once
+    the zero neighbourhood was set aside.
+    """
+    surface = _surface({(0, 0): 100.0, (11, 0): 40.0})
+    ratio, dy, dx = spacrStitcher._peak_away_from_dc(surface)
+    assert (dy, dx) == (11, 0)
+    assert ratio > 1.0
+    # And the mask is a neighbourhood, not a single pixel: the fixed pattern
+    # is not perfectly centred.
+    nearly = _surface({(2, 1): 100.0, (11, 0): 40.0})
+    _ratio, dy, dx = spacrStitcher._peak_away_from_dc(nearly)
+    assert (dy, dx) == (11, 0)
+
+
+def test_a_confident_peak_in_the_wrong_place_is_refused():
+    """The failure that placed 26 tiles and reported a stitch.
+
+    A peak ratio says the correlation found something. Agreement with the
+    layout says it found the right something.
+    """
+    # The tolerance is given explicitly because these surfaces are 64 px
+    # wide where a real tile is 1480: at the production default of 60 px
+    # almost every point of a 64 px surface is "close enough", which says
+    # nothing about the rule.
+    good = _surface({(0, 0): 100.0, (20, 0): 50.0})
+    assert spacrStitcher._accept_registration(
+        good, (20.0, 0.0), 64.0, tolerance=5.0
+    ) == pytest.approx((20.0, 0.0))
+    # Same confidence, nowhere near where the tile has to be.
+    wrong = _surface({(0, 0): 100.0, (31, 17): 50.0})
+    assert spacrStitcher._accept_registration(
+        wrong, (20.0, 0.0), 64.0, tolerance=5.0) is None
+
+
+def test_a_pair_with_nothing_in_it_is_refused_on_the_ratio():
+    flat = _surface({(0, 0): 100.0})
+    assert spacrStitcher._accept_registration(flat, (20.0, 0.0), 64.0) is None
+
+
+def test_the_accepted_shift_comes_back_unwrapped():
+    """A pair one pitch apart reads as the residual until it is unwrapped."""
+    wrapped = _surface({(0, 0): 90.0, (60, 0): 50.0}, size=64)
+    assert spacrStitcher._accept_registration(
+        wrapped, (-4.0, 0.0), 64.0) == pytest.approx((-4.0, 0.0))

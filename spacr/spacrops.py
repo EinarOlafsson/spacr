@@ -1496,6 +1496,71 @@ class spacrStitcher:
                     pairs.add((min(index, other), max(index, other)))
         return sorted(pairs)
 
+    # ----------------------- reading a correlation ------------------------
+
+    @staticmethod
+    def _peak_away_from_dc(correlation, radius: int = 3):
+        """The strongest displacement that is not "no displacement at all".
+
+        THE ZERO PEAK IS THE OPTICS, NOT THE SPECIMEN. Every tile in a well
+        comes through the same objective and the same sensor, so every tile
+        carries the same vignetting and the same fixed pattern; phase
+        correlation whitens magnitudes, so where the shared tissue in the
+        overlap is thin that common structure wins at zero shift. Instruction
+        372 PART 6-A read a (0,0) match as the no-overlap signature and
+        rejected it, which is right about the symptom and wrong about the
+        cause: on well A1, 28 of 624 true adjacencies peaked at (0,0) with
+        ratios up to 85 -- against 9 to 15 for pairs that really do not
+        touch -- and every one of the 28 resolved to the expected pitch once
+        the zero neighbourhood was set aside.
+
+        :param correlation: the correlation surface, DC at ``[0, 0]``.
+        :param radius: how far around zero to ignore, in pixels.
+        :returns: ``(peak / mean, dy, dx)`` with the shift still wrapped.
+        """
+        import numpy as _np
+
+        surface = _np.asarray(correlation, dtype=_np.float64)
+        mean = float(surface.mean()) or 1.0
+        masked = surface.copy()
+        height, width = masked.shape[:2]
+        for dy in range(-radius, radius + 1):
+            for dx in range(-radius, radius + 1):
+                masked[dy % height, dx % width] = 0.0
+        index = _np.unravel_index(int(_np.argmax(masked)), masked.shape)
+        return (float(masked[index]) / mean, int(index[0]), int(index[1]))
+
+    @classmethod
+    def _accept_registration(cls, correlation, expected: Tuple[float, float],
+                             period: float, *, min_ratio: float = 8.0,
+                             tolerance: float = 60.0):
+        """Read one pair's displacement, or refuse to.
+
+        TWO TESTS, AND THE SECOND IS THE STRONGER. A peak ratio says the
+        correlation found something; agreement with where the layout says the
+        tile sits says it found the RIGHT something. Before the layout there
+        was nothing to compare against and the peak had to carry the whole
+        decision; now a confident peak in the wrong place is refused, which
+        is the failure that put 26 of 333 tiles in a mosaic and called it a
+        stitch.
+
+        :param correlation: the correlation surface for the pair.
+        :param expected: ``(dy, dx)`` the layout predicts, in pixels.
+        :param period: the tile size the correlation wrapped against.
+        :param min_ratio: the smallest peak/mean worth reading.
+        :param tolerance: how far from ``expected`` the answer may fall.
+        :returns: ``(dy, dx)`` unwrapped, or None when the pair is refused.
+        """
+        ratio, shift_y, shift_x = cls._peak_away_from_dc(correlation)
+        if ratio < min_ratio:
+            return None
+        dy = cls._unwrap_shift(shift_y, expected[0], period)
+        dx = cls._unwrap_shift(shift_x, expected[1], period)
+        if (abs(dy - expected[0]) > tolerance
+                or abs(dx - expected[1]) > tolerance):
+            return None
+        return (dy, dx)
+
     # ------------------- from displacements to positions ------------------
 
     @staticmethod
