@@ -81,7 +81,7 @@ SCREENS = ("measure", "regression", "classify_merged", "foreign", "annotate",
            "outliers", "dose_response", "control_chart", "project_browser")
 
 #: See the module docstring: source, worst case, and the maintainer's own.
-LOCALES = ("en", "de", "is", "zh_CN", "ko", "hi", "fr", "es", "pt", "sv")
+LOCALES = ("en", "de", "is", "pt")
 
 #: THE DIMENSION THIS SWEEP WAS MISSING, and instruction 350 said so from the
 #: day it was filed: "a font scale other than 1.0 -- instruction 04 records

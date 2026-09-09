@@ -1134,3 +1134,51 @@ font, with `setDocumentMargin(0)` because QLabel uses none.
   reported EIGHTY false offences: that predicate answers True for any prose
   containing an angle bracket. Only an explicit `Qt.RichText` textFormat --
   a decision the widget's author made -- selects the rich measurement now.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- TEN LOCALES RUN. ONE DEFECT, AND IT IS NOT WHERE IT LOOKS.
+--------------------------------------------------------------------------------
+
+The WATCH list has asked for more than three locales since this was filed. All
+ten were run: 482 cases, 22m33s, and exactly ONE new defect.
+
+    test_no_caption_is_cut_off[regression-pt-2.0]
+    QPushButton 'Contagem': 144 px wide, wants 151
+
+PORTUGUESE JOINS THE MATRIX AND THE OTHER SIX DO NOT. en/de/is/pt is four
+locales at about 9 minutes; ten is 22. Six of the seven added nothing, and the
+one that did is now permanent -- which is the trade this file has made before
+with the font scale: keep the axis that finds things, drop the ones that only
+cost time. If a later locale is suspected, run it by hand; the matrix is one
+line.
+
+WHERE THE DEFECT ACTUALLY IS, because three plausible fixes are wrong and each
+took a measurement to reject:
+
+  * NOT the button's own sizing. `setMinimumWidth(sizeHint().width())` at
+    construction changes nothing: the interface scale reaches widgets through
+    the APPLICATION STYLESHEET, and an unparented button has not been given it
+    yet, so a hint read there is the 100 % width whatever the preference says.
+    The same applies to `fontMetrics()` in the constructor.
+
+  * NOT the row it is built in. The example-fetch buttons are built into a
+    QHBoxLayout that shares the section's width; stacking them vertically left
+    the measurement at exactly 144 px, unchanged, which is what said the row
+    was not the thing deciding the width.
+
+  * The parent layout is `ColumnAlignedRow`, and it is behaving as designed.
+    `setGeometry` does `drawn = min(hint.width(), width)`: a widget is centred
+    in its header column and CLAMPED to it. The class docstring says so, and
+    says why -- the header is read and never written, so the user's own column
+    widths stay the only source of truth for what a column is.
+
+SO THE FIX IS NOT IN THE LAYOUT. A widget clamped to a column the user has
+narrowed is the contract. What is wrong here is the DEFAULT column width: the
+user has resized nothing, and the default does not fit a translated caption at
+200 %. That belongs wherever the header's initial widths are set, which can
+size to content without the row ever writing to the header.
+
+NOT DONE, and deliberately left rather than half-fixed. Two of the three
+rejected fixes would have passed this one case while leaving every other
+column-aligned caption exposed, which is the shape of fix this file exists to
+refuse.
