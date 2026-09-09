@@ -16,6 +16,8 @@ import sys
 import time
 from pathlib import Path
 
+from capture_acceptance import assess_pipeline
+
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials')
 DEFAULT_STAGE = WORKSPACE / 'refresh_2026-09-09'
@@ -35,6 +37,8 @@ def main() -> int:
     parser.add_argument('--preview', action='store_true')
     parser.add_argument('--preview-variants', action='store_true')
     parser.add_argument('--platform', choices=('offscreen', 'xcb'), default='offscreen')
+    parser.add_argument('--run', action='store_true', help='Record a bounded Plot-enabled real pipeline run')
+    parser.add_argument('--ai-controls', action='store_true', help='Show the AI toggle and an UNSENT example question')
     parser.add_argument('--timeout', type=float, default=600)
     args = parser.parse_args()
     if args.preview_variants and not args.preview:
@@ -271,14 +275,19 @@ def main() -> int:
             dialog.close()
             settle()
             QTest.mouseClick(panel._run_btn, Qt.LeftButton)
+            preview_error = []
+            panel._worker.finished_masks.connect(
+                lambda masks, error, token: preview_error.append(error) if error else None)
             settle(0.5)
             capture('06_preview_running')
             deadline = time.monotonic() + args.timeout
             while not panel._raw_masks or (panel._worker and panel._worker.isRunning()):
                 if time.monotonic() > deadline:
                     raise TimeoutError(f'Preview not finished: {panel._status.text()}')
-                if panel._worker is not None and not panel._worker.isRunning() and not panel._raw_masks:
-                    raise RuntimeError(f'Preview failed: {panel._status.text()}')
+                # Thread completion can precede delivery of the GUI's queued
+                # result signal. A stopped thread alone is not a failed run.
+                if preview_error:
+                    raise RuntimeError(f'Preview failed: {preview_error[0]}')
                 settle(0.2)
             settle(1)
             capture('07_preview_result')
@@ -361,6 +370,87 @@ def main() -> int:
                                      'rerun_completed': True},
                 })
                 dialog.close()
+        if args.run:
+            if args.module != 'mask':
+                raise ValueError('Bounded pipeline presets currently support Mask only')
+            model = screen._settings_model
+            bounded = {'test_mode': True, 'test_images': 2, 'batch_size': 2,
+                       'n_jobs': 2, 'randomize': False, 'plot': True,
+                       'examples_to_plot': 1, 'cell_diameter': 30,
+                       'nucleus_diameter': 30, 'pathogen_diameter': 15}
+            for key, value in bounded.items():
+                if not model.set_value_for_key(key, value):
+                    raise RuntimeError(f'Cannot configure the real {key} control')
+            settings = model.collect()
+            for key, value in bounded.items():
+                if settings.get(key) != value:
+                    raise RuntimeError(f'The UI did not retain {key}={value}')
+            write_json(captures / 'batch_settings.json', settings)
+            screen._preview_switch.setChecked(False)
+            settle()
+            capture('20_batch_settings')
+            QTest.mouseClick(screen._btn_run, Qt.LeftButton)
+            worker = getattr(screen, '_worker', None)
+            if worker is None:
+                capture('21_batch_not_started')
+                raise RuntimeError('The Run button did not start a pipeline worker')
+            outcome = {'finished': False, 'ok': False, 'errors': []}
+            def finished(ok):
+                outcome.update(finished=True, ok=bool(ok))
+            worker.finished.connect(finished)
+            worker.error.connect(lambda text: outcome['errors'].append(str(text)))
+            settle(1)
+            capture('21_batch_running')
+            deadline = time.monotonic() + args.timeout
+            next_frame = time.monotonic() + 20
+            while not outcome['finished'] or screen._worker_thread_is_running():
+                if time.monotonic() > deadline:
+                    QTest.mouseClick(screen._btn_stop, Qt.LeftButton)
+                    settle(3)
+                    raise TimeoutError('Bounded pipeline exceeded the recording time limit')
+                if time.monotonic() >= next_frame:
+                    capture('22_batch_progress')
+                    next_frame = time.monotonic() + 30
+                settle(0.2)
+            settle(2)
+            write_json(captures / 'batch_outcome.json', outcome)
+            blocks = [text for _, _, text in screen._console._pipeline_console_blocks()]
+            write_json(captures / 'batch_console.json', blocks)
+            capture('23_batch_finished')
+            if not outcome['ok'] or outcome['errors']:
+                raise RuntimeError('The real pipeline failed; see batch_outcome.json')
+            queue = screen._figure_queue
+            if queue.count() < 1:
+                raise RuntimeError('Plot was enabled but the run produced no inspectable figure')
+            figures = []
+            for index, pixmap in enumerate(queue.all_pixmaps()):
+                path = captures / f'batch_figure_{index:02d}.png'
+                if not pixmap.save(str(path), 'PNG'):
+                    raise RuntimeError(f'Could not preserve figure {index}')
+                figures.append({'image': path.name, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
+            write_json(captures / 'batch_figures.json', figures)
+            acceptance = assess_pipeline(outcome, blocks, len(figures))
+            write_json(captures / 'batch_acceptance.json', acceptance)
+            if not acceptance['accepted']:
+                raise RuntimeError('Recording is not a successful complete example: '
+                                   + '; '.join(acceptance['reasons']))
+            queue.show_index(queue.count() - 1)
+            settle()
+            capture('24_batch_figure')
+        if args.ai_controls:
+            # Show the genuine control and a draft; never submit a provider
+            # request or imply that an AI response was generated.
+            if not hasattr(screen, '_ai_switch'):
+                raise RuntimeError('This screen has no AI console control')
+            screen._ai_switch.setChecked(True)
+            settle()
+            screen._console._input.setPlainText(
+                'Explain the latest segmentation results and suggest which settings I should inspect. Do not change anything.')
+            capture('30_ai_unsent_question')
+            write_json(captures / 'ai_demo.json', {'prompt_submitted': False,
+                       'response_generated': False, 'toggle_enabled': screen._ai_switch.isChecked()})
+            screen._console._input.clear()
+            screen._ai_switch.setChecked(False)
     write_json(captures / 'provenance.json', {'commit': inventory['commit'],
                'version': inventory['version'], 'module': args.module,
                'download_requested': args.download, 'dataset_cache': str(stage / 'example_data'),

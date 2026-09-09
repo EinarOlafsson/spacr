@@ -115,3 +115,14 @@ image crops as cultures; it was stopped and rejected. The replacement translates
 sentence chunks and reconstructs each scene, but still requires semantic review
 before any translated narration is generated. English text and the existing
 published multilingual catalogs remain untouched by draft generation.
+
+`apply_translation_review.py` promotes only explicit, English-hash-pinned
+editorial corrections to staging, retaining other lessons. The review records
+distinguish editorial checking from native-speaker and listening sign-off.
+
+The first Plot-enabled Mask batch exposed a real partial overlay output: the
+plotting loop selected `.spacr_plane_layout.json` as an image. Nine figures and
+a successful GUI completion signal do not make that a complete demonstration.
+`capture_acceptance.py` now rejects the console's partial-artifact markers, and
+staging refuses that run. The application owners have the source-level report;
+the tutorial lane does not patch the app to obtain a successful recording.

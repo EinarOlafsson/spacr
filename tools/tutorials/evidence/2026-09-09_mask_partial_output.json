@@ -1,0 +1,17 @@
+{
+  "application_commit": "a757b8672eefa9ec8e01424bb6d8762143d0018b",
+  "module": "mask",
+  "data_source": "Load test data; real plate1 archive in isolated cache",
+  "operation": "Two-field test mode with Plot enabled",
+  "worker_finished": true,
+  "worker_ok": true,
+  "captured_figures": 9,
+  "complete_example_accepted": false,
+  "failure": "The overlay plotting loop selected .spacr_plane_layout.json as an image input; its separate ledger reported one of two overlay items failed.",
+  "mask_failure_claimed": false,
+  "source_fix_owner": "Application session; no application source modified by tutorial session",
+  "evidence_directory": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask",
+  "ai_demonstration": {"toggle_enabled": true, "prompt_submitted": false, "response_generated": false},
+  "tutorial_guards": {"focused_tests_passed": 21, "partial_output_mutation_caught": true, "translation_source_hash_mutation_caught": true},
+  "published": false
+}
