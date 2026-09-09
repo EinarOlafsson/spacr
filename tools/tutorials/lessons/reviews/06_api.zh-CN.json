@@ -1,0 +1,19 @@
+{
+  "lesson": "06_api", "language": "zh-CN",
+  "english_sha256": "a8d7ca434cf8ec58ef00d69f6a114834d862bd4a58941fbf73ea4467d7acaba3",
+  "review": {"kind": "Editorial translation checked against English and actual terminal commands", "native_speaker_signoff": false, "corrections": ["Preserve exact command identifiers and expected refusal status.", "Do not equate a clean preflight with executed or scientifically validated analysis."]},
+  "title": "Python API与当前的无图形界面工作流",
+  "description": "查看已安装的批处理入口，区分交互工具与Python函数，并检查真实示例的试运行，而不把它说成已经执行了分析。",
+  "objectives": ["确认当前Python环境中的软件包版本。", "查看当前命令键及其实际调用的函数。", "区分交互式工作流、Python函数与批处理命令。", "在无人值守运行前，阅读试运行的设置、退出状态及其局限。"],
+  "prerequisite": "请先完成一节安装教程。本次预检查使用Regression教程下载的配对数据和保存的设置；请将这台机器的路径替换为自己的路径。本次录制不执行分析，也不生成报告。",
+  "scenes": [
+    "在安装spaCR的环境中导入软件包，并打印版本号。这个真实终端显示的版本是一点五点零点四。使用这些命令前先确认自己的版本，因为较旧环境提供的函数和设置可能不同。",
+    "使用list选项运行spacr-run。批处理部分会显示准确的命令键和Python入口，包括mask、measure和classify_merged。Home页面的名称和嵌套按钮并不自动对应批处理命令。请查看已安装版本的列表，不要根据教程标题猜测命令键。",
+    "对regression使用describe，可以看到spacr.ml中的perform_regression函数、提供默认值的函数，以及输入要求。这将命令与实际分析函数对应起来。这里使用的配对数据设置来自链接中的Regression实例，而不是虚构的测量文件夹。",
+    "Annotate是交互式工作流。实际调用spacr-run annotate会返回退出状态二，并说明没有批处理等价入口。给裁剪图像添加标签时，请使用桌面应用中的Annotate。这种预期的拒绝并不表示安装损坏。",
+    "有些功能提供Python API，却没有对应的批处理命令键。这里从spacr.report导入build_report，查看其真实函数签名。我们不调用该函数，也不生成报告。请查看函数文档及参数，不要假定存在spacr-run report。",
+    "将保存的设置文件传给regression，并添加dry-run选项。真实命令会解析设置、执行预检查，然后明确说明没有调用perform_regression。请阅读退出状态和消息；本次录制没有启动另一次回归分析，也没有写出其分析结果。",
+    "预检查无报错，并不能证明完整分析会成功或具有科学有效性。本版本的通用计划提到了测量数据库，但我们的回归实际使用配对表格。请检查模块真正使用的输入，并在依赖无人值守运行前先进行一次规模有限的测试。",
+    "只有打算真正执行分析时，才移除dry-run。请将准确设置、输入标识、软件包版本和控制台日志与输出一起保存。实际执行示例见链接中的模块教程；编写Python脚本时，请查阅函数当前的API参考文档。"
+  ]
+}
