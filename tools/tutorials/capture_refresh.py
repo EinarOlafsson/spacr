@@ -50,8 +50,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.preview_variants and not args.preview:
         parser.error('--preview-variants requires --preview')
-    if args.settings_tour and (args.module not in {'regression', 'classify_merged'} or not args.run):
-        parser.error('--settings-tour requires --module regression/classify_merged --run')
+    if args.settings_tour and (args.module not in {'regression', 'classify_merged', 'umap'} or not args.run):
+        parser.error('--settings-tour requires --module regression/classify_merged/umap --run')
     if args.annotation_tour and args.module != 'annotate':
         parser.error('--annotation-tour requires --module annotate')
     if args.capture_name and (Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}):
@@ -586,6 +586,12 @@ def main() -> int:
                                    'normalize': False},
                        'map_barcodes': {'n_jobs': 2, 'chunk_size': 1000,
                                         'test': False, 'mode': 'paired', 'save_h5': True},
+                       'umap': {'src': str(Path.home() / '.cache/spacr/example_data/plate1'),
+                                'row_limit': 400, 'n_jobs': 2, 'random_seed': 42,
+                                'n_neighbors': 15, 'min_dist': 0.1, 'min_samples': 5,
+                                'remove_cluster_noise': False, 'image_nr': 12,
+                                'img_zoom': 0.3, 'plot_images': True, 'plot_points': True,
+                                'save_figure': True},
                        'classify_merged': {
                            'classifier_family': 'cv', 'dataset_mode': 'annotation',
                            'classes': {
@@ -704,6 +710,9 @@ def main() -> int:
             if args.settings_tour and args.module == 'regression':
                 from capture_settings import record_results
                 record_results(screen, captures, capture, settle, write_json)
+            if args.settings_tour and args.module == 'umap':
+                from capture_umap import record_explorer
+                record_explorer(screen, captures, capture, settle, write_json)
         if args.annotation_tour:
             from capture_annotate import record_annotation
             record_annotation(app, window, screen, stage, captures, capture,

@@ -26,6 +26,8 @@ def record_settings(screen, captures, capture, settle, write_json):
                             'image_source', 'model_type', 'epochs', 'batch_size',
                             'image_size', 'n_jobs', 'init_weights', 'cv_group_by',
                             'test', 'plot', 'apply_model_to_dataset'),
+        'umap': ('src', 'tables', 'reduction_method', 'row_limit',
+                 'n_neighbors', 'min_dist', 'random_seed', 'clustering', 'plot_images'),
     }
     if screen.app_key not in keys_by_module:
         raise ValueError('No measured settings tour is configured for this module')
